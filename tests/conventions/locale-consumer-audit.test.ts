@@ -388,6 +388,88 @@ function hardCodedLocaleComparisonsInSource(source: string, repoPath: string): s
   return found;
 }
 
+const ALLOWED_LOCALE_KEYED_TABLES = new Map([
+  ["scripts/audit-i18n.ts", "The translation glossary is reference data for auditing catalogs, never rendered copy."],
+]);
+
+const LOCALE_PREFIX_METHODS = new Set(["startsWith", "endsWith"]);
+
+function localeBranchingInSource(source: string, repoPath: string): string[] {
+  const localeValues = new Set<string>(REGISTERED_LOCALES);
+  const found: string[] = [];
+  const sourceFile = ts.createSourceFile(repoPath, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+
+  const record = (node: ts.Node): void => {
+    const line = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1;
+    found.push(`${repoPath}:${line}: ${node.getText(sourceFile)}`);
+  };
+
+  const isLocaleLiteral = (node: ts.Node | undefined): boolean =>
+    Boolean(node) && ts.isStringLiteralLike(node!) && localeValues.has(node!.text.toLowerCase());
+
+  const visit = (node: ts.Node): void => {
+    if (
+      ts.isCallExpression(node) &&
+      ts.isPropertyAccessExpression(node.expression) &&
+      LOCALE_PREFIX_METHODS.has(node.expression.name.text) &&
+      isLocaleLiteral(node.arguments[0])
+    ) {
+      record(node);
+    }
+
+    if (ts.isConditionalExpression(node) && isLocaleLiteral(node.whenTrue) && isLocaleLiteral(node.whenFalse))
+      record(node);
+
+    ts.forEachChild(node, visit);
+  };
+
+  visit(sourceFile);
+  return found;
+}
+
+function localeKeyedCopyTablesInSource(source: string, repoPath: string): string[] {
+  const localeValues = new Set<string>(REGISTERED_LOCALES);
+  const found: string[] = [];
+  const sourceFile = ts.createSourceFile(repoPath, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+
+  const visit = (node: ts.Node): void => {
+    if (ts.isObjectLiteralExpression(node)) {
+      const localeProperties = node.properties.filter(
+        (property): property is ts.PropertyAssignment =>
+          ts.isPropertyAssignment(property) &&
+          Boolean(propertyName(property.name)) &&
+          localeValues.has(propertyName(property.name)!.toLowerCase()),
+      );
+      const carriesCopy = localeProperties.some(
+        (property) => ts.isStringLiteralLike(property.initializer) || ts.isTemplateExpression(property.initializer),
+      );
+
+      if (localeProperties.length > 1 && carriesCopy) {
+        const line = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1;
+        found.push(`${repoPath}:${line}: ${localeProperties.map((property) => propertyName(property.name)).join(", ")}`);
+      }
+    }
+
+    ts.forEachChild(node, visit);
+  };
+
+  visit(sourceFile);
+  return found;
+}
+
+function scanProductionSources(scan: (source: string, repoPath: string) => string[]): string[] {
+  const found: string[] = [];
+
+  for (const path of scannedFiles()) {
+    const repoPath = relative(REPO_ROOT, path);
+    if (ALLOWED.has(repoPath) || !isProductionSource(repoPath)) continue;
+
+    found.push(...scan(readFileSync(path, "utf8"), repoPath));
+  }
+
+  return found;
+}
+
 function hardCodedLocaleComparisons(): string[] {
   const found: string[] = [];
 
@@ -471,6 +553,53 @@ describe("locale consumer audit", () => {
     expect(found).toHaveLength(2);
     expect(found.join("\n")).toContain('current === "de"');
     expect(found.join("\n")).toContain('case "fr"');
+  });
+
+  it.skipIf(!ENFORCED)("branches on no language prefix and narrows to no two-locale literal", () => {
+    const found = scanProductionSources(localeBranchingInSource);
+    expect(
+      found,
+      `language-prefix branching (resolve the locale through the registry and keep every app locale reachable):\n${found.join("\n")}`,
+    ).toEqual([]);
+  });
+
+  it("detects prefix checks and two-locale narrowing ternaries", () => {
+    const found = localeBranchingInSource(
+      `const german = locale.toLowerCase().startsWith("de");
+       const sent = locale.startsWith("de") ? "de" : "en";
+       const suffix = path.endsWith("fr");
+       const unrelated = name.startsWith("agent");`,
+      "fixture.ts",
+    );
+
+    expect(found).toHaveLength(4);
+    expect(found.join("\n")).not.toContain("agent");
+  });
+
+  it.skipIf(!ENFORCED)("keeps no locale-keyed copy table outside the message catalogs", () => {
+    const observed = scanProductionSources(localeKeyedCopyTablesInSource);
+    const found = observed.filter((site) => !ALLOWED_LOCALE_KEYED_TABLES.has(site.split(":")[0]));
+    const stale = [...ALLOWED_LOCALE_KEYED_TABLES.keys()].filter(
+      (file) => !observed.some((site) => site.startsWith(`${file}:`)),
+    );
+
+    expect(stale, `stale locale-keyed table exceptions:\n${stale.join("\n")}`).toEqual([]);
+    expect(
+      found,
+      `locale-keyed copy tables (move the strings into i18n/locales and take a translator):\n${found.join("\n")}`,
+    ).toEqual([]);
+  });
+
+  it("detects sibling language keys carrying copy, and spares locale-keyed module maps", () => {
+    const found = localeKeyedCopyTablesInSource(
+      `const STEP = { en: "Open the dashboard.", de: "Öffne das Dashboard." };
+       const CATALOGS = { de, en, es, fr, it };
+       const SINGLE = { en: "Only English." };`,
+      "fixture.ts",
+    );
+
+    expect(found).toHaveLength(1);
+    expect(found[0]).toContain("en, de");
   });
 
   it.skipIf(!ENFORCED)("uses explicit registry-derived locales for user-visible formatting", () => {

@@ -7,14 +7,13 @@ import fr from "@/i18n/locales/fr.json";
 import it from "@/i18n/locales/it.json";
 import { appLocaleOrDefault } from "@/i18n/locale-registry";
 
-import type { AgentSetupTranslator } from "./agent-workspace-setup";
+export type AgentTranslator = (key: string, values?: Record<string, string | number>) => string;
 
 const CATALOGS = { de, en, es, fr, it };
 
-export function agentSetupTranslator(locale: string): AgentSetupTranslator {
+export function agentTranslator(locale: string): AgentTranslator {
   const appLocale = appLocaleOrDefault(locale);
   const translate = createTranslator({ locale: appLocale, messages: CATALOGS[appLocale] });
 
-  return (key, values) =>
-    (translate as unknown as (key: string, values?: Record<string, string | number>) => string)(key, values);
+  return (key, values) => (translate as unknown as AgentTranslator)(key, values);
 }

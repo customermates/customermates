@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { sanitizeAgentVisibleText } from "./agent-output-safety";
 import { AGENT_UI_TARGET_IDS, findAgentUiTarget } from "./ui-targets";
+import type { AgentTranslator } from "./agent-translator";
 
 export const AGENT_ACTIVITY_KINDS = [
   "workspace.read",
@@ -441,9 +442,7 @@ const TARGET_ACTION_KEYS: Record<(typeof TARGET_ACTIONS)[number], string> = {
   search: "search",
 };
 
-export type AgentActivityTranslator = (key: string, values?: Record<string, string | number>) => string;
-
-function agentUiTargetCopy(targetKey: string, t: AgentActivityTranslator) {
+function agentUiTargetCopy(targetKey: string, t: AgentTranslator) {
   if (!findAgentUiTarget(targetKey)) return undefined;
   if (NAV_TARGET_IDS.has(targetKey)) return t(`AgentChat.activity.navTarget.${targetKey}`);
   if (targetKey === "dashboard-add-widget") return t("AgentChat.activity.addWidget");
@@ -465,7 +464,7 @@ function agentUiTargetCopy(targetKey: string, t: AgentActivityTranslator) {
 function countedResourceCopy(
   count: number | undefined,
   resourceKey: AgentActivityResource | undefined,
-  t: AgentActivityTranslator,
+  t: AgentTranslator,
   resource: string | undefined,
   hasCustomTerminology: boolean,
 ) {
@@ -483,7 +482,7 @@ function countedResourceCopy(
 
 function agentConsequenceDetail(
   activity: AgentActivityDescriptor,
-  t: AgentActivityTranslator,
+  t: AgentTranslator,
   resource: string | undefined,
   hasCustomTerminology: boolean,
 ) {
@@ -561,7 +560,7 @@ function agentConsequenceDetail(
 
 export function agentActivityCopy(
   activity: AgentActivityDescriptor,
-  t: AgentActivityTranslator,
+  t: AgentTranslator,
   terminology: Partial<Record<AgentActivityResource, string>> = {},
 ): ActivityCopy {
   const resource = activity.resource

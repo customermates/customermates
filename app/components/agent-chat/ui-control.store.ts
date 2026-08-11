@@ -104,9 +104,9 @@ export class AgentUiControlStore extends BaseStore {
     return { ok: true, result: `Highlighted ${targetId}.` };
   };
 
-  startGuidedTour = async (tourId: AgentTourId | undefined, locale: string) => {
+  startGuidedTour = async (tourId: AgentTourId | undefined) => {
     if (!tourId) return { ok: false, result: "The requested tour is not available." };
-    this.tourSteps = agentGuidedTour(tourId, locale);
+    this.tourSteps = agentGuidedTour(tourId, this.t);
     this.isTourPaused = false;
     this.captureFocus();
     const runVersion = ++this.tourRunVersion;

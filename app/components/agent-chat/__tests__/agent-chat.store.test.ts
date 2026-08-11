@@ -2,6 +2,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createTranslator } from "next-intl";
 
 import de from "@/i18n/locales/de.json";
+import en from "@/i18n/locales/en.json";
+
+const englishTranslator = createTranslator({ locale: "en", messages: en }) as unknown as (key: string) => string;
 
 const actionsMock = vi.hoisted(() => ({
   applyAgentWorkspaceSetupAction: vi.fn(),
@@ -57,7 +60,7 @@ function root(uiOverrides: Record<string, unknown> = {}) {
     refresh: vi.fn().mockResolvedValue(undefined),
   });
   return {
-    localeStore: { locale: "en", translation: null, getTranslation: (key: string) => key },
+    localeStore: { locale: "en", translation: null, getTranslation: englishTranslator },
     contactsStore: refreshStore(),
     organizationsStore: refreshStore(),
     dealsStore: refreshStore(),
@@ -2180,7 +2183,7 @@ describe("AgentUiControlStore", () => {
     store.registerNavigate(vi.fn().mockResolvedValue("navigated"));
 
     try {
-      await expect(store.startGuidedTour("contacts", "en")).resolves.toMatchObject({ ok: true });
+      await expect(store.startGuidedTour("contacts")).resolves.toMatchObject({ ok: true });
       expect(store.active?.stepIndex).toBe(0);
       store.nextStep();
       await vi.waitFor(() => expect(store.active?.stepIndex).toBe(2));
@@ -2212,7 +2215,7 @@ describe("AgentUiControlStore", () => {
     store.registerNavigate(vi.fn().mockResolvedValue("navigated"));
 
     try {
-      await expect(store.startGuidedTour("dashboard", "en")).resolves.toEqual({
+      await expect(store.startGuidedTour("dashboard")).resolves.toEqual({
         ok: false,
         result: "The dashboard guided tour has no available steps right now.",
       });
@@ -2242,7 +2245,7 @@ describe("AgentUiControlStore", () => {
         }),
     );
 
-    const started = store.startGuidedTour("dashboard", "en");
+    const started = store.startGuidedTour("dashboard");
     store.end();
     resolveNavigation("navigated");
     await expect(started).resolves.toMatchObject({ ok: false });

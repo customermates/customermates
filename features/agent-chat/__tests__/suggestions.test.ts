@@ -6,6 +6,20 @@ vi.mock("@/env", () => MOCK_ENV_MODULE);
 import { SUGGESTION_PAGE_IDS, suggestionPageId, suggestionVariant, type AgentDataCounts } from "../agent-chat.schema";
 import { agentPageActions, agentPageState } from "../agent-page-actions";
 import { APP_LOCALES } from "@/i18n/locale-registry";
+import { createTranslator } from "next-intl";
+
+import de from "@/i18n/locales/de.json";
+import en from "@/i18n/locales/en.json";
+import es from "@/i18n/locales/es.json";
+import fr from "@/i18n/locales/fr.json";
+import itIT from "@/i18n/locales/it.json";
+
+const CATALOGS = { de, en, es, fr, it: itIT } as const;
+const translatorFor = (locale: keyof typeof CATALOGS) => {
+  const translate = createTranslator({ locale, messages: CATALOGS[locale] });
+  return (key: string, values?: Record<string, string | number>) =>
+    (translate as unknown as (key: string, values?: Record<string, string | number>) => string)(key, values);
+};
 
 const NO_DATA: AgentDataCounts = {
   contacts: false,
@@ -64,7 +78,7 @@ describe("suggestion catalogs", () => {
   it.each(APP_LOCALES)("%s catalog returns exactly three usable actions for every page and state", (locale) => {
     for (const pageId of SUGGESTION_PAGE_IDS) {
       for (const state of ["data", "empty"] as const) {
-        const actions = agentPageActions(pageId, state, locale);
+        const actions = agentPageActions(pageId, state, translatorFor(locale), locale);
 
         expect(actions, `${pageId}.${state}`).toHaveLength(3);
         for (const action of actions) {

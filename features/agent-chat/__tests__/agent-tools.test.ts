@@ -102,6 +102,35 @@ describe("agent tools", () => {
     }
   });
 
+  it("reaches the record write tools from every app locale, not only English and German", () => {
+    const phrasings: Record<string, { create: string; ask: string; tool: string }> = {
+      es: {
+        create: "Crea un contacto nuevo para Ana Ruiz.",
+        ask: "¿Cuántos contactos tengo?",
+        tool: "create_contacts",
+      },
+      fr: {
+        create: "Ajoute une nouvelle tâche pour demain.",
+        ask: "Combien de tâches me restent-ils ?",
+        tool: "create_tasks",
+      },
+      it: {
+        create: "Aggiungi una nuova azienda chiamata Rossi Srl.",
+        ask: "Quante aziende ho?",
+        tool: "create_organizations",
+      },
+    };
+
+    for (const [locale, phrasing] of Object.entries(phrasings)) {
+      expect(selectAgentToolNames({ pageRoute: `/${locale}/dashboard`, text: phrasing.create })).toContain(
+        phrasing.tool,
+      );
+      expect(selectAgentToolNames({ pageRoute: `/${locale}/dashboard`, text: phrasing.ask })).not.toContain(
+        phrasing.tool,
+      );
+    }
+  });
+
   it("does not read write intent into a plain German question", () => {
     const tools = selectAgentToolNames({
       pageRoute: "/de/contacts",

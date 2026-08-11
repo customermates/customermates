@@ -35,24 +35,14 @@ import {
 } from "./agent-budget-policy";
 import { isAgentTurnTerminalError, type AgentTurnTerminalCode } from "./agent-turn-request";
 import { buildAgentProviderContext } from "./agent-provider-context";
-import { agentSetupTranslator } from "./agent-setup-translator";
+import { agentTranslator, type AgentTranslator } from "./agent-translator";
 
-function agentRunnerCopy(locale: string) {
-  if (locale.toLowerCase().startsWith("de")) {
-    return {
-      emptyReply: "Ich konnte keine Antwort erstellen. Bitte versuche es erneut.",
-      turnError: "Ich konnte diese Anfrage nicht abschließen. Bitte versuche es erneut.",
-      cancelled: "Diese Antwort wurde gestoppt.",
-      maxSteps:
-        "Ich konnte das nicht innerhalb der erlaubten Schritte abschließen. Für größere Aufgaben kannst du deinen eigenen KI-Agenten über MCP mit Customermates verbinden.",
-    };
-  }
+function agentRunnerCopy(t: AgentTranslator) {
   return {
-    emptyReply: "I couldn't produce a response. Please try again.",
-    turnError: "I couldn't complete that request. Please try again.",
-    cancelled: "This response was stopped.",
-    maxSteps:
-      "I couldn't finish this within the allowed number of steps. For larger jobs, connect your own AI agent to Customermates over MCP.",
+    emptyReply: t("AgentChat.runner.emptyReply"),
+    turnError: t("AgentChat.runner.turnError"),
+    cancelled: t("AgentChat.runner.cancelled"),
+    maxSteps: t("AgentChat.runner.maxSteps"),
   };
 }
 
@@ -156,7 +146,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
       const repo = getAgentChatRepo();
 
       const preAuthorized = new Set(ctx.preAuthorized);
-      const copy = agentRunnerCopy(ctx.locale);
+      const copy = agentRunnerCopy(agentTranslator(ctx.locale));
 
       const requestApproval = async (
         _toolCallId: string,
@@ -366,7 +356,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
             if (part.toolName === "open_workspace_setup") {
               const setup = PrepareAgentWorkspaceSetupSchema.safeParse(part.input);
               if (setup.success) {
-                const plan = buildAgentWorkspaceSetupPlan(setup.data, agentSetupTranslator(ctx.locale));
+                const plan = buildAgentWorkspaceSetupPlan(setup.data, agentTranslator(ctx.locale));
                 const setupPart: Extract<AgentMessagePart, { type: "workspace_setup" }> = {
                   type: "workspace_setup",
                   id: part.toolCallId,

@@ -300,6 +300,12 @@
       "turnFailed": "The assistant ran into an error."
     },
     "placeholder": "Ask your CRM…",
+    "runner": {
+      "cancelled": "This response was stopped.",
+      "emptyReply": "I couldn't produce a response. Please try again.",
+      "maxSteps": "I couldn't finish this within the allowed number of steps. For larger jobs, connect your own AI agent to Customermates over MCP.",
+      "turnError": "I couldn't complete that request. Please try again."
+    },
     "send": "Send",
     "setup": {
       "actionFailed": "The action couldn’t be completed. You can try again.",
@@ -462,6 +468,294 @@
       "widgets": "Widgets"
     },
     "stop": "Stop",
+    "suggestions": {
+      "pages": {
+        "connected-accounts": {
+          "data": {
+            "accounts-add-channel": {
+              "label": "Add another channel",
+              "prompt": "Walk me through adding another messaging channel to Customermates."
+            },
+            "accounts-list": {
+              "label": "Which accounts are connected?",
+              "prompt": "Tell me which messaging accounts are connected and what each one currently covers."
+            },
+            "accounts-sync": {
+              "label": "How does syncing work?",
+              "prompt": "Explain how Customermates syncs connected accounts and what it does with the messages it imports."
+            }
+          },
+          "empty": {
+            "accounts-connect-email": {
+              "label": "Connect my email",
+              "prompt": "Walk me through connecting my email account to Customermates."
+            },
+            "accounts-connect-linkedin": {
+              "label": "Connect LinkedIn",
+              "prompt": "Walk me through connecting LinkedIn to Customermates."
+            },
+            "accounts-connect-whatsapp": {
+              "label": "Connect WhatsApp",
+              "prompt": "Walk me through connecting WhatsApp to Customermates."
+            }
+          }
+        },
+        "contacts": {
+          "data": {
+            "contacts-cleanup": {
+              "label": "Find data gaps",
+              "prompt": "Review my contacts for missing or inconsistent information and suggest what to fix."
+            },
+            "contacts-summary": {
+              "label": "Summarize contacts",
+              "prompt": "Summarize my contacts and point out useful patterns or missing information."
+            },
+            "create-contact": {
+              "label": "Create a contact",
+              "prompt": "Help me create a contact. Ask for only the required details."
+            }
+          },
+          "empty": {
+            "contacts-tour": {
+              "label": "Learn how contacts work",
+              "prompt": "Show me around the contacts page and explain how contacts connect to the rest of the CRM."
+            },
+            "first-contact": {
+              "label": "Create my first contact",
+              "prompt": "Help me create my first contact. Ask for only the details you need."
+            },
+            "setup-contacts": {
+              "label": "Set up contacts",
+              "prompt": "Help me design and create a minimal contact setup for my business. Ask about my use case first."
+            }
+          }
+        },
+        "dashboard": {
+          "data": {
+            "dashboard-tour": {
+              "label": "Explain this dashboard",
+              "prompt": "Walk me through this dashboard and explain what each area tells me."
+            },
+            "next-actions": {
+              "label": "Recommend next actions",
+              "prompt": "Review my CRM and recommend the three highest-value next actions."
+            },
+            "summary": {
+              "label": "Summarize my workspace",
+              "prompt": "Give me a concise, decision-ready summary of my workspace."
+            }
+          },
+          "empty": {
+            "capabilities": {
+              "label": "What can I automate?",
+              "prompt": "Based on this page, explain the most useful work you can automate for me in Customermates."
+            },
+            "setup": {
+              "label": "Set up my workspace",
+              "prompt": "Help me set up Customermates for my business. Ask me a few focused questions before proposing any changes."
+            },
+            "tour": {
+              "label": "Show me around",
+              "prompt": "Give me an in-depth guided tour of Customermates and explain how the core areas work together."
+            }
+          }
+        },
+        "deals": {
+          "data": {
+            "create-deal": {
+              "label": "Create a deal",
+              "prompt": "Help me create a deal and connect all relevant records."
+            },
+            "pipeline-gaps": {
+              "label": "Find pipeline gaps",
+              "prompt": "Review my deals for missing relationships, values, or next steps."
+            },
+            "pipeline-summary": {
+              "label": "Summarize my pipeline",
+              "prompt": "Summarize my deal pipeline, risks, and most useful next actions."
+            }
+          },
+          "empty": {
+            "deals-tour": {
+              "label": "Learn how deals work",
+              "prompt": "Show me around deals and explain how to manage a pipeline in Customermates."
+            },
+            "first-deal": {
+              "label": "Create my first deal",
+              "prompt": "Help me create my first deal and link the right organization, contacts, and services."
+            },
+            "setup-pipeline": {
+              "label": "Set up my pipeline",
+              "prompt": "Help me design a minimal sales pipeline for my business, then propose the fields and example deals to create."
+            }
+          }
+        },
+        "default": {
+          "data": {
+            "default-contact-count": {
+              "label": "How many contacts do we have?",
+              "prompt": "Tell me how many contacts we have and how that has been trending."
+            },
+            "default-open-deals": {
+              "label": "What deals are open?",
+              "prompt": "Summarize the deals that are currently open and where each one stands."
+            },
+            "default-tour": {
+              "label": "Show me around the app",
+              "prompt": "Give me an in-depth guided tour of Customermates and explain how the core areas work together."
+            }
+          },
+          "empty": {
+            "default-capabilities": {
+              "label": "What can you do?",
+              "prompt": "Explain what you can do for me in Customermates and where you are most useful."
+            },
+            "default-import": {
+              "label": "How do I import my contacts?",
+              "prompt": "Walk me through importing my existing contacts into Customermates."
+            },
+            "default-setup": {
+              "label": "Help me set up my CRM",
+              "prompt": "Help me set up Customermates for my business. Ask me a few focused questions before proposing any changes."
+            }
+          }
+        },
+        "inbox": {
+          "data": {
+            "inbox-add-channel": {
+              "label": "Connect another channel",
+              "prompt": "Walk me through connecting another messaging channel to Customermates."
+            },
+            "inbox-explain-data": {
+              "label": "Show me how the inbox works",
+              "prompt": "Explain how the Customermates inbox works and how it relates to my CRM records."
+            },
+            "inbox-needs-reply": {
+              "label": "Which conversations need a reply?",
+              "prompt": "Review my inbox and tell me which conversations still need a reply, most urgent first."
+            }
+          },
+          "empty": {
+            "inbox-connect-email": {
+              "label": "Connect my email",
+              "prompt": "Walk me through connecting my email account to the Customermates inbox."
+            },
+            "inbox-connect-whatsapp": {
+              "label": "Connect WhatsApp",
+              "prompt": "Walk me through connecting WhatsApp to the Customermates inbox."
+            },
+            "inbox-explain": {
+              "label": "Show me how the inbox works",
+              "prompt": "Explain how the Customermates inbox works and how it relates to my CRM records."
+            }
+          }
+        },
+        "organizations": {
+          "data": {
+            "create-organization": {
+              "label": "Create an organization",
+              "prompt": "Help me create an organization and link the relevant records."
+            },
+            "organization-gaps": {
+              "label": "Find relationship gaps",
+              "prompt": "Find organizations missing useful contact, deal, or task relationships."
+            },
+            "organizations-summary": {
+              "label": "Summarize organizations",
+              "prompt": "Summarize my organizations and highlight the relationships that deserve attention."
+            }
+          },
+          "empty": {
+            "first-organization": {
+              "label": "Create my first organization",
+              "prompt": "Help me create my first organization and connect the right people or deals."
+            },
+            "organizations-tour": {
+              "label": "Learn how organizations work",
+              "prompt": "Show me around organizations and explain how they connect contacts, deals, and tasks."
+            },
+            "setup-organizations": {
+              "label": "Set up organizations",
+              "prompt": "Help me design and create a minimal organization setup for my business. Ask about my use case first."
+            }
+          }
+        },
+        "services": {
+          "data": {
+            "create-service": {
+              "label": "Create an offering",
+              "prompt": "Help me create a service or product with the right commercial details."
+            },
+            "service-gaps": {
+              "label": "Find catalog gaps",
+              "prompt": "Review my services or products for missing prices, relationships, or duplicated offerings."
+            },
+            "services-summary": {
+              "label": "Summarize offerings",
+              "prompt": "Summarize my services or products and how they are used in deals."
+            }
+          },
+          "empty": {
+            "first-service": {
+              "label": "Create my first offering",
+              "prompt": "Help me create my first service or product with the right name and price."
+            },
+            "services-tour": {
+              "label": "Learn how offerings work",
+              "prompt": "Show me around services and explain how offerings connect to deals and tasks."
+            },
+            "setup-services": {
+              "label": "Set up my offerings",
+              "prompt": "Help me define a minimal set of services or products for my business and create them after review."
+            }
+          }
+        },
+        "tasks": {
+          "data": {
+            "create-task": {
+              "label": "Create a task",
+              "prompt": "Help me create a task and connect it to the right records."
+            },
+            "task-gaps": {
+              "label": "Find follow-up gaps",
+              "prompt": "Find important records that appear to be missing a clear follow-up task."
+            },
+            "task-priorities": {
+              "label": "Plan my next actions",
+              "prompt": "Review my tasks and related CRM data, then recommend what I should do next."
+            }
+          },
+          "empty": {
+            "first-task": {
+              "label": "Create my first task",
+              "prompt": "Help me create my first task and connect it to the right records."
+            },
+            "setup-tasks": {
+              "label": "Set up my workflow",
+              "prompt": "Help me design a minimal task workflow for my business and propose the fields and first tasks to create."
+            },
+            "tasks-tour": {
+              "label": "Learn how tasks work",
+              "prompt": "Show me around tasks and explain how they connect to contacts, organizations, deals, and services."
+            }
+          }
+        }
+      },
+      "readOnly": {
+        "explain": {
+          "label": "Explain this page",
+          "prompt": "Explain this page, its most important information, and how to use it well. Do not make any changes."
+        },
+        "relationships": {
+          "label": "Show how it connects",
+          "prompt": "Explain how this page connects to the other areas of Customermates. Do not make any changes."
+        },
+        "tour": {
+          "label": "Take a guided tour",
+          "prompt": "Give me an in-depth guided tour of this page without changing any data."
+        }
+      }
+    },
     "support": {
       "badge": "Customermates · Support"
     },
@@ -470,6 +764,48 @@
       "done": "Done",
       "next": "Next",
       "skip": "Skip"
+    },
+    "tourSteps": {
+      "contacts": {
+        "contacts-add": "Create a contact manually here, or ask the Assistant to create and link one after showing you the proposed change.",
+        "contacts-display-options": "Display options control columns, sorting, and the view style for this page.",
+        "contacts-filter": "Filters combine standard properties, relationships, and your custom fields so recurring views stay focused.",
+        "contacts-search": "Search narrows the current list without changing your underlying data.",
+        "nav-contacts": "Contacts are the people you work with. Their organizations, deals, tasks, and conversations stay connected here."
+      },
+      "dashboard": {
+        "dashboard-add-widget": "Add a widget whenever you need a new view. Widgets can summarize CRM records by status, owner, relationship, or a custom field.",
+        "nav-dashboard": "The dashboard is your at-a-glance view of the work that matters. Each card answers one operational question."
+      },
+      "deals": {
+        "deals-add": "Create a deal here or ask the Assistant to assemble one from the context already in your CRM.",
+        "deals-display-options": "Switch the deal view and choose which signals should stay visible while you work the pipeline.",
+        "deals-filter": "Filters turn the full pipeline into practical working views by stage, owner, relationship, value, or custom field.",
+        "nav-deals": "Deals track commercial opportunities and keep the involved organization, contacts, offerings, and next tasks together."
+      },
+      "organizations": {
+        "nav-organizations": "Organizations group the people, opportunities, and follow-ups belonging to one account or company.",
+        "organizations-add": "Create an organization here, then link its contacts, deals, and tasks so the account has one shared context.",
+        "organizations-display-options": "Choose the columns and ordering that make this account view useful for your workflow.",
+        "organizations-filter": "Use filters to build account lists such as customers with open deals or organizations missing a next task."
+      },
+      "platform": {
+        "nav-dashboard": "Start on the dashboard for a visual summary of your business. You can shape it around the questions you review most often.",
+        "nav-inbox": "The inbox brings supported communication channels into one place and keeps messages connected to CRM context.",
+        "nav-search": "Global search is the fastest way to jump to a record from anywhere. The Assistant complements it when you want an answer or an action instead of a destination."
+      },
+      "services": {
+        "nav-services": "Services represent what you sell: services, products, packages, or retainers. They provide the commercial building blocks for deals.",
+        "services-add": "Create an offering with a clear name and price, then connect it to deals and delivery tasks.",
+        "services-display-options": "Display options let each team keep the useful commercial details visible.",
+        "services-filter": "Filter the catalog by relationships or custom attributes when your offering set grows."
+      },
+      "tasks": {
+        "nav-tasks": "Tasks turn CRM context into concrete follow-up. A task can stay linked to the people, account, deal, and offering it advances.",
+        "tasks-add": "Create a task here or ask the Assistant to prepare one from a conversation, deal, or missing next step.",
+        "tasks-display-options": "Display options make the same task data useful as a table, cards, or a grouped workflow.",
+        "tasks-filter": "Use filters for focused queues such as your open work, a specific customer, or tasks grouped by a custom status."
+      }
     },
     "tourUi": {
       "back": "Back",

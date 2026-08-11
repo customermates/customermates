@@ -300,6 +300,12 @@
       "turnFailed": "Se ha producido un error en el asistente."
     },
     "placeholder": "Pregunte a su CRM…",
+    "runner": {
+      "cancelled": "Esta respuesta se ha detenido.",
+      "emptyReply": "No he podido generar una respuesta. Inténtalo de nuevo.",
+      "maxSteps": "No he podido terminar esto dentro del número de pasos permitido. Para tareas más grandes, conecta tu propio agente de IA a Customermates mediante MCP.",
+      "turnError": "No he podido completar esa solicitud. Inténtalo de nuevo."
+    },
     "send": "Enviar",
     "setup": {
       "actionFailed": "No se pudo completar la acción. Puede volver a intentarlo.",
@@ -462,6 +468,294 @@
       "widgets": "Widgets"
     },
     "stop": "Detener",
+    "suggestions": {
+      "pages": {
+        "connected-accounts": {
+          "data": {
+            "accounts-add-channel": {
+              "label": "Añadir otro canal",
+              "prompt": "Guíame para añadir otro canal de mensajería a Customermates."
+            },
+            "accounts-list": {
+              "label": "¿Qué cuentas están conectadas?",
+              "prompt": "Dime qué cuentas de mensajería están conectadas y qué cubre cada una actualmente."
+            },
+            "accounts-sync": {
+              "label": "¿Cómo funciona la sincronización?",
+              "prompt": "Explícame cómo sincroniza Customermates las cuentas conectadas y qué hace con los mensajes que importa."
+            }
+          },
+          "empty": {
+            "accounts-connect-email": {
+              "label": "Conectar mi correo",
+              "prompt": "Guíame para conectar mi cuenta de correo a Customermates."
+            },
+            "accounts-connect-linkedin": {
+              "label": "Conectar LinkedIn",
+              "prompt": "Guíame para conectar LinkedIn a Customermates."
+            },
+            "accounts-connect-whatsapp": {
+              "label": "Conectar WhatsApp",
+              "prompt": "Guíame para conectar WhatsApp a Customermates."
+            }
+          }
+        },
+        "contacts": {
+          "data": {
+            "contacts-cleanup": {
+              "label": "Detectar huecos de datos",
+              "prompt": "Revisa mis contactos en busca de información incompleta o inconsistente y sugiere qué corregir."
+            },
+            "contacts-summary": {
+              "label": "Resumir contactos",
+              "prompt": "Resume mis contactos y señala patrones útiles o información que falte."
+            },
+            "create-contact": {
+              "label": "Crear un contacto",
+              "prompt": "Ayúdame a crear un contacto. Pregunta solo por los datos imprescindibles."
+            }
+          },
+          "empty": {
+            "contacts-tour": {
+              "label": "Descubrir cómo funcionan los contactos",
+              "prompt": "Enséñame la página de contactos y explícame cómo se conectan los contactos con el resto del CRM."
+            },
+            "first-contact": {
+              "label": "Crear mi primer contacto",
+              "prompt": "Ayúdame a crear mi primer contacto. Pregunta solo por los datos que necesites."
+            },
+            "setup-contacts": {
+              "label": "Configurar los contactos",
+              "prompt": "Ayúdame a diseñar y crear una configuración mínima de contactos para mi negocio. Pregunta primero por mi caso de uso."
+            }
+          }
+        },
+        "dashboard": {
+          "data": {
+            "dashboard-tour": {
+              "label": "Explicar este dashboard",
+              "prompt": "Recorre conmigo este dashboard y explícame qué me dice cada área."
+            },
+            "next-actions": {
+              "label": "Recomendar próximas acciones",
+              "prompt": "Revisa mi CRM y recomiéndame las tres próximas acciones de mayor valor."
+            },
+            "summary": {
+              "label": "Resumir mi espacio de trabajo",
+              "prompt": "Dame un resumen breve de mi espacio de trabajo, listo para tomar decisiones."
+            }
+          },
+          "empty": {
+            "capabilities": {
+              "label": "¿Qué puedo automatizar?",
+              "prompt": "A partir de esta página, explícame el trabajo más útil que puedes automatizar para mí en Customermates."
+            },
+            "setup": {
+              "label": "Configurar mi espacio de trabajo",
+              "prompt": "Ayúdame a configurar Customermates para mi negocio. Hazme unas pocas preguntas concretas antes de proponer cambios."
+            },
+            "tour": {
+              "label": "Enséñame la aplicación",
+              "prompt": "Dame una visita guiada a fondo de Customermates y explícame cómo encajan entre sí las áreas principales."
+            }
+          }
+        },
+        "deals": {
+          "data": {
+            "create-deal": {
+              "label": "Crear una oportunidad",
+              "prompt": "Ayúdame a crear una oportunidad y a conectar todos los registros relevantes."
+            },
+            "pipeline-gaps": {
+              "label": "Detectar huecos en el pipeline",
+              "prompt": "Revisa mis oportunidades en busca de relaciones, importes o próximos pasos que falten."
+            },
+            "pipeline-summary": {
+              "label": "Resumir mi pipeline",
+              "prompt": "Resume mi pipeline de oportunidades, sus riesgos y las próximas acciones más útiles."
+            }
+          },
+          "empty": {
+            "deals-tour": {
+              "label": "Descubrir cómo funcionan las oportunidades",
+              "prompt": "Enséñame las oportunidades y explícame cómo gestionar un pipeline en Customermates."
+            },
+            "first-deal": {
+              "label": "Crear mi primera oportunidad",
+              "prompt": "Ayúdame a crear mi primera oportunidad y a vincular la organización, los contactos y los servicios adecuados."
+            },
+            "setup-pipeline": {
+              "label": "Configurar mi pipeline",
+              "prompt": "Ayúdame a diseñar un pipeline de ventas mínimo para mi negocio y propón después los campos y las oportunidades de ejemplo que crear."
+            }
+          }
+        },
+        "default": {
+          "data": {
+            "default-contact-count": {
+              "label": "¿Cuántos contactos tenemos?",
+              "prompt": "Dime cuántos contactos tenemos y cómo ha evolucionado esa cifra."
+            },
+            "default-open-deals": {
+              "label": "¿Qué oportunidades están abiertas?",
+              "prompt": "Resume las oportunidades abiertas ahora mismo y en qué punto está cada una."
+            },
+            "default-tour": {
+              "label": "Enséñame la aplicación",
+              "prompt": "Dame una visita guiada a fondo de Customermates y explícame cómo encajan entre sí las áreas principales."
+            }
+          },
+          "empty": {
+            "default-capabilities": {
+              "label": "¿Qué puedes hacer?",
+              "prompt": "Explícame qué puedes hacer por mí en Customermates y en qué eres más útil."
+            },
+            "default-import": {
+              "label": "¿Cómo importo mis contactos?",
+              "prompt": "Guíame para importar a Customermates los contactos que ya tengo."
+            },
+            "default-setup": {
+              "label": "Ayúdame a configurar mi CRM",
+              "prompt": "Ayúdame a configurar Customermates para mi negocio. Hazme unas pocas preguntas concretas antes de proponer cambios."
+            }
+          }
+        },
+        "inbox": {
+          "data": {
+            "inbox-add-channel": {
+              "label": "Conectar otro canal",
+              "prompt": "Guíame para conectar otro canal de mensajería a Customermates."
+            },
+            "inbox-explain-data": {
+              "label": "Enséñame cómo funciona la bandeja de entrada",
+              "prompt": "Explícame cómo funciona la bandeja de entrada de Customermates y qué relación tiene con los registros de mi CRM."
+            },
+            "inbox-needs-reply": {
+              "label": "¿Qué conversaciones necesitan respuesta?",
+              "prompt": "Revisa mi bandeja de entrada y dime qué conversaciones siguen sin respuesta, empezando por las más urgentes."
+            }
+          },
+          "empty": {
+            "inbox-connect-email": {
+              "label": "Conectar mi correo",
+              "prompt": "Guíame para conectar mi cuenta de correo a la bandeja de entrada de Customermates."
+            },
+            "inbox-connect-whatsapp": {
+              "label": "Conectar WhatsApp",
+              "prompt": "Guíame para conectar WhatsApp a la bandeja de entrada de Customermates."
+            },
+            "inbox-explain": {
+              "label": "Enséñame cómo funciona la bandeja de entrada",
+              "prompt": "Explícame cómo funciona la bandeja de entrada de Customermates y qué relación tiene con los registros de mi CRM."
+            }
+          }
+        },
+        "organizations": {
+          "data": {
+            "create-organization": {
+              "label": "Crear una organización",
+              "prompt": "Ayúdame a crear una organización y a vincular los registros relevantes."
+            },
+            "organization-gaps": {
+              "label": "Detectar huecos en las relaciones",
+              "prompt": "Busca organizaciones a las que les falten relaciones útiles con contactos, oportunidades o tareas."
+            },
+            "organizations-summary": {
+              "label": "Resumir organizaciones",
+              "prompt": "Resume mis organizaciones y destaca las relaciones que merecen atención."
+            }
+          },
+          "empty": {
+            "first-organization": {
+              "label": "Crear mi primera organización",
+              "prompt": "Ayúdame a crear mi primera organización y a conectar las personas u oportunidades adecuadas."
+            },
+            "organizations-tour": {
+              "label": "Descubrir cómo funcionan las organizaciones",
+              "prompt": "Enséñame las organizaciones y explícame cómo conectan contactos, oportunidades y tareas."
+            },
+            "setup-organizations": {
+              "label": "Configurar las organizaciones",
+              "prompt": "Ayúdame a diseñar y crear una configuración mínima de organizaciones para mi negocio. Pregunta primero por mi caso de uso."
+            }
+          }
+        },
+        "services": {
+          "data": {
+            "create-service": {
+              "label": "Crear una oferta",
+              "prompt": "Ayúdame a crear un servicio o producto con los datos comerciales adecuados."
+            },
+            "service-gaps": {
+              "label": "Detectar huecos en el catálogo",
+              "prompt": "Revisa mis servicios o productos en busca de precios que falten, relaciones ausentes u ofertas duplicadas."
+            },
+            "services-summary": {
+              "label": "Resumir las ofertas",
+              "prompt": "Resume mis servicios o productos y cómo se usan en las oportunidades."
+            }
+          },
+          "empty": {
+            "first-service": {
+              "label": "Crear mi primera oferta",
+              "prompt": "Ayúdame a crear mi primer servicio o producto con el nombre y el precio adecuados."
+            },
+            "services-tour": {
+              "label": "Descubrir cómo funcionan las ofertas",
+              "prompt": "Enséñame los servicios y explícame cómo se conectan las ofertas con las oportunidades y las tareas."
+            },
+            "setup-services": {
+              "label": "Configurar mis ofertas",
+              "prompt": "Ayúdame a definir un conjunto mínimo de servicios o productos para mi negocio y créalos tras revisarlos."
+            }
+          }
+        },
+        "tasks": {
+          "data": {
+            "create-task": {
+              "label": "Crear una tarea",
+              "prompt": "Ayúdame a crear una tarea y a conectarla con los registros adecuados."
+            },
+            "task-gaps": {
+              "label": "Detectar seguimientos pendientes",
+              "prompt": "Busca registros importantes que parezcan no tener una tarea de seguimiento clara."
+            },
+            "task-priorities": {
+              "label": "Planificar mis próximas acciones",
+              "prompt": "Revisa mis tareas y los datos del CRM relacionados y recomiéndame qué hacer a continuación."
+            }
+          },
+          "empty": {
+            "first-task": {
+              "label": "Crear mi primera tarea",
+              "prompt": "Ayúdame a crear mi primera tarea y a conectarla con los registros adecuados."
+            },
+            "setup-tasks": {
+              "label": "Configurar mi flujo de trabajo",
+              "prompt": "Ayúdame a diseñar un flujo de tareas mínimo para mi negocio y propón los campos y las primeras tareas que crear."
+            },
+            "tasks-tour": {
+              "label": "Descubrir cómo funcionan las tareas",
+              "prompt": "Enséñame las tareas y explícame cómo se conectan con contactos, organizaciones, oportunidades y servicios."
+            }
+          }
+        }
+      },
+      "readOnly": {
+        "explain": {
+          "label": "Explicar esta página",
+          "prompt": "Explícame esta página, la información más importante y cómo aprovecharla bien. No hagas ningún cambio."
+        },
+        "relationships": {
+          "label": "Mostrar cómo se conecta",
+          "prompt": "Explícame cómo se conecta esta página con las demás áreas de Customermates. No hagas ningún cambio."
+        },
+        "tour": {
+          "label": "Hacer una visita guiada",
+          "prompt": "Dame una visita guiada a fondo de esta página sin modificar ningún dato."
+        }
+      }
+    },
     "support": {
       "badge": "Customermates · Soporte"
     },
@@ -470,6 +764,48 @@
       "done": "Finalizar",
       "next": "Siguiente",
       "skip": "Omitir"
+    },
+    "tourSteps": {
+      "contacts": {
+        "contacts-add": "Crea un contacto manualmente aquí, o pide al Asistente que cree y vincule uno tras mostrarte el cambio propuesto.",
+        "contacts-display-options": "Las opciones de visualización controlan las columnas, el orden y el estilo de vista de esta página.",
+        "contacts-filter": "Los filtros combinan propiedades estándar, relaciones y tus campos personalizados para que las vistas recurrentes sigan enfocadas.",
+        "contacts-search": "La búsqueda acota la lista actual sin modificar los datos subyacentes.",
+        "nav-contacts": "Los contactos son las personas con las que trabajas. Sus organizaciones, oportunidades, tareas y conversaciones permanecen conectadas aquí."
+      },
+      "dashboard": {
+        "dashboard-add-widget": "Añade un widget siempre que necesites una vista nueva. Los widgets pueden resumir registros del CRM por estado, responsable, relación o campo personalizado.",
+        "nav-dashboard": "El dashboard es tu vista de un vistazo del trabajo que importa. Cada tarjeta responde a una pregunta operativa."
+      },
+      "deals": {
+        "deals-add": "Crea aquí una oportunidad o pide al Asistente que la componga a partir del contexto que ya hay en tu CRM.",
+        "deals-display-options": "Cambia la vista de oportunidades y elige qué señales deben permanecer visibles mientras trabajas el pipeline.",
+        "deals-filter": "Los filtros convierten todo el pipeline en vistas de trabajo prácticas por etapa, responsable, relación, importe o campo personalizado.",
+        "nav-deals": "Las oportunidades siguen el rastro de las ocasiones comerciales y mantienen juntos la organización implicada, los contactos, las ofertas y las próximas tareas."
+      },
+      "organizations": {
+        "nav-organizations": "Las organizaciones agrupan las personas, las oportunidades y los seguimientos que pertenecen a una misma cuenta o empresa.",
+        "organizations-add": "Crea aquí una organización y vincula después sus contactos, oportunidades y tareas para que la cuenta tenga un contexto compartido.",
+        "organizations-display-options": "Elige las columnas y el orden que hacen útil esta vista de cuentas para tu forma de trabajar.",
+        "organizations-filter": "Usa los filtros para crear listas de cuentas, como clientes con oportunidades abiertas u organizaciones sin una próxima tarea."
+      },
+      "platform": {
+        "nav-dashboard": "Empieza en el dashboard con un resumen visual de tu negocio. Puedes adaptarlo a las preguntas que revisas más a menudo.",
+        "nav-inbox": "La bandeja de entrada reúne los canales de comunicación admitidos en un solo lugar y mantiene los mensajes conectados al contexto del CRM.",
+        "nav-search": "La búsqueda global es la forma más rápida de saltar a un registro desde cualquier sitio. El Asistente la complementa cuando quieres una respuesta o una acción en lugar de un destino."
+      },
+      "services": {
+        "nav-services": "Los servicios representan lo que vendes: servicios, productos, paquetes o iguales. Son los componentes comerciales de las oportunidades.",
+        "services-add": "Crea una oferta con un nombre y un precio claros y conéctala después a oportunidades y tareas de entrega.",
+        "services-display-options": "Las opciones de visualización permiten que cada equipo mantenga a la vista los datos comerciales que le sirven.",
+        "services-filter": "Filtra el catálogo por relaciones o atributos personalizados cuando crezca tu conjunto de ofertas."
+      },
+      "tasks": {
+        "nav-tasks": "Las tareas convierten el contexto del CRM en seguimiento concreto. Una tarea puede permanecer vinculada a las personas, la cuenta, la oportunidad y la oferta que impulsa.",
+        "tasks-add": "Crea aquí una tarea o pide al Asistente que prepare una a partir de una conversación, una oportunidad o un próximo paso que falte.",
+        "tasks-display-options": "Las opciones de visualización hacen que los mismos datos de tareas sean útiles como tabla, tarjetas o flujo agrupado.",
+        "tasks-filter": "Usa los filtros para colas enfocadas, como tu trabajo abierto, un cliente concreto o las tareas agrupadas por un estado personalizado."
+      }
     },
     "tourUi": {
       "back": "Atrás",

@@ -38,6 +38,7 @@ import {
   respondToApprovalAction,
   respondToUiCommandAction,
 } from "./actions";
+import { appLocaleOrDefault } from "@/i18n/locale-registry";
 
 export type AgentChatItem =
   | { kind: "user"; id: string; messageId: string; text: string; at?: Date }
@@ -788,9 +789,7 @@ export class AgentChatStore extends BaseStore {
   };
 
   private markActiveTurnStopped() {
-    const stopped = this.rootStore.localeStore.locale.toLowerCase().startsWith("de")
-      ? "Diese Antwort wurde gestoppt."
-      : "This response was stopped.";
+    const stopped = this.t("AgentChat.runner.cancelled");
     let currentAssistant: Extract<AgentChatItem, { kind: "assistant" }> | null = null;
     for (let index = this.items.length - 1; index >= 0; index -= 1) {
       const item = this.items[index];
@@ -1178,7 +1177,7 @@ export class AgentChatStore extends BaseStore {
           clientRequestId: messageId,
           text: trimmed,
           pageContext: { route: pageRoute },
-          locale: this.rootStore.localeStore.locale.toLowerCase().startsWith("de") ? "de" : "en",
+          locale: appLocaleOrDefault(this.rootStore.localeStore.locale),
           retry: Boolean(options.retry),
         }),
         signal: controller.signal,
@@ -1603,10 +1602,7 @@ export class AgentChatStore extends BaseStore {
       const run = async () =>
         command.name === "highlight_element"
           ? ui.highlight(String(command.input.targetId ?? ""))
-          : await ui.startGuidedTour(
-              AgentTourIdSchema.safeParse(command.input.tourId).data,
-              this.rootStore.localeStore.locale,
-            );
+          : await ui.startGuidedTour(AgentTourIdSchema.safeParse(command.input.tourId).data);
 
       const first = await run();
       if (first.ok) return first;

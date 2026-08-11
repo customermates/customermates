@@ -5,6 +5,9 @@ import { APP_LOCALES } from "@/i18n/locale-registry";
 
 import en from "@/i18n/locales/en.json";
 import de from "@/i18n/locales/de.json";
+import es from "@/i18n/locales/es.json";
+import fr from "@/i18n/locales/fr.json";
+import itLocale from "@/i18n/locales/it.json";
 
 import { AgentActivityDescriptorSchema, agentActivityCopy, describeAgentTool } from "../agent-activity";
 import { agentActionPageFromPathname, agentPageActions, agentPageState } from "../agent-page-actions";
@@ -18,7 +21,7 @@ import {
 import { AGENT_UI_TARGET_IDS } from "../ui-targets";
 import { AgentVisibleTextStreamSanitizer, sanitizeAgentVisibleText } from "../agent-output-safety";
 
-const AGENT_CATALOGS = { de, en } as const;
+const AGENT_CATALOGS = { de, en, es, fr, it: itLocale } as const;
 const translatorFor = (locale: keyof typeof AGENT_CATALOGS) => {
   const translate = createTranslator({ locale, messages: AGENT_CATALOGS[locale] });
   return (key: string, values?: Record<string, string | number>) =>
@@ -39,26 +42,26 @@ const EMPTY_COUNTS = {
 describe("agent experience contract", () => {
   it("selects exactly three deterministic actions from page data state", () => {
     expect(agentPageState("contacts", EMPTY_COUNTS)).toBe("empty");
-    expect(agentPageActions("contacts", "empty", "en")).toHaveLength(3);
-    expect(agentPageActions("contacts", "empty", "en")).toEqual(agentPageActions("contacts", "empty", "en"));
+    expect(agentPageActions("contacts", "empty", enT, "en")).toHaveLength(3);
+    expect(agentPageActions("contacts", "empty", enT, "en")).toEqual(agentPageActions("contacts", "empty", enT, "en"));
 
     const populated = { ...EMPTY_COUNTS, contacts: true };
     expect(agentPageState("contacts", populated)).toBe("data");
-    expect(agentPageActions("contacts", "data", "en").map((action) => action.id)).not.toEqual(
-      agentPageActions("contacts", "empty", "en").map((action) => action.id),
+    expect(agentPageActions("contacts", "data", enT, "en").map((action) => action.id)).not.toEqual(
+      agentPageActions("contacts", "empty", enT, "en").map((action) => action.id),
     );
 
     for (const page of ["dashboard", "tasks", "contacts", "organizations", "deals", "services"] as const) {
       for (const state of ["empty", "data"] as const) {
-        expect(agentPageActions(page, state, "en")).toHaveLength(3);
-        expect(agentPageActions(page, state, "de")).toHaveLength(3);
-        expect(new Set(agentPageActions(page, state, "en").map((action) => action.id)).size).toBe(3);
+        expect(agentPageActions(page, state, enT, "en")).toHaveLength(3);
+        expect(agentPageActions(page, state, deT, "de")).toHaveLength(3);
+        expect(new Set(agentPageActions(page, state, enT, "en").map((action) => action.id)).size).toBe(3);
       }
     }
   });
 
   it("substitutes exactly three permission-safe actions and resolves the current page path", () => {
-    const actions = agentPageActions("contacts", "empty", "en", {
+    const actions = agentPageActions("contacts", "empty", enT, "en", {
       canCreate: false,
     });
 
@@ -72,7 +75,7 @@ describe("agent experience contract", () => {
   });
 
   it("hides broad setup actions without broad setup access and applies workspace terminology", () => {
-    const actions = agentPageActions("contacts", "empty", "en", {
+    const actions = agentPageActions("contacts", "empty", enT, "en", {
       canCreate: true,
       canSetupWorkspace: false,
       terminology: {
@@ -95,12 +98,12 @@ describe("agent experience contract", () => {
   });
 
   it("applies custom terminology in one pass without rewriting replacement text", () => {
-    const english = agentPageActions("contacts", "data", "en", {
+    const english = agentPageActions("contacts", "data", enT, "en", {
       terminology: {
         contacts: { singular: "Customer contact", plural: "Customer contacts" },
       },
     });
-    const german = agentPageActions("contacts", "data", "de", {
+    const german = agentPageActions("contacts", "data", deT, "de", {
       terminology: {
         contacts: { singular: "Kunden-Kontakt", plural: "Kunden-Kontakte" },
       },
@@ -457,7 +460,7 @@ describe("agent experience contract", () => {
     const allowlist = new Set<string>(AGENT_UI_TARGET_IDS);
 
     for (const locale of APP_LOCALES) {
-      const tour = agentGuidedTour("platform", locale);
+      const tour = agentGuidedTour("platform", translatorFor(locale));
       expect(tour.length).toBeGreaterThan(8);
       expect(tour.every((step) => allowlist.has(step.targetId))).toBe(true);
       expect(tour.every((step) => step.note.length > 20)).toBe(true);

@@ -77,11 +77,62 @@ const ENTITY_WRITE_TOOLS = {
 } as const;
 
 const ENTITY_HINTS = {
-  contact: ["contact", "person", "lead", "kontakt", "person", "ansprechpartner"],
-  organization: ["organization", "organisation", "company", "account", "firma", "unternehmen"],
-  deal: ["deal", "opportunity", "pipeline", "geschäft", "verkauf", "chance"],
-  service: ["service", "product", "catalog", "leistung", "produkt", "katalog"],
-  task: ["task", "todo", "to-do", "aufgabe", "erinnerung"],
+  contact: ["contact", "person", "lead", "kontakt", "ansprechpartner", "contatt"],
+  organization: [
+    "organization",
+    "organisation",
+    "company",
+    "account",
+    "firma",
+    "unternehmen",
+    "organizaci",
+    "organizz",
+    "empresa",
+    "entreprise",
+    "azienda",
+    "socie",
+  ],
+  deal: [
+    "deal",
+    "opportunity",
+    "opportunit",
+    "pipeline",
+    "geschäft",
+    "verkauf",
+    "chance",
+    "negocio",
+    "oportunidad",
+    "affaire",
+    "affare",
+    "trattativa",
+  ],
+  service: [
+    "service",
+    "product",
+    "catalog",
+    "leistung",
+    "produkt",
+    "katalog",
+    "servici",
+    "serviz",
+    "produi",
+    "prodott",
+    "catálogo",
+  ],
+  task: [
+    "task",
+    "todo",
+    "to-do",
+    "aufgabe",
+    "erinnerung",
+    "tarea",
+    "tâche",
+    "compito",
+    "attivit",
+    "rappel",
+    "recordatorio",
+    "promemoria",
+  ],
 } as const;
 
 const MESSAGING_TOOL_NAMES = [
@@ -145,6 +196,23 @@ export function selectAgentToolNames(args: {
       "eintrag",
       "speicher",
       "pfleg",
+      "crear",
+      "añad",
+      "agreg",
+      "nuev",
+      "actualiz",
+      "modific",
+      "establec",
+      "registr",
+      "créer",
+      "ajout",
+      "nouve",
+      "mettre à jour",
+      "enregistr",
+      "aggiung",
+      "aggiorn",
+      "inserir",
+      "insert",
     ]) || GERMAN_WRITE_VERB_STEM_PATTERN.test(request);
 
   for (const [entity, hints] of Object.entries(ENTITY_HINTS) as Array<[keyof typeof ENTITY_HINTS, readonly string[]]>) {
@@ -153,22 +221,96 @@ export function selectAgentToolNames(args: {
       ENTITY_WRITE_TOOLS[entity].forEach((name) => selected.add(name));
   }
 
-  if (includesAny(request, ["delete", "remove", "erase", "löschen", "entfern"])) selected.add("delete_records");
-  if (includesAny(request, ["note", "notes", "notiz"])) selected.add("update_record_notes");
-  if (includesAny(request, ["link", "relation", "relationship", "verknüpf", "zuord"]))
+  if (
+    includesAny(request, ["delete", "remove", "erase", "löschen", "entfern", "elimin", "borrar", "supprim", "cancell"])
+  )
+    selected.add("delete_records");
+  if (includesAny(request, ["note", "notes", "notiz", "nota"])) selected.add("update_record_notes");
+  if (
+    includesAny(request, [
+      "link",
+      "relation",
+      "relationship",
+      "verknüpf",
+      "zuord",
+      "enlac",
+      "vincul",
+      "relaci",
+      "relier",
+      " lien",
+      "colleg",
+    ])
+  )
     selected.add("manage_record_links");
 
-  if (includesAny(request, ["inbox", "message", "email", "e-mail", "calendar", "chat", "nachricht", "kalender"]))
+  if (
+    includesAny(request, [
+      "inbox",
+      "message",
+      "email",
+      "e-mail",
+      "calendar",
+      "chat",
+      "nachricht",
+      "kalender",
+      "mensaje",
+      "messagg",
+      "correo",
+      "courriel",
+      "calendri",
+    ])
+  )
     MESSAGING_TOOL_NAMES.forEach((name) => selected.add(name));
-  if (includesAny(request, ["column", "custom field", "custom-field", "spalte", "eigenes feld"]))
+  if (
+    includesAny(request, [
+      "column",
+      "custom field",
+      "custom-field",
+      "spalte",
+      "eigenes feld",
+      "colonn",
+      "campo personaliz",
+      "champ personnalis",
+    ])
+  )
     selected.add("manage_custom_columns");
-  if (includesAny(request, ["widget", "chart", "diagramm"])) selected.add("manage_widgets");
+  if (includesAny(request, ["widget", "chart", "diagramm", "gráfic", "grafic", "graphiq"]))
+    selected.add("manage_widgets");
   if (includesAny(request, ["webhook"])) selected.add("manage_webhooks");
-  if (includesAny(request, ["team", "member", "seat", "user", "mitglied", "benutzer"])) {
+  if (
+    includesAny(request, [
+      "team",
+      "member",
+      "seat",
+      "user",
+      "mitglied",
+      "benutzer",
+      "equipo",
+      "équipe",
+      "squadra",
+      "membr",
+      "usuario",
+      "utilisateur",
+      "utente",
+    ])
+  ) {
     selected.add("list_users");
     selected.add("manage_team");
   }
-  if (includesAny(request, ["workspace setting", "company setting", "arbeitsbereich", "firmeneinstellung"]))
+  if (
+    includesAny(request, [
+      "workspace setting",
+      "company setting",
+      "arbeitsbereich",
+      "firmeneinstellung",
+      "espacio de trabajo",
+      "espace de travail",
+      "spazio di lavoro",
+      "ajustes",
+      "paramètre",
+      "impostazion",
+    ])
+  )
     selected.add("update_workspace_settings");
 
   return hostedAgentToolNames().filter((name) => selected.has(name));

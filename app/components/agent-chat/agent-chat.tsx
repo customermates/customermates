@@ -482,6 +482,7 @@ const AgentChatPanel = observer(function AgentChatPanel() {
 const SuggestedQuestions = observer(function SuggestedQuestions() {
   const { agentChatStore: store, userStore } = useRootStore();
   const { map } = useEntityTerminology();
+  const t = useTranslations();
   const locale = useLocale();
   const pathname = usePathname();
   if (!store.counts) return null;
@@ -508,7 +509,7 @@ const SuggestedQuestions = observer(function SuggestedQuestions() {
   const canCreate =
     pageId === "dashboard" ? canSetupWorkspace : Boolean(pageResource && userStore.can(pageResource, Action.create));
   const terminology = map();
-  const actions = agentPageActions(pageId, agentPageState(pageId, store.counts), locale, {
+  const actions = agentPageActions(pageId, agentPageState(pageId, store.counts), t, locale, {
     canCreate,
     canSetupWorkspace,
     terminology: {

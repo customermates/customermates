@@ -2,6 +2,7 @@ import { z } from "zod";
 import { EntityType } from "@/generated/prisma";
 
 import { sanitizeAgentVisibleText } from "./agent-output-safety";
+import type { AgentTranslator } from "./agent-translator";
 
 function visibleText(max: number) {
   return z
@@ -635,9 +636,7 @@ const SETUP_TEXT_KEYS: Record<string, string> = {
   Active: "active",
 };
 
-export type AgentSetupTranslator = (key: string, values?: Record<string, string | number>) => string;
-
-function localizeSetupText(value: string, t: AgentSetupTranslator) {
+function localizeSetupText(value: string, t: AgentTranslator) {
   const key = SETUP_TEXT_KEYS[value];
   if (!key) return value;
 
@@ -646,7 +645,7 @@ function localizeSetupText(value: string, t: AgentSetupTranslator) {
 
 export function buildAgentWorkspaceSetupPlan(
   data: PrepareAgentWorkspaceSetupData,
-  translate: AgentSetupTranslator = (_key) => "",
+  translate: AgentTranslator = (_key) => "",
 ): AgentWorkspaceSetupPlan {
   const requestedColumns: AgentSetupColumnPlan[] = (data.customFields ?? []).map((field, index) => ({
     semanticKey: `custom-field-${index + 1}`,
