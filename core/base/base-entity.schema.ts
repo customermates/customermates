@@ -14,10 +14,7 @@ export const UserReferenceSchema = z.object({
   id: z.uuid(),
   firstName: z.string(),
   lastName: z.string(),
-  avatarUrl: z
-    .string()
-    .nullable()
-    .describe("Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."),
+  avatarUrl: z.string().nullable(),
   email: z.email(),
 });
 
@@ -30,10 +27,7 @@ export const ContactReferenceSchema = z.object({
   id: z.uuid(),
   firstName: z.string(),
   lastName: z.string(),
-  avatarUrl: z
-    .string()
-    .nullable()
-    .describe("Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."),
+  avatarUrl: z.string().nullable(),
 });
 export type ContactReference = z.infer<typeof ContactReferenceSchema>;
 

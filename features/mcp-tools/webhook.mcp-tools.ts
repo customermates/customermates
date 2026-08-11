@@ -5,7 +5,7 @@ import {
   validationError,
   runInteractor,
   enumHint,
-  formatForResponse,
+  formatDatesInResponse,
   mcpPage,
   mcpPageSize,
   customErrorMessage,
@@ -172,7 +172,7 @@ export const manageWebhooksTool = {
         }),
         (data) =>
           encodeToToon(
-            formatForResponse(
+            formatDatesInResponse(
               data.items.map((webhook) => ({
                 id: webhook.id,
                 url: webhook.url,
@@ -223,7 +223,7 @@ export const manageWebhooksTool = {
       const webhook = result.data;
       if (!webhook) return await customErrorMessage(CustomErrorCode.webhookNotFound);
       return encodeToToon(
-        formatForResponse({
+        formatDatesInResponse({
           id: webhook.id,
           url: webhook.url,
           description: webhook.description,
@@ -263,7 +263,7 @@ export const manageWebhooksTool = {
         }),
         (data) =>
           encodeToToon({
-            items: formatForResponse(data.items),
+            items: formatDatesInResponse(data.items),
             total: data.pagination?.total ?? data.items.length,
             page: parsed.data.page,
           }),

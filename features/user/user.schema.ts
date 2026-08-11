@@ -13,10 +13,7 @@ export const UserDtoSchema = z.object({
   roleId: z.uuid().nullable(),
   status: z.enum(Status),
   country: z.enum(CountryCode),
-  avatarUrl: z
-    .string()
-    .nullable()
-    .describe("Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."),
+  avatarUrl: z.string().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });

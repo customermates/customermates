@@ -1,8 +1,8 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 
-import { formatForResponse } from "../utils";
+import { formatDatesInResponse } from "../utils";
 
-describe("formatForResponse", () => {
+describe("formatDatesInResponse", () => {
   it("serializes Date values as stable UTC ISO strings throughout nested data", () => {
     const input = {
       createdAt: new Date("2025-03-30T00:30:00.000Z"),
@@ -10,7 +10,7 @@ describe("formatForResponse", () => {
       tuple: [new Date("2024-01-02T03:04:05.000Z"), "kept"] as const,
     };
 
-    const result = formatForResponse(input);
+    const result = formatDatesInResponse(input);
 
     expect(result).toEqual({
       createdAt: "2025-03-30T00:30:00.000Z",
@@ -30,10 +30,10 @@ describe("formatForResponse", () => {
       empty: null,
     };
 
-    expect(formatForResponse(input)).toEqual(input);
+    expect(formatDatesInResponse(input)).toEqual(input);
   });
 
   it("serializes invalid Date objects deterministically without throwing", () => {
-    expect(formatForResponse({ date: new Date(Number.NaN) })).toEqual({ date: "Invalid Date" });
+    expect(formatDatesInResponse({ date: new Date(Number.NaN) })).toEqual({ date: "Invalid Date" });
   });
 });

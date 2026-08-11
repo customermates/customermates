@@ -61,8 +61,7 @@
                         {
                           "type": "null"
                         }
-                      ],
-                      "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                      ]
                     },
                     "notes": {
                       "description": "Markdown content",
@@ -191,8 +190,7 @@
                               {
                                 "type": "null"
                               }
-                            ],
-                            "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                            ]
                           },
                           "email": {
                             "type": "string",
@@ -402,8 +400,7 @@
                           {
                             "type": "null"
                           }
-                        ],
-                        "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                        ]
                       },
                       "notes": {
                         "description": "Markdown content",
@@ -532,8 +529,7 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                              ]
                             },
                             "email": {
                               "type": "string",
@@ -742,8 +738,7 @@
                           {
                             "type": "null"
                           }
-                        ],
-                        "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                        ]
                       },
                       "notes": {
                         "description": "Markdown content",
@@ -872,8 +867,7 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                              ]
                             },
                             "email": {
                               "type": "string",
@@ -2666,8 +2660,7 @@
                               {
                                 "type": "null"
                               }
-                            ],
-                            "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                            ]
                           },
                           "notes": {
                             "description": "Markdown content",
@@ -2796,8 +2789,7 @@
                                     {
                                       "type": "null"
                                     }
-                                  ],
-                                  "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                  ]
                                 },
                                 "email": {
                                   "type": "string",
@@ -3917,8 +3909,7 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                              ]
                             },
                             "notes": {
                               "description": "Markdown content",
@@ -4047,8 +4038,7 @@
                                       {
                                         "type": "null"
                                       }
-                                    ],
-                                    "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                    ]
                                   },
                                   "email": {
                                     "type": "string",
@@ -5194,8 +5184,7 @@
                         {
                           "type": "null"
                         }
-                      ],
-                      "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                      ]
                     },
                     "notes": {
                       "description": "Markdown content",
@@ -5324,8 +5313,7 @@
                               {
                                 "type": "null"
                               }
-                            ],
-                            "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                            ]
                           },
                           "email": {
                             "type": "string",
@@ -5640,8 +5628,7 @@
                               {
                                 "type": "null"
                               }
-                            ],
-                            "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                            ]
                           }
                         },
                         "required": [
@@ -5677,8 +5664,7 @@
                               {
                                 "type": "null"
                               }
-                            ],
-                            "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                            ]
                           },
                           "email": {
                             "type": "string",
@@ -5913,8 +5899,7 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                              ]
                             }
                           },
                           "required": [
@@ -5950,8 +5935,7 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                              ]
                             },
                             "email": {
                               "type": "string",
@@ -6185,8 +6169,7 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                              ]
                             }
                           },
                           "required": [
@@ -6222,8 +6205,7 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                              ]
                             },
                             "email": {
                               "type": "string",
@@ -8040,8 +8022,7 @@
                                     {
                                       "type": "null"
                                     }
-                                  ],
-                                  "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                  ]
                                 }
                               },
                               "required": [
@@ -8077,8 +8058,7 @@
                                     {
                                       "type": "null"
                                     }
-                                  ],
-                                  "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                  ]
                                 },
                                 "email": {
                                   "type": "string",
@@ -9221,8 +9201,7 @@
                                       {
                                         "type": "null"
                                       }
-                                    ],
-                                    "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                    ]
                                   }
                                 },
                                 "required": [
@@ -9258,8 +9237,7 @@
                                       {
                                         "type": "null"
                                       }
-                                    ],
-                                    "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                    ]
                                   },
                                   "email": {
                                     "type": "string",
@@ -10379,8 +10357,7 @@
                               {
                                 "type": "null"
                               }
-                            ],
-                            "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                            ]
                           }
                         },
                         "required": [
@@ -10416,8 +10393,7 @@
                               {
                                 "type": "null"
                               }
-                            ],
-                            "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                            ]
                           },
                           "email": {
                             "type": "string",
@@ -10754,8 +10730,7 @@
                               {
                                 "type": "null"
                               }
-                            ],
-                            "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                            ]
                           },
                           "email": {
                             "type": "string",
@@ -10797,8 +10772,7 @@
                               {
                                 "type": "null"
                               }
-                            ],
-                            "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                            ]
                           }
                         },
                         "required": [
@@ -11065,8 +11039,7 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                              ]
                             },
                             "email": {
                               "type": "string",
@@ -11108,8 +11081,7 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                              ]
                             }
                           },
                           "required": [
@@ -11375,8 +11347,7 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                              ]
                             },
                             "email": {
                               "type": "string",
@@ -11418,8 +11389,7 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                              ]
                             }
                           },
                           "required": [
@@ -13268,8 +13238,7 @@
                                     {
                                       "type": "null"
                                     }
-                                  ],
-                                  "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                  ]
                                 },
                                 "email": {
                                   "type": "string",
@@ -13311,8 +13280,7 @@
                                     {
                                       "type": "null"
                                     }
-                                  ],
-                                  "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                  ]
                                 }
                               },
                               "required": [
@@ -14487,8 +14455,7 @@
                                       {
                                         "type": "null"
                                       }
-                                    ],
-                                    "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                    ]
                                   },
                                   "email": {
                                     "type": "string",
@@ -14530,8 +14497,7 @@
                                       {
                                         "type": "null"
                                       }
-                                    ],
-                                    "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                    ]
                                   }
                                 },
                                 "required": [
@@ -15711,8 +15677,7 @@
                               {
                                 "type": "null"
                               }
-                            ],
-                            "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                            ]
                           },
                           "email": {
                             "type": "string",
@@ -15754,8 +15719,7 @@
                               {
                                 "type": "null"
                               }
-                            ],
-                            "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                            ]
                           }
                         },
                         "required": [
@@ -16073,8 +16037,7 @@
                               {
                                 "type": "null"
                               }
-                            ],
-                            "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                            ]
                           },
                           "email": {
                             "type": "string",
@@ -16312,8 +16275,7 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                              ]
                             },
                             "email": {
                               "type": "string",
@@ -16550,8 +16512,7 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                              ]
                             },
                             "email": {
                               "type": "string",
@@ -18371,8 +18332,7 @@
                                     {
                                       "type": "null"
                                     }
-                                  ],
-                                  "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                  ]
                                 },
                                 "email": {
                                   "type": "string",
@@ -19518,8 +19478,7 @@
                                       {
                                         "type": "null"
                                       }
-                                    ],
-                                    "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                    ]
                                   },
                                   "email": {
                                     "type": "string",
@@ -20631,8 +20590,7 @@
                               {
                                 "type": "null"
                               }
-                            ],
-                            "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                            ]
                           },
                           "email": {
                             "type": "string",
@@ -20949,8 +20907,7 @@
                               {
                                 "type": "null"
                               }
-                            ],
-                            "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                            ]
                           },
                           "email": {
                             "type": "string",
@@ -20992,8 +20949,7 @@
                               {
                                 "type": "null"
                               }
-                            ],
-                            "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                            ]
                           }
                         },
                         "required": [
@@ -21248,8 +21204,7 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                              ]
                             },
                             "email": {
                               "type": "string",
@@ -21291,8 +21246,7 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                              ]
                             }
                           },
                           "required": [
@@ -21546,8 +21500,7 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                              ]
                             },
                             "email": {
                               "type": "string",
@@ -21589,8 +21542,7 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                              ]
                             }
                           },
                           "required": [
@@ -23427,8 +23379,7 @@
                                     {
                                       "type": "null"
                                     }
-                                  ],
-                                  "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                  ]
                                 },
                                 "email": {
                                   "type": "string",
@@ -23470,8 +23421,7 @@
                                     {
                                       "type": "null"
                                     }
-                                  ],
-                                  "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                  ]
                                 }
                               },
                               "required": [
@@ -24634,8 +24584,7 @@
                                       {
                                         "type": "null"
                                       }
-                                    ],
-                                    "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                    ]
                                   },
                                   "email": {
                                     "type": "string",
@@ -24677,8 +24626,7 @@
                                       {
                                         "type": "null"
                                       }
-                                    ],
-                                    "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                    ]
                                   }
                                 },
                                 "required": [
@@ -25833,8 +25781,7 @@
                               {
                                 "type": "null"
                               }
-                            ],
-                            "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                            ]
                           },
                           "email": {
                             "type": "string",
@@ -25876,8 +25823,7 @@
                               {
                                 "type": "null"
                               }
-                            ],
-                            "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                            ]
                           }
                         },
                         "required": [
@@ -28178,8 +28124,7 @@
                                     {
                                       "type": "null"
                                     }
-                                  ],
-                                  "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                  ]
                                 }
                               },
                               "required": [
@@ -28295,8 +28240,7 @@
                                           {
                                             "type": "null"
                                           }
-                                        ],
-                                        "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                        ]
                                       }
                                     },
                                     "required": [
@@ -28410,8 +28354,7 @@
                                           {
                                             "type": "null"
                                           }
-                                        ],
-                                        "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                        ]
                                       }
                                     },
                                     "required": [
@@ -28525,8 +28468,7 @@
                                           {
                                             "type": "null"
                                           }
-                                        ],
-                                        "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                        ]
                                       }
                                     },
                                     "required": [
@@ -32956,8 +32898,7 @@
                                         {
                                           "type": "null"
                                         }
-                                      ],
-                                      "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                      ]
                                     }
                                   },
                                   "required": [
@@ -33073,8 +33014,7 @@
                                               {
                                                 "type": "null"
                                               }
-                                            ],
-                                            "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                            ]
                                           }
                                         },
                                         "required": [
@@ -33188,8 +33128,7 @@
                                               {
                                                 "type": "null"
                                               }
-                                            ],
-                                            "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                            ]
                                           }
                                         },
                                         "required": [
@@ -33303,8 +33242,7 @@
                                               {
                                                 "type": "null"
                                               }
-                                            ],
-                                            "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                            ]
                                           }
                                         },
                                         "required": [
@@ -33915,8 +33853,7 @@
                                     {
                                       "type": "null"
                                     }
-                                  ],
-                                  "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                  ]
                                 }
                               },
                               "required": [
@@ -34032,8 +33969,7 @@
                                           {
                                             "type": "null"
                                           }
-                                        ],
-                                        "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                        ]
                                       }
                                     },
                                     "required": [
@@ -34147,8 +34083,7 @@
                                           {
                                             "type": "null"
                                           }
-                                        ],
-                                        "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                        ]
                                       }
                                     },
                                     "required": [
@@ -34262,8 +34197,7 @@
                                           {
                                             "type": "null"
                                           }
-                                        ],
-                                        "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                        ]
                                       }
                                     },
                                     "required": [
@@ -43062,8 +42996,7 @@
                       {
                         "type": "null"
                       }
-                    ],
-                    "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                    ]
                   },
                   "notes": {
                     "description": "Markdown content",
@@ -43190,8 +43123,7 @@
                             {
                               "type": "null"
                             }
-                          ],
-                          "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                          ]
                         },
                         "email": {
                           "type": "string",
@@ -43369,8 +43301,7 @@
                           {
                             "type": "null"
                           }
-                        ],
-                        "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                        ]
                       },
                       "notes": {
                         "description": "Markdown content",
@@ -43497,8 +43428,7 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                              ]
                             },
                             "email": {
                               "type": "string",
@@ -43650,8 +43580,7 @@
                               {
                                 "type": "null"
                               }
-                            ],
-                            "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                            ]
                           },
                           "current": {
                             "anyOf": [
@@ -43661,8 +43590,7 @@
                               {
                                 "type": "null"
                               }
-                            ],
-                            "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                            ]
                           }
                         },
                         "required": [
@@ -43910,8 +43838,7 @@
                                     {
                                       "type": "null"
                                     }
-                                  ],
-                                  "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                  ]
                                 },
                                 "email": {
                                   "type": "string",
@@ -43952,8 +43879,7 @@
                                     {
                                       "type": "null"
                                     }
-                                  ],
-                                  "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                  ]
                                 },
                                 "email": {
                                   "type": "string",
@@ -44228,8 +44154,7 @@
                       {
                         "type": "null"
                       }
-                    ],
-                    "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                    ]
                   },
                   "notes": {
                     "description": "Markdown content",
@@ -44356,8 +44281,7 @@
                             {
                               "type": "null"
                             }
-                          ],
-                          "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                          ]
                         },
                         "email": {
                           "type": "string",
@@ -44560,8 +44484,7 @@
                             {
                               "type": "null"
                             }
-                          ],
-                          "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                          ]
                         }
                       },
                       "required": [
@@ -44596,8 +44519,7 @@
                             {
                               "type": "null"
                             }
-                          ],
-                          "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                          ]
                         },
                         "email": {
                           "type": "string",
@@ -44800,8 +44722,7 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                              ]
                             }
                           },
                           "required": [
@@ -44836,8 +44757,7 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                              ]
                             },
                             "email": {
                               "type": "string",
@@ -45010,8 +44930,7 @@
                                     {
                                       "type": "null"
                                     }
-                                  ],
-                                  "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                  ]
                                 }
                               },
                               "required": [
@@ -45046,8 +44965,7 @@
                                     {
                                       "type": "null"
                                     }
-                                  ],
-                                  "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                  ]
                                 }
                               },
                               "required": [
@@ -45091,8 +45009,7 @@
                                     {
                                       "type": "null"
                                     }
-                                  ],
-                                  "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                  ]
                                 },
                                 "email": {
                                   "type": "string",
@@ -45133,8 +45050,7 @@
                                     {
                                       "type": "null"
                                     }
-                                  ],
-                                  "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                  ]
                                 },
                                 "email": {
                                   "type": "string",
@@ -45437,8 +45353,7 @@
                             {
                               "type": "null"
                             }
-                          ],
-                          "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                          ]
                         }
                       },
                       "required": [
@@ -45473,8 +45388,7 @@
                             {
                               "type": "null"
                             }
-                          ],
-                          "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                          ]
                         },
                         "email": {
                           "type": "string",
@@ -45700,8 +45614,7 @@
                             {
                               "type": "null"
                             }
-                          ],
-                          "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                          ]
                         },
                         "email": {
                           "type": "string",
@@ -45742,8 +45655,7 @@
                             {
                               "type": "null"
                             }
-                          ],
-                          "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                          ]
                         }
                       },
                       "required": [
@@ -45977,8 +45889,7 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                              ]
                             },
                             "email": {
                               "type": "string",
@@ -46019,8 +45930,7 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                              ]
                             }
                           },
                           "required": [
@@ -46277,8 +46187,7 @@
                                     {
                                       "type": "null"
                                     }
-                                  ],
-                                  "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                  ]
                                 },
                                 "email": {
                                   "type": "string",
@@ -46319,8 +46228,7 @@
                                     {
                                       "type": "null"
                                     }
-                                  ],
-                                  "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                  ]
                                 },
                                 "email": {
                                   "type": "string",
@@ -46370,8 +46278,7 @@
                                     {
                                       "type": "null"
                                     }
-                                  ],
-                                  "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                  ]
                                 }
                               },
                               "required": [
@@ -46406,8 +46313,7 @@
                                     {
                                       "type": "null"
                                     }
-                                  ],
-                                  "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                  ]
                                 }
                               },
                               "required": [
@@ -46746,8 +46652,7 @@
                             {
                               "type": "null"
                             }
-                          ],
-                          "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                          ]
                         },
                         "email": {
                           "type": "string",
@@ -46788,8 +46693,7 @@
                             {
                               "type": "null"
                             }
-                          ],
-                          "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                          ]
                         }
                       },
                       "required": [
@@ -46997,8 +46901,7 @@
                             {
                               "type": "null"
                             }
-                          ],
-                          "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                          ]
                         },
                         "email": {
                           "type": "string",
@@ -47204,8 +47107,7 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                              ]
                             },
                             "email": {
                               "type": "string",
@@ -47393,8 +47295,7 @@
                                     {
                                       "type": "null"
                                     }
-                                  ],
-                                  "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                  ]
                                 },
                                 "email": {
                                   "type": "string",
@@ -47435,8 +47336,7 @@
                                     {
                                       "type": "null"
                                     }
-                                  ],
-                                  "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                  ]
                                 },
                                 "email": {
                                   "type": "string",
@@ -47742,8 +47642,7 @@
                             {
                               "type": "null"
                             }
-                          ],
-                          "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                          ]
                         },
                         "email": {
                           "type": "string",
@@ -47950,8 +47849,7 @@
                             {
                               "type": "null"
                             }
-                          ],
-                          "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                          ]
                         },
                         "email": {
                           "type": "string",
@@ -47992,8 +47890,7 @@
                             {
                               "type": "null"
                             }
-                          ],
-                          "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                          ]
                         }
                       },
                       "required": [
@@ -48215,8 +48112,7 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                              ]
                             },
                             "email": {
                               "type": "string",
@@ -48257,8 +48153,7 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                              ]
                             }
                           },
                           "required": [
@@ -48466,8 +48361,7 @@
                                     {
                                       "type": "null"
                                     }
-                                  ],
-                                  "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                  ]
                                 },
                                 "email": {
                                   "type": "string",
@@ -48508,8 +48402,7 @@
                                     {
                                       "type": "null"
                                     }
-                                  ],
-                                  "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                  ]
                                 },
                                 "email": {
                                   "type": "string",
@@ -48559,8 +48452,7 @@
                                     {
                                       "type": "null"
                                     }
-                                  ],
-                                  "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                  ]
                                 }
                               },
                               "required": [
@@ -48595,8 +48487,7 @@
                                     {
                                       "type": "null"
                                     }
-                                  ],
-                                  "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                  ]
                                 }
                               },
                               "required": [
@@ -48941,8 +48832,7 @@
                             {
                               "type": "null"
                             }
-                          ],
-                          "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                          ]
                         },
                         "email": {
                           "type": "string",
@@ -48983,8 +48873,7 @@
                             {
                               "type": "null"
                             }
-                          ],
-                          "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                          ]
                         }
                       },
                       "required": [
@@ -50126,8 +50015,7 @@
                             {
                               "type": "null"
                             }
-                          ],
-                          "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                          ]
                         }
                       },
                       "required": [
@@ -50923,8 +50811,7 @@
               {
                 "type": "null"
               }
-            ],
-            "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+            ]
           },
           "createdAt": {
             "type": "string"
@@ -51307,8 +51194,7 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                              ]
                             }
                           },
                           "required": [
@@ -51424,8 +51310,7 @@
                                       {
                                         "type": "null"
                                       }
-                                    ],
-                                    "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                    ]
                                   }
                                 },
                                 "required": [
@@ -51539,8 +51424,7 @@
                                       {
                                         "type": "null"
                                       }
-                                    ],
-                                    "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                    ]
                                   }
                                 },
                                 "required": [
@@ -51654,8 +51538,7 @@
                                       {
                                         "type": "null"
                                       }
-                                    ],
-                                    "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                    ]
                                   }
                                 },
                                 "required": [
@@ -52213,8 +52096,7 @@
                                         {
                                           "type": "null"
                                         }
-                                      ],
-                                      "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                      ]
                                     }
                                   },
                                   "required": [
@@ -52330,8 +52212,7 @@
                                               {
                                                 "type": "null"
                                               }
-                                            ],
-                                            "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                            ]
                                           }
                                         },
                                         "required": [
@@ -52445,8 +52326,7 @@
                                               {
                                                 "type": "null"
                                               }
-                                            ],
-                                            "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                            ]
                                           }
                                         },
                                         "required": [
@@ -52560,8 +52440,7 @@
                                               {
                                                 "type": "null"
                                               }
-                                            ],
-                                            "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                                            ]
                                           }
                                         },
                                         "required": [
@@ -53344,8 +53223,7 @@
                             {
                               "type": "null"
                             }
-                          ],
-                          "description": "Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."
+                          ]
                         }
                       },
                       "required": [

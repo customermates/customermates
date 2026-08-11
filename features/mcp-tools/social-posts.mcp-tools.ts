@@ -2,7 +2,7 @@ import type { SocialPost, RelationRequest, SocialProfile } from "@/ee/messaging/
 
 import { z } from "zod";
 
-import { encodeToToon, formatForResponse, runInteractor, validationError } from "./utils";
+import { encodeToToon, formatDatesInResponse, runInteractor, validationError } from "./utils";
 
 import { ListSocialPostsSchema } from "@/ee/messaging/posts/list-social-posts.interactor";
 import { GetSocialPostSchema } from "@/ee/messaging/posts/get-social-post.interactor";
@@ -235,7 +235,7 @@ export const getSocialPostsTool = {
     params.postId
       ? runInteractor(
           getGetSocialPostInteractor().invoke({ connectedAccountId: params.connectedAccountId, postId: params.postId }),
-          (data) => encodeToToon(formatForResponse(formatPost(data))),
+          (data) => encodeToToon(formatDatesInResponse(formatPost(data))),
         )
       : runInteractor(
           getListSocialPostsInteractor().invoke({
@@ -247,7 +247,7 @@ export const getSocialPostsTool = {
           }),
           (data) =>
             encodeToToon(
-              formatForResponse({
+              formatDatesInResponse({
                 items: data.data.map(formatPost),
                 total: data.total_count ?? data.data.length,
                 next_cursor: data.next_cursor ?? null,
@@ -282,7 +282,7 @@ export const getSocialPostEngagementTool = {
         }),
         (data) =>
           encodeToToon(
-            formatForResponse({
+            formatDatesInResponse({
               items: data.data.map(formatReaction),
               total: data.total_count ?? data.data.length,
               next_cursor: data.next_cursor ?? null,
@@ -301,7 +301,7 @@ export const getSocialPostEngagementTool = {
         }),
         (data) =>
           encodeToToon(
-            formatForResponse({
+            formatDatesInResponse({
               items: data.data.map(formatReaction),
               total: data.total_count ?? data.data.length,
               next_cursor: data.next_cursor ?? null,
@@ -320,7 +320,7 @@ export const getSocialPostEngagementTool = {
       }),
       (data) =>
         encodeToToon(
-          formatForResponse({
+          formatDatesInResponse({
             items: data.data.map((comment) => ({
               id: comment.id,
               created_at: comment.created_at,
@@ -360,7 +360,7 @@ export const getSocialProfileTool = {
   inputSchema: GetSocialProfileToolSchema,
   execute: (params: z.infer<typeof GetSocialProfileToolSchema>) =>
     runInteractor(getGetSocialProfileInteractor().invoke(params), (data) =>
-      encodeToToon(formatForResponse(formatProfile(data))),
+      encodeToToon(formatDatesInResponse(formatProfile(data))),
     ),
 };
 
@@ -388,7 +388,7 @@ export const manageSocialRelationsTool = {
         }),
         (data) =>
           encodeToToon(
-            formatForResponse({
+            formatDatesInResponse({
               items: data.data.map(formatRelationRequest),
               total: data.total_count ?? data.data.length,
               next_cursor: data.next_cursor ?? null,

@@ -5,7 +5,7 @@ import {
   FILTER_FIELD_DESCRIPTION,
   FILTER_SYNTAX,
   SORT_SYNTAX,
-  formatForResponse,
+  formatDatesInResponse,
   mcpPage,
   mcpPageSize,
   validationError,
@@ -359,10 +359,10 @@ export const getRecordsTool = {
         const { notes, ...masterData } = loaded.entity as Record<string, unknown> & { notes?: unknown };
         if (include === "withNotes") {
           const markdown = notes ? serializeJSONToMarkdown(notes as object) : null;
-          return formatForResponse({ [key]: masterData, notes: markdown });
+          return formatDatesInResponse({ [key]: masterData, notes: markdown });
         }
 
-        return formatForResponse({ [key]: masterData });
+        return formatDatesInResponse({ [key]: masterData });
       }),
     );
 
