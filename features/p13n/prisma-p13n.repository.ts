@@ -9,6 +9,7 @@ import type { P13nRepo } from "@/core/base/base-get.interactor";
 import { Prisma } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
+import { normalizeLegacyRelationFilters } from "@/core/base/filter-compat";
 
 export type SavedFilterPreset = {
   id: string;
@@ -28,6 +29,20 @@ export interface P13nEntry {
   hiddenColumns?: string[];
   viewMode?: ViewMode;
   groupingColumnId?: string;
+}
+
+function normalizeStoredFilters(value: unknown): Filter[] | undefined {
+  return Array.isArray(value) ? normalizeLegacyRelationFilters(value as unknown as Filter[]) : undefined;
+}
+
+function normalizeStoredFilterPresets(value: unknown): SavedFilterPreset[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+
+  return (value as unknown as SavedFilterPreset[]).map((preset) => {
+    if (!preset || typeof preset !== "object") return preset;
+
+    return { ...preset, filters: normalizeStoredFilters(preset.filters) ?? preset.filters };
+  });
 }
 
 export class PrismaP13nRepo
@@ -58,10 +73,8 @@ export class PrismaP13nRepo
 
     return {
       p13nId,
-      filters: (filters as Filter[] | null) ?? undefined,
-      savedFilterPresets: Array.isArray(savedFilterPresets)
-        ? (savedFilterPresets as unknown as SavedFilterPreset[])
-        : undefined,
+      filters: normalizeStoredFilters(filters),
+      savedFilterPresets: normalizeStoredFilterPresets(savedFilterPresets),
       searchTerm: searchTerm ?? undefined,
       sortDescriptor: (sortDescriptor as SortDescriptor | null) ?? undefined,
       pagination: (pagination as PaginationRequest | null) ?? undefined,
@@ -118,10 +131,8 @@ export class PrismaP13nRepo
 
     return {
       p13nId,
-      filters: (row.filters as Filter[] | null) ?? undefined,
-      savedFilterPresets: Array.isArray(row.savedFilterPresets)
-        ? (row.savedFilterPresets as unknown as SavedFilterPreset[])
-        : undefined,
+      filters: normalizeStoredFilters(row.filters),
+      savedFilterPresets: normalizeStoredFilterPresets(row.savedFilterPresets),
       searchTerm: row.searchTerm ?? undefined,
       sortDescriptor: (row.sortDescriptor as SortDescriptor | null) ?? undefined,
       pagination: (row.pagination as PaginationRequest | null) ?? undefined,

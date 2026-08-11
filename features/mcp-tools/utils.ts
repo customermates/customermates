@@ -71,9 +71,9 @@ export function formatDatesInResponse<T>(data: T): SerializedDates<T> {
 export const FILTER_SYNTAX = {
   operators: {
     string: ["equals", "contains", "gt", "gte", "lt", "lte"],
-    array: ["in", "notIn", "hasNone", "hasSome"],
+    array: ["in", "notIn"],
     range: ["between"],
-    noValue: ["isNull", "isNotNull"],
+    noValue: ["isNull", "isNotNull", "hasNone", "hasSome", "hasUnset", "allSet"],
   },
   examples: [
     { field: "status", operator: "equals", value: "active" },

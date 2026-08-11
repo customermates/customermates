@@ -1206,16 +1206,6 @@
                                   "type": "string",
                                   "const": "between",
                                   "title": "between"
-                                },
-                                {
-                                  "type": "string",
-                                  "const": "hasNone",
-                                  "title": "hasNone"
-                                },
-                                {
-                                  "type": "string",
-                                  "const": "hasSome",
-                                  "title": "hasSome"
                                 }
                               ]
                             },
@@ -1269,6 +1259,34 @@
                             "operator"
                           ],
                           "title": "Standalone filter"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "hasNone",
+                                  "title": "hasNone"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "hasSome",
+                                  "title": "hasSome"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator"
+                          ],
+                          "additionalProperties": false,
+                          "title": "Relationship existence filter"
                         },
                         {
                           "type": "object",
@@ -2233,16 +2251,6 @@
                                     "type": "string",
                                     "const": "between",
                                     "title": "between"
-                                  },
-                                  {
-                                    "type": "string",
-                                    "const": "hasNone",
-                                    "title": "hasNone"
-                                  },
-                                  {
-                                    "type": "string",
-                                    "const": "hasSome",
-                                    "title": "hasSome"
                                   }
                                 ]
                               },
@@ -2298,6 +2306,34 @@
                             ],
                             "additionalProperties": false,
                             "title": "Standalone filter"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string"
+                              },
+                              "operator": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "const": "hasNone",
+                                    "title": "hasNone"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "hasSome",
+                                    "title": "hasSome"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "field",
+                              "operator"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Relationship existence filter"
                           },
                           {
                             "type": "object",
@@ -2532,16 +2568,6 @@
                                           "type": "string",
                                           "const": "between",
                                           "title": "between"
-                                        },
-                                        {
-                                          "type": "string",
-                                          "const": "hasNone",
-                                          "title": "hasNone"
-                                        },
-                                        {
-                                          "type": "string",
-                                          "const": "hasSome",
-                                          "title": "hasSome"
                                         }
                                       ]
                                     },
@@ -2597,6 +2623,34 @@
                                   ],
                                   "additionalProperties": false,
                                   "title": "Standalone filter"
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "field": {
+                                      "type": "string"
+                                    },
+                                    "operator": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "const": "hasNone",
+                                          "title": "hasNone"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "hasSome",
+                                          "title": "hasSome"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "field",
+                                    "operator"
+                                  ],
+                                  "additionalProperties": false,
+                                  "title": "Relationship existence filter"
                                 },
                                 {
                                   "type": "object",
@@ -6540,16 +6594,6 @@
                                   "type": "string",
                                   "const": "between",
                                   "title": "between"
-                                },
-                                {
-                                  "type": "string",
-                                  "const": "hasNone",
-                                  "title": "hasNone"
-                                },
-                                {
-                                  "type": "string",
-                                  "const": "hasSome",
-                                  "title": "hasSome"
                                 }
                               ]
                             },
@@ -6603,6 +6647,34 @@
                             "operator"
                           ],
                           "title": "Standalone filter"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "hasNone",
+                                  "title": "hasNone"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "hasSome",
+                                  "title": "hasSome"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator"
+                          ],
+                          "additionalProperties": false,
+                          "title": "Relationship existence filter"
                         },
                         {
                           "type": "object",
@@ -7567,16 +7639,6 @@
                                     "type": "string",
                                     "const": "between",
                                     "title": "between"
-                                  },
-                                  {
-                                    "type": "string",
-                                    "const": "hasNone",
-                                    "title": "hasNone"
-                                  },
-                                  {
-                                    "type": "string",
-                                    "const": "hasSome",
-                                    "title": "hasSome"
                                   }
                                 ]
                               },
@@ -7632,6 +7694,34 @@
                             ],
                             "additionalProperties": false,
                             "title": "Standalone filter"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string"
+                              },
+                              "operator": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "const": "hasNone",
+                                    "title": "hasNone"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "hasSome",
+                                    "title": "hasSome"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "field",
+                              "operator"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Relationship existence filter"
                           },
                           {
                             "type": "object",
@@ -7866,16 +7956,6 @@
                                           "type": "string",
                                           "const": "between",
                                           "title": "between"
-                                        },
-                                        {
-                                          "type": "string",
-                                          "const": "hasNone",
-                                          "title": "hasNone"
-                                        },
-                                        {
-                                          "type": "string",
-                                          "const": "hasSome",
-                                          "title": "hasSome"
                                         }
                                       ]
                                     },
@@ -7931,6 +8011,34 @@
                                   ],
                                   "additionalProperties": false,
                                   "title": "Standalone filter"
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "field": {
+                                      "type": "string"
+                                    },
+                                    "operator": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "const": "hasNone",
+                                          "title": "hasNone"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "hasSome",
+                                          "title": "hasSome"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "field",
+                                    "operator"
+                                  ],
+                                  "additionalProperties": false,
+                                  "title": "Relationship existence filter"
                                 },
                                 {
                                   "type": "object",
@@ -11729,16 +11837,6 @@
                                   "type": "string",
                                   "const": "between",
                                   "title": "between"
-                                },
-                                {
-                                  "type": "string",
-                                  "const": "hasNone",
-                                  "title": "hasNone"
-                                },
-                                {
-                                  "type": "string",
-                                  "const": "hasSome",
-                                  "title": "hasSome"
                                 }
                               ]
                             },
@@ -11792,6 +11890,34 @@
                             "operator"
                           ],
                           "title": "Standalone filter"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "hasNone",
+                                  "title": "hasNone"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "hasSome",
+                                  "title": "hasSome"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator"
+                          ],
+                          "additionalProperties": false,
+                          "title": "Relationship existence filter"
                         },
                         {
                           "type": "object",
@@ -12756,16 +12882,6 @@
                                     "type": "string",
                                     "const": "between",
                                     "title": "between"
-                                  },
-                                  {
-                                    "type": "string",
-                                    "const": "hasNone",
-                                    "title": "hasNone"
-                                  },
-                                  {
-                                    "type": "string",
-                                    "const": "hasSome",
-                                    "title": "hasSome"
                                   }
                                 ]
                               },
@@ -12821,6 +12937,34 @@
                             ],
                             "additionalProperties": false,
                             "title": "Standalone filter"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string"
+                              },
+                              "operator": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "const": "hasNone",
+                                    "title": "hasNone"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "hasSome",
+                                    "title": "hasSome"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "field",
+                              "operator"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Relationship existence filter"
                           },
                           {
                             "type": "object",
@@ -13055,16 +13199,6 @@
                                           "type": "string",
                                           "const": "between",
                                           "title": "between"
-                                        },
-                                        {
-                                          "type": "string",
-                                          "const": "hasNone",
-                                          "title": "hasNone"
-                                        },
-                                        {
-                                          "type": "string",
-                                          "const": "hasSome",
-                                          "title": "hasSome"
                                         }
                                       ]
                                     },
@@ -13120,6 +13254,34 @@
                                   ],
                                   "additionalProperties": false,
                                   "title": "Standalone filter"
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "field": {
+                                      "type": "string"
+                                    },
+                                    "operator": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "const": "hasNone",
+                                          "title": "hasNone"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "hasSome",
+                                          "title": "hasSome"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "field",
+                                    "operator"
+                                  ],
+                                  "additionalProperties": false,
+                                  "title": "Relationship existence filter"
                                 },
                                 {
                                   "type": "object",
@@ -16847,16 +17009,6 @@
                                   "type": "string",
                                   "const": "between",
                                   "title": "between"
-                                },
-                                {
-                                  "type": "string",
-                                  "const": "hasNone",
-                                  "title": "hasNone"
-                                },
-                                {
-                                  "type": "string",
-                                  "const": "hasSome",
-                                  "title": "hasSome"
                                 }
                               ]
                             },
@@ -16910,6 +17062,34 @@
                             "operator"
                           ],
                           "title": "Standalone filter"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "hasNone",
+                                  "title": "hasNone"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "hasSome",
+                                  "title": "hasSome"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator"
+                          ],
+                          "additionalProperties": false,
+                          "title": "Relationship existence filter"
                         },
                         {
                           "type": "object",
@@ -17874,16 +18054,6 @@
                                     "type": "string",
                                     "const": "between",
                                     "title": "between"
-                                  },
-                                  {
-                                    "type": "string",
-                                    "const": "hasNone",
-                                    "title": "hasNone"
-                                  },
-                                  {
-                                    "type": "string",
-                                    "const": "hasSome",
-                                    "title": "hasSome"
                                   }
                                 ]
                               },
@@ -17939,6 +18109,34 @@
                             ],
                             "additionalProperties": false,
                             "title": "Standalone filter"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string"
+                              },
+                              "operator": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "const": "hasNone",
+                                    "title": "hasNone"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "hasSome",
+                                    "title": "hasSome"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "field",
+                              "operator"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Relationship existence filter"
                           },
                           {
                             "type": "object",
@@ -18173,16 +18371,6 @@
                                           "type": "string",
                                           "const": "between",
                                           "title": "between"
-                                        },
-                                        {
-                                          "type": "string",
-                                          "const": "hasNone",
-                                          "title": "hasNone"
-                                        },
-                                        {
-                                          "type": "string",
-                                          "const": "hasSome",
-                                          "title": "hasSome"
                                         }
                                       ]
                                     },
@@ -18238,6 +18426,34 @@
                                   ],
                                   "additionalProperties": false,
                                   "title": "Standalone filter"
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "field": {
+                                      "type": "string"
+                                    },
+                                    "operator": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "const": "hasNone",
+                                          "title": "hasNone"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "hasSome",
+                                          "title": "hasSome"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "field",
+                                    "operator"
+                                  ],
+                                  "additionalProperties": false,
+                                  "title": "Relationship existence filter"
                                 },
                                 {
                                   "type": "object",
@@ -21890,16 +22106,6 @@
                                   "type": "string",
                                   "const": "between",
                                   "title": "between"
-                                },
-                                {
-                                  "type": "string",
-                                  "const": "hasNone",
-                                  "title": "hasNone"
-                                },
-                                {
-                                  "type": "string",
-                                  "const": "hasSome",
-                                  "title": "hasSome"
                                 }
                               ]
                             },
@@ -21953,6 +22159,34 @@
                             "operator"
                           ],
                           "title": "Standalone filter"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "hasNone",
+                                  "title": "hasNone"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "hasSome",
+                                  "title": "hasSome"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator"
+                          ],
+                          "additionalProperties": false,
+                          "title": "Relationship existence filter"
                         },
                         {
                           "type": "object",
@@ -22917,16 +23151,6 @@
                                     "type": "string",
                                     "const": "between",
                                     "title": "between"
-                                  },
-                                  {
-                                    "type": "string",
-                                    "const": "hasNone",
-                                    "title": "hasNone"
-                                  },
-                                  {
-                                    "type": "string",
-                                    "const": "hasSome",
-                                    "title": "hasSome"
                                   }
                                 ]
                               },
@@ -22982,6 +23206,34 @@
                             ],
                             "additionalProperties": false,
                             "title": "Standalone filter"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string"
+                              },
+                              "operator": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "const": "hasNone",
+                                    "title": "hasNone"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "hasSome",
+                                    "title": "hasSome"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "field",
+                              "operator"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Relationship existence filter"
                           },
                           {
                             "type": "object",
@@ -23216,16 +23468,6 @@
                                           "type": "string",
                                           "const": "between",
                                           "title": "between"
-                                        },
-                                        {
-                                          "type": "string",
-                                          "const": "hasNone",
-                                          "title": "hasNone"
-                                        },
-                                        {
-                                          "type": "string",
-                                          "const": "hasSome",
-                                          "title": "hasSome"
                                         }
                                       ]
                                     },
@@ -23281,6 +23523,34 @@
                                   ],
                                   "additionalProperties": false,
                                   "title": "Standalone filter"
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "field": {
+                                      "type": "string"
+                                    },
+                                    "operator": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "const": "hasNone",
+                                          "title": "hasNone"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "hasSome",
+                                          "title": "hasSome"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "field",
+                                    "operator"
+                                  ],
+                                  "additionalProperties": false,
+                                  "title": "Relationship existence filter"
                                 },
                                 {
                                   "type": "object",
@@ -26166,16 +26436,6 @@
                                   "type": "string",
                                   "const": "between",
                                   "title": "between"
-                                },
-                                {
-                                  "type": "string",
-                                  "const": "hasNone",
-                                  "title": "hasNone"
-                                },
-                                {
-                                  "type": "string",
-                                  "const": "hasSome",
-                                  "title": "hasSome"
                                 }
                               ]
                             },
@@ -26229,6 +26489,34 @@
                             "operator"
                           ],
                           "title": "Standalone filter"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "hasNone",
+                                  "title": "hasNone"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "hasSome",
+                                  "title": "hasSome"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator"
+                          ],
+                          "additionalProperties": false,
+                          "title": "Relationship existence filter"
                         },
                         {
                           "type": "object",
@@ -27489,16 +27777,6 @@
                                   "type": "string",
                                   "const": "between",
                                   "title": "between"
-                                },
-                                {
-                                  "type": "string",
-                                  "const": "hasNone",
-                                  "title": "hasNone"
-                                },
-                                {
-                                  "type": "string",
-                                  "const": "hasSome",
-                                  "title": "hasSome"
                                 }
                               ]
                             },
@@ -27552,6 +27830,34 @@
                             "operator"
                           ],
                           "title": "Standalone filter"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "hasNone",
+                                  "title": "hasNone"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "hasSome",
+                                  "title": "hasSome"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator"
+                          ],
+                          "additionalProperties": false,
+                          "title": "Relationship existence filter"
                         },
                         {
                           "type": "object",
@@ -28947,16 +29253,6 @@
                                   "type": "string",
                                   "const": "between",
                                   "title": "between"
-                                },
-                                {
-                                  "type": "string",
-                                  "const": "hasNone",
-                                  "title": "hasNone"
-                                },
-                                {
-                                  "type": "string",
-                                  "const": "hasSome",
-                                  "title": "hasSome"
                                 }
                               ]
                             },
@@ -29010,6 +29306,34 @@
                             "operator"
                           ],
                           "title": "Standalone filter"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "hasNone",
+                                  "title": "hasNone"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "hasSome",
+                                  "title": "hasSome"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator"
+                          ],
+                          "additionalProperties": false,
+                          "title": "Relationship existence filter"
                         },
                         {
                           "type": "object",
@@ -29974,16 +30298,6 @@
                                     "type": "string",
                                     "const": "between",
                                     "title": "between"
-                                  },
-                                  {
-                                    "type": "string",
-                                    "const": "hasNone",
-                                    "title": "hasNone"
-                                  },
-                                  {
-                                    "type": "string",
-                                    "const": "hasSome",
-                                    "title": "hasSome"
                                   }
                                 ]
                               },
@@ -30039,6 +30353,34 @@
                             ],
                             "additionalProperties": false,
                             "title": "Standalone filter"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string"
+                              },
+                              "operator": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "const": "hasNone",
+                                    "title": "hasNone"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "hasSome",
+                                    "title": "hasSome"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "field",
+                              "operator"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Relationship existence filter"
                           },
                           {
                             "type": "object",
@@ -30273,16 +30615,6 @@
                                           "type": "string",
                                           "const": "between",
                                           "title": "between"
-                                        },
-                                        {
-                                          "type": "string",
-                                          "const": "hasNone",
-                                          "title": "hasNone"
-                                        },
-                                        {
-                                          "type": "string",
-                                          "const": "hasSome",
-                                          "title": "hasSome"
                                         }
                                       ]
                                     },
@@ -30338,6 +30670,34 @@
                                   ],
                                   "additionalProperties": false,
                                   "title": "Standalone filter"
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "field": {
+                                      "type": "string"
+                                    },
+                                    "operator": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "const": "hasNone",
+                                          "title": "hasNone"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "hasSome",
+                                          "title": "hasSome"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "field",
+                                    "operator"
+                                  ],
+                                  "additionalProperties": false,
+                                  "title": "Relationship existence filter"
                                 },
                                 {
                                   "type": "object",
@@ -30752,16 +31112,6 @@
                                   "type": "string",
                                   "const": "between",
                                   "title": "between"
-                                },
-                                {
-                                  "type": "string",
-                                  "const": "hasNone",
-                                  "title": "hasNone"
-                                },
-                                {
-                                  "type": "string",
-                                  "const": "hasSome",
-                                  "title": "hasSome"
                                 }
                               ]
                             },
@@ -30815,6 +31165,34 @@
                             "operator"
                           ],
                           "title": "Standalone filter"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "hasNone",
+                                  "title": "hasNone"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "hasSome",
+                                  "title": "hasSome"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator"
+                          ],
+                          "additionalProperties": false,
+                          "title": "Relationship existence filter"
                         },
                         {
                           "type": "object",
@@ -31779,16 +32157,6 @@
                                     "type": "string",
                                     "const": "between",
                                     "title": "between"
-                                  },
-                                  {
-                                    "type": "string",
-                                    "const": "hasNone",
-                                    "title": "hasNone"
-                                  },
-                                  {
-                                    "type": "string",
-                                    "const": "hasSome",
-                                    "title": "hasSome"
                                   }
                                 ]
                               },
@@ -31844,6 +32212,34 @@
                             ],
                             "additionalProperties": false,
                             "title": "Standalone filter"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string"
+                              },
+                              "operator": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "const": "hasNone",
+                                    "title": "hasNone"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "hasSome",
+                                    "title": "hasSome"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "field",
+                              "operator"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Relationship existence filter"
                           },
                           {
                             "type": "object",
@@ -32078,16 +32474,6 @@
                                           "type": "string",
                                           "const": "between",
                                           "title": "between"
-                                        },
-                                        {
-                                          "type": "string",
-                                          "const": "hasNone",
-                                          "title": "hasNone"
-                                        },
-                                        {
-                                          "type": "string",
-                                          "const": "hasSome",
-                                          "title": "hasSome"
                                         }
                                       ]
                                     },
@@ -32143,6 +32529,34 @@
                                   ],
                                   "additionalProperties": false,
                                   "title": "Standalone filter"
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "field": {
+                                      "type": "string"
+                                    },
+                                    "operator": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "const": "hasNone",
+                                          "title": "hasNone"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "hasSome",
+                                          "title": "hasSome"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "field",
+                                    "operator"
+                                  ],
+                                  "additionalProperties": false,
+                                  "title": "Relationship existence filter"
                                 },
                                 {
                                   "type": "object",
@@ -50177,16 +50591,6 @@
                           "type": "string",
                           "const": "between",
                           "title": "between"
-                        },
-                        {
-                          "type": "string",
-                          "const": "hasNone",
-                          "title": "hasNone"
-                        },
-                        {
-                          "type": "string",
-                          "const": "hasSome",
-                          "title": "hasSome"
                         }
                       ]
                     },
@@ -50240,6 +50644,34 @@
                     "operator"
                   ],
                   "title": "Standalone filter"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "type": "string"
+                    },
+                    "operator": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "const": "hasNone",
+                          "title": "hasNone"
+                        },
+                        {
+                          "type": "string",
+                          "const": "hasSome",
+                          "title": "hasSome"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator"
+                  ],
+                  "additionalProperties": false,
+                  "title": "Relationship existence filter"
                 },
                 {
                   "type": "object",
