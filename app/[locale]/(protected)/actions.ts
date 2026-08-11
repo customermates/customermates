@@ -18,13 +18,11 @@ export async function getActivitiesAction(input: ActivitiesParams) {
 }
 
 export async function getActivityThreadOptionsAction(input: ActivityThreadOptionsData) {
-  const result = await getGetActivityThreadOptionsInteractor().invoke(input);
-  return result.ok ? result.data : [];
+  return unwrapValidated(getGetActivityThreadOptionsInteractor().invoke(input));
 }
 
 export async function getConnectedAccountsAction() {
-  const result = await getGetMyConnectedAccountsInteractor().invoke();
-  return result.ok ? result.data : [];
+  return unwrapValidated(getGetMyConnectedAccountsInteractor().invoke());
 }
 
 export async function resolveFilterOptionsAction(input: ResolveFilterOptionsData) {

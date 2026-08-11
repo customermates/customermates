@@ -444,5 +444,10 @@ describe("page-state contract", () => {
         expect(source, file).not.toContain("result.ok ? result.data : { items: [] }");
       }
     }
+
+    const sharedActions = read("app/[locale]/(protected)/actions.ts");
+    expect(sharedActions).toContain("return unwrapValidated(getGetActivityThreadOptionsInteractor().invoke(input));");
+    expect(sharedActions).toContain("return unwrapValidated(getGetMyConnectedAccountsInteractor().invoke());");
+    expect(sharedActions).not.toContain("result.ok ? result.data : []");
   });
 });
