@@ -12,7 +12,7 @@ function distanceFromAnchor(element: HTMLElement, direction: ScrollReturnDirecti
   return direction === "bottom" ? element.scrollHeight - element.scrollTop - element.clientHeight : element.scrollTop;
 }
 
-function prefersReducedMotion() {
+export function prefersReducedMotion() {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 

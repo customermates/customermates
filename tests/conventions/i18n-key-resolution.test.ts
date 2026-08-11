@@ -829,7 +829,12 @@ const TERMINOLOGY_TEMPLATE_EVIDENCE = Object.fromEntries(
 const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
   {
     file: "app/components/agent-chat/agent-chat.tsx",
-    keys: ["AgentChat.credits.contact", "AgentChat.credits.viewPlans"],
+    keys: [
+      "AgentChat.credits.contact",
+      "AgentChat.credits.viewPlans",
+      "Common.actions.collapse",
+      "Common.actions.expand",
+    ],
   },
   {
     file: "app/[locale]/(protected)/contacts/components/add-channel-popover.tsx",

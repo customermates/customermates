@@ -1360,12 +1360,12 @@ const AgentChatItemView = observer(function AgentChatItemView({ item }: { item: 
   const canAlwaysAllow = item.activity.kind === "records.create" || item.activity.kind === "records.update";
 
   return (
-    <div className="rounded-2xl border border-input bg-background/60 px-4 py-3.5 text-sm" data-testid="agent-approval">
+    <div className="rounded-2xl border px-4 py-3.5 text-sm" data-testid="agent-approval">
       <p className="text-xs font-medium text-muted-foreground">{t("AgentChat.approval.title")}</p>
 
       <p className="mt-1 font-medium">{copy.running}</p>
 
-      {copy.detail && <p className="mt-1 text-xs text-muted-foreground">{copy.detail}</p>}
+      {item.activity.consequence && copy.detail && <p className="mt-1 text-xs text-muted-foreground">{copy.detail}</p>}
 
       {item.resolution ? (
         <p className="mt-3 text-xs text-muted-foreground">{t(`AgentChat.approval.${item.resolution}`)}</p>
@@ -1944,11 +1944,7 @@ const AgentActivity = observer(function AgentActivity({
                 <Check aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
               )}
 
-              <span className="min-w-0">
-                <span className="block text-foreground">{label}</span>
-
-                {copy.detail && <span className="mt-0.5 block text-muted-foreground">{copy.detail}</span>}
-              </span>
+              <span className="min-w-0 text-foreground">{label}</span>
             </div>
           );
         })}
