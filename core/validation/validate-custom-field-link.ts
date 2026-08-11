@@ -13,7 +13,7 @@ export function validateCustomFieldLink(
   const isArray = Array.isArray(value) || (allowMultiple && values.length > 1);
 
   for (let i = 0; i < values.length; i++) {
-    const urlResult = zx.secureUrl({ allowRelativePath: true }).safeParse(values[i]);
+    const urlResult = zx.secureUrl().safeParse(values[i]);
     if (!urlResult.success) {
       ctx.addIssue({
         code: "custom",

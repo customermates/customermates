@@ -45,10 +45,18 @@ describe("zx.secureUrl", () => {
     it.each([
       ["/demo/avatars/photos/max-bergmann.png"],
       ["/evil"],
+      ["/internal/report.pdf"],
+      ["/a/b/c.png?v=2"],
+      ["/"],
       ["//example.com/x.png"],
+      ["///example.com/x.png"],
+      ["/broken path.png"],
+      [`/with${String.fromCharCode(0)}nul.png`],
       [""],
       ["   "],
       ["ftp://example.com"],
+      ["javascript:alert(1)"],
+      ["data:text/html,hi"],
     ])("rejects %j", (input) => {
       expect(zx.secureUrl().safeParse(input).success).toBe(false);
     });
@@ -73,60 +81,5 @@ describe("zx.secureUrl", () => {
         expect(zx.secureUrl().safeParse(input).success).toBe(false);
       },
     );
-  });
-
-  describe("with allowRelativePath, which only custom-field links use", () => {
-    const schema = () => zx.secureUrl({ allowRelativePath: true });
-
-    it.each([["/internal/report.pdf"], ["/evil"], ["/a/b/c.png?v=2"]])(
-      "preserves the same-origin path %j verbatim",
-      (input) => {
-        expect(schema().safeParse(input)).toMatchObject({ success: true, data: input });
-      },
-    );
-
-    it("preserves a protocol-relative URL verbatim, which resolves cross-origin exactly as it did before", () => {
-      expect(schema().safeParse("//example.com/x.png")).toMatchObject({
-        success: true,
-        data: "//example.com/x.png",
-      });
-      expect(new URL("//example.com/x.png", "https://app.example.test/page").href).toBe("https://example.com/x.png");
-    });
-
-    it.each([
-      ["/with space.png"],
-      [`/with${String.fromCharCode(0)}nul.png`],
-      [`/with${String.fromCharCode(10)}newline.png`],
-    ])("rejects the unstorable path %j rather than persisting it", (input) => {
-      expect(schema().safeParse(input).success).toBe(false);
-    });
-
-    it("rejects a backslash-leading value instead of prefixing it into a foreign host", () => {
-      expect(schema().safeParse(`${BACKSLASH}evil.example`).success).toBe(false);
-    });
-
-    it.each([
-      ["example.com", "https://example.com"],
-      ["https://example.com/a.png", "https://example.com/a.png"],
-      ["mailto:a@b.com", "mailto:a@b.com"],
-      ["tel:+123", "tel:+123"],
-    ])("still accepts %j as %j", (input, expected) => {
-      expect(schema().safeParse(input)).toMatchObject({ success: true, data: expected });
-    });
-
-    it.each([[""], ["   "], ["ftp://example.com"], ["javascript:alert(1)"]])("rejects %j", (input) => {
-      expect(schema().safeParse(input).success).toBe(false);
-    });
-
-    it("reports a rejection with the localized invalidUrl code", () => {
-      const result = schema().safeParse("ftp://example.com");
-
-      expect(result.success).toBe(false);
-      if (result.success) return;
-      expect(result.error.issues[0]).toMatchObject({
-        code: "custom",
-        params: { error: CustomErrorCode.invalidUrl },
-      });
-    });
   });
 });

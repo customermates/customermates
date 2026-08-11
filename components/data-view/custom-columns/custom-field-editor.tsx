@@ -104,8 +104,7 @@ export const CustomFieldEditor = observer(({ column, value, onChange, id, label,
           }}
           value={value}
           onChipClick={(url) => {
-            if (zx.secureUrl({ allowRelativePath: true }).safeParse(url).success)
-              window.open(url, "_blank", "noreferrer");
+            if (zx.secureUrl().safeParse(url).success) window.open(url, "_blank", "noreferrer");
           }}
           onValueChange={onChange}
         />
