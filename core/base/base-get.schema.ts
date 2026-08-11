@@ -4,66 +4,78 @@ import { z } from "zod";
 import { Prisma } from "@/generated/prisma";
 
 import { FilterOperatorKey } from "./base-query-builder";
+import { normalizeLegacyRelationFilterInput } from "./filter-compat";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { CustomColumnDtoSchema } from "@/features/custom-column/custom-column.schema";
 
-export const FilterSchema = z.discriminatedUnion("operator", [
-  z
-    .object({
-      field: z.string(),
-      operator: z.union([
-        z.literal(FilterOperatorKey.equals).meta({ title: "equals" }),
-        z.literal(FilterOperatorKey.contains).meta({ title: "contains" }),
-        z.literal(FilterOperatorKey.gt).meta({ title: "gt" }),
-        z.literal(FilterOperatorKey.gte).meta({ title: "gte" }),
-        z.literal(FilterOperatorKey.lt).meta({ title: "lt" }),
-        z.literal(FilterOperatorKey.lte).meta({ title: "lte" }),
-      ]),
-      value: z.string(),
-    })
-    .meta({ title: "Single value filter" }),
-  z
-    .object({
-      field: z.string(),
-      operator: z.union([
-        z.literal(FilterOperatorKey.in).meta({ title: "in" }),
-        z.literal(FilterOperatorKey.notIn).meta({ title: "notIn" }),
-        z.literal(FilterOperatorKey.between).meta({ title: "between" }),
-        z.literal(FilterOperatorKey.hasNone).meta({ title: "hasNone" }),
-        z.literal(FilterOperatorKey.hasSome).meta({ title: "hasSome" }),
-      ]),
-      value: z.array(z.string()),
-    })
-    .superRefine((data, ctx) => {
-      if (data.operator === FilterOperatorKey.between && data.value.length !== 2) {
-        ctx.addIssue({
-          code: "custom",
-          params: { error: CustomErrorCode.filterBetweenInvalidArrayLength },
-          path: ["value"],
-        });
-      }
-    })
-    .meta({ title: "Multi value filter" }),
-  z
-    .object({
-      field: z.string(),
-      operator: z.union([
-        z.literal(FilterOperatorKey.isNull).meta({ title: "isNull" }),
-        z.literal(FilterOperatorKey.isNotNull).meta({ title: "isNotNull" }),
-        z.literal(FilterOperatorKey.hasUnset).meta({ title: "hasUnset" }),
-        z.literal(FilterOperatorKey.allSet).meta({ title: "allSet" }),
-      ]),
-    })
-    .meta({ title: "Standalone filter" }),
-  z
-    .object({
-      field: z.string(),
-      operator: z.literal(FilterOperatorKey.inLastDays).meta({ title: "inLastDays" }),
-      value: z.coerce.number().int().positive(),
-    })
-    .meta({ title: "Relative window filter" }),
-]);
+export const FilterSchema = z.preprocess(
+  normalizeLegacyRelationFilterInput,
+  z.discriminatedUnion("operator", [
+    z
+      .object({
+        field: z.string(),
+        operator: z.union([
+          z.literal(FilterOperatorKey.equals).meta({ title: "equals" }),
+          z.literal(FilterOperatorKey.contains).meta({ title: "contains" }),
+          z.literal(FilterOperatorKey.gt).meta({ title: "gt" }),
+          z.literal(FilterOperatorKey.gte).meta({ title: "gte" }),
+          z.literal(FilterOperatorKey.lt).meta({ title: "lt" }),
+          z.literal(FilterOperatorKey.lte).meta({ title: "lte" }),
+        ]),
+        value: z.string(),
+      })
+      .meta({ title: "Single value filter" }),
+    z
+      .object({
+        field: z.string(),
+        operator: z.union([
+          z.literal(FilterOperatorKey.in).meta({ title: "in" }),
+          z.literal(FilterOperatorKey.notIn).meta({ title: "notIn" }),
+          z.literal(FilterOperatorKey.between).meta({ title: "between" }),
+        ]),
+        value: z.array(z.string()),
+      })
+      .superRefine((data, ctx) => {
+        if (data.operator === FilterOperatorKey.between && data.value.length !== 2) {
+          ctx.addIssue({
+            code: "custom",
+            params: { error: CustomErrorCode.filterBetweenInvalidArrayLength },
+            path: ["value"],
+          });
+        }
+      })
+      .meta({ title: "Multi value filter" }),
+    z
+      .object({
+        field: z.string(),
+        operator: z.union([
+          z.literal(FilterOperatorKey.isNull).meta({ title: "isNull" }),
+          z.literal(FilterOperatorKey.isNotNull).meta({ title: "isNotNull" }),
+          z.literal(FilterOperatorKey.hasUnset).meta({ title: "hasUnset" }),
+          z.literal(FilterOperatorKey.allSet).meta({ title: "allSet" }),
+        ]),
+      })
+      .meta({ title: "Standalone filter" }),
+    z
+      .object({
+        field: z.string(),
+        operator: z.union([
+          z.literal(FilterOperatorKey.hasNone).meta({ title: "hasNone" }),
+          z.literal(FilterOperatorKey.hasSome).meta({ title: "hasSome" }),
+        ]),
+      })
+      .strict()
+      .meta({ title: "Relationship existence filter" }),
+    z
+      .object({
+        field: z.string(),
+        operator: z.literal(FilterOperatorKey.inLastDays).meta({ title: "inLastDays" }),
+        value: z.coerce.number().int().positive(),
+      })
+      .meta({ title: "Relative window filter" }),
+  ]),
+);
 export type Filter = Data<typeof FilterSchema>;
 
 export const SortDescriptorSchema = z.object({
