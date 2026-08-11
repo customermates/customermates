@@ -1266,7 +1266,7 @@ const AgentChatItemView = observer(function AgentChatItemView({ item }: { item: 
     return (
       <article aria-label={t("Inbox.senderYou")} className="group/message flex justify-end">
         <div className="flex max-w-[85%] flex-col items-end gap-1">
-          <div className="w-fit rounded-3xl bg-muted px-4 py-2.5 text-sm whitespace-pre-wrap dark:bg-accent">
+          <div className="w-fit max-w-[85%] rounded-xl rounded-br-md bg-muted px-3.5 py-2 text-sm whitespace-pre-wrap shadow-xs dark:bg-accent/60">
             {item.text}
           </div>
 
@@ -1920,7 +1920,7 @@ const AgentActivity = observer(function AgentActivity({
         <ChevronDown aria-hidden="true" className="size-3.5 transition-transform group-open:rotate-180" />
       </summary>
 
-      <div className="mt-3 space-y-3 border-l pl-4 [&>*]:fade-in-0 [&>*]:slide-in-from-top-1 [&>*]:animate-in [&>*]:motion-reduce:animate-none">
+      <div className="mt-3 space-y-3 pl-4 [&>*]:fade-in-0 [&>*]:slide-in-from-top-2 [&>*]:animate-in [&>*]:duration-300 [&>*]:motion-reduce:animate-none">
         {items.map((item) => {
           const copy = agentActivityCopy(item.activity, t, terminology);
           const label =
@@ -1933,7 +1933,15 @@ const AgentActivity = observer(function AgentActivity({
                   : copy.done;
 
           return (
-            <div key={item.id} className={cn("flex gap-2 text-xs", item.status === "error" && "text-destructive")}>
+            <div
+              key={item.id}
+              className={cn(
+                "relative flex gap-2 text-xs",
+                "before:absolute before:top-0 before:-left-4 before:h-[calc(100%+0.75rem)] before:w-px before:bg-border",
+                "last:before:h-full",
+                item.status === "error" && "text-destructive",
+              )}
+            >
               {item.status === "running" ? (
                 <Loader2 aria-hidden="true" className="mt-0.5 size-3.5 shrink-0 animate-spin" />
               ) : item.status === "error" ? (
