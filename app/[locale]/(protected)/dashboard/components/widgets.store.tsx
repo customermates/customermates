@@ -33,8 +33,10 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
   }
 
   setItems(args: GetResult<WidgetDto>) {
-    this.items = args.items;
-    if (args.customColumns) this.customColumns = args.customColumns;
+    super.setItems({
+      ...args,
+      customColumns: args.customColumns ?? this.customColumns,
+    });
 
     const layouts: MutableLayouts = { xs: [], sm: [], md: [], lg: [] };
 
@@ -59,7 +61,6 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
     });
 
     this.layouts = layouts;
-    this.isReady = true;
   }
 
   onLayoutChange(_: Layout, layouts: ResponsiveLayouts) {

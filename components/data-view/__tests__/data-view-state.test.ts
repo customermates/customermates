@@ -38,6 +38,10 @@ describe("data-view page state", () => {
     expect(resolveDataViewPageState({ ...READY, failure: true, itemCount: 2 })).toBe("content");
   });
 
+  it("surfaces a failed refresh when the prior result has no usable rows", () => {
+    expect(resolveDataViewPageState({ ...READY, failure: true, hasUsableContent: false })).toBe("error");
+  });
+
   it("gives active search and filters precedence over a zero total", () => {
     expect(resolveDataViewPageState({ ...READY, hasActiveQuery: true })).toBe("filtered-empty");
   });

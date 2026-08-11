@@ -1,6 +1,6 @@
 import { Resource } from "@/generated/prisma";
 
-import { ContactsCard } from "./components/contacts-card";
+import { ContactsPageView } from "./components/contacts-page-view";
 
 import { getGetContactsInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
@@ -26,7 +26,7 @@ export default async function ContactsPage({ searchParams }: Props) {
 
   return (
     <PageContainer padded={false}>
-      <ContactsCard contacts={contacts} />
+      <ContactsPageView contacts={contacts} />
     </PageContainer>
   );
 }

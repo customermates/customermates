@@ -34,13 +34,15 @@ describe("page-state contract", () => {
   it("registers every protected non-test route and gives it a loading owner", () => {
     const routes = productRoutes();
     const registered = Object.keys(PROTECTED_ROUTE_REGISTRY).sort();
+    const featureOwnedRoutes = ["/contacts"];
     const pages = walkFiles(PROTECTED_ROOT, (path) => path.endsWith("/page.tsx") && !path.includes("/test/"));
 
-    expect(routes).toEqual(registered);
+    expect(routes.filter((route) => !featureOwnedRoutes.includes(route))).toEqual(registered);
     expect(routes).toHaveLength(25);
+    expect(registered).toHaveLength(24);
     expect(pages.map(nearestLoadingOwner).filter(Boolean)).toHaveLength(25);
 
-    for (const route of routes) {
+    for (const route of registered) {
       const spec = PROTECTED_ROUTE_REGISTRY[route as keyof typeof PROTECTED_ROUTE_REGISTRY];
       const pagePath = join(PROTECTED_ROOT, route.slice(1), "page.tsx");
       const declaredOwner = join(PROTECTED_ROOT, spec.loadingOwner.slice(1), "loading.tsx");
@@ -49,6 +51,11 @@ describe("page-state contract", () => {
       expect(typeof spec.trueEmpty, route).toBe("boolean");
       expect(spec.skeleton, route).toBeDefined();
     }
+
+    const contactsLoading = read("app/[locale]/(protected)/contacts/loading.tsx");
+    expect(contactsLoading).toContain("ContactsPageSkeleton");
+    expect(contactsLoading).not.toContain("RouteLoading");
+    expect(read("components/page-state/route-registry.ts")).not.toContain('"/contacts":');
 
     const errorBoundary = read("app/[locale]/error.tsx");
     expect(errorBoundary).toContain("ErrorPageView");
@@ -98,7 +105,7 @@ describe("page-state contract", () => {
       "DATA_KANBAN_TRACK_CLASS_NAME",
       "DATA_KANBAN_COLUMN_CLASS_NAME",
     ];
-    const skeleton = read("components/page-state/page-skeleton.tsx");
+    const skeleton = read("components/data-view/data-view-skeleton.tsx");
     const cards = read("components/data-view/data-card-view.tsx");
     const board = read("components/data-view/data-kanban-view.tsx");
 
@@ -120,6 +127,7 @@ describe("page-state contract", () => {
 
   it("pins skeleton density and spacing to the loaded page owners", () => {
     const skeleton = read("components/page-state/page-skeleton.tsx");
+    const dataViewSkeleton = read("components/data-view/data-view-skeleton.tsx");
     const table = read("components/ui/table.tsx");
     const dashboard = read("app/[locale]/(protected)/dashboard/components/widgets-grid.tsx");
     const cardHeader = read("components/card/app-card-header.tsx");
@@ -136,8 +144,8 @@ describe("page-state contract", () => {
 
     expect(table).toContain("h-8 px-3");
     expect(table).toContain("px-3 py-2");
-    expect(skeleton).toContain("grid h-8");
-    expect(skeleton).toContain('variant === "member" ? "h-[3.25rem]" : "h-10"');
+    expect(dataViewSkeleton).toContain("grid h-8");
+    expect(dataViewSkeleton).toContain('variant === "member" ? "h-[3.25rem]" : "h-10"');
 
     expect(dashboard).toContain("margin={[16, 16]}");
     expect(dashboard).toContain("rowHeight={124}");
@@ -198,7 +206,11 @@ describe("page-state contract", () => {
   });
 
   it("constructs then pulses page placeholders without moving surfaces", () => {
-    const skeleton = read("components/page-state/page-skeleton.tsx");
+    const skeleton = [
+      read("components/page-state/page-skeleton.tsx"),
+      read("components/data-view/data-view-skeleton.tsx"),
+      read("components/page-state/skeleton-shape.tsx"),
+    ].join("\n");
     const styles = read("styles/globals.css");
     const compactStyles = styles.replace(/\s+/g, " ");
     const widgets = read("app/[locale]/(protected)/dashboard/components/widgets-grid.tsx");
@@ -266,7 +278,7 @@ describe("page-state contract", () => {
 
   it("settles resolved archetypes without delaying server data", () => {
     const resultOwners = [
-      "components/data-view/data-view-container.tsx",
+      "components/data-view/data-view-content.tsx",
       "components/entity-detail/entity-detail-layout.tsx",
       "app/[locale]/(protected)/dashboard/components/widgets-grid.tsx",
       "app/[locale]/(protected)/inbox/components/inbox-list.tsx",
@@ -302,7 +314,13 @@ describe("page-state contract", () => {
   });
 
   it("keeps page geometry pure, bounded, and independent from Assistant state", () => {
-    const files = ["components/page-state/page-state.tsx", "components/page-state/page-skeleton.tsx"];
+    const files = [
+      "components/page-state/page-state.tsx",
+      "components/page-state/page-skeleton.tsx",
+      "components/page-state/skeleton-shape.tsx",
+      "components/data-view/data-view-skeleton.tsx",
+      "app/[locale]/(protected)/contacts/components/contacts-page-skeleton.tsx",
+    ];
     const banned = [
       '"use client"',
       "useEffect",
@@ -406,12 +424,34 @@ describe("page-state contract", () => {
 
   it("never leaves a shared data view blank while readiness is pending", () => {
     const container = read("components/data-view/data-view-container.tsx");
+    const layout = read("components/data-view/data-view-layout.tsx");
 
     expect(container).toContain("resolveDataViewPageState");
     expect(container).toContain('pageState === "loading"');
     expect(container).not.toContain("if (!store.isReady) return null");
-    expect(container).toContain("h-[calc(100svh-4rem)]");
-    expect(container).toContain('contain: "layout"');
+    expect(layout).toContain("h-[calc(100svh-4rem)]");
+    expect(layout).toContain('contain: "layout"');
+  });
+
+  it("keeps the Contacts pilot page-owned and the extracted data-view pieces presentational", () => {
+    const contacts = read("app/[locale]/(protected)/contacts/components/contacts-page-view.tsx");
+    const layout = read("components/data-view/data-view-layout.tsx");
+    const content = read("components/data-view/data-view-content.tsx");
+    const adapter = read("components/data-view/data-view-container.tsx");
+
+    expect(contacts).toContain("switch (pageState)");
+    for (const state of ["error", "loading", "filtered-empty", "true-empty", "content"])
+      expect(contacts).toContain(`case "${state}"`);
+    expect(contacts).toContain("useDataViewSync(contactsStore, contacts");
+    expect(contacts).toContain("DataViewLayout");
+    expect(contacts).toContain("DataViewContent");
+    expect(contacts).not.toMatch(/DataViewContainer|useState|useEffect|useLayoutEffect/);
+
+    for (const source of [layout, content]) {
+      expect(source).not.toMatch(/resolveDataViewPageState|PageState|useDataViewSync/);
+    }
+    expect(adapter).toContain("DataViewLayout");
+    expect(adapter).toContain("DataViewContent");
   });
 
   it("keeps query refresh local and reserves the global overlay for mutations", () => {
@@ -420,8 +460,13 @@ describe("page-state contract", () => {
     const end = store.indexOf("withUrlSync", start);
     const persist = store.slice(start, end);
 
-    expect(persist).toContain("this.isRefreshing = true");
-    expect(persist).toContain("this.refreshError = error");
+    expect(store).toContain('type DataViewRequestState =');
+    expect(store).toContain('{ status: "refreshing" }');
+    expect(store).toContain('{ status: "refresh-error", error }');
+    expect(store).toContain("generation !== this.requestGeneration");
+    expect(store).toContain("this.refreshQueryInBackground()");
+    expect(persist).toContain("await this.runRefresh(true)");
+    expect(persist).toContain('this.toastError("Common.notifications.unexpectedError")');
     expect(persist).not.toContain("loadingOverlayStore");
   });
 

@@ -2,6 +2,7 @@
 
 import type { LucideIcon } from "lucide-react";
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
+import type { ReactElement } from "react";
 
 import { Building2, CheckCircle2, Inbox, Package, TrendingUp, Users } from "lucide-react";
 import { observer } from "mobx-react-lite";
@@ -31,20 +32,38 @@ const ENTITY_ICON: Record<EntityType, LucideIcon> = {
   [EntityType.task]: CheckCircle2,
 };
 
-type Props<E extends HasId> = {
+type SharedProps<E extends HasId> = {
   store: BaseDataViewStore<E>;
   onAdd?: () => void;
   descriptor?: EmptyStateDescriptor;
-  reason: "filtered" | "true-empty";
-  skeleton: PageSkeletonSpec;
   actionLabel?: string;
 };
+
+type Props<E extends HasId> = SharedProps<E> &
+  (
+    | {
+        reason: "filtered";
+        background?: never;
+        skeleton?: never;
+      }
+    | ({ reason: "true-empty" } & (
+        | {
+            background: ReactElement;
+            skeleton?: never;
+          }
+        | {
+            background?: never;
+            skeleton: PageSkeletonSpec;
+          }
+      ))
+  );
 
 export const DataViewEmpty = observer(function DataViewEmpty<E extends HasId>({
   store,
   onAdd,
   descriptor,
   reason,
+  background,
   skeleton,
   actionLabel,
 }: Props<E>) {
@@ -93,6 +112,7 @@ export const DataViewEmpty = observer(function DataViewEmpty<E extends HasId>({
 
   return (
     <PageState
+      {...(background ? { background } : { skeleton })}
       action={
         canCreate ? (
           <Button size="sm" variant="secondary" onClick={() => onAdd?.()}>
@@ -102,7 +122,6 @@ export const DataViewEmpty = observer(function DataViewEmpty<E extends HasId>({
       }
       description={description}
       icon={Icon}
-      skeleton={skeleton}
       state="empty"
       title={title}
     />

@@ -3,16 +3,36 @@ import { describe, expect, it } from "vitest";
 import { PROTECTED_ROUTE_REGISTRY, getProtectedRouteSpec } from "../route-registry";
 
 describe("protected route skeleton registry", () => {
-  it("registers the complete protected product surface", () => {
-    expect(Object.keys(PROTECTED_ROUTE_REGISTRY)).toHaveLength(25);
+  it("freezes the legacy registry so new routes must own their loader directly", () => {
+    expect(Object.keys(PROTECTED_ROUTE_REGISTRY).sort()).toEqual([
+      "/company/audit-logs",
+      "/company/members",
+      "/company/roles",
+      "/company/settings",
+      "/company/subscription",
+      "/company/webhook-deliveries",
+      "/company/webhooks",
+      "/contacts/[id]",
+      "/dashboard",
+      "/deals",
+      "/deals/[id]",
+      "/inbox",
+      "/legal-update",
+      "/onboarding/wizard",
+      "/organizations",
+      "/organizations/[id]",
+      "/profile/api-keys",
+      "/profile/connected-accounts",
+      "/profile/settings",
+      "/services",
+      "/services/[id]",
+      "/subscription-expired",
+      "/tasks",
+      "/tasks/[id]",
+    ]);
   });
 
   it("uses honest route-navigation archetypes", () => {
-    expect(getProtectedRouteSpec("/contacts").skeleton).toEqual({
-      kind: "data-view",
-      tableVariant: "contact",
-      view: "table",
-    });
     expect(getProtectedRouteSpec("/contacts/[id]").skeleton).toEqual({
       kind: "detail",
     });
@@ -41,7 +61,6 @@ describe("protected route skeleton registry", () => {
   });
 
   it("distinguishes entity, member, and plain table geometry", () => {
-    expect(getProtectedRouteSpec("/contacts").skeleton).toMatchObject({ tableVariant: "contact" });
     expect(getProtectedRouteSpec("/organizations").skeleton).toMatchObject({ tableVariant: "entity" });
     expect(getProtectedRouteSpec("/company/members").skeleton).toMatchObject({ tableVariant: "member" });
     expect(getProtectedRouteSpec("/company/audit-logs").skeleton).toMatchObject({ tableVariant: "plain" });

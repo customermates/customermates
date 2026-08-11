@@ -38,11 +38,13 @@ export type TableColumn = {
   width?: number;
 };
 
-export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore {
-  isRefreshing = false;
-  isReady = false;
-  refreshError: unknown = null;
+type DataViewRequestState =
+  | { status: "uninitialized" }
+  | { status: "ready" }
+  | { status: "refreshing" }
+  | { status: "refresh-error"; error: unknown };
 
+export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore {
   items: Entity[] = [];
   customColumns: CustomColumnDto[] = [];
 
@@ -69,6 +71,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   public readonly entityType?: EntityType;
 
   private persistViewOptionsTimer?: number;
+  private requestGeneration = 0;
+  private requestState: DataViewRequestState = { status: "uninitialized" };
   private urlSyncDisposer?: IReactionDisposer;
   private onChangesCallbacks: (() => void | Promise<void>)[] = [];
   private urlSyncUpdateTimer?: number;
@@ -80,10 +84,11 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.resource = resource;
     this.entityType = entityType;
 
-    makeObservable(this, {
-      isRefreshing: observable,
-      isReady: observable,
-      refreshError: observable.ref,
+    makeObservable<this, "requestState">(this, {
+      requestState: observable.ref,
+      isRefreshing: computed,
+      isReady: computed,
+      refreshError: computed,
 
       items: observable,
       customColumns: observable,
@@ -147,6 +152,18 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       updateCustomFieldValue: action,
       moveItemBetweenGroups: action,
     });
+  }
+
+  get isReady(): boolean {
+    return this.requestState.status !== "uninitialized";
+  }
+
+  get isRefreshing(): boolean {
+    return this.requestState.status === "refreshing";
+  }
+
+  get refreshError(): unknown {
+    return this.requestState.status === "refresh-error" ? this.requestState.error : null;
   }
 
   setBulkMutating = (next: boolean) => {
@@ -374,6 +391,12 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   }
 
   setItems(args: GetResult<Entity>): void {
+    this.requestGeneration += 1;
+    this.applyItems(args);
+  }
+
+  private applyItems(args: GetResult<Entity>): void {
+    const wasReady = this.isReady;
     this.items = args.items;
     this.customColumns = args.customColumns ?? [];
     this.p13nId = args.p13nId;
@@ -386,14 +409,12 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.hiddenColumns = (args.hiddenColumns ?? []).filter((uid) => uid !== "name");
     this.savedFilterPresets = args.savedFilterPresets;
     this.columnOrder = (args.columnOrder ?? []).filter((uid) => uid !== "name");
-    if (!this.isReady) {
+    if (!wasReady) {
       this.viewMode = args.viewMode ?? ViewMode.table;
       this.groupingColumnId = args.groupingColumnId;
     }
     this.groupCounts = args.groupCounts ?? {};
-    this.refreshError = null;
-
-    this.isReady = true;
+    this.requestState = { status: "ready" };
   }
 
   loadMoreInGroup = (groupKey: string): void => {
@@ -402,7 +423,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       ...this.groupedTakeOverrides,
       [groupKey]: current + KANBAN_PER_GROUP_DEFAULT,
     };
-    void this.persistQueryOptions();
+    this.refreshQueryInBackground();
   };
 
   resetGroupedTakeOverrides = (): void => {
@@ -484,7 +505,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     if (groupingChanged) this.resetGroupedTakeOverrides();
 
     if (hasChanges) this.persistViewOptions();
-    if (groupingChanged) void this.persistQueryOptions();
+    if (groupingChanged) this.refreshQueryInBackground();
   };
 
   setQueryOptions = (updates: {
@@ -534,7 +555,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       this.resetGroupedTakeOverrides();
     }
 
-    if (hasChanges || updates.forceRefresh) void this.persistQueryOptions();
+    if (hasChanges || updates.forceRefresh) this.refreshQueryInBackground();
   };
 
   removeFilter = (filter: Filter) => {
@@ -569,10 +590,13 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.setCustomColumns(customColumns);
   };
 
-  refresh = async (): Promise<void> => {
-    const groupedPagination = this.buildGroupedPaginationRequest();
+  refresh = (): Promise<void> => this.runRefresh(false);
 
-    const res = await this.refreshAction({
+  private runRefresh = async (visible: boolean): Promise<void> => {
+    const generation = ++this.requestGeneration;
+    const hadUsableState = this.isReady;
+    const groupedPagination = this.buildGroupedPaginationRequest();
+    const params: GetQueryParams = {
       p13nId: this.p13nId,
       filters: toJS(this.filters),
       searchTerm: toJS(this.searchTerm),
@@ -581,9 +605,27 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       groupedPagination,
       viewMode: this.viewMode,
       groupingColumnId: this.groupingColumnId ?? undefined,
+    };
+
+    runInAction(() => {
+      if (visible) this.requestState = { status: "refreshing" };
     });
 
-    this.setItems(res);
+    let result: GetResult<Entity>;
+    try {
+      result = await this.refreshAction(params);
+    } catch (error) {
+      if (generation !== this.requestGeneration) return;
+
+      runInAction(() => {
+        this.requestState = hadUsableState ? { status: "refresh-error", error } : { status: "uninitialized" };
+      });
+      throw error;
+    }
+
+    if (generation !== this.requestGeneration) return;
+
+    runInAction(() => this.setItems(result));
   };
 
   private buildGroupedPaginationRequest(): GroupedPaginationRequest | undefined {
@@ -645,20 +687,17 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   async persistQueryOptions(): Promise<void> {
     if (!this.isReady) return;
 
-    runInAction(() => {
-      this.isRefreshing = true;
-      this.refreshError = null;
-    });
-
     try {
-      await this.refresh();
+      await this.runRefresh(true);
     } catch (error) {
-      runInAction(() => (this.refreshError = error));
+      this.toastError("Common.notifications.unexpectedError");
       throw error;
-    } finally {
-      runInAction(() => (this.isRefreshing = false));
     }
   }
+
+  private refreshQueryInBackground = (): void => {
+    void this.persistQueryOptions().catch(() => undefined);
+  };
 
   withUrlSync = (): (() => void) => {
     this.setUrlSyncEnabled(true);

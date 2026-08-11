@@ -433,7 +433,7 @@ export const DYNAMIC_KEY_SITES = [
 
 const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ["app/[locale]/(protected)/contacts/components/add-channel-popover.tsx :: t :: SOURCE_HINT_KEYS[source]", 1],
-  ["app/[locale]/(protected)/contacts/components/contacts-card.tsx :: t :: nameKey", 1],
+  ["app/[locale]/(protected)/contacts/components/use-contact-columns.tsx :: t :: nameKey", 1],
   ["app/[locale]/(protected)/dashboard/components/widget-modal.tsx :: t :: translationKey", 3],
   ["app/[locale]/(protected)/deals/components/deals-card.tsx :: t :: nameKey", 1],
   ["app/[locale]/(protected)/inbox/components/attachment-classify.ts :: t :: typeLabelKey", 2],

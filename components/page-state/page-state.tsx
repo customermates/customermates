@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactElement, ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 
 import { CircleAlert } from "lucide-react";
@@ -11,20 +11,30 @@ type SharedProps = {
   className?: string;
 };
 
+type PageBackground =
+  | {
+      background: ReactElement;
+      skeleton?: never;
+    }
+  | {
+      background?: never;
+      skeleton: PageSkeletonSpec;
+    };
+
 export type PageStateProps =
-  | (SharedProps & {
-      state: "loading";
-      skeleton: PageSkeletonSpec;
-      label: string;
-    })
-  | (SharedProps & {
-      state: "empty";
-      skeleton: PageSkeletonSpec;
-      title: string;
-      description?: string;
-      icon?: LucideIcon;
-      action?: ReactNode;
-    })
+  | (SharedProps &
+      PageBackground & {
+        state: "loading";
+        label: string;
+      })
+  | (SharedProps &
+      PageBackground & {
+        state: "empty";
+        title: string;
+        description?: string;
+        icon?: LucideIcon;
+        action?: ReactNode;
+      })
   | (SharedProps & {
       state: "error";
       title: string;
@@ -41,7 +51,13 @@ export function PageState(props: PageStateProps) {
         </span>
 
         <div aria-busy="true" className="size-full min-h-0">
-          <PageSkeleton spec={props.skeleton} />
+          {props.background ? (
+            <div data-page-state-background aria-hidden="true" className="size-full min-h-0">
+              {props.background}
+            </div>
+          ) : (
+            <PageSkeleton spec={props.skeleton} />
+          )}
         </div>
       </section>
     );
@@ -78,7 +94,18 @@ export function PageState(props: PageStateProps) {
 
   return (
     <section className={cn("relative min-h-0 w-full flex-1 overflow-hidden", props.className)} data-page-state="empty">
-      <PageSkeleton data-page-state-background animated={false} className="pointer-events-none" spec={props.skeleton} />
+      {props.background ? (
+        <div data-page-state-background aria-hidden="true" className="pointer-events-none size-full min-h-0">
+          {props.background}
+        </div>
+      ) : (
+        <PageSkeleton
+          data-page-state-background
+          animated={false}
+          className="pointer-events-none"
+          spec={props.skeleton}
+        />
+      )}
 
       <div
         data-page-state-overlay

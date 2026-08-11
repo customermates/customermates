@@ -1,0 +1,79 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { AggregationType, EntityType, WidgetGroupByType } from "@/generated/prisma";
+
+import type { WidgetDto } from "@/features/widget/widget.schema";
+import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { RootStore } from "@/core/stores/root.store";
+
+const { refreshWidgetsAction } = vi.hoisted(() => ({
+  refreshWidgetsAction: vi.fn(),
+}));
+
+vi.mock("../../actions", () => ({
+  refreshWidgetsAction,
+  updateWidgetLayoutsAction: vi.fn(),
+}));
+
+vi.mock("@/app/actions", () => ({
+  bulkDeleteEntitiesAction: vi.fn(),
+  bulkUpdateCustomFieldValuesAction: vi.fn(),
+  getCustomColumnsByEntityTypeAction: vi.fn(),
+  updateEntityCustomFieldValueAction: vi.fn(),
+  upsertP13nAction: vi.fn(),
+}));
+
+import { WidgetsStore } from "../widgets.store";
+
+const FIRST_ID = "00000000-0000-4000-8000-000000000001";
+const SECOND_ID = "00000000-0000-4000-8000-000000000002";
+
+function widget(id: string, x: number, y: number): WidgetDto {
+  return {
+    aggregationType: AggregationType.count,
+    companyId: "company-1",
+    createdAt: new Date(0),
+    data: [],
+    dealFilters: [],
+    displayOptions: null,
+    entityFilters: [],
+    entityType: EntityType.contact,
+    groupByCustomColumnId: null,
+    groupByType: WidgetGroupByType.none,
+    id,
+    isTemplate: false,
+    layout: {
+      lg: { h: 2, i: id, w: 3, x, y },
+    },
+    name: id,
+    updatedAt: new Date(0),
+    userId: "user-1",
+  };
+}
+
+describe("WidgetsStore refresh compatibility", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("rebuilds layouts through the setItems override and preserves custom columns", async () => {
+    const root = {
+      localeStore: { getTranslation: (key: string) => key },
+      loadingOverlayStore: { isLoading: false },
+    } as unknown as RootStore;
+    const store = new WidgetsStore(root);
+    const customColumns = [{ id: "custom-column" }] as CustomColumnDto[];
+
+    store.setItems({ customColumns, items: [widget(FIRST_ID, 0, 0)] });
+    refreshWidgetsAction.mockResolvedValueOnce([widget(SECOND_ID, 6, 4)]);
+
+    await store.refresh();
+
+    expect(store.items.map(({ id }) => id)).toEqual([SECOND_ID]);
+    expect(store.customColumns).toEqual(customColumns);
+    expect(store.layouts.lg).toEqual([{ h: 2, i: SECOND_ID, w: 3, x: 6, y: 4 }]);
+    expect(store.layouts.lg).not.toEqual(expect.arrayContaining([expect.objectContaining({ i: FIRST_ID })]));
+    expect(store.isReady).toBe(true);
+    expect(store.isRefreshing).toBe(false);
+    expect(store.refreshError).toBeNull();
+  });
+});

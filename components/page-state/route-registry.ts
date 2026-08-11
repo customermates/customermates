@@ -49,11 +49,6 @@ export const PROTECTED_ROUTE_REGISTRY = {
     loadingOwner: "/contacts/[id]",
     trueEmpty: false,
   },
-  "/contacts": {
-    skeleton: { kind: "data-view", tableVariant: "contact", view: "table" },
-    loadingOwner: "/contacts",
-    trueEmpty: true,
-  },
   "/dashboard": {
     skeleton: { kind: "dashboard" },
     loadingOwner: "/dashboard",

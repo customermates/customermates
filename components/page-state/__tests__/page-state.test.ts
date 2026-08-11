@@ -59,6 +59,30 @@ describe("page state composition", () => {
     expect(html).not.toContain("<button");
   });
 
+  it("accepts a feature-owned background without routing it through the legacy skeleton specification", () => {
+    const loading = renderToStaticMarkup(
+      createElement(PageState, {
+        background: createElement("div", { "data-feature-skeleton": "contacts-loading" }),
+        label: "Loading contacts",
+        state: "loading",
+      }),
+    );
+    const empty = renderToStaticMarkup(
+      createElement(PageState, {
+        background: createElement("div", { "data-feature-skeleton": "contacts-empty" }),
+        state: "empty",
+        title: "No contacts",
+      }),
+    );
+
+    expect(loading).toContain('data-feature-skeleton="contacts-loading"');
+    expect(loading).toContain('aria-busy="true"');
+    expect(loading).not.toContain("data-skeleton-kind");
+    expect(empty).toContain('data-feature-skeleton="contacts-empty"');
+    expect(empty).toContain("data-page-state-background");
+    expect(empty).not.toContain("data-skeleton-kind");
+  });
+
   it("keeps true-empty geometry static, hidden, inert, and action-aware", () => {
     const html = renderToStaticMarkup(
       createElement(PageState, {
