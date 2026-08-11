@@ -1,22 +1,26 @@
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Validate } from "@/core/decorators/validate.decorator";
+import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { AgentSessionUnavailableError } from "@/core/errors/app-errors";
-import type { Validated } from "@/core/validation/validation.utils";
+import { z } from "zod";
 
-import type { AgentConversationSummary } from "./agent-chat.schema";
+import type { Data, Validated } from "@/core/validation/validation.utils";
+
+import { AgentConversationSummarySchema } from "./agent-chat.schema";
 import {
   ArchiveAgentConversationSchema,
   type ArchiveAgentConversationData,
 } from "./archive-agent-conversation.interactor";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 
-type RestoreAgentConversationResult = {
-  activeConversationId: string;
-  conversations: AgentConversationSummary[];
-  nextCursor: string | null;
-};
+const RestoreAgentConversationResultSchema = z.object({
+  activeConversationId: z.string(),
+  conversations: z.array(AgentConversationSummarySchema),
+  nextCursor: z.string().nullable(),
+});
+
+type RestoreAgentConversationResult = Data<typeof RestoreAgentConversationResultSchema>;
 
 @AllowInDemoMode
 @TenantInteractor()
@@ -28,7 +32,11 @@ export class RestoreAgentConversationInteractor extends AuthenticatedInteractor<
     super();
   }
 
-  @Validate(ArchiveAgentConversationSchema)
+  @Write({
+    input: ArchiveAgentConversationSchema,
+    output: RestoreAgentConversationResultSchema,
+    tx: false,
+  })
   async invoke(data: ArchiveAgentConversationData): Validated<RestoreAgentConversationResult> {
     const restored = await this.repo.restoreConversation(data.conversationId);
     if (!restored) throw new AgentSessionUnavailableError("Archived conversation not found.");

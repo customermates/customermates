@@ -3,7 +3,7 @@ import { z } from "zod";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Validate } from "@/core/decorators/validate.decorator";
+import { Write } from "@/core/decorators/write.decorator";
 import { AgentSessionUnavailableError } from "@/core/errors/app-errors";
 import type { Validated } from "@/core/validation/validation.utils";
 
@@ -15,6 +15,12 @@ export const MarkAgentConversationReadSchema = z.object({
 });
 export type MarkAgentConversationReadData = z.infer<typeof MarkAgentConversationReadSchema>;
 
+const MarkAgentConversationReadResultSchema = z.object({
+  marked: z.literal(true),
+  unreadSupport: z.boolean(),
+  unreadSupportCount: z.number(),
+});
+
 @AllowInDemoMode
 @TenantInteractor()
 export class MarkAgentConversationReadInteractor extends AuthenticatedInteractor<
@@ -25,7 +31,11 @@ export class MarkAgentConversationReadInteractor extends AuthenticatedInteractor
     super();
   }
 
-  @Validate(MarkAgentConversationReadSchema)
+  @Write({
+    input: MarkAgentConversationReadSchema,
+    output: MarkAgentConversationReadResultSchema,
+    tx: false,
+  })
   async invoke(data: MarkAgentConversationReadData): Validated<{
     marked: true;
     unreadSupport: boolean;

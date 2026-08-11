@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Validate } from "@/core/decorators/validate.decorator";
+import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { type Data, type Validated } from "@/core/validation/validation.utils";
 import { AgentSessionUnavailableError } from "@/core/errors/app-errors";
@@ -24,7 +24,12 @@ export const CreateChatSupportTicketSchema = z.object({
 
 export type CreateChatSupportTicketData = Data<typeof CreateChatSupportTicketSchema>;
 
-type CreatedTicket = { id: string; number: number };
+const OutputSchema = z.object({
+  id: z.string(),
+  number: z.number().int(),
+});
+
+type CreatedTicket = Data<typeof OutputSchema>;
 
 @TenantInteractor()
 export class CreateChatSupportTicketInteractor extends AuthenticatedInteractor<
@@ -38,7 +43,7 @@ export class CreateChatSupportTicketInteractor extends AuthenticatedInteractor<
     super();
   }
 
-  @Validate(CreateChatSupportTicketSchema)
+  @Write({ input: CreateChatSupportTicketSchema, output: OutputSchema, tx: false })
   async invoke(data: CreateChatSupportTicketData): Validated<CreatedTicket> {
     const conversation = await this.repo.findConversation(data.conversationId);
     if (!conversation) throw new AgentSessionUnavailableError("Conversation not found.");

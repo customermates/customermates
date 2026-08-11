@@ -1,10 +1,12 @@
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import type { Validated } from "@/core/validation/validation.utils";
 
 import {
+  AgentConversationHistoryResultSchema,
   type AgentConversationHistoryResult,
   type ListAgentConversationsData,
   ListAgentConversationsSchema,
@@ -22,6 +24,7 @@ export class ListAgentConversationsInteractor extends AuthenticatedInteractor<
   }
 
   @Validate(ListAgentConversationsSchema)
+  @ValidateOutput(AgentConversationHistoryResultSchema)
   async invoke(data: ListAgentConversationsData): Validated<AgentConversationHistoryResult> {
     const [active, archived] = await Promise.all([
       data.kind === "archived"

@@ -1,14 +1,20 @@
+import { z } from "zod";
+
 import type { AppMode } from "@/core/config/environment";
 import { SubscriptionStatus, type SubscriptionPlan } from "@/generated/prisma";
+import type { Data } from "@/core/validation/validation.utils";
 
 import { getEntitlements, TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER } from "@/ee/subscription/entitlements";
 
 export const AGENT_CREDIT_MICROCENTS = 1_000_000;
 
-export type AgentCreditEntitlementBlockedReason =
-  | "self_hosted"
-  | "subscription_unavailable"
-  | "enterprise_allowance_missing";
+export const AgentCreditEntitlementBlockedReasonSchema = z.enum([
+  "self_hosted",
+  "subscription_unavailable",
+  "enterprise_allowance_missing",
+]);
+
+export type AgentCreditEntitlementBlockedReason = Data<typeof AgentCreditEntitlementBlockedReasonSchema>;
 
 export type AgentCreditPeriod = {
   start: Date;

@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Validate } from "@/core/decorators/validate.decorator";
+import { Write } from "@/core/decorators/write.decorator";
 import { AgentSessionUnavailableError } from "@/core/errors/app-errors";
 import { type Data, type Validated } from "@/core/validation/validation.utils";
 
@@ -18,13 +18,15 @@ export const RespondToUiCommandSchema = z.object({
 
 export type RespondToUiCommandData = Data<typeof RespondToUiCommandSchema>;
 
+const OutputSchema = z.object({ resolved: z.literal(true) });
+
 @TenantInteractor()
 export class RespondToUiCommandInteractor extends AuthenticatedInteractor<RespondToUiCommandData, { resolved: true }> {
   constructor(private repo: PrismaAgentChatRepo) {
     super();
   }
 
-  @Validate(RespondToUiCommandSchema)
+  @Write({ input: RespondToUiCommandSchema, output: OutputSchema, tx: false })
   async invoke(data: RespondToUiCommandData): Validated<{ resolved: true }> {
     const conversation = await this.repo.findConversation(data.conversationId);
     if (!conversation) throw new AgentSessionUnavailableError("Conversation not found.");

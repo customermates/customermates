@@ -1,4 +1,6 @@
-import type { Validated } from "@/core/validation/validation.utils";
+import { z } from "zod";
+
+import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { CreateManyContactsInteractor } from "@/features/contacts/upsert/create-many-contacts.interactor";
 import type { CreateManyOrganizationsInteractor } from "@/features/organizations/upsert/create-many-organizations.interactor";
 import type { CreateManyDealsInteractor } from "@/features/deals/upsert/create-many-deals.interactor";
@@ -11,10 +13,16 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 import { BULK_WRITE_TRANSACTION, Transaction } from "@/core/decorators/transaction.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 
-export type SeedAgentDemoDataResult = { created: boolean; recordCount: number };
+const OutputSchema = z.object({
+  created: z.boolean(),
+  recordCount: z.number().int().nonnegative(),
+});
+
+export type SeedAgentDemoDataResult = Data<typeof OutputSchema>;
 
 async function dataOrThrow<T>(resultPromise: Validated<T>): Promise<T> {
   const result = await resultPromise;
@@ -49,6 +57,7 @@ export class SeedAgentDemoDataInteractor extends AuthenticatedInteractor<void, S
     super();
   }
 
+  @ValidateOutput(OutputSchema)
   @Transaction(BULK_WRITE_TRANSACTION)
   async invoke(): Validated<SeedAgentDemoDataResult> {
     const signals = await this.repo.getWorkspaceSetupSignals();

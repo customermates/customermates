@@ -1,8 +1,7 @@
 import { randomUUID } from "node:crypto";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Transaction } from "@/core/decorators/transaction.decorator";
-import { Validate } from "@/core/decorators/validate.decorator";
+import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 import { type Validated } from "@/core/validation/validation.utils";
@@ -67,8 +66,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     super();
   }
 
-  @Validate(SendAgentMessageSchema)
-  @Transaction
+  @Write({ input: SendAgentMessageSchema })
   async invoke(data: SendAgentMessageData): Validated<SendAgentMessageResult> {
     const user = getTenantUser();
     const now = new Date();

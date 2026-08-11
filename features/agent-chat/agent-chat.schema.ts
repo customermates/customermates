@@ -208,22 +208,26 @@ export function sanitizeAgentToolInput(value: unknown): unknown {
   };
 }
 
-export type AgentDataCounts = {
-  contacts: boolean;
-  organizations: boolean;
-  deals: boolean;
-  services: boolean;
-  tasks: boolean;
-  connectedAccounts: boolean;
-};
+export const AgentDataCountsSchema = z.object({
+  contacts: z.boolean(),
+  organizations: z.boolean(),
+  deals: z.boolean(),
+  services: z.boolean(),
+  tasks: z.boolean(),
+  connectedAccounts: z.boolean(),
+});
 
-export type AgentConversationSummary = {
-  id: string;
-  title: string | null;
-  preview: string;
-  updatedAt: Date;
-  unreadSupport: boolean;
-};
+export type AgentDataCounts = Data<typeof AgentDataCountsSchema>;
+
+export const AgentConversationSummarySchema = z.object({
+  id: z.string(),
+  title: z.string().nullable(),
+  preview: z.string(),
+  updatedAt: z.date(),
+  unreadSupport: z.boolean(),
+});
+
+export type AgentConversationSummary = Data<typeof AgentConversationSummarySchema>;
 
 export const SUGGESTION_PAGE_IDS = [
   "dashboard",

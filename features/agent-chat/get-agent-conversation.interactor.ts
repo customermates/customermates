@@ -1,6 +1,9 @@
+import { z } from "zod";
+
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { type Validated } from "@/core/validation/validation.utils";
 import { AgentSessionUnavailableError } from "@/core/errors/app-errors";
@@ -22,6 +25,20 @@ type AgentConversationDetail = {
   nextCursor: string | null;
 };
 
+const OutputSchema = z.object({
+  id: z.string(),
+  title: z.string().nullable(),
+  messages: z.array(
+    z.object({
+      id: z.string(),
+      role: z.string(),
+      parts: z.array(z.any()),
+      createdAt: z.date(),
+    }),
+  ),
+  nextCursor: z.string().nullable(),
+});
+
 @AllowInDemoMode
 @TenantInteractor()
 export class GetAgentConversationInteractor extends AuthenticatedInteractor<
@@ -36,6 +53,7 @@ export class GetAgentConversationInteractor extends AuthenticatedInteractor<
   }
 
   @Validate(GetAgentConversationSchema)
+  @ValidateOutput(OutputSchema)
   async invoke(data: GetAgentConversationData): Validated<AgentConversationDetail> {
     const conversation = await this.repo.findConversation(data.conversationId);
     if (!conversation) throw new AgentSessionUnavailableError("Conversation not found.");

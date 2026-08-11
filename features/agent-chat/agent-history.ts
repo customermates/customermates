@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import type { Data } from "@/core/validation/validation.utils";
 
-import type { AgentConversationSummary } from "./agent-chat.schema";
+import { AgentConversationSummarySchema } from "./agent-chat.schema";
 
 export const AGENT_CONVERSATION_PAGE_SIZE = 25;
 export const AGENT_MESSAGE_PAGE_SIZE = 50;
@@ -15,15 +15,19 @@ export const ListAgentConversationsSchema = z.object({
 
 export type ListAgentConversationsData = Data<typeof ListAgentConversationsSchema>;
 
-export type AgentConversationPage = {
-  conversations: AgentConversationSummary[];
-  nextCursor: string | null;
-};
+export const AgentConversationPageSchema = z.object({
+  conversations: z.array(AgentConversationSummarySchema),
+  nextCursor: z.string().nullable(),
+});
 
-export type AgentConversationHistoryResult = {
-  active: AgentConversationPage | null;
-  archived: AgentConversationPage | null;
-};
+export const AgentConversationHistoryResultSchema = z.object({
+  active: AgentConversationPageSchema.nullable(),
+  archived: AgentConversationPageSchema.nullable(),
+});
+
+export type AgentConversationPage = Data<typeof AgentConversationPageSchema>;
+
+export type AgentConversationHistoryResult = Data<typeof AgentConversationHistoryResultSchema>;
 
 export const AgentMessagePageSchema = z.object({
   conversationId: z.uuid(),

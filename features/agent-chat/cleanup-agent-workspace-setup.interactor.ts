@@ -17,10 +17,12 @@ import type { DeleteWidgetInteractor } from "@/features/widget/delete-widget.int
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { BULK_WRITE_TRANSACTION, Transaction } from "@/core/decorators/transaction.decorator";
-import { Validate } from "@/core/decorators/validate.decorator";
+import { BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator";
+import { Write } from "@/core/decorators/write.decorator";
 import { AgentSessionUnavailableError } from "@/core/errors/app-errors";
-import type { Validated } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
+
+import { AgentWorkspaceSetupCleanupSummarySchema } from "./agent-chat.schema";
 
 import { agentWorkspaceSetupTerminologyEntries } from "./agent-workspace-setup";
 import type { AgentWorkspaceSetupCleanupDecision, AgentWorkspaceSetupRepo } from "./agent-workspace-setup.repository";
@@ -35,15 +37,13 @@ export const CleanupAgentWorkspaceSetupSchema = z.object({
 
 export type CleanupAgentWorkspaceSetupData = z.infer<typeof CleanupAgentWorkspaceSetupSchema>;
 
-export type CleanupAgentWorkspaceSetupResult = {
-  status: "cleaned" | "partiallyCleaned" | "alreadyCleaned";
-  setupId: string;
-  deletedResources: number;
-  retainedResources: number;
-  missingResources: number;
-  retainedReasons: ("edited" | "dependent")[];
-  terminologyRestored: boolean;
-};
+const CleanupAgentWorkspaceSetupResultSchema = AgentWorkspaceSetupCleanupSummarySchema.extend({
+  status: z.enum(["cleaned", "partiallyCleaned", "alreadyCleaned"]),
+  setupId: z.string(),
+  terminologyRestored: z.boolean(),
+});
+
+export type CleanupAgentWorkspaceSetupResult = Data<typeof CleanupAgentWorkspaceSetupResultSchema>;
 
 type CleanupDependencies = {
   chatRepo: PrismaAgentChatRepo;
@@ -173,8 +173,11 @@ export class CleanupAgentWorkspaceSetupInteractor extends AuthenticatedInteracto
     super();
   }
 
-  @Validate(CleanupAgentWorkspaceSetupSchema)
-  @Transaction(BULK_WRITE_TRANSACTION)
+  @Write({
+    input: CleanupAgentWorkspaceSetupSchema,
+    output: CleanupAgentWorkspaceSetupResultSchema,
+    tx: BULK_WRITE_TRANSACTION,
+  })
   async invoke(data: CleanupAgentWorkspaceSetupData): Validated<CleanupAgentWorkspaceSetupResult> {
     const conversation = await this.deps.chatRepo.findConversation(data.conversationId);
     if (!conversation) throw new AgentSessionUnavailableError("Conversation not found.");

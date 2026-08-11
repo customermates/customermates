@@ -1,9 +1,12 @@
+import { z } from "zod";
+
 import { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
 import { env } from "@/env";
+import type { Data } from "@/core/validation/validation.utils";
 
 import type { TokenCounts } from "./model-pricing";
-import { resolveAgentCreditEntitlement, type AgentCreditEntitlementBlockedReason } from "./agent-credit-policy";
+import { resolveAgentCreditEntitlement, AgentCreditEntitlementBlockedReasonSchema } from "./agent-credit-policy";
 import { resolveAgentTurnBudget, type AgentTurnBudget } from "./agent-budget-policy";
 import { buildAgentUsageSettlement } from "./agent-usage-settlement";
 
@@ -67,22 +70,27 @@ export abstract class AgentUsageRepo {
   }): Promise<void>;
 }
 
-export type AgentUsageBlockedReason =
-  | AgentCreditEntitlementBlockedReason
-  | "credits_exhausted"
-  | "configuration_unavailable";
+export const AgentUsageBlockedReasonSchema = z.enum([
+  ...AgentCreditEntitlementBlockedReasonSchema.options,
+  "credits_exhausted",
+  "configuration_unavailable",
+]);
 
-export type AgentUsageSummary = {
-  creditsUsed: number;
-  creditsRemaining: number;
-  creditsLimit: number;
-  usedPct: number;
-  plan: SubscriptionPlan | null;
-  periodStart: Date;
-  resetAt: Date;
-  recentTurnCredits: number | null;
-  blockedReason: AgentUsageBlockedReason | null;
-};
+export type AgentUsageBlockedReason = Data<typeof AgentUsageBlockedReasonSchema>;
+
+export const AgentUsageSummarySchema = z.object({
+  creditsUsed: z.number(),
+  creditsRemaining: z.number(),
+  creditsLimit: z.number(),
+  usedPct: z.number(),
+  plan: z.enum(SubscriptionPlan).nullable(),
+  periodStart: z.date(),
+  resetAt: z.date(),
+  recentTurnCredits: z.number().nullable(),
+  blockedReason: AgentUsageBlockedReasonSchema.nullable(),
+});
+
+export type AgentUsageSummary = Data<typeof AgentUsageSummarySchema>;
 
 export type AgentTurnCreditReservation = {
   reservedCredits: number;

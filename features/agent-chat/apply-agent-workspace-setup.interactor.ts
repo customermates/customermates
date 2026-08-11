@@ -12,13 +12,13 @@ import type { CreateManyDealsInteractor } from "@/features/deals/upsert/create-m
 import type { CreateManyServicesInteractor } from "@/features/services/upsert/create-many-services.interactor";
 import type { CreateManyTasksInteractor } from "@/features/tasks/upsert/create-many-tasks.interactor";
 import type { UpsertWidgetInteractor } from "@/features/widget/upsert-widget.interactor";
-import type { Validated } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { getTenantUser } from "@/core/decorators/tenant-context";
-import { BULK_WRITE_TRANSACTION, Transaction } from "@/core/decorators/transaction.decorator";
-import { Validate } from "@/core/decorators/validate.decorator";
+import { BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator";
+import { Write } from "@/core/decorators/write.decorator";
 import { AgentSessionUnavailableError } from "@/core/errors/app-errors";
 import { CHIP_COLORS } from "@/constants/chip-colors";
 import { DisplayType } from "@/features/widget/widget.schema";
@@ -43,11 +43,17 @@ export const ApplyAgentWorkspaceSetupSchema = z.object({
 
 export type ApplyAgentWorkspaceSetupData = z.infer<typeof ApplyAgentWorkspaceSetupSchema>;
 
-export type ApplyAgentWorkspaceSetupResult = {
-  status: "applied" | "alreadyApplied" | "notEmpty";
-  setupId: string | null;
-  counts: ReturnType<typeof agentWorkspaceSetupCounts>;
-};
+const ApplyAgentWorkspaceSetupResultSchema = z.object({
+  status: z.enum(["applied", "alreadyApplied", "notEmpty"]),
+  setupId: z.string().nullable(),
+  counts: z.object({
+    columns: z.number().int().nonnegative(),
+    records: z.number().int().nonnegative(),
+    widgets: z.number().int().nonnegative(),
+  }),
+});
+
+export type ApplyAgentWorkspaceSetupResult = Data<typeof ApplyAgentWorkspaceSetupResultSchema>;
 
 type RuntimeColumn = {
   plan: AgentSetupColumnPlan;
@@ -137,8 +143,11 @@ export class ApplyAgentWorkspaceSetupInteractor extends AuthenticatedInteractor<
     super();
   }
 
-  @Validate(ApplyAgentWorkspaceSetupSchema)
-  @Transaction(BULK_WRITE_TRANSACTION)
+  @Write({
+    input: ApplyAgentWorkspaceSetupSchema,
+    output: ApplyAgentWorkspaceSetupResultSchema,
+    tx: BULK_WRITE_TRANSACTION,
+  })
   async invoke(data: ApplyAgentWorkspaceSetupData): Validated<ApplyAgentWorkspaceSetupResult> {
     const conversation = await this.deps.chatRepo.findConversation(data.conversationId);
     if (!conversation) throw new AgentSessionUnavailableError("Conversation not found.");
