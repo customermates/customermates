@@ -1,6 +1,6 @@
 "use client";
 
-import type { AnchorHTMLAttributes, ComponentProps, ReactNode, SVGProps } from "react";
+import type { SVGProps } from "react";
 
 import { ChevronRight } from "lucide-react";
 import { observer } from "mobx-react-lite";
@@ -19,9 +19,8 @@ import {
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { Icon } from "@/components/shared/icon";
-import { IntlLink } from "@/i18n/navigation";
 import { cn } from "@/core/utils/cn";
-import { protectedHrefFromContent } from "@/components/shared/app-link";
+import { AppLink } from "@/components/shared/app-link";
 
 import { NavLinkPendingIndicator } from "./nav-link-pending-indicator";
 
@@ -55,36 +54,6 @@ type NavMainParentProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
-
-function NavRouteLink({
-  children,
-  href,
-  pathname,
-  pendingClassName,
-  ...props
-}: Omit<ComponentProps<typeof IntlLink>, "href"> & {
-  children: ReactNode;
-  href: string;
-  pathname: string | null;
-  pendingClassName?: string;
-}) {
-  const hardNavigationHref = protectedHrefFromContent(href, pathname ?? "");
-  if (hardNavigationHref) {
-    return (
-      <a href={hardNavigationHref} {...(props as AnchorHTMLAttributes<HTMLAnchorElement>)}>
-        {children}
-      </a>
-    );
-  }
-
-  return (
-    <IntlLink href={href} {...props}>
-      {children}
-
-      <NavLinkPendingIndicator className={pendingClassName} />
-    </IntlLink>
-  );
-}
 
 function NavBadge({ count }: { count: number }) {
   if (count <= 0) return null;
@@ -128,17 +97,18 @@ function NavMainParent({ item, pathname, onNavigate, open, onOpenChange }: NavMa
                   )}
 
                   <SidebarMenuSubButton asChild isActive={subActive}>
-                    <NavRouteLink
+                    <AppLink
+                      appearance="unstyled"
                       href={sub.href}
                       id={`nav-${sub.key}`}
-                      pathname={pathname}
-                      pendingClassName={sub.badge ? "ml-0" : undefined}
                       onClick={() => onNavigate(sub.key)}
                     >
                       <span>{sub.title}</span>
 
                       <NavBadge count={sub.badge ?? 0} />
-                    </NavRouteLink>
+
+                      <NavLinkPendingIndicator className={sub.badge ? "ml-0" : undefined} />
+                    </AppLink>
                   </SidebarMenuSubButton>
                 </SidebarMenuSubItem>
               );
@@ -185,19 +155,15 @@ export const NavMain = observer(({ groups, selectedKey, pathname, onNavigate }: 
     return (
       <SidebarMenuItem key={item.key}>
         <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
-          <NavRouteLink
-            href={item.href}
-            id={`nav-${item.key}`}
-            pathname={pathname}
-            pendingClassName={item.badge ? "ml-0" : undefined}
-            onClick={() => onNavigate(item.key)}
-          >
+          <AppLink appearance="unstyled" href={item.href} id={`nav-${item.key}`} onClick={() => onNavigate(item.key)}>
             <Icon icon={item.icon} />
 
             <span className="min-w-0 truncate">{item.title}</span>
 
             <NavBadge count={item.badge ?? 0} />
-          </NavRouteLink>
+
+            <NavLinkPendingIndicator className={item.badge ? "ml-0" : undefined} />
+          </AppLink>
         </SidebarMenuButton>
       </SidebarMenuItem>
     );
