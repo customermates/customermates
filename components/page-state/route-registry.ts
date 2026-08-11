@@ -84,11 +84,6 @@ export const PROTECTED_ROUTE_REGISTRY = {
     loadingOwner: "/organizations/[id]",
     trueEmpty: false,
   },
-  "/organizations": {
-    skeleton: { kind: "data-view", tableVariant: "entity", view: "table" },
-    loadingOwner: "/organizations",
-    trueEmpty: true,
-  },
   "/profile/api-keys": {
     skeleton: { card: "api-keys", kind: "settings", view: "cards" },
     loadingOwner: "/profile/api-keys",

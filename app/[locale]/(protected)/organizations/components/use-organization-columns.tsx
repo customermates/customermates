@@ -1,38 +1,31 @@
 "use client";
 
-import type { GetResult } from "@/core/base/base-get.interactor";
-import type { OrganizationDto } from "@/features/organizations/organization.schema";
 import type { ColumnDef } from "@tanstack/react-table";
+import type { OrganizationDto } from "@/features/organizations/organization.schema";
 
-import { observer } from "mobx-react-lite";
-import { useTranslations } from "next-intl";
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { EntityType, TaskType } from "@/generated/prisma";
 
-import { AvatarStack } from "@/components/shared/avatar-stack";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
-import { DataViewContainer, standardTailColumns, useDataViewSync } from "@/components/data-view";
+import { standardTailColumns } from "@/components/data-view/standard-columns";
 import { useEntityHref, useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
+import { AvatarStack } from "@/components/shared/avatar-stack";
 import { useRootStore } from "@/core/stores/root-store.provider";
+
 import { getSystemTaskNameTranslationKey } from "../../tasks/components/system-task.config";
 
-type Props = {
-  organizations: GetResult<OrganizationDto>;
-};
-
-export const OrganizationsCard = observer(({ organizations }: Props) => {
-  const { contactsStore, organizationsStore, userModalStore, dealsStore, intlStore } = useRootStore();
+export function useOrganizationColumns(): ColumnDef<OrganizationDto>[] {
+  const { intlStore, organizationsStore, userModalStore } = useRootStore();
   const openEntity = useOpenEntity();
   const entityHref = useEntityHref();
   const t = useTranslations();
 
-  useDataViewSync(organizationsStore, organizations, [contactsStore, dealsStore]);
-
-  const columns = useMemo<ColumnDef<OrganizationDto>[]>(() => {
-    return [
+  return useMemo<ColumnDef<OrganizationDto>[]>(
+    () => [
       {
         id: "name",
-        cell: ({ row }) => <span className="text-sm truncate">{row.original.name ?? ""}</span>,
+        cell: ({ row }) => <span className="truncate text-sm">{row.original.name ?? ""}</span>,
       },
       {
         id: "contacts",
@@ -69,16 +62,7 @@ export const OrganizationsCard = observer(({ organizations }: Props) => {
         ),
       },
       ...standardTailColumns({ store: organizationsStore, intlStore, userModalStore }),
-    ];
-  }, [organizationsStore, organizationsStore.customColumns, openEntity, entityHref, userModalStore, intlStore, t]);
-
-  return (
-    <DataViewContainer
-      anchorScope="organizations"
-      columns={columns}
-      rowHref={(item) => entityHref(EntityType.organization, item.id)}
-      store={organizationsStore}
-      onAdd={() => openEntity(EntityType.organization, "new")}
-    />
+    ],
+    [entityHref, intlStore, openEntity, organizationsStore, organizationsStore.customColumns, t, userModalStore],
   );
-});
+}

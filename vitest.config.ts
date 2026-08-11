@@ -32,6 +32,7 @@ export default defineConfig({
             ".next",
             "generated",
             "app/[locale]/(protected)/company/components/company-settings/__tests__/company-settings-form.test.ts",
+            "components/data-view/__tests__/data-view-url-sync.test.ts",
           ],
           server: { deps: { inline: [/next-intl/] } },
         },
@@ -45,6 +46,7 @@ export default defineConfig({
           env: testEnvironment,
           include: [
             "app/[locale]/(protected)/company/components/company-settings/__tests__/company-settings-form.test.ts",
+            "components/data-view/__tests__/data-view-url-sync.test.ts",
           ],
           exclude: ["node_modules", ".next", "generated"],
         },

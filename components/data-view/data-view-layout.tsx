@@ -3,8 +3,6 @@
 import type { ReactNode } from "react";
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 
-import { observer } from "mobx-react-lite";
-
 import { DataViewActiveFiltersBar } from "./header/active-filters-bar";
 import { DataViewPagination } from "./header/pagination";
 import { MassActionsBar } from "./mass-actions-bar";
@@ -15,11 +13,7 @@ type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
 };
 
-export const DataViewLayout = observer(function DataViewLayout<E extends HasId>({
-  children,
-  showPagination,
-  store,
-}: Props<E>) {
+export function DataViewLayout<E extends HasId>({ children, showPagination, store }: Props<E>) {
   return (
     <div className="flex h-[calc(100svh-4rem)] min-h-0 flex-col md:h-[calc(100svh-5rem)]">
       <MassActionsBar store={store} />
@@ -36,4 +30,4 @@ export const DataViewLayout = observer(function DataViewLayout<E extends HasId>(
       {showPagination && <DataViewPagination store={store} />}
     </div>
   );
-});
+}

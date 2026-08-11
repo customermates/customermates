@@ -2,44 +2,38 @@ import { describe, expect, it } from "vitest";
 
 import { ViewMode } from "@/core/base/base-query-builder";
 
-import { resolveDataViewPageState, resolveDataViewSkeletonView } from "../data-view-state";
+import { resolveDataViewPageState, resolveDataViewView } from "../data-view-state";
 
 const READY = {
   explicitlyUnpaginated: false,
-  failure: false,
   hasActiveQuery: false,
-  hasUsableContent: true,
-  isReady: true,
-  isRefreshing: false,
   itemCount: 0,
+  request: { status: "ready" } as const,
   total: 0,
 };
 
 describe("data-view page state", () => {
-  it("gives an unusable failure precedence over loading", () => {
+  it("surfaces a refresh failure when no prior rows are usable", () => {
+    const failure = new Error("failed");
+
+    expect(resolveDataViewPageState({ ...READY, request: { status: "refresh-error", error: failure } })).toBe("error");
+  });
+
+  it.each([{ status: "uninitialized" } as const, { status: "refreshing" } as const])(
+    "uses a loading skeleton while $status",
+    (request) => {
+      expect(resolveDataViewPageState({ ...READY, request })).toBe("loading");
+    },
+  );
+
+  it("keeps a failed refresh on usable prior content", () => {
     expect(
       resolveDataViewPageState({
         ...READY,
-        failure: true,
-        hasUsableContent: false,
-        isReady: false,
+        itemCount: 2,
+        request: { status: "refresh-error", error: new Error("failed") },
       }),
-    ).toBe("error");
-  });
-
-  it.each([
-    { isReady: false, isRefreshing: false },
-    { isReady: true, isRefreshing: true },
-  ])("uses a loading skeleton while readiness is pending", (pending) => {
-    expect(resolveDataViewPageState({ ...READY, ...pending })).toBe("loading");
-  });
-
-  it("keeps a failed refresh on usable prior content", () => {
-    expect(resolveDataViewPageState({ ...READY, failure: true, itemCount: 2 })).toBe("content");
-  });
-
-  it("surfaces a failed refresh when the prior result has no usable rows", () => {
-    expect(resolveDataViewPageState({ ...READY, failure: true, hasUsableContent: false })).toBe("error");
+    ).toBe("content");
   });
 
   it("gives active search and filters precedence over a zero total", () => {
@@ -61,8 +55,8 @@ describe("data-view page state", () => {
   });
 
   it("maps the live table, card, and grouped card modes to matching geometry", () => {
-    expect(resolveDataViewSkeletonView(ViewMode.table)).toBe("table");
-    expect(resolveDataViewSkeletonView(ViewMode.card)).toBe("cards");
-    expect(resolveDataViewSkeletonView(ViewMode.card, "pipeline-stage")).toBe("board");
+    expect(resolveDataViewView(ViewMode.table)).toBe("table");
+    expect(resolveDataViewView(ViewMode.card)).toBe("cards");
+    expect(resolveDataViewView(ViewMode.card, "pipeline-stage")).toBe("board");
   });
 });

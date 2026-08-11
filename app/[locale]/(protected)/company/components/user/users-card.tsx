@@ -6,14 +6,14 @@ import type { GetResult } from "@/core/base/base-get.interactor";
 import type { ColumnDef } from "@tanstack/react-table";
 
 import { observer } from "mobx-react-lite";
-import { useEffect, useLayoutEffect, useMemo } from "react";
+import { useLayoutEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 
 import { Avatar } from "@/components/ui/avatar";
 import { AppChip } from "@/components/chip/app-chip";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
-import { DataViewContainer } from "@/components/data-view";
+import { DataViewContainer, useDataViewSync } from "@/components/data-view";
 import { roleDisplayName } from "@/features/role/role-display-name";
 
 type Props = {
@@ -27,13 +27,8 @@ export const UsersCard = observer(({ initialUsers, initialRoles }: Props) => {
   const { canManage } = usersStore;
   const roles = rolesStore.items;
 
-  useLayoutEffect(() => usersStore.setItems(initialUsers), [initialUsers]);
+  useDataViewSync(usersStore, initialUsers);
   useLayoutEffect(() => rolesStore.setItems(initialRoles), [initialRoles]);
-
-  useEffect(() => {
-    const cleanupUrlSync = usersStore.withUrlSync();
-    return () => cleanupUrlSync();
-  }, []);
 
   const columns = useMemo<ColumnDef<UserDto>[]>(() => {
     return [

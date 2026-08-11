@@ -76,12 +76,14 @@ describe("BaseDataViewStore query refresh", () => {
     expect(store.isReady).toBe(false);
     expect(store.isRefreshing).toBe(false);
     expect(store.refreshError).toBeNull();
+    expect(store.dataRequest).toEqual({ status: "uninitialized" });
 
     store.setItems(initialResult());
 
     expect(store.isReady).toBe(true);
     expect(store.isRefreshing).toBe(false);
     expect(store.refreshError).toBeNull();
+    expect(store.dataRequest).toEqual({ status: "ready" });
   });
 
   it("retains prior rows, stays local, and replaces data after success", async () => {
@@ -91,10 +93,11 @@ describe("BaseDataViewStore query refresh", () => {
     store.setItems(initialResult());
     store.nextRefresh = () => new Promise((resolve) => (resolveRefresh = resolve));
 
-    const pending = store.persistQueryOptions();
+    const pending = store.refreshQuery();
 
     expect(store.isReady).toBe(true);
     expect(store.isRefreshing).toBe(true);
+    expect(store.dataRequest).toEqual({ status: "refreshing" });
     expect(store.items).toEqual([{ id: "prior" }]);
     expect(loadingOverlayStore.isLoading).toBe(false);
 
@@ -116,11 +119,12 @@ describe("BaseDataViewStore query refresh", () => {
     store.setItems(initialResult());
     store.nextRefresh = () => Promise.reject(failure);
 
-    await expect(store.persistQueryOptions()).rejects.toBe(failure);
+    await expect(store.refreshQuery()).rejects.toBe(failure);
 
     expect(store.isRefreshing).toBe(false);
     expect(store.isReady).toBe(true);
     expect(store.refreshError).toBe(failure);
+    expect(store.dataRequest).toEqual({ status: "refresh-error", error: failure });
     expect(store.items).toEqual([{ id: "prior" }]);
     expect(store.pagination?.total).toBe(1);
     expect(loadingOverlayStore.isLoading).toBe(false);
@@ -133,7 +137,7 @@ describe("BaseDataViewStore query refresh", () => {
     store.setItems(initialResult());
     store.nextRefresh = () => Promise.reject(new Error("first failure"));
 
-    await expect(store.persistQueryOptions()).rejects.toThrow("first failure");
+    await expect(store.refreshQuery()).rejects.toThrow("first failure");
     expect(store.isReady).toBe(true);
     expect(store.refreshError).toBeInstanceOf(Error);
 
@@ -142,10 +146,11 @@ describe("BaseDataViewStore query refresh", () => {
         items: [{ id: "retried" }],
         pagination: { page: 1, pageSize: 25, total: 1, totalPages: 1 },
       });
-    const retry = store.persistQueryOptions();
+    const retry = store.refreshQuery();
 
     expect(store.isRefreshing).toBe(true);
     expect(store.isReady).toBe(true);
+    expect(store.dataRequest).toEqual({ status: "refreshing" });
 
     await retry;
 
@@ -163,8 +168,8 @@ describe("BaseDataViewStore query refresh", () => {
     store.setItems(initialResult());
     store.nextRefresh = () => queue.shift() as Promise<GetResult<Item>>;
 
-    const firstRefresh = store.persistQueryOptions();
-    const secondRefresh = store.persistQueryOptions();
+    const firstRefresh = store.refreshQuery();
+    const secondRefresh = store.refreshQuery();
 
     second.resolve({
       items: [{ id: "latest" }],
@@ -191,8 +196,8 @@ describe("BaseDataViewStore query refresh", () => {
     store.setItems(initialResult());
     store.nextRefresh = () => queue.shift() as Promise<GetResult<Item>>;
 
-    const firstRefresh = store.persistQueryOptions();
-    const secondRefresh = store.persistQueryOptions();
+    const firstRefresh = store.refreshQuery();
+    const secondRefresh = store.refreshQuery();
     second.resolve({
       items: [{ id: "latest" }],
       pagination: { page: 1, pageSize: 25, total: 1, totalPages: 1 },
@@ -215,8 +220,8 @@ describe("BaseDataViewStore query refresh", () => {
     store.setItems(initialResult());
     store.nextRefresh = () => queue.shift() as Promise<GetResult<Item>>;
 
-    const firstRefresh = store.persistQueryOptions();
-    const secondRefresh = store.persistQueryOptions();
+    const firstRefresh = store.refreshQuery();
+    const secondRefresh = store.refreshQuery();
     first.resolve({
       items: [{ id: "stale" }],
       pagination: { page: 1, pageSize: 25, total: 1, totalPages: 1 },
@@ -243,7 +248,7 @@ describe("BaseDataViewStore query refresh", () => {
     store.setItems(initialResult());
     store.nextRefresh = () => pendingResult.promise;
 
-    const pending = store.persistQueryOptions();
+    const pending = store.refreshQuery();
     store.setItems({
       items: [{ id: "server" }],
       pagination: { page: 1, pageSize: 25, total: 1, totalPages: 1 },
@@ -266,7 +271,7 @@ describe("BaseDataViewStore query refresh", () => {
     store.setItems(initialResult());
     store.nextRefresh = () => pendingResult.promise;
 
-    const pending = store.persistQueryOptions();
+    const pending = store.refreshQuery();
     store.setItems({
       items: [{ id: "server" }],
       pagination: { page: 1, pageSize: 25, total: 1, totalPages: 1 },
@@ -310,7 +315,7 @@ describe("BaseDataViewStore query refresh", () => {
     store.setItems(initialResult());
     store.nextRefresh = () => queue.shift() as Promise<GetResult<Item>>;
 
-    const staleVisibleRefresh = store.persistQueryOptions();
+    const staleVisibleRefresh = store.refreshQuery();
     const latestDirectRefresh = store.refresh();
 
     expect(store.isRefreshing).toBe(true);
@@ -345,7 +350,7 @@ describe("BaseDataViewStore query refresh", () => {
     store.nextRefresh = () => queue.shift() as Promise<GetResult<Item>>;
 
     const staleDirectRefresh = store.refresh();
-    const latestVisibleRefresh = store.persistQueryOptions();
+    const latestVisibleRefresh = store.refreshQuery();
 
     expect(store.isRefreshing).toBe(true);
 
@@ -397,6 +402,7 @@ describe("BaseDataViewStore query refresh", () => {
 
     expect(store.isRefreshing).toBe(false);
     expect(store.refreshError).toBe(firstFailure);
+    expect(store.dataRequest).toEqual({ status: "refresh-error", error: firstFailure });
 
     pendingResult.resolve({
       items: [{ id: "retried" }],
@@ -436,7 +442,7 @@ describe("BaseDataViewStore query refresh", () => {
     const refresh = vi.fn(() => Promise.resolve({ items: [] }));
     store.nextRefresh = refresh;
 
-    await store.persistQueryOptions();
+    await store.refreshQuery();
 
     expect(refresh).not.toHaveBeenCalled();
     expect(store.isReady).toBe(false);

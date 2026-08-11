@@ -2,11 +2,13 @@
 
 import type { MessagingThread } from "@/ee/messaging/messaging.schema";
 import type { GetResult } from "@/core/base/base-get.interactor";
+import type { DataViewRequestState } from "@/core/base/base-data-view.store";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Cable, RefreshCw } from "lucide-react";
 import { useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 
 import { IntlLink as Link, useRouter, usePathname } from "@/i18n/navigation";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
@@ -45,7 +47,9 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
 
   useDataViewSync(messagingThreadsStore, threads);
 
-  useEffect(() => void connectedAccountsStore.ensureLoaded(), [connectedAccountsStore]);
+  useEffect(() => {
+    void connectedAccountsStore.ensureLoaded().catch(() => toast.error(t("Common.notifications.unexpectedError")));
+  }, [connectedAccountsStore, t]);
   const channelsNeedingAction = connectedAccountsStore.needsActionCount;
 
   const isRefreshing = messagingThreadsStore.isRefreshing || messagingThreadsStore.isRefreshingInbox;
@@ -54,14 +58,18 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
   const searchTerm = messagingThreadsStore.isReady ? messagingThreadsStore.searchTerm : threads.searchTerm;
   const filters = messagingThreadsStore.isReady ? messagingThreadsStore.filters : threads.filters;
   const hasActiveQuery = Boolean(searchTerm?.trim()) || (filters?.length ?? 0) > 0;
+  const request: DataViewRequestState = isRefreshing
+    ? { status: "refreshing" }
+    : messagingThreadsStore.isReady
+      ? messagingThreadsStore.dataRequest.status === "refresh-error"
+        ? { status: "ready" }
+        : messagingThreadsStore.dataRequest
+      : { status: "ready" };
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: pagination === undefined,
-    failure: messagingThreadsStore.refreshError !== null,
     hasActiveQuery,
-    hasUsableContent: true,
-    isReady: true,
-    isRefreshing,
     itemCount: items.length,
+    request,
     total: pagination?.total,
   });
   const searchPlaceholder = t("Common.table.search");

@@ -443,7 +443,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     'app/[locale]/(protected)/onboarding/wizard/components/step-profile.tsx :: t.rich :: isInvited ? "OnboardingForm.invitedAgreeToTerms" : "OnboardingForm.agreeToTerms"',
     1,
   ],
-  ["app/[locale]/(protected)/organizations/components/organizations-card.tsx :: t :: nameKey", 1],
+  ["app/[locale]/(protected)/organizations/components/use-organization-columns.tsx :: t :: nameKey", 1],
   ["app/[locale]/(protected)/profile/components/connected-accounts-card.tsx :: t :: option.labelKey", 1],
   ["app/[locale]/(protected)/profile/components/connected-accounts-status-toast.tsx :: t :: keys.descriptionKey", 1],
   ["app/[locale]/(protected)/profile/components/connected-accounts-status-toast.tsx :: t :: keys.titleKey", 1],

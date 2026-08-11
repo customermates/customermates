@@ -1,6 +1,6 @@
 import { Resource } from "@/generated/prisma";
 
-import { OrganizationsCard } from "./components/organizations-card";
+import { OrganizationsPageView } from "./components/organizations-page-view";
 
 import { getGetOrganizationsInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
@@ -29,7 +29,7 @@ export default async function OrganizationsPage({ searchParams }: Props) {
 
   return (
     <PageContainer padded={false}>
-      <OrganizationsCard organizations={organizations} />
+      <OrganizationsPageView organizations={organizations} />
     </PageContainer>
   );
 }

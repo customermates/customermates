@@ -19,7 +19,6 @@ describe("protected route skeleton registry", () => {
       "/inbox",
       "/legal-update",
       "/onboarding/wizard",
-      "/organizations",
       "/organizations/[id]",
       "/profile/api-keys",
       "/profile/connected-accounts",
@@ -61,7 +60,7 @@ describe("protected route skeleton registry", () => {
   });
 
   it("distinguishes entity, member, and plain table geometry", () => {
-    expect(getProtectedRouteSpec("/organizations").skeleton).toMatchObject({ tableVariant: "entity" });
+    expect(getProtectedRouteSpec("/deals").skeleton).toMatchObject({ tableVariant: "entity" });
     expect(getProtectedRouteSpec("/company/members").skeleton).toMatchObject({ tableVariant: "member" });
     expect(getProtectedRouteSpec("/company/audit-logs").skeleton).toMatchObject({ tableVariant: "plain" });
   });

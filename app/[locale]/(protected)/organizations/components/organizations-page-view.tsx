@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import type { GetResult } from "@/core/base/base-get.interactor";
-import type { ContactDto } from "@/features/contacts/contact.schema";
+import type { OrganizationDto } from "@/features/organizations/organization.schema";
 
 import { observer } from "mobx-react-lite";
 import { useCallback, useMemo } from "react";
@@ -22,47 +22,51 @@ import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
-import { ContactsPageSkeleton } from "./contacts-page-skeleton";
-import { useContactColumns } from "./use-contact-columns";
+import { OrganizationsPageSkeleton } from "./organizations-page-skeleton";
+import { useOrganizationColumns } from "./use-organization-columns";
 
 type Props = {
-  contacts: GetResult<ContactDto>;
+  organizations: GetResult<OrganizationDto>;
 };
 
-export const ContactsPageView = observer(function ContactsPageView({ contacts }: Props) {
+export const OrganizationsPageView = observer(function OrganizationsPageView({ organizations }: Props) {
   const { contactsStore, dealsStore, organizationsStore } = useRootStore();
   const openEntity = useOpenEntity();
   const entityHref = useEntityHref();
-  const columns = useContactColumns();
+  const columns = useOrganizationColumns();
   const { singular } = useEntityTerminology();
   const t = useTranslations();
 
-  useDataViewSync(contactsStore, contacts, [dealsStore, organizationsStore]);
+  useDataViewSync(organizationsStore, organizations, [contactsStore, dealsStore]);
 
-  const view = resolveDataViewView(contactsStore.viewMode, contactsStore.groupingColumnId);
-  const hasActiveQuery = Boolean(contactsStore.searchTerm?.trim()) || (contactsStore.filters?.length ?? 0) > 0;
+  const view = resolveDataViewView(organizationsStore.viewMode, organizationsStore.groupingColumnId);
+  const hasActiveQuery =
+    Boolean(organizationsStore.searchTerm?.trim()) || (organizationsStore.filters?.length ?? 0) > 0;
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery,
-    itemCount: contactsStore.items.length,
-    request: contactsStore.dataRequest,
-    total: contactsStore.pagination?.total,
+    itemCount: organizationsStore.items.length,
+    request: organizationsStore.dataRequest,
+    total: organizationsStore.pagination?.total,
   });
   const emptyActionLabel = t("Common.emptyState.cta", {
-    singular: singular(EntityType.contact),
+    singular: singular(EntityType.organization),
   });
-  const handleAdd = useCallback(() => openEntity(EntityType.contact, "new"), [openEntity]);
-  const rowHref = useCallback((contact: ContactDto) => entityHref(EntityType.contact, contact.id), [entityHref]);
+  const handleAdd = useCallback(() => openEntity(EntityType.organization, "new"), [openEntity]);
+  const rowHref = useCallback(
+    (organization: OrganizationDto) => entityHref(EntityType.organization, organization.id),
+    [entityHref],
+  );
   const topBarNode = useMemo(
     () => (
       <DataViewToolbar
         addLabel={pageState === "true-empty" ? emptyActionLabel : undefined}
-        anchorScope="contacts"
-        store={contactsStore}
+        anchorScope="organizations"
+        store={organizationsStore}
         onAdd={handleAdd}
       />
     ),
-    [contactsStore, emptyActionLabel, handleAdd, pageState],
+    [emptyActionLabel, handleAdd, organizationsStore, pageState],
   );
 
   useSetTopBarActions(topBarNode);
@@ -73,7 +77,11 @@ export const ContactsPageView = observer(function ContactsPageView({ contacts }:
       body = (
         <PageState
           action={
-            <Button size="sm" variant="outline" onClick={() => contactsStore.setQueryOptions({ forceRefresh: true })}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => organizationsStore.setQueryOptions({ forceRefresh: true })}
+            >
               {t("ErrorCard.retry")}
             </Button>
           }
@@ -85,25 +93,29 @@ export const ContactsPageView = observer(function ContactsPageView({ contacts }:
       break;
     case "loading":
       body = (
-        <PageState background={<ContactsPageSkeleton view={view} />} label={t("PageState.loading")} state="loading" />
+        <PageState
+          background={<OrganizationsPageSkeleton view={view} />}
+          label={t("PageState.loading")}
+          state="loading"
+        />
       );
       break;
     case "filtered-empty":
-      body = <DataViewEmpty reason="filtered" store={contactsStore} />;
+      body = <DataViewEmpty reason="filtered" store={organizationsStore} />;
       break;
     case "true-empty":
       body = (
         <DataViewEmpty
           actionLabel={emptyActionLabel}
-          background={<ContactsPageSkeleton animated={false} view={view} />}
+          background={<OrganizationsPageSkeleton animated={false} view={view} />}
           reason="true-empty"
-          store={contactsStore}
+          store={organizationsStore}
           onAdd={handleAdd}
         />
       );
       break;
     case "content":
-      body = <DataViewContent columns={columns} rowHref={rowHref} store={contactsStore} view={view} />;
+      body = <DataViewContent columns={columns} rowHref={rowHref} store={organizationsStore} view={view} />;
       break;
     default: {
       const exhaustive: never = pageState;
@@ -112,7 +124,7 @@ export const ContactsPageView = observer(function ContactsPageView({ contacts }:
   }
 
   return (
-    <DataViewLayout showPagination={pageState === "content" && view !== "board"} store={contactsStore}>
+    <DataViewLayout showPagination={pageState === "content" && view !== "board"} store={organizationsStore}>
       {body}
     </DataViewLayout>
   );

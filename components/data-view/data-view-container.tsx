@@ -1,6 +1,6 @@
 "use client";
 
-import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
+import type { BaseDataViewStore, DataViewRequestState, HasId } from "@/core/base/base-data-view.store";
 import type { ColumnDef } from "@tanstack/react-table";
 
 import { observer } from "mobx-react-lite";
@@ -17,7 +17,7 @@ import { DataViewContent } from "./data-view-content";
 import { DataViewEmpty } from "./data-view-empty";
 import { DataViewLayout } from "./data-view-layout";
 import { DataViewToolbar } from "./data-view-toolbar";
-import { resolveDataViewPageState, resolveDataViewSkeletonView } from "./data-view-state";
+import { resolveDataViewPageState, resolveDataViewView } from "./data-view-state";
 
 import type { EmptyStateDescriptor } from "./data-view-empty";
 
@@ -49,9 +49,9 @@ export const DataViewContainer = observer(function DataViewContainer<E extends H
   const { singular } = useEntityTerminology();
   const t = useTranslations();
 
-  const skeletonView = resolveDataViewSkeletonView(store.viewMode, store.groupingColumnId);
+  const view = resolveDataViewView(store.viewMode, store.groupingColumnId);
   const skeleton: PageSkeletonSpec =
-    skeletonView === "table"
+    view === "table"
       ? {
           kind: "data-view",
           tableVariant:
@@ -62,17 +62,16 @@ export const DataViewContainer = observer(function DataViewContainer<E extends H
       : {
           identity: store.entityType === "contact" ? "avatar" : "text",
           kind: "data-view",
-          view: skeletonView,
+          view,
         };
   const hasActiveQuery = Boolean(store.searchTerm?.trim()) || (store.filters?.length ?? 0) > 0;
+  const request: DataViewRequestState =
+    store.dataRequest.status === "refresh-error" ? { status: "ready" } : store.dataRequest;
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
-    failure: store.refreshError !== null,
     hasActiveQuery,
-    hasUsableContent: store.isReady,
-    isReady: store.isReady,
-    isRefreshing: store.isRefreshing,
     itemCount: store.items.length,
+    request,
     total: store.pagination?.total,
   });
   const trueEmptyActionLabel =
@@ -121,11 +120,11 @@ export const DataViewContainer = observer(function DataViewContainer<E extends H
         onAdd={onAdd}
       />
     ) : (
-      <DataViewContent columns={columns} rowHref={rowHref} store={store} view={skeletonView} onRowClick={onRowClick} />
+      <DataViewContent columns={columns} rowHref={rowHref} store={store} view={view} onRowClick={onRowClick} />
     );
 
   return (
-    <DataViewLayout showPagination={pageState === "content" && skeletonView !== "board"} store={store}>
+    <DataViewLayout showPagination={pageState === "content" && view !== "board"} store={store}>
       {body}
     </DataViewLayout>
   );

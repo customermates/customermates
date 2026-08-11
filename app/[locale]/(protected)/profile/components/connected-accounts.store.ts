@@ -30,6 +30,9 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
   private syncPollTimer: ReturnType<typeof setTimeout> | null = null;
   private syncPollDeadline = 0;
   private syncPollGraceDeadline = 0;
+  private syncPollFailureNotified = false;
+  private syncPollGeneration = 0;
+  private syncPollingActive = false;
   private loadPromise: Promise<void> | null = null;
 
   constructor(rootStore: RootStore) {
@@ -65,19 +68,26 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
 
   startSyncPolling = (): void => {
     this.stopSyncPolling();
+    const generation = ++this.syncPollGeneration;
     const now = Date.now();
+    this.syncPollingActive = true;
+    this.syncPollFailureNotified = false;
     this.syncPollDeadline = now + SYNC_POLL_MAX_MS;
     this.syncPollGraceDeadline = now + SYNC_POLL_GRACE_MS;
-    this.scheduleNextSyncPoll();
+    this.scheduleNextSyncPoll(generation);
   };
 
   stopSyncPolling = (): void => {
+    this.syncPollingActive = false;
+    this.syncPollGeneration += 1;
     if (!this.syncPollTimer) return;
     clearTimeout(this.syncPollTimer);
     this.syncPollTimer = null;
   };
 
-  private scheduleNextSyncPoll = (): void => {
+  private scheduleNextSyncPoll = (generation: number): void => {
+    if (!this.syncPollingActive || generation !== this.syncPollGeneration) return;
+
     const now = Date.now();
     const keepPolling = (this.hasSyncingAccount || now < this.syncPollGraceDeadline) && now < this.syncPollDeadline;
 
@@ -86,12 +96,23 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
       return;
     }
 
-    this.syncPollTimer = setTimeout(() => void this.runSyncPoll(), SYNC_POLL_INTERVAL_MS);
+    this.syncPollTimer = setTimeout(() => void this.runSyncPoll(generation), SYNC_POLL_INTERVAL_MS);
   };
 
-  private runSyncPoll = async (): Promise<void> => {
-    await this.refresh();
-    this.scheduleNextSyncPoll();
+  private runSyncPoll = async (generation: number): Promise<void> => {
+    try {
+      await this.refresh();
+      if (generation !== this.syncPollGeneration) return;
+      this.syncPollFailureNotified = false;
+    } catch {
+      if (generation !== this.syncPollGeneration) return;
+      if (!this.syncPollFailureNotified) {
+        this.syncPollFailureNotified = true;
+        this.toastError("Common.notifications.unexpectedError");
+      }
+    } finally {
+      this.scheduleNextSyncPoll(generation);
+    }
   };
 
   get columnsDefinition(): TableColumn[] {
@@ -182,7 +203,9 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
     const merged = { ...existing, ...res.data };
     this.upsertItemLocal(merged);
 
-    void this.rootStore.messagingThreadsStore.refresh().catch(() => undefined);
+    void this.rootStore.messagingThreadsStore
+      .refresh()
+      .catch(() => this.toastError("Common.notifications.unexpectedError"));
     this.startSyncPolling();
 
     return merged;

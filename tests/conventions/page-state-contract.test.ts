@@ -34,12 +34,12 @@ describe("page-state contract", () => {
   it("registers every protected non-test route and gives it a loading owner", () => {
     const routes = productRoutes();
     const registered = Object.keys(PROTECTED_ROUTE_REGISTRY).sort();
-    const featureOwnedRoutes = ["/contacts"];
+    const featureOwnedRoutes = ["/contacts", "/organizations"];
     const pages = walkFiles(PROTECTED_ROOT, (path) => path.endsWith("/page.tsx") && !path.includes("/test/"));
 
     expect(routes.filter((route) => !featureOwnedRoutes.includes(route))).toEqual(registered);
     expect(routes).toHaveLength(25);
-    expect(registered).toHaveLength(24);
+    expect(registered).toHaveLength(23);
     expect(pages.map(nearestLoadingOwner).filter(Boolean)).toHaveLength(25);
 
     for (const route of registered) {
@@ -52,10 +52,16 @@ describe("page-state contract", () => {
       expect(spec.skeleton, route).toBeDefined();
     }
 
-    const contactsLoading = read("app/[locale]/(protected)/contacts/loading.tsx");
-    expect(contactsLoading).toContain("ContactsPageSkeleton");
-    expect(contactsLoading).not.toContain("RouteLoading");
+    for (const [route, skeleton] of [
+      ["contacts", "ContactsPageSkeleton"],
+      ["organizations", "OrganizationsPageSkeleton"],
+    ]) {
+      const loading = read(`app/[locale]/(protected)/${route}/loading.tsx`);
+      expect(loading).toContain(skeleton);
+      expect(loading).not.toContain("RouteLoading");
+    }
     expect(read("components/page-state/route-registry.ts")).not.toContain('"/contacts":');
+    expect(read("components/page-state/route-registry.ts")).not.toContain('"/organizations":');
 
     const errorBoundary = read("app/[locale]/error.tsx");
     expect(errorBoundary).toContain("ErrorPageView");
@@ -320,6 +326,7 @@ describe("page-state contract", () => {
       "components/page-state/skeleton-shape.tsx",
       "components/data-view/data-view-skeleton.tsx",
       "app/[locale]/(protected)/contacts/components/contacts-page-skeleton.tsx",
+      "app/[locale]/(protected)/organizations/components/organizations-page-skeleton.tsx",
     ];
     const banned = [
       '"use client"',
@@ -420,6 +427,7 @@ describe("page-state contract", () => {
     expect(page).toContain("canConnect={!locked && canConnect}");
     expect(list).toContain("canConnect: boolean");
     expect(list).not.toContain("userStore.can(Resource.inboxMessages, Action.create)");
+    expect(list).toMatch(/dataRequest\.status === "refresh-error"\s*\? \{ status: "ready" \}/);
   });
 
   it("never leaves a shared data view blank while readiness is pending", () => {
@@ -433,41 +441,79 @@ describe("page-state contract", () => {
     expect(layout).toContain('contain: "layout"');
   });
 
-  it("keeps the Contacts pilot page-owned and the extracted data-view pieces presentational", () => {
-    const contacts = read("app/[locale]/(protected)/contacts/components/contacts-page-view.tsx");
+  it("notifies when an explicit background refresh rejects", () => {
+    const connectedAccounts = read("app/[locale]/(protected)/profile/components/connected-accounts.store.ts");
+    const inboxList = read("app/[locale]/(protected)/inbox/components/inbox-list.tsx");
+    const messagingThreads = read("app/[locale]/(protected)/inbox/components/messaging-threads.store.tsx");
+
+    expect(connectedAccounts).toMatch(
+      /messagingThreadsStore\s*\.refresh\(\)\s*\.catch\(\(\) => this\.toastError\("Common\.notifications\.unexpectedError"\)\)/,
+    );
+    expect(connectedAccounts).toContain("this.scheduleNextSyncPoll(generation);");
+    expect(connectedAccounts).toContain("generation !== this.syncPollGeneration");
+    expect(connectedAccounts).toContain('this.toastError("Common.notifications.unexpectedError")');
+    expect(inboxList).toMatch(
+      /connectedAccountsStore\s*\.ensureLoaded\(\)\s*\.catch\(\(\) => toast\.error\(t\("Common\.notifications\.unexpectedError"\)\)\)/,
+    );
+    expect(messagingThreads).toContain('this.toastError("Common.notifications.unexpectedError")');
+  });
+
+  it("keeps both pilot pages feature-owned and the extracted data-view pieces presentational", () => {
     const layout = read("components/data-view/data-view-layout.tsx");
     const content = read("components/data-view/data-view-content.tsx");
     const adapter = read("components/data-view/data-view-container.tsx");
 
-    expect(contacts).toContain("switch (pageState)");
-    for (const state of ["error", "loading", "filtered-empty", "true-empty", "content"])
-      expect(contacts).toContain(`case "${state}"`);
-    expect(contacts).toContain("useDataViewSync(contactsStore, contacts");
-    expect(contacts).toContain("DataViewLayout");
-    expect(contacts).toContain("DataViewContent");
-    expect(contacts).not.toMatch(/DataViewContainer|useState|useEffect|useLayoutEffect/);
+    for (const [route, store, result] of [
+      ["contacts", "contactsStore", "contacts"],
+      ["organizations", "organizationsStore", "organizations"],
+    ]) {
+      const page = read(`app/[locale]/(protected)/${route}/components/${route}-page-view.tsx`);
+      expect(page).toContain("switch (pageState)");
+      for (const state of ["error", "loading", "filtered-empty", "true-empty", "content"])
+        expect(page).toContain(`case "${state}"`);
+      expect(page).toContain(`useDataViewSync(${store}, ${result}`);
+      expect(page).toContain("DataViewLayout");
+      expect(page).toContain("DataViewContent");
+      expect(page).not.toMatch(/DataViewContainer|useState|useEffect|useLayoutEffect/);
+    }
 
     for (const source of [layout, content]) {
       expect(source).not.toMatch(/resolveDataViewPageState|PageState|useDataViewSync/);
     }
+    expect(layout).not.toContain("observer(");
+    expect(content).not.toMatch(/useMemo|useRootStore/);
     expect(adapter).toContain("DataViewLayout");
     expect(adapter).toContain("DataViewContent");
   });
 
   it("keeps query refresh local and reserves the global overlay for mutations", () => {
     const store = read("core/base/base-data-view.store.ts");
-    const start = store.indexOf("async persistQueryOptions");
-    const end = store.indexOf("withUrlSync", start);
-    const persist = store.slice(start, end);
+    const start = store.indexOf("async refreshQuery");
+    const end = store.indexOf("protected refreshAction", start);
+    const refresh = store.slice(start, end);
 
-    expect(store).toContain('type DataViewRequestState =');
+    expect(store).toContain('export type DataViewRequestState =');
+    expect(store).toContain("get dataRequest(): DataViewRequestState");
     expect(store).toContain('{ status: "refreshing" }');
     expect(store).toContain('{ status: "refresh-error", error }');
     expect(store).toContain("generation !== this.requestGeneration");
     expect(store).toContain("this.refreshQueryInBackground()");
-    expect(persist).toContain("await this.runRefresh(true)");
-    expect(persist).toContain('this.toastError("Common.notifications.unexpectedError")');
-    expect(persist).not.toContain("loadingOverlayStore");
+    expect(refresh).toContain('await this.executeRefresh("visible")');
+    expect(refresh).toContain('this.toastError("Common.notifications.unexpectedError")');
+    expect(refresh).not.toContain("loadingOverlayStore");
+  });
+
+  it("keeps browser URL synchronization outside the base domain store", () => {
+    const store = read("core/base/base-data-view.store.ts");
+    const sync = read("components/data-view/data-view-url-sync.ts");
+    const hydration = read("components/data-view/use-data-view-sync.ts");
+
+    expect(store).not.toMatch(/withUrlSync|setupUrlSync|urlSyncUpdateTimer|window\.history|window\.location|reaction\(/);
+    expect(sync).toContain("connectDataViewUrlSync");
+    expect(sync).toContain("reaction(");
+    expect(sync).toContain("history.replaceState");
+    expect(sync).toContain("clearPendingUpdate");
+    expect(hydration).toContain("connectDataViewUrlSync(store)");
   });
 
   it("shares the same pending-link affordance across every navigation group", () => {
