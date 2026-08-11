@@ -12,6 +12,7 @@ import { CustomColumnType } from "@/generated/prisma";
 
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { isCustomField } from "@/core/utils/custom-field";
+import { normalizeLegacyRelationFilter } from "@/core/base/filter-compat";
 
 export interface SortableField {
   field: string;
@@ -426,21 +427,9 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
           : { none: { [relationField]: { in: filter.value } } };
       }
       case FilterOperatorKey.hasNone:
-        return isCustom
-          ? {
-              none: {
-                AND: [{ columnId: filter.field }, { [relationField]: { in: filter.value } }],
-              },
-            }
-          : { none: { [relationField]: { in: filter.value } } };
+        return isCustom ? { none: { columnId: filter.field } } : { none: {} };
       case FilterOperatorKey.hasSome:
-        return isCustom
-          ? {
-              some: {
-                AND: [{ columnId: filter.field }, { [relationField]: { in: filter.value } }],
-              },
-            }
-          : { some: { [relationField]: { in: filter.value } } };
+        return isCustom ? { some: { columnId: filter.field } } : { some: {} };
       case FilterOperatorKey.isNull:
         return isCustom
           ? {
@@ -547,17 +536,18 @@ export function defaultValidateFilters(args: {
 
   const result: Filter[] = [];
 
-  for (const filter of filters) {
+  for (const candidate of filters) {
     const hasValidStructure =
-      filter &&
-      typeof filter === "object" &&
-      filter.field &&
-      typeof filter.field === "string" &&
-      filter.operator &&
-      typeof filter.operator === "string";
+      candidate &&
+      typeof candidate === "object" &&
+      candidate.field &&
+      typeof candidate.field === "string" &&
+      candidate.operator &&
+      typeof candidate.operator === "string";
 
     if (!hasValidStructure) continue;
 
+    const filter = normalizeLegacyRelationFilter(candidate);
     const fieldConfig = filterableFields.find((f) => f.field === filter.field);
     if (!fieldConfig || !fieldConfig.operators.includes(filter.operator)) continue;
 
@@ -575,13 +565,19 @@ export function isStandaloneOperator(operator?: FilterOperatorKey) {
   return [
     FilterOperatorKey.isNull,
     FilterOperatorKey.isNotNull,
+    FilterOperatorKey.hasNone,
+    FilterOperatorKey.hasSome,
     FilterOperatorKey.hasUnset,
     FilterOperatorKey.allSet,
   ].includes(operator);
 }
 
 function isFilterValueWellFormed(filter: Filter, fieldOperators: FilterOperatorKey[]): boolean {
-  if (isStandaloneOperator(filter.operator)) return true;
+  if (isStandaloneOperator(filter.operator)) {
+    const isRelationshipExistence =
+      filter.operator === FilterOperatorKey.hasNone || filter.operator === FilterOperatorKey.hasSome;
+    return !isRelationshipExistence || !("value" in filter) || filter.value === undefined;
+  }
 
   const rawValue: unknown = "value" in filter ? filter.value : undefined;
 

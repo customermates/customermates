@@ -9,12 +9,7 @@ import { isStandaloneOperator } from "@/core/base/base-query-builder";
 export function hasValidFilterConfiguration(filter: Filter) {
   if (isStandaloneOperator(filter.operator)) return true;
 
-  if (
-    filter.operator === FilterOperatorKey.in ||
-    filter.operator === FilterOperatorKey.notIn ||
-    filter.operator === FilterOperatorKey.hasNone ||
-    filter.operator === FilterOperatorKey.hasSome
-  )
+  if (filter.operator === FilterOperatorKey.in || filter.operator === FilterOperatorKey.notIn)
     return "value" in filter && Array.isArray(filter.value) ? filter.value.length > 0 : false;
 
   if (filter.operator === FilterOperatorKey.between)
