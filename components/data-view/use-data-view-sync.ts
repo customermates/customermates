@@ -3,7 +3,7 @@
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 import type { GetResult } from "@/core/base/base-get.interactor";
 
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 
 type LinkedStore = Pick<BaseDataViewStore<HasId>, "registerOnChange">;
 
@@ -12,7 +12,7 @@ export function useDataViewSync<E extends HasId>(
   initialResult: GetResult<E>,
   linkedStores: LinkedStore[] = [],
 ): void {
-  useEffect(() => store.setItems(initialResult), [initialResult]);
+  useLayoutEffect(() => store.setItems(initialResult), [initialResult]);
 
   useEffect(() => {
     const cleanupUrlSync = store.withUrlSync();

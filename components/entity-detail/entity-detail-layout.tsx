@@ -270,7 +270,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
 
   return (
     <AppForm id={formId} store={store as unknown as BaseFormStore}>
-      <div className="@container/detail flex flex-col w-full flex-1 min-h-0 overflow-y-auto @4xl/detail:overflow-y-visible">
+      <div className="@container/detail animate-page-result-in flex min-h-0 w-full flex-1 flex-col overflow-y-auto motion-reduce:animate-none @4xl/detail:overflow-y-visible">
         <div
           className={cn(
             "grid grid-cols-1 gap-px bg-border contain-[layout]",

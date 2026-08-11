@@ -33,6 +33,7 @@ import {
 type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
   columns: ColumnDef<E>[];
+  className?: string;
   onRowClick?: (item: E) => void;
   onRowHref?: (item: E) => string | undefined;
 };
@@ -46,6 +47,7 @@ const fixedWidthStyle = (width: number) => ({
 export const DataTable = observer(function DataTable<E extends HasId>({
   store,
   columns,
+  className,
   onRowClick,
   onRowHref,
 }: Props<E>) {
@@ -259,7 +261,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
   });
 
   return (
-    <Table>
+    <Table className={className}>
       <TableHeader>
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>

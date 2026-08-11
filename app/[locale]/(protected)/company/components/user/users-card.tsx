@@ -6,7 +6,7 @@ import type { GetResult } from "@/core/base/base-get.interactor";
 import type { ColumnDef } from "@tanstack/react-table";
 
 import { observer } from "mobx-react-lite";
-import { useEffect, useMemo } from "react";
+import { useEffect, useLayoutEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 
 import { Avatar } from "@/components/ui/avatar";
@@ -27,8 +27,8 @@ export const UsersCard = observer(({ initialUsers, initialRoles }: Props) => {
   const { canManage } = usersStore;
   const roles = rolesStore.items;
 
-  useEffect(() => usersStore.setItems(initialUsers), [initialUsers]);
-  useEffect(() => rolesStore.setItems(initialRoles), [initialRoles]);
+  useLayoutEffect(() => usersStore.setItems(initialUsers), [initialUsers]);
+  useLayoutEffect(() => rolesStore.setItems(initialRoles), [initialRoles]);
 
   useEffect(() => {
     const cleanupUrlSync = usersStore.withUrlSync();

@@ -6,7 +6,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo } from "react";
+import { useLayoutEffect, useMemo } from "react";
 
 import { RoleModal } from "./role-modal";
 
@@ -22,7 +22,7 @@ export const RolesCard = observer(({ initialRoles }: Props) => {
   const { rolesStore, roleModalStore } = useRootStore();
   const t = useTranslations();
 
-  useEffect(() => rolesStore.setItems(initialRoles), [initialRoles]);
+  useLayoutEffect(() => rolesStore.setItems(initialRoles), [initialRoles]);
 
   const columns = useMemo<ColumnDef<RoleDto>[]>(() => {
     return [

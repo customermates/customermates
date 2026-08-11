@@ -75,6 +75,8 @@ describe("page-state contract", () => {
     expect(protectedFallback).not.toMatch(/RouteLoading|route="\/dashboard"/);
     expect(genericFallback).toContain("flex min-h-0 w-full flex-1 items-center justify-center");
     expect(genericFallback).toContain("Spinner");
+    expect(genericFallback).toContain("animate-page-loading-in");
+    expect(genericFallback).toContain("opacity-70");
     expect(genericFallback).not.toMatch(/PageState|PageSkeleton|<main|<button|\bfixed\b/);
     expect(read("components/ui/spinner.tsx")).toContain("motion-reduce:animate-none");
 
@@ -82,7 +84,7 @@ describe("page-state contract", () => {
     expect(routeLoading).toContain('skeleton.kind === "detail"');
     expect(routeLoading).toContain('centered ? "h-full flex-1"');
     const pageSkeleton = read("components/page-state/page-skeleton.tsx");
-    expect(pageSkeleton).toContain('@container/detail flex h-full min-h-0');
+    expect(pageSkeleton).toContain("@container/detail flex h-full min-h-0");
     expect(pageSkeleton).toContain("@4xl/detail:grid-cols-");
     expect(pageSkeleton).toContain("@6xl/detail:grid-cols-");
   });
@@ -141,7 +143,9 @@ describe("page-state contract", () => {
     expect(skeleton).toContain("h-[264px]");
     expect(skeleton).toContain("grid-cols-1 gap-4 md:grid-cols-2");
 
-    expect(detail).toContain("@container/detail flex flex-col w-full flex-1 min-h-0 overflow-y-auto");
+    expect(detail).toContain(
+      "@container/detail animate-page-result-in flex min-h-0 w-full flex-1 flex-col overflow-y-auto",
+    );
     expect(detail).toContain("px-4 pt-3 pb-1 shrink-0 min-h-8");
     expect(notes).toContain("px-4 pt-4 pb-1 shrink-0");
     expect(editor).toContain("relative min-h-52");
@@ -181,6 +185,117 @@ describe("page-state contract", () => {
     expect(skeleton).not.toContain("bg-accent");
     expect(styles).toContain("--color-placeholder: var(--placeholder)");
     expect(styles.match(/--placeholder:/g)).toHaveLength(2);
+    expect(styles).toContain("--placeholder: #e6e6ea");
+    expect(styles).toContain("--placeholder: #222228");
+    for (const file of ["components/marketing/browser-frame.tsx", "components/shared/theme-switcher.tsx"]) {
+      const source = read(file);
+      expect(source, file).toContain("bg-placeholder");
+      expect(source, file).toContain("motion-reduce:animate-none");
+    }
+  });
+
+  it("constructs then pulses page placeholders without moving surfaces", () => {
+    const skeleton = read("components/page-state/page-skeleton.tsx");
+    const styles = read("styles/globals.css");
+    const compactStyles = styles.replace(/\s+/g, " ");
+    const widgets = read("app/[locale]/(protected)/dashboard/components/widgets-grid.tsx");
+    const pulseStart = styles.indexOf("@keyframes page-skeleton-pulse");
+    const pulseEnd = styles.indexOf("[data-page-skeleton-loading]", pulseStart);
+    const pulse = styles.slice(pulseStart, pulseEnd);
+    const emptyStart = styles.indexOf("[data-page-skeleton-empty]");
+    const emptyEnd = styles.indexOf("@media (prefers-reduced-motion: reduce)", emptyStart);
+    const empty = styles.slice(emptyStart, emptyEnd);
+
+    expect(skeleton).toContain("data-page-skeleton-loading");
+    expect(skeleton).toContain("data-page-skeleton-empty");
+    expect(skeleton).toContain("data-skeleton-motion");
+    expect(skeleton).toContain("data-skeleton-breathe");
+    expect(skeleton).toContain("data-skeleton-shape");
+    expect(skeleton).toContain("data-skeleton-group");
+    expect(skeleton).not.toContain("animate-pulse");
+    expect(compactStyles).toContain("page-skeleton-build 340ms cubic-bezier(0.22, 1, 0.36, 1)");
+    expect(compactStyles).toContain("calc(var(--skeleton-group-delay) + var(--skeleton-shape-delay)) backwards");
+    expect(compactStyles).toContain("page-skeleton-pulse 1.6s ease-in-out");
+    expect(styles).toContain("[data-page-skeleton-loading] [data-skeleton-breathe]");
+    expect(styles).toContain("--skeleton-group-delay: 0ms");
+    expect(styles).toContain("--skeleton-shape-delay: 0ms");
+    expect(compactStyles).toContain("calc(900ms + var(--skeleton-group-delay) + var(--skeleton-shape-delay)) infinite");
+    for (const [group, delay] of [
+      ["1", "60ms"],
+      ["2", "120ms"],
+      ["3", "180ms"],
+    ]) {
+      expect(styles).toContain(`[data-page-skeleton-loading] [data-skeleton-group="${group}"]`);
+      expect(styles).toContain(`--skeleton-group-delay: ${delay}`);
+    }
+    for (const [phase, delay] of [
+      ["1", "70ms"],
+      ["2", "140ms"],
+      ["3", "210ms"],
+    ]) {
+      expect(styles).toContain(`[data-page-skeleton-loading] [data-skeleton-motion="${phase}"]`);
+      expect(styles).toContain(`--skeleton-shape-delay: ${delay}`);
+    }
+    expect(styles).toContain("opacity: 0.08");
+    expect(styles).toContain("opacity: 0.62");
+    expect(styles).toContain("transform: translateY(4px) scale(0.97)");
+    expect(pulse).not.toMatch(/background|color|filter|width|height|shadow/);
+    expect(empty).toContain("opacity: 0.62");
+    expect(empty).not.toMatch(/animation|transform/);
+    expect(styles).toContain("@media (prefers-reduced-motion: reduce)");
+    expect(styles).toContain("animation: none");
+    expect(compactStyles).toContain("--animate-page-empty-in: page-empty-in 300ms cubic-bezier(0.22, 1, 0.36, 1) both");
+    expect(compactStyles).toContain(
+      "--animate-page-result-in: page-result-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both",
+    );
+    expect(widgets.match(/animate-page-result-in/g)).toHaveLength(2);
+    expect(widgets).toContain("useLayoutEffect");
+    expect(widgets).toMatch(/useLayoutEffect\(\(\) => \{\s*widgetsStore\.setItems/);
+    expect(read("components/page-state/page-state.tsx")).toContain("animate-page-empty-in pointer-events-none");
+    expect(widgets).not.toMatch(/setTimeout|setInterval/);
+  });
+
+  it("ships no dashboard loading-preview delay", () => {
+    const dashboard = read("app/[locale]/(protected)/dashboard/page.tsx");
+
+    expect(dashboard).not.toMatch(/loadingPreview|DASHBOARD_LOADING_PREVIEW_MS|setTimeout|setInterval/);
+  });
+
+  it("settles resolved archetypes without delaying server data", () => {
+    const resultOwners = [
+      "components/data-view/data-view-container.tsx",
+      "components/entity-detail/entity-detail-layout.tsx",
+      "app/[locale]/(protected)/dashboard/components/widgets-grid.tsx",
+      "app/[locale]/(protected)/inbox/components/inbox-list.tsx",
+      "app/[locale]/(protected)/inbox/components/thread-panel.tsx",
+      "app/[locale]/(protected)/profile/components/api-keys-card.tsx",
+      "app/[locale]/(protected)/profile/components/connected-accounts-card.tsx",
+      "app/[locale]/(protected)/profile/components/profile-settings-form.tsx",
+      "app/[locale]/(protected)/company/components/company-settings/company-settings-form.tsx",
+      "app/[locale]/(protected)/company/components/subscription/subscription-view.tsx",
+      "app/[locale]/(protected)/legal-update/page.tsx",
+      "app/[locale]/(protected)/onboarding/wizard/page.tsx",
+      "app/[locale]/(protected)/subscription-expired/page.tsx",
+    ];
+
+    for (const file of resultOwners) {
+      const source = read(file);
+      expect(source, file).toContain("animate-page-result-in");
+      expect(source, file).toContain("motion-reduce:animate-none");
+    }
+
+    const prepaintHydrationOwners = [
+      "components/data-view/use-data-view-sync.ts",
+      "app/[locale]/(protected)/dashboard/components/widgets-grid.tsx",
+      "app/[locale]/(protected)/company/components/user/users-card.tsx",
+      "app/[locale]/(protected)/company/components/role/roles-card.tsx",
+      "app/[locale]/(protected)/profile/components/api-keys-card.tsx",
+      "app/[locale]/(protected)/profile/components/connected-accounts-card.tsx",
+      "app/[locale]/(protected)/inbox/components/thread-panel.tsx",
+      "app/[locale]/(protected)/company/components/subscription/subscription-panel.tsx",
+    ];
+
+    for (const file of prepaintHydrationOwners) expect(read(file), file).toContain("useLayoutEffect");
   });
 
   it("keeps page geometry pure, bounded, and independent from Assistant state", () => {
@@ -207,7 +322,7 @@ describe("page-state contract", () => {
     expect(read("components/page-state/page-skeleton.tsx")).toContain("Array.from({ length: 8 }");
   });
 
-  it("uses the quiet true-empty treatment with neutral secondary actions", () => {
+  it("uses the quiet true-empty treatment across every archetype", () => {
     const pageState = read("components/page-state/page-state.tsx");
 
     expect(pageState).toContain("absolute inset-0");
@@ -216,26 +331,60 @@ describe("page-state contract", () => {
     expect(pageState).not.toContain("max-h-[34rem]");
     expect(pageState).not.toContain("h-[calc(100svh-10rem)]");
     expect(pageState).toContain("max-w-sm");
-    expect(pageState).toContain("before:bg-background/80");
+    expect(pageState).toContain("before:bg-background/85 before:blur-xl");
+    expect(pageState).toContain("animate-page-empty-in");
+    expect(pageState).not.toContain("before:bg-background/80 before:blur-2xl");
+    expect(pageState).not.toContain("opacity-45");
     expect(pageState).not.toContain("rounded-xl border bg-background/95");
     expect(pageState).not.toContain("shadow-sm");
     expect(read("app/[locale]/(protected)/dashboard/page.tsx")).toContain(
       "relative flex min-h-0 w-full flex-1 flex-col",
     );
+  });
 
-    const secondaryActionOwners = {
-      "components/data-view/data-view-empty.tsx": '<Button size="sm" variant="secondary" onClick={() => onAdd?.()}>',
-      "app/[locale]/(protected)/dashboard/components/widgets-grid.tsx":
-        '<Button size="sm" variant="secondary" onClick={() => void widgetModalStore.add()}>',
-      "app/[locale]/(protected)/profile/components/api-keys-card.tsx":
-        '<Button size="sm" variant="secondary" onClick={() => void apiKeyModalStore.add()}>',
-      "app/[locale]/(protected)/profile/components/connected-accounts-card.tsx":
-        '<ConnectAction id="profile-connected-accounts-connect-empty" variant="secondary" />',
-      "app/[locale]/(protected)/inbox/components/inbox-list.tsx": '<Button asChild size="sm" variant="secondary">',
+  it("keeps topbar actions primary and centered empty actions secondary", () => {
+    const toolbar = read("components/data-view/data-view-toolbar.tsx");
+    const container = read("components/data-view/data-view-container.tsx");
+
+    expect(toolbar).toContain('variant="default"');
+    expect(toolbar).not.toContain("deemphasizeAdd");
+    expect(container).not.toContain("deemphasizeAdd");
+
+    const primaryActionOwners = {
+      "app/[locale]/(protected)/dashboard/components/widgets-grid.tsx": "dashboard-add-widget",
+      "app/[locale]/(protected)/profile/components/api-keys-card.tsx": "profile-api-keys-generate",
+      "app/[locale]/(protected)/inbox/components/inbox-list.tsx": "ConnectedAccountsCard.title",
     };
 
-    for (const [file, expectedAction] of Object.entries(secondaryActionOwners)) {
-      expect(read(file), file).toContain(expectedAction);
+    for (const [file, marker] of Object.entries(primaryActionOwners)) {
+      const source = read(file);
+      const markerIndex = source.indexOf(marker);
+      const action = source.slice(Math.max(0, markerIndex - 250), markerIndex + 450);
+
+      expect(markerIndex, file).toBeGreaterThanOrEqual(0);
+      expect(action, file).toContain('variant="default"');
+      expect(action, file).not.toMatch(/variant=\{[^}]*secondary/);
+    }
+
+    const connectedAccounts = read("app/[locale]/(protected)/profile/components/connected-accounts-card.tsx");
+    expect(connectedAccounts).toContain('<ConnectAction id="profile-connected-accounts-connect" />');
+
+    const secondaryActionOwners = {
+      "components/data-view/data-view-empty.tsx": "canCreate ? (",
+      "app/[locale]/(protected)/dashboard/components/widgets-grid.tsx": "{isTrueEmpty && (",
+      "app/[locale]/(protected)/profile/components/api-keys-card.tsx": "if (isTrueEmpty) {",
+      "app/[locale]/(protected)/profile/components/connected-accounts-card.tsx":
+        "profile-connected-accounts-connect-empty",
+      "app/[locale]/(protected)/inbox/components/inbox-list.tsx": 'pageState === "true-empty"',
+    };
+
+    for (const [file, marker] of Object.entries(secondaryActionOwners)) {
+      const source = read(file);
+      const markerIndex = source.indexOf(marker);
+      const action = source.slice(markerIndex, markerIndex + 1_200);
+
+      expect(markerIndex, file).toBeGreaterThanOrEqual(0);
+      expect(action, file).toContain('variant="secondary"');
     }
   });
 

@@ -5,7 +5,7 @@ import type { ApiKey } from "@/features/api-key/get-api-keys.interactor";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { KeyRound, Plus } from "lucide-react";
-import { useEffect, useMemo } from "react";
+import { useLayoutEffect, useMemo } from "react";
 
 import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,7 @@ export const ApiKeysCard = observer(({ apiKeys }: Props) => {
   const { canManage } = apiKeysStore;
   const isTrueEmpty = apiKeysStore.isReady && apiKeysStore.items.length === 0;
 
-  useEffect(() => apiKeysStore.setItems({ items: apiKeys }), [apiKeys]);
+  useLayoutEffect(() => apiKeysStore.setItems({ items: apiKeys }), [apiKeys]);
 
   const topBarActions = useMemo(
     () =>
@@ -35,7 +35,7 @@ export const ApiKeysCard = observer(({ apiKeys }: Props) => {
           className="h-8"
           id="profile-api-keys-generate"
           size="sm"
-          variant={isTrueEmpty ? "secondary" : "default"}
+          variant="default"
           onClick={() => void apiKeyModalStore.add()}
         >
           <Plus className="size-3.5" />
@@ -43,7 +43,7 @@ export const ApiKeysCard = observer(({ apiKeys }: Props) => {
           <span className="hidden sm:inline">{t("Common.actions.add")}</span>
         </Button>
       ) : null,
-    [apiKeyModalStore, apiKeysStore.isReady, t, canManage, isTrueEmpty],
+    [apiKeyModalStore, apiKeysStore.isReady, t, canManage],
   );
   useSetTopBarActions(topBarActions);
 
@@ -77,7 +77,7 @@ export const ApiKeysCard = observer(({ apiKeys }: Props) => {
   }
 
   return (
-    <div className="flex w-full max-w-3xl flex-col gap-4">
+    <div className="animate-page-result-in flex w-full max-w-3xl flex-col gap-4 motion-reduce:animate-none">
       <Alert color="primary" description={t("ProfileSections.apiKeysDescription")} />
 
       <div className={SETTINGS_CARD_GRID_CLASS_NAME}>

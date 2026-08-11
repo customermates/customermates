@@ -52,8 +52,9 @@ describe("page state composition", () => {
     expect(html).toMatch(/role="status">Loading page<\/span><div aria-busy="true"/);
     expect(html).toContain("Loading page");
     expect(html).toContain("size-full min-h-0 flex-1");
-    expect(html).toContain("animate-pulse");
-    expect(html).toContain("motion-reduce:animate-none");
+    expect(html).toContain('data-page-skeleton-loading="true"');
+    expect(html).toContain("data-skeleton-motion");
+    expect(html).not.toContain("animate-pulse");
     expect(html).not.toContain('aria-live="polite"');
     expect(html).not.toContain("<button");
   });
@@ -85,7 +86,11 @@ describe("page state composition", () => {
     expect(html).toContain("absolute inset-0");
     expect(html).toContain("items-center justify-center");
     expect(html).toContain("max-w-sm");
-    expect(html).toContain("before:bg-background/80");
+    expect(html).toContain("before:bg-background/85");
+    expect(html).toContain("before:blur-xl");
+    expect(html).toContain("animate-page-empty-in");
+    expect(html).toContain("motion-reduce:animate-none");
+    expect(html).not.toContain("opacity-45");
     expect(html).not.toContain("rounded-xl border bg-background/95");
     expect(html).not.toContain("shadow-sm");
     expect(html).not.toContain("max-h-[34rem]");
@@ -131,19 +136,50 @@ describe("page state composition", () => {
   it.each(ARCHETYPES)("bounds the $kind skeleton composition", (spec) => {
     const html = renderToStaticMarkup(createElement(PageSkeleton, { spec }));
     const shapes = html.match(/data-slot="skeleton"/g) ?? [];
-    const animations = html.match(/animate-pulse/g) ?? [];
+    const movingShapes = html.match(/data-skeleton-motion/g) ?? [];
+    const movingTags = html.match(/<[^>]*data-skeleton-motion[^>]*>/g) ?? [];
+    const breathingShapes = html.match(/data-skeleton-breathe/g) ?? [];
+    const breathingTags = html.match(/<[^>]*data-skeleton-breathe[^>]*>/g) ?? [];
+    const surfaceTags = html.match(/<[^>]*(?:bg-card|bg-background|data-skeleton-scroll-owner)[^>]*>/g) ?? [];
 
     expect(shapes.length).toBeGreaterThan(0);
     expect(shapes.length).toBeLessThanOrEqual(128);
-    expect(animations).toHaveLength(1);
+    expect(movingShapes).toHaveLength(shapes.length);
+    expect(breathingShapes.length).toBeGreaterThan(0);
+    expect(breathingShapes.length).toBeLessThanOrEqual(24);
+    expect(html).toContain('data-page-skeleton-loading="true"');
+    expect(html).not.toContain("animate-pulse");
+    for (const tag of movingTags) expect(tag).toContain('data-slot="skeleton"');
+    for (const tag of breathingTags) {
+      expect(tag).toContain('data-slot="skeleton"');
+      expect(tag).toContain("data-skeleton-motion");
+    }
+    for (const tag of surfaceTags) expect(tag).not.toContain("data-skeleton-motion");
+    for (const phase of html.matchAll(/data-skeleton-motion="([^"]+)"/g))
+      expect(["0", "1", "2", "3"]).toContain(phase[1]);
+    for (const group of html.matchAll(/data-skeleton-group="([^"]+)"/g))
+      expect(["0", "1", "2", "3"]).toContain(group[1]);
     expect(html).toContain(`data-skeleton-kind="${spec.kind}"`);
     expect(html).not.toMatch(/Acme|John Doe|Revenue|\$\d/);
   });
 
   it.each(ARCHETYPES)("keeps the static $kind skeleton motionless", (spec) => {
     const html = renderToStaticMarkup(createElement(PageSkeleton, { animated: false, spec }));
+    const shapes = html.match(/data-skeleton-shape/g) ?? [];
 
     expect(html).not.toContain("animate-pulse");
+    expect(html).not.toContain("data-skeleton-motion");
+    expect(html).not.toContain("data-skeleton-breathe");
+    expect(html).toContain('data-page-skeleton-empty="true"');
+    expect(shapes.length).toBeGreaterThan(0);
+  });
+
+  it.each(ARCHETYPES)("keeps loading and empty $kind surfaces identical", (spec) => {
+    const loading = renderToStaticMarkup(createElement(PageSkeleton, { spec }));
+    const empty = renderToStaticMarkup(createElement(PageSkeleton, { animated: false, spec }));
+    const surfaceClasses = /(?:rounded-xl bg-card[^\"]*|bg-background[^\"]*|data-skeleton-scroll-owner="[^"]+")/g;
+
+    expect(loading.match(surfaceClasses)).toEqual(empty.match(surfaceClasses));
   });
 
   it("renders one neutral generic status without fabricated page geometry", () => {
@@ -154,6 +190,8 @@ describe("page state composition", () => {
     expect(html).toContain('aria-label="Loading page"');
     expect(html).toContain("flex min-h-0 w-full flex-1 items-center justify-center");
     expect(html).toContain("motion-reduce:animate-none");
+    expect(html).toContain("animate-page-loading-in");
+    expect(html).toContain("opacity-70");
     expect(html).not.toContain("data-skeleton-kind");
     expect(html).not.toContain("<main");
     expect(html).not.toContain("<button");

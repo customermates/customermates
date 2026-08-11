@@ -15,7 +15,11 @@ import { cn } from "@/core/utils/cn";
 import { SETTINGS_CARD_GRID_CLASS_NAME } from "./page-state-geometry";
 
 export type PageSkeletonSpec =
-  | { kind: "data-view"; view: "table"; tableVariant: "contact" | "entity" | "member" | "plain" }
+  | {
+      kind: "data-view";
+      view: "table";
+      tableVariant: "contact" | "entity" | "member" | "plain";
+    }
   | { identity: "avatar" | "text"; kind: "data-view"; view: "cards" | "board" }
   | { kind: "dashboard" }
   | { kind: "detail" }
@@ -44,18 +48,31 @@ const SETTINGS_CARD_ROWS = Array.from({ length: 5 }, (_, index) => index);
 
 type ShapeProps = Omit<ComponentProps<typeof Skeleton>, "animated"> & {
   animated: boolean;
+  breathe?: boolean;
+  motionPhase?: SkeletonMotionPhase;
 };
 
-function Shape({ animated, ...props }: ShapeProps) {
-  return <Skeleton animated={false} data-loading-shape={animated || undefined} {...props} />;
+type SkeletonMotionPhase = 0 | 1 | 2 | 3;
+
+function Shape({ animated, breathe = false, motionPhase = 0, ...props }: ShapeProps) {
+  return (
+    <Skeleton
+      data-skeleton-shape
+      animated={false}
+      data-loading-shape={animated || undefined}
+      data-skeleton-breathe={(animated && breathe) || undefined}
+      data-skeleton-motion={animated ? motionPhase : undefined}
+      {...props}
+    />
+  );
 }
 
 function FormFieldSkeleton({ animated, short = false }: { animated: boolean; short?: boolean }) {
   return (
     <div className="space-y-1.5">
-      <Shape animated={animated} className={cn("h-3", short ? "w-20" : "w-28")} />
+      <Shape breathe animated={animated} className={cn("h-3", short ? "w-20" : "w-28")} />
 
-      <Shape animated={animated} className="h-9 w-full rounded-md" />
+      <Shape animated={animated} className="h-9 w-full rounded-md" motionPhase={1} />
     </div>
   );
 }
@@ -74,16 +91,19 @@ function CardBodySkeleton({
       <div className={cn("flex items-center gap-2", identity === "avatar" ? "h-6" : "h-5")}>
         {identity === "avatar" && <Shape animated={animated} className="size-6 shrink-0 rounded-md" />}
 
-        <Shape animated={animated} className="h-3 w-2/3" />
+        <Shape breathe animated={animated} className="h-3 w-2/3" motionPhase={1} />
       </div>
 
-      {CARD_ROWS.slice(0, rows).map((row) => (
-        <div key={row} className="flex h-5 items-center justify-between gap-3">
-          <Shape animated={animated} className="h-2.5 w-16 shrink-0" />
+      {CARD_ROWS.slice(0, rows).map((row) => {
+        const motionPhase = Math.min(row + 2, 3) as SkeletonMotionPhase;
+        return (
+          <div key={row} className="flex h-5 items-center justify-between gap-3">
+            <Shape animated={animated} className="h-2.5 w-16 shrink-0" motionPhase={motionPhase} />
 
-          <Shape animated={animated} className="h-3 w-20 max-w-[50%]" />
-        </div>
-      ))}
+            <Shape animated={animated} className="h-3 w-20 max-w-[50%]" motionPhase={motionPhase} />
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -114,13 +134,17 @@ function TableSkeleton({
 
           {TABLE_HEADERS.map((cell) => (
             <div key={cell} className="px-3">
-              <Shape animated={animated} className={cn("h-2.5", cell === 0 ? "w-20" : "w-16")} />
+              <Shape animated={animated} breathe={cell === 0} className={cn("h-2.5", cell === 0 ? "w-20" : "w-16")} />
             </div>
           ))}
         </div>
 
         {TABLE_ROWS.map((row) => (
-          <div key={row} className={cn("grid items-center border-b last:border-b-0", columns, rowHeight)}>
+          <div
+            key={row}
+            className={cn("grid items-center border-b last:border-b-0", columns, rowHeight)}
+            data-skeleton-group={row % 4}
+          >
             {hasSelection && (
               <div className="px-3">
                 <Shape animated={animated} className="size-4 rounded-[4px]" />
@@ -128,18 +152,22 @@ function TableSkeleton({
             )}
 
             <div className="flex items-center gap-2 px-3">
-              {hasIdentity && <Shape animated={animated} className="size-6 shrink-0 rounded-md" />}
+              {hasIdentity && <Shape animated={animated} className="size-6 shrink-0 rounded-md" motionPhase={1} />}
 
               <div className={cn("flex min-w-0 flex-1 flex-col", variant === "member" && "gap-1")}>
-                <Shape animated={animated} className="h-3 w-28" />
+                <Shape breathe animated={animated} className="h-3 w-28" motionPhase={1} />
 
-                {variant === "member" && <Shape animated={animated} className="h-2.5 w-36" />}
+                {variant === "member" && <Shape animated={animated} className="h-2.5 w-36" motionPhase={2} />}
               </div>
             </div>
 
             {TABLE_COLUMNS.map((cell) => (
               <div key={cell} className="px-3">
-                <Shape animated={animated} className={cn("h-3", cell === 1 ? "w-20" : "w-16")} />
+                <Shape
+                  animated={animated}
+                  className={cn("h-3", cell === 1 ? "w-20" : "w-16")}
+                  motionPhase={cell < 2 ? 2 : 3}
+                />
               </div>
             ))}
           </div>
@@ -154,7 +182,11 @@ function CardsSkeleton({ animated, identity }: { animated: boolean; identity: "a
     <div className="h-full min-h-0 overflow-y-auto" data-skeleton-scroll-owner="cards">
       <div className={DATA_CARD_GRID_CLASS_NAME}>
         {CARDS.map((card) => (
-          <div key={card} className="relative flex flex-col gap-3 rounded-xl bg-card py-4 shadow-xs">
+          <div
+            key={card}
+            className="relative flex flex-col gap-3 rounded-xl bg-card py-4 shadow-xs"
+            data-skeleton-group={card % 4}
+          >
             <div className="px-4">
               <CardBodySkeleton animated={animated} identity={identity} rows={card % 3 === 0 ? 3 : 4} />
             </div>
@@ -174,9 +206,9 @@ function BoardSkeleton({ animated, identity }: { animated: boolean; identity: "a
     >
       <div className={DATA_KANBAN_TRACK_CLASS_NAME}>
         {BOARD_COLUMNS.map((column) => (
-          <div key={column} className={DATA_KANBAN_COLUMN_CLASS_NAME}>
+          <div key={column} className={DATA_KANBAN_COLUMN_CLASS_NAME} data-skeleton-group={column % 4}>
             <div className={DATA_KANBAN_HEADER_CLASS_NAME}>
-              <Shape animated={animated} className="h-6 w-28 rounded-full" />
+              <Shape breathe animated={animated} className="h-6 w-28 rounded-full" motionPhase={1} />
             </div>
 
             <div className={DATA_KANBAN_CARDS_CLASS_NAME}>
@@ -197,15 +229,15 @@ function BoardSkeleton({ animated, identity }: { animated: boolean; identity: "a
 
 function PaginationSkeleton({ animated }: { animated: boolean }) {
   return (
-    <div data-skeleton-pagination className={DATA_VIEW_PAGINATION_RAIL_CLASS_NAME}>
-      <Shape animated={animated} className="h-3 w-32" />
+    <div data-skeleton-pagination className={DATA_VIEW_PAGINATION_RAIL_CLASS_NAME} data-skeleton-group="3">
+      <Shape breathe animated={animated} className="h-3 w-32" />
 
       <div className="flex items-center gap-0.5">
-        <Shape animated={animated} className="h-8 w-14 rounded-md" />
+        <Shape animated={animated} className="h-8 w-14 rounded-md" motionPhase={1} />
 
-        <Shape animated={animated} className="size-8 rounded-md" />
+        <Shape animated={animated} className="size-8 rounded-md" motionPhase={2} />
 
-        <Shape animated={animated} className="size-8 rounded-md" />
+        <Shape animated={animated} className="size-8 rounded-md" motionPhase={3} />
       </div>
     </div>
   );
@@ -235,33 +267,47 @@ function DashboardSkeleton({ animated }: { animated: boolean }) {
   return (
     <div className="grid min-h-[34rem] grid-cols-1 gap-4 md:grid-cols-2">
       {DASHBOARD_CARDS.map((card) => (
-        <div key={card} className="flex h-[264px] flex-col gap-0 rounded-xl bg-card py-0 shadow-xs">
+        <div
+          key={card}
+          className="flex h-[264px] flex-col gap-0 rounded-xl bg-card py-0 shadow-xs"
+          data-dashboard-card={card}
+          data-skeleton-group={card}
+        >
           <div className="flex w-full shrink-0 flex-col items-start gap-0.5 p-6 pb-0">
-            <Shape animated={animated} className="h-4 w-32" />
+            <Shape breathe animated={animated} className="h-4 w-32" />
 
-            <Shape animated={animated} className="h-2.5 w-20" />
+            <Shape animated={animated} className="h-2.5 w-20" motionPhase={1} />
           </div>
 
           <div className="flex min-h-0 flex-1 flex-col gap-4 p-6">
             {card === 0 ? (
               <div className="flex flex-1 items-end gap-3 pt-4">
                 {[45, 72, 58, 88, 64, 78].map((height, index) => (
-                  <Shape key={index} animated={animated} className="flex-1" style={{ height: `${height}%` }} />
+                  <Shape
+                    key={index}
+                    animated={animated}
+                    breathe={index === 0}
+                    className="flex-1"
+                    motionPhase={index < 3 ? 2 : 3}
+                    style={{ height: `${height}%` }}
+                  />
                 ))}
               </div>
             ) : card === 1 ? (
               <div className="flex flex-1 items-center gap-6">
                 <Shape
+                  breathe
                   animated={animated}
                   className="size-32 shrink-0 rounded-full border-[16px] border-placeholder bg-transparent"
+                  motionPhase={2}
                 />
 
                 <div className="flex flex-1 flex-col gap-4">
                   {TIMELINE_ROWS.slice(0, 3).map((row) => (
                     <div key={row} className="flex items-center gap-2">
-                      <Shape animated={animated} className="size-3 rounded-full" />
+                      <Shape animated={animated} className="size-3 rounded-full" motionPhase={row === 0 ? 2 : 3} />
 
-                      <Shape animated={animated} className="h-3 flex-1" />
+                      <Shape animated={animated} className="h-3 flex-1" motionPhase={row === 0 ? 2 : 3} />
                     </div>
                   ))}
                 </div>
@@ -270,9 +316,15 @@ function DashboardSkeleton({ animated }: { animated: boolean }) {
               <div className="flex flex-1 flex-col justify-center gap-4">
                 {[82, 64, 45, 72].map((width, index) => (
                   <div key={index} className="flex items-center gap-3">
-                    <Shape animated={animated} className="h-3 w-20 shrink-0" />
+                    <Shape animated={animated} className="h-3 w-20 shrink-0" motionPhase={index < 2 ? 2 : 3} />
 
-                    <Shape animated={animated} className="h-5" style={{ width: `${width}%` }} />
+                    <Shape
+                      animated={animated}
+                      breathe={index === 0}
+                      className="h-5"
+                      motionPhase={index < 2 ? 2 : 3}
+                      style={{ width: `${width}%` }}
+                    />
                   </div>
                 ))}
               </div>
@@ -280,9 +332,9 @@ function DashboardSkeleton({ animated }: { animated: boolean }) {
               <div className="grid flex-1 grid-cols-2 gap-4">
                 {CARD_ROWS.map((row) => (
                   <div key={row} className="flex flex-col justify-center gap-3 rounded-lg bg-muted/50 p-4">
-                    <Shape animated={animated} className="h-3 w-16" />
+                    <Shape animated={animated} className="h-3 w-16" motionPhase={row < 2 ? 2 : 3} />
 
-                    <Shape animated={animated} className="h-7 w-24" />
+                    <Shape animated={animated} breathe={row === 0} className="h-7 w-24" motionPhase={row < 2 ? 2 : 3} />
                   </div>
                 ))}
               </div>
@@ -311,7 +363,7 @@ function DetailSectionHeader({
     >
       <Shape animated={animated} className="size-3.5 rounded" />
 
-      <Shape animated={animated} className={cn("h-2.5", labelWidth)} />
+      <Shape breathe animated={animated} className={cn("h-2.5", labelWidth)} motionPhase={1} />
     </div>
   );
 }
@@ -320,49 +372,62 @@ function DetailSkeleton({ animated }: { animated: boolean }) {
   return (
     <div className="@container/detail flex h-full min-h-0 flex-col overflow-y-auto @4xl/detail:overflow-y-visible">
       <div className="grid grid-cols-1 gap-px bg-border contain-[layout] @4xl/detail:min-h-0 @4xl/detail:flex-1 @4xl/detail:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] @6xl/detail:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_360px]">
-        <div className="flex flex-col bg-background @4xl/detail:min-h-0 @4xl/detail:overflow-auto">
+        <div
+          className="flex flex-col bg-background @4xl/detail:min-h-0 @4xl/detail:overflow-auto"
+          data-skeleton-group="0"
+        >
           <DetailSectionHeader master animated={animated} labelWidth="w-20" />
 
           <div className="p-4 pt-2 @4xl/detail:min-h-0 @4xl/detail:flex-1">
             <div className="flex w-full flex-col gap-4">
               <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
-                <FormFieldSkeleton short animated={animated} />
+                <div data-skeleton-group="1">
+                  <FormFieldSkeleton short animated={animated} />
+                </div>
 
                 <FormFieldSkeleton short animated={animated} />
               </div>
 
               {FORM_ROWS.slice(0, 4).map((row) => (
-                <FormFieldSkeleton key={row} animated={animated} short={row % 2 === 0} />
+                <div key={row} data-skeleton-group={row % 4}>
+                  <FormFieldSkeleton animated={animated} short={row % 2 === 0} />
+                </div>
               ))}
             </div>
           </div>
         </div>
 
         <div className="flex flex-col gap-px bg-border @4xl/detail:min-h-0 @6xl/detail:contents">
-          <div className="flex flex-col bg-background @4xl/detail:min-h-0 @4xl/detail:flex-2 @4xl/detail:overflow-hidden">
+          <div
+            className="flex flex-col bg-background @4xl/detail:min-h-0 @4xl/detail:flex-2 @4xl/detail:overflow-hidden"
+            data-skeleton-group="1"
+          >
             <DetailSectionHeader animated={animated} labelWidth="w-16" />
 
             <div className="min-h-0 flex-1 overflow-auto p-4 pt-2">
-              <Shape animated={animated} className="min-h-52 w-full" />
+              <Shape animated={animated} className="min-h-52 w-full" motionPhase={2} />
             </div>
           </div>
 
-          <div className="flex flex-col bg-background @4xl/detail:min-h-0 @4xl/detail:flex-1 @4xl/detail:overflow-hidden">
+          <div
+            className="flex flex-col bg-background @4xl/detail:min-h-0 @4xl/detail:flex-1 @4xl/detail:overflow-hidden"
+            data-skeleton-group="2"
+          >
             <DetailSectionHeader timeline animated={animated} labelWidth="w-20" />
 
             <div className="min-h-0 flex-1 overflow-auto px-2 pt-2 pb-4">
               {TIMELINE_ROWS.map((row) => (
-                <div key={row} className="flex items-start gap-3 rounded-md p-2">
+                <div key={row} className="flex items-start gap-3 rounded-md p-2" data-skeleton-group={row % 4}>
                   <Shape animated={animated} className="size-8 shrink-0 rounded-lg" />
 
                   <div className="flex min-w-0 flex-1 flex-col gap-2 pt-0.5">
                     <div className="flex items-center justify-between gap-2">
-                      <Shape animated={animated} className="h-3 w-3/5" />
+                      <Shape animated={animated} breathe={row === 0} className="h-3 w-3/5" motionPhase={1} />
 
-                      <Shape animated={animated} className="h-2.5 w-12" />
+                      <Shape animated={animated} className="h-2.5 w-12" motionPhase={2} />
                     </div>
 
-                    <Shape animated={animated} className="h-2.5 w-4/5" />
+                    <Shape animated={animated} className="h-2.5 w-4/5" motionPhase={3} />
                   </div>
                 </div>
               ))}
@@ -385,7 +450,9 @@ function SettingsFormSkeleton({ animated }: { animated: boolean }) {
         </div>
 
         {FORM_ROWS.map((row) => (
-          <FormFieldSkeleton key={row} animated={animated} short={row % 2 === 0} />
+          <div key={row} data-skeleton-group={row % 4}>
+            <FormFieldSkeleton animated={animated} short={row % 2 === 0} />
+          </div>
         ))}
       </div>
     </div>
@@ -400,16 +467,19 @@ function SettingsCardBodySkeleton({ animated, card }: { animated: boolean; card:
       <div className="flex h-5 items-center gap-2">
         {card === "connected-accounts" && <Shape animated={animated} className="size-4 shrink-0 rounded" />}
 
-        <Shape animated={animated} className="h-3 w-2/3" />
+        <Shape breathe animated={animated} className="h-3 w-2/3" motionPhase={1} />
       </div>
 
-      {SETTINGS_CARD_ROWS.slice(0, rows).map((row) => (
-        <div key={row} className="flex h-5 items-center justify-between gap-3">
-          <Shape animated={animated} className="h-2.5 w-20 shrink-0" />
+      {SETTINGS_CARD_ROWS.slice(0, rows).map((row) => {
+        const motionPhase = Math.min(row + 2, 3) as SkeletonMotionPhase;
+        return (
+          <div key={row} className="flex h-5 items-center justify-between gap-3">
+            <Shape animated={animated} className="h-2.5 w-20 shrink-0" motionPhase={motionPhase} />
 
-          <Shape animated={animated} className="h-3 w-24 max-w-[50%]" />
-        </div>
-      ))}
+            <Shape animated={animated} className="h-3 w-24 max-w-[50%]" motionPhase={motionPhase} />
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -417,15 +487,22 @@ function SettingsCardBodySkeleton({ animated, card }: { animated: boolean; card:
 function SettingsCardsSkeleton({ animated, card }: { animated: boolean; card: "api-keys" | "connected-accounts" }) {
   return (
     <div className="flex size-full min-h-[32rem] max-w-3xl flex-col gap-4">
-      <div className="grid w-full grid-cols-[1rem_1fr] items-start gap-x-3 gap-y-0.5 rounded-lg border px-4 py-3">
+      <div
+        className="grid w-full grid-cols-[1rem_1fr] items-start gap-x-3 gap-y-0.5 rounded-lg border px-4 py-3"
+        data-skeleton-group="0"
+      >
         <Shape animated={animated} className="size-4" />
 
-        <Shape animated={animated} className="mt-0.5 h-3 w-4/5" />
+        <Shape breathe animated={animated} className="mt-0.5 h-3 w-4/5" motionPhase={1} />
       </div>
 
       <div className={SETTINGS_CARD_GRID_CLASS_NAME}>
         {CARDS.slice(0, 4).map((item) => (
-          <div key={item} className="flex flex-col gap-3 rounded-xl bg-card py-4 shadow-xs">
+          <div
+            key={item}
+            className="flex flex-col gap-3 rounded-xl bg-card py-4 shadow-xs"
+            data-skeleton-group={item % 4}
+          >
             <SettingsCardBodySkeleton animated={animated} card={card} />
           </div>
         ))}
@@ -443,21 +520,22 @@ function CenteredCardSkeleton({ animated, maxWidth = "2xl" }: { animated: boolea
             "flex w-full flex-col gap-0 rounded-xl bg-card py-0 shadow-xs",
             maxWidth === "3xl" ? "max-w-3xl" : "max-w-2xl",
           )}
+          data-skeleton-group="0"
         >
           <div className="flex flex-col items-center gap-5 p-6 text-center">
             <Shape animated={animated} className="size-12 rounded-xl" />
 
             <div className="flex w-full flex-col items-center gap-3">
-              <Shape animated={animated} className="h-5 w-1/2" />
+              <Shape breathe animated={animated} className="h-5 w-1/2" motionPhase={1} />
 
-              <Shape animated={animated} className="h-3 w-4/5" />
+              <Shape animated={animated} className="h-3 w-4/5" motionPhase={2} />
 
-              <Shape animated={animated} className="h-3 w-2/3" />
+              <Shape animated={animated} className="h-3 w-2/3" motionPhase={2} />
             </div>
           </div>
 
           <div className="flex w-full items-center justify-end gap-4 p-6 pt-0">
-            <Shape animated={animated} className="h-9 w-32 rounded-md" />
+            <Shape animated={animated} className="h-9 w-32 rounded-md" motionPhase={3} />
           </div>
         </div>
       </div>
@@ -469,17 +547,21 @@ function InboxListSkeleton({ animated }: { animated: boolean }) {
   return (
     <div className="flex h-full min-h-0 flex-col overflow-y-auto" data-skeleton-scroll-owner="inbox-list">
       {INBOX_ROWS.map((row) => (
-        <div key={row} className="flex min-h-16 items-center gap-3 border-b p-3 last:border-b-0">
+        <div
+          key={row}
+          className="flex min-h-16 items-center gap-3 border-b p-3 last:border-b-0"
+          data-skeleton-group={row % 4}
+        >
           <Shape animated={animated} className="size-8 shrink-0 rounded-lg" />
 
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between gap-2">
-              <Shape animated={animated} className="h-3 w-2/5" />
+              <Shape breathe animated={animated} className="h-3 w-2/5" motionPhase={1} />
 
-              <Shape animated={animated} className="h-2.5 w-12" />
+              <Shape animated={animated} className="h-2.5 w-12" motionPhase={2} />
             </div>
 
-            <Shape animated={animated} className="mt-0.5 h-2.5 w-4/5" />
+            <Shape animated={animated} className="mt-0.5 h-2.5 w-4/5" motionPhase={3} />
           </div>
         </div>
       ))}
@@ -489,24 +571,28 @@ function InboxListSkeleton({ animated }: { animated: boolean }) {
 
 function MessageSkeleton({
   animated,
+  group,
   outbound = false,
   height,
 }: {
   animated: boolean;
+  group: SkeletonMotionPhase;
   outbound?: boolean;
   height: string;
 }) {
   return (
-    <div className={cn("flex gap-2 px-4 py-2", outbound && "flex-row-reverse")}>
+    <div className={cn("flex gap-2 px-4 py-2", outbound && "flex-row-reverse")} data-skeleton-group={group}>
       <Shape animated={animated} className="size-8 shrink-0 self-end rounded-lg" />
 
       <Shape
+        breathe
         animated={animated}
         className={cn(
           "max-w-[80%] rounded-xl shadow-xs",
           outbound ? "w-3/5 rounded-br-md" : "w-2/3 rounded-bl-md",
           height,
         )}
+        motionPhase={1}
       />
     </div>
   );
@@ -519,25 +605,28 @@ function InboxTranscriptSkeleton({ animated }: { animated: boolean }) {
         className="flex flex-1 flex-col justify-end gap-1 overflow-y-auto py-3"
         data-skeleton-scroll-owner="transcript"
       >
-        <MessageSkeleton animated={animated} height="h-16" />
+        <MessageSkeleton animated={animated} group={0} height="h-16" />
 
-        <MessageSkeleton outbound animated={animated} height="h-20" />
+        <MessageSkeleton outbound animated={animated} group={1} height="h-20" />
 
-        <MessageSkeleton animated={animated} height="h-12" />
+        <MessageSkeleton animated={animated} group={2} height="h-12" />
       </div>
 
       <div className="shrink-0 bg-background px-4 pt-2 pb-4">
-        <div className="flex min-h-[6rem] flex-col justify-between rounded-xl bg-card p-3 shadow-xs">
-          <Shape animated={animated} className="h-3 w-2/3" />
+        <div
+          className="flex min-h-[6rem] flex-col justify-between rounded-xl bg-card p-3 shadow-xs"
+          data-skeleton-group="3"
+        >
+          <Shape breathe animated={animated} className="h-3 w-2/3" />
 
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1">
-              <Shape animated={animated} className="size-8 rounded-md" />
+              <Shape animated={animated} className="size-8 rounded-md" motionPhase={1} />
 
-              <Shape animated={animated} className="size-8 rounded-md" />
+              <Shape animated={animated} className="size-8 rounded-md" motionPhase={2} />
             </div>
 
-            <Shape animated={animated} className="h-8 w-20 rounded-md" />
+            <Shape animated={animated} className="h-8 w-20 rounded-md" motionPhase={3} />
           </div>
         </div>
       </div>
@@ -585,7 +674,9 @@ export function PageSkeleton({ animated = true, className, spec, ...props }: Pro
   return (
     <div
       aria-hidden="true"
-      className={cn("size-full min-h-0", animated && "animate-pulse motion-reduce:animate-none", className)}
+      className={cn("size-full min-h-0", className)}
+      data-page-skeleton-empty={!animated || undefined}
+      data-page-skeleton-loading={animated || undefined}
       data-skeleton-kind={spec.kind}
       data-skeleton-variant={
         spec.kind === "data-view"

@@ -90,7 +90,7 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
           </Button>
 
           {canConnect && (
-            <Button asChild className="h-8" size="sm" variant={pageState === "true-empty" ? "secondary" : "default"}>
+            <Button asChild className="h-8" size="sm" variant="default">
               <Link aria-label={t("ConnectedAccountsCard.title")} href="/profile/connected-accounts">
                 <Cable className="size-3.5" />
 
@@ -106,7 +106,7 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
           )}
         </div>
       ),
-    [isRefreshing, messagingThreadsStore, searchPlaceholder, t, channelsNeedingAction, canConnect, pageState, locked],
+    [isRefreshing, messagingThreadsStore, searchPlaceholder, t, channelsNeedingAction, canConnect, locked],
   );
   useSetTopBarActions(topBarNode);
 
@@ -122,7 +122,9 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
     const params = new URLSearchParams(searchParams.toString());
     params.delete("threadId");
     const query = params.toString();
-    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    router.replace(query ? `${pathname}?${query}` : pathname, {
+      scroll: false,
+    });
   }
 
   const listRef = useRef<HTMLDivElement>(null);
@@ -153,7 +155,14 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
     <div className="flex h-full flex-col">
       <DataViewActiveFiltersBar store={messagingThreadsStore} onEditFilters={clearSelectedThread} />
 
-      <div ref={listRef} className="flex-1 overflow-y-auto" id="inbox-thread-list">
+      <div
+        ref={listRef}
+        className={cn(
+          "flex-1 overflow-y-auto",
+          pageState === "content" && "animate-page-result-in motion-reduce:animate-none",
+        )}
+        id="inbox-thread-list"
+      >
         {locked ? (
           <PageSkeleton animated={false} spec={{ kind: "inbox", view: "list" }} />
         ) : pageState === "loading" ? (
@@ -168,7 +177,11 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
             body={t("Common.emptyState.genericFilteredBody")}
             secondaryAction={{
               label: t("Common.emptyState.clearFilters"),
-              onClick: () => messagingThreadsStore.setQueryOptions({ filters: [], searchTerm: "" }),
+              onClick: () =>
+                messagingThreadsStore.setQueryOptions({
+                  filters: [],
+                  searchTerm: "",
+                }),
             }}
             title={t("Common.emptyState.filteredTitle")}
           />

@@ -129,7 +129,7 @@ export const ProfileSettingsForm = observer(({ userDetails, emailVerified }: Pro
         });
       }}
     >
-      <div className="flex w-full max-w-3xl flex-col gap-6">
+      <div className="animate-page-result-in flex w-full max-w-3xl flex-col gap-6 motion-reduce:animate-none">
         <UserDetailsAvatar
           avatarUrl={savedState.avatarUrl ?? userDetails.avatarUrl ?? undefined}
           email={userStore.user?.email ?? userDetails.email}

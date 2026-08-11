@@ -3,7 +3,7 @@
 import { Loader2, MessageSquare } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
-import { Fragment, useEffect } from "react";
+import { Fragment, useLayoutEffect } from "react";
 
 import type { ThreadDetail } from "./messaging-thread-detail.store";
 
@@ -28,7 +28,7 @@ export const ThreadPanel = observer(({ threadDetail, locked = false }: Props) =>
   const t = useTranslations();
   const { messagingThreadDetailStore: store } = useRootStore();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (store.thread?.id !== threadDetail?.thread.id) store.hydrate(threadDetail);
   }, [threadDetail, store]);
 
@@ -67,7 +67,7 @@ export const ThreadPanel = observer(({ threadDetail, locked = false }: Props) =>
   }
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="animate-page-result-in flex h-full flex-col motion-reduce:animate-none">
       <ThreadAutoMarkRead state={thread.state} threadId={thread.id} />
 
       <ThreadTopBar thread={thread} />

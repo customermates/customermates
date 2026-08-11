@@ -7,7 +7,7 @@ import type { MessagingProvider } from "@/generated/prisma";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Cable, Info, Loader2 } from "lucide-react";
-import { useEffect, useMemo } from "react";
+import { useEffect, useLayoutEffect, useMemo } from "react";
 import { Action, Resource } from "@/generated/prisma";
 
 import { Alert } from "@/components/shared/alert";
@@ -130,7 +130,7 @@ export const ConnectedAccountsCard = observer(({ accounts, locked = false }: Pro
   const canConnect = userStore.can(Resource.inboxMessages, Action.create);
   const isTrueEmpty = connectedAccountsStore.isReady && connectedAccountsStore.items.length === 0;
 
-  useEffect(() => connectedAccountsStore.setItems({ items: accounts }), [accounts, connectedAccountsStore]);
+  useLayoutEffect(() => connectedAccountsStore.setItems({ items: accounts }), [accounts, connectedAccountsStore]);
 
   useEffect(() => {
     connectedAccountsStore.startSyncPolling();
@@ -140,9 +140,9 @@ export const ConnectedAccountsCard = observer(({ accounts, locked = false }: Pro
   const topBarActions = useMemo(
     () =>
       !locked && connectedAccountsStore.isReady && canConnect ? (
-        <ConnectAction id="profile-connected-accounts-connect" variant={isTrueEmpty ? "secondary" : "default"} />
+        <ConnectAction id="profile-connected-accounts-connect" />
       ) : null,
-    [canConnect, connectedAccountsStore.isReady, isTrueEmpty, locked],
+    [canConnect, connectedAccountsStore.isReady, locked],
   );
   useSetTopBarActions(topBarActions);
 
@@ -175,7 +175,7 @@ export const ConnectedAccountsCard = observer(({ accounts, locked = false }: Pro
   }
 
   return (
-    <div className="flex w-full max-w-3xl flex-col gap-4">
+    <div className="animate-page-result-in flex w-full max-w-3xl flex-col gap-4 motion-reduce:animate-none">
       <ConnectedAccountsAlert />
 
       <div className={SETTINGS_CARD_GRID_CLASS_NAME}>

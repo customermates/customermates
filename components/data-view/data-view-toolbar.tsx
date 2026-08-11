@@ -19,7 +19,6 @@ type Props<E extends HasId> = {
   searchPlaceholder?: string;
   showDisplayOptions?: boolean;
   anchorScope?: string;
-  deemphasizeAdd?: boolean;
   addLabel?: string;
 };
 
@@ -30,7 +29,6 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
   searchPlaceholder,
   showDisplayOptions = true,
   anchorScope,
-  deemphasizeAdd = false,
   addLabel,
 }: Props<E>) {
   const t = useTranslations();
@@ -60,7 +58,7 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
             className="h-8"
             id={anchorScope ? `${anchorScope}-add` : undefined}
             size="sm"
-            variant={deemphasizeAdd ? "secondary" : "default"}
+            variant="default"
             onClick={onAdd}
           >
             <Plus className="size-3.5" />

@@ -6,7 +6,7 @@ import type { WidgetDto } from "@/features/widget/widget.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { FilterableField } from "@/core/base/base-get.schema";
 
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { observer } from "mobx-react-lite";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
@@ -51,7 +51,7 @@ export const WidgetsGrid = observer(({ widgets, customColumns, filterableFields 
   const isTouchDevice = useIsTouchDevice();
   const pointerStart = useRef<{ id: string; x: number; y: number } | null>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     widgetsStore.setItems({ items: widgets, customColumns });
   }, [widgets, customColumns]);
 
@@ -88,19 +88,14 @@ export const WidgetsGrid = observer(({ widgets, customColumns, filterableFields 
     () =>
       widgetsStore.isReady && canAddWidget ? (
         <div className="flex items-center gap-1">
-          <Button
-            id="dashboard-add-widget"
-            size="sm"
-            variant={isTrueEmpty ? "secondary" : "default"}
-            onClick={() => void widgetModalStore.add()}
-          >
+          <Button id="dashboard-add-widget" size="sm" variant="default" onClick={() => void widgetModalStore.add()}>
             <Icon icon={Plus} />
 
             <span className="hidden sm:inline">{t("Dashboard.addCard")}</span>
           </Button>
         </div>
       ) : null,
-    [t, widgetModalStore, widgetsStore.isReady, canAddWidget, isTrueEmpty],
+    [t, widgetModalStore, widgetsStore.isReady, canAddWidget],
   );
 
   useSetTopBarActions(topBarActions);
@@ -115,7 +110,11 @@ export const WidgetsGrid = observer(({ widgets, customColumns, filterableFields 
         <ResponsiveGridLayout
           isResizable
           breakpoints={GRID_BREAKPOINTS}
-          className={isTouchDevice ? "layout touch-scrollable" : "layout"}
+          className={
+            isTouchDevice
+              ? "layout touch-scrollable animate-page-result-in motion-reduce:animate-none"
+              : "layout animate-page-result-in motion-reduce:animate-none"
+          }
           cols={GRID_COLS}
           compactType="vertical"
           containerPadding={[0, 0]}

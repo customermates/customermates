@@ -52,7 +52,7 @@ export const SubscriptionView = observer(({ initialSubscription }: Props) => {
   useSetTopBarActions(topBarActions);
 
   return (
-    <div className="flex w-full max-w-3xl flex-col gap-4">
+    <div className="animate-page-result-in flex w-full max-w-3xl flex-col gap-4 motion-reduce:animate-none">
       <SubscriptionPanel initialSubscription={initialSubscription} />
     </div>
   );

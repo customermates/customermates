@@ -106,7 +106,6 @@ export const DataViewContainer = observer(function DataViewContainer<E extends H
       <DataViewToolbar
         addLabel={pageState === "true-empty" ? trueEmptyActionLabel : undefined}
         anchorScope={anchorScope}
-        deemphasizeAdd={pageState === "true-empty"}
         isSearchable={isSearchable}
         searchPlaceholder={searchPlaceholder}
         store={store}
@@ -146,11 +145,29 @@ export const DataViewContainer = observer(function DataViewContainer<E extends H
         onAdd={onAdd}
       />
     ) : isTable ? (
-      <DataTable columns={resolvedColumns} store={store} onRowClick={onRowClick} onRowHref={rowHref} />
+      <DataTable
+        className="animate-page-result-in motion-reduce:animate-none"
+        columns={resolvedColumns}
+        store={store}
+        onRowClick={onRowClick}
+        onRowHref={rowHref}
+      />
     ) : isKanban ? (
-      <DataKanbanView cardHref={rowHref} columns={resolvedColumns} store={store} onCardClick={onRowClick} />
+      <DataKanbanView
+        cardHref={rowHref}
+        className="animate-page-result-in motion-reduce:animate-none"
+        columns={resolvedColumns}
+        store={store}
+        onCardClick={onRowClick}
+      />
     ) : (
-      <DataCardView cardHref={rowHref} columns={resolvedColumns} store={store} onCardClick={onRowClick} />
+      <DataCardView
+        cardHref={rowHref}
+        className="animate-page-result-in motion-reduce:animate-none"
+        columns={resolvedColumns}
+        store={store}
+        onCardClick={onRowClick}
+      />
     );
 
   return (
