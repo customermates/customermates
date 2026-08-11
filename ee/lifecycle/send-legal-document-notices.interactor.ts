@@ -276,7 +276,7 @@ export class SendLegalDocumentNoticesInteractor {
     const subject = plan.includesContract ? t("contractSubject") : t("informationSubject");
     const documents = plan.changedDocuments.map((document) => ({
       name: t(`documents.${document}`),
-      version: LEGAL_DOCUMENT_VERSIONS[document],
+      version: this.formatDate(LEGAL_DOCUMENT_VERSIONS[document], formattingTag),
       liveUrl: `${env.BASE_URL}/${document}`,
     }));
     const deadline = plan.effectiveAt ? this.formatDate(plan.effectiveAt, formattingTag) : null;
@@ -303,7 +303,6 @@ export class SendLegalDocumentNoticesInteractor {
         deadlineLabel: plan.includesContract ? t("contractDeadlineLabel") : t("subprocessorDeadlineLabel"),
         documents,
         greeting: t("greeting", { firstName: plan.recipient.firstName }),
-        liveLabel: t("liveLabel"),
         locale,
         layoutCopy,
         objections,

@@ -225,7 +225,7 @@ function legalDocuments(locale: AppLocale, documents: readonly LegalDocument[]) 
 
   return documents.map((document) => ({
     name: copy.documents[document],
-    version: LEGAL_DOCUMENT_VERSIONS[document],
+    version: localizedDate(locale, LEGAL_DOCUMENT_VERSIONS[document]),
     liveUrl: `${PREVIEW_BASE_URL}/${document}`,
   }));
 }
@@ -369,7 +369,6 @@ function renderBehavior(key: EmailPreviewKey, locale: AppLocale, variant: LegalP
           includesContract ? ["terms", "dpa", "privacy", "subprocessors"] : ["privacy", "subprocessors"],
         ),
         greeting: withFirstName(copy.greeting),
-        liveLabel: copy.liveLabel,
         objections: includesContract
           ? [copy.contractObjection, copy.subprocessorObjectionWithDeadline.replace("{deadline}", supplierDeadline)]
           : [copy.subprocessorObjection],

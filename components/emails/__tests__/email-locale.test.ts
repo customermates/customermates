@@ -70,7 +70,6 @@ describe("email locale", () => {
           deadlineLabel: "deadline",
           documents: [],
           greeting: "greeting",
-          liveLabel: "live",
           locale,
           layoutCopy,
           objections: [],

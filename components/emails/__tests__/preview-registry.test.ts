@@ -71,6 +71,14 @@ const CATALOGS = {
   it: itMessages,
 } as const;
 
+const LEGAL_DOCUMENT_DATES = {
+  de: "7. August 2026",
+  en: "August 7, 2026",
+  es: "7 de agosto de 2026",
+  fr: "7 août 2026",
+  it: "7 agosto 2026",
+} satisfies Record<AppLocale, string>;
+
 function productionEmailSends(): string[] {
   return ["app", "core", "ee", "features"]
     .flatMap((directory) =>
@@ -220,6 +228,10 @@ describe("transactional email preview rendering", () => {
               variant,
             );
             expect(plainText.toLocaleLowerCase()).toContain(expectedTitle.toLocaleLowerCase());
+            if (behavior.key === "legal-document-notice") {
+              expect(plainText).toContain(LEGAL_DOCUMENT_DATES[locale]);
+              expect(plainText).not.toContain("2026-08-07");
+            }
           }
         }
       }

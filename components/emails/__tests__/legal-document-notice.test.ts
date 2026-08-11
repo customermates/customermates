@@ -12,8 +12,8 @@ const COPY = {
     body: "Ein berechtigter Administrator muss diese Fassung prüfen.",
     deadlineLabel: "Widerspruchs- und Annahmefrist",
     documentName: "Allgemeine Geschäftsbedingungen",
+    documentVersion: "7. August 2026",
     greeting: "Hallo Ben,",
-    liveLabel: "Aktuelles Dokument",
     signoff: "Viele Grüße\nBen",
     title: "Rechtsdokumente aktualisiert",
   },
@@ -21,8 +21,8 @@ const COPY = {
     body: "An authorised administrator must review this release.",
     deadlineLabel: "Objection and acceptance deadline",
     documentName: "Terms and Conditions",
+    documentVersion: "August 7, 2026",
     greeting: "Hi Ben,",
-    liveLabel: "Live document",
     signoff: "Best regards,\nBen",
     title: "Legal documents updated",
   },
@@ -30,7 +30,7 @@ const COPY = {
 
 describe("LegalDocumentNotice", () => {
   it.each(CONTENT_LOCALES.map((locale) => ({ locale, ...COPY[locale] })))(
-    "renders the visible $locale copy and current live-document link",
+    "renders the visible $locale copy and linked document name",
     async (copy) => {
       const layoutCopy = await getEmailLayoutCopy(copy.locale);
       const html = renderToStaticMarkup(
@@ -41,12 +41,11 @@ describe("LegalDocumentNotice", () => {
           documents: [
             {
               name: copy.documentName,
-              version: "2026-08-07",
+              version: copy.documentVersion,
               liveUrl: "https://customermates.com/terms",
             },
           ],
           greeting: copy.greeting,
-          liveLabel: copy.liveLabel,
           locale: copy.locale,
           layoutCopy,
           objections: [copy.body],
@@ -59,9 +58,11 @@ describe("LegalDocumentNotice", () => {
       expect(html).toContain(copy.title);
       expect(html).toContain(copy.deadlineLabel);
       expect(html).toContain(copy.documentName);
-      expect(html).toContain("2026-08-07");
+      expect(html).toContain(copy.documentVersion);
+      expect(html).not.toContain("2026-08-07");
+      expect(html).not.toContain("—");
+      expect(html).not.toContain("Live document");
       expect(html).toContain("https://customermates.com/terms");
-      expect(html).toContain(copy.liveLabel);
       expect(html).not.toContain("github.com/customermates/customermates/blob");
     },
   );

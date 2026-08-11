@@ -392,9 +392,19 @@ describe("SendLegalDocumentNoticesInteractor", () => {
 
     await invoke();
 
-    const props = emailService.send.mock.calls[0][0].react.props as { deadline: string; locale: string };
+    const props = emailService.send.mock.calls[0][0].react.props as {
+      deadline: string;
+      documents: Array<{ version: string }>;
+      locale: string;
+    };
     expect(props.locale).toBe("fr");
     expect(props.deadline).toBe("21. August 2026");
+    expect(props.documents.map((document) => document.version)).toEqual([
+      "7. August 2026",
+      "7. August 2026",
+      "8. August 2026",
+      "7. August 2026",
+    ]);
   });
 
   it("treats initial onboarding as the creator's baseline for all current documents", async () => {

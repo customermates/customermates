@@ -20,7 +20,6 @@ type Props = {
   deadlineLabel: string;
   documents: DocumentLink[];
   greeting: string;
-  liveLabel: string;
   locale: AppLocale;
   layoutCopy: EmailLayoutCopy;
   objections: string[];
@@ -35,7 +34,6 @@ export default function LegalDocumentNotice({
   deadlineLabel,
   documents,
   greeting,
-  liveLabel,
   locale,
   layoutCopy,
   objections,
@@ -61,16 +59,14 @@ export default function LegalDocumentNotice({
 
       <Section className="my-6">
         {documents.map((document) => (
-          <Text key={document.name} className="text-base leading-6 text-default-900">
-            <strong>{document.name}</strong>
+          <Text key={document.name} className="my-3 text-base leading-6 text-default-900">
+            <EmailLink className="font-semibold" href={document.liveUrl}>
+              {document.name}
+            </EmailLink>
 
-            {" — "}
+            {" · "}
 
             {document.version}
-
-            <br />
-
-            <EmailLink href={document.liveUrl}>{liveLabel}</EmailLink>
           </Text>
         ))}
       </Section>
