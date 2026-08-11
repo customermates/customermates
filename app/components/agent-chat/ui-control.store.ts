@@ -5,6 +5,11 @@ import type { RootStore } from "@/core/stores/root.store";
 import { BaseStore } from "@/core/base/base.store";
 import { findAgentNavigationTarget } from "@/features/agent-chat/ui-targets";
 import { agentGuidedTour, type AgentGuidedTourStep, type AgentTourId } from "@/features/agent-chat/agent-tours";
+import {
+  captureOverlayFocusTarget,
+  focusOverlayTarget,
+  type OverlayFocusTarget,
+} from "@/components/ui/overlay-focus-target";
 
 const COLLAPSED_NAV_GROUP_PATTERN = /^nav-(profile|company)-/;
 
@@ -38,7 +43,7 @@ export class AgentUiControlStore extends BaseStore {
   private tourSteps: AgentGuidedTourStep[] = [];
   private navigateCallback: ((path: string) => Promise<AgentNavigationOutcome>) | null = null;
   private clearTimer: ReturnType<typeof setTimeout> | null = null;
-  private previousFocus: HTMLElement | null = null;
+  private previousFocus: OverlayFocusTarget | null = null;
   private tourRunVersion = 0;
 
   constructor(rootStore: RootStore) {
@@ -145,7 +150,7 @@ export class AgentUiControlStore extends BaseStore {
     this.tourSteps = [];
     this.isTourPaused = false;
     if (this.clearTimer) clearTimeout(this.clearTimer);
-    this.previousFocus?.focus({ preventScroll: true });
+    focusOverlayTarget(this.previousFocus);
     this.previousFocus = null;
   };
 
@@ -203,7 +208,7 @@ export class AgentUiControlStore extends BaseStore {
   }
 
   private captureFocus() {
-    this.previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    this.previousFocus = captureOverlayFocusTarget(document.activeElement);
   }
 
   private scheduleClear(ms: number) {

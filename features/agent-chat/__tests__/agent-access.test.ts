@@ -11,7 +11,7 @@ import {
 const mockUser = createMockUserWithPermissions([]);
 
 vi.mock("@/env", () => ({
-  env: { ...MOCK_ENV_MODULE.env, AGENT_AGENT_MODEL: "anthropic:claude-test" },
+  env: { ...MOCK_ENV_MODULE.env, AGENT_MODEL: "anthropic:claude-test" },
 }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);

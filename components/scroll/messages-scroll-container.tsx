@@ -153,7 +153,7 @@ export function MessagesScrollContainer({
       <div
         ref={ref}
         aria-label={scrollRegionLabel}
-        className={cn("flex-1 overflow-y-auto py-3", className)}
+        className={cn("min-h-0 flex-1 overflow-y-auto overscroll-contain py-3", className)}
         role="region"
         // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
         tabIndex={0}

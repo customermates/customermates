@@ -7,8 +7,8 @@ vi.mock("@/env", () => ({
   env: {
     ...MOCK_ENV_MODULE.env,
     APP_MODE: "cloud",
-    AGENT_AGENT_MODEL: "openai:gpt-5.6-luna",
-    AGENT_AGENT_MAX_STEPS: 8,
+    AGENT_MODEL: "openai:gpt-5.6-luna",
+    AGENT_MAX_STEPS: 8,
     AGENT_MAX_OUTPUT_TOKENS: 2048,
   },
 }));

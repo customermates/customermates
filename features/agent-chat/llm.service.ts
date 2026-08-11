@@ -20,7 +20,7 @@ const registry = createProviderRegistry({
 export type AgentModelLane = "agent";
 
 function laneSpec(_lane: AgentModelLane) {
-  return env.AGENT_AGENT_MODEL;
+  return env.AGENT_MODEL;
 }
 
 type ProviderModelSpec = `anthropic:${string}` | `google:${string}` | `openai:${string}`;

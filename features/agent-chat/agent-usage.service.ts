@@ -201,8 +201,8 @@ export class AgentUsageService {
 
     const budget = resolveAgentTurnBudget({
       availableCredits: state.summary.creditsRemaining,
-      modelSpec: env.AGENT_AGENT_MODEL,
-      configuredMaxSteps: env.AGENT_AGENT_MAX_STEPS,
+      modelSpec: env.AGENT_MODEL,
+      configuredMaxSteps: env.AGENT_MAX_STEPS,
       configuredMaxOutputTokens: env.AGENT_MAX_OUTPUT_TOKENS,
       configuredMaxToolResultChars: env.AGENT_CRM_TOOL_RESULT_MAX_CHARS,
       requiredContextBytes,

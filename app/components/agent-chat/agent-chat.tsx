@@ -58,7 +58,9 @@ import { AppModal } from "@/components/modal/app-modal";
 import { AppImage } from "@/components/shared/app-image";
 import { MessageResponse } from "@/components/ai-elements/message";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
+import { OVERLAY_SCROLL_REGION } from "@/components/ui/overlay-contract";
 import { cn } from "@/core/utils/cn";
+import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 
 export const AgentChat = observer(function AgentChat() {
   const { agentChatStore: store, agentUiControlStore } = useRootStore();
@@ -565,14 +567,15 @@ const ConversationHistory = observer(function ConversationHistory() {
     Boolean(store.conversationLoadPendingId) ||
     Boolean(store.historyMutationPending);
 
+  const debouncedQuery = useDebouncedValue(query);
+
   useEffect(() => {
     if (firstSearchRender.current) {
       firstSearchRender.current = false;
       return;
     }
-    const timer = setTimeout(() => void store.refreshConversations(query), 250);
-    return () => clearTimeout(timer);
-  }, [query, store]);
+    void store.refreshConversations(debouncedQuery);
+  }, [debouncedQuery, store]);
 
   const archive = async (conversationId: string, index: number) => {
     const neighbor = store.conversations[index + 1] ?? store.conversations[index - 1] ?? null;
@@ -631,7 +634,7 @@ const ConversationHistory = observer(function ConversationHistory() {
 
   if (store.conversations.length === 0) {
     return (
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-2">
+      <div className={cn(OVERLAY_SCROLL_REGION, "flex flex-col p-2")}>
         <ArchiveUndo />
 
         <ConversationHistoryStatus />
@@ -668,7 +671,7 @@ const ConversationHistory = observer(function ConversationHistory() {
   }
 
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto p-2" data-testid="agent-history">
+    <div className={cn(OVERLAY_SCROLL_REGION, "p-2")} data-testid="agent-history">
       <ArchiveUndo />
 
       <ConversationHistoryStatus />
