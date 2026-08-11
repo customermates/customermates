@@ -25,7 +25,6 @@ import { PrismaOrganizationRepo } from "@/features/organizations/prisma-organiza
 import { PrismaDealRepo } from "@/features/deals/prisma-deal.repository";
 import { PrismaServiceRepo } from "@/features/services/prisma-service.repository";
 import { PrismaTaskRepo } from "@/features/tasks/prisma-task.repository";
-import { PrismaFilterOptionsRepo } from "@/features/filter-options/prisma-filter-options.repository";
 import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
 import { PrismaCompanyRepo } from "@/features/company/prisma-company.repository";
 import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
@@ -138,7 +137,6 @@ import { UpdateTaskInteractor } from "@/features/tasks/upsert/update-task.intera
 import { UpdateManyTasksInteractor } from "@/features/tasks/upsert/update-many-tasks.interactor";
 import { DeleteTaskInteractor } from "@/features/tasks/delete/delete-task.interactor";
 import { DeleteManyTasksInteractor } from "@/features/tasks/delete/delete-many-tasks.interactor";
-import { ResolveFilterOptionsInteractor } from "@/features/filter-options/resolve-filter-options.interactor";
 // User interactors
 import { RegisterUserInteractor } from "@/features/user/register/register-user.interactor";
 import { UpdateUserDetailsInteractor } from "@/features/user/upsert/update-user-details.interactor";
@@ -302,7 +300,6 @@ export const getOrganizationRepo = () => new PrismaOrganizationRepo();
 export const getDealRepo = () => new PrismaDealRepo();
 export const getServiceRepo = () => new PrismaServiceRepo();
 export const getTaskRepo = () => new PrismaTaskRepo();
-export const getFilterOptionsRepo = () => new PrismaFilterOptionsRepo();
 export const getUserRepo = () => new PrismaUserRepo();
 export const getCompanyRepo = () => new PrismaCompanyRepo();
 export const getRoleRepo = () => new PrismaRoleRepo();
@@ -1336,8 +1333,6 @@ export const getDeleteCustomColumnInteractor = () =>
 // --- Search ---
 
 export const getGlobalSearchInteractor = () => new GlobalSearchInteractor();
-
-export const getResolveFilterOptionsInteractor = () => new ResolveFilterOptionsInteractor(getFilterOptionsRepo());
 
 // --- P13n ---
 

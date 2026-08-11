@@ -58,13 +58,14 @@ describe("technical-id loading contract", () => {
     expect(filterChip).toContain("filterValueKind");
   });
 
-  it("resolves selected entity labels by exact IDs and keeps request failures distinct from empty results", () => {
+  it("loads selected labels without exposing their keys and keeps request failures distinct from empty results", () => {
     const options = read("components/data-view/filter-modal/inputs/use-filter-select-items.tsx");
     const filterSelect = read("components/data-view/filter-modal/inputs/filter-input-select.tsx");
     const autocomplete = read("components/forms/form-autocomplete.tsx");
 
-    expect(options).toContain("resolveEntityOptions(source, ids)");
-    expect(options).toContain("activeFilterOptionRequests");
+    expect(options).toContain("const result = await getItems({});");
+    expect(options).toContain("requested.has(item.key)");
+    expect(options).not.toContain("resolveFilterOptionsAction");
     expect(options).not.toContain("filters: [{ field, operator: FilterOperatorKey.in, value: ids }]");
     expect(options).toContain('status: "error"');
     expect(filterSelect).toContain("optionError");

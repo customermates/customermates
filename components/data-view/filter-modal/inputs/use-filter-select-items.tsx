@@ -1,7 +1,6 @@
 import type { GetResult } from "@/core/base/base-get.interactor";
 import type { GetQueryParams, Filter } from "@/core/base/base-get.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
-import type { ResolveFilterOptionsData } from "@/features/filter-options/resolve-filter-options.interactor";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -28,13 +27,8 @@ import { getOrganizationsAction } from "@/app/[locale]/(protected)/organizations
 import { getDealsAction } from "@/app/[locale]/(protected)/deals/actions";
 import { getServicesAction } from "@/app/[locale]/(protected)/services/actions";
 import { getTasksAction } from "@/app/[locale]/(protected)/tasks/actions";
-import {
-  getActivityThreadOptionsAction,
-  getConnectedAccountsAction,
-  resolveFilterOptionsAction,
-} from "@/app/[locale]/(protected)/actions";
+import { getActivityThreadOptionsAction, getConnectedAccountsAction } from "@/app/[locale]/(protected)/actions";
 import { getSystemTaskNameTranslationKey } from "@/app/[locale]/(protected)/tasks/components/system-task.config";
-import { resolveFilterOptionBatches } from "@/features/filter-options/filter-option-batches";
 import {
   THREAD_STATE_CHIP_COLOR,
   ThreadStateDot,
@@ -51,31 +45,6 @@ export type FilterSelectItem = {
 
 type GetItemsFunction = (params: GetQueryParams) => Promise<GetResult<FilterSelectItem>>;
 type ResolveItemsFunction = (ids: readonly string[]) => Promise<FilterSelectItem[]>;
-
-const activeFilterOptionRequests = new Map<string, ReturnType<typeof resolveFilterOptionsAction>>();
-
-function resolveEntityOptionBatch(source: ResolveFilterOptionsData["source"], ids: readonly string[]) {
-  const key = JSON.stringify([source, ids]);
-  const activeRequest = activeFilterOptionRequests.get(key);
-  if (activeRequest) return activeRequest;
-
-  const request = resolveFilterOptionsAction({ source, ids: [...ids] });
-  activeFilterOptionRequests.set(key, request);
-  void request.then(
-    () => activeFilterOptionRequests.delete(key),
-    () => activeFilterOptionRequests.delete(key),
-  );
-  return request;
-}
-
-async function resolveEntityOptions(source: ResolveFilterOptionsData["source"], ids: readonly string[]) {
-  const resolved = await resolveFilterOptionBatches(ids, (batch) => resolveEntityOptionBatch(source, batch));
-  const byId = new Map(resolved.map((item) => [item.key, item]));
-  return ids.flatMap((id) => {
-    const item = byId.get(id);
-    return item ? [item] : [];
-  });
-}
 
 function renderAvatar(name: string, src?: string | null) {
   return <Avatar className="mr-0.5" name={name} size="sm" src={src} />;
@@ -225,48 +194,14 @@ export function useFilterSelectItems(
   }, [field, isCustom, t, activitiesStore, timelineScopeKey]);
 
   const resolveItems = useMemo<ResolveItemsFunction | undefined>(() => {
-    const source =
-      fieldKey === FilterFieldKey.userIds
-        ? "user"
-        : fieldKey === FilterFieldKey.contactIds || fieldKey === FilterFieldKey.participantContactId
-          ? "contact"
-          : fieldKey === FilterFieldKey.organizationIds
-            ? "organization"
-            : fieldKey === FilterFieldKey.dealIds
-              ? "deal"
-              : fieldKey === FilterFieldKey.serviceIds
-                ? "service"
-                : fieldKey === FilterFieldKey.taskIds
-                  ? "task"
-                  : null;
+    if (!getItems) return undefined;
 
-    if (source) {
-      return async (ids) => {
-        const resolved = await resolveEntityOptions(source, ids);
-        return resolved.map((item) => {
-          const taskNameKey = item.taskType ? getSystemTaskNameTranslationKey(item.taskType) : null;
-          const textValue = taskNameKey ? t(taskNameKey) : item.label.trim() || t("Common.unnamed");
-          const withAvatar = source === "user" || source === "contact";
-          return {
-            key: item.key,
-            value: item.key,
-            textValue,
-            startContent: withAvatar ? renderAvatar(textValue, item.avatarUrl) : undefined,
-          };
-        });
-      };
-    }
-
-    if (getItems && (fieldKey === FilterFieldKey.timelineThreadId || fieldKey === FilterFieldKey.connectedAccountId)) {
-      return async (ids) => {
-        const requested = new Set(ids);
-        const result = await getItems({});
-        return result.items.filter((item) => requested.has(item.key));
-      };
-    }
-
-    return undefined;
-  }, [fieldKey, getItems, t]);
+    return async (ids) => {
+      const requested = new Set(ids);
+      const result = await getItems({});
+      return result.items.filter((item) => requested.has(item.key));
+    };
+  }, [getItems]);
 
   const [selectionAttempt, setSelectionAttempt] = useState(0);
   const selectionRequestKey =

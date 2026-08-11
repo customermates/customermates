@@ -492,7 +492,6 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ["app/components/app-topbar-crumbs.ts :: t :: subroute.labelKey", 1],
   ["components/card/form-actions.tsx :: t :: primaryButtonLabel", 1],
   ["components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: nameKey", 1],
-  ["components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: taskNameKey", 1],
   ["components/entity-detail/entity-detail.registry.tsx :: t :: key", 1],
   ["components/entity-detail/relation-fields.tsx :: t :: nameKey", 1],
   ["components/entity-terminology/use-entity-terminology.ts :: t :: key", 1],

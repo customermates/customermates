@@ -47,9 +47,12 @@ describe("page-state contract", () => {
 
       expect(nearestLoadingOwner(pagePath), route).toBe(relative(REPO_ROOT, declaredOwner));
       expect(typeof spec.trueEmpty, route).toBe("boolean");
-      expect(spec.errorOwner, route).toMatch(/route-boundary/);
       expect(spec.skeleton, route).toBeDefined();
     }
+
+    const errorBoundary = read("app/[locale]/error.tsx");
+    expect(errorBoundary).toContain("ErrorPageView");
+    expect(errorBoundary).toContain("reset()");
   });
 
   it("keeps route fallbacks in-flow and leaves the protected shell mounted", () => {

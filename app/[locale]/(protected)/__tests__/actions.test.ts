@@ -6,14 +6,12 @@ const invokes = vi.hoisted(() => ({
   activities: vi.fn(),
   activityThreadOptions: vi.fn(),
   connectedAccounts: vi.fn(),
-  resolveFilterOptions: vi.fn(),
 }));
 
 vi.mock("@/core/di", () => ({
   getGetActivitiesInteractor: () => ({ invoke: invokes.activities }),
   getGetActivityThreadOptionsInteractor: () => ({ invoke: invokes.activityThreadOptions }),
   getGetMyConnectedAccountsInteractor: () => ({ invoke: invokes.connectedAccounts }),
-  getResolveFilterOptionsInteractor: () => ({ invoke: invokes.resolveFilterOptions }),
 }));
 
 import { getActivityThreadOptionsAction, getConnectedAccountsAction } from "../actions";
