@@ -156,7 +156,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       prisma.agentUsageEvent.findUniqueOrThrow({ where: { id: reservationId } }),
     );
     const usage = await runWithoutTenant(() =>
-      repo.getUserCreditUsageUnscoped(userId, reserved.periodStart, reserved.periodEnd),
+      repo.getUserCreditUsageUnscoped(reserved.companyId, userId, reserved.periodStart, reserved.periodEnd),
     );
 
     expect(usage.usedCredits).toBe(8);

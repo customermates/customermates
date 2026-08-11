@@ -475,7 +475,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
   }
 
   @BypassTenantGuard
-  async createSupportMessageForTicketUnscopedOrThrow(args: { ticketId: string; messageId: string; text: string }) {
+  async createSupportMessageForTicketOrThrowUnscoped(args: { ticketId: string; messageId: string; text: string }) {
     if (!args.ticketId || !args.messageId) throw new Error("Support reply identifiers are required.");
     const safeText = sanitizeAgentVisibleText(args.text).trim();
     if (!safeText) throw new Error("Support reply text is empty after sanitization.");
@@ -718,7 +718,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
   }
 
   @BypassTenantGuard
-  async createPendingApprovalRequestUnscopedOrThrow(args: {
+  async createPendingApprovalRequestOrThrowUnscoped(args: {
     conversationId: string;
     requestId: string;
     toolName: string;
@@ -849,7 +849,8 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
   }) {
     await this.prisma.agentUiCommandResult.upsert({
       where: {
-        conversationId_commandId: {
+        companyId_conversationId_commandId: {
+          companyId: this.companyId,
           conversationId: args.conversationId,
           commandId: args.commandId,
         },
@@ -859,7 +860,6 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         name: args.name,
         ok: args.ok,
         result: args.result,
-        companyId: this.companyId,
       },
     });
   }
@@ -1340,7 +1340,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
   }
 
   @BypassTenantGuard
-  async finalizeAgentTurnUnscopedOrThrow(args: {
+  async finalizeAgentTurnOrThrowUnscoped(args: {
     turnRequestId: string;
     conversationId: string;
     companyId: string;
@@ -1539,7 +1539,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
   }
 
   @BypassTenantGuard
-  async createAssistantMessageUnscopedOrThrow(args: {
+  async createAssistantMessageOrThrowUnscoped(args: {
     conversationId: string;
     companyId: string;
     userId: string;
@@ -1572,10 +1572,11 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
   }
 
   @BypassTenantGuard
-  async getUserCreditUsageUnscoped(userId: string, periodStart: Date, periodEnd: Date) {
+  async getUserCreditUsageUnscoped(companyId: string, userId: string, periodStart: Date, periodEnd: Date) {
     const [events, recent] = await Promise.all([
       this.prisma.agentUsageEvent.findMany({
         where: {
+          companyId,
           userId,
           periodStart,
           periodEnd,
@@ -1584,7 +1585,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         select: { state: true, reservedCredits: true, chargedCredits: true },
       }),
       this.prisma.agentUsageEvent.findFirst({
-        where: { userId, periodStart, periodEnd, state: { in: ["settled", "retained"] } },
+        where: { companyId, userId, periodStart, periodEnd, state: { in: ["settled", "retained"] } },
         orderBy: [{ settledAt: "desc" }, { id: "desc" }],
         select: { chargedCredits: true },
       }),
@@ -1703,6 +1704,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
 
       const existing = await this.prisma.agentUsageEvent.findMany({
         where: {
+          companyId: event.companyId,
           userId: event.userId,
           periodStart: entitlement.start,
           periodEnd: entitlement.resetAt,

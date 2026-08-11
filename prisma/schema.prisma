@@ -203,51 +203,58 @@ model User {
 }
 
 model Company {
-  id                          String                       @id @default(uuid())
-  currency                    Currency                     @default(eur)
-  createdAt                   DateTime                     @default(now())
-  updatedAt                   DateTime                     @updatedAt
-  tasks                       Task[]
-  users                       User[]
-  inviteTokens                InviteToken[]
-  contacts                    Contact[]
-  organizations               Organization[]
-  deals                       Deal[]
-  services                    Service[]
-  CustomColumn                CustomColumn[]
-  auditLogs                   AuditLog[]
-  customFieldValues           CustomFieldValue[]
-  serviceDeals                ServiceDeal[]
-  dealOrganizations           DealOrganization[]
-  dealUsers                   DealUser[]
-  dealContacts                DealContact[]
-  contactUsers                ContactUser[]
-  contactOrganizations        ContactOrganization[]
-  organizationUsers           OrganizationUser[]
-  serviceUsers                ServiceUser[]
-  taskUsers                   TaskUser[]
-  taskContacts                TaskContact[]
-  taskOrganizations           TaskOrganization[]
-  taskDeals                   TaskDeal[]
-  taskServices                TaskService[]
-  widgets                     Widget[]
-  userRoles                   UserRole[]
-  rolePermissions             RolePermission[]
-  p13n                        P13n[]
-  webhooks                    Webhook[]
-  webhookDeliveries           WebhookDelivery[]
-  connectedAccounts           ConnectedAccount[]
-  messagingThreads            MessagingThread[]
-  messagingMessages           MessagingMessage[]
-  messagingThreadParticipants MessagingThreadParticipant[]
-  accountActivities           AccountActivity[]
-  contactIdentifiers          ContactIdentifier[]
-  calendars                   Calendar[]
-  calendarEvents              CalendarEvent[]
-  subscription                Subscription?
-  entityTerminology           EntityTerminology[]
-  agentConversations          AgentConversation[]
-  agentRunLeases              AgentRunLease[]
+  id                           String                        @id @default(uuid())
+  currency                     Currency                      @default(eur)
+  createdAt                    DateTime                      @default(now())
+  updatedAt                    DateTime                      @updatedAt
+  tasks                        Task[]
+  users                        User[]
+  inviteTokens                 InviteToken[]
+  contacts                     Contact[]
+  organizations                Organization[]
+  deals                        Deal[]
+  services                     Service[]
+  CustomColumn                 CustomColumn[]
+  auditLogs                    AuditLog[]
+  customFieldValues            CustomFieldValue[]
+  serviceDeals                 ServiceDeal[]
+  dealOrganizations            DealOrganization[]
+  dealUsers                    DealUser[]
+  dealContacts                 DealContact[]
+  contactUsers                 ContactUser[]
+  contactOrganizations         ContactOrganization[]
+  organizationUsers            OrganizationUser[]
+  serviceUsers                 ServiceUser[]
+  taskUsers                    TaskUser[]
+  taskContacts                 TaskContact[]
+  taskOrganizations            TaskOrganization[]
+  taskDeals                    TaskDeal[]
+  taskServices                 TaskService[]
+  widgets                      Widget[]
+  userRoles                    UserRole[]
+  rolePermissions              RolePermission[]
+  p13n                         P13n[]
+  webhooks                     Webhook[]
+  webhookDeliveries            WebhookDelivery[]
+  connectedAccounts            ConnectedAccount[]
+  messagingThreads             MessagingThread[]
+  messagingMessages            MessagingMessage[]
+  messagingThreadParticipants  MessagingThreadParticipant[]
+  accountActivities            AccountActivity[]
+  contactIdentifiers           ContactIdentifier[]
+  calendars                    Calendar[]
+  calendarEvents               CalendarEvent[]
+  subscription                 Subscription?
+  entityTerminology            EntityTerminology[]
+  agentConversations           AgentConversation[]
+  agentRunLeases               AgentRunLease[]
+  agentMessages                AgentMessage[]
+  agentUsageEvents             AgentUsageEvent[]
+  agentTurnRequests            AgentTurnRequest[]
+  agentWorkspaceSetups         AgentWorkspaceSetup[]
+  agentWorkspaceSetupResources AgentWorkspaceSetupResource[]
+  agentApprovals               AgentApproval[]
+  agentUiCommandResults        AgentUiCommandResult[]
 }
 
 model EntityTerminology {
@@ -1637,6 +1644,7 @@ model AgentMessage {
   id             String            @id @default(uuid())
   conversationId String
   companyId      String
+  company        Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
   turnRequestId  String?
   role           AgentMessageRole
   parts          Json
@@ -1654,6 +1662,7 @@ model AgentMessage {
 model AgentUsageEvent {
   id                         String             @id @default(uuid())
   companyId                  String
+  company                    Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
   userId                     String
   sessionId                  String?
   state                      AgentUsageState    @default(reserved)
@@ -1677,7 +1686,7 @@ model AgentUsageEvent {
 
   @@index([userId, createdAt])
   @@index([companyId, createdAt])
-  @@index([userId, periodStart, periodEnd, state])
+  @@index([companyId, userId, periodStart, periodEnd, state])
 }
 
 enum AgentUsageState {
@@ -1690,6 +1699,7 @@ enum AgentUsageState {
 model AgentTurnRequest {
   id                 String                 @id @default(uuid())
   companyId          String
+  company            Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
   userId             String
   conversationId     String
   clientRequestId    String
@@ -1732,6 +1742,7 @@ enum AgentTurnTerminalCode {
 model AgentWorkspaceSetup {
   id               String                        @id @default(uuid())
   companyId        String
+  company          Company                       @relation(fields: [companyId], references: [id], onDelete: Cascade)
   userId           String
   conversationId   String
   reviewMessageId  String
@@ -1758,6 +1769,7 @@ model AgentWorkspaceSetupResource {
   id               String                   @id @default(uuid())
   setupId          String
   companyId        String
+  company          Company                  @relation(fields: [companyId], references: [id], onDelete: Cascade)
   kind             AgentSetupResourceKind
   resourceId       String
   initialUpdatedAt DateTime
@@ -1809,6 +1821,7 @@ model AgentApproval {
   id             String                @id @default(uuid())
   conversationId String
   companyId      String
+  company        Company               @relation(fields: [companyId], references: [id], onDelete: Cascade)
   requestId      String
   toolName       String
   decision       AgentApprovalDecision
@@ -1823,6 +1836,7 @@ model AgentUiCommandResult {
   id             String            @id @default(uuid())
   conversationId String
   companyId      String
+  company        Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
   commandId      String
   name           String
   ok             Boolean
@@ -1830,7 +1844,7 @@ model AgentUiCommandResult {
   createdAt      DateTime          @default(now())
   conversation   AgentConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
-  @@unique([conversationId, commandId])
+  @@unique([companyId, conversationId, commandId])
   @@index([companyId])
 }
 

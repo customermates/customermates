@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const repoMock = vi.hoisted(() => ({
-  createPendingApprovalRequestUnscopedOrThrow: vi.fn().mockResolvedValue(undefined),
+  createPendingApprovalRequestOrThrowUnscoped: vi.fn().mockResolvedValue(undefined),
   discardPendingApprovalRequestUnscoped: vi.fn().mockResolvedValue(undefined),
   findApprovalDecisionUnscoped: vi.fn(),
   takeUiCommandResultUnscoped: vi.fn(),
   markAgentTurnProviderStartedUnscoped: vi.fn().mockResolvedValue(undefined),
-  finalizeAgentTurnUnscopedOrThrow: vi.fn(),
+  finalizeAgentTurnOrThrowUnscoped: vi.fn(),
 }));
 const aiMock = vi.hoisted(() => ({
   streamText: vi.fn(),
@@ -45,10 +45,15 @@ vi.mock("@/env", () => ({
 }));
 vi.mock("ai", () => aiMock);
 vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn() }));
+let sessionUser: { id: string; companyId: string } = { id: "u1", companyId: "c1" };
+
 vi.mock("@/core/di", () => ({
   getAgentChatRepo: () => repoMock,
   getCreateChatSupportTicketInteractor: () => ({
     invoke: interactorMock.createSupportTicket,
+  }),
+  getUserService: () => ({
+    getActiveUserOrThrow: () => Promise.resolve(sessionUser),
   }),
 }));
 vi.mock("../llm.service", () => llmMock);
@@ -150,10 +155,10 @@ beforeEach(() => {
     data: { number: 1 },
   });
   repoMock.takeUiCommandResultUnscoped.mockResolvedValue(null);
-  repoMock.createPendingApprovalRequestUnscopedOrThrow.mockResolvedValue(undefined);
+  repoMock.createPendingApprovalRequestOrThrowUnscoped.mockResolvedValue(undefined);
   repoMock.discardPendingApprovalRequestUnscoped.mockResolvedValue(undefined);
   repoMock.markAgentTurnProviderStartedUnscoped.mockResolvedValue(undefined);
-  repoMock.finalizeAgentTurnUnscopedOrThrow.mockImplementation((args) =>
+  repoMock.finalizeAgentTurnOrThrowUnscoped.mockImplementation((args) =>
     Promise.resolve({
       assistantMessage: {
         id: "assistant1",
@@ -227,7 +232,7 @@ describe("agent runner approval rendezvous", () => {
     expect(events.some((e) => e.type === "delta" && e.text === "Created Anna.")).toBe(true);
     expect(events.at(-1)).toMatchObject({ type: "turn_done", isError: false });
     expect(aiMock.streamText).toHaveBeenCalledWith(expect.objectContaining({ maxRetries: 0 }));
-    expect(repoMock.finalizeAgentTurnUnscopedOrThrow).toHaveBeenCalledWith(
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         parts: [
           {
@@ -257,7 +262,7 @@ describe("agent runner approval rendezvous", () => {
       }),
     );
     expect(repoMock.markAgentTurnProviderStartedUnscoped.mock.invocationCallOrder[0]).toBeLessThan(
-      repoMock.finalizeAgentTurnUnscopedOrThrow.mock.invocationCallOrder[0],
+      repoMock.finalizeAgentTurnOrThrowUnscoped.mock.invocationCallOrder[0],
     );
   });
 
@@ -300,7 +305,7 @@ describe("agent runner approval rendezvous", () => {
     expect(visible).toBe("I checked [internal reference] and found it.");
     expect(JSON.stringify(events)).not.toContain("page_context");
     expect(JSON.stringify(events)).not.toContain(internalId);
-    expect(repoMock.finalizeAgentTurnUnscopedOrThrow).toHaveBeenCalledWith(
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         parts: [
           {
@@ -364,7 +369,7 @@ describe("agent runner approval rendezvous", () => {
         isError: false,
       }),
     );
-    expect(repoMock.finalizeAgentTurnUnscopedOrThrow).toHaveBeenCalledWith(
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         parts: expect.arrayContaining([
           expect.objectContaining({
@@ -436,7 +441,7 @@ describe("agent runner approval rendezvous", () => {
     expect(events.some((e) => e.type === "activity_result" && e.isError)).toBe(true);
     expect(events.some((e) => JSON.stringify(e).includes("boom"))).toBe(false);
     expect(events.at(-1)).toMatchObject({ type: "turn_done", isError: false });
-    expect(repoMock.finalizeAgentTurnUnscopedOrThrow).toHaveBeenCalledWith(
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         parts: [
           expect.objectContaining({
@@ -493,7 +498,7 @@ describe("agent runner approval rendezvous", () => {
       subject: "Need help",
       body: "Please connect me with a human.",
     });
-    expect(repoMock.finalizeAgentTurnUnscopedOrThrow).toHaveBeenCalledWith(
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         parts: expect.arrayContaining([
           expect.objectContaining({
@@ -529,7 +534,7 @@ describe("agent runner approval rendezvous", () => {
 
     await runAndRead(ctx());
 
-    expect(repoMock.finalizeAgentTurnUnscopedOrThrow).toHaveBeenCalledWith(
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         parts: [
           expect.objectContaining({
@@ -586,7 +591,7 @@ describe("agent runner approval rendezvous", () => {
       expect.objectContaining({ inputTokens: 100, outputTokens: 20 }),
       { reservedCredits: 36, retainReservation: true },
     );
-    expect(repoMock.finalizeAgentTurnUnscopedOrThrow).toHaveBeenCalledWith(
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         usageSettlement: expect.objectContaining({
           costMicrocents: 20_000_000,
@@ -615,7 +620,7 @@ describe("agent runner approval rendezvous", () => {
       reservedCredits: 36,
       retainReservation: true,
     });
-    expect(repoMock.finalizeAgentTurnUnscopedOrThrow).toHaveBeenCalledWith(
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         terminalCode: "cancelled",
         usageSettlement: expect.any(Object),
@@ -646,10 +651,10 @@ describe("agent runner approval rendezvous", () => {
     const reader = stream.getReader();
     await vi.waitFor(() => expect(aiMock.streamText).toHaveBeenCalledOnce());
     await reader.cancel();
-    await vi.waitFor(() => expect(repoMock.finalizeAgentTurnUnscopedOrThrow).toHaveBeenCalledOnce());
+    await vi.waitFor(() => expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledOnce());
 
     expect((providerSignal as unknown as AbortSignal).aborted).toBe(true);
-    expect(repoMock.finalizeAgentTurnUnscopedOrThrow).toHaveBeenCalledWith(
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         terminalCode: "cancelled",
         usageSettlement: expect.any(Object),
@@ -674,7 +679,7 @@ describe("agent runner approval rendezvous", () => {
     });
     expect(aiMock.streamText).not.toHaveBeenCalled();
     expect(repoMock.markAgentTurnProviderStartedUnscoped).not.toHaveBeenCalled();
-    expect(repoMock.finalizeAgentTurnUnscopedOrThrow).toHaveBeenCalledWith(
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({ usageSettlement: null, terminalCode: "error" }),
     );
   });
@@ -687,7 +692,7 @@ describe("agent runner approval rendezvous", () => {
 
     expect(aiMock.streamText).not.toHaveBeenCalled();
     expect(llmMock.buildLaneUsageSettlement).not.toHaveBeenCalled();
-    expect(repoMock.finalizeAgentTurnUnscopedOrThrow).toHaveBeenCalledWith(
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({ usageSettlement: null, terminalCode: "error" }),
     );
   });
@@ -702,7 +707,7 @@ describe("agent runner approval rendezvous", () => {
     expect(repoMock.markAgentTurnProviderStartedUnscoped).not.toHaveBeenCalled();
     expect(aiMock.streamText).not.toHaveBeenCalled();
     expect(llmMock.buildLaneUsageSettlement).not.toHaveBeenCalled();
-    expect(repoMock.finalizeAgentTurnUnscopedOrThrow).toHaveBeenCalledWith(
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({ usageSettlement: null, terminalCode: "error" }),
     );
   });
@@ -723,7 +728,7 @@ describe("agent runner approval rendezvous", () => {
     expect(repoMock.markAgentTurnProviderStartedUnscoped).not.toHaveBeenCalled();
     expect(aiMock.streamText).not.toHaveBeenCalled();
     expect(llmMock.buildLaneUsageSettlement).not.toHaveBeenCalled();
-    expect(repoMock.finalizeAgentTurnUnscopedOrThrow).toHaveBeenCalledWith(
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({ usageSettlement: null, terminalCode: "error" }),
     );
   });
@@ -742,7 +747,7 @@ describe("agent runner approval rendezvous", () => {
       retainReservation: true,
     });
     expect(events.at(-1)).toMatchObject({ type: "turn_done", isError: true });
-    expect(repoMock.finalizeAgentTurnUnscopedOrThrow).toHaveBeenCalledWith(
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         parts: [
           {
@@ -819,7 +824,7 @@ describe("agent runner approval rendezvous", () => {
     expect(repoMock.markAgentTurnProviderStartedUnscoped).not.toHaveBeenCalled();
     expect(aiMock.streamText).not.toHaveBeenCalled();
     expect(llmMock.buildLaneUsageSettlement).not.toHaveBeenCalled();
-    expect(repoMock.finalizeAgentTurnUnscopedOrThrow).toHaveBeenCalledWith(
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         terminalCode: "cancelled",
         usageSettlement: null,
@@ -839,7 +844,7 @@ describe("agent runner approval rendezvous", () => {
 
     expect(events.at(-1)).toMatchObject({ type: "turn_done", isError: true });
     expect(events.some((event) => event.type === "error")).toBe(false);
-    expect(repoMock.finalizeAgentTurnUnscopedOrThrow).toHaveBeenCalledWith(
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         parts: [
           {
@@ -867,7 +872,7 @@ describe("agent runner approval rendezvous", () => {
       isError: true,
       errorMessage: "empty_response",
     });
-    expect(repoMock.finalizeAgentTurnUnscopedOrThrow).toHaveBeenCalledWith(
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         parts: [
           {
@@ -886,7 +891,7 @@ describe("agent runner approval rendezvous", () => {
 
     expect(aiMock.streamText).not.toHaveBeenCalled();
     expect(llmMock.buildLaneUsageSettlement).not.toHaveBeenCalled();
-    expect(repoMock.finalizeAgentTurnUnscopedOrThrow).toHaveBeenCalledWith(
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         parts: [
           {
@@ -905,7 +910,7 @@ describe("agent runner approval rendezvous", () => {
 
     await runAndRead(ctx({ locale: "de" }));
 
-    expect(repoMock.finalizeAgentTurnUnscopedOrThrow).toHaveBeenCalledWith(
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         parts: [
           {
@@ -958,7 +963,7 @@ describe("agent runner approval rendezvous", () => {
     expect(events.some((event) => event.type === "delta" && event.text === "Target contacts-add is not visible.")).toBe(
       true,
     );
-    expect(repoMock.finalizeAgentTurnUnscopedOrThrow).toHaveBeenCalledWith(
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         parts: expect.arrayContaining([
           expect.objectContaining({
@@ -1006,7 +1011,7 @@ describe("agent runner approval rendezvous", () => {
         status: "error",
       }),
     );
-    expect(repoMock.finalizeAgentTurnUnscopedOrThrow).toHaveBeenCalledWith(
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         parts: expect.arrayContaining([
           expect.objectContaining({
@@ -1067,7 +1072,7 @@ describe("agent runner approval rendezvous", () => {
       isError: true,
       errorMessage: "max_turns",
     });
-    expect(repoMock.finalizeAgentTurnUnscopedOrThrow).toHaveBeenCalledWith(
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         parts: [
           { type: "text", text: "I'll check that." },
@@ -1121,7 +1126,7 @@ describe("agent runner approval rendezvous", () => {
 
     const events = await runAndRead(ctx());
     const serializedEvents = JSON.stringify(events);
-    const persisted = JSON.stringify(repoMock.finalizeAgentTurnUnscopedOrThrow.mock.calls);
+    const persisted = JSON.stringify(repoMock.finalizeAgentTurnOrThrowUnscoped.mock.calls);
 
     expect(serializedEvents).not.toContain("do-not-disclose");
     expect(serializedEvents).not.toContain("also-secret");
@@ -1133,7 +1138,7 @@ describe("agent runner approval rendezvous", () => {
   });
 
   it("emits no terminal success when the atomic finalizer fails", async () => {
-    repoMock.finalizeAgentTurnUnscopedOrThrow.mockRejectedValue(new Error("db unavailable"));
+    repoMock.finalizeAgentTurnOrThrowUnscoped.mockRejectedValue(new Error("db unavailable"));
     aiMock.streamText.mockReturnValue(
       scripted(function* () {
         yield { type: "text-delta", text: "Done." };
@@ -1144,5 +1149,18 @@ describe("agent runner approval rendezvous", () => {
 
     expect(events.some((event) => event.type === "turn_done")).toBe(false);
     expect(events.some((event) => event.type === "message_committed")).toBe(false);
+  });
+
+  it("refuses to run a turn whose admitted workspace is not the one the session now carries", async () => {
+    sessionUser = { id: "u1", companyId: "other-company" };
+
+    await runAndRead(ctx());
+
+    expect(aiMock.streamText).not.toHaveBeenCalled();
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: expect.not.stringMatching(/^ok$/) }),
+    );
+
+    sessionUser = { id: "u1", companyId: "c1" };
   });
 });

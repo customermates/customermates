@@ -364,7 +364,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentConversation.updateMany.mockResolvedValue({ count: 1 });
     prismaMock.agentMessage.create.mockResolvedValue({ id: messageId });
 
-    const result = await new PrismaAgentChatRepo().createSupportMessageForTicketUnscopedOrThrow({
+    const result = await new PrismaAgentChatRepo().createSupportMessageForTicketOrThrowUnscoped({
       ticketId,
       messageId,
       text: '<page_context route="/private"/>We can help. apiKey=never-show',
@@ -420,7 +420,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentMessage.findFirst.mockResolvedValue({ id: messageId });
 
     await expect(
-      new PrismaAgentChatRepo().createSupportMessageForTicketUnscopedOrThrow({
+      new PrismaAgentChatRepo().createSupportMessageForTicketOrThrowUnscoped({
         ticketId,
         messageId,
         text: "We can help.",
@@ -435,7 +435,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.supportTicket.findFirst.mockResolvedValue(null);
 
     await expect(
-      new PrismaAgentChatRepo().createSupportMessageForTicketUnscopedOrThrow({
+      new PrismaAgentChatRepo().createSupportMessageForTicketOrThrowUnscoped({
         ticketId: "00000000-0000-4000-8000-000000000020",
         messageId: "00000000-0000-4000-8000-000000000021",
         text: "We can help.",
@@ -539,7 +539,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentMessage.create.mockResolvedValue({ id: "message-1" });
     const parts = [{ type: "text", text: "Done." }];
 
-    await new PrismaAgentChatRepo().createAssistantMessageUnscopedOrThrow({
+    await new PrismaAgentChatRepo().createAssistantMessageOrThrowUnscoped({
       conversationId: "conversation-1",
       companyId: user.companyId,
       userId: user.id,
@@ -575,7 +575,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentConversation.updateMany.mockResolvedValue({ count: 0 });
 
     await expect(
-      new PrismaAgentChatRepo().createAssistantMessageUnscopedOrThrow({
+      new PrismaAgentChatRepo().createAssistantMessageOrThrowUnscoped({
         conversationId: "conversation-1",
         companyId: user.companyId,
         userId: user.id,
@@ -825,7 +825,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       id: "conversation-1",
     });
 
-    await new PrismaAgentChatRepo().createPendingApprovalRequestUnscopedOrThrow({
+    await new PrismaAgentChatRepo().createPendingApprovalRequestOrThrowUnscoped({
       conversationId: "conversation-1",
       requestId: "request-1",
       toolName: "create_contacts",
@@ -941,7 +941,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     expect(prismaMock.agentUiCommandResult.deleteMany).not.toHaveBeenCalled();
   });
 
-  it("includes the active company in both sides of a UI result upsert", async () => {
+  it("looks the UI result up by a tenant-scoped key so the update branch cannot cross companies", async () => {
     await runWithTenant(user, () =>
       new PrismaAgentChatRepo().recordUiCommandResult({
         conversationId: "conversation-1",
@@ -954,7 +954,8 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
 
     expect(prismaMock.agentUiCommandResult.upsert).toHaveBeenCalledWith({
       where: {
-        conversationId_commandId: {
+        companyId_conversationId_commandId: {
+          companyId: user.companyId,
           conversationId: "conversation-1",
           commandId: "command-1",
         },
@@ -971,7 +972,6 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         name: "navigate",
         ok: true,
         result: "navigated",
-        companyId: user.companyId,
       },
     });
   });
@@ -1249,7 +1249,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
 
     const result = await (async () => {
       try {
-        return await new PrismaAgentChatRepo().finalizeAgentTurnUnscopedOrThrow({
+        return await new PrismaAgentChatRepo().finalizeAgentTurnOrThrowUnscoped({
           turnRequestId: "turn-1",
           conversationId: "conversation-1",
           companyId: user.companyId,
@@ -1333,7 +1333,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentTurnRequest.findFirst.mockResolvedValue(storedTurn());
 
     await expect(
-      new PrismaAgentChatRepo().finalizeAgentTurnUnscopedOrThrow({
+      new PrismaAgentChatRepo().finalizeAgentTurnOrThrowUnscoped({
         turnRequestId: "turn-1",
         conversationId: "conversation-1",
         companyId: user.companyId,
@@ -1362,7 +1362,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
 
   it("rejects a non-boolean budget-policy marker at the finalization boundary", async () => {
     await expect(
-      new PrismaAgentChatRepo().finalizeAgentTurnUnscopedOrThrow({
+      new PrismaAgentChatRepo().finalizeAgentTurnOrThrowUnscoped({
         turnRequestId: "turn-1",
         conversationId: "conversation-1",
         companyId: user.companyId,
@@ -1411,7 +1411,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentRunLease.deleteMany.mockResolvedValue({ count: 1 });
 
     try {
-      await new PrismaAgentChatRepo().finalizeAgentTurnUnscopedOrThrow({
+      await new PrismaAgentChatRepo().finalizeAgentTurnOrThrowUnscoped({
         turnRequestId: "turn-1",
         conversationId: "conversation-1",
         companyId: user.companyId,
@@ -1452,7 +1452,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
 
   it("rejects a canonical reply that becomes blank after client-safe sanitization", async () => {
     await expect(
-      new PrismaAgentChatRepo().finalizeAgentTurnUnscopedOrThrow({
+      new PrismaAgentChatRepo().finalizeAgentTurnOrThrowUnscoped({
         turnRequestId: "turn-1",
         conversationId: "conversation-1",
         companyId: user.companyId,

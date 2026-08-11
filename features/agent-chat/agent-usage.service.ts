@@ -11,6 +11,7 @@ export type AgentUsageLedgerState = "reserved" | "settled" | "retained" | "relea
 
 export abstract class AgentUsageRepo {
   abstract getUserCreditUsageUnscoped(
+    companyId: string,
     userId: string,
     periodStart: Date,
     periodEnd: Date,
@@ -151,7 +152,12 @@ export class AgentUsageService {
       activeSeatAt: user.agentCreditActivatedAt,
       now,
     });
-    const usage = await this.repo.getUserCreditUsageUnscoped(userId, entitlement.start, entitlement.resetAt);
+    const usage = await this.repo.getUserCreditUsageUnscoped(
+      user.companyId,
+      userId,
+      entitlement.start,
+      entitlement.resetAt,
+    );
     assertCreditCount(usage.usedCredits, "Stored AI credit usage");
     if (usage.recentTurnCredits !== null) assertCreditCount(usage.recentTurnCredits, "Recent AI turn credits");
 

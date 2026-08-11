@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { streamText, stepCountIs } from "ai";
 import type { Prisma } from "@/generated/prisma";
 
-import { getAgentChatRepo, getCreateChatSupportTicketInteractor } from "@/core/di";
+import { getAgentChatRepo, getCreateChatSupportTicketInteractor, getUserService } from "@/core/di";
 
 import { env } from "@/env";
 
@@ -165,7 +165,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
       ): Promise<ApprovalDecision> => {
         const requestId = randomUUID();
         const deadline = Date.now() + env.AGENT_APPROVAL_TIMEOUT_MS;
-        await repo.createPendingApprovalRequestUnscopedOrThrow({
+        await repo.createPendingApprovalRequestOrThrowUnscoped({
           conversationId: ctx.conversationId,
           requestId,
           toolName,
@@ -299,6 +299,10 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
         }
       };
       try {
+        const sessionUser = await getUserService().getActiveUserOrThrow();
+        if (sessionUser.companyId !== ctx.companyId || sessionUser.id !== ctx.userId)
+          throw new Error("The agent turn was admitted for a different session than the one now running it.");
+
         const last = [...ctx.messages].reverse().find((message) => message.role !== "support");
         if (last?.role !== "user") throw new Error("The admitted agent turn is missing its user message.");
 
@@ -473,7 +477,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
               ? "error"
               : "completed";
         try {
-          const committed = await repo.finalizeAgentTurnUnscopedOrThrow({
+          const committed = await repo.finalizeAgentTurnOrThrowUnscoped({
             turnRequestId: ctx.turnRequestId,
             conversationId: ctx.conversationId,
             companyId: ctx.companyId,

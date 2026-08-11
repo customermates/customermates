@@ -181,6 +181,7 @@ describe("AgentUsageService summary", () => {
     await service.getUsageSummary("user-1", NOW);
 
     expect(repo.getUserCreditUsageUnscoped).toHaveBeenCalledWith(
+      "company-1",
       "user-1",
       new Date("2026-08-06T09:00:00.000Z"),
       new Date("2026-09-06T09:00:00.000Z"),
