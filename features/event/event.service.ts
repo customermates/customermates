@@ -8,6 +8,7 @@ import type { BackgroundTaskService } from "@/core/utils/background-task.service
 
 import { UserAccessor } from "@/core/base/user-accessor";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
+import { withAbsoluteAssetUrls } from "@/core/utils/absolute-asset-url";
 import { env } from "@/env";
 
 export abstract class GetWebhooksForEventRepo {
@@ -128,7 +129,7 @@ export class EventService extends UserAccessor {
 
     const body = {
       event,
-      data: payload,
+      data: withAbsoluteAssetUrls(payload),
       timestamp: new Date().toISOString(),
     };
 

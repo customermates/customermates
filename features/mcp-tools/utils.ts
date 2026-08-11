@@ -4,6 +4,8 @@ import { getTranslations } from "next-intl/server";
 
 import type { CustomErrorCode } from "@/core/validation/validation.types";
 
+import { withAbsoluteAssetUrls } from "@/core/utils/absolute-asset-url";
+
 export function encodeToToon(data: unknown): string {
   try {
     return encode(data);
@@ -64,8 +66,8 @@ export type SerializedDates<T> = T extends Date
       ? { [Key in keyof T]: SerializedDates<T[Key]> }
       : T;
 
-export function formatDatesInResponse<T>(data: T): SerializedDates<T> {
-  return formatDatesRecursively(data) as SerializedDates<T>;
+export function formatForResponse<T>(data: T): SerializedDates<T> {
+  return withAbsoluteAssetUrls(formatDatesRecursively(data)) as SerializedDates<T>;
 }
 
 export const FILTER_SYNTAX = {

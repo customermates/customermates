@@ -41,7 +41,10 @@ export const CompanyWidgetSchema = z.object({
   name: z.string(),
   firstName: z.string(),
   lastName: z.string(),
-  avatarUrl: z.string().nullable(),
+  avatarUrl: z
+    .string()
+    .nullable()
+    .describe("Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."),
 });
 
 export type CompanyWidget = Data<typeof CompanyWidgetSchema>;

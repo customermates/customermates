@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import {
   encodeToToon,
-  formatDatesInResponse,
+  formatForResponse,
   runInteractor,
   validationError,
   mcpPage,
@@ -47,7 +47,7 @@ export const getWorkspaceContextTool = {
     if (!accountsResult.ok) return validationError(accountsResult.error);
     const company = companyResult.data;
     return encodeToToon(
-      formatDatesInResponse({
+      formatForResponse({
         user: userResult.data,
         company: {
           id: company.id,

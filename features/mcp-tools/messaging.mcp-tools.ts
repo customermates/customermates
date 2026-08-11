@@ -5,7 +5,7 @@ import {
   runInteractor,
   validationError,
   customErrorMessage,
-  formatDatesInResponse,
+  formatForResponse,
   mcpPage,
   mcpPageSize,
   filtersDescription,
@@ -89,7 +89,7 @@ export const getMessagingThreadsTool = {
     if (threadId) {
       return runInteractor(getGetMessagingThreadInteractor().invoke({ threadId, page, pageSize }), (data) =>
         encodeToToon(
-          formatDatesInResponse({
+          formatForResponse({
             thread: {
               id: data.thread.id,
               connectedAccountId: data.thread.connectedAccountId,
@@ -141,7 +141,7 @@ export const getMessagingThreadsTool = {
       ),
       (data) =>
         encodeToToon(
-          formatDatesInResponse({
+          formatForResponse({
             items: data.items.map((thread) => ({
               id: thread.id,
               connectedAccountId: thread.connectedAccountId,
@@ -214,7 +214,7 @@ export const getActivitiesTool = {
       ),
       (data) =>
         encodeToToon(
-          formatDatesInResponse({
+          formatForResponse({
             items: data.items,
             total: data.pagination?.total ?? data.items.length,
             page,
@@ -271,7 +271,7 @@ export const getCalendarsTool = {
       if (!result.ok) return validationError(result.error);
       if (!result.data) return customErrorMessage(CustomErrorCode.calendarEventNotFound);
 
-      return encodeToToon(formatDatesInResponse(result.data));
+      return encodeToToon(formatForResponse(result.data));
     }
 
     const params = GetQueryParamsSchema.parse({ searchTerm, filters, sortDescriptor, pagination: { page, pageSize } });
@@ -279,7 +279,7 @@ export const getCalendarsTool = {
     if (list === "events") {
       return runInteractor(getGetCalendarEventsApiInteractor().invoke(params), (data) =>
         encodeToToon(
-          formatDatesInResponse({
+          formatForResponse({
             items: data.items,
             total: data.pagination?.total ?? data.items.length,
             page,
@@ -290,7 +290,7 @@ export const getCalendarsTool = {
 
     return runInteractor(getGetCalendarsApiInteractor().invoke(params), (data) =>
       encodeToToon(
-        formatDatesInResponse({
+        formatForResponse({
           items: data.items,
           total: data.pagination?.total ?? data.items.length,
           page,

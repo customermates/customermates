@@ -36,7 +36,10 @@ export const ContactDtoSchema = z.object({
   id: z.uuid(),
   firstName: z.string(),
   lastName: z.string(),
-  avatarUrl: z.string().nullable(),
+  avatarUrl: z
+    .string()
+    .nullable()
+    .describe("Absolute URL, or a path relative to the API origin. Webhook payloads always carry an absolute URL."),
   notes: NotesSchema,
   identifiers: z.array(ContactIdentifierDtoSchema),
   createdAt: z.date(),

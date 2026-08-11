@@ -7,7 +7,7 @@ import {
   runInteractor,
   customErrorMessage,
   enumHint,
-  formatDatesInResponse,
+  formatForResponse,
   FILTER_FIELD_DESCRIPTION,
 } from "./utils";
 
@@ -179,7 +179,7 @@ export const manageWidgetsTool = {
           return widget;
         }),
       );
-      return encodeToToon(formatDatesInResponse(results));
+      return encodeToToon(formatForResponse(results));
     }
     if (params.action === "create") {
       const parsed = CreateWidgetSchema.safeParse(params);

@@ -2,7 +2,7 @@ import type { SalesCompany, SalesList, SalesListItem } from "@/ee/messaging/sale
 
 import { z } from "zod";
 
-import { encodeToToon, formatDatesInResponse, runInteractor, validationError } from "./utils";
+import { encodeToToon, formatForResponse, runInteractor, validationError } from "./utils";
 
 import { SalesCompanySchema } from "@/ee/messaging/sales-navigator/sales-navigator.schema";
 import { LinkedinListSalesListsSchema } from "@/ee/messaging/sales-navigator/linkedin-list-sales-lists.interactor";
@@ -176,7 +176,7 @@ export const searchSalesLeadsTool = {
   execute: (params: z.infer<typeof SearchSalesLeadsToolSchema>) => {
     const format = (data: { data: SalesListItem[]; total_count?: number | null }) =>
       encodeToToon(
-        formatDatesInResponse({
+        formatForResponse({
           items: data.data.map(formatSalesListItem),
           total: data.total_count ?? data.data.length,
           next_offset: data.data.length ? (params.offset ?? 0) + data.data.length : null,
@@ -221,7 +221,7 @@ export const searchSalesCompaniesTool = {
   execute: (params: z.infer<typeof SearchSalesCompaniesToolSchema>) => {
     const format = (data: { data: unknown[]; total_count?: number | null }) =>
       encodeToToon(
-        formatDatesInResponse({
+        formatForResponse({
           items: data.data.map((item) => formatSalesCompany(SalesCompanySchema.parse(item))),
           total: data.total_count ?? data.data.length,
           next_offset: data.data.length ? (params.offset ?? 0) + data.data.length : null,
@@ -273,7 +273,7 @@ export const getSalesSearchParametersTool = {
       }),
       (data) =>
         encodeToToon(
-          formatDatesInResponse({
+          formatForResponse({
             items: data.data.map((parameter) => ({ id: parameter.id, name: parameter.name })),
             total: data.total_count ?? data.data.length,
             next_offset: data.data.length ? (params.offset ?? 0) + data.data.length : null,
@@ -305,7 +305,7 @@ export const manageSalesListsTool = {
         }),
         (data) =>
           encodeToToon(
-            formatDatesInResponse({
+            formatForResponse({
               items: data.data.map(formatSalesList),
               total: data.total_count ?? data.data.length,
               next_offset: data.data.length ? (params.offset ?? 0) + data.data.length : null,
@@ -318,7 +318,7 @@ export const manageSalesListsTool = {
       if (!parsed.success) return validationError(parsed.error);
       return runInteractor(getLinkedinBrowseSalesListInteractor().invoke(parsed.data), (data) =>
         encodeToToon(
-          formatDatesInResponse({
+          formatForResponse({
             items: data.data.map(formatSalesListItem),
             total: data.total_count ?? data.data.length,
             next_offset: data.data.length ? (parsed.data.offset ?? 0) + data.data.length : null,

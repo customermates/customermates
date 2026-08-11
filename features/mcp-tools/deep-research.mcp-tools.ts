@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import type { ContentLocale } from "@/i18n/locale-registry";
 
-import { customErrorMessage, formatDatesInResponse, validationError, VALIDATION_ERROR_PREFIX } from "./utils";
+import { customErrorMessage, formatForResponse, validationError, VALIDATION_ERROR_PREFIX } from "./utils";
 import { getDocsPageRaw, listDocsSlugs, searchDocsRaw } from "./docs.mcp-tools";
 
 import { env } from "@/env";
@@ -77,7 +77,7 @@ async function fetchRecord(entity: Entity, key: string) {
 
   const { notes, ...masterData } = row as Record<string, unknown> & { notes?: unknown };
   const noteMarkdown = notes ? serializeJSONToMarkdown(notes as object) : null;
-  const masterText = JSON.stringify(formatDatesInResponse(masterData), null, 2);
+  const masterText = JSON.stringify(formatForResponse(masterData), null, 2);
   const text = noteMarkdown ? `${masterText}\n\nNotes:\n${noteMarkdown}` : masterText;
   const recordId = String(masterData.id);
   const output = {
