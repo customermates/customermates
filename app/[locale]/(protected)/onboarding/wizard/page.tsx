@@ -40,7 +40,7 @@ export default async function OnboardingWizardPage() {
   const sessionAvatarUrl = session.user?.image?.startsWith("https:") ? session.user.image : "";
 
   return (
-    <CenteredCardPage>
+    <CenteredCardPage className="animate-page-result-in motion-reduce:animate-none">
       <OnboardingWizard
         isInvited={isInvited}
         profileCompleted={Boolean(user)}

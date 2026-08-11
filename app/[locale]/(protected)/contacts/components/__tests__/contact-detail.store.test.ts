@@ -18,6 +18,15 @@ import { ContactDetailStore } from "../contact-detail.store";
 
 const CONTACT_ID = "40000000-0000-4000-8000-000000000001";
 const TASK_ID = "50000000-0000-4000-8000-000000000001";
+const SECOND_CONTACT_ID = "40000000-0000-4000-8000-000000000002";
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((next) => {
+    resolve = next;
+  });
+  return { promise, resolve };
+}
 
 function stubRoot(): RootStore {
   return {
@@ -30,7 +39,10 @@ function stubRoot(): RootStore {
       removeItem: vi.fn().mockResolvedValue(undefined),
     },
     loadingOverlayStore: { withLoading: (fn: () => unknown) => fn() },
-    globalSearchModalStore: { pushRecentItem: vi.fn(), removeRecentItem: vi.fn() },
+    globalSearchModalStore: {
+      pushRecentItem: vi.fn(),
+      removeRecentItem: vi.fn(),
+    },
     activitiesStore: { refreshFor: vi.fn() },
     localeStore: { locale: "en", getTranslation: (key: string) => key },
   } as unknown as RootStore;
@@ -38,6 +50,10 @@ function stubRoot(): RootStore {
 
 function makeStore(): ContactDetailStore {
   return new ContactDetailStore(stubRoot());
+}
+
+function makeStoreWithRoot(root: RootStore): ContactDetailStore {
+  return new ContactDetailStore(root);
 }
 
 function contactWithTasks(): ContactDto {
@@ -56,6 +72,16 @@ function contactWithTasks(): ContactDto {
   } as unknown as ContactDto;
 }
 
+function contact(id: string, firstName: string): ContactDto {
+  return {
+    ...contactWithTasks(),
+    id,
+    firstName,
+    tasks: [],
+    identifiers: [],
+  };
+}
+
 const mail = (value: string) => ({ provider: MessagingProvider.mail, value });
 
 beforeEach(() => {
@@ -66,8 +92,14 @@ describe("ContactDetailStore.addChannel", () => {
   it("appends distinct channels in order", () => {
     const store = makeStore();
     store.addChannel(mail("a@example.com"));
-    store.addChannel({ provider: MessagingProvider.whatsapp, value: "+4915150799170" });
-    store.addChannel({ provider: MessagingProvider.linkedin, value: "jane-doe" });
+    store.addChannel({
+      provider: MessagingProvider.whatsapp,
+      value: "+4915150799170",
+    });
+    store.addChannel({
+      provider: MessagingProvider.linkedin,
+      value: "jane-doe",
+    });
 
     expect(store.channels.map((c) => c.value)).toEqual(["a@example.com", "+4915150799170", "jane-doe"]);
   });
@@ -83,7 +115,10 @@ describe("ContactDetailStore.addChannel", () => {
   it("suppresses the same address under a sibling email provider", () => {
     const store = makeStore();
     store.addChannel(mail("a@example.com"));
-    store.addChannel({ provider: MessagingProvider.google, value: "a@example.com" });
+    store.addChannel({
+      provider: MessagingProvider.google,
+      value: "a@example.com",
+    });
 
     expect(store.channels).toHaveLength(1);
     expect(store.channels[0].provider).toBe(MessagingProvider.mail);
@@ -155,6 +190,110 @@ describe("ContactDetailStore create draft", () => {
   });
 });
 
+describe("ContactDetailStore.loadById", () => {
+  it("ignores an older entity response that resolves after the current route", async () => {
+    const first = deferred<{ entity: ContactDto | null; customColumns: [] }>();
+    const second = deferred<{ entity: ContactDto | null; customColumns: [] }>();
+    contactActions.getContactByIdAction.mockImplementation(({ id }: { id: string }) =>
+      id === CONTACT_ID ? first.promise : second.promise,
+    );
+    const store = makeStore();
+
+    const firstLoad = store.loadById(CONTACT_ID);
+    const secondLoad = store.loadById(SECOND_CONTACT_ID);
+    second.resolve({
+      entity: contact(SECOND_CONTACT_ID, "Current"),
+      customColumns: [],
+    });
+    await secondLoad;
+    first.resolve({ entity: contact(CONTACT_ID, "Stale"), customColumns: [] });
+    await firstLoad;
+
+    expect(store.requestedEntityId).toBe(SECOND_CONTACT_ID);
+    expect(store.fetchedEntity?.id).toBe(SECOND_CONTACT_ID);
+    expect(store.form.firstName).toBe("Current");
+    expect(store.entityLoadState).toBe("ready");
+    expect(store.isLoading).toBe(false);
+  });
+
+  it("keeps the newer request loading when an older request settles first", async () => {
+    const first = deferred<{ entity: ContactDto | null; customColumns: [] }>();
+    const second = deferred<{ entity: ContactDto | null; customColumns: [] }>();
+    contactActions.getContactByIdAction.mockImplementation(({ id }: { id: string }) =>
+      id === CONTACT_ID ? first.promise : second.promise,
+    );
+    const store = makeStore();
+
+    const firstLoad = store.loadById(CONTACT_ID);
+    const secondLoad = store.loadById(SECOND_CONTACT_ID);
+    first.resolve({ entity: contact(CONTACT_ID, "Stale"), customColumns: [] });
+    await firstLoad;
+
+    expect(store.fetchedEntity).toBeNull();
+    expect(store.entityLoadState).toBe("loading");
+    expect(store.isLoading).toBe(true);
+
+    second.resolve({
+      entity: contact(SECOND_CONTACT_ID, "Current"),
+      customColumns: [],
+    });
+    await secondLoad;
+
+    expect(store.fetchedEntity?.id).toBe(SECOND_CONTACT_ID);
+    expect(store.form.firstName).toBe("Current");
+    expect(store.entityLoadState).toBe("ready");
+  });
+
+  it("does not hydrate a pending detail request into a new-contact draft", async () => {
+    const pending = deferred<{
+      entity: ContactDto | null;
+      customColumns: [];
+    }>();
+    contactActions.getContactByIdAction.mockReturnValue(pending.promise);
+    const store = makeStore();
+
+    const load = store.loadById(CONTACT_ID);
+    await store.add();
+
+    expect(store.isLoading).toBe(false);
+
+    pending.resolve({
+      entity: contact(CONTACT_ID, "Stale"),
+      customColumns: [],
+    });
+    await load;
+
+    expect(store.requestedEntityId).toBeNull();
+    expect(store.entityLoadState).toBe("idle");
+    expect(store.fetchedEntity).toBeNull();
+    expect(store.form.id).toBeUndefined();
+    expect(store.form.firstName).toBe("");
+    expect(store.isOpen).toBe(true);
+    expect(store.isLoading).toBe(false);
+  });
+
+  it("does not let an older add preparation overwrite a newer entity load", async () => {
+    const customColumnsRefresh = deferred<undefined>();
+    const root = stubRoot();
+    vi.mocked(root.contactsStore.refreshCustomColumns).mockReturnValue(customColumnsRefresh.promise);
+    contactActions.getContactByIdAction.mockResolvedValue({
+      entity: contact(SECOND_CONTACT_ID, "Current"),
+      customColumns: [],
+    });
+    const store = makeStoreWithRoot(root);
+
+    const add = store.add();
+    const load = store.loadById(SECOND_CONTACT_ID);
+    await load;
+    customColumnsRefresh.resolve(undefined);
+
+    expect(await add).toBe(false);
+    expect(store.fetchedEntity?.id).toBe(SECOND_CONTACT_ID);
+    expect(store.form.firstName).toBe("Current");
+    expect(store.isOpen).toBe(false);
+  });
+});
+
 describe("ContactDetailStore.onSubmit", () => {
   it("sends staged channels through a single create call", async () => {
     const store = makeStore();
@@ -166,7 +305,10 @@ describe("ContactDetailStore.onSubmit", () => {
     await store.add();
     store.onChange("firstName", "Draft");
     store.addChannel(mail("a@example.com"));
-    store.addChannel({ provider: MessagingProvider.linkedin, value: "jane-doe" });
+    store.addChannel({
+      provider: MessagingProvider.linkedin,
+      value: "jane-doe",
+    });
 
     await store.onSubmit();
 
@@ -180,7 +322,10 @@ describe("ContactDetailStore.onSubmit", () => {
 
   it("sends an empty identifier list when no channel was staged", async () => {
     const store = makeStore();
-    contactActions.createContactAction.mockResolvedValue({ ok: true, data: contactWithTasks() });
+    contactActions.createContactAction.mockResolvedValue({
+      ok: true,
+      data: contactWithTasks(),
+    });
 
     await store.add();
     store.onChange("firstName", "Draft");
@@ -191,7 +336,10 @@ describe("ContactDetailStore.onSubmit", () => {
 
   it("keeps the draft recoverable when the create fails", async () => {
     const store = makeStore();
-    contactActions.createContactAction.mockResolvedValue({ ok: false, error: { errors: ["boom"] } });
+    contactActions.createContactAction.mockResolvedValue({
+      ok: false,
+      error: { errors: ["boom"] },
+    });
 
     await store.add();
     store.onChange("firstName", "Draft");

@@ -503,6 +503,7 @@
       "template": "Template",
       "theme": "Theme",
       "type": "Type",
+      "unavailableSelection": "Selection unavailable",
       "url": "URL",
       "userIds": "Assigned"
     },
@@ -589,7 +590,6 @@
         "user": "User",
         "users": "Assigned"
       },
-      "emptyContent": "No entries found",
       "groupBy": "Group By",
       "layout": "Layout",
       "nextPage": "Next page",
@@ -607,6 +607,7 @@
       "light": "Light",
       "system": "System"
     },
+    "unnamed": "Unnamed",
     "userStatuses": {
       "active": "Active",
       "inactive": "Inactive",
@@ -1502,6 +1503,11 @@
   },
   "OrganizationModal": {
     "title": "Organization"
+  },
+  "PageState": {
+    "loading": "Loading page",
+    "notFoundDescription": "This record may have been removed or you may not have access to it.",
+    "notFoundTitle": "Record not found"
   },
   "PendingCard": {
     "body": "You can sign in once your account has been approved by your company's administrator.",

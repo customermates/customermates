@@ -59,6 +59,7 @@ export const CompanyUserModal = observer(() => {
                 value: item.id,
                 label: roleDisplayName(item, t("RoleModal.systemName")),
               }))}
+              optionsLoading={!rolesStore.isReady}
             />
 
             <FormInput description={t("Common.avatarUrlDescription")} id="avatarUrl" />

@@ -503,6 +503,7 @@
       "template": "Modello",
       "theme": "Tema",
       "type": "Tipo",
+      "unavailableSelection": "Selezione non disponibile",
       "url": "URL",
       "userIds": "Assegnato a"
     },
@@ -589,7 +590,6 @@
         "user": "Utente",
         "users": "Assegnato a"
       },
-      "emptyContent": "Nessuna voce",
       "groupBy": "Raggruppa per",
       "layout": "Disposizione",
       "nextPage": "Pagina successiva",
@@ -607,6 +607,7 @@
       "light": "Chiaro",
       "system": "Sistema"
     },
+    "unnamed": "Senza nome",
     "userStatuses": {
       "active": "Attivo",
       "inactive": "Inattivo",
@@ -1502,6 +1503,11 @@
   },
   "OrganizationModal": {
     "title": "Organizzazione"
+  },
+  "PageState": {
+    "loading": "Caricamento della pagina",
+    "notFoundDescription": "Questo record potrebbe essere stato rimosso oppure potresti non avere accesso.",
+    "notFoundTitle": "Record non trovato"
   },
   "PendingCard": {
     "body": "Potrai accedere non appena il tuo account sarà approvato dall'amministratore della tua azienda.",

@@ -31,7 +31,14 @@ export function ThemeSwitcher({ className, onThemeChange }: Props) {
     [setTheme, onThemeChange],
   );
 
-  if (!mounted) return <div aria-hidden className={cn("size-8", className)} />;
+  if (!mounted) {
+    return (
+      <div
+        aria-hidden
+        className={cn("size-8 animate-pulse rounded-md bg-placeholder motion-reduce:animate-none", className)}
+      />
+    );
+  }
 
   const selectedTheme = resolvedTheme === Theme.dark ? Theme.dark : Theme.light;
   const nextTheme = selectedTheme === Theme.dark ? Theme.light : Theme.dark;

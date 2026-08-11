@@ -11,6 +11,7 @@ import { ChevronsUpDownIcon, XIcon } from "lucide-react";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { AppChip } from "@/components/chip/app-chip";
 import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { FormLabel } from "./form-label";
@@ -19,6 +20,7 @@ import { cn } from "@/core/utils/cn";
 import { useAppForm } from "./form-context";
 import { useFormFieldErrors, useResolvedFieldLabel } from "./use-form-field";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { SelectionOptionsSkeleton, SelectionValueSkeleton } from "./selection-loading";
 
 type Identifiable = { id: string } | { key: string } | { value: string };
 
@@ -93,8 +95,14 @@ export const FormAutocomplete = observer(
     const resolvedLabel = useResolvedFieldLabel(id, label);
     const [open, setOpen] = useState(false);
     const [input, setInput] = useState("");
-    const [fetchedItems, setFetchedItems] = useState<T[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [optionResult, setOptionResult] = useState<{
+      key: string;
+      resolver: Props<T>["getItems"];
+      status: "success" | "error";
+      items: T[];
+    } | null>(null);
+    const [optionAttempt, setOptionAttempt] = useState(0);
+    const [isCreating, setIsCreating] = useState(false);
     const [selectedData, setSelectedData] = useState<Map<string, T>>(new Map());
     const debouncedInput = useDebouncedValue(input);
 
@@ -106,14 +114,46 @@ export const FormAutocomplete = observer(
     const isDisabled = (disabled ?? store?.isLoading) || false;
 
     const itemsArray: T[] = useMemo(() => Array.from(items ?? []), [items]);
+    const optionRequestKey = open && getItems ? JSON.stringify([debouncedInput, optionAttempt]) : null;
+    const isOptionsLoading =
+      optionRequestKey !== null &&
+      (input !== debouncedInput || optionResult?.key !== optionRequestKey || optionResult.resolver !== getItems);
+    const matchingOptionResult =
+      optionResult?.key === optionRequestKey && optionResult.resolver === getItems ? optionResult : null;
+    const optionError = matchingOptionResult?.status === "error";
+    const fetchedItems = matchingOptionResult?.items ?? [];
 
     useEffect(() => {
-      if (!getItems) return;
-      setIsLoading(true);
-      void getItems({ searchTerm: debouncedInput || undefined })
-        .then((res) => setFetchedItems(res.items || []))
-        .finally(() => setIsLoading(false));
-    }, [debouncedInput, getItems]);
+      if (!getItems || optionRequestKey === null) return;
+      let active = true;
+
+      const [searchTerm] = JSON.parse(optionRequestKey) as [string, number];
+      void getItems({ searchTerm: searchTerm || undefined })
+        .then((res) => {
+          if (active) {
+            setOptionResult({
+              key: optionRequestKey,
+              resolver: getItems,
+              status: "success",
+              items: res.items || [],
+            });
+          }
+        })
+        .catch(() => {
+          if (active) {
+            setOptionResult((previous) => ({
+              key: optionRequestKey,
+              resolver: getItems,
+              status: "error",
+              items: previous?.resolver === getItems ? previous.items : [],
+            }));
+          }
+        });
+
+      return () => {
+        active = false;
+      };
+    }, [getItems, optionRequestKey]);
 
     const allItems = useMemo(() => {
       const byKey = new Map<string, T>();
@@ -163,10 +203,10 @@ export const FormAutocomplete = observer(
     }
 
     async function handleCreate() {
-      if (!onCreate) return;
+      if (!onCreate || isCreating || isOptionsLoading || optionError) return;
       const name = input.trim();
       if (!name) return;
-      setIsLoading(true);
+      setIsCreating(true);
       try {
         const res = await onCreate(name);
         if (!res.ok) {
@@ -176,11 +216,16 @@ export const FormAutocomplete = observer(
 
         const created = res.data;
         const k = keyOf(created);
-        setFetchedItems((prev) => [...prev, created]);
+        setOptionResult((prev) => ({
+          key: prev?.key ?? input,
+          resolver: getItems,
+          status: "success",
+          items: [...(prev?.items ?? []), created],
+        }));
         setSelectedData((prev) => new Map(prev).set(k, created));
         toggleKey(k);
       } finally {
-        setIsLoading(false);
+        setIsCreating(false);
       }
     }
 
@@ -190,15 +235,19 @@ export const FormAutocomplete = observer(
       const list = selectedKeys.map((k) => ({ key: k, data: index.get(k) }));
       const toRender = selectionMode === "multiple" ? list : list.slice(0, 1);
       const rendered = renderValue(toRender);
-
-      if (!React.isValidElement(rendered) && !Array.isArray(rendered)) return rendered;
-
       const isMulti = selectionMode === "multiple";
-      const arr = Array.isArray(rendered) ? rendered : [rendered];
-      return arr.map((el, i) => {
+      const renderedItems = Array.isArray(rendered) ? rendered : [rendered];
+      return toRender.map((entry, index) => {
+        const el = entry.data ? (
+          renderedItems[index]
+        ) : (
+          <AppChip data-selection-state={isOptionsLoading ? "loading" : "unavailable"}>
+            {isOptionsLoading ? <SelectionValueSkeleton /> : t("Common.inputs.unavailableSelection")}
+          </AppChip>
+        );
         if (!React.isValidElement(el)) return el;
-        const itemKey = toRender[i]?.key;
-        if (!itemKey) return el;
+
+        const itemKey = entry.key;
 
         const withClose =
           isMulti && !isReadOnly
@@ -281,9 +330,15 @@ export const FormAutocomplete = observer(
           </span>
         );
       });
-    }, [selectedKeys, allItems, selectionMode, renderValue, onChipClick, isReadOnly, t]);
+    }, [selectedKeys, allItems, selectionMode, renderValue, onChipClick, isReadOnly, isOptionsLoading, t]);
 
-    const showCreate = Boolean(onCreate) && input.trim() && filteredItems.length === 0;
+    const showCreate =
+      Boolean(onCreate) &&
+      Boolean(input.trim()) &&
+      filteredItems.length === 0 &&
+      !isOptionsLoading &&
+      !isCreating &&
+      !optionError;
 
     return (
       <div className={cn("space-y-1.5", containerClassName)}>
@@ -302,6 +357,7 @@ export const FormAutocomplete = observer(
         <Popover modal open={isReadOnly ? false : open} onOpenChange={isReadOnly ? undefined : setOpen}>
           <PopoverTrigger asChild>
             <Button
+              aria-busy={isOptionsLoading || undefined}
               aria-expanded={open}
               aria-invalid={hasError}
               aria-readonly={isReadOnly || undefined}
@@ -337,10 +393,11 @@ export const FormAutocomplete = observer(
             <Command shouldFilter={false}>
               <CommandInput
                 autoFocus
+                disabled={isCreating}
                 placeholder={t("Common.table.search")}
                 value={input}
                 onKeyDown={(e) => {
-                  if (onCreate && e.key === "Enter" && input && filteredItems.length === 0) {
+                  if (e.key === "Enter" && showCreate) {
                     e.preventDefault();
                     void handleCreate();
                   }
@@ -348,10 +405,25 @@ export const FormAutocomplete = observer(
                 onValueChange={setInput}
               />
 
-              <CommandList>
-                {isLoading && <div className="py-3 text-center text-sm text-muted-foreground">{t("Loading.text")}</div>}
+              <CommandList aria-busy={isOptionsLoading || isCreating || undefined}>
+                {(isOptionsLoading || isCreating) && <SelectionOptionsSkeleton label={t("Loading.text")} />}
 
-                {!isLoading && filteredItems.length === 0 && !showCreate && (
+                {!isOptionsLoading && !isCreating && optionError && (
+                  <div className="flex flex-col items-center gap-2 px-3 py-4 text-center text-sm" role="alert">
+                    <span className="text-muted-foreground">{t("Common.notifications.unexpectedError")}</span>
+
+                    <Button
+                      size="sm"
+                      type="button"
+                      variant="outline"
+                      onClick={() => setOptionAttempt((value) => value + 1)}
+                    >
+                      {t("ErrorCard.retry")}
+                    </Button>
+                  </div>
+                )}
+
+                {!isOptionsLoading && !isCreating && !optionError && filteredItems.length === 0 && !showCreate && (
                   <CommandEmpty>{resolvedEmptyContent}</CommandEmpty>
                 )}
 
@@ -363,7 +435,7 @@ export const FormAutocomplete = observer(
                   </CommandGroup>
                 )}
 
-                {filteredItems.length > 0 && (
+                {!isOptionsLoading && !optionError && filteredItems.length > 0 && (
                   <CommandGroup>
                     {filteredItems.map((item) => {
                       const k = keyOf(item);

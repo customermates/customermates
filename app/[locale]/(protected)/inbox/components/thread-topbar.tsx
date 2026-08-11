@@ -31,16 +31,16 @@ export const ThreadTopBar = observer(({ thread }: Props) => {
   const pictureUrl = view.avatarUrl ?? null;
 
   useEffect(() => {
-    layoutStore.setRuntimeTitle(title);
-    layoutStore.setRuntimePictureUrl(pictureUrl);
-    layoutStore.setRuntimeAvatarKind("messaging");
+    layoutStore.setRuntimeIdentity({
+      scope: "inbox",
+      key: thread.id,
+      title,
+      pictureUrl,
+      avatarKind: "messaging",
+    });
 
-    return () => {
-      layoutStore.setRuntimeTitle(null);
-      layoutStore.setRuntimePictureUrl(null);
-      layoutStore.setRuntimeAvatarKind(null);
-    };
-  }, [layoutStore, title, pictureUrl]);
+    return () => layoutStore.clearRuntimeIdentity("inbox", thread.id);
+  }, [layoutStore, thread.id, title, pictureUrl]);
 
   const actions = useMemo(
     () => (

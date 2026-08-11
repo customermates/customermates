@@ -503,6 +503,7 @@
       "template": "Plantilla",
       "theme": "Tema",
       "type": "Tipo",
+      "unavailableSelection": "Selección no disponible",
       "url": "URL",
       "userIds": "Asignado a"
     },
@@ -589,7 +590,6 @@
         "user": "Usuario",
         "users": "Asignado a"
       },
-      "emptyContent": "Sin entradas",
       "groupBy": "Agrupar por",
       "layout": "Disposición",
       "nextPage": "Página siguiente",
@@ -607,6 +607,7 @@
       "light": "Claro",
       "system": "Sistema"
     },
+    "unnamed": "Sin nombre",
     "userStatuses": {
       "active": "Activo",
       "inactive": "Inactivo",
@@ -1502,6 +1503,11 @@
   },
   "OrganizationModal": {
     "title": "Organización"
+  },
+  "PageState": {
+    "loading": "Cargando la página",
+    "notFoundDescription": "Es posible que este registro se haya eliminado o que no tengas acceso a él.",
+    "notFoundTitle": "Registro no encontrado"
   },
   "PendingCard": {
     "body": "Podrás iniciar sesión en cuanto el administrador de tu empresa apruebe tu cuenta.",

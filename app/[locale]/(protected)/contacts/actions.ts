@@ -19,10 +19,10 @@ import {
   getDeleteContactInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
+import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export async function getContactsAction(params?: GetQueryParams) {
-  const result = await getGetContactsInteractor().invoke(params);
-  return result.ok ? result.data : { items: [] };
+  return unwrapValidated(getGetContactsInteractor().invoke(params));
 }
 
 export async function createContactAction(data: CreateContactData) {
@@ -47,10 +47,8 @@ export async function deleteContactAction(data: DeleteContactData) {
 }
 
 export async function getContactByIdAction(data: GetContactByIdData) {
-  const result = await getGetContactByIdInteractor().invoke(data);
-  return result.ok
-    ? { entity: result.data.contact, customColumns: result.data.customColumns }
-    : { entity: null, customColumns: [] };
+  const result = await unwrapValidated(getGetContactByIdInteractor().invoke(data));
+  return { entity: result.contact, customColumns: result.customColumns };
 }
 
 export async function createContactByNameAction(

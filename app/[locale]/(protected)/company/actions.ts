@@ -39,6 +39,7 @@ import {
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
+import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export async function createCheckoutSessionAction(data: CreateCheckoutSessionData) {
   const result = await getCreateCheckoutSessionInteractor().invoke(data);
@@ -82,8 +83,7 @@ export async function getCompanyDetailsAction() {
 }
 
 export async function getRolesAction(params?: GetQueryParams) {
-  const result = await getGetRolesInteractor().invoke(params);
-  return result.ok ? result.data : { items: [] };
+  return unwrapValidated(getGetRolesInteractor().invoke(params));
 }
 
 export async function upsertRoleAction(data: UpsertRoleData) {
@@ -95,8 +95,7 @@ export async function deleteRoleAction(data: DeleteRoleData) {
 }
 
 export async function getUsersAction(params?: GetQueryParams) {
-  const result = await getGetUsersInteractor().invoke(params);
-  return result.ok ? result.data : { items: [] };
+  return unwrapValidated(getGetUsersInteractor().invoke(params));
 }
 
 export async function getUserByIdAction(data: GetUserByIdData) {
@@ -105,8 +104,7 @@ export async function getUserByIdAction(data: GetUserByIdData) {
 }
 
 export async function getAuditLogsAction(params?: GetQueryParams) {
-  const result = await getGetAuditLogsInteractor().invoke(params);
-  return result.ok ? result.data : { items: [] };
+  return unwrapValidated(getGetAuditLogsInteractor().invoke(params));
 }
 
 export async function upsertWebhookAction(data: UpsertWebhookData) {
@@ -118,13 +116,11 @@ export async function deleteWebhookAction(data: DeleteWebhookData) {
 }
 
 export async function getWebhooksAction(params?: GetQueryParams) {
-  const result = await getGetWebhooksInteractor().invoke(params);
-  return result.ok ? result.data : { items: [] };
+  return unwrapValidated(getGetWebhooksInteractor().invoke(params));
 }
 
 export async function getWebhookDeliveriesAction(params?: GetQueryParams) {
-  const result = await getGetWebhookDeliveriesInteractor().invoke(params);
-  return result.ok ? result.data : { items: [] };
+  return unwrapValidated(getGetWebhookDeliveriesInteractor().invoke(params));
 }
 
 export async function resendWebhookDeliveryAction(data: ResendWebhookDeliveryData) {

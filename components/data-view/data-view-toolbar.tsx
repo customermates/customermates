@@ -19,6 +19,7 @@ type Props<E extends HasId> = {
   searchPlaceholder?: string;
   showDisplayOptions?: boolean;
   anchorScope?: string;
+  addLabel?: string;
 };
 
 export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId>({
@@ -28,6 +29,7 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
   searchPlaceholder,
   showDisplayOptions = true,
   anchorScope,
+  addLabel,
 }: Props<E>) {
   const t = useTranslations();
   if (!store.isReady) return null;
@@ -52,10 +54,16 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
         )}
 
         {onAdd && !store.isDisabled && (
-          <Button className="h-8" id={anchorScope ? `${anchorScope}-add` : undefined} size="sm" onClick={onAdd}>
+          <Button
+            className="h-8"
+            id={anchorScope ? `${anchorScope}-add` : undefined}
+            size="sm"
+            variant="default"
+            onClick={onAdd}
+          >
             <Plus className="size-3.5" />
 
-            <span className="hidden sm:inline">{t("Common.actions.add")}</span>
+            <span className="hidden sm:inline">{addLabel ?? t("Common.actions.add")}</span>
           </Button>
         )}
       </div>

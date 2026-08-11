@@ -41,6 +41,7 @@ export type TableColumn = {
 export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore {
   isRefreshing = false;
   isReady = false;
+  refreshError: unknown = null;
 
   items: Entity[] = [];
   customColumns: CustomColumnDto[] = [];
@@ -82,6 +83,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     makeObservable(this, {
       isRefreshing: observable,
       isReady: observable,
+      refreshError: observable.ref,
 
       items: observable,
       customColumns: observable,
@@ -389,6 +391,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       this.groupingColumnId = args.groupingColumnId;
     }
     this.groupCounts = args.groupCounts ?? {};
+    this.refreshError = null;
 
     this.isReady = true;
   }
@@ -642,14 +645,18 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   async persistQueryOptions(): Promise<void> {
     if (!this.isReady) return;
 
-    runInAction(() => (this.isRefreshing = true));
-    this.rootStore.loadingOverlayStore.setIsLoading(true);
+    runInAction(() => {
+      this.isRefreshing = true;
+      this.refreshError = null;
+    });
 
     try {
       await this.refresh();
+    } catch (error) {
+      runInAction(() => (this.refreshError = error));
+      throw error;
     } finally {
       runInAction(() => (this.isRefreshing = false));
-      this.rootStore.loadingOverlayStore.setIsLoading(false);
     }
   }
 

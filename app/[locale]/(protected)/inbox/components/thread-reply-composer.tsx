@@ -142,7 +142,7 @@ export const ThreadReplyComposer = observer(
     const senderLabel = (account: (typeof senders)[number]) => {
       const name = account.displayName?.trim();
       if (name && account.emailAddress && name !== account.emailAddress) return `${name} · ${account.emailAddress}`;
-      return account.emailAddress ?? name ?? account.id;
+      return account.emailAddress ?? name ?? t("Common.unnamed");
     };
 
     const form = (

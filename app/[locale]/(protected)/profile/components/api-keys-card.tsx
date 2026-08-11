@@ -4,8 +4,8 @@ import type { ApiKey } from "@/features/api-key/get-api-keys.interactor";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Plus } from "lucide-react";
-import { useEffect, useMemo } from "react";
+import { KeyRound, Plus } from "lucide-react";
+import { useLayoutEffect, useMemo } from "react";
 
 import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { InfoRow } from "@/components/shared/info-row";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
+import { SETTINGS_CARD_GRID_CLASS_NAME } from "@/components/page-state/page-state-geometry";
+import { PageState } from "@/components/page-state/page-state";
 
 type Props = {
   apiKeys: ApiKey[];
@@ -22,37 +24,63 @@ export const ApiKeysCard = observer(({ apiKeys }: Props) => {
   const t = useTranslations();
   const { apiKeyModalStore, apiKeysStore, intlStore } = useRootStore();
   const { canManage } = apiKeysStore;
+  const isTrueEmpty = apiKeysStore.isReady && apiKeysStore.items.length === 0;
 
-  useEffect(() => apiKeysStore.setItems({ items: apiKeys }), [apiKeys]);
+  useLayoutEffect(() => apiKeysStore.setItems({ items: apiKeys }), [apiKeys]);
 
   const topBarActions = useMemo(
     () =>
-      canManage ? (
-        <Button className="h-8" id="profile-api-keys-generate" size="sm" onClick={() => void apiKeyModalStore.add()}>
+      apiKeysStore.isReady && canManage ? (
+        <Button
+          className="h-8"
+          id="profile-api-keys-generate"
+          size="sm"
+          variant="default"
+          onClick={() => void apiKeyModalStore.add()}
+        >
           <Plus className="size-3.5" />
 
           <span className="hidden sm:inline">{t("Common.actions.add")}</span>
         </Button>
       ) : null,
-    [apiKeyModalStore, t, canManage],
+    [apiKeyModalStore, apiKeysStore.isReady, t, canManage],
   );
   useSetTopBarActions(topBarActions);
 
-  if (apiKeysStore.items.length === 0) {
+  if (!apiKeysStore.isReady) {
     return (
-      <div className="flex w-full max-w-3xl flex-col gap-4">
-        <Alert color="primary" description={t("ProfileSections.apiKeysDescription")} />
+      <PageState
+        label={t("PageState.loading")}
+        skeleton={{ card: "api-keys", kind: "settings", view: "cards" }}
+        state="loading"
+      />
+    );
+  }
 
-        <p className="text-subdued text-x-md">{t("Common.table.emptyContent")}</p>
-      </div>
+  if (isTrueEmpty) {
+    return (
+      <PageState
+        action={
+          canManage ? (
+            <Button size="sm" variant="secondary" onClick={() => void apiKeyModalStore.add()}>
+              {t("Common.actions.add")}
+            </Button>
+          ) : undefined
+        }
+        description={t("ProfileSections.apiKeysDescription")}
+        icon={KeyRound}
+        skeleton={{ card: "api-keys", kind: "settings", view: "cards" }}
+        state="empty"
+        title={t("Common.emptyState.genericTitle")}
+      />
     );
   }
 
   return (
-    <div className="flex w-full max-w-3xl flex-col gap-4">
+    <div className="animate-page-result-in flex w-full max-w-3xl flex-col gap-4 motion-reduce:animate-none">
       <Alert color="primary" description={t("ProfileSections.apiKeysDescription")} />
 
-      <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]">
+      <div className={SETTINGS_CARD_GRID_CLASS_NAME}>
         {apiKeysStore.items.map((key) => (
           <Card
             key={key.id}

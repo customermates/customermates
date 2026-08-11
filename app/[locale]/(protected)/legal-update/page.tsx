@@ -16,7 +16,7 @@ export default async function LegalUpdatePage() {
   if (!status.contractNoticeSent || status.contractAccepted || !status.effectiveAt) redirect("/");
 
   return (
-    <CenteredCardPage>
+    <CenteredCardPage className="animate-page-result-in motion-reduce:animate-none">
       <LegalUpdateView status={status} />
     </CenteredCardPage>
   );

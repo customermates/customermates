@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/core/utils/cn";
+import { DATA_VIEW_PAGINATION_RAIL_CLASS_NAME } from "../data-view-geometry";
 
 const PAGE_SIZE_OPTIONS = [5, 10, 25, 100] as const;
 
@@ -52,7 +53,7 @@ export const DataViewPagination = observer(function DataViewPagination<E extends
   }
 
   return (
-    <div className={cn("flex items-center justify-between gap-3 px-4 py-2.5", className)}>
+    <div className={cn(DATA_VIEW_PAGINATION_RAIL_CLASS_NAME, className)}>
       <div className="text-muted-foreground truncate text-sm">{summary}</div>
 
       <div className="flex shrink-0 items-center gap-0.5">

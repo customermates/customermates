@@ -94,3 +94,24 @@ describe("AddChannelStore.contactChannelKeys", () => {
     expect([...store.contactChannelKeys]).toEqual([`email:${EMAIL}`, "phone:+4915150799170"]);
   });
 });
+
+describe("AddChannelStore search failures", () => {
+  it("clears pending geometry and retries a failed search", async () => {
+    contactActions.searchChannelCandidatesAction.mockRejectedValueOnce(new Error("offline"));
+    contactActions.getContactsAction.mockResolvedValue({ items: [] });
+    const store = makeStore([]);
+    store.query = EMAIL;
+
+    await store.retrySearch();
+
+    expect(store.isSearching).toBe(false);
+    expect(store.isResolving).toBe(false);
+    expect(store.searchError).toBe(true);
+
+    contactActions.searchChannelCandidatesAction.mockResolvedValueOnce([]);
+    await store.retrySearch();
+
+    expect(store.isSearching).toBe(false);
+    expect(store.searchError).toBe(false);
+  });
+});
