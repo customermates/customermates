@@ -4,6 +4,7 @@ import type { EmailSignInData } from "@/features/auth/sign-in-with-email.interac
 import type { EmailSignUpData } from "@/features/auth/sign-up-with-email.interactor";
 import type { RequestPasswordResetData } from "@/features/auth/request-password-reset.interactor";
 import type { ResetPasswordData } from "@/features/auth/reset-password.interactor";
+import type { DecideMcpConsentData } from "@/features/auth/decide-mcp-consent.interactor";
 
 import {
   getSignInWithEmailInteractor,
@@ -12,11 +13,10 @@ import {
   getContinueWithSocialsInteractor,
   getResetPasswordInteractor,
   getResendVerificationEmailInteractor,
-  getAuthService,
+  getDecideMcpConsentInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
-import { resolveDefaultAccountState } from "@/features/auth/next/resolve-account-state";
 
 export async function signInWithEmailAction(data: EmailSignInData) {
   const result = await getSignInWithEmailInteractor().invoke(data);
@@ -79,10 +79,6 @@ export async function resendVerificationEmailFromAuthAction(): Promise<{
   return await getResendVerificationEmailInteractor().invoke();
 }
 
-export async function decideMcpConsentAction(data: {
-  consentCode: string;
-  accept: boolean;
-}): Promise<{ redirectURI: string } | null> {
-  if ((await resolveDefaultAccountState()).state !== "allowed") return null;
-  return getAuthService().decideMcpConsent(data);
+export async function decideMcpConsentAction(data: DecideMcpConsentData) {
+  return serializeResult(getDecideMcpConsentInteractor().invoke(data));
 }

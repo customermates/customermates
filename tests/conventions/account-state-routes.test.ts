@@ -26,11 +26,22 @@ describe("guarded account-state route contract", () => {
   it("allows only pre-tenant or administrator onboarding states into the wizard", () => {
     const page = source("app/[locale]/(protected)/onboarding/wizard/page.tsx");
     const actions = source("app/[locale]/(protected)/onboarding/wizard/actions.ts");
+    const registerInteractor = source("features/user/register/register-user.interactor.ts");
+    const completeInteractor = source("features/onboarding-wizard/complete-onboarding-wizard.interactor.ts");
 
     expect(page).toContain('requireAccountState(["unregistered", "onboarding"])');
-    expect(actions).toContain('requireAccountState("unregistered")');
-    expect(actions).toContain("email: sessionEmail");
-    expect(actions).toContain('requireAccountState("onboarding")');
+    expect(actions).toContain("getRegisterUserInteractor().invoke(data)");
+    expect(actions).toContain("getCompleteOnboardingWizardInteractor().invoke()");
+    expect(actions.match(/serializeResult\(/g)).toHaveLength(2);
+    expect(actions).toContain("redirect(result.data.redirectTo)");
+    expect(actions).not.toContain('redirect("/")');
+    expect(actions).not.toContain("requireAccountState");
+    expect(actions).not.toContain("getUserService");
+    expect(actions).not.toContain("Status.");
+    expect(registerInteractor).toContain('resolution.state !== "unregistered"');
+    expect(registerInteractor).toContain("email: resolution.sessionUser.email");
+    expect(completeInteractor).toContain('resolution.state !== "onboarding"');
+    expect(completeInteractor).toContain('data: { redirectTo: "/" as const }');
   });
 
   it("server-canonicalizes inactive errors without breaking public invite errors", () => {
@@ -81,10 +92,15 @@ describe("guarded account-state route contract", () => {
     }
   });
 
-  it("keeps MCP consent and alternate guard policies server-authoritative", () => {
-    expect(source("app/[locale]/(public)/auth/actions.ts")).toContain(
-      '(await resolveDefaultAccountState()).state !== "allowed"',
-    );
+  it("keeps mutation policy in interactors and alternate page guards server-authoritative", () => {
+    const authActions = source("app/[locale]/(public)/auth/actions.ts");
+    const consentInteractor = source("features/auth/decide-mcp-consent.interactor.ts");
+
+    expect(authActions).toContain("getDecideMcpConsentInteractor().invoke(data)");
+    expect(authActions).toContain("serializeResult(getDecideMcpConsentInteractor().invoke(data))");
+    expect(authActions).not.toContain("resolveDefaultAccountState");
+    expect(authActions).not.toContain("getAuthService");
+    expect(consentInteractor).toContain('resolution.state !== "allowed"');
     const requireSource = source("features/auth/next/require.ts");
     expect(requireSource).toContain("hasAlternateAccountStatePolicy");
     expect(requireSource).toContain("getRouteGuardService().resolveAccess(options)");

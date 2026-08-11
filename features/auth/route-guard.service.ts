@@ -41,9 +41,14 @@ export type AccountSessionUser = {
   createdAt: Date | string;
   email: string;
   emailVerified?: boolean | null;
+  id: string;
   image?: string | null;
   name?: string | null;
 };
+
+export interface AccountStateResolver {
+  resolveAccountState(options?: AccessOptions): Promise<AccountStateResolution>;
+}
 
 export function accessRedirectForAccountState(
   resolution: AccountStateResolution,
@@ -79,7 +84,7 @@ function unsupportedAccountStatus(status: never): never {
   throw new Error(`Unsupported account status: ${String(status)}`);
 }
 
-export class RouteGuardService {
+export class RouteGuardService implements AccountStateResolver {
   constructor(
     private authService: AuthService,
     private userService: UserService,

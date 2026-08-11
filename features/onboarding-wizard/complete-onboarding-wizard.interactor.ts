@@ -1,20 +1,31 @@
-import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { getTenantUser } from "@/core/decorators/tenant-context";
+import type { AccountStateResolver } from "@/features/auth/route-guard.service";
+import type { Redirect } from "@/features/auth/auth-outcome";
+
+import { runWithTenant } from "@/core/decorators/tenant-context";
+import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
+import { accountStateRedirect } from "@/features/auth/account-state";
+import { redirectTo } from "@/features/auth/auth-outcome";
 
 export abstract class CompleteOnboardingWizardRepo {
   abstract markOnboardingWizardCompleted(args: { userId: string }): Promise<void>;
 }
 
-@TenantInteractor()
-export class CompleteOnboardingWizardInteractor extends AuthenticatedInteractor<void, null> {
-  constructor(private repo: CompleteOnboardingWizardRepo) {
-    super();
-  }
+@SystemInteractor
+export class CompleteOnboardingWizardInteractor {
+  constructor(
+    private repo: CompleteOnboardingWizardRepo,
+    private accountStateResolver: AccountStateResolver,
+  ) {}
 
-  async invoke(): Promise<{ ok: true; data: null }> {
-    const { id } = getTenantUser();
-    await this.repo.markOnboardingWizardCompleted({ userId: id });
-    return { ok: true as const, data: null };
+  async invoke(): Promise<{ ok: true; data: { redirectTo: "/" } } | Redirect> {
+    const resolution = await this.accountStateResolver.resolveAccountState();
+    if (resolution.state !== "onboarding") return redirectTo(accountStateRedirect(resolution.state) ?? "/");
+    const user = resolution.user;
+    if (!user) return redirectTo("/auth/signin");
+
+    return runWithTenant(user, async () => {
+      await this.repo.markOnboardingWizardCompleted({ userId: user.id });
+      return { ok: true as const, data: { redirectTo: "/" as const } };
+    });
   }
 }

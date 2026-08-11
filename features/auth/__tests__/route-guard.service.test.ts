@@ -43,6 +43,7 @@ function session(overrides: Record<string, unknown> = {}) {
       createdAt: new Date(),
       email: "max@example.com",
       emailVerified: true,
+      id: "auth-user-1",
       name: "Max Example",
       ...overrides,
     },
