@@ -74,8 +74,14 @@ describe("guarded account-state route contract", () => {
 
   it("keeps tenant enhancements and keyboard search unmounted for restricted shells", () => {
     const layout = source("app/[locale]/(protected)/layout.tsx");
+    const navigation = source("app/components/navigation/navigation-switch.tsx");
+    const context = source("app/components/navigation/protected-enhancements-context.tsx");
     const guardedMarkup = layout.indexOf("{protectedEnhancementsAllowed ? (");
 
+    expect(navigation).toContain("<ProtectedEnhancementsProvider allowed={protectedEnhancementsAllowed}>");
+    expect(context).toContain("createContext<boolean | null>(null)");
+    expect(context).not.toContain("AccountState");
+    expect(layout).toContain("useProtectedEnhancementsAllowed()");
     expect(layout).toContain("if (!protectedEnhancementsAllowed) return;");
     expect(layout.indexOf("if (!protectedEnhancementsAllowed) return;")).toBeLessThan(
       layout.indexOf('document.addEventListener("keydown"'),

@@ -25,7 +25,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppLocalePreferenceSync } from "@/components/shared/app-locale-preference-sync";
 
-import { AccountStateProvider } from "./account-state-context";
+import { ProtectedEnhancementsProvider } from "./protected-enhancements-context";
 import { accountStateForPath } from "./account-state-for-path";
 import { refreshAccountStateWhenVisible } from "./account-state-refresh";
 import { resolveNavigationShell } from "./navigation-shell";
@@ -179,10 +179,10 @@ export function NavigationSwitch({
   }
 
   return (
-    <AccountStateProvider shell={shellMode} state={currentAccountState}>
+    <ProtectedEnhancementsProvider allowed={protectedEnhancementsAllowed}>
       <AppLocalePreferenceSync displayLanguage={userDisplayLanguage} />
 
       {shell}
-    </AccountStateProvider>
+    </ProtectedEnhancementsProvider>
   );
 }

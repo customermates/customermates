@@ -4,40 +4,40 @@ import { describe, expect, it } from "vitest";
 
 import { Action, Resource, SubscriptionPlan } from "@/generated/prisma";
 
-import { resolveSubscriptionRecoveryMode } from "../subscription-recovery";
+import { resolveSubscriptionRecoveryPath } from "../subscription-recovery";
 
 function user(role: TenantUser["role"]): TenantUser {
   return { role } as TenantUser;
 }
 
-describe("resolveSubscriptionRecoveryMode", () => {
-  it("allows a system administrator to use self-serve recovery", () => {
+describe("resolveSubscriptionRecoveryPath", () => {
+  it("allows a system administrator to use self-service checkout", () => {
     expect(
-      resolveSubscriptionRecoveryMode(
+      resolveSubscriptionRecoveryPath(
         user({
           isSystemRole: true,
           permissions: [],
         } as unknown as TenantUser["role"]),
         SubscriptionPlan.pro,
       ),
-    ).toBe("selfServe");
+    ).toBe("selfServiceCheckout");
   });
 
-  it("allows a member with the exact company update permission", () => {
+  it("allows a custom role with the exact company update permission to use checkout", () => {
     expect(
-      resolveSubscriptionRecoveryMode(
+      resolveSubscriptionRecoveryPath(
         user({
           isSystemRole: false,
           permissions: [{ resource: Resource.company, action: Action.update }],
         } as unknown as TenantUser["role"]),
         SubscriptionPlan.business,
       ),
-    ).toBe("selfServe");
+    ).toBe("selfServiceCheckout");
   });
 
   it("does not infer recovery authority from company read or unrelated update permissions", () => {
     expect(
-      resolveSubscriptionRecoveryMode(
+      resolveSubscriptionRecoveryPath(
         user({
           isSystemRole: false,
           permissions: [
@@ -47,18 +47,18 @@ describe("resolveSubscriptionRecoveryMode", () => {
         } as unknown as TenantUser["role"]),
         SubscriptionPlan.pro,
       ),
-    ).toBe("member");
+    ).toBe("administratorRequired");
   });
 
-  it("routes an enterprise administrator to managed recovery instead of self-serve checkout", () => {
+  it("routes an enterprise administrator to manual billing instead of checkout", () => {
     expect(
-      resolveSubscriptionRecoveryMode(
+      resolveSubscriptionRecoveryPath(
         user({
           isSystemRole: true,
           permissions: [],
         } as unknown as TenantUser["role"]),
         SubscriptionPlan.enterprise,
       ),
-    ).toBe("managed");
+    ).toBe("manualEnterpriseBilling");
   });
 });

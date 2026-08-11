@@ -3,7 +3,7 @@ import type { SubscriptionPlan } from "@/generated/prisma";
 
 import { Action, Resource, SubscriptionPlan as SubscriptionPlanEnum } from "@/generated/prisma";
 
-export type SubscriptionRecoveryMode = "selfServe" | "managed" | "member";
+export type SubscriptionRecoveryPath = "selfServiceCheckout" | "manualEnterpriseBilling" | "administratorRequired";
 
 function hasSubscriptionRecoveryPermission(user: TenantUser): boolean {
   if (user.role?.isSystemRole) return true;
@@ -15,8 +15,8 @@ function hasSubscriptionRecoveryPermission(user: TenantUser): boolean {
   );
 }
 
-export function resolveSubscriptionRecoveryMode(user: TenantUser, plan: SubscriptionPlan): SubscriptionRecoveryMode {
-  if (!hasSubscriptionRecoveryPermission(user)) return "member";
-  if (plan === SubscriptionPlanEnum.enterprise) return "managed";
-  return "selfServe";
+export function resolveSubscriptionRecoveryPath(user: TenantUser, plan: SubscriptionPlan): SubscriptionRecoveryPath {
+  if (!hasSubscriptionRecoveryPermission(user)) return "administratorRequired";
+  if (plan === SubscriptionPlanEnum.enterprise) return "manualEnterpriseBilling";
+  return "selfServiceCheckout";
 }

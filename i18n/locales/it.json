@@ -1645,11 +1645,11 @@
     "trialEnds": "La prova termina il"
   },
   "SubscriptionExpiredView": {
+    "administratorRequiredDescription": "Un amministratore dell’azienda deve ripristinare l’abbonamento. Riprova dopo che lo avrà fatto oppure contatta il nostro team di assistenza.",
     "contactSupportCta": "Contatta l'assistenza",
-    "description": "Il tuo spazio di lavoro non ha più un abbonamento attivo. Scegli un piano per continuare a usare Customermates oppure contatta il nostro team di assistenza per qualsiasi domanda.",
-    "managedDescription": "Il tuo spazio di lavoro Enterprise viene fatturato manualmente. Contatta il nostro team di assistenza per ripristinare l’accesso, quindi riprova.",
-    "memberDescription": "Un amministratore dell’azienda deve ripristinare l’abbonamento. Riprova dopo che lo avrà fatto oppure contatta il nostro team di assistenza.",
+    "manualEnterpriseBillingDescription": "Il tuo spazio di lavoro Enterprise viene fatturato manualmente. Contatta il nostro team di assistenza per ripristinare l’accesso, quindi riprova.",
     "retry": "Riprova",
+    "selfServiceCheckoutDescription": "Il tuo spazio di lavoro non ha più un abbonamento attivo. Scegli un piano per continuare a usare Customermates oppure contatta il nostro team di assistenza per qualsiasi domanda.",
     "subtitle": "L’accesso allo spazio di lavoro è sospeso",
     "supportEmailSubject": "Richiesta di informazioni sull'abbonamento",
     "title": "Abbonamento necessario"

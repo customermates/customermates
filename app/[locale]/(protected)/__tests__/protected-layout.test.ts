@@ -19,10 +19,8 @@ vi.mock("@/core/stores/root-store.provider", () => ({
     },
   }),
 }));
-vi.mock("@/app/components/navigation/account-state-context", () => ({
-  useAccountState: () => ({
-    protectedEnhancementsAllowed: state.protectedEnhancementsAllowed,
-  }),
+vi.mock("@/app/components/navigation/protected-enhancements-context", () => ({
+  useProtectedEnhancementsAllowed: () => state.protectedEnhancementsAllowed,
 }));
 
 vi.mock("../company/components/feedback/feedback-modal", () => ({

@@ -1,7 +1,7 @@
 "use client";
 
 import type { SelectablePlan } from "@/app/[locale]/(protected)/company/components/subscription/plan-picker";
-import type { SubscriptionRecoveryMode } from "@/features/auth/subscription-recovery";
+import type { SubscriptionRecoveryPath } from "@/features/auth/subscription-recovery";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
@@ -15,15 +15,15 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { PlanPicker } from "@/app/[locale]/(protected)/company/components/subscription/plan-picker";
 
-export const SubscriptionExpiredView = observer(({ recoveryMode }: { recoveryMode: SubscriptionRecoveryMode }) => {
+export const SubscriptionExpiredView = observer(({ recoveryPath }: { recoveryPath: SubscriptionRecoveryPath }) => {
   const t = useTranslations();
   const { subscriptionExpiredStore, loadingOverlayStore } = useRootStore();
   const description =
-    recoveryMode === "selfServe"
-      ? t("SubscriptionExpiredView.description")
-      : recoveryMode === "managed"
-        ? t("SubscriptionExpiredView.managedDescription")
-        : t("SubscriptionExpiredView.memberDescription");
+    recoveryPath === "selfServiceCheckout"
+      ? t("SubscriptionExpiredView.selfServiceCheckoutDescription")
+      : recoveryPath === "manualEnterpriseBilling"
+        ? t("SubscriptionExpiredView.manualEnterpriseBillingDescription")
+        : t("SubscriptionExpiredView.administratorRequiredDescription");
 
   function handleContactSupport() {
     window.location.href = `mailto:mail@customermates.com?subject=${encodeURIComponent(t("SubscriptionExpiredView.supportEmailSubject"))}`;
@@ -40,7 +40,7 @@ export const SubscriptionExpiredView = observer(({ recoveryMode }: { recoveryMod
       <AppCardBody>
         <p className="text-x-sm text-center text-subdued">{description}</p>
 
-        {recoveryMode === "selfServe" ? (
+        {recoveryPath === "selfServiceCheckout" ? (
           <PlanPicker isLoading={loadingOverlayStore.isLoading} onSelect={handleSelectPlan} />
         ) : null}
       </AppCardBody>
@@ -51,7 +51,7 @@ export const SubscriptionExpiredView = observer(({ recoveryMode }: { recoveryMod
             {t("SubscriptionExpiredView.contactSupportCta")}
           </Button>
 
-          {recoveryMode !== "selfServe" ? (
+          {recoveryPath !== "selfServiceCheckout" ? (
             <Button className="w-full" onClick={() => window.location.reload()}>
               {t("SubscriptionExpiredView.retry")}
             </Button>

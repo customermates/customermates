@@ -1,6 +1,6 @@
 import enMessages from "@/i18n/locales/en.json";
 import { EmailLayout } from "@/components/emails/base/email-layout";
-import { DEFAULT_EMAIL_LAYOUT_COPY, type EmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
+import { PREVIEW_EMAIL_LAYOUT_COPY, type EmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
 import { EmailText } from "@/components/emails/base/email-text";
 import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-registry";
 
@@ -46,7 +46,7 @@ const t = enMessages.TrialWelcome;
 const previewFirstName = "Sofia";
 
 TrialWelcome.PreviewProps = {
-  layoutCopy: DEFAULT_EMAIL_LAYOUT_COPY,
+  layoutCopy: PREVIEW_EMAIL_LAYOUT_COPY,
   locale: DEFAULT_LOCALE,
   greeting: t.greeting.replace("{firstName}", previewFirstName),
   body: t.body,

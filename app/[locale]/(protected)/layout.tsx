@@ -24,13 +24,13 @@ import { TranslationSync } from "@/components/shared/translation-sync";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { CustomColumnModal } from "@/components/data-view/custom-columns/custom-column-modal";
 import { TimelineDetailModal } from "@/features/messaging/activities/activities-detail-modal";
-import { useAccountState } from "@/app/components/navigation/account-state-context";
+import { useProtectedEnhancementsAllowed } from "@/app/components/navigation/protected-enhancements-context";
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const rootStore = useRootStore();
   const { closeAllModals } = rootStore;
-  const { protectedEnhancementsAllowed } = useAccountState();
+  const protectedEnhancementsAllowed = useProtectedEnhancementsAllowed();
 
   useEffect(() => closeAllModals(), [pathname, closeAllModals, protectedEnhancementsAllowed]);
 

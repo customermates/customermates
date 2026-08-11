@@ -11,6 +11,7 @@ import frMessages from "@/i18n/locales/fr.json";
 import itMessages from "@/i18n/locales/it.json";
 import { APP_LOCALES, DEFAULT_LOCALE, formattingTagFor, isAppLocale } from "@/i18n/locale-registry";
 import { LEGAL_DOCUMENT_VERSIONS, type LegalDocument } from "@/constants/legal-documents";
+import { PREVIEW_EMAIL_LAYOUT_COPY } from "./base/email-layout-copy";
 
 import AccountsRemovedNotice from "./accounts-removed-notice";
 import CompanyInvite from "./company-invite";
@@ -132,40 +133,40 @@ export type EmailPreviewKey = EmailPreviewBehavior["key"];
 export type LegalPreviewVariant = "contract" | "information";
 
 export const EMAIL_PREVIEW_ENTRIES = [
-  { fileName: "verify-email.tsx", key: "verify-email" },
-  { fileName: "reset-password.tsx", key: "reset-password" },
-  { fileName: "new-user-notification.tsx", key: "new-user-notification" },
-  { fileName: "company-invite.tsx", key: "company-invite" },
-  { fileName: "contact-inquiry.tsx", key: "contact-inquiry" },
-  { fileName: "feedback.tsx", key: "feedback" },
-  { fileName: "support-escalation.tsx", key: "support-escalation" },
-  { fileName: "trial-welcome.tsx", key: "trial-welcome" },
-  { fileName: "trial-extension-offer.tsx", key: "trial-extension-offer" },
+  { filePath: "accounts-removed-notice.tsx", key: "accounts-removed-notice" },
+  { filePath: "company-invite.tsx", key: "company-invite" },
+  { filePath: "contact-inquiry.tsx", key: "contact-inquiry" },
+  { filePath: "feedback.tsx", key: "feedback" },
   {
-    fileName: "trial-inactivation-reminder.tsx",
-    key: "trial-inactivation-reminder",
-  },
-  {
-    fileName: "trial-inactivation-notice.tsx",
-    key: "trial-inactivation-notice",
-  },
-  {
-    fileName: "subscription-inactivation-notice.tsx",
-    key: "subscription-inactivation-notice",
-  },
-  { fileName: "accounts-removed-notice.tsx", key: "accounts-removed-notice" },
-  {
-    fileName: "legal-document-notice-contract.tsx",
+    filePath: "legal-document-notice.tsx",
     key: "legal-document-notice",
     variant: "contract",
   },
+  { filePath: "new-user-notification.tsx", key: "new-user-notification" },
+  { filePath: "reset-password.tsx", key: "reset-password" },
+  { filePath: "support-escalation.tsx", key: "support-escalation" },
+  { filePath: "trial-expired-offer.tsx", key: "trial-extension-offer" },
   {
-    fileName: "legal-document-notice-information.tsx",
+    filePath: "trial-inactivation-notice.tsx",
+    key: "trial-inactivation-notice",
+  },
+  {
+    filePath: "trial-inactivation-reminder.tsx",
+    key: "trial-inactivation-reminder",
+  },
+  { filePath: "trial-welcome.tsx", key: "trial-welcome" },
+  { filePath: "verify-email.tsx", key: "verify-email" },
+  {
+    filePath: "variants/legal-document-notice-information.tsx",
     key: "legal-document-notice",
     variant: "information",
   },
+  {
+    filePath: "variants/subscription-inactivation-notice.tsx",
+    key: "subscription-inactivation-notice",
+  },
 ] as const satisfies readonly {
-  fileName: string;
+  filePath: string;
   key: EmailPreviewKey;
   variant?: LegalPreviewVariant;
 }[];
@@ -185,7 +186,6 @@ const CATALOGS = {
 
 const PREVIEW_BASE_URL = "https://preview.example.test";
 const PREVIEW_FIRST_NAME = "Sofia";
-const PREVIEW_ICON_URL = "/static/customermates-icon.svg";
 
 function catalog(locale: AppLocale): typeof enMessages {
   return CATALOGS[locale] as unknown as typeof enMessages;
@@ -200,7 +200,7 @@ function localeFor(key: EmailPreviewKey, requestedLocale: unknown): AppLocale {
 function layoutCopy(locale: AppLocale): EmailLayoutCopy & { iconUrl: string } {
   return {
     country: new Intl.DisplayNames([formattingTagFor(locale)], { type: "region" }).of("DE") ?? "DE",
-    iconUrl: PREVIEW_ICON_URL,
+    iconUrl: PREVIEW_EMAIL_LAYOUT_COPY.iconUrl,
     tagline: catalog(locale).EmailLayout.tagline,
   };
 }

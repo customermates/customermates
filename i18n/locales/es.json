@@ -1641,11 +1641,11 @@
     "trialEnds": "La prueba termina el"
   },
   "SubscriptionExpiredView": {
+    "administratorRequiredDescription": "Un administrador de la empresa debe restablecer la suscripción. Vuelve a intentarlo después o contacta con nuestro equipo de soporte.",
     "contactSupportCta": "Contactar con soporte",
-    "description": "Tu espacio de trabajo ya no tiene una suscripción activa. Elige un plan para seguir usando Customermates o contacta con nuestro equipo de soporte si tienes alguna duda.",
-    "managedDescription": "Tu espacio de trabajo Enterprise se factura manualmente. Contacta con nuestro equipo de soporte para recuperar el acceso y vuelve a intentarlo después.",
-    "memberDescription": "Un administrador de la empresa debe restablecer la suscripción. Vuelve a intentarlo después o contacta con nuestro equipo de soporte.",
+    "manualEnterpriseBillingDescription": "Tu espacio de trabajo Enterprise se factura manualmente. Contacta con nuestro equipo de soporte para recuperar el acceso y vuelve a intentarlo después.",
     "retry": "Volver a intentarlo",
+    "selfServiceCheckoutDescription": "Tu espacio de trabajo ya no tiene una suscripción activa. Elige un plan para seguir usando Customermates o contacta con nuestro equipo de soporte si tienes alguna duda.",
     "subtitle": "El acceso al espacio de trabajo está pausado",
     "supportEmailSubject": "Consulta sobre la suscripción",
     "title": "Suscripción necesaria"

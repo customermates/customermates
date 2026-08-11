@@ -1,6 +1,6 @@
 import { EmailField } from "@/components/emails/base/email-field";
 import { EmailLayout } from "@/components/emails/base/email-layout";
-import { DEFAULT_EMAIL_LAYOUT_COPY, type EmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
+import { PREVIEW_EMAIL_LAYOUT_COPY, type EmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
 import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-registry";
 
 type Props = {
@@ -24,7 +24,7 @@ export default function NewUserNotification({ email, name, provider, locale, lay
 }
 
 NewUserNotification.PreviewProps = {
-  layoutCopy: DEFAULT_EMAIL_LAYOUT_COPY,
+  layoutCopy: PREVIEW_EMAIL_LAYOUT_COPY,
   locale: DEFAULT_LOCALE,
   email: "user@example.com",
   name: "John Doe",

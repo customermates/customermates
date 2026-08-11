@@ -1649,11 +1649,11 @@
     "trialEnds": "Fin de l'essai"
   },
   "SubscriptionExpiredView": {
+    "administratorRequiredDescription": "Un administrateur de l’entreprise doit rétablir l’abonnement. Réessayez ensuite ou contactez notre assistance.",
     "contactSupportCta": "Contacter l'assistance",
-    "description": "Votre espace de travail n’a plus d’abonnement actif. Choisissez une offre pour continuer à utiliser Customermates, ou contactez notre assistance si vous avez des questions.",
-    "managedDescription": "Votre espace de travail Enterprise est facturé manuellement. Contactez notre assistance pour rétablir l’accès, puis réessayez.",
-    "memberDescription": "Un administrateur de l’entreprise doit rétablir l’abonnement. Réessayez ensuite ou contactez notre assistance.",
+    "manualEnterpriseBillingDescription": "Votre espace de travail Enterprise est facturé manuellement. Contactez notre assistance pour rétablir l’accès, puis réessayez.",
     "retry": "Réessayer",
+    "selfServiceCheckoutDescription": "Votre espace de travail n’a plus d’abonnement actif. Choisissez une offre pour continuer à utiliser Customermates, ou contactez notre assistance si vous avez des questions.",
     "subtitle": "L’accès à l’espace de travail est suspendu",
     "supportEmailSubject": "Question sur l'abonnement",
     "title": "Abonnement requis"

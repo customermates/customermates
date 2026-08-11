@@ -3,10 +3,12 @@
 import { Section, Text } from "@react-email/components";
 
 import { EmailLayout } from "@/components/emails/base/email-layout";
-import type { EmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
+import { PREVIEW_EMAIL_LAYOUT_COPY, type EmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
 import { EmailLink } from "@/components/emails/base/email-link";
 import { EmailText } from "@/components/emails/base/email-text";
-import type { AppLocale } from "@/i18n/locale-registry";
+import { LEGAL_DOCUMENT_VERSIONS, type LegalDocument } from "@/constants/legal-documents";
+import { DEFAULT_LOCALE, formattingTagFor, type AppLocale } from "@/i18n/locale-registry";
+import enMessages from "@/i18n/locales/en.json";
 
 type DocumentLink = {
   name: string;
@@ -75,3 +77,39 @@ export default function LegalDocumentNotice({
     </EmailLayout>
   );
 }
+
+const previewBaseUrl = "https://preview.example.test";
+const previewCopy = enMessages.LegalDocumentNotice;
+const previewSupplierDeadline = formatPreviewDate("2026-08-20T00:00:00.000Z");
+
+function formatPreviewDate(isoDate: string): string {
+  return new Intl.DateTimeFormat(formattingTagFor(DEFAULT_LOCALE), {
+    dateStyle: "long",
+    timeZone: "UTC",
+  }).format(new Date(isoDate));
+}
+
+function previewDocuments(documents: readonly LegalDocument[]): DocumentLink[] {
+  return documents.map((document) => ({
+    name: previewCopy.documents[document],
+    version: formatPreviewDate(LEGAL_DOCUMENT_VERSIONS[document]),
+    liveUrl: `${previewBaseUrl}/${document}`,
+  }));
+}
+
+LegalDocumentNotice.PreviewProps = {
+  body: previewCopy.contractBody,
+  deadline: formatPreviewDate("2026-08-24T00:00:00.000Z"),
+  deadlineLabel: previewCopy.contractDeadlineLabel,
+  documents: previewDocuments(["terms", "dpa", "privacy", "subprocessors"]),
+  greeting: previewCopy.greeting.replace("{firstName}", "Sofia"),
+  locale: DEFAULT_LOCALE,
+  layoutCopy: PREVIEW_EMAIL_LAYOUT_COPY,
+  objections: [
+    previewCopy.contractObjection,
+    previewCopy.subprocessorObjectionWithDeadline.replace("{deadline}", previewSupplierDeadline),
+  ],
+  signoff: previewCopy.signoff,
+  subject: previewCopy.contractSubject,
+  title: previewCopy.contractTitle,
+};

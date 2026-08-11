@@ -1,6 +1,6 @@
 import { EmailField } from "@/components/emails/base/email-field";
 import { EmailLayout } from "@/components/emails/base/email-layout";
-import { DEFAULT_EMAIL_LAYOUT_COPY, type EmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
+import { PREVIEW_EMAIL_LAYOUT_COPY, type EmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
 import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-registry";
 
 type Props = {
@@ -41,7 +41,7 @@ export default function SupportEscalation({
 }
 
 SupportEscalation.PreviewProps = {
-  layoutCopy: DEFAULT_EMAIL_LAYOUT_COPY,
+  layoutCopy: PREVIEW_EMAIL_LAYOUT_COPY,
   locale: DEFAULT_LOCALE,
   userName: "Max Mustermann",
   userEmail: "max@example.com",

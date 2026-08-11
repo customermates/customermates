@@ -1,7 +1,7 @@
-import type { ComponentType } from "react";
+import type { ElementType } from "react";
 
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join, relative } from "node:path";
+import { extname, join, relative, sep } from "node:path";
 
 import { render } from "@react-email/render";
 import { createElement } from "react";
@@ -15,7 +15,13 @@ import itMessages from "@/i18n/locales/it.json";
 import { APP_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
 import { walkFiles } from "@/tests/conventions/walk";
 
+import AccountsRemovedNotice from "../accounts-removed-notice";
 import { EmailLayout } from "../base/email-layout";
+import CompanyInvite from "../company-invite";
+import ContactInquiry from "../contact-inquiry";
+import Feedback from "../feedback";
+import LegalDocumentNotice from "../legal-document-notice";
+import NewUserNotification from "../new-user-notification";
 import {
   EMAIL_PREVIEW_BEHAVIORS,
   EMAIL_PREVIEW_ENTRIES,
@@ -24,43 +30,39 @@ import {
   type EmailPreviewKey,
   type LegalPreviewVariant,
 } from "../preview-registry";
-import AccountsRemovedNoticePreview from "../previews/accounts-removed-notice";
-import CompanyInvitePreview from "../previews/company-invite";
-import ContactInquiryPreview from "../previews/contact-inquiry";
-import FeedbackPreview from "../previews/feedback";
-import LegalContractPreview from "../previews/legal-document-notice-contract";
-import LegalInformationPreview from "../previews/legal-document-notice-information";
-import NewUserNotificationPreview from "../previews/new-user-notification";
-import ResetPasswordPreview from "../previews/reset-password";
-import SubscriptionInactivationNoticePreview from "../previews/subscription-inactivation-notice";
-import SupportEscalationPreview from "../previews/support-escalation";
-import TrialExtensionOfferPreview from "../previews/trial-extension-offer";
-import TrialInactivationNoticePreview from "../previews/trial-inactivation-notice";
-import TrialInactivationReminderPreview from "../previews/trial-inactivation-reminder";
-import TrialWelcomePreview from "../previews/trial-welcome";
-import VerifyEmailPreview from "../previews/verify-email";
+import ResetPassword from "../reset-password";
+import SupportEscalation from "../support-escalation";
+import TrialExpiredOffer from "../trial-expired-offer";
+import TrialInactivationNotice from "../trial-inactivation-notice";
+import TrialInactivationReminder from "../trial-inactivation-reminder";
+import TrialWelcome from "../trial-welcome";
+import LegalInformationPreview from "../variants/legal-document-notice-information";
+import SubscriptionInactivationNoticePreview from "../variants/subscription-inactivation-notice";
+import VerifyEmail from "../verify-email";
 
 import type { AppLocale } from "@/i18n/locale-registry";
 
 const ROOT = process.cwd();
-type PreviewComponent = ComponentType<{ locale?: AppLocale }>;
+type PreviewComponent = ElementType & {
+  PreviewProps?: Record<string, unknown>;
+};
 
 const PREVIEW_COMPONENTS: Record<string, PreviewComponent> = {
-  "accounts-removed-notice.tsx": AccountsRemovedNoticePreview,
-  "company-invite.tsx": CompanyInvitePreview,
-  "contact-inquiry.tsx": ContactInquiryPreview,
-  "feedback.tsx": FeedbackPreview,
-  "legal-document-notice-contract.tsx": LegalContractPreview,
-  "legal-document-notice-information.tsx": LegalInformationPreview,
-  "new-user-notification.tsx": NewUserNotificationPreview,
-  "reset-password.tsx": ResetPasswordPreview,
-  "subscription-inactivation-notice.tsx": SubscriptionInactivationNoticePreview,
-  "support-escalation.tsx": SupportEscalationPreview,
-  "trial-extension-offer.tsx": TrialExtensionOfferPreview,
-  "trial-inactivation-notice.tsx": TrialInactivationNoticePreview,
-  "trial-inactivation-reminder.tsx": TrialInactivationReminderPreview,
-  "trial-welcome.tsx": TrialWelcomePreview,
-  "verify-email.tsx": VerifyEmailPreview,
+  "accounts-removed-notice.tsx": AccountsRemovedNotice,
+  "company-invite.tsx": CompanyInvite,
+  "contact-inquiry.tsx": ContactInquiry,
+  "feedback.tsx": Feedback,
+  "legal-document-notice.tsx": LegalDocumentNotice,
+  "new-user-notification.tsx": NewUserNotification,
+  "reset-password.tsx": ResetPassword,
+  "support-escalation.tsx": SupportEscalation,
+  "trial-expired-offer.tsx": TrialExpiredOffer,
+  "trial-inactivation-notice.tsx": TrialInactivationNotice,
+  "trial-inactivation-reminder.tsx": TrialInactivationReminder,
+  "trial-welcome.tsx": TrialWelcome,
+  "variants/legal-document-notice-information.tsx": LegalInformationPreview,
+  "variants/subscription-inactivation-notice.tsx": SubscriptionInactivationNoticePreview,
+  "verify-email.tsx": VerifyEmail,
 };
 
 const CATALOGS = {
@@ -133,6 +135,26 @@ function topLevelTemplates(): string[] {
     .sort();
 }
 
+function discoveredPreviewEntries(): string[] {
+  const emailsRoot = join(ROOT, "components/emails");
+
+  return walkFiles(emailsRoot, (path) => {
+    const relativePath = relative(emailsRoot, path);
+    const directories = relativePath.split(sep).slice(0, -1);
+    if (directories.some((directory) => directory.startsWith("_") || directory === "static")) return false;
+    if (![".js", ".jsx", ".tsx"].includes(extname(path))) return false;
+
+    const fileContents = readFileSync(path, "utf8");
+    return (
+      /\bexport\s+default\b/m.test(fileContents) ||
+      /\bmodule\.exports\s*=/m.test(fileContents) ||
+      /\bexport\s+\{[^}]*\bdefault\b[^}]*\}/m.test(fileContents)
+    );
+  })
+    .map((path) => relative(emailsRoot, path))
+    .sort();
+}
+
 describe("transactional email preview inventory", () => {
   it("maps all 14 production sends onto the 13 production templates", () => {
     expect(EMAIL_PREVIEW_BEHAVIORS).toHaveLength(14);
@@ -171,30 +193,42 @@ describe("transactional email preview inventory", () => {
   });
 
   it("exposes every behavior and legal variant as a preview-server entry", () => {
-    const entries = readdirSync(join(ROOT, "components/emails/previews"))
-      .filter((name) => name.endsWith(".tsx"))
-      .sort();
+    const entries = discoveredPreviewEntries();
 
-    expect(entries).toEqual(EMAIL_PREVIEW_ENTRIES.map(({ fileName }) => fileName).sort());
+    expect(entries).toEqual(EMAIL_PREVIEW_ENTRIES.map(({ filePath }) => filePath).sort());
     expect(Object.keys(PREVIEW_COMPONENTS).sort()).toEqual(entries);
-    expect(existsSync(join(ROOT, "components/emails/previews/static/customermates-icon.svg"))).toBe(true);
-    expect(readFileSync(join(ROOT, "components/emails/previews/static/customermates-icon.svg"), "utf8")).toBe(
+    expect(existsSync(join(ROOT, "components/emails/static/customermates-icon.svg"))).toBe(true);
+    expect(readFileSync(join(ROOT, "components/emails/static/customermates-icon.svg"), "utf8")).toBe(
       readFileSync(join(ROOT, "public/images/light/customermates-square.svg"), "utf8"),
     );
   });
 
-  it("wires each discovered preview entry to its declared behavior and variant", async () => {
+  it("renders each discovered entry from its real PreviewProps", async () => {
     for (const entry of EMAIL_PREVIEW_ENTRIES) {
-      const component = PREVIEW_COMPONENTS[entry.fileName];
-      const actual = await render(createElement(component, { locale: "de" }));
-      const expected = await render(
-        renderEmailPreview(entry.key, {
-          locale: "de",
-          variant: "variant" in entry ? entry.variant : undefined,
-        }),
-      );
+      const component = PREVIEW_COMPONENTS[entry.filePath];
+      expect(component.PreviewProps, entry.filePath).toBeDefined();
 
-      expect(actual, entry.fileName).toBe(expected);
+      const actual = await render(createElement(component, component.PreviewProps ?? {}));
+
+      expect(actual, entry.filePath).toMatch(/<html[^>]*\blang="en"/i);
+      expect(actual).toContain("/static/customermates-icon.svg");
+      expect(actual).not.toContain("/images/email/customermates-icon@2x.png");
+      expect(actual).not.toMatch(/\{(?:firstName|inviterName|accounts|plan|deadline)\}/);
+
+      if (entry.filePath.startsWith("variants/")) {
+        const expected = await render(
+          renderEmailPreview(entry.key, {
+            locale: "en",
+            variant: "variant" in entry ? entry.variant : undefined,
+          }),
+        );
+
+        expect(actual, entry.filePath).toBe(expected);
+      } else {
+        const behavior = EMAIL_PREVIEW_BEHAVIORS.find(({ key }) => key === entry.key);
+        expect(behavior, entry.key).toBeDefined();
+        expect(`components/emails/${entry.filePath}`).toBe(behavior?.templatePath);
+      }
     }
   });
 });

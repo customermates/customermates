@@ -1641,11 +1641,11 @@
     "trialEnds": "Testphase endet"
   },
   "SubscriptionExpiredView": {
+    "administratorRequiredDescription": "Ein Unternehmensadministrator muss das Abonnement wiederherstellen. Versuche es danach erneut oder kontaktiere unser Support-Team.",
     "contactSupportCta": "Support kontaktieren",
-    "description": "Dein Arbeitsbereich hat kein aktives Abonnement mehr. Wähle einen Tarif, um Customermates weiter zu nutzen, oder kontaktiere bei Fragen unser Support-Team.",
-    "managedDescription": "Dein Enterprise-Arbeitsbereich wird manuell abgerechnet. Kontaktiere unser Support-Team, um den Zugang wiederherzustellen, und versuche es danach erneut.",
-    "memberDescription": "Ein Unternehmensadministrator muss das Abonnement wiederherstellen. Versuche es danach erneut oder kontaktiere unser Support-Team.",
+    "manualEnterpriseBillingDescription": "Dein Enterprise-Arbeitsbereich wird manuell abgerechnet. Kontaktiere unser Support-Team, um den Zugang wiederherzustellen, und versuche es danach erneut.",
     "retry": "Erneut versuchen",
+    "selfServiceCheckoutDescription": "Dein Arbeitsbereich hat kein aktives Abonnement mehr. Wähle einen Tarif, um Customermates weiter zu nutzen, oder kontaktiere bei Fragen unser Support-Team.",
     "subtitle": "Der Zugriff auf den Arbeitsbereich ist pausiert",
     "supportEmailSubject": "Abonnement-Anfrage",
     "title": "Abonnement erforderlich"
