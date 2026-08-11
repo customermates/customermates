@@ -8,7 +8,7 @@ import {
   SYNTHETIC_SHARED_USER_PASSWORD,
 } from "@/core/config/synthetic-seed-user";
 
-import { SYNTHETIC_AVATAR_PATHS, SYNTHETIC_CONTACT_AVATAR_PATHS } from "../seeds/avatars";
+import { SYNTHETIC_AVATAR_ORIGIN, SYNTHETIC_AVATAR_URLS, SYNTHETIC_CONTACT_AVATAR_URLS } from "../seeds/avatars";
 import {
   SYNTHETIC_CONTACT_EMAIL_ADDRESSES,
   SYNTHETIC_CONTACT_NAMES,
@@ -131,31 +131,31 @@ describe("canonical synthetic CRM fixture contract", () => {
   });
 
   it("keeps the complete local avatar manifest with square PNG files", () => {
-    const avatarPaths = [...new Set([...SYNTHETIC_CONTACT_AVATAR_PATHS, ...Object.values(SYNTHETIC_AVATAR_PATHS)])];
-    const monochromeAvatarPaths = new Set<string>([
-      ...SYNTHETIC_CONTACT_AVATAR_PATHS,
-      SYNTHETIC_AVATAR_PATHS.claraNeumann,
-      SYNTHETIC_AVATAR_PATHS.marcoSilva,
+    const avatarUrls = [...new Set([...SYNTHETIC_CONTACT_AVATAR_URLS, ...Object.values(SYNTHETIC_AVATAR_URLS)])];
+    const monochromeAvatarUrls = new Set<string>([
+      ...SYNTHETIC_CONTACT_AVATAR_URLS,
+      SYNTHETIC_AVATAR_URLS.claraNeumann,
+      SYNTHETIC_AVATAR_URLS.marcoSilva,
     ]);
-    const colorAvatarPaths = avatarPaths.filter((avatarPath) => !monochromeAvatarPaths.has(avatarPath));
+    const colorAvatarUrls = avatarUrls.filter((avatarUrl) => !monochromeAvatarUrls.has(avatarUrl));
 
-    expect(SYNTHETIC_CONTACT_AVATAR_PATHS).toHaveLength(SYNTHETIC_CONTACT_NAMES.length);
-    expect(new Set(SYNTHETIC_CONTACT_AVATAR_PATHS).size).toBe(SYNTHETIC_CONTACT_NAMES.length);
-    expect(monochromeAvatarPaths.size).toBe(32);
-    expect(avatarPaths).toHaveLength(35);
-    expect(new Set(colorAvatarPaths)).toEqual(
+    expect(SYNTHETIC_CONTACT_AVATAR_URLS).toHaveLength(SYNTHETIC_CONTACT_NAMES.length);
+    expect(new Set(SYNTHETIC_CONTACT_AVATAR_URLS).size).toBe(SYNTHETIC_CONTACT_NAMES.length);
+    expect(monochromeAvatarUrls.size).toBe(32);
+    expect(avatarUrls).toHaveLength(35);
+    expect(new Set(colorAvatarUrls)).toEqual(
       new Set([
-        SYNTHETIC_AVATAR_PATHS.maxBergmann,
-        SYNTHETIC_AVATAR_PATHS.sofiaRossi,
-        SYNTHETIC_AVATAR_PATHS.elenaHoffmann,
+        SYNTHETIC_AVATAR_URLS.maxBergmann,
+        SYNTHETIC_AVATAR_URLS.sofiaRossi,
+        SYNTHETIC_AVATAR_URLS.elenaHoffmann,
       ]),
     );
 
-    for (const avatarPath of avatarPaths) {
-      expect(avatarPath).toMatch(/^\/demo\/avatars\/photos\/[a-z-]+\.png$/);
+    for (const avatarUrl of avatarUrls) {
+      expect(avatarUrl).toMatch(/^https:\/\/customermates\.com\/demo\/avatars\/photos\/[a-z-]+\.png$/);
 
-      const avatarFile = new URL(`../../public${avatarPath}`, import.meta.url);
-      expect(existsSync(avatarFile), `${avatarPath} must exist in public`).toBe(true);
+      const avatarFile = new URL(`../../public${avatarUrl.slice(SYNTHETIC_AVATAR_ORIGIN.length)}`, import.meta.url);
+      expect(existsSync(avatarFile), `${avatarUrl} must ship from public`).toBe(true);
 
       const source = readFileSync(avatarFile);
       expect(source.subarray(0, 8).toString("hex")).toBe("89504e470d0a1a0a");

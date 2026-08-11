@@ -25,7 +25,7 @@ export const AdminUpdateUserDetailsSchema = z.object({
   lastName: z.string().min(1),
   country: z.enum(CountryCode),
   status: z.enum([Status.active, Status.inactive]),
-  avatarUrl: zx.secureUrl({ allowRelativePath: true }).or(z.literal("")).nullable(),
+  avatarUrl: zx.secureUrl().or(z.literal("")).nullable(),
   roleId: z.uuid(),
 });
 export type AdminUpdateUserDetailsData = Data<typeof AdminUpdateUserDetailsSchema>;

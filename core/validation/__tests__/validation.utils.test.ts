@@ -75,10 +75,10 @@ describe("zx.secureUrl", () => {
     );
   });
 
-  describe("with allowRelativePath", () => {
+  describe("with allowRelativePath, which only custom-field links use", () => {
     const schema = () => zx.secureUrl({ allowRelativePath: true });
 
-    it.each([["/demo/avatars/photos/max-bergmann.png"], ["/evil"], ["/a/b/c.png?v=2"]])(
+    it.each([["/internal/report.pdf"], ["/evil"], ["/a/b/c.png?v=2"]])(
       "preserves the same-origin path %j verbatim",
       (input) => {
         expect(schema().safeParse(input)).toMatchObject({ success: true, data: input });

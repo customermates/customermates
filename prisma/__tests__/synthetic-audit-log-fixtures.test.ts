@@ -17,7 +17,7 @@ import {
   type SyntheticAuditFixture,
   type SyntheticAuditSnapshot,
 } from "../seeds/audit-logs";
-import { SYNTHETIC_CONTACT_AVATAR_PATHS } from "../seeds/avatars";
+import { SYNTHETIC_CONTACT_AVATAR_URLS } from "../seeds/avatars";
 import { SEED_IDS } from "../seeds/context";
 import { SYNTHETIC_CUSTOM_COLUMN_IDS } from "../seeds/custom-fields";
 import { fixtureId } from "../seeds/helpers";
@@ -30,7 +30,7 @@ const primaryUserReference = {
   email: SYNTHETIC_COMPANY_USERS.maxBergmann.email,
   firstName: SYNTHETIC_COMPANY_USERS.maxBergmann.firstName,
   lastName: SYNTHETIC_COMPANY_USERS.maxBergmann.lastName,
-  avatarUrl: "/demo/avatars/photos/max-bergmann.png",
+  avatarUrl: "https://customermates.com/demo/avatars/photos/max-bergmann.png",
 };
 
 function syntheticSnapshot(): SyntheticAuditSnapshot {
@@ -47,7 +47,7 @@ function syntheticSnapshot(): SyntheticAuditSnapshot {
       email: SYNTHETIC_COMPANY_USERS.sofiaRossi.email,
       firstName: SYNTHETIC_COMPANY_USERS.sofiaRossi.firstName,
       lastName: SYNTHETIC_COMPANY_USERS.sofiaRossi.lastName,
-      avatarUrl: "/demo/avatars/photos/sofia-rossi.png",
+      avatarUrl: "https://customermates.com/demo/avatars/photos/sofia-rossi.png",
       country: "it" as const,
       roleId: SEED_IDS.salesManagerRole,
       status: "active" as const,
@@ -58,7 +58,7 @@ function syntheticSnapshot(): SyntheticAuditSnapshot {
       email: SYNTHETIC_COMPANY_USERS.elenaHoffmann.email,
       firstName: SYNTHETIC_COMPANY_USERS.elenaHoffmann.firstName,
       lastName: SYNTHETIC_COMPANY_USERS.elenaHoffmann.lastName,
-      avatarUrl: "/demo/avatars/photos/elena-hoffmann.png",
+      avatarUrl: "https://customermates.com/demo/avatars/photos/elena-hoffmann.png",
       country: "de" as const,
       roleId: SEED_IDS.customerSuccessRole,
       status: "active" as const,
@@ -87,7 +87,7 @@ function syntheticSnapshot(): SyntheticAuditSnapshot {
     id: fixtureId("60000000", index + 1),
     firstName: `Contact ${index + 1}`,
     lastName: "Example",
-    avatarUrl: SYNTHETIC_CONTACT_AVATAR_PATHS[index],
+    avatarUrl: SYNTHETIC_CONTACT_AVATAR_URLS[index],
     notes: null,
     identifiers: [
       {

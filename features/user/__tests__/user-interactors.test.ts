@@ -372,17 +372,17 @@ describe("UpdateUserDetailsInteractor", () => {
   });
 });
 
-describe("avatar schemas keep a same-origin path instead of retargeting it", () => {
-  const SEEDED_AVATAR = "/demo/avatars/photos/max-bergmann.png";
+describe("avatar schemas require an absolute URL", () => {
+  const SEEDED_AVATAR = "https://customermates.com/demo/avatars/photos/max-bergmann.png";
 
-  it("keeps the path verbatim on the self-update schema", () => {
+  it("keeps the seeded absolute avatar verbatim on the self-update schema", () => {
     expect(UpdateUserDetailsSchema.safeParse({ avatarUrl: SEEDED_AVATAR })).toMatchObject({
       success: true,
       data: { avatarUrl: SEEDED_AVATAR },
     });
   });
 
-  it("keeps the path verbatim on the admin schema, which re-parses a stored avatar on every role change", () => {
+  it("keeps it verbatim on the admin schema, which re-parses a stored avatar on every role change", () => {
     const result = AdminUpdateUserDetailsSchema.safeParse({
       email: "max.bergmann@customermates.com",
       firstName: "Max",
@@ -395,6 +395,13 @@ describe("avatar schemas keep a same-origin path instead of retargeting it", () 
 
     expect(result).toMatchObject({ success: true, data: { avatarUrl: SEEDED_AVATAR } });
   });
+
+  it.each([["/demo/avatars/photos/max-bergmann.png"], ["//cdn.example.com/a.png"]])(
+    "rejects the relative avatar %j rather than resolving it to another host",
+    (avatarUrl) => {
+      expect(UpdateUserDetailsSchema.safeParse({ avatarUrl }).success).toBe(false);
+    },
+  );
 
   it("still normalises a bare host to https", () => {
     expect(UpdateUserDetailsSchema.safeParse({ avatarUrl: "cdn.example.com/a.png" })).toMatchObject({
