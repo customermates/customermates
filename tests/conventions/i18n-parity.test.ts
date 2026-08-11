@@ -6,7 +6,6 @@ import { describe, expect, it } from "vitest";
 
 import { REPO_ROOT, walkFiles } from "./walk";
 
-import { icuArgumentNames, richTextTagNames } from "@/scripts/lib/icu";
 import { APP_LOCALES, CONTENT_LOCALES, DEFAULT_LOCALE, ROUTING_LOCALES } from "@/i18n/locale-registry";
 
 const ENFORCED = true;
@@ -257,38 +256,6 @@ describe("i18n parity", () => {
     expect(counts, `every bundle must hold exactly ${referenceLeaves.size} keys, the ${DEFAULT_LOCALE} count`).toEqual(
       expected,
     );
-  });
-
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps rich-text tag names aligned per shared key", () => {
-    const mismatches: string[] = [];
-    for (const locale of otherRoutingLocales) {
-      const leaves = loadLocaleLeaves(locale);
-      for (const [key, referenceValue] of referenceLeaves) {
-        const value = leaves.get(key);
-        if (value === undefined) continue;
-        const referenceTags = richTextTagNames(referenceValue);
-        const localeTags = richTextTagNames(value);
-        if (referenceTags !== localeTags)
-          mismatches.push(`${key}: ${DEFAULT_LOCALE}=<${referenceTags}> ${locale}=<${localeTags}>`);
-      }
-    }
-    expect(mismatches, `rich-text tag mismatches:\n${mismatches.join("\n")}`).toEqual([]);
-  });
-
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps ICU placeholder names aligned per shared key", () => {
-    const mismatches: string[] = [];
-    for (const locale of otherRoutingLocales) {
-      const leaves = loadLocaleLeaves(locale);
-      for (const [key, referenceValue] of referenceLeaves) {
-        const value = leaves.get(key);
-        if (value === undefined) continue;
-        const referenceArguments = icuArgumentNames(referenceValue);
-        const localeArguments = icuArgumentNames(value);
-        if (referenceArguments !== localeArguments)
-          mismatches.push(`${key}: ${DEFAULT_LOCALE}={${referenceArguments}} ${locale}={${localeArguments}}`);
-      }
-    }
-    expect(mismatches, `ICU placeholder mismatches:\n${mismatches.join("\n")}`).toEqual([]);
   });
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(

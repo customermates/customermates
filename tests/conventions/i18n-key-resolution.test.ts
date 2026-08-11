@@ -19,6 +19,7 @@ import {
   Theme,
   WebhookDeliveryStatus,
 } from "@/generated/prisma";
+import { socialErrorMessageKeys } from "@/app/[locale]/(public)/auth/social-error-keys";
 import { CHIP_COLORS } from "@/constants/chip-colors";
 import { ALL_LEGAL_DOCUMENTS } from "@/constants/legal-documents";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
@@ -177,38 +178,7 @@ const ERROR_CARD_DYNAMIC_KEYS = [
   "ErrorCard.invalidInviteLink",
   "ErrorCard.inviteLinkExpired",
 ] as const;
-const AUTH_SOCIAL_ERROR_KEYS = [
-  "accessDenied",
-  "accountAlreadyLinkedToDifferentUser",
-  "accountNotLinked",
-  "emailDoesNotMatch",
-  "emailIsMissing",
-  "emailNotFound",
-  "generic",
-  "idIsMissing",
-  "internalServerError",
-  "invalidCallbackRequest",
-  "invalidCode",
-  "invalidPayload",
-  "invalidProfile",
-  "issuerMismatch",
-  "issuerMissing",
-  "missingProfile",
-  "nameIsMissing",
-  "noCallbackUrl",
-  "noCode",
-  "oauthCodeVerificationFailed",
-  "oauthProviderNotFound",
-  "payloadExpired",
-  "signupDisabled",
-  "stateMismatch",
-  "unableToCreateSession",
-  "unableToCreateUser",
-  "unableToGetUserInfo",
-  "unableToLinkAccount",
-  "userCreationFailed",
-  "userInfoIsMissing",
-].map((key) => `AuthSocialErrors.${key}`);
+const AUTH_SOCIAL_ERROR_KEYS = socialErrorMessageKeys();
 const HOMEPAGE_PRICING_VARIABLE_KEYS = [
   "HomepagePricing.cloud.badge",
   "HomepagePricing.cloud.compareText",
