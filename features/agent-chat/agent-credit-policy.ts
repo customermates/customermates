@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { AppMode } from "@/core/config/environment";
 import { SubscriptionStatus, type SubscriptionPlan } from "@/generated/prisma";
 import type { Data } from "@/core/validation/validation.utils";
+import { assertValidDate } from "@/core/utils/date";
 
 import { getEntitlements, TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER } from "@/ee/subscription/entitlements";
 
@@ -37,10 +38,6 @@ type AgentCreditEntitlementInput = {
   activeSeatAt: Date | null;
   now: Date;
 };
-
-function assertValidDate(value: Date, description: string) {
-  if (!(value instanceof Date) || !Number.isFinite(value.getTime())) throw new Error(`${description} is invalid.`);
-}
 
 function anchoredOccurrence(anchor: Date, year: number, zeroBasedMonth: number) {
   const normalizedMonth = new Date(Date.UTC(year, zeroBasedMonth, 1));

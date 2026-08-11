@@ -555,8 +555,7 @@ const SuggestedQuestions = observer(function SuggestedQuestions() {
 });
 
 const ConversationHistory = observer(function ConversationHistory() {
-  const { agentChatStore: store } = useRootStore();
-  const locale = useLocale();
+  const { agentChatStore: store, intlStore } = useRootStore();
   const t = useTranslations();
   const copy = chatUiCopy(t);
   const [query, setQuery] = useState(store.historyQuery);
@@ -723,10 +722,7 @@ const ConversationHistory = observer(function ConversationHistory() {
                   )}
 
                   <time className="mt-1 block text-[11px] font-normal text-muted-foreground">
-                    {conversation.updatedAt.toLocaleDateString(locale, {
-                      day: "numeric",
-                      month: "short",
-                    })}
+                    {intlStore.formatDayMonth(conversation.updatedAt)}
                   </time>
                 </span>
               </Button>
@@ -1099,9 +1095,8 @@ const QueuedPrompt = observer(function QueuedPrompt() {
 });
 
 const UsageFooter = observer(function UsageFooter() {
-  const { agentChatStore: store } = useRootStore();
+  const { agentChatStore: store, intlStore } = useRootStore();
   const t = useTranslations();
-  const locale = useLocale();
   if (!store.usage) return null;
   const usage = store.usage;
   const copy = chatUiCopy(t);
@@ -1118,10 +1113,7 @@ const UsageFooter = observer(function UsageFooter() {
     );
   }
   const pct = usage.usedPct;
-  const resetAt = new Intl.DateTimeFormat(locale, {
-    day: "numeric",
-    month: "short",
-  }).format(new Date(usage.resetAt));
+  const resetAt = intlStore.formatDayMonth(new Date(usage.resetAt));
 
   return (
     <details className="group w-full px-1 pb-2 text-xs text-muted-foreground" data-testid="agent-usage">
@@ -1180,13 +1172,11 @@ const UsageFooter = observer(function UsageFooter() {
 });
 
 function CreditBlockedNotice({ usage }: { usage: AgentUsageSummary }) {
+  const { intlStore } = useRootStore();
   const t = useTranslations();
-  const locale = useLocale();
   const router = useRouter();
   const reason = usage.blockedReason ?? "credits_exhausted";
-  const resetAt = new Intl.DateTimeFormat(locale, {
-    dateStyle: "medium",
-  }).format(new Date(usage.resetAt));
+  const resetAt = intlStore.formatDescriptiveShortDate(new Date(usage.resetAt));
   const contact = reason === "enterprise_allowance_missing" || reason === "configuration_unavailable";
 
   return (

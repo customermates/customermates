@@ -5,6 +5,7 @@ import { asSchema, tool, jsonSchema, type ToolSet } from "ai";
 
 import { ALL_MCP_TOOLS } from "@/features/mcp-tools/all-tools";
 import { VALIDATION_ERROR_PREFIX } from "@/features/mcp-tools/utils";
+import { RequestSupportSchema } from "@/features/mcp-tools/support.mcp-tools";
 import type { McpToolResult } from "@/app/api/v1/mcp/mcp-route-utils";
 
 import { isReadOnlyTool } from "./gated-tools";
@@ -457,10 +458,7 @@ export function getAgentAiTools(deps: AgentToolDeps, allowedToolNames?: readonly
     request_support: tool({
       description:
         "Open a support ticket with the Customermates team. Use when the user asks for a human, reports a bug, or you cannot help after a genuine attempt. The team follows up here and by email.",
-      inputSchema: z.object({
-        subject: z.string().min(1).max(200).describe("Short summary of the problem or question."),
-        body: z.string().min(1).max(10000).describe("The full question or problem, including relevant context."),
-      }),
+      inputSchema: RequestSupportSchema,
       execute: async (input, { toolCallId }) =>
         runSafely(() =>
           runGated(deps, toolCallId, "request_support", input, () =>

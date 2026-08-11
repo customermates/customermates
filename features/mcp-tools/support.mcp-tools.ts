@@ -4,7 +4,7 @@ import { getCreateSupportTicketInteractor } from "@/core/di";
 
 import { runInteractor } from "./utils";
 
-const RequestSupportSchema = z.object({
+export const RequestSupportSchema = z.object({
   subject: z.string().min(1).max(200).describe("Short summary of the problem or question."),
   body: z.string().min(1).max(10000).describe("The full question or problem description, including relevant context."),
 });

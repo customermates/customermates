@@ -12,6 +12,7 @@ import type { Subscription } from "@/generated/prisma";
 import { z } from "zod";
 
 import { env } from "@/env";
+import { assertValidDate } from "@/core/utils/date";
 
 export function variantToPlan(variantId: string): SubscriptionPlan | null {
   if (variantId === env.LEMONSQUEEZY_VARIANT_ID_STARTER) return SubscriptionPlan.starter;
@@ -51,10 +52,6 @@ export function lemonSqueezyStatusToSubscriptionStatus(lemonSqueezyStatus: strin
     default:
       return SubscriptionStatus.expired;
   }
-}
-
-function assertValidDate(value: Date, description: string): void {
-  if (!(value instanceof Date) || !Number.isFinite(value.getTime())) throw new Error(`${description} is invalid`);
 }
 
 export function deriveAgentCreditAnchorFromLemonSqueezy(input: {
