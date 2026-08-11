@@ -12,6 +12,28 @@ describe("FilterSchema relation existence operators", () => {
     expect(isStandaloneOperator(operator)).toBe(true);
   });
 
+  it.each([FilterOperatorKey.hasNone, FilterOperatorKey.hasSome])(
+    "parses %s carrying the explicit undefined value every producer emits",
+    (operator) => {
+      const fromUrl = { field: FilterFieldKey.userIds, operator, value: undefined };
+
+      expect("value" in fromUrl).toBe(true);
+      expect(FilterSchema.parse(fromUrl)).toEqual({ field: FilterFieldKey.userIds, operator });
+    },
+  );
+
+  it.each([
+    FilterOperatorKey.isNull,
+    FilterOperatorKey.isNotNull,
+    FilterOperatorKey.hasUnset,
+    FilterOperatorKey.allSet,
+  ])("keeps accepting %s with the same explicit undefined value", (operator) => {
+    expect(FilterSchema.parse({ field: FilterFieldKey.userIds, operator, value: undefined })).toEqual({
+      field: FilterFieldKey.userIds,
+      operator,
+    });
+  });
+
   it("continues to require values for relation membership operators", () => {
     expect(FilterSchema.safeParse({ field: FilterFieldKey.userIds, operator: FilterOperatorKey.in }).success).toBe(
       false,
