@@ -25,6 +25,8 @@ describe("createErrorHandler", () => {
   });
 });
 
+const BACKSLASH = String.fromCharCode(92);
+
 describe("zx.secureUrl", () => {
   describe("by default", () => {
     it.each([
@@ -63,6 +65,14 @@ describe("zx.secureUrl", () => {
       for (const input of ["/evil", "/demo/avatars/photos/max-bergmann.png", "//example.com/x.png"])
         expect(zx.secureUrl().safeParse(input).success).toBe(false);
     });
+
+    it.each([[BACKSLASH + "evil.example"], [BACKSLASH + BACKSLASH + "evil.example/hook"]])(
+      "rejects the backslash spelling %j, which resolves to the same foreign host as the slash spelling",
+      (input) => {
+        expect(new URL(`https://${input}`).host).toBe("evil.example");
+        expect(zx.secureUrl().safeParse(input).success).toBe(false);
+      },
+    );
   });
 
   describe("with allowRelativePath", () => {
@@ -89,6 +99,10 @@ describe("zx.secureUrl", () => {
       [`/with${String.fromCharCode(10)}newline.png`],
     ])("rejects the unstorable path %j rather than persisting it", (input) => {
       expect(schema().safeParse(input).success).toBe(false);
+    });
+
+    it("rejects a backslash-leading value instead of prefixing it into a foreign host", () => {
+      expect(schema().safeParse(`${BACKSLASH}evil.example`).success).toBe(false);
     });
 
     it.each([

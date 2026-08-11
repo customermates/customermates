@@ -52,7 +52,7 @@ export function createErrorHandler(errors: Record<string, string>): (issue: $Zod
 function inferHttpsForBareHost(val: unknown) {
   if (typeof val !== "string") return val;
   const trimmed = val.trim();
-  if (!trimmed || trimmed.startsWith("/") || trimmed.includes("://") || /^(mailto|tel):/i.test(trimmed)) return trimmed;
+  if (!trimmed || /^[/\\]/.test(trimmed) || trimmed.includes("://") || /^(mailto|tel):/i.test(trimmed)) return trimmed;
   return `https://${trimmed}`;
 }
 
