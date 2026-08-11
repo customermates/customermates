@@ -105,7 +105,7 @@ type StoreState = {
   isReady?: boolean;
   isRefreshing?: boolean;
   itemCount?: number;
-  refreshError?: unknown;
+  requestError?: unknown;
   searchTerm?: string;
   total?: number;
   viewMode?: ViewMode;
@@ -124,8 +124,8 @@ function renderState(state: StoreState = {}) {
         ? { status: "uninitialized" }
         : state.isRefreshing
           ? { status: "refreshing" }
-          : state.refreshError
-            ? { status: "refresh-error", error: state.refreshError }
+          : state.requestError
+            ? { status: "refresh-error", error: state.requestError }
             : { status: "ready" },
     entityType: EntityType.organization,
     filters: state.filters ?? [],
@@ -140,7 +140,6 @@ function renderState(state: StoreState = {}) {
       total: state.total ?? state.itemCount ?? 0,
       totalPages: 1,
     },
-    refreshError: state.refreshError ?? null,
     searchTerm: state.searchTerm,
     setQueryOptions: harness.setQueryOptions,
     viewMode: state.viewMode ?? ViewMode.table,
@@ -177,7 +176,7 @@ describe("OrganizationsPageView", () => {
   });
 
   it("renders one explicit error branch with a working retry after an empty refresh fails", () => {
-    const { html } = renderState({ refreshError: new Error("failed") });
+    const { html } = renderState({ requestError: new Error("failed") });
 
     expect(html).toContain('data-page-state="error"');
     expect(html).toContain('role="alert"');

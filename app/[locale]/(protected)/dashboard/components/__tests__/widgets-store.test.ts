@@ -74,6 +74,6 @@ describe("WidgetsStore refresh compatibility", () => {
     expect(store.layouts.lg).not.toEqual(expect.arrayContaining([expect.objectContaining({ i: FIRST_ID })]));
     expect(store.isReady).toBe(true);
     expect(store.isRefreshing).toBe(false);
-    expect(store.refreshError).toBeNull();
+    expect(store.dataRequest).toEqual({ status: "ready" });
   });
 });

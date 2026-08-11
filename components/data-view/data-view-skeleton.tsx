@@ -17,7 +17,7 @@ export type DataViewSkeletonSpec =
     }
   | { identity: "avatar" | "text"; view: "cards" | "board" };
 
-type Props = {
+type Props = ComponentProps<"div"> & {
   animated?: boolean;
   spec: DataViewSkeletonSpec;
 };
@@ -198,9 +198,18 @@ function PaginationSkeleton({ animated }: { animated: boolean }) {
   );
 }
 
-export function DataViewSkeleton({ animated = true, spec }: Props) {
+export function DataViewSkeleton({ animated = true, className, spec, ...props }: Props) {
   return (
-    <div className="flex size-full min-h-0 flex-col">
+    <div
+      aria-hidden="true"
+      className={cn("flex size-full min-h-0 flex-col", className)}
+      data-page-skeleton-empty={!animated || undefined}
+      data-page-skeleton-loading={animated || undefined}
+      data-skeleton-kind="data-view"
+      data-skeleton-variant={spec.view === "table" ? spec.tableVariant : spec.identity}
+      data-skeleton-view={spec.view}
+      {...props}
+    >
       <div className="min-h-0 flex-1">
         {spec.view === "table" ? (
           <TableSkeleton animated={animated} variant={spec.tableVariant} />
@@ -215,3 +224,4 @@ export function DataViewSkeleton({ animated = true, spec }: Props) {
     </div>
   );
 }
+import type { ComponentProps } from "react";

@@ -88,7 +88,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       dataRequest: computed,
       isRefreshing: computed,
       isReady: computed,
-      refreshError: computed,
 
       items: observable,
       customColumns: observable,
@@ -164,10 +163,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   get isRefreshing(): boolean {
     return this.requestState.status === "refreshing";
-  }
-
-  get refreshError(): unknown {
-    return this.requestState.status === "refresh-error" ? this.requestState.error : null;
   }
 
   setBulkMutating = (next: boolean) => {
@@ -396,10 +391,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   setItems(args: GetResult<Entity>): void {
     this.requestGeneration += 1;
-    this.applyItems(args);
-  }
-
-  private applyItems(args: GetResult<Entity>): void {
     const wasReady = this.isReady;
     this.items = args.items;
     this.customColumns = args.customColumns ?? [];
@@ -596,7 +587,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   refresh = (): Promise<void> => this.executeRefresh("background");
 
-  private executeRefresh = async (mode: DataViewRefreshMode): Promise<void> => {
+  protected refreshGuarded = (shouldCommit: () => boolean): Promise<void> =>
+    this.executeRefresh("background", shouldCommit);
+
+  private executeRefresh = async (mode: DataViewRefreshMode, shouldCommit?: () => boolean): Promise<void> => {
     const generation = ++this.requestGeneration;
     const wasInitialized = this.isReady;
     const groupedPagination = this.buildGroupedPaginationRequest();
@@ -615,11 +609,25 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       if (mode === "visible") this.requestState = { status: "refreshing" };
     });
 
+    const discardIfStale = (): boolean => {
+      const ownsRequest = generation === this.requestGeneration;
+      const ownsGuard = shouldCommit?.() ?? true;
+      if (ownsRequest && ownsGuard) return false;
+
+      if (ownsRequest && !ownsGuard && this.requestState.status === "refreshing") {
+        runInAction(() => {
+          this.requestState = wasInitialized ? { status: "ready" } : { status: "uninitialized" };
+        });
+      }
+
+      return true;
+    };
+
     let result: GetResult<Entity>;
     try {
       result = await this.refreshAction(params);
     } catch (error) {
-      if (generation !== this.requestGeneration) return;
+      if (discardIfStale()) return;
 
       runInAction(() => {
         this.requestState = wasInitialized ? { status: "refresh-error", error } : { status: "uninitialized" };
@@ -627,7 +635,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       throw error;
     }
 
-    if (generation !== this.requestGeneration) return;
+    if (discardIfStale()) return;
 
     runInAction(() => this.setItems(result));
   };
@@ -649,6 +657,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   upsertItem = async (target: Entity): Promise<void> => {
     this.upsertItemLocal(target);
+    this.requestGeneration += 1;
+    if (this.requestState.status !== "uninitialized") this.requestState = { status: "ready" };
     await this.executeOnChanges();
   };
 
@@ -666,6 +676,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     const items = this.items.filter(({ id: sourceId }) => sourceId !== targetId);
 
     this.items = items;
+    this.requestGeneration += 1;
+    if (this.requestState.status !== "uninitialized") this.requestState = { status: "ready" };
     await this.executeOnChanges();
   };
 

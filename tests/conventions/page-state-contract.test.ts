@@ -1,550 +1,152 @@
-import { existsSync, readFileSync } from "node:fs";
-import { dirname, join, relative } from "node:path";
-
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { PROTECTED_ROUTE_REGISTRY } from "@/components/page-state/route-registry";
+const root = process.cwd();
+const read = (path: string) => readFileSync(resolve(root, path), "utf8");
+const filesUnder = (directory: string): string[] =>
+  readdirSync(resolve(root, directory), { withFileTypes: true }).flatMap((entry) => {
+    const path = join(directory, entry.name);
+    return entry.isDirectory() ? filesUnder(path) : [path];
+  });
 
-import { REPO_ROOT, walkFiles } from "./walk";
+const protectedRoot = "app/[locale]/(protected)";
+const protectedPages = filesUnder(protectedRoot)
+  .filter((path) => path.endsWith("/page.tsx"))
+  .map((path) => path.slice(protectedRoot.length + 1))
+  .filter((path) => !path.startsWith("test/"))
+  .sort();
+const protectedLoaders = protectedPages.map((page) => join(protectedRoot, dirname(page), "loading.tsx"));
 
-const PROTECTED_ROOT = join(REPO_ROOT, "app/[locale]/(protected)");
+const collectionViews = [
+  "app/[locale]/(protected)/contacts/components/contacts-page-view.tsx",
+  "app/[locale]/(protected)/organizations/components/organizations-page-view.tsx",
+  "app/[locale]/(protected)/deals/components/deals-page-view.tsx",
+  "app/[locale]/(protected)/services/components/services-page-view.tsx",
+  "app/[locale]/(protected)/tasks/components/tasks-page-view.tsx",
+  "app/[locale]/(protected)/company/components/user/members-page-view.tsx",
+  "app/[locale]/(protected)/company/components/role/roles-page-view.tsx",
+  "app/[locale]/(protected)/company/components/audit-log/audit-logs-page-view.tsx",
+  "app/[locale]/(protected)/company/components/webhook/webhooks-page-view.tsx",
+  "app/[locale]/(protected)/company/components/webhook/webhook-deliveries-page-view.tsx",
+] as const;
 
-function read(path: string): string {
-  return readFileSync(join(REPO_ROOT, path), "utf8");
-}
+const pureSkeletons = [
+  "components/data-view/data-view-skeleton.tsx",
+  "components/entity-detail/entity-detail-page-skeleton.tsx",
+  "components/forms/settings-form-skeleton.tsx",
+  "components/shared/centered-card-page-skeleton.tsx",
+  "app/[locale]/(protected)/dashboard/components/dashboard-page-skeleton.tsx",
+  "app/[locale]/(protected)/inbox/components/inbox-page-skeleton.tsx",
+  "app/[locale]/(protected)/profile/components/profile-resource-page-skeleton.tsx",
+] as const;
 
-function productRoutes(): string[] {
-  return walkFiles(PROTECTED_ROOT, (path) => path.endsWith("/page.tsx") && !path.includes("/test/"))
-    .map((path) => `/${relative(PROTECTED_ROOT, path).replace(/\/page\.tsx$/, "")}`)
-    .sort();
-}
+const featureSkeletons = [
+  "app/[locale]/(protected)/profile/components/profile-settings-page-skeleton.tsx",
+  "app/[locale]/(protected)/company/components/company-settings/company-settings-page-skeleton.tsx",
+  "app/[locale]/(protected)/company/components/subscription/subscription-page-skeleton.tsx",
+  "app/[locale]/(protected)/onboarding/wizard/components/onboarding-page-skeleton.tsx",
+] as const;
 
-function nearestLoadingOwner(pagePath: string): string | null {
-  let current = dirname(pagePath);
-  while (current.startsWith(PROTECTED_ROOT)) {
-    const candidate = join(current, "loading.tsx");
-    if (existsSync(candidate)) return relative(REPO_ROOT, candidate);
-    if (current === PROTECTED_ROOT) break;
-    current = dirname(current);
-  }
-  return null;
-}
+const exhaustiveResourceOwners = [
+  ["app/[locale]/(protected)/dashboard/components/dashboard-page-view.tsx", "switch (pageState)"],
+  ["app/[locale]/(protected)/profile/components/api-keys-page-view.tsx", "switch (pageState)"],
+  ["app/[locale]/(protected)/profile/components/connected-accounts-page-view.tsx", "switch (pageState)"],
+  ["app/[locale]/(protected)/inbox/components/inbox-list.tsx", "switch (pageState)"],
+  ["app/[locale]/(protected)/inbox/components/thread-panel.tsx", "switch (pageState.status)"],
+  ["components/entity-detail/entity-drawer.tsx", "switch (drawerState)"],
+] as const;
 
-describe("page-state contract", () => {
-  it("registers every protected non-test route and gives it a loading owner", () => {
-    const routes = productRoutes();
-    const registered = Object.keys(PROTECTED_ROUTE_REGISTRY).sort();
-    const featureOwnedRoutes = ["/contacts", "/organizations"];
-    const pages = walkFiles(PROTECTED_ROOT, (path) => path.endsWith("/page.tsx") && !path.includes("/test/"));
+describe("page-state ownership", () => {
+  it("gives every protected product route a direct feature or family loader", () => {
+    expect(protectedLoaders).toHaveLength(25);
+    for (const path of protectedLoaders) {
+      expect(existsSync(resolve(root, path)), path).toBe(true);
+      expect(existsSync(resolve(root, dirname(path), "page.tsx")), `${path}:page`).toBe(true);
+      const source = read(path);
+      expect(source, path).not.toMatch(/\bRouteLoading\b|\bPageSkeleton\b|route-registry/);
+      expect(source, path).toMatch(/PageState|EntityDetailRouteLoading/);
+      expect(source, path).toMatch(/Skeleton|EntityDetailRouteLoading/);
+      expect(source, path).not.toMatch(/\bfixed\b|\binset-0\b|z-\d+/);
+    }
+  });
 
-    expect(routes.filter((route) => !featureOwnedRoutes.includes(route))).toEqual(registered);
-    expect(routes).toHaveLength(25);
-    expect(registered).toHaveLength(23);
-    expect(pages.map(nearestLoadingOwner).filter(Boolean)).toHaveLength(25);
+  it("keeps resource and drawer state ownership exhaustive", () => {
+    for (const [path, switchExpression] of exhaustiveResourceOwners) {
+      const source = read(path);
+      expect(source, path).toContain(switchExpression);
+      expect(source, path).toContain("const exhaustive: never");
+    }
+  });
 
-    for (const route of registered) {
-      const spec = PROTECTED_ROUTE_REGISTRY[route as keyof typeof PROTECTED_ROUTE_REGISTRY];
-      const pagePath = join(PROTECTED_ROOT, route.slice(1), "page.tsx");
-      const declaredOwner = join(PROTECTED_ROOT, spec.loadingOwner.slice(1), "loading.tsx");
+  it("keeps each collection page's five-state switch visible and exhaustive", () => {
+    for (const path of collectionViews) {
+      const source = read(path);
+      expect(source, path).toContain("switch (pageState)");
+      for (const state of ["error", "loading", "filtered-empty", "true-empty", "content"]) {
+        expect(source, `${path}:${state}`).toContain(`case "${state}"`);
+      }
+      expect(source, path).toContain("const exhaustive: never = pageState");
+      expect(source, path).not.toMatch(/DataViewContainer|useState\(|useEffect\(/);
+    }
+  });
 
-      expect(nearestLoadingOwner(pagePath), route).toBe(relative(REPO_ROOT, declaredOwner));
-      expect(typeof spec.trueEmpty, route).toBe("boolean");
-      expect(spec.skeleton, route).toBeDefined();
+  it("removes the central route, skeleton-spec, and collection adapters", () => {
+    for (const path of [
+      "components/data-view/data-view-container.tsx",
+      "components/page-state/page-skeleton.tsx",
+      "components/page-state/route-loading.tsx",
+      "components/page-state/route-registry.ts",
+    ]) expect(existsSync(resolve(root, path)), path).toBe(false);
+
+    const productionFiles = ["app", "components", "core", "features"]
+      .flatMap(filesUnder)
+      .filter((path) => path.endsWith(".ts") || path.endsWith(".tsx"))
+      .filter((path) => !path.includes("/__tests__/") && !path.endsWith(".test.ts") && !path.endsWith(".test.tsx"));
+    const legacyPattern =
+      /\bDataViewContainer\b|\bPageSkeletonSpec\b|\bPageSkeleton\b|\bRouteLoading\b|\bPROTECTED_ROUTE_REGISTRY\b|\bgetProtectedRouteSpec\b/;
+    for (const path of productionFiles) expect(read(path), path).not.toMatch(legacyPattern);
+    expect(read("components/page-state/page-state.tsx")).not.toMatch(/\bskeleton[?:=]/);
+    expect(read("core/base/base-data-view.store.ts")).not.toContain("refreshError");
+  });
+
+  it("keeps skeleton composition server-compatible and side-effect free", () => {
+    for (const path of pureSkeletons) {
+      const source = read(path);
+      expect(source, path).not.toContain('"use client"');
+      expect(source, path).not.toMatch(/use(State|Effect|LayoutEffect|Reducer)|useRootStore|window\.|fetch\(|setTimeout|setInterval/);
+      expect(source, path).toContain("data-page-skeleton-loading");
+      expect(source, path).toContain("data-page-skeleton-empty");
     }
 
-    for (const [route, skeleton] of [
-      ["contacts", "ContactsPageSkeleton"],
-      ["organizations", "OrganizationsPageSkeleton"],
-    ]) {
-      const loading = read(`app/[locale]/(protected)/${route}/loading.tsx`);
-      expect(loading).toContain(skeleton);
-      expect(loading).not.toContain("RouteLoading");
+    for (const path of featureSkeletons) {
+      const source = read(path);
+      expect(source, path).not.toContain('"use client"');
+      expect(source, path).not.toMatch(/use(State|Effect|LayoutEffect|Reducer)|useRootStore|window\.|fetch\(|setTimeout|setInterval/);
     }
-    expect(read("components/page-state/route-registry.ts")).not.toContain('"/contacts":');
-    expect(read("components/page-state/route-registry.ts")).not.toContain('"/organizations":');
-
-    const errorBoundary = read("app/[locale]/error.tsx");
-    expect(errorBoundary).toContain("ErrorPageView");
-    expect(errorBoundary).toContain("reset()");
   });
 
-  it("keeps route fallbacks in-flow and leaves the protected shell mounted", () => {
-    const loadingFiles = walkFiles(join(REPO_ROOT, "app/[locale]"), (path) => path.endsWith("/loading.tsx"));
-    const violations = loadingFiles.flatMap((path) => {
-      const source = readFileSync(path, "utf8");
-      return /\bfixed\b|z-9999|bg-black\/50/.test(source) ? [relative(REPO_ROOT, path)] : [];
-    });
-
-    expect(existsSync(join(PROTECTED_ROOT, "loading.tsx"))).toBe(true);
-    expect(violations).toEqual([]);
-    expect(read("app/[locale]/(protected)/layout.tsx")).toContain("{children}");
-
-    const localeFallback = read("app/[locale]/loading.tsx");
-    const protectedFallback = read("app/[locale]/(protected)/loading.tsx");
-    const genericFallback = read("components/page-state/generic-page-loading.tsx");
-
-    expect(localeFallback).toContain("GenericPageLoading");
-    expect(localeFallback).not.toMatch(
-      /components\/page-state\/page-state|PageSkeleton|kind: "settings"|min-h-svh|<main/,
+  it("does not start connected-account work behind locked surfaces", () => {
+    expect(read("app/[locale]/(protected)/profile/components/connected-accounts-page-view.tsx")).toContain(
+      "if (locked) return;",
     );
-    expect(protectedFallback).toContain("GenericPageLoading");
-    expect(protectedFallback).not.toMatch(/RouteLoading|route="\/dashboard"/);
-    expect(genericFallback).toContain("flex min-h-0 w-full flex-1 items-center justify-center");
-    expect(genericFallback).toContain("Spinner");
-    expect(genericFallback).toContain("animate-page-loading-in");
-    expect(genericFallback).toContain("opacity-70");
-    expect(genericFallback).not.toMatch(/PageState|PageSkeleton|<main|<button|\bfixed\b/);
-    expect(read("components/ui/spinner.tsx")).toContain("motion-reduce:animate-none");
-
-    const routeLoading = read("components/page-state/route-loading.tsx");
-    expect(routeLoading).toContain('skeleton.kind === "detail"');
-    expect(routeLoading).toContain('centered ? "h-full flex-1"');
-    const pageSkeleton = read("components/page-state/page-skeleton.tsx");
-    expect(pageSkeleton).toContain("@container/detail flex h-full min-h-0");
-    expect(pageSkeleton).toContain("@4xl/detail:grid-cols-");
-    expect(pageSkeleton).toContain("@6xl/detail:grid-cols-");
+    expect(read("app/[locale]/(protected)/inbox/components/inbox-list.tsx")).toContain("if (locked) return;");
   });
 
-  it("shares exact data-view geometry with loaded cards, boards, and pagination", () => {
-    const geometryNames = [
-      "DATA_CARD_GRID_CLASS_NAME",
-      "DATA_KANBAN_TRACK_CLASS_NAME",
-      "DATA_KANBAN_COLUMN_CLASS_NAME",
-    ];
-    const skeleton = read("components/data-view/data-view-skeleton.tsx");
-    const cards = read("components/data-view/data-card-view.tsx");
-    const board = read("components/data-view/data-kanban-view.tsx");
-
-    expect(read("components/data-view/data-view-geometry.ts")).toContain(
-      "grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
-    );
-    for (const name of geometryNames) expect(skeleton, name).toContain(name);
-    expect(cards).toContain("DATA_CARD_GRID_CLASS_NAME");
-    expect(board).toContain("DATA_KANBAN_TRACK_CLASS_NAME");
-    expect(board).toContain("DATA_KANBAN_COLUMN_CLASS_NAME");
-    expect(read("components/data-view/header/pagination.tsx")).toContain("DATA_VIEW_PAGINATION_RAIL_CLASS_NAME");
-    expect(skeleton).toContain("DATA_VIEW_PAGINATION_RAIL_CLASS_NAME");
-    expect(skeleton).toContain("grid h-8");
-    expect(skeleton).toContain('variant === "member" ? "h-[3.25rem]" : "h-10"');
-    expect(skeleton).toContain("size-6 shrink-0 rounded-md");
-    expect(skeleton).toContain('data-slot="kanban-root"');
-    expect(skeleton).not.toContain("min-h-[28rem]");
+  it("keeps the neutral public and protected catch-all loaders generic", () => {
+    for (const path of ["app/[locale]/loading.tsx", "app/[locale]/(protected)/loading.tsx"]) {
+      const source = read(path);
+      expect(source, path).toContain("GenericPageLoading");
+      expect(source, path).not.toMatch(/PageState|PageSkeleton|RouteLoading|<main|\bfixed\b/);
+    }
   });
 
-  it("pins skeleton density and spacing to the loaded page owners", () => {
-    const skeleton = read("components/page-state/page-skeleton.tsx");
-    const dataViewSkeleton = read("components/data-view/data-view-skeleton.tsx");
-    const table = read("components/ui/table.tsx");
-    const dashboard = read("app/[locale]/(protected)/dashboard/components/widgets-grid.tsx");
-    const cardHeader = read("components/card/app-card-header.tsx");
-    const cardBody = read("components/card/app-card-body.tsx");
-    const detail = read("components/entity-detail/entity-detail-layout.tsx");
-    const notes = read("components/entity-detail/entity-notes-panel.tsx");
-    const editor = read("components/editor/editor.tsx");
-    const activityPanel = read("features/messaging/activities/activities-panel.tsx");
-    const activityRow = read("features/messaging/activities/activities-row.tsx");
-    const inbox = read("app/[locale]/(protected)/inbox/page.tsx");
-    const thread = read("app/[locale]/(protected)/inbox/components/thread-row.tsx");
-    const message = read("app/[locale]/(protected)/inbox/components/message-item.tsx");
-    const composer = read("app/[locale]/(protected)/inbox/components/thread-reply-composer.tsx");
-
-    expect(table).toContain("h-8 px-3");
-    expect(table).toContain("px-3 py-2");
-    expect(dataViewSkeleton).toContain("grid h-8");
-    expect(dataViewSkeleton).toContain('variant === "member" ? "h-[3.25rem]" : "h-10"');
-
-    expect(dashboard).toContain("margin={[16, 16]}");
-    expect(dashboard).toContain("rowHeight={124}");
-    expect(cardHeader).toContain("gap-4 p-6 pb-0");
-    expect(cardBody).toContain("gap-4 p-6");
-    expect(skeleton).toContain("h-[264px]");
-    expect(skeleton).toContain("grid-cols-1 gap-4 md:grid-cols-2");
-
-    expect(detail).toContain(
-      "@container/detail animate-page-result-in flex min-h-0 w-full flex-1 flex-col overflow-y-auto",
-    );
-    expect(detail).toContain("px-4 pt-3 pb-1 shrink-0 min-h-8");
-    expect(notes).toContain("px-4 pt-4 pb-1 shrink-0");
-    expect(editor).toContain("relative min-h-52");
-    expect(activityPanel).toContain("px-4 pt-4 pb-2");
-    expect(activityPanel).toContain("overflow-auto px-2 pt-2 pb-4");
-    expect(activityRow).toContain("items-start gap-3 rounded-md p-2");
-    for (const token of ["min-h-8 pt-3", "min-h-52", "px-2 pt-2 pb-4", "rounded-md p-2"])
-      expect(skeleton, token).toContain(token);
-
-    expect(inbox).toContain("lg:grid-cols-[380px_1fr]");
-    expect(thread).toContain("items-center gap-3 border-b border-border p-3");
-    expect(message).toContain("flex gap-2 px-4 py-2");
-    expect(composer).toContain("shrink-0 px-4 pt-2 pb-4");
-    for (const token of [
-      "lg:grid-cols-[380px_1fr]",
-      "items-center gap-3 border-b p-3",
-      "flex gap-2 px-4 py-2",
-      "shrink-0 bg-background px-4 pt-2 pb-4",
-    ])
-      expect(skeleton, token).toContain(token);
-
-    const settingsGeometry = read("components/page-state/page-state-geometry.ts");
-    expect(settingsGeometry).toContain("grid-cols-1 gap-4 sm:grid-cols-");
-    for (const settingsFile of [
-      "app/[locale]/(protected)/profile/components/api-keys-card.tsx",
-      "app/[locale]/(protected)/profile/components/connected-accounts-card.tsx",
-    ])
-      expect(read(settingsFile), settingsFile).toContain("SETTINGS_CARD_GRID_CLASS_NAME");
-  });
-
-  it("uses one placeholder token with reduced-motion support in both themes", () => {
-    const skeleton = read("components/ui/skeleton.tsx");
+  it("keeps loading motion shape-only and disabled for reduced motion", () => {
     const styles = read("styles/globals.css");
-
-    expect(skeleton).toContain("bg-placeholder");
-    expect(skeleton).toContain("motion-reduce:animate-none");
-    expect(skeleton).not.toContain("bg-accent");
-    expect(styles).toContain("--color-placeholder: var(--placeholder)");
-    expect(styles.match(/--placeholder:/g)).toHaveLength(2);
-    expect(styles).toContain("--placeholder: #e6e6ea");
-    expect(styles).toContain("--placeholder: #222228");
-    for (const file of ["components/marketing/browser-frame.tsx", "components/shared/theme-switcher.tsx"]) {
-      const source = read(file);
-      expect(source, file).toContain("bg-placeholder");
-      expect(source, file).toContain("motion-reduce:animate-none");
-    }
-  });
-
-  it("constructs then pulses page placeholders without moving surfaces", () => {
-    const skeleton = [
-      read("components/page-state/page-skeleton.tsx"),
-      read("components/data-view/data-view-skeleton.tsx"),
-      read("components/page-state/skeleton-shape.tsx"),
-    ].join("\n");
-    const styles = read("styles/globals.css");
-    const compactStyles = styles.replace(/\s+/g, " ");
-    const widgets = read("app/[locale]/(protected)/dashboard/components/widgets-grid.tsx");
-    const pulseStart = styles.indexOf("@keyframes page-skeleton-pulse");
-    const pulseEnd = styles.indexOf("[data-page-skeleton-loading]", pulseStart);
-    const pulse = styles.slice(pulseStart, pulseEnd);
-    const emptyStart = styles.indexOf("[data-page-skeleton-empty]");
-    const emptyEnd = styles.indexOf("@media (prefers-reduced-motion: reduce)", emptyStart);
-    const empty = styles.slice(emptyStart, emptyEnd);
-
-    expect(skeleton).toContain("data-page-skeleton-loading");
-    expect(skeleton).toContain("data-page-skeleton-empty");
-    expect(skeleton).toContain("data-skeleton-motion");
-    expect(skeleton).toContain("data-skeleton-breathe");
-    expect(skeleton).toContain("data-skeleton-shape");
-    expect(skeleton).toContain("data-skeleton-group");
-    expect(skeleton).not.toContain("animate-pulse");
-    expect(compactStyles).toContain("page-skeleton-build 340ms cubic-bezier(0.22, 1, 0.36, 1)");
-    expect(compactStyles).toContain("calc(var(--skeleton-group-delay) + var(--skeleton-shape-delay)) backwards");
-    expect(compactStyles).toContain("page-skeleton-pulse 1.6s ease-in-out");
+    expect(styles).toContain("[data-page-skeleton-loading] [data-skeleton-motion]");
     expect(styles).toContain("[data-page-skeleton-loading] [data-skeleton-breathe]");
-    expect(styles).toContain("--skeleton-group-delay: 0ms");
-    expect(styles).toContain("--skeleton-shape-delay: 0ms");
-    expect(compactStyles).toContain("calc(900ms + var(--skeleton-group-delay) + var(--skeleton-shape-delay)) infinite");
-    for (const [group, delay] of [
-      ["1", "60ms"],
-      ["2", "120ms"],
-      ["3", "180ms"],
-    ]) {
-      expect(styles).toContain(`[data-page-skeleton-loading] [data-skeleton-group="${group}"]`);
-      expect(styles).toContain(`--skeleton-group-delay: ${delay}`);
-    }
-    for (const [phase, delay] of [
-      ["1", "70ms"],
-      ["2", "140ms"],
-      ["3", "210ms"],
-    ]) {
-      expect(styles).toContain(`[data-page-skeleton-loading] [data-skeleton-motion="${phase}"]`);
-      expect(styles).toContain(`--skeleton-shape-delay: ${delay}`);
-    }
-    expect(styles).toContain("opacity: 0.08");
-    expect(styles).toContain("opacity: 0.62");
-    expect(styles).toContain("transform: translateY(4px) scale(0.97)");
-    expect(pulse).not.toMatch(/background|color|filter|width|height|shadow/);
-    expect(empty).toContain("opacity: 0.62");
-    expect(empty).not.toMatch(/animation|transform/);
+    expect(styles).toContain("[data-page-skeleton-empty]");
     expect(styles).toContain("@media (prefers-reduced-motion: reduce)");
     expect(styles).toContain("animation: none");
-    expect(compactStyles).toContain("--animate-page-empty-in: page-empty-in 300ms cubic-bezier(0.22, 1, 0.36, 1) both");
-    expect(compactStyles).toContain(
-      "--animate-page-result-in: page-result-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both",
-    );
-    expect(widgets.match(/animate-page-result-in/g)).toHaveLength(2);
-    expect(widgets).toContain("useLayoutEffect");
-    expect(widgets).toMatch(/useLayoutEffect\(\(\) => \{\s*widgetsStore\.setItems/);
-    expect(read("components/page-state/page-state.tsx")).toContain("animate-page-empty-in pointer-events-none");
-    expect(widgets).not.toMatch(/setTimeout|setInterval/);
-  });
-
-  it("ships no dashboard loading-preview delay", () => {
-    const dashboard = read("app/[locale]/(protected)/dashboard/page.tsx");
-
-    expect(dashboard).not.toMatch(/loadingPreview|DASHBOARD_LOADING_PREVIEW_MS|setTimeout|setInterval/);
-  });
-
-  it("settles resolved archetypes without delaying server data", () => {
-    const resultOwners = [
-      "components/data-view/data-view-content.tsx",
-      "components/entity-detail/entity-detail-layout.tsx",
-      "app/[locale]/(protected)/dashboard/components/widgets-grid.tsx",
-      "app/[locale]/(protected)/inbox/components/inbox-list.tsx",
-      "app/[locale]/(protected)/inbox/components/thread-panel.tsx",
-      "app/[locale]/(protected)/profile/components/api-keys-card.tsx",
-      "app/[locale]/(protected)/profile/components/connected-accounts-card.tsx",
-      "app/[locale]/(protected)/profile/components/profile-settings-form.tsx",
-      "app/[locale]/(protected)/company/components/company-settings/company-settings-form.tsx",
-      "app/[locale]/(protected)/company/components/subscription/subscription-view.tsx",
-      "app/[locale]/(protected)/legal-update/page.tsx",
-      "app/[locale]/(protected)/onboarding/wizard/page.tsx",
-      "app/[locale]/(protected)/subscription-expired/page.tsx",
-    ];
-
-    for (const file of resultOwners) {
-      const source = read(file);
-      expect(source, file).toContain("animate-page-result-in");
-      expect(source, file).toContain("motion-reduce:animate-none");
-    }
-
-    const prepaintHydrationOwners = [
-      "components/data-view/use-data-view-sync.ts",
-      "app/[locale]/(protected)/dashboard/components/widgets-grid.tsx",
-      "app/[locale]/(protected)/company/components/user/users-card.tsx",
-      "app/[locale]/(protected)/company/components/role/roles-card.tsx",
-      "app/[locale]/(protected)/profile/components/api-keys-card.tsx",
-      "app/[locale]/(protected)/profile/components/connected-accounts-card.tsx",
-      "app/[locale]/(protected)/inbox/components/thread-panel.tsx",
-      "app/[locale]/(protected)/company/components/subscription/subscription-panel.tsx",
-    ];
-
-    for (const file of prepaintHydrationOwners) expect(read(file), file).toContain("useLayoutEffect");
-  });
-
-  it("keeps page geometry pure, bounded, and independent from Assistant state", () => {
-    const files = [
-      "components/page-state/page-state.tsx",
-      "components/page-state/page-skeleton.tsx",
-      "components/page-state/skeleton-shape.tsx",
-      "components/data-view/data-view-skeleton.tsx",
-      "app/[locale]/(protected)/contacts/components/contacts-page-skeleton.tsx",
-      "app/[locale]/(protected)/organizations/components/organizations-page-skeleton.tsx",
-    ];
-    const banned = [
-      '"use client"',
-      "useEffect",
-      "useLayoutEffect",
-      "useState",
-      "setTimeout",
-      "setInterval",
-      "fetch(",
-      "ResizeObserver",
-      "window.",
-      "document.",
-      "agent-chat",
-      "assistantStore",
-    ];
-
-    for (const file of files) {
-      const source = read(file);
-      for (const needle of banned) expect(source, `${file} contains ${needle}`).not.toContain(needle);
-    }
-    expect(read("components/page-state/page-skeleton.tsx")).toContain("Array.from({ length: 8 }");
-  });
-
-  it("uses the quiet true-empty treatment across every archetype", () => {
-    const pageState = read("components/page-state/page-state.tsx");
-
-    expect(pageState).toContain("absolute inset-0");
-    expect(pageState).toContain("items-center justify-center");
-    expect(pageState).toContain("relative min-h-0 w-full flex-1 overflow-hidden");
-    expect(pageState).not.toContain("max-h-[34rem]");
-    expect(pageState).not.toContain("h-[calc(100svh-10rem)]");
-    expect(pageState).toContain("max-w-sm");
-    expect(pageState).toContain("before:bg-background/85 before:blur-xl");
-    expect(pageState).toContain("animate-page-empty-in");
-    expect(pageState).not.toContain("before:bg-background/80 before:blur-2xl");
-    expect(pageState).not.toContain("opacity-45");
-    expect(pageState).not.toContain("rounded-xl border bg-background/95");
-    expect(pageState).not.toContain("shadow-sm");
-    expect(read("app/[locale]/(protected)/dashboard/page.tsx")).toContain(
-      "relative flex min-h-0 w-full flex-1 flex-col",
-    );
-  });
-
-  it("keeps topbar actions primary and centered empty actions secondary", () => {
-    const toolbar = read("components/data-view/data-view-toolbar.tsx");
-    const container = read("components/data-view/data-view-container.tsx");
-
-    expect(toolbar).toContain('variant="default"');
-    expect(toolbar).not.toContain("deemphasizeAdd");
-    expect(container).not.toContain("deemphasizeAdd");
-
-    const primaryActionOwners = {
-      "app/[locale]/(protected)/dashboard/components/widgets-grid.tsx": "dashboard-add-widget",
-      "app/[locale]/(protected)/profile/components/api-keys-card.tsx": "profile-api-keys-generate",
-      "app/[locale]/(protected)/inbox/components/inbox-list.tsx": "ConnectedAccountsCard.title",
-    };
-
-    for (const [file, marker] of Object.entries(primaryActionOwners)) {
-      const source = read(file);
-      const markerIndex = source.indexOf(marker);
-      const action = source.slice(Math.max(0, markerIndex - 250), markerIndex + 450);
-
-      expect(markerIndex, file).toBeGreaterThanOrEqual(0);
-      expect(action, file).toContain('variant="default"');
-      expect(action, file).not.toMatch(/variant=\{[^}]*secondary/);
-    }
-
-    const connectedAccounts = read("app/[locale]/(protected)/profile/components/connected-accounts-card.tsx");
-    expect(connectedAccounts).toContain('<ConnectAction id="profile-connected-accounts-connect" />');
-    expect(connectedAccounts).toContain('isSecondary ? "ring-secondary" : "ring-primary"');
-    expect(connectedAccounts).toContain('"bg-background text-muted-foreground ring-secondary"');
-    expect(connectedAccounts).toContain('"bg-primary-foreground text-primary ring-primary"');
-
-    const secondaryActionOwners = {
-      "components/data-view/data-view-empty.tsx": "canCreate ? (",
-      "app/[locale]/(protected)/dashboard/components/widgets-grid.tsx": "{isTrueEmpty && (",
-      "app/[locale]/(protected)/profile/components/api-keys-card.tsx": "if (isTrueEmpty) {",
-      "app/[locale]/(protected)/profile/components/connected-accounts-card.tsx":
-        "profile-connected-accounts-connect-empty",
-      "app/[locale]/(protected)/inbox/components/inbox-list.tsx": 'pageState === "true-empty"',
-    };
-
-    for (const [file, marker] of Object.entries(secondaryActionOwners)) {
-      const source = read(file);
-      const markerIndex = source.indexOf(marker);
-      const action = source.slice(markerIndex, markerIndex + 1_200);
-
-      expect(markerIndex, file).toBeGreaterThanOrEqual(0);
-      expect(action, file).toContain('variant="secondary"');
-    }
-  });
-
-  it("serializes the Inbox CTA permission before hydration", () => {
-    const page = read("app/[locale]/(protected)/inbox/page.tsx");
-    const list = read("app/[locale]/(protected)/inbox/components/inbox-list.tsx");
-
-    expect(page).toContain("getUserService().hasPermission(Resource.inboxMessages, Action.create)");
-    expect(page).toContain("canConnect={!locked && canConnect}");
-    expect(list).toContain("canConnect: boolean");
-    expect(list).not.toContain("userStore.can(Resource.inboxMessages, Action.create)");
-    expect(list).toMatch(/dataRequest\.status === "refresh-error"\s*\? \{ status: "ready" \}/);
-  });
-
-  it("never leaves a shared data view blank while readiness is pending", () => {
-    const container = read("components/data-view/data-view-container.tsx");
-    const layout = read("components/data-view/data-view-layout.tsx");
-
-    expect(container).toContain("resolveDataViewPageState");
-    expect(container).toContain('pageState === "loading"');
-    expect(container).not.toContain("if (!store.isReady) return null");
-    expect(layout).toContain("h-[calc(100svh-4rem)]");
-    expect(layout).toContain('contain: "layout"');
-  });
-
-  it("notifies when an explicit background refresh rejects", () => {
-    const connectedAccounts = read("app/[locale]/(protected)/profile/components/connected-accounts.store.ts");
-    const inboxList = read("app/[locale]/(protected)/inbox/components/inbox-list.tsx");
-    const messagingThreads = read("app/[locale]/(protected)/inbox/components/messaging-threads.store.tsx");
-
-    expect(connectedAccounts).toMatch(
-      /messagingThreadsStore\s*\.refresh\(\)\s*\.catch\(\(\) => this\.toastError\("Common\.notifications\.unexpectedError"\)\)/,
-    );
-    expect(connectedAccounts).toContain("this.scheduleNextSyncPoll(generation);");
-    expect(connectedAccounts).toContain("generation !== this.syncPollGeneration");
-    expect(connectedAccounts).toContain('this.toastError("Common.notifications.unexpectedError")');
-    expect(inboxList).toMatch(
-      /connectedAccountsStore\s*\.ensureLoaded\(\)\s*\.catch\(\(\) => toast\.error\(t\("Common\.notifications\.unexpectedError"\)\)\)/,
-    );
-    expect(messagingThreads).toContain('this.toastError("Common.notifications.unexpectedError")');
-  });
-
-  it("keeps both pilot pages feature-owned and the extracted data-view pieces presentational", () => {
-    const layout = read("components/data-view/data-view-layout.tsx");
-    const content = read("components/data-view/data-view-content.tsx");
-    const adapter = read("components/data-view/data-view-container.tsx");
-
-    for (const [route, store, result] of [
-      ["contacts", "contactsStore", "contacts"],
-      ["organizations", "organizationsStore", "organizations"],
-    ]) {
-      const page = read(`app/[locale]/(protected)/${route}/components/${route}-page-view.tsx`);
-      expect(page).toContain("switch (pageState)");
-      for (const state of ["error", "loading", "filtered-empty", "true-empty", "content"])
-        expect(page).toContain(`case "${state}"`);
-      expect(page).toContain(`useDataViewSync(${store}, ${result}`);
-      expect(page).toContain("DataViewLayout");
-      expect(page).toContain("DataViewContent");
-      expect(page).not.toMatch(/DataViewContainer|useState|useEffect|useLayoutEffect/);
-    }
-
-    for (const source of [layout, content]) {
-      expect(source).not.toMatch(/resolveDataViewPageState|PageState|useDataViewSync/);
-    }
-    expect(layout).not.toContain("observer(");
-    expect(content).not.toMatch(/useMemo|useRootStore/);
-    expect(adapter).toContain("DataViewLayout");
-    expect(adapter).toContain("DataViewContent");
-  });
-
-  it("keeps query refresh local and reserves the global overlay for mutations", () => {
-    const store = read("core/base/base-data-view.store.ts");
-    const start = store.indexOf("async refreshQuery");
-    const end = store.indexOf("protected refreshAction", start);
-    const refresh = store.slice(start, end);
-
-    expect(store).toContain('export type DataViewRequestState =');
-    expect(store).toContain("get dataRequest(): DataViewRequestState");
-    expect(store).toContain('{ status: "refreshing" }');
-    expect(store).toContain('{ status: "refresh-error", error }');
-    expect(store).toContain("generation !== this.requestGeneration");
-    expect(store).toContain("this.refreshQueryInBackground()");
-    expect(refresh).toContain('await this.executeRefresh("visible")');
-    expect(refresh).toContain('this.toastError("Common.notifications.unexpectedError")');
-    expect(refresh).not.toContain("loadingOverlayStore");
-  });
-
-  it("keeps browser URL synchronization outside the base domain store", () => {
-    const store = read("core/base/base-data-view.store.ts");
-    const sync = read("components/data-view/data-view-url-sync.ts");
-    const hydration = read("components/data-view/use-data-view-sync.ts");
-
-    expect(store).not.toMatch(/withUrlSync|setupUrlSync|urlSyncUpdateTimer|window\.history|window\.location|reaction\(/);
-    expect(sync).toContain("connectDataViewUrlSync");
-    expect(sync).toContain("reaction(");
-    expect(sync).toContain("history.replaceState");
-    expect(sync).toContain("clearPendingUpdate");
-    expect(hydration).toContain("connectDataViewUrlSync(store)");
-  });
-
-  it("shares the same pending-link affordance across every navigation group", () => {
-    for (const file of [
-      "app/components/navigation/nav-main.tsx",
-      "app/components/navigation/nav-secondary.tsx",
-      "app/components/navigation/nav-header.tsx",
-    ]) {
-      expect(read(file), file).toContain("NavLinkPendingIndicator");
-    }
-
-    expect(read("app/components/navigation/nav-main.tsx")).not.toContain("NavLinkOverlayBridge");
-    expect(read("i18n/navigation.ts")).not.toContain("loadingOverlayStore");
-    const pendingIndicator = read("app/components/navigation/nav-link-pending-indicator.tsx");
-    expect(pendingIndicator).toContain('closest("a")');
-    expect(pendingIndicator).toContain('setAttribute("aria-busy", "true")');
-  });
-
-  it("propagates validated entity-list failures instead of fabricating empty records", () => {
-    for (const entity of ["contacts", "organizations", "deals", "services", "tasks"]) {
-      for (const suffix of ["page.tsx", "actions.ts"]) {
-        const file = `app/[locale]/(protected)/${entity}/${suffix}`;
-        const source = read(file);
-        expect(source, file).toContain("unwrapValidated");
-        expect(source, file).not.toContain("result.ok ? result.data : { items: [] }");
-      }
-    }
-
-    const sharedActions = read("app/[locale]/(protected)/actions.ts");
-    expect(sharedActions).toContain("return unwrapValidated(getGetActivityThreadOptionsInteractor().invoke(input));");
-    expect(sharedActions).toContain("return unwrapValidated(getGetMyConnectedAccountsInteractor().invoke());");
-    expect(sharedActions).not.toContain("result.ok ? result.data : []");
   });
 });

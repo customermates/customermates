@@ -1,6 +1,6 @@
 import { Resource } from "@/generated/prisma";
 
-import { ConnectedAccountsCard } from "../components/connected-accounts-card";
+import { ConnectedAccountsPageView } from "../components/connected-accounts-page-view";
 import { ConnectedAccountsStatusToast } from "../components/connected-accounts-status-toast";
 
 import { redirect } from "next/navigation";
@@ -29,7 +29,7 @@ export default async function ConnectedAccountsPage() {
       <PageContainer>
         <ConnectedAccountsStatusToast />
 
-        <ConnectedAccountsCard accounts={accounts} />
+        <ConnectedAccountsPageView accounts={accounts} />
       </PageContainer>
     );
   }
@@ -45,7 +45,7 @@ export default async function ConnectedAccountsPage() {
         title={t("MessagingUpsell.title")}
       >
         <div className="flex flex-col gap-6 p-4 md:p-6">
-          <ConnectedAccountsCard locked accounts={[]} />
+          <ConnectedAccountsPageView locked accounts={[]} />
         </div>
       </LockedFeatureOverlay>
     </PageContainer>

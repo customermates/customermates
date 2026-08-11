@@ -27,6 +27,10 @@ type Item = { id: string };
 class TestStore extends BaseDataViewStore<Item> {
   nextRefresh: () => Promise<GetResult<Item>> = () => Promise.resolve({ items: [] });
 
+  guardedRefresh(isCurrent: () => boolean) {
+    return this.refreshGuarded(isCurrent);
+  }
+
   get columnsDefinition() {
     return [];
   }
@@ -75,14 +79,12 @@ describe("BaseDataViewStore query refresh", () => {
 
     expect(store.isReady).toBe(false);
     expect(store.isRefreshing).toBe(false);
-    expect(store.refreshError).toBeNull();
     expect(store.dataRequest).toEqual({ status: "uninitialized" });
 
     store.setItems(initialResult());
 
     expect(store.isReady).toBe(true);
     expect(store.isRefreshing).toBe(false);
-    expect(store.refreshError).toBeNull();
     expect(store.dataRequest).toEqual({ status: "ready" });
   });
 
@@ -108,7 +110,7 @@ describe("BaseDataViewStore query refresh", () => {
     await pending;
 
     expect(store.isRefreshing).toBe(false);
-    expect(store.refreshError).toBeNull();
+    expect(store.dataRequest).toEqual({ status: "ready" });
     expect(store.items).toEqual([{ id: "next" }]);
   });
 
@@ -123,7 +125,6 @@ describe("BaseDataViewStore query refresh", () => {
 
     expect(store.isRefreshing).toBe(false);
     expect(store.isReady).toBe(true);
-    expect(store.refreshError).toBe(failure);
     expect(store.dataRequest).toEqual({ status: "refresh-error", error: failure });
     expect(store.items).toEqual([{ id: "prior" }]);
     expect(store.pagination?.total).toBe(1);
@@ -139,7 +140,7 @@ describe("BaseDataViewStore query refresh", () => {
 
     await expect(store.refreshQuery()).rejects.toThrow("first failure");
     expect(store.isReady).toBe(true);
-    expect(store.refreshError).toBeInstanceOf(Error);
+    expect(store.dataRequest.status).toBe("refresh-error");
 
     store.nextRefresh = () =>
       Promise.resolve({
@@ -156,7 +157,7 @@ describe("BaseDataViewStore query refresh", () => {
 
     expect(store.items).toEqual([{ id: "retried" }]);
     expect(store.isRefreshing).toBe(false);
-    expect(store.refreshError).toBeNull();
+    expect(store.dataRequest).toEqual({ status: "ready" });
   });
 
   it("lets only the latest refresh replace records", async () => {
@@ -184,7 +185,7 @@ describe("BaseDataViewStore query refresh", () => {
 
     expect(store.items).toEqual([{ id: "latest" }]);
     expect(store.isRefreshing).toBe(false);
-    expect(store.refreshError).toBeNull();
+    expect(store.dataRequest).toEqual({ status: "ready" });
   });
 
   it("ignores a stale rejected refresh after a newer success", async () => {
@@ -207,7 +208,7 @@ describe("BaseDataViewStore query refresh", () => {
     await firstRefresh;
 
     expect(store.items).toEqual([{ id: "latest" }]);
-    expect(store.refreshError).toBeNull();
+    expect(store.dataRequest).toEqual({ status: "ready" });
     expect(toastError).not.toHaveBeenCalled();
   });
 
@@ -261,7 +262,7 @@ describe("BaseDataViewStore query refresh", () => {
 
     expect(store.items).toEqual([{ id: "server" }]);
     expect(store.isRefreshing).toBe(false);
-    expect(store.refreshError).toBeNull();
+    expect(store.dataRequest).toEqual({ status: "ready" });
   });
 
   it("ignores an in-flight failure after authoritative server props arrive", async () => {
@@ -280,7 +281,7 @@ describe("BaseDataViewStore query refresh", () => {
     await pending;
 
     expect(store.items).toEqual([{ id: "server" }]);
-    expect(store.refreshError).toBeNull();
+    expect(store.dataRequest).toEqual({ status: "ready" });
     expect(toastError).not.toHaveBeenCalled();
   });
 
@@ -303,7 +304,91 @@ describe("BaseDataViewStore query refresh", () => {
     await pending;
 
     expect(store.items).toEqual([{ id: "direct" }]);
-    expect(store.refreshError).toBeNull();
+    expect(store.dataRequest).toEqual({ status: "ready" });
+  });
+
+  it("does not commit a guarded refresh after its owner is invalidated", async () => {
+    const { root } = rootStore();
+    const store = new TestStore(root);
+    const pendingResult = deferred<GetResult<Item>>();
+    let current = true;
+    store.setItems(initialResult());
+    store.nextRefresh = () => pendingResult.promise;
+
+    const pending = store.guardedRefresh(() => current);
+    current = false;
+    pendingResult.resolve({
+      items: [{ id: "stale" }],
+      pagination: { page: 1, pageSize: 25, total: 1, totalPages: 1 },
+    });
+    await pending;
+
+    expect(store.items).toEqual([{ id: "prior" }]);
+    expect(store.dataRequest).toEqual({ status: "ready" });
+  });
+
+  it("does not record or reject a guarded failure after its owner is invalidated", async () => {
+    const { root } = rootStore();
+    const store = new TestStore(root);
+    const pendingResult = deferred<GetResult<Item>>();
+    let current = true;
+    store.setItems(initialResult());
+    store.nextRefresh = () => pendingResult.promise;
+
+    const pending = store.guardedRefresh(() => current);
+    current = false;
+    pendingResult.reject(new Error("stale guarded failure"));
+    await expect(pending).resolves.toBeUndefined();
+
+    expect(store.items).toEqual([{ id: "prior" }]);
+    expect(store.dataRequest).toEqual({ status: "ready" });
+    expect(toastError).not.toHaveBeenCalled();
+  });
+
+  it("records and rejects a guarded failure while its owner remains current", async () => {
+    const { root } = rootStore();
+    const store = new TestStore(root);
+    const failure = new Error("current guarded failure");
+    store.setItems(initialResult());
+    store.nextRefresh = () => Promise.reject(failure);
+
+    await expect(store.guardedRefresh(() => true)).rejects.toBe(failure);
+
+    expect(store.items).toEqual([{ id: "prior" }]);
+    expect(store.dataRequest).toEqual({ status: "refresh-error", error: failure });
+    expect(toastError).not.toHaveBeenCalled();
+  });
+
+  it("settles a superseded visible refresh when the latest guarded owner is invalidated", async () => {
+    const { root } = rootStore();
+    const store = new TestStore(root);
+    const visible = deferred<GetResult<Item>>();
+    const guarded = deferred<GetResult<Item>>();
+    const queue = [visible.promise, guarded.promise];
+    let current = true;
+    store.setItems(initialResult());
+    store.nextRefresh = () => queue.shift() as Promise<GetResult<Item>>;
+
+    const staleVisibleRefresh = store.refreshQuery();
+    const latestGuardedRefresh = store.guardedRefresh(() => current);
+    current = false;
+    guarded.resolve({
+      items: [{ id: "guarded" }],
+      pagination: { page: 1, pageSize: 25, total: 1, totalPages: 1 },
+    });
+    await latestGuardedRefresh;
+
+    expect(store.items).toEqual([{ id: "prior" }]);
+    expect(store.dataRequest).toEqual({ status: "ready" });
+
+    visible.resolve({
+      items: [{ id: "stale" }],
+      pagination: { page: 1, pageSize: 25, total: 1, totalPages: 1 },
+    });
+    await staleVisibleRefresh;
+
+    expect(store.items).toEqual([{ id: "prior" }]);
+    expect(store.dataRequest).toEqual({ status: "ready" });
   });
 
   it("keeps a visible refresh pending when a newer direct refresh supersedes it", async () => {
@@ -383,9 +468,43 @@ describe("BaseDataViewStore query refresh", () => {
     await expect(store.refresh()).rejects.toBe(failure);
 
     expect(store.isRefreshing).toBe(false);
-    expect(store.refreshError).toBe(failure);
+    expect(store.dataRequest).toEqual({ status: "refresh-error", error: failure });
     expect(store.items).toEqual([{ id: "prior" }]);
     expect(toastError).not.toHaveBeenCalled();
+  });
+
+  it("clears a retained refresh error after confirmed local mutations", async () => {
+    const { root } = rootStore();
+    const store = new TestStore(root);
+    const failure = new Error("direct failure");
+    store.setItems(initialResult());
+    store.nextRefresh = () => Promise.reject(failure);
+    await expect(store.refresh()).rejects.toBe(failure);
+
+    await store.removeItem("prior");
+
+    expect(store.items).toEqual([]);
+    expect(store.dataRequest).toEqual({ status: "ready" });
+
+    store.nextRefresh = () => Promise.reject(failure);
+    await expect(store.refresh()).rejects.toBe(failure);
+    await store.upsertItem({ id: "local" });
+
+    expect(store.items).toEqual([{ id: "local" }]);
+    expect(store.dataRequest).toEqual({ status: "ready" });
+  });
+
+  it("keeps confirmed local mutations partial until the store is initialized", async () => {
+    const { root } = rootStore();
+    const store = new TestStore(root);
+
+    await store.upsertItem({ id: "local" });
+    expect(store.items).toEqual([{ id: "local" }]);
+    expect(store.dataRequest).toEqual({ status: "uninitialized" });
+
+    await store.removeItem("local");
+    expect(store.items).toEqual([]);
+    expect(store.dataRequest).toEqual({ status: "uninitialized" });
   });
 
   it("keeps a prior refresh error visible while a direct retry is pending", async () => {
@@ -401,7 +520,6 @@ describe("BaseDataViewStore query refresh", () => {
     const retry = store.refresh();
 
     expect(store.isRefreshing).toBe(false);
-    expect(store.refreshError).toBe(firstFailure);
     expect(store.dataRequest).toEqual({ status: "refresh-error", error: firstFailure });
 
     pendingResult.resolve({
@@ -411,7 +529,7 @@ describe("BaseDataViewStore query refresh", () => {
     await retry;
 
     expect(store.items).toEqual([{ id: "retried" }]);
-    expect(store.refreshError).toBeNull();
+    expect(store.dataRequest).toEqual({ status: "ready" });
   });
 
   it("replaces a prior refresh error only when a direct retry fails", async () => {
@@ -427,13 +545,13 @@ describe("BaseDataViewStore query refresh", () => {
     store.nextRefresh = () => pendingRetry.promise;
     const retry = store.refresh();
 
-    expect(store.refreshError).toBe(firstFailure);
+    expect(store.dataRequest).toEqual({ status: "refresh-error", error: firstFailure });
 
     pendingRetry.reject(retryFailure);
     await expect(retry).rejects.toBe(retryFailure);
 
     expect(store.items).toEqual([{ id: "prior" }]);
-    expect(store.refreshError).toBe(retryFailure);
+    expect(store.dataRequest).toEqual({ status: "refresh-error", error: retryFailure });
   });
 
   it("does not query before server props initialize the store", async () => {
@@ -462,7 +580,7 @@ describe("BaseDataViewStore query refresh", () => {
     expect(store.items).toEqual([{ id: "lazy" }]);
     expect(store.isReady).toBe(true);
     expect(store.isRefreshing).toBe(false);
-    expect(store.refreshError).toBeNull();
+    expect(store.dataRequest).toEqual({ status: "ready" });
   });
 
   it("stays uninitialized after a failed direct refresh before server props arrive", async () => {
@@ -476,7 +594,7 @@ describe("BaseDataViewStore query refresh", () => {
     expect(store.items).toEqual([]);
     expect(store.isReady).toBe(false);
     expect(store.isRefreshing).toBe(false);
-    expect(store.refreshError).toBeNull();
+    expect(store.dataRequest).toEqual({ status: "uninitialized" });
     expect(toastError).not.toHaveBeenCalled();
   });
 
@@ -489,7 +607,7 @@ describe("BaseDataViewStore query refresh", () => {
 
     expect(() => store.setQueryOptions({ forceRefresh: true })).not.toThrow();
 
-    await vi.waitFor(() => expect(store.refreshError).toBe(failure));
+    await vi.waitFor(() => expect(store.dataRequest).toEqual({ status: "refresh-error", error: failure }));
     expect(store.items).toEqual([{ id: "prior" }]);
     expect(toastError).toHaveBeenCalled();
   });

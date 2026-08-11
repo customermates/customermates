@@ -1,9 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { RootStore } from "@/core/stores/root.store";
+import type { ConnectedAccountDto } from "@/ee/messaging/messaging.schema";
 
 const harness = vi.hoisted(() => ({
   refreshConnectedAccountsAction: vi.fn(),
+  setConnectedAccountVisibilityAction: vi.fn(),
+  setSelectedFoldersAction: vi.fn(),
   toastError: vi.fn(),
 }));
 
@@ -18,8 +21,8 @@ vi.mock("../../connected-accounts/actions", () => ({
   disconnectConnectedAccountAction: vi.fn(),
   refreshConnectedAccountsAction: harness.refreshConnectedAccountsAction,
   resyncConnectedAccountAction: vi.fn(),
-  setConnectedAccountVisibilityAction: vi.fn(),
-  setSelectedFoldersAction: vi.fn(),
+  setConnectedAccountVisibilityAction: harness.setConnectedAccountVisibilityAction,
+  setSelectedFoldersAction: harness.setSelectedFoldersAction,
   startConnectAccountAction: vi.fn(),
   startReconnectAccountAction: vi.fn(),
 }));
@@ -38,15 +41,22 @@ function rootStore(): RootStore {
   return {
     loadingOverlayStore: { isLoading: false },
     localeStore: { getTranslation: (key: string) => key },
+    messagingThreadsStore: { refresh: vi.fn().mockResolvedValue(undefined) },
   } as unknown as RootStore;
 }
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
-  const promise = new Promise<T>((resolvePromise) => {
+  let reject!: (error: unknown) => void;
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
     resolve = resolvePromise;
+    reject = rejectPromise;
   });
-  return { promise, resolve };
+  return { promise, reject, resolve };
+}
+
+function account(id: string): ConnectedAccountDto {
+  return { id, syncing: false } as ConnectedAccountDto;
 }
 
 describe("ConnectedAccountsStore sync polling", () => {
@@ -76,21 +86,88 @@ describe("ConnectedAccountsStore sync polling", () => {
     expect(harness.refreshConnectedAccountsAction).toHaveBeenCalledTimes(2);
   });
 
-  it("invalidates an in-flight polling chain when polling restarts", async () => {
+  it("ignores an in-flight result when polling restarts and applies only the new chain", async () => {
     const store = new ConnectedAccountsStore(rootStore());
-    const first = deferred<[]>();
-    harness.refreshConnectedAccountsAction.mockReturnValueOnce(first.promise).mockResolvedValue([]);
+    const first = deferred<ConnectedAccountDto[]>();
+    store.setItems({ items: [account("prior")] });
+    harness.refreshConnectedAccountsAction
+      .mockReturnValueOnce(first.promise)
+      .mockResolvedValueOnce([account("latest")]);
 
     store.startSyncPolling();
     await vi.advanceTimersByTimeAsync(2_000);
     expect(harness.refreshConnectedAccountsAction).toHaveBeenCalledTimes(1);
 
     store.startSyncPolling();
-    first.resolve([]);
-    await Promise.resolve();
+    first.resolve([account("stale")]);
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(store.items.map(({ id }) => id)).toEqual(["prior"]);
+    expect(store.dataRequest).toEqual({ status: "ready" });
+
     await vi.advanceTimersByTimeAsync(2_000);
 
     expect(harness.refreshConnectedAccountsAction).toHaveBeenCalledTimes(2);
+    expect(store.items.map(({ id }) => id)).toEqual(["latest"]);
+    expect(store.dataRequest).toEqual({ status: "ready" });
+
+    store.stopSyncPolling();
+  });
+
+  it("ignores an in-flight failure after polling stops", async () => {
+    const store = new ConnectedAccountsStore(rootStore());
+    const pending = deferred<ConnectedAccountDto[]>();
+    store.setItems({ items: [account("prior")] });
+    harness.refreshConnectedAccountsAction.mockReturnValueOnce(pending.promise);
+
+    store.startSyncPolling();
+    await vi.advanceTimersByTimeAsync(2_000);
+    store.stopSyncPolling();
+    pending.reject(new Error("stale failure"));
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(store.items.map(({ id }) => id)).toEqual(["prior"]);
+    expect(store.dataRequest).toEqual({ status: "ready" });
+    expect(harness.toastError).not.toHaveBeenCalled();
+  });
+
+  it("keeps a confirmed visibility change when an older poll resolves", async () => {
+    const store = new ConnectedAccountsStore(rootStore());
+    const pending = deferred<ConnectedAccountDto[]>();
+    const prior = { ...account("prior"), shared: false };
+    const updated = { ...prior, shared: true };
+    store.setItems({ items: [prior] });
+    harness.refreshConnectedAccountsAction.mockReturnValueOnce(pending.promise);
+    harness.setConnectedAccountVisibilityAction.mockResolvedValue({ ok: true, data: updated });
+
+    store.startSyncPolling();
+    await vi.advanceTimersByTimeAsync(2_000);
+    await store.setVisibility(prior.id, true);
+    pending.resolve([prior]);
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(store.items).toEqual([updated]);
+    expect(store.dataRequest).toEqual({ status: "ready" });
+
+    store.stopSyncPolling();
+  });
+
+  it("keeps a confirmed folder change when an older refresh resolves", async () => {
+    const store = new ConnectedAccountsStore(rootStore());
+    const pending = deferred<ConnectedAccountDto[]>();
+    const prior = { ...account("prior"), selectedFolderIds: ["old"] };
+    const updated = { ...prior, selectedFolderIds: ["new"] };
+    store.setItems({ items: [prior] });
+    harness.refreshConnectedAccountsAction.mockReturnValueOnce(pending.promise);
+    harness.setSelectedFoldersAction.mockResolvedValue({ ok: true, data: updated });
+
+    const staleRefresh = store.refresh();
+    await store.setSelectedFolders(prior.id, ["new"]);
+    pending.resolve([prior]);
+    await staleRefresh;
+
+    expect(store.items).toEqual([updated]);
+    expect(store.dataRequest).toEqual({ status: "ready" });
 
     store.stopSyncPolling();
   });

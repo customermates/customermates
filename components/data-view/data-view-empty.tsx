@@ -13,8 +13,6 @@ import { useEntityTerminology } from "@/components/entity-terminology/use-entity
 import { Button } from "@/components/ui/button";
 import { PageState } from "@/components/page-state/page-state";
 
-import type { PageSkeletonSpec } from "@/components/page-state/page-skeleton";
-
 import { DataViewEmptyState } from "./data-view-empty-state";
 
 export type EmptyStateDescriptor = {
@@ -44,18 +42,8 @@ type Props<E extends HasId> = SharedProps<E> &
     | {
         reason: "filtered";
         background?: never;
-        skeleton?: never;
       }
-    | ({ reason: "true-empty" } & (
-        | {
-            background: ReactElement;
-            skeleton?: never;
-          }
-        | {
-            background?: never;
-            skeleton: PageSkeletonSpec;
-          }
-      ))
+    | { background: ReactElement; reason: "true-empty" }
   );
 
 export const DataViewEmpty = observer(function DataViewEmpty<E extends HasId>({
@@ -64,7 +52,6 @@ export const DataViewEmpty = observer(function DataViewEmpty<E extends HasId>({
   descriptor,
   reason,
   background,
-  skeleton,
   actionLabel,
 }: Props<E>) {
   const t = useTranslations();
@@ -112,7 +99,6 @@ export const DataViewEmpty = observer(function DataViewEmpty<E extends HasId>({
 
   return (
     <PageState
-      {...(background ? { background } : { skeleton })}
       action={
         canCreate ? (
           <Button size="sm" variant="secondary" onClick={() => onAdd?.()}>
@@ -120,6 +106,7 @@ export const DataViewEmpty = observer(function DataViewEmpty<E extends HasId>({
           </Button>
         ) : undefined
       }
+      background={background}
       description={description}
       icon={Icon}
       state="empty"

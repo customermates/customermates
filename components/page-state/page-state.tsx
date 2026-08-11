@@ -5,21 +5,11 @@ import { CircleAlert } from "lucide-react";
 
 import { cn } from "@/core/utils/cn";
 
-import { PageSkeleton, type PageSkeletonSpec } from "./page-skeleton";
-
 type SharedProps = {
   className?: string;
 };
 
-type PageBackground =
-  | {
-      background: ReactElement;
-      skeleton?: never;
-    }
-  | {
-      background?: never;
-      skeleton: PageSkeletonSpec;
-    };
+type PageBackground = { background: ReactElement };
 
 export type PageStateProps =
   | (SharedProps &
@@ -51,13 +41,9 @@ export function PageState(props: PageStateProps) {
         </span>
 
         <div aria-busy="true" className="size-full min-h-0">
-          {props.background ? (
-            <div data-page-state-background aria-hidden="true" className="size-full min-h-0">
-              {props.background}
-            </div>
-          ) : (
-            <PageSkeleton spec={props.skeleton} />
-          )}
+          <div data-page-state-background aria-hidden="true" className="size-full min-h-0">
+            {props.background}
+          </div>
         </div>
       </section>
     );
@@ -94,18 +80,9 @@ export function PageState(props: PageStateProps) {
 
   return (
     <section className={cn("relative min-h-0 w-full flex-1 overflow-hidden", props.className)} data-page-state="empty">
-      {props.background ? (
-        <div data-page-state-background aria-hidden="true" className="pointer-events-none size-full min-h-0">
-          {props.background}
-        </div>
-      ) : (
-        <PageSkeleton
-          data-page-state-background
-          animated={false}
-          className="pointer-events-none"
-          spec={props.skeleton}
-        />
-      )}
+      <div data-page-state-background aria-hidden="true" className="pointer-events-none size-full min-h-0">
+        {props.background}
+      </div>
 
       <div
         data-page-state-overlay

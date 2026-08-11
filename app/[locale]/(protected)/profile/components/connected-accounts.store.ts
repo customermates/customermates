@@ -86,7 +86,7 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
   };
 
   private scheduleNextSyncPoll = (generation: number): void => {
-    if (!this.syncPollingActive || generation !== this.syncPollGeneration) return;
+    if (!this.ownsSyncPoll(generation)) return;
 
     const now = Date.now();
     const keepPolling = (this.hasSyncingAccount || now < this.syncPollGraceDeadline) && now < this.syncPollDeadline;
@@ -99,13 +99,16 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
     this.syncPollTimer = setTimeout(() => void this.runSyncPoll(generation), SYNC_POLL_INTERVAL_MS);
   };
 
+  private ownsSyncPoll = (generation: number): boolean =>
+    this.syncPollingActive && generation === this.syncPollGeneration;
+
   private runSyncPoll = async (generation: number): Promise<void> => {
     try {
-      await this.refresh();
-      if (generation !== this.syncPollGeneration) return;
+      await this.refreshGuarded(() => this.ownsSyncPoll(generation));
+      if (!this.ownsSyncPoll(generation)) return;
       this.syncPollFailureNotified = false;
     } catch {
-      if (generation !== this.syncPollGeneration) return;
+      if (!this.ownsSyncPoll(generation)) return;
       if (!this.syncPollFailureNotified) {
         this.syncPollFailureNotified = true;
         this.toastError("Common.notifications.unexpectedError");
@@ -181,7 +184,7 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
 
     const existing = this.items.find((account) => account.id === id);
     const merged = { ...existing, ...res.data };
-    this.upsertItemLocal(merged);
+    await this.upsertItem(merged);
 
     this.toastSuccess(shared ? "ConnectedAccountsCard.sharedOnToast" : "ConnectedAccountsCard.sharedOffToast");
 
@@ -201,7 +204,7 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
     }
 
     const merged = { ...existing, ...res.data };
-    this.upsertItemLocal(merged);
+    await this.upsertItem(merged);
 
     void this.rootStore.messagingThreadsStore
       .refresh()
