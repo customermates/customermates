@@ -1,6 +1,6 @@
 import type { Prisma } from "@/generated/prisma";
 
-import { SYNTHETIC_CONTACT_AVATAR_PATHS } from "./avatars";
+import { SYNTHETIC_CONTACT_AVATAR_URLS } from "./avatars";
 import type { SeedContext } from "./context";
 import { fixtureId, relationshipTarget, upsertFixturesById } from "./helpers";
 import type { OrganizationFixture } from "./organizations";
@@ -149,7 +149,7 @@ export async function seedContacts(
   });
 
   const contacts = contactDefinitions.map(([firstName, lastName], index) => {
-    const avatarPath = SYNTHETIC_CONTACT_AVATAR_PATHS[index];
+    const avatarPath = SYNTHETIC_CONTACT_AVATAR_URLS[index];
     if (!avatarPath) throw new Error(`Missing avatar fixture for contact fixture index ${index}`);
 
     return {

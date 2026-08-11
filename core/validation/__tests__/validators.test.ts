@@ -144,6 +144,17 @@ describe("validateCustomFieldLink", () => {
     validateCustomFieldLink("https://a.com, https://b.com", ctx, ["value"], true);
     expect(ctx.addIssue).not.toHaveBeenCalled();
   });
+
+  it.each([["/internal/report.pdf"], ["//cdn.example.com/report.pdf"]])(
+    "adds an issue for the relative reference %j instead of resolving it to another host",
+    (value) => {
+      const ctx = createMockCtx();
+      validateCustomFieldLink(value, ctx, ["value"]);
+      expect(ctx.addIssue).toHaveBeenCalledWith(
+        expect.objectContaining({ params: { error: CustomErrorCode.customFieldInvalidUrl } }),
+      );
+    },
+  );
 });
 
 describe("validateCustomFieldDate", () => {

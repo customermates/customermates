@@ -55,16 +55,15 @@ export function createErrorHandler(errors: Record<string, string>): (issue: $Zod
   };
 }
 
+function inferHttpsForBareHost(val: unknown) {
+  if (typeof val !== "string") return val;
+  const trimmed = val.trim();
+  if (!trimmed || /^[/\\]/.test(trimmed) || trimmed.includes("://") || /^(mailto|tel):/i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+}
+
 function secureUrlSchema() {
-  return z.preprocess(
-    (val) => {
-      if (typeof val !== "string") return val;
-      const trimmed = val.trim();
-      if (!trimmed || trimmed.includes("://") || /^(mailto|tel):/i.test(trimmed)) return trimmed;
-      return `https://${trimmed}`;
-    },
-    z.url({ protocol: /^(https?|mailto|tel)$/ }),
-  );
+  return z.preprocess(inferHttpsForBareHost, z.url({ protocol: /^(https?|mailto|tel)$/ }));
 }
 
 function nonBlankText(max: number) {

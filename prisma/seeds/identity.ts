@@ -4,7 +4,7 @@ import { SYNTHETIC_COMPANY_USERS } from "@/core/config/synthetic-seed-user";
 
 import type { SeedContext } from "./context";
 
-import { SYNTHETIC_AVATAR_PATHS } from "./avatars";
+import { SYNTHETIC_AVATAR_URLS } from "./avatars";
 import { SEED_IDS } from "./context";
 import { seedCompanyMembers } from "./members";
 import { seedRoles } from "./roles";
@@ -26,21 +26,21 @@ export type SyntheticAuthIdentityDefinition = Readonly<{
 
 export const SYNTHETIC_AUTH_IDENTITY_DEFINITIONS = [
   {
-    avatarPath: SYNTHETIC_AVATAR_PATHS.maxBergmann,
+    avatarPath: SYNTHETIC_AVATAR_URLS.maxBergmann,
     credentialAccountId: SEED_IDS.maxBergmannCredentialAccount,
     email: SYNTHETIC_COMPANY_USERS.maxBergmann.email,
     name: SYNTHETIC_COMPANY_USERS.maxBergmann.name,
     userId: SEED_IDS.user,
   },
   {
-    avatarPath: SYNTHETIC_AVATAR_PATHS.sofiaRossi,
+    avatarPath: SYNTHETIC_AVATAR_URLS.sofiaRossi,
     credentialAccountId: SEED_IDS.sofiaRossiCredentialAccount,
     email: SYNTHETIC_COMPANY_USERS.sofiaRossi.email,
     name: SYNTHETIC_COMPANY_USERS.sofiaRossi.name,
     userId: SEED_IDS.sofiaRossiUser,
   },
   {
-    avatarPath: SYNTHETIC_AVATAR_PATHS.elenaHoffmann,
+    avatarPath: SYNTHETIC_AVATAR_URLS.elenaHoffmann,
     credentialAccountId: SEED_IDS.elenaHoffmannCredentialAccount,
     email: SYNTHETIC_COMPANY_USERS.elenaHoffmann.email,
     name: SYNTHETIC_COMPANY_USERS.elenaHoffmann.name,

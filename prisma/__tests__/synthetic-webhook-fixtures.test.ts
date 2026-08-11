@@ -34,7 +34,7 @@ const USER_REFERENCE = {
   id: SEED_IDS.user,
   firstName: SYNTHETIC_COMPANY_USERS.maxBergmann.firstName,
   lastName: SYNTHETIC_COMPANY_USERS.maxBergmann.lastName,
-  avatarUrl: "/demo/avatars/photos/max-bergmann.png",
+  avatarUrl: "https://customermates.com/demo/avatars/photos/max-bergmann.png",
   email: SYNTHETIC_COMPANY_USERS.maxBergmann.email,
 };
 
