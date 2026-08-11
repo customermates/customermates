@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { CalendarIcon } from "lucide-react";
-import { addMonths, addWeeks, addYears, startOfMonth } from "date-fns";
+import { startOfMonth } from "date-fns";
 import { useTranslations } from "next-intl";
 
 import { useAppForm } from "@/components/forms/form-context";
 import { FormLabel } from "@/components/forms/form-label";
 import { InputClearButton } from "@/components/forms/input-clear-button";
+import { DATE_PRESETS, localTimeValue, parseIsoDate, toLocalIso } from "@/components/forms/iso-date-values";
 import { TimeInput } from "@/components/forms/time-input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -23,20 +24,13 @@ type Props = {
   granularity?: "day" | "minute";
 };
 
-const PRESETS: ReadonlyArray<{ key: string; compute: (today: Date) => Date }> = [
-  { key: "today", compute: (d) => d },
-  { key: "inAWeek", compute: (d) => addWeeks(d, 1) },
-  { key: "inAMonth", compute: (d) => addMonths(d, 1) },
-  { key: "inAYear", compute: (d) => addYears(d, 1) },
-];
-
 export const FilterInputIsoDate = observer(({ id, isValidFilter, granularity = "day" }: Props) => {
   const store = useAppForm();
   const t = useTranslations();
   const { intlStore } = useRootStore();
   const raw = store?.getValue(id);
   const isoValue = typeof raw === "string" ? raw : undefined;
-  const parsed = parseIso(isoValue);
+  const parsed = parseIsoDate(isoValue);
   const dateOnly = granularity === "day";
 
   const [currentMonth, setCurrentMonth] = useState<Date>(() => startOfMonth(parsed ?? new Date()));
@@ -50,7 +44,7 @@ export const FilterInputIsoDate = observer(({ id, isValidFilter, granularity = "
       store?.onChange(id, undefined);
       return;
     }
-    store?.onChange(id, toIso(date, granularity));
+    store?.onChange(id, toLocalIso(date, dateOnly));
     setCurrentMonth(startOfMonth(date));
   }
 
@@ -82,9 +76,7 @@ export const FilterInputIsoDate = observer(({ id, isValidFilter, granularity = "
   }
 
   const formatter = dateOnly ? intlStore.dateFormatMap.descriptiveLong : intlStore.dateTimeFormatMap.descriptiveLong;
-  const timeValue = parsed
-    ? `${String(parsed.getHours()).padStart(2, "0")}:${String(parsed.getMinutes()).padStart(2, "0")}:${String(parsed.getSeconds()).padStart(2, "0")}`
-    : "";
+  const timeValue = parsed ? localTimeValue(parsed) : "";
 
   return (
     <Popover>
@@ -145,7 +137,7 @@ export const FilterInputIsoDate = observer(({ id, isValidFilter, granularity = "
         <Separator />
 
         <div className="grid grid-cols-2 gap-2 p-3">
-          {PRESETS.map((preset) => (
+          {DATE_PRESETS.map((preset) => (
             <Button
               key={preset.key}
               disabled={store?.isDisabled}
@@ -162,19 +154,3 @@ export const FilterInputIsoDate = observer(({ id, isValidFilter, granularity = "
     </Popover>
   );
 });
-
-function parseIso(value: string | undefined): Date | undefined {
-  if (!value) return undefined;
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? undefined : d;
-}
-
-function toIso(date: Date, granularity: "day" | "minute"): string {
-  if (granularity === "day") {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, "0");
-    const d = String(date.getDate()).padStart(2, "0");
-    return `${y}-${m}-${d}`;
-  }
-  return date.toISOString();
-}

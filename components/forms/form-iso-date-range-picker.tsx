@@ -7,12 +7,14 @@ import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { CalendarIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { addDays, addMonths, addWeeks, endOfMonth, startOfMonth } from "date-fns";
+import { startOfMonth } from "date-fns";
 
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { FormLabel } from "./form-label";
 import { InputClearButton } from "./input-clear-button";
+import { RANGE_PRESET_KEYS, localTimeValue, rangeForPreset, toLocalIso } from "./iso-date-values";
+import type { RangePresetKey } from "./iso-date-values";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { TimeInput } from "./time-input";
@@ -33,34 +35,6 @@ type Props = {
   className?: string;
   containerClassName?: string;
 };
-
-type PresetKey = "today" | "inAWeek" | "thisMonth" | "nextMonth" | "next7Days" | "next30Days";
-
-function rangeForPreset(key: PresetKey): { from: Date; to: Date } {
-  const today = new Date();
-  const start = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  const baseToday = start(today);
-  switch (key) {
-    case "today":
-      return { from: baseToday, to: baseToday };
-    case "inAWeek": {
-      const d = addWeeks(baseToday, 1);
-      return { from: d, to: d };
-    }
-    case "thisMonth":
-      return { from: startOfMonth(today), to: endOfMonth(today) };
-    case "nextMonth": {
-      const next = addMonths(today, 1);
-      return { from: startOfMonth(next), to: endOfMonth(next) };
-    }
-    case "next7Days":
-      return { from: baseToday, to: addDays(baseToday, 6) };
-    case "next30Days":
-      return { from: baseToday, to: addDays(baseToday, 29) };
-  }
-}
-
-const PRESET_KEYS: ReadonlyArray<PresetKey> = ["today", "inAWeek", "thisMonth", "nextMonth", "next7Days", "next30Days"];
 
 export const FormIsoDateRangePicker = observer(
   ({
@@ -99,7 +73,7 @@ export const FormIsoDateRangePicker = observer(
         store?.onChange(id, undefined);
         return;
       }
-      store?.onChange(id, `${toIso(range.from, dateOnly)},${toIso(range.to, dateOnly)}`);
+      store?.onChange(id, `${toLocalIso(range.from, dateOnly)},${toLocalIso(range.to, dateOnly)}`);
       setCurrentMonth(startOfMonth(range.from));
     }
 
@@ -133,7 +107,7 @@ export const FormIsoDateRangePicker = observer(
       commit(next);
     }
 
-    function handlePreset(key: PresetKey) {
+    function handlePreset(key: RangePresetKey) {
       const range = rangeForPreset(key);
       const next = { from: range.from, to: range.to };
       if (!dateOnly && parsedRange) {
@@ -148,8 +122,8 @@ export const FormIsoDateRangePicker = observer(
       commit(next);
     }
 
-    const fromTimeValue = parsedRange ? formatTime(parsedRange.from) : "";
-    const toTimeValue = parsedRange ? formatTime(parsedRange.to) : "";
+    const fromTimeValue = parsedRange ? localTimeValue(parsedRange.from) : "";
+    const toTimeValue = parsedRange ? localTimeValue(parsedRange.to) : "";
 
     const triggerLabel = parsedRange
       ? `${formatter(parsedRange.from)} – ${formatter(parsedRange.to)}`
@@ -245,7 +219,7 @@ export const FormIsoDateRangePicker = observer(
             <Separator />
 
             <div className="grid grid-cols-2 gap-2 p-3 sm:grid-cols-3">
-              {PRESET_KEYS.map((key) => (
+              {RANGE_PRESET_KEYS.map((key) => (
                 <Button
                   key={key}
                   disabled={store?.isDisabled}
@@ -273,18 +247,4 @@ function parseRange(value: string | undefined): { from: Date; to: Date } | undef
   const to = new Date(toStr);
   if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime())) return undefined;
   return { from, to };
-}
-
-function toIso(date: Date, dateOnly: boolean): string {
-  if (dateOnly) {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, "0");
-    const d = String(date.getDate()).padStart(2, "0");
-    return `${y}-${m}-${d}`;
-  }
-  return date.toISOString();
-}
-
-function formatTime(date: Date): string {
-  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
 }

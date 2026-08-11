@@ -6,12 +6,13 @@ import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { CalendarIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { addMonths, addWeeks, addYears, startOfMonth } from "date-fns";
+import { startOfMonth } from "date-fns";
 
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { FormLabel } from "./form-label";
 import { InputClearButton } from "./input-clear-button";
+import { DATE_PRESETS, localTimeValue, parseIsoDate, toLocalIso } from "./iso-date-values";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { TimeInput } from "./time-input";
@@ -32,13 +33,6 @@ type Props = {
   containerClassName?: string;
 };
 
-const PRESETS: ReadonlyArray<{ key: string; compute: (today: Date) => Date }> = [
-  { key: "today", compute: (d) => d },
-  { key: "inAWeek", compute: (d) => addWeeks(d, 1) },
-  { key: "inAMonth", compute: (d) => addMonths(d, 1) },
-  { key: "inAYear", compute: (d) => addYears(d, 1) },
-];
-
 export const FormIsoDatePicker = observer(
   ({
     id,
@@ -57,7 +51,7 @@ export const FormIsoDatePicker = observer(
 
     const raw = store?.getValue(id);
     const isoValue = typeof raw === "string" ? raw : undefined;
-    const parsed = parseIso(isoValue);
+    const parsed = parseIsoDate(isoValue);
     const { hasError } = useFormFieldErrors(id);
 
     const resolvedLabel = label ?? undefined;
@@ -75,7 +69,7 @@ export const FormIsoDatePicker = observer(
         store?.onChange(id, undefined);
         return;
       }
-      store?.onChange(id, toIso(date, dateOnly));
+      store?.onChange(id, toLocalIso(date, dateOnly));
       setCurrentMonth(startOfMonth(date));
     }
 
@@ -108,9 +102,7 @@ export const FormIsoDatePicker = observer(
       commit(next);
     }
 
-    const timeValue = parsed
-      ? `${String(parsed.getHours()).padStart(2, "0")}:${String(parsed.getMinutes()).padStart(2, "0")}:${String(parsed.getSeconds()).padStart(2, "0")}`
-      : "";
+    const timeValue = parsed ? localTimeValue(parsed) : "";
 
     return (
       <div className={cn("flex flex-col gap-1.5", containerClassName)}>
@@ -181,7 +173,7 @@ export const FormIsoDatePicker = observer(
             <Separator />
 
             <div className="grid grid-cols-2 gap-2 p-3">
-              {PRESETS.map((preset) => (
+              {DATE_PRESETS.map((preset) => (
                 <Button
                   key={preset.key}
                   disabled={store?.isDisabled}
@@ -200,19 +192,3 @@ export const FormIsoDatePicker = observer(
     );
   },
 );
-
-function parseIso(value: string | undefined): Date | undefined {
-  if (!value) return undefined;
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? undefined : d;
-}
-
-function toIso(date: Date, dateOnly: boolean): string {
-  if (dateOnly) {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, "0");
-    const d = String(date.getDate()).padStart(2, "0");
-    return `${y}-${m}-${d}`;
-  }
-  return date.toISOString();
-}

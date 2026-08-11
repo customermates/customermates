@@ -119,13 +119,11 @@ export const DealServicesSelection = observer(() => {
                 </FormAutocomplete>
 
                 <FormNumberInput
-                  hideStepper
                   required
                   className="rounded-l-none border-l-0 text-right font-mono tabular-nums"
                   containerClassName="w-20 shrink-0"
                   id={`services[${index}].quantity`}
                   label={null}
-                  size="sm"
                 />
               </div>
 
