@@ -1655,7 +1655,7 @@
     "greeting": "Hi {firstName},",
     "scheduleFallback": "If the button does not work, copy and paste this link into your browser: ",
     "signoff": "Best regards,\nBen",
-    "subject": "Your account is inactive - we can help you restore access",
+    "subject": "Your account is inactive: we can help you restore access",
     "title": "Subscription inactivated"
   },
   "TaskModal": {
@@ -1680,7 +1680,7 @@
     "greeting": "Hi {firstName},",
     "scheduleFallback": "If the button does not work, copy and paste this link into your browser: ",
     "signoff": "Best regards,\nBen",
-    "subject": "Your account is inactive - we can help you restart",
+    "subject": "Your account is inactive: we can help you restart",
     "title": "Account inactivated"
   },
   "TrialInactivationReminder": {

@@ -1655,7 +1655,7 @@
     "greeting": "Hallo {firstName},",
     "scheduleFallback": "Falls der Button nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein: ",
     "signoff": "Viele Grüße\nBen",
-    "subject": "Dein Konto ist inaktiv – wir helfen bei der Wiederherstellung",
+    "subject": "Dein Konto ist inaktiv: Wir helfen bei der Wiederherstellung",
     "title": "Abonnement deaktiviert"
   },
   "TaskModal": {
@@ -1680,7 +1680,7 @@
     "greeting": "Hallo {firstName},",
     "scheduleFallback": "Falls der Button nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein: ",
     "signoff": "Viele Grüße\nBen",
-    "subject": "Dein Konto ist inaktiv – wir helfen dir beim Wiedereinstieg",
+    "subject": "Dein Konto ist inaktiv: Wir helfen dir beim Wiedereinstieg",
     "title": "Konto inaktiv gesetzt"
   },
   "TrialInactivationReminder": {

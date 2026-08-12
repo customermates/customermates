@@ -1663,7 +1663,7 @@
     "greeting": "Bonjour {firstName},",
     "scheduleFallback": "Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur : ",
     "signoff": "Cordialement,\nBen",
-    "subject": "Votre compte est inactif, nous pouvons vous aider à rétablir l'accès",
+    "subject": "Votre compte est inactif : nous pouvons vous aider à rétablir l'accès",
     "title": "Abonnement désactivé"
   },
   "TaskModal": {
@@ -1688,7 +1688,7 @@
     "greeting": "Bonjour {firstName},",
     "scheduleFallback": "Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur : ",
     "signoff": "Cordialement,\nBen",
-    "subject": "Votre compte est inactif — nous pouvons vous aider à repartir",
+    "subject": "Votre compte est inactif : nous pouvons vous aider à repartir",
     "title": "Compte désactivé"
   },
   "TrialInactivationReminder": {

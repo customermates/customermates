@@ -1659,7 +1659,7 @@
     "greeting": "Ciao {firstName},",
     "scheduleFallback": "Se il pulsante non funziona, copia e incolla questo link nel tuo browser: ",
     "signoff": "Cordiali saluti,\nBen",
-    "subject": "Il tuo account è inattivo - possiamo aiutarti a ripristinare l'accesso",
+    "subject": "Il tuo account è inattivo: possiamo aiutarti a ripristinare l'accesso",
     "title": "Abbonamento disattivato"
   },
   "TaskModal": {
@@ -1684,7 +1684,7 @@
     "greeting": "Ciao {firstName},",
     "scheduleFallback": "Se il pulsante non funziona, copia e incolla questo link nel tuo browser: ",
     "signoff": "Cordiali saluti,\nBen",
-    "subject": "Il tuo account è inattivo - possiamo aiutarti a ripartire",
+    "subject": "Il tuo account è inattivo: possiamo aiutarti a ripartire",
     "title": "Account disattivato"
   },
   "TrialInactivationReminder": {

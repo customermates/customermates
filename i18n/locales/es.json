@@ -1655,7 +1655,7 @@
     "greeting": "Hola {firstName}:",
     "scheduleFallback": "Si el botón no funciona, copia y pega este enlace en tu navegador: ",
     "signoff": "Un saludo,\nBen",
-    "subject": "Tu cuenta está inactiva - podemos ayudarte a recuperar el acceso",
+    "subject": "Tu cuenta está inactiva: podemos ayudarte a recuperar el acceso",
     "title": "Suscripción desactivada"
   },
   "TaskModal": {
@@ -1680,7 +1680,7 @@
     "greeting": "Hola {firstName}:",
     "scheduleFallback": "Si el botón no funciona, copia y pega este enlace en tu navegador: ",
     "signoff": "Un saludo,\nBen",
-    "subject": "Tu cuenta está inactiva - podemos ayudarte a empezar de nuevo",
+    "subject": "Tu cuenta está inactiva: podemos ayudarte a empezar de nuevo",
     "title": "Cuenta desactivada"
   },
   "TrialInactivationReminder": {
