@@ -2,12 +2,14 @@
 
 import type { ChartDataPoint } from "./chart.types";
 
-import { Bar, BarChart, LabelList, XAxis, YAxis, ResponsiveContainer, Cell } from "recharts";
+import { Bar, BarChart, LabelList, XAxis, YAxis, Cell } from "recharts";
 import { observer } from "mobx-react-lite";
 import { AggregationType } from "@/generated/prisma";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { ChartTooltip } from "@/components/chart/chart-tooltip";
+
+import { DashboardChartContainer } from "./dashboard-chart-container";
 
 type Props = {
   aggregationType?: AggregationType;
@@ -26,7 +28,7 @@ export const VerticalBarChartWithLabels = observer(
     const bottom = reverseYAxis ? 20 : 0;
 
     return (
-      <ResponsiveContainer height="100%" width="100%">
+      <DashboardChartContainer>
         <BarChart data={chartData} margin={{ top, bottom }}>
           <XAxis hide dataKey="label" reversed={Boolean(reverseXAxis)} type="category" />
 
@@ -80,7 +82,7 @@ export const VerticalBarChartWithLabels = observer(
             />
           </Bar>
         </BarChart>
-      </ResponsiveContainer>
+      </DashboardChartContainer>
     );
   },
 );

@@ -8,7 +8,7 @@ import type { SavedFilterPreset } from "@/features/p13n/prisma-p13n.repository";
 
 import { makeObservable, observable, computed, action, toJS, runInAction } from "mobx";
 import deepEqual from "fast-deep-equal/es6";
-import { Action, CustomColumnType } from "@/generated/prisma";
+import { CustomColumnType } from "@/generated/prisma";
 
 import type { Resource, EntityType } from "@/generated/prisma";
 
@@ -112,13 +112,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       isBulkMutating: observable,
 
       orderedColumns: computed,
-      headerColumns: computed,
-      visibleColumnsCount: computed,
-      visibleColumnIds: computed,
       sortableColumnIds: computed,
-      activePresetId: computed,
-      canReadAll: computed,
-      canAccess: computed,
       canManage: computed,
       isDisabled: computed,
       hasSelection: computed,
@@ -281,30 +275,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return this.isKanbanMode ? `${this.groupingColumnId}` : "";
   }
 
-  get visibleColumnsCount() {
-    const hiddenSet = new Set(this.hiddenColumns);
-
-    return this.columnsDefinition.filter((col) => !hiddenSet.has(col.uid)).length;
-  }
-
-  get visibleColumnIds(): Set<string> {
-    return new Set(this.columnsDefinition.map((col) => col.uid));
-  }
-
   get sortableColumnIds(): Set<string> {
     return new Set(this.columnsDefinition.filter((col) => col.sortable).map((col) => col.uid));
-  }
-
-  get canReadAll(): boolean {
-    if (!this.resource) return true;
-
-    return this.rootStore.userStore.can(this.resource, Action.readAll);
-  }
-
-  get canAccess(): boolean {
-    if (!this.resource) return true;
-
-    return this.rootStore.userStore.canAccess(this.resource);
   }
 
   get canManage(): boolean {
@@ -346,15 +318,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.selectedIds.clear();
   };
 
-  get activePresetId(): string | undefined {
-    if (!this.savedFilterPresets) return undefined;
-
-    const currentFilters = this.filters;
-    const matchingPreset = this.savedFilterPresets.find((preset) => deepEqual(preset.filters, currentFilters));
-
-    return matchingPreset?.id;
-  }
-
   get orderedColumns() {
     const columnMap = new Map(this.columnsDefinition.map((col) => [col.uid, col]));
     const orderedUids = new Set(this.columnOrder);
@@ -381,12 +344,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     res.push(...remainingColumns);
 
     return res;
-  }
-
-  get headerColumns() {
-    const hiddenSet = new Set(this.hiddenColumns);
-
-    return this.orderedColumns.filter((column) => !hiddenSet.has(column.uid));
   }
 
   setItems(args: GetResult<Entity>): void {

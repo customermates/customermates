@@ -16,7 +16,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 
 import { cn } from "@/core/utils/cn";
 import { Button } from "@/components/ui/button";
-import { useDataViewSync } from "@/components/data-view";
+import { useDataViewSync } from "@/components/data-view/use-data-view-sync";
 import { DataViewToolbar } from "@/components/data-view/data-view-toolbar";
 import { DataViewActiveFiltersBar } from "@/components/data-view/header/active-filters-bar";
 import { DataViewPagination } from "@/components/data-view/header/pagination";

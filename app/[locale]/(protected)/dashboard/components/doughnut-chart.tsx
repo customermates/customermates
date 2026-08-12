@@ -2,11 +2,13 @@
 
 import type { ChartDataPoint } from "./chart.types";
 
-import { Pie, PieChart, ResponsiveContainer, Cell } from "recharts";
+import { Pie, PieChart, Cell } from "recharts";
 import { observer } from "mobx-react-lite";
 import type { AggregationType } from "@/generated/prisma";
 
 import { ChartTooltip } from "@/components/chart/chart-tooltip";
+
+import { DashboardChartContainer } from "./dashboard-chart-container";
 
 type Props = {
   aggregationType?: AggregationType;
@@ -20,7 +22,7 @@ export const DoughnutChart = observer(({ aggregationType, chartData, showLegend 
   return (
     <div className="flex size-full flex-col gap-3 min-h-0 overflow-hidden">
       <div className="flex-1 min-h-0">
-        <ResponsiveContainer height="100%" width="100%">
+        <DashboardChartContainer>
           <PieChart>
             <ChartTooltip aggregationType={aggregationType} />
 
@@ -30,7 +32,7 @@ export const DoughnutChart = observer(({ aggregationType, chartData, showLegend 
               ))}
             </Pie>
           </PieChart>
-        </ResponsiveContainer>
+        </DashboardChartContainer>
       </div>
 
       {showLegend && (

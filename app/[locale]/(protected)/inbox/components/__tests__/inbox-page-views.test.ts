@@ -47,7 +47,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: harness.getRootStore,
 }));
 
-vi.mock("@/components/data-view", () => ({ useDataViewSync: vi.fn() }));
+vi.mock("@/components/data-view/use-data-view-sync", () => ({ useDataViewSync: vi.fn() }));
 
 vi.mock("@/components/data-view/data-view-toolbar", () => ({
   DataViewToolbar: () => createElement("div", { "data-data-view-toolbar": true }),

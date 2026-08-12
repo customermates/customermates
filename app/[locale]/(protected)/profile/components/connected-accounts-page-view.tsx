@@ -27,13 +27,13 @@ import { AppLink } from "@/components/shared/app-link";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
-import { SETTINGS_CARD_GRID_CLASS_NAME } from "@/components/page-state/page-state-geometry";
 import { PageState } from "@/components/page-state/page-state";
 import { resolveResourcePageState, type ResourcePageState } from "@/components/page-state/resource-page-state";
 import { cn } from "@/core/utils/cn";
 
 import { accountStatusChipColor, getProviderDisplayLabel } from "./account-status-color";
 import { ConnectedAccountsPageSkeleton } from "./profile-resource-page-skeleton";
+import { PROFILE_RESOURCE_CARD_GRID_CLASS_NAME } from "./profile-resource-page-geometry";
 
 type Props = {
   accounts: ConnectedAccountDto[];
@@ -214,7 +214,7 @@ export const ConnectedAccountsPageView = observer(({ accounts, locked = false }:
         <div className="animate-page-result-in flex w-full max-w-3xl flex-col gap-4 motion-reduce:animate-none">
           <ConnectedAccountsAlert />
 
-          <div className={SETTINGS_CARD_GRID_CLASS_NAME}>
+          <div className={PROFILE_RESOURCE_CARD_GRID_CLASS_NAME}>
             {connectedAccountsStore.items.map((account) => {
               const statusLabel = t(`ConnectedAccountsCard.statusLabels.${account.status}`);
               const ProviderIcon = getProviderIcon(account.provider);

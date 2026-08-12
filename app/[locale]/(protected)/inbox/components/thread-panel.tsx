@@ -25,7 +25,7 @@ type Props = {
   locked?: boolean;
 };
 
-export type ThreadPanelPageState =
+type ThreadPanelPageState =
   | { status: "locked" }
   | { status: "loading" }
   | { status: "empty" }

@@ -1,7 +1,7 @@
 import type { EntityLoadState } from "@/core/base/base-custom-column-entity-modal.store";
 
-export type EntityDetailPageState = "loading" | "not-found" | "error" | "content";
-export type EntityDrawerPageState = "closed" | EntityDetailPageState;
+type EntityDetailPageState = "loading" | "not-found" | "error" | "content";
+type EntityDrawerPageState = "closed" | EntityDetailPageState;
 
 type Input = {
   hasCurrentEntity: boolean;

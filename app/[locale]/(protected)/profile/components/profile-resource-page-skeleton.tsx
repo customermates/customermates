@@ -1,5 +1,6 @@
-import { SETTINGS_CARD_GRID_CLASS_NAME } from "@/components/page-state/page-state-geometry";
 import { SkeletonShape as Shape, type SkeletonMotionPhase } from "@/components/page-state/skeleton-shape";
+
+import { PROFILE_RESOURCE_CARD_GRID_CLASS_NAME } from "./profile-resource-page-geometry";
 
 type Resource = "api-keys" | "connected-accounts";
 type Props = { animated?: boolean };
@@ -29,7 +30,7 @@ function ProfileResourcePageSkeleton({ animated = true, resource }: Props & { re
         <Shape breathe animated={animated} className="mt-0.5 h-3 w-4/5" motionPhase={1} />
       </div>
 
-      <div className={SETTINGS_CARD_GRID_CLASS_NAME}>
+      <div className={PROFILE_RESOURCE_CARD_GRID_CLASS_NAME}>
         {CARDS.map((card) => (
           <div
             key={card}
