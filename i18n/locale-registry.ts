@@ -163,3 +163,7 @@ export function stripLocalePrefix(pathname: string): string {
   const remainder = pathname.slice(locale.length + 1);
   return remainder === "" ? "/" : remainder;
 }
+
+export function buildLocalePath(locale: string, routePath: string): string {
+  return routePath === "/" ? `/${locale}` : `/${locale}${routePath}`;
+}

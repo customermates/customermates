@@ -18,6 +18,7 @@ export function FormAutocompleteCountryItem({ countryKey, label, size = "md" }: 
       <Avatar className={size === "sm" ? "size-3" : "size-5"}>
         <AvatarImage
           alt={t("Common.imageAlt.countryFlag", { country: label })}
+          className="rounded-[inherit] object-cover"
           src={`https://flagcdn.com/${countryKey.toLowerCase()}.svg`}
         />
       </Avatar>

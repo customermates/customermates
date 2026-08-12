@@ -37,7 +37,7 @@ export function DataViewEmptyState({ icon: Icon = Inbox, title, body, primaryAct
       {(primaryAction || secondaryAction) && (
         <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
           {primaryAction && (
-            <Button size="sm" variant="secondary" onClick={primaryAction.onClick}>
+            <Button size="sm" onClick={primaryAction.onClick}>
               {primaryAction.label}
             </Button>
           )}

@@ -1358,6 +1358,7 @@
       "template": "Modello",
       "theme": "Tema",
       "type": "Tipo",
+      "unavailableSelection": "Selezione non disponibile",
       "url": "URL",
       "userIds": "Assegnato a"
     },
@@ -1448,7 +1449,6 @@
         "user": "Utente",
         "users": "Assegnato a"
       },
-      "emptyContent": "Nessuna voce",
       "groupBy": "Raggruppa per",
       "layout": "Disposizione",
       "nextPage": "Pagina successiva",
@@ -1466,6 +1466,7 @@
       "light": "Chiaro",
       "system": "Sistema"
     },
+    "unnamed": "Senza nome",
     "userStatuses": {
       "active": "Attivo",
       "inactive": "Inattivo",
@@ -2362,6 +2363,11 @@
   "OrganizationModal": {
     "title": "Organizzazione"
   },
+  "PageState": {
+    "loading": "Caricamento della pagina",
+    "notFoundDescription": "Questo record potrebbe essere stato rimosso oppure potresti non avere accesso.",
+    "notFoundTitle": "Record non trovato"
+  },
   "PendingCard": {
     "body": "Potrai accedere non appena il tuo account sarà approvato dall'amministratore della tua azienda.",
     "subtitle": "Il tuo account è in fase di verifica da parte dell'amministratore della tua azienda",
@@ -2514,7 +2520,7 @@
     "greeting": "Ciao {firstName},",
     "scheduleFallback": "Se il pulsante non funziona, copia e incolla questo link nel tuo browser: ",
     "signoff": "Cordiali saluti,\nBen",
-    "subject": "Il tuo account è inattivo - possiamo aiutarti a ripristinare l'accesso",
+    "subject": "Il tuo account è inattivo: possiamo aiutarti a ripristinare l'accesso",
     "title": "Abbonamento disattivato"
   },
   "TaskModal": {
@@ -2539,7 +2545,7 @@
     "greeting": "Ciao {firstName},",
     "scheduleFallback": "Se il pulsante non funziona, copia e incolla questo link nel tuo browser: ",
     "signoff": "Cordiali saluti,\nBen",
-    "subject": "Il tuo account è inattivo - possiamo aiutarti a ripartire",
+    "subject": "Il tuo account è inattivo: possiamo aiutarti a ripartire",
     "title": "Account disattivato"
   },
   "TrialInactivationReminder": {

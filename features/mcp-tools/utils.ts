@@ -38,12 +38,6 @@ function formatDatesRecursively(value: unknown): unknown {
 
   if (value instanceof Date) return isNaN(value.getTime()) ? String(value) : value.toISOString();
 
-  if (typeof value === "string") {
-    const dateTimeResult = z.iso.datetime().safeParse(value);
-    const dateResult = z.iso.date().safeParse(value);
-    if (dateTimeResult.success || dateResult.success) return value;
-  }
-
   if (Array.isArray(value)) return value.map(formatDatesRecursively);
 
   if (typeof value === "object") {
@@ -71,9 +65,9 @@ export function formatDatesInResponse<T>(data: T): SerializedDates<T> {
 export const FILTER_SYNTAX = {
   operators: {
     string: ["equals", "contains", "gt", "gte", "lt", "lte"],
-    array: ["in", "notIn", "hasNone", "hasSome"],
+    array: ["in", "notIn"],
     range: ["between"],
-    noValue: ["isNull", "isNotNull"],
+    noValue: ["isNull", "isNotNull", "hasNone", "hasSome", "hasUnset", "allSet"],
   },
   examples: [
     { field: "status", operator: "equals", value: "active" },

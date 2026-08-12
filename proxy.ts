@@ -5,6 +5,7 @@ import createMiddleware from "next-intl/middleware";
 
 import {
   DEFAULT_LOCALE,
+  buildLocalePath,
   isAppLocale,
   isContentLocale,
   routingLocaleFromPathname,
@@ -23,18 +24,24 @@ const intlContentMiddleware = createMiddleware(contentRouting);
 
 const LOCALE_SHAPED_SEGMENT = /^[a-z]{2}(?:-[a-z0-9]{2,8})*$/i;
 
+function preferredAppLocale(req: NextRequest) {
+  const value = req.cookies.get(APP_LOCALE_COOKIE_NAME)?.value;
+  return isAppLocale(value) ? value : null;
+}
+
+function localeRedirect(locale: string, unprefixedPath: string, base: string | URL, search: string) {
+  const target = new URL(buildLocalePath(locale, unprefixedPath), base);
+  target.search = search;
+  return NextResponse.redirect(target);
+}
+
 function negotiateLocale(req: NextRequest, base: string | URL, domain: "app" | "auto" = "auto") {
   const useContentLocale = domain === "auto" && isContentPage(req);
 
   if (!useContentLocale) {
-    const preferredLocale = req.cookies.get(APP_LOCALE_COOKIE_NAME)?.value;
-    if (isAppLocale(preferredLocale)) {
-      const target = new URL(
-        req.nextUrl.pathname === "/" ? `/${preferredLocale}` : `/${preferredLocale}${req.nextUrl.pathname}`,
-        base,
-      );
-      target.search = req.nextUrl.search;
-      const response = NextResponse.redirect(target);
+    const preferredLocale = preferredAppLocale(req);
+    if (preferredLocale) {
+      const response = localeRedirect(preferredLocale, req.nextUrl.pathname, base, req.nextUrl.search);
       response.headers.set("vary", "accept-language, cookie");
       return response;
     }
@@ -146,50 +153,37 @@ export default async function proxy(req: NextRequest) {
     }
   }
 
-  const isLocaleRootPage = pathname === `/${currentLocale}`;
+  const isLocaleRootPage = pathname === buildLocalePath(currentLocale, "/");
 
   if (isAuthenticated && isLocaleRootPage) {
-    const preferredLocale = req.cookies.get(APP_LOCALE_COOKIE_NAME)?.value;
-    const target = isAppLocale(preferredLocale)
-      ? new URL(`/${preferredLocale}/dashboard`, base)
+    const preferredLocale = preferredAppLocale(req);
+    const target = preferredLocale
+      ? new URL(buildLocalePath(preferredLocale, "/dashboard"), base)
       : new URL("/dashboard", base);
     target.search = req.nextUrl.search;
     return NextResponse.redirect(target);
   }
 
   if (isContentPage(req)) {
-    if (!isContentLocale(currentLocale)) {
-      const unprefixed = stripLocalePrefix(pathname);
-      const target = new URL(unprefixed === "/" ? `/${DEFAULT_LOCALE}` : `/${DEFAULT_LOCALE}${unprefixed}`, base);
-      target.search = req.nextUrl.search;
-      return NextResponse.redirect(target);
-    }
+    if (!isContentLocale(currentLocale))
+      return localeRedirect(DEFAULT_LOCALE, stripLocalePrefix(pathname), base, req.nextUrl.search);
 
     return intlContentMiddleware(req);
   }
 
   if (!isAppLocale(currentLocale)) {
-    const unprefixed = stripLocalePrefix(pathname);
-    const preferredLocale = req.cookies.get(APP_LOCALE_COOKIE_NAME)?.value;
-    const appLocale = isAppLocale(preferredLocale) ? preferredLocale : DEFAULT_LOCALE;
-    const target = new URL(unprefixed === "/" ? `/${appLocale}` : `/${appLocale}${unprefixed}`, base);
-    target.search = req.nextUrl.search;
-    return NextResponse.redirect(target);
+    const appLocale = preferredAppLocale(req) ?? DEFAULT_LOCALE;
+    return localeRedirect(appLocale, stripLocalePrefix(pathname), base, req.nextUrl.search);
   }
 
   if (isPublicPage(req)) return intlAppMiddleware(req);
 
-  const preferredLocale = req.cookies.get(APP_LOCALE_COOKIE_NAME)?.value;
-  if (isAuthenticated && isAppLocale(preferredLocale) && preferredLocale !== currentLocale) {
-    const unprefixed = stripLocalePrefix(pathname);
-    const target = new URL(unprefixed === "/" ? `/${preferredLocale}` : `/${preferredLocale}${unprefixed}`, base);
-    target.search = req.nextUrl.search;
-    return NextResponse.redirect(target);
-  }
+  const preferredLocale = preferredAppLocale(req);
+  if (isAuthenticated && preferredLocale && preferredLocale !== currentLocale)
+    return localeRedirect(preferredLocale, stripLocalePrefix(pathname), base, req.nextUrl.search);
 
   if (!isAuthenticated) {
-    const redirectLocale = currentLocale ?? DEFAULT_LOCALE;
-    const signInPath = `/${redirectLocale}/auth/signin`;
+    const signInPath = buildLocalePath(currentLocale, "/auth/signin");
     const signInUrl = new URL(signInPath, base);
     signInUrl.searchParams.set("callbackURL", new URL(req.nextUrl.pathname + req.nextUrl.search, base).toString());
 

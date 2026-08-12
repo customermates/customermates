@@ -2,13 +2,13 @@ import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { cn } from "@/core/utils/cn";
 
-import { getDocMethod, getDocMethodColor, toLocaleRelativeHref } from "../../docs.utils";
+import { getDocMethod, getDocMethodColor } from "../../docs.utils";
 import { apiDocsSource } from "@/core/fumadocs/source";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
 import { PageContainer } from "@/components/shared/page-container";
 import { AppLink } from "@/components/shared/app-link";
 import { AppChip } from "@/components/chip/app-chip";
-import { contentLocaleOrDefault, formattingTagFor } from "@/i18n/locale-registry";
+import { contentLocaleOrDefault, formattingTagFor, stripLocalePrefix } from "@/i18n/locale-registry";
 
 export default async function OpenApiDocPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -50,7 +50,7 @@ export default async function OpenApiDocPage({ params }: { params: Promise<{ slu
                       ? "bg-primary/10 text-primary font-medium"
                       : "text-subdued hover:text-foreground hover:bg-muted",
                   )}
-                  href={toLocaleRelativeHref(doc.url)}
+                  href={stripLocalePrefix(doc.url)}
                 >
                   <span className="flex items-center justify-between gap-2 min-w-0">
                     <span className="truncate text-sm">{doc.data.title}</span>

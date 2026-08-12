@@ -6,6 +6,7 @@ import { getGetServicesInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
 import { decodeGetParams } from "@/core/utils/get-params";
 import { PageContainer } from "@/components/shared/page-container";
+import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export const maxDuration = 60;
 
@@ -19,11 +20,13 @@ export default async function ServicesPage({ searchParams }: Props) {
   const params = await searchParams;
   const serviceParams = decodeGetParams(params);
 
-  const services = await getGetServicesInteractor().invoke({ ...serviceParams, p13nId: "services-card-store" });
+  const services = await unwrapValidated(
+    getGetServicesInteractor().invoke({ ...serviceParams, p13nId: "services-card-store" }),
+  );
 
   return (
     <PageContainer padded={false}>
-      <ServicesCard services={services.ok ? services.data : { items: [] }} />
+      <ServicesCard services={services} />
     </PageContainer>
   );
 }

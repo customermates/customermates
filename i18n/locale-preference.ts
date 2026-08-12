@@ -4,6 +4,7 @@ import {
   DEFAULT_LOCALE,
   appLocaleFromLanguageTag,
   appLocaleOrDefault,
+  buildLocalePath,
   isAppLocale,
   stripLocalePrefix,
 } from "./locale-registry";
@@ -29,9 +30,7 @@ export function displayLanguageNavigationTarget(locale: unknown, pathname: strin
   const unprefixedPath = stripLocalePrefix(path);
   if (locale === "system") return `${unprefixedPath}${suffix}`;
 
-  const localizedPath =
-    unprefixedPath === "/" ? `/${appLocaleOrDefault(locale)}` : `/${appLocaleOrDefault(locale)}${unprefixedPath}`;
-  return `${localizedPath}${suffix}`;
+  return `${buildLocalePath(appLocaleOrDefault(locale), unprefixedPath)}${suffix}`;
 }
 
 export function appLocaleReconciliationTarget(

@@ -1,8 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { icuArgumentNames, richTextTagNames } from "./lib/icu";
-
 import { APP_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
 type Leaves = Map<string, string>;
@@ -13,8 +11,6 @@ const STRICT = process.argv.includes("--strict");
 const SHARED_VALUE_PREFIXES = [
   "Common.providers.",
   "Common.filters.operators.",
-  "Common.seedData.contact.",
-  "Common.seedData.organization.",
   "DocsSidebar.mcp",
   "DocsSidebar.n8n",
   "DocsSidebar.openapi",
@@ -86,7 +82,6 @@ function loadLeavesCached(locale: string): Leaves {
 const reference = loadLeaves(DEFAULT_LOCALE);
 const others = APP_LOCALES.filter((locale) => locale !== DEFAULT_LOCALE);
 
-const blocking: string[] = [];
 const advisory: string[] = [];
 
 console.log(`reference locale: ${DEFAULT_LOCALE} (${reference.size} keys)\n`);
@@ -94,27 +89,6 @@ console.log(`reference locale: ${DEFAULT_LOCALE} (${reference.size} keys)\n`);
 for (const locale of others) {
   const leaves = loadLeaves(locale);
   const report: string[] = [];
-
-  const missing = [...reference.keys()].filter((key) => !leaves.has(key));
-  const extra = [...leaves.keys()].filter((key) => !reference.has(key));
-  if (leaves.size !== reference.size || missing.length || extra.length) {
-    blocking.push(
-      `${locale}: ${leaves.size} keys against ${reference.size}; ${missing.length} missing, ${extra.length} unknown` +
-        (missing.length ? `\n    missing: ${missing.slice(0, 10).join(", ")}` : "") +
-        (extra.length ? `\n    unknown: ${extra.slice(0, 10).join(", ")}` : ""),
-    );
-  }
-
-  const icu: string[] = [];
-  const tags: string[] = [];
-  for (const [key, source] of reference) {
-    const value = leaves.get(key);
-    if (value === undefined) continue;
-    if (icuArgumentNames(source) !== icuArgumentNames(value)) icu.push(key);
-    if (richTextTagNames(source) !== richTextTagNames(value)) tags.push(key);
-  }
-  if (icu.length) blocking.push(`${locale}: ICU arguments differ on ${icu.length} key(s): ${icu.join(", ")}`);
-  if (tags.length) blocking.push(`${locale}: rich-text tags differ on ${tags.length} key(s): ${tags.join(", ")}`);
 
   const bySource = new Map<string, Map<string, string[]>>();
   for (const [key, source] of reference) {
@@ -209,14 +183,9 @@ for (const locale of others) {
   console.log("");
 }
 
-if (blocking.length) {
-  console.error(`BLOCKING:\n  ${blocking.join("\n  ")}`);
-  process.exit(1);
-}
-
 if (advisory.length && STRICT) {
   console.error(`advisory findings present and --strict was passed`);
   process.exit(1);
 }
 
-console.log(blocking.length === 0 && advisory.length === 0 ? "catalogs are consistent" : "no blocking findings");
+console.log(advisory.length === 0 ? "catalogs are consistent" : "advisory findings only; parity is enforced by yarn test");

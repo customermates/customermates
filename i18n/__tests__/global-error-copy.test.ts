@@ -1,11 +1,10 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
-import deMessages from "@/i18n/locales/de.json";
-import enMessages from "@/i18n/locales/en.json";
-import esMessages from "@/i18n/locales/es.json";
-import frMessages from "@/i18n/locales/fr.json";
-import itMessages from "@/i18n/locales/it.json";
 import { APP_LOCALES } from "@/i18n/locale-registry";
+import { REPO_ROOT } from "@/tests/conventions/walk";
 
 import {
   GLOBAL_ERROR_COPY,
@@ -14,19 +13,26 @@ import {
   resolveGlobalErrorLocale,
 } from "../global-error-copy";
 
-const CATALOGS = { de: deMessages, en: enMessages, es: esMessages, fr: frMessages, it: itMessages } as const;
+type ErrorCardCatalog = { ErrorCard: Record<string, string> };
+
+function errorCardCopy(locale: string): Record<string, string> {
+  const raw = readFileSync(join(REPO_ROOT, "i18n", "locales", `${locale}.json`), "utf8");
+  return (JSON.parse(raw) as ErrorCardCatalog).ErrorCard;
+}
 
 describe("global error fallback", () => {
   it("stays aligned with the catalog copy for every application locale", () => {
     expect(assertGlobalErrorCopyCoverage()).toBe(true);
 
-    for (const [locale, messages] of Object.entries(CATALOGS)) {
-      expect(GLOBAL_ERROR_COPY[locale as keyof typeof CATALOGS]).toEqual({
-        backLabel: messages.ErrorCard.ctaLabel,
-        body: messages.ErrorCard.contactSupport,
-        retryLabel: messages.ErrorCard.retry,
-        subtitle: messages.ErrorCard.subtitle,
-        title: messages.ErrorCard.title,
+    for (const locale of APP_LOCALES) {
+      const errorCard = errorCardCopy(locale);
+
+      expect(GLOBAL_ERROR_COPY[locale]).toEqual({
+        backLabel: errorCard.ctaLabel,
+        body: errorCard.contactSupport,
+        retryLabel: errorCard.retry,
+        subtitle: errorCard.subtitle,
+        title: errorCard.title,
       });
     }
   });

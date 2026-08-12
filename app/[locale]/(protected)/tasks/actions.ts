@@ -15,10 +15,10 @@ import {
   getDeleteTaskInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
+import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export async function getTasksAction(params?: GetQueryParams) {
-  const result = await getGetTasksInteractor().invoke(params);
-  return result.ok ? result.data : { items: [] };
+  return unwrapValidated(getGetTasksInteractor().invoke(params));
 }
 
 export async function createTaskByNameAction(name: string, userId: string | null | undefined) {
@@ -53,8 +53,6 @@ export async function deleteTaskAction(data: DeleteTaskData) {
 }
 
 export async function getTaskByIdAction(data: GetTaskByIdData) {
-  const result = await getGetTaskByIdInteractor().invoke(data);
-  return result.ok
-    ? { entity: result.data.task, customColumns: result.data.customColumns }
-    : { entity: null, customColumns: [] };
+  const result = await unwrapValidated(getGetTaskByIdInteractor().invoke(data));
+  return { entity: result.task, customColumns: result.customColumns };
 }

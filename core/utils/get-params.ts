@@ -1,6 +1,7 @@
 import type { Filter, GetQueryParams, PaginationRequest, SortDescriptor } from "@/core/base/base-get.schema";
 
 import { FilterOperatorKey } from "../base/base-query-builder";
+import { normalizeLegacyRelationFilter } from "../base/filter-compat";
 
 export function encodeGetParams(params: GetQueryParams = {}): URLSearchParams {
   const sp = new URLSearchParams();
@@ -24,7 +25,8 @@ export function encodeGetParams(params: GetQueryParams = {}): URLSearchParams {
   }
 
   if (params.filters && params.filters.length > 0) {
-    for (const f of params.filters) {
+    for (const candidate of params.filters) {
+      const f = normalizeLegacyRelationFilter(candidate);
       const valuePart = serializeFilterValue(f.operator, "value" in f ? f.value : undefined);
       const token =
         valuePart !== undefined && valuePart !== null && valuePart !== ""
@@ -133,15 +135,15 @@ function serializeFilterValue(op: FilterOperatorKey, value: unknown): string | u
   switch (op) {
     case FilterOperatorKey.in:
     case FilterOperatorKey.notIn:
-    case FilterOperatorKey.between:
-    case FilterOperatorKey.hasNone:
-    case FilterOperatorKey.hasSome: {
+    case FilterOperatorKey.between: {
       const arr = Array.isArray(value) ? value : value !== undefined && value !== null ? [value] : [];
 
       return arr.map((x) => String(x)).join(",");
     }
     case FilterOperatorKey.isNull:
     case FilterOperatorKey.isNotNull:
+    case FilterOperatorKey.hasNone:
+    case FilterOperatorKey.hasSome:
     case FilterOperatorKey.hasUnset:
     case FilterOperatorKey.allSet:
       return undefined;
@@ -169,14 +171,20 @@ function decodeFilterToken(token: string): Filter | undefined {
       case FilterOperatorKey.in:
       case FilterOperatorKey.notIn:
       case FilterOperatorKey.between:
-      case FilterOperatorKey.hasNone:
-      case FilterOperatorKey.hasSome:
         value = rest ? rest.split(",") : [];
         break;
       case FilterOperatorKey.isNull:
       case FilterOperatorKey.isNotNull:
       case FilterOperatorKey.hasUnset:
       case FilterOperatorKey.allSet:
+        value = undefined;
+        break;
+      case FilterOperatorKey.hasNone:
+        if (rest) return { field, operator: FilterOperatorKey.notIn, value: rest.split(",") };
+        value = undefined;
+        break;
+      case FilterOperatorKey.hasSome:
+        if (rest) return { field, operator: FilterOperatorKey.in, value: rest.split(",") };
         value = undefined;
         break;
       case FilterOperatorKey.inLastDays:

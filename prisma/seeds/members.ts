@@ -4,7 +4,7 @@ import { SYNTHETIC_COMPANY_USERS } from "@/core/config/synthetic-seed-user";
 
 import type { SeedContext } from "./context";
 
-import { SYNTHETIC_AVATAR_PATHS } from "./avatars";
+import { SYNTHETIC_AVATAR_URLS } from "./avatars";
 import { SEED_IDS } from "./context";
 import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
 
@@ -24,7 +24,7 @@ export const SYNTHETIC_COMPANY_MEMBER_DEFINITIONS = [
   {
     id: SEED_IDS.user,
     agreeToTerms: false,
-    avatarPath: SYNTHETIC_AVATAR_PATHS.maxBergmann,
+    avatarPath: SYNTHETIC_AVATAR_URLS.maxBergmann,
     country: "de",
     email: SYNTHETIC_COMPANY_USERS.maxBergmann.email,
     firstName: SYNTHETIC_COMPANY_USERS.maxBergmann.firstName,
@@ -35,7 +35,7 @@ export const SYNTHETIC_COMPANY_MEMBER_DEFINITIONS = [
   {
     id: SEED_IDS.sofiaRossiUser,
     agreeToTerms: false,
-    avatarPath: SYNTHETIC_AVATAR_PATHS.sofiaRossi,
+    avatarPath: SYNTHETIC_AVATAR_URLS.sofiaRossi,
     country: "it",
     email: SYNTHETIC_COMPANY_USERS.sofiaRossi.email,
     firstName: SYNTHETIC_COMPANY_USERS.sofiaRossi.firstName,
@@ -46,7 +46,7 @@ export const SYNTHETIC_COMPANY_MEMBER_DEFINITIONS = [
   {
     id: SEED_IDS.elenaHoffmannUser,
     agreeToTerms: false,
-    avatarPath: SYNTHETIC_AVATAR_PATHS.elenaHoffmann,
+    avatarPath: SYNTHETIC_AVATAR_URLS.elenaHoffmann,
     country: "de",
     email: SYNTHETIC_COMPANY_USERS.elenaHoffmann.email,
     firstName: SYNTHETIC_COMPANY_USERS.elenaHoffmann.firstName,

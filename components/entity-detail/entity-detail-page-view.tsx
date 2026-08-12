@@ -31,6 +31,7 @@ export const EntityDetailPageView = observer(({ entityType, id, timelineInitial 
       canDelete={config.canDelete?.(store)}
       entityId={id}
       entityType={entityType}
+      fallbackTitle={singular(entityType)}
       historyPanel={<EntityTimelinePanel entityId={id} entityType={entityType} initial={timelineInitial} />}
       identity={config.identity(store.fetchedEntity ?? {}, t, singular(entityType))}
       masterData={<Master layout="page" />}

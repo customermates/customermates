@@ -1,5 +1,3 @@
-import { stripLocalePrefix } from "@/i18n/locale-registry";
-
 type DocWithOpenApi = {
   data: {
     _openapi?: unknown;
@@ -38,8 +36,4 @@ export function getDocMethodColor(method: string | undefined) {
     default:
       return "secondary";
   }
-}
-
-export function toLocaleRelativeHref(url: string) {
-  return stripLocalePrefix(url);
 }

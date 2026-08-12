@@ -16,7 +16,8 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
 import { RegisterUserInteractor } from "../register/register-user.interactor";
-import { UpdateUserDetailsInteractor } from "../upsert/update-user-details.interactor";
+import { UpdateUserDetailsInteractor, UpdateUserDetailsSchema } from "../upsert/update-user-details.interactor";
+import { AdminUpdateUserDetailsSchema } from "../upsert/admin-update-user-details.interactor";
 import { LEGAL_DOCUMENT_VERSIONS } from "@/constants/legal-documents";
 import { DomainEvent } from "@/features/event/domain-events";
 import { DemoModeError } from "@/core/errors/app-errors";
@@ -368,5 +369,51 @@ describe("UpdateUserDetailsInteractor", () => {
     expect(result.ok).toBe(true);
     expect(result.data.displayLanguage).toBe("system");
     expect(result.data.formattingLocale).toBe("system");
+  });
+});
+
+describe("avatar schemas require an absolute URL", () => {
+  const SEEDED_AVATAR = "https://customermates.com/demo/avatars/photos/max-bergmann.png";
+
+  it("keeps the seeded absolute avatar verbatim on the self-update schema", () => {
+    expect(UpdateUserDetailsSchema.safeParse({ avatarUrl: SEEDED_AVATAR })).toMatchObject({
+      success: true,
+      data: { avatarUrl: SEEDED_AVATAR },
+    });
+  });
+
+  it("keeps it verbatim on the admin schema, which re-parses a stored avatar on every role change", () => {
+    const result = AdminUpdateUserDetailsSchema.safeParse({
+      email: "max.bergmann@customermates.com",
+      firstName: "Max",
+      lastName: "Bergmann",
+      country: CountryCode.de,
+      status: "active",
+      avatarUrl: SEEDED_AVATAR,
+      roleId: "00000000-0000-4000-8000-000000000001",
+    });
+
+    expect(result).toMatchObject({ success: true, data: { avatarUrl: SEEDED_AVATAR } });
+  });
+
+  it.each([["/demo/avatars/photos/max-bergmann.png"], ["//cdn.example.com/a.png"]])(
+    "rejects the relative avatar %j rather than resolving it to another host",
+    (avatarUrl) => {
+      expect(UpdateUserDetailsSchema.safeParse({ avatarUrl }).success).toBe(false);
+    },
+  );
+
+  it("still normalises a bare host to https", () => {
+    expect(UpdateUserDetailsSchema.safeParse({ avatarUrl: "cdn.example.com/a.png" })).toMatchObject({
+      success: true,
+      data: { avatarUrl: "https://cdn.example.com/a.png" },
+    });
+  });
+
+  it("still accepts an empty string to clear the avatar", () => {
+    expect(UpdateUserDetailsSchema.safeParse({ avatarUrl: "" })).toMatchObject({
+      success: true,
+      data: { avatarUrl: "" },
+    });
   });
 });

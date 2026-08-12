@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { DocsPageHeader } from "../components/docs-page-header";
-import { getDocMethod, getDocMethodColor, toLocaleRelativeHref } from "../docs.utils";
+import { getDocMethod, getDocMethodColor } from "../docs.utils";
 import { env } from "@/env";
 import { apiDocsSource, apiOverviewSource } from "@/core/fumadocs/source";
 import { PageContainer } from "@/components/shared/page-container";
@@ -11,7 +11,7 @@ import { AppLink } from "@/components/shared/app-link";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppChip } from "@/components/chip/app-chip";
-import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
+import { DEFAULT_LOCALE, stripLocalePrefix } from "@/i18n/locale-registry";
 
 const GROUPS_ORDER = ["contact", "organization", "deal", "service", "task", "user"] as const;
 
@@ -53,7 +53,7 @@ export default async function OpenApiOverviewPage() {
       description: doc.data.description ?? "",
       method,
       title: doc.data.title ?? "",
-      url: toLocaleRelativeHref(doc.url),
+      url: stripLocalePrefix(doc.url),
     });
     return acc;
   }, {});

@@ -1,12 +1,13 @@
 "use client";
 
 import { useMemo } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import { ChevronDown } from "lucide-react";
 
 import { Avatar } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -28,35 +29,15 @@ import { useEntityTerminology } from "@/components/entity-terminology/use-entity
 
 import { ShellHeader } from "./shell-header";
 import { useTopBarActions } from "./topbar-actions-context";
-import { WORKSPACE_SECTIONS, visibleSubroutes, type WorkspaceSection } from "./navigation/workspace-sections";
+import { buildAppTopbarCrumbs } from "./app-topbar-crumbs";
 
-import type { AppMode } from "@/core/config/environment";
-import type { Resource } from "@/generated/prisma";
 import { EntityType } from "@/generated/prisma";
-
-type Sibling = { slug: string; label: string };
-type Crumb = { label: string; href?: string; siblings?: Sibling[]; pictureUrl?: string | null; isEntity?: boolean };
-
-const GROUP_MAP: Record<string, { group: "overview" | "crm" | "settings" | null; labelKey: string }> = {
-  dashboard: { group: "overview", labelKey: "dashboard" },
-  inbox: { group: "overview", labelKey: "inbox" },
-  tasks: { group: "overview", labelKey: "tasks" },
-  contacts: { group: "crm", labelKey: "contacts" },
-  organizations: { group: "crm", labelKey: "organizations" },
-  deals: { group: "crm", labelKey: "deals" },
-  services: { group: "crm", labelKey: "services" },
-  settings: { group: "settings", labelKey: "settings" },
-  profile: { group: "settings", labelKey: "profile" },
-  company: { group: "settings", labelKey: "company" },
-};
-
-function isWorkspaceSection(segment: string): segment is WorkspaceSection {
-  return segment === "profile" || segment === "company";
-}
 
 export const AppTopBar = observer(() => {
   const t = useTranslations();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const inboxThreadId = searchParams.get("threadId");
   const rootStore = useRootStore();
   const { layoutStore, userStore, terminologyStore } = rootStore;
   const { actions, override } = useTopBarActions();
@@ -72,25 +53,23 @@ export const AppTopBar = observer(() => {
 
   const { crumbs, section } = useMemo(
     () =>
-      buildCrumbs(
+      buildAppTopbarCrumbs(
         pathname,
         t,
         entityLabels,
-        layoutStore.runtimeTitle,
-        layoutStore.runtimePictureUrl,
-        layoutStore.runtimeAvatarKind !== null,
+        layoutStore.runtimeIdentity,
         rootStore.appMode,
         userStore.canAccess,
+        inboxThreadId,
       ),
     [
       pathname,
       t,
       terminologyStore.overrides,
-      layoutStore.runtimeTitle,
-      layoutStore.runtimePictureUrl,
-      layoutStore.runtimeAvatarKind,
+      layoutStore.runtimeIdentity,
       rootStore.appMode,
       userStore.user,
+      inboxThreadId,
     ],
   );
 
@@ -137,10 +116,28 @@ export const AppTopBar = observer(() => {
                       <IntlLink href={c.href}>{c.label}</IntlLink>
                     </BreadcrumbLink>
                   ) : (
-                    <BreadcrumbPage className="flex min-w-0 items-center gap-1.5 truncate">
-                      {isLeaf && c.isEntity && <Avatar name={c.label} size="sm" src={c.pictureUrl ?? null} />}
+                    <BreadcrumbPage
+                      aria-busy={c.isLoading || undefined}
+                      className="flex min-w-0 items-center gap-1.5 truncate"
+                      data-entity-crumb-loading={c.isLoading || undefined}
+                    >
+                      {c.isLoading ? (
+                        <>
+                          {c.showAvatarPlaceholder && (
+                            <Skeleton aria-hidden="true" className="size-4 shrink-0 rounded-sm" />
+                          )}
 
-                      <span className="truncate">{c.label}</span>
+                          <Skeleton aria-hidden="true" className="h-4 w-24 max-w-[30vw] rounded-sm" />
+
+                          <span className="sr-only">{c.label}</span>
+                        </>
+                      ) : (
+                        <>
+                          {isLeaf && c.isEntity && <Avatar name={c.label} size="sm" src={c.pictureUrl ?? null} />}
+
+                          <span className="truncate">{c.label}</span>
+                        </>
+                      )}
                     </BreadcrumbPage>
                   )}
                 </BreadcrumbItem>
@@ -152,51 +149,3 @@ export const AppTopBar = observer(() => {
     </ShellHeader>
   );
 });
-
-function buildCrumbs(
-  pathname: string,
-  t: (k: string) => string,
-  entityLabels: Record<string, string>,
-  runtimeTitle: string | null,
-  runtimePictureUrl: string | null,
-  showLeafAvatar: boolean,
-  appMode: AppMode,
-  canAccess: (resource: Resource) => boolean,
-): { crumbs: Crumb[]; section: string | null } {
-  const segs = pathname.split("/").filter(Boolean);
-  if (segs.length <= 1) return { crumbs: [], section: null };
-  const parts = segs.slice(1);
-
-  const first = parts[0];
-  const entry = GROUP_MAP[first];
-  if (!entry) return { crumbs: [], section: null };
-
-  const workspaceSection = isWorkspaceSection(first) ? first : null;
-  const sectionSubroutes = workspaceSection ? visibleSubroutes(workspaceSection, appMode, canAccess) : [];
-
-  const crumbs: Crumb[] = [];
-  const leafKey = entry.group === "settings" ? `UserAvatar.${entry.labelKey}` : `NavigationBar.${entry.labelKey}`;
-  const sectionHref = workspaceSection ? `/${first}/${sectionSubroutes[0]?.slug ?? "settings"}` : `/${first}`;
-  crumbs.push({ label: entityLabels[first] ?? t(leafKey), href: sectionHref });
-
-  if (parts.length > 1) {
-    const leaf = parts[1];
-    const subroute = workspaceSection ? WORKSPACE_SECTIONS[workspaceSection].find((s) => s.slug === leaf) : undefined;
-    if (subroute) {
-      const siblings: Sibling[] = sectionSubroutes.map((s) => ({ slug: s.slug, label: t(s.labelKey) }));
-      crumbs.push({ label: t(subroute.labelKey), siblings });
-    } else {
-      const fallback = leaf.length > 10 ? `${leaf.slice(0, 8)}…` : leaf;
-      crumbs.push({
-        label: runtimeTitle ?? fallback,
-        pictureUrl: runtimePictureUrl,
-        isEntity: showLeafAvatar,
-      });
-    }
-  }
-
-  if (first === "inbox" && runtimeTitle)
-    crumbs.push({ label: runtimeTitle, pictureUrl: runtimePictureUrl, isEntity: showLeafAvatar });
-
-  return { crumbs, section: workspaceSection };
-}

@@ -1358,6 +1358,7 @@
       "template": "Template",
       "theme": "Theme",
       "type": "Type",
+      "unavailableSelection": "Selection unavailable",
       "url": "URL",
       "userIds": "Assigned"
     },
@@ -1448,7 +1449,6 @@
         "user": "User",
         "users": "Assigned"
       },
-      "emptyContent": "No entries found",
       "groupBy": "Group By",
       "layout": "Layout",
       "nextPage": "Next page",
@@ -1466,6 +1466,7 @@
       "light": "Light",
       "system": "System"
     },
+    "unnamed": "Unnamed",
     "userStatuses": {
       "active": "Active",
       "inactive": "Inactive",
@@ -2362,6 +2363,11 @@
   "OrganizationModal": {
     "title": "Organization"
   },
+  "PageState": {
+    "loading": "Loading page",
+    "notFoundDescription": "This record may have been removed or you may not have access to it.",
+    "notFoundTitle": "Record not found"
+  },
   "PendingCard": {
     "body": "You can sign in once your account has been approved by your company's administrator.",
     "subtitle": "Your account is currently being reviewed by your company's administrator",
@@ -2510,7 +2516,7 @@
     "greeting": "Hi {firstName},",
     "scheduleFallback": "If the button does not work, copy and paste this link into your browser: ",
     "signoff": "Best regards,\nBen",
-    "subject": "Your account is inactive - we can help you restore access",
+    "subject": "Your account is inactive: we can help you restore access",
     "title": "Subscription inactivated"
   },
   "TaskModal": {
@@ -2535,7 +2541,7 @@
     "greeting": "Hi {firstName},",
     "scheduleFallback": "If the button does not work, copy and paste this link into your browser: ",
     "signoff": "Best regards,\nBen",
-    "subject": "Your account is inactive - we can help you restart",
+    "subject": "Your account is inactive: we can help you restart",
     "title": "Account inactivated"
   },
   "TrialInactivationReminder": {

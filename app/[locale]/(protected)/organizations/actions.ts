@@ -14,10 +14,10 @@ import {
   getDeleteOrganizationInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
+import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export async function getOrganizationsAction(params?: GetQueryParams) {
-  const result = await getGetOrganizationsInteractor().invoke(params);
-  return result.ok ? result.data : { items: [] };
+  return unwrapValidated(getGetOrganizationsInteractor().invoke(params));
 }
 
 export async function createOrganizationAction(data: CreateOrganizationData) {
@@ -33,10 +33,8 @@ export async function deleteOrganizationAction(data: DeleteOrganizationData) {
 }
 
 export async function getOrganizationByIdAction(data: GetOrganizationByIdData) {
-  const result = await getGetOrganizationByIdInteractor().invoke(data);
-  return result.ok
-    ? { entity: result.data.organization, customColumns: result.data.customColumns }
-    : { entity: null, customColumns: [] };
+  const result = await unwrapValidated(getGetOrganizationByIdInteractor().invoke(data));
+  return { entity: result.organization, customColumns: result.customColumns };
 }
 
 export async function createOrganizationByNameAction(name: string, userId: string | null | undefined) {

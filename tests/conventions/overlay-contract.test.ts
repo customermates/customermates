@@ -45,7 +45,6 @@ const FIXED_SURFACE_ALLOWLIST = new Set([
   "components/ui/alert-dialog.tsx",
   "components/ui/sidebar.tsx",
   "components/shared/loading-overlay.tsx",
-  "app/[locale]/loading.tsx",
   "app/components/agent-chat/agent-chat.tsx",
   "app/components/agent-chat/agent-tour-overlay.tsx",
 ]);

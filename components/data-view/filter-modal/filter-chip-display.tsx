@@ -7,8 +7,12 @@ import type { CustomColumnDto } from "@/features/custom-column/custom-column.sch
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { z } from "zod";
+import { CustomColumnType } from "@/generated/prisma";
 
 import { FilterOperatorKey, isStandaloneOperator } from "@/core/base/base-query-builder";
+import { SelectionValueSkeleton } from "@/components/forms/selection-loading";
+import { filterValueKind } from "@/core/types/filter-field-value-kind";
+import { isCustomField } from "@/core/utils/custom-field";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import {
   type FilterSelectItem,
@@ -55,7 +59,9 @@ export const FilterChipValue = observer(
         <>
           {prefix}
 
-          <span className="opacity-70">…</span>
+          <span data-filter-value-loading aria-label={t("Loading.text")} role="status">
+            <SelectionValueSkeleton className="h-4" />
+          </span>
         </>
       );
     }
@@ -71,7 +77,18 @@ export const FilterChipValue = observer(
       );
     }
 
-    const resolvesLabels = Boolean(getItems) || items.length > 0;
+    const customColumn = isCustomField(filter.field)
+      ? customColumns?.find((column) => column.id === filter.field)
+      : undefined;
+    const valueKind = filterValueKind(filter.field);
+    const requiresResolvedLabel =
+      Boolean(getItems) ||
+      items.length > 0 ||
+      valueKind?.kind === "entityId" ||
+      valueKind?.kind === "enum" ||
+      valueKind?.kind === "event" ||
+      (isCustomField(filter.field) &&
+        (customColumn === undefined || customColumn.type === CustomColumnType.singleSelect));
     const values = normalizeValues("value" in filter ? filter.value : undefined);
     const unavailable = t("Common.filters.unavailableValue");
     const labels = values.map((value) => {
@@ -82,7 +99,7 @@ export const FilterChipValue = observer(
       }
       const resolved = findLabelForValue(value, items);
       if (resolved !== undefined) return resolved;
-      return resolvesLabels ? unavailable : value;
+      return requiresResolvedLabel ? unavailable : value;
     });
 
     if (values.length > 0 && labels.every((value) => value === unavailable)) return <>{unavailable}</>;

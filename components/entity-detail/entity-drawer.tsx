@@ -15,6 +15,9 @@ import { ENTITY_DETAIL } from "@/components/entity-detail/entity-detail.registry
 import { UnsavedChangesGuard } from "@/components/modal/unsaved-changes-guard";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
+import { PageState } from "@/components/page-state/page-state";
+import { Button } from "@/components/ui/button";
+import { EntityDrawerLoadGate } from "@/components/entity-detail/entity-drawer-load-gate";
 
 export const EntityDrawer = observer(() => {
   const t = useTranslations();
@@ -22,22 +25,44 @@ export const EntityDrawer = observer(() => {
   const { singular } = useEntityTerminology();
   const rootStore = useRootStore();
   const lastLoadedRef = useRef<string | null>(null);
+  const [loadGate] = useState(() => new EntityDrawerLoadGate());
+  const [preparedKey, setPreparedKey] = useState<string | null>(null);
   const [isConfirmingClose, setIsConfirmingClose] = useState(false);
   const focusReturn = useOverlayFocusReturn(Boolean(top));
+  const topEntityType = top?.entityType ?? null;
+  const topId = top?.id ?? null;
+  const activeKey = topEntityType && topId ? `${topEntityType}:${topId}` : null;
 
   useEffect(() => {
-    if (!top) {
+    if (!activeKey || !topEntityType || !topId) {
+      loadGate.cancel();
       lastLoadedRef.current = null;
+      setPreparedKey(null);
       return;
     }
-    const key = `${top.entityType}:${top.id}`;
-    if (lastLoadedRef.current === key) return;
-    lastLoadedRef.current = key;
+    if (lastLoadedRef.current === activeKey) return;
+    lastLoadedRef.current = activeKey;
+    setPreparedKey(null);
+    const attempt = loadGate.begin(activeKey);
 
-    const store = ENTITY_DETAIL[top.entityType].store(rootStore);
-    if (top.id === "new") void store.add();
-    else void store.loadById(top.id);
-  }, [top, rootStore]);
+    const store = ENTITY_DETAIL[topEntityType].store(rootStore);
+    let active = true;
+    void (topId === "new" ? store.add() : store.loadById(topId)).finally(() => {
+      if (active && loadGate.isCurrent(attempt, activeKey)) setPreparedKey(activeKey);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [activeKey, topEntityType, topId, rootStore, loadGate]);
+
+  function closeTop() {
+    if (!top) return;
+    loadGate.cancel();
+    lastLoadedRef.current = null;
+    ENTITY_DETAIL[top.entityType].store(rootStore).close();
+    popTop();
+  }
 
   function handleOpenChange(open: boolean) {
     if (open || !top) return;
@@ -48,13 +73,13 @@ export const EntityDrawer = observer(() => {
       return;
     }
 
-    popTop();
+    closeTop();
   }
 
   function handleDiscard() {
     setIsConfirmingClose(false);
     if (top) ENTITY_DETAIL[top.entityType].store(rootStore).resetForm();
-    popTop();
+    closeTop();
   }
 
   function handleCloseAutoFocus(event: Event) {
@@ -66,7 +91,21 @@ export const EntityDrawer = observer(() => {
     focusReturn.onCloseAutoFocus(event);
   }
 
-  const DetailView = top ? ENTITY_DETAIL[top.entityType].DetailView : null;
+  const detailConfig = top ? ENTITY_DETAIL[top.entityType] : null;
+  const detailStore = top ? detailConfig?.store(rootStore) : null;
+  const DetailView = detailConfig?.DetailView ?? null;
+  const isPrepared = activeKey !== null && preparedKey === activeKey;
+  const isNotFound = top?.id !== "new" && detailStore?.entityLoadState === "not-found";
+  const hasLoadError = detailStore?.entityLoadState === "error";
+
+  function retry() {
+    if (!top || !detailStore || !activeKey) return;
+    setPreparedKey(null);
+    const attempt = loadGate.begin(activeKey);
+    void (top.id === "new" ? detailStore.add() : detailStore.loadById(top.id)).finally(() => {
+      if (loadGate.isCurrent(attempt, activeKey)) setPreparedKey(activeKey);
+    });
+  }
 
   return (
     <>
@@ -82,7 +121,28 @@ export const EntityDrawer = observer(() => {
           </VisuallyHidden.Root>
 
           <SheetBody className="flex flex-col overflow-hidden px-0">
-            {DetailView && <DetailView layout="drawer" />}
+            {top && !isPrepared && !hasLoadError && !isNotFound ? (
+              <PageState
+                className="h-full"
+                label={t("PageState.loading")}
+                skeleton={{ kind: "detail" }}
+                state="loading"
+              />
+            ) : hasLoadError || isNotFound ? (
+              <PageState
+                action={
+                  <Button size="sm" variant="outline" onClick={retry}>
+                    {t("ErrorCard.retry")}
+                  </Button>
+                }
+                className="h-full"
+                description={isNotFound ? t("PageState.notFoundDescription") : t("ErrorCard.contactSupport")}
+                state="error"
+                title={isNotFound ? t("PageState.notFoundTitle") : t("ErrorCard.title")}
+              />
+            ) : (
+              DetailView && <DetailView layout="drawer" />
+            )}
           </SheetBody>
         </SheetContent>
       </Sheet>

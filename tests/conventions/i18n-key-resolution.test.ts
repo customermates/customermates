@@ -19,6 +19,7 @@ import {
   Theme,
   WebhookDeliveryStatus,
 } from "@/generated/prisma";
+import { socialErrorMessageKeys } from "@/app/[locale]/(public)/auth/social-error-keys";
 import { CHIP_COLORS } from "@/constants/chip-colors";
 import { ALL_LEGAL_DOCUMENTS } from "@/constants/legal-documents";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
@@ -177,38 +178,7 @@ const ERROR_CARD_DYNAMIC_KEYS = [
   "ErrorCard.invalidInviteLink",
   "ErrorCard.inviteLinkExpired",
 ] as const;
-const AUTH_SOCIAL_ERROR_KEYS = [
-  "accessDenied",
-  "accountAlreadyLinkedToDifferentUser",
-  "accountNotLinked",
-  "emailDoesNotMatch",
-  "emailIsMissing",
-  "emailNotFound",
-  "generic",
-  "idIsMissing",
-  "internalServerError",
-  "invalidCallbackRequest",
-  "invalidCode",
-  "invalidPayload",
-  "invalidProfile",
-  "issuerMismatch",
-  "issuerMissing",
-  "missingProfile",
-  "nameIsMissing",
-  "noCallbackUrl",
-  "noCode",
-  "oauthCodeVerificationFailed",
-  "oauthProviderNotFound",
-  "payloadExpired",
-  "signupDisabled",
-  "stateMismatch",
-  "unableToCreateSession",
-  "unableToCreateUser",
-  "unableToGetUserInfo",
-  "unableToLinkAccount",
-  "userCreationFailed",
-  "userInfoIsMissing",
-].map((key) => `AuthSocialErrors.${key}`);
+const AUTH_SOCIAL_ERROR_KEYS = socialErrorMessageKeys();
 const HOMEPAGE_PRICING_VARIABLE_KEYS = [
   "HomepagePricing.cloud.badge",
   "HomepagePricing.cloud.compareText",
@@ -891,9 +861,9 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ["app/[locale]/(static)/docs/components/docs-sidebar.tsx :: t :: group.i18nKey", 1],
   ["app/[locale]/(static)/docs/components/docs-sidebar.tsx :: t :: item.i18nKey", 1],
   ["app/components/app-sidebar.tsx :: t :: subroute.labelKey", 2],
-  ["app/components/app-topbar.tsx :: t :: leafKey", 1],
-  ["app/components/app-topbar.tsx :: t :: s.labelKey", 1],
-  ["app/components/app-topbar.tsx :: t :: subroute.labelKey", 1],
+  ["app/components/app-topbar-crumbs.ts :: t :: leafKey", 1],
+  ["app/components/app-topbar-crumbs.ts :: t :: route.labelKey", 1],
+  ["app/components/app-topbar-crumbs.ts :: t :: subroute.labelKey", 1],
   ["components/card/form-actions.tsx :: t :: primaryButtonLabel", 1],
   ["components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: nameKey", 1],
   ["components/entity-detail/entity-detail.registry.tsx :: t :: key", 1],
@@ -1032,7 +1002,7 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
     keys: ["OnboardingForm.agreeToTerms", "OnboardingForm.invitedAgreeToTerms"],
   },
   {
-    file: "app/components/app-topbar.tsx",
+    file: "app/components/app-topbar-crumbs.ts",
     keys: ["UserAvatar.settings"],
     evidence: {
       "UserAvatar.settings": [

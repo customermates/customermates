@@ -56,7 +56,7 @@ export const CompanySettingsForm = observer(({ currency }: Props) => {
         })
       }
     >
-      <div className="flex w-full max-w-3xl flex-col gap-6">
+      <div className="animate-page-result-in flex w-full max-w-3xl flex-col gap-6 motion-reduce:animate-none">
         <div className="flex flex-col gap-1.5">
           <FormAutocompleteCurrency required id="currency" />
 

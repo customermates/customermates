@@ -27,10 +27,12 @@ export class ThreadParticipantsStore extends BaseStore {
   query = "";
   results: ContactRow[] = [];
   isLoading = false;
+  searchError = false;
   pending = false;
 
   private threadId = "";
   private debouncer = new Debouncer();
+  private searchGeneration = 0;
 
   constructor(rootStore: RootStore) {
     super(rootStore);
@@ -40,6 +42,7 @@ export class ThreadParticipantsStore extends BaseStore {
       query: observable,
       results: observable,
       isLoading: observable,
+      searchError: observable,
       pending: observable,
       isSearching: computed,
       showCreate: computed,
@@ -48,6 +51,7 @@ export class ThreadParticipantsStore extends BaseStore {
       startLink: action,
       backToList: action,
       setQuery: action,
+      retrySearch: action,
       link: action,
       createAndAssign: action,
       unlink: action,
@@ -59,7 +63,7 @@ export class ThreadParticipantsStore extends BaseStore {
   }
 
   get showCreate(): boolean {
-    return this.query.trim().length > 0 && !this.isLoading && this.results.length === 0;
+    return this.query.trim().length > 0 && !this.isLoading && !this.searchError && this.results.length === 0;
   }
 
   bind = (threadId: string) => {
@@ -78,6 +82,7 @@ export class ThreadParticipantsStore extends BaseStore {
     this.activeIdentifier = identifier;
     this.query = "";
     this.results = [];
+    this.searchError = false;
     void this.refresh();
   };
 
@@ -85,12 +90,23 @@ export class ThreadParticipantsStore extends BaseStore {
     this.activeIdentifier = null;
     this.query = "";
     this.results = [];
+    this.isLoading = false;
+    this.searchError = false;
+    this.searchGeneration += 1;
     this.debouncer.cancel();
   };
 
   setQuery = (value: string) => {
     this.query = value;
+    this.isLoading = true;
+    this.searchError = false;
+    this.searchGeneration += 1;
     this.debouncer.run(() => void this.refresh());
+  };
+
+  retrySearch = async (): Promise<void> => {
+    this.searchError = false;
+    await this.refresh();
   };
 
   link = async (identifier: string, contactId: string): Promise<void> => {
@@ -212,28 +228,48 @@ export class ThreadParticipantsStore extends BaseStore {
     this.query = "";
     this.results = [];
     this.isLoading = false;
+    this.searchError = false;
+    this.searchGeneration += 1;
     this.debouncer.cancel();
   }
 
   private refresh = async (): Promise<void> => {
     if (this.activeIdentifier === null) return;
+    const requestedIdentifier = this.activeIdentifier;
     const requestedQuery = this.query;
+    const generation = ++this.searchGeneration;
+    const isCurrent = () =>
+      generation === this.searchGeneration &&
+      this.activeIdentifier === requestedIdentifier &&
+      this.query === requestedQuery;
+
     runInAction(() => {
       this.isLoading = true;
+      this.searchError = false;
     });
-    const result = await getContactsAction({
-      searchTerm: requestedQuery,
-      pagination: { page: 1, pageSize: 10 },
-    });
-    runInAction(() => {
-      if (this.query !== requestedQuery) return;
-      this.results = result.items.map((c) => ({
-        id: c.id,
-        firstName: c.firstName,
-        lastName: c.lastName,
-        avatarUrl: c.avatarUrl,
-      }));
-      this.isLoading = false;
-    });
+
+    try {
+      const result = await getContactsAction({
+        searchTerm: requestedQuery,
+        pagination: { page: 1, pageSize: 10 },
+      });
+      runInAction(() => {
+        if (!isCurrent()) return;
+        this.results = result.items.map((c) => ({
+          id: c.id,
+          firstName: c.firstName,
+          lastName: c.lastName,
+          avatarUrl: c.avatarUrl,
+        }));
+      });
+    } catch {
+      runInAction(() => {
+        if (isCurrent()) this.searchError = true;
+      });
+    } finally {
+      runInAction(() => {
+        if (isCurrent()) this.isLoading = false;
+      });
+    }
   };
 }

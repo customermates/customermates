@@ -195,7 +195,7 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
     for (const account of accounts) {
       expect(account).toMatchObject({
         companyId: context.companyId,
-        ownerAvatarUrl: "/demo/avatars/photos/max-bergmann.png",
+        ownerAvatarUrl: "https://customermates.com/demo/avatars/photos/max-bergmann.png",
         shared: false,
         status: "ok",
         syncing: false,
@@ -421,7 +421,9 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
     } as const;
     for (const participant of participants) {
       const name = String(participant.displayName) as keyof typeof expectedAvatarByName;
-      expect(participant.pictureUrl).toBe(`/demo/avatars/photos/${expectedAvatarByName[name]}`);
+      expect(participant.pictureUrl).toBe(
+        `https://customermates.com/demo/avatars/photos/${expectedAvatarByName[name]}`,
+      );
     }
     for (const call of records.participants) {
       expect(call.where).toEqual({
@@ -472,7 +474,9 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
 
       const sender = message.sender as FixtureRow;
       const senderName = String(sender.displayName) as keyof typeof expectedAvatarByName;
-      expect(sender.pictureUrl).toBe(`/demo/avatars/photos/${expectedAvatarByName[senderName]}`);
+      expect(sender.pictureUrl).toBe(
+        `https://customermates.com/demo/avatars/photos/${expectedAvatarByName[senderName]}`,
+      );
 
       if (message.provider === "google") {
         expect(String(message.bodyHtml)).toContain("<p>");
