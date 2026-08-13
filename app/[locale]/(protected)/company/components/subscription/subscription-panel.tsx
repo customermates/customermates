@@ -63,7 +63,7 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
   const subscription = subscriptionStore.subscription ?? initialSubscription;
   const isManaged = subscription?.plan === SubscriptionPlan.enterprise;
   const seats = subscription?.quantity ?? subscription?.activeUsers ?? 0;
-  const hasActiveSubscription = subscription?.hasActiveSubscription ?? false;
+  const hasProviderSubscription = subscription?.hasProviderSubscription ?? false;
 
   return (
     <section className="flex w-full flex-col gap-4">
@@ -103,7 +103,7 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
             </ReadOnlyField>
           </div>
 
-          {!hasActiveSubscription && (
+          {subscription?.canManageSubscription && !hasProviderSubscription && (
             <PlanPicker
               isLoading={loadingOverlayStore.isLoading}
               onSelect={(plan) => void subscriptionStore.handleSubscribe(plan)}

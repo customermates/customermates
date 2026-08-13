@@ -8,7 +8,12 @@ import { createZodError } from "@/core/validation/validation.utils";
 import { getEntitlements, isSubscriptionUsable } from "@/ee/subscription/entitlements";
 import { env } from "@/env";
 
-type PlanSummary = { status: SubscriptionStatus; trialEndDate: Date | null; plan: SubscriptionPlan };
+type PlanSummary = {
+  status: SubscriptionStatus;
+  trialEndDate: Date | null;
+  currentPeriodEnd: Date | null;
+  plan: SubscriptionPlan;
+};
 
 export abstract class EntitlementSubscriptionRepo {
   abstract getSubscriptionOrThrow(): Promise<PlanSummary>;
@@ -21,12 +26,19 @@ export type EntitlementDenialCode =
   | "sharedAccountsRequiresBusiness"
   | "paidSubscriptionRequired";
 
-export type EntitlementDenial = { ok: false; error: z.ZodError; code: EntitlementDenialCode };
+export type EntitlementDenial = {
+  ok: false;
+  error: z.ZodError;
+  code: EntitlementDenialCode;
+};
 type Translator = Awaited<ReturnType<typeof getTranslations>>;
 
 const FEATURE_DENIALS: Record<EntitlementFeature, { cloud: EntitlementDenialCode; plan: EntitlementDenialCode }> = {
   messaging: { cloud: "messagingRequiresCloud", plan: "messagingRequiresPro" },
-  sharedAccounts: { cloud: "sharedAccountsRequiresCloud", plan: "sharedAccountsRequiresBusiness" },
+  sharedAccounts: {
+    cloud: "sharedAccountsRequiresCloud",
+    plan: "sharedAccountsRequiresBusiness",
+  },
 };
 
 export class EntitlementService {
@@ -46,6 +58,10 @@ export class EntitlementService {
   }
 
   private denial(t: Translator, code: EntitlementDenialCode): EntitlementDenial {
-    return { ok: false, error: createZodError(t(`ConnectedAccountsCard.${code}`)), code };
+    return {
+      ok: false,
+      error: createZodError(t(`ConnectedAccountsCard.${code}`)),
+      code,
+    };
   }
 }

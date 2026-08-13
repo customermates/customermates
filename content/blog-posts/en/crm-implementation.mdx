@@ -69,6 +69,7 @@ Before evaluating software or configuring anything, define what success looks li
 Then define your scope. The most dangerous words in CRM implementation are "while we are at it." Scope creep is the top cause of delays.
 
 **In scope for initial rollout** (keep it minimal):
+
 - Contact and company management
 - Primary [sales pipeline](/blog/sales-pipeline)
 - Email integration
@@ -78,6 +79,7 @@ Then define your scope. The most dangerous words in CRM implementation are "whil
 - One or two key automations
 
 **Out of scope for initial rollout** (add later):
+
 - Secondary pipelines
 - Advanced automation workflows
 - Complex integrations beyond email and calendar
@@ -104,13 +106,13 @@ Our [CRM comparison](/blog/crm-comparison) and [best CRM software](/blog/best-cr
 
 A realistic CRM implementation timeline for a small to mid-sized business:
 
-| Phase | Duration | Activities |
-|-------|----------|------------|
-| Planning | 3-7 days | Team assembly, scope definition, CRM selection |
-| Configuration | 3-5 days | System setup, fields, pipelines, permissions |
-| Data Migration | 3-5 days | Export, clean, map, import, verify |
-| Testing and Training | 3-5 days | Workflow testing, user acceptance, role-based training |
-| Launch and Optimization | Ongoing | Go-live, monitoring, iterative improvements |
+| Phase                   | Duration | Activities                                             |
+| ----------------------- | -------- | ------------------------------------------------------ |
+| Planning                | 3-7 days | Team assembly, scope definition, CRM selection         |
+| Configuration           | 3-5 days | System setup, fields, pipelines, permissions           |
+| Data Migration          | 3-5 days | Export, clean, map, import, verify                     |
+| Testing and Training    | 3-5 days | Workflow testing, user acceptance, role-based training |
+| Launch and Optimization | Ongoing  | Go-live, monitoring, iterative improvements            |
 
 **Total: approximately 2-4 weeks from start to stable operation.**
 
@@ -125,12 +127,14 @@ With planning complete, configure the CRM to match your business processes.
 Create your pipeline with stages that reflect how your business actually sells. Resist the urge to over-engineer. Five to seven stages is optimal for most businesses.
 
 **Guidelines for pipeline design**:
+
 - Each stage should represent a meaningful milestone
 - Stage names should be clear and unambiguous
 - Include both "Closed Won" and "Closed Lost" stages
 - Add a "Closed Lost" reason field to track why deals fail
 
 **Example pipeline for a B2B services company**:
+
 1. New Inquiry
 2. Qualified
 3. Meeting Scheduled
@@ -146,12 +150,14 @@ Learn more about building an effective [sales pipeline](/blog/sales-pipeline).
 Add only the custom fields you genuinely need for the initial rollout. Every unnecessary field slows data entry and reduces adoption.
 
 **Essential custom fields typically include**:
+
 - Lead source (dropdown: website, referral, event, cold outreach)
 - Industry (dropdown)
 - Company size (dropdown: 1-10, 11-50, 51-200, 200+)
 - Deal type (dropdown matching your product or service categories)
 
 **Fields to add later**:
+
 - Competitor information
 - Advanced qualification scores
 - Custom relationship types
@@ -210,6 +216,7 @@ Export data from all sources into CSV files. If data lives in multiple places, c
 This is the most important step in data migration. Importing dirty data into a clean CRM is like moving into a new house and bringing all your old clutter.
 
 **Cleaning tasks**:
+
 - **Remove duplicates**: Sort by email or company name and merge duplicates
 - **Standardize formats**: Ensure consistent country codes, phone formats, and date formats
 - **Update stale records**: Remove or archive contacts who are no longer relevant
@@ -222,17 +229,18 @@ This is the most important step in data migration. Importing dirty data into a c
 
 Create a mapping document that shows which field in your source data corresponds to which field in the CRM:
 
-| Source Field | CRM Field | Notes |
-|-------------|-----------|-------|
-| Name | First Name + Last Name | Split on space |
-| Email | Email | Direct mapping |
-| Company | Company Name | Match to existing company records |
-| Phone | Phone Number | Standardize format |
-| Status | Lead Source | Map values to dropdown options |
+| Source Field | CRM Field              | Notes                             |
+| ------------ | ---------------------- | --------------------------------- |
+| Name         | First Name + Last Name | Split on space                    |
+| Email        | Email                  | Direct mapping                    |
+| Company      | Company Name           | Match to existing company records |
+| Phone        | Phone Number           | Standardize format                |
+| Status       | Lead Source            | Map values to dropdown options    |
 
 #### Step 5: Test Import
 
 Import a small batch (20-50 records) first. Verify:
+
 - All fields mapped correctly
 - Data types are correct (dates as dates, numbers as numbers)
 - Relationships are preserved (contacts linked to correct companies)
@@ -266,6 +274,7 @@ Compile feedback and make adjustments before training the broader team.
 Training is the single biggest factor in CRM adoption. Do it well, and the CRM becomes part of the team's routine. Do it poorly, and the system slowly gets abandoned.
 
 **Training principles**:
+
 - **Keep it role-specific**: Sales reps need different training than managers
 - **Make it hands-on**: Practice during training, not just demonstrations
 - **Use real scenarios**: Train with real customer data and workflows
@@ -273,16 +282,17 @@ Training is the single biggest factor in CRM adoption. Do it well, and the CRM b
 
 **Recommended training sessions**:
 
-| Session | Audience | Duration | Topics |
-|---------|----------|----------|--------|
-| Session 1 | All Users | 90 min | Why CRM, navigation, contacts, activities, tasks |
-| Session 2 | Sales Team | 60 min | Pipeline management, deal stages, forecasting |
-| Session 3 | Managers | 60 min | Dashboards, reporting, team monitoring |
-| Session 4 | CRM Admin | 60 min | Configuration, custom fields, automations, user management |
+| Session   | Audience   | Duration | Topics                                                     |
+| --------- | ---------- | -------- | ---------------------------------------------------------- |
+| Session 1 | All Users  | 90 min   | Why CRM, navigation, contacts, activities, tasks           |
+| Session 2 | Sales Team | 60 min   | Pipeline management, deal stages, forecasting              |
+| Session 3 | Managers   | 60 min   | Dashboards, reporting, team monitoring                     |
+| Session 4 | CRM Admin  | 60 min   | Configuration, custom fields, automations, user management |
 
 For ongoing skill development, check out our [CRM training](/blog/crm-training) guide.
 
 **Create reference materials**:
+
 - A one-page quick-start guide with the five most common tasks
 - Video recordings of training sessions for new hires
 - An FAQ document that grows with real questions
@@ -294,12 +304,14 @@ For ongoing skill development, check out our [CRM training](/blog/crm-training) 
 Launch day should be anticlimactic. If the previous phases were done well, going live is simply the moment when the CRM becomes the official tool.
 
 **Communicate expectations**:
+
 - All new leads and customer interactions go into the CRM starting today
 - The pipeline is the source of truth for deal status
 - Previous systems (spreadsheets, other tools) should no longer be updated
 - Questions go to the CRM admin or department champion
 
 **Monitor closely in the first week**:
+
 - Login activity: Is everyone accessing the system?
 - Data entry: Are records being created and updated?
 - Help requests: What common questions are surfacing?
@@ -322,6 +334,7 @@ The first weeks after launch are when habits form. This is where you decide whet
 Use this checklist to track your progress through each phase:
 
 ### Planning
+
 - [ ] Implementation team assembled (project owner, technical lead, champions, sponsor)
 - [ ] Goals and success metrics defined
 - [ ] Scope documented (in-scope and out-of-scope items)
@@ -330,6 +343,7 @@ Use this checklist to track your progress through each phase:
 - [ ] Budget approved
 
 ### Configuration
+
 - [ ] Sales pipeline created with appropriate stages
 - [ ] Essential custom fields added
 - [ ] User accounts created with correct permissions
@@ -339,6 +353,7 @@ Use this checklist to track your progress through each phase:
 - [ ] Notification settings configured
 
 ### Data Migration
+
 - [ ] All data sources identified
 - [ ] Data exported and consolidated into CSV files
 - [ ] Data cleaned (duplicates removed, formats standardized, stale records archived)
@@ -348,6 +363,7 @@ Use this checklist to track your progress through each phase:
 - [ ] Post-import quality check passed
 
 ### Testing and Training
+
 - [ ] All core workflows tested end to end
 - [ ] User acceptance testing completed by department champions
 - [ ] Feedback incorporated and adjustments made
@@ -356,6 +372,7 @@ Use this checklist to track your progress through each phase:
 - [ ] FAQ document created
 
 ### Launch
+
 - [ ] Leadership has communicated that CRM is the official system
 - [ ] All users have logged in and confirmed access
 - [ ] Previous systems flagged for decommission
@@ -370,7 +387,7 @@ Understanding how real businesses approach CRM implementation helps you plan you
 
 **Challenge**: Customer data scattered across spreadsheets, email inboxes, and one partner's memory. No pipeline visibility. Deals were falling through the cracks.
 
-**Approach**: The firm chose Customermates for its fast setup, on the Pro tier at EUR 29 per user per month for the Gmail inbox. They configured a 6-stage pipeline, imported 2,400 contacts from a consolidated spreadsheet, and connected Gmail for all team members.
+**Approach**: In this illustrative plan, the firm chooses Customermates Pro at [[commercial.price.pro.monthly]] per user per month for the unified inbox. It configures a 6-stage pipeline, cleans its consolidated spreadsheet, loads records through the REST API, and connects Gmail for team members.
 
 **Timeline**: 5 business days from start to go-live. Two weeks of stabilization.
 
@@ -494,9 +511,9 @@ This is possible because Customermates eliminates the overhead that plagues comp
 - n8n automation replaces expensive integration projects
 - Intuitive interface minimizes training time
 - Open-source with full data portability
-- EU-hosted with GDPR compliance built in
+- The managed application database is configured in an EU region, with cloud subprocessors and transfer safeguards disclosed in the legal pages
 - Native AI integration for lead qualification and [note summarization](/blog/chatgpt-summarize-notes)
-- The full core CRM from EUR 12 per user per month, no hidden costs
+- The full core CRM from [[commercial.price.starter.monthly]] per user per month, no hidden costs
 
 ## Frequently Asked Questions
 
@@ -522,7 +539,7 @@ CRM implementation timelines vary by business size and complexity. Small busines
 
 ### How much does CRM implementation cost?
 
-CRM implementation costs include the software subscription, staff time for configuration and data migration, training costs, and any third-party integration expenses. With Customermates from EUR 12 per user per month and self-serve setup, total implementation costs for a 10-person team are typically under EUR 2,000 including staff time. Enterprise CRM implementations can cost EUR 50,000 to EUR 500,000 or more. See our [CRM cost](/blog/crm-cost) guide for detailed breakdowns.
+CRM implementation costs include the software subscription, staff time for configuration and data migration, training costs, and any third-party integration expenses. With Customermates, a 10-person Starter subscription is [[commercial.price.starter.monthly.seats.10.months.12]] for the first year, plus staff time for the self-serve setup. Enterprise CRM implementations can cost EUR 50,000 to EUR 500,000 or more. See our [CRM cost](/blog/crm-cost) guide for detailed breakdowns.
 
 ### What is a CRM implementation project plan?
 
@@ -538,4 +555,4 @@ CRM implementation succeeds when it is treated as a people project supported by 
 
 The most important principles: start with a minimal scope and expand gradually, invest heavily in data cleaning, train with hands-on practice using real scenarios, monitor adoption closely in the first weeks, and treat the launch as the beginning of ongoing optimization.
 
-With a CRM designed for fast deployment like Customermates, open-source, EU-hosted, GDPR-native, and from just EUR 12 per user per month, your team can go from decision to productive usage in days, not months. The sooner your CRM implementation is complete and adopted, the sooner it starts delivering [measurable ROI](/blog/crm-roi).
+With a CRM designed for fast deployment like Customermates, open-source, EU-hosted, GDPR-native, and from just [[commercial.price.starter.monthly]] per user per month, your team can go from decision to productive usage in days, not months. The sooner your CRM implementation is complete and adopted, the sooner it starts delivering [measurable ROI](/blog/crm-roi).

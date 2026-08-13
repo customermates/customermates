@@ -12,6 +12,15 @@ const ENFORCED = true;
 const TOOL_NAME_PATTERN = /^ {2}name: ["']([a-z0-9_]+)["'],?$/gm;
 const TOOL_EXPORT_PATTERN = /export const [A-Za-z0-9]+Tool = \{/g;
 const CATALOG_TOOL_PATTERN = /`([a-z][a-z0-9]*(?:_[a-z0-9]+)+)`/g;
+const RETIRED_TOOL_NAMES = [
+  "append_entity_notes",
+  "create_widget",
+  "filter_entity",
+  "get_entities",
+  "link_entities",
+  "update_entity_notes",
+  "update_widget",
+] as const;
 const CATALOG_LOCALES = CONTENT_LOCALES;
 const REQUIRED_ANNOTATIONS = ["readOnlyHint", "idempotentHint", "destructiveHint", "openWorldHint"];
 
@@ -92,4 +101,18 @@ describe("MCP tool catalog fidelity", () => {
     }
     expect(stale).toEqual([]);
   });
+
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
+    "publishes no retired MCP tool name anywhere in product content",
+    () => {
+      const stale: string[] = [];
+      const files = walkFiles(join(REPO_ROOT, "content"), (path) => path.endsWith(".mdx"));
+      for (const file of files) {
+        const text = readFileSync(file, "utf8");
+        for (const name of RETIRED_TOOL_NAMES)
+          if (new RegExp(`\\b${name}\\b`).test(text)) stale.push(`${file.slice(REPO_ROOT.length + 1)}: ${name}`);
+      }
+      expect(stale, stale.join("\n")).toEqual([]);
+    },
+  );
 });

@@ -164,7 +164,6 @@ const SUBSCRIPTION_STATUS_KEYS = Object.values(SubscriptionStatus).map((status) 
 const SELECTABLE_SUBSCRIPTION_PLANS = Object.values(SubscriptionPlan).filter(
   (plan) => plan !== SubscriptionPlan.enterprise,
 );
-const SUBSCRIPTION_PRICE_KEYS = SELECTABLE_SUBSCRIPTION_PLANS.map((plan) => `Subscription.picker.price.${plan}`);
 const SUBSCRIPTION_FEATURE_KEYS = [...loadCatalogPaths().leafPaths].filter((key) =>
   SELECTABLE_SUBSCRIPTION_PLANS.some((plan) => key.startsWith(`Subscription.picker.features.${plan}.`)),
 );
@@ -257,7 +256,6 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["ErrorCard.${*}", ERROR_CARD_DYNAMIC_KEYS],
   ["HomepagePricing.${*}.${*}", HOMEPAGE_PRICING_VARIABLE_KEYS],
   ["HomepagePricing.${*}.ctaText", ["HomepagePricing.cloud.ctaText", "HomepagePricing.selfHosted.ctaText"]],
-  ["HomepagePricing.${*}.price", ["HomepagePricing.cloud.price", "HomepagePricing.selfHosted.price"]],
   ["HomepagePricing.${*}.tag", ["HomepagePricing.cloud.tag", "HomepagePricing.selfHosted.tag"]],
   ["HomepagePricing.${*}.title", ["HomepagePricing.cloud.title", "HomepagePricing.selfHosted.title"]],
   [
@@ -280,7 +278,6 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["OnboardingWizard.steps.${*}.title", ONBOARDING_STEP_TITLE_KEYS],
   ["RoleModal.resources.${*}", ROLE_RESOURCE_KEYS],
   ["Subscription.picker.features.${*}", SUBSCRIPTION_FEATURE_KEYS],
-  ["Subscription.picker.price.${*}", SUBSCRIPTION_PRICE_KEYS],
   ["Subscription.planNames.${*}", SUBSCRIPTION_PLAN_KEYS],
   ["Subscription.status.${*}", SUBSCRIPTION_STATUS_KEYS],
   ["WebhookDeliveryModal.deliveryStatus.${*}", WEBHOOK_DELIVERY_STATUS_KEYS],
@@ -313,7 +310,6 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.description",
   "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.title",
   "app/[locale]/(protected)/company/components/role/role-modal.tsx :: t :: RoleModal.resources.${resource}",
-  "app/[locale]/(protected)/company/components/subscription/plan-picker.tsx :: t :: Subscription.picker.price.${plan}",
   "app/[locale]/(protected)/company/components/subscription/plan-picker.tsx :: t :: Subscription.planNames.${plan}",
   "app/[locale]/(protected)/company/components/subscription/plan-picker.tsx :: t.raw :: Subscription.picker.features.${plan}",
   "app/[locale]/(protected)/company/components/subscription/subscription-panel.tsx :: t :: Subscription.planNames.${subscription?.plan ?? SubscriptionPlan.pro}",
@@ -355,7 +351,6 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.${card.titleKey}.${card.periodKey}",
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.${card.titleKey}.${featureKey}",
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.${card.titleKey}.ctaText",
-  "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.${card.titleKey}.price",
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.${card.titleKey}.tag",
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.${card.titleKey}.title",
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.compare.${key}",
@@ -545,8 +540,15 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
       DIAGRAM_SYSTEM_LABEL_KEYS.map((key) => [
         `Diagrams.${key}`,
         [
-          { kind: "template" as const, value: "`Diagrams.${item.systemLabelKey}`" },
-          { file: "features/widget/widget.schema.ts", kind: "literal" as const, value: key },
+          {
+            kind: "template" as const,
+            value: "`Diagrams.${item.systemLabelKey}`",
+          },
+          {
+            file: "features/widget/widget.schema.ts",
+            kind: "literal" as const,
+            value: key,
+          },
         ],
       ]),
     ),
@@ -594,7 +596,10 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
     evidence: {
       "UserAvatar.settings": [
         { kind: "template", value: "`UserAvatar.${entry.labelKey}`" },
-        { kind: "property", value: 'settings: { group: "settings", labelKey: "settings" }' },
+        {
+          kind: "property",
+          value: 'settings: { group: "settings", labelKey: "settings" }',
+        },
       ],
     },
   },
@@ -890,7 +895,13 @@ function scanSources(): {
     }
   }
 
-  return { staticViolations, dynamicSites, consumerKeys, indirectViolations, nonliteralSites };
+  return {
+    staticViolations,
+    dynamicSites,
+    consumerKeys,
+    indirectViolations,
+    nonliteralSites,
+  };
 }
 
 describe("i18n key resolution", () => {

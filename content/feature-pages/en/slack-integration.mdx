@@ -5,12 +5,12 @@ featureName: Slack Integration
 
 hero:
   title: Slack Integration, Built on Webhooks and Your Own n8n
-  description: Customermates has no native Slack app. What it has is 26 webhook events, a full REST API, and an MCP endpoint — everything an automation tool needs to post deal alerts into Slack and write back from it. Bring your own n8n, Make, or Zapier.
+  description: Customermates has no native Slack app. What it has is [[derived.webhooks.events.total]] webhook events, a full REST API, and an MCP endpoint — everything an automation tool needs to post deal alerts into Slack and write back from it. Bring your own n8n, Make, or Zapier.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First 7 days free"
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
   action: Ready to wire Customermates into Slack?
@@ -19,14 +19,14 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First 7 days free"
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
 ## What This Page Does and Does Not Claim
 
 Customermates does not ship a Slack integration. There is no Slack app to install, no Slack settings screen in the product, and no Slack option in the connected-accounts list. The unified inbox covers email, LinkedIn, WhatsApp, Instagram, and Telegram; Slack is not one of its channels.
 
-What Customermates does ship is the machinery an external automation tool needs to talk to Slack on your behalf: outbound webhooks on 26 record and messaging events, a versioned REST API, and an MCP endpoint. Wire those to [n8n](/docs/n8n), Make, or Zapier, add that tool's Slack node, and you get the behavior described below. The Slack side runs in your automation tool, not in Customermates.
+What Customermates does ship is the machinery an external automation tool needs to talk to Slack on your behalf: outbound webhooks on [[derived.webhooks.events.total]] record and messaging events, a versioned REST API, and an MCP endpoint. Wire those to [n8n](/docs/n8n), Make, or Zapier, add that tool's Slack node, and you get the behavior described below. The Slack side runs in your automation tool, not in Customermates.
 
 We would rather write that down than let the page imply a product we have not built.
 
@@ -58,7 +58,7 @@ The reverse direction runs through the REST API or MCP, again driven by your aut
 
 **Log notes from Slack.** Post the Slack message body onto the record's notes through the API or the `update_record_notes` MCP tool.
 
-**Let an agent do it.** Instead of hand-building each call, point an MCP-speaking agent at `/api/v1/mcp` and let it interpret the Slack message. That is the same 46-tool surface Claude, ChatGPT, and Gemini use.
+**Let an agent do it.** Instead of hand-building each call, point an MCP-speaking agent at `/api/v1/mcp` and let it interpret the Slack message. That is the same [[derived.mcp.tools.total]]-tool surface Claude, ChatGPT, and Gemini use.
 
 ## What This Is Not
 
@@ -90,7 +90,7 @@ No. n8n is a separate open-source product. You self-host it or subscribe to n8n'
 Yes. Nothing in the webhook or REST surface is n8n-specific. Any tool that can receive an HTTP POST and call an HTTP API will work.
 
 **Which events can I subscribe to?**
-26 events across records and messaging. The full list is at [Webhooks](/docs/webhooks).
+[[derived.webhooks.events.total]] events across records and messaging. The full list is at [Webhooks](/docs/webhooks).
 
 **Can I post CRM data into Slack without writing code?**
 Yes, in the sense that n8n, Make, and Zapier are visual builders. You still design the workflow yourself; there is no preconfigured Customermates-to-Slack template shipped by us.

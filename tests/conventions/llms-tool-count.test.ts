@@ -5,6 +5,8 @@ import { describe, expect, it } from "vitest";
 
 import { REPO_ROOT, walkFiles } from "./walk";
 
+import { countMcpTools, MCP_TOOL_COUNT } from "@/features/mcp-tools/tool-registry";
+
 const TOOL_NAME_PATTERN = /^ {2}name: ["']([a-z0-9_]+)["'],?$/gm;
 
 function declaredToolNames(): string[] {
@@ -21,10 +23,7 @@ describe("published MCP tool count", () => {
   });
 
   it("renders the declaration-derived count without a numeric literal", async () => {
-    const [{ countMcpTools, MCP_TOOL_COUNT }, { GET }] = await Promise.all([
-      import("@/app/api/v1/mcp/route"),
-      import("@/app/llms.txt/route"),
-    ]);
+    const { GET } = await import("@/app/llms.txt/route");
     const response = GET();
     const text = await response.text();
     const source = readFileSync(join(REPO_ROOT, "app", "llms.txt", "route.ts"), "utf8");

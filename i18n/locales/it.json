@@ -644,7 +644,7 @@
     }
   },
   "ConnectedAccountsCard": {
-    "accountLimitReached": "Il piano Business include 3 account collegati per utente. Contattaci per il piano Enterprise per avere account illimitati.",
+    "accountLimitReached": "Hai raggiunto il limite di account collegati per questo piano. Contattaci per il piano Enterprise con account illimitati.",
     "alreadyExistsToastDescription": "Questo account è già collegato da un membro del tuo spazio di lavoro. Chiedigli di condividerlo con lo spazio di lavoro per evitare messaggi duplicati nella posta in arrivo.",
     "alreadyExistsToastTitle": "Account già collegato",
     "channels": {
@@ -1132,11 +1132,11 @@
       "badge": "Popolare",
       "compareText": "Confronta i piani",
       "ctaText": "Inizia gratis",
-      "featureBusiness": "Business: 3 account per utente, account condivisi e assistenza prioritaria",
-      "featurePro": "Pro: posta in arrivo unificata, 1 account collegato per utente",
+      "featureBusiness": "Business: {accounts, plural, one {# account per utente} other {# account per utente}}, account condivisi e assistenza prioritaria",
+      "featurePro": "Pro: posta in arrivo unificata, {accounts, plural, one {# account collegato per utente} other {# account collegati per utente}}",
       "featureStarter": "Starter: il nucleo del CRM",
       "period": "/ utente / mese",
-      "price": "da 12 €",
+      "price": "da {price}",
       "tag": "Gestito per te; database in una regione UE. Altri fornitori possono trattare dati altrove.",
       "title": "Cloud"
     },
@@ -1577,7 +1577,7 @@
     "buttonLabel": "Registrati con {provider}",
     "inviteSubtitle": "Hai ricevuto un invito a unirti a un team su Customermates. Scegli il tuo metodo di accesso per accettare l’invito.",
     "inviteTitle": "Accetta l'invito aziendale",
-    "newCompanySubtitle": "Registra una nuova azienda e prova Customermates gratis per 7 giorni. Nessuna carta di credito richiesta.",
+    "newCompanySubtitle": "Registra una nuova azienda e prova Customermates gratis per {days} giorni. Nessuna carta di credito richiesta.",
     "or": "OPPURE",
     "signUpCta": "Crea un account",
     "switchToSignIn": "Hai già un account? <signInLink>Accedi</signInLink>",
@@ -1598,13 +1598,16 @@
     "managedExternallyNote": "Questa area di lavoro usa un piano Enterprise con pagamento tramite fattura. Contatta il tuo account manager per apportare modifiche.",
     "manageWithLemonSqueezy": "Gestisci con Lemon Squeezy",
     "picker": {
+      "connectedAccountsPerUser": "{accounts, plural, one {# account collegato per utente} other {# account collegati per utente}}",
       "features": {
         "business": [
           "Tutto ciò che c'è in Pro",
-          "3 account collegati per utente",
           "Account condivisi e assistenza prioritaria"
         ],
-        "pro": ["Tutto ciò che c'è in Starter", "Posta in arrivo unificata", "1 account collegato per utente"],
+        "pro": [
+          "Tutto ciò che c'è in Starter",
+          "Posta in arrivo unificata"
+        ],
         "starter": [
           "CRM completo: contatti, trattative, organizzazioni, attività",
           "Registro di controllo",
@@ -1613,12 +1616,7 @@
         ]
       },
       "mostPopular": "Il più scelto",
-      "perUserMonth": "per utente / mese",
-      "price": {
-        "business": "69 €",
-        "pro": "29 €",
-        "starter": "12 €"
-      }
+      "perUserMonth": "per utente / mese"
     },
     "plan": "Piano",
     "planNames": {
@@ -1651,7 +1649,8 @@
     "selfServiceCheckoutDescription": "Il tuo spazio di lavoro non ha più un abbonamento attivo. Scegli un piano per continuare a usare Customermates oppure contatta il nostro team di assistenza per qualsiasi domanda.",
     "subtitle": "L’accesso allo spazio di lavoro è sospeso",
     "supportEmailSubject": "Richiesta di informazioni sull'abbonamento",
-    "title": "Abbonamento necessario"
+    "title": "Abbonamento necessario",
+    "description": "La prova o l'abbonamento non è attivo. Avvia un nuovo abbonamento se disponibile, gestisci la fatturazione in Lemon Squeezy o contatta l'assistenza."
   },
   "SubscriptionInactivationNotice": {
     "body": "Il tuo account è ora inattivo perché il tuo abbonamento è rimasto non pagato o scaduto per più di 3 giorni. Se vuoi continuare, posso aiutarti a ripristinare rapidamente l'accesso.",

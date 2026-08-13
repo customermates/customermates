@@ -41,7 +41,7 @@ The CRM automatically syncs emails and calendar events to the correct contact re
 
 ### Workflow Automation via n8n
 
-A more flexible approach. Instead of relying on a built-in add-in, you connect Outlook and CRM through [n8n](https://n8n.io/) workflows using the Microsoft Graph API. This lets you automate actions like: deal status changes trigger an Outlook email, new contacts sync bidirectionally, or calendar events create CRM activities. Customermates uses this model.
+A more flexible approach. Instead of relying on a built-in add-in, you connect Outlook and CRM through [n8n](https://n8n.io/) workflows using the Microsoft Graph API. This lets you automate actions like: deal status changes trigger an Outlook email, new contacts sync bidirectionally, or calendar events create CRM activities. Customermates uses this model. The Customermates calendar view is read-only; it cannot create, edit, or schedule events.
 
 ### Native Microsoft Ecosystem Integration
 
@@ -66,7 +66,7 @@ Not every integration is equal. Here are the 10 capabilities that matter most wh
 
 ### 1. Customermates, Best for SMEs Who Want Full Automation
 
-**Price:** EUR 29/user/month (Pro tier, includes the unified email inbox; core CRM from EUR 12)
+**Price:** [[commercial.price.pro.monthly]]/user/month (Pro tier, includes the unified email inbox; core CRM from [[commercial.price.starter.monthly]])
 
 **Integration approach:** Native unified inbox (Outlook mail synced into the CRM) plus n8n workflow automation via Microsoft Graph API
 
@@ -80,18 +80,20 @@ Customermates syncs your Outlook mailbox into a native unified inbox inside the 
 4. Replies land in the unified inbox, and calendars from the connected account are read into Customermates; the calendar is read-only, so n8n cannot write events back
 
 **What you can automate:**
+
 - Deal won → confirmation email sent via Outlook
-- New contact created → welcome email sequence starts
-- Meeting booked → calendar event created in Outlook and CRM
+- New contact created → your own n8n instance calls an external email provider for a welcome sequence; Customermates does not run sequences
+- Meeting booked → an external workflow can create the event in Outlook; Customermates only displays connected events read-only
 - No reply after 3 days → follow-up email triggered automatically
 - Quote approved → PDF attached and sent via Outlook
 
 **Key strengths:**
+
 - Native unified inbox: Outlook mail plus LinkedIn, WhatsApp, Instagram, and Telegram in one place, operable by AI agents
 - A separate n8n integration means webhooks work out of the box
 - Full control over automation logic (no vendor lock-in)
 - Open-source and self-hostable for GDPR compliance
-- At EUR 29/user/month, significantly cheaper than most alternatives
+- At [[commercial.price.pro.monthly]]/user/month, significantly cheaper than most alternatives
 - Works with Microsoft 365 Business and Enterprise
 
 **Limitation:** No Outlook sidebar add-in. You work from the CRM's own unified inbox rather than inside Outlook.
@@ -107,12 +109,14 @@ Customermates syncs your Outlook mailbox into a native unified inbox inside the 
 Dynamics 365 is built by Microsoft, so the Outlook integration is as deep as it gets. The Dynamics 365 App for Outlook lets reps view CRM records, track emails, create contacts, and link activities, all from a sidebar inside Outlook.
 
 **Key strengths:**
+
 - Deepest native Outlook integration available
 - Full Teams, SharePoint, and OneDrive connectivity
 - Enterprise-grade compliance and security
 - AI-powered sales insights via Copilot
 
 **Limitations:**
+
 - Expensive for small teams
 - Complex setup and administration
 - Significant learning curve
@@ -129,12 +133,14 @@ Dynamics 365 is built by Microsoft, so the Outlook integration is as deep as it 
 HubSpot offers a solid Outlook add-in that shows contact details, logs emails, and lets you use templates and sequences directly from Outlook. The free CRM includes basic Outlook integration, which is rare.
 
 **Key strengths:**
+
 - Free tier includes Outlook add-in
 - Clean sidebar UI with contact timeline
 - Email tracking (opens, clicks) included
 - Good template and sequence support
 
 **Limitations:**
+
 - Advanced features require paid Sales Hub
 - Email tracking can be inconsistent
 - Free tier has limited automation
@@ -151,12 +157,14 @@ HubSpot offers a solid Outlook add-in that shows contact details, logs emails, a
 Salesflare stands out for its automatic data enrichment. It pulls contact info from email signatures, tracks email opens, logs conversations, and even scores relationship strength, all from within Outlook.
 
 **Key strengths:**
+
 - Automatic contact creation from email exchanges
 - Email signature parsing for data enrichment
 - Relationship strength scoring
 - Clean, minimal Outlook sidebar
 
 **Limitations:**
+
 - Higher price point than many competitors
 - Smaller ecosystem and fewer third-party integrations
 - Limited customization for complex sales processes
@@ -173,12 +181,14 @@ Salesflare stands out for its automatic data enrichment. It pulls contact info f
 eWay-CRM is unique because the entire CRM lives inside Outlook. There is no separate web app. You manage contacts, deals, projects, and emails entirely from within the Outlook interface.
 
 **Key strengths:**
+
 - Zero context switching, everything is inside Outlook
 - Deals, contacts, projects, and email tracking in one place
 - Works offline (data syncs when reconnected)
 - Familiar Microsoft interface reduces training time
 
 **Limitations:**
+
 - Desktop-first (web and mobile are secondary)
 - Limited modern API for custom integrations
 - UI feels dated compared to cloud-native CRMs
@@ -195,12 +205,14 @@ eWay-CRM is unique because the entire CRM lives inside Outlook. There is no sepa
 Nimble combines CRM with social media intelligence. Its Outlook add-in shows contact details enriched with LinkedIn, Twitter, and company data. It is particularly popular among solopreneurs and consultants.
 
 **Key strengths:**
+
 - Social media profile enrichment inside Outlook
 - Simple, clean interface
 - Good contact management and tagging
 - Affordable for individuals
 
 **Limitations:**
+
 - Limited pipeline and deal management
 - Basic automation compared to larger CRMs
 - Reporting is minimal
@@ -217,12 +229,14 @@ Nimble combines CRM with social media intelligence. Its Outlook add-in shows con
 Nutshell offers a straightforward Outlook integration with email logging, contact sync, and a simple sidebar. It is designed for teams that want a CRM that works without extensive configuration.
 
 **Key strengths:**
+
 - Very easy to set up and use
 - Clean Outlook sidebar for email logging
 - Built-in email sequences
 - Competitive pricing
 
 **Limitations:**
+
 - Fewer advanced features than larger platforms
 - Limited customization options
 - Smaller app marketplace
@@ -239,12 +253,14 @@ Nutshell offers a straightforward Outlook integration with email logging, contac
 Pipedrive is known for its visual sales pipeline. Its Outlook integration lets you log emails, sync contacts, and manage deals from a sidebar inside Outlook.
 
 **Key strengths:**
+
 - Excellent visual pipeline management
 - Good Outlook add-in with deal creation
 - Strong email tracking features
 - Competitive pricing for small teams
 
 **Limitations:**
+
 - Outlook add-in can be slow to load
 - Email sync has occasional delays
 - Limited marketing automation
@@ -254,18 +270,18 @@ Pipedrive is known for its visual sales pipeline. Its Outlook integration lets y
 
 ## Comparison Table: Outlook CRM Integration Features
 
-| Feature | Customermates | Dynamics 365 | HubSpot | Salesflare | eWay-CRM | Nimble | Nutshell | Pipedrive |
-|---|---|---|---|---|---|---|---|---|
-| Outlook sidebar / add-in | Native inbox | Native | Add-in | Add-in | Embedded | Add-in | Add-in | Add-in |
-| Auto email logging | Yes (native) | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
-| Calendar sync | Yes (native) | Native | Yes | Yes | Yes | Limited | Yes | Yes |
-| Contact auto-creation | Yes | Yes | Paid | Yes | Yes | Yes | No | No |
-| Email templates from Outlook | Yes (n8n) | Yes | Yes | Yes | Yes | Limited | Yes | Yes |
-| Email tracking (opens/clicks) | Via n8n | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
-| Automated workflows | Full (n8n) | Yes | Paid | Limited | Limited | No | Basic | Basic |
-| Two-way contact sync | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
-| Self-hostable | Yes | No | No | No | On-prem | No | No | No |
-| Price/user/month | From EUR 12 (email on Pro, EUR 29) | $65+ | Free/$15+ | $49+ | $28+ | $29.90 | $13+ | $14+ |
+| Feature                       | Customermates                                                                              | Dynamics 365 | HubSpot   | Salesflare | eWay-CRM | Nimble  | Nutshell | Pipedrive |
+| ----------------------------- | ------------------------------------------------------------------------------------------ | ------------ | --------- | ---------- | -------- | ------- | -------- | --------- |
+| Outlook sidebar / add-in      | Native inbox                                                                               | Native       | Add-in    | Add-in     | Embedded | Add-in  | Add-in   | Add-in    |
+| Auto email logging            | Yes (native)                                                                               | Yes          | Yes       | Yes        | Yes      | Yes     | Yes      | Yes       |
+| Calendar sync                 | Yes (native)                                                                               | Native       | Yes       | Yes        | Yes      | Limited | Yes      | Yes       |
+| Contact auto-creation         | Yes                                                                                        | Yes          | Paid      | Yes        | Yes      | Yes     | No       | No        |
+| Email templates from Outlook  | Yes (n8n)                                                                                  | Yes          | Yes       | Yes        | Yes      | Limited | Yes      | Yes       |
+| Email tracking (opens/clicks) | Via n8n                                                                                    | Yes          | Yes       | Yes        | Yes      | Yes     | Yes      | Yes       |
+| Automated workflows           | Full (n8n)                                                                                 | Yes          | Paid      | Limited    | Limited  | No      | Basic    | Basic     |
+| Two-way contact sync          | Yes                                                                                        | Yes          | Yes       | Yes        | Yes      | Yes     | Yes      | Yes       |
+| Self-hostable                 | Yes                                                                                        | No           | No        | No         | On-prem  | No      | No       | No        |
+| Price/user/month              | From [[commercial.price.starter.monthly]] (email on Pro, [[commercial.price.pro.monthly]]) | $65+         | Free/$15+ | $49+       | $28+     | $29.90  | $13+     | $14+      |
 
 ## How to Set Up Outlook CRM Integration with Customermates and n8n
 
@@ -296,7 +312,7 @@ Start with a simple follow-up automation:
 
 This single workflow can recover 10-15% of stalled deals without any manual effort.
 
-### Step 4: Add Email Templates with Dynamic Content
+### Step 4: Add Email Templates in Your Own n8n Instance
 
 Create templates in n8n with placeholders that pull live data from Customermates:
 
@@ -305,7 +321,7 @@ Subject: {{firstName}}, following up on your {{productName}} proposal
 
 Hi {{firstName}},
 
-I wanted to check in regarding the {{productName}} proposal 
+I wanted to check in regarding the {{productName}} proposal
 I sent over on {{proposalDate}} for {{companyName}}.
 
 Would you have 15 minutes this week to discuss any questions?
@@ -321,7 +337,7 @@ Every email goes out from your real Outlook account with your signature, recipie
 Once the basic flow works, add more workflows:
 
 - **New lead notification:** Outlook email to sales manager when a high-value lead is created
-- **Meeting prep:** Outlook calendar event created with CRM notes 24 hours before a meeting
+- **Meeting prep:** Outlook calendar event created with CRM notes 24 hours before a meeting The Customermates calendar view is read-only; it cannot create, edit, or schedule events.
 - **Win/loss alerts:** Team notification via Outlook when deals close
 - **Re-engagement:** Automated sequence for contacts with no activity in 30 days
 
@@ -390,7 +406,7 @@ Microsoft retired the Salesforce Outlook add-in for the legacy COM add-in model.
 
 ### What is the cheapest CRM with Outlook integration?
 
-HubSpot offers a free CRM with basic Outlook integration. For paid plans, Customermates (Outlook inbox on Pro at EUR 29/user/month) and Nutshell at $13/user/month are among the most affordable options with solid Outlook connectivity. Pipedrive starts at $14/user/month.
+HubSpot offers a free CRM with basic Outlook integration. For paid plans, Customermates (Outlook inbox on Pro at [[commercial.price.pro.monthly]]/user/month) and Nutshell at $13/user/month are among the most affordable options with solid Outlook connectivity. Pipedrive starts at $14/user/month.
 
 ### Does Microsoft 365 have a built-in CRM?
 
@@ -398,13 +414,13 @@ Microsoft 365 does not include a full CRM out of the box. Microsoft Dynamics 365
 
 ### What is the best CRM for small businesses using Outlook?
 
-For small businesses, the best choice depends on priorities. Customermates (from EUR 12/user/month; Outlook inbox on Pro at EUR 29) offers the strongest automation via n8n. HubSpot provides a solid free tier. Nutshell and Pipedrive are affordable and easy to use. If you need the CRM fully embedded inside Outlook, eWay-CRM is worth considering.
+For small businesses, the best choice depends on priorities. Customermates (from [[commercial.price.starter.monthly]]/user/month; Outlook inbox on Pro at [[commercial.price.pro.monthly]]) offers the strongest automation via n8n. HubSpot provides a solid free tier. Nutshell and Pipedrive are affordable and easy to use. If you need the CRM fully embedded inside Outlook, eWay-CRM is worth considering.
 
 ## Conclusion: Choose the Right Outlook CRM for Your Workflow
 
 The best Outlook CRM integration depends on how your team works:
 
-- **Need full automation?** Customermates + n8n gives you workflow-driven Outlook integration from EUR 29/user/month (Pro)
+- **Need full automation?** Customermates + n8n gives you workflow-driven Outlook integration from [[commercial.price.pro.monthly]]/user/month (Pro)
 - **All-in on Microsoft?** Dynamics 365 offers the deepest native integration
 - **Want free to start?** HubSpot CRM includes a basic Outlook add-in at no cost
 - **Prefer zero data entry?** Salesflare automatically captures contacts and emails

@@ -8,12 +8,10 @@ import { AppLink } from "@/components/shared/app-link";
 type Props = {
   card: PricingCard;
   displayPrice: string;
-  priceNote?: string;
   priceSubtext?: string;
 };
 
-export function PricingCardComponent({ card, displayPrice, priceNote, priceSubtext }: Props) {
-  const subtext = priceSubtext ?? card.priceSubtext;
+export function PricingCardComponent({ card, displayPrice, priceSubtext }: Props) {
   const featured = card.featured === true;
   const buttonVariant = card.buttonVariant === "bordered" ? "outline" : "default";
 
@@ -41,10 +39,8 @@ export function PricingCardComponent({ card, displayPrice, priceNote, priceSubte
         <div>
           <span className="text-[34px] font-bold tracking-[-0.02em]">{displayPrice}</span>
 
-          {subtext && <span className="ml-1.5 text-[13px] text-muted-foreground">{subtext}</span>}
+          {priceSubtext && <span className="ml-1.5 text-[13px] text-muted-foreground">{priceSubtext}</span>}
         </div>
-
-        <p className="m-0 min-h-[18px] text-[12px] text-muted-foreground">{priceNote}</p>
       </div>
 
       <Button asChild className="w-full" variant={buttonVariant}>

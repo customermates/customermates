@@ -1,8 +1,8 @@
 import rawManifest from "@/generated/raw-docs-manifest.json";
 
-import { MCP_TOOL_COUNT } from "@/app/api/v1/mcp/route";
 import { env } from "@/env";
 import { DOC_NAV_GROUPS } from "@/features/docs/docs-nav";
+import { MCP_TOOL_COUNT } from "@/features/mcp-tools/tool-registry";
 import { CONTENT_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
 export const dynamic = "force-static";

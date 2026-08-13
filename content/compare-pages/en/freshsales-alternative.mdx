@@ -10,7 +10,7 @@ hero:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: ✓ No credit card required ✓ First 7 days free
+  hint: ✓ No credit card required ✓ First [[commercial.trial.days]] days free
 
 comparison:
   competitorName: Freshsales
@@ -22,10 +22,10 @@ comparison:
         source: 2 minutes
         competitor: Hours to days
       - name: Cost
-        source: From €12 / month / user
+        source: From [[commercial.price.starter.monthly]] / month / user
         competitor: $9 to $59 / month / user
       - name: Free start
-        source: 7-day trial + free self-host
+        source: "[[commercial.trial.days]]-day trial + free self-host"
         competitor: Free plan (up to 3 users)
       - name: Credit card required
         source: false
@@ -60,7 +60,7 @@ comparison:
         source: true
         competitor: true
       - name: Native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram)
-        source: Pro+ (€29)
+        source: Pro+ ([[commercial.price.pro.monthly]])
         competitor: Email, phone, WhatsApp
   - title: Data protection & security
     features:
@@ -91,7 +91,7 @@ comparison:
         source: true
         competitor: From Pro plan only
       - name: AI agents operate the CRM (MCP)
-        source: Included (46 tools)
+        source: Included ([[derived.mcp.tools.total]] tools)
         competitor: Freddy AI (limited bot sessions)
   - title: Team & collaboration
     features:
@@ -115,16 +115,16 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: ✓ No credit card required ✓ First 7 days free
+  hint: ✓ No credit card required ✓ First [[commercial.trial.days]] days free
 ---
 
-> [Freshsales](https://www.freshworks.com/crm/) by Freshworks is a sales-focused CRM with AI-powered features through Freddy AI. It offers a free plan and positions itself as affordable, but essential features like API access, advanced workflows, and audit logs are locked behind higher-priced tiers. What starts at $9 per user quickly becomes $39-59 when you need the tools that matter. Customermates is an open-source Freshsales alternative with transparent tiers from €12/user/month, full API access included at every tier, EU hosting, and no core CRM feature gated behind a higher plan. Two things set it apart: AI assistants like Claude, ChatGPT, and Gemini operate the CRM directly through a native MCP integration (46 tools), doing the data entry, and a native unified inbox brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one place from the Pro tier, with the same AI able to read, draft, and send across every channel.
+> [Freshsales](https://www.freshworks.com/crm/) by Freshworks is a sales-focused CRM with AI-powered features through Freddy AI. It offers a free plan and positions itself as affordable, but essential features like API access, advanced workflows, and audit logs are locked behind higher-priced tiers. What starts at $9 per user quickly becomes $39-59 when you need the tools that matter. Customermates is an open-source Freshsales alternative with transparent tiers from [[commercial.price.starter.monthly]]/user/month, full API access included at every tier, EU hosting, and no core CRM feature gated behind a higher plan. Two things set it apart: AI assistants like Claude, ChatGPT, and Gemini operate the CRM directly through a native MCP integration ([[derived.mcp.tools.total]] tools), doing the data entry, and a native unified inbox brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one place from the Pro tier, with the same AI able to read, draft, and send across every channel.
 
 ## Why Switch from Freshsales?
 
 Teams move away from Freshsales for several recurring reasons. The free plan is heavily restricted and serves primarily as a lead-generation tool. Paid plans gate critical features behind expensive tiers: API access requires Pro ($39/user/month), audit logs require Pro, and advanced workflow automation is limited on lower plans. Freddy AI bot sessions are capped and billed as add-ons.
 
-Customermates takes a different approach. Every core CRM feature ships at every tier, starting at €12 per user per month. The [n8n automation engine](/features/workflow-automation) is included from Starter, [API access](/features/api) has no plan restrictions, and AI agents (Claude, ChatGPT, Gemini) help manage [lead tracking](/features/lead-tracking) and follow-up workflows without session limits.
+Customermates takes a different approach. Every core CRM feature ships at every tier, starting at [[commercial.price.starter.monthly]] per user per month. The [n8n automation engine](/features/workflow-automation) is included from Starter, [API access](/features/api) has no plan restrictions, and AI agents (Claude, ChatGPT, Gemini) help manage [lead tracking](/features/lead-tracking) and follow-up workflows without session limits.
 
 ## Setup and Onboarding
 
@@ -134,7 +134,7 @@ Freshsales offers a 21-day free trial of its full feature set, which sounds gene
 
 ## Pricing: Transparent Tiers vs. Feature-Gated Plans
 
-The pricing difference between Customermates and Freshsales is significant. Customermates starts at **€12 per user per month** (Starter), with every core CRM feature, API access, n8n automation, and MCP access for external AI clients included. Higher tiers (Pro at €29, Business at €69) only add messaging capacity, they never gate core CRM functionality. See our [pricing page](/pricing) for full details.
+The pricing difference between Customermates and Freshsales is significant. Customermates starts at **[[commercial.price.starter.monthly]] per user per month** (Starter), with every core CRM feature, API access, n8n automation, and MCP access for external AI clients included. Higher tiers (Pro at [[commercial.price.pro.monthly]], Business at [[commercial.price.business.monthly]]) only add messaging capacity, they never gate core CRM functionality. See our [pricing page](/pricing) for full details.
 
 [Freshsales pricing](https://www.freshworks.com/crm/pricing/) has three paid tiers plus a free plan (as of 2026):
 
@@ -146,15 +146,15 @@ The Growth plan appears affordable but is heavily restricted: no API access, lim
 
 **Cost comparison for a 10-person team:**
 
-| | Customermates Starter | Freshsales Pro |
-|---|---|---|
-| Base CRM cost | €120/month | $390/month (~€360) |
-| Automation | Included | Limited workflows |
-| AI / Bot sessions | Included | 500 sessions (then paid add-on) |
-| API access | Included | Included at Pro |
-| **Total** | **€120/month** | **~€360/month + add-ons** |
+|                   | Customermates Starter                                   | Freshsales Pro                  |
+| ----------------- | ------------------------------------------------------- | ------------------------------- |
+| Base CRM cost     | [[commercial.price.starter.monthly.seats.10]]/month     | $390/month (~€360)              |
+| Automation        | Included                                                | Limited workflows               |
+| AI / Bot sessions | Included                                                | 500 sessions (then paid add-on) |
+| API access        | Included                                                | Included at Pro                 |
+| **Total**         | **[[commercial.price.starter.monthly.seats.10]]/month** | **~€360/month + add-ons**       |
 
-Customermates saves that team over €2,700 per year compared to Freshsales Pro.
+The annual difference is the Freshsales Pro total above minus the current Customermates team price; add-ons widen it further.
 
 ## AI Features: Freddy AI vs. Practical Automation
 
@@ -214,17 +214,17 @@ No consultants required. No multi-week implementation projects.
 
 ## Conclusion
 
-Freshsales appears affordable at first glance, but its plan-gated features, limited workflows, and paid AI add-ons drive costs up fast. Customermates offers an open-source Freshsales alternative with transparent tiered pricing from €12/user/month, no core-feature gating, EU hosting, GDPR compliance, and automation connectivity at no surcharge. If your team needs a CRM that delivers all features without upgrade pressure, [start your free trial today](/auth/signup).
+Freshsales appears affordable at first glance, but its plan-gated features, limited workflows, and paid AI add-ons drive costs up fast. Customermates offers an open-source Freshsales alternative with transparent tiered pricing from [[commercial.price.starter.monthly]]/user/month, no core-feature gating, EU hosting, GDPR compliance, and automation connectivity at no surcharge. If your team needs a CRM that delivers all features without upgrade pressure, [start your free trial today](/auth/signup).
 
 See how Customermates compares to other CRMs: [HubSpot alternative](/compare/hubspot-alternative), [Salesforce alternative](/compare/salesforce-alternative), or [Pipedrive alternative](/compare/pipedrive-alternative).
 
 ### Is Customermates a good Freshsales alternative for small businesses?
 
-Yes. Customermates is designed for small and growing teams. Starting at €12/user/month with every core CRM feature included, it is significantly more affordable than Freshsales Pro, which most teams need for productive use. There are no record limits, no core-feature gates, and no add-on costs.
+Yes. Customermates is designed for small and growing teams. Starting at [[commercial.price.starter.monthly]]/user/month with every core CRM feature included, it is significantly more affordable than Freshsales Pro, which most teams need for productive use. There are no record limits, no core-feature gates, and no add-on costs.
 
 ### How does Customermates pricing compare to Freshsales?
 
-Customermates starts at €12/user/month with every core CRM feature included; Pro (€29) and Business (€69) only add messaging capacity. Freshsales ranges from $9 to $59/user/month depending on the plan, with additional costs for AI bot sessions and add-ons. Most teams need the Pro plan ($39/user/month) to access API, audit logs, and meaningful workflows. A 10-person team saves over €2,700/year by choosing Customermates Starter over Freshsales Pro.
+Customermates starts at [[commercial.price.starter.monthly]]/user/month with every core CRM feature included; Pro ([[commercial.price.pro.monthly]]) and Business ([[commercial.price.business.monthly]]) only add messaging capacity. Freshsales ranges from $9 to $59/user/month depending on the plan, with additional costs for AI bot sessions and add-ons. Most teams need the Pro plan ($39/user/month) to access API, audit logs, and meaningful workflows. For a 10-person team, compare Freshsales Pro's annual total with [[commercial.price.starter.monthly.seats.10.months.12]] for Customermates Starter; the exact saving follows from those current inputs.
 
 ### Can I migrate my data from Freshsales to Customermates?
 

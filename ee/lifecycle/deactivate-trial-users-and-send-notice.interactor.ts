@@ -12,8 +12,11 @@ import { env } from "@/env";
 
 export abstract class DeactivateTrialUsersAndSendNoticeRepo {
   abstract findUsersWithTrialEndedBetween6And7Days(): Promise<User[]>;
-  abstract claimTrialInactivationNoticeSent(args: { userId: string; sentAt: Date }): Promise<boolean>;
-  abstract deactivateUser(userId: string): Promise<void>;
+  abstract claimTrialInactivationAndDeactivateUnlessCheckoutReservedOrThrow(args: {
+    userId: string;
+    sentAt: Date;
+    now: Date;
+  }): Promise<boolean>;
 }
 
 @SystemInteractor
@@ -27,10 +30,13 @@ export class DeactivateTrialUsersAndSendNoticeInteractor {
     const users = await this.repo.findUsersWithTrialEndedBetween6And7Days();
 
     for (const user of users.filter((item) => !item.trialInactivationNoticeSentAt)) {
-      const claimed = await this.repo.claimTrialInactivationNoticeSent({ userId: user.id, sentAt: new Date() });
+      const now = new Date();
+      const claimed = await this.repo.claimTrialInactivationAndDeactivateUnlessCheckoutReservedOrThrow({
+        userId: user.id,
+        sentAt: now,
+        now,
+      });
       if (!claimed) continue;
-
-      await this.repo.deactivateUser(user.id);
 
       const locale = resolveUserLocale(user);
       const contactHref = `${env.BASE_URL}/contact`;

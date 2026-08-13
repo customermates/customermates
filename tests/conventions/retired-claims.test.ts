@@ -130,7 +130,7 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
     pattern: /\b(?:two[- ]way|bidirectional|write[- ]enabled|automatic|Zwei[- ]Wege|bidirektional|automatisch)[ -]?(?:calendar|Kalender)[ -]?(?:sync|integration|Synchronisierung|Integration)?\b|\b(?:creat|edit|updat|delet|writ|book|schedul|sync|erstell|änder|aktualisier|lösch|schreib|buch|plan|synchronisier)\w*[^.!?;,|]{0,24}\b(?:calendar events?|appointments?|Kalendertermine?|Termine?)\b|\b(?:calendar events?|appointments?|Kalendertermine?|Termine?)[^.!?;,|]{0,24}\b(?:are\s+|werden\s+)?(?:creat|edit|updat|delet|writ|book|schedul|erstell|änder|aktualisier|lösch|schreib|buch|plan)\w*\b/iu,
     permittedContext: [
       ...NO_OR_EXTERNAL,
-      /\b(?:read[- ]only|nur lesend|schreibgeschützt)\b/iu,
+      /\b(?:read[- ]only|nur lesend|schreibgeschützt\w*)\b/iu,
     ],
     why: "Connected calendar and event access is read-only",
     authority: "features/mcp-tools/tool-registry.ts",
@@ -389,9 +389,11 @@ function extractMdxUnits(file: string, source: string): ClaimUnit[] {
     }
 
     if (!trimmed || /^\s*\|/u.test(raw)) continue;
-    for (const assertion of splitAssertions(raw.replace(/^\s*(?:[-*+] |\d+\. )/u, ""))) {
+    const assertions = splitAssertions(raw.replace(/^\s*(?:[-*+] |\d+\. )/u, ""));
+    const lineMentionsProduct = assertions.some((assertion) => PRODUCT.test(assertion));
+    for (const assertion of assertions) {
       if (!assertion || COMPETITOR.test(assertion) && !PRODUCT.test(assertion)) continue;
-      if (!isMixed || PRODUCT.test(assertion) || productHeadingDepth !== undefined) {
+      if (!isMixed || lineMentionsProduct || productHeadingDepth !== undefined) {
         units.push({ file, locator: String(line), kind: "prose", text: assertion });
       }
     }
@@ -489,6 +491,16 @@ describe("retired claims stay retired", () => {
     expect(violations[0]).toContain("csv-importer");
   });
 
+  it("carries same-line Customermates attribution across split assertions", () => {
+    const firstParty = "Customermates stores contacts; CSV import is included.";
+    const violations = findViolationsInSource("content/blog-posts/en/example.mdx", firstParty);
+    expect(violations).toHaveLength(1);
+    expect(violations[0]).toContain("csv-importer");
+
+    const competitor = "Customermates has no built-in AI; HubSpot includes native AI.";
+    expect(findViolationsInSource("content/blog-posts/en/example.mdx", competitor)).toEqual([]);
+  });
+
   it("preserves status components when evaluating product tables", () => {
     const available = [
       "| Feature | Customermates |",
@@ -510,6 +522,7 @@ describe("retired claims stay retired", () => {
     expect(findViolationsInSource("content/features/en/example.mdx", "n8n runs on your infrastructure.")[0]).toContain("bundled-n8n-runtime");
     expect(findViolationsInSource("content/features/en/example.mdx", "AI agents score leads.")[0]).toContain("lead-scoring-or-enrichment");
     expect(findViolationsInSource("content/features/en/example.mdx", "Calendar events are created from contact records.")[0]).toContain("calendar-write-or-booking");
+    expect(findViolationsInSource("content/features/de/example.mdx", "Kalendertermine erscheinen in einer schreibgeschützten CRM-Ansicht.")).toEqual([]);
     expect(findViolationsInSource("content/features/en/example.mdx", "Full GDPR compliance.")[0]).toContain("unsupported-compliance-claim");
     expect(findViolationsInSource("content/features/de/example.mdx", "DSGVO-Konformität.")[0]).toContain("unsupported-compliance-claim");
     expect(findViolationsInSource("content/features/en/example.mdx", "EU/GDPR hosting.")[0]).toContain("unsupported-compliance-claim");

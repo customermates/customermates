@@ -1,26 +1,19 @@
 ---
 title: "Preise: Das Agentic Open-Source CRM"
 titleAccent: einfach, ehrlich, europäisch.
-description: "Faire, transparente Preise für das Agentic Open-Source CRM. Externe KI-Clients bedienen das CRM über MCP, und ein zentraler Posteingang deckt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ab. Jede CRM-Kernfunktion in jedem Tarif ab 12 €, mit verwalteter Datenbank in einer EU-Region."
+description: "Faire, transparente Preise für das Agentic Open-Source CRM. Externe KI-Clients bedienen das CRM über MCP, und ein zentraler Posteingang deckt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ab. Jede CRM-Kernfunktion in jedem Tarif ab [[commercial.price.starter.monthly]], mit verwalteter Datenbank in einer EU-Region."
 
 pricing:
   ariaLabelSlider: Anzahl der Nutzer
-  ariaLabelTabs: Abrechnungszeitraum
+  customPrice: Individuell
   users: Nutzer
-  monthly: Monatlich
-  yearly: Jährlich
-  yearlySavings: 2 Monate geschenkt
   footnote: "Ein verbundenes Konto ist ein verknüpftes Postfach oder ein LinkedIn-, WhatsApp-, Instagram- oder Telegram-Profil, das einem einzelnen Nutzer gehört. Die Limits für verbundene Konten hängen vom Tarif ab, siehe unten."
-  totalSuffixSingular: "EUR/Monat gesamt für {count} Nutzer"
-  totalSuffixPlural: "EUR/Monat gesamt für {count} Nutzer"
+  totalSuffixSingular: "/Monat gesamt für {count} Nutzer"
+  totalSuffixPlural: "/Monat gesamt für {count} Nutzer"
   pricingCards:
-  - title: Starter
+  - plan: starter
+    title: Starter
     description: CRM-Kern & MCP
-    price: "12"
-    monthlyPrice: 12
-    annualPrice: 10
-    priceSubtext: EUR/Monat
-    priceNote: jährliche Abrechnung
     buttonText: Kostenlos testen
     buttonHref: /auth/signup
     buttonColor: default
@@ -29,14 +22,10 @@ pricing:
       - Kontakte, Unternehmen, Deals, Services & Aufgaben
       - "MCP-Zugriff: externen KI-Client wie Claude, ChatGPT oder Gemini verbinden"
       - REST-API, Webhooks & Schnittstellen für Ihr eigenes n8n
-  - title: Pro
-    description: CRM + zentraler Posteingang. Inklusive 7 Tage kostenloser Testphase.
-    badge: 7 Tage kostenlos testen
-    price: "29"
-    monthlyPrice: 29
-    annualPrice: 24
-    priceSubtext: EUR/Monat
-    priceNote: jährliche Abrechnung
+  - plan: pro
+    title: Pro
+    description: CRM + zentraler Posteingang. Inklusive [[commercial.trial.days]] Tage kostenloser Testphase.
+    badge: "[[commercial.trial.days]] Tage kostenlos testen"
     buttonText: Kostenlos testen
     buttonHref: /auth/signup
     buttonColor: default
@@ -44,17 +33,13 @@ pricing:
     features:
       - Alles aus Starter
       - "Zentraler Posteingang: E-Mail, LinkedIn, WhatsApp, Instagram, Telegram"
-      - 1 verbundenes Konto pro Nutzer inklusive
+      - "[[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer inklusive"
       - Kalenderzugriff (nur lesend) & LinkedIn Sales Navigator
-  - title: Business
+  - plan: business
+    title: Business
     description: Für Teams
     badge: Beliebteste Wahl
     featured: true
-    price: "69"
-    monthlyPrice: 69
-    annualPrice: 57
-    priceSubtext: EUR/Monat
-    priceNote: jährliche Abrechnung
     buttonText: Kostenlos testen
     buttonHref: /auth/signup
     buttonColor: primary
@@ -63,13 +48,13 @@ pricing:
     cardClassName: border-2 border-primary shadow-[0_0_24px] shadow-primary/20 dark:bg-content2
     features:
       - Alles aus Pro
-      - 3 verbundene Konten pro Nutzer inklusive
+      - "[[commercial.entitlement.business.includedAccountsPerUser]] verbundene Konten pro Nutzer inklusive"
       - "Geteilte Konten: teamweite Postfach-Sichtbarkeit"
       - Ein teamweiter Verlauf über alle Kanäle
       - Priorisierter Support
-  - title: Enterprise
+  - plan: enterprise
+    title: Enterprise
     description: Individueller Umfang & Support
-    price: Individuell
     buttonText: Kontakt aufnehmen
     buttonHref: mailto:sales@customermates.com?subject=Anfrage%20Enterprise%20Plan
     buttonColor: primary
@@ -78,11 +63,13 @@ pricing:
       - Alles aus Business
       - Vertraglich vereinbarte Agenten- oder Lead-Daten-Workflows (nicht eingebaut)
       - Done-for-you-Einrichtung
-      - Unbegrenzte verbundene Konten (Fair Use); SSO & White-Label sind nicht implementiert und erfordern Vertragsarbeit
+      - "[[commercial.entitlement.enterprise.includedAccountsPerUser]] verbundene Konten (Fair Use); SSO & White-Label sind nicht implementiert und erfordern Vertragsarbeit"
       - Dedizierter Support & individuelle Konditionen
 
 comparison:
+  customValue: Individuell
   header: Pläne
+  unlimitedValue: Unbegrenzt (Fair Use)
   plans:
     starter:
       name: Starter
@@ -105,32 +92,15 @@ comparison:
   - title: Preis & Nutzer
     rows:
       - label: Preis pro Nutzer/Monat
-        starter: "12 €"
-        pro: "29 €"
-        business: "69 €"
-        enterprise: "Individuell"
-      - label: Preis pro Nutzer/Monat (jährliche Abrechnung)
-        starter: "10 €"
-        pro: "24 €"
-        business: "57 €"
-        enterprise: "Individuell"
+        catalogFact: monthlyPrice
   - title: Messaging
     rows:
       - label: Zentraler Posteingang
-        starter: false
-        pro: true
-        business: true
-        enterprise: true
+        catalogFact: messaging
       - label: Verbundene Konten pro Nutzer
-        starter: "0"
-        pro: "1"
-        business: "3"
-        enterprise: "Unbegrenzt (Fair Use)"
+        catalogFact: includedAccountsPerUser
       - label: Geteilte Konten
-        starter: false
-        pro: false
-        business: true
-        enterprise: true
+        catalogFact: sharedAccounts
       - label: Kalenderzugriff (nur lesend)
         starter: false
         pro: true
@@ -226,7 +196,7 @@ faq:
     content: "Wir bieten die CRM-Kernfunktionen, die die meisten Teams wirklich brauchen, kombiniert mit MCP-Zugriff für externe KI-Clients, offenen APIs und Schnittstellen für eine separate n8n-Instanz. So erhalten Sie ein agentisches Open-Source-CRM mit flexiblen Erweiterungen und klaren Produktgrenzen."
   - id: pricing-faq-6
     title: Was zählt als verbundenes Konto?
-    content: "Ein verbundenes Konto ist ein verknüpftes Postfach oder ein LinkedIn-, WhatsApp-, Instagram- oder Telegram-Profil, das einem einzelnen Nutzer gehört. Pro enthält 1 verbundenes Konto pro Nutzer, Business enthält 3 pro Nutzer, und Enterprise ist unbegrenzt im Rahmen von Fair Use. Wenn Sie mehr als 3 Konten pro Nutzer brauchen, ist Enterprise der passende Tarif."
+    content: "Ein verbundenes Konto ist ein verknüpftes Postfach oder ein LinkedIn-, WhatsApp-, Instagram- oder Telegram-Profil, das einem einzelnen Nutzer gehört. Pro enthält [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer, Business enthält [[commercial.entitlement.business.includedAccountsPerUser]] pro Nutzer, und Enterprise ist im Rahmen von Fair Use [[commercial.entitlement.enterprise.includedAccountsPerUser]]. Wenn Sie mehr als [[commercial.entitlement.business.includedAccountsPerUser]] Konten pro Nutzer brauchen, ist Enterprise der passende Tarif."
   - id: pricing-faq-7
     title: Wie funktioniert die monatliche Abrechnung?
     content: "Sie zahlen pro aktivem Nutzer. Wenn Sie Nutzer hinzufügen oder entfernen, wird die Änderung anteilig mit der nächsten Rechnung verrechnet. Tarif-Upgrades gelten sofort mit anteiliger Berechnung für den Rest des Abrechnungszeitraums, Downgrades gelten sofort und der nicht genutzte Anteil wird gutgeschrieben."
@@ -238,5 +208,5 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
-  hint: ✓ Keine Kreditkarte benötigt ✓ Erste 7 Tage kostenlos
+  hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---

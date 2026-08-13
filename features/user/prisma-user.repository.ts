@@ -13,6 +13,7 @@ import type { CountActiveUsersRepo } from "./count-active-users.repo";
 import type { SendTrialExtensionOfferActionRepo } from "@/ee/lifecycle/send-trial-extension-offer.interactor";
 import type { SendTrialInactivationReminderActionRepo } from "@/ee/lifecycle/send-trial-inactivation-reminder.interactor";
 import type { DeactivateTrialUsersAndSendNoticeRepo } from "@/ee/lifecycle/deactivate-trial-users-and-send-notice.interactor";
+import { CLOUD_TRIAL, SELF_HOSTED_BASELINE_PLAN } from "@/core/commercial/plan-catalog";
 import type { DeactivateUsersAfterSubscriptionGracePeriodRepo } from "@/ee/lifecycle/deactivate-users-after-subscription-grace-period.interactor";
 import type { WebhookUserRepo } from "@/ee/messaging/webhooks/account/account-webhook.repo";
 import type { SendLegalDocumentNoticesRepo } from "@/ee/lifecycle/send-legal-document-notices.interactor";
@@ -30,6 +31,7 @@ import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
+import { parseCheckoutReservationMarker } from "@/ee/subscription/checkout-reservation";
 import { env } from "@/env";
 
 const DEFAULT_SELECT_COLUMNS = [
@@ -321,7 +323,7 @@ export class PrismaUserRepo
     });
 
     const trialEndDate = new Date();
-    trialEndDate.setDate(trialEndDate.getDate() + 7);
+    trialEndDate.setDate(trialEndDate.getDate() + CLOUD_TRIAL.days);
 
     await this.prisma.subscription.create({
       data:
@@ -329,11 +331,13 @@ export class PrismaUserRepo
           ? {
               companyId: company.id,
               status: SubscriptionStatus.trial,
+              plan: CLOUD_TRIAL.plan,
               trialEndDate,
             }
           : {
               companyId: company.id,
               status: SubscriptionStatus.active,
+              plan: SELF_HOSTED_BASELINE_PLAN,
               trialEndDate: null,
             },
     });
@@ -503,7 +507,7 @@ export class PrismaUserRepo
         company: {
           subscription: {
             status: SubscriptionStatus.trial,
-            OR: [{ trialEndDate: null }, { trialEndDate: { gt: new Date(now) } }],
+            trialEndDate: { gt: new Date(now) },
           },
         },
       },
@@ -540,6 +544,7 @@ export class PrismaUserRepo
     return await this.prisma.user.findMany({
       where: {
         status: { not: Status.inactive },
+        OR: [{ roleId: null }, { role: { isSystemRole: false } }],
         company: {
           subscription: {
             status: {
@@ -596,20 +601,76 @@ export class PrismaUserRepo
     return result.count > 0;
   }
 
-  async claimTrialInactivationNoticeSent(args: { userId: string; sentAt: Date }) {
-    const { userId, sentAt } = args;
-    const result = await this.prisma.user.updateMany({
-      where: { id: userId, trialInactivationNoticeSentAt: null },
-      data: { trialInactivationNoticeSentAt: sentAt },
+  async claimTrialInactivationAndDeactivateUnlessCheckoutReservedOrThrow(args: {
+    userId: string;
+    sentAt: Date;
+    now: Date;
+  }) {
+    const user = await this.prisma.user.findUniqueOrThrow({
+      where: { id: args.userId },
+      select: { companyId: true },
     });
 
-    return result.count > 0;
+    return this.withCompanyTransaction(user.companyId, async () => {
+      if (await this.hasLiveCheckoutReservation(user.companyId, args.now)) return false;
+
+      const to = new Date(args.now.getTime() - 6 * 24 * 60 * 60 * 1000);
+      const result = await this.prisma.user.updateMany({
+        where: {
+          id: args.userId,
+          companyId: user.companyId,
+          status: { not: Status.inactive },
+          trialInactivationNoticeSentAt: null,
+          company: {
+            subscription: {
+              status: SubscriptionStatus.trial,
+              trialEndDate: { lte: to },
+            },
+          },
+        },
+        data: {
+          status: Status.inactive,
+          trialInactivationNoticeSentAt: args.sentAt,
+        },
+      });
+      return result.count > 0;
+    });
   }
 
-  async deactivateUser(userId: string) {
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { status: Status.inactive },
+  async deactivateUserAfterGraceUnlessCheckoutReservedOrThrow(args: { userId: string; now: Date }) {
+    const user = await this.prisma.user.findUniqueOrThrow({
+      where: { id: args.userId },
+      select: { companyId: true },
     });
+
+    return this.withCompanyTransaction(user.companyId, async () => {
+      if (await this.hasLiveCheckoutReservation(user.companyId, args.now)) return false;
+
+      const result = await this.prisma.user.updateMany({
+        where: {
+          id: args.userId,
+          companyId: user.companyId,
+          status: { not: Status.inactive },
+          OR: [{ roleId: null }, { role: { isSystemRole: false } }],
+          company: {
+            subscription: {
+              status: { in: [SubscriptionStatus.unPaid, SubscriptionStatus.expired] },
+              updatedAt: { lte: new Date(args.now.getTime() - 3 * 24 * 60 * 60 * 1000) },
+            },
+          },
+        },
+        data: { status: Status.inactive },
+      });
+      return result.count > 0;
+    });
+  }
+
+  private async hasLiveCheckoutReservation(companyId: string, now: Date) {
+    const subscription = await this.prisma.subscription.findUniqueOrThrow({
+      where: { companyId },
+      select: { lemonSqueezyVariantId: true },
+    });
+    const reservation = parseCheckoutReservationMarker(subscription.lemonSqueezyVariantId);
+    return reservation !== null && new Date(reservation.payload.bindingExpiresAt) > now;
   }
 }

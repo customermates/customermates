@@ -3,34 +3,28 @@ import { join, relative } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { resolveDerivedToken, resolveDerivedTokens } from "@/core/content/derived-tokens";
+import {
+  MCP_ALWAYS_ON_TOOLS,
+  MCP_GROUPED_TOOL_COUNT,
+  MCP_TOOL_COUNT,
+  MCP_TOOL_GROUPS,
+  MCP_TOOLSET_COUNT,
+} from "@/features/mcp-tools/tool-registry";
+import { WEBHOOK_EVENT_COUNT } from "@/features/webhook/webhook-event-registry";
+
 import { REPO_ROOT, walkFiles } from "./walk";
 
 const ENFORCED = true;
-
 const REGISTRY_FILE = join("features", "mcp-tools", "tool-registry.ts");
-const WEBHOOK_SCHEMA_FILE = join("features", "webhook", "webhook.schema.ts");
-
 const TOOL_NAME_PATTERN = /^ {2}name: ["']([a-z0-9_]+)["'],?$/gm;
-const TOOL_BINDING_PATTERN = /\b[A-Za-z0-9]+Tool\b/g;
-const TOOLSET_KEY_PATTERN = /^ {2}"?[a-z][a-z-]*"?: \[/gm;
-
-const TOOL_COUNT_CLAIM = /\b(\d{1,3})\s+(mcp[- ])?(tools|werkzeuge)\b/gi;
+const TOOL_COUNT_CLAIM =
+  /\b(\d{1,3})(?:-tool[- ]mcp\b|\s+(?:(?:mcp[- ])?(?:tools|werkzeuge)\b|\[mcp\]\([^)]+\)\s*(?:tools|werkzeuge)\b|\[(?:mcp[- ])?(?:tools|werkzeuge)\]\([^)]+\)))/gi;
 const TOOLSET_COUNT_CLAIM = /\b(eight|nine|ten|eleven|twelve|acht|neun|zehn|elf|zwölf|\d{1,2})\s+toolsets\b/gi;
-const WEBHOOK_COUNT_CLAIM = /\b(\d{1,3})\s+(webhook[- ])?(events|ereignisse)\b/gi;
+const WEBHOOK_COUNT_CLAIM =
+  /\b(\d{1,3})\s+(?:webhooks?\b|webhook[- ]?(?:events?(?: types?)?|eventtypen|ereignisse|ereignistypen)\b|\[(?:webhook[- ])?(?:events|ereignisse)\]\([^)]+\))/gi;
 const APPROXIMATION =
   /(over|above|more than|approximately|around|about|nearly|up to|beyond|über|mehr als|rund|etwa|circa|ca\.|bis zu|microsoft|office|dynamics|~|\+)\s*$/i;
-
-const NUMBER_WORDS: Record<number, { de: string; en: string } | undefined> = {
-  8: { de: "acht", en: "eight" },
-  9: { de: "neun", en: "nine" },
-  10: { de: "zehn", en: "ten" },
-  11: { de: "elf", en: "eleven" },
-  12: { de: "zwölf", en: "twelve" },
-};
-
-function readSource(file: string): string {
-  return readFileSync(join(REPO_ROOT, file), "utf8");
-}
 
 function registeredToolNames(): Set<string> {
   const names = new Set<string>();
@@ -39,28 +33,6 @@ function registeredToolNames(): Set<string> {
     for (const match of readFileSync(file, "utf8").matchAll(TOOL_NAME_PATTERN)) names.add(match[1]);
   }
   return names;
-}
-
-function distinctBindings(source: string): number {
-  const bindings = [...source.matchAll(TOOL_BINDING_PATTERN)].map((match) => match[0]).filter((name) => name !== "McpTool");
-  return new Set(bindings).size;
-}
-
-function registryGroupsSource(): string {
-  const text = readSource(REGISTRY_FILE);
-  const start = text.indexOf("export const MCP_TOOL_GROUPS");
-  return text.slice(start, text.indexOf("export const MCP_ALWAYS_ON_TOOLS", start));
-}
-
-function toolsetCount(): number {
-  return [...registryGroupsSource().matchAll(TOOLSET_KEY_PATTERN)].length;
-}
-
-function webhookEventCount(): number {
-  const text = readSource(WEBHOOK_SCHEMA_FILE);
-  const start = text.indexOf("WebhookEventSchema = z.enum([");
-  const body = text.slice(start, text.indexOf("]", start));
-  return [...body.matchAll(/"[a-z_.]+"/g)].length;
 }
 
 function contentFiles(): string[] {
@@ -85,50 +57,55 @@ function scanContent(claim: RegExp, isViolation: (match: RegExpMatchArray) => st
 }
 
 describe("counts stated in content derive from product source", () => {
+  it("resolves every derived fact token", () => {
+    const violations: string[] = [];
+    for (const path of contentFiles()) {
+      const text = readFileSync(path, "utf8");
+      if (!text.includes("[[derived.")) continue;
+      try {
+        resolveDerivedTokens(text);
+      } catch (error) {
+        violations.push(`${relative(REPO_ROOT, path)}: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    }
+    expect(violations, violations.join("\n")).toEqual([]);
+  });
+
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("resolves one MCP tool count from the registry", () => {
     const registered = registeredToolNames();
     expect(registered.size).toBeGreaterThan(0);
-    expect(distinctBindings(readSource(REGISTRY_FILE)), `${REGISTRY_FILE} must bind every exported tool once`).toBe(
-      registered.size,
-    );
+    expect(MCP_TOOL_COUNT, `${REGISTRY_FILE} must bind every exported tool once`).toBe(registered.size);
+    expect(Number(resolveDerivedToken("mcp.tools.total"))).toBe(MCP_TOOL_COUNT);
+    expect(Number(resolveDerivedToken("mcp.tools.grouped"))).toBe(MCP_GROUPED_TOOL_COUNT);
+    expect(Number(resolveDerivedToken("mcp.tools.alwaysOn"))).toBe(MCP_ALWAYS_ON_TOOLS.length);
+    expect(Number(resolveDerivedToken("mcp.toolsets.count"))).toBe(MCP_TOOLSET_COUNT);
+    for (const [group, tools] of Object.entries(MCP_TOOL_GROUPS)) {
+      expect(Number(resolveDerivedToken(`mcp.tools.groups.${group}`))).toBe(tools.length);
+    }
   });
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("states no other MCP tool count", () => {
-    const total = registeredToolNames().size;
-    const grouped = distinctBindings(registryGroupsSource());
-    const allowed = new Set([total, grouped]);
-
-    const violations = scanContent(TOOL_COUNT_CLAIM, (match) =>
-      allowed.has(Number(match[1]))
-        ? null
-        : `states "${match[0].trim()}"; the registry exposes ${total} tools (${grouped} inside toolsets)`,
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("states no handwritten MCP tool count", () => {
+    const violations = scanContent(
+      TOOL_COUNT_CLAIM,
+      (match) => `states literal "${match[0].trim()}"; use a derived MCP count token`,
     );
-
     expect(violations, violations.join("\n")).toEqual([]);
   });
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("states no other toolset count", () => {
-    const expected = toolsetCount();
-    const words = NUMBER_WORDS[expected];
-    expect(words, `add a number word for ${expected} toolsets`).toBeDefined();
-
-    const violations = scanContent(TOOLSET_COUNT_CLAIM, (match) => {
-      const stated = match[1].toLowerCase();
-      if (stated === words?.en || stated === words?.de || Number(stated) === expected) return null;
-      return `states "${match[0].trim()}"; the registry declares ${expected} toolsets`;
-    });
-
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("states no handwritten toolset count", () => {
+    const violations = scanContent(
+      TOOLSET_COUNT_CLAIM,
+      (match) => `states literal "${match[0].trim()}"; use the derived MCP toolset token`,
+    );
     expect(violations, violations.join("\n")).toEqual([]);
   });
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("states no other webhook event count", () => {
-    const expected = webhookEventCount();
-    expect(expected).toBeGreaterThan(0);
-
-    const violations = scanContent(WEBHOOK_COUNT_CLAIM, (match) =>
-      Number(match[1]) === expected ? null : `states "${match[0].trim()}"; the schema defines ${expected} events`,
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("states no handwritten webhook event count", () => {
+    expect(WEBHOOK_EVENT_COUNT).toBeGreaterThan(0);
+    const violations = scanContent(
+      WEBHOOK_COUNT_CLAIM,
+      (match) => `states literal "${match[0].trim()}"; use a derived webhook count token`,
     );
-
     expect(violations, violations.join("\n")).toEqual([]);
   });
 });

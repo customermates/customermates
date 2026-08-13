@@ -98,13 +98,13 @@ Built for outbound sales teams that live on the phone. Built-in dialer, SMS, ema
 
 ### Customermates
 
-The CRM I build. Open-source, self-hostable or cloud with an EU database region. From €12/user/month (€10 billed yearly), Starter; the native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) is on Pro at €29, and external AI clients can operate it through MCP. A separate n8n instance can use the community node, REST API, and 26 webhook events.
+The CRM I build. Open-source, self-hostable or cloud with an EU database region. From [[commercial.price.starter.monthly]]/user/month on Starter; the native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) is on Pro at [[commercial.price.pro.monthly]], and external AI clients can operate it through MCP. A separate n8n instance can use the community node, REST API, and [[derived.webhooks.events.total]] webhook events.
 
 **Best for:** Small to mid-size teams (1-50) that want a real sales CRM, value data ownership and EU hosting, and use AI tools (Claude, Codex, ChatGPT) that can drive the CRM directly.
 
 **Watch out for:** Younger project than the alternatives above. If you need a 15-year track record and a vendor with 5,000 employees, this is not it. If you are willing to back a modern, transparent, agent-native option, it is the path.
 
-**Concrete adoption story.** A 12-person German consulting firm migrated from Pipedrive Growth (about €39/user/month billed annually, roughly €5,600/year for 12) to Customermates Cloud (Starter yearly, €120/user/year × 12 = €1,440/year). Year-1 saving: about €4,100. They also migrated 8,400 contacts and 1,200 deals using the API import. Time to migrate: 3 days, mostly cleaning duplicate contacts. After 6 months they wired up Claude via [MCP](/docs/mcp) to draft follow-up emails based on the last activity in each deal, the kind of workflow that costs €15-€30/user/month extra in HubSpot. See [pricing](/pricing) and the [self-hosted feature page](/features/self-hosted).
+**Illustrative migration scenario.** For a 12-person consulting firm evaluating Customermates today, Cloud Starter is [[commercial.price.starter.monthly.seats.12]] per month. Existing contacts and deals can be loaded through the REST API after the source data is cleaned and deduplicated. Claude can then connect through [MCP](/docs/mcp) to draft follow-up emails from deal activity. Compare the current terms on [pricing](/pricing), or review the [self-hosted feature page](/features/self-hosted) when you want to operate the stack yourself.
 
 ### Folk / Attio / Twenty (the modern boutique tier)
 
@@ -133,7 +133,7 @@ Strip away marketing pages and these are the features that predict whether a CRM
 - **Email two-way sync.** If reps need to BCC the CRM or click "log email," they will not. Real two-way sync (you write a normal email in Gmail or Outlook and it appears in the CRM) is the single biggest adoption variable.
 - **Calendar two-way sync.** Same principle. Meetings booked anywhere appear in the CRM as activities.
 - **Mobile app that works.** Reps log calls in the car or after meetings. If the mobile app is broken, they do not log.
-- **AI-driven update.** Modern angle: the CRM updates itself from your activity. Customermates exposes 46 MCP tools so Claude or Codex can drive deal updates, draft follow-ups, and write notes from a transcript without the rep typing into the CRM. This is what changed in 2025-2026.
+- **AI-driven update.** Modern angle: the CRM updates itself from your activity. Customermates exposes [[derived.mcp.tools.total]] MCP tools so Claude or Codex can drive deal updates, draft follow-ups, and write notes from a transcript without the rep typing into the CRM. This is what changed in 2025-2026.
 - **Pipeline view that fits on one screen.** Drag-and-drop deal management with status changes in one click.
 - **Custom fields with sensible defaults.** Configurable but not requiring a full project to set up.
 
@@ -151,15 +151,15 @@ If the CRM you are evaluating leads with these features, it is probably wrong fo
 
 ## Quick decision matrix
 
-| If you... | Pick |
-|---|---|
-| Want the canonical pipeline experience and your team is 3-25 | Pipedrive |
-| Already use HubSpot for marketing | HubSpot Sales Hub |
-| Have a Salesforce admin and complex enterprise needs | Salesforce |
-| Are deep in the Zoho ecosystem | Zoho |
-| Run 50+ calls per day | Close |
-| Value data ownership, want EU hosting, use AI agents | [Customermates](/) |
-| Need the smallest possible setup for a 1-3 person team | HubSpot Free or Folk |
+| If you...                                                    | Pick                 |
+| ------------------------------------------------------------ | -------------------- |
+| Want the canonical pipeline experience and your team is 3-25 | Pipedrive            |
+| Already use HubSpot for marketing                            | HubSpot Sales Hub    |
+| Have a Salesforce admin and complex enterprise needs         | Salesforce           |
+| Are deep in the Zoho ecosystem                               | Zoho                 |
+| Run 50+ calls per day                                        | Close                |
+| Value data ownership, want EU hosting, use AI agents         | [Customermates](/)   |
+| Need the smallest possible setup for a 1-3 person team       | HubSpot Free or Folk |
 
 ## What I would actually do
 
@@ -232,10 +232,10 @@ For small business (1-25 reps), Pipedrive or [Customermates](/) are the two I se
 Almost always yes. The TCO including admin time is multiples of the alternatives, and the adoption barrier is steep. Use Salesforce if you have a dedicated admin and complex enterprise processes.
 
 **How much does a sales CRM cost?**
-Real cost in 2026 is €15 to €40 per user per month for the tier most teams actually need. Free tiers exist (HubSpot, Bitrix24) but cap features. Open-source options ([Customermates](/), EspoCRM, SuiteCRM) start at €12/user or self-hosted for server cost only.
+Real cost in 2026 is €15 to €40 per user per month for the tier most teams actually need. Free tiers exist (HubSpot, Bitrix24) but cap features. [Customermates](/) starts at [[commercial.price.starter.monthly]]/user/month or can be self-hosted; other open-source projects have their own terms.
 
 **What CRM has the best AI features in 2026?**
-Salesforce and HubSpot have the most marketing about AI. [Customermates](/) works best in practice if you already use Claude, Codex, or ChatGPT, because the CRM exposes [46 MCP tools](/docs/mcp) that let your AI drive the CRM directly rather than waiting for vendor AI features.
+Salesforce and HubSpot have the most marketing about AI. [Customermates](/) works best in practice if you already use Claude, Codex, or ChatGPT, because the CRM exposes [[[derived.mcp.tools.total]] MCP tools](/docs/mcp) that let your AI drive the CRM directly rather than waiting for vendor AI features.
 
 **What is the difference between a sales CRM and a CRM?**
 A sales CRM focuses on the deal pipeline (Pipedrive, Close, [Customermates](/)). A general CRM covers sales plus marketing, support, and platform features (Salesforce, HubSpot, Zoho). Smaller teams should usually pick the focused option.

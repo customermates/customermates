@@ -69,17 +69,17 @@ Genau Schritt 6 ist die Stelle, an der die meisten Stacks brechen, und der Schwe
 
 Der ehrliche Vergleich ist nicht Mensch gegen KI, sondern Mensch plus KI gegen nichts, weil die gut geführten Teams beides nutzen.
 
-| Fähigkeit | AI BDR | Menschlicher BDR |
-|---|---|---|
-| Volumen | Tausende Interessenten pro Tag | Dutzende pro Tag |
-| Kosten pro Kontakt | Cent-Bereich (API plus Daten) | Niedriger zweistelliger Euro-Bereich (vollkostet) |
-| Personalisierungsqualität | Gut bei starker Recherche, generisch ohne | Schwankend, top-Reps sind exzellent |
-| Konversationsführung | Verlässlich bei häufigen Mustern, brüchig bei Sonderfällen | Stark, besonders unter Einwand |
-| Urteil bei Grenzfall-Accounts | Schwach | Stark |
-| Gespür für Zustellbarkeit | Mechanisch | Schwankend |
-| 24/7 verfügbar | Ja | Nein |
-| Wird mit der Zeit besser | Nur wenn Prompts und Daten besser werden | Ja, mit Coaching |
-| Spricht mit Ihrem CRM | Hängt komplett von der Integration ab | Pflegt das CRM widerwillig |
+| Fähigkeit                     | AI BDR                                                     | Menschlicher BDR                                  |
+| ----------------------------- | ---------------------------------------------------------- | ------------------------------------------------- |
+| Volumen                       | Tausende Interessenten pro Tag                             | Dutzende pro Tag                                  |
+| Kosten pro Kontakt            | Cent-Bereich (API plus Daten)                              | Niedriger zweistelliger Euro-Bereich (vollkostet) |
+| Personalisierungsqualität     | Gut bei starker Recherche, generisch ohne                  | Schwankend, top-Reps sind exzellent               |
+| Konversationsführung          | Verlässlich bei häufigen Mustern, brüchig bei Sonderfällen | Stark, besonders unter Einwand                    |
+| Urteil bei Grenzfall-Accounts | Schwach                                                    | Stark                                             |
+| Gespür für Zustellbarkeit     | Mechanisch                                                 | Schwankend                                        |
+| 24/7 verfügbar                | Ja                                                         | Nein                                              |
+| Wird mit der Zeit besser      | Nur wenn Prompts und Daten besser werden                   | Ja, mit Coaching                                  |
+| Spricht mit Ihrem CRM         | Hängt komplett von der Integration ab                      | Pflegt das CRM widerwillig                        |
 
 Die Teams, die 2026 gewinnen, nutzen AI BDRs als Volumen-Schicht (Sourcing, Erstkontakt, Follow-up-Planung) und Menschen für Urteilsvermögen, Einwandbehandlung und Account-spezifische Arbeit. Anbieter, die so tun, als ersetze KI den Menschen, ernten Hass-Threads auf Reddit. Die, die KI als Volumen-Engine und Menschen als Abschluss-Schicht positionieren, bauen langlebige Produkte.
 
@@ -142,15 +142,15 @@ Genau das leistet das [Model Context Protocol](https://modelcontextprotocol.io) 
 
 ## Wie ein MCP-natives CRM den AI-BDR-Stack verändert
 
-[Customermates](/) ist ein Open-Source-CRM, gebaut, damit jeder MCP-kompatible KI-Agent das gesamte CRM direkt liest und schreibt. Es gibt 46 native MCP-Tools, die Kontakte, Unternehmen, Deals, Services, Aufgaben, benutzerdefinierte Felder, Widgets und Webhooks abdecken. Ein über MCP angebundener AI BDR "schickt keine Leads ans CRM", er bedient das CRM.
+[Customermates](/) ist ein Open-Source-CRM, gebaut, damit jeder MCP-kompatible KI-Agent das gesamte CRM direkt liest und schreibt. Es gibt [[derived.mcp.tools.total]] native MCP-Tools, die Kontakte, Unternehmen, Deals, Services, Aufgaben, benutzerdefinierte Felder, Widgets und Webhooks abdecken. Ein über MCP angebundener AI BDR "schickt keine Leads ans CRM", er bedient das CRM.
 
 Ein konkretes Beispiel. Der Agent schließt einen Discovery-E-Mail-Thread ab. Statt eine Notiz per Webhook zu schreiben, führt der Agent aus:
 
 1. `update_contacts` mit Titel, Rollen-Bestätigung und aktualisierter Telefonnummer
 2. `create_deals` verlinkt mit Kontakt und Unternehmen, in der Stage Discovery
-3. `update_entity_notes` mit Zusammenfassung und Schlüsselsignalen aus dem Thread
+3. `update_record_notes` mit Zusammenfassung und Schlüsselsignalen aus dem Thread
 4. `create_tasks` mit einem Follow-up für den AE am Tag nach dem Termin
-5. `update_widget` zur Aktualisierung des Pipeline-Status auf dem Team-Dashboard
+5. `manage_widgets` zur Aktualisierung des Pipeline-Status auf dem Team-Dashboard
 
 Alle fünf passieren in einem Modell-Turn, in natürlicher Sprache, mit vollständig erhaltenem Agenten-Kontext. Der Closer, der den Deal aufnimmt, sieht den vollständigen Thread, die strukturierten Signale, die Folgeaufgabe und die Dashboard-Sicht. Das CRM bleibt die Wahrheit.
 
@@ -199,7 +199,7 @@ Eine kurze, ehrliche Einordnung der dieses Jahr am häufigsten evaluierten Produ
 
 **Coldreach, Autobound, Prospeo.** Spezialisten für unterschiedliche Schichten (Coldreach für Recherche, Autobound für Personalisierung, Prospeo für Datenqualität). Geeignet als Bausteine eines größeren Stacks.
 
-**Customermates.** Kein AI BDR. Das CRM, in das jeder der oben genannten via MCP einklinkt, mit 46 nativen Tools. Open Source unter AGPL-3.0, Cloud ab 12 EUR pro Nutzer pro Monat (Starter) oder kostenlos selbst gehostet via Docker; der vereinheitlichte Posteingang mit der Konversationshistorie liegt auf Pro ab 29 EUR. Geeignet als Ziel-Schicht des Stacks, wo Kontakte, Deals und Konversationen tatsächlich leben.
+**Customermates.** Kein AI BDR. Das CRM, in das jeder der oben genannten via MCP einklinkt, mit [[derived.mcp.tools.total]] nativen Tools. Open Source unter AGPL-3.0, Cloud ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat (Starter) oder kostenlos selbst gehostet via Docker; der vereinheitlichte Posteingang mit der Konversationshistorie liegt auf Pro ab [[commercial.price.pro.monthly]]. Geeignet als Ziel-Schicht des Stacks, wo Kontakte, Deals und Konversationen tatsächlich leben.
 
 Die Kombination, die in den meisten Werkzeuglisten fehlt: "AI BDR plus CRM, das der Agent direkt bedient". Fast jedes andere Stück ist im Markt vorhanden.
 

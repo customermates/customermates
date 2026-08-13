@@ -2,70 +2,93 @@
 
 import { useTranslations } from "next-intl";
 import { Check } from "lucide-react";
+import { observer } from "mobx-react-lite";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { cn } from "@/core/utils/cn";
+import { useRootStore } from "@/core/stores/root-store.provider";
+import {
+  formatCommercialAmount,
+  PLAN_CATALOG,
+  PURCHASABLE_PLAN_IDS,
+  type AvailableBillingCadence,
+  type PurchasablePlanId,
+} from "@/core/commercial/plan-catalog";
 
-export type SelectablePlan = "starter" | "pro" | "business";
-
-const SELECTABLE_PLANS: SelectablePlan[] = ["starter", "pro", "business"];
+export type SelectableOffer = {
+  plan: PurchasablePlanId;
+  cadence: AvailableBillingCadence;
+};
 
 type Props = {
   isLoading?: boolean;
-  onSelect: (plan: SelectablePlan) => void;
+  onSelect: (offer: SelectableOffer) => void;
 };
 
-export function PlanPicker({ isLoading, onSelect }: Props) {
+export const PlanPicker = observer(function PlanPicker({ isLoading, onSelect }: Props) {
   const t = useTranslations();
+  const { intlStore } = useRootStore();
+  const locale = intlStore.resolvedFormattingLanguageTag;
 
-  function handleCardClick(plan: SelectablePlan) {
-    if (!isLoading) onSelect(plan);
+  function handleCardClick(offer: SelectableOffer) {
+    if (!isLoading) onSelect(offer);
   }
 
   return (
     <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-3">
-      {SELECTABLE_PLANS.map((plan) => {
+      {PURCHASABLE_PLAN_IDS.map((plan) => {
         const featured = plan === "business";
+        const offer = PLAN_CATALOG[plan].offers.monthly;
+        const selection: SelectableOffer = { plan, cadence: offer.cadence };
+        const accountAllowance = PLAN_CATALOG[plan].entitlements.includedAccountsPerUser;
         const features = t.raw(`Subscription.picker.features.${plan}`) as string[];
+        const renderedFeatures =
+          accountAllowance === 0
+            ? features
+            : [
+                ...features,
+                t("Subscription.picker.connectedAccountsPerUser", {
+                  accounts: accountAllowance,
+                }),
+              ];
 
         return (
-          <div
+          <button
             key={plan}
             className={cn(
-              "interactive-surface flex flex-col gap-3 rounded-xl border bg-card p-4",
+              "interactive-surface flex flex-col gap-3 rounded-xl border bg-card p-4 text-left disabled:pointer-events-none disabled:opacity-50",
               featured ? "border-2 border-primary" : "border-border",
             )}
-            role="button"
-            tabIndex={0}
-            onClick={() => handleCardClick(plan)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" || event.key === " ") handleCardClick(plan);
-            }}
+            disabled={isLoading}
+            type="button"
+            onClick={() => handleCardClick(selection)}
           >
-            <div className="flex items-center justify-between gap-2">
-              <h4 className="text-sm font-semibold">{t(`Subscription.planNames.${plan}`)}</h4>
+            <span className="flex items-center justify-between gap-2">
+              <span className="text-sm font-semibold">{t(`Subscription.planNames.${plan}`)}</span>
 
               {featured && <AppChip variant="info">{t("Subscription.picker.mostPopular")}</AppChip>}
-            </div>
+            </span>
 
-            <div className="flex items-baseline gap-1">
-              <span className="text-xl font-bold">{t(`Subscription.picker.price.${plan}`)}</span>
+            <span className="flex items-baseline gap-1">
+              <span className="text-xl font-bold">
+                {formatCommercialAmount(offer.unitPriceMinor, locale, offer.currency)}
+              </span>
 
               <span className="text-xs text-muted-foreground">{t("Subscription.picker.perUserMonth")}</span>
-            </div>
+            </span>
 
-            <ul className="flex flex-col gap-1.5">
-              {features.map((feature, index) => (
-                <li key={index} className="flex items-start gap-1.5 text-xs text-muted-foreground">
+            <span className="flex flex-col gap-1.5" role="list">
+              {renderedFeatures.map((feature, index) => (
+                <span key={index} className="flex items-start gap-1.5 text-xs text-muted-foreground" role="listitem">
                   <Check aria-hidden className="mt-0.5 size-3 shrink-0 text-primary" strokeWidth={2.5} />
 
                   <span>{feature}</span>
-                </li>
+                </span>
               ))}
-            </ul>
-          </div>
+            </span>
+          </button>
         );
       })}
     </div>
   );
-}
+});

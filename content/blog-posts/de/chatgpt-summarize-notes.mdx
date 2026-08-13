@@ -42,17 +42,17 @@ Für CRM-Systeme wie [Customermates](/), [Pipedrive](https://www.pipedrive.com/)
 
 Bevor es um ChatGPT-Prompts geht, lohnt sich ein Blick auf die Tools, die Meeting-Transkripte automatisch erfassen. Diese Tools zeichnen Ihre Gespräche auf, erstellen Transkripte und generieren teilweise eigene KI-Zusammenfassungen.
 
-| Merkmal | Otter.ai | Fireflies.ai | Fathom |
-|---------|----------|---------------|--------|
-| Echtzeit-Transkription | Ja | Ja | Ja |
-| KI-Zusammenfassungsqualität | Gut (generisch) | Gut (anpassbar) | Sehr gut (aktionsorientiert) |
-| Kalender-Integration | Google, Outlook | Google, Outlook, Teams | Google, Outlook, Teams |
-| CRM-Integration | HubSpot, Salesforce | HubSpot, Salesforce, Pipedrive | HubSpot, Salesforce |
-| Webhook-/API-Export | Eingeschränkt | Ja (Webhooks) | Eingeschränkt |
-| Kostenloser Tarif | 300 Min./Monat | Eingeschränkt | Unbegrenzte Aufnahmen |
-| Einstiegspreis | 17 USD/Nutzer/Monat | 19 USD/Nutzer/Monat | 19 USD/Nutzer/Monat |
-| n8n-Integration | Über API | Nativer Webhook | Über API |
-| DSGVO/EU-Hosting | Nur US | US (EU-AVV verfügbar) | US (EU-AVV verfügbar) |
+| Merkmal                     | Otter.ai            | Fireflies.ai                   | Fathom                       |
+| --------------------------- | ------------------- | ------------------------------ | ---------------------------- |
+| Echtzeit-Transkription      | Ja                  | Ja                             | Ja                           |
+| KI-Zusammenfassungsqualität | Gut (generisch)     | Gut (anpassbar)                | Sehr gut (aktionsorientiert) |
+| Kalender-Integration        | Google, Outlook     | Google, Outlook, Teams         | Google, Outlook, Teams       |
+| CRM-Integration             | HubSpot, Salesforce | HubSpot, Salesforce, Pipedrive | HubSpot, Salesforce          |
+| Webhook-/API-Export         | Eingeschränkt       | Ja (Webhooks)                  | Eingeschränkt                |
+| Kostenloser Tarif           | 300 Min./Monat      | Eingeschränkt                  | Unbegrenzte Aufnahmen        |
+| Einstiegspreis              | 17 USD/Nutzer/Monat | 19 USD/Nutzer/Monat            | 19 USD/Nutzer/Monat          |
+| n8n-Integration             | Über API            | Nativer Webhook                | Über API                     |
+| DSGVO/EU-Hosting            | Nur US              | US (EU-AVV verfügbar)          | US (EU-AVV verfügbar)        |
 
 **Otter.ai** eignet sich besonders für Einzelnutzer, die Echtzeit-Transkription während Meetings wünschen. Die KI-Zusammenfassungen sind solide, aber generisch, sie lassen sich nicht direkt auf CRM-Felder abbilden.
 
@@ -234,12 +234,12 @@ Fügen Sie einen zweiten ChatGPT-Node hinzu, der Aktionspunkte aus demselben Tra
 
 ### Kosten des Workflows
 
-| Komponente | Monatliche Kosten |
-|-----------|------------------|
-| n8n Cloud (Starter) | 20 EUR |
-| OpenAI API (100 Zusammenfassungen) | 2-5 EUR |
-| Customermates CRM | 12 EUR/Nutzer |
-| **Gesamt (1 Nutzer)** | **34-37 EUR** |
+| Komponente                         | Monatliche Kosten                                           |
+| ---------------------------------- | ----------------------------------------------------------- |
+| n8n Cloud (Starter)                | 20 EUR                                                      |
+| OpenAI API (100 Zusammenfassungen) | 2-5 EUR                                                     |
+| Customermates CRM                  | [[commercial.price.starter.monthly]]/Nutzer                 |
+| **Gesamt (1 Nutzer)**              | **20 EUR + 2-5 EUR + [[commercial.price.starter.monthly]]** |
 
 Bei 100 Gesprächszusammenfassungen pro Monat sind die API-Kosten vernachlässigbar. Die Zeitersparnis, rund 80 Minuten pro Woche für einen aktiven Vertriebsmitarbeiter, überwiegt die Ausgaben bei Weitem.
 
@@ -274,7 +274,7 @@ Stellen Sie sicher, dass Ihr CRM Daten DSGVO-konform speichert. Customermates ho
 
 Nicht jedes CRM geht gleich gut mit Notizen und Automatisierung um. So schneiden populäre Optionen für diesen konkreten Workflow ab:
 
-**Customermates.** Ab 12 EUR/Nutzer/Monat (Starter), das volle Kern-CRM inklusive. Native n8n-Integration, dazu ein nativer MCP-Server, sodass ein KI-Agent (Claude, ChatGPT oder Gemini) Datensätze direkt lesen und schreiben kann, Notizen an Deals und Kontakten, DSGVO-konformes EU-Hosting, Open Source. Ab der Pro-Stufe kommt ein nativer vereinheitlichter Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram) hinzu, den derselbe Agent bedienen kann. Entwickelt für Teams, die schnelle Dateneingabe ohne komplexe Konfiguration wollen. Native KI und MCP sind ab der Einstiegsstufe enthalten, kein separates Upgrade nötig.
+**Customermates.** Ab [[commercial.price.starter.monthly]]/Nutzer/Monat (Starter), das volle Kern-CRM inklusive. Native n8n-Integration, dazu ein nativer MCP-Server, sodass ein KI-Agent (Claude, ChatGPT oder Gemini) Datensätze direkt lesen und schreiben kann, Notizen an Deals und Kontakten, DSGVO-konformes EU-Hosting, Open Source. Ab der Pro-Stufe kommt ein nativer vereinheitlichter Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram) hinzu, den derselbe Agent bedienen kann. Entwickelt für Teams, die schnelle Dateneingabe ohne komplexe Konfiguration wollen. Native KI und MCP sind ab der Einstiegsstufe enthalten, kein separates Upgrade nötig.
 
 **HubSpot.** Kostenlose CRM-Stufe verfügbar; kostenpflichtige Sales-Hub-Pläne beginnen bei 15 USD/Sitz/Monat (Starter), die Automatisierung, die die meisten Teams wollen, greift ab Professional (90 USD/Sitz/Monat, plus einmalige Onboarding-Gebühr). Notizen funktionieren gut, die Oberfläche ist aber komplexer. Sinnvoll, wenn Sie zusätzlich Marketing-Automatisierung benötigen. Meeting-Aufnahme-Integrationen sind in kostenpflichtigen Tarifen eingebaut.
 

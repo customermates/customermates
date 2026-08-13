@@ -3,58 +3,58 @@
 import type { Pricing } from "@/core/fumadocs/schemas/pricing";
 
 import { useState } from "react";
+import { useLocale } from "next-intl";
 import { Slider } from "@/components/ui/slider";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { PricingCardComponent } from "./pricing-card";
+import { formatCommercialAmount, getCommercialOffer, totalPriceAmountMinor } from "@/core/commercial/plan-catalog";
+
+export function pricingCardPresentation(options: {
+  plan: Pricing["pricingCards"][number]["plan"];
+  userCount: number;
+  locale: string;
+  customPrice: string;
+  totalSuffixPlural?: string;
+  totalSuffixSingular?: string;
+}) {
+  const offer = getCommercialOffer(options.plan, "monthly");
+  const displayPrice = offer
+    ? formatCommercialAmount(totalPriceAmountMinor(offer, options.userCount), options.locale, offer.currency)
+    : options.customPrice;
+  const totalSuffixTemplate = options.userCount === 1 ? options.totalSuffixSingular : options.totalSuffixPlural;
+
+  return {
+    displayPrice,
+    priceSubtext:
+      offer && totalSuffixTemplate ? totalSuffixTemplate.replace("{count}", String(options.userCount)) : undefined,
+  };
+}
 
 type Props = Pricing;
 
 export function PricingSection({
   ariaLabelSlider,
-  ariaLabelTabs,
+  customPrice,
   footnote,
-  monthly,
   pricingCards: mdxPricingCards,
   totalSuffixPlural,
   totalSuffixSingular,
   users,
-  yearly,
-  yearlySavings,
 }: Props) {
   const [userCount, setUserCount] = useState(1);
-  const [isAnnual, setIsAnnual] = useState(true);
+  const locale = useLocale();
 
   const maxUsers = 25;
-  const yearlyTitle = (
-    <>
-      {yearly}
-
-      {yearlySavings && <span className="ml-1 text-x-xs font-bold">{yearlySavings}</span>}
-    </>
-  );
 
   return (
     <>
       <div className="max-w-xl mx-auto mb-8">
-        <div className="flex justify-between mb-6 items-center">
+        <div className="mb-6">
           <div>
             <h3 className="text-x-lg mb-2">{users}</h3>
 
             <div className="text-x-3xl text-primary dark:text-primary">{userCount}</div>
           </div>
-
-          <Tabs
-            aria-label={ariaLabelTabs}
-            value={isAnnual ? "yearly" : "monthly"}
-            onValueChange={(key) => setIsAnnual(key === "yearly")}
-          >
-            <TabsList>
-              <TabsTrigger value="monthly">{monthly}</TabsTrigger>
-
-              <TabsTrigger value="yearly">{yearlyTitle}</TabsTrigger>
-            </TabsList>
-          </Tabs>
         </div>
 
         <Slider
@@ -78,23 +78,17 @@ export function PricingSection({
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 max-w-7xl mx-auto justify-center items-stretch">
         {mdxPricingCards.map((card, index) => {
-          const perUserPerMonth = isAnnual ? card.annualPrice : card.monthlyPrice;
-          const displayPrice = perUserPerMonth != null ? `${userCount * perUserPerMonth}` : card.price;
-          const priceNote = perUserPerMonth != null && isAnnual ? card.priceNote : undefined;
-          const totalSuffixTemplate = userCount === 1 ? totalSuffixSingular : totalSuffixPlural;
-          const priceSubtext =
-            perUserPerMonth != null && totalSuffixTemplate
-              ? totalSuffixTemplate.replace("{count}", String(userCount))
-              : card.priceSubtext;
+          const { displayPrice, priceSubtext } = pricingCardPresentation({
+            plan: card.plan,
+            userCount,
+            locale,
+            customPrice,
+            totalSuffixPlural,
+            totalSuffixSingular,
+          });
 
           return (
-            <PricingCardComponent
-              key={index}
-              card={card}
-              displayPrice={displayPrice}
-              priceNote={priceNote}
-              priceSubtext={priceSubtext}
-            />
+            <PricingCardComponent key={index} card={card} displayPrice={displayPrice} priceSubtext={priceSubtext} />
           );
         })}
       </div>

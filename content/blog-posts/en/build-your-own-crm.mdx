@@ -102,16 +102,16 @@ The pattern: you start with an open-source CRM (path 3) that exposes an MCP serv
 
 What this means in practice: the line between "configure a no-code platform" and "code your own CRM" has effectively been erased for the gap in the middle. If you can describe the workflow, you can have it built. The CRM you start from matters more than the build skill, because it dictates what API surface the AI has to work against.
 
-Customermates exposes 46 MCP tools, 26 webhook events, and a full REST API specifically because this is how a modern CRM should be extended. Claude or Codex pointed at it can read deals, draft follow-ups, update notes, and run custom workflows without me typing into the CRM. That is "build your own CRM" in the sense that mattered all along: the system bends to your workflow, not the other way around.
+Customermates exposes [[derived.mcp.tools.total]] MCP tools, [[derived.webhooks.events.total]] webhook events, and a full REST API specifically because this is how a modern CRM should be extended. Claude or Codex pointed at it can read deals, draft follow-ups, update notes, and run custom workflows without me typing into the CRM. That is "build your own CRM" in the sense that mattered all along: the system bends to your workflow, not the other way around.
 
 ## Realistic cost comparison
 
-| Path | Year 1 cost (10 users) | Year 1 timeline | Source code |
-|---|---|---|---|
-| Code from scratch | $50,000 to $200,000 | 6 to 12 months | Yours |
-| No-code platform | $4,000 to $20,000 | 2 to 6 weeks | Platform's |
-| Open-source self-hosted | $1,500 to $5,000 | 1 week | Yours |
-| Open-source cloud | $1,000 to $2,000 | 1 day | Public on GitHub |
+| Path                    | Year 1 cost (10 users) | Year 1 timeline | Source code      |
+| ----------------------- | ---------------------- | --------------- | ---------------- |
+| Code from scratch       | $50,000 to $200,000    | 6 to 12 months  | Yours            |
+| No-code platform        | $4,000 to $20,000      | 2 to 6 weeks    | Platform's       |
+| Open-source self-hosted | $1,500 to $5,000       | 1 week          | Yours            |
+| Open-source cloud       | $1,000 to $2,000       | 1 day           | Public on GitHub |
 
 The cost gap between the cheapest and most expensive path is two orders of magnitude. The capability gap, for most small businesses, is not.
 
@@ -125,9 +125,9 @@ This is the path most lists skip and the one I see deliver best ROI. A practical
 
 **Days 6-9: configure for your workflow.** Add the entities specific to your business (project, asset, customer-type, whatever maps to your domain), configure pipeline stages, set up role-based permissions, connect [email](/features/email-integration) and calendar.
 
-**Days 10-12: integrate.** Wire up the integrations you actually need. Customermates exposes a [REST API](/features/api), n8n community node, and 26 webhook events; most integrations are 30-60 minutes of setup. For DACH businesses, the most common integrations are lexoffice/sevDesk for invoicing, DATEV for accounting, and Google Workspace or Microsoft 365 for email.
+**Days 10-12: integrate.** Wire up the integrations you actually need. Customermates exposes a [REST API](/features/api), n8n community node, and [[derived.webhooks.events.total]] webhook events; most integrations are 30-60 minutes of setup. For DACH businesses, the most common integrations are lexoffice/sevDesk for invoicing, DATEV for accounting, and Google Workspace or Microsoft 365 for email.
 
-**Days 13-14: AI extensions.** This is the modern angle missing from older "build your own CRM" guides. Point Claude or Codex at the [46 MCP tools](/docs/mcp) and describe the workflows you want: "auto-create a deal when an inbound email matches X criteria," "draft follow-up emails three days after stage change to Negotiation," "weekly report of stale deals to my Slack." These are 1-2 hour builds that would have been multi-week dev projects in 2022.
+**Days 13-14: AI extensions.** This is the modern angle missing from older "build your own CRM" guides. Point Claude or Codex at the [[[derived.mcp.tools.total]] MCP tools](/docs/mcp) and describe the workflows you want: "auto-create a deal when an inbound email matches X criteria," "draft follow-up emails three days after stage change to Negotiation," "weekly report of stale deals to my Slack." These are 1-2 hour builds that would have been multi-week dev projects in 2022.
 
 **Practical maintenance burden.** A small EU VPS (Hetzner CX21 at €5/month) runs Customermates comfortably for a 20-person team. Backups are 1 hour/month with [Restic](https://restic.net/) or [BorgBackup](https://www.borgbackup.org/). Security updates are handled by `docker compose pull` weekly. Total ongoing operational time: 3-5 hours per month for a non-DevOps team owner.
 
@@ -188,4 +188,4 @@ Depends on your stack. [Customermates](/) is the modern option (TypeScript, Post
 Yes, for small teams with light sales processes. Airtable, Ninox, Softr, and Notion all work. Watch for the pricing trajectory and the ceiling on permissions and integrations.
 
 **Should I use AI to build my CRM?**
-Use AI to extend an existing CRM, not to write a new one from scratch. The leverage is enormous when the AI has an API to work against. Customermates exposes [46 MCP tools, webhooks, and a REST API](/docs) specifically for this.
+Use AI to extend an existing CRM, not to write a new one from scratch. The leverage is enormous when the AI has an API to work against. Customermates exposes [[[derived.mcp.tools.total]] MCP tools, webhooks, and a REST API](/docs) specifically for this.
