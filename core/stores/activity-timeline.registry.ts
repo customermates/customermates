@@ -1,8 +1,7 @@
 import type { EntityType } from "@/generated/prisma";
 
 export interface RegisteredActivityTimeline {
-  coversEntity(entityType: EntityType, entityId: string): boolean;
-  refreshFor(entityType: EntityType, entityId: string): void;
+  refreshIfCovers(entityType: EntityType, entityIds: readonly string[]): void;
 }
 
 export class ActivityTimelineRegistry {
@@ -20,9 +19,6 @@ export class ActivityTimelineRegistry {
     const ids = [...new Set(entityIds)];
     if (!ids.length) return;
 
-    for (const store of this.mounted) {
-      const matchingId = ids.find((entityId) => store.coversEntity(entityType, entityId));
-      if (matchingId) store.refreshFor(entityType, matchingId);
-    }
+    for (const store of this.mounted) store.refreshIfCovers(entityType, ids);
   };
 }

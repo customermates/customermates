@@ -261,7 +261,7 @@ describe("ActivitiesStore refresh ownership", () => {
     store.hydrate(result([]));
     getActivitiesAction.mockRejectedValue(failure);
 
-    store.refreshFor(EntityType.contact, "contact-1");
+    store.refreshIfCovers(EntityType.contact, ["contact-1"]);
 
     await vi.waitFor(() => expect(toastError).toHaveBeenCalledTimes(1));
     expect(toastError).toHaveBeenCalledWith("Common.notifications.unexpectedError", expect.anything());
@@ -270,7 +270,7 @@ describe("ActivitiesStore refresh ownership", () => {
   it("does not refresh for a record outside the scope", async () => {
     const store = new ActivitiesStore(toastingRootStore, { scope: contactScope("contact-1") });
 
-    store.refreshFor(EntityType.contact, "contact-2");
+    store.refreshIfCovers(EntityType.contact, ["contact-2"]);
 
     await Promise.resolve();
     expect(getActivitiesAction).not.toHaveBeenCalled();

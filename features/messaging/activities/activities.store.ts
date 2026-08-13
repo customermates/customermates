@@ -98,8 +98,8 @@ export class ActivitiesStore extends BaseDataViewStore<ActivityEntryDto> {
     return (this.scope.entityTypes ?? []).includes(entityType);
   };
 
-  refreshFor = (entityType: EntityType, entityId: string): void => {
-    if (!this.coversEntity(entityType, entityId)) return;
+  refreshIfCovers = (entityType: EntityType, entityIds: readonly string[]): void => {
+    if (!entityIds.some((entityId) => this.coversEntity(entityType, entityId))) return;
 
     void this.refresh().catch(() => this.toastError("Common.notifications.unexpectedError"));
   };
