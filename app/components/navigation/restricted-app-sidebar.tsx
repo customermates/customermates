@@ -48,7 +48,7 @@ export function RestrictedAppSidebar({ homeHref, user }: { homeHref: string; use
                   width={32}
                 />
 
-                <span className="truncate font-semibold text-sm">{t("Common.productName")}</span>
+                <span className="truncate font-semibold text-sm">Customermates</span>
               </AppLink>
             </SidebarMenuButton>
           </SidebarMenuItem>

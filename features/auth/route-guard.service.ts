@@ -15,12 +15,10 @@ import { mustVerifyEmail } from "./email-verification-grace";
 import { isSubscriptionExpired } from "@/ee/subscription/entitlements";
 import { env } from "@/env";
 
+const READ_ACTIONS: readonly Action[] = [Action.readOwn, Action.readAll];
+
 export type AccessOptions = {
   resource?: Resource;
-  allowedActions?: Action[];
-  skipSubscriptionCheck?: boolean;
-  skipOnboardingWizardCheck?: boolean;
-  skipLegalAcceptanceCheck?: boolean;
 };
 
 export abstract class RouteGuardSubscriptionRepo {
@@ -47,7 +45,7 @@ export type AccountSessionUser = {
 };
 
 export interface AccountStateResolver {
-  resolveAccountState(options?: AccessOptions): Promise<AccountStateResolution>;
+  resolveAccountState(): Promise<AccountStateResolution>;
 }
 
 export function accessRedirectForAccountState(
@@ -65,10 +63,9 @@ export function accessRedirectForAccountState(
   if (!user) return redirectTo("/auth/signin");
   if (user.role?.isSystemRole) return null;
 
-  const allowed = options.allowedActions ?? [Action.readOwn, Action.readAll];
   const hasRequiredPermission =
     user.role?.permissions.some(
-      (permission) => permission.resource === options.resource && allowed.includes(permission.action),
+      (permission) => permission.resource === options.resource && READ_ACTIONS.includes(permission.action),
     ) ?? false;
 
   return hasRequiredPermission ? null : redirectTo("/");
@@ -92,17 +89,7 @@ export class RouteGuardService implements AccountStateResolver {
     private getLegalStatusInteractor: GetLegalStatusInteractor,
   ) {}
 
-  async resolveAccess(options?: AccessOptions): Promise<Redirect | null> {
-    const resolution = await this.resolveAccountState(options);
-    return accessRedirectForAccountState(resolution, options);
-  }
-
-  async resolveUnauthenticated(): Promise<Redirect | null> {
-    const resolution = await this.resolveAccountState();
-    return unauthenticatedRedirectForAccountState(resolution);
-  }
-
-  async resolveAccountState(options?: AccessOptions): Promise<AccountStateResolution> {
+  async resolveAccountState(): Promise<AccountStateResolution> {
     const session = await this.authService.getSession();
     if (!session) return this.resolution("unauthenticated");
 
@@ -129,17 +116,16 @@ export class RouteGuardService implements AccountStateResolver {
       default:
         return unsupportedAccountStatus(user.status);
     }
-    if (!options?.skipOnboardingWizardCheck && user.role?.isSystemRole && user.onboardingWizardCompletedAt == null)
-      return { state: "onboarding", ...base };
+    if (user.role?.isSystemRole && user.onboardingWizardCompletedAt == null) return { state: "onboarding", ...base };
 
     let legalStatus: LegalUpdateStatus | null = null;
-    if (!options?.skipLegalAcceptanceCheck && env.APP_MODE === "cloud") {
+    if (env.APP_MODE === "cloud") {
       legalStatus = await this.getLegalStatusInteractor.invoke();
       if (legalStatus.mustAccept) return { state: "legal", ...base, legalStatus };
     }
 
     let subscription: Subscription | null = null;
-    if (!options?.skipSubscriptionCheck && env.APP_MODE !== "demo") {
+    if (env.APP_MODE !== "demo") {
       subscription = await this.subscriptionRepo.getSubscriptionOrThrowUnscoped(user.companyId);
       if (isSubscriptionExpired(subscription)) return { state: "subscription", ...base, legalStatus, subscription };
     }

@@ -122,8 +122,6 @@ export default async function RootLayout({ children }: Props) {
             company={navigation.company}
             defaultSidebarOpen={initialSidebarOpen}
             emailVerified={accountAllowed ? account.emailVerified : null}
-            hasValidSession={account.state !== "unauthenticated"}
-            isRegistered={account.user !== null}
             legalStatus={accountAllowed ? account.legalStatus : null}
             onboardingComplete={account.user?.onboardingWizardCompletedAt != null}
             subscription={navigation.subscription}

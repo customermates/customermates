@@ -12,11 +12,6 @@ export default async function OnboardingWizardPage() {
   const { sessionUser, user } = resolution;
   if (!sessionUser) redirect("/auth/signin");
 
-  if (user) {
-    if (user.onboardingWizardCompletedAt) redirect("/");
-    if (!user.role?.isSystemRole) redirect("/");
-  }
-
   let isInvited = Boolean(sessionUser.companyId);
   if (!user && !isInvited) {
     const cookieStore = await cookies();

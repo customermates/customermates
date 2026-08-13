@@ -35,8 +35,6 @@ type Props = {
   accountMenuUser: AccountMenuUser | null;
   appUser: TenantUser | null;
   userDisplayLanguage: unknown;
-  hasValidSession: boolean;
-  isRegistered: boolean;
   onboardingComplete: boolean;
   company: Company | null;
   terminology: EntityTerminologyOverride[];
@@ -56,8 +54,6 @@ export function NavigationSwitch({
   accountMenuUser,
   appUser,
   userDisplayLanguage,
-  hasValidSession,
-  isRegistered,
   onboardingComplete,
   company,
   terminology,
@@ -75,6 +71,8 @@ export function NavigationSwitch({
   const router = useRouter();
   const searchParams = useSearchParams();
   const errorTypes = searchParams.getAll("type");
+  const hasValidSession = accountState !== "unauthenticated";
+  const isRegistered = accountMenuUser !== null;
   const currentAccountState = accountStateForPath({
     accountState,
     pathname,

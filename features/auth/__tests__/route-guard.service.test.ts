@@ -1,7 +1,7 @@
 import type { TenantUser } from "@/features/user/user.schema";
 import type { AuthService } from "../auth.service";
 import type { UserService } from "../../user/user.service";
-import type { RouteGuardSubscriptionRepo } from "../route-guard.service";
+import type { AccessOptions, RouteGuardSubscriptionRepo } from "../route-guard.service";
 import type { GetLegalStatusInteractor } from "@/features/legal/get-legal-status.interactor";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -14,7 +14,11 @@ vi.mock("@/env", () => ({ env: mockEnv }));
 
 import { Action, Resource, Status, SubscriptionStatus } from "@/generated/prisma";
 
-import { RouteGuardService } from "../route-guard.service";
+import {
+  accessRedirectForAccountState,
+  RouteGuardService,
+  unauthenticatedRedirectForAccountState,
+} from "../route-guard.service";
 
 const PAST = new Date(Date.now() - 48 * 60 * 60 * 1000);
 const FUTURE = new Date(Date.now() + 24 * 60 * 60 * 1000);
@@ -35,6 +39,14 @@ function makeService() {
     } as unknown as RouteGuardSubscriptionRepo,
     { invoke: mocks.getLegalStatus } as unknown as GetLegalStatusInteractor,
   );
+}
+
+async function resolveAccess(options?: AccessOptions) {
+  return accessRedirectForAccountState(await makeService().resolveAccountState(), options);
+}
+
+async function resolveUnauthenticated() {
+  return unauthenticatedRedirectForAccountState(await makeService().resolveAccountState());
 }
 
 function session(overrides: Record<string, unknown> = {}) {
@@ -182,27 +194,13 @@ describe("RouteGuardService.resolveAccountState", () => {
     expect(mocks.getLegalStatus).toHaveBeenCalledOnce();
     expect(mocks.getSubscriptionOrThrowUnscoped).toHaveBeenCalledOnce();
   });
-
-  it("honors page-local skip options without weakening earlier blockers", async () => {
-    mocks.getUser.mockResolvedValue(user({ status: Status.inactive }));
-
-    expect(
-      await makeService().resolveAccountState({
-        skipOnboardingWizardCheck: true,
-        skipLegalAcceptanceCheck: true,
-        skipSubscriptionCheck: true,
-      }),
-    ).toMatchObject({ state: "inactive" });
-    expect(mocks.getLegalStatus).not.toHaveBeenCalled();
-    expect(mocks.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
-  });
 });
 
-describe("RouteGuardService.resolveAccess", () => {
+describe("accessRedirectForAccountState", () => {
   it("redirects to sign-in when there is no valid session", async () => {
     mocks.getSession.mockResolvedValue(null);
 
-    expect(await makeService().resolveAccess()).toEqual({
+    expect(await resolveAccess()).toEqual({
       redirect: "/auth/signin",
     });
   });
@@ -217,36 +215,22 @@ describe("RouteGuardService.resolveAccess", () => {
     mocks.getUser.mockResolvedValue(resolvedUser);
     if (legal) mocks.getLegalStatus.mockResolvedValue(legal);
 
-    expect(await makeService().resolveAccess()).toEqual({ redirect });
+    expect(await resolveAccess()).toEqual({ redirect });
   });
 
   it("routes an unpaid subscription to the recovery page", async () => {
     mocks.getSubscriptionOrThrowUnscoped.mockResolvedValue(subscription(SubscriptionStatus.unPaid));
 
-    expect(await makeService().resolveAccess()).toEqual({
+    expect(await resolveAccess()).toEqual({
       redirect: "/subscription-expired",
     });
-  });
-
-  it("skips legal and subscription checks when a guarded page requests both skips", async () => {
-    mocks.getLegalStatus.mockResolvedValue({ mustAccept: true });
-    mocks.getSubscriptionOrThrowUnscoped.mockResolvedValue(subscription(SubscriptionStatus.unPaid));
-
-    expect(
-      await makeService().resolveAccess({
-        skipLegalAcceptanceCheck: true,
-        skipSubscriptionCheck: true,
-      }),
-    ).toBeNull();
-    expect(mocks.getLegalStatus).not.toHaveBeenCalled();
-    expect(mocks.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
   });
 
   it("skips cloud-only account checks in demo mode", async () => {
     mockEnv.APP_MODE = "demo";
     mocks.getSubscriptionOrThrowUnscoped.mockResolvedValue(subscription(SubscriptionStatus.trial, PAST));
 
-    expect(await makeService().resolveAccess()).toBeNull();
+    expect(await resolveAccess()).toBeNull();
     expect(mocks.getLegalStatus).not.toHaveBeenCalled();
     expect(mocks.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
   });
@@ -254,13 +238,15 @@ describe("RouteGuardService.resolveAccess", () => {
   it("lets an active user on a not-yet-expired trial through", async () => {
     mocks.getSubscriptionOrThrowUnscoped.mockResolvedValue(subscription(SubscriptionStatus.trial, FUTURE));
 
-    expect(await makeService().resolveAccess()).toBeNull();
+    expect(await resolveAccess()).toBeNull();
   });
 
   it("denies a member without the required resource permission", async () => {
     mocks.getUser.mockResolvedValue(user({ role: { isSystemRole: false, permissions: [] } }));
 
-    expect(await makeService().resolveAccess({ resource: Resource.contacts })).toEqual({ redirect: "/" });
+    expect(await resolveAccess({ resource: Resource.contacts })).toEqual({
+      redirect: "/",
+    });
   });
 
   it("allows a member holding the required resource permission", async () => {
@@ -273,35 +259,35 @@ describe("RouteGuardService.resolveAccess", () => {
       }),
     );
 
-    expect(await makeService().resolveAccess({ resource: Resource.contacts })).toBeNull();
+    expect(await resolveAccess({ resource: Resource.contacts })).toBeNull();
   });
 
   it("lets a system-role user bypass the resource permission check", async () => {
-    expect(await makeService().resolveAccess({ resource: Resource.contacts })).toBeNull();
+    expect(await resolveAccess({ resource: Resource.contacts })).toBeNull();
   });
 });
 
-describe("RouteGuardService.resolveUnauthenticated", () => {
+describe("unauthenticatedRedirectForAccountState", () => {
   it("keeps truly unauthenticated and pre-tenant sessions on public routes", async () => {
     mocks.getSession.mockResolvedValue(null);
-    expect(await makeService().resolveUnauthenticated()).toBeNull();
+    expect(await resolveUnauthenticated()).toBeNull();
 
     mocks.getSession.mockResolvedValue(session());
     mocks.getUser.mockResolvedValue(null);
-    expect(await makeService().resolveUnauthenticated()).toBeNull();
+    expect(await resolveUnauthenticated()).toBeNull();
   });
 
   it("uses the same blocker precedence as protected access", async () => {
     mocks.getSession.mockResolvedValue(session({ createdAt: PAST, emailVerified: false }));
     mocks.getUser.mockResolvedValue(user({ status: Status.inactive }));
 
-    expect(await makeService().resolveUnauthenticated()).toEqual({
+    expect(await resolveUnauthenticated()).toEqual({
       redirect: "/auth/verify-email",
     });
   });
 
   it("returns an allowed account to the app", async () => {
-    expect(await makeService().resolveUnauthenticated()).toEqual({
+    expect(await resolveUnauthenticated()).toEqual({
       redirect: "/",
     });
   });

@@ -101,7 +101,7 @@ describe("guarded account-state route contract", () => {
     }
   });
 
-  it("keeps mutation policy in interactors and alternate page guards server-authoritative", () => {
+  it("keeps mutation policy in interactors and page guards server-authoritative", () => {
     const authActions = source("app/[locale]/(public)/auth/actions.ts");
     const consentInteractor = source("features/auth/decide-mcp-consent.interactor.ts");
 
@@ -111,8 +111,11 @@ describe("guarded account-state route contract", () => {
     expect(authActions).not.toContain("getAuthService");
     expect(consentInteractor).toContain('resolution.state !== "allowed"');
     const requireSource = source("features/auth/next/require.ts");
-    expect(requireSource).toContain("hasAlternateAccountStatePolicy");
-    expect(requireSource).toContain("getRouteGuardService().resolveAccess(options)");
+    expect(requireSource).toMatch(
+      /accessRedirectForAccountState\(\s*await resolveDefaultAccountState\(\),\s*options,?\s*\)/,
+    );
+    expect(requireSource).not.toContain("getRouteGuardService");
+    expect(requireSource).not.toContain("skipLegalAcceptanceCheck");
   });
 
   it("uses the existing avatar sign-out and never duplicates it inside recovery cards", () => {
