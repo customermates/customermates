@@ -283,8 +283,8 @@ describe("record option labels", () => {
 
   it("batches each represented type without pagination and preserves input order", async () => {
     fake.rows.contact.push(
-      { id: "c1", firstName: "Ada", lastName: "Lovelace" },
-      { id: "c2", firstName: "Grace", lastName: "Hopper" },
+      { id: "c1", firstName: "Ada", lastName: "Lovelace", avatarUrl: "https://example.test/ada.png" },
+      { id: "c2", firstName: "Grace", lastName: "Hopper", avatarUrl: null },
     );
     fake.rows.deal.push({ id: "d1", name: "Renewal" });
 
@@ -298,9 +298,9 @@ describe("record option labels", () => {
     );
 
     expect(result).toEqual([
-      { entityType: EntityType.contact, id: "c2", label: "Grace Hopper" },
-      { entityType: EntityType.contact, id: "c1", label: "Ada Lovelace" },
-      { entityType: EntityType.deal, id: "d1", label: "Renewal" },
+      { entityType: EntityType.contact, id: "c2", label: "Grace Hopper", avatarUrl: null },
+      { entityType: EntityType.contact, id: "c1", label: "Ada Lovelace", avatarUrl: "https://example.test/ada.png" },
+      { entityType: EntityType.deal, id: "d1", label: "Renewal", avatarUrl: null },
     ]);
     expect(fake.calls.contact).toHaveLength(1);
     expect(fake.calls.deal).toHaveLength(1);

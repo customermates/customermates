@@ -53,7 +53,6 @@ export type FilterSelectItem = {
 };
 
 type GetItemsFunction = (params: GetQueryParams) => Promise<GetResult<FilterSelectItem>>;
-type GetSelectedItemsFunction = (ids: readonly string[]) => Promise<GetResult<FilterSelectItem>>;
 type ResolveItemsFunction = (ids: readonly string[]) => Promise<FilterSelectItem[]>;
 
 function renderAvatar(name: string, src?: string | null) {
@@ -206,7 +205,7 @@ export function useFilterSelectItems(
     return enumValue ? fieldToGetItemsMap[enumValue] : undefined;
   }, [field, isCustom, t, timelineScopeKey]);
 
-  const getSelectedItems = useMemo<GetSelectedItemsFunction | undefined>(() => {
+  const getSelectedItems = useMemo<ResolveItemsFunction | undefined>(() => {
     if (!hasActivityQuery) return undefined;
     const entityType = activityEntityTypeForFilterField(field);
     if (!entityType) return undefined;
@@ -217,25 +216,20 @@ export function useFilterSelectItems(
         0,
         ACTIVITY_FILTER_VALUE_MAX,
       );
-      if (requestIds.length === 0) return Promise.resolve({ items: [] });
-      return getActivityRecordOptionsAction({ records: [{ entityType, ids: requestIds }] }).then((options) => ({
-        items: options.map((option) => ({
+      if (requestIds.length === 0) return Promise.resolve([]);
+      return getActivityRecordOptionsAction({ records: [{ entityType, ids: requestIds }] }).then((options) =>
+        options.map((option) => ({
           key: option.id,
           value: option.id,
           textValue: option.label,
           startContent: withAvatar ? renderAvatar(option.label, option.avatarUrl ?? undefined) : undefined,
         })),
-      }));
+      );
     };
   }, [hasActivityQuery, field]);
 
   const resolveItems = useMemo<ResolveItemsFunction | undefined>(() => {
-    if (getSelectedItems) {
-      return async (ids) => {
-        const result = await getSelectedItems(ids);
-        return result.items;
-      };
-    }
+    if (getSelectedItems) return getSelectedItems;
 
     if (!getItems) return undefined;
 

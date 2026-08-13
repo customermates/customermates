@@ -294,7 +294,7 @@ export class PrismaActivitiesRepo
 
     return refs.flatMap((ref) => {
       const resolved = labels.get(recordRefKey(ref.entityType, ref.id));
-      return resolved === undefined ? [] : [{ ...ref, label: resolved.label }];
+      return resolved === undefined ? [] : [{ ...ref, label: resolved.label, avatarUrl: resolved.avatarUrl }];
     });
   }
 

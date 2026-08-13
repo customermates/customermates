@@ -434,26 +434,31 @@ describeDatabase("activity relationship filters on PostgreSQL", () => {
         entityType: EntityType.contact,
         id: selectedContactId,
         label: "Selected Contact",
+        avatarUrl: null,
       },
       {
         entityType: EntityType.organization,
         id: selectedOrganizationId,
         label: "Selected organization",
+        avatarUrl: null,
       },
       {
         entityType: EntityType.deal,
         id: selectedDealId,
         label: "Selected deal",
+        avatarUrl: null,
       },
       {
         entityType: EntityType.service,
         id: selectedServiceId,
         label: "Selected service",
+        avatarUrl: null,
       },
       {
         entityType: EntityType.task,
         id: selectedTaskId,
         label: "Selected task",
+        avatarUrl: null,
       },
     ]);
     expect(options.some(({ id }) => id === staleId)).toBe(false);
