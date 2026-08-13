@@ -1298,7 +1298,6 @@
     "informationBody": "Wir haben die unten aufgeführten rechtlichen Informationen aktualisiert. Eine Annahme ist nicht erforderlich, sofern diese E-Mail nicht zugleich geänderte AGB oder einen geänderten Auftragsverarbeitungsvertrag nennt.",
     "informationSubject": "Rechtliche Informationen von Customermates aktualisiert",
     "informationTitle": "Rechtliche Informationen aktualisiert",
-    "liveLabel": "Aktuelles Dokument",
     "signoff": "Viele Grüße\nBen",
     "subprocessorDeadlineLabel": "Widerspruchsfrist für Unterauftragsverarbeiter",
     "subprocessorObjection": "Eine Annahme ist nicht erforderlich. Wenn Sie der aufgeführten Änderung bei den Unterauftragsverarbeitern widersprechen, antworten Sie unverzüglich und vor Ablauf der angegebenen Frist unter Angabe berechtigter datenschutzrechtlicher Gründe.",
@@ -1319,7 +1318,6 @@
     "memberWaiting": "Ein Unternehmensadministrator muss die aktualisierten AGB und den AVV akzeptieren. Danach kannst du es erneut versuchen oder dich abmelden.",
     "privacy": "Datenschutzerklärung",
     "retry": "Erneut versuchen",
-    "signOut": "Abmelden",
     "subprocessors": "Unterauftragsverarbeiter",
     "subtitle": "Ein berechtigter Unternehmensadministrator muss bis zum {date} akzeptieren.",
     "terms": "AGB",
@@ -1642,9 +1640,12 @@
     "trialEnds": "Testphase endet"
   },
   "SubscriptionExpiredView": {
+    "administratorRequiredDescription": "Ein Unternehmensadministrator muss das Abonnement wiederherstellen. Versuche es danach erneut oder kontaktiere unser Support-Team.",
     "contactSupportCta": "Support kontaktieren",
-    "description": "Deine Testphase ist abgelaufen und dein Unternehmen ist derzeit nicht abonniert. Bitte abonniere Customermates, um weiterhin alle Funktionen nutzen zu können, oder kontaktiere unser Support-Team, wenn du Fragen hast.",
-    "subtitle": "Deine Testphase ist abgelaufen",
+    "manualEnterpriseBillingDescription": "Dein Enterprise-Arbeitsbereich wird manuell abgerechnet. Kontaktiere unser Support-Team, um den Zugang wiederherzustellen, und versuche es danach erneut.",
+    "retry": "Erneut versuchen",
+    "selfServiceCheckoutDescription": "Dein Arbeitsbereich hat kein aktives Abonnement mehr. Wähle einen Tarif, um Customermates weiter zu nutzen, oder kontaktiere bei Fragen unser Support-Team.",
+    "subtitle": "Der Zugriff auf den Arbeitsbereich ist pausiert",
     "supportEmailSubject": "Abonnement-Anfrage",
     "title": "Abonnement erforderlich"
   },

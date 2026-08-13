@@ -2,10 +2,11 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { TenantUser } from "@/features/user/user.service";
 import type { AuthService } from "@/features/auth/auth.service";
 import type { EventService } from "@/features/event/event.service";
+import type { RouteGuardService } from "@/features/auth/route-guard.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
 
 import { z } from "zod";
-import { CountryCode } from "@/generated/prisma";
+import { CountryCode, Status } from "@/generated/prisma";
 
 import { currentLegalDocumentVersions } from "@/constants/legal-documents";
 import { env } from "@/env";
@@ -19,7 +20,8 @@ import { SystemInteractor } from "@/core/decorators/system-interactor.decorator"
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
-import { isRedirect } from "@/features/auth/auth-outcome";
+import { accountStateRedirect } from "@/features/auth/account-state";
+import { redirectTo } from "@/features/auth/auth-outcome";
 
 const Schema = z
   .object({
@@ -41,6 +43,14 @@ const Schema = z
   });
 export type RegisterUserData = Data<typeof Schema>;
 
+const OutputSchema = z.object({
+  redirectTo: z.enum(["/auth/pending", "/onboarding/wizard"]),
+});
+export type RegisterUserResult = Data<typeof OutputSchema>;
+
+const RegistrationSchema = Schema.extend({ sessionUserId: z.string().min(1) });
+type RegistrationData = Data<typeof RegistrationSchema>;
+
 export abstract class RegisterUserRepo {
   abstract findCompanyIdUnscoped(userId: string): Promise<string | null>;
   abstract createCompanyAndUser(args: RegisterUserData): Promise<TenantUser>;
@@ -53,25 +63,36 @@ export class RegisterUserInteractor {
     private authService: AuthService,
     private repo: RegisterUserRepo,
     private eventService: EventService,
+    private routeGuardService: RouteGuardService,
   ) {}
 
-  @Validate(Schema)
-  @ValidateOutput(Schema)
-  @Transaction
-  async invoke(data: RegisterUserData): Promise<Awaited<Validated<RegisterUserData>> | Redirect> {
-    const sessionResult = await this.authService.resolveSession();
-    if (isRedirect(sessionResult)) return sessionResult;
-    const session = sessionResult.session;
+  async invoke(data: RegisterUserData): Promise<Awaited<Validated<RegisterUserResult>> | Redirect> {
+    const resolution = await this.routeGuardService.resolveAccountState();
+    if (!resolution.sessionUser) return redirectTo("/auth/signin");
+    if (resolution.state !== "unregistered") return redirectTo(accountStateRedirect(resolution.state) ?? "/");
 
-    const companyId = await this.repo.findCompanyIdUnscoped(session.user.id);
+    return this.register({
+      ...data,
+      email: resolution.sessionUser.email,
+      sessionUserId: resolution.sessionUser.id,
+    });
+  }
+
+  @Validate(RegistrationSchema)
+  @ValidateOutput(OutputSchema)
+  @Transaction
+  private async register(data: RegistrationData): Promise<Awaited<Validated<RegisterUserResult>>> {
+    const { sessionUserId, ...registrationData } = data;
+
+    const companyId = await this.repo.findCompanyIdUnscoped(sessionUserId);
     const isNewCloudCompany = env.APP_MODE === "cloud" && !companyId;
 
     const tenantUser = companyId
       ? await this.repo.registerExistingCompany({
-          ...data,
+          ...registrationData,
           companyId,
         })
-      : await this.repo.createCompanyAndUser(data);
+      : await this.repo.createCompanyAndUser(registrationData);
 
     await runWithTenant(tenantUser, async () => {
       if (isNewCloudCompany) {
@@ -105,6 +126,11 @@ export class RegisterUserInteractor {
       });
     });
 
-    return { ok: true as const, data };
+    return {
+      ok: true as const,
+      data: {
+        redirectTo: tenantUser.status === Status.pendingAuthorization ? "/auth/pending" : "/onboarding/wizard",
+      },
+    };
   }
 }

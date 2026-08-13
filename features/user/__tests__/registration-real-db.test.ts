@@ -47,6 +47,24 @@ const email = `real-db-check-${Date.now()}@example.com`;
 const companyIds: string[] = [];
 const authUserIds: string[] = [];
 
+function unregisteredRouteGuardService(id: string, sessionEmail: string) {
+  return {
+    resolveAccountState: vi.fn().mockResolvedValue({
+      state: "unregistered",
+      sessionUser: {
+        createdAt: new Date(0),
+        email: sessionEmail,
+        emailVerified: true,
+        id,
+      },
+      user: null,
+      emailVerified: true,
+      legalStatus: null,
+      subscription: null,
+    }),
+  };
+}
+
 afterAll(async () => {
   for (const authUserId of authUserIds)
     await runWithoutTenant(() => prisma.authUser.delete({ where: { id: authUserId } }));
@@ -108,10 +126,8 @@ describe("registration against a real database", () => {
 
   it("atomically creates a new cloud company and its initial legal audit evidence", async () => {
     const registrationEmail = `legal-registration-${Date.now()}@example.com`;
+    const authUserId = `auth-${Date.now()}`;
     const authService = {
-      resolveSession: vi.fn().mockResolvedValue({
-        session: { user: { id: `auth-${Date.now()}` } },
-      }),
       sendNewUserNotificationEmail: vi.fn().mockResolvedValue(undefined),
     };
     const eventService = new EventService(
@@ -127,7 +143,12 @@ describe("registration against a real database", () => {
       new PrismaAuditLogRepo(),
       { dispatch: vi.fn().mockResolvedValue(undefined) },
     );
-    const interactor = new RegisterUserInteractor(authService as never, new PrismaUserRepo(), eventService);
+    const interactor = new RegisterUserInteractor(
+      authService as never,
+      new PrismaUserRepo(),
+      eventService,
+      unregisteredRouteGuardService(authUserId, registrationEmail) as never,
+    );
 
     const result = await interactor.invoke({
       email: registrationEmail,
@@ -137,7 +158,10 @@ describe("registration against a real database", () => {
       agreeToTerms: true,
       avatarUrl: null,
     });
-    expect("ok" in result && result.ok).toBe(true);
+    expect(result).toEqual({
+      ok: true,
+      data: { redirectTo: "/onboarding/wizard" },
+    });
 
     const user = await runWithoutTenant(() => prisma.user.findUniqueOrThrow({ where: { email: registrationEmail } }));
     companyIds.push(user.companyId);
@@ -267,22 +291,22 @@ describe("registration against a real database", () => {
     );
     const interactor = new RegisterUserInteractor(
       {
-        resolveSession: vi.fn().mockResolvedValue({ session: { user: { id: authUserId } } }),
         sendNewUserNotificationEmail: vi.fn().mockResolvedValue(undefined),
       } as never,
       repo,
       eventService,
+      unregisteredRouteGuardService(authUserId, invitedEmail) as never,
     );
 
     const result = await interactor.invoke({
-      email: invitedEmail,
+      email: "forged-invited-email@example.com",
       firstName: "Invited",
       lastName: "Member",
       country: "de",
       agreeToTerms: true,
       avatarUrl: null,
     });
-    expect("ok" in result && result.ok).toBe(true);
+    expect(result).toEqual({ ok: true, data: { redirectTo: "/auth/pending" } });
 
     const invitedUser = await runWithoutTenant(() =>
       prisma.user.findUniqueOrThrow({
@@ -425,6 +449,7 @@ describe("registration against a real database", () => {
 
   it("rolls back the company, user, and queued acceptance evidence together", async () => {
     const rollbackEmail = `legal-rollback-${Date.now()}@example.com`;
+    const authUserId = `auth-rollback-${Date.now()}`;
     class FailingRegistrationListener extends DomainEventListener {
       readonly handlers = {
         [DomainEvent.USER_REGISTERED]: () => Promise.reject(new Error("forced registration rollback")),
@@ -445,13 +470,11 @@ describe("registration against a real database", () => {
     );
     const interactor = new RegisterUserInteractor(
       {
-        resolveSession: vi.fn().mockResolvedValue({
-          session: { user: { id: `auth-rollback-${Date.now()}` } },
-        }),
         sendNewUserNotificationEmail: vi.fn().mockResolvedValue(undefined),
       } as never,
       new PrismaUserRepo(),
       eventService,
+      unregisteredRouteGuardService(authUserId, rollbackEmail) as never,
     );
 
     await expect(

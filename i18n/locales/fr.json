@@ -1298,7 +1298,6 @@
     "informationBody": "Nous avons mis à jour les informations juridiques indiquées ci-dessous. Cette notification ne nécessite aucune acceptation, sauf si l’e-mail mentionne également des conditions générales ou un accord de traitement des données mis à jour.",
     "informationSubject": "Informations juridiques de Customermates mises à jour",
     "informationTitle": "Informations juridiques mises à jour",
-    "liveLabel": "Document en vigueur",
     "signoff": "Cordialement,\nBen",
     "subprocessorDeadlineLabel": "Date limite d’opposition au sous-traitant",
     "subprocessorObjection": "Aucune acceptation n’est requise. Si vous vous opposez au changement de sous-traitant indiqué, répondez sans délai indu et avant la date limite mentionnée, en exposant des motifs raisonnables liés à la protection des données.",
@@ -1319,7 +1318,6 @@
     "memberWaiting": "Un administrateur de l’entreprise doit accepter les conditions générales et le DPA mis à jour. Vous pourrez réessayer après leur acceptation ou vous déconnecter.",
     "privacy": "Politique de confidentialité",
     "retry": "Réessayer",
-    "signOut": "Se déconnecter",
     "subprocessors": "Sous-traitants",
     "subtitle": "Un administrateur habilité de l’entreprise doit accepter au plus tard le {date}.",
     "terms": "Conditions générales",
@@ -1650,9 +1648,12 @@
     "trialEnds": "Fin de l'essai"
   },
   "SubscriptionExpiredView": {
+    "administratorRequiredDescription": "Un administrateur de l’entreprise doit rétablir l’abonnement. Réessayez ensuite ou contactez notre assistance.",
     "contactSupportCta": "Contacter l'assistance",
-    "description": "Votre période d'essai est terminée et votre entreprise n'a pas d'abonnement actif. Abonnez-vous pour continuer à utiliser Customermates, ou contactez notre assistance si vous avez des questions.",
-    "subtitle": "Votre essai a expiré",
+    "manualEnterpriseBillingDescription": "Votre espace de travail Enterprise est facturé manuellement. Contactez notre assistance pour rétablir l’accès, puis réessayez.",
+    "retry": "Réessayer",
+    "selfServiceCheckoutDescription": "Votre espace de travail n’a plus d’abonnement actif. Choisissez une offre pour continuer à utiliser Customermates, ou contactez notre assistance si vous avez des questions.",
+    "subtitle": "L’accès à l’espace de travail est suspendu",
     "supportEmailSubject": "Question sur l'abonnement",
     "title": "Abonnement requis"
   },

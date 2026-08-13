@@ -4,6 +4,7 @@ import type { EmailSignInData } from "@/features/auth/sign-in-with-email.interac
 import type { EmailSignUpData } from "@/features/auth/sign-up-with-email.interactor";
 import type { RequestPasswordResetData } from "@/features/auth/request-password-reset.interactor";
 import type { ResetPasswordData } from "@/features/auth/reset-password.interactor";
+import type { DecideMcpConsentData } from "@/features/auth/decide-mcp-consent.interactor";
 
 import {
   getSignInWithEmailInteractor,
@@ -12,7 +13,7 @@ import {
   getContinueWithSocialsInteractor,
   getResetPasswordInteractor,
   getResendVerificationEmailInteractor,
-  getAuthService,
+  getDecideMcpConsentInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
@@ -22,13 +23,22 @@ export async function signInWithEmailAction(data: EmailSignInData) {
   if (isRedirect(result)) return { ok: true as const, data: { url: result.redirect } };
 
   const serialized = await serializeResult(result);
-  if (serialized.ok) return { ok: true as const, data: { url: serialized.data.callbackURL ?? "/" } };
+  if (serialized.ok) {
+    return {
+      ok: true as const,
+      data: { url: serialized.data.callbackURL ?? "/" },
+    };
+  }
 
   return serialized;
 }
 
 export async function continueWithGoogleAction(callbackURL?: string, errorCallbackURL?: string) {
-  const result = await getContinueWithSocialsInteractor().invoke({ provider: "google", callbackURL, errorCallbackURL });
+  const result = await getContinueWithSocialsInteractor().invoke({
+    provider: "google",
+    callbackURL,
+    errorCallbackURL,
+  });
   if (isRedirect(result)) return { ok: true as const, data: { url: result.redirect } };
 
   const serialized = await serializeResult(result);
@@ -63,13 +73,12 @@ export async function resetPasswordAction(data: ResetPasswordData) {
   return serializeResult(getResetPasswordInteractor().invoke(data));
 }
 
-export async function resendVerificationEmailFromAuthAction(): Promise<{ ok: boolean }> {
+export async function resendVerificationEmailFromAuthAction(): Promise<{
+  ok: boolean;
+}> {
   return await getResendVerificationEmailInteractor().invoke();
 }
 
-export async function decideMcpConsentAction(data: {
-  consentCode: string;
-  accept: boolean;
-}): Promise<{ redirectURI: string } | null> {
-  return getAuthService().decideMcpConsent(data);
+export async function decideMcpConsentAction(data: DecideMcpConsentData) {
+  return serializeResult(getDecideMcpConsentInteractor().invoke(data));
 }

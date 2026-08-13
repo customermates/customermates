@@ -1298,7 +1298,6 @@
     "informationBody": "We updated the legal information listed below. This notice does not require acceptance unless the email also identifies updated Terms or a Data Processing Agreement.",
     "informationSubject": "Customermates legal information updated",
     "informationTitle": "Legal information updated",
-    "liveLabel": "Live document",
     "signoff": "Best regards,\nBen",
     "subprocessorDeadlineLabel": "Subprocessor objection deadline",
     "subprocessorObjection": "No acceptance is required. If you object to the listed subprocessor change, reply without undue delay and before the stated deadline, giving reasonable data-protection grounds.",
@@ -1319,7 +1318,6 @@
     "memberWaiting": "A company administrator must accept the updated Terms and DPA. You can retry after they have done so or sign out.",
     "privacy": "Privacy Policy",
     "retry": "Retry",
-    "signOut": "Sign out",
     "subprocessors": "Subprocessors",
     "subtitle": "An authorised company administrator must accept by {date}.",
     "terms": "Terms",
@@ -1642,9 +1640,12 @@
     "trialEnds": "Trial ends"
   },
   "SubscriptionExpiredView": {
+    "administratorRequiredDescription": "A company administrator must restore the subscription. Retry after they have done so, or contact our support team for help.",
     "contactSupportCta": "Contact Support",
-    "description": "Your trial period has ended and your company is not currently subscribed. Please subscribe to continue using Customermates, or contact our support team if you have any questions.",
-    "subtitle": "Your trial has expired",
+    "manualEnterpriseBillingDescription": "Your enterprise workspace is billed manually. Contact our support team to restore access, then retry.",
+    "retry": "Retry",
+    "selfServiceCheckoutDescription": "Your workspace no longer has an active subscription. Choose a plan to continue using Customermates, or contact our support team if you have any questions.",
+    "subtitle": "Workspace access is paused",
     "supportEmailSubject": "Subscription Inquiry",
     "title": "Subscription Required"
   },

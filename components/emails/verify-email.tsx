@@ -1,15 +1,12 @@
 import enMessages from "@/i18n/locales/en.json";
 import { EmailButton } from "@/components/emails/base/email-button";
-import { EmailLayout } from "@/components/emails/base/email-layout";
-import { DEFAULT_EMAIL_LAYOUT_COPY, type EmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
+import { EmailLayout, type EmailLayoutSharedProps } from "@/components/emails/base/email-layout";
 import { EmailLink } from "@/components/emails/base/email-link";
 import { EmailSection } from "@/components/emails/base/email-section";
 import { EmailText } from "@/components/emails/base/email-text";
-import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-registry";
+import { PREVIEW_EMAIL_LAYOUT_PROPS } from "@/components/emails/preview-layout-props";
 
-type Props = {
-  locale: AppLocale;
-  layoutCopy: EmailLayoutCopy;
+type Props = EmailLayoutSharedProps & {
   url: string;
   subject: string;
   intro: string;
@@ -18,9 +15,9 @@ type Props = {
   securityNotice: string;
 };
 
-export default function VerifyEmail({ locale, layoutCopy, url, subject, intro, cta, fallback, securityNotice }: Props) {
+export default function VerifyEmail({ url, subject, intro, cta, fallback, securityNotice, ...layoutProps }: Props) {
   return (
-    <EmailLayout layoutCopy={layoutCopy} locale={locale} preview={subject} title={subject}>
+    <EmailLayout {...layoutProps} preview={subject} title={subject}>
       <EmailText>{intro}</EmailText>
 
       <EmailSection>
@@ -41,12 +38,11 @@ export default function VerifyEmail({ locale, layoutCopy, url, subject, intro, c
 const t = enMessages.VerifyEmail;
 
 VerifyEmail.PreviewProps = {
-  layoutCopy: DEFAULT_EMAIL_LAYOUT_COPY,
-  locale: DEFAULT_LOCALE,
+  ...PREVIEW_EMAIL_LAYOUT_PROPS,
   url: "https://example.com/auth/verify?token=TEST",
   subject: t.subject,
   intro: t.intro,
   cta: t.cta,
   fallback: t.fallback,
   securityNotice: t.securityNotice,
-};
+} satisfies Props;

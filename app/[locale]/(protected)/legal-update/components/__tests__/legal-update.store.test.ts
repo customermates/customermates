@@ -5,11 +5,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const legalActions = vi.hoisted(() => ({
   acceptLegalDocumentsAction: vi.fn(),
 }));
-const authActions = vi.hoisted(() => ({ signOutAction: vi.fn() }));
 const toasts = vi.hoisted(() => ({ toastZodErrorTree: vi.fn() }));
 
 vi.mock("@/app/[locale]/(protected)/legal-update/actions", () => legalActions);
-vi.mock("@/app/[locale]/actions", () => authActions);
 vi.mock("@/core/utils/toast-zod-error-tree", () => toasts);
 
 import { LoadingOverlayStore } from "@/components/shared/loading-overlay.store";
@@ -77,17 +75,5 @@ describe("LegalUpdateStore", () => {
     await store.accept();
 
     expect(toasts.toastZodErrorTree).toHaveBeenCalledWith(error);
-  });
-
-  it("signs out through the loading overlay and reports failures", async () => {
-    const error = { errors: ["sign-out failed"] };
-    authActions.signOutAction.mockResolvedValue({ ok: false, error });
-    const { loadingOverlayStore, store } = setup();
-
-    await store.signOut();
-
-    expect(authActions.signOutAction).toHaveBeenCalledOnce();
-    expect(toasts.toastZodErrorTree).toHaveBeenCalledWith(error);
-    expect(loadingOverlayStore.isLoading).toBe(false);
   });
 });

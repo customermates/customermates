@@ -81,12 +81,8 @@ export const LegalUpdateView = observer(({ status }: Props) => {
       </AppCardBody>
 
       <AppCardFooter>
-        <Button disabled={loadingOverlayStore.isLoading} variant="outline" onClick={() => void store.signOut()}>
-          {t("LegalUpdateView.signOut")}
-        </Button>
-
         {!status.isSystemAdministrator ? (
-          <Button disabled={loadingOverlayStore.isLoading} onClick={() => window.location.reload()}>
+          <Button disabled={loadingOverlayStore.isLoading} variant="outline" onClick={() => window.location.reload()}>
             {t("LegalUpdateView.retry")}
           </Button>
         ) : null}

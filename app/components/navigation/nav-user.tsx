@@ -16,8 +16,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 
+export type AccountMenuUser = Pick<TenantUser, "firstName" | "lastName" | "email" | "avatarUrl">;
+
 type Props = {
-  user: TenantUser | null;
+  user: AccountMenuUser | null;
   theme: string | undefined;
   labels: {
     signOut: string;
