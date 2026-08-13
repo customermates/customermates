@@ -28,7 +28,7 @@ type Props = EmailLayoutSharedProps & {
   title: string;
 };
 
-export default function LegalDocumentNotice({
+export default function LegalDocumentNoticeContract({
   body,
   deadline,
   deadlineLabel,
@@ -94,7 +94,7 @@ function previewDocuments(documents: readonly LegalDocument[]): DocumentLink[] {
   }));
 }
 
-LegalDocumentNotice.PreviewProps = {
+LegalDocumentNoticeContract.PreviewProps = {
   ...PREVIEW_EMAIL_LAYOUT_PROPS,
   body: previewCopy.contractBody,
   deadline: formatPreviewDate("2026-08-24T00:00:00.000Z"),

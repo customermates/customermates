@@ -2,7 +2,8 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import LegalDocumentNotice from "../legal-document-notice";
+import LegalDocumentNoticeContract from "../legal-document-notice-contract";
+import LegalDocumentNoticeInformation from "../legal-document-notice-information";
 import { getEmailLayoutCopy } from "../base/email-layout-copy";
 
 import { CONTENT_LOCALES, type ContentLocale } from "@/i18n/locale-registry";
@@ -28,13 +29,16 @@ const COPY = {
   },
 } satisfies Record<ContentLocale, Record<string, string>>;
 
-describe("LegalDocumentNotice", () => {
+describe.each([
+  ["contract", LegalDocumentNoticeContract],
+  ["information", LegalDocumentNoticeInformation],
+] as const)("LegalDocumentNotice %s", (_, Email) => {
   it.each(CONTENT_LOCALES.map((locale) => ({ locale, ...COPY[locale] })))(
     "renders the visible $locale copy and linked document name",
     async (copy) => {
       const layoutCopy = await getEmailLayoutCopy(copy.locale);
       const html = renderToStaticMarkup(
-        createElement(LegalDocumentNotice, {
+        createElement(Email, {
           body: copy.body,
           deadline: "21 August 2026",
           deadlineLabel: copy.deadlineLabel,

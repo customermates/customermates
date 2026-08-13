@@ -4,7 +4,8 @@ import type { LegalDocument, LegalDocumentVersions } from "@/constants/legal-doc
 import type { Locale } from "@/generated/prisma";
 import type { AppLocale } from "@/i18n/locale-registry";
 
-import LegalDocumentNotice from "@/components/emails/legal-document-notice";
+import LegalDocumentNoticeContract from "@/components/emails/legal-document-notice-contract";
+import LegalDocumentNoticeInformation from "@/components/emails/legal-document-notice-information";
 import { getEmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import {
@@ -271,6 +272,7 @@ export class SendLegalDocumentNoticesInteractor {
   }
 
   private async buildEmail(plan: LegalNoticePlan, locale: AppLocale, formattingTag: string) {
+    const Email = plan.includesContract ? LegalDocumentNoticeContract : LegalDocumentNoticeInformation;
     const t = await getTranslator(locale, "LegalDocumentNotice");
     const layoutCopy = await getEmailLayoutCopy(locale);
     const subject = plan.includesContract ? t("contractSubject") : t("informationSubject");
@@ -297,7 +299,7 @@ export class SendLegalDocumentNoticesInteractor {
     return {
       to: plan.recipient.email,
       subject,
-      react: LegalDocumentNotice({
+      react: Email({
         body: plan.includesContract ? t("contractBody") : t("informationBody"),
         deadline,
         deadlineLabel: plan.includesContract ? t("contractDeadlineLabel") : t("subprocessorDeadlineLabel"),

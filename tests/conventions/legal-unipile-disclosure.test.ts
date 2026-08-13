@@ -467,7 +467,8 @@ describe("legal update workflow disclosure", () => {
       "features/legal/accept-legal-documents.interactor.ts",
       "features/legal/get-legal-status.interactor.ts",
       "features/user/register/register-user.interactor.ts",
-      "components/emails/legal-document-notice.tsx",
+      "components/emails/legal-document-notice-contract.tsx",
+      "components/emails/legal-document-notice-information.tsx",
       "env.ts",
     ];
     const productionFlow = productionPaths.map((path) => readFileSync(join(REPO_ROOT, path), "utf8")).join("\n");
