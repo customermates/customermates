@@ -14,21 +14,27 @@ import { AppImage } from "@/components/shared/app-image";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/shared/icon";
 import { LanguageSelector } from "@/components/shared/language-selector";
-import { Sheet, SheetBody, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetBody,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { ThemeSwitcher } from "@/components/shared/theme-switcher";
 import { cn } from "@/core/utils/cn";
 import { signOutAction } from "@/app/[locale]/actions";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
-import { resolvePublicNavbarCta } from "./navigation/public-navbar-model";
+import { resolvePublicNavbarActions } from "./navigation/public-navbar-model";
 
 type Props = {
   accountState: AccountState;
   hasValidSession: boolean;
-  isRegistered: boolean;
-  onboardingComplete: boolean;
 };
 
-export const PublicNavbar = observer(({ accountState, hasValidSession, isRegistered, onboardingComplete }: Props) => {
+export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) => {
   const t = useTranslations();
   const { layoutStore } = useRootStore();
   const pathname = usePathname();
@@ -56,11 +62,11 @@ export const PublicNavbar = observer(({ accountState, hasValidSession, isRegiste
       <AppLink aria-label={`${logoAlt} ${homeLabel}`} href="/" onClick={closeMenu}>
         <AppImage
           alt={logoAlt}
-          className="object-contain select-none"
-          height={24}
+          className="h-auto w-[156px] object-contain select-none"
+          height={23}
           loading="eager"
           src="customermates.svg"
-          width={156}
+          width={229}
         />
 
         <span className="sr-only">{`${logoAlt} ${homeLabel}`}</span>
@@ -68,12 +74,12 @@ export const PublicNavbar = observer(({ accountState, hasValidSession, isRegiste
     );
   }
 
-  const cta = resolvePublicNavbarCta({
+  const actions = resolvePublicNavbarActions({
     accountState,
     hasValidSession,
-    isRegistered,
-    onboardingComplete,
+    pathname,
   });
+  const { cta } = actions;
   const ctaLabel =
     cta?.label === "signIn"
       ? t("Common.actions.signIn")
@@ -101,19 +107,25 @@ export const PublicNavbar = observer(({ accountState, hasValidSession, isRegiste
     }
   }
 
-  const signOutButton = hasValidSession ? (
-    <Button disabled={isSigningOut} size="sm" variant="ghost" onClick={() => void handleSignOut()}>
-      <LogOut aria-hidden className="size-4" />
+  const signOutButton =
+    actions.signOut !== "hidden" ? (
+      <Button
+        disabled={isSigningOut}
+        size="sm"
+        variant={actions.signOut === "setupEscape" ? "destructiveOutline" : "ghost"}
+        onClick={() => void handleSignOut()}
+      >
+        <LogOut aria-hidden className="size-4" />
 
-      {t("UserAvatar.signOut")}
-    </Button>
-  ) : null;
+        {t("UserAvatar.signOut")}
+      </Button>
+    ) : null;
 
-  const contactButton = (
+  const contactButton = actions.showContact ? (
     <Button asChild className="bg-transparent shadow-none" size="sm" variant="outline" onClick={closeMenu}>
       <IntlLink href="/contact">{t("Common.actions.contact")}</IntlLink>
     </Button>
-  );
+  ) : null;
 
   function renderPreferenceButtons() {
     return (
@@ -153,14 +165,16 @@ export const PublicNavbar = observer(({ accountState, hasValidSession, isRegiste
 
           <Sheet open={layoutStore.isMenuOpen} onOpenChange={layoutStore.setIsMenuOpen}>
             <SheetTrigger asChild>
-              <Button size="icon" variant="ghost">
-                <Icon icon={layoutStore.isMenuOpen ? X : Menu} />
+              <Button aria-label={t("Common.sidebar.toggle")} size="icon" variant="ghost">
+                <Icon aria-hidden icon={layoutStore.isMenuOpen ? X : Menu} />
               </Button>
             </SheetTrigger>
 
             <SheetContent className="w-80 max-w-[85vw] gap-0" side="right">
               <SheetHeader>
                 <SheetTitle className="sr-only">{logoAlt}</SheetTitle>
+
+                <SheetDescription className="sr-only">{t("Common.sidebar.description")}</SheetDescription>
               </SheetHeader>
 
               <SheetBody className="flex flex-col gap-3 pb-6">

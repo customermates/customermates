@@ -35,7 +35,6 @@ type Props = {
   sidebarUser: SidebarUser | null;
   appUser: TenantUser | null;
   userDisplayLanguage: unknown;
-  onboardingComplete: boolean;
   company: Company | null;
   terminology: EntityTerminologyOverride[];
   subscription: SubscriptionDto | null;
@@ -54,7 +53,6 @@ export function NavigationSwitch({
   sidebarUser,
   appUser,
   userDisplayLanguage,
-  onboardingComplete,
   company,
   terminology,
   subscription,
@@ -122,12 +120,7 @@ export function NavigationSwitch({
       <div className="h-svh flex">
         <main className="flex flex-col relative flex-1 overflow-y-auto bg-background min-w-0">
           <header className="sticky top-0 z-30 bg-background/80 backdrop-blur flex flex-col">
-            <PublicNavbar
-              accountState={currentAccountState}
-              hasValidSession={hasValidSession}
-              isRegistered={isRegistered}
-              onboardingComplete={onboardingComplete}
-            />
+            <PublicNavbar accountState={currentAccountState} hasValidSession={hasValidSession} />
           </header>
 
           <div className="flex flex-col flex-1 overflow-x-clip">{children}</div>

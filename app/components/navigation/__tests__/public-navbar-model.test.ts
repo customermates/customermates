@@ -1,49 +1,113 @@
 import { describe, expect, it } from "vitest";
 
-import { resolvePublicNavbarCta } from "../public-navbar-model";
+import { resolvePublicNavbarActions } from "../public-navbar-model";
 
-describe("resolvePublicNavbarCta", () => {
-  it("offers sign-in without a session", () => {
+describe("resolvePublicNavbarActions", () => {
+  it("offers sign-in and contact without a session", () => {
     expect(
-      resolvePublicNavbarCta({
+      resolvePublicNavbarActions({
         accountState: "unauthenticated",
         hasValidSession: false,
-        isRegistered: false,
-        onboardingComplete: false,
+        pathname: "/pricing",
       }),
-    ).toEqual({ href: "/auth/signin", label: "signIn" });
+    ).toEqual({
+      cta: { href: "/auth/signin", label: "signIn" },
+      showContact: true,
+      signOut: "hidden",
+    });
   });
 
-  it("offers setup to an unregistered session", () => {
+  it("does not duplicate the sign-in action on the sign-in page", () => {
     expect(
-      resolvePublicNavbarCta({
+      resolvePublicNavbarActions({
+        accountState: "unauthenticated",
+        hasValidSession: false,
+        pathname: "/auth/signin",
+      }).cta,
+    ).toBeNull();
+  });
+
+  it("focuses an unregistered public session on continuing setup", () => {
+    expect(
+      resolvePublicNavbarActions({
         accountState: "unregistered",
         hasValidSession: true,
-        isRegistered: false,
-        onboardingComplete: false,
+        pathname: "/pricing",
       }),
-    ).toEqual({ href: "/onboarding/wizard", label: "continueSetup" });
+    ).toEqual({
+      cta: { href: "/onboarding/wizard", label: "continueSetup" },
+      showContact: false,
+      signOut: "hidden",
+    });
   });
 
-  it("does not offer a looping setup CTA to an overdue pre-tenant session", () => {
+  it("shows the destructive setup escape only on onboarding", () => {
     expect(
-      resolvePublicNavbarCta({
+      resolvePublicNavbarActions({
+        accountState: "unregistered",
+        hasValidSession: true,
+        pathname: "/onboarding/wizard",
+      }),
+    ).toEqual({
+      cta: null,
+      showContact: false,
+      signOut: "setupEscape",
+    });
+  });
+
+  it("keeps the setup escape on nested onboarding routes", () => {
+    expect(
+      resolvePublicNavbarActions({
+        accountState: "unregistered",
+        hasValidSession: true,
+        pathname: "/onboarding/wizard/profile",
+      }),
+    ).toEqual({
+      cta: null,
+      showContact: false,
+      signOut: "setupEscape",
+    });
+  });
+
+  it("does not trap an overdue pre-tenant session", () => {
+    expect(
+      resolvePublicNavbarActions({
         accountState: "overdueVerification",
         hasValidSession: true,
-        isRegistered: false,
-        onboardingComplete: false,
+        pathname: "/auth/verify-email",
       }),
-    ).toBeNull();
+    ).toEqual({
+      cta: null,
+      showContact: true,
+      signOut: "default",
+    });
   });
 
   it("offers the app to a fully allowed account", () => {
     expect(
-      resolvePublicNavbarCta({
+      resolvePublicNavbarActions({
         accountState: "allowed",
         hasValidSession: true,
-        isRegistered: true,
-        onboardingComplete: true,
+        pathname: "/auth/error",
       }),
-    ).toEqual({ href: "/dashboard", label: "openApp" });
+    ).toEqual({
+      cta: { href: "/dashboard", label: "openApp" },
+      showContact: true,
+      signOut: "default",
+    });
+  });
+
+  it("does not show sign-in when a valid session is reconciled on an auth route", () => {
+    expect(
+      resolvePublicNavbarActions({
+        accountState: "unauthenticated",
+        hasValidSession: true,
+        pathname: "/auth/signin",
+      }),
+    ).toEqual({
+      cta: null,
+      showContact: true,
+      signOut: "default",
+    });
   });
 });

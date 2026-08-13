@@ -5,21 +5,49 @@ export type PublicNavbarCta = {
   label: "signIn" | "openApp" | "continueSetup";
 };
 
-export function resolvePublicNavbarCta({
+export type PublicNavbarActions = {
+  cta: PublicNavbarCta | null;
+  showContact: boolean;
+  signOut: "hidden" | "default" | "setupEscape";
+};
+
+function isOnboardingPath(pathname: string): boolean {
+  return pathname === "/onboarding/wizard" || pathname.startsWith("/onboarding/wizard/");
+}
+
+export function resolvePublicNavbarActions({
   accountState,
   hasValidSession,
-  isRegistered,
-  onboardingComplete,
+  pathname,
 }: {
   accountState: AccountState;
   hasValidSession: boolean;
-  isRegistered: boolean;
-  onboardingComplete: boolean;
-}): PublicNavbarCta | null {
-  if (!hasValidSession) return { href: "/auth/signin", label: "signIn" };
-  if (accountState === "overdueVerification") return null;
-  if (accountState === "unregistered") return { href: "/onboarding/wizard", label: "continueSetup" };
-  if (accountState === "allowed" && isRegistered && onboardingComplete) return { href: "/dashboard", label: "openApp" };
+  pathname: string;
+}): PublicNavbarActions {
+  if (!hasValidSession) {
+    return {
+      cta: pathname === "/auth/signin" ? null : { href: "/auth/signin", label: "signIn" },
+      showContact: true,
+      signOut: "hidden",
+    };
+  }
 
-  return null;
+  if (accountState === "unregistered") {
+    const onboardingPath = isOnboardingPath(pathname);
+
+    return {
+      cta: onboardingPath ? null : { href: "/onboarding/wizard", label: "continueSetup" },
+      showContact: false,
+      signOut: onboardingPath ? "setupEscape" : "hidden",
+    };
+  }
+
+  const cta: PublicNavbarCta | null =
+    accountState === "allowed" && pathname !== "/dashboard" ? { href: "/dashboard", label: "openApp" } : null;
+
+  return {
+    cta,
+    showContact: true,
+    signOut: "default",
+  };
 }
