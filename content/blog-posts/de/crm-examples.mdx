@@ -52,7 +52,7 @@ Operatives CRM konzentriert sich auf die Automatisierung alltäglicher, kundenor
 
 **Am besten geeignet für**: Vertriebsteams, die strukturierte Pipelines benötigen, Marketingteams, die Kampagnen durchführen, und Supportteams, die Tickets verwalten.
 
-**Beispiel**: Ein Vertriebsteam nutzt ein operatives CRM, um neue Leads automatisch an Mitarbeiter zuzuweisen, Follow-up-E-Mails auszulösen, wenn ein Deal ins Stocken gerät, und Onboarding-Aufgaben zu erstellen, wenn ein Deal abgeschlossen wird. Customermates ist ein operatives CRM, das all diese Funktionen mit integrierter [n8n-Automatisierung](/blog/n8n-for-beginners-build-your-first-workflow) bereitstellt und es Teams ermöglicht, komplexe Workflows ohne Programmierung zu erstellen.
+**Beispiel**: Ein Vertriebsteam nutzt ein operatives CRM, um Leads zuzuweisen, stockende Deals zu verfolgen und Onboarding-Aufgaben anzulegen. Customermates liefert CRM-Datensätze, REST, Webhooks, MCP und einen Community-Node für separat betriebene [n8n-Automatisierung](/blog/n8n-for-beginners-build-your-first-workflow); der externe Workflow verantwortet Routing, Zeitsteuerung, Zustellung, Limits und Kosten.
 
 ### 2. Analytisches CRM
 
@@ -187,7 +187,7 @@ Customermates ist ein Open-Source-KI-CRM aus der EU. Zwei Funktionen stehen im M
 
 - **Am besten für**: Kleine und mittelständische Unternehmen, die volle CRM-Funktionalität ohne Enterprise-Preise wollen, besonders in Europa
 - **Preise**: Ab 12 €/Nutzer/Monat (Starter), das volle Kern-CRM inklusive; Pro für 29 € bringt den vereinheitlichten Posteingang
-- **Stärken**: KI-Agenten bedienen das CRM über eine native MCP-Integration, nativer vereinheitlichter Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram ab Pro), Open Source mit EU-Hosting und DSGVO von Haus aus, integrierte n8n-Automatisierung, jede Kernfunktion in jeder Stufe
+- **Stärken**: KI-Agenten bedienen das CRM über eine native MCP-Integration, nativer vereinheitlichter Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram ab Pro), Open Source mit EU-Hosting und DSGVO von Haus aus, n8n-Automatisierung, jede Kernfunktion in jeder Stufe
 - **Schwächen**: Kleineres Ökosystem im Vergleich zu Salesforce oder HubSpot, neuer am Markt
 
 Für Unternehmen, die es leid sind, dass ihre CRM-Rechnung jedes Mal wächst, wenn sie eine neue Funktion benötigen, bietet Customermates eine erfrischende Alternative. Das Open-Source-Modell bedeutet, dass Sie den Code einsehen, bei Bedarf selbst hosten und ohne Vendor Lock-in anpassen können. Erfahren Sie mehr in unserem [CRM-Kostenratgeber](/blog/crm-cost).
@@ -329,7 +329,7 @@ ChatGPT und andere große Sprachmodelle können Code für eine einfache CRM-Anwe
 - Skalierbare Infrastruktur, die mit Ihrem Wachstum Schritt hält
 - Laufende Wartung, Updates und Support
 
-Der klügere Ansatz ist, ein CRM zu nutzen, das KI-Funktionen integriert, statt eines von Grund auf zu bauen. Customermates bietet eine native KI-Integration über seinen MCP-Server: KI-Agenten können Meeting-Notizen zusammenfassen, Follow-up-E-Mails entwerfen, Leads qualifizieren und Erkenntnisse aus Ihren Kundendaten gewinnen, alles aufgebaut auf einem bewährten, sicheren CRM-Fundament. So erhalten Sie beides zugleich: KI-gestützte Intelligenz innerhalb eines produktionsreifen Systems.
+Der klügere Ansatz ist, ein CRM zu nutzen, das KI-Funktionen integriert, statt eines von Grund auf zu bauen. Customermates bietet eine MCP-Integration für externe KI-Clients über seinen MCP-Server: KI-Agenten können Meeting-Notizen zusammenfassen, Follow-up-E-Mails entwerfen, Leads qualifizieren und Erkenntnisse aus Ihren Kundendaten gewinnen, alles aufgebaut auf einem bewährten, sicheren CRM-Fundament. So erhalten Sie beides zugleich: KI-gestützte Intelligenz innerhalb eines produktionsreifen Systems.
 
 Mehr zum Einsatz von KI mit Ihrem CRM finden Sie in unseren Ratgebern zum [Zusammenfassen von Notizen mit ChatGPT](/blog/chatgpt-summarize-notes) und zur [Lead-Qualifizierung mit ChatGPT](/blog/lead-qualification-chatgpt).
 
@@ -349,7 +349,7 @@ Bei der Bewertung von CRM-Optionen sollten Sie folgende Faktoren berücksichtige
 1. **Gesamtbetriebskosten**: Schauen Sie über den Basispreis hinaus. Berücksichtigen Sie Feature-Zusatzkosten, Implementierungskosten und Schulungsaufwand. Ein CRM, das seine Stufen klar veröffentlicht, wie Customermates ab 12 €/Nutzer/Monat, eliminiert Preisüberraschungen.
 2. **Skalierbarkeit**: Wird das System mit Ihrem Wachstum mithalten, ohne ein Tier-Upgrade zu erzwingen, das Ihre Kosten verdoppelt?
 3. **Datenhoheit**: Wer kontrolliert Ihre Daten? Open-Source-CRM-Plattformen bieten volle Transparenz und die Option zum Selbst-Hosting.
-4. **Integrationsfähigkeiten**: Verbindet sich das CRM mit Ihren bestehenden Tools? Integrierte n8n-Automatisierung, wie sie Customermates bietet, stellt vorgefertigte Konnektoren für Hunderte von Anwendungen bereit.
+4. **Integrationsfähigkeiten**: Verbindet sich das CRM mit Ihren bestehenden Tools? n8n-Automatisierung, wie sie Customermates bietet, stellt vorgefertigte Konnektoren für Hunderte von Anwendungen bereit.
 5. **Time to Value**: Wie schnell kann Ihr Team produktiv damit arbeiten?
 
 Für ein detailliertes Rahmenwerk zur CRM-Auswahl lesen Sie unseren Ratgeber [Wie Sie das richtige CRM wählen](/blog/how-to-choose-crm).
@@ -386,7 +386,7 @@ Die Top-5-CRM-Systeme 2026 sind Salesforce (am besten für Großunternehmen, ab 
 
 ### Kann ChatGPT ein CRM erstellen?
 
-ChatGPT kann Code für einen einfachen CRM-Prototyp generieren, aber es kann kein produktionsreifes System ersetzen, das Sicherheitshärtung, DSGVO-Konformität, zuverlässige Automatisierung, Drittanbieter-Integrationen und skalierbare Infrastruktur umfasst. Der bessere Ansatz ist die Nutzung eines CRM mit integrierten KI-Funktionen, wie Customermates, wo KI-Agenten das CRM direkt über den MCP-Server bedienen, auf einer bewährten, sicheren Plattform.
+ChatGPT kann Code für einen einfachen CRM-Prototyp generieren, aber es kann kein produktionsreifes System ersetzen, das Sicherheitshärtung, DSGVO-Konformität, zuverlässige Automatisierung, Drittanbieter-Integrationen und skalierbare Infrastruktur umfasst. Der bessere Ansatz ist die Nutzung eines CRM mit MCP-Zugang für externe KI-Clients, wie Customermates, wo KI-Agenten das CRM direkt über den MCP-Server bedienen, auf einer bewährten, sicheren Plattform.
 
 ### Was ist ein CRM Beispiel aus der Praxis?
 

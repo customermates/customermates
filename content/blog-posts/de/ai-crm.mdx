@@ -76,7 +76,7 @@ Die wesentliche Trennlinie: Anbieter mit eingebetteter KI halten Sie in ihrem UI
 
 Hier ist ein Setup, das etwa zehn Minuten dauert und „Rep gibt Daten ins CRM ein" durch „KI-Agent gibt Daten ins CRM ein" ersetzt.
 
-**Schritt 1.** Wählen Sie ein CRM mit echtem MCP-Server. Customermates liefert einen mit [45 Tools, die jede CRM-Operation abdecken](/features/api) (Kontakte erstellen, Deals aktualisieren, Entitäten verknüpfen, Custom Columns konfigurieren). Salesforce, HubSpot und Pipedrive bieten MCP über Community-Server, aber die Abdeckung ist partiell.
+**Schritt 1.** Wählen Sie ein CRM mit echtem MCP-Server. Customermates liefert einen mit [46 Tools, die jede CRM-Operation abdecken](/features/api) (Kontakte erstellen, Deals aktualisieren, Entitäten verknüpfen, Custom Columns konfigurieren). Salesforce, HubSpot und Pipedrive bieten MCP über Community-Server, aber die Abdeckung ist partiell.
 
 **Schritt 2.** Fügen Sie den MCP-Server zu Claude Desktop oder Ihrem Agenten der Wahl hinzu. Für Customermates lautet die Konfiguration:
 
@@ -144,4 +144,4 @@ Hängt vom Stack ab. Für Microsoft-Enterprises ist Dynamics 365 mit Copilot for
 Kann sie sein, mit dem richtigen Setup. Risiken: halluzinierte Bearbeitungen, Prompt Injection, Leaking von Daten an einen Drittanbieter-KI-Vendor. Gegenmaßnahmen: Wählen Sie ein CRM mit Audit-Logs und Webhook-Events bei jedem Schreibvorgang, bevorzugen Sie Agenten, die Read-Back-Tools aufrufen, um ihre Änderungen zu verifizieren, hosten Sie das CRM in einer Region, die Ihren Datensouveränitäts-Anforderungen entspricht (EU für DSGVO-Kontakte). Open-Source-Self-Hosting (Customermates, [SuiteCRM](https://suitecrm.com)) eliminiert die vendor-seitige Datenexposition komplett.
 
 **Können ChatGPT oder Claude mein CRM direkt bedienen?**
-Ja, wenn das CRM einen Model-Context-Protocol-Server (MCP) oder eine vollständige REST-API offenlegt. Customermates liefert einen MCP-Server mit 45 Tools, die jede CRM-Operation abdecken, sodass Claude Desktop, Codex oder jeder MCP-kompatible Agent das CRM mit einem JSON-Konfigurationsblock lesen und schreiben kann. Salesforce, HubSpot und Pipedrive bieten partielle MCP-Abdeckung über Community-Server. Für andere CRMs können Sie die Integration über deren REST-API plus einen n8n- oder Zapier-Flow bauen.
+Ja, wenn das CRM einen Model-Context-Protocol-Server (MCP) oder eine vollständige REST-API offenlegt. Customermates liefert einen MCP-Server mit 46 Tools, die jede CRM-Operation abdecken, sodass Claude Desktop, Codex oder jeder MCP-kompatible Agent das CRM mit einem JSON-Konfigurationsblock lesen und schreiben kann. Salesforce, HubSpot und Pipedrive bieten partielle MCP-Abdeckung über Community-Server. Für andere CRMs können Sie die Integration über deren REST-API plus einen n8n- oder Zapier-Flow bauen.

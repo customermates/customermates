@@ -1,11 +1,11 @@
 ---
 title: "Kundenservice CRM: Support & Kommunikation"
-description: "Kundenservice CRM: Servicehistorie verfolgen, Kommunikation protokollieren und Anfragen schneller lösen. KI-gestützter Support, automatisierte Workflows."
+description: "Kundenservice-CRM-Kontext für unterstützte Kommunikation, verknüpfte Notizen, Aufgaben und Servicehistorie. Externe KI-Clients können per MCP unterstützen; Customermates ist keine Ticketing- oder SLA-Plattform."
 featureName: Kundenservice
 
 hero:
   title: "Kundenservice CRM: Anfragen schneller lösen mit vollem Kontext"
-  description: Verfolgen Sie jede Service-Interaktion und protokollieren Sie Kundenkommunikation über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram in einem nativen Postfach. Geben Sie Ihrem Team den vollständigen Kontext, um Anfragen beim ersten Kontakt zu lösen. KI-Agenten helfen, Antworten zu entwerfen und Datensätze aktuell zu halten.
+  description: Verfolgen Sie unterstützte Service-Interaktionen über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram im gemeinsamen Postfach. Geben Sie Ihrem Team aufgezeichneten CRM-Kontext für einzelne Antworten. Ein externer KI-Client kann per MCP entwerfen; Client und Modell bleiben separat.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -38,9 +38,9 @@ Guter Kundenservice bedeutet nicht nur Schnelligkeit. Es bedeutet, Kunden das Ge
 | Vollständige Kunden-Timeline | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> |
 | Aufgabenbasierte Anfragenverfolgung | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> |
 | CRM + Service vereint | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
-| KI-Unterstützung | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusAvailable /> |
-| Workflow-Automatisierung | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusPartial /> |
-| EU/DSGVO-Hosting | <StatusAvailable /> | <StatusPartial /> | <StatusUnavailable /> | <StatusPartial /> | <StatusUnavailable /> |
+| MCP für externe KI-Clients | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusAvailable /> |
+| Schnittstellen für externe Automatisierung | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusPartial /> |
+| Verwaltete Datenbank in einer EU-Region | <StatusAvailable /> | <StatusPartial /> | <StatusUnavailable /> | <StatusPartial /> | <StatusUnavailable /> |
 | Open Source | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 | Self-Hosting-Option | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 
@@ -52,7 +52,7 @@ Customermates bietet die Werkzeuge, um Kundenservice direkt im CRM zu verwalten,
 
 **Notizen und Kommunikationsprotokollierung.** Protokollieren Sie jede Kundenkommunikation direkt im Kontakt- oder Organisationsdatensatz. Dokumentieren Sie Telefonatergebnisse, Meeting-Notizen, E-Mail-Austausch und Chat-Verläufe. Jede Interaktion wird Teil des permanenten Datensatzes und baut das institutionelle Wissen auf, das besseren Service über die Zeit ermöglicht.
 
-**Aufgabenbasierte Anfragenverfolgung.** Erstellen Sie Aufgaben zur Verfolgung von Kundenanfragen und weisen Sie sie den richtigen Teammitgliedern zu. Setzen Sie Fälligkeitsdaten, Prioritäten und detaillierte Beschreibungen. Überwachen Sie den Fortschritt bis zur Lösung. Aufgabenbasiertes Tracking stellt sicher, dass jede Kundenanfrage einen klaren Verantwortlichen, eine Frist und ein dokumentiertes Ergebnis hat.
+**Aufgabenbasierter Anfragekontext.** Erstellen Sie verknüpfte Aufgaben für Kundenanfragen, weisen Sie sie zu, ergänzen Sie Beschreibungen und speichern Sie Zieldaten oder Prioritäten in eigenen Feldern. Customermates hat kein natives Fälligkeitsdatum, keine Überfälligkeit, keinen Ticketstatus und keinen Lösungsworkflow.
 
 **Verknüpfter Deal- und Account-Kontext.** Bei der Bearbeitung einer Serviceanfrage sieht Ihr Team den vollständigen geschäftlichen Kontext des Kunden: Deal-Historie, aktuelle Abonnements, Account-Wert, Vertragsbedingungen und Beziehungsstufe. Ein langjähriger, hochwertiger Kunde kann eine andere Reaktion rechtfertigen als ein Testnutzer, und Ihr Team hat die Daten, um diese Entscheidung zu treffen.
 
@@ -60,9 +60,9 @@ Customermates bietet die Werkzeuge, um Kundenservice direkt im CRM zu verwalten,
 
 **Benutzerdefinierte Felder für Servicedaten.** Fügen Sie benutzerdefinierte Felder zu Kontakt- und Organisationsdatensätzen hinzu, um servicespezifische Informationen zu erfassen: bevorzugter Kommunikationskanal, Service-Level-Agreement (SLA), Vertragstyp, Support-Tier, Produktversion oder jedes Attribut, das Ihrem Team hilft, besseren Service zu liefern.
 
-**Automatisierte Service-Workflows.** Nutzen Sie n8n zur Automatisierung von Serviceprozessen. Erstellen Sie automatisch Aufgaben, wenn ein Kunde einen Meilenstein erreicht oder ein Problem meldet. Senden Sie Zufriedenheitsumfragen nach Service-Interaktionen. Leiten Sie Anfragen basierend auf Kundenattributen oder Anfragetyp weiter. Lösen Sie Eskalations-Workflows aus, wenn SLA-Fristen nahen. Automatisieren Sie das Routinemäßige, damit Ihr Team sich auf Problemlösungen konzentrieren kann.
+**Externe Service-Workflows.** Eine separate n8n-Instanz kann auf dokumentierte CRM-Ereignisse reagieren, unterstützte Aufgaben erstellen oder externe Anbieter um Umfragen und Routing-Benachrichtigungen bitten. Customermates bündelt n8n nicht und besitzt weder SLA-, Eskalations-, Umfrage- noch Routing-Engine.
 
-**KI-Agenten und KI-Unterstützung.** Claude, ChatGPT und Gemini verbinden sich über eine native MCP-Integration (45 Tools) und arbeiten direkt in Ihren Servicedaten. Sie fassen lange Gesprächsverläufe zusammen, damit neue Mitarbeiter sofort auf dem aktuellen Stand sind, entwerfen Antwortvorlagen basierend auf ähnlichen früheren Anfragen, klassifizieren eingehende Anfragen nach Typ und Dringlichkeit und halten Datensätze aktuell. KI stärkt die Fähigkeiten Ihres Teams, ohne die menschliche Empathie zu ersetzen, die guten Service ausmacht.
+**Unterstützung durch externe KI-Clients.** Unterstützte Clients wie Claude, ChatGPT oder Gemini können 46 MCP-Tools nutzen, um erlaubten Kontext zusammenzufassen, eine einzelne Antwort zu entwerfen und unterstützte Felder zu aktualisieren. Customermates enthält weder KI-Chat noch Modell; Klassifikation, Abonnement, Nutzung und Anbieterverarbeitung bleiben extern.
 
 ## Zentrale Vorteile eines Kundenservice CRM
 
@@ -74,37 +74,37 @@ Customermates bietet die Werkzeuge, um Kundenservice direkt im CRM zu verwalten,
 
 **Vertriebs- und Service-Alignment.** Da Service- und Vertriebsdaten im selben CRM leben, haben beide Teams volle Transparenz. Der Vertrieb weiß, wenn ein Kunde offene Serviceanfragen hat, bevor er einen Upsell-Anruf macht. Der Service kennt die Deal-Historie und den Account-Wert. Dieses Alignment verhindert peinliche Diskrepanzen und schafft ein nahtloses Kundenerlebnis.
 
-**Vollständiger Audit-Trail für Compliance.** Jede Service-Interaktion wird mit Zeitstempel und Benutzer-Zuordnung protokolliert. Dieser Trail ist essenziell für regulatorische Compliance, Streitbeilegung, SLA-Tracking und kontinuierliche Serviceverbesserung. In regulierten Branchen ist ein vollständiger Audit-Trail keine Option, er ist Pflicht.
+**Aufgezeichneter Servicekontext.** Unterstützte Nachrichten, Notizen, Aufgaben und Datensatzänderungen behalten Zeitstempel und Nutzerkontext, soweit das Produkt sie aufzeichnet. Beschreiben Sie dies nicht als vollständigen Compliance-Audit-Trail oder natives SLA-Protokoll; Customermates besitzt keine Compliance-Zertifizierung.
 
 **Reduzierte Kundenabwanderung.** Kunden gehen, wenn sie sich ignoriert fühlen oder Probleme ungelöst bleiben. Ein Kundenservice CRM stellt sicher, dass keine Anfrage verloren geht, Follow-ups termingerecht stattfinden und Ihr Team den Kontext hat, um Probleme beim ersten Mal gründlich zu lösen.
 
 ## Häufige Kundenservice-Anwendungsfälle
 
-**Serviceanfragen-Management.** Wenn ein Kunde ein Problem meldet, erstellen Sie eine Aufgabe, weisen Sie sie der richtigen Person zu, setzen Sie eine Frist und verfolgen Sie sie bis zur Lösung. Die vollständige Kundenhistorie liefert Kontext, und die Lösung wird Teil des permanenten Datensatzes.
+**Kontext für Serviceanfragen.** Erstellen Sie eine verknüpfte Aufgabe, weisen Sie sie zu, ergänzen Sie die unterstützte Beschreibung und speichern Sie ein Zieldatum in einem eigenen Feld. Customermates besitzt weder natives Fälligkeitsdatum, Überfälligkeit, Ticketstatus noch Lösungsworkflow.
 
 **Kunden-Onboarding-Support.** Nach einem Verkaufsabschluss übernimmt das Serviceteam das Onboarding. Mit Zugang zur Deal-Historie, den Vertriebsnotizen und Kundenanforderungen hat das Serviceteam vollen Kontext ohne manuelles Übergabemeeting. Der Kunde erlebt einen nahtlosen Übergang vom Vertrieb zum Service.
 
-**SLA-Management und -Tracking.** Definieren Sie Service-Level-Agreements mit benutzerdefinierten Feldern und automatisierten Workflows. Verfolgen Sie Antwort- und Lösungszeiten im Vergleich zu SLA-Zielen. Lösen Sie Eskalationsalarme aus, wenn Fristen nahen. Berichten Sie über die SLA-Einhaltung, um Verbesserungsbereiche zu identifizieren.
+**Kundendefinierte SLA-Felder.** Speichern Sie SLA-Ziele oder Servicestufen in eigenen Feldern. Antwortzeitberechnung, Fristenüberwachung, Eskalationsalarme und Compliance-Berichte müssen in einem separaten, kundenseitig betriebenen Workflow- oder Reporting-System umgesetzt werden.
 
-**Account-Health-Check-ins.** Planen Sie regelmäßige Check-in-Aufgaben für Ihren Kundenstamm. Proaktive Kontaktaufnahme hält Beziehungen gesund, deckt potenzielle Probleme auf, bevor sie eskalieren, und zeigt, dass Sie die Beziehung über Transaktionen hinaus wertschätzen.
+**Kontext für Account-Health-Check-ins.** Speichern Sie das nächste Check-in-Datum in einem eigenen Feld und prüfen Sie es manuell oder durch einen externen Scheduler. Customermates plant Aufgaben nicht nativ und erinnert nicht daran.
 
-**Eskalationsmanagement.** Wenn eine Serviceanfrage Eskalation erfordert, reist die gesamte Interaktionshistorie mit. Der Eskalationsbearbeiter sieht jede vorherige Nachricht, Notiz und Aktion, der Kunde muss sich nie wiederholen. Eskalations-Workflows können basierend auf Anfragetyp, Kundentier oder verstrichener Zeit automatisiert werden.
+**Externe Eskalations-Workflows.** Aufgezeichnete Nachrichten, Notizen und Aufgaben liefern Kontext. Ein separater Workflow kann kundendefinierte Felder auswerten und über einen externen Anbieter eine Benachrichtigung senden; Customermates besitzt keine native Eskalations- oder Zeitablauf-Engine.
 
-**Kundenzufriedenheits-Tracking.** Senden Sie Zufriedenheitsumfragen nach Service-Interaktionen über automatisierte n8n-Workflows. Verfolgen Sie CSAT- oder NPS-Scores in Kundendatensätzen. Überwachen Sie Trends über die Zeit und korrelieren Sie Zufriedenheitsdaten mit Serviceteam-Performance, Anfragetypen und Lösungszeiten.
+**Kundenzufriedenheitsdaten.** Speichern Sie CSAT- oder NPS-Werte in eigenen Feldern. Umfragezustellung, Erfassung, Trendberechnung und jede n8n-Laufzeit bleiben in separaten Diensten, die Sie betreiben.
 
-**Service-Performance-Reporting.** Verfolgen Sie Service-Metriken wie durchschnittliche Antwortzeit, Lösungsrate, Aufgabenvolumen, Eskalationshäufigkeit und Zufriedenheits-Scores. Nutzen Sie [Reporting-Dashboards](/features/reporting), um Personalbedarf, Schulungslücken und Prozessverbesserungen zu identifizieren.
+**Service-Performance-Reporting.** Speichern Sie kundendefinierte Antwort-, Lösungs-, Eskalations- und Zufriedenheitswerte in eigenen Feldern. Stellen Sie unterstützte Felder in persönlichen [Reporting-Dashboards](/features/reporting) dar oder berechnen Sie Servicemetriken in einem separaten Reporting-System.
 
 ## Warum Customermates für Kundenservice?
 
-**Open Source und transparent.** Customermates ist vollständig Open Source. Ihre Kundenservice-Daten werden von Software verwaltet, die Sie einsehen, prüfen und erweitern können. Kein Vendor-Lock-in, keine proprietären Einschränkungen bei der Handhabung von Kundendaten.
+**Open-Source-Kern.** AGPL-Kern-CRM-Anwendung und unterstütztes Datensatzmodell sind einsehbar und erweiterbar. Managed-Cloud-Postfach, verbundene Messaging-Anbieter, externe KI-Clients und Workflow-Dienste bleiben separate Grenzen.
 
-**EU-gehostet und DSGVO-konform.** Alle Kundenkommunikations- und Servicedaten werden in europäischen Rechenzentren gespeichert, mit vollständiger DSGVO-Konformität. Bearbeiten Sie Kundenservice-Interaktionen mit der Gewissheit, dass Ihre Datenverarbeitung die strengsten europäischen Datenschutzstandards erfüllt.
+**EU-Datenbankregion mit dokumentierten Anbietern.** Die verwaltete Datenbank läuft in einer EU-Region. Anwendungshosting, Messaging-Dienste und weitere Anbieter, darunter US-Anbieter, können Daten andernorts verarbeiten; diese Bereitstellungsangabe ist keine DSGVO- oder andere Compliance-Zertifizierung.
 
-**Ab 12 € pro Nutzer und Monat.** Kundenservice-Funktionen, KI-Unterstützung, Aufgaben-Tracking, Automatisierung, benutzerdefinierte Felder und Reporting sind ab der Starter-Stufe enthalten. Kein separates Service-Desk-Add-on und keine Kosten pro Ticket, in jeder Stufe. Teams, die automatische E-Mail-Protokollierung in der Service-Timeline wollen, ergänzen das gemeinsame Postfach ab der Pro-Stufe für 29 €/Nutzer/Monat.
+**Ab 12 € pro Nutzer und Monat.** Kern-CRM-Datensätze, verknüpfte Aufgaben, eigene Felder und Dashboards starten mit Starter; das gemeinsame Postfach startet mit Pro bei 29 €. Customermates enthält weder Service-Desk, Ticketsystem, SLA-Engine, KI-Modell noch n8n-Laufzeit.
 
-**n8n-Automatisierung für Service-Workflows.** Erstellen Sie automatisierte Workflows für Anfragen-Routing, SLA-Alarme, Zufriedenheitsumfragen, Eskalations-Trigger und Datensynchronisation mit externen Tools. Die visuelle n8n-Engine verbindet 400+ Systeme und eliminiert manuelle, repetitive Service-Aufgaben.
+**Separates n8n für Service-Workflows.** Verbinden Sie Ihre eigene n8n-Instanz über REST, Webhooks, MCP oder den Community-Node. Routing, Umfragen, SLA-Berechnungen, Eskalationslogik, Anbieterzustellung, Logs, Limits und Kosten bleiben extern.
 
-**Self-Hosting für volle Kontrolle.** Betreiben Sie Customermates auf Ihrer eigenen Infrastruktur und behalten Sie alle Kundenservice-Daten auf Ihren Servern. Self-Hosting sichert vollständige Kontrolle über sensible Kundenkommunikation, essenziell für Organisationen im Gesundheitswesen, Finanzsektor, Rechtsbereich und anderen regulierten Branchen.
+**Self-hostbare Anwendung und Datenbank.** Betreiben Sie Customermates-Anwendung und PostgreSQL-Datenbank auf Ihrer Infrastruktur. Verbundene Messaging-, Workflow- und KI-Anbieter erhalten weiterhin die von Ihrer Konfiguration gesendeten Daten; Self-Hosting ist keine Compliance-Zertifizierung.
 
 **Vereintes CRM und Service.** Anders als eigenständige Helpdesks, die Service von Vertriebs- und Account-Daten trennen, hält Customermates alles in einem System. Ihr Serviceteam sieht das vollständige Kundenbild, und Ihr Vertriebsteam weiß über Service-Anfragen Bescheid. Keine Integrationsprobleme, keine Datensilos.
 
@@ -114,17 +114,17 @@ Customermates bietet die Werkzeuge, um Kundenservice direkt im CRM zu verwalten,
 Ein Kundenservice CRM ist eine Plattform, die alle Kundeninteraktionen, Serviceanfragen und Kommunikationshistorien an einem Ort verwaltet. Es kombiniert traditionelle CRM-Fähigkeiten, Kontakte, Deals, Accounts, mit servicespezifischen Funktionen wie Anfragenverfolgung, Kommunikationsprotokollierung und Service-Automatisierung.
 
 **Wie unterscheidet sich ein Kundenservice CRM von einem Helpdesk?**
-Ein Helpdesk konzentriert sich eng auf Ticket-Management und Support-Workflows. Ein Kundenservice CRM integriert Service mit der gesamten Kundenbeziehung, Vertriebshistorie, Account-Daten, Deal-Pipeline und Kontaktmanagement. Customermates bietet beide Fähigkeiten in einer vereinten Plattform, damit Ihr Team das vollständige Kundenbild sieht.
+Ein Helpdesk konzentriert sich auf Ticket-Management und Support-Workflows. Ein Kundenservice CRM verbindet Servicekontext mit Beziehung, Vertrieb, Accounts, Deals und Kontakten. Customermates liefert CRM-Datensätze, verknüpfte Aufgaben und das gemeinsame Postfach statt Helpdesk-Ticketing oder nativen SLA-Workflows.
 
 **Kann ich die Kundenzufriedenheit in Customermates tracken?**
-Ja. Sie können CSAT- und NPS-Scores mit benutzerdefinierten Feldern verfolgen, automatisierte Zufriedenheitsumfragen über n8n-Workflows versenden und Zufriedenheitstrends über die Zeit überwachen. Zufriedenheitsdaten leben im Kundendatensatz neben der gesamten übrigen Interaktionshistorie.
+Sie können CSAT- oder NPS-Werte in eigenen Feldern speichern. Umfragezustellung, Erfassung, Trendberechnung und n8n-Ausführung bleiben in externen Systemen.
 
 **Unterstützt Customermates SLA-Tracking?**
-Ja. Definieren Sie SLA-Regeln mit benutzerdefinierten Feldern und n8n-Automatisierung. Verfolgen Sie Antwort- und Lösungszeiten im Vergleich zu Zielen, lösen Sie Eskalationsalarme aus, wenn Fristen nahen, und berichten Sie über die SLA-Einhaltung in Ihrem Serviceteam.
+Ein natives SLA-Modell ist nicht enthalten. Speichern Sie kundendefinierte Ziele in eigenen Feldern und werten Sie Fristen, Alarme und Berichte in einem separaten, kundenseitig betriebenen System aus.
 
 **Was kostet Kundenservice CRM Software?**
 Die Preise reichen von kostenlos (mit erheblichen Einschränkungen) bis über 25 $/Nutzer/Monat für Enterprise-Plattformen. Zendesk startet bei 19 $/Nutzer/Monat, Freshdesk bei 15 $ und Salesforce Service Cloud bei 25 $. Customermates startet bei 12 €/Nutzer/Monat ohne Kosten pro Ticket in jeder Stufe; das gemeinsame Postfach für automatische E-Mail-Protokollierung ist ab 29 €/Nutzer/Monat (Pro) verfügbar.
 
 ## Starten Sie heute mit Kundenservice
 
-Beginnen Sie noch heute mit der Verwaltung des Kundenservice in Customermates. Protokollieren Sie Ihre erste Kundeninteraktion, erstellen Sie eine Serviceaufgabe und erleben Sie, wie vollständiger Kontext die Fähigkeit Ihres Teams transformiert. Jede Funktion, KI-Unterstützung, Automatisierung, SLA-Tracking, Kommunikationsprotokollierung, steht ab dem ersten Tag zur Verfügung. Registrieren Sie sich für ein kostenloses Konto und liefern Sie den Service, den Ihre Kunden verdienen.
+Beginnen Sie heute mit Kundenservicekontext in Customermates. Erfassen Sie eine unterstützte Interaktion, erstellen Sie eine verknüpfte Aufgabe und ergänzen Sie die Felder Ihres Prozesses. Ticketing, SLA-Tracking, KI-Clients, Umfragezustellung und Automatisierungslaufzeiten bleiben extern.

@@ -54,17 +54,17 @@ This is the comparison chart most teams need first. It answers one question per 
 | Custom fields | Yes | Yes | Yes | Limited | Yes | Yes | Limited | Yes | Limited | Yes | Yes | Limited |
 | Custom entities/objects | Yes | Yes | No | No | Yes | Yes | No | No | No | Yes | No | No |
 | Email integration | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
-| Built-in automation | Yes (n8n) | Yes | Paid | Paid | Yes | Yes | Paid | Yes | Yes | Yes | Yes | Limited |
-| Workflow builder (visual) | Yes | Yes | Yes | No | Yes | Yes | No | Yes | Yes | Yes | No | No |
-| AI features | Yes | Yes | Paid | Paid | Paid | Yes | Yes | Paid | Limited | Limited | Limited | Limited |
+| Built-in automation | No; external n8n | Yes | Paid | Paid | Yes | Yes | Paid | Yes | Yes | Yes | Yes | Limited |
+| Workflow builder (visual) | External n8n | Yes | Yes | No | Yes | Yes | No | Yes | Yes | Yes | No | No |
+| AI features | Via external MCP clients | Yes | Paid | Paid | Paid | Yes | Yes | Paid | Limited | Limited | Limited | Limited |
 | AI agents operate the CRM (native MCP) | Yes | No | No | No | No | No | No | No | No | No | No | No |
 | Native unified inbox (email + LinkedIn + WhatsApp + Instagram + Telegram) | Yes | Limited | Limited | Limited | Limited | Limited | Limited | Limited | Limited | Limited | Limited | Limited |
 | API access | Included | Paid tiers | Paid tiers | Included | Included | Included | Included | Included | Included | Included | Included | Included |
 | Reporting dashboards | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
 | Custom reports | Yes | Yes | Paid | Paid | Yes | Yes | Paid | Paid | Limited | Yes | Paid | Limited |
 | Audit logging | Yes | Paid | Paid | No | Paid | Yes | No | No | No | Yes | No | No |
-| Mobile app | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
-| Data import/export | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| Mobile app | Responsive web only | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| Data import/export | REST API or MCP; no CSV workflow | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
 
 ## CRM Comparison Chart: Data Privacy and Hosting
 
@@ -74,10 +74,10 @@ For EU-based businesses and any company that takes data ownership seriously, thi
 |-----------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | Open source | Yes | No | No | No | No | No | No | No | No | No | No | No |
 | Self-hostable | Yes | No | No | No | No | On-prem option | No | No | No | No | No | No |
-| EU hosting (default) | Yes | No | No | No | No | No | No | No | No | No | No | No |
+| EU hosting (default) | EU database region | No | No | No | No | No | No | No | No | No | No | No |
 | EU hosting (available) | Yes | Yes | Paid | Yes | Yes | Yes | Limited | Limited | No | Limited | No | No |
 | GDPR-native | Yes | No | No | No | No | No | No | No | No | No | No | No |
-| Data export (full) | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Limited | Yes | Yes | Yes |
+| Data export (full) | REST API; no export workflow | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Limited | Yes | Yes | Yes |
 | DPA included | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
 
 ## CRM Pricing Comparison Chart
@@ -127,7 +127,7 @@ Small businesses (1-50 employees) have different requirements than enterprises. 
 | Criterion | Best Options | Why |
 |-----------|-------------|-----|
 | Fastest setup | HubSpot, Pipedrive, Customermates | Under 1 hour to first deal in pipeline |
-| Lowest cost (with automation) | Customermates | EUR 12/user, automation included at every tier |
+| Lowest cost (with automation) | Customermates | EUR 12/user, no surcharge for the webhook and API access automation needs |
 | No credit card to start | HubSpot, Zoho, Freshsales | Free tiers available (with limitations) |
 | Best for solo sales reps | Pipedrive, Close | Pipeline-first design, minimal overhead |
 | Best for teams that need GDPR | Customermates | EU-hosted, GDPR-native, open source |
@@ -156,7 +156,7 @@ Different business priorities demand different CRM strengths. Use this matrix to
 | Visual/project-style work | Monday CRM | Insightly | Board-based interface familiar from project tools |
 | Marketing agency | GoHighLevel | HubSpot | White-label, multi-client, built for agencies |
 | Built-in calling | Close | Freshsales | Native dialer, call recording, no add-ons needed |
-| Workflow automation | Customermates | Salesforce | n8n visual automation included vs. paid Flow add-ons |
+| Workflow automation | Customermates | Salesforce | self-hosted n8n at no surcharge from us vs. paid Flow add-ons |
 | Microsoft ecosystem | Dynamics 365 | Salesforce | Native Outlook, Teams, Power BI integration |
 | Budget + AI features | Freshsales | Zoho CRM | Freddy AI included in mid-tier plans |
 
@@ -221,7 +221,7 @@ This structured approach removes emotion and vendor influence from the decision.
 
 ### Open Source and Data Sovereignty
 
-The movement toward open-source CRM is accelerating as businesses prioritize data ownership and vendor independence. Customermates represents this trend: open-source, self-hostable, EU-hosted by default, with full data export at any time.
+The movement toward open-source CRM is accelerating as businesses prioritize data ownership and vendor independence. Customermates represents this trend: open-source and self-hostable, with supported CRM records readable through REST API or MCP at any time.
 
 ### AI Moving From Hype to Utility
 
@@ -239,7 +239,7 @@ GDPR enforcement is intensifying across Europe, and similar regulations are spre
 
 Looking across the comparison charts on this page, Customermates scores well on the criteria that matter most to small and mid-sized businesses:
 
-**AI agents operate the CRM**: Through a native MCP integration (45 tools), Claude, ChatGPT, and Gemini read and write the CRM directly. They do the data entry, so deal stages move, follow-ups get drafted, and notes stay current without a rep touching a form.
+**AI agents operate the CRM**: Through a native MCP integration (46 tools), Claude, ChatGPT, and Gemini read and write the CRM directly. They do the data entry, so deal stages move, follow-ups get drafted, and notes stay current without a rep touching a form.
 
 **Native unified inbox**: Email, LinkedIn, WhatsApp, Instagram, and Telegram in one inbox inside the CRM (Pro tier and up), and the same AI agents can read, draft, and send across every channel. Few CRMs offer native multi-channel messaging, and almost none let an AI operate it.
 
@@ -247,7 +247,7 @@ Looking across the comparison charts on this page, Customermates scores well on 
 
 **Open-source and self-hostable**: Full source code access, self-hostable via Docker (AGPL-3.0), no vendor lock-in. You can inspect, modify, and deploy on your own infrastructure.
 
-**Built-in n8n automation**: Visual workflow automation included at no extra cost. Automate lead routing, follow-ups, data syncing, notifications, and any repeatable process without third-party tools.
+**n8n automation**: Visual workflow automation in your own n8n instance, with no surcharge from us for the webhook and API access it needs. Automate lead routing, follow-ups, data syncing, notifications, and any repeatable process without third-party tools.
 
 **GDPR-native, EU-hosted**: Built and hosted in the EU with data protection as a foundational design principle, not a compliance checkbox.
 
@@ -267,7 +267,7 @@ Build a weighted scorecard. List your must-have features, assign importance weig
 
 ### What is the cheapest CRM with automation?
 
-Customermates from EUR 12/user/month includes n8n visual workflow automation with no usage limits. Zoho CRM includes basic automation from EUR 23/user/month. HubSpot and Pipedrive require paid tiers (EUR 49-100/user/month) to unlock automation features. Free CRM tiers generally do not include meaningful automation.
+Customermates from EUR 12/user/month drives n8n visual workflow automation from your own instance, with no usage limits on our side. Zoho CRM includes basic automation from EUR 23/user/month. HubSpot and Pipedrive require paid tiers (EUR 49-100/user/month) to unlock automation features. Free CRM tiers generally do not include meaningful automation.
 
 ### Is an open-source CRM reliable for business use?
 

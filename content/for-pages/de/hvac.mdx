@@ -56,7 +56,7 @@ Verfolgen Sie jeden Serviceeinsatz vom Kundenanruf über die Disposition, Durchf
 
 ### Wartungsplanung und Vertragsmanagement
 
-HLK-Betriebe sind auf wiederkehrende Wartungsverträge für planbare Umsätze angewiesen. Verfolgen Sie Verträge vom Angebot über die Unterschrift und den aktiven Service bis zur Verlängerung mit dedizierten Pipeline-Phasen. Richten Sie automatische Erinnerungen für saisonale Inspektionen, Filterwechsel und Jahreswartungen ein. Mit [Workflow-Automatisierung](/features/workflow-automation) versendet Customermates Verlängerungsansprachen, bevor Verträge auslaufen, und schützt Ihre wiederkehrenden Einnahmen.
+HLK-Betriebe sind auf wiederkehrende Wartungsverträge für planbare Umsätze angewiesen. Verfolgen Sie Verträge vom Angebot über die Unterschrift und den aktiven Service bis zur Verlängerung mit dedizierten Pipeline-Phasen. Stoßen Sie über CRM-Webhooks Erinnerungen für saisonale Inspektionen, Filterwechsel und Jahreswartungen an. Mit [Workflow-Automatisierung](/features/workflow-automation) in Ihrer eigenen n8n-Instanz gehen Verlängerungsansprachen, bevor Verträge auslaufen, und schützt Ihre wiederkehrenden Einnahmen.
 
 ### Anlagen- und Garantieverfolgung
 
@@ -64,7 +64,7 @@ Nutzen Sie benutzerdefinierte Felder, um Anlagenmodelle, Seriennummern, Installa
 
 ### Technikerplanung und Aufgabenmanagement
 
-Weisen Sie Aufträge Technikern zu mit voller Übersicht über deren aktuelle Auslastung und Termine. Nutzen Sie [Aufgabenmanagement](/features/task-management), um Arbeitsaufträge mit Fälligkeitsdaten, Prioritätsstufen und Erledigungsstatus zu erstellen, zuzuweisen und zu verfolgen. Vermeiden Sie Doppelbuchungen und stellen Sie sicher, dass jeder Techniker genau weiß, wo er sein muss und was zu tun ist.
+Weisen Sie Aufträge Technikern zu und verknüpfen Sie jede Aufgabe mit dem passenden Kunden oder Deal. Nutzen Sie [Aufgabenmanagement](/features/task-management), um Arbeit mit Zuständigen und Notizen anzulegen; bilden Sie Fälligkeitsdaten, Prioritäten und Erledigungsstatus über eigene Datums- und Auswahlspalten ab. Für Verfügbarkeit und Doppelbuchungsschutz bleibt ein separates Planungstool zuständig.
 
 ### Kundenkommunikation und E-Mail-Integration
 
@@ -103,7 +103,7 @@ Die meisten CRM-Lösungen für HLK-Betriebe fallen in zwei Kategorien: spezialis
 
 **Allzweck-CRMs** wie Salesforce und HubSpot bieten mächtige Plattformen, erfordern aber teure Implementierung, laufende Beraterkosten und Monate an Konfiguration für HLK-Workflows.
 
-**Customermates** gibt Ihnen ein voll ausgestattetes, DSGVO-konformes Open-Source-CRM ab €12/Nutzer/Monat. Keine Techniker-Einzelgebühren, keine Zusatzkosten über die gewählte Stufe hinaus, den nativen einheitlichen Posteingang für Kunden-E-Mail, WhatsApp und Instagram gibt es ab Pro für €29/Nutzer/Monat. EU-gehostet (Deutschland) und DSGVO-nativ mit der Option zum Selbst-Hosting für volle Datenkontrolle. Einrichtung dauert 2 Minuten, nicht Monate.
+**Customermates** gibt Ihnen ein voll ausgestattetes, DSGVO-konformes Open-Source-CRM ab €12/Nutzer/Monat. Keine Techniker-Einzelgebühren, keine Zusatzkosten über die gewählte Stufe hinaus, den nativen einheitlichen Posteingang für Kunden-E-Mail, WhatsApp und Instagram gibt es ab Pro für €29/Nutzer/Monat. EU-gehostet und DSGVO-nativ mit der Option zum Selbst-Hosting für volle Datenkontrolle. Einrichtung dauert 2 Minuten, nicht Monate.
 
 ## CRM für verschiedene HLK-Betriebsarten
 
@@ -111,7 +111,7 @@ Ob Sie einen kleinen Heizungsbau-Betrieb führen oder eine große Klimatechnik-F
 
 ### Kleine SHK-Handwerksbetriebe
 
-Für ein Team von 3-5 Technikern und einem Disponenten brauchen Sie ein HLK-CRM, das schnell einzurichten, einfach zu bedienen und bezahlbar ist. Customermates startet bei €12/Nutzer/Monat mit vollem Pipeline-Management, automatischen Follow-ups und KI-Unterstützung, oder €29/Nutzer/Monat in Pro, wenn Kunden-E-Mail, WhatsApp und Instagram automatisch protokolliert werden sollen, alles, was ein kleines SHK-Team braucht, ohne den Overhead von Enterprise-Plattformen. Importieren Sie Ihre Kunden per CSV, richten Sie Ihre Service-Pipeline-Phasen ein und disponieren Sie ab Tag eins.
+Für ein Team von 3-5 Technikern und einem Disponenten bietet Customermates ab 12 €/Nutzer/Monat Kontakte, Deal-Pipelines, Aufgaben und eigene Felder. MCP verbindet einen unterstützten externen KI-Client; Client, Modell und Nutzung sind separat. Pro für 29 €/Nutzer/Monat ergänzt verbundene Nachrichtenkanäle. Kundendaten ergänzen Sie manuell oder migrieren unterstützte Datensätze über REST beziehungsweise MCP; Customermates hat keinen CSV-Uploader und keinen eingebauten Follow-up-Scheduler.
 
 ### Mittelständische HLK-Unternehmen
 
@@ -123,7 +123,7 @@ Wenn Ihr Geschäft auf Anlagenaustausch und Neuinstallationen fokussiert ist, is
 
 ## Integrationen für HLK-Workflows
 
-Customermates verbindet sich über die integrierte n8n-Automatisierungs-Engine und REST-API mit den Tools, die HLK-Betriebe bereits nutzen:
+Customermates verbindet sich über die n8n-Automatisierungs-Engine und REST-API mit den Tools, die HLK-Betriebe bereits nutzen:
 
 - **E-Mail**: Gmail oder Outlook über [E-Mail-Integration](/features/email-integration) synchronisieren, damit jede Kundenkonversation beim richtigen Kontakt erfasst wird
 - **Kalender**: Technikerpläne und Kundentermine mit Google Calendar oder Outlook Calendar verbinden
@@ -153,7 +153,7 @@ Zum Vergleich: Housecall Pro beginnt bei $59/Monat für Basisfunktionen, Service
 Die Einrichtung Ihres HLK-CRM dauert Minuten, nicht Wochen:
 
 1. **[Kostenloses Konto erstellen](/auth/signup)**, keine Kreditkarte nötig, 7 Tage alles testen.
-2. **Kunden importieren**, bestehende Kundendaten, Objektinformationen und Anlagenaufzeichnungen per CSV-Upload einbringen. Alle Kontaktdaten und Historien kommen mit.
+2. **Unterstützte Datensätze migrieren**, bereiten Sie Kunden-, Objekt- und Anlagendaten außerhalb des Produkts auf und erstellen Sie sie über REST oder einen externen KI-Client per MCP. Customermates hat keinen CSV-Uploader; Ihre Integration bestimmt und prüft die übernommenen Felder.
 3. **Pipelines einrichten**, Phasen für Serviceeinsätze definieren (Anfrage, Disponiert, In Bearbeitung, Erledigt, Fakturiert) und Vertragsverlängerungen (Ablauf naht, Angebot versendet, In Verhandlung, Verlängert). Das Drag-and-Drop-Kanban-Board visualisiert Ihren Workflow.
 4. **Benutzerdefinierte Felder anlegen**, Felder für Anlagentyp, Modellnummern, Garantiestatus, Kältemitteltyp, Energieeffizienzklasse, Serviceintervalle und Objektdetails erstellen.
 5. **Automatisierungen aufbauen**, Regeln für Auftragszuweisungs-Benachrichtigungen, Zufriedenheitsumfragen nach dem Service, Wartungserinnerungen, saisonale Kampagnen und Vertragsverlängerungsansprachen erstellen. Die n8n-Automatisierungs-Engine bietet unbegrenzte Workflows ohne Zusatzkosten.
@@ -179,7 +179,7 @@ Ja. Customermates nutzt benutzerdefinierte Felder, um Anlagenmodelle, Seriennumm
 
 ### Wie geht HLK-CRM-Software mit saisonaler Nachfrage um?
 
-HLK-Betriebe erleben vorhersehbare saisonale Spitzen, Sommerkühlung und Winterheizung, bei denen das Anfragevolumen dramatisch steigt. Ein gutes HLK-CRM erfasst jede Anfrage automatisch, weist Leads verfügbarem Personal zu und löst sofortige Follow-up-Sequenzen aus. In den Übergangsjahreszeiten halten automatische Wartungserinnerungs-Kampagnen und Inspektionsansprachen Ihren Terminkalender voll. Customermates unterstützt unbegrenzte Automatisierungen über die integrierte n8n-Engine ohne Zusatzkosten.
+HLK-Betriebe erleben vorhersehbare saisonale Spitzen, Sommerkühlung und Winterheizung, bei denen das Anfragevolumen dramatisch steigt. Ein gutes HLK-CRM erfasst jede Anfrage automatisch, weist Leads verfügbarem Personal zu und löst sofortige Follow-up-Sequenzen aus. In den Übergangsjahreszeiten halten automatische Wartungserinnerungs-Kampagnen und Inspektionsansprachen Ihren Terminkalender voll. Customermates unterstützt unbegrenzte Automatisierungen über die n8n-Engine ohne Zusatzkosten.
 
 ### Ist Customermates DSGVO-konform für HLK-Kundendaten?
 

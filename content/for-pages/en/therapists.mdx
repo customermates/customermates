@@ -76,7 +76,7 @@ Most CRM tools marketed to therapists are either overpriced practice management 
 
 **[Self-hosting available](/features/self-hosted)**: Run Customermates on your own infrastructure for complete data control. Your client data never touches a third-party server if you choose self-hosting.
 
-**AI agents that operate your CRM**: Connect Claude, ChatGPT, or Gemini through the native MCP integration (45 tools) and let them do the data entry. Agents draft professional inquiry responses, log intake details, move contacts between pipeline stages, summarize referral relationships, and flag inquiries that need urgent attention. The admin stays current while you focus on clinical work.
+**AI agents that operate your CRM**: Connect Claude, ChatGPT, or Gemini through the native MCP integration (46 tools) and let them do the data entry. Agents draft professional inquiry responses, log intake details, move contacts between pipeline stages, summarize referral relationships, and flag inquiries that need urgent attention. The admin stays current while you focus on clinical work.
 
 **[Native unified inbox](/features/email-integration)**: On Pro, client and referral-source email lives in one inbox inside the CRM, linked to the right record automatically, with WhatsApp and other channels available when your practice uses them. Full context without searching through your inbox.
 
@@ -92,14 +92,14 @@ Customermates is different:
 - **Pro, €29 per user per month**, adds the unified inbox for client and referral-source email tied to every inquiry
 - **No hidden costs**, no per-contact fees, no add-on charges, no surprise overages
 - **Open-source**, self-host for free if you prefer, forever
-- **2-minute setup**, create an account, import your contacts, start managing your practice
+- **Straightforward setup**, create an account, add contacts manually or through REST or MCP, and configure your practice workflow; there is no CSV importer
 
 For a solo therapist, that is €12/month on Starter. For a group practice with 5 therapists and an office manager, €72/month. Compare that to [typical CRM pricing](/pricing) in the therapy space.
 
 ## Getting Started with Customermates
 
 1. **Create an account**, free, no credit card required. 7 days to explore everything.
-2. **Import your contacts**, bring in existing client inquiries, referral sources, and professional contacts via CSV.
+2. **Migrate supported records**, use the REST API, or hand a prepared source export to an AI agent connected over MCP. Customermates has no CSV uploader.
 3. **Set up your pipeline**, define stages that match your intake process: New Inquiry, Callback Scheduled, Consultation Booked, Intake Complete, Active Client, Waitlist.
 4. **Add custom fields**, therapy modality, insurance accepted, referral source, session format preference, waitlist priority.
 5. **Activate automations**, inquiry follow-up reminders, waitlist check-ins, referral source touchpoints, all running in the background via n8n.
@@ -118,7 +118,7 @@ No. Practice management software typically handles scheduling, clinical document
 
 ### Is Customermates HIPAA-compliant?
 
-Customermates is a business CRM, not a clinical system. It is designed to handle non-clinical business data, inquiries, referral sources, scheduling preferences, and communication history. It is GDPR-native and EU-hosted in Germany. For practices that need full data sovereignty, [self-hosting](/features/self-hosted) gives you complete control over where your data lives and how it is secured. Customermates does not store protected health information (PHI) or clinical records.
+Customermates is a business CRM, not a clinical system. It is designed to handle non-clinical business data, inquiries, referral sources, scheduling preferences, and communication history. It is GDPR-native and EU-hosted. For practices that need full data sovereignty, [self-hosting](/features/self-hosted) gives you complete control over where your data lives and how it is secured. Customermates does not store protected health information (PHI) or clinical records.
 
 ### Can I connect Customermates to my scheduling tool?
 
@@ -126,11 +126,11 @@ Yes. Customermates has a full API and integrates with [n8n workflow automation](
 
 ### How is Customermates different from using a spreadsheet?
 
-Spreadsheets have no automation, no pipeline visualization, no email integration, and no way to set follow-up reminders. A CRM for therapy practices gives you a visual [pipeline](/features/pipeline) to track every inquiry, automated tasks that ensure no follow-up is missed, and a complete communication history for every contact. Once you have more than 10-15 active inquiries, a spreadsheet becomes a liability.
+Spreadsheets have no automation, no pipeline visualization, and no email integration. A CRM for therapy practices gives you a visual [pipeline](/features/pipeline), assigned tasks with custom date columns, and communication history for supported channels. A separately operated workflow can send reminders. Once you have more than 10-15 active inquiries, a spreadsheet becomes a liability.
 
 ### Can I use Customermates for a group therapy practice?
 
-Yes. Customermates supports multiple users starting at €12/user/month, with the unified inbox on Pro at €29/user/month. Each therapist can manage their own pipeline while the practice manager has visibility across all caseloads. Shared referral source tracking means the entire practice benefits from relationship data, not just individual therapists.
+Yes. Customermates supports multiple users starting at €12/user/month, with the unified inbox on Pro at €29/user/month. Permitted users work with the same accessible pipelines and referral-source records; Customermates does not provide private per-therapist views or manager-only cross-caseload views. The group practice still benefits from shared relationship data.
 
 ### What data should I put in a therapist CRM vs. my EHR?
 

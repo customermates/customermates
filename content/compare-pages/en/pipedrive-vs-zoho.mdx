@@ -84,7 +84,7 @@ comparison:
       source: Pro+ (all 5 channels)
       competitor: Email only
       competitor2: Email; social via add-ons
-    - name: AI agents operate the CRM (native MCP, 45 tools)
+    - name: AI agents operate the CRM (native MCP, 46 tools)
       source: true
       competitor: AI Sales Assistant (add-on)
       competitor2: Zia AI (Enterprise+)
@@ -98,12 +98,12 @@ comparison:
       competitor2: 'no'
   - title: Data Protection & Hosting
     features:
-    - name: GDPR / DSGVO compliant
-      source: true
+    - name: GDPR documentation
+      source: DPA + SCCs; no certification
       competitor: partially
       competitor2: partially
     - name: Data hosting
-      source: EU only (Germany)
+      source: EU database region
       competitor: EU & US
       competitor2: EU & India
     - name: Self-hosting option
@@ -188,15 +188,15 @@ Pipedrive limits active workflow automations by plan: 50 on Growth, 150 on Premi
 
 Zoho CRM provides workflow rules, macros, and blueprint process management. However, workflow rules are quota-limited: 10 per module on Standard, 15 on Professional, and more on Enterprise. The Deluge scripting language offers deeper customization but adds maintenance complexity and requires developer resources.
 
-Customermates includes unlimited automation through its built-in n8n integration. No quota limits, no scripting required, and you can connect to thousands of external services from day one.
+Customermates supports unlimited automation through your own n8n instance. No quota limits, no scripting required, and you can connect to thousands of external services from day one.
 
 ### AI capabilities
 
-Pipedrive introduced its AI Sales Assistant as an add-on. It provides deal insights and activity suggestions but remains relatively basic compared to platform-native AI tools. This is one of the cons of Pipedrive that teams frequently mention, advanced AI is not built into the core product.
+Pipedrive introduced its AI Sales Assistant as an add-on. It provides deal insights and activity suggestions but remains relatively basic compared with platforms that expose MCP tools to external AI clients. This is one of the cons of Pipedrive that teams frequently mention: advanced AI is not built into the core product.
 
 Zoho CRM includes Zia AI starting at the Enterprise tier ($40/mo). Zia offers lead scoring, anomaly detection, email sentiment analysis, and conversation intelligence. It is one of Zoho's stronger differentiators, but it is not available on the Standard or Professional plans where most small teams operate.
 
-Customermates takes a different approach: AI agents (Claude, ChatGPT, Gemini) operate the CRM directly through a native MCP integration (45 tools) at every tier, starting at EUR 12. No tier upgrade required for the AI itself.
+Customermates takes a different approach: AI agents (Claude, ChatGPT, Gemini) operate the CRM directly through a native MCP integration (46 tools) at every tier, starting at EUR 12. No tier upgrade required for the AI itself.
 
 ### Reporting and analytics
 
@@ -230,7 +230,7 @@ Pipedrive offers 500+ marketplace integrations and a solid API. It connects well
 
 Zoho integrates tightly with its own ecosystem of 55+ products, which is powerful if you buy into the full Zoho suite but creates vendor lock-in. Third-party integrations outside the ecosystem are more limited.
 
-Customermates connects to thousands of services through its built-in n8n integration, with a fully open API. No marketplace lock-in, no ecosystem dependency.
+Customermates connects to thousands of services through its n8n integration, with a fully open API. No marketplace lock-in, no ecosystem dependency.
 
 ## Who should choose Pipedrive?
 
@@ -259,7 +259,7 @@ The top 3 CRM systems depend on your segment. For enterprises, Salesforce leads.
 Pipedrive is better for pure sales pipeline management with its visual, intuitive interface. Zoho CRM is better for teams that need a broader feature set across marketing, service, and operations. Both tier-gate important features. Customermates offers every core CRM feature at every tier, starting from EUR 12/mo.
 
 ### Can I migrate from Pipedrive or Zoho CRM to Customermates?
-Yes. Customermates supports CSV and API-based data import. Most teams complete migration in under an hour.
+Yes. Customermates imports data through the REST API or an AI agent over MCP. Most teams complete migration in under an hour.
 
 ### Is Customermates really open-source?
 Yes. Customermates is fully open-source. You can inspect the code, self-host, and customize it to your needs.

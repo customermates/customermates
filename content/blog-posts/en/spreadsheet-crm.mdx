@@ -238,9 +238,9 @@ Three picks based on your priorities:
 
 Customermates is built for exactly this transition. The Table view (one of two default views alongside the Card/Kanban view) feels familiar to spreadsheet users: columns, rows, filters, sorting. Ten typed custom field types (plain, single-select, currency, date, date range, dateTime, dateTime range, email, link, and phone) cover most columns you bring from Excel, now with validation and search indexing.
 
-The decisive difference from spreadsheet world: Customermates can be operated by AI agents. Through a built-in [MCP server](https://modelcontextprotocol.io) with 45 tools, Claude, ChatGPT, or Codex can read and write inside the CRM directly, including a native unified inbox across email, LinkedIn, WhatsApp, Instagram, and Telegram. In practice: you forward an email to Claude, and Claude creates the contact, writes the note, updates the deal stage. The data hygiene that's manual in a spreadsheet runs through the agent instead.
+The decisive difference from spreadsheet world: Customermates can be operated by AI agents. Through a built-in [MCP server](https://modelcontextprotocol.io) with 46 tools, Claude, ChatGPT, or Codex can read and write inside the CRM directly, including a native unified inbox across email, LinkedIn, WhatsApp, Instagram, and Telegram. In practice: you forward an email to Claude, and Claude creates the contact, writes the note, updates the deal stage. The data hygiene that's manual in a spreadsheet runs through the agent instead.
 
-Cloud hosting in Germany from €12 per user per month (Starter tier). Self-hosting via `docker compose up -d` is free under [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). Migration from Excel: CSV export, CSV import into Customermates, configure custom fields. With an AI agent, the migration runs in one morning.
+Cloud hosting in the EU region from €12 per user per month (Starter tier). Self-hosting via `docker compose up -d` is free under [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). Migration from Excel: Export the sheet, create the records through the REST API or an AI agent over MCP, configure custom fields. With an AI agent, the migration runs in one morning.
 
 ## Bottom line
 
@@ -263,7 +263,7 @@ Contacts tab: ID, First Name, Last Name, Email, Phone, Company, Role, Lead Sourc
 For multi-user setups yes, because Sheets is built for concurrent editing. Excel is more powerful at pivot tables, macros, and performance on large datasets. For solo founders without multi-user needs, they're roughly equivalent. For 2 to 5 people, I recommend Sheets.
 
 **Is there a free open-source CRM I can use instead?**
-Yes. Customermates is licensed under AGPL-3.0 and free to self-host via `docker compose up -d`. Three containers, 30 minutes, the system is ready. Other options: EspoCRM, SuiteCRM, Krayin. The Customermates cloud version starts at €12 per user per month (Starter) and is hosted in Germany.
+Yes. Customermates is licensed under AGPL-3.0 and free to self-host via `docker compose up -d`. Three containers, 30 minutes, the system is ready. Other options: EspoCRM, SuiteCRM, Krayin. The Customermates cloud version starts at €12 per user per month (Starter) and is hosted in the EU region.
 
 **How many users can collaborate on a Google Sheets CRM?**
 Up to about 5 active editors, in practice. Google Sheets technically supports 100 simultaneous editors, but conflicts on filter views, pivot table refreshes, and concurrent cell edits get unpleasant past 5. For 2 to 3 editors it works smoothly. For 4 to 5 editors, set up protected ranges and clear ownership rules. Above 5, the spreadsheet has aged out and a real CRM saves more time than it costs.

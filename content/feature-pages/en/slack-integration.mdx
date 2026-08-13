@@ -1,11 +1,11 @@
 ---
-title: "CRM Slack Integration: Alerts & Two-Way Sync"
-description: "CRM Slack integration with deal alerts, lead notifications, pipeline digests, and two-way actions via built-in n8n automation. No Zapier needed. EU-hosted."
+title: "CRM Slack Integration: Alerts & Two-Way Actions via n8n"
+description: "Connect Customermates to Slack with your own n8n instance. Deal alerts, lead notifications, pipeline digests, and two-way actions over webhooks and the REST API."
 featureName: Slack Integration
 
 hero:
-  title: Slack Integration That Keeps Your Sales Team in the Loop
-  description: Get deal alerts, lead notifications, and pipeline digests directly in Slack. Create CRM records from Slack messages. Built-in n8n automation means no Zapier subscription needed. Included in every tier, from EUR 12 per user per month.
+  title: Slack Integration, Built on Webhooks and Your Own n8n
+  description: Customermates has no native Slack app. What it has is 26 webhook events, a full REST API, and an MCP endpoint — everything an automation tool needs to post deal alerts into Slack and write back from it. Bring your own n8n, Make, or Zapier.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -13,8 +13,8 @@ hero:
   hint: "✓ No credit card required ✓ First 7 days free"
 
 cta:
-  action: Ready to connect Slack?
-  description: Connect Customermates to your Slack workspace in minutes. Every Slack integration feature is available from day one, no premium tier required.
+  action: Ready to wire Customermates into Slack?
+  description: Start with the webhook and REST documentation, point your automation tool at it, and post your first deal alert into a channel.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -22,112 +22,82 @@ cta:
   hint: "✓ No credit card required ✓ First 7 days free"
 ---
 
-## What Is CRM Slack Integration?
+## What This Page Does and Does Not Claim
 
-CRM Slack integration connects your customer relationship management system to Slack so that notifications, alerts, and updates flow automatically between both platforms. Instead of your team constantly switching to the CRM to check for updates, important events come to them in the communication tool they already have open all day.
+Customermates does not ship a Slack integration. There is no Slack app to install, no Slack settings screen in the product, and no Slack option in the connected-accounts list. The unified inbox covers email, LinkedIn, WhatsApp, Instagram, and Telegram; Slack is not one of its channels.
 
-But modern CRM Slack integration goes beyond one-way notifications. Two-way integration lets your team take CRM actions directly from Slack: create contacts, update deal stages, log notes, and assign tasks without ever opening the CRM interface. Slack becomes a lightweight CRM dashboard where your team can both receive information and act on it.
+What Customermates does ship is the machinery an external automation tool needs to talk to Slack on your behalf: outbound webhooks on 26 record and messaging events, a versioned REST API, and an MCP endpoint. Wire those to [n8n](/docs/n8n), Make, or Zapier, add that tool's Slack node, and you get the behavior described below. The Slack side runs in your automation tool, not in Customermates.
 
-For sales and customer success teams, Slack is the communication hub. Deals close, leads arrive, tasks become overdue, and pipeline milestones are reached throughout the day. Without [CRM integration](/features/crm-integration), team members either miss these events or spend time manually sharing updates. CRM Slack integration automates this information flow and adds the ability to act on it instantly.
+We would rather write that down than let the page imply a product we have not built.
 
-## How Slack Integration Works in Customermates
+## What You Need
 
-Customermates connects to Slack through the built-in n8n automation engine, giving you complete control over notifications, channels, formatting, and two-way actions. No Zapier subscription needed.
+- A Customermates workspace on any tier. Webhooks and the REST API are available from Starter.
+- An automation tool that can receive an HTTP request and post to Slack. [n8n](https://n8n.io/) is the one we document, self-hosted or on n8n's own cloud. It is a separate product with its own pricing; nothing about it is bundled with a Customermates subscription.
+- A Slack workspace where you can authorize that tool.
 
-### CRM-to-Slack Notifications
+## CRM-to-Slack Notifications
 
-**Deal stage notifications.** Send a Slack message when a deal moves to a new stage. Configure which stages trigger notifications and which channels receive them. When a high-value deal reaches "Negotiation," alert the sales director in a private channel. When any deal moves to "Closed Won," post a celebration message in the team channel with deal name, value, and the closing representative.
+The pattern is always the same: Customermates fires a webhook, your automation tool receives it, formats a message, and posts it to Slack. Create the webhook under **Company → Webhooks → New** and choose the events you care about. The payload shape is documented at [Webhooks](/docs/webhooks).
 
-**New lead alerts.** Notify your sales team the moment a new lead enters the CRM. The Slack message includes lead name, company, source, estimated value, and a direct link to the CRM record. Faster lead notification means faster response times. Research shows that responding to a lead within five minutes makes you 21 times more likely to qualify them.
+**Deal change notifications.** Subscribe to `deal.created` and `deal.updated` and post to a channel when a deal changes. Deal stage is a single-select custom column rather than a fixed product field, so your workflow reads the column value from the payload and branches on it — which also means you can alert on any custom column, not only stage.
 
-**Task and reminder notifications.** Send Slack reminders for upcoming deadlines, overdue tasks, and newly assigned tasks. Your team sees CRM tasks alongside their Slack conversations so nothing falls through the cracks.
+**New lead alerts.** Subscribe to `contact.created` and notify the team the moment a record lands. Include the fields you care about and a link back to the record.
 
-**Pipeline summary reports.** Schedule automated pipeline digests that post to Slack daily or weekly. Morning pipeline snapshots include total pipeline value, deals per stage, deals closed this week, and deals overdue for follow-up. The entire team stays aligned without a standing meeting.
+**Pipeline summary reports.** Webhooks are event-driven, so a digest is a scheduled job in your automation tool: run on a cron, call `GET /api/v1/deals`, aggregate, post the summary. The REST API is documented in the [OpenAPI spec](/docs/openapi).
 
-**Custom event notifications.** Trigger Slack messages for any CRM event that n8n can detect. Contact updated, note added, deal value changed, custom field modified, or meeting logged. You define exactly which events generate notifications, which channels receive them, and what information is included.
+**Messaging alerts.** Subscribe to `messaging.message.received` or `messaging.email.received` to route new inbound conversations into Slack. These events require a messaging tier.
 
-### Slack-to-CRM Actions
+## Slack-to-CRM Actions
 
-**Create contacts from Slack.** When someone mentions a prospect in a Slack conversation, create a CRM contact directly from the message. No need to switch to the CRM, open a browser, and fill out a form. The contact is created with the information from the Slack message and linked back to the conversation.
+The reverse direction runs through the REST API or MCP, again driven by your automation tool.
 
-**Update deal stages from Slack.** After a call or meeting, update a deal stage directly from Slack. The n8n workflow receives the update command, modifies the deal in the CRM, and confirms the change in the channel.
+**Create records from Slack.** A Slack shortcut or slash command triggers your workflow, which calls `POST /api/v1/contacts` with an `x-api-key` header. The same pattern works for organizations, deals, services, and tasks.
 
-**Log notes from Slack.** Capture important context from Slack conversations as CRM notes. When a team member shares customer feedback, competitive intelligence, or meeting takeaways in a channel, log that information on the relevant contact or deal record without leaving Slack.
+**Update records from Slack.** `PATCH` the record. Relations are a separate concern: they change only through the dedicated links endpoint and the `manage_record_links` MCP tool, never through a plain field update.
 
-**Assign tasks from Slack.** Create and assign CRM tasks from a Slack message. When a manager identifies a follow-up action in a conversation, they can create a task assigned to the right team member with a due date, all from within Slack.
+**Log notes from Slack.** Post the Slack message body onto the record's notes through the API or the `update_record_notes` MCP tool.
 
-### Rich Message Formatting
+**Let an agent do it.** Instead of hand-building each call, point an MCP-speaking agent at `/api/v1/mcp` and let it interpret the Slack message. That is the same 46-tool surface Claude, ChatGPT, and Gemini use.
 
-Slack messages from Customermates include rich formatting with deal details, contact information, value amounts, and direct links back to the relevant CRM record. One click takes your team from the Slack notification to the full CRM record with all context. Messages are clean, structured, and actionable.
+## What This Is Not
 
-## Key Benefits
+**It is not a one-click install.** You are building and maintaining workflows in a separate tool. That is real setup work, and it is honest to say so.
 
-**Instant awareness.** Your team learns about important CRM events the moment they happen, not when they next check the CRM. Deal wins, new leads, overdue tasks, and pipeline changes appear in Slack in real time.
+**It is not included in your subscription.** Customermates does not resell, host, or bundle n8n. If your automation tool costs money, that cost is yours.
 
-**Two-way workflow.** Slack becomes more than a notification channel. Your team can create contacts, update deals, log notes, and assign tasks from Slack. This reduces context switching and makes it faster to act on information.
+**It is not a Slack inbox.** Slack conversations do not appear in the unified inbox and are not stored as CRM messages. What you get is notifications out and API calls in.
 
-**Reduced context switching.** Your team receives relevant CRM updates in the tool they already use instead of switching between Slack and the CRM throughout the day. Information comes to them rather than requiring them to go looking for it.
+**Nothing is rate-limit-free.** Slack, your automation tool, and the Customermates API each apply their own limits. See [messaging rate limits](/docs/messaging-rate-limits) for the parts we control.
 
-**Configurable signal-to-noise ratio.** Not every CRM event deserves a Slack notification. With n8n, you control exactly which events trigger messages, which channels receive them, and what information is included. Keep notifications valuable by filtering out noise.
+## Why Build It This Way
 
-**Team celebration and motivation.** Automatic deal-won announcements in Slack build team morale and create a shared sense of progress. The sales team sees wins as they happen, creating positive momentum without anyone remembering to share the news.
+**No lock-in to one integration.** The same webhook and REST surface that drives Slack drives Microsoft Teams, Discord, a data warehouse, or an internal service. We did not have to ship a Slack integration for you to have one.
 
-**Asynchronous team alignment.** Pipeline summaries and activity digests keep distributed and remote teams aligned on [sales](/features/sales) progress. Everyone sees the same data at the same time, regardless of time zones. No more "what happened this week" emails.
+**You control the signal.** Which events fire, which channels receive them, and what each message contains are decisions in your workflow, not toggles we guessed at.
 
-**Faster lead response.** Instant lead alerts in Slack mean your team can respond to new prospects within minutes instead of hours. The difference between a five-minute response and a thirty-minute response can determine whether you win or lose the deal.
-
-## Common Slack Integration Workflows
-
-**Deal-won announcement.** When a deal is marked as won, post a formatted message to the sales team channel. Include deal name, value, customer name, and closing representative. Add a link to the deal record. The team celebrates every win together.
-
-**High-value lead alert.** When a lead enters the [pipeline](/features/pipeline) with a value above a defined threshold, send an immediate notification to a priority channel. Include lead details, source, and a direct link. Ensure high-value opportunities get immediate attention.
-
-**Daily pipeline digest.** Every morning at 9 AM, post a summary of the current pipeline state. Include total pipeline value, number of deals per stage, deals that advanced yesterday, deals overdue for [follow-up](/features/follow-up), and the week's win total. Replace the daily standup with data.
-
-**Overdue task alert.** When a task becomes overdue, send a direct message to the task owner. A timely nudge prevents a forgotten follow-up from becoming a lost opportunity. Escalate to the manager's channel if the task remains overdue for 24 hours.
-
-**Stale deal warning.** When a deal has not been updated within a defined period (for example, seven days), post a warning to the deal owner's channel. Stale deal notifications keep the pipeline clean and deals moving forward.
-
-**Meeting summary sharing.** After a meeting note is logged on a deal, share a summary in the relevant team channel. Stakeholders stay informed about customer conversations without separate status emails or meetings.
-
-**New customer onboarding trigger.** When a deal moves to "Closed Won," post in the customer success channel with the customer details and assign onboarding tasks. The handoff from sales to success happens automatically.
-
-## Why Choose Customermates for Slack Integration
-
-**No Zapier needed.** The Slack integration runs through the built-in n8n engine. No separate Zapier or Make subscription required. Workflows that would cost $20 to $50 per month on Zapier are included in your Customermates subscription at no extra cost.
-
-**Two-way, not just notifications.** Most CRM Slack integrations only push notifications from CRM to Slack. Customermates supports bidirectional workflows where your team can create, update, and manage CRM data from within Slack.
-
-**Open source and fully customizable.** The integration runs through n8n, which is open source. Customize every aspect: triggers, conditions, message formatting, channel routing, and response actions. If you can describe the workflow, you can build it.
-
-**EU-hosted and GDPR-compliant.** All CRM data powering your Slack notifications is stored in European data centers with full GDPR and DSGVO compliance. Notification workflows run on GDPR-compliant infrastructure.
-
-**Simple, fair pricing.** Slack integration is included from the EUR 12 per user per month Starter tier, since it runs on the core n8n engine. It is separate from the native unified inbox (email, LinkedIn, WhatsApp, Instagram, and Telegram), which AI agents can also operate and which is included from the Pro tier. No per-notification charges. Unlimited notifications, unlimited workflows, unlimited channels.
-
-**n8n visual workflow builder.** Build and modify Slack notification workflows visually without coding. Add new notifications, adjust triggers, change message formats, and route to different channels through the drag-and-drop interface.
-
-**Self-hostable for full control.** Deploy on your own infrastructure and keep all notification logic and Slack OAuth credentials on your servers. No third-party vendor processes your Slack integration data.
+**The core is inspectable.** The AGPL core CRM, webhook payloads, REST contract, and MCP tool definitions are in the repository. Self-hosting runs the core application and PostgreSQL under Starter entitlements; Slack and n8n remain external.
 
 ## Frequently Asked Questions
 
-**Do I need Zapier to connect Slack to Customermates?**
-No. Customermates includes the n8n automation engine which connects directly to Slack. No Zapier, Make, or any other third-party automation platform is needed. The Slack connection is built in and included in the standard price.
+**Does Customermates have a native Slack integration?**
+No. There is no Slack app, no Slack channel in the unified inbox, and no Slack screen in the product. Everything on this page is built with an external automation tool against the webhook and REST surfaces.
 
-**Can I create CRM records from Slack?**
-Yes. With n8n workflows, you can create contacts, deals, tasks, and notes from Slack messages. Two-way integration means Slack is not just for receiving notifications but also for taking CRM actions.
+**Is n8n included with Customermates?**
+No. n8n is a separate open-source product. You self-host it or subscribe to n8n's cloud. Customermates publishes a [community node](https://github.com/customermates/n8n-nodes-crm) for it and documents the [integration patterns](/docs/n8n), and that is the extent of the relationship.
 
-**Which Slack channels can receive notifications?**
-Any channel in your Slack workspace, including public channels, private channels, and direct messages. Each n8n workflow can target different channels based on the event type, deal value, team assignment, or any other criteria.
+**Can I use Zapier or Make instead?**
+Yes. Nothing in the webhook or REST surface is n8n-specific. Any tool that can receive an HTTP POST and call an HTTP API will work.
 
-**Can I customize the notification messages?**
-Yes. Message content, formatting, and structure are fully customizable in the n8n workflow builder. You control exactly what information appears in each Slack notification, including dynamic data from CRM records.
+**Which events can I subscribe to?**
+26 events across records and messaging. The full list is at [Webhooks](/docs/webhooks).
 
-**Is there a limit to how many notifications I can send?**
-No. There are no per-notification charges and no caps on the number of Slack messages sent. Send as many notifications as your workflows generate.
+**Can I post CRM data into Slack without writing code?**
+Yes, in the sense that n8n, Make, and Zapier are visual builders. You still design the workflow yourself; there is no preconfigured Customermates-to-Slack template shipped by us.
 
-**Can I schedule recurring pipeline reports in Slack?**
-Yes. n8n supports cron-based scheduling. You can configure daily, weekly, or custom-interval pipeline digests that post automatically to your chosen Slack channel at the time you specify.
+**Will there ever be a native Slack integration?**
+It is not on the roadmap as a committed item, and we will not list it here until it exists.
 
-## Get Started with Slack Integration Today
+## Get Started
 
-Connect Customermates to Slack in minutes. Open the n8n workflow builder, add the Slack node, authorize your workspace with one click, and configure your first notification. Start with a deal-won announcement or a daily pipeline digest, then expand to lead alerts, task reminders, and two-way actions as your team gets comfortable. Every Slack integration capability is available from day one.
+Read [Webhooks](/docs/webhooks) for the event payloads and [n8n](/docs/n8n) for the wiring patterns. Create a webhook in **Company → Webhooks**, point it at your automation tool, add the Slack node, and send your first `deal.updated` message into a channel. From there, everything else on this page is the same pattern with different events.

@@ -1,11 +1,11 @@
 ---
 title: "Lead Management: Leads erfassen & konvertieren"
-description: "Lead Management Software mit visuellen Pipelines, Lead-Scoring und automatisierten Follow-ups. Open-Source CRM, EU-gehostet, DSGVO-konform. Ab €12/Nutzer."
+description: "Lead Management Software mit visuellen Pipelines und eigenen Qualifizierungsfeldern. Lead-Scoring und automatisierte Follow-ups bleiben extern. Open-Source CRM ab €12/Nutzer."
 featureName: Lead Management
 
 hero:
   title: Lead Management Software, die Interessenten in Kunden verwandelt
-  description: Verfolgen Sie jeden Lead vom ersten Kontakt bis zum Abschluss. KI-Agenten halten Datensätze aktuell und entwerfen Follow-ups, ein natives gemeinsames Postfach erfasst Gespräche aus E-Mail, LinkedIn, WhatsApp, Instagram und Telegram, und visuelle Pipelines halten Ihr Team auf das fokussiert, was konvertiert.
+  description: Verfolgen Sie jeden Lead vom Erstkontakt bis zum Abschluss. Unterstützte externe KI-Clients aktualisieren zulässige Datensätze und entwerfen einzelne Follow-ups per MCP, das gemeinsame Postfach erfasst unterstützte Gespräche, und visuelle Pipelines fokussieren Ihr Team.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -38,7 +38,7 @@ Lead Management ist das Front-End eines CRM. Die meisten modernen CRM-Systeme en
 
 ### Schritt 1: Leads erfassen
 
-Leads kommen aus verschiedenen Quellen: Website-Formulare, E-Mail-Anfragen, Messen, Empfehlungen, Social Media und Direktnachrichten. Customermates erfasst sie auf zwei nativen Wegen. Das gemeinsame Postfach holt Gespräche aus E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ins CRM (ab der Pro-Stufe enthalten), und [n8n-Automatisierung](/features/workflow-automation) leitet Leads aus Webformularen und externen Tools direkt in Ihre Pipeline. KI-Agenten können Kontakt und Deal über die native MCP-Integration für Sie anlegen, sodass nichts davon abhängt, dass sich jemand an die Eingabe erinnert.
+Leads kommen aus Website-Formularen, E-Mail-Anfragen, Messen, Empfehlungen, Social Media und Direktnachrichten. Das Pro-Postfach bringt unterstützte Gespräche ins CRM. Ein separater [n8n-Workflow](/features/workflow-automation) kann Daten externer Formulare empfangen und unterstützte Datensätze per REST anlegen; ein konfigurierter externer KI-Client kann Kontakte oder Deals per MCP erstellen. Customermates besitzt keine native Formular- oder Routing-Engine.
 
 ### Schritt 2: Bewerten und qualifizieren
 
@@ -46,11 +46,11 @@ Nicht alle Leads sind gleich wertvoll. Lead-Scoring bewertet Interessenten nach 
 
 ### Schritt 3: An den richtigen Mitarbeiter zuweisen
 
-Leiten Sie qualifizierte Leads an den Vertriebsmitarbeiter weiter, der am besten zum Abschluss bringen kann, nach Region, Branche, Deal-Größe oder Auslastung. Automatische Lead-Zuweisung per [Workflow-Automatisierung](/features/workflow-automation) eliminiert die Verzögerung zwischen Qualifizierung und erstem Kontakt.
+Leiten Sie qualifizierte Leads in einem separat betriebenen [Workflow-System](/features/workflow-automation) nach Region, Branche, Deal-Größe oder Auslastung weiter. Es berechnet die Zuweisung und schreibt unterstützte Felder per REST; Customermates besitzt keine native Routing-Engine.
 
 ### Schritt 4: Pflegen und nachfassen
 
-Die meisten Leads sind nicht sofort kaufbereit. Automatisierte Nurturing-Sequenzen, Mehrwert-E-Mails, Case Studies, Produktupdates, halten Ihr Unternehmen präsent. Customermates integriert sich mit [E-Mail-Tools](/features/email-integration) und n8n, um personalisierte [Follow-up-Sequenzen](/blog/sales-follow-up-email) basierend auf Lead-Verhalten auszulösen.
+Die meisten Leads sind nicht sofort kaufbereit. Mehrwert-E-Mails, Case Studies und Produktupdates halten Ihr Unternehmen präsent. Customermates verbindet sich mit [E-Mail-Tools](/features/email-integration) und einer separaten n8n-Instanz, damit externe Anbieter personalisierte [Follow-up-Sequenzen](/blog/sales-follow-up-email) ausführen können.
 
 ### Schritt 5: Konvertieren und analysieren
 
@@ -61,13 +61,13 @@ Wenn ein Lead konvertiert, bewegt sich der Deal durch Ihre [Pipeline-Stufen](/fe
 | Funktion | Customermates | HubSpot | Salesforce | Pipedrive |
 |----------|--------------|---------|------------|-----------|
 | Visuelle Pipeline | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> |
-| Lead-Scoring | <StatusAvailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
-| Automatische Lead-Zuweisung | <StatusAvailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
-| E-Mail-Nurturing-Sequenzen | <StatusAvailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
+| Natives Lead-Scoring | <StatusUnavailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
+| Native automatische Lead-Zuweisung | <StatusUnavailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
+| Native E-Mail-Nurturing-Sequenzen | <StatusUnavailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
 | Benutzerdefinierte Felder (10 Typen) | <StatusAvailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
 | Quellen-Attribution | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> |
 | Open Source | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
-| EU-Hosting / DSGVO | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> |
+| Gehostete Datenbank in einer EU-Region | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> |
 | Self-Hosting-Option | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 | Preis (pro Nutzer/Monat) | Ab €12 | 90 €+ | 25 €+ | 14 €+ |
 
@@ -87,7 +87,7 @@ Direkt vergleichen: [vs. HubSpot](/compare/hubspot-alternative) · [vs. Salesfor
 
 Für europäische Unternehmen ist DSGVO-Konformität bei der Lead-Verwaltung keine Option, sondern Pflicht. Jede Erfassung personenbezogener Daten, Name, E-Mail, Telefonnummer, Unternehmen, unterliegt strengen Datenschutzregeln.
 
-Customermates ist DSGVO-nativ: Alle Lead-Daten werden in europäischen Rechenzentren gespeichert. Integriertes [Audit-Logging](/features/integrations) dokumentiert jeden Datenzugriff. Löschfristen und Einwilligungsverwaltung lassen sich über benutzerdefinierte Felder und n8n-Workflows abbilden. Für maximale Kontrolle können Sie Customermates auch [auf eigener Infrastruktur betreiben](/features/self-hosted).
+Bei Customermates läuft die verwaltete Datenbank in einer EU-Region. Anwendungshosting und weitere Anbieter, darunter US-Anbieter, sind separat dokumentiert; AVV und SCCs stehen bereit, eine Compliance-Zertifizierung besteht nicht. Löschfristen und Einwilligungsverwaltung lassen sich über benutzerdefinierte Felder und separat betriebene n8n-Workflows abbilden. Für zusätzliche Kontrolle können Sie Customermates [auf eigener Infrastruktur betreiben](/features/self-hosted).
 
 Im Vergleich: HubSpot speichert Daten in den USA. Salesforce bietet EU-Hosting nur in teuren Enterprise-Tarifen. Pipedrive hostet teilweise in der EU, bietet aber kein Self-Hosting.
 
@@ -95,25 +95,25 @@ Im Vergleich: HubSpot speichert Daten in den USA. Salesforce bietet EU-Hosting n
 
 **B2B-Vertriebsteams** nutzen Lead Management Software, um lange Vertriebszyklen mit mehreren Entscheidern zu verfolgen. Benutzerdefinierte Felder erfassen Entscheider-Rollen, Budget-Timelines und Wettbewerbsanalysen. Pipeline-Stufen bilden den tatsächlichen Kaufprozess ab.
 
-**Agenturen** verwalten sowohl eigene Kundenleads als auch die Lead-Generierungskampagnen ihrer Klienten. Separate Pipelines pro Kunde, getaggt nach Kampagnenquelle, geben Agenturen volle Transparenz über die Performance.
+**Agenturen** verwalten eigene Kundenleads und Kampagnen ihrer Klienten. Separate Pipelines plus ein Einfachauswahlfeld für die Kampagnenquelle geben klare Sicht auf gespeicherte Performance-Daten.
 
-**E-Commerce-Unternehmen** verfolgen Leads aus abgebrochenen Warenkörben, Produktanfragen und Großhandelsanfragen. Automatisierte Nurturing-Sequenzen reaktivieren Interessenten mit zielgerichteten Angeboten basierend auf Browsing-Verhalten.
+**E-Commerce-Unternehmen** verfolgen Leads aus abgebrochenen Warenkörben, Produktanfragen und Großhandelsanfragen. Nurturing-Sequenzen in einem externen Anbieter können Interessenten mit zielgerichteten Angeboten auf Basis extern erfassten Browsing-Verhaltens reaktivieren.
 
 **Startups** brauchen schnelles, schlankes Lead Management ohne wochenlange Einrichtung. Customermates bringt das [CRM für Startups](/for/startups) in Minuten zum Laufen, mit Leads über die API oder n8n und einer visuellen Pipeline, die Sie selbst konfigurieren.
 
 ## Warum Customermates als Lead Management Software?
 
-**CRM und Lead Management in einem.** Keine separaten Tools für Lead-Erfassung, Nurturing und Kundenverwaltung. Customermates deckt den gesamten Lebenszyklus ab, vom anonymen Besucher zum langfristigen Kunden, in einer einzigen Plattform.
+**CRM-Datensätze und offene Schnittstellen.** Customermates verwaltet unterstützte Lead- und Kundendaten in konfigurierbaren Pipelines. Erfassung, Nurturing und Routing können separate Anbieter übernehmen, die über REST, Webhooks, MCP oder n8n angebunden sind.
 
-**KI-Agenten übernehmen die Dateneingabe.** Über die native MCP-Integration (45 Tools) lesen und beschreiben Claude, ChatGPT und Gemini das CRM direkt. Sie legen Leads an, verschieben Deal-Phasen und entwerfen Follow-ups, sodass Mitarbeiter das System nicht mehr meiden und die Pipeline korrekt bleibt.
+**Externe KI-Clients übernehmen zulässige Dateneingabe.** Unterstützte Clients wie Claude, ChatGPT oder Gemini können mit 46 MCP-Tools Datensätze anlegen, Deal-Phasen verschieben oder einzelne Follow-ups entwerfen. Customermates enthält weder KI-Client noch Modell, Abonnement, Anreicherung oder Lead-Scoring.
 
-**n8n-Automatisierung inklusive.** Erstellen Sie visuelle Lead-Management-Workflows: Auto-Erfassung aus Formularen → Bewerten → Zuweisen → Pflegen → Benachrichtigen. Verbinden Sie [hunderte Tools](https://n8n.io) ohne Programmierung. Kein separates Automatisierungs-Abo. Mehr zur [Workflow-Automatisierung](/features/workflow-automation).
+**Separate n8n-Automatisierung unterstützt.** Verbinden Sie eine eigene oder abonnierte n8n-Instanz über REST, Webhooks, MCP oder Community-Node. Externe Formulare, Scoring, Zuweisung, Nurturing, Benachrichtigungen, Konnektoren, Laufzeit, Logs, Limits und Kosten bleiben außerhalb von Customermates.
 
-**Open Source und transparent.** Prüfen Sie den Code, erweitern Sie ihn oder [hosten Sie ihn selbst](/features/self-hosted) auf Ihrer eigenen Infrastruktur. Kein Vendor Lock-in, keine versteckten Einschränkungen.
+**Open-Source-Kern.** Prüfen oder erweitern Sie die AGPL-Kern-CRM-Anwendung oder [hosten Sie sie selbst](/features/self-hosted) mit PostgreSQL unter Starter-Berechtigungen. Externe Anbieter bleiben separat.
 
-**EU-gehostet und DSGVO-nativ.** Alle Lead-Daten in europäischen Rechenzentren gespeichert. [Audit-Logging](/features/integrations) für Compliance. Keine transatlantischen Datentransfers.
+**EU-Datenbankregion mit dokumentierten Anbietern.** Die gehostete Datenbank läuft in einer EU-Region. Anwendungshosting und verbundene Anbieter, darunter US-Anbieter, können Daten andernorts verarbeiten; das ist keine DSGVO- oder andere Compliance-Zertifizierung.
 
-**Ab €12/Nutzer/Monat.** Lead Management, [Pipeline](/features/pipeline), [Kontaktverwaltung](/features/contact-management), n8n-Automatisierung, benutzerdefinierte Felder, die REST API und nativer KI-/MCP-Zugang sind ab der Starter-Stufe enthalten. Das gemeinsame Postfach (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram) ist ab der Pro-Stufe für 29 €/Nutzer/Monat enthalten, gemeinsam genutzte Team-Konten ab der Business-Stufe für 69 €. [Preise ansehen →](/pricing)
+**Ab €12/Nutzer/Monat.** Lead Management, [Pipeline](/features/pipeline), [Kontaktverwaltung](/features/contact-management), eigene Felder, REST, Webhooks und MCP starten mit Starter. n8n und KI-Clients bleiben separat. Das gemeinsame Postfach startet mit Pro bei €29/Nutzer/Monat, gemeinsam genutzte Team-Konten mit Business bei €69/Nutzer/Monat. [Preise ansehen →](/pricing)
 
 ## Häufig gestellte Fragen
 
@@ -127,11 +127,11 @@ Lead Management konzentriert sich auf den Akquisitionsprozess: Interessenten erf
 
 ### Wie wähle ich die richtige Lead Management Software?
 
-Achten Sie auf: visuelle Pipeline-Verwaltung, Lead-Scoring, automatisierte Follow-ups, Integration mit Ihren E-Mail- und Marketing-Tools sowie transparente Preisgestaltung. Für europäische Unternehmen sind DSGVO-Konformität und EU-Datenhosting essenziell. Vermeiden Sie Systeme, die Automatisierung hinter teuren Upgrades verstecken.
+Achten Sie auf visuelle Pipeline-Verwaltung, dokumentierte Schnittstellen, Integration mit Ihren E-Mail- und Marketing-Tools sowie transparente Preisgestaltung. Für europäische Unternehmen sind DSGVO-Dokumentation und nachvollziehbare Datenstandorte essenziell; prüfen Sie externe Scoring-, Follow-up- und Automatisierungsanbieter separat.
 
 ### Kann ich Lead Management automatisieren?
 
-Ja. Mit Customermates und [n8n-Automatisierung](/features/workflow-automation) automatisieren Sie Lead-Erfassung, Scoring, Zuweisung, Nurturing-Sequenzen und Benachrichtigungen, alles visuell konfiguriert, ohne Programmierung.
+Ja, über separate Tools. Verbinden Sie Ihre [n8n-Automatisierung](/features/workflow-automation), um Scoring oder Zuweisung zu berechnen, externe Formulare zu empfangen und Nurturing oder Benachrichtigungen mit externen Anbietern zu koordinieren. Customermates liefert CRM-Datensätze und offene Schnittstellen, nicht diese Engines.
 
 ### Was kostet Lead Management Software?
 
@@ -139,6 +139,6 @@ Die Preise variieren stark: HubSpot bietet eine limitierte kostenlose Version, b
 
 ## Jetzt mit Lead Management starten
 
-Bringen Sie bestehende Leads über die API, n8n oder einen KI-Agenten ein, konfigurieren Sie Ihre Pipeline-Stufen und verfolgen Sie jeden Interessenten in wenigen Minuten. Keine Kreditkarte für die ersten sieben Tage erforderlich.
+Bereiten Sie bestehende Leads außerhalb von Customermates auf und erstellen Sie unterstützte Datensätze über eine kundenseitige REST-Integration, einen separaten n8n-Workflow oder einen unterstützten externen KI-Client per MCP. Konfigurieren Sie Ihre Pipeline-Stufen; externe Laufzeiten und Anbieter bleiben separat.
 
 [Customermates kostenlos testen →](/auth/signup)

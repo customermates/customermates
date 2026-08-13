@@ -1235,32 +1235,32 @@
       "ctaText": "Start free",
       "featureBusiness": "Business: 3 accounts per user, shared accounts & priority support",
       "featurePro": "Pro: unified inbox, 1 connected account per user",
-      "featureStarter": "Starter: the full CRM",
+      "featureStarter": "Starter: the core CRM",
       "period": "/ user / month",
       "price": "from €12",
-      "tag": "Managed in Frankfurt. Start free, no credit card.",
+      "tag": "Managed for you; database in an EU region. Other providers may process data elsewhere.",
       "title": "Cloud"
     },
     "compare": {
       "cancelAnytime": "Cancel anytime",
-      "gdpr": "GDPR compliant",
+      "gdpr": "EU database region; no certification claim",
       "noLimits": "Transparent tiers",
       "openSource": "Open core"
     },
     "eyebrow": "Pricing",
     "selfHosted": {
       "ctaText": "Download",
-      "featureApi": "All API, MCP & webhooks",
+      "featureApi": "Documented API, MCP & webhook interfaces",
       "featureCommunity": "Community support",
-      "featureN8n": "n8n integrations",
-      "featureRecords": "Unlimited records",
-      "featureUsers": "Unlimited users",
-      "period": "forever",
-      "price": "Free",
-      "tag": "Run on your server with Docker Compose. AGPL Community Edition with source-available components.",
+      "featureN8n": "Interfaces for a separate n8n instance",
+      "featureRecords": "Core CRM records",
+      "featureUsers": "Workspace users",
+      "period": "under AGPL",
+      "price": "Free core",
+      "tag": "Run the AGPL core app and PostgreSQL on your server with Docker Compose at Starter scope. External services stay separate.",
       "title": "Self-Hosted"
     },
-    "subtitle": "Transparent tiers, no hidden costs. Self-host free forever, or start on Cloud with no credit card.",
+    "subtitle": "Transparent tiers, no hidden costs. Self-host the AGPL core for free; external services stay separate. Or start on Cloud with no credit card.",
     "title": "Simple, honest, European"
   },
   "HomepageStatsRow": {

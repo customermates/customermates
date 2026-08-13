@@ -289,7 +289,7 @@ Neuer Lead kommt an (Webhook / CRM-Trigger / Formular)
 ### Schritt-für-Schritt-Umsetzung
 
 **1. Trigger: Neue Leads erfassen.**
-Verwenden Sie einen n8n-Webhook-Node oder einen CRM-Trigger. Bei [Customermates](/) lösen neue Kontakte automatisch Workflows über die native n8n-Integration aus. Alternativ lassen sich Webformulare, E-Mail-Parser oder Chatbot-Ausgaben anbinden.
+Verwenden Sie einen n8n-Webhook-Node oder einen CRM-Trigger. Bei [Customermates](/) lösen neue Kontakte automatisch Workflows über die separate n8n-Integration aus. Alternativ lassen sich Webformulare, E-Mail-Parser oder Chatbot-Ausgaben anbinden.
 
 **2. Lead-Daten anreichern (optional).**
 Vor dem Scoring können Sie zusätzlichen Kontext ergänzen. Nutzen Sie einen HTTP-Request-Node, um Unternehmensdaten von Clearbit, Apollo oder LinkedIn abzurufen. Mehr Kontext verbessert die Scoring-Genauigkeit. Selbst Basis-Anreicherung (Unternehmensgröße, Branche, Standort) kann den ICP-Fit-Score eines Leads von "Unbekannt" zu "Stark" oder "Schwach" verschieben.
@@ -301,7 +301,7 @@ Fügen Sie einen OpenAI-Node hinzu. Setzen Sie den BANT-, MEDDIC- oder ANUM-Prom
 Nutzen Sie einen Code-Node oder JSON-Parser, um die einzelnen Scores, die Klassifizierung und die empfohlene Aktion aus der ChatGPT-Antwort zu extrahieren. Mappen Sie diese auf Variablen für die nächsten Schritte.
 
 **5. CRM aktualisieren.**
-Fügen Sie einen CRM-Node hinzu, um die Ergebnisse zu schreiben. In Customermates mappen Sie den Gesamtscore auf ein Custom-Feld, setzen die Klassifizierung als Tag und fügen das detaillierte Scoring als Notiz hinzu. So ist die Qualifizierung auf der Deal-Karte sichtbar, ohne einen separaten Report öffnen zu müssen.
+Fügen Sie einen CRM-Node hinzu, um die Ergebnisse zu schreiben. In Customermates mappen Sie den Gesamtscore auf ein Custom-Feld, setzen die Klassifizierung als Einfachauswahl-Spalte und fügen das detaillierte Scoring als Notiz hinzu. So ist die Qualifizierung auf der Deal-Karte sichtbar, ohne einen separaten Report öffnen zu müssen.
 
 **6. Routing nach Klassifizierung.**
 Nutzen Sie einen If-Node, um den Workflow zu verzweigen:
@@ -389,7 +389,7 @@ Teams, die von manueller auf KI-gestützte Qualifizierung umstellen, sehen typis
 
 Ihr CRM muss Custom-Felder, Tagging und Automatisierungs-Trigger unterstützen, damit dieser Workflow reibungslos funktioniert.
 
-**Customermates.** Ab 12 EUR/Nutzer/Monat (Starter), das volle Kern-CRM inklusive. Custom-Felder für Scores, Tags für Klassifizierung, native n8n-Integration für automatische Updates, DSGVO-konformes EU-Hosting. Über die native MCP-Integration (45 Tools) bedienen Claude, ChatGPT oder Gemini das CRM direkt, und ein vereinheitlichter Posteingang bringt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ab der Pro-Stufe an einem Ort zusammen. Automatisierung ist in jeder Stufe enthalten, Sie zahlen also nicht extra für Funktionen, die Enterprise-CRMs hinter höheren Tarifen verstecken.
+**Customermates.** Ab 12 EUR/Nutzer/Monat (Starter), das volle Kern-CRM inklusive. Custom-Felder für Scores, Tags für Klassifizierung, native n8n-Integration für automatische Updates, DSGVO-konformes EU-Hosting. Über die native MCP-Integration (46 Tools) bedienen Claude, ChatGPT oder Gemini das CRM direkt, und ein vereinheitlichter Posteingang bringt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ab der Pro-Stufe an einem Ort zusammen. Automatisierung ist in jeder Stufe enthalten, Sie zahlen also nicht extra für Funktionen, die Enterprise-CRMs hinter höheren Tarifen verstecken.
 
 **HubSpot.** Lead-Scoring ist im Professional-Plan verfügbar (ab etwa 90 EUR pro Sitz und Monat). Das integrierte Scoring ist regelbasiert, nicht KI-gestützt. Für KI-Scoring über n8n funktioniert der kostenlose CRM-Tarif, bietet aber keine fortgeschrittenen Automatisierungs-Trigger.
 
@@ -421,7 +421,7 @@ Bauen Sie eine Feedback-Schleife ein. Wenn ein Vertriebsmitarbeiter mit einem KI
 
 ### Ist es DSGVO-konform, Lead-Daten an ChatGPT zu senden?
 
-Bei Nutzung der OpenAI-API mit Business-Vereinbarung und AVV werden Daten verarbeitet, aber nicht für Training verwendet. Für maximale Compliance minimieren Sie die gesendeten personenbezogenen Daten (Firmenname und Nachrichteninhalt statt persönlicher E-Mail-Adressen) und erwägen Sie ein selbst gehostetes LLM über Ollama für sensible Daten. Auf CRM-Seite speichert Customermates Daten standardmäßig in der EU und ist vollständig DSGVO-konform.
+Bei Nutzung der OpenAI-API mit Business-Vereinbarung und AVV werden Daten verarbeitet, aber nicht für Training verwendet. Für maximale Compliance minimieren Sie die gesendeten personenbezogenen Daten (Firmenname und Nachrichteninhalt statt persönlicher E-Mail-Adressen) und erwägen Sie ein selbst gehostetes LLM über Ollama für sensible Daten. Auf CRM-Seite speichert Customermates Daten standardmäßig in der EU und stellt AVV und SCCs bereit, besitzt aber keine Compliance-Zertifizierung.
 
 ### Lohnt sich Automatisierung auch bei nur 20 Leads pro Monat?
 

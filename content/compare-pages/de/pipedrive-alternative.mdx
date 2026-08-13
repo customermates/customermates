@@ -38,7 +38,7 @@ comparison:
         competitor: Mittel bis hoch
   - title: KI & Unified Inbox
     features:
-      - name: KI-Agenten bedienen das CRM (natives MCP, 45 Tools)
+      - name: KI-Agenten bedienen das CRM (natives MCP, 46 Tools)
         source: true
         competitor: Nur KI-Assistent
       - name: Native Unified Inbox (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram)
@@ -72,11 +72,11 @@ comparison:
         competitor: true
   - title: Datenschutz & Sicherheit
     features:
-      - name: DSGVO-konform
-        source: true
+      - name: DSGVO-Dokumentation
+        source: AVV + SCCs; keine Zertifizierung
         competitor: Teilweise
       - name: Hosting
-        source: EU / Deutschland
+        source: EU-Datenbankregion
         competitor: EU & USA gemischt
       - name: Self-Hosting-Option
         source: true
@@ -85,21 +85,21 @@ comparison:
         source: Vollständig
         competitor: Eingeschränkt
       - name: Audit-Log
-        source: true
+        source: Nicht beworben bis zur Dokumentationsklärung
         competitor: true
   - title: Integration & Automatisierung
     features:
-      - name: n8n-Automatisierungs-Engine
-        source: Inklusive
+      - name: Externe n8n-Integration
+        source: Separate Community-Node + REST/Webhooks
         competitor: Nicht enthalten
       - name: Workflow-Automatisierung
-        source: Alle Pläne
+        source: Über separat betriebenes n8n
         competitor: Ab Growth-Plan (€39/Monat)
       - name: API-Zugriff
         source: true
         competitor: true
       - name: Automatisierungs-Trigger
-        source: Unbegrenzt
+        source: Durch externen Workflow bestimmt
         competitor: Planabhängig begrenzt
   - title: Team & Zusammenarbeit
     features:
@@ -109,8 +109,8 @@ comparison:
       - name: Rechtemanagement
         source: true
         competitor: true
-      - name: Benachrichtigungen
-        source: true
+      - name: Benachrichtigungszentrum
+        source: false
         competitor: true
 
 cta:
@@ -129,7 +129,7 @@ cta:
 
 Teams wechseln aus mehreren wiederkehrenden Gründen von Pipedrive. Die häufigsten Beschwerden betreffen das Erreichen von Datensatzlimits auf niedrigeren Plänen, das Bezahlen von Add-ons, die Kernfunktionen sein sollten, eingeschränkte Automatisierung ohne Upgrade sowie Bedenken beim Datenhosting außerhalb der EU. Wenn Ihnen einer dieser Punkte bekannt vorkommt, adressiert Customermates jeden einzelnen direkt.
 
-Customermates basiert auf einer anderen Philosophie: Jede CRM-Kernfunktion ist in jeder Stufe verfügbar, ab €12/User/Monat. Es gibt keine künstlichen Limits bei Datensätzen, keine Sperren bei Kernfunktionen und keine Add-on-Upsells. Die [n8n-Automatisierungs-Engine](/features/workflow-automation) ist von Anfang an enthalten, und alle Daten bleiben in der EU.
+Customermates basiert auf einer anderen Philosophie: Jede CRM-Kernfunktion ist in jeder Stufe verfügbar, ab €12/User/Monat. Es gibt keine künstlichen Limits bei Datensätzen, keine Sperren bei Kernfunktionen und keine Add-on-Upsells. Die [n8n-Automatisierungs-Engine](/features/workflow-automation) steuern Sie aus Ihrer eigenen n8n-Instanz, und die Datenbank des gehosteten Dienstes läuft in der EU-Region.
 
 ## Setup und Einstieg
 
@@ -212,7 +212,7 @@ Wenn Sie ein Einzelkämpfer sind, der nur grundlegendes Pipeline-Tracking benöt
 
 ## Migration von Pipedrive zu Customermates
 
-Der CRM-Wechsel muss nicht schmerzhaft sein. Customermates unterstützt CSV-Import für Kontakte, Unternehmen und Deals, was die Migration von Pipedrive unkompliziert macht. Die meisten Teams schließen den Übergang in weniger als einem Tag ab:
+Der CRM-Wechsel muss nicht schmerzhaft sein. Customermates lädt Kontakte, Unternehmen und Deals über die REST API oder einen KI-Agenten per MCP, was die Migration von Pipedrive unkompliziert macht. Einen CSV-Import gibt es nicht. Die meisten Teams schließen den Übergang in weniger als einem Tag ab:
 
 1. Exportieren Sie Ihre Pipedrive-Daten (Kontakte, Deals, Aktivitäten) als CSV
 2. Registrieren Sie sich bei Customermates und konfigurieren Sie Ihre [Pipeline-Stufen](/features/pipeline)
@@ -224,7 +224,7 @@ Keine Berater nötig. Keine wochenlangen Implementierungsprojekte.
 
 ## Fazit
 
-Pipedrive ist ein solides Sales-CRM, aber seine Datensatzlimits, tarifgebundene Automatisierung und kumulative Add-on-Kosten machen es im Wachstum teuer. Customermates bietet eine Open-Source Pipedrive Alternative mit transparenten Tarifen ab €12/User/Monat, ohne künstliche Limits, EU-Hosting, DSGVO-Konformität und integrierter n8n-Automatisierung. Wenn Ihr Team ein CRM braucht, das mit Ihnen wächst, ohne Überraschungskosten, [starten Sie heute Ihre kostenlose Testphase](/auth/signup).
+Pipedrive ist ein solides Sales-CRM, aber seine Datensatzlimits, tarifgebundene Automatisierung und kumulative Add-on-Kosten machen es im Wachstum teuer. Customermates bietet eine Open-Source Pipedrive Alternative mit transparenten Tarifen ab €12/User/Monat, ohne künstliche Limits, EU-Hosting, DSGVO-Konformität und n8n-Automatisierung. Wenn Ihr Team ein CRM braucht, das mit Ihnen wächst, ohne Überraschungskosten, [starten Sie heute Ihre kostenlose Testphase](/auth/signup).
 
 Sehen Sie auch, wie Customermates im Vergleich zu anderen CRMs abschneidet: [HubSpot Alternative](/compare/hubspot-alternative), [Salesforce Alternative](/compare/salesforce-alternative) oder [Zoho CRM Alternative](/compare/zoho-crm-alternative).
 
@@ -238,7 +238,7 @@ Customermates startet bei €12/User/Monat mit jeder CRM-Kernfunktion inklusive;
 
 ### Kann ich meine Daten von Pipedrive zu Customermates migrieren?
 
-Ja. Customermates unterstützt CSV-Import für Kontakte, Unternehmen und Deals. Sie können Ihre Daten aus Pipedrive exportieren und innerhalb eines Tages in Customermates importieren. Keine Berater oder Spezialtools nötig.
+Ja. Customermates lädt Kontakte, Unternehmen und Deals über die REST API oder einen KI-Agenten per MCP; einen CSV-Import gibt es nicht. Sie können Ihre Daten aus Pipedrive exportieren und innerhalb eines Tages in Customermates importieren. Keine Berater oder Spezialtools nötig.
 
 ### Ist Customermates DSGVO-konform?
 

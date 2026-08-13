@@ -84,7 +84,7 @@ comparison:
       source: Ab Pro (alle 5 Kanäle)
       competitor: Nur E-Mail
       competitor2: E-Mail; Social per Add-on
-    - name: KI-Agenten bedienen das CRM (natives MCP, 45 Tools)
+    - name: KI-Agenten bedienen das CRM (natives MCP, 46 Tools)
       source: true
       competitor: KI Sales Assistant (Add-on)
       competitor2: Zia AI (ab Enterprise)
@@ -98,12 +98,12 @@ comparison:
       competitor2: nein
   - title: Datenschutz & Hosting
     features:
-    - name: DSGVO-konform
-      source: true
+    - name: DSGVO-Dokumentation
+      source: AVV + SCCs; keine Zertifizierung
       competitor: teilweise
       competitor2: teilweise
     - name: Daten-Hosting
-      source: Nur EU (Deutschland)
+      source: EU-Datenbankregion
       competitor: EU & USA
       competitor2: EU & Indien
     - name: Self-Hosting-Option
@@ -188,7 +188,7 @@ Pipedrive begrenzt aktive Workflow-Automatisierungen je Tarif: 50 bei Growth, 15
 
 Zoho CRM bietet Workflow-Regeln, Makros und Blueprint-Prozessmanagement. Allerdings sind Workflow-Regeln kontingentiert: 10 pro Modul bei Standard, 15 bei Professional und mehr bei Enterprise. Die Programmiersprache Deluge bietet tiefere Anpassung, fügt aber Wartungskomplexität hinzu und erfordert Entwicklerressourcen.
 
-Customermates umfasst unbegrenzte Automatisierung durch die integrierte n8n-Integration. Keine Kontingentlimits, kein Scripting erforderlich, und Sie verbinden sich ab dem ersten Tag mit Tausenden externer Services.
+Customermates umfasst unbegrenzte Automatisierung durch die n8n-Integration. Keine Kontingentlimits, kein Scripting erforderlich, und Sie verbinden sich ab dem ersten Tag mit Tausenden externer Services.
 
 ### KI-Funktionen
 
@@ -196,7 +196,7 @@ Pipedrive führte seinen AI Sales Assistant als Add-on ein. Er liefert Deal-Einb
 
 Zoho CRM umfasst Zia-KI ab dem Enterprise-Tarif (40$/Monat). Zia bietet Lead-Scoring, Anomalieerkennung, E-Mail-Sentimentanalyse und Conversation Intelligence. Es ist einer von Zohos stärkeren Differenzierungsmerkmalen, aber nicht verfügbar auf den Standard- oder Professional-Tarifen, auf denen die meisten kleinen Teams arbeiten.
 
-Customermates geht einen anderen Weg: KI-Agenten (Claude, ChatGPT, Gemini) bedienen das CRM direkt über eine native MCP-Integration (45 Tools) in jeder Stufe, ab 12 EUR. Kein Tarif-Upgrade für die KI selbst nötig.
+Customermates geht einen anderen Weg: KI-Agenten (Claude, ChatGPT, Gemini) bedienen das CRM direkt über eine native MCP-Integration (46 Tools) in jeder Stufe, ab 12 EUR. Kein Tarif-Upgrade für die KI selbst nötig.
 
 ### Reporting und Analysen
 
@@ -222,7 +222,7 @@ Customermates bietet direkten Support und vollständige Dokumentation. Als Open-
 
 Für europäische Teams ist der Datenstandort entscheidend. Pipedrive hostet in EU-Rechenzentren (Frankfurt, Dublin), nutzt aber auch US-basierte Unterauftragsverarbeiter für bestimmte Funktionen. Zoho CRM bietet EU-Rechenzentren in den Niederlanden, hat aber seinen Hauptsitz in Indien, und die Datenverarbeitung erstreckt sich über mehrere Regionen.
 
-Customermates hostet ausschließlich in Deutschland. Es ist von Grund auf DSGVO-nativ. Self-Hosting steht für Organisationen bereit, die vollständige Datensouveränität benötigen. Es gibt keine Mehrdeutigkeit darüber, wo Ihre Daten liegen.
+Customermates hostet in der EU-Region. Es ist von Grund auf DSGVO-nativ. Self-Hosting steht für Organisationen bereit, die vollständige Datensouveränität benötigen. Es gibt keine Mehrdeutigkeit darüber, wo Ihre Daten liegen.
 
 ## Integrationen
 
@@ -230,7 +230,7 @@ Pipedrive bietet über 500 Marketplace-Integrationen und eine solide API. Es ver
 
 Zoho integriert sich eng in sein eigenes Ökosystem von über 55 Produkten, was leistungsstark ist, wenn Sie die gesamte Zoho-Suite nutzen, aber Vendor-Lock-in erzeugt. Drittanbieter-Integrationen außerhalb des Ökosystems sind eingeschränkter.
 
-Customermates verbindet sich mit Tausenden von Services über die integrierte n8n-Integration, mit einer vollständig offenen API. Kein Marketplace-Lock-in, keine Ökosystem-Abhängigkeit.
+Customermates verbindet sich mit Tausenden von Services über die n8n-Integration, mit einer vollständig offenen API. Kein Marketplace-Lock-in, keine Ökosystem-Abhängigkeit.
 
 ## Für wen eignet sich Pipedrive?
 
@@ -259,13 +259,13 @@ Die Top-3-CRM-Systeme hängen von Ihrem Segment ab. Für Großunternehmen führt
 Pipedrive ist besser für reines Vertriebspipeline-Management mit seiner visuellen, intuitiven Oberfläche. Zoho CRM ist besser für Teams, die einen breiteren Funktionsumfang über Marketing, Service und Betrieb benötigen. Beide sperren wichtige Funktionen hinter Tarifstufen. Customermates bietet jede CRM-Kernfunktion in jeder Stufe, ab 12 EUR/Monat.
 
 ### Kann ich von Pipedrive oder Zoho CRM zu Customermates migrieren?
-Ja. Customermates unterstützt CSV- und API-basierten Datenimport. Die meisten Teams schließen die Migration in unter einer Stunde ab.
+Ja. Customermates importiert Daten über die REST API oder einen KI-Agenten per MCP. Die meisten Teams schließen die Migration in unter einer Stunde ab.
 
 ### Ist Customermates wirklich Open-Source?
 Ja. Customermates ist vollständig Open-Source. Sie können den Code einsehen, selbst hosten und nach Ihren Bedürfnissen anpassen.
 
-### Welches CRM ist am besten für DSGVO-Konformität?
-Unter diesen drei ist Customermates am stärksten für DSGVO-Konformität aufgestellt. Es hostet ausschließlich in Deutschland und ist DSGVO-nativ. Pipedrive und Zoho CRM beinhalten beide Datenverarbeitung außerhalb der EU.
+### Welches CRM bietet die passendste DSGVO-Unterstützung?
+Customermates stellt AVV und SCCs bereit, besitzt aber keine Compliance-Zertifizierung. Die verwaltete Datenbank nutzt eine EU-Region; Application-Hosting und weitere Anbieter können Daten andernorts verarbeiten. Auch Pipedrive und Zoho CRM beziehen Anbieter mit Datenverarbeitung außerhalb der EU ein, weshalb Teams die jeweiligen Verträge und Unterauftragsverarbeiter prüfen sollten.
 
 ### Wie sieht der Preisvergleich langfristig aus?
 Ein 10-Personen-Team bei Customermates Starter kostet insgesamt 120 EUR pro Monat. Dasselbe Team bei Pipedrive Premium kostet 490$ pro Monat. Bei Zoho Enterprise 400$ pro Monat. Die Einsparungen wachsen mit der Teamgröße.

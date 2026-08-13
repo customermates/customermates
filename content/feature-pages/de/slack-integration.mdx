@@ -1,11 +1,11 @@
 ---
-title: "CRM Slack-Integration: Alerts & Zwei-Wege-Sync"
-description: "CRM mit Slack verbinden. Deal-Alarme, Lead-Benachrichtigungen, Pipeline-Digests und Zwei-Wege-Aktionen. n8n-Automatisierung inklusive, kein Zapier nötig."
+title: "CRM Slack-Integration: Alerts & Zwei-Wege-Aktionen über n8n"
+description: "Customermates über Ihr eigenes n8n mit Slack verbinden. Deal-Alarme, Lead-Benachrichtigungen, Pipeline-Digests und Zwei-Wege-Aktionen über Webhooks und die REST API."
 featureName: Slack-Integration
 
 hero:
-  title: Slack-Integration, die Ihr Vertriebsteam auf dem Laufenden hält
-  description: Erhalten Sie Deal-Alarme, Lead-Benachrichtigungen und Pipeline-Digests direkt in Slack. Erstellen Sie CRM-Datensätze aus Slack-Nachrichten. Die integrierte n8n-Automatisierung macht ein Zapier-Abonnement überflüssig. In jeder Stufe enthalten, ab 12 EUR pro Nutzer und Monat.
+  title: Slack-Integration, gebaut auf Webhooks und Ihrem eigenen n8n
+  description: Customermates hat keine native Slack-App. Was es hat, sind 26 Webhook-Events, eine vollständige REST API und einen MCP-Endpoint — alles, was ein Automatisierungstool braucht, um Deal-Alarme nach Slack zu posten und von dort zurückzuschreiben. Bringen Sie Ihr eigenes n8n, Make oder Zapier mit.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -13,8 +13,8 @@ hero:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste 7 Tage kostenlos"
 
 cta:
-  action: Bereit, Slack zu verbinden?
-  description: Verbinden Sie Customermates in Minuten mit Ihrem Slack-Workspace. Alle Slack-Integrationsfunktionen stehen ab dem ersten Tag zur Verfügung, keine Premium-Stufe erforderlich.
+  action: Bereit, Customermates mit Slack zu verdrahten?
+  description: Beginnen Sie mit der Webhook- und REST-Dokumentation, richten Sie Ihr Automatisierungstool darauf aus und posten Sie den ersten Deal-Alarm in einen Kanal.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -22,112 +22,82 @@ cta:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste 7 Tage kostenlos"
 ---
 
-## Was ist eine CRM Slack-Integration?
+## Was diese Seite behauptet und was nicht
 
-Eine CRM Slack-Integration verbindet Ihr Kundenbeziehungsmanagementsystem mit Slack, sodass Benachrichtigungen, Alarme und Updates automatisch zwischen beiden Plattformen fließen. Statt Ihr Team ständig das CRM auf Updates prüfen zu lassen, kommen wichtige Ereignisse zu ihm in das Kommunikationstool, das es ohnehin den ganzen Tag geöffnet hat.
+Customermates liefert keine Slack-Integration aus. Es gibt keine Slack-App zum Installieren, keinen Slack-Einstellungsbildschirm im Produkt und keine Slack-Option in der Liste der verbundenen Konten. Der zentrale Posteingang deckt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ab; Slack ist keiner seiner Kanäle.
 
-Aber moderne CRM Slack-Integration geht über Einweg-Benachrichtigungen hinaus. Zwei-Wege-Integration ermöglicht es Ihrem Team, CRM-Aktionen direkt aus Slack auszuführen: Kontakte erstellen, Deal-Phasen aktualisieren, Notizen protokollieren und Aufgaben zuweisen, ohne die CRM-Oberfläche zu öffnen. Slack wird zu einem leichtgewichtigen CRM-Dashboard, in dem Ihr Team sowohl Informationen empfangen als auch darauf reagieren kann.
+Was Customermates ausliefert, ist die Maschinerie, die ein externes Automatisierungstool braucht, um in Ihrem Namen mit Slack zu sprechen: ausgehende Webhooks auf 26 Datensatz- und Messaging-Events, eine versionierte REST API und einen MCP-Endpoint. Verbinden Sie diese mit [n8n](/docs/n8n), Make oder Zapier, ergänzen Sie den Slack-Node dieses Tools, und Sie erhalten das unten beschriebene Verhalten. Die Slack-Seite läuft in Ihrem Automatisierungstool, nicht in Customermates.
 
-Für Vertriebs- und Customer-Success-Teams ist Slack der Kommunikations-Hub. Deals werden abgeschlossen, Leads kommen an, Aufgaben werden überfällig und Pipeline-Meilensteine werden den ganzen Tag über erreicht. Ohne [CRM-Integration](/features/crm-integration) verpassen Teammitglieder diese Ereignisse oder verbringen Zeit damit, Updates manuell zu teilen. CRM Slack-Integration automatisiert diesen Informationsfluss und fügt die Möglichkeit hinzu, sofort darauf zu reagieren.
+Das schreiben wir lieber auf, als die Seite ein Produkt andeuten zu lassen, das wir nicht gebaut haben.
 
-## So funktioniert die Slack-Integration in Customermates
+## Was Sie brauchen
 
-Customermates verbindet sich mit Slack über die integrierte n8n-Automatisierungs-Engine und gibt Ihnen vollständige Kontrolle über Benachrichtigungen, Kanäle, Formatierung und Zwei-Wege-Aktionen. Kein Zapier-Abonnement nötig.
+- Einen Customermates-Workspace in beliebiger Stufe. Webhooks und die REST API sind ab Starter verfügbar.
+- Ein Automatisierungstool, das eine HTTP-Anfrage empfangen und nach Slack posten kann. [n8n](https://n8n.io/) ist das Tool, das wir dokumentieren, selbst gehostet oder in n8ns eigener Cloud. Es ist ein eigenes Produkt mit eigener Preisgestaltung; nichts daran ist in einem Customermates-Abonnement enthalten.
+- Einen Slack-Workspace, in dem Sie dieses Tool autorisieren dürfen.
 
-### CRM-zu-Slack-Benachrichtigungen
+## Benachrichtigungen vom CRM nach Slack
 
-**Deal-Phasen-Benachrichtigungen.** Senden Sie eine Slack-Nachricht, wenn ein Deal in eine neue Phase wechselt. Konfigurieren Sie, welche Phasen Benachrichtigungen auslösen und welche Kanäle sie erhalten. Wenn ein hochwertiger Deal "Verhandlung" erreicht, alarmieren Sie den Vertriebsleiter in einem privaten Kanal. Wenn ein Deal zu "Gewonnen" wechselt, posten Sie eine Feiernachricht im Team-Kanal mit Deal-Name, Wert und dem abschließenden Mitarbeiter.
+Das Muster ist immer dasselbe: Customermates feuert einen Webhook, Ihr Automatisierungstool empfängt ihn, formatiert eine Nachricht und postet sie nach Slack. Legen Sie den Webhook unter **Unternehmen → Webhooks → Neu** an und wählen Sie die Events, die Sie brauchen. Die Payload-Struktur ist unter [Webhooks](/docs/webhooks) dokumentiert.
 
-**Neue-Lead-Alarme.** Benachrichtigen Sie Ihr Vertriebsteam in dem Moment, in dem ein neuer Lead ins CRM gelangt. Die Slack-Nachricht enthält Lead-Name, Unternehmen, Quelle, geschätzten Wert und einen direkten Link zum CRM-Datensatz. Schnellere Lead-Benachrichtigung bedeutet schnellere Reaktionszeiten. Studien zeigen, dass eine Reaktion innerhalb von fünf Minuten die Qualifizierungswahrscheinlichkeit um das 21-fache erhöht.
+**Benachrichtigungen bei Deal-Änderungen.** Abonnieren Sie `deal.created` und `deal.updated` und posten Sie in einen Kanal, wenn sich ein Deal ändert. Die Deal-Phase ist eine Einfachauswahl-Spalte und kein festes Produktfeld, Ihr Workflow liest den Spaltenwert also aus der Payload und verzweigt darauf — womit Sie auf jede benutzerdefinierte Spalte reagieren können, nicht nur auf die Phase.
 
-**Aufgaben- und Erinnerungsbenachrichtigungen.** Senden Sie Slack-Erinnerungen für bevorstehende Fristen, überfällige Aufgaben und neu zugewiesene Aufgaben. Ihr Team sieht CRM-Aufgaben neben seinen Slack-Unterhaltungen, sodass nichts untergeht.
+**Alarme bei neuen Leads.** Abonnieren Sie `contact.created` und informieren Sie das Team in dem Moment, in dem ein Datensatz entsteht. Nehmen Sie die Felder auf, die Sie brauchen, plus einen Link zurück auf den Datensatz.
 
-**Pipeline-Zusammenfassungsberichte.** Planen Sie automatisierte Pipeline-Digests, die täglich oder wöchentlich in Slack gepostet werden. Morgendliche Pipeline-Snapshots enthalten den Gesamt-Pipeline-Wert, Deals pro Phase, diese Woche abgeschlossene Deals und Deals, die ein Follow-up brauchen. Das gesamte Team bleibt abgestimmt, ohne ein Meeting.
+**Pipeline-Zusammenfassungen.** Webhooks sind ereignisgetrieben, ein Digest ist deshalb ein geplanter Job in Ihrem Automatisierungstool: per Cron laufen lassen, `GET /api/v1/deals` aufrufen, aggregieren, Zusammenfassung posten. Die REST API ist in der [OpenAPI-Spezifikation](/docs/openapi) dokumentiert.
 
-**Individuelle Ereignisbenachrichtigungen.** Lösen Sie Slack-Nachrichten für jedes CRM-Ereignis aus, das n8n erkennen kann. Kontakt aktualisiert, Notiz hinzugefügt, Deal-Wert geändert, benutzerdefiniertes Feld geändert oder Meeting protokolliert. Sie definieren genau, welche Ereignisse Benachrichtigungen erzeugen, welche Kanäle sie erhalten und welche Informationen enthalten sind.
+**Messaging-Alarme.** Abonnieren Sie `messaging.message.received` oder `messaging.email.received`, um neue eingehende Konversationen nach Slack zu leiten. Diese Events erfordern eine Messaging-Stufe.
 
-### Slack-zu-CRM-Aktionen
+## Aktionen von Slack ins CRM
 
-**Kontakte aus Slack erstellen.** Wenn jemand einen Interessenten in einer Slack-Konversation erwähnt, erstellen Sie einen CRM-Kontakt direkt aus der Nachricht. Kein Wechsel zum CRM, kein Browser öffnen und kein Formular ausfüllen. Der Kontakt wird mit den Informationen aus der Slack-Nachricht erstellt.
+Die Gegenrichtung läuft über die REST API oder MCP, wieder gesteuert von Ihrem Automatisierungstool.
 
-**Deal-Phasen aus Slack aktualisieren.** Nach einem Anruf oder Meeting aktualisieren Sie eine Deal-Phase direkt aus Slack. Der n8n-Workflow empfängt den Update-Befehl, ändert den Deal im CRM und bestätigt die Änderung im Kanal.
+**Datensätze aus Slack erstellen.** Ein Slack-Shortcut oder Slash-Befehl löst Ihren Workflow aus, der `POST /api/v1/contacts` mit einem `x-api-key`-Header aufruft. Dasselbe Muster funktioniert für Unternehmen, Deals, Services und Aufgaben.
 
-**Notizen aus Slack protokollieren.** Erfassen Sie wichtigen Kontext aus Slack-Konversationen als CRM-Notizen. Wenn ein Teammitglied Kundenfeedback, Wettbewerbsinformationen oder Meeting-Zusammenfassungen in einem Kanal teilt, protokollieren Sie diese Informationen am relevanten Kontakt- oder Deal-Datensatz, ohne Slack zu verlassen.
+**Datensätze aus Slack aktualisieren.** `PATCH` auf den Datensatz. Beziehungen sind ein eigener Fall: Sie ändern sich ausschließlich über den dedizierten Links-Endpoint und das MCP-Tool `manage_record_links`, nie über ein einfaches Feld-Update.
 
-**Aufgaben aus Slack zuweisen.** Erstellen und weisen Sie CRM-Aufgaben aus einer Slack-Nachricht zu. Wenn ein Manager eine Follow-up-Aktion in einer Konversation identifiziert, kann er eine Aufgabe erstellen, dem richtigen Teammitglied zuweisen und ein Fälligkeitsdatum setzen, alles innerhalb von Slack.
+**Notizen aus Slack schreiben.** Schreiben Sie den Text der Slack-Nachricht über die API oder das MCP-Tool `update_record_notes` in die Notizen des Datensatzes.
 
-### Formatierte Nachrichten mit Kontext
+**Einen Agenten machen lassen.** Statt jeden Aufruf von Hand zu bauen, richten Sie einen MCP-fähigen Agenten auf `/api/v1/mcp` und lassen ihn die Slack-Nachricht interpretieren. Das ist dieselbe Oberfläche aus 46 Tools, die Claude, ChatGPT und Gemini nutzen.
 
-Slack-Nachrichten von Customermates enthalten Rich-Formatting mit Deal-Details, Kontaktinformationen, Beträgen und direkten Links zurück zum relevanten CRM-Datensatz. Ein Klick führt Ihr Team von der Slack-Benachrichtigung zum vollständigen CRM-Datensatz mit allem Kontext. Nachrichten sind übersichtlich, strukturiert und handlungsfähig.
+## Was das nicht ist
 
-## Zentrale Vorteile
+**Es ist keine Ein-Klick-Installation.** Sie bauen und pflegen Workflows in einem separaten Tool. Das ist echte Einrichtungsarbeit, und es ist ehrlich, das zu sagen.
 
-**Sofortige Aufmerksamkeit.** Ihr Team erfährt von wichtigen CRM-Ereignissen in dem Moment, in dem sie passieren, nicht wenn es das nächste Mal das CRM prüft. Deal-Abschlüsse, neue Leads, überfällige Aufgaben und Pipeline-Änderungen erscheinen in Slack in Echtzeit.
+**Es ist nicht in Ihrem Abonnement enthalten.** Customermates vertreibt, hostet und bündelt kein n8n. Wenn Ihr Automatisierungstool Geld kostet, sind das Ihre Kosten.
 
-**Zwei-Wege-Workflow.** Slack wird mehr als ein Benachrichtigungskanal. Ihr Team kann Kontakte erstellen, Deals aktualisieren, Notizen protokollieren und Aufgaben zuweisen, alles aus Slack heraus. Das reduziert Kontextwechsel und macht es schneller, auf Informationen zu reagieren.
+**Es ist kein Slack-Posteingang.** Slack-Konversationen erscheinen nicht im zentralen Posteingang und werden nicht als CRM-Nachrichten gespeichert. Sie bekommen Benachrichtigungen hinaus und API-Aufrufe hinein.
 
-**Weniger Kontextwechsel.** Ihr Team erhält relevante CRM-Updates in dem Tool, das es bereits nutzt, statt den ganzen Tag zwischen Slack und CRM zu wechseln. Informationen kommen zu ihm, statt dass es sie suchen muss.
+**Nichts ist frei von Limits.** Slack, Ihr Automatisierungstool und die Customermates-API haben jeweils eigene Limits. Siehe [Messaging-Rate-Limits](/docs/messaging-rate-limits) für die Teile, die wir kontrollieren.
 
-**Konfigurierbares Signal-Rausch-Verhältnis.** Nicht jedes CRM-Ereignis verdient eine Slack-Benachrichtigung. Mit n8n steuern Sie genau, welche Ereignisse Nachrichten auslösen, welche Kanäle sie erhalten und welche Informationen enthalten sind. Halten Sie Benachrichtigungen wertvoll, indem Sie Rauschen filtern.
+## Warum wir es so bauen
 
-**Team-Feier und Motivation.** Automatische Deal-Gewonnen-Ankündigungen in Slack stärken die Teammoral und erzeugen ein gemeinsames Fortschrittsgefühl. Das Vertriebsteam sieht Erfolge in dem Moment, in dem sie passieren, ohne dass jemand daran denken muss, die Nachricht zu teilen.
+**Keine Bindung an eine Integration.** Dieselbe Webhook- und REST-Oberfläche, die Slack bedient, bedient auch Microsoft Teams, Discord, ein Data Warehouse oder einen internen Dienst. Wir mussten keine Slack-Integration ausliefern, damit Sie eine haben.
 
-**Asynchrones Team-Alignment.** Pipeline-Zusammenfassungen und Aktivitäts-Digests halten verteilte und Remote-Teams synchron zu [Vertriebsfortschritten](/features/sales). Alle sehen dieselben Daten zur selben Zeit, unabhängig von Zeitzonen. Keine "Was ist diese Woche passiert"-E-Mails mehr.
+**Sie steuern das Signal.** Welche Events feuern, welche Kanäle sie empfangen und was in jeder Nachricht steht, sind Entscheidungen in Ihrem Workflow und keine Schalter, die wir für Sie geraten haben.
 
-**Schnellere Lead-Reaktion.** Sofortige Lead-Alarme in Slack bedeuten, dass Ihr Team in Minuten statt Stunden auf neue Interessenten reagieren kann. Der Unterschied zwischen einer Fünf-Minuten-Reaktion und einer Dreißig-Minuten-Reaktion kann entscheiden, ob Sie den Deal gewinnen oder verlieren.
-
-## Häufige Slack-Integrations-Workflows
-
-**Deal-Gewonnen-Ankündigung.** Wenn ein Deal als gewonnen markiert wird, posten Sie eine formatierte Nachricht im Vertriebsteam-Kanal. Enthalten: Deal-Name, Wert, Kundenname und abschließender Mitarbeiter. Fügen Sie einen Link zum Deal-Datensatz hinzu. Das Team feiert jeden Erfolg gemeinsam.
-
-**Hochwertiger-Lead-Alarm.** Wenn ein Lead mit einem Wert über einem definierten Schwellenwert in die [Pipeline](/features/pipeline) eintritt, senden Sie eine sofortige Benachrichtigung an einen Prioritätskanal. Enthalten: Lead-Details, Quelle und direkter Link. Stellen Sie sicher, dass hochwertige Chancen sofortige Aufmerksamkeit bekommen.
-
-**Täglicher Pipeline-Digest.** Jeden Morgen um 9 Uhr eine Zusammenfassung des aktuellen Pipeline-Zustands posten. Enthalten: Gesamt-Pipeline-Wert, Anzahl Deals pro Phase, gestern vorangeschrittene Deals, Deals, die ein [Follow-up](/features/follow-up) brauchen, und die Gewinn-Summe der Woche. Ersetzen Sie das tägliche Standup mit Daten.
-
-**Überfällige-Aufgaben-Alarm.** Wenn eine Aufgabe überfällig wird, senden Sie eine Direktnachricht an den Aufgabenbesitzer. Eine rechtzeitige Erinnerung verhindert, dass ein vergessenes Follow-up zu einer verlorenen Chance wird. Eskalieren Sie zum Manager-Kanal, wenn die Aufgabe 24 Stunden überfällig bleibt.
-
-**Stagnierende-Deal-Warnung.** Wenn ein Deal innerhalb eines definierten Zeitraums (zum Beispiel sieben Tage) nicht aktualisiert wurde, posten Sie eine Warnung im Kanal des Deal-Besitzers. Stagnations-Benachrichtigungen halten die Pipeline sauber und Deals in Bewegung.
-
-**Meeting-Zusammenfassung teilen.** Nachdem eine Meeting-Notiz auf einem Deal protokolliert wurde, teilen Sie eine Zusammenfassung im relevanten Team-Kanal. Stakeholder bleiben über Kundengespräche informiert, ohne separate Status-E-Mails oder Meetings.
-
-**Neukunden-Onboarding auslösen.** Wenn ein Deal zu "Gewonnen" wechselt, posten Sie im Customer-Success-Kanal mit den Kundendetails und weisen Sie Onboarding-Aufgaben zu. Die Übergabe vom Vertrieb zum Customer Success geschieht automatisch.
-
-## Warum Customermates für Slack-Integration?
-
-**Kein Zapier nötig.** Die Slack-Integration läuft über die integrierte n8n-Engine. Kein separates Zapier- oder Make-Abonnement erforderlich. Workflows, die bei Zapier 20 bis 50 USD pro Monat kosten würden, sind in Ihrem Customermates-Abonnement ohne Zusatzkosten enthalten.
-
-**Zwei-Wege, nicht nur Benachrichtigungen.** Die meisten CRM Slack-Integrationen senden nur Benachrichtigungen vom CRM nach Slack. Customermates unterstützt bidirektionale Workflows, bei denen Ihr Team CRM-Daten aus Slack heraus erstellen, aktualisieren und verwalten kann.
-
-**Open Source und voll anpassbar.** Die Integration läuft über n8n, das Open Source ist. Passen Sie jeden Aspekt an: Trigger, Bedingungen, Nachrichtenformatierung, Kanal-Routing und Reaktions-Aktionen. Wenn Sie den Workflow beschreiben können, können Sie ihn bauen.
-
-**EU-gehostet und DSGVO-konform.** Alle CRM-Daten, die Ihre Slack-Benachrichtigungen antreiben, werden in europäischen Rechenzentren gespeichert, mit vollständiger DSGVO-Konformität. Benachrichtigungs-Workflows laufen auf DSGVO-konformer Infrastruktur.
-
-**Einfache, faire Preisgestaltung.** Slack-Integration ist ab der Starter-Stufe für 12 EUR pro Nutzer und Monat enthalten, da sie über die Kern-n8n-Engine läuft. Sie ist getrennt vom nativen gemeinsamen Postfach (E-Mail, LinkedIn, WhatsApp, Instagram und Telegram), das KI-Agenten ebenfalls bedienen können und das ab der Pro-Stufe enthalten ist. Keine Kosten pro Benachrichtigung. Unbegrenzte Benachrichtigungen, unbegrenzte Workflows, unbegrenzte Kanäle.
-
-**n8n visueller Workflow-Builder.** Erstellen und ändern Sie Slack-Benachrichtigungs-Workflows visuell ohne Coding. Fügen Sie neue Benachrichtigungen hinzu, passen Sie Trigger an, ändern Sie Nachrichtenformate und routen Sie in verschiedene Kanäle über die Drag-and-Drop-Oberfläche.
-
-**Self-Hosting für volle Kontrolle.** Betreiben Sie Customermates auf Ihrer eigenen Infrastruktur und behalten Sie alle Benachrichtigungslogik und Slack-OAuth-Zugangsdaten auf Ihren Servern. Kein Drittanbieter verarbeitet Ihre Slack-Integrationsdaten.
+**Der Kern ist einsehbar.** AGPL-Kern-CRM, Webhook-Payloads, REST-Vertrag und MCP-Tool-Definitionen liegen im Repository. Self-Hosting betreibt Kernanwendung und PostgreSQL unter Starter-Berechtigungen; Slack und n8n bleiben extern.
 
 ## Häufig gestellte Fragen
 
-**Brauche ich Zapier, um Slack mit Customermates zu verbinden?**
-Nein. Customermates beinhaltet die n8n-Automatisierungs-Engine, die sich direkt mit Slack verbindet. Kein Zapier, Make oder eine andere Drittanbieter-Automatisierungsplattform wird benötigt. Die Slack-Verbindung ist integriert und im Standardpreis enthalten.
+**Hat Customermates eine native Slack-Integration?**
+Nein. Es gibt keine Slack-App, keinen Slack-Kanal im zentralen Posteingang und keinen Slack-Bildschirm im Produkt. Alles auf dieser Seite wird mit einem externen Automatisierungstool gegen die Webhook- und REST-Oberflächen gebaut.
 
-**Kann ich CRM-Datensätze aus Slack erstellen?**
-Ja. Mit n8n-Workflows können Sie Kontakte, Deals, Aufgaben und Notizen aus Slack-Nachrichten erstellen. Zwei-Wege-Integration bedeutet, dass Slack nicht nur zum Empfangen von Benachrichtigungen dient, sondern auch zum Ausführen von CRM-Aktionen.
+**Ist n8n bei Customermates enthalten?**
+Nein. n8n ist ein eigenes Open-Source-Produkt. Sie hosten es selbst oder abonnieren n8ns Cloud. Customermates veröffentlicht dafür eine [Community-Node](https://github.com/customermates/n8n-nodes-crm) und dokumentiert die [Integrationsmuster](/docs/n8n), und damit endet die Beziehung.
 
-**Welche Slack-Kanäle können Benachrichtigungen erhalten?**
-Jeder Kanal in Ihrem Slack-Workspace, einschließlich öffentlicher Kanäle, privater Kanäle und Direktnachrichten. Jeder n8n-Workflow kann verschiedene Kanäle ansprechen, basierend auf Ereignistyp, Deal-Wert, Teamzuweisung oder anderen Kriterien.
+**Kann ich stattdessen Zapier oder Make nutzen?**
+Ja. Nichts an der Webhook- oder REST-Oberfläche ist n8n-spezifisch. Jedes Tool, das ein HTTP-POST empfangen und eine HTTP-API aufrufen kann, funktioniert.
 
-**Kann ich die Benachrichtigungsnachrichten anpassen?**
-Ja. Nachrichteninhalt, Formatierung und Struktur sind im n8n-Workflow-Builder vollständig anpassbar. Sie kontrollieren genau, welche Informationen in jeder Slack-Benachrichtigung erscheinen, einschließlich dynamischer Daten aus CRM-Datensätzen.
+**Welche Events kann ich abonnieren?**
+26 Events über Datensätze und Messaging. Die vollständige Liste steht unter [Webhooks](/docs/webhooks).
 
-**Gibt es ein Limit für die Anzahl der Benachrichtigungen?**
-Nein. Es gibt keine Kosten pro Benachrichtigung und keine Begrenzung der Anzahl gesendeter Slack-Nachrichten. Senden Sie so viele Benachrichtigungen, wie Ihre Workflows erzeugen.
+**Kann ich CRM-Daten ohne Code nach Slack posten?**
+Ja, in dem Sinne, dass n8n, Make und Zapier visuelle Builder sind. Den Workflow entwerfen Sie trotzdem selbst; eine vorkonfigurierte Customermates-zu-Slack-Vorlage von uns gibt es nicht.
 
-**Kann ich wiederkehrende Pipeline-Berichte in Slack planen?**
-Ja. n8n unterstützt Cron-basierte Zeitplanung. Sie können tägliche, wöchentliche oder benutzerdefinierte Pipeline-Digests konfigurieren, die automatisch zum von Ihnen festgelegten Zeitpunkt in Ihrem gewählten Slack-Kanal gepostet werden.
+**Wird es jemals eine native Slack-Integration geben?**
+Sie steht nicht als zugesagter Punkt auf der Roadmap, und wir führen sie hier nicht auf, bevor es sie gibt.
 
-## Starten Sie heute mit Slack-Integration
+## Loslegen
 
-Verbinden Sie Customermates in Minuten mit Slack. Öffnen Sie den n8n-Workflow-Builder, fügen Sie den Slack-Knoten hinzu, autorisieren Sie Ihren Workspace mit einem Klick und konfigurieren Sie Ihre erste Benachrichtigung. Starten Sie mit einer Deal-Gewonnen-Ankündigung oder einem täglichen Pipeline-Digest und erweitern Sie dann auf Lead-Alarme, Aufgabenerinnerungen und Zwei-Wege-Aktionen, wenn Ihr Team sich eingewöhnt hat. Alle Slack-Integrationsfähigkeiten stehen ab dem ersten Tag zur Verfügung.
+Lesen Sie [Webhooks](/docs/webhooks) für die Event-Payloads und [n8n](/docs/n8n) für die Verdrahtungsmuster. Legen Sie einen Webhook unter **Unternehmen → Webhooks** an, richten Sie ihn auf Ihr Automatisierungstool, ergänzen Sie den Slack-Node und schicken Sie Ihre erste `deal.updated`-Nachricht in einen Kanal. Von dort ist alles andere auf dieser Seite dasselbe Muster mit anderen Events.

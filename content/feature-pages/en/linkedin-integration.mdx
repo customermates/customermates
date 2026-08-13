@@ -1,11 +1,11 @@
 ---
 title: "CRM LinkedIn Integration for Social Selling"
-description: "CRM LinkedIn integration to sync profiles, enrich contacts, and import leads. Track social selling and automate outreach with n8n. Open-source, EU-hosted."
+description: "CRM LinkedIn integration for supported messaging and Sales Navigator tools through MCP. Enrichment, lead import, monitoring, and outreach automation require separate providers and n8n."
 featureName: LinkedIn Integration
 
 hero:
   title: LinkedIn Integration With a Unified Inbox and AI Drafting
-  description: Read, draft, and send LinkedIn messages and InMail from a unified inbox inside your CRM, with AI agents drafting replies and keeping every contact current. Enrich records with profile data, import leads, and track social selling in one place. Messaging is included from the Pro tier; enrichment and lead-gen workflows from the Starter tier.
+  description: Read, draft, and send individual LinkedIn messages and InMail from the Pro unified inbox. A supported external AI client can assist through MCP. Customermates has no native profile enrichment, lead import, job-change monitor, audience sync, or bulk-outreach workflow.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -32,37 +32,37 @@ When LinkedIn and your CRM are connected, your sales team works more efficiently
 
 ## How LinkedIn Integration Works in Customermates
 
-Customermates connects to LinkedIn in two ways. First, LinkedIn messages and InMail live in the unified inbox inside the CRM: read, draft, and send them alongside email, WhatsApp, Instagram, and Telegram, and let AI agents draft the replies. This is included from the Pro tier at EUR 29 per user per month, alongside the other messaging channels. Second, contact enrichment, lead import, and lead-gen form workflows run through the n8n automation engine and are included from the Starter tier at EUR 12 per user per month.
+Customermates brings LinkedIn messages and InMail into the Pro unified inbox and exposes supported LinkedIn and Sales Navigator tools through MCP. A separately configured external AI client can assist with one message at a time. Profile enrichment, lead import, forms, monitoring, audience sync, and n8n workflows remain separate products and providers.
 
-**LinkedIn messaging in the unified inbox.** Read, draft, and send LinkedIn messages and InMail from one inbox inside the CRM, next to email, WhatsApp, Instagram, and Telegram. Every thread links to the contact, so the whole team sees the conversation rather than one rep's private messages. Through the native MCP integration, AI agents (Claude, ChatGPT, Gemini) draft replies and send them for you. Included from the Pro tier.
+**LinkedIn messaging in the unified inbox.** Read, draft, and send individual LinkedIn messages and InMail beside supported email and social channels. A separately configured client such as Claude, ChatGPT, or Gemini can use MCP to read allowed thread context and draft or send one message; Customermates supplies neither client nor model. Included from Pro.
 
-**Contact enrichment from LinkedIn profiles.** Use n8n workflows to automatically enrich your CRM contacts with LinkedIn profile data. When a new contact is added to Customermates, look up their LinkedIn profile and pull in current job title, company name, location, industry, profile photo URL, and profile link. Enriched contacts give your team more context for every conversation and eliminate manual data entry.
+**External profile enrichment.** A separate data provider and customer-run n8n workflow may research approved LinkedIn profile details and write selected values through REST. Customermates does not supply profile lookup, enrichment data, automatic matching, or a LinkedIn data feed; provider contracts, limits, and results remain external.
 
-**LinkedIn lead import and capture.** Import contacts from LinkedIn into your CRM using automated workflows. When you connect with a new person on LinkedIn, an n8n workflow creates a corresponding contact record in Customermates with profile information pre-filled. For teams using LinkedIn Sales Navigator (included from the Pro tier), import saved leads and accounts directly into CRM pipelines.
+**External LinkedIn lead handoff.** Customermates has no LinkedIn connection import or bulk lead sync. A separately operated provider or n8n workflow may create supported CRM records through REST or MCP from data you are entitled to use; it owns extraction, mapping, validation, deduplication, and retries.
 
-**LinkedIn lead gen form integration.** Connect LinkedIn Lead Gen Forms to Customermates via n8n. When a prospect fills out a lead gen form on your LinkedIn ad, the data flows directly into your CRM as a new contact and deal. No manual CSV exports, no delayed follow-ups. Leads enter your pipeline in real time.
+**External LinkedIn Lead Gen Form workflow.** Receive the submission in LinkedIn or another external service, then let a separately operated workflow create supported CRM records through REST or MCP. Customermates has no native form, routing, import, or real-time lead-capture engine.
 
-**Social selling activity tracking.** Log LinkedIn interactions as activities on your CRM contact records. Connection requests, content engagement, and profile views can be logged via n8n on any tier; sending and receiving actual LinkedIn messages and InMail directly inside Customermates requires the Pro tier and above. These social selling activities become part of the complete relationship timeline alongside emails, calls, and meetings.
+**Recorded social-selling context.** Supported LinkedIn messages and InMail appear in the Pro unified inbox. A separate provider or workflow may write approved research values to ordinary fields; connection requests, profile views, post engagement, and every external interaction are not automatically captured as a complete timeline.
 
-**Profile URL linking and one-click access.** Store LinkedIn profile URLs directly on contact records. One click takes your team from the CRM contact to the LinkedIn profile, making it easy to review professional background before calls and meetings. The link works bidirectionally: see the CRM record when viewing LinkedIn context.
+**Profile URL fields and one-click access.** Store a LinkedIn profile URL in a supported custom field and open it from the CRM before calls or meetings. Customermates does not add a bidirectional browser overlay, profile sync, or CRM-record view inside LinkedIn.
 
-**Company data synchronization.** Enrich organization records in Customermates with LinkedIn company page data including industry, company size, employee count, headquarters location, specialties, and company description. Keep your account data current and complete with information from LinkedIn company profiles.
+**External company research.** Store approved company details in ordinary or custom fields when your team, a contracted data provider, or an external workflow supplies them. Customermates does not synchronize LinkedIn company pages or keep organization data current automatically.
 
-**Job change and role alerts.** Set up n8n workflows that monitor your LinkedIn connections for job changes, promotions, company moves, or other profile updates. When a key contact changes roles or companies, your CRM is updated automatically and a notification alerts the account owner. Job changes are prime moments for sales outreach.
+**External job-change monitoring.** A separately contracted data provider may detect profile changes, and a customer-run workflow may write approved values and send a notification through an external channel. Customermates does not monitor LinkedIn connections, detect role changes, or deliver native alerts.
 
-**LinkedIn Ads audience sync.** Sync CRM contact lists to LinkedIn Matched Audiences for targeted advertising. Build custom audiences based on CRM segments such as deal stage, industry, or account tier. Retarget contacts who entered but did not complete your pipeline. Keep your ad targeting aligned with your sales data.
+**External LinkedIn Ads handoff.** A customer-run integration may send approved CRM fields to LinkedIn under the relevant provider terms. Customermates does not provide a native Matched Audiences connector, audience-sync engine, campaign segmentation, or advertising data feed.
 
 ## Social Selling Workflows That Drive Revenue
 
-**New connection to CRM pipeline.** When you connect with a prospect on LinkedIn, automatically create a contact and deal in Customermates. Assign the lead to a nurture pipeline, set a follow-up task, and notify the account owner. Every connection becomes a tracked opportunity.
+**External connection-to-CRM workflow.** A separate provider and workflow may turn approved LinkedIn data into supported CRM records through REST. Routing, nurture, timing, notification delivery, mapping, and deduplication remain external; Customermates does not import new connections.
 
 **Pre-call LinkedIn research.** Before a sales call, pull up-to-date LinkedIn data for the contact and their organization. Current job title, recent posts, mutual connections, shared groups, and company news give your team relevant talking points and personalization signals.
 
-**Job change outreach trigger.** When a champion at a customer account moves to a new company, trigger an automated outreach sequence. Alert the account manager, create a new organization record for the target company, and generate a task to reach out within 48 hours. Job changes are one of the highest-converting sales triggers in B2B.
+**Job change outreach trigger.** When a champion at a customer account moves to a new company, trigger an outreach sequence in an external provider. Alert the account manager, create a new organization record for the target company, and generate a task to reach out within 48 hours. Job changes are one of the highest-converting sales triggers in B2B.
 
-**Content engagement scoring.** Track which prospects and customers engage with your LinkedIn content. Log engagement as activities on CRM records and factor it into lead scoring. Contacts who engage with your content are warmer leads who are more likely to respond to outreach.
+**Externally calculated engagement values.** A separate provider may supply approved engagement data, and a customer-run workflow may store selected values in custom fields. Customermates does not monitor LinkedIn engagement or calculate a lead score.
 
-**Multi-channel outreach sequences.** Build outreach sequences that combine LinkedIn touchpoints with email and phone. Track the entire sequence in the CRM with each LinkedIn interaction logged as an activity. See which channels drive the most responses and optimize your sequence accordingly.
+**External multi-channel outreach.** Keep individual supported LinkedIn conversations in the inbox, but run sequences, bulk outreach, telephony, timing, and campaign analytics in separate providers. Customermates has no sequence, phone, or mass-outreach engine.
 
 **Account-based marketing coordination.** Combine CRM account data with LinkedIn company insights to prioritize target accounts. Sync target account lists to LinkedIn for matched audience advertising. Track LinkedIn engagement at the account level alongside deal progress for full ABM visibility.
 
@@ -74,26 +74,26 @@ Customermates connects to LinkedIn in two ways. First, LinkedIn messages and InM
 
 **Efficient social selling workflow.** Your sales team manages LinkedIn outreach as part of their CRM workflow rather than switching between tools. Connection requests, messages, and content engagement become trackable, reportable sales activities.
 
-**Automatic data maintenance.** n8n automation keeps your contact and company data current by syncing changes from LinkedIn profiles. When contacts get promoted, switch companies, or update their information, your CRM reflects the changes automatically.
+**Externally maintained data.** A contracted provider and separately operated n8n workflow may research approved changes and write selected fields through REST. Customermates does not monitor LinkedIn profiles or keep contact and company data current automatically.
 
-**Scalable lead generation.** Import and enrich LinkedIn leads in bulk rather than manually entering data. LinkedIn Lead Gen Forms flow directly into CRM pipelines. Automation handles the data transfer so your team focuses on building relationships.
+**External lead-generation handoff.** LinkedIn forms and data providers remain external. A customer-run integration may create supported CRM records through REST or MCP, while extraction, bulk handling, enrichment, mapping, validation, routing, and costs stay outside Customermates.
 
-**Real-time lead gen form capture.** LinkedIn ad leads enter your CRM immediately, not after a manual CSV export hours later. Faster follow-up means higher conversion rates from your LinkedIn advertising spend.
+**External Lead Gen Form capture.** An authorized provider and customer-run workflow can receive LinkedIn ad leads and create supported CRM records through documented APIs. Delivery speed, retries, consent handling, limits, and costs remain external to Customermates.
 
 ## Why Choose Customermates for LinkedIn Integration
 
-**AI operates your LinkedIn outreach.** Because Customermates exposes 45 MCP tools, AI agents like Claude, ChatGPT, and Gemini read your LinkedIn threads, draft replies in your voice, send them, and log the activity on the contact. The conversation and the CRM stay in sync without manual entry.
+**External AI clients assist with LinkedIn messages.** Supported clients such as Claude, ChatGPT, or Gemini can use 46 MCP tools to read allowed thread context and draft or send one message where permitted. Customermates supplies no client or model; subscription, usage, provider handling, and outcomes remain separate.
 
 **Open source and fully customizable.** Because enrichment runs through n8n, you have complete control over what data flows between LinkedIn and your CRM. Customize enrichment fields, lead routing rules, and notification triggers to match your specific social selling workflow.
 
-**EU-hosted and GDPR-compliant.** All CRM data, including LinkedIn-sourced information, is stored in European data centers with full GDPR and DSGVO compliance. Social selling data is handled with the same data protection standards as all other CRM data. LinkedIn profile data processing follows consent-based workflows.
+**EU database region with documented providers.** The managed database runs in an EU region. Application hosting, LinkedIn, AI clients, and other providers, including US providers, may process data elsewhere; this deployment fact is not a GDPR or other compliance certification.
 
-**Simple, fair pricing.** n8n-based LinkedIn enrichment and lead-gen workflows are included from EUR 12 per user per month (Starter). Native LinkedIn messaging inside the unified inbox is included from EUR 29 per user per month (Pro). No per-contact enrichment fees at either tier.
+**Simple, fair CRM pricing.** REST, webhooks, MCP, and a community node start with Starter at EUR 12. LinkedIn messaging in the unified inbox starts with Pro at EUR 29. n8n, enrichment data, forms, delivery, limits, and provider costs remain separate.
 
-**n8n automation for any LinkedIn workflow.** Build LinkedIn integration workflows visually with n8n. Standard scenarios work without coding. Complex requirements like multi-step enrichment pipelines, conditional routing, or cross-platform orchestration are fully supported.
+**Separate n8n for LinkedIn workflows.** Connect an n8n instance you run or subscribe to through REST, webhooks, MCP, or the community node. Its visual builder, runtime, connectors, enrichment providers, routing, limits, logs, and costs remain external.
 
-**Self-hostable for full control.** Deploy on your own infrastructure and keep all LinkedIn-sourced data and integration credentials on your servers. Self-hosting is ideal for organizations that need to control where third-party data is stored and processed.
+**Cloud messaging and self-hosted core differ.** Self-hosted Customermates has Starter entitlements and excludes the unified inbox and LinkedIn messaging. Any separate LinkedIn, AI, enrichment, or workflow provider keeps its own credentials and data-processing boundary.
 
 ## Get Started with LinkedIn Integration Today
 
-Start connecting LinkedIn to your CRM today. Bring LinkedIn messages and InMail into the unified inbox, let AI agents draft your replies, then set up contact enrichment and Lead Gen Form capture in n8n. Native LinkedIn messaging in the unified inbox is available from the Pro tier (EUR 29 per user per month); enrichment and lead-gen workflows from the Starter tier (EUR 12 per user per month).
+Start with supported LinkedIn messages and InMail in the Pro unified inbox or connect an external AI client through MCP. If you need enrichment, forms, monitoring, or automated outreach, contract the required providers and operate a separate workflow; those services are not included with Starter.
