@@ -46,7 +46,13 @@ export const SubscriptionExpiredView = observer(({ recoveryPath }: { recoveryPat
       </AppCardBody>
 
       <AppCardFooter>
-        <div className="flex w-full flex-col items-stretch gap-2 sm:flex-row sm:items-start">
+        <div
+          className={
+            recoveryPath === "selfServiceCheckout"
+              ? "grid w-full grid-cols-1 gap-2"
+              : "grid w-full grid-cols-1 gap-2 sm:grid-cols-2"
+          }
+        >
           <Button className="w-full" variant="outline" onClick={handleContactSupport}>
             {t("SubscriptionExpiredView.contactSupportCta")}
           </Button>
