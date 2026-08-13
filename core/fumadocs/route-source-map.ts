@@ -1,7 +1,11 @@
 import type { PUBLIC_ROUTES_SEO } from "@/i18n/routing";
 
+import { CONTENT_DYNAMIC_ROUTES } from "./content-route-contract";
+
 import {
   affiliateSource,
+  apiDocsSource,
+  apiOverviewSource,
   authSource,
   automationSource,
   blogPostsSource,
@@ -85,7 +89,7 @@ export const ROUTE_SOURCE_MAP = {
     source: blogSource,
     path: ["blog"],
   },
-  "/blog/:slug": {
+  [CONTENT_DYNAMIC_ROUTES.blogPost.route]: {
     source: blogPostsSource,
     path: [":slug"],
   },
@@ -93,7 +97,7 @@ export const ROUTE_SOURCE_MAP = {
     source: compareSource,
     path: ["compare"],
   },
-  "/compare/:competitor": {
+  [CONTENT_DYNAMIC_ROUTES.comparison.route]: {
     source: comparePagesSource,
     path: [":competitor"],
   },
@@ -101,11 +105,11 @@ export const ROUTE_SOURCE_MAP = {
     source: forSource,
     path: ["for"],
   },
-  "/for/:industry": {
+  [CONTENT_DYNAMIC_ROUTES.industry.route]: {
     source: forPagesSource,
     path: [":industry"],
   },
-  "/features/:slug": {
+  [CONTENT_DYNAMIC_ROUTES.feature.route]: {
     source: featurePagesSource,
     path: [":slug"],
   },
@@ -117,8 +121,24 @@ export const ROUTE_SOURCE_MAP = {
     source: docsSource,
     path: ["intro-page"],
   },
-  "/docs/:slug": {
+  [CONTENT_DYNAMIC_ROUTES.doc.route]: {
     source: docsSource,
     path: [":slug"],
   },
 } satisfies Record<(typeof PUBLIC_ROUTES_SEO)[number], { source: unknown; path: string[] }>;
+
+export const NON_SEO_CONTENT_ROUTE_SOURCE_MAP = {
+  "/docs/openapi": {
+    source: apiOverviewSource,
+    path: ["openapi"],
+  },
+  [CONTENT_DYNAMIC_ROUTES.openApiDoc.route]: {
+    source: apiDocsSource,
+    path: [":slug"],
+  },
+} as const;
+
+export const CONTENT_ROUTE_SOURCE_MAP = {
+  ...ROUTE_SOURCE_MAP,
+  ...NON_SEO_CONTENT_ROUTE_SOURCE_MAP,
+};

@@ -191,6 +191,23 @@ describe("locale routing configuration", () => {
 });
 
 describe("proxy locale routing", () => {
+  it("normalizes page one and rejects invalid hub pagination before streaming", async () => {
+    const pageOne = await call("/en/blog?page=1&utm_source=proof");
+    expect(pageOne.status).toBe(308);
+    expect(pageOne.location).toBe("http://localhost:4000/en/blog?utm_source=proof");
+
+    for (const query of ["page=0", "page=01", "page=2junk", "page=2&page=3", "page=4"]) {
+      const invalid = await call(`/en/blog?${query}`);
+      expect(invalid.status, query).toBe(404);
+      expect(invalid.location, query).toBeNull();
+      expect(invalid.response.headers.get("x-robots-tag"), query).toBe("noindex");
+    }
+
+    const lastPage = await call("/en/blog?page=3");
+    expect(lastPage.status).toBe(200);
+    expect(lastPage.location).toBeNull();
+  });
+
   it("never emits a permanently cached redirect", async () => {
     for (const path of PATHS) {
       const { status } = await call(path);

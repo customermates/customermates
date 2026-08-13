@@ -18,6 +18,8 @@ import { env } from "./env";
 import { auth } from "./core/auth/better-auth";
 import { resolveRequestOrigin } from "./core/config/environment";
 import { SYNTHETIC_SEED_USER } from "./core/config/synthetic-seed-user";
+import { HUB_PAGE_PARAM, resolveHubPage } from "./core/seo/hub-pagination";
+import { LANDING_HUBS } from "./core/seo/landing-hubs";
 
 const intlAppMiddleware = createMiddleware(appRouting);
 const intlContentMiddleware = createMiddleware(contentRouting);
@@ -74,6 +76,31 @@ function appendSetCookieHeaders(response: NextResponse, authResponse: Response):
   for (const cookie of setCookies) response.headers.append("set-cookie", cookie);
 }
 
+function hubPaginationResponse(req: NextRequest, locale: string): NextResponse | null {
+  const hub = LANDING_HUBS.find(({ hubPath }) => hubPath === stripLocalePrefix(req.nextUrl.pathname));
+  if (!hub) return null;
+
+  const values = req.nextUrl.searchParams.getAll(HUB_PAGE_PARAM);
+  const raw = values.length === 0 ? undefined : values.length === 1 ? values[0] : values;
+  const resolution = resolveHubPage(raw, hub.pageCount);
+
+  if (resolution.kind === "page") return null;
+
+  if (resolution.kind === "redirect-page-one") {
+    const canonical = req.nextUrl.clone();
+    canonical.pathname = buildLocalePath(locale, hub.hubPath);
+    canonical.searchParams.delete(HUB_PAGE_PARAM);
+    return NextResponse.redirect(canonical, 308);
+  }
+
+  const notFoundTarget = req.nextUrl.clone();
+  notFoundTarget.pathname = buildLocalePath(locale, "/__invalid-hub-page");
+  notFoundTarget.search = "";
+  const response = NextResponse.rewrite(notFoundTarget, { status: 404 });
+  response.headers.set("x-robots-tag", "noindex");
+  return response;
+}
+
 export default async function proxy(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
   const base = resolveRequestOrigin(req.nextUrl.origin, env.AUTH_ALLOWED_HOSTS, env.BASE_URL);
@@ -126,6 +153,9 @@ export default async function proxy(req: NextRequest) {
     if (isUnsupportedLocalePrefix(pathname)) return NextResponse.next();
     return negotiateLocale(req, base, isAuthenticated && pathname === "/" ? "app" : "auto");
   }
+
+  const paginationResponse = hubPaginationResponse(req, currentLocale);
+  if (paginationResponse) return paginationResponse;
 
   if (env.APP_MODE === "demo") {
     const isNonDemoUser = isAuthenticated && session?.user?.email !== SYNTHETIC_SEED_USER.email;

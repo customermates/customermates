@@ -1,22 +1,46 @@
 import type { Metadata } from "next";
 
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { Footer } from "@/app/components/footer";
+import { HubPagination } from "@/components/marketing/hub-pagination";
 import { HubPostGrid, type HubPostGridItem } from "@/components/marketing/hub-post-grid";
 import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { comparePagesSource, compareSource } from "@/core/fumadocs/source";
+import {
+  HUB_PAGE_PARAM,
+  hubPageCount,
+  hubPageHref,
+  paginateLocalizedHubPages,
+  resolveHubPage,
+} from "@/core/seo/hub-pagination";
 import { breadcrumbListSchema } from "@/core/seo/schemas";
-import { contentLocaleOrDefault, formattingTagFor } from "@/i18n/locale-registry";
+import { DEFAULT_LOCALE, buildLocalePath, contentLocaleOrDefault, formattingTagFor } from "@/i18n/locale-registry";
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+type Props = {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { locale } = await params;
-  return generateMetadataFromMeta({ locale, route: "/compare" });
+  const resolution = resolveHubPage(
+    (await searchParams)[HUB_PAGE_PARAM],
+    hubPageCount(comparePagesSource.getPages(DEFAULT_LOCALE).length),
+  );
+
+  if (resolution.kind === "not-found") notFound();
+
+  return generateMetadataFromMeta({
+    canonicalPath: hubPageHref("/compare", resolution.page),
+    locale,
+    route: "/compare",
+  });
 }
 
-export default async function CompareHubPage() {
+export default async function CompareHubPage({ searchParams }: Props) {
   const locale = contentLocaleOrDefault(await getLocale());
   const page = compareSource.getPage(["compare"], locale);
 
@@ -24,18 +48,27 @@ export default async function CompareHubPage() {
 
   const t = await getTranslations();
   const collator = new Intl.Collator(formattingTagFor(locale));
+  const referenceCollator = new Intl.Collator(formattingTagFor(DEFAULT_LOCALE));
   const tagLabels = {
     alternative: t("ComparePage.tags.alternative"),
     comparison: t("ComparePage.tags.comparison"),
     review: t("ComparePage.tags.review"),
   };
 
-  const items: HubPostGridItem[] = comparePagesSource
-    .getPages(locale)
-    .map((p): HubPostGridItem | null => {
-      const slug = p.url?.split("/").pop() ?? "";
-      if (!slug) return null;
+  const referencePages = comparePagesSource.getPages(DEFAULT_LOCALE);
+  const resolution = resolveHubPage((await searchParams)[HUB_PAGE_PARAM], hubPageCount(referencePages.length));
 
+  if (resolution.kind === "not-found") notFound();
+  if (resolution.kind === "redirect-page-one") permanentRedirect(buildLocalePath(locale, "/compare"));
+
+  const paginated = paginateLocalizedHubPages(
+    referencePages,
+    comparePagesSource.getPages(locale),
+    resolution.page,
+    (a, b) => referenceCollator.compare(a.page.data.competitorName, b.page.data.competitorName),
+  );
+  const items: HubPostGridItem[] = paginated.items
+    .map(({ page: p, slug }): HubPostGridItem => {
       const competitor2 = p.data.comparison?.competitor2Name;
       let title = p.data.competitorName;
       if (slug.includes("-vs-") && competitor2) title = `${p.data.competitorName} vs ${competitor2}`;
@@ -57,7 +90,6 @@ export default async function CompareHubPage() {
         title,
       };
     })
-    .filter((item): item is HubPostGridItem => item !== null)
     .sort((a, b) => collator.compare(a.title, b.title));
 
   return (
@@ -73,6 +105,15 @@ export default async function CompareHubPage() {
       />
 
       <HubPostGrid hero={page.data.hero} items={items} locale={locale} />
+
+      <HubPagination
+        basePath="/compare"
+        label={page.data.title}
+        nextLabel={t("Common.table.nextPage")}
+        page={paginated.page}
+        pageCount={paginated.pageCount}
+        previousLabel={t("Common.table.previousPage")}
+      />
 
       <Footer />
     </div>
