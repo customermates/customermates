@@ -29,12 +29,13 @@ describe("dashboard widget UI", () => {
     expect(header).toContain("<ActivityWidgetFilters");
   });
 
-  it("preserves the shared drawer scroll, footer, and close behavior", () => {
+  it("leaves save, reset and close to the shared form and overlay components", () => {
     const modal = dashboardComponent("widget-modal.tsx");
-    const footer = between(modal, "<AppCardFooter", "</AppCardFooter>");
 
-    expect(modal).toContain("if (isLoading) return");
-    expect(footer).toContain("disabled={isLoading}");
+    expect(modal).toContain("<FormActions");
+    expect(modal).toContain('anchorScope="widget-modal"');
+    expect(modal).not.toContain("function requestClose");
+    expect(modal).not.toContain("Common.actions.cancel");
   });
 
   it("uses the shared overlay action treatment for widget deletion", () => {
@@ -48,9 +49,10 @@ describe("dashboard widget UI", () => {
 
   it("limits activity widget metadata to the count and active filters", () => {
     const filters = dashboardComponent("activity-widget-filters.tsx");
+    const chartCard = dashboardComponent("chart-widget-card.tsx");
 
     expect(filters).toContain("Dashboard.activityWidget.activityCount");
-    expect(filters).toContain("<FilterChipValue");
+    for (const source of [filters, chartCard]) expect(source).toContain("<WidgetFilterChip");
   });
 
   it("shows linked records as entity chips in the activity detail header, not inline on each row", () => {

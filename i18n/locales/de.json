@@ -1587,6 +1587,7 @@
     },
     "next": "Weiter",
     "progress": "Schritt {current} von {total}",
+    "progressLabel": "Fortschritt der Einrichtung",
     "steps": {
       "ai": {
         "subtitle": "Wähle eine KI aus, die du jetzt verbinden möchtest. Weitere kannst du später hinzufügen.",

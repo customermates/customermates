@@ -26,11 +26,11 @@ export function isWidgetOpeningClick(args: {
   endX: number;
   endY: number;
   startedOnInteractive: boolean;
-  tolerance?: number;
 }): boolean {
   if (args.startedOnInteractive) return false;
 
-  const tolerance = args.tolerance ?? WIDGET_CLICK_MOVEMENT_TOLERANCE;
-
-  return Math.abs(args.endX - args.startX) < tolerance && Math.abs(args.endY - args.startY) < tolerance;
+  return (
+    Math.abs(args.endX - args.startX) < WIDGET_CLICK_MOVEMENT_TOLERANCE &&
+    Math.abs(args.endY - args.startY) < WIDGET_CLICK_MOVEMENT_TOLERANCE
+  );
 }

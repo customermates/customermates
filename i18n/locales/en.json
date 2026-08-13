@@ -1587,6 +1587,7 @@
     },
     "next": "Next",
     "progress": "Step {current} of {total}",
+    "progressLabel": "Onboarding progress",
     "steps": {
       "ai": {
         "subtitle": "Choose one to connect now. You can add the others later.",

@@ -147,9 +147,7 @@ export const ActivityWidgetCard = observer(({ widget }: Props) => {
     <ActivityQueryProvider filters={store.filters} scope={store.scope}>
       <AppCard className="h-full cursor-pointer overflow-hidden">
         <AppCardHeader className="flex-col items-start gap-0.5">
-          <div className="flex w-full items-center gap-2">
-            <h2 className="text-x-md min-w-0 flex-1 truncate">{widget.name}</h2>
-          </div>
+          <h2 className="text-x-md w-full truncate">{widget.name}</h2>
 
           {showFilters && <ActivityWidgetFilters state={state} store={store} widget={widget} />}
         </AppCardHeader>

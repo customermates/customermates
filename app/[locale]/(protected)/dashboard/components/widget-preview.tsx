@@ -8,16 +8,16 @@ import type { ReactNode } from "react";
 import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { AggregationType, EntityType, WidgetKind } from "@/generated/prisma";
+import { AggregationType, WidgetKind } from "@/generated/prisma";
 
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
-import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { DisplayType } from "@/features/widget/widget.schema";
 import { ActivitiesList } from "@/features/messaging/activities/activities-list";
 import { useOwnedActivitiesStore } from "@/features/messaging/activities/use-owned-activities-store";
 
+import { useAggregationTypeLabel } from "./use-aggregation-type-label";
 import { WidgetChart } from "./widget-chart";
 import { buildChartPreviewData, getChartPreviewTotal } from "./widget-preview-data";
 import { widgetSubheader } from "./widget-subheader";
@@ -130,7 +130,7 @@ const ActivityPreviewFeed = observer(({ filters }: { filters: Filter[] }) => {
 
 export const WidgetPreview = observer(({ activeFilterCount, activityFilters, customColumns, form }: Props) => {
   const t = useTranslations();
-  const { plural, singular } = useEntityTerminology();
+  const aggregationTypeLabel = useAggregationTypeLabel();
   const { intlStore } = useRootStore();
   const title = form.name.trim() || t("Dashboard.widgetEditor.preview.untitled");
   const showSummary = form.displayOptions?.showFilters !== false;
@@ -157,24 +157,7 @@ export const WidgetPreview = observer(({ activeFilterCount, activityFilters, cus
           })
         : intlStore.formatNumber(previewTotal);
     const previewSummary = widgetSubheader(previewData.length, formattedTotal, t("Diagrams.groups")) ?? formattedTotal;
-    const metric =
-      form.aggregationType === AggregationType.count
-        ? t("Dashboard.aggregationTypes.count", {
-            entities: plural(form.entityType),
-          })
-        : form.aggregationType === AggregationType.dealValue
-          ? form.entityType === EntityType.deal
-            ? t("Dashboard.aggregationTypes.dealValue", {
-                deal: singular(EntityType.deal),
-              })
-            : t("Dashboard.aggregationTypes.dealValueRelated", {
-                deal: singular(EntityType.deal),
-                entity: singular(form.entityType),
-              })
-          : t("Dashboard.aggregationTypes.dealQuantity", {
-              deals: plural(EntityType.deal),
-              services: plural(EntityType.service),
-            });
+    const metric = aggregationTypeLabel(form.aggregationType, form.entityType);
 
     return (
       <WidgetPreviewFrame

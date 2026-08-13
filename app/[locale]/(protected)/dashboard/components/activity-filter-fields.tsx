@@ -16,7 +16,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { Badge } from "@/components/ui/badge";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 
-import { activityTypeStateForFilter, activityTypeSelectionFor, type ActivityTypeValue } from "./activity-filter-form";
+import { ACTIVITY_TYPE_VALUES, activityTypeStateForFilter, activityTypeSelectionFor } from "./activity-filter-form";
 
 type Props = {
   expandedField?: string;
@@ -32,40 +32,18 @@ export const ActivityFilterFields = observer(
     const filterFieldLabel = useFilterFieldLabel();
     const form = useAppForm();
     const fieldsByKey = new Map(filterableFields.map((field) => [field.field, field]));
-    const visibleFilters = filters
-      .map((filter, index) => ({ filter, index }))
-      .filter(({ filter }) => fieldsByKey.has(filter.field));
+    const indexedFilters = filters.map((filter, index) => ({ filter, index }));
+    const visibleFilters = indexedFilters.filter(({ filter }) => fieldsByKey.has(filter.field));
     const activityTypeEntry = visibleFilters.find(
       ({ filter }) => filter.field === FilterFieldKey.timelineKind.toString(),
     );
     const filterEntries = visibleFilters.filter(
       ({ filter }) => filter.field !== FilterFieldKey.timelineKind.toString(),
     );
-    const activityTypeOptions: Array<{
-      description: string;
-      label: string;
-      value: ActivityTypeValue;
-    }> = [
-      {
-        description: t("Dashboard.widgetEditor.filters.activityTypeOptions.changes.description"),
-        label: t("Dashboard.widgetEditor.filters.activityTypeOptions.changes.label"),
-        value: "changes",
-      },
-      {
-        description: t("Dashboard.widgetEditor.filters.activityTypeOptions.messages.description"),
-        label: t("Dashboard.widgetEditor.filters.activityTypeOptions.messages.label"),
-        value: "messages",
-      },
-      {
-        description: t("Dashboard.widgetEditor.filters.activityTypeOptions.activities.description"),
-        label: t("Dashboard.widgetEditor.filters.activityTypeOptions.activities.label"),
-        value: "activities",
-      },
-    ];
     const activeFilterCount = filterEntries.filter(({ filter }) => hasValidFilterConfiguration(filter)).length;
-    const hiddenFilterEntries = filters
-      .map((filter, index) => ({ filter, index }))
-      .filter(({ filter }) => !fieldsByKey.has(filter.field) && hasValidFilterConfiguration(filter));
+    const hiddenFilterEntries = indexedFilters.filter(
+      ({ filter }) => !fieldsByKey.has(filter.field) && hasValidFilterConfiguration(filter),
+    );
 
     if (!visibleFilters.length && hiddenFilterEntries.length === 0)
       return <p className="text-sm text-muted-foreground">{t("Dashboard.widgetEditor.filters.noneAvailable")}</p>;
@@ -79,14 +57,14 @@ export const ActivityFilterFields = observer(
             </legend>
 
             <div className="grid gap-2 sm:grid-cols-3">
-              {activityTypeOptions.map(({ description, label, value }) => (
+              {ACTIVITY_TYPE_VALUES.map((value) => (
                 <SelectableCard
                   key={value}
                   checked={activityTypeStateForFilter(activityTypeEntry.filter, value)}
-                  description={description}
+                  description={t(`Dashboard.widgetEditor.filters.activityTypeOptions.${value}.description`)}
                   disabled={form?.isDisabled}
                   id={`activity-type-${value}`}
-                  label={label}
+                  label={t(`Dashboard.widgetEditor.filters.activityTypeOptions.${value}.label`)}
                   selectionMode="multiple"
                   onCheckedChange={(checked) => {
                     const next = activityTypeSelectionFor(activityTypeEntry.filter, value, checked);

@@ -1587,6 +1587,7 @@
     },
     "next": "Suivant",
     "progress": "Étape {current} sur {total}",
+    "progressLabel": "Progression de la configuration",
     "steps": {
       "ai": {
         "subtitle": "Choisissez l’IA à connecter maintenant. Vous pourrez en ajouter d’autres plus tard.",

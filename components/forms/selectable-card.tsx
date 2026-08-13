@@ -8,7 +8,6 @@ import { RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/core/utils/cn";
 
 type BaseProps = {
-  className?: string;
   description?: string;
   disabled?: boolean;
   id: string;
@@ -31,7 +30,7 @@ type RadioCardProps = BaseProps & {
 type Props = CheckboxCardProps | RadioCardProps;
 
 export function SelectableCard(props: Props) {
-  const { className, description, disabled, id, label, labelClassName, selectionMode, visual } = props;
+  const { description, disabled, id, label, labelClassName, selectionMode, visual } = props;
   const controlClassName = "peer absolute left-3 top-3 z-10";
   const control =
     selectionMode === "single" ? (
@@ -49,7 +48,7 @@ export function SelectableCard(props: Props) {
     );
 
   return (
-    <div className={cn("relative min-w-0", className)}>
+    <div className="relative min-w-0">
       {control}
 
       <Label

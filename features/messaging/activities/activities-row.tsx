@@ -123,10 +123,7 @@ export function DetailHeader({
   );
 }
 
-export function auditCategory(event: string): {
-  icon: LucideIcon;
-  tone: BadgeTone;
-} {
+export function auditCategory(event: string): { icon: LucideIcon; tone: BadgeTone } {
   const tone = auditEventTone(event);
   if (tone === "deleted") return { icon: Trash2, tone: "deleted" };
   if (tone === "created") return { icon: Plus, tone: "created" };

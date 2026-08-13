@@ -14,11 +14,11 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
-import { FilterChipValue } from "@/components/data-view/filter-modal/filter-chip-display";
 import { useFilterFieldLabel } from "@/components/entity-terminology/use-filter-field-label";
 import { supportsDealFilters } from "@/features/widget/widget.schema";
 import { widgetSubheader } from "./widget-subheader";
 import { WidgetChart } from "./widget-chart";
+import { WidgetFilterChip } from "./widget-filter-chip";
 
 type Props = {
   widget: ChartWidgetDto;
@@ -59,7 +59,6 @@ export const ChartWidgetCard = observer(({ widget }: Props) => {
   const inlineFilters: Array<{
     key: string;
     label: string;
-    operator: string;
     customColumns: typeof entityCustomColumns;
     filter: Filter;
     onClick: () => void;
@@ -68,7 +67,6 @@ export const ChartWidgetCard = observer(({ widget }: Props) => {
         ...activeEntityFilters.map((filter, index) => ({
           key: `entity-${filter.field}-${index}`,
           label: filterFieldLabel(filter.field, entityCustomColumns),
-          operator: t(`Common.filters.operators.${filter.operator}`),
           customColumns: entityCustomColumns,
           filter,
           onClick: () => widgetModalStore.openWithFilter(widget.id, "filters", filter.field),
@@ -76,7 +74,6 @@ export const ChartWidgetCard = observer(({ widget }: Props) => {
         ...activeDealFilters.map((filter, index) => ({
           key: `deal-${filter.field}-${index}`,
           label: filterFieldLabel(filter.field, dealCustomColumns),
-          operator: t(`Common.filters.operators.${filter.operator}`),
           customColumns: dealCustomColumns,
           filter,
           onClick: () => widgetModalStore.openWithFilter(widget.id, "dealFilters", filter.field),
@@ -89,9 +86,7 @@ export const ChartWidgetCard = observer(({ widget }: Props) => {
   return (
     <AppCard className="h-full cursor-pointer overflow-visible">
       <AppCardHeader className="flex-col items-start gap-0.5">
-        <div className="flex w-full items-center gap-2">
-          <h2 className="text-x-md min-w-0 flex-1 truncate">{widget.name}</h2>
-        </div>
+        <h2 className="text-x-md w-full truncate">{widget.name}</h2>
 
         {showSubheaderRow && (
           <p className="text-xs text-muted-foreground w-full line-clamp-2 wrap-break-word">
@@ -103,31 +98,12 @@ export const ChartWidgetCard = observer(({ widget }: Props) => {
                   ·
                 </span>
 
-                <span
-                  className="cursor-pointer transition-[color,background-color,transform] hover:bg-muted/50 hover:text-foreground active:scale-[0.97] motion-reduce:transition-none"
-                  role="button"
-                  tabIndex={0}
-                  title={f.label}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    f.onClick();
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      f.onClick();
-                    }
-                  }}
-                  onPointerDown={(e) => e.stopPropagation()}
-                >
-                  <FilterChipValue
-                    customColumns={f.customColumns}
-                    filter={f.filter}
-                    label={f.label}
-                    operator={f.operator}
-                  />
-                </span>
+                <WidgetFilterChip
+                  customColumns={f.customColumns}
+                  filter={f.filter}
+                  label={f.label}
+                  onOpen={f.onClick}
+                />
               </Fragment>
             ))}
           </p>

@@ -1587,6 +1587,7 @@
     },
     "next": "Siguiente",
     "progress": "Paso {current} de {total}",
+    "progressLabel": "Progreso de la configuración inicial",
     "steps": {
       "ai": {
         "subtitle": "Elige cuál conectar ahora. Podrás añadir las demás más adelante.",

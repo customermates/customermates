@@ -20,6 +20,7 @@ import {
   WebhookDeliveryStatus,
   WidgetKind,
 } from "@/generated/prisma";
+import { ACTIVITY_TYPE_VALUES } from "@/app/[locale]/(protected)/dashboard/components/activity-filter-form";
 import { socialErrorMessageKeys } from "@/app/[locale]/(public)/auth/social-error-keys";
 import { CHIP_COLORS } from "@/constants/chip-colors";
 import { ALL_LEGAL_DOCUMENTS } from "@/constants/legal-documents";
@@ -54,6 +55,8 @@ const WIDGET_KIND_KEYS = Object.values(WidgetKind).map((kind) => `Dashboard.widg
 const WIDGET_KIND_DESCRIPTION_KEYS = Object.values(WidgetKind).map(
   (kind) => `Dashboard.widgetEditor.kind.${kind}Description`,
 );
+const activityTypeOptionKeys = (leaf: "description" | "label") =>
+  ACTIVITY_TYPE_VALUES.map((value) => `Dashboard.widgetEditor.filters.activityTypeOptions.${value}.${leaf}`);
 const DIAGRAM_SYSTEM_KEYS = DIAGRAM_SYSTEM_LABEL_KEYS.map((key) => `Diagrams.${key}`);
 const AGGREGATION_TYPE_KEYS = [
   ...Object.values(AggregationType).map((aggregationType) => `Dashboard.aggregationTypes.${aggregationType}`),
@@ -270,6 +273,8 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["Common.userStatuses.${*}", USER_STATUS_KEYS],
   ["ConnectedAccountsCard.statusLabels.${*}", CONNECTED_ACCOUNT_STATUS_KEYS],
   ["Dashboard.displayTypes.${*}", DISPLAY_TYPE_KEYS],
+  ["Dashboard.widgetEditor.filters.activityTypeOptions.${*}.description", activityTypeOptionKeys("description")],
+  ["Dashboard.widgetEditor.filters.activityTypeOptions.${*}.label", activityTypeOptionKeys("label")],
   ["Dashboard.widgetEditor.kind.${*}Description", WIDGET_KIND_DESCRIPTION_KEYS],
   ["Dashboard.widgetKinds.${*}", WIDGET_KIND_KEYS],
   ["EntityTimeline.types.${*}", ENTITY_TIMELINE_TYPE_KEYS],
@@ -441,9 +446,10 @@ export const DYNAMIC_KEY_SITES = [
   "features/messaging/activities/activities-detail-modal.tsx :: t :: Common.providers.${event.provider}",
   "features/messaging/activities/activities-detail-modal.tsx :: t :: Common.providers.${message.provider}",
   "app/[locale]/(protected)/dashboard/components/activity-filter-fields.tsx :: t :: Common.filters.operators.${filter.operator}",
-  "app/[locale]/(protected)/dashboard/components/activity-widget-filters.tsx :: t :: Common.filters.operators.${filter.operator}",
-  "app/[locale]/(protected)/dashboard/components/chart-widget-card.tsx :: t :: Common.filters.operators.${filter.operator}",
+  "app/[locale]/(protected)/dashboard/components/activity-filter-fields.tsx :: t :: Dashboard.widgetEditor.filters.activityTypeOptions.${value}.description",
+  "app/[locale]/(protected)/dashboard/components/activity-filter-fields.tsx :: t :: Dashboard.widgetEditor.filters.activityTypeOptions.${value}.label",
   "app/[locale]/(protected)/dashboard/components/widget-display-type-picker.tsx :: t :: Dashboard.displayTypes.${type}",
+  "app/[locale]/(protected)/dashboard/components/widget-filter-chip.tsx :: t :: Common.filters.operators.${filter.operator}",
   "app/[locale]/(protected)/dashboard/components/widget-preview.tsx :: t :: Dashboard.displayTypes.${displayType}",
   "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetEditor.kind.${kind}Description",
   "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetKinds.${kind}",
@@ -459,7 +465,6 @@ export const DYNAMIC_KEY_SITES = [
 const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ["app/[locale]/(protected)/contacts/components/add-channel-popover.tsx :: t :: SOURCE_HINT_KEYS[source]", 1],
   ["app/[locale]/(protected)/contacts/components/use-contact-columns.tsx :: t :: nameKey", 1],
-  ["app/[locale]/(protected)/dashboard/components/widget-modal.tsx :: t :: translationKey", 3],
   ["app/[locale]/(protected)/deals/components/use-deal-columns.tsx :: t :: nameKey", 1],
   ["app/[locale]/(protected)/inbox/components/attachment-classify.ts :: t :: typeLabelKey", 2],
   ["app/[locale]/(protected)/inbox/components/message-item.tsx :: t :: labelKey", 1],
@@ -548,20 +553,6 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
   {
     file: "features/event/entity-name.utils.ts",
     keys: ["Common.company"],
-  },
-  {
-    file: "app/[locale]/(protected)/dashboard/components/widget-modal.tsx",
-    keys: ["Dashboard.aggregationTypes.count", "Dashboard.aggregationTypes.dealQuantity"],
-    evidence: {
-      "Dashboard.aggregationTypes.count": [
-        { kind: "template", value: "`Dashboard.aggregationTypes.${key}`" },
-        { kind: "literal", value: "count" },
-      ],
-      "Dashboard.aggregationTypes.dealQuantity": [
-        { kind: "template", value: "`Dashboard.aggregationTypes.${key}`" },
-        { kind: "literal", value: "dealQuantity" },
-      ],
-    },
   },
   {
     file: "app/[locale]/(protected)/dashboard/components/widget-label.ts",

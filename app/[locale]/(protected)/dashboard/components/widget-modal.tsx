@@ -16,6 +16,7 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
+import { FormActions } from "@/components/card/form-actions";
 import { FormInput } from "@/components/forms/form-input";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormSwitch } from "@/components/forms/form-switch";
@@ -41,9 +42,12 @@ import { useEntityTerminology } from "@/components/entity-terminology/use-entity
 import { ActivityQueryProvider } from "@/features/messaging/activities/activity-query-context";
 
 import { ActivityFilterFields } from "./activity-filter-fields";
+import { useAggregationTypeLabel } from "./use-aggregation-type-label";
 import { WidgetDisplayTypePicker } from "./widget-display-type-picker";
+import { WIDGET_EDITOR_GRID_CLASS } from "./widget-editor-layout";
 import { WidgetPreview } from "./widget-preview";
 import { WidgetStarterPicker } from "./widget-starter-picker";
+import { WizardProgress } from "@/components/shared/wizard-progress";
 
 type Props = {
   customColumns: CustomColumnDto[];
@@ -53,51 +57,11 @@ type Props = {
 
 type EditorTab = "data" | "filters" | "appearance";
 
-type WidgetEditActionsProps = {
-  anchorScope: string;
-  controlsDisabled: boolean;
-  hasUnsavedChanges: boolean;
-  resetLabel: string;
-  saveDisabled: boolean;
-  saveLabel: string;
-  onReset: () => void;
-};
-
-function WidgetEditActions({
-  anchorScope,
-  controlsDisabled,
-  hasUnsavedChanges,
-  resetLabel,
-  saveDisabled,
-  saveLabel,
-  onReset,
-}: WidgetEditActionsProps) {
-  return (
-    <>
-      {hasUnsavedChanges && (
-        <Button
-          disabled={controlsDisabled}
-          id={`${anchorScope}-reset`}
-          type="button"
-          variant="outline"
-          onClick={onReset}
-        >
-          {resetLabel}
-        </Button>
-      )}
-
-      <Button disabled={saveDisabled} id={`${anchorScope}-save`} type="submit">
-        {saveLabel}
-      </Button>
-    </>
-  );
-}
-
 function WidgetModalSkeleton() {
   const t = useTranslations();
 
   return (
-    <div className="grid min-h-96 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(17rem,0.72fr)]" role="status">
+    <div className={`${WIDGET_EDITOR_GRID_CLASS} min-h-96`} role="status">
       <span className="sr-only">{t("Loading.text")}</span>
 
       <div className="space-y-4">
@@ -124,11 +88,12 @@ function tabForSection(section: string, kind: WidgetKind): EditorTab {
 
 export const WidgetModal = observer(({ customColumns, filterableFields, activityFilterableFields }: Props) => {
   const t = useTranslations();
+  const aggregationTypeLabel = useAggregationTypeLabel();
   const { plural, singular } = useEntityTerminology();
   const { widgetModalStore } = useRootStore();
   const { showDeleteConfirmation } = useDeleteConfirmation();
   const { resolvedTheme } = useTheme();
-  const { form, canManage, isDisabled, isLoading, companyWideWidgets } = widgetModalStore;
+  const { form, canManage, isDisabled, companyWideWidgets } = widgetModalStore;
   const chartColors = getChartColors(resolvedTheme);
   const isCreate = !form.id;
   const canDeleteWidget = !isCreate && canManage && Boolean(form.id);
@@ -139,6 +104,7 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
       : widgetModalStore.activeTimelineFiltersCount;
   const isChooseStep = isCreate && widgetModalStore.creationStep === "choose";
   const creationStepNumber = isChooseStep ? 1 : 2;
+  const progressText = t("Dashboard.widgetEditor.progress", { current: creationStepNumber, total: 2 });
   const dialogTitle = isChooseStep
     ? t("Dashboard.widgetEditor.kind.title")
     : isCreate
@@ -151,15 +117,6 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
     widgetModalStore.setFilterableFields(filterableFields);
     widgetModalStore.setActivityFilterableFields(activityFilterableFields);
   }, [activityFilterableFields, customColumns, filterableFields, widgetModalStore]);
-
-  function requestClose() {
-    if (isLoading) return;
-    if (widgetModalStore.withUnsavedChangesGuard && widgetModalStore.hasUnsavedChanges) {
-      widgetModalStore.setIsClosingWithGuard(true);
-      return;
-    }
-    widgetModalStore.close();
-  }
 
   function setActiveTab(next: string) {
     if (next === "filters") {
@@ -193,28 +150,10 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
         <FormSelect
           required
           id="aggregationType"
-          items={widgetModalStore.aggregationTypeOptions.map(({ key }) => {
-            const translationKey = `Dashboard.aggregationTypes.${key}`;
-            const label =
-              key === "count"
-                ? t(translationKey, { entities: plural(form.entityType) })
-                : key === "dealValue"
-                  ? form.entityType === EntityType.deal
-                    ? t("Dashboard.aggregationTypes.dealValue", {
-                        deal: singular(EntityType.deal),
-                      })
-                    : t("Dashboard.aggregationTypes.dealValueRelated", {
-                        deal: singular(EntityType.deal),
-                        entity: singular(form.entityType),
-                      })
-                  : key === "dealQuantity"
-                    ? t(translationKey, {
-                        deals: plural(EntityType.deal),
-                        services: plural(EntityType.service),
-                      })
-                    : t(translationKey);
-            return { value: key, label };
-          })}
+          items={widgetModalStore.aggregationTypeOptions.map(({ key }) => ({
+            value: key,
+            label: aggregationTypeLabel(key, form.entityType),
+          }))}
           label={t("Common.inputs.aggregationType")}
         />
 
@@ -338,10 +277,6 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
         )}
       </div>
     );
-  }
-
-  function renderFilterSettings() {
-    return renderChartFilters();
   }
 
   function renderColorPicker() {
@@ -491,41 +426,19 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
       <AppForm store={widgetModalStore}>
         <AppCard>
           <AppCardHeader className="flex-col items-start gap-4">
-            <div className="flex w-full min-w-0 items-start gap-4">
-              <div className="min-w-0 flex-1 space-y-1">
-                {isCreate && (
-                  <p className="text-xs text-muted-foreground">
-                    {t("Dashboard.widgetEditor.progress", {
-                      current: creationStepNumber,
-                      total: 2,
-                    })}
-                  </p>
-                )}
+            <div className="min-w-0 flex-1 space-y-1">
+              {isCreate && <p className="text-xs text-muted-foreground">{progressText}</p>}
 
-                <h2 className="min-w-0 break-words text-xl font-semibold">{dialogTitle}</h2>
-              </div>
+              <h2 className="min-w-0 break-words text-xl font-semibold">{dialogTitle}</h2>
             </div>
 
             {isCreate && (
-              <div
-                aria-label={t("Dashboard.widgetEditor.progressLabel")}
-                aria-valuemax={2}
-                aria-valuemin={1}
-                aria-valuenow={creationStepNumber}
-                aria-valuetext={t("Dashboard.widgetEditor.progress", {
-                  current: creationStepNumber,
-                  total: 2,
-                })}
-                className="h-1 w-full overflow-hidden rounded-full bg-muted"
-                role="progressbar"
-              >
-                <div
-                  className="h-full bg-primary transition-[width] motion-reduce:transition-none"
-                  style={{
-                    width: `${(creationStepNumber / 2) * 100}%`,
-                  }}
-                />
-              </div>
+              <WizardProgress
+                current={creationStepNumber}
+                label={t("Dashboard.widgetEditor.progressLabel")}
+                total={2}
+                valueText={progressText}
+              />
             )}
           </AppCardHeader>
 
@@ -543,7 +456,7 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
                 />
               </div>
             ) : (
-              <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(17rem,0.72fr)]">
+              <div className={WIDGET_EDITOR_GRID_CLASS}>
                 <Tabs className="min-w-0" value={activeTab} onValueChange={setActiveTab}>
                   <TabsList
                     aria-label={t("Dashboard.widgetEditor.tabs.label")}
@@ -578,7 +491,7 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
 
                   {form.kind === WidgetKind.chart && (
                     <TabsContent className="pt-5" value="filters">
-                      {renderFilterSettings()}
+                      {renderChartFilters()}
                     </TabsContent>
                   )}
 
@@ -597,13 +510,9 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
             )}
           </AppCardBody>
 
-          <AppCardFooter className="gap-2">
-            <Button disabled={isLoading} type="button" variant="ghost" onClick={requestClose}>
-              {t("Common.actions.cancel")}
-            </Button>
-
-            {isCreate && widgetModalStore.creationStep === "configure" ? (
-              <>
+          {isCreate ? (
+            widgetModalStore.creationStep === "configure" && (
+              <AppCardFooter className="gap-2">
                 <Button disabled={isDisabled} type="button" variant="outline" onClick={goBackToKindStep}>
                   {t("Common.actions.back")}
                 </Button>
@@ -611,19 +520,17 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
                 <Button disabled={saveDisabled} id="widget-modal-save" type="submit">
                   {t("Dashboard.widgetEditor.create")}
                 </Button>
-              </>
-            ) : !isCreate && canManage ? (
-              <WidgetEditActions
-                anchorScope="widget-modal"
-                controlsDisabled={isDisabled}
-                hasUnsavedChanges={widgetModalStore.hasUnsavedChanges}
-                resetLabel={t("Common.actions.reset")}
-                saveDisabled={saveDisabled}
-                saveLabel={t("Dashboard.widgetEditor.save")}
-                onReset={widgetModalStore.resetForm}
-              />
-            ) : null}
-          </AppCardFooter>
+              </AppCardFooter>
+            )
+          ) : (
+            <FormActions
+              showInitially
+              anchorScope="widget-modal"
+              overrideDisabled={!form.name.trim()}
+              primaryButtonLabel="Dashboard.widgetEditor.save"
+              store={widgetModalStore}
+            />
+          )}
         </AppCard>
       </AppForm>
     </AppModal>
