@@ -27,10 +27,9 @@ import { AppLocalePreferenceSync } from "@/components/shared/app-locale-preferen
 
 import { ProtectedEnhancementsProvider } from "./protected-enhancements-context";
 import { accountStateForPath } from "./account-state-for-path";
-import { refreshAccountStateWhenVisible } from "./account-state-refresh";
 import { resolveNavigationShell } from "./navigation-shell";
 
-type Props = {
+type NavigationSwitchProps = {
   accountState: AccountState;
   sidebarUser: SidebarUser | null;
   appUser: TenantUser | null;
@@ -64,7 +63,7 @@ export function NavigationSwitch({
   defaultSidebarOpen = true,
   legalStatus,
   children,
-}: Props) {
+}: NavigationSwitchProps) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -91,7 +90,14 @@ export function NavigationSwitch({
     if (currentAccountState !== accountState) router.refresh();
   }, [accountState, currentAccountState, router]);
 
-  useEffect(() => refreshAccountStateWhenVisible(() => router.refresh()), [router]);
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") router.refresh();
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [router]);
 
   useLayoutEffect(() => {
     userStore.setUser(accountAllowed ? appUser : null);

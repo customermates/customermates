@@ -1,4 +1,4 @@
-import type { AccountStateResolver } from "@/features/auth/route-guard.service";
+import type { RouteGuardService } from "@/features/auth/route-guard.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
@@ -14,11 +14,11 @@ export abstract class CompleteOnboardingWizardRepo {
 export class CompleteOnboardingWizardInteractor {
   constructor(
     private repo: CompleteOnboardingWizardRepo,
-    private accountStateResolver: AccountStateResolver,
+    private routeGuardService: RouteGuardService,
   ) {}
 
   async invoke(): Promise<{ ok: true; data: { redirectTo: "/" } } | Redirect> {
-    const resolution = await this.accountStateResolver.resolveAccountState();
+    const resolution = await this.routeGuardService.resolveAccountState();
     if (resolution.state !== "onboarding") return redirectTo(accountStateRedirect(resolution.state) ?? "/");
     const user = resolution.user;
     if (!user) return redirectTo("/auth/signin");

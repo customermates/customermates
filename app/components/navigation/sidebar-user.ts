@@ -35,7 +35,7 @@ export function toSidebarUser(user: TenantUser | null): SidebarUser | null {
   };
 }
 
-export function sidebarUserCan(user: SidebarUser | null, resource: Resource, action: Action): boolean {
+function sidebarUserCan(user: SidebarUser | null, resource: Resource, action: Action): boolean {
   if (!user?.role) return false;
   if (user.role.isSystemRole) return true;
 

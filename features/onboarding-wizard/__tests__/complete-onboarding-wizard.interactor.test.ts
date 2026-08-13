@@ -13,7 +13,7 @@ import { CompleteOnboardingWizardInteractor } from "../complete-onboarding-wizar
 
 describe("CompleteOnboardingWizardInteractor", () => {
   let repo: { markOnboardingWizardCompleted: ReturnType<typeof vi.fn> };
-  let accountStateResolver: { resolveAccountState: ReturnType<typeof vi.fn> };
+  let routeGuardService: { resolveAccountState: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -21,13 +21,13 @@ describe("CompleteOnboardingWizardInteractor", () => {
     repo = {
       markOnboardingWizardCompleted: vi.fn().mockResolvedValue(undefined),
     };
-    accountStateResolver = {
+    routeGuardService = {
       resolveAccountState: vi.fn().mockResolvedValue({ state: "onboarding", user: mockUser }),
     };
   });
 
   function createInteractor() {
-    return new CompleteOnboardingWizardInteractor(repo as never, accountStateResolver as never);
+    return new CompleteOnboardingWizardInteractor(repo as never, routeGuardService as never);
   }
 
   it("completes onboarding for the canonical onboarding state", async () => {
@@ -36,7 +36,7 @@ describe("CompleteOnboardingWizardInteractor", () => {
       data: { redirectTo: "/" },
     });
 
-    expect(accountStateResolver.resolveAccountState).toHaveBeenCalledOnce();
+    expect(routeGuardService.resolveAccountState).toHaveBeenCalledOnce();
     expect(repo.markOnboardingWizardCompleted).toHaveBeenCalledWith({
       userId: mockUser.id,
     });
@@ -45,7 +45,7 @@ describe("CompleteOnboardingWizardInteractor", () => {
   it.each(ACCOUNT_STATES.filter((state) => state !== "onboarding"))(
     "redirects the %s state without mutating onboarding",
     async (state) => {
-      accountStateResolver.resolveAccountState.mockResolvedValue({ state, user: mockUser });
+      routeGuardService.resolveAccountState.mockResolvedValue({ state, user: mockUser });
 
       await expect(createInteractor().invoke()).resolves.toEqual({ redirect: accountStateRedirect(state) ?? "/" });
       expect(repo.markOnboardingWizardCompleted).not.toHaveBeenCalled();
@@ -53,7 +53,7 @@ describe("CompleteOnboardingWizardInteractor", () => {
   );
 
   it("fails closed when onboarding resolves without a user", async () => {
-    accountStateResolver.resolveAccountState.mockResolvedValue({ state: "onboarding", user: null });
+    routeGuardService.resolveAccountState.mockResolvedValue({ state: "onboarding", user: null });
 
     await expect(createInteractor().invoke()).resolves.toEqual({ redirect: "/auth/signin" });
     expect(repo.markOnboardingWizardCompleted).not.toHaveBeenCalled();
@@ -63,7 +63,7 @@ describe("CompleteOnboardingWizardInteractor", () => {
     (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "demo" | "self-hosted" }).APP_MODE = "demo";
 
     expect(() => createInteractor().invoke()).toThrow(DemoModeError);
-    expect(accountStateResolver.resolveAccountState).not.toHaveBeenCalled();
+    expect(routeGuardService.resolveAccountState).not.toHaveBeenCalled();
     expect(repo.markOnboardingWizardCompleted).not.toHaveBeenCalled();
   });
 });

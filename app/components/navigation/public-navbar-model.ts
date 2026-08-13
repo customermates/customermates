@@ -1,19 +1,15 @@
 import type { AccountState } from "@/features/auth/account-state";
 
-export type PublicNavbarCta = {
+type PublicNavbarCta = {
   href: "/auth/signin" | "/dashboard" | "/onboarding/wizard";
   label: "signIn" | "openApp" | "continueSetup";
 };
 
-export type PublicNavbarActions = {
+type PublicNavbarActions = {
   cta: PublicNavbarCta | null;
   showContact: boolean;
   signOut: "hidden" | "default" | "setupEscape";
 };
-
-function isOnboardingPath(pathname: string): boolean {
-  return pathname === "/onboarding/wizard" || pathname.startsWith("/onboarding/wizard/");
-}
 
 export function resolvePublicNavbarActions({
   accountState,
@@ -33,7 +29,7 @@ export function resolvePublicNavbarActions({
   }
 
   if (accountState === "unregistered") {
-    const onboardingPath = isOnboardingPath(pathname);
+    const onboardingPath = pathname === "/onboarding/wizard" || pathname.startsWith("/onboarding/wizard/");
 
     return {
       cta: onboardingPath ? null : { href: "/onboarding/wizard", label: "continueSetup" },

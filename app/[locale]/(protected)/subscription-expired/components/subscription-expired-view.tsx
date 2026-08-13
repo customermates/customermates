@@ -1,6 +1,5 @@
 "use client";
 
-import type { SelectablePlan } from "@/app/[locale]/(protected)/company/components/subscription/plan-picker";
 import type { SubscriptionRecoveryPath } from "@/features/auth/subscription-recovery";
 
 import { observer } from "mobx-react-lite";
@@ -25,14 +24,6 @@ export const SubscriptionExpiredView = observer(({ recoveryPath }: { recoveryPat
         ? t("SubscriptionExpiredView.manualEnterpriseBillingDescription")
         : t("SubscriptionExpiredView.administratorRequiredDescription");
 
-  function handleContactSupport() {
-    window.location.href = `mailto:mail@customermates.com?subject=${encodeURIComponent(t("SubscriptionExpiredView.supportEmailSubject"))}`;
-  }
-
-  function handleSelectPlan(plan: SelectablePlan) {
-    void subscriptionExpiredStore.handleSubscribe(plan);
-  }
-
   return (
     <AppCard className="max-w-3xl">
       <CardHeroHeader subtitle={t("SubscriptionExpiredView.subtitle")} title={t("SubscriptionExpiredView.title")} />
@@ -41,12 +32,21 @@ export const SubscriptionExpiredView = observer(({ recoveryPath }: { recoveryPat
         <p className="text-x-sm text-center text-subdued">{description}</p>
 
         {recoveryPath === "selfServiceCheckout" ? (
-          <PlanPicker isLoading={loadingOverlayStore.isLoading} onSelect={handleSelectPlan} />
+          <PlanPicker
+            isLoading={loadingOverlayStore.isLoading}
+            onSelect={(plan) => void subscriptionExpiredStore.handleSubscribe(plan)}
+          />
         ) : null}
       </AppCardBody>
 
       <AppCardFooter>
-        <Button className="w-full" variant="outline" onClick={handleContactSupport}>
+        <Button
+          className="w-full"
+          variant="outline"
+          onClick={() => {
+            window.location.href = `mailto:mail@customermates.com?subject=${encodeURIComponent(t("SubscriptionExpiredView.supportEmailSubject"))}`;
+          }}
+        >
           {t("SubscriptionExpiredView.contactSupportCta")}
         </Button>
 

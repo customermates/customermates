@@ -2,7 +2,7 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { TenantUser } from "@/features/user/user.service";
 import type { AuthService } from "@/features/auth/auth.service";
 import type { EventService } from "@/features/event/event.service";
-import type { AccountStateResolver } from "@/features/auth/route-guard.service";
+import type { RouteGuardService } from "@/features/auth/route-guard.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
 
 import { z } from "zod";
@@ -63,11 +63,11 @@ export class RegisterUserInteractor {
     private authService: AuthService,
     private repo: RegisterUserRepo,
     private eventService: EventService,
-    private accountStateResolver: AccountStateResolver,
+    private routeGuardService: RouteGuardService,
   ) {}
 
   async invoke(data: RegisterUserData): Promise<Awaited<Validated<RegisterUserResult>> | Redirect> {
-    const resolution = await this.accountStateResolver.resolveAccountState();
+    const resolution = await this.routeGuardService.resolveAccountState();
     if (!resolution.sessionUser) return redirectTo("/auth/signin");
     if (resolution.state !== "unregistered") return redirectTo(accountStateRedirect(resolution.state) ?? "/");
 

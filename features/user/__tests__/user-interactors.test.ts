@@ -39,7 +39,7 @@ describe("RegisterUserInteractor", () => {
   let mockAuthService: any;
   let mockRepo: any;
   let mockEventService: any;
-  let mockAccountStateResolver: any;
+  let mockRouteGuardService: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -56,7 +56,7 @@ describe("RegisterUserInteractor", () => {
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
     };
-    mockAccountStateResolver = {
+    mockRouteGuardService = {
       resolveAccountState: vi.fn().mockResolvedValue({
         state: "unregistered",
         sessionUser: {
@@ -74,7 +74,7 @@ describe("RegisterUserInteractor", () => {
   });
 
   function createInteractor() {
-    return new RegisterUserInteractor(mockAuthService, mockRepo, mockEventService, mockAccountStateResolver);
+    return new RegisterUserInteractor(mockAuthService, mockRepo, mockEventService, mockRouteGuardService);
   }
 
   it("publishes USER_REGISTERED event for new company", async () => {
@@ -328,7 +328,7 @@ describe("RegisterUserInteractor", () => {
   });
 
   it("rejects a missing authenticated session before any write", async () => {
-    mockAccountStateResolver.resolveAccountState.mockResolvedValue({
+    mockRouteGuardService.resolveAccountState.mockResolvedValue({
       state: "unauthenticated",
       sessionUser: null,
       user: null,
@@ -357,7 +357,7 @@ describe("RegisterUserInteractor", () => {
   it.each(ACCOUNT_STATES.filter((state) => state !== "unauthenticated" && state !== "unregistered"))(
     "redirects the %s account state without any write",
     async (state) => {
-      mockAccountStateResolver.resolveAccountState.mockResolvedValue({
+      mockRouteGuardService.resolveAccountState.mockResolvedValue({
         state,
         sessionUser: {
           createdAt: new Date(0),

@@ -5,7 +5,7 @@ import { ErrorPageContent } from "./error-page-content";
 
 import { isCanonicalInactiveErrorType, isRestrictedAccountState } from "@/features/auth/account-state";
 import { requireAccountState } from "@/features/auth/next/require";
-import { resolveDefaultAccountState } from "@/features/auth/next/resolve-account-state";
+import { resolveRequestAccountState } from "@/features/auth/next/resolve-account-state";
 import { buildLocalePath } from "@/i18n/locale-registry";
 
 import type { ErrorPageKey } from "./error-page-content";
@@ -19,7 +19,7 @@ type Props = {
 export default async function ErrorPage({ searchParams }: Props) {
   const params = await searchParams;
   const requestedErrorKey = typeof params.type === "string" ? params.type : null;
-  const resolution = await resolveDefaultAccountState();
+  const resolution = await resolveRequestAccountState();
   const isInactive = resolution.state === "inactive";
 
   if (isInactive && !isCanonicalInactiveErrorType(params.type))

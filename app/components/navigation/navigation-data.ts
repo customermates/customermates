@@ -3,7 +3,7 @@ import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interac
 import type { EntityTerminologyOverride } from "@/features/entity-terminology/entity-terminology.types";
 import type { AccountState } from "@/features/auth/account-state";
 
-export type NavigationData = {
+type NavigationData = {
   company: Company | null;
   terminology: EntityTerminologyOverride[];
   subscription: SubscriptionDto | null;
@@ -24,7 +24,7 @@ export type NavigationDataLoaders = {
   channelsNeedingActionCount: () => Promise<number>;
 };
 
-export const EMPTY_NAVIGATION_DATA: NavigationData = {
+const EMPTY_NAVIGATION_DATA: NavigationData = {
   company: null,
   terminology: [],
   subscription: null,

@@ -2,7 +2,7 @@ import type { AccountState } from "@/features/auth/account-state";
 
 import { isRestrictedAccountState } from "@/features/auth/account-state";
 
-export type NavigationShell = "docs" | "public" | "restricted" | "app";
+type NavigationShell = "docs" | "public" | "restricted" | "app";
 
 export function resolveNavigationShell({
   accountState,

@@ -4,4 +4,4 @@ import { cache } from "react";
 
 import { getRouteGuardService } from "@/core/di";
 
-export const resolveDefaultAccountState = cache(() => getRouteGuardService().resolveAccountState());
+export const resolveRequestAccountState = cache(() => getRouteGuardService().resolveAccountState());

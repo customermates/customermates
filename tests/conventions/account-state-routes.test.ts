@@ -13,10 +13,7 @@ describe("guarded account-state route contract", () => {
   it.each([
     ["app/[locale]/(public)/auth/verify-email/page.tsx", /requireAccountState\(\s*"overdueVerification"\s*\)/],
     ["app/[locale]/(public)/auth/pending/page.tsx", /requireAccountState\(\s*"pending"\s*\)/],
-    [
-      "app/[locale]/(protected)/legal-update/page.tsx",
-      /requireAccountState\(\s*\[\s*"allowed",\s*"legal"\s*\]\s*\)/,
-    ],
+    ["app/[locale]/(protected)/legal-update/page.tsx", /requireAccountState\(\s*\[\s*"allowed",\s*"legal"\s*\]\s*\)/],
     [
       "app/[locale]/(protected)/subscription-expired/page.tsx",
       /requireAccountState\(\s*"subscription",\s*"\/company\/subscription",?\s*\)/,
@@ -50,7 +47,7 @@ describe("guarded account-state route contract", () => {
   it("server-canonicalizes inactive errors without breaking public invite errors", () => {
     const errorPage = source("app/[locale]/(public)/auth/error/page.tsx");
 
-    expect(errorPage).toContain("resolveDefaultAccountState()");
+    expect(errorPage).toContain("resolveRequestAccountState()");
     expect(errorPage).toContain('resolution.state === "inactive"');
     expect(errorPage).toContain("isCanonicalInactiveErrorType(params.type)");
     expect(errorPage).toContain("/auth/error?type=inactiveUser");
@@ -65,7 +62,6 @@ describe("guarded account-state route contract", () => {
 
     expect(navigation).toContain("currentAccountState !== accountState");
     expect(navigation).toContain("router.refresh()");
-    expect(navigation).toContain("refreshAccountStateWhenVisible");
     expect(navigation).toContain('searchParams.getAll("type")');
     expect(source("app/[locale]/(public)/auth/pending/pending-card.tsx")).toContain("window.location.reload()");
     expect(source("app/[locale]/(public)/auth/verify-email/verify-email-card.tsx")).toContain(
@@ -107,12 +103,12 @@ describe("guarded account-state route contract", () => {
 
     expect(authActions).toContain("getDecideMcpConsentInteractor().invoke(data)");
     expect(authActions).toContain("serializeResult(getDecideMcpConsentInteractor().invoke(data))");
-    expect(authActions).not.toContain("resolveDefaultAccountState");
+    expect(authActions).not.toContain("resolveRequestAccountState");
     expect(authActions).not.toContain("getAuthService");
     expect(consentInteractor).toContain('resolution.state !== "allowed"');
     const requireSource = source("features/auth/next/require.ts");
     expect(requireSource).toMatch(
-      /accessRedirectForAccountState\(\s*await resolveDefaultAccountState\(\),\s*options,?\s*\)/,
+      /accessRedirectForAccountState\(\s*await resolveRequestAccountState\(\),\s*options,?\s*\)/,
     );
     expect(requireSource).not.toContain("getRouteGuardService");
     expect(requireSource).not.toContain("skipLegalAcceptanceCheck");

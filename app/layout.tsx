@@ -23,7 +23,7 @@ import {
 import { accountNeedsAction } from "@/ee/messaging/provider";
 import { env } from "@/env";
 import { GLOBAL_METADATA } from "@/core/seo/homepage-metadata";
-import { resolveDefaultAccountState } from "@/features/auth/next/resolve-account-state";
+import { resolveRequestAccountState } from "@/features/auth/next/resolve-account-state";
 
 const latin = Inter({
   subsets: ["latin"],
@@ -68,7 +68,7 @@ export default async function RootLayout({ children }: Props) {
   const [messages, displayLanguage, account, cookiesStore] = await Promise.all([
     getMessages(),
     getLocale(),
-    resolveDefaultAccountState(),
+    resolveRequestAccountState(),
     cookies(),
   ]);
   const navigation = await loadNavigationData(account.state, {

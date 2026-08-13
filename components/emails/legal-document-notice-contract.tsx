@@ -6,7 +6,7 @@ import { EmailLayout, type EmailLayoutSharedProps } from "@/components/emails/ba
 import { EmailLink } from "@/components/emails/base/email-link";
 import { EmailText } from "@/components/emails/base/email-text";
 import { PREVIEW_EMAIL_LAYOUT_PROPS } from "@/components/emails/preview-layout-props";
-import { LEGAL_DOCUMENT_VERSIONS, type LegalDocument } from "@/constants/legal-documents";
+import { LEGAL_DOCUMENT_VERSIONS } from "@/constants/legal-documents";
 import { DEFAULT_LOCALE, formattingTagFor } from "@/i18n/locale-registry";
 import enMessages from "@/i18n/locales/en.json";
 
@@ -86,20 +86,16 @@ function formatPreviewDate(isoDate: string): string {
   }).format(new Date(isoDate));
 }
 
-function previewDocuments(documents: readonly LegalDocument[]): DocumentLink[] {
-  return documents.map((document) => ({
-    name: previewCopy.documents[document],
-    version: formatPreviewDate(LEGAL_DOCUMENT_VERSIONS[document]),
-    liveUrl: `${previewBaseUrl}/${document}`,
-  }));
-}
-
 LegalDocumentNoticeContract.PreviewProps = {
   ...PREVIEW_EMAIL_LAYOUT_PROPS,
   body: previewCopy.contractBody,
   deadline: formatPreviewDate("2026-08-24T00:00:00.000Z"),
   deadlineLabel: previewCopy.contractDeadlineLabel,
-  documents: previewDocuments(["terms", "dpa", "privacy", "subprocessors"]),
+  documents: (["terms", "dpa", "privacy", "subprocessors"] as const).map((document) => ({
+    name: previewCopy.documents[document],
+    version: formatPreviewDate(LEGAL_DOCUMENT_VERSIONS[document]),
+    liveUrl: `${previewBaseUrl}/${document}`,
+  })),
   greeting: previewCopy.greeting.replace("{firstName}", "Sofia"),
   objections: [
     previewCopy.contractObjection,

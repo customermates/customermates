@@ -1,5 +1,5 @@
 import type { AuthService } from "./auth.service";
-import type { UserService } from "../user/user.service";
+import type { FindUserRepo } from "../user/user.service";
 import type { Redirect } from "./auth-outcome";
 import type { TenantUser } from "@/features/user/user.schema";
 import type { GetLegalStatusInteractor, LegalUpdateStatus } from "@/features/legal/get-legal-status.interactor";
@@ -34,7 +34,7 @@ export type AccountStateResolution = {
   subscription: Subscription | null;
 };
 
-export type AccountSessionUser = {
+type AccountSessionUser = {
   companyId?: string | null;
   createdAt: Date | string;
   email: string;
@@ -43,10 +43,6 @@ export type AccountSessionUser = {
   image?: string | null;
   name?: string | null;
 };
-
-export interface AccountStateResolver {
-  resolveAccountState(): Promise<AccountStateResolution>;
-}
 
 export function accessRedirectForAccountState(
   resolution: AccountStateResolution,
@@ -81,19 +77,28 @@ function unsupportedAccountStatus(status: never): never {
   throw new Error(`Unsupported account status: ${String(status)}`);
 }
 
-export class RouteGuardService implements AccountStateResolver {
+export class RouteGuardService {
   constructor(
     private authService: AuthService,
-    private userService: UserService,
+    private userRepo: FindUserRepo,
     private subscriptionRepo: RouteGuardSubscriptionRepo,
     private getLegalStatusInteractor: GetLegalStatusInteractor,
   ) {}
 
   async resolveAccountState(): Promise<AccountStateResolution> {
     const session = await this.authService.getSession();
-    if (!session) return this.resolution("unauthenticated");
+    if (!session) {
+      return {
+        state: "unauthenticated",
+        sessionUser: null,
+        user: null,
+        emailVerified: null,
+        legalStatus: null,
+        subscription: null,
+      };
+    }
 
-    const user = await this.userService.getUser();
+    const user = await this.userRepo.findCurrentUserUnscoped(session.user.email);
     const emailVerified = session.user.emailVerified ?? false;
     const sessionUser: AccountSessionUser = session.user;
     const base = {
@@ -131,16 +136,5 @@ export class RouteGuardService implements AccountStateResolver {
     }
 
     return { state: "allowed", ...base, legalStatus, subscription };
-  }
-
-  private resolution(state: AccountState): AccountStateResolution {
-    return {
-      state,
-      sessionUser: null,
-      user: null,
-      emailVerified: null,
-      legalStatus: null,
-      subscription: null,
-    };
   }
 }

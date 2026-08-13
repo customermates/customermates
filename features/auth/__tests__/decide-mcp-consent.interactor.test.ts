@@ -15,7 +15,7 @@ const consent = {
 
 describe("DecideMcpConsentInteractor", () => {
   let authService: { decideMcpConsent: ReturnType<typeof vi.fn> };
-  let accountStateResolver: { resolveAccountState: ReturnType<typeof vi.fn> };
+  let routeGuardService: { resolveAccountState: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -25,13 +25,13 @@ describe("DecideMcpConsentInteractor", () => {
         redirectURI: "https://client.example/callback",
       }),
     };
-    accountStateResolver = {
+    routeGuardService = {
       resolveAccountState: vi.fn().mockResolvedValue({ state: "allowed" }),
     };
   });
 
   function createInteractor() {
-    return new DecideMcpConsentInteractor(authService as never, accountStateResolver as never);
+    return new DecideMcpConsentInteractor(authService as never, routeGuardService as never);
   }
 
   it("delegates an allowed consent decision to the auth service", async () => {
@@ -40,12 +40,12 @@ describe("DecideMcpConsentInteractor", () => {
       data: { redirectURI: "https://client.example/callback" },
     });
 
-    expect(accountStateResolver.resolveAccountState).toHaveBeenCalledOnce();
+    expect(routeGuardService.resolveAccountState).toHaveBeenCalledOnce();
     expect(authService.decideMcpConsent).toHaveBeenCalledWith(consent);
   });
 
   it.each(ACCOUNT_STATES.filter((state) => state !== "allowed"))("fails closed for the %s state", async (state) => {
-    accountStateResolver.resolveAccountState.mockResolvedValue({ state });
+    routeGuardService.resolveAccountState.mockResolvedValue({ state });
 
     await expect(createInteractor().invoke(consent)).resolves.toEqual({
       ok: true,

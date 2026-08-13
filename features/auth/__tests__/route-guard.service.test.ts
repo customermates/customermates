@@ -1,6 +1,6 @@
 import type { TenantUser } from "@/features/user/user.schema";
 import type { AuthService } from "../auth.service";
-import type { UserService } from "../../user/user.service";
+import type { FindUserRepo } from "../../user/user.service";
 import type { AccessOptions, RouteGuardSubscriptionRepo } from "../route-guard.service";
 import type { GetLegalStatusInteractor } from "@/features/legal/get-legal-status.interactor";
 
@@ -25,7 +25,7 @@ const FUTURE = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
 const mocks = {
   getSession: vi.fn(),
-  getUser: vi.fn(),
+  findCurrentUserUnscoped: vi.fn(),
   getSubscriptionOrThrowUnscoped: vi.fn(),
   getLegalStatus: vi.fn(),
 };
@@ -33,7 +33,7 @@ const mocks = {
 function makeService() {
   return new RouteGuardService(
     { getSession: mocks.getSession } as unknown as AuthService,
-    { getUser: mocks.getUser } as unknown as UserService,
+    { findCurrentUserUnscoped: mocks.findCurrentUserUnscoped } as unknown as FindUserRepo,
     {
       getSubscriptionOrThrowUnscoped: mocks.getSubscriptionOrThrowUnscoped,
     } as unknown as RouteGuardSubscriptionRepo,
@@ -82,7 +82,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   mockEnv.APP_MODE = "cloud";
   mocks.getSession.mockResolvedValue(session());
-  mocks.getUser.mockResolvedValue(user());
+  mocks.findCurrentUserUnscoped.mockResolvedValue(user());
   mocks.getSubscriptionOrThrowUnscoped.mockResolvedValue(subscription(SubscriptionStatus.active));
   mocks.getLegalStatus.mockResolvedValue({ mustAccept: false });
 });
@@ -95,14 +95,14 @@ describe("RouteGuardService.resolveAccountState", () => {
       state: "unauthenticated",
       user: null,
     });
-    expect(mocks.getUser).not.toHaveBeenCalled();
+    expect(mocks.findCurrentUserUnscoped).not.toHaveBeenCalled();
     expect(mocks.getLegalStatus).not.toHaveBeenCalled();
     expect(mocks.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
   });
 
   it("gives overdue verification precedence over every registered account blocker", async () => {
     mocks.getSession.mockResolvedValue(session({ createdAt: PAST, emailVerified: false }));
-    mocks.getUser.mockResolvedValue(user({ status: Status.inactive }));
+    mocks.findCurrentUserUnscoped.mockResolvedValue(user({ status: Status.inactive }));
 
     expect(await makeService().resolveAccountState()).toMatchObject({
       state: "overdueVerification",
@@ -119,10 +119,12 @@ describe("RouteGuardService.resolveAccountState", () => {
       state: "allowed",
       emailVerified: false,
     });
+    expect(mocks.getSession).toHaveBeenCalledOnce();
+    expect(mocks.findCurrentUserUnscoped).toHaveBeenCalledWith("max@example.com");
   });
 
   it("resolves a session without a product user before tenant checks", async () => {
-    mocks.getUser.mockResolvedValue(null);
+    mocks.findCurrentUserUnscoped.mockResolvedValue(null);
 
     expect(await makeService().resolveAccountState()).toMatchObject({
       state: "unregistered",
@@ -136,7 +138,7 @@ describe("RouteGuardService.resolveAccountState", () => {
     [Status.inactive, "inactive"],
     [Status.pendingAuthorization, "pending"],
   ] as const)("resolves %s before legal and subscription checks", async (status, state) => {
-    mocks.getUser.mockResolvedValue(user({ status }));
+    mocks.findCurrentUserUnscoped.mockResolvedValue(user({ status }));
 
     expect(await makeService().resolveAccountState()).toMatchObject({
       state,
@@ -146,7 +148,7 @@ describe("RouteGuardService.resolveAccountState", () => {
   });
 
   it("resolves incomplete administrator onboarding before tenant checks", async () => {
-    mocks.getUser.mockResolvedValue(user({ onboardingWizardCompletedAt: null }));
+    mocks.findCurrentUserUnscoped.mockResolvedValue(user({ onboardingWizardCompletedAt: null }));
 
     expect(await makeService().resolveAccountState()).toMatchObject({
       state: "onboarding",
@@ -156,7 +158,7 @@ describe("RouteGuardService.resolveAccountState", () => {
   });
 
   it("fails closed if a new account status is not mapped explicitly", async () => {
-    mocks.getUser.mockResolvedValue(user({ status: "suspended" as Status }));
+    mocks.findCurrentUserUnscoped.mockResolvedValue(user({ status: "suspended" as Status }));
 
     await expect(makeService().resolveAccountState()).rejects.toThrow("Unsupported account status: suspended");
     expect(mocks.getLegalStatus).not.toHaveBeenCalled();
@@ -185,7 +187,7 @@ describe("RouteGuardService.resolveAccountState", () => {
 
   it("returns allowed only after every account check passes", async () => {
     const allowedUser = user();
-    mocks.getUser.mockResolvedValue(allowedUser);
+    mocks.findCurrentUserUnscoped.mockResolvedValue(allowedUser);
 
     expect(await makeService().resolveAccountState()).toMatchObject({
       state: "allowed",
@@ -212,7 +214,7 @@ describe("accessRedirectForAccountState", () => {
     [user({ onboardingWizardCompletedAt: null }), null, "/onboarding/wizard"],
     [user(), { mustAccept: true }, "/legal-update"],
   ] as const)("routes a blocked account to %s", async (resolvedUser, legal, redirect) => {
-    mocks.getUser.mockResolvedValue(resolvedUser);
+    mocks.findCurrentUserUnscoped.mockResolvedValue(resolvedUser);
     if (legal) mocks.getLegalStatus.mockResolvedValue(legal);
 
     expect(await resolveAccess()).toEqual({ redirect });
@@ -242,7 +244,7 @@ describe("accessRedirectForAccountState", () => {
   });
 
   it("denies a member without the required resource permission", async () => {
-    mocks.getUser.mockResolvedValue(user({ role: { isSystemRole: false, permissions: [] } }));
+    mocks.findCurrentUserUnscoped.mockResolvedValue(user({ role: { isSystemRole: false, permissions: [] } }));
 
     expect(await resolveAccess({ resource: Resource.contacts })).toEqual({
       redirect: "/",
@@ -250,7 +252,7 @@ describe("accessRedirectForAccountState", () => {
   });
 
   it("allows a member holding the required resource permission", async () => {
-    mocks.getUser.mockResolvedValue(
+    mocks.findCurrentUserUnscoped.mockResolvedValue(
       user({
         role: {
           isSystemRole: false,
@@ -273,13 +275,13 @@ describe("unauthenticatedRedirectForAccountState", () => {
     expect(await resolveUnauthenticated()).toBeNull();
 
     mocks.getSession.mockResolvedValue(session());
-    mocks.getUser.mockResolvedValue(null);
+    mocks.findCurrentUserUnscoped.mockResolvedValue(null);
     expect(await resolveUnauthenticated()).toBeNull();
   });
 
   it("uses the same blocker precedence as protected access", async () => {
     mocks.getSession.mockResolvedValue(session({ createdAt: PAST, emailVerified: false }));
-    mocks.getUser.mockResolvedValue(user({ status: Status.inactive }));
+    mocks.findCurrentUserUnscoped.mockResolvedValue(user({ status: Status.inactive }));
 
     expect(await resolveUnauthenticated()).toEqual({
       redirect: "/auth/verify-email",

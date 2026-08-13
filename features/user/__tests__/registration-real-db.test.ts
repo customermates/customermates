@@ -47,7 +47,7 @@ const email = `real-db-check-${Date.now()}@example.com`;
 const companyIds: string[] = [];
 const authUserIds: string[] = [];
 
-function unregisteredAccountStateResolver(id: string, sessionEmail: string) {
+function unregisteredRouteGuardService(id: string, sessionEmail: string) {
   return {
     resolveAccountState: vi.fn().mockResolvedValue({
       state: "unregistered",
@@ -147,7 +147,7 @@ describe("registration against a real database", () => {
       authService as never,
       new PrismaUserRepo(),
       eventService,
-      unregisteredAccountStateResolver(authUserId, registrationEmail) as never,
+      unregisteredRouteGuardService(authUserId, registrationEmail) as never,
     );
 
     const result = await interactor.invoke({
@@ -295,7 +295,7 @@ describe("registration against a real database", () => {
       } as never,
       repo,
       eventService,
-      unregisteredAccountStateResolver(authUserId, invitedEmail) as never,
+      unregisteredRouteGuardService(authUserId, invitedEmail) as never,
     );
 
     const result = await interactor.invoke({
@@ -474,7 +474,7 @@ describe("registration against a real database", () => {
       } as never,
       new PrismaUserRepo(),
       eventService,
-      unregisteredAccountStateResolver(authUserId, rollbackEmail) as never,
+      unregisteredRouteGuardService(authUserId, rollbackEmail) as never,
     );
 
     await expect(
