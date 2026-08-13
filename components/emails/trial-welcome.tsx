@@ -1,12 +1,9 @@
 import enMessages from "@/i18n/locales/en.json";
-import { EmailLayout } from "@/components/emails/base/email-layout";
-import { PREVIEW_EMAIL_LAYOUT_COPY, type EmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
+import { EmailLayout, type EmailLayoutSharedProps } from "@/components/emails/base/email-layout";
 import { EmailText } from "@/components/emails/base/email-text";
-import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-registry";
+import { PREVIEW_EMAIL_LAYOUT_PROPS } from "@/components/emails/preview-layout-props";
 
-type Props = {
-  locale: AppLocale;
-  layoutCopy: EmailLayoutCopy;
+type Props = EmailLayoutSharedProps & {
   greeting: string;
   body: string;
   planNote: string;
@@ -17,8 +14,6 @@ type Props = {
 };
 
 export default function TrialWelcome({
-  locale,
-  layoutCopy,
   greeting,
   body,
   planNote,
@@ -26,9 +21,10 @@ export default function TrialWelcome({
   signoff,
   subject,
   title,
+  ...layoutProps
 }: Props) {
   return (
-    <EmailLayout layoutCopy={layoutCopy} locale={locale} preview={subject} title={title}>
+    <EmailLayout {...layoutProps} preview={subject} title={title}>
       <EmailText>{greeting}</EmailText>
 
       <EmailText>{body}</EmailText>
@@ -46,8 +42,7 @@ const t = enMessages.TrialWelcome;
 const previewFirstName = "Sofia";
 
 TrialWelcome.PreviewProps = {
-  layoutCopy: PREVIEW_EMAIL_LAYOUT_COPY,
-  locale: DEFAULT_LOCALE,
+  ...PREVIEW_EMAIL_LAYOUT_PROPS,
   greeting: t.greeting.replace("{firstName}", previewFirstName),
   body: t.body,
   planNote: t.planNote,
@@ -55,4 +50,4 @@ TrialWelcome.PreviewProps = {
   signoff: t.signoff,
   subject: t.subject,
   title: t.title,
-};
+} satisfies Props;

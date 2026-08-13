@@ -2,12 +2,12 @@
 
 import { Section, Text } from "@react-email/components";
 
-import { EmailLayout } from "@/components/emails/base/email-layout";
-import { PREVIEW_EMAIL_LAYOUT_COPY, type EmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
+import { EmailLayout, type EmailLayoutSharedProps } from "@/components/emails/base/email-layout";
 import { EmailLink } from "@/components/emails/base/email-link";
 import { EmailText } from "@/components/emails/base/email-text";
+import { PREVIEW_EMAIL_LAYOUT_PROPS } from "@/components/emails/preview-layout-props";
 import { LEGAL_DOCUMENT_VERSIONS, type LegalDocument } from "@/constants/legal-documents";
-import { DEFAULT_LOCALE, formattingTagFor, type AppLocale } from "@/i18n/locale-registry";
+import { DEFAULT_LOCALE, formattingTagFor } from "@/i18n/locale-registry";
 import enMessages from "@/i18n/locales/en.json";
 
 type DocumentLink = {
@@ -16,14 +16,12 @@ type DocumentLink = {
   liveUrl: string;
 };
 
-type Props = {
+type Props = EmailLayoutSharedProps & {
   body: string;
   deadline: string | null;
   deadlineLabel: string;
   documents: DocumentLink[];
   greeting: string;
-  locale: AppLocale;
-  layoutCopy: EmailLayoutCopy;
   objections: string[];
   signoff: string;
   subject: string;
@@ -36,15 +34,14 @@ export default function LegalDocumentNotice({
   deadlineLabel,
   documents,
   greeting,
-  locale,
-  layoutCopy,
   objections,
   signoff,
   subject,
   title,
+  ...layoutProps
 }: Props) {
   return (
-    <EmailLayout layoutCopy={layoutCopy} locale={locale} preview={subject} title={title}>
+    <EmailLayout {...layoutProps} preview={subject} title={title}>
       <EmailText>{greeting}</EmailText>
 
       <EmailText>{body}</EmailText>
@@ -98,13 +95,12 @@ function previewDocuments(documents: readonly LegalDocument[]): DocumentLink[] {
 }
 
 LegalDocumentNotice.PreviewProps = {
+  ...PREVIEW_EMAIL_LAYOUT_PROPS,
   body: previewCopy.contractBody,
   deadline: formatPreviewDate("2026-08-24T00:00:00.000Z"),
   deadlineLabel: previewCopy.contractDeadlineLabel,
   documents: previewDocuments(["terms", "dpa", "privacy", "subprocessors"]),
   greeting: previewCopy.greeting.replace("{firstName}", "Sofia"),
-  locale: DEFAULT_LOCALE,
-  layoutCopy: PREVIEW_EMAIL_LAYOUT_COPY,
   objections: [
     previewCopy.contractObjection,
     previewCopy.subprocessorObjectionWithDeadline.replace("{deadline}", previewSupplierDeadline),
@@ -112,4 +108,4 @@ LegalDocumentNotice.PreviewProps = {
   signoff: previewCopy.signoff,
   subject: previewCopy.contractSubject,
   title: previewCopy.contractTitle,
-};
+} satisfies Props;

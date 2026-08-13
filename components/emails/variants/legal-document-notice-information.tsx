@@ -1,6 +1,6 @@
 import type { AppLocale } from "@/i18n/locale-registry";
 
-import { renderEmailPreview } from "../preview-registry";
+import { renderEmailPreview } from "../preview-manifest";
 
 type Props = { locale?: AppLocale };
 

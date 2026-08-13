@@ -1,17 +1,14 @@
 import enMessages from "@/i18n/locales/en.json";
 import { EmailButton } from "@/components/emails/base/email-button";
-import { EmailLayout } from "@/components/emails/base/email-layout";
-import { PREVIEW_EMAIL_LAYOUT_COPY, type EmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
+import { EmailLayout, type EmailLayoutSharedProps } from "@/components/emails/base/email-layout";
 import { EmailSection } from "@/components/emails/base/email-section";
 import { EmailText } from "@/components/emails/base/email-text";
-import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-registry";
+import { PREVIEW_EMAIL_LAYOUT_PROPS } from "@/components/emails/preview-layout-props";
 import { env } from "@/env";
 
 const CONNECTED_ACCOUNTS_HREF = `${env.BASE_URL}/profile/connected-accounts`;
 
-type Props = {
-  locale: AppLocale;
-  layoutCopy: EmailLayoutCopy;
+type Props = EmailLayoutSharedProps & {
   greeting: string;
   body: string;
   cta: string;
@@ -22,8 +19,6 @@ type Props = {
 };
 
 export default function AccountsRemovedNotice({
-  locale,
-  layoutCopy,
   greeting,
   body,
   cta,
@@ -31,9 +26,10 @@ export default function AccountsRemovedNotice({
   subject,
   title,
   href,
+  ...layoutProps
 }: Props) {
   return (
-    <EmailLayout layoutCopy={layoutCopy} locale={locale} preview={subject} title={title}>
+    <EmailLayout {...layoutProps} preview={subject} title={title}>
       <EmailText>{greeting}</EmailText>
 
       <EmailText>{body}</EmailText>
@@ -53,8 +49,7 @@ const previewAccounts = "LinkedIn (Jane Doe), Gmail (jane@company.com)";
 const previewPlan = "Pro";
 
 AccountsRemovedNotice.PreviewProps = {
-  layoutCopy: PREVIEW_EMAIL_LAYOUT_COPY,
-  locale: DEFAULT_LOCALE,
+  ...PREVIEW_EMAIL_LAYOUT_PROPS,
   greeting: t.greeting.replace("{firstName}", previewFirstName),
   body: t.body.replace("{accounts}", previewAccounts).replace("{plan}", previewPlan),
   cta: t.cta,
@@ -62,4 +57,4 @@ AccountsRemovedNotice.PreviewProps = {
   subject: t.subject,
   title: t.title,
   href: CONNECTED_ACCOUNTS_HREF,
-};
+} satisfies Props;

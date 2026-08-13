@@ -17,11 +17,6 @@ export const DEFAULT_EMAIL_LAYOUT_COPY: EmailLayoutCopy = {
   tagline: enMessages.EmailLayout.tagline,
 };
 
-export const PREVIEW_EMAIL_LAYOUT_COPY = {
-  ...DEFAULT_EMAIL_LAYOUT_COPY,
-  iconUrl: "/static/customermates-icon.svg",
-} satisfies EmailLayoutCopy & { iconUrl: string };
-
 export async function getEmailLayoutCopy(locale: AppLocale): Promise<EmailLayoutCopy> {
   const t = await getTranslator(locale, "EmailLayout");
   return { country: countryName(locale), tagline: t("tagline") };
