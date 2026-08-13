@@ -13,7 +13,10 @@ describe("guarded account-state route contract", () => {
   it.each([
     ["app/[locale]/(public)/auth/verify-email/page.tsx", /requireAccountState\(\s*"overdueVerification"\s*\)/],
     ["app/[locale]/(public)/auth/pending/page.tsx", /requireAccountState\(\s*"pending"\s*\)/],
-    ["app/[locale]/(protected)/legal-update/page.tsx", /requireAccountState\(\s*"legal"\s*\)/],
+    [
+      "app/[locale]/(protected)/legal-update/page.tsx",
+      /requireAccountState\(\s*\[\s*"allowed",\s*"legal"\s*\]\s*\)/,
+    ],
     [
       "app/[locale]/(protected)/subscription-expired/page.tsx",
       /requireAccountState\(\s*"subscription",\s*"\/company\/subscription",?\s*\)/,
