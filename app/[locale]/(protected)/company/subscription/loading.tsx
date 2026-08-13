@@ -1,5 +1,14 @@
-import { RouteLoading } from "@/components/page-state/route-loading";
+import { getTranslations } from "next-intl/server";
 
-export default function Loading() {
-  return <RouteLoading route="/company/subscription" />;
+import { PageState } from "@/components/page-state/page-state";
+import { PageContainer } from "@/components/shared/page-container";
+import { SubscriptionPageSkeleton } from "../components/subscription/subscription-page-skeleton";
+
+export default async function Loading() {
+  const t = await getTranslations("PageState");
+  return (
+    <PageContainer>
+      <PageState background={<SubscriptionPageSkeleton />} label={t("loading")} state="loading" />
+    </PageContainer>
+  );
 }

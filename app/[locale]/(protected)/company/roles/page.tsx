@@ -1,6 +1,6 @@
 import { Resource } from "@/generated/prisma";
 
-import { RolesCard } from "../components/role/roles-card";
+import { RolesPageView } from "../components/role/roles-page-view";
 
 import { getGetRolesInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
@@ -14,7 +14,7 @@ export default async function CompanyRolesPage() {
 
   return (
     <PageContainer padded={false}>
-      <RolesCard initialRoles={roles} />
+      <RolesPageView initialRoles={roles} />
     </PageContainer>
   );
 }

@@ -3,15 +3,16 @@
 import { Loader2, MessageSquare } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
-import { Fragment, useLayoutEffect } from "react";
+import { Fragment, useLayoutEffect, type ReactNode } from "react";
 
 import type { ThreadDetail } from "./messaging-thread-detail.store";
+import type { MessagingThread } from "@/ee/messaging/messaging.schema";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { deriveReplyRecipients } from "@/ee/messaging/reply-recipients";
 import { PageState } from "@/components/page-state/page-state";
-import { PageSkeleton } from "@/components/page-state/page-skeleton";
 
+import { InboxPageSkeleton } from "./inbox-page-skeleton";
 import { MessageItem } from "./message-item";
 import { MessageDateSeparator, isSameDay } from "./message-date-separator";
 import { MessagesScrollContainer } from "./messages-scroll-container";
@@ -24,6 +25,27 @@ type Props = {
   locked?: boolean;
 };
 
+type ThreadPanelPageState =
+  | { status: "locked" }
+  | { status: "loading" }
+  | { status: "empty" }
+  | { status: "content"; thread: MessagingThread };
+
+export function resolveThreadPanelPageState({
+  locked,
+  requestedThreadId,
+  thread,
+}: {
+  locked: boolean;
+  requestedThreadId: string | null;
+  thread: MessagingThread | null;
+}): ThreadPanelPageState {
+  if (locked) return { status: "locked" };
+  if (!requestedThreadId) return { status: "empty" };
+  if (thread?.id !== requestedThreadId) return { status: "loading" };
+  return { status: "content", thread };
+}
+
 export const ThreadPanel = observer(({ threadDetail, locked = false }: Props) => {
   const t = useTranslations();
   const { messagingThreadDetailStore: store } = useRootStore();
@@ -32,83 +54,96 @@ export const ThreadPanel = observer(({ threadDetail, locked = false }: Props) =>
     if (store.thread?.id !== threadDetail?.thread.id) store.hydrate(threadDetail);
   }, [threadDetail, store]);
 
-  if (locked) return <PageSkeleton animated={false} spec={{ kind: "inbox", view: "transcript" }} />;
-
   const requestedThreadId = threadDetail?.thread.id ?? null;
-  const hasMatchingThread = store.thread?.id === requestedThreadId;
+  const pageState = resolveThreadPanelPageState({ locked, requestedThreadId, thread: store.thread });
 
-  if (requestedThreadId && !hasMatchingThread) {
-    return (
-      <PageState label={t("PageState.loading")} skeleton={{ kind: "inbox", view: "transcript" }} state="loading" />
-    );
-  }
+  let body: ReactNode;
+  switch (pageState.status) {
+    case "locked":
+      body = <InboxPageSkeleton animated={false} view="transcript" />;
+      break;
+    case "loading":
+      body = (
+        <PageState
+          background={<InboxPageSkeleton view="transcript" />}
+          label={t("PageState.loading")}
+          state="loading"
+        />
+      );
+      break;
+    case "empty":
+      body = (
+        <PageState
+          background={<InboxPageSkeleton animated={false} view="transcript" />}
+          className="h-full"
+          icon={MessageSquare}
+          state="empty"
+          title={t("Inbox.selectThread")}
+        />
+      );
+      break;
+    case "content": {
+      const { thread } = pageState;
+      const { messages, accountOwners } = store;
+      const replyRecipients = deriveReplyRecipients(thread.participants, messages);
+      const avatarByIdentifier = new Map<string, string>();
+      for (const participant of thread.participants) {
+        const url = participant.contact?.avatarUrl ?? participant.pictureUrl;
+        if (participant.identifier && url) avatarByIdentifier.set(participant.identifier, url);
+      }
 
-  const thread = hasMatchingThread ? store.thread : null;
+      body = (
+        <div className="animate-page-result-in flex h-full flex-col motion-reduce:animate-none">
+          <ThreadAutoMarkRead state={thread.state} threadId={thread.id} />
 
-  if (!thread) {
-    return (
-      <PageState
-        className="h-full"
-        icon={MessageSquare}
-        skeleton={{ kind: "inbox", view: "transcript" }}
-        state="empty"
-        title={t("Inbox.selectThread")}
-      />
-    );
-  }
+          <ThreadTopBar thread={thread} />
 
-  const { messages, accountOwners } = store;
-  const replyRecipients = deriveReplyRecipients(thread.participants, messages);
+          <MessagesScrollContainer scrollKey={`thread:${thread.id}`} onTopReach={store.loadOlderMessages}>
+            <div className="flex flex-col gap-1">
+              {store.loadingOlder ? (
+                <div className="flex justify-center py-2">
+                  <Loader2 className="text-muted-foreground size-4 animate-spin" />
+                </div>
+              ) : null}
 
-  const avatarByIdentifier = new Map<string, string>();
-  for (const p of thread.participants) {
-    const url = p.contact?.avatarUrl ?? p.pictureUrl;
-    if (p.identifier && url) avatarByIdentifier.set(p.identifier, url);
-  }
+              {messages.map((message, index) => {
+                const previous = messages[index - 1];
+                const showDate = !previous || !isSameDay(new Date(previous.sentAt), new Date(message.sentAt));
 
-  return (
-    <div className="animate-page-result-in flex h-full flex-col motion-reduce:animate-none">
-      <ThreadAutoMarkRead state={thread.state} threadId={thread.id} />
+                return (
+                  <Fragment key={message.id}>
+                    {showDate ? <MessageDateSeparator date={new Date(message.sentAt)} /> : null}
 
-      <ThreadTopBar thread={thread} />
-
-      <MessagesScrollContainer scrollKey={`thread:${thread.id}`} onTopReach={store.loadOlderMessages}>
-        <div className="flex flex-col gap-1">
-          {store.loadingOlder && (
-            <div className="flex justify-center py-2">
-              <Loader2 className="text-muted-foreground size-4 animate-spin" />
+                    <MessageItem
+                      accountOwner={accountOwners[message.connectedAccountId] ?? null}
+                      isMine={thread.isOwner}
+                      message={message}
+                      senderAvatarUrl={
+                        message.sender.identifier ? avatarByIdentifier.get(message.sender.identifier) : undefined
+                      }
+                    />
+                  </Fragment>
+                );
+              })}
             </div>
-          )}
+          </MessagesScrollContainer>
 
-          {messages.map((message, index) => {
-            const previous = messages[index - 1];
-            const showDate = !previous || !isSameDay(new Date(previous.sentAt), new Date(message.sentAt));
-
-            return (
-              <Fragment key={message.id}>
-                {showDate && <MessageDateSeparator date={new Date(message.sentAt)} />}
-
-                <MessageItem
-                  accountOwner={accountOwners[message.connectedAccountId] ?? null}
-                  isMine={thread.isOwner}
-                  message={message}
-                  senderAvatarUrl={
-                    message.sender.identifier ? avatarByIdentifier.get(message.sender.identifier) : undefined
-                  }
-                />
-              </Fragment>
-            );
-          })}
+          <ThreadReplyComposer
+            defaultCc={replyRecipients.cc}
+            defaultRecipients={replyRecipients.to}
+            defaultSubject={thread.subject}
+            provider={thread.provider}
+            threadId={thread.id}
+          />
         </div>
-      </MessagesScrollContainer>
+      );
+      break;
+    }
+    default: {
+      const exhaustive: never = pageState;
+      body = exhaustive;
+    }
+  }
 
-      <ThreadReplyComposer
-        defaultCc={replyRecipients.cc}
-        defaultRecipients={replyRecipients.to}
-        defaultSubject={thread.subject}
-        provider={thread.provider}
-        threadId={thread.id}
-      />
-    </div>
-  );
+  return body;
 });

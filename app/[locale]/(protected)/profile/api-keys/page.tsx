@@ -1,6 +1,6 @@
 import { Resource } from "@/generated/prisma/client";
 
-import { ApiKeysCard } from "../components/api-keys-card";
+import { ApiKeysPageView } from "../components/api-keys-page-view";
 
 import { getGetApiKeysInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
@@ -14,7 +14,7 @@ export default async function ProfileApiKeysPage() {
 
   return (
     <PageContainer>
-      <ApiKeysCard apiKeys={apiKeys} />
+      <ApiKeysPageView apiKeys={apiKeys} />
     </PageContainer>
   );
 }

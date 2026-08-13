@@ -1,6 +1,6 @@
 import { Resource } from "@/generated/prisma";
 
-import { TasksCard } from "./components/tasks-card";
+import { TasksPageView } from "./components/tasks-page-view";
 
 import { getGetTasksInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
@@ -24,7 +24,7 @@ export default async function TasksPage({ searchParams }: Props) {
 
   return (
     <PageContainer padded={false}>
-      <TasksCard tasks={tasks} />
+      <TasksPageView tasks={tasks} />
     </PageContainer>
   );
 }

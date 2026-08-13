@@ -1,6 +1,6 @@
 import { Resource } from "@/generated/prisma";
 
-import { WebhookDeliveriesCard } from "../components/webhook/webhook-deliveries-card";
+import { WebhookDeliveriesPageView } from "../components/webhook/webhook-deliveries-page-view";
 
 import { getGetWebhookDeliveriesInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
@@ -27,7 +27,7 @@ export default async function CompanyWebhookDeliveriesPage({ searchParams }: Pro
 
   return (
     <PageContainer padded={false}>
-      <WebhookDeliveriesCard initialDeliveries={deliveries} />
+      <WebhookDeliveriesPageView initialDeliveries={deliveries} />
     </PageContainer>
   );
 }

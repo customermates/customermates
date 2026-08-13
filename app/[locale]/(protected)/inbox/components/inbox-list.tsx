@@ -2,18 +2,21 @@
 
 import type { MessagingThread } from "@/ee/messaging/messaging.schema";
 import type { GetResult } from "@/core/base/base-get.interactor";
+import type { DataViewRequestState } from "@/core/base/base-data-view.store";
+import type { ReactNode } from "react";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Cable, RefreshCw } from "lucide-react";
 import { useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 
 import { IntlLink as Link, useRouter, usePathname } from "@/i18n/navigation";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 
 import { cn } from "@/core/utils/cn";
 import { Button } from "@/components/ui/button";
-import { useDataViewSync } from "@/components/data-view";
+import { useDataViewSync } from "@/components/data-view/use-data-view-sync";
 import { DataViewToolbar } from "@/components/data-view/data-view-toolbar";
 import { DataViewActiveFiltersBar } from "@/components/data-view/header/active-filters-bar";
 import { DataViewPagination } from "@/components/data-view/header/pagination";
@@ -21,9 +24,9 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { PageState } from "@/components/page-state/page-state";
 import { DataViewEmptyState } from "@/components/data-view/data-view-empty-state";
-import { resolveDataViewPageState } from "@/components/data-view/data-view-state";
-import { PageSkeleton } from "@/components/page-state/page-skeleton";
+import { resolveDataViewPageState, type DataViewPageState } from "@/components/data-view/data-view-state";
 
+import { InboxPageSkeleton } from "./inbox-page-skeleton";
 import { ThreadRow } from "./thread-row";
 
 type Props = {
@@ -32,6 +35,8 @@ type Props = {
   selectedThreadId: string | null;
   locked?: boolean;
 };
+
+type InboxListPageState = DataViewPageState | "locked";
 
 let didAutoScrollToThread = false;
 let savedListScrollTop = 0;
@@ -45,7 +50,10 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
 
   useDataViewSync(messagingThreadsStore, threads);
 
-  useEffect(() => void connectedAccountsStore.ensureLoaded(), [connectedAccountsStore]);
+  useEffect(() => {
+    if (locked) return;
+    void connectedAccountsStore.ensureLoaded().catch(() => toast.error(t("Common.notifications.unexpectedError")));
+  }, [connectedAccountsStore, locked, t]);
   const channelsNeedingAction = connectedAccountsStore.needsActionCount;
 
   const isRefreshing = messagingThreadsStore.isRefreshing || messagingThreadsStore.isRefreshingInbox;
@@ -54,16 +62,20 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
   const searchTerm = messagingThreadsStore.isReady ? messagingThreadsStore.searchTerm : threads.searchTerm;
   const filters = messagingThreadsStore.isReady ? messagingThreadsStore.filters : threads.filters;
   const hasActiveQuery = Boolean(searchTerm?.trim()) || (filters?.length ?? 0) > 0;
-  const pageState = resolveDataViewPageState({
-    explicitlyUnpaginated: pagination === undefined,
-    failure: messagingThreadsStore.refreshError !== null,
-    hasActiveQuery,
-    hasUsableContent: true,
-    isReady: true,
-    isRefreshing,
-    itemCount: items.length,
-    total: pagination?.total,
-  });
+  const request: DataViewRequestState = isRefreshing
+    ? { status: "refreshing" }
+    : messagingThreadsStore.isReady
+      ? messagingThreadsStore.dataRequest
+      : { status: "ready" };
+  const pageState: InboxListPageState = locked
+    ? "locked"
+    : resolveDataViewPageState({
+        explicitlyUnpaginated: pagination === undefined,
+        hasActiveQuery,
+        itemCount: items.length,
+        request,
+        total: pagination?.total,
+      });
   const searchPlaceholder = t("Common.table.search");
   const topBarNode = useMemo(
     () =>
@@ -151,6 +163,95 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
     requestAnimationFrame(() => row?.scrollIntoView({ behavior: "smooth", block: "start" }));
   }, [items.length, selectedThreadId]);
 
+  let listBody: ReactNode;
+  switch (pageState) {
+    case "locked":
+      listBody = <InboxPageSkeleton animated={false} view="list" />;
+      break;
+    case "loading":
+      listBody = (
+        <PageState
+          background={<InboxPageSkeleton view="list" />}
+          className="h-full"
+          label={t("PageState.loading")}
+          state="loading"
+        />
+      );
+      break;
+    case "error":
+      listBody = (
+        <PageState
+          action={
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => messagingThreadsStore.setQueryOptions({ forceRefresh: true })}
+            >
+              {t("ErrorCard.retry")}
+            </Button>
+          }
+          className="h-full"
+          description={t("ErrorCard.contactSupport")}
+          state="error"
+          title={t("ErrorCard.title")}
+        />
+      );
+      break;
+    case "filtered-empty":
+      listBody = (
+        <DataViewEmptyState
+          body={t("Common.emptyState.genericFilteredBody")}
+          secondaryAction={{
+            label: t("Common.emptyState.clearFilters"),
+            onClick: () =>
+              messagingThreadsStore.setQueryOptions({
+                filters: [],
+                searchTerm: "",
+              }),
+          }}
+          title={t("Common.emptyState.filteredTitle")}
+        />
+      );
+      break;
+    case "true-empty":
+      listBody = (
+        <PageState
+          action={
+            canConnect ? (
+              <Button asChild size="sm" variant="secondary">
+                <Link href="/profile/connected-accounts">
+                  <Cable className="size-3.5" />
+
+                  {t("ConnectedAccountsCard.title")}
+                </Link>
+              </Button>
+            ) : undefined
+          }
+          background={<InboxPageSkeleton animated={false} view="list" />}
+          className="h-full"
+          description={t("Inbox.emptyState")}
+          icon={Cable}
+          state="empty"
+          title={t("Common.emptyState.genericTitle")}
+        />
+      );
+      break;
+    case "content":
+      listBody = items.map((thread) => (
+        <ThreadRow
+          key={thread.id}
+          selected={thread.id === selectedThreadId}
+          thread={thread}
+          onClick={() => selectThread(thread.id)}
+        />
+      ));
+      break;
+    default: {
+      const exhaustive: never = pageState;
+      listBody = exhaustive;
+    }
+  }
+
   return (
     <div className="flex h-full flex-col">
       <DataViewActiveFiltersBar store={messagingThreadsStore} onEditFilters={clearSelectedThread} />
@@ -163,58 +264,7 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
         )}
         id="inbox-thread-list"
       >
-        {locked ? (
-          <PageSkeleton animated={false} spec={{ kind: "inbox", view: "list" }} />
-        ) : pageState === "loading" ? (
-          <PageState
-            className="h-full"
-            label={t("PageState.loading")}
-            skeleton={{ kind: "inbox", view: "list" }}
-            state="loading"
-          />
-        ) : pageState === "filtered-empty" ? (
-          <DataViewEmptyState
-            body={t("Common.emptyState.genericFilteredBody")}
-            secondaryAction={{
-              label: t("Common.emptyState.clearFilters"),
-              onClick: () =>
-                messagingThreadsStore.setQueryOptions({
-                  filters: [],
-                  searchTerm: "",
-                }),
-            }}
-            title={t("Common.emptyState.filteredTitle")}
-          />
-        ) : pageState === "true-empty" ? (
-          <PageState
-            action={
-              canConnect ? (
-                <Button asChild size="sm" variant="secondary">
-                  <Link href="/profile/connected-accounts">
-                    <Cable className="size-3.5" />
-
-                    {t("ConnectedAccountsCard.title")}
-                  </Link>
-                </Button>
-              ) : undefined
-            }
-            className="h-full"
-            description={t("Inbox.emptyState")}
-            icon={Cable}
-            skeleton={{ kind: "inbox", view: "list" }}
-            state="empty"
-            title={t("Common.emptyState.genericTitle")}
-          />
-        ) : (
-          items.map((thread) => (
-            <ThreadRow
-              key={thread.id}
-              selected={thread.id === selectedThreadId}
-              thread={thread}
-              onClick={() => selectThread(thread.id)}
-            />
-          ))
-        )}
+        {listBody}
       </div>
 
       {pageState === "content" && <DataViewPagination store={messagingThreadsStore} />}

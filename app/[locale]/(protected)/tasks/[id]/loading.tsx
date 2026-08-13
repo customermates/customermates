@@ -1,5 +1,5 @@
-import { RouteLoading } from "@/components/page-state/route-loading";
+import { EntityDetailRouteLoading } from "@/components/entity-detail/entity-detail-route-loading";
 
 export default function Loading() {
-  return <RouteLoading route="/tasks/[id]" />;
+  return <EntityDetailRouteLoading />;
 }

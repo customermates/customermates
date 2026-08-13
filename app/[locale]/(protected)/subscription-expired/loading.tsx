@@ -1,5 +1,16 @@
-import { RouteLoading } from "@/components/page-state/route-loading";
+import { getTranslations } from "next-intl/server";
 
-export default function Loading() {
-  return <RouteLoading route="/subscription-expired" />;
+import { PageState } from "@/components/page-state/page-state";
+import { SubscriptionExpiredPageSkeleton } from "./components/subscription-expired-page-skeleton";
+
+export default async function Loading() {
+  const t = await getTranslations("PageState");
+  return (
+    <PageState
+      background={<SubscriptionExpiredPageSkeleton />}
+      className="h-full flex-1"
+      label={t("loading")}
+      state="loading"
+    />
+  );
 }
