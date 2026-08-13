@@ -36,9 +36,6 @@ const { EventService } = await import("@/features/event/event.service");
 const { DomainEventListener } = await import("@/features/event/domain-event.listener");
 const { DomainEvent } = await import("@/features/event/domain-events");
 const { PrismaAuditLogRepo } = await import("@/features/audit-log/prisma-audit-log.repository");
-const { PrismaCompanyRepo } = await import("@/features/company/prisma-company.repository");
-const { SubscriptionService } = await import("@/ee/subscription/subscription.service");
-const { SubscriptionPlan, SubscriptionStatus } = await import("@/generated/prisma");
 const { GetLegalStatusInteractor } = await import("@/features/legal/get-legal-status.interactor");
 const { AcceptLegalDocumentsInteractor } = await import("@/features/legal/accept-legal-documents.interactor");
 const { currentLegalDocumentVersions } = await import("@/constants/legal-documents");
@@ -505,66 +502,5 @@ describe("registration against a real database", () => {
         }),
       ),
     ).toBe(0);
-  });
-
-  it("commits a fail-closed provider quarantine before surfacing the sync error", async () => {
-    const repo = new PrismaUserRepo();
-    const user = await runWithoutTenant(() =>
-      repo.createCompanyAndUser({
-        email: `billing-quarantine-${Date.now()}@example.com`,
-        firstName: "Billing",
-        lastName: "Quarantine",
-        country: "de",
-        agreeToTerms: true,
-        avatarUrl: null,
-      }),
-    );
-    companyIds.push(user.companyId);
-
-    await runWithoutTenant(() =>
-      prisma.subscription.update({
-        where: { companyId: user.companyId },
-        data: {
-          lemonSqueezyId: "sub-quarantine",
-          lemonSqueezyVariantId: "999999",
-          status: SubscriptionStatus.active,
-          plan: SubscriptionPlan.business,
-        },
-      }),
-    );
-
-    const service = new SubscriptionService(new PrismaCompanyRepo());
-    (service as unknown as { isConfigured: boolean }).isConfigured = true;
-    vi.spyOn(service, "getSubscriptionOrThrowUnscoped").mockResolvedValue({
-      data: {
-        id: "sub-quarantine",
-        attributes: {
-          status: "active",
-          renews_at: null,
-          ends_at: null,
-          trial_ends_at: null,
-          updated_at: "2026-08-13T13:00:00.000Z",
-          variant_id: 999999,
-          first_subscription_item: { quantity: 1 },
-          urls: { customer_portal: null },
-        },
-      },
-    });
-
-    await expect(service.updateSubscriptionOrThrow("sub-quarantine", user.companyId)).rejects.toThrow(
-      "access was quarantined",
-    );
-
-    await expect(
-      runWithoutTenant(() =>
-        prisma.subscription.findUniqueOrThrow({
-          where: { companyId: user.companyId },
-          select: { status: true, plan: true },
-        }),
-      ),
-    ).resolves.toEqual({
-      status: SubscriptionStatus.unPaid,
-      plan: SubscriptionPlan.business,
-    });
   });
 });

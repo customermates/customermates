@@ -228,7 +228,6 @@
       "assigneeRequired": "Devi assegnare questo elemento a te stesso. Nota che potrai vedere solo gli elementi assegnati a te.",
       "calendarEventNotFound": "ID evento del calendario non trovato o non accessibile.",
       "channelAlreadyLinked": "Questo canale è già collegato a un altro contatto.",
-      "checkoutReservationInProgress": "È in corso il pagamento di un abbonamento. Riprova a modificare lo stato di questo membro al termine del pagamento.",
       "connectedAccountNotFound": "ID canale non trovato o non accessibile.",
       "contactNotFound": "ID contatto non trovato o non accessibile.",
       "contactRefRequired": "id deve essere un UUID di contatto, un'e-mail o un telefono, oppure 'provider:value' per un identificativo (ad esempio 'linkedin:jdoe').",
@@ -1601,14 +1600,8 @@
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# account collegato per utente} other {# account collegati per utente}}",
       "features": {
-        "business": [
-          "Tutto ciò che c'è in Pro",
-          "Account condivisi e assistenza prioritaria"
-        ],
-        "pro": [
-          "Tutto ciò che c'è in Starter",
-          "Posta in arrivo unificata"
-        ],
+        "business": ["Tutto ciò che c'è in Pro", "Account condivisi e assistenza prioritaria"],
+        "pro": ["Tutto ciò che c'è in Starter", "Posta in arrivo unificata"],
         "starter": [
           "CRM completo: contatti, trattative, organizzazioni, attività",
           "Registro di controllo",
@@ -1650,8 +1643,7 @@
     "selfServiceCheckoutDescription": "Il tuo spazio di lavoro non ha più un abbonamento attivo. Scegli un piano per continuare a usare Customermates oppure contatta il nostro team di assistenza per qualsiasi domanda.",
     "subtitle": "L’accesso allo spazio di lavoro è sospeso",
     "supportEmailSubject": "Richiesta di informazioni sull'abbonamento",
-    "title": "Abbonamento necessario",
-    "description": "La prova o l'abbonamento non è attivo. Avvia un nuovo abbonamento se disponibile, gestisci la fatturazione in Lemon Squeezy o contatta l'assistenza."
+    "title": "Abbonamento necessario"
   },
   "SubscriptionInactivationNotice": {
     "body": "Il tuo account è ora inattivo perché il tuo abbonamento è rimasto non pagato o scaduto per più di 3 giorni. Se vuoi continuare, posso aiutarti a ripristinare rapidamente l'accesso.",

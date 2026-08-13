@@ -228,7 +228,6 @@
       "assigneeRequired": "You must assign yourself to this item. Please note that you will only be able to view items assigned to you.",
       "calendarEventNotFound": "Calendar event ID not found or not accessible.",
       "channelAlreadyLinked": "This channel is already linked to another contact.",
-      "checkoutReservationInProgress": "A subscription checkout is in progress. Try changing this member's status again after checkout finishes.",
       "connectedAccountNotFound": "Channel ID not found or not accessible.",
       "contactNotFound": "Contact ID not found or not accessible.",
       "contactRefRequired": "id must be a contact UUID, an email or phone, or 'provider:value' for a handle (e.g. 'linkedin:jdoe').",
@@ -1601,14 +1600,8 @@
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# connected account per user} other {# connected accounts per user}}",
       "features": {
-        "business": [
-          "Everything in Pro",
-          "Shared accounts and priority support"
-        ],
-        "pro": [
-          "Everything in Starter",
-          "Unified inbox"
-        ],
+        "business": ["Everything in Pro", "Shared accounts and priority support"],
+        "pro": ["Everything in Starter", "Unified inbox"],
         "starter": [
           "Full CRM: contacts, deals, organizations, tasks",
           "Audit log",
@@ -1650,8 +1643,7 @@
     "selfServiceCheckoutDescription": "Your workspace no longer has an active subscription. Choose a plan to continue using Customermates, or contact our support team if you have any questions.",
     "subtitle": "Workspace access is paused",
     "supportEmailSubject": "Subscription Inquiry",
-    "title": "Subscription Required",
-    "description": "Your trial or subscription is not currently active. Start a new subscription when available, manage billing in Lemon Squeezy, or contact support for help."
+    "title": "Subscription Required"
   },
   "SubscriptionInactivationNotice": {
     "body": "Your account is now inactive because your subscription has been unpaid or expired for more than 3 days. If you want to continue, I can help you restore access quickly.",

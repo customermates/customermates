@@ -1366,7 +1366,7 @@ export const getDeleteApiKeyInteractor = () => new DeleteApiKeyInteractor(getAut
 // --- EE Subscription ---
 
 export const getCreateCheckoutSessionInteractor = () =>
-  new CreateCheckoutSessionInteractor(getSubscriptionService(), getCompanyRepo());
+  new CreateCheckoutSessionInteractor(getSubscriptionService(), getCompanyRepo(), getUserRepo());
 
 export const getGetSubscriptionInteractor = () =>
   new GetSubscriptionInteractor(getCompanyRepo(), getUserRepo(), getSubscriptionService());

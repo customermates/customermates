@@ -30,12 +30,3 @@ export function variantToOffer(
 ): CommercialOffer | null {
   return parseLemonSqueezyBindings(input).byVariant.get(variantId) ?? null;
 }
-
-export function variantToOfferOrThrow(
-  variantId: string,
-  input: LemonSqueezyBindingEnvironment = runtimeBindingEnvironment(),
-): CommercialOffer {
-  const offer = variantToOffer(variantId, input);
-  if (!offer) throw new Error("Unknown Lemon Squeezy variant; refusing to retain stale subscription entitlements");
-  return offer;
-}

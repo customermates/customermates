@@ -12,7 +12,7 @@ import { env } from "@/env";
 
 export abstract class DeactivateUsersAfterSubscriptionGracePeriodRepo {
   abstract findUsersPastSubscriptionGracePeriod(): Promise<User[]>;
-  abstract deactivateUserAfterGraceUnlessCheckoutReservedOrThrow(args: { userId: string; now: Date }): Promise<boolean>;
+  abstract deactivateUser(userId: string): Promise<void>;
 }
 
 @SystemInteractor
@@ -26,11 +26,7 @@ export class DeactivateUsersAfterSubscriptionGracePeriodInteractor {
     const users = await this.repo.findUsersPastSubscriptionGracePeriod();
 
     for (const user of users) {
-      const deactivated = await this.repo.deactivateUserAfterGraceUnlessCheckoutReservedOrThrow({
-        userId: user.id,
-        now: new Date(),
-      });
-      if (!deactivated) continue;
+      await this.repo.deactivateUser(user.id);
 
       const locale = resolveUserLocale(user);
       const contactHref = `${env.BASE_URL}/contact`;

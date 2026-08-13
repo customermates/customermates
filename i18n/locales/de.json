@@ -228,7 +228,6 @@
       "assigneeRequired": "Du musst dich diesem Element zuweisen. Beachte, dass du nur Elemente sehen kannst, die dir zugewiesen sind.",
       "calendarEventNotFound": "Kalenderereignis-ID nicht gefunden oder nicht zugänglich.",
       "channelAlreadyLinked": "Dieser Kanal ist bereits mit einem anderen Kontakt verknüpft.",
-      "checkoutReservationInProgress": "Ein Abonnement-Checkout läuft gerade. Versuche erneut, den Status dieses Mitglieds zu ändern, nachdem der Checkout abgeschlossen ist.",
       "connectedAccountNotFound": "Kanal-ID nicht gefunden oder nicht zugänglich.",
       "contactNotFound": "Kontakt-ID nicht gefunden oder nicht zugänglich.",
       "contactRefRequired": "id muss eine Kontakt-UUID, eine E-Mail oder Telefonnummer oder 'provider:value' für ein Handle sein (z. B. 'linkedin:jdoe').",
@@ -1601,14 +1600,8 @@
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# verbundenes Konto pro Nutzer} other {# verbundene Konten pro Nutzer}}",
       "features": {
-        "business": [
-          "Alles aus Pro",
-          "Geteilte Konten und priorisierter Support"
-        ],
-        "pro": [
-          "Alles aus Starter",
-          "Zentraler Posteingang"
-        ],
+        "business": ["Alles aus Pro", "Geteilte Konten und priorisierter Support"],
+        "pro": ["Alles aus Starter", "Zentraler Posteingang"],
         "starter": [
           "Vollständiges CRM: Kontakte, Deals, Organisationen, Aufgaben",
           "Audit-Log",
@@ -1650,8 +1643,7 @@
     "selfServiceCheckoutDescription": "Dein Arbeitsbereich hat kein aktives Abonnement mehr. Wähle einen Tarif, um Customermates weiter zu nutzen, oder kontaktiere bei Fragen unser Support-Team.",
     "subtitle": "Der Zugriff auf den Arbeitsbereich ist pausiert",
     "supportEmailSubject": "Abonnement-Anfrage",
-    "title": "Abonnement erforderlich",
-    "description": "Deine Testphase oder dein Abonnement ist derzeit nicht aktiv. Starte ein neues Abonnement, sofern verfügbar, verwalte die Zahlung in Lemon Squeezy oder kontaktiere den Support."
+    "title": "Abonnement erforderlich"
   },
   "SubscriptionInactivationNotice": {
     "body": "Dein Konto ist jetzt inaktiv, weil dein Abonnement seit mehr als 3 Tagen unbezahlt oder abgelaufen ist. Wenn du weitermachen möchtest, helfe ich dir gerne dabei, den Zugang schnell wiederherzustellen.",

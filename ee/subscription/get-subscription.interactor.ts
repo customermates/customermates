@@ -15,7 +15,6 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { getTenantUser } from "@/core/decorators/tenant-context";
 
 const OutputSchema = z.object({
   status: z.enum(SubscriptionStatusEnum),
@@ -25,8 +24,7 @@ const OutputSchema = z.object({
   trialEndDate: z.date().nullable(),
   currentPeriodEnd: z.date().nullable(),
   customerPortalUrl: z.string().nullable(),
-  hasProviderSubscription: z.boolean(),
-  canManageSubscription: z.boolean(),
+  hasActiveSubscription: z.boolean(),
 });
 
 export abstract class GetSubscriptionRepo {
@@ -41,8 +39,7 @@ export type SubscriptionDto = {
   trialEndDate: Date | null;
   currentPeriodEnd: Date | null;
   customerPortalUrl: string | null;
-  hasProviderSubscription: boolean;
-  canManageSubscription: boolean;
+  hasActiveSubscription: boolean;
 };
 
 @AllowInDemoMode
@@ -64,15 +61,8 @@ export class GetSubscriptionInteractor extends AuthenticatedInteractor<void, Sub
     ]);
 
     let customerPortalUrl: string | null = null;
-    const user = getTenantUser();
-    const canManageSubscription =
-      user.role?.isSystemRole === true ||
-      (user.role?.permissions.some(
-        (permission) => permission.resource === Resource.company && permission.action === Action.update,
-      ) ??
-        false);
 
-    if (canManageSubscription && subscription.lemonSqueezyId && subscription.plan !== SubscriptionPlanEnum.enterprise) {
+    if (subscription.lemonSqueezyId && subscription.plan !== SubscriptionPlanEnum.enterprise) {
       const lemonSqueezySubscription = await this.lemonSqueezyService.getSubscriptionOrThrowUnscoped(
         subscription.lemonSqueezyId,
       );
@@ -89,8 +79,7 @@ export class GetSubscriptionInteractor extends AuthenticatedInteractor<void, Sub
         trialEndDate: subscription.trialEndDate,
         currentPeriodEnd: subscription.currentPeriodEnd,
         customerPortalUrl,
-        hasProviderSubscription: Boolean(subscription.lemonSqueezyId),
-        canManageSubscription,
+        hasActiveSubscription: Boolean(subscription.lemonSqueezyId),
       },
     };
   }

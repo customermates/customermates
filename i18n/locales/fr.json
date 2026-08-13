@@ -228,7 +228,6 @@
       "assigneeRequired": "Vous devez vous assigner cet élément. Notez que vous ne pourrez consulter que les éléments qui vous sont assignés.",
       "calendarEventNotFound": "ID d'évènement d'agenda introuvable ou inaccessible.",
       "channelAlreadyLinked": "Ce canal est déjà lié à un autre contact.",
-      "checkoutReservationInProgress": "Un paiement d’abonnement est en cours. Réessayez de modifier le statut de ce membre une fois le paiement terminé.",
       "connectedAccountNotFound": "ID de canal introuvable ou inaccessible.",
       "contactNotFound": "ID de contact introuvable ou inaccessible.",
       "contactRefRequired": "id doit être un UUID de contact, une adresse e-mail ou un numéro de téléphone, ou 'provider:value' pour un identifiant (par exemple 'linkedin:jdoe').",
@@ -1601,14 +1600,8 @@
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# compte connecté par utilisateur} other {# comptes connectés par utilisateur}}",
       "features": {
-        "business": [
-          "Tout ce qui est inclus dans Pro",
-          "Comptes partagés et assistance prioritaire"
-        ],
-        "pro": [
-          "Tout ce qui est inclus dans Starter",
-          "Boîte de réception unifiée"
-        ],
+        "business": ["Tout ce qui est inclus dans Pro", "Comptes partagés et assistance prioritaire"],
+        "pro": ["Tout ce qui est inclus dans Starter", "Boîte de réception unifiée"],
         "starter": [
           "CRM complet : contacts, affaires, organisations, tâches",
           "Journal d'audit",
@@ -1650,8 +1643,7 @@
     "selfServiceCheckoutDescription": "Votre espace de travail n’a plus d’abonnement actif. Choisissez une offre pour continuer à utiliser Customermates, ou contactez notre assistance si vous avez des questions.",
     "subtitle": "L’accès à l’espace de travail est suspendu",
     "supportEmailSubject": "Question sur l'abonnement",
-    "title": "Abonnement requis",
-    "description": "Votre essai ou votre abonnement n'est pas actif. Démarrez un nouvel abonnement si cette option est disponible, gérez la facturation dans Lemon Squeezy ou contactez l'assistance."
+    "title": "Abonnement requis"
   },
   "SubscriptionInactivationNotice": {
     "body": "Votre compte est désormais inactif car votre abonnement est impayé ou expiré depuis plus de 3 jours. Si vous souhaitez continuer, je peux vous aider à rétablir rapidement votre accès.",

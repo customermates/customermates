@@ -6,4 +6,4 @@ export const maxDuration = 60;
 
 const handler = createMcpRoute(MCP_TOOL_GROUPS, MCP_ALWAYS_ON_TOOLS, "/api/v1/mcp");
 
-export { handler as DELETE, handler as GET, handler as POST };
+export { handler as GET, handler as POST, handler as DELETE };

@@ -7,10 +7,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 export abstract class RefreshSubscriptionRepo {
-  abstract getSubscriptionOrThrow(): Promise<{
-    lemonSqueezyId: string | null;
-    plan: SubscriptionPlan;
-  }>;
+  abstract getSubscriptionOrThrow(): Promise<{ lemonSqueezyId: string | null; plan: SubscriptionPlan }>;
 }
 
 @TenantInteractor({ resource: Resource.company, action: Action.readOwn })

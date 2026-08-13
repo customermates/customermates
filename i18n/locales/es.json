@@ -228,7 +228,6 @@
       "assigneeRequired": "Debes asignarte este elemento. Ten en cuenta que solo podrás ver los elementos asignados a ti.",
       "calendarEventNotFound": "ID de evento de calendario no encontrado o no accesible.",
       "channelAlreadyLinked": "Este canal ya está vinculado a otro contacto.",
-      "checkoutReservationInProgress": "Hay un proceso de pago de suscripción en curso. Vuelve a intentar cambiar el estado de este miembro cuando haya terminado.",
       "connectedAccountNotFound": "ID de canal no encontrado o no accesible.",
       "contactNotFound": "ID de contacto no encontrado o no accesible.",
       "contactRefRequired": "id debe ser un UUID de contacto, un correo o un teléfono, o bien 'provider:value' para un identificador (por ejemplo 'linkedin:jdoe').",
@@ -1601,14 +1600,8 @@
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# cuenta conectada por usuario} other {# cuentas conectadas por usuario}}",
       "features": {
-        "business": [
-          "Todo lo de Pro",
-          "Cuentas compartidas y soporte prioritario"
-        ],
-        "pro": [
-          "Todo lo de Starter",
-          "Bandeja de entrada unificada"
-        ],
+        "business": ["Todo lo de Pro", "Cuentas compartidas y soporte prioritario"],
+        "pro": ["Todo lo de Starter", "Bandeja de entrada unificada"],
         "starter": [
           "CRM completo: contactos, oportunidades, organizaciones y tareas",
           "Registro de auditoría",
@@ -1650,8 +1643,7 @@
     "selfServiceCheckoutDescription": "Tu espacio de trabajo ya no tiene una suscripción activa. Elige un plan para seguir usando Customermates o contacta con nuestro equipo de soporte si tienes alguna duda.",
     "subtitle": "El acceso al espacio de trabajo está pausado",
     "supportEmailSubject": "Consulta sobre la suscripción",
-    "title": "Suscripción necesaria",
-    "description": "Tu prueba o suscripción no está activa. Inicia una nueva suscripción si está disponible, gestiona la facturación en Lemon Squeezy o ponte en contacto con el equipo de asistencia."
+    "title": "Suscripción necesaria"
   },
   "SubscriptionInactivationNotice": {
     "body": "Tu cuenta está ahora inactiva porque tu suscripción lleva más de 3 días sin pagar o caducada. Si quieres continuar, puedo ayudarte a recuperar el acceso rápidamente.",

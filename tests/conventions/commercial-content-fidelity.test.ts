@@ -54,6 +54,8 @@ const EXACT_ALL_IN_OUTPUT =
   /(?:(?:all-in|total(?: realistic)? budget|under|below|less than|Gesamtbudget|Gesamtbetrag|unter|weniger als)[^\n]{0,80}(?:\\u20ac|€|EUR|Euro|\$)\s*\d|\b(?:costs?|runs?|kostet|laufen)\b[^\n]{0,80}(?:\\u20ac|€|EUR|Euro|\$)\s*\d[^\n]{0,40}(?:all-in|total|gesamt))/i;
 const CONNECTED_ACCOUNT_LITERAL =
   /\b(?:two extra connected accounts|unlimited accounts|more than one connected account|zwei zusätzliche verbundene Konten|unbegrenzte Konten|mehr als ein verbundenes Konto)\b/i;
+const HISTORICAL_CONTEXT =
+  /\b(?:in|during|from|through|as of|im|während|von|bis|stand)\s+(?:20\d{2}|Q[1-4]\s+20\d{2})\b|\b(?:historically|previously|formerly|damals|historisch|früher)\b/i;
 
 function lines(path: string): string[] {
   return readFileSync(path, "utf8").split("\n");
@@ -67,8 +69,23 @@ function tableCells(line: string): string[] {
     .map((cell) => cell.trim());
 }
 
-function firstPartyTableAnnualOffers(path: string): string[] {
-  const sourceLines = lines(path);
+function tableContextIsHistorical(
+  sourceLines: string[],
+  headerIndex: number,
+): boolean {
+  for (let index = headerIndex - 1; index >= 0; index -= 1) {
+    const context = sourceLines[index].trim();
+    if (!context) continue;
+    if (!HISTORICAL_CONTEXT.test(context)) return false;
+    return /^#{1,6}\s/u.test(context) || /\bCustomermates\b/i.test(context);
+  }
+  return false;
+}
+
+function firstPartyTableAnnualOffersFromLines(
+  sourceLines: string[],
+  file: string,
+): string[] {
   const violations: string[] = [];
 
   for (let index = 0; index < sourceLines.length - 1; index += 1) {
@@ -77,6 +94,7 @@ function firstPartyTableAnnualOffers(path: string): string[] {
       !/^\s*\|?\s*:?-{3,}/u.test(sourceLines[index + 1])
     )
       continue;
+    const tableIsHistorical = tableContextIsHistorical(sourceLines, index);
     const headers = tableCells(sourceLines[index]);
     const productIndex = headers.findIndex((header) =>
       /\bCustomermates\b/i.test(header),
@@ -93,17 +111,40 @@ function firstPartyTableAnnualOffers(path: string): string[] {
       const label = cells[0] ?? "";
       const productValue = cells[productIndex] ?? "";
       if (
+        !tableIsHistorical &&
+        !HISTORICAL_CONTEXT.test(`${label} ${productValue}`) &&
         PRICE_VALUE.test(productValue) &&
         ANNUAL_CADENCE.test(`${label} ${productValue}`)
       ) {
         violations.push(
-          `${relative(REPO_ROOT, path)}:${index + 1} ${label} — Customermates: ${productValue}`,
+          `${file}:${index + 1} ${label} — Customermates: ${productValue}`,
         );
       }
     }
   }
 
   return violations;
+}
+
+function firstPartyTableAnnualOffers(path: string): string[] {
+  const sourceLines = lines(path);
+  return firstPartyTableAnnualOffersFromLines(
+    sourceLines,
+    relative(REPO_ROOT, path),
+  );
+}
+
+function isCurrentFirstPartyEntitlementClaim(line: string): boolean {
+  if (HISTORICAL_CONTEXT.test(line)) return false;
+  if (/\bCustomermates\b|\[\[commercial\.entitlement\./i.test(line))
+    return true;
+
+  const normalized = line
+    .replace(/^\s*(?:[-*]|\|)\s*/u, "")
+    .replace(/^\*{1,2}/u, "");
+  return /^(?:(?:our|the|on|with|in|der|die|das|im|mit|beim|unser(?:e[rmns]?)?)\s+)?(?:Pro|Business|Enterprise)(?:[-\s](?:plan|tier|tarif|stufe))?\b/i.test(
+    normalized,
+  );
 }
 
 function firstPartyTableDerivedOutputs(path: string): string[] {
@@ -258,12 +299,17 @@ describe("commercial content follows the product catalog", () => {
       lines(path).forEach((line, index) => {
         const aboutCustomermates =
           path === README_PATH || /customermates|\[\[commercial\./i.test(line);
-        if (aboutCustomermates && RETIRED_ANNUAL_OFFER.test(line)) {
+        if (
+          aboutCustomermates &&
+          !HISTORICAL_CONTEXT.test(line) &&
+          RETIRED_ANNUAL_OFFER.test(line)
+        ) {
           violations.push(`${file}:${index + 1} ${line.trim()}`);
         }
         if (
           file.includes("content/compare-pages/") &&
           FIRST_PARTY_SOURCE.test(line) &&
+          !HISTORICAL_CONTEXT.test(line) &&
           PRICE_VALUE.test(line) &&
           ANNUAL_CADENCE.test(line)
         ) {
@@ -431,6 +477,69 @@ describe("commercial content follows the product catalog", () => {
     expect(
       CONNECTED_ACCOUNT_LITERAL.test("Enterprise includes unlimited accounts."),
     ).toBe(true);
+    expect(
+      HISTORICAL_CONTEXT.test("In 2025, Customermates offered €10 yearly."),
+    ).toBe(true);
+    expect(
+      isCurrentFirstPartyEntitlementClaim(
+        "Rival Enterprise includes unlimited accounts.",
+      ),
+    ).toBe(false);
+    expect(
+      isCurrentFirstPartyEntitlementClaim(
+        "In 2025, Customermates Enterprise included unlimited accounts.",
+      ),
+    ).toBe(false);
+    expect(
+      isCurrentFirstPartyEntitlementClaim(
+        "Enterprise includes unlimited accounts.",
+      ),
+    ).toBe(true);
+    expect(
+      isCurrentFirstPartyEntitlementClaim(
+        "Our Enterprise plan includes unlimited accounts.",
+      ),
+    ).toBe(true);
+    expect(
+      isCurrentFirstPartyEntitlementClaim(
+        "Im Enterprise-Tarif sind unbegrenzte Konten enthalten.",
+      ),
+    ).toBe(true);
+    expect(
+      firstPartyTableAnnualOffersFromLines(
+        [
+          "## Customermates pricing in 2025",
+          "| Plan | Customermates |",
+          "| --- | --- |",
+          "| Annual | €10 yearly |",
+        ],
+        "fixture.mdx",
+      ),
+    ).toEqual([]);
+    expect(
+      firstPartyTableAnnualOffersFromLines(
+        [
+          "## Customermates pricing",
+          "| Plan | Customermates |",
+          "| --- | --- |",
+          "| Annual | €10 yearly |",
+        ],
+        "fixture.mdx",
+      ),
+    ).toHaveLength(1);
+    expect(
+      firstPartyTableAnnualOffersFromLines(
+        [
+          "## Pricing",
+          "In 2025, Rival sold an annual plan.",
+          "### Current Customermates pricing",
+          "| Plan | Customermates |",
+          "| --- | --- |",
+          "| Annual | €10 yearly |",
+        ],
+        "fixture.mdx",
+      ),
+    ).toHaveLength(1);
   });
 
   it("derives connected-account allowances from entitlement tokens", () => {
@@ -441,7 +550,7 @@ describe("commercial content follows the product catalog", () => {
       lines(path).forEach((line, index) => {
         if (
           CONNECTED_ACCOUNT_LITERAL.test(line) &&
-          /\b(?:Customermates|Pro|Business|Enterprise)\b/i.test(line) &&
+          isCurrentFirstPartyEntitlementClaim(line) &&
           !line.includes("[[commercial.entitlement.")
         ) {
           violations.push(

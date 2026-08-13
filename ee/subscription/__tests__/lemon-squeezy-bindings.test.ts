@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { getCommercialOfferOrThrow } from "@/core/commercial/plan-catalog";
 import { parseLemonSqueezyBindings, type LemonSqueezyBindingEnvironment } from "../lemon-squeezy-binding-contract";
-import { offerToVariant, variantToOffer, variantToOfferOrThrow } from "../lemon-squeezy-bindings";
+import { offerToVariant, variantToOffer } from "../lemon-squeezy-bindings";
 
 const VALID_ENV: LemonSqueezyBindingEnvironment = {
   LEMONSQUEEZY_VARIANT_ID_STARTER: "2001",
@@ -56,8 +56,7 @@ describe("Lemon Squeezy offer bindings", () => {
     ).toThrow("Enterprise and excess variants are not allowed");
   });
 
-  it("fails closed when a webhook names an unknown variant", () => {
+  it("returns no catalog offer for an unknown variant", () => {
     expect(variantToOffer("9999", VALID_ENV)).toBeNull();
-    expect(() => variantToOfferOrThrow("9999", VALID_ENV)).toThrow("Unknown Lemon Squeezy variant");
   });
 });

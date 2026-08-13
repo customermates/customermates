@@ -43,7 +43,6 @@ export abstract class UpdateUserRoleRepo {
 
 export abstract class AdminUpdateUserSubscriptionRepo {
   abstract getSubscriptionOrThrow(): Promise<Subscription>;
-  abstract hasCheckoutReservationInProgress(now: Date): Promise<boolean>;
 }
 
 @TenantInteractor({ resource: Resource.users, action: Action.update })
@@ -91,20 +90,12 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
       }
     }
 
-    const statusChanged = targetUser.status !== data.status;
-    if (statusChanged && (await this.subscriptionRepo.hasCheckoutReservationInProgress(new Date()))) {
-      const t = await getTranslations();
-      const error = createZodError<AdminUpdateUserDetailsData>(t("Common.errors.checkoutReservationInProgress"), [
-        "status",
-      ]);
-
-      return { ok: false, error };
-    }
-
     await this.userRepo.adminUpdateDetails({
       userId: targetUserId,
       ...data,
     });
+
+    const statusChanged = targetUser.status !== data.status;
 
     if (statusChanged) await this.handleSubscriptionQuantityUpdate();
 

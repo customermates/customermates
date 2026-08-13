@@ -208,7 +208,9 @@ describe("i18n parity", () => {
     expect(icuStructure("{count, plural, one {One} other {#}}", "en")).not.toBe(
       icuStructure("{count, plural, other {#}}", "en"),
     );
-    expect(icuStructure("<strong>{name}</strong>", "en")).not.toBe(icuStructure("{name}<strong></strong>", "en"));
+    expect(icuStructure("<strong>{name}</strong>", "en")).not.toBe(
+      icuStructure("{name}<strong></strong>", "en"),
+    );
   });
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("has every default-locale leaf key in every routing locale", () => {

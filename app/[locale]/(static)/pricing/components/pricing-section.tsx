@@ -77,7 +77,7 @@ export function PricingSection({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 max-w-7xl mx-auto justify-center items-stretch">
-        {mdxPricingCards.map((card, index) => {
+        {mdxPricingCards.map((card) => {
           const { displayPrice, priceSubtext } = pricingCardPresentation({
             plan: card.plan,
             userCount,
@@ -88,7 +88,7 @@ export function PricingSection({
           });
 
           return (
-            <PricingCardComponent key={index} card={card} displayPrice={displayPrice} priceSubtext={priceSubtext} />
+            <PricingCardComponent key={card.plan} card={card} displayPrice={displayPrice} priceSubtext={priceSubtext} />
           );
         })}
       </div>

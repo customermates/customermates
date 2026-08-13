@@ -33,7 +33,12 @@ describe("commercial content tokens", () => {
         },
         "en",
       ),
-    ).toEqual({ description: "From €12", enabled: true, publishedAt, rows: ["7"] });
+    ).toEqual({
+      description: "From €12",
+      enabled: true,
+      publishedAt,
+      rows: ["7"],
+    });
   });
 
   it("rejects unsupported annual, unknown, malformed, and unlocalized tokens", () => {

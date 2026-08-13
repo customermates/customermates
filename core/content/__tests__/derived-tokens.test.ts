@@ -34,7 +34,12 @@ describe("derived content tokens", () => {
   it("resolves nested frontmatter and rejects unknown or malformed tokens", () => {
     const facts = readMcpRegistryFacts();
     const publishedAt = new Date("2026-02-12T00:00:00.000Z");
-    expect(resolveDerivedTokensDeep({ publishedAt, source: "[[derived.mcp.tools.total]] tools" })).toEqual({
+    expect(
+      resolveDerivedTokensDeep({
+        publishedAt,
+        source: "[[derived.mcp.tools.total]] tools",
+      }),
+    ).toEqual({
       publishedAt,
       source: `${facts.total} tools`,
     });

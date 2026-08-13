@@ -57,10 +57,6 @@ export const CLOUD_TRIAL = {
   providerTrialDays: number;
 };
 
-export const SELF_HOSTED_BASELINE_PLAN = "starter" as const satisfies PurchasablePlanId;
-export const CHECKOUT_SESSION_TTL_MINUTES = 30;
-export const CHECKOUT_RESERVATION_TTL_MINUTES = 120;
-
 export const PLAN_CATALOG = {
   starter: {
     plan: "starter",

@@ -11,12 +11,18 @@ const LOCALES = CONTENT_LOCALES;
 type ManifestPage = { title: string; description: string; content: string };
 
 const root = path.join(process.cwd(), "content");
-const manifest: Record<string, Record<string, Record<string, ManifestPage>>> = {};
+const manifest: Record<
+  string,
+  Record<string, Record<string, ManifestPage>>
+> = {};
 
 function parsePage(slug: string, raw: string, locale: string): ManifestPage {
   raw = resolveDerivedTokens(resolveCommercialTokens(raw, locale));
   const frontmatter = raw.match(/^---\n([\s\S]*?)\n---\n?/);
-  const pick = (key: string) => frontmatter?.[1].match(new RegExp(`^${key}:\\s*["']?(.+?)["']?$`, "m"))?.[1] ?? "";
+  const pick = (key: string) =>
+    frontmatter?.[1].match(
+      new RegExp(`^${key}:\\s*["']?(.+?)["']?$`, "m"),
+    )?.[1] ?? "";
   return {
     title: pick("title") || slug,
     description: pick("description"),
@@ -38,7 +44,11 @@ for (const source of SOURCES) {
     for (const file of files) {
       if (!file.endsWith(".mdx")) continue;
       const slug = file.slice(0, -4);
-      manifest[source][locale][slug] = parsePage(slug, readFileSync(path.join(dir, file), "utf8"), locale);
+      manifest[source][locale][slug] = parsePage(
+        slug,
+        readFileSync(path.join(dir, file), "utf8"),
+        locale,
+      );
     }
   }
 }
