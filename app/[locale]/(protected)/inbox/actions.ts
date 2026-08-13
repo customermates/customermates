@@ -30,10 +30,10 @@ import {
 } from "@/core/di";
 import { channelClass, isHandleProvider } from "@/ee/messaging/provider";
 import { serializeResult } from "@/core/utils/action-result";
+import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export async function getMessagingThreadsAction(params?: GetQueryParams) {
-  const result = await getGetMessagingThreadsInteractor().invoke(params);
-  return result.ok ? result.data : { items: [] };
+  return unwrapValidated(getGetMessagingThreadsInteractor().invoke(params));
 }
 
 export async function getMessagingThreadAction(threadId: string) {

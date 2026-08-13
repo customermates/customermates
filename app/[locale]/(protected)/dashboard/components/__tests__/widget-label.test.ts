@@ -32,4 +32,12 @@ describe("widgetDataPointLabel", () => {
   it.each(["Total", "No Group", "no-group"])("preserves the literal user label %s", (label) => {
     expect(widgetDataPointLabel({ labelKind: "literal", label, value: 1 }, () => "translated")).toBe(label);
   });
+
+  it("does not render a technical UUID label in the dashboard", () => {
+    const id = "40c4d2e1-c17c-4e48-834f-7a700d55e56a";
+
+    expect(widgetDataPointLabel({ labelKind: "literal", label: id, value: 1 }, () => "Unavailable")).toBe(
+      "Unavailable",
+    );
+  });
 });

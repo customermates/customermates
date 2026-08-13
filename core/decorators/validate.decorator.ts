@@ -1,4 +1,5 @@
 import type { z } from "zod";
+import type { Validated } from "../validation/validation.utils";
 
 import { getZodParseContext } from "../validation/zod-error-map-server";
 
@@ -16,10 +17,7 @@ export function Validate<T>(schema: z.ZodSchema<T>) {
   };
 }
 
-async function validate<T>(
-  schema: z.ZodSchema<T>,
-  data: unknown,
-): Promise<{ ok: false; error: z.ZodError<T> } | { ok: true; data: T }> {
+async function validate<T>(schema: z.ZodSchema<T>, data: unknown): Validated<T> {
   const context = await getZodParseContext();
   const res = await schema.safeParseAsync(data, context);
 

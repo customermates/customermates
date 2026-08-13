@@ -1,4 +1,4 @@
-import type { IReactionDisposer, ObservableSet } from "mobx";
+import type { ObservableSet } from "mobx";
 import type { RootStore } from "../stores/root.store";
 import type { Filter, FilterableField, PaginationRequest, SortDescriptor } from "./base-get.schema";
 import type { GetResult } from "./base-get.interactor";
@@ -6,13 +6,12 @@ import type { GetQueryParams, GroupedPaginationRequest } from "@/core/base/base-
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { SavedFilterPreset } from "@/features/p13n/prisma-p13n.repository";
 
-import { makeObservable, observable, computed, action, toJS, runInAction, reaction } from "mobx";
+import { makeObservable, observable, computed, action, toJS, runInAction } from "mobx";
 import deepEqual from "fast-deep-equal/es6";
-import { Action, CustomColumnType } from "@/generated/prisma";
+import { CustomColumnType } from "@/generated/prisma";
 
 import type { Resource, EntityType } from "@/generated/prisma";
 
-import { decodeGetParams, encodeGetParams } from "../utils/get-params";
 import { toastZodErrorTree } from "../utils/toast-zod-error-tree";
 
 import { ViewMode } from "./base-query-builder";
@@ -38,10 +37,15 @@ export type TableColumn = {
   width?: number;
 };
 
-export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore {
-  isRefreshing = false;
-  isReady = false;
+export type DataViewRequestState =
+  | { readonly status: "uninitialized" }
+  | { readonly status: "ready" }
+  | { readonly status: "refreshing" }
+  | { readonly status: "refresh-error"; readonly error: unknown };
 
+type DataViewRefreshMode = "background" | "visible";
+
+export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore {
   items: Entity[] = [];
   customColumns: CustomColumnDto[] = [];
 
@@ -68,9 +72,9 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   public readonly entityType?: EntityType;
 
   private persistViewOptionsTimer?: number;
-  private urlSyncDisposer?: IReactionDisposer;
+  private requestGeneration = 0;
+  private requestState: DataViewRequestState = { status: "uninitialized" };
   private onChangesCallbacks: (() => void | Promise<void>)[] = [];
-  private urlSyncUpdateTimer?: number;
 
   abstract get columnsDefinition(): TableColumn[];
 
@@ -79,9 +83,11 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.resource = resource;
     this.entityType = entityType;
 
-    makeObservable(this, {
-      isRefreshing: observable,
-      isReady: observable,
+    makeObservable<this, "requestState">(this, {
+      requestState: observable.ref,
+      dataRequest: computed,
+      isRefreshing: computed,
+      isReady: computed,
 
       items: observable,
       customColumns: observable,
@@ -106,13 +112,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       isBulkMutating: observable,
 
       orderedColumns: computed,
-      headerColumns: computed,
-      visibleColumnsCount: computed,
-      visibleColumnIds: computed,
       sortableColumnIds: computed,
-      activePresetId: computed,
-      canReadAll: computed,
-      canAccess: computed,
       canManage: computed,
       isDisabled: computed,
       hasSelection: computed,
@@ -145,6 +145,18 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       updateCustomFieldValue: action,
       moveItemBetweenGroups: action,
     });
+  }
+
+  get isReady(): boolean {
+    return this.requestState.status !== "uninitialized";
+  }
+
+  get dataRequest(): DataViewRequestState {
+    return this.requestState;
+  }
+
+  get isRefreshing(): boolean {
+    return this.requestState.status === "refreshing";
   }
 
   setBulkMutating = (next: boolean) => {
@@ -263,30 +275,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return this.isKanbanMode ? `${this.groupingColumnId}` : "";
   }
 
-  get visibleColumnsCount() {
-    const hiddenSet = new Set(this.hiddenColumns);
-
-    return this.columnsDefinition.filter((col) => !hiddenSet.has(col.uid)).length;
-  }
-
-  get visibleColumnIds(): Set<string> {
-    return new Set(this.columnsDefinition.map((col) => col.uid));
-  }
-
   get sortableColumnIds(): Set<string> {
     return new Set(this.columnsDefinition.filter((col) => col.sortable).map((col) => col.uid));
-  }
-
-  get canReadAll(): boolean {
-    if (!this.resource) return true;
-
-    return this.rootStore.userStore.can(this.resource, Action.readAll);
-  }
-
-  get canAccess(): boolean {
-    if (!this.resource) return true;
-
-    return this.rootStore.userStore.canAccess(this.resource);
   }
 
   get canManage(): boolean {
@@ -328,15 +318,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.selectedIds.clear();
   };
 
-  get activePresetId(): string | undefined {
-    if (!this.savedFilterPresets) return undefined;
-
-    const currentFilters = this.filters;
-    const matchingPreset = this.savedFilterPresets.find((preset) => deepEqual(preset.filters, currentFilters));
-
-    return matchingPreset?.id;
-  }
-
   get orderedColumns() {
     const columnMap = new Map(this.columnsDefinition.map((col) => [col.uid, col]));
     const orderedUids = new Set(this.columnOrder);
@@ -365,13 +346,9 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return res;
   }
 
-  get headerColumns() {
-    const hiddenSet = new Set(this.hiddenColumns);
-
-    return this.orderedColumns.filter((column) => !hiddenSet.has(column.uid));
-  }
-
   setItems(args: GetResult<Entity>): void {
+    this.requestGeneration += 1;
+    const wasReady = this.isReady;
     this.items = args.items;
     this.customColumns = args.customColumns ?? [];
     this.p13nId = args.p13nId;
@@ -384,13 +361,12 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.hiddenColumns = (args.hiddenColumns ?? []).filter((uid) => uid !== "name");
     this.savedFilterPresets = args.savedFilterPresets;
     this.columnOrder = (args.columnOrder ?? []).filter((uid) => uid !== "name");
-    if (!this.isReady) {
+    if (!wasReady) {
       this.viewMode = args.viewMode ?? ViewMode.table;
       this.groupingColumnId = args.groupingColumnId;
     }
     this.groupCounts = args.groupCounts ?? {};
-
-    this.isReady = true;
+    this.requestState = { status: "ready" };
   }
 
   loadMoreInGroup = (groupKey: string): void => {
@@ -399,7 +375,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       ...this.groupedTakeOverrides,
       [groupKey]: current + KANBAN_PER_GROUP_DEFAULT,
     };
-    void this.persistQueryOptions();
+    this.refreshQueryInBackground();
   };
 
   resetGroupedTakeOverrides = (): void => {
@@ -481,7 +457,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     if (groupingChanged) this.resetGroupedTakeOverrides();
 
     if (hasChanges) this.persistViewOptions();
-    if (groupingChanged) void this.persistQueryOptions();
+    if (groupingChanged) this.refreshQueryInBackground();
   };
 
   setQueryOptions = (updates: {
@@ -531,7 +507,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       this.resetGroupedTakeOverrides();
     }
 
-    if (hasChanges || updates.forceRefresh) void this.persistQueryOptions();
+    if (hasChanges || updates.forceRefresh) this.refreshQueryInBackground();
   };
 
   removeFilter = (filter: Filter) => {
@@ -566,10 +542,16 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.setCustomColumns(customColumns);
   };
 
-  refresh = async (): Promise<void> => {
-    const groupedPagination = this.buildGroupedPaginationRequest();
+  refresh = (): Promise<void> => this.executeRefresh("background");
 
-    const res = await this.refreshAction({
+  protected refreshGuarded = (shouldCommit: () => boolean): Promise<void> =>
+    this.executeRefresh("background", shouldCommit);
+
+  private executeRefresh = async (mode: DataViewRefreshMode, shouldCommit?: () => boolean): Promise<void> => {
+    const generation = ++this.requestGeneration;
+    const wasInitialized = this.isReady;
+    const groupedPagination = this.buildGroupedPaginationRequest();
+    const params: GetQueryParams = {
       p13nId: this.p13nId,
       filters: toJS(this.filters),
       searchTerm: toJS(this.searchTerm),
@@ -578,9 +560,41 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       groupedPagination,
       viewMode: this.viewMode,
       groupingColumnId: this.groupingColumnId ?? undefined,
+    };
+
+    runInAction(() => {
+      if (mode === "visible") this.requestState = { status: "refreshing" };
     });
 
-    this.setItems(res);
+    const discardIfStale = (): boolean => {
+      const ownsRequest = generation === this.requestGeneration;
+      const ownsGuard = shouldCommit?.() ?? true;
+      if (ownsRequest && ownsGuard) return false;
+
+      if (ownsRequest && !ownsGuard && this.requestState.status === "refreshing") {
+        runInAction(() => {
+          this.requestState = wasInitialized ? { status: "ready" } : { status: "uninitialized" };
+        });
+      }
+
+      return true;
+    };
+
+    let result: GetResult<Entity>;
+    try {
+      result = await this.refreshAction(params);
+    } catch (error) {
+      if (discardIfStale()) return;
+
+      runInAction(() => {
+        this.requestState = wasInitialized ? { status: "refresh-error", error } : { status: "uninitialized" };
+      });
+      throw error;
+    }
+
+    if (discardIfStale()) return;
+
+    runInAction(() => this.setItems(result));
   };
 
   private buildGroupedPaginationRequest(): GroupedPaginationRequest | undefined {
@@ -600,6 +614,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   upsertItem = async (target: Entity): Promise<void> => {
     this.upsertItemLocal(target);
+    this.requestGeneration += 1;
+    if (this.requestState.status !== "uninitialized") this.requestState = { status: "ready" };
     await this.executeOnChanges();
   };
 
@@ -617,6 +633,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     const items = this.items.filter(({ id: sourceId }) => sourceId !== targetId);
 
     this.items = items;
+    this.requestGeneration += 1;
+    if (this.requestState.status !== "uninitialized") this.requestState = { status: "ready" };
     await this.executeOnChanges();
   };
 
@@ -639,43 +657,24 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     await Promise.all(promises);
   };
 
-  async persistQueryOptions(): Promise<void> {
+  async refreshQuery(): Promise<void> {
     if (!this.isReady) return;
 
-    runInAction(() => (this.isRefreshing = true));
-    this.rootStore.loadingOverlayStore.setIsLoading(true);
-
     try {
-      await this.refresh();
-    } finally {
-      runInAction(() => (this.isRefreshing = false));
-      this.rootStore.loadingOverlayStore.setIsLoading(false);
+      await this.executeRefresh("visible");
+    } catch (error) {
+      this.toastError("Common.notifications.unexpectedError");
+      throw error;
     }
   }
 
-  withUrlSync = (): (() => void) => {
-    this.setUrlSyncEnabled(true);
-    return () => this.setUrlSyncEnabled(false);
+  private refreshQueryInBackground = (): void => {
+    void this.refreshQuery().catch(() => undefined);
   };
 
   protected refreshAction(_params?: GetQueryParams): Promise<GetResult<Entity>> {
     return Promise.reject(new Error("refreshAction must be implemented by entity stores"));
   }
-
-  private setUrlSyncEnabled = (enabled: boolean) => {
-    if (enabled) {
-      this.setupUrlSync();
-      return;
-    }
-    if (this.urlSyncDisposer) {
-      this.urlSyncDisposer();
-      this.urlSyncDisposer = undefined;
-    }
-    if (this.urlSyncUpdateTimer) {
-      clearTimeout(this.urlSyncUpdateTimer);
-      this.urlSyncUpdateTimer = undefined;
-    }
-  };
 
   private persistViewOptions = () => {
     if (!this.p13nId) return;
@@ -695,74 +694,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       });
     }, 1000);
   };
-
-  private setupUrlSync = () => {
-    if (this.urlSyncDisposer) {
-      this.urlSyncDisposer();
-      this.urlSyncDisposer = undefined;
-    }
-
-    if (this.urlSyncUpdateTimer) {
-      clearTimeout(this.urlSyncUpdateTimer);
-      this.urlSyncUpdateTimer = undefined;
-    }
-
-    const boundPathname = window.location.pathname;
-
-    const syncUrlToState = () => {
-      if (window.location.pathname !== boundPathname) return;
-
-      const currentSearch = window.location.search.slice(1);
-      if (!this.needsUrlUpdate(currentSearch)) return;
-
-      window.history.replaceState(null, "", this.buildUrl(boundPathname));
-    };
-
-    this.urlSyncDisposer = reaction(
-      () => ({
-        filters: toJS(this.filters),
-        searchTerm: this.searchTerm,
-        sortDescriptor: toJS(this.sortDescriptor),
-        page: this.pagination?.page ?? 1,
-        pageSize: this.pagination?.pageSize ?? 25,
-        isRefreshing: this.isRefreshing,
-      }),
-      () => {
-        if (this.isRefreshing) return;
-
-        if (this.urlSyncUpdateTimer) clearTimeout(this.urlSyncUpdateTimer);
-
-        this.urlSyncUpdateTimer = window.setTimeout(syncUrlToState, 100);
-      },
-    );
-
-    if ((this.filters?.length ?? 0) > 0 || Boolean(this.searchTerm)) syncUrlToState();
-  };
-
-  private getQueryString(): string {
-    return encodeGetParams({
-      filters: this.filters,
-      searchTerm: this.searchTerm,
-      sortDescriptor: this.sortableColumnIds.size > 0 ? this.sortDescriptor : undefined,
-      pagination: this.pagination
-        ? { page: this.pagination.page, pageSize: this.pagination.pageSize }
-        : { page: 1, pageSize: 25 },
-    }).toString();
-  }
-
-  private needsUrlUpdate(currentSearch: string): boolean {
-    const raw = currentSearch.startsWith("?") ? currentSearch.slice(1) : currentSearch;
-    let normalizedSearch = raw;
-    try {
-      normalizedSearch = encodeGetParams(decodeGetParams(new URLSearchParams(raw))).toString();
-    } catch {}
-    return normalizedSearch !== this.getQueryString();
-  }
-
-  private buildUrl(pathname: string): string {
-    const qs = this.getQueryString();
-    return qs ? `${pathname}?${qs}` : pathname;
-  }
 
   private resetPaginationPage = () => {
     if (!this.pagination) return;

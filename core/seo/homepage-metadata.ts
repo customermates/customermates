@@ -3,7 +3,8 @@ import type { HomepageRootMetadata } from "@/core/fumadocs/schemas/homepage";
 import type { ContentLocale } from "@/i18n/locale-registry";
 
 import { env } from "@/env";
-import { buildAlternateLanguages, buildLocalePath } from "@/core/seo/alternates";
+import { buildAlternateLanguages } from "@/core/seo/alternates";
+import { buildLocalePath } from "@/i18n/locale-registry";
 
 export const GLOBAL_METADATA: Metadata = {
   metadataBase: new URL(env.BASE_URL),

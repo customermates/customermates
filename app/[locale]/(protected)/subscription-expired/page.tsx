@@ -20,7 +20,7 @@ export default async function SubscriptionExpiredPage() {
   if (!isSubscriptionExpired(subscription)) redirect("/company/subscription");
 
   return (
-    <CenteredCardPage>
+    <CenteredCardPage className="animate-page-result-in motion-reduce:animate-none">
       <SubscriptionExpiredView />
     </CenteredCardPage>
   );

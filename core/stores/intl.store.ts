@@ -87,22 +87,12 @@ export class IntlStore {
   }
 
   formatNumber(value: number | undefined, options?: { useGrouping?: boolean; maximumFractionDigits?: number }): string {
-    if (value === undefined) return "";
-
-    const numberFormatOptions: Intl.NumberFormatOptions = {
-      style: "decimal" as const,
+    return formatLocalizedNumber(value, this.formattingLocale, {
+      style: "decimal",
       minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
-      useGrouping: true,
-    };
-
-    const formatOptions = {
-      ...numberFormatOptions,
-      useGrouping: options?.useGrouping ?? numberFormatOptions.useGrouping,
-      maximumFractionDigits: options?.maximumFractionDigits ?? numberFormatOptions.maximumFractionDigits,
-    };
-
-    return formatLocalizedNumber(value, this.formattingLocale, formatOptions);
+      maximumFractionDigits: options?.maximumFractionDigits ?? 2,
+      useGrouping: options?.useGrouping ?? true,
+    });
   }
 
   formatNumberForEditing(value: number | undefined, locale = this.formattingLocale): string {

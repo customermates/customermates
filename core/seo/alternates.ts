@@ -1,10 +1,6 @@
 import type { ContentLocale } from "@/i18n/locale-registry";
 
-import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
-
-export function buildLocalePath(locale: string, routePath: string): string {
-  return routePath === "/" ? `/${locale}` : `/${locale}${routePath}`;
-}
+import { DEFAULT_LOCALE, buildLocalePath } from "@/i18n/locale-registry";
 
 const RECIPROCAL_ALTERNATE_MINIMUM = 2;
 

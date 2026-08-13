@@ -5,12 +5,20 @@ import type { DateRange } from "react-day-picker";
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { CalendarIcon } from "lucide-react";
-import { addDays, addMonths, addWeeks, endOfMonth, startOfMonth } from "date-fns";
+import { startOfMonth } from "date-fns";
 import { useTranslations } from "next-intl";
 
 import { useAppForm } from "@/components/forms/form-context";
 import { FormLabel } from "@/components/forms/form-label";
 import { InputClearButton } from "@/components/forms/input-clear-button";
+import {
+  RANGE_PRESET_KEYS,
+  localTimeValue,
+  parseIsoDate,
+  rangeForPreset,
+  toLocalIso,
+} from "@/components/forms/iso-date-values";
+import type { RangePresetKey } from "@/components/forms/iso-date-values";
 import { TimeInput } from "@/components/forms/time-input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -26,34 +34,6 @@ type Props = {
   granularity?: "day" | "minute";
 };
 
-type PresetKey = "today" | "inAWeek" | "thisMonth" | "nextMonth" | "next7Days" | "next30Days";
-
-const PRESET_KEYS: ReadonlyArray<PresetKey> = ["today", "inAWeek", "thisMonth", "nextMonth", "next7Days", "next30Days"];
-
-function rangeForPreset(key: PresetKey): { from: Date; to: Date } {
-  const today = new Date();
-  const start = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  const baseToday = start(today);
-  switch (key) {
-    case "today":
-      return { from: baseToday, to: baseToday };
-    case "inAWeek": {
-      const d = addWeeks(baseToday, 1);
-      return { from: d, to: d };
-    }
-    case "thisMonth":
-      return { from: startOfMonth(today), to: endOfMonth(today) };
-    case "nextMonth": {
-      const next = addMonths(today, 1);
-      return { from: startOfMonth(next), to: endOfMonth(next) };
-    }
-    case "next7Days":
-      return { from: baseToday, to: addDays(baseToday, 6) };
-    case "next30Days":
-      return { from: baseToday, to: addDays(baseToday, 29) };
-  }
-}
-
 export const FilterInputIsoDateRange = observer(({ id, isValidFilter, granularity = "day" }: Props) => {
   const store = useAppForm();
   const t = useTranslations();
@@ -62,8 +42,8 @@ export const FilterInputIsoDateRange = observer(({ id, isValidFilter, granularit
   const tuple = Array.isArray(raw) ? (raw as Array<string | undefined>) : undefined;
   const dateOnly = granularity === "day";
 
-  const startDate = parseIso(tuple?.[0]);
-  const endDate = parseIso(tuple?.[1]);
+  const startDate = parseIsoDate(tuple?.[0]);
+  const endDate = parseIsoDate(tuple?.[1]);
 
   const selected: DateRange | undefined = startDate ? { from: startDate, to: endDate } : undefined;
 
@@ -82,7 +62,7 @@ export const FilterInputIsoDateRange = observer(({ id, isValidFilter, granularit
       }
       return;
     }
-    store?.onChange(id, [toIso(range.from, granularity), toIso(range.to, granularity)]);
+    store?.onChange(id, [toLocalIso(range.from, dateOnly), toLocalIso(range.to, dateOnly)]);
     setCurrentMonth(startOfMonth(range.from));
   }
 
@@ -109,7 +89,7 @@ export const FilterInputIsoDateRange = observer(({ id, isValidFilter, granularit
     commit(next);
   }
 
-  function handlePreset(key: PresetKey) {
+  function handlePreset(key: RangePresetKey) {
     const range = rangeForPreset(key);
     const next = { from: range.from, to: range.to };
     if (!dateOnly) {
@@ -121,12 +101,8 @@ export const FilterInputIsoDateRange = observer(({ id, isValidFilter, granularit
 
   const formatter = dateOnly ? intlStore.dateFormatMap.descriptiveLong : intlStore.dateTimeFormatMap.descriptiveLong;
   const hasBoth = startDate && endDate;
-  const fromTimeValue = startDate
-    ? `${String(startDate.getHours()).padStart(2, "0")}:${String(startDate.getMinutes()).padStart(2, "0")}:${String(startDate.getSeconds()).padStart(2, "0")}`
-    : "";
-  const toTimeValue = endDate
-    ? `${String(endDate.getHours()).padStart(2, "0")}:${String(endDate.getMinutes()).padStart(2, "0")}:${String(endDate.getSeconds()).padStart(2, "0")}`
-    : "";
+  const fromTimeValue = startDate ? localTimeValue(startDate) : "";
+  const toTimeValue = endDate ? localTimeValue(endDate) : "";
 
   return (
     <Popover>
@@ -204,7 +180,7 @@ export const FilterInputIsoDateRange = observer(({ id, isValidFilter, granularit
         <Separator />
 
         <div className="grid grid-cols-2 gap-2 p-3 sm:grid-cols-3">
-          {PRESET_KEYS.map((key) => (
+          {RANGE_PRESET_KEYS.map((key) => (
             <Button
               key={key}
               disabled={store?.isDisabled}
@@ -221,19 +197,3 @@ export const FilterInputIsoDateRange = observer(({ id, isValidFilter, granularit
     </Popover>
   );
 });
-
-function parseIso(value: string | undefined): Date | undefined {
-  if (!value) return undefined;
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? undefined : d;
-}
-
-function toIso(date: Date, granularity: "day" | "minute"): string {
-  if (granularity === "day") {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, "0");
-    const d = String(date.getDate()).padStart(2, "0");
-    return `${y}-${m}-${d}`;
-  }
-  return date.toISOString();
-}

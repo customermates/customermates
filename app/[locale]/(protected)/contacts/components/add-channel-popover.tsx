@@ -9,9 +9,11 @@ import type { MessagingProvider } from "@/generated/prisma";
 
 import { CommandEmpty, CommandGroup, CommandItem, CommandList, CommandPrimitive } from "@/components/ui/command";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
 
 const SOURCE_HINT_KEYS = {
   conversation: "EntityChannels.addChannel.sourceConversations",
@@ -34,7 +36,7 @@ export const AddChannelPopover = observer(({ contactId }: { contactId?: string }
   const busy = store.isSearching || store.isResolving;
   const hasResults = candidates.length > 0 || addAsNewOptions.length > 0;
   const showList = store.open && (busy || hasResults || value.length >= 2);
-  const showEmpty = !busy && value.length >= 2 && !hasResults;
+  const showEmpty = !busy && !store.searchError && value.length >= 2 && !hasResults;
 
   const providerLabel = (provider: MessagingProvider) => t(`Common.providers.${provider}`);
 
@@ -71,16 +73,22 @@ export const AddChannelPopover = observer(({ contactId }: { contactId?: string }
           className="w-(--radix-popover-trigger-width) overflow-hidden p-0"
           onOpenAutoFocus={(event) => event.preventDefault()}
         >
-          <CommandList>
-            {busy && candidates.length === 0 && (
-              <div className="text-muted-foreground py-3 text-center text-sm">
-                {t("EntityChannels.addChannel.searching")}
+          <CommandList aria-busy={busy || undefined}>
+            {busy && <SelectionOptionsSkeleton label={t("EntityChannels.addChannel.searching")} />}
+
+            {!busy && store.searchError && (
+              <div className="flex flex-col items-center gap-2 px-3 py-4 text-center text-sm" role="alert">
+                <span className="text-muted-foreground">{t("Common.notifications.unexpectedError")}</span>
+
+                <Button size="sm" type="button" variant="outline" onClick={() => void store.retrySearch()}>
+                  {t("ErrorCard.retry")}
+                </Button>
               </div>
             )}
 
             {showEmpty && <CommandEmpty>{t("EntityChannels.addChannel.noResults")}</CommandEmpty>}
 
-            {candidates.length > 0 && (
+            {!busy && candidates.length > 0 && (
               <CommandGroup>
                 {candidates.map(({ candidate, source }) => {
                   const ProviderIcon = getProviderIcon(candidate.provider);
@@ -110,7 +118,7 @@ export const AddChannelPopover = observer(({ contactId }: { contactId?: string }
               </CommandGroup>
             )}
 
-            {addAsNewOptions.length === 1 && (
+            {!busy && addAsNewOptions.length === 1 && (
               <CommandGroup>
                 <CommandItem
                   key={`add:${addAsNewOptions[0]}`}
@@ -126,7 +134,7 @@ export const AddChannelPopover = observer(({ contactId }: { contactId?: string }
               </CommandGroup>
             )}
 
-            {addAsNewOptions.length > 1 && (
+            {!busy && addAsNewOptions.length > 1 && (
               <div className="border-border flex items-center gap-2 border-t px-3 py-2">
                 <span className="text-muted-foreground shrink-0 text-xs">
                   {t("EntityChannels.addChannel.addAsLabel")}

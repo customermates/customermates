@@ -2,6 +2,7 @@
 
 import type { LucideIcon } from "lucide-react";
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
+import type { ReactElement } from "react";
 
 import { Building2, CheckCircle2, Inbox, Package, TrendingUp, Users } from "lucide-react";
 import { observer } from "mobx-react-lite";
@@ -9,6 +10,8 @@ import { useTranslations } from "next-intl";
 import { EntityType } from "@/generated/prisma";
 
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
+import { Button } from "@/components/ui/button";
+import { PageState } from "@/components/page-state/page-state";
 
 import { DataViewEmptyState } from "./data-view-empty-state";
 
@@ -27,24 +30,40 @@ const ENTITY_ICON: Record<EntityType, LucideIcon> = {
   [EntityType.task]: CheckCircle2,
 };
 
-type Props<E extends HasId> = {
+type SharedProps<E extends HasId> = {
   store: BaseDataViewStore<E>;
   onAdd?: () => void;
   descriptor?: EmptyStateDescriptor;
+  actionLabel?: string;
 };
 
-export const DataViewEmpty = observer(function DataViewEmpty<E extends HasId>({ store, onAdd, descriptor }: Props<E>) {
+type Props<E extends HasId> = SharedProps<E> &
+  (
+    | {
+        reason: "filtered";
+        background?: never;
+      }
+    | { background: ReactElement; reason: "true-empty" }
+  );
+
+export const DataViewEmpty = observer(function DataViewEmpty<E extends HasId>({
+  store,
+  onAdd,
+  descriptor,
+  reason,
+  background,
+  actionLabel,
+}: Props<E>) {
   const t = useTranslations();
   const { singular, plural } = useEntityTerminology();
 
   const entityType = store.entityType;
-  const icon = descriptor?.icon ?? (entityType ? ENTITY_ICON[entityType] : Inbox);
+  const Icon = descriptor?.icon ?? (entityType ? ENTITY_ICON[entityType] : Inbox);
   const singularLabel = entityType ? singular(entityType) : "";
   const pluralLabel = entityType ? plural(entityType) : "";
-  const hasActiveQuery = Boolean(store.searchTerm) || (store.filters?.length ?? 0) > 0;
   const canCreate = Boolean(onAdd) && store.canManage;
 
-  if (hasActiveQuery) {
+  if (reason === "filtered") {
     return (
       <DataViewEmptyState
         body={
@@ -52,7 +71,7 @@ export const DataViewEmpty = observer(function DataViewEmpty<E extends HasId>({ 
             ? t("Common.emptyState.filteredBody", { plural: pluralLabel })
             : t("Common.emptyState.genericFilteredBody")
         }
-        icon={icon}
+        icon={Icon}
         secondaryAction={{
           label: t("Common.emptyState.clearFilters"),
           onClick: () => store.setQueryOptions({ filters: [], searchTerm: "" }),
@@ -62,53 +81,36 @@ export const DataViewEmpty = observer(function DataViewEmpty<E extends HasId>({ 
     );
   }
 
-  if (!store.canManage) {
-    return (
-      <DataViewEmptyState
-        body={entityType ? t("Common.emptyState.readOnlyBody", { plural: pluralLabel }) : descriptor?.body}
-        icon={icon}
-        title={
-          entityType
-            ? t("Common.emptyState.readOnlyTitle", { plural: pluralLabel })
-            : (descriptor?.title ?? t("Common.emptyState.genericTitle"))
-        }
-      />
-    );
-  }
-
-  if (descriptor) {
-    return (
-      <DataViewEmptyState
-        body={descriptor.body}
-        icon={icon}
-        primaryAction={
-          canCreate ? { label: descriptor.ctaLabel ?? t("Common.actions.add"), onClick: () => onAdd?.() } : undefined
-        }
-        title={descriptor.title}
-      />
-    );
-  }
-
-  if (!entityType) {
-    return (
-      <DataViewEmptyState
-        icon={icon}
-        primaryAction={canCreate ? { label: t("Common.actions.add"), onClick: () => onAdd?.() } : undefined}
-        title={t("Common.emptyState.genericTitle")}
-      />
-    );
-  }
+  const title = !store.canManage
+    ? entityType
+      ? t("Common.emptyState.readOnlyTitle", { plural: pluralLabel })
+      : (descriptor?.title ?? t("Common.emptyState.genericTitle"))
+    : (descriptor?.title ??
+      (entityType ? t("Common.emptyState.title", { plural: pluralLabel }) : t("Common.emptyState.genericTitle")));
+  const description = !store.canManage
+    ? entityType
+      ? t("Common.emptyState.readOnlyBody", { plural: pluralLabel })
+      : descriptor?.body
+    : (descriptor?.body ?? (entityType ? t("Common.emptyState.body", { singular: singularLabel }) : undefined));
+  const resolvedActionLabel =
+    actionLabel ??
+    descriptor?.ctaLabel ??
+    (entityType ? t("Common.emptyState.cta", { singular: singularLabel }) : t("Common.actions.add"));
 
   return (
-    <DataViewEmptyState
-      body={t("Common.emptyState.body", { singular: singularLabel })}
-      icon={icon}
-      primaryAction={
-        canCreate
-          ? { label: t("Common.emptyState.cta", { singular: singularLabel }), onClick: () => onAdd?.() }
-          : undefined
+    <PageState
+      action={
+        canCreate ? (
+          <Button size="sm" variant="secondary" onClick={() => onAdd?.()}>
+            {resolvedActionLabel}
+          </Button>
+        ) : undefined
       }
-      title={t("Common.emptyState.title", { plural: pluralLabel })}
+      background={background}
+      description={description}
+      icon={Icon}
+      state="empty"
+      title={title}
     />
   );
 });

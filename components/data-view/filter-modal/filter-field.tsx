@@ -49,7 +49,17 @@ export const FilterField = observer(({ customColumns, filter, filterableFields, 
     if (isCustomField_) {
       const customColumn = customColumns?.find((col) => col.id === filter.field);
 
-      if (!customColumn) throw new Error(`Custom column not found for filter: ${filter.field}`);
+      if (!customColumn) {
+        return (
+          <div
+            data-filter-value-unavailable
+            aria-disabled="true"
+            className="flex h-8 items-center rounded-md border border-input px-3 text-sm text-muted-foreground"
+          >
+            {t("Common.filters.unavailableValue")}
+          </div>
+        );
+      }
 
       switch (customColumn?.type) {
         case "singleSelect":
@@ -114,7 +124,7 @@ export const FilterField = observer(({ customColumns, filter, filterableFields, 
     }
 
     return <FilterInputText id={id} isValidFilter={isValidFilter} />;
-  }, [customColumns, filter, baseId, isValidFilter, operator, filterableFields]);
+  }, [customColumns, filter, baseId, isValidFilter, operator, filterableFields, t]);
 
   const operatorId = `${baseId}.operator`;
   const bodyShown = !isStandalone && !operatorIsEmpty;

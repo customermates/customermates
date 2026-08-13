@@ -14,14 +14,11 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 import {
-  DISPLAY_LANGUAGE_VALUES,
-  FORMATTING_LOCALE_VALUES,
+  StoredDisplayLanguageSchema,
+  StoredFormattingLocaleSchema,
   normalizeStoredDisplayLanguage,
   normalizeStoredFormattingLocale,
 } from "@/i18n/user-locale";
-
-const [firstDisplayLanguage, ...otherDisplayLanguages] = DISPLAY_LANGUAGE_VALUES;
-const [firstFormattingLocale, ...otherFormattingLocales] = FORMATTING_LOCALE_VALUES;
 
 export const UpdateUserDetailsSchema = z.object({
   firstName: z.string().min(1).max(255).optional(),
@@ -29,8 +26,8 @@ export const UpdateUserDetailsSchema = z.object({
   country: z.enum(CountryCode).optional(),
   avatarUrl: zx.secureUrl().or(z.literal("")).nullable().optional(),
   theme: z.enum(Theme).optional(),
-  displayLanguage: z.enum([firstDisplayLanguage, ...otherDisplayLanguages]).optional(),
-  formattingLocale: z.enum([firstFormattingLocale, ...otherFormattingLocales]).optional(),
+  displayLanguage: StoredDisplayLanguageSchema.optional(),
+  formattingLocale: StoredFormattingLocaleSchema.optional(),
 });
 export type UpdateUserDetailsData = Data<typeof UpdateUserDetailsSchema>;
 
@@ -40,8 +37,8 @@ const OutputSchema = z.object({
   country: z.enum(CountryCode),
   avatarUrl: z.string().nullable(),
   theme: z.enum(Theme),
-  displayLanguage: z.enum([firstDisplayLanguage, ...otherDisplayLanguages]),
-  formattingLocale: z.enum([firstFormattingLocale, ...otherFormattingLocales]),
+  displayLanguage: StoredDisplayLanguageSchema,
+  formattingLocale: StoredFormattingLocaleSchema,
 });
 export type UserProfileData = Data<typeof OutputSchema>;
 

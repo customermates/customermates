@@ -49,7 +49,7 @@ export class ActivitiesStore extends BaseDataViewStore<ActivityEntryDto> {
 
   refreshFor = (entityId: string): void => {
     if (this.timelineEntityId !== entityId) return;
-    void this.refresh();
+    void this.refresh().catch(() => this.toastError("Common.notifications.unexpectedError"));
   };
 
   private async fetchPage(extra: {

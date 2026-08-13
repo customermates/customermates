@@ -7,14 +7,11 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 import {
-  DISPLAY_LANGUAGE_VALUES,
-  FORMATTING_LOCALE_VALUES,
+  StoredDisplayLanguageSchema,
+  StoredFormattingLocaleSchema,
   normalizeStoredDisplayLanguage,
   normalizeStoredFormattingLocale,
 } from "@/i18n/user-locale";
-
-const [firstDisplayLanguage, ...otherDisplayLanguages] = DISPLAY_LANGUAGE_VALUES;
-const [firstFormattingLocale, ...otherFormattingLocales] = FORMATTING_LOCALE_VALUES;
 
 export const UserDetailsDtoSchema = z.object({
   id: z.string(),
@@ -25,8 +22,8 @@ export const UserDetailsDtoSchema = z.object({
   country: z.enum(CountryCodeEnum),
   avatarUrl: z.string().nullable(),
   theme: z.enum(Theme),
-  displayLanguage: z.enum([firstDisplayLanguage, ...otherDisplayLanguages]),
-  formattingLocale: z.enum([firstFormattingLocale, ...otherFormattingLocales]),
+  displayLanguage: StoredDisplayLanguageSchema,
+  formattingLocale: StoredFormattingLocaleSchema,
   roleId: z.string().nullable(),
   roleName: z.string().nullable(),
   roleIsSystemRole: z.boolean(),

@@ -1,35 +1,26 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useTranslations } from "next-intl";
-import { Monitor, Moon, Sun } from "lucide-react";
 
-import { Theme } from "@/generated/prisma";
+import { Icon } from "@/components/shared/icon";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
-
-import { Icon } from "./icon";
+import { Theme } from "@/generated/prisma";
 
 type Props = {
+  className?: string;
   onThemeChange?: (theme: Theme) => Promise<void>;
-  hideSystem?: boolean;
 };
 
-const THEMES: { key: Theme; icon: typeof Monitor }[] = [
-  { key: Theme.system, icon: Monitor },
-  { key: Theme.light, icon: Sun },
-  { key: Theme.dark, icon: Moon },
-];
-
-export function ThemeSwitcher({ onThemeChange, hideSystem = false }: Props) {
+export function ThemeSwitcher({ className, onThemeChange }: Props) {
   const t = useTranslations();
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
-
-  const availableThemes = hideSystem ? THEMES.filter((t) => t.key !== Theme.system) : THEMES;
 
   const handleThemeChange = useCallback(
     async (newTheme: Theme) => {
@@ -40,34 +31,32 @@ export function ThemeSwitcher({ onThemeChange, hideSystem = false }: Props) {
     [setTheme, onThemeChange],
   );
 
-  const defaultTheme = hideSystem ? Theme.light : Theme.system;
-  const selectedKey = mounted ? ((theme as Theme | undefined) ?? defaultTheme) : Theme.system;
+  if (!mounted) {
+    return (
+      <div
+        aria-hidden
+        className={cn("size-8 animate-pulse rounded-md bg-placeholder motion-reduce:animate-none", className)}
+      />
+    );
+  }
 
-  if (!mounted) return <div aria-hidden className="h-[26px] w-[52px] rounded-full bg-muted animate-pulse" />;
+  const selectedTheme = resolvedTheme === Theme.dark ? Theme.dark : Theme.light;
+  const nextTheme = selectedTheme === Theme.dark ? Theme.light : Theme.dark;
+  const SelectedIcon = selectedTheme === Theme.dark ? Moon : Sun;
+  const selectedThemeLabel = selectedTheme === Theme.dark ? t("Common.themes.dark") : t("Common.themes.light");
 
   return (
-    <div
-      aria-label={t("Common.ariaLabels.themeSwitcher")}
-      className="inline-flex items-center gap-1 rounded-full bg-muted p-0.5"
-      role="radiogroup"
+    <Button
+      aria-label={`${t("Common.ariaLabels.themeSwitcher")}: ${selectedThemeLabel}`}
+      aria-pressed={selectedTheme === Theme.dark}
+      className={cn("size-8 rounded-md p-0 text-subdued hover:text-foreground", className)}
+      data-theme={selectedTheme}
+      size="icon-sm"
+      title={selectedThemeLabel}
+      variant="ghost"
+      onClick={() => void handleThemeChange(nextTheme)}
     >
-      {availableThemes.map(({ key, icon }) => {
-        const isSelected = selectedKey === key;
-        return (
-          <Button
-            key={key}
-            aria-checked={isSelected}
-            className={cn("rounded-full size-[22px] p-0", !isSelected && "bg-transparent hover:bg-background/60")}
-            role="radio"
-            size="icon-xs"
-            type="button"
-            variant={isSelected ? "default" : "ghost"}
-            onClick={() => void handleThemeChange(key)}
-          >
-            <Icon icon={icon} size="sm" />
-          </Button>
-        );
-      })}
-    </div>
+      <Icon aria-hidden icon={SelectedIcon} size="md" />
+    </Button>
   );
 }

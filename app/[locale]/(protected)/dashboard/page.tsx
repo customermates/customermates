@@ -1,4 +1,4 @@
-import { WidgetsGrid } from "./components/widgets-grid";
+import { DashboardPageView } from "./components/dashboard-page-view";
 
 import { PageContainer } from "@/components/shared/page-container";
 import {
@@ -18,8 +18,8 @@ export default async function DashboardPage() {
 
   return (
     <PageContainer>
-      <div className="flex flex-col relative w-full gap-4 md:gap-6 grid-cols-1">
-        <WidgetsGrid
+      <div className="relative flex min-h-0 w-full flex-1 flex-col gap-4 md:gap-6">
+        <DashboardPageView
           customColumns={customColumnsResult.data}
           filterableFields={filterableFieldsResult.data}
           widgets={widgetsResult.data}

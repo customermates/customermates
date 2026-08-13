@@ -2,7 +2,7 @@ import type { GetResult } from "@/core/base/base-get.interactor";
 import type { GetQueryParams, Filter } from "@/core/base/base-get.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   ConnectedAccountStatus,
@@ -44,6 +44,7 @@ export type FilterSelectItem = {
 };
 
 type GetItemsFunction = (params: GetQueryParams) => Promise<GetResult<FilterSelectItem>>;
+type ResolveItemsFunction = (ids: readonly string[]) => Promise<FilterSelectItem[]>;
 
 function renderAvatar(name: string, src?: string | null) {
   return <Avatar className="mr-0.5" name={name} size="sm" src={src} />;
@@ -82,15 +83,23 @@ export function useFilterSelectItems(
   items: FilterSelectItem[];
   getItems?: GetItemsFunction;
   isLoading: boolean;
+  selectionError: boolean;
+  retrySelection: () => void;
+  scopeKey: string;
 } {
   const t = useTranslations();
   const { activitiesStore } = useRootStore();
-  const [fetchedItems, setFetchedItems] = useState<FilterSelectItem[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
 
   const { field } = filter;
+  const fieldKey = field as FilterFieldKey;
   const value = "value" in filter ? filter.value : undefined;
   const isCustom = isCustomField(field);
+  const timelineScopeKey = JSON.stringify([
+    activitiesStore.timelineEntityType,
+    activitiesStore.timelineEntityId,
+    selectedChannelIds(activitiesStore.filters) ?? [],
+  ]);
+  const scopeKey = fieldKey === FilterFieldKey.timelineThreadId ? timelineScopeKey : String(field);
 
   const getItems = useMemo(() => {
     const fieldToGetItemsMap: Partial<Record<FilterFieldKey, GetItemsFunction>> = {
@@ -182,42 +191,75 @@ export function useFilterSelectItems(
 
     const enumValue = Object.values(FilterFieldKey).find((key) => key === (field as FilterFieldKey));
     return enumValue ? fieldToGetItemsMap[enumValue] : undefined;
-  }, [field, isCustom, t, activitiesStore]);
+  }, [field, isCustom, t, activitiesStore, timelineScopeKey]);
+
+  const resolveItems = useMemo<ResolveItemsFunction | undefined>(() => {
+    if (!getItems) return undefined;
+
+    return async (ids) => {
+      const requested = new Set(ids);
+      const result = await getItems({});
+      return result.items.filter((item) => requested.has(item.key));
+    };
+  }, [getItems]);
+
+  const [selectionAttempt, setSelectionAttempt] = useState(0);
+  const selectionRequestKey =
+    resolveItems && Array.isArray(value) && value.length > 0
+      ? JSON.stringify([scopeKey, value.map((item) => String(item)), selectionAttempt])
+      : null;
+  const [selectionResult, setSelectionResult] = useState<{
+    key: string;
+    resolver: ResolveItemsFunction;
+    status: "success" | "error";
+    items: FilterSelectItem[];
+  } | null>(null);
+  const isLoading =
+    selectionRequestKey !== null &&
+    (selectionResult?.key !== selectionRequestKey || selectionResult.resolver !== resolveItems);
+  const selectionError =
+    selectionResult?.key === selectionRequestKey &&
+    selectionResult.resolver === resolveItems &&
+    selectionResult.status === "error";
+  const fetchedItems =
+    selectionResult?.key === selectionRequestKey &&
+    selectionResult.resolver === resolveItems &&
+    selectionResult.status === "success"
+      ? selectionResult.items
+      : [];
+  const retrySelection = useCallback(() => setSelectionAttempt((attempt) => attempt + 1), []);
 
   useEffect(() => {
-    if (!Array.isArray(value)) {
-      setFetchedItems([]);
-      setIsLoading(false);
-      return;
-    }
+    if (!resolveItems || selectionRequestKey === null) return;
+    let active = true;
+    const [, ids] = JSON.parse(selectionRequestKey) as [string, string[], number];
 
-    async function fetchItems() {
-      if (!getItems) return;
+    void resolveItems(ids)
+      .then((resolvedItems) => {
+        if (active) {
+          setSelectionResult({
+            key: selectionRequestKey,
+            resolver: resolveItems,
+            status: "success",
+            items: resolvedItems,
+          });
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setSelectionResult({
+            key: selectionRequestKey,
+            resolver: resolveItems,
+            status: "error",
+            items: [],
+          });
+        }
+      });
 
-      const ids = Array.isArray(value) ? [...value] : [];
-
-      if (ids.length === 0) {
-        setFetchedItems([]);
-        setIsLoading(false);
-        return;
-      }
-
-      setIsLoading(true);
-
-      try {
-        const res = await getItems({
-          filters: [{ field, operator: FilterOperatorKey.in, value: ids }],
-        });
-        setFetchedItems(res.items);
-      } catch {
-        setFetchedItems([]);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    void fetchItems();
-  }, [field, value, getItems]);
+    return () => {
+      active = false;
+    };
+  }, [resolveItems, selectionRequestKey]);
 
   const items = useMemo<FilterSelectItem[]>(() => {
     if (isCustom) {
@@ -311,5 +353,5 @@ export function useFilterSelectItems(
     }
   }, [field, isCustom, fetchedItems, customColumns, t]);
 
-  return { items, getItems, isLoading };
+  return { items, getItems, isLoading, selectionError, retrySelection, scopeKey };
 }

@@ -8,6 +8,12 @@ export type Data<T> = T extends z.ZodSchema<infer U> ? U : never;
 
 export type Validated<T> = Promise<{ ok: true; data: T } | { ok: false; error: z.ZodError }>;
 
+export async function unwrapValidated<T>(result: Validated<T>): Promise<T> {
+  const resolved = await result;
+  if (!resolved.ok) throw resolved.error;
+  return resolved.data;
+}
+
 export function createZodError<T = unknown>(
   message: string,
   path: (string | number)[] = [],
@@ -49,16 +55,15 @@ export function createErrorHandler(errors: Record<string, string>): (issue: $Zod
   };
 }
 
+function inferHttpsForBareHost(val: unknown) {
+  if (typeof val !== "string") return val;
+  const trimmed = val.trim();
+  if (!trimmed || /^[/\\]/.test(trimmed) || trimmed.includes("://") || /^(mailto|tel):/i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+}
+
 function secureUrlSchema() {
-  return z.preprocess(
-    (val) => {
-      if (typeof val !== "string") return val;
-      const trimmed = val.trim();
-      if (!trimmed || trimmed.includes("://") || /^(mailto|tel):/i.test(trimmed)) return trimmed;
-      return `https://${trimmed}`;
-    },
-    z.url({ protocol: /^(https?|mailto|tel)$/ }),
-  );
+  return z.preprocess(inferHttpsForBareHost, z.url({ protocol: /^(https?|mailto|tel)$/ }));
 }
 
 function nonBlankText(max: number) {

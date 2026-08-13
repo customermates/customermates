@@ -224,3 +224,22 @@ describe("DeleteWebhookInteractor", () => {
     expect(result.data).toBe(WEBHOOK_ID);
   });
 });
+
+describe("webhook targets stay strict about relative values", () => {
+  it.each([["/evil"], ["//attacker.example/hook"], ["/"]])(
+    "rejects the relative target %j on the url field instead of resolving it to another host",
+    (url) => {
+      const result = UpsertWebhookSchema.safeParse({ url, events: ["contact.created"] });
+
+      expect(result.success).toBe(false);
+      if (result.success) return;
+      expect(result.error.issues.map((issue) => issue.path)).toEqual([["url"]]);
+    },
+  );
+
+  it("still accepts a bare host and normalises it to https", () => {
+    const result = UpsertWebhookSchema.safeParse({ url: "receiver.example/hook", events: ["contact.created"] });
+
+    expect(result).toMatchObject({ success: true, data: { url: "https://receiver.example/hook" } });
+  });
+});

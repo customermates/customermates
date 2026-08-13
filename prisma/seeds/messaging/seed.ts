@@ -2,7 +2,7 @@ import type { MessagingProvider, Prisma, PrismaClient } from "@/generated/prisma
 
 import { SYNTHETIC_COMPANY_USERS } from "@/core/config/synthetic-seed-user";
 
-import { SYNTHETIC_AVATAR_PATHS } from "../avatars";
+import { SYNTHETIC_AVATAR_URLS } from "../avatars";
 import { fixtureId } from "../helpers";
 import { SYNTHETIC_SEED_TIMELINE } from "../timeline";
 import { people, threads, type PersonKey, type ThreadFixture } from "./fixtures";
@@ -74,7 +74,7 @@ function selfAttendee(provider: MessagingProvider, seedUserEmail: string): DemoA
     identifier,
     isSelf: true,
     occupation: "Account Manager at Customermates",
-    pictureUrl: SYNTHETIC_AVATAR_PATHS.maxBergmann,
+    pictureUrl: SYNTHETIC_AVATAR_URLS.maxBergmann,
     profileUrl: provider === "linkedin" ? "https://linkedin.example/in/max-bergmann" : undefined,
   };
 }
@@ -188,7 +188,7 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
       linkedinProducts: account.linkedinProducts,
       shared: false,
       syncing: false,
-      ownerAvatarUrl: SYNTHETIC_AVATAR_PATHS.maxBergmann,
+      ownerAvatarUrl: SYNTHETIC_AVATAR_URLS.maxBergmann,
       lastSyncedAt: new Date(anchor.getTime() - 5 * MINUTE),
     };
 

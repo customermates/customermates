@@ -2,22 +2,25 @@ import { action, makeObservable, observable } from "mobx";
 
 type RuntimeAvatarKind = "contact" | "organization" | "messaging";
 
+export type RuntimeIdentity = {
+  scope: "entity" | "inbox";
+  key: string;
+  title: string;
+  pictureUrl: string | null;
+  avatarKind: RuntimeAvatarKind | null;
+};
+
 export class LayoutStore {
   isMenuOpen = false;
-  runtimeTitle: string | null = null;
-  runtimePictureUrl: string | null = null;
-  runtimeAvatarKind: RuntimeAvatarKind | null = null;
+  runtimeIdentity: RuntimeIdentity | null = null;
 
   constructor() {
     makeObservable(this, {
       isMenuOpen: observable,
-      runtimeTitle: observable,
-      runtimePictureUrl: observable,
-      runtimeAvatarKind: observable,
+      runtimeIdentity: observable,
       setIsMenuOpen: action,
-      setRuntimeTitle: action,
-      setRuntimePictureUrl: action,
-      setRuntimeAvatarKind: action,
+      setRuntimeIdentity: action,
+      clearRuntimeIdentity: action,
     });
   }
 
@@ -25,15 +28,11 @@ export class LayoutStore {
     this.isMenuOpen = isMenuOpen;
   };
 
-  setRuntimeTitle = (runtimeTitle: string | null) => {
-    this.runtimeTitle = runtimeTitle;
+  setRuntimeIdentity = (runtimeIdentity: RuntimeIdentity) => {
+    this.runtimeIdentity = runtimeIdentity;
   };
 
-  setRuntimePictureUrl = (runtimePictureUrl: string | null) => {
-    this.runtimePictureUrl = runtimePictureUrl;
-  };
-
-  setRuntimeAvatarKind = (runtimeAvatarKind: RuntimeAvatarKind | null) => {
-    this.runtimeAvatarKind = runtimeAvatarKind;
+  clearRuntimeIdentity = (scope: RuntimeIdentity["scope"], key: string) => {
+    if (this.runtimeIdentity?.scope === scope && this.runtimeIdentity.key === key) this.runtimeIdentity = null;
   };
 }

@@ -1,11 +1,12 @@
 import { Resource } from "@/generated/prisma";
 
-import { TasksCard } from "./components/tasks-card";
+import { TasksPageView } from "./components/tasks-page-view";
 
 import { getGetTasksInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
 import { decodeGetParams } from "@/core/utils/get-params";
 import { PageContainer } from "@/components/shared/page-container";
+import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export const maxDuration = 60;
 
@@ -19,11 +20,11 @@ export default async function TasksPage({ searchParams }: Props) {
   const params = await searchParams;
   const taskParams = decodeGetParams(params);
 
-  const tasks = await getGetTasksInteractor().invoke({ ...taskParams, p13nId: "tasks-card-store" });
+  const tasks = await unwrapValidated(getGetTasksInteractor().invoke({ ...taskParams, p13nId: "tasks-card-store" }));
 
   return (
     <PageContainer padded={false}>
-      <TasksCard tasks={tasks.ok ? tasks.data : { items: [] }} />
+      <TasksPageView tasks={tasks} />
     </PageContainer>
   );
 }

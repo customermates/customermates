@@ -2,12 +2,14 @@
 
 import type { ChartDataPoint } from "./chart.types";
 
-import { PolarAngleAxis, PolarGrid, Radar, RadarChart, ResponsiveContainer } from "recharts";
+import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from "recharts";
 import { observer } from "mobx-react-lite";
 
 import type { AggregationType } from "@/generated/prisma";
 
 import { ChartTooltip } from "@/components/chart/chart-tooltip";
+
+import { DashboardChartContainer } from "./dashboard-chart-container";
 
 type Props = {
   aggregationType?: AggregationType;
@@ -18,7 +20,7 @@ type Props = {
 
 export const RadarChartComponent = observer(({ aggregationType, chartData, colors, textColor }: Props) => {
   return (
-    <ResponsiveContainer height="100%" width="100%">
+    <DashboardChartContainer>
       <RadarChart data={chartData}>
         <ChartTooltip aggregationType={aggregationType} />
 
@@ -37,6 +39,6 @@ export const RadarChartComponent = observer(({ aggregationType, chartData, color
           strokeWidth={1.5}
         />
       </RadarChart>
-    </ResponsiveContainer>
+    </DashboardChartContainer>
   );
 });

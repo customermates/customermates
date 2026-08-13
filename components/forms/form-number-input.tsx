@@ -2,7 +2,7 @@
 
 import type { ComponentProps, ReactNode } from "react";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 
 import { Input } from "@/components/ui/input";
@@ -20,15 +20,11 @@ type Props = Omit<
   id: string;
   label?: string | null;
   required?: boolean;
-  locale?: string;
-  formatOptions?: Intl.NumberFormatOptions;
   value?: number;
   onValueChange?: (value: number | undefined) => void;
   className?: string;
   containerClassName?: string;
   endContent?: ReactNode;
-  hideStepper?: boolean;
-  size?: "sm" | "md" | "lg";
 };
 
 export const FormNumberInput = observer(
@@ -36,8 +32,6 @@ export const FormNumberInput = observer(
     id,
     label,
     required,
-    locale,
-    formatOptions,
     value: controlledValue,
     onValueChange,
     className,
@@ -45,8 +39,6 @@ export const FormNumberInput = observer(
     onBlur,
     onFocus,
     endContent,
-    hideStepper: _hideStepper,
-    size: _size,
     ...props
   }: Props) => {
     const isReq = required;
@@ -59,29 +51,16 @@ export const FormNumberInput = observer(
     const isDisabled = store?.isLoading;
     const isReadOnly = store?.isReadOnly;
 
-    const effectiveLocale = locale ?? intlStore.formattingLocale;
-
-    const fmt = useCallback(
-      (n: number | undefined) =>
-        n == null
-          ? ""
-          : new Intl.NumberFormat(effectiveLocale, {
-              maximumFractionDigits: 2,
-              useGrouping: true,
-              ...formatOptions,
-            }).format(n),
-      [effectiveLocale, formatOptions],
-    );
-
     const storeNumber = store?.getValue(id) as number | undefined;
     const activeNumber = controlled ? controlledValue : storeNumber;
+    const formattedValue = activeNumber == null ? "" : intlStore.formatNumber(activeNumber);
 
     const [focused, setFocused] = useState(false);
-    const [text, setText] = useState<string>(() => fmt(activeNumber));
+    const [text, setText] = useState<string>(formattedValue);
 
     useEffect(() => {
-      if (!focused) setText(fmt(activeNumber));
-    }, [activeNumber, focused, fmt]);
+      if (!focused) setText(formattedValue);
+    }, [formattedValue, focused]);
 
     function commit(n: number | undefined) {
       if (controlled) onValueChange?.(n);
@@ -112,18 +91,18 @@ export const FormNumberInput = observer(
             {...props}
             onBlur={(e) => {
               setFocused(false);
-              const parsed = intlStore.parseNumber(text, effectiveLocale);
-              setText(fmt(parsed));
+              const parsed = intlStore.parseNumber(text);
+              setText(parsed == null ? "" : intlStore.formatNumber(parsed));
               commit(parsed);
               onBlur?.(e);
             }}
             onChange={(e) => {
               const next = e.target.value;
               setText(next);
-              commit(intlStore.parseNumber(next, effectiveLocale));
+              commit(intlStore.parseNumber(next));
             }}
             onFocus={(e) => {
-              setText(intlStore.formatNumberForEditing(activeNumber, effectiveLocale));
+              setText(intlStore.formatNumberForEditing(activeNumber));
               setFocused(true);
               onFocus?.(e);
             }}

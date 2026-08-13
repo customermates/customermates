@@ -503,6 +503,7 @@
       "template": "Vorlage",
       "theme": "Darstellung",
       "type": "Typ",
+      "unavailableSelection": "Auswahl nicht verfügbar",
       "url": "URL",
       "userIds": "Zugewiesen"
     },
@@ -589,7 +590,6 @@
         "user": "Benutzer",
         "users": "Zugewiesen"
       },
-      "emptyContent": "Keine Einträge gefunden",
       "groupBy": "Gruppieren nach",
       "layout": "Ansicht",
       "nextPage": "Nächste Seite",
@@ -607,6 +607,7 @@
       "light": "Hell",
       "system": "System"
     },
+    "unnamed": "Unbenannt",
     "userStatuses": {
       "active": "Aktiv",
       "inactive": "Inaktiv",
@@ -1503,6 +1504,11 @@
   "OrganizationModal": {
     "title": "Organisation"
   },
+  "PageState": {
+    "loading": "Seite wird geladen",
+    "notFoundDescription": "Dieser Datensatz wurde möglicherweise entfernt oder Sie haben keinen Zugriff darauf.",
+    "notFoundTitle": "Datensatz nicht gefunden"
+  },
   "PendingCard": {
     "body": "Du kannst dich anmelden, sobald dein Konto von einem Administrator deines Unternehmens genehmigt wurde.",
     "subtitle": "Dein Konto wird derzeit von einem Administrator deines Unternehmens geprüft",
@@ -1649,7 +1655,7 @@
     "greeting": "Hallo {firstName},",
     "scheduleFallback": "Falls der Button nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein: ",
     "signoff": "Viele Grüße\nBen",
-    "subject": "Dein Konto ist inaktiv – wir helfen bei der Wiederherstellung",
+    "subject": "Dein Konto ist inaktiv: Wir helfen bei der Wiederherstellung",
     "title": "Abonnement deaktiviert"
   },
   "TaskModal": {
@@ -1674,7 +1680,7 @@
     "greeting": "Hallo {firstName},",
     "scheduleFallback": "Falls der Button nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein: ",
     "signoff": "Viele Grüße\nBen",
-    "subject": "Dein Konto ist inaktiv – wir helfen dir beim Wiedereinstieg",
+    "subject": "Dein Konto ist inaktiv: Wir helfen dir beim Wiedereinstieg",
     "title": "Konto inaktiv gesetzt"
   },
   "TrialInactivationReminder": {

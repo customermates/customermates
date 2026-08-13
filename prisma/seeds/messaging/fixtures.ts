@@ -1,4 +1,4 @@
-import { SYNTHETIC_AVATAR_PATHS } from "../avatars";
+import { SYNTHETIC_AVATAR_URLS } from "../avatars";
 
 export type PersonKey = "amin" | "anna" | "clara" | "jonas" | "leon" | "marco" | "rashid" | "sophie" | "yasmin";
 
@@ -36,28 +36,28 @@ export const people: Record<
   }
 > = {
   anna: {
-    avatarPath: SYNTHETIC_AVATAR_PATHS.annaMueller,
+    avatarPath: SYNTHETIC_AVATAR_URLS.annaMueller,
     contactIndex: 22,
     displayName: "Anna Müller",
     email: "anna.mueller@roche.example",
     occupation: "Program Manager at Roche",
   },
   amin: {
-    avatarPath: SYNTHETIC_AVATAR_PATHS.aminHassan,
+    avatarPath: SYNTHETIC_AVATAR_URLS.aminHassan,
     contactIndex: 7,
     displayName: "Amin Hassan",
     email: "amin.hassan@tui.example",
     occupation: "Customer Experience Lead at TUI",
   },
   clara: {
-    avatarPath: SYNTHETIC_AVATAR_PATHS.claraNeumann,
+    avatarPath: SYNTHETIC_AVATAR_URLS.claraNeumann,
     contactIndex: null,
     displayName: "Clara Neumann",
     email: "clara.neumann@partner.demo.example",
     occupation: "Customer Operations Consultant",
   },
   leon: {
-    avatarPath: SYNTHETIC_AVATAR_PATHS.leonBecker,
+    avatarPath: SYNTHETIC_AVATAR_URLS.leonBecker,
     contactIndex: 0,
     displayName: "Leon Becker",
     headline: "Leading practical IT transformation",
@@ -66,28 +66,28 @@ export const people: Record<
     profileUrl: "https://linkedin.example/in/leon-becker",
   },
   sophie: {
-    avatarPath: SYNTHETIC_AVATAR_PATHS.sophieWagner,
+    avatarPath: SYNTHETIC_AVATAR_URLS.sophieWagner,
     contactIndex: 19,
     displayName: "Sophie Wagner",
     occupation: "Sales Operations Manager at BMW",
     phone: "+12025550119",
   },
   jonas: {
-    avatarPath: SYNTHETIC_AVATAR_PATHS.jonasWeber,
+    avatarPath: SYNTHETIC_AVATAR_URLS.jonasWeber,
     contactIndex: 6,
     displayName: "Jonas Weber",
     occupation: "Product Lead at Continental",
     phone: "+12025550106",
   },
   marco: {
-    avatarPath: SYNTHETIC_AVATAR_PATHS.marcoSilva,
+    avatarPath: SYNTHETIC_AVATAR_URLS.marcoSilva,
     contactIndex: null,
     displayName: "Marco Silva",
     occupation: "Implementation Partner",
     phone: "+12025550127",
   },
   rashid: {
-    avatarPath: SYNTHETIC_AVATAR_PATHS.rashidMalik,
+    avatarPath: SYNTHETIC_AVATAR_URLS.rashidMalik,
     contactIndex: 26,
     displayName: "Rashid Malik",
     headline: "Turning digital strategy into measurable change",
@@ -96,7 +96,7 @@ export const people: Record<
     profileUrl: "https://linkedin.example/in/rashid-malik",
   },
   yasmin: {
-    avatarPath: SYNTHETIC_AVATAR_PATHS.yasminFarouk,
+    avatarPath: SYNTHETIC_AVATAR_URLS.yasminFarouk,
     contactIndex: 23,
     displayName: "Yasmin Farouk",
     email: "yasmin.farouk@asml.example",

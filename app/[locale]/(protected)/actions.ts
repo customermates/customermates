@@ -8,6 +8,7 @@ import {
   getGetActivityThreadOptionsInteractor,
   getGetMyConnectedAccountsInteractor,
 } from "@/core/di";
+import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export async function getActivitiesAction(input: ActivitiesParams) {
   const result = await getGetActivitiesInteractor().invoke(input);
@@ -15,11 +16,9 @@ export async function getActivitiesAction(input: ActivitiesParams) {
 }
 
 export async function getActivityThreadOptionsAction(input: ActivityThreadOptionsData) {
-  const result = await getGetActivityThreadOptionsInteractor().invoke(input);
-  return result.ok ? result.data : [];
+  return unwrapValidated(getGetActivityThreadOptionsInteractor().invoke(input));
 }
 
 export async function getConnectedAccountsAction() {
-  const result = await getGetMyConnectedAccountsInteractor().invoke();
-  return result.ok ? result.data : [];
+  return unwrapValidated(getGetMyConnectedAccountsInteractor().invoke());
 }

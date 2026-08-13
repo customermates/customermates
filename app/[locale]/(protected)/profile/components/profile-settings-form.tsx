@@ -18,7 +18,7 @@ import { FormActions } from "@/components/card/form-actions";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { usePathname } from "@/i18n/navigation";
-import { APP_LOCALES, FORMATTING_LOCALES } from "@/i18n/locale-registry";
+import { DISPLAY_LANGUAGE_VALUES, FORMATTING_LOCALE_VALUES } from "@/i18n/user-locale";
 import {
   appLocaleCookie,
   browserAppLocale,
@@ -99,12 +99,12 @@ export const ProfileSettingsForm = observer(({ userDetails, emailVerified }: Pro
     label: key === Theme.system ? systemThemeLabel : t(`Common.themes.${key}`),
   }));
 
-  const displayLanguageItems = [...APP_LOCALES, Locale.system].map((key) => ({
+  const displayLanguageItems = DISPLAY_LANGUAGE_VALUES.map((key) => ({
     value: key,
     label: key === Locale.system ? systemDisplayLanguageLabel : t(`Common.locales.${key}`),
   }));
 
-  const formattingLocaleItems = [...FORMATTING_LOCALES, Locale.system].map((key) => ({
+  const formattingLocaleItems = FORMATTING_LOCALE_VALUES.map((key) => ({
     value: key,
     label: key === Locale.system ? systemFormattingLocaleLabel : t(`Common.locales.${key}`),
   }));
@@ -129,7 +129,7 @@ export const ProfileSettingsForm = observer(({ userDetails, emailVerified }: Pro
         });
       }}
     >
-      <div className="flex w-full max-w-3xl flex-col gap-6">
+      <div className="animate-page-result-in flex w-full max-w-3xl flex-col gap-6 motion-reduce:animate-none">
         <UserDetailsAvatar
           avatarUrl={savedState.avatarUrl ?? userDetails.avatarUrl ?? undefined}
           email={userStore.user?.email ?? userDetails.email}

@@ -21,7 +21,7 @@ export const LoadingOverlay = observer(() => {
 
   return (
     <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50">
-      <Spinner aria-label={t("Loading.text")} className="text-primary" size="lg" />
+      <Spinner aria-label={t("Loading.text")} className="text-primary opacity-80" size="lg" />
     </div>
   );
 });

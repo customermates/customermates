@@ -36,7 +36,7 @@ export const AccountFolders = observer(({ account, editable = false, onToggle }:
           <li key={folder.id} className="flex items-center gap-2 py-2">
             <Icon className="text-muted-foreground size-4 shrink-0" icon={Folder} />
 
-            <span className="min-w-0 flex-1 truncate text-sm">{folder.name ?? folder.id}</span>
+            <span className="min-w-0 flex-1 truncate text-sm">{folder.name?.trim() || t("Common.unnamed")}</span>
 
             {editable && onToggle ? (
               <Switch checked={on} onCheckedChange={(next) => onToggle(folder.id, next)} />

@@ -8,6 +8,8 @@ import { AppImage } from "@/components/shared/app-image";
 import { AppLink } from "@/components/shared/app-link";
 import { SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 
+import { NavLinkPendingIndicator } from "./nav-link-pending-indicator";
+
 type Props = {
   homeHref: string;
   brandName: string;
@@ -51,6 +53,8 @@ export function NavHeader({
                   {brandSubtitle}
                 </span>
               </span>
+
+              <NavLinkPendingIndicator />
             </AppLink>
           </SidebarMenuButton>
         </SidebarMenuItem>
