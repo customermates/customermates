@@ -11,6 +11,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { Providers } from "./providers";
 import { NavigationSwitch } from "./components/navigation/navigation-switch";
 import { loadNavigationData } from "./components/navigation/navigation-data";
+import { toSidebarUser } from "./components/navigation/sidebar-user";
 
 import {
   getGetCompanySettingsInteractor,
@@ -92,14 +93,7 @@ export default async function RootLayout({ children }: Props) {
   const initialSidebarOpen = sidebarCloseCookie !== undefined ? sidebarCloseCookie !== "true" : undefined;
   const accountAllowed = account.state === "allowed";
   const appUser = accountAllowed ? account.user : null;
-  const accountMenuUser = account.user
-    ? {
-        firstName: account.user.firstName,
-        lastName: account.user.lastName,
-        email: account.user.email,
-        avatarUrl: account.user.avatarUrl,
-      }
-    : null;
+  const sidebarUser = toSidebarUser(account.user);
 
   return (
     <html
@@ -115,7 +109,6 @@ export default async function RootLayout({ children }: Props) {
           messages={messages}
         >
           <NavigationSwitch
-            accountMenuUser={accountMenuUser}
             accountState={account.state}
             appUser={appUser}
             channelsNeedingActionCount={navigation.channelsNeedingActionCount}
@@ -124,6 +117,7 @@ export default async function RootLayout({ children }: Props) {
             emailVerified={accountAllowed ? account.emailVerified : null}
             legalStatus={accountAllowed ? account.legalStatus : null}
             onboardingComplete={account.user?.onboardingWizardCompletedAt != null}
+            sidebarUser={sidebarUser}
             subscription={navigation.subscription}
             systemTaskCount={navigation.systemTaskCount}
             terminology={navigation.terminology}

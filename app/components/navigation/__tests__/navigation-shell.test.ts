@@ -5,12 +5,39 @@ import { ACCOUNT_STATES } from "@/features/auth/account-state";
 import { resolveNavigationShell } from "../navigation-shell";
 
 describe("resolveNavigationShell", () => {
-  it.each(ACCOUNT_STATES)("keeps docs public for %s", (state) => {
+  it.each(
+    ACCOUNT_STATES.filter(
+      (state) => !["overdueVerification", "inactive", "pending", "onboarding", "legal", "subscription"].includes(state),
+    ),
+  )("uses the docs shell for %s", (state) => {
     expect(
       resolveNavigationShell({
         accountState: state,
         pathname: "/docs/api",
         isRegistered: true,
+      }),
+    ).toBe("docs");
+  });
+
+  it.each(["overdueVerification", "inactive", "pending", "onboarding", "legal", "subscription"] as const)(
+    "keeps account controls available for registered %s users visiting docs",
+    (state) => {
+      expect(
+        resolveNavigationShell({
+          accountState: state,
+          pathname: "/docs/api",
+          isRegistered: true,
+        }),
+      ).toBe("restricted");
+    },
+  );
+
+  it("keeps docs public for a pre-tenant session", () => {
+    expect(
+      resolveNavigationShell({
+        accountState: "unregistered",
+        pathname: "/docs/api",
+        isRegistered: false,
       }),
     ).toBe("docs");
   });

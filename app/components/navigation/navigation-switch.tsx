@@ -6,7 +6,7 @@ import type { EntityTerminologyOverride } from "@/features/entity-terminology/en
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
 import type { LegalUpdateStatus } from "@/features/legal/get-legal-status.interactor";
 import type { AccountState } from "@/features/auth/account-state";
-import type { AccountMenuUser } from "./nav-user";
+import type { SidebarUser } from "./sidebar-user";
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useLayoutEffect } from "react";
@@ -17,7 +17,7 @@ import { PublicNavbar } from "../public-navbar";
 import { ShellHeader } from "../shell-header";
 import { TopBarActionsProvider } from "../topbar-actions-context";
 
-import { accountStateRedirect, isCanonicalInactiveErrorType } from "@/features/auth/account-state";
+import { isCanonicalInactiveErrorType } from "@/features/auth/account-state";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { DocsSidebar } from "@/app/[locale]/(static)/docs/components/docs-sidebar";
 import { DocsTopBar } from "@/app/[locale]/(static)/docs/components/docs-topbar";
@@ -32,7 +32,7 @@ import { resolveNavigationShell } from "./navigation-shell";
 
 type Props = {
   accountState: AccountState;
-  accountMenuUser: AccountMenuUser | null;
+  sidebarUser: SidebarUser | null;
   appUser: TenantUser | null;
   userDisplayLanguage: unknown;
   onboardingComplete: boolean;
@@ -51,7 +51,7 @@ type Props = {
 
 export function NavigationSwitch({
   accountState,
-  accountMenuUser,
+  sidebarUser,
   appUser,
   userDisplayLanguage,
   onboardingComplete,
@@ -72,7 +72,7 @@ export function NavigationSwitch({
   const searchParams = useSearchParams();
   const errorTypes = searchParams.getAll("type");
   const hasValidSession = accountState !== "unauthenticated";
-  const isRegistered = accountMenuUser !== null;
+  const isRegistered = sidebarUser !== null;
   const currentAccountState = accountStateForPath({
     accountState,
     pathname,
@@ -137,11 +137,7 @@ export function NavigationSwitch({
   } else if (shellMode === "restricted") {
     shell = (
       <SidebarProvider defaultOpen={defaultSidebarOpen}>
-        <AppSidebar
-          homeHref={accountStateRedirect(currentAccountState) ?? "/"}
-          mode="restricted"
-          user={accountMenuUser}
-        />
+        {sidebarUser ? <AppSidebar mode="restricted" user={sidebarUser} /> : null}
 
         <SidebarInset className="min-w-0 overflow-x-clip">
           <ShellHeader />
@@ -162,7 +158,7 @@ export function NavigationSwitch({
           systemTaskCount={systemTaskCount}
           trialDaysLeft={trialDaysLeft}
           unreadThreadCount={unreadThreadCount}
-          user={appUser}
+          user={sidebarUser}
         />
 
         <SidebarInset className="min-w-0 overflow-x-clip">

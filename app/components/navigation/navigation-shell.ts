@@ -13,9 +13,9 @@ export function resolveNavigationShell({
   pathname: string;
   isRegistered: boolean;
 }): NavigationShell {
+  if (isRegistered && isRestrictedAccountState(accountState)) return "restricted";
   if (pathname === "/docs" || pathname.startsWith("/docs/")) return "docs";
   if (!isRegistered) return "public";
-  if (isRegistered && isRestrictedAccountState(accountState)) return "restricted";
   if (accountState === "unauthenticated" || accountState === "unregistered") return "public";
   if (pathname.startsWith("/auth/") || pathname === "/onboarding/wizard" || pathname.startsWith("/onboarding/wizard/"))
     return "public";
