@@ -59,7 +59,7 @@ Nutzen Sie das [Aufgabenmanagement](/features/task-management), um Fristen zu se
 
 Einzelanwälte verlieren durchschnittlich 2-3 abrechenbare Stunden pro Woche durch mangelhaftes Tracking. Customermates hilft Ihnen, Zeit gegen bestimmte Kontakte und Mandate zu erfassen, damit Sie Ihre Woche korrekt rekonstruieren können. Verknüpfen Sie jede E-Mail, Notiz und Aktivität mit einem Mandat und nutzen Sie diese Zeitleiste bei der Rechnungsstellung.
 
-Customermates ist keine vollständige Abrechnungssuite, liefert aber die strukturierten Daten, die Ihren Abrechnungsworkflow speisen. Exportieren Sie Zeiteinträge, integrieren Sie Ihr Buchhaltungstool über die API oder nutzen Sie [Workflow-Automatisierung](/features/workflow-automation) mit n8n, um Daten automatisch an Ihre Rechnungssoftware zu übertragen.
+Customermates ist weder Abrechnungs- noch Zeiterfassungssuite. Erfassen Sie Abrechnungsstatus oder -wert in eigenen Feldern, lesen Sie unterstützte Deal-Daten über REST und lassen Sie Rechnungen im Buchhaltungstool erstellen und speichern. Ein separat betriebener [n8n-Workflow](/features/workflow-automation) kann Daten an dieses externe System übergeben.
 
 ### Empfehlungsverfolgung und Netzwerkmanagement
 
@@ -125,7 +125,7 @@ Für einen Einzelanwalt bedeutet das €12 pro Monat in Starter. Punkt. Keine Ge
 Die Einrichtung von Customermates für Ihre Anwaltspraxis dauert Minuten, nicht Tage:
 
 1. **Konto erstellen**, kostenlos, ohne Kreditkarte. Die ersten 7 Tage gehen auf uns.
-2. **Kontakte importieren**, bestehende Mandanten, Empfehlungsquellen und professionelle Kontakte per CSV oder API einbringen.
+2. **Unterstützte Datensätze migrieren**, nutzen Sie die REST API oder übergeben Sie einen vorbereiteten Quellexport einem per MCP verbundenen KI-Agenten. Customermates hat keinen CSV-Uploader.
 3. **Pipelines einrichten**, erstellen Sie Pipelines für Mandantenakquise und aktive Mandate mit Phasen, die zu Ihrem Workflow passen.
 4. **Benutzerdefinierte Felder anlegen**, definieren Sie Felder für Rechtsgebiet, Mandatstyp, Empfehlungsquelle, Honorarvereinbarung und alles, was Ihre Kanzlei braucht.
 5. **E-Mail verbinden**, verknüpfen Sie Ihr Postfach, damit jede Mandanten-E-Mail automatisch dem richtigen Kontakt zugeordnet wird.
@@ -161,7 +161,7 @@ Customermates ist ein CRM, keine vollständige Kanzleimanagement-Suite. Es glän
 
 ### Wie lange dauert die Einrichtung von Customermates?
 
-Die meisten Anwälte sind in 2 Minuten einsatzbereit. Importieren Sie Ihre Kontakte per CSV, richten Sie Ihre Pipelines ein, fertig. Kein Implementierungsberater nötig, kein wochenlanges Onboarding.
+Erstellen Sie ein Konto, ergänzen Sie Kontakte manuell oder über REST oder MCP und konfigurieren Sie Ihre Pipelines. Datenvorbereitung ist ein separater Migrationsschritt; deshalb wird keine Migrationsdauer versprochen.
 
 
 ### Verwandte Branchen

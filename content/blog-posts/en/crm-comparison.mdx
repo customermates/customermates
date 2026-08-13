@@ -54,17 +54,17 @@ This is the comparison chart most teams need first. It answers one question per 
 | Custom fields | Yes | Yes | Yes | Limited | Yes | Yes | Limited | Yes | Limited | Yes | Yes | Limited |
 | Custom entities/objects | Yes | Yes | No | No | Yes | Yes | No | No | No | Yes | No | No |
 | Email integration | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
-| Built-in automation | Yes (n8n) | Yes | Paid | Paid | Yes | Yes | Paid | Yes | Yes | Yes | Yes | Limited |
-| Workflow builder (visual) | Yes | Yes | Yes | No | Yes | Yes | No | Yes | Yes | Yes | No | No |
-| AI features | Yes | Yes | Paid | Paid | Paid | Yes | Yes | Paid | Limited | Limited | Limited | Limited |
+| Built-in automation | No; external n8n | Yes | Paid | Paid | Yes | Yes | Paid | Yes | Yes | Yes | Yes | Limited |
+| Workflow builder (visual) | External n8n | Yes | Yes | No | Yes | Yes | No | Yes | Yes | Yes | No | No |
+| AI features | Via external MCP clients | Yes | Paid | Paid | Paid | Yes | Yes | Paid | Limited | Limited | Limited | Limited |
 | AI agents operate the CRM (native MCP) | Yes | No | No | No | No | No | No | No | No | No | No | No |
 | Native unified inbox (email + LinkedIn + WhatsApp + Instagram + Telegram) | Yes | Limited | Limited | Limited | Limited | Limited | Limited | Limited | Limited | Limited | Limited | Limited |
 | API access | Included | Paid tiers | Paid tiers | Included | Included | Included | Included | Included | Included | Included | Included | Included |
 | Reporting dashboards | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
 | Custom reports | Yes | Yes | Paid | Paid | Yes | Yes | Paid | Paid | Limited | Yes | Paid | Limited |
 | Audit logging | Yes | Paid | Paid | No | Paid | Yes | No | No | No | Yes | No | No |
-| Mobile app | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
-| Data import/export | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| Mobile app | Responsive web only | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| Data import/export | REST API or MCP; no CSV workflow | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
 
 ## CRM Comparison Chart: Data Privacy and Hosting
 
@@ -74,10 +74,10 @@ For EU-based businesses and any company that takes data ownership seriously, thi
 |-----------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | Open source | Yes | No | No | No | No | No | No | No | No | No | No | No |
 | Self-hostable | Yes | No | No | No | No | On-prem option | No | No | No | No | No | No |
-| EU hosting (default) | Yes | No | No | No | No | No | No | No | No | No | No | No |
+| EU hosting (default) | EU database region | No | No | No | No | No | No | No | No | No | No | No |
 | EU hosting (available) | Yes | Yes | Paid | Yes | Yes | Yes | Limited | Limited | No | Limited | No | No |
 | GDPR-native | Yes | No | No | No | No | No | No | No | No | No | No | No |
-| Data export (full) | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Limited | Yes | Yes | Yes |
+| Data export (full) | REST API; no export workflow | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Limited | Yes | Yes | Yes |
 | DPA included | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
 
 ## CRM Pricing Comparison Chart
@@ -221,7 +221,7 @@ This structured approach removes emotion and vendor influence from the decision.
 
 ### Open Source and Data Sovereignty
 
-The movement toward open-source CRM is accelerating as businesses prioritize data ownership and vendor independence. Customermates represents this trend: open-source, self-hostable, EU-hosted by default, with full data export at any time.
+The movement toward open-source CRM is accelerating as businesses prioritize data ownership and vendor independence. Customermates represents this trend: open-source and self-hostable, with supported CRM records readable through REST API or MCP at any time.
 
 ### AI Moving From Hype to Utility
 

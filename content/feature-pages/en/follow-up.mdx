@@ -1,11 +1,11 @@
 ---
 title: "Follow Up CRM: Never Miss a Lead Again"
-description: "Follow up CRM with automated reminders, multi-channel sequences, and activity tracking. Never let a deal go cold. Open-source, EU-hosted, GDPR-compliant."
+description: "Follow up CRM with linked tasks, activity context, and external reminder or sequence workflows. Keep every next action visible. Open source, with a database in an EU region."
 featureName: Follow-Up CRM
 
 hero:
   title: Follow-Up CRM That Makes Sure No Lead Goes Cold
-  description: Automated reminders, multi-channel follow-up sequences, and activity tracking ensure every prospect and customer gets timely attention. AI agents draft the next follow-up from full context, and the native unified inbox sends it over email, LinkedIn, WhatsApp, and more. Stop losing deals to missed touchpoints and inconsistent outreach.
+  description: Linked tasks and communication context keep follow-ups visible. Supported external AI clients can draft individual messages through MCP, while reminders, multi-channel sequences, and bulk outreach require separate workflows and delivery providers.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -14,7 +14,7 @@ hero:
 
 cta:
   action: Ready to stop losing deals to missed follow-ups?
-  description: Start managing follow-ups in Customermates today. Automated reminders, sequences, and full visibility across your team.
+  description: Start managing follow-ups with linked tasks and shared CRM context. Connect a separate workflow when you need reminders or sequences.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -34,76 +34,76 @@ The impact is measurable. Teams using structured follow-up systems see 30 to 50 
 
 Customermates provides two mechanisms for managing follow-ups: tasks linked to the record, with a due-date column you define, and webhooks that drive multi-channel sequences in your own n8n instance. There is no built-in reminder that notifies you on its own.
 
-**Task-based follow-ups.** The simplest form of follow-up management is creating a task linked to a contact or deal. Set the subject, due date, and assignee, and the task appears in the team member's task list. Overdue tasks are flagged automatically, making missed follow-ups immediately visible to both the owner and their manager.
+**Task-based follow-ups.** Create a task linked to a contact or deal, add the subject and assignee, and store any follow-up date or priority in custom fields your team defines. Customermates has no native task due date, overdue state, deadline, or priority; filtering and external workflows can use stored values.
 
-**Activity-triggered reminders.** Configure automated reminders that fire based on activity or inactivity. If no email, call, or note is logged on a deal within a specified period, the system automatically creates a follow-up task or sends a reminder notification. This catch-all mechanism ensures that silent deals do not slip through the cracks.
+**Externally triggered reminders.** A separate workflow can evaluate recorded activity or customer-defined dates through the API or webhooks, then create a supported task or send a notification through an external provider. Customermates itself does not monitor inactivity or send reminder notifications.
 
-**Multi-channel follow-up sequences.** Use n8n and the native unified inbox to build follow-up sequences that span multiple channels: email, LinkedIn, WhatsApp, Instagram, Telegram, and phone. Multi-channel sequences outperform single-channel approaches by a significant margin because they reach prospects through their preferred communication method. A typical sequence might include an email on day one, a phone call on day three, a LinkedIn message on day five, and a check-in email on day ten.
+**External multi-channel workflows.** Use a separate n8n instance and delivery providers to orchestrate a customer-defined cadence. The native inbox supports individual messages on email, LinkedIn, WhatsApp, Instagram, and Telegram, but Customermates has no sequence engine, bulk outreach, or telephony.
 
-**Behavior-based triggers.** Go beyond time-based follow-ups with sequences that respond to prospect behavior. When a prospect opens your email, clicks a link, or visits your pricing page, trigger an immediate follow-up while the interest is fresh. Behavior-based triggers deliver the right message at the right moment.
+**Behavior-based external triggers.** A separate email or analytics provider can emit engagement events, and a customer-run workflow can request an individual follow-up while interest is fresh. Customermates has no native email-open, web-visit, or behavior-trigger sequence engine.
 
-**Follow-up history.** Every follow-up action is recorded in the contact or deal timeline. When you open a record, you see the complete history of all interactions, making it easy to understand the cadence and content of previous touchpoints before reaching out again. No more awkward re-introductions or repeated messages.
+**Recorded follow-up context.** Supported messages, notes, and task changes remain with relevant CRM context where they are recorded. Review that history before reaching out again; do not assume activity from every external channel or workflow is captured automatically.
 
-**Team-wide follow-up visibility.** Managers can see all pending and overdue follow-ups across the team. Filter by assignee, due date, or linked deal to identify where follow-ups are falling behind and intervene before opportunities are lost.
+**Team follow-up context.** Team members can review linked tasks and filter on stored custom values. Native tasks do not have due or overdue states, and saved views are personal rather than shared team views.
 
-**Calendar and email integration.** Follow-up tasks integrate with your email workflow. Schedule follow-up emails, log responses, and maintain a complete communication trail without switching between tools.
+**Calendar and email context.** Read supported calendar data and work with individual email conversations in the unified inbox. Calendar access is read-only, and Customermates does not schedule follow-up emails or create bookings.
 
 ## Building Effective Follow-Up Sequences
 
-Effective follow-up sequences balance persistence with relevance. Here are the principles that produce results.
+External follow-up sequences balance persistence with relevance. Here are principles to apply in the separate campaign or delivery provider that runs them.
 
 **Optimal cadence.** A well-structured follow-up sequence spans 17 to 21 days with 8 to 12 touchpoints. However, more touches do not automatically mean more replies. Sending more than four emails in a single sequence can triple unsubscribe and spam complaint rates. Spread your touchpoints across channels and keep each one valuable.
 
-**Personalize by segment.** Sending the same follow-up sequence to a VP of Engineering and a Head of Marketing wastes both their time and your credibility. Segment by persona, pain point, and buying stage, even if it means building three times more sequences. Relevance drives response rates.
+**Personalize external outreach by segment.** A separate campaign provider can vary its sequence for a VP of Engineering or Head of Marketing. Store persona, pain point, and buying stage in custom fields; Customermates itself sends individual messages rather than sequences.
 
 **Add value at every touchpoint.** Every follow-up should give the prospect a reason to engage: a relevant insight, a case study, an answer to a common objection, or a specific observation about their business. Follow-ups that just ask "checking in, any thoughts?" add no value and get ignored.
 
 **Know when to stop.** Not every prospect will convert. Build a clear exit point into your sequences. After your final touchpoint, move the contact to a nurture track or mark them as disqualified. Endless follow-ups damage your brand and waste your team's time.
 
-**Test and iterate.** Track open rates, response rates, and conversion rates for each sequence. A/B test subject lines, timing, and message content. Use the data to continuously refine your approach.
+**Test and iterate.** Track open rates, response rates, and conversion rates in the external sequence provider. A/B test subject lines, timing, and message content there, then use the results to refine your approach.
 
 ## Key Benefits of Structured Follow-Up
 
 **Higher conversion rates.** Consistent follow-up is one of the most reliable ways to improve sales conversion rates. When every lead receives timely, appropriate follow-up, more prospects convert to customers.
 
-**No more forgotten leads.** Automated reminders and activity-triggered alerts eliminate the risk of leads going cold due to oversight. The system watches your pipeline and alerts you when action is needed.
+**Make follow-up gaps visible.** Store a next-action date in a custom field and review it in a filtered view. A separately operated scheduler can evaluate that field and send a notification through an external provider; Customermates sends no native reminder or inactivity alert.
 
 **Consistent customer experience.** Every prospect and customer receives the same quality of follow-up regardless of which team member is handling the relationship. Standardized follow-up processes create a professional, reliable customer experience.
 
-**Reduced reliance on individual memory.** Sales teams should not depend on individuals remembering their next actions. The CRM tracks what needs to happen, when, and for whom, freeing your team to focus on the quality of each interaction.
+**Reduced reliance on individual memory.** Linked tasks and custom fields let sales teams record what should happen, when, and for whom. The CRM stores those values; a person or customer-run workflow decides when action is required.
 
-**Full follow-up audit trail.** Every follow-up action is logged with timestamps. This audit trail is valuable for coaching, process improvement, and understanding what follow-up cadence produces the strongest results with your specific audience.
+**Recorded follow-up context.** Supported messages, notes, and task changes retain timestamps and user context where the product records them. Use that context for coaching and process review, not as a complete audit or compliance record.
 
-**Scalable outreach.** As your team and pipeline grow, automated follow-up ensures that quality and consistency do not degrade. The same sequences that work for ten deals work for a hundred without proportionally increasing effort.
+**Scale with external outreach tools.** As your team and pipeline grow, Customermates keeps individual CRM context while a separate campaign or sequence provider runs automated or bulk outreach under its own limits and safeguards.
 
 ## Common Follow-Up Workflows
 
-**New lead follow-up sequence.** When a lead is created, trigger a timed multi-channel sequence: day 1 introduction email, day 3 phone call, day 5 LinkedIn connection, day 7 value-add email, day 14 final outreach. Each step creates a task or triggers an action automatically.
+**New lead follow-up sequence.** A customer-run external workflow can start a timed cadence in separate channel providers: day 1 email, day 3 call action, day 5 LinkedIn step, day 7 value-add email, day 14 final outreach. Customermates stores only supported CRM records and individual messages.
 
-**Post-meeting follow-up.** After logging a meeting, automatically create a follow-up task for the next business day. Include a reminder to send meeting notes, summarize action items, and schedule the next conversation.
+**Post-meeting follow-up.** A customer-run workflow can create a supported follow-up task after a documented event and write the next-action date to a custom field. Reminder delivery and meeting scheduling remain in external providers.
 
-**Re-engagement campaigns.** For leads that have gone quiet, trigger a re-engagement sequence after 30, 60, or 90 days of inactivity. Automated touchpoints bring dormant relationships back to life without manual tracking.
+**Re-engagement campaigns.** A customer-run external workflow can evaluate recorded activity after 30, 60, or 90 days and ask a separate campaign provider to start a re-engagement sequence. Customermates does not monitor inactivity or send the touchpoints.
 
-**Customer success check-ins.** Schedule regular follow-up touchpoints with existing customers. Quarterly check-ins, annual reviews, and renewal reminders ensure your customer relationships stay healthy well beyond the initial sale.
+**Customer success check-ins.** Store quarterly, annual, or renewal dates in custom fields. A customer-run external scheduler can evaluate those values and deliver reminders through a separate provider; Customermates itself does not schedule them.
 
-**Stale deal recovery.** When a deal has not progressed within a defined period, trigger escalated follow-up actions. Start with a reminder to the deal owner, escalate to their manager after another period, and create a recovery outreach task if the deal remains stagnant.
+**Stale deal recovery.** A customer-run external workflow can evaluate recorded deal activity, notify the owner through a separate provider, and create a supported recovery task. Customermates has no native inactivity timer or escalation engine.
 
-**Post-purchase onboarding.** Trigger a follow-up sequence after a deal closes to guide the new customer through onboarding milestones. Day 1 welcome email, day 3 setup check-in, day 7 feature introduction, day 14 satisfaction check.
+**Post-purchase onboarding.** A customer-run external workflow can ask a separate delivery provider to run an onboarding sequence after a deal closes. The provider owns timing and delivery; Customermates stores supported deal, task, and message context.
 
 ## Why Choose Customermates for Follow-Up Management
 
-**Open source and transparent.** Customermates is fully open source. Your follow-up workflows run on code you can inspect and customize. No proprietary limitations on how you manage your follow-up processes.
+**Open-source core.** The AGPL core CRM application and linked-task model are inspectable. Reminder scheduling, sequences, delivery providers, external AI clients, and n8n workflows remain separate systems with their own code and terms.
 
-**EU-hosted and GDPR-compliant.** All follow-up data and communication logs are stored in European data centers with full GDPR and DSGVO compliance. Manage your customer follow-ups with confidence in your data protection posture.
+**EU database region with documented providers.** The hosted database runs in an EU region. Application hosting and connected providers, including US providers, may process data elsewhere; this is a deployment fact, not a GDPR or other compliance certification.
 
-**Simple, fair pricing.** Task-based follow-ups, activity-triggered reminders, and n8n automation are included from EUR 12 per user per month (Starter tier). Sending follow-up sequences over email, LinkedIn, WhatsApp, Instagram, or Telegram uses the unified inbox, included from the Pro tier at EUR 29 per user per month. No per-sequence charges.
+**Simple, fair CRM pricing.** Core CRM records and linked tasks start at EUR 12 per user per month; the unified inbox starts with Pro at EUR 29. Native reminders, sequences, and per-sequence delivery are not included. A separate n8n instance and delivery providers have their own plans, limits, and costs.
 
-**AI agents draft your follow-ups.** Claude, ChatGPT, and Gemini connect through a native MCP integration (46 tools) and draft the next touchpoint from the full relationship history, then log it on the record. On a messaging tier, they can send it across the unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram). The pipeline keeps moving without manual data entry.
+**External AI clients draft individual follow-ups.** Supported clients such as Claude, ChatGPT, or Gemini can use 46 MCP tools to read allowed context, draft one message, and send where permitted on a messaging tier. Customermates includes no AI client, model, subscription, or autonomous result.
 
-**n8n automation for advanced sequences.** Build sophisticated multi-channel follow-up sequences with the integrated n8n workflow engine. Multi-step, conditional, time-based, and behavior-triggered workflows are built visually without writing code. Connect to email, Slack, LinkedIn tools, and over 400 other services.
+**Separate n8n for advanced sequences.** Connect your own n8n instance through REST, webhooks, MCP, or the community node. Multi-step timing, conditions, and external delivery run there, not in Customermates; the n8n plan, connectors, logs, limits, and costs remain separate.
 
-**Self-hostable for full control.** Deploy on your own infrastructure and maintain complete control over your follow-up data and communication logs.
+**Self-hostable application and database.** Run the Customermates application and PostgreSQL database on your infrastructure. Connected workflow, AI, and messaging providers still receive the data your configuration sends.
 
 ## Get Started with Follow-Up Management Today
 
-Start managing follow-ups in Customermates today. Create your first follow-up task, build an automated sequence, and see how the system keeps your pipeline active and your leads warm. Task-based follow-up features are available from day one on the Starter tier; email and LinkedIn sequence channels come with the Pro tier. Sign up for a free account and stop letting deals slip through the cracks.
+Start managing follow-ups in Customermates today. Create a linked task and record the next action in a custom field. Connect a separate reminder or outreach workflow only when needed; Customermates does not include automated sequences or bulk outreach. Sign up and begin with the CRM capabilities in your plan.

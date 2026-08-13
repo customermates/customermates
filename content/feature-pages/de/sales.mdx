@@ -1,11 +1,11 @@
 ---
 title: "Vertriebssoftware: Komplette CRM-Plattform"
-description: "Vertriebssoftware mit Deals, Kontakten, Pipeline, Automatisierung, native KI-Integration und Reporting. Open-Source CRM, EU-gehostet, DSGVO-konform. Ab 12 EUR/Monat."
+description: "Vertriebssoftware mit Deals, Kontakten, Pipeline, Automatisierungsschnittstellen, externen KI-Clients über MCP und Reporting. Open-Source CRM mit verwalteter Datenbank in einer EU-Region."
 featureName: Vertriebssoftware
 
 hero:
   title: Vertriebssoftware, die Ihrem Team alles gibt, was es zum Abschließen braucht
-  description: Verwalten Sie Deals, Kontakte, Pipelines und Automatisierungen in einer Plattform. Gebaut für Vertriebsteams, die ein leistungsfähiges, flexibles CRM ohne Komplexität, versteckte Kosten oder Vendor Lock-in wollen.
+  description: Verwalten Sie Deals, Kontakte, Pipelines, Aufgaben und unterstütztes Reporting in einem CRM. Verbinden Sie separate Automatisierung über offene Schnittstellen, ohne Laufzeit, Limits oder Kosten zu bündeln.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -48,66 +48,66 @@ Vertriebssoftware hat sich weit über Kontaktdatenbanken hinaus entwickelt. Heut
 
 ## So funktioniert Vertriebssoftware in Customermates
 
-Customermates ist eine komplette Vertriebsmanagement-Plattform, die alle sechs Kernfähigkeiten in einem Open-Source CRM vereint. Zwei davon heben es hervor: KI-Agenten, die das CRM über eine native MCP-Integration bedienen, und ein natives gemeinsames Postfach, das E-Mail, LinkedIn, WhatsApp, Instagram und Telegram im selben System zusammenführt.
+Customermates vereint Kontakt-, Deal-, Pipeline-, Aufgaben-, Dashboard- und Messaging-Kontext in einem Open-Source CRM. Zusätzlich bietet es MCP für unterstützte externe KI-Clients und offene Schnittstellen für eine separate n8n-Instanz; Client, Modell und Automatisierungslaufzeit sind nicht gebündelt.
 
-**Kontakt- und Organisationsmanagement.** Speichern und verwalten Sie jeden Kontakt und jede Organisation, mit der Ihr Team interagiert. Erstellen Sie detaillierte Datensätze mit unbegrenzten benutzerdefinierten Feldern, verknüpfen Sie Kontakte mit Organisationen und pflegen Sie eine vollständige Historie jeder Interaktion. Suchen und filtern Sie Ihre Kontakte nach jedem Feld.
+**Kontakt- und Organisationsmanagement.** Speichern und verwalten Sie Kontakte und Organisationen. Erstellen Sie Datensätze mit typisierten eigenen Feldern, verknüpfen Sie Kontakte mit Organisationen und behalten Sie unterstützte Notizen und Aktivitätskontext. Suchen und filtern Sie nach unterstützten Feldern.
 
-**Deal-Management.** Erstellen Sie Deal-Datensätze mit strukturierten Daten wie Wert, Phase, erwartetem Abschlussdatum, Besitzer und verknüpften Kontakten. Verfolgen Sie Deals durch Ihre Pipeline und pflegen Sie einen vollständigen Audit-Trail jeder Phasenänderung, Aktivität und Notiz.
+**Deal-Management.** Erstellen Sie Deals mit strukturiertem Wert, Phase, Zuständigem, verknüpften Kontakten und eigenem Abschlussdatumsfeld. Prüfen Sie unterstützte Aktivität, Notizen und Phasenkontext; dies ist kein Compliance-Audit-Trail.
 
 **Visuelle Pipeline.** Betrachten Sie Ihre Deals auf einem Drag-and-Drop Kanban-Board, organisiert nach Phase. Erhalten Sie sofortige Sichtbarkeit in Pipeline-Wert, Deal-Verteilung und Progression. Erstellen Sie mehrere Pipelines für verschiedene Vertriebsprozesse oder Produktlinien.
 
-**Aufgabenverwaltung.** Erstellen und weisen Sie Aufgaben zu, die mit Deals, Kontakten und Organisationen verknüpft sind. Verwalten Sie Fälligkeitsdaten, Prioritäten und Status. Die Aufgabenverwaltung hält Ihr Team organisiert und stellt sicher, dass die Arbeit hinter jedem Deal rechtzeitig erledigt wird.
+**Aufgabenverwaltung.** Erstellen Sie Aufgaben, weisen Sie sie zu und verknüpfen Sie sie mit Deals, Kontakten und Organisationen. Native Aufgaben besitzen weder Fälligkeitsdatum, Priorität, Status, Überfälligkeit noch Erinnerung; modellieren Sie diese Werte bei Bedarf mit eigenen Datums- und Auswahlfeldern.
 
-**Gemeinsames Postfach.** Verbinden Sie E-Mail, LinkedIn, WhatsApp, Instagram und Telegram in einem Postfach direkt im CRM. Senden und empfangen Sie Nachrichten direkt aus Kontakt- und Deal-Datensätzen, und lassen Sie KI-Agenten über jeden Kanal lesen, entwerfen und senden. Jede Nachricht wird dem relevanten CRM-Datensatz zugeordnet, sodass Ihr Team den vollständigen Kommunikationskontext ohne manuelle Dateneingabe behält. Das gemeinsame Postfach ist ab der Pro-Stufe für 29 EUR/Nutzer/Monat enthalten; das Kern-CRM unten startet bei 12 EUR/Nutzer/Monat.
+**Gemeinsames Postfach.** Verbinden Sie unterstützte E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Konten im CRM. Ein unterstützter externer KI-Client kann zulässigen Kontext lesen und einzelne Nachrichten per MCP entwerfen oder soweit erlaubt senden. Client und Modell bleiben separat; das Postfach startet mit Pro bei 29 EUR/Nutzer/Monat.
 
-**Workflow-Automatisierung mit n8n.** Automatisieren Sie wiederkehrende Vertriebsaufgaben mit der n8n-Workflow-Engine. Erstellen Sie No-Code-Automatisierungen für Follow-Ups, Deal-Phasen-Trigger, Benachrichtigungen, Datensynchronisierung und mehr. Verbinden Sie über 400 externe Dienste, darunter Slack, Gmail, Outlook, LinkedIn-Tools und Buchhaltungssysteme.
+**Workflow-Automatisierung mit separatem n8n.** Verbinden Sie eine eigene oder abonnierte n8n-Instanz über REST, Webhooks, MCP oder Community-Node. Visueller Builder, Zeitpläne, 400+ Konnektoren, Laufzeit, Zugangsdaten, Logs, Limits, Zustellanbieter und Kosten bleiben extern.
 
-**KI-Agenten, die das CRM bedienen.** Claude, ChatGPT und Gemini verbinden sich über eine native MCP-Integration mit 46 Tools mit Customermates. Die Agenten übernehmen die Dateneingabe: Sie verschieben Deal-Phasen, entwerfen personalisierte Outreach-Nachrichten, fassen Meeting-Notizen zusammen, bewerten Leads nach Engagement-Mustern und halten Kontaktnotizen aktuell. Sie arbeiten neben Ihren Automatisierungs-Workflows, sodass die Pipeline die Realität abbildet, ohne manuelle Pflege. Nativer KI- und MCP-Zugang ist in jeder Stufe ab 12 EUR/Nutzer/Monat enthalten.
+**Externe KI-Clients bedienen zulässige CRM-Daten.** Unterstützte Clients wie Claude, ChatGPT oder Gemini können 46 MCP-Tools nutzen, Deal-Phasen verschieben, eine einzelne Nachricht entwerfen, zulässige Notizen zusammenfassen und unterstützte Felder aktualisieren. Customermates enthält weder KI-Client noch Modell, Abonnement, Lead-Scoring, Anreicherung oder autonomes Ergebnis. MCP-Zugang startet mit Starter.
 
-**Reporting und Analysen.** Verfolgen Sie Pipeline-Metriken, Umsatzleistung, Teamaktivität und Konversionsraten mit integrierten Dashboards und Berichten. Exportieren Sie Daten für tiefere Analysen oder automatisieren Sie die Berichtslieferung an Stakeholder.
+**Reporting und Analysen.** Konfigurieren Sie Dashboard-Widgets über gespeicherte Pipeline-Werte, Anzahlen und unterstützte Felder. Customermates besitzt keinen eigenen Datensatz- oder Berichtexport und berechnet keine Prognosen; externe Analyse nutzt REST oder MCP.
 
-**Berechtigungen und Audit-Logging.** Steuern Sie, wer welche Daten sehen und ändern kann, mit granularen Berechtigungseinstellungen. Jede Änderung an jedem Datensatz wird im Audit-Trail für Compliance und Nachvollziehbarkeit protokolliert.
+**Berechtigungen und erfasste Aktivität.** Ressourcen-/Aktionsrechte steuern ganze Ressourcen, nicht einzelne Felder oder Datensätze. Unterstützte Aktivität liefert Kontext, wo sie erfasst wird; sie ist kein vollständiger Compliance-Audit-Trail.
 
 ## Anpassung an Ihre Vertriebsmethodik
 
 Gute Vertriebssoftware zwingt Ihrem Team keine Methodik auf. Sie passt sich dem Ansatz an, der für Ihren Markt, Ihr Produkt und Ihre Käufer funktioniert.
 
-**SPIN Selling.** Verfolgen Sie Situations-, Problem-, Implikations- und Need-Payoff-Daten mit benutzerdefinierten Feldern auf Ihren Deal-Datensätzen. Erstellen Sie Follow-Up-Sequenzen, die zum SPIN-Discovery-Prozess passen.
+**SPIN Selling.** Erfassen Sie Situations-, Problem-, Implikations- und Need-Payoff-Daten mit eigenen Deal-Feldern. Benötigte Follow-Up-Sequenzen laufen über einen separaten Kampagnen- oder Workflow-Anbieter.
 
 **MEDDIC.** Erstellen Sie benutzerdefinierte Felder für Metrics, Economic Buyer, Decision Criteria, Decision Process, Identify Pain und Champion. Nutzen Sie diese Felder als Phase-Gate-Kriterien, um sicherzustellen, dass die Deal-Qualifizierung rigoros und konsistent ist.
 
-**Challenger Sale.** Nutzen Sie Aufgabenvorlagen und Automatisierung, um Teaching-Momente zu liefern, Ihre Botschaft an verschiedene Stakeholder-Personas anzupassen und die Kontrolle über das Verkaufsgespräch durch strukturierte Follow-Up-Sequenzen zu behalten.
+**Challenger Sale.** Nutzen Sie verknüpfte Aufgaben und eigene Felder für Teaching-Momente und Stakeholder-Personas. Vorlagen, Timing, Automatisierung und strukturierte Follow-Up-Sequenzen bleiben in separaten Workflow- oder Kampagnen-Tools.
 
-**Ihre eigene Methodik.** Wenn Ihr Team seinen eigenen Vertriebsprozess entwickelt hat, passt sich Customermates durch benutzerdefinierte Felder, individuelle Pipeline-Phasen und flexible Automatisierung an. Die Plattform formt sich nach Ihrem Prozess, nicht umgekehrt.
+**Ihre eigene Methodik.** Modellieren Sie den Vertriebsprozess mit eigenen Feldern und konfigurierbaren Pipeline-Phasen. Ein separates Workflow-System kann Abläufe rund um diese Datensätze über offene Schnittstellen automatisieren.
 
 ## Zentrale Vorteile
 
-**Alles in einer Plattform.** Hören Sie auf, mehrere Tools für Kontakte, Deals, Aufgaben, E-Mail und Reporting zu jonglieren. Customermates vereint all diese Fähigkeiten in einer einzigen Plattform, eliminiert Datensilos und reduziert Tool-Kosten.
+**Zentraler Vertriebskontext.** Bringen Sie Kontakte, Deals, verknüpfte Aufgaben, unterstütztes Messaging und konfigurierbare Dashboard-Widgets in ein CRM. Kampagnen, Scoring, Prognosen und Automatisierungslaufzeiten bleiben separate Tools.
 
-**Anpassbar an Ihren Vertriebsprozess.** Benutzerdefinierte Felder, individuelle Pipeline-Phasen und flexible Automatisierung lassen Sie Customermates an Ihre spezifische Vertriebsmethodik anpassen. Keine starren Vorlagen, keine erzwungenen Workflows.
+**Anpassbar an Ihren Vertriebsprozess.** Eigene Felder und konfigurierbare Pipeline-Phasen bilden Ihre Vertriebsmethodik ab. Binden Sie separate Automatisierung bei Bedarf an; eine Workflow-Laufzeit ist nicht gebündelt.
 
-**Automatisierung, die mit Ihnen skaliert.** Wenn Ihr Team und Deal-Volumen wachsen, stellt Automatisierung sicher, dass Ihre Prozesse skalieren, ohne den administrativen Overhead proportional zu erhöhen. Die gleichen Workflows, die für zehn Deals funktionieren, funktionieren für tausend.
+**Externe Automatisierung, die skaliert.** Ein separat betriebener Workflow kann auf dokumentierte Ereignisse und unterstützte Felder reagieren. Skalierung, Ausführungslimits, Zustellung, Zuverlässigkeit und Kosten hängen von diesem Anbieter ab.
 
-**KI-verstärkter Vertrieb.** KI-Agenten geben Ihrem Team Fähigkeiten, die sonst erheblichen manuellen Aufwand erfordern würden. Von E-Mail-Entwurf über Lead-Scoring bis Meeting-Zusammenfassung übernehmen sie die zeitaufwändigen Aufgaben, die Ihren Vertriebsprozess verlangsamen.
+**Extern KI-unterstützter Vertrieb.** Ein unterstützter externer Client kann einzelne E-Mails entwerfen, zulässigen Kontext zusammenfassen und erlaubte Felder per MCP aktualisieren. Customermates enthält weder KI-Modell noch Lead-Scoring, Prognosen oder Anreicherung.
 
 **Open Source ohne Vendor Lock-in.** Ihre Vertriebsdaten leben in einer Plattform, die Sie jederzeit einsehen, erweitern und von der Sie migrieren können. Kein proprietärer Lock-in, keine versteckten Funktionen und keine erzwungenen Upgrades.
 
-**Datenhoheit von Tag eins.** Ob Sie die Cloud-gehostete Version oder Self-Hosting mit Docker nutzen, Ihre Daten gehören Ihnen. Exportieren, sichern oder verschieben Sie sie, wann immer Sie möchten.
+**Datenzugriff von Tag eins.** Lesen Sie unterstützte Cloud-Datensätze per REST oder MCP; einen eigenen Voll-Datenexport gibt es nicht. Self-Hosting-Betreiber kontrollieren ihre PostgreSQL-Datenbank und Backups.
 
 **Messbarer ROI.** Ab 12 EUR pro Nutzer und Monat für das Kern-CRM liefert Customermates Enterprise-Fähigkeiten zu einem Bruchteil der Enterprise-Preise. Klare, vorhersagbare Stufen, keine Kosten pro Feature, keine überraschenden Rechnungen, wenn Ihr Team wächst. Vergleichen Sie das mit Salesforce oder HubSpot, wo gleichwertige Funktionen ein Mehrfaches pro Nutzer kosten können.
 
 ## Warum Customermates als Ihre Vertriebssoftware?
 
-**Open Source und transparent.** Customermates ist vollständig Open Source. Jede Funktion, jeder Algorithmus und jede Datentransformation ist im Code sichtbar. Sie müssen sich nie fragen, was hinter den Kulissen passiert.
+**Open-Source-Kern.** Die AGPL-Kern-CRM-Anwendung ist einsehbar und erweiterbar. Self-Hosting betreibt diesen Kern mit PostgreSQL unter Starter-Berechtigungen; Managed-Cloud-Messaging und Kalender, externe KI-Clients und Workflow-Anbieter bleiben separat.
 
-**EU-gehostet und DSGVO-konform.** Alle Vertriebsdaten werden in europäischen Rechenzentren gespeichert, mit integrierter DSGVO-Konformität. Für Unternehmen, die an oder innerhalb Europas verkaufen, wird Compliance von der Plattform gehandhabt, nicht nachträglich angeheftet.
+**EU-Datenbankregion mit dokumentierten Anbietern.** Die gehostete Datenbank läuft in einer EU-Region. Anwendungshosting und verbundene Anbieter, darunter US-Anbieter, können Daten andernorts verarbeiten; das ist keine DSGVO- oder andere Compliance-Zertifizierung.
 
-**Einfache, faire Preisgestaltung.** Ab 12 EUR pro Nutzer und Monat. Deals, Kontakte, Pipelines, Automatisierung, native KI- und MCP-Integration, Reporting, Berechtigungen und Audit-Logging sind ab der Starter-Stufe enthalten; E-Mail, LinkedIn, WhatsApp, Instagram und Telegram (das gemeinsame Postfach) sind ab der Pro-Stufe für 29 EUR enthalten. Keine Kosten pro Feature, keine Überraschungen.
+**Einfache, faire Preisgestaltung.** Ab 12 EUR pro Nutzer und Monat. Deals, Kontakte, Pipelines, verknüpfte Aufgaben, eigene Felder, REST, Webhooks, MCP, Ressourcenrechte und Dashboard-Widgets starten mit Starter; das gemeinsame Postfach mit Pro bei 29 EUR. KI-Clients und n8n bleiben separat.
 
-**Self-Hosting für volle Kontrolle.** Brauchen Sie die komplette Souveränität über Ihre Vertriebsdaten? Betreiben Sie Customermates auf Ihren eigenen Servern mit Docker. Self-Hosting gibt Ihnen volle Autorität über Sicherheit, Backups und Datenresidenz bei gleichzeitigem Erhalt aller Plattform-Updates.
+**Self-Hosting des Kern-CRM.** Betreiben Sie Anwendung und PostgreSQL-Datenbank mit Starter-Berechtigungen auf Ihrer Infrastruktur. Sie verantworten Sicherheit und Backups; verbundene KI-, Workflow- und Messaging-Anbieter bleiben separat und erhalten konfigurierte Daten.
 
-**n8n-Automatisierung integriert.** Die n8n-Engine verbindet Ihre Vertriebsworkflows mit über 400 externen Diensten. Erstellen Sie Automatisierungen über Ihren gesamten Tool-Stack, ohne Code zu schreiben.
+**Separate n8n-Integration.** Nutzen Sie Ihre n8n-Instanz und ihren Katalog mit über 400 Konnektoren zusammen mit unterstützten Customermates-Schnittstellen. Visueller Builder, Laufzeit, Tarif, Ausführungen, Logs, Limits und Kosten sind nicht enthalten.
 
 ## Starten Sie heute mit Customermates Vertriebssoftware
 
-Die Einrichtung von Customermates dauert Minuten. Erstellen Sie Ihr Konto, definieren Sie Ihre Pipeline-Phasen, importieren Sie Ihre Kontakte und beginnen Sie mit der Verwaltung Ihres Vertriebsprozesses. Alle Funktionen stehen ab dem ersten Tag zur Verfügung, ohne Konfigurationshürden oder Onboarding-Verzögerungen. Erstellen Sie ein kostenloses Konto und geben Sie Ihrem Vertriebsteam die Plattform, die es verdient.
+Erstellen Sie Ihr Konto, definieren Sie Pipeline-Phasen und fügen Sie unterstützte Kontakte manuell oder über eine kundeneigene REST- oder MCP-Integration hinzu. Customermates besitzt weder CSV-Import noch Export; beginnen Sie mit den CRM-Funktionen Ihres Tarifs und binden Sie Workflow-Tools nur bei Bedarf an.

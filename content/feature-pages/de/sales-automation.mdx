@@ -1,11 +1,11 @@
 ---
 title: "Vertriebsautomatisierung: Deals & Follow-Ups"
-description: "Vertriebsautomatisierung mit visuellen n8n-Workflows, Deal-Triggern und Follow-up-Sequenzen. Open-Source CRM, EU-gehostet, DSGVO-konform. Ab €12/Nutzer."
+description: "Vertriebsautomatisierung über REST, Webhooks, MCP und einen Community-Node für eine separate n8n-Instanz. Deal-Trigger und Follow-up-Sequenzen laufen in externen Workflows."
 featureName: Vertriebsautomatisierung
 
 hero:
   title: Vertriebsautomatisierung, die Deals abschließt während Sie verkaufen
-  description: Automatisieren Sie Deal-Phasen-Übergänge, Follow-up-Erinnerungen und wiederkehrende Vertriebsaufgaben mit n8n-Workflows. Weniger Admin, mehr Zeit für Kundenbeziehungen.
+  description: Verbinden Sie eine separate n8n-Instanz über REST, Webhooks, MCP oder den Community-Node. Deal-Trigger, Erinnerungen und mehrstufige Vertriebsautomatisierung laufen dort; Customermates speichert unterstützte CRM-Datensätze.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -14,7 +14,7 @@ hero:
 
 cta:
   action: Bereit, Ihren Vertrieb zu automatisieren?
-  description: Verlieren Sie keine Deals mehr durch vergessene Follow-ups. Automatisieren Sie Ihren Vertriebsprozess noch heute mit Customermates.
+  description: Halten Sie unterstützten CRM-Kontext in Customermates und verbinden Sie für geplante Erinnerungen, Sequenzen, Routing oder externe Zustellung einen separaten Workflow.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -41,23 +41,23 @@ Das Ergebnis: Ein Vertriebsteam, das seine Zeit für Gespräche, Demos und Bezie
 
 Sales Force Automation (SFA) konzentriert sich auf die Automatisierung des Verkaufsprozesses, Follow-ups, Aufgabenzuweisung, Deal-Progression und Pipeline-Workflows. Ein CRM (Customer Relationship Management) verwaltet den breiteren Kundenlebenszyklus einschließlich Marketing, Support und Account-Management.
 
-In der Praxis gehört Vertriebsautomatisierung ins CRM. Customermates kombiniert beides: ein vollständiges CRM mit [Kontaktverwaltung](/features/contact-management), [Pipeline-Tracking](/features/pipeline) und [Lead Management](/features/lead-management) sowie eine n8n-Automatisierungs-Engine für Deal-Workflows, Benachrichtigungen und Datensynchronisierung, alles in einer Plattform ab €12/Nutzer/Monat. Dieselbe Plattform ergänzt KI-Agenten, die das CRM über eine native MCP-Integration bedienen, und ein natives gemeinsames Postfach für E-Mail, LinkedIn, WhatsApp, Instagram und Telegram (das Postfach ist ab der Pro-Stufe enthalten).
+In der Praxis braucht Vertriebsautomatisierung verlässliche CRM-Schnittstellen. Customermates bietet [Kontaktverwaltung](/features/contact-management), [Pipeline-Tracking](/features/pipeline), [Lead Management](/features/lead-management), REST, Webhooks, MCP und einen Community-Node für eine separate n8n-Instanz. Der externe Workflow übernimmt Zeitplanung, Logik, Benachrichtigungen und Zustellung; unterstützte externe KI-Clients bleiben vom CRM getrennt.
 
 ## So funktioniert Vertriebsautomatisierung in Customermates
 
-Customermates integriert [n8n](https://n8n.io/), eine Open-Source-Automatisierungs-Engine, direkt in die CRM-Plattform. Das gibt Ihnen einen vollwertigen visuellen Workflow-Builder statt einer begrenzten Menge vordefinierter Regeln.
+Customermates lässt sich mit [n8n](https://n8n.io/) verbinden, einem separaten Open-Source-Automatisierungsprodukt, das Sie selbst betreiben oder abonnieren. Customermates liefert offene Schnittstellen und den Community-Node; n8n liefert visuellen Builder, Laufzeit, Konnektoren, Zeitpläne, Logs, Limits und Preise.
 
-**Deal-Phasen-Trigger.** Definieren Sie, was automatisch passiert, wenn ein Deal in eine bestimmte Phase eintritt. Wenn ein Deal zu „Angebot gesendet" wechselt, erstellen Sie eine Follow-up-Aufgabe für drei Tage später. Wenn er „Verhandlung" erreicht, benachrichtigen Sie den Vertriebsleiter. Wenn er zu „Gewonnen" wechselt, starten Sie eine Onboarding-Sequenz. Jeder Phasenübergang kann eine oder mehrere automatisierte Aktionen auslösen.
+**Externe Deal-Phasen-Trigger.** Ein separat betriebener Workflow kann auf ein dokumentiertes Deal-Ereignis reagieren. Er kann eine unterstützte Aufgabe erstellen, einen Manager über einen externen Anbieter benachrichtigen oder ein Kampagnen-Tool um den Start eines Onboardings bitten. Customermates plant spätere Aktionen nicht und führt selbst keine Sequenzen aus.
 
-**Follow-up-Automatisierung.** Konfigurieren Sie automatisierte Follow-up-Sequenzen, die basierend auf Zeit, Deal-Phase oder Aktivität ausgelöst werden. Wenn auf einem Deal fünf Tage lang keine Aktivität protokolliert wird, senden Sie eine Erinnerung an den Verantwortlichen. Wenn ein Interessent innerhalb einer Woche nicht auf eine E-Mail geantwortet hat, erstellen Sie eine Anrufaufgabe. Follow-up-Automatisierung stellt sicher, dass keine Gelegenheit durch Vergesslichkeit auskühlt.
+**Externe Follow-up-Automatisierung.** Konfigurieren Sie Sequenzen bei einem externen Anbieter und die Zeitlogik in einem separaten Workflow. Dieser kann gespeicherte Aktivität oder eigene Datumsfelder auswerten, über einen externen Anbieter eine Benachrichtigung senden und per REST eine unterstützte Aufgabe erstellen. Customermates selbst besitzt weder Inaktivitäts-Timer noch Erinnerungsplaner oder Sequenz-Engine.
 
-**Aufgabenerstellung und -zuweisung.** Generieren Sie automatisch Aufgaben und weisen Sie sie den richtigen Teammitgliedern zu, basierend auf Deal-Attributen. Leiten Sie hochwertige Deals an erfahrene Mitarbeiter weiter. Erstellen Sie Compliance-Review-Aufgaben für Deals über einem bestimmten Schwellenwert. Weisen Sie Onboarding-Aufgaben dem Customer-Success-Team zu, wenn Deals abgeschlossen werden.
+**Externe Aufgabenerstellung und -zuweisung.** Ein von Ihnen betriebener Workflow kann Deal-Attribute auswerten und unterstützte Aufgaben per REST erstellen. Routing-Logik, Schwellenwerte, Zeitplanung und Ausführung bleiben in diesem Workflow; native Aufgaben besitzen keine Fälligkeit, Priorität, Status- oder Erinnerungssemantik.
 
-**Benachrichtigungs-Workflows.** Halten Sie Ihr Team informiert ohne manuelle Statusupdates. Senden Sie Slack-Nachrichten, wenn Deals wichtige Meilensteine erreichen. Mailen Sie wöchentliche Pipeline-Zusammenfassungen an den Vertriebsleiter. Alarmieren Sie die Finanzabteilung, wenn ein Deal als gewonnen markiert wird.
+**Externe Benachrichtigungs-Workflows.** Ein separater Workflow kann auf dokumentierte Ereignisse reagieren und Slack, E-Mail oder einen anderen Anbieter um die Zustellung einer Nachricht bitten. Customermates besitzt weder eine native Slack-Integration noch ein allgemeines Benachrichtigungszentrum.
 
-**Datensynchronisierung.** Halten Sie Ihre Vertriebsdaten über alle Tools hinweg konsistent. Wenn ein Deal in Customermates abgeschlossen wird, aktualisieren Sie den entsprechenden Datensatz in Ihrer Buchhaltungssoftware. Synchronisieren Sie Kontaktinformationen mit Ihrer [E-Mail-Marketing-Plattform](/features/email-integration). n8n übernimmt den Datenfluss, damit Ihr Team nicht zwischen Systemen kopieren muss.
+**Externe Datensynchronisierung.** Ein von Ihnen betriebener n8n-Workflow kann unterstützte Deal- oder Kontaktfelder an Buchhaltung, [E-Mail-Marketing](/features/email-integration) oder Projekttools übergeben und freigegebene Ergebnisse per REST zurückschreiben. Jedes externe System verwaltet seine Datensätze, Zugangsdaten, Limits und Datenverarbeitung selbst.
 
-**KI-Agenten, die das CRM bedienen.** Über n8n hinaus bietet Customermates eine native MCP-Integration mit 46 Tools, sodass Claude, ChatGPT und Gemini das CRM direkt bedienen. Agenten verschieben Deal-Phasen, entwerfen personalisierte [Follow-up-E-Mails](/blog/sales-follow-up-email) basierend auf der Gesprächshistorie, fassen Meeting-Notizen zusammen und extrahieren Aktionspunkte und bewerten Leads mit natürlicher Sprachanalyse. Die Automatisierung übernimmt die geplante Arbeit, die Agenten die urteilsbasierte Dateneingabe.
+**Externe KI-Clients bedienen zulässige CRM-Daten.** Unterstützte Clients wie Claude, ChatGPT oder Gemini können 46 MCP-Tools nutzen, um Deal-Phasen zu verschieben, eine [Follow-up-E-Mail](/blog/sales-follow-up-email) zu entwerfen, erlaubte Notizen zusammenzufassen oder Felder zu aktualisieren. Customermates enthält weder Client, Modell, Lead-Scoring, Anreicherung noch ein autonomes Ergebnis.
 
 ## Zentrale Vorteile der Vertriebsautomatisierung
 
@@ -73,16 +73,16 @@ Customermates integriert [n8n](https://n8n.io/), eine Open-Source-Automatisierun
 
 ## Vertriebsautomatisierung Software im Vergleich
 
-| Funktion | Customermates | HubSpot | Salesforce | Pipedrive |
+| Funktion | Customermates + separates n8n | HubSpot | Salesforce | Pipedrive |
 |----------|--------------|---------|------------|-----------|
 | Preis/Nutzer/Monat | Ab €12 | 90 €+ (Automatisierung) | 25 €+ | 49 €+ (Automatisierung) |
 | Visueller Workflow-Builder | <StatusAvailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
-| Unbegrenzte Automatisierungen | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusUnavailable /> |
+| Automatisierungslimits | Abhängig vom separaten n8n-Tarif | <StatusUnavailable /> | <StatusPartial /> | <StatusUnavailable /> |
 | Deal-Phasen-Trigger | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> |
-| Follow-up-Sequenzen | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> |
+| Externe Follow-up-Sequenzen | Über separaten Anbieter | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> |
 | 400+ Integrationen (n8n) | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusPartial /> |
-| KI-gestützte Automatisierung | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusUnavailable /> |
-| EU/DSGVO-Hosting | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> |
+| Zugang für externe KI-Clients | Über MCP | <StatusPartial /> | <StatusPartial /> | <StatusUnavailable /> |
+| Verwaltete Datenbank in einer EU-Region | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> |
 | Open Source | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 | Self-Hosting-Option | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 
@@ -94,43 +94,43 @@ Customermates integriert [n8n](https://n8n.io/), eine Open-Source-Automatisierun
 
 ## Typische Anwendungsfälle
 
-**Neue Lead-Zuweisung.** Wenn ein neuer Lead in Ihr CRM gelangt, weisen Sie ihn automatisch einem Vertriebsmitarbeiter zu, nach Gebiet, Branche, Deal-Größe oder Round-Robin-Rotation. Erstellen Sie eine Erstanruf-Aufgabe und starten Sie eine Willkommens-E-Mail-Sequenz.
+**Neue Lead-Zuweisung.** Ein von Ihnen betriebener Workflow kann Gebiet, Branche, Deal-Größe oder Round-Robin-Logik auswerten, ein unterstütztes Zuweisungsfeld schreiben, eine Aufgabe erstellen und einen externen E-Mail-Anbieter um den Start einer Willkommenssequenz bitten.
 
-**Stagnierende-Deal-Alarme.** Konfigurieren Sie Alarme für Deals, die innerhalb eines definierten Zeitraums nicht fortgeschritten sind. Wenn ein Deal mehr als zwei Wochen in derselben Phase verweilt, benachrichtigen Sie den Verantwortlichen und seinen Manager. Vertriebsautomatisierung verhindert Pipeline-Aufblähung und hält das Team fokussiert.
+**Alarme für stagnierende Deals.** Ein separat betriebener Scheduler kann gespeicherte Phasendaten auswerten und den Verantwortlichen über einen externen Anbieter benachrichtigen. Customermates besitzt weder einen nativen Zeitablauf-Monitor noch eine Erinnerungs-Engine.
 
-**Post-Meeting-Aktionen.** Nachdem ein Meeting auf einem Deal protokolliert wurde, erstellen Sie automatisch Follow-up-Aufgaben, planen den nächsten Check-in und senden eine Dankes-E-Mail an den Interessenten. Die Nachbereitung erfolgt konsistent für jede Interaktion.
+**Aktionen nach Meetings.** Ein von Ihnen betriebener Workflow kann eine unterstützte Aufgabe erstellen, ein Datum für die nächste Aktion in einem eigenen Feld speichern und einen externen Anbieter um eine Dankesnachricht bitten. Die Zeitplanung bleibt extern.
 
-**Gewonnener-Deal-Übergabe.** Wenn ein Deal als gewonnen markiert wird, lösen Sie eine Reihe von Aktionen aus: Customer-Success-Team benachrichtigen, Onboarding-Projekt erstellen, Willkommens-E-Mail senden, Buchhaltungssystem aktualisieren. Der Übergang von Vertrieb zu Delivery erfolgt reibungslos ohne manuelle Koordination.
+**Übergabe gewonnener Deals.** Ein separater Workflow kann auf ein dokumentiertes Deal-Ereignis reagieren und externe Systeme um Team-Benachrichtigung, Projekterstellung, E-Mail-Zustellung oder Buchhaltungsupdate bitten. Diese Datensätze und Ausführungen bleiben außerhalb von Customermates.
 
-**Verlorener-Deal-Follow-up.** Wenn ein Deal verloren wird, planen Sie automatisch einen Follow-up-Touchpoint für drei oder sechs Monate später. Erfassen Sie den Verlustgrund und fügen Sie den Kontakt einer Re-Engagement-Kampagne hinzu. Verlorene Deals werden nicht vergessen, sondern in zukünftige Chancen umgewandelt.
+**Follow-up nach verlorenem Deal.** Speichern Sie Verlustgrund und Datum der nächsten Aktion in eigenen Feldern. Ein separater Scheduler kann das Datum auswerten und einen externen Kampagnen-Anbieter um Re-Engagement bitten; Customermates plant oder versendet es nicht.
 
 ## Warum Customermates für Vertriebsautomatisierung?
 
-**Open Source und voll erweiterbar.** Die n8n-Automatisierungs-Engine ist Open Source, genau wie Customermates. Wenn Sie eine benutzerdefinierte Automatisierung benötigen, die noch nicht existiert, können Sie sie selbst bauen. Kein Anbieter entscheidet, was Sie automatisieren können.
+**Zwei separate Open-Source-Produkte.** Der Customermates-AGPL-Kern und n8n können beide geprüft und erweitert werden, werden jedoch unabhängig betrieben und verwaltet. Bauen Sie eigene Automatisierung in Ihrer n8n-Instanz gegen dokumentierte CRM-Schnittstellen.
 
-**EU-gehostet und DSGVO-konform.** Alle Automatisierungsdaten und Ausführungsprotokolle werden in europäischen Rechenzentren gespeichert. Ihre automatisierten Workflows respektieren Datenschutzvorschriften von Grund auf, entscheidend für Teams, die europäische Kundendaten verarbeiten.
+**EU-Datenbankregion mit dokumentierten Anbietern.** Die gehostete Customermates-Datenbank läuft in einer EU-Region. n8n, Anwendungshosting und verbundene Anbieter können Daten andernorts verarbeiten, auch über US-Anbieter; dies ist keine Compliance-Zertifizierung.
 
-**Ab €12/Nutzer/Monat.** Vertriebsautomatisierung in Customermates ist ab der Starter-Stufe enthalten. Unbegrenzte Workflows, unbegrenzte Ausführungen, unbegrenzte Integrationen in jeder Stufe. Keine Kosten pro Automatisierung. [Preise ansehen →](/pricing)
+**Ab €12/Nutzer/Monat.** REST, Webhooks, MCP und der Community-Node beginnen mit Starter, ohne Customermates-Gebühr pro Workflow. n8n und jeder verbundene Anbieter haben separate Tarife, Ausführungen, Limits, Logs und Kosten. [Preise ansehen →](/pricing)
 
-**Self-Hosting für volle Kontrolle.** Wenn Sie [Customermates selbst hosten](/features/self-hosted), läuft Ihre Automatisierungs-Engine auf Ihrer Infrastruktur. Workflow-Daten, Zugangsdaten und Ausführungsprotokolle verlassen nie Ihre Server, essenziell für regulierte Branchen.
+**Self-hostbares Kern-CRM.** [Self-Hosting von Customermates](/features/self-hosted) betreibt Anwendung und PostgreSQL-Datenbank mit Starter-Berechtigungen. n8n ist eine separate Installation; verbundene Anbieter behalten eigene Daten- und Zugangsdaten-Grenzen.
 
 ## Häufig gestellte Fragen
 
 ### Was ist Vertriebsautomatisierung?
 
-Vertriebsautomatisierung ist der Einsatz von Software zur Automatisierung wiederkehrender Aufgaben im Vertriebsprozess, Follow-ups, Deal-Phasen-Übergänge, Lead-Zuweisung, Benachrichtigungen und Dateneingabe. Sie befreit Vertriebsteams, sich auf das Verkaufen statt auf Admin zu konzentrieren. Customermates bietet vollständige Vertriebsautomatisierung mit visuellem n8n-Workflow-Builder ab €12/Nutzer/Monat.
+Vertriebsautomatisierung automatisiert wiederkehrende Aufgaben wie Follow-ups, Deal-Phasen-Aktionen, Zuweisung, Benachrichtigungen und Dateneingabe. Customermates liefert CRM-Datensätze, REST, Webhooks, MCP und einen Community-Node; ein separater n8n-Dienst liefert visuellen Workflow-Builder und Automatisierungslaufzeit.
 
 ### Wie kann ich meinen Vertrieb automatisieren?
 
-Identifizieren Sie zunächst die wiederkehrenden Aufgaben in Ihrem Vertriebsprozess: Follow-up-Erinnerungen, Lead-Zuweisung, Benachrichtigungen bei Deal-Änderungen. Mit Customermates und der n8n-Engine erstellen Sie visuelle Workflows, die diese Aufgaben automatisch erledigen, ohne Programmierung. [Workflow-Automatisierung entdecken →](/features/workflow-automation)
+Identifizieren Sie zunächst wiederkehrende Vertriebsprozesse: Follow-up-Zeitpunkte, Lead-Zuweisung oder Benachrichtigungen bei Deal-Änderungen. Verbinden Sie Customermates mit einer separat betriebenen n8n-Instanz, deren Scheduler und externe Anbieter die Automatisierung ausführen. [Workflow-Automatisierung entdecken →](/features/workflow-automation)
 
 ### Wie viele Automatisierungen kann ich erstellen?
 
-Es gibt kein Limit. Customermates beinhaltet unbegrenzte Automatisierungen ab €12/Nutzer/Monat. Erstellen Sie so viele Workflows, wie Ihr Vertriebsprozess benötigt, und verbinden Sie 400+ Tools über die [n8n-Integration](/features/workflow-automation).
+Customermates veröffentlicht kein Versprechen unbegrenzter Automatisierung, weil es die Workflows nicht ausführt. Ihre separate [n8n-Instanz](/features/workflow-automation) und verbundene Anbieter bestimmen Workflow-, Ausführungs-, Konnektor- und Zustelllimits.
 
 ### Funktioniert die Vertriebsautomatisierung mit meinen bestehenden Tools?
 
-Ja. Die n8n-Engine unterstützt über 400 Integrationen, darunter Slack, Gmail, Outlook, Google Sheets, Buchhaltungstools und Projektmanagement-Plattformen. Wenn Ihr Tool eine API hat, können Sie es mit Customermates verbinden.
+Der separate n8n-Dienst bietet über 400 Konnektoren, darunter Slack, Gmail, Outlook, Google Sheets, Buchhaltung und Projekttools. Verbinden Sie ihn über unterstützte [Workflow-Schnittstellen](/features/workflow-automation); Anbieterabdeckung und Authentifizierung bleiben extern.
 
 ### Brauche ich technische Kenntnisse?
 
@@ -138,6 +138,6 @@ Nein. Der n8n-Workflow-Builder verwendet eine visuelle Drag-and-Drop-Oberfläche
 
 ## Starten Sie mit der Vertriebsautomatisierung
 
-Erstellen Sie Ihre erste Vertriebsautomatisierung in Minuten. Identifizieren Sie eine wiederkehrende Aufgabe, öffnen Sie den visuellen Workflow-Builder und automatisieren Sie den ersten Prozess. Beginnen Sie mit einer Follow-up-Erinnerung, dann erweitern Sie auf komplexere Workflows.
+Identifizieren Sie einen wiederkehrenden Prozess, öffnen Sie den visuellen Builder in Ihrem separaten n8n-Dienst und verbinden Sie ihn über REST, Webhooks, MCP oder den Community-Node. Beginnen Sie mit einem unterstützten CRM-Ereignis oder Feld; Zeitplanung und Zustellung bleiben extern.
 
-[Jetzt kostenlos starten →](/auth/signup) Keine Kreditkarte für die ersten sieben Tage. Alle [Lead-Management](/features/lead-management)-, [Pipeline](/features/pipeline)- und Automatisierungsfunktionen ab dem ersten Tag inklusive.
+[Jetzt kostenlos starten →](/auth/signup) Keine Kreditkarte für die ersten sieben Tage. Zentrale [Lead-Management](/features/lead-management)- und [Pipeline](/features/pipeline)-Funktionen folgen Ihrem Tarif; die Automatisierungslaufzeit bleibt separat.

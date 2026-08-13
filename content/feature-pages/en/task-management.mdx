@@ -1,11 +1,11 @@
 ---
-title: "CRM Task Management: Assign, Track & Automate"
-description: "CRM task management with tasks linked to contacts and deals. Due dates, kanban boards, recurring tasks, and n8n automation. Open-source and EU-hosted."
+title: "CRM Task Management: Assign, Link & Organize"
+description: "CRM task management with assignable tasks linked to contacts, organizations, deals, and services, plus custom fields, filtered views, MCP, API, and external n8n automation."
 featureName: Task Management
 
 hero:
   title: Task Management That Keeps Every Sales Action on Track
-  description: Create, assign, and track tasks linked to your contacts and deals. Due dates, priority levels, kanban boards, recurring tasks, and n8n automation ensure nothing falls through the cracks.
+  description: Create and assign tasks linked to contacts, organizations, deals, and services. Add typed custom fields, switch between table and Kanban views, and connect external automation through MCP, the API, or your own n8n instance.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -28,72 +28,72 @@ CRM task management is the practice of creating, assigning, and tracking action 
 
 Without integrated task management, teams rely on separate apps, sticky notes, or memory. Follow-ups get missed, handoffs between reps create information gaps, and managers lose visibility into workload distribution. A CRM with built-in task management solves these problems by making tasks a natural part of the customer workflow.
 
-Effective CRM task management means that when you open a contact record, you immediately see pending actions, completed items, and who is responsible. This context-rich approach is what separates productive sales teams from overwhelmed ones.
+Effective CRM task management means that work stays connected to the customer record it serves. The task, its assignees, its notes, and its related records remain available in one place instead of being scattered across separate lists.
 
 ## How Task Management Works in Customermates
 
-Customermates includes a complete task management system designed to integrate seamlessly with your contacts, deals, and pipelines. Every feature is available from EUR 12 per user per month (Starter tier) with no add-ons required. AI agents can also manage tasks for you: through a native MCP integration, Claude, ChatGPT, and Gemini create, assign, and complete tasks directly in the CRM.
+Customermates models tasks as first-class CRM records. Core task management is available on Starter and tasks can be linked to contacts, organizations, deals, and services. External AI clients connected through MCP can create, read, update, assign, and relate those task records.
 
-**Task creation and assignment.** Create tasks from anywhere in the system: a contact record, a deal view, or the global task list. Assign each task to a specific team member, set a due date, choose a priority level, and add a description. The creation process takes seconds and does not interrupt your workflow.
+**Task creation and assignment.** Create a named task, add notes, assign one or more users, and relate it to the CRM records that provide its context. The global task view keeps those records searchable and filterable.
 
 **Linked to contacts, deals, and organizations.** Every task can be linked to one or more contacts, organizations, or deals. When you view a contact, you see all related tasks. When you view a deal, you see what needs to happen to move it forward. This bidirectional connection keeps full context intact across your entire CRM.
 
-**Priority levels and labels.** Assign priority levels (urgent, high, medium, low) to every task. Color-coded labels make it easy to scan your task list and identify the most critical items. Custom labels let you categorize tasks by type, such as follow-up, internal review, or document preparation.
+**Typed custom fields.** Tasks support the same custom-column system as other CRM records. Add a single-select column for a priority or workflow category, a date column for a target date, or another field type that matches your process.
 
-**Due dates, reminders, and overdue alerts.** Set due dates for every task and receive reminders as deadlines approach. Overdue tasks are clearly highlighted with visual indicators so they cannot be overlooked. Configurable reminder intervals help teams stay proactive rather than reactive.
+**Dates without a hidden scheduler.** Customermates has no built-in task due-date, reminder, or overdue-notification engine. If your process needs a target date, add a date custom column and filter or sort on it. A customer-run automation can read that field and send reminders through an external service.
 
-**Recurring tasks.** Create recurring tasks for actions that repeat on a schedule. Weekly pipeline reviews, monthly account check-ins, and quarterly business reviews can all be automated as recurring task templates. When a recurring task is completed, the next instance is generated automatically.
+**Recurring work through external automation.** There is no native recurring-task scheduler. Your own n8n instance or another integration can create task records on a schedule through the REST API or MCP.
 
-**Kanban board view.** Visualize your tasks on a kanban board organized by status, priority, assignee, or any custom grouping. Drag tasks between columns to update their status. The kanban view is ideal for teams that prefer a visual approach and want to see workload distribution at a glance.
+**Kanban board view.** Add a single-select custom column and group tasks by that field in the Kanban view. Dragging a task between columns updates the selected value, so you can model a lightweight workflow without claiming a built-in task status.
 
-**List view with advanced filters.** The global task view shows all tasks across your organization with powerful filtering. Filter by assignee, due date range, status, priority, linked contact, or linked deal. Save filter presets to quickly access common views such as "my overdue tasks" or "tasks due this week."
+**Table view with filters.** The global task view supports search, filtering, sorting, pagination, and custom columns. Each user can save their own view configuration; saved views are not shared between users.
 
-**Activity timeline integration.** Completed tasks automatically appear in the activity timeline of linked contacts and deals. This creates a permanent audit trail of what was done, when, and by whom, providing context for future interactions and handoffs between team members.
+**Relations keep the context.** A task can point to contacts, organizations, deals, and services, and those records expose their related tasks. Team members can move between the work item and its customer context without duplicating either record.
 
-**Mobile access.** View and update tasks from any device through the responsive web interface. Sales reps in the field can check their task lists, mark items as completed, and create new tasks without returning to their desk.
+**Responsive web access.** Use the task view from a supported mobile browser through the responsive web interface. Customermates does not ship a native mobile app, offline record mode, or mobile push notifications.
 
-**Automated task creation with n8n.** Use the n8n automation engine to create tasks based on CRM triggers. When a new deal enters a pipeline stage, generate the tasks needed for that stage automatically. When a contact has not been contacted in 30 days, create a follow-up task for the account owner. When an email goes unanswered for 48 hours, assign a reminder task. Automation ensures routine task creation never depends on someone remembering to do it.
+**Automated task creation with your own n8n.** n8n is a separate community integration, not an embedded Customermates service. A workflow you operate can react to CRM events and create or update tasks through the community node or REST API.
 
 ## Task Management Use Cases for Sales Teams
 
-**Deal progression tasks.** When a deal moves from qualification to proposal stage, automatically generate a checklist: schedule a discovery call, send a pricing sheet, draft the proposal, get internal approval. Every deal follows a consistent process.
+**Deal progression tasks.** Relate action items to the relevant deal and assign the people responsible. If you want tasks generated from a stage change, configure that logic in a customer-run automation.
 
-**Follow-up reminders after meetings.** After logging a meeting in the CRM, create follow-up tasks with specific deadlines. Send meeting notes within 24 hours, share a proposal within three days, schedule the next call within a week. Nothing falls through the cracks.
+**Follow-up work after meetings.** Create a related task for the next action and add a custom date field if your team needs a target date. Native reminders are not included; an external workflow can deliver them.
 
-**Onboarding new customers.** When a deal is marked as won, trigger an onboarding task sequence: send a welcome email, schedule a kickoff call, create the customer account, assign a success manager. Every customer gets a consistent experience.
+**Onboarding new customers.** Keep onboarding action items linked to the won deal and customer records. Teams that need an automatically generated checklist can build it in their own n8n workflow.
 
-**Team workload balancing.** Managers can view task counts per assignee, filter by overdue status, and redistribute work when one team member is overloaded. Task-based reporting provides objective data for capacity planning.
+**Team workload review.** Filter task records by assigned user and reassign work when responsibilities change. Custom columns can capture the categories your team wants to group or report on.
 
-**Cross-department handoffs.** When sales closes a deal, tasks for the delivery or implementation team are generated automatically. The receiving team sees the full deal history and customer context without a separate briefing.
+**Cross-department handoffs.** Assign tasks to the receiving team and relate them to the deal, contacts, and organization. The relationship links preserve context; automatic generation requires an external workflow.
 
 ## Key Benefits
 
 **Context-rich task tracking.** Every task is connected to the contacts and deals it relates to. Team members never need to search for context because it is visible on the task and on the related records.
 
-**Team accountability and visibility.** Managers see all tasks across the team, filter by assignee, and identify who is overloaded and who has capacity. Completion rates and overdue counts provide objective performance metrics.
+**Team accountability and visibility.** Permissions determine who can read or manage tasks, while assignments and filters make responsibility visible. Custom fields let the company model the additional dimensions it needs.
 
-**Automated workflow tasks.** Stop relying on memory for routine task creation. n8n workflows generate tasks with the right assignees, due dates, and descriptions whenever CRM events occur.
+**External workflow tasks.** Customer-run n8n workflows can create tasks with assignees, relations, notes, and custom-field values when CRM events occur.
 
-**Flexible views for different work styles.** Kanban boards, filtered lists, and calendar views let each team member work in the format that suits them best. No forced workflow, just options.
+**Flexible views for different work styles.** Table, card, and Kanban views let each user organize tasks around their own saved configuration. There is no task calendar view.
 
 **Reduced tool sprawl.** Managing tasks inside your CRM eliminates the need for separate task management apps. Fewer tools means fewer context switches, less duplicate data entry, and simpler onboarding for new hires.
 
-**Recurring task automation.** Weekly reviews, monthly check-ins, and periodic audits run on autopilot. Set them up once and the system handles the scheduling.
+**Integration-ready records.** REST, webhooks, MCP, and the external n8n community node provide building blocks for workflows that the core task model does not schedule itself.
 
 ## Why Choose Customermates for Task Management
 
 **Integrated, not bolted on.** Task management in Customermates is deeply connected to contacts, deals, and pipelines. Tasks are first-class objects visible everywhere they are relevant, not a sidebar feature with loose links.
 
-**All features from the entry tier.** Task management including kanban views, recurring tasks, automation, reminders, priority levels, and team features is included for every user from EUR 12 per month. No add-on modules.
+**Core tasks from the entry tier.** Task records, relations, assignments, custom columns, filters, and data views are part of the core CRM on Starter. Recurrence and reminder delivery remain external workflow concerns.
 
 **Open-source flexibility.** Customermates is open source, so you can customize the task management system to fit your exact needs. Add custom fields, modify workflows, extend the API, or build integrations with external tools.
 
-**GDPR-compliant collaboration.** All task data, including notes and linked contact information, is stored in EU data centers with full GDPR compliance. Collaborate on tasks with confidence that your data handling meets European privacy standards.
+**A clear deployment choice.** The managed service uses a database in an EU region and documented subprocessors. Self-hosted teams choose and operate their own infrastructure and remain responsible for that deployment.
 
-**n8n-powered automation without a platform surcharge.** We charge nothing for the webhook and API access that drives n8n, which most CRM platforms reserve for their highest pricing tiers. The n8n instance itself is yours to run. Build sophisticated task sequences without writing code and without paying more.
+**n8n integration without bundling n8n.** REST and webhook access can drive workflows in an n8n instance you operate. Customermates does not include an n8n runtime or subscription.
 
-**Self-hostable for full control.** Deploy Customermates on your own infrastructure. All task data, automation rules, and team configurations stay on your servers under your control.
+**Self-hostable for infrastructure control.** Deploy the core CRM on your own infrastructure. Any external automation service, including n8n, is deployed and governed separately.
 
 ## Get Started with Task Management Today
 
-Start managing tasks inside your CRM in minutes. Sign up for Customermates, create your first tasks, and link them to contacts and deals. Invite your team, assign tasks with due dates, and set up n8n automation for recurring workflows. Every feature is available from day one, from EUR 12 per user per month.
+Start by creating task records, assigning teammates, and linking the relevant contacts, organizations, deals, or services. Add custom fields for the workflow dimensions you need, then connect an external automation only if your process calls for scheduling or reminders.

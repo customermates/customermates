@@ -54,7 +54,7 @@ Customermates is the mid-market CRM software that closes the gap between simple 
 
 ### Role-based permissions for every department
 
-Define granularly who can see and edit what. Sales reps see their own pipeline and contacts. Sales managers see the full team view. Account management works in separate pipelines. Customer service accesses interaction history without seeing deal values. Leadership gets dashboard-level reporting across all teams. No dedicated admin required, business users configure permissions through the UI.
+Use resource-level roles to define access across contacts, organizations, deals, services, tasks, and messaging. Permissions apply to a complete resource rather than individual fields, records, or personal team views. Separate pipelines can organize account-management work, and people with access see the same underlying records. Administrators configure these role boundaries in the interface; there is no field-level permission model.
 
 ### Multi-pipeline management
 
@@ -62,7 +62,7 @@ Run separate pipelines for different business processes: new customer acquisitio
 
 ### Management reporting and dashboards
 
-Give leadership the numbers they need without asking IT to build reports. Pipeline value by stage, conversion rates by source, team performance metrics, revenue forecasts, activity tracking, all available through built-in dashboards. Export to CSV for board presentations or connect to external BI tools via API. For a full analysis of how to measure the impact, see our [CRM ROI guide](/blog/crm-roi).
+Give leadership current CRM data without asking IT to build every view. Configurable dashboards show stored deal counts and values; Customermates does not calculate conversion metrics or revenue forecasts. Read supported data through REST for board reports or analysis in an external BI tool. For measurement guidance, see our [CRM ROI guide](/blog/crm-roi).
 
 ### Deep integration via API and n8n
 
@@ -70,7 +70,7 @@ Connect Customermates to your ERP, accounting, email, calendar, and any other sy
 
 ### GDPR-native and EU-hosted
 
-Customermates is hosted in the EU region within the European Union. GDPR compliance is built into the architecture, not bolted on as an afterthought. Data processing agreements, data export, right-to-deletion workflows, and audit logging are all included. For companies that require maximum data sovereignty, Customermates can be [self-hosted](/features/self-hosted) on your own infrastructure, the full source code is open source.
+For the hosted service, the managed database runs in an EU region. Application hosting and other providers, including US providers, are documented in the subprocessor list. Audit history is available in the product; privacy requests and external data access require your process and supported APIs. Customermates is open source and can be [self-hosted](/features/self-hosted), but deployment facts are not a compliance certification.
 
 ### AI agents that operate your mid-market CRM
 
@@ -111,7 +111,7 @@ A mid-market CRM is designed for companies with roughly 50 to 1,000 employees th
 
 ### How does Customermates handle the transition from a small business CRM to a mid-market CRM?
 
-Customermates scales seamlessly. Import your existing contacts, organizations, and deals via CSV or API. Set up additional pipelines for different business units, configure role-based permissions for each team, and activate automations, all without migrating to a different platform. The same system that works for a 5-person team works for 200 users.
+Customermates supports contacts, organizations, deals, configurable pipelines, and resource-level roles. Migrate supported records through REST or an external AI client over MCP; there is no CSV uploader. Any automation service is operated separately.
 
 ### Can Customermates integrate with our ERP and accounting system?
 
@@ -119,11 +119,11 @@ Yes. Customermates provides a full REST API and webhooks for real-time integrati
 
 ### Is Customermates suitable for companies with multiple departments and teams?
 
-Absolutely. Customermates supports multiple pipelines, role-based permissions, and team-specific views. Sales, account management, customer success, and service can all work in the same CRM with appropriate access controls. Leadership gets cross-team dashboards and reporting. No dedicated CRM administrator is required to manage this.
+Absolutely. Customermates supports multiple pipelines and resource-level permissions. Sales, account management, customer success, and service can work in the same CRM over shared accessible records, while each user's saved views and filter configurations remain personal. Leadership can use dashboards and reporting over permitted data without a shared team-view object.
 
 ### How does Customermates handle GDPR compliance for mid-market companies?
 
-Customermates is GDPR-native and hosted in the EU region. Data processing agreements, data export, right-to-deletion workflows, consent tracking, and full audit logging are built in. For maximum data sovereignty, you can self-host on your own infrastructure with full source code access. This meets the compliance requirements that European mid-market companies face.
+The hosted Customermates database runs in an EU region, while application and other providers, including US providers, are documented separately. Audit history is viewable; there is no built-in full-data exporter, consent workflow, or compliance certification. Self-hosting lets your team choose and operate application and database infrastructure, with connected providers assessed separately.
 
 ### What does "open source" mean for a mid-market CRM?
 
@@ -136,7 +136,7 @@ Initial setup takes about 2 minutes, create an account, invite your first users,
 ## Get started with Customermates for your mid-market company
 
 1. **[Create your free account](/auth/signup)**, no credit card required, first 7 days of Pro free to explore.
-2. **Import existing data**, bring in contacts, organizations, and deals via CSV or API.
+2. **Migrate supported records**, use the REST API, or hand a prepared source export to an AI agent connected over MCP. Customermates has no CSV uploader.
 3. **Set up pipelines**, configure separate pipelines for new business, account expansion, partnerships, and renewals.
 4. **Configure teams and permissions**, create user roles for each department with appropriate access levels.
 5. **Connect your systems**, integrate with ERP, email, and other tools via API and n8n.

@@ -1,11 +1,11 @@
 ---
 title: "CRM Reporting: Dashboards & Analysen"
-description: "CRM Reporting: Konfigurierbare Dashboard-Diagramme über Pipeline, Deals und Aktivität. KI-Agenten halten die Daten sauber und beantworten Fragen auf Abruf. Open-Source, EU-gehostet."
+description: "CRM Reporting mit konfigurierbaren Dashboard-Diagrammen über Pipeline, Deals und Aktivität. Externe KI-Clients fragen unterstützte Daten über MCP ab. Open Source, mit verwalteter Datenbank in einer EU-Region."
 featureName: CRM Reporting
 
 hero:
   title: CRM Reporting, das Antworten liefert statt nur Daten
-  description: Bauen Sie Dashboards aus konfigurierbaren Diagramm-Widgets über Pipeline, Deals und Aktivität. KI-Agenten halten die zugrunde liegenden Daten aktuell und beantworten Fragen auf Abruf, sodass Ihre Zahlen ohne separates BI-Tool vertrauenswürdig sind.
+  description: Bauen Sie Dashboards aus konfigurierbaren Diagramm-Widgets über Pipeline, Deals und Aktivität. Unterstützte externe KI-Clients können zulässige CRM-Daten über MCP abfragen; Client und Modell bleiben getrennt.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -46,19 +46,19 @@ Nicht jedes Team braucht die gleichen Berichte, aber diese fünf decken die Grun
 
 ## So funktioniert CRM Reporting in Customermates
 
-Customermates bietet Reporting über konfigurierbare Dashboard-Widgets über Ihre CRM-Daten, ohne ein separates BI-Tool. Zwei Dinge machen die Zahlen vertrauenswürdig: KI-Agenten halten die zugrunde liegenden Datensätze aktuell, und jedes Widget aktualisiert sich live, wenn sich Daten ändern.
+Customermates bietet Reporting über konfigurierbare Dashboard-Widgets zu Ihren CRM-Daten, ohne separates BI-Tool. Widgets aktualisieren sich bei Änderungen unterstützter Datensätze; ein externer KI-Client kann zulässige Daten über MCP abfragen.
 
-**KI hält die Daten vertrauenswürdig und beantwortet Fragen.** Ein Bericht ist nur so gut wie seine Daten. Weil KI-Agenten (Claude, ChatGPT, Gemini) die Eingabe über die native MCP-Integration übernehmen, bleiben Kontakte, Deal-Phasen und Notizen aktuell, sodass Ihre Dashboards die Realität abbilden. Sie können einen Agenten auch nach jeder Zahl fragen ("wie viel steckt in der Angebotsphase?", "welche Quelle hat letzten Monat am meisten abgeschlossen?"), und er fragt das CRM direkt ab, ohne dass ein Widget eingerichtet werden muss.
+**Externe KI-Clients können CRM-Daten aktualisieren und abfragen.** Unterstützte Clients wie Claude, ChatGPT oder Gemini können über MCP zulässige Kontakte, Deal-Felder und Notizen aktualisieren oder erlaubte Datensätze abfragen. Customermates enthält weder KI-Chat noch Modell; Client-Abo, Modellnutzung und Anbieter-Verarbeitung bleiben extern.
 
 **Pipeline-Dashboards.** Bauen Sie ein Dashboard aus Diagramm-Widgets (Balken-, Doughnut- oder Radardiagramme), die die Deal-Verteilung über Phasen und den Pipeline-Wert nach Phase zeigen. Widgets aktualisieren sich automatisch, wenn Deals fortschreiten, sodass Sie immer den aktuellen Stand Ihres Geschäfts sehen.
 
 **Umsatz- und Deal-Diagramme.** Stellen Sie gewonnene und verlorene Deals nach Vertriebsmitarbeiter, Lead-Quelle, Organisation oder jedem benutzerdefinierten Feld dar, über den Zeitraum, den Sie filtern. Identifizieren Sie, welche Kanäle die wertvollsten Deals liefern.
 
-**Aufgaben- und Aktivitätsdiagramme.** Stellen Sie Aufgaben nach Status, Verantwortlichem oder Fälligkeitsdatum dar, um den Aufwand hinter den Ergebnissen zu sehen. Vergleichen Sie Aktivitätsmuster im Team, um Coaching-Möglichkeiten frühzeitig zu erkennen.
+**Aufgaben- und Aktivitätsdiagramme.** Stellen Sie Aufgaben nach Verantwortlichem, verknüpftem Datensatz oder kundendefinierten eigenen Feldern dar. Native Aufgaben haben keine Fälligkeits- oder Statusfelder; diese Werte bilden Sie mit eigenen Feldern ab.
 
 **Filtern und Segmentieren nach jedem Feld.** Jedes Widget kann nach jedem Standard- oder benutzerdefinierten Feld gefiltert und segmentiert werden. Pipeline-Wert für eine bestimmte Region? Filtern Sie nach Ihrem benutzerdefinierten Regionsfeld. Ein Quartal mit einem anderen vergleichen? Legen Sie den Zeitraum fest. Die Filterung ist flexibel genug, um die spezifischen Fragen Ihres Unternehmens zu beantworten.
 
-**Dashboards pro Nutzer.** Jeder Nutzer baut sein eigenes Dashboard. Ein Vertriebsmitarbeiter verfolgt seine eigene Pipeline und Aufgaben; ein Manager baut eine teamweite Ansicht; ein Inhaber beobachtet die übergeordnete Pipeline-Gesundheit. Ihr Dashboard zeigt genau das, was Sie konfigurieren.
+**Dashboards pro Nutzer.** Jeder Nutzer baut ein persönliches Dashboard. Ein Vertriebsmitarbeiter verfolgt Pipeline und Aufgaben; ein Manager konfiguriert seine eigene breitere Sicht auf zulässige Datensätze. Dashboard-Konfigurationen sind persönlich und keine teamweit geteilten Objekte.
 
 ## Reporting-Best-Practices
 
@@ -70,7 +70,7 @@ Gutes Reporting bedeutet nicht nur die richtigen Tools zu haben. Es geht darum, 
 
 **Definitionen standardisieren.** Stellen Sie sicher, dass jedes Teammitglied übereinstimmt, was als qualifizierter Deal zählt, wann ein Deal in die nächste Phase wechselt und wie Aktivitäten protokolliert werden. Inkonsistente Dateneingabe produziert unzuverlässige Berichte.
 
-**Berichtslieferung automatisieren.** Nutzen Sie n8n-Automatisierung für proaktive Berichtslieferung. Planen Sie wöchentliche Pipeline-Zusammenfassungen nach Slack, lösen Sie Alarme aus, wenn der Pipeline-Wert unter einen Schwellenwert fällt, oder senden Sie automatische Leistungs-Digests jeden Montag an Teamleiter. Reporting wird zu einem lebendigen System, das Informationen zu den richtigen Personen bringt.
+**Berichtslieferung extern automatisieren.** Eine separate n8n-Instanz kann Pipeline-Zusammenfassungen über Slack oder andere Anbieter planen, kundendefinierte Schwellenwerte auswerten und Leistungs-Digests zustellen. Customermates bündelt weder n8n noch Slack, Scheduler oder Alarm-Engine.
 
 **Auf die Daten reagieren.** Das beste Reporting-System der Welt ist wertlos, wenn die Erkenntnisse nicht zu Handlung führen. Jedes Report-Review sollte mit konkreten nächsten Schritten enden: Deals für Follow-Up, Prozesse zum Anpassen, Coaching-Gespräche zum Führen oder Ressourcen zum Umverteilen.
 
@@ -78,28 +78,28 @@ Gutes Reporting bedeutet nicht nur die richtigen Tools zu haben. Es geht darum, 
 
 **Wöchentliche Pipeline-Reviews.** Starten Sie jede Woche mit einem klaren Bild Ihrer Pipeline. Prüfen Sie den Gesamtwert nach Phase, identifizieren Sie stagnierende Deals und priorisieren Sie Follow-Ups basierend auf Deal-Alter und -Wert.
 
-**Monatliches Performance-Tracking.** Vergleichen Sie Monat für Monat Metriken für gewonnene Deals, abgeschlossenen Umsatz, Konversionsraten und durchschnittliche Deal-Zykluszeit. Verfolgen Sie den Fortschritt gegenüber Zielen und erkennen Sie Trends, bevor sie zu Problemen werden.
+**Monatliches Performance-Tracking.** Prüfen Sie unterstützte Deal-Anzahlen und Werte monatlich in persönlichen Dashboards. Konversionsraten, Zykluszeit, Ziele und nutzerübergreifende Performance benötigen kundendefinierte Felder oder Berechnungen in einem separaten Reporting-System.
 
-**Lead-Quellen-Analyse.** Verstehen Sie, welche Lead-Quellen die besten Ergebnisse liefern. Vergleichen Sie Konversionsraten und Deal-Werte über Quellen hinweg, um Ihr Marketingbudget effektiver einzusetzen. Wenn Empfehlungen doppelt so häufig konvertieren wie Kaltakquise, wird Ihr Reporting das klar aufzeigen.
+**Lead-Quellen-Analyse.** Speichern Sie die Lead-Quelle in einem eigenen Feld und stellen Sie unterstützte Deal-Anzahlen oder Werte nach Quelle dar. Berechnen Sie Quellen-Konversionsraten und Attribution bei Bedarf in einem separaten Reporting-System.
 
 **Prognosen und Planung.** Nutzen Sie Pipeline-Daten und historische Konversionsraten für Umsatzprognosen. Stellen Sie den Pipeline-Wert nach Phase dar und wenden Sie Ihre eigenen Gewinnwahrscheinlichkeiten an (als benutzerdefiniertes Feld oder n8n-Berechnung), um eine realistische Sicht auf die erwarteten Einnahmen aus Ihren aktuellen Deals zu erhalten.
 
-**Vertriebscoaching-Einblicke.** Vergleichen Sie individuelle Aktivitäts- und Leistungsmetriken, um spezifische Entwicklungsbereiche zu identifizieren. Wenn ein Mitarbeiter hohe Aktivität aber niedrige Konversion hat, deuten die Daten auf Skill-Coaching hin. Hat ein anderer starke Konversion aber niedrige Aktivität, zeigen die Daten in Richtung Motivation oder Zeitmanagement.
+**Eingaben für Vertriebscoaching.** Nutzen Sie unterstützte Datensätze und kundendefinierte Felder als Coaching-Grundlage. Nutzerübergreifende Performance-Vergleiche, Konversionsraten, Ziele und Zyklusmetriken benötigen eine separate Berechnung oder ein externes Reporting-System.
 
 ## Warum Customermates für CRM Reporting?
 
-**Kein separates BI-Tool erforderlich.** Viele CRM-Plattformen zwingen Sie, Daten in ein Drittanbieter-Tool zu exportieren, was Kosten und Komplexität erhöht. Customermates beinhaltet Reporting nativ, sodass Einblicke ohne zusätzliche Software oder Integrationsaufwand verfügbar sind.
+**Native Dashboards für gespeicherte CRM-Daten.** Persönliche Dashboard-Widgets visualisieren unterstützte Anzahlen, Werte und Gruppierungen ohne separates BI-Tool. Abgeleitete Kennzahlen wie Konversionsraten, Zykluszeit, Attribution oder nutzerübergreifende Performance benötigen separat gepflegte Felder oder Berechnungen in einem externen Reporting-System.
 
 **Open Source und transparent.** Ihr Reporting läuft auf Code, den Sie einsehen und erweitern können. Keine Black-Box-Algorithmen oder versteckten Datentransformationen zwischen Ihren Rohdaten und Ihren Berichten.
 
-**EU-gehostet und DSGVO-konform.** Reporting liest dieselbe gehostete Datenbank, die in der EU-Region läuft. Analysieren Sie Kundendaten in dem Wissen, dass Ihre Reporting-Infrastruktur europäische Datenschutzstandards erfüllt.
+**EU-Datenbankregion mit dokumentierten Anbietern.** Reporting liest die verwaltete Datenbank, die in einer EU-Region läuft. Anwendungshosting und weitere Anbieter können Daten andernorts verarbeiten; diese Bereitstellungsangabe ist keine DSGVO- oder andere Compliance-Zertifizierung.
 
-**Einfache, faire Preisgestaltung.** CRM Reporting ist ab 12 EUR pro Nutzer und Monat (Starter-Stufe) enthalten. Dashboard-Diagramm-Widgets, Filter und nativer KI-/MCP-Zugang sind in jeder Stufe enthalten. Keine Kosten pro Bericht, und Sie können so viele Widgets hinzufügen, wie Sie brauchen.
+**Einfache, faire Preisgestaltung.** CRM Reporting ist ab 12 EUR pro Nutzer und Monat (Starter-Stufe) enthalten. Dashboard-Diagramm-Widgets, Filter und MCP-Zugang für externe KI-Clients sind in jeder Stufe enthalten. Keine Kosten pro Bericht, und Sie können so viele Widgets hinzufügen, wie Sie brauchen.
 
-**n8n-Automatisierung für proaktives Reporting.** Kombinieren Sie Reporting mit n8n-Automatisierung, um Digests zu planen, Alarme auszulösen und Einblicke ohne manuellen Aufwand zu liefern. Reporting wird zu einem System, das für Sie arbeitet, nicht eines, an das Sie denken müssen.
+**Separates n8n für proaktives Reporting.** Verbinden Sie Ihre eigene n8n-Instanz über dokumentierte Schnittstellen, um Digests zu planen, Schwellenwerte auszuwerten und externe Anbieter mit Alarmen zu beauftragen. n8n-Laufzeit, Anbieterzugänge, Limits, Protokolle und Kosten bleiben extern.
 
-**Self-Hosting für volle Kontrolle.** Betreiben Sie Customermates auf Ihrer eigenen Infrastruktur und behalten Sie alle Reporting-Daten auf Ihren Servern. Self-Hosting stellt sicher, dass sensible Business Intelligence Ihre Umgebung nie verlässt.
+**Self-hostbare Anwendung und Datenbank.** Betreiben Sie die Customermates-Anwendung und PostgreSQL-Datenbank auf eigener Infrastruktur. Externe KI-, Workflow- und Zustellungsanbieter erhalten weiterhin die von Ihrer Konfiguration gesendeten Daten; Self-Hosting ist keine Compliance-Zertifizierung.
 
 ## Starten Sie heute mit CRM Reporting
 
-Die Einrichtung von Reporting in Customermates erfordert keine spezielle Konfiguration. Sobald Ihr Team Deals, Kontakte und Aktivitäten erfasst, füllen sich Dashboards und Berichte automatisch. Erstellen Sie ein kostenloses Konto, beginnen Sie mit der Dateneingabe und sehen Sie, wie Ihre Geschäftseinblicke vom ersten Tag an lebendig werden.
+CRM Reporting beginnt mit persönlichen Dashboard-Widgets über zulässige Datensätze. Wenn Ihr Team Deals, Kontakte und Aktivitäten erfasst, aktualisieren sich konfigurierte Widgets mit unterstützten Daten. Erstellen Sie ein Konto, ergänzen Sie die Felder für Ihren Prozess und bauen Sie Ansichten für Ihre Geschäftsfragen.

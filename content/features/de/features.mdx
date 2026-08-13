@@ -1,11 +1,11 @@
 ---
 title: "Funktionen: Das Agentic Open-Source CRM"
-description: "Alle CRM-Funktionen auf einen Blick: Kontakte, Deals, Pipelines, native KI-Integration, n8n-Automatisierung und offene API. Eine Pipedrive-Alternative, Made in Germany. DSGVO-konform."
+description: "CRM-Kernfunktionen, MCP-Zugriff für externe KI-Clients, offene Automatisierungsschnittstellen und ein zentraler Posteingang in einem agentischen Open-Source-CRM. Eine Pipedrive-Alternative, Made in Germany."
 
 hero:
   title: CRM-Funktionen, die zählen
   titleAccent: gebaut, wie Ihr Team wirklich arbeitet.
-  description: "Alle Funktionen von Customermates im Überblick: Kontakte, Deals, Services und Aufgaben, ein zentraler Posteingang über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram, KI-Agenten, die das CRM über natives MCP bedienen, und n8n-Automatisierung. DSGVO-konform, schnell startklar und für flexible Workflows gebaut."
+  description: "Alle Funktionen von Customermates im Überblick: Kontakte, Deals, Leistungen und Aufgaben; ein zentraler Posteingang über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram; MCP-Zugriff für externe KI-Clients; und Schnittstellen für kundenseitig betriebene Automatisierung."
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -51,8 +51,8 @@ features:
         title: Ein Posteingang, jeder Kanal
         description: E-Mail, LinkedIn, WhatsApp, Instagram und Telegram in einem nativen Posteingang direkt im CRM. Threads verknüpfen sich mit dem Kontakt, der Kontext folgt der Konversation.
       - icon: Sparkles
-        title: KI, die Ihren Posteingang bedient
-        description: Dieselben Agenten, die Ihr CRM pflegen, lesen, entwerfen und senden über jeden Kanal per MCP. Antworten Sie aus Ihrer KI, prüfen Sie in der Pipeline.
+        title: Externe KI-Clients per MCP
+        description: Ein unterstützter externer Client kann erlaubte CRM- und Postfachoperationen über MCP nutzen. Client, Modell, Abonnement und Nutzung sind separat.
       - icon: MessageCircle
         title: WhatsApp, Instagram & Telegram
         description: Native Messaging-Kanäle, die wenige CRMs bieten, neben E-Mail und LinkedIn.
@@ -60,8 +60,8 @@ features:
         title: LinkedIn & Sales Navigator
         description: LinkedIn-Nachrichten plus Sales-Navigator-Suche, verbunden mit Ihren Datensätzen.
       - icon: Calendar
-        title: Kalender-Ansicht
-        description: Kalender und Termine aus einem verbundenen Konto, nur lesend, für Sie und Ihre Agenten.
+        title: Kalenderdaten, nur lesend
+        description: Kalender und Termine eines verbundenen Kontos per MCP lesen. Erstellen, Ändern und Buchen werden nicht unterstützt.
       - icon: Paperclip
         title: Nachrichten-Anhänge
         description: Dateien aus E-Mails und Chats bleiben am Thread.
@@ -70,7 +70,7 @@ features:
         description: Teamweite Posteingangs-Sichtbarkeit und ein Verlauf über jeden Kanal (ab Business).
 
   - title: Produktivität
-    subtitle: To-Dos, Organisation und tägliche Abläufe mit n8n
+    subtitle: To-Dos, Organisation und selbst definierte Workflow-Felder
     hasSecondaryBackground: true
     features:
       - icon: Bell
@@ -87,27 +87,27 @@ features:
         description: Jeden Kontakt, Deal oder Task sofort finden.
       - icon: Filter
         title: Filter & Segmente
-        description: Gespeicherte Sichten pro Team oder Workflow.
+        description: Gespeicherte Sichten für die eigenen wiederkehrenden Abläufe.
       - icon: PlusCircle
         title: Schnellerfassung
         description: Datensätze anlegen, ohne die Seite zu verlassen.
 
   - title: Datenverwaltung
-    subtitle: Daten rein und raus, Reporting, Logs
+    subtitle: Offene Datenschnittstellen und persönliches Reporting
     gridCols: grid-cols-1 md:grid-cols-2 lg:grid-cols-3
     features:
       - icon: BarChart3
         title: Reports & Dashboards
-        description: Aus CRM-Daten werden Entscheidungen. Bauen Sie Dashboards für Pipeline-Wert, Zykluszeit und Team-Auslastung. Gruppieren Sie nach beliebigen Feldern, auch eigenen, und teilen Sie Sichten gezielt im Team.
+        description: Machen Sie gespeicherte CRM-Daten nutzbar. Bauen Sie persönliche Dashboards für unterstützte Anzahlen, Werte und Gruppierungen. Zykluszeit und Team-Performance benötigen externe Berechnungen.
       - icon: Upload
-        title: Massenanlage
-        description: Datensätze über die REST API oder einen KI-Agenten per MCP anlegen. Einen CSV-Import gibt es noch nicht.
+        title: Anlage über offene Schnittstellen
+        description: Eine von Ihnen betriebene Integration kann unterstützte Datensätze über REST oder einen externen KI-Client per MCP anlegen. Es gibt keinen CSV-Importer.
       - icon: Download
-        title: Export
-        description: Jeden Datensatz jederzeit über die REST API auslesen.
+        title: REST-API-Zugriff
+        description: Unterstützte CRM-Ressourcen über die REST API für selbst betriebene Integrationen lesen. Es gibt keinen eingebauten CSV-Exporter.
       - icon: FileText
-        title: Audit-Log
-        description: Jede Änderung, jeder Akteur, lückenlos abfragbar.
+        title: Verknüpfte CRM-Datensätze
+        description: Verknüpfen Sie Kontakte, Organisationen, Deals, Services und Aufgaben über unterstützte Beziehungen.
 
   - title: Zusammenarbeit im Team
     subtitle: Mehrbenutzerfähigkeit, Rechte, Einladungen
@@ -121,7 +121,7 @@ features:
         description: Nutzer anlegen, Team sauber strukturieren.
       - icon: ShieldCheck
         title: Rollen & Rechte
-        description: Zugriff pro Objekt und Feld für Sales, Ops, Support.
+        description: Lese- und Verwaltungszugriff pro CRM-Ressource und Rolle steuern.
       - icon: Mail
         title: Einladungen
         description: Kolleginnen und Kollegen per E-Mail einladen und die Rolle direkt vergeben.
@@ -131,8 +131,8 @@ features:
     gridCols: grid-cols-1 md:grid-cols-2 lg:grid-cols-3
     features:
       - icon: Sparkles
-        title: Native KI-Agenten
-        description: Hängen Sie Claude, ChatGPT oder Gemini per MCP direkt an Ihr CRM (46 Tools). Die KI liest Pipelines, schreibt Notizen, formuliert Follow-ups und aktualisiert Deals, ohne SDK, ohne Glue Code, ohne Zwischenschicht.
+        title: Externe KI-Clients per MCP
+        description: Verbinden Sie Claude, ChatGPT, Gemini oder einen anderen unterstützten Client per MCP (46 Tools). Client und Modell sind separate Produkte.
       - icon: Zap
         title: Funktioniert mit n8n
         description: Steuern Sie Ihr eigenes n8n über CRM-Webhooks und die REST API. n8n ist ein eigenes Produkt, das Sie selbst betreiben oder abonnieren.
@@ -141,7 +141,7 @@ features:
         description: Nachgelagerte Systeme bei jedem Datensatz- und Messaging-Event auslösen.
       - icon: Code2
         title: REST API
-        description: Eigene Integrationen auf demselben OpenAPI-3.1-Modell wie die UI.
+        description: Bauen Sie eigene Integrationen auf dem dokumentierten OpenAPI-3.1-Modell.
 
   - title: Benutzeroberfläche
     subtitle: Bedienbarkeit, Struktur, Konsistenz
@@ -156,7 +156,7 @@ features:
         description: Auf fokussierte tägliche Arbeit ausgelegt.
       - icon: Smartphone
         title: Mobil bereit
-        description: Echtes Responsive auf Smartphone und Tablet.
+        description: Responsiv in unterstützten Smartphone- und Tablet-Browsern.
 
   - title: Sicherheit & Hosting
     subtitle: Datenschutz und Infrastruktur
@@ -164,18 +164,18 @@ features:
     features:
       - icon: Server
         title: Datenbank-Region EU
-        description: Die verwaltete Datenbank des gehosteten Dienstes läuft in der EU (AWS eu-central-1). Application-Hosting und weitere Anbieter stehen in unserer [Subdienstleisterliste](/subprocessors).
+        description: Die verwaltete Datenbank des gehosteten Dienstes läuft in einer EU-Region. Application-Hosting und weitere Anbieter, darunter US-Anbieter, stehen in unserer [Subdienstleisterliste](/subprocessors).
       - icon: ShieldCheck
-        title: Self-Hosting unter AGPL
-        description: Betreiben Sie alles auf eigener Infrastruktur mit Docker Compose und entscheiden Sie selbst, wo die Daten liegen.
+        title: Self-Hosting des AGPL-Kerns
+        description: Betreiben Sie Kern-CRM-Anwendung und PostgreSQL mit Starter-Berechtigungen. Postfach und Kalenderansicht bleiben Managed-Cloud-Funktionen; verbundene Anbieter bleiben separat.
 
 why:
   title: Warum Customermates?
-  description: Entwickelt für Teams, die Datenschutz, Einfachheit, Open Source und Workflows mit nativer KI-Integration schätzen
+  description: Entwickelt für Teams, die Datenschutz, Einfachheit, Open Source und agentengestützte Workflows schätzen
   features:
     - icon: Rocket
       title: Schnelles Setup
-      description: Customermates funktioniert ohne Setup oder Schulung. Anmelden und direkt produktiv arbeiten. Ideal für Teams, die keine Zeit für komplexe Implementierungen haben.
+      description: Erstellen Sie einen Arbeitsbereich und Datensätze ohne verpflichtendes Implementierungsprojekt. Aufwand für Migration und externe Integrationen hängt von Ihren Daten und Systemen ab.
     - icon: LayoutGrid
       title: Starker Funktionsumfang
       description: Das System enthält nur Funktionen, die Teams im Alltag wirklich benötigen. Keine überladenen Module, keine unnötigen Menüs und keine Funktionstiefe, die niemand nutzt.
@@ -184,17 +184,17 @@ why:
       description: Webhooks und die REST API verbinden Customermates mit Ihrer eigenen n8n-Instanz und von dort mit hunderten Tools. Workflows können komplett individuell aufgebaut werden, vom Lead-Eingang bis zur Service-Abwicklung.
     - icon: ShieldCheck
       title: Offene Infrastruktur
-      description: Die Datenbank des gehosteten Dienstes läuft in der EU, jeder eingesetzte Anbieter steht in der Subdienstleisterliste, und die gesamte Anwendung lässt sich unter AGPL selbst hosten, wenn die Daten auf Ihren Servern liegen sollen.
+      description: Die verwaltete Datenbank läuft in einer EU-Region und Anbieter stehen in der Subdienstleisterliste. Kern-CRM-Anwendung und PostgreSQL lassen sich mit Starter-Berechtigungen selbst hosten; verbundene Anbieter bleiben separat.
     - icon: Sparkles
       title: Einfache Bedienbarkeit
       description: Die Oberfläche ist bewusst reduziert und logisch aufgebaut. Nutzer finden alle wichtigen Funktionen sofort und können ohne Einarbeitung effizient arbeiten.
     - icon: DollarSign
       title: Keine versteckten Kosten
-      description: Keine versteckten Kosten, keine Add-ons und kein Feature-Overhead. Teams zahlen nur das, was sie tatsächlich nutzen.
+      description: Veröffentlichte Tarife nennen den enthaltenen Customermates-Umfang. Externe KI-, Automatisierungs-, Nachrichten- und weitere Anbieter behalten eigene Abonnements und Nutzungskosten.
 
 cta:
   action: Bereit loszulegen?
-  description: Starten Sie noch heute mit Customermates und wechseln Sie zu einem Open-Source-CRM entwickelt für native KI-Integration mit flexiblen Workflows.
+  description: Starten Sie noch heute mit Customermates und wechseln Sie zu einem agentischen Open-Source-CRM für flexible Workflows und externe KI-Clients per MCP.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen

@@ -1,11 +1,11 @@
 ---
-title: "Lead-Tracking Software: Leads erfassen, bewerten und konvertieren"
-description: "Lead-Tracking Software, die Leads erfasst, bewertet und durch Ihre Pipeline leitet. Quellenattribution, Konversions-Tracking und automatisierte Follow-ups."
+title: "Lead-Tracking Software: Leads qualifizieren und konvertieren"
+description: "Lead-Tracking Software mit eigenen Feldern und Pipeline-Phasen. Speichern Sie Quellen und Qualifikation; Scoring, Routing und automatische Follow-ups laufen extern."
 featureName: Lead-Tracking
 
 hero:
   title: "Lead-Tracking Software: Kein Lead geht mehr verloren"
-  description: Verfolgen Sie jeden Lead vom Erstkontakt bis zum Abschluss. KI-Agenten halten jeden Datensatz aktuell, ein natives gemeinsames Postfach protokolliert Kontaktpunkte aus E-Mail, LinkedIn, WhatsApp, Instagram und Telegram, und Scoring plus Quellenattribution halten Ihr Team auf die vielversprechendsten Leads fokussiert.
+  description: Verfolgen Sie jeden Lead vom Erstkontakt bis zum Abschluss mit Pipeline-Phasen, eigenen Feldern und unterstütztem Postfachkontext. Ein konfigurierter externer KI-Client kann zulässige Datensätze per MCP aktualisieren; Scoring, Routing und Anreicherung bleiben extern.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -14,7 +14,7 @@ hero:
 
 cta:
   action: Bereit, Ihre Leads zu verfolgen?
-  description: Beginnen Sie noch heute mit dem Erfassen, Bewerten und Konvertieren Ihrer Leads mit Customermates, dem Open-Source CRM für moderne Vertriebsteams.
+  description: Beginnen Sie mit Tracking, Qualifizierung und Konvertierung Ihrer Leads. Speichern Sie Werte in eigenen Feldern und verbinden Sie für Scoring oder Routing einen separaten Workflow.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -35,55 +35,55 @@ Effektives Lead-Tracking beseitigt diese blinden Flecken. Jeder Lead wird mit Qu
 | Funktion | Customermates | Pipedrive | HubSpot | Salesforce | Freshsales |
 |----------|--------------|-----------|---------|------------|------------|
 | Preis/Nutzer | Ab 12 €/Monat | 14 $/Monat | Kostenlos (eingeschränkt) | 25 $/Monat | 9 $/Monat |
-| Lead-Scoring | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusAvailable /> | <StatusAvailable /> |
+| Natives Lead-Scoring | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> | <StatusAvailable /> | <StatusAvailable /> |
 | Quellenattribution | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> |
-| Workflow-Automatisierung | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
+| Eingebaute Workflow-Engine | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
 | Benutzerdefinierte Felder (10 Typen) | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
-| EU/DSGVO-Hosting | <StatusAvailable /> | <StatusPartial /> | <StatusUnavailable /> | <StatusPartial /> | <StatusUnavailable /> |
+| Gehostete Datenbank in einer EU-Region | <StatusAvailable /> | <StatusPartial /> | <StatusUnavailable /> | <StatusPartial /> | <StatusUnavailable /> |
 | Open Source | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 | Self-Hosting-Option | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 
 ## So funktioniert Lead-Tracking in Customermates
 
-Customermates bietet Ihnen durchgängiges Lead-Tracking, vom ersten Klick bis zum unterschriebenen Vertrag, mit voller Pipeline-Transparenz. Zwei native Fähigkeiten übernehmen die Hauptarbeit: KI-Agenten (Claude, ChatGPT, Gemini) lesen und beschreiben das CRM über die MCP-Integration und halten Datensätze aktuell, und das gemeinsame Postfach zieht jedes Gespräch aus E-Mail, LinkedIn, WhatsApp, Instagram und Telegram auf den Lead-Datensatz. Das Kern-Lead-Tracking ist ab der Starter-Stufe enthalten; das gemeinsame Postfach ab der Pro-Stufe.
+Customermates verfolgt Leads als Kontakte und Deals mit konfigurierbaren Phasen, eigenen Feldern und unterstütztem Kommunikationskontext. Ein separat konfigurierter externer KI-Client kann zulässige Datensätze per MCP aktualisieren; das gemeinsame Postfach bringt unterstützte Kanäle ab Pro ins CRM. Customermates berechnet keine Lead-Scores, reichert keine Datensätze an, routet keine Leads und führt keine Nurture-Sequenzen aus.
 
-**Lead-Erfassung und -Erstellung.** Erstellen Sie Leads manuell oder automatisch über n8n-Integrationen. Wenn ein Interessent ein Webformular ausfüllt, auf eine Anzeige klickt oder eine Ressource herunterlädt, kann ein n8n-Workflow einen Kontakt und Deal in Customermates mit Quelldaten, UTM-Parametern und benutzerdefinierten Feldern erstellen. Kein Lead geht verloren.
+**Lead-Erfassung und -Erstellung.** Erstellen Sie unterstützte Datensätze manuell oder über eine separate n8n-Integration. Ein externer Formular- oder Anzeigenanbieter kann Daten an einen kundeneigenen Workflow senden, der per REST Kontakt und Deal mit Quellen-, UTM- und eigenen Feldwerten anlegt. Customermates besitzt keine native Formular- oder Capture-Engine.
 
 **Quellenattribution.** Halten Sie genau fest, woher jeder Lead kommt: organische Suche, bezahlte Anzeigen, Empfehlungen, Social Media, Veranstaltungen oder andere Kanäle. Ordnen Sie Leads bestimmten Kampagnen, Landingpages oder Inhalten zu. Diese Daten sind die Grundlage, um zu verstehen, welche Marketingausgaben echte Pipeline erzeugen, nicht nur Klicks.
 
-**Lead-Scoring.** Definieren Sie Bewertungsregeln basierend auf demografischer Passung, firmografischen Daten, Engagement-Signalen und Verhaltens-Triggern. Erhöhen Sie Scores, wenn ein Lead Ihre Preisseite besucht, E-Mails öffnet oder eine Demo anfordert. Reduzieren Sie Scores bei Inaktivität. n8n-Workflows berechnen und aktualisieren Scores automatisch, damit Ihr Team immer weiß, welche Leads sofortige Aufmerksamkeit verdienen und welche in eine [Nurture-Sequenz](/features/follow-up) gehören.
+**Externes Lead-Scoring.** Definieren Sie benötigte Qualifizierungswerte in eigenen Feldern. Ein separat betriebener Workflow kann externe Datenanbieter aufrufen, einen Score aus freigegebenen Eingaben berechnen und ihn per REST zurückschreiben. Customermates besitzt keine Engine für Lead-Scoring, Website-Verhalten, Anreicherung oder [Nurture-Sequenzen](/features/follow-up).
 
 **Pipeline-Phasen-Tracking.** Bewegen Sie Leads durch klar definierte Phasen: neuer Lead, kontaktiert, qualifiziert, Angebot gesendet, Verhandlung, gewonnen oder verloren. Phasen-Tracking zeigt Ihnen genau, wo jeder Interessent steht, und deckt Engpässe auf, an denen Leads stagnieren. Kombinieren Sie es mit dem [Pipeline-Management](/features/pipeline) für einen vollständigen Überblick.
 
-**Konversions-Tracking.** Messen Sie Phase-zu-Phase-Konversionsraten über Ihren gesamten Funnel. Verfolgen Sie, wie viele Leads von MQL zu SQL konvertieren, von SQL zu Opportunity und von Opportunity zu Kunde. Konversionsdaten zeigen, welche Phasen Aufmerksamkeit brauchen, und helfen Ihnen, Umsätze präzise zu prognostizieren.
+**Konversionskontext.** Nutzen Sie konfigurierte Phasen und Dashboard-Widgets für aktuelle gespeicherte Anzahlen und Werte. Customermates berechnet weder einen festen MQL-zu-SQL-Funnel noch ein prädiktives Konversionsmodell oder Umsatzprognosen; analysieren Sie solche Metriken bei Bedarf extern.
 
 **Aktivitäts-Tracking.** Protokollieren Sie jeden Kontaktpunkt bei einem Lead-Datensatz: E-Mails, Anrufe, Meetings, Notizen und Aufgaben. Mit verbundenem gemeinsamem Postfach (Pro-Stufe) werden Nachrichten aus E-Mail, LinkedIn, WhatsApp, Instagram und Telegram automatisch beim Lead protokolliert. Die vollständige Aktivitäts-Timeline gibt Ihrem Team Kontext für jedes Gespräch. Jeder kann einen Lead übernehmen und fortsetzen, ohne zu fragen: "Was war das Letzte?"
 
-**Lead-Zuweisung und -Routing.** Leiten Sie Leads sofort an den richtigen Vertriebsmitarbeiter weiter, basierend auf Gebiet, Lead-Score, Produktinteresse oder Round-Robin-Regeln. Automatisiertes Routing über n8n reduziert die Reaktionszeit von Stunden auf Sekunden, und schnellere Reaktion korreliert direkt mit höherer Konversion.
+**Externe Lead-Zuweisung und Routing.** Ein separater n8n-Workflow kann Region, extern berechneten Score, Produktinteresse oder Round-Robin-Logik auswerten und unterstützte Zuständigkeitsfelder per REST schreiben. Customermates besitzt keine native Routing-Engine.
 
 ## Zentrale Vorteile von Lead-Tracking Software
 
 **Wissen, welche Kanäle Umsatz bringen.** Quellenattribution verbindet Marketingausgaben mit Pipeline und abgeschlossenen Deals. Hören Sie auf zu raten, welche Kampagnen funktionieren, und verteilen Sie Budget basierend auf tatsächlicher Lead-Qualität und Konversionsdaten.
 
-**Wertvolle Leads priorisieren.** Lead-Scoring trennt heiße Interessenten von bloßen Informationssammlern. Ihr Team verbringt seine Zeit mit Leads, die die höchste Konversionswahrscheinlichkeit haben, während Leads mit niedrigerer Priorität in automatisierte Nurture-Workflows eintreten.
+**Mit gespeicherten Qualifikationsdaten priorisieren.** Halten Sie die Kriterien Ihres Teams in eigenen Feldern fest. Ein externer Anbieter oder Workflow kann Scores berechnen und Nurturing separat koordinieren; Customermates berechnet keine Konversionswahrscheinlichkeit.
 
-**Schneller reagieren, mehr konvertieren.** Studien zeigen konsistent, dass eine Reaktion innerhalb von fünf Minuten die Konversionsrate dramatisch steigert. Automatisiertes Lead-Routing stellt sicher, dass neue Leads sofort einen Mitarbeiter erreichen.
+**Mit definiertem Prozess reagieren.** Studien zeigen, dass schnelle Antworten wichtig sind. Nutzen Sie Zuständigkeiten und Datensätze in Customermates; automatisches Routing oder Zustell-Timing muss in einem separaten kundeneigenen Workflow laufen.
 
 **Funnel-Engpässe identifizieren.** Phase-für-Phase-Konversionsmetriken zeigen genau, wo Leads abspringen. Wenn 80 % der qualifizierten Leads in der Angebotsphase stagnieren, wissen Sie, wo Sie Ihren Prozess verbessern müssen.
 
-**Institutionelles Wissen aufbauen.** Jeder Lead hat eine vollständige Historie von Interaktionen, Score-Änderungen und Phasenübergängen. Diese Daten sind unschätzbar, um Ihren Vertriebsprozess zu verfeinern, neue Mitarbeiter einzuarbeiten und zu verstehen, was gewonnene von verlorenen Deals unterscheidet.
+**Institutionelles Wissen aufbauen.** Unterstützte Nachrichten, Notizen, Aufgaben, eigene Werte und Phasenwechsel liefern dort Kontext, wo sie erfasst werden. Extern berechnete Scores bleiben gewöhnliche Feldwerte statt nativer Score-Historie oder vollständigem Audit-Trail.
 
 **Vertrieb und Marketing ausrichten.** Wenn beide Teams Lead-Daten in einem CRM teilen, sieht Marketing, welche Leads konvertieren, und der Vertrieb sieht, woher Leads stammen. Diese gemeinsame Transparenz schafft eine Feedbackschleife, die die Lead-Qualität über die Zeit verbessert.
 
 ## Häufige Lead-Tracking-Workflows
 
-**Inbound-Lead-Erfassung.** Ein Interessent füllt ein Formular auf Ihrer Website aus. Ein n8n-Workflow erstellt einen Kontakt und Deal in Customermates, setzt Lead-Quelle und Kampagne, berechnet einen initialen Score basierend auf den Formulardaten und leitet den Lead an den passenden Mitarbeiter weiter, alles innerhalb von Sekunden.
+**Inbound-Lead-Erfassung.** Ein externes Formular sendet an einen separat betriebenen n8n-Workflow. Er kann per REST unterstützte CRM-Datensätze anlegen, Quellenwerte speichern, extern einen Score berechnen und ein freigegebenes Zuständigkeitsfeld schreiben. Laufzeit, Mapping, Routing, Limits und Timing bleiben extern.
 
-**Lead-Scoring-Automatisierung.** Erstellen Sie Scoring-Workflows, die in Echtzeit aktualisieren. Fügen Sie Punkte hinzu, wenn ein Lead eine E-Mail öffnet, Ihre Preisseite besucht oder Ihrem idealen Kundenprofil entspricht. Ziehen Sie Punkte nach 30 Tagen Inaktivität ab. Lösen Sie einen Alarm aus, wenn ein Lead Ihren Vertriebsbereitschafts-Schwellenwert überschreitet.
+**Externe Lead-Scoring-Automatisierung.** Ein kundeneigener Workflow kann erlaubte Signale externer Anbieter empfangen, einen Score berechnen und ihn in ein eigenes Feld schreiben. Echtzeit-Updates, Inaktivitätsprüfungen, Schwellenwerte und Alarme gehören zu diesem Workflow und seinen Anbietern.
 
-**Lead-Nurture-Sequenzen.** Leads, die noch nicht kaufbereit sind, treten in automatisierte [Follow-up-Sequenzen](/features/follow-up) ein. Senden Sie Bildungsinhalte, teilen Sie Fallstudien und halten Sie regelmäßige Kontaktpunkte aufrecht. Wenn Engagement-Signale Kaufabsicht anzeigen, eskalieren Sie den Lead an den Vertrieb.
+**Externe Lead-Nurture-Sequenzen.** Ein separater [Follow-up-Anbieter](/features/follow-up) kann Inhalte senden und eine Kadenz betreiben. Ein kundeneigener Workflow kann freigegebene Ergebnisse in CRM-Felder schreiben; Customermates versendet einzelne Nachrichten statt automatisierter Sequenzen.
 
-**Lead-Recycling.** Wenn ein Lead erkaltet, verschieben Sie ihn in eine Recycling-Phase mit geplantem Re-Engagement in 90 oder 180 Tagen. Automatisierte Erinnerungen bringen recycelte Leads zum richtigen Zeitpunkt zurück, viele Deals werden beim zweiten oder dritten Anlauf abgeschlossen.
+**Lead-Recycling.** Verschieben Sie einen Lead in eine Recycling-Phase und speichern Sie das nächste Aktionsdatum in einem eigenen Feld. Ein separat betriebener Scheduler kann es nach 90 oder 180 Tagen auswerten und extern eine Benachrichtigung senden; Customermates sendet keine native Erinnerung.
 
 **Quellen-Performance-Reporting.** Verfolgen Sie Lead-Volumen, Konversionsrate, durchschnittlichen Deal-Wert und Umsatz nach Quelle. Monatliche Berichte zeigen Ihnen genau, welche Kanäle skaliert werden sollten und welche unterperformen.
 
@@ -91,17 +91,17 @@ Customermates bietet Ihnen durchgängiges Lead-Tracking, vom ersten Klick bis zu
 
 ## Warum Customermates für Lead-Tracking?
 
-**Open Source und transparent.** Customermates ist vollständig Open Source. Ihre Lead-Daten, Scoring-Logik und Routing-Regeln laufen auf Code, den Sie einsehen, prüfen und anpassen können. Keine Blackbox-Algorithmen, die entscheiden, welche Leads Ihr Team sieht.
+**Open Source und transparent.** Customermates ist Open Source; Sie können seine CRM-Schnittstellen prüfen und anpassen. Scoring-Logik, Routing-Regeln, Anreicherung und Sequenzzustellung bleiben in separaten Systemen, die Sie auswählen und betreiben.
 
-**EU-gehostet und DSGVO-konform.** Alle Lead-Daten werden in europäischen Rechenzentren gespeichert, mit vollständiger DSGVO-Konformität. Verarbeiten Sie Interessentendaten mit Zuversicht, Consent-Tracking, Aufbewahrungsfristen und Recht auf Löschung sind in die Plattform integriert.
+**EU-Datenbankregion mit dokumentierten Anbietern.** Die gehostete Datenbank läuft in einer EU-Region. Anwendungshosting und verbundene Anbieter, darunter US-Anbieter, können Daten andernorts verarbeiten; das ist keine DSGVO- oder andere Compliance-Zertifizierung.
 
-**Ab 12 € pro Nutzer und Monat.** Lead-Scoring, Quellenattribution, Pipeline-Tracking, Routing-Automatisierung, benutzerdefinierte Felder und nativer KI-/MCP-Zugang sind ab der Starter-Stufe enthalten. Das gemeinsame Postfach ist ab der Pro-Stufe für 29 € enthalten. Keine Kosten pro Lead. Keine versteckten Gebühren.
+**Ab 12 € pro Nutzer und Monat.** Pipeline-Phasen, eigene Felder, REST, Webhooks und MCP starten mit Starter. Lead-Scoring, Routing, Anreicherung, n8n und KI-Clients bleiben separat. Das gemeinsame Postfach startet mit Pro bei 29 €.
 
-**n8n-Automatisierungsengine.** Erstellen Sie ausgefeilte Lead-Erfassungs-, Scoring-, Routing- und Nurture-Workflows mit der visuellen n8n-Automatisierungsengine. Verbinden Sie 400+ Tools, darunter Ihre Formulare, Werbeplattformen, E-Mail-Systeme und [CRM-Integrationen](/features/crm-integration), ohne Code zu schreiben.
+**Separate n8n-Automatisierung.** Verbinden Sie eine eigene n8n-Instanz über REST, Webhooks, MCP oder Community-Node. Visueller Builder, Formulare, Anzeigenplattformen, Scoring, Routing, E-Mail-Zustellung, 400+ Konnektoren, Tarife, Limits, Logs und Kosten bleiben extern.
 
-**Self-Hosting für volle Kontrolle.** Betreiben Sie Customermates auf Ihrer eigenen Infrastruktur und behalten Sie alle Interessentendaten auf Ihren Servern. Self-Hosting gibt Ihnen vollständige Kontrolle über Lead-Daten, Scoring-Algorithmen und Compliance-Anforderungen.
+**Self-Hosting des Kern-CRM.** Betreiben Sie Customermates-Anwendung und PostgreSQL-Datenbank mit Starter-Berechtigungen auf Ihrer Infrastruktur. Verbundene KI-, Workflow-, Messaging- und Datenanbieter erhalten weiterhin, was Ihre Konfiguration sendet.
 
-**KI-Agenten bedienen das CRM.** Über die native MCP-Integration (46 Tools) reichern KI-Agenten wie Claude, ChatGPT und Gemini Lead-Datensätze an, fassen Gesprächsverläufe zusammen und entwerfen das nächste Follow-up. Die Daten bleiben aktuell, weil der Agent die Eingabe übernimmt, nicht der Mitarbeiter. KI hilft Ihrem Team, intelligenter zu arbeiten, ohne das menschliche Urteilsvermögen zu ersetzen, das Deals abschließt.
+**Externe KI-Clients bedienen zulässige CRM-Daten.** Unterstützte Clients wie Claude, ChatGPT oder Gemini können mit 46 MCP-Tools Datensätze aktualisieren, zulässigen Kontext zusammenfassen und ein Follow-up entwerfen. Customermates enthält weder KI-Client noch Modell, Scoring oder Anreicherung; separate Anbieter verantworten die Ergebnisse.
 
 ## Häufig gestellte Fragen
 
@@ -112,14 +112,14 @@ Lead-Tracking im CRM bedeutet, jeden potenziellen Kunden in Ihrem System zu erfa
 Lead-Scoring weist Leads numerische Werte zu, basierend auf Kriterien, die Sie definieren, wie Jobtitel, Unternehmensgröße, Website-Verhalten und E-Mail-Engagement. Leads, die Ihrem idealen Kundenprofil entsprechen und Kaufsignale zeigen, erhalten höhere Scores, was Ihrem Team hilft, die Ansprache zu priorisieren.
 
 **Was ist der Unterschied zwischen Lead-Tracking und Lead-Management?**
-Lead-Tracking konzentriert sich auf die Überwachung, wo sich Leads in Ihrer Pipeline befinden, und die Messung ihres Fortschritts. Lead-Management ist die umfassendere Disziplin, die Tracking plus Lead-Generierung, Qualifizierung, Nurturing und Routing umfasst. Customermates deckt den gesamten [Lead-Management](/features/lead-management)-Lebenszyklus ab.
+Lead-Tracking konzentriert sich auf die Überwachung, wo sich Leads in Ihrer Pipeline befinden, und die Messung ihres Fortschritts. Lead-Management ist die umfassendere Disziplin, die Tracking plus Lead-Generierung, Qualifizierung, Nurturing und Routing umfasst. Customermates liefert CRM-Datensätze und offene Schnittstellen für unterstützte Teile dieses Lebenszyklus; Generierung, Nurturing und Routing bleiben extern.
 
 **Kann ich nachverfolgen, woher meine Leads kommen?**
 Ja. Customermates unterstützt Quellenattribution über benutzerdefinierte Felder und n8n-Integrationen. Sie können UTM-Parameter, Kampagnennamen, Empfehlungsquellen und Werbekanäle für jeden Lead erfassen, und dann auswerten, welche Quellen die hochwertigste Pipeline generieren.
 
 **Was kostet Lead-Tracking Software?**
-Die Preise variieren stark. Salesforce verlangt ab 25 $/Nutzer/Monat, Pipedrive startet bei 14 $/Nutzer/Monat, und viele Tools beschränken Lead-Scoring auf Premium-Stufen. Customermates bietet alle Lead-Tracking-Funktionen ab 12 €/Nutzer/Monat ohne separates Lead-Scoring-Add-on.
+Die Preise variieren stark. Salesforce verlangt ab 25 $/Nutzer/Monat, Pipedrive startet bei 14 $/Nutzer/Monat, und viele Tools beschränken Lead-Scoring auf Premium-Stufen. Customermates startet bei 12 €/Nutzer/Monat für Kern-Tracking und besitzt kein natives Lead-Scoring-Add-on.
 
 ## Starten Sie heute mit Lead-Tracking
 
-Beginnen Sie in wenigen Minuten mit dem Tracking Ihrer Leads in Customermates. Richten Sie Ihre Pipeline-Phasen ein, konfigurieren Sie Ihre Lead-Quellen und erstellen Sie Ihren ersten Scoring-Workflow. Jede Funktion, Scoring, Attribution, Routing, Konversions-Tracking, steht ab dem ersten Tag ohne Premium-Upgrade zur Verfügung. Registrieren Sie sich für ein kostenloses Konto und übernehmen Sie die Kontrolle über Ihren Lead-Funnel.
+Beginnen Sie mit Pipeline-Phasen, eigenen Feldern und gespeicherten Quellendaten. Für Scoring, Routing, Anreicherung oder Nurturing verbinden Sie separate Workflows und Anbieter über offene Schnittstellen. Registrieren Sie sich und starten Sie mit den CRM-Funktionen Ihres Tarifs.

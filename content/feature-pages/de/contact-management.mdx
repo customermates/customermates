@@ -1,11 +1,11 @@
 ---
 title: "Kundenverwaltung: Kontakte zentral verwalten"
-description: "Kundenverwaltung Software gesucht? Kontakte, Organisationen und Geschäftsbeziehungen an einem Ort. Open-Source CRM mit Adressverwaltung und DSGVO-Hosting."
+description: "Kundenverwaltung Software für Kontakte, Organisationen und Geschäftsbeziehungen. Open-Source-Kern mit Adressverwaltung und verwalteter Datenbank in einer EU-Region."
 featureName: Kundenverwaltung
 
 hero:
   title: "Kundenverwaltung Software: Alle Kontakte an einem Ort"
-  description: Verwalten Sie Kontakte, Organisationen und Geschäftsbeziehungen zentral. Suchen, filtern, segmentieren und individualisieren Sie Ihre Adressverwaltung ohne Limits.
+  description: Verwalten Sie Kontakte, Organisationen und Geschäftsbeziehungen zentral. Suchen, filtern und segmentieren Sie mit Einfachauswahlfeldern und individualisieren Sie Ihre Adressverwaltung mit typisierten Feldern.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -35,11 +35,11 @@ Dabei geht es um mehr als nur Adressen speichern. Moderne Kundenverwaltung Softw
 | Feature | Customermates | HubSpot Free | CentralStation | sevDesk | Zoho CRM |
 |---------|--------------|--------------|----------------|---------|----------|
 | Preis/Nutzer | Ab 12 €/Monat | Kostenlos (2 Nutzer) | Kostenlos (3 Nutzer) | Ab 8,90 €/Mo | Ab 14 €/Mo |
-| Unbegrenzte Kontakte | <StatusAvailable /> | <StatusAvailable /> | 200 max | <StatusPartial /> | 5.000 max |
+| Kontaktdatensätze | <StatusAvailable /> | <StatusAvailable /> | 200 max | <StatusPartial /> | 5.000 max |
 | Custom Fields | <StatusAvailable /> | <StatusPartial /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusPartial /> |
-| DSGVO-Hosting (EU) | <StatusAvailable /> | <StatusUnavailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> |
+| Verwaltete Datenbank in einer EU-Region | <StatusAvailable /> | <StatusUnavailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> |
 | Open Source | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
-| Automatisierung | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusPartial /> |
+| Schnittstellen für externe Automatisierung | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusPartial /> |
 | API-Zugang | <StatusAvailable /> | <StatusPartial /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> |
 | Self-Hosting | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 
@@ -81,7 +81,7 @@ Den richtigen Kontakt finden dauert Sekunden. Customermates bietet:
 
 ### Aktivitäts-Timeline
 
-Jeder Kontaktdatensatz enthält eine chronologische Timeline aller zugehörigen Aktivitäten: E-Mails, Notizen, Aufgaben, Deals und Änderungen. Jedes Teammitglied sieht sofort den vollen Kontext, kein Nachfragen, kein Suchen in alten E-Mails.
+Jeder Kontaktdatensatz kann unterstützte Nachrichten, Notizen, verknüpfte Aufgaben und Deal-Kontext zeigen, soweit das Produkt sie erfasst. Berechtigte Teammitglieder sehen diesen Kontext; beschreiben Sie ihn nicht als vollständiges Änderungsprotokoll oder Compliance-Audit.
 
 Die Timeline macht den Unterschied zwischen einer reinen Adressverwaltung und einer echten Kundenverwaltung. Sie beantwortet nicht nur "Wer ist dieser Kontakt?", sondern auch "Was ist die Geschichte dieser Beziehung?". Neue Teammitglieder können sich in Minuten einarbeiten, statt Kollegen nach dem aktuellen Stand fragen zu müssen.
 
@@ -89,43 +89,43 @@ Die Timeline macht den Unterschied zwischen einer reinen Adressverwaltung und ei
 
 Umstieg leicht gemacht:
 
-- **CSV-Import** mit intelligenter Feldzuordnung, migrieren Sie von Excel, Google Sheets oder einer anderen Adressverwaltung Software
-- **CSV-Export** jederzeit, Ihre Daten gehören Ihnen
+- **Migration über REST oder MCP**, nachdem Quelldaten außerhalb von Customermates aufbereitet und zugeordnet wurden
+- **Datenzugriff über REST oder MCP** für unterstützte Datensätze; ein eigener Export-Workflow fehlt
 - **API-Zugang** für automatisierte Synchronisation mit anderen Systemen
 
-### Tags und Segmentierung
+### Custom Fields und Segmentierung
 
-Organisieren Sie Kontakte mit Tags für gezielte Segmente: nach Branche, Lead-Quelle, Region oder beliebigen Kriterien. Tags ermöglichen schnelle Listen für Ansprache, Reporting und [automatisierte Workflows](/features/workflow-automation).
+Organisieren Sie Kontakte mit Einfachauswahlfeldern für Segmente wie Branche, Lead-Quelle, Region oder eigene Kriterien. Kombinieren Sie diese Felder mit persönlichen gespeicherten Filtern; Customermates besitzt kein Datensatz-Tag-Modell, während Ansprache und [automatisierte Workflows](/features/workflow-automation) extern bleiben.
 
-Kombinieren Sie Tags mit erweiterten Filtern, um Segmente wie "Alle Agenturen in NRW mit offenen Deals über 5.000 €" in Sekunden zu erstellen. Diese Segmente lassen sich als Vorlagen speichern und jederzeit aktualisiert abrufen, ideal für gezielte Vertriebskampagnen oder regelmäßige Bestandskundenaktionen.
+Kombinieren Sie Einfachauswahlfelder mit erweiterten Filtern, um Segmente wie "Alle Agenturen in NRW mit offenen Deals über 5.000 €" zu bilden. Gespeicherte Filter sind persönlich statt teamweit geteilt; gezielte Kampagnen oder Bestandskundenaktionen laufen in separaten Outreach-Tools.
 
 ## Kundenverwaltung in verschiedenen Branchen
 
-Kundenverwaltung ist kein Einheitsthema. Je nach Branche und Geschäftsmodell unterscheiden sich die Anforderungen erheblich. Was eine Digitalagentur braucht, unterscheidet sich grundlegend von einem Handwerksbetrieb oder einer Unternehmensberatung. Entscheidend ist, dass sich die Kundenverwaltung Software an Ihren Arbeitsalltag anpasst, durch Custom Fields, flexible Tags und konfigurierbare Ansichten.
+Kundenverwaltung ist kein Einheitsthema. Je nach Branche und Geschäftsmodell unterscheiden sich die Anforderungen erheblich. Was eine Digitalagentur braucht, unterscheidet sich grundlegend von einem Handwerksbetrieb oder einer Unternehmensberatung. Entscheidend ist, dass sich die Kundenverwaltung Software an Ihren Arbeitsalltag anpasst, durch Custom Fields, persönliche Filter und konfigurierbare Ansichten.
 
 ### Agenturen und Digitalunternehmen
 
 Agenturen betreuen oft mehrere Ansprechpartner pro Kunde: den Marketingleiter für Briefings, die Geschäftsführung für Verträge, den Projektverantwortlichen für das Tagesgeschäft. Eine saubere Kundenverwaltung verknüpft all diese Kontakte mit der jeweiligen Organisation und dem laufenden Projekt.
 
-Typische Custom Fields für Agenturen: Projekttyp (Website, Kampagne, SEO), monatliches Retainer-Volumen, zuständiger Account Manager. Mit Tags wie "Bestandskunde", "Prospect" oder "Referenzprojekt" behalten Agenturen den Überblick über ihren gesamten Kundenstamm. Die [Pipeline-Ansicht](/features/pipeline) zeigt offene Angebote und Pitches auf einen Blick, während die Aktivitäts-Timeline dokumentiert, welcher Kollege zuletzt mit dem Kunden in Kontakt stand.
+Typische Custom Fields für Agenturen sind Projekttyp, Retainer-Volumen und zuständiger Account Manager. Einfachauswahlfelder wie "Bestandskunde", "Prospect" oder "Referenzprojekt" strukturieren den Kundenstamm. Die [Pipeline-Ansicht](/features/pipeline) zeigt offene Angebote und Pitches, während die Aktivitäts-Timeline aufgezeichneten Beziehungskontext liefert.
 
 ### Handwerker und Dienstleister vor Ort
 
 Handwerksbetriebe brauchen vor allem eines: schnell den richtigen Kunden finden, idealerweise auch unterwegs auf der Baustelle. Die Kundenverwaltung wird zur digitalen Kundenkartei, die Adressen, Anfahrtsbeschreibungen und vergangene Aufträge zusammenführt.
 
-Relevante Custom Fields: Objektadresse (falls abweichend von der Rechnungsadresse), Gebäudetyp, letzte Wartung, Vertragslaufzeit. Tags wie "Wartungsvertrag aktiv", "Privatkunde" oder "Gewerblich" helfen bei der schnellen Filterung. Statt im Büro anzurufen und nach einer Kundennummer zu fragen, hat der Monteur alle relevanten Informationen direkt im CRM, inklusive der Notizen des letzten Besuchs.
+Relevante Custom Fields sind Objektadresse, Gebäudetyp, letzte Wartung und Vertragslaufzeit. Einfachauswahlfelder wie "Wartungsvertrag aktiv", "Privatkunde" oder "Gewerblich" helfen bei der schnellen Filterung. So stehen strukturierte Informationen und Notizen des letzten Besuchs im CRM-Kontext bereit.
 
 ### Startups und schnell wachsende Teams
 
 Startups beginnen oft mit wenigen Kontakten, wachsen aber schnell. Was heute noch mit einer einfachen Liste funktioniert, wird in sechs Monaten zum Problem, wenn das dritte Teammitglied nicht mehr weiß, wer welchen Lead bereits kontaktiert hat.
 
-Für Startups zählt vor allem Geschwindigkeit: schneller Import von Leads aus Events oder Webformularen, sofortige Zuordnung zu Teammitgliedern, keine langen Einarbeitungszeiten. Customermates bietet hier den Vorteil, dass die komplette Kundenverwaltung ab dem ersten Tag verfügbar ist, ab 12 €/Nutzer/Monat, ohne versteckte Upgrade-Kosten, die gerade bei wachsenden Teams schnell ins Gewicht fallen. [Automatisierungen](/features/workflow-automation) helfen, repetitive Aufgaben wie Lead-Zuweisung oder Follow-up-Erinnerungen von Anfang an zu automatisieren.
+Für Startups zählen Geschwindigkeit und Einfachheit. Customermates startet ab 12 €/Nutzer/Monat mit dem Kern-CRM, hat aber keinen eingebauten CSV-Importer, kein Webformular, kein Routing und keine Erinnerungen. Bereiten Sie Quelldaten extern auf und verbinden Sie bei Bedarf kundenseitige Workflows über REST, Webhooks, MCP oder eine separate [n8n-Instanz](/features/workflow-automation).
 
 ### Berater und Consultants
 
 Für Berater ist das persönliche Netzwerk das wichtigste Kapital. Die Kundenverwaltung muss nicht nur aktuelle Mandanten abbilden, sondern auch potenzielle Klienten, Empfehlungsgeber und ehemalige Kontakte. Eine gut gepflegte Kontaktdatenbank unterscheidet den Berater, der bei jeder Anfrage sofort den passenden Ansprechpartner findet, von dem, der erst mühsam alte E-Mails durchsuchen muss.
 
-Custom Fields für Berater: Branche des Mandanten, Beratungsschwerpunkt, Vertragsende, Empfehlungsquelle. Besonders wertvoll ist die Timeline-Funktion: Sie zeigt, wann der letzte Kontakt stattfand, und hilft so bei der systematischen Beziehungspflege. Ein Tag wie "Empfehlung möglich" markiert Kontakte, die aktiv weiterempfehlen, wertvolle Information für [Lead-Management](/features/lead-management) und Neukundengewinnung.
+Custom Fields für Berater sind Branche, Beratungsschwerpunkt, Vertragsende und Empfehlungsquelle. Die Timeline zeigt aufgezeichneten Beziehungskontext. Ein Einfachauswahlfeld wie "Empfehlung möglich" markiert Kontakte, die aktiv weiterempfehlen, eine wertvolle Information für [Lead-Management](/features/lead-management) und Neukundengewinnung.
 
 ## Wann brauchen Sie eine Kundenverwaltung Software?
 
@@ -135,7 +135,7 @@ Der Wechsel von Excel oder manuellen Methoden zu einer dedizierten Kontaktmanage
 - Sie regelmäßig Kontakte suchen und nicht sofort finden
 - Wichtige Informationen in E-Mails oder Notizen verloren gehen
 - Sie Deals mit Kontakten verknüpfen und den Vertriebsprozess nachverfolgen möchten
-- Sie [DSGVO-konform](https://dsgvo-gesetz.de/) arbeiten müssen und wissen möchten, welche Daten Sie zu wem gespeichert haben
+- Sie [DSGVO-Anforderungen](https://dsgvo-gesetz.de/) beachten und nachvollziehen möchten, welche Daten Sie zu wem gespeichert haben
 
 Wenn einer dieser Punkte zutrifft, ist eine [CRM-Einführung](/blog/crm-introduction) der nächste logische Schritt.
 
@@ -148,11 +148,11 @@ Excel ist oft der erste Schritt zur Kundenverwaltung, und das ist verständlich.
 | Mehrbenutzerzugriff | Konfliktanfällig, keine Rechteverwaltung | Gleichzeitiger Zugriff mit Rollen und Berechtigungen |
 | Beziehungen zwischen Daten | Manuelle Verknüpfung über IDs oder Tabs | Automatische Verknüpfung von Kontakten, Deals, Aufgaben |
 | Aktivitätshistorie | Nicht vorhanden | Vollständige Timeline pro Kontakt |
-| Duplikaterkennung | Manuell | Automatisch beim Import und bei der Pflege |
-| DSGVO-Compliance | Kein Audit-Log, keine Löschprotokolle | Audit-Logging, Zugriffskontrolle, Löschnachweise |
+| Duplikaterkennung | Manuell | Vorbereitung oder Integration außerhalb des CRM |
+| Berechtigungen | Keine | Zugriff nach Ressource und Aktion |
 | Suche und Filter | Grundlegend, langsam bei großen Datenmengen | Volltextsuche, gespeicherte Filter, Segmentierung |
 | Mobile Nutzung | Eingeschränkt | Responsive Oberfläche, Zugriff von jedem Gerät |
-| Skalierung | Wird ab 200+ Zeilen unhandlich | Unbegrenzte Kontakte ohne Performance-Einbußen |
+| Skalierung | Wird ab 200+ Zeilen unhandlich | Kerndatensätze und offene Schnittstellen; Kapazität testen |
 
 **Das eigentliche Problem mit Excel** liegt nicht in der Software selbst, sondern in dem, was sie nicht kann: Beziehungen abbilden. In Excel ist ein Kontakt eine Zeile. In einer Kundenverwaltung Software ist ein Kontakt ein Knotenpunkt, verbunden mit seiner Organisation, seinen Deals, seiner Kommunikationshistorie und den Aufgaben, die mit ihm zusammenhängen.
 
@@ -163,19 +163,19 @@ Excel ist oft der erste Schritt zur Kundenverwaltung, und das ist verständlich.
 - Sie haben schon einmal einen Kontakt angerufen, ohne zu wissen, dass ein Kollege gestern bereits mit ihm gesprochen hat
 - Bei einer DSGVO-Anfrage können Sie nicht schnell nachweisen, welche Daten Sie zu einer Person gespeichert haben
 
-Der Wechsel muss nicht abrupt erfolgen. Customermates hat keinen CSV-Import. Ihre bestehende Excel-Tabelle migrieren Sie über die REST API oder indem Sie die Datei einem per MCP verbundenen KI-Agenten übergeben. Die intelligente Feldzuordnung erkennt Spaltenüberschriften automatisch und ordnet sie den passenden Kontaktfeldern zu. Eine [Excel CRM Vorlage](/blog/excel-crm-template) kann den Übergang zusätzlich erleichtern, indem Sie Ihre Daten vor dem Import in eine saubere Struktur bringen.
+Der Wechsel muss nicht abrupt erfolgen. Customermates hat keinen CSV-Import. Bereiten Sie die Excel-Tabelle außerhalb des Produkts auf, ordnen und prüfen Sie die Felder und erstellen Sie unterstützte Datensätze über eine kundenseitige REST-Integration oder einen externen KI-Client per MCP. Die Integration verantwortet Parsing, Duplikate und Migrationsqualität; eine [Excel CRM Vorlage](/blog/excel-crm-template) kann die Quelle strukturieren.
 
 ## Warum Customermates als Ihre Kundenverwaltung?
 
-**Open Source und transparent.** Der gesamte Quellcode ist öffentlich einsehbar. Kein Vendor Lock-in, keine versteckten Einschränkungen. Wenn Sie möchten, können Sie Customermates auf [eigener Infrastruktur betreiben](/features/self-hosted).
+**Open-Source-Kern.** Die AGPL-Kern-CRM-Anwendung ist öffentlich einsehbar und läuft mit PostgreSQL unter Starter-Berechtigungen auf [eigener Infrastruktur](/features/self-hosted). Managed-Cloud-Messaging und Kalender bleiben separat.
 
-**EU-gehostet und DSGVO-nativ.** Alle Daten in europäischen Rechenzentren. Audit-Logging für Compliance. Keine rechtliche Komplexität durch transatlantische Datentransfers.
+**EU-Datenbankregion mit dokumentierten Anbietern.** Die verwaltete Datenbank läuft in einer EU-Region. Anwendungshosting und weitere Anbieter, darunter US-Anbieter, können Daten andernorts verarbeiten; diese Bereitstellungsangabe ist keine DSGVO- oder andere Compliance-Zertifizierung.
 
-**Ab 12 € pro Nutzer/Monat.** Unbegrenzte Kontakte, Custom Fields (10 Feldtypen), [Pipeline-Management](/features/pipeline), [n8n-Automatisierung](/features/workflow-automation) und native KI-Integration sind ab der Starter-Stufe enthalten. [E-Mail-Integration](/features/email-integration) und das restliche gemeinsame Postfach (LinkedIn, WhatsApp, Instagram, Telegram) sind ab der Pro-Stufe für 29 €/Nutzer/Monat enthalten. [Preise ansehen →](/pricing)
+**Ab 12 € pro Nutzer/Monat.** Kernkontakte, Custom Fields (10 Feldtypen), [Pipeline-Management](/features/pipeline), REST, Webhooks, MCP und ein Community-Node starten mit Starter. [n8n-Automatisierung](/features/workflow-automation) bleibt ein separater Dienst. [E-Mail-Integration](/features/email-integration) und das gemeinsame Postfach starten mit Pro für 29 €/Nutzer/Monat. [Preise ansehen →](/pricing)
 
-**KI-Agenten halten Kontakte aktuell.** Claude, ChatGPT und Gemini verbinden sich über eine native MCP-Integration (46 Tools) und aktualisieren Kontaktdatensätze direkt. Sie protokollieren Notizen, füllen Felder und verknüpfen Personen mit Organisationen, sodass Ihr Adressbuch ohne manuelle Pflege korrekt bleibt.
+**Externe KI-Clients können Kontakte aktualisieren.** Unterstützte Clients wie Claude, ChatGPT und Gemini können 46 MCP-Tools für erlaubte Kontaktoperationen nutzen. Customermates liefert weder KI-Chat noch Modell; Client, Abonnement, Nutzung, Anbieterverarbeitung und Ergebnisse bleiben separat.
 
-**n8n-Automatisierung integriert.** Kontakte automatisch aus Formularen erstellen, Daten mit Buchhaltungssoftware synchronisieren, Benachrichtigungen bei Änderungen auslösen, alles visuell konfigurierbar, ohne Code. Verbinden Sie Ihr CRM mit [hunderten Tools](/features/integrations).
+**Separate n8n-Integration.** Ein kundenseitiger n8n-Workflow kann externe Formulardaten empfangen, unterstützte Felder synchronisieren oder Benachrichtigungen über externe Anbieter anfordern. Laufzeit, Konnektoren, Zugangsdaten, Zustellung, Limits, Logs und Kosten bleiben separat.
 
 **Intuitive Bedienung ohne Schulungsaufwand.** Eine Kundenverwaltung bringt nur dann einen Nutzen, wenn Ihr Team sie tatsächlich verwendet. Customermates setzt auf eine klare, aufgeräumte Oberfläche, die sich an modernen Web-Apps orientiert, nicht an überladenen Enterprise-Systemen. Neue Teammitglieder finden sich in Minuten zurecht, ohne eine Schulung oder ein Handbuch zu benötigen.
 
@@ -185,11 +185,11 @@ Der Wechsel muss nicht abrupt erfolgen. Customermates hat keinen CSV-Import. Ihr
 
 ### Was kostet eine Kundenverwaltung Software?
 
-Die Preise reichen von kostenlos (mit Einschränkungen bei Kontaktanzahl oder Funktionen) bis über 100 € pro Nutzer/Monat für Enterprise-CRM. Customermates startet ab 12 €/Nutzer/Monat, unbegrenzte Kontakte sind in jeder Stufe enthalten. Für einen detaillierten Kostenvergleich siehe [CRM Kosten](/blog/crm-cost).
+Die Preise reichen von kostenlos bis über 100 € pro Nutzer/Monat für Enterprise-CRM. Customermates startet ab 12 €/Nutzer/Monat und veröffentlicht nutzer- statt kontaktbasierte Preise. Prüfen Sie Tarif und Deployment-Kapazität für Ihr Volumen. Siehe [CRM Kosten](/blog/crm-cost).
 
 ### Gibt es kostenlose Kundenverwaltung Software?
 
-Ja. HubSpot und CentralStationCRM bieten kostenlose Versionen mit Nutzerlimits (2-3 Nutzer) und eingeschränkten Funktionen. Open-Source-Alternativen wie Customermates können kostenlos selbst gehostet werden. Mehr dazu: [Kostenloses CRM im Vergleich](/blog/free-crm).
+Ja. HubSpot und CentralStationCRM bieten kostenlose Versionen mit Nutzerlimits und eingeschränkten Funktionen. Das AGPL-Kern-CRM von Customermates kann mit PostgreSQL unter Starter-Berechtigungen selbst gehostet werden; externe Dienste bleiben separat. Mehr dazu: [Kostenloses CRM im Vergleich](/blog/free-crm).
 
 ### Was ist der Unterschied zwischen Kundenverwaltung und CRM?
 
@@ -201,14 +201,14 @@ Für Einzelpersonen mit wenigen Kontakten kann Excel funktionieren. Sobald mehre
 
 ### Kann ich Kontakte aus Excel importieren?
 
-Ja. Customermates bietet kein Import-Werkzeug mit Feldzuordnung. Exportieren Sie Ihre Excel-Tabelle, legen Sie die Datensätze über die REST API an, oder verbinden Sie einen KI-Agenten per MCP, übergeben Sie ihm die Datei und lassen Sie ihn die Spalten zuordnen und die Kontakte schreiben. Das System erkennt gängige Spaltenüberschriften wie "Vorname", "Nachname", "E-Mail" oder "Firma" automatisch. Duplikate werden beim Import erkannt, sodass keine doppelten Einträge entstehen. Die meisten Unternehmen haben ihre bestehende Kundenliste innerhalb von zehn Minuten vollständig importiert.
+Customermates bietet kein Import-Werkzeug mit Feldzuordnung. Bereiten Sie die Excel-Tabelle außerhalb des Produkts auf, ordnen und prüfen Sie Felder und erstellen Sie unterstützte Datensätze über eine kundenseitige REST-Integration oder einen externen KI-Client per MCP. Ihre Integration verantwortet Parsing, Vorschau, Duplikate, Wiederholungen und Zusammenführungen; Customermates liefert diesen Importablauf nicht.
 
 ### Wie viele Kontakte kann ich verwalten?
 
-Bei Customermates gibt es kein Kontaktlimit, weder in der Cloud-Version noch beim Self-Hosting. Sie können 50, 5.000 oder 50.000 Kontakte verwalten, ohne dass sich der Preis ändert oder die Performance leidet. Das unterscheidet Customermates von vielen Alternativen: CentralStationCRM begrenzt auf 200 Kontakte im Gratis-Plan, Zoho CRM auf 5.000 Datensätze. Bei Customermates zahlen Sie ab 12 €/Nutzer/Monat, unabhängig von der Kontaktanzahl.
+Customermates veröffentlicht nutzer- statt kontaktbasierte Preise, doch diese Seite verspricht weder unbegrenzte Kapazität noch feste Performance. Prüfen Sie aktuelle Tarifbedingungen und testen Sie Ihr Deployment mit repräsentativem Kontaktvolumen; API- und Datenbankkapazität hängen vom gewählten Setup ab.
 
 ## Jetzt mit Kundenverwaltung starten
 
-Erstellen Sie ein kostenloses Konto, importieren Sie Ihre bestehenden Kontakte per CSV und laden Sie Ihr Team ein. Alle Funktionen stehen ab dem ersten Tag zur Verfügung, ohne Konfigurationshürde.
+Erstellen Sie ein kostenloses Konto, bereiten Sie bestehende Kontakte außerhalb von Customermates auf und fügen Sie unterstützte Datensätze manuell oder über eine kundenseitige Integration hinzu. Laden Sie anschließend Ihr Team ein und starten Sie mit den Kernfunktionen der Kundenverwaltung.
 
 [Customermates 7 Tage kostenlos testen →](/auth/signup)

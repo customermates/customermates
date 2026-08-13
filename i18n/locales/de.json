@@ -1134,32 +1134,32 @@
       "ctaText": "Kostenlos starten",
       "featureBusiness": "Business: 3 Konten pro Nutzer, geteilte Konten & Priority-Support",
       "featurePro": "Pro: zentraler Posteingang, 1 verbundenes Konto pro Nutzer",
-      "featureStarter": "Starter: das komplette CRM",
+      "featureStarter": "Starter: die CRM-Kernfunktionen",
       "period": "/ Nutzer / Monat",
       "price": "ab 12 €",
-      "tag": "Für Sie betrieben, Datenbank-Region EU. Kostenlos starten, keine Kreditkarte erforderlich.",
+      "tag": "Für Sie betrieben; Datenbank-Region EU. Andere Anbieter können Daten anderswo verarbeiten.",
       "title": "Cloud"
     },
     "compare": {
       "cancelAnytime": "Jederzeit kündbar",
-      "gdpr": "DSGVO-konform",
+      "gdpr": "Datenbank-Region EU; keine Zertifizierung",
       "noLimits": "Transparente Tarife",
       "openSource": "Open Core"
     },
     "eyebrow": "Preise",
     "selfHosted": {
       "ctaText": "Download",
-      "featureApi": "Volle API, MCP & Webhooks",
+      "featureApi": "Dokumentierte API-, MCP- und Webhook-Schnittstellen",
       "featureCommunity": "Community-Support",
-      "featureN8n": "n8n-Integrationen",
-      "featureRecords": "Unbegrenzte Datensätze",
-      "featureUsers": "Unbegrenzte Nutzer",
-      "period": "für immer",
-      "price": "Kostenlos",
-      "tag": "Auf deinem Server mit Docker Compose betreiben. AGPL-Community-Edition mit quellverfügbaren Komponenten.",
+      "featureN8n": "Schnittstellen für eine separate n8n-Instanz",
+      "featureRecords": "CRM-Kerndatensätze",
+      "featureUsers": "Workspace-Nutzer",
+      "period": "unter AGPL",
+      "price": "Kern kostenlos",
+      "tag": "Betreibe die AGPL-Kernanwendung und PostgreSQL mit Docker Compose auf deinem Server im Starter-Umfang. Externe Dienste bleiben separat.",
       "title": "Self-Hosted"
     },
-    "subtitle": "Transparente Tarife, keine versteckten Kosten. Self-Hosting ist für immer kostenlos, oder starte ohne Kreditkarte in der Cloud.",
+    "subtitle": "Transparente Tarife, keine versteckten Kosten. Der AGPL-Kern bleibt beim Self-Hosting kostenlos; externe Dienste bleiben separat. Oder starte ohne Kreditkarte in der Cloud.",
     "title": "Einfach, ehrlich, europäisch"
   },
   "HomepageStatsRow": {

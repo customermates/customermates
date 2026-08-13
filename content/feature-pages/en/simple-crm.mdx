@@ -1,6 +1,6 @@
 ---
 title: "Simple CRM Your Team Will Actually Use"
-description: "Simple CRM with 2-minute setup, intuitive UI, and zero training needed. Clear pricing tiers with no per-feature add-ons. Open-source, EU-hosted. Try free."
+description: "Simple CRM with 2-minute setup, intuitive UI, and zero training needed. Clear pricing tiers and open interfaces. Open-source, with a managed database in an EU region. Try free."
 featureName: Simple CRM
 
 hero:
@@ -40,11 +40,11 @@ Not every business needs an enterprise-grade CRM with hundreds of configuration 
 
 **Growing teams with no CRM administrator.** Many mid-sized businesses cannot justify a dedicated CRM admin role. A simple CRM runs itself with minimal oversight, so your team manages the system as part of their daily workflow.
 
-**Businesses frustrated with their current CRM.** If your existing CRM has low adoption, excessive complexity, or expensive training requirements, migrating to a simple CRM eliminates those problems. Import your data and start fresh with an interface people will actually use.
+**Businesses frustrated with their current CRM.** If your existing CRM has low adoption, excessive complexity, or expensive training requirements, moving to a simple CRM can remove those problems. Prepare existing data outside Customermates, then create supported records through REST or MCP.
 
 ## How Simplicity Works in Customermates
 
-Customermates is designed to be immediately usable without sacrificing the depth that growing businesses need. AI agents can even do the data entry for you: through a native MCP integration, Claude, ChatGPT, and Gemini read and write the CRM directly, so records stay current without anyone babysitting the system.
+Customermates is designed to be immediately usable without sacrificing the depth growing businesses need. Supported external AI clients such as Claude, ChatGPT, and Gemini can read and write permitted CRM data through MCP; Customermates includes neither the client nor an AI model.
 
 **Two-minute onboarding.** Create an account and you are ready to start. There are no mandatory setup wizards, no required configuration steps, and no provisioning delays. Your CRM is ready to use the moment you sign up. Add contacts, create deals, and set up your pipeline as you go.
 
@@ -54,7 +54,7 @@ Customermates is designed to be immediately usable without sacrificing the depth
 
 **Zero required training.** New team members start using Customermates on their first day. The interface is self-explanatory, with clear labels, consistent patterns, and logical layouts. If someone has used any modern web application, they can use Customermates.
 
-**Progressive complexity.** Simple does not mean limited. Custom fields, n8n workflow automation, native AI and MCP integration, API access, and advanced reporting are available when you need them but do not clutter the interface for users who do not. Power users build sophisticated workflows while everyday users enjoy a clean, fast experience.
+**Progressive complexity.** Simple does not mean limited. Custom fields, MCP access for external AI clients, API access, and reporting are available when needed without cluttering everyday work. Power users can connect a separately operated n8n instance for visual workflows; its runtime, plan, limits, and costs remain external.
 
 **Fast performance.** A simple CRM must be a fast CRM. Every click, search, and page load in Customermates is optimized for speed. Slow software frustrates users and reduces adoption. Fast software becomes a natural part of the daily workflow.
 
@@ -74,17 +74,17 @@ Customermates is designed to be immediately usable without sacrificing the depth
 
 ## Simplicity Without Sacrifice
 
-Some CRM products achieve simplicity by removing features. Customermates takes a different approach: all features are present, but complexity is layered so that it only appears when needed.
+Some CRM products achieve simplicity by removing essential functions. Customermates keeps the core CRM focused, then exposes open interfaces for external AI clients and workflow tools when your process needs them.
 
-**No à la carte add-ons.** Contacts, deals, pipelines, tasks, automation, custom fields, API, webhooks, permissions, audit logging, and reporting are all part of the core platform from the Starter tier. Email, LinkedIn, WhatsApp, and the rest of the unified inbox come with the Pro tier. Three clear tiers, not a menu of paid add-ons to piece together.
+**Clear product tiers.** Contacts, deals, pipelines, tasks, custom fields, API, webhooks, permissions, and dashboard widgets are part of the core platform from Starter. Email, LinkedIn, WhatsApp, and the rest of the unified inbox come with Pro. External AI clients and n8n keep their own subscriptions, limits, and costs.
 
 **Custom fields without complexity.** Adding a custom field takes seconds: choose a name, pick a type, and it appears on your records. No schema design, no migration processes, and no technical knowledge required.
 
-**Automation without a learning curve.** The n8n visual workflow builder makes automation accessible to non-technical users. If you can draw a flowchart, you can build an automation. Start with simple follow-up reminders and grow into sophisticated multi-step workflows at your own pace.
+**Automation through separate n8n.** Connect a separately operated n8n instance through REST, webhooks, MCP, or the community node. Its visual builder makes external workflows approachable, while scheduling, reminders, runtime, logs, limits, and costs remain outside Customermates.
 
 **Powerful search that just works.** Type what you are looking for and the search finds it. Full-text search across all records with advanced filtering for power users. Simple by default, powerful when needed.
 
-**Import and migration tools.** Moving to Customermates from another CRM or from spreadsheets is straightforward. CSV import handles contacts, deals, and organizations. Your data migrates in minutes, not days.
+**Migration through open interfaces.** Prepare and map source data outside Customermates, then create supported records through REST or a separately configured external AI client over MCP. There is no CSV importer or dedicated migration workflow.
 
 ## How Customermates Compares to Complex CRMs
 
@@ -95,20 +95,20 @@ Some CRM products achieve simplicity by removing features. Customermates takes a
 | Admin overhead | Dedicated CRM admin role | Self-managed by the team |
 | Pricing | Tiered, add-ons, per-feature charges | 3 simple tiers, from EUR 12/user/month |
 | Customization | Requires consultants or developers | Built-in, no-code tools |
-| Data hosting | Often US-based | EU-hosted, GDPR/DSGVO-native |
+| Data hosting | Often US-based | EU database region, DPA and SCCs; no certification |
 | Source code | Proprietary, closed | Open source, fully transparent |
 
 ## Why Choose Customermates as Your Simple CRM
 
-**Open source and transparent.** Customermates is fully open source. Simplicity you can trust, because you can inspect how everything works. No hidden algorithms, no opaque pricing logic, no vendor lock-in.
+**Open-source core.** The AGPL core CRM application is inspectable and can run with PostgreSQL under Starter entitlements. Managed-cloud messaging and calendar features, external AI clients, and n8n remain separate.
 
-**EU-hosted and GDPR-compliant.** All data is stored in European data centers with full GDPR and DSGVO compliance. Simple compliance, built in from the start, not bolted on as an afterthought.
+**EU database region with documented providers.** The managed database runs in an EU region. Application hosting and other providers, including US providers, may process data elsewhere; this deployment fact is not a GDPR or other compliance certification.
 
 **Simple, fair pricing.** Three tiers, starting at EUR 12 per user per month: Starter for the core CRM, Pro at EUR 29 once you need the unified inbox, Business at EUR 69 for shared inboxes and multiple connected accounts. No per-feature add-ons to evaluate within a tier, no surprise invoices.
 
 **Self-hostable for full control.** Deploy with Docker for teams that want self-hosting simplicity. Straightforward deployment, straightforward updates, and complete control over your data.
 
-**n8n automation built in.** Connect your CRM to over 400 external services using the integrated n8n workflow engine. Build automations visually without writing code.
+**Separate n8n automation.** Connect an n8n instance you run or subscribe to through REST, webhooks, MCP, or the community node. Its 400+ connectors, visual builder, runtime, plan, limits, logs, and costs remain external.
 
 ## Frequently Asked Questions
 
@@ -116,17 +116,17 @@ Some CRM products achieve simplicity by removing features. Customermates takes a
 Most teams are fully operational in under five minutes. Create an account, invite your team, and start adding contacts. There is no mandatory configuration or setup process.
 
 **Can I import data from my current CRM?**
-Yes. Customermates loads contacts, deals, and organizations through the REST API or an AI agent over MCP; there is no CSV importer. Export your data from your current tool and import it directly.
+Customermates has no CSV importer. Prepare and map source data outside the product, then create supported contacts, deals, and organizations through a customer-run REST integration or a separately configured external AI client over MCP.
 
 **Is a simple CRM powerful enough for growing teams?**
-Absolutely. Customermates includes custom fields, multiple pipelines, automation, API access, permissions, and reporting. Simplicity in the interface does not mean limitations in capability.
+Yes. Customermates includes custom fields, multiple pipelines, API access, permissions, and dashboard widgets. Connect a separate n8n instance when your process needs automation beyond the core CRM.
 
 **What makes Customermates different from other simple CRMs?**
 Three things: it is open source so you own your system, its hosted database runs in the EU, and it works with n8n automation that most simple CRMs cannot reach at all.
 
 **Do I need technical skills to use Customermates?**
-No. The interface is designed for non-technical users. Automation uses a visual drag-and-drop builder, and custom fields require no coding.
+No. The CRM interface and custom fields are designed for non-technical users. Visual automation uses the builder in a separate n8n instance, which you operate or subscribe to independently.
 
 ## Get Started with a Simple CRM Today
 
-Experience the simplicity of Customermates for yourself. Sign up, import your contacts, and start managing your relationships in minutes. No credit card required, no training session needed, no consultant to hire. Just a CRM that works the way you expect software to work.
+Experience the simplicity of Customermates for yourself. Sign up, add contacts manually or prepare a customer-run integration, and start managing relationships. No credit card required, no training session needed, no consultant to hire. Just a focused CRM with open interfaces.

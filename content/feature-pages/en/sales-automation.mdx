@@ -1,11 +1,11 @@
 ---
 title: "Sales Automation Software: No-Code Workflows"
-description: "Sales automation software with visual n8n workflows, deal triggers, and follow-up sequences. Automate repetitive tasks and close deals faster. Try free."
+description: "Sales automation through REST, webhooks, MCP, and a community node for a separate n8n instance. Run deal triggers and follow-up sequences in external workflows."
 featureName: Sales Automation
 
 hero:
   title: Sales Automation Software That Closes Deals While You Sell
-  description: Automate deal stage transitions, follow-up reminders, and repetitive sales tasks with n8n workflows. Spend less time on admin and more time building relationships.
+  description: Connect a separate n8n instance through REST, webhooks, MCP, or the community node. Run deal triggers, reminders, and multi-step sales automation there while Customermates stores supported CRM records.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -14,7 +14,7 @@ hero:
 
 cta:
   action: Ready to automate your sales process?
-  description: Stop losing deals to missed follow-ups. Automate your sales workflow today with Customermates.
+  description: Keep supported CRM context in Customermates and connect a separate workflow for scheduled reminders, sequences, routing, or external delivery.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -41,23 +41,23 @@ The result: a sales team that spends its time on conversations, demos, and relat
 
 Sales Force Automation (SFA) focuses specifically on automating the selling process, follow-ups, task assignments, deal progression, and pipeline workflows. A CRM (Customer Relationship Management) system manages the broader customer lifecycle including marketing, support, and account management.
 
-In practice, sales automation belongs inside your CRM. Customermates combines both: a full CRM with [contact management](/features/contact-management), [pipeline tracking](/features/pipeline), and [lead management](/features/lead-management) alongside a n8n automation engine that handles deal workflows, notifications, and data synchronization, all in one platform from €12/user/month. The same platform adds AI agents that operate the CRM through a native MCP integration and a native unified inbox for email, LinkedIn, WhatsApp, Instagram, and Telegram (the inbox is included from the Pro tier).
+In practice, sales automation needs reliable CRM interfaces. Customermates provides [contact management](/features/contact-management), [pipeline tracking](/features/pipeline), [lead management](/features/lead-management), REST, webhooks, MCP, and a community node for a separate n8n instance. The external workflow owns scheduling, logic, notifications, and delivery; supported external AI clients remain separate from the CRM.
 
 ## How Sales Automation Works in Customermates
 
-Customermates integrates [n8n](https://n8n.io/), an open-source automation engine, directly into the CRM. This gives you a full-featured visual workflow builder rather than a limited set of predefined rules.
+Customermates connects to [n8n](https://n8n.io/), a separate open-source automation product you run or subscribe to. Customermates supplies open interfaces and the community node; n8n supplies its visual builder, runtime, connectors, schedules, logs, limits, and pricing.
 
-**Deal stage triggers.** Define what happens automatically when a deal enters a specific stage. When a deal moves to "Proposal Sent," create a follow-up task for three days later. When it reaches "Negotiation," notify the sales manager. When it moves to "Closed Won," trigger an onboarding sequence. Each stage transition can initiate one or multiple automated actions.
+**External deal-stage triggers.** A separately operated workflow can react to a documented deal event. It may create a supported task, notify a manager through an external provider, or ask a campaign tool to start onboarding. Customermates does not schedule the later actions or run sequences itself.
 
-**Follow-up automation.** Configure automated follow-up sequences that fire based on time, deal stage, or activity. If no activity is logged on a deal for five days, send a reminder to the owner. If a prospect has not responded to an email within a week, trigger a phone call task. Follow-up automation ensures no opportunity goes cold due to forgetfulness.
+**External follow-up automation.** Configure sequences in an external provider and timing logic in a separate workflow. It can evaluate recorded activity or custom date fields, send a notification through an external provider, and create a supported task through REST. Customermates itself has no inactivity timer, reminder scheduler, or sequence engine.
 
-**Task creation and assignment.** Automatically generate tasks and assign them to the right team members based on deal attributes. Route high-value deals to senior representatives. Create compliance review tasks for deals above a certain threshold. Assign onboarding tasks to the customer success team when deals close.
+**External task creation and assignment.** A customer-run workflow can evaluate deal attributes and create supported tasks through REST. Routing logic, thresholds, timing, and execution remain in that workflow; native tasks have no due date, priority, status, or reminder semantics.
 
-**Notification workflows.** Keep your team informed without manual status updates. Send Slack messages when deals reach key milestones. Email weekly pipeline summaries to the sales director. Alert finance when a deal is marked as won.
+**External notification workflows.** A separate workflow can react to documented events and ask Slack, email, or another provider to deliver a message. Customermates has no native Slack integration or general notification center.
 
-**Data synchronization.** Keep your sales data consistent across all tools. When a deal closes in Customermates, update the corresponding record in your accounting software. Sync contact information with your [email marketing platform](/features/email-integration). Push deal data to your project management tool. n8n handles the data flow so your team doesn't have to copy-paste between systems.
+**External data synchronization.** A customer-run n8n workflow can pass supported deal or contact fields to accounting, [email marketing](/features/email-integration), or project tools and write approved results back through REST. Every external system owns its records, credentials, limits, and data handling.
 
-**AI agents that operate the CRM.** Beyond n8n, Customermates exposes a native MCP integration with 46 tools, so Claude, ChatGPT, and Gemini can operate the CRM directly. Agents move deal stages, draft personalized [follow-up emails](/blog/sales-follow-up-email) based on conversation history, summarize meeting notes and extract action items, and score leads using natural language analysis. Automation handles the scheduled work; agents handle the judgment-based data entry.
+**External AI clients operate allowed CRM data.** Supported clients such as Claude, ChatGPT, or Gemini can use 46 MCP tools to move deal stages, draft one [follow-up email](/blog/sales-follow-up-email), summarize allowed notes, or update fields. Customermates includes no client, model, lead scoring, enrichment, or autonomous outcome.
 
 ## Key Benefits of Sales Automation
 
@@ -73,20 +73,20 @@ Customermates integrates [n8n](https://n8n.io/), an open-source automation engin
 
 ## Sales Automation Software Comparison
 
-| Feature | Customermates | HubSpot | Salesforce | Pipedrive |
+| Feature | Customermates + separate n8n | HubSpot | Salesforce | Pipedrive |
 |---------|--------------|---------|------------|-----------|
 | Price/user/month | From €12 | $90+ (automation) | $25+ | $49+ (automation) |
 | Visual workflow builder | <StatusAvailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
-| Unlimited automations | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusUnavailable /> |
+| Automation limits | Depends on separate n8n plan | <StatusUnavailable /> | <StatusPartial /> | <StatusUnavailable /> |
 | Deal stage triggers | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> |
-| Follow-up sequences | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> |
+| External follow-up sequences | Via separate provider | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> |
 | 400+ integrations (n8n) | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusPartial /> |
-| AI-powered automation | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusUnavailable /> |
-| EU/GDPR hosting | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> |
+| External AI-client access | Via MCP | <StatusPartial /> | <StatusPartial /> | <StatusUnavailable /> |
+| Managed database in an EU region | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> |
 | Open source | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 | Self-hosting option | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 
-[**HubSpot**](https://www.hubspot.com/products/crm) locks sales automation behind its Professional tier at $90+/user/month. The free and Starter tiers offer only basic task reminders. See our detailed [HubSpot alternative comparison](/compare/hubspot-alternative).
+[**HubSpot**](https://www.hubspot.com/products/crm) locks sales automation behind its Professional tier at $90+/user/month. The free and Starter tiers offer only basic customer-defined task-date notifications through an external workflow. See our detailed [HubSpot alternative comparison](/compare/hubspot-alternative).
 
 **Salesforce** offers powerful automation through Flow Builder but requires significant configuration expertise. Sales automation is spread across multiple clouds with separate pricing.
 
@@ -94,43 +94,43 @@ Customermates integrates [n8n](https://n8n.io/), an open-source automation engin
 
 ## Common Sales Automation Use Cases
 
-**New lead assignment.** When a new lead enters your CRM, automatically assign it to a sales representative based on territory, industry, deal size, or round-robin rotation. Create an introductory call task and start a welcome email sequence.
+**New lead assignment.** A customer-run workflow can evaluate territory, industry, deal size, or round-robin logic, write a supported assignee field, create a task, and ask an external email provider to start a welcome sequence.
 
-**Stale deal alerts.** Configure alerts for deals that haven't progressed within a defined timeframe. If a deal sits in the same stage for more than two weeks, notify the owner and their manager. Stale deal automation prevents pipeline bloat and keeps the team focused on active opportunities.
+**Stale deal alerts.** A separately operated scheduler can evaluate recorded stage dates and notify the owner through an external provider. Customermates has no native elapsed-time monitor or reminder engine.
 
-**Post-meeting actions.** After a meeting is logged on a deal, automatically create follow-up tasks, schedule the next check-in, and send a thank-you email to the prospect. The post-meeting routine happens consistently for every interaction.
+**Post-meeting actions.** A customer-run workflow can create a supported task, store a next-action date in a custom field, and ask an external provider to send a thank-you message. Scheduling remains external.
 
-**Won deal handoff.** When a deal is marked as won, trigger a series of actions: notify the customer success team, create an onboarding project, send a welcome email to the new customer, and update the accounting system. The transition from sales to delivery happens smoothly without manual coordination.
+**Won deal handoff.** A separate workflow can react to a documented deal event and ask external systems to notify a team, create a project, deliver email, or update accounting. Those records and executions remain outside Customermates.
 
-**Lost deal follow-up.** When a deal is lost, automatically schedule a follow-up touchpoint for three or six months later. Capture the loss reason and add the contact to a re-engagement campaign. Lost deals aren't forgotten, they're recycled into future opportunities.
+**Lost deal follow-up.** Store a loss reason and next-action date in custom fields. A separate scheduler can evaluate the date and ask an external campaign provider to run re-engagement; Customermates does not schedule or deliver it.
 
 ## Why Choose Customermates for Sales Automation
 
-**Open source and fully extensible.** The n8n automation engine is open source, just like Customermates. If you need a custom automation that doesn't exist yet, you can build it. No vendor decides what you can and cannot automate.
+**Two separate open-source products.** The Customermates AGPL core and n8n can both be inspected and extended, but they are operated and governed independently. Build custom automation in the n8n instance you run, against documented CRM interfaces.
 
-**EU-hosted and GDPR-compliant.** All automation data and execution logs are stored in European data centers with full GDPR compliance. Your automated workflows respect data protection regulations by design. This matters for teams processing European customer data.
+**EU database region with documented providers.** The hosted Customermates database runs in an EU region. n8n, application hosting, and connected providers may process data elsewhere, including through US providers; this is not a compliance certification.
 
-**From €12/user/month.** Sales automation in Customermates is included from the Starter tier. Unlimited workflows, unlimited executions, unlimited integrations at every tier. No per-automation or per-execution charges. [See pricing →](/pricing)
+**From €12/user/month.** REST, webhooks, MCP, and the community node start with Starter, without a per-workflow charge from Customermates. n8n and every connected provider have separate plans, executions, limits, logs, and costs. [See pricing →](/pricing)
 
-**Self-hostable for full control.** When you [self-host Customermates](/features/self-hosted), your automation engine runs on your infrastructure. Workflow data, credentials, and execution logs never leave your servers, essential for regulated industries.
+**Self-hostable core CRM.** [Self-hosting Customermates](/features/self-hosted) runs the application and PostgreSQL database with Starter entitlements. n8n is a separate deployment, and connected providers keep their own data and credential boundaries.
 
 ## Frequently Asked Questions
 
 ### What is sales automation software?
 
-Sales automation software automates repetitive tasks in the sales process, follow-ups, deal stage transitions, lead assignment, notifications, and data entry. It frees sales teams to focus on selling instead of administrative work. Customermates includes full sales automation with a visual n8n workflow builder from €12/user/month.
+Sales automation software automates repetitive tasks such as follow-ups, deal-stage actions, assignment, notifications, and data entry. Customermates supplies CRM records, REST, webhooks, MCP, and a community node; a separate n8n service supplies the visual workflow builder and automation runtime.
 
 ### Is SFA the same as CRM?
 
-No. Sales Force Automation (SFA) specifically automates selling tasks like follow-ups, pipeline management, and deal tracking. CRM is broader, covering the full customer lifecycle including marketing, support, and retention. Customermates combines both SFA and CRM in one platform.
+No. Sales Force Automation (SFA) specifically automates selling tasks like follow-ups, pipeline management, and deal tracking. CRM is broader, covering the full customer lifecycle including marketing, support, and retention. Customermates supplies the CRM records and interfaces; a separate automation service supplies the SFA workflows.
 
 ### How many automations can I create?
 
-There is no limit. Customermates includes unlimited automations starting at €12/user/month. Build as many workflows as your sales process needs and connect to 400+ tools through the [n8n integration engine](/features/workflow-automation).
+Customermates does not publish an unlimited-automation promise because it does not run the workflows. Your separate [n8n instance](/features/workflow-automation) and connected providers define workflow, execution, connector, and delivery limits.
 
 ### Can sales automation work with my existing tools?
 
-Yes. The n8n engine supports 400+ integrations out of the box, including Slack, Gmail, Outlook, Google Sheets, accounting tools, and project management platforms. If your tool has an API, you can connect it to Customermates through [workflow automation](/features/workflow-automation).
+The separate n8n service offers 400+ connectors, including Slack, Gmail, Outlook, Google Sheets, accounting, and project tools. Connect it through supported [workflow interfaces](/features/workflow-automation); provider coverage and authentication remain external.
 
 ### Do I need technical skills to set up automations?
 
@@ -138,6 +138,6 @@ No. The n8n workflow builder uses a visual drag-and-drop interface. You connect 
 
 ## Start Automating Your Sales Process
 
-Build your first sales automation in minutes. Identify a repetitive task, open the visual workflow builder, and create your first automated workflow. Start with a follow-up reminder, then expand to more complex workflows as you see the time savings add up.
+Identify a repetitive process, open the visual builder in your separate n8n service, and connect it through REST, webhooks, MCP, or the community node. Start with a supported CRM event or field and keep timing and delivery external.
 
-[Sign up today →](/auth/signup) No credit card required for your first seven days. All [lead management](/features/lead-management), [pipeline](/features/pipeline), and automation features included from day one.
+[Sign up today →](/auth/signup) No credit card required for your first seven days. Core [lead management](/features/lead-management) and [pipeline](/features/pipeline) features follow your plan; automation runtime remains separate.

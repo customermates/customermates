@@ -289,7 +289,7 @@ Neuer Lead kommt an (Webhook / CRM-Trigger / Formular)
 ### Schritt-für-Schritt-Umsetzung
 
 **1. Trigger: Neue Leads erfassen.**
-Verwenden Sie einen n8n-Webhook-Node oder einen CRM-Trigger. Bei [Customermates](/) lösen neue Kontakte automatisch Workflows über die native n8n-Integration aus. Alternativ lassen sich Webformulare, E-Mail-Parser oder Chatbot-Ausgaben anbinden.
+Verwenden Sie einen n8n-Webhook-Node oder einen CRM-Trigger. Bei [Customermates](/) lösen neue Kontakte automatisch Workflows über die separate n8n-Integration aus. Alternativ lassen sich Webformulare, E-Mail-Parser oder Chatbot-Ausgaben anbinden.
 
 **2. Lead-Daten anreichern (optional).**
 Vor dem Scoring können Sie zusätzlichen Kontext ergänzen. Nutzen Sie einen HTTP-Request-Node, um Unternehmensdaten von Clearbit, Apollo oder LinkedIn abzurufen. Mehr Kontext verbessert die Scoring-Genauigkeit. Selbst Basis-Anreicherung (Unternehmensgröße, Branche, Standort) kann den ICP-Fit-Score eines Leads von "Unbekannt" zu "Stark" oder "Schwach" verschieben.
@@ -421,7 +421,7 @@ Bauen Sie eine Feedback-Schleife ein. Wenn ein Vertriebsmitarbeiter mit einem KI
 
 ### Ist es DSGVO-konform, Lead-Daten an ChatGPT zu senden?
 
-Bei Nutzung der OpenAI-API mit Business-Vereinbarung und AVV werden Daten verarbeitet, aber nicht für Training verwendet. Für maximale Compliance minimieren Sie die gesendeten personenbezogenen Daten (Firmenname und Nachrichteninhalt statt persönlicher E-Mail-Adressen) und erwägen Sie ein selbst gehostetes LLM über Ollama für sensible Daten. Auf CRM-Seite speichert Customermates Daten standardmäßig in der EU und ist vollständig DSGVO-konform.
+Bei Nutzung der OpenAI-API mit Business-Vereinbarung und AVV werden Daten verarbeitet, aber nicht für Training verwendet. Für maximale Compliance minimieren Sie die gesendeten personenbezogenen Daten (Firmenname und Nachrichteninhalt statt persönlicher E-Mail-Adressen) und erwägen Sie ein selbst gehostetes LLM über Ollama für sensible Daten. Auf CRM-Seite speichert Customermates Daten standardmäßig in der EU und stellt AVV und SCCs bereit, besitzt aber keine Compliance-Zertifizierung.
 
 ### Lohnt sich Automatisierung auch bei nur 20 Leads pro Monat?
 

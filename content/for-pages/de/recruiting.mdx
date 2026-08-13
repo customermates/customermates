@@ -74,7 +74,7 @@ Customermates wurde mit der Annahme gebaut, dass ein KI-Agent das Tippen erledig
 
 ### Multi-Pipeline für Kandidaten und Kunden
 
-Führen Sie mehrere [Pipelines](/features/pipeline) parallel. Eine für aktive Kandidatensuchen, eine für die Kundenseite jedes Engagements, optional weitere für Executive Search, retainerbasierte Mandate oder Zeitarbeit. Jede Pipeline hat eigene Stufen, eigene Karten und eigene Team-Sichten. Wechsel mit einem Klick.
+Führen Sie mehrere [Pipelines](/features/pipeline) parallel. Eine für aktive Kandidatensuchen, eine für die Kundenseite jedes Engagements, optional weitere für Executive Search, retainerbasierte Mandate oder Zeitarbeit. Jede Pipeline hat eigene Stufen, eigene Karten und eine eigene Kanban-Sicht. Wechsel mit einem Klick.
 
 ### Kanban-Ansicht so, wie Recruiter denken
 
@@ -102,7 +102,7 @@ Recruiting läuft über LinkedIn, deshalb steht es im Zentrum des nativen einhei
 
 ### Aufgaben- und Wiedervorlage-Verwaltung
 
-Jede Suche hat ihren Rhythmus von Wiedervorlagen. [Aufgabenverwaltung](/features/task-management) zeigt dem Recruiter genau, was heute über alle Kandidaten und Kunden hinweg ansteht, mit Ein-Klick-Verschiebung. Das System verhindert, dass Wiedervorlagen verschwinden; der Recruiter konzentriert sich auf das eigentliche Gespräch.
+Jede Suche hat ihren Rhythmus von Wiedervorlagen. [Aufgabenverwaltung](/features/task-management) hält Kandidaten- und Kundenarbeit mit Zuständigen und Notizen in einer Liste; Wiedervorlagedaten bilden Sie mit eigenen Datumsspalten ab. Ein separat betriebener Workflow kann erinnern, während sich der Recruiter aufs Gespräch konzentriert.
 
 ### API und Webhooks für eigene Workflows
 
@@ -199,7 +199,7 @@ Ja. Das EU-Hosting läuft auf europäischer Infrastruktur mit verbindlicher EU-D
 
 **Wie lange dauert die Migration von einem anderen Recruiting CRM?**
 
-Für eine kleine Agentur mit bis zu 10.000 Kandidaten ist eine Basis-Migration ein Tagesimport per CSV. Für größere Datenbanken unterstützt die [API](/features/api) Bulk-Imports mit vollständigem Feld-Mapping. Das CRM ist auf beziehungsorientiertes Recruiting ausgelegt, das Datenmodell bleibt überschaubar: Kontakte, Accounts (Kunden), Deals (Mandate oder Platzierungen), Aufgaben, Notizen.
+Customermates hat keinen CSV-Uploader und keine eingebaute Migrationsmaske. Bereiten und ordnen Sie Kandidaten- und Kundendaten außerhalb des Produkts zu, erstellen Sie unterstützte Datensätze über die [REST API](/features/api) oder einen externen KI-Client per MCP und prüfen Sie das Ergebnis im CRM. Umfang, Dauer, Validierung und Duplikatbehandlung liegen bei Ihrer Integration.
 
 **Kann das Recruiting CRM Wechsel von Zeitarbeit zur Festanstellung tracken?**
 
@@ -207,7 +207,7 @@ Ja. Richten Sie die Kandidaten-Pipeline mit einer Stufe „Im Einsatz" ein und n
 
 **Wie behandelt Customermates Off-Limits- und vertrauliche Kandidaten?**
 
-Off-Limits-Status ist ein eigenes Checkbox-Feld am Kontaktdatensatz, mit einem freien Textfeld für Grund und Ablaufdatum der Sperre. Vertraulichkeit lebt zusätzlich auf Mandats-Ebene: Ein Mandat kann als privat markiert werden, und nur der Partner und der zugewiesene Recruiter sehen die Kandidatenliste. Für vollständig vertrauliche Mandate, die in keinem geteilten CRM leben dürfen (Vorstandssuchen, sensible Nachfolgeplanungen), ist Self-Hosting auf Ihrem eigenen Server die Antwort, weil die Daten Ihre Infrastruktur nie verlassen.
+Off-Limits-Status lässt sich mit einem eigenen Checkbox-Feld am Kontaktdatensatz sowie Freitext für Grund und Ablaufdatum abbilden. Berechtigungen gelten je Ressource und Aktion mit eigenem oder gesamtem Umfang; private Mandate oder Kandidatenlisten bietet Customermates nicht. Für vollständig vertrauliche Mandate gestalten Sie den Prozess um diese Grenzen und prüfen Self-Hosting sowie jeden verbundenen Anbieter separat.
 
 **Lohnt es sich, ein eigenes Recruiting CRM selbst zu bauen?**
 

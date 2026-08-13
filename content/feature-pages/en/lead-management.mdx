@@ -1,11 +1,11 @@
 ---
-title: "CRM Lead Management: Capture, Score & Convert"
-description: "CRM lead management software with visual pipelines, lead scoring, and automated follow-ups. Track every lead from first touch to close. Try free."
+title: "CRM Lead Management: Track, Qualify & Convert"
+description: "CRM lead management software with visual pipelines and custom qualification fields. Track every lead from first touch to close; scoring and automated follow-ups stay external."
 featureName: Lead Management
 
 hero:
   title: CRM and Lead Management That Turns Prospects Into Customers
-  description: Track every lead from first touch to closed deal. AI agents keep records current and draft follow-ups, a native unified inbox captures conversations from email, LinkedIn, WhatsApp, Instagram, and Telegram, and visual pipelines keep your team focused on what converts.
+  description: Track every lead from first touch to closed deal. Supported external AI clients can update allowed records and draft individual follow-ups through MCP, the unified inbox captures supported conversations, and visual pipelines keep your team focused on what converts.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -38,7 +38,7 @@ Think of lead management as the front end of CRM. Most modern CRM systems includ
 
 ### Step 1: Capture leads
 
-Leads come from multiple sources: website forms, email inquiries, trade shows, referrals, social media, and direct messages. Customermates captures them in two native ways. The unified inbox pulls conversations from email, LinkedIn, WhatsApp, Instagram, and Telegram into the CRM (included from the Pro tier), and [n8n automation](/features/workflow-automation) routes leads from web forms and third-party tools straight into your pipeline. AI agents can create the contact and deal for you through the native MCP integration, so nothing depends on someone remembering to type it in.
+Leads come from website forms, email inquiries, trade shows, referrals, social media, and direct messages. The Pro unified inbox brings supported conversations into the CRM. A separate [n8n workflow](/features/workflow-automation) can receive data from external forms and create supported records through REST, while a configured external AI client can create contacts or deals through MCP. Customermates has no native form or lead-routing engine.
 
 ### Step 2: Score and qualify
 
@@ -46,11 +46,11 @@ Not all leads are equal. Lead scoring ranks prospects based on engagement, compa
 
 ### Step 3: Assign to the right rep
 
-Route qualified leads to the sales rep best suited to close them, by territory, industry, deal size, or workload. Automatic lead assignment via [workflow automation](/features/workflow-automation) eliminates the delay between qualification and first contact.
+Route qualified leads by territory, industry, deal size, or workload in a separately operated [workflow automation](/features/workflow-automation) system. It can calculate the assignment and write supported fields through REST; Customermates has no native routing engine.
 
 ### Step 4: Nurture and follow up
 
-Most leads aren't ready to buy immediately. Automated nurture sequences, value-add emails, case studies, product updates, keep your company top of mind. Customermates integrates with [email tools](/features/email-integration) and n8n to trigger personalized [follow-up sequences](/blog/sales-follow-up-email) based on lead behavior.
+Most leads aren't ready to buy immediately. Value-add emails, case studies, and product updates can keep your company top of mind. Customermates connects to [email tools](/features/email-integration) and a separate n8n instance so external providers can run personalized [follow-up sequences](/blog/sales-follow-up-email) based on lead behavior.
 
 ### Step 5: Convert and analyze
 
@@ -61,13 +61,13 @@ When a lead converts, the deal moves through your [pipeline stages](/features/pi
 | Feature | Customermates | HubSpot | Salesforce | Pipedrive |
 |---------|--------------|---------|------------|-----------|
 | Visual pipeline | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> |
-| Lead scoring | <StatusAvailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
-| Automated lead assignment | <StatusAvailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
-| Email nurture sequences | <StatusAvailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
+| Native lead scoring | <StatusUnavailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
+| Native automated lead assignment | <StatusUnavailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
+| Native email nurture sequences | <StatusUnavailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
 | Custom fields (10 types) | <StatusAvailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
 | Source attribution | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> |
 | Open source | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
-| EU hosting / GDPR | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> |
+| Managed database in an EU region | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> |
 | Self-hosting option | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 | Price (per user/month) | From €12 | $90+ | $25+ | $14+ |
 
@@ -87,25 +87,25 @@ Compare directly: [vs HubSpot](/compare/hubspot-alternative) · [vs Salesforce](
 
 **B2B sales teams** use lead management to track long sales cycles with multiple stakeholders. Custom fields capture decision-maker roles, budget timelines, and competitive evaluations. Pipeline stages map to the actual buying process.
 
-**Agencies** manage both client leads and their clients' lead generation campaigns. Separate pipelines per client, tagged by campaign source, give agencies full visibility into performance.
+**Agencies** manage both client leads and their clients' lead generation campaigns. Separate pipelines plus a single-select campaign-source field give agencies clear visibility into stored performance data.
 
-**E-commerce businesses** track leads from abandoned carts, product inquiries, and wholesale requests. Automated nurture sequences re-engage prospects with targeted offers based on browsing behavior.
+**E-commerce businesses** track leads from abandoned carts, product inquiries, and wholesale requests. Nurture sequences in an external provider re-engage prospects with targeted offers based on browsing behavior.
 
 **Startups** need fast, lightweight lead management that doesn't require weeks of setup. Customermates gets a [startup's CRM](/for/startups) running in minutes, with leads brought in through the API or n8n and a visual pipeline you configure yourself.
 
 ## Why Choose Customermates for Lead Management
 
-**CRM and lead management in one.** No separate tools for lead capture, nurturing, and customer management. Customermates handles the entire lifecycle, from anonymous visitor to long-term customer, in a single platform.
+**CRM records and open interfaces.** Customermates manages supported lead and customer data in configurable pipelines. Capture, nurturing, and routing can be handled by separate providers connected through REST, webhooks, MCP, or n8n.
 
-**AI agents do the data entry.** Through the native MCP integration (46 tools), Claude, ChatGPT, and Gemini read and write the CRM directly. They create leads, move deal stages, and draft follow-ups, so reps stop avoiding the system and the pipeline stays accurate.
+**External AI clients can do allowed data entry.** Supported clients such as Claude, ChatGPT, or Gemini can use 46 MCP tools to create records, move deal stages, or draft one follow-up where permitted. Customermates includes no AI client, model, subscription, enrichment, or lead-scoring service.
 
-**n8n automation supported.** Build visual lead management workflows: auto-capture from forms → score → assign → nurture → notify. Connect to [hundreds of tools](https://n8n.io) without coding. No separate automation subscription.
+**Separate n8n automation supported.** Connect an n8n instance you run or subscribe to through REST, webhooks, MCP, or the community node. External forms, scoring, assignment, nurture, notifications, connectors, runtime, logs, limits, and costs remain outside Customermates.
 
-**Open source and transparent.** Inspect the code, extend it, or [self-host it](/features/self-hosted) on your own infrastructure. No vendor lock-in, no hidden limitations.
+**Open-source core.** Inspect or extend the AGPL core CRM application, or [self-host it](/features/self-hosted) with PostgreSQL under Starter entitlements. External providers remain separate.
 
-**EU-hosted and GDPR-native.** All lead data stored in European data centers. [Audit logging](/features/integrations) for compliance. No transatlantic data transfers.
+**EU database region with documented providers.** The hosted database runs in an EU region. Application hosting and connected providers, including US providers, may process data elsewhere; this is not a GDPR or other compliance certification.
 
-**From €12/user/month.** Lead management, [pipeline](/features/pipeline), [contact management](/features/contact-management), n8n automation, custom fields, the REST API, and native AI/MCP access are included from the Starter tier. The unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) is included from the Pro tier at €29/user/month, and shared team accounts from the Business tier at €69. [See pricing →](/pricing)
+**From €12/user/month.** Lead management, [pipeline](/features/pipeline), [contact management](/features/contact-management), custom fields, REST, webhooks, and MCP access start with Starter. n8n and AI clients remain separate. The unified inbox starts with Pro at €29/user/month, and shared team accounts with Business at €69. [See pricing →](/pricing)
 
 ## Frequently Asked Questions
 
@@ -123,10 +123,10 @@ Look for: visual pipeline management, lead scoring, automated follow-ups, integr
 
 ### Can I automate lead management?
 
-Yes. With Customermates and [n8n automation](/features/workflow-automation), you can automate lead capture, scoring, assignment, nurture sequences, and notifications, all configured visually without coding. [See how n8n works →](/n8n-crm)
+Yes, through separate tools. Connect your own [n8n automation](/features/workflow-automation) to calculate scoring or assignment, receive external forms, and coordinate nurture or notifications with external providers. Customermates supplies CRM records and open interfaces, not those engines. [See how n8n works →](/n8n-crm)
 
 ## Start Managing Leads Today
 
-Bring in your existing leads through the API, n8n, or an AI agent, configure your pipeline stages, and start tracking every prospect in minutes. No credit card required for your first seven days.
+Prepare existing leads outside Customermates, then create supported records through a customer-run REST integration, a separate n8n workflow, or a supported external AI client over MCP. Configure your pipeline stages and start tracking prospects; external runtimes and providers remain separate.
 
 [Try Customermates free →](/auth/signup)

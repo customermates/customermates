@@ -1,11 +1,11 @@
 ---
 title: "Sales Pipeline Management Software: Visual Kanban"
-description: "Open-source sales pipeline management software with drag-and-drop kanban boards, custom deal stages, and dashboard charts. AI agents keep every stage current. EU-hosted."
+description: "Open-source sales pipeline management software with drag-and-drop kanban boards, custom deal stages, and dashboard charts. External AI clients can update supported fields through MCP; the managed database runs in an EU region."
 featureName: Sales Pipeline
 
 hero:
   title: A Sales Pipeline That Shows You Exactly Where Every Deal Stands
-  description: Visualize your entire pipeline with drag-and-drop kanban boards. AI agents move deal stages and keep records current, so the board tells the truth. Chart pipeline value on your dashboard and spot bottlenecks before they cost you revenue.
+  description: Visualize your entire pipeline with drag-and-drop kanban boards. Supported external AI clients can update permitted deal fields through MCP, while the client and model remain separate. Chart current pipeline values on personal dashboards and spot bottlenecks early.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -50,9 +50,9 @@ Every pipeline follows a progression from initial contact to closed deal. While 
 
 ## How Pipeline Management Works in Customermates
 
-Customermates provides a visual pipeline with kanban boards, customizable stages, and dashboard charts. The pipeline is a board view of your deals grouped by a single-select stage column, and the same AI agents that run the rest of the CRM keep it current so it reflects reality.
+Customermates provides a visual pipeline with kanban boards, customizable stages, and dashboard charts. The pipeline is a board view of your deals grouped by a single-select stage column. A supported external AI client may update permitted fields through MCP; Customermates itself runs no AI agent.
 
-**AI agents keep the pipeline honest.** Through the native MCP integration (46 tools), AI agents like Claude, ChatGPT, and Gemini move deals between stages, update close dates, and draft follow-ups directly in the CRM. Reps stop avoiding the board, so the stages show where deals actually stand instead of where someone last remembered to drag them.
+**External AI clients can update the pipeline.** Through 46 MCP tools, supported clients such as Claude, ChatGPT, or Gemini can move permitted deals between stages, update fields, and draft an individual follow-up. Customermates includes neither the client nor an AI model; subscription, usage, and provider handling remain external.
 
 **Visual kanban board.** Your pipeline is displayed as a drag-and-drop kanban board where each column represents a deal stage. Deals appear as cards showing key information at a glance: deal name, value, contact, and expected close date. Moving a deal to the next stage is as simple as dragging the card to the next column.
 
@@ -98,19 +98,19 @@ A pipeline is not a static structure. Regular optimization keeps your sales proc
 
 **Stage gate criteria.** Define clear criteria for what qualifies a deal to move from one stage to the next. When every team member applies the same standards, your pipeline data becomes reliable and comparable across the team.
 
-**Automate where possible.** Use n8n automation to handle mechanical pipeline tasks: create follow-up reminders when deals enter a stage, notify managers when deals exceed stage duration thresholds, or sync pipeline data to external reporting tools.
+**Automate where useful.** A separately operated n8n instance can react to deal webhooks, create supported tasks, evaluate customer-defined date fields on its own schedule, or sync pipeline data to external reporting tools. Customermates itself sends no reminders.
 
 ## Why Choose Customermates for Pipeline Management
 
-**Open source and transparent.** Customermates is fully open source. Your pipeline data and stage logic run on code you can inspect. No hidden algorithms affecting your deal metrics or pipeline calculations.
+**Open-source core.** The AGPL core CRM application and pipeline code are inspectable. Pipeline stages remain customer-defined fields; Customermates includes no hidden forecast or scoring algorithm, while managed-cloud features and connected providers remain separate.
 
-**EU-hosted and GDPR-compliant.** All pipeline and deal data is stored in European data centers with full GDPR and DSGVO compliance. Manage your sales process with confidence in your data protection posture.
+**EU database region with documented providers.** The managed database runs in an EU region. Application hosting and other providers, including US providers, may process data elsewhere; this deployment fact is not a GDPR or other compliance certification.
 
-**Simple, fair pricing.** Pipeline management is included from EUR 12 per user per month (Starter tier). Board and table views, custom stages, deal cards, dashboard charts, and native AI/MCP access are included at every tier. No premium tier required for advanced pipeline capabilities.
+**Simple, fair pricing.** Pipeline management is included from EUR 12 per user per month (Starter tier). Board and table views, custom stages, deal cards, dashboard charts, and MCP access for external AI clients are included at every tier. No premium tier required for advanced pipeline capabilities.
 
-**n8n automation for pipeline workflows.** Automate pipeline-related tasks with n8n. Trigger notifications when deals enter specific stages, create tasks automatically, or sync pipeline data with external reporting tools. Connect to over 400 services without writing code.
+**Separate n8n for pipeline workflows.** Connect an n8n instance you run or subscribe to through REST, webhooks, MCP, or the community node. Its scheduler, 400+ connector catalog, runtime, plans, limits, logs, provider delivery, and costs remain external.
 
-**Self-hostable for full control.** Deploy on your own infrastructure and maintain complete control over your pipeline data. Self-hosting ensures your competitive intelligence stays on your servers.
+**Self-hostable application and database.** Deploy the Customermates application and PostgreSQL database on your infrastructure. External AI and workflow providers still receive any data your configuration sends; self-hosting is not a data-residency or compliance guarantee.
 
 ## Get Started with Your Sales Pipeline Today
 

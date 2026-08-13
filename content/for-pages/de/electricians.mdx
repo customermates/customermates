@@ -68,7 +68,7 @@ Halten Sie den gesamten Auftragslebenszyklus zusammen. Erstellen Sie eine Kalkul
 
 ### Prüfungsnachverfolgung und Dokumentation
 
-Elektroarbeit erfordert ordnungsgemäße Dokumentation, E-Check-Protokolle, Prüfberichte nach DIN VDE, DGUV-V3-Nachweise und Abnahmedokumente. Nutzen Sie benutzerdefinierte Felder für Prüfungsdaten, Prüfnummern, Messergebnisse und nächste Prüftermine. Hängen Sie Fotos, Dokumente und Prüfberichte direkt an Kundendatensätze an. Wenn ein Prüfer oder Kunde Unterlagen braucht, ist alles an einem Ort.
+Elektroarbeit erfordert ordnungsgemäße Dokumentation, E-Check-Protokolle, Prüfberichte nach DIN VDE, DGUV-V3-Nachweise und Abnahmedokumente. Nutzen Sie benutzerdefinierte Felder für Prüfungsdaten, Prüfnummern, Messergebnisse und nächste Prüftermine. Speichern Sie Fotos, Dokumente und Prüfberichte in Ihrem Dokumentensystem und erfassen Sie den Link in einem eigenen Feld. Wenn ein Prüfer oder Kunde Unterlagen braucht, verweist das CRM auf das richtige Material.
 
 ### Wartungsverträge und wiederkehrende Wartung
 
@@ -76,7 +76,7 @@ Bauen Sie planbare Einnahmen mit Wartungsverträgen auf, die in Ihrem CRM verfol
 
 ### Terminplanung und Aufgabenverwaltung
 
-Weisen Sie Aufträge Ihren Monteuren zu mit vollem Einblick in deren aktuelle Auslastung und Terminplanung. Nutzen Sie die [Aufgabenverwaltung](/features/task-management), um Arbeitsaufträge mit Fälligkeitsdaten, Prioritäten und Erledigungsstatus zu erstellen, zuzuweisen und zu verfolgen. Vermeiden Sie Doppelbuchungen und stellen Sie sicher, dass jedes Teammitglied genau weiß, wo es sein muss und was zu tun ist.
+Weisen Sie Aufträge Elektrikern zu und verknüpfen Sie jede Aufgabe mit dem passenden Kunden oder Deal. Nutzen Sie die [Aufgabenverwaltung](/features/task-management), um Arbeit mit Zuständigen und Notizen anzulegen; bilden Sie Fälligkeitsdaten, Prioritäten und Erledigungsstatus über eigene Datums- und Auswahlspalten ab. Für Verfügbarkeit und Doppelbuchungsschutz bleibt ein separates Planungstool zuständig.
 
 ### Benutzerdefinierte Felder für Elektroarbeit
 
@@ -119,7 +119,7 @@ Ob Solo-Elektriker oder Betrieb mit mehreren Monteuren, Ihre CRM-Anforderungen u
 
 ### Solo-Elektriker und kleine Teams
 
-Für einen Ein-Personen-Betrieb oder ein Team von 2-3 Elektrikern brauchen Sie ein CRM für Elektriker, das schnell eingerichtet, einfach zu bedienen und bezahlbar ist. Customermates startet bei €12/Nutzer/Monat mit vollem Pipeline-Management, automatischen Nachverfolgungen und KI-Unterstützung, oder €29/Nutzer/Monat in Pro, wenn Kunden-E-Mail, WhatsApp und Instagram automatisch protokolliert werden sollen, alles, was ein kleiner Elektrobetrieb braucht, ohne Enterprise-Overhead. Importieren Sie Ihre Kunden per CSV, richten Sie Ihre Auftrags-Pipeline ein und legen Sie am ersten Tag los.
+Für einen Ein-Personen-Betrieb oder ein Team von 2-3 Elektrikern bietet Customermates Kontakte, konfigurierbare Deal-Pipelines, Aufgaben, eigene Felder und MCP-Zugriff für externe KI-Clients. Ergänzen Sie Datensätze manuell oder migrieren Sie unterstützte Daten über REST oder MCP; es gibt weder CSV-Uploader noch eingebauten Follow-up-Scheduler.
 
 ### Elektrobetriebe im Privatkundenbereich
 
@@ -138,7 +138,7 @@ Customermates verbindet sich mit den Tools, die Elektriker bereits nutzen, über
 - **Buchhaltung**: Verbindung zu lexoffice, sevDesk, DATEV oder Ihrer Buchhaltungssoftware für optimierte Abrechnung nach Auftragsabschluss
 - **Kommunikation**: Slack, WhatsApp oder SMS-Tools für Team- und Kundenkommunikation anbinden
 - **Native KI-Integration**: Claude, ChatGPT oder jeden MCP-kompatiblen Assistenten für Auftragsberichte, Follow-up-E-Mails und Musteranalyse nutzen
-- **Dateispeicher**: Prüfungsfotos, Prüfberichte und Messprotokolle direkt an Kunden- und Auftragsdatensätze anhängen
+- **Dateispeicher**: Prüfungsfotos, Prüfberichte und Messprotokolle im Dateisystem speichern und dessen Link am Kunden- oder Auftragsdatensatz erfassen
 - **Formulare**: Web-Formulare anbinden, um neue Anfragen automatisch als Leads in Ihrer Pipeline zu erfassen
 
 Mit n8n können Sie jede Integration bauen, die Sie brauchen, ohne Entwickler, ohne Zusatz-Abo. Elektriker, die mit [Heizungs-/Klimabetrieben](/for/hvac) oder [Field-Service-Teams](/for/field-service) zusammenarbeiten, können ihre Abläufe in einem System vereinen.
@@ -161,7 +161,7 @@ Vergleichen Sie das mit Alternativen: Housecall Pro startet bei $59/Monat für B
 Die Einrichtung Ihres Elektriker CRM dauert Minuten, nicht Wochen:
 
 1. **[Kostenloses Konto erstellen](/auth/signup)**, keine Kreditkarte nötig, 7 Tage alles testen.
-2. **Kunden importieren**, bestehende Kundendaten, Objektinformationen und Auftragshistorie per CSV-Upload übernehmen. Alle Kontaktdaten und Historie kommen mit.
+2. **Unterstützte Datensätze migrieren**, nutzen Sie die REST API oder übergeben Sie einen vorbereiteten Quellexport einem per MCP verbundenen KI-Agenten. Customermates hat keinen CSV-Uploader.
 3. **Pipelines einrichten**, Phasen für Aufträge definieren (Anfrage, Angebot erstellt, Angenommen, Geplant, In Arbeit, Fertig, Abgerechnet) und Wartungsverträge (Verlängerung fällig, Angebot gesendet, Verlängert). Das Drag-and-Drop Kanban-Board visualisiert Ihren Workflow.
 4. **Benutzerdefinierte Felder anlegen**, Felder für Auftragstyp (Privat, Gewerbe, Industrie), Stromkreisdetails, Zertifizierungsanforderungen, Prüfungstermine und Zugangshinweise erstellen.
 5. **Automatisierungen bauen**, Regeln für Angebotsnachverfolgung, Prüfungserinnerungen, Vertragsverlängerungen und Nachbetreuung erstellen. Die n8n-Automatisierungs-Engine bietet unbegrenzte Workflows ohne Zusatzkosten.
@@ -183,7 +183,7 @@ Ein Elektriker CRM verbessert die Terminplanung, indem es Auftragsdaten, Verfüg
 
 ### Kann ein CRM elektrische Prüfungen und Dokumentation nachverfolgen?
 
-Ja. Customermates nutzt benutzerdefinierte Felder für Prüfungstypen (E-Check, DGUV V3, VDE-Prüfung), Prüfnummern, Messergebnisse, Konformitätsstatus, nächste Prüftermine und zuständige Elektrofachkräfte. Hängen Sie Fotos, Prüfberichte und Zertifikate direkt an Kundendatensätze an. Automatisierte Workflows lösen Benachrichtigungen aus, wenn Prüfungen fällig sind oder Zertifizierungen ablaufen, damit Sie keinen Termin verpassen und wiederkehrende Umsatzchancen schaffen.
+Ja. Customermates nutzt benutzerdefinierte Felder für Prüfungstypen (E-Check, DGUV V3, VDE-Prüfung), Prüfnummern, Messergebnisse, Konformitätsstatus, nächste Prüftermine und zuständige Elektrofachkräfte. Speichern Sie Fotos, Prüfberichte und Zertifikate in einem externen Dokumentensystem und erfassen Sie dessen Link am Kundendatensatz. Ein separat betriebener Workflow kann Prüftermine auswerten und über einen externen Anbieter erinnern, damit die Wiedervorlage und wiederkehrende Umsatzchancen sichtbar bleiben.
 
 ### Wie hilft CRM-Software Elektrikern bei Angeboten und Rechnungen?
 

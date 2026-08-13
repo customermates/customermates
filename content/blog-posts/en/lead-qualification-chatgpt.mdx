@@ -286,7 +286,7 @@ New lead arrives (webhook / CRM trigger / form)
 ### Step-by-Step Implementation
 
 **1. Trigger: Capture new leads.**
-Use an n8n Webhook node or a CRM trigger. If you use [Customermates](/), new contacts automatically trigger workflows via the native n8n integration. Alternatively, connect web forms, email parsers, or chatbot outputs.
+Use an n8n Webhook node or a CRM trigger. If you use [Customermates](/), new contacts automatically trigger workflows via the separate n8n integration. Alternatively, connect web forms, email parsers, or chatbot outputs.
 
 **2. Enrich lead data (optional).**
 Before scoring, you may want to add context. Use an HTTP Request node to pull company data from Clearbit, Apollo, or LinkedIn. More context improves scoring accuracy. Even basic enrichment (company size, industry, location) can move a lead's ICP fit score from "Unknown" to "Strong" or "Weak."
@@ -418,7 +418,7 @@ Build a feedback loop. When a sales rep disagrees with an AI score, they update 
 
 ### Is it GDPR-compliant to send lead data to ChatGPT?
 
-When using the OpenAI API with a business agreement and DPA, data is processed but not used for training. For maximum compliance, minimize the PII sent (use company name and message content, not personal email addresses), and consider a self-hosted LLM via Ollama for sensitive data. On the CRM side, Customermates stores data in the EU by default and is fully GDPR-compliant.
+When using the OpenAI API with a business agreement and DPA, data is processed but not used for training. For maximum compliance, minimize the PII sent (use company name and message content, not personal email addresses), and consider a self-hosted LLM via Ollama for sensitive data. On the CRM side, Customermates uses an EU region for the managed database and publishes a DPA and SCCs, but holds no compliance certification.
 
 ### What if I only get 20 leads per month, is automation worth it?
 

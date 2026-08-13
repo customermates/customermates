@@ -54,7 +54,7 @@ Customermates ist die Mittelstands-CRM-Software, die die Lücke zwischen einfach
 
 ### Rollenbasierte Berechtigungen für jede Abteilung
 
-Bestimmen Sie granular, wer was sehen und bearbeiten darf. Vertriebsmitarbeiter sehen ihre eigene Pipeline und Kontakte. Vertriebsleiter sehen die komplette Teamansicht. Key Account Management arbeitet in separaten Pipelines. Der Kundenservice greift auf die Interaktionshistorie zu, ohne Dealwerte zu sehen. Die Geschäftsleitung erhält Dashboard-Reporting über alle Teams. Kein dedizierter Admin erforderlich, Fachanwender konfigurieren Berechtigungen über die Oberfläche.
+Nutzen Sie ressourcenbasierte Rollen für Kontakte, Organisationen, Deals, Services, Aufgaben und Messaging. Berechtigungen gelten für eine ganze Ressource statt für einzelne Felder, Datensätze oder persönliche Teamansichten. Separate Pipelines strukturieren das Key Account Management; Berechtigte sehen dieselben zugänglichen Datensätze. Administratoren konfigurieren diese Rollengrenzen in der Oberfläche; Feldberechtigungen gibt es nicht.
 
 ### Multi-Pipeline-Management
 
@@ -62,7 +62,7 @@ Betreiben Sie separate Pipelines für verschiedene Geschäftsprozesse: Neukunden
 
 ### Management-Reporting und Dashboards
 
-Geben Sie der Geschäftsleitung die Kennzahlen, die sie braucht, ohne die IT bitten zu müssen, Berichte zu erstellen. Pipeline-Wert nach Stufe, Konversionsraten nach Quelle, Team-Performance-Metriken, Umsatzprognosen, Aktivitäts-Tracking, alles über eingebaute Dashboards verfügbar. Export als CSV für Vorstandspräsentationen oder Anbindung an externe BI-Tools via API. Für eine vollständige Analyse der Wirkungsmessung siehe unseren [CRM-ROI-Leitfaden](/blog/crm-roi).
+Geben Sie der Geschäftsleitung aktuelle CRM-Daten, ohne jede Ansicht von der IT bauen zu lassen. Konfigurierbare Dashboards zeigen gespeicherte Deal-Anzahlen und -Werte; Customermates berechnet weder Konversionsmetriken noch Umsatzprognosen. Lesen Sie unterstützte Daten über REST für Vorstandsberichte oder externe BI-Analysen. Hinweise zur Wirkungsmessung bietet unser [CRM-ROI-Leitfaden](/blog/crm-roi).
 
 ### Tiefe Integration über API und n8n
 
@@ -70,7 +70,7 @@ Verbinden Sie Customermates mit Ihrem ERP, Ihrer Buchhaltung (DATEV, lexoffice),
 
 ### DSGVO-nativ und in der EU-Region gehostet
 
-Customermates wird in Deutschland innerhalb der Europäischen Union gehostet. DSGVO-Konformität ist in die Architektur eingebaut, nicht nachträglich hinzugefügt. Auftragsverarbeitungsverträge (AVV), Datenexport, Löschanspruch-Workflows und Audit-Logging sind enthalten. Für Unternehmen mit maximalen Anforderungen an Datensouveränität kann Customermates auf [eigener Infrastruktur betrieben](/features/self-hosted) werden, der vollständige Quellcode ist Open Source.
+Beim gehosteten Dienst läuft die verwaltete Datenbank in einer EU-Region. Application-Hosting und weitere Anbieter, darunter US-Anbieter, stehen in der Subdienstleisterliste. Audit-Historie ist im Produkt sichtbar; Datenschutzanfragen und externer Datenzugriff benötigen Ihren Prozess und unterstützte APIs. Customermates ist Open Source und [selbst hostbar](/features/self-hosted), doch Bereitstellungsangaben sind keine Compliance-Zertifizierung.
 
 ### KI-Agenten, die Ihr Mittelstands-CRM bedienen
 
@@ -111,7 +111,7 @@ Ein CRM für den Mittelstand ist für Unternehmen mit ca. 50 bis 1.000 Mitarbeit
 
 ### Wie handhabt Customermates den Übergang von einem KMU-CRM zu einem Mittelstands-CRM?
 
-Customermates skaliert nahtlos. Importieren Sie bestehende Kontakte, Organisationen und Deals per CSV oder API. Richten Sie zusätzliche Pipelines für verschiedene Geschäftsbereiche ein, konfigurieren Sie rollenbasierte Berechtigungen für jedes Team und aktivieren Sie Automatisierungen, alles ohne auf eine andere Plattform migrieren zu müssen. Dasselbe System, das für ein 5-Personen-Team funktioniert, funktioniert auch für 200 Nutzer.
+Customermates unterstützt Kontakte, Organisationen, Deals, konfigurierbare Pipelines und ressourcenbasierte Rollen. Bereiten Sie Quelldaten außerhalb des Produkts auf und erstellen Sie unterstützte Datensätze über REST oder einen externen KI-Client per MCP; Customermates hat keinen CSV-Uploader. Automatisierungen laufen in einer separaten Integration, die Sie selbst betreiben.
 
 ### Kann Customermates mit unserem ERP und unserer Buchhaltungssoftware integriert werden?
 
@@ -119,11 +119,11 @@ Ja. Customermates bietet eine vollständige REST-API und Webhooks für Echtzeit-
 
 ### Ist Customermates für Unternehmen mit mehreren Abteilungen und Teams geeignet?
 
-Absolut. Customermates unterstützt mehrere Pipelines, rollenbasierte Berechtigungen und teamspezifische Ansichten. Vertrieb, Key Account Management, Customer Success und Service können alle im selben CRM mit passenden Zugriffskontrollen arbeiten. Die Geschäftsleitung erhält teamübergreifende Dashboards und Reporting. Kein dedizierter CRM-Administrator erforderlich.
+Absolut. Customermates unterstützt mehrere Pipelines und ressourcenbasierte Berechtigungen. Vertrieb, Key Account Management, Customer Success und Service arbeiten im selben CRM mit gemeinsam zugänglichen Datensätzen; gespeicherte Ansichten und Filterkonfigurationen bleiben je Nutzer persönlich. Die Geschäftsleitung kann Dashboards und Reporting über zulässige Daten nutzen, ohne ein geteiltes Teamansichts-Objekt.
 
 ### Wie stellt Customermates die DSGVO-Konformität für mittelständische Unternehmen sicher?
 
-Customermates ist DSGVO-nativ und wird in Deutschland innerhalb der EU gehostet. Auftragsverarbeitungsverträge (AVV), Datenexport, Löschanspruch-Workflows, Einwilligungsverfolgung und vollständiges Audit-Logging sind eingebaut. Für maximale Datensouveränität können Sie auf eigener Infrastruktur selbst hosten, mit vollem Quellcode-Zugriff. Das erfüllt die Compliance-Anforderungen, die deutsche mittelständische Unternehmen stellen.
+Die gehostete Customermates-Datenbank läuft in einer EU-Region; Application- und weitere Anbieter, darunter US-Anbieter, sind separat dokumentiert. Audit-Historie ist sichtbar; einen eingebauten vollständigen Datenexport, Einwilligungsworkflow oder eine Compliance-Zertifizierung gibt es nicht. Beim Self-Hosting wählt und betreibt Ihr Team Anwendung und Datenbank, während verbundene Anbieter separat zu prüfen sind.
 
 ### Was bedeutet „Open Source" für ein Mittelstands-CRM?
 
@@ -131,12 +131,12 @@ Open Source bedeutet, dass der vollständige Quellcode von Customermates öffent
 
 ### Wie lange dauert die Einrichtung von Customermates für ein mittelständisches Unternehmen?
 
-Die initiale Einrichtung dauert etwa 2 Minuten, Konto erstellen, erste Nutzer einladen und loslegen. Ein vollständiges Mittelstands-Deployment inklusive Datenimport, Pipeline-Konfiguration, Berechtigungseinrichtung und Automatisierungs-Workflows dauert typischerweise 1-2 Wochen mit Ihrem eigenen Team. Keine externen Berater nötig. Vergleichen Sie das mit 3-6 Monaten Implementierungszeit bei Enterprise-CRM-Plattformen.
+Konto, Nutzer und Pipelines richten Sie in Customermates selbst ein. Aufwand und Dauer für Datenmigration, Berechtigungen und externe Automatisierungen hängen von der Quelldatenqualität, Ihrer Integration und Ihren Anforderungen ab; Customermates verspricht dafür keinen festen Zeitrahmen.
 
 ## So starten Sie mit Customermates für Ihr mittelständisches Unternehmen
 
 1. **[Kostenloses Konto erstellen](/auth/signup)**, ohne Kreditkarte, erste 7 Tage von Pro kostenlos zum Erkunden.
-2. **Bestandsdaten importieren**, Kontakte, Organisationen und Deals per CSV oder API übernehmen.
+2. **Unterstützte Bestandsdaten migrieren**, bereiten Sie Kontakte, Organisationen und Deals außerhalb des Produkts auf und erstellen Sie sie über REST oder einen externen KI-Client per MCP. Customermates hat keinen CSV-Uploader.
 3. **Pipelines einrichten**, separate Pipelines für Neukundengeschäft, Bestandskundenausbau, Partnermanagement und Verlängerungen konfigurieren.
 4. **Teams und Berechtigungen konfigurieren**, Nutzerrollen für jede Abteilung mit passenden Zugriffsebenen anlegen.
 5. **Systeme anbinden**, ERP, E-Mail und andere Tools über API und n8n integrieren.

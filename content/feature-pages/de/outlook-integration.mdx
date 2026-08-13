@@ -1,11 +1,11 @@
 ---
-title: CRM Outlook-Integration - E-Mail, Kalender & Kontakt-Sync
-description: "Outlook mit Ihrem CRM verbinden: Bidirektionaler E-Mail-Sync, Kalenderintegration, Kontaktabgleich und Workflows. EU-gehostet, DSGVO-konform."
+title: CRM Outlook-Integration - E-Mail & Kalender-Leseansicht
+description: "Outlook mit Ihrem CRM verbinden: E-Mail im gemeinsamen Postfach und Kalender nur lesend. Separate n8n-Workflows bei Bedarf. Datenbank in einer EU-Region."
 featureName: Outlook-Integration
 
 hero:
   title: Outlook-Integration mit gemeinsamem Postfach und KI-Entwürfen
-  description: Bringen Sie Outlook-E-Mail in ein gemeinsames Postfach im CRM, in dem KI-Agenten Antworten entwerfen und jede Nachricht automatisch protokollieren. Kalendertermine erscheinen auf CRM-Timelines, Kontakte bleiben synchron, und Ihr Team beantwortet Outlook neben LinkedIn, WhatsApp, Instagram und Telegram. Enthalten ab der Pro-Stufe für 29 EUR pro Nutzer und Monat.
+  description: Bringen Sie Outlook-E-Mail ins gemeinsame CRM-Postfach, wo ein unterstützter externer KI-Client einzelne Antworten per MCP entwerfen kann. Verbundene Kalendertermine erscheinen nur lesend auf Timelines; Customermates synchronisiert keine Outlook-Kontakte und schreibt keine Kalendertermine. Enthalten ab Pro für 29 EUR pro Nutzer und Monat.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -14,7 +14,7 @@ hero:
 
 cta:
   action: Bereit, Outlook zu verbinden?
-  description: Verbinden Sie Ihr Outlook-Konto mit Customermates in unter zwei Minuten. E-Mail-, Kalender- und Kontakt-Sync sind ab dem ersten Tag enthalten.
+  description: Verbinden Sie ein unterstütztes Outlook-Konto in Pro für E-Mail im gemeinsamen Postfach und Kalenderdaten nur lesend. Kontakt-Sync und Kalenderschreibzugriff sind nicht enthalten.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -28,17 +28,17 @@ Eine CRM Outlook-Integration verbindet Microsoft Outlook mit Ihrem Kundenbeziehu
 
 E-Mail bleibt der primäre B2B-Kommunikationskanal. Ihr Vertriebsteam sendet täglich Dutzende E-Mails an Interessenten und Kunden über Outlook. Ohne CRM-Integration existieren diese Konversationen nur in individuellen Postfächern, unsichtbar für den Rest des Teams und getrennt von den Deal- und Kontaktdatensätzen, zu denen sie gehören. Wenn jemand krank ist, im Urlaub oder das Unternehmen verlässt, geht der E-Mail-Kontext mit ihm.
 
-Outlook-Integration eliminiert dieses Problem. E-Mails werden automatisch den entsprechenden CRM-Datensätzen zugeordnet. Kalendertermine werden synchronisiert. Kontakte bleiben zwischen beiden Systemen konsistent. Ihr Team arbeitet in Outlook wie gewohnt, während das CRM alles im Hintergrund erfasst.
+Outlook-Integration verringert dieses Problem, indem unterstützte E-Mail ins CRM gelangt und Konversationen passenden Datensätzen zugeordnet werden. Verbundene Kalendertermine sind nur lesend sichtbar. Customermates synchronisiert keine Outlook-Kontakte und erstellt, ändert oder bucht keine Anbietertermine.
 
 ## So funktioniert die Outlook-Integration in Customermates
 
-Customermates integriert sich mit Microsoft Outlook 365 über native E-Mail-Konnektivität und die n8n-Automatisierungs-Engine. Outlook-E-Mail landet im gemeinsamen Postfach im CRM, neben LinkedIn, WhatsApp, Instagram und Telegram, und KI-Agenten (Claude, ChatGPT, Gemini) können den Thread lesen und Ihre Antwort über die native MCP-Integration entwerfen. Native E-Mail- und Kalendersynchronisierung sind Teil des gemeinsamen Postfachs und ab der Pro-Stufe (29 EUR/Nutzer/Monat) enthalten; die Einstiegsstufe Starter (12 EUR/Nutzer/Monat) deckt das Kern-CRM ohne verbundenes Postfach ab.
+Customermates verbindet unterstützte Microsoft-Outlook-365-E-Mail mit dem gemeinsamen Postfach neben LinkedIn, WhatsApp, Instagram und Telegram. Ein unterstützter externer KI-Client kann zulässigen Thread-Kontext lesen und per MCP eine einzelne Antwort entwerfen. E-Mail und eine schreibgeschützte Ansicht des verbundenen Kalenders starten mit Pro (29 EUR/Nutzer/Monat); Starter (12 EUR/Nutzer/Monat) umfasst Kern-CRM ohne Postfach. n8n läuft separat.
 
 ### Einrichtung in drei Schritten
 
 **Schritt 1: Outlook-Konto verbinden.** Navigieren Sie zu den Einstellungen in Customermates, wählen Sie E-Mail-Integration und melden Sie sich mit Ihren Microsoft-365-Zugangsdaten über sichere OAuth-Authentifizierung an. Keine IT-Abteilung erforderlich, keine Outlook-Plugins zu installieren.
 
-**Schritt 2: Sync-Einstellungen konfigurieren.** Wählen Sie, welche E-Mails synchronisiert werden: alle E-Mails, nur E-Mails von bestehenden CRM-Kontakten oder bestimmte Ordner. Legen Sie Kalender-Sync-Einstellungen und die Kontakt-Sync-Richtung fest. Sie kontrollieren genau, welche Daten zwischen Outlook und Ihrem CRM fließen.
+**Schritt 2: E-Mail-Verbindung konfigurieren.** Wählen Sie unterstützte E-Mail-Synchronisierungseinstellungen für das verbundene Konto. Kalenderdaten stehen, soweit unterstützt, nur lesend bereit; Einstellungen für Outlook-Kontakt-Sync oder Kalenderschreibzugriff gibt es nicht.
 
 **Schritt 3: Loslegen.** E-Mails beginnen sofort zu synchronisieren. Jede E-Mail, die Sie an einen CRM-Kontakt senden oder von ihm empfangen, erscheint auf dessen Timeline. Kalendertermine mit CRM-Kontakten erscheinen auf deren Aktivitätsdatensatz. Ihr Team arbeitet in Outlook wie gewohnt, während das CRM automatisch alles organisiert.
 
@@ -48,15 +48,15 @@ Bidirektionaler E-Mail-Sync erfasst sowohl gesendete als auch empfangene E-Mails
 
 Customermates gleicht E-Mails ab, indem Absender- und Empfängeradressen gegen Ihre Kontaktdatenbank geprüft werden. Der Abgleich erfolgt automatisch und zuverlässig. Wenn der Absender noch nicht in Ihrem CRM ist, können Sie mit einem Klick direkt aus der E-Mail einen neuen Kontakt erstellen.
 
-### Kalender-Synchronisierung
+### Kalenderdaten, nur lesend
 
-Ihr Outlook-Kalender bleibt mit CRM-Aktivitäten synchron. Wenn Sie in Outlook ein Meeting mit einem CRM-Kontakt planen, erscheint das Meeting auf der Aktivitäts-Timeline des Kontakts. Wenn Sie im CRM eine Aktivität mit Datum und Uhrzeit erstellen, erscheint sie in Ihrem Outlook-Kalender. Bidirektionaler Sync bedeutet, dass Ihr Team nie beide Systeme manuell aktualisieren muss.
+Lesen Sie unterstützte Termine des verbundenen Outlook-Kalenders im CRM-Kontext. In Outlook erstellte Meetings können auf der passenden Aktivitäts-Timeline erscheinen; Customermates erstellt, ändert, bucht oder löscht jedoch keine Termine und schreibt sie nicht in Outlook zurück.
 
 Meeting-Historie wird Teil des CRM-Datensatzes. Manager können Meeting-Häufigkeit und -Aktualität für jeden Kontakt einsehen, um Beziehungsgesundheit zu verstehen und Kunden zu identifizieren, die Aufmerksamkeit brauchen.
 
-### Kontakt-Synchronisierung
+### Kontaktabgleich ohne Kontakt-Sync
 
-Halten Sie Ihre Outlook-Kontakte konsistent mit Ihren CRM-Kontakten. Wenn Kontaktdetails in Customermates aktualisiert werden (neue Telefonnummer, Titeländerung, Adressupdate), können die Änderungen automatisch nach Outlook synchronisiert werden. Wenn Sie einen neuen Kontakt in Outlook hinzufügen, kann er auch im CRM erstellt werden. Ein Update gilt überall.
+Unterstützte E-Mail-Konversationen können über die Adresse CRM-Kontakten zugeordnet werden. Outlook-Adressbuchkontakte werden in keine Richtung synchronisiert; erstellen oder aktualisieren Sie CRM-Kontakte über die unterstützten Datensatzschnittstellen.
 
 ## Kernfunktionen
 
@@ -64,18 +64,18 @@ Halten Sie Ihre Outlook-Kontakte konsistent mit Ihren CRM-Kontakten. Wenn Kontak
 
 **E-Mail-Timeline auf jedem Datensatz.** Kontakt-, Organisations- und Deal-Datensätze zeigen die vollständige E-Mail-Historie chronologisch neben Anrufen, Notizen, Aufgaben und Meetings an. Ein Bildschirm gibt Ihnen das vollständige Bild jeder Kundeninteraktion.
 
-**KI-entworfene Antworten.** Über die native MCP-Integration (46 Tools) lesen KI-Agenten wie Claude, ChatGPT und Gemini den Thread und entwerfen eine Antwort in Ihrer Stimme, die nach Ihrer Freigabe gesendet wird. Kein Copy-and-paste und kein separates Vorlagen-Tool.
+**KI-entworfene Antworten über externe Clients.** Unterstützte Clients wie Claude, ChatGPT oder Gemini können per MCP zulässigen Thread-Kontext lesen und eine einzelne Antwort zur Freigabe entwerfen. Customermates enthält weder KI-Client noch Modell, Abonnement oder Nutzung.
 
 **Ein Postfach über alle Kanäle.** Outlook-E-Mail liegt im selben gemeinsamen Postfach wie LinkedIn, WhatsApp, Instagram und Telegram, sodass Ihr Team jeden Kanal an einem Ort im CRM beantwortet, statt zwischen Apps zu wechseln.
 
 **Gemeinsame-Postfach-Unterstützung.** Ab der Business-Stufe für 69 EUR pro Nutzer und Monat enthalten. Verbinden Sie gemeinsame Team-Postfächer, sodass E-Mails an vertrieb@ oder support@-Adressen bei den entsprechenden Kontaktdatensätzen protokolliert werden, wobei mehrere Teammitglieder denselben Thread sehen, ohne Zugang zu den persönlichen Postfächern anderer zu brauchen.
 
-**n8n-Workflows für erweiterte Automatisierung.** Nutzen Sie die n8n-Engine, um Outlook-Integrations-Workflows zu erstellen, die über Basis-Sync hinausgehen:
+**Separate n8n-Workflows für erweiterte Automatisierung.** Eine separat betriebene n8n-Instanz kann dokumentierte Schnittstellen und externe Anbieter für Workflows jenseits der nativen E-Mail- und Kalender-Leseansicht nutzen:
 
-- Wenn eine E-Mail von einem VIP-Kunden eingeht, erstellen Sie eine Prioritätsaufgabe und benachrichtigen Sie den Account Manager in [Slack](/features/slack-integration)
-- Wenn ein Deal zu "Angebot gesendet" wechselt, planen Sie eine Follow-up-E-Mail in Outlook für drei Tage später
-- Wenn ein neuer Kontakt Ihrem Team eine E-Mail schickt, erstellen Sie einen CRM-Datensatz und weisen Sie den Lead nach geografischen Regeln zu
-- Wenn eine Meeting-Einladung angenommen wird, aktualisieren Sie die Deal-Phase und protokollieren Sie das Meeting als Aktivität
+- Wenn ein E-Mail-Ereignis verfügbar ist, erstellen Sie eine unterstützte Aufgabe und informieren den Account Manager über einen externen [Slack](/features/slack-integration)-Anbieter
+- Wenn ein Deal zu "Angebot gesendet" wechselt, bitten Sie einen externen Scheduler und die Outlook-API um ein späteres Follow-Up
+- Wenn ein neuer Absender schreibt, erstellen Sie per REST einen unterstützten CRM-Datensatz und wenden eigene Routing-Logik an
+- Wenn ein externer Kalenderanbieter ein Ereignis liefert, aktualisieren Sie über den Workflow ein unterstütztes CRM-Feld
 
 ## Zentrale Vorteile
 
@@ -83,11 +83,11 @@ Halten Sie Ihre Outlook-Kontakte konsistent mit Ihren CRM-Kontakten. Wenn Kontak
 
 **Arbeiten Sie aus Ihrem Postfach.** Ihr Team muss nicht zum CRM wechseln, um E-Mails zu protokollieren oder Kontaktdetails nachzuschlagen. Die Outlook-Integration bringt CRM-Bewusstsein in die Anwendung, in der es den größten Teil des Tages verbringt. Das CRM arbeitet unsichtbar im Hintergrund.
 
-**Vollständige Interaktionshistorie.** E-Mails, Meetings und Kontaktupdates aus Outlook vereinen sich mit Notizen, Aufgaben, Anrufen und Deal-Aktivitäten auf einer einheitlichen CRM-Timeline. Jeder Berührungspunkt mit einem Kunden ist an einem Ort sichtbar.
+**Erfasster Interaktionskontext.** Unterstützte E-Mails und schreibgeschützte Meetings aus Outlook stehen neben erfassten Notizen, Aufgaben und Deal-Aktivitäten im CRM-Kontext. Outlook-Kontaktupdates werden nicht synchronisiert.
 
-**Konsistente Kontakte über Systeme.** Kontakt-Synchronisierung eliminiert die Frustration veralteter Telefonnummern in Outlook, wenn das CRM aktualisiert wurde, oder umgekehrt. Ein Update propagiert in beide Systeme.
+**Kontaktkontext ohne Adressbuch-Sync.** E-Mail-Zuordnung hält unterstützte Konversationen im CRM-Kontext. Outlook-Kontakte werden nicht zu oder von Customermates synchronisiert; Adressbuchänderungen bleiben im zuständigen System.
 
-**Automatische Datenerfassung.** Automatisierte E-Mail- und Kalenderprotokollierung beseitigt die Last der manuellen CRM-Dateneingabe, eine häufige Beschwerde von Vertriebsteams. Ihr Team kommuniziert normal über Outlook, und das CRM zeichnet alles automatisch auf.
+**Unterstützter E-Mail-Kontext.** Verbundene E-Mail-Konversationen können im gemeinsamen Postfach erscheinen; Kalenderdaten stehen nur lesend bereit. Customermates erfasst nicht jedes Outlook-Objekt, synchronisiert keine Kontakte und schreibt keine Anbietertermine.
 
 **Kürzere Deal-Zyklen.** Teams mit CRM-E-Mail-Integration berichten konsistent von kürzeren Vertriebszyklen, weil Follow-ups pünktlich erfolgen, Kontext nie verloren geht und Übergaben nahtlos sind.
 
@@ -95,15 +95,15 @@ Halten Sie Ihre Outlook-Kontakte konsistent mit Ihren CRM-Kontakten. Wenn Kontak
 
 **Vertriebs-E-Mail-Tracking.** Protokollieren Sie alle E-Mails zwischen Ihrem Vertriebsteam und Interessenten bei den entsprechenden Deal-Datensätzen. Bei der Deal-Überprüfung sieht der [Vertriebsleiter](/features/sales) den vollständigen E-Mail-Thread neben Pipeline-Aktivitäten und Notizen.
 
-**Meeting-Historie-Erfassung.** Jedes Meeting, das über Outlook mit einem CRM-Kontakt geplant wird, wird auf dessen Timeline erfasst. Meeting-Häufigkeit und -Aktualität helfen Managern, Beziehungsgesundheit zu verstehen und ihr Team zu coachen.
+**Meeting-Kontext, nur lesend.** Unterstützte Meetings aus einem verbundenen Outlook-Kalender können schreibgeschützt im CRM-Kontext erscheinen. Meeting-Häufigkeit oder Beziehungsgesundheit werden nicht nativ berechnet.
 
-**Lead-Erfassung aus E-Mail.** Wenn ein neuer Interessent Ihrem Team eine E-Mail schickt, erstellen Sie automatisch einen CRM-Kontakt aus den Absenderinformationen und hängen Sie die erste E-Mail als erste Aktivität an. Leiten Sie den neuen Lead an den entsprechenden Mitarbeiter weiter.
+**Lead-Erfassung aus E-Mail.** Ein kundeneigener Workflow kann unterstützte E-Mail-Daten nutzen, per REST einen CRM-Kontakt erstellen und eigene Routing-Regeln anwenden. Customermates besitzt weder native Lead-Routing- noch Outlook-Kontakt-Sync-Engine.
 
-**Follow-Up-Planung.** Nach dem Senden einer Angebots-E-Mail erstellen Sie automatisch eine Follow-Up-Aufgabe, verknüpft mit dem E-Mail-Thread. Die Aufgabe erinnert den Vertriebsmitarbeiter, nach einer definierten Frist auf Antwort zu prüfen, und n8n kann eskalieren, wenn die Aufgabe überfällig wird.
+**Follow-Up-Planung.** Nach dem Senden einer Angebots-E-Mail kann ein separater Workflow eine Follow-Up-Aufgabe mit dem E-Mail-Thread verknüpfen. Speichern Sie das Wiedervorlagedatum in einem eigenen Feld; ein separat betriebener n8n-Workflow kann es auswerten und über einen externen Anbieter eine Benachrichtigung senden. Customermates besitzt keine native Erinnerungs-Engine.
 
 **Abwesenheits-Kontinuität.** Wenn ein Teammitglied im Urlaub ist, ist seine vollständige E-Mail-Historie mit jedem Kontakt im CRM verfügbar. Kollegen führen Gespräche nahtlos fort, ohne Zugang zum individuellen Outlook-Postfach zu brauchen.
 
-**E-Mail-ausgelöste Deal-Updates.** Nutzen Sie n8n, um CRM-Aktionen aus eingehenden E-Mails auszulösen. Wenn ein Kunde auf ein Angebot mit bestimmten Schlüsselwörtern antwortet, aktualisieren Sie die Deal-Phase automatisch. Wenn eine E-Mail zurückkommt, markieren Sie den Kontaktdatensatz zur Überprüfung.
+**E-Mail-ausgelöste Deal-Updates.** Ein separater n8n-Workflow kann verfügbare E-Mail-Ereignisse auswerten und unterstützte CRM-Operationen aufrufen. Klassifizierung, Outlook-Zugang, Laufzeit, Zugangsdaten, Logs, Limits und Zustellung bleiben extern.
 
 ## Warum Customermates für Outlook-Integration?
 
@@ -111,13 +111,13 @@ Halten Sie Ihre Outlook-Kontakte konsistent mit Ihren CRM-Kontakten. Wenn Kontak
 
 **Open Source und transparent.** Der Integrationscode ist Open Source. Sie können genau prüfen, wie Ihre E-Mail-Daten verarbeitet und gespeichert werden. Keine proprietären Plugins mit unbekannten Datenverarbeitungspraktiken.
 
-**EU-gehostet und DSGVO-konform.** Alle E-Mail-Synchronisierungsdaten werden in europäischen Rechenzentren gespeichert, mit vollständiger DSGVO-Konformität. Kundenkommunikation bleibt innerhalb der europäischen Jurisdiktion, anders als bei CRM-Anbietern, die Outlook-Daten über US-Server leiten.
+**EU-Datenbankregion mit dokumentierten Anbietern.** Die gehostete Datenbank läuft in einer EU-Region. Anwendungshosting und verbundene Messaging-Anbieter, darunter US-Anbieter, können Daten andernorts verarbeiten; das ist eine Bereitstellungsangabe, keine DSGVO- oder andere Compliance-Zertifizierung.
 
-**Einfache, faire Preisgestaltung.** Outlook-Integration, einschließlich Kalendersynchronisierung, ist ab der Pro-Stufe für 29 EUR pro Nutzer und Monat enthalten. Keine Kosten pro Postfach obendrauf. Verbinden Sie so viele Postfächer, wie Sie Nutzer haben.
+**Einfache, faire Preisgestaltung.** Unterstützte Outlook-E-Mail und Kalenderdaten nur lesend starten mit Pro für 29 EUR pro Nutzer und Monat. Verfügbarkeit verbundener und geteilter Konten folgt den veröffentlichten Tariflimits.
 
-**n8n-Automatisierung für individuelle Workflows.** Gehen Sie über das hinaus, was einfacher Outlook-Sync bietet. Erstellen Sie intelligente Automatisierung, die auf E-Mail-Inhalt, Timing und Muster reagiert. Die n8n-Engine bewältigt Szenarien, die Standard-E-Mail-Konnektoren nicht abdecken.
+**Separates n8n für individuelle Workflows.** Verbinden Sie eine von Ihnen betriebene n8n-Instanz über REST, Webhooks, MCP oder Community-Node. Planung, Logik, Anbieterzugänge, Tarif, Limits, Logs und Kosten bleiben außerhalb von Customermates.
 
-**Self-Hosting für volle Kontrolle.** Betreiben Sie Customermates auf Ihrer eigenen Infrastruktur und behalten Sie alle E-Mail-Synchronisierungsdaten auf Ihren Servern. Self-Hosting stellt sicher, dass sensible Kundenkommunikation Ihre Umgebung nie verlässt.
+**Self-Hosting des Kern-CRM.** Beim Self-Hosting laufen Anwendung und PostgreSQL-Datenbank mit Starter-Berechtigungen auf Ihrer Infrastruktur. Das Cloud-Postfach, die Outlook-E-Mail-Verbindung und Kalenderansicht sind nicht enthalten; externe Anbieter bleiben separat.
 
 ## Häufig gestellte Fragen
 
@@ -131,14 +131,14 @@ Nein. Die Integration funktioniert über serverseitige OAuth-Authentifizierung. 
 Ja. Sie können alle E-Mails synchronisieren, nur E-Mails von bestehenden CRM-Kontakten oder bestimmte Outlook-Ordner. Sie haben volle Kontrolle darüber, welche Kommunikation ins CRM gelangt.
 
 **Ist die Kalendersynchronisierung bidirektional?**
-Ja. Meetings, die in Outlook erstellt werden, erscheinen auf CRM-Timelines, und Aktivitäten, die im CRM mit Datum erstellt werden, erscheinen in Ihrem Outlook-Kalender.
+Nein. Unterstützte Termine des verbundenen Outlook-Kalenders sind in Customermates nur lesend. Das CRM erstellt, ändert, bucht oder löscht keine Termine und schreibt sie nicht in Outlook zurück.
 
 **Können mehrere Teammitglieder ihre Outlook-Konten verbinden?**
 Ja. Jedes Teammitglied verbindet sein eigenes Outlook-Konto. E-Mails aller verbundenen Konten werden bei den gemeinsamen CRM-Kontaktdatensätzen protokolliert, sodass das gesamte Team Einblick in alle Kundenkommunikation hat.
 
-**Werden meine E-Mail-Daten in der EU gespeichert?**
-Ja. Alle synchronisierten E-Mail-Daten werden in europäischen Rechenzentren mit vollständiger DSGVO-Konformität gespeichert. Beim Self-Hosting bleiben die Daten auf Ihren eigenen Servern.
+**Wo werden gehostete Daten verarbeitet?**
+Die verwaltete Datenbank läuft in einer EU-Region. Anwendungshosting und verbundene Anbieter können Daten andernorts verarbeiten, auch über US-Anbieter; Self-Hosting mit Starter enthält diese Cloud-E-Mail-Integration nicht.
 
 ## Starten Sie heute mit Outlook-Integration
 
-Verbinden Sie Outlook mit Customermates und beginnen Sie, Ihre E-Mail-Kommunikation im CRM zu erfassen. Die Einrichtung dauert unter zwei Minuten: registrieren Sie sich, verbinden Sie Ihr Microsoft-365-Konto, konfigurieren Sie die Sync-Einstellungen, und Ihre E-Mail-Historie beginnt sofort zu synchronisieren. Kalender- und Kontakt-Sync folgen derselben einfachen Einrichtung. Alle Outlook-Integrationsfunktionen stehen ab dem ersten Tag zur Verfügung.
+Verbinden Sie ein unterstütztes Outlook-Konto in Pro und bringen Sie E-Mail neben schreibgeschütztem Kalenderkontext ins gemeinsame Postfach. Konfigurieren Sie die verfügbaren Verbindungseinstellungen und beginnen Sie mit einer einzelnen Konversation. Outlook-Kontakt-Sync und Kalenderschreibzugriff sind nicht enthalten; separate Workflows und Anbieter bleiben extern.

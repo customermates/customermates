@@ -1134,32 +1134,32 @@
       "ctaText": "Inizia gratis",
       "featureBusiness": "Business: 3 account per utente, account condivisi e assistenza prioritaria",
       "featurePro": "Pro: posta in arrivo unificata, 1 account collegato per utente",
-      "featureStarter": "Starter: il CRM completo",
+      "featureStarter": "Starter: il nucleo del CRM",
       "period": "/ utente / mese",
       "price": "da 12 €",
-      "tag": "Gestito per te, database in regione UE. Inizia gratis, senza carta di credito.",
+      "tag": "Gestito per te; database in una regione UE. Altri fornitori possono trattare dati altrove.",
       "title": "Cloud"
     },
     "compare": {
       "cancelAnytime": "Disdetta in qualsiasi momento",
-      "gdpr": "Conforme al GDPR",
+      "gdpr": "Database in regione UE; nessuna certificazione",
       "noLimits": "Piani trasparenti",
       "openSource": "Open core"
     },
     "eyebrow": "Prezzi",
     "selfHosted": {
       "ctaText": "Scarica",
-      "featureApi": "API, MCP e webhook completi",
+      "featureApi": "Interfacce API, MCP e webhook documentate",
       "featureCommunity": "Supporto della community",
-      "featureN8n": "Integrazioni n8n",
-      "featureRecords": "Record illimitati",
-      "featureUsers": "Utenti illimitati",
-      "period": "per sempre",
-      "price": "Gratis",
-      "tag": "Da eseguire sul tuo server con Docker Compose. Edizione Community AGPL con componenti a codice sorgente disponibile.",
+      "featureN8n": "Interfacce per un'istanza n8n separata",
+      "featureRecords": "Record principali del CRM",
+      "featureUsers": "Utenti dello spazio di lavoro",
+      "period": "con licenza AGPL",
+      "price": "Core gratuito",
+      "tag": "Esegui il core dell'applicazione con licenza AGPL e PostgreSQL sul tuo server tramite Docker Compose, con funzionalità Starter. I servizi esterni restano separati.",
       "title": "Self-hosted"
     },
-    "subtitle": "Piani trasparenti, senza costi nascosti. Self-hosting gratis per sempre, oppure inizia sul Cloud senza carta di credito.",
+    "subtitle": "Piani trasparenti, senza costi nascosti. Ospita gratis il core con licenza AGPL; i servizi esterni restano separati. Oppure inizia sul Cloud senza carta di credito.",
     "title": "Semplice, onesto, europeo"
   },
   "HomepageStatsRow": {

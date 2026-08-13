@@ -1134,32 +1134,32 @@
       "ctaText": "Empieza gratis",
       "featureBusiness": "Business: 3 cuentas por usuario, cuentas compartidas y soporte prioritario",
       "featurePro": "Pro: bandeja de entrada unificada, 1 cuenta conectada por usuario",
-      "featureStarter": "Starter: el CRM completo",
+      "featureStarter": "Starter: el núcleo del CRM",
       "period": "/ usuario / mes",
       "price": "desde 12 €",
-      "tag": "Gestionado para ti, base de datos en región UE. Empieza gratis, sin tarjeta de crédito.",
+      "tag": "Gestionado para ti, con base de datos en región UE; otros proveedores pueden tratar datos fuera de ella.",
       "title": "Cloud"
     },
     "compare": {
       "cancelAnytime": "Cancela cuando quieras",
-      "gdpr": "Conforme al RGPD",
+      "gdpr": "Base de datos en región UE; sin certificación",
       "noLimits": "Planes transparentes",
       "openSource": "Open core"
     },
     "eyebrow": "Precios",
     "selfHosted": {
       "ctaText": "Descargar",
-      "featureApi": "API, MCP y webhooks completos",
+      "featureApi": "Interfaces documentadas de API, MCP y webhooks",
       "featureCommunity": "Soporte de la comunidad",
-      "featureN8n": "Integraciones de n8n",
-      "featureRecords": "Registros ilimitados",
-      "featureUsers": "Usuarios ilimitados",
-      "period": "para siempre",
-      "price": "Gratis",
-      "tag": "Ejecútalo en tu servidor con Docker Compose. Edición Community AGPL con componentes de código fuente disponible.",
+      "featureN8n": "Interfaces para una instancia de n8n separada",
+      "featureRecords": "Registros básicos del CRM",
+      "featureUsers": "Usuarios del espacio de trabajo",
+      "period": "bajo AGPL",
+      "price": "Núcleo gratis",
+      "tag": "Ejecuta la aplicación base con licencia AGPL y PostgreSQL en tu servidor mediante Docker Compose, con el alcance de Starter. Los servicios externos van aparte.",
       "title": "Autoalojado"
     },
-    "subtitle": "Planes transparentes, sin costes ocultos. Autoalójalo gratis para siempre, o empieza en el Cloud sin tarjeta de crédito.",
+    "subtitle": "Planes transparentes, sin costes ocultos. Autoaloja gratis el núcleo AGPL; los servicios externos van aparte. O empieza en Cloud sin tarjeta.",
     "title": "Sencillo, honesto, europeo"
   },
   "HomepageStatsRow": {
