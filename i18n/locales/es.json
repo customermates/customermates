@@ -228,6 +228,7 @@
       "assigneeRequired": "Debes asignarte este elemento. Ten en cuenta que solo podrás ver los elementos asignados a ti.",
       "calendarEventNotFound": "ID de evento de calendario no encontrado o no accesible.",
       "channelAlreadyLinked": "Este canal ya está vinculado a otro contacto.",
+      "checkoutReservationInProgress": "Hay un proceso de pago de suscripción en curso. Vuelve a intentar cambiar el estado de este miembro cuando haya terminado.",
       "connectedAccountNotFound": "ID de canal no encontrado o no accesible.",
       "contactNotFound": "ID de contacto no encontrado o no accesible.",
       "contactRefRequired": "id debe ser un UUID de contacto, un correo o un teléfono, o bien 'provider:value' para un identificador (por ejemplo 'linkedin:jdoe').",

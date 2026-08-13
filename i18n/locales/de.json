@@ -228,6 +228,7 @@
       "assigneeRequired": "Du musst dich diesem Element zuweisen. Beachte, dass du nur Elemente sehen kannst, die dir zugewiesen sind.",
       "calendarEventNotFound": "Kalenderereignis-ID nicht gefunden oder nicht zugänglich.",
       "channelAlreadyLinked": "Dieser Kanal ist bereits mit einem anderen Kontakt verknüpft.",
+      "checkoutReservationInProgress": "Ein Abonnement-Checkout läuft gerade. Versuche erneut, den Status dieses Mitglieds zu ändern, nachdem der Checkout abgeschlossen ist.",
       "connectedAccountNotFound": "Kanal-ID nicht gefunden oder nicht zugänglich.",
       "contactNotFound": "Kontakt-ID nicht gefunden oder nicht zugänglich.",
       "contactRefRequired": "id muss eine Kontakt-UUID, eine E-Mail oder Telefonnummer oder 'provider:value' für ein Handle sein (z. B. 'linkedin:jdoe').",

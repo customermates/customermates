@@ -51,6 +51,7 @@ export enum CustomErrorCode {
   threadNotFound = "threadNotFound",
   calendarEventNotFound = "calendarEventNotFound",
   connectedAccountNotFound = "connectedAccountNotFound",
+  checkoutReservationInProgress = "checkoutReservationInProgress",
   roleNotFound = "roleNotFound",
   invalidFilterField = "invalidFilterField",
   invalidFilterOperator = "invalidFilterOperator",

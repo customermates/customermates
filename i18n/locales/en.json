@@ -228,6 +228,7 @@
       "assigneeRequired": "You must assign yourself to this item. Please note that you will only be able to view items assigned to you.",
       "calendarEventNotFound": "Calendar event ID not found or not accessible.",
       "channelAlreadyLinked": "This channel is already linked to another contact.",
+      "checkoutReservationInProgress": "A subscription checkout is in progress. Try changing this member's status again after checkout finishes.",
       "connectedAccountNotFound": "Channel ID not found or not accessible.",
       "contactNotFound": "Contact ID not found or not accessible.",
       "contactRefRequired": "id must be a contact UUID, an email or phone, or 'provider:value' for a handle (e.g. 'linkedin:jdoe').",

@@ -206,11 +206,10 @@ export class PrismaCompanyRepo
     return result.count > 0;
   }
 
-  async assertNoCheckoutReservationInProgress(now: Date) {
+  async hasCheckoutReservationInProgress(now: Date) {
     const subscription = await this.getSubscriptionOrThrow();
     const reservation = parseCheckoutReservationMarker(subscription.lemonSqueezyVariantId);
-    if (reservation && new Date(reservation.payload.bindingExpiresAt) > now)
-      throw new Error("Workspace membership cannot change while a subscription checkout is in progress");
+    return Boolean(reservation && new Date(reservation.payload.bindingExpiresAt) > now);
   }
 
   @BypassTenantGuard

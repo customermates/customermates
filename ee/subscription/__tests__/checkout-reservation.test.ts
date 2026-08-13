@@ -175,6 +175,31 @@ describe("checkout reservation", () => {
 });
 
 describe("PrismaCompanyRepo checkout reservation", () => {
+  it("reports only a live signed reservation as in progress", async () => {
+    const user = createMockUser({ companyId: COMPANY_ID });
+    const repo = new PrismaCompanyRepo();
+    const reservation = createReservation({ bindingExpiresAt: new Date("2099-01-01T01:00:00.000Z") });
+
+    prismaMock.subscription.findUniqueOrThrow.mockResolvedValueOnce({
+      lemonSqueezyVariantId: reservation.marker,
+    });
+    await expect(
+      runWithTenant(user, () => repo.hasCheckoutReservationInProgress(new Date("2099-01-01T00:59:59.999Z"))),
+    ).resolves.toBe(true);
+
+    prismaMock.subscription.findUniqueOrThrow.mockResolvedValueOnce({
+      lemonSqueezyVariantId: reservation.marker,
+    });
+    await expect(
+      runWithTenant(user, () => repo.hasCheckoutReservationInProgress(new Date("2099-01-01T01:00:00.000Z"))),
+    ).resolves.toBe(false);
+
+    prismaMock.subscription.findUniqueOrThrow.mockResolvedValueOnce({ lemonSqueezyVariantId: null });
+    await expect(
+      runWithTenant(user, () => repo.hasCheckoutReservationInProgress(new Date("2099-01-01T00:00:00.000Z"))),
+    ).resolves.toBe(false);
+  });
+
   it("claims the current active-seat quantity and stores its signed marker", async () => {
     const user = createMockUser({ companyId: COMPANY_ID });
     const repo = new PrismaCompanyRepo();

@@ -15,6 +15,9 @@ vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
+vi.mock("next-intl/server", () => ({
+  getTranslations: () => Promise.resolve((key: string) => key),
+}));
 
 const { AdminUpdateUserDetailsInteractor } = await import("../upsert/admin-update-user-details.interactor");
 
@@ -52,7 +55,7 @@ function make(targetStatus: Status) {
   };
   const subscriptionRepo = {
     getSubscriptionOrThrow: vi.fn().mockResolvedValue({ plan: "pro", lemonSqueezyId: "sub-1" }),
-    assertNoCheckoutReservationInProgress: vi.fn().mockResolvedValue(undefined),
+    hasCheckoutReservationInProgress: vi.fn().mockResolvedValue(false),
   };
   const countUsersRepo = { countActiveUsers: vi.fn().mockResolvedValue(2) };
   const interactor = new AdminUpdateUserDetailsInteractor(
@@ -85,8 +88,8 @@ describe("AdminUpdateUserDetailsInteractor billing quantity", () => {
       userId: "target-user-id",
       ...data,
     });
-    expect(subscriptionRepo.assertNoCheckoutReservationInProgress).toHaveBeenCalledWith(expect.any(Date));
-    expect(subscriptionRepo.assertNoCheckoutReservationInProgress.mock.invocationCallOrder[0]).toBeLessThan(
+    expect(subscriptionRepo.hasCheckoutReservationInProgress).toHaveBeenCalledWith(expect.any(Date));
+    expect(subscriptionRepo.hasCheckoutReservationInProgress.mock.invocationCallOrder[0]).toBeLessThan(
       userRepo.adminUpdateDetails.mock.invocationCallOrder[0],
     );
     expect(subscriptionService.updateSubscriptionQuantityOrThrow).toHaveBeenCalledWith("sub-1", 2);
@@ -98,18 +101,27 @@ describe("AdminUpdateUserDetailsInteractor billing quantity", () => {
     await expect(interactor.invoke(data)).resolves.toMatchObject({ ok: true });
 
     expect(subscriptionService.updateSubscriptionQuantityOrThrow).not.toHaveBeenCalled();
-    expect(subscriptionRepo.assertNoCheckoutReservationInProgress).not.toHaveBeenCalled();
+    expect(subscriptionRepo.hasCheckoutReservationInProgress).not.toHaveBeenCalled();
   });
 
-  it("stops before the membership mutation when a checkout reservation is active", async () => {
+  it("returns a localized status error before the membership mutation when checkout is reserved", async () => {
     const { interactor, userRepo, eventService, subscriptionService, subscriptionRepo } = make(Status.active);
-    subscriptionRepo.assertNoCheckoutReservationInProgress.mockRejectedValueOnce(
-      new Error("Workspace membership cannot change while checkout is in progress"),
-    );
+    subscriptionRepo.hasCheckoutReservationInProgress.mockResolvedValueOnce(true);
 
-    await expect(interactor.invoke(data)).rejects.toThrow("membership cannot change");
+    const result = await interactor.invoke(data);
 
-    expect(subscriptionRepo.assertNoCheckoutReservationInProgress).toHaveBeenCalledWith(expect.any(Date));
+    expect(result).toMatchObject({
+      ok: false,
+      error: {
+        issues: [
+          {
+            message: "Common.errors.checkoutReservationInProgress",
+            path: ["status"],
+          },
+        ],
+      },
+    });
+    expect(subscriptionRepo.hasCheckoutReservationInProgress).toHaveBeenCalledWith(expect.any(Date));
     expect(userRepo.adminUpdateDetails).not.toHaveBeenCalled();
     expect(subscriptionService.updateSubscriptionQuantityOrThrow).not.toHaveBeenCalled();
     expect(eventService.publish).not.toHaveBeenCalled();

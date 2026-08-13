@@ -13,6 +13,7 @@ import { REPO_ROOT, walkFiles } from "./walk";
 
 const CONTENT_ROOT = join(REPO_ROOT, "content");
 const CONTENT_FILES = walkFiles(CONTENT_ROOT, (path) => path.endsWith(".mdx"));
+const README_PATH = join(REPO_ROOT, "README.md");
 const TOKENISH = /\[\[commercial\./;
 const TOKEN_TRAILING_LETTERS = /\]\][\p{L}]/u;
 const TOKEN_ADJACENT_CURRENCY =
@@ -252,10 +253,11 @@ describe("commercial content follows the product catalog", () => {
   it("publishes no retired Customermates annual self-serve offer", () => {
     const violations: string[] = [];
 
-    for (const path of CONTENT_FILES) {
+    for (const path of [...CONTENT_FILES, README_PATH]) {
       const file = relative(REPO_ROOT, path);
       lines(path).forEach((line, index) => {
-        const aboutCustomermates = /customermates|\[\[commercial\./i.test(line);
+        const aboutCustomermates =
+          path === README_PATH || /customermates|\[\[commercial\./i.test(line);
         if (aboutCustomermates && RETIRED_ANNUAL_OFFER.test(line)) {
           violations.push(`${file}:${index + 1} ${line.trim()}`);
         }
@@ -405,6 +407,11 @@ describe("commercial content follows the product catalog", () => {
   });
 
   it("recognizes representative mutable-output regressions", () => {
+    expect(
+      RETIRED_ANNUAL_OFFER.test(
+        "Cloud pricing from €12/user/month (or €10/user/month billed yearly)",
+      ),
+    ).toBe(true);
     expect(
       FIRST_PARTY_EXACT_SAVING.test(
         "Customermates saves this team over €2,700 per year.",
