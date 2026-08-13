@@ -94,9 +94,9 @@ For organizations that require absolute control over patient-adjacent data, Cust
 
 Connect Claude, ChatGPT, or Gemini directly to Customermates through a native MCP integration. The AI does the data entry: it moves referrals through pipeline stages, drafts patient communication, keeps contact notes current, summarizes interaction histories, identifies patients due for re-engagement, and analyzes referral patterns. Because it runs over MCP, you choose which AI provider (OpenAI, Anthropic, Google, or self-hosted models) handles protected data based on your compliance requirements.
 
-### n8n automation engine included
+### Works with n8n
 
-Unlike other healthcare CRMs that charge extra for automation, Customermates includes the full [n8n workflow automation](/features/workflow-automation) engine. Connect to 400+ apps and services, build custom healthcare workflows, and automate everything from referral intake to patient follow-up, without writing code.
+Unlike other healthcare CRMs that charge extra for automation, Customermates charges nothing for the connection: webhooks, the REST API, and MCP are in every tier, and you run the [n8n workflow automation](/features/workflow-automation) engine yourself. Connect to 400+ apps and services, build custom healthcare workflows, and automate everything from referral intake to patient follow-up, without writing code.
 
 ## CRM for healthcare: comparison table
 
@@ -107,7 +107,7 @@ How does Customermates compare to other popular CRM solutions used in healthcare
 | Price per user/month | From €12 | $325+ | $0-$90+ | $14-$52 |
 | Core CRM included at every tier | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 | Referral pipeline tracking | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> |
-| Workflow automation included | <StatusAvailable /> | <StatusPartial /> | <StatusUnavailable /> | <StatusPartial /> |
+| Automation without a surcharge | <StatusAvailable /> | <StatusPartial /> | <StatusUnavailable /> | <StatusPartial /> |
 | 400+ integrations (n8n) | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusPartial /> |
 | GDPR-native / EU-hosted | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusPartial /> |
 | Full audit logging | <StatusAvailable /> | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> |
@@ -138,7 +138,7 @@ No. Customermates is not an electronic health records system. It manages the bus
 
 ### How does Customermates handle GDPR compliance for healthcare data?
 
-Customermates is GDPR-native by design. All data is hosted in the EU, every change is tracked in a comprehensive audit log, role-based permissions control who can see and edit what, and you can [self-host](/features/self-hosted) for complete data sovereignty. Unlike US-based healthcare CRMs built for HIPAA, Customermates was architected for European data protection requirements from day one.
+The hosted Customermates database runs in an EU region, while application hosting and other providers, including US providers, are documented separately; this is not a GDPR or healthcare compliance certification. Resource-level roles control access by whole resource, not individual field or record. With [self-hosting](/features/self-hosted), you choose application and database infrastructure, but connected providers remain separate.
 
 ### Can we connect Customermates to our existing healthcare tools?
 
@@ -159,7 +159,7 @@ Customermates is open source, EU-hosted, and includes automation, native AI inte
 ## Get started with Customermates for healthcare
 
 1. **[Create your free account](/auth/signup)**, no credit card required, 7 days to explore every feature.
-2. **Import your contacts**, bring in patients, referring physicians, partner organizations, and vendors via CSV or the REST API.
+2. **Migrate supported records**, use the REST API, or hand a prepared source export to an AI agent connected over MCP. Customermates has no CSV uploader.
 3. **Set up your referral pipeline**, define [pipeline](/features/pipeline) stages that match your actual referral workflow.
 4. **Add custom fields**, include healthcare-specific data points like insurance status, referral source, and department.
 5. **Configure automations**, set up task creation, notification rules, and follow-up reminders using [workflow automation](/features/workflow-automation).

@@ -83,14 +83,14 @@ Kundendetails prüfen, Auftragsstatus aktualisieren, Notizen und Fotos hinzufüg
 
 ### KI-Agenten und n8n-Automatisierung
 
-Verbinden Sie Claude, ChatGPT oder Gemini direkt mit Customermates über die native MCP-Integration (45 Tools). Der Agent erledigt die Verwaltung: Er erstellt Angebote aus Ihren Auftragsnotizen, verschiebt Aufträge zwischen Phasen, protokolliert, was vor Ort passiert ist, und markiert überfällige Follow-ups, sodass das Board aktuell bleibt, ohne dass es jemand abtippt. Die integrierte n8n-Automatisierung verbindet Customermates mit Hunderten weiterer Tools: SMS auslösen, wenn ein Monteur unterwegs ist, oder abgeschlossene Aufträge an die Buchhaltung übergeben.
+Verbinden Sie Claude, ChatGPT oder Gemini direkt mit Customermates über die native MCP-Integration (46 Tools). Der Agent erledigt die Verwaltung: Er erstellt Angebote aus Ihren Auftragsnotizen, verschiebt Aufträge zwischen Phasen, protokolliert, was vor Ort passiert ist, und markiert überfällige Follow-ups, sodass das Board aktuell bleibt, ohne dass es jemand abtippt. Die n8n-Automatisierung verbindet Customermates mit Hunderten weiterer Tools: SMS auslösen, wenn ein Monteur unterwegs ist, oder abgeschlossene Aufträge an die Buchhaltung übergeben.
 
 ### Integrationen, die Klempner wirklich nutzen
 
 - **Kalender-Sync**: Einsatzplanung mit Google Calendar oder Outlook verbunden halten
 - **Rechnungsstellung und Buchhaltung**: Anbindung an lexoffice, sevDesk, QuickBooks, Xero oder andere Tools, um Zahlungen neben Aufträgen zu verfolgen
 - **WhatsApp und SMS**: Kunden automatisch benachrichtigen, wenn ein Monteur unterwegs ist oder ein Auftrag abgeschlossen wurde
-- **CSV-Import**: Bestehende Kundendaten aus Tabellen oder dem alten System in Minuten übernehmen
+- **Migration über offene Schnittstellen**: Unterstützte Datensätze außerhalb des Produkts aufbereiten und über REST oder einen externen KI-Client per MCP anlegen; es gibt keinen CSV-Uploader
 
 ## Warum SHK-Betriebe Customermates anderen CRMs vorziehen
 
@@ -102,13 +102,13 @@ Die meisten CRM-Lösungen für Klempner fallen in zwei Fallen: Entweder zu einfa
 | **Einrichtungszeit** | 2 Minuten | Wochen bis Monate | Tage |
 | **Pipeline-Kanban** | Ja | Ja | Manchmal |
 | **Workflow-Automatisierung** | Integriert (n8n) | Aufpreis | Eingeschränkt |
-| **KI-Agenten bedienen das CRM** | Ja, native MCP (45 Tools) | Premium-Tarif | Nein |
+| **KI-Agenten bedienen das CRM** | Ja, native MCP (46 Tools) | Premium-Tarif | Nein |
 | **Einheitlicher Posteingang (WhatsApp, E-Mail)** | Ja (Pro) | Selten | Selten |
 | **Open Source** | Ja | Nein | Selten |
 | **Self-Hosting** | Ja | Nein | Nein |
 | **In DE gehostet / DSGVO** | Nativ | Unterschiedlich | Unterschiedlich |
 
-Customermates ist vollständig [Open Source](https://github.com/customermates/customermates). Sie können den Code prüfen, auf eigener Infrastruktur hosten oder die verwaltete, in Deutschland gehostete Version nutzen. Ihre Kundendaten bleiben unter Ihrer Kontrolle, ein entscheidender Vorteil für jeden Handwerksbetrieb.
+Customermates ist vollständig [Open Source](https://github.com/customermates/customermates). Sie können den Code prüfen, auf eigener Infrastruktur hosten oder die verwaltete, in der EU-Region gehostete Version nutzen. Ihre Kundendaten bleiben unter Ihrer Kontrolle, ein entscheidender Vorteil für jeden Handwerksbetrieb.
 
 ## Preise, die für SHK-Betriebe funktionieren
 
@@ -124,12 +124,12 @@ Ein einzelner Klempner zahlt €12/Monat in Starter. Ein Team von 5 Monteuren za
 ## Erste Schritte mit Ihrem Klempner CRM
 
 1. **Konto erstellen**, kostenlos, keine Kreditkarte nötig. Erste 7 Tage kostenlos zum Ausprobieren.
-2. **Kunden importieren**, Kundendaten aus Tabellen oder dem bisherigen System per CSV importieren.
+2. **Unterstützte Datensätze migrieren**, bereiten Sie Quelldaten außerhalb des Produkts auf und erstellen Sie sie über REST oder einen externen KI-Client per MCP. Customermates hat keinen CSV-Uploader.
 3. **Pipeline einrichten**, Auftragsphasen definieren wie Anfrage, Angebot gesendet, Bestätigt, Terminiert, In Arbeit, Fertig, Abgerechnet.
 4. **Custom Fields hinzufügen**, Felder ergänzen, die für SHK-Arbeit relevant sind (Auftragstyp, Objekttyp, Heizungsmodell, Teile, Garantiestatus).
 5. **Automatisierungen einrichten**, Regeln für Angebotsnachverfolgung, Wartungserinnerungen und Kundenbenachrichtigungen erstellen.
 
-Nutzen Sie bereits ein anderes CRM oder Handwerkertool? Customermates macht den Umstieg einfach, mit CSV-Import und offener API.
+Nutzen Sie bereits ein anderes CRM oder Handwerkertool? Customermates macht den Umstieg einfach, mit offener API und einem KI-Agenten, der das Laden für Sie übernimmt.
 
 ## Häufig gestellte Fragen
 
@@ -151,15 +151,15 @@ Sie können separate Pipelines, Tags oder benutzerdefinierte Felder nutzen, um N
 
 ### Sind meine Kundendaten sicher und DSGVO-konform?
 
-Customermates wird in Deutschland gehostet und ist von Grund auf DSGVO-konform. Sie können die Software auch auf eigener Infrastruktur selbst hosten für vollständige Datensouveränität. Der Quellcode ist Open Source, Sie können jederzeit genau prüfen, wie Ihre Daten verarbeitet werden. Für deutsche Handwerksbetriebe ist das ein entscheidender Vorteil gegenüber US-basierten Anbietern.
+Customermates wird in der EU-Region gehostet und ist von Grund auf DSGVO-konform. Sie können die Software auch auf eigener Infrastruktur selbst hosten für vollständige Datensouveränität. Der Quellcode ist Open Source, Sie können jederzeit genau prüfen, wie Ihre Daten verarbeitet werden. Für deutsche Handwerksbetriebe ist das ein entscheidender Vorteil gegenüber US-basierten Anbietern.
 
 ### Kann ich Customermates mit meiner Buchhaltungssoftware verbinden?
 
-Ja. Über die integrierte n8n-Automatisierung verbinden Sie Customermates mit lexoffice, sevDesk, QuickBooks, Xero und vielen weiteren Buchhaltungs- und Rechnungstools. Abgeschlossene Aufträge können automatisch die Rechnungserstellung auslösen, kein doppeltes Eintippen mehr.
+Ja. Über die n8n-Automatisierung verbinden Sie Customermates mit lexoffice, sevDesk, QuickBooks, Xero und vielen weiteren Buchhaltungs- und Rechnungstools. Abgeschlossene Aufträge können automatisch die Rechnungserstellung auslösen, kein doppeltes Eintippen mehr.
 
 ### Wie lange dauert die Einrichtung?
 
-Etwa 2 Minuten, um ein Konto zu erstellen und Kunden hinzuzufügen. Die meisten SHK-Betriebe sind innerhalb eines Nachmittags vollständig eingerichtet, mit angepasster Pipeline, Custom Fields und grundlegenden Automatisierungen. Der CSV-Import macht die Migration bestehender Kundendaten schnell und unkompliziert.
+Ein Konto lässt sich in wenigen Minuten erstellen. Kundendaten ergänzen Sie manuell oder migrieren unterstützte Datensätze über REST beziehungsweise einen externen KI-Client per MCP; Customermates hat keinen CSV-Uploader. Zeitaufwand und Prüfung hängen von der Quelldatenqualität und Ihrer Integration ab.
 
 ---
 

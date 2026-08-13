@@ -88,7 +88,7 @@ Track the metrics that matter for B2B sales: pipeline velocity, win rate by deal
 
 ### AI agents that operate your CRM
 
-Connect Claude, ChatGPT, or Gemini through the native MCP integration (45 tools) and let them do the data entry: enrich company and contact data, log activity, move deals between stages, draft personalized outreach, and summarize lengthy deal histories. The pipeline stays current and reps skip the manual research that typically eats hours each week.
+Connect Claude, ChatGPT, or Gemini through the native MCP integration (46 tools) and let them do the data entry: enrich company and contact data, log activity, move deals between stages, draft personalized outreach, and summarize lengthy deal histories. The pipeline stays current and reps skip the manual research that typically eats hours each week.
 
 ## B2B CRM vs. B2C CRM: key differences
 
@@ -141,7 +141,7 @@ Customermates takes a different approach:
 - **Starter, €12 per user per month**, pipelines, automation, API, custom fields, native AI (MCP), and reporting
 - **Pro, €29 per user per month**, adds the unified inbox: email, LinkedIn, WhatsApp, Instagram, and Telegram tied to every stakeholder and deal
 - **Open-source**, full transparency, no vendor lock-in
-- **EU-hosted in Germany**, GDPR-native from the ground up
+- **EU-hosted**, GDPR-native from the ground up
 - **Self-hostable**, deploy on your own infrastructure if you need full data control, free forever
 
 Multi-stakeholder outreach runs through email and LinkedIn, so most B2B teams land on Pro. For a B2B sales team of 10, that is €290 per month for a complete CRM for B2B. Compare that to Salesforce, HubSpot, or Dynamics 365 where equivalent functionality easily costs 10x more.
@@ -151,7 +151,7 @@ Multi-stakeholder outreach runs through email and LinkedIn, so most B2B teams la
 Setting up your B2B CRM takes minutes, not weeks:
 
 1. **Create an account**, free, no credit card required. Your first 7 days are on us.
-2. **Import your data**, bring existing contacts, deals, and organizations via CSV or API.
+2. **Migrate supported records**, use the REST API, or hand a prepared source export to an AI agent connected over MCP. Customermates has no CSV uploader.
 3. **Configure your pipeline**, define B2B-specific deal stages and customize fields for your sales process.
 4. **Invite your team**, add colleagues and assign roles and permissions.
 5. **Activate automations**, use n8n to automate follow-ups, notifications, and data syncing.
@@ -183,11 +183,11 @@ Yes. Account-based selling is a core use case for B2B CRM software. Customermate
 
 ### Is Customermates GDPR-compliant for B2B data?
 
-Customermates is GDPR-native by design. It is hosted in Germany within the EU, supports data export and deletion requests, and can be self-hosted on your own infrastructure for maximum data sovereignty. For B2B companies handling business contact data across Europe, this eliminates compliance headaches that come with US-hosted CRM platforms.
+For the hosted service, the managed database runs in an EU region; application and other providers, including US providers, are documented separately. Supported records can be read through REST, while privacy requests remain part of your operating process. Self-hosting lets you choose infrastructure, but these deployment options do not certify or eliminate compliance obligations.
 
 ### Can I migrate from another CRM to Customermates?
 
-Yes. Customermates supports data import via CSV and API. You can migrate contacts, organizations, deals, and notes from systems like Salesforce, HubSpot, Pipedrive, or any CRM that exports data. The REST API also enables automated migration scripts for larger datasets. According to HubSpot's CRM migration guide, the key to a smooth migration is cleaning your data before import, and Customermates makes it easy to map fields during the process.
+Yes, through an integration you operate. Prepare and map source exports outside Customermates, then create supported contacts, organizations, deals, and notes through REST or an external AI client over MCP. The REST API supports customer-run migration scripts, while your integration owns mapping, validation, duplicate handling, and result verification. Customermates has no CSV importer or field-mapping screen.
 
 
 ### Related Industries

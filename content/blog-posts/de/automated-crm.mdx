@@ -57,7 +57,7 @@ Drei Schichten, die zusammen laufen:
 
 **Schicht 2: Integrationsplattform.** Eine Workflow-Engine, die das CRM ohne Code mit anderen Tools verbindet. n8n, Make, Zapier. Customermates bringt eine [n8n-Community-Node](/features/integrations) mit plus eine vollständige [REST-API](/features/api), sodass jedes externe System CRM-Daten lesen und schreiben kann.
 
-**Schicht 3: KI-Agent über MCP.** Claude, ChatGPT, Gemini oder ein beliebiger MCP-fähiger Agent verbindet sich über Model Context Protocol mit dem CRM. Der Agent liest Kontakte, Deals, Aufgaben; schreibt Notizen, Wiedervorlagen, Stufenwechsel; und führt mehrstufige Workflows in normaler Sprache aus, statt vorgefertigter Regeln. Customermates stellt [45 MCP-Tools](/features/api) genau dafür bereit.
+**Schicht 3: KI-Agent über MCP.** Claude, ChatGPT, Gemini oder ein beliebiger MCP-fähiger Agent verbindet sich über Model Context Protocol mit dem CRM. Der Agent liest Kontakte, Deals, Aufgaben; schreibt Notizen, Wiedervorlagen, Stufenwechsel; und führt mehrstufige Workflows in normaler Sprache aus, statt vorgefertigter Regeln. Customermates stellt [46 MCP-Tools](/features/api) genau dafür bereit.
 
 Die ersten beiden Schichten sind Standard. Die dritte ist die, in der sich die Erfahrung ändert.
 
@@ -131,7 +131,7 @@ Customermates ist auf der Annahme gebaut, dass ein KI-Agent das System bedient. 
 
 **n8n-Community-Node.** Visuelle Workflow-Gestaltung, die Customermates mit n8ns über 400 Integrationen verbindet. Nützlich für nicht-technische Teams, die Automation ohne Code wollen.
 
-**45 MCP-Tools.** Nativer MCP-Server stellt jede CRM-Operation (Kontakt anlegen, Deal aktualisieren, Aktivität protokollieren, Pipeline abfragen, Report generieren) Claude, ChatGPT, Gemini oder einem anderen MCP-fähigen Agenten bereit. Der Agent liest den Posteingang und schreibt in normaler Sprache zurück ins CRM.
+**46 MCP-Tools.** Nativer MCP-Server stellt jede CRM-Operation (Kontakt anlegen, Deal aktualisieren, Aktivität protokollieren, Pipeline abfragen, Report generieren) Claude, ChatGPT, Gemini oder einem anderen MCP-fähigen Agenten bereit. Der Agent liest den Posteingang und schreibt in normaler Sprache zurück ins CRM.
 
 **Nativer vereinheitlichter Posteingang.** E-Mail, LinkedIn, WhatsApp, Instagram und Telegram in einem Posteingang im CRM (ab Pro). Neun der MCP-Tools bedienen diesen Posteingang, sodass derselbe Agent, der Datensätze aktualisiert, über jeden Kanal lesen, entwerfen und senden kann. Pipeline und Gespräch bleiben in einem System.
 
@@ -153,7 +153,7 @@ Ein praktischer Vergleich der Plattformen, die die meisten Teams evaluieren. All
 
 **Zoho CRM.** Eine günstige Option, 14 bis 52 €/Nutzer/Monat je nach Tier (Standard 14 €, Professional 23 €, Enterprise 40 €, Ultimate 52 €, jährlich). Workflow-Regeln und Blueprints bieten Flexibilität auf Salesforce-Niveau zu einem Bruchteil der Kosten. UX wirkt veraltet und die Lernkurve ist steil. Gut geeignet für kostenbewusste Teams, die bereit sind, Politur gegen Wert einzutauschen.
 
-**Customermates.** Open Source unter AGPL-3.0, EU-gehostete Cloud ab 12 €/Nutzer/Monat (Starter) oder Self-Hosted kostenlos. Native [Workflow-Automation](/features/workflow-automation), 26 Webhook-Events, [n8n-Community-Node](/features/integrations), ein nativer vereinheitlichter Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram ab Pro) und 45 MCP-Tools für direkten KI-Agenten-Betrieb. Kleineres Ökosystem als HubSpot oder Salesforce; die Agent-native Architektur ist der Differenzierungspunkt. Gut geeignet für technisch affine Mittelständler oder Teams, die ohnehin täglich Claude, ChatGPT oder Gemini nutzen.
+**Customermates.** Open Source unter AGPL-3.0, EU-gehostete Cloud ab 12 €/Nutzer/Monat (Starter) oder Self-Hosted kostenlos. Native [Workflow-Automation](/features/workflow-automation), 26 Webhook-Events, [n8n-Community-Node](/features/integrations), ein nativer vereinheitlichter Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram ab Pro) und 46 MCP-Tools für direkten KI-Agenten-Betrieb. Kleineres Ökosystem als HubSpot oder Salesforce; die Agent-native Architektur ist der Differenzierungspunkt. Gut geeignet für technisch affine Mittelständler oder Teams, die ohnehin täglich Claude, ChatGPT oder Gemini nutzen.
 
 **Monday CRM.** Visuelle Automation über Mondays „Boards"-Modell. Stark in Team-Workflow-Sichtbarkeit, schwächer in vertriebsspezifischen Automation-Mustern. Preise zwischen 15 und 41 €/Nutzer/Monat (jährlich) mit Drei-Sitze-Minimum und ohne Free-Plan. Gut geeignet für funktionsübergreifende Teams, die Monday bereits für Projektmanagement nutzen und ein CRM in demselben Tool wollen.
 
@@ -213,7 +213,7 @@ Ein CRM, das sich selbst pflegt, statt darauf zu warten, dass der Vertriebler ti
 
 **Kann ich ein bestehendes CRM automatisieren oder brauche ich ein neues?**
 
-Bestehende CRMs (HubSpot, Salesforce, Pipedrive) haben alle Workflow-Regeln und Basis-Sequenzen; Sie können n8n, Make oder Zapier nutzen, um sie mit KI-Tools zu verbinden. Die Begrenzung ist die Tiefe der Integration: Die meisten Legacy-CRMs wurden nicht für Agenten-Bedienung gebaut, der Agent muss also durch API-Kanten arbeiten. Agent-native CRMs wie Customermates stellen reichere Schnittstellen (45 MCP-Tools) bereit, sodass der Agent alles nativ bedienen kann.
+Bestehende CRMs (HubSpot, Salesforce, Pipedrive) haben alle Workflow-Regeln und Basis-Sequenzen; Sie können n8n, Make oder Zapier nutzen, um sie mit KI-Tools zu verbinden. Die Begrenzung ist die Tiefe der Integration: Die meisten Legacy-CRMs wurden nicht für Agenten-Bedienung gebaut, der Agent muss also durch API-Kanten arbeiten. Agent-native CRMs wie Customermates stellen reichere Schnittstellen (46 MCP-Tools) bereit, sodass der Agent alles nativ bedienen kann.
 
 **Was ist die einfachste erste Automation?**
 

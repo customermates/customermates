@@ -64,11 +64,11 @@ comparison:
         competitor: E-Mail, Telefon, WhatsApp
   - title: Datenschutz & Sicherheit
     features:
-      - name: DSGVO-konform
-        source: true
+      - name: DSGVO-Dokumentation
+        source: AVV + SCCs; keine Zertifizierung
         competitor: Teilweise
       - name: Hosting
-        source: EU / Deutschland
+        source: EU-Datenbankregion
         competitor: Global / Indien & USA
       - name: Self-Hosting-Option
         source: true
@@ -77,21 +77,21 @@ comparison:
         source: Vollständig
         competitor: Eingeschränkt
       - name: Audit-Log
-        source: true
+        source: Nicht beworben bis zur Dokumentationsklärung
         competitor: Erst ab Pro-Plan
   - title: Integration & Automatisierung
     features:
-      - name: n8n-Automatisierung
-        source: Inklusive
+      - name: Externe n8n-Integration
+        source: Separate Community-Node + REST/Webhooks
         competitor: Nicht enthalten
       - name: Workflow-Automatisierung
-        source: Alle Pläne
+        source: Über separat betriebenes n8n
         competitor: Eingeschränkt (planabhängig)
       - name: API-Zugriff
         source: true
         competitor: Erst ab Pro-Plan
       - name: KI-Agenten bedienen das CRM (MCP)
-        source: Inklusive (45 Tools)
+        source: Inklusive (46 Tools)
         competitor: Freddy AI (limitierte Bot-Sessions)
   - title: Team & Zusammenarbeit
     features:
@@ -102,10 +102,10 @@ comparison:
         source: true
         competitor: true
       - name: Audit-Log
-        source: true
+        source: Nicht beworben bis zur Dokumentationsklärung
         competitor: Erst ab Pro-Plan
-      - name: Benachrichtigungen
-        source: true
+      - name: Benachrichtigungszentrum
+        source: false
         competitor: true
 
 cta:
@@ -118,7 +118,7 @@ cta:
   hint: ✓ Keine Kreditkarte benötigt ✓ Erste 7 Tage kostenlos
 ---
 
-> [Freshsales](https://www.freshworks.com/crm/) von Freshworks ist ein vertriebsfokussiertes CRM mit KI-gestützten Funktionen durch Freddy AI. Es bietet einen kostenlosen Plan und positioniert sich als günstig, doch essenzielle Funktionen wie API-Zugriff, erweiterte Workflows und Audit-Logs sind in teureren Tarifstufen gesperrt. Was bei $9 pro User beginnt, wird schnell $39-59, sobald Sie die Werkzeuge benötigen, die wirklich zählen. Customermates ist eine Open-Source Freshsales Alternative mit transparenten Tarifen ab €12/User/Monat, vollem API-Zugriff in jeder Stufe, EU-Hosting und ohne gesperrte CRM-Kernfunktionen. Zwei Dinge heben es ab: KI-Assistenten wie Claude, ChatGPT und Gemini bedienen das CRM direkt über eine native MCP-Integration (45 Tools) und übernehmen die Dateneingabe, und ein nativer Unified Inbox bringt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ab dem Pro-Tarif an einem Ort zusammen, wobei dieselbe KI über jeden Kanal lesen, schreiben und senden kann.
+> [Freshsales](https://www.freshworks.com/crm/) von Freshworks ist ein vertriebsfokussiertes CRM mit KI-gestützten Funktionen durch Freddy AI. Es bietet einen kostenlosen Plan und positioniert sich als günstig, doch essenzielle Funktionen wie API-Zugriff, erweiterte Workflows und Audit-Logs sind in teureren Tarifstufen gesperrt. Was bei $9 pro User beginnt, wird schnell $39-59, sobald Sie die Werkzeuge benötigen, die wirklich zählen. Customermates ist eine Open-Source Freshsales Alternative mit transparenten Tarifen ab €12/User/Monat, vollem API-Zugriff in jeder Stufe, EU-Hosting und ohne gesperrte CRM-Kernfunktionen. Zwei Dinge heben es ab: KI-Assistenten wie Claude, ChatGPT und Gemini bedienen das CRM direkt über eine native MCP-Integration (46 Tools) und übernehmen die Dateneingabe, und ein nativer Unified Inbox bringt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ab dem Pro-Tarif an einem Ort zusammen, wobei dieselbe KI über jeden Kanal lesen, schreiben und senden kann.
 
 ## Warum von Freshsales wechseln?
 
@@ -134,7 +134,7 @@ Freshsales bietet eine 21-tägige Testphase des vollen Funktionsumfangs, was zun
 
 ## Preise: Transparente Tarife vs. gesperrte Funktionen
 
-Der Preisunterschied zwischen Customermates und Freshsales ist erheblich. Customermates startet bei **€12 pro User und Monat** (Starter), mit jeder CRM-Kernfunktion, API-Zugriff, n8n-Automatisierung und nativer KI/MCP-Integration inklusive. Höhere Stufen (Pro für €29, Business für €69) ergänzen nur die Nachrichtenkapazität, nie CRM-Kernfunktionen. Alle Details finden Sie auf unserer [Preisseite](/pricing).
+Der Preisunterschied zwischen Customermates und Freshsales ist erheblich. Customermates startet bei **€12 pro User und Monat** (Starter), mit jeder CRM-Kernfunktion, API-Zugriff, einer separaten n8n-Integration und MCP-Zugang für externe KI-Clients. Höhere Stufen (Pro für €29, Business für €69) ergänzen nur die Nachrichtenkapazität, nie CRM-Kernfunktionen. Alle Details finden Sie auf unserer [Preisseite](/pricing).
 
 [Freshsales-Preise](https://www.freshworks.com/crm/pricing/) umfassen drei Bezahlstufen plus einen kostenlosen Plan (Stand 2026):
 
@@ -194,7 +194,7 @@ Customermates ist die stärkste Freshsales Alternative für Teams, die:
 
 - **API-Zugriff ohne Pro-Upgrade benötigen**: Programmatischer CRM-Zugang sollte nicht $39/User/Monat kosten
 - **Planbare Kosten möchten**: Ein Preis, alle Funktionen, keine Add-on-Überraschungen
-- **EU-Datenresidenz verlangen**: Strenge DSGVO-Konformität mit Hosting ausschließlich in Deutschland
+- **EU-Datenresidenz verlangen**: Strenge DSGVO-Konformität mit Hosting in der EU-Region
 - **Den kostenlosen Plan überwachsen haben**: Volle CRM-Funktionalität ohne 3-fachen Preissprung
 - **Open Source schätzen**: Code einsehen, bei Bedarf [selbst hosten](/features/self-hosted) und Vendor Lock-in vermeiden
 
@@ -214,7 +214,7 @@ Keine Berater notwendig. Keine wochenlangen Implementierungsprojekte.
 
 ## Fazit
 
-Freshsales wirkt auf den ersten Blick günstig, aber seine Feature-Sperren nach Tarifstufe, limitierte Workflows und kostenpflichtige KI-Add-ons treiben die Kosten schnell in die Höhe. Customermates bietet eine Open-Source Freshsales Alternative mit transparenten Tarifen ab €12/User/Monat, ohne Sperren bei CRM-Kernfunktionen, EU-Hosting, DSGVO-Konformität und vollständiger Automatisierung inklusive. Wenn Ihr Team ein CRM benötigt, das alle Funktionen ohne Upgrade-Druck liefert, [starten Sie noch heute Ihren kostenlosen Test](/auth/signup).
+Freshsales wirkt auf den ersten Blick günstig, aber seine Feature-Sperren nach Tarifstufe, limitierte Workflows und kostenpflichtige KI-Add-ons treiben die Kosten schnell in die Höhe. Customermates bietet eine Open-Source Freshsales Alternative mit transparenten Tarifen ab €12/User/Monat, ohne Sperren bei CRM-Kernfunktionen, EU-Hosting, DSGVO-Konformität und Automatisierungsanbindung ohne Aufpreis. Wenn Ihr Team ein CRM benötigt, das alle Funktionen ohne Upgrade-Druck liefert, [starten Sie noch heute Ihren kostenlosen Test](/auth/signup).
 
 Vergleichen Sie Customermates auch mit anderen CRMs: [HubSpot Alternative](/compare/hubspot-alternative), [Salesforce Alternative](/compare/salesforce-alternative) oder [Pipedrive Alternative](/compare/pipedrive-alternative).
 
@@ -228,7 +228,7 @@ Customermates startet bei €12/User/Monat mit jeder CRM-Kernfunktion inklusive;
 
 ### Kann ich meine Daten von Freshsales zu Customermates migrieren?
 
-Ja. Customermates unterstützt CSV-Import für Kontakte, Unternehmen und Deals. Sie können Ihre Daten aus Freshsales exportieren und innerhalb eines Tages in Customermates importieren. Keine Berater oder Spezialtools erforderlich.
+Ja. Customermates lädt Kontakte, Unternehmen und Deals über die REST API oder einen KI-Agenten per MCP; einen CSV-Import gibt es nicht. Sie können Ihre Daten aus Freshsales exportieren und innerhalb eines Tages in Customermates importieren. Keine Berater oder Spezialtools erforderlich.
 
 ### Ist Customermates DSGVO-konform?
 

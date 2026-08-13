@@ -1134,32 +1134,32 @@
       "ctaText": "Commencer gratuitement",
       "featureBusiness": "Business : 3 comptes par utilisateur, comptes partagés et assistance prioritaire",
       "featurePro": "Pro : boîte de réception unifiée, 1 compte connecté par utilisateur",
-      "featureStarter": "Starter : le CRM complet",
+      "featureStarter": "Starter : le cœur du CRM",
       "period": "/ utilisateur / mois",
       "price": "à partir de 12 €",
-      "tag": "Géré à Francfort. Commencez gratuitement, sans carte bancaire.",
+      "tag": "Géré pour vous ; base de données en région UE. D’autres prestataires peuvent traiter des données ailleurs.",
       "title": "Cloud"
     },
     "compare": {
       "cancelAnytime": "Résiliable à tout moment",
-      "gdpr": "Conforme au RGPD",
+      "gdpr": "Base de données en région UE ; sans certification",
       "noLimits": "Formules transparentes",
       "openSource": "Open core"
     },
     "eyebrow": "Tarifs",
     "selfHosted": {
       "ctaText": "Télécharger",
-      "featureApi": "API, MCP et webhooks complets",
+      "featureApi": "Interfaces API, MCP et webhooks documentées",
       "featureCommunity": "Assistance communautaire",
-      "featureN8n": "Intégrations n8n",
-      "featureRecords": "Enregistrements illimités",
-      "featureUsers": "Utilisateurs illimités",
-      "period": "pour toujours",
-      "price": "Gratuit",
-      "tag": "À exécuter sur votre serveur avec Docker Compose. Édition communautaire AGPL avec des composants à code source disponible.",
+      "featureN8n": "Interfaces pour une instance n8n distincte",
+      "featureRecords": "Enregistrements CRM principaux",
+      "featureUsers": "Utilisateurs de l’espace de travail",
+      "period": "sous AGPL",
+      "price": "Cœur gratuit",
+      "tag": "Exécutez le cœur de l’application sous AGPL et PostgreSQL sur votre serveur avec Docker Compose, dans le périmètre Starter. Les services externes restent distincts.",
       "title": "Auto-hébergé"
     },
-    "subtitle": "Des formules transparentes, sans coûts cachés. Auto-hébergez gratuitement pour toujours, ou démarrez sur le Cloud sans carte bancaire.",
+    "subtitle": "Des formules transparentes, sans coûts cachés. Auto-hébergez gratuitement le cœur sous AGPL ; les services externes restent distincts. Ou démarrez sur le Cloud sans carte bancaire.",
     "title": "Simple, honnête, européen"
   },
   "HomepageStatsRow": {

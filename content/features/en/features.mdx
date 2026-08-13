@@ -1,11 +1,11 @@
 ---
 title: "Features: The Agentic Open-Source CRM"
-description: "All core CRM features, native AI integration, n8n automation, and open extensibility in one agentic Open-Source CRM. A Pipedrive alternative, made in Germany. GDPR-compliant."
+description: "Core CRM features, MCP access for external AI clients, open automation interfaces, and a unified inbox in one agentic Open-Source CRM. A Pipedrive alternative, made in Germany."
 
 hero:
   title: CRM features that matter
   titleAccent: built for the way your team actually works.
-  description: "All Customermates features at a glance: contacts, deals, services, and tasks, a unified inbox across email, LinkedIn, WhatsApp, Instagram, and Telegram, AI agents that operate the CRM through native MCP, and n8n automation. GDPR-compliant, quick to get started, and built for flexible workflows."
+  description: "All Customermates features at a glance: contacts, deals, services, and tasks; a unified inbox across email, LinkedIn, WhatsApp, Instagram, and Telegram; MCP access for external AI clients; and interfaces for customer-run automation."
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: View live demo
@@ -38,11 +38,11 @@ features:
         title: Notes
         description: Freeform context on any record.
       - icon: Tag
-        title: Tags
-        description: Lightweight labels for quick segmentation.
-      - icon: Paperclip
-        title: File Attachments
-        description: Pin contracts, decks, and emails to records.
+        title: Single-select Fields
+        description: Typed option lists for stages, statuses, and segments.
+      - icon: Share2
+        title: Linked Records
+        description: Connect contacts, organizations, deals, services, and tasks.
 
   - title: Unified Inbox
     subtitle: Every customer conversation in one place (Pro and up)
@@ -51,8 +51,8 @@ features:
         title: One Inbox, Every Channel
         description: Email, LinkedIn, WhatsApp, Instagram, and Telegram in a single native inbox inside the CRM. Threads link straight to the contact, so context follows the conversation.
       - icon: Sparkles
-        title: AI That Works Your Inbox
-        description: The same agents that update your CRM can read, draft, and send across every channel via MCP. Reply from your AI, review in the pipeline.
+        title: External AI Clients via MCP
+        description: A supported external client can use allowed CRM and inbox operations through MCP. Client, model, subscription, and usage are separate.
       - icon: MessageCircle
         title: WhatsApp, Instagram & Telegram
         description: Native messaging channels that few CRMs offer, alongside email and LinkedIn.
@@ -60,22 +60,25 @@ features:
         title: LinkedIn & Sales Navigator
         description: LinkedIn messaging plus Sales Navigator search, connected to your records.
       - icon: Calendar
-        title: Calendar Sync
-        description: Keep meetings and events in sync alongside your conversations.
+        title: Read-only Calendar Data
+        description: Read calendars and events from a connected account through MCP. Creating, editing, and booking are not supported.
+      - icon: Paperclip
+        title: Message Attachments
+        description: Files that arrive on an email or chat stay with the thread.
       - icon: Share2
         title: Shared Accounts
         description: Team-wide inbox visibility and one timeline across every channel (Business and up).
 
   - title: Productivity
-    subtitle: To-dos, organization, and daily workflows with n8n
+    subtitle: To-dos, organization, and user-defined workflow fields
     hasSecondaryBackground: true
     features:
       - icon: Bell
         title: Tasks & Follow-ups
-        description: Anchor work to records and own it. Assign follow-ups, surface what's due, and stay on top of customer commitments without spreadsheets or scattered to-dos.
+        description: Anchor work to records and own it. Assign follow-ups, link them to the contact, organization, deal, or service they belong to, and stay on top of customer commitments without spreadsheets or scattered to-dos.
       - icon: Clock
-        title: Reminders
-        description: Timely nudges so deadlines never slip.
+        title: Due Dates You Define
+        description: Add a date column to tasks, then filter and sort on what is next.
       - icon: List
         title: Activity Overview
         description: Open work and operational progress at a glance.
@@ -84,55 +87,55 @@ features:
         description: Find any contact, deal, or task instantly.
       - icon: Filter
         title: Filters & Segments
-        description: Save scoped views per team or workflow.
+        description: Save scoped views for your own recurring workflows.
       - icon: PlusCircle
         title: Quick Entry
         description: Add records without leaving the page.
 
   - title: Data Management
-    subtitle: Data import, export, reporting, logs
+    subtitle: Open data interfaces and personal reporting
     gridCols: grid-cols-1 md:grid-cols-2 lg:grid-cols-3
     features:
       - icon: BarChart3
         title: Reports & Dashboards
-        description: Turn CRM data into decisions. Build dashboards for pipeline value, cycle time, and team load. Group by anything, including custom fields, and share scoped views with your team.
+        description: Turn stored CRM data into decisions. Build personal dashboards for supported counts, values, and groupings, including custom fields. Derived cycle-time and team-performance metrics require external calculation.
       - icon: Upload
-        title: CSV Import
-        description: Bring records in from your old CRM with field mapping.
+        title: Create Through Open Interfaces
+        description: An integration you operate can create supported records through REST or an external AI client over MCP. There is no CSV importer.
       - icon: Download
-        title: Export
-        description: Get your data out via CSV or API, anytime.
+        title: REST API Access
+        description: Read supported CRM resources through the REST API for integrations you operate. There is no built-in CSV exporter.
       - icon: FileText
-        title: Audit Log
-        description: Every change, every actor, kept and queryable.
+        title: Linked CRM Records
+        description: Connect contacts, organizations, deals, services, and tasks through supported relations.
 
   - title: Team & Collaboration
-    subtitle: Team features, permissions, notifications
+    subtitle: Team features, permissions, invitations
     hasSecondaryBackground: true
     features:
       - icon: Users
         title: Built for Teams
-        description: Work together on shared customer and sales records, with clear ownership and no toes stepped on. Add seats, assign records, and hand off accounts without losing the history behind them.
+        description: Work together on shared customer and sales records with clear ownership. Add seats, assign records, and hand off accounts without losing the recorded context behind them.
       - icon: Users
         title: User Management
         description: Add users, structure the team cleanly.
       - icon: ShieldCheck
         title: Roles & Permissions
-        description: Per-object, per-field access for sales, ops, support.
-      - icon: Bell
-        title: Notifications
-        description: Stage changes, assignments, and mentions. Only what matters.
+        description: Control read and manage permissions per CRM resource and role.
+      - icon: Mail
+        title: Invitations
+        description: Invite colleagues by email and assign their role on the way in.
 
   - title: Automation & Integrations
     subtitle: Flexible extensibility with APIs, webhooks, and n8n
     gridCols: grid-cols-1 md:grid-cols-2 lg:grid-cols-3
     features:
       - icon: Sparkles
-        title: Native AI Agents
-        description: Plug Claude, ChatGPT, or Gemini straight into your CRM via MCP (45 tools). Your AI reads pipelines, logs notes, drafts follow-ups, and updates deals, with no SDK, no glue code, and no extra integration layer.
+        title: External AI Clients via MCP
+        description: Connect Claude, ChatGPT, Gemini, or another supported client through MCP (46 tools). The client and model are separate from Customermates.
       - icon: Zap
-        title: n8n Integration
-        description: Connect to hundreds of tools and build custom workflows.
+        title: Works with n8n
+        description: Drive your own n8n from CRM webhooks and the REST API. n8n is a separate product you run or subscribe to.
       - icon: Play
         title: Webhooks & Events
         description: Fire downstream systems on any of 26 webhook events across records and messaging.
@@ -147,24 +150,24 @@ features:
     features:
       - icon: Rocket
         title: Productive in Minutes
-        description: Sign up, import your data, start working. No multi-week implementation, no admin walls, no training required for your team.
+        description: Sign up, create your first records, start working. No multi-week implementation, no admin walls, no training required for your team.
       - icon: Monitor
         title: Clean Interface
         description: Built for focused daily work.
       - icon: Smartphone
         title: Mobile Ready
-        description: Real responsive on phone and tablet.
+        description: Responsive in supported phone and tablet browsers.
 
   - title: Security & Hosting
     subtitle: Data protection and infrastructure
     gridCols: grid-cols-1 md:grid-cols-2
     features:
       - icon: Server
-        title: Hosted in Germany
-        description: Data stored and processed in Frankfurt. No US sub-processors. Self-hosting available under AGPL. Data residency is the default, not an upsell.
+        title: EU Database Region
+        description: The managed database for the hosted service runs in an EU region. Application hosting and other providers, including US providers, are named in our [subprocessor list](/subprocessors).
       - icon: ShieldCheck
-        title: GDPR by Default
-        description: GDPR-friendly handling of customer data baked into the model.
+        title: Self-Hosted AGPL Core
+        description: Run the AGPL core CRM application and PostgreSQL with Starter entitlements. The unified inbox and calendar view remain managed-cloud features; connected providers stay separate.
 
 why:
   title: Why Customermates?
@@ -172,22 +175,22 @@ why:
   features:
     - icon: Rocket
       title: Quick setup
-      description: Customermates works without setup or training. Sign up, import data and start working productively right away. Ideal for teams that don't have time for complex implementations.
+      description: Create a workspace and add records without a mandatory implementation project. Migration and external-integration effort depends on your data and systems.
     - icon: LayoutGrid
       title: Strong feature set
       description: The system only includes the features teams actually need in everyday work. No bloated modules, no unnecessary menus, and no feature depth nobody uses.
     - icon: Zap
       title: Automation with n8n
-      description: Customermates can be connected to hundreds of tools via n8n. Workflows can be built completely individually, from lead capture to service delivery.
+      description: Webhooks and the REST API connect Customermates to your own n8n instance, and from there to hundreds of tools. Workflows can be built completely individually, from lead capture to service delivery.
     - icon: ShieldCheck
-      title: Secure data
-      description: All data is stored in German data centers in compliance with GDPR. The infrastructure is transparent, traceable and designed for long-term security.
+      title: Open infrastructure
+      description: The managed database runs in an EU region and providers are named in the subprocessor list. You can self-host the AGPL core CRM application and PostgreSQL with Starter entitlements; connected providers remain separate.
     - icon: Sparkles
       title: Easy usability
       description: The interface is deliberately streamlined and logically structured. Users find all important features immediately and can work efficiently without training.
     - icon: DollarSign
       title: No hidden costs
-      description: No hidden costs, no add-ons and no feature bloat. Teams only pay for what they actually use.
+      description: Published plans state the included Customermates scope. External AI, automation, messaging, and other providers keep their own subscriptions and usage costs.
 
 cta:
   action: Ready to get started?

@@ -60,18 +60,18 @@ comparison:
         source: true
         competitor: true
       - name: AI agents operate the CRM (native MCP)
-        source: 45 tools (from Starter)
+        source: 46 tools (from Starter)
         competitor: Sandy AI, chat only (Pro+)
       - name: Native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram)
         source: Pro+ (€29)
         competitor: Email + calling only
   - title: Data protection & security
     features:
-      - name: GDPR compliant
-        source: true
+      - name: GDPR documentation
+        source: DPA + SCCs; no certification
         competitor: Partially
       - name: Hosting
-        source: EU / Germany
+        source: EU database region
         competitor: USA
       - name: Self-hosting option
         source: true
@@ -80,15 +80,15 @@ comparison:
         source: Full
         competitor: Limited (US-hosted)
       - name: Audit log
-        source: true
+        source: Not claimed pending documentation reconciliation
         competitor: true
   - title: Integration & automation
     features:
-      - name: n8n automation engine
-        source: Included
+      - name: External n8n integration
+        source: Separate community node + REST/webhooks
         competitor: Not included
       - name: Workflow automation
-        source: All plans
+        source: Via separately operated n8n
         competitor: Plan-dependent limits
       - name: API access
         source: true
@@ -107,8 +107,8 @@ comparison:
       - name: Custom layouts
         source: true
         competitor: From Business only
-      - name: Notifications
-        source: true
+      - name: In-app notification center
+        source: false
         competitor: true
 
 cta:
@@ -121,7 +121,7 @@ cta:
   hint: ✓ No credit card required ✓ First 7 days free
 ---
 
-> [Salesmate](https://www.salesmate.io/) is a feature-rich CRM for small and medium-sized businesses with a strong focus on sales, built-in calling, and email sequences. It packs many capabilities into its platform, but distributes them across four pricing tiers with aggressive upselling. What starts at $23 per user quickly becomes $39 to $63 when you need the features that actually matter. On top of that, built-in calling incurs separate charges for phone numbers, SMS, and call credits. Customermates is an open-source Salesmate alternative built around two things Salesmate does not offer: AI agents that operate the CRM (Claude, ChatGPT, and Gemini read and write your records through a native MCP integration with 45 tools, so deal stages, follow-ups, and notes stay current on their own) and a native unified inbox that brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one place from the Pro tier. Add transparent tiers from €12/user/month, every core CRM feature included, EU hosting, and no hidden telephony fees.
+> [Salesmate](https://www.salesmate.io/) is a feature-rich CRM for small and medium-sized businesses with a strong focus on sales, built-in calling, and email sequences. It packs many capabilities into its platform, but distributes them across four pricing tiers with aggressive upselling. What starts at $23 per user quickly becomes $39 to $63 when you need the features that actually matter. On top of that, built-in calling incurs separate charges for phone numbers, SMS, and call credits. Customermates is an open-source Salesmate alternative built around two things Salesmate does not offer: AI agents that operate the CRM (Claude, ChatGPT, and Gemini read and write your records through a native MCP integration with 46 tools, so deal stages, follow-ups, and notes stay current on their own) and a native unified inbox that brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one place from the Pro tier. Add transparent tiers from €12/user/month, every core CRM feature included, EU hosting, and no hidden telephony fees.
 
 ## Why Switch from Salesmate?
 
@@ -158,7 +158,7 @@ Many essential features are plan-gated:
 | | Customermates Starter | Salesmate Pro |
 |---|---|---|
 | Base CRM cost | €60/month | $195/month (~€180) |
-| Automation | Included (n8n, unlimited) | Included (tiered limits) |
+| Automation | External n8n integration | Included (tiered limits) |
 | AI | Agents operate the CRM (native MCP) | Sandy AI assistant (chat) |
 | Calling | External (flexible) | Phone numbers + credits extra |
 | **Total** | **€60/month** | **~€180/month + calling fees** |
@@ -177,7 +177,7 @@ Customermates does not lock you into a proprietary phone system. External tools 
 
 Salesmate's AI assistant Sandy offers conversation summaries, email drafting, and predictive insights. Sandy is available from the Pro plan ($39/user/month); the Basic plan has no AI at all. Sandy is a chat assistant that sits beside the CRM.
 
-Customermates takes a different approach: the AI operates the CRM itself. Claude, ChatGPT, and Gemini connect through a native MCP integration (45 tools) and read and write your records directly, so they handle [lead management](/features/lead-tracking), note summarization, and follow-ups from the Starter tier at no extra cost. Combined with the [n8n automation engine](/features/workflow-automation), you can build AI-driven workflows that connect to external services, trigger follow-ups based on customer behavior, and automate repetitive tasks without plan restrictions.
+Customermates takes a different approach: the AI operates the CRM itself. Claude, ChatGPT, and Gemini connect through a native MCP integration (46 tools) and read and write your records directly, so they handle [lead management](/features/lead-tracking), note summarization, and follow-ups from the Starter tier at no extra cost. Combined with the [n8n automation engine](/features/workflow-automation), you can build AI-driven workflows that connect to external services, trigger follow-ups based on customer behavior, and automate repetitive tasks without plan restrictions.
 
 ## Feature Comparison
 
@@ -191,7 +191,7 @@ Customermates provides every core CRM feature starting on the Starter tier with 
 
 Salesmate offers workflow automation across its plans but with increasing limits and capabilities per tier. The Basic plan has basic workflows, while advanced automation features require the Pro or Business plan.
 
-Customermates includes the [n8n automation engine](/features/workflow-automation) with no workflow limits. You can build automations spanning CRM events, email triggers, third-party integrations, and AI-driven processes without hitting tier-based caps.
+Customermates works with the [n8n automation engine](/features/workflow-automation) with no workflow limits. You can build automations spanning CRM events, email triggers, third-party integrations, and AI-driven processes without hitting tier-based caps.
 
 ### Permission Management
 
@@ -209,7 +209,7 @@ Salesmate hosts primarily in the United States. While GDPR compliance is claimed
 
 Salesmate offers many native integrations, including Google Suite, Microsoft 365, QuickBooks, and various other business tools. However, the depth and availability of integrations can vary by plan tier.
 
-Customermates integrates natively with [n8n](https://n8n.io/) for powerful workflow automation. The [API](/features/api) is fully accessible at the base price. You can connect to thousands of third-party services without plan restrictions. Whether you need [Slack integration](/features/slack-integration), [email synchronization](/features/email-integration), or custom [CRM integrations](/features/integrations), everything works without upgrade requirements or additional subscription costs for automation tools like Zapier.
+Customermates connects to separately operated [n8n](https://n8n.io/) through REST, webhooks, MCP, and a community node. Documented [API](/features/api) access starts at the base price. External [Slack integration](/features/slack-integration), email providers, and custom [CRM integrations](/features/integrations) use n8n's connectors; their plans, limits, hosting, and subscription costs remain separate.
 
 ## Who Should Switch from Salesmate?
 
@@ -217,7 +217,7 @@ Customermates is the strongest Salesmate alternative for teams that:
 
 - **Want predictable costs**: No surprise calling fees, no core-feature gates, no per-usage charges
 - **Want AI that runs the CRM**: agents that read and write your records via native MCP, not a chat assistant gated to a higher tier
-- **Require EU data residency**: Strict GDPR compliance with data hosted exclusively in Germany
+- **Require EU data residency**: Strict GDPR compliance with data hosted in the EU region
 - **Prefer simplicity over feature bloat**: A focused CRM that does not overwhelm with nested menus
 - **Value open source**: Inspect the code, [self-host](/features/self-hosted) if needed, and avoid vendor lock-in
 
@@ -238,7 +238,7 @@ No consultants required. No multi-week implementation projects.
 
 ## Conclusion
 
-Salesmate offers many features, but its tiered pricing, hidden calling costs, and plan-gated AI assistant make it expensive and unpredictable for growing teams. Customermates offers an open-source Salesmate alternative with transparent tiered pricing from €12/user/month, no artificial limits, EU hosting, GDPR compliance, and full automation built in. If your team needs a CRM with transparent costs and no upgrade pressure, [start your free trial today](/auth/signup).
+Salesmate offers many features, but its tiered pricing, hidden calling costs, and plan-gated AI assistant make it expensive and unpredictable for growing teams. Customermates offers an open-source Salesmate alternative with transparent tiered pricing from €12/user/month, no artificial limits, EU hosting, GDPR compliance, and automation connectivity at no surcharge. If your team needs a CRM with transparent costs and no upgrade pressure, [start your free trial today](/auth/signup).
 
 See how Customermates compares to other CRMs: [HubSpot alternative](/compare/hubspot-alternative), [Freshsales alternative](/compare/freshsales-alternative), or [Pipedrive alternative](/compare/pipedrive-alternative).
 
@@ -252,7 +252,7 @@ Customermates starts at €12/user/month with every core CRM feature included; P
 
 ### Can I migrate my data from Salesmate to Customermates?
 
-Yes. Customermates supports CSV import for contacts, companies, and deals. Export your Salesmate data and import it into Customermates in a single day. No consultants or special tools needed.
+Yes. Customermates loads contacts, companies, and deals through the REST API or an AI agent over MCP; there is no CSV importer. Export your Salesmate data and import it into Customermates in a single day. No consultants or special tools needed.
 
 ### Is Customermates GDPR-compliant?
 
@@ -264,4 +264,4 @@ Customermates does not lock you into a proprietary calling system. Instead, you 
 
 ### Does Customermates include AI features?
 
-Yes, and they do more than assist. Claude, ChatGPT, and Gemini connect through a native MCP integration (45 tools) and operate the CRM directly: reading and writing records, summarizing notes, and driving workflow automation from the Starter tier at no extra cost. Unlike Salesmate, which reserves the Sandy chat assistant for the Pro plan ($39/user/month), Customermates gives every user AI that runs the CRM from day one.
+Yes, and they do more than assist. Claude, ChatGPT, and Gemini connect through a native MCP integration (46 tools) and operate the CRM directly: reading and writing records, summarizing notes, and driving workflow automation from the Starter tier at no extra cost. Unlike Salesmate, which reserves the Sandy chat assistant for the Pro plan ($39/user/month), Customermates gives every user AI that runs the CRM from day one.

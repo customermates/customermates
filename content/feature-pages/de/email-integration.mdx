@@ -1,11 +1,11 @@
 ---
 title: "CRM E-Mail-Integration: Gmail & Outlook Sync"
-description: "Gmail und Outlook automatisch mit Ihrem CRM synchronisieren. E-Mail-Tracking, Vorlagen, automatisierte Sequenzen via n8n. EU-gehostet, DSGVO-konform."
+description: "CRM-E-Mail-Integration für unterstützte Gmail- und Outlook-Konten, einzelne Entwürfe und Nachrichten sowie den Nachrichtenverlauf. Kampagnen und Sequenzen bleiben in separaten Tools; die gehostete Datenbank nutzt eine EU-Region."
 featureName: E-Mail-Integration
 
 hero:
   title: E-Mail-Integration, die jede Konversation mit Ihrem CRM verbindet
-  description: Synchronisieren Sie Gmail und Outlook automatisch mit Customermates. Jede E-Mail protokolliert, jeder Kontakt zugeordnet, jeder Thread für Ihr Team sichtbar. E-Mail ist Teil eines nativen gemeinsamen Postfachs, das auch LinkedIn, WhatsApp, Instagram und Telegram abdeckt, und KI-Agenten können über alle Kanäle lesen, entwerfen und senden. Vorlagen, Tracking und automatisierte Sequenzen via n8n, enthalten ab der Pro-Stufe für 29 EUR pro Nutzer und Monat.
+  description: Verbinden Sie unterstützte Gmail- und Outlook-Konten mit Customermates. Passende Konversationen stehen im gemeinsamen Postfach neben LinkedIn, WhatsApp, Instagram und Telegram bereit. Unterstützte externe KI-Clients können über MCP Kontext lesen, entwerfen und senden; Kampagnen und Sequenzen laufen in einem separaten Anbieter oder einer eigenen n8n-Instanz.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -58,22 +58,22 @@ Einmal verbunden, synchronisieren sich E-Mails automatisch. Jede ein- und ausgeh
 
 **E-Mails aus dem CRM senden.** Verfassen und senden Sie E-Mails direkt aus Customermates. Gesendete E-Mails werden automatisch am Kontaktdatensatz protokolliert und Antworten fließen in denselben Thread zurück. Ihr Team wickelt E-Mail-Kommunikation ab, ohne zwischen Anwendungen zu wechseln.
 
-**KI-Agenten entwerfen und senden.** Claude, ChatGPT und Gemini verbinden sich über eine native MCP-Integration (45 Tools) und bearbeiten das Postfach mit Ihnen. Sie entwerfen Antworten aus dem vollständigen Kontaktkontext, senden aus dem CRM und protokollieren alles am Datensatz. Dieselben Agenten arbeiten auch über den Rest des gemeinsamen Postfachs (LinkedIn, WhatsApp, Instagram, Telegram). Messaging-Tools sind ab der Pro-Stufe verfügbar.
+**Externe KI-Clients entwerfen und senden.** Unterstützte Clients wie Claude, ChatGPT und Gemini können 46 MCP-Tools nutzen, um erlaubten Kontext zu lesen, eine Antwort zu entwerfen und sie, soweit zulässig, zu senden. Customermates liefert den MCP-Endpoint, nicht Client, Modell, Abonnement oder autonomes Ergebnis. Messaging-Tools sind ab Pro verfügbar.
 
 **E-Mail-Öffnungs- und Klick-Tracking.** Wissen Sie, wann Ihre E-Mails geöffnet und welche Links geklickt werden. Tracking-Daten erscheinen auf der Kontakt-Timeline und helfen Ihrem Team, Follow-ups mit aktiv engagierten Interessenten zu priorisieren. Öffnungs- und Klickraten werden in [Reporting-Dashboards](/features/reporting) aggregiert, sodass Sie die E-Mail-Effektivität teamübergreifend messen können.
 
-**Zeitgesteuerter E-Mail-Versand.** Schreiben Sie E-Mails jetzt, senden Sie sie später. Planen Sie E-Mails so, dass sie zur optimalen Zeit für die Zeitzone des Empfängers ankommen. Der zeitgesteuerte Versand ist direkt in den CRM-Composer integriert, keine Drittanbieter-Tools nötig.
+**Zeitgesteuerter Versand über einen externen Anbieter.** Schreiben und prüfen Sie einen einzelnen Entwurf in Customermates; ein separat betriebener Workflow und Versandanbieter planen ihn. Customermates besitzt weder integrierten Send-later-Planer noch Kampagnen-Engine.
 
-**Massen-E-Mail-Versand.** Senden Sie personalisierte E-Mails an Gruppen von Kontakten mit Vorlagen und dynamischen Variablen. Filtern Sie Ihre Kontaktliste, wählen Sie Empfänger, wählen Sie eine Vorlage und senden Sie. Jede E-Mail wird personalisiert und einzeln am Datensatz des Empfängers protokolliert.
+**Einzelner E-Mail-Versand.** Senden Sie jeweils eine geprüfte Nachricht über ein unterstütztes Konto und halten Sie sie im unterstützten Gesprächsverlauf fest. Customermates bietet weder Massen-E-Mail-Versand noch Bulk-Outreach; nutzen Sie für Gruppen einen separaten Kampagnenanbieter.
 
-**Automatisierte E-Mail-Sequenzen mit n8n.** Gehen Sie über manuelles E-Mailing hinaus mit der integrierten n8n-Automatisierungs-Engine. Richten Sie Trigger ein, die automatisch E-Mails basierend auf CRM-Ereignissen senden:
+**E-Mail-Sequenzen in einem externen Anbieter mit n8n.** Gehen Sie über manuelles E-Mailing hinaus mit der n8n-Automatisierungs-Engine. Richten Sie Trigger ein, die automatisch E-Mails basierend auf CRM-Ereignissen senden:
 
 - Wenn ein Deal zu "Angebot gesendet" wechselt, senden Sie nach 3 Tagen ohne Antwort eine Follow-up-Vorlage
 - Wenn ein neuer Kontakt über ein Webformular erstellt wird, starten Sie eine Willkommens-E-Mail-Sequenz
-- Wenn eine Aufgabe überfällig ist, benachrichtigen Sie das zuständige Teammitglied per E-Mail
+- Wenn ein eigenes Aufgabendatum erreicht ist, lassen Sie einen externen Scheduler über einen externen Anbieter eine Benachrichtigung senden
 - Wenn ein Deal als gewonnen markiert wird, senden Sie eine Dankes-E-Mail an den Kunden
 
-Erstellen Sie diese Workflows visuell in n8n, ohne Code. Sequenzen, die ein dediziertes E-Mail-Marketing-Tool wie Mailchimp oder eine Sales-Engagement-Plattform erfordern würden, laufen direkt in Ihrem CRM.
+Erstellen Sie diese Workflows visuell in einer separaten n8n-Instanz, ohne Code. Kampagnen und Sequenzen laufen in diesem Workflow und bei einem externen Versandanbieter, nicht direkt in Customermates.
 
 ## Zentrale Vorteile
 
@@ -81,7 +81,7 @@ Erstellen Sie diese Workflows visuell in n8n, ohne Code. Sequenzen, die ein dedi
 
 **Stunden täglich sparen mit Vorlagen.** Standardisieren Sie Ihre häufigsten E-Mail-Kommunikationen, ohne auf Personalisierung zu verzichten. Dynamische Variablen sorgen dafür, dass jede E-Mail persönlich wirkt, während repetitives Tippen entfällt. Teams, die E-Mail-Vorlagen einführen, berichten typischerweise von 30 bis 50 Prozent Zeitersparnis bei E-Mail-bezogener Arbeit.
 
-**Automatisierte E-Mail-Workflows.** n8n-getriebene Sequenzen übernehmen Follow-ups, Willkommens-E-Mails, Deal-Phasen-Benachrichtigungen und Erinnerungs-E-Mails ohne manuellen Eingriff. Ihr Team konzentriert sich auf hochwertige Konversationen, während die Automatisierung die Routine übernimmt.
+**Automatisierte E-Mail-Workflows.** Eine separate n8n-Instanz und ein externer Versandanbieter können Follow-ups, Willkommens-E-Mails, Deal-Phasen-Benachrichtigungen und Erinnerungen übernehmen. Ihr Team konzentriert sich auf hochwertige Konversationen, während der externe Workflow die Routine übernimmt.
 
 **Bessere Teamzusammenarbeit.** Wenn jede E-Mail im CRM protokolliert ist, kann jedes Teammitglied eine Konversation aufnehmen oder einen Kollegen sofort vertreten. Deal-Übergaben werden nahtlos, weil der neue Verantwortliche volle Einsicht in die gesamte bisherige Kommunikation hat.
 
@@ -93,11 +93,11 @@ Erstellen Sie diese Workflows visuell in n8n, ohne Code. Sequenzen, die ein dedi
 
 **Native Integration, kein separates Zusatzprodukt.** E-Mail-Integration ist ab der Pro-Stufe für 29 EUR pro Nutzer und Monat enthalten, als Teil des gemeinsamen Postfachs neben LinkedIn, WhatsApp, Instagram und Telegram. Keine Kosten pro E-Mail und kein separates E-Mail-Sync-Produkt zusätzlich zu Pro. Vergleichen Sie das mit CRMs, die 50 EUR oder mehr pro Nutzer für E-Mail-Features verlangen.
 
-**Datenschutzgerechte Synchronisation.** E-Mail-Daten, die mit Customermates synchronisiert werden, werden in EU-Rechenzentren mit vollständiger DSGVO-Konformität gespeichert. Anders als CRM-Anbieter, die E-Mail-Daten über US-Server leiten, hält Customermates Ihre Kommunikation innerhalb der europäischen Jurisdiktion. Beim Self-Hosting verlassen E-Mail-Daten nie Ihre eigene Infrastruktur.
+**Dokumentierte Hosting-Grenzen.** Die verwaltete Customermates-Datenbank läuft in einer EU-Region. Anwendungshosting, Messaging-Dienste und weitere Anbieter, darunter US-Anbieter, können Daten andernorts verarbeiten und werden separat dokumentiert; dies ist keine Compliance-Zertifizierung. Self-Hosting hat Starter-Berechtigungen und enthält kein Cloud-Postfach.
 
 **Open-Source-Transparenz.** Der Code der E-Mail-Integration ist Open Source. Sie können genau prüfen, wie Ihre E-Mail-Daten verarbeitet und gespeichert werden. Keine Blackboxen und keine versteckte Datenverarbeitung. Wenn Ihre Organisation ein Sicherheitsaudit der E-Mail-Verarbeitung benötigt, steht der Quellcode zur Einsicht bereit.
 
-**n8n-getriebene E-Mail-Automatisierung.** Die integrierte n8n-Engine verwandelt Customermates in eine E-Mail-Automatisierungsplattform. Erstellen Sie Sequenzen, die mit dedizierten Tools wie Lemlist, Woodpecker oder HubSpot Sales mithalten, alles innerhalb Ihres CRM ohne zusätzliche Kosten.
+**n8n-getriebene E-Mail-Automatisierung.** Verbinden Sie eine separate n8n-Instanz und einen externen Versandanbieter über die Customermates-Schnittstellen. Kampagnen und Sequenzen laufen außerhalb des CRM; Tarife, Limits, Logs und Kosten bleiben separat.
 
 **Funktioniert mit Ihrem bestehenden E-Mail-Anbieter.** Gmail, Outlook 365 und jeder IMAP-kompatible E-Mail-Dienst. Ihr Team nutzt weiterhin das Postfach, das es bevorzugt. Kein proprietäres E-Mail-System und keine Migration erforderlich.
 
@@ -112,14 +112,14 @@ Ja. E-Mail-Öffnungs- und Klick-Tracking ist zusammen mit der E-Mail-Integration
 **Wie schnell synchronisieren sich E-Mails?**
 E-Mails erscheinen typischerweise innerhalb von Sekunden auf CRM-Kontakt-Timelines, nachdem sie gesendet oder empfangen wurden. Die Synchronisierung läuft kontinuierlich, nicht nach einem verzögerten Zeitplan.
 
-**Kann ich automatisierte E-Mail-Sequenzen senden?**
-Ja. Die integrierte n8n-Automatisierungs-Engine ermöglicht mehrstufige E-Mail-Sequenzen, die durch CRM-Ereignisse ausgelöst werden. Sequenzen können Verzögerungen, Bedingungen und Verzweigungslogik umfassen, alles visuell ohne Code konfiguriert.
+**Kann ich E-Mail-Sequenzen in einem externen Anbieter senden?**
+Ja, über separate Dienste. Ein von Ihnen betriebener n8n-Workflow kann auf dokumentierte CRM-Ereignisse reagieren; ein externer Versandanbieter verantwortet Verzögerungen, Bedingungen, Verzweigungen, Zustellung, Limits, Logs und Kosten. Customermates besitzt keine Sequenz-Engine.
 
 **Funktioniert die E-Mail-Integration mit gemeinsamen Postfächern?**
 Geteilte, teamweite Postfach-Sichtbarkeit ist ab der Business-Stufe für 69 EUR pro Nutzer und Monat enthalten. Bei Pro verbindet und sieht jeder Nutzer sein eigenes Postfach; bei Business werden E-Mails an Team-Adressen bei den entsprechenden Kontaktdatensätzen protokolliert, und mehrere Teammitglieder können denselben E-Mail-Thread aus dem CRM einsehen.
 
 **Werden meine E-Mail-Daten in der EU gespeichert?**
-Ja. Alle E-Mail-Synchronisierungsdaten werden in europäischen Rechenzentren mit vollständiger DSGVO-Konformität gespeichert. Beim Self-Hosting werden die Daten auf Ihren eigenen Servern in der Jurisdiktion Ihrer Wahl gespeichert.
+Die verwaltete Customermates-Datenbank läuft in einer EU-Region. Anwendungshosting, Messaging-Dienste und verbundene Anbieter können Daten andernorts verarbeiten, auch über US-Anbieter; dies ist keine Compliance-Zertifizierung. Self-Hosting enthält die Cloud-E-Mail-Integration nicht.
 
 ## Starten Sie heute mit E-Mail-Integration
 

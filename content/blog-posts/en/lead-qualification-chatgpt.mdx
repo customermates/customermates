@@ -286,7 +286,7 @@ New lead arrives (webhook / CRM trigger / form)
 ### Step-by-Step Implementation
 
 **1. Trigger: Capture new leads.**
-Use an n8n Webhook node or a CRM trigger. If you use [Customermates](/), new contacts automatically trigger workflows via the native n8n integration. Alternatively, connect web forms, email parsers, or chatbot outputs.
+Use an n8n Webhook node or a CRM trigger. If you use [Customermates](/), new contacts automatically trigger workflows via the separate n8n integration. Alternatively, connect web forms, email parsers, or chatbot outputs.
 
 **2. Enrich lead data (optional).**
 Before scoring, you may want to add context. Use an HTTP Request node to pull company data from Clearbit, Apollo, or LinkedIn. More context improves scoring accuracy. Even basic enrichment (company size, industry, location) can move a lead's ICP fit score from "Unknown" to "Strong" or "Weak."
@@ -298,7 +298,7 @@ Add an OpenAI node. Paste the BANT, MEDDIC, or ANUM prompt and insert the lead d
 Use a Code node or JSON parser to extract the individual scores, classification, and recommended action from ChatGPT's response. Map these to variables for the next steps.
 
 **5. Update CRM.**
-Add a CRM node to write the results. In Customermates, map the total score to a custom field, set the classification as a tag, and add the detailed scoring as a note. This makes the qualification visible on the deal card without opening a separate report.
+Add a CRM node to write the results. In Customermates, map the total score to a custom field, set the classification as a single-select custom column, and add the detailed scoring as a note. This makes the qualification visible on the deal card without opening a separate report.
 
 **6. Route by classification.**
 Use an If node to branch the workflow:
@@ -386,7 +386,7 @@ Teams that switch from manual to AI-assisted qualification typically see convers
 
 Your CRM needs to support custom fields, tagging, and automation triggers for this workflow to function smoothly.
 
-**Customermates.** From EUR 12/user/month (Starter), the full core CRM included. Custom fields for scores, tags for classification, native n8n integration for automated updates, GDPR-compliant EU hosting. The native MCP integration (45 tools) lets Claude, ChatGPT, or Gemini operate the CRM directly, and a unified inbox brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one place on the Pro tier. Automation is included at every tier, so you do not pay extra for features that enterprise CRMs gate behind higher plans.
+**Customermates.** From EUR 12/user/month (Starter), the full core CRM included. Custom fields for scores, tags for classification, native n8n integration for automated updates, GDPR-compliant EU hosting. The native MCP integration (46 tools) lets Claude, ChatGPT, or Gemini operate the CRM directly, and a unified inbox brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one place on the Pro tier. Automation is included at every tier, so you do not pay extra for features that enterprise CRMs gate behind higher plans.
 
 **HubSpot.** Lead scoring is available on the Professional plan (from about EUR 90 per seat per month). The built-in scoring is rule-based, not AI-powered. For AI scoring via n8n, the free CRM tier works but lacks advanced automation triggers.
 
@@ -418,7 +418,7 @@ Build a feedback loop. When a sales rep disagrees with an AI score, they update 
 
 ### Is it GDPR-compliant to send lead data to ChatGPT?
 
-When using the OpenAI API with a business agreement and DPA, data is processed but not used for training. For maximum compliance, minimize the PII sent (use company name and message content, not personal email addresses), and consider a self-hosted LLM via Ollama for sensitive data. On the CRM side, Customermates stores data in the EU by default and is fully GDPR-compliant.
+When using the OpenAI API with a business agreement and DPA, data is processed but not used for training. For maximum compliance, minimize the PII sent (use company name and message content, not personal email addresses), and consider a self-hosted LLM via Ollama for sensitive data. On the CRM side, Customermates uses an EU region for the managed database and publishes a DPA and SCCs, but holds no compliance certification.
 
 ### What if I only get 20 leads per month, is automation worth it?
 

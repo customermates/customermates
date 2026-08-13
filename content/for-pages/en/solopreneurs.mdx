@@ -63,7 +63,7 @@ No more sticky notes, no more "I meant to reply." Your CRM handles the follow-up
 
 ### AI agents that handle the busywork
 
-Connect Claude, ChatGPT, or Gemini through the native MCP integration (45 tools) and let them do the data entry. Agents draft follow-up emails, enrich contact data from the web, score leads based on engagement, move deals between stages, and summarize your interaction history with a client. They handle the repetitive updates at no extra cost while you focus on decisions and relationships, and the pipeline stays current because the agent maintains it.
+Connect Claude, ChatGPT, or Gemini through the native MCP integration (46 tools) and let them do the data entry. Agents draft follow-up emails, enrich contact data from the web, score leads based on engagement, move deals between stages, and summarize your interaction history with a client. They handle the repetitive updates at no extra cost while you focus on decisions and relationships, and the pipeline stays current because the agent maintains it.
 
 ### Client nurturing without a team
 
@@ -78,7 +78,7 @@ You get the consistency of a team without actually having one.
 
 ### Simple setup in 2 minutes
 
-No implementation consultants. No 30-page configuration guides. Sign up, import your contacts via CSV, set up your pipeline stages, and start working. Customermates is designed so a single person can go from zero to fully operational in one sitting.
+No implementation consultants and no 30-page configuration guides. Sign up, add contacts manually, or migrate supported records through the REST API or an external AI client over MCP. Customermates has no CSV uploader.
 
 ## Key features for solopreneurs
 
@@ -120,7 +120,7 @@ Many solopreneurs start with a spreadsheet. It works at first, but breaks down a
 | **Automated follow-ups** | No | Yes (complex) | Yes (simple) |
 | **Pipeline visibility** | Manual charts | Full dashboards | Kanban + dashboards |
 | **Unified inbox (email, WhatsApp, Instagram)** | No | Email only | Yes, on Pro |
-| **AI agents operate the CRM (MCP)** | No | Paid add-on | Included (45 tools) |
+| **AI agents operate the CRM (MCP)** | No | Paid add-on | Included (46 tools) |
 | **Cost** | Free | €50-150/user/month | From €12/user/month |
 | **Data ownership** | Local file | Vendor-controlled | Open source, self-hostable |
 | **Setup complexity** | Low | High (needs admin) | Low (single person) |
@@ -148,13 +148,13 @@ Most CRMs charge €50 to €150 per user per month for the features you actuall
 - **Starter, €12 per user per month**, automation, API, native AI integration, and custom fields
 - **Pro, €29 per user per month**, adds the unified inbox for client email, WhatsApp, and Instagram
 - **Self-hostable**, [open source](https://github.com/customermates/customermates), run it on your own servers if you prefer, free forever
-- **EU-hosted (Germany)**, GDPR-native, your data stays in Europe
+- **EU-hosted**, GDPR-native, the hosted database runs in the EU region
 
 For a solopreneur, that is €12/month on Starter for a fully featured CRM, or €29/month on Pro if you want client email logged automatically. Compare that to [Pipedrive](https://www.pipedrive.com) at €14 to €79 per user per month or HubSpot's paid plans starting at $15/user/month with limited features. See our full [pricing details](/pricing).
 
 ## Integrations for solo workflows
 
-Customermates connects to the tools solopreneurs already use through the built-in n8n automation engine and [REST API](/features/api):
+Customermates connects to the tools solopreneurs already use through the n8n automation engine and [REST API](/features/api):
 
 - **Email**: Sync Gmail or Outlook so every conversation is logged
 - **Calendar**: Connect Google Calendar or Outlook Calendar for meeting scheduling
@@ -169,10 +169,10 @@ The n8n integration gives you access to 400+ app connectors, no paid middleware 
 
 As a solopreneur handling client data, you need to be compliant, especially if you work with European clients. Customermates is GDPR-native by design:
 
-- **EU-hosted in Germany**, your data never leaves Europe
+- **EU-hosted**, the hosted database runs in the EU region
 - **Open source**, full transparency, audit the code yourself
 - **Self-hostable**, run it on your own infrastructure for complete data sovereignty
-- **Data export**, export all your data anytime, no vendor lock-in
+- **Open data access**, read supported records through REST for a backup or migration workflow you operate; there is no built-in CSV exporter
 - **Consent tracking**, built-in tools for managing client consent
 
 Read more about [CRM best practices](/blog/crm-best-practices) to get the most from your setup.
@@ -180,7 +180,7 @@ Read more about [CRM best practices](/blog/crm-best-practices) to get the most f
 ## Getting started
 
 1. **[Create your free account](/auth/signup)**, no credit card required, 7 days to explore everything.
-2. **Import your contacts**, bring in existing contacts from spreadsheets, email exports, or another CRM via CSV.
+2. **Migrate supported records**, use the REST API, or hand a prepared source export to an AI agent connected over MCP. Customermates has no CSV uploader.
 3. **Set up your pipeline**, define deal stages that match how you actually sell.
 4. **Add custom fields**, include the data points specific to your solo business.
 5. **Activate automations**, set up follow-up reminders, task creation rules, and notification triggers with n8n.
@@ -207,15 +207,15 @@ HubSpot and Salesforce are capable platforms for larger teams but come with comp
 
 ### Can I automate my follow-ups as a solopreneur?
 
-Absolutely. Customermates includes n8n workflow automation at no extra cost. You can automate follow-up email sequences, task creation based on deal stage changes, client check-in reminders, and re-engagement campaigns. Set the rules once and the CRM handles execution, so you never forget a follow-up again.
+Absolutely. Customermates works with n8n workflow automation at no extra cost. You can automate follow-up email sequences, task creation based on deal stage changes, client check-in reminders, and re-engagement campaigns. Set the rules once and the CRM handles execution, so you never forget a follow-up again.
 
 ### Is my client data safe with Customermates?
 
-Customermates is EU-hosted in Germany, GDPR-native by design, and fully open source. You can inspect the code, export your data at any time, or self-host on your own infrastructure for complete control. There is no vendor lock-in and no data monetization.
+Customermates is fully open source. For the hosted service, the managed database runs in an EU region while application and other providers are listed separately. You can inspect the code, read supported records through REST, or self-host and operate the infrastructure yourself; these are deployment choices, not a compliance certification.
 
 ### How long does it take to set up Customermates?
 
-Most solopreneurs are fully operational within 10 minutes. Create an account, import contacts via CSV, configure your pipeline stages, and activate your first automation. No technical skills required, no implementation consultant needed.
+Create an account, add contacts manually or through REST or MCP, and configure your pipeline stages. Data preparation and any external automation are separate setup steps, so no migration duration is promised.
 
 Solopreneurs need a system that works as hard as they do. Customermates gives you the structure to stay organized, follow up consistently, and close more deals, without adding complexity to your day or draining your budget.
 

@@ -64,11 +64,11 @@ comparison:
         competitor: Email + LinkedIn capture
   - title: Data protection & security
     features:
-      - name: GDPR compliant
-        source: true
+      - name: GDPR documentation
+        source: DPA + SCCs; no certification
         competitor: true
       - name: Hosting
-        source: EU / Germany
+        source: EU database region
         competitor: Belgium (EU)
       - name: Self-hosting option
         source: true
@@ -77,20 +77,20 @@ comparison:
         source: Full
         competitor: Limited (automatic data collection)
       - name: Audit log
-        source: true
+        source: Not claimed pending documentation reconciliation
         competitor: true
   - title: Integration & automation
     features:
-      - name: n8n automation engine
-        source: Included
+      - name: External n8n integration
+        source: Separate community node + REST/webhooks
         competitor: Not included
       - name: Workflow automation
-        source: All plans
+        source: Via separately operated n8n
         competitor: From Pro ($49/mo)
       - name: API access
         source: true
         competitor: true
-      - name: AI agents operate the CRM (native MCP, 45 tools)
+      - name: AI agents operate the CRM (native MCP, 46 tools)
         source: Included
         competitor: Not available
   - title: Team & collaboration
@@ -104,8 +104,8 @@ comparison:
       - name: Custom dashboards
         source: true
         competitor: From Pro ($49/mo)
-      - name: Notifications
-        source: true
+      - name: In-app notification center
+        source: false
         competitor: true
 
 cta:
@@ -182,7 +182,7 @@ Customermates is more versatile. It covers sales, customer service, [task manage
 
 Salesflare reserves email sequences for the Pro plan ($49/user/month). If you need multi-step email campaigns, you must upgrade from Growth.
 
-Customermates includes the [n8n automation engine](/features/workflow-automation) starting on Starter (€12/user/month), so follow-up workflows and multi-channel outreach campaigns are never plan-restricted. Native email in the unified inbox is available from Pro (€29/user/month), still a fraction of Salesflare's Pro price.
+Customermates works with the [n8n automation engine](/features/workflow-automation) starting on Starter (€12/user/month), so follow-up workflows and multi-channel outreach campaigns are never plan-restricted. Native email in the unified inbox is available from Pro (€29/user/month), still a fraction of Salesflare's Pro price.
 
 ### Permission Management
 
@@ -206,7 +206,7 @@ Salesflare hosts in Belgium (EU) and is GDPR-compliant. However, the automatic d
 
 Salesflare shines with native integrations into email clients, LinkedIn, and Zapier. The LinkedIn sidebar is particularly strong for social selling teams. However, deeper automation workflows require the Pro plan, and Zapier integrations incur additional subscription costs.
 
-Customermates integrates natively with [n8n](https://n8n.io/) for powerful workflow automation. The [API](/features/api) is fully accessible at the base price. You can connect to thousands of third-party services without Zapier fees or plan-restricted triggers. Whether you need [Slack integration](/features/slack-integration), [email synchronization](/features/email-integration), or custom [CRM integrations](/features/integrations), everything works without upgrade requirements.
+Customermates connects to separately operated [n8n](https://n8n.io/) through REST, webhooks, MCP, and a community node. Documented [API](/features/api) access starts at the base price. External [Slack integration](/features/slack-integration), email providers, and custom [CRM integrations](/features/integrations) use n8n's connectors and remain subject to the external services' plans, limits, and costs.
 
 ## Who Should Switch from Salesflare?
 
@@ -234,7 +234,7 @@ No consultants required. No multi-week implementation projects.
 
 ## Conclusion
 
-Salesflare is a well-designed CRM for B2B sales teams, but its high pricing, plan-gated features, and automatic data collection model make it unsuitable for many growing teams. Customermates offers an open-source Salesflare alternative with transparent tiered pricing from €12/user/month, full permission management, EU hosting, GDPR compliance, and n8n automation included from day one. If your team needs a CRM that respects your data and your budget, [start your free trial today](/auth/signup).
+Salesflare is a well-designed CRM for B2B sales teams, but its high pricing, plan-gated features, and automatic data collection model make it unsuitable for many growing teams. Customermates offers an open-source Salesflare alternative with transparent tiered pricing from €12/user/month, full permission management, EU hosting, GDPR compliance, and n8n automation supported from day one. If your team needs a CRM that respects your data and your budget, [start your free trial today](/auth/signup).
 
 See how Customermates compares to other CRMs: [HubSpot alternative](/compare/hubspot-alternative), [Freshsales alternative](/compare/freshsales-alternative), or [Pipedrive alternative](/compare/pipedrive-alternative).
 
@@ -248,7 +248,7 @@ Customermates starts at €12/user/month with every core CRM feature, including 
 
 ### Can I migrate my data from Salesflare to Customermates?
 
-Yes. Customermates supports CSV import for contacts, companies, and deals. Export your Salesflare data and import it into Customermates in a single day. No consultants or special tools needed.
+Yes. Customermates loads contacts, companies, and deals through the REST API or an AI agent over MCP; there is no CSV importer. Export your Salesflare data and import it into Customermates in a single day. No consultants or special tools needed.
 
 ### Is Customermates GDPR-compliant?
 
@@ -260,4 +260,4 @@ Yes. Unlike Salesflare, which reserves permission management for the Pro plan ($
 
 ### Does Customermates offer workflow automation?
 
-Yes. Customermates includes the [n8n automation engine](/features/workflow-automation) at no extra cost. You can build email sequences, follow-up workflows, and multi-channel automations without plan restrictions or Zapier subscription fees.
+Yes. Customermates works with the [n8n automation engine](/features/workflow-automation) at no extra cost. You can build email sequences, follow-up workflows, and multi-channel automations without plan restrictions or Zapier subscription fees.

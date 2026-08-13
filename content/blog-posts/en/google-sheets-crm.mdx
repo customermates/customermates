@@ -221,7 +221,7 @@ When a company changes its name or a contact moves to a different organization, 
 
 Google Sheets cannot natively trigger actions based on data changes. You cannot create a rule that says "when a deal moves to Proposal Sent, email the customer a pricing sheet" or "when a follow-up date passes, alert the assigned rep in Slack."
 
-You can build workarounds with Apps Script or Zapier, but these are fragile, limited to simple triggers, and require technical maintenance. In comparison, a CRM like Customermates includes native n8n integration that provides visual, code-free [workflow automation](/features/workflow-automation) for processes of any complexity.
+You can build workarounds with Apps Script or Zapier, but these are fragile, limited to simple triggers, and require technical maintenance. In comparison, a CRM like Customermates includes separate n8n integration that provides visual, code-free [workflow automation](/features/workflow-automation) for processes of any complexity.
 
 ### 3. Poor Multi-User Collaboration
 
@@ -328,7 +328,7 @@ In Customermates:
 2. Import Deals next (link to existing contacts and companies during the mapping step)
 3. Import Activities last (associate with contacts and deals)
 
-Customermates provides a field-mapping interface during import that lets you match CSV columns to CRM fields. Most teams complete the entire migration in a single afternoon.
+Customermates has no import screen and no field-mapping interface. An AI agent over MCP does the mapping conversationally instead. Most teams complete the entire migration in a single afternoon.
 
 ### Step 5: Build What Google Sheets Could Not
 
@@ -340,7 +340,7 @@ Now set up the capabilities your spreadsheet lacked:
 - **Automated lead scoring and routing** with n8n workflows
 - **Real-time dashboards** that update without manual formula maintenance
 - **Role-based permissions** so team members see only relevant data
-- **native AI integration** for data entry, follow-up drafting, and task management
+- **MCP integration for external AI clients** for data entry, follow-up drafting, and task management
 
 ## Why Customermates Is the Natural Upgrade from Google Sheets
 
@@ -350,15 +350,15 @@ Does Google have a CRM option? Not directly. Google Workspace includes productiv
 
 **Transparent pricing.** From EUR 12 per user per month with the full core CRM included. No per-contact charges, no add-on costs to unlock the basics. That is barely more than many Google Workspace subscriptions.
 
-**Automation from day one.** Native n8n integration means you can automate the follow-ups, notifications, and data updates that consumed your time in the spreadsheet. No coding required.
+**Automation from day one.** A separate n8n integration means you can automate the follow-ups, notifications, and data updates that consumed your time in the spreadsheet. No coding required.
 
-**native AI integration.** Let artificial intelligence handle data entry, follow-up drafting, meeting summaries, and task management. These are the repetitive tasks that ate your time in Google Sheets.
+**MCP integration for external AI clients.** Let artificial intelligence handle data entry, follow-up drafting, meeting summaries, and task management. These are the repetitive tasks that ate your time in Google Sheets.
 
 **GDPR compliance built in.** Purpose-built for EU data protection. Audit logging, access controls, data retention policies, and EU hosting replace the compliance gaps Google Sheets leaves open.
 
 **Self-hostable and open source.** Deploy on your own servers for complete data control. Inspect and modify the source code. No vendor lock-in, ever.
 
-**CSV import.** Migrating from Google Sheets is as simple as exporting CSVs and importing them into Customermates. The field mapper handles the rest.
+**API and agent import.** Migrating from Google Sheets means exporting the data and creating the records through the REST API, or letting an AI agent over MCP do it from the file. The field mapper handles the rest.
 
 ## Frequently Asked Questions
 
@@ -392,6 +392,6 @@ Google Sheets is a capable starting point for customer relationship management. 
 
 But recognize the ceiling. When your team grows, when you need automation, when follow-ups start falling through the cracks, or when compliance requirements surface, Google Sheets stops being a solution and starts being an obstacle that costs you real revenue.
 
-The good news is that modern CRM software has become remarkably affordable and easy to adopt. Customermates, from EUR 12 per user per month, provides everything a Google Sheets CRM cannot: relational data, [workflow automation](/features/workflow-automation), pipeline visualization, email integration, GDPR compliance, and native AI integration, all in an [open-source](/blog/open-source-crm), self-hostable package.
+The good news is that modern CRM software has become remarkably affordable and easy to adopt. Customermates, from EUR 12 per user per month, provides everything a Google Sheets CRM cannot: relational data, [workflow automation](/features/workflow-automation), pipeline visualization, email integration, GDPR compliance, and MCP integration for external AI clients, all in an [open-source](/blog/open-source-crm), self-hostable package.
 
 Start with the templates if you need to. But bookmark this guide for when it is time to graduate.

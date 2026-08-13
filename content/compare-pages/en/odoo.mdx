@@ -61,8 +61,8 @@ comparison:
         competitor: 80+ integrated modules
   - title: AI & automation
     features:
-      - name: Native AI agent integration (MCP)
-        source: 45 MCP tools
+      - name: external AI clients via MCP
+        source: 46 MCP tools
         competitor: false
       - name: Claude / ChatGPT operates the CRM
         source: true
@@ -81,11 +81,11 @@ comparison:
         competitor: Native (historical-data based)
   - title: Privacy & hosting
     features:
-      - name: GDPR compliant
-        source: true
+      - name: GDPR documentation
+        source: DPA + SCCs; no certification
         competitor: true
       - name: Hosting region
-        source: EU / Germany
+        source: EU database region
         competitor: Belgium (Odoo Online), choice with self-host
       - name: Data sovereignty
         source: true
@@ -96,7 +96,7 @@ comparison:
 
 cta:
   action: Try a CRM your AI can actually run
-  description: Odoo offers AI lead scoring. Customermates lets your Claude or Codex agent operate the entire CRM through 45 MCP tools, an n8n node, and 26 webhook events.
+  description: Odoo offers AI lead scoring. Customermates lets your Claude or Codex agent operate the entire CRM through 46 MCP tools, an n8n node, and 26 webhook events.
   buttonLeftText: Start free
   buttonLeftHref: /auth/signup
   buttonRightText: See live demo
@@ -104,7 +104,7 @@ cta:
   hint: ✓ No credit card required ✓ First 7 days free
 ---
 
-> Odoo CRM is one module inside Odoo, an integrated suite of 80+ applications spanning CRM, ERP, accounting, inventory, and more. Customermates is a focused open-source CRM with modern UX built around two things: AI agents that operate the CRM directly through 45 [MCP](/features/api) tools (an [n8n](/features/workflow-automation) community node and 26 webhook events round it out), and a native unified inbox that brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one place the same agents can read, draft, and send. This page puts both side by side so you can pick the right tool for your situation.
+> Odoo CRM is one module inside Odoo, an integrated suite of 80+ applications spanning CRM, ERP, accounting, inventory, and more. Customermates is a focused open-source CRM with modern UX built around two things: AI agents that operate the CRM directly through 46 [MCP](/features/api) tools (an [n8n](/features/workflow-automation) community node and 26 webhook events round it out), and a native unified inbox that brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one place the same agents can read, draft, and send. This page puts both side by side so you can pick the right tool for your situation.
 
 ## What is Odoo CRM?
 
@@ -114,9 +114,9 @@ Odoo splits two editions. The Community Edition is licensed under LGPLv3 and liv
 
 ## What is Customermates?
 
-Customermates is a CRM that updates itself if you already use [Claude](/blog/chatgpt-summarize-notes), ChatGPT, or Codex. The pipeline moves, follow-ups get drafted, and contact notes stay current because the agent types. Underneath that outcome layer sits a modern Pipedrive replacement: five entities (Contacts, Organizations, Deals, Services, Tasks), two views (Table and Kanban-style Card), ten custom field types, and a full REST API. Open source under AGPL-3.0, free to self-host via Docker, EU-hosted in the cloud from €12 per user per month (€10 on the yearly Starter plan), with the MCP server, REST API, and n8n automation included at every tier.
+Customermates is a CRM that updates itself if you already use [Claude](/blog/chatgpt-summarize-notes), ChatGPT, or Codex. The pipeline moves, follow-ups get drafted, and contact notes stay current because the agent types. Underneath that outcome layer sits a modern Pipedrive replacement: five entities (Contacts, Organizations, Deals, Services, Tasks), two views (Table and Kanban-style Card), ten custom field types, and a full REST API. Open source under AGPL-3.0, free to self-host via Docker, EU-hosted in the cloud from €12 per user per month (€10 on the yearly Starter plan), with the MCP server, REST API, and n8n automation supported at every tier.
 
-The mechanism that makes the AI integration real: a built-in MCP server with 45 tools, an n8n community node, 26 webhook events, and the OpenAPI 3.1 spec at `/api/v1/openapi`.
+The mechanism that makes the AI integration real: a built-in MCP server with 46 tools, an n8n community node, 26 webhook events, and the OpenAPI 3.1 spec at `/api/v1/openapi`.
 
 ## Pricing comparison
 
@@ -146,7 +146,7 @@ Customermates ships five entity types as first-class citizens: Contacts, Organiz
 
 Odoo's AI focuses on one job: lead scoring. The platform analyzes historical data and predicts which leads will convert. Useful for sales teams with high lead volume, but conceptually narrow. The AI scores. It doesn't operate.
 
-Customermates was built for AI agents to run the CRM directly. The MCP server exposes 45 tools covering every CRM operation: create deals, update notes, link entities, configure custom columns, run filters, list webhooks. The same agents can also work the unified inbox, reading and sending across email, LinkedIn, WhatsApp, Instagram, and Telegram. Point Claude or Codex at `/api/v1/mcp` with your API key and the model reads and writes the CRM as if it were a human user. The same layer powers a [native n8n community node](/blog/n8n-for-beginners-build-your-first-workflow) and 26 webhook events.
+Customermates was built for AI agents to run the CRM directly. The MCP server exposes 46 tools covering every CRM operation: create deals, update notes, link entities, configure custom columns, run filters, list webhooks. The same agents can also work the unified inbox, reading and sending across email, LinkedIn, WhatsApp, Instagram, and Telegram. Point Claude or Codex at `/api/v1/mcp` with your API key and the model reads and writes the CRM as if it were a human user. The same layer powers a [native n8n community node](/blog/n8n-for-beginners-build-your-first-workflow) and 26 webhook events.
 
 The difference matters when the CRM should update itself from emails, calls, transcripts, or chats rather than waiting for a human to score leads. Odoo scores leads. Customermates lets your agent operate the entire CRM.
 
@@ -162,7 +162,7 @@ The license difference is subtle but real. AGPL-3.0 forces SaaS providers to pub
 
 Odoo's integration story is suite-centered. CRM data flows automatically into Sales, Accounting, Inventory, and POS because everything lives in the same system. External integrations through REST API are gated to the Custom plan. Teams using Odoo who want to plug in n8n, Zapier, or custom scripts pay €29.90 per user per month yearly or stay inside the suite.
 
-Customermates leans on open interfaces from the first plan. REST API with OpenAPI 3.1, MCP server with 45 tools, an n8n community node, and 26 webhook events ship in every tier, starting at €12 per user per month (€10 on the yearly Starter plan). Webhooks cover every CRUD operation across all five entities, so external systems stay in sync without polling.
+Customermates leans on open interfaces from the first plan. REST API with OpenAPI 3.1, MCP server with 46 tools, an n8n community node, and 26 webhook events ship in every tier, starting at €12 per user per month (€10 on the yearly Starter plan). Webhooks cover every CRUD operation across all five entities, so external systems stay in sync without polling.
 
 ## When Odoo CRM is the better choice
 
@@ -170,11 +170,11 @@ If you need an integrated business suite covering CRM, ERP, accounting, inventor
 
 ## When Customermates is the better choice
 
-If you want a focused CRM and don't need 80 modules, Customermates was built for that. If you already use Claude, ChatGPT, or Codex and want an AI agent that actually operates the CRM (not just scores leads), Odoo doesn't offer that. If you need open source under AGPL, self-hosting via Docker, and EU hosting in Germany without moving to the Custom tier, Customermates is the direct hit. If you want to pay from €12 per user (€10 on the yearly plan) instead of €19.90 (or €29.90 for API access), with full API, MCP, n8n, and webhooks included on every tier, including the cheapest one, the math is straightforward.
+If you want a focused CRM and don't need 80 modules, Customermates was built for that. If you already use Claude, ChatGPT, or Codex and want an AI agent that actually operates the CRM (not just scores leads), Odoo doesn't offer that. If you need open source under AGPL, self-hosting via Docker, and EU hosting in the EU region without moving to the Custom tier, Customermates is the direct hit. If you want to pay from €12 per user (€10 on the yearly plan) instead of €19.90 (or €29.90 for API access), with full API, MCP, n8n, and webhooks included on every tier, including the cheapest one, the math is straightforward.
 
 ## Bottom line
 
-Odoo CRM is a mature CRM module inside an integrated business suite, with native lead management, AI lead scoring, and deep ties to ERP, accounting, and POS modules. Customermates is a focused open-source CRM with modern UX, built from the ground up for AI agents to operate directly through 45 MCP tools, n8n, and webhooks, with a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) the same agents can work. Pick Odoo if you need a suite where CRM is one piece. Pick Customermates if you want the AI to do the typing and open source, EU hosting, self-hosting, and full API from the entry plan are part of "done."
+Odoo CRM is a mature CRM module inside an integrated business suite, with native lead management, AI lead scoring, and deep ties to ERP, accounting, and POS modules. Customermates is a focused open-source CRM with modern UX, built from the ground up for AI agents to operate directly through 46 MCP tools, n8n, and webhooks, with a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) the same agents can work. Pick Odoo if you need a suite where CRM is one piece. Pick Customermates if you want the AI to do the typing and open source, EU hosting, self-hosting, and full API from the entry plan are part of "done."
 
 ## Frequently asked questions
 
@@ -182,10 +182,10 @@ Odoo CRM is a mature CRM module inside an integrated business suite, with native
 Partly. Odoo offers a One App Free plan that lets you use a single app forever, free, with unlimited users (so just CRM works). The moment you need a second app, you fall back to Standard at €19.90 per user per month yearly. The Community Edition is also free but ships without many Enterprise modules. Customermates offers a 7-day Pro trial without a credit card and is free to self-host as open source under AGPL-3.0.
 
 **Is Odoo good for CRM?**
-Yes, especially for companies already running the Odoo suite. Lead management, pipeline, quote generation, and AI lead scoring are mature. Weak points: no native AI agent integration, REST API only on the Custom plan, and the CRM is designed as a module within a large suite, which means overhead for teams that don't need ERP or accounting.
+Yes, especially for companies already running the Odoo suite. Lead management, pipeline, quote generation, and AI lead scoring are mature. Weak points: no external AI client integration, REST API only on the Custom plan, and the CRM is designed as a module within a large suite, which means overhead for teams that don't need ERP or accounting.
 
 **What is the best alternative to Odoo CRM?**
-Depends on the use case. Companies running ERP suite functionality stay with Odoo. Teams looking for a focused CRM with native AI agent integration find Customermates as an open-source alternative starting at €12 per user per month (€10 yearly, Starter) with full API included from the cheapest tier. For other CRM alternatives, see the [Pipedrive alternative](/compare/pipedrive-alternative) and [HubSpot alternative](/compare/hubspot-alternative) pages.
+Depends on the use case. Companies running ERP suite functionality stay with Odoo. Teams looking for a focused CRM with external AI client integration find Customermates as an open-source alternative starting at €12 per user per month (€10 yearly, Starter) with full API included from the cheapest tier. For other CRM alternatives, see the [Pipedrive alternative](/compare/pipedrive-alternative) and [HubSpot alternative](/compare/hubspot-alternative) pages.
 
 **Is Odoo a competitor of Salesforce?**
 Indirectly. Odoo positions itself as an integrated suite against the Salesforce ecosystem of Sales Cloud, Service Cloud, Marketing Cloud, Pardot, and many add-ons. They cover similar functional ground but with different pricing models. Salesforce is generally pricier and more implementation-heavy. Odoo is cheaper per user but carries its own suite complexity.
@@ -194,4 +194,4 @@ Indirectly. Odoo positions itself as an integrated suite against the Salesforce 
 Yes, through the LGPLv3 Community Edition or through the Enterprise Custom plan with self-hosting enabled. The Community Edition runs on your infrastructure but only covers a subset of Enterprise modules. Customermates is self-hostable in full functionality under AGPL-3.0 via `docker compose up -d`.
 
 **Does Odoo CRM have an API?**
-Yes, but only on the Custom plan (€29.90 per user per month yearly). The Standard plan does not include external REST API access. Customermates ships a full REST API with OpenAPI 3.1, an MCP server with 45 tools, and 26 webhook events starting at the €12 Starter plan (€10 yearly).
+Yes, but only on the Custom plan (€29.90 per user per month yearly). The Standard plan does not include external REST API access. Customermates ships a full REST API with OpenAPI 3.1, an MCP server with 46 tools, and 26 webhook events starting at the €12 Starter plan (€10 yearly).

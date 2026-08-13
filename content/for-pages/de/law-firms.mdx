@@ -131,7 +131,7 @@ Automatisieren Sie repetitive Aufgaben, die Anwalts- und Mitarbeiterzeit binden,
 
 ### KI-Agenten, die Ihr Kanzlei-CRM bedienen
 
-Customermates verbindet sich nativ mit Claude, ChatGPT und Gemini über 45 MCP-Tools, sodass ein KI-Agent Ihr CRM direkt lesen und schreiben und die Dateneingabe übernehmen kann, die Anwälte meiden: Mandate eröffnen, Aufnahmephasen aktualisieren und Empfehlungsnotizen protokollieren. Bitten Sie einen Agenten,
+Customermates verbindet sich nativ mit Claude, ChatGPT und Gemini über 46 MCP-Tools, sodass ein KI-Agent Ihr CRM direkt lesen und schreiben und die Dateneingabe übernehmen kann, die Anwälte meiden: Mandate eröffnen, Aufnahmephasen aktualisieren und Empfehlungsnotizen protokollieren. Bitten Sie einen Agenten,
 
 - Follow-up-E-Mails und Mandantenkommunikation zu entwerfen
 - Kontaktdaten aus öffentlichen Quellen anzureichern (Anwaltskammern, Kanzleiverzeichnisse)
@@ -155,7 +155,7 @@ Nutzen Sie [Reporting-Tools](/features/reporting), um zu messen, was zählt:
 Mandantenvertraulichkeit ist in der Rechtspraxis nicht verhandelbar. Customermates ist:
 
 - **DSGVO-nativ**, von Grund auf für Datenschutzkonformität entwickelt
-- **In Deutschland gehostet**, Ihre Daten bleiben in der EU
+- **In der EU-Region gehostet**, die Datenbank des gehosteten Dienstes läuft in der EU-Region
 - **[Selbst hostbar](/features/self-hosted)**, installieren Sie auf Ihrer eigenen Infrastruktur für maximale Kontrolle über privilegierte Mandantendaten
 - **Open-Source**, volle Code-Transparenz, keine versteckten Datenpraktiken
 
@@ -173,7 +173,7 @@ Viele Kanzleien stehen vor der Wahl zwischen kanzleispezifischen CRM-Tools und a
 | DSGVO/EU-Hosting | Nativ, Deutschland | Variiert (meist US-basiert) | Variiert |
 | Benutzerdefinierte Felder | Unbegrenzt | Planabhängig | Planabhängig |
 | Automatisierung | n8n (visuell, No-Code) | Eingebaut, begrenzt | Eingebaut, variiert |
-| KI-Agenten bedienen das CRM (MCP) | Ja (45 Tools) | Premium-Add-on | Premium-Add-on |
+| KI-Agenten bedienen das CRM (MCP) | Ja (46 Tools) | Premium-Add-on | Premium-Add-on |
 | Nativer einheitlicher Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram) | Ja (Pro) | Selten | Selten |
 | Vendor-Lock-in | Keiner | Hoch | Hoch |
 
@@ -183,7 +183,7 @@ Customermates bietet Ihnen die Flexibilität eines Kanzlei-CRM ohne den Enterpri
 
 CRM für Rechtsanwälte sollte nicht mehr kosten als Ihre Büroausstattung. Customermates hält es einfach:
 
-- **Starter, 12 € pro Nutzer pro Monat**, Pipelines, Automatisierung, API, benutzerdefinierte Felder und native KI-Agenten (45 MCP-Tools)
+- **Starter, 12 € pro Nutzer pro Monat**, Pipelines, Automatisierung, API, benutzerdefinierte Felder und native KI-Agenten (46 MCP-Tools)
 - **Pro, 29 € pro Nutzer pro Monat**, ergänzt den einheitlichen Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram) mit 1 verbundenen Konto pro Nutzer, plus Kalender-Synchronisierung, verknüpft mit jedem Mandat
 - **Selbst hostbar**, privilegierte Mandantendaten auf Ihren eigenen Servern, für immer kostenlos
 - **Open-Source**, Code einsehen, anpassen, erweitern
@@ -197,13 +197,13 @@ Vergleichen Sie das mit kanzleispezifischen CRMs, die 50-200 € pro Nutzer pro 
 Die Einrichtung von Customermates dauert etwa 2 Minuten:
 
 1. **Konto erstellen** unter [customermates.com/auth/signup](/auth/signup), kostenlos und ohne Kreditkarte. Die ersten 7 Tage sind gratis.
-2. **Kontakte importieren**, bestehende Mandanten, Empfehlungsquellen, Interessenten und Co-Counsel per CSV oder API einbringen.
+2. **Unterstützte Kontakte migrieren**, bereiten Sie Mandanten-, Empfehlungs- und Interessentendaten außerhalb des Produkts auf und erstellen Sie sie über eine eigene REST-Integration oder einen externen KI-Client per MCP. Customermates hat keinen CSV-Uploader.
 3. **Pipelines konfigurieren**, erstellen Sie separate Pipelines für Mandantenaufnahme, aktive Mandate und Geschäftsentwicklung. Fügen Sie Phasen hinzu, die zum Workflow Ihrer Kanzlei passen.
 4. **Benutzerdefinierte Felder anlegen**, richten Sie Felder für Rechtsgebiet, Mandatstyp, Empfehlungsquelle, abrechnenden Partner, Konfliktstatus und andere kanzleispezifische Daten ein.
 5. **Automatisierungen aktivieren**, verbinden Sie n8n-Workflows zur Automatisierung von Follow-ups, Erinnerungen, Empfehlungstracking und Mandantenkommunikation.
 6. **Team einladen**, fügen Sie Anwälte, Referendare, Fachangestellte und Mitarbeiter hinzu. Jeder sieht die für seine Rolle relevanten Kontakte und Mandate.
 
-Ihre Daten gehören Ihnen. Customermates ist Open-Source ohne Vendor-Lock-in. Exportieren Sie jederzeit alles, oder hosten Sie selbst für vollständige Infrastrukturkontrolle.
+Ihre Daten bleiben über offene Schnittstellen zugänglich. Customermates ist Open Source, lässt Integrationen unterstützte Datensätze über REST lesen und kann für Infrastrukturkontrolle selbst betrieben werden; einen eingebauten vollständigen Datenexport gibt es nicht.
 
 ## Häufig gestellte Fragen
 
@@ -225,11 +225,11 @@ Customermates zentralisiert alle Mandanten-, Unternehmens- und Mandatsdaten in e
 
 ### Ist Customermates DSGVO-konform für juristische Daten?
 
-Ja. Customermates ist DSGVO-nativ, wird in Deutschland gehostet und kann auf Ihrer eigenen Infrastruktur selbst gehostet werden. Für Kanzleien bedeutet das: Mandantendaten, die dem Berufsgeheimnis unterliegen, bleiben unter Ihrer Kontrolle. Es gibt keinen US-basierten Cloud-Anbieter mit potenziellen Datenzugriffsrisiken, und beim Self-Hosting verlassen die Daten nie Ihre Server. Dies entspricht den Anforderungen der [BRAK-Hinweise zum Datenschutz in der Anwaltskanzlei](https://www.brak.de/).
+Ja. Customermates ist DSGVO-nativ, wird in der EU-Region gehostet und kann auf Ihrer eigenen Infrastruktur selbst gehostet werden. Für Kanzleien bedeutet das: Mandantendaten, die dem Berufsgeheimnis unterliegen, bleiben unter Ihrer Kontrolle. Es gibt keinen US-basierten Cloud-Anbieter mit potenziellen Datenzugriffsrisiken, und beim Self-Hosting verlassen die Daten nie Ihre Server. Dies entspricht den Anforderungen der [BRAK-Hinweise zum Datenschutz in der Anwaltskanzlei](https://www.brak.de/).
 
 ### Wie vergleicht sich Customermates mit anderen CRM-Systemen für Kanzleien?
 
-Spezialisierte Kanzlei-CRMs bieten starke Aufnahmefunktionen, verlangen aber meist 50-200 €/Nutzer/Monat mit gestaffeltem Funktionszugang und hohem Vendor-Lock-in. Customermates startet bei 12 €/Nutzer/Monat für das Kern-CRM mit nativen KI-Agenten, den einheitlichen Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram) gibt es ab Pro für 29 €/Nutzer/Monat, ist Open-Source, selbst hostbar und in Deutschland gehostet. Wenn Ihre Kanzlei Datensouveränität, transparente Preise und Flexibilität gegenüber einem hochspezialisierten Funktionsumfang schätzt, lohnt sich ein genauer Blick auf Customermates.
+Spezialisierte Kanzlei-CRMs bieten starke Aufnahmefunktionen, verlangen aber meist 50-200 €/Nutzer/Monat mit gestaffeltem Funktionszugang und hohem Vendor-Lock-in. Customermates startet bei 12 €/Nutzer/Monat für das Kern-CRM mit nativen KI-Agenten, den einheitlichen Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram) gibt es ab Pro für 29 €/Nutzer/Monat, ist Open-Source, selbst hostbar und in der EU-Region gehostet. Wenn Ihre Kanzlei Datensouveränität, transparente Preise und Flexibilität gegenüber einem hochspezialisierten Funktionsumfang schätzt, lohnt sich ein genauer Blick auf Customermates.
 
 ### Kann ich Customermates mit meiner Abrechnungssoftware integrieren?
 

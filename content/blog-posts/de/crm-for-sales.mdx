@@ -54,7 +54,7 @@ Worauf Sie beim Pipeline-Management achten sollten:
 - **Stagnations-Warnungen**, die Deals markieren, die zu lange in einer Phase verharren
 - **Gewichtete Pipeline-Werte**, die den Deal-Wert mit der Phasen-Wahrscheinlichkeit multiplizieren
 
-Customermates bietet vollständig anpassbare Pipelines mit Drag-and-Drop, benutzerdefinierten Feldern und automatischen Stagnations-Benachrichtigungen.
+Customermates bietet vollständig anpassbare Pipelines mit Drag-and-Drop und benutzerdefinierten Feldern. Eine Stagnations-Benachrichtigung ist nicht eingebaut; sie entsteht aus einem Webhook plus einem geplanten Job in Ihrer eigenen n8n-Instanz.
 
 ### Sales-Automatisierung
 
@@ -171,7 +171,7 @@ Die Wahl des richtigen Vertriebs-CRM hängt von Teamgröße, Budget und den wich
 | Individuelle Pipelines | Unbegrenzt | Unbegrenzt | Im Free-Plan limitiert | Unbegrenzt | Ja | Ja |
 | Sales-Automatisierung | Via n8n (unbegrenzt) | Integriert (gestuft) | Integriert (gestuft) | Integriert (gestuft) | Integriert (Basis) | Integriert (gestuft) |
 | E-Mail-Integration | Gmail + Outlook (Pro-Stufe, 29 EUR) | Gmail + Outlook | Gmail + Outlook | Gmail + Outlook | Gmail + Outlook | Gmail + Outlook |
-| KI-Funktionen | Native KI (MCP) inklusive | Einstein (Aufpreis) | KI (ab Pro-Plan) | KI (Aufpreis) | KI (limitiert) | Zia (inklusive) |
+| KI-Funktionen | Externe KI-Clients via MCP inklusive | Einstein (Aufpreis) | KI (ab Pro-Plan) | KI (Aufpreis) | KI (limitiert) | Zia (inklusive) |
 | KI-Agenten bedienen das CRM (native MCP) | Ja | Nein | Nein | Nein | Nein | Nein |
 | Nativer vereinheitlichter Posteingang (E-Mail/LinkedIn/WhatsApp/Instagram/Telegram) | Ja (ab Pro) | Begrenzt | Begrenzt | Begrenzt | Begrenzt | Begrenzt |
 | DSGVO / EU-Hosting | Ja, EU + Self-Hosting | Primär US | Primär US | EU verfügbar | Primär US | EU verfügbar |
@@ -181,7 +181,7 @@ Die Wahl des richtigen Vertriebs-CRM hängt von Teamgröße, Budget und den wich
 
 ### Wichtigste Erkenntnisse aus dem Vergleich
 
-**Customermates** hebt sich für Vertriebsteams hervor, die volle Funktionalität ohne Feature-Preisstufen wollen. Ab 12 Euro pro Nutzer und Monat erhält jeder Mitarbeiter Pipeline-Management, Automatisierung via n8n, native KI, bei der Agenten das CRM direkt bedienen, und Reporting; die Pro-Stufe für 29 Euro ergänzt den nativen vereinheitlichten Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram). Das Open-Source-Modell und die Self-Hosting-Option sprechen zudem Teams mit strengen Datenschutzanforderungen an.
+**Customermates** hebt sich für Vertriebsteams hervor, die volle Funktionalität ohne Feature-Preisstufen wollen. Ab 12 Euro pro Nutzer und Monat erhält jeder Mitarbeiter Pipeline-Management, Automatisierung via n8n, externe KI über MCP, bei der Agenten das CRM direkt bedienen, und Reporting; die Pro-Stufe für 29 Euro ergänzt den nativen vereinheitlichten Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram). Das Open-Source-Modell und die Self-Hosting-Option sprechen zudem Teams mit strengen Datenschutzanforderungen an.
 
 **Salesforce** bleibt die funktionsreichste Option, bringt aber erhebliche Komplexität und Kosten mit sich. Es eignet sich am besten für Unternehmen mit dedizierten Administratoren.
 
@@ -276,7 +276,7 @@ Customermates bietet alles, was ein Vertriebsteam braucht, ohne die Komplexität
 
 - **Pipeline-Management**: Visuelle Boards mit Drag-and-Drop, individuellen Phasen und Stagnations-Warnungen
 - **Unbegrenzte Automatisierung**: Verbindung mit [n8n](/blog/n8n-for-beginners-build-your-first-workflow) für Follow-up-Sequenzen, Lead-Routing, phasenbasierte Aktionen und Eskalationsregeln
-- **KI-Agenten bedienen das CRM**: Über eine native MCP-Integration (45 Tools) aktualisieren Claude, ChatGPT oder Gemini Deal-Phasen, entwerfen Follow-ups und halten Kontaktnotizen aktuell, sodass Mitarbeiter das System nicht mehr meiden und die Pipeline die Realität abbildet
+- **KI-Agenten bedienen das CRM**: Über eine native MCP-Integration (46 Tools) aktualisieren Claude, ChatGPT oder Gemini Deal-Phasen, entwerfen Follow-ups und halten Kontaktnotizen aktuell, sodass Mitarbeiter das System nicht mehr meiden und die Pipeline die Realität abbildet
 - **Nativer vereinheitlichter Posteingang** (ab der Pro-Stufe): E-Mail, LinkedIn, WhatsApp, Instagram und Telegram in einem Posteingang im CRM, und dieselben KI-Agenten können über jeden Kanal lesen, entwerfen und senden
 - **Reporting**: Echtzeit-Dashboards für Pipeline-Gesundheit, Mitarbeiter-Performance, Conversion-Raten und Prognosegenauigkeit
 - **Kontakt- und Deal-Management**: Verknüpfung von Kontakten, Organisationen und Deals mit vollständiger Interaktionshistorie

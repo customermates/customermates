@@ -68,13 +68,13 @@ With [email integration](/features/email-integration), every email with a candid
 
 **Agent-native: AI does the data entry**
 
-Customermates was built with the assumption that an AI agent would do the typing. Through the native MCP integration (45 tools), Claude, ChatGPT, or Gemini can read your inbox and call transcripts, write structured candidate notes back to the CRM, draft follow-ups based on prior context, and update pipeline stages without anyone clicking through forms. The pipeline updates itself. For recruiting teams, this is the difference between a CRM that gets used and a CRM that gets resented.
+Customermates was built with the assumption that an AI agent would do the typing. Through the native MCP integration (46 tools), Claude, ChatGPT, or Gemini can read your inbox and call transcripts, write structured candidate notes back to the CRM, draft follow-ups based on prior context, and update pipeline stages without anyone clicking through forms. The pipeline updates itself. For recruiting teams, this is the difference between a CRM that gets used and a CRM that gets resented.
 
 ## Feature highlights for recruiting
 
 ### Multi-pipeline candidate and client tracking
 
-Run multiple [pipelines](/features/pipeline) side by side. One for active candidate searches, one for the client side of every engagement, optional ones for executive searches, retained mandates, or contract placements. Each pipeline has its own stage definitions, deal cards, and team views. Switch between them in one click.
+Run multiple [pipelines](/features/pipeline) side by side. One for active candidate searches, one for the client side of every engagement, optional ones for executive searches, retained mandates, or contract placements. Each pipeline has its own stage definitions, deal cards, and Kanban view. Switch between them in one click.
 
 ### Kanban view that mirrors how recruiters think
 
@@ -102,7 +102,7 @@ Recruiting runs on LinkedIn, so it sits at the center of the native unified inbo
 
 ### Task and follow-up management
 
-Every search has its rhythm of follow-ups. [Task management](/features/task-management) shows the recruiter exactly what is due today across all candidates and clients, with one-click rescheduling. The system stops follow-ups from slipping; the recruiter gets to focus on the call itself.
+Every search has its rhythm of follow-ups. [Task management](/features/task-management) keeps candidate and client work in one list with assignees and notes; model follow-up dates with custom date columns. A separately operated workflow can send reminders, while the recruiter focuses on the call itself.
 
 ### API and webhooks for custom workflows
 
@@ -199,7 +199,7 @@ Yes. EU-hosted cloud runs on European infrastructure with a EU-only data residen
 
 **How long does it take to migrate from another recruiting CRM?**
 
-For a small agency with up to 10,000 candidates, a basic migration is a one-day import via CSV. For larger databases, the [API](/features/api) supports bulk imports with full field mapping. The CRM is designed for relationship-led recruiting, so the data model is straightforward: contacts, accounts (clients), deals (job orders or candidate placements), tasks, notes.
+Customermates has no CSV uploader, bulk-import workflow, or field-mapping screen. Prepare and map source data outside the product, create supported records through the [REST API](/features/api) or an external AI client over MCP, and verify the results in the CRM. Migration time depends on the source data and workflow.
 
 **Can the recruiting CRM track contractor-to-permanent conversions?**
 
@@ -207,7 +207,7 @@ Yes. Set up the candidate pipeline with a stage called "On Assignment" and use c
 
 **How does Customermates handle off-limits and confidential candidates?**
 
-Off-limits status is a custom checkbox field on the contact record, with a free-text note for the reason and the date the restriction expires. Confidentiality also lives at the role level: a job order can be marked private, and only the partner and the assigned recruiter see the candidate slate. For fully confidential mandates that cannot live in any shared CRM (think board-level searches, sensitive succession planning), self-hosting on your own server is the answer because the data never leaves your infrastructure.
+Off-limits status can be represented with a custom checkbox field on the contact record, plus a free-text reason and an expiry date. Permissions apply by resource and action with own-versus-all scope; Customermates has no private mandate or candidate-slate access model. For fully confidential mandates, design the process around those boundaries and assess self-hosting plus every connected provider separately.
 
 **Can I build my own custom recruiting CRM instead?**
 

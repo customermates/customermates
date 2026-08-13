@@ -1,11 +1,11 @@
 ---
 title: "CRM for Account Management: B2B Key Accounts"
-description: "CRM for account management built for B2B teams. Track key accounts, manage relationships, monitor revenue, and plan growth. Open-source and EU-hosted."
+description: "CRM for account management built for B2B teams. Track key accounts, relationships, revenue, and growth with an open-source CRM whose hosted database runs in an EU region."
 featureName: Account Management
 
 hero:
   title: "Account Management Software: Build Stronger Customer Relationships"
-  description: Manage every organization, key account, and business relationship in one place. AI agents keep account notes and deal stages current, and a native unified inbox logs email, LinkedIn, and WhatsApp conversations against the right account. Track interaction history, monitor account health, and turn existing customers into a major growth channel.
+  description: Manage every organization, key account, and business relationship in one place. Supported external AI clients can update allowed account notes and deal stages through MCP, while the unified inbox logs supported conversations against the relevant CRM context. Track interaction history and store your own account-health indicators without implying built-in scoring.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -39,8 +39,8 @@ Effective account management requires structure: a centralized system that track
 | Multi-contact linking | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> |
 | Revenue per account | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusPartial /> |
 | Unlimited custom fields | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusPartial /> |
-| Workflow automation | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusPartial /> |
-| EU/GDPR hosting | <StatusAvailable /> | <StatusPartial /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> |
+| External automation interfaces | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusPartial /> |
+| Managed database in an EU region | <StatusAvailable /> | <StatusPartial /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> |
 | Open source | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 | Self-hosting option | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 
@@ -56,7 +56,7 @@ Customermates gives you a comprehensive account management module that connects 
 
 **Deal history and revenue tracking.** View all deals associated with an account, current pipeline, historical wins, and lost opportunities. Track total lifetime revenue, active pipeline value, and deal win rate per organization. This financial perspective helps you prioritize time and resources toward the accounts with the highest value and growth potential.
 
-**Account health scoring.** Define health indicators using custom fields and activity metrics. Track support ticket volume, engagement frequency, NPS scores, renewal dates, and deal activity to flag accounts that may be at risk. Combine these signals into an overall health score and take action before a healthy account becomes a churn risk.
+**Account health fields.** Define health indicators with custom fields and values supplied by your team or an external integration. Store engagement, renewal, survey, or deal-activity signals without implying that Customermates calculates an overall score or churn risk.
 
 **Notes and strategic account plans.** Maintain detailed notes on each organization for strategic planning. Document account goals, competitive landscape, growth opportunities, relationship risks, and action items from business reviews. These plans ensure your team's approach to each account is informed, consistent, and aligned with the customer's objectives.
 
@@ -72,7 +72,7 @@ Customermates gives you a comprehensive account management module that connects 
 
 **Seamless team transitions.** When a team member leaves or accounts are reassigned, the complete relationship history stays in the CRM. The new account manager gets up to speed immediately without losing institutional knowledge, no awkward "I'm just getting up to speed" conversations with your best customers.
 
-**Customer retention and churn prevention.** Account health scoring identifies at-risk accounts before they churn. When engagement drops, support tickets spike, or renewal dates approach without conversation, automated alerts ensure your team acts in time.
+**Customer retention context.** Store the indicators your team uses to review account risk. Customermates does not calculate account health or send automated alerts; a customer-run workflow can evaluate custom fields and send a notification through an external provider.
 
 **Alignment across sales, service, and success.** Because account data lives in the same CRM as [sales tracking](/features/sales-tracking) and [customer service](/features/customer-service), every team has visibility into the full account picture. Sales sees service history. Service sees deal value. Everyone works from the same data.
 
@@ -80,7 +80,7 @@ Customermates gives you a comprehensive account management module that connects 
 
 **Key account programs.** Identify your top accounts by revenue, growth potential, or strategic value. Create structured engagement plans with quarterly business reviews, annual strategy sessions, and regular check-ins. Use custom fields to track account tier, assigned manager, and engagement score.
 
-**Renewal management.** Track contract renewal dates on organization records and create automated reminders 90, 60, and 30 days in advance. Start renewal conversations early, review account health, and prepare proposals before the deadline. Automated renewal workflows through n8n ensure nothing slips through the cracks.
+**Renewal management.** Store contract renewal dates in custom fields and filter or sort on them. A separate n8n workflow you operate can evaluate those dates and deliver reminders through an external provider; Customermates has no native reminder engine.
 
 **Upsell and cross-sell tracking.** Monitor accounts for expansion opportunities. Track which products or services each account uses, identify coverage gaps, and create deals for upsell opportunities. Link expansion deals to the organization to measure account growth over time.
 
@@ -92,17 +92,17 @@ Customermates gives you a comprehensive account management module that connects 
 
 ## Why Choose Customermates for Account Management
 
-**Open source and transparent.** Customermates is fully open source. Your account data is managed by software you can inspect, modify, and trust completely. No vendor lock-in, no proprietary data formats, no surprises.
+**Open-source core.** The AGPL core CRM application that manages account records is code you can inspect and modify. Self-hosting runs that core with PostgreSQL under Starter entitlements; managed-cloud features and connected providers remain separate.
 
-**EU-hosted and GDPR-compliant.** All account and organization data is stored in European data centers with full GDPR and DSGVO compliance. Manage your customer accounts with confidence that your data handling meets the highest European privacy standards.
+**EU database region with documented providers.** The hosted database runs in an EU region. Application hosting and other providers, including US providers, are documented separately; this is not a GDPR or other compliance certification.
 
 **From €12 per user per month, every tier.** Organization management, multi-contact linking, deal history, revenue tracking, unlimited custom fields, and all account management features are included starting with the entry-level Starter tier. No per-account charges. No hidden costs for the features you actually need.
 
-**n8n automation for account workflows.** Build automated workflows for renewal reminders, health score updates, engagement alerts, onboarding sequences, and account data syncing. The visual n8n engine connects to 400+ tools and handles the routine work so your team focuses on building relationships.
+**External n8n workflows for account processes.** Connect a separate n8n instance through REST, webhooks, MCP, or the community node. Its runtime, plan, connectors, credentials, logs, limits, and costs remain external.
 
-**Self-hostable for full control.** Deploy on your own infrastructure and keep all customer data on your servers. Self-hosting gives you complete control over account data, relationship history, and compliance requirements, especially important for industries with strict data residency rules.
+**Self-hostable infrastructure.** Run the Customermates application and PostgreSQL database on infrastructure you control. Connected providers still receive data your configuration sends, and self-hosting is not itself a security or compliance certification.
 
-**AI agents that operate the CRM.** Claude, ChatGPT, and Gemini connect through a native MCP integration (45 tools) and work directly in your account data. They summarize account history, keep notes and deal stages current, draft business review agendas, and flag accounts that need attention, so the record stays accurate without manual data entry. AI augments your account management process without replacing the human judgment that builds trust.
+**External AI clients can operate the CRM.** Supported clients such as Claude, ChatGPT, or Gemini can use 46 MCP tools for allowed account operations. Customermates includes neither an AI chat nor a model; client subscriptions, usage, and provider handling remain separate.
 
 ## Frequently Asked Questions
 
@@ -116,11 +116,11 @@ Account management in CRM means managing organizations and their relationships s
 Key accounts are typically identified by revenue contribution, growth potential, strategic importance, or a combination of all three. In Customermates, you can use custom fields to score and segment accounts, then filter your organization list to identify which accounts deserve dedicated management attention.
 
 **What is account health scoring?**
-Account health scoring is a method of measuring the strength of your customer relationships using data points like engagement frequency, support ticket volume, renewal proximity, NPS scores, and product adoption. Customermates lets you track these metrics with custom fields and automate alerts when health indicators decline.
+Account health scoring is a method of measuring the strength of customer relationships using data points like engagement frequency, support volume, renewal proximity, NPS, and product adoption. Customermates lets you store these metrics in custom fields; any calculation or alert delivery must come from a separate system you operate.
 
 **How much does account management software cost?**
 Pricing varies significantly. Salesforce starts at $25/user/month, Zoho CRM at $14, and many CRMs restrict organization-level features to higher tiers. Customermates includes full account management capabilities from €12/user/month (Starter tier), with no separate account management add-on at any tier.
 
 ## Get Started with Account Management Today
 
-Start managing your accounts in Customermates today. Create organization records, link contacts, track deal history, and build a complete picture of every business relationship. Every account management feature, from custom fields to health scoring to revenue tracking, is available from day one. Sign up for a free account and turn your customer relationships into your strongest competitive advantage.
+Start managing your accounts in Customermates today. Create organization records, link contacts, track deal history, and build a complete picture of every business relationship. Core account records, relations, notes, custom fields, and deal context are available from day one; calculate health scores and deliver reminders externally. Sign up for a free account and turn your customer relationships into your strongest competitive advantage.

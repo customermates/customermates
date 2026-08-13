@@ -177,7 +177,7 @@ Three failure modes I see repeatedly:
 
 The case for horizontal CRMs has gotten stronger in the last year. AI coding assistants like Claude Code and Codex can write custom workflows on top of a CRM faster than ever. What used to be "I need a recruiting CRM with this specific feature" now is "I need a CRM with an API; my AI tools build the feature."
 
-[Customermates](/) exposes 45 MCP tools, REST API, and webhooks specifically for this. A recruiting agency can have Claude:
+[Customermates](/) exposes 46 MCP tools, REST API, and webhooks specifically for this. A recruiting agency can have Claude:
 - Read incoming resumes and create candidate records with structured fields
 - Match candidates to open jobs based on custom criteria
 - Draft personalized outreach for re-engaging dormant candidates
@@ -278,7 +278,7 @@ Most "switch from X to Y" decisions assume migration is mostly automatic. It rar
 
 **Bullhorn → Recruit CRM (15-recruiter agency).** Migration project: 11 weeks elapsed. Data import: 80 hours of recruiter time cleaning 35,000 candidate records. Integration rebuild: 3 critical integrations (VMS, payroll, custom job board feed) at ~120 hours of developer time. New recruiter training: 2 hours per recruiter × 15 = 30 hours. Total internal cost (loaded): ~$28,000. Annual license savings: ~$12,000. Payback: 2.3 years.
 
-**Recruit CRM → Customermates self-hosted (8-recruiter boutique).** Migration: 4 weeks elapsed. CSV export was clean from Recruit CRM, import to Customermates was 90% automatic via the [REST API](/features/api). Custom workflow rebuild: 30 hours (some candidate-stage automations). Internal cost: ~$6,000. Annual savings: ~$5,000 (license) + admin simplicity. Payback: 1.2 years.
+**Recruit CRM → Customermates self-hosted (8-recruiter boutique).** Migration: 4 weeks elapsed. CSV export was clean from Recruit CRM. Supported records were loaded through a customer-run [REST API](/features/api) integration that owned mapping, validation, and deduplication. Custom workflow rebuild: 30 hours. Internal cost: about $6,000. Annual savings: about $5,000 plus simpler administration. Payback: 1.2 years.
 
 **Notion → Bullhorn (12-recruiter agency that grew fast).** Migration: 14 weeks. The Notion-to-CRM migration is hardest because Notion has no proper schema; recruiters had freeformed candidate records in a hundred different ways. Data normalization took 200 hours. Total internal cost: ~$45,000. Annual incremental cost (Bullhorn vs Notion): ~$18,000. Payback never (the agency couldn't have scaled to 30 recruiters on Notion, so the cost is "the cost of professionalizing").
 

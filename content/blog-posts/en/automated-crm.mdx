@@ -57,7 +57,7 @@ Three layers that run together:
 
 **Layer 2: Integration platform.** A workflow engine that connects the CRM to other tools without code. n8n, Make, Zapier. Customermates ships an [n8n community node](/features/integrations) plus a full [REST API](/features/api), so any external system can read and write CRM state.
 
-**Layer 3: AI agent over MCP.** Claude, ChatGPT, Gemini, or any MCP-compatible agent connects to the CRM through Model Context Protocol. The agent reads contacts, deals, tasks; writes notes, follow-ups, stage changes; and runs multi-step workflows in plain English instead of pre-built rules. Customermates exposes [45 MCP tools](/features/api) for exactly this.
+**Layer 3: AI agent over MCP.** Claude, ChatGPT, Gemini, or any MCP-compatible agent connects to the CRM through Model Context Protocol. The agent reads contacts, deals, tasks; writes notes, follow-ups, stage changes; and runs multi-step workflows in plain English instead of pre-built rules. Customermates exposes [46 MCP tools](/features/api) for exactly this.
 
 The first two layers are commodity. The third is where the experience changes.
 
@@ -131,7 +131,7 @@ Customermates is built on the assumption that an AI agent will operate the syste
 
 **n8n community node.** Visual workflow design connecting Customermates to any of n8n's 400+ integrations. Useful for non-technical teams that want automation without code.
 
-**45 MCP tools.** Native MCP server exposes every CRM operation (create contact, update deal, log activity, query pipeline, generate report) to Claude, ChatGPT, Gemini, or any other MCP-compatible agent. The agent reads the inbox and writes back to the CRM in plain English.
+**46 MCP tools.** Native MCP server exposes every CRM operation (create contact, update deal, log activity, query pipeline, generate report) to Claude, ChatGPT, Gemini, or any other MCP-compatible agent. The agent reads the inbox and writes back to the CRM in plain English.
 
 **Native unified inbox.** Email, LinkedIn, WhatsApp, Instagram, and Telegram in one inbox inside the CRM (Pro and up). Nine of the MCP tools operate that inbox, so the same agent that updates records can read, draft, and send across every channel. The pipeline and the conversation stay in one system.
 
@@ -153,7 +153,7 @@ A practical comparison of the platforms most teams evaluate. All have meaningful
 
 **Zoho CRM.** A low-cost option, €14-€52/user/month depending on tier (Standard €14, Professional €23, Enterprise €40, Ultimate €52, annual). Workflow rules and blueprints offer flexibility on par with Salesforce at a fraction of the cost. UX is dated and the learning curve is steep. Best for cost-conscious teams comfortable trading polish for value.
 
-**Customermates.** Open-source under AGPL-3.0, EU-hosted cloud from €12/user/month (Starter) or self-hosted free. Native [workflow automation](/features/workflow-automation), 26 webhook events, [n8n community node](/features/integrations), a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram on Pro and up), and 45 MCP tools for direct AI agent operation. Smaller ecosystem than HubSpot or Salesforce; the agent-native architecture is the differentiator. Best for technical SMBs or any team already running Claude, ChatGPT, or Gemini daily.
+**Customermates.** Open-source under AGPL-3.0, EU-hosted cloud from €12/user/month (Starter) or self-hosted free. Native [workflow automation](/features/workflow-automation), 26 webhook events, [n8n community node](/features/integrations), a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram on Pro and up), and 46 MCP tools for direct AI agent operation. Smaller ecosystem than HubSpot or Salesforce; the agent-native architecture is the differentiator. Best for technical SMBs or any team already running Claude, ChatGPT, or Gemini daily.
 
 **Monday CRM.** Visual automation through Monday's "Boards" model. Strong on team workflow visibility, weaker on sales-specific automation patterns. Pricing $15-$41/user/month (annual) with a three-seat minimum and no free plan. Best for cross-functional teams that already use Monday for project management and want a CRM in the same tool.
 
@@ -193,7 +193,7 @@ A CRM where the system updates itself instead of waiting for the rep to type. Pi
 
 **Can I automate an existing CRM, or do I need a new one?**
 
-Existing CRMs (HubSpot, Salesforce, Pipedrive) all have workflow rules and basic sequences; you can use n8n, Make, or Zapier to connect them to AI tools. The limitation is the depth of integration: most legacy CRMs were not built with agent operation in mind, so the agent has to work through API edges. Agent-native CRMs like Customermates expose richer interfaces (45 MCP tools) that let the agent operate everything natively.
+Existing CRMs (HubSpot, Salesforce, Pipedrive) all have workflow rules and basic sequences; you can use n8n, Make, or Zapier to connect them to AI tools. The limitation is the depth of integration: most legacy CRMs were not built with agent operation in mind, so the agent has to work through API edges. Agent-native CRMs like Customermates expose richer interfaces (46 MCP tools) that let the agent operate everything natively.
 
 **What is the easiest first automation to set up?**
 
