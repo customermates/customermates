@@ -824,7 +824,7 @@
       "filters": {
         "activityTypeOptions": {
           "activities": {
-            "description": "Évènements des comptes connectés et évènements d'agenda planifiés.",
+            "description": "Évènements des comptes connectés et des agendas.",
             "label": "Compte et agenda"
           },
           "changes": {
