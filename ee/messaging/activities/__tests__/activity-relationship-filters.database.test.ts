@@ -410,14 +410,14 @@ describeDatabase("activity relationship filters on PostgreSQL", () => {
     await client.end();
   });
 
-  it("resolves selected relationship labels in one permission-scoped batch and omits stale IDs", async () => {
+  it("resolves selected relationship labels in one permission-scoped batch and omits stale and cross-tenant IDs", async () => {
     const staleId = randomUUID();
     const repo = makeRepo();
 
     const options = await runWithTenant(tenant, () =>
       repo.listRecordOptions({
         records: [
-          { entityType: EntityType.contact, ids: [selectedContactId, staleId] },
+          { entityType: EntityType.contact, ids: [selectedContactId, staleId, crossTenantContactId] },
           {
             entityType: EntityType.organization,
             ids: [selectedOrganizationId],
@@ -462,6 +462,7 @@ describeDatabase("activity relationship filters on PostgreSQL", () => {
       },
     ]);
     expect(options.some(({ id }) => id === staleId)).toBe(false);
+    expect(options.some(({ id }) => id === crossTenantContactId)).toBe(false);
   });
 
   it("includes a conversation when the runtime sender identifier matches without a participant match", async () => {
