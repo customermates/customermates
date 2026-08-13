@@ -39,6 +39,10 @@ type StrictFields = {
   sortableFields: SortableField[];
 };
 
+export type QueryParamsPrecheckOptions = {
+  allowedUnavailableEntityIds?: "all" | ReadonlyMap<string, ReadonlySet<string>>;
+};
+
 export class QueryParamsPrecheckInteractor {
   constructor(
     private organizationValidator: ValidateOrganizationIdsInteractor,
@@ -57,6 +61,7 @@ export class QueryParamsPrecheckInteractor {
     entityType: EntityType | undefined,
     data: { filters?: Filter[]; sortDescriptor?: SortDescriptor },
     ctx: z.RefinementCtx,
+    options: QueryParamsPrecheckOptions = {},
   ) {
     const { filterableFields, customColumns, sortableFields } = fields;
 
@@ -93,7 +98,7 @@ export class QueryParamsPrecheckInteractor {
             return;
           }
 
-          await this.checkFilterValue(filter, i, entityType, ctx);
+          await this.checkFilterValue(filter, i, entityType, ctx, options);
         }),
       );
     }
@@ -141,6 +146,7 @@ export class QueryParamsPrecheckInteractor {
     filterIndex: number,
     entityType: EntityType | undefined,
     ctx: z.RefinementCtx,
+    options: QueryParamsPrecheckOptions,
   ) {
     if (!("value" in filter)) return;
     if (filter.operator === FilterOperatorKey.contains) return;
@@ -157,8 +163,13 @@ export class QueryParamsPrecheckInteractor {
 
     switch (valueKind.kind) {
       case "entityId": {
+        const allowed = options.allowedUnavailableEntityIds;
+        if (allowed === "all") break;
         const ids = Array.isArray(filter.value) ? filter.value : [filter.value];
-        if (ids.length > 0) await this.idValidatorFor(valueKind.entity).invoke([{ ids: filter.value, path }], ctx);
+        const allowedIds = allowed?.get(String(filter.field));
+        const idsToValidate = ids.filter((id) => !allowedIds?.has(String(id)));
+        if (idsToValidate.length > 0)
+          await this.idValidatorFor(valueKind.entity).invoke([{ ids: idsToValidate, path }], ctx);
         break;
       }
       case "enum":

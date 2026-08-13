@@ -4,12 +4,12 @@ import type { LucideIcon } from "lucide-react";
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 import type { ReactElement } from "react";
 
-import { Building2, CheckCircle2, Inbox, Package, TrendingUp, Users } from "lucide-react";
+import { Inbox } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { EntityType } from "@/generated/prisma";
 
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
+import { ENTITY_ICON } from "@/components/entity-detail/entity-relations";
 import { Button } from "@/components/ui/button";
 import { PageState } from "@/components/page-state/page-state";
 
@@ -20,14 +20,6 @@ export type EmptyStateDescriptor = {
   body?: string;
   icon?: LucideIcon;
   ctaLabel?: string;
-};
-
-const ENTITY_ICON: Record<EntityType, LucideIcon> = {
-  [EntityType.contact]: Users,
-  [EntityType.organization]: Building2,
-  [EntityType.deal]: TrendingUp,
-  [EntityType.service]: Package,
-  [EntityType.task]: CheckCircle2,
 };
 
 type SharedProps<E extends HasId> = {

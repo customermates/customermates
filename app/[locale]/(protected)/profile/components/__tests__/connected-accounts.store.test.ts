@@ -172,3 +172,47 @@ describe("ConnectedAccountsStore sync polling", () => {
     store.stopSyncPolling();
   });
 });
+
+describe("ConnectedAccountsStore loading", () => {
+  it("recovers from a failed zero-account load when one account becomes available", async () => {
+    harness.refreshConnectedAccountsAction.mockRejectedValueOnce(new Error("Synthetic failure"));
+    const store = new ConnectedAccountsStore(rootStore());
+
+    await expect(store.ensureLoaded()).rejects.toThrow("Synthetic failure");
+    expect(store.items).toEqual([]);
+
+    harness.refreshConnectedAccountsAction.mockResolvedValueOnce([account("account-1")]);
+    await store.ensureLoaded();
+
+    expect(store.dataRequest.status).toBe("ready");
+    expect(store.items).toEqual([account("account-1")]);
+    expect(store.isReady).toBe(true);
+  });
+
+  it("clears a stale error through authoritative server hydration", async () => {
+    const store = new ConnectedAccountsStore(rootStore());
+    store.setItems({ items: [] });
+    harness.refreshConnectedAccountsAction.mockRejectedValueOnce(new Error("boom"));
+    await expect(store.refresh()).rejects.toThrow("boom");
+    expect(store.dataRequest.status).toBe("refresh-error");
+
+    store.setItems({ items: [account("account-1")] });
+
+    expect(store.dataRequest.status).toBe("ready");
+    expect(store.items).toEqual([account("account-1")]);
+  });
+
+  it("clears a stale error after a successful direct refresh", async () => {
+    const store = new ConnectedAccountsStore(rootStore());
+    store.setItems({ items: [account("account-1")] });
+    harness.refreshConnectedAccountsAction.mockRejectedValueOnce(new Error("boom"));
+    await expect(store.refresh()).rejects.toThrow("boom");
+    expect(store.dataRequest.status).toBe("refresh-error");
+
+    harness.refreshConnectedAccountsAction.mockResolvedValueOnce([]);
+    await store.refresh();
+
+    expect(store.dataRequest.status).toBe("ready");
+    expect(store.items).toEqual([]);
+  });
+});

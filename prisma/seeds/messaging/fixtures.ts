@@ -104,6 +104,24 @@ export const people: Record<
   },
 };
 
+export const calendarFixture = {
+  attendees: [
+    { person: "anna", responseStatus: "yes" },
+    { person: "amin", responseStatus: "maybe" },
+  ],
+  name: "Customer meetings",
+  timezone: "Europe/Berlin",
+  title: "Customer operations planning",
+  unipileCalendarId: "demo-fixture-google-calendar",
+  unipileEventId: "demo-fixture-calendar-event-1",
+} as const;
+
+export const accountActivityFixture = {
+  identifier: "demo-linkedin-leon",
+  kind: "linkedin_connection_accepted",
+  person: "leon",
+} as const;
+
 export const threads: ThreadFixture[] = [
   {
     account: "google",
@@ -123,7 +141,7 @@ export const threads: ThreadFixture[] = [
       },
       {
         sender: "self",
-        text: "Great — I have held Tuesday at 10:00 and included the updated rollout brief. Looking forward to it.",
+        text: "Great, I have held Tuesday at 10:00 and included the updated rollout brief. Looking forward to it.",
       },
       {
         sender: "anna",
@@ -199,7 +217,7 @@ export const threads: ThreadFixture[] = [
     name: null,
     participants: ["yasmin"],
     state: "open",
-    subject: "ASML retainer — contract review",
+    subject: "ASML retainer: contract review",
     type: "single",
   },
   {
@@ -240,7 +258,7 @@ export const threads: ThreadFixture[] = [
     messages: [
       {
         sender: "self",
-        text: "Hi Rashid — I kept thinking about the pilot pause and the adoption concern you mentioned.",
+        text: "Hi Rashid, I kept thinking about the pilot pause and the adoption concern you mentioned.",
       },
       {
         sender: "rashid",
@@ -267,7 +285,7 @@ export const threads: ThreadFixture[] = [
   },
   {
     account: "whatsapp",
-    latestMinutesAgo: 2 * 24 * 60,
+    latestMinutesAgo: 3 * 24 * 60,
     messages: [
       {
         sender: "sophie",
@@ -275,7 +293,7 @@ export const threads: ThreadFixture[] = [
       },
       {
         sender: "self",
-        text: "Yes — agenda is ready and the workspace is set up. I will join five minutes early.",
+        text: "Yes, the agenda is ready and the workspace is set up. I will join five minutes early.",
       },
       {
         sender: "sophie",
@@ -299,7 +317,7 @@ export const threads: ThreadFixture[] = [
   },
   {
     account: "whatsapp",
-    latestMinutesAgo: 4 * 24 * 60,
+    latestMinutesAgo: 7 * 24 * 60,
     messages: [
       {
         sender: "sophie",
@@ -331,7 +349,7 @@ export const threads: ThreadFixture[] = [
   },
   {
     account: "google",
-    latestMinutesAgo: 5 * 24 * 60,
+    latestMinutesAgo: 14 * 24 * 60,
     messages: [
       {
         sender: "amin",
@@ -362,7 +380,7 @@ export const threads: ThreadFixture[] = [
   },
   {
     account: "google",
-    latestMinutesAgo: 6 * 24 * 60,
+    latestMinutesAgo: 21 * 24 * 60,
     messages: [
       {
         sender: "self",
@@ -393,7 +411,7 @@ export const threads: ThreadFixture[] = [
   },
   {
     account: "google",
-    latestMinutesAgo: 8 * 24 * 60,
+    latestMinutesAgo: 30 * 24 * 60,
     messages: [
       {
         sender: "anna",
@@ -424,7 +442,7 @@ export const threads: ThreadFixture[] = [
   },
   {
     account: "google",
-    latestMinutesAgo: 10 * 24 * 60,
+    latestMinutesAgo: 45 * 24 * 60,
     messages: [
       {
         sender: "yasmin",
@@ -455,7 +473,7 @@ export const threads: ThreadFixture[] = [
   },
   {
     account: "google",
-    latestMinutesAgo: 12 * 24 * 60,
+    latestMinutesAgo: 60 * 24 * 60,
     messages: [
       {
         sender: "self",
@@ -486,7 +504,7 @@ export const threads: ThreadFixture[] = [
   },
   {
     account: "google",
-    latestMinutesAgo: 15 * 24 * 60,
+    latestMinutesAgo: 75 * 24 * 60,
     messages: [
       {
         sender: "anna",
@@ -517,7 +535,7 @@ export const threads: ThreadFixture[] = [
   },
   {
     account: "google",
-    latestMinutesAgo: 18 * 24 * 60,
+    latestMinutesAgo: 90 * 24 * 60,
     messages: [
       {
         sender: "self",
@@ -548,7 +566,7 @@ export const threads: ThreadFixture[] = [
   },
   {
     account: "linkedin",
-    latestMinutesAgo: 20 * 24 * 60,
+    latestMinutesAgo: 105 * 24 * 60,
     messages: [
       {
         sender: "leon",
@@ -579,7 +597,7 @@ export const threads: ThreadFixture[] = [
   },
   {
     account: "linkedin",
-    latestMinutesAgo: 22 * 24 * 60,
+    latestMinutesAgo: 120 * 24 * 60,
     messages: [
       {
         sender: "self",
@@ -610,7 +628,7 @@ export const threads: ThreadFixture[] = [
   },
   {
     account: "linkedin",
-    latestMinutesAgo: 25 * 24 * 60,
+    latestMinutesAgo: 140 * 24 * 60,
     messages: [
       {
         sender: "leon",
@@ -641,7 +659,7 @@ export const threads: ThreadFixture[] = [
   },
   {
     account: "linkedin",
-    latestMinutesAgo: 28 * 24 * 60,
+    latestMinutesAgo: 160 * 24 * 60,
     messages: [
       {
         sender: "rashid",
@@ -672,7 +690,7 @@ export const threads: ThreadFixture[] = [
   },
   {
     account: "linkedin",
-    latestMinutesAgo: 32 * 24 * 60,
+    latestMinutesAgo: 180 * 24 * 60,
     messages: [
       {
         sender: "leon",
@@ -703,7 +721,7 @@ export const threads: ThreadFixture[] = [
   },
   {
     account: "linkedin",
-    latestMinutesAgo: 36 * 24 * 60,
+    latestMinutesAgo: 205 * 24 * 60,
     messages: [
       {
         sender: "self",
@@ -734,7 +752,7 @@ export const threads: ThreadFixture[] = [
   },
   {
     account: "whatsapp",
-    latestMinutesAgo: 40 * 24 * 60,
+    latestMinutesAgo: 230 * 24 * 60,
     messages: [
       {
         sender: "jonas",
@@ -765,7 +783,7 @@ export const threads: ThreadFixture[] = [
   },
   {
     account: "whatsapp",
-    latestMinutesAgo: 44 * 24 * 60,
+    latestMinutesAgo: 255 * 24 * 60,
     messages: [
       {
         sender: "sophie",
@@ -796,7 +814,7 @@ export const threads: ThreadFixture[] = [
   },
   {
     account: "whatsapp",
-    latestMinutesAgo: 48 * 24 * 60,
+    latestMinutesAgo: 280 * 24 * 60,
     messages: [
       {
         sender: "sophie",
@@ -827,7 +845,7 @@ export const threads: ThreadFixture[] = [
   },
   {
     account: "whatsapp",
-    latestMinutesAgo: 52 * 24 * 60,
+    latestMinutesAgo: 310 * 24 * 60,
     messages: [
       {
         sender: "jonas",
@@ -858,11 +876,11 @@ export const threads: ThreadFixture[] = [
   },
   {
     account: "whatsapp",
-    latestMinutesAgo: 58 * 24 * 60,
+    latestMinutesAgo: 340 * 24 * 60,
     messages: [
       {
         sender: "self",
-        text: "Good morning Sophie — launch monitoring is active and all scheduled jobs completed successfully.",
+        text: "Good morning Sophie, launch monitoring is active and all scheduled jobs completed successfully.",
       },
       {
         sender: "sophie",

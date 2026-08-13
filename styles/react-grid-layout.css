@@ -9,7 +9,6 @@
 
 .react-grid-layout .react-grid-item * {
   touch-action: none;
-  pointer-events: auto;
 }
 
 .react-grid-layout.touch-scrollable .react-grid-item {

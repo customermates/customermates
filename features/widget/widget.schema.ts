@@ -1,10 +1,11 @@
 import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
-import { EntityType, WidgetGroupByType, AggregationType } from "@/generated/prisma";
+import { EntityType, WidgetGroupByType, AggregationType, WidgetKind } from "@/generated/prisma";
 
 import { CHIP_COLORS } from "@/constants/chip-colors";
 import { FilterSchema } from "@/core/base/base-get.schema";
+import { ActivityFiltersSchema } from "@/ee/messaging/activities/activities.schema";
 
 export enum ChartColor {
   default1 = "default1",
@@ -38,6 +39,7 @@ export enum DisplayType {
 
 export const CompanyWidgetSchema = z.object({
   id: z.string(),
+  kind: z.enum(WidgetKind),
   name: z.string(),
   firstName: z.string(),
   lastName: z.string(),
@@ -103,11 +105,25 @@ export const DiagramDataPointSchema = z.discriminatedUnion("labelKind", [
 
 export type DiagramDataPoint = Data<typeof DiagramDataPointSchema>;
 
-export const WidgetDtoSchema = z.object({
+export const ActivityWidgetDisplayOptionsSchema = z.object({
+  showFilters: z.boolean().optional(),
+});
+
+export type ActivityWidgetDisplayOptions = Data<typeof ActivityWidgetDisplayOptionsSchema>;
+
+const WidgetBaseDtoSchema = z.object({
   id: z.uuid(),
   userId: z.string(),
   companyId: z.string(),
   name: z.string(),
+  layout: WidgetLayoutSchema.nullable(),
+  isTemplate: z.boolean(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export const ChartWidgetDtoSchema = WidgetBaseDtoSchema.extend({
+  kind: z.literal(WidgetKind.chart),
   entityType: z.enum(EntityType),
   entityFilters: z.array(FilterSchema),
   dealFilters: z.array(FilterSchema),
@@ -115,11 +131,40 @@ export const WidgetDtoSchema = z.object({
   groupByType: z.enum(WidgetGroupByType),
   groupByCustomColumnId: z.string().nullable(),
   aggregationType: z.enum(AggregationType),
-  layout: WidgetLayoutSchema.nullable(),
   data: z.array(DiagramDataPointSchema),
-  isTemplate: z.boolean(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
 });
 
+export type ChartWidgetDto = Data<typeof ChartWidgetDtoSchema>;
+
+export const ActivityWidgetDtoSchema = WidgetBaseDtoSchema.extend({
+  kind: z.literal(WidgetKind.activityTimeline),
+  timelineFilters: ActivityFiltersSchema,
+  displayOptions: ActivityWidgetDisplayOptionsSchema.nullable(),
+});
+
+export type ActivityWidgetDto = Data<typeof ActivityWidgetDtoSchema>;
+
+export const WidgetDtoSchema = z.discriminatedUnion("kind", [ChartWidgetDtoSchema, ActivityWidgetDtoSchema]);
+
 export type WidgetDto = Data<typeof WidgetDtoSchema>;
+
+export function supportsDealFilters({
+  aggregationType,
+  entityType,
+}: {
+  aggregationType: AggregationType;
+  entityType: EntityType;
+}) {
+  return (
+    entityType !== EntityType.deal &&
+    (aggregationType === AggregationType.dealValue || aggregationType === AggregationType.dealQuantity)
+  );
+}
+
+export function isChartWidget(widget: WidgetDto): widget is ChartWidgetDto {
+  return widget.kind === WidgetKind.chart;
+}
+
+export function isActivityWidget(widget: WidgetDto): widget is ActivityWidgetDto {
+  return widget.kind === WidgetKind.activityTimeline;
+}

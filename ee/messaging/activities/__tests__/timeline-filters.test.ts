@@ -1,4 +1,7 @@
+import type { Filter } from "@/core/base/base-get.schema";
+
 import { describe, it, expect } from "vitest";
+import { EntityType } from "@/generated/prisma";
 
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
@@ -46,10 +49,54 @@ describe("interpretFilters channel (connectedAccountId) dimension", () => {
 
   it("does not set channel keys when no channel filter is present", () => {
     const query = interpretFilters([
-      { field: FilterFieldKey.provider, operator: FilterOperatorKey.in, value: ["google"] },
+      {
+        field: FilterFieldKey.provider,
+        operator: FilterOperatorKey.in,
+        value: ["google"],
+      },
     ]);
 
     expect(query.connectedAccountIdsIn).toBeUndefined();
     expect(query.connectedAccountIdsNotIn).toBeUndefined();
+  });
+});
+
+describe("interpretFilters relationship dimensions", () => {
+  it.each(
+    [
+      [FilterFieldKey.contactIds, EntityType.contact],
+      [FilterFieldKey.organizationIds, EntityType.organization],
+      [FilterFieldKey.dealIds, EntityType.deal],
+      [FilterFieldKey.serviceIds, EntityType.service],
+      [FilterFieldKey.taskIds, EntityType.task],
+    ].flatMap(([field, entityType]) =>
+      [
+        [field, entityType, FilterOperatorKey.in, [A, B]],
+        [field, entityType, FilterOperatorKey.notIn, [B]],
+        [field, entityType, FilterOperatorKey.hasSome, undefined],
+        [field, entityType, FilterOperatorKey.hasNone, undefined],
+      ].map((entry) => entry as [FilterFieldKey, EntityType, FilterOperatorKey, string[] | undefined]),
+    ),
+  )("maps %s to %s for %s", (field, entityType, operator, value) => {
+    const filter = value ? { field, operator, value } : { field, operator };
+    const query = interpretFilters([filter as Filter]);
+
+    expect(query.relationshipRules).toEqual([value ? { entityType, operator, ids: value } : { entityType, operator }]);
+  });
+
+  it("ignores incomplete membership filters while preserving value-less filters", () => {
+    const query = interpretFilters([
+      {
+        field: FilterFieldKey.contactIds,
+        operator: FilterOperatorKey.in,
+      } as Filter,
+      {
+        field: FilterFieldKey.dealIds,
+        operator: FilterOperatorKey.hasNone,
+        value: [A],
+      } as Filter,
+    ]);
+
+    expect(query.relationshipRules).toEqual([{ entityType: EntityType.deal, operator: FilterOperatorKey.hasNone }]);
   });
 });

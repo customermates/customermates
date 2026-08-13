@@ -23,7 +23,15 @@ export type FilterValueKind =
 
 const enumValues = (e: Record<string, string>): readonly string[] => Object.values(e);
 
-const TIMELINE_KINDS = ["message", "audit", "activity", "calendar_event"] as const;
+export const TIMELINE_KIND_FILTER_VALUES = [
+  "changes",
+  "messages",
+  "activities",
+  "message",
+  "audit",
+  "activity",
+  "calendar_event",
+] as const;
 
 export const DEFAULT_FILTER_VALUE_KIND: Record<FilterFieldKey, FilterValueKind> = {
   [FilterFieldKey.userIds]: { kind: "entityId", entity: "user" },
@@ -41,7 +49,7 @@ export const DEFAULT_FILTER_VALUE_KIND: Record<FilterFieldKey, FilterValueKind> 
   [FilterFieldKey.status]: { kind: "enum", values: enumValues(Status) },
   [FilterFieldKey.provider]: { kind: "enum", values: enumValues(MessagingProvider) },
   [FilterFieldKey.state]: { kind: "enum", values: enumValues(MessagingThreadState) },
-  [FilterFieldKey.timelineKind]: { kind: "enum", values: TIMELINE_KINDS },
+  [FilterFieldKey.timelineKind]: { kind: "enum", values: TIMELINE_KIND_FILTER_VALUES },
   [FilterFieldKey.participants]: { kind: "linkStatus" },
   [FilterFieldKey.connectedAccountId]: { kind: "entityId", entity: "connectedAccount" },
   [FilterFieldKey.calendarId]: { kind: "string" },

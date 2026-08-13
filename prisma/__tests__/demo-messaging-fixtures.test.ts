@@ -60,6 +60,9 @@ function recordingDelegate() {
 }
 
 function recordingPrisma() {
+  const accountActivities = recordingDelegate();
+  const calendarEvents = recordingDelegate();
+  const calendars = recordingDelegate();
   const connectedAccounts = recordingDelegate();
   const contactIdentifiers = recordingDelegate();
   const messages = recordingDelegate();
@@ -74,6 +77,9 @@ function recordingPrisma() {
 
   return {
     prisma: {
+      accountActivity: accountActivities.delegate,
+      calendar: calendars.delegate,
+      calendarEvent: calendarEvents.delegate,
       connectedAccount: connectedAccounts.delegate,
       contactIdentifier: contactIdentifiers.delegate,
       messagingMessage: messages.delegate,
@@ -86,12 +92,19 @@ function recordingPrisma() {
       participants: participants.delegate,
     },
     upsertResultIds: {
+      calendars: calendars.upsertResultIds,
       connectedAccounts: connectedAccounts.upsertResultIds,
       messages: messages.upsertResultIds,
       participants: participants.upsertResultIds,
       threads: threads.upsertResultIds,
     },
     records: {
+      accountActivities: accountActivities.calls,
+      accountActivityDeletes: accountActivities.deleteManyCalls,
+      calendarEvents: calendarEvents.calls,
+      calendarEventDeletes: calendarEvents.deleteManyCalls,
+      calendars: calendars.calls,
+      calendarDeletes: calendars.deleteManyCalls,
       connectedAccounts: connectedAccounts.calls,
       connectedAccountDeletes: connectedAccounts.deleteManyCalls,
       contactIdentifiers: contactIdentifiers.calls,
@@ -144,12 +157,18 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
     await seedDemoMessagingFixtures(prisma, context);
 
     const accounts = createdRows(records.connectedAccounts);
+    const accountActivities = createdRows(records.accountActivities);
+    const calendarEvents = createdRows(records.calendarEvents);
+    const calendars = createdRows(records.calendars);
     const identifiers = createdRows(records.contactIdentifiers);
     const messages = createdRows(records.messages);
     const participants = createdRows(records.participants);
     const threads = createdRows(records.threads);
 
     expect(accounts).toHaveLength(3);
+    expect(accountActivities).toHaveLength(1);
+    expect(calendarEvents).toHaveLength(1);
+    expect(calendars).toHaveLength(1);
     expect(stringsByCount(accounts, "provider")).toEqual({
       google: 1,
       linkedin: 1,
@@ -203,6 +222,75 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
       });
       expect(String(account.unipileAccountId)).toMatch(/^demo-fixture-/);
     }
+
+    expect(calendars[0]).toMatchObject({
+      companyId: context.companyId,
+      connectedAccountId: accounts[0]?.id,
+      name: "Customer meetings",
+      timezone: "Europe/Berlin",
+      unipileCalendarId: "demo-fixture-google-calendar",
+    });
+    expect(records.calendars[0]?.where).toEqual({
+      connectedAccountId_unipileCalendarId: {
+        connectedAccountId: accounts[0]?.id,
+        unipileCalendarId: "demo-fixture-google-calendar",
+      },
+    });
+    expectCanonicalUpdates(records.calendars, ["id", "unipileCalendarId"]);
+
+    expect(calendarEvents[0]).toMatchObject({
+      allDay: false,
+      attendeeEmails: ["anna.mueller@roche.example", "amin.hassan@tui.example", context.seedUserEmail.toLowerCase()],
+      calendarId: calendars[0]?.id,
+      companyId: context.companyId,
+      conferenceUrl: null,
+      connectedAccountId: accounts[0]?.id,
+      status: "confirmed",
+      title: "Customer operations planning",
+      unipileEventId: "demo-fixture-calendar-event-1",
+    });
+    expect((calendarEvents[0]?.endsAt as Date).getTime() - (calendarEvents[0]?.startsAt as Date).getTime()).toBe(
+      45 * 60_000,
+    );
+    expect(calendarEvents[0]?.attendees).toEqual([
+      expect.objectContaining({
+        displayName: "Anna Müller",
+        responseStatus: "yes",
+      }),
+      expect.objectContaining({
+        displayName: "Amin Hassan",
+        responseStatus: "maybe",
+      }),
+    ]);
+    expect(calendarEvents[0]?.organizer).toEqual(
+      expect.objectContaining({
+        displayName: "Max Bergmann",
+        isOrganizer: true,
+      }),
+    );
+    expect(records.calendarEvents[0]?.where).toEqual({
+      connectedAccountId_unipileEventId: {
+        connectedAccountId: accounts[0]?.id,
+        unipileEventId: "demo-fixture-calendar-event-1",
+      },
+    });
+    expectCanonicalUpdates(records.calendarEvents, ["id", "unipileEventId"]);
+
+    expect(accountActivities[0]).toMatchObject({
+      companyId: context.companyId,
+      connectedAccountId: accounts[1]?.id,
+      identifier: "demo-linkedin-leon",
+      kind: "linkedin_connection_accepted",
+      payload: expect.objectContaining({ fullName: "Leon Becker" }),
+    });
+    expect(records.accountActivities[0]?.where).toEqual({
+      connectedAccountId_kind_identifier: {
+        connectedAccountId: accounts[1]?.id,
+        identifier: "demo-linkedin-leon",
+        kind: "linkedin_connection_accepted",
+      },
+    });
+    expectCanonicalUpdates(records.accountActivities, ["id", "identifier", "kind"]);
 
     expect(identifiers).toHaveLength(4);
     expect(identifiers).toEqual(
@@ -275,7 +363,7 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
         {
           name: null,
           provider: "google",
-          subject: "ASML retainer — contract review",
+          subject: "ASML retainer: contract review",
         },
         { name: "Leon Becker", provider: "linkedin", subject: null },
         { name: "Rashid Malik", provider: "linkedin", subject: null },
@@ -504,6 +592,8 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
     }
 
     const resetContracts = [
+      [records.accountActivityDeletes, "26000000-"],
+      [records.calendarEventDeletes, "25000000-"],
       [records.messageDeletes, "19000000-"],
       [records.participantDeletes, "18000000-"],
       [records.contactIdentifierDeletes, "1a000000-"],
@@ -515,6 +605,15 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
         id: { startsWith: idPrefix },
       });
     }
+    expect(records.calendarDeletes).toEqual([
+      {
+        where: {
+          companyId: context.companyId,
+          events: { none: {} },
+          id: { startsWith: "24000000-" },
+        },
+      },
+    ]);
     expect(records.threadDeletes).toEqual([
       {
         where: {
@@ -550,10 +649,20 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
     const firstThreadTimes = createdRows(records.threads).map(({ lastMessageAt }) => lastMessageAt);
     const firstMessageCreatedAt = createdRows(records.messages).map(({ createdAt }) => createdAt);
     const firstMessageTimes = createdRows(records.messages).map(({ sentAt }) => sentAt);
+    const firstCalendarEventTimes = createdRows(records.calendarEvents).map(({ startsAt, endsAt }) => ({
+      endsAt,
+      startsAt,
+    }));
+    const firstAccountActivityTimes = createdRows(records.accountActivities).map(({ occurredAt }) => occurredAt);
     const newestMessageAt = Math.max(...firstMessageTimes.map((sentAt) => (sentAt as Date).getTime()));
+    const oldestMessageAt = Math.min(...firstMessageTimes.map((sentAt) => (sentAt as Date).getTime()));
 
     expect(newestMessageAt).toBeLessThanOrEqual(Date.now());
     expect(newestMessageAt).toBeGreaterThan(Date.now() - 15 * 60_000);
+    expect(oldestMessageAt).toBeGreaterThan(Date.now() - 365 * 24 * 60 * 60_000);
+    expect(oldestMessageAt).toBeLessThan(Date.now() - 330 * 24 * 60 * 60_000);
+    expect(firstCalendarEventTimes.every(({ endsAt }) => (endsAt as Date).getTime() <= Date.now())).toBe(true);
+    expect(firstAccountActivityTimes.every((occurredAt) => (occurredAt as Date).getTime() <= Date.now())).toBe(true);
 
     vi.setSystemTime(new Date("2026-07-18T12:47:00.000Z"));
     await seedDemoMessagingFixtures(prisma, context);
@@ -561,12 +670,21 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
     const secondAccounts = createdRows(records.connectedAccounts).slice(3);
     const secondThreads = createdRows(records.threads).slice(25);
     const secondMessages = createdRows(records.messages).slice(126);
+    const secondCalendarEvents = createdRows(records.calendarEvents).slice(1);
+    const secondAccountActivities = createdRows(records.accountActivities).slice(1);
 
     expect(secondAccounts[0]?.createdAt).toEqual(firstAccountCreatedAt);
     expect(secondThreads.map(({ createdAt }) => createdAt)).toEqual(firstThreadCreatedAt);
     expect(secondThreads.map(({ lastMessageAt }) => lastMessageAt)).toEqual(firstThreadTimes);
     expect(secondMessages.map(({ createdAt }) => createdAt)).toEqual(firstMessageCreatedAt);
     expect(secondMessages.map(({ sentAt }) => sentAt)).toEqual(firstMessageTimes);
+    expect(
+      secondCalendarEvents.map(({ startsAt, endsAt }) => ({
+        endsAt,
+        startsAt,
+      })),
+    ).toEqual(firstCalendarEventTimes);
+    expect(secondAccountActivities.map(({ occurredAt }) => occurredAt)).toEqual(firstAccountActivityTimes);
     for (const [index, { create, update }] of records.connectedAccounts.entries()) {
       expect(update).toMatchObject(SYNTHETIC_SEED_TIMELINE.connectedAccount(index % 3));
       expect(update.lastSyncedAt).toEqual(create.lastSyncedAt);
@@ -585,8 +703,11 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
     vi.stubEnv("APP_MODE", appMode);
     const { prisma, records, upsertResultIds } = recordingPrisma();
     const existingAccountId = "existing-google-account";
+    const existingLinkedinAccountId = "existing-linkedin-account";
+    const existingCalendarId = "existing-google-calendar";
     const existingThreadId = "existing-google-thread";
-    upsertResultIds.connectedAccounts.push(existingAccountId);
+    upsertResultIds.connectedAccounts.push(existingAccountId, existingLinkedinAccountId);
+    upsertResultIds.calendars.push(existingCalendarId);
     upsertResultIds.threads.push(existingThreadId);
 
     await seedDemoMessagingFixtures(prisma, context);
@@ -601,6 +722,13 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
         connectedAccountId: existingAccountId,
         unipileThreadId: firstThread.create.unipileThreadId,
       },
+    });
+    expect(records.calendarEvents[0]?.create).toMatchObject({
+      calendarId: existingCalendarId,
+      connectedAccountId: existingAccountId,
+    });
+    expect(records.accountActivities[0]?.create).toMatchObject({
+      connectedAccountId: existingLinkedinAccountId,
     });
 
     const firstThreadParticipantCount = 1 + firstThreadFixture.participants.length;
@@ -620,6 +748,7 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
 
     const accountCleanup = records.connectedAccountDeletes[0]?.where.id as { notIn: string[] };
     expect(accountCleanup.notIn).toContain(existingAccountId);
+    expect(accountCleanup.notIn).toContain(existingLinkedinAccountId);
     expect(accountCleanup.notIn).not.toContain(records.connectedAccounts[0]?.create.id);
     expect(records.threadDeletes[0]?.where).toEqual({
       companyId: context.companyId,

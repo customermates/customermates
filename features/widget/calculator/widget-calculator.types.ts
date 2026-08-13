@@ -1,10 +1,8 @@
-import type { DiagramDataPoint } from "../widget.schema";
+import type { ChartWidgetDto, DiagramDataPoint } from "../widget.schema";
 import type { Filter } from "@/core/base/base-get.schema";
 
-import type { Widget } from "@/generated/prisma";
-
 export type WidgetForCalculation = Pick<
-  Widget,
+  ChartWidgetDto,
   "entityType" | "groupByType" | "groupByCustomColumnId" | "aggregationType"
 > & {
   entityFilters: Filter[];

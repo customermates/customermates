@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { AggregationType, EntityType, WidgetGroupByType } from "@/generated/prisma";
+import { AggregationType, EntityType, WidgetGroupByType, WidgetKind } from "@/generated/prisma";
 
 import type { WidgetDto } from "@/features/widget/widget.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
@@ -41,6 +41,7 @@ function widget(id: string, x: number, y: number): WidgetDto {
     groupByType: WidgetGroupByType.none,
     id,
     isTemplate: false,
+    kind: WidgetKind.chart,
     layout: {
       lg: { h: 2, i: id, w: 3, x, y },
     },

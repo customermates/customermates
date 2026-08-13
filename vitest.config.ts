@@ -11,6 +11,13 @@ const testEnvironment = {
   APP_MODE: "self-hosted",
   BASE_URL: "http://localhost:4000",
 };
+const domTestFiles = [
+  "app/**/company/components/company-settings/__tests__/company-settings-form.test.ts",
+  "app/**/dashboard/components/__tests__/widget-chart.test.ts",
+  "components/data-view/__tests__/data-view-url-sync.test.ts",
+  "components/forms/__tests__/selection-command.test.ts",
+  "features/messaging/activities/__tests__/use-owned-activities-store.test.ts",
+];
 
 export default defineConfig({
   test: {
@@ -27,27 +34,18 @@ export default defineConfig({
           environment: "node",
           env: testEnvironment,
           include: ["**/__tests__/**/*.test.ts", "tests/conventions/*.test.ts"],
-          exclude: [
-            "node_modules",
-            ".next",
-            "generated",
-            "app/[locale]/(protected)/company/components/company-settings/__tests__/company-settings-form.test.ts",
-            "components/data-view/__tests__/data-view-url-sync.test.ts",
-          ],
+          exclude: ["node_modules", ".next", "generated", ...domTestFiles],
           server: { deps: { inline: [/next-intl/] } },
         },
       },
       {
         resolve: { alias: aliases },
         test: {
-          name: "company-settings-dom",
+          name: "dom",
           globals: true,
           environment: "jsdom",
           env: testEnvironment,
-          include: [
-            "app/[locale]/(protected)/company/components/company-settings/__tests__/company-settings-form.test.ts",
-            "components/data-view/__tests__/data-view-url-sync.test.ts",
-          ],
+          include: domTestFiles,
           exclude: ["node_modules", ".next", "generated"],
         },
       },

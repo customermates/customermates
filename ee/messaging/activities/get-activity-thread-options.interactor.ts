@@ -3,7 +3,7 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 
-import { EntityType, Resource, Action } from "@/generated/prisma";
+import { Resource, Action } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
@@ -12,12 +12,13 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 import type { ActivityThreadOptionDto } from "./activities.schema";
-import { ActivityThreadOptionDtoSchema } from "./activities.schema";
+import { ActivityFiltersSchema, ActivityThreadOptionDtoSchema } from "./activities.schema";
+import { ActivityScopeSchema } from "./activity-scope.schema";
 
 const Schema = z.object({
-  entityType: z.enum(EntityType).optional(),
-  entityId: z.uuid().optional(),
-  connectedAccountIds: z.array(z.uuid()).optional(),
+  scope: ActivityScopeSchema.optional(),
+  filters: ActivityFiltersSchema.optional(),
+  connectedAccountIds: z.array(z.uuid()).max(50).optional(),
 });
 export type ActivityThreadOptionsData = Data<typeof Schema>;
 

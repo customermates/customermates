@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 import { ChevronsUpDownIcon, XIcon } from "lucide-react";
 
 import { useFilterSelectItems } from "./use-filter-select-items";
+import { nextFilterSelection } from "./filter-selection";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { useAppForm } from "@/components/forms/form-context";
@@ -24,15 +25,14 @@ type Props = {
   filter: Filter;
   id: string;
   isValidFilter: boolean;
+  onValueChange?: (value: string[] | undefined) => void;
 };
 
-export const FilterInputSelect = observer(({ customColumns, filter, id, isValidFilter }: Props) => {
+export const FilterInputSelect = observer(({ customColumns, filter, id, isValidFilter, onValueChange }: Props) => {
   const t = useTranslations();
   const store = useAppForm();
-  const { items, getItems, isLoading, retrySelection, scopeKey, selectionError } = useFilterSelectItems(
-    filter,
-    customColumns,
-  );
+  const { items, getItems, isLoading, maxSelectedValues, retrySelection, scopeKey, selectionError } =
+    useFilterSelectItems(filter, customColumns);
 
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -47,6 +47,8 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
 
   const raw = store?.getValue(id);
   const selectedKeys: string[] = Array.isArray(raw) ? (raw as string[]) : [];
+  const isDisabled = store?.isDisabled ?? false;
+  const selectionLimitReached = maxSelectedValues !== undefined && selectedKeys.length >= maxSelectedValues;
 
   const optionRequestKey = open && getItems ? JSON.stringify([scopeKey, debouncedInput, optionAttempt]) : null;
   const asyncLoading =
@@ -105,13 +107,16 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
   }, [fetchedItems, input, getItems]);
 
   function commit(next: string[] | undefined) {
-    store?.onChange(id, next && next.length === 0 ? undefined : next);
+    const value = next && next.length === 0 ? undefined : next;
+    store?.onChange(id, value);
+    onValueChange?.(value);
     setInput("");
   }
 
   function toggle(key: string) {
-    const exists = selectedKeys.includes(key);
-    commit(exists ? selectedKeys.filter((k) => k !== key) : [...selectedKeys, key]);
+    const next = nextFilterSelection(selectedKeys, key, maxSelectedValues);
+    if (next === selectedKeys) return;
+    commit(next);
   }
 
   function removeKey(key: string) {
@@ -137,7 +142,7 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
             !selectedKeys.length && "text-muted-foreground",
             isValidFilter ? "border-primary bg-primary/10" : "border-input",
           )}
-          disabled={store?.isDisabled}
+          disabled={isDisabled}
           id={id}
           role="combobox"
           type="button"
@@ -154,7 +159,7 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
                     data-selection-state={item ? "resolved" : itemPending ? "loading" : "unavailable"}
                     endContent={
                       <span
-                        aria-label={t("Common.actions.delete")}
+                        aria-label={`${t("Common.actions.remove")} ${item?.textValue ?? t("Common.inputs.unavailableSelection")}`}
                         className="ml-0.5 opacity-50 transition-[opacity,transform] hover:opacity-100 active:scale-[0.97] motion-reduce:transition-none"
                         role="button"
                         tabIndex={-1}
@@ -225,11 +230,13 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
               <CommandGroup>
                 {filteredItems.map((item) => {
                   const selected = selectedKeys.includes(item.key);
+                  const optionDisabledByLimit = !selected && selectionLimitReached;
                   return (
                     <CommandItem
                       key={item.key}
                       className={cn(selected && "bg-accent")}
                       data-selected={selected}
+                      disabled={isDisabled || optionDisabledByLimit}
                       value={item.key}
                       onSelect={() => toggle(item.key)}
                     >
@@ -247,6 +254,12 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
             )}
           </CommandList>
         </Command>
+
+        {selectionLimitReached && maxSelectedValues !== undefined && (
+          <p aria-live="polite" className="border-t px-3 py-2 text-xs text-muted-foreground" role="status">
+            {t("Common.filters.selectionLimit", { count: maxSelectedValues })}
+          </p>
+        )}
       </PopoverContent>
     </Popover>
   );

@@ -212,7 +212,7 @@
       "body": "Füge deinen ersten Datensatz vom Typ „{singular}“ hinzu, um loszulegen.",
       "clearFilters": "Filter zurücksetzen",
       "cta": "Ersten Datensatz vom Typ „{singular}“ hinzufügen",
-      "dashboardBody": "Diagramme und Kennzahlen erscheinen hier, sobald du Daten hinzufügst.",
+      "dashboardBody": "Widgets erscheinen hier, sobald du Daten hinzufügst.",
       "dashboardTitle": "Noch nichts zu sehen",
       "filteredBody": "Keine {plural} entsprechen deinen Filtern.",
       "filteredTitle": "Keine Treffer",
@@ -223,7 +223,10 @@
       "title": "Noch keine {plural}"
     },
     "errors": {
-      "activityScopeRequiresBoth": "entityType und entityId müssen zusammen angegeben werden, um auf einen Datensatz einzugrenzen.",
+      "activityDuplicateFilterField": "Jedes Aktivitätsfilterfeld kann nur einmal konfiguriert werden.",
+      "activityPageOutOfRange": "Der Aktivitätsverlauf kann nicht so weit zurückblättern. Grenzen Sie stattdessen die Filter ein.",
+      "activityScopeTooManyIds": "Ein Aktivitätsbereich darf nicht mehr als 50 Datensätze eines Typs auswählen.",
+      "activitySourcesUnavailable": "Sie haben keinen Zugriff auf eine Quelle des Aktivitätsverlaufs.",
       "apiKeyMaxExpiration": "Die Ablaufzeit des API-Schlüssels darf 365 Tage nicht überschreiten.",
       "assigneeRequired": "Du musst dich diesem Element zuweisen. Beachte, dass du nur Elemente sehen kannst, die dir zugewiesen sind.",
       "calendarEventNotFound": "Kalenderereignis-ID nicht gefunden oder nicht zugänglich.",
@@ -309,6 +312,7 @@
       "widgetGroupByCustomColumnIdRequired": "Benutzerdefinierte Spalten-ID ist erforderlich, wenn nach benutzerdefinierter Spalte gruppiert wird.",
       "widgetGroupByEntityTypeNotAllowedForCount": "Gruppierung nach dem Elementtyp selbst ist nicht erlaubt, wenn der Aggregationstyp Anzahl ist.",
       "widgetGroupByTypeMustMatchEntityType": "Gruppierungstyp muss mit dem Elementtyp des Diagramms übereinstimmen.",
+      "widgetKindImmutable": "Der Typ eines Widgets kann nach dem Erstellen nicht geändert werden.",
       "widgetNotFound": "Widget-ID nicht gefunden oder nicht zugänglich.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Aufgaben können nur nach benutzerdefinierten Spalten gruppiert werden, nicht nach Elementtypen."
     },
@@ -445,6 +449,7 @@
         "none": "Kein Preset"
       },
       "searchLabel": "Suche",
+      "selectionLimit": "Sie können bis zu {count} Werte auswählen.",
       "selectOperator": "Bedingung auswählen…",
       "unavailableValue": "Filter nicht verfügbar"
     },
@@ -468,11 +473,8 @@
       "description": "Beschreibung",
       "displayLanguage": "Anzeigesprache",
       "displayOptions": {
-        "barColors": "Balkenfarben",
-        "displayType": "Anzeigetyp",
         "reverseXAxis": "X-Achse umkehren",
         "reverseYAxis": "Y-Achse umkehren",
-        "showFilters": "Filter anzeigen",
         "showLegend": "Legende anzeigen",
         "useGroupColors": "Optionsfarben verwenden"
       },
@@ -485,7 +487,6 @@
       "firstName": "Vorname",
       "formattingLocale": "Regionales Format",
       "groupByValue": "Gruppierung",
-      "isTemplate": "Als Vorlage für andere Benutzer deiner Organisation freigeben",
       "label": "Bezeichnung",
       "lastName": "Nachname",
       "message": "Nachricht",
@@ -500,7 +501,6 @@
       "roleId": "Rolle",
       "secret": "Secret",
       "status": "Status",
-      "template": "Vorlage",
       "theme": "Darstellung",
       "type": "Typ",
       "unavailableSelection": "Auswahl nicht verfügbar",
@@ -562,22 +562,34 @@
         "channels": "Kanäle",
         "contacts": "Kontakte",
         "createdAt": "Erstellt am",
+        "customFieldValues": "Benutzerdefinierte Felder",
         "deals": "Deals",
         "description": "Beschreibung",
+        "displayName": "Anzeigename",
         "email": "E-Mail",
+        "emailAddress": "E-Mail-Adresse",
+        "enabled": "Aktiviert",
         "entity": "Element",
         "entityId": "Element-ID",
+        "entityType": "Datensatztyp",
         "event": "Ereignis",
         "events": "Ereignisse",
         "expiresAt": "Läuft ab",
         "firstName": "Vorname",
+        "id": "ID",
         "identifiers": "Kanäle",
+        "isSystemRole": "Systemrolle",
+        "label": "Bezeichnung",
         "lastName": "Nachname",
         "lastRequest": "Zuletzt verwendet",
         "name": "Name",
         "notes": "Notizen",
+        "options": "Optionen",
         "organizations": "Organisationen",
+        "permissions": "Berechtigungen",
+        "provider": "Anbieter",
         "role": "Rolle",
+        "secret": "Secret",
         "services": "Services",
         "status": "Status",
         "statusCode": "Status-Code",
@@ -761,7 +773,19 @@
     "title": "Lass uns reden."
   },
   "Dashboard": {
-    "addCard": "Diagramm hinzufügen",
+    "activityWidget": {
+      "activityCount": "{count, plural, =1 {1 Aktivität} other {# Aktivitäten}}",
+      "error": "Aktivitäten konnten nicht geladen werden.",
+      "loadOlderError": "Ältere Aktivitäten konnten nicht geladen werden. Bereits angezeigte Einträge bleiben verfügbar.",
+      "noAccount": "Verbinde ein Messaging- oder Kalenderkonto, um Aktivitäten anzuzeigen.",
+      "noActivity": "Noch keine Aktivität.",
+      "noMatches": "Keine Aktivität entspricht den aktuellen Filtern.",
+      "noPermission": "Du hast keinen Zugriff auf Aktivitäten in diesem Workspace.",
+      "pageLimitReached": "Die älteste verfügbare Seite wurde erreicht. Grenze die aktuelle Auswahl ein, um ältere Aktivitäten zu prüfen.",
+      "scopeTooBroad": "Diese Beziehungsfilter treffen auf zu viele Kontakte zu, um sie sicher zu laden. Wähle weniger Datensätze aus.",
+      "title": "Letzte Aktivität"
+    },
+    "addCard": "Widget hinzufügen",
     "aggregationTypes": {
       "count": "Anzahl {entities}",
       "dealQuantity": "Anzahl {services} in {deals}",
@@ -779,14 +803,85 @@
     "groupBys": {
       "none": "Keine Gruppierung"
     },
-    "selectWidgetTemplateDescription": "Du kannst existierende Diagramme von Mitgliedern deiner Organisationen auswählen und diese als Vorlage für dein neues Diagramm verwenden.",
     "tabs": {
-      "config": "Konfiguration",
       "dealFilters": "Filter für {deals}",
-      "display": "Darstellung",
       "filters": "{entityType}-Filter"
     },
-    "widget": "Diagramm"
+    "widgetEditor": {
+      "addTitle": "Widget hinzufügen",
+      "appearance": {
+        "chartStyle": "Diagrammstil",
+        "colorOption": "Farbe {number}",
+        "colors": "Farben",
+        "showFilters": "Aktivitätsanzahl und Filter anzeigen",
+        "showMetricAndFilters": "Kennzahl und Filter anzeigen"
+      },
+      "create": "Widget erstellen",
+      "danger": {
+        "deleteLabel": "Widget löschen: {name}"
+      },
+      "editTitle": "„{name}“ bearbeiten",
+      "filters": {
+        "activityTypeOptions": {
+          "activities": {
+            "description": "Ereignisse verbundener Konten und geplante Kalendertermine.",
+            "label": "Konto & Kalender"
+          },
+          "changes": {
+            "description": "Aktualisierungen an CRM-Datensätzen, Feldern und Verknüpfungen.",
+            "label": "Datensatzänderungen"
+          },
+          "messages": {
+            "description": "Über verbundene Kanäle gesendete oder empfangene Nachrichten.",
+            "label": "Nachrichten"
+          }
+        },
+        "activityTypes": "Aktivitätsarten",
+        "noneAvailable": "Für dieses Widget sind keine Filter verfügbar.",
+        "removeUnavailable": "Nicht verfügbaren Filter „{field}“ entfernen",
+        "title": "Filter",
+        "unavailable": "{count, plural, =1 {Ein gespeicherter Filter ist nicht mehr verfügbar. Du kannst ihn behalten oder entfernen.} other {# gespeicherte Filter sind nicht mehr verfügbar. Du kannst sie behalten oder entfernen.}}"
+      },
+      "kind": {
+        "activityTimelineDescription": "Verfolge Datensatzänderungen, Nachrichten sowie Konto- und Kalenderaktivitäten chronologisch.",
+        "chartDescription": "Vergleiche CRM-Daten in einem Diagramm.",
+        "title": "Widget auswählen"
+      },
+      "preview": {
+        "activitySummary": "{title}. Filter: {filters, plural, =0 {keine} =1 {1 aktiv} other {# aktiv}}.",
+        "chartSummary": "{title}. {summary}. Kennzahl: {metric}. Diagrammstil: {chart}.",
+        "filterSummary": "{count, plural, =1 {1 Filter} other {# Filter}}",
+        "groupLabel": "Gruppe {number}",
+        "title": "Vorschau",
+        "untitled": "Widget ohne Titel"
+      },
+      "progress": "Schritt {current} von {total}",
+      "progressLabel": "Fortschritt beim Erstellen des Widgets",
+      "save": "Änderungen speichern",
+      "sharing": {
+        "template": "Als Vorlage freigeben"
+      },
+      "steps": {
+        "chooseDescription": "Wähle ein Format oder starte mit einer geteilten Konfiguration aus deinem Workspace.",
+        "configureDescription": "Lege fest, welche Daten dieses Widget zeigt und wie es aussieht."
+      },
+      "tabs": {
+        "appearance": "Darstellung",
+        "data": "Daten",
+        "filters": "Filter",
+        "filtersLabel": "{count, plural, =0 {Filter, keine aktiv} =1 {Filter, 1 aktiv} other {Filter, # aktiv}}",
+        "label": "Widget-Einstellungen"
+      },
+      "templates": {
+        "by": "Geteilt von {name}",
+        "description": "Nutze eine geteilte Konfiguration aus deinem Workspace und passe sie an.",
+        "title": "Mit einer Vorlage starten"
+      }
+    },
+    "widgetKinds": {
+      "activityTimeline": "Aktivitätsverlauf",
+      "chart": "Diagramm"
+    }
   },
   "DataView": {
     "dragToReorder": "Zum Neuanordnen ziehen",
@@ -1032,7 +1127,13 @@
     }
   },
   "EntityTimeline": {
+    "detailDescription": "Aktivitätsdetails und zugehöriger Datensatzkontext.",
+    "error": "Aktivitäten konnten nicht geladen werden.",
     "loadOlder": "Ältere laden",
+    "loadOlderError": "Ältere Aktivitäten konnten nicht geladen werden. Bereits angezeigte Einträge bleiben verfügbar.",
+    "moreRecords": "+{count} weitere",
+    "pageLimitReached": "Die älteste verfügbare Seite wurde erreicht. Grenze die aktuelle Auswahl ein, um ältere Aktivitäten zu prüfen.",
+    "scopeTooBroad": "Diese Beziehungsfilter treffen auf zu viele Kontakte zu, um sie sicher zu laden. Wähle weniger Datensätze aus.",
     "types": {
       "activities": "Aktivitäten",
       "changes": "Änderungen",

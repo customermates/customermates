@@ -668,33 +668,82 @@ export class PrismaContactRepo
     });
   }
 
-  async resolveContactIdsForEntityCompanyWide(
-    args: RepoArgs<ActivityContactRepo, "resolveContactIdsForEntityCompanyWide">,
+  async resolveContactIdsForEntityTypeCompanyWide(
+    args: RepoArgs<ActivityContactRepo, "resolveContactIdsForEntityTypeCompanyWide">,
   ) {
-    const { entityType, entityId } = args;
+    const { entityType, entityIds, limit } = args;
+    const ids = entityIds?.length ? entityIds : undefined;
 
-    if (entityType === EntityType.contact) return [entityId];
+    if (entityType === EntityType.contact) {
+      const rows = await this.prisma.contact.findMany({
+        where: {
+          ...(ids ? { id: { in: ids } } : {}),
+          ...this.accessWhere("contact"),
+        },
+        select: { id: true },
+        take: limit,
+      });
+      return rows.map((r) => r.id);
+    }
 
     if (entityType === EntityType.organization) {
       const rows = await this.prisma.contactOrganization.findMany({
-        where: { organizationId: entityId, companyId: this.companyId },
+        where: {
+          companyId: this.companyId,
+          ...(ids ? { organizationId: { in: ids } } : {}),
+          organization: this.accessWhere("organization"),
+        },
         select: { contactId: true },
+        distinct: ["contactId"],
+        take: limit,
       });
       return rows.map((r) => r.contactId);
     }
 
     if (entityType === EntityType.deal) {
       const rows = await this.prisma.dealContact.findMany({
-        where: { dealId: entityId, companyId: this.companyId },
+        where: {
+          companyId: this.companyId,
+          ...(ids ? { dealId: { in: ids } } : {}),
+          deal: this.accessWhere("deal"),
+        },
         select: { contactId: true },
+        distinct: ["contactId"],
+        take: limit,
       });
       return rows.map((r) => r.contactId);
     }
 
+    if (entityType === EntityType.service) {
+      const rows = await this.prisma.dealContact.findMany({
+        where: {
+          companyId: this.companyId,
+          deal: {
+            services: {
+              some: {
+                ...(ids ? { serviceId: { in: ids } } : {}),
+                service: this.accessWhere("service"),
+              },
+            },
+          },
+        },
+        select: { contactId: true },
+        distinct: ["contactId"],
+        take: limit,
+      });
+      return rows.map((row) => row.contactId);
+    }
+
     if (entityType === EntityType.task) {
       const rows = await this.prisma.taskContact.findMany({
-        where: { taskId: entityId, companyId: this.companyId },
+        where: {
+          companyId: this.companyId,
+          ...(ids ? { taskId: { in: ids } } : {}),
+          task: this.accessWhere("task"),
+        },
         select: { contactId: true },
+        distinct: ["contactId"],
+        take: limit,
       });
       return rows.map((r) => r.contactId);
     }
@@ -702,48 +751,26 @@ export class PrismaContactRepo
     return [];
   }
 
-  async findContactEmailsCompanyWide(contactIds: string[]) {
+  async findContactIdentifierTargetsCompanyWide(contactIds: string[]) {
     if (contactIds.length === 0) return [];
 
-    const identifiers = await this.prisma.contactIdentifier.findMany({
-      where: {
-        contactId: { in: contactIds },
-        companyId: this.companyId,
-        provider: { in: EMAIL_PROVIDERS as MessagingProvider[] },
-      },
-      select: { value: true },
-    });
-
-    return identifiers.map((i) => i.value.toLowerCase());
-  }
-
-  async findContactIdentifierValuesCompanyWide(
-    contactIds: string[],
-  ): Promise<{ provider: MessagingProvider; value: string }[]> {
-    if (contactIds.length === 0) return [];
-
-    const rows = await this.prisma.contactIdentifier.findMany({
+    return this.prisma.contactIdentifier.findMany({
       where: { contactId: { in: contactIds }, companyId: this.companyId },
-      select: { provider: true, value: true, messagingId: true },
+      select: { contactId: true, provider: true, value: true, messagingId: true },
     });
-
-    const out: { provider: MessagingProvider; value: string }[] = [];
-    for (const row of rows) {
-      out.push({ provider: row.provider, value: row.value });
-      if (row.messagingId) out.push({ provider: row.provider, value: row.messagingId });
-    }
-    return out;
   }
 
   async classGroupedIdentifierWhereCompanyWide(contactIds: string[]) {
     if (contactIds.length === 0) return [];
 
-    const identifiers = await this.findContactIdentifierValuesCompanyWide(contactIds);
+    const identifiers = await this.findContactIdentifierTargetsCompanyWide(contactIds);
     const byClass = new Map<string, { provider: MessagingProvider; values: Set<string> }>();
-    for (const { provider, value } of identifiers) {
-      const entry = byClass.get(channelClass(provider)) ?? { provider, values: new Set<string>() };
+    for (const { provider, value, messagingId } of identifiers) {
+      const key = channelClass(provider);
+      const entry = byClass.get(key) ?? { provider, values: new Set<string>() };
       entry.values.add(value);
-      byClass.set(channelClass(provider), entry);
+      if (messagingId) entry.values.add(messagingId);
+      byClass.set(key, entry);
     }
 
     return [...byClass.values()].map(({ provider, values }) => ({

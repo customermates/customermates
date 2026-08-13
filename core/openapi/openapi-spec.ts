@@ -169,7 +169,7 @@ import { UserDtoSchema } from "@/features/user/user.schema";
 import { ConnectedAccountDtoSchema, MessagingThreadSchema } from "@/ee/messaging/messaging.schema";
 import { GetMessagingThreadResultSchema } from "@/ee/messaging/inbox/get-messaging-thread.interactor";
 import { SendChatMessageSchema } from "@/ee/messaging/outbound/send-chat-message.interactor";
-import { ActivitiesParamsSchema, ActivitiesResultSchema } from "@/ee/messaging/activities/activities.schema";
+import { ActivitiesApiParamsSchema, ActivitiesResultSchema } from "@/ee/messaging/activities/activities.schema";
 import { SendEmailSchema } from "@/ee/messaging/outbound/send-email.interactor";
 import { StartChatInputSchema } from "@/ee/messaging/outbound/start-chat.interactor";
 
@@ -527,7 +527,7 @@ export function generateOpenApiSpec() {
         MessagingThreadSchema,
         GetMessagingThreadResultSchema,
         SendChatMessageSchema,
-        ActivitiesParamsSchema,
+        ActivitiesApiParamsSchema,
         ActivitiesResultSchema,
         SendEmailSchema,
         StartChatInputSchema,

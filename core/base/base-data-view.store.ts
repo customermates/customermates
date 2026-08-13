@@ -175,6 +175,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
         await this.refresh();
         throw new Error(announced ? "" : this.t("Common.notifications.unexpectedError"));
       }
+      this.rootStore.activityTimelines.refreshForMany(this.entityType, ids);
       this.clearSelection();
       await this.refresh();
     } finally {
@@ -198,6 +199,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
         await this.refresh();
         return false;
       }
+      this.rootStore.activityTimelines.refreshForMany(this.entityType, entityIds);
       this.clearSelection();
       await this.refresh();
       this.toastSuccess("Common.notifications.updated");
@@ -616,6 +618,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.upsertItemLocal(target);
     this.requestGeneration += 1;
     if (this.requestState.status !== "uninitialized") this.requestState = { status: "ready" };
+    if (this.entityType) this.rootStore.activityTimelines.refreshForMany(this.entityType, [target.id]);
     await this.executeOnChanges();
   };
 
@@ -635,6 +638,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.items = items;
     this.requestGeneration += 1;
     if (this.requestState.status !== "uninitialized") this.requestState = { status: "ready" };
+    if (this.entityType) this.rootStore.activityTimelines.refreshForMany(this.entityType, [targetId]);
     await this.executeOnChanges();
   };
 

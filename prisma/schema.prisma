@@ -696,19 +696,21 @@ model ContactOrganization {
 }
 
 model Widget {
-  id                    String            @id @default(uuid())
+  id                    String             @id @default(uuid())
   userId                String
   companyId             String
   name                  String
-  entityType            EntityType
+  kind                  WidgetKind         @default(chart)
+  entityType            EntityType?
   entityFilters         Json?
   dealFilters           Json?
   displayOptions        Json?
-  groupByType           WidgetGroupByType
-  groupByCustomColumnId String?           @db.Uuid
-  aggregationType       AggregationType
+  groupByType           WidgetGroupByType?
+  groupByCustomColumnId String?            @db.Uuid
+  aggregationType       AggregationType?
+  timelineFilters       Json?
   layout                Json?
-  isTemplate            Boolean           @default(false)
+  isTemplate            Boolean            @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1248,6 +1250,11 @@ enum Currency {
   yer
   zmw
   zwg
+}
+
+enum WidgetKind {
+  chart
+  activityTimeline
 }
 
 enum WidgetGroupByType {

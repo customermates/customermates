@@ -1,6 +1,6 @@
 "use client";
 
-import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
+import type { BaseDataViewStore } from "@/core/base/base-data-view.store";
 
 import { BookmarkPlus, Check, ChevronDown, Filter, Trash2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
@@ -26,13 +26,13 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { PopoverSection } from "./popover-section";
 
-type Props<E extends HasId> = {
-  store: BaseDataViewStore<E>;
+type Props = {
+  store: BaseDataViewStore<any>;
   compact?: boolean;
   id?: string;
 };
 
-export const FilterPopover = observer(function FilterPopover<E extends HasId>({ store, compact, id }: Props<E>) {
+export const FilterPopover = observer(function FilterPopover({ store, compact, id }: Props) {
   const t = useTranslations();
   const { editFiltersModalStore: modalStore } = useRootStore();
   const { showDeleteConfirmation } = useDeleteConfirmation();
@@ -135,7 +135,7 @@ export const FilterPopover = observer(function FilterPopover<E extends HasId>({ 
     <ResponsiveOverlay
       align="end"
       footer={footer}
-      open={modalStore.isOpen}
+      open={modalStore.isOpen && modalStore.tableStore === store}
       popoverClassName="w-96"
       title={t("Common.ariaLabels.tooltipFilters")}
       trigger={trigger}

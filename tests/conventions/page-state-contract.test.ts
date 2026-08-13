@@ -39,6 +39,7 @@ const pureSkeletons = [
   "app/[locale]/(protected)/dashboard/components/dashboard-page-skeleton.tsx",
   "app/[locale]/(protected)/inbox/components/inbox-page-skeleton.tsx",
   "app/[locale]/(protected)/profile/components/profile-resource-page-skeleton.tsx",
+  "features/messaging/activities/activity-timeline-skeleton.tsx",
 ] as const;
 
 const featureSkeletons = [

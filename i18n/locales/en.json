@@ -212,7 +212,7 @@
       "body": "Get started by adding your first {singular}.",
       "clearFilters": "Clear filters",
       "cta": "Add your first {singular}",
-      "dashboardBody": "Charts and metrics appear here as you add data.",
+      "dashboardBody": "Widgets appear here as you add data.",
       "dashboardTitle": "Nothing to show yet",
       "filteredBody": "No {plural} match your filters.",
       "filteredTitle": "No matches",
@@ -223,7 +223,10 @@
       "title": "No {plural} yet"
     },
     "errors": {
-      "activityScopeRequiresBoth": "entityType and entityId must be provided together to scope to one record.",
+      "activityDuplicateFilterField": "Each activity filter field can be configured only once.",
+      "activityPageOutOfRange": "The activity feed cannot page that far back. Narrow the filters instead.",
+      "activityScopeTooManyIds": "An activity scope cannot select more than 50 records of one type.",
+      "activitySourcesUnavailable": "You do not have access to any activity timeline source.",
       "apiKeyMaxExpiration": "API key expiration cannot exceed 365 days.",
       "assigneeRequired": "You must assign yourself to this item. Please note that you will only be able to view items assigned to you.",
       "calendarEventNotFound": "Calendar event ID not found or not accessible.",
@@ -309,6 +312,7 @@
       "widgetGroupByCustomColumnIdRequired": "Custom column ID is required when grouping by custom column.",
       "widgetGroupByEntityTypeNotAllowedForCount": "Grouping by element type itself is not allowed when aggregation type is count.",
       "widgetGroupByTypeMustMatchEntityType": "Group by type must match the chart's element type.",
+      "widgetKindImmutable": "A widget's type cannot be changed after it is created.",
       "widgetNotFound": "Widget ID not found or not accessible.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Tasks can only be grouped by custom columns, not by element types."
     },
@@ -445,6 +449,7 @@
         "none": "No preset"
       },
       "searchLabel": "Search",
+      "selectionLimit": "You can select up to {count} values.",
       "selectOperator": "Select a condition…",
       "unavailableValue": "Filter not available"
     },
@@ -468,11 +473,8 @@
       "description": "Description",
       "displayLanguage": "Display Language",
       "displayOptions": {
-        "barColors": "Bar Colors",
-        "displayType": "Display Type",
         "reverseXAxis": "Reverse X-axis",
         "reverseYAxis": "Reverse Y-axis",
-        "showFilters": "Show filters",
         "showLegend": "Show legend",
         "useGroupColors": "Use option colors"
       },
@@ -485,7 +487,6 @@
       "firstName": "First Name",
       "formattingLocale": "Formatting Locale",
       "groupByValue": "Grouping",
-      "isTemplate": "Share as template for other users of your organization",
       "label": "Label",
       "lastName": "Last Name",
       "message": "Message",
@@ -500,7 +501,6 @@
       "roleId": "Role",
       "secret": "Secret",
       "status": "Status",
-      "template": "Template",
       "theme": "Theme",
       "type": "Type",
       "unavailableSelection": "Selection unavailable",
@@ -562,22 +562,34 @@
         "channels": "Channels",
         "contacts": "Contacts",
         "createdAt": "Created at",
+        "customFieldValues": "Custom fields",
         "deals": "Deals",
         "description": "Description",
+        "displayName": "Display name",
         "email": "E-Mail",
+        "emailAddress": "Email address",
+        "enabled": "Enabled",
         "entity": "Element",
         "entityId": "Element ID",
+        "entityType": "Record type",
         "event": "Event",
         "events": "Events",
         "expiresAt": "Expires at",
         "firstName": "First Name",
+        "id": "ID",
         "identifiers": "Channels",
+        "isSystemRole": "System role",
+        "label": "Label",
         "lastName": "Last Name",
         "lastRequest": "Last used",
         "name": "Name",
         "notes": "Notes",
+        "options": "Options",
         "organizations": "Organizations",
+        "permissions": "Permissions",
+        "provider": "Provider",
         "role": "Role",
+        "secret": "Secret",
         "services": "Services",
         "status": "Status",
         "statusCode": "Status Code",
@@ -761,7 +773,19 @@
     "title": "Let's talk."
   },
   "Dashboard": {
-    "addCard": "Add Chart",
+    "activityWidget": {
+      "activityCount": "{count, plural, =1 {1 activity} other {# activities}}",
+      "error": "Activity could not be loaded.",
+      "loadOlderError": "Older activity could not be loaded. The entries already shown are still available.",
+      "noAccount": "Connect a messaging or calendar account to show activity.",
+      "noActivity": "No activity yet.",
+      "noMatches": "No activity matches the current filters.",
+      "noPermission": "You do not have access to any activity in this workspace.",
+      "pageLimitReached": "The oldest available page has been reached. Narrow the current selection to inspect older activity.",
+      "scopeTooBroad": "These relationship filters match too many contacts to load safely. Select fewer records.",
+      "title": "Recent activity"
+    },
+    "addCard": "Add widget",
     "aggregationTypes": {
       "count": "Count {entities}",
       "dealQuantity": "Number of {services} in {deals}",
@@ -779,14 +803,85 @@
     "groupBys": {
       "none": "No Grouping"
     },
-    "selectWidgetTemplateDescription": "You can select existing charts from members of your organizations and use them as a template for your new chart.",
     "tabs": {
-      "config": "Configuration",
       "dealFilters": "Filters for {deals}",
-      "display": "Display",
       "filters": "{entityType} Filters"
     },
-    "widget": "Chart"
+    "widgetEditor": {
+      "addTitle": "Add widget",
+      "appearance": {
+        "chartStyle": "Chart style",
+        "colorOption": "Color {number}",
+        "colors": "Colors",
+        "showFilters": "Show activity count and filters",
+        "showMetricAndFilters": "Show metric and filters"
+      },
+      "create": "Create widget",
+      "danger": {
+        "deleteLabel": "Delete widget {name}"
+      },
+      "editTitle": "Edit {name}",
+      "filters": {
+        "activityTypeOptions": {
+          "activities": {
+            "description": "Connected-account events and scheduled calendar events.",
+            "label": "Account & calendar"
+          },
+          "changes": {
+            "description": "Updates to CRM records, fields, and relationships.",
+            "label": "Record changes"
+          },
+          "messages": {
+            "description": "Messages sent or received through connected channels.",
+            "label": "Messages"
+          }
+        },
+        "activityTypes": "Activity types",
+        "noneAvailable": "No filters are available for this widget.",
+        "removeUnavailable": "Remove unavailable {field} filter",
+        "title": "Filters",
+        "unavailable": "{count, plural, =1 {One saved filter is no longer available. You can keep or remove it.} other {# saved filters are no longer available. You can keep or remove them.}}"
+      },
+      "kind": {
+        "activityTimelineDescription": "Follow record changes, messages, and account or calendar activity in time order.",
+        "chartDescription": "Compare CRM data in a visual chart.",
+        "title": "Choose a Widget"
+      },
+      "preview": {
+        "activitySummary": "{title}. Filters: {filters, plural, =0 {none} =1 {1 active} other {# active}}.",
+        "chartSummary": "{title}. {summary}. Metric: {metric}. Chart style: {chart}.",
+        "filterSummary": "{count, plural, =1 {1 filter} other {# filters}}",
+        "groupLabel": "Group {number}",
+        "title": "Preview",
+        "untitled": "Untitled widget"
+      },
+      "progress": "Step {current} of {total}",
+      "progressLabel": "Widget creation progress",
+      "save": "Save changes",
+      "sharing": {
+        "template": "Share as a template"
+      },
+      "steps": {
+        "chooseDescription": "Choose a format or start from a setup shared in your workspace.",
+        "configureDescription": "Choose what this widget shows and how it looks."
+      },
+      "tabs": {
+        "appearance": "Appearance",
+        "data": "Data",
+        "filters": "Filters",
+        "filtersLabel": "{count, plural, =0 {Filters, none active} =1 {Filters, 1 active} other {Filters, # active}}",
+        "label": "Widget settings"
+      },
+      "templates": {
+        "by": "Shared by {name}",
+        "description": "Use a setup shared in your workspace, then make it your own.",
+        "title": "Start from a template"
+      }
+    },
+    "widgetKinds": {
+      "activityTimeline": "Activity timeline",
+      "chart": "Chart"
+    }
   },
   "DataView": {
     "dragToReorder": "Drag to reorder",
@@ -1032,7 +1127,13 @@
     }
   },
   "EntityTimeline": {
+    "detailDescription": "Activity details and related record context.",
+    "error": "Activity could not be loaded.",
     "loadOlder": "Load older",
+    "loadOlderError": "Older activity could not be loaded. The entries already shown are still available.",
+    "moreRecords": "+{count} more",
+    "pageLimitReached": "The oldest available page has been reached. Narrow the current selection to inspect older activity.",
+    "scopeTooBroad": "These relationship filters match too many contacts to load safely. Select fewer records.",
     "types": {
       "activities": "Activities",
       "changes": "Changes",

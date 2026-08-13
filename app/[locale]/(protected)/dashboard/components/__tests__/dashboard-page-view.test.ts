@@ -101,6 +101,7 @@ function renderDashboard(
 
   return renderToStaticMarkup(
     createElement(DashboardPageView, {
+      activityFilterableFields: [],
       customColumns: [],
       filterableFields: {} as never,
       widgets: items,

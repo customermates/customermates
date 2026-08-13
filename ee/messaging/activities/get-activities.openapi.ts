@@ -1,20 +1,20 @@
 import type { ZodOpenApiOperationObject } from "zod-openapi";
 
-import { ActivitiesParamsSchema, ActivitiesResultSchema } from "@/ee/messaging/activities/activities.schema";
+import { ActivitiesApiParamsSchema, ActivitiesResultSchema } from "@/ee/messaging/activities/activities.schema";
 import { CommonApiResponses } from "@/core/api/interactor-handler";
 
 export const getActivitiesOperation: ZodOpenApiOperationObject = {
   operationId: "getActivities",
   summary: "Get activities",
   description:
-    "Retrieves the activity timeline (messages, audit-log changes, calendar events) for the workspace or one record, " +
-    "with optional scoping to a single entity, sorting, and pagination.",
+    "Retrieves the activity timeline (messages, audit-log changes, account activities, and calendar events) for " +
+    "the workspace, whole record types, or one or several specific records, with optional filters, sorting, and pagination.",
   tags: ["messaging"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {
     content: {
       "application/json": {
-        schema: ActivitiesParamsSchema,
+        schema: ActivitiesApiParamsSchema,
       },
     },
   },

@@ -1,5 +1,5 @@
 import type { Filter } from "@/core/base/base-get.schema";
-import type { MessagingProvider } from "@/generated/prisma";
+import { EntityType, type MessagingProvider } from "@/generated/prisma";
 
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
@@ -15,6 +15,21 @@ export type ActivityQuery = {
   threadIdsNotIn?: Set<string>;
   connectedAccountIdsIn?: Set<string>;
   connectedAccountIdsNotIn?: Set<string>;
+  relationshipRules: ActivityRelationshipRule[];
+};
+
+export type ActivityRelationshipRule = {
+  entityType: EntityType;
+  operator: FilterOperatorKey.in | FilterOperatorKey.notIn | FilterOperatorKey.hasSome | FilterOperatorKey.hasNone;
+  ids?: string[];
+};
+
+const RELATIONSHIP_ENTITY_TYPE: Partial<Record<FilterFieldKey, EntityType>> = {
+  [FilterFieldKey.contactIds]: EntityType.contact,
+  [FilterFieldKey.organizationIds]: EntityType.organization,
+  [FilterFieldKey.dealIds]: EntityType.deal,
+  [FilterFieldKey.serviceIds]: EntityType.service,
+  [FilterFieldKey.taskIds]: EntityType.task,
 };
 
 const TYPE_TO_KINDS: Record<string, readonly ActivityKind[]> = {
@@ -36,31 +51,57 @@ function resolveKinds(values: string[]): ActivityKind[] {
   return [...kinds];
 }
 
+function intersect<T>(current: Set<T> | undefined, next: Set<T>): Set<T> {
+  if (!current) return next;
+
+  return new Set([...current].filter((value) => next.has(value)));
+}
+
+function union<T>(current: Set<T> | undefined, next: Set<T>): Set<T> {
+  return new Set([...(current ?? []), ...next]);
+}
+
 export function interpretFilters(filters: Filter[] | undefined): ActivityQuery {
-  const query: ActivityQuery = {};
+  const query: ActivityQuery = { relationshipRules: [] };
 
   for (const filter of filters ?? []) {
     const field = filter.field as FilterFieldKey;
+    const values = "value" in filter && Array.isArray(filter.value) ? filter.value : [];
 
-    if (field === FilterFieldKey.timelineKind) {
-      if (filter.operator === FilterOperatorKey.in) {
-        const kinds = resolveKinds(filter.value);
-        if (kinds.length) query.kindsIn = new Set(kinds);
-      } else if (filter.operator === FilterOperatorKey.notIn) {
-        const kinds = resolveKinds(filter.value);
-        if (kinds.length) query.kindsNotIn = new Set(kinds);
+    const relationshipEntityType = RELATIONSHIP_ENTITY_TYPE[field];
+    if (relationshipEntityType) {
+      if (filter.operator === FilterOperatorKey.hasSome || filter.operator === FilterOperatorKey.hasNone) {
+        query.relationshipRules.push({
+          entityType: relationshipEntityType,
+          operator: filter.operator,
+        });
+      } else if (
+        (filter.operator === FilterOperatorKey.in || filter.operator === FilterOperatorKey.notIn) &&
+        values.length
+      ) {
+        query.relationshipRules.push({
+          entityType: relationshipEntityType,
+          operator: filter.operator,
+          ids: values,
+        });
       }
+    } else if (field === FilterFieldKey.timelineKind) {
+      if (filter.operator === FilterOperatorKey.in) {
+        if (values.length) query.kindsIn = intersect(query.kindsIn, new Set(resolveKinds(values)));
+      } else if (filter.operator === FilterOperatorKey.notIn && values.length)
+        query.kindsNotIn = union(query.kindsNotIn, new Set(resolveKinds(values)));
     } else if (field === FilterFieldKey.provider && filter.operator === FilterOperatorKey.in) {
-      if (filter.value.length) query.providers = new Set(filter.value);
+      if (values.length) query.providers = intersect(query.providers, new Set(values));
     } else if (field === FilterFieldKey.timelineThreadId) {
-      if (filter.operator === FilterOperatorKey.in && filter.value.length) query.threadIdsIn = new Set(filter.value);
-      else if (filter.operator === FilterOperatorKey.notIn && filter.value.length)
-        query.threadIdsNotIn = new Set(filter.value);
+      if (filter.operator === FilterOperatorKey.in && values.length)
+        query.threadIdsIn = intersect(query.threadIdsIn, new Set(values));
+      else if (filter.operator === FilterOperatorKey.notIn && values.length)
+        query.threadIdsNotIn = union(query.threadIdsNotIn, new Set(values));
     } else if (field === FilterFieldKey.connectedAccountId) {
-      if (filter.operator === FilterOperatorKey.in && filter.value.length)
-        query.connectedAccountIdsIn = new Set(filter.value);
-      else if (filter.operator === FilterOperatorKey.notIn && filter.value.length)
-        query.connectedAccountIdsNotIn = new Set(filter.value);
+      if (filter.operator === FilterOperatorKey.in && values.length)
+        query.connectedAccountIdsIn = intersect(query.connectedAccountIdsIn, new Set(values));
+      else if (filter.operator === FilterOperatorKey.notIn && values.length)
+        query.connectedAccountIdsNotIn = union(query.connectedAccountIdsNotIn, new Set(values));
     }
   }
 
@@ -69,35 +110,39 @@ export function interpretFilters(filters: Filter[] | undefined): ActivityQuery {
 
 export function channelWhere(query: ActivityQuery) {
   const { connectedAccountIdsIn, connectedAccountIdsNotIn } = query;
-  if (!connectedAccountIdsIn?.size && !connectedAccountIdsNotIn?.size) return {};
+  if (connectedAccountIdsIn === undefined && !connectedAccountIdsNotIn?.size) return {};
 
   return {
     connectedAccountId: {
-      ...(connectedAccountIdsIn?.size ? { in: [...connectedAccountIdsIn] } : {}),
+      ...(connectedAccountIdsIn !== undefined ? { in: [...connectedAccountIdsIn] } : {}),
       ...(connectedAccountIdsNotIn?.size ? { notIn: [...connectedAccountIdsNotIn] } : {}),
     },
   };
 }
 
 export function providerWhere(query: ActivityQuery) {
-  if (!query.providers?.size) return {};
+  if (query.providers === undefined) return {};
 
   return { provider: { in: [...query.providers] as MessagingProvider[] } };
 }
 
 export function providerRelationWhere(query: ActivityQuery) {
-  if (!query.providers?.size) return {};
+  if (query.providers === undefined) return {};
 
-  return { connectedAccount: { provider: { in: [...query.providers] as MessagingProvider[] } } };
+  return {
+    connectedAccount: {
+      provider: { in: [...query.providers] as MessagingProvider[] },
+    },
+  };
 }
 
 export function threadWhere(query: ActivityQuery) {
   const { threadIdsIn, threadIdsNotIn } = query;
-  if (!threadIdsIn?.size && !threadIdsNotIn?.size) return {};
+  if (threadIdsIn === undefined && !threadIdsNotIn?.size) return {};
 
   return {
     messagingThreadId: {
-      ...(threadIdsIn?.size ? { in: [...threadIdsIn] } : {}),
+      ...(threadIdsIn !== undefined ? { in: [...threadIdsIn] } : {}),
       ...(threadIdsNotIn?.size ? { notIn: [...threadIdsNotIn] } : {}),
     },
   };

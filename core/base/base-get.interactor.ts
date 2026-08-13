@@ -16,7 +16,7 @@ import type {
 import { CustomColumnType } from "@/generated/prisma";
 
 import type { EntityType } from "@/generated/prisma";
-import type { QueryParamsPrecheckInteractor } from "./query-params-precheck.interactor";
+import type { QueryParamsPrecheckInteractor, QueryParamsPrecheckOptions } from "./query-params-precheck.interactor";
 
 import { env } from "@/env";
 import { KANBAN_EMPTY_GROUP_KEY, KANBAN_PER_GROUP_DEFAULT } from "./base-get.schema";
@@ -75,6 +75,8 @@ export abstract class BaseGetInteractor<T> {
     protected entityType: EntityType | undefined,
     protected defaultParams?: GetQueryParams,
     protected queryParamsPrecheck?: QueryParamsPrecheckInteractor,
+    protected queryParamsPrecheckOptions?: QueryParamsPrecheckOptions,
+    protected queryParamsPrecheckFilterableFields?: FilterableField[],
   ) {}
 
   async invoke(params: GetQueryParams = {}): Validated<GetResult<T>> {
@@ -136,7 +138,17 @@ export abstract class BaseGetInteractor<T> {
       if (!precheck) throw new Error("api mode requires a queryParamsPrecheck");
 
       const checked = await runPrecheck({ filters, sortDescriptor }, (data, ctx) =>
-        precheck.invoke({ filterableFields, customColumns, sortableFields }, this.entityType, data, ctx),
+        precheck.invoke(
+          {
+            filterableFields: this.queryParamsPrecheckFilterableFields ?? filterableFields,
+            customColumns,
+            sortableFields,
+          },
+          this.entityType,
+          data,
+          ctx,
+          this.queryParamsPrecheckOptions,
+        ),
       );
       if (!checked.ok) return { ok: false as const, error: checked.error };
     }

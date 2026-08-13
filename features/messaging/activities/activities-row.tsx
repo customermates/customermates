@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import type { MessagingProvider } from "@/generated/prisma";
+import type { ActivityRecordContextDto } from "@/ee/messaging/activities/activities.schema";
 
 import { Pencil, Plus, Trash2 } from "lucide-react";
 
@@ -11,6 +12,8 @@ import { AppCardHeader } from "@/components/card/app-card-header";
 import { auditEventTone } from "@/components/entity-detail/audit-event-tone";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { cn } from "@/core/utils/cn";
+
+import { ActivityRecordChips } from "./activity-record-chips";
 
 const BADGE_BASE =
   "ring-background bg-background absolute -right-px -bottom-px size-3.5 overflow-hidden rounded-full ring-2";
@@ -41,14 +44,16 @@ export function IdentityAvatar({
   name,
   src,
   badge,
+  size = "lg",
 }: {
   name: string | [string | null | undefined, string | null | undefined];
   src?: string | null;
   badge?: ReactNode;
+  size?: "lg" | "xl";
 }) {
   return (
     <div className="relative">
-      <Avatar className="bg-background" name={name} size="lg" src={src} />
+      <Avatar className="bg-background" name={name} size={size} src={src} />
 
       {badge}
     </div>
@@ -82,12 +87,14 @@ export function DetailHeader({
   provider,
   providerLabel,
   subtitle,
+  records,
 }: {
   avatar: ReactNode;
   title: string;
   provider?: MessagingProvider;
   providerLabel?: string;
   subtitle: string;
+  records?: ActivityRecordContextDto;
 }) {
   const ProviderIcon = provider ? getProviderIcon(provider) : null;
 
@@ -105,12 +112,21 @@ export function DetailHeader({
         </div>
 
         <p className="text-muted-foreground text-xs">{subtitle}</p>
+
+        {records && (
+          <div className="mt-1.5">
+            <ActivityRecordChips context={records} />
+          </div>
+        )}
       </div>
     </AppCardHeader>
   );
 }
 
-export function auditCategory(event: string): { icon: LucideIcon; tone: BadgeTone } {
+export function auditCategory(event: string): {
+  icon: LucideIcon;
+  tone: BadgeTone;
+} {
   const tone = auditEventTone(event);
   if (tone === "deleted") return { icon: Trash2, tone: "deleted" };
   if (tone === "created") return { icon: Plus, tone: "created" };
