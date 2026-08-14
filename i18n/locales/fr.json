@@ -212,7 +212,7 @@
       "body": "Commencez par ajouter votre premier élément « {singular} ».",
       "clearFilters": "Effacer les filtres",
       "cta": "Ajouter votre premier élément « {singular} »",
-      "dashboardBody": "Les graphiques et indicateurs apparaîtront ici à mesure que vous ajouterez des données.",
+      "dashboardBody": "Les widgets apparaîtront ici à mesure que vous ajouterez des données.",
       "dashboardTitle": "Rien à afficher pour le moment",
       "filteredBody": "Aucun élément « {plural} » ne correspond à vos filtres.",
       "filteredTitle": "Aucune correspondance",
@@ -223,7 +223,10 @@
       "title": "Aucun élément « {plural} » pour le moment"
     },
     "errors": {
-      "activityScopeRequiresBoth": "entityType et entityId doivent être fournis ensemble pour cibler un seul enregistrement.",
+      "activityDuplicateFilterField": "Chaque champ de filtre d'activité ne peut être configuré qu'une seule fois.",
+      "activityPageOutOfRange": "La chronologie des activités ne peut pas remonter aussi loin. Affinez plutôt les filtres.",
+      "activityScopeTooManyIds": "Un périmètre d'activité ne peut pas sélectionner plus de 50 enregistrements d'un même type.",
+      "activitySourcesUnavailable": "Vous n'avez accès à aucune source de la chronologie des activités.",
       "apiKeyMaxExpiration": "L'expiration d'une clé API ne peut pas dépasser 365 jours.",
       "assigneeRequired": "Vous devez vous assigner cet élément. Notez que vous ne pourrez consulter que les éléments qui vous sont assignés.",
       "calendarEventNotFound": "ID d'évènement d'agenda introuvable ou inaccessible.",
@@ -309,6 +312,7 @@
       "widgetGroupByCustomColumnIdRequired": "L'ID de colonne personnalisée est obligatoire lors d'un regroupement par colonne personnalisée.",
       "widgetGroupByEntityTypeNotAllowedForCount": "Le regroupement par type d'élément n'est pas autorisé lorsque le type d'agrégation est le comptage.",
       "widgetGroupByTypeMustMatchEntityType": "Le type de regroupement doit correspondre au type d'élément du graphique.",
+      "widgetKindImmutable": "Le type d'un widget ne peut pas être modifié après sa création.",
       "widgetNotFound": "ID de widget introuvable ou inaccessible.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Les tâches ne peuvent être regroupées que par colonnes personnalisées, pas par types d'élément."
     },
@@ -445,6 +449,7 @@
         "none": "Aucun préréglage"
       },
       "searchLabel": "Rechercher",
+      "selectionLimit": "Vous pouvez sélectionner jusqu'à {count} valeurs.",
       "selectOperator": "Sélectionner une condition…",
       "unavailableValue": "Filtre non disponible"
     },
@@ -468,11 +473,8 @@
       "description": "Description",
       "displayLanguage": "Langue d'affichage",
       "displayOptions": {
-        "barColors": "Couleurs des barres",
-        "displayType": "Type d'affichage",
         "reverseXAxis": "Inverser l'axe X",
         "reverseYAxis": "Inverser l'axe Y",
-        "showFilters": "Afficher les filtres",
         "showLegend": "Afficher la légende",
         "useGroupColors": "Utiliser les couleurs des options"
       },
@@ -485,7 +487,6 @@
       "firstName": "Prénom",
       "formattingLocale": "Format régional",
       "groupByValue": "Regroupement",
-      "isTemplate": "Partager comme modèle avec les autres utilisateurs de votre organisation",
       "label": "Libellé",
       "lastName": "Nom",
       "message": "Message",
@@ -500,7 +501,6 @@
       "roleId": "Rôle",
       "secret": "Secret",
       "status": "Statut",
-      "template": "Modèle",
       "theme": "Thème",
       "type": "Type",
       "unavailableSelection": "Sélection indisponible",
@@ -562,22 +562,34 @@
         "channels": "Canaux",
         "contacts": "Contacts",
         "createdAt": "Créé le",
+        "customFieldValues": "Champs personnalisés",
         "deals": "Affaires",
         "description": "Description",
+        "displayName": "Nom affiché",
         "email": "E-mail",
+        "emailAddress": "Adresse e-mail",
+        "enabled": "Activé",
         "entity": "Élément",
         "entityId": "ID de l'élément",
+        "entityType": "Type d'enregistrement",
         "event": "Évènement",
         "events": "Évènements",
         "expiresAt": "Expire le",
         "firstName": "Prénom",
+        "id": "ID",
         "identifiers": "Canaux",
+        "isSystemRole": "Rôle système",
+        "label": "Libellé",
         "lastName": "Nom",
         "lastRequest": "Dernière utilisation",
         "name": "Nom",
         "notes": "Notes",
+        "options": "Options",
         "organizations": "Organisations",
+        "permissions": "Autorisations",
+        "provider": "Fournisseur",
         "role": "Rôle",
+        "secret": "Secret",
         "services": "Services",
         "status": "Statut",
         "statusCode": "Code de statut",
@@ -761,7 +773,19 @@
     "title": "Discutons."
   },
   "Dashboard": {
-    "addCard": "Ajouter un graphique",
+    "activityWidget": {
+      "activityCount": "{count, plural, =1 {1 activité} other {# activités}}",
+      "error": "Les activités n'ont pas pu être chargées.",
+      "loadOlderError": "Les activités plus anciennes n'ont pas pu être chargées. Les entrées déjà affichées restent disponibles.",
+      "noAccount": "Connectez un compte de messagerie ou d'agenda pour afficher l'activité.",
+      "noActivity": "Aucune activité pour le moment.",
+      "noMatches": "Aucune activité ne correspond aux filtres actuels.",
+      "noPermission": "Vous n'avez accès à aucune activité de cet espace de travail.",
+      "pageLimitReached": "La page la plus ancienne disponible a été atteinte. Affinez la sélection actuelle pour consulter des activités plus anciennes.",
+      "scopeTooBroad": "Ces filtres de relation correspondent à trop de contacts pour un chargement fiable. Sélectionnez moins d'enregistrements.",
+      "title": "Activité récente"
+    },
+    "addCard": "Ajouter un widget",
     "aggregationTypes": {
       "count": "Nombre de {entities}",
       "dealQuantity": "Nombre de {services} dans les {deals}",
@@ -779,14 +803,85 @@
     "groupBys": {
       "none": "Aucun regroupement"
     },
-    "selectWidgetTemplateDescription": "Vous pouvez sélectionner des graphiques existants créés par des membres de vos organisations et les utiliser comme modèle pour votre nouveau graphique.",
     "tabs": {
-      "config": "Configuration",
       "dealFilters": "Filtres pour {deals}",
-      "display": "Affichage",
       "filters": "Filtres {entityType}"
     },
-    "widget": "Graphique"
+    "widgetEditor": {
+      "addTitle": "Ajouter un widget",
+      "appearance": {
+        "chartStyle": "Style de graphique",
+        "colorOption": "Couleur {number}",
+        "colors": "Couleurs",
+        "showFilters": "Afficher le nombre d'activités et les filtres",
+        "showMetricAndFilters": "Afficher l'indicateur et les filtres"
+      },
+      "create": "Créer le widget",
+      "danger": {
+        "deleteLabel": "Supprimer le widget {name}"
+      },
+      "editTitle": "Modifier « {name} »",
+      "filters": {
+        "activityTypeOptions": {
+          "activities": {
+            "description": "Évènements des comptes connectés et des agendas.",
+            "label": "Compte et agenda"
+          },
+          "changes": {
+            "description": "Mises à jour des enregistrements CRM, des champs et des relations.",
+            "label": "Modifications d'enregistrements"
+          },
+          "messages": {
+            "description": "Messages envoyés ou reçus via les canaux connectés.",
+            "label": "Messages"
+          }
+        },
+        "activityTypes": "Types d'activité",
+        "noneAvailable": "Aucun filtre n'est disponible pour ce widget.",
+        "removeUnavailable": "Supprimer le filtre indisponible « {field} »",
+        "title": "Filtres",
+        "unavailable": "{count, plural, =1 {Un filtre enregistré n'est plus disponible. Vous pouvez le conserver ou le supprimer.} other {# filtres enregistrés ne sont plus disponibles. Vous pouvez les conserver ou les supprimer.}}"
+      },
+      "kind": {
+        "activityTimelineDescription": "Suivez les modifications d'enregistrements, les messages et l'activité des comptes ou agendas dans l'ordre chronologique.",
+        "chartDescription": "Comparez vos données CRM dans un graphique.",
+        "title": "Choisir un widget"
+      },
+      "preview": {
+        "activitySummary": "{title}. Filtres : {filters, plural, =0 {aucun} =1 {1 actif} other {# actifs}}.",
+        "chartSummary": "{title}. {summary}. Indicateur : {metric}. Style de graphique : {chart}.",
+        "filterSummary": "{count, plural, =1 {1 filtre} other {# filtres}}",
+        "groupLabel": "Groupe {number}",
+        "title": "Aperçu",
+        "untitled": "Widget sans titre"
+      },
+      "progress": "Étape {current} sur {total}",
+      "progressLabel": "Progression de la création du widget",
+      "save": "Enregistrer les modifications",
+      "sharing": {
+        "template": "Partager comme modèle"
+      },
+      "steps": {
+        "chooseDescription": "Choisissez un format ou partez d'une configuration partagée dans votre espace de travail.",
+        "configureDescription": "Choisissez ce que ce widget affiche et son apparence."
+      },
+      "tabs": {
+        "appearance": "Apparence",
+        "data": "Données",
+        "filters": "Filtres",
+        "filtersLabel": "{count, plural, =0 {Filtres, aucun actif} =1 {Filtres, 1 actif} other {Filtres, # actifs}}",
+        "label": "Paramètres du widget"
+      },
+      "templates": {
+        "by": "Partagé par {name}",
+        "description": "Utilisez une configuration partagée dans votre espace de travail, puis adaptez-la.",
+        "title": "Partir d'un modèle"
+      }
+    },
+    "widgetKinds": {
+      "activityTimeline": "Chronologie des activités",
+      "chart": "Graphique"
+    }
   },
   "DataView": {
     "dragToReorder": "Faire glisser pour réorganiser",
@@ -1032,7 +1127,13 @@
     }
   },
   "EntityTimeline": {
+    "detailDescription": "Détails de l'activité et contexte de l'enregistrement lié.",
+    "error": "Les activités n'ont pas pu être chargées.",
     "loadOlder": "Charger les plus anciens",
+    "loadOlderError": "Les activités plus anciennes n'ont pas pu être chargées. Les entrées déjà affichées restent disponibles.",
+    "moreRecords": "+{count} autres",
+    "pageLimitReached": "La page la plus ancienne disponible a été atteinte. Affinez la sélection actuelle pour consulter des activités plus anciennes.",
+    "scopeTooBroad": "Ces filtres de relation correspondent à trop de contacts pour un chargement fiable. Sélectionnez moins d'enregistrements.",
     "types": {
       "activities": "Activités",
       "changes": "Modifications",
@@ -1484,6 +1585,7 @@
     },
     "next": "Suivant",
     "progress": "Étape {current} sur {total}",
+    "progressLabel": "Progression de la configuration",
     "steps": {
       "ai": {
         "subtitle": "Choisissez l’IA à connecter maintenant. Vous pourrez en ajouter d’autres plus tard.",

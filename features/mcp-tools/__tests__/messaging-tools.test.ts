@@ -3,11 +3,14 @@ import { z } from "zod";
 
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { MOCK_ENV_MODULE, createMockDiModule, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
+import { WidgetKind } from "@/generated/prisma";
+import { ActivityWidgetDtoSchema } from "@/features/widget/widget.schema";
 
 const mockUser = createMockUser();
 
 const spies = vi.hoisted(() => ({
   createAuthLink: vi.fn(),
+  getActivities: vi.fn(),
 }));
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
@@ -15,9 +18,10 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/core/di", () => ({
   ...createMockDiModule(() => mockUser),
   getCreateAuthLinkInteractor: () => ({ invoke: spies.createAuthLink }),
+  getGetActivitiesApiInteractor: () => ({ invoke: spies.getActivities }),
 }));
 
-import { connectMessagingAccountTool } from "../messaging.mcp-tools";
+import { connectMessagingAccountTool, getActivitiesTool } from "../messaging.mcp-tools";
 
 function run(args: Record<string, unknown>) {
   return connectMessagingAccountTool.execute(connectMessagingAccountTool.inputSchema.parse(args));
@@ -46,5 +50,139 @@ describe("connect_messaging_account", () => {
   it("rejects an unknown channel at the schema boundary", () => {
     expect(() => connectMessagingAccountTool.inputSchema.parse({ channel: "myspace" })).toThrow();
     expect(spies.createAuthLink).not.toHaveBeenCalled();
+  });
+});
+
+describe("get_activities", () => {
+  it("passes a multi-record scope to the API interactor", async () => {
+    const dealId = "00000000-0000-4000-8000-000000000001";
+    const taskId = "00000000-0000-4000-8000-000000000002";
+    spies.getActivities.mockResolvedValue({
+      ok: true,
+      data: {
+        items: [],
+        pagination: { page: 1, pageSize: 25, total: 0, totalPages: 1 },
+        scopeTruncated: false,
+      },
+    });
+
+    await getActivitiesTool.execute(
+      getActivitiesTool.inputSchema.parse({
+        scope: {
+          records: [
+            { entityType: "deal", ids: [dealId] },
+            { entityType: "task", ids: [taskId] },
+          ],
+        },
+      }),
+    );
+
+    expect(spies.getActivities).toHaveBeenCalledWith(
+      expect.objectContaining({
+        scope: {
+          records: [
+            { entityType: "deal", ids: [dealId] },
+            { entityType: "task", ids: [taskId] },
+          ],
+        },
+      }),
+    );
+  });
+
+  it("passes low-level scope and relationship filters together unchanged", async () => {
+    const dealId = "00000000-0000-4000-8000-000000000001";
+    const contactId = "00000000-0000-4000-8000-000000000002";
+    const filters = [{ field: "contactIds", operator: "in", value: [contactId] }];
+    spies.getActivities.mockResolvedValue({
+      ok: true,
+      data: {
+        items: [],
+        pagination: { page: 1, pageSize: 25, total: 0, totalPages: 1 },
+        scopeTruncated: false,
+      },
+    });
+
+    await getActivitiesTool.execute(
+      getActivitiesTool.inputSchema.parse({
+        scope: { records: [{ entityType: "deal", ids: [dealId] }] },
+        filters,
+      }),
+    );
+
+    expect(spies.getActivities).toHaveBeenCalledWith(
+      expect.objectContaining({
+        scope: { records: [{ entityType: "deal", ids: [dealId] }] },
+        filters,
+      }),
+    );
+  });
+
+  it("rejects malformed relationship filters at the MCP boundary", () => {
+    expect(
+      getActivitiesTool.inputSchema.safeParse({
+        filters: [{ field: "contactIds", operator: "in", value: [] }],
+      }).success,
+    ).toBe(false);
+    expect(
+      getActivitiesTool.inputSchema.safeParse({
+        filters: [
+          {
+            field: "dealIds",
+            operator: "hasNone",
+            value: ["00000000-0000-4000-8000-000000000001"],
+          },
+        ],
+      }).success,
+    ).toBe(false);
+  });
+
+  it("rejects duplicate activity filter fields before invoking the interactor", () => {
+    const duplicate = {
+      field: "contactIds",
+      operator: "hasSome",
+    };
+
+    expect(() =>
+      getActivitiesTool.inputSchema.parse({
+        filters: [duplicate, duplicate],
+      }),
+    ).toThrow();
+    expect(spies.getActivities).not.toHaveBeenCalled();
+  });
+
+  it("accepts activity-widget filters unchanged", () => {
+    const filter = {
+      field: "contactIds",
+      operator: "in",
+      value: ["00000000-0000-4000-8000-000000000001"],
+    };
+    const widget = ActivityWidgetDtoSchema.parse({
+      id: "00000000-0000-4000-8000-000000000002",
+      userId: mockUser.id,
+      companyId: mockUser.companyId,
+      name: "Recent activity",
+      kind: WidgetKind.activityTimeline,
+      timelineFilters: [filter],
+      displayOptions: { showFilters: true },
+      layout: null,
+      isTemplate: false,
+      createdAt: new Date(0),
+      updatedAt: new Date(0),
+    });
+
+    expect(
+      getActivitiesTool.inputSchema.safeParse({
+        filters: widget.timelineFilters,
+      }).success,
+    ).toBe(true);
+  });
+
+  it("rejects the removed partial legacy scope instead of widening it", () => {
+    expect(getActivitiesTool.inputSchema.safeParse({ entityType: "deal" }).success).toBe(false);
+    expect(
+      getActivitiesTool.inputSchema.safeParse({
+        entityId: "00000000-0000-4000-8000-000000000001",
+      }).success,
+    ).toBe(false);
   });
 });

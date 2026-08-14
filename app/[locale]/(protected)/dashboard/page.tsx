@@ -2,11 +2,12 @@ import { DashboardPageView } from "./components/dashboard-page-view";
 
 import { PageContainer } from "@/components/shared/page-container";
 import {
-  getGetWidgetsInteractor,
-  getGetWidgetFilterableFieldsInteractor,
   getGetCustomColumnsInteractor,
+  getGetWidgetFilterableFieldsInteractor,
+  getGetWidgetsInteractor,
 } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
+
 export default async function DashboardPage() {
   await requireAccess();
 
@@ -20,8 +21,9 @@ export default async function DashboardPage() {
     <PageContainer>
       <div className="relative flex min-h-0 w-full flex-1 flex-col gap-4 md:gap-6">
         <DashboardPageView
+          activityFilterableFields={filterableFieldsResult.data.activityTimeline}
           customColumns={customColumnsResult.data}
-          filterableFields={filterableFieldsResult.data}
+          filterableFields={filterableFieldsResult.data.chart}
           widgets={widgetsResult.data}
         />
       </div>

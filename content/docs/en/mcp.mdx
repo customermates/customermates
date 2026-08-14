@@ -120,12 +120,12 @@ All create and update tools take custom-column values via customFieldValues; cal
 
 ### Messaging
 
-The messaging surface is live today and available from the Pro tier.
+Messaging-backed tools are available from the Pro tier in cloud mode. `get_activities` can still return audit-log changes without the messaging entitlement when the caller has Audit Log permission. Its messaging, connected-account, and calendar sources require Inbox permission plus the messaging entitlement.
 
 | Tool | Read | Destructive | Purpose |
 |---|---|---|---|
 | `get_messaging_threads` | ✓ | | Two modes: without threadId lists inbox threads with filters and sorting (threads with no message yet are hidden unless they hold a draft); with threadId returns one thread plus a page of its messages (default 25, newest first, drafts included). |
-| `get_activities` | ✓ | | Activity timeline (messages, audit-log changes, LinkedIn account activities, and calendar events) for the workspace or one record. |
+| `get_activities` | ✓ |  | Activity timeline with an optional low-level entity scope plus AND-combined filters. Filters support category/raw kind, conversation, provider, connected account, and related contact, organization, deal, service, or task. Each activity filter field may appear once; alternatives belong in the value array of one membership rule. Relationship fields accept `in`, `notIn`, `hasSome`, and `hasNone`; membership takes 1–50 UUIDs. Relationship UUIDs must resolve to records you can read; unresolvable ids are rejected. The result includes `availableSources`, `scopeTruncated`, `pageLimitReached`, total, and page. Pages are capped at 40. |
 | `get_calendars` | ✓ | | Three modes: list: "calendars" (default) lists the calendars of accessible connected accounts; list: "events" lists calendar events ordered by start time, filterable by calendarId or a startsAt date range; with eventId it returns one event's detail including organizer and attendees. Ids match the entityId of calendar webhook events. |
 | `send_chat_message` | | | Delivers immediately. With threadId replies in an existing chat; with connectedAccountId plus attendeeIdentifiers starts a new one (optional chatName names a group). New LinkedIn chats default to Classic; set linkedinProduct to sales_navigator or recruiter to send an InMail (needs inmailSubject), or inmail:true to InMail someone outside your network on Classic. |
 | `send_email` | | | Delivers immediately. Send or reply from a connected email account; can send a saved draft via draftMessageId. |
@@ -166,7 +166,7 @@ The messaging surface is live today and available from the Pro tier.
 
 | Tool | Read | Destructive | Purpose |
 |---|---|---|---|
-| `manage_widgets` | | ✓ | One tool with an `action` switch: list, get, create, update, delete. The get action returns the computed data points alongside the configuration, so aggregate totals come straight from a widget. |
+| `manage_widgets` |  | ✓ | One tool with an `action` switch: list, get, create, update, delete. Omitted create `kind` remains `chart`. Activity creation accepts `name`, optional `timelineFilters`, and optional `showFilters`; each activity filter field may appear once. Update infers the immutable stored kind, preserves omitted fields, and clears filters with `timelineFilters: []`. Create rejects newly inaccessible relationship UUIDs. Update may retain or remove an unavailable relationship UUID only when that UUID is already stored on the widget; adding another inaccessible UUID is rejected. list/get/create/update all return `kind`; get also returns chart data for charts and reusable `timelineFilters` for activity widgets. Chart-only and activity-only fields cannot be mixed. |
 
 ### Webhooks
 

@@ -9,6 +9,7 @@ import { action, makeObservable, observable } from "mobx";
 import { refreshWidgetsAction, updateWidgetLayoutsAction } from "../actions";
 
 import { GRID_COLS } from "./grid.constants";
+import { widgetLayoutGeometry } from "./widget-layout";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import { BREAKPOINTS } from "@/constants/breakpoints";
@@ -44,8 +45,8 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
       for (const breakpoint of BREAKPOINTS) {
         const layoutItem = widget.layout?.[breakpoint];
         const cols = GRID_COLS[breakpoint];
-        const w = Math.min(layoutItem?.w ?? 4, cols);
-        const h = layoutItem?.h ?? 4;
+        const geometry = widgetLayoutGeometry(widget.kind, cols, layoutItem);
+        const { w, h } = geometry;
 
         let x = layoutItem?.x;
         let y = layoutItem?.y;
@@ -56,7 +57,8 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
           y ??= spot.y;
         }
 
-        layouts[breakpoint].push({ x, y, w, h, i: widget.id });
+        x = Math.min(x, Math.max(0, cols - w));
+        layouts[breakpoint].push({ x, y, i: widget.id, ...geometry });
       }
     });
 

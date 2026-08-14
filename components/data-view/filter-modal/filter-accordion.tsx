@@ -8,25 +8,49 @@ import { observer } from "mobx-react-lite";
 import { FilterField } from "@/components/data-view/filter-modal/filter-field";
 import { useFilterFieldLabel } from "@/components/entity-terminology/use-filter-field-label";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { cn } from "@/core/utils/cn";
 
 type Props = {
   filters: Filter[];
   baseId: string;
   filterableFields: FilterableField[];
   customColumns?: CustomColumnDto[];
+  filterIndices?: number[];
   nested?: boolean;
+  onFilterChange?: (field: string) => void;
+  variant?: "plain" | "grouped";
   value?: string;
   onValueChange?: (value: string) => void;
 };
 
 export const FilterAccordion = observer(
-  ({ filters, baseId, filterableFields, customColumns, nested = false, value, onValueChange }: Props) => {
+  ({
+    filters,
+    baseId,
+    filterableFields,
+    customColumns,
+    filterIndices,
+    nested = false,
+    onFilterChange,
+    variant = "plain",
+    value,
+    onValueChange,
+  }: Props) => {
     const fieldLabel = useFilterFieldLabel();
 
     const itemClassName = nested ? "border-b-0" : "border-b last:border-b-0 px-3";
 
     return (
-      <Accordion collapsible className="flex flex-col" type="single" value={value} onValueChange={onValueChange}>
+      <Accordion
+        collapsible
+        className={cn(
+          "flex flex-col",
+          variant === "grouped" && "overflow-hidden rounded-md border border-input bg-input-background shadow-xs",
+        )}
+        type="single"
+        value={value}
+        onValueChange={onValueChange}
+      >
         {filters.map((filter, index) => {
           const label = fieldLabel(filter.field, customColumns);
           const hasValue = filter.operator !== undefined;
@@ -43,10 +67,11 @@ export const FilterAccordion = observer(
 
               <AccordionContent className="pt-0 pb-3 flex flex-col gap-2">
                 <FilterField
-                  baseId={`${baseId}[${index}]`}
+                  baseId={`${baseId}[${filterIndices?.[index] ?? index}]`}
                   customColumns={customColumns}
                   filter={filter}
                   filterableFields={filterableFields}
+                  onFilterChange={onFilterChange}
                 />
               </AccordionContent>
             </AccordionItem>

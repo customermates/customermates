@@ -15,13 +15,13 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { EmailFrame } from "@/app/[locale]/(protected)/inbox/components/email-frame";
 import { SanitizedHtml } from "@/app/[locale]/(protected)/inbox/components/sanitized-html";
 import { sanitizeHtml } from "@/components/shared/sanitize-html";
+import { cn } from "@/core/utils/cn";
 import { isEmailProvider } from "@/ee/messaging/provider";
 import { messageSenderName } from "@/ee/messaging/thread-display";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AuditDetail } from "./audit-detail";
-import { DetailHeader, IdentityAvatar, TypeBadge } from "./activities-row";
-import { cn } from "@/core/utils/cn";
 import { calendarEventTitle } from "./activity-labels";
+import { DetailHeader, IdentityAvatar, TypeBadge } from "./activities-row";
 
 const RESPONSE_LABEL_KEYS: Record<string, string> = {
   yes: "ContactHistory.calendarResponseYes",
@@ -59,11 +59,13 @@ const MessageDetail = observer(({ entry }: { entry: Extract<ActivityEntryDto, { 
           <IdentityAvatar
             badge={<TypeBadge icon={DirectionIcon} label={directionLabel} tone={isOutbound ? "sent" : "received"} />}
             name={senderName}
+            size="xl"
             src={message.sender.contact?.avatarUrl || message.sender.pictureUrl}
           />
         }
         provider={message.provider}
         providerLabel={t(`Common.providers.${message.provider}`)}
+        records={entry.records}
         subtitle={`${directionLabel} · ${intlStore.formatNumericalShortDateTime(message.sentAt)}`}
         title={title}
       />
@@ -100,101 +102,100 @@ const MessageDetail = observer(({ entry }: { entry: Extract<ActivityEntryDto, { 
   );
 });
 
-const CalendarEventDetail = observer(
-  ({ event }: { event: Extract<ActivityEntryDto, { kind: "calendar_event" }>["event"] }) => {
-    const { intlStore } = useRootStore();
-    const t = useTranslations();
-    const organizerName = event.organizer?.displayName?.trim() || event.organizer?.email || null;
-    const timeRange = event.allDay
-      ? `${intlStore.formatNumericalShortDateTime(event.startsAt)} · ${t("ContactHistory.calendarAllDay")}`
-      : `${intlStore.formatNumericalShortDateTime(event.startsAt)} – ${intlStore.formatTime(event.endsAt)}`;
-    const description = event.description?.trim() || null;
-    const eventTitle = calendarEventTitle(event.title, t("ContactHistory.calendarNoTitle"));
-    const calendarBadge = (
-      <TypeBadge icon={CalendarIcon} label={t("EntityTimeline.types.activities")} tone="calendar" />
-    );
+const CalendarEventDetail = observer(({ entry }: { entry: Extract<ActivityEntryDto, { kind: "calendar_event" }> }) => {
+  const { event } = entry;
+  const { intlStore } = useRootStore();
+  const t = useTranslations();
+  const organizerName = event.organizer?.displayName?.trim() || event.organizer?.email || null;
+  const timeRange = event.allDay
+    ? `${intlStore.formatNumericalShortDateTime(event.startsAt)} · ${t("ContactHistory.calendarAllDay")}`
+    : `${intlStore.formatNumericalShortDateTime(event.startsAt)} – ${intlStore.formatTime(event.endsAt)}`;
+  const description = event.description?.trim() || null;
+  const eventTitle = calendarEventTitle(event.title, t("ContactHistory.calendarNoTitle"));
+  const calendarBadge = <TypeBadge icon={CalendarIcon} label={t("EntityTimeline.types.activities")} tone="calendar" />;
 
-    return (
-      <AppCard>
-        <DetailHeader
-          avatar={
-            organizerName ? (
-              <IdentityAvatar badge={calendarBadge} name={organizerName} />
+  return (
+    <AppCard>
+      <DetailHeader
+        avatar={
+          organizerName ? (
+            <IdentityAvatar badge={calendarBadge} name={organizerName} size="xl" />
+          ) : (
+            <div className="relative">
+              <span className="bg-muted text-muted-foreground flex size-16 shrink-0 items-center justify-center rounded-lg">
+                <CalendarIcon aria-label={t("EntityTimeline.types.activities")} className="size-6" />
+              </span>
+
+              {calendarBadge}
+            </div>
+          )
+        }
+        provider={event.provider}
+        providerLabel={t(`Common.providers.${event.provider}`)}
+        records={entry.records}
+        subtitle={`${t("ContactHistory.calendarMeeting")} · ${timeRange}`}
+        title={eventTitle}
+      />
+
+      <AppCardBody className="space-y-4">
+        {event.status === "cancelled" && (
+          <p className="text-destructive text-sm font-medium">{t("ContactHistory.calendarCancelled")}</p>
+        )}
+
+        {event.location && (
+          <div className="text-muted-foreground flex items-center gap-2 text-sm">
+            <MapPin className="size-3.5 shrink-0" />
+
+            <span className="min-w-0 truncate">{event.location}</span>
+          </div>
+        )}
+
+        {event.attendees.length > 0 && (
+          <div className="space-y-2">
+            <div className="text-muted-foreground flex items-center gap-2 text-xs font-medium uppercase tracking-wide">
+              <Users className="size-3.5 shrink-0" />
+
+              <span>{t("ContactHistory.calendarAttendees")}</span>
+            </div>
+
+            <ul className="space-y-1.5">
+              {event.attendees.map((attendee) => {
+                const name = attendee.displayName?.trim() || attendee.email;
+                const responseKey = attendee.responseStatus ? RESPONSE_LABEL_KEYS[attendee.responseStatus] : null;
+                return (
+                  <li key={attendee.email} className="flex items-center gap-2 text-sm">
+                    <Avatar name={name} size="sm" />
+
+                    <span className="min-w-0 flex-1 truncate">{name}</span>
+
+                    {responseKey && (
+                      <span className="text-muted-foreground shrink-0 text-xs">{t(responseKey as never)}</span>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
+
+        {description && (
+          <div>
+            {looksLikeHtml(description) ? (
+              <div className="bg-muted w-full rounded-2xl p-1.5 shadow-xs">
+                <EmailFrame html={description} />
+              </div>
             ) : (
-              <div className="relative">
-                <span className="bg-muted text-muted-foreground flex size-8 shrink-0 items-center justify-center rounded-lg">
-                  <CalendarIcon aria-label={t("EntityTimeline.types.activities")} className="size-4" />
-                </span>
+              <p className="whitespace-pre-wrap text-sm leading-relaxed">{description}</p>
+            )}
+          </div>
+        )}
+      </AppCardBody>
+    </AppCard>
+  );
+});
 
-                {calendarBadge}
-              </div>
-            )
-          }
-          provider={event.provider}
-          providerLabel={t(`Common.providers.${event.provider}`)}
-          subtitle={`${t("ContactHistory.calendarMeeting")} · ${timeRange}`}
-          title={eventTitle}
-        />
-
-        <AppCardBody className="space-y-4">
-          {event.status === "cancelled" && (
-            <p className="text-destructive text-sm font-medium">{t("ContactHistory.calendarCancelled")}</p>
-          )}
-
-          {event.location && (
-            <div className="text-muted-foreground flex items-center gap-2 text-sm">
-              <MapPin className="size-3.5 shrink-0" />
-
-              <span className="min-w-0 truncate">{event.location}</span>
-            </div>
-          )}
-
-          {event.attendees.length > 0 && (
-            <div className="space-y-2">
-              <div className="text-muted-foreground flex items-center gap-2 text-xs font-medium uppercase tracking-wide">
-                <Users className="size-3.5 shrink-0" />
-
-                <span>{t("ContactHistory.calendarAttendees")}</span>
-              </div>
-
-              <ul className="space-y-1.5">
-                {event.attendees.map((attendee) => {
-                  const name = attendee.displayName?.trim() || attendee.email;
-                  const responseKey = attendee.responseStatus ? RESPONSE_LABEL_KEYS[attendee.responseStatus] : null;
-                  return (
-                    <li key={attendee.email} className="flex items-center gap-2 text-sm">
-                      <Avatar name={name} size="sm" />
-
-                      <span className="min-w-0 flex-1 truncate">{name}</span>
-
-                      {responseKey && (
-                        <span className="text-muted-foreground shrink-0 text-xs">{t(responseKey as never)}</span>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          )}
-
-          {description && (
-            <div>
-              {looksLikeHtml(description) ? (
-                <div className="bg-muted w-full rounded-2xl p-1.5 shadow-xs">
-                  <EmailFrame html={description} />
-                </div>
-              ) : (
-                <p className="whitespace-pre-wrap text-sm leading-relaxed">{description}</p>
-              )}
-            </div>
-          )}
-        </AppCardBody>
-      </AppCard>
-    );
-  },
-);
-
-const ActivityDetail = observer(({ payload, at }: { payload: Record<string, unknown>; at: Date }) => {
+const ActivityDetail = observer(({ entry }: { entry: Extract<ActivityEntryDto, { kind: "activity" }> }) => {
+  const { payload, at } = entry;
   const { intlStore } = useRootStore();
   const t = useTranslations();
   const fullName = payloadString(payload, "fullName");
@@ -208,11 +209,13 @@ const ActivityDetail = observer(({ payload, at }: { payload: Record<string, unkn
           <IdentityAvatar
             badge={<TypeBadge icon={Plus} label={t("EntityTimeline.types.activities")} tone="activity" />}
             name={fullName ?? ""}
+            size="xl"
             src={pictureUrl}
           />
         }
         provider={MessagingProvider.linkedin}
         providerLabel={t("Common.providers.linkedin")}
+        records={entry.records}
         subtitle={`${t("ContactHistory.linkedinConnectionAccepted")} · ${intlStore.formatNumericalShortDateTime(at)}`}
         title={fullName ?? t("Common.providers.linkedin")}
       />
@@ -283,6 +286,7 @@ export const TimelineDetailModal = observer(() => {
   return (
     <AppModal
       actions={actions}
+      description={t("EntityTimeline.detailDescription")}
       open={isOpen}
       size={entry?.kind === "activity" ? "md" : "lg"}
       title={title}
@@ -290,9 +294,9 @@ export const TimelineDetailModal = observer(() => {
     >
       {entry?.kind === "message" && <MessageDetail entry={entry} />}
 
-      {entry?.kind === "calendar_event" && <CalendarEventDetail event={entry.event} />}
+      {entry?.kind === "calendar_event" && <CalendarEventDetail entry={entry} />}
 
-      {entry?.kind === "activity" && <ActivityDetail at={entry.at} payload={entry.payload} />}
+      {entry?.kind === "activity" && <ActivityDetail entry={entry} />}
 
       {entry?.kind === "audit" && <AuditDetail customColumns={customColumns} entry={entry} />}
     </AppModal>

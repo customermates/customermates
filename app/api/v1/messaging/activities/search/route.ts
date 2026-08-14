@@ -3,13 +3,13 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { getGetActivitiesInteractor } from "@/core/di";
+import { getGetActivitiesApiInteractor } from "@/core/di";
 import { handleError } from "@/core/api/interactor-handler";
 
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
-    const result = await getGetActivitiesInteractor().invoke(data);
+    const result = await getGetActivitiesApiInteractor().invoke(data);
 
     if (!result.ok) return NextResponse.json(z.prettifyError(result.error), { status: 400 });
 

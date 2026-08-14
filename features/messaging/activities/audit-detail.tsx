@@ -229,9 +229,11 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
           <IdentityAvatar
             badge={<TypeBadge icon={category.icon} label={t(`Common.events.${entry.event}`)} tone={category.tone} />}
             name={[entry.actor.firstName, entry.actor.lastName]}
+            size="xl"
             src={entry.actor.avatarUrl}
           />
         }
+        records={entry.records}
         subtitle={`${t(`Common.events.${entry.event}`)} · ${intlStore.formatNumericalShortDateTime(entry.at)}`}
         title={authorName}
       />

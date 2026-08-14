@@ -1,4 +1,5 @@
 import type { FilterableField } from "@/core/base/base-get.schema";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 import { EntityType } from "@/generated/prisma";
@@ -30,40 +31,64 @@ export abstract class GetWidgetFilterableFieldsTaskRepo {
   abstract getFilterableFields(): Promise<FilterableField[]>;
 }
 
+export abstract class GetWidgetActivityFilterableFieldsRepo {
+  abstract canReadMessagingSources(): boolean;
+  abstract getFilterableFields(): Promise<FilterableField[]>;
+  abstract setMessagingSourcesEnabled(enabled: boolean): void;
+}
+
+export type WidgetFilterableFields = {
+  chart: Record<EntityType, FilterableField[]>;
+  activityTimeline: FilterableField[];
+};
+
+const WidgetFilterableFieldsSchema = z.object({
+  activityTimeline: z.array(FilterableFieldSchema),
+  chart: z.record(z.enum(EntityType), z.array(FilterableFieldSchema)),
+});
+
 @AllowInDemoMode
 @TenantInteractor()
-export class GetWidgetFilterableFieldsInteractor extends AuthenticatedInteractor<
-  void,
-  Record<EntityType, FilterableField[]>
-> {
+export class GetWidgetFilterableFieldsInteractor extends AuthenticatedInteractor<void, WidgetFilterableFields> {
   constructor(
     private contactRepo: GetWidgetFilterableFieldsContactRepo,
     private organizationRepo: GetWidgetFilterableFieldsOrganizationRepo,
     private dealRepo: GetWidgetFilterableFieldsDealRepo,
     private serviceRepo: GetWidgetFilterableFieldsServiceRepo,
     private taskRepo: GetWidgetFilterableFieldsTaskRepo,
+    private activityRepo: GetWidgetActivityFilterableFieldsRepo,
+    private entitlements: EntitlementService,
   ) {
     super();
   }
 
-  @ValidateOutput(z.record(z.enum(EntityType), z.array(FilterableFieldSchema)))
-  async invoke(): Promise<{ ok: true; data: Record<EntityType, FilterableField[]> }> {
-    const [contactFields, organizationFields, dealFields, serviceFields, taskFields] = await Promise.all([
-      this.contactRepo.getFilterableFields(),
-      this.organizationRepo.getFilterableFields(),
-      this.dealRepo.getFilterableFields(),
-      this.serviceRepo.getFilterableFields(),
-      this.taskRepo.getFilterableFields(),
-    ]);
+  @ValidateOutput(WidgetFilterableFieldsSchema)
+  async invoke(): Promise<{ ok: true; data: WidgetFilterableFields }> {
+    const canReadMessagingSources = this.activityRepo.canReadMessagingSources();
+    const entitlementDenied = canReadMessagingSources ? await this.entitlements.require("messaging") : null;
+    this.activityRepo.setMessagingSourcesEnabled(canReadMessagingSources && !entitlementDenied);
+
+    const [contactFields, organizationFields, dealFields, serviceFields, taskFields, activityTimeline] =
+      await Promise.all([
+        this.contactRepo.getFilterableFields(),
+        this.organizationRepo.getFilterableFields(),
+        this.dealRepo.getFilterableFields(),
+        this.serviceRepo.getFilterableFields(),
+        this.taskRepo.getFilterableFields(),
+        this.activityRepo.getFilterableFields(),
+      ]);
 
     return {
       ok: true,
       data: {
-        [EntityType.contact]: contactFields,
-        [EntityType.organization]: organizationFields,
-        [EntityType.deal]: dealFields,
-        [EntityType.service]: serviceFields,
-        [EntityType.task]: taskFields,
+        activityTimeline,
+        chart: {
+          [EntityType.contact]: contactFields,
+          [EntityType.organization]: organizationFields,
+          [EntityType.deal]: dealFields,
+          [EntityType.service]: serviceFields,
+          [EntityType.task]: taskFields,
+        },
       },
     };
   }

@@ -29084,7 +29084,7 @@
       "post": {
         "operationId": "getActivities",
         "summary": "Get activities",
-        "description": "Retrieves the activity timeline (messages, audit-log changes, calendar events) for the workspace or one record, with optional scoping to a single entity, sorting, and pagination.",
+        "description": "Retrieves the activity timeline (messages, audit-log changes, account activities, and calendar events) for the workspace, whole record types, or one or several specific records, with optional filters, sorting, and pagination.",
         "tags": [
           "messaging"
         ],
@@ -29097,7 +29097,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ActivitiesParamsSchema"
+                "$ref": "#/components/schemas/ActivitiesApiParamsSchema"
               }
             }
           }
@@ -50510,70 +50510,20 @@
           "updatedAt"
         ]
       },
-      "ActivitiesParamsSchema": {
+      "ActivitiesApiParamsSchema": {
         "type": "object",
         "properties": {
           "filters": {
             "maxItems": 50,
             "type": "array",
             "items": {
-              "oneOf": [
+              "anyOf": [
                 {
                   "type": "object",
                   "properties": {
                     "field": {
-                      "type": "string"
-                    },
-                    "operator": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "const": "equals",
-                          "title": "equals"
-                        },
-                        {
-                          "type": "string",
-                          "const": "contains",
-                          "title": "contains"
-                        },
-                        {
-                          "type": "string",
-                          "const": "gt",
-                          "title": "gt"
-                        },
-                        {
-                          "type": "string",
-                          "const": "gte",
-                          "title": "gte"
-                        },
-                        {
-                          "type": "string",
-                          "const": "lt",
-                          "title": "lt"
-                        },
-                        {
-                          "type": "string",
-                          "const": "lte",
-                          "title": "lte"
-                        }
-                      ]
-                    },
-                    "value": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "field",
-                    "operator",
-                    "value"
-                  ],
-                  "title": "Single value filter"
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "field": {
-                      "type": "string"
+                      "type": "string",
+                      "const": "timelineKind"
                     },
                     "operator": {
                       "anyOf": [
@@ -50586,18 +50536,24 @@
                           "type": "string",
                           "const": "notIn",
                           "title": "notIn"
-                        },
-                        {
-                          "type": "string",
-                          "const": "between",
-                          "title": "between"
                         }
                       ]
                     },
                     "value": {
+                      "minItems": 1,
+                      "maxItems": 7,
                       "type": "array",
                       "items": {
-                        "type": "string"
+                        "type": "string",
+                        "enum": [
+                          "changes",
+                          "messages",
+                          "activities",
+                          "message",
+                          "audit",
+                          "activity",
+                          "calendar_event"
+                        ]
                       }
                     }
                   },
@@ -50606,88 +50562,38 @@
                     "operator",
                     "value"
                   ],
-                  "title": "Multi value filter"
+                  "additionalProperties": false
                 },
                 {
                   "type": "object",
                   "properties": {
                     "field": {
-                      "type": "string"
-                    },
-                    "operator": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "const": "isNull",
-                          "title": "isNull"
-                        },
-                        {
-                          "type": "string",
-                          "const": "isNotNull",
-                          "title": "isNotNull"
-                        },
-                        {
-                          "type": "string",
-                          "const": "hasUnset",
-                          "title": "hasUnset"
-                        },
-                        {
-                          "type": "string",
-                          "const": "allSet",
-                          "title": "allSet"
-                        }
-                      ]
-                    }
-                  },
-                  "required": [
-                    "field",
-                    "operator"
-                  ],
-                  "title": "Standalone filter"
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "field": {
-                      "type": "string"
-                    },
-                    "operator": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "const": "hasNone",
-                          "title": "hasNone"
-                        },
-                        {
-                          "type": "string",
-                          "const": "hasSome",
-                          "title": "hasSome"
-                        }
-                      ]
-                    }
-                  },
-                  "required": [
-                    "field",
-                    "operator"
-                  ],
-                  "additionalProperties": false,
-                  "title": "Relationship existence filter"
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "field": {
-                      "type": "string"
-                    },
-                    "operator": {
                       "type": "string",
-                      "const": "inLastDays",
-                      "title": "inLastDays"
+                      "const": "timelineThreadId"
+                    },
+                    "operator": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "const": "in",
+                          "title": "in"
+                        },
+                        {
+                          "type": "string",
+                          "const": "notIn",
+                          "title": "notIn"
+                        }
+                      ]
                     },
                     "value": {
-                      "type": "integer",
-                      "exclusiveMinimum": 0,
-                      "maximum": 9007199254740991
+                      "minItems": 1,
+                      "maxItems": 50,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      }
                     }
                   },
                   "required": [
@@ -50695,15 +50601,447 @@
                     "operator",
                     "value"
                   ],
-                  "title": "Relative window filter"
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "type": "string",
+                      "const": "provider"
+                    },
+                    "operator": {
+                      "type": "string",
+                      "const": "in",
+                      "title": "in"
+                    },
+                    "value": {
+                      "minItems": 1,
+                      "maxItems": 7,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "google",
+                          "outlook",
+                          "mail",
+                          "linkedin",
+                          "whatsapp",
+                          "instagram",
+                          "telegram"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "type": "string",
+                      "const": "connectedAccountId"
+                    },
+                    "operator": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "const": "in",
+                          "title": "in"
+                        },
+                        {
+                          "type": "string",
+                          "const": "notIn",
+                          "title": "notIn"
+                        }
+                      ]
+                    },
+                    "value": {
+                      "minItems": 1,
+                      "maxItems": 50,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      }
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string",
+                          "const": "contactIds"
+                        },
+                        "operator": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "in",
+                              "title": "in"
+                            },
+                            {
+                              "type": "string",
+                              "const": "notIn",
+                              "title": "notIn"
+                            }
+                          ]
+                        },
+                        "value": {
+                          "minItems": 1,
+                          "maxItems": 50,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          }
+                        }
+                      },
+                      "required": [
+                        "field",
+                        "operator",
+                        "value"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string",
+                          "const": "contactIds"
+                        },
+                        "operator": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "hasSome",
+                              "title": "hasSome"
+                            },
+                            {
+                              "type": "string",
+                              "const": "hasNone",
+                              "title": "hasNone"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "field",
+                        "operator"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ],
+                  "type": "object"
+                },
+                {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string",
+                          "const": "organizationIds"
+                        },
+                        "operator": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "in",
+                              "title": "in"
+                            },
+                            {
+                              "type": "string",
+                              "const": "notIn",
+                              "title": "notIn"
+                            }
+                          ]
+                        },
+                        "value": {
+                          "minItems": 1,
+                          "maxItems": 50,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          }
+                        }
+                      },
+                      "required": [
+                        "field",
+                        "operator",
+                        "value"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string",
+                          "const": "organizationIds"
+                        },
+                        "operator": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "hasSome",
+                              "title": "hasSome"
+                            },
+                            {
+                              "type": "string",
+                              "const": "hasNone",
+                              "title": "hasNone"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "field",
+                        "operator"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ],
+                  "type": "object"
+                },
+                {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string",
+                          "const": "dealIds"
+                        },
+                        "operator": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "in",
+                              "title": "in"
+                            },
+                            {
+                              "type": "string",
+                              "const": "notIn",
+                              "title": "notIn"
+                            }
+                          ]
+                        },
+                        "value": {
+                          "minItems": 1,
+                          "maxItems": 50,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          }
+                        }
+                      },
+                      "required": [
+                        "field",
+                        "operator",
+                        "value"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string",
+                          "const": "dealIds"
+                        },
+                        "operator": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "hasSome",
+                              "title": "hasSome"
+                            },
+                            {
+                              "type": "string",
+                              "const": "hasNone",
+                              "title": "hasNone"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "field",
+                        "operator"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ],
+                  "type": "object"
+                },
+                {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string",
+                          "const": "serviceIds"
+                        },
+                        "operator": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "in",
+                              "title": "in"
+                            },
+                            {
+                              "type": "string",
+                              "const": "notIn",
+                              "title": "notIn"
+                            }
+                          ]
+                        },
+                        "value": {
+                          "minItems": 1,
+                          "maxItems": 50,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          }
+                        }
+                      },
+                      "required": [
+                        "field",
+                        "operator",
+                        "value"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string",
+                          "const": "serviceIds"
+                        },
+                        "operator": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "hasSome",
+                              "title": "hasSome"
+                            },
+                            {
+                              "type": "string",
+                              "const": "hasNone",
+                              "title": "hasNone"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "field",
+                        "operator"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ],
+                  "type": "object"
+                },
+                {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string",
+                          "const": "taskIds"
+                        },
+                        "operator": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "in",
+                              "title": "in"
+                            },
+                            {
+                              "type": "string",
+                              "const": "notIn",
+                              "title": "notIn"
+                            }
+                          ]
+                        },
+                        "value": {
+                          "minItems": 1,
+                          "maxItems": 50,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          }
+                        }
+                      },
+                      "required": [
+                        "field",
+                        "operator",
+                        "value"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string",
+                          "const": "taskIds"
+                        },
+                        "operator": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "hasSome",
+                              "title": "hasSome"
+                            },
+                            {
+                              "type": "string",
+                              "const": "hasNone",
+                              "title": "hasNone"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "field",
+                        "operator"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ],
+                  "type": "object"
                 }
-              ],
-              "type": "object"
-            }
-          },
-          "searchTerm": {
-            "type": "string",
-            "maxLength": 200
+              ]
+            },
+            "description": "At most one rule per field; combine alternatives within one membership rule."
           },
           "sortDescriptor": {
             "type": "object",
@@ -50728,8 +51066,9 @@
             "type": "object",
             "properties": {
               "page": {
-                "type": "number",
-                "minimum": 1
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
               },
               "pageSize": {
                 "anyOf": [
@@ -50761,53 +51100,128 @@
               "pageSize"
             ]
           },
-          "groupedPagination": {
-            "type": "object",
-            "properties": {
-              "groupingColumnId": {
-                "type": "string"
-              },
-              "perGroup": {
-                "type": "integer",
-                "minimum": 1,
-                "maximum": 500
-              },
-              "overrides": {
+          "scope": {
+            "anyOf": [
+              {
                 "type": "object",
-                "propertyNames": {
-                  "type": "string"
+                "properties": {
+                  "entityTypes": {
+                    "minItems": 1,
+                    "maxItems": 5,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "contact",
+                        "organization",
+                        "deal",
+                        "service",
+                        "task"
+                      ]
+                    }
+                  },
+                  "records": {
+                    "maxItems": 5,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "entityType": {
+                          "type": "string",
+                          "enum": [
+                            "contact",
+                            "organization",
+                            "deal",
+                            "service",
+                            "task"
+                          ]
+                        },
+                        "ids": {
+                          "minItems": 1,
+                          "maxItems": 50,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          }
+                        }
+                      },
+                      "required": [
+                        "entityType",
+                        "ids"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
                 },
-                "additionalProperties": {
-                  "type": "integer",
-                  "minimum": 1,
-                  "maximum": 500
-                }
+                "required": [
+                  "entityTypes"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "entityTypes": {
+                    "maxItems": 5,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "contact",
+                        "organization",
+                        "deal",
+                        "service",
+                        "task"
+                      ]
+                    }
+                  },
+                  "records": {
+                    "minItems": 1,
+                    "maxItems": 5,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "entityType": {
+                          "type": "string",
+                          "enum": [
+                            "contact",
+                            "organization",
+                            "deal",
+                            "service",
+                            "task"
+                          ]
+                        },
+                        "ids": {
+                          "minItems": 1,
+                          "maxItems": 50,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          }
+                        }
+                      },
+                      "required": [
+                        "entityType",
+                        "ids"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "records"
+                ],
+                "additionalProperties": false
               }
-            },
-            "required": [
-              "groupingColumnId",
-              "perGroup"
             ]
-          },
-          "p13nId": {
-            "type": "string"
-          },
-          "entityType": {
-            "type": "string",
-            "enum": [
-              "contact",
-              "organization",
-              "deal",
-              "service",
-              "task"
-            ]
-          },
-          "entityId": {
-            "type": "string",
-            "format": "uuid",
-            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
           }
-        }
+        },
+        "additionalProperties": false
       },
       "SendEmailSchema": {
         "type": "object",
@@ -52370,6 +52784,111 @@
                         ],
                         "additionalProperties": false
                       }
+                    },
+                    "records": {
+                      "type": "object",
+                      "properties": {
+                        "primary": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "entityType": {
+                                  "type": "string",
+                                  "enum": [
+                                    "contact",
+                                    "organization",
+                                    "deal",
+                                    "service",
+                                    "task"
+                                  ]
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "label": {
+                                  "type": "string"
+                                },
+                                "avatarUrl": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "entityType",
+                                "id",
+                                "label"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "related": {
+                          "maxItems": 3,
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "avatarUrl": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "entityType",
+                              "id",
+                              "label"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "relatedOverflow": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "primary",
+                        "related",
+                        "relatedOverflow"
+                      ],
+                      "additionalProperties": false
                     }
                   },
                   "required": [
@@ -52378,7 +52897,8 @@
                     "at",
                     "actor",
                     "event",
-                    "changes"
+                    "changes",
+                    "records"
                   ],
                   "additionalProperties": false
                 },
@@ -53135,6 +53655,11 @@
                     "thread": {
                       "type": "object",
                       "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
                         "type": {
                           "type": "string",
                           "enum": [
@@ -53148,6 +53673,7 @@
                         }
                       },
                       "required": [
+                        "id",
                         "type",
                         "label"
                       ],
@@ -53155,6 +53681,111 @@
                     },
                     "senderIsMine": {
                       "type": "boolean"
+                    },
+                    "records": {
+                      "type": "object",
+                      "properties": {
+                        "primary": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "entityType": {
+                                  "type": "string",
+                                  "enum": [
+                                    "contact",
+                                    "organization",
+                                    "deal",
+                                    "service",
+                                    "task"
+                                  ]
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "label": {
+                                  "type": "string"
+                                },
+                                "avatarUrl": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "entityType",
+                                "id",
+                                "label"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "related": {
+                          "maxItems": 3,
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "avatarUrl": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "entityType",
+                              "id",
+                              "label"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "relatedOverflow": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "primary",
+                        "related",
+                        "relatedOverflow"
+                      ],
+                      "additionalProperties": false
                     }
                   },
                   "required": [
@@ -53163,7 +53794,8 @@
                     "at",
                     "message",
                     "thread",
-                    "senderIsMine"
+                    "senderIsMine",
+                    "records"
                   ],
                   "additionalProperties": false
                 },
@@ -53186,13 +53818,119 @@
                         "type": "string"
                       },
                       "additionalProperties": {}
+                    },
+                    "records": {
+                      "type": "object",
+                      "properties": {
+                        "primary": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "entityType": {
+                                  "type": "string",
+                                  "enum": [
+                                    "contact",
+                                    "organization",
+                                    "deal",
+                                    "service",
+                                    "task"
+                                  ]
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "label": {
+                                  "type": "string"
+                                },
+                                "avatarUrl": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "entityType",
+                                "id",
+                                "label"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "related": {
+                          "maxItems": 3,
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "avatarUrl": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "entityType",
+                              "id",
+                              "label"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "relatedOverflow": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "primary",
+                        "related",
+                        "relatedOverflow"
+                      ],
+                      "additionalProperties": false
                     }
                   },
                   "required": [
                     "kind",
                     "id",
                     "at",
-                    "payload"
+                    "payload",
+                    "records"
                   ],
                   "additionalProperties": false
                 },
@@ -53361,13 +54099,119 @@
                         "attendees"
                       ],
                       "additionalProperties": false
+                    },
+                    "records": {
+                      "type": "object",
+                      "properties": {
+                        "primary": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "entityType": {
+                                  "type": "string",
+                                  "enum": [
+                                    "contact",
+                                    "organization",
+                                    "deal",
+                                    "service",
+                                    "task"
+                                  ]
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "label": {
+                                  "type": "string"
+                                },
+                                "avatarUrl": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "entityType",
+                                "id",
+                                "label"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "related": {
+                          "maxItems": 3,
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "avatarUrl": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "entityType",
+                              "id",
+                              "label"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "relatedOverflow": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "primary",
+                        "related",
+                        "relatedOverflow"
+                      ],
+                      "additionalProperties": false
                     }
                   },
                   "required": [
                     "kind",
                     "id",
                     "at",
-                    "event"
+                    "event",
+                    "records"
                   ],
                   "additionalProperties": false
                 }
@@ -53379,8 +54223,534 @@
             "items": {}
           },
           "filters": {
+            "maxItems": 50,
             "type": "array",
-            "items": {}
+            "items": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "type": "string",
+                      "const": "timelineKind"
+                    },
+                    "operator": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "const": "in",
+                          "title": "in"
+                        },
+                        {
+                          "type": "string",
+                          "const": "notIn",
+                          "title": "notIn"
+                        }
+                      ]
+                    },
+                    "value": {
+                      "minItems": 1,
+                      "maxItems": 7,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "changes",
+                          "messages",
+                          "activities",
+                          "message",
+                          "audit",
+                          "activity",
+                          "calendar_event"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "type": "string",
+                      "const": "timelineThreadId"
+                    },
+                    "operator": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "const": "in",
+                          "title": "in"
+                        },
+                        {
+                          "type": "string",
+                          "const": "notIn",
+                          "title": "notIn"
+                        }
+                      ]
+                    },
+                    "value": {
+                      "minItems": 1,
+                      "maxItems": 50,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      }
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "type": "string",
+                      "const": "provider"
+                    },
+                    "operator": {
+                      "type": "string",
+                      "const": "in",
+                      "title": "in"
+                    },
+                    "value": {
+                      "minItems": 1,
+                      "maxItems": 7,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "google",
+                          "outlook",
+                          "mail",
+                          "linkedin",
+                          "whatsapp",
+                          "instagram",
+                          "telegram"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "type": "string",
+                      "const": "connectedAccountId"
+                    },
+                    "operator": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "const": "in",
+                          "title": "in"
+                        },
+                        {
+                          "type": "string",
+                          "const": "notIn",
+                          "title": "notIn"
+                        }
+                      ]
+                    },
+                    "value": {
+                      "minItems": 1,
+                      "maxItems": 50,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      }
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string",
+                          "const": "contactIds"
+                        },
+                        "operator": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "in",
+                              "title": "in"
+                            },
+                            {
+                              "type": "string",
+                              "const": "notIn",
+                              "title": "notIn"
+                            }
+                          ]
+                        },
+                        "value": {
+                          "minItems": 1,
+                          "maxItems": 50,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          }
+                        }
+                      },
+                      "required": [
+                        "field",
+                        "operator",
+                        "value"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string",
+                          "const": "contactIds"
+                        },
+                        "operator": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "hasSome",
+                              "title": "hasSome"
+                            },
+                            {
+                              "type": "string",
+                              "const": "hasNone",
+                              "title": "hasNone"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "field",
+                        "operator"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ],
+                  "type": "object"
+                },
+                {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string",
+                          "const": "organizationIds"
+                        },
+                        "operator": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "in",
+                              "title": "in"
+                            },
+                            {
+                              "type": "string",
+                              "const": "notIn",
+                              "title": "notIn"
+                            }
+                          ]
+                        },
+                        "value": {
+                          "minItems": 1,
+                          "maxItems": 50,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          }
+                        }
+                      },
+                      "required": [
+                        "field",
+                        "operator",
+                        "value"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string",
+                          "const": "organizationIds"
+                        },
+                        "operator": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "hasSome",
+                              "title": "hasSome"
+                            },
+                            {
+                              "type": "string",
+                              "const": "hasNone",
+                              "title": "hasNone"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "field",
+                        "operator"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ],
+                  "type": "object"
+                },
+                {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string",
+                          "const": "dealIds"
+                        },
+                        "operator": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "in",
+                              "title": "in"
+                            },
+                            {
+                              "type": "string",
+                              "const": "notIn",
+                              "title": "notIn"
+                            }
+                          ]
+                        },
+                        "value": {
+                          "minItems": 1,
+                          "maxItems": 50,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          }
+                        }
+                      },
+                      "required": [
+                        "field",
+                        "operator",
+                        "value"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string",
+                          "const": "dealIds"
+                        },
+                        "operator": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "hasSome",
+                              "title": "hasSome"
+                            },
+                            {
+                              "type": "string",
+                              "const": "hasNone",
+                              "title": "hasNone"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "field",
+                        "operator"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ],
+                  "type": "object"
+                },
+                {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string",
+                          "const": "serviceIds"
+                        },
+                        "operator": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "in",
+                              "title": "in"
+                            },
+                            {
+                              "type": "string",
+                              "const": "notIn",
+                              "title": "notIn"
+                            }
+                          ]
+                        },
+                        "value": {
+                          "minItems": 1,
+                          "maxItems": 50,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          }
+                        }
+                      },
+                      "required": [
+                        "field",
+                        "operator",
+                        "value"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string",
+                          "const": "serviceIds"
+                        },
+                        "operator": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "hasSome",
+                              "title": "hasSome"
+                            },
+                            {
+                              "type": "string",
+                              "const": "hasNone",
+                              "title": "hasNone"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "field",
+                        "operator"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ],
+                  "type": "object"
+                },
+                {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string",
+                          "const": "taskIds"
+                        },
+                        "operator": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "in",
+                              "title": "in"
+                            },
+                            {
+                              "type": "string",
+                              "const": "notIn",
+                              "title": "notIn"
+                            }
+                          ]
+                        },
+                        "value": {
+                          "minItems": 1,
+                          "maxItems": 50,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          }
+                        }
+                      },
+                      "required": [
+                        "field",
+                        "operator",
+                        "value"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string",
+                          "const": "taskIds"
+                        },
+                        "operator": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "hasSome",
+                              "title": "hasSome"
+                            },
+                            {
+                              "type": "string",
+                              "const": "hasNone",
+                              "title": "hasNone"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "field",
+                        "operator"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ],
+                  "type": "object"
+                }
+              ]
+            },
+            "description": "At most one rule per field; combine alternatives within one membership rule."
           },
           "searchTerm": {
             "anyOf": [
@@ -53460,10 +54830,31 @@
             "additionalProperties": {
               "type": "number"
             }
+          },
+          "availableSources": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "audit",
+                "message",
+                "activity",
+                "calendar_event"
+              ]
+            }
+          },
+          "pageLimitReached": {
+            "type": "boolean"
+          },
+          "scopeTruncated": {
+            "type": "boolean"
           }
         },
         "required": [
-          "items"
+          "items",
+          "availableSources",
+          "pageLimitReached",
+          "scopeTruncated"
         ],
         "additionalProperties": false
       },

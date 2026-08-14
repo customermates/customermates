@@ -20,7 +20,12 @@ export const mcpPageSize = (defaultValue: 5 | 10 | 25 | 100, describe: string) =
     .default(defaultValue)
     .describe(describe);
 
-export const mcpPage = () => z.coerce.number().int().min(1).default(1).describe("1-indexed page number");
+export const mcpPage = (maximum?: number) => {
+  const page = z.coerce.number().int().min(1);
+  const bounded = maximum === undefined ? page : page.max(maximum);
+
+  return bounded.default(1).describe("1-indexed page number");
+};
 
 export const VALIDATION_ERROR_PREFIX = "Validation error:";
 
@@ -71,7 +76,11 @@ export const FILTER_SYNTAX = {
   },
   examples: [
     { field: "status", operator: "equals", value: "active" },
-    { field: "createdAt", operator: "between", value: ["2024-01-01", "2024-12-31"] },
+    {
+      field: "createdAt",
+      operator: "between",
+      value: ["2024-01-01", "2024-12-31"],
+    },
     { field: "assigneeId", operator: "in", value: ["id1", "id2"] },
     { field: "email", operator: "isNotNull" },
   ],

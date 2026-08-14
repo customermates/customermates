@@ -7,8 +7,9 @@ Customermates-Filter (genutzt von den Model-Context-Protocol-Tools (MCP), der RE
 
 ## Wo Filter greifen
 
-- Das `list_records` MCP-Tool (und die Messaging-Filter auf `get_messaging_threads`).
+- Das `list_records` MCP-Tool und die Messaging-Filter auf `get_messaging_threads` und `get_activities`.
 - `entityFilters` und `dealFilters` auf Widgets.
+- `timelineFilters` auf Aktivitäts-Widgets. Aktivitätsfilter erlauben höchstens eine Regel pro Feld; ODER-Alternativen gehören in das Werte-Array einer einzigen `in`-Regel.
 - Gespeicherte Views in der UI (intern dieselbe Form).
 
 ## Die Form

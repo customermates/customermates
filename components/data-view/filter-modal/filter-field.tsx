@@ -27,15 +27,17 @@ type Props = {
   filter: Filter;
   filterableFields: FilterableField[];
   baseId: string;
+  onFilterChange?: (field: string) => void;
 };
 
-export const FilterField = observer(({ customColumns, filter, filterableFields, baseId }: Props) => {
+export const FilterField = observer(({ customColumns, filter, filterableFields, baseId, onFilterChange }: Props) => {
   const t = useTranslations();
 
   const form = useAppForm();
-  const isStandalone = isStandaloneOperator(filter.operator);
+  const isDisabled = form?.isDisabled ?? false;
+  const operator = filter.operator as FilterOperatorKey | undefined;
   const isValidFilter = hasValidFilterConfiguration(filter);
-  const operator = form?.getValue(`${baseId}.operator`) as FilterOperatorKey | undefined;
+  const isStandalone = isStandaloneOperator(operator);
   const operatorIsEmpty = !operator;
 
   const operators = filterableFields?.find((f) => f.field === filter.field)?.operators.map((op) => ({ key: op })) ?? [];
@@ -64,7 +66,13 @@ export const FilterField = observer(({ customColumns, filter, filterableFields, 
       switch (customColumn?.type) {
         case "singleSelect":
           return (
-            <FilterInputSelect customColumns={customColumns} filter={filter} id={id} isValidFilter={isValidFilter} />
+            <FilterInputSelect
+              customColumns={customColumns}
+              filter={filter}
+              id={id}
+              isValidFilter={isValidFilter}
+              onValueChange={() => onFilterChange?.(filter.field)}
+            />
           );
         case "currency":
           return <FilterInputNumber id={id} isValidFilter={isValidFilter} />;
@@ -110,8 +118,17 @@ export const FilterField = observer(({ customColumns, filter, filterableFields, 
       FilterFieldKey.participants,
     ];
 
-    if (relationFields.includes(filter.field as FilterFieldKey))
-      return <FilterInputSelect customColumns={customColumns} filter={filter} id={id} isValidFilter={isValidFilter} />;
+    if (relationFields.includes(filter.field as FilterFieldKey)) {
+      return (
+        <FilterInputSelect
+          customColumns={customColumns}
+          filter={filter}
+          id={id}
+          isValidFilter={isValidFilter}
+          onValueChange={() => onFilterChange?.(filter.field)}
+        />
+      );
+    }
 
     const dateFields = [FilterFieldKey.updatedAt, FilterFieldKey.createdAt];
     if (dateFields.includes(filter.field as FilterFieldKey)) {
@@ -124,20 +141,22 @@ export const FilterField = observer(({ customColumns, filter, filterableFields, 
     }
 
     return <FilterInputText id={id} isValidFilter={isValidFilter} />;
-  }, [customColumns, filter, baseId, isValidFilter, operator, filterableFields, t]);
+  }, [customColumns, filter, baseId, isValidFilter, onFilterChange, operator, filterableFields, t]);
 
   const operatorId = `${baseId}.operator`;
   const bodyShown = !isStandalone && !operatorIsEmpty;
 
   function handleOperatorChange(next: string | undefined) {
+    if (isDisabled) return;
     form?.onChange(operatorId, next);
     form?.onChange(`${baseId}.value`, undefined);
+    onFilterChange?.(filter.field);
   }
 
   return (
     <div className="flex flex-col gap-2 min-w-0">
       <div className="relative">
-        <Select value={operator ?? ""} onValueChange={(v) => handleOperatorChange(v)}>
+        <Select disabled={isDisabled} value={operator ?? ""} onValueChange={(v) => handleOperatorChange(v)}>
           <SelectTrigger
             className={cn(
               "w-full",
@@ -163,6 +182,7 @@ export const FilterField = observer(({ customColumns, filter, filterableFields, 
           <button
             aria-label={t("Common.actions.clear")}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-[color,opacity,transform] hover:text-foreground opacity-50 hover:opacity-100 active:scale-[0.97] motion-reduce:transition-none"
+            disabled={isDisabled}
             tabIndex={-1}
             type="button"
             onClick={(e) => {

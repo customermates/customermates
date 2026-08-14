@@ -9,6 +9,31 @@ Customermates ist ein Open-Source-CRM, KI-nativ gebaut. Diese Seite dokumentiert
 
 Das Dashboard ist der Startbildschirm nach dem Login. Es zeigt konfigurierbare Widgets über Ihren CRM-Daten: Pipelines, Aufgaben, letzte Aktivität, was immer Sie einrichten. Von hier springen Sie in jeden anderen Screen der App.
 
+## Widget-Typen
+
+Wählen Sie unter **Widget hinzufügen** ein **Diagramm** für aggregierte CRM-Daten oder einen **Aktivitätsverlauf** für einen Verlauf mit den neuesten Einträgen zuerst. Ein Aktivitätsverlauf speichert seine Filter am jeweiligen Widget. Mehrere Aktivitäts-Widgets können dadurch unterschiedliche Ansichten zeigen, ohne sich gegenseitig oder den Verlauf auf einer Datensatzseite zu verändern.
+
+### Quellen und Filter
+
+Die Kategorie **Änderungen** enthält Änderungen aus dem Audit-Log. **Nachrichten** enthält Nachrichten aus dem Posteingang. **Aktivitäten** enthält Aktivitäten verbundener Accounts, etwa angenommene LinkedIn-Kontaktanfragen, sowie Kalenderereignisse.
+
+Alle zugänglichen Datensätze bilden die implizite Basis. Filtern Sie einen Aktivitätsverlauf nach Kategorie, Anbieter, verbundenem Account, Unterhaltung oder verknüpften Kontakten, Organisationen, Deals, Services und Aufgaben. Jedes Feld kann einmal konfiguriert werden. Beziehungsfilter verwenden dieselben Operatoren wie Datensatzlisten: **in** und **not in** akzeptieren einen oder mehrere Datensätze, **has some** und **has none** benötigen keinen Wert. Verschiedene Filterfelder werden mit UND verknüpft, mehrere Werte in einem **in**-Filter mit ODER. Nicht verknüpfte Einträge erfüllen positive Beziehungsfilter nicht und negative Beziehungsfilter schon. Filter werden beim Speichern dauerhaft am Widget hinterlegt.
+
+### Verlauf lesen
+
+Die neuesten Einträge stehen zuerst. Mit **Ältere laden** öffnen Sie die nächste begrenzte Seite. Eine Zeile kann einen primären Datensatz, bis zu drei zugehörige Datensätze und die Anzahl weiterer Datensätze zeigen. Zulässige Datensatzlinks öffnen den jeweiligen Datensatz, und Nachrichtendetails können den zulässigen Thread im Posteingang öffnen. Zeilen ohne CRM-Zuordnung bleiben ohne Datensatzlink sichtbar. Nachrichtenvorschauen und Details verwenden dieselbe sichere Darstellung wie Datensatzverläufe.
+
+### Berechtigungen
+
+| Zugriff                                                                      | Sichtbarer Inhalt                                                              |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Nur Audit-Log                                                                | Zulässige Änderungen                                                           |
+| Nur Posteingangsnachrichten, mit Messaging-Berechtigung des Cloud-Pro-Tarifs | Zulässige Nachrichten, Aktivitäten verbundener Accounts und Kalenderereignisse |
+| Beide Berechtigungen, mit Messaging-Berechtigung des Cloud-Pro-Tarifs        | Ein zusammengeführter Verlauf mit allen zulässigen Quellen                     |
+| Keines                                                                       | Ein neutraler Hinweis auf fehlende Verfügbarkeit                               |
+
+Audit-Log-Änderungen sind unabhängig von der Messaging-Berechtigung verfügbar. Nachrichten, Aktivitäten verbundener Accounts und Kalenderereignisse erfordern Zugriff auf den Posteingang und im Cloud-Modus den Pro-Tarif für Messaging. Ohne verbundenen Messaging-Account entfallen die Messaging-basierten Quellen, zulässige Audit-Änderungen bleiben jedoch sichtbar. Gelöschte oder neu unzugängliche Filterwerte liefern keine Treffer mehr, werden zur sicheren Entfernung als **Nicht verfügbarer Wert** angezeigt und geben niemals ihre rohe ID preis.
+
 ## URL
 
 Route: `/dashboard`. Alle App-Routen haben ein Locale-Präfix, zum Beispiel `https://customermates.com/en/dashboard`.

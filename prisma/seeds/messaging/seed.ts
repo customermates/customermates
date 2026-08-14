@@ -5,7 +5,14 @@ import { SYNTHETIC_COMPANY_USERS } from "@/core/config/synthetic-seed-user";
 import { SYNTHETIC_AVATAR_URLS } from "../avatars";
 import { fixtureId } from "../helpers";
 import { SYNTHETIC_SEED_TIMELINE } from "../timeline";
-import { people, threads, type PersonKey, type ThreadFixture } from "./fixtures";
+import {
+  accountActivityFixture,
+  calendarFixture,
+  people,
+  threads,
+  type PersonKey,
+  type ThreadFixture,
+} from "./fixtures";
 
 export type SeedContext = {
   companyId: string;
@@ -26,6 +33,7 @@ type DemoAttendee = {
 };
 
 const MINUTE = 60_000;
+const DAY = 24 * 60 * MINUTE;
 
 function emailHtml(text: string): string {
   const escaped = text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
@@ -209,6 +217,119 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
     desiredAccountIds.push(seededAccount.id);
   }
 
+  await prisma.accountActivity.deleteMany({
+    where: { companyId: context.companyId, id: { startsWith: "26000000-" } },
+  });
+  await prisma.calendarEvent.deleteMany({
+    where: { companyId: context.companyId, id: { startsWith: "25000000-" } },
+  });
+  await prisma.calendar.deleteMany({
+    where: {
+      companyId: context.companyId,
+      events: { none: {} },
+      id: { startsWith: "24000000-" },
+    },
+  });
+
+  const calendarData = {
+    companyId: context.companyId,
+    connectedAccountId: seededAccountIds.google,
+    name: calendarFixture.name,
+    description: null,
+    color: null,
+    timezone: calendarFixture.timezone,
+  };
+  const seededCalendar = await prisma.calendar.upsert({
+    where: {
+      connectedAccountId_unipileCalendarId: {
+        connectedAccountId: seededAccountIds.google,
+        unipileCalendarId: calendarFixture.unipileCalendarId,
+      },
+    },
+    update: calendarData,
+    create: {
+      ...calendarData,
+      id: fixtureId("24000000", 1),
+      unipileCalendarId: calendarFixture.unipileCalendarId,
+    },
+  });
+
+  const attendees = calendarFixture.attendees.map(({ person, responseStatus }) => ({
+    email: people[person].email?.toLowerCase() ?? "",
+    displayName: people[person].displayName,
+    responseStatus,
+    isOrganizer: false,
+  }));
+  if (attendees.some(({ email }) => !email)) throw new Error("Missing demo calendar attendee email");
+  const organizer = {
+    email: context.seedUserEmail.toLowerCase(),
+    displayName: SYNTHETIC_COMPANY_USERS.maxBergmann.name,
+    responseStatus: "yes",
+    isOrganizer: true,
+  };
+  const eventData = {
+    companyId: context.companyId,
+    connectedAccountId: seededAccountIds.google,
+    calendarId: seededCalendar.id,
+    title: calendarFixture.title,
+    description: null,
+    location: null,
+    conferenceUrl: null,
+    startsAt: new Date(anchor.getTime() - 2 * DAY),
+    endsAt: new Date(anchor.getTime() - 2 * DAY + 45 * MINUTE),
+    allDay: false,
+    timezone: calendarFixture.timezone,
+    recurrenceRule: null,
+    status: "confirmed" as const,
+    visibility: null,
+    attendees: inputJson(attendees),
+    organizer: inputJson(organizer),
+    attendeeEmails: [...new Set([...attendees.map(({ email }) => email), organizer.email])],
+  };
+  await prisma.calendarEvent.upsert({
+    where: {
+      connectedAccountId_unipileEventId: {
+        connectedAccountId: seededAccountIds.google,
+        unipileEventId: calendarFixture.unipileEventId,
+      },
+    },
+    update: eventData,
+    create: {
+      ...eventData,
+      id: fixtureId("25000000", 1),
+      unipileEventId: calendarFixture.unipileEventId,
+    },
+  });
+
+  const activityPerson = people[accountActivityFixture.person];
+  const activityData = {
+    companyId: context.companyId,
+    connectedAccountId: seededAccountIds.linkedin,
+    payload: inputJson({
+      fullName: activityPerson.displayName,
+      headline: activityPerson.headline,
+      profileUrl: activityPerson.profileUrl,
+      pictureUrl: activityPerson.avatarPath,
+    }),
+    occurredAt: new Date(anchor.getTime() - 8 * DAY),
+  };
+  await prisma.accountActivity.upsert({
+    where: {
+      connectedAccountId_kind_identifier: {
+        connectedAccountId: seededAccountIds.linkedin,
+        kind: accountActivityFixture.kind,
+        identifier: accountActivityFixture.identifier,
+      },
+    },
+    update: activityData,
+    create: {
+      ...activityData,
+      id: fixtureId("26000000", 1),
+      identifier: accountActivityFixture.identifier,
+      kind: accountActivityFixture.kind,
+    },
+  });
+
   // Positional fixture IDs can point at different natural keys after fixtures are
   // inserted or reordered. Rebuild only rows in the reserved synthetic namespaces
   // before reconciling natural-key rows that may have been recreated by the UI.
@@ -273,8 +394,12 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
       throw new Error(`Conflicting demo contact identifiers for ${channel.key} (${channel.provider})`);
 
     const existingIdentifier = existingIdentifiers[0];
-    if (existingIdentifier) await prisma.contactIdentifier.update({ where: { id: existingIdentifier.id }, data });
-    else {
+    if (existingIdentifier) {
+      await prisma.contactIdentifier.update({
+        where: { id: existingIdentifier.id },
+        data,
+      });
+    } else {
       await prisma.contactIdentifier.upsert({
         where: {
           companyId_channelClass_value: {

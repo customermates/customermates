@@ -1,3 +1,4 @@
+import { activityScopeForRecord } from "@/ee/messaging/activities/activity-scope.schema";
 import { EntityType, Resource } from "@/generated/prisma";
 
 import { EntityDetailPageView } from "@/components/entity-detail/entity-detail-page-view";
@@ -16,8 +17,7 @@ export default async function ContactDetailPage({ params }: Props) {
   const { id } = await params;
 
   const timelineResult = await getGetActivitiesInteractor().invoke({
-    entityType: EntityType.contact,
-    entityId: id,
+    scope: activityScopeForRecord(EntityType.contact, id),
     pagination: { page: 1, pageSize: 25 },
     p13nId: ACTIVITIES_P13N_ID,
   });
@@ -26,7 +26,16 @@ export default async function ContactDetailPage({ params }: Props) {
     <EntityDetailPageView
       entityType={EntityType.contact}
       id={id}
-      timelineInitial={timelineResult.ok ? timelineResult.data : { items: [] }}
+      timelineInitial={
+        timelineResult.ok
+          ? timelineResult.data
+          : {
+              availableSources: [],
+              items: [],
+              pageLimitReached: false,
+              scopeTruncated: false,
+            }
+      }
     />
   );
 }

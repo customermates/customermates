@@ -7,8 +7,9 @@ Customermates filters (used by the Model Context Protocol (MCP) tools, the REST 
 
 ## Where filters apply
 
-- The `list_records` MCP tool (and the messaging filters on `get_messaging_threads`).
+- The `list_records` MCP tool and the messaging filters on `get_messaging_threads` and `get_activities`.
 - `entityFilters` and `dealFilters` on widgets.
+- `timelineFilters` on activity widgets. Activity filters allow at most one rule per field; put OR alternatives in one `in` value array.
 - Saved views in the UI (converted to the same shape under the hood).
 
 ## The shape

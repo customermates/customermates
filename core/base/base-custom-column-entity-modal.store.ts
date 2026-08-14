@@ -233,7 +233,6 @@ export abstract class BaseCustomColumnEntityModalStore<
         if (this.fetchedEntity) this.fetchedEntity = res.data;
         this.onInitOrRefresh(this.initFormWithCustomFieldValues(res.data));
         if (isCreate) this.lastCreatedId = res.data.id;
-        this.rootStore.activitiesStore.refreshFor(res.data.id);
         this.close();
       } else this.setError(res.error as any);
     } finally {

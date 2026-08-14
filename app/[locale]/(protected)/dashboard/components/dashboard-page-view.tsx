@@ -26,6 +26,12 @@ import { useIsTouchDevice } from "@/core/utils/use-is-touch-device";
 import { DashboardPageSkeleton } from "./dashboard-page-skeleton";
 import { GRID_BREAKPOINTS, GRID_COLS } from "./grid.constants";
 import { WidgetCard } from "./widget-card";
+import {
+  isInteractiveTarget,
+  isWidgetOpeningClick,
+  openWidgetEditor,
+  WIDGET_INTERACTIVE_SELECTOR,
+} from "./widget-interaction";
 import { WidgetModal } from "./widget-modal";
 
 const ResponsiveGridLayout = dynamic(
@@ -40,9 +46,11 @@ type Props = {
   customColumns: CustomColumnDto[];
   filterableFields: Record<EntityType, FilterableField[]>;
   widgets: WidgetDto[];
+  activityFilterableFields: FilterableField[];
 };
 
 export const DashboardPageView = observer(function DashboardPageView({
+  activityFilterableFields,
   customColumns,
   filterableFields,
   widgets,
@@ -51,7 +59,7 @@ export const DashboardPageView = observer(function DashboardPageView({
   const { items, layouts } = widgetsStore;
   const canAddWidget = widgetModalStore.availableEntityTypes.length > 0;
   const isTouchDevice = useIsTouchDevice();
-  const pointerStart = useRef<{ id: string; x: number; y: number } | null>(null);
+  const pointerStart = useRef<{ id: string; x: number; y: number; interactive: boolean } | null>(null);
   const t = useTranslations();
 
   useLayoutEffect(
@@ -71,27 +79,42 @@ export const DashboardPageView = observer(function DashboardPageView({
   useEffect(() => {
     function onPointerUp(event: PointerEvent) {
       if (!pointerStart.current) return;
-      const { id, x, y } = pointerStart.current;
+      const { id, x, y, interactive } = pointerStart.current;
       pointerStart.current = null;
-      if (Math.abs(event.clientX - x) < 8 && Math.abs(event.clientY - y) < 8) {
-        widgetModalStore.setExpandedSection("config");
-        widgetModalStore.setExpandedFilterField(undefined);
-        void widgetModalStore.loadById(id);
-      }
+      if (
+        isWidgetOpeningClick({
+          startX: x,
+          startY: y,
+          endX: event.clientX,
+          endY: event.clientY,
+          startedOnInteractive: interactive,
+        })
+      )
+        openWidgetEditor(widgetModalStore, id);
     }
     document.addEventListener("pointerup", onPointerUp);
     return () => document.removeEventListener("pointerup", onPointerUp);
   }, [widgetModalStore]);
 
   const handlePointerDown = useCallback((id: string, event: React.PointerEvent) => {
-    pointerStart.current = { id, x: event.clientX, y: event.clientY };
+    pointerStart.current = {
+      id,
+      x: event.clientX,
+      y: event.clientY,
+      interactive: isInteractiveTarget(event.target),
+    };
   }, []);
   const pageState = resolveResourcePageState(widgetsStore.dataRequest, items.length);
   const topBarActions = useMemo(
     () =>
       pageState !== "loading" && pageState !== "error" && canAddWidget ? (
         <div className="flex items-center gap-1">
-          <Button id="dashboard-add-widget" size="sm" variant="default" onClick={() => void widgetModalStore.add()}>
+          <Button
+            id="dashboard-add-widget"
+            size="sm"
+            variant="default"
+            onClick={() => widgetModalStore.add(t("Dashboard.activityWidget.title"))}
+          >
             <Icon icon={Plus} />
 
             <span className="hidden sm:inline">{t("Dashboard.addCard")}</span>
@@ -126,7 +149,11 @@ export const DashboardPageView = observer(function DashboardPageView({
         <PageState
           action={
             canAddWidget ? (
-              <Button size="sm" variant="secondary" onClick={() => void widgetModalStore.add()}>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => widgetModalStore.add(t("Dashboard.activityWidget.title"))}
+              >
                 {t("Dashboard.addCard")}
               </Button>
             ) : undefined
@@ -152,6 +179,7 @@ export const DashboardPageView = observer(function DashboardPageView({
           cols={GRID_COLS}
           compactType="vertical"
           containerPadding={[0, 0]}
+          draggableCancel={WIDGET_INTERACTIVE_SELECTOR}
           isDraggable={!isTouchDevice}
           layouts={layouts}
           margin={[16, 16]}
@@ -179,7 +207,11 @@ export const DashboardPageView = observer(function DashboardPageView({
     <>
       {body}
 
-      <WidgetModal customColumns={customColumns} filterableFields={filterableFields} />
+      <WidgetModal
+        activityFilterableFields={activityFilterableFields}
+        customColumns={customColumns}
+        filterableFields={filterableFields}
+      />
     </>
   );
 });

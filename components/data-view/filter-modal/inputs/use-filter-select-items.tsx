@@ -1,12 +1,15 @@
 import type { GetResult } from "@/core/base/base-get.interactor";
 import type { GetQueryParams, Filter } from "@/core/base/base-get.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { ActivityThreadOptionsData } from "@/ee/messaging/activities/get-activity-thread-options.interactor";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { z } from "zod";
 import {
   ConnectedAccountStatus,
   CustomColumnType,
+  EntityType,
   MessagingProvider,
   MessagingThreadState,
   Status,
@@ -14,7 +17,7 @@ import {
 } from "@/generated/prisma";
 
 import { isCustomField } from "@/components/data-view/table-view.utils";
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { useActivityQuery } from "@/features/messaging/activities/activity-query-context";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { Avatar } from "@/components/ui/avatar";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
@@ -27,13 +30,19 @@ import { getOrganizationsAction } from "@/app/[locale]/(protected)/organizations
 import { getDealsAction } from "@/app/[locale]/(protected)/deals/actions";
 import { getServicesAction } from "@/app/[locale]/(protected)/services/actions";
 import { getTasksAction } from "@/app/[locale]/(protected)/tasks/actions";
-import { getActivityThreadOptionsAction, getConnectedAccountsAction } from "@/app/[locale]/(protected)/actions";
+import {
+  getActivityRecordOptionsAction,
+  getActivityThreadOptionsAction,
+  getConnectedAccountsAction,
+} from "@/app/[locale]/(protected)/actions";
 import { getSystemTaskNameTranslationKey } from "@/app/[locale]/(protected)/tasks/components/system-task.config";
 import {
   THREAD_STATE_CHIP_COLOR,
   ThreadStateDot,
 } from "@/app/[locale]/(protected)/inbox/components/thread-state-visuals";
 import { DomainEvent } from "@/features/event/domain-events";
+import { ACTIVITY_FILTER_VALUE_MAX, ActivityFilterSchema } from "@/ee/messaging/activities/activities.schema";
+import { activityEntityTypeForFilterField } from "@/ee/messaging/activities/activity-filterable-fields";
 
 export type FilterSelectItem = {
   key: string;
@@ -68,12 +77,17 @@ function renderProviderIcon(provider: string, label: string) {
   return <ProviderIcon aria-label={label} className="size-4 shrink-0" />;
 }
 
-function selectedChannelIds(filters: Filter[] | undefined): string[] | undefined {
-  const filter = filters?.find(
-    (f) => (f.field as FilterFieldKey) === FilterFieldKey.connectedAccountId && f.operator === FilterOperatorKey.in,
-  );
-  if (!filter || !("value" in filter) || !Array.isArray(filter.value) || filter.value.length === 0) return undefined;
-  return filter.value;
+const RecordOptionIdSchema = z.uuid();
+
+function validActivityFilters(filters: Filter[] | undefined): NonNullable<ActivityThreadOptionsData["filters"]> {
+  return (filters ?? []).flatMap((filter) => {
+    const candidate =
+      filter.operator === FilterOperatorKey.hasSome || filter.operator === FilterOperatorKey.hasNone
+        ? { field: filter.field, operator: filter.operator }
+        : filter;
+    const parsed = ActivityFilterSchema.safeParse(candidate);
+    return parsed.success ? [parsed.data] : [];
+  });
 }
 
 export function useFilterSelectItems(
@@ -83,22 +97,22 @@ export function useFilterSelectItems(
   items: FilterSelectItem[];
   getItems?: GetItemsFunction;
   isLoading: boolean;
+  maxSelectedValues?: number;
   selectionError: boolean;
   retrySelection: () => void;
   scopeKey: string;
 } {
   const t = useTranslations();
-  const { activitiesStore } = useRootStore();
+  const activityQuery = useActivityQuery();
+  const activityQueryRef = useRef(activityQuery);
+  activityQueryRef.current = activityQuery;
+  const hasActivityQuery = activityQuery !== null;
 
   const { field } = filter;
   const fieldKey = field as FilterFieldKey;
   const value = "value" in filter ? filter.value : undefined;
   const isCustom = isCustomField(field);
-  const timelineScopeKey = JSON.stringify([
-    activitiesStore.timelineEntityType,
-    activitiesStore.timelineEntityId,
-    selectedChannelIds(activitiesStore.filters) ?? [],
-  ]);
+  const timelineScopeKey = JSON.stringify([activityQuery?.scope ?? null, validActivityFilters(activityQuery?.filters)]);
   const scopeKey = fieldKey === FilterFieldKey.timelineThreadId ? timelineScopeKey : String(field);
 
   const getItems = useMemo(() => {
@@ -154,12 +168,10 @@ export function useFilterSelectItems(
           }),
         })),
       [FilterFieldKey.timelineThreadId]: () => {
-        const { timelineEntityType, timelineEntityId } = activitiesStore;
-
+        const activeQuery = activityQueryRef.current;
         return getActivityThreadOptionsAction({
-          entityType: timelineEntityType ?? undefined,
-          entityId: timelineEntityId || undefined,
-          connectedAccountIds: selectedChannelIds(activitiesStore.filters),
+          scope: activeQuery?.scope,
+          filters: validActivityFilters(activeQuery?.filters),
         }).then((threads) => ({
           items: threads.map((thread) => ({
             key: thread.id,
@@ -191,9 +203,34 @@ export function useFilterSelectItems(
 
     const enumValue = Object.values(FilterFieldKey).find((key) => key === (field as FilterFieldKey));
     return enumValue ? fieldToGetItemsMap[enumValue] : undefined;
-  }, [field, isCustom, t, activitiesStore, timelineScopeKey]);
+  }, [field, isCustom, t, timelineScopeKey]);
+
+  const getSelectedItems = useMemo<ResolveItemsFunction | undefined>(() => {
+    if (!hasActivityQuery) return undefined;
+    const entityType = activityEntityTypeForFilterField(field);
+    if (!entityType) return undefined;
+    const withAvatar = entityType === EntityType.contact;
+
+    return (ids) => {
+      const requestIds = [...new Set(ids.filter((id) => RecordOptionIdSchema.safeParse(id).success))].slice(
+        0,
+        ACTIVITY_FILTER_VALUE_MAX,
+      );
+      if (requestIds.length === 0) return Promise.resolve([]);
+      return getActivityRecordOptionsAction({ records: [{ entityType, ids: requestIds }] }).then((options) =>
+        options.map((option) => ({
+          key: option.id,
+          value: option.id,
+          textValue: option.label,
+          startContent: withAvatar ? renderAvatar(option.label, option.avatarUrl ?? undefined) : undefined,
+        })),
+      );
+    };
+  }, [hasActivityQuery, field]);
 
   const resolveItems = useMemo<ResolveItemsFunction | undefined>(() => {
+    if (getSelectedItems) return getSelectedItems;
+
     if (!getItems) return undefined;
 
     return async (ids) => {
@@ -201,7 +238,7 @@ export function useFilterSelectItems(
       const result = await getItems({});
       return result.items.filter((item) => requested.has(item.key));
     };
-  }, [getItems]);
+  }, [getItems, getSelectedItems]);
 
   const [selectionAttempt, setSelectionAttempt] = useState(0);
   const selectionRequestKey =
@@ -353,5 +390,13 @@ export function useFilterSelectItems(
     }
   }, [field, isCustom, fetchedItems, customColumns, t]);
 
-  return { items, getItems, isLoading, selectionError, retrySelection, scopeKey };
+  return {
+    items,
+    getItems,
+    isLoading,
+    maxSelectedValues: hasActivityQuery ? ACTIVITY_FILTER_VALUE_MAX : undefined,
+    selectionError,
+    retrySelection,
+    scopeKey,
+  };
 }

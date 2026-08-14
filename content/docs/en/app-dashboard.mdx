@@ -9,6 +9,31 @@ Customermates is an open-source, AI-native CRM. This page documents the **Dashbo
 
 The Dashboard is the landing screen after sign-in. It shows configurable widgets over your CRM data: pipelines, tasks, recent activity, whatever you set up. From here you jump off to every other screen in the app.
 
+## Widget types
+
+Use **Add widget** and choose **Chart** for aggregated CRM data or **Activity timeline** for a newest-first history feed. An activity timeline keeps its filters on that widget. Different activity widgets can therefore show different views without changing each other or the timeline on a record page.
+
+### Sources and filters
+
+The **Changes** category contains audit-log changes. **Messages** contains Inbox messages. **Activities** contains connected-account activity, such as accepted LinkedIn connections, and calendar events.
+
+All accessible records are the implicit baseline. Filter an activity timeline by category, provider, connected account, conversation, or related contacts, organizations, deals, services, and tasks. Each field can be configured once. Relationship filters use the same operators as record lists: **in** and **not in** accept one or more records, while **has some** and **has none** need no value. Different filter fields are AND-combined, and multiple values within one **in** filter are OR-combined. Unlinked entries fail positive relationship filters and pass negative ones. Filters become persistent when you save the widget.
+
+### Reading the timeline
+
+Entries are shown newest first. Use **Load older** for the next bounded page. A row can show one primary record, up to three related records, and a remaining-record count. Permitted record links open the relevant record, and message details can open the permitted Inbox thread. Rows without a CRM association remain visible without a record link. Message previews and details use the same safe rendering as record timelines.
+
+### Permissions
+
+| Access                                                        | Visible content                                                       |
+| ------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Audit log only                                                | Permitted changes                                                     |
+| Inbox messages only, with the cloud Pro messaging entitlement | Permitted messages, connected-account activities, and calendar events |
+| Both permissions, with the cloud Pro messaging entitlement    | One merged timeline containing all permitted sources                  |
+| Neither                                                       | A non-sensitive unavailable state                                     |
+
+Audit-log changes are available independently of the messaging entitlement. Messages, connected-account activities, and calendar events require Inbox access and, in cloud mode, the Pro messaging entitlement. A missing connected messaging account removes messaging-based sources but does not hide permitted audit changes. Deleted or newly inaccessible filter values stop matching, are shown as **Unavailable value** for safe removal, and never expose their raw ids.
+
 ## URL
 
 Route: `/dashboard`. All app routes are locale-prefixed, for example `https://customermates.com/en/dashboard`.

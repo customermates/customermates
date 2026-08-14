@@ -19,7 +19,8 @@ import { filterFieldsHint } from "@/core/types/filter-field-value-kind";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { isRedirect } from "@/features/auth/auth-outcome";
 import { CONNECT_CHANNEL_KEYS } from "@/ee/messaging/connect/connect-channels";
-import { ActivitiesParamsSchema } from "@/ee/messaging/activities/activities.schema";
+import { ActivitiesApiParamsSchema, ActivityFiltersSchema } from "@/ee/messaging/activities/activities.schema";
+import { ACTIVITY_MAX_PAGE, ActivityScopeSchema } from "@/ee/messaging/activities/activity-scope.schema";
 import { SendEmailSchema } from "@/ee/messaging/outbound/send-email.interactor";
 import { BaseSendChatMessageSchema } from "@/ee/messaging/outbound/send-chat-message.interactor";
 import { BaseStartChatInputSchema, StartChatInputSchema } from "@/ee/messaging/outbound/start-chat.interactor";
@@ -174,48 +175,54 @@ export const getMessagingThreadsTool = {
   },
 };
 
-const GetActivitiesSchema = z.object({
-  page: mcpPage(),
-  pageSize: mcpPageSize(25, "Results per page: 5, 10, 25, or 100 (default 25)"),
-  entityType: z
-    .enum(["contact", "organization", "deal", "service", "task"])
-    .optional()
-    .describe("Scope activities to one entity type (must be paired with entityId)"),
-  entityId: z.uuid().optional().describe("Scope activities to one record (must be paired with entityType)"),
-  filters: z
-    .array(FilterSchema)
-    .optional()
-    .describe(
+const GetActivitiesSchema = z
+  .object({
+    page: mcpPage(ACTIVITY_MAX_PAGE),
+    pageSize: mcpPageSize(25, "Results per page: 5, 10, 25, or 100 (default 25)"),
+    scope: ActivityScopeSchema.optional().describe(
+      "Optional low-level base scope for entity-detail timelines. When filters are also present, scope and filters are AND-combined.",
+    ),
+    filters: ActivityFiltersSchema.optional().describe(
       filtersDescription(
-        filterFieldsHint([
-          FilterFieldKey.timelineKind,
-          FilterFieldKey.timelineThreadId,
-          FilterFieldKey.provider,
-          FilterFieldKey.connectedAccountId,
-        ]),
+        "contactIds, organizationIds, dealIds, serviceIds, taskIds (in/notIn require 1-50 UUIDs; hasSome/hasNone are value-less; relationship rules AND-combine), timelineKind (activity category or raw kind; operators: in, notIn), timelineThreadId (thread uuid; operators: in, notIn), provider (provider enum; operator: in), connectedAccountId (connected account uuid; operators: in, notIn)",
       ),
     ),
-  sortDescriptor: SortDescriptorSchema.optional().describe(sortDescription("at (the event time)")),
-});
+    sortDescriptor: SortDescriptorSchema.optional().describe(sortDescription("at (the event time)")),
+  })
+  .strict();
 
 export const getActivitiesTool = {
   name: "get_activities",
   title: "Get activities",
   description:
-    "List the activity timeline (messages, audit-log changes, calendar events) for the workspace or one record. " +
-    "Optional: page, pageSize, entityType + entityId (scope to one record), filters, sortDescriptor. " +
-    "Returns time-ordered entries by kind (message | audit | activity | calendar_event).",
-  annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
+    "List the activity timeline (messages, audit-log changes, connected-account activities, and calendar events) for the workspace, one record, or several. " +
+    "Optional: page, pageSize, low-level scope, standard filters, sortDescriptor. Omit a relationship filter for all accessible records. " +
+    "Each activity filter field may appear at most once; put alternatives into the value array of one membership rule. " +
+    "Returns time-ordered entries by kind (message | audit | activity | calendar_event), each carrying the records it is about.",
+  annotations: {
+    readOnlyHint: true,
+    idempotentHint: true,
+    destructiveHint: false,
+    openWorldHint: false,
+  },
   inputSchema: GetActivitiesSchema,
-  execute: ({ page, pageSize, entityType, entityId, filters, sortDescriptor }: z.infer<typeof GetActivitiesSchema>) =>
+  execute: ({ page, pageSize, scope, filters, sortDescriptor }: z.infer<typeof GetActivitiesSchema>) =>
     runInteractor(
       getGetActivitiesApiInteractor().invoke(
-        ActivitiesParamsSchema.parse({ pagination: { page, pageSize }, entityType, entityId, filters, sortDescriptor }),
+        ActivitiesApiParamsSchema.parse({
+          pagination: { page, pageSize },
+          scope,
+          filters,
+          sortDescriptor,
+        }),
       ),
       (data) =>
         encodeToToon(
           formatDatesInResponse({
+            availableSources: data.availableSources,
             items: data.items,
+            pageLimitReached: data.pageLimitReached,
+            scopeTruncated: data.scopeTruncated,
             total: data.pagination?.total ?? data.items.length,
             page,
           }),

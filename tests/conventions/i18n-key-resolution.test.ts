@@ -18,7 +18,9 @@ import {
   SubscriptionStatus,
   Theme,
   WebhookDeliveryStatus,
+  WidgetKind,
 } from "@/generated/prisma";
+import { ACTIVITY_TYPE_VALUES } from "@/app/[locale]/(protected)/dashboard/components/activity-filter-form";
 import { socialErrorMessageKeys } from "@/app/[locale]/(public)/auth/social-error-keys";
 import { CHIP_COLORS } from "@/constants/chip-colors";
 import { ALL_LEGAL_DOCUMENTS } from "@/constants/legal-documents";
@@ -68,6 +70,17 @@ const ROLE_RESOURCE_KEYS = Object.values(Resource).map(
 const DISPLAY_TYPE_KEYS = Object.values(DisplayType).map(
   (displayType) => `Dashboard.displayTypes.${displayType}`,
 );
+const WIDGET_KIND_KEYS = Object.values(WidgetKind).map(
+  (kind) => `Dashboard.widgetKinds.${kind}`,
+);
+const WIDGET_KIND_DESCRIPTION_KEYS = Object.values(WidgetKind).map(
+  (kind) => `Dashboard.widgetEditor.kind.${kind}Description`,
+);
+const activityTypeOptionKeys = (leaf: "description" | "label") =>
+  ACTIVITY_TYPE_VALUES.map(
+    (value) =>
+      `Dashboard.widgetEditor.filters.activityTypeOptions.${value}.${leaf}`,
+  );
 const DIAGRAM_SYSTEM_KEYS = DIAGRAM_SYSTEM_LABEL_KEYS.map(
   (key) => `Diagrams.${key}`,
 );
@@ -137,22 +150,34 @@ const TABLE_COLUMN_KEYS = [
   "Common.table.columns.channels",
   "Common.table.columns.contacts",
   "Common.table.columns.createdAt",
+  "Common.table.columns.customFieldValues",
   "Common.table.columns.deals",
   "Common.table.columns.description",
+  "Common.table.columns.displayName",
   "Common.table.columns.email",
+  "Common.table.columns.emailAddress",
+  "Common.table.columns.enabled",
   "Common.table.columns.entity",
   "Common.table.columns.entityId",
+  "Common.table.columns.entityType",
   "Common.table.columns.event",
   "Common.table.columns.events",
   "Common.table.columns.expiresAt",
   "Common.table.columns.firstName",
+  "Common.table.columns.id",
   "Common.table.columns.identifiers",
+  "Common.table.columns.isSystemRole",
+  "Common.table.columns.label",
   "Common.table.columns.lastName",
   "Common.table.columns.lastRequest",
   "Common.table.columns.name",
   "Common.table.columns.notes",
+  "Common.table.columns.options",
   "Common.table.columns.organizations",
+  "Common.table.columns.permissions",
+  "Common.table.columns.provider",
   "Common.table.columns.role",
+  "Common.table.columns.secret",
   "Common.table.columns.services",
   "Common.table.columns.status",
   "Common.table.columns.statusCode",
@@ -308,6 +333,16 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["Common.userStatuses.${*}", USER_STATUS_KEYS],
   ["ConnectedAccountsCard.statusLabels.${*}", CONNECTED_ACCOUNT_STATUS_KEYS],
   ["Dashboard.displayTypes.${*}", DISPLAY_TYPE_KEYS],
+  [
+    "Dashboard.widgetEditor.filters.activityTypeOptions.${*}.description",
+    activityTypeOptionKeys("description"),
+  ],
+  [
+    "Dashboard.widgetEditor.filters.activityTypeOptions.${*}.label",
+    activityTypeOptionKeys("label"),
+  ],
+  ["Dashboard.widgetEditor.kind.${*}Description", WIDGET_KIND_DESCRIPTION_KEYS],
+  ["Dashboard.widgetKinds.${*}", WIDGET_KIND_KEYS],
   ["EntityTimeline.types.${*}", ENTITY_TIMELINE_TYPE_KEYS],
   ["ErrorCard.${*}", ERROR_CARD_DYNAMIC_KEYS],
   ["HomepagePricing.${*}.${*}", HOMEPAGE_PRICING_VARIABLE_KEYS],
@@ -404,8 +439,6 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/contacts/components/channel-icon-stack.tsx :: t :: Common.providers.${channelLabelKey(provider)}",
   "app/[locale]/(protected)/contacts/components/contact-channels.tsx :: t :: Common.providers.${channelLabelKey(identifier.provider)}",
   "app/[locale]/(protected)/contacts/components/contact-compose-popover.tsx :: t :: Common.providers.${provider}",
-  "app/[locale]/(protected)/dashboard/components/widget-card.tsx :: t :: Common.filters.operators.${filter.operator}",
-  "app/[locale]/(protected)/dashboard/components/widget-modal.tsx :: t :: Dashboard.displayTypes.${key}",
   "app/[locale]/(protected)/inbox/components/thread-row.tsx :: t :: Common.providers.${thread.provider}",
   "app/[locale]/(protected)/inbox/components/thread-row.tsx :: t :: Inbox.threadStates.${thread.state}",
   "app/[locale]/(protected)/inbox/components/thread-state-picker.tsx :: t :: Inbox.threadStates.${state}",
@@ -495,9 +528,18 @@ export const DYNAMIC_KEY_SITES = [
   "features/messaging/activities/activities-detail-modal.tsx :: t :: Common.events.${entry.event}",
   "features/messaging/activities/activities-detail-modal.tsx :: t :: Common.providers.${event.provider}",
   "features/messaging/activities/activities-detail-modal.tsx :: t :: Common.providers.${message.provider}",
-  "features/messaging/activities/activities-panel.tsx :: t :: Common.events.${entry.event}",
-  "features/messaging/activities/activities-panel.tsx :: t :: Common.providers.${ev.provider}",
-  "features/messaging/activities/activities-panel.tsx :: t :: Common.providers.${message.provider}",
+  "app/[locale]/(protected)/dashboard/components/activity-filter-fields.tsx :: t :: Common.filters.operators.${filter.operator}",
+  "app/[locale]/(protected)/dashboard/components/activity-filter-fields.tsx :: t :: Dashboard.widgetEditor.filters.activityTypeOptions.${value}.description",
+  "app/[locale]/(protected)/dashboard/components/activity-filter-fields.tsx :: t :: Dashboard.widgetEditor.filters.activityTypeOptions.${value}.label",
+  "app/[locale]/(protected)/dashboard/components/widget-display-type-picker.tsx :: t :: Dashboard.displayTypes.${type}",
+  "app/[locale]/(protected)/dashboard/components/widget-filter-chip.tsx :: t :: Common.filters.operators.${filter.operator}",
+  "app/[locale]/(protected)/dashboard/components/widget-preview.tsx :: t :: Dashboard.displayTypes.${displayType}",
+  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetEditor.kind.${kind}Description",
+  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetKinds.${kind}",
+  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetKinds.${widget.kind}",
+  "features/messaging/activities/activities-list.tsx :: t :: Common.events.${entry.event}",
+  "features/messaging/activities/activities-list.tsx :: t :: Common.providers.${ev.provider}",
+  "features/messaging/activities/activities-list.tsx :: t :: Common.providers.${message.provider}",
   "features/messaging/activities/audit-detail.tsx :: t :: Common.events.${entry.event}",
   "features/user/prisma-user.repository.ts :: t :: Common.defaultData.${column.entityType}.columnLabel",
   "features/user/prisma-user.repository.ts :: t :: Common.defaultData.${column.entityType}.options.${option.key}",
@@ -511,10 +553,6 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   [
     "app/[locale]/(protected)/contacts/components/use-contact-columns.tsx :: t :: nameKey",
     1,
-  ],
-  [
-    "app/[locale]/(protected)/dashboard/components/widget-modal.tsx :: t :: translationKey",
-    3,
   ],
   [
     "app/[locale]/(protected)/deals/components/use-deal-columns.tsx :: t :: nameKey",
@@ -599,7 +637,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     1,
   ],
   [
-    "features/messaging/activities/activities-panel.tsx :: t :: PREVIEW_KIND_LABEL[classifyAttachment(firstAttachment)]",
+    "features/messaging/activities/activities-list.tsx :: t :: PREVIEW_KIND_LABEL[classifyAttachment(firstAttachment)]",
     1,
   ],
   ["features/messaging/activities/audit-detail.tsx :: t :: nameKey", 1],
@@ -659,23 +697,6 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
   {
     file: "features/event/entity-name.utils.ts",
     keys: ["Common.company"],
-  },
-  {
-    file: "app/[locale]/(protected)/dashboard/components/widget-modal.tsx",
-    keys: [
-      "Dashboard.aggregationTypes.count",
-      "Dashboard.aggregationTypes.dealQuantity",
-    ],
-    evidence: {
-      "Dashboard.aggregationTypes.count": [
-        { kind: "template", value: "`Dashboard.aggregationTypes.${key}`" },
-        { kind: "literal", value: "count" },
-      ],
-      "Dashboard.aggregationTypes.dealQuantity": [
-        { kind: "template", value: "`Dashboard.aggregationTypes.${key}`" },
-        { kind: "literal", value: "dealQuantity" },
-      ],
-    },
   },
   {
     file: "app/[locale]/(protected)/dashboard/components/widget-label.ts",
