@@ -16,6 +16,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { FilterSchema } from "@/core/base/base-get.schema";
+import { filterValueKind } from "@/core/types/filter-field-value-kind";
 import { ActivityFiltersSchema } from "@/ee/messaging/activities/activities.schema";
 
 const ActivityWidgetInputSchema = z.object({
@@ -282,6 +283,17 @@ export class UpsertWidgetInteractor extends AuthenticatedInteractor<UpsertWidget
       },
     } as z.RefinementCtx;
 
+    const precheckFilters = data.timelineFilters.map((filter) => {
+      if (!("value" in filter)) return filter;
+      if (filterValueKind(String(filter.field))?.kind !== "entityId") return filter;
+
+      const retained = allowedUnavailableEntityIdsByField.get(String(filter.field));
+      if (!retained) return filter;
+
+      const values = Array.isArray(filter.value) ? filter.value : [filter.value];
+      return { ...filter, value: values.filter((value) => !retained.has(String(value))) };
+    });
+
     await this.queryParamsPrecheck.invoke(
       {
         filterableFields: validationFields,
@@ -289,9 +301,8 @@ export class UpsertWidgetInteractor extends AuthenticatedInteractor<UpsertWidget
         sortableFields: [],
       },
       undefined,
-      { filters: data.timelineFilters },
+      { filters: precheckFilters },
       prefixedCtx,
-      { allowedUnavailableEntityIds: allowedUnavailableEntityIdsByField },
     );
   }
 

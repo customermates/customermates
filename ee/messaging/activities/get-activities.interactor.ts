@@ -39,7 +39,6 @@ export class GetActivitiesInteractor extends BaseGetInteractor<ActivityEntryDto>
       undefined,
       { sortDescriptor: { field: "at", direction: "desc" } },
       queryParamsPrecheck,
-      { allowedUnavailableEntityIds: "all" },
       activityFilterableFieldsRetainedForFailClosedCompilation(),
     );
   }

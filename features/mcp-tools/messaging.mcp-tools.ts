@@ -198,7 +198,6 @@ export const getActivitiesTool = {
     "List the activity timeline (messages, audit-log changes, connected-account activities, and calendar events) for the workspace, one record, or several. " +
     "Optional: page, pageSize, low-level scope, standard filters, sortDescriptor. Omit a relationship filter for all accessible records. " +
     "Each activity filter field may appear at most once; put alternatives into the value array of one membership rule. " +
-    "Well-formed unavailable relationship UUIDs are accepted for saved-widget round trips and fail closed without exposing inaccessible records. " +
     "Returns time-ordered entries by kind (message | audit | activity | calendar_event), each carrying the records it is about.",
   annotations: {
     readOnlyHint: true,
