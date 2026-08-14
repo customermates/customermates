@@ -102,7 +102,9 @@ vi.mock("@/i18n/locale-registry", () => {
 vi.mock("@/env", () => ({ env: mockEnv }));
 
 vi.mock("@/core/auth/better-auth", () => ({
-  auth: { api: { getSession: vi.fn(), signInEmail: vi.fn(), signOut: vi.fn() } },
+  auth: {
+    api: { getSession: vi.fn(), signInEmail: vi.fn(), signOut: vi.fn() },
+  },
 }));
 
 vi.mock("next-intl/middleware", async () => {
@@ -143,7 +145,11 @@ function request(pathname: string, acceptLanguage?: string): NextRequest {
 
 async function call(pathname: string, acceptLanguage?: string) {
   const response = await proxy(request(pathname, acceptLanguage));
-  return { status: response.status, location: response.headers.get("location"), response };
+  return {
+    status: response.status,
+    location: response.headers.get("location"),
+    response,
+  };
 }
 
 const PATHS = [
@@ -191,6 +197,14 @@ describe("locale routing configuration", () => {
 });
 
 describe("proxy locale routing", () => {
+  it("preserves hub queries while falling back to a published content locale", async () => {
+    for (const query of ["page=1&utm_source=proof", "page=4", "page=2"]) {
+      const fallback = await call(`/fr/blog?${query}`);
+      expect(fallback.status, query).toBe(307);
+      expect(fallback.location, query).toBe(`http://localhost:4000/en/blog?${query}`);
+    }
+  });
+
   it("never emits a permanently cached redirect", async () => {
     for (const path of PATHS) {
       const { status } = await call(path);

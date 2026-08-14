@@ -60,22 +60,60 @@ describe("generateMetadataFromMeta", () => {
   });
 
   it("keeps the canonical on the requested locale", () => {
-    const metadata = generateMetadataFromMeta({ locale: "de", route: "/pricing" });
+    const metadata = generateMetadataFromMeta({
+      locale: "de",
+      route: "/pricing",
+    });
 
     expect(metadata.alternates?.canonical).toBe(`${BASE_URL}/de/pricing`);
   });
 
-  it("substitutes params into dynamic routes and drops non-reciprocal alternates", () => {
-    const metadata = generateMetadataFromMeta({ locale: "en", params: { slug: "best-crm" }, route: "/blog/:slug" });
+  it("applies a paginated public path to the canonical and every alternate", () => {
+    const metadata = generateMetadataFromMeta({
+      canonicalPath: "/pricing?page=2",
+      locale: "en",
+      route: "/pricing",
+    });
 
-    expect(metadata.alternates).toEqual({ canonical: `${BASE_URL}/en/blog/best-crm` });
+    expect(metadata.alternates).toEqual({
+      canonical: `${BASE_URL}/en/pricing?page=2`,
+      languages: {
+        de: `${BASE_URL}/de/pricing?page=2`,
+        en: `${BASE_URL}/en/pricing?page=2`,
+        "x-default": `${BASE_URL}/en/pricing?page=2`,
+      },
+    });
+  });
+
+  it("substitutes params into dynamic routes and drops non-reciprocal alternates", () => {
+    const metadata = generateMetadataFromMeta({
+      locale: "en",
+      params: { slug: "best-crm" },
+      route: "/blog/:slug",
+    });
+
+    expect(metadata.alternates).toEqual({
+      canonical: `${BASE_URL}/en/blog/best-crm`,
+    });
     expect(metadata.title).toBe("Best CRM");
     expect(metadata.description).toBeUndefined();
   });
 
   it("returns empty metadata when the localized page is missing", () => {
-    expect(generateMetadataFromMeta({ locale: "de", params: { slug: "best-crm" }, route: "/blog/:slug" })).toEqual({});
-    expect(generateMetadataFromMeta({ locale: "en", params: { slug: "nope" }, route: "/blog/:slug" })).toEqual({});
+    expect(
+      generateMetadataFromMeta({
+        locale: "de",
+        params: { slug: "best-crm" },
+        route: "/blog/:slug",
+      }),
+    ).toEqual({});
+    expect(
+      generateMetadataFromMeta({
+        locale: "en",
+        params: { slug: "nope" },
+        route: "/blog/:slug",
+      }),
+    ).toEqual({});
   });
 
   it("returns empty metadata for a dynamic route invoked without its params", () => {
@@ -83,6 +121,12 @@ describe("generateMetadataFromMeta", () => {
   });
 
   it("returns empty metadata when the page title is blank", () => {
-    expect(generateMetadataFromMeta({ locale: "en", params: { slug: "untitled" }, route: "/blog/:slug" })).toEqual({});
+    expect(
+      generateMetadataFromMeta({
+        locale: "en",
+        params: { slug: "untitled" },
+        route: "/blog/:slug",
+      }),
+    ).toEqual({});
   });
 });

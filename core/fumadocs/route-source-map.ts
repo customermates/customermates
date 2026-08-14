@@ -2,6 +2,8 @@ import type { PUBLIC_ROUTES_SEO } from "@/i18n/routing";
 
 import {
   affiliateSource,
+  apiDocsSource,
+  apiOverviewSource,
   authSource,
   automationSource,
   blogPostsSource,
@@ -121,4 +123,15 @@ export const ROUTE_SOURCE_MAP = {
     source: docsSource,
     path: [":slug"],
   },
-} satisfies Record<(typeof PUBLIC_ROUTES_SEO)[number], { source: unknown; path: string[] }>;
+  "/docs/openapi": {
+    source: apiOverviewSource,
+    path: ["openapi"],
+  },
+  "/docs/openapi/:slug": {
+    source: apiDocsSource,
+    path: [":slug"],
+  },
+} satisfies Record<
+  (typeof PUBLIC_ROUTES_SEO)[number] | "/docs/openapi" | "/docs/openapi/:slug",
+  { source: unknown; path: string[] }
+>;
