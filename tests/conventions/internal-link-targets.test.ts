@@ -12,7 +12,11 @@ import {
   selectFooterSlugs,
 } from "@/app/components/footer-selection";
 import { ROUTE_SOURCE_MAP } from "@/core/fumadocs/route-source-map";
-import { HUB_PAGE_PARAM, resolveHubPage } from "@/core/seo/hub-pagination";
+import {
+  HUB_PAGE_PARAM,
+  hubPageCount,
+  resolveHubPage,
+} from "@/core/seo/hub-pagination";
 import { LANDING_HUBS } from "@/core/seo/landing-hubs";
 import {
   CONTENT_LOCALES,
@@ -260,7 +264,10 @@ function hasValidHubQuery(target: NormalizedTarget): boolean {
   if (!params.has(HUB_PAGE_PARAM)) return true;
   const values = params.getAll(HUB_PAGE_PARAM);
   const raw = values.length === 1 ? values[0] : values;
-  return resolveHubPage(raw, hub.pageCount).kind === "page";
+  const pageCount = hubPageCount(
+    collectionSlugs(hub.collection, DEFAULT_LOCALE).length,
+  );
+  return resolveHubPage(raw, pageCount).kind === "page";
 }
 
 function matchesCodeBackedRoute(path: string): boolean {

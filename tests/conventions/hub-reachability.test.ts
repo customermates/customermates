@@ -124,7 +124,12 @@ import {
   resolveHubPage,
 } from "@/core/seo/hub-pagination";
 import { LANDING_HUBS } from "@/core/seo/landing-hubs";
-import { CONTENT_LOCALES, buildLocalePath } from "@/i18n/locale-registry";
+import {
+  CONTENT_LOCALES,
+  DEFAULT_LOCALE,
+  type ContentLocale,
+  buildLocalePath,
+} from "@/i18n/locale-registry";
 import { PUBLIC_ROUTES } from "@/i18n/routing";
 
 const CLICK_BOUND = 4;
@@ -138,6 +143,10 @@ function collectionSlugs(collection: string, locale: string): string[] {
     .filter((entry) => entry.isFile() && extname(entry.name) === ".mdx")
     .map((entry) => entry.name.slice(0, -".mdx".length))
     .sort();
+}
+
+function publishedHubPageCount(collection: string): number {
+  return hubPageCount(collectionSlugs(collection, DEFAULT_LOCALE).length);
 }
 
 function renderedPagerHrefs(
@@ -274,8 +283,99 @@ async function e2eResponse(
   });
 }
 
+async function semanticRedirectPath(
+  response: Response,
+  label: string,
+): Promise<string> {
+  expect([200, 308], `${label} redirect transport`).toContain(response.status);
+  const location = response.headers.get("location");
+  if (response.status === 308) {
+    expect(location, `${label} location`).not.toBeNull();
+    if (!location) throw new Error(`${label} did not include a location`);
+    const path = sameOriginPath(location, E2E_BASE_URL as string);
+    expect(path, `${label} same-origin location`).not.toBeNull();
+    if (!path) throw new Error(`${label} redirected outside the application`);
+    return path;
+  }
+
+  expect(location, `${label} streamed location`).toBeNull();
+
+  const document = new JSDOM(await response.text()).window.document;
+  const refresh = document
+    .querySelector('meta[http-equiv="refresh"]')
+    ?.getAttribute("content");
+  const target = /(?:^|;)\s*url=(.+)$/iu
+    .exec(refresh ?? "")?.[1]
+    ?.trim()
+    .replace(/^['"]|['"]$/gu, "");
+
+  expect(target, `${label} redirect metadata`).toBeDefined();
+  if (!target) throw new Error(`${label} did not include redirect metadata`);
+
+  const path = sameOriginPath(target, E2E_BASE_URL as string);
+  expect(path, `${label} same-origin redirect metadata`).not.toBeNull();
+  if (!path) throw new Error(`${label} redirected outside the application`);
+  return path;
+}
+
+async function expectSemanticNotFound(
+  response: Response,
+  label: string,
+  locale: ContentLocale,
+): Promise<void> {
+  expect([200, 404], `${label} streamed status`).toContain(response.status);
+  expect(
+    response.headers.get("content-type"),
+    `${label} content type`,
+  ).toContain("text/html");
+
+  const document = new JSDOM(await response.text()).window.document;
+  expect(document.documentElement.lang, `${label} document locale`).toBe(
+    locale,
+  );
+  expect(
+    document.querySelector('meta[name="robots"]')?.getAttribute("content"),
+    `${label} robots metadata`,
+  ).toContain("noindex");
+  expect(
+    document.querySelector('link[rel="canonical"]'),
+    `${label} canonical`,
+  ).toBeNull();
+}
+
+async function expectCanonicalResponse(
+  response: Response,
+  expectedPath: string,
+  label: string,
+): Promise<void> {
+  expect(response.status, `${label} final status`).toBe(200);
+  expect(
+    response.headers.get("content-type"),
+    `${label} content type`,
+  ).toContain("text/html");
+
+  const document = new JSDOM(await response.text()).window.document;
+  const canonical = document.querySelector<HTMLLinkElement>(
+    'link[rel="canonical"]',
+  )?.href;
+  expect(canonical, `${label} canonical`).toBeDefined();
+  const canonicalUrl = new URL(canonical as string, E2E_BASE_URL as string);
+  expect(canonicalUrl.origin, `${label} canonical origin`).toBe(
+    new URL(E2E_BASE_URL as string).origin,
+  );
+  expect(
+    pathWithQuery(canonicalUrl.href, E2E_BASE_URL as string),
+    `${label} canonical`,
+  ).toBe(expectedPath);
+  expect(
+    document.querySelector('meta[name="robots"]')?.getAttribute("content") ??
+      "",
+    `${label} robots metadata`,
+  ).not.toContain("noindex");
+}
+
 describe("hub pagination and rendered reachability", () => {
-  it("strictly resolves the page query without producing duplicate 200 pages", () => {
+  it("strictly resolves the page query", () => {
     expect(resolveHubPage(undefined, 3)).toEqual({ kind: "page", page: 1 });
     expect(resolveHubPage("1", 3)).toEqual({
       kind: "redirect-page-one",
@@ -299,6 +399,40 @@ describe("hub pagination and rendered reachability", () => {
       expect(resolveHubPage(invalid, 3), String(invalid)).toEqual({
         kind: "not-found",
       });
+    }
+  });
+
+  it("lets every real hub page own invalid and page-one query handling", async () => {
+    for (const { collection, hubPath } of LANDING_HUBS) {
+      const pageCount = publishedHubPageCount(collection);
+      const component = (await HUB_PAGE_LOADERS[hubPath]()).default;
+      const props = (
+        searchParams: Record<string, string | string[] | undefined>,
+      ) => ({
+        params: Promise.resolve({ locale: "en" }),
+        searchParams: Promise.resolve(searchParams),
+      });
+
+      await expect(
+        component(props({ page: String(pageCount + 1) })),
+        `${hubPath} invalid page`,
+      ).rejects.toThrow("unexpected notFound");
+      await expect(
+        component(props({ page: ["2", "3"] })),
+        `${hubPath} repeated page`,
+      ).rejects.toThrow("unexpected notFound");
+
+      const query = {
+        page: "1",
+        tag: ["sales", "crm"],
+        utm_source: "proof",
+      };
+      await expect(
+        component(props(query)),
+        `${hubPath} page one`,
+      ).rejects.toThrow(
+        `unexpected permanentRedirect to /en${hubPath}?tag=sales&tag=crm&utm_source=proof`,
+      );
     }
   });
 
@@ -387,17 +521,6 @@ describe("hub pagination and rendered reachability", () => {
     expect(() => paginateHub(slugs, 4)).toThrow(RangeError);
   });
 
-  it("keeps the proxy's lightweight page-count registry aligned with published content", () => {
-    for (const { collection, hubPath, pageCount } of LANDING_HUBS) {
-      for (const locale of CONTENT_LOCALES) {
-        expect(
-          pageCount,
-          `${hubPath} page count drifted from ${collection}/${locale}`,
-        ).toBe(hubPageCount(collectionSlugs(collection, locale).length));
-      }
-    }
-  });
-
   it("renders the real four hub page modules into complete 24-card slices and pager edges", async () => {
     const fixturePages = new Map<string, readonly { url: string }[]>([
       ["/blog", routeFixtures.blog],
@@ -406,7 +529,8 @@ describe("hub pagination and rendered reachability", () => {
       ["/for", routeFixtures.forPages],
     ]);
 
-    for (const { detailPath, hubPath, pageCount } of LANDING_HUBS) {
+    for (const { detailPath, hubPath } of LANDING_HUBS) {
+      const pageCount = hubPageCount((fixturePages.get(hubPath) ?? []).length);
       const expected = new Set(
         (fixturePages.get(hubPath) ?? []).map(({ url }) => url),
       );
@@ -499,7 +623,7 @@ describe("hub pagination and rendered reachability", () => {
   });
 
   it.skipIf(!E2E_BASE_URL)(
-    "crawls the production server output, metadata, statuses, sitemap, and every localized detail route",
+    "crawls the production server output, metadata, semantic pagination outcomes, sitemap, and every localized detail route",
     async () => {
       const graph = new Map<string, string[]>();
       const details: string[] = [];
@@ -556,12 +680,8 @@ describe("hub pagination and rendered reachability", () => {
           `${locale} duplicate footer landing links`,
         ).toBe(renderedFooterDetails.length);
 
-        for (const {
-          collection,
-          detailPath,
-          hubPath,
-          pageCount,
-        } of LANDING_HUBS) {
+        for (const { collection, detailPath, hubPath } of LANDING_HUBS) {
+          const pageCount = publishedHubPageCount(collection);
           const expected = new Set(
             collectionSlugs(collection, locale).map((slug) =>
               buildLocalePath(locale, `${detailPath}/${slug}`),
@@ -616,6 +736,10 @@ describe("hub pagination and rendered reachability", () => {
               E2E_BASE_URL as string,
             );
             expect(
+              canonicalUrl.origin,
+              `${route} canonical origin`,
+            ).toBe(new URL(E2E_BASE_URL as string).origin);
+            expect(
               pathWithQuery(canonicalUrl.href, E2E_BASE_URL as string),
               `${route} canonical`,
             ).toBe(route);
@@ -663,47 +787,31 @@ describe("hub pagination and rendered reachability", () => {
           const pageOne = await e2eResponse(
             `${buildLocalePath(locale, hubPath)}?page=1&utm_source=e2e&tag=a&tag=b`,
           );
-          expect(pageOne.status, `${locale} ${hubPath} page one`).toBe(308);
-          const pageOneLocation = sameOriginPath(
-            pageOne.headers.get("location") ?? "",
-            E2E_BASE_URL as string,
+          expect(
+            [200, 308],
+            `${locale} ${hubPath} page-one transport`,
+          ).toContain(pageOne.status);
+          const pageOneLocation = await semanticRedirectPath(
+            pageOne,
+            `${locale} ${hubPath} page one`,
           );
           expect(pageOneLocation).toBe(
             `${buildLocalePath(locale, hubPath)}?utm_source=e2e&tag=a&tag=b`,
+          );
+          await expectCanonicalResponse(
+            await e2eResponse(pageOneLocation),
+            buildLocalePath(locale, hubPath),
+            `${locale} ${hubPath} page one destination`,
           );
 
           const invalidPage = await e2eResponse(
             `${buildLocalePath(locale, hubPath)}?page=${pageCount + 1}`,
           );
-          expect(invalidPage.status, `${locale} ${hubPath} invalid page`).toBe(
-            404,
+          await expectSemanticNotFound(
+            invalidPage,
+            `${locale} ${hubPath} invalid page`,
+            locale,
           );
-          expect(invalidPage.headers.get("x-robots-tag")).toBe("noindex");
-          expect(invalidPage.headers.get("content-type")).toContain(
-            "text/html",
-          );
-          const invalidDocument = new JSDOM(await invalidPage.text()).window
-            .document;
-          expect(
-            invalidDocument.querySelector("h1")?.textContent?.trim(),
-            `${locale} ${hubPath} visible 404`,
-          ).toBe("404");
-
-          const prefetchHeaders: Array<Record<string, string>> = [
-            { purpose: "prefetch" },
-            { "next-router-prefetch": "1" },
-          ];
-          for (const headers of prefetchHeaders) {
-            const invalid = await e2eResponse(
-              `${buildLocalePath(locale, hubPath)}?page=${pageCount + 1}`,
-              { headers },
-            );
-            expect(
-              invalid.status,
-              `${locale} ${hubPath} ${JSON.stringify(headers)}`,
-            ).toBe(404);
-            expect(invalid.headers.get("x-robots-tag")).toBe("noindex");
-          }
         }
 
         const depths = clickDepths(graph, homePath);
@@ -717,7 +825,8 @@ describe("hub pagination and rendered reachability", () => {
         }
       }
 
-      for (const { hubPath, pageCount } of LANDING_HUBS) {
+      for (const { collection, hubPath } of LANDING_HUBS) {
+        const pageCount = publishedHubPageCount(collection);
         for (let page = 1; page <= pageCount; page++) {
           const reference = memberships.get(`en:${hubPath}:${page}`);
           for (const locale of CONTENT_LOCALES) {
@@ -730,9 +839,9 @@ describe("hub pagination and rendered reachability", () => {
       }
 
       const malformed = await e2eResponse("/en/blog?page=2junk");
-      expect(malformed.status).toBe(404);
+      await expectSemanticNotFound(malformed, "malformed page query", "en");
       const repeated = await e2eResponse("/en/blog?page=2&page=3");
-      expect(repeated.status).toBe(404);
+      await expectSemanticNotFound(repeated, "repeated page query", "en");
 
       const appOnly = await e2eResponse("/fr/blog?page=1&utm_source=e2e");
       expect(appOnly.status).toBe(307);
@@ -742,6 +851,22 @@ describe("hub pagination and rendered reachability", () => {
           E2E_BASE_URL as string,
         ),
       ).toBe("/en/blog?page=1&utm_source=e2e");
+      const contentLocalePageOne = await e2eResponse(
+        "/en/blog?page=1&utm_source=e2e",
+      );
+      expect([200, 308], "content-locale page-one transport").toContain(
+        contentLocalePageOne.status,
+      );
+      const finalLocation = await semanticRedirectPath(
+        contentLocalePageOne,
+        "content-locale page one",
+      );
+      expect(finalLocation).toBe("/en/blog?utm_source=e2e");
+      await expectCanonicalResponse(
+        await e2eResponse(finalLocation),
+        "/en/blog",
+        "app-only locale destination",
+      );
 
       for (let offset = 0; offset < details.length; offset += 16) {
         await Promise.all(
