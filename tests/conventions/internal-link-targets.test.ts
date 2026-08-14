@@ -75,8 +75,6 @@ vi.mock("@/core/fumadocs/source", async () => {
   };
 });
 
-const ENFORCED = true;
-
 const CONTENT_ROOT = join(REPO_ROOT, "content");
 const CODE_BACKED_ROUTE_FILES = {
   "/contact": "app/[locale]/(public)/contact/page.tsx",
@@ -333,70 +331,63 @@ describe("internal link targets", () => {
     }
   });
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
-    "resolves every literal internal link in MDX, including frontmatter CTAs",
-    () => {
-      const links = contentLinks();
-      const targetsByLocale = new Map(
-        CONTENT_LOCALES.map((locale) => [locale, contentBackedTargets(locale)]),
-      );
-      const problems = links
-        .filter(
-          (link) =>
-            !targetResolves(link.target, link.sourceLocale, targetsByLocale),
-        )
-        .map((link) => `${link.file}:${link.line} -> ${link.target}`);
+  it("resolves every literal internal link in MDX, including frontmatter CTAs", () => {
+    const links = contentLinks();
+    const targetsByLocale = new Map(
+      CONTENT_LOCALES.map((locale) => [locale, contentBackedTargets(locale)]),
+    );
+    const problems = links
+      .filter(
+        (link) =>
+          !targetResolves(link.target, link.sourceLocale, targetsByLocale),
+      )
+      .map((link) => `${link.file}:${link.line} -> ${link.target}`);
 
-      expect(
-        links.length,
-        "expected root-relative links under content/",
-      ).toBeGreaterThan(0);
-      expect(
-        problems,
-        `content links with no published route:\n${problems.join("\n")}`,
-      ).toEqual([]);
-    },
-    30_000,
-  );
+    expect(
+      links.length,
+      "expected root-relative links under content/",
+    ).toBeGreaterThan(0);
+    expect(
+      problems,
+      `content links with no published route:\n${problems.join("\n")}`,
+    ).toEqual([]);
+  }, 30_000);
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
-    "derives six live footer links per collection and locale",
-    () => {
-      const selections = new Map<string, string[]>();
-      const problems: string[] = [];
+  it("derives six live footer links per collection and locale", () => {
+    const selections = new Map<string, string[]>();
+    const problems: string[] = [];
 
-      for (const collection of Object.keys(
-        FOOTER_PREFERRED_SLUGS,
-      ) as FooterCollection[]) {
-        for (const locale of CONTENT_LOCALES) {
-          const published = collectionSlugs(collection, locale);
-          const selected = selectFooterSlugs(collection, published);
-          selections.set(`${collection}/${locale}`, selected);
+    for (const collection of Object.keys(
+      FOOTER_PREFERRED_SLUGS,
+    ) as FooterCollection[]) {
+      for (const locale of CONTENT_LOCALES) {
+        const published = collectionSlugs(collection, locale);
+        const selected = selectFooterSlugs(collection, published);
+        selections.set(`${collection}/${locale}`, selected);
 
-          if (selected.length !== FOOTER_COLUMN_SIZE) {
-            problems.push(
-              `${collection}/${locale} yields ${selected.length}, expected ${FOOTER_COLUMN_SIZE}`,
-            );
-          }
-          for (const slug of selected) {
-            if (!published.includes(slug))
-              problems.push(
-                `${collection}/${locale} selected absent slug ${slug}`,
-              );
-          }
+        if (selected.length !== FOOTER_COLUMN_SIZE) {
+          problems.push(
+            `${collection}/${locale} yields ${selected.length}, expected ${FOOTER_COLUMN_SIZE}`,
+          );
         }
-
-        const reference = selections.get(`${collection}/${DEFAULT_LOCALE}`);
-        for (const locale of CONTENT_LOCALES)
-          expect(selections.get(`${collection}/${locale}`)).toEqual(reference);
+        for (const slug of selected) {
+          if (!published.includes(slug))
+            problems.push(
+              `${collection}/${locale} selected absent slug ${slug}`,
+            );
+        }
       }
 
-      expect(
-        problems,
-        `footer columns with invalid derived links:\n${problems.join("\n")}`,
-      ).toEqual([]);
-    },
-  );
+      const reference = selections.get(`${collection}/${DEFAULT_LOCALE}`);
+      for (const locale of CONTENT_LOCALES)
+        expect(selections.get(`${collection}/${locale}`)).toEqual(reference);
+    }
+
+    expect(
+      problems,
+      `footer columns with invalid derived links:\n${problems.join("\n")}`,
+    ).toEqual([]);
+  });
 
   it("tops up a footer column deterministically when a preferred page disappears", () => {
     const preferred = FOOTER_PREFERRED_SLUGS["for-pages"];

@@ -127,7 +127,6 @@ import { LANDING_HUBS } from "@/core/seo/landing-hubs";
 import { CONTENT_LOCALES, buildLocalePath } from "@/i18n/locale-registry";
 import { PUBLIC_ROUTES } from "@/i18n/routing";
 
-const ENFORCED = true;
 const CLICK_BOUND = 4;
 const E2E_BASE_URL = process.env.HUB_E2E_BASE_URL?.replace(/\/+$/u, "");
 
