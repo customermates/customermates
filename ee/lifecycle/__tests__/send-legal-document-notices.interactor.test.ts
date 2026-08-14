@@ -11,6 +11,13 @@ const mockLegalDocumentNotice = vi.hoisted(() =>
     type: "legal-document-notice",
   })),
 );
+const mockLegalDocumentNoticeInformation = vi.hoisted(() =>
+  vi.fn((props: unknown) => ({
+    key: null,
+    props,
+    type: "legal-document-notice-information",
+  })),
+);
 const mockSupplierDeadline = vi.hoisted(() => ({
   value: null as string | null,
 }));
@@ -25,8 +32,11 @@ vi.mock("@/constants/legal-documents", async (importOriginal) => {
     },
   };
 });
-vi.mock("@/components/emails/legal-document-notice", () => ({
+vi.mock("@/components/emails/legal-document-notice-contract", () => ({
   default: mockLegalDocumentNotice,
+}));
+vi.mock("@/components/emails/legal-document-notice-information", () => ({
+  default: mockLegalDocumentNoticeInformation,
 }));
 vi.mock("@/core/decorators/system-interactor.decorator", () => ({
   SystemInteractor: (target: unknown) => target,
@@ -273,6 +283,7 @@ describe("SendLegalDocumentNoticesInteractor", () => {
 
     emailService.send.mockReset().mockResolvedValue(undefined);
     mockLegalDocumentNotice.mockClear();
+    mockLegalDocumentNoticeInformation.mockClear();
     await invoke();
 
     expect(emailService.send).toHaveBeenCalledTimes(1);
@@ -306,6 +317,11 @@ describe("SendLegalDocumentNoticesInteractor", () => {
       "Subprocessors",
     ]);
     expect(documentNames(emailService.send.mock.calls[2][0])).toEqual(["Privacy Policy"]);
+    expect(emailService.send.mock.calls.map(([email]) => email.react.type)).toEqual([
+      "legal-document-notice",
+      "legal-document-notice",
+      "legal-document-notice-information",
+    ]);
 
     expect(eventService.publish).toHaveBeenCalledTimes(3);
     for (const [index, expectedEntityId] of ["admin-1", "admin-2", "member-1"].entries()) {
@@ -392,9 +408,19 @@ describe("SendLegalDocumentNoticesInteractor", () => {
 
     await invoke();
 
-    const props = emailService.send.mock.calls[0][0].react.props as { deadline: string; locale: string };
+    const props = emailService.send.mock.calls[0][0].react.props as {
+      deadline: string;
+      documents: Array<{ version: string }>;
+      locale: string;
+    };
     expect(props.locale).toBe("fr");
     expect(props.deadline).toBe("21. August 2026");
+    expect(props.documents.map((document) => document.version)).toEqual([
+      "7. August 2026",
+      "7. August 2026",
+      "8. August 2026",
+      "7. August 2026",
+    ]);
   });
 
   it("treats initial onboarding as the creator's baseline for all current documents", async () => {

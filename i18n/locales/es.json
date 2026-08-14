@@ -656,7 +656,7 @@
     }
   },
   "ConnectedAccountsCard": {
-    "accountLimitReached": "El plan Business incluye 3 cuentas conectadas por usuario. Contáctanos sobre el plan Enterprise para tener cuentas ilimitadas.",
+    "accountLimitReached": "Has alcanzado el límite de cuentas conectadas de este plan. Contáctanos sobre el plan Enterprise para tener cuentas ilimitadas.",
     "alreadyExistsToastDescription": "Esta cuenta ya está conectada por un miembro de tu espacio de trabajo. Pídele que la comparta con el espacio de trabajo para evitar mensajes duplicados en la bandeja de entrada.",
     "alreadyExistsToastTitle": "Cuenta ya conectada",
     "channels": {
@@ -1233,11 +1233,11 @@
       "badge": "Popular",
       "compareText": "Comparar los planes",
       "ctaText": "Empieza gratis",
-      "featureBusiness": "Business: 3 cuentas por usuario, cuentas compartidas y soporte prioritario",
-      "featurePro": "Pro: bandeja de entrada unificada, 1 cuenta conectada por usuario",
+      "featureBusiness": "Business: {accounts, plural, one {# cuenta por usuario} other {# cuentas por usuario}}, cuentas compartidas y soporte prioritario",
+      "featurePro": "Pro: bandeja de entrada unificada, {accounts, plural, one {# cuenta conectada por usuario} other {# cuentas conectadas por usuario}}",
       "featureStarter": "Starter: el núcleo del CRM",
       "period": "/ usuario / mes",
-      "price": "desde 12 €",
+      "price": "desde {price}",
       "tag": "Gestionado para ti, con base de datos en región UE; otros proveedores pueden tratar datos fuera de ella.",
       "title": "Cloud"
     },
@@ -1399,7 +1399,6 @@
     "informationBody": "Hemos actualizado la información legal que se indica a continuación. Este aviso no requiere aceptación, salvo que el correo también identifique Términos o un Acuerdo de tratamiento de datos actualizados.",
     "informationSubject": "Información legal de Customermates actualizada",
     "informationTitle": "Información legal actualizada",
-    "liveLabel": "Documento vigente",
     "signoff": "Un saludo,\nBen",
     "subprocessorDeadlineLabel": "Fecha límite de objeción al subencargado",
     "subprocessorObjection": "No se requiere aceptación. Si te opones al cambio de subencargado indicado, responde sin demora indebida y antes de la fecha límite señalada, aportando motivos razonables de protección de datos.",
@@ -1420,7 +1419,6 @@
     "memberWaiting": "Un administrador de la empresa debe aceptar los Términos y el DPA actualizados. Podrás volver a intentarlo después de que los acepte o cerrar sesión.",
     "privacy": "Política de privacidad",
     "retry": "Volver a intentarlo",
-    "signOut": "Cerrar sesión",
     "subprocessors": "Subencargados",
     "subtitle": "Un administrador autorizado de la empresa debe aceptar a más tardar el {date}.",
     "terms": "Términos",
@@ -1681,7 +1679,7 @@
     "buttonLabel": "Regístrate con {provider}",
     "inviteSubtitle": "Te han invitado a unirte a un equipo en Customermates. Elige tu método de inicio de sesión para aceptar la invitación.",
     "inviteTitle": "Aceptar la invitación de la empresa",
-    "newCompanySubtitle": "Registra una empresa nueva y prueba Customermates gratis durante 7 días. Sin tarjeta de crédito.",
+    "newCompanySubtitle": "Registra una empresa nueva y prueba Customermates gratis durante {days} días. Sin tarjeta de crédito.",
     "or": "O",
     "signUpCta": "Crear una cuenta",
     "switchToSignIn": "¿Ya tienes una cuenta? <signInLink>Inicia sesión</signInLink>",
@@ -1702,9 +1700,10 @@
     "managedExternallyNote": "El plan Enterprise de este espacio de trabajo se abona mediante factura. Contacta con tu gestor de cuenta para hacer cambios.",
     "manageWithLemonSqueezy": "Gestionar con Lemon Squeezy",
     "picker": {
+      "connectedAccountsPerUser": "{accounts, plural, one {# cuenta conectada por usuario} other {# cuentas conectadas por usuario}}",
       "features": {
-        "business": ["Todo lo de Pro", "3 cuentas conectadas por usuario", "Cuentas compartidas y soporte prioritario"],
-        "pro": ["Todo lo de Starter", "Bandeja de entrada unificada", "1 cuenta conectada por usuario"],
+        "business": ["Todo lo de Pro", "Cuentas compartidas y soporte prioritario"],
+        "pro": ["Todo lo de Starter", "Bandeja de entrada unificada"],
         "starter": [
           "CRM completo: contactos, oportunidades, organizaciones y tareas",
           "Registro de auditoría",
@@ -1713,12 +1712,7 @@
         ]
       },
       "mostPopular": "El más popular",
-      "perUserMonth": "por usuario / mes",
-      "price": {
-        "business": "69 €",
-        "pro": "29 €",
-        "starter": "12 €"
-      }
+      "perUserMonth": "por usuario / mes"
     },
     "plan": "Plan",
     "planNames": {
@@ -1744,9 +1738,12 @@
     "trialEnds": "La prueba termina el"
   },
   "SubscriptionExpiredView": {
+    "administratorRequiredDescription": "Un administrador de la empresa debe restablecer la suscripción. Vuelve a intentarlo después o contacta con nuestro equipo de soporte.",
     "contactSupportCta": "Contactar con soporte",
-    "description": "Tu periodo de prueba ha terminado y tu empresa no tiene ninguna suscripción activa. Suscríbete para seguir usando Customermates o contacta con nuestro equipo de soporte si tienes alguna duda.",
-    "subtitle": "Tu prueba ha caducado",
+    "manualEnterpriseBillingDescription": "Tu espacio de trabajo Enterprise se factura manualmente. Contacta con nuestro equipo de soporte para recuperar el acceso y vuelve a intentarlo después.",
+    "retry": "Volver a intentarlo",
+    "selfServiceCheckoutDescription": "Tu espacio de trabajo ya no tiene una suscripción activa. Elige un plan para seguir usando Customermates o contacta con nuestro equipo de soporte si tienes alguna duda.",
+    "subtitle": "El acceso al espacio de trabajo está pausado",
     "supportEmailSubject": "Consulta sobre la suscripción",
     "title": "Suscripción necesaria"
   },

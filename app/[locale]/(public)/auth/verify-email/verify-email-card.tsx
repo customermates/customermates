@@ -3,6 +3,7 @@
 import { observer } from "mobx-react-lite";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "next-intl";
+import { useLayoutEffect } from "react";
 
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -14,6 +15,11 @@ export const VerifyEmailCard = observer(({ email }: { email?: string }) => {
   const t = useTranslations();
   const { verifyEmailStore } = useRootStore();
 
+  useLayoutEffect(() => {
+    verifyEmailStore.activate(email);
+    return () => verifyEmailStore.deactivate(email);
+  }, [email, verifyEmailStore]);
+
   return (
     <AppCard className="max-w-md">
       <CardHeroHeader subtitle={t("VerifyEmailCard.subtitle")} title={t("VerifyEmailCard.title")} />
@@ -23,6 +29,10 @@ export const VerifyEmailCard = observer(({ email }: { email?: string }) => {
       </AppCardBody>
 
       <AppCardFooter>
+        <Button className="w-full" variant="outline" onClick={() => window.location.reload()}>
+          {t("Common.actions.refresh")}
+        </Button>
+
         <Button
           className="w-full"
           disabled={verifyEmailStore.isSent || !email}

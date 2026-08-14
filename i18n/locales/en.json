@@ -656,7 +656,7 @@
     }
   },
   "ConnectedAccountsCard": {
-    "accountLimitReached": "Business includes 3 connected accounts per user. Contact us about Enterprise for unlimited accounts.",
+    "accountLimitReached": "You reached the connected-account limit for this plan. Contact us about Enterprise for unlimited accounts.",
     "alreadyExistsToastDescription": "This account is already connected by a member of your workspace. Ask them to share it with the workspace so the inbox does not show duplicate messages.",
     "alreadyExistsToastTitle": "Account already connected",
     "channels": {
@@ -1233,11 +1233,11 @@
       "badge": "Popular",
       "compareText": "Compare plans",
       "ctaText": "Start free",
-      "featureBusiness": "Business: 3 accounts per user, shared accounts & priority support",
-      "featurePro": "Pro: unified inbox, 1 connected account per user",
+      "featureBusiness": "Business: {accounts, plural, one {# account per user} other {# accounts per user}}, shared accounts & priority support",
+      "featurePro": "Pro: unified inbox, {accounts, plural, one {# connected account per user} other {# connected accounts per user}}",
       "featureStarter": "Starter: the core CRM",
       "period": "/ user / month",
-      "price": "from €12",
+      "price": "from {price}",
       "tag": "Managed for you; database in an EU region. Other providers may process data elsewhere.",
       "title": "Cloud"
     },
@@ -1399,7 +1399,6 @@
     "informationBody": "We updated the legal information listed below. This notice does not require acceptance unless the email also identifies updated Terms or a Data Processing Agreement.",
     "informationSubject": "Customermates legal information updated",
     "informationTitle": "Legal information updated",
-    "liveLabel": "Live document",
     "signoff": "Best regards,\nBen",
     "subprocessorDeadlineLabel": "Subprocessor objection deadline",
     "subprocessorObjection": "No acceptance is required. If you object to the listed subprocessor change, reply without undue delay and before the stated deadline, giving reasonable data-protection grounds.",
@@ -1420,7 +1419,6 @@
     "memberWaiting": "A company administrator must accept the updated Terms and DPA. You can retry after they have done so or sign out.",
     "privacy": "Privacy Policy",
     "retry": "Retry",
-    "signOut": "Sign out",
     "subprocessors": "Subprocessors",
     "subtitle": "An authorised company administrator must accept by {date}.",
     "terms": "Terms",
@@ -1681,7 +1679,7 @@
     "buttonLabel": "Register with {provider}",
     "inviteSubtitle": "You have been invited to join a team on Customermates. Choose your sign-in method to accept the invitation.",
     "inviteTitle": "Accept Company Invitation",
-    "newCompanySubtitle": "Register a new company and test Customermates for free for 7 days. No credit card required.",
+    "newCompanySubtitle": "Register a new company and test Customermates for free for {days} days. No credit card required.",
     "or": "OR",
     "signUpCta": "Create account",
     "switchToSignIn": "Already have an account? <signInLink>Sign in</signInLink>",
@@ -1702,9 +1700,10 @@
     "managedExternallyNote": "This workspace is on an Enterprise plan billed by invoice. Contact your account manager to make changes.",
     "manageWithLemonSqueezy": "Manage with Lemon Squeezy",
     "picker": {
+      "connectedAccountsPerUser": "{accounts, plural, one {# connected account per user} other {# connected accounts per user}}",
       "features": {
-        "business": ["Everything in Pro", "3 connected accounts per user", "Shared accounts and priority support"],
-        "pro": ["Everything in Starter", "Unified inbox", "1 connected account per user"],
+        "business": ["Everything in Pro", "Shared accounts and priority support"],
+        "pro": ["Everything in Starter", "Unified inbox"],
         "starter": [
           "Full CRM: contacts, deals, organizations, tasks",
           "Audit log",
@@ -1713,12 +1712,7 @@
         ]
       },
       "mostPopular": "Most popular",
-      "perUserMonth": "per user / month",
-      "price": {
-        "business": "€69",
-        "pro": "€29",
-        "starter": "€12"
-      }
+      "perUserMonth": "per user / month"
     },
     "plan": "Plan",
     "planNames": {
@@ -1744,9 +1738,12 @@
     "trialEnds": "Trial ends"
   },
   "SubscriptionExpiredView": {
+    "administratorRequiredDescription": "A company administrator must restore the subscription. Retry after they have done so, or contact our support team for help.",
     "contactSupportCta": "Contact Support",
-    "description": "Your trial period has ended and your company is not currently subscribed. Please subscribe to continue using Customermates, or contact our support team if you have any questions.",
-    "subtitle": "Your trial has expired",
+    "manualEnterpriseBillingDescription": "Your enterprise workspace is billed manually. Contact our support team to restore access, then retry.",
+    "retry": "Retry",
+    "selfServiceCheckoutDescription": "Your workspace no longer has an active subscription. Choose a plan to continue using Customermates, or contact our support team if you have any questions.",
+    "subtitle": "Workspace access is paused",
     "supportEmailSubject": "Subscription Inquiry",
     "title": "Subscription Required"
   },

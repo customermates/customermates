@@ -10,7 +10,7 @@ hero:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: ✓ No credit card required ✓ First 7 days free
+  hint: ✓ No credit card required ✓ First [[commercial.trial.days]] days free
 
 comparison:
   competitorName: Salesmate
@@ -22,10 +22,10 @@ comparison:
         source: 2 minutes
         competitor: 1-2 days
       - name: Cost
-        source: From €12 / month / user
+        source: From [[commercial.price.starter.monthly]] / month / user
         competitor: $23 to $63 / month / user
       - name: Free trial
-        source: 7 days (full Pro)
+        source: "[[commercial.trial.days]] days (full Pro)"
         competitor: 15 days
       - name: Credit card required
         source: false
@@ -60,10 +60,10 @@ comparison:
         source: true
         competitor: true
       - name: AI agents operate the CRM (native MCP)
-        source: 46 tools (from Starter)
+        source: "[[derived.mcp.tools.total]] tools (from Starter)"
         competitor: Sandy AI, chat only (Pro+)
       - name: Native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram)
-        source: Pro+ (€29)
+        source: Pro+ ([[commercial.price.pro.monthly]])
         competitor: Email + calling only
   - title: Data protection & security
     features:
@@ -118,16 +118,16 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: ✓ No credit card required ✓ First 7 days free
+  hint: ✓ No credit card required ✓ First [[commercial.trial.days]] days free
 ---
 
-> [Salesmate](https://www.salesmate.io/) is a feature-rich CRM for small and medium-sized businesses with a strong focus on sales, built-in calling, and email sequences. It packs many capabilities into its platform, but distributes them across four pricing tiers with aggressive upselling. What starts at $23 per user quickly becomes $39 to $63 when you need the features that actually matter. On top of that, built-in calling incurs separate charges for phone numbers, SMS, and call credits. Customermates is an open-source Salesmate alternative built around two things Salesmate does not offer: AI agents that operate the CRM (Claude, ChatGPT, and Gemini read and write your records through a native MCP integration with 46 tools, so deal stages, follow-ups, and notes stay current on their own) and a native unified inbox that brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one place from the Pro tier. Add transparent tiers from €12/user/month, every core CRM feature included, EU hosting, and no hidden telephony fees.
+> [Salesmate](https://www.salesmate.io/) is a feature-rich CRM for small and medium-sized businesses with a strong focus on sales, built-in calling, and email sequences. It packs many capabilities into its platform, but distributes them across four pricing tiers with aggressive upselling. What starts at $23 per user quickly becomes $39 to $63 when you need the features that actually matter. On top of that, built-in calling incurs separate charges for phone numbers, SMS, and call credits. Customermates is an open-source Salesmate alternative built around two things Salesmate does not offer: AI agents that operate the CRM (Claude, ChatGPT, and Gemini read and write your records through a native MCP integration with [[derived.mcp.tools.total]] tools, so deal stages, follow-ups, and notes stay current on their own) and a native unified inbox that brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one place from the Pro tier. Add transparent tiers from [[commercial.price.starter.monthly]]/user/month, every core CRM feature included, EU hosting, and no hidden telephony fees.
 
 ## Why Switch from Salesmate?
 
 Teams move away from Salesmate for several recurring reasons. The Basic plan ($23/user/month) is missing product management, email sequences, and advanced permission controls. The AI assistant Sandy is locked behind the Pro plan ($39/user/month). Custom modules and layouts require the Business plan ($63/user/month). And built-in calling, one of Salesmate's headline features, adds unpredictable costs through phone number rentals, SMS credits, and per-minute call charges.
 
-Customermates takes a different approach. Every core CRM feature ships at every tier, starting at €12 per user per month. The [n8n automation engine](/features/workflow-automation) is included from Starter, and AI agents (Claude, ChatGPT, or Gemini) read and write your CRM through a native MCP integration, so [lead tracking](/features/lead-tracking) and follow-ups stay current without manual data entry. You are never forced into a proprietary telephony system.
+Customermates takes a different approach. Every core CRM feature ships at every tier, starting at [[commercial.price.starter.monthly]] per user per month. The [n8n automation engine](/features/workflow-automation) is included from Starter, and AI agents (Claude, ChatGPT, or Gemini) read and write your CRM through a native MCP integration, so [lead tracking](/features/lead-tracking) and follow-ups stay current without manual data entry. You are never forced into a proprietary telephony system.
 
 ## Setup and Onboarding
 
@@ -137,7 +137,7 @@ Salesmate does not require weeks of implementation, but setup still takes 1-2 da
 
 ## Pricing: Transparent Tiers vs. Feature-Gated Plans
 
-The pricing difference between Customermates and Salesmate is significant. Customermates starts at **€12 per user per month** (Starter), with every core CRM feature, permission management, and AI included. Higher tiers (Pro at €29, Business at €69) only add messaging capacity. See our [pricing page](/pricing) for full details.
+The pricing difference between Customermates and Salesmate is significant. Customermates starts at **[[commercial.price.starter.monthly]] per user per month** (Starter), with every core CRM feature, permission management, and AI included. Higher tiers (Pro at [[commercial.price.pro.monthly]], Business at [[commercial.price.business.monthly]]) only add messaging capacity. See our [pricing page](/pricing) for full details.
 
 [Salesmate pricing](https://www.salesmate.io/pricing/) has four tiers (verified July 2026):
 
@@ -147,6 +147,7 @@ The pricing difference between Customermates and Salesmate is significant. Custo
 - **Enterprise**: custom pricing (onboarding packages from $1,999)
 
 Many essential features are plan-gated:
+
 - **Product & quote management, email sequences**: Pro plan and above
 - **Sandy AI assistant**: Pro plan and above
 - **Custom modules & layouts, power dialer**: Business plan and above
@@ -157,13 +158,13 @@ Many essential features are plan-gated:
 
 | | Customermates Starter | Salesmate Pro |
 |---|---|---|
-| Base CRM cost | €60/month | $195/month (~€180) |
+| Base CRM cost | [[commercial.price.starter.monthly.seats.5]]/month | $195/month (~€180) |
 | Automation | External n8n integration | Included (tiered limits) |
 | AI | Agents operate the CRM (native MCP) | Sandy AI assistant (chat) |
 | Calling | External (flexible) | Phone numbers + credits extra |
-| **Total** | **€60/month** | **~€180/month + calling fees** |
+| **Total** | **[[commercial.price.starter.monthly.seats.5]]/month** | **~€180/month + calling fees** |
 
-A 5-person team saves over €1,400 per year with Customermates Starter compared to Salesmate Pro. For a 10-person team, the savings exceed €2,700 per year.
+For either team size, the annual difference is the Salesmate Pro total minus the current Customermates team price; calling fees can widen it further.
 
 ## Hidden Costs: Built-in Calling and SMS
 
@@ -177,7 +178,7 @@ Customermates does not lock you into a proprietary phone system. External tools 
 
 Salesmate's AI assistant Sandy offers conversation summaries, email drafting, and predictive insights. Sandy is available from the Pro plan ($39/user/month); the Basic plan has no AI at all. Sandy is a chat assistant that sits beside the CRM.
 
-Customermates takes a different approach: the AI operates the CRM itself. Claude, ChatGPT, and Gemini connect through a native MCP integration (46 tools) and read and write your records directly, so they handle [lead management](/features/lead-tracking), note summarization, and follow-ups from the Starter tier at no extra cost. Combined with the [n8n automation engine](/features/workflow-automation), you can build AI-driven workflows that connect to external services, trigger follow-ups based on customer behavior, and automate repetitive tasks without plan restrictions.
+Customermates takes a different approach: the AI operates the CRM itself. Claude, ChatGPT, and Gemini connect through a native MCP integration ([[derived.mcp.tools.total]] tools) and read and write your records directly, so they handle [lead management](/features/lead-tracking), note summarization, and follow-ups from the Starter tier at no extra cost. Combined with the [n8n automation engine](/features/workflow-automation), you can build AI-driven workflows that connect to external services, trigger follow-ups based on customer behavior, and automate repetitive tasks without plan restrictions.
 
 ## Feature Comparison
 
@@ -197,7 +198,7 @@ Customermates works with the [n8n automation engine](/features/workflow-automati
 
 Permission management in Salesmate is only available from the Pro plan ($39/user/month). Custom modules and layouts require the Business plan ($63/user/month), and validation rules are Enterprise-only. If your team needs structured access control, you are looking at significantly higher costs.
 
-Customermates includes full permission management starting at €12/user/month. Teams can assign roles, restrict data access, and protect sensitive information from day one.
+Customermates includes full permission management starting at [[commercial.price.starter.monthly]]/user/month. Teams can assign roles, restrict data access, and protect sensitive information from day one.
 
 ## Data Protection and GDPR Compliance
 
@@ -238,17 +239,17 @@ No consultants required. No multi-week implementation projects.
 
 ## Conclusion
 
-Salesmate offers many features, but its tiered pricing, hidden calling costs, and plan-gated AI assistant make it expensive and unpredictable for growing teams. Customermates offers an open-source Salesmate alternative with transparent tiered pricing from €12/user/month, no artificial limits, EU hosting, GDPR compliance, and automation connectivity at no surcharge. If your team needs a CRM with transparent costs and no upgrade pressure, [start your free trial today](/auth/signup).
+Salesmate offers many features, but its tiered pricing, hidden calling costs, and plan-gated AI assistant make it expensive and unpredictable for growing teams. Customermates offers an open-source Salesmate alternative with transparent tiered pricing from [[commercial.price.starter.monthly]]/user/month, no artificial limits, EU hosting, GDPR compliance, and automation connectivity at no surcharge. If your team needs a CRM with transparent costs and no upgrade pressure, [start your free trial today](/auth/signup).
 
 See how Customermates compares to other CRMs: [HubSpot alternative](/compare/hubspot-alternative), [Freshsales alternative](/compare/freshsales-alternative), or [Pipedrive alternative](/compare/pipedrive-alternative).
 
 ### Is Customermates a good Salesmate alternative for small businesses?
 
-Yes. Customermates is designed for small and growing teams. Starting at €12/user/month with every core CRM feature included, it is significantly more affordable than Salesmate's Pro or Business plans. There are no record limits, no core-feature gates, no calling surcharges, and no add-on costs.
+Yes. Customermates is designed for small and growing teams. Starting at [[commercial.price.starter.monthly]]/user/month with every core CRM feature included, it is significantly more affordable than Salesmate's Pro or Business plans. There are no record limits, no core-feature gates, no calling surcharges, and no add-on costs.
 
 ### How does Customermates pricing compare to Salesmate?
 
-Customermates starts at €12/user/month with every core CRM feature included; Pro (€29) and Business (€69) only add messaging capacity. Salesmate ranges from $23 to $63/user/month depending on the plan, with additional costs for calling credits, SMS, and phone numbers. A 5-person team saves over €1,400/year by choosing Customermates Starter over Salesmate Pro.
+Customermates starts at [[commercial.price.starter.monthly]]/user/month with every core CRM feature included; Pro ([[commercial.price.pro.monthly]]) and Business ([[commercial.price.business.monthly]]) only add messaging capacity. Salesmate ranges from $23 to $63/user/month depending on the plan, with additional costs for calling credits, SMS, and phone numbers. For a 5-person team, compare Salesmate Pro's annual total with [[commercial.price.starter.monthly.seats.5.months.12]] for Customermates Starter; the exact saving follows from those current inputs.
 
 ### Can I migrate my data from Salesmate to Customermates?
 
@@ -264,4 +265,4 @@ Customermates does not lock you into a proprietary calling system. Instead, you 
 
 ### Does Customermates include AI features?
 
-Yes, and they do more than assist. Claude, ChatGPT, and Gemini connect through a native MCP integration (46 tools) and operate the CRM directly: reading and writing records, summarizing notes, and driving workflow automation from the Starter tier at no extra cost. Unlike Salesmate, which reserves the Sandy chat assistant for the Pro plan ($39/user/month), Customermates gives every user AI that runs the CRM from day one.
+Yes, and they do more than assist. Claude, ChatGPT, and Gemini connect through a native MCP integration ([[derived.mcp.tools.total]] tools) and operate the CRM directly: reading and writing records, summarizing notes, and driving workflow automation from the Starter tier at no extra cost. Unlike Salesmate, which reserves the Sandy chat assistant for the Pro plan ($39/user/month), Customermates gives every user AI that runs the CRM from day one.

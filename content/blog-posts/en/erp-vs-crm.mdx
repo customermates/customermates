@@ -79,17 +79,17 @@ Common ERP products: SAP S/4HANA and SAP Business One, Oracle NetSuite, Microsof
 
 The ERP vs CRM table below is the cleanest way to see the split. Both systems centralize data and automate processes, but they are pointed in different directions. Whether you call it ERP vs CRM or CRM vs ERP, the underlying boundary is the same.
 
-| Dimension | CRM | ERP |
-|---|---|---|
-| Office | Front office (customer-facing) | Back office (operations) |
-| Primary users | Sales, marketing, customer service | Finance, operations, manufacturing, HR |
-| Core data | Contacts, accounts, deals, activities, tickets | Inventory, orders, invoices, ledger, BOMs, payroll |
-| Primary job | Win and keep customers | Run the business efficiently |
-| Time horizon | Pipeline, current quarter, lifetime value | Daily operations, monthly close, annual financials |
-| Output | Closed deals, served customers | Shipped product, paid invoices, accurate books |
-| Failure mode if missing | Customer context leaks, deals get dropped | Inventory chaos, late invoices, audit nightmares |
-| Typical price | $0 to $300 per user per month | $50 to $500+ per user per month, often per-module |
-| Implementation time | Weeks to months | Months to years |
+| Dimension               | CRM                                            | ERP                                                |
+| ----------------------- | ---------------------------------------------- | -------------------------------------------------- |
+| Office                  | Front office (customer-facing)                 | Back office (operations)                           |
+| Primary users           | Sales, marketing, customer service             | Finance, operations, manufacturing, HR             |
+| Core data               | Contacts, accounts, deals, activities, tickets | Inventory, orders, invoices, ledger, BOMs, payroll |
+| Primary job             | Win and keep customers                         | Run the business efficiently                       |
+| Time horizon            | Pipeline, current quarter, lifetime value      | Daily operations, monthly close, annual financials |
+| Output                  | Closed deals, served customers                 | Shipped product, paid invoices, accurate books     |
+| Failure mode if missing | Customer context leaks, deals get dropped      | Inventory chaos, late invoices, audit nightmares   |
+| Typical price           | $0 to $300 per user per month                  | $50 to $500+ per user per month, often per-module  |
+| Implementation time     | Weeks to months                                | Months to years                                    |
 
 According to IBM's overview of [ERP vs CRM](https://www.ibm.com/think/topics/erp-vs-crm), the two systems are "complementary, not competing." That is right, and it is the framing I would push on any founder trying to pick one over the other.
 
@@ -208,13 +208,13 @@ If your needs are basic CRM-to-ERP and back, do not buy ESB middleware. Use n8n.
 
 A rough cost comparison, for a small to mid-sized team integrating CRM and ERP:
 
-| Approach | Setup cost (first year) | Ongoing |
-|---|---|---|
-| iPaaS (n8n self-hosted) | EUR 2,000 to 8,000 | Low (server hosting + occasional fixes) |
-| iPaaS (cloud, Zapier, Make) | EUR 3,600 to 12,000 | EUR 200 to 1,000 per month |
-| Custom API development | EUR 10,000 to 60,000+ | EUR 5,000 to 15,000 per year |
-| Middleware/ESB | EUR 12,000 to 120,000+ | High |
-| Native integration | Included in license | Vendor-managed |
+| Approach                    | Setup cost (first year) | Ongoing                                 |
+| --------------------------- | ----------------------- | --------------------------------------- |
+| iPaaS (n8n self-hosted)     | EUR 2,000 to 8,000      | Low (server hosting + occasional fixes) |
+| iPaaS (cloud, Zapier, Make) | EUR 3,600 to 12,000     | EUR 200 to 1,000 per month              |
+| Custom API development      | EUR 10,000 to 60,000+   | EUR 5,000 to 15,000 per year            |
+| Middleware/ESB              | EUR 12,000 to 120,000+  | High                                    |
+| Native integration          | Included in license     | Vendor-managed                          |
 
 I broke this down further in the [CRM ERP integration guide](/blog/crm-erp-integration), including realistic timelines and the data mapping tables that make or break a project.
 
@@ -242,7 +242,7 @@ In an ERP, the same pattern is starting to apply, more cautiously, to lower-risk
 
 The CRMs and ERPs that expose [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) tools and clean webhook events become the systems agents can operate. The ones that hide behind enterprise sales motions and "contact us for API access" gates lose ground.
 
-This is the bet behind Customermates. It exposes 46 MCP tools and 26 webhook events, self-hostable for free under AGPL-3.0. If you already use Claude, ChatGPT, or Gemini, the CRM updates itself: contact notes, deal moves, follow-up tasks, all without you typing into it. The same pattern will work between CRMs and ERPs over the next few years, with agents brokering the boundary cases that integrations historically had to hardcode.
+This is the bet behind Customermates. It exposes [[derived.mcp.tools.total]] MCP tools and [[derived.webhooks.events.total]] webhook events, self-hostable for free under AGPL-3.0. If you already use Claude, ChatGPT, or Gemini, the CRM updates itself: contact notes, deal moves, follow-up tasks, all without you typing into it. The same pattern will work between CRMs and ERPs over the next few years, with agents brokering the boundary cases that integrations historically had to hardcode.
 
 If you want the comparison view, I went into more detail in [Customermates vs Salesforce](/compare/salesforce-alternative) and on the [pricing page](/pricing). For the integration angle specifically, the [CRM ERP integration guide](/blog/crm-erp-integration) covers the practical mechanics.
 
@@ -310,4 +310,4 @@ ERP and CRM solve different problems for different teams in different parts of t
 
 The right sequence for most teams: buy the CRM first, hook it up to an AI agent so it updates itself, buy the ERP when back-office complexity actually demands it, then integrate the two with n8n or another iPaaS. Avoid all-in-one suites by default. Pick best-of-breed tools and connect them. Watch the agent angle, because it changes which CRMs and ERPs win the next few years.
 
-If you want a CRM that is built for this stack from the start, with 46 MCP tools, 26 webhook events, an n8n community node, full REST API, GDPR-compliant EU hosting, and AGPL-3.0 source, that is what I built Customermates for. The cloud is from €12 per user per month (Starter tier), self-hosted is free. The technical details are on the [pricing page](/pricing) and the [Customermates vs Salesforce comparison](/compare/salesforce-alternative). The integration story for connecting it to your ERP lives in the [CRM ERP integration guide](/blog/crm-erp-integration).
+If you want a CRM that is built for this stack from the start, with [[derived.mcp.tools.total]] MCP tools, [[derived.webhooks.events.total]] webhook events, an n8n community node, full REST API, GDPR-compliant EU hosting, and AGPL-3.0 source, that is what I built Customermates for. The cloud is from [[commercial.price.starter.monthly]] per user per month (Starter tier), self-hosted is free. The technical details are on the [pricing page](/pricing) and the [Customermates vs Salesforce comparison](/compare/salesforce-alternative). The integration story for connecting it to your ERP lives in the [CRM ERP integration guide](/blog/crm-erp-integration).

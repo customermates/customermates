@@ -94,13 +94,13 @@ Gebaut für Outbound-Vertriebsteams, die am Telefon leben. Eingebauter Dialer, S
 
 ### Customermates
 
-Das CRM, das ich baue. Open Source, selbst gehostet oder EU-Cloud. Ab 12 €/User/Monat (10 € jährlich, Starter); der native vereinheitlichte Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram) liegt auf Pro für 29 €, und KI-Agenten können ihn bedienen. Modernes Pipedrive-Pendant. Agent-nativ über MCP, n8n-Community-Node, vollständige REST-API, 26 Webhook-Events.
+Das CRM, das ich baue. Open Source, selbst gehostet oder EU-Cloud. Ab [[commercial.price.starter.monthly]]/User/Monat (Starter); der native vereinheitlichte Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram) liegt auf Pro für [[commercial.price.pro.monthly]], und KI-Agenten können ihn bedienen. Modernes Pipedrive-Pendant. Agent-nativ über MCP, n8n-Community-Node, vollständige REST-API, [[derived.webhooks.events.total]] Webhook-Events.
 
 **Geeignet für:** Kleine bis mittelgroße Teams (1 bis 50), die ein echtes Vertriebs-CRM wollen, Datenhoheit und EU-Hosting schätzen und KI-Tools (Claude, Codex, ChatGPT) nutzen, die das CRM direkt steuern können.
 
 **Vorsicht bei:** Jüngeres Projekt als die Alternativen oben. Wenn Sie 15 Jahre Track Record und einen Anbieter mit 5.000 Mitarbeitern brauchen, ist das nicht das richtige Tool. Wenn Sie eine moderne, transparente, agent-native Option unterstützen wollen, ist es der Weg.
 
-**Konkrete Adoptionsgeschichte.** Eine 12-Personen-Beratung in Stuttgart migrierte von Pipedrive Growth (etwa 39 €/User/Monat im Jahresplan, rund 5.600 €/Jahr für 12) zu Customermates Cloud (Starter im Jahresplan, 120 €/User/Jahr × 12 = 1.440 €/Jahr). Jahres-Ersparnis: rund 4.100 €. Sie migrierten auch 8.400 Kontakte und 1.200 Deals über den API-Import. Migrationsdauer: 3 Tage, hauptsächlich Bereinigung doppelter Kontakte. Nach 6 Monaten verkabelten sie Claude über [MCP](/docs/mcp) für das Entwerfen von Follow-up-Mails basierend auf der letzten Aktivität jedes Deals, die Art von Workflow, die in HubSpot extra 15 € bis 30 €/User/Monat kostet. Siehe [Preise](/pricing) und die [Self-Hosted-Feature-Seite](/features/self-hosted).
+**Illustratives Migrationsszenario.** Für eine 12-Personen-Beratung, die Customermates heute bewertet, kostet Cloud Starter [[commercial.price.starter.monthly.seats.12]] pro Monat. Bestehende Kontakte und Deals lassen sich nach Bereinigung und Deduplizierung der Quelldaten über die REST API laden. Claude kann sich anschließend über [MCP](/docs/mcp) verbinden und Follow-up-Mails aus Deal-Aktivitäten entwerfen. Vergleichen Sie die aktuellen Konditionen auf der [Preisseite](/pricing), oder prüfen Sie [Self-Hosting](/features/self-hosted), wenn Sie den Stack selbst betreiben wollen.
 
 ### Folk / Attio / Twenty (die moderne Boutique-Klasse)
 
@@ -143,7 +143,7 @@ Wenn Sie Marketing-Seiten ausblenden, sind das die Funktionen, die vorhersagen, 
 - **Bidirektionale E-Mail-Synchronisation.** Wenn Vertriebsmitarbeiter das CRM in BCC nehmen oder „E-Mail loggen" klicken müssen, tun sie es nicht. Echte bidirektionale Synchronisation (Sie schreiben eine normale E-Mail in Gmail oder Outlook und sie erscheint im CRM) ist die wichtigste Adoptionsvariable.
 - **Bidirektionale Kalendersynchronisation.** Gleiches Prinzip. Meetings, die irgendwo gebucht werden, erscheinen als Aktivitäten im CRM.
 - **Mobile App, die funktioniert.** Vertriebsmitarbeiter erfassen Anrufe im Auto oder nach Meetings. Wenn die mobile App kaputt ist, erfassen sie nicht.
-- **KI-getriebene Aktualisierung.** Moderner Ansatz: Das CRM aktualisiert sich selbst aus Ihrer Aktivität. Customermates stellt 46 MCP-Tools bereit, sodass Claude oder Codex Deal-Updates fahren, Follow-ups entwerfen und Notizen aus einem Transkript schreiben können, ohne dass der Vertriebsmitarbeiter ins CRM tippt. Das hat sich 2025 bis 2026 geändert.
+- **KI-getriebene Aktualisierung.** Moderner Ansatz: Das CRM aktualisiert sich selbst aus Ihrer Aktivität. Customermates stellt [[derived.mcp.tools.total]] MCP-Tools bereit, sodass Claude oder Codex Deal-Updates fahren, Follow-ups entwerfen und Notizen aus einem Transkript schreiben können, ohne dass der Vertriebsmitarbeiter ins CRM tippt. Das hat sich 2025 bis 2026 geändert.
 - **Pipeline-Ansicht, die auf einen Bildschirm passt.** Drag-and-Drop für Deals mit Status-Änderungen in einem Klick.
 - **Custom Fields mit sinnvollen Standards.** Konfigurierbar, aber nicht so, dass die Einrichtung ein eigenes Projekt ist.
 
@@ -161,15 +161,15 @@ Wenn das CRM, das Sie evaluieren, mit diesen Funktionen führt, ist es für ein 
 
 ## Schnelle Entscheidungsmatrix
 
-| Wenn Sie ... | Wählen Sie |
-|---|---|
-| Das klassische Pipeline-Erlebnis und 3 bis 25 Personen wollen | Pipedrive |
-| HubSpot bereits fürs Marketing nutzen | HubSpot Sales Hub |
-| Einen Salesforce-Administrator und komplexe Enterprise-Anforderungen haben | Salesforce |
-| Tief im Zoho-Ökosystem stecken | Zoho |
-| Über 50 Anrufe pro Tag tätigen | Close |
-| Datenhoheit, EU-Hosting und KI-Agenten nutzen | [Customermates](/) |
-| Den kleinsten möglichen Aufbau für ein 1- bis 3-Personen-Team brauchen | HubSpot Free oder Folk |
+| Wenn Sie ...                                                               | Wählen Sie             |
+| -------------------------------------------------------------------------- | ---------------------- |
+| Das klassische Pipeline-Erlebnis und 3 bis 25 Personen wollen              | Pipedrive              |
+| HubSpot bereits fürs Marketing nutzen                                      | HubSpot Sales Hub      |
+| Einen Salesforce-Administrator und komplexe Enterprise-Anforderungen haben | Salesforce             |
+| Tief im Zoho-Ökosystem stecken                                             | Zoho                   |
+| Über 50 Anrufe pro Tag tätigen                                             | Close                  |
+| Datenhoheit, EU-Hosting und KI-Agenten nutzen                              | [Customermates](/)     |
+| Den kleinsten möglichen Aufbau für ein 1- bis 3-Personen-Team brauchen     | HubSpot Free oder Folk |
 
 ## Was ich tatsächlich tun würde
 
@@ -214,10 +214,10 @@ Für den Mittelstand (1 bis 25 Vertriebler) sehe ich Pipedrive und [Customermate
 Fast immer ja. Die Gesamtkosten inklusive Admin-Zeit sind ein Vielfaches der Alternativen, und die Adoptionshürde ist steil. Salesforce nur, wenn Sie einen dedizierten Administrator und komplexe Enterprise-Prozesse haben.
 
 **Was kostet ein Vertriebs-CRM?**
-Realer Preis 2026 liegt bei 15 € bis 40 € pro User pro Monat für die Stufe, die die meisten Teams tatsächlich brauchen. Kostenlose Stufen existieren (HubSpot, Bitrix24), deckeln aber Funktionen. Open-Source-Optionen ([Customermates](/), EspoCRM, SuiteCRM) starten bei 12 €/User oder selbst gehostet nur Serverkosten.
+Realer Preis 2026 liegt bei 15 € bis 40 € pro User pro Monat für die Stufe, die die meisten Teams tatsächlich brauchen. Kostenlose Stufen existieren (HubSpot, Bitrix24), deckeln aber Funktionen. [Customermates](/) startet bei [[commercial.price.starter.monthly]]/User/Monat oder kann selbst gehostet werden; andere Open-Source-Projekte haben eigene Konditionen.
 
 **Welches CRM hat 2026 die besten KI-Funktionen?**
-Salesforce und HubSpot haben das meiste Marketing zur KI. [Customermates](/) überzeugt in der Praxis, wenn Sie Claude, Codex oder ChatGPT bereits nutzen, weil das CRM [46 MCP-Tools](/docs/mcp) bereitstellt, mit denen Ihre KI das CRM direkt steuern kann, statt auf Anbieter-KI-Funktionen zu warten.
+Salesforce und HubSpot haben das meiste Marketing zur KI. [Customermates](/) überzeugt in der Praxis, wenn Sie Claude, Codex oder ChatGPT bereits nutzen, weil das CRM [[[derived.mcp.tools.total]] MCP-Tools](/docs/mcp) bereitstellt, mit denen Ihre KI das CRM direkt steuern kann, statt auf Anbieter-KI-Funktionen zu warten.
 
 **Was ist der Unterschied zwischen Vertriebs-CRM und CRM?**
 Ein Vertriebs-CRM fokussiert auf die Deal-Pipeline (Pipedrive, Close, [Customermates](/)). Ein allgemeines CRM deckt Vertrieb plus Marketing, Service und Plattform-Funktionen ab (Salesforce, HubSpot, Zoho). Kleinere Teams sollten in der Regel die fokussierte Option wählen.

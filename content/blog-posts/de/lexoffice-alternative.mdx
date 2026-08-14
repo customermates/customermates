@@ -167,13 +167,13 @@ Customermates ist genau für diesen Anwendungsfall gebaut: Alles managen, was vo
 
 **Nativer vereinheitlichter Posteingang**: E-Mail, LinkedIn, WhatsApp, Instagram und Telegram in einem Posteingang im CRM. Kundengespräche über jeden Kanal landen am Kontakt, nichts verteilt sich mehr über verschiedene Apps. Für deutsche KMU, deren Kunden per E-Mail und WhatsApp anfragen, bleibt so jeder Verlauf an einem Ort.
 
-**KI-Agenten, die das CRM bedienen**: Claude, ChatGPT und Gemini lesen und schreiben Datensätze direkt über eine native MCP-Integration (46 Tools). Deal-Stufen wandern, Follow-ups werden entworfen und Kontaktnotizen bleiben aktuell, und dieselben Agenten können Antworten über den vereinheitlichten Posteingang entwerfen und senden.
+**KI-Agenten, die das CRM bedienen**: Claude, ChatGPT und Gemini lesen und schreiben Datensätze direkt über eine native MCP-Integration ([[derived.mcp.tools.total]] Tools). Deal-Stufen wandern, Follow-ups werden entworfen und Kontaktnotizen bleiben aktuell, und dieselben Agenten können Antworten über den vereinheitlichten Posteingang entwerfen und senden.
 
 **n8n-Integration**: Verbinden Sie Customermates über n8n-Workflows mit Lexware Office. Kontakte synchronisieren, Rechnungen auslösen, Datensätze systemübergreifend aktualisieren. n8n ist Open-Source und selbst hostbar, passend zur gleichen Philosophie der Datenhoheit.
 
 **DSGVO-Unterstützung mit AVV und SCCs**: Sowohl Customermates als auch Lexware Office bedienen den deutschsprachigen Markt und nehmen Datenschutz ernst. Bei Customermates nutzt die verwaltete Datenbank eine EU-Region; AVV und SCCs stehen bereit, eine Compliance-Zertifizierung besteht nicht. Self-Hosting bleibt eine Option, während verbundene Anbieter separat zu prüfen sind.
 
-**Transparenter Preis**: ab €12 pro Nutzer pro Monat mit dem vollen Kern-CRM inklusive. Keine Kontaktgebühren, keine versteckten Kosten. Für ein typisches deutsches KMU-Team von fünf Personen sind das €60 pro Monat auf Starter für ein vollwertiges CRM neben Lexware Office.
+**Transparenter Preis**: ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat mit dem vollen Kern-CRM inklusive. Keine Kontaktgebühren, keine versteckten Kosten. Für ein typisches deutsches KMU-Team von fünf Personen sind das [[commercial.price.starter.monthly.seats.5]] pro Monat auf Starter für ein vollwertiges CRM neben Lexware Office.
 
 ## So verbinden Sie Customermates und Lexoffice mit n8n
 
@@ -184,6 +184,7 @@ Die Integration zwischen Customermates und Lexware Office über n8n ist praxisna
 Wenn ein neuer Kontakt in Customermates erstellt wird, kann n8n automatisch den entsprechenden Kontakt in Lexware Office erstellen oder aktualisieren. So hat Ihr Buchhaltungssystem stets aktuelle Kundendaten, ohne manuelle Doppeleingabe.
 
 **Workflow-Schritte:**
+
 1. Trigger: Neuer Kontakt in Customermates erstellt (Webhook)
 2. Prüfung: Existiert dieser Kontakt bereits in Lexware Office?
 3. Erstellen oder aktualisieren: Kontaktdaten (Name, Adresse, E-Mail, Steuernummer) an Lexware Office übergeben
@@ -213,18 +214,18 @@ Wenn Sie Lexware Office derzeit als Ihr CRM nutzen, ist der Übergang zu einem d
 6. **Über n8n verbinden**, Workflows einrichten, um Daten zwischen Customermates und Lexware Office zu synchronisieren
 7. **Lexware Office weiternutzen**, für alles Finanzielle, genau wie bisher
 
-Die Investition ist minimal: ab €12 pro Nutzer pro Monat und ein paar Stunden Einrichtungszeit. Die Rendite, wiederbelebte Leads, konsistente Follow-ups und Vertriebstransparenz, rechnet sich innerhalb des ersten Monats.
+Die Investition ist minimal: ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat und ein paar Stunden Einrichtungszeit. Die Rendite, wiederbelebte Leads, konsistente Follow-ups und Vertriebstransparenz, rechnet sich innerhalb des ersten Monats.
 
 ## Lexoffice-Preisstaffelung und CRM-Relevanz
 
 Lexware Office bietet gestaffelte Preise. Das Verständnis, was jede Stufe beinhaltet, verdeutlicht, warum ein separates CRM nötig ist:
 
-| Stufe | Fokus (ab, netto/Mon.) | Kontaktfunktionen | CRM-Lücken |
-|-------|-------|-------------------|------------|
-| S (7,90 €) | Rechnungen und Angebote, ohne Banking | Einfache Kontaktliste | Keine Pipeline, keine Automatisierung, keine Historie |
-| M (12,90 €) | Automatische Belegerfassung, Online-Banking | Kontaktliste + Rechnungsverknüpfung | Keine Pipeline, keine Follow-ups, keine Aufgaben |
-| L (21,90 €) | Erweiterte Auftragsverwaltung, XRechnung | Kundenmanager + Upsell-Analysen | Keine Pipeline, keine Automatisierung, keine Lead-Erfassung |
-| XL (32,90 €) | Voller Funktionsumfang inkl. Lohn und API-Zugang | Alle Kontaktfunktionen + API-Zugang | Keine Pipeline, keine Workflow-Automatisierung |
+| Stufe        | Fokus (ab, netto/Mon.)                           | Kontaktfunktionen                   | CRM-Lücken                                                  |
+| ------------ | ------------------------------------------------ | ----------------------------------- | ----------------------------------------------------------- |
+| S (7,90 €)   | Rechnungen und Angebote, ohne Banking            | Einfache Kontaktliste               | Keine Pipeline, keine Automatisierung, keine Historie       |
+| M (12,90 €)  | Automatische Belegerfassung, Online-Banking      | Kontaktliste + Rechnungsverknüpfung | Keine Pipeline, keine Follow-ups, keine Aufgaben            |
+| L (21,90 €)  | Erweiterte Auftragsverwaltung, XRechnung         | Kundenmanager + Upsell-Analysen     | Keine Pipeline, keine Automatisierung, keine Lead-Erfassung |
+| XL (32,90 €) | Voller Funktionsumfang inkl. Lohn und API-Zugang | Alle Kontaktfunktionen + API-Zugang | Keine Pipeline, keine Workflow-Automatisierung              |
 
 Selbst in der höchsten Stufe mit API-Zugang bietet Lexware Office kein Sales-Pipeline-Management, keine Lead-Qualifizierungs-Workflows und keine Vertriebsautomatisierung. Diese Fähigkeiten erfordern ein dediziertes CRM, und die API der XL-Stufe macht die CRM-Integration über n8n sogar einfacher.
 
@@ -236,7 +237,7 @@ Lexware Office speichert Kontaktinformationen und bietet einen Kundenmanager fü
 
 ### Welches CRM passt am besten zu Lexoffice?
 
-Das beste CRM für die Kombination mit Lexware Office integriert sich über n8n, unterstützt den deutschen Markt und ist DSGVO-konform. Customermates erfüllt diese Kriterien ab €12 pro Nutzer pro Monat mit dem vollen Kern-CRM, EU-Hosting und nativer n8n-Integration zum Synchronisieren von Kontakten, Auslösen von Rechnungen und Automatisieren von Follow-ups.
+Das beste CRM für die Kombination mit Lexware Office integriert sich über n8n, unterstützt den deutschen Markt und ist DSGVO-konform. Customermates erfüllt diese Kriterien ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat mit dem vollen Kern-CRM, EU-Hosting und nativer n8n-Integration zum Synchronisieren von Kontakten, Auslösen von Rechnungen und Automatisieren von Follow-ups.
 
 ### Kann ich Lexoffice mit einem CRM verbinden?
 
@@ -244,11 +245,11 @@ Ja. Über n8n (eine Open-Source-Automatisierungsplattform) können Sie Lexware O
 
 ### Was kostet es, ein CRM zu Lexoffice hinzuzufügen?
 
-Customermates kostet ab €12 pro Nutzer pro Monat mit dem vollen Kern-CRM inklusive. Für ein Fünf-Personen-Team sind das €60 pro Monat auf Starter. Kombiniert mit einem Lexware-Office-Abo (ab ca. 7,90 € netto pro Monat auf der S-Stufe) erhalten Sie ein vollständiges Geschäftsmanagement-Setup, Buchhaltung plus CRM, für deutlich unter 100 € pro Monat.
+Customermates kostet ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat mit dem vollen Kern-CRM inklusive. Für ein Fünf-Personen-Team sind das [[commercial.price.starter.monthly.seats.5]] pro Monat auf Starter. Addieren Sie das aktuelle Lexware-Office-Abo (ab ca. 7,90 € netto pro Monat auf der S-Stufe), um den vollständigen Gesamtbetrag für Buchhaltung plus CRM zu berechnen.
 
 ### Gibt es ein kostenloses CRM, das mit Lexoffice funktioniert?
 
-Customermates ist Open Source und kann ohne Lizenzkosten selbst gehostet werden, damit ist es eine kostenlose CRM-Option, die sich über n8n mit Lexware Office verbinden lässt. Sie zahlen nur für die Hosting-Infrastruktur. Wenn Sie verwaltetes Hosting bevorzugen, startet es bei €12 pro Nutzer pro Monat.
+Customermates ist Open Source und kann ohne Lizenzkosten selbst gehostet werden, damit ist es eine kostenlose CRM-Option, die sich über n8n mit Lexware Office verbinden lässt. Sie zahlen nur für die Hosting-Infrastruktur. Wenn Sie verwaltetes Hosting bevorzugen, startet es bei [[commercial.price.starter.monthly]] pro Nutzer pro Monat.
 
 ### Ersetzt der Lexoffice Kundenmanager ein CRM?
 

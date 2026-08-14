@@ -1,5 +1,5 @@
 import type { RootStore } from "@/core/stores/root.store";
-import type { SelectablePlan } from "@/app/[locale]/(protected)/company/components/subscription/plan-picker";
+import type { SelectableOffer } from "@/app/[locale]/(protected)/company/components/subscription/plan-picker";
 import { BaseStore } from "@/core/base/base.store";
 
 import { action, makeObservable } from "mobx";
@@ -15,9 +15,9 @@ export class SubscriptionExpiredStore extends BaseStore {
     });
   }
 
-  handleSubscribe = async (plan: SelectablePlan): Promise<void> => {
+  handleSubscribe = async (offer: SelectableOffer): Promise<void> => {
     await this.rootStore.loadingOverlayStore.withLoading(async () => {
-      const res = await createCheckoutSessionAction({ plan });
+      const res = await createCheckoutSessionAction(offer);
       if (!res.ok) {
         toastZodErrorTree(res.error);
         return;

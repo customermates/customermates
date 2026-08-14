@@ -5,12 +5,12 @@ featureName: Slack-Integration
 
 hero:
   title: Slack-Integration, gebaut auf Webhooks und Ihrem eigenen n8n
-  description: Customermates hat keine native Slack-App. Was es hat, sind 26 Webhook-Events, eine vollständige REST API und einen MCP-Endpoint — alles, was ein Automatisierungstool braucht, um Deal-Alarme nach Slack zu posten und von dort zurückzuschreiben. Bringen Sie Ihr eigenes n8n, Make oder Zapier mit.
+  description: Customermates hat keine native Slack-App. Was es hat, sind [[derived.webhooks.events.total]] Webhook-Events, eine vollständige REST API und einen MCP-Endpoint — alles, was ein Automatisierungstool braucht, um Deal-Alarme nach Slack zu posten und von dort zurückzuschreiben. Bringen Sie Ihr eigenes n8n, Make oder Zapier mit.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ Keine Kreditkarte benötigt ✓ Erste 7 Tage kostenlos"
+  hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 
 cta:
   action: Bereit, Customermates mit Slack zu verdrahten?
@@ -19,14 +19,14 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ Keine Kreditkarte benötigt ✓ Erste 7 Tage kostenlos"
+  hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
 ## Was diese Seite behauptet und was nicht
 
 Customermates liefert keine Slack-Integration aus. Es gibt keine Slack-App zum Installieren, keinen Slack-Einstellungsbildschirm im Produkt und keine Slack-Option in der Liste der verbundenen Konten. Der zentrale Posteingang deckt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ab; Slack ist keiner seiner Kanäle.
 
-Was Customermates ausliefert, ist die Maschinerie, die ein externes Automatisierungstool braucht, um in Ihrem Namen mit Slack zu sprechen: ausgehende Webhooks auf 26 Datensatz- und Messaging-Events, eine versionierte REST API und einen MCP-Endpoint. Verbinden Sie diese mit [n8n](/docs/n8n), Make oder Zapier, ergänzen Sie den Slack-Node dieses Tools, und Sie erhalten das unten beschriebene Verhalten. Die Slack-Seite läuft in Ihrem Automatisierungstool, nicht in Customermates.
+Was Customermates ausliefert, ist die Maschinerie, die ein externes Automatisierungstool braucht, um in Ihrem Namen mit Slack zu sprechen: ausgehende Webhooks auf [[derived.webhooks.events.total]] Datensatz- und Messaging-Events, eine versionierte REST API und einen MCP-Endpoint. Verbinden Sie diese mit [n8n](/docs/n8n), Make oder Zapier, ergänzen Sie den Slack-Node dieses Tools, und Sie erhalten das unten beschriebene Verhalten. Die Slack-Seite läuft in Ihrem Automatisierungstool, nicht in Customermates.
 
 Das schreiben wir lieber auf, als die Seite ein Produkt andeuten zu lassen, das wir nicht gebaut haben.
 
@@ -58,7 +58,7 @@ Die Gegenrichtung läuft über die REST API oder MCP, wieder gesteuert von Ihrem
 
 **Notizen aus Slack schreiben.** Schreiben Sie den Text der Slack-Nachricht über die API oder das MCP-Tool `update_record_notes` in die Notizen des Datensatzes.
 
-**Einen Agenten machen lassen.** Statt jeden Aufruf von Hand zu bauen, richten Sie einen MCP-fähigen Agenten auf `/api/v1/mcp` und lassen ihn die Slack-Nachricht interpretieren. Das ist dieselbe Oberfläche aus 46 Tools, die Claude, ChatGPT und Gemini nutzen.
+**Einen Agenten machen lassen.** Statt jeden Aufruf von Hand zu bauen, richten Sie einen MCP-fähigen Agenten auf `/api/v1/mcp` und lassen ihn die Slack-Nachricht interpretieren. Das ist dieselbe Oberfläche aus [[derived.mcp.tools.total]] Tools, die Claude, ChatGPT und Gemini nutzen.
 
 ## Was das nicht ist
 
@@ -90,7 +90,7 @@ Nein. n8n ist ein eigenes Open-Source-Produkt. Sie hosten es selbst oder abonnie
 Ja. Nichts an der Webhook- oder REST-Oberfläche ist n8n-spezifisch. Jedes Tool, das ein HTTP-POST empfangen und eine HTTP-API aufrufen kann, funktioniert.
 
 **Welche Events kann ich abonnieren?**
-26 Events über Datensätze und Messaging. Die vollständige Liste steht unter [Webhooks](/docs/webhooks).
+[[derived.webhooks.events.total]] Events über Datensätze und Messaging. Die vollständige Liste steht unter [Webhooks](/docs/webhooks).
 
 **Kann ich CRM-Daten ohne Code nach Slack posten?**
 Ja, in dem Sinne, dass n8n, Make und Zapier visuelle Builder sind. Den Workflow entwerfen Sie trotzdem selbst; eine vorkonfigurierte Customermates-zu-Slack-Vorlage von uns gibt es nicht.

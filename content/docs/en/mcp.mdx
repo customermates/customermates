@@ -3,7 +3,7 @@ title: Model Context Protocol (MCP)
 description: Customermates exposes a native MCP endpoint at /api/v1/mcp so Claude, ChatGPT, Cursor, and other agent clients can read and write your CRM directly.
 ---
 
-Customermates exposes one MCP endpoint at `https://customermates.com/api/v1/mcp`. A connected client discovers all 46 CRM tools automatically. There are two ways to connect:
+Customermates exposes one MCP endpoint at `https://customermates.com/api/v1/mcp`. A connected client discovers all [[derived.mcp.tools.total]] CRM tools automatically. There are two ways to connect:
 
 - **Custom connector (OAuth):** for Claude (web, desktop, mobile) and ChatGPT. Paste the URL, sign in, approve. No key to manage. Start on [Connect with a custom connector](/docs/connect-custom-connector).
 - **API key:** for CLI and editor clients (Claude Code, Codex, Cursor, Gemini CLI) and raw HTTP. Send the 64-character key in the `x-api-key` header or a config file.
@@ -52,7 +52,7 @@ The server briefs the model automatically the moment a client connects. Clients 
 
 You do not need to teach the model how to use the CRM. The server sends instructions when a client connects, so the model follows the workflow automatically: read the schema first, find ids before writing, change relations only through `manage_record_links`, and confirm before deleting or sending. In clients that support MCP prompts (Claude Code, Cursor), a built-in get-started prompt is available too; it interviews you and summarizes your workspace to personalize the start.
 
-The full 46-tool surface is the default. Append `?toolsets=` to the endpoint URL to narrow it, for example `/api/v1/mcp?toolsets=records,messaging`. Keys and details are in [Narrowing with ?toolsets=](/docs/mcp#narrowing-with-toolsets).
+The full [[derived.mcp.tools.total]]-tool surface is the default. Append `?toolsets=` to the endpoint URL to narrow it, for example `/api/v1/mcp?toolsets=records,messaging`. Keys and details are in [Narrowing with ?toolsets=](/docs/mcp#narrowing-with-toolsets).
 
 ## How the tool surface is shaped
 
@@ -76,7 +76,7 @@ Both live at the same base URL. MCP is `/api/v1/mcp`; the OpenAPI spec is at `/a
 
 ## Tool catalog
 
-Customermates exposes 46 MCP tools, all enabled by default. They cover records, workspace, messaging, social posts, documentation and deep research, custom columns, widgets, webhooks, admin, and support. Every destructive tool is flagged and starts its description with `IRREVERSIBLE`. Relations change only through `manage_record_links`; the update tools never touch them.
+Customermates exposes [[derived.mcp.tools.total]] MCP tools, all enabled by default. They cover records, workspace, messaging, social posts, documentation and deep research, custom columns, widgets, webhooks, admin, and support. Every destructive tool is flagged and starts its description with `IRREVERSIBLE`. Relations change only through `manage_record_links`; the update tools never touch them.
 
 Two flags per tool:
 
@@ -189,7 +189,7 @@ Messaging-backed tools are available from the Pro tier in cloud mode. `get_activ
 
 ### Narrowing with ?toolsets=
 
-All 46 tools are on by default. To expose only part of the surface, append `?toolsets=` with comma-separated group keys to the endpoint URL:
+All [[derived.mcp.tools.total]] tools are on by default. To expose only part of the surface, append `?toolsets=` with comma-separated group keys to the endpoint URL:
 
 ```
 https://customermates.com/api/v1/mcp?toolsets=records,messaging

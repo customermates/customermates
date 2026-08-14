@@ -33,33 +33,61 @@ import {
   ENTITY_TERMINOLOGY_PRESETS,
   FILTER_FIELD_TERMINOLOGY,
 } from "@/features/entity-terminology/entity-terminology.constants";
-import { DIAGRAM_SYSTEM_LABEL_KEYS, DisplayType } from "@/features/widget/widget.schema";
+import {
+  DIAGRAM_SYSTEM_LABEL_KEYS,
+  DisplayType,
+} from "@/features/widget/widget.schema";
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
 
-const ENTITY_TERMINOLOGY_KEYS = Object.entries(ENTITY_TERMINOLOGY_PRESETS).flatMap(([entityType, presets]) =>
+const ENTITY_TERMINOLOGY_KEYS = Object.entries(
+  ENTITY_TERMINOLOGY_PRESETS,
+).flatMap(([entityType, presets]) =>
   presets.flatMap((preset) =>
-    (["plural", "singular"] as const).map((form) => `EntityTerminology.presets.${entityType}.${preset}.${form}`),
+    (["plural", "singular"] as const).map(
+      (form) => `EntityTerminology.presets.${entityType}.${preset}.${form}`,
+    ),
   ),
 );
 
-const DOMAIN_EVENT_KEYS = Object.values(DomainEvent).map((event) => `Common.events.${event}`);
-const FEEDBACK_DESCRIPTION_KEYS = Object.values(FeedbackType).map((type) => `feedback.${type}.description`);
-const FEEDBACK_TITLE_KEYS = Object.values(FeedbackType).map((type) => `feedback.${type}.title`);
-const CUSTOM_ERROR_CODE_KEYS = Object.values(CustomErrorCode).map((code) => `Common.errors.${code}`);
+const DOMAIN_EVENT_KEYS = Object.values(DomainEvent).map(
+  (event) => `Common.events.${event}`,
+);
+const FEEDBACK_DESCRIPTION_KEYS = Object.values(FeedbackType).map(
+  (type) => `feedback.${type}.description`,
+);
+const FEEDBACK_TITLE_KEYS = Object.values(FeedbackType).map(
+  (type) => `feedback.${type}.title`,
+);
+const CUSTOM_ERROR_CODE_KEYS = Object.values(CustomErrorCode).map(
+  (code) => `Common.errors.${code}`,
+);
 const FILTER_FIELD_KEYS = Object.values(FilterFieldKey)
   .filter((field) => !(field in FILTER_FIELD_TERMINOLOGY))
   .map((field) => `Common.filters.fields.${field}`);
-const ROLE_RESOURCE_KEYS = Object.values(Resource).map((resource) => `RoleModal.resources.${resource}`);
-const DISPLAY_TYPE_KEYS = Object.values(DisplayType).map((displayType) => `Dashboard.displayTypes.${displayType}`);
-const WIDGET_KIND_KEYS = Object.values(WidgetKind).map((kind) => `Dashboard.widgetKinds.${kind}`);
+const ROLE_RESOURCE_KEYS = Object.values(Resource).map(
+  (resource) => `RoleModal.resources.${resource}`,
+);
+const DISPLAY_TYPE_KEYS = Object.values(DisplayType).map(
+  (displayType) => `Dashboard.displayTypes.${displayType}`,
+);
+const WIDGET_KIND_KEYS = Object.values(WidgetKind).map(
+  (kind) => `Dashboard.widgetKinds.${kind}`,
+);
 const WIDGET_KIND_DESCRIPTION_KEYS = Object.values(WidgetKind).map(
   (kind) => `Dashboard.widgetEditor.kind.${kind}Description`,
 );
 const activityTypeOptionKeys = (leaf: "description" | "label") =>
-  ACTIVITY_TYPE_VALUES.map((value) => `Dashboard.widgetEditor.filters.activityTypeOptions.${value}.${leaf}`);
-const DIAGRAM_SYSTEM_KEYS = DIAGRAM_SYSTEM_LABEL_KEYS.map((key) => `Diagrams.${key}`);
+  ACTIVITY_TYPE_VALUES.map(
+    (value) =>
+      `Dashboard.widgetEditor.filters.activityTypeOptions.${value}.${leaf}`,
+  );
+const DIAGRAM_SYSTEM_KEYS = DIAGRAM_SYSTEM_LABEL_KEYS.map(
+  (key) => `Diagrams.${key}`,
+);
 const AGGREGATION_TYPE_KEYS = [
-  ...Object.values(AggregationType).map((aggregationType) => `Dashboard.aggregationTypes.${aggregationType}`),
+  ...Object.values(AggregationType).map(
+    (aggregationType) => `Dashboard.aggregationTypes.${aggregationType}`,
+  ),
   "Dashboard.aggregationTypes.dealValueRelated",
 ] as const;
 const DATE_PRESET_KEYS = [
@@ -163,30 +191,48 @@ const TABLE_COLUMN_KEYS = [
   "Common.table.columns.users",
 ] as const;
 
-const PROVIDER_KEYS = Object.values(MessagingProvider).map((provider) => `Common.providers.${provider}`);
-const USER_STATUS_KEYS = Object.values(Status).map((status) => `Common.userStatuses.${status}`);
-const LOCALE_KEYS = [...ROUTING_LOCALES, "system"].map((locale) => `Common.locales.${locale}`);
-const THEME_KEYS = Object.values(Theme).map((theme) => `Common.themes.${theme}`);
-const FILTER_OPERATOR_KEYS = Object.values(FilterOperatorKey).map((operator) => `Common.filters.operators.${operator}`);
+const PROVIDER_KEYS = Object.values(MessagingProvider).map(
+  (provider) => `Common.providers.${provider}`,
+);
+const USER_STATUS_KEYS = Object.values(Status).map(
+  (status) => `Common.userStatuses.${status}`,
+);
+const LOCALE_KEYS = [...ROUTING_LOCALES, "system"].map(
+  (locale) => `Common.locales.${locale}`,
+);
+const THEME_KEYS = Object.values(Theme).map(
+  (theme) => `Common.themes.${theme}`,
+);
+const FILTER_OPERATOR_KEYS = Object.values(FilterOperatorKey).map(
+  (operator) => `Common.filters.operators.${operator}`,
+);
 const COLOR_KEYS = CHIP_COLORS.map((color) => `Common.colors.${color}`);
 const CUSTOM_COLUMN_TYPE_KEYS = Object.values(CustomColumnType).map(
   (columnType) => `Common.customColumnTypes.${columnType}`,
 );
-const THREAD_STATE_KEYS = Object.values(MessagingThreadState).map((state) => `Inbox.threadStates.${state}`);
+const THREAD_STATE_KEYS = Object.values(MessagingThreadState).map(
+  (state) => `Inbox.threadStates.${state}`,
+);
 const WEBHOOK_DELIVERY_STATUS_KEYS = Object.values(WebhookDeliveryStatus).map(
   (status) => `WebhookDeliveryModal.deliveryStatus.${status}`,
 );
 const CONNECTED_ACCOUNT_STATUS_KEYS = Object.values(ConnectedAccountStatus).map(
   (status) => `ConnectedAccountsCard.statusLabels.${status}`,
 );
-const SUBSCRIPTION_PLAN_KEYS = Object.values(SubscriptionPlan).map((plan) => `Subscription.planNames.${plan}`);
-const SUBSCRIPTION_STATUS_KEYS = Object.values(SubscriptionStatus).map((status) => `Subscription.status.${status}`);
+const SUBSCRIPTION_PLAN_KEYS = Object.values(SubscriptionPlan).map(
+  (plan) => `Subscription.planNames.${plan}`,
+);
+const SUBSCRIPTION_STATUS_KEYS = Object.values(SubscriptionStatus).map(
+  (status) => `Subscription.status.${status}`,
+);
 const SELECTABLE_SUBSCRIPTION_PLANS = Object.values(SubscriptionPlan).filter(
   (plan) => plan !== SubscriptionPlan.enterprise,
 );
-const SUBSCRIPTION_PRICE_KEYS = SELECTABLE_SUBSCRIPTION_PLANS.map((plan) => `Subscription.picker.price.${plan}`);
-const SUBSCRIPTION_FEATURE_KEYS = [...loadCatalogPaths().leafPaths].filter((key) =>
-  SELECTABLE_SUBSCRIPTION_PLANS.some((plan) => key.startsWith(`Subscription.picker.features.${plan}.`)),
+const SUBSCRIPTION_FEATURE_KEYS = [...loadCatalogPaths().leafPaths].filter(
+  (key) =>
+    SELECTABLE_SUBSCRIPTION_PLANS.some((plan) =>
+      key.startsWith(`Subscription.picker.features.${plan}.`),
+    ),
 );
 const ENTITY_TIMELINE_TYPE_KEYS = [
   "EntityTimeline.types.activities",
@@ -236,7 +282,9 @@ const DEFAULT_DATA_OPTION_KEYS = [
   "Common.defaultData.task.options.onHold",
   "Common.defaultData.task.options.open",
 ] as const;
-const ONBOARDING_STEP_TITLE_KEYS = ["profile", "invite", "ai"].map((step) => `OnboardingWizard.steps.${step}.title`);
+const ONBOARDING_STEP_TITLE_KEYS = ["profile", "invite", "ai"].map(
+  (step) => `OnboardingWizard.steps.${step}.title`,
+);
 const ONBOARDING_STEP_SUBTITLE_KEYS = ["profile", "invite", "ai"].map(
   (step) => `OnboardingWizard.steps.${step}.subtitle`,
 );
@@ -250,12 +298,24 @@ const ONBOARDING_CHOICE_KEYS = [
   "gemini",
   "skip",
 ].map((choice) => `OnboardingWizard.ai.choices.${choice}`);
-const MCP_TOOL_KEYS = ["claudeCode", "claudeDesktop", "codex", "cursor", "gemini"] as const;
-const ONBOARDING_INSTALL_KEYS = MCP_TOOL_KEYS.map((tool) => `OnboardingWizard.ai.install.instruction.${tool}`);
+const MCP_TOOL_KEYS = [
+  "claudeCode",
+  "claudeDesktop",
+  "codex",
+  "cursor",
+  "gemini",
+] as const;
+const ONBOARDING_INSTALL_KEYS = MCP_TOOL_KEYS.map(
+  (tool) => `OnboardingWizard.ai.install.instruction.${tool}`,
+);
 const ONBOARDING_METHODS = ["account", "local"] as const;
 const onboardingMethodKeys = (field: string) =>
-  ONBOARDING_METHODS.map((method) => `OnboardingWizard.ai.methods.${method}.${field}`);
-const LEGAL_DOCUMENT_KEYS = ALL_LEGAL_DOCUMENTS.map((document) => `LegalDocumentNotice.documents.${document}`);
+  ONBOARDING_METHODS.map(
+    (method) => `OnboardingWizard.ai.methods.${method}.${field}`,
+  );
+const LEGAL_DOCUMENT_KEYS = ALL_LEGAL_DOCUMENTS.map(
+  (document) => `LegalDocumentNotice.documents.${document}`,
+);
 
 const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["AuthSocialErrors.${*}", AUTH_SOCIAL_ERROR_KEYS],
@@ -273,17 +333,31 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["Common.userStatuses.${*}", USER_STATUS_KEYS],
   ["ConnectedAccountsCard.statusLabels.${*}", CONNECTED_ACCOUNT_STATUS_KEYS],
   ["Dashboard.displayTypes.${*}", DISPLAY_TYPE_KEYS],
-  ["Dashboard.widgetEditor.filters.activityTypeOptions.${*}.description", activityTypeOptionKeys("description")],
-  ["Dashboard.widgetEditor.filters.activityTypeOptions.${*}.label", activityTypeOptionKeys("label")],
+  [
+    "Dashboard.widgetEditor.filters.activityTypeOptions.${*}.description",
+    activityTypeOptionKeys("description"),
+  ],
+  [
+    "Dashboard.widgetEditor.filters.activityTypeOptions.${*}.label",
+    activityTypeOptionKeys("label"),
+  ],
   ["Dashboard.widgetEditor.kind.${*}Description", WIDGET_KIND_DESCRIPTION_KEYS],
   ["Dashboard.widgetKinds.${*}", WIDGET_KIND_KEYS],
   ["EntityTimeline.types.${*}", ENTITY_TIMELINE_TYPE_KEYS],
   ["ErrorCard.${*}", ERROR_CARD_DYNAMIC_KEYS],
   ["HomepagePricing.${*}.${*}", HOMEPAGE_PRICING_VARIABLE_KEYS],
-  ["HomepagePricing.${*}.ctaText", ["HomepagePricing.cloud.ctaText", "HomepagePricing.selfHosted.ctaText"]],
-  ["HomepagePricing.${*}.price", ["HomepagePricing.cloud.price", "HomepagePricing.selfHosted.price"]],
-  ["HomepagePricing.${*}.tag", ["HomepagePricing.cloud.tag", "HomepagePricing.selfHosted.tag"]],
-  ["HomepagePricing.${*}.title", ["HomepagePricing.cloud.title", "HomepagePricing.selfHosted.title"]],
+  [
+    "HomepagePricing.${*}.ctaText",
+    ["HomepagePricing.cloud.ctaText", "HomepagePricing.selfHosted.ctaText"],
+  ],
+  [
+    "HomepagePricing.${*}.tag",
+    ["HomepagePricing.cloud.tag", "HomepagePricing.selfHosted.tag"],
+  ],
+  [
+    "HomepagePricing.${*}.title",
+    ["HomepagePricing.cloud.title", "HomepagePricing.selfHosted.title"],
+  ],
   [
     "HomepagePricing.compare.${*}",
     [
@@ -296,7 +370,10 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["Inbox.threadStates.${*}", THREAD_STATE_KEYS],
   ["OnboardingWizard.ai.choices.${*}", ONBOARDING_CHOICE_KEYS],
   ["OnboardingWizard.ai.install.instruction.${*}", ONBOARDING_INSTALL_KEYS],
-  ["OnboardingWizard.ai.methods.${*}.description", onboardingMethodKeys("description")],
+  [
+    "OnboardingWizard.ai.methods.${*}.description",
+    onboardingMethodKeys("description"),
+  ],
   ["OnboardingWizard.ai.methods.${*}.meta", onboardingMethodKeys("meta")],
   ["OnboardingWizard.ai.methods.${*}.note", onboardingMethodKeys("note")],
   ["OnboardingWizard.ai.methods.${*}.title", onboardingMethodKeys("title")],
@@ -304,7 +381,6 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["OnboardingWizard.steps.${*}.title", ONBOARDING_STEP_TITLE_KEYS],
   ["RoleModal.resources.${*}", ROLE_RESOURCE_KEYS],
   ["Subscription.picker.features.${*}", SUBSCRIPTION_FEATURE_KEYS],
-  ["Subscription.picker.price.${*}", SUBSCRIPTION_PRICE_KEYS],
   ["Subscription.planNames.${*}", SUBSCRIPTION_PLAN_KEYS],
   ["Subscription.status.${*}", SUBSCRIPTION_STATUS_KEYS],
   ["WebhookDeliveryModal.deliveryStatus.${*}", WEBHOOK_DELIVERY_STATUS_KEYS],
@@ -320,13 +396,22 @@ const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
     "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.title",
     FEEDBACK_TITLE_KEYS,
   ],
-  ["components/entity-terminology/use-column-label.ts :: t :: Common.table.columns.${columnId}", TABLE_COLUMN_KEYS],
+  [
+    "components/entity-terminology/use-column-label.ts :: t :: Common.table.columns.${columnId}",
+    TABLE_COLUMN_KEYS,
+  ],
   [
     'components/entity-terminology/use-filter-field-label.ts :: t :: Common.filters.fields.${field.replace(/\\./g, "_")}',
     FILTER_FIELD_KEYS,
   ],
-  ["components/forms/use-form-field.ts :: t :: Common.inputs.${id}", FORM_FIELD_INPUT_KEYS],
-  ["ee/subscription/entitlement.service.ts :: t :: ConnectedAccountsCard.${code}", ENTITLEMENT_DENIAL_KEYS],
+  [
+    "components/forms/use-form-field.ts :: t :: Common.inputs.${id}",
+    FORM_FIELD_INPUT_KEYS,
+  ],
+  [
+    "ee/subscription/entitlement.service.ts :: t :: ConnectedAccountsCard.${code}",
+    ENTITLEMENT_DENIAL_KEYS,
+  ],
 ]);
 
 const ENFORCED = true;
@@ -337,7 +422,6 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.description",
   "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.title",
   "app/[locale]/(protected)/company/components/role/role-modal.tsx :: t :: RoleModal.resources.${resource}",
-  "app/[locale]/(protected)/company/components/subscription/plan-picker.tsx :: t :: Subscription.picker.price.${plan}",
   "app/[locale]/(protected)/company/components/subscription/plan-picker.tsx :: t :: Subscription.planNames.${plan}",
   "app/[locale]/(protected)/company/components/subscription/plan-picker.tsx :: t.raw :: Subscription.picker.features.${plan}",
   "app/[locale]/(protected)/company/components/subscription/subscription-panel.tsx :: t :: Subscription.planNames.${subscription?.plan ?? SubscriptionPlan.pro}",
@@ -370,14 +454,13 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/profile/components/profile-settings-form.tsx :: t :: Common.themes.${key}",
   "app/[locale]/(protected)/profile/components/profile-settings-form.tsx :: t :: Common.themes.${systemTheme}",
   "app/[locale]/(protected)/profile/components/user-details-avatar.tsx :: t :: Common.userStatuses.${status}",
-  "app/[locale]/(public)/auth/error/page.tsx :: t :: ErrorCard.${errorKey}",
+  "app/[locale]/(public)/auth/error/error-page-content.tsx :: t :: ErrorCard.${errorKey}",
   "app/[locale]/(public)/auth/social-error-toast.tsx :: t :: AuthSocialErrors.${key}",
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.${card.titleKey}.${card.badgeKey}",
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.${card.titleKey}.${card.compareTextKey}",
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.${card.titleKey}.${card.periodKey}",
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.${card.titleKey}.${featureKey}",
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.${card.titleKey}.ctaText",
-  "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.${card.titleKey}.price",
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.${card.titleKey}.tag",
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.${card.titleKey}.title",
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.compare.${key}",
@@ -463,35 +546,83 @@ export const DYNAMIC_KEY_SITES = [
 ];
 
 const NONLITERAL_T_CALL_SITES = new Map<string, number>([
-  ["app/[locale]/(protected)/contacts/components/add-channel-popover.tsx :: t :: SOURCE_HINT_KEYS[source]", 1],
-  ["app/[locale]/(protected)/contacts/components/use-contact-columns.tsx :: t :: nameKey", 1],
-  ["app/[locale]/(protected)/deals/components/use-deal-columns.tsx :: t :: nameKey", 1],
-  ["app/[locale]/(protected)/inbox/components/attachment-classify.ts :: t :: typeLabelKey", 2],
-  ["app/[locale]/(protected)/inbox/components/message-item.tsx :: t :: labelKey", 1],
-  ["app/[locale]/(protected)/inbox/components/thread-row.tsx :: t :: PREVIEW_KIND_LABEL[thread.previewKind]", 1],
+  [
+    "app/[locale]/(protected)/contacts/components/add-channel-popover.tsx :: t :: SOURCE_HINT_KEYS[source]",
+    1,
+  ],
+  [
+    "app/[locale]/(protected)/contacts/components/use-contact-columns.tsx :: t :: nameKey",
+    1,
+  ],
+  [
+    "app/[locale]/(protected)/deals/components/use-deal-columns.tsx :: t :: nameKey",
+    1,
+  ],
+  [
+    "app/[locale]/(protected)/inbox/components/attachment-classify.ts :: t :: typeLabelKey",
+    2,
+  ],
+  [
+    "app/[locale]/(protected)/inbox/components/message-item.tsx :: t :: labelKey",
+    1,
+  ],
+  [
+    "app/[locale]/(protected)/inbox/components/thread-row.tsx :: t :: PREVIEW_KIND_LABEL[thread.previewKind]",
+    1,
+  ],
   [
     'app/[locale]/(protected)/onboarding/wizard/components/step-profile.tsx :: t.rich :: isInvited ? "OnboardingForm.invitedAgreeToTerms" : "OnboardingForm.agreeToTerms"',
     1,
   ],
-  ["app/[locale]/(protected)/organizations/components/use-organization-columns.tsx :: t :: nameKey", 1],
-  ["app/[locale]/(protected)/profile/components/connected-accounts-page-view.tsx :: t :: option.labelKey", 1],
-  ["app/[locale]/(protected)/profile/components/connected-accounts-status-toast.tsx :: t :: keys.descriptionKey", 1],
-  ["app/[locale]/(protected)/profile/components/connected-accounts-status-toast.tsx :: t :: keys.titleKey", 1],
-  ["app/[locale]/(protected)/services/components/use-service-columns.tsx :: t :: nameKey", 1],
+  [
+    "app/[locale]/(protected)/organizations/components/use-organization-columns.tsx :: t :: nameKey",
+    1,
+  ],
+  [
+    "app/[locale]/(protected)/profile/components/connected-accounts-page-view.tsx :: t :: option.labelKey",
+    1,
+  ],
+  [
+    "app/[locale]/(protected)/profile/components/connected-accounts-status-toast.tsx :: t :: keys.descriptionKey",
+    1,
+  ],
+  [
+    "app/[locale]/(protected)/profile/components/connected-accounts-status-toast.tsx :: t :: keys.titleKey",
+    1,
+  ],
+  [
+    "app/[locale]/(protected)/services/components/use-service-columns.tsx :: t :: nameKey",
+    1,
+  ],
   [
     "app/[locale]/(protected)/tasks/components/task-detail-view.tsx :: t.rich :: systemTaskAlertConfig.translationKey",
     1,
   ],
-  ["app/[locale]/(protected)/tasks/components/task-detail.store.ts :: this.t :: nameTranslationKey", 1],
-  ["app/[locale]/(protected)/tasks/components/use-task-columns.tsx :: t :: nameKey", 1],
-  ["app/[locale]/(static)/docs/components/docs-sidebar.tsx :: t :: group.i18nKey", 1],
-  ["app/[locale]/(static)/docs/components/docs-sidebar.tsx :: t :: item.i18nKey", 1],
+  [
+    "app/[locale]/(protected)/tasks/components/task-detail.store.ts :: this.t :: nameTranslationKey",
+    1,
+  ],
+  [
+    "app/[locale]/(protected)/tasks/components/use-task-columns.tsx :: t :: nameKey",
+    1,
+  ],
+  [
+    "app/[locale]/(static)/docs/components/docs-sidebar.tsx :: t :: group.i18nKey",
+    1,
+  ],
+  [
+    "app/[locale]/(static)/docs/components/docs-sidebar.tsx :: t :: item.i18nKey",
+    1,
+  ],
   ["app/components/app-sidebar.tsx :: t :: subroute.labelKey", 2],
   ["app/components/app-topbar-crumbs.ts :: t :: leafKey", 1],
   ["app/components/app-topbar-crumbs.ts :: t :: route.labelKey", 1],
   ["app/components/app-topbar-crumbs.ts :: t :: subroute.labelKey", 1],
   ["components/card/form-actions.tsx :: t :: primaryButtonLabel", 1],
-  ["components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: nameKey", 1],
+  [
+    "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: nameKey",
+    1,
+  ],
   ["components/entity-detail/entity-detail.registry.tsx :: t :: key", 1],
   ["components/entity-detail/relation-fields.tsx :: t :: nameKey", 1],
   ["components/entity-terminology/use-entity-terminology.ts :: t :: key", 1],
@@ -501,7 +632,10 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ["ee/messaging/connect/create-auth-link.interactor.ts :: t :: denial.key", 1],
   ["features/company/get-company-settings.interactor.ts :: t :: key", 1],
   ["features/mcp-tools/utils.ts :: t.raw :: code", 1],
-  ["features/messaging/activities/activities-detail-modal.tsx :: t :: responseKey as never", 1],
+  [
+    "features/messaging/activities/activities-detail-modal.tsx :: t :: responseKey as never",
+    1,
+  ],
   [
     "features/messaging/activities/activities-list.tsx :: t :: PREVIEW_KIND_LABEL[classifyAttachment(firstAttachment)]",
     1,
@@ -509,7 +643,17 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ["features/messaging/activities/audit-detail.tsx :: t :: nameKey", 1],
 ]);
 
-const SOURCE_DIRECTORIES = ["app", "components", "constants", "core", "ee", "features", "hooks", "i18n", "workflows"];
+const SOURCE_DIRECTORIES = [
+  "app",
+  "components",
+  "constants",
+  "core",
+  "ee",
+  "features",
+  "hooks",
+  "i18n",
+  "workflows",
+];
 
 type SourceEvidence = {
   kind: "literal" | "property" | "template";
@@ -561,8 +705,15 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
       DIAGRAM_SYSTEM_LABEL_KEYS.map((key) => [
         `Diagrams.${key}`,
         [
-          { kind: "template" as const, value: "`Diagrams.${item.systemLabelKey}`" },
-          { file: "features/widget/widget.schema.ts", kind: "literal" as const, value: key },
+          {
+            kind: "template" as const,
+            value: "`Diagrams.${item.systemLabelKey}`",
+          },
+          {
+            file: "features/widget/widget.schema.ts",
+            kind: "literal" as const,
+            value: key,
+          },
         ],
       ]),
     ),
@@ -610,13 +761,19 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
     evidence: {
       "UserAvatar.settings": [
         { kind: "template", value: "`UserAvatar.${entry.labelKey}`" },
-        { kind: "property", value: 'settings: { group: "settings", labelKey: "settings" }' },
+        {
+          kind: "property",
+          value: 'settings: { group: "settings", labelKey: "settings" }',
+        },
       ],
     },
   },
   {
     file: "ee/messaging/connect/create-auth-link.interactor.ts",
-    keys: ["ConnectedAccountsCard.accountLimitReached", "ConnectedAccountsCard.upgradeToBusinessForMoreAccounts"],
+    keys: [
+      "ConnectedAccountsCard.accountLimitReached",
+      "ConnectedAccountsCard.upgradeToBusinessForMoreAccounts",
+    ],
   },
   {
     file: "app/[locale]/(protected)/profile/components/connected-accounts-status-toast.tsx",
@@ -639,10 +796,14 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
 
 const T_CALL_PATTERN =
   /(?:(?<![\w$.])|(?<=this\.))(t(?:\.(?:rich|raw|markup|has))?)\(\s*("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`)/g;
-const GET_TRANSLATION_PATTERN = /(?<![\w$])(getTranslation)\(\s*("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`)/g;
-const NAMESPACE_PATTERN = /(?:useTranslations|getTranslations)\(\s*"([^"]+)"\s*\)/g;
-const TRANSLATOR_NAMESPACE_PATTERN = /getTranslator\(\s*[^,)]+,\s*"([^"]+)"\s*\)/g;
-const STRING_LITERAL_PATTERN = /"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)'|`((?:[^`\\]|\\.)*)`/g;
+const GET_TRANSLATION_PATTERN =
+  /(?<![\w$])(getTranslation)\(\s*("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`)/g;
+const NAMESPACE_PATTERN =
+  /(?:useTranslations|getTranslations)\(\s*"([^"]+)"\s*\)/g;
+const TRANSLATOR_NAMESPACE_PATTERN =
+  /getTranslator\(\s*[^,)]+,\s*"([^"]+)"\s*\)/g;
+const STRING_LITERAL_PATTERN =
+  /"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)'|`((?:[^`\\]|\\.)*)`/g;
 const INDIRECT_TRANSLATION_KEY_PATTERN =
   /(?:alertTranslationKey|descriptionKey|i18nKey|labelKey|nameTranslationKey|primaryButtonLabel|titleKey|translationKey)\s*(?::|=)\s*("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g;
 const TOAST_CALL_PATTERN = /toast(?:Success|Error)\(([\s\S]*?)\);/g;
@@ -651,13 +812,17 @@ function loadCatalogPaths(): {
   leafPaths: Set<string>;
   nodePaths: Set<string>;
 } {
-  const raw = readFileSync(join(REPO_ROOT, "i18n", "locales", "en.json"), "utf8");
+  const raw = readFileSync(
+    join(REPO_ROOT, "i18n", "locales", "en.json"),
+    "utf8",
+  );
   const leafPaths = new Set<string>();
   const nodePaths = new Set<string>();
   const collect = (value: unknown, prefix: string) => {
     if (value !== null && typeof value === "object") {
       if (prefix) nodePaths.add(prefix);
-      for (const [key, child] of Object.entries(value)) collect(child, prefix ? `${prefix}.${key}` : key);
+      for (const [key, child] of Object.entries(value))
+        collect(child, prefix ? `${prefix}.${key}` : key);
       return;
     }
     leafPaths.add(prefix);
@@ -666,11 +831,17 @@ function loadCatalogPaths(): {
   return { leafPaths, nodePaths };
 }
 
-function resolves(key: string, namespaces: string[], catalog: ReturnType<typeof loadCatalogPaths>): boolean {
+function resolves(
+  key: string,
+  namespaces: string[],
+  catalog: ReturnType<typeof loadCatalogPaths>,
+): boolean {
   if (catalog.leafPaths.has(key) || catalog.nodePaths.has(key)) return true;
 
   return namespaces.some(
-    (namespace) => catalog.leafPaths.has(`${namespace}.${key}`) || catalog.nodePaths.has(`${namespace}.${key}`),
+    (namespace) =>
+      catalog.leafPaths.has(`${namespace}.${key}`) ||
+      catalog.nodePaths.has(`${namespace}.${key}`),
   );
 }
 
@@ -679,9 +850,15 @@ function matchingStaticCatalogPaths(
   namespaces: string[],
   catalog: ReturnType<typeof loadCatalogPaths>,
 ): string[] {
-  const candidates = new Set([key, ...namespaces.map((namespace) => `${namespace}.${key}`)]);
+  const candidates = new Set([
+    key,
+    ...namespaces.map((namespace) => `${namespace}.${key}`),
+  ]);
 
-  return [...candidates].filter((candidate) => catalog.leafPaths.has(candidate) || catalog.nodePaths.has(candidate));
+  return [...candidates].filter(
+    (candidate) =>
+      catalog.leafPaths.has(candidate) || catalog.nodePaths.has(candidate),
+  );
 }
 
 function normalizeDynamicTemplate(template: string): string {
@@ -697,11 +874,17 @@ function normalizeNodeText(value: string): string {
 function translationCallee(node: ts.Expression): string | undefined {
   if (ts.isIdentifier(node) && node.text === "t") return "t";
   if (!ts.isPropertyAccessExpression(node)) return undefined;
-  if (node.name.text === "t" && node.expression.kind === ts.SyntaxKind.ThisKeyword) return "this.t";
+  if (
+    node.name.text === "t" &&
+    node.expression.kind === ts.SyntaxKind.ThisKeyword
+  )
+    return "this.t";
   if (!T_METHODS.has(node.name.text)) return undefined;
 
   const base = translationCallee(node.expression);
-  return base === "t" || base === "this.t" ? `${base}.${node.name.text}` : undefined;
+  return base === "t" || base === "this.t"
+    ? `${base}.${node.name.text}`
+    : undefined;
 }
 
 function unwrapExpression(node: ts.Expression): ts.Expression {
@@ -718,7 +901,11 @@ function unwrapExpression(node: ts.Expression): ts.Expression {
   return current;
 }
 
-function scanNonliteralTranslationCalls(source: string, relPath: string, nonliteralSites: Map<string, number>): void {
+function scanNonliteralTranslationCalls(
+  source: string,
+  relPath: string,
+  nonliteralSites: Map<string, number>,
+): void {
   const sourceFile = ts.createSourceFile(
     relPath,
     source,
@@ -737,7 +924,10 @@ function scanNonliteralTranslationCalls(source: string, relPath: string, nonlite
           nonliteralSites.set(site, (nonliteralSites.get(site) ?? 0) + 1);
         } else {
           const argument = unwrapExpression(firstArgument);
-          if (!ts.isStringLiteralLike(argument) && !ts.isTemplateExpression(argument)) {
+          if (
+            !ts.isStringLiteralLike(argument) &&
+            !ts.isTemplateExpression(argument)
+          ) {
             const site = `${relPath} :: ${callee} :: ${normalizeNodeText(firstArgument.getText(sourceFile))}`;
             nonliteralSites.set(site, (nonliteralSites.get(site) ?? 0) + 1);
           }
@@ -770,8 +960,10 @@ function loadSourceEvidence(file: string): {
   const templates = new Set<string>();
   const visit = (node: ts.Node): void => {
     if (ts.isStringLiteralLike(node)) literals.add(node.text);
-    if (ts.isPropertyAssignment(node)) properties.add(normalizeNodeText(node.getText(sourceFile)));
-    if (ts.isTemplateExpression(node)) templates.add(normalizeNodeText(node.getText(sourceFile)));
+    if (ts.isPropertyAssignment(node))
+      properties.add(normalizeNodeText(node.getText(sourceFile)));
+    if (ts.isTemplateExpression(node))
+      templates.add(normalizeNodeText(node.getText(sourceFile)));
     ts.forEachChild(node, visit);
   };
   visit(sourceFile);
@@ -796,7 +988,10 @@ function scanSources(): {
   for (const directory of SOURCE_DIRECTORIES) {
     const files = walkFiles(
       join(REPO_ROOT, directory),
-      (path) => /\.tsx?$/.test(path) && !path.includes("__tests__") && !/\.test\.tsx?$/.test(path),
+      (path) =>
+        /\.tsx?$/.test(path) &&
+        !path.includes("__tests__") &&
+        !/\.test\.tsx?$/.test(path),
     );
     for (const file of files) {
       const source = readFileSync(file, "utf8");
@@ -804,7 +999,9 @@ function scanSources(): {
       scanNonliteralTranslationCalls(source, relPath, nonliteralSites);
       const namespaces = [
         ...[...source.matchAll(NAMESPACE_PATTERN)].map((match) => match[1]),
-        ...[...source.matchAll(TRANSLATOR_NAMESPACE_PATTERN)].map((match) => match[1]),
+        ...[...source.matchAll(TRANSLATOR_NAMESPACE_PATTERN)].map(
+          (match) => match[1],
+        ),
       ];
       for (const pattern of [T_CALL_PATTERN, GET_TRANSLATION_PATTERN]) {
         for (const match of source.matchAll(pattern)) {
@@ -817,9 +1014,17 @@ function scanSources(): {
             dynamicSites.add(site);
             const template = normalizeDynamicTemplate(body);
             dynamicTemplates.add(template);
-            const keys = DYNAMIC_SITE_CONSUMERS.get(site) ?? DYNAMIC_TEMPLATE_CONSUMERS.get(template);
-            if (!keys) indirectViolations.push(`${site} has no exact dynamic consumer domain for template ${template}`);
-            else if (keys.length === 0) indirectViolations.push(`${site} has an empty dynamic consumer domain`);
+            const keys =
+              DYNAMIC_SITE_CONSUMERS.get(site) ??
+              DYNAMIC_TEMPLATE_CONSUMERS.get(template);
+            if (!keys)
+              indirectViolations.push(
+                `${site} has no exact dynamic consumer domain for template ${template}`,
+              );
+            else if (keys.length === 0)
+              indirectViolations.push(
+                `${site} has an empty dynamic consumer domain`,
+              );
             else for (const leafPath of keys) consumerKeys.add(leafPath);
 
             continue;
@@ -834,8 +1039,14 @@ function scanSources(): {
             const site = `${relPath} :: ${callee} :: ${body}`;
             dynamicSites.add(site);
             const keys = DYNAMIC_SITE_CONSUMERS.get(site);
-            if (!keys) indirectViolations.push(`${site} has no exact concatenated-key consumer domain`);
-            else if (keys.length === 0) indirectViolations.push(`${site} has an empty dynamic consumer domain`);
+            if (!keys)
+              indirectViolations.push(
+                `${site} has no exact concatenated-key consumer domain`,
+              );
+            else if (keys.length === 0)
+              indirectViolations.push(
+                `${site} has an empty dynamic consumer domain`,
+              );
             else for (const leafPath of keys) consumerKeys.add(leafPath);
 
             continue;
@@ -845,9 +1056,17 @@ function scanSources(): {
             staticViolations.push(`${relPath}:${line} ${callee}("${body}")`);
             continue;
           }
-          for (const candidate of matchingStaticCatalogPaths(body, namespaces, catalog)) {
+          for (const candidate of matchingStaticCatalogPaths(
+            body,
+            namespaces,
+            catalog,
+          )) {
             for (const leafPath of catalog.leafPaths)
-              if (leafPath === candidate || leafPath.startsWith(`${candidate}.`)) consumerKeys.add(leafPath);
+              if (
+                leafPath === candidate ||
+                leafPath.startsWith(`${candidate}.`)
+              )
+                consumerKeys.add(leafPath);
           }
         }
       }
@@ -855,112 +1074,191 @@ function scanSources(): {
         const body = match[1].slice(1, -1);
         if (catalog.leafPaths.has(body)) consumerKeys.add(body);
         else if (body.includes("."))
-          indirectViolations.push(`${relPath} references missing indirect catalog key ${body}`);
+          indirectViolations.push(
+            `${relPath} references missing indirect catalog key ${body}`,
+          );
       }
       for (const toastCall of source.matchAll(TOAST_CALL_PATTERN)) {
         for (const match of toastCall[1].matchAll(STRING_LITERAL_PATTERN)) {
           const body = match[1] ?? match[2] ?? match[3];
           if (catalog.leafPaths.has(body)) consumerKeys.add(body);
           else if (/^[A-Za-z][\w-]*(?:\.[\w-]+)+$/.test(body))
-            indirectViolations.push(`${relPath} references missing toast catalog key ${body}`);
+            indirectViolations.push(
+              `${relPath} references missing toast catalog key ${body}`,
+            );
         }
       }
     }
   }
 
-  const evidenceCache = new Map<string, ReturnType<typeof loadSourceEvidence>>();
+  const evidenceCache = new Map<
+    string,
+    ReturnType<typeof loadSourceEvidence>
+  >();
   const evidenceFor = (file: string) => {
-    if (!evidenceCache.has(file)) evidenceCache.set(file, loadSourceEvidence(file));
+    if (!evidenceCache.has(file))
+      evidenceCache.set(file, loadSourceEvidence(file));
     return evidenceCache.get(file) ?? null;
   };
   for (const { file, keys, evidence } of INDIRECT_KEY_CONSUMERS) {
     if (!evidenceFor(file)) indirectViolations.push(`${file} does not exist`);
     for (const key of keys) {
-      if (!catalog.leafPaths.has(key)) indirectViolations.push(`${file} references missing catalog key ${key}`);
-      const requirements = evidence?.[key] ?? [{ kind: "literal" as const, value: key }];
+      if (!catalog.leafPaths.has(key))
+        indirectViolations.push(
+          `${file} references missing catalog key ${key}`,
+        );
+      const requirements = evidence?.[key] ?? [
+        { kind: "literal" as const, value: key },
+      ];
       const hasEvidence =
         requirements.length > 0 &&
         requirements.every((requirement) => {
           const index = evidenceFor(requirement.file ?? file);
           if (!index) return false;
-          if (requirement.kind === "literal") return index.literals.has(requirement.value);
-          if (requirement.kind === "property") return index.properties.has(requirement.value);
+          if (requirement.kind === "literal")
+            return index.literals.has(requirement.value);
+          if (requirement.kind === "property")
+            return index.properties.has(requirement.value);
           return index.templates.has(requirement.value);
         });
-      if (!hasEvidence) indirectViolations.push(`${file} has no declared source evidence for ${key}`);
+      if (!hasEvidence)
+        indirectViolations.push(
+          `${file} has no declared source evidence for ${key}`,
+        );
       else if (catalog.leafPaths.has(key)) consumerKeys.add(key);
     }
     for (const key of Object.keys(evidence ?? {}))
-      if (!keys.includes(key)) indirectViolations.push(`${file} has stale source evidence for ${key}`);
+      if (!keys.includes(key))
+        indirectViolations.push(`${file} has stale source evidence for ${key}`);
   }
   for (const [site, keys] of DYNAMIC_SITE_CONSUMERS) {
-    if (!dynamicSites.has(site)) indirectViolations.push(`stale dynamic consumer override ${site}`);
+    if (!dynamicSites.has(site))
+      indirectViolations.push(`stale dynamic consumer override ${site}`);
     for (const key of keys) {
-      if (!catalog.leafPaths.has(key)) indirectViolations.push(`${site} references missing catalog key ${key}`);
+      if (!catalog.leafPaths.has(key))
+        indirectViolations.push(
+          `${site} references missing catalog key ${key}`,
+        );
     }
   }
   for (const [template, keys] of DYNAMIC_TEMPLATE_CONSUMERS) {
-    if (!dynamicTemplates.has(template)) indirectViolations.push(`stale dynamic consumer template ${template}`);
+    if (!dynamicTemplates.has(template))
+      indirectViolations.push(`stale dynamic consumer template ${template}`);
     for (const key of keys) {
-      if (!catalog.leafPaths.has(key)) indirectViolations.push(`${template} references missing catalog key ${key}`);
+      if (!catalog.leafPaths.has(key))
+        indirectViolations.push(
+          `${template} references missing catalog key ${key}`,
+        );
     }
   }
 
-  return { staticViolations, dynamicSites, consumerKeys, indirectViolations, nonliteralSites };
+  return {
+    staticViolations,
+    dynamicSites,
+    consumerKeys,
+    indirectViolations,
+    nonliteralSites,
+  };
 }
 
 describe("i18n key resolution", () => {
-  const { staticViolations, dynamicSites, consumerKeys, indirectViolations, nonliteralSites } = scanSources();
+  const {
+    staticViolations,
+    dynamicSites,
+    consumerKeys,
+    indirectViolations,
+    nonliteralSites,
+  } = scanSources();
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("resolves every static translation key against the catalog", () => {
-    expect(staticViolations, `unresolvable translation keys:\n${staticViolations.join("\n")}`).toEqual([]);
-  });
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
+    "resolves every static translation key against the catalog",
+    () => {
+      expect(
+        staticViolations,
+        `unresolvable translation keys:\n${staticViolations.join("\n")}`,
+      ).toEqual([]);
+    },
+  );
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
     "keeps every nonliteral translation call explicitly registered",
     () => {
-      const actual = [...nonliteralSites].sort(([left], [right]) => left.localeCompare(right));
-      const expected = [...NONLITERAL_T_CALL_SITES].sort(([left], [right]) => left.localeCompare(right));
+      const actual = [...nonliteralSites].sort(([left], [right]) =>
+        left.localeCompare(right),
+      );
+      const expected = [...NONLITERAL_T_CALL_SITES].sort(([left], [right]) =>
+        left.localeCompare(right),
+      );
       expect(actual).toEqual(expected);
     },
   );
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("registers every dynamic translation key site", () => {
-    const registered = new Set(DYNAMIC_KEY_SITES);
-    const unregistered = [...dynamicSites].filter((site) => !registered.has(site)).sort();
-    expect(unregistered, `dynamic key sites missing from DYNAMIC_KEY_SITES:\n${unregistered.join("\n")}`).toEqual([]);
-  });
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
+    "registers every dynamic translation key site",
+    () => {
+      const registered = new Set(DYNAMIC_KEY_SITES);
+      const unregistered = [...dynamicSites]
+        .filter((site) => !registered.has(site))
+        .sort();
+      expect(
+        unregistered,
+        `dynamic key sites missing from DYNAMIC_KEY_SITES:\n${unregistered.join("\n")}`,
+      ).toEqual([]);
+    },
+  );
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps the dynamic-site registry free of stale entries", () => {
-    const stale = DYNAMIC_KEY_SITES.filter((site) => !dynamicSites.has(site));
-    expect(stale, `stale DYNAMIC_KEY_SITES entries:\n${stale.join("\n")}`).toEqual([]);
-  });
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
+    "keeps the dynamic-site registry free of stale entries",
+    () => {
+      const stale = DYNAMIC_KEY_SITES.filter((site) => !dynamicSites.has(site));
+      expect(
+        stale,
+        `stale DYNAMIC_KEY_SITES entries:\n${stale.join("\n")}`,
+      ).toEqual([]);
+    },
+  );
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps explicit indirect consumers valid", () => {
-    expect(indirectViolations, `invalid indirect translation consumers:\n${indirectViolations.join("\n")}`).toEqual([]);
-  });
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
+    "keeps explicit indirect consumers valid",
+    () => {
+      expect(
+        indirectViolations,
+        `invalid indirect translation consumers:\n${indirectViolations.join("\n")}`,
+      ).toEqual([]);
+    },
+  );
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps event translations aligned with domain events", () => {
-    const { leafPaths } = loadCatalogPaths();
-    const translatedEvents = [...leafPaths]
-      .filter((key) => key.startsWith("Common.events."))
-      .map((key) => key.slice("Common.events.".length))
-      .sort();
-    const domainEvents = Object.values(DomainEvent).sort();
-    expect(translatedEvents).toEqual(domainEvents);
-  });
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
+    "keeps event translations aligned with domain events",
+    () => {
+      const { leafPaths } = loadCatalogPaths();
+      const translatedEvents = [...leafPaths]
+        .filter((key) => key.startsWith("Common.events."))
+        .map((key) => key.slice("Common.events.".length))
+        .sort();
+      const domainEvents = Object.values(DomainEvent).sort();
+      expect(translatedEvents).toEqual(domainEvents);
+    },
+  );
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps terminology translations aligned with presets", () => {
-    const { leafPaths } = loadCatalogPaths();
-    const translatedPresets = [...leafPaths].filter((key) => key.startsWith("EntityTerminology.presets.")).sort();
-    expect(translatedPresets).toEqual([...ENTITY_TERMINOLOGY_KEYS].sort());
-  });
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
+    "keeps terminology translations aligned with presets",
+    () => {
+      const { leafPaths } = loadCatalogPaths();
+      const translatedPresets = [...leafPaths]
+        .filter((key) => key.startsWith("EntityTerminology.presets."))
+        .sort();
+      expect(translatedPresets).toEqual([...ENTITY_TERMINOLOGY_KEYS].sort());
+    },
+  );
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
     "keeps filter-field translations aligned with filter fields",
     () => {
       const { leafPaths } = loadCatalogPaths();
-      const translatedFields = [...leafPaths].filter((key) => key.startsWith("Common.filters.fields.")).sort();
+      const translatedFields = [...leafPaths]
+        .filter((key) => key.startsWith("Common.filters.fields."))
+        .sort();
       expect(translatedFields).toEqual([...FILTER_FIELD_KEYS].sort());
     },
   );
@@ -969,7 +1267,9 @@ describe("i18n key resolution", () => {
     "keeps role-resource translations aligned with role resources",
     () => {
       const { leafPaths } = loadCatalogPaths();
-      const translatedResources = [...leafPaths].filter((key) => key.startsWith("RoleModal.resources.")).sort();
+      const translatedResources = [...leafPaths]
+        .filter((key) => key.startsWith("RoleModal.resources."))
+        .sort();
       expect(translatedResources).toEqual([...ROLE_RESOURCE_KEYS].sort());
     },
   );
@@ -978,7 +1278,9 @@ describe("i18n key resolution", () => {
     "keeps display-type translations aligned with display types",
     () => {
       const { leafPaths } = loadCatalogPaths();
-      const translatedDisplayTypes = [...leafPaths].filter((key) => key.startsWith("Dashboard.displayTypes.")).sort();
+      const translatedDisplayTypes = [...leafPaths]
+        .filter((key) => key.startsWith("Dashboard.displayTypes."))
+        .sort();
       expect(translatedDisplayTypes).toEqual([...DISPLAY_TYPE_KEYS].sort());
     },
   );
@@ -990,7 +1292,9 @@ describe("i18n key resolution", () => {
       const translatedAggregationTypes = [...leafPaths]
         .filter((key) => key.startsWith("Dashboard.aggregationTypes."))
         .sort();
-      expect(translatedAggregationTypes).toEqual([...AGGREGATION_TYPE_KEYS].sort());
+      expect(translatedAggregationTypes).toEqual(
+        [...AGGREGATION_TYPE_KEYS].sort(),
+      );
     },
   );
 
@@ -998,29 +1302,46 @@ describe("i18n key resolution", () => {
     "keeps date-preset translations aligned with rendered presets",
     () => {
       const { leafPaths } = loadCatalogPaths();
-      const translatedDatePresets = [...leafPaths].filter((key) => key.startsWith("Common.datePresets.")).sort();
+      const translatedDatePresets = [...leafPaths]
+        .filter((key) => key.startsWith("Common.datePresets."))
+        .sort();
       expect(translatedDatePresets).toEqual([...DATE_PRESET_KEYS].sort());
     },
   );
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps error translations aligned with error codes", () => {
-    const { leafPaths } = loadCatalogPaths();
-    const translatedErrors = [...leafPaths].filter((key) => key.startsWith("Common.errors.")).sort();
-    expect(translatedErrors).toEqual([...COMMON_ERROR_KEYS].sort());
-  });
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
+    "keeps error translations aligned with error codes",
+    () => {
+      const { leafPaths } = loadCatalogPaths();
+      const translatedErrors = [...leafPaths]
+        .filter((key) => key.startsWith("Common.errors."))
+        .sort();
+      expect(translatedErrors).toEqual([...COMMON_ERROR_KEYS].sort());
+    },
+  );
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
     "keeps canonical column translations aligned with rendered columns",
     () => {
       const { leafPaths } = loadCatalogPaths();
-      const translatedColumns = [...leafPaths].filter((key) => key.startsWith("Common.table.columns.")).sort();
+      const translatedColumns = [...leafPaths]
+        .filter((key) => key.startsWith("Common.table.columns."))
+        .sort();
       expect(translatedColumns).toEqual([...TABLE_COLUMN_KEYS].sort());
     },
   );
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("maps every catalog leaf to a source consumer", () => {
-    const { leafPaths } = loadCatalogPaths();
-    const unconsumed = [...leafPaths].filter((key) => !consumerKeys.has(key)).sort();
-    expect(unconsumed, `catalog keys without a source consumer:\n${unconsumed.join("\n")}`).toEqual([]);
-  });
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
+    "maps every catalog leaf to a source consumer",
+    () => {
+      const { leafPaths } = loadCatalogPaths();
+      const unconsumed = [...leafPaths]
+        .filter((key) => !consumerKeys.has(key))
+        .sort();
+      expect(
+        unconsumed,
+        `catalog keys without a source consumer:\n${unconsumed.join("\n")}`,
+      ).toEqual([]);
+    },
+  );
 });

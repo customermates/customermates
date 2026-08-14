@@ -656,7 +656,7 @@
     }
   },
   "ConnectedAccountsCard": {
-    "accountLimitReached": "La formule Business inclut 3 comptes connectés par utilisateur. Contactez-nous au sujet de la formule Enterprise pour un nombre illimité de comptes.",
+    "accountLimitReached": "Vous avez atteint la limite de comptes connectés de cette formule. Contactez-nous au sujet de la formule Enterprise pour un nombre illimité de comptes.",
     "alreadyExistsToastDescription": "Ce compte est déjà connecté par un membre de votre espace de travail. Demandez-lui de le partager avec l'espace de travail pour éviter les messages en double dans la boîte de réception.",
     "alreadyExistsToastTitle": "Compte déjà connecté",
     "channels": {
@@ -1233,11 +1233,11 @@
       "badge": "Populaire",
       "compareText": "Comparer les formules",
       "ctaText": "Commencer gratuitement",
-      "featureBusiness": "Business : 3 comptes par utilisateur, comptes partagés et assistance prioritaire",
-      "featurePro": "Pro : boîte de réception unifiée, 1 compte connecté par utilisateur",
+      "featureBusiness": "Business : {accounts, plural, one {# compte par utilisateur} other {# comptes par utilisateur}}, comptes partagés et assistance prioritaire",
+      "featurePro": "Pro : boîte de réception unifiée, {accounts, plural, one {# compte connecté par utilisateur} other {# comptes connectés par utilisateur}}",
       "featureStarter": "Starter : le cœur du CRM",
       "period": "/ utilisateur / mois",
-      "price": "à partir de 12 €",
+      "price": "à partir de {price}",
       "tag": "Géré pour vous ; base de données en région UE. D’autres prestataires peuvent traiter des données ailleurs.",
       "title": "Cloud"
     },
@@ -1399,7 +1399,6 @@
     "informationBody": "Nous avons mis à jour les informations juridiques indiquées ci-dessous. Cette notification ne nécessite aucune acceptation, sauf si l’e-mail mentionne également des conditions générales ou un accord de traitement des données mis à jour.",
     "informationSubject": "Informations juridiques de Customermates mises à jour",
     "informationTitle": "Informations juridiques mises à jour",
-    "liveLabel": "Document en vigueur",
     "signoff": "Cordialement,\nBen",
     "subprocessorDeadlineLabel": "Date limite d’opposition au sous-traitant",
     "subprocessorObjection": "Aucune acceptation n’est requise. Si vous vous opposez au changement de sous-traitant indiqué, répondez sans délai indu et avant la date limite mentionnée, en exposant des motifs raisonnables liés à la protection des données.",
@@ -1420,7 +1419,6 @@
     "memberWaiting": "Un administrateur de l’entreprise doit accepter les conditions générales et le DPA mis à jour. Vous pourrez réessayer après leur acceptation ou vous déconnecter.",
     "privacy": "Politique de confidentialité",
     "retry": "Réessayer",
-    "signOut": "Se déconnecter",
     "subprocessors": "Sous-traitants",
     "subtitle": "Un administrateur habilité de l’entreprise doit accepter au plus tard le {date}.",
     "terms": "Conditions générales",
@@ -1681,7 +1679,7 @@
     "buttonLabel": "S'inscrire avec {provider}",
     "inviteSubtitle": "Vous avez été invité à rejoindre une équipe sur Customermates. Choisissez votre méthode de connexion pour accepter l'invitation.",
     "inviteTitle": "Accepter l'invitation de l'entreprise",
-    "newCompanySubtitle": "Enregistrez une nouvelle entreprise et testez Customermates gratuitement pendant 7 jours. Sans carte bancaire.",
+    "newCompanySubtitle": "Enregistrez une nouvelle entreprise et testez Customermates gratuitement pendant {days} jours. Sans carte bancaire.",
     "or": "OU",
     "signUpCta": "Créer un compte",
     "switchToSignIn": "Vous avez déjà un compte ? <signInLink>Connectez-vous</signInLink>",
@@ -1702,17 +1700,10 @@
     "managedExternallyNote": "Cet espace de travail utilise une formule Enterprise réglée sur facture. Contactez votre gestionnaire de compte pour toute modification.",
     "manageWithLemonSqueezy": "Gérer avec Lemon Squeezy",
     "picker": {
+      "connectedAccountsPerUser": "{accounts, plural, one {# compte connecté par utilisateur} other {# comptes connectés par utilisateur}}",
       "features": {
-        "business": [
-          "Tout ce qui est inclus dans Pro",
-          "3 comptes connectés par utilisateur",
-          "Comptes partagés et assistance prioritaire"
-        ],
-        "pro": [
-          "Tout ce qui est inclus dans Starter",
-          "Boîte de réception unifiée",
-          "1 compte connecté par utilisateur"
-        ],
+        "business": ["Tout ce qui est inclus dans Pro", "Comptes partagés et assistance prioritaire"],
+        "pro": ["Tout ce qui est inclus dans Starter", "Boîte de réception unifiée"],
         "starter": [
           "CRM complet : contacts, affaires, organisations, tâches",
           "Journal d'audit",
@@ -1721,12 +1712,7 @@
         ]
       },
       "mostPopular": "Le plus populaire",
-      "perUserMonth": "par utilisateur / mois",
-      "price": {
-        "business": "69 €",
-        "pro": "29 €",
-        "starter": "12 €"
-      }
+      "perUserMonth": "par utilisateur / mois"
     },
     "plan": "Formule",
     "planNames": {
@@ -1752,9 +1738,12 @@
     "trialEnds": "Fin de l'essai"
   },
   "SubscriptionExpiredView": {
+    "administratorRequiredDescription": "Un administrateur de l’entreprise doit rétablir l’abonnement. Réessayez ensuite ou contactez notre assistance.",
     "contactSupportCta": "Contacter l'assistance",
-    "description": "Votre période d'essai est terminée et votre entreprise n'a pas d'abonnement actif. Abonnez-vous pour continuer à utiliser Customermates, ou contactez notre assistance si vous avez des questions.",
-    "subtitle": "Votre essai a expiré",
+    "manualEnterpriseBillingDescription": "Votre espace de travail Enterprise est facturé manuellement. Contactez notre assistance pour rétablir l’accès, puis réessayez.",
+    "retry": "Réessayer",
+    "selfServiceCheckoutDescription": "Votre espace de travail n’a plus d’abonnement actif. Choisissez une offre pour continuer à utiliser Customermates, ou contactez notre assistance si vous avez des questions.",
+    "subtitle": "L’accès à l’espace de travail est suspendu",
     "supportEmailSubject": "Question sur l'abonnement",
     "title": "Abonnement requis"
   },

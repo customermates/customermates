@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CustomColumnType, EntityType, Status } from "@/generated/prisma";
 
 import { CHIP_COLORS } from "@/constants/chip-colors";
+import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
 
 const customColumnCreate = vi.fn().mockResolvedValue({ id: "column-1" });
 
@@ -20,8 +21,19 @@ const prismaMock = {
 };
 
 vi.mock("@/prisma/db", () => ({ prisma: prismaMock }));
-vi.mock("next-intl/server", () => ({ getTranslations: () => Promise.resolve((key: string) => key) }));
-vi.mock("@/core/decorators/transaction.decorator", () => ({ Transaction: () => undefined }));
+vi.mock("next-intl/server", () => ({
+  getTranslations: () => Promise.resolve((key: string) => key),
+}));
+vi.mock("@/core/decorators/transaction.decorator", () => ({
+  Transaction: () => undefined,
+}));
+vi.mock("@/env", () => ({
+  env: {
+    APP_MODE: "cloud",
+    AUTH_GOOGLE_ID: undefined,
+    AUTH_MICROSOFT_ENTRA_ID_ID: undefined,
+  },
+}));
 
 const { PrismaUserRepo } = await import("../prisma-user.repository");
 
@@ -67,7 +79,11 @@ describe("PrismaUserRepo.createCompanyAndUser", () => {
     const created = customColumnCreate.mock.calls.map((call) => call[0].data);
 
     for (const data of created) {
-      const options = data.options.options as Array<{ isDefault: boolean; value: string; color: string }>;
+      const options = data.options.options as Array<{
+        isDefault: boolean;
+        value: string;
+        color: string;
+      }>;
 
       expect(options.length).toBeGreaterThan(1);
       for (const option of options as Array<{ color: string }>) expect(CHIP_COLORS).toContain(option.color);
@@ -84,6 +100,19 @@ describe("PrismaUserRepo.createCompanyAndUser", () => {
     expect(prismaMock.userRole.create).toHaveBeenCalledTimes(1);
     expect(prismaMock.user.create).toHaveBeenCalledTimes(1);
     expect(customColumnCreate).toHaveBeenCalledTimes(3);
+  });
+
+  it("creates the catalog-owned Pro cloud trial", async () => {
+    const before = new Date();
+    before.setDate(before.getDate() + CLOUD_TRIAL.days);
+    await new PrismaUserRepo().createCompanyAndUser(registerArgs);
+    const after = new Date();
+    after.setDate(after.getDate() + CLOUD_TRIAL.days);
+
+    const data = prismaMock.subscription.create.mock.calls[0][0].data;
+    expect(data).toMatchObject({ plan: CLOUD_TRIAL.plan, status: "trial" });
+    expect(data.trialEndDate.getTime()).toBeGreaterThanOrEqual(before.getTime());
+    expect(data.trialEndDate.getTime()).toBeLessThanOrEqual(after.getTime());
   });
 });
 
@@ -114,7 +143,10 @@ describe("PrismaUserRepo.findActiveLegalNoticeRecipientsUnscoped", () => {
     expect(prismaMock.user.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { status: Status.active },
-        select: expect.objectContaining({ createdAt: true, formattingLocale: true }),
+        select: expect.objectContaining({
+          createdAt: true,
+          formattingLocale: true,
+        }),
       }),
     );
   });

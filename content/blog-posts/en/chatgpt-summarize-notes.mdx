@@ -42,17 +42,17 @@ For CRM systems like [Customermates](/), [Pipedrive](https://www.pipedrive.com/)
 
 Before diving into ChatGPT prompts, it is worth understanding the tools that capture meeting transcripts automatically. These tools record your calls, generate transcripts, and, in some cases, produce their own AI summaries.
 
-| Feature | Otter.ai | Fireflies.ai | Fathom |
-|---------|----------|---------------|--------|
-| Real-time transcription | Yes | Yes | Yes |
-| AI summary quality | Good (generic) | Good (customizable) | Excellent (action-focused) |
-| Calendar integration | Google, Outlook | Google, Outlook, Teams | Google, Outlook, Teams |
-| CRM integration | HubSpot, Salesforce | HubSpot, Salesforce, Pipedrive | HubSpot, Salesforce |
-| Webhook / API export | Limited | Yes (webhooks) | Limited |
-| Free tier | 300 min/month | Limited | Unlimited recordings |
-| Starting price | USD 17/user/month | USD 19/user/month | USD 19/user/month |
-| n8n integration | Via API | Native webhook | Via API |
-| GDPR/EU hosting | US only | US (EU DPA available) | US (EU DPA available) |
+| Feature                 | Otter.ai            | Fireflies.ai                   | Fathom                     |
+| ----------------------- | ------------------- | ------------------------------ | -------------------------- |
+| Real-time transcription | Yes                 | Yes                            | Yes                        |
+| AI summary quality      | Good (generic)      | Good (customizable)            | Excellent (action-focused) |
+| Calendar integration    | Google, Outlook     | Google, Outlook, Teams         | Google, Outlook, Teams     |
+| CRM integration         | HubSpot, Salesforce | HubSpot, Salesforce, Pipedrive | HubSpot, Salesforce        |
+| Webhook / API export    | Limited             | Yes (webhooks)                 | Limited                    |
+| Free tier               | 300 min/month       | Limited                        | Unlimited recordings       |
+| Starting price          | USD 17/user/month   | USD 19/user/month              | USD 19/user/month          |
+| n8n integration         | Via API             | Native webhook                 | Via API                    |
+| GDPR/EU hosting         | US only             | US (EU DPA available)          | US (EU DPA available)      |
 
 **Otter.ai** is strong for individual users who want real-time transcription during meetings. Its AI summaries are decent but generic, they do not map to CRM fields.
 
@@ -231,12 +231,12 @@ Add a second ChatGPT node to extract action items from the same transcript. Then
 
 ### Cost of Running This Workflow
 
-| Component | Monthly Cost |
-|-----------|-------------|
-| n8n Cloud (Starter) | EUR 20 |
-| OpenAI API (100 summaries) | EUR 2-5 |
-| Customermates CRM | EUR 12/user |
-| **Total (1 user)** | **EUR 34-37** |
+| Component                  | Monthly Cost                                                |
+| -------------------------- | ----------------------------------------------------------- |
+| n8n Cloud (Starter)        | EUR 20                                                      |
+| OpenAI API (100 summaries) | EUR 2-5                                                     |
+| Customermates CRM          | [[commercial.price.starter.monthly]]/user                   |
+| **Total (1 user)**         | **EUR 20 + EUR 2-5 + [[commercial.price.starter.monthly]]** |
 
 At 100 meeting summaries per month, the API cost is negligible. The time savings, roughly 80 minutes per week for an active sales rep, far outweigh the expense.
 
@@ -271,7 +271,7 @@ Ensure your CRM stores data in a GDPR-compliant way. Customermates hosts data in
 
 Not every CRM handles notes and automation equally well. Here is how popular options compare for this specific workflow:
 
-**Customermates.** From EUR 12/user/month (Starter), the full core CRM included. Native n8n integration, plus a native MCP server so an AI agent (Claude, ChatGPT, or Gemini) can read and write records directly, notes on deals and contacts, GDPR-compliant EU hosting, open-source. On the Pro tier it adds a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) that the same agent can operate. Built for teams that want fast data entry without complex configuration. Native AI and MCP are included from the entry tier, no separate upgrade needed.
+**Customermates.** From [[commercial.price.starter.monthly]]/user/month (Starter), the full core CRM included. Native n8n integration, plus a native MCP server so an AI agent (Claude, ChatGPT, or Gemini) can read and write records directly, notes on deals and contacts, GDPR-compliant EU hosting, open-source. On the Pro tier it adds a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) that the same agent can operate. Built for teams that want fast data entry without complex configuration. Native AI and MCP are included from the entry tier, no separate upgrade needed.
 
 **HubSpot.** Free CRM tier available; paid Sales Hub plans start at USD 15/seat/month (Starter), with the automation most teams want gating at Professional (USD 90/seat/month, plus a one-time onboarding fee). Notes work well, but the interface is more complex. Good if you also need marketing automation. Meeting recording integrations are built in on paid tiers.
 

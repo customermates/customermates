@@ -47,7 +47,7 @@ The CRM automatically syncs emails and contacts to the correct contact record. N
 
 ### 3. Workflow Automation via n8n or API
 
-A more flexible approach. Instead of relying on a built-in add-on, you connect Gmail and CRM through [n8n](https://n8n.io/) workflows or the Gmail API directly. This lets you automate actions like: deal status changes trigger a Gmail message, new contacts sync bidirectionally, calendar events create CRM activities, or follow-up sequences run automatically. Customermates uses this model.
+A more flexible approach. Instead of relying on a built-in add-on, you connect Gmail and CRM through [n8n](https://n8n.io/) workflows or the Gmail API directly. This lets you automate actions like: deal status changes trigger a Gmail message, new contacts sync bidirectionally, calendar events create CRM activities, or follow-up sequences run automatically. Customermates uses this model. The Customermates calendar view is read-only; it cannot create, edit, or schedule events.
 
 **Pros:** Full control, 24/7 server-side operation, unlimited automation complexity, works with Google Calendar and Drive too.
 **Cons:** More initial setup. No visual sidebar in Gmail (CRM data viewed in the CRM itself).
@@ -80,7 +80,7 @@ Not every integration is equal. Here are the 12 capabilities that matter most wh
 
 ### 1. Customermates, Best for SMEs Who Want Full Automation
 
-**Price:** EUR 29/user/month (Pro tier, includes the unified email inbox; core CRM from EUR 12)
+**Price:** [[commercial.price.pro.monthly]]/user/month (Pro tier, includes the unified email inbox; core CRM from [[commercial.price.starter.monthly]])
 
 **Integration approach:** n8n workflow automation with Gmail API
 
@@ -94,9 +94,10 @@ Customermates takes two paths to Gmail rather than a traditional sidebar. On the
 4. Replies land in the unified inbox, and calendars from the connected account are read into Customermates; the calendar is read-only, so n8n cannot write events back
 
 **What you can automate:**
+
 - Deal won --> confirmation email sent via Gmail
-- New contact created --> welcome email sequence starts
-- Meeting booked --> Google Calendar event created and linked in CRM
+- New contact created --> your own n8n instance calls an external email provider for a welcome sequence; Customermates does not run sequences
+- Meeting booked --> an external workflow can create the event in Google Calendar; Customermates only displays connected events read-only
 - No reply after 3 days --> follow-up email triggered automatically
 - Quote approved --> PDF attached and sent via Gmail
 - Deal lost --> feedback request email sent 7 days later
@@ -106,7 +107,7 @@ Customermates takes two paths to Gmail rather than a traditional sidebar. On the
 - A separate n8n integration means webhooks work out of the box
 - Full control over automation logic (no vendor lock-in)
 - Self-hostable n8n for GDPR compliance, data never leaves your servers
-- At EUR 29/user/month, significantly cheaper than most alternatives with comparable automation
+- At [[commercial.price.pro.monthly]]/user/month, significantly cheaper than most alternatives with comparable automation
 - Works with Gmail, Google Workspace, Google Calendar, and Google Drive
 - Unlimited automation executions (no per-task fees like Zapier)
 - Full REST API for custom integrations beyond n8n
@@ -124,6 +125,7 @@ Customermates takes two paths to Gmail rather than a traditional sidebar. On the
 Streak is unique because the entire CRM lives inside Gmail. There is no separate web app to manage. You create pipelines, manage deals, track emails, and collaborate, all from within the Gmail interface. It feels like a natural extension of your inbox.
 
 **Key strengths:**
+
 - Zero context switching, the CRM is Gmail
 - Visual pipeline management directly in the inbox
 - Email tracking (opens and views) built in
@@ -132,6 +134,7 @@ Streak is unique because the entire CRM lives inside Gmail. There is no separate
 - Recent mobile app rebuild improved performance significantly
 
 **Limitations:**
+
 - Heavily dependent on the Gmail web client
 - Limited reporting compared to standalone CRMs
 - Automation features are basic in lower tiers
@@ -150,6 +153,7 @@ Streak is unique because the entire CRM lives inside Gmail. There is no separate
 HubSpot offers a solid Gmail add-on that shows contact details, logs emails, and lets you use templates and sequences directly from Gmail. The free CRM includes basic Gmail integration, which is rare.
 
 **Key strengths:**
+
 - Free tier includes Gmail add-on with contact timeline
 - Clean sidebar UI with full contact history
 - Email tracking (opens, clicks) included in free tier
@@ -158,6 +162,7 @@ HubSpot offers a solid Gmail add-on that shows contact details, logs emails, and
 - Business card and QR code scanning on mobile
 
 **Limitations:**
+
 - Advanced automation requires paid Sales Hub Professional ($100/user/month)
 - Email tracking can be inconsistent
 - Free tier limits activity history to 30 days
@@ -176,6 +181,7 @@ HubSpot offers a solid Gmail add-on that shows contact details, logs emails, and
 Copper is built from the ground up for Google Workspace. It integrates natively with Gmail, Google Calendar, Google Drive, and Google Contacts. The Gmail sidebar automatically suggests contacts and companies based on the email you are reading.
 
 **Key strengths:**
+
 - Deepest native Google Workspace integration available
 - Automatic contact and company creation from emails
 - Google Drive file linking to CRM records
@@ -183,6 +189,7 @@ Copper is built from the ground up for Google Workspace. It integrates natively 
 - Chrome extension works seamlessly in Gmail
 
 **Limitations:**
+
 - Only works with Google Workspace (no Outlook support)
 - More expensive than simpler alternatives
 - Limited customization for complex sales processes
@@ -200,12 +207,14 @@ Copper is built from the ground up for Google Workspace. It integrates natively 
 Salesflare stands out for its automatic data enrichment. It pulls contact info from email signatures, tracks email opens, logs conversations, and even scores relationship strength, all from within Gmail.
 
 **Key strengths:**
+
 - Automatic contact creation from email exchanges
 - Email signature parsing for data enrichment
 - Relationship strength scoring based on email frequency
 - Clean, minimal Gmail sidebar
 
 **Limitations:**
+
 - Higher price point than many competitors
 - Smaller ecosystem and fewer third-party integrations
 - Limited customization for complex sales processes
@@ -222,6 +231,7 @@ Salesflare stands out for its automatic data enrichment. It pulls contact info f
 Pipedrive is known for its visual sales pipeline. Its Gmail add-on lets you log emails, sync contacts, and manage deals from a sidebar inside Gmail. The mobile app supports offline editing with automatic sync.
 
 **Key strengths:**
+
 - Excellent visual pipeline management
 - Good Gmail add-on with deal creation
 - Strong email tracking features
@@ -230,6 +240,7 @@ Pipedrive is known for its visual sales pipeline. Its Gmail add-on lets you log 
 - Audio note recording on mobile
 
 **Limitations:**
+
 - Gmail add-on can be slow to load
 - Email sync has occasional delays
 - Limited marketing automation
@@ -247,12 +258,14 @@ Pipedrive is known for its visual sales pipeline. Its Gmail add-on lets you log 
 NetHunt turns Gmail into a full CRM. Records, pipelines, and workflows all live inside the Gmail interface. It creates CRM records from emails with one click and supports advanced workflow automation directly from the inbox.
 
 **Key strengths:**
+
 - Full CRM embedded inside Gmail (not just a sidebar)
 - Strong email campaign and drip sequence features
 - Workflow automation with triggers and actions
 - LinkedIn integration for prospecting
 
 **Limitations:**
+
 - UI can feel complex for CRM beginners
 - Primarily Gmail-focused (limited outside Gmail)
 - Smaller company with a smaller user community
@@ -270,6 +283,7 @@ NetHunt turns Gmail into a full CRM. Records, pipelines, and workflows all live 
 Zoho CRM offers a Gmail add-on alongside its massive ecosystem of business apps. The integration syncs emails, lets you create leads from Gmail, and connects with Zoho's other tools (Zoho Books, Zoho Projects, etc.).
 
 **Key strengths:**
+
 - Free tier for up to 3 users
 - Comprehensive offline functionality on mobile
 - Part of a larger ecosystem (40+ Zoho apps)
@@ -277,6 +291,7 @@ Zoho CRM offers a Gmail add-on alongside its massive ecosystem of business apps.
 - Built-in telephony and caller ID on mobile
 
 **Limitations:**
+
 - Gmail add-on is less polished than competitors
 - Complex interface can feel cluttered
 - Workflow rules and admin customization are desktop-only
@@ -294,6 +309,7 @@ Zoho CRM offers a Gmail add-on alongside its massive ecosystem of business apps.
 Freshsales (part of Freshworks) combines CRM with built-in calling. The Gmail integration syncs emails and contacts, while the built-in phone system lets you make calls directly from the CRM with automatic call logging.
 
 **Key strengths:**
+
 - Built-in calling with automatic logging
 - Affordable pricing starting at $9/user/month
 - Good deal tracking and pipeline management
@@ -301,6 +317,7 @@ Freshsales (part of Freshworks) combines CRM with built-in calling. The Gmail in
 - Quick setup on iOS and Android
 
 **Limitations:**
+
 - Email access on mobile requires too many taps
 - Lacks a consolidated inbox view
 - Weak mobile email experience compared to desktop
@@ -317,12 +334,14 @@ Freshsales (part of Freshworks) combines CRM with built-in calling. The Gmail in
 Capsule offers a clean, straightforward Gmail integration. The add-on lets you save contacts, log emails, and view CRM data from within Gmail. It is designed for teams that want a simple CRM that works without extensive configuration.
 
 **Key strengths:**
+
 - Very easy to set up and use
 - Clean Gmail sidebar for email logging
 - Good contact management and tagging
 - Free tier for small teams (2 users)
 
 **Limitations:**
+
 - Limited automation features
 - Basic pipeline management
 - Fewer integrations than larger platforms
@@ -332,20 +351,20 @@ Capsule offers a clean, straightforward Gmail integration. The add-on lets you s
 
 ## Comparison Table: Gmail CRM Integration Features
 
-| Feature | Customermates | Streak | HubSpot | Copper | Salesflare | Pipedrive | NetHunt | Zoho | Freshsales | Capsule |
-|---|---|---|---|---|---|---|---|---|---|---|
-| Gmail sidebar / add-on | Via n8n | Embedded | Add-on | Add-on | Add-on | Add-on | Embedded | Add-on | Add-on | Add-on |
-| Auto email logging | Yes (n8n) | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
-| Google Calendar sync | Yes (n8n) | Yes | Yes | Native | Yes | Yes | Yes | Yes | Yes | Yes |
-| Contact auto-creation | Yes | Yes | Paid | Yes | Yes | No | Yes | Yes | Yes | No |
-| Email templates | Yes (n8n) | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Limited |
-| Email tracking | Via n8n | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | No |
-| Automated workflows | Full (n8n) | Basic | Paid | Basic | Limited | Basic | Yes | Paid | Limited | No |
-| Two-way contact sync | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
-| Offline mobile access | N/A | No | No | No | No | Yes | No | Yes | Yes | No |
-| Self-hostable | n8n: Yes | No | No | No | No | No | No | No | No | No |
-| Built-in calling | No | No | Paid | No | No | Paid | No | Yes | Yes | No |
-| Price/user/month | From EUR 12 (email on Pro, EUR 29) | Free/$49+ | Free/$20+ | $25+ | $29+ | $14+ | $24+ | Free/$14+ | Free/$9+ | Free/$18+ |
+| Feature                | Customermates                                                                              | Streak    | HubSpot   | Copper | Salesflare | Pipedrive | NetHunt  | Zoho      | Freshsales | Capsule   |
+| ---------------------- | ------------------------------------------------------------------------------------------ | --------- | --------- | ------ | ---------- | --------- | -------- | --------- | ---------- | --------- |
+| Gmail sidebar / add-on | Via n8n                                                                                    | Embedded  | Add-on    | Add-on | Add-on     | Add-on    | Embedded | Add-on    | Add-on     | Add-on    |
+| Auto email logging     | Yes (n8n)                                                                                  | Yes       | Yes       | Yes    | Yes        | Yes       | Yes      | Yes       | Yes        | Yes       |
+| Google Calendar sync   | Yes (n8n)                                                                                  | Yes       | Yes       | Native | Yes        | Yes       | Yes      | Yes       | Yes        | Yes       |
+| Contact auto-creation  | Yes                                                                                        | Yes       | Paid      | Yes    | Yes        | No        | Yes      | Yes       | Yes        | No        |
+| Email templates        | Yes (n8n)                                                                                  | Yes       | Yes       | Yes    | Yes        | Yes       | Yes      | Yes       | Yes        | Limited   |
+| Email tracking         | Via n8n                                                                                    | Yes       | Yes       | Yes    | Yes        | Yes       | Yes      | Yes       | Yes        | No        |
+| Automated workflows    | Full (n8n)                                                                                 | Basic     | Paid      | Basic  | Limited    | Basic     | Yes      | Paid      | Limited    | No        |
+| Two-way contact sync   | Yes                                                                                        | Yes       | Yes       | Yes    | Yes        | Yes       | Yes      | Yes       | Yes        | Yes       |
+| Offline mobile access  | N/A                                                                                        | No        | No        | No     | No         | Yes       | No       | Yes       | Yes        | No        |
+| Self-hostable          | n8n: Yes                                                                                   | No        | No        | No     | No         | No        | No       | No        | No         | No        |
+| Built-in calling       | No                                                                                         | No        | Paid      | No     | No         | Paid      | No       | Yes       | Yes        | No        |
+| Price/user/month       | From [[commercial.price.starter.monthly]] (email on Pro, [[commercial.price.pro.monthly]]) | Free/$49+ | Free/$20+ | $25+   | $29+       | $14+      | $24+     | Free/$14+ | Free/$9+   | Free/$18+ |
 
 ## How to Set Up Gmail CRM Integration with Customermates and n8n
 
@@ -377,7 +396,7 @@ Start with a simple follow-up automation:
 
 This single workflow can recover 10-15% of stalled deals without any manual effort.
 
-### Step 4: Add Email Templates with Dynamic Content
+### Step 4: Add Email Templates in Your Own n8n Instance
 
 Create templates in n8n with placeholders that pull live data from Customermates:
 
@@ -386,7 +405,7 @@ Subject: {{firstName}}, following up on your {{productName}} proposal
 
 Hi {{firstName}},
 
-I wanted to check in regarding the {{productName}} proposal 
+I wanted to check in regarding the {{productName}} proposal
 I sent over on {{proposalDate}} for {{companyName}}.
 
 Would you have 15 minutes this week to discuss any questions?
@@ -402,7 +421,7 @@ Every email goes out from your real Gmail account with your signature, recipient
 Once the basic flow works, add more workflows:
 
 - **New lead notification:** Gmail message to sales manager when a high-value lead is created
-- **Meeting prep:** Google Calendar event created with CRM notes 24 hours before a meeting
+- **Meeting prep:** Google Calendar event created with CRM notes 24 hours before a meeting The Customermates calendar view is read-only; it cannot create, edit, or schedule events.
 - **Win/loss alerts:** Team notification via Gmail when deals close
 - **Re-engagement:** Automated sequence for contacts with no activity in 30 days
 - **Quote delivery:** PDF generated and sent via Gmail when a deal reaches "Quote Ready"
@@ -416,12 +435,14 @@ Technically, yes, but it is not a good idea for most teams.
 Gmail has contacts, labels, tasks, and Google Calendar. Some people use labels and stars to track deals. Google even offers Google Contacts with basic tagging and notes.
 
 **What works with Gmail alone:**
+
 - Tracking 5-10 active conversations with labels
 - Setting reminders with Google Tasks
 - Basic contact notes in Google Contacts
 - Shared labels for team collaboration (Google Workspace)
 
 **What does not work with Gmail alone:**
+
 - Pipeline management and deal stages
 - Revenue forecasting and reporting
 - Automated follow-up sequences
@@ -461,7 +482,7 @@ There are two fundamentally different ways CRMs connect to Gmail:
 
 Some teams use both. They install a Gmail sidebar CRM (like HubSpot or Pipedrive) for quick manual lookups and use n8n for automated workflows. This works if you are willing to maintain two integrations, but adds complexity.
 
-**Bottom line:** If your team primarily needs to view CRM data while reading emails, an add-on works well. If you want to automate repetitive email tasks and build workflows that run without human intervention, the API approach via n8n is more powerful. If budget matters, Customermates at EUR 29/user/month (Pro, with the email inbox) and n8n beats paying for a CRM plus a separate automation tool.
+**Bottom line:** If your team primarily needs to view CRM data while reading emails, an add-on works well. If you want to automate repetitive email tasks and build workflows that run without human intervention, the API approach via n8n is more powerful. If budget matters, Customermates at [[commercial.price.pro.monthly]]/user/month (Pro, with the email inbox) and n8n beats paying for a CRM plus a separate automation tool.
 
 ## Gmail Sending Limits and Best Practices
 
@@ -531,7 +552,7 @@ B2B e-commerce teams benefit from Gmail CRM integrations that sync order confirm
 
 ### What is the best CRM that integrates with Gmail?
 
-The best CRM depends on your needs. Streak and NetHunt are the most Gmail-native options, living entirely inside the inbox. HubSpot offers a solid free Gmail add-on. Copper provides the deepest Google Workspace integration. Customermates (EUR 29/user/month on Pro, with the Gmail inbox) offers deep automation through n8n workflows with the Gmail API, plus GDPR-compliant self-hosting.
+The best CRM depends on your needs. Streak and NetHunt are the most Gmail-native options, living entirely inside the inbox. HubSpot offers a solid free Gmail add-on. Copper provides the deepest Google Workspace integration. Customermates ([[commercial.price.pro.monthly]]/user/month on Pro, with the Gmail inbox) offers deep automation through n8n workflows with the Gmail API, plus GDPR-compliant self-hosting.
 
 ### How do I integrate a CRM with Gmail?
 
@@ -543,11 +564,11 @@ You can use Gmail's contacts, labels, and tasks for basic contact management, bu
 
 ### Is there a free CRM with Gmail integration?
 
-Yes. HubSpot offers a free CRM with a basic Gmail add-on. Streak has a free plan with limited pipeline features inside Gmail. Zoho CRM is free for up to 3 users. Freshsales has a free tier with basic features. Capsule CRM offers a free tier for up to 2 users. For affordable paid options, Customermates from EUR 12/user/month provides full automation capabilities that free CRMs cannot match; the Gmail inbox is on Pro at EUR 29.
+Yes. HubSpot offers a free CRM with a basic Gmail add-on. Streak has a free plan with limited pipeline features inside Gmail. Zoho CRM is free for up to 3 users. Freshsales has a free tier with basic features. Capsule CRM offers a free tier for up to 2 users. For affordable paid options, Customermates from [[commercial.price.starter.monthly]]/user/month provides full automation capabilities that free CRMs cannot match; the Gmail inbox is on Pro at [[commercial.price.pro.monthly]].
 
 ### What is the cheapest CRM with Gmail integration?
 
-Freshsales Growth starts at $9/user/month. Customermates starts at EUR 12/user/month with n8n automation (no additional iPaaS costs); the Gmail inbox is on Pro at EUR 29. Pipedrive starts at $14/user/month. Zoho CRM Standard is $14/user/month. HubSpot and Streak offer free tiers with basic features but become expensive ($49-100+/user/month) when you need automation.
+Freshsales Growth starts at $9/user/month. Customermates starts at [[commercial.price.starter.monthly]]/user/month with n8n automation (no additional iPaaS costs); the Gmail inbox is on Pro at [[commercial.price.pro.monthly]]. Pipedrive starts at $14/user/month. Zoho CRM Standard is $14/user/month. HubSpot and Streak offer free tiers with basic features but become expensive ($49-100+/user/month) when you need automation.
 
 ### Does Google Workspace have a built-in CRM?
 
@@ -555,7 +576,7 @@ Google Workspace does not include a dedicated CRM. Google Contacts provides basi
 
 ### What is the best CRM for small businesses using Gmail?
 
-For small businesses, the best choice depends on priorities. Customermates (from EUR 12/user/month; Gmail inbox on Pro at EUR 29) offers deep automation via n8n at a strong price-to-feature ratio. HubSpot provides a solid free tier for getting started. Streak embeds the CRM directly inside Gmail with no context-switching. Copper is ideal if your entire team uses Google Workspace exclusively. Pipedrive offers strong visual pipeline management at a competitive price.
+For small businesses, the best choice depends on priorities. Customermates (from [[commercial.price.starter.monthly]]/user/month; Gmail inbox on Pro at [[commercial.price.pro.monthly]]) offers deep automation via n8n at a strong price-to-feature ratio. HubSpot provides a solid free tier for getting started. Streak embeds the CRM directly inside Gmail with no context-switching. Copper is ideal if your entire team uses Google Workspace exclusively. Pipedrive offers strong visual pipeline management at a competitive price.
 
 ### How does Streak compare to other Gmail CRMs?
 
@@ -573,7 +594,7 @@ It depends on the CRM and integration method. Cloud-based CRMs that sync email d
 
 The best Gmail CRM integration depends on how your team works:
 
-- **Need full automation and GDPR compliance?** Customermates + n8n gives you workflow-driven Gmail integration from EUR 29/user/month (Pro) with self-hosting
+- **Need full automation and GDPR compliance?** Customermates + n8n gives you workflow-driven Gmail integration from [[commercial.price.pro.monthly]]/user/month (Pro) with self-hosting
 - **Want the CRM inside Gmail?** Streak and NetHunt embed the entire CRM directly in your inbox
 - **Want free to start?** HubSpot CRM includes a basic Gmail add-on at no cost
 - **All-in on Google Workspace?** Copper offers the deepest native integration with Google apps

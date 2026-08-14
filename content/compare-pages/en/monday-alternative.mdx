@@ -10,7 +10,7 @@ hero:
   buttonLeftHref: /auth/signup
   buttonRightText: View Live Demo
   buttonRightHref: https://demo.customermates.com
-  hint: ✓ No credit card required ✓ First 7 days free
+  hint: ✓ No credit card required ✓ First [[commercial.trial.days]] days free
 
 comparison:
   competitorName: Monday
@@ -22,7 +22,7 @@ comparison:
         source: 2 minutes
         competitor: Hours to days
       - name: Cost
-        source: From €12 / month / user
+        source: From [[commercial.price.starter.monthly]] / month / user
         competitor: €12 to €28 / seat / month (min. 3 seats)
       - name: Free start
         source: true
@@ -54,7 +54,7 @@ comparison:
         source: true
         competitor: true
       - name: AI agents operate the CRM (native MCP)
-        source: 46 MCP tools (Claude, ChatGPT, Gemini)
+        source: "[[derived.mcp.tools.total]] MCP tools (Claude, ChatGPT, Gemini)"
         competitor: Monday AI (beta), no open MCP
       - name: Mobile optimization
         source: true
@@ -98,10 +98,10 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: View Live Demo
   buttonRightHref: https://demo.customermates.com
-  hint: ✓ No credit card required ✓ First 7 days free
+  hint: ✓ No credit card required ✓ First [[commercial.trial.days]] days free
 ---
 
-> Monday.com is a well-known project management and work OS platform that has expanded into CRM territory with its Monday Sales CRM product. While it benefits from a familiar interface and strong project management roots, CRM functionality is essentially a bolt-on rather than a core competency. Customermates, by contrast, is a purpose-built, open-source CRM from the ground up, built around two ideas: AI agents (Claude, ChatGPT, Gemini) operate the CRM directly through a native MCP integration (46 tools), and a native unified inbox handles email, LinkedIn, WhatsApp, Instagram, and Telegram in one place the same agents can work. Contacts, deals, pipelines, and n8n automation are included in every tier, starting at €12 per user per month.
+> Monday.com is a well-known project management and work OS platform that has expanded into CRM territory with its Monday Sales CRM product. While it benefits from a familiar interface and strong project management roots, CRM functionality is essentially a bolt-on rather than a core competency. Customermates, by contrast, is a purpose-built, open-source CRM from the ground up, built around two ideas: AI agents (Claude, ChatGPT, Gemini) operate the CRM directly through a native MCP integration ([[derived.mcp.tools.total]] tools), and a native unified inbox handles email, LinkedIn, WhatsApp, Instagram, and Telegram in one place the same agents can work. Contacts, deals, pipelines, and n8n automation are included in every tier, starting at [[commercial.price.starter.monthly]] per user per month.
 
 ## Setup & Onboarding
 
@@ -111,11 +111,11 @@ Monday.com requires more setup time because you are essentially configuring a pr
 
 ## Pricing & Cost Model
 
-Customermates offers transparent tiers: €12/user/month (Starter, every core CRM feature), €29 (Pro, adds the unified inbox), €69 (Business, more connected accounts). No core CRM feature is ever gated behind a higher tier, and automation is unlimited at every level.
+Customermates offers transparent tiers: [[commercial.price.starter.monthly]]/user/month (Starter, every core CRM feature), [[commercial.price.pro.monthly]] (Pro, adds the unified inbox), [[commercial.price.business.monthly]] (Business, more connected accounts). No core CRM feature is ever gated behind a higher tier, and automation is unlimited at every level.
 
 Monday.com CRM starts at €12 per seat per month (Basic) but requires a minimum of 3 seats, so you are paying at least €36/month from the start. The Standard plan at €17/seat and Pro plan at €28/seat add features that many CRM users consider essential, such as advanced automations, integrations, and email tracking. Automation actions are capped per plan, the Standard plan includes 250 actions per month, and exceeding them requires an upgrade. Yearly billing offers an 18% discount, but the minimum seat requirement remains.
 
-For a team of 10 on the Pro plan, Monday.com costs €280/month. The same team on Customermates Starter pays €120/month with every core CRM feature included and no automation caps.
+For a team of 10 on the Pro plan, Monday.com costs €280/month. The same team on Customermates Starter pays [[commercial.price.starter.monthly.seats.10]]/month with every core CRM feature included and no automation caps.
 
 ## Open-Source & Transparency
 
@@ -131,13 +131,13 @@ Monday.com is built as a project management platform. CRM capabilities were adde
 
 ## AI Agents & Automation
 
-Customermates was built so AI agents operate the CRM directly through a native MCP integration (46 tools): Claude, ChatGPT, or Gemini move deal stages, draft follow-ups, and keep contact notes current, and from Pro the same agents work a unified inbox across email, LinkedIn, WhatsApp, Instagram, and Telegram. Paired with full n8n automation, you build intelligent workflows from day one, automate follow-ups, qualify leads, and enrich contact data, all without plan-based restrictions.
+Customermates was built so AI agents operate the CRM directly through a native MCP integration ([[derived.mcp.tools.total]] tools): Claude, ChatGPT, or Gemini move deal stages, draft follow-ups, and keep contact notes current, and from Pro the same agents work a unified inbox across email, LinkedIn, WhatsApp, Instagram, and Telegram. Paired with full n8n automation, you build intelligent workflows from day one, automate follow-ups, qualify leads, and enrich contact data, all without plan-based restrictions.
 
 Monday.com offers AI features and automations, but they are capped by plan. The Basic plan includes limited automation runs per month, and AI capabilities are progressively unlocked at higher tiers. Exceeding automation caps requires upgrading to a more expensive plan, making costs unpredictable as your usage grows.
 
 ## Data Protection & Hosting
 
-Customermates is GDPR-native. All data is hosted exclusively in the EU (Germany), and you retain full control over your data. Self-hosting is also available for organizations with strict compliance requirements.
+Managed Customermates keeps its application database in an EU region, while disclosed subprocessors and international transfers still apply. Self-hosting lets the operator choose the database region but does not remove external processing by services the operator connects.
 
 Monday.com is a US-based company with data hosted primarily in the United States. While they offer some compliance features, data sovereignty and EU-only hosting are not guaranteed. For European companies with strict data protection requirements, this can be a significant concern.
 
@@ -149,7 +149,7 @@ Monday.com offers a marketplace of integrations, but many of the more advanced c
 
 ## Conclusion
 
-Monday.com is an excellent project management tool, but using it as your primary CRM means accepting compromises. CRM features are secondary to its core project management identity, pricing scales quickly with seats and plan tiers, automations are capped, and data remains US-hosted. Customermates is purpose-built for CRM workflows, open-source, offers every core CRM feature from €12/user/month, includes MCP access for external AI clients and n8n automation without caps, and keeps your data in the EU. For teams that want a real CRM without the overhead of a project management platform, Customermates is the clear choice.
+Monday.com is an excellent project management tool, but using it as your primary CRM means accepting compromises. CRM features are secondary to its core project management identity, pricing scales quickly with seats and plan tiers, automations are capped, and data remains US-hosted. Customermates is purpose-built for CRM workflows, open-source, offers every core CRM feature from [[commercial.price.starter.monthly]]/user/month, includes MCP access for external AI clients and n8n automation without caps, and keeps your data in the EU. For teams that want a real CRM without the overhead of a project management platform, Customermates is the clear choice.
 
 ### Related Comparisons
 

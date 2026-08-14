@@ -5,33 +5,16 @@ import {
   listSubscriptionItems,
   updateSubscriptionItem,
 } from "@lemonsqueezy/lemonsqueezy.js";
-import { SubscriptionStatus, SubscriptionPlan } from "@/generated/prisma";
+import { SubscriptionStatus } from "@/generated/prisma";
 
-import type { Subscription } from "@/generated/prisma";
+import type { Subscription, SubscriptionPlan } from "@/generated/prisma";
 
 import { z } from "zod";
 
 import { env } from "@/env";
+import { CLOUD_TRIAL, type CommercialOffer } from "@/core/commercial/plan-catalog";
 
-export function variantToPlan(variantId: string): SubscriptionPlan | null {
-  if (variantId === env.LEMONSQUEEZY_VARIANT_ID_STARTER) return SubscriptionPlan.starter;
-  if (variantId === env.LEMONSQUEEZY_VARIANT_ID_BUSINESS) return SubscriptionPlan.business;
-  if (variantId === env.LEMONSQUEEZY_VARIANT_ID_PRO) return SubscriptionPlan.pro;
-  return null;
-}
-
-export function planToVariant(plan: SubscriptionPlan): string {
-  const variantId = {
-    [SubscriptionPlan.starter]: env.LEMONSQUEEZY_VARIANT_ID_STARTER,
-    [SubscriptionPlan.pro]: env.LEMONSQUEEZY_VARIANT_ID_PRO,
-    [SubscriptionPlan.business]: env.LEMONSQUEEZY_VARIANT_ID_BUSINESS,
-    [SubscriptionPlan.enterprise]: undefined,
-  }[plan];
-
-  if (!variantId) throw new Error(`No LemonSqueezy variant configured for plan ${plan}`);
-
-  return variantId;
-}
+import { offerToVariant, variantToOffer } from "./lemon-squeezy-bindings";
 
 export abstract class SubscriptionRepo {
   abstract getSubscriptionOrThrowUnscoped(companyId: string): Promise<Subscription>;
@@ -61,7 +44,7 @@ export class SubscriptionService {
   }
 
   async createCheckoutOrThrow(options: {
-    variantId: string;
+    offer: CommercialOffer;
     quantity: number;
     custom?: Record<string, unknown>;
     redirectUrl?: string;
@@ -70,21 +53,30 @@ export class SubscriptionService {
 
     const storeId = env.LEMONSQUEEZY_STORE_ID;
     if (!storeId) throw new Error("LEMONSQUEEZY_STORE_ID is not configured");
+    const variantId = offerToVariant(options.offer);
 
-    const result = await createCheckout(storeId, options.variantId, {
+    const result = await createCheckout(storeId, variantId, {
       checkoutData: {
         custom: options.custom,
-        variantQuantities: [{ variantId: Number(options.variantId), quantity: options.quantity }],
+        variantQuantities: [{ variantId: Number(variantId), quantity: options.quantity }],
       },
       productOptions: {
         redirectUrl: options.redirectUrl,
+        enabledVariants: [Number(variantId)],
+      },
+      checkoutOptions: {
+        skipTrial: CLOUD_TRIAL.owner === "application",
       },
     });
 
     if (result.error) throw new Error(result.error.message || "Failed to create checkout");
 
     return z
-      .looseObject({ data: z.looseObject({ attributes: z.looseObject({ url: z.string().min(1) }) }) })
+      .looseObject({
+        data: z.looseObject({
+          attributes: z.looseObject({ url: z.string().min(1) }),
+        }),
+      })
       .parse(result.data);
   }
 
@@ -133,7 +125,7 @@ export class SubscriptionService {
     const variantId = attributes.variant_id?.toString();
 
     const existing = await this.subscriptionRepo.getSubscriptionOrThrowUnscoped(resolvedCompanyId);
-    const syncedPlan = variantId ? variantToPlan(variantId) : null;
+    const syncedPlan = variantId ? (variantToOffer(variantId)?.plan ?? null) : null;
 
     await this.subscriptionRepo.upsertSubscriptionUnscoped({
       companyId: resolvedCompanyId,
@@ -163,14 +155,18 @@ export class SubscriptionService {
       throw new Error(subscriptionItemsResult.error.message || "Failed to list subscription items");
 
     const items = z
-      .looseObject({ data: z.array(z.looseObject({ id: z.union([z.number(), z.string()]) })) })
+      .looseObject({
+        data: z.array(z.looseObject({ id: z.union([z.number(), z.string()]) })),
+      })
       .parse(subscriptionItemsResult.data).data;
 
     if (items.length === 0) throw new Error("No subscription items found");
 
     const subscriptionItem = items[0];
 
-    const updateResult = await updateSubscriptionItem(subscriptionItem.id, { quantity });
+    const updateResult = await updateSubscriptionItem(subscriptionItem.id, {
+      quantity,
+    });
 
     if (updateResult.error) throw new Error(updateResult.error.message || "Failed to update subscription quantity");
   }

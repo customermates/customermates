@@ -1,6 +1,6 @@
 ---
 title: CRM API - REST API, Webhooks, MCP & OpenAPI
-description: "CRM API with documented REST resources, 26 webhook event types, an OpenAPI spec, and 46 MCP tools for supported external AI clients."
+description: "CRM API with documented REST resources, [[derived.webhooks.events.total]] webhook event types, an OpenAPI spec, and [[derived.mcp.tools.total]] MCP tools for supported external AI clients."
 featureName: CRM API
 
 hero:
@@ -10,7 +10,7 @@ hero:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First 7 days free"
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
   action: Ready to get started?
@@ -19,7 +19,7 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First 7 days free"
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
 ## What Is a CRM API?
@@ -32,7 +32,7 @@ A good CRM API is well-documented, versioned, predictable, and gives you access 
 
 ## How the CRM API Works in Customermates
 
-Customermates provides a versioned REST API for documented CRM resources and operations. API access is included in published pricing tiers from EUR 12 per user per month, without a separate developer tier.
+Customermates provides a versioned REST API for documented CRM resources and operations. API access is included in published pricing tiers from [[commercial.price.starter.monthly]] per user per month, without a separate developer tier.
 
 **REST architecture with predictable endpoints.** The API follows standard REST conventions with predictable URL structures, standard HTTP methods (GET, POST, PUT, PATCH, DELETE), and JSON request and response bodies. If you have worked with any modern REST API, working with the Customermates API will feel familiar immediately. Endpoints follow a consistent pattern: `/api/v1/{resource}` for collections and `/api/v1/{resource}/{id}` for individual records.
 
@@ -40,13 +40,13 @@ Customermates provides a versioned REST API for documented CRM resources and ope
 
 **OpenAPI specification.** The API is documented with a complete OpenAPI 3.1 specification, available at `/api/v1/openapi`. Import the spec into Postman, Insomnia, or any API client to explore endpoints interactively. Use the spec to auto-generate client libraries in any programming language.
 
-**MCP endpoint for supported external AI clients.** Customermates exposes 46 MCP tools for allowed CRM and messaging operations, authenticated by API key or OAuth bearer token depending on the client flow. Supported clients such as Claude, ChatGPT, or Gemini remain external; Customermates includes neither the client nor an AI model.
+**MCP endpoint for supported external AI clients.** Customermates exposes [[derived.mcp.tools.total]] MCP tools for allowed CRM and messaging operations, authenticated by API key or OAuth bearer token depending on the client flow. Supported clients such as Claude, ChatGPT, or Gemini remain external; Customermates includes neither the client nor an AI model.
 
 **Filtering, sorting, and pagination.** Use the supported filter and sort parameters for each resource. Multiple user-facing filter conditions combine with AND, and generic list endpoints use `page` and `pageSize`; top-level OR and cursor pagination are not supported.
 
 **Authentication via API keys.** Authenticate API requests using secure API keys generated from your account settings. Keys can be created and revoked at any time. Each key inherits the permissions of the user who created it, ensuring that API access respects your existing role-based access control.
 
-**Webhooks for real-time event streaming.** Configure webhooks to receive real-time HTTP POST notifications when events occur in your CRM. Customermates emits 26 webhook events: 15 record events (created, updated, and deleted for each of the five entities: contacts, organizations, deals, services, tasks) plus 11 messaging and calendar events. Any of them can trigger a delivery to a URL you specify. Webhooks include retry logic with exponential backoff for failed deliveries.
+**Webhooks for real-time event streaming.** Configure webhooks to receive real-time HTTP POST notifications when events occur in your CRM. Customermates emits [[derived.webhooks.events.total]] webhook events: [[derived.webhooks.events.records]] record events (created, updated, and deleted for each of the five entities: contacts, organizations, deals, services, tasks) plus [[derived.webhooks.events.messaging]] messaging and calendar events. Any of them can trigger a delivery to a URL you specify. Webhooks include retry logic with exponential backoff for failed deliveries.
 
 **Supported custom-field access.** Read or write custom-field values only where the documented resource and operation expose them. Treat the current OpenAPI document, field types, and validation responses as the integration contract.
 
@@ -96,7 +96,7 @@ Customermates provides a versioned REST API for documented CRM resources and ope
 
 **EU database region with documented providers.** The hosted database runs in an EU region. Application hosting and other providers, including US providers, are documented separately; this is not a GDPR or other compliance certification.
 
-**Simple, published pricing.** Documented API access is included in published plans from EUR 12 per user per month. Follow the current API documentation for supported operations and applicable boundaries; no undocumented unlimited-use or full-parity promise is made.
+**Simple, published pricing.** Documented API access is included in published plans from [[commercial.price.starter.monthly]] per user per month. Follow the current API documentation for supported operations and applicable boundaries; no undocumented unlimited-use or full-parity promise is made.
 
 **Self-hostable application and database.** When self-hosted, the Customermates application and PostgreSQL database run on your infrastructure. External services you connect remain separate, so deployment location alone does not establish security or compliance.
 
@@ -106,4 +106,4 @@ Customermates provides a versioned REST API for documented CRM resources and ope
 
 ## Get Started with the CRM API Today
 
-Start building with the Customermates API. Generate an API key in account settings, explore the OpenAPI spec, and make your first request. Use the current OpenAPI spec to confirm supported resources and operations for your integration. Documented API access is included from EUR 12 per user per month.
+Start building with the Customermates API. Generate an API key in account settings, explore the OpenAPI spec, and make your first request. Use the current OpenAPI spec to confirm supported resources and operations for your integration. Documented API access is included from [[commercial.price.starter.monthly]] per user per month.

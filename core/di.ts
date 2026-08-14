@@ -153,6 +153,7 @@ import { ResetPasswordInteractor } from "@/features/auth/reset-password.interact
 import { ContinueWithSocialsInteractor } from "@/features/auth/continue-with-socials.interactor";
 import { ResendVerificationEmailInteractor } from "@/features/auth/resend-verification-email.interactor";
 import { SignOutInteractor } from "@/features/auth/sign-out.interactor";
+import { DecideMcpConsentInteractor } from "@/features/auth/decide-mcp-consent.interactor";
 // Company interactors
 import { GetCompanySettingsInteractor } from "@/features/company/get-company-settings.interactor";
 import { UpdateCompanySettingsInteractor } from "@/features/company/update-company-settings.interactor";
@@ -326,7 +327,7 @@ export const getEmailService = () => new EmailService();
 export const getAuthService = () => new AuthService(getEmailService());
 export const getUserService = () => new UserService(getAuthService(), getUserRepo());
 export const getRouteGuardService = () =>
-  new RouteGuardService(getAuthService(), getUserService(), getCompanyRepo(), getGetLegalStatusInteractor());
+  new RouteGuardService(getAuthService(), getUserRepo(), getCompanyRepo(), getGetLegalStatusInteractor());
 export const getBackgroundTaskService = () => new BackgroundTaskService();
 export const getUserPendingAuthorizationTaskListener = () => new UserPendingAuthorizationTaskListener(getTaskRepo());
 
@@ -840,11 +841,12 @@ export const getDeleteManyTasksInteractor = () =>
 // --- User ---
 
 export const getRegisterUserInteractor = () =>
-  new RegisterUserInteractor(getAuthService(), getUserRepo(), getEventService());
+  new RegisterUserInteractor(getAuthService(), getUserRepo(), getEventService(), getRouteGuardService());
 
 export const getUpdateUserDetailsInteractor = () => new UpdateUserDetailsInteractor(getUserRepo(), getEventService());
 
-export const getCompleteOnboardingWizardInteractor = () => new CompleteOnboardingWizardInteractor(getUserRepo());
+export const getCompleteOnboardingWizardInteractor = () =>
+  new CompleteOnboardingWizardInteractor(getUserRepo(), getRouteGuardService());
 
 export const getGetUserDetailsInteractor = () => new GetUserDetailsInteractor();
 
@@ -882,6 +884,9 @@ export const getContinueWithSocialsInteractor = () =>
 export const getResendVerificationEmailInteractor = () => new ResendVerificationEmailInteractor(getAuthService());
 
 export const getSignOutInteractor = () => new SignOutInteractor(getAuthService());
+
+export const getDecideMcpConsentInteractor = () =>
+  new DecideMcpConsentInteractor(getAuthService(), getRouteGuardService());
 
 // --- Company ---
 

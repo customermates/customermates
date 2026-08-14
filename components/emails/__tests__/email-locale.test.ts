@@ -5,7 +5,8 @@ import { describe, expect, it } from "vitest";
 
 import { EmailLayout } from "../base/email-layout";
 import { DEFAULT_EMAIL_LAYOUT_COPY, getEmailLayoutCopy } from "../base/email-layout-copy";
-import LegalDocumentNotice from "../legal-document-notice";
+import LegalDocumentNoticeContract from "../legal-document-notice-contract";
+import LegalDocumentNoticeInformation from "../legal-document-notice-information";
 import VerifyEmail from "../verify-email";
 
 import { APP_LOCALES, DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-registry";
@@ -63,23 +64,24 @@ describe("email locale", () => {
   it("declares every legal-notice recipient locale", async () => {
     for (const locale of APP_LOCALES) {
       const layoutCopy = await getEmailLayoutCopy(locale);
-      const html = await render(
-        createElement(LegalDocumentNotice, {
-          body: "body",
-          deadline: null,
-          deadlineLabel: "deadline",
-          documents: [],
-          greeting: "greeting",
-          liveLabel: "live",
-          locale,
-          layoutCopy,
-          objections: [],
-          signoff: "signoff",
-          subject: "subject",
-          title: "title",
-        }),
-      );
-      expect(langAttribute(html), `LegalDocumentNotice rendered for ${locale}`).toBe(locale);
+      for (const Email of [LegalDocumentNoticeContract, LegalDocumentNoticeInformation]) {
+        const html = await render(
+          createElement(Email, {
+            body: "body",
+            deadline: null,
+            deadlineLabel: "deadline",
+            documents: [],
+            greeting: "greeting",
+            locale,
+            layoutCopy,
+            objections: [],
+            signoff: "signoff",
+            subject: "subject",
+            title: "title",
+          }),
+        );
+        expect(langAttribute(html), `${Email.name} rendered for ${locale}`).toBe(locale);
+      }
     }
   });
 });

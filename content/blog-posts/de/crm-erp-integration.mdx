@@ -42,14 +42,14 @@ Für ein mittelgroßes Vertriebsteam mit 50 Aufträgen pro Monat bedeutet manuel
 
 ### Was Integration bringt
 
-| Vorteil | Ohne Integration | Mit Integration |
-|---|---|---|
-| Auftragserfassung | 5-10 Min. manuell | Sekunden (automatisiert) |
-| Dateneingabefehler | 5-15 % der Datensätze | Unter 1 % |
-| Angebotsgenauigkeit | Basierend auf letzten bekannten ERP-Daten | Echtzeit-ERP-Preise |
-| Zahlungssichtbarkeit für Vertrieb | Manuelles Nachschlagen oder Wochenbericht | Echtzeit im CRM |
-| Kundenanlage (ERP) | Manuell nach Abschluss | Automatisch bei Deal-Abschluss |
-| Lagerbestandssichtbarkeit | Anruf oder E-Mail ans Lager | Live im CRM-Produktkatalog |
+| Vorteil                           | Ohne Integration                          | Mit Integration                |
+| --------------------------------- | ----------------------------------------- | ------------------------------ |
+| Auftragserfassung                 | 5-10 Min. manuell                         | Sekunden (automatisiert)       |
+| Dateneingabefehler                | 5-15 % der Datensätze                     | Unter 1 %                      |
+| Angebotsgenauigkeit               | Basierend auf letzten bekannten ERP-Daten | Echtzeit-ERP-Preise            |
+| Zahlungssichtbarkeit für Vertrieb | Manuelles Nachschlagen oder Wochenbericht | Echtzeit im CRM                |
+| Kundenanlage (ERP)                | Manuell nach Abschluss                    | Automatisch bei Deal-Abschluss |
+| Lagerbestandssichtbarkeit         | Anruf oder E-Mail ans Lager               | Live im CRM-Produktkatalog     |
 
 Der ROI amortisiert sich typischerweise innerhalb von 3-6 Monaten bei Teams mit 10+ Nutzern und 50+ monatlichen Transaktionen.
 
@@ -109,16 +109,16 @@ Einige Anbieter-Kombinationen bieten vorgefertigte Konnektoren. Microsoft Dynami
 
 ### Vergleich der Integrationsmethoden
 
-| Kriterium | API Punkt-zu-Punkt | iPaaS (n8n, Zapier) | Middleware/ESB | Nativ |
-|---|---|---|---|---|
-| Einrichtungszeit | Wochen bis Monate | Tage bis Wochen | Wochen bis Monate | Stunden bis Tage |
-| Technisches Know-how | Hoch (Entwickler) | Gering bis mittel | Hoch (Spezialisten) | Gering |
-| Anpassbarkeit | Unbegrenzt | Hoch | Hoch | Begrenzt |
-| Laufende Wartung | Hoch | Gering | Mittel | Vom Anbieter verwaltet |
-| DSGVO-Konformität | Sie kontrollieren | Plattformabhängig | Sie kontrollieren | Anbieterabhängig |
-| Kosten (erstes Jahr) | 10.000-60.000 EUR | 0-6.000 EUR | 12.000-120.000 EUR | Im Lizenzpreis enthalten |
-| Geeignet für | Komplexe Spezialfälle | KMU, meiste Szenarien | Enterprise Multi-System | Single-Vendor-Umgebungen |
-| Skalierbarkeit | Manuelles Skalieren | Plattform-verwaltet | Enterprise-tauglich | Anbieter-begrenzt |
+| Kriterium            | API Punkt-zu-Punkt    | iPaaS (n8n, Zapier)   | Middleware/ESB          | Nativ                    |
+| -------------------- | --------------------- | --------------------- | ----------------------- | ------------------------ |
+| Einrichtungszeit     | Wochen bis Monate     | Tage bis Wochen       | Wochen bis Monate       | Stunden bis Tage         |
+| Technisches Know-how | Hoch (Entwickler)     | Gering bis mittel     | Hoch (Spezialisten)     | Gering                   |
+| Anpassbarkeit        | Unbegrenzt            | Hoch                  | Hoch                    | Begrenzt                 |
+| Laufende Wartung     | Hoch                  | Gering                | Mittel                  | Vom Anbieter verwaltet   |
+| DSGVO-Konformität    | Sie kontrollieren     | Plattformabhängig     | Sie kontrollieren       | Anbieterabhängig         |
+| Kosten (erstes Jahr) | 10.000-60.000 EUR     | 0-6.000 EUR           | 12.000-120.000 EUR      | Im Lizenzpreis enthalten |
+| Geeignet für         | Komplexe Spezialfälle | KMU, meiste Szenarien | Enterprise Multi-System | Single-Vendor-Umgebungen |
+| Skalierbarkeit       | Manuelles Skalieren   | Plattform-verwaltet   | Enterprise-tauglich     | Anbieter-begrenzt        |
 
 ### Entscheidungshilfe: Welche Methode wählen?
 
@@ -137,55 +137,55 @@ Datenmapping ist der Punkt, an dem die meisten CRM-ERP-Integrationsprojekte steh
 
 **Kontakte und Konten (CRM) zu Geschäftspartnern oder Kunden (ERP):**
 
-| CRM-Feld | ERP-Feld (typisch) | Richtung | Hinweise |
-|---|---|---|---|
-| Firmenname | Geschäftspartnername | Bidirektional | CRM ist meist Master |
-| Rechnungsadresse | Rechnungsanschrift | CRM zu ERP | ERP nutzt sie für Rechnungen |
-| Lieferadresse | Lieferanschrift | CRM zu ERP | |
-| E-Mail-Adresse | Kommunikations-E-Mail | Bidirektional | |
-| Telefonnummer | Telefon | Bidirektional | Format normalisieren (+49 30 ...) |
-| USt-IdNr. | Steuernummer | CRM zu ERP | Kritisch für B2B-Rechnungen |
-| Kontoinhaber | Kundenbetreuer | CRM zu ERP | |
-| Kundensegment | Kundengruppe | CRM zu ERP | CRM-Tags auf ERP-Gruppen mappen |
-| Kunden-ID | Geschäftspartner-ID | Über Zuordnungstabelle | Kritisch für die Verknüpfung |
-| Kreditstatus | Zahlungsbedingungen | ERP zu CRM | Vertrieb braucht diese Sichtbarkeit |
+| CRM-Feld         | ERP-Feld (typisch)    | Richtung               | Hinweise                            |
+| ---------------- | --------------------- | ---------------------- | ----------------------------------- |
+| Firmenname       | Geschäftspartnername  | Bidirektional          | CRM ist meist Master                |
+| Rechnungsadresse | Rechnungsanschrift    | CRM zu ERP             | ERP nutzt sie für Rechnungen        |
+| Lieferadresse    | Lieferanschrift       | CRM zu ERP             |                                     |
+| E-Mail-Adresse   | Kommunikations-E-Mail | Bidirektional          |                                     |
+| Telefonnummer    | Telefon               | Bidirektional          | Format normalisieren (+49 30 ...)   |
+| USt-IdNr.        | Steuernummer          | CRM zu ERP             | Kritisch für B2B-Rechnungen         |
+| Kontoinhaber     | Kundenbetreuer        | CRM zu ERP             |                                     |
+| Kundensegment    | Kundengruppe          | CRM zu ERP             | CRM-Tags auf ERP-Gruppen mappen     |
+| Kunden-ID        | Geschäftspartner-ID   | Über Zuordnungstabelle | Kritisch für die Verknüpfung        |
+| Kreditstatus     | Zahlungsbedingungen   | ERP zu CRM             | Vertrieb braucht diese Sichtbarkeit |
 
 **Deals oder Opportunities (CRM) zu Aufträgen (ERP):**
 
-| CRM-Feld | ERP-Feld (typisch) | Richtung | Hinweise |
-|---|---|---|---|
-| Deal-Name | Auftragsbeschreibung | CRM zu ERP | |
-| Deal-Wert | Auftragssumme | CRM zu ERP | Währung muss übereinstimmen |
-| Abschlussdatum | Auftragsdatum | CRM zu ERP | |
-| Positionen | Auftragspositionen | CRM zu ERP | Produkt-IDs müssen übereinstimmen |
-| Deal-Phase | Auftragsstatus | Bidirektional | Phasennamen auf Status mappen |
-| Rabatt | Rabatt | CRM zu ERP | Prozent vs. Absolutbetrag |
-| Zahlungsbedingungen | Zahlungskonditionen | CRM zu ERP | Text auf ERP-Codes mappen |
-| Lieferdatum | Gewünschtes Lieferdatum | CRM zu ERP | |
+| CRM-Feld            | ERP-Feld (typisch)      | Richtung      | Hinweise                          |
+| ------------------- | ----------------------- | ------------- | --------------------------------- |
+| Deal-Name           | Auftragsbeschreibung    | CRM zu ERP    |                                   |
+| Deal-Wert           | Auftragssumme           | CRM zu ERP    | Währung muss übereinstimmen       |
+| Abschlussdatum      | Auftragsdatum           | CRM zu ERP    |                                   |
+| Positionen          | Auftragspositionen      | CRM zu ERP    | Produkt-IDs müssen übereinstimmen |
+| Deal-Phase          | Auftragsstatus          | Bidirektional | Phasennamen auf Status mappen     |
+| Rabatt              | Rabatt                  | CRM zu ERP    | Prozent vs. Absolutbetrag         |
+| Zahlungsbedingungen | Zahlungskonditionen     | CRM zu ERP    | Text auf ERP-Codes mappen         |
+| Lieferdatum         | Gewünschtes Lieferdatum | CRM zu ERP    |                                   |
 
 **Produkte (ERP) zu Produktkatalog (CRM):**
 
-| ERP-Feld | CRM-Feld (typisch) | Richtung | Hinweise |
-|---|---|---|---|
-| Produkt-ID / SKU | Produkt-ID | ERP zu CRM | ERP als Master verwenden |
-| Produktname | Produktname | ERP zu CRM | |
-| Listenpreis | Stückpreis | ERP zu CRM | Währung einbeziehen |
-| Lagerbestand | Verfügbarkeit | ERP zu CRM | Schwellenwert vs. exakte Menge |
-| Produktkategorie | Produktkategorie | ERP zu CRM | Kategoriebäume können abweichen |
-| Mengeneinheit | Einheit | ERP zu CRM | ERP-Codes auf Labels mappen |
-| Mindestbestellmenge | MOQ | ERP zu CRM | |
+| ERP-Feld            | CRM-Feld (typisch) | Richtung   | Hinweise                        |
+| ------------------- | ------------------ | ---------- | ------------------------------- |
+| Produkt-ID / SKU    | Produkt-ID         | ERP zu CRM | ERP als Master verwenden        |
+| Produktname         | Produktname        | ERP zu CRM |                                 |
+| Listenpreis         | Stückpreis         | ERP zu CRM | Währung einbeziehen             |
+| Lagerbestand        | Verfügbarkeit      | ERP zu CRM | Schwellenwert vs. exakte Menge  |
+| Produktkategorie    | Produktkategorie   | ERP zu CRM | Kategoriebäume können abweichen |
+| Mengeneinheit       | Einheit            | ERP zu CRM | ERP-Codes auf Labels mappen     |
+| Mindestbestellmenge | MOQ                | ERP zu CRM |                                 |
 
 **Rechnungen und Zahlungen (ERP) zu CRM-Datensätzen:**
 
-| ERP-Feld | CRM-Feld (typisch) | Richtung | Hinweise |
-|---|---|---|---|
-| Rechnungsnummer | Rechnungsreferenz | ERP zu CRM | |
-| Rechnungsbetrag | Rechnungswert | ERP zu CRM | |
-| Zahlungsstatus | Zahlungsstatus | ERP zu CRM | ERP-Codes auf CRM-Werte mappen |
-| Fälligkeitsdatum | Zahlungsfälligkeit | ERP zu CRM | |
-| Offener Saldo | Offener Betrag | ERP zu CRM | |
-| Gutschrift | Gutschriftsreferenz | ERP zu CRM | |
-| Mahnstufe | Inkassostatus | ERP zu CRM | 1/2/3 auf Beschreibungen mappen |
+| ERP-Feld         | CRM-Feld (typisch)  | Richtung   | Hinweise                        |
+| ---------------- | ------------------- | ---------- | ------------------------------- |
+| Rechnungsnummer  | Rechnungsreferenz   | ERP zu CRM |                                 |
+| Rechnungsbetrag  | Rechnungswert       | ERP zu CRM |                                 |
+| Zahlungsstatus   | Zahlungsstatus      | ERP zu CRM | ERP-Codes auf CRM-Werte mappen  |
+| Fälligkeitsdatum | Zahlungsfälligkeit  | ERP zu CRM |                                 |
+| Offener Saldo    | Offener Betrag      | ERP zu CRM |                                 |
+| Gutschrift       | Gutschriftsreferenz | ERP zu CRM |                                 |
+| Mahnstufe        | Inkassostatus       | ERP zu CRM | 1/2/3 auf Beschreibungen mappen |
 
 ### Fünf Regeln für das Datenmapping
 
@@ -243,16 +243,19 @@ Bereinigen Sie Ihre Daten vor der Integration. Integration verstärkt Datenquali
 Starten Sie klein. Versuchen Sie nicht, in der ersten Phase alles zu synchronisieren.
 
 **Phase 1 (höchster Nutzen, geringste Komplexität):**
+
 - Kunden-/Kontosync vom CRM zum ERP (nur neue Datensätze)
 - Rechnungs- und Zahlungsstatus vom ERP zum CRM
 - Produktkatalog vom ERP zum CRM
 
 **Phase 2 (hoher Nutzen, mittlere Komplexität):**
+
 - Deal-zu-Auftrag-Konvertierung bei Abschluss
 - Bidirektionale Kundendatenaktualisierung
 - Lagerverfügbarkeit vom ERP zum CRM
 
 **Phase 3 (Vollintegration):**
+
 - Angebotserstellung mit Echtzeit-ERP-Preisen
 - Kreditlimitprüfung bei der Deal-Qualifizierung
 - Vollständiges Auftragslebenszyklus-Tracking über beide Systeme
@@ -260,7 +263,7 @@ Starten Sie klein. Versuchen Sie nicht, in der ersten Phase alles zu synchronisi
 
 ### Schritt 3: Integrationsmethode wählen
 
-Für die meisten kleinen und mittleren Unternehmen ist iPaaS die richtige Wahl. Es bietet die beste Balance aus Flexibilität, Kosten und Wartbarkeit. Wenn Sie Customermates als CRM verwenden, ist n8n bereits eingebaut. Sie haben damit eine iPaaS-Schicht ohne zusätzliche Lizenzkosten.
+Für manche kleine und mittlere Unternehmen ist eine iPaaS eine passende Integrationsmethode. Customermates stellt API und Webhooks bereit, die Sie mit Ihrer separat betriebenen n8n-Instanz oder einem anderen Dienst verbinden können. n8n ist nicht eingebaut; Hosting, Abonnement, Zugangsdaten, Betrieb und Ausführungskosten liegen bei Ihnen.
 
 ### Schritt 4: Datenmapping erstellen
 
@@ -312,6 +315,7 @@ Gehen Sie schrittweise live.
 **Trigger:** Deal-Status wechselt auf "Gewonnen" im CRM.
 
 **Ablauf:**
+
 1. CRM sendet Deal-Daten (Kunde, Positionen, Wert, Konditionen).
 2. Integration prüft, ob der Kunde im ERP existiert. Falls nicht, wird ein neuer Geschäftspartner angelegt.
 3. Integration validiert Positionen: Existieren alle Produkt-IDs im ERP? Sind Mengen und Preise gültig?
@@ -327,6 +331,7 @@ Gehen Sie schrittweise live.
 **Trigger:** Rechnungsstatus ändert sich im ERP (geplantes Polling alle 5 Minuten).
 
 **Ablauf:**
+
 1. Integration fragt ERP nach Rechnungen mit Statusänderungen seit dem letzten Sync ab.
 2. Für jede geänderte Rechnung wird der entsprechende Deal oder das Konto im CRM ermittelt.
 3. CRM-Datensatz wird mit aktuellem Zahlungsstatus, bezahltem Betrag und offenem Saldo aktualisiert.
@@ -338,6 +343,7 @@ Gehen Sie schrittweise live.
 **Trigger:** Vertriebsmitarbeiter öffnet einen Deal oder erstellt ein Angebot im CRM.
 
 **Ablauf:**
+
 1. CRM fordert aktuelle Lagerbestände vom ERP per API-Aufruf an.
 2. ERP gibt verfügbare Menge pro Produkt und Lager zurück.
 3. CRM zeigt Verfügbarkeit neben der Produktauswahl an.
@@ -349,6 +355,7 @@ Gehen Sie schrittweise live.
 **Trigger:** Neuer Kontakt oder neues Unternehmen im CRM angelegt.
 
 **Ablauf:**
+
 1. CRM-Webhook wird bei Neuanlage eines Datensatzes ausgelöst.
 2. Integration prüft auf einen existierenden Treffer im ERP (nach Name, E-Mail oder Steuernummer), um Duplikate zu vermeiden.
 3. Falls kein Treffer, wird ein neuer Geschäftspartner im ERP mit CRM-Daten angelegt.
@@ -362,6 +369,7 @@ Gehen Sie schrittweise live.
 **Trigger:** Vertriebsmitarbeiter erstellt ein Angebot im CRM.
 
 **Ablauf:**
+
 1. CRM sendet Produkt-IDs und Mengen an das ERP.
 2. ERP berechnet Preise basierend auf kundenspezifischen Preislisten, Mengenrabatten und Aktionen.
 3. ERP gibt berechnete Preise an das CRM zurück.
@@ -395,6 +403,7 @@ CRM-ERP-Integration bewegt personenbezogene Daten zwischen Systemen. Für EU-Unt
 ### Fertigung
 
 Die CRM-ERP-Verbindung ist besonders wertvoll für Fertigungsunternehmen:
+
 - **Stücklisten-Sync (BOM):** Produktkonfigurationen im CRM werden auf Stücklistenstrukturen im ERP abgebildet.
 - **Lieferzeitensichtbarkeit:** ERP-Produktionspläne erscheinen im CRM, damit Vertriebsmitarbeiter realistische Liefertermine nennen können.
 - **Individuelle Mengenpreise:** ERP berechnet gestaffelte Preise nach Bestellmenge; CRM zeigt sie in Echtzeit an.
@@ -415,35 +424,35 @@ Die CRM-ERP-Verbindung ist besonders wertvoll für Fertigungsunternehmen:
 
 ### Kostenaufstellung
 
-| Komponente | iPaaS-Ansatz | Individueller API-Ansatz |
-|---|---|---|
-| Plattform/Werkzeuge | 0-500 EUR/Monat | 0 EUR (Open Source) bis 2.000 EUR/Monat |
-| Ersteinrichtung (Arbeit) | 20-80 Stunden | 100-400+ Stunden |
-| Datenbereinigung | 10-40 Stunden | 10-40 Stunden |
-| Tests | 10-20 Stunden | 20-60 Stunden |
-| Dokumentation | 5-10 Stunden | 10-20 Stunden |
-| Laufende Wartung | 2-5 Stunden/Monat | 10-20+ Stunden/Monat |
+| Komponente               | iPaaS-Ansatz      | Individueller API-Ansatz                |
+| ------------------------ | ----------------- | --------------------------------------- |
+| Plattform/Werkzeuge      | 0-500 EUR/Monat   | 0 EUR (Open Source) bis 2.000 EUR/Monat |
+| Ersteinrichtung (Arbeit) | 20-80 Stunden     | 100-400+ Stunden                        |
+| Datenbereinigung         | 10-40 Stunden     | 10-40 Stunden                           |
+| Tests                    | 10-20 Stunden     | 20-60 Stunden                           |
+| Dokumentation            | 5-10 Stunden      | 10-20 Stunden                           |
+| Laufende Wartung         | 2-5 Stunden/Monat | 10-20+ Stunden/Monat                    |
 
 ### Realistischer Zeitrahmen
 
-| Phase | iPaaS-Ansatz | Individueller API-Ansatz |
-|---|---|---|
-| Planung und Datenaudit | 1-2 Wochen | 1-2 Wochen |
-| Datenbereinigung | 1-2 Wochen | 1-2 Wochen |
-| Phase 1 (Kern-Sync) | 1-2 Wochen | 4-8 Wochen |
-| Tests | 1 Woche | 2-4 Wochen |
-| Phase 2 (erweiterter Sync) | 1-2 Wochen | 4-8 Wochen |
-| Volle Produktionsstabilität | 6-8 Wochen gesamt | 12-24 Wochen gesamt |
+| Phase                       | iPaaS-Ansatz      | Individueller API-Ansatz |
+| --------------------------- | ----------------- | ------------------------ |
+| Planung und Datenaudit      | 1-2 Wochen        | 1-2 Wochen               |
+| Datenbereinigung            | 1-2 Wochen        | 1-2 Wochen               |
+| Phase 1 (Kern-Sync)         | 1-2 Wochen        | 4-8 Wochen               |
+| Tests                       | 1 Woche           | 2-4 Wochen               |
+| Phase 2 (erweiterter Sync)  | 1-2 Wochen        | 4-8 Wochen               |
+| Volle Produktionsstabilität | 6-8 Wochen gesamt | 12-24 Wochen gesamt      |
 
 ### Gesamtbetriebskosten (erstes Jahr)
 
-| Ansatz | Untere Schätzung | Obere Schätzung |
-|---|---|---|
-| iPaaS (n8n Self-Hosted) | 2.000 EUR | 8.000 EUR |
-| iPaaS (Cloud, z. B. Zapier) | 3.600 EUR | 12.000 EUR |
-| Individuelle API-Entwicklung | 10.000 EUR | 60.000+ EUR |
-| Middleware/ESB | 12.000 EUR | 120.000+ EUR |
-| Nativ (in Lizenz enthalten) | 0 EUR extra | 0 EUR extra (aber Lizenz: 100-300 EUR/Nutzer/Monat) |
+| Ansatz                       | Untere Schätzung | Obere Schätzung                                     |
+| ---------------------------- | ---------------- | --------------------------------------------------- |
+| iPaaS (n8n Self-Hosted)      | 2.000 EUR        | 8.000 EUR                                           |
+| iPaaS (Cloud, z. B. Zapier)  | 3.600 EUR        | 12.000 EUR                                          |
+| Individuelle API-Entwicklung | 10.000 EUR       | 60.000+ EUR                                         |
+| Middleware/ESB               | 12.000 EUR       | 120.000+ EUR                                        |
+| Nativ (in Lizenz enthalten)  | 0 EUR extra      | 0 EUR extra (aber Lizenz: 100-300 EUR/Nutzer/Monat) |
 
 ## Typische Fehler und wie Sie sie vermeiden
 
@@ -527,9 +536,9 @@ Dieser gesamte Workflow wird visuell konfiguriert. Kein Code erforderlich. Er ka
 
 ### Warum Customermates für die CRM-ERP-Integration
 
-- **Eingebautes n8n** macht eine separate Integrationsplattform überflüssig (spart 200-500 EUR/Monat gegenüber Cloud-iPaaS)
+- **n8n-Anbindung über selbst betriebene Workflows** vermeidet eine zusätzliche Cloud-iPaaS-Gebühr, wenn Sie n8n auf Ihrer eigenen Infrastruktur betreiben
 - **Voller API-Zugang** ermöglicht individuelle Integrationen neben n8n-Workflows
-- **Ab 12 EUR pro Nutzer und Monat** für das volle Kern-CRM, hält die CRM-Kosten niedrig, wenn Sie bereits in ein ERP investieren
+- **Ab [[commercial.price.starter.monthly]] pro Nutzer und Monat** für das volle Kern-CRM, hält die CRM-Kosten niedrig, wenn Sie bereits in ein ERP investieren
 - **Self-Hosting-Option** bedeutet, dass Ihre CRM-Daten auf Ihrer eigenen Infrastruktur bleiben, was bei der Integration mit On-Premise-ERP-Systemen wichtig ist
 - **DSGVO-Konformität** eingebaut, entscheidend wenn Kundendaten zwischen Systemen fließen
 - **Open-Source-Basis** garantiert keinen Vendor Lock-in; Ihre Daten und Integrations-Workflows bleiben portabel
@@ -551,7 +560,7 @@ Mit dem iPaaS-Ansatz kann eine Basisintegration (Kundensync plus Rechnungsstatus
 
 ### Was kostet eine CRM-ERP-Integration?
 
-Die Kosten variieren je nach Methode. iPaaS-Integration kostet im ersten Jahr 0-8.000 EUR (Plattformgebühren plus 20-80 Stunden Einrichtungsarbeit). Individuelle API-Integration kostet typischerweise 10.000-60.000+ EUR für die Erstentwicklung plus 5.000-15.000 EUR/Jahr für Wartung. Mit Customermates und dem Ihrem eigenen n8n betragen die CRM-Kosten ab 12 EUR pro Nutzer und Monat inklusive Integrationsfunktionen ohne Aufpreis.
+Die Kosten variieren je nach Methode. iPaaS-Integration kostet im ersten Jahr 0-8.000 EUR (Plattformgebühren plus 20-80 Stunden Einrichtungsarbeit). Individuelle API-Integration kostet typischerweise 10.000-60.000+ EUR für die Erstentwicklung plus 5.000-15.000 EUR/Jahr für Wartung. Mit Customermates und dem Ihrem eigenen n8n betragen die CRM-Kosten ab [[commercial.price.starter.monthly]] pro Nutzer und Monat inklusive Integrationsfunktionen ohne Aufpreis.
 
 ### Welche Daten sollte ich zwischen CRM und ERP synchronisieren?
 
@@ -583,4 +592,4 @@ CRM-ERP-Integration ist ein technisches Projekt mit planbaren Schritten: Integra
 
 Der häufigste Fehler ist, es zu kompliziert zu machen. Starten Sie mit drei bis fünf hochwertigen Datenflüssen. Nutzen Sie eine iPaaS-Plattform, um individuelle Entwicklung zu vermeiden. Definieren Sie klare Datenhoheit pro Feld. Testen Sie mit realen Daten und Grenzfällen. Überwachen Sie ab Tag eins.
 
-Customermates, mit seiner Ihrem eigenen n8n-Automatisierung, vollem API-Zugang und einem Preis ab 12 EUR pro Nutzer und Monat, bietet Ihnen ein CRM, das von Grund auf für Integration konzipiert ist. Verbinden Sie es mit SAP, Dynamics, Odoo oder jedem ERP mit API, ohne Code zu schreiben und ohne für eine separate Integrationsplattform zu bezahlen.
+Customermates, mit seiner Ihrem eigenen n8n-Automatisierung, vollem API-Zugang und einem Preis ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, bietet Ihnen ein CRM, das von Grund auf für Integration konzipiert ist. Verbinden Sie es mit SAP, Dynamics, Odoo oder jedem ERP mit API, ohne Code zu schreiben und ohne für eine separate Integrationsplattform zu bezahlen.
