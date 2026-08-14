@@ -12,6 +12,7 @@ import { featurePagesSource, featuresAllSource } from "@/core/fumadocs/source";
 import {
   HUB_PAGE_PARAM,
   hubPageCount,
+  hubPageCountForSource,
   hubPageHref,
   hubPageOneRedirectHref,
   paginateLocalizedHubPages,
@@ -28,10 +29,7 @@ type Props = {
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { locale } = await params;
   const query = await searchParams;
-  const resolution = resolveHubPage(
-    query[HUB_PAGE_PARAM],
-    hubPageCount(featurePagesSource.getPages(DEFAULT_LOCALE).length),
-  );
+  const resolution = resolveHubPage(query[HUB_PAGE_PARAM], hubPageCountForSource(featurePagesSource));
 
   if (resolution.kind === "not-found") notFound();
 

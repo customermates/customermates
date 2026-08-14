@@ -1,3 +1,5 @@
+import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
+
 export const HUB_PAGE_SIZE = 24;
 
 export const HUB_PAGE_PARAM = "page";
@@ -25,6 +27,10 @@ type SourcePage = {
   url: string;
 };
 
+type HubPageCountSource = {
+  getPages: (locale: string) => readonly unknown[];
+};
+
 export type SluggedPage<T extends SourcePage> = {
   page: T;
   slug: string;
@@ -35,6 +41,10 @@ export function hubPageCount(total: number, size: number = HUB_PAGE_SIZE): numbe
   if (!Number.isSafeInteger(size) || size < 1) throw new RangeError("Hub page size must be a positive integer");
 
   return Math.max(1, Math.ceil(total / size));
+}
+
+export function hubPageCountForSource(source: HubPageCountSource): number {
+  return hubPageCount(source.getPages(DEFAULT_LOCALE).length);
 }
 
 export function resolveHubPage(raw: string | string[] | undefined, pageCount: number): HubPageResolution {
