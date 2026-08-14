@@ -34,7 +34,7 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
     rules: [
       {
         userAgent: "*",
-        crawlDelay: 10,
+        allow: "/",
       },
     ],
     sitemap: `${env.BASE_URL}/sitemap.xml`,

@@ -1,0 +1,62 @@
+name: Page shipping E2E
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  rendered-hubs:
+    name: rendered-hubs
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      APP_MODE: self-hosted
+      BASE_URL: http://localhost:40196
+      BETTER_AUTH_SECRET: synthetic-page-shipping-e2e-secret
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/customermates_page_shipping_e2e
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+      - name: Build the production application
+        run: yarn build
+      - name: Crawl rendered landing hubs
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          server_log="$RUNNER_TEMP/page-shipping-server.log"
+          yarn next start --hostname 127.0.0.1 -p 40196 >"$server_log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true; wait "$server_pid" 2>/dev/null || true' EXIT
+
+          ready=0
+          for _attempt in {1..60}; do
+            if curl --silent --show-error --fail http://localhost:40196/en/blog >/dev/null; then
+              ready=1
+              break
+            fi
+            if ! kill -0 "$server_pid" 2>/dev/null; then
+              cat "$server_log"
+              exit 1
+            fi
+            sleep 1
+          done
+
+          if [[ "$ready" -ne 1 ]]; then
+            cat "$server_log"
+            exit 1
+          fi
+
+          if ! HUB_E2E_BASE_URL=http://localhost:40196 yarn vitest run tests/conventions/hub-reachability.test.ts; then
+            cat "$server_log"
+            exit 1
+          fi
