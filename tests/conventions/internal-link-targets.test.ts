@@ -88,7 +88,7 @@ const FRONTMATTER_HREF = /^\s*(?:-\s*)?([a-z0-9_-]*href)\s*:\s*(.*?)\s*$/iu;
 const JSX_HREF =
   /\bhref\s*=\s*(?:"([^"\r\n]*)"|'([^'\r\n]*)'|\{\s*"([^"\r\n]*)"\s*\}|\{\s*'([^'\r\n]*)'\s*\})/gu;
 const MARKDOWN_LINK =
-  /(?<!!)\[[^\]\r\n]*\]\(\s*(?:<([^>\r\n]+)>|((?:\\.|[^)\s])+))(?:\s+(?:"[^"]*"|'[^']*'|\([^)]*\)))?\s*\)/gu;
+  /(?<!!)\[[^\]\r\n]*\]\(\s*(?:<([^>\r\n]+)>|((?:\\.|[^)\\\s])+))(?:\s+(?:"[^"]*"|'[^']*'|\([^)]*\)))?\s*\)/gu;
 const MARKDOWN_DEFINITION = /^\s*\[[^\]\r\n]+\]:\s*(?:<([^>\r\n]+)>|(\S+))/gmu;
 
 type ContentLink = {
@@ -437,6 +437,13 @@ describe("internal link targets", () => {
         DEFAULT_LOCALE,
       ),
     ).toThrow("alias.mdx:2 uses unsupported frontmatter href syntax");
+  });
+
+  it("does not backtrack through a long malformed Markdown escape sequence", () => {
+    const malformed = `[broken](/${"\\".repeat(4_096)}`;
+    expect(linksInDocument(malformed, "malformed.mdx", DEFAULT_LOCALE)).toEqual(
+      [],
+    );
   });
 
   it("keeps hub query semantics instead of discarding the page parameter", () => {
