@@ -193,7 +193,7 @@ export abstract class ActivityContactRepo {
   abstract resolveContactIdsForEntityTypeCompanyWide(args: {
     entityType: EntityType;
     entityIds?: string[];
-    limit?: number;
+    limit: number;
   }): Promise<string[]>;
   abstract findContactIdentifierTargetsCompanyWide(contactIds: string[]): Promise<ContactIdentifierTarget[]>;
 }

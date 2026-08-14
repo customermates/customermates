@@ -47,61 +47,29 @@ describe("activity contact scope readOwn access", () => {
     Object.values(calls).forEach((entries) => entries.splice(0));
   });
 
-  it("applies ownership predicates to every whole-type contact resolution", async () => {
+  it("applies ownership predicates and a bounded take to every whole-type contact resolution", async () => {
     await runWithTenant(reader, async () => {
       const repo = new PrismaContactRepo();
       for (const entityType of Object.values(EntityType))
-        await repo.resolveContactIdsForEntityTypeCompanyWide({ entityType });
+        await repo.resolveContactIdsForEntityTypeCompanyWide({ entityType, limit: 501 });
     });
 
-    expect(calls.contact[0]).toEqual(
-      expect.objectContaining({
-        where: expect.objectContaining({
-          users: { some: { userId: reader.id } },
-        }),
-      }),
-    );
-    expect(calls.contactOrganization[0]).toEqual(
-      expect.objectContaining({
-        where: expect.objectContaining({
-          organization: expect.objectContaining({
-            users: { some: { userId: reader.id } },
-          }),
-        }),
-      }),
-    );
-    expect(calls.dealContact[0]).toEqual(
-      expect.objectContaining({
-        where: expect.objectContaining({
-          deal: expect.objectContaining({
-            users: { some: { userId: reader.id } },
-          }),
-        }),
-      }),
-    );
-    expect(calls.dealContact[1]).toEqual(
-      expect.objectContaining({
-        where: expect.objectContaining({
-          deal: expect.objectContaining({
-            services: {
-              some: {
-                service: expect.objectContaining({
-                  users: { some: { userId: reader.id } },
-                }),
-              },
-            },
-          }),
-        }),
-      }),
-    );
-    expect(calls.taskContact[0]).toEqual(
-      expect.objectContaining({
-        where: expect.objectContaining({
-          task: expect.objectContaining({
-            users: { some: { userId: reader.id } },
-          }),
-        }),
-      }),
-    );
+    const contactCalls = calls.contact as Array<{ where: Record<string, any>; take?: number }>;
+    const owner = JSON.stringify({ some: { userId: reader.id } });
+    const wheres = contactCalls.map((call) => call.where);
+    const dealSomes = wheres.filter((where) => where.deals).map((where) => where.deals.some);
+
+    expect(contactCalls).toHaveLength(Object.values(EntityType).length);
+    for (const call of contactCalls) expect(call.take).toBe(501);
+
+    expect(wheres.some((where) => JSON.stringify(where.users) === owner)).toBe(true);
+    expect(wheres.some((where) => JSON.stringify(where.organizations?.some?.organization?.users) === owner)).toBe(true);
+    expect(dealSomes.some((some) => JSON.stringify(some.deal?.users) === owner)).toBe(true);
+    expect(dealSomes.some((some) => JSON.stringify(some.deal?.services?.some?.service?.users) === owner)).toBe(true);
+    expect(wheres.some((where) => JSON.stringify(where.tasks?.some?.task?.users) === owner)).toBe(true);
+
+    expect(calls.contactOrganization).toHaveLength(0);
+    expect(calls.dealContact).toHaveLength(0);
+    expect(calls.taskContact).toHaveLength(0);
   });
 });

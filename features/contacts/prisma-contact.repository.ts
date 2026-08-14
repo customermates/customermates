@@ -686,66 +686,67 @@ export class PrismaContactRepo
       return rows.map((r) => r.id);
     }
 
-    if (entityType === EntityType.organization) {
-      const rows = await this.prisma.contactOrganization.findMany({
-        where: {
-          companyId: this.companyId,
-          ...(ids ? { organizationId: { in: ids } } : {}),
-          organization: this.accessWhere("organization"),
-        },
-        select: { contactId: true },
-        distinct: ["contactId"],
+    const linkedContactIds = async (where: Prisma.ContactWhereInput) => {
+      const rows = await this.prisma.contact.findMany({
+        where: { companyId: this.companyId, ...where },
+        select: { id: true },
         take: limit,
       });
-      return rows.map((r) => r.contactId);
+      return rows.map((r) => r.id);
+    };
+
+    if (entityType === EntityType.organization) {
+      return linkedContactIds({
+        organizations: {
+          some: {
+            companyId: this.companyId,
+            ...(ids ? { organizationId: { in: ids } } : {}),
+            organization: this.accessWhere("organization"),
+          },
+        },
+      });
     }
 
     if (entityType === EntityType.deal) {
-      const rows = await this.prisma.dealContact.findMany({
-        where: {
-          companyId: this.companyId,
-          ...(ids ? { dealId: { in: ids } } : {}),
-          deal: this.accessWhere("deal"),
+      return linkedContactIds({
+        deals: {
+          some: {
+            companyId: this.companyId,
+            ...(ids ? { dealId: { in: ids } } : {}),
+            deal: this.accessWhere("deal"),
+          },
         },
-        select: { contactId: true },
-        distinct: ["contactId"],
-        take: limit,
       });
-      return rows.map((r) => r.contactId);
     }
 
     if (entityType === EntityType.service) {
-      const rows = await this.prisma.dealContact.findMany({
-        where: {
-          companyId: this.companyId,
-          deal: {
-            services: {
-              some: {
-                ...(ids ? { serviceId: { in: ids } } : {}),
-                service: this.accessWhere("service"),
+      return linkedContactIds({
+        deals: {
+          some: {
+            companyId: this.companyId,
+            deal: {
+              services: {
+                some: {
+                  ...(ids ? { serviceId: { in: ids } } : {}),
+                  service: this.accessWhere("service"),
+                },
               },
             },
           },
         },
-        select: { contactId: true },
-        distinct: ["contactId"],
-        take: limit,
       });
-      return rows.map((row) => row.contactId);
     }
 
     if (entityType === EntityType.task) {
-      const rows = await this.prisma.taskContact.findMany({
-        where: {
-          companyId: this.companyId,
-          ...(ids ? { taskId: { in: ids } } : {}),
-          task: this.accessWhere("task"),
+      return linkedContactIds({
+        tasks: {
+          some: {
+            companyId: this.companyId,
+            ...(ids ? { taskId: { in: ids } } : {}),
+            task: this.accessWhere("task"),
+          },
         },
-        select: { contactId: true },
-        distinct: ["contactId"],
-        take: limit,
       });
-      return rows.map((r) => r.contactId);
     }
 
     return [];
