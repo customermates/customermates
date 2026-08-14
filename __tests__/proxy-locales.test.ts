@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 
+import { AsyncLocalStorage } from "node:async_hooks";
 import { describe, expect, it, vi } from "vitest";
-import { NextRequest as NextRequestValue } from "next/server";
 
 const mockEnv = vi.hoisted(() => ({
   APP_MODE: "self-hosted" as const,
@@ -102,7 +102,9 @@ vi.mock("@/i18n/locale-registry", () => {
 vi.mock("@/env", () => ({ env: mockEnv }));
 
 vi.mock("@/core/auth/better-auth", () => ({
-  auth: { api: { getSession: vi.fn(), signInEmail: vi.fn(), signOut: vi.fn() } },
+  auth: {
+    api: { getSession: vi.fn(), signInEmail: vi.fn(), signOut: vi.fn() },
+  },
 }));
 
 vi.mock("next-intl/middleware", async () => {
@@ -132,8 +134,17 @@ vi.mock("next-intl/middleware", async () => {
   };
 });
 
-import proxy from "@/proxy";
 import { appRouting, contentRouting, routing } from "@/i18n/routing";
+
+(
+  globalThis as typeof globalThis & {
+    AsyncLocalStorage: typeof AsyncLocalStorage;
+  }
+).AsyncLocalStorage = AsyncLocalStorage;
+const [{ NextRequest: NextRequestValue }, { config, default: proxy }] = await Promise.all([
+  import("next/server"),
+  import("@/proxy"),
+]);
 
 function request(pathname: string, acceptLanguage?: string): NextRequest {
   return new NextRequestValue(`http://localhost:4000${pathname}`, {
@@ -143,7 +154,11 @@ function request(pathname: string, acceptLanguage?: string): NextRequest {
 
 async function call(pathname: string, acceptLanguage?: string) {
   const response = await proxy(request(pathname, acceptLanguage));
-  return { status: response.status, location: response.headers.get("location"), response };
+  return {
+    status: response.status,
+    location: response.headers.get("location"),
+    response,
+  };
 }
 
 const PATHS = [
@@ -191,6 +206,105 @@ describe("locale routing configuration", () => {
 });
 
 describe("proxy locale routing", () => {
+  it("keeps hub URL validation active for both prefetch header variants", async () => {
+    const { unstable_doesMiddlewareMatch } = await import("next/experimental/testing/server");
+    const headerSets = [
+      { purpose: "prefetch" },
+      { "next-router-prefetch": "1" },
+      { purpose: "prefetch", "next-router-prefetch": "1" },
+    ];
+
+    for (const headers of headerSets) {
+      for (const prefix of ["", "/en", "/de", "/fr", "/it", "/es"]) {
+        for (const hub of ["/blog", "/compare", "/for", "/features/all"]) {
+          expect(
+            unstable_doesMiddlewareMatch({
+              config,
+              headers,
+              nextConfig: {},
+              url: `http://localhost:4000${prefix}${hub}?page=99`,
+            }),
+            `${prefix}${hub}`,
+          ).toBe(true);
+        }
+      }
+
+      for (const path of ["/en/pricing", "/en/blog/post", "/en/features/all/child"]) {
+        expect(
+          unstable_doesMiddlewareMatch({
+            config,
+            headers,
+            nextConfig: {},
+            url: `http://localhost:4000${path}`,
+          }),
+          path,
+        ).toBe(false);
+      }
+    }
+
+    for (const prefix of ["/EN", "/pt-BR", "/nl"]) {
+      for (const hub of ["/blog", "/compare", "/for", "/features/all"]) {
+        expect(
+          unstable_doesMiddlewareMatch({
+            config,
+            headers: { "next-router-prefetch": "1" },
+            nextConfig: {},
+            url: `http://localhost:4000${prefix}${hub}?page=99`,
+          }),
+          `${prefix}${hub}`,
+        ).toBe(true);
+      }
+    }
+
+    expect(
+      unstable_doesMiddlewareMatch({
+        config,
+        nextConfig: {},
+        url: "http://localhost:4000/en/pricing",
+      }),
+    ).toBe(true);
+  });
+
+  it("normalizes page one and rejects invalid hub pagination before streaming", async () => {
+    const pageOne = await call("/en/blog?page=1&utm_source=proof");
+    expect(pageOne.status).toBe(308);
+    expect(pageOne.location).toBe("http://localhost:4000/en/blog?utm_source=proof");
+
+    for (const query of ["page=0", "page=01", "page=2junk", "page=2&page=3", "page=4"]) {
+      const invalid = await call(`/en/blog?${query}`);
+      expect(invalid.status, query).toBe(404);
+      expect(invalid.location, query).toBeNull();
+      expect(invalid.response.headers.get("x-robots-tag"), query).toBe("noindex");
+    }
+
+    const lastPage = await call("/en/blog?page=3");
+    expect(lastPage.status).toBe(200);
+    expect(lastPage.location).toBeNull();
+  });
+
+  it("normalizes an app-only locale before applying the hub page contract", async () => {
+    const localeFallback = await call("/fr/blog?page=1&utm_source=proof");
+    expect(localeFallback.status).toBe(307);
+    expect(localeFallback.location).toBe("http://localhost:4000/en/blog?page=1&utm_source=proof");
+
+    const pageOne = await call("/en/blog?page=1&utm_source=proof");
+    expect(pageOne.status).toBe(308);
+    expect(pageOne.location).toBe("http://localhost:4000/en/blog?utm_source=proof");
+
+    const invalidLocaleFallback = await call("/fr/blog?page=4");
+    expect(invalidLocaleFallback.status).toBe(307);
+    expect(invalidLocaleFallback.location).toBe("http://localhost:4000/en/blog?page=4");
+
+    const invalid = await call("/en/blog?page=4");
+    expect(invalid.status).toBe(404);
+    expect(invalid.location).toBeNull();
+    expect(invalid.response.headers.get("x-robots-tag")).toBe("noindex");
+
+    const valid = await call("/fr/blog?page=2");
+    expect(valid.status).toBe(307);
+    expect(valid.location).toBe("http://localhost:4000/en/blog?page=2");
+  });
+
   it("never emits a permanently cached redirect", async () => {
     for (const path of PATHS) {
       const { status } = await call(path);

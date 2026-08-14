@@ -1,4 +1,5 @@
 import type { NextRequest } from "next/server";
+import type { ContentLocale } from "./i18n/locale-registry";
 
 import { NextResponse } from "next/server";
 import createMiddleware from "next-intl/middleware";
@@ -18,6 +19,8 @@ import { env } from "./env";
 import { auth } from "./core/auth/better-auth";
 import { resolveRequestOrigin } from "./core/config/environment";
 import { SYNTHETIC_SEED_USER } from "./core/config/synthetic-seed-user";
+import { HUB_PAGE_PARAM, resolveHubPage } from "./core/seo/hub-pagination";
+import { LANDING_HUBS } from "./core/seo/landing-hubs";
 
 const intlAppMiddleware = createMiddleware(appRouting);
 const intlContentMiddleware = createMiddleware(contentRouting);
@@ -74,6 +77,39 @@ function appendSetCookieHeaders(response: NextResponse, authResponse: Response):
   for (const cookie of setCookies) response.headers.append("set-cookie", cookie);
 }
 
+function hubPaginationResponse(req: NextRequest, locale: ContentLocale): NextResponse | null {
+  const hub = LANDING_HUBS.find(({ hubPath }) => hubPath === stripLocalePrefix(req.nextUrl.pathname));
+  if (!hub) return null;
+
+  const values = req.nextUrl.searchParams.getAll(HUB_PAGE_PARAM);
+  const raw = values.length === 0 ? undefined : values.length === 1 ? values[0] : values;
+  const resolution = resolveHubPage(raw, hub.pageCount);
+
+  if (resolution.kind === "page") return null;
+
+  if (resolution.kind === "redirect-page-one") {
+    const canonical = req.nextUrl.clone();
+    canonical.pathname = buildLocalePath(locale, hub.hubPath);
+    canonical.searchParams.delete(HUB_PAGE_PARAM);
+    return NextResponse.redirect(canonical, 308);
+  }
+
+  // Next strips its router-prefetch header before constructing the proxy
+  // request and restores it for rendering. A rewrite can therefore become an
+  // RSC-level 500 even though the matcher ran. Terminate every invalid URL in
+  // the proxy with a small semantic document instead of entering rendering.
+  return new NextResponse(
+    `<!doctype html><html lang="${locale}"><head><meta charset="utf-8"><meta name="robots" content="noindex"><title>404</title></head><body><main><h1>404</h1></main></body></html>`,
+    {
+      headers: {
+        "content-type": "text/html; charset=utf-8",
+        "x-robots-tag": "noindex",
+      },
+      status: 404,
+    },
+  );
+}
+
 export default async function proxy(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
   const base = resolveRequestOrigin(req.nextUrl.origin, env.AUTH_ALLOWED_HOSTS, env.BASE_URL);
@@ -126,6 +162,12 @@ export default async function proxy(req: NextRequest) {
     if (isUnsupportedLocalePrefix(pathname)) return NextResponse.next();
     return negotiateLocale(req, base, isAuthenticated && pathname === "/" ? "app" : "auto");
   }
+
+  // A cross-locale fallback is temporary: an app-only locale can gain content
+  // later, so it remains a 307. Apply the permanent page-one normalization
+  // only after the request is already in a locale that publishes content.
+  const paginationResponse = isContentLocale(currentLocale) ? hubPaginationResponse(req, currentLocale) : null;
+  if (paginationResponse) return paginationResponse;
 
   if (env.APP_MODE === "demo") {
     const isNonDemoUser = isAuthenticated && session?.user?.email !== SYNTHETIC_SEED_USER.email;
@@ -195,6 +237,12 @@ export default async function proxy(req: NextRequest) {
 
 export const config = {
   matcher: [
+    // Hub pagination is a public URL contract, so it must also run for Next's
+    // prefetch requests. These narrow matchers intentionally have no `missing`
+    // header exclusions; the broad matcher below keeps the existing shortcut
+    // for every other route.
+    { source: "/:locale([a-zA-Z]{2}(?:-[a-zA-Z0-9]{2,8})*)?/:hub(blog|compare|for)" },
+    { source: "/:locale([a-zA-Z]{2}(?:-[a-zA-Z0-9]{2,8})*)?/features/all" },
     {
       /*
        * Exclude paths:
