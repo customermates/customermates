@@ -251,10 +251,15 @@ function clickDepths(
   return depths;
 }
 
+function pathWithQuery(href: string, baseUrl: string): string {
+  const url = new URL(href, baseUrl);
+  return `${url.pathname}${url.search}`;
+}
+
 function sameOriginPath(href: string, baseUrl: string): string | null {
   const url = new URL(href, baseUrl);
   const base = new URL(baseUrl);
-  return url.origin === base.origin ? `${url.pathname}${url.search}` : null;
+  return url.origin === base.origin ? pathWithQuery(url.href, baseUrl) : null;
 }
 
 async function e2eResponse(
@@ -606,21 +611,32 @@ describe("hub pagination and rendered reachability", () => {
               'link[rel="canonical"]',
             )?.href;
             expect(canonical, `${route} canonical`).toBeDefined();
+            const canonicalUrl = new URL(
+              canonical as string,
+              E2E_BASE_URL as string,
+            );
             expect(
-              sameOriginPath(canonical as string, E2E_BASE_URL as string),
+              pathWithQuery(canonicalUrl.href, E2E_BASE_URL as string),
               `${route} canonical`,
             ).toBe(route);
 
+            const alternateLinks = [
+              ...document.querySelectorAll<HTMLLinkElement>(
+                'link[rel="alternate"][hreflang]',
+              ),
+            ];
             const alternates = new Map(
-              [
-                ...document.querySelectorAll<HTMLLinkElement>(
-                  'link[rel="alternate"][hreflang]',
-                ),
-              ].map((link) => [
+              alternateLinks.map((link) => [
                 link.getAttribute("hreflang"),
-                sameOriginPath(link.href, E2E_BASE_URL as string),
+                pathWithQuery(link.href, E2E_BASE_URL as string),
               ]),
             );
+            for (const link of alternateLinks) {
+              expect(
+                new URL(link.href, E2E_BASE_URL as string).origin,
+                `${route} alternate canonical origin`,
+              ).toBe(canonicalUrl.origin);
+            }
             for (const alternateLocale of CONTENT_LOCALES) {
               expect(
                 alternates.get(alternateLocale),
