@@ -10,7 +10,7 @@ hero:
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
-  hint: ✓ Keine Kreditkarte benötigt ✓ Erste 7 Tage kostenlos
+  hint: ✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos
 
 comparison:
   competitorName: weclapp
@@ -22,10 +22,10 @@ comparison:
         source: 2 Minuten
         competitor: Tage bis Wochen
       - name: Kosten
-        source: Ab 12€ / Monat / User
+        source: Ab [[commercial.price.starter.monthly]] / Monat / User
         competitor: Ab 68€ (CRM-Lizenz); 39€-163€ (ERP)
       - name: Kostenloser Start
-        source: 7-Tage-Test + kostenloses Self-Hosting
+        source: "[[commercial.trial.days]]-Tage-Test + kostenloses Self-Hosting"
         competitor: Nur 30-Tage-Testversion
       - name: Kreditkarte nötig
         source: false
@@ -54,13 +54,13 @@ comparison:
         source: true
         competitor: true
       - name: KI-Agenten bedienen das CRM (natives MCP)
-        source: 46 Tools (ab Starter)
+        source: "[[derived.mcp.tools.total]] Tools (ab Starter)"
         competitor: false
       - name: Mobile Optimierung
         source: true
         competitor: Teilweise
       - name: Nativer Unified Inbox (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram)
-        source: Ab Pro (29 €)
+        source: Ab Pro ([[commercial.price.pro.monthly]])
         competitor: Nur E-Mail im ERP
   - title: Datenschutz & Sicherheit
     features:
@@ -98,10 +98,10 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
-  hint: ✓ Keine Kreditkarte benötigt ✓ Erste 7 Tage kostenlos
+  hint: ✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos
 ---
 
-> weclapp ist eine deutsche Cloud-ERP-Plattform, die CRM-Funktionalität als Teil einer umfassenderen Business-Suite mit Buchhaltung, Lagerverwaltung, Einkauf und Projektmanagement enthält. Seit 2023 Teil von Exact, dient weclapp Unternehmen, die integriertes ERP und CRM brauchen. Für Teams, die primär CRM benötigen, bedeutet weclapps ERP-first-Ansatz jedoch, für Komplexität zu bezahlen und durch diese zu navigieren, die man nicht braucht. Customermates bietet fokussiertes, quelloffenes CRM zu einem Bruchteil des Preises. KI-Agenten (Claude, ChatGPT und Gemini) bedienen das CRM über eine native MCP-Integration mit 46 Tools, ein nativer Unified Inbox bündelt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ab der Pro-Stufe, und es behält dieselben deutschen Hosting-Standards plus n8n-Automatisierung, alles ab €12/User/Monat.
+> weclapp ist eine deutsche Cloud-ERP-Plattform, die CRM-Funktionalität als Teil einer umfassenderen Business-Suite mit Buchhaltung, Lagerverwaltung, Einkauf und Projektmanagement enthält. Seit 2023 Teil von Exact, dient weclapp Unternehmen, die integriertes ERP und CRM brauchen. Für Teams, die primär CRM benötigen, bedeutet weclapps ERP-first-Ansatz jedoch, für Komplexität zu bezahlen und durch diese zu navigieren, die man nicht braucht. Customermates bietet fokussiertes, quelloffenes CRM zu einem Bruchteil des Preises. KI-Agenten (Claude, ChatGPT und Gemini) bedienen das CRM über eine native MCP-Integration mit [[derived.mcp.tools.total]] Tools, ein nativer Unified Inbox bündelt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ab der Pro-Stufe, und es behält dieselben deutschen Hosting-Standards plus n8n-Automatisierung, alles ab [[commercial.price.starter.monthly]]/User/Monat.
 
 ## Setup & Einstieg
 
@@ -115,7 +115,7 @@ weclapp wird entweder als ERP-Pakete oder als Einzelmodul-Lizenzen verkauft. Die
 
 Für Teams, die nur CRM brauchen, kosten beide Optionen mehr als nötig: Der ERP Starter für 39€ bündelt Buchhaltung, Lager und Einkauf, die Sie vielleicht nie nutzen, während die dedizierte CRM-Lizenz allein 68€/User/Monat kostet.
 
-Customermates startet bei 12€/User/Monat (Starter), mit jeder CRM-Kernfunktion inklusive. Keine Module auszuwählen, keine ERP-Komponenten zu bezahlen. Ein Team mit 10 Personen zahlt 120€/Monat im Starter-Tarif bei Customermates vs. 680€/Monat für weclapps eigenständige CRM-Lizenz.
+Customermates startet bei [[commercial.price.starter.monthly]]/User/Monat (Starter), mit jeder CRM-Kernfunktion inklusive. Keine Module auszuwählen, keine ERP-Komponenten zu bezahlen. Ein Team mit 10 Personen zahlt [[commercial.price.starter.monthly.seats.10]]/Monat im Starter-Tarif bei Customermates vs. 680€/Monat für weclapps eigenständige CRM-Lizenz.
 
 ## Open-Source & Unabhängigkeit
 
@@ -137,7 +137,7 @@ Customermates liefert fokussiertes CRM: Kontakte, Organisationen, Deals, Pipelin
 
 weclapp bietet keine KI, die das CRM bedient. Als ERP-fokussierte Plattform ist agentische KI nicht Teil der Roadmap des CRM-Moduls.
 
-Customermates verbindet Claude, ChatGPT und Gemini über eine native MCP-Integration (46 Tools) mit Ihrem CRM, in jeder Stufe ab €12/User/Monat. Die Agenten übernehmen die Dateneingabe: Sie qualifizieren Leads, entwerfen Follow-ups, reichern Kontaktdatensätze an und halten Deal-Phasen aktuell. In Kombination mit n8n bauen Sie intelligente Workflows ohne Zusatzkosten oder Module.
+Customermates verbindet Claude, ChatGPT und Gemini über eine native MCP-Integration ([[derived.mcp.tools.total]] Tools) mit Ihrem CRM, in jeder Stufe ab [[commercial.price.starter.monthly]]/User/Monat. Die Agenten übernehmen die Dateneingabe: Sie qualifizieren Leads, entwerfen Follow-ups, reichern Kontaktdatensätze an und halten Deal-Phasen aktuell. In Kombination mit n8n bauen Sie intelligente Workflows ohne Zusatzkosten oder Module.
 
 ## Datenschutz & Hosting
 
@@ -153,4 +153,4 @@ Customermates bringt n8n-Automatisierung von Haus aus mit und verbindet sich mit
 
 ## Fazit
 
-weclapp ist eine solide Wahl für Unternehmen, die integriertes ERP und CRM in einer deutschen Plattform brauchen. Aber für Teams, die CRM ohne ERP-Overhead brauchen, ist es überdimensioniert und überteuert. Sie bezahlen für Buchhaltungs-, Lager- und Einkaufsmodule, ob Sie sie nutzen oder nicht. Customermates liefert dedizierte, quelloffene CRM-Funktionalität ab 12€/User/Monat, mit MCP-Zugriff für externe KI-Clients, einer separaten n8n-Integration, moderner Benutzerfreundlichkeit und der Freiheit zum Self-Hosting, ohne den ERP-Ballast.
+weclapp ist eine solide Wahl für Unternehmen, die integriertes ERP und CRM in einer deutschen Plattform brauchen. Aber für Teams, die CRM ohne ERP-Overhead brauchen, ist es überdimensioniert und überteuert. Sie bezahlen für Buchhaltungs-, Lager- und Einkaufsmodule, ob Sie sie nutzen oder nicht. Customermates liefert dedizierte, quelloffene CRM-Funktionalität ab [[commercial.price.starter.monthly]]/User/Monat, mit MCP-Zugriff für externe KI-Clients, einer separaten n8n-Integration, moderner Benutzerfreundlichkeit und der Freiheit zum Self-Hosting, ohne den ERP-Ballast.

@@ -43,13 +43,13 @@ According to Salesforce's overview of [CRM systems](https://www.salesforce.com/c
 
 The three CRM types are best understood by what they optimize for. They are not competing products. A real business uses all three functions, often inside one platform.
 
-| Dimension | Operational CRM | Analytical CRM | Collaborative CRM |
-|---|---|---|---|
-| Primary user | Sales reps, marketers, support agents | Analysts, sales managers, ops leaders | Cross-functional teams, partners |
-| Core job | Run daily customer interactions | Surface patterns and forecasts in customer data | Share customer information across silos |
-| Typical features | Pipeline, contacts, automation, ticketing | Dashboards, segmentation, predictive scoring | Shared notes, internal chat, partner portals |
-| Output | Closed deals, sent emails, resolved tickets | Reports, models, forecasts | Aligned teams, faster handoffs |
-| Examples | HubSpot, Pipedrive, Customermates, Zendesk Sell | Tableau on top of CRM data, native CRM analytics | Microsoft Dynamics, partner relationship modules |
+| Dimension        | Operational CRM                                 | Analytical CRM                                   | Collaborative CRM                                |
+| ---------------- | ----------------------------------------------- | ------------------------------------------------ | ------------------------------------------------ |
+| Primary user     | Sales reps, marketers, support agents           | Analysts, sales managers, ops leaders            | Cross-functional teams, partners                 |
+| Core job         | Run daily customer interactions                 | Surface patterns and forecasts in customer data  | Share customer information across silos          |
+| Typical features | Pipeline, contacts, automation, ticketing       | Dashboards, segmentation, predictive scoring     | Shared notes, internal chat, partner portals     |
+| Output           | Closed deals, sent emails, resolved tickets     | Reports, models, forecasts                       | Aligned teams, faster handoffs                   |
+| Examples         | HubSpot, Pipedrive, Customermates, Zendesk Sell | Tableau on top of CRM data, native CRM analytics | Microsoft Dynamics, partner relationship modules |
 
 In practice, an operational CRM is the spine. The analytical layer sits on top of the same database, and the collaborative layer is mostly a question of who has access to the records. If you start with a strong operational CRM, you can layer analytics and collaboration on later. The reverse rarely works: pure analytics tools cannot run a sales pipeline.
 
@@ -118,15 +118,15 @@ That is the operational CRM. It is unglamorous, day-to-day plumbing that turns s
 
 The operational CRM market is crowded. The names below are the ones I see most often in buying conversations with founders and small teams. I have used most of them at some point and I have built one of them.
 
-| Product | Best for | Pricing model | Self-hosting | Notable strength |
-|---|---|---|---|---|
-| HubSpot CRM | Mid-market sales and marketing teams that want one suite | Free tier, paid from $20/user/month, Pro from $90+ | No | Marketing automation depth |
-| Salesforce Sales Cloud | Enterprise sales teams with complex processes | $25-$350/user/month per edition | No | Customization, ecosystem |
-| Pipedrive | Pipeline-first sales teams that hate complexity | $14-$79/user/month | No | Clean pipeline UX |
-| Zoho CRM | Cost-sensitive teams that want a wide product family | $14-$52/user/month | Self-hosted via Zoho One on-prem (limited) | Bundle pricing |
-| Zendesk Sell | Support-led companies adding sales | $19-$169/user/month | No | Tight integration with Zendesk Support |
-| Freshsales (Freshworks) | Startups wanting AI features without enterprise pricing | $9-$59/user/month | No | Built-in AI assistant |
-| Customermates | Founders and small teams who want AI agents to operate the CRM | Free self-hosted, cloud from €12/user/month (€10 yearly, Starter) | Yes (Docker, AGPL-3.0) | Open source, MCP-native |
+| Product                 | Best for                                                       | Pricing model                                                                          | Self-hosting                               | Notable strength                       |
+| ----------------------- | -------------------------------------------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------ | -------------------------------------- |
+| HubSpot CRM             | Mid-market sales and marketing teams that want one suite       | Free tier, paid from $20/user/month, Pro from $90+                                     | No                                         | Marketing automation depth             |
+| Salesforce Sales Cloud  | Enterprise sales teams with complex processes                  | $25-$350/user/month per edition                                                        | No                                         | Customization, ecosystem               |
+| Pipedrive               | Pipeline-first sales teams that hate complexity                | $14-$79/user/month                                                                     | No                                         | Clean pipeline UX                      |
+| Zoho CRM                | Cost-sensitive teams that want a wide product family           | $14-$52/user/month                                                                     | Self-hosted via Zoho One on-prem (limited) | Bundle pricing                         |
+| Zendesk Sell            | Support-led companies adding sales                             | $19-$169/user/month                                                                    | No                                         | Tight integration with Zendesk Support |
+| Freshsales (Freshworks) | Startups wanting AI features without enterprise pricing        | $9-$59/user/month                                                                      | No                                         | Built-in AI assistant                  |
+| Customermates           | Founders and small teams who want AI agents to operate the CRM | Free self-hosted, cloud from [[commercial.price.starter.monthly]]/user/month (Starter) | Yes (Docker, AGPL-3.0)                     | Open source, MCP-native                |
 
 There are dozens more. The point of the table is not "use this one," it is to show the operational CRM space spans a 30x price range and very different opinions about how the work should get done.
 
@@ -151,15 +151,15 @@ This is the question that has changed most in 2026. Five years ago, the only peo
 
 If the answer is "no" or "kind of, in our enterprise tier," you are going to fight that product every time you want to automate something. The CRMs that survive this decade will be the ones an agent can operate as easily as a human.
 
-This is the bet behind Customermates. It exposes 46 MCP tools and 26 webhook events out of the box, with native MCP available from the Starter tier. If you already use Claude or ChatGPT, the pipeline updates itself: deals move on their own, follow-ups get drafted, contact notes stay current. A native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram, on the Pro tier) puts every customer conversation in the same system, and the same agents can read and reply across it. You stop being the person typing into the CRM. The mechanism is documented, but the outcome is the point.
+This is the bet behind Customermates. It exposes [[derived.mcp.tools.total]] MCP tools and [[derived.webhooks.events.total]] webhook events out of the box, with native MCP available from the Starter tier. If you already use Claude or ChatGPT, the pipeline updates itself: deals move on their own, follow-ups get drafted, contact notes stay current. A native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram, on the Pro tier) puts every customer conversation in the same system, and the same agents can read and reply across it. You stop being the person typing into the CRM. The mechanism is documented, but the outcome is the point.
 
 ### 3. What Are the Hard Constraints?
 
 EU founders often need GDPR compliance and EU-hosted data, which rules out a lot of US cloud SaaS by default. Bootstrapped teams need to know what features are on which pricing tier. Self-hosters need a real Docker story.
 
-Customermates is AGPL-3.0 and Docker-deployable, so you can run it entirely on your own infrastructure if that is the constraint. Cloud is from €12 per user per month (€10 yearly) on the Starter tier, full core CRM included, with EU hosting. Pricing details and what is in each tier live on the [pricing page](/pricing).
+Customermates is AGPL-3.0 and Docker-deployable, so you can run it entirely on your own infrastructure if that is the constraint. Cloud is from [[commercial.price.starter.monthly]] per user per month on the Starter tier, full core CRM included, with EU hosting. Pricing details and what is in each tier live on the [pricing page](/pricing).
 
-[See pricing](/pricing) · [Try Customermates free for 7 days](/auth/signup) · [View on GitHub](https://github.com/customermates/customermates)
+[See pricing](/pricing) · [Try Customermates free for [[commercial.trial.days]] days](/auth/signup) · [View on GitHub](https://github.com/customermates/customermates)
 
 ### 4. Will You Actually Use It?
 
@@ -254,7 +254,7 @@ Yes. HubSpot CRM is operational, with strong marketing automation, decent sales 
 
 ### What is the best free operational CRM?
 
-It depends on what "free" means. HubSpot has a generous free tier with usage limits. Bitrix24 is free for unlimited users with feature limits. Customermates is open source under AGPL-3.0 and free to self-host with no user or feature limits, which is a different proposition: you bring your own server and run it on your own infrastructure. The cloud version of Customermates starts at €12 per user per month.
+It depends on what "free" means. HubSpot has a generous free tier with usage limits. Bitrix24 is free for unlimited users with feature limits. Customermates is open source under AGPL-3.0 and free to self-host with no user or feature limits, which is a different proposition: you bring your own server and run it on your own infrastructure. The cloud version of Customermates starts at [[commercial.price.starter.monthly]] per user per month.
 
 ### Do small businesses need an operational CRM?
 
@@ -266,7 +266,7 @@ Two ways. First, AI features inside CRMs (lead scoring, email drafting, summariz
 
 ### How much does an operational CRM cost?
 
-Pricing ranges from free to over $300 per user per month. Free tiers (HubSpot Starter, Bitrix24, Customermates self-hosted) work for small teams. Mid-market platforms (Pipedrive, Zoho, Customermates cloud) cluster around €12 to €30 per user per month. Enterprise CRMs (Salesforce, Microsoft Dynamics) start around $75 per user per month and rise quickly with edition tiers and add-ons.
+Pricing ranges from free to over $300 per user per month. Free or self-operated options such as Bitrix24's free tier and the Customermates community self-host build can work for small teams with different operating trade-offs. The Customermates managed service currently starts at [[commercial.price.starter.monthly]] per user per month. Other mid-market platforms such as Pipedrive and Zoho often advertise entry offers in a broad €12 to €30 range, but compare their current edition, cadence, tax treatment, and feature limits directly. Enterprise CRMs such as Salesforce and Microsoft Dynamics rise quickly with edition tiers and add-ons.
 
 ### How long does operational CRM implementation take?
 
@@ -276,8 +276,8 @@ A minimum viable implementation (one pipeline, contacts imported, email synced, 
 
 An operational CRM is the system that runs your daily customer-facing work, built around three pillars: sales force automation, marketing automation, and service automation. The category is mature, the buyer's market is wide, and the right pick depends on where the bulk of your work sits, who is going to operate it (humans, agents, or both), and what your hard constraints are.
 
-The shift worth paying attention to in 2026 is who does the operating. CRMs that treat AI agents as first-class operators (clean APIs, MCP tools, webhook events, open source) will quietly pull ahead of the ones that treat them as a feature to add later. That is the bet behind Customermates: an operational CRM that updates itself if you already use Claude or ChatGPT, free to self-host under AGPL-3.0, EU hosted in the cloud from €12 per user per month.
+The shift worth paying attention to in 2026 is who does the operating. CRMs that treat AI agents as first-class operators (clean APIs, MCP tools, webhook events, open source) will quietly pull ahead of the ones that treat them as a feature to add later. That is the bet behind Customermates: an operational CRM that authorized Claude or ChatGPT clients can update through MCP, free to self-host under AGPL-3.0, with a managed application database configured in an EU region and a managed service from [[commercial.price.starter.monthly]] per user per month.
 
 Pick the simplest tool that fits the work. Use it daily for 30 days before configuring anything. Hook it up to an agent for the boring tasks. The rest follows.
 
-[Try Customermates free for 7 days](/auth/signup) · [See pricing](/pricing) · [CRM software overview](/blog/crm-software)
+[Try Customermates free for [[commercial.trial.days]] days](/auth/signup) · [See pricing](/pricing) · [CRM software overview](/blog/crm-software)

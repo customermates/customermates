@@ -69,7 +69,7 @@ export default async function PricingPage() {
         </div>
       </section>
 
-      <PricingComparisonTable {...page.data.comparison} />
+      <PricingComparisonTable {...page.data.comparison} locale={locale} />
 
       <FAQSection {...page.data.faq} />
 

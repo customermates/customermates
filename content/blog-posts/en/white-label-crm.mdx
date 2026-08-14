@@ -25,7 +25,7 @@ Stop selling someone else's brand. Here is how to build, customize, and deploy a
 
 Agencies, consultancies, managed service providers, and SaaS entrepreneurs face a recurring dilemma. Their clients need CRM capabilities, but off-the-shelf solutions stamp someone else's logo on every screen. White label CRM solves this problem by letting you rebrand, customize, and resell a CRM platform as if you built it yourself.
 
-The white label CRM market has matured significantly. In 2026, the landscape ranges from proprietary platforms like GoHighLevel with SaaS resale modes and unlimited sub-accounts to fully open-source platforms you can self-host and rebrand without licensing restrictions. This guide walks you through every approach, compares the leading platforms, and helps you choose the right path based on your margin targets, technical capacity, and client needs.
+The white label CRM market has matured significantly. In 2026, the landscape ranges from proprietary platforms like GoHighLevel with SaaS resale modes and unlimited sub-accounts to open-source platforms whose code you can modify and self-host under their licence terms. This guide walks you through every approach, compares the leading platforms, and helps you choose the right path based on your margin targets, technical capacity, and client needs.
 
 ## What is a white label CRM?
 
@@ -65,7 +65,7 @@ With a white label CRM, agencies can:
 - **Control the experience**: Customize workflows, fields, and interfaces to match specific client industries
 - **Differentiate from competitors**: Other agencies send clients to HubSpot or Salesforce. You offer your own branded solution.
 
-The economics are compelling. A branded CRM built on Customermates runs through its agency program: a €149 monthly platform fee plus €5 per user per month. An agency charging clients €25 per user per month across 200 users pays €1,149 per month (€149 plus 200 x €5) and takes in €5,000, leaving about €3,850 per month in margin, roughly €46,000 per year on top of existing service revenue.
+The economics depend on the deployment model. Proprietary programmes charge their published reseller fees; a self-hosted open-source deployment replaces a licence fee with infrastructure, maintenance, support, compliance, and engineering costs. Customermates has no published managed white-label or agency offer today, so model that option only after receiving custom contracted terms.
 
 ### Managed service providers (MSPs) and IT companies
 
@@ -98,6 +98,7 @@ Large organizations sometimes need internal CRM tools that integrate seamlessly 
 GoHighLevel has positioned itself as the dominant white label CRM for agencies in 2026. It combines CRM functionality with marketing automation, funnel building, SMS and email campaigns, and a genuine SaaS resale mode.
 
 **Key features:**
+
 - Full CRM with pipeline management and contact tracking
 - Unlimited sub-accounts for client management
 - White-label desktop branding (logo, colors, custom domain)
@@ -118,6 +119,7 @@ GoHighLevel has positioned itself as the dominant white label CRM for agencies i
 Vendasta provides a broad white label ecosystem for agencies, including CRM, fulfillment services, and reseller access to 250+ software products.
 
 **Key features:**
+
 - White label CRM with full branding
 - Marketplace with 250+ resellable products
 - Client-facing dashboard under your brand
@@ -135,6 +137,7 @@ Vendasta provides a broad white label ecosystem for agencies, including CRM, ful
 SuiteDash works well for smaller agencies that primarily need a professional branded client portal with CRM capabilities.
 
 **Key features:**
+
 - Full white labeling with custom domain
 - Client portal with project management
 - Invoicing and payment processing
@@ -152,26 +155,27 @@ SuiteDash works well for smaller agencies that primarily need a professional bra
 Customermates takes a fundamentally different approach to white label CRM. As an open-source platform, it provides full source code access, meaning you can modify anything from the database schema to the user interface, not just swap logos and colors.
 
 **Key features:**
+
 - Full source code access for unlimited customization
 - Self-hosting option for complete data control
 - Managed white-label branding is contracted through the Enterprise tier and the agency programme; it is not implemented in the product yet
-- AI agents operate the CRM: Claude, ChatGPT, and Gemini read and write records through 46 native MCP tools, so client data entry runs through the agent
+- AI agents operate the CRM: Claude, ChatGPT, and Gemini read and write records through [[derived.mcp.tools.total]] native MCP tools, so client data entry runs through the agent
 - Native unified inbox: email, LinkedIn, WhatsApp, Instagram, and Telegram in one place inside the CRM, which the same agents can read, draft, and send from
 - separate n8n integration for workflow automation
 - GDPR-native architecture, EU-hosted
 - Pipeline management, contact tracking, deal management, and full CRM functionality
 
-**Pricing**: the base CRM starts at €12 per user per month (Starter). Managed white-label branding is contracted on the Enterprise tier (custom pricing) or through the agency programme at a €149 monthly platform fee plus €5 per user per month; the branding capability itself is still being built. Self-hosting under AGPL-3.0 has €0 licensing, and because you hold the source you can rebrand at the code level yourself.
+**Pricing**: the base CRM starts at [[commercial.price.starter.monthly]] per user per month (Starter). Managed white-label branding is contracted on the Enterprise tier or through the agency programme on custom terms; the branding capability itself is still being built. Self-hosting under AGPL-3.0 has €0 licensing, and because you hold the source you can rebrand at the code level yourself.
 
-**Strengths**: Deepest customization possible, you own the code. No vendor dependency. GDPR-native for European markets. Low cost basis for reselling through the agency program. Complete data ownership. Can be forked if the project changes direction.
+**Strengths**: Extensive code-level customization for teams able to operate a self-hosted fork. Direct control of the self-hosted database and deployment. The code can be forked under AGPL-3.0 if the project changes direction.
 
-**Weaknesses**: Requires technical capacity for self-hosted deployments. Managed white-label sits on the Enterprise tier or the agency program, not the entry tier. No built-in funnel builder or SMS (use n8n to connect these). Smaller community than GoHighLevel.
+**Weaknesses**: Requires technical capacity for self-hosted deployments. Managed white-label is not implemented and has no published offer. There is no built-in funnel builder or SMS; connect external services through the API, webhooks, or your own n8n instance. Smaller community than GoHighLevel.
 
 ## Platform comparison: White label CRM approaches
 
 | Criteria | GoHighLevel | Vendasta | SuiteDash | Customermates |
 |----------|------------|---------|-----------|---------------|
-| Monthly cost (50 users) | $297-497 base + per-user | $79+ base + scaling | $99+ | €399 agency program (€149 + 50 x €5) / €0 self-hosted |
+| Monthly cost (50 users) | $297-497 base + per-user | $79+ base + scaling | $99+ | Custom agency terms / €0 self-hosted |
 | Source code access | No | No | No | Full |
 | Self-hosting | No | No | No | Yes |
 | Data ownership | Vendor-controlled | Vendor-controlled | Vendor-controlled | Full |
@@ -212,7 +216,7 @@ When you white label a CRM, you are responsible for your clients' data. This mak
 
 With proprietary platforms, data lives on the vendor's infrastructure. If the vendor raises prices, changes terms, or goes out of business, your clients' data is at risk. With self-hosted open-source, you control the database directly.
 
-Customermates is GDPR-native by design with EU hosting, making it the strongest foundation for agencies and businesses serving European clients where Auftragsverarbeitungsverträge (data processing agreements) are mandatory.
+For managed Customermates, the application database is hosted in an EU region. That is not a promise that every subprocessor or transfer stays in the EU: review the current data-processing and subprocessor disclosures for your deployment. With self-hosting, you choose the database location and remain responsible for the full processing chain.
 
 ### Multi-tenancy and client isolation
 
@@ -259,7 +263,7 @@ Based on your requirements, evaluate CRM platforms against the criteria above. K
 - **If you want all-in-one with minimal technical work**: GoHighLevel (accept vendor dependency and higher cost basis)
 - **If you want a broad product ecosystem to resell**: Vendasta (accept complexity)
 - **If you need a client portal with CRM**: SuiteDash (accept limited CRM depth)
-- **If you want maximum control, lowest cost basis, and EU compliance**: Customermates (accept self-hosting responsibility or use managed hosting)
+- **If you want code-level control**: Evaluate a self-hosted Customermates deployment and its AGPL-3.0 obligations. Managed white-label is not currently shipped.
 
 ### Step 3: Customize and brand
 
@@ -290,16 +294,7 @@ Common white label CRM pricing models include:
 - **Bundled with services**: Include CRM access as part of a larger service package. Hides the CRM cost and increases perceived value.
 - **Tiered by features**: Offer basic, professional, and enterprise tiers. Increases upsell potential.
 
-On the Customermates agency program (a €149 monthly platform fee plus €5 per user per month), here are example margin scenarios for 200 users, where the agency cost is €1,149 per month (€149 + 200 x €5):
-
-| Your price | Revenue (200 users) | Agency-program cost | Monthly margin | Annual margin |
-|-----------|--------------------|--------------------|---------------|--------------|
-| €20/user | €4,000 | €1,149 | €2,851 | €34,212 |
-| €25/user | €5,000 | €1,149 | €3,851 | €46,212 |
-| €35/user | €7,000 | €1,149 | €5,851 | €70,212 |
-| €50/user | €10,000 | €1,149 | €8,851 | €106,212 |
-
-With self-hosting (€0 licensing, code-level rebranding under AGPL-3.0), margins are even higher, your only cost is infrastructure, which typically runs €50-200 per month for a standard deployment serving multiple clients.
+Customermates does not currently publish an agency-programme or managed white-label price, so do not build a margin forecast around an informal per-user rate. For a self-hosted deployment, model infrastructure, upgrades, monitoring, backups, security, support, compliance, engineering, and the commercial terms you offer clients. For any future managed white-label option, obtain custom contracted terms before forecasting revenue or margin.
 
 ### Step 6: Launch and iterate
 
@@ -346,11 +341,11 @@ A white label CRM is a customer relationship management platform built by one co
 
 ### How much does a white label CRM cost?
 
-Costs vary by approach. GoHighLevel charges $297-497 per month for agency-level white labeling. Vendasta starts at $79 per month plus scaling fees. Open-source self-hosted CRMs have no licensing cost but require hosting and maintenance. With Customermates, the base CRM starts at €12 per user per month, and managed white-label is contracted through its agency programme (a €149 monthly platform fee plus €5 per user per month) or a custom Enterprise plan, with the branding capability not yet implemented. Most agencies resell at €20-50 per user, creating healthy margins.
+Costs vary by approach. GoHighLevel charges $297-497 per month for agency-level white labeling. Vendasta starts at $79 per month plus scaling fees. Open-source self-hosted CRMs have no licensing cost but require hosting and maintenance. With Customermates, the base CRM starts at [[commercial.price.starter.monthly]] per user per month, and managed white-label is contracted through its agency programme or a custom Enterprise plan on custom terms, with the branding capability not yet implemented. Most agencies resell at €20-50 per user, creating healthy margins.
 
 ### Can I use an open-source CRM as a white label solution?
 
-Yes. Open-source CRMs like Customermates provide full source code access, allowing you to modify branding, features, and workflows without restriction. This is the most flexible approach to white labeling because you can customize everything from the login screen to the database schema, with no licensing fees limiting your margins.
+Potentially. Customermates provides source code under AGPL-3.0, allowing a self-hosting team to modify the software while complying with that licence. Review the licence obligations and applicable trademark or branding requirements before presenting a modified deployment as your own offering.
 
 ### What is the difference between white label and reseller CRM?
 
@@ -358,25 +353,25 @@ With a white label CRM, clients see your brand exclusively, your logo, domain, a
 
 ### Which is better for agencies: GoHighLevel or open-source CRM?
 
-GoHighLevel offers an all-in-one platform with built-in SMS, funnels, and SaaS resale mode, ideal for agencies wanting a turnkey solution and accepting vendor dependency. Open-source CRM like Customermates offers deeper customization, a lower cost basis (the agency program is €5 per user plus a €149 monthly platform fee, versus GoHighLevel's $297+ monthly base), full data ownership, and EU compliance, ideal for agencies wanting maximum control and margins. The choice depends on whether you prioritize convenience (GoHighLevel) or independence and margin (open-source).
+GoHighLevel offers an all-in-one platform with built-in SMS, funnels, and SaaS resale mode, which can suit agencies wanting a turnkey offer and accepting vendor dependency. A self-hosted open-source CRM such as Customermates offers code-level customization and direct control of the deployment, but the operator also assumes infrastructure, support, security, compliance, and licence obligations. Customermates does not currently ship a managed white-label programme, so this is not a like-for-like commercial alternative today.
 
 ### Is white label CRM suitable for small agencies?
 
-Yes. Through the Customermates agency program (a €149 monthly platform fee plus €5 per user per month), even small agencies can offer a branded CRM profitably. You do not need a large engineering team to get started. The managed hosting option handles infrastructure while you focus on client onboarding and support. Start with three to five clients, prove the model, then scale.
+A small agency can evaluate proprietary white-label programmes or operate a licence-compliant open-source deployment, but it should budget for support and operations. Customermates does not currently ship a managed white-label programme or publish agency pricing; discuss custom contracted terms only if a future managed option is relevant.
 
 ### How do I ensure GDPR compliance with a white label CRM?
 
-Choose a platform with built-in GDPR features: EU data hosting, audit logging, data export capabilities, consent management, and right-to-erasure tools. As the white label provider, you are the data controller and must ensure compliance. You need Auftragsverarbeitungsverträge (data processing agreements) with both the platform provider and your clients. Customermates is GDPR-native with EU hosting and full data export, making compliance straightforward.
+Evaluate the actual processing chain, legal roles, data-processing agreements, subprocessors, transfer mechanisms, deletion processes, and export path; an EU database region alone does not make a deployment compliant. Managed Customermates uses an EU region for its application database, while subprocessors and international transfers must still be reviewed. In a self-hosted deployment, the operator chooses the region and assumes those responsibilities.
 
 ### How much can I earn with a white label CRM?
 
-Revenue depends on your pricing and client base. An agency with 200 users across 20 clients charging €25 per user per month, running on the agency program (€149 plus €5 per user, so €1,149 per month), generates about €46,000 per year in CRM margin alone. With self-hosted open-source (near-zero cost basis) and premium pricing (€35-50 per user), margins scale significantly higher. Most successful white label CRM agencies generate €2,000-10,000 per month in recurring CRM revenue within 12 months.
+Revenue depends on your pricing, client base, support load, infrastructure, engineering, compliance, and acquisition costs. Use quotes from the vendors you are actually considering and your own operating-cost model. Customermates has no published managed white-label price today, so no reliable Customermates margin example can be calculated from the public offer.
 
 ## Getting started
 
 The fastest path to launching your white label CRM:
 
-1. **Evaluate Customermates**: Open-source and self-hostable, base CRM from €12 per user per month; rebrand a self-hosted install at code level today, or contract managed white-label through the agency programme (€149 monthly platform fee plus €5 per user) or the Enterprise tier once it ships
+1. **Evaluate Customermates**: Open-source and self-hostable, base CRM from [[commercial.price.starter.monthly]] per user per month; rebrand a self-hosted install at code level today, or contract managed white-label through the agency programme or Enterprise tier on custom terms once it ships
 2. **Deploy a test instance**: Set up a branded demo environment with your logo, colors, and domain
 3. **Customize for your niche**: Configure fields, pipelines, and workflows for your target industry
 4. **Onboard pilot clients**: Start with three to five friendly clients willing to provide feedback

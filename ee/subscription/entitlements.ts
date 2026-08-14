@@ -1,29 +1,20 @@
+import type { PlanEntitlements } from "@/core/commercial/plan-catalog";
 import type { SubscriptionPlan } from "@/generated/prisma";
 import type { AppMode } from "@/core/config/environment";
 
 import { SubscriptionStatus } from "@/generated/prisma";
+import { PLAN_CATALOG } from "@/core/commercial/plan-catalog";
 
-export type PlanEntitlements = {
-  messaging: boolean;
-  includedAccountsPerUser: number | "unlimited";
-  sharedAccounts: boolean;
-};
+export type { PlanEntitlements } from "@/core/commercial/plan-catalog";
 
 export type EntitlementFeature = "messaging" | "sharedAccounts";
 
-const PLAN_ENTITLEMENTS: Record<SubscriptionPlan, PlanEntitlements> = {
-  starter: { messaging: false, includedAccountsPerUser: 0, sharedAccounts: false },
-  pro: { messaging: true, includedAccountsPerUser: 1, sharedAccounts: false },
-  business: { messaging: true, includedAccountsPerUser: 3, sharedAccounts: true },
-  enterprise: { messaging: true, includedAccountsPerUser: "unlimited", sharedAccounts: true },
-};
-
 export function getEntitlements(plan: SubscriptionPlan): PlanEntitlements {
-  return PLAN_ENTITLEMENTS[plan];
+  return PLAN_CATALOG[plan].entitlements;
 }
 
 export function getEffectiveEntitlements(input: { appMode: AppMode; plan: SubscriptionPlan }): PlanEntitlements {
-  if (input.appMode === "self-hosted") return PLAN_ENTITLEMENTS.starter;
+  if (input.appMode === "self-hosted") return PLAN_CATALOG.starter.entitlements;
 
   return getEntitlements(input.plan);
 }

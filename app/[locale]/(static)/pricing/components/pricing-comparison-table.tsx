@@ -2,13 +2,18 @@ import type { ComparisonTable } from "@/core/fumadocs/schemas/pricing";
 import type { ComparisonColumn, ComparisonSection } from "@/components/marketing/responsive-comparison-table";
 
 import { ResponsiveComparisonTable } from "@/components/marketing/responsive-comparison-table";
+import { formatCommercialAmount, getCommercialOffer, PLAN_IDS, PLAN_CATALOG } from "@/core/commercial/plan-catalog";
 
-type Props = ComparisonTable;
+type Props = ComparisonTable & { locale: string };
 
-const TIER_KEYS = ["starter", "pro", "business", "enterprise"] as const;
-
-export function PricingComparisonTable({ header, plans, sections }: Props) {
-  const columns: ComparisonColumn[] = TIER_KEYS.map((tierKey) => ({
+export function pricingComparisonPresentation({
+  customValue,
+  locale,
+  plans,
+  sections,
+  unlimitedValue,
+}: Omit<Props, "header">) {
+  const columns: ComparisonColumn[] = PLAN_IDS.map((tierKey) => ({
     key: tierKey,
     header: plans[tierKey].name,
     featured: Boolean(plans[tierKey].featured),
@@ -16,16 +21,52 @@ export function PricingComparisonTable({ header, plans, sections }: Props) {
 
   const mappedSections: ComparisonSection[] = sections.map((section, sectionIndex) => ({
     title: sectionIndex === 0 ? undefined : section.title,
-    rows: section.rows.map((row) => ({
-      label: row.label,
-      values: TIER_KEYS.map((tierKey) => row[tierKey]),
-    })),
+    rows: section.rows.map((row) => {
+      if (!("catalogFact" in row)) {
+        return {
+          label: row.label,
+          values: PLAN_IDS.map((tierKey) => row[tierKey]),
+        };
+      }
+
+      const values = PLAN_IDS.map((plan) => {
+        const definition = PLAN_CATALOG[plan];
+        switch (row.catalogFact) {
+          case "monthlyPrice": {
+            const offer = getCommercialOffer(plan, "monthly");
+            return offer ? formatCommercialAmount(offer.unitPriceMinor, locale, offer.currency) : customValue;
+          }
+          case "messaging":
+            return definition.entitlements.messaging;
+          case "includedAccountsPerUser": {
+            const allowance = definition.entitlements.includedAccountsPerUser;
+            return allowance === "unlimited" ? unlimitedValue : String(allowance);
+          }
+          case "sharedAccounts":
+            return definition.entitlements.sharedAccounts;
+        }
+      });
+
+      return { label: row.label, values };
+    }),
   }));
+
+  return { columns, sections: mappedSections };
+}
+
+export function PricingComparisonTable({ customValue, header, locale, plans, sections, unlimitedValue }: Props) {
+  const presentation = pricingComparisonPresentation({
+    customValue,
+    locale,
+    plans,
+    sections,
+    unlimitedValue,
+  });
 
   return (
     <section className="relative w-full pb-8">
       <div className="mx-auto max-w-7xl px-4">
-        <ResponsiveComparisonTable columns={columns} header={header} sections={mappedSections} />
+        <ResponsiveComparisonTable header={header} {...presentation} />
       </div>
     </section>
   );

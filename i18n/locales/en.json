@@ -644,7 +644,7 @@
     }
   },
   "ConnectedAccountsCard": {
-    "accountLimitReached": "Business includes 3 connected accounts per user. Contact us about Enterprise for unlimited accounts.",
+    "accountLimitReached": "You reached the connected-account limit for this plan. Contact us about Enterprise for unlimited accounts.",
     "alreadyExistsToastDescription": "This account is already connected by a member of your workspace. Ask them to share it with the workspace so the inbox does not show duplicate messages.",
     "alreadyExistsToastTitle": "Account already connected",
     "channels": {
@@ -1132,11 +1132,11 @@
       "badge": "Popular",
       "compareText": "Compare plans",
       "ctaText": "Start free",
-      "featureBusiness": "Business: 3 accounts per user, shared accounts & priority support",
-      "featurePro": "Pro: unified inbox, 1 connected account per user",
+      "featureBusiness": "Business: {accounts, plural, one {# account per user} other {# accounts per user}}, shared accounts & priority support",
+      "featurePro": "Pro: unified inbox, {accounts, plural, one {# connected account per user} other {# connected accounts per user}}",
       "featureStarter": "Starter: the core CRM",
       "period": "/ user / month",
-      "price": "from €12",
+      "price": "from {price}",
       "tag": "Managed for you; database in an EU region. Other providers may process data elsewhere.",
       "title": "Cloud"
     },
@@ -1577,7 +1577,7 @@
     "buttonLabel": "Register with {provider}",
     "inviteSubtitle": "You have been invited to join a team on Customermates. Choose your sign-in method to accept the invitation.",
     "inviteTitle": "Accept Company Invitation",
-    "newCompanySubtitle": "Register a new company and test Customermates for free for 7 days. No credit card required.",
+    "newCompanySubtitle": "Register a new company and test Customermates for free for {days} days. No credit card required.",
     "or": "OR",
     "signUpCta": "Create account",
     "switchToSignIn": "Already have an account? <signInLink>Sign in</signInLink>",
@@ -1598,9 +1598,10 @@
     "managedExternallyNote": "This workspace is on an Enterprise plan billed by invoice. Contact your account manager to make changes.",
     "manageWithLemonSqueezy": "Manage with Lemon Squeezy",
     "picker": {
+      "connectedAccountsPerUser": "{accounts, plural, one {# connected account per user} other {# connected accounts per user}}",
       "features": {
-        "business": ["Everything in Pro", "3 connected accounts per user", "Shared accounts and priority support"],
-        "pro": ["Everything in Starter", "Unified inbox", "1 connected account per user"],
+        "business": ["Everything in Pro", "Shared accounts and priority support"],
+        "pro": ["Everything in Starter", "Unified inbox"],
         "starter": [
           "Full CRM: contacts, deals, organizations, tasks",
           "Audit log",
@@ -1609,12 +1610,7 @@
         ]
       },
       "mostPopular": "Most popular",
-      "perUserMonth": "per user / month",
-      "price": {
-        "business": "€69",
-        "pro": "€29",
-        "starter": "€12"
-      }
+      "perUserMonth": "per user / month"
     },
     "plan": "Plan",
     "planNames": {

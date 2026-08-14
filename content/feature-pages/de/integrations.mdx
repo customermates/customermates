@@ -5,12 +5,12 @@ featureName: CRM-Integrationen
 
 hero:
   title: CRM-Integrationen, die Ihren gesamten Tool-Stack verbinden
-  description: Verbinden Sie Ihr CRM auf vier Wegen. Unterstützte externe KI-Clients nutzen 46 MCP-Tools, eine separate n8n-Instanz erreicht 400+ Dienste, die dokumentierte REST API und 26 Webhook-Ereignisse binden andere Systeme an, und das native gemeinsame Postfach bringt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ins CRM. REST, Webhooks und MCP starten ab 12 EUR pro Nutzer und Monat; n8n und Anbieter bleiben separat.
+  description: Verbinden Sie Ihr CRM auf vier Wegen. Unterstützte externe KI-Clients nutzen [[derived.mcp.tools.total]] MCP-Tools, eine separate n8n-Instanz erreicht 400+ Dienste, die dokumentierte REST API und [[derived.webhooks.events.total]] Webhook-Ereignisse binden andere Systeme an, und das native gemeinsame Postfach bringt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ins CRM. REST, Webhooks und MCP starten ab [[commercial.price.starter.monthly]] pro Nutzer und Monat; n8n und Anbieter bleiben separat.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ Keine Kreditkarte benötigt ✓ Erste 7 Tage kostenlos"
+  hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 
 cta:
   action: Bereit, Ihre Tools zu verbinden?
@@ -19,7 +19,7 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ Keine Kreditkarte benötigt ✓ Erste 7 Tage kostenlos"
+  hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
 ## Warum CRM-Integrationen wichtig sind
@@ -36,11 +36,11 @@ Customermates bietet mehrere komplementäre Integrationsansätze, damit Sie unte
 
 ### MCP für externe KI-Clients
 
-Customermates bringt einen Model-Context-Protocol-Endpunkt (MCP) mit, über den unterstützte externe Clients wie Claude, ChatGPT und Gemini zulässige CRM-Daten lesen und schreiben können. Der Endpunkt unter `https://customermates.com/api/v1/mcp` stellt 44 Tools über zehn Toolsets plus zwei stets aktive Recherche-Tools bereit, insgesamt 46 Tools. Ein konfigurierter Client kann Kontakte erstellen, Deal-Phasen verschieben, einzelne Follow-ups entwerfen und Notizen aktualisieren. Grenzen Sie die Tools pro Client mit `?toolsets=` ein und authentifizieren Sie sich über einen `x-api-key`-Header. MCP startet mit Starter; Client, Modell, Abonnement und Nutzung bleiben separat.
+Customermates bringt einen Model-Context-Protocol-Endpunkt (MCP) mit, über den unterstützte externe Clients wie Claude, ChatGPT und Gemini zulässige CRM-Daten lesen und schreiben können. Der Endpunkt unter `https://customermates.com/api/v1/mcp` stellt [[derived.mcp.tools.grouped]] Tools über [[derived.mcp.toolsets.count]] Toolsets plus [[derived.mcp.tools.alwaysOn]] stets aktive Recherche-Tools bereit, insgesamt [[derived.mcp.tools.total]] Tools. Ein konfigurierter Client kann Kontakte erstellen, Deal-Phasen verschieben, einzelne Follow-ups entwerfen und Notizen aktualisieren. Grenzen Sie die Tools pro Client mit `?toolsets=` ein und authentifizieren Sie sich über einen `x-api-key`-Header. MCP startet mit Starter; Client, Modell, Abonnement und Nutzung bleiben separat.
 
 ### Natives gemeinsames Postfach
 
-E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Threads landen in einem Postfach im CRM, und ein unterstützter externer KI-Client kann dort zulässige einzelne Nachrichten lesen, entwerfen und senden. Das gemeinsame Postfach ist ab Pro für 29 EUR pro Nutzer und Monat enthalten; gemeinsam genutzte Team-Konten ab Business.
+E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Threads landen in einem Postfach im CRM, und ein unterstützter externer KI-Client kann dort zulässige einzelne Nachrichten lesen, entwerfen und senden. Das gemeinsame Postfach ist ab Pro für [[commercial.price.pro.monthly]] pro Nutzer und Monat enthalten; gemeinsam genutzte Team-Konten ab Business.
 
 ### n8n-Automatisierungs-Engine (selbst mitgebracht)
 
@@ -62,7 +62,7 @@ Für Entwickler und Teams mit programmatischem Bedarf stellt Customermates eine 
 
 ### Webhooks
 
-Erhalten Sie Echtzeit-Push-Benachrichtigungen, wenn sich Datensätze ändern. Customermates sendet 26 Webhook-Ereignisse: 15 Datensatz-Ereignisse (erstellt, aktualisiert und gelöscht für jeden der fünf Datensatztypen: Kontakte, Organisationen, Deals, Services, Aufgaben) plus 11 Messaging- und Kalender-Ereignisse. Webhooks übermitteln Daten sofort an Ihre Systeme, ohne Polling.
+Erhalten Sie Echtzeit-Push-Benachrichtigungen, wenn sich Datensätze ändern. Customermates sendet [[derived.webhooks.events.total]] Webhook-Ereignisse: [[derived.webhooks.events.records]] Datensatz-Ereignisse (erstellt, aktualisiert und gelöscht für jeden der fünf Datensatztypen: Kontakte, Organisationen, Deals, Services, Aufgaben) plus [[derived.webhooks.events.messaging]] Messaging- und Kalender-Ereignisse. Webhooks übermitteln Daten sofort an Ihre Systeme, ohne Polling.
 
 ## Beliebte CRM-Integrationsszenarien
 
@@ -84,11 +84,11 @@ Erhalten Sie Echtzeit-Push-Benachrichtigungen, wenn sich Datensätze ändern. Cu
 
 | Merkmal | Customermates + separates n8n | HubSpot | Zapier + beliebiges CRM |
 |---|---|---|---|
-| MCP-Steuerung für externe KI-Clients | Ja (46 Tools) | Begrenzt | Nein |
+| MCP-Steuerung für externe KI-Clients | Ja ([[derived.mcp.tools.total]] Tools) | Begrenzt | Nein |
 | Natives gemeinsames Postfach (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram) | Ja (Pro-Stufe) | Begrenzt | Nein |
 | Automatisierungs-Engine | Eigenes n8n (Webhooks, REST, Community-Node) | Begrenzt (Operations Hub) | Nein (separates Abo) |
 | Vorgefertigte Konnektoren | n8n-Katalog (separat) | 1.600+ (Marketplace) | 7.000+ |
-| Integrationskosten | CRM ab 12 EUR + separate n8n-/Anbieterkosten | Operations Hub ab 800 USD/Monat | Ab 20 USD/Monat + CRM-Kosten |
+| Integrationskosten | CRM ab [[commercial.price.starter.monthly]] + separate n8n-/Anbieterkosten | Operations Hub ab 800 USD/Monat | Ab 20 USD/Monat + CRM-Kosten |
 | Self-Hosting möglich | Ja | Nein | Nein |
 | Open Source | Ja | Nein | Nein |
 | Individuelle Konnektoren | Über Ihre separate n8n-Instanz | Partnerprogramm erforderlich | Developer-Plan erforderlich |
@@ -113,7 +113,7 @@ Während HubSpot mehr Marketplace-Apps bietet und Zapier mehr Dienste verbindet,
 
 ## Warum Customermates für CRM-Integrationen?
 
-**Offene Schnittstellen ab der Einstiegsstufe.** REST, 26 Webhook-Ereigniswerte und MCP-Zugriff sind ab 12 EUR pro Nutzer und Monat verfügbar. n8n, KI-Clients, Modelle, Konnektoren, Laufzeiten, Zustellanbieter, Limits und Kosten bleiben separat. Das native gemeinsame Postfach startet mit Pro, gemeinsam genutzte Team-Konten mit Business.
+**Offene Schnittstellen ab der Einstiegsstufe.** REST, [[derived.webhooks.events.total]] Webhook-Ereigniswerte und MCP-Zugriff sind ab [[commercial.price.starter.monthly]] pro Nutzer und Monat verfügbar. n8n, KI-Clients, Modelle, Konnektoren, Laufzeiten, Zustellanbieter, Limits und Kosten bleiben separat. Das native gemeinsame Postfach startet mit Pro, gemeinsam genutzte Team-Konten mit Business.
 
 **Open Source und erweiterbar.** Der Customermates-AGPL-Kern und n8n sind separate Open-Source-Produkte. Entwickeln Sie gegen ihre dokumentierten Schnittstellen oder ergänzen Sie Konnektoren im n8n-Dienst, den Sie betreiben, und verwalten Sie Systeme, Anbieter, Zugangsdaten und Updates getrennt.
 
@@ -124,10 +124,10 @@ Während HubSpot mehr Marketplace-Apps bietet und Zapier mehr Dienste verbindet,
 ## Häufig gestellte Fragen
 
 **Wie viele Integrationen unterstützt Customermates?**
-Customermates liefert REST, 26 Webhook-Ereigniswerte, 46 MCP-Tools für unterstützte externe KI-Clients und einen Community-Node für eine separate n8n-Instanz. Der Katalog mit 400+ Konnektoren gehört n8n; das native gemeinsame Postfach verbindet unterstützte E-Mail- und Social-Kanäle ab Pro.
+Customermates liefert REST, [[derived.webhooks.events.total]] Webhook-Ereigniswerte, [[derived.mcp.tools.total]] MCP-Tools für unterstützte externe KI-Clients und einen Community-Node für eine separate n8n-Instanz. Der Katalog mit 400+ Konnektoren gehört n8n; das native gemeinsame Postfach verbindet unterstützte E-Mail- und Social-Kanäle ab Pro.
 
 **Muss ich für Integrationen extra bezahlen?**
-REST, Webhooks und MCP-Zugriff starten mit der Starter-Stufe für 12 EUR pro Nutzer und Monat. n8n-Workflows, Konnektoren, Hosting, Ausführungen, Protokolle, Zustellanbieter, Limits und Kosten sind separat und hängen von den gewählten Diensten ab.
+REST, Webhooks und MCP-Zugriff starten mit der Starter-Stufe für [[commercial.price.starter.monthly]] pro Nutzer und Monat. n8n-Workflows, Konnektoren, Hosting, Ausführungen, Protokolle, Zustellanbieter, Limits und Kosten sind separat und hängen von den gewählten Diensten ab.
 
 **Kann ich Zapier durch Customermates ersetzen?**
 Nicht allein. Eine separate n8n-Instanz kann einige CRM-bezogene Zapier- oder Make-Workflows ersetzen, wenn Konnektoren, Tarif, Limits und Betrieb passen. Customermates verbindet sie über REST, Webhooks, MCP und Community-Node, enthält aber kein Automatisierungsabonnement.

@@ -1,9 +1,10 @@
 import { Check } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { Button } from "@/components/ui/button";
 import { AppLink } from "@/components/shared/app-link";
 import { WaveDecoration } from "@/components/marketing/wave-decoration";
+import { formatCommercialAmount, PLAN_CATALOG } from "@/core/commercial/plan-catalog";
 
 type CardConfig = {
   href: string;
@@ -39,7 +40,7 @@ const CARDS: CardConfig[] = [
 const COMPARE_KEYS = ["gdpr", "noLimits", "openSource", "cancelAnytime"] as const;
 
 export async function HomepagePricing() {
-  const t = await getTranslations();
+  const [t, locale] = await Promise.all([getTranslations(), getLocale()]);
 
   return (
     <section className="relative isolate w-full overflow-hidden py-20 md:py-28" id="pricing">
@@ -116,7 +117,15 @@ export async function HomepagePricing() {
 
                 <div className="my-4">
                   <span className="text-[34px] font-bold tracking-[-0.02em]">
-                    {t(`HomepagePricing.${card.titleKey}.price`)}
+                    {card.titleKey === "cloud"
+                      ? t("HomepagePricing.cloud.price", {
+                          price: formatCommercialAmount(
+                            PLAN_CATALOG.starter.offers.monthly.unitPriceMinor,
+                            locale,
+                            PLAN_CATALOG.starter.offers.monthly.currency,
+                          ),
+                        })
+                      : t("HomepagePricing.selfHosted.price")}
                   </span>
 
                   {card.periodKey && (
@@ -143,7 +152,14 @@ export async function HomepagePricing() {
                     <li key={featureKey} className="flex items-start gap-2 text-[13px] text-foreground">
                       <Check aria-hidden className="mt-0.5 size-3.5 shrink-0 text-primary" strokeWidth={2.5} />
 
-                      <span>{t(`HomepagePricing.${card.titleKey}.${featureKey}`)}</span>
+                      <span>
+                        {t(`HomepagePricing.${card.titleKey}.${featureKey}`, {
+                          accounts:
+                            featureKey === "featurePro"
+                              ? PLAN_CATALOG.pro.entitlements.includedAccountsPerUser
+                              : PLAN_CATALOG.business.entitlements.includedAccountsPerUser,
+                        })}
+                      </span>
                     </li>
                   ))}
                 </ul>

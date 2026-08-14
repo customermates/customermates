@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createMockUser } from "@/tests/helpers/mock-user";
 import {
@@ -8,8 +8,11 @@ import {
   MOCK_PRISMA_DB_MODULE,
 } from "@/tests/helpers/interactor-test-setup";
 
-const mockUser = createMockUser();
-const request = vi.hoisted(() => ({ origin: "https://feat-inbox.customermates.com" }));
+const COMPANY_ID = "00000000-0000-4000-8000-000000000001";
+const mockUser = createMockUser({ companyId: COMPANY_ID });
+const request = vi.hoisted(() => ({
+  origin: "https://feat-inbox.customermates.com",
+}));
 
 vi.mock("@/env", () => ({
   env: {
@@ -30,18 +33,22 @@ vi.mock("next/headers", () => ({
 
 const { CreateCheckoutSessionInteractor } = await import("../create-checkout-session.interactor");
 
-function makeRepo(overrides: Partial<Record<string, unknown>> = {}) {
+function makeCheckoutRepo(plan = "pro") {
   return {
-    getSubscriptionOrThrow: vi.fn().mockResolvedValue({ plan: "pro" }),
-    countActiveUsers: vi.fn().mockResolvedValue(4),
-    ...overrides,
+    getSubscriptionOrThrow: vi.fn().mockResolvedValue({ plan, lemonSqueezyId: null }),
   };
 }
 
 function makeSubscriptionService() {
   return {
-    createCheckoutOrThrow: vi.fn().mockResolvedValue({ data: { attributes: { url: "https://checkout.example.com" } } }),
+    createCheckoutOrThrow: vi.fn().mockResolvedValue({
+      data: { attributes: { url: "https://checkout.example.com" } },
+    }),
   };
+}
+
+function makeUserRepo() {
+  return { countActiveUsers: vi.fn().mockResolvedValue(4) };
 }
 
 beforeEach(() => {
@@ -50,41 +57,73 @@ beforeEach(() => {
 });
 
 describe("CreateCheckoutSessionInteractor", () => {
-  it("creates a seat checkout for the selected plan with the active user count", async () => {
-    const repo = makeRepo();
+  it("creates checkout for the explicit monthly offer and current active seats", async () => {
+    const repo = makeCheckoutRepo();
     const subscriptionService = makeSubscriptionService();
-    const interactor = new CreateCheckoutSessionInteractor(subscriptionService as never, repo as never, repo as never);
+    const userRepo = makeUserRepo();
+    const interactor = new CreateCheckoutSessionInteractor(
+      subscriptionService as never,
+      repo as never,
+      userRepo as never,
+    );
 
-    const result: any = await interactor.invoke({ plan: "business" } as never);
+    const result = await interactor.invoke({
+      plan: "business",
+      cadence: "monthly",
+    } as never);
 
-    expect(result.redirect).toBe("https://checkout.example.com");
-    expect(subscriptionService.createCheckoutOrThrow).toHaveBeenCalledTimes(1);
-    const args = subscriptionService.createCheckoutOrThrow.mock.calls[0][0];
-    expect(args.variantId).toBe("2003");
-    expect(args.quantity).toBe(4);
-    expect(args.custom).toEqual({ company_id: mockUser.companyId });
-    expect(args.redirectUrl).toBe("https://feat-inbox.customermates.com/company/subscription");
+    expect(result).toMatchObject({ redirect: "https://checkout.example.com" });
+    expect(userRepo.countActiveUsers).toHaveBeenCalledTimes(1);
+    expect(subscriptionService.createCheckoutOrThrow).toHaveBeenCalledWith({
+      offer: expect.objectContaining({ id: "business:monthly" }),
+      quantity: 4,
+      custom: { company_id: COMPANY_ID },
+      redirectUrl: "https://feat-inbox.customermates.com/company/subscription",
+    });
   });
 
   it("falls back to the stable branch origin for an untrusted request origin", async () => {
     request.origin = "https://attacker.example";
-    const repo = makeRepo();
     const subscriptionService = makeSubscriptionService();
-    const interactor = new CreateCheckoutSessionInteractor(subscriptionService as never, repo as never, repo as never);
+    const interactor = new CreateCheckoutSessionInteractor(
+      subscriptionService as never,
+      makeCheckoutRepo() as never,
+      makeUserRepo() as never,
+    );
 
-    await interactor.invoke({ plan: "business" } as never);
+    await interactor.invoke({ plan: "business", cadence: "monthly" } as never);
 
     expect(subscriptionService.createCheckoutOrThrow.mock.calls[0][0].redirectUrl).toBe(
       "https://customermates-git-feat-inbox-customermates.vercel.app/company/subscription",
     );
   });
 
-  it("refuses a self-serve checkout for a manually billed enterprise workspace", async () => {
-    const repo = makeRepo({ getSubscriptionOrThrow: vi.fn().mockResolvedValue({ plan: "enterprise" }) });
+  it("rejects Enterprise before calling the provider", async () => {
     const subscriptionService = makeSubscriptionService();
-    const interactor = new CreateCheckoutSessionInteractor(subscriptionService as never, repo as never, repo as never);
+    const interactor = new CreateCheckoutSessionInteractor(
+      subscriptionService as never,
+      makeCheckoutRepo("enterprise") as never,
+      makeUserRepo() as never,
+    );
 
-    await expect(interactor.invoke({ plan: "pro" } as never)).rejects.toThrow("billed manually");
+    await expect(interactor.invoke({ plan: "pro", cadence: "monthly" } as never)).rejects.toThrow("Enterprise");
+    expect(subscriptionService.createCheckoutOrThrow).not.toHaveBeenCalled();
+  });
+
+  it("rejects annual checkout before calling the provider", async () => {
+    const subscriptionService = makeSubscriptionService();
+    const interactor = new CreateCheckoutSessionInteractor(
+      subscriptionService as never,
+      makeCheckoutRepo() as never,
+      makeUserRepo() as never,
+    );
+
+    const result = await interactor.invoke({
+      plan: "business",
+      cadence: "annual",
+    } as never);
+
+    expect(result).toMatchObject({ ok: false });
     expect(subscriptionService.createCheckoutOrThrow).not.toHaveBeenCalled();
   });
 });

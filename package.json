@@ -167,6 +167,7 @@
     "pg-protocol": "1.14.0"
   },
   "scripts": {
+    "billing:verify-catalog": "tsx scripts/verify-billing-catalog.ts",
     "build": "prisma generate && yarn openapi:generate && yarn raw-docs:generate && next build",
     "clean": "rm -rf node_modules .next tsconfig.tsbuildinfo generated && yarn install && prisma generate",
     "conventions:check": "vitest run tests/conventions",

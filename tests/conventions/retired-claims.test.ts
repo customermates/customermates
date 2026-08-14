@@ -5,7 +5,12 @@ import { describe, expect, it } from "vitest";
 
 import { REPO_ROOT, walkFiles } from "./walk";
 
-type UnitKind = "frontmatter" | "prose" | "product-table-cell" | "product-source" | "json-value";
+type UnitKind =
+  | "frontmatter"
+  | "prose"
+  | "product-table-cell"
+  | "product-source"
+  | "json-value";
 
 type ClaimUnit = {
   file: string;
@@ -24,28 +29,33 @@ type RetiredClaim = {
   appliesTo?: (unit: ClaimUnit) => boolean;
 };
 
-const DENIED = /\b(?:no|not|without|does not|do not|has no|is not|isn['’]t|weder|kein\w*|keine\w*|nicht|ohne|gibt es (?:nicht|keine))\b/iu;
-const EXTERNAL = /\b(?:external|separate|customer[- ]run|customer[- ]operated|extern\w*|separat\w*|kundenseitig|selbst betrieben)\b/iu;
+const DENIED =
+  /\b(?:no|not|without|does not|do not|has no|is not|isn['’]t|weder|kein\w*|keine\w*|nicht|ohne|gibt es (?:nicht|keine))\b/iu;
+const EXTERNAL =
+  /\b(?:external|separate|customer[- ]run|customer[- ]operated|extern\w*|separat\w*|kundenseitig|selbst betrieben)\b/iu;
 const NO_OR_EXTERNAL = [DENIED, EXTERNAL];
 
 const RETIRED_CLAIMS: readonly RetiredClaim[] = [
   {
     id: "native-slack-integration",
-    pattern: /\b(?:native|built[- ]?in|included|nativ\w*|eingebaut\w*|integriert\w*)[^.!?;|]{0,24}\bSlack(?: app| integration)?\b|\bSlack(?: app| integration)[^.!?;|]{0,24}\b(?:included|available|enthalten|verfügbar)\b/iu,
+    pattern:
+      /\b(?:native|built[- ]?in|included|nativ\w*|eingebaut\w*|integriert\w*)[^.!?;|]{0,24}\bSlack(?: app| integration)?\b|\bSlack(?: app| integration)[^.!?;|]{0,24}\b(?:included|available|enthalten|verfügbar)\b/iu,
     permittedContext: NO_OR_EXTERNAL,
     why: "Slack is not a native MessagingProvider",
     authority: "prisma/schema.prisma enum MessagingProvider",
   },
   {
     id: "bundled-n8n-runtime",
-    pattern: /\b(?:built[- ]?in|builtin|embedded|bundled|included|native|eingebaute\w*|integrierte\w*|enthaltene\w*|native\w*)[^.!?;|]{0,24}\bn8n\b|\bn8n[^.!?;|]{0,24}\b(?:included|bundled|embedded|enthalten|integriert)\b|\b(?:integrates?|includes?|ships? with|integriert|enthält|umfasst)\s+(?:(?:the|die)\s+)?n8n(?:[- ](?:platform|runtime|Plattform|Laufzeit))?\b|\bn8n[^.!?;|]{0,36}\b(?:runs? on (?:your|the customer['’]s|its own) infrastructure|läuft auf (?:Ihrer|deiner|der eigenen|kundeneigen\w*) Infrastruktur)\b/iu,
+    pattern:
+      /\b(?:built[- ]?in|builtin|embedded|bundled|included|native|eingebaute\w*|integrierte\w*|enthaltene\w*|native\w*)[^.!?;|]{0,24}\bn8n\b|\bn8n[^.!?;|]{0,24}\b(?:included|bundled|embedded|enthalten|integriert)\b|\b(?:integrates?|includes?|ships? with|integriert|enthält|umfasst)\s+(?:(?:the|die)\s+)?n8n(?:[- ](?:platform|runtime|Plattform|Laufzeit))?\b|\bn8n[^.!?;|]{0,36}\b(?:runs? on (?:your|the customer['’]s|its own) infrastructure|läuft auf (?:Ihrer|deiner|der eigenen|kundeneigen\w*) Infrastruktur)\b/iu,
     permittedContext: NO_OR_EXTERNAL,
     why: "Customermates publishes integration surfaces; n8n is operated separately",
     authority: "docker-compose.yml",
   },
   {
     id: "csv-importer",
-    pattern: /\b(?:CSV|Excel|XLSX)[ -]?(?:import(?:er|s)?|upload|mapping|Import\w*|Upload|Feldzuordnung)\b|\b(?:import|upload|map|importier\w*|hochlad\w*)[^.!?;|]{0,28}\b(?:CSV|Excel|XLSX)\b|\b(?:CSV|Excel|XLSX)[^.!?;|]{0,28}\b(?:import|upload|map|importier\w*|hochlad\w*)/iu,
+    pattern:
+      /\b(?:CSV|Excel|XLSX)[ -]?(?:import(?:er|s)?|upload|mapping|Import\w*|Upload|Feldzuordnung)\b|\b(?:import|upload|map|importier\w*|hochlad\w*)[^.!?;|]{0,28}\b(?:CSV|Excel|XLSX)\b|\b(?:CSV|Excel|XLSX)[^.!?;|]{0,28}\b(?:import|upload|map|importier\w*|hochlad\w*)/iu,
     permittedContext: [
       ...NO_OR_EXTERNAL,
       /\b(?:prepare|map|clean|prepared|aufbereit\w*|zuord\w*)\b[^.!?;|]{0,80}\b(?:REST|MCP)\b/iu,
@@ -55,7 +65,8 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
   },
   {
     id: "full-data-exporter",
-    pattern: /\b(?:CSV[ -]?export|one[- ]click export|full data export|complete data export|Vollständexport|CSV[- ]Export)\b|\bexport(?: all| everything| the entire| complete)|\b(?:alle|sämtliche) Daten exportier/iu,
+    pattern:
+      /\b(?:CSV[ -]?export|one[- ]click export|full data export|complete data export|Vollständexport|CSV[- ]Export)\b|\bexport(?: all| everything| the entire| complete)|\b(?:alle|sämtliche) Daten exportier/iu,
     permittedContext: [
       ...NO_OR_EXTERNAL,
       /\bread supported\b[^.!?;|]{0,50}\bREST\b|\bunterstützte\w* Datensätze\b[^.!?;|]{0,50}\bREST\b/iu,
@@ -65,7 +76,8 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
   },
   {
     id: "record-attachments",
-    pattern: /\b(?:attach|upload|store|save|anhäng\w*|hochlad\w*|speicher\w*)[^.!?;|]{0,28}\b(?:files?|photos?|documents?|certificates?|Dateien?|Fotos?|Dokumente?|Zertifikate?)\b[^.!?;|]{0,28}\b(?:record|contact|deal|customer|Datensatz|Kontakt|Deal|Kunde\w*)\b|\b(?:record|contact|deal|customer|Datensatz|Kontakt|Deal|Kunde\w*)[^.!?;|]{0,28}\b(?:file attachments?|Dateianhänge|Dokumentanhänge)\b/iu,
+    pattern:
+      /\b(?:attach|upload|store|save|anhäng\w*|hochlad\w*|speicher\w*)[^.!?;|]{0,28}\b(?:files?|photos?|documents?|certificates?|Dateien?|Fotos?|Dokumente?|Zertifikate?)\b[^.!?;|]{0,28}\b(?:record|contact|deal|customer|Datensatz|Kontakt|Deal|Kunde\w*)\b|\b(?:record|contact|deal|customer|Datensatz|Kontakt|Deal|Kunde\w*)[^.!?;|]{0,28}\b(?:file attachments?|Dateianhänge|Dokumentanhänge)\b/iu,
     permittedContext: [
       ...NO_OR_EXTERNAL,
       /\b(?:message|inbox|thread|Nachricht|Postfach|Thread)\b[^.!?;|]{0,32}\b(?:attachment|Anhang|Anhänge)\b/iu,
@@ -76,7 +88,8 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
   },
   {
     id: "record-tags",
-    pattern: /\b(?:tag|label|categorize|verschlagwort\w*|tagg\w*|kategorisier\w*)[^.!?;|]{0,24}\b(?:contacts?|customers?|deals?|records?|Kontakte?|Kunden?|Deals?|Datensätze?)\b|\b(?:contact|record|Kontakt|Datensatz)[ -]?(?:tags?|labels?)\b/iu,
+    pattern:
+      /\b(?:tag|label|categorize|verschlagwort\w*|tagg\w*|kategorisier\w*)[^.!?;|]{0,24}\b(?:contacts?|customers?|deals?|records?|Kontakte?|Kunden?|Deals?|Datensätze?)\b|\b(?:contact|record|Kontakt|Datensatz)[ -]?(?:tags?|labels?)\b/iu,
     permittedContext: [
       ...NO_OR_EXTERNAL,
       /\b(?:single[- ]select|custom field|eigene\w* Feld|benutzerdefinierte\w* Feld)\b/iu,
@@ -86,7 +99,8 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
   },
   {
     id: "native-task-scheduling",
-    pattern: /\b(?:tasks?|Aufgaben?)[^.!?;|]{0,42}\b(?:due dates?|deadlines?|statuses?|priorities|overdue|recurr(?:ing|ence)|reminders?|Fälligkeit\w*|Fristen?|Status|Prioritäten?|überfällig\w*|wiederkehr\w*|Erinnerungen?)\b|\b(?:set|assign|filter by|sort by|send|receive|setz\w*|zuweis\w*|filter\w*|sortier\w*|send\w*|erhalt\w*)[^.!?;|]{0,28}\b(?:task )?(?:due date|reminder|Fälligkeit\w*|Erinnerung)\b/iu,
+    pattern:
+      /\b(?:tasks?|Aufgaben?)[^.!?;|]{0,42}\b(?:due dates?|deadlines?|statuses?|priorities|overdue|recurr(?:ing|ence)|reminders?|Fälligkeit\w*|Fristen?|Status|Prioritäten?|überfällig\w*|wiederkehr\w*|Erinnerungen?)\b|\b(?:set|assign|filter by|sort by|send|receive|setz\w*|zuweis\w*|filter\w*|sortier\w*|send\w*|erhalt\w*)[^.!?;|]{0,28}\b(?:task )?(?:due date|reminder|Fälligkeit\w*|Erinnerung)\b/iu,
     permittedContext: [
       ...NO_OR_EXTERNAL,
       /\b(?:custom|user[- ]defined|your own|eigene\w*|benutzerdefinierte\w*)[^.!?;|]{0,20}\b(?:date|single[- ]select|status|Datums?|Status)\b/iu,
@@ -96,21 +110,24 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
   },
   {
     id: "outreach-sequences",
-    pattern: /\b(?:built[- ]?in|native|included|automated?|run|send|schedule|eingebaut\w*|nativ\w*|enthalten|automatisiert\w*|ausführ\w*|send\w*|plan\w*)[^.!?;|]{0,30}\b(?:email|sales|follow[- ]?up|outreach|nurture|E-Mail|Vertriebs?|Nachfass)[ -]?(?:sequences?|cadences?|drip campaigns?|Sequenzen?|Kampagnen?)\b|\b(?:email|sales|follow[- ]?up|outreach|nurture|E-Mail|Vertriebs?|Nachfass)[ -]?(?:sequences?|cadences?|drip campaigns?|Sequenzen?|Kampagnen?)\b[^.!?;|]{0,20}\b(?:true|yes|included|available|ja|enthalten|verfügbar)\b|\b(?:bulk email|mass outreach|Massen[- ]?E-Mail|Massenansprache)\b[^.!?;|]{0,24}\b(?:included|available|send|enthalten|verfügbar|senden)\b/iu,
+    pattern:
+      /\b(?:built[- ]?in|native|included|automated?|run|send|schedule|eingebaut\w*|nativ\w*|enthalten|automatisiert\w*|ausführ\w*|send\w*|plan\w*)[^.!?;|]{0,30}\b(?:email|sales|follow[- ]?up|outreach|nurture|E-Mail|Vertriebs?|Nachfass)[ -]?(?:sequences?|cadences?|drip campaigns?|Sequenzen?|Kampagnen?)\b|\b(?:email|sales|follow[- ]?up|outreach|nurture|E-Mail|Vertriebs?|Nachfass)[ -]?(?:sequences?|cadences?|drip campaigns?|Sequenzen?|Kampagnen?)\b[^.!?;|]{0,20}\b(?:true|yes|included|available|ja|enthalten|verfügbar)\b|\b(?:bulk email|mass outreach|Massen[- ]?E-Mail|Massenansprache)\b[^.!?;|]{0,24}\b(?:included|available|send|enthalten|verfügbar|senden)\b/iu,
     permittedContext: NO_OR_EXTERNAL,
     why: "Messaging is individual and draft-first; campaigns and sequences belong to external providers",
     authority: "features/messaging, prisma/schema.prisma",
   },
   {
     id: "built-in-ai",
-    pattern: /\b(?:built[- ]?in|builtin|bundled|native|included|eingebaut\w*|integriert\w*|nativ\w*|enthalten)[ -]?(?:AI|KI)(?:[ -](?:assistant|agent|chat|features?|Assistent|Agent))?\b/iu,
+    pattern:
+      /\b(?:built[- ]?in|builtin|bundled|native|included|eingebaut\w*|integriert\w*|nativ\w*|enthalten)[ -]?(?:AI|KI)(?:[ -](?:assistant|agent|chat|features?|Assistent|Agent))?\b/iu,
     permittedContext: NO_OR_EXTERNAL,
     why: "MCP connects supported external AI clients; Customermates supplies no chat or model",
     authority: "app/api/v1/mcp, package.json",
   },
   {
     id: "lead-scoring-or-enrichment",
-    pattern: /\b(?:automatically|built[- ]?in|native|included|provides?|offers?|calculates?|scores?|enriches?|automatisch|eingebaut\w*|nativ\w*|enthalten|bietet|berechnet|bewertet|reichert)[^.!?;|]{0,34}\b(?:lead scoring|lead scores?|contact enrichment|company enrichment|data enrichment|Lead[- ]?Scoring|Lead[- ]?Scores?|Kontaktanreicherung|Datenanreicherung)\b|\b(?:lead scoring|contact enrichment|Lead[- ]?Scoring|Kontaktanreicherung)\b[^.!?;|]{0,20}\b(?:yes|true|included|available|ja|enthalten|verfügbar)\b|\b(?:AI|KI)[ -]?(?:agents?|Agent(?:en)?)[^.!?;|]{0,24}\b(?:scor|enrich|qualif|prioriti[sz]|bewert|anreicher|qualifizier|priorisier)\w*[^.!?;|]{0,20}\b(?:leads?|contacts?|companies?|Kontakte?|Unternehmen)\b/iu,
+    pattern:
+      /\b(?:automatically|built[- ]?in|native|included|provides?|offers?|calculates?|scores?|enriches?|automatisch|eingebaut\w*|nativ\w*|enthalten|bietet|berechnet|bewertet|reichert)[^.!?;|]{0,34}\b(?:lead scoring|lead scores?|contact enrichment|company enrichment|data enrichment|Lead[- ]?Scoring|Lead[- ]?Scores?|Kontaktanreicherung|Datenanreicherung)\b|\b(?:lead scoring|contact enrichment|Lead[- ]?Scoring|Kontaktanreicherung)\b[^.!?;|]{0,20}\b(?:yes|true|included|available|ja|enthalten|verfügbar)\b|\b(?:AI|KI)[ -]?(?:agents?|Agent(?:en)?)[^.!?;|]{0,24}\b(?:scor|enrich|qualif|prioriti[sz]|bewert|anreicher|qualifizier|priorisier)\w*[^.!?;|]{0,20}\b(?:leads?|contacts?|companies?|Kontakte?|Unternehmen)\b/iu,
     permittedContext: [
       ...NO_OR_EXTERNAL,
       /\b(?:external (?:integration|provider|workflow)|separate (?:integration|provider|workflow)|externe\w* (?:Integration|Anbieter|Workflow)|separate\w* (?:Integration|Anbieter|Workflow))\b/iu,
@@ -120,28 +137,32 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
   },
   {
     id: "sales-forecasting",
-    pattern: /\b(?:built[- ]?in|native|included|provides?|offers?|calculates?|predicts?|eingebaut\w*|nativ\w*|enthalten|bietet|berechnet|prognostiziert)[^.!?;|]{0,34}\b(?:sales|revenue|pipeline|deal|Umsatz|Vertrieb\w*|Pipeline)[ -]?(?:forecast(?:ing)?|projection|Prognose\w*)\b|\b(?:revenue forecasting|sales forecasting|Umsatzprognose\w*)\b[^.!?;|]{0,20}\b(?:yes|true|included|available|ja|enthalten|verfügbar)\b/iu,
+    pattern:
+      /\b(?:built[- ]?in|native|included|provides?|offers?|calculates?|predicts?|eingebaut\w*|nativ\w*|enthalten|bietet|berechnet|prognostiziert)[^.!?;|]{0,34}\b(?:sales|revenue|pipeline|deal|Umsatz|Vertrieb\w*|Pipeline)[ -]?(?:forecast(?:ing)?|projection|Prognose\w*)\b|\b(?:revenue forecasting|sales forecasting|Umsatzprognose\w*)\b[^.!?;|]{0,20}\b(?:yes|true|included|available|ja|enthalten|verfügbar)\b/iu,
     permittedContext: NO_OR_EXTERNAL,
     why: "Dashboards show stored values; Customermates does not calculate weighted or predictive forecasts",
     authority: "features/reporting",
   },
   {
     id: "calendar-write-or-booking",
-    pattern: /\b(?:two[- ]way|bidirectional|write[- ]enabled|automatic|Zwei[- ]Wege|bidirektional|automatisch)[ -]?(?:calendar|Kalender)[ -]?(?:sync|integration|Synchronisierung|Integration)?\b|\b(?:creat|edit|updat|delet|writ|book|schedul|sync|erstell|änder|aktualisier|lösch|schreib|buch|plan|synchronisier)\w*[^.!?;,|]{0,24}\b(?:calendar events?|appointments?|Kalendertermine?|Termine?)\b|\b(?:calendar events?|appointments?|Kalendertermine?|Termine?)[^.!?;,|]{0,24}\b(?:are\s+|werden\s+)?(?:creat|edit|updat|delet|writ|book|schedul|erstell|änder|aktualisier|lösch|schreib|buch|plan)\w*\b/iu,
+    pattern:
+      /\b(?:two[- ]way|bidirectional|write[- ]enabled|automatic|Zwei[- ]Wege|bidirektional|automatisch)[ -]?(?:calendar|Kalender)[ -]?(?:sync|integration|Synchronisierung|Integration)?\b|\b(?:creat|edit|updat|delet|writ|book|schedul|sync|erstell|änder|aktualisier|lösch|schreib|buch|plan|synchronisier)\w*[^.!?;,|]{0,24}\b(?:calendar events?|appointments?|Kalendertermine?|Termine?)\b|\b(?:calendar events?|appointments?|Kalendertermine?|Termine?)[^.!?;,|]{0,24}\b(?:are\s+|werden\s+)?(?:creat|edit|updat|delet|writ|book|schedul|erstell|änder|aktualisier|lösch|schreib|buch|plan)\w*\b/iu,
     permittedContext: [
       ...NO_OR_EXTERNAL,
-      /\b(?:read[- ]only|nur lesend|schreibgeschützt)\b/iu,
+      /\b(?:read[- ]only|nur lesend|schreibgeschützt\w*)\b/iu,
     ],
     why: "Connected calendar and event access is read-only",
     authority: "features/mcp-tools/tool-registry.ts",
-    appliesTo: (unit) => !(
-      unit.kind === "json-value"
-      && /#\/Common\/events\/messaging\/calendar_event\//u.test(unit.locator)
-    ),
+    appliesTo: (unit) =>
+      !(
+        unit.kind === "json-value" &&
+        /#\/Common\/events\/messaging\/calendar_event\//u.test(unit.locator)
+      ),
   },
   {
     id: "native-mobile-or-offline",
-    pattern: /\b(?:native mobile app|native iOS app|native Android app|iOS app|Android app|native Mobile[- ]App|native iOS[- ]App|native Android[- ]App|offline mode|offline access|works offline|Offline[- ]Modus|Offline[- ]Zugriff|funktioniert offline)\b/iu,
+    pattern:
+      /\b(?:native mobile app|native iOS app|native Android app|iOS app|Android app|native Mobile[- ]App|native iOS[- ]App|native Android[- ]App|offline mode|offline access|works offline|Offline[- ]Modus|Offline[- ]Zugriff|funktioniert offline)\b/iu,
     permittedContext: [
       ...NO_OR_EXTERNAL,
       /\b(?:responsive|mobile[- ]optimized|mobile browser|responsiv|mobiloptimiert|Browser)\b/iu,
@@ -151,7 +172,8 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
   },
   {
     id: "mobile-push-notifications",
-    pattern: /\b(?:mobile|native|iOS|Android|phone|handy)[^.!?;|]{0,32}\bpush[ -]?(?:notifications?|benachrichtigungen)\b|\bpush[ -]?(?:notifications?|benachrichtigungen)[^.!?;|]{0,32}\b(?:mobile|phone|iOS|Android|handy)\b/iu,
+    pattern:
+      /\b(?:mobile|native|iOS|Android|phone|handy)[^.!?;|]{0,32}\bpush[ -]?(?:notifications?|benachrichtigungen)\b|\bpush[ -]?(?:notifications?|benachrichtigungen)[^.!?;|]{0,32}\b(?:mobile|phone|iOS|Android|handy)\b/iu,
     permittedContext: [
       ...NO_OR_EXTERNAL,
       /\b(?:does not ship|does not provide|has no|bietet keine|liefert keine|hat keine)\b[^.!?;|]{0,50}\bpush/iu,
@@ -161,7 +183,8 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
   },
   {
     id: "shared-team-views",
-    pattern: /\b(?:shared|team[- ]wide|workspace[- ]wide|collaborative|gemeinsame\w*|geteilte\w*|teamweite\w*)[^.!?;|]{0,20}\b(?:saved )?(?:views?|filters?|Ansichten?|Filter)\b/iu,
+    pattern:
+      /\b(?:shared|team[- ]wide|workspace[- ]wide|collaborative|gemeinsame\w*|geteilte\w*|teamweite\w*)[^.!?;|]{0,20}\b(?:saved )?(?:views?|filters?|Ansichten?|Filter)\b/iu,
     permittedContext: [
       ...NO_OR_EXTERNAL,
       /\b(?:personal|private|per[- ]user|persönlich\w*|privat\w*|je Nutzer)\b/iu,
@@ -171,24 +194,24 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
   },
   {
     id: "field-level-permissions",
-    pattern: /\b(?:field[- ]level|per[- ]field|column[- ]level|feldebene|feldbasiert\w*|spaltenbasiert\w*)[^.!?;|]{0,20}\b(?:permissions?|access|security|Berechtigungen?|Zugriff)\b/iu,
+    pattern:
+      /\b(?:field[- ]level|per[- ]field|column[- ]level|feldebene|feldbasiert\w*|spaltenbasiert\w*)[^.!?;|]{0,20}\b(?:permissions?|access|security|Berechtigungen?|Zugriff)\b/iu,
     permittedContext: NO_OR_EXTERNAL,
     why: "Permissions are resource/action based with own/all scope, not field-level",
     authority: "features/roles, prisma/schema.prisma",
   },
   {
     id: "or-filtering",
-    pattern: /(?:\bOR\b|\bODER\b)[ -]?(?:filters?|operators?|logic|conditions?|Filter|Operator|Logik|Bedingungen?)/u,
-    permittedContext: [
-      ...NO_OR_EXTERNAL,
-      /\bAND[- ]only\b|\bnur UND\b/iu,
-    ],
+    pattern:
+      /(?:\bOR\b|\bODER\b)[ -]?(?:filters?|operators?|logic|conditions?|Filter|Operator|Logik|Bedingungen?)/u,
+    permittedContext: [...NO_OR_EXTERNAL, /\bAND[- ]only\b|\bnur UND\b/iu],
     why: "The user-facing filter builder combines conditions with AND",
     authority: "features/views",
   },
   {
     id: "shipped-white-label-or-sso",
-    pattern: /\b(?:white[ -]?label|single sign[ -]on|SSO|SAML)[^.!?;|]{0,36}\b(?:available|included|supported|shipped|implemented|verfügbar|enthalten|unterstützt|implementiert)\b/iu,
+    pattern:
+      /\b(?:white[ -]?label|single sign[ -]on|SSO|SAML)[^.!?;|]{0,36}\b(?:available|included|supported|shipped|implemented|verfügbar|enthalten|unterstützt|implementiert)\b/iu,
     permittedContext: [
       ...NO_OR_EXTERNAL,
       /\b(?:contract|contracted|on request|Vertrag|vertraglich|auf Anfrage)\b/iu,
@@ -198,28 +221,32 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
   },
   {
     id: "unsupported-compliance-claim",
-    pattern: /\b(?:GDPR[- ](?:compliant|certified|native)|DSGVO[- ](?:konform|zertifiziert|nativ)|fully GDPR compliant|vollständig DSGVO[- ]konform|full GDPR compliance|DSGVO[- ]Konformität|EU\s*\/\s*GDPR[- ]Hosting|DSGVO\s*\/\s*EU[- ]Hosting)\b/iu,
+    pattern:
+      /\b(?:GDPR[- ](?:compliant|certified|native)|DSGVO[- ](?:konform|zertifiziert|nativ)|fully GDPR compliant|vollständig DSGVO[- ]konform|full GDPR compliance|DSGVO[- ]Konformität|EU\s*\/\s*GDPR[- ]Hosting|DSGVO\s*\/\s*EU[- ]Hosting)\b/iu,
     permittedContext: [DENIED],
     why: "Deployment facts and controls are not a compliance certification",
     authority: "content/legal/en/subprocessors.mdx",
   },
   {
     id: "german-hosting-location",
-    pattern: /\b(?:hosted|hosting|stored|gehostet|gespeichert)[^.!?;|]{0,30}\b(?:in Germany|in Deutschland|Frankfurt)\b|\b(?:German|deutsche\w*)[ -](?:data cent(?:er|re)|Rechenzentrum)\b/iu,
+    pattern:
+      /\b(?:hosted|hosting|stored|gehostet|gespeichert)[^.!?;|]{0,30}\b(?:in Germany|in Deutschland|Frankfurt)\b|\b(?:German|deutsche\w*)[ -](?:data cent(?:er|re)|Rechenzentrum)\b/iu,
     permittedContext: NO_OR_EXTERNAL,
     why: "Only the managed database is stated to run in an EU region",
     authority: "content/legal/en/subprocessors.mdx",
   },
   {
     id: "no-us-subprocessors",
-    pattern: /\b(?:no|zero|without any)[ -]?(?:US|U\.S\.)[ -]?(?:subprocessors?|vendors?|providers?)\b|\bkeine[ -]?US[- ]?(?:Subdienstleister|Anbieter)\b/iu,
+    pattern:
+      /\b(?:no|zero|without any)[ -]?(?:US|U\.S\.)[ -]?(?:subprocessors?|vendors?|providers?)\b|\bkeine[ -]?US[- ]?(?:Subdienstleister|Anbieter)\b/iu,
     permittedContext: [],
     why: "The subprocessor list includes US providers",
     authority: "content/legal/en/subprocessors.mdx",
   },
   {
     id: "absolute-eu-data-residency",
-    pattern: /\b(?:data|Daten)[^.!?;|]{0,28}\b(?:never leaves?|verlassen (?:nie|niemals))[^.!?;|]{0,24}\b(?:the EU|Europe|die EU|Europa)\b/iu,
+    pattern:
+      /\b(?:data|Daten)[^.!?;|]{0,28}\b(?:never leaves?|verlassen (?:nie|niemals))[^.!?;|]{0,24}\b(?:the EU|Europe|die EU|Europa)\b/iu,
     permittedContext: NO_OR_EXTERNAL,
     why: "Connected and application providers can process data outside the EU",
     authority: "content/legal/en/subprocessors.mdx",
@@ -246,8 +273,10 @@ const CANONICAL_SECTIONS = new Set([
   "pricing",
 ]);
 const PRODUCT = /\bCustomermates\b/iu;
-const COMPETITOR = /^\s*(?:HubSpot|Salesforce|Pipedrive|Zoho|Folk|Freshsales|Salesflare|monday|Cobra|GoHighLevel|Close|Attio|Twenty|Odoo)\b/iu;
-const UNAVAILABLE_VALUE = /^(?:false|none|no|not available|not included|unavailable|nein|nicht verfügbar|nicht enthalten)(?:\b|\s*[-—:])/iu;
+const COMPETITOR =
+  /^\s*(?:HubSpot|Salesforce|Pipedrive|Zoho|Folk|Freshsales|Salesflare|monday|Cobra|GoHighLevel|Close|Attio|Twenty|Odoo)\b/iu;
+const UNAVAILABLE_VALUE =
+  /^(?:false|none|no|not available|not included|unavailable|nein|nicht verfügbar|nicht enthalten)(?:\b|\s*[-—:])/iu;
 
 function normalized(file: string): string {
   return file.split(sep).join("/");
@@ -302,7 +331,9 @@ function scalarValue(line: string): string | undefined {
 
 function splitAssertions(line: string): string[] {
   return stripMarkup(line)
-    .split(/(?<=[.!?;])\s+|\s+(?:but|however|whereas|aber|allerdings|hingegen)\s+/iu)
+    .split(
+      /(?<=[.!?;])\s+|\s+(?:but|however|whereas|aber|allerdings|hingegen)\s+/iu,
+    )
     .map((part) => part.trim())
     .filter((part) => part.length > 0 && !part.endsWith("?"));
 }
@@ -351,12 +382,21 @@ function extractMdxUnits(file: string, source: string): ClaimUnit[] {
       }
       if (!isMixed) {
         const value = scalarValue(raw);
-        if (value) units.push({ file, locator: String(line), kind: "frontmatter", text: value });
+        if (value)
+          units.push({
+            file,
+            locator: String(line),
+            kind: "frontmatter",
+            text: value,
+          });
       }
       continue;
     }
 
-    if (/^\s*\|/u.test(raw) && /^\s*\|?\s*:?-{3,}/u.test(lines[index + 1] ?? "")) {
+    if (
+      /^\s*\|/u.test(raw) &&
+      /^\s*\|?\s*:?-{3,}/u.test(lines[index + 1] ?? "")
+    ) {
       const headers = tableCells(raw);
       const productIndex = headers.findIndex((header) => PRODUCT.test(header));
       index += 1;
@@ -373,7 +413,12 @@ function extractMdxUnits(file: string, source: string): ClaimUnit[] {
             productValue: value,
           });
         } else if (!isMixed) {
-          units.push({ file, locator: String(index + 1), kind: "prose", text: stripMarkup(lines[index]) });
+          units.push({
+            file,
+            locator: String(index + 1),
+            kind: "prose",
+            text: stripMarkup(lines[index]),
+          });
         }
       }
       continue;
@@ -382,17 +427,41 @@ function extractMdxUnits(file: string, source: string): ClaimUnit[] {
     const heading = raw.match(/^(#{1,6})\s+(.+)$/u);
     if (heading) {
       const depth = heading[1].length;
-      if (productHeadingDepth !== undefined && depth <= productHeadingDepth) productHeadingDepth = undefined;
-      if (/^(?:Customermates\b|What is Customermates\b|Was ist Customermates\b)/iu.test(stripMarkup(heading[2]))) {
+      if (productHeadingDepth !== undefined && depth <= productHeadingDepth)
+        productHeadingDepth = undefined;
+      if (
+        /^(?:Customermates\b|What is Customermates\b|Was ist Customermates\b)/iu.test(
+          stripMarkup(heading[2]),
+        )
+      ) {
         productHeadingDepth = depth;
       }
     }
 
     if (!trimmed || /^\s*\|/u.test(raw)) continue;
-    for (const assertion of splitAssertions(raw.replace(/^\s*(?:[-*+] |\d+\. )/u, ""))) {
-      if (!assertion || COMPETITOR.test(assertion) && !PRODUCT.test(assertion)) continue;
-      if (!isMixed || PRODUCT.test(assertion) || productHeadingDepth !== undefined) {
-        units.push({ file, locator: String(line), kind: "prose", text: assertion });
+    const assertions = splitAssertions(
+      raw.replace(/^\s*(?:[-*+] |\d+\. )/u, ""),
+    );
+    const lineMentionsProduct = assertions.some((assertion) =>
+      PRODUCT.test(assertion),
+    );
+    for (const assertion of assertions) {
+      if (
+        !assertion ||
+        (COMPETITOR.test(assertion) && !PRODUCT.test(assertion))
+      )
+        continue;
+      if (
+        !isMixed ||
+        lineMentionsProduct ||
+        productHeadingDepth !== undefined
+      ) {
+        units.push({
+          file,
+          locator: String(line),
+          kind: "prose",
+          text: assertion,
+        });
       }
     }
   }
@@ -403,11 +472,21 @@ function extractJsonValueUnits(file: string, source: string): ClaimUnit[] {
   const units: ClaimUnit[] = [];
   const visit = (value: unknown, pointer: string): void => {
     if (typeof value === "string") {
-      units.push({ file, locator: pointer || "#", kind: "json-value", text: value });
+      units.push({
+        file,
+        locator: pointer || "#",
+        kind: "json-value",
+        text: value,
+      });
     } else if (Array.isArray(value)) {
       value.forEach((item, index) => visit(item, `${pointer}/${index}`));
     } else if (value && typeof value === "object") {
-      Object.entries(value).forEach(([key, item]) => visit(item, `${pointer}/${key.replaceAll("~", "~0").replaceAll("/", "~1")}`));
+      Object.entries(value).forEach(([key, item]) =>
+        visit(
+          item,
+          `${pointer}/${key.replaceAll("~", "~0").replaceAll("/", "~1")}`,
+        ),
+      );
     }
   };
   visit(JSON.parse(source), "#");
@@ -415,17 +494,24 @@ function extractJsonValueUnits(file: string, source: string): ClaimUnit[] {
 }
 
 function extractClaimUnits(file: string, source: string): ClaimUnit[] {
-  return file.endsWith(".json") ? extractJsonValueUnits(file, source) : extractMdxUnits(file, source);
+  return file.endsWith(".json")
+    ? extractJsonValueUnits(file, source)
+    : extractMdxUnits(file, source);
 }
 
 function isPermitted(claim: RetiredClaim, unit: ClaimUnit): boolean {
-  if (unit.productValue && UNAVAILABLE_VALUE.test(unit.productValue)) return true;
+  if (unit.productValue && UNAVAILABLE_VALUE.test(unit.productValue))
+    return true;
   const match = unit.text.match(claim.pattern);
   const matchIndex = match?.index ?? 0;
   const matchedText = match?.[0] ?? "";
-  const localContext = unit.text.slice(Math.max(0, matchIndex - 72), matchIndex + matchedText.length + 32);
+  const localContext = unit.text.slice(
+    Math.max(0, matchIndex - 72),
+    matchIndex + matchedText.length + 32,
+  );
   return claim.permittedContext.some((pattern) => {
-    if (pattern === DENIED || pattern === EXTERNAL) return pattern.test(localContext);
+    if (pattern === DENIED || pattern === EXTERNAL)
+      return pattern.test(localContext);
     return pattern.test(unit.text);
   });
 }
@@ -449,34 +535,68 @@ function scannedFiles(): string[] {
   const legalRoot = normalized(join(REPO_ROOT, "content", "legal"));
   return [
     ...walkFiles(join(REPO_ROOT, "content"), (path) => {
-      if (!path.endsWith(".mdx") || normalized(path).startsWith(legalRoot)) return false;
+      if (!path.endsWith(".mdx") || normalized(path).startsWith(legalRoot))
+        return false;
       const [, section] = normalized(relative(REPO_ROOT, path)).split("/");
       return CANONICAL_SECTIONS.has(section);
     }),
-    ...walkFiles(join(REPO_ROOT, "i18n", "locales"), (path) => path.endsWith(".json")),
+    ...walkFiles(join(REPO_ROOT, "i18n", "locales"), (path) =>
+      path.endsWith(".json"),
+    ),
   ].sort();
 }
 
 describe("retired claims stay retired", () => {
   it("keeps auditable, non-stateful rules", () => {
-    expect(new Set(RETIRED_CLAIMS.map((claim) => claim.id)).size).toBe(RETIRED_CLAIMS.length);
-    expect(RETIRED_CLAIMS.every((claim) => claim.why && claim.authority)).toBe(true);
-    expect(RETIRED_CLAIMS.every((claim) => !claim.pattern.global && !claim.pattern.sticky)).toBe(true);
+    expect(new Set(RETIRED_CLAIMS.map((claim) => claim.id)).size).toBe(
+      RETIRED_CLAIMS.length,
+    );
+    expect(RETIRED_CLAIMS.every((claim) => claim.why && claim.authority)).toBe(
+      true,
+    );
+    expect(
+      RETIRED_CLAIMS.every(
+        (claim) => !claim.pattern.global && !claim.pattern.sticky,
+      ),
+    ).toBe(true);
   });
 
   it("scans first-party content units independent of their collection", () => {
-    expect(findViolationsInSource("content/features/en/example.mdx", "CSV import is included.")).toHaveLength(1);
-    expect(findViolationsInSource("content/feature-pages/en/example.mdx", "Built-in AI assistant for every user.")).toHaveLength(1);
+    expect(
+      findViolationsInSource(
+        "content/features/en/example.mdx",
+        "CSV import is included.",
+      ),
+    ).toHaveLength(1);
+    expect(
+      findViolationsInSource(
+        "content/feature-pages/en/example.mdx",
+        "Built-in AI assistant for every user.",
+      ),
+    ).toHaveLength(1);
   });
 
   it("binds a denial to the capability instead of a nearby unrelated sentence", () => {
-    expect(findViolationsInSource("content/features/en/example.mdx", "No Slack app. Import contacts with our CSV uploader.")).toHaveLength(1);
-    expect(findViolationsInSource("content/features/en/example.mdx", "Customermates has no CSV importer; prepare data for REST.")).toEqual([]);
+    expect(
+      findViolationsInSource(
+        "content/features/en/example.mdx",
+        "No Slack app. Import contacts with our CSV uploader.",
+      ),
+    ).toHaveLength(1);
+    expect(
+      findViolationsInSource(
+        "content/features/en/example.mdx",
+        "Customermates has no CSV importer; prepare data for REST.",
+      ),
+    ).toEqual([]);
   });
 
   it("attributes mixed prose and tables only to Customermates", () => {
-    const prose = "HubSpot includes native AI. Customermates has no built-in AI and connects external clients through MCP.";
-    expect(findViolationsInSource("content/blog-posts/en/example.mdx", prose)).toEqual([]);
+    const prose =
+      "HubSpot includes native AI. Customermates has no built-in AI and connects external clients through MCP.";
+    expect(
+      findViolationsInSource("content/blog-posts/en/example.mdx", prose),
+    ).toEqual([]);
 
     const table = [
       "| Feature | Customermates | Rival |",
@@ -484,9 +604,28 @@ describe("retired claims stay retired", () => {
       "| Mobile app | Responsive web only | Native iOS app |",
       "| CSV import | Included | Included |",
     ].join("\n");
-    const violations = findViolationsInSource("content/compare-pages/en/example.mdx", table);
+    const violations = findViolationsInSource(
+      "content/compare-pages/en/example.mdx",
+      table,
+    );
     expect(violations).toHaveLength(1);
     expect(violations[0]).toContain("csv-importer");
+  });
+
+  it("carries same-line Customermates attribution across split assertions", () => {
+    const firstParty = "Customermates stores contacts; CSV import is included.";
+    const violations = findViolationsInSource(
+      "content/blog-posts/en/example.mdx",
+      firstParty,
+    );
+    expect(violations).toHaveLength(1);
+    expect(violations[0]).toContain("csv-importer");
+
+    const competitor =
+      "Customermates has no built-in AI; HubSpot includes native AI.";
+    expect(
+      findViolationsInSource("content/blog-posts/en/example.mdx", competitor),
+    ).toEqual([]);
   });
 
   it("preserves status components when evaluating product tables", () => {
@@ -495,33 +634,90 @@ describe("retired claims stay retired", () => {
       "| --- | --- |",
       "| Built-in AI | <StatusAvailable /> |",
     ].join("\n");
-    expect(findViolationsInSource("content/features/en/example.mdx", available)).toHaveLength(1);
+    expect(
+      findViolationsInSource("content/features/en/example.mdx", available),
+    ).toHaveLength(1);
 
     const unavailable = [
       "| Feature | Customermates |",
       "| --- | --- |",
       "| Built-in AI | <StatusUnavailable /> |",
     ].join("\n");
-    expect(findViolationsInSource("content/features/en/example.mdx", unavailable)).toEqual([]);
+    expect(
+      findViolationsInSource("content/features/en/example.mdx", unavailable),
+    ).toEqual([]);
   });
 
   it("recognizes active bundled-runtime, scoring, calendar-write, and compliance grammar", () => {
-    expect(findViolationsInSource("content/features/en/example.mdx", "Customermates integrates n8n directly.")[0]).toContain("bundled-n8n-runtime");
-    expect(findViolationsInSource("content/features/en/example.mdx", "n8n runs on your infrastructure.")[0]).toContain("bundled-n8n-runtime");
-    expect(findViolationsInSource("content/features/en/example.mdx", "AI agents score leads.")[0]).toContain("lead-scoring-or-enrichment");
-    expect(findViolationsInSource("content/features/en/example.mdx", "Calendar events are created from contact records.")[0]).toContain("calendar-write-or-booking");
-    expect(findViolationsInSource("content/features/en/example.mdx", "Full GDPR compliance.")[0]).toContain("unsupported-compliance-claim");
-    expect(findViolationsInSource("content/features/de/example.mdx", "DSGVO-Konformität.")[0]).toContain("unsupported-compliance-claim");
-    expect(findViolationsInSource("content/features/en/example.mdx", "EU/GDPR hosting.")[0]).toContain("unsupported-compliance-claim");
+    expect(
+      findViolationsInSource(
+        "content/features/en/example.mdx",
+        "Customermates integrates n8n directly.",
+      )[0],
+    ).toContain("bundled-n8n-runtime");
+    expect(
+      findViolationsInSource(
+        "content/features/en/example.mdx",
+        "n8n runs on your infrastructure.",
+      )[0],
+    ).toContain("bundled-n8n-runtime");
+    expect(
+      findViolationsInSource(
+        "content/features/en/example.mdx",
+        "AI agents score leads.",
+      )[0],
+    ).toContain("lead-scoring-or-enrichment");
+    expect(
+      findViolationsInSource(
+        "content/features/en/example.mdx",
+        "Calendar events are created from contact records.",
+      )[0],
+    ).toContain("calendar-write-or-booking");
+    expect(
+      findViolationsInSource(
+        "content/features/de/example.mdx",
+        "Kalendertermine erscheinen in einer schreibgeschützten CRM-Ansicht.",
+      ),
+    ).toEqual([]);
+    expect(
+      findViolationsInSource(
+        "content/features/en/example.mdx",
+        "Full GDPR compliance.",
+      )[0],
+    ).toContain("unsupported-compliance-claim");
+    expect(
+      findViolationsInSource(
+        "content/features/de/example.mdx",
+        "DSGVO-Konformität.",
+      )[0],
+    ).toContain("unsupported-compliance-claim");
+    expect(
+      findViolationsInSource(
+        "content/features/en/example.mdx",
+        "EU/GDPR hosting.",
+      )[0],
+    ).toContain("unsupported-compliance-claim");
   });
 
   it("combines compare frontmatter names with source values", () => {
-    const source = ["---", "features:", "  - name: Email sequences", "    source: true", "    competitor: false", "---"].join("\n");
-    expect(findViolationsInSource("content/compare-pages/en/example.mdx", source)).toHaveLength(1);
+    const source = [
+      "---",
+      "features:",
+      "  - name: Email sequences",
+      "    source: true",
+      "    competitor: false",
+      "---",
+    ].join("\n");
+    expect(
+      findViolationsInSource("content/compare-pages/en/example.mdx", source),
+    ).toHaveLength(1);
   });
 
   it("scans JSON values rather than key names", () => {
-    const source = JSON.stringify({ offlineAccess: "Use it from a browser", banner: "Native iOS app included" });
+    const source = JSON.stringify({
+      offlineAccess: "Use it from a browser",
+      banner: "Native iOS app included",
+    });
     const violations = findViolationsInSource("i18n/locales/en.json", source);
     expect(violations).toHaveLength(1);
     expect(violations[0]).toContain("#/banner");

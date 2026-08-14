@@ -17,6 +17,7 @@ import { homepageSchema } from "./schemas/homepage";
 import { hubSchema } from "./schemas/hub";
 import { legalSchema } from "./schemas/legal";
 import { pricingSchema } from "./schemas/pricing";
+import { commercialTokens } from "./commercial-tokens";
 
 export const blog = defineCollections({
   type: "doc",
@@ -133,5 +134,5 @@ export const affiliate = defineCollections({
 });
 
 export default defineConfig({
-  plugins: [jsonSchema(), lastModified()],
+  plugins: [commercialTokens(), jsonSchema(), lastModified()],
 });

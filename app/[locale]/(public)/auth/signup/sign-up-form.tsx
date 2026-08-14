@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
 import { observer } from "mobx-react-lite";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -58,11 +59,11 @@ export const SignUpForm = observer(({ isInvited, socialProviders }: Props) => {
             <Alert className="mb-4" color="success">
               <p className="text-x-sm">{t("SignUpForm.inviteSubtitle")}</p>
             </Alert>
-          ) : (
+          ) : appMode === "cloud" ? (
             <Alert className="mb-4" color="primary">
-              <p className="text-x-sm">{t("SignUpForm.newCompanySubtitle")}</p>
+              <p className="text-x-sm">{t("SignUpForm.newCompanySubtitle", { days: CLOUD_TRIAL.days })}</p>
             </Alert>
-          )}
+          ) : null}
 
           {(socialProviders.google || socialProviders.microsoft) && (
             <>

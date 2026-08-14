@@ -10,7 +10,7 @@ hero:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First 7 days free"
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
   action: "Ready to modernize your insurance company's CRM?"
@@ -19,7 +19,7 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First 7 days free"
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
 ## Why insurance companies need a dedicated CRM
@@ -58,6 +58,7 @@ Use custom fields to track insurance-specific data:
 Claims are the moment of truth for any insurance company. Customermates lets you build a dedicated claims pipeline on your [visual Kanban board](/features/pipeline) that tracks every claim from first notice through resolution:
 
 **Example claims pipeline stages:**
+
 - First Notice of Loss (FNOL) received
 - Claim acknowledged and assigned
 - Investigation in progress
@@ -74,6 +75,7 @@ Each claim is a deal with custom fields for claim number, date of loss, reserve 
 Submissions from agents and brokers flow into an underwriting pipeline where your team can evaluate, price, and approve or decline business systematically:
 
 **Example underwriting pipeline stages:**
+
 - Submission received
 - Initial screening
 - Risk assessment in progress
@@ -141,7 +143,7 @@ Explore [workflow automation](/features/workflow-automation) to see what is poss
 
 ### AI agents that operate your insurance CRM
 
-Customermates connects natively to Claude, ChatGPT, and Gemini through 46 MCP tools, so an AI agent can read and write your CRM directly. It does the data entry your team avoids: moving claims through pipeline stages, updating broker records, and keeping submission notes current. Ask an agent to:
+Customermates connects natively to Claude, ChatGPT, and Gemini through [[derived.mcp.tools.total]] MCP tools, so an AI agent can read and write your CRM directly. It does the data entry your team avoids: moving claims through pipeline stages, updating broker records, and keeping submission notes current. Ask an agent to:
 
 - **Summarize claim files** before adjuster review meetings
 - **Draft underwriting memos** based on submission data and risk factors
@@ -174,15 +176,15 @@ Insurance companies handle some of the most sensitive personal data, health reco
 
 Enterprise insurance platforms like Salesforce Financial Services Cloud or Guidewire charge six figures annually. Customermates takes a radically different approach:
 
-- **Starter, €12 per user per month**, automation, custom fields, API access, native AI agents (46 MCP tools), and reporting
-- **Pro, €29 per user per month**, adds the unified inbox (email, LinkedIn, WhatsApp, Instagram, and Telegram) with 1 connected account per user, tied to every policyholder, broker, or claim
-- **Business, €69 per user per month**, 3 connected accounts per user, shared accounts across underwriting and claims teams, priority support
-- **Enterprise**, custom pricing, SSO, white-label, unlimited accounts, and done-for-you setup for carriers with strict IT requirements
+- **Starter, [[commercial.price.starter.monthly]] per user per month**, automation, custom fields, API access, native AI agents ([[derived.mcp.tools.total]] MCP tools), and reporting
+- **Pro, [[commercial.price.pro.monthly]] per user per month**, adds the unified inbox (email, LinkedIn, WhatsApp, Instagram, and Telegram) with [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, tied to every policyholder, broker, or claim
+- **Business, [[commercial.price.business.monthly]] per user per month**, [[commercial.entitlement.business.includedAccountsPerUser]] connected accounts per user, shared accounts across underwriting and claims teams, priority support
+- **Enterprise**, custom pricing, SSO, white-label, [[commercial.entitlement.enterprise.includedAccountsPerUser]] connected accounts (fair use), and done-for-you setup for carriers with strict IT requirements
 - **No per-policy or per-claim charges**, manage 1,000 or 1,000,000 policies at the same cost per user
 - **Open source**, full code transparency, no vendor lock-in, and the ability to audit the entire codebase
 - **Self-hostable**, deploy on your own servers for complete control over sensitive insurance data
 
-A team of 10 underwriters and claims handlers sharing inboxes on Business pays €690 per month. A company with 50 users pays €3,450 per month. Compare that to enterprise insurance CRM platforms charging $150+ per user per month with multi-year contracts.
+A team of 10 underwriters and claims handlers sharing inboxes on Business pays [[commercial.price.business.monthly.seats.10]] per month. A company with 50 users pays [[commercial.price.business.monthly.seats.50]] per month. Compare that to enterprise insurance CRM platforms charging $150+ per user per month with multi-year contracts.
 
 See our full [pricing details](/pricing).
 
@@ -190,7 +192,7 @@ See our full [pricing details](/pricing).
 
 Setting up Customermates as your CRM for the insurance industry takes minutes, not months:
 
-1. **Create your free account**, No credit card required. The first 7 days are on us.
+1. **Create your free account**, No credit card required. The first [[commercial.trial.days]] days are on us.
 2. **Migrate supported records**, use the REST API, or hand a prepared source export to an AI agent connected over MCP. Customermates has no CSV uploader.
 3. **Set up your pipelines**, Create pipelines for new business, renewals, claims, and underwriting with custom stages matching your workflows.
 4. **Add custom fields**, Define fields for policy numbers, coverage types, premium amounts, claim reserves, broker appointments, and renewal dates.
@@ -203,7 +205,7 @@ Customermates is open source. No vendor lock-in, full transparency, and your ins
 
 ### What is a CRM for insurance companies?
 
-A CRM for insurance companies is software that helps carriers, MGAs, and insurers manage policyholder relationships, claims pipelines, underwriting workflows, and distribution networks from a centralized platform. Unlike generic CRM tools, an insurance company CRM needs to handle policy lifecycle tracking, claims management, broker coordination, and regulatory compliance. Customermates is an open-source CRM that provides all of these capabilities starting at €12 per user per month, a fraction of what enterprise insurance platforms charge.
+A CRM for insurance companies is software that helps carriers, MGAs, and insurers manage policyholder relationships, claims pipelines, underwriting workflows, and distribution networks from a centralized platform. Unlike generic CRM tools, an insurance company CRM needs to handle policy lifecycle tracking, claims management, broker coordination, and regulatory compliance. Customermates is an open-source CRM that provides all of these capabilities starting at [[commercial.price.starter.monthly]] per user per month, a fraction of what enterprise insurance platforms charge.
 
 ### How is a CRM for insurance companies different from a CRM for insurance agents?
 
@@ -223,12 +225,11 @@ Absolutely. Customermates is GDPR-native and hosted in the EU region. For insura
 
 ### How does Customermates compare to Salesforce Financial Services Cloud for insurance?
 
-Salesforce Financial Services Cloud is a powerful but expensive and complex platform that requires significant implementation effort and ongoing administration costs. Customermates offers a leaner alternative: visual pipelines, AI agents that read and write the CRM through 46 MCP tools, n8n automation, and full API access starting at €12 per user per month, with the unified inbox for policyholder and broker conversations (email, WhatsApp, LinkedIn, Instagram, Telegram) on Pro at €29 per user per month. As an open-source platform, you get full code transparency and the ability to self-host. The trade-off is that Customermates is a flexible CRM you configure for insurance rather than a pre-built insurance administration system.
+Salesforce Financial Services Cloud is a powerful but expensive and complex platform that requires significant implementation effort and ongoing administration costs. Customermates offers a leaner alternative: visual pipelines, AI agents that read and write the CRM through [[derived.mcp.tools.total]] MCP tools, n8n automation, and full API access starting at [[commercial.price.starter.monthly]] per user per month, with the unified inbox for policyholder and broker conversations (email, WhatsApp, LinkedIn, Instagram, Telegram) on Pro at [[commercial.price.pro.monthly]] per user per month. As an open-source platform, you get full code transparency and the ability to self-host. The trade-off is that Customermates is a flexible CRM you configure for insurance rather than a pre-built insurance administration system.
 
 ### Can we manage our agency and broker network in Customermates?
 
 Yes. Every broker and agency becomes a contact with custom fields tracking appointment status, production volume, commission structures, and communication history. Create pipelines for broker onboarding and use filtered views to rank partners by performance. Automated workflows can generate monthly production reports and trigger outreach when broker activity declines.
-
 
 ### Related Industries
 

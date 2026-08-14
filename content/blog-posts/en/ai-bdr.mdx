@@ -69,17 +69,17 @@ Step 6 is where most stacks break, and it is the focus of the rest of this artic
 
 The honest comparison is not human vs. AI but human plus AI vs. nothing, because the well-run teams use both.
 
-| Capability | AI BDR | Human BDR |
-|---|---|---|
-| Volume | Thousands of prospects per day | Dozens per day |
-| Cost per touch | Pennies (API + data costs) | Dollars (fully loaded) |
-| Personalization quality | Good with strong research, generic without | Variable; great reps are excellent |
-| Conversation handling | Reliable for common patterns, brittle for edge cases | Strong, especially under objection |
-| Judgment on borderline accounts | Poor | Strong |
-| Deliverability instinct | Mechanical | Variable |
-| Available 24/7 | Yes | No |
-| Improves over time | Only if the prompts and data improve | Yes, with coaching |
-| Talks to your CRM | Depends entirely on integration | Updates the CRM grudgingly |
+| Capability                      | AI BDR                                               | Human BDR                          |
+| ------------------------------- | ---------------------------------------------------- | ---------------------------------- |
+| Volume                          | Thousands of prospects per day                       | Dozens per day                     |
+| Cost per touch                  | Pennies (API + data costs)                           | Dollars (fully loaded)             |
+| Personalization quality         | Good with strong research, generic without           | Variable; great reps are excellent |
+| Conversation handling           | Reliable for common patterns, brittle for edge cases | Strong, especially under objection |
+| Judgment on borderline accounts | Poor                                                 | Strong                             |
+| Deliverability instinct         | Mechanical                                           | Variable                           |
+| Available 24/7                  | Yes                                                  | No                                 |
+| Improves over time              | Only if the prompts and data improve                 | Yes, with coaching                 |
+| Talks to your CRM               | Depends entirely on integration                      | Updates the CRM grudgingly         |
 
 The teams that win in 2026 use AI BDRs for the volume layer (sourcing, first touch, follow-up scheduling) and humans for judgment, objection handling, and account-specific work. The vendors that pretend AI replaces the human get hate threads on Reddit; the ones who position AI as the volume engine and humans as the closing layer build durable products.
 
@@ -142,15 +142,15 @@ That is what the [Model Context Protocol](https://modelcontextprotocol.io) (MCP)
 
 ## How an MCP-native CRM changes the AI BDR stack
 
-[Customermates](/) is an open-source CRM built so any MCP-compatible AI agent can read and write the full CRM directly. There are 46 native MCP tools that cover contacts, organizations, deals, services, tasks, custom fields, widgets, and webhooks. An AI BDR connected over MCP does not "send leads to the CRM"; it operates the CRM.
+[Customermates](/) is an open-source CRM built so any MCP-compatible AI agent can read and write the full CRM directly. There are [[derived.mcp.tools.total]] native MCP tools that cover contacts, organizations, deals, services, tasks, custom fields, widgets, and webhooks. An AI BDR connected over MCP does not "send leads to the CRM"; it operates the CRM.
 
 A concrete example. The agent finishes a discovery email thread. Instead of writing a note via webhook, the agent runs:
 
 1. `update_contacts` with the prospect's title, role confirmation, and updated phone number
 2. `create_deals` linking the contact and organization with a Discovery stage
-3. `update_entity_notes` with the summary and key signals from the thread
+3. `update_record_notes` with the summary and key signals from the thread
 4. `create_tasks` with a follow-up for the AE on the day after the booked meeting
-5. `update_widget` to reflect the new pipeline state on the team dashboard
+5. `manage_widgets` to reflect the new pipeline state on the team dashboard
 
 All five happen in one model turn, in natural language, with the agent's context fully preserved. The closer who picks up the deal next sees the full thread, the structured signals, the next-step task, and the dashboard view. The CRM stays the truth.
 
@@ -185,7 +185,7 @@ A short, honest comparison of the products most commonly evaluated this year.
 
 **Coldreach, Autobound, Prospeo.** Specialists in different layers (Coldreach in research, Autobound in personalization, Prospeo in data quality). Best as components of a larger stack.
 
-**Customermates.** Not an AI BDR. The CRM that any of the above plug into via MCP, with 46 native tools. Open source under AGPL-3.0; cloud from €12 per user per month (Starter) or free to self-host via Docker; the unified inbox that holds conversation history sits on Pro at €29. Best as the destination layer of the stack, where contacts, deals, and conversations actually live.
+**Customermates.** Not an AI BDR. The CRM that any of the above plug into via MCP, with [[derived.mcp.tools.total]] native tools. Open source under AGPL-3.0; cloud from [[commercial.price.starter.monthly]] per user per month (Starter) or free to self-host via Docker; the unified inbox that holds conversation history sits on Pro at [[commercial.price.pro.monthly]]. Best as the destination layer of the stack, where contacts, deals, and conversations actually live.
 
 The combination most often missing from these tool lists is "AI BDR + CRM that the agent can operate directly". Almost every other piece is present in the market.
 

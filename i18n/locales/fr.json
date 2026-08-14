@@ -644,7 +644,7 @@
     }
   },
   "ConnectedAccountsCard": {
-    "accountLimitReached": "La formule Business inclut 3 comptes connectés par utilisateur. Contactez-nous au sujet de la formule Enterprise pour un nombre illimité de comptes.",
+    "accountLimitReached": "Vous avez atteint la limite de comptes connectés de cette formule. Contactez-nous au sujet de la formule Enterprise pour un nombre illimité de comptes.",
     "alreadyExistsToastDescription": "Ce compte est déjà connecté par un membre de votre espace de travail. Demandez-lui de le partager avec l'espace de travail pour éviter les messages en double dans la boîte de réception.",
     "alreadyExistsToastTitle": "Compte déjà connecté",
     "channels": {
@@ -1132,11 +1132,11 @@
       "badge": "Populaire",
       "compareText": "Comparer les formules",
       "ctaText": "Commencer gratuitement",
-      "featureBusiness": "Business : 3 comptes par utilisateur, comptes partagés et assistance prioritaire",
-      "featurePro": "Pro : boîte de réception unifiée, 1 compte connecté par utilisateur",
+      "featureBusiness": "Business : {accounts, plural, one {# compte par utilisateur} other {# comptes par utilisateur}}, comptes partagés et assistance prioritaire",
+      "featurePro": "Pro : boîte de réception unifiée, {accounts, plural, one {# compte connecté par utilisateur} other {# comptes connectés par utilisateur}}",
       "featureStarter": "Starter : le cœur du CRM",
       "period": "/ utilisateur / mois",
-      "price": "à partir de 12 €",
+      "price": "à partir de {price}",
       "tag": "Géré pour vous ; base de données en région UE. D’autres prestataires peuvent traiter des données ailleurs.",
       "title": "Cloud"
     },
@@ -1577,7 +1577,7 @@
     "buttonLabel": "S'inscrire avec {provider}",
     "inviteSubtitle": "Vous avez été invité à rejoindre une équipe sur Customermates. Choisissez votre méthode de connexion pour accepter l'invitation.",
     "inviteTitle": "Accepter l'invitation de l'entreprise",
-    "newCompanySubtitle": "Enregistrez une nouvelle entreprise et testez Customermates gratuitement pendant 7 jours. Sans carte bancaire.",
+    "newCompanySubtitle": "Enregistrez une nouvelle entreprise et testez Customermates gratuitement pendant {days} jours. Sans carte bancaire.",
     "or": "OU",
     "signUpCta": "Créer un compte",
     "switchToSignIn": "Vous avez déjà un compte ? <signInLink>Connectez-vous</signInLink>",
@@ -1598,17 +1598,10 @@
     "managedExternallyNote": "Cet espace de travail utilise une formule Enterprise réglée sur facture. Contactez votre gestionnaire de compte pour toute modification.",
     "manageWithLemonSqueezy": "Gérer avec Lemon Squeezy",
     "picker": {
+      "connectedAccountsPerUser": "{accounts, plural, one {# compte connecté par utilisateur} other {# comptes connectés par utilisateur}}",
       "features": {
-        "business": [
-          "Tout ce qui est inclus dans Pro",
-          "3 comptes connectés par utilisateur",
-          "Comptes partagés et assistance prioritaire"
-        ],
-        "pro": [
-          "Tout ce qui est inclus dans Starter",
-          "Boîte de réception unifiée",
-          "1 compte connecté par utilisateur"
-        ],
+        "business": ["Tout ce qui est inclus dans Pro", "Comptes partagés et assistance prioritaire"],
+        "pro": ["Tout ce qui est inclus dans Starter", "Boîte de réception unifiée"],
         "starter": [
           "CRM complet : contacts, affaires, organisations, tâches",
           "Journal d'audit",
@@ -1617,12 +1610,7 @@
         ]
       },
       "mostPopular": "Le plus populaire",
-      "perUserMonth": "par utilisateur / mois",
-      "price": {
-        "business": "69 €",
-        "pro": "29 €",
-        "starter": "12 €"
-      }
+      "perUserMonth": "par utilisateur / mois"
     },
     "plan": "Formule",
     "planNames": {

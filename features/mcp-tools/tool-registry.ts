@@ -98,6 +98,18 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
 
 export const MCP_ALWAYS_ON_TOOLS: McpTool[] = [searchTool, fetchTool];
 
-export const MCP_TOOL_COUNT: number = new Set(
-  [...Object.values(MCP_TOOL_GROUPS).flat(), ...MCP_ALWAYS_ON_TOOLS].map((tool) => tool.name),
-).size;
+const ALL_MCP_TOOLS = [...Object.values(MCP_TOOL_GROUPS).flat(), ...MCP_ALWAYS_ON_TOOLS];
+
+export function countMcpTools(tools: readonly Pick<McpTool, "name">[] = ALL_MCP_TOOLS): number {
+  const names = tools.map((tool) => tool.name);
+  const duplicateNames = names.filter((name, index) => names.indexOf(name) !== index);
+
+  if (duplicateNames.length > 0)
+    throw new Error(`Duplicate MCP tool names: ${[...new Set(duplicateNames)].join(", ")}`);
+
+  return names.length;
+}
+
+export const MCP_TOOL_COUNT = countMcpTools();
+export const MCP_GROUPED_TOOL_COUNT = Object.values(MCP_TOOL_GROUPS).flat().length;
+export const MCP_TOOLSET_COUNT = Object.keys(MCP_TOOL_GROUPS).length;

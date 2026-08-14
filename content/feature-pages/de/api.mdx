@@ -1,6 +1,6 @@
 ---
 title: CRM API - REST API, Webhooks, MCP & OpenAPI
-description: "CRM API mit dokumentierten REST-Ressourcen, 26 Webhook-Eventtypen, OpenAPI-Spec und 46 MCP-Tools für unterstützte externe KI-Clients."
+description: "CRM API mit dokumentierten REST-Ressourcen, [[derived.webhooks.events.total]] Webhook-Eventtypen, OpenAPI-Spec und [[derived.mcp.tools.total]] MCP-Tools für unterstützte externe KI-Clients."
 featureName: CRM API
 
 hero:
@@ -10,7 +10,7 @@ hero:
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ Keine Kreditkarte benötigt ✓ Erste 7 Tage kostenlos"
+  hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 
 cta:
   action: Bereit loszulegen?
@@ -19,7 +19,7 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ Keine Kreditkarte benötigt ✓ Erste 7 Tage kostenlos"
+  hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
 ## Was ist eine CRM API?
@@ -32,7 +32,7 @@ Eine gute CRM API ist gut dokumentiert, versioniert, vorhersagbar und gibt Ihnen
 
 ## So funktioniert die CRM API in Customermates
 
-Customermates bietet eine versionierte REST API für dokumentierte CRM-Ressourcen und Operationen. API-Zugang ist in veröffentlichten Preisstufen ab 12 EUR pro Nutzer und Monat enthalten, ohne separate Entwickler-Stufe.
+Customermates bietet eine versionierte REST API für dokumentierte CRM-Ressourcen und Operationen. API-Zugang ist in veröffentlichten Preisstufen ab [[commercial.price.starter.monthly]] pro Nutzer und Monat enthalten, ohne separate Entwickler-Stufe.
 
 **REST-Architektur mit vorhersagbaren Endpoints.** Die API folgt Standard-REST-Konventionen mit vorhersagbaren URL-Strukturen, Standard-HTTP-Methoden (GET, POST, PUT, PATCH, DELETE) und JSON-Request- und Response-Bodies. Endpoints folgen einem konsistenten Muster: `/api/v1/{resource}` für Sammlungen und `/api/v1/{resource}/{id}` für einzelne Datensätze.
 
@@ -40,13 +40,13 @@ Customermates bietet eine versionierte REST API für dokumentierte CRM-Ressource
 
 **OpenAPI-Spezifikation.** Die API ist mit einer vollständigen OpenAPI-3.1-Spezifikation dokumentiert, verfügbar unter `/api/v1/openapi`. Importieren Sie die Spec in Postman, Insomnia oder jeden beliebigen API-Client, um Endpoints interaktiv zu erkunden. Nutzen Sie die Spec zur automatischen Generierung von Client-Libraries in jeder Programmiersprache.
 
-**MCP-Endpoint für unterstützte externe KI-Clients.** Customermates stellt 46 MCP-Tools für zulässige CRM- und Messaging-Operationen bereit, je nach Client-Flow authentifiziert per API-Key oder OAuth-Bearer-Token. Unterstützte Clients wie Claude, ChatGPT oder Gemini bleiben extern; Customermates enthält weder Client noch KI-Modell.
+**MCP-Endpoint für unterstützte externe KI-Clients.** Customermates stellt [[derived.mcp.tools.total]] MCP-Tools für zulässige CRM- und Messaging-Operationen bereit, je nach Client-Flow authentifiziert per API-Key oder OAuth-Bearer-Token. Unterstützte Clients wie Claude, ChatGPT oder Gemini bleiben extern; Customermates enthält weder Client noch KI-Modell.
 
 **Filterung, Sortierung und Paginierung.** Nutzen Sie die je Ressource unterstützten Filter- und Sortierparameter. Mehrere nutzerseitige Filterbedingungen werden mit UND verknüpft, und generische Listen-Endpunkte verwenden `page` und `pageSize`; ODER auf oberster Ebene und Cursor-Paginierung werden nicht unterstützt.
 
 **Authentifizierung über API-Keys.** Authentifizieren Sie API-Anfragen mit sicheren API-Keys, die in Ihren Kontoeinstellungen generiert werden. Keys können jederzeit erstellt und widerrufen werden. Jeder Key erbt die Berechtigungen des Nutzers, der ihn erstellt hat, sodass der API-Zugang Ihre bestehende rollenbasierte Zugriffskontrolle respektiert.
 
-**Webhooks für Echtzeit-Event-Streaming.** Konfigurieren Sie Webhooks, um Echtzeit-HTTP-POST-Benachrichtigungen zu erhalten, wenn Ereignisse in Ihrem CRM eintreten. Customermates sendet 26 Webhook-Events: 15 Datensatz-Ereignisse (erstellt, aktualisiert und gelöscht für jede der fünf Entitäten: Kontakte, Organisationen, Deals, Services, Aufgaben) plus 11 Messaging- und Kalender-Ereignisse. Jedes davon kann eine Zustellung an eine von Ihnen angegebene URL auslösen. Webhooks beinhalten Retry-Logik mit exponentiellem Backoff für fehlgeschlagene Zustellungen.
+**Webhooks für Echtzeit-Event-Streaming.** Konfigurieren Sie Webhooks, um Echtzeit-HTTP-POST-Benachrichtigungen zu erhalten, wenn Ereignisse in Ihrem CRM eintreten. Customermates sendet [[derived.webhooks.events.total]] Webhook-Events: [[derived.webhooks.events.records]] Datensatz-Ereignisse (erstellt, aktualisiert und gelöscht für jede der fünf Entitäten: Kontakte, Organisationen, Deals, Services, Aufgaben) plus [[derived.webhooks.events.messaging]] Messaging- und Kalender-Ereignisse. Jedes davon kann eine Zustellung an eine von Ihnen angegebene URL auslösen. Webhooks beinhalten Retry-Logik mit exponentiellem Backoff für fehlgeschlagene Zustellungen.
 
 **Unterstützter Zugriff auf eigene Felder.** Lesen oder schreiben Sie Werte nur dort, wo die dokumentierten Ressourcen und Operationen dies ausweisen. Das aktuelle OpenAPI-Dokument, Feldtypen und Validierungsantworten bilden den Integrationsvertrag.
 
@@ -96,7 +96,7 @@ Customermates bietet eine versionierte REST API für dokumentierte CRM-Ressource
 
 **EU-Datenbankregion und dokumentierte Anbieter.** Die gehostete Datenbank läuft in einer EU-Region. Anwendungshosting und weitere Anbieter, darunter US-Anbieter, werden separat dokumentiert; dies ist keine DSGVO- oder andere Compliance-Zertifizierung.
 
-**Einfache, veröffentlichte Preisgestaltung.** Dokumentierter API-Zugang ist in veröffentlichten Plänen ab 12 EUR pro Nutzer und Monat enthalten. Für unterstützte Operationen und Grenzen gilt die aktuelle Dokumentation; unbeschränkte Nutzung oder vollständige Parität wird nicht versprochen.
+**Einfache, veröffentlichte Preisgestaltung.** Dokumentierter API-Zugang ist in veröffentlichten Plänen ab [[commercial.price.starter.monthly]] pro Nutzer und Monat enthalten. Für unterstützte Operationen und Grenzen gilt die aktuelle Dokumentation; unbeschränkte Nutzung oder vollständige Parität wird nicht versprochen.
 
 **Self-hostbare Anwendung und Datenbank.** Beim Self-Hosting laufen Customermates-Anwendung und PostgreSQL-Datenbank auf Ihrer Infrastruktur. Verbundene externe Dienste bleiben separat; der Standort allein begründet keine Sicherheits- oder Compliance-Aussage.
 
@@ -106,4 +106,4 @@ Customermates bietet eine versionierte REST API für dokumentierte CRM-Ressource
 
 ## Starten Sie heute mit der CRM API
 
-Beginnen Sie mit der Customermates API. Generieren Sie einen API-Key, erkunden Sie die OpenAPI-Spec und senden Sie Ihre erste Anfrage. Prüfen Sie im aktuellen OpenAPI-Dokument die für Ihre Integration unterstützten Ressourcen und Operationen. Dokumentierter API-Zugang ist ab 12 EUR pro Nutzer und Monat enthalten.
+Beginnen Sie mit der Customermates API. Generieren Sie einen API-Key, erkunden Sie die OpenAPI-Spec und senden Sie Ihre erste Anfrage. Prüfen Sie im aktuellen OpenAPI-Dokument die für Ihre Integration unterstützten Ressourcen und Operationen. Dokumentierter API-Zugang ist ab [[commercial.price.starter.monthly]] pro Nutzer und Monat enthalten.

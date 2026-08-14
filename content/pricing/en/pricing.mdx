@@ -1,26 +1,19 @@
 ---
 title: "Pricing: The Agentic Open-Source CRM"
 titleAccent: simple, honest, European.
-description: "Fair, transparent pricing for the Agentic Open-Source CRM. External AI clients operate the CRM through MCP, and a unified inbox covers email, LinkedIn, WhatsApp, Instagram, and Telegram. Every core CRM feature in every tier from €12, with a managed database in an EU region."
+description: "Fair, transparent pricing for the Agentic Open-Source CRM. External AI clients operate the CRM through MCP, and a unified inbox covers email, LinkedIn, WhatsApp, Instagram, and Telegram. Every core CRM feature in every tier from [[commercial.price.starter.monthly]], with a managed database in an EU region."
 
 pricing:
   ariaLabelSlider: Number of users
-  ariaLabelTabs: Pricing period
+  customPrice: Custom
   users: Users
-  monthly: Monthly
-  yearly: Yearly
-  yearlySavings: 2 months free
   footnote: "A connected account is one linked mailbox, LinkedIn, WhatsApp, Instagram, or Telegram profile that belongs to a single user. Connected account limits vary by plan, see below."
-  totalSuffixSingular: "EUR/month total for {count} user"
-  totalSuffixPlural: "EUR/month total for {count} users"
+  totalSuffixSingular: "/month total for {count} user"
+  totalSuffixPlural: "/month total for {count} users"
   pricingCards:
-  - title: Starter
+  - plan: starter
+    title: Starter
     description: Core CRM & MCP
-    price: "12"
-    monthlyPrice: 12
-    annualPrice: 10
-    priceSubtext: EUR/Month
-    priceNote: billed annually
     buttonText: Start free trial
     buttonHref: /auth/signup
     buttonColor: default
@@ -29,14 +22,10 @@ pricing:
       - Contacts, organizations, deals, services & tasks
       - "MCP access: connect an external AI client such as Claude, ChatGPT, or Gemini"
       - REST API, webhooks & interfaces for your own n8n
-  - title: Pro
-    description: CRM + unified inbox. Includes your 7-day free trial.
-    badge: 7-day free trial
-    price: "29"
-    monthlyPrice: 29
-    annualPrice: 24
-    priceSubtext: EUR/Month
-    priceNote: billed annually
+  - plan: pro
+    title: Pro
+    description: CRM + unified inbox. Includes your [[commercial.trial.days]]-day free trial.
+    badge: "[[commercial.trial.days]]-day free trial"
     buttonText: Start free trial
     buttonHref: /auth/signup
     buttonColor: default
@@ -44,17 +33,13 @@ pricing:
     features:
       - Everything in Starter
       - "Unified inbox: Email, LinkedIn, WhatsApp, Instagram, Telegram"
-      - 1 connected account per user included
+      - "[[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user included"
       - Read-only calendar access & LinkedIn Sales Navigator
-  - title: Business
+  - plan: business
+    title: Business
     description: For teams
     badge: Most popular
     featured: true
-    price: "69"
-    monthlyPrice: 69
-    annualPrice: 57
-    priceSubtext: EUR/Month
-    priceNote: billed annually
     buttonText: Start free trial
     buttonHref: /auth/signup
     buttonColor: primary
@@ -63,13 +48,13 @@ pricing:
     cardClassName: border-2 border-primary shadow-[0_0_24px] shadow-primary/20 dark:bg-content2
     features:
       - Everything in Pro
-      - 3 connected accounts per user included
+      - "[[commercial.entitlement.business.includedAccountsPerUser]] connected accounts per user included"
       - "Shared accounts: team-wide inbox visibility"
       - One team-wide timeline across every channel
       - Priority support
-  - title: Enterprise
+  - plan: enterprise
+    title: Enterprise
     description: Custom scope & support
-    price: Custom
     buttonText: Contact sales
     buttonHref: mailto:sales@customermates.com?subject=Enterprise%20Plan%20Inquiry
     buttonColor: primary
@@ -78,11 +63,13 @@ pricing:
       - Everything in Business
       - Contracted custom-agent or lead-data workflows (not built in)
       - Done-for-you setup
-      - Unlimited connected accounts (fair use); SSO & white-label are not implemented and require contracted work
+      - "[[commercial.entitlement.enterprise.includedAccountsPerUser]] connected accounts (fair use); SSO & white-label are not implemented and require contracted work"
       - Dedicated support & custom terms
 
 comparison:
+  customValue: Custom
   header: Plans
+  unlimitedValue: Unlimited (fair use)
   plans:
     starter:
       name: Starter
@@ -105,32 +92,15 @@ comparison:
   - title: Price & users
     rows:
       - label: Price per user/month
-        starter: "€12"
-        pro: "€29"
-        business: "€69"
-        enterprise: "Custom"
-      - label: Price per user/month (billed yearly)
-        starter: "€10"
-        pro: "€24"
-        business: "€57"
-        enterprise: "Custom"
+        catalogFact: monthlyPrice
   - title: Messaging
     rows:
       - label: Unified inbox
-        starter: false
-        pro: true
-        business: true
-        enterprise: true
+        catalogFact: messaging
       - label: Connected accounts per user
-        starter: "0"
-        pro: "1"
-        business: "3"
-        enterprise: "Unlimited (fair use)"
+        catalogFact: includedAccountsPerUser
       - label: Shared accounts
-        starter: false
-        pro: false
-        business: true
-        enterprise: true
+        catalogFact: sharedAccounts
       - label: Read-only calendar access
         starter: false
         pro: true
@@ -226,7 +196,7 @@ faq:
     content: "We offer the core CRM functionality most teams need, combined with MCP access for external AI clients, open APIs, and interfaces for a separate n8n instance. That gives you an agentic Open-Source CRM with flexible extensions and clear product boundaries."
   - id: pricing-faq-6
     title: What counts as a connected account?
-    content: "A connected account is one linked mailbox, LinkedIn, WhatsApp, Instagram, or Telegram profile that belongs to a single user. Pro includes 1 connected account per user, Business includes 3 per user, and Enterprise is unlimited under fair use. If you need more than 3 accounts per user, Enterprise is the right plan."
+    content: "A connected account is one linked mailbox, LinkedIn, WhatsApp, Instagram, or Telegram profile that belongs to a single user. Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, Business includes [[commercial.entitlement.business.includedAccountsPerUser]] per user, and Enterprise is [[commercial.entitlement.enterprise.includedAccountsPerUser]] under fair use. If you need more than [[commercial.entitlement.business.includedAccountsPerUser]] accounts per user, Enterprise is the right plan."
   - id: pricing-faq-7
     title: How does monthly billing work?
     content: "You pay per active user. When you add or remove users, the change is prorated on your next invoice. Plan upgrades apply immediately with a prorated charge for the remainder of the billing period, and downgrades apply immediately with the unused portion credited."
@@ -238,5 +208,5 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: View live demo
   buttonRightHref: https://demo.customermates.com
-  hint: ✓ No credit card required ✓ First 7 days free
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---

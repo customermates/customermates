@@ -100,14 +100,14 @@ What gets measured gets managed. CIM systems should report on response time per 
 
 A practical typology, because the playbook differs by type.
 
-| Type | Examples | Primary Channel | Owner |
-|---|---|---|---|
-| Sales interactions | Discovery calls, demos, proposal reviews | Email, phone, video | Sales |
-| Onboarding interactions | Kickoff, training, success milestone reviews | Video, email, in-app | Onboarding / CS |
-| Support interactions | Tickets, chat sessions, troubleshooting calls | Helpdesk, chat | Support |
-| Account interactions | QBRs, renewal calls, upsell conversations | Video, in-person | Account management |
-| Self-service interactions | Documentation reads, in-app guidance, AI assistant | Product, knowledge base | Product |
-| Outbound interactions | Newsletters, product updates, sponsored events | Email, social | Marketing |
+| Type                      | Examples                                           | Primary Channel         | Owner              |
+| ------------------------- | -------------------------------------------------- | ----------------------- | ------------------ |
+| Sales interactions        | Discovery calls, demos, proposal reviews           | Email, phone, video     | Sales              |
+| Onboarding interactions   | Kickoff, training, success milestone reviews       | Video, email, in-app    | Onboarding / CS    |
+| Support interactions      | Tickets, chat sessions, troubleshooting calls      | Helpdesk, chat          | Support            |
+| Account interactions      | QBRs, renewal calls, upsell conversations          | Video, in-person        | Account management |
+| Self-service interactions | Documentation reads, in-app guidance, AI assistant | Product, knowledge base | Product            |
+| Outbound interactions     | Newsletters, product updates, sponsored events     | Email, social           | Marketing          |
 
 A real CIM system handles all six and lets you see the complete history per customer regardless of which team owned which interaction. Which is the entire point.
 
@@ -119,7 +119,7 @@ The CIM software category fragments into several adjacent product types. Pick th
 
 Modern CRMs (HubSpot, Pipedrive, Customermates, Salesforce, Zoho) function as CIM platforms for sales-led businesses. They sync email, calendar, and notes; they store activities; they trigger workflows. For teams under 50 people, this is often the entire stack you need.
 
-The differentiator is how good the logging is. Manual logging dies in week three. The CRMs worth having log automatically: email sync that does not require a button click, calendar events that attach themselves, AI agents that draft and update notes without prompting. Customermates leans on two of these. A native unified inbox pulls email, LinkedIn, WhatsApp, Instagram, and Telegram onto the contact record, and the agents you already use, Claude or ChatGPT, write directly into the CRM through 45 [MCP](https://modelcontextprotocol.io) tools, so the interaction record stays current without anyone typing into it.
+The differentiator is how easy the interaction record is to maintain. Customermates provides a unified inbox for connected messaging channels and a read-only CRM view of connected Google or Microsoft calendar events. Agents such as Claude or ChatGPT can read and write supported CRM records through [[derived.mcp.tools.total]] [MCP](https://modelcontextprotocol.io) tools; users still choose what the agent changes, and calendar events are not written back from Customermates.
 
 ### Contact Centers and Helpdesks
 
@@ -175,7 +175,7 @@ A short field guide to the failures I see most.
 
 ### Fragmented Tools and Data
 
-The most common problem. Email lives in Gmail, calls live in the phone system, support lives in Zendesk, sales lives in the CRM, and the customer timeline does not exist. Fix: pick one system to be the source of truth (usually the CRM), make sure every other system writes back to it, and audit the integrations quarterly. Customermates uses 26 webhook events, 15 record events (created, updated, and deleted across contacts, organizations, deals, services, and tasks) plus 11 messaging and calendar events, so any external tool can stay in sync without polling.
+The most common problem. Email lives in Gmail, calls live in the phone system, support lives in Zendesk, sales lives in the CRM, and the customer timeline does not exist. Fix: pick one system to be the source of truth (usually the CRM), make sure every other system writes back to it, and audit the integrations quarterly. Customermates uses [[derived.webhooks.events.total]] webhook events, [[derived.webhooks.events.records]] record events (created, updated, and deleted across contacts, organizations, deals, services, and tasks) plus [[derived.webhooks.events.messaging]] messaging and calendar events, so any external tool can stay in sync without polling.
 
 ### Manual Logging That Decays
 
@@ -222,7 +222,7 @@ For most small and mid-size teams, the realistic path is not buying a separate C
 - Open tasks per owner.
 - Deals with no activity in 14 days.
 
-This setup costs nothing beyond your CRM seat and a few hours of configuration. It is also the substrate that makes AI agents useful: once the data is unified, an agent like Claude or ChatGPT, connected through MCP, can read the timeline and write the next action without you switching tools. That is the bet behind Customermates: an open-source CRM with a native unified inbox and 46 MCP tools, [from 12 euros per user per month](/pricing), built so the AI you already use can run the interaction system for you.
+This setup costs nothing beyond your CRM seat and a few hours of configuration. It is also the substrate that makes AI agents useful: once the data is unified, an agent like Claude or ChatGPT, connected through MCP, can read the timeline and write the next action without you switching tools. That is the bet behind Customermates: an open-source CRM with a native unified inbox and [[derived.mcp.tools.total]] MCP tools, [from [[commercial.price.starter.monthly]] per user per month](/pricing), built so the AI you already use can run the interaction system for you.
 
 ## Frequently Asked Questions
 

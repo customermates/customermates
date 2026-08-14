@@ -4,7 +4,7 @@ description: "Drei Wege zum Claude CRM 2026: mit Claude Code bauen, Claude an ei
 
 hero:
   title: "Claude CRM: Bauen, Anbinden oder MCP-nativ"
-  description: "Was hinter Claude CRM steckt, was Claude im CRM tatsächlich tun kann, und das Open-Source-CRM, in dem Claude 46 MCP-Tools von Haus aus bedient."
+  description: "Was hinter Claude CRM steckt, was Claude im CRM tatsächlich tun kann, und das Open-Source-CRM, in dem Claude [[derived.mcp.tools.total]] MCP-Tools von Haus aus bedient."
 
 blogPost:
   author: Benjamin Wagner
@@ -62,15 +62,15 @@ Der Bau-Pfad ist falsch, wenn Sie eigentlich ein CRM wollen, kein CRM-Projekt. F
 
 Eine kurze Entscheidungsmatrix.
 
-| Faktor | Tendenz: bauen | Tendenz: bestehendes CRM |
-|---|---|---|
-| Teamgröße | Solo-Founder, Dev-Hintergrund | 2+ Personen, gemischte Rollen |
-| Custom-Daten-Bedarf | Sehr ungewöhnliches Schema | Standard Kontakte/Deals/Aufgaben |
-| Zeithorizont | Privatprojekt, Lernziel | Liefern und weiterziehen |
-| Wartungs-Lust | Debugging um 23 Uhr macht Spaß | Soll einfach laufen |
-| Compliance | Privat, niedrige Datenschutz-Sensitivität | Kundendaten, DSGVO-Pflicht |
-| Anzahl Integrationen | Wenige oder keine | E-Mail, Kalender, Slack, n8n |
-| Kosten-Sensitivität | 12 EUR pro Nutzer ist nicht leistbar | Kleines Abo ist tragbar |
+| Faktor               | Tendenz: bauen                            | Tendenz: bestehendes CRM         |
+| -------------------- | ----------------------------------------- | -------------------------------- |
+| Teamgröße            | Solo-Founder, Dev-Hintergrund             | 2+ Personen, gemischte Rollen    |
+| Custom-Daten-Bedarf  | Sehr ungewöhnliches Schema                | Standard Kontakte/Deals/Aufgaben |
+| Zeithorizont         | Privatprojekt, Lernziel                   | Liefern und weiterziehen         |
+| Wartungs-Lust        | Debugging um 23 Uhr macht Spaß            | Soll einfach laufen              |
+| Compliance           | Privat, niedrige Datenschutz-Sensitivität | Kundendaten, DSGVO-Pflicht       |
+| Anzahl Integrationen | Wenige oder keine                         | E-Mail, Kalender, Slack, n8n     |
+| Kosten-Sensitivität  | [[commercial.price.starter.monthly]] pro Nutzer ist nicht leistbar | Kleines Abo ist tragbar          |
 
 Eine brauchbare Daumenregel: wenn Sie diesen Artikel zur Arbeitszeit lesen, wollen Sie wahrscheinlich ein bestehendes CRM. Wenn Sie ihn abends zum Vergnügen lesen, bauen Sie eins.
 
@@ -149,20 +149,21 @@ Customermates ist nativ DSGVO-konform, EU-Cloud oder Self-Hosting via Docker, AG
 
 ## Customermates: ein CRM, in dem Claude von Haus aus Operator ist
 
-[Customermates](/) ist ein Open-Source-CRM, MCP-first gebaut. Es exponiert 46 native MCP-Tools: 44 über zehn Toolsets, die jede Entität im Datenmodell abdecken, plus zwei stets aktive Deep-Research-Connectoren.
+[Customermates](/) ist ein Open-Source-CRM, MCP-first gebaut. Es exponiert [[derived.mcp.tools.total]] native MCP-Tools: [[derived.mcp.tools.grouped]] über [[derived.mcp.toolsets.count]] Toolsets, die jede Entität im Datenmodell abdecken, plus [[derived.mcp.tools.alwaysOn]] stets aktive Deep-Research-Connectoren.
 
-- **Records (17):** filtern, zählen, suchen, abrufen, anlegen, aktualisieren, verlinken, entlinken, löschen, dazu Notiz- und Custom-Field-Bearbeitung über Kontakte, Unternehmen, Deals, Services und Aufgaben
-- **Messaging (9):** lesen, entwerfen und senden über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram
-- **Social und Sales Navigator (8):** Social-Post-Tracking und LinkedIn-Sales-Navigator-Suche
-- **Docs (2):** Produktdokumentation durchsuchen und lesen
-- **Workspace (2):** Kontext zu aktuellem Nutzer und Workspace
-- **Admin (2):** Rollen und Unternehmensverwaltung
-- **Custom Columns (1):** Custom Fields über zehn Feldtypen verwalten
-- **Widgets (1):** Dashboard-Widgets
-- **Webhooks (1):** Webhook-Abonnements verwalten
-- **Deep Research (2):** stets aktive `search`- und `fetch`-Connectoren
+- **Records ([[derived.mcp.tools.groups.records]]):** filtern, zählen, suchen, abrufen, anlegen, aktualisieren, verlinken, entlinken, löschen, dazu Notiz- und Custom-Field-Bearbeitung über Kontakte, Unternehmen, Deals, Services und Aufgaben
+- **Messaging ([[derived.mcp.tools.groups.messaging]]):** lesen, entwerfen und senden über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram
+- **Social und Sales Navigator ([[derived.mcp.tools.groups.social]]):** Social-Post-Tracking und LinkedIn-Sales-Navigator-Suche
+- **Docs ([[derived.mcp.tools.groups.docs]]):** Produktdokumentation durchsuchen und lesen
+- **Workspace ([[derived.mcp.tools.groups.workspace]]):** Kontext zu aktuellem Nutzer und Workspace
+- **Admin ([[derived.mcp.tools.groups.admin]]):** Rollen und Unternehmensverwaltung
+- **Custom Columns ([[derived.mcp.tools.groups.custom-columns]]):** Custom Fields über zehn Feldtypen verwalten
+- **Widgets ([[derived.mcp.tools.groups.widgets]]):** Dashboard-Widgets
+- **Webhooks ([[derived.mcp.tools.groups.webhooks]]):** Webhook-Abonnements verwalten
+- **Support ([[derived.mcp.tools.groups.support]]):** Produktsupport anfordern
+- **Deep Research ([[derived.mcp.tools.alwaysOn]]):** stets aktive `search`- und `fetch`-Connectoren
 
-Diese neun Messaging-Tools sind die zweite Hälfte der Geschichte. Dieselben Agenten, die Datensätze aktuell halten, bedienen auch einen nativen, vereinheitlichten Posteingang und lesen, entwerfen und senden über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram von einer Tool-Oberfläche aus. Messaging- und Social-Tools erfordern eine Pro- oder Business-Stufe, die Kern-Tools für Datensätze, Custom Fields und Workspace sind ab der Starter-Stufe verfügbar.
+Das Messaging-Toolset ist die zweite Hälfte der Geschichte. Dieselben Agenten, die Datensätze aktuell halten, bedienen auch einen nativen, vereinheitlichten Posteingang und lesen, entwerfen und senden über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram von einer Tool-Oberfläche aus. Messaging- und Social-Tools erfordern eine Pro- oder Business-Stufe, die Kern-Tools für Datensätze, Custom Fields und Workspace sind ab der Starter-Stufe verfügbar.
 
 Jede Aktion, die ein Vertriebler, Marketer oder Service-Mitarbeiter über die Customermates-UI auslöst, ist auch ein Tool, das Claude aufrufen kann. Es gibt keine Lücke zwischen "funktioniert im Chat, aber nicht im Code". Es gibt keine Connector-Stufe. Es gibt keine separate Lizenz für KI-Funktionen. Der MCP-Server ist Open Source unter AGPL-3.0, derselben Lizenz wie der Rest der Anwendung.
 
@@ -170,7 +171,7 @@ Wie das in der Praxis aussieht. Ein Nutzer öffnet Claude und tippt:
 
 > "Lege einen Kontakt für Sarah Lee bei Northwind an, VP Sales. Verlinke sie mit der Northwind-Organisation. Erstelle einen Deal über 25.000 EUR in der Stage Discovery. Lege eine Folgeaufgabe für mich am Freitag an, um das Angebot zu schicken."
 
-Claude liest die MCP-Tool-Liste, identifiziert `create_contacts`, `link_entities`, `create_deals` und `create_tasks`. Führt sie nacheinander in einem Turn aus, gibt die neuen Datensatz-IDs zurück und bestätigt, was er getan hat. Die ganze Interaktion dauert Sekunden. Keine Webhook-Konfiguration, kein Zapier, keine Admin-Arbeit.
+Claude liest die MCP-Tool-Liste, identifiziert `create_contacts`, `manage_record_links`, `create_deals` und `create_tasks`. Führt sie nacheinander in einem Turn aus, gibt die neuen Datensatz-IDs zurück und bestätigt, was er getan hat. Die ganze Interaktion dauert Sekunden. Keine Webhook-Konfiguration, kein Zapier, keine Admin-Arbeit.
 
 Das ist der dritte Weg: nicht ein CRM mit Claude Code bauen, nicht Claude über einen bezahlten Connector an ein CRM anbinden, sondern ein CRM nutzen, das von Tag eins an für Claude (und ChatGPT, und Gemini) zur Bedienung entworfen wurde.
 
@@ -182,7 +183,7 @@ Eine Flussdiagramm-Entscheidung.
 
 **Sie sind auf HubSpot Enterprise oder Salesforce, das CRM ändert sich nicht → anbinden.** Nutzen Sie den offiziellen Connector oder einen Community-MCP-Server. Zahlen Sie die Connector-Stufe, sie ist günstiger als eine Migration.
 
-**Sie wollen KI im CRM, Ihr Team ist 1 bis 30 Personen, Sie wollen keine Connector-Steuer → MCP-nativ.** Nutzen Sie Customermates. Self-Hosting via Docker kostenlos, EU-Cloud ab 12 EUR pro Nutzer pro Monat (Starter-Stufe; 10 EUR bei jährlicher Zahlung), Open Source AGPL-3.0. Claude bedient es direkt über 46 MCP-Tools, und dieselben Agenten betreiben ab Pro den vereinheitlichten Posteingang über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram.
+**Sie wollen KI im CRM, Ihr Team ist 1 bis 30 Personen, Sie wollen keine Connector-Steuer → MCP-nativ.** Nutzen Sie Customermates. Self-Hosting via Docker kostenlos, EU-Cloud ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat (Starter-Stufe), Open Source AGPL-3.0. Claude bedient es direkt über [[derived.mcp.tools.total]] MCP-Tools, und dieselben Agenten betreiben ab Pro den vereinheitlichten Posteingang über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram.
 
 **Sie sind klassisch und wollen einfach ein CRM ohne KI → traditionell.** Pipedrive, Zoho oder eine der einfacheren Optionen. Der Smart-CRM-Artikel oben ist nicht für Sie, und das ist okay.
 
@@ -210,7 +211,7 @@ Das Model Context Protocol, ein offener Standard von Anthropic, mit dem KI-Assis
 Ja. HubSpot publiziert einen offiziellen Claude-Connector, der CRM-Datensätze erstellt und aktualisiert, Aktivitäten loggt und Engagement analysiert. Funktioniert nur auf HubSpot-Pro-/Enterprise-Stufen.
 
 **Was ist die günstigste Variante, Claude mit einem CRM zu nutzen?**
-[Customermates](/) ist ab 12 EUR pro Nutzer pro Monat auf EU-Cloud oder kostenlos selbst gehostet via Docker, mit nativer Claude-Unterstützung über 46 MCP-Tools. Die Kern-Tools für Datensätze und Workspace sind ab der Starter-Stufe dabei; es gibt keine separate KI-Stufe oder Connector-Gebühr.
+[Customermates](/) ist ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat auf EU-Cloud oder kostenlos selbst gehostet via Docker, mit nativer Claude-Unterstützung über [[derived.mcp.tools.total]] MCP-Tools. Die Kern-Tools für Datensätze und Workspace sind ab der Starter-Stufe dabei; es gibt keine separate KI-Stufe oder Connector-Gebühr.
 
 **Gibt es ein Open-Source-Claude-CRM?**
 Ja. [Customermates](/) ist ein Open-Source-CRM unter AGPL-3.0 mit nativer Claude-Unterstützung über MCP. Außerdem eines der wenigen, das keinen Connector und keine separate KI-Lizenz für KI-Funktionen verlangt.

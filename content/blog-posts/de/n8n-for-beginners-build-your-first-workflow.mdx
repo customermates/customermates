@@ -45,35 +45,37 @@ Eine der ersten Entscheidungen ist, ob Sie n8n Cloud oder Self-Hosting nutzen. B
 
 ### n8n Cloud Preise (Stand 2026)
 
-| Plan | Monatliche Kosten | Workflow-Ausführungen | Aktive Workflows | Wichtige Features |
-|------|-------------------|----------------------|-----------------|-------------------|
-| Starter | 20 EUR | 2.500 | 5 | Basis-Support, 1 Nutzer |
-| Pro | 50 EUR | 10.000 | 15 | Priority-Support, 5 Nutzer, Versionshistorie |
-| Enterprise | Individuell | Unbegrenzt | Unbegrenzt | SSO, Audit-Logs, dedizierter Support |
+| Plan       | Monatliche Kosten | Workflow-Ausführungen | Aktive Workflows | Wichtige Features                            |
+| ---------- | ----------------- | --------------------- | ---------------- | -------------------------------------------- |
+| Starter    | 20 EUR            | 2.500                 | 5                | Basis-Support, 1 Nutzer                      |
+| Pro        | 50 EUR            | 10.000                | 15               | Priority-Support, 5 Nutzer, Versionshistorie |
+| Enterprise | Individuell       | Unbegrenzt            | Unbegrenzt       | SSO, Audit-Logs, dedizierter Support         |
 
 n8n Cloud ist der schnellste Weg zum Start. Kein Server-Setup, keine Wartung, automatische Updates. Innerhalb von Minuten nach der Anmeldung bauen Sie Workflows.
 
 ### Self-Hosted-Kosten
 
-| Komponente | Monatliche Kosten |
-|-----------|------------------|
-| n8n-Software | Kostenlos (Open Source) |
-| VPS (z. B. Hetzner, DigitalOcean) | 5-20 EUR |
-| Domain + SSL (via Let's Encrypt) | Kostenlos |
-| Wartungsaufwand | 1-2 Stunden/Monat |
-| **Gesamt** | **5-20 EUR** |
+| Komponente                        | Monatliche Kosten       |
+| --------------------------------- | ----------------------- |
+| n8n-Software                      | Kostenlos (Open Source) |
+| VPS (z. B. Hetzner, DigitalOcean) | 5-20 EUR                |
+| Domain + SSL (via Let's Encrypt)  | Kostenlos               |
+| Wartungsaufwand                   | 1-2 Stunden/Monat       |
+| **Gesamt**                        | **5-20 EUR**            |
 
 Self-Hosting ist bei den Softwarekosten kostenlos, erfordert aber einen Server und grundlegendes DevOps-Wissen. Der Kompromiss: unbegrenzte Workflow-Ausführungen, volle Datenkontrolle und die Möglichkeit, interne Systeme anzubinden, aber Sie übernehmen Updates, Backups und Monitoring selbst.
 
 ### Wann welche Option wählen
 
 **Wählen Sie n8n Cloud, wenn:**
+
 - Sie sofort loslegen wollen, ohne Server einzurichten
 - Ihr Team keine DevOps-Erfahrung hat
 - Sie weniger als 10.000 Ausführungen pro Monat benötigen
 - Sie Managed Hosting mit automatischen Updates bevorzugen
 
 **Wählen Sie Self-Hosting, wenn:**
+
 - Daten auf Ihrer Infrastruktur bleiben müssen (DSGVO, Gesundheitswesen, Finanzen)
 - Sie unbegrenzte Workflow-Ausführungen benötigen
 - Sie interne Systeme hinter einer Firewall anbinden wollen
@@ -85,16 +87,16 @@ Die meisten Einsteiger beginnen mit n8n Cloud und migrieren zum Self-Hosting, we
 
 Alle drei Plattformen lösen dasselbe Grundproblem: Anwendungen verbinden, ohne Code zu schreiben. Aber sie unterscheiden sich erheblich in Preisgestaltung, Flexibilität und Datenkontrolle.
 
-| Merkmal | n8n | Zapier | Make |
-|---------|-----|--------|------|
-| Preismodell | Self-Host kostenlos; Cloud ab 20 EUR/Monat | Ab 20 USD/Monat (begrenzte Tasks) | Ab 9 USD/Monat (begrenzte Operations) |
-| Task-/Operations-Limits | Unbegrenzt bei Self-Hosting | Strenge Plan-Limits | Strenge Plan-Limits |
-| Self-Hosting | Ja (Docker, npm) | Nein | Nein |
-| Custom Code | JavaScript + Python | Eingeschränkt (Code by Zapier) | Eingeschränkt |
-| KI/LLM-Nodes | Nativ (OpenAI, Anthropic, Ollama) | Über Plugins | Über Module |
-| Datenstandort | Volle Kontrolle (Self-Host) | US-gehostet | EU-Option verfügbar |
-| Open Source | Ja | Nein | Nein |
-| Anzahl Integrationen | 400+ | 6.000+ | 1.500+ |
+| Merkmal                 | n8n                                        | Zapier                            | Make                                  |
+| ----------------------- | ------------------------------------------ | --------------------------------- | ------------------------------------- |
+| Preismodell             | Self-Host kostenlos; Cloud ab 20 EUR/Monat | Ab 20 USD/Monat (begrenzte Tasks) | Ab 9 USD/Monat (begrenzte Operations) |
+| Task-/Operations-Limits | Unbegrenzt bei Self-Hosting                | Strenge Plan-Limits               | Strenge Plan-Limits                   |
+| Self-Hosting            | Ja (Docker, npm)                           | Nein                              | Nein                                  |
+| Custom Code             | JavaScript + Python                        | Eingeschränkt (Code by Zapier)    | Eingeschränkt                         |
+| KI/LLM-Nodes            | Nativ (OpenAI, Anthropic, Ollama)          | Über Plugins                      | Über Module                           |
+| Datenstandort           | Volle Kontrolle (Self-Host)                | US-gehostet                       | EU-Option verfügbar                   |
+| Open Source             | Ja                                         | Nein                              | Nein                                  |
+| Anzahl Integrationen    | 400+                                       | 6.000+                            | 1.500+                                |
 
 **Wählen Sie Zapier,** wenn Sie die breiteste Auswahl an vorgefertigten Integrationen brauchen und sich nicht mit Infrastruktur beschäftigen möchten. Rechnen Sie damit, dass die Kosten mit wachsendem Volumen steil ansteigen.
 
@@ -146,6 +148,7 @@ Bevor Sie Ihren ersten Workflow bauen, nehmen Sie sich fünf Minuten Zeit, um di
 Die Arbeitsfläche ist der Hauptarbeitsbereich, in dem Sie Workflows bauen. Es ist ein unbegrenzter Raum, in dem Sie Nodes ziehen, platzieren und verbinden. Zoomen Sie mit dem Scrollrad und verschieben Sie die Ansicht durch Klicken und Ziehen auf leeren Bereich.
 
 Wichtige Interaktionen auf der Arbeitsfläche:
+
 - **Auf einen Node klicken** öffnet dessen Einstellungspanel auf der rechten Seite
 - **Vom Output eines Nodes ziehen** (der Punkt auf der rechten Seite) erstellt eine Verbindung zum nächsten Node
 - **Doppelklick auf leeren Bereich** öffnet die Node-Suche
@@ -214,6 +217,7 @@ Fügen Sie wie zuvor einen Webhook-Node hinzu. Das ist der Einstiegspunkt für I
 ### Schritt 2: In Google Sheets protokollieren
 
 Klicken Sie auf **+** und fügen Sie einen **Google Sheets**-Node hinzu. Konfiguration:
+
 1. Google-Konto verbinden (einmalige Autorisierung)
 2. **"Append Row"** als Aktion wählen
 3. Ziel-Spreadsheet und Sheet auswählen
@@ -224,11 +228,12 @@ Die visuelle Mapping-Oberfläche zeigt exakt, welche Datenfelder vom Trigger zum
 ### Schritt 3: CRM-Kontakt erstellen
 
 Fügen Sie einen **Customermates**-Node hinzu (oder HubSpot, Pipedrive oder Ihr CRM). Konfiguration:
+
 1. CRM-Account verbinden
 2. **"Create Contact"** als Aktion wählen
 3. Name, E-Mail, Firma und andere Felder aus den Webhook-Daten mappen
 
-Bei [Customermates](/) (ab 12 EUR/Nutzer/Monat) ist die n8n-Integration nativ, dedizierte Nodes statt roher API-Aufrufe.
+Bei [Customermates](/) (ab [[commercial.price.starter.monthly]]/Nutzer/Monat) ist die n8n-Integration nativ, dedizierte Nodes statt roher API-Aufrufe.
 
 ### Schritt 4: Benachrichtigung senden
 
@@ -280,12 +285,12 @@ Credentials werden getrennt von Workflows gespeichert. Wenn Sie zum ersten Mal G
 
 ### Häufige Credential-Probleme
 
-| Problem | Ursache | Lösung |
-|---------|---------|--------|
-| "Invalid credentials"-Fehler | Token abgelaufen oder widerrufen | In Credential-Einstellungen erneut authentifizieren |
-| Workflow lief gestern, scheitert heute | OAuth-Token-Refresh fehlgeschlagen | Credential löschen und neu erstellen |
-| Verbindung zu Self-Hosted-Dienst nicht möglich | Firewall- oder Netzwerkproblem | Sicherstellen, dass n8n die Service-URL erreichen kann |
-| Credential im Node nicht verfügbar | Falscher Credential-Typ ausgewählt | Prüfen, ob das Credential zum Node passt |
+| Problem                                        | Ursache                            | Lösung                                                 |
+| ---------------------------------------------- | ---------------------------------- | ------------------------------------------------------ |
+| "Invalid credentials"-Fehler                   | Token abgelaufen oder widerrufen   | In Credential-Einstellungen erneut authentifizieren    |
+| Workflow lief gestern, scheitert heute         | OAuth-Token-Refresh fehlgeschlagen | Credential löschen und neu erstellen                   |
+| Verbindung zu Self-Hosted-Dienst nicht möglich | Firewall- oder Netzwerkproblem     | Sicherstellen, dass n8n die Service-URL erreichen kann |
+| Credential im Node nicht verfügbar             | Falscher Credential-Typ ausgewählt | Prüfen, ob das Credential zum Node passt               |
 
 ## Fehlerbehandlung: Resiliente Workflows bauen
 
@@ -397,7 +402,7 @@ Nach jedem Kundengespräch wird das Meeting-Transkript automatisch von ChatGPT z
 
 ### Warum Customermates gut mit n8n zusammenarbeitet
 
-Customermates (ab 12 EUR/Nutzer/Monat, volles Kern-CRM inklusive) bietet eine separate n8n-Integration. Das bedeutet, dass Sie in n8n dedizierte Customermates-Nodes verwenden können, anstatt rohe API-Aufrufe zu konfigurieren. Die Integration unterstützt das Erstellen, Lesen, Aktualisieren und Löschen von Kontakten, Deals, Organisationen und Notizen.
+Customermates (ab [[commercial.price.starter.monthly]]/Nutzer/Monat, volles Kern-CRM inklusive) bietet eine separate n8n-Integration. Das bedeutet, dass Sie in n8n dedizierte Customermates-Nodes verwenden können, anstatt rohe API-Aufrufe zu konfigurieren. Die Integration unterstützt das Erstellen, Lesen, Aktualisieren und Löschen von Kontakten, Deals, Organisationen und Notizen.
 
 Für Teams, die n8n als Automatisierungs-Backbone einsetzen, beseitigt ein CRM mit separater n8n-Unterstützung die Reibungsverluste manueller API-Konfiguration und reduziert die Einrichtungszeit von Stunden auf Minuten.
 
@@ -408,6 +413,7 @@ Sobald Sie mit grundlegenden Workflows vertraut sind, ist es Zeit für ein kompl
 ### Das Szenario
 
 Jeden Montagmorgen soll Ihr Workflow:
+
 1. Die Vertriebsdaten der letzten Woche aus einer Airtable-Basis (oder Datenbank) ziehen
 2. Nach Deals über einem Schwellenwert filtern
 3. Einen Leistungswert für jeden Vertriebsmitarbeiter berechnen
@@ -435,7 +441,7 @@ for (const item of $input.all()) {
   grouped[rep].totalValue += item.json.dealValue;
   grouped[rep].dealCount += 1;
 }
-return Object.values(grouped).map(g => ({ json: g }));
+return Object.values(grouped).map((g) => ({ json: g }));
 ```
 
 **5. CRM-Node (Update):** Für jeden Vertriebsmitarbeiter aktualisieren Sie den Kontakt-Datensatz in Customermates mit den neuesten Leistungskennzahlen.
@@ -458,6 +464,7 @@ n8n-Workflows werden als JSON gespeichert. Sie können sie frei exportieren und 
 **Importieren:** Klicken Sie beim Erstellen eines neuen Workflows auf "Import from file." Wählen Sie die JSON-Datei. Aktualisieren Sie die Credentials passend zu Ihrer Umgebung, und der Workflow ist bereit.
 
 Das erleichtert:
+
 - Workflows mit Teammitgliedern teilen
 - Workflows vor Änderungen sichern
 - Workflows zwischen n8n-Instanzen verschieben (z. B. Entwicklung zu Produktion)
@@ -499,7 +506,7 @@ Ja. Tausende Unternehmen betreiben n8n in Produktion. Für Zuverlässigkeit host
 
 ### Wie geht n8n mit DSGVO und Datenschutz um?
 
-Selbst gehostetes n8n gibt Ihnen die vollständige Kontrolle, Daten verlassen nie Ihre Server. Bei n8n Cloud werden Daten in der EU verarbeitet. In beiden Fällen greift n8n selbst nicht auf Ihre Workflow-Daten zu und speichert sie nicht über die Ausführung hinaus. In Kombination mit einem DSGVO-konformen CRM wie Customermates (EU-gehostet, ab 12 EUR/Nutzer/Monat) lassen sich vollständig konforme Automatisierungs-Pipelines aufbauen.
+Selbst gehostetes n8n gibt Ihnen die vollständige Kontrolle, Daten verlassen nie Ihre Server. Bei n8n Cloud werden Daten in der EU verarbeitet. In beiden Fällen greift n8n selbst nicht auf Ihre Workflow-Daten zu und speichert sie nicht über die Ausführung hinaus. In Kombination mit einem DSGVO-konformen CRM wie Customermates (EU-gehostet, ab [[commercial.price.starter.monthly]]/Nutzer/Monat) lassen sich vollständig konforme Automatisierungs-Pipelines aufbauen.
 
 ### Was ist der einfachste erste Workflow?
 

@@ -81,15 +81,15 @@ I'm not writing this comparison from an analyst's distance. I build a CRM myself
 
 Overview of the seven tools I see used most in practice. The order doesn't reflect ranking, just the use case fit.
 
-| Tool | Strength | Entry price | Free tier | Self-host | Open source | AI agent | EU hosting |
-|---|---|---|---|---|---|---|---|
-| HubSpot CRM | Marketing connection | $15 / seat (Sales Hub) | Yes, 1M contacts | No | No | Breeze (limited) | EU option |
-| Pipedrive | Sales pipelines | $14 / user | No, 14-day trial | No | No | No | EU option |
-| Folk | Relationship CRM | $25 / user | No, 14-day trial | No | No | AI assistants | US |
-| Airtable | Custom databases | $20 / user | Yes, limited | No | No | Via API | US |
-| Notion | Lightweight, content-led | $10 / user | Yes | No | No | Via API | US |
-| Salesforce | Enterprise standard | $25 / user (Starter) | No | No | No | Einstein (paid) | EU option |
-| **Customermates** | **Open source, agent-native, unified inbox, EU hosting** | **From €12 / user / month (cloud)** | **Free self-hosted** | **Yes (Docker)** | **AGPL-3.0** | **Native MCP server** | **Germany (cloud), your own server (self-host)** |
+| Tool              | Strength                                                 | Entry price                                                          | Free tier            | Self-host        | Open source  | AI agent              | EU hosting                                       |
+| ----------------- | -------------------------------------------------------- | -------------------------------------------------------------------- | -------------------- | ---------------- | ------------ | --------------------- | ------------------------------------------------ |
+| HubSpot CRM       | Marketing connection                                     | $15 / seat (Sales Hub)                                               | Yes, 1M contacts     | No               | No           | Breeze (limited)      | EU option                                        |
+| Pipedrive         | Sales pipelines                                          | $14 / user                                                           | No, 14-day trial     | No               | No           | No                    | EU option                                        |
+| Folk              | Relationship CRM                                         | $25 / user                                                           | No, 14-day trial     | No               | No           | AI assistants         | US                                               |
+| Airtable          | Custom databases                                         | $20 / user                                                           | Yes, limited         | No               | No           | Via API               | US                                               |
+| Notion            | Lightweight, content-led                                 | $10 / user                                                           | Yes                  | No               | No           | Via API               | US                                               |
+| Salesforce        | Enterprise standard                                      | $25 / user (Starter)                                                 | No                   | No               | No           | Einstein (paid)       | EU option                                        |
+| **Customermates** | **Open source, agent-native, unified inbox, EU hosting** | **From [[commercial.price.starter.monthly]] / user / month (cloud)** | **Free self-hosted** | **Yes (Docker)** | **AGPL-3.0** | **Native MCP server** | **Germany (cloud), your own server (self-host)** |
 
 A short read on each follows.
 
@@ -181,9 +181,9 @@ The enterprise CRM standard. Complete feature coverage, massive ecosystem, almos
 
 Customermates is an open-source CRM and therefore also a client database, built for AI agent operation. The CRM ships five entities (Contacts, Organizations, Deals, Services, Tasks) with ten custom field types, two views (Table and Kanban-style Card), a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) on the Pro tier, and a full REST API.
 
-**Specific features.** Built-in MCP server with 46 tools for direct access by Claude, Codex, or ChatGPT. The agent creates contacts, writes notes, updates deals, and reads or sends messages across the unified inbox without you logging in. Native unified inbox for email, LinkedIn, WhatsApp, Instagram, and Telegram on the Pro tier. n8n community node for visual workflow automation. 26 webhook events from the entry plan. Ten typed custom field types (text, email, phone, link, date, date range, date and time, date and time range, currency, single-select). Self-hosting via `docker compose up -d` productive in 30 minutes.
+**Specific features.** Built-in MCP server with [[derived.mcp.tools.total]] tools for direct access by Claude, Codex, or ChatGPT. The agent creates contacts, writes notes, updates deals, and reads or sends messages across the unified inbox without you logging in. Native unified inbox for email, LinkedIn, WhatsApp, Instagram, and Telegram on the Pro tier. n8n community node for visual workflow automation. [[derived.webhooks.events.total]] webhook events from the entry plan. Ten typed custom field types (text, email, phone, link, date, date range, date and time, date and time range, currency, single-select). Self-hosting via `docker compose up -d` productive in 30 minutes.
 
-**Pricing breakdown.** Self-hosting free under AGPL-3.0 via Docker Compose, your own infrastructure. Cloud from €12 per user per month (€10 annual, Starter tier), hosted in the EU region. No add-on charges for webhooks, API, or MCP, everything in the base plan (the unified inbox starts on the Pro tier at €29).
+**Pricing breakdown.** Self-hosting free under AGPL-3.0 via Docker Compose, your own infrastructure. Cloud from [[commercial.price.starter.monthly]] per user per month (Starter tier), hosted in the EU region. No add-on charges for webhooks, API, or MCP, everything in the base plan (the unified inbox starts on the Pro tier at [[commercial.price.pro.monthly]]).
 
 **Strengths.** Native AI agent control through MCP, which none of the other six tools offer. A native unified inbox that the same agents operate. Full data sovereignty through self-hosting. Transparent pricing with no minimum seats or onboarding fees. EU hosting (Germany) as the default, not a premium option.
 
@@ -211,7 +211,7 @@ Customermates is an open-source CRM and therefore also a client database, built 
 
 If you take open source seriously as a selection criterion, four production-ready options are worth knowing.
 
-**Customermates (AGPL-3.0).** My own project, a solo-founder build out of Germany. Five entities, ten typed custom field types, two views, a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) on the Pro tier, and a REST API with 46 MCP tools for native AI agent operation. Self-hosting in 30 minutes via Docker, cloud from €12 per user per month (Starter). Managed database in an EU region; self-host to choose the location yourself. When to choose: if you already use AI agents (Claude, Codex, ChatGPT) and want the CRM operated by AI, if data sovereignty is a hard requirement, if you want a modern, lean CRM without marketing baggage.
+**Customermates (AGPL-3.0).** My own project, a solo-founder build out of Germany. Five entities, ten typed custom field types, two views, a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) on the Pro tier, and a REST API with [[derived.mcp.tools.total]] MCP tools for native AI agent operation. Self-hosting in 30 minutes via Docker, cloud from [[commercial.price.starter.monthly]] per user per month (Starter). Managed database in an EU region; self-host to choose the location yourself. When to choose: if you already use AI agents (Claude, Codex, ChatGPT) and want the CRM operated by AI, if data sovereignty is a hard requirement, if you want a modern, lean CRM without marketing baggage.
 
 **EspoCRM (GPL-3.0).** Mature project started in 2014, broad feature coverage with lead management, sales automation, email marketing, calendar, and telephony integration. Plugin ecosystem with over 100 extensions. Self-hosting on your own server, cloud version also available. When to choose: if you want a complete classic CRM with marketing and sales features and need open source for auditability or customization.
 
@@ -296,10 +296,10 @@ HubSpot CRM Free is the strongest free tier on the market (up to one million con
 Yes, when the project is mature, actively maintained, and properly secured. Customermates, EspoCRM, and SuiteCRM all run in production at thousands of organizations. The advantage of open source is auditability: every security professional can review the actual code instead of trusting vendor claims. The downside is that you take on operational responsibility for self-hosting (patching, backups, monitoring).
 
 **Can an AI agent read and update my client database?**
-With most CRMs, only through the REST API and only if your CRM is on a paid plan that includes API access. With Customermates, the answer is yes natively: the MCP server lets Claude, Codex, or ChatGPT operate the CRM directly with 46 tools covering every operation, including the unified inbox. The CRM updates itself when you forward an email or chat to the agent.
+With most CRMs, only through the REST API and only if your CRM is on a paid plan that includes API access. With Customermates, the answer is yes natively: the MCP server lets Claude, Codex, or ChatGPT operate the CRM directly with [[derived.mcp.tools.total]] tools covering every operation, including the unified inbox. The CRM updates itself when you forward an email or chat to the agent.
 
 **How do I migrate from a spreadsheet to a real client database?**
-Four steps: clean the data (deduplication, normalization), CSV export, import into the new system with column mapping, and add custom fields for anything that doesn't fit the standard schema. Datasets over 5,000 contacts benefit from an AI agent (for example Claude via Customermates' MCP server) that handles the migration in one morning instead of two consulting days.
+The route depends on the destination. First clean and normalize the source data. Products with a CSV importer may then offer a field-mapping screen. Customermates has no CSV importer; create supported records through the REST API or an authorized AI agent over MCP. Time and effort depend on data quality, mapping, volume, and the client you use.
 
 **Which client database software has the best free tier?**
 HubSpot CRM Free is the most generous free tier on the market: up to one million contacts, five pipelines, basic email tracking, no time limit. Customermates Community Edition is fully free under AGPL-3.0 for self-hosting, with no feature paywall, making it the technically most flexible "free tier" available. Notion Free works for solo users with small datasets. The more important question is usually not the free tier itself, but how fast and expensive the upgrade path becomes once you outgrow it.

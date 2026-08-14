@@ -1,16 +1,16 @@
 ---
 title: CRM Integrations - Connect 400+ Tools with n8n, API & Webhooks
-description: Connect your CRM to 400+ tools through separate n8n automation, REST API, and webhooks. Open source, with a managed database in an EU region. From EUR 12/user/month.
+description: Connect your CRM to 400+ tools through separate n8n automation, REST API, and webhooks. Open source, with a managed database in an EU region. From [[commercial.price.starter.monthly]]/user/month.
 featureName: CRM Integrations
 
 hero:
   title: CRM Integrations That Connect Your Entire Tool Stack
-  description: Connect your CRM four ways. Supported external AI clients use 46 MCP tools, a separate n8n instance reaches 400+ services, the documented REST API and 26 webhook events connect other systems, and the native unified inbox brings email, LinkedIn, WhatsApp, Instagram, and Telegram into the CRM. REST, webhooks, and MCP are included from EUR 12 per user per month; n8n and its providers remain separate.
+  description: Connect your CRM four ways. Supported external AI clients use [[derived.mcp.tools.total]] MCP tools, a separate n8n instance reaches 400+ services, the documented REST API and [[derived.webhooks.events.total]] webhook events connect other systems, and the native unified inbox brings email, LinkedIn, WhatsApp, Instagram, and Telegram into the CRM. REST, webhooks, and MCP are included from [[commercial.price.starter.monthly]] per user per month; n8n and its providers remain separate.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First 7 days free"
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
   action: Ready to connect your tools?
@@ -19,7 +19,7 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First 7 days free"
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
 ## Why CRM Integrations Matter
@@ -36,11 +36,11 @@ Customermates gives you several complementary integration approaches, so you can
 
 ### MCP for external AI clients
 
-Customermates ships with a Model Context Protocol (MCP) endpoint, so supported external clients such as Claude, ChatGPT, and Gemini can read and write allowed CRM data. The endpoint at `https://customermates.com/api/v1/mcp` exposes 44 tools across ten toolsets plus two always-on research tools, 46 tools in total. A configured client can create contacts, move deal stages, draft individual follow-ups, and update notes. Narrow the exposed tools per client with `?toolsets=`, and authenticate with an `x-api-key` header. MCP starts with Starter; the client, model, subscription, and usage remain separate.
+Customermates ships with a Model Context Protocol (MCP) endpoint, so supported external clients such as Claude, ChatGPT, and Gemini can read and write allowed CRM data. The endpoint at `https://customermates.com/api/v1/mcp` exposes [[derived.mcp.tools.grouped]] tools across [[derived.mcp.toolsets.count]] toolsets plus [[derived.mcp.tools.alwaysOn]] always-on research tools, [[derived.mcp.tools.total]] tools in total. A configured client can create contacts, move deal stages, draft individual follow-ups, and update notes. Narrow the exposed tools per client with `?toolsets=`, and authenticate with an `x-api-key` header. MCP starts with Starter; the client, model, subscription, and usage remain separate.
 
 ### Native unified inbox
 
-Email, LinkedIn, WhatsApp, Instagram, and Telegram threads land in one inbox inside the CRM, and a supported external AI client can read, draft, and send individual messages where permitted. The unified inbox is included from the Pro tier at EUR 29 per user per month; shared team accounts are included from Business.
+Email, LinkedIn, WhatsApp, Instagram, and Telegram threads land in one inbox inside the CRM, and a supported external AI client can read, draft, and send individual messages where permitted. The unified inbox is included from the Pro tier at [[commercial.price.pro.monthly]] per user per month; shared team accounts are included from Business.
 
 ### n8n Automation Engine (Bring Your Own)
 
@@ -62,7 +62,7 @@ For developers and teams that need programmatic access, Customermates provides a
 
 ### Webhooks
 
-Receive real-time push notifications when records change. Customermates emits 26 webhook events: 15 record events (created, updated, and deleted for each of the five record types: contacts, organizations, deals, services, tasks) plus 11 messaging and calendar events. Webhooks push data to your systems instantly, enabling event-driven architectures without polling.
+Receive real-time push notifications when records change. Customermates emits [[derived.webhooks.events.total]] webhook events: [[derived.webhooks.events.records]] record events (created, updated, and deleted for each of the five record types: contacts, organizations, deals, services, tasks) plus [[derived.webhooks.events.messaging]] messaging and calendar events. Webhooks push data to your systems instantly, enabling event-driven architectures without polling.
 
 ## Popular CRM Integration Scenarios
 
@@ -84,11 +84,11 @@ Receive real-time push notifications when records change. Customermates emits 26
 
 | Feature | Customermates + separate n8n | HubSpot | Zapier + Any CRM |
 |---|---|---|---|
-| MCP control for external AI clients | Yes (46 tools) | Limited | No |
+| MCP control for external AI clients | Yes ([[derived.mcp.tools.total]] tools) | Limited | No |
 | Native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) | Yes (Pro tier) | Limited | No |
 | Automation engine | Bring your own n8n (webhooks, REST, community node) | Limited (Operations Hub) | No (separate subscription) |
 | Pre-built connectors | n8n catalog (separate) | 1,600+ (marketplace) | 7,000+ |
-| Integration cost | CRM from EUR 12 + separate n8n/provider costs | Operations Hub from $800/month | From $20/month + CRM cost |
+| Integration cost | CRM from [[commercial.price.starter.monthly]] + separate n8n/provider costs | Operations Hub from $800/month | From $20/month + CRM cost |
 | Self-hostable | Yes | No | No |
 | Open source | Yes | No | No |
 | Custom connector development | Through your separate n8n instance | Requires partner program | Requires developer plan |
@@ -113,7 +113,7 @@ While HubSpot offers more marketplace apps and Zapier connects more services, Cu
 
 ## Why Choose Customermates for CRM Integrations
 
-**Open interfaces from the entry tier.** REST, 26 webhook event values, and MCP access are available from EUR 12 per user per month. n8n, AI clients, models, connectors, runtimes, delivery providers, limits, and costs remain separate. The native unified inbox starts with Pro, and shared team accounts with Business.
+**Open interfaces from the entry tier.** REST, [[derived.webhooks.events.total]] webhook event values, and MCP access are available from [[commercial.price.starter.monthly]] per user per month. n8n, AI clients, models, connectors, runtimes, delivery providers, limits, and costs remain separate. The native unified inbox starts with Pro, and shared team accounts with Business.
 
 **Open source and extensible.** The Customermates AGPL core and n8n are separate open-source products. Build against their documented interfaces or add connectors in the n8n service you operate, while governing each system, provider, credential, and update independently.
 
@@ -124,10 +124,10 @@ While HubSpot offers more marketplace apps and Zapier connects more services, Cu
 ## Frequently Asked Questions
 
 **How many integrations does Customermates support?**
-Customermates provides REST, 26 webhook event values, 46 MCP tools for supported external AI clients, and a community node for a separate n8n instance. The 400+ connector catalog belongs to n8n; the native unified inbox connects supported email and social channels from Pro.
+Customermates provides REST, [[derived.webhooks.events.total]] webhook event values, [[derived.mcp.tools.total]] MCP tools for supported external AI clients, and a community node for a separate n8n instance. The 400+ connector catalog belongs to n8n; the native unified inbox connects supported email and social channels from Pro.
 
 **Do I need to pay extra for integrations?**
-REST, webhooks, and MCP access start with the EUR 12 per user per month Starter tier. n8n workflows, connectors, hosting, executions, logs, delivery providers, limits, and costs are separate and depend on the services you choose.
+REST, webhooks, and MCP access start with the [[commercial.price.starter.monthly]] per user per month Starter tier. n8n workflows, connectors, hosting, executions, logs, delivery providers, limits, and costs are separate and depend on the services you choose.
 
 **Can I replace Zapier with Customermates?**
 Not by itself. A separate n8n instance can replace some CRM-related Zapier or Make workflows when its connectors, plan, limits, and operating model fit. Customermates connects through REST, webhooks, MCP, and the community node but does not include an automation subscription.
