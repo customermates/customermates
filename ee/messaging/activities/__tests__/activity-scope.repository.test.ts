@@ -198,7 +198,7 @@ describe("activity scope", () => {
     });
   });
 
-  it("narrows the audit source to the events of the selected types", async () => {
+  it("narrows a whole-type scope by event alone, leaving record visibility to the auditLog grant", async () => {
     await run({ entityTypes: [EntityType.task] });
 
     expect(auditWhere()?.event.in.sort()).toEqual(
