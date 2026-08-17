@@ -48,6 +48,9 @@ describe("hosted AI pricing contract", () => {
     expect(selfHosted).toMatch(/hosted in-app Assistant.*cloud-only/i);
     expect(selfHosted).toMatch(/gehostete In-App-Assistent.*nur in der Cloud/i);
     expect(selfHosted).toMatch(/External MCP.*your own AI provider/i);
+    expect(selfHosted).not.toMatch(/(?:€\s?12|12\s?€)\s*\//);
+    expect(selfHosted).toMatch(/enterprise SSO and white-labeling are not implemented/i);
+    expect(selfHosted).toMatch(/Enterprise-SSO und White-Labeling sind in keiner Variante implementiert/i);
   });
 
   it("contains no superseded Customermates tier claims", () => {
@@ -55,14 +58,19 @@ describe("hosted AI pricing contract", () => {
       .map((path) => read(path))
       .join("\n");
     const staleClaims = [
-      /higher tiers[^.\n]*only add messaging/gi,
+      /only adds? messaging/gi,
       /only messaging capacity (?:scales|changes)/gi,
-      /Pro[^.\n]*Business[^.\n]*only add messaging/gi,
+      /only pay more for messaging/gi,
+      /only thing that scales with price is messaging/gi,
+      /messaging capacity scale with tier/gi,
       /no tier restrictions[^.\n]*AI/gi,
       /without managing credit pools/gi,
       /höhere Stufen[^.\n]*nur Messaging/gi,
       /mehr zahlen Sie nur für Messaging/gi,
       /Nur der Messaging-Umfang skaliert/gi,
+      /(?:ergänzen|erweitern) nur (?:die )?Nachrichtenkapazität/gi,
+      /nur die Nachrichtenkapazität/gi,
+      /ohne Tarifbeschränkungen bei den KI/gi,
     ];
 
     for (const stale of staleClaims) expect(marketing.match(stale) ?? []).toEqual([]);
