@@ -619,35 +619,6 @@ const AGENT_READ_ONLY_SUGGESTION_KEYS = [
   "AgentChat.suggestions.readOnly.tour",
 ];
 
-const AGENT_TOUR_STEP_KEYS = [
-  "AgentChat.tourSteps.contacts.contacts-add",
-  "AgentChat.tourSteps.contacts.contacts-display-options",
-  "AgentChat.tourSteps.contacts.contacts-filter",
-  "AgentChat.tourSteps.contacts.contacts-search",
-  "AgentChat.tourSteps.contacts.nav-contacts",
-  "AgentChat.tourSteps.dashboard.dashboard-add-widget",
-  "AgentChat.tourSteps.dashboard.nav-dashboard",
-  "AgentChat.tourSteps.deals.deals-add",
-  "AgentChat.tourSteps.deals.deals-display-options",
-  "AgentChat.tourSteps.deals.deals-filter",
-  "AgentChat.tourSteps.deals.nav-deals",
-  "AgentChat.tourSteps.organizations.nav-organizations",
-  "AgentChat.tourSteps.organizations.organizations-add",
-  "AgentChat.tourSteps.organizations.organizations-display-options",
-  "AgentChat.tourSteps.organizations.organizations-filter",
-  "AgentChat.tourSteps.platform.nav-dashboard",
-  "AgentChat.tourSteps.platform.nav-inbox",
-  "AgentChat.tourSteps.platform.nav-search",
-  "AgentChat.tourSteps.services.nav-services",
-  "AgentChat.tourSteps.services.services-add",
-  "AgentChat.tourSteps.services.services-display-options",
-  "AgentChat.tourSteps.services.services-filter",
-  "AgentChat.tourSteps.tasks.nav-tasks",
-  "AgentChat.tourSteps.tasks.tasks-add",
-  "AgentChat.tourSteps.tasks.tasks-display-options",
-  "AgentChat.tourSteps.tasks.tasks-filter",
-];
-
 const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
   [
     "features/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.pages.${page}.${state}.${id}.label",
@@ -665,7 +636,6 @@ const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
     "features/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.readOnly.${id}.prompt",
     AGENT_READ_ONLY_SUGGESTION_KEYS.map((key) => `${key}.prompt`),
   ],
-  ["features/agent-chat/agent-tours.ts :: t :: AgentChat.tourSteps.${step.noteKey}", AGENT_TOUR_STEP_KEYS],
   [
     "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.description",
     FEEDBACK_DESCRIPTION_KEYS,
@@ -691,7 +661,6 @@ export const DYNAMIC_KEY_SITES = [
   "features/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.pages.${page}.${state}.${id}.prompt",
   "features/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.readOnly.${id}.label",
   "features/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.readOnly.${id}.prompt",
-  "features/agent-chat/agent-tours.ts :: t :: AgentChat.tourSteps.${step.noteKey}",
   "features/agent-chat/agent-activity.ts :: t :: AgentChat.activity.label.${name}",
   "features/agent-chat/agent-activity.ts :: t :: AgentChat.activity.navTarget.${targetKey}",
   "features/agent-chat/agent-activity.ts :: t :: AgentChat.activity.resource.${activity.resource}",

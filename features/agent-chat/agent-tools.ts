@@ -10,8 +10,8 @@ import type { McpToolResult } from "@/app/api/v1/mcp/mcp-route-utils";
 
 import { isReadOnlyTool } from "./gated-tools";
 import { toolResultText } from "./agent-stream-utils";
-import { AGENT_NAV_TARGET_IDS, AGENT_UI_TARGET_IDS, AGENT_UI_TARGETS } from "./ui-targets";
-import { AgentTourIdSchema } from "./agent-tours";
+import { AGENT_NAV_TARGET_IDS, AGENT_UI_TARGETS, UiTargetIdSchema } from "./ui-targets";
+import { AgentTourSchema } from "./agent-tours";
 import { PrepareAgentWorkspaceSetupSchema } from "./agent-workspace-setup";
 
 export type ApprovalDecision = "approve" | "reject" | "timeout";
@@ -392,7 +392,6 @@ function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
   });
 }
 
-const UiTargetIdSchema = z.enum(AGENT_UI_TARGET_IDS);
 const NavigationTargetIdSchema = z.enum(AGENT_NAV_TARGET_IDS);
 function uiTools(deps: AgentToolDeps): ToolSet {
   return {
@@ -428,12 +427,10 @@ function uiTools(deps: AgentToolDeps): ToolSet {
     }),
     start_tour: tool({
       description:
-        "Start a deterministic, in-depth guided tour of the whole platform or one core page. Use platform for a first-time overview.",
-      inputSchema: z.object({
-        tourId: AgentTourIdSchema.describe("The platform or page tour to start."),
-      }),
+        "Run a guided tour you compose for this user. Call list_ui_targets first, then choose the targets that answer what they asked to see and write your own note for each one. Ask what they want to see when the request is vague; go straight to the tour when it is specific. Be thorough: walk the whole journey rather than naming each screen, and write every note in the user's language.",
+      inputSchema: AgentTourSchema,
       execute: (input, { toolCallId }) =>
-        runSafely(() => deps.runUiCommand(toolCallId, "start_tour", { tourId: input.tourId })),
+        runSafely(() => deps.runUiCommand(toolCallId, "start_tour", { steps: input.steps })),
     }),
     open_workspace_setup: tool({
       description:

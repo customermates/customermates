@@ -4,7 +4,7 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { AgentUsageSummary } from "@/features/agent-chat/agent-usage.service";
 import type { AgentConversationSummary, AgentDataCounts } from "@/features/agent-chat/agent-chat.schema";
 import { AgentWorkspaceSetupCleanupSummarySchema } from "@/features/agent-chat/agent-chat.schema";
-import { AgentTourIdSchema } from "@/features/agent-chat/agent-tours";
+import { AgentTourSchema } from "@/features/agent-chat/agent-tours";
 import {
   PrepareAgentWorkspaceSetupSchema,
   AgentWorkspaceSetupPlanSchema,
@@ -1599,7 +1599,7 @@ export class AgentChatStore extends BaseStore {
       const run = async () =>
         command.name === "highlight_element"
           ? ui.highlight(String(command.input.targetId ?? ""))
-          : await ui.startGuidedTour(AgentTourIdSchema.safeParse(command.input.tourId).data);
+          : await ui.startGuidedTour(AgentTourSchema.safeParse(command.input).data?.steps);
 
       const first = await run();
       if (first.ok) return first;

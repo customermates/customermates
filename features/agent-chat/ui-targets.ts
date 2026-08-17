@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 import { WORKSPACE_SECTIONS } from "@/app/components/navigation/workspace-sections";
 
 import {
@@ -103,6 +105,8 @@ export const AGENT_UI_TARGETS: AgentUiTarget[] = [
 ];
 
 export const AGENT_UI_TARGET_IDS = AGENT_UI_TARGETS.map((target) => target.id) as [string, ...string[]];
+export const UiTargetIdSchema = z.enum(AGENT_UI_TARGET_IDS);
+
 export const AGENT_NAV_TARGET_IDS = AGENT_UI_TARGETS.filter((target) => target.route.startsWith("/")).map(
   (target) => target.id,
 ) as [string, ...string[]];

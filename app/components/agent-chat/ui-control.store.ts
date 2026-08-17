@@ -4,7 +4,7 @@ import type { RootStore } from "@/core/stores/root.store";
 
 import { BaseStore } from "@/core/base/base.store";
 import { findAgentNavigationTarget } from "@/features/agent-chat/ui-targets";
-import { agentGuidedTour, type AgentGuidedTourStep, type AgentTourId } from "@/features/agent-chat/agent-tours";
+import { agentGuidedTour, type AgentGuidedTourStep, type AgentTourStepData } from "@/features/agent-chat/agent-tours";
 import {
   captureOverlayFocusTarget,
   focusOverlayTarget,
@@ -35,6 +35,18 @@ export function findAgentTargetElement(targetId: string) {
 
   revealAncestor(targetId);
   return document.getElementById(targetId);
+}
+
+const TARGET_SETTLE_TIMEOUT_MS = 2000;
+const TARGET_SETTLE_POLL_MS = 100;
+
+async function awaitAgentTargetElement(targetId: string, stillCurrent: () => boolean) {
+  const deadline = Date.now() + TARGET_SETTLE_TIMEOUT_MS;
+  for (;;) {
+    const element = findAgentTargetElement(targetId);
+    if (element || Date.now() >= deadline || !stillCurrent()) return element;
+    await new Promise<void>((resolve) => setTimeout(resolve, TARGET_SETTLE_POLL_MS));
+  }
 }
 
 export class AgentUiControlStore extends BaseStore {
@@ -100,18 +112,17 @@ export class AgentUiControlStore extends BaseStore {
     return { ok: true, result: `Highlighted ${targetId}.` };
   };
 
-  startGuidedTour = async (tourId: AgentTourId | undefined) => {
-    if (!tourId) return { ok: false, result: "The requested tour is not available." };
-    this.tourSteps = agentGuidedTour(tourId, this.t);
+  startGuidedTour = async (steps: readonly AgentTourStepData[] | undefined) => {
+    if (!steps?.length) return { ok: false, result: "The tour had no usable steps." };
+    this.tourSteps = agentGuidedTour(steps);
+    if (!this.tourSteps.length) return { ok: false, result: "None of the tour targets exist in this interface." };
+
     this.captureFocus();
     const runVersion = ++this.tourRunVersion;
-    const shown = await this.showTourStep(0, runVersion, 1);
+    const shown = await this.showTourStep(0, runVersion, 1, true);
     return shown
-      ? { ok: true, result: `Started the ${tourId} guided tour.` }
-      : {
-          ok: false,
-          result: `The ${tourId} guided tour has no available steps right now.`,
-        };
+      ? { ok: true, result: `Started a ${this.tourSteps.length}-step guided tour.` }
+      : { ok: false, result: "None of the tour targets are reachable right now." };
   };
 
   nextStep = () => {
@@ -146,7 +157,7 @@ export class AgentUiControlStore extends BaseStore {
     void this.showTourStep(index, runVersion, direction);
   }
 
-  private async showTourStep(index: number, runVersion: number, direction: 1 | -1): Promise<boolean> {
+  private async showTourStep(index: number, runVersion: number, direction: 1 | -1, settle = false): Promise<boolean> {
     if (runVersion !== this.tourRunVersion) return false;
     const step = this.tourSteps[index];
     if (!step) return false;
@@ -166,7 +177,10 @@ export class AgentUiControlStore extends BaseStore {
       if (runVersion !== this.tourRunVersion) return false;
     }
 
-    const element = findAgentTargetElement(step.targetId);
+    const element = settle
+      ? await awaitAgentTargetElement(step.targetId, () => runVersion === this.tourRunVersion)
+      : findAgentTargetElement(step.targetId);
+    if (runVersion !== this.tourRunVersion) return false;
     if (!element) {
       const next = index + direction;
       if (next < 0 || next >= this.tourSteps.length) {

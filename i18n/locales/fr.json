@@ -762,48 +762,6 @@
       "next": "Suivant",
       "skip": "Ignorer"
     },
-    "tourSteps": {
-      "contacts": {
-        "contacts-add": "Créez un contact manuellement ici, ou demandez à l'Assistant d'en créer et d'en relier un après vous avoir montré la modification proposée.",
-        "contacts-display-options": "Les options d'affichage contrôlent les colonnes, le tri et le style de vue de cette page.",
-        "contacts-filter": "Les filtres combinent propriétés standard, relations et vos champs personnalisés afin que vos vues récurrentes restent ciblées.",
-        "contacts-search": "La recherche restreint la liste actuelle sans modifier vos données sous-jacentes.",
-        "nav-contacts": "Les contacts sont les personnes avec qui vous travaillez. Leurs organisations, opportunités, tâches et conversations restent reliées ici."
-      },
-      "dashboard": {
-        "dashboard-add-widget": "Ajoutez un widget dès que vous avez besoin d'une nouvelle vue. Les widgets peuvent résumer les enregistrements CRM par statut, responsable, relation ou champ personnalisé.",
-        "nav-dashboard": "Le Dashboard est votre vue d'ensemble du travail qui compte. Chaque carte répond à une question opérationnelle."
-      },
-      "deals": {
-        "deals-add": "Créez une opportunité ici ou demandez à l'Assistant de la composer à partir du contexte déjà présent dans votre CRM.",
-        "deals-display-options": "Changez la vue des opportunités et choisissez les signaux qui doivent rester visibles pendant que vous travaillez le pipeline.",
-        "deals-filter": "Les filtres transforment l'ensemble du pipeline en vues de travail pratiques par étape, responsable, relation, montant ou champ personnalisé.",
-        "nav-deals": "Les opportunités suivent les occasions commerciales et gardent ensemble l'organisation concernée, les contacts, les offres et les prochaines tâches."
-      },
-      "organizations": {
-        "nav-organizations": "Les organisations regroupent les personnes, les opportunités et les suivis appartenant à un même compte ou à une même entreprise.",
-        "organizations-add": "Créez une organisation ici, puis reliez ses contacts, opportunités et tâches afin que le compte dispose d'un contexte partagé.",
-        "organizations-display-options": "Choisissez les colonnes et l'ordre qui rendent cette vue des comptes utile à votre façon de travailler.",
-        "organizations-filter": "Utilisez les filtres pour créer des listes de comptes, par exemple les clients avec des opportunités ouvertes ou les organisations sans prochaine tâche."
-      },
-      "platform": {
-        "nav-dashboard": "Commencez par le Dashboard pour obtenir un résumé visuel de votre activité. Vous pouvez l'adapter aux questions que vous consultez le plus souvent.",
-        "nav-inbox": "La boîte de réception rassemble les canaux de communication pris en charge au même endroit et garde les messages reliés au contexte CRM.",
-        "nav-search": "La recherche globale est le moyen le plus rapide d'accéder à un enregistrement depuis n'importe où. L'Assistant la complète lorsque vous voulez une réponse ou une action plutôt qu'une destination."
-      },
-      "services": {
-        "nav-services": "Les services représentent ce que vous vendez : services, produits, forfaits ou abonnements. Ils constituent les briques commerciales des opportunités.",
-        "services-add": "Créez une offre avec un nom et un prix clairs, puis reliez-la aux opportunités et aux tâches de livraison.",
-        "services-display-options": "Les options d'affichage permettent à chaque équipe de garder visibles les informations commerciales utiles.",
-        "services-filter": "Filtrez le catalogue par relations ou attributs personnalisés lorsque votre ensemble d'offres s'étoffe."
-      },
-      "tasks": {
-        "nav-tasks": "Les tâches transforment le contexte CRM en suivi concret. Une tâche peut rester reliée aux personnes, au compte, à l'opportunité et à l'offre qu'elle fait avancer.",
-        "tasks-add": "Créez une tâche ici ou demandez à l'Assistant d'en préparer une à partir d'une conversation, d'une opportunité ou d'une prochaine étape manquante.",
-        "tasks-display-options": "Les options d'affichage rendent les mêmes données de tâches utiles sous forme de tableau, de cartes ou de flux groupé.",
-        "tasks-filter": "Utilisez les filtres pour des files ciblées, comme votre travail en cours, un client précis ou les tâches groupées par statut personnalisé."
-      }
-    },
     "tourUi": {
       "back": "Retour",
       "title": "Visite guidée"

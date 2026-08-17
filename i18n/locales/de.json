@@ -762,48 +762,6 @@
       "next": "Weiter",
       "skip": "Überspringen"
     },
-    "tourSteps": {
-      "contacts": {
-        "contacts-add": "Erstelle hier manuell einen Kontakt oder bitte den Assistenten, einen Kontakt nach einer Vorschau anzulegen und zu verknüpfen.",
-        "contacts-display-options": "Anzeigeoptionen steuern Spalten, Sortierung und Darstellungsart dieser Seite.",
-        "contacts-filter": "Filter kombinieren Standardfelder, Beziehungen und eigene Felder, damit wiederkehrende Ansichten fokussiert bleiben.",
-        "contacts-search": "Die Suche grenzt die aktuelle Liste ein, ohne deine Daten zu verändern.",
-        "nav-contacts": "Kontakte sind die Personen, mit denen du arbeitest. Organisationen, Deals, Aufgaben und Unterhaltungen bleiben hier verbunden."
-      },
-      "dashboard": {
-        "dashboard-add-widget": "Füge ein Widget hinzu, wenn du eine neue Perspektive brauchst. Widgets fassen CRM-Datensätze nach Status, Zuständigkeit, Beziehung oder benutzerdefiniertem Feld zusammen.",
-        "nav-dashboard": "Das Dashboard zeigt dir die wichtigsten Vorgänge auf einen Blick. Jede Karte beantwortet eine konkrete operative Frage."
-      },
-      "deals": {
-        "deals-add": "Erstelle hier einen Deal oder lass ihn vom Assistenten aus vorhandenem CRM-Kontext zusammenstellen.",
-        "deals-display-options": "Wechsle die Deal-Ansicht und bestimme, welche Signale bei der Pipeline-Arbeit sichtbar bleiben.",
-        "deals-filter": "Filter machen aus der gesamten Pipeline praktische Arbeitsansichten nach Phase, Zuständigkeit, Beziehung, Wert oder eigenem Feld.",
-        "nav-deals": "Deals bilden Verkaufschancen ab und halten Organisation, Kontakte, Angebote und nächste Aufgaben zusammen."
-      },
-      "organizations": {
-        "nav-organizations": "Organisationen bündeln Personen, Verkaufschancen und Follow-ups eines Accounts oder Unternehmens.",
-        "organizations-add": "Erstelle hier eine Organisation und verknüpfe Kontakte, Deals und Aufgaben für einen gemeinsamen Account-Kontext.",
-        "organizations-display-options": "Wähle Spalten und Reihenfolge passend zu deinem Account-Workflow.",
-        "organizations-filter": "Nutze Filter für Account-Listen wie Kunden mit offenen Deals oder Organisationen ohne nächste Aufgabe."
-      },
-      "platform": {
-        "nav-dashboard": "Starte auf dem Dashboard mit einer visuellen Zusammenfassung deines Geschäfts. Richte es nach den Fragen aus, die du regelmäßig prüfst.",
-        "nav-inbox": "Der Posteingang bündelt unterstützte Kommunikationskanäle und verbindet Nachrichten mit deinem CRM-Kontext.",
-        "nav-search": "Mit der globalen Suche springst du von überall direkt zu einem Datensatz. Der Assistent ergänzt sie, wenn du statt eines Ziels eine Antwort oder Aktion brauchst."
-      },
-      "services": {
-        "nav-services": "Leistungen bilden ab, was du verkaufst: Services, Produkte, Pakete oder Retainer. Sie sind die kaufmännischen Bausteine deiner Deals.",
-        "services-add": "Lege ein Angebot mit klarem Namen und Preis an und verknüpfe es anschließend mit Deals und Lieferaufgaben.",
-        "services-display-options": "Mit Anzeigeoptionen hält jedes Team die relevanten kaufmännischen Details sichtbar.",
-        "services-filter": "Filtere den Katalog nach Beziehungen oder eigenen Merkmalen, wenn dein Angebot wächst."
-      },
-      "tasks": {
-        "nav-tasks": "Aufgaben machen aus CRM-Kontext konkrete Follow-ups. Sie bleiben mit Personen, Account, Deal und Angebot verbunden.",
-        "tasks-add": "Erstelle hier eine Aufgabe oder lass sie vom Assistenten aus einer Unterhaltung, einem Deal oder einem fehlenden nächsten Schritt vorbereiten.",
-        "tasks-display-options": "Anzeigeoptionen machen dieselben Aufgabendaten als Tabelle, Karten oder gruppierten Workflow nutzbar.",
-        "tasks-filter": "Nutze Filter für fokussierte Listen wie deine offenen Aufgaben, einen bestimmten Kunden oder Aufgaben nach eigenem Status."
-      }
-    },
     "tourUi": {
       "back": "Zurück",
       "title": "Geführte Tour"

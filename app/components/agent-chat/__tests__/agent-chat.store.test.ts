@@ -2183,7 +2183,13 @@ describe("AgentUiControlStore", () => {
     store.registerNavigate(vi.fn().mockResolvedValue("navigated"));
 
     try {
-      await expect(store.startGuidedTour("contacts")).resolves.toMatchObject({ ok: true });
+      await expect(
+        store.startGuidedTour([
+          { targetId: "nav-contacts", note: "Contacts are the people you work with." },
+          { targetId: "contacts-add", note: "Add a contact from here." },
+          { targetId: "contacts-search", note: "Search narrows the current list." },
+        ]),
+      ).resolves.toMatchObject({ ok: true });
       expect(store.active?.stepIndex).toBe(0);
       store.nextStep();
       await vi.waitFor(() => expect(store.active?.stepIndex).toBe(2));
@@ -2215,9 +2221,14 @@ describe("AgentUiControlStore", () => {
     store.registerNavigate(vi.fn().mockResolvedValue("navigated"));
 
     try {
-      await expect(store.startGuidedTour("dashboard")).resolves.toEqual({
+      await expect(
+        store.startGuidedTour([
+          { targetId: "nav-dashboard", note: "The dashboard summarises your business." },
+          { targetId: "dashboard-add-widget", note: "Add a widget for a new view." },
+        ]),
+      ).resolves.toEqual({
         ok: false,
-        result: "The dashboard guided tour has no available steps right now.",
+        result: "None of the tour targets are reachable right now.",
       });
       expect(store.active).toBeNull();
     } finally {
@@ -2245,7 +2256,10 @@ describe("AgentUiControlStore", () => {
         }),
     );
 
-    const started = store.startGuidedTour("dashboard");
+    const started = store.startGuidedTour([
+      { targetId: "nav-dashboard", note: "The dashboard summarises your business." },
+      { targetId: "dashboard-add-widget", note: "Add a widget for a new view." },
+    ]);
     store.end();
     resolveNavigation("navigated");
     await expect(started).resolves.toMatchObject({ ok: false });

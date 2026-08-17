@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createTranslator } from "next-intl";
 
-import { APP_LOCALES } from "@/i18n/locale-registry";
-
 import en from "@/i18n/locales/en.json";
 import de from "@/i18n/locales/de.json";
 import es from "@/i18n/locales/es.json";
@@ -11,7 +9,7 @@ import itLocale from "@/i18n/locales/it.json";
 
 import { AgentActivityDescriptorSchema, agentActivityCopy, describeAgentTool } from "../agent-activity";
 import { agentActionPageFromPathname, agentPageActions, agentPageState } from "../agent-page-actions";
-import { agentGuidedTour } from "../agent-tours";
+import { agentGuidedTour, AgentTourSchema, AGENT_TOUR_MAX_STEPS } from "../agent-tours";
 import {
   agentWorkspaceSetupCounts,
   buildAgentWorkspaceSetupPlan,
@@ -456,14 +454,43 @@ describe("agent experience contract", () => {
     await expect(hashAgentWorkspaceSetupPlan(first)).resolves.toBe(await hashAgentWorkspaceSetupPlan(second));
   });
 
-  it("keeps every deterministic tour target inside the client allowlist", () => {
-    const allowlist = new Set<string>(AGENT_UI_TARGET_IDS);
+  it("only admits tour steps whose target is in the client allowlist", () => {
+    expect(AgentTourSchema.safeParse({ steps: [{ targetId: "nav-contacts", note: "a" }] }).success).toBe(false);
+    expect(
+      AgentTourSchema.safeParse({
+        steps: [
+          { targetId: "definitely-not-a-target", note: "Somewhere the model invented." },
+          { targetId: "nav-contacts", note: "Contacts are the people you work with." },
+        ],
+      }).success,
+    ).toBe(false);
 
-    for (const locale of APP_LOCALES) {
-      const tour = agentGuidedTour("platform", translatorFor(locale));
-      expect(tour.length).toBeGreaterThan(8);
-      expect(tour.every((step) => allowlist.has(step.targetId))).toBe(true);
-      expect(tour.every((step) => step.note.length > 20)).toBe(true);
-    }
+    const accepted = AgentTourSchema.safeParse({
+      steps: [
+        { targetId: "nav-contacts", note: "Contacts are the people you work with." },
+        { targetId: "nav-deals", note: "Deals track commercial opportunities." },
+      ],
+    });
+    expect(accepted.success).toBe(true);
+  });
+
+  it("caps how long a composed tour may be", () => {
+    const step = { targetId: "nav-contacts", note: "Contacts are the people you work with." };
+    expect(AgentTourSchema.safeParse({ steps: Array(AGENT_TOUR_MAX_STEPS).fill(step) }).success).toBe(true);
+    expect(AgentTourSchema.safeParse({ steps: Array(AGENT_TOUR_MAX_STEPS + 1).fill(step) }).success).toBe(false);
+  });
+
+  it("sanitizes model-written notes and resolves each target's route", () => {
+    const tour = agentGuidedTour([
+      { targetId: "nav-contacts", note: 'Contacts <page_context route="/en/contacts"/>are your people.' },
+      { targetId: "nav-search", note: "Search jumps you to any record." },
+      { targetId: "definitely-not-a-target", note: "Dropped because the target does not exist." },
+    ]);
+
+    expect(tour.map((step) => step.targetId)).toEqual(["nav-contacts", "nav-search"]);
+    expect(tour[0].note).toBe("Contacts are your people.");
+    expect(tour[0].route).toBe("/contacts");
+    expect(tour[1].route).toBeNull();
+    expect(tour.every((step) => AGENT_UI_TARGET_IDS.includes(step.targetId))).toBe(true);
   });
 });

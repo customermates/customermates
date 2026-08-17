@@ -762,48 +762,6 @@
       "next": "Next",
       "skip": "Skip"
     },
-    "tourSteps": {
-      "contacts": {
-        "contacts-add": "Create a contact manually here, or ask the Assistant to create and link one after showing you the proposed change.",
-        "contacts-display-options": "Display options control columns, sorting, and the view style for this page.",
-        "contacts-filter": "Filters combine standard properties, relationships, and your custom fields so recurring views stay focused.",
-        "contacts-search": "Search narrows the current list without changing your underlying data.",
-        "nav-contacts": "Contacts are the people you work with. Their organizations, deals, tasks, and conversations stay connected here."
-      },
-      "dashboard": {
-        "dashboard-add-widget": "Add a widget whenever you need a new view. Widgets can summarize CRM records by status, owner, relationship, or a custom field.",
-        "nav-dashboard": "The dashboard is your at-a-glance view of the work that matters. Each card answers one operational question."
-      },
-      "deals": {
-        "deals-add": "Create a deal here or ask the Assistant to assemble one from the context already in your CRM.",
-        "deals-display-options": "Switch the deal view and choose which signals should stay visible while you work the pipeline.",
-        "deals-filter": "Filters turn the full pipeline into practical working views by stage, owner, relationship, value, or custom field.",
-        "nav-deals": "Deals track commercial opportunities and keep the involved organization, contacts, offerings, and next tasks together."
-      },
-      "organizations": {
-        "nav-organizations": "Organizations group the people, opportunities, and follow-ups belonging to one account or company.",
-        "organizations-add": "Create an organization here, then link its contacts, deals, and tasks so the account has one shared context.",
-        "organizations-display-options": "Choose the columns and ordering that make this account view useful for your workflow.",
-        "organizations-filter": "Use filters to build account lists such as customers with open deals or organizations missing a next task."
-      },
-      "platform": {
-        "nav-dashboard": "Start on the dashboard for a visual summary of your business. You can shape it around the questions you review most often.",
-        "nav-inbox": "The inbox brings supported communication channels into one place and keeps messages connected to CRM context.",
-        "nav-search": "Global search is the fastest way to jump to a record from anywhere. The Assistant complements it when you want an answer or an action instead of a destination."
-      },
-      "services": {
-        "nav-services": "Services represent what you sell: services, products, packages, or retainers. They provide the commercial building blocks for deals.",
-        "services-add": "Create an offering with a clear name and price, then connect it to deals and delivery tasks.",
-        "services-display-options": "Display options let each team keep the useful commercial details visible.",
-        "services-filter": "Filter the catalog by relationships or custom attributes when your offering set grows."
-      },
-      "tasks": {
-        "nav-tasks": "Tasks turn CRM context into concrete follow-up. A task can stay linked to the people, account, deal, and offering it advances.",
-        "tasks-add": "Create a task here or ask the Assistant to prepare one from a conversation, deal, or missing next step.",
-        "tasks-display-options": "Display options make the same task data useful as a table, cards, or a grouped workflow.",
-        "tasks-filter": "Use filters for focused queues such as your open work, a specific customer, or tasks grouped by a custom status."
-      }
-    },
     "tourUi": {
       "back": "Back",
       "title": "Guided tour"

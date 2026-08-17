@@ -762,48 +762,6 @@
       "next": "Avanti",
       "skip": "Salta"
     },
-    "tourSteps": {
-      "contacts": {
-        "contacts-add": "Crea un contatto manualmente qui, oppure chiedi all'Assistente di crearne e collegarne uno dopo averti mostrato la modifica proposta.",
-        "contacts-display-options": "Le opzioni di visualizzazione controllano colonne, ordinamento e stile di vista di questa pagina.",
-        "contacts-filter": "I filtri combinano proprietà standard, relazioni e i tuoi campi personalizzati, così le viste ricorrenti restano mirate.",
-        "contacts-search": "La ricerca restringe l'elenco corrente senza modificare i dati sottostanti.",
-        "nav-contacts": "I contatti sono le persone con cui lavori. Le loro organizzazioni, trattative, attività e conversazioni restano collegate qui."
-      },
-      "dashboard": {
-        "dashboard-add-widget": "Aggiungi un widget ogni volta che ti serve una nuova vista. I widget possono riepilogare i record del CRM per stato, responsabile, relazione o campo personalizzato.",
-        "nav-dashboard": "La dashboard è la tua vista d'insieme sul lavoro che conta. Ogni scheda risponde a una domanda operativa."
-      },
-      "deals": {
-        "deals-add": "Crea qui una trattativa oppure chiedi all'Assistente di comporla a partire dal contesto già presente nel tuo CRM.",
-        "deals-display-options": "Cambia la vista delle trattative e scegli quali segnali devono restare visibili mentre lavori la pipeline.",
-        "deals-filter": "I filtri trasformano l'intera pipeline in viste di lavoro pratiche per fase, responsabile, relazione, importo o campo personalizzato.",
-        "nav-deals": "Le trattative seguono le occasioni commerciali e tengono insieme l'organizzazione coinvolta, i contatti, le offerte e le attività successive."
-      },
-      "organizations": {
-        "nav-organizations": "Le organizzazioni raggruppano le persone, le trattative e i follow-up che appartengono a uno stesso account o a una stessa azienda.",
-        "organizations-add": "Crea qui un'organizzazione, poi collega i suoi contatti, le trattative e le attività così che l'account abbia un contesto condiviso.",
-        "organizations-display-options": "Scegli le colonne e l'ordinamento che rendono utile questa vista degli account per il tuo modo di lavorare.",
-        "organizations-filter": "Usa i filtri per creare elenchi di account, come i clienti con trattative aperte o le organizzazioni senza un'attività successiva."
-      },
-      "platform": {
-        "nav-dashboard": "Parti dalla dashboard per un riepilogo visivo della tua attività. Puoi modellarla sulle domande che consulti più spesso.",
-        "nav-inbox": "La posta in arrivo riunisce in un unico posto i canali di comunicazione supportati e mantiene i messaggi collegati al contesto del CRM.",
-        "nav-search": "La ricerca globale è il modo più rapido per raggiungere un record da qualsiasi punto. L'Assistente la completa quando vuoi una risposta o un'azione invece di una destinazione."
-      },
-      "services": {
-        "nav-services": "I servizi rappresentano ciò che vendi: servizi, prodotti, pacchetti o contratti ricorrenti. Sono i mattoni commerciali delle trattative.",
-        "services-add": "Crea un'offerta con nome e prezzo chiari, poi collegala alle trattative e alle attività di consegna.",
-        "services-display-options": "Le opzioni di visualizzazione permettono a ogni team di tenere visibili i dati commerciali utili.",
-        "services-filter": "Filtra il catalogo per relazioni o attributi personalizzati quando il tuo insieme di offerte cresce."
-      },
-      "tasks": {
-        "nav-tasks": "Le attività trasformano il contesto del CRM in follow-up concreto. Un'attività può restare collegata alle persone, all'account, alla trattativa e all'offerta che fa avanzare.",
-        "tasks-add": "Crea qui un'attività oppure chiedi all'Assistente di prepararne una a partire da una conversazione, una trattativa o un passo successivo mancante.",
-        "tasks-display-options": "Le opzioni di visualizzazione rendono gli stessi dati delle attività utili come tabella, schede o flusso raggruppato.",
-        "tasks-filter": "Usa i filtri per code mirate, come il tuo lavoro aperto, un cliente specifico o le attività raggruppate per uno stato personalizzato."
-      }
-    },
     "tourUi": {
       "back": "Indietro",
       "title": "Tour guidato"

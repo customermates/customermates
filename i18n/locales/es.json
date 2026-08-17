@@ -762,48 +762,6 @@
       "next": "Siguiente",
       "skip": "Omitir"
     },
-    "tourSteps": {
-      "contacts": {
-        "contacts-add": "Crea un contacto manualmente aquí, o pide al Asistente que cree y vincule uno tras mostrarte el cambio propuesto.",
-        "contacts-display-options": "Las opciones de visualización controlan las columnas, el orden y el estilo de vista de esta página.",
-        "contacts-filter": "Los filtros combinan propiedades estándar, relaciones y tus campos personalizados para que las vistas recurrentes sigan enfocadas.",
-        "contacts-search": "La búsqueda acota la lista actual sin modificar los datos subyacentes.",
-        "nav-contacts": "Los contactos son las personas con las que trabajas. Sus organizaciones, oportunidades, tareas y conversaciones permanecen conectadas aquí."
-      },
-      "dashboard": {
-        "dashboard-add-widget": "Añade un widget siempre que necesites una vista nueva. Los widgets pueden resumir registros del CRM por estado, responsable, relación o campo personalizado.",
-        "nav-dashboard": "El dashboard es tu vista de un vistazo del trabajo que importa. Cada tarjeta responde a una pregunta operativa."
-      },
-      "deals": {
-        "deals-add": "Crea aquí una oportunidad o pide al Asistente que la componga a partir del contexto que ya hay en tu CRM.",
-        "deals-display-options": "Cambia la vista de oportunidades y elige qué señales deben permanecer visibles mientras trabajas el pipeline.",
-        "deals-filter": "Los filtros convierten todo el pipeline en vistas de trabajo prácticas por etapa, responsable, relación, importe o campo personalizado.",
-        "nav-deals": "Las oportunidades siguen el rastro de las ocasiones comerciales y mantienen juntos la organización implicada, los contactos, las ofertas y las próximas tareas."
-      },
-      "organizations": {
-        "nav-organizations": "Las organizaciones agrupan las personas, las oportunidades y los seguimientos que pertenecen a una misma cuenta o empresa.",
-        "organizations-add": "Crea aquí una organización y vincula después sus contactos, oportunidades y tareas para que la cuenta tenga un contexto compartido.",
-        "organizations-display-options": "Elige las columnas y el orden que hacen útil esta vista de cuentas para tu forma de trabajar.",
-        "organizations-filter": "Usa los filtros para crear listas de cuentas, como clientes con oportunidades abiertas u organizaciones sin una próxima tarea."
-      },
-      "platform": {
-        "nav-dashboard": "Empieza en el dashboard con un resumen visual de tu negocio. Puedes adaptarlo a las preguntas que revisas más a menudo.",
-        "nav-inbox": "La bandeja de entrada reúne los canales de comunicación admitidos en un solo lugar y mantiene los mensajes conectados al contexto del CRM.",
-        "nav-search": "La búsqueda global es la forma más rápida de saltar a un registro desde cualquier sitio. El Asistente la complementa cuando quieres una respuesta o una acción en lugar de un destino."
-      },
-      "services": {
-        "nav-services": "Los servicios representan lo que vendes: servicios, productos, paquetes o iguales. Son los componentes comerciales de las oportunidades.",
-        "services-add": "Crea una oferta con un nombre y un precio claros y conéctala después a oportunidades y tareas de entrega.",
-        "services-display-options": "Las opciones de visualización permiten que cada equipo mantenga a la vista los datos comerciales que le sirven.",
-        "services-filter": "Filtra el catálogo por relaciones o atributos personalizados cuando crezca tu conjunto de ofertas."
-      },
-      "tasks": {
-        "nav-tasks": "Las tareas convierten el contexto del CRM en seguimiento concreto. Una tarea puede permanecer vinculada a las personas, la cuenta, la oportunidad y la oferta que impulsa.",
-        "tasks-add": "Crea aquí una tarea o pide al Asistente que prepare una a partir de una conversación, una oportunidad o un próximo paso que falte.",
-        "tasks-display-options": "Las opciones de visualización hacen que los mismos datos de tareas sean útiles como tabla, tarjetas o flujo agrupado.",
-        "tasks-filter": "Usa los filtros para colas enfocadas, como tu trabajo abierto, un cliente concreto o las tareas agrupadas por un estado personalizado."
-      }
-    },
     "tourUi": {
       "back": "Atrás",
       "title": "Visita guiada"

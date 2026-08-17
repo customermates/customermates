@@ -255,7 +255,16 @@ describe("agent tools", () => {
   it.each([
     ["navigate", { targetId: "nav-contacts" }, "navigation failed"],
     ["highlight_element", { targetId: "contacts-add" }, "highlight failed"],
-    ["start_tour", { tourId: "contacts" }, "tour failed"],
+    [
+      "start_tour",
+      {
+        steps: [
+          { targetId: "nav-contacts", note: "Contacts are the people you work with." },
+          { targetId: "contacts-add", note: "Add a contact from here." },
+        ],
+      },
+      "tour failed",
+    ],
   ] as const)("awaits the browser's exact result for %s", async (name, input, result) => {
     const outcome = { ok: false, result };
     const runUiCommand = vi.fn().mockResolvedValue(outcome);
