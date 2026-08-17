@@ -65,7 +65,6 @@ describeDatabase("outbound chat echo reconciliation under tenant bypass", () => 
   it("reconciles the provider echo onto the locally sent row without reading tenant context", async () => {
     const repo = new PrismaMessagingRepo() as unknown as {
       reconcileOutboundChatEcho(args: {
-        companyId: string;
         messagingThreadId: string;
         connectedAccountId: string;
         unipileMessageId: string;
@@ -85,7 +84,6 @@ describeDatabase("outbound chat echo reconciliation under tenant bypass", () => 
 
     const reconciled = await runWithoutTenant(() =>
       repo.reconcileOutboundChatEcho({
-        companyId,
         messagingThreadId: threadId,
         connectedAccountId: accountId,
         unipileMessageId: providerMessageId,
