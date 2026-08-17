@@ -18,11 +18,7 @@ import { env } from "@/env";
 import type { AgentUsageRepo } from "./agent-usage.service";
 import { AGENT_CONVERSATION_PAGE_SIZE, AGENT_MESSAGE_PAGE_SIZE, type AgentConversationPage } from "./agent-history";
 import { clientSafeAgentMessageParts, hasRenderableAgentMessageParts, partsToText } from "./agent-chat.schema";
-import {
-  AgentWorkspaceSetupPlanSchema,
-  PrepareAgentWorkspaceSetupSchema,
-  hashAgentWorkspaceSetupPlan,
-} from "./agent-workspace-setup";
+import { AgentWorkspaceSetupPlanSchema, hashAgentWorkspaceSetupPlan } from "./agent-workspace-setup";
 import {
   isPendingAgentApprovalToolName,
   parsePendingAgentApprovalToolName,
@@ -676,17 +672,14 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           const part = value as Record<string, unknown>;
           if (part.type !== "workspace_setup") continue;
           if (part.id !== args.commandId || part.status !== "ready") return null;
-          const setup = PrepareAgentWorkspaceSetupSchema.safeParse(part.setup);
           const plan = AgentWorkspaceSetupPlanSchema.safeParse(part.plan);
           if (
-            setup.success &&
             plan.success &&
             typeof part.planHash === "string" &&
             (await hashAgentWorkspaceSetupPlan(plan.data)) === part.planHash
           ) {
             return {
               reviewMessageId: message.id,
-              setup: setup.data,
               plan: plan.data,
               planHash: part.planHash,
             };

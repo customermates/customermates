@@ -634,7 +634,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       }),
     );
 
-    expect(result).toEqual({ reviewMessageId: "message-1", setup, plan, planHash });
+    expect(result).toEqual({ reviewMessageId: "message-1", plan, planHash });
     expect(prismaMock.agentMessage.findMany).toHaveBeenCalledWith({
       where: {
         conversationId: "conversation-1",
@@ -692,7 +692,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           commandId: "command-1",
         }),
       ),
-    ).resolves.toEqual({ reviewMessageId: "message-200", setup, plan, planHash });
+    ).resolves.toEqual({ reviewMessageId: "message-200", plan, planHash });
 
     expect(prismaMock.agentMessage.findMany).toHaveBeenNthCalledWith(
       2,

@@ -60,7 +60,6 @@ function setup(options: { signals?: typeof EMPTY_SIGNALS; existing?: object | nu
     findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),
     findReviewedWorkspaceSetup: vi.fn().mockResolvedValue({
       reviewMessageId: id(8, 0),
-      setup: SETUP_DATA,
       plan: buildAgentWorkspaceSetupPlan(SETUP_DATA),
       planHash: "a".repeat(64),
     }),
@@ -186,7 +185,6 @@ describe("ApplyAgentWorkspaceSetupInteractor", () => {
       data: {
         status: "applied",
         setupId: id(9, 0),
-        counts: { columns: 4, records: 13, widgets: 3 },
       },
     });
 
@@ -259,7 +257,7 @@ describe("ApplyAgentWorkspaceSetupInteractor", () => {
 
     await expect(ctx.subject.invoke(INPUT)).resolves.toMatchObject({
       ok: true,
-      data: { status: "alreadyApplied", setupId: id(9, 0) },
+      data: { status: "applied", setupId: id(9, 0) },
     });
     expect(ctx.updateCompanySettings.invoke).not.toHaveBeenCalled();
     expect(ctx.setupRepo.recordAppliedSetup).not.toHaveBeenCalled();

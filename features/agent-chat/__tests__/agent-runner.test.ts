@@ -510,11 +510,6 @@ describe("agent runner approval rendezvous", () => {
             type: "workspace_setup",
             id: "setup-1",
             status: "ready",
-            setup: {
-              useCase: "b2bSales",
-              businessName: "Acme GmbH",
-              goal: "Build a useful first sales pipeline",
-            },
             plan: expect.objectContaining({
               schemaVersion: 1,
               revision: 1,

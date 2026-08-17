@@ -6,12 +6,7 @@ import { type Data } from "@/core/validation/validation.utils";
 
 import type { AgentActivityDescriptor } from "./agent-activity";
 import { AgentActivityDescriptorSchema, describeAgentTool } from "./agent-activity";
-import {
-  AgentWorkspaceSetupPlanSchema,
-  PrepareAgentWorkspaceSetupSchema,
-  type AgentWorkspaceSetupPlan,
-  type PrepareAgentWorkspaceSetupData,
-} from "./agent-workspace-setup";
+import { AgentWorkspaceSetupPlanSchema, type AgentWorkspaceSetupPlan } from "./agent-workspace-setup";
 import { sanitizeAgentVisibleText, stripLegacyUserPageContextPrefix } from "./agent-output-safety";
 import type { AgentWorkspaceSetupCleanupSummary } from "./agent-workspace-setup.repository";
 
@@ -57,7 +52,6 @@ export type AgentMessagePart =
   | {
       type: "workspace_setup";
       id: string;
-      setup: PrepareAgentWorkspaceSetupData;
       plan: AgentWorkspaceSetupPlan;
       planHash: string;
       setupId?: string;
@@ -122,10 +116,8 @@ export function clientSafeAgentMessageParts(
     }
 
     if (part.type === "workspace_setup" && typeof part.id === "string") {
-      const setup = PrepareAgentWorkspaceSetupSchema.safeParse(part.setup);
       const plan = AgentWorkspaceSetupPlanSchema.safeParse(part.plan);
       if (
-        !setup.success ||
         !plan.success ||
         typeof part.planHash !== "string" ||
         !/^[a-f0-9]{64}$/.test(part.planHash) ||
@@ -136,7 +128,6 @@ export function clientSafeAgentMessageParts(
         {
           type: "workspace_setup",
           id: part.id,
-          setup: setup.data,
           plan: plan.data,
           planHash: part.planHash,
           status: part.status,

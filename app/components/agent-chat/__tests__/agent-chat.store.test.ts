@@ -1355,7 +1355,6 @@ describe("AgentChatStore", () => {
             {
               type: "workspace_setup",
               id: "setup-older",
-              setup: newer.setup,
               plan: newer.plan,
               planHash: newer.planHash,
               status: "ready",

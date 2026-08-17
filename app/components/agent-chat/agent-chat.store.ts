@@ -12,7 +12,6 @@ import {
   buildAgentWorkspaceSetupPlan,
   hashAgentWorkspaceSetupPlan,
   type AgentWorkspaceSetupPlan,
-  type PrepareAgentWorkspaceSetupData,
 } from "@/features/agent-chat/agent-workspace-setup";
 import {
   AgentActivityDescriptorSchema,
@@ -83,7 +82,6 @@ export type AgentChatItem =
       id: string;
       commandId: string;
       turnKey?: string;
-      setup: PrepareAgentWorkspaceSetupData;
       plan: AgentWorkspaceSetupPlan;
       planHash: string;
       setupId?: string;
@@ -719,10 +717,9 @@ export class AgentChatStore extends BaseStore {
         at,
       });
     } else if (part.type === "workspace_setup" && part.id) {
-      const setup = PrepareAgentWorkspaceSetupSchema.safeParse(part.setup);
       const plan = AgentWorkspaceSetupPlanSchema.safeParse(part.plan);
       const cleanupSummary = AgentWorkspaceSetupCleanupSummarySchema.safeParse(part.cleanupSummary);
-      if (!setup.success || !plan.success || typeof part.planHash !== "string") return;
+      if (!plan.success || typeof part.planHash !== "string") return;
       const status = [
         "preparing",
         "ready",
@@ -740,7 +737,6 @@ export class AgentChatStore extends BaseStore {
         id: nextItemId(),
         commandId: part.id,
         ...(messageId ? { turnKey: `message-${messageId}` } : {}),
-        setup: setup.data,
         plan: plan.data,
         planHash: part.planHash,
         ...(typeof part.setupId === "string" ? { setupId: part.setupId } : {}),
@@ -1571,7 +1567,6 @@ export class AgentChatStore extends BaseStore {
             id: nextItemId(),
             commandId: command.commandId,
             turnKey: command.turnKey,
-            setup: input.data,
             plan,
             planHash,
             status: "ready",

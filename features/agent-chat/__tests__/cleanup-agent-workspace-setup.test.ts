@@ -214,7 +214,6 @@ describe("CleanupAgentWorkspaceSetupInteractor", () => {
         retainedResources: 0,
         missingResources: 0,
         retainedReasons: [],
-        terminologyRestored: true,
       },
     });
     expect(ctx.setupRepo.planCleanupOrThrow).toHaveBeenCalledWith({
@@ -262,7 +261,7 @@ describe("CleanupAgentWorkspaceSetupInteractor", () => {
 
     await expect(ctx.subject.invoke(INPUT)).resolves.toMatchObject({
       ok: true,
-      data: { status: "cleaned", terminologyRestored: false },
+      data: { status: "cleaned" },
     });
     expect(ctx.setupRepo.planCleanupOrThrow).toHaveBeenCalledOnce();
     expect(ctx.updateCompanySettings.invoke).not.toHaveBeenCalled();
@@ -276,7 +275,7 @@ describe("CleanupAgentWorkspaceSetupInteractor", () => {
 
     await expect(ctx.subject.invoke({ ...INPUT, mode: "full" })).resolves.toMatchObject({
       ok: true,
-      data: { status: "cleaned", terminologyRestored: false },
+      data: { status: "cleaned" },
     });
     expect(ctx.setupRepo.planCleanupOrThrow).toHaveBeenCalledWith({
       setupId: SETUP_ID,
@@ -369,7 +368,7 @@ describe("CleanupAgentWorkspaceSetupInteractor", () => {
 
     await expect(ctx.subject.invoke(INPUT)).resolves.toMatchObject({
       ok: true,
-      data: { status: "alreadyCleaned", deletedResources: 0 },
+      data: { status: "cleaned", deletedResources: 0 },
     });
     expect(ctx.setupRepo.planCleanupOrThrow).not.toHaveBeenCalled();
     expect(ctx.setupRepo.recordCleanupResultOrThrow).not.toHaveBeenCalled();
@@ -390,7 +389,7 @@ describe("CleanupAgentWorkspaceSetupInteractor", () => {
     await expect(ctx.subject.invoke(INPUT)).resolves.toMatchObject({
       ok: true,
       data: {
-        status: "alreadyCleaned",
+        status: "cleaned",
         deletedResources: 19,
         retainedResources: 0,
         missingResources: 1,

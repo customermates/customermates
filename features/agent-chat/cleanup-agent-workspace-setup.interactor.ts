@@ -38,9 +38,8 @@ export const CleanupAgentWorkspaceSetupSchema = z.object({
 export type CleanupAgentWorkspaceSetupData = z.infer<typeof CleanupAgentWorkspaceSetupSchema>;
 
 const CleanupAgentWorkspaceSetupResultSchema = AgentWorkspaceSetupCleanupSummarySchema.extend({
-  status: z.enum(["cleaned", "partiallyCleaned", "alreadyCleaned"]),
+  status: z.enum(["cleaned", "partiallyCleaned"]),
   setupId: z.string(),
-  terminologyRestored: z.boolean(),
 });
 
 export type CleanupAgentWorkspaceSetupResult = Data<typeof CleanupAgentWorkspaceSetupResultSchema>;
@@ -193,10 +192,9 @@ export class CleanupAgentWorkspaceSetupInteractor extends AuthenticatedInteracto
       return {
         ok: true,
         data: {
-          status: "alreadyCleaned",
+          status: "cleaned",
           setupId: setup.id,
           ...existingCleanupSummary(setup),
-          terminologyRestored: false,
         },
       };
     }
@@ -208,7 +206,6 @@ export class CleanupAgentWorkspaceSetupInteractor extends AuthenticatedInteracto
           status: "partiallyCleaned",
           setupId: setup.id,
           ...existingCleanupSummary(setup),
-          terminologyRestored: false,
         },
       };
     }
@@ -226,7 +223,6 @@ export class CleanupAgentWorkspaceSetupInteractor extends AuthenticatedInteracto
           status: "partiallyCleaned",
           setupId: setup.id,
           ...existingCleanupSummary(setup),
-          terminologyRestored: false,
         },
       };
     }
@@ -283,7 +279,6 @@ export class CleanupAgentWorkspaceSetupInteractor extends AuthenticatedInteracto
         retainedResources,
         missingResources,
         retainedReasons,
-        terminologyRestored: shouldRestoreTerminology,
       },
     };
   }

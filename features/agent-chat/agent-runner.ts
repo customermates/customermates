@@ -357,7 +357,6 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
                 const setupPart: Extract<AgentMessagePart, { type: "workspace_setup" }> = {
                   type: "workspace_setup",
                   id: part.toolCallId,
-                  setup: setup.data,
                   plan,
                   planHash: await hashAgentWorkspaceSetupPlan(plan),
                   status: "preparing",

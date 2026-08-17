@@ -23,11 +23,7 @@ import { AgentSessionUnavailableError } from "@/core/errors/app-errors";
 import { CHIP_COLORS } from "@/constants/chip-colors";
 import { DisplayType } from "@/features/widget/widget.schema";
 
-import {
-  agentWorkspaceSetupCounts,
-  agentWorkspaceSetupTerminologyEntries,
-  type AgentSetupColumnPlan,
-} from "./agent-workspace-setup";
+import { agentWorkspaceSetupTerminologyEntries, type AgentSetupColumnPlan } from "./agent-workspace-setup";
 import type {
   AgentSetupResourceKind,
   AgentSetupResourceReference,
@@ -44,13 +40,8 @@ export const ApplyAgentWorkspaceSetupSchema = z.object({
 export type ApplyAgentWorkspaceSetupData = z.infer<typeof ApplyAgentWorkspaceSetupSchema>;
 
 const ApplyAgentWorkspaceSetupResultSchema = z.object({
-  status: z.enum(["applied", "alreadyApplied", "notEmpty"]),
+  status: z.enum(["applied", "notEmpty"]),
   setupId: z.string().nullable(),
-  counts: z.object({
-    columns: z.number().int().nonnegative(),
-    records: z.number().int().nonnegative(),
-    widgets: z.number().int().nonnegative(),
-  }),
 });
 
 export type ApplyAgentWorkspaceSetupResult = Data<typeof ApplyAgentWorkspaceSetupResultSchema>;
@@ -164,7 +155,6 @@ export class ApplyAgentWorkspaceSetupInteractor extends AuthenticatedInteractor<
     }
 
     const plan = reviewed.plan;
-    const counts = agentWorkspaceSetupCounts(plan);
     const existing = await this.deps.setupRepo.findAppliedSetupByReview({
       conversationId: data.conversationId,
       reviewMessageId: reviewed.reviewMessageId,
@@ -174,13 +164,13 @@ export class ApplyAgentWorkspaceSetupInteractor extends AuthenticatedInteractor<
     if (existing) {
       return {
         ok: true,
-        data: { status: "alreadyApplied", setupId: existing.id, counts },
+        data: { status: "applied", setupId: existing.id },
       };
     }
 
     const signals = await this.deps.chatRepo.getWorkspaceSetupSignals();
     if (signals.contacts || signals.organizations || signals.deals || signals.services || signals.tasks)
-      return { ok: true, data: { status: "notEmpty", setupId: null, counts } };
+      return { ok: true, data: { status: "notEmpty", setupId: null } };
 
     const user = getTenantUser();
     const settings = await dataOrThrow(this.deps.getCompanySettings.invoke());
@@ -343,6 +333,6 @@ export class ApplyAgentWorkspaceSetupInteractor extends AuthenticatedInteractor<
       resources,
     });
 
-    return { ok: true, data: { status: "applied", setupId: setup.id, counts } };
+    return { ok: true, data: { status: "applied", setupId: setup.id } };
   }
 }
