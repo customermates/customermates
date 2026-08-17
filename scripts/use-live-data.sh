@@ -78,7 +78,7 @@ temporary_directory="$(mktemp -d "${TMPDIR:-/tmp}/customermates-live-data.XXXXXX
 trap 'rm -rf "$temporary_directory"' EXIT
 archive="$temporary_directory/snapshot.dump"
 
-echo "[1/5] Exporting Production over a read-only session. Nothing is written to Production."
+echo "[1/6] Exporting Production over a read-only session. Nothing is written to Production."
 PGOPTIONS='-c default_transaction_read_only=on' pg_dump "$production_url" \
   --format=custom \
   --no-owner \
@@ -88,17 +88,17 @@ PGOPTIONS='-c default_transaction_read_only=on' pg_dump "$production_url" \
 unset production_url
 echo "      Export finished: $(du -h "$archive" | cut -f1) archive written to a temporary file."
 
-echo "[2/5] Verifying the archive before anything is destroyed."
+echo "[2/6] Verifying the archive before anything is destroyed."
 archive_tables="$(pg_restore --list "$archive" | grep -c 'TABLE DATA' || true)"
 echo "      Archive is readable and contains $archive_tables tables with data."
 
-echo "[3/5] Dropping and recreating the local database \"$database_name\"."
+echo "[3/6] Dropping and recreating the local database \"$database_name\"."
 dropdb --if-exists --force --maintenance-db="$admin_url" "$database_name"
 createdb --maintenance-db="$admin_url" "$database_name"
 psql "$destination_url" --no-psqlrc --quiet --set=ON_ERROR_STOP=1 -c 'DROP SCHEMA IF EXISTS public CASCADE;'
 echo "      Recreated. Any data previously in \"$database_name\" is gone."
 
-echo "[4/5] Restoring the snapshot into \"$database_name\". This is the slow step."
+echo "[4/6] Restoring the snapshot into \"$database_name\". This is the slow step."
 pg_restore \
   --exit-on-error \
   --single-transaction \
@@ -108,7 +108,7 @@ pg_restore \
   "$archive"
 echo "      Restore complete."
 
-echo "[5/5] Disabling webhooks so the copy cannot call customer endpoints."
+echo "[5/6] Disabling webhooks so the copy cannot call customer endpoints."
 disabled_endpoints="$(psql "$destination_url" --no-psqlrc --quiet --tuples-only --no-align --set=ON_ERROR_STOP=1 -c '
 UPDATE "Webhook"
 SET "enabled" = false,
@@ -133,6 +133,41 @@ SET "status" = '"'"'failed'"'"',
 WHERE "status" IN ('"'"'pending'"'"', '"'"'processing'"'"')
 RETURNING 1;' | grep -c 1 || true)"
 echo "      $failed_in_flight deliveries were in flight at export time and were marked failed."
+
+echo "[6/6] Sanitizing stored credentials so the copy cannot authenticate anywhere."
+psql "$destination_url" --no-psqlrc --quiet --set=ON_ERROR_STOP=1 <<'SQL'
+UPDATE "AuthAccount"
+SET "accessToken" = NULL,
+    "refreshToken" = NULL,
+    "idToken" = NULL,
+    "password" = NULL;
+UPDATE "OauthApplication" SET "clientSecret" = NULL;
+UPDATE "Subscription" SET "lemonSqueezyId" = NULL;
+UPDATE "AuthSession" SET "token" = 'disabled-' || "id";
+UPDATE "InviteToken" SET "token" = 'disabled-' || "id";
+UPDATE "OauthAccessToken"
+SET "accessToken" = 'disabled-access-' || "id",
+    "refreshToken" = 'disabled-refresh-' || "id";
+UPDATE "ConnectedAccount" SET "unipileAccountId" = 'disabled-' || "id";
+SQL
+
+live_credentials="$(psql "$destination_url" --no-psqlrc --quiet --tuples-only --no-align --set=ON_ERROR_STOP=1 <<'SQL'
+SELECT (SELECT count(*) FROM "AuthAccount" WHERE "accessToken" IS NOT NULL OR "refreshToken" IS NOT NULL OR "idToken" IS NOT NULL OR "password" IS NOT NULL)
+     + (SELECT count(*) FROM "OauthApplication" WHERE "clientSecret" IS NOT NULL)
+     + (SELECT count(*) FROM "Subscription" WHERE "lemonSqueezyId" IS NOT NULL)
+     + (SELECT count(*) FROM "AuthSession" WHERE "token" NOT LIKE 'disabled-%')
+     + (SELECT count(*) FROM "InviteToken" WHERE "token" NOT LIKE 'disabled-%')
+     + (SELECT count(*) FROM "OauthAccessToken" WHERE "accessToken" NOT LIKE 'disabled-%' OR "refreshToken" NOT LIKE 'disabled-%')
+     + (SELECT count(*) FROM "ConnectedAccount" WHERE "unipileAccountId" NOT LIKE 'disabled-%');
+SQL
+)"
+echo "      Provider tokens, session and invite tokens, OAuth secrets, billing and messaging account ids replaced."
+echo "      Verification: $live_credentials usable credentials remain in the copy."
+
+if [[ "$live_credentials" != "0" ]]; then
+  echo "Sanitization did not clear every credential. Refusing to leave the copy in that state." >&2
+  exit 1
+fi
 
 if [[ "$apply_migrations" == "true" ]]; then
   echo "Applying migrations the snapshot has not seen yet."
