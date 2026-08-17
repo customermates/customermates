@@ -201,8 +201,8 @@ export class PrismaUserRepo
 
     const users = await this.prisma.user.findMany({
       where: {
-        id: { in: Array.from(ids) },
         ...this.accessWhere("user"),
+        AND: [{ id: { in: Array.from(ids) } }],
       },
       select: { id: true },
     });
@@ -213,8 +213,8 @@ export class PrismaUserRepo
   async getUserById(id: string) {
     const user = await this.prisma.user.findFirst({
       where: {
-        id,
         ...this.accessWhere("user"),
+        AND: [{ id }],
       },
       select: this.userSelect,
     });
