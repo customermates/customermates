@@ -125,8 +125,9 @@ describe("environment configuration", () => {
     expect(useLiveData).toContain('read -r -s -p "Paste the Production direct database URL (input hidden): "');
     expect(useLiveData).toContain('PGOPTIONS=\'-c default_transaction_read_only=on\' pg_dump "$production_url"');
     expect(useLiveData).toContain('pg_restore --list "$archive"');
+    expect(useLiveData).toContain("dropdb --if-exists --force");
     expect(useLiveData.indexOf('pg_restore --list "$archive"')).toBeLessThan(
-      useLiveData.indexOf('dropdb --if-exists --force "$database_name"'),
+      useLiveData.indexOf("dropdb --if-exists --force"),
     );
     expect(useLiveData).toContain("--exit-on-error");
     expect(useLiveData).toContain('SET "enabled" = false');
