@@ -5,6 +5,8 @@ import type { GetResult } from "@/core/base/base-get.interactor";
 
 import { useEffect, useLayoutEffect } from "react";
 
+import { connectDataViewUrlSync } from "./data-view-url-sync";
+
 type LinkedStore = Pick<BaseDataViewStore<HasId>, "registerOnChange">;
 
 export function useDataViewSync<E extends HasId>(
@@ -15,7 +17,7 @@ export function useDataViewSync<E extends HasId>(
   useLayoutEffect(() => store.setItems(initialResult), [initialResult]);
 
   useEffect(() => {
-    const cleanupUrlSync = store.withUrlSync();
+    const cleanupUrlSync = connectDataViewUrlSync(store);
     const unregisters = linkedStores.map((s) => s.registerOnChange(() => store.refresh()));
     return () => {
       cleanupUrlSync();

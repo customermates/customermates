@@ -10,7 +10,7 @@ hero:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "\u2713 No credit card required \u2713 First 7 days free"
+  hint: "\u2713 No credit card required \u2713 First [[commercial.trial.days]] days free"
 
 comparison:
   competitorName: Notion
@@ -22,7 +22,7 @@ comparison:
         source: 2 minutes
         competitor: Hours to weeks (DIY)
       - name: Cost
-        source: "From \u20AC12 / month / user"
+        source: "From [[commercial.price.starter.monthly]] / month / user"
         competitor: $10 to $20 / member / month
       - name: Free start
         source: true
@@ -57,15 +57,15 @@ comparison:
         source: Pro+, AI can operate it
         competitor: false
       - name: AI agents operate the CRM (native MCP)
-        source: 45 MCP tools (Claude, ChatGPT, Gemini)
+        source: "[[derived.mcp.tools.total]] MCP tools (Claude, ChatGPT, Gemini)"
         competitor: Notion AI (not a CRM agent)
   - title: Data protection & security
     features:
-      - name: GDPR compliant
-        source: true
+      - name: GDPR documentation
+        source: DPA + SCCs; no certification
         competitor: Partially
       - name: Hosting
-        source: EU / Germany
+        source: EU database region
         competitor: USA (AWS)
       - name: Data sovereignty
         source: true
@@ -93,15 +93,15 @@ comparison:
 
 cta:
   action: Ready to replace your Notion CRM?
-  description: Stop maintaining spreadsheets disguised as databases. Get a real CRM with pipelines, automation, and native AI integration, transparent tiers from €12/user/month.
+  description: Stop maintaining spreadsheets disguised as databases. Get a real CRM with pipelines, automation, and MCP access for external AI clients, transparent tiers from [[commercial.price.starter.monthly]]/user/month.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "\u2713 No credit card required \u2713 First 7 days free"
+  hint: "\u2713 No credit card required \u2713 First [[commercial.trial.days]] days free"
 ---
 
-> If you are searching for a **Notion alternative** that actually works as a CRM, you are not alone. Thousands of teams build custom databases inside [Notion](https://www.notion.so/) hoping to track contacts, deals, and sales pipelines, only to discover that a docs tool cannot replace a purpose-built CRM. Customermates is the Notion alternative designed for customer relationship management from day one, built around two ideas: AI agents (Claude, ChatGPT, Gemini) operate the CRM directly through a [native MCP integration](/features/api) (45 tools), and a native unified inbox handles email, LinkedIn, WhatsApp, Instagram, and Telegram in one place the same agents can work. [Contacts](/features/contact-management), [deal pipelines](/features/pipeline), [sales automation](/features/sales-automation), and [n8n workflow automation](/features/workflow-automation) are all included from €12 per user per month, hosted in the EU.
+> If you are searching for a **Notion alternative** that actually works as a CRM, you are not alone. Thousands of teams build custom databases inside [Notion](https://www.notion.so/) hoping to track contacts, deals, and sales pipelines, only to discover that a docs tool cannot replace a purpose-built CRM. Customermates is the Notion alternative designed for customer relationship management from day one, built around two ideas: AI agents (Claude, ChatGPT, Gemini) operate the CRM directly through a [native MCP integration](/features/api) ([[derived.mcp.tools.total]] tools), and a native unified inbox handles email, LinkedIn, WhatsApp, Instagram, and Telegram in one place the same agents can work. [Contacts](/features/contact-management), [deal pipelines](/features/pipeline), [sales automation](/features/sales-automation), and [n8n workflow automation](/features/workflow-automation) are all included from [[commercial.price.starter.monthly]] per user per month, hosted in the EU.
 
 ## Why Teams Search for a Notion Alternative
 
@@ -117,20 +117,20 @@ These are not edge cases, they are the daily requirements of any team managing c
 
 ## Notion Alternative Comparison Table
 
-| Feature | Customermates | Notion | Airtable | ClickUp |
-|---------|--------------|--------|----------|---------|
-| Price/user | From €12/month | $10-$20/mo | $20/mo | $7-$12/mo |
-| CRM out of the box | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> |
-| Deal pipelines | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> |
-| Contact management | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> |
-| Unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) (Pro+) | <StatusPartial /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusPartial /> |
-| CRM automation | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> |
-| AI agents operate the CRM (MCP) | <StatusAvailable /> | <StatusPartial /> | <StatusUnavailable /> | <StatusUnavailable /> |
-| EU/GDPR hosting | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
-| Open source | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
-| Self-hosting | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
-| n8n automation | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
-| [API access](/features/api) | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> |
+| Feature                                                               | Customermates                                   | Notion                | Airtable              | ClickUp               |
+| --------------------------------------------------------------------- | ----------------------------------------------- | --------------------- | --------------------- | --------------------- |
+| Price/user                                                            | From [[commercial.price.starter.monthly]]/month | $10-$20/mo            | $20/mo                | $7-$12/mo             |
+| CRM out of the box                                                    | <StatusAvailable />                             | <StatusUnavailable /> | <StatusPartial />     | <StatusPartial />     |
+| Deal pipelines                                                        | <StatusAvailable />                             | <StatusUnavailable /> | <StatusPartial />     | <StatusPartial />     |
+| Contact management                                                    | <StatusAvailable />                             | <StatusUnavailable /> | <StatusPartial />     | <StatusPartial />     |
+| Unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) (Pro+) | <StatusPartial />                               | <StatusUnavailable /> | <StatusUnavailable /> | <StatusPartial />     |
+| CRM automation                                                        | <StatusAvailable />                             | <StatusUnavailable /> | <StatusPartial />     | <StatusPartial />     |
+| AI agents operate the CRM (MCP)                                       | <StatusAvailable />                             | <StatusPartial />     | <StatusUnavailable /> | <StatusUnavailable /> |
+| EU/GDPR hosting                                                       | <StatusAvailable />                             | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
+| Open source                                                           | <StatusAvailable />                             | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
+| Self-hosting                                                          | <StatusAvailable />                             | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
+| n8n automation                                                        | <StatusAvailable />                             | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
+| [API access](/features/api)                                           | <StatusAvailable />                             | <StatusAvailable />   | <StatusAvailable />   | <StatusAvailable />   |
 
 [Airtable](https://www.airtable.com/) can function as a lightweight database but still lacks native CRM pipelines and email integration. [ClickUp](https://clickup.com/) excels at project management but treats CRM as an afterthought. Customermates is the only Notion alternative in this comparison that provides a complete CRM from the first login.
 
@@ -142,15 +142,15 @@ Using Notion as a CRM means building everything yourself. You need to create dat
 
 ## Pricing
 
-Customermates starts at €12 per user per month (Starter), with every core CRM feature included, contacts, deals, pipelines, custom fields, native AI/MCP integration, n8n automation. Pro (€29) and Business (€69) add the unified inbox and more connected accounts. Visit our [pricing page](/pricing) for details. Read our [CRM cost](/blog/crm-cost) guide for context on what CRM software typically costs in 2026.
+Customermates starts at [[commercial.price.starter.monthly]] per user per month (Starter), with every core CRM feature included, contacts, deals, pipelines, custom fields, MCP access for external AI clients, n8n automation. Pro ([[commercial.price.pro.monthly]]) and Business ([[commercial.price.business.monthly]]) add the unified inbox and more connected accounts. Visit our [pricing page](/pricing) for details. Read our [CRM cost](/blog/crm-cost) guide for context on what CRM software typically costs in 2026.
 
 Notion starts free for personal use but moves to $10/member/month (Plus) or $20/member/month (Business) for teams (annual billing). While the pricing looks competitive on paper, you are paying for a docs and wiki tool and then investing significant time building CRM functionality on top of it. The true cost of using Notion as a CRM is not the subscription, it is the hours spent on setup, maintenance, and the workarounds for features that a [purpose-built CRM](/blog/best-crm-software) provides natively.
 
 ## Features
 
-This is where the gap is unmistakable. Customermates provides native CRM capabilities: [contact and organization management](/features/contact-management), deal tracking with visual [pipelines](/features/pipeline), [task management](/features/task-management), [service tracking](/features/customer-service), [native AI integration](/features/sales-automation), and [workflow automation](/features/workflow-automation) on Starter, plus [email integration](/features/email-integration) via the unified inbox from Pro. These are not workarounds, they are native features built into the product.
+This is where the gap is unmistakable. Customermates provides native CRM capabilities: [contact and organization management](/features/contact-management), deal tracking with visual [pipelines](/features/pipeline), [task management](/features/task-management), [service tracking](/features/customer-service), [MCP access for external AI clients](/features/sales-automation), and [workflow automation](/features/workflow-automation) on Starter, plus [email integration](/features/email-integration) via the unified inbox from Pro. These are not workarounds, they are native features built into the product.
 
-Notion has none of these as native CRM features. You can create databases that resemble contacts and deals, but there are no real pipelines with stage automation, no email integration, no CRM-specific [reporting](/features/reporting), and no native AI integration for [sales workflows](/features/sales). Every CRM function in Notion requires manual configuration and ongoing maintenance. When your sales process changes, you must rebuild your Notion databases to match, a task that a real CRM handles through configuration, not reconstruction.
+Notion has none of these as native CRM features. You can create databases that resemble contacts and deals, but there are no real pipelines with stage automation, no email integration, no CRM-specific [reporting](/features/reporting), and no MCP access for external AI clients in [sales workflows](/features/sales). Every CRM function in Notion requires manual configuration and ongoing maintenance. When your sales process changes, you must rebuild your Notion databases to match, a task that a real CRM handles through configuration, not reconstruction.
 
 ## Open Source & Self-Hosting
 
@@ -160,13 +160,13 @@ Notion is closed source with no self-hosting option. Your data lives on Notion's
 
 ## Data Protection & GDPR
 
-Customermates is GDPR and DSGVO native. All data is hosted in the EU (Germany), with full data control. [Self-hosting](/features/self-hosted) is available for organizations requiring maximum data sovereignty.
+Managed Customermates keeps its application database in an EU region, while disclosed subprocessors and international transfers still apply. [Self-hosting](/features/self-hosted) lets the operator choose the database region and makes the operator responsible for connected services and the full processing chain.
 
 Notion is a US-based company hosting data primarily on AWS in the United States. While Notion has taken steps toward GDPR compliance, EU data residency is not guaranteed. For European teams managing customer contact information, deal data, and communication histories, this raises significant compliance questions. If GDPR matters to your business, Customermates is the Notion alternative that takes it seriously. Compare how other CRM providers handle this in our [CRM comparison](/blog/crm-comparison) guide.
 
 ## Integration & Automation
 
-Customermates includes [n8n](https://n8n.io/) automation built in, full [API access](/features/api), and native AI integration from day one. CRM-specific automations, like moving deals through pipeline stages, sending [follow-up reminders](/features/follow-up), or triggering workflows on contact updates, work out of the box. You can also connect to Slack, LinkedIn, and hundreds of other services through [integrations](/features/integrations).
+Customermates gives you full [API access](/features/api), webhooks for your own [n8n](https://n8n.io/) instance, and MCP access for external AI clients from day one. CRM-specific automations, like moving deals through pipeline stages, sending [follow-up reminders](/features/follow-up), or triggering workflows on contact updates, work out of the box. You can also connect to Slack, LinkedIn, and hundreds of other services through [integrations](/features/integrations).
 
 Notion offers a public API and basic automations (database triggers, simple notifications), but these are general-purpose tools, not CRM automations. There is no native way to automate deal workflows, send CRM emails, or trigger sales-specific actions. Connecting Notion to external tools for CRM functionality adds complexity, fragility, and maintenance overhead.
 
@@ -178,11 +178,11 @@ Notion is an excellent workspace for documentation and project management, but i
 
 ### What is the best Notion alternative for CRM?
 
-For customer relationship management, Customermates is the best Notion alternative. It provides native contacts, deals, pipelines, AI agents that operate the CRM through native MCP, and n8n automation from €12/user/month, with email, LinkedIn, WhatsApp, Instagram, and Telegram unified in the Pro tier. Unlike general-purpose alternatives like Coda or Obsidian, Customermates is designed specifically for CRM workflows.
+For customer relationship management, Customermates is the best Notion alternative. It provides native contacts, deals, pipelines, AI agents that operate the CRM through native MCP, and n8n automation from [[commercial.price.starter.monthly]]/user/month, with email, LinkedIn, WhatsApp, Instagram, and Telegram unified in the Pro tier. Unlike general-purpose alternatives like Coda or Obsidian, Customermates is designed specifically for CRM workflows.
 
 ### Can I migrate from Notion to Customermates?
 
-Yes. You can export your Notion databases as CSV files and import them directly into Customermates. The import maps Notion properties to CRM fields, so your contacts, deals, and organizations transfer cleanly. [Start your free trial](/auth/signup) and test the migration before committing.
+Yes. You can export your Notion databases and load them into Customermates through the REST API, or hand the export to an AI agent over MCP. The import maps Notion properties to CRM fields, so your contacts, deals, and organizations transfer cleanly. [Start your free trial](/auth/signup) and test the migration before committing.
 
 ### Is Customermates open source?
 
@@ -194,4 +194,4 @@ Airtable and ClickUp are strong tools for databases and project management respe
 
 ## Conclusion
 
-Notion excels at documentation, wikis, and lightweight project management. But using it as a CRM means accepting a tool that lacks native CRM features, requires extensive manual setup, and stores data in the US. Customermates is built from the ground up as a CRM, [open source](/blog/open-source-crm), EU-hosted, GDPR-native, with every core CRM feature included from €12/user/month. If you have outgrown your Notion CRM hack, [start your free trial today](/auth/signup) and experience a real CRM. See also how Customermates compares to [HubSpot](/compare/hubspot-alternative), [Pipedrive](/compare/pipedrive-alternative), [Monday](/compare/monday-alternative), or [Zoho CRM](/compare/zoho-crm-alternative).
+Notion excels at documentation, wikis, and lightweight project management. But using it as a CRM means accepting a tool that lacks native CRM features, requires extensive manual setup, and stores data in the US. Customermates is built from the ground up as a CRM, [open source](/blog/open-source-crm), EU-hosted, GDPR-native, with every core CRM feature included from [[commercial.price.starter.monthly]]/user/month. If you have outgrown your Notion CRM hack, [start your free trial today](/auth/signup) and experience a real CRM. See also how Customermates compares to [HubSpot](/compare/hubspot-alternative), [Pipedrive](/compare/pipedrive-alternative), [Monday](/compare/monday-alternative), or [Zoho CRM](/compare/zoho-crm-alternative).

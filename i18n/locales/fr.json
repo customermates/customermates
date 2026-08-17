@@ -379,7 +379,7 @@
         "stage": "Étape",
         "status": "Statut",
         "strategySprint": "Sprint stratégique",
-        "tasksByStatus": "Tâches par statut",
+        "tasksByStatus": "Tâches par statut personnalisé",
         "teamPlan": "Formule Équipe",
         "toDo": "À faire",
         "won": "Gagné"
@@ -940,7 +940,7 @@
       "body": "Commencez par ajouter votre premier élément « {singular} ».",
       "clearFilters": "Effacer les filtres",
       "cta": "Ajouter votre premier élément « {singular} »",
-      "dashboardBody": "Les graphiques et indicateurs apparaîtront ici à mesure que vous ajouterez des données.",
+      "dashboardBody": "Les widgets apparaîtront ici à mesure que vous ajouterez des données.",
       "dashboardTitle": "Rien à afficher pour le moment",
       "filteredBody": "Aucun élément « {plural} » ne correspond à vos filtres.",
       "filteredTitle": "Aucune correspondance",
@@ -951,7 +951,10 @@
       "title": "Aucun élément « {plural} » pour le moment"
     },
     "errors": {
-      "activityScopeRequiresBoth": "entityType et entityId doivent être fournis ensemble pour cibler un seul enregistrement.",
+      "activityDuplicateFilterField": "Chaque champ de filtre d'activité ne peut être configuré qu'une seule fois.",
+      "activityPageOutOfRange": "La chronologie des activités ne peut pas remonter aussi loin. Affinez plutôt les filtres.",
+      "activityScopeTooManyIds": "Un périmètre d'activité ne peut pas sélectionner plus de 50 enregistrements d'un même type.",
+      "activitySourcesUnavailable": "Vous n'avez accès à aucune source de la chronologie des activités.",
       "apiKeyMaxExpiration": "L'expiration d'une clé API ne peut pas dépasser 365 jours.",
       "assigneeRequired": "Vous devez vous assigner cet élément. Notez que vous ne pourrez consulter que les éléments qui vous sont assignés.",
       "calendarEventNotFound": "ID d'évènement d'agenda introuvable ou inaccessible.",
@@ -1037,6 +1040,7 @@
       "widgetGroupByCustomColumnIdRequired": "L'ID de colonne personnalisée est obligatoire lors d'un regroupement par colonne personnalisée.",
       "widgetGroupByEntityTypeNotAllowedForCount": "Le regroupement par type d'élément n'est pas autorisé lorsque le type d'agrégation est le comptage.",
       "widgetGroupByTypeMustMatchEntityType": "Le type de regroupement doit correspondre au type d'élément du graphique.",
+      "widgetKindImmutable": "Le type d'un widget ne peut pas être modifié après sa création.",
       "widgetNotFound": "ID de widget introuvable ou inaccessible.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Les tâches ne peuvent être regroupées que par colonnes personnalisées, pas par types d'élément."
     },
@@ -1173,6 +1177,7 @@
         "none": "Aucun préréglage"
       },
       "searchLabel": "Rechercher",
+      "selectionLimit": "Vous pouvez sélectionner jusqu'à {count} valeurs.",
       "selectOperator": "Sélectionner une condition…",
       "unavailableValue": "Filtre non disponible"
     },
@@ -1196,11 +1201,8 @@
       "description": "Description",
       "displayLanguage": "Langue d'affichage",
       "displayOptions": {
-        "barColors": "Couleurs des barres",
-        "displayType": "Type d'affichage",
         "reverseXAxis": "Inverser l'axe X",
         "reverseYAxis": "Inverser l'axe Y",
-        "showFilters": "Afficher les filtres",
         "showLegend": "Afficher la légende",
         "useGroupColors": "Utiliser les couleurs des options"
       },
@@ -1213,7 +1215,6 @@
       "firstName": "Prénom",
       "formattingLocale": "Format régional",
       "groupByValue": "Regroupement",
-      "isTemplate": "Partager comme modèle avec les autres utilisateurs de votre organisation",
       "label": "Libellé",
       "lastName": "Nom",
       "message": "Message",
@@ -1228,7 +1229,6 @@
       "roleId": "Rôle",
       "secret": "Secret",
       "status": "Statut",
-      "template": "Modèle",
       "theme": "Thème",
       "type": "Type",
       "unavailableSelection": "Sélection indisponible",
@@ -1268,8 +1268,7 @@
       "whatsapp": "WhatsApp"
     },
     "scroll": {
-      "backToTop": "Back to top",
-      "jumpToLatest": "Aller aux plus récents"
+      "backToTop": "Back to top"
     },
     "sidebar": {
       "description": "Affiche la barre latérale mobile.",
@@ -1294,22 +1293,34 @@
         "channels": "Canaux",
         "contacts": "Contacts",
         "createdAt": "Créé le",
+        "customFieldValues": "Champs personnalisés",
         "deals": "Affaires",
         "description": "Description",
+        "displayName": "Nom affiché",
         "email": "E-mail",
+        "emailAddress": "Adresse e-mail",
+        "enabled": "Activé",
         "entity": "Élément",
         "entityId": "ID de l'élément",
+        "entityType": "Type d'enregistrement",
         "event": "Évènement",
         "events": "Évènements",
         "expiresAt": "Expire le",
         "firstName": "Prénom",
+        "id": "ID",
         "identifiers": "Canaux",
+        "isSystemRole": "Rôle système",
+        "label": "Libellé",
         "lastName": "Nom",
         "lastRequest": "Dernière utilisation",
         "name": "Nom",
         "notes": "Notes",
+        "options": "Options",
         "organizations": "Organisations",
+        "permissions": "Autorisations",
+        "provider": "Fournisseur",
         "role": "Rôle",
+        "secret": "Secret",
         "services": "Services",
         "status": "Statut",
         "statusCode": "Code de statut",
@@ -1376,7 +1387,7 @@
     }
   },
   "ConnectedAccountsCard": {
-    "accountLimitReached": "La formule Business inclut 3 comptes connectés par utilisateur. Contactez-nous au sujet de la formule Enterprise pour un nombre illimité de comptes.",
+    "accountLimitReached": "Vous avez atteint la limite de comptes connectés de cette formule. Contactez-nous au sujet de la formule Enterprise pour un nombre illimité de comptes.",
     "alreadyExistsToastDescription": "Ce compte est déjà connecté par un membre de votre espace de travail. Demandez-lui de le partager avec l'espace de travail pour éviter les messages en double dans la boîte de réception.",
     "alreadyExistsToastTitle": "Compte déjà connecté",
     "channels": {
@@ -1493,7 +1504,19 @@
     "title": "Discutons."
   },
   "Dashboard": {
-    "addCard": "Ajouter un graphique",
+    "activityWidget": {
+      "activityCount": "{count, plural, =1 {1 activité} other {# activités}}",
+      "error": "Les activités n'ont pas pu être chargées.",
+      "loadOlderError": "Les activités plus anciennes n'ont pas pu être chargées. Les entrées déjà affichées restent disponibles.",
+      "noAccount": "Connectez un compte de messagerie ou d'agenda pour afficher l'activité.",
+      "noActivity": "Aucune activité pour le moment.",
+      "noMatches": "Aucune activité ne correspond aux filtres actuels.",
+      "noPermission": "Vous n'avez accès à aucune activité de cet espace de travail.",
+      "pageLimitReached": "La page la plus ancienne disponible a été atteinte. Affinez la sélection actuelle pour consulter des activités plus anciennes.",
+      "scopeTooBroad": "Ces filtres de relation correspondent à trop de contacts pour un chargement fiable. Sélectionnez moins d'enregistrements.",
+      "title": "Activité récente"
+    },
+    "addCard": "Ajouter un widget",
     "aggregationTypes": {
       "count": "Nombre de {entities}",
       "dealQuantity": "Nombre de {services} dans les {deals}",
@@ -1511,14 +1534,85 @@
     "groupBys": {
       "none": "Aucun regroupement"
     },
-    "selectWidgetTemplateDescription": "Vous pouvez sélectionner des graphiques existants créés par des membres de vos organisations et les utiliser comme modèle pour votre nouveau graphique.",
     "tabs": {
-      "config": "Configuration",
       "dealFilters": "Filtres pour {deals}",
-      "display": "Affichage",
       "filters": "Filtres {entityType}"
     },
-    "widget": "Graphique"
+    "widgetEditor": {
+      "addTitle": "Ajouter un widget",
+      "appearance": {
+        "chartStyle": "Style de graphique",
+        "colorOption": "Couleur {number}",
+        "colors": "Couleurs",
+        "showFilters": "Afficher le nombre d'activités et les filtres",
+        "showMetricAndFilters": "Afficher l'indicateur et les filtres"
+      },
+      "create": "Créer le widget",
+      "danger": {
+        "deleteLabel": "Supprimer le widget {name}"
+      },
+      "editTitle": "Modifier « {name} »",
+      "filters": {
+        "activityTypeOptions": {
+          "activities": {
+            "description": "Évènements des comptes connectés et des agendas.",
+            "label": "Compte et agenda"
+          },
+          "changes": {
+            "description": "Mises à jour des enregistrements CRM, des champs et des relations.",
+            "label": "Modifications d'enregistrements"
+          },
+          "messages": {
+            "description": "Messages envoyés ou reçus via les canaux connectés.",
+            "label": "Messages"
+          }
+        },
+        "activityTypes": "Types d'activité",
+        "noneAvailable": "Aucun filtre n'est disponible pour ce widget.",
+        "removeUnavailable": "Supprimer le filtre indisponible « {field} »",
+        "title": "Filtres",
+        "unavailable": "{count, plural, =1 {Un filtre enregistré n'est plus disponible. Vous pouvez le conserver ou le supprimer.} other {# filtres enregistrés ne sont plus disponibles. Vous pouvez les conserver ou les supprimer.}}"
+      },
+      "kind": {
+        "activityTimelineDescription": "Suivez les modifications d'enregistrements, les messages et l'activité des comptes ou agendas dans l'ordre chronologique.",
+        "chartDescription": "Comparez vos données CRM dans un graphique.",
+        "title": "Choisir un widget"
+      },
+      "preview": {
+        "activitySummary": "{title}. Filtres : {filters, plural, =0 {aucun} =1 {1 actif} other {# actifs}}.",
+        "chartSummary": "{title}. {summary}. Indicateur : {metric}. Style de graphique : {chart}.",
+        "filterSummary": "{count, plural, =1 {1 filtre} other {# filtres}}",
+        "groupLabel": "Groupe {number}",
+        "title": "Aperçu",
+        "untitled": "Widget sans titre"
+      },
+      "progress": "Étape {current} sur {total}",
+      "progressLabel": "Progression de la création du widget",
+      "save": "Enregistrer les modifications",
+      "sharing": {
+        "template": "Partager comme modèle"
+      },
+      "steps": {
+        "chooseDescription": "Choisissez un format ou partez d'une configuration partagée dans votre espace de travail.",
+        "configureDescription": "Choisissez ce que ce widget affiche et son apparence."
+      },
+      "tabs": {
+        "appearance": "Apparence",
+        "data": "Données",
+        "filters": "Filtres",
+        "filtersLabel": "{count, plural, =0 {Filtres, aucun actif} =1 {Filtres, 1 actif} other {Filtres, # actifs}}",
+        "label": "Paramètres du widget"
+      },
+      "templates": {
+        "by": "Partagé par {name}",
+        "description": "Utilisez une configuration partagée dans votre espace de travail, puis adaptez-la.",
+        "title": "Partir d'un modèle"
+      }
+    },
+    "widgetKinds": {
+      "activityTimeline": "Chronologie des activités",
+      "chart": "Graphique"
+    }
   },
   "DataView": {
     "dragToReorder": "Faire glisser pour réorganiser",
@@ -1764,7 +1858,13 @@
     }
   },
   "EntityTimeline": {
+    "detailDescription": "Détails de l'activité et contexte de l'enregistrement lié.",
+    "error": "Les activités n'ont pas pu être chargées.",
     "loadOlder": "Charger les plus anciens",
+    "loadOlderError": "Les activités plus anciennes n'ont pas pu être chargées. Les entrées déjà affichées restent disponibles.",
+    "moreRecords": "+{count} autres",
+    "pageLimitReached": "La page la plus ancienne disponible a été atteinte. Affinez la sélection actuelle pour consulter des activités plus anciennes.",
+    "scopeTooBroad": "Ces filtres de relation correspondent à trop de contacts pour un chargement fiable. Sélectionnez moins d'enregistrements.",
     "types": {
       "activities": "Activités",
       "changes": "Modifications",
@@ -1864,34 +1964,34 @@
       "badge": "Populaire",
       "compareText": "Comparer les formules",
       "ctaText": "Commencer gratuitement",
-      "featureBusiness": "Business : 1 200 crédits IA hébergés, 3 comptes et boîtes de réception partagées",
-      "featurePro": "Pro : 500 crédits IA hébergés et boîte de réception unifiée",
-      "featureStarter": "Starter : le CRM complet et 200 crédits IA hébergés",
+      "featureBusiness": "Business : {accounts, plural, one {# compte par utilisateur} other {# comptes par utilisateur}}, comptes partagés et assistance prioritaire",
+      "featurePro": "Pro : boîte de réception unifiée, {accounts, plural, one {# compte connecté par utilisateur} other {# comptes connectés par utilisateur}}",
+      "featureStarter": "Starter : le cœur du CRM",
       "period": "/ utilisateur / mois",
-      "price": "à partir de 12 €",
-      "tag": "Géré à Francfort. Commencez gratuitement, sans carte bancaire.",
+      "price": "à partir de {price}",
+      "tag": "Géré pour vous ; base de données en région UE. D’autres prestataires peuvent traiter des données ailleurs.",
       "title": "Cloud"
     },
     "compare": {
       "cancelAnytime": "Résiliable à tout moment",
-      "gdpr": "Conforme au RGPD",
+      "gdpr": "Base de données en région UE ; sans certification",
       "noLimits": "Formules transparentes",
       "openSource": "Open core"
     },
     "eyebrow": "Tarifs",
     "selfHosted": {
       "ctaText": "Télécharger",
-      "featureApi": "API, MCP et webhooks complets",
+      "featureApi": "Interfaces API, MCP et webhooks documentées",
       "featureCommunity": "Assistance communautaire",
-      "featureN8n": "Intégrations n8n",
-      "featureRecords": "Enregistrements illimités",
-      "featureUsers": "Utilisateurs illimités",
-      "period": "pour toujours",
-      "price": "Gratuit",
-      "tag": "À exécuter sur votre serveur avec Docker Compose. Édition communautaire AGPL avec des composants à code source disponible.",
+      "featureN8n": "Interfaces pour une instance n8n distincte",
+      "featureRecords": "Enregistrements CRM principaux",
+      "featureUsers": "Utilisateurs de l’espace de travail",
+      "period": "sous AGPL",
+      "price": "Cœur gratuit",
+      "tag": "Exécutez le cœur de l’application sous AGPL et PostgreSQL sur votre serveur avec Docker Compose, dans le périmètre Starter. Les services externes restent distincts.",
       "title": "Auto-hébergé"
     },
-    "subtitle": "Des formules transparentes, sans coûts cachés. Auto-hébergez gratuitement pour toujours, ou démarrez sur le Cloud sans carte bancaire.",
+    "subtitle": "Des formules transparentes, sans coûts cachés. Auto-hébergez gratuitement le cœur sous AGPL ; les services externes restent distincts. Ou démarrez sur le Cloud sans carte bancaire.",
     "title": "Simple, honnête, européen"
   },
   "HomepageStatsRow": {
@@ -2030,7 +2130,6 @@
     "informationBody": "Nous avons mis à jour les informations juridiques indiquées ci-dessous. Cette notification ne nécessite aucune acceptation, sauf si l’e-mail mentionne également des conditions générales ou un accord de traitement des données mis à jour.",
     "informationSubject": "Informations juridiques de Customermates mises à jour",
     "informationTitle": "Informations juridiques mises à jour",
-    "liveLabel": "Document en vigueur",
     "signoff": "Cordialement,\nBen",
     "subprocessorDeadlineLabel": "Date limite d’opposition au sous-traitant",
     "subprocessorObjection": "Aucune acceptation n’est requise. Si vous vous opposez au changement de sous-traitant indiqué, répondez sans délai indu et avant la date limite mentionnée, en exposant des motifs raisonnables liés à la protection des données.",
@@ -2051,7 +2150,6 @@
     "memberWaiting": "Un administrateur de l’entreprise doit accepter les conditions générales et le DPA mis à jour. Vous pourrez réessayer après leur acceptation ou vous déconnecter.",
     "privacy": "Politique de confidentialité",
     "retry": "Réessayer",
-    "signOut": "Se déconnecter",
     "subprocessors": "Sous-traitants",
     "subtitle": "Un administrateur habilité de l’entreprise doit accepter au plus tard le {date}.",
     "terms": "Conditions générales",
@@ -2218,6 +2316,7 @@
     },
     "next": "Suivant",
     "progress": "Étape {current} sur {total}",
+    "progressLabel": "Progression de la configuration",
     "steps": {
       "ai": {
         "subtitle": "Choisissez l’IA à connecter maintenant. Vous pourrez en ajouter d’autres plus tard.",
@@ -2311,7 +2410,7 @@
     "buttonLabel": "S'inscrire avec {provider}",
     "inviteSubtitle": "Vous avez été invité à rejoindre une équipe sur Customermates. Choisissez votre méthode de connexion pour accepter l'invitation.",
     "inviteTitle": "Accepter l'invitation de l'entreprise",
-    "newCompanySubtitle": "Enregistrez une nouvelle entreprise et testez Customermates gratuitement pendant 7 jours. Sans carte bancaire.",
+    "newCompanySubtitle": "Enregistrez une nouvelle entreprise et testez Customermates gratuitement pendant {days} jours. Sans carte bancaire.",
     "or": "OU",
     "signUpCta": "Créer un compte",
     "switchToSignIn": "Vous avez déjà un compte ? <signInLink>Connectez-vous</signInLink>",
@@ -2332,18 +2431,11 @@
     "managedExternallyNote": "Cet espace de travail utilise une formule Enterprise réglée sur facture. Contactez votre gestionnaire de compte pour toute modification.",
     "manageWithLemonSqueezy": "Gérer avec Lemon Squeezy",
     "picker": {
+      "connectedAccountsPerUser": "{accounts, plural, one {# compte connecté par utilisateur} other {# comptes connectés par utilisateur}}",
       "creditNote": "Les crédits IA hébergés sont renouvelés chaque mois, même en facturation annuelle. Les clients MCP externes utilisent votre propre fournisseur d'IA et ne consomment pas ces crédits.",
       "features": {
-        "business": [
-          "Tout ce qui est inclus dans Pro",
-          "3 comptes connectés par utilisateur",
-          "Comptes partagés et assistance prioritaire"
-        ],
-        "pro": [
-          "Tout ce qui est inclus dans Starter",
-          "Boîte de réception unifiée",
-          "1 compte connecté par utilisateur"
-        ],
+        "business": ["Tout ce qui est inclus dans Pro", "Comptes partagés et assistance prioritaire"],
+        "pro": ["Tout ce qui est inclus dans Starter", "Boîte de réception unifiée"],
         "starter": [
           "CRM complet : contacts, affaires, organisations, tâches",
           "Journal d'audit",
@@ -2353,12 +2445,7 @@
       },
       "hostedAiCredits": "{credits, number} crédits IA hébergés par utilisateur actif / mois",
       "mostPopular": "Le plus populaire",
-      "perUserMonth": "par utilisateur / mois",
-      "price": {
-        "business": "69 €",
-        "pro": "29 €",
-        "starter": "12 €"
-      }
+      "perUserMonth": "par utilisateur / mois"
     },
     "plan": "Formule",
     "planNames": {
@@ -2384,9 +2471,12 @@
     "trialEnds": "Fin de l'essai"
   },
   "SubscriptionExpiredView": {
+    "administratorRequiredDescription": "Un administrateur de l’entreprise doit rétablir l’abonnement. Réessayez ensuite ou contactez notre assistance.",
     "contactSupportCta": "Contacter l'assistance",
-    "description": "Votre période d'essai est terminée et votre entreprise n'a pas d'abonnement actif. Abonnez-vous pour continuer à utiliser Customermates, ou contactez notre assistance si vous avez des questions.",
-    "subtitle": "Votre essai a expiré",
+    "manualEnterpriseBillingDescription": "Votre espace de travail Enterprise est facturé manuellement. Contactez notre assistance pour rétablir l’accès, puis réessayez.",
+    "retry": "Réessayer",
+    "selfServiceCheckoutDescription": "Votre espace de travail n’a plus d’abonnement actif. Choisissez une offre pour continuer à utiliser Customermates, ou contactez notre assistance si vous avez des questions.",
+    "subtitle": "L’accès à l’espace de travail est suspendu",
     "supportEmailSubject": "Question sur l'abonnement",
     "title": "Abonnement requis"
   },

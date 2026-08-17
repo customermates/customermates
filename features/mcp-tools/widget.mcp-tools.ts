@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { EntityType, WidgetGroupByType, AggregationType } from "@/generated/prisma";
+import { EntityType, WidgetGroupByType, AggregationType, WidgetKind } from "@/generated/prisma";
 
 import {
   encodeToToon,
@@ -17,10 +17,11 @@ import {
   getGetWidgetByIdInteractor,
   getDeleteWidgetInteractor,
 } from "@/core/di";
-import { type UpsertWidgetData } from "@/features/widget/upsert-widget.interactor";
+import type { UpsertActivityWidgetData, UpsertChartWidgetData } from "@/features/widget/upsert-widget.interactor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
 import { FilterSchema } from "@/core/base/base-get.schema";
+import { ActivityFiltersSchema } from "@/ee/messaging/activities/activities.schema";
 
 const entityTypeValues = Object.values(EntityType);
 const groupByValues = Object.values(WidgetGroupByType);
@@ -28,71 +29,106 @@ const aggregationValues = Object.values(AggregationType);
 const displayTypeValues = Object.values(DisplayType);
 const chartColorValues = Object.values(ChartColor);
 
-const CreateWidgetSchema = z.object({
-  name: z.string().min(1).describe("Human-readable widget title shown on the dashboard"),
-  entityType: z.enum(EntityType).describe(`Entity type the widget counts/aggregates ${enumHint(entityTypeValues)}`),
-  entityFilters: z
-    .array(FilterSchema)
-    .optional()
-    .describe(`Filters applied to the entity. ${FILTER_FIELD_DESCRIPTION}`),
-  dealFilters: z
-    .array(FilterSchema)
-    .optional()
-    .describe(
-      `Filters applied to deals when aggregating dealValue/dealQuantity. Not allowed when entityType is deal. ${FILTER_FIELD_DESCRIPTION}`,
-    ),
-  displayType: z.enum(DisplayType).describe(`Chart type ${enumHint(displayTypeValues)}`),
-  groupByType: z.enum(WidgetGroupByType).describe(`How to group the data ${enumHint(groupByValues)}`),
-  groupByCustomColumnId: z
-    .uuid()
-    .optional()
-    .describe("Custom-column id to group by. Required if groupByType is customColumn."),
-  aggregationType: z
-    .enum(AggregationType)
-    .describe(
-      `Aggregation to compute. ${enumHint(aggregationValues)}. ` +
-        "count = number of entities; dealValue = sum of related deal values; dealQuantity = sum of related deal quantities.",
-    ),
-});
+const ChartCreateWidgetSchema = z
+  .object({
+    action: z.literal("create"),
+    kind: z.literal(WidgetKind.chart).optional(),
+    name: z.string().min(1).describe("Human-readable widget title shown on the dashboard"),
+    entityType: z.enum(EntityType).describe(`Entity type the widget counts/aggregates ${enumHint(entityTypeValues)}`),
+    entityFilters: z
+      .array(FilterSchema)
+      .optional()
+      .describe(`Filters applied to the entity. ${FILTER_FIELD_DESCRIPTION}`),
+    dealFilters: z
+      .array(FilterSchema)
+      .optional()
+      .describe(
+        `Filters applied to deals when aggregating dealValue/dealQuantity. Not allowed when entityType is deal. ${FILTER_FIELD_DESCRIPTION}`,
+      ),
+    displayType: z.enum(DisplayType).describe(`Chart type ${enumHint(displayTypeValues)}`),
+    groupByType: z.enum(WidgetGroupByType).describe(`How to group the data ${enumHint(groupByValues)}`),
+    groupByCustomColumnId: z
+      .uuid()
+      .optional()
+      .describe("Custom-column id to group by. Required if groupByType is customColumn."),
+    aggregationType: z
+      .enum(AggregationType)
+      .describe(
+        `Aggregation to compute. ${enumHint(aggregationValues)}. ` +
+          "count = number of entities; dealValue = sum of related deal values; dealQuantity = sum of related deal quantities.",
+      ),
+  })
+  .strict();
 
-const UpdateWidgetSchema = z.object({
-  id: z.uuid().describe("Widget id"),
-  name: z.string().min(1).optional(),
-  groupByType: z
-    .enum(WidgetGroupByType)
-    .optional()
-    .describe(`${enumHint(groupByValues)}`),
-  groupByCustomColumnId: z.uuid().optional().describe("Custom-column id. Required if groupByType is customColumn."),
-  aggregationType: z
-    .enum(AggregationType)
-    .optional()
-    .describe(`${enumHint(aggregationValues)}`),
-  entityFilters: z.array(FilterSchema).optional().describe(`REPLACES entity filters. ${FILTER_FIELD_DESCRIPTION}`),
-  dealFilters: z.array(FilterSchema).optional().describe(`REPLACES deal filters. ${FILTER_FIELD_DESCRIPTION}`),
-  displayType: z
-    .enum(DisplayType)
-    .optional()
-    .describe(`${enumHint(displayTypeValues)}`),
-  reverseXAxis: z.boolean().optional(),
-  reverseYAxis: z.boolean().optional(),
-  barColors: z
-    .array(z.enum(ChartColor))
-    .optional()
-    .describe(`Each color ${enumHint(chartColorValues)}`),
-});
+const ActivityCreateWidgetSchema = z
+  .object({
+    action: z.literal("create"),
+    kind: z.literal(WidgetKind.activityTimeline),
+    name: z.string().min(1).describe("Human-readable widget title shown on the dashboard"),
+    timelineFilters: ActivityFiltersSchema.optional(),
+    showFilters: z.boolean().optional().describe("Show the activity count and active filters below the title"),
+  })
+  .strict();
 
-const GetWidgetsSchema = z.object({
-  ids: z.array(z.uuid()).min(1).max(100).describe("Widget ids to fetch"),
-});
+const ChartUpdateWidgetSchema = z
+  .object({
+    action: z.literal("update"),
+    id: z.uuid().describe("Widget id"),
+    name: z.string().min(1).optional(),
+    groupByType: z
+      .enum(WidgetGroupByType)
+      .optional()
+      .describe(`${enumHint(groupByValues)}`),
+    groupByCustomColumnId: z.uuid().optional().describe("Custom-column id. Required if groupByType is customColumn."),
+    aggregationType: z
+      .enum(AggregationType)
+      .optional()
+      .describe(`${enumHint(aggregationValues)}`),
+    entityFilters: z.array(FilterSchema).optional().describe(`REPLACES entity filters. ${FILTER_FIELD_DESCRIPTION}`),
+    dealFilters: z.array(FilterSchema).optional().describe(`REPLACES deal filters. ${FILTER_FIELD_DESCRIPTION}`),
+    displayType: z
+      .enum(DisplayType)
+      .optional()
+      .describe(`${enumHint(displayTypeValues)}`),
+    reverseXAxis: z.boolean().optional(),
+    reverseYAxis: z.boolean().optional(),
+    barColors: z
+      .array(z.enum(ChartColor))
+      .optional()
+      .describe(`Each color ${enumHint(chartColorValues)}`),
+  })
+  .strict();
 
-const DeleteWidgetSchema = z.object({
-  id: z.uuid().describe("Widget id"),
-});
+const ActivityUpdateWidgetSchema = z
+  .object({
+    action: z.literal("update"),
+    id: z.uuid().describe("Widget id"),
+    name: z.string().min(1).optional(),
+    timelineFilters: ActivityFiltersSchema.optional().describe("REPLACES the activity filter array"),
+    showFilters: z.boolean().optional().describe("Show the activity count and active filters below the title"),
+  })
+  .strict();
+
+const GetWidgetsSchema = z
+  .object({
+    action: z.literal("get"),
+    ids: z.array(z.uuid()).min(1).max(100).describe("Widget ids to fetch"),
+  })
+  .strict();
+
+const DeleteWidgetSchema = z.object({ action: z.literal("delete"), id: z.uuid().describe("Widget id") });
+const ListWidgetsSchema = z.object({ action: z.literal("list") });
 
 const ManageWidgetsSchema = z.object({
   action: z
     .enum(["create", "update", "delete", "get", "list"])
-    .describe("list = ids and names, get = full config with computed data, create/update/delete = manage widgets"),
+    .describe(
+      "list = ids, names, and kinds; get = full config (computed data for charts); create/update/delete = manage widgets",
+    ),
+  kind: z
+    .enum(WidgetKind)
+    .optional()
+    .describe("create only. Omit for a chart; use activityTimeline for an activity widget."),
   id: z.uuid().optional().describe("Widget id. Required for update and delete."),
   ids: z.array(z.uuid()).min(1).max(100).optional().describe("get only. Widget ids to fetch."),
   name: z
@@ -143,6 +179,13 @@ const ManageWidgetsSchema = z.object({
     .array(z.enum(ChartColor))
     .optional()
     .describe(`update only. Each color ${enumHint(chartColorValues)}`),
+  timelineFilters: ActivityFiltersSchema.optional().describe(
+    "activityTimeline create/update only; each field may appear once. On update REPLACES the activity filter array. Create rejects inaccessible relationship UUIDs; update may retain or remove only unavailable UUIDs already stored on that widget.",
+  ),
+  showFilters: z
+    .boolean()
+    .optional()
+    .describe("activityTimeline create/update only. Show the activity count and active filters below the title."),
 });
 
 export const manageWidgetsTool = {
@@ -150,20 +193,33 @@ export const manageWidgetsTool = {
   title: "Manage widgets",
   description:
     "Use this when you need to create, update, delete, or read dashboard widgets. " +
-    "action list returns { id, name } pairs. " +
-    "action get takes ids and returns each widget's full configuration INCLUDING its computed data points. " +
-    "Each point has value and either { labelKind: literal, label } or { labelKind: system, systemLabelKey }, so it answers questions like total pipeline value by stage in one call. " +
-    "action create requires name, entityType, displayType, groupByType, aggregationType. " +
-    "action update requires id; only provided fields change, but entityFilters and dealFilters REPLACE the existing arrays. " +
+    "action list returns { id, name, kind } entries. " +
+    "action get returns full configuration; chart widgets include computed data points, while activityTimeline widgets expose timelineFilters for reuse with get_activities. " +
+    "Each chart data point has value and either { labelKind: literal, label } or { labelKind: system, systemLabelKey }, so it answers questions like total pipeline value by stage in one call. " +
+    "For chart creation omit kind and provide name, entityType, displayType, groupByType, aggregationType. " +
+    "For activityTimeline creation provide kind, name, and optional timelineFilters/showFilters. " +
+    "Updates infer the immutable stored kind; only provided fields change and filter arrays replace their previous values. " +
+    "Create rejects inaccessible relationship UUIDs; update may retain or remove an unavailable UUID only when that same UUID is already stored. " +
     "action delete is IRREVERSIBLE.",
-  annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: true,
+    idempotentHint: false,
+    openWorldHint: false,
+  },
   inputSchema: ManageWidgetsSchema,
   execute: async (params: z.infer<typeof ManageWidgetsSchema>) => {
     if (params.action === "list") {
+      const parsed = ListWidgetsSchema.safeParse(params);
+      if (!parsed.success) return validationError(parsed.error);
       const result = await getGetWidgetsInteractor().invoke();
       const widgets = result.data;
       return encodeToToon({
-        items: widgets.map((widget) => ({ id: widget.id, name: widget.name })),
+        items: widgets.map((widget) => ({
+          id: widget.id,
+          name: widget.name,
+          kind: widget.kind,
+        })),
         total: widgets.length,
       });
     }
@@ -175,44 +231,100 @@ export const manageWidgetsTool = {
           const result = await getGetWidgetByIdInteractor().invoke({ id });
           if (!result.ok) return { error: validationError(result.error) };
           const widget = result.data;
-          if (!widget) return { error: await customErrorMessage(CustomErrorCode.widgetNotFound) };
+          if (!widget) {
+            return {
+              error: await customErrorMessage(CustomErrorCode.widgetNotFound),
+            };
+          }
           return widget;
         }),
       );
       return encodeToToon(formatDatesInResponse(results));
     }
     if (params.action === "create") {
-      const parsed = CreateWidgetSchema.safeParse(params);
+      const kind = params.kind ?? WidgetKind.chart;
+      const parsed =
+        kind === WidgetKind.activityTimeline
+          ? ActivityCreateWidgetSchema.safeParse(params)
+          : ChartCreateWidgetSchema.safeParse(params);
       if (!parsed.success) return validationError(parsed.error);
-      const createParams = parsed.data;
-      const payload = {
-        name: createParams.name,
-        entityType: createParams.entityType,
-        groupByType: createParams.groupByType,
-        groupByCustomColumnId: createParams.groupByCustomColumnId,
-        aggregationType: createParams.aggregationType,
-        entityFilters: Array.isArray(createParams.entityFilters) ? createParams.entityFilters : [],
-        dealFilters: Array.isArray(createParams.dealFilters) ? createParams.dealFilters : [],
-        displayOptions: {
-          displayType: createParams.displayType,
-          reverseXAxis: false,
-          reverseYAxis: false,
-          barColors: [ChartColor.primary1, ChartColor.primary2],
-        },
-        isTemplate: false,
-      };
+      const payload =
+        parsed.data.kind === WidgetKind.activityTimeline
+          ? ({
+              kind: WidgetKind.activityTimeline,
+              name: parsed.data.name,
+              timelineFilters: parsed.data.timelineFilters ?? [],
+              displayOptions: { showFilters: parsed.data.showFilters ?? true },
+              isTemplate: false,
+            } satisfies UpsertActivityWidgetData)
+          : ({
+              kind: WidgetKind.chart,
+              name: parsed.data.name,
+              entityType: parsed.data.entityType,
+              groupByType: parsed.data.groupByType,
+              groupByCustomColumnId: parsed.data.groupByCustomColumnId,
+              aggregationType: parsed.data.aggregationType,
+              entityFilters: parsed.data.entityFilters ?? [],
+              dealFilters: parsed.data.dealFilters ?? [],
+              displayOptions: {
+                displayType: parsed.data.displayType,
+                reverseXAxis: false,
+                reverseYAxis: false,
+                barColors: [ChartColor.primary1, ChartColor.primary2],
+              },
+              isTemplate: false,
+            } satisfies UpsertChartWidgetData);
       return runInteractor(getUpsertWidgetInteractor().invoke(payload), (data) =>
-        encodeToToon({ id: data.id, name: data.name, message: `Widget "${data.name}" created successfully` }),
+        encodeToToon({
+          id: data.id,
+          kind: data.kind,
+          name: data.name,
+          message: `Widget "${data.name}" created successfully`,
+        }),
       );
     }
     if (params.action === "update") {
-      const parsed = UpdateWidgetSchema.safeParse(params);
-      if (!parsed.success) return validationError(parsed.error);
-      const updateParams = parsed.data;
-      const widgetResult = await getGetWidgetByIdInteractor().invoke({ id: updateParams.id });
+      const target = z.object({ id: z.uuid() }).safeParse(params);
+      if (!target.success) return validationError(target.error);
+      const widgetResult = await getGetWidgetByIdInteractor().invoke({
+        id: target.data.id,
+      });
       if (!widgetResult.ok) return validationError(widgetResult.error);
       const widget = widgetResult.data;
       if (!widget) return await customErrorMessage(CustomErrorCode.widgetNotFound);
+
+      if (widget.kind === WidgetKind.activityTimeline) {
+        const parsed = ActivityUpdateWidgetSchema.safeParse(params);
+        if (!parsed.success) return validationError(parsed.error);
+        const updateParams = parsed.data;
+        const displayOptions =
+          updateParams.showFilters === undefined
+            ? (widget.displayOptions ?? undefined)
+            : {
+                ...(widget.displayOptions ?? {}),
+                showFilters: updateParams.showFilters,
+              };
+        const result = await getUpsertWidgetInteractor().invoke({
+          id: widget.id,
+          kind: WidgetKind.activityTimeline,
+          name: updateParams.name ?? widget.name,
+          ...(updateParams.timelineFilters !== undefined ? { timelineFilters: updateParams.timelineFilters } : {}),
+          displayOptions,
+          isTemplate: widget.isTemplate,
+        });
+        if (!result.ok) return validationError(result.error);
+
+        return encodeToToon({
+          id: result.data.id,
+          kind: result.data.kind,
+          name: result.data.name,
+          message: `Widget "${result.data.name}" updated`,
+        });
+      }
+
+      const parsed = ChartUpdateWidgetSchema.safeParse(params);
+      if (!parsed.success) return validationError(parsed.error);
+      const updateParams = parsed.data;
 
       const displayOptionsChanged =
         updateParams.displayType !== undefined ||
@@ -220,7 +332,7 @@ export const manageWidgetsTool = {
         updateParams.reverseYAxis !== undefined ||
         updateParams.barColors !== undefined;
 
-      const updates: Partial<Omit<UpsertWidgetData, "id">> = {};
+      const updates: Partial<Omit<UpsertChartWidgetData, "id" | "kind">> = {};
       if (updateParams.name !== undefined) updates.name = updateParams.name;
       if (updateParams.groupByType !== undefined) updates.groupByType = updateParams.groupByType;
       if (updateParams.groupByCustomColumnId !== undefined)
@@ -240,6 +352,7 @@ export const manageWidgetsTool = {
 
       const result = await getUpsertWidgetInteractor().invoke({
         id: updateParams.id,
+        kind: WidgetKind.chart,
         name: widget.name,
         entityType: widget.entityType,
         groupByType: widget.groupByType,
@@ -256,16 +369,21 @@ export const manageWidgetsTool = {
 
       return encodeToToon({
         id: result.data.id,
+        kind: result.data.kind,
         name: result.data.name,
         message: `Widget "${result.data.name}" updated`,
       });
     }
     const parsed = DeleteWidgetSchema.safeParse(params);
     if (!parsed.success) return validationError(parsed.error);
-    const widgetResult = await getGetWidgetByIdInteractor().invoke({ id: parsed.data.id });
+    const widgetResult = await getGetWidgetByIdInteractor().invoke({
+      id: parsed.data.id,
+    });
     if (!widgetResult.ok) return validationError(widgetResult.error);
     if (!widgetResult.data) return await customErrorMessage(CustomErrorCode.widgetNotFound);
-    const result = await getDeleteWidgetInteractor().invoke({ id: parsed.data.id });
+    const result = await getDeleteWidgetInteractor().invoke({
+      id: parsed.data.id,
+    });
     if (!result.ok) return validationError(result.error);
     return `Deleted widget ${parsed.data.id}`;
   },

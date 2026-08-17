@@ -1,16 +1,16 @@
 ---
 title: "Vertriebspipeline Software: Kanban & Deals"
-description: "Vertriebspipeline verwalten mit Drag-and-Drop Kanban-Boards, individuellen Deal-Phasen und Dashboard-Diagrammen. KI-Agenten halten jede Phase aktuell. Open-Source, EU-gehostet."
+description: "Vertriebspipeline verwalten mit Drag-and-Drop Kanban-Boards, individuellen Deal-Phasen und Dashboard-Diagrammen. Externe KI-Clients aktualisieren unterstützte Felder über MCP; die verwaltete Datenbank läuft in einer EU-Region."
 featureName: Vertriebspipeline
 
 hero:
   title: Eine Vertriebspipeline, die Ihnen genau zeigt, wo jeder Deal steht
-  description: Visualisieren Sie Ihre gesamte Pipeline mit Drag-and-Drop Kanban-Boards. KI-Agenten verschieben Deal-Phasen und halten Datensätze aktuell, sodass das Board die Wahrheit zeigt. Stellen Sie den Pipeline-Wert auf Ihrem Dashboard dar und erkennen Sie Engpässe, bevor sie Umsatz kosten.
+  description: Visualisieren Sie Ihre gesamte Pipeline mit Drag-and-Drop Kanban-Boards. Unterstützte externe KI-Clients können zulässige Deal-Felder über MCP aktualisieren; Client und Modell bleiben separat. Stellen Sie aktuelle Pipeline-Werte in persönlichen Dashboards dar und erkennen Sie Engpässe früh.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ Keine Kreditkarte benötigt ✓ Erste 7 Tage kostenlos"
+  hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 
 cta:
   action: Bereit, Ihre Pipeline in den Griff zu bekommen?
@@ -19,7 +19,7 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ Keine Kreditkarte benötigt ✓ Erste 7 Tage kostenlos"
+  hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
 ## Was ist Vertriebspipeline-Management?
@@ -50,9 +50,9 @@ Jede Pipeline folgt einer Progression vom Erstkontakt zum abgeschlossenen Deal. 
 
 ## So funktioniert Pipeline-Management in Customermates
 
-Customermates bietet eine visuelle Pipeline mit Kanban-Boards, anpassbaren Phasen und Dashboard-Diagrammen. Die Pipeline ist eine Board-Ansicht Ihrer Deals, gruppiert nach einer Single-Select-Phasenspalte, und dieselben KI-Agenten, die den Rest des CRM bedienen, halten sie aktuell, sodass sie die Realität abbildet.
+Customermates bietet eine visuelle Pipeline mit Kanban-Boards, anpassbaren Phasen und Dashboard-Diagrammen. Die Pipeline ist eine Board-Ansicht Ihrer Deals, gruppiert nach einer Einfachauswahl-Phasenspalte. Ein unterstützter externer KI-Client kann zulässige Felder über MCP aktualisieren; Customermates selbst betreibt keinen KI-Agenten.
 
-**KI-Agenten halten die Pipeline ehrlich.** Über die native MCP-Integration (45 Tools) verschieben KI-Agenten wie Claude, ChatGPT und Gemini Deals zwischen Phasen, aktualisieren Abschlussdaten und entwerfen Follow-ups direkt im CRM. Mitarbeiter meiden das Board nicht mehr, sodass die Phasen zeigen, wo Deals tatsächlich stehen, statt wo sie zuletzt jemand hingezogen hat.
+**Externe KI-Clients können die Pipeline aktualisieren.** Über [[derived.mcp.tools.total]] MCP-Tools können unterstützte Clients wie Claude, ChatGPT oder Gemini zulässige Deals zwischen Phasen verschieben, Felder aktualisieren und ein einzelnes Follow-up entwerfen. Customermates enthält weder Client noch KI-Modell; Abo, Nutzung und Anbieter-Verarbeitung bleiben extern.
 
 **Visuelles Kanban-Board.** Ihre Pipeline wird als Drag-and-Drop Kanban-Board dargestellt, bei dem jede Spalte eine Deal-Phase repräsentiert. Deals erscheinen als Karten mit den wichtigsten Informationen auf einen Blick: Deal-Name, Wert, Kontakt und erwartetes Abschlussdatum. Einen Deal in die nächste Phase zu bewegen ist so einfach wie das Ziehen der Karte in die nächste Spalte.
 
@@ -98,19 +98,19 @@ Eine Pipeline ist keine statische Struktur. Regelmäßige Optimierung hält Ihre
 
 **Phase-Gate-Kriterien.** Definieren Sie klare Kriterien, die ein Deal erfüllen muss, um von einer Phase zur nächsten zu gelangen. Wenn jedes Teammitglied die gleichen Standards anwendet, werden Ihre Pipeline-Daten zuverlässig und teamübergreifend vergleichbar.
 
-**Automatisieren Sie, wo möglich.** Nutzen Sie n8n-Automatisierung für mechanische Pipeline-Aufgaben: Erstellen Sie Follow-Up-Erinnerungen, wenn Deals in eine Phase eintreten, benachrichtigen Sie Manager, wenn Deals die Phasen-Dauer-Schwellenwerte überschreiten, oder synchronisieren Sie Pipeline-Daten mit externen Reporting-Tools.
+**Automatisieren Sie, wo möglich.** Eine separat betriebene n8n-Instanz kann auf Deal-Webhooks reagieren, Aufgaben anlegen, kundendefinierte Datumsfelder nach eigenem Zeitplan auswerten oder Pipeline-Daten mit externen Reporting-Tools synchronisieren. Customermates selbst sendet keine Erinnerungen.
 
 ## Warum Customermates für Ihr Pipeline-Management?
 
-**Open Source und transparent.** Customermates ist vollständig Open Source. Ihre Pipeline-Daten und Phasenlogik laufen auf Code, den Sie einsehen können. Keine versteckten Algorithmen, die Ihre Deal-Metriken oder Pipeline-Berechnungen beeinflussen.
+**Open-Source-Kern.** Kern-CRM-Anwendung und Pipeline-Code unter AGPL sind einsehbar. Pipeline-Phasen bleiben kundendefinierte Felder; Customermates enthält keinen versteckten Prognose- oder Scoring-Algorithmus, während Managed-Cloud-Funktionen und Anbieter separat bleiben.
 
-**EU-gehostet und DSGVO-konform.** Alle Pipeline- und Deal-Daten werden in europäischen Rechenzentren gespeichert, mit vollständiger DSGVO-Konformität. Verwalten Sie Ihren Vertriebsprozess mit Vertrauen in Ihren Datenschutz.
+**EU-Datenbankregion mit dokumentierten Anbietern.** Die verwaltete Datenbank läuft in einer EU-Region. Anwendungshosting und weitere Anbieter, darunter US-Anbieter, können Daten andernorts verarbeiten; diese Bereitstellungsangabe ist keine DSGVO- oder andere Compliance-Zertifizierung.
 
-**Einfache, faire Preisgestaltung.** Pipeline-Management ist ab 12 EUR pro Nutzer und Monat (Starter-Stufe) enthalten. Board- und Tabellenansichten, individuelle Phasen, Deal-Karten, Dashboard-Diagramme und nativer KI-/MCP-Zugang sind in jeder Stufe enthalten. Keine Premium-Stufe für erweiterte Pipeline-Funktionen erforderlich.
+**Einfache, faire Preisgestaltung.** Pipeline-Management ist ab [[commercial.price.starter.monthly]] pro Nutzer und Monat (Starter-Stufe) enthalten. Board- und Tabellenansichten, individuelle Phasen, Deal-Karten, Dashboard-Diagramme und MCP-Zugang für externe KI-Clients sind in jeder Stufe enthalten. Keine Premium-Stufe für erweiterte Pipeline-Funktionen erforderlich.
 
-**n8n-Automatisierung für Pipeline-Workflows.** Automatisieren Sie pipelinebezogene Aufgaben mit n8n. Lösen Sie Benachrichtigungen aus, wenn Deals in bestimmte Phasen eintreten, erstellen Sie automatisch Aufgaben oder synchronisieren Sie Pipeline-Daten mit externen Reporting-Tools. Verbinden Sie über 400 Dienste, ohne Code zu schreiben.
+**Separates n8n für Pipeline-Workflows.** Verbinden Sie eine selbst betriebene oder abonnierte n8n-Instanz über REST, Webhooks, MCP oder den Community-Node. Scheduler, Katalog mit über 400 Konnektoren, Laufzeit, Tarife, Limits, Logs, Anbieterzustellung und Kosten bleiben extern.
 
-**Self-Hosting für volle Kontrolle.** Betreiben Sie Customermates auf Ihrer eigenen Infrastruktur und behalten Sie die vollständige Kontrolle über Ihre Pipeline-Daten. Self-Hosting stellt sicher, dass Ihre Wettbewerbsinformationen auf Ihren Servern bleiben.
+**Self-hostbare Anwendung und Datenbank.** Betreiben Sie die Customermates-Anwendung und PostgreSQL-Datenbank auf eigener Infrastruktur. Externe KI- und Workflow-Anbieter erhalten weiterhin alle von Ihrer Konfiguration gesendeten Daten; Self-Hosting ist keine Datenresidenz- oder Compliance-Garantie.
 
 ## Starten Sie heute mit Ihrer Vertriebspipeline
 

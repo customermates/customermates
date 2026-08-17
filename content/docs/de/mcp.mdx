@@ -3,7 +3,7 @@ title: Model Context Protocol (MCP)
 description: Customermates exponiert einen nativen MCP-Endpoint unter /api/v1/mcp, damit Claude, ChatGPT, Cursor und andere Agent-Clients das CRM direkt lesen und schreiben können.
 ---
 
-Customermates exponiert einen MCP-Endpoint unter `https://customermates.com/api/v1/mcp`. Ein verbundener Client entdeckt automatisch alle 46 CRM-Tools. Es gibt zwei Wege zu verbinden:
+Customermates exponiert einen MCP-Endpoint unter `https://customermates.com/api/v1/mcp`. Ein verbundener Client entdeckt automatisch alle [[derived.mcp.tools.total]] CRM-Tools. Es gibt zwei Wege zu verbinden:
 
 - **Custom Connector (OAuth):** für Claude (Web, Desktop, Mobile) und ChatGPT. URL einfügen, anmelden, freigeben. Kein Key zu verwalten. Starten Sie auf [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
 - **API-Key:** für CLI- und Editor-Clients (Claude Code, Codex, Cursor, Gemini CLI) und rohe HTTP-Aufrufe. Den 64-Zeichen-Key im Header `x-api-key` oder einer Konfigurationsdatei senden.
@@ -52,7 +52,7 @@ Der Server brieft das Modell automatisch, sobald sich ein Client verbindet. Clie
 
 Sie müssen dem Modell nicht beibringen, wie es das CRM nutzt. Der Server sendet beim Verbinden Instructions, sodass das Modell den Workflow automatisch befolgt: erst das Schema lesen, IDs vor dem Schreiben suchen, Beziehungen nur über `manage_record_links` ändern und vor Löschen oder Senden rückfragen. In Clients, die MCP-Prompts unterstützen (Claude Code, Cursor), gibt es zusätzlich einen eingebauten Get-Started-Prompt; er interviewt Sie kurz und fasst Ihren Workspace zusammen, um den Start zu personalisieren.
 
-Die volle 46-Tool-Oberfläche ist der Standard. Hängen Sie `?toolsets=` an die Endpoint-URL, um sie einzugrenzen, zum Beispiel `/api/v1/mcp?toolsets=records,messaging`. Keys und Details stehen unter [Eingrenzen mit ?toolsets=](/docs/mcp#eingrenzen-mit-toolsets).
+Die volle [[derived.mcp.tools.total]]-Tool-Oberfläche ist der Standard. Hängen Sie `?toolsets=` an die Endpoint-URL, um sie einzugrenzen, zum Beispiel `/api/v1/mcp?toolsets=records,messaging`. Keys und Details stehen unter [Eingrenzen mit ?toolsets=](/docs/mcp#eingrenzen-mit-toolsets).
 
 ## Wie die Tool-Oberfläche gebaut ist
 
@@ -76,7 +76,7 @@ Beide liegen an derselben Base-URL. MCP auf `/api/v1/mcp`; die OpenAPI-Spec auf 
 
 ## Tool-Katalog
 
-Customermates exponiert 46 MCP-Tools, alle standardmäßig aktiviert. Sie decken Records, Workspace, Messaging, Social Posts, Dokumentation und Deep Research, Custom Columns, Widgets, Webhooks, Admin und Support ab. Jedes destruktive Tool ist geflaggt und startet die Beschreibung mit `IRREVERSIBLE`. Beziehungen ändern sich nur über `manage_record_links`; die Update-Tools fassen sie nie an.
+Customermates exponiert [[derived.mcp.tools.total]] MCP-Tools, alle standardmäßig aktiviert. Sie decken Records, Workspace, Messaging, Social Posts, Dokumentation und Deep Research, Custom Columns, Widgets, Webhooks, Admin und Support ab. Jedes destruktive Tool ist geflaggt und startet die Beschreibung mit `IRREVERSIBLE`. Beziehungen ändern sich nur über `manage_record_links`; die Update-Tools fassen sie nie an.
 
 Zwei Flags pro Tool:
 
@@ -120,12 +120,12 @@ Alle Create- und Update-Tools nehmen Custom-Column-Werte über customFieldValues
 
 ### Messaging
 
-Die Messaging-Tools sind ab dem Pro-Tarif verfügbar.
+Messaging-basierte Tools sind im Cloud-Modus ab dem Pro-Tarif verfügbar. `get_activities` kann ohne Messaging-Berechtigung weiterhin Änderungen aus dem Audit-Log liefern, wenn der aufrufende User die Audit-Log-Berechtigung hat. Nachrichten, Aktivitäten verbundener Accounts und Kalenderquellen erfordern zusätzlich die Berechtigung für den Posteingang und Messaging.
 
 | Tool | Read | Destructive | Zweck |
 |---|---|---|---|
 | `get_messaging_threads` | ✓ | | Zwei Modi: ohne threadId listet es Inbox-Threads mit Filtern und Sortierung (Threads ohne Nachricht werden ausgeblendet, außer sie enthalten einen Draft); mit threadId liefert es einen Thread plus eine Seite seiner Nachrichten (Standard 25, neueste zuerst, Drafts inklusive). |
-| `get_activities` | ✓ | | Aktivitäts-Timeline (Nachrichten, Audit-Log-Änderungen, LinkedIn-Account-Aktivitäten und Kalenderereignisse) für den Workspace oder einen Record. |
+| `get_activities` | ✓ |  | Aktivitäts-Timeline mit optionalem technischem Entitätsumfang und UND-verknüpften Filtern. Filter unterstützen Kategorie/Roh-Typ, Unterhaltung, Anbieter, verbundenen Account sowie verknüpfte Kontakte, Organisationen, Deals, Services und Aufgaben. Jedes Aktivitätsfilterfeld darf einmal vorkommen; Alternativen gehören in das Werte-Array einer einzigen Mitgliedschaftsregel. Beziehungsfelder akzeptieren `in`, `notIn`, `hasSome` und `hasNone`; Mitgliedschaft benötigt 1–50 UUIDs. Beziehungs-UUIDs müssen auf Datensätze verweisen, die Sie lesen dürfen; nicht auflösbare Ids werden abgelehnt. Das Ergebnis enthält `availableSources`, `scopeTruncated`, `pageLimitReached`, Gesamtzahl und Seite. Die Seitennummer ist auf 40 begrenzt. |
 | `get_calendars` | ✓ | | Drei Modi: list: "calendars" (Standard) listet die Kalender der zugänglichen verbundenen Konten; list: "events" listet Kalenderereignisse sortiert nach Startzeit, filterbar nach calendarId oder einem startsAt-Zeitraum; mit eventId liefert es die Details eines Ereignisses inklusive Organisator und Teilnehmern. Die Ids entsprechen der entityId der Kalender-Webhook-Events. |
 | `send_chat_message` | | | Stellt sofort zu. Mit threadId antwortet es in einem bestehenden Chat; mit connectedAccountId plus attendeeIdentifiers startet es einen neuen (optionales chatName benennt eine Gruppe). Neue LinkedIn-Chats sind standardmäßig Classic; setzen Sie linkedinProduct auf sales_navigator oder recruiter für ein InMail (braucht inmailSubject), oder inmail:true, um auf Classic jemanden außerhalb Ihres Netzwerks per InMail anzuschreiben. |
 | `send_email` | | | Stellt sofort zu. Senden oder antworten von einem verbundenen E-Mail-Konto; kann einen gespeicherten Draft über draftMessageId senden. |
@@ -166,7 +166,7 @@ Die Messaging-Tools sind ab dem Pro-Tarif verfügbar.
 
 | Tool | Read | Destructive | Zweck |
 |---|---|---|---|
-| `manage_widgets` | | ✓ | Ein Tool mit `action`-Schalter: list, get, create, update, delete. Die get-Action liefert die berechneten Datenpunkte zur Konfiguration dazu, aggregierte Summen kommen also direkt aus einem Widget. |
+| `manage_widgets` |  | ✓ | Ein Tool mit `action`-Schalter: list, get, create, update, delete. Ohne `kind` bleibt create abwärtskompatibel ein `chart`. Ein Aktivitätsverlauf akzeptiert beim Erstellen `name`, optionale `timelineFilters` und optional `showFilters`; jedes Aktivitätsfilterfeld darf nur einmal vorkommen. Update leitet den unveränderlichen gespeicherten Typ ab, erhält ausgelassene Felder und leert Filter mit `timelineFilters: []`. Create weist neue, unzugängliche Beziehungs-UUIDs zurück. Update darf eine nicht verfügbare Beziehungs-UUID nur beibehalten oder entfernen, wenn genau diese UUID bereits im Widget gespeichert ist; weitere unzugängliche UUIDs werden abgelehnt. list/get/create/update liefern jeweils `kind`; get liefert zusätzlich Diagrammdaten für Charts und direkt wiederverwendbare `timelineFilters` für Aktivitätsverläufe. Chart- und Aktivitätsfelder dürfen nicht gemischt werden. |
 
 ### Webhooks
 
@@ -189,7 +189,7 @@ Die Messaging-Tools sind ab dem Pro-Tarif verfügbar.
 
 ### Eingrenzen mit ?toolsets=
 
-Alle 46 Tools sind standardmäßig an. Um nur einen Teil der Oberfläche zu exponieren, hängen Sie `?toolsets=` mit kommagetrennten Gruppen-Keys an die Endpoint-URL:
+Alle [[derived.mcp.tools.total]] Tools sind standardmäßig an. Um nur einen Teil der Oberfläche zu exponieren, hängen Sie `?toolsets=` mit kommagetrennten Gruppen-Keys an die Endpoint-URL:
 
 ```
 https://customermates.com/api/v1/mcp?toolsets=records,messaging

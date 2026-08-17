@@ -27,6 +27,8 @@ import { PageState } from "@/components/page-state/page-state";
 import { useEntityDrawerStack } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 
 import { EntityNotesPanel } from "./entity-notes-panel";
+import { EntityDetailPageSkeleton } from "./entity-detail-page-skeleton";
+import { resolveEntityDetailPageState } from "./entity-detail-page-state";
 import { ENTITY_URL_SEGMENT } from "./entity-relations";
 
 type IdentityProps = {
@@ -90,9 +92,13 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
   const saveDisabled = isLoading || !store.hasUnsavedChanges || store.isDisabled;
   const hasCurrentEntity = store.fetchedEntity?.id === entityId;
   const requestMatches = store.requestedEntityId === entityId;
-  const showLoadError =
-    !hasCurrentEntity && requestMatches && (store.entityLoadState === "error" || store.entityLoadState === "not-found");
-  const showLoading = !hasCurrentEntity && !showLoadError;
+  const pageState = resolveEntityDetailPageState({
+    hasCurrentEntity,
+    requestMatches,
+    requestState: store.entityLoadState,
+  });
+  const showLoadError = pageState === "error" || pageState === "not-found";
+  const showLoading = pageState === "loading";
   const showEditFieldsAction = canManage && !isEditingCustomField;
   const showEditFieldsActiveActions = canManage && isEditingCustomField;
 
@@ -248,24 +254,36 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
 
   useSetTopBarActions(topBarActions);
 
-  if (showLoading) return <PageState label={t("PageState.loading")} skeleton={{ kind: "detail" }} state="loading" />;
-
-  if (showLoadError) {
-    const notFound = store.entityLoadState === "not-found";
-    return (
-      <PageState
-        action={
-          notFound ? undefined : (
+  switch (pageState) {
+    case "loading":
+      return <PageState background={<EntityDetailPageSkeleton />} label={t("PageState.loading")} state="loading" />;
+    case "not-found":
+      return (
+        <PageState
+          description={t("PageState.notFoundDescription")}
+          state="error"
+          title={t("PageState.notFoundTitle")}
+        />
+      );
+    case "error":
+      return (
+        <PageState
+          action={
             <Button size="sm" variant="outline" onClick={() => void store.loadById(entityId)}>
               {t("ErrorCard.retry")}
             </Button>
-          )
-        }
-        description={notFound ? t("PageState.notFoundDescription") : t("ErrorCard.contactSupport")}
-        state="error"
-        title={notFound ? t("PageState.notFoundTitle") : t("ErrorCard.title")}
-      />
-    );
+          }
+          description={t("ErrorCard.contactSupport")}
+          state="error"
+          title={t("ErrorCard.title")}
+        />
+      );
+    case "content":
+      break;
+    default: {
+      const exhaustive: never = pageState;
+      return exhaustive;
+    }
   }
 
   return (

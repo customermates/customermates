@@ -32,7 +32,6 @@ import { ContactsStore } from "@/app/[locale]/(protected)/contacts/components/co
 import { MessagingThreadsStore } from "@/app/[locale]/(protected)/inbox/components/messaging-threads.store";
 import { MessagingThreadDetailStore } from "@/app/[locale]/(protected)/inbox/components/messaging-thread-detail.store";
 import { ThreadComposeStore } from "@/app/[locale]/(protected)/inbox/components/thread-compose.store";
-import { ActivitiesStore } from "@/features/messaging/activities/activities.store";
 import { ThreadParticipantsStore } from "@/app/[locale]/(protected)/inbox/components/thread-participants.store";
 import { AddChannelStore } from "@/app/[locale]/(protected)/contacts/components/add-channel.store";
 import { UserStore } from "@/app/[locale]/(protected)/profile/components/user.store";
@@ -68,12 +67,13 @@ import { ErrorTestStore } from "@/app/[locale]/(protected)/test/error/error-test
 
 import { AgentChatStore } from "@/app/components/agent-chat/agent-chat.store";
 import { AgentUiControlStore } from "@/app/components/agent-chat/ui-control.store";
-
+import { ActivityTimelineRegistry } from "./activity-timeline.registry";
 import { NavigationGuardController } from "./navigation-guard.controller";
 
 export class RootStore {
   private readonly modalStores = new Set<BaseModalStore<any>>();
   public readonly navigationGuard = new NavigationGuardController();
+  public readonly activityTimelines = new ActivityTimelineRegistry();
 
   private _apiKeysStore?: ApiKeysStore;
   private _connectedAccountsStore?: ConnectedAccountsStore;
@@ -85,7 +85,6 @@ export class RootStore {
   private _messagingThreadsStore?: MessagingThreadsStore;
   private _messagingThreadDetailStore?: MessagingThreadDetailStore;
   private _threadComposeStore?: ThreadComposeStore;
-  private _activitiesStore?: ActivitiesStore;
   private _threadParticipantsStore?: ThreadParticipantsStore;
   private _addChannelStore?: AddChannelStore;
   private _dealsStore?: DealsStore;
@@ -204,10 +203,6 @@ export class RootStore {
 
   get threadComposeStore() {
     return (this._threadComposeStore ??= new ThreadComposeStore(this));
-  }
-
-  get activitiesStore() {
-    return (this._activitiesStore ??= new ActivitiesStore(this));
   }
 
   get threadParticipantsStore() {

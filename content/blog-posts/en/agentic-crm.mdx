@@ -58,7 +58,7 @@ Agentic AI in CRM typically operates through one of two integration patterns.
 
 **MCP-connected agents** use the [Model Context Protocol](/features/api), an open standard that lets external AI assistants (Claude, ChatGPT, or custom models) read and write CRM data through a structured API. This approach works with any AI model and gives teams full control over which agent they use and how it behaves.
 
-Customermates supports the MCP pattern natively. It exposes 45 MCP tools, covering every entity type: contacts, organizations, deals, services, tasks, custom fields, webhooks, and widgets. Nine of those tools operate a native unified inbox, so the same agent can also read, draft, and send across email, LinkedIn, WhatsApp, Instagram, and Telegram from inside the CRM. An agent connected over MCP can perform the full range of agentic CRM behaviors without proprietary lock-in.
+Customermates supports the MCP pattern natively. It exposes [[derived.mcp.tools.total]] MCP tools, covering every entity type: contacts, organizations, deals, services, tasks, custom fields, webhooks, and widgets. Nine of those tools operate a native unified inbox, so the same agent can also read, draft, and send across email, LinkedIn, WhatsApp, Instagram, and Telegram from inside the CRM. An agent connected over MCP can perform the full range of agentic CRM behaviors without proprietary lock-in.
 
 ## Benefits of Agentic CRM
 
@@ -95,14 +95,14 @@ Traditional CRM automation runs on if-then rules. "If a deal reaches Proposal st
 
 Agentic AI in CRM reasons. It considers the deal's history, the contact's engagement level, the account's industry, and the current pipeline health before deciding what action to take. It can choose not to act when inaction is correct.
 
-| Dimension | Traditional Automation | Agentic CRM |
-|---|---|---|
-| Trigger | Fixed rule or schedule | Context-aware, event-driven |
-| Decision logic | If-then branching | Reasoning from full context |
-| Edge cases | Require new rules | Handled by reasoning |
-| Data input | Human-maintained | Self-updating |
-| Action scope | Predefined actions | Any action the API allows |
-| Improvement | Manual rule tuning | Learns from outcomes |
+| Dimension      | Traditional Automation | Agentic CRM                 |
+| -------------- | ---------------------- | --------------------------- |
+| Trigger        | Fixed rule or schedule | Context-aware, event-driven |
+| Decision logic | If-then branching      | Reasoning from full context |
+| Edge cases     | Require new rules      | Handled by reasoning        |
+| Data input     | Human-maintained       | Self-updating               |
+| Action scope   | Predefined actions     | Any action the API allows   |
+| Improvement    | Manual rule tuning     | Learns from outcomes        |
 
 The practical advantage: you configure intent once rather than maintaining a growing tree of branching rules. The agent handles the edge cases.
 
@@ -140,7 +140,7 @@ The agentic CRM landscape in 2026 includes both established CRM vendors with age
 
 **Freshworks with Freddy AI.** Freddy AI agents cover sales and service use cases. Good for SMBs seeking an affordable entry into agentic CRM without the complexity of Salesforce or Dynamics.
 
-**Customermates.** Open-source, MCP-first CRM. Rather than building its own AI layer, Customermates exposes 45 MCP tools so any external AI agent (Claude, GPT-4o, custom models) can operate the full CRM autonomously, and it adds a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) the same agent can read and send from. Free to self-host; cloud from €12/user/month (Starter), with the unified inbox on Pro from €29. Suited to technical teams that want full control over the AI model and behavior. Compare on the [HubSpot alternative](/compare/hubspot-alternative) or [Pipedrive alternative](/compare/pipedrive-alternative) pages for a direct feature breakdown.
+**Customermates.** Open-source, MCP-first CRM. Rather than building its own AI layer, Customermates exposes [[derived.mcp.tools.total]] MCP tools so any external AI agent (Claude, GPT-4o, custom models) can operate the full CRM autonomously, and it adds a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) the same agent can read and send from. Free to self-host; cloud from [[commercial.price.starter.monthly]]/user/month (Starter), with the unified inbox on Pro from [[commercial.price.pro.monthly]]. Suited to technical teams that want full control over the AI model and behavior. Compare on the [HubSpot alternative](/compare/hubspot-alternative) or [Pipedrive alternative](/compare/pipedrive-alternative) pages for a direct feature breakdown.
 
 ## What an Agentic CRM Requires Technically
 
@@ -148,7 +148,7 @@ For agentic AI to work inside a CRM, the platform needs to meet three technical 
 
 **Full API access.** The agent must be able to read any record and write any field without gaps. Partial API coverage forces workarounds that break the agentic workflow.
 
-**Webhook events.** The CRM must emit real-time events when records change, so agents can react to the world without polling. Customermates fires 26 webhook event types: 15 record events covering every entity lifecycle (created, updated, deleted) plus 11 messaging and calendar events.
+**Webhook events.** The CRM must emit real-time events when records change, so agents can react to the world without polling. Customermates fires [[derived.webhooks.events.total]] webhook event types: [[derived.webhooks.events.records]] record events covering every entity lifecycle (created, updated, deleted) plus [[derived.webhooks.events.messaging]] messaging and calendar events.
 
 **Permission model.** Agents should operate within human-defined boundaries. An agent that can modify any record without audit trail is a liability. A CRM with role-based permissions and an audit log gives teams the control they need.
 
@@ -186,7 +186,7 @@ For Customermates:
 
 The agent handles the rest. It queries the CRM, reads the deal context, and produces the drafts, or with the right permissions, sends them directly.
 
-The [full API documentation](/features/api) covers authentication and available tools. [Pricing](/pricing) for Customermates cloud starts at €12 per user per month (€10 yearly, Starter tier), with a free self-hosted option. Sending the drafted follow-ups directly needs Pro at €24 per user per month (yearly), since Starter covers the core CRM without the messaging inbox.
+The [full API documentation](/features/api) covers authentication and available tools. [Pricing](/pricing) for Customermates cloud starts at [[commercial.price.starter.monthly]] per user per month (Starter tier), with a free self-hosted option. Sending the drafted follow-ups directly needs Pro at [[commercial.price.pro.monthly]] per user per month, since Starter covers the core CRM without the messaging inbox.
 
 ## Agentic CRM vs. AI-Native CRM
 
@@ -206,7 +206,7 @@ Generative AI produces content on request. Agentic AI acts on context without be
 An AI model configured to interact with CRM data through an API or MCP connection. It can read records, write updates, trigger tasks, and fire follow-ups based on business logic you define.
 
 **Does Customermates support agentic CRM workflows?**
-Yes. Customermates exposes 45 MCP tools so any MCP-compatible AI agent can operate the full CRM. Webhooks fire on every entity change, allowing agents to react in real time.
+Yes. Customermates exposes [[derived.mcp.tools.total]] MCP tools so any MCP-compatible AI agent can operate the full CRM. Webhooks fire on every entity change, allowing agents to react in real time.
 
 **What is the best open source agentic CRM?**
 Customermates is an open-source option (AGPL, self-hostable) with native MCP support, making it a practical choice for teams building agentic sales workflows with full control over their data and AI configuration.

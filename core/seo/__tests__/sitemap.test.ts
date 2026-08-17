@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 import { buildAlternateLanguages } from "../alternates";
 import { assembleSitemap } from "../sitemap";
 
-import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
+import { CONTENT_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
 const BASE_URL = "https://example.test";
 const GENERATED_AT = new Date("2026-01-01T00:00:00.000Z");
@@ -134,6 +134,14 @@ describe("alternate languages", () => {
       en: `${BASE_URL}/en`,
       de: `${BASE_URL}/de`,
       "x-default": `${BASE_URL}/en`,
+    });
+  });
+
+  it("preserves a query string in localized pagination alternates", () => {
+    expect(buildAlternateLanguages("/blog?page=2", CONTENT_LOCALES, BASE_URL)).toEqual({
+      de: `${BASE_URL}/de/blog?page=2`,
+      en: `${BASE_URL}/en/blog?page=2`,
+      "x-default": `${BASE_URL}/en/blog?page=2`,
     });
   });
 });

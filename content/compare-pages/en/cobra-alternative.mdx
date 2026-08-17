@@ -10,7 +10,7 @@ hero:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First 7 days free"
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 comparison:
   competitorName: Cobra
@@ -22,7 +22,7 @@ comparison:
         source: 2 minutes
         competitor: Days to weeks
       - name: Cost
-        source: From €12 / month / user
+        source: From [[commercial.price.starter.monthly]] / month / user
         competitor: Individual quote (not published)
       - name: Free trial
         source: true
@@ -60,18 +60,18 @@ comparison:
         source: true
         competitor: Limited
       - name: Native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram)
-        source: Pro+ (€29)
+        source: Pro+ ([[commercial.price.pro.monthly]])
         competitor: Email only
       - name: AI agents operate the CRM (MCP)
         source: true
         competitor: false
   - title: Data Protection & Security
     features:
-      - name: GDPR compliant
-        source: true
+      - name: GDPR documentation
+        source: DPA + SCCs; no certification
         competitor: true
       - name: Hosting
-        source: EU / Germany
+        source: EU database region
         competitor: On-premise / Germany
       - name: Self-hosting option
         source: true
@@ -80,12 +80,12 @@ comparison:
         source: true
         competitor: true
       - name: Audit log
-        source: true
+        source: Not claimed pending documentation reconciliation
         competitor: Limited
   - title: Integration & Automation
     features:
-      - name: n8n workflow engine
-        source: true
+      - name: External n8n integration
+        source: Separate community node + REST/webhooks
         competitor: false
       - name: API access
         source: true
@@ -99,15 +99,15 @@ comparison:
 
 cta:
   action: Ready to switch from Cobra CRM?
-  description: "Start with Customermates today, a modern, open-source Cobra CRM alternative with EU hosting, GDPR compliance, and n8n automation included."
+  description: "Start with Customermates today, a modern, open-source Cobra CRM alternative with EU hosting, GDPR compliance, and n8n automation supported."
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First 7 days free"
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-> [Cobra CRM](https://www.cobraag.de/) is a well-established German CRM system with over 30 years on the market. Known for strong contact management and on-premise data control, Cobra has been a trusted alternative to international platforms for many German SMBs. But in 2026, its legacy desktop architecture, limited cloud capabilities, and opaque pricing create friction that modern teams cannot afford. Customermates is a modern, cloud-native Cobra CRM alternative built around two things Cobra never offered. First, AI assistants like Claude, ChatGPT, and Gemini operate the CRM directly through a native MCP integration (45 tools), doing the data entry so deal stages, follow-ups, and notes stay current. Second, a native unified inbox brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one place inside the CRM, and the same AI can read, draft, and send across every channel. It keeps German data protection standards with a clean interface and instant setup. Transparent tiers start at €12 per user per month, with every core CRM feature included at every tier.
+> [Cobra CRM](https://www.cobraag.de/) is a well-established German CRM system with over 30 years on the market. Known for strong contact management and on-premise data control, Cobra has been a trusted alternative to international platforms for many German SMBs. But in 2026, its legacy desktop architecture, limited cloud capabilities, and opaque pricing create friction that modern teams cannot afford. Customermates is a modern, cloud-native Cobra CRM alternative built around two things Cobra never offered. First, AI assistants like Claude, ChatGPT, and Gemini operate the CRM directly through a native MCP integration ([[derived.mcp.tools.total]] tools), doing the data entry so deal stages, follow-ups, and notes stay current. Second, a native unified inbox brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one place inside the CRM, and the same AI can read, draft, and send across every channel. It keeps German data protection standards with a clean interface and instant setup. Transparent tiers start at [[commercial.price.starter.monthly]] per user per month, with every core CRM feature included at every tier.
 
 ## Why Look for a Cobra CRM Alternative?
 
@@ -124,24 +124,24 @@ If any of these points resonate, Customermates addresses each of them directly.
 
 ## Cobra CRM Alternative Compared: Feature Table
 
-| Feature | Customermates | Cobra CRM |
-|---------|--------------|-----------|
-| Price/user/month | From €12, transparent tiers | Individual quote (not published) |
-| Setup time | 2 minutes | Days to weeks |
-| Cloud-native | <StatusAvailable /> | <StatusUnavailable /> |
-| Mobile-optimized | <StatusAvailable /> | <StatusPartial /> |
-| Open source | <StatusAvailable /> | <StatusUnavailable /> |
-| Pipeline management | <StatusAvailable /> | <StatusPartial /> |
-| [Lead management](/features/lead-management) | <StatusAvailable /> | <StatusPartial /> |
-| [Native unified inbox](/features/email-integration) (email, LinkedIn, WhatsApp, Instagram, Telegram, Pro+) | <StatusAvailable /> | <StatusPartial /> |
-| [Workflow automation](/features/workflow-automation) | <StatusAvailable /> | <StatusUnavailable /> |
-| n8n automation engine | <StatusAvailable /> | <StatusUnavailable /> |
-| AI agents operate the CRM (MCP) | <StatusAvailable /> | <StatusUnavailable /> |
-| [Self-hosting](/features/self-hosted) option | <StatusAvailable /> | On-premise only |
-| GDPR compliant | <StatusAvailable /> | <StatusAvailable /> |
-| EU hosting | <StatusAvailable /> | <StatusAvailable /> |
-| API access | <StatusAvailable /> | <StatusPartial /> |
-| Custom fields (10 field types) | <StatusAvailable /> | <StatusPartial /> |
+| Feature                                                                                                    | Customermates                                                | Cobra CRM                        |
+| ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | -------------------------------- |
+| Price/user/month                                                                                           | From [[commercial.price.starter.monthly]], transparent tiers | Individual quote (not published) |
+| Setup time                                                                                                 | 2 minutes                                                    | Days to weeks                    |
+| Cloud-native                                                                                               | <StatusAvailable />                                          | <StatusUnavailable />            |
+| Mobile-optimized                                                                                           | <StatusAvailable />                                          | <StatusPartial />                |
+| Open source                                                                                                | <StatusAvailable />                                          | <StatusUnavailable />            |
+| Pipeline management                                                                                        | <StatusAvailable />                                          | <StatusPartial />                |
+| [Lead management](/features/lead-management)                                                               | <StatusAvailable />                                          | <StatusPartial />                |
+| [Native unified inbox](/features/email-integration) (email, LinkedIn, WhatsApp, Instagram, Telegram, Pro+) | <StatusAvailable />                                          | <StatusPartial />                |
+| [Workflow automation](/features/workflow-automation)                                                       | <StatusAvailable />                                          | <StatusUnavailable />            |
+| n8n automation engine                                                                                      | <StatusAvailable />                                          | <StatusUnavailable />            |
+| AI agents operate the CRM (MCP)                                                                            | <StatusAvailable />                                          | <StatusUnavailable />            |
+| [Self-hosting](/features/self-hosted) option                                                               | <StatusAvailable />                                          | On-premise only                  |
+| GDPR compliant                                                                                             | <StatusAvailable />                                          | <StatusAvailable />              |
+| EU hosting                                                                                                 | <StatusAvailable />                                          | <StatusAvailable />              |
+| API access                                                                                                 | <StatusAvailable />                                          | <StatusPartial />                |
+| Custom fields (10 field types)                                                                             | <StatusAvailable />                                          | <StatusPartial />                |
 
 ## Setup & Onboarding
 
@@ -153,7 +153,7 @@ Customermates is ready in two minutes. Sign up, set up your [deal pipelines](/fe
 
 Cobra does not publish transparent pricing. Costs depend on the deployment model (on-premise, cloud, or private cloud), the number of concurrent users, selected modules, and required customization, and are quoted individually. On-premise licenses carry upfront investment plus annual maintenance fees, and customization and implementation typically require partner services at additional cost. See our [pricing page](/pricing) for how Customermates keeps it simple.
 
-Customermates starts at €12 per user per month (Starter), with every core CRM feature, contacts, deals, custom fields, permissions, audit log, API, and native AI integration, included at every tier. Adding the unified inbox and connected accounts moves you to Pro (€29) or Business (€69); the price is published up front either way. No hidden module fees, no implementation costs, no annual maintenance contracts. For a team of 10 on Starter, that is €120/month total, with no individual quote required.
+Customermates starts at [[commercial.price.starter.monthly]] per user per month (Starter), with every core CRM feature, contacts, deals, custom fields, permissions, audit log, API, and MCP access for external AI clients, included at every tier. Adding the unified inbox and connected accounts moves you to Pro ([[commercial.price.pro.monthly]]) or Business ([[commercial.price.business.monthly]]); the price is published up front either way. No hidden module fees, no implementation costs, no annual maintenance contracts. For a team of 10 on Starter, that is [[commercial.price.starter.monthly.seats.10]]/month total, with no individual quote required.
 
 ## Core CRM Features
 
@@ -165,7 +165,7 @@ Customermates provides a complete, modern CRM experience: [contacts and organiza
 
 ## Data Protection & GDPR
 
-Data protection has always been Cobra's strongest selling point. As a German company with on-premise deployment, it offers full data sovereignty. Data stays on your own servers or in German data centers.
+Data protection has always been Cobra's strongest selling point. As a German company with on-premise deployment, it offers full data sovereignty. Data stays on your own servers or in EU data centres.
 
 Customermates matches this standard without the infrastructure overhead. Hosting is exclusively in the EU (Germany), the system is GDPR-native by design, and [self-hosting](/features/self-hosted) is available for teams that need complete control. You get the same German data protection standards, without maintaining on-premise servers, dealing with manual updates, or managing database backups yourself. For teams that want a [cloud CRM](/features/cloud-crm) without compromising on European data residency, Customermates is the ideal choice.
 
@@ -173,7 +173,7 @@ Customermates matches this standard without the infrastructure overhead. Hosting
 
 Cobra CRM offers limited integration capabilities. It connects to Microsoft Office and has basic interfaces for data exchange, but modern API-first integrations are not its strength. [Workflow automation](/features/workflow-automation) is minimal, and connecting Cobra to third-party tools often requires custom development or partner services at additional cost.
 
-Customermates includes [n8n](https://n8n.io/), a powerful open-source automation engine, from day one, connecting to thousands of services without restrictions. Full API access is available at the base price, enabling modern [sales automation](/features/sales-automation) workflows: syncing contacts with your accounting software, triggering notifications on deal changes, or automating follow-up tasks. These are workflows that would be difficult or impossible with Cobra's legacy architecture.
+Customermates connects to [n8n](https://n8n.io/), a powerful open-source automation engine you run yourself, and from there to thousands of services without restrictions on our side. Full API access is available at the base price, enabling modern [sales automation](/features/sales-automation) workflows: syncing contacts with your accounting software, triggering notifications on deal changes, or automating follow-up tasks. These are workflows that would be difficult or impossible with Cobra's legacy architecture.
 
 ## Who Should Switch from Cobra CRM?
 
@@ -194,11 +194,11 @@ Yes. Customermates hosts exclusively in the EU (Germany) and is built GDPR-nativ
 
 ### Can I migrate my contacts from Cobra CRM to Customermates?
 
-Yes. Customermates supports CSV and Excel imports, so you can export your Cobra contacts and import them directly. The import process takes minutes, and your data structure, contacts, organizations, custom fields, transfers cleanly.
+Yes. Customermates has no CSV or Excel importer; export your Cobra contacts and load them through the REST API or an AI agent over MCP. The import process takes minutes, and your data structure, contacts, organizations, custom fields, transfers cleanly.
 
 ### How does Customermates pricing compare to Cobra CRM?
 
-Customermates starts at €12 per user per month with every core CRM feature included, rising to €29 or €69 only if you need the unified messaging inbox and more connected accounts. Cobra CRM does not publish pricing; it is quoted individually based on deployment model, concurrent users, and modules, plus implementation and partner costs. Check our [pricing page](/pricing) for details.
+Customermates starts at [[commercial.price.starter.monthly]] per user per month with every core CRM feature included, rising to [[commercial.price.pro.monthly]] or [[commercial.price.business.monthly]] only if you need the unified messaging inbox and more connected accounts. Cobra CRM does not publish pricing; it is quoted individually based on deployment model, concurrent users, and modules, plus implementation and partner costs. Check our [pricing page](/pricing) for details.
 
 ### Does Customermates offer automation like Cobra CRM's campaign features?
 
@@ -210,4 +210,4 @@ Yes. Customermates is fully open-source, allowing you to inspect the code, contr
 
 ## Conclusion
 
-Cobra CRM served German businesses well for decades, but its legacy architecture shows its age. Modern teams need cloud-native CRM that is instantly accessible, mobile-optimized, and easily integrated with other tools. Customermates delivers all of this while maintaining the German data protection standards that made Cobra attractive in the first place, from €12/user/month with pricing published up front instead of an individual quote, and with zero setup friction. [Start your free trial today](/auth/signup) and experience the difference. See also how Customermates compares to [HubSpot](/compare/hubspot-alternative), [Pipedrive](/compare/pipedrive-alternative), or [Vtiger](/compare/vtiger-alternative).
+Cobra CRM served German businesses well for decades, but its legacy architecture shows its age. Modern teams need cloud-native CRM that is instantly accessible, mobile-optimized, and easily integrated with other tools. Customermates delivers all of this while maintaining the German data protection standards that made Cobra attractive in the first place, from [[commercial.price.starter.monthly]]/user/month with pricing published up front instead of an individual quote, and with zero setup friction. [Start your free trial today](/auth/signup) and experience the difference. See also how Customermates compares to [HubSpot](/compare/hubspot-alternative), [Pipedrive](/compare/pipedrive-alternative), or [Vtiger](/compare/vtiger-alternative).

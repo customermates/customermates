@@ -105,14 +105,14 @@ FAINT excels in markets where you are creating demand rather than responding to 
 
 ### Which Framework Should You Use?
 
-| Factor | BANT | MEDDIC | ANUM | FAINT |
-|--------|------|--------|------|-------|
-| Sales cycle length | Short (days-weeks) | Long (months) | Medium (weeks) | Variable |
-| Average deal size | Under EUR 10K | Over EUR 10K | EUR 5K-50K | Any |
-| Decision-makers | 1-2 people | 3+ (buying committee) | 1-2 people | 1-3 people |
-| Best for | SMB, clear pricing | Enterprise, consultative | Outbound, mid-market | New categories, demand creation |
-| AI scoring complexity | Lower (4 dimensions) | Higher (6 dimensions) | Medium (4 dimensions) | Medium (5 dimensions) |
-| Budget status | Allocated | Allocated | May not be allocated | Not yet allocated |
+| Factor                | BANT                 | MEDDIC                   | ANUM                  | FAINT                           |
+| --------------------- | -------------------- | ------------------------ | --------------------- | ------------------------------- |
+| Sales cycle length    | Short (days-weeks)   | Long (months)            | Medium (weeks)        | Variable                        |
+| Average deal size     | Under EUR 10K        | Over EUR 10K             | EUR 5K-50K            | Any                             |
+| Decision-makers       | 1-2 people           | 3+ (buying committee)    | 1-2 people            | 1-3 people                      |
+| Best for              | SMB, clear pricing   | Enterprise, consultative | Outbound, mid-market  | New categories, demand creation |
+| AI scoring complexity | Lower (4 dimensions) | Higher (6 dimensions)    | Medium (4 dimensions) | Medium (5 dimensions)           |
+| Budget status         | Allocated            | Allocated                | May not be allocated  | Not yet allocated               |
 
 Most small and mid-sized teams start with BANT. If you sell to enterprises with complex procurement, MEDDIC is worth the extra setup. If your outbound team needs to qualify authority fast, use ANUM. If you are creating a new product category or selling to companies without existing budget, start with FAINT.
 
@@ -286,7 +286,7 @@ New lead arrives (webhook / CRM trigger / form)
 ### Step-by-Step Implementation
 
 **1. Trigger: Capture new leads.**
-Use an n8n Webhook node or a CRM trigger. If you use [Customermates](/), new contacts automatically trigger workflows via the native n8n integration. Alternatively, connect web forms, email parsers, or chatbot outputs.
+Use an n8n Webhook node or a CRM trigger. If you use [Customermates](/), new contacts automatically trigger workflows via the separate n8n integration. Alternatively, connect web forms, email parsers, or chatbot outputs.
 
 **2. Enrich lead data (optional).**
 Before scoring, you may want to add context. Use an HTTP Request node to pull company data from Clearbit, Apollo, or LinkedIn. More context improves scoring accuracy. Even basic enrichment (company size, industry, location) can move a lead's ICP fit score from "Unknown" to "Strong" or "Weak."
@@ -298,10 +298,11 @@ Add an OpenAI node. Paste the BANT, MEDDIC, or ANUM prompt and insert the lead d
 Use a Code node or JSON parser to extract the individual scores, classification, and recommended action from ChatGPT's response. Map these to variables for the next steps.
 
 **5. Update CRM.**
-Add a CRM node to write the results. In Customermates, map the total score to a custom field, set the classification as a tag, and add the detailed scoring as a note. This makes the qualification visible on the deal card without opening a separate report.
+Add a CRM node to write the results. In Customermates, map the total score to a custom field, set the classification as a single-select custom column, and add the detailed scoring as a note. This makes the qualification visible on the deal card without opening a separate report.
 
 **6. Route by classification.**
 Use an If node to branch the workflow:
+
 - **Hot leads (score 16-20):** Send an immediate Slack message or email to the assigned sales rep with the lead summary and score breakdown.
 - **Warm leads (score 10-15):** Add to an email nurture sequence or schedule a follow-up task in the CRM.
 - **Cold leads (score 1-9):** Tag for periodic review. Do not discard, circumstances change.
@@ -309,12 +310,12 @@ Use an If node to branch the workflow:
 
 ### Workflow Cost Estimate
 
-| Component | Monthly Cost |
-|-----------|-------------|
-| n8n Cloud (Starter) | EUR 20 |
-| OpenAI API (200 leads scored) | EUR 5-10 |
-| Customermates CRM | EUR 12/user |
-| **Total (1 user)** | **EUR 35-40** |
+| Component                     | Monthly Cost                                                 |
+| ----------------------------- | ------------------------------------------------------------ |
+| n8n Cloud (Starter)           | EUR 20                                                       |
+| OpenAI API (200 leads scored) | EUR 5-10                                                     |
+| Customermates CRM             | [[commercial.price.starter.monthly]]/user                    |
+| **Total (1 user)**            | **EUR 20 + EUR 5-10 + [[commercial.price.starter.monthly]]** |
 
 At 200 leads per month, the entire automation costs less than one hour of a sales rep's time.
 
@@ -344,16 +345,16 @@ Use AI for the first pass: score, classify, and route automatically. Then let sa
 
 Many CRMs offer built-in lead scoring. Here is how they compare to the ChatGPT approach described in this article.
 
-| Feature | Customermates + ChatGPT | HubSpot Lead Scoring | Pipedrive Lead Scoring |
-|---------|------------------------|---------------------|----------------------|
-| Scoring method | AI (framework-based) | Rule-based (manual setup) | No native scoring |
-| Frameworks supported | BANT, MEDDIC, ANUM, FAINT | Custom rules only | N/A |
-| Setup time | 1-2 hours (n8n workflow) | 2-4 hours (rule configuration) | N/A (requires external tool) |
-| Scoring consistency | Very high (AI applies same criteria) | High (rules are consistent) | N/A |
-| Adaptability | Change prompt to change framework | Rebuild rules for each change | N/A |
-| Qualitative analysis | Yes (reads text, detects signals) | No (numeric/boolean rules only) | N/A |
-| Cost | EUR 12/user + EUR 5-10 API | From ~EUR 90/seat (Professional plan) | EUR 14/user + external tool |
-| n8n integration | Native | API available | API available |
+| Feature              | Customermates + ChatGPT                                  | HubSpot Lead Scoring                  | Pipedrive Lead Scoring       |
+| -------------------- | -------------------------------------------------------- | ------------------------------------- | ---------------------------- |
+| Scoring method       | AI (framework-based)                                     | Rule-based (manual setup)             | No native scoring            |
+| Frameworks supported | BANT, MEDDIC, ANUM, FAINT                                | Custom rules only                     | N/A                          |
+| Setup time           | 1-2 hours (n8n workflow)                                 | 2-4 hours (rule configuration)        | N/A (requires external tool) |
+| Scoring consistency  | Very high (AI applies same criteria)                     | High (rules are consistent)           | N/A                          |
+| Adaptability         | Change prompt to change framework                        | Rebuild rules for each change         | N/A                          |
+| Qualitative analysis | Yes (reads text, detects signals)                        | No (numeric/boolean rules only)       | N/A                          |
+| Cost                 | [[commercial.price.starter.monthly]]/user + EUR 5-10 API | From ~EUR 90/seat (Professional plan) | EUR 14/user + external tool  |
+| n8n integration      | Native                                                   | API available                         | API available                |
 
 **HubSpot's built-in scoring** is rule-based: you define points for actions (opened email = +5, visited pricing page = +10). It works for engagement scoring but cannot analyze the content of a lead's message or apply qualification frameworks to free-text input.
 
@@ -365,12 +366,12 @@ Many CRMs offer built-in lead scoring. Here is how they compare to the ChatGPT a
 
 ### Time Savings
 
-| Metric | Before AI | After AI |
-|--------|----------|---------|
-| Daily scoring time | 1.5 hours | 10 minutes (review only) |
-| Monthly scoring time | 30 hours | 3.5 hours |
-| Time saved per month |, | 26.5 hours |
-| Value at EUR 50/hour |, | EUR 1,325/month |
+| Metric               | Before AI | After AI                 |
+| -------------------- | --------- | ------------------------ |
+| Daily scoring time   | 1.5 hours | 10 minutes (review only) |
+| Monthly scoring time | 30 hours  | 3.5 hours                |
+| Time saved per month | ,         | 26.5 hours               |
+| Value at EUR 50/hour | ,         | EUR 1,325/month          |
 
 ### Conversion Improvement
 
@@ -386,7 +387,7 @@ Teams that switch from manual to AI-assisted qualification typically see convers
 
 Your CRM needs to support custom fields, tagging, and automation triggers for this workflow to function smoothly.
 
-**Customermates.** From EUR 12/user/month (Starter), the full core CRM included. Custom fields for scores, tags for classification, native n8n integration for automated updates, GDPR-compliant EU hosting. The native MCP integration (45 tools) lets Claude, ChatGPT, or Gemini operate the CRM directly, and a unified inbox brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one place on the Pro tier. Automation is included at every tier, so you do not pay extra for features that enterprise CRMs gate behind higher plans.
+**Customermates.** From [[commercial.price.starter.monthly]]/user/month (Starter), the full core CRM included. Custom fields for scores, tags for classification, native n8n integration for automated updates, GDPR-compliant EU hosting. The native MCP integration ([[derived.mcp.tools.total]] tools) lets Claude, ChatGPT, or Gemini operate the CRM directly, and a unified inbox brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one place on the Pro tier. Automation is included at every tier, so you do not pay extra for features that enterprise CRMs gate behind higher plans.
 
 **HubSpot.** Lead scoring is available on the Professional plan (from about EUR 90 per seat per month). The built-in scoring is rule-based, not AI-powered. For AI scoring via n8n, the free CRM tier works but lacks advanced automation triggers.
 
@@ -418,7 +419,7 @@ Build a feedback loop. When a sales rep disagrees with an AI score, they update 
 
 ### Is it GDPR-compliant to send lead data to ChatGPT?
 
-When using the OpenAI API with a business agreement and DPA, data is processed but not used for training. For maximum compliance, minimize the PII sent (use company name and message content, not personal email addresses), and consider a self-hosted LLM via Ollama for sensitive data. On the CRM side, Customermates stores data in the EU by default and is fully GDPR-compliant.
+When using the OpenAI API with a business agreement and DPA, data is processed but not used for training. For maximum compliance, minimize the PII sent (use company name and message content, not personal email addresses), and consider a self-hosted LLM via Ollama for sensitive data. On the CRM side, Customermates uses an EU region for the managed database and publishes a DPA and SCCs, but holds no compliance certification.
 
 ### What if I only get 20 leads per month, is automation worth it?
 

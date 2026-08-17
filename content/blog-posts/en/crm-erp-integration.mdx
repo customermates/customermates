@@ -42,14 +42,14 @@ For a mid-sized sales team processing 50 orders per month, manual data transfer 
 
 ### What Integration Delivers
 
-| Benefit | Without integration | With integration |
-|---|---|---|
-| Order entry time | 5-10 min manual | Seconds (automated) |
-| Data entry errors | 5-15% of records | Under 1% |
-| Quote accuracy | Based on last-known ERP data | Real-time ERP pricing |
-| Payment visibility for sales | Manual lookup or weekly report | Real-time in CRM |
-| Customer onboarding (ERP) | Manual after close | Automatic on deal close |
-| Inventory visibility | Phone call or email to warehouse | Live in CRM product catalog |
+| Benefit                      | Without integration              | With integration            |
+| ---------------------------- | -------------------------------- | --------------------------- |
+| Order entry time             | 5-10 min manual                  | Seconds (automated)         |
+| Data entry errors            | 5-15% of records                 | Under 1%                    |
+| Quote accuracy               | Based on last-known ERP data     | Real-time ERP pricing       |
+| Payment visibility for sales | Manual lookup or weekly report   | Real-time in CRM            |
+| Customer onboarding (ERP)    | Manual after close               | Automatic on deal close     |
+| Inventory visibility         | Phone call or email to warehouse | Live in CRM product catalog |
 
 The ROI typically pays back within 3-6 months for teams with 10+ users and 50+ monthly transactions.
 
@@ -109,16 +109,16 @@ Some vendor combinations offer pre-built connectors. Microsoft Dynamics 365 bund
 
 ### Integration Method Comparison
 
-| Criteria | API Point-to-Point | iPaaS (n8n, Zapier) | Middleware/ESB | Native |
-|---|---|---|---|---|
-| Setup time | Weeks to months | Days to weeks | Weeks to months | Hours to days |
-| Technical skill required | High (developers) | Low to moderate | High (specialists) | Low |
-| Customization | Unlimited | High | High | Limited |
-| Ongoing maintenance | High | Low | Moderate | Vendor-managed |
-| GDPR compliance | You control | Depends on platform | You control | Vendor-dependent |
-| Cost (first year) | EUR 10,000-60,000 | EUR 0-6,000 | EUR 12,000-120,000 | Included in license |
-| Best for | Complex, unique requirements | SMBs, most use cases | Enterprise multi-system | Single-vendor environments |
-| Scalability | Manual scaling | Platform-managed | Enterprise-grade | Vendor-limited |
+| Criteria                 | API Point-to-Point           | iPaaS (n8n, Zapier)  | Middleware/ESB          | Native                     |
+| ------------------------ | ---------------------------- | -------------------- | ----------------------- | -------------------------- |
+| Setup time               | Weeks to months              | Days to weeks        | Weeks to months         | Hours to days              |
+| Technical skill required | High (developers)            | Low to moderate      | High (specialists)      | Low                        |
+| Customization            | Unlimited                    | High                 | High                    | Limited                    |
+| Ongoing maintenance      | High                         | Low                  | Moderate                | Vendor-managed             |
+| GDPR compliance          | You control                  | Depends on platform  | You control             | Vendor-dependent           |
+| Cost (first year)        | EUR 10,000-60,000            | EUR 0-6,000          | EUR 12,000-120,000      | Included in license        |
+| Best for                 | Complex, unique requirements | SMBs, most use cases | Enterprise multi-system | Single-vendor environments |
+| Scalability              | Manual scaling               | Platform-managed     | Enterprise-grade        | Vendor-limited             |
 
 ### Decision Framework: Which Method to Choose
 
@@ -137,55 +137,55 @@ Data mapping is where most CRM ERP integration projects succeed or fail. The two
 
 **Contacts and accounts (CRM) to business partners or customers (ERP):**
 
-| CRM field | ERP field (typical) | Direction | Notes |
-|---|---|---|---|
-| Company name | Business partner name | Bidirectional | CRM is usually master |
-| Billing address | Invoice address | CRM to ERP | ERP uses for invoicing |
-| Shipping address | Delivery address | CRM to ERP | |
-| Contact email | Communication email | Bidirectional | |
-| Phone number | Telephone | Bidirectional | Normalize format (+49 30 ...) |
-| VAT/Tax ID | Tax number | CRM to ERP | Critical for B2B invoicing |
-| Account owner | Account manager | CRM to ERP | |
-| Customer segment | Customer group | CRM to ERP | Map CRM tags to ERP groups |
-| Customer ID | Business partner ID | Map via lookup table | Critical for linking records |
-| Credit status | Payment terms | ERP to CRM | Sales needs this visibility |
+| CRM field        | ERP field (typical)   | Direction            | Notes                         |
+| ---------------- | --------------------- | -------------------- | ----------------------------- |
+| Company name     | Business partner name | Bidirectional        | CRM is usually master         |
+| Billing address  | Invoice address       | CRM to ERP           | ERP uses for invoicing        |
+| Shipping address | Delivery address      | CRM to ERP           |                               |
+| Contact email    | Communication email   | Bidirectional        |                               |
+| Phone number     | Telephone             | Bidirectional        | Normalize format (+49 30 ...) |
+| VAT/Tax ID       | Tax number            | CRM to ERP           | Critical for B2B invoicing    |
+| Account owner    | Account manager       | CRM to ERP           |                               |
+| Customer segment | Customer group        | CRM to ERP           | Map CRM tags to ERP groups    |
+| Customer ID      | Business partner ID   | Map via lookup table | Critical for linking records  |
+| Credit status    | Payment terms         | ERP to CRM           | Sales needs this visibility   |
 
 **Deals or opportunities (CRM) to sales orders (ERP):**
 
-| CRM field | ERP field (typical) | Direction | Notes |
-|---|---|---|---|
-| Deal name | Order description | CRM to ERP | |
-| Deal value | Order total | CRM to ERP | Currency must match |
-| Close date | Order date | CRM to ERP | |
-| Line items | Order line items | CRM to ERP | Product IDs must match |
-| Deal stage | Order status | Bidirectional | Map stage names to statuses |
-| Discount | Discount | CRM to ERP | Percentage vs. absolute |
-| Payment terms | Payment conditions | CRM to ERP | Map text to ERP codes |
-| Delivery date | Requested delivery | CRM to ERP | |
+| CRM field     | ERP field (typical) | Direction     | Notes                       |
+| ------------- | ------------------- | ------------- | --------------------------- |
+| Deal name     | Order description   | CRM to ERP    |                             |
+| Deal value    | Order total         | CRM to ERP    | Currency must match         |
+| Close date    | Order date          | CRM to ERP    |                             |
+| Line items    | Order line items    | CRM to ERP    | Product IDs must match      |
+| Deal stage    | Order status        | Bidirectional | Map stage names to statuses |
+| Discount      | Discount            | CRM to ERP    | Percentage vs. absolute     |
+| Payment terms | Payment conditions  | CRM to ERP    | Map text to ERP codes       |
+| Delivery date | Requested delivery  | CRM to ERP    |                             |
 
 **Products (ERP) to product catalog (CRM):**
 
-| ERP field | CRM field (typical) | Direction | Notes |
-|---|---|---|---|
-| Product ID / SKU | Product ID | ERP to CRM | Use ERP as master |
-| Product name | Product name | ERP to CRM | |
-| List price | Unit price | ERP to CRM | Include currency |
-| Stock level | Availability | ERP to CRM | Threshold vs. exact count |
-| Product category | Product category | ERP to CRM | Category trees may differ |
-| Unit of measure | Unit | ERP to CRM | Map ERP codes to labels |
-| Minimum order quantity | MOQ | ERP to CRM | |
+| ERP field              | CRM field (typical) | Direction  | Notes                     |
+| ---------------------- | ------------------- | ---------- | ------------------------- |
+| Product ID / SKU       | Product ID          | ERP to CRM | Use ERP as master         |
+| Product name           | Product name        | ERP to CRM |                           |
+| List price             | Unit price          | ERP to CRM | Include currency          |
+| Stock level            | Availability        | ERP to CRM | Threshold vs. exact count |
+| Product category       | Product category    | ERP to CRM | Category trees may differ |
+| Unit of measure        | Unit                | ERP to CRM | Map ERP codes to labels   |
+| Minimum order quantity | MOQ                 | ERP to CRM |                           |
 
 **Invoices and payments (ERP) to CRM records:**
 
-| ERP field | CRM field (typical) | Direction | Notes |
-|---|---|---|---|
-| Invoice number | Invoice reference | ERP to CRM | |
-| Invoice amount | Invoice value | ERP to CRM | |
-| Payment status | Payment status | ERP to CRM | Map ERP codes to CRM values |
-| Due date | Payment due date | ERP to CRM | |
-| Outstanding balance | Open amount | ERP to CRM | |
-| Credit note | Credit note reference | ERP to CRM | |
-| Dunning level | Collection status | ERP to CRM | Map 1/2/3 to descriptions |
+| ERP field           | CRM field (typical)   | Direction  | Notes                       |
+| ------------------- | --------------------- | ---------- | --------------------------- |
+| Invoice number      | Invoice reference     | ERP to CRM |                             |
+| Invoice amount      | Invoice value         | ERP to CRM |                             |
+| Payment status      | Payment status        | ERP to CRM | Map ERP codes to CRM values |
+| Due date            | Payment due date      | ERP to CRM |                             |
+| Outstanding balance | Open amount           | ERP to CRM |                             |
+| Credit note         | Credit note reference | ERP to CRM |                             |
+| Dunning level       | Collection status     | ERP to CRM | Map 1/2/3 to descriptions   |
 
 ### Five Data Mapping Rules
 
@@ -243,16 +243,19 @@ Clean your data before integrating. Integration amplifies data quality problems.
 Start small. Do not try to sync everything in the first phase.
 
 **Phase 1 (highest value, lowest complexity):**
+
 - Customer/account sync from CRM to ERP (new records only)
 - Invoice and payment status from ERP to CRM
 - Product catalog from ERP to CRM
 
 **Phase 2 (high value, moderate complexity):**
+
 - Deal-to-order conversion when deals close
 - Bidirectional customer data updates
 - Inventory availability from ERP to CRM
 
 **Phase 3 (full integration):**
+
 - Quote generation with real-time ERP pricing
 - Credit limit checks during deal qualification
 - Full order lifecycle tracking across both systems
@@ -312,6 +315,7 @@ Go live gradually.
 **Trigger:** Deal status changes to "Won" in CRM.
 
 **Flow:**
+
 1. CRM sends deal data (customer, line items, value, terms).
 2. Integration checks whether the customer exists in the ERP. If not, creates a new business partner.
 3. Integration validates line items: do all product IDs exist in the ERP? Are quantities and pricing valid?
@@ -327,6 +331,7 @@ Go live gradually.
 **Trigger:** Invoice status changes in ERP (scheduled polling every 5 minutes).
 
 **Flow:**
+
 1. Integration queries ERP for invoices with status changes since last sync.
 2. For each changed invoice, looks up the corresponding deal or account in the CRM.
 3. Updates the CRM record with current payment status, amount paid, and outstanding balance.
@@ -338,6 +343,7 @@ Go live gradually.
 **Trigger:** Sales representative opens a deal or creates a quote in CRM.
 
 **Flow:**
+
 1. CRM requests current stock levels from ERP via API call.
 2. ERP returns available quantity per product and warehouse.
 3. CRM displays availability alongside the product selection.
@@ -349,6 +355,7 @@ Go live gradually.
 **Trigger:** New contact or company created in CRM.
 
 **Flow:**
+
 1. CRM webhook fires on new record creation.
 2. Integration checks for an existing match in ERP (by name, email, or tax ID) to prevent duplicates.
 3. If no match, creates a new business partner in ERP with CRM data.
@@ -362,6 +369,7 @@ Go live gradually.
 **Trigger:** Sales rep creates a quote in CRM.
 
 **Flow:**
+
 1. CRM sends product IDs and quantities to ERP.
 2. ERP calculates pricing based on customer-specific price lists, volume discounts, and promotions.
 3. ERP returns calculated prices to CRM.
@@ -395,6 +403,7 @@ CRM ERP integration moves personal data between systems. For EU businesses, GDPR
 ### Manufacturing
 
 The CRM-ERP link is particularly valuable for manufacturers:
+
 - **Bill of materials (BOM) sync:** Product configurations in CRM map to BOM structures in ERP.
 - **Lead time visibility:** ERP production schedules surface in CRM so reps can quote realistic delivery dates.
 - **Custom pricing by volume:** ERP calculates tiered pricing based on order quantity; CRM displays it in real time.
@@ -415,35 +424,35 @@ The CRM-ERP link is particularly valuable for manufacturers:
 
 ### Cost Breakdown
 
-| Component | iPaaS approach | Custom API approach |
-|---|---|---|
-| Platform/tooling | EUR 0-500/month | EUR 0 (open-source) to EUR 2,000/month |
-| Initial setup (labor) | 20-80 hours | 100-400+ hours |
-| Data cleanup | 10-40 hours | 10-40 hours |
-| Testing | 10-20 hours | 20-60 hours |
-| Documentation | 5-10 hours | 10-20 hours |
-| Ongoing maintenance | 2-5 hours/month | 10-20+ hours/month |
+| Component             | iPaaS approach  | Custom API approach                    |
+| --------------------- | --------------- | -------------------------------------- |
+| Platform/tooling      | EUR 0-500/month | EUR 0 (open-source) to EUR 2,000/month |
+| Initial setup (labor) | 20-80 hours     | 100-400+ hours                         |
+| Data cleanup          | 10-40 hours     | 10-40 hours                            |
+| Testing               | 10-20 hours     | 20-60 hours                            |
+| Documentation         | 5-10 hours      | 10-20 hours                            |
+| Ongoing maintenance   | 2-5 hours/month | 10-20+ hours/month                     |
 
 ### Realistic Timeline
 
-| Phase | iPaaS approach | Custom API approach |
-|---|---|---|
-| Planning and data audit | 1-2 weeks | 1-2 weeks |
-| Data cleanup | 1-2 weeks | 1-2 weeks |
-| Phase 1 build (core sync) | 1-2 weeks | 4-8 weeks |
-| Testing | 1 week | 2-4 weeks |
-| Phase 2 build (extended sync) | 1-2 weeks | 4-8 weeks |
-| Full production stability | 6-8 weeks total | 12-24 weeks total |
+| Phase                         | iPaaS approach  | Custom API approach |
+| ----------------------------- | --------------- | ------------------- |
+| Planning and data audit       | 1-2 weeks       | 1-2 weeks           |
+| Data cleanup                  | 1-2 weeks       | 1-2 weeks           |
+| Phase 1 build (core sync)     | 1-2 weeks       | 4-8 weeks           |
+| Testing                       | 1 week          | 2-4 weeks           |
+| Phase 2 build (extended sync) | 1-2 weeks       | 4-8 weeks           |
+| Full production stability     | 6-8 weeks total | 12-24 weeks total   |
 
 ### Total Cost of Ownership (First Year)
 
-| Approach | Low estimate | High estimate |
-|---|---|---|
-| iPaaS (n8n self-hosted) | EUR 2,000 | EUR 8,000 |
-| iPaaS (cloud, e.g., Zapier) | EUR 3,600 | EUR 12,000 |
-| Custom API development | EUR 10,000 | EUR 60,000+ |
-| Middleware/ESB | EUR 12,000 | EUR 120,000+ |
-| Native (included in license) | EUR 0 extra | EUR 0 extra (but license: EUR 100-300/user/month) |
+| Approach                     | Low estimate | High estimate                                     |
+| ---------------------------- | ------------ | ------------------------------------------------- |
+| iPaaS (n8n self-hosted)      | EUR 2,000    | EUR 8,000                                         |
+| iPaaS (cloud, e.g., Zapier)  | EUR 3,600    | EUR 12,000                                        |
+| Custom API development       | EUR 10,000   | EUR 60,000+                                       |
+| Middleware/ESB               | EUR 12,000   | EUR 120,000+                                      |
+| Native (included in license) | EUR 0 extra  | EUR 0 extra (but license: EUR 100-300/user/month) |
 
 ## Common Pitfalls and How to Avoid Them
 
@@ -491,7 +500,7 @@ The CRM-ERP link is particularly valuable for manufacturers:
 
 ## CRM ERP Integration With Customermates and n8n
 
-Customermates includes n8n as its built-in automation and integration engine. This means CRM ERP integration does not require a separate iPaaS subscription, third-party middleware, or custom development.
+Customermates works with n8n as its built-in automation and integration engine. This means CRM ERP integration does not require a separate iPaaS subscription, third-party middleware, or custom development.
 
 ### How It Works
 
@@ -527,9 +536,9 @@ This entire workflow is configured visually. No code required. It can be built i
 
 ### Why Customermates for CRM ERP Integration
 
-- **Built-in n8n** eliminates the need for a separate integration platform (saving EUR 200-500/month vs. cloud iPaaS)
+- **n8n** eliminates the need for a separate integration platform (saving EUR 200-500/month vs. cloud iPaaS)
 - **Full API access** allows custom integrations alongside n8n workflows
-- **From EUR 12 per user per month** for the full core CRM, keeps CRM costs low when you are already investing in ERP
+- **From [[commercial.price.starter.monthly]] per user per month** for the full core CRM, keeps CRM costs low when you are already investing in ERP
 - **Self-hosting option** means your CRM data stays on your infrastructure, which matters when integrating with on-premise ERP systems
 - **GDPR compliance** built in, critical when customer data flows between systems
 - **Open-source foundation** ensures no vendor lock-in; your data and integration workflows remain portable
@@ -543,7 +552,7 @@ CRM ERP integration is the technical process of connecting your Customer Relatio
 
 ### What is the best method for CRM ERP integration?
 
-For most small and mid-sized businesses, iPaaS (Integration Platform as a Service) like n8n is the best method. It provides visual workflow builders, pre-built connectors, error handling, and logging without requiring custom development. Customermates includes n8n built in, so no separate platform is needed. Custom API integration is better only when you have highly specialized requirements that visual workflow tools cannot handle.
+For most small and mid-sized businesses, iPaaS (Integration Platform as a Service) like n8n is the best method. It provides visual workflow builders, pre-built connectors, error handling, and logging without requiring custom development. Customermates works with n8n built in, so no separate platform is needed. Custom API integration is better only when you have highly specialized requirements that visual workflow tools cannot handle.
 
 ### How long does CRM ERP integration take?
 
@@ -551,7 +560,7 @@ Using an iPaaS approach, basic integration (customer sync plus invoice status) c
 
 ### How much does CRM ERP integration cost?
 
-Costs vary by method. iPaaS integration costs EUR 0-8,000 in the first year (platform fees plus 20-80 hours of setup labor). Custom API integration typically costs EUR 10,000-60,000+ for initial development plus EUR 5,000-15,000/year for maintenance. Using Customermates with its built-in n8n, the CRM cost is from EUR 12 per user per month with integration capabilities included at no extra charge.
+Costs vary by method. iPaaS integration costs EUR 0-8,000 in the first year (platform fees plus 20-80 hours of setup labor). Custom API integration typically costs EUR 10,000-60,000+ for initial development plus EUR 5,000-15,000/year for maintenance. Using Customermates with its n8n, the CRM cost is from [[commercial.price.starter.monthly]] per user per month with integration capabilities included at no extra charge.
 
 ### What data should I sync between CRM and ERP?
 
@@ -563,7 +572,7 @@ Use field-level mastering: assign each field a master system. The CRM masters co
 
 ### Can I integrate CRM and ERP without coding?
 
-Yes. iPaaS platforms like n8n provide visual workflow builders with drag-and-drop interfaces. You configure integration logic by connecting pre-built nodes rather than writing code. Customermates includes n8n built in, making no-code CRM ERP integration possible out of the box. Complex data transformations may occasionally require simple JavaScript expressions within n8n, but no software development project is needed.
+Yes. iPaaS platforms like n8n provide visual workflow builders with drag-and-drop interfaces. You configure integration logic by connecting pre-built nodes rather than writing code. Customermates works with n8n built in, making no-code CRM ERP integration possible out of the box. Complex data transformations may occasionally require simple JavaScript expressions within n8n, but no software development project is needed.
 
 ### Is CRM ERP integration worth it for small businesses?
 
@@ -583,4 +592,4 @@ CRM ERP integration is a technical project with predictable steps: choose an int
 
 The most common mistake is overcomplicating it. Start with three to five high-value data flows. Use an iPaaS platform to avoid custom development. Define clear data ownership per field. Test with real data and edge cases. Monitor from day one.
 
-Customermates, with its built-in n8n automation, full API, and pricing from EUR 12 per user per month, gives you a CRM that is designed for integration from the ground up. Connect it to SAP, Dynamics, Odoo, or any ERP with an API, without writing code and without paying for a separate integration platform.
+Customermates, with its n8n automation, full API, and pricing from [[commercial.price.starter.monthly]] per user per month, gives you a CRM that is designed for integration from the ground up. Connect it to SAP, Dynamics, Odoo, or any ERP with an API, without writing code and without paying for a separate integration platform.

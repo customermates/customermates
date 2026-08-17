@@ -1,5 +1,16 @@
-import { RouteLoading } from "@/components/page-state/route-loading";
+import { getTranslations } from "next-intl/server";
 
-export default function Loading() {
-  return <RouteLoading route="/legal-update" />;
+import { PageState } from "@/components/page-state/page-state";
+import { LegalUpdatePageSkeleton } from "./components/legal-update-page-skeleton";
+
+export default async function Loading() {
+  const t = await getTranslations("PageState");
+  return (
+    <PageState
+      background={<LegalUpdatePageSkeleton />}
+      className="h-full flex-1"
+      label={t("loading")}
+      state="loading"
+    />
+  );
 }

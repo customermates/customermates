@@ -1,16 +1,16 @@
 ---
-title: "CRM Workflow Automation With n8n Built In"
-description: "CRM workflow automation with no-code n8n workflows for follow-ups, deal triggers, and 400+ integrations. Replace Zapier. Open-source and EU-hosted."
+title: "CRM Workflow Automation With n8n"
+description: "Drive no-code n8n workflows from CRM webhooks and the REST API: follow-ups, deal triggers, and 400+ integrations. Open source, bring your own n8n."
 featureName: Workflow Automation
 
 hero:
   title: CRM Workflow Automation That Works While You Sleep
-  description: Connect your CRM to hundreds of tools with built-in n8n automation. Build no-code workflows for follow-ups, deal stage triggers, and repetitive tasks so your team can focus on closing deals.
+  description: Connect your CRM to hundreds of tools by driving your own n8n instance from CRM webhooks and the REST API. Build no-code workflows for follow-ups, deal stage triggers, and repetitive tasks so your team can focus on closing deals.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First 7 days free"
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
   action: Ready to automate your CRM workflows?
@@ -19,7 +19,7 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First 7 days free"
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
 ## What Is CRM Workflow Automation?
@@ -32,11 +32,11 @@ CRM workflow automation eliminates this overhead. You define the trigger, the co
 
 ## How Workflow Automation Works in Customermates
 
-Customermates integrates [n8n](https://n8n.io/), a powerful open-source workflow automation engine, directly into the CRM platform. This is not a third-party add-on or a limited built-in rule engine. It is a full-featured automation platform that runs alongside your CRM data.
+Customermates does not ship an automation engine. It ships the surfaces one needs: [[derived.webhooks.events.total]] webhook events, a versioned REST API, an MCP endpoint, and a published [community node](https://github.com/customermates/n8n-nodes-crm) for [n8n](https://n8n.io/). You run n8n yourself, self-hosted or on n8n's cloud, and it is a separate product with its own pricing. What you get in return is a full-featured automation platform rather than a limited rule engine bolted onto a CRM.
 
 **Visual workflow builder.** n8n provides a drag-and-drop interface for building automations. You connect nodes visually, each representing a trigger, a condition, a transformation, or an action. No programming knowledge is required to build sophisticated multi-step workflows. If you can draw a flowchart, you can build an automation.
 
-**CRM event triggers.** Workflows can be triggered by events inside Customermates: a new contact is created, a deal moves to a specific stage, a task is completed, a field value changes, or a note is added. These event-based triggers ensure your automations fire at exactly the right moment in your business process.
+**CRM event triggers.** Workflows can be triggered by the [[derived.webhooks.events.total]] webhook events Customermates emits: a record is created, updated, or deleted across contacts, organizations, deals, services, and tasks, plus messaging and calendar events. Deal stage is a custom column, so a stage change arrives as a `deal.updated` event and your workflow branches on the column value. These event-based triggers ensure your automations fire at exactly the right moment in your business process.
 
 **400+ app integrations.** n8n supports connections to over 400 external services out of the box. Send messages to Slack or Microsoft Teams when deals close. Create invoices in your accounting software when a deal is won. Sync contacts with your [email marketing platform](/features/email-integration). Push data to Google Sheets for reporting. The integration possibilities are extensive and continue to grow.
 
@@ -44,11 +44,11 @@ Customermates integrates [n8n](https://n8n.io/), a powerful open-source workflow
 
 **Data transformation.** Move data between systems without worrying about format mismatches. n8n includes built-in tools for mapping fields, transforming data types, merging records, and splitting arrays. Your data arrives in the right format at the right destination every time.
 
-**AI agents alongside your workflows.** n8n handles scheduled, rule-based automation. On top of it, Customermates exposes a native MCP integration with 45 tools, so Claude, ChatGPT, and Gemini can operate the CRM directly: reading and writing records, moving deal stages, summarizing meeting notes, classifying incoming leads with natural language, generating personalized email drafts, and extracting key information from unstructured data. Deterministic workflows and AI agents cover the two halves of automation that rule-based systems alone cannot.
+**External AI clients alongside your workflows.** A separate n8n instance handles scheduled, rule-based automation. Supported external clients such as Claude, ChatGPT, or Gemini can use [[derived.mcp.tools.total]] MCP tools for permitted CRM operations and individual drafts. Customermates includes neither client nor model; subscriptions, provider handling, and autonomous outcomes remain external.
 
 ## Common Workflow Automation Examples
 
-**Automated follow-up sequences.** When a new lead enters your [pipeline](/features/pipeline), trigger a sequence of timed follow-up actions. Send an introduction email immediately, create a call task for the next business day, and schedule a reminder if no response is received within a week. The entire sequence runs without anyone having to remember or manage it.
+**Follow-up sequences in an external provider.** When a new lead enters your [pipeline](/features/pipeline), trigger a sequence of timed follow-up actions. Send an introduction email immediately, create a call task for the next business day, and schedule a reminder if no response is received within a week. The entire sequence runs without anyone having to remember or manage it.
 
 **Deal stage notifications.** When a deal progresses to a new stage, notify the relevant team members automatically. Alert the account manager when a deal reaches negotiation. Notify finance when a deal is marked as won. Send a summary to the sales director when a deal exceeds a certain value. Everyone stays informed without manual updates.
 
@@ -58,7 +58,7 @@ Customermates integrates [n8n](https://n8n.io/), a powerful open-source workflow
 
 **Cross-system synchronization.** Keep your CRM data in sync with other tools your team uses. When a contact is updated in Customermates, push the changes to your email marketing platform, your support desk, or your project management tool. Eliminate duplicate data entry and ensure consistency across your entire tool stack.
 
-**Meeting follow-ups.** After a meeting is logged, automatically create follow-up tasks, send a summary email to the attendee, and schedule the next touchpoint. The post-meeting routine happens consistently for every interaction, not just the ones your team remembers to follow up on.
+**Meeting follow-ups.** After a meeting is logged, automatically create follow-up tasks, send a summary email to the attendee, and schedule the next touchpoint. The post-meeting routine happens consistently for every interaction, not just the ones your team remembers to follow up on. This requires a scheduler in your own n8n instance or another external service through the API; Customermates does not run scheduled follow-ups or reminders itself.
 
 ## Key Benefits
 
@@ -74,15 +74,15 @@ Customermates integrates [n8n](https://n8n.io/), a powerful open-source workflow
 
 ## CRM Workflow Automation Comparison
 
-| Feature | Customermates | HubSpot | Salesforce | Pipedrive |
+| Feature | Customermates + separate n8n | HubSpot | Salesforce | Pipedrive |
 |---------|--------------|---------|------------|-----------|
-| Price/user/month | From €12 | $90+ (workflows) | $25+ | $49+ (automations) |
+| Price/user/month | From [[commercial.price.starter.monthly]] | $90+ (workflows) | $25+ | $49+ (automations) |
 | Visual workflow builder | <StatusAvailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
-| Unlimited automations | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusUnavailable /> |
+| Automation limits | Depend on separate n8n plan | <StatusUnavailable /> | <StatusPartial /> | <StatusUnavailable /> |
 | 400+ integrations | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusPartial /> |
 | Conditional branching | <StatusAvailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
-| AI-powered workflows | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusUnavailable /> |
-| EU/GDPR hosting | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> |
+| External AI-client access | Via MCP | <StatusPartial /> | <StatusPartial /> | <StatusUnavailable /> |
+| Managed database in an EU region | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> |
 | Open source engine | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 | Self-hostable automation | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 | Custom node development | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusUnavailable /> |
@@ -95,13 +95,13 @@ Customermates integrates [n8n](https://n8n.io/), a powerful open-source workflow
 
 ## Why n8n Integration Matters
 
-Many CRM platforms offer basic automation with simple rule builders that handle a handful of scenarios. Customermates takes a fundamentally different approach by integrating a full automation platform.
+Many CRM platforms offer basic automation with simple rule builders. Customermates instead publishes REST, webhooks, MCP, and a community node for a separate n8n automation platform that you operate or subscribe to.
 
-**Open source and fully extensible.** n8n is open-source software, just like Customermates. If you need a custom integration that does not exist yet, you can build it. The community contributes new nodes regularly, and you can create your own for internal systems.
+**Open source and fully extensible.** n8n is open-source software, alongside the Customermates AGPL core. If you need a custom integration that does not exist yet, you can build it. The community contributes new nodes regularly, and you can create your own for internal systems.
 
-**Self-hostable automation.** When you [self-host Customermates](/features/self-hosted), the n8n automation engine runs on your infrastructure too. Your workflow data, credentials, and execution logs never leave your servers. This is essential for businesses with strict data handling requirements.
+**Separate self-hostable products.** When you [self-host Customermates](/features/self-hosted), its application and PostgreSQL database run on your infrastructure with Starter entitlements. Operate n8n separately; its workflow data, credentials, logs, limits, and connected providers retain their own boundaries.
 
-**No per-automation pricing.** Some CRM providers charge per automation, per execution, or per integration. Customermates includes n8n automation from the €12 per user per month Starter [tier](/pricing). Build as many workflows as you need. Run them as often as required. Connect to as many external services as your business demands. The price for automation itself does not change as you scale usage.
+**No Customermates fee per external workflow.** REST, webhooks, MCP, and the community node start with the [[commercial.price.starter.monthly]] Starter [tier](/pricing). n8n remains separate and applies its own subscription, hosting, execution, connector, limit, log, and provider costs; Customermates makes no unlimited-use promise.
 
 ## Frequently Asked Questions
 
@@ -113,14 +113,14 @@ No. The n8n visual builder uses drag-and-drop. You connect nodes that represent 
 
 Yes. n8n supports over 400 integrations including Slack, Gmail, Outlook, Google Sheets, Stripe, Xero, Asana, Jira, and many more. Any tool with an API can be connected using the HTTP request node.
 
-### Is workflow automation included in the base price?
+### Does connecting workflow automation cost extra?
 
-Yes. From the €12/user/month Starter tier, unlimited automations, unlimited executions, and all 400+ integrations are included. There are no per-workflow, per-run, or per-integration charges. See full [pricing details](/pricing).
+Customermates does not add a per-workflow charge. Starter provides documented REST, webhook, MCP, and community-node access without an unlimited-call promise. n8n and its 400+ connectors remain a separate product with their own plans, limits, executions, logs, and costs. See [pricing details](/pricing).
 
 ## Get Started With Workflow Automation
 
-Building your first automation in Customermates takes minutes, not days. Start by identifying a repetitive task your team performs regularly. A common starting point is automating follow-up reminders for new leads or sending notifications when deal stages change.
+Start by identifying a repetitive task and the documented CRM event or field it needs. Open your separate automation service to build reminders, notifications, or other timed actions; Customermates supplies the CRM interfaces, not the scheduler or delivery provider.
 
-Open the workflow builder, select your trigger event, add the actions you want to perform, and activate the workflow. It runs in the background from that point forward, handling the task reliably while your team focuses on work that actually requires human judgment.
+Open the workflow builder in your separate n8n service, connect it through REST or webhooks, add the external actions, and activate the workflow there. Its runtime, scheduling, delivery, logs, limits, and costs remain outside Customermates.
 
-[Sign up for Customermates](/auth/signup) and start automating your CRM workflows today. No credit card required for your first seven days. All [sales automation](/features/sales-automation), [cloud CRM](/features/cloud-crm), and workflow features are available from day one.
+[Sign up for Customermates](/auth/signup) and connect documented CRM interfaces to the automation service you operate. No credit card is required for your first [[commercial.trial.days]] days; [sales automation](/features/sales-automation) workflows and their runtime remain separate.

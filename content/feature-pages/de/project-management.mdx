@@ -1,16 +1,16 @@
 ---
 title: "CRM Projektmanagement: Aufgaben & Kanban-Boards"
-description: "Projektmanagement direkt im CRM: Aufgaben mit Deals, Kontakten und Organisationen verknüpfen, Teams zuweisen und Fortschritt mit Kanban-Boards verfolgen. KI-Agenten und n8n halten die Arbeit in Bewegung."
+description: "Projektmanagement im CRM: Aufgaben mit Deals, Kontakten und Organisationen verknüpfen, Teams zuweisen und Kanban-Boards nutzen. Externe KI-Clients und separate n8n-Workflows verbinden sich über offene Schnittstellen."
 featureName: Projektmanagement
 
 hero:
   title: Projektmanagement direkt in Ihrem CRM
-  description: Verknüpfen Sie Aufgaben mit Deals, Kontakten und Organisationen, weisen Sie Arbeit Ihrem Team zu und verfolgen Sie den Fortschritt auf einem Kanban-Board, ohne Ihr CRM zu verlassen. KI-Agenten können Aufgaben für Sie erstellen und aktualisieren. Projekte, Kunden und Vertriebsaktivitäten in einer Plattform, enthalten ab 12 EUR pro Nutzer und Monat.
+  description: Verknüpfen Sie Aufgaben mit Deals, Kontakten und Organisationen, weisen Sie Arbeit zu und verfolgen Sie Fortschritt im Kanban-Board des CRM. Ein unterstützter externer KI-Client kann zulässige Aufgaben über MCP aktualisieren; Client, Modell und Workflow-Laufzeit bleiben separat.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ Keine Kreditkarte benötigt ✓ Erste 7 Tage kostenlos"
+  hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 
 cta:
   action: Bereit loszulegen?
@@ -19,7 +19,7 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ Keine Kreditkarte benötigt ✓ Erste 7 Tage kostenlos"
+  hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
 ## Was ist CRM Projektmanagement?
@@ -32,9 +32,9 @@ Für viele Unternehmen ist die Übergabe vom Vertrieb an die Leistungserbringung
 
 ## So funktioniert Projektmanagement in Customermates
 
-Customermates verwaltet Projektarbeit über Aufgaben, die mit Ihren Kontakten, Deals, Organisationen und Services verknüpft sind. Es gibt kein separates Projektmodul und keine fest verdrahteten Workflow-Felder: Sie definieren die benötigten Phasen und Attribute als benutzerdefinierte Felder. Jede nachfolgend beschriebene Funktion ist ab 12 EUR pro Nutzer und Monat (Starter-Stufe) enthalten.
+Customermates verwaltet Projektkontext über Aufgaben, die mit Kontakten, Deals, Organisationen und Services verknüpft sind. Es gibt kein separates Projektmodul oder fest verdrahtete Workflow-Felder. Aufgaben, Verknüpfungen, eigene Felder und Kanban-Ansichten starten mit Starter; externe KI-Clients und n8n behalten eigene Abos und Laufzeiten.
 
-**KI-Agenten erstellen und aktualisieren Aufgaben.** Über die native MCP-Integration (45 Tools) erstellen KI-Agenten wie Claude, ChatGPT und Gemini Aufgaben, weisen sie zu, setzen ihren Status und aktualisieren sie, während die Arbeit voranschreitet. Das Aufgaben-Board bleibt aktuell, weil der Agent die Eingabe übernimmt, nicht die Person, die ohnehin mit der Lieferung beschäftigt ist.
+**Externe KI-Clients erstellen und aktualisieren Aufgaben.** Über MCP können unterstützte Clients Aufgaben anlegen, zuweisen und kundendefinierte Statuswerte schreiben, soweit erlaubt. Customermates liefert [[derived.mcp.tools.total]] MCP-Tools, nicht den KI-Client, das Modell, das Abonnement oder ein autonomes Ergebnis.
 
 **Aufgabenerstellung und -zuweisung.** Erstellen Sie Aufgaben direkt aus jedem Deal-, Kontakt-, Organisations- oder Service-Datensatz oder aus der Aufgabenliste. Weisen Sie eine Aufgabe einem oder mehreren Teammitgliedern zu. Erfassen Sie Fälligkeitsdatum, Priorität und Status als benutzerdefinierte Felder, die Sie definieren, sodass die Aufgabe genau die Attribute trägt, die Ihr Prozess braucht.
 
@@ -42,54 +42,54 @@ Customermates verwaltet Projektarbeit über Aufgaben, die mit Ihren Kontakten, D
 
 **Kanban-Board-Ansicht.** Betrachten Sie Ihre Aufgaben auf einem Board, gruppiert nach einer beliebigen Single-Select-Spalte, zum Beispiel einer Status-Spalte, die Sie erstellen. Ziehen Sie eine Aufgabe zwischen Spalten, um diesen Wert zu ändern. Wechseln Sie dieselbe Liste in eine Tabellenansicht, wenn Sie Spalten und Sortierung brauchen. Das Board ist ideal für Stand-up-Meetings und zeigt Projektfluss und Engpässe auf einen Blick.
 
-**Statusverfolgung mit benutzerdefinierten Feldern.** Verfolgen Sie den Aufgabenfortschritt mit einem Single-Select-Statusfeld, das Sie definieren: offen, in Bearbeitung, in Prüfung, erledigt, was auch immer passt. Filtern und sortieren Sie die Aufgabenliste nach Status, Verantwortlichem, Fälligkeitsdatum oder jedem verknüpften Datensatz.
+**Statusverfolgung mit benutzerdefinierten Feldern.** Verfolgen Sie den Fortschritt mit einer definierten Einfachauswahl: offen, in Bearbeitung, in Prüfung oder erledigt. Ergänzen Sie bei Bedarf ein eigenes Datumsfeld und filtern oder sortieren Sie nach diesen Werten, Verantwortlichem oder verknüpftem Datensatz.
 
-**Dashboard-Diagramme über Ihre Aufgaben.** Fügen Sie Ihrem persönlichen Dashboard Diagramm-Widgets (Balken-, Doughnut- oder Radardiagramme) hinzu, um die Aufgabenanzahl nach Status, nach Verantwortlichem oder nach verknüpftem Deal zu sehen. Widgets filtern nach jedem Feld und aktualisieren sich, wenn sich Aufgaben ändern.
+**Dashboard-Diagramme über Ihre Aufgaben.** Fügen Sie dem persönlichen Dashboard Diagramm-Widgets hinzu, um Aufgaben nach Verantwortlichem, verknüpftem Deal oder einem eigenen Auswahlfeld darzustellen. Widgets visualisieren gespeicherte Werte und aktualisieren sich mit den Aufgaben.
 
 **Notizen und Historie.** Fügen Sie einer Aufgabe Notizen hinzu, während die Arbeit voranschreitet, und pflegen Sie eine laufende Historie dessen, was wann getan wurde, getrennt vom übergeordneten Deal- oder Kontaktdatensatz.
 
-**Automatisierung mit n8n.** Verbinden Sie Aufgabenarbeit mit automatisierten Workflows über die integrierte n8n-Engine. Erstellen Sie automatisch einen Aufgabensatz, wenn ein Deal in eine neue Phase eintritt, senden Sie eine Erinnerung bei nahendem Fälligkeitsdatum, benachrichtigen Sie einen Manager bei überfälliger Aufgabe oder lösen Sie ein externes System aus, wenn eine Aufgabe als erledigt markiert wird. n8n ermöglicht es Ihnen, Aufgaben-Workflows zu bauen, die Ihren tatsächlichen Geschäftsprozessen entsprechen.
+**Automatisierung mit separatem n8n.** Ein separat betriebener n8n-Workflow kann auf Webhooks reagieren, Aufgaben per REST anlegen, eigene Datumsfelder nach seinem Zeitplan auswerten und über externe Anbieter Benachrichtigungen senden. Customermates bündelt weder Engine, Scheduler noch Zustellung.
 
 ## Häufige Projektmanagement-Anwendungsfälle
 
-**Post-Sale-Onboarding.** Wenn ein Deal gewonnen wird, erstellt ein n8n-Workflow oder ein KI-Agent die Onboarding-Aufgaben: Kickoff-Call planen, Willkommensmaterialien senden, Kundenkonto konfigurieren, Customer-Success-Manager zuweisen und eine 30-Tage-Check-in-Aufgabe setzen. Jeder neue Kunde erhält eine konsistente Onboarding-Sequenz mit klarer Verantwortlichkeit.
+**Post-Sale-Onboarding.** Ein separater n8n-Workflow oder unterstützter externer KI-Client kann nach einem Deal-Ereignis Onboarding-Aufgaben erstellen. Zieldaten speichern Sie in eigenen Feldern; Zeitplanung, Willkommensnachrichten, Sequenzlogik und externe Aktionen bleiben im separaten Workflow und bei Anbietern.
 
-**Angebotserstellung.** Die Erstellung eines Angebots umfasst mehrere Schritte und Teammitglieder. Ein n8n-Workflow oder KI-Agent generiert die Aufgaben für Anforderungserhebung, Angebotsentwurf, interne Prüfung, Überarbeitung, Freigabe und Zustellung. Verknüpfen Sie den gesamten Satz mit dem Deal, sodass der Fortschritt für alle sichtbar ist.
+**Angebotsvorbereitung.** Ein separater n8n-Workflow oder unterstützter externer KI-Client kann zulässige Aufgaben für Anforderungen, Entwurf, interne Prüfung, Überarbeitung und Freigabe erstellen. Verknüpfen Sie sie mit dem Deal; Dokumenterstellung, Speicherung und Zustellung bleiben in externen Tools.
 
-**Quartalsweise Account-Reviews.** Nutzen Sie n8n, um einen wiederkehrenden Satz von Review-Aufgaben für Ihre wichtigsten Kunden zu erstellen. Jeder Durchlauf beinhaltet Vorbereitungsaufgaben, das Review-Meeting selbst und Follow-up-Aktionen mit zugewiesenen Verantwortlichen und Fälligkeitsdaten.
+**Quartalsweise Account-Reviews.** Ein separater n8n-Scheduler kann unterstützte Review-Aufgaben für wichtige Kunden erstellen. Nutzen Sie eigene Datumsfelder für Zieldaten; Wiederholung, Erinnerungen, Kalenderbuchung und Zustellung bleiben im separaten Workflow oder beim Anbieter.
 
 **Marketing-Kampagnen-Ausführung.** Planen und führen Sie Marketingkampagnen mit Projektaufgabenlisten durch, die Contenterstellung, Design, Review, Terminierung, Distribution und Performance-Analyse verfolgen. Verknüpfen Sie Kampagnenaufgaben mit den generierten Kontakten und Deals für vollständige Attribution.
 
 **Kunden-Implementierungsprojekte.** Für Produkte oder Dienstleistungen, die eine Implementierung erfordern, verwalten Sie den gesamten Prozess innerhalb des CRM. Technisches Setup, Datenmigration, Nutzerschulung und Go-Live-Aufgaben werden neben dem Kundendatensatz verfolgt.
 
-**Internes Prozessmanagement.** Nutzen Sie Projekte zur Verwaltung interner Prozesse wie Einstellungs-Workflows, Schulungsprogramme, Büroumzüge oder Prozessverbesserungsinitiativen. Projektmanagement in Customermates ist nicht auf kundenbezogene Arbeit beschränkt.
+**Internes Prozessmanagement.** Nutzen Sie verknüpfte Aufgaben für interne Prozesse wie Einstellungs-Workflows, Schulungsprogramme, Büroumzüge oder Prozessverbesserungen. Dieselben CRM-Aufgaben unterstützen kundenbezogene und interne Arbeit.
 
 ## Zentrale Vorteile
 
-**Eine Plattform für Vertrieb und Lieferung.** Hören Sie auf, zwischen Ihrem CRM und einem separaten Projektmanagement-Tool zu wechseln. Wenn Aufgaben, Deals und Kundendaten im selben System leben, arbeitet Ihr Team schneller und mit vollem Kontext.
+**Verknüpfter Vertriebs- und Lieferkontext.** Verknüpfen Sie Aufgaben, Deals und Kundendaten im CRM, damit Teams denselben unterstützten Kontext prüfen. Nutzen Sie ein separates Projektmanagement-Tool für Projektobjekte, Vorlagen, Zeitpläne oder Liefer-Workflows.
 
-**Klare Verantwortlichkeit.** Jede Aufgabe hat einen Besitzer, ein Fälligkeitsdatum und einen Status. Es gibt keine Unklarheit darüber, wer für was verantwortlich ist oder ob die Arbeit im Zeitplan liegt.
+**Klare Verantwortlichkeit.** Jede Aufgabe kann einen Besitzer haben und mit CRM-Datensätzen verknüpft sein; ergänzen Sie eigene Datums- oder Auswahlfelder. Native Fälligkeit oder Aufgabenstatus gibt es nicht.
 
 **Nahtloser Deal-zu-Projekt-Übergang.** Wenn ein Deal abgeschlossen wird, sind die Projektaufgaben für die Lieferung bereits mit dem Deal-Datensatz verknüpft. Das Lieferungsteam hat sofortigen Zugang zur Deal-Historie, Kundennotizen und relevantem Kontext ohne manuelles Übergabedokument.
 
-**Reduzierte Toolkosten.** Anstatt für eine separate Projektmanagement-Plattform plus ein CRM zu zahlen, kombiniert Customermates beide Fähigkeiten ab 12 EUR pro Nutzer und Monat. Ein Tool, ein Login, ein Abonnement. Keine separate Asana- oder Monday-Lizenz nötig.
+**Fokussierter CRM-Umfang.** Customermates enthält verknüpfte Aufgaben, Deals, eigene Felder und Kanban-Ansichten ab Starter. Es ersetzt keine dedizierte Projektmanagement-Plattform; binden Sie diese für Projektmodell, Zeitplanung oder Vorlagen separat an.
 
-**Automatisierte Projekterstellung.** Nutzen Sie n8n, um vollständige Projektaufgaben-Sets automatisch bei CRM-Ereignissen zu generieren. Automatisierung stellt die konsistente Ausführung Ihrer Standardprozesse sicher.
+**Externe Projektaufgaben-Automatisierung.** Eine separate n8n-Instanz kann auf dokumentierte CRM-Ereignisse reagieren und unterstützte Aufgabensätze über REST erstellen. Vorlagen, Zeitplanung, Workflow-Zustand, Limits, Logs und Kosten bleiben außerhalb von Customermates.
 
-**Automatisierungsgesteuerte Konsistenz.** Ein n8n-Workflow oder KI-Agent generiert jedes Mal denselben Aufgabensatz, sodass jedes Onboarding, jedes Angebot und jede Kampagne demselben Prozess folgt. Neue Teammitglieder können komplexe Arbeit ab dem ersten Tag ausführen.
+**Extern automatisierte Konsistenz.** Ein separater n8n-Workflow oder unterstützter externer KI-Client kann denselben zulässigen Aufgabensatz aus Ihrer Vorlage erstellen. Das externe System besitzt Zeitplanung, Sequenzlogik, Anbieteraktionen, Limits und Ergebnisse.
 
 ## Warum Customermates für Projektmanagement?
 
-**Open Source und transparent.** Customermates ist vollständig Open Source. Ihre Projekt- und Aufgabendaten werden von Code verwaltet, den Sie einsehen, prüfen und erweitern können. Kein Vendor-Lock-in, keine versteckten Einschränkungen.
+**Open-Source-Kern.** AGPL-Kern-CRM-Anwendung und Aufgabenmodell sind einsehbar und erweiterbar. Self-Hosting betreibt diesen Kern mit PostgreSQL unter Starter-Berechtigungen; externe KI-Clients, n8n und Zustellanbieter bleiben separat.
 
-**EU-gehostet und DSGVO-konform.** Alle Projekt- und Aufgabendaten werden in europäischen Rechenzentren gespeichert, mit vollständiger DSGVO-Konformität. Verwalten Sie kundenbezogene Projekte mit der Gewissheit, dass Ihre Datenverarbeitung europäischen Standards entspricht.
+**EU-Datenbankregion mit dokumentierten Anbietern.** Die verwaltete Datenbank läuft in einer EU-Region. Anwendungshosting und weitere Anbieter, darunter US-Anbieter, können Daten andernorts verarbeiten; diese Bereitstellungsangabe ist keine DSGVO- oder andere Compliance-Zertifizierung.
 
-**Einfache, faire Preisgestaltung.** Projektmanagement in Customermates ist ab 12 EUR pro Nutzer und Monat (Starter-Stufe) enthalten. Aufgabenverwaltung, Deal-Verknüpfung, Kanban-Board-Ansichten, Dashboard-Diagramme und nativer KI-/MCP-Zugang sind in jeder Stufe enthalten. Kein separates Projektmanagement-Add-on.
+**Einfache, faire Preisgestaltung.** Verknüpfte Aufgaben, Deal-Beziehungen, Kanban-Ansichten, Dashboard-Widgets und MCP-Zugang starten mit Starter bei [[commercial.price.starter.monthly]] pro Nutzer und Monat. Projektobjekte, Zeitpläne, Vorlagen und externe Automatisierung sind nicht gebündelt.
 
-**n8n-Automatisierung inklusive.** Die integrierte n8n-Engine ermöglicht die Automatisierung von Projekterstellung, Aufgabenzuweisungen, Erinnerungen und Eskalationen. Die meisten konkurrierenden CRM-Plattformen berechnen für dieses Automatisierungsniveau einen Aufpreis.
+**Separate n8n-Automatisierung unterstützt.** Eine kundenseitige n8n-Instanz kann Projektübergaben und Aufgaben über dokumentierte Schnittstellen umsetzen sowie Benachrichtigungen über externe Anbieter liefern. Laufzeit, Scheduler, Plan, Limits, Logs und Kosten bleiben extern.
 
-**Self-Hosting für volle Kontrolle.** Betreiben Sie Customermates auf Ihrer eigenen Infrastruktur und behalten Sie alle Projektdaten auf Ihren Servern. Self-Hosting gibt Ihnen vollständige Kontrolle über Sicherheit, Backups und Datenresidenz.
+**Self-hostbare Anwendung und Datenbank.** Betreiben Sie die Customermates-Anwendung und PostgreSQL-Datenbank auf eigener Infrastruktur. Externe KI- und Workflow-Anbieter erhalten weiterhin alle von Ihrer Konfiguration gesendeten Daten; Self-Hosting ist keine Sicherheits-, Backup-, Residenz- oder Compliance-Garantie.
 
 ## Starten Sie heute mit CRM Projektmanagement
 
-Beginnen Sie noch heute mit der Verwaltung von Projekten in Customermates. Erstellen Sie Ihre erste Aufgabe, verknüpfen Sie sie mit einem Deal und weisen Sie sie einem Teammitglied zu. Lassen Sie einen KI-Agenten oder einen n8n-Workflow einen vollständigen Aufgabensatz generieren und sehen Sie, wie Automatisierung Ihren Lieferprozess optimiert. Alle Projektmanagement-Funktionen stehen ab dem ersten Tag zur Verfügung, ab 12 EUR pro Nutzer und Monat.
+Beginnen Sie heute mit Projektkontext in Customermates. Erstellen Sie eine Aufgabe, verknüpfen Sie sie mit einem Deal und weisen Sie sie zu. Verbinden Sie einen unterstützten externen KI-Client oder separaten n8n-Workflow nur für zulässige Aufgabenerstellung; Abos, Zeitplanung und Laufzeit bleiben extern.

@@ -7,12 +7,14 @@ import { buildAlternateLanguages } from "@/core/seo/alternates";
 import { CONTENT_LOCALES, buildLocalePath } from "@/i18n/locale-registry";
 
 type GenerateMetadataParams = {
+  canonicalPath?: string;
   locale: string;
   route: keyof typeof ROUTE_SOURCE_MAP;
   params?: Record<string, string>;
   type?: "article" | "website";
 };
 export function generateMetadataFromMeta({
+  canonicalPath,
   locale,
   route,
   params = {},
@@ -30,10 +32,11 @@ export function generateMetadataFromMeta({
   if (!title) return {};
 
   const routePath = buildRoutePath(route, params);
+  const publicPath = canonicalPath ?? routePath;
   const translatedLocales = CONTENT_LOCALES.filter((loc) => source.getPage(path, loc) !== undefined);
-  const alternates = buildAlternateLanguages(routePath, translatedLocales, env.BASE_URL);
+  const alternates = buildAlternateLanguages(publicPath, translatedLocales, env.BASE_URL);
 
-  const canonical = `${env.BASE_URL}${buildLocalePath(locale, routePath)}`;
+  const canonical = `${env.BASE_URL}${buildLocalePath(locale, publicPath)}`;
   const ogImageParams = new URLSearchParams({ title });
 
   if (description) ogImageParams.set("description", description);

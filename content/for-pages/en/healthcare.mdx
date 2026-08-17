@@ -1,6 +1,6 @@
 ---
 title: "CRM for Healthcare: Patient & Referral Management"
-description: "Best CRM for healthcare in 2026. Manage patient relationships, referrals, and care coordination. Open-source, GDPR-compliant, self-hostable. From €12/user/mo."
+description: "Best CRM for healthcare in 2026. Manage patient relationships, referrals, and care coordination. Open-source, GDPR-compliant, self-hostable. From [[commercial.price.starter.monthly]]/user/mo."
 industryName: "Healthcare"
 
 hero:
@@ -10,7 +10,7 @@ hero:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First 7 days free"
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
   action: Ready to bring structure to your healthcare CRM?
@@ -19,7 +19,7 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First 7 days free"
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
 ## Why healthcare organizations need a CRM for healthcare
@@ -76,7 +76,7 @@ Customermates is built GDPR-compliant from the ground up. EU-hosted infrastructu
 
 ### Referral pipeline management
 
-Manage incoming referrals in a structured, visual [pipeline](/features/pipeline). Track the referring physician, referral reason, current status, assigned team member, and next action for every referral. Set up automated stage transitions and reminders so nothing gets missed. Measure referral conversion rates and identify your strongest referral sources.
+Manage incoming referrals in a structured, visual [pipeline](/features/pipeline). Track the referring physician, referral reason, current status, assigned team member, and next action for every referral. Set up automated stage transitions and reminders so nothing gets missed. Measure referral conversion rates and identify your strongest referral sources. This requires a scheduler in your own n8n instance or another external service through the API; Customermates does not run scheduled follow-ups or reminders itself.
 
 ### Contact management with relationship mapping
 
@@ -94,9 +94,9 @@ For organizations that require absolute control over patient-adjacent data, Cust
 
 Connect Claude, ChatGPT, or Gemini directly to Customermates through a native MCP integration. The AI does the data entry: it moves referrals through pipeline stages, drafts patient communication, keeps contact notes current, summarizes interaction histories, identifies patients due for re-engagement, and analyzes referral patterns. Because it runs over MCP, you choose which AI provider (OpenAI, Anthropic, Google, or self-hosted models) handles protected data based on your compliance requirements.
 
-### n8n automation engine included
+### Works with n8n
 
-Unlike other healthcare CRMs that charge extra for automation, Customermates includes the full [n8n workflow automation](/features/workflow-automation) engine. Connect to 400+ apps and services, build custom healthcare workflows, and automate everything from referral intake to patient follow-up, without writing code.
+Unlike other healthcare CRMs that charge extra for automation, Customermates charges nothing for the connection: webhooks, the REST API, and MCP are in every tier, and you run the [n8n workflow automation](/features/workflow-automation) engine yourself. Connect to 400+ apps and services, build custom healthcare workflows, and automate everything from referral intake to patient follow-up, without writing code.
 
 ## CRM for healthcare: comparison table
 
@@ -104,10 +104,10 @@ How does Customermates compare to other popular CRM solutions used in healthcare
 
 | Feature | Customermates | Salesforce Health Cloud | HubSpot | Zoho CRM |
 |---------|--------------|----------------------|---------|----------|
-| Price per user/month | From €12 | $325+ | $0-$90+ | $14-$52 |
+| Price per user/month | From [[commercial.price.starter.monthly]] | $325+ | $0-$90+ | $14-$52 |
 | Core CRM included at every tier | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 | Referral pipeline tracking | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> |
-| Workflow automation included | <StatusAvailable /> | <StatusPartial /> | <StatusUnavailable /> | <StatusPartial /> |
+| Automation without a surcharge | <StatusAvailable /> | <StatusPartial /> | <StatusUnavailable /> | <StatusPartial /> |
 | 400+ integrations (n8n) | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusPartial /> |
 | GDPR-native / EU-hosted | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusPartial /> |
 | Full audit logging | <StatusAvailable /> | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> |
@@ -123,12 +123,12 @@ Salesforce Health Cloud is the market leader for enterprise healthcare, but its 
 
 Healthcare organizations need predictable, fair pricing, not per-contact charges, hidden fees, or feature tiers that force you to upgrade as you grow.
 
-- **Starter, €12 per user per month**, automation, API, audit log, custom fields, and native AI integration
-- **Pro, €29 per user per month**, adds the unified inbox: email, WhatsApp, and calendar sync tied to every patient and referral
+- **Starter, [[commercial.price.starter.monthly]] per user per month**, automation, API, audit log, custom fields, and native AI integration
+- **Pro, [[commercial.price.pro.monthly]] per user per month**, adds the unified inbox: email, WhatsApp, and calendar sync tied to every patient and referral
 - **No per-record surcharges**, unlimited contacts, organizations, and deals at any tier
 - **Self-hostable**, deploy on your own infrastructure for maximum data control, free forever
 
-A practice with 5 staff members pays €60/month on Starter. A clinic with 20 users pays €240/month. Simple, transparent, complete. View all details on our [pricing page](/pricing).
+A practice with 5 staff members pays [[commercial.price.starter.monthly.seats.5]]/month on Starter. A clinic with 20 users pays [[commercial.price.starter.monthly.seats.20]]/month. Simple, transparent, complete. View all details on our [pricing page](/pricing).
 
 ## Frequently asked questions
 
@@ -138,7 +138,7 @@ No. Customermates is not an electronic health records system. It manages the bus
 
 ### How does Customermates handle GDPR compliance for healthcare data?
 
-Customermates is GDPR-native by design. All data is hosted in the EU, every change is tracked in a comprehensive audit log, role-based permissions control who can see and edit what, and you can [self-host](/features/self-hosted) for complete data sovereignty. Unlike US-based healthcare CRMs built for HIPAA, Customermates was architected for European data protection requirements from day one.
+The hosted Customermates database runs in an EU region, while application hosting and other providers, including US providers, are documented separately; this is not a GDPR or healthcare compliance certification. Resource-level roles control access by whole resource, not individual field or record. With [self-hosting](/features/self-hosted), you choose application and database infrastructure, but connected providers remain separate.
 
 ### Can we connect Customermates to our existing healthcare tools?
 
@@ -150,22 +150,21 @@ A healthcare CRM focuses on the specific workflows of medical organizations, ref
 
 ### Is Customermates suitable for small practices or only large hospitals?
 
-Customermates works for healthcare organizations of any size. A solo practice uses it to track referrals and patient communication starting at €12/month. A multi-location clinic uses it to coordinate care teams across departments. Because the core CRM is included at every tier, you never outgrow the software, you simply add more users, or move up to Pro for messaging, as your organization expands.
+Customermates works for healthcare organizations of any size. A solo practice uses it to track referrals and patient communication starting at [[commercial.price.starter.monthly]]/month. A multi-location clinic uses it to coordinate care teams across departments. Because the core CRM is included at every tier, you never outgrow the software, you simply add more users, or move up to Pro for messaging, as your organization expands.
 
 ### How is Customermates different from other healthcare CRM solutions?
 
-Customermates is open source, EU-hosted, and includes automation, native AI integration, API access, and audit logging starting at €12/user/month, with the unified inbox on Pro at €29/user/month. Most healthcare CRM vendors charge $50-$325/user/month and gate key features behind enterprise tiers. With Customermates, you get full transparency (open-source code), full data control ([self-hosting option](/features/self-hosted)), and full functionality from day one.
+Customermates is open source, EU-hosted, and includes automation, native AI integration, API access, and audit logging starting at [[commercial.price.starter.monthly]]/user/month, with the unified inbox on Pro at [[commercial.price.pro.monthly]]/user/month. Most healthcare CRM vendors charge $50-$325/user/month and gate key features behind enterprise tiers. With Customermates, you get full transparency (open-source code), full data control ([self-hosting option](/features/self-hosted)), and full functionality from day one.
 
 ## Get started with Customermates for healthcare
 
-1. **[Create your free account](/auth/signup)**, no credit card required, 7 days to explore every feature.
-2. **Import your contacts**, bring in patients, referring physicians, partner organizations, and vendors via CSV or the REST API.
+1. **[Create your free account](/auth/signup)**, no credit card required, [[commercial.trial.days]] days to explore every feature.
+2. **Migrate supported records**, use the REST API, or hand a prepared source export to an AI agent connected over MCP. Customermates has no CSV uploader.
 3. **Set up your referral pipeline**, define [pipeline](/features/pipeline) stages that match your actual referral workflow.
 4. **Add custom fields**, include healthcare-specific data points like insurance status, referral source, and department.
 5. **Configure automations**, set up task creation, notification rules, and follow-up reminders using [workflow automation](/features/workflow-automation).
 
 Customermates brings the business side of healthcare into focus, structured, compliant, and built for teams that care about both patient relationships and data protection.
-
 
 ### Related Industries
 

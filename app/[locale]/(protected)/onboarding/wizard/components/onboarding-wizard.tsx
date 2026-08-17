@@ -8,6 +8,7 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { Button } from "@/components/ui/button";
+import { WizardProgress } from "@/components/shared/wizard-progress";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { StepProfile } from "./step-profile";
@@ -89,14 +90,15 @@ export const OnboardingWizard = observer(
           </div>
 
           {!isInvited && (
-            <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
-              <div
-                className="h-full bg-primary transition-all"
-                style={{
-                  width: `${((currentStepIndex + 1) / totalSteps) * 100}%`,
-                }}
-              />
-            </div>
+            <WizardProgress
+              current={currentStepIndex + 1}
+              label={t("OnboardingWizard.progressLabel")}
+              total={totalSteps}
+              valueText={t("OnboardingWizard.progress", {
+                current: currentStepIndex + 1,
+                total: totalSteps,
+              })}
+            />
           )}
 
           {renderStep()}

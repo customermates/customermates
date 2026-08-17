@@ -5,7 +5,7 @@ description: "Set up Calendly CRM integration step by step. Connect to HubSpot, 
 hero:
   title: "Calendly CRM Integration: Auto-Create Deals from Every Booking"
   description: "Stop copy-pasting appointment data. Connect Calendly to your CRM, automatically create contacts and deals, route leads to the right rep, and never miss a follow-up again."
-  
+
 blogPost:
   author: Benjamin Wagner
   backToBlog: Back to blog
@@ -94,7 +94,7 @@ No native Calendly connector exists for Zoho CRM. The integration is built throu
 
 ### Calendly + Customermates
 
-Customermates connects to Calendly via n8n and the Calendly API/webhook system. Because Customermates includes n8n as a built-in integration engine, no separate automation platform is needed. You get full control over how bookings map to contacts, deals, and follow-up actions.
+Customermates connects to Calendly via n8n and the Calendly API/webhook system. Because Customermates works with n8n as a built-in integration engine, no separate automation platform is needed. You get full control over how bookings map to contacts, deals, and follow-up actions.
 
 ## Calendly Features That Impact CRM Integration
 
@@ -103,6 +103,7 @@ Customermates connects to Calendly via n8n and the Calendly API/webhook system. 
 Calendly's routing forms let you ask qualifying questions before a prospect even sees available time slots. Based on answers, prospects are routed to different event types, team members, or even external URLs.
 
 **CRM integration impact:** Routing form answers flow into the webhook payload, so your n8n workflow can use them to:
+
 - Set different lead scores in the CRM
 - Assign deals to different pipelines based on qualification
 - Route high-value prospects to senior reps and lower-value ones to SDRs
@@ -166,23 +167,23 @@ For teams already using Customermates, n8n is built in. No separate hosting or c
 
 ### Comparison: Native vs. Zapier vs. n8n
 
-| Feature | Native (HubSpot/SF) | Zapier | n8n |
-|---|---|---|---|
-| Setup time | 5-10 min | 15-30 min | 30-60 min |
-| Contact creation | Yes | Yes | Yes |
-| Deal creation | Basic | Yes | Yes |
-| Conditional logic | No | Limited | Full (JavaScript) |
-| Cancellation handling | No | Yes | Yes |
-| Post-meeting automation | No | Yes | Yes |
-| Lead scoring | No | Basic | Full |
-| GDPR self-hosting | No | No | Yes |
-| Per-task cost | None | $0.01-0.05/task | None |
-| Monthly cost (automation) | $0 | $20-70+ | $0 (self-hosted) |
-| Error handling | Basic | Basic | Advanced (retry, dead letter) |
+| Feature                   | Native (HubSpot/SF) | Zapier          | n8n                           |
+| ------------------------- | ------------------- | --------------- | ----------------------------- |
+| Setup time                | 5-10 min            | 15-30 min       | 30-60 min                     |
+| Contact creation          | Yes                 | Yes             | Yes                           |
+| Deal creation             | Basic               | Yes             | Yes                           |
+| Conditional logic         | No                  | Limited         | Full (JavaScript)             |
+| Cancellation handling     | No                  | Yes             | Yes                           |
+| Post-meeting automation   | No                  | Yes             | Yes                           |
+| Lead scoring              | No                  | Basic           | Full                          |
+| GDPR self-hosting         | No                  | No              | Yes                           |
+| Per-task cost             | None                | $0.01-0.05/task | None                          |
+| Monthly cost (automation) | $0                  | $20-70+         | $0 (self-hosted)              |
+| Error handling            | Basic               | Basic           | Advanced (retry, dead letter) |
 
 ## Step-by-Step: Connect Calendly to Customermates via n8n
 
-Here is a concrete walkthrough for connecting Calendly to Customermates CRM (from EUR 12 per user/month, Starter tier, with a full REST API included). This same pattern works for any CRM with an API.
+Here is a concrete walkthrough for connecting Calendly to Customermates CRM (from [[commercial.price.starter.monthly]] per user/month, Starter tier, with a full REST API included). This same pattern works for any CRM with an API.
 
 ### Prerequisites
 
@@ -280,7 +281,7 @@ Add a separate branch triggered by `invitee.canceled`:
 1. Look up the contact in Customermates by email
 2. Update the deal stage to "Meeting Cancelled"
 3. Create a re-engagement task for the assigned rep (due in 3 days)
-4. Optionally trigger a "sorry we missed you" email sequence
+4. Optionally have your own n8n instance call an external email provider for a "sorry we missed you" sequence; Customermates does not run sequences
 5. Log the cancellation in the Google Sheet
 
 ### Step 7: Activate and Test
@@ -320,6 +321,7 @@ After a meeting ends, automatically:
 ### Multi-Calendar Routing
 
 If different team members have different Calendly event types (e.g., "Sales Call with Alice," "Demo with Bob," "Onboarding with Carol"), use n8n conditions to route each booking to the correct:
+
 - Pipeline (sales pipeline vs. onboarding pipeline)
 - Deal owner (matched to the Calendly host)
 - Slack channel (#sales vs. #onboarding)
@@ -383,29 +385,29 @@ Add an error-handling branch in n8n that sends a Slack message or email if any n
 
 ## CRM Comparison for Calendly Integration
 
-| CRM | Native Calendly Integration | Automation Cost | CRM Price | Best For |
-|---|---|---|---|---|
-| HubSpot | Yes (Professional+) | Included | Free-$150+/user/month | Marketing-heavy teams with budget |
-| Salesforce | Yes (Enterprise+) | Included | $25-300+/user/month | Large enterprises |
-| Pipedrive | Via Marketplace/Zapier | $20-70/month (Zapier) | $14-99/user/month | Pipeline-focused sales teams |
-| Zoho CRM | Via Zapier/n8n | $0-70/month | Free-$52/user/month | All-in-one suite seekers |
-| Freshsales | Via Zapier/n8n | $0-70/month | Free-$69/user/month | Teams needing built-in phone |
-| Customermates | Via n8n (built-in) | EUR 0 (included) | From EUR 12/user/month | SMBs wanting GDPR compliance and fair pricing |
+| CRM           | Native Calendly Integration | Automation Cost       | CRM Price                                            | Best For                                      |
+| ------------- | --------------------------- | --------------------- | ---------------------------------------------------- | --------------------------------------------- |
+| HubSpot       | Yes (Professional+)         | Included              | Free-$150+/user/month                                | Marketing-heavy teams with budget             |
+| Salesforce    | Yes (Enterprise+)           | Included              | $25-300+/user/month                                  | Large enterprises                             |
+| Pipedrive     | Via Marketplace/Zapier      | $20-70/month (Zapier) | $14-99/user/month                                    | Pipeline-focused sales teams                  |
+| Zoho CRM      | Via Zapier/n8n              | $0-70/month           | Free-$52/user/month                                  | All-in-one suite seekers                      |
+| Freshsales    | Via Zapier/n8n              | $0-70/month           | Free-$69/user/month                                  | Teams needing built-in phone                  |
+| Customermates | API/webhooks to customer-run n8n | Separate n8n hosting or subscription | From [[commercial.price.starter.monthly]]/user/month | Teams able to operate the external workflow |
 
-For small and mid-size teams, Customermates from EUR 12 per user/month combined with its built-in n8n (free, no per-task fees) delivers a Calendly CRM integration at a fraction of what HubSpot or Salesforce charge. You get full API access, GDPR-compliant data handling, and zero per-automation fees.
+For small and mid-size teams, Customermates from [[commercial.price.starter.monthly]] per user/month combined with its n8n (free, no per-task fees) delivers a Calendly CRM integration at a fraction of what HubSpot or Salesforce charge. You get full API access, GDPR-compliant data handling, and zero per-automation fees.
 
 ## ROI of Automating Calendly-to-CRM
 
 A calculation for a team of 5 reps booking 20 appointments per week:
 
-| Metric | Manual | Automated |
-|---|---|---|
-| Time per booking (data entry) | 3-5 minutes | 0 minutes |
-| Monthly time spent on data entry | 4-7 hours | 0 hours |
-| Missed follow-ups per month | 3-5 | 0 |
-| Duplicate contacts per month | 5-10 | 0 |
-| Lead response time | 30-60 minutes | Under 5 minutes |
-| Data quality score | 60-70% | 95%+ |
+| Metric                           | Manual        | Automated       |
+| -------------------------------- | ------------- | --------------- |
+| Time per booking (data entry)    | 3-5 minutes   | 0 minutes       |
+| Monthly time spent on data entry | 4-7 hours     | 0 hours         |
+| Missed follow-ups per month      | 3-5           | 0               |
+| Duplicate contacts per month     | 5-10          | 0               |
+| Lead response time               | 30-60 minutes | Under 5 minutes |
+| Data quality score               | 60-70%        | 95%+            |
 
 **Financial impact:**
 
@@ -417,7 +419,7 @@ Add improved conversion from faster lead response (5-minute response = 8x higher
 
 **Total annual ROI: EUR 6,000-8,000.**
 
-The investment: Customermates Starter at EUR 12/user/month (EUR 720/year for 5 users) plus a self-hosted n8n instance (free). Break-even in the first month.
+The investment: Customermates Starter at [[commercial.price.starter.monthly]]/user/month ([[commercial.price.starter.monthly.seats.5.months.12]]/year for 5 users) plus a self-hosted n8n instance (free). Break-even in the first month.
 
 ## Troubleshooting Common Issues
 
@@ -439,13 +441,13 @@ The investment: Customermates Starter at EUR 12/user/month (EUR 720/year for 5 u
 
 If Calendly does not fit your needs, here is how alternatives compare for CRM integration:
 
-| Tool | CRM Integration Options | Unique Feature |
-|---|---|---|
-| Calendly | Native (HubSpot, Salesforce) + Zapier + n8n | Routing forms, round-robin |
-| Cal.com | API + n8n (open-source) | Self-hostable, open-source |
-| SavvyCal | Zapier + API | Overlay calendars, recipient-first UX |
-| Acuity (Squarespace) | Zapier + API | Strong for service businesses |
-| Microsoft Bookings | Power Automate + API | Native for Microsoft 365 teams |
+| Tool                 | CRM Integration Options                     | Unique Feature                        |
+| -------------------- | ------------------------------------------- | ------------------------------------- |
+| Calendly             | Native (HubSpot, Salesforce) + Zapier + n8n | Routing forms, round-robin            |
+| Cal.com              | API + n8n (open-source)                     | Self-hostable, open-source            |
+| SavvyCal             | Zapier + API                                | Overlay calendars, recipient-first UX |
+| Acuity (Squarespace) | Zapier + API                                | Strong for service businesses         |
+| Microsoft Bookings   | Power Automate + API                        | Native for Microsoft 365 teams        |
 
 For teams that value open-source and self-hosting, Cal.com + Customermates + n8n is an entirely self-hosted stack with no vendor dependency.
 
@@ -473,7 +475,7 @@ Add a lookup step in your automation workflow that searches for existing contact
 
 ### What is the cheapest CRM for a Calendly integration?
 
-Customermates from EUR 12 per user/month is one of the most affordable CRMs with a full REST API for Calendly integration. Combined with its built-in n8n (free, no per-task fees), the total cost of a complete Calendly CRM integration is just EUR 12/user/month. Compare this to HubSpot Professional ($100+/user/month for native Calendly integration) or Salesforce Enterprise ($175+/user/month).
+Customermates from [[commercial.price.starter.monthly]] per user/month is one of the most affordable CRMs with a full REST API for Calendly integration. Combined with its n8n (free, no per-task fees), the total cost of a complete Calendly CRM integration is just [[commercial.price.starter.monthly]]/user/month. Compare this to HubSpot Professional ($100+/user/month for native Calendly integration) or Salesforce Enterprise ($175+/user/month).
 
 ### Can I handle Calendly cancellations in my CRM automatically?
 
@@ -489,6 +491,6 @@ A Calendly CRM integration is not a luxury. It is basic sales infrastructure. Ev
 
 For teams using HubSpot or Salesforce, native integrations get you started in minutes. For everyone else, and for teams that want advanced workflows like lead scoring, cancellation handling, and post-meeting automation, n8n plus your CRM's API gives you unlimited power at zero ongoing cost.
 
-If you are looking for a CRM that pairs well with Calendly and n8n, Customermates delivers the core features sales teams need from EUR 12 per user/month, with a clean API, built-in n8n automation, and GDPR-compliant data handling. No enterprise pricing, no hidden fees, and API access is included in every tier.
+If you are looking for a CRM that pairs well with Calendly and n8n, Customermates delivers the core features sales teams need from [[commercial.price.starter.monthly]] per user/month, with a clean API, integration for separately operated n8n, and an EU database region plus a DPA and SCCs without compliance certification. API access is included in every tier.
 
 Set up the integration once. Let it run. Spend your time on conversations, not copy-paste.

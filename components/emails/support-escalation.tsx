@@ -1,16 +1,13 @@
 import { EmailField } from "@/components/emails/base/email-field";
-import { EmailLayout } from "@/components/emails/base/email-layout";
-import { DEFAULT_EMAIL_LAYOUT_COPY, type EmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
-import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-registry";
+import { EmailLayout, type EmailLayoutSharedProps } from "@/components/emails/base/email-layout";
+import { PREVIEW_EMAIL_LAYOUT_PROPS } from "@/components/emails/preview-layout-props";
 
-type Props = {
+type Props = EmailLayoutSharedProps & {
   userName: string;
   userEmail: string;
   companyName: string;
   conversationTitle: string;
   lastMessages: string;
-  locale: AppLocale;
-  layoutCopy: EmailLayoutCopy;
 };
 
 export default function SupportEscalation({
@@ -19,16 +16,10 @@ export default function SupportEscalation({
   companyName,
   conversationTitle,
   lastMessages,
-  locale,
-  layoutCopy,
+  ...layoutProps
 }: Props) {
   return (
-    <EmailLayout
-      layoutCopy={layoutCopy}
-      locale={locale}
-      preview={`Support request from ${userName}`}
-      title="Support request"
-    >
+    <EmailLayout {...layoutProps} preview={`Support request from ${userName}`} title="Support request">
       <EmailField label="From">{`${userName} (${userEmail})`}</EmailField>
 
       <EmailField label="Company">{companyName}</EmailField>
@@ -41,11 +32,10 @@ export default function SupportEscalation({
 }
 
 SupportEscalation.PreviewProps = {
-  layoutCopy: DEFAULT_EMAIL_LAYOUT_COPY,
-  locale: DEFAULT_LOCALE,
+  ...PREVIEW_EMAIL_LAYOUT_PROPS,
   userName: "Max Mustermann",
   userEmail: "max@example.com",
   companyName: "Acme GmbH",
   conversationTitle: "Import question",
   lastMessages: "user: How do I import contacts?",
-};
+} satisfies Props;

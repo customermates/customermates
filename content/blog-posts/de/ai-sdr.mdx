@@ -103,20 +103,22 @@ Die richtige Architektur hängt von der technischen Kapazität Ihres Teams ab un
 
 Customermates ist keine AI-SDR-Plattform. Es ist die Datenschicht, die einem universellen LLM erlaubt, als Ihr AI SDR zu arbeiten.
 
-**Das Setup:** Claude (oder ChatGPT, oder ein beliebiges MCP-fähiges LLM) über [MCP](/features/api) mit Customermates verbinden. Der Agent hat 45 Tools, um Kontakte zu lesen, Outreach-Entwürfe anzulegen, Aktivitäten zu protokollieren und Deal-Stufen zu aktualisieren. Sie konfigurieren ein Claude-Projekt mit Ihrem ICP, Ihrem Tonfall, Ihren Case Studies und Ihren Qualifizierungskriterien. Der Agent fährt den SDR-Workflow gegen das CRM.
+**Das Setup:** Claude (oder ChatGPT, oder ein beliebiges MCP-fähiges LLM) über [MCP](/features/api) mit Customermates verbinden. Der Agent hat [[derived.mcp.tools.total]] Tools, um Kontakte zu lesen, Outreach-Entwürfe anzulegen, Aktivitäten zu protokollieren und Deal-Stufen zu aktualisieren. Sie konfigurieren ein Claude-Projekt mit Ihrem ICP, Ihrem Tonfall, Ihren Case Studies und Ihren Qualifizierungskriterien. Der Agent fährt den SDR-Workflow gegen das CRM.
 
 **Was Sie bekommen:**
+
 - Volle Kontrolle über das LLM-Modell (Claude Sonnet kostengünstig, Claude Opus für komplexe Schlussfolgerungen, GPT-4o für spezifische Anwendungsfälle, lokale Modelle für vollständige Datensouveränität)
 - Open-Source-CRM ohne Pro-Sitz-Steuer für KI-Nutzung
 - EU-gehostet oder self-hosted, Ihre Wahl
-- Preis: ab 12 €/Nutzer/Monat für das CRM (Starter; Pro ab 29 € mit vereinheitlichtem Posteingang) plus Ihre KI-API-Kosten (typisch 20 bis 200 €/Monat für ein kleines Team)
+- Preis: ab [[commercial.price.starter.monthly]]/Nutzer/Monat für das CRM (Starter; Pro ab [[commercial.price.pro.monthly]] mit vereinheitlichtem Posteingang) plus die tatsächliche, vom gewählten Anbieter berechnete KI-API-Nutzung
 
 **Was Sie nicht bekommen:**
+
 - Eine vorgefertigte UI speziell für SDR-Arbeit (Sie nutzen die normale CRM-Oberfläche)
 - Eine vom Anbieter gelieferte Datenquelle (Sie bringen Apollo, Clay oder eine eigene Liste)
 - 24/7-Vendor-Support, getunt für SDR-Teams
 
-Für technische Teams oder KI-versierte Operatoren liefert der Open-Source-Pfad den Großteil des AI-SDR-Werts zu 5 bis 10 Prozent der Kosten. Für nicht-technische Teams, die eine Full-Service-SDR-Plattform wollen, sind die Closed-Plattform-Anbieter (Artisan, Regie.ai) einfacher zum Start.
+Für technische Teams oder KI-versierte Operatoren liefert der Open-Source-Pfad einen großen Teil des AI-SDR-Werts zu deutlich niedrigeren Softwarekosten. Für nicht-technische Teams, die eine Full-Service-SDR-Plattform wollen, sind die Closed-Plattform-Anbieter (Artisan, Regie.ai) einfacher zum Start.
 
 ## Die 10 am häufigsten evaluierten AI-SDR-Tools 2026 im Detail-Review
 
@@ -358,15 +360,15 @@ Das Muster, das innerhalb eines Quartals zuverlässig gebuchte Termine liefert, 
 
 Der ehrliche Vergleich 2026:
 
-| Dimension | AI SDR | Menschlicher SDR |
-|---|---|---|
-| Erstkontakt-Volumen | 200 bis 500/Tag | 50 bis 100/Tag |
-| Personalisierungsqualität | Hoch in Skala; variiert pro Plattform | Höher pro Nachricht, niedrigeres Volumen |
-| Antwortbehandlung | Gut bei klarem Ja/Nein, schwach bei Nuance | Stark bei Nuance, langsam bei Volumen |
-| Termin-Conversion | 0,5 bis 2 Prozent typisch | 1 bis 3 Prozent typisch |
-| Kosten pro qualifiziertem Termin | 30 bis 150 € | 80 bis 200 € |
-| Setup-Zeit | 4 bis 12 Wochen | 2 bis 4 Wochen (Training) |
-| Wartung | Konstante Prompt- und Sequenz-Iteration | Standard-1-on-1-Coaching |
+| Dimension                        | AI SDR                                     | Menschlicher SDR                         |
+| -------------------------------- | ------------------------------------------ | ---------------------------------------- |
+| Erstkontakt-Volumen              | 200 bis 500/Tag                            | 50 bis 100/Tag                           |
+| Personalisierungsqualität        | Hoch in Skala; variiert pro Plattform      | Höher pro Nachricht, niedrigeres Volumen |
+| Antwortbehandlung                | Gut bei klarem Ja/Nein, schwach bei Nuance | Stark bei Nuance, langsam bei Volumen    |
+| Termin-Conversion                | 0,5 bis 2 Prozent typisch                  | 1 bis 3 Prozent typisch                  |
+| Kosten pro qualifiziertem Termin | 30 bis 150 €                               | 80 bis 200 €                             |
+| Setup-Zeit                       | 4 bis 12 Wochen                            | 2 bis 4 Wochen (Training)                |
+| Wartung                          | Konstante Prompt- und Sequenz-Iteration    | Standard-1-on-1-Coaching                 |
 
 Das Muster: AI SDRs gewinnen bei rohem Volumen und Kosten pro Touch. Menschen gewinnen bei Nuance und Beziehungsaufbau. Die meisten erfolgreichen Teams 2026 nutzen beides: AI SDRs für den oberen Funnel, menschliche SDRs für Accounts oberhalb einer ACV-Schwelle oder in der Spätphase-Qualifizierung.
 
@@ -409,7 +411,7 @@ Software, die die Arbeit eines Sales Development Representative automatisiert: I
 
 **Was kostet ein AI SDR?**
 
-Spanne: 1.000 bis 3.000 €/Monat pro Sitz für Closed-Plattform-Anbieter (Artisan, Regie.ai, Conversica). Komponierbare Plattformen (Clay, Gumloop) sind nutzungsbasiert, typisch 200 bis 2.000 €/Monat je nach Volumen. Open-Source-Alternativen (Customermates plus Claude API) laufen bei 50 bis 500 €/Monat gesamt für ein kleines Team.
+Spanne: 1.000 bis 3.000 €/Monat pro Sitz für Closed-Plattform-Anbieter (Artisan, Regie.ai, Conversica). Komponierbare Plattformen (Clay, Gumloop) sind nutzungsbasiert, typisch 200 bis 2.000 €/Monat je nach Volumen. Open-Source-Alternativen kombinieren den aktuellen Customermates-Preis pro Sitz mit gemessener Modell-API-Nutzung; der Gesamtbetrag variiert nach Teamgröße, Modell und Volumen.
 
 **Lohnt sich ein AI SDR?**
 

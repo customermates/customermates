@@ -1,11 +1,11 @@
 "use client";
 
-import type { TenantUser } from "@/features/user/user.schema";
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
 import type { LegalUpdateStatus } from "@/features/legal/get-legal-status.interactor";
 import type { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 import type { NavGroup } from "./navigation/nav-main";
 import type { NavSecondaryItem } from "./navigation/nav-secondary";
+import type { SidebarUser } from "./navigation/sidebar-user";
 
 import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -50,19 +50,58 @@ import { NavSecondary } from "./navigation/nav-secondary";
 import { NavUser } from "./navigation/nav-user";
 import { LegalUpdateAlert } from "./navigation/legal-update-alert";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { sidebarUserCanAccess, sidebarUserCanManage } from "./navigation/sidebar-user";
 
-type Props = {
+type FullProps = {
   systemTaskCount: number;
   unreadThreadCount: number;
   channelsNeedingActionCount: number;
-  user: TenantUser | null;
+  user: SidebarUser | null;
   subscription: SubscriptionDto | null;
   trialDaysLeft: number | null;
   emailVerified: boolean | null;
   legalStatus: LegalUpdateStatus | null;
 };
 
-export const AppSidebar = observer(
+type Props = ({ mode: "full" } & FullProps) | { mode: "restricted"; user: SidebarUser };
+
+type SidebarContentProps = FullProps & {
+  restricted: boolean;
+};
+
+export function AppSidebar(props: Props) {
+  if (props.mode === "restricted") {
+    return (
+      <FullAppSidebar
+        restricted
+        channelsNeedingActionCount={0}
+        emailVerified={null}
+        legalStatus={null}
+        subscription={null}
+        systemTaskCount={0}
+        trialDaysLeft={null}
+        unreadThreadCount={0}
+        user={props.user}
+      />
+    );
+  }
+
+  return (
+    <FullAppSidebar
+      channelsNeedingActionCount={props.channelsNeedingActionCount}
+      emailVerified={props.emailVerified}
+      legalStatus={props.legalStatus}
+      restricted={false}
+      subscription={props.subscription}
+      systemTaskCount={props.systemTaskCount}
+      trialDaysLeft={props.trialDaysLeft}
+      unreadThreadCount={props.unreadThreadCount}
+      user={props.user}
+    />
+  );
+}
+
+const FullAppSidebar = observer(
   ({
     user,
     systemTaskCount,
@@ -72,13 +111,14 @@ export const AppSidebar = observer(
     trialDaysLeft,
     emailVerified,
     legalStatus,
-  }: Props) => {
+    restricted,
+  }: SidebarContentProps) => {
     const t = useTranslations();
     const pathname = usePathname();
     const intlPathname = useIntlPathname();
     const router = useRouter();
     const rootStore = useRootStore();
-    const { userStore, globalSearchModalStore, feedbackModalStore, terminologyStore } = rootStore;
+    const { userStore, terminologyStore } = rootStore;
     const { singular, plural } = useEntityTerminology();
 
     const { isMobile, setOpenMobile } = useSidebar();
@@ -95,7 +135,11 @@ export const AppSidebar = observer(
     function handleThemeChange() {
       const next = resolvedTheme === "dark" ? ThemeEnum.light : ThemeEnum.dark;
       setTheme(next);
-      void userStore.updateTheme(next);
+      if (!restricted) void userStore.updateTheme(next);
+    }
+
+    function recheckAccountState() {
+      router.push("/dashboard");
     }
 
     useEffect(() => setSelectedKey(pathname.split("/")[2] ?? null), [pathname]);
@@ -106,8 +150,9 @@ export const AppSidebar = observer(
     }
 
     const navGroups: NavGroup[] = useMemo(() => {
-      const profileSubroutes = visibleSubroutes("profile", rootStore.appMode, userStore.canAccess);
-      const companySubroutes = visibleSubroutes("company", rootStore.appMode, userStore.canAccess);
+      const canAccess = (resource: Resource) => sidebarUserCanAccess(user, resource);
+      const profileSubroutes = visibleSubroutes("profile", rootStore.appMode, canAccess);
+      const companySubroutes = visibleSubroutes("company", rootStore.appMode, canAccess);
 
       return [
         {
@@ -126,7 +171,7 @@ export const AppSidebar = observer(
               title: t("NavigationBar.inbox"),
               href: "/inbox",
               icon: Inbox,
-              visible: userStore.canAccess(Resource.inboxMessages) && rootStore.appMode !== "self-hosted",
+              visible: canAccess(Resource.inboxMessages) && rootStore.appMode !== "self-hosted",
               badge: unreadThreadCount,
             },
             {
@@ -134,7 +179,7 @@ export const AppSidebar = observer(
               title: plural(EntityType.task),
               href: "/tasks",
               icon: CheckCircle2,
-              visible: userStore.canAccess(Resource.tasks),
+              visible: canAccess(Resource.tasks),
               badge: systemTaskCount,
             },
           ].filter((i) => i.visible),
@@ -148,28 +193,28 @@ export const AppSidebar = observer(
               title: plural(EntityType.contact),
               href: "/contacts",
               icon: Users,
-              visible: userStore.canAccess(Resource.contacts),
+              visible: canAccess(Resource.contacts),
             },
             {
               key: "organizations",
               title: plural(EntityType.organization),
               href: "/organizations",
               icon: Building2,
-              visible: userStore.canAccess(Resource.organizations),
+              visible: canAccess(Resource.organizations),
             },
             {
               key: "deals",
               title: plural(EntityType.deal),
               href: "/deals",
               icon: TrendingUp,
-              visible: userStore.canAccess(Resource.deals),
+              visible: canAccess(Resource.deals),
             },
             {
               key: "services",
               title: plural(EntityType.service),
               href: "/services",
               icon: Package,
-              visible: userStore.canAccess(Resource.services),
+              visible: canAccess(Resource.services),
             },
           ].filter((i) => i.visible),
         },
@@ -215,7 +260,7 @@ export const AppSidebar = observer(
       terminologyStore.overrides,
       rootStore.appMode,
       subscriptionStatus,
-      userStore.user,
+      user,
       systemTaskCount,
       unreadThreadCount,
       channelsNeedingActionCount,
@@ -226,17 +271,26 @@ export const AppSidebar = observer(
         key: "documentation",
         title: t("UserAvatar.documentation"),
         icon: FileText,
-        href: "/docs",
+        href: restricted ? "/dashboard" : "/docs",
       },
       {
         key: "feedback",
         title: t("Common.inputs.feedback"),
         icon: MessageCircle,
-        onSelect: (invoker) =>
+        onSelect: (invoker) => {
+          if (restricted) {
+            closeMobileSidebar(recheckAccountState);
+            return;
+          }
+
           closeMobileSidebar(() => {
-            feedbackModalStore.onInitOrRefresh({ type: FeedbackType.general, feedback: "" });
-            feedbackModalStore.openFrom(invoker, document.getElementById("sidebar-trigger"));
-          }),
+            rootStore.feedbackModalStore.onInitOrRefresh({
+              type: FeedbackType.general,
+              feedback: "",
+            });
+            rootStore.feedbackModalStore.openFrom(invoker, document.getElementById("sidebar-trigger"));
+          });
+        },
       },
     ];
 
@@ -244,36 +298,46 @@ export const AppSidebar = observer(
       {
         resource: Resource.contacts,
         key: "add_contact",
-        label: t("NavigationBar.addEntity", { entity: singular(EntityType.contact) }),
+        label: t("NavigationBar.addEntity", {
+          entity: singular(EntityType.contact),
+        }),
         entity: EntityType.contact,
       },
       {
         resource: Resource.organizations,
         key: "add_organization",
-        label: t("NavigationBar.addEntity", { entity: singular(EntityType.organization) }),
+        label: t("NavigationBar.addEntity", {
+          entity: singular(EntityType.organization),
+        }),
         entity: EntityType.organization,
       },
       {
         resource: Resource.deals,
         key: "add_deal",
-        label: t("NavigationBar.addEntity", { entity: singular(EntityType.deal) }),
+        label: t("NavigationBar.addEntity", {
+          entity: singular(EntityType.deal),
+        }),
         entity: EntityType.deal,
       },
       {
         resource: Resource.services,
         key: "add_service",
-        label: t("NavigationBar.addEntity", { entity: singular(EntityType.service) }),
+        label: t("NavigationBar.addEntity", {
+          entity: singular(EntityType.service),
+        }),
         entity: EntityType.service,
       },
       {
         resource: Resource.tasks,
         key: "add_task",
-        label: t("NavigationBar.addEntity", { entity: singular(EntityType.task) }),
+        label: t("NavigationBar.addEntity", {
+          entity: singular(EntityType.task),
+        }),
         entity: EntityType.task,
       },
     ];
 
-    if (isDocsRoute) return null;
+    if (isDocsRoute && !restricted) return null;
 
     const isCloudHosted = rootStore.appMode !== "self-hosted";
     const planSubtitle = buildPlanSubtitle(
@@ -292,21 +356,33 @@ export const AppSidebar = observer(
             addLabel={t("Common.actions.add")}
             brandName="Customermates"
             brandSubtitle={planSubtitle}
-            homeHref={rootStore.appMode === "demo" ? "https://customermates.com" : "/dashboard"}
+            homeHref={
+              restricted ? "/dashboard" : rootStore.appMode === "demo" ? "https://customermates.com" : "/dashboard"
+            }
             logoAlt={t("Common.imageAlt.logo")}
             searchLabel={t("NavigationBar.search")}
-            onAdd={(invoker) =>
+            onAdd={(invoker) => {
+              if (restricted) {
+                closeMobileSidebar(recheckAccountState);
+                return;
+              }
+
               closeMobileSidebar(() => {
                 addPickerInvokerRef.current = invoker;
                 addPickerFallbackRef.current = document.getElementById("sidebar-trigger");
                 setIsAddPickerOpen(true);
-              })
-            }
-            onSearch={(invoker) =>
+              });
+            }}
+            onSearch={(invoker) => {
+              if (restricted) {
+                closeMobileSidebar(recheckAccountState);
+                return;
+              }
+
               closeMobileSidebar(() =>
-                globalSearchModalStore.openFrom(invoker, document.getElementById("sidebar-trigger")),
-              )
-            }
+                rootStore.globalSearchModalStore.openFrom(invoker, document.getElementById("sidebar-trigger")),
+              );
+            }}
           />
 
           <SidebarContent>
@@ -315,8 +391,8 @@ export const AppSidebar = observer(
             <NavMain
               groups={navGroups}
               pathname={intlPathname}
-              selectedKey={selectedKey}
-              onNavigate={(key) => closeMobileSidebar(() => setSelectedKey(key))}
+              selectedKey={restricted ? null : selectedKey}
+              onNavigate={(key) => closeMobileSidebar(restricted ? undefined : () => setSelectedKey(key))}
             />
 
             <NavSecondary className="mt-auto" items={secondaryItems} />
@@ -343,19 +419,21 @@ export const AppSidebar = observer(
           </SidebarFooter>
         </Sidebar>
 
-        <AddPickerDrawer
-          items={addItems.filter((item) => userStore.canManage(item.resource))}
-          open={isAddPickerOpen}
-          returnFocusFallback={addPickerFallbackRef.current}
-          returnFocusTarget={addPickerInvokerRef.current}
-          onOpenChange={setIsAddPickerOpen}
-          onPick={(entity) => {
-            startTransition(() => {
-              setIsAddPickerOpen(false);
-              openEntity(entity, "new", addPickerInvokerRef.current, addPickerFallbackRef.current);
-            });
-          }}
-        />
+        {!restricted ? (
+          <AddPickerDrawer
+            items={addItems.filter((item) => sidebarUserCanManage(user, item.resource))}
+            open={isAddPickerOpen}
+            returnFocusFallback={addPickerFallbackRef.current}
+            returnFocusTarget={addPickerInvokerRef.current}
+            onOpenChange={setIsAddPickerOpen}
+            onPick={(entity) => {
+              startTransition(() => {
+                setIsAddPickerOpen(false);
+                openEntity(entity, "new", addPickerInvokerRef.current, addPickerFallbackRef.current);
+              });
+            }}
+          />
+        ) : null}
       </>
     );
   },

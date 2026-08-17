@@ -1,4 +1,5 @@
 import { env } from "@/env";
+import { COMMERCIAL_OFFERS } from "@/core/commercial/plan-catalog";
 
 const ORGANIZATION_NAME = "Customermates";
 const ORGANIZATION_LOGO = `${env.BASE_URL}/customermates.svg`;
@@ -21,24 +22,22 @@ export function organizationSchema() {
   };
 }
 
-const OFFER_CURRENCY = "EUR";
-
-export function aggregateOfferSchema(params: { prices: readonly string[]; locale: string }) {
-  const amounts = params.prices.map(Number).filter((price) => Number.isFinite(price) && price > 0);
+export function aggregateOfferSchema(params: { locale: string }) {
+  const amounts = COMMERCIAL_OFFERS.map((offer) => offer.unitPriceMinor / 100);
   if (amounts.length === 0) return undefined;
 
   return {
     "@type": "AggregateOffer",
     lowPrice: String(Math.min(...amounts)),
     highPrice: String(Math.max(...amounts)),
-    priceCurrency: OFFER_CURRENCY,
+    priceCurrency: COMMERCIAL_OFFERS[0].currency,
     offerCount: String(amounts.length),
     url: `${env.BASE_URL}/${params.locale}/pricing`,
   };
 }
 
-export function softwareApplicationSchema(params: { description: string; locale: string; prices: readonly string[] }) {
-  const offers = aggregateOfferSchema({ prices: params.prices, locale: params.locale });
+export function softwareApplicationSchema(params: { description: string; locale: string }) {
+  const offers = aggregateOfferSchema({ locale: params.locale });
 
   return {
     "@context": "https://schema.org",
@@ -69,7 +68,10 @@ export function articleSchema(params: {
 }) {
   const url = `${env.BASE_URL}/${params.locale}/blog/${params.slug}`;
   const heroImage = `${env.BASE_URL}/images/light/${params.locale}/${params.slug}.png`;
-  const ogImageParams = new URLSearchParams({ title: params.headline, description: params.description });
+  const ogImageParams = new URLSearchParams({
+    title: params.headline,
+    description: params.description,
+  });
   const ogImage = `${env.BASE_URL}/og/image.png?${ogImageParams.toString()}`;
   return {
     "@context": "https://schema.org",

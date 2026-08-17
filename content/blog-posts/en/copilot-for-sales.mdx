@@ -73,13 +73,13 @@ The published price is $50 per user per month, but that is rarely what an organi
 
 The realistic total cost calculation for a 10-seat team:
 
-| Component | Per user / month | Notes |
-|---|---|---|
-| Microsoft 365 Business Standard | $12.50 | minimum for Outlook + Teams + Word |
-| Microsoft 365 Copilot | $30 | required for full Sales agent feature set |
-| Dynamics 365 Sales Professional | $65 | minimum CRM tier, or Salesforce Sales Cloud at similar |
-| Copilot for Sales add-on | $20 | when Microsoft 365 Copilot already held |
-| **Total** | **~$127.50/user/month** | before tax, with annual commitment |
+| Component                       | Per user / month        | Notes                                                  |
+| ------------------------------- | ----------------------- | ------------------------------------------------------ |
+| Microsoft 365 Business Standard | $12.50                  | minimum for Outlook + Teams + Word                     |
+| Microsoft 365 Copilot           | $30                     | required for full Sales agent feature set              |
+| Dynamics 365 Sales Professional | $65                     | minimum CRM tier, or Salesforce Sales Cloud at similar |
+| Copilot for Sales add-on        | $20                     | when Microsoft 365 Copilot already held                |
+| **Total**                       | **~$127.50/user/month** | before tax, with annual commitment                     |
 
 For a 10-seat team that is roughly $1,275/month, or $15,300 per year, before any implementation. The standalone $50/user advertised price is a marketing reference point; the actual all-in cost is in the $100-170/user range depending on which plans you pick.
 
@@ -116,6 +116,7 @@ Mixing these up costs money. We have seen organizations pay for both unnecessari
 The honest answer depends on which side of two thresholds you sit.
 
 **It is worth it when:**
+
 - You are already deeply on Microsoft 365 (E3/E5) and Dynamics 365 or Salesforce
 - Your sellers spend most of their day in Outlook and Teams
 - You have a Salesforce or Dynamics admin who can configure and maintain the connector
@@ -123,6 +124,7 @@ The honest answer depends on which side of two thresholds you sit.
 - Your existing CRM is the system of record and that is not changing
 
 **It is not worth it when:**
+
 - You are a small team (under 20 sellers) without a Microsoft 365 admin
 - You do not have Dynamics 365 or Salesforce and do not want to commit to one
 - Your sellers work outside Outlook and Teams (Gmail, Slack, custom tooling)
@@ -139,7 +141,7 @@ A few options sit in the alternative space, with very different tradeoffs.
 
 **HubSpot Breeze AI.** HubSpot's bundled AI features inside Sales Hub, Service Hub, and Marketing Hub. Lighter-weight than the Microsoft or Salesforce options, but still requires Pro or Enterprise tiers to access most AI capabilities. The trade-offs are detailed in the [HubSpot alternative](/compare/hubspot-alternative) comparison.
 
-**[Customermates](/).** The open-source alternative for teams that want AI inside the CRM without the license stack. Customermates is an open-source CRM with 45 native [MCP](/features/api) tools that let Claude, ChatGPT, and Gemini read and write contacts, organizations, deals, services, and tasks directly, and operate a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) from the same chat. Instead of paying $50/user for an AI layer plus $100/user for a CRM, you pay €29 per user per month for the Pro tier (the one that adds the unified inbox, so drafted emails actually send from it) and bring your own AI assistant (which most teams already have a subscription to). The result is the same outcome (drafted emails, summarized meetings, updated records, all from inside the AI assistant your team uses) at a fraction of the seat cost and without lock-in to Microsoft or Salesforce.
+**[Customermates](/).** The open-source alternative for teams that want AI inside the CRM without the license stack. Customermates is an open-source CRM with [[derived.mcp.tools.total]] native [MCP](/features/api) tools that let Claude, ChatGPT, and Gemini read and write contacts, organizations, deals, services, and tasks directly, and operate a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) from the same chat. Instead of paying $50/user for an AI layer plus $100/user for a CRM, you pay [[commercial.price.pro.monthly]] per user per month for the Pro tier (the one that adds the unified inbox, so drafted emails actually send from it) and bring your own AI assistant (which most teams already have a subscription to). The result is the same outcome (drafted emails, summarized meetings, updated records, all from inside the AI assistant your team uses) at a fraction of the seat cost and without lock-in to Microsoft or Salesforce.
 
 The key architectural difference: Copilot for Sales puts the AI in Microsoft 365 and reaches into the CRM. Customermates puts the CRM at the center and lets any AI assistant operate it. For teams that are not already deeply in the Microsoft stack, the second pattern is lighter, cheaper, and more flexible.
 
@@ -147,13 +149,13 @@ The key architectural difference: Copilot for Sales puts the AI in Microsoft 365
 
 To make the comparison concrete, here is what Copilot for Sales lets sellers do, and the equivalent flow in Customermates.
 
-| Task | Copilot for Sales | Customermates |
-|---|---|---|
-| Draft a follow-up email | "Draft reply to John at Acme" inside Outlook | Same prompt to Claude or ChatGPT, with [CRM context](/features/lead-management) via MCP |
-| Summarize a Teams meeting | Auto-summary in Teams with CRM logging | Pass the transcript to Claude; updates the deal and creates tasks via MCP |
-| Update the deal stage | Click in Outlook, choose stage, save | "Move Acme deal to Proposal Sent" in chat; Claude executes via MCP |
-| Get meeting prep | Copilot pulls from CRM, drafts brief | Claude reads CRM via MCP, drafts brief in chat |
-| Log a customer call | Click in Teams, save activity | Tell Claude what happened; structured note + task creation |
+| Task                      | Copilot for Sales                            | Customermates                                                                           |
+| ------------------------- | -------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Draft a follow-up email   | "Draft reply to John at Acme" inside Outlook | Same prompt to Claude or ChatGPT, with [CRM context](/features/lead-management) via MCP |
+| Summarize a Teams meeting | Auto-summary in Teams with CRM logging       | Pass the transcript to Claude; updates the deal and creates tasks via MCP               |
+| Update the deal stage     | Click in Outlook, choose stage, save         | "Move Acme deal to Proposal Sent" in chat; Claude executes via MCP                      |
+| Get meeting prep          | Copilot pulls from CRM, drafts brief         | Claude reads CRM via MCP, drafts brief in chat                                          |
+| Log a customer call       | Click in Teams, save activity                | Tell Claude what happened; structured note + task creation                              |
 
 The user experience differs (in-app for Copilot, in-chat for Customermates), but the deal-record outcome is the same. The cost difference is large, and the platform commitment is much lower.
 
@@ -187,4 +189,4 @@ The standalone Copilot for Sales license is being consolidated into Microsoft 36
 Limited. The core experience requires Microsoft 365 (Outlook, Teams, Word). Salesforce as the CRM is supported; Gmail, Slack, and other non-Microsoft productivity tools are not.
 
 **What is the open-source alternative to Copilot for Sales?**
-[Customermates](/) is an open-source CRM with 45 native MCP tools that let Claude, ChatGPT, and Gemini operate the CRM directly, including a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram). It produces the same workflow outcomes (drafted emails, meeting summaries, deal updates) without the layered Microsoft license stack. Free to self-host via Docker; cloud from €29 per user per month for the Pro tier that includes the unified inbox.
+[Customermates](/) is an open-source CRM with [[derived.mcp.tools.total]] native MCP tools that let Claude, ChatGPT, and Gemini operate the CRM directly, including a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram). It produces the same workflow outcomes (drafted emails, meeting summaries, deal updates) without the layered Microsoft license stack. Free to self-host via Docker; cloud from [[commercial.price.pro.monthly]] per user per month for the Pro tier that includes the unified inbox.

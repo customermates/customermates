@@ -8,7 +8,7 @@ vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
 }));
 
-import { ALL_MCP_TOOLS, TOOL_GROUPS, ALWAYS_ON } from "@/features/mcp-tools/all-tools";
+import { ALL_MCP_TOOLS, MCP_TOOL_GROUPS, MCP_ALWAYS_ON_TOOLS } from "@/features/mcp-tools/tool-registry";
 import { isReadOnlyTool } from "../gated-tools";
 
 const readOnlyNames = () => ALL_MCP_TOOLS.filter((tool) => isReadOnlyTool(tool)).map((tool) => tool.name);
@@ -44,7 +44,7 @@ describe("gated-tools", () => {
   });
 
   it("snapshots the surface so new tools force a conscious gating decision", () => {
-    const groupSizes = Object.fromEntries(Object.entries(TOOL_GROUPS).map(([key, tools]) => [key, tools.length]));
+    const groupSizes = Object.fromEntries(Object.entries(MCP_TOOL_GROUPS).map(([key, tools]) => [key, tools.length]));
 
     expect(groupSizes).toEqual({
       records: 17,
@@ -58,7 +58,7 @@ describe("gated-tools", () => {
       admin: 2,
       support: 1,
     });
-    expect(ALWAYS_ON).toHaveLength(2);
+    expect(MCP_ALWAYS_ON_TOOLS).toHaveLength(2);
     expect(gatedNames().sort()).toMatchSnapshot();
     expect(readOnlyNames().sort()).toMatchSnapshot();
   });

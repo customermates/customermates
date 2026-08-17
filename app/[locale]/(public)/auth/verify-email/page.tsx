@@ -1,20 +1,14 @@
-import { redirect } from "next/navigation";
-
 import { VerifyEmailCard } from "./verify-email-card";
 
-import { getAuthService } from "@/core/di";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
+import { requireAccountState } from "@/features/auth/next/require";
 
 export default async function VerifyEmailPage() {
-  const session = await getAuthService().getSession();
-
-  if (!session) redirect("/auth/signin");
-
-  if (session?.user?.emailVerified) redirect("/");
+  const resolution = await requireAccountState("overdueVerification");
 
   return (
     <CenteredCardPage>
-      <VerifyEmailCard email={session?.user?.email} />
+      <VerifyEmailCard email={resolution.sessionUser?.email} />
     </CenteredCardPage>
   );
 }

@@ -52,7 +52,7 @@ Docs entry points:
 - Audit logging on every plan, self-hosted included; Single Sign-On and Whitelabeling on the Enterprise plan (self-hosted Enterprise deployments by agreement)
 - Role-based access control for teams
 - Self-hosted deployment with Docker Compose and PostgreSQL
-- Cloud pricing from **€12/user/month** (or **€10/user/month** billed yearly)
+- Cloud uses monthly per-seat pricing; see the [current plans](https://customermates.com/pricing)
 
 ## 📊 Comparison
 
@@ -60,7 +60,7 @@ Customermates supports both cloud and self-hosted deployment models.
 
 | Criterion | Cloud | Self-Hosted |
 | --- | --- | --- |
-| Pricing | from €12/seat (€10 yearly) | free core + infra costs |
+| Pricing | [monthly per-seat plans](https://customermates.com/pricing) | free core + infra costs |
 | Setup Time | 2 minutes | ~15 minutes |
 | Maintenance Required | None | Docker, Postgres, proxy, TLS, backups |
 | Updates | Automatic | `docker compose pull && docker compose up -d` |

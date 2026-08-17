@@ -153,6 +153,7 @@ import { ResetPasswordInteractor } from "@/features/auth/reset-password.interact
 import { ContinueWithSocialsInteractor } from "@/features/auth/continue-with-socials.interactor";
 import { ResendVerificationEmailInteractor } from "@/features/auth/resend-verification-email.interactor";
 import { SignOutInteractor } from "@/features/auth/sign-out.interactor";
+import { DecideMcpConsentInteractor } from "@/features/auth/decide-mcp-consent.interactor";
 // Company interactors
 import { GetCompanySettingsInteractor } from "@/features/company/get-company-settings.interactor";
 import { UpdateCompanySettingsInteractor } from "@/features/company/update-company-settings.interactor";
@@ -223,6 +224,7 @@ import { GetMessageAttachmentInteractor } from "@/ee/messaging/inbox/get-message
 import { GetUnreadThreadCountInteractor } from "@/ee/messaging/inbox/get-unread-thread-count.interactor";
 import { GetActivitiesInteractor } from "@/ee/messaging/activities/get-activities.interactor";
 import { GetActivityThreadOptionsInteractor } from "@/ee/messaging/activities/get-activity-thread-options.interactor";
+import { GetActivityRecordOptionsInteractor } from "@/ee/messaging/activities/get-activity-record-options.interactor";
 import { PrismaActivitiesRepo } from "@/ee/messaging/activities/prisma-activities.repository";
 import { UpdateThreadInteractor } from "@/ee/messaging/thread-state/update-thread.interactor";
 import { ListSocialPostsInteractor } from "@/ee/messaging/posts/list-social-posts.interactor";
@@ -322,6 +324,8 @@ export const getRoleRepo = () => new PrismaRoleRepo();
 export const getCustomColumnRepo = () => new PrismaCustomColumnRepo();
 export const getP13nRepo = () => new PrismaP13nRepo();
 export const getWidgetRepo = () => new PrismaWidgetRepo();
+
+export const getActivitiesRepo = () => new PrismaActivitiesRepo();
 export const getWidgetCalculatorRepo = () => new PrismaWidgetCalculatorRepo();
 export const getWebhookRepo = () => new PrismaWebhookRepo();
 export const getWebhookDeliveryRepo = () => new PrismaWebhookDeliveryRepo();
@@ -341,7 +345,7 @@ export const getEmailService = () => new EmailService();
 export const getAuthService = () => new AuthService(getEmailService());
 export const getUserService = () => new UserService(getAuthService(), getUserRepo());
 export const getRouteGuardService = () =>
-  new RouteGuardService(getAuthService(), getUserService(), getCompanyRepo(), getGetLegalStatusInteractor());
+  new RouteGuardService(getAuthService(), getUserRepo(), getCompanyRepo(), getGetLegalStatusInteractor());
 export const getBackgroundTaskService = () => new BackgroundTaskService();
 export const getUserPendingAuthorizationTaskListener = () => new UserPendingAuthorizationTaskListener(getTaskRepo());
 
@@ -855,11 +859,12 @@ export const getDeleteManyTasksInteractor = () =>
 // --- User ---
 
 export const getRegisterUserInteractor = () =>
-  new RegisterUserInteractor(getAuthService(), getUserRepo(), getEventService());
+  new RegisterUserInteractor(getAuthService(), getUserRepo(), getEventService(), getRouteGuardService());
 
 export const getUpdateUserDetailsInteractor = () => new UpdateUserDetailsInteractor(getUserRepo(), getEventService());
 
-export const getCompleteOnboardingWizardInteractor = () => new CompleteOnboardingWizardInteractor(getUserRepo());
+export const getCompleteOnboardingWizardInteractor = () =>
+  new CompleteOnboardingWizardInteractor(getUserRepo(), getRouteGuardService());
 
 export const getGetUserDetailsInteractor = () => new GetUserDetailsInteractor();
 
@@ -898,6 +903,9 @@ export const getResendVerificationEmailInteractor = () => new ResendVerification
 
 export const getSignOutInteractor = () => new SignOutInteractor(getAuthService());
 
+export const getDecideMcpConsentInteractor = () =>
+  new DecideMcpConsentInteractor(getAuthService(), getRouteGuardService());
+
 // --- Company ---
 
 export const getGetCompanySettingsInteractor = () => new GetCompanySettingsInteractor(getCompanyRepo());
@@ -929,7 +937,13 @@ export const getDeleteRoleInteractor = () => new DeleteRoleInteractor(getRoleRep
 export const getGetWidgetsInteractor = () => new GetWidgetsInteractor(getWidgetRepo());
 
 export const getUpsertWidgetInteractor = () =>
-  new UpsertWidgetInteractor(getWidgetRepo(), getWidgetIdsValidator(), getCustomColumnIdsValidator());
+  new UpsertWidgetInteractor(
+    getWidgetRepo(),
+    getWidgetIdsValidator(),
+    getCustomColumnIdsValidator(),
+    getQueryParamsPrecheck(),
+    getEntitlementService(),
+  );
 
 export const getDeleteWidgetInteractor = () => new DeleteWidgetInteractor(getWidgetRepo(), getWidgetIdsValidator());
 
@@ -946,6 +960,8 @@ export const getGetWidgetFilterableFieldsInteractor = () =>
     getDealRepo(),
     getServiceRepo(),
     getTaskRepo(),
+    getActivitiesRepo(),
+    getEntitlementService(),
   );
 
 // --- Webhook ---
@@ -1260,12 +1276,26 @@ export const getGetMessageAttachmentInteractor = () =>
 export const getGetUnreadThreadCountInteractor = () => new GetUnreadThreadCountInteractor(getMessagingRepo());
 
 export const getGetActivitiesInteractor = () =>
-  new GetActivitiesInteractor(new PrismaActivitiesRepo(), getP13nRepo(), "interactive", getQueryParamsPrecheck());
+  new GetActivitiesInteractor(
+    getActivitiesRepo(),
+    getP13nRepo(),
+    "interactive",
+    getQueryParamsPrecheck(),
+    getEntitlementService(),
+  );
 export const getGetActivitiesApiInteractor = () =>
-  new GetActivitiesInteractor(new PrismaActivitiesRepo(), getP13nRepo(), "api", getQueryParamsPrecheck());
+  new GetActivitiesInteractor(
+    getActivitiesRepo(),
+    getP13nRepo(),
+    "api",
+    getQueryParamsPrecheck(),
+    getEntitlementService(),
+  );
 
 export const getGetActivityThreadOptionsInteractor = () =>
-  new GetActivityThreadOptionsInteractor(new PrismaActivitiesRepo(), getEntitlementService());
+  new GetActivityThreadOptionsInteractor(getActivitiesRepo(), getEntitlementService());
+
+export const getGetActivityRecordOptionsInteractor = () => new GetActivityRecordOptionsInteractor(getActivitiesRepo());
 
 export const getUpdateThreadInteractor = () =>
   new UpdateThreadInteractor(getMessagingRepo(), getThreadIdsValidator(), getEntitlementService());

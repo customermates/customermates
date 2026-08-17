@@ -2,17 +2,16 @@
 
 import type { LucideIcon } from "lucide-react";
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
+import type { ReactElement } from "react";
 
-import { Building2, CheckCircle2, Inbox, Package, TrendingUp, Users } from "lucide-react";
+import { Inbox } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { EntityType } from "@/generated/prisma";
 
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
+import { ENTITY_ICON } from "@/components/entity-detail/entity-relations";
 import { Button } from "@/components/ui/button";
 import { PageState } from "@/components/page-state/page-state";
-
-import type { PageSkeletonSpec } from "@/components/page-state/page-skeleton";
 
 import { DataViewEmptyState } from "./data-view-empty-state";
 
@@ -23,29 +22,28 @@ export type EmptyStateDescriptor = {
   ctaLabel?: string;
 };
 
-const ENTITY_ICON: Record<EntityType, LucideIcon> = {
-  [EntityType.contact]: Users,
-  [EntityType.organization]: Building2,
-  [EntityType.deal]: TrendingUp,
-  [EntityType.service]: Package,
-  [EntityType.task]: CheckCircle2,
-};
-
-type Props<E extends HasId> = {
+type SharedProps<E extends HasId> = {
   store: BaseDataViewStore<E>;
   onAdd?: () => void;
   descriptor?: EmptyStateDescriptor;
-  reason: "filtered" | "true-empty";
-  skeleton: PageSkeletonSpec;
   actionLabel?: string;
 };
+
+type Props<E extends HasId> = SharedProps<E> &
+  (
+    | {
+        reason: "filtered";
+        background?: never;
+      }
+    | { background: ReactElement; reason: "true-empty" }
+  );
 
 export const DataViewEmpty = observer(function DataViewEmpty<E extends HasId>({
   store,
   onAdd,
   descriptor,
   reason,
-  skeleton,
+  background,
   actionLabel,
 }: Props<E>) {
   const t = useTranslations();
@@ -100,9 +98,9 @@ export const DataViewEmpty = observer(function DataViewEmpty<E extends HasId>({
           </Button>
         ) : undefined
       }
+      background={background}
       description={description}
       icon={Icon}
-      skeleton={skeleton}
       state="empty"
       title={title}
     />

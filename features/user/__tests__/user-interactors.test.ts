@@ -21,6 +21,7 @@ import { AdminUpdateUserDetailsSchema } from "../upsert/admin-update-user-detail
 import { LEGAL_DOCUMENT_VERSIONS } from "@/constants/legal-documents";
 import { DomainEvent } from "@/features/event/domain-events";
 import { DemoModeError } from "@/core/errors/app-errors";
+import { ACCOUNT_STATES, accountStateRedirect } from "@/features/auth/account-state";
 
 const USER_ID = "test-user-id";
 const mutableEnv = MOCK_ENV_MODULE.env as unknown as {
@@ -38,13 +39,13 @@ describe("RegisterUserInteractor", () => {
   let mockAuthService: any;
   let mockRepo: any;
   let mockEventService: any;
+  let mockRouteGuardService: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
     mutableEnv.APP_MODE = "self-hosted";
 
     mockAuthService = {
-      resolveSession: vi.fn().mockResolvedValue({ session: { user: { id: USER_ID } } }),
       sendNewUserNotificationEmail: vi.fn().mockResolvedValue(undefined),
     };
     mockRepo = {
@@ -55,10 +56,25 @@ describe("RegisterUserInteractor", () => {
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
     };
+    mockRouteGuardService = {
+      resolveAccountState: vi.fn().mockResolvedValue({
+        state: "unregistered",
+        sessionUser: {
+          createdAt: new Date(0),
+          email: "jane@example.com",
+          emailVerified: true,
+          id: USER_ID,
+        },
+        user: null,
+        emailVerified: true,
+        legalStatus: null,
+        subscription: null,
+      }),
+    };
   });
 
   function createInteractor() {
-    return new RegisterUserInteractor(mockAuthService, mockRepo, mockEventService);
+    return new RegisterUserInteractor(mockAuthService, mockRepo, mockEventService, mockRouteGuardService);
   }
 
   it("publishes USER_REGISTERED event for new company", async () => {
@@ -262,7 +278,7 @@ describe("RegisterUserInteractor", () => {
     });
   });
 
-  it("returns { ok: true, data }", async () => {
+  it("returns the onboarding destination for a new active administrator", async () => {
     const interactor = createInteractor();
     const result: any = await interactor.invoke({
       email: "jane@example.com",
@@ -274,8 +290,104 @@ describe("RegisterUserInteractor", () => {
     });
 
     expect(result.ok).toBe(true);
-    expect(result.data).toEqual(expect.objectContaining({ email: "jane@example.com", firstName: "Jane" }));
+    expect(result.data).toEqual({ redirectTo: "/onboarding/wizard" });
   });
+
+  it("uses the authenticated email instead of a forged submitted email", async () => {
+    const result: any = await createInteractor().invoke({
+      email: "not-an-email",
+      firstName: "Jane",
+      lastName: "Doe",
+      country: "de",
+      avatarUrl: null,
+      agreeToTerms: true,
+    });
+
+    expect(result).toMatchObject({ ok: true });
+    expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ email: "jane@example.com" }));
+    expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalledWith(expect.objectContaining({ email: "not-an-email" }));
+  });
+
+  it("returns the pending destination for an invited user", async () => {
+    mockRepo.findCompanyIdUnscoped.mockResolvedValue("existing-company-id");
+    mockRepo.registerExistingCompany.mockResolvedValue({
+      ...mockTenantUser,
+      status: "pendingAuthorization",
+    });
+
+    const result: any = await createInteractor().invoke({
+      email: "jane@example.com",
+      firstName: "Jane",
+      lastName: "Doe",
+      country: "de",
+      avatarUrl: null,
+      agreeToTerms: true,
+    });
+
+    expect(result).toEqual({ ok: true, data: { redirectTo: "/auth/pending" } });
+  });
+
+  it("rejects a missing authenticated session before any write", async () => {
+    mockRouteGuardService.resolveAccountState.mockResolvedValue({
+      state: "unauthenticated",
+      sessionUser: null,
+      user: null,
+      emailVerified: null,
+      legalStatus: null,
+      subscription: null,
+    });
+
+    await expect(
+      createInteractor().invoke({
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        country: "de",
+        avatarUrl: null,
+        agreeToTerms: true,
+      }),
+    ).resolves.toEqual({ redirect: "/auth/signin" });
+    expect(mockRepo.findCompanyIdUnscoped).not.toHaveBeenCalled();
+    expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(mockRepo.registerExistingCompany).not.toHaveBeenCalled();
+    expect(mockEventService.publish).not.toHaveBeenCalled();
+    expect(mockAuthService.sendNewUserNotificationEmail).not.toHaveBeenCalled();
+  });
+
+  it.each(ACCOUNT_STATES.filter((state) => state !== "unauthenticated" && state !== "unregistered"))(
+    "redirects the %s account state without any write",
+    async (state) => {
+      mockRouteGuardService.resolveAccountState.mockResolvedValue({
+        state,
+        sessionUser: {
+          createdAt: new Date(0),
+          email: "jane@example.com",
+          emailVerified: true,
+          id: USER_ID,
+        },
+        user: state === "overdueVerification" ? null : mockTenantUser,
+        emailVerified: true,
+        legalStatus: null,
+        subscription: null,
+      });
+
+      await expect(
+        createInteractor().invoke({
+          email: "jane@example.com",
+          firstName: "Jane",
+          lastName: "Doe",
+          country: "de",
+          avatarUrl: null,
+          agreeToTerms: true,
+        }),
+      ).resolves.toEqual({ redirect: accountStateRedirect(state) ?? "/" });
+      expect(mockRepo.findCompanyIdUnscoped).not.toHaveBeenCalled();
+      expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
+      expect(mockRepo.registerExistingCompany).not.toHaveBeenCalled();
+      expect(mockEventService.publish).not.toHaveBeenCalled();
+      expect(mockAuthService.sendNewUserNotificationEmail).not.toHaveBeenCalled();
+    },
+  );
 });
 
 describe("UpdateUserDetailsInteractor", () => {
@@ -364,7 +476,9 @@ describe("UpdateUserDetailsInteractor", () => {
       formattingLocale: "retired",
     });
 
-    const result: any = await createInteractor().invoke({ theme: "dark" } as never);
+    const result: any = await createInteractor().invoke({
+      theme: "dark",
+    } as never);
 
     expect(result.ok).toBe(true);
     expect(result.data.displayLanguage).toBe("system");

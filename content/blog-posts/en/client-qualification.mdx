@@ -179,16 +179,16 @@ Originally popularized by HubSpot, this is the most comprehensive framework, and
 
 ## Choosing the right framework
 
-| Framework | Best For | Complexity | Deal Size Sweet Spot |
-|-----------|---------|------------|---------------------|
-| BANT | Transactional B2B | Low | €5,000-50,000 |
-| CHAMP | Solution selling, SaaS | Low-Medium | €2,000-50,000 |
-| MEDDIC | Enterprise, multi-stakeholder | High | €50,000+ |
-| ANUM | Mid-market, authority-first | Low | €5,000-100,000 |
-| FAINT | Mid-market with budget uncertainty | Medium | €10,000-100,000 |
-| SPICED | Consultative SaaS | Medium | €10,000-200,000 |
-| NEAT | ROI-driven solution sales | Medium | €20,000-500,000 |
-| GPCTBA/C&I | Inbound, high-value | High | €20,000+ |
+| Framework  | Best For                           | Complexity | Deal Size Sweet Spot |
+| ---------- | ---------------------------------- | ---------- | -------------------- |
+| BANT       | Transactional B2B                  | Low        | €5,000-50,000        |
+| CHAMP      | Solution selling, SaaS             | Low-Medium | €2,000-50,000        |
+| MEDDIC     | Enterprise, multi-stakeholder      | High       | €50,000+             |
+| ANUM       | Mid-market, authority-first        | Low        | €5,000-100,000       |
+| FAINT      | Mid-market with budget uncertainty | Medium     | €10,000-100,000      |
+| SPICED     | Consultative SaaS                  | Medium     | €10,000-200,000      |
+| NEAT       | ROI-driven solution sales          | Medium     | €20,000-500,000      |
+| GPCTBA/C&I | Inbound, high-value                | High       | €20,000+             |
 
 For most SMB and SaaS sales teams, **CHAMP or ANUM** provide the best balance of structure and simplicity. For enterprise teams, **MEDDIC or SPICED** deliver the depth needed for complex deals. A startup selling a €7 per month SaaS product does not need MEDDIC. A company selling six-figure enterprise contracts should not rely solely on BANT.
 
@@ -297,6 +297,7 @@ Manual qualification is time-consuming and inconsistent. Automation ensures ever
 With n8n connected to your CRM, you can build workflows that automatically score leads as data comes in:
 
 **Workflow: New lead auto-scoring**
+
 1. **Trigger**: New contact created in Customermates (via webhook)
 2. **Enrich**: Pull company data from a data enrichment API (e.g., Clearbit, Apollo, or the Handelsregister API for German companies)
 3. **Score**: Apply scoring rules based on company size, industry, job title, region
@@ -310,6 +311,7 @@ This workflow runs in seconds and ensures no lead sits unscored in your pipeline
 Not every lead is ready for a sales call. Automated email sequences can help qualify leads before a rep invests time:
 
 **Workflow: Qualification drip**
+
 1. **Trigger**: Lead score is between 30-59 (interested but not yet qualified)
 2. **Day 1**: Send educational content related to their industry
 3. **Day 3**: Share a case study with measurable outcomes
@@ -333,6 +335,7 @@ Not every lead deserves manual attention. Automate disqualification for:
 Once a qualification call is scheduled, automation can prepare your rep:
 
 **Workflow: Pre-call brief**
+
 1. **Trigger**: Calendar event created with lead's email
 2. **Gather**: Pull lead data from CRM, recent email interactions, website visits
 3. **Research**: Fetch company news, LinkedIn profile, recent activity
@@ -344,6 +347,7 @@ Once a qualification call is scheduled, automation can prepare your rep:
 Circumstances change. Build automated re-qualification into your process:
 
 **Workflow: Quarterly re-qualification sweep**
+
 1. **Trigger**: Scheduled run every 90 days
 2. **Filter**: Find leads disqualified for timing or budget reasons more than 90 days ago
 3. **Check**: Has the lead's company shown any new activity? (Job changes, funding rounds, growth signals)
@@ -393,6 +397,7 @@ Record every answer in your CRM. This data becomes invaluable for forecasting, c
 Knowing when to disqualify is as important as knowing how to qualify.
 
 **Hard disqualification** (stop immediately):
+
 - No budget and no path to budget within a reasonable timeframe
 - No decision-making authority and the decision-maker is not accessible
 - No genuine need, they are just browsing or researching for someone else
@@ -400,6 +405,7 @@ Knowing when to disqualify is as important as knowing how to qualify.
 - Competitor email domain (they are likely researching you, not buying)
 
 **Soft disqualification** (move to nurture, revisit later):
+
 - Budget exists but is allocated to a competing priority this quarter
 - Timeline is 6+ months out
 - They need features you do not have yet but are on your roadmap
@@ -481,7 +487,7 @@ The best qualification questions are open-ended and focused on the prospect's si
 
 ### How can CRM help with client qualification?
 
-A CRM centralizes qualification data in custom fields, automates lead scoring through integrations like n8n, structures the sales pipeline around qualification stages (MQL, SQL, Proposal, Negotiation), and provides analytics to measure qualification effectiveness. Customermates supports flexible custom fields, native n8n automation, and configurable pipelines from €12 per user per month.
+A CRM centralizes qualification data in custom fields, automates lead scoring through integrations like n8n, structures the sales pipeline around qualification stages (MQL, SQL, Proposal, Negotiation), and provides analytics to measure qualification effectiveness. Customermates supports flexible custom fields, automation through separately operated n8n, and configurable pipelines from [[commercial.price.starter.monthly]] per user per month.
 
 ### When should you disqualify a lead?
 
@@ -509,6 +515,6 @@ Client qualification is not a one-time project. It is a discipline that, when pr
 
 The result is a sales team that spends its time on the right prospects, closes deals faster, and forecasts revenue with confidence. Whether you use BANT, CHAMP, MEDDIC, ANUM, SPICED, or a hybrid approach, the key is to start qualifying deliberately and refine your process over time.
 
-With Customermates from €12 per user per month, you get a CRM with flexible custom fields, native n8n integration, and full pipeline management, everything you need to build a qualification engine that scales with your business. Open-source, self-hostable, and GDPR-compliant by design.
+With Customermates from [[commercial.price.starter.monthly]] per user per month, you get a CRM with flexible custom fields, native n8n integration, and full pipeline management, everything you need to build a qualification engine that scales with your business. Open-source, self-hostable, and GDPR-compliant by design.
 
 Stop guessing. Start qualifying.

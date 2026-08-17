@@ -10,7 +10,7 @@ hero:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: ✓ No credit card required ✓ First 7 days free
+  hint: ✓ No credit card required ✓ First [[commercial.trial.days]] days free
 comparison:
   competitorName: HubSpot
   competitor2Name: Pipedrive
@@ -23,19 +23,19 @@ comparison:
       competitor: days to weeks
       competitor2: hours to days
     - name: Starting price
-      source: From €12 / month / user
+      source: From [[commercial.price.starter.monthly]] / month / user
       competitor: Free / $15 Starter
       competitor2: $14 Lite
     - name: Mid-tier price
-      source: €29 / month / user (Pro)
+      source: "[[commercial.price.pro.monthly]] / month / user (Pro)"
       competitor: $90/seat Professional
       competitor2: $39 Growth
     - name: Top-tier price
-      source: €69 / month / user (Business)
+      source: "[[commercial.price.business.monthly]] / month / user (Business)"
       competitor: $150/seat Enterprise
       competitor2: $79 Ultimate
     - name: Free start
-      source: 7-day trial + free self-host
+      source: "[[commercial.trial.days]]-day trial + free self-host"
       competitor: free tier
       competitor2: trial only (14 days)
     - name: Credit card required
@@ -73,21 +73,21 @@ comparison:
       competitor: 'yes'
       competitor2: excellent (daily activity rollups)
     - name: Native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram)
-      source: Pro+ (€29, 5 channels)
+      source: Pro+ ([[commercial.price.pro.monthly]], 5 channels)
       competitor: Email, chat, WhatsApp (Pro+)
       competitor2: Email (2-way sync)
     - name: AI agents operate the CRM (MCP)
-      source: Included (45 tools)
+      source: Included ([[derived.mcp.tools.total]] tools)
       competitor: Breeze AI (paid tiers)
       competitor2: AI Sales Assistant (Premium+)
   - title: Data protection & security
     features:
-    - name: GDPR compliant
-      source: true
+    - name: GDPR documentation
+      source: DPA + SCCs; no certification
       competitor: partially
       competitor2: partially
     - name: Hosting
-      source: EU / Germany
+      source: EU database region
       competitor: global/USA
       competitor2: mixed EU & USA
     - name: Data control
@@ -119,10 +119,10 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: ✓ No credit card required ✓ First 7 days free
+  hint: ✓ No credit card required ✓ First [[commercial.trial.days]] days free
 ---
 
-> HubSpot and Pipedrive are two of the most popular CRM platforms for small and mid-sized teams, but they serve fundamentally different needs. HubSpot is the all-in-one Go-to-Market platform, marketing automation, CRM, and customer service unified under one roof, that starts free but becomes expensive fast. Pipedrive is the laser-focused sales CRM built for deal velocity, with a kanban pipeline that is operational within an hour but gates features behind plan tiers. Customermates offers a third option built around two features: AI agents (Claude, ChatGPT, or Gemini) operate the CRM directly through a native MCP integration (45 tools) so it keeps itself current, and a native unified inbox brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one place, operable by the same agents. Every core CRM feature ships from €12/user/month, EU-hosted, open-source, and operational in two minutes.
+> HubSpot and Pipedrive are two of the most popular CRM platforms for small and mid-sized teams, but they serve fundamentally different needs. HubSpot is the all-in-one Go-to-Market platform, marketing automation, CRM, and customer service unified under one roof, that starts free but becomes expensive fast. Pipedrive is the laser-focused sales CRM built for deal velocity, with a kanban pipeline that is operational within an hour but gates features behind plan tiers. Customermates offers a third option built around two features: AI agents (Claude, ChatGPT, or Gemini) operate the CRM directly through a native MCP integration ([[derived.mcp.tools.total]] tools) so it keeps itself current, and a native unified inbox brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one place, operable by the same agents. Every core CRM feature ships from [[commercial.price.starter.monthly]]/user/month, EU-hosted, open-source, and operational in two minutes.
 
 ## What is HubSpot's biggest competitor?
 
@@ -134,7 +134,7 @@ Here is who should choose what:
 
 - **Choose HubSpot** if your priority is inbound marketing with CRM, email campaigns, landing pages, content management, and lead nurturing, and you have the budget for Professional tier (from $90/seat/month) where the real value unlocks.
 - **Choose Pipedrive** if you are a sales-focused team that needs fast setup, strong visual pipeline management, and straightforward deal tracking without marketing complexity.
-- **Choose Customermates** if you want the simplicity of Pipedrive combined with the depth of a full CRM, contacts, deals, AI agents that operate the CRM, a native unified inbox, and unlimited automation, from €12/user/month with no core CRM feature gated, plus GDPR-native EU hosting.
+- **Choose Customermates** if you want the simplicity of Pipedrive combined with the depth of a full CRM, contacts, deals, AI agents that operate the CRM, a native unified inbox, and unlimited automation, from [[commercial.price.starter.monthly]]/user/month with no core CRM feature gated, plus GDPR-native EU hosting.
 
 ## Setup and onboarding
 
@@ -147,6 +147,7 @@ Customermates is ready in two minutes. Sign up, set up your pipelines, and start
 ## Pricing breakdown
 
 **HubSpot pricing (per-seat model):**
+
 - Free: basic contact management, limited pipeline
 - Starter ($15/seat/month): removes branding, simple automation
 - Professional ($90/seat/month, annual): custom reporting, sequences, workflow automation, AI features, plus a one-time onboarding fee of around $1,500
@@ -155,6 +156,7 @@ Customermates is ready in two minutes. Sign up, set up your pipelines, and start
 The jump from Starter to Professional is where most teams feel the cost. Features like workflow automation, custom reporting, and sequences, which many consider standard CRM functionality, require the Professional plan. HubSpot also offers direct Stripe payment capability, email and LinkedIn automation sequences, lead rotation, and quote-based workflows at higher tiers.
 
 **Pipedrive pricing (per user/month, billed annually; tiers renamed in the 2025 rebrand):**
+
 - Lite ($14): basic pipeline, open-deal cap, limited custom fields
 - Growth ($39): email tracking, workflow automation, group emails
 - Premium ($49): AI sales assistant, contract management, revenue forecasting, smart documents, e-signatures
@@ -163,11 +165,12 @@ The jump from Starter to Professional is where most teams feel the cost. Feature
 Pipedrive is more predictable than HubSpot on pricing, but key features are distributed across tiers. There is no email automation on the Lite tier. Workflow automation requires Growth ($39), AI features require Premium ($49), and add-ons like LeadBooster and Web Visitors add up. Pipedrive lacks native SEO/SEM tools integration and built-in marketing functionality.
 
 **Customermates pricing:**
-- Starter (€12/user/month): every core CRM feature, no messaging
-- Pro (€29/user/month): adds the unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram), 1 connected account/user, calendar sync, Sales Navigator
-- Business (€69/user/month): 3 connected accounts/user, shared accounts, priority support
-- Enterprise: custom, SSO, white-label, unlimited accounts
-- No core CRM feature is gated behind a higher tier; messaging capacity and hosted Assistant allowances scale
+
+- Starter ([[commercial.price.starter.monthly]]/user/month): every core CRM feature, no messaging
+- Pro ([[commercial.price.pro.monthly]]/user/month): adds the unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram), [[commercial.entitlement.pro.includedAccountsPerUser]] connected account/user, calendar sync, Sales Navigator
+- Business ([[commercial.price.business.monthly]]/user/month): [[commercial.entitlement.business.includedAccountsPerUser]] connected accounts/user, shared accounts, priority support
+- Enterprise: custom, SSO, white-label, [[commercial.entitlement.enterprise.includedAccountsPerUser]] connected accounts (fair use)
+- No core CRM feature is ever gated behind a higher tier, messaging capacity and the monthly hosted AI allowance scale
 
 ## What CRM is better than HubSpot?
 
@@ -175,7 +178,7 @@ That depends on what "better" means for your team. Pipedrive is better for pure 
 
 But both force trade-offs. Pipedrive excels at one thing and lacks depth elsewhere. HubSpot offers breadth but locks most of it behind expensive tiers.
 
-Customermates delivers contacts, organizations, deals, pipelines, tasks, services, AI agents (via MCP), and n8n automation, all included on Starter, with the unified inbox for email, LinkedIn, WhatsApp, Instagram, and Telegram starting on Pro. It combines Pipedrive's focus on usability with CRM depth that neither Pipedrive nor HubSpot's lower tiers can match.
+Customermates delivers contacts, organizations, deals, pipelines, tasks, services, AI agents (via MCP), and integration surfaces for separately operated n8n on Starter, with the unified inbox for email, LinkedIn, WhatsApp, Instagram, and Telegram starting on Pro. It combines Pipedrive's focus on usability with CRM depth that neither Pipedrive nor HubSpot's lower tiers can match.
 
 ## Feature comparison
 
@@ -191,7 +194,7 @@ Customermates delivers what most CRM teams need daily without compromise or tier
 
 **Pipedrive AI Sales Assistant** provides deal recommendations, performance insights, and email suggestions. Available starting from the Premium tier ($49/user/month). Lower tiers have limited or no AI access.
 
-**Customermates** offers external AI agents via MCP (45 tools) at every tier, starting at €12/user/month. Hosted Assistant processing is also included, with published monthly credit allowances of 200 on Starter, 500 on Pro, and 1,200 on Business.
+**Customermates** puts AI agents (via MCP, [[derived.mcp.tools.total]] tools) at every tier, starting at [[commercial.price.starter.monthly]]/user/month. Summarize notes, enrich contacts, automate follow-ups, MCP access for external AI clients is included at every tier, and the monthly hosted AI allowance scales with tier.
 
 ## What are the disadvantages of HubSpot?
 
@@ -203,7 +206,7 @@ The most frequently cited disadvantages include:
 4. **Phone support gating**, only at Professional and above.
 5. **Onboarding fee**, Professional includes a one-time onboarding fee of around $1,500 on top of per-seat costs.
 
-Customermates avoids all five: transparent tiers from €12/user/month, CRM-focused design, every core CRM feature from day one, complete support, and no onboarding fees or minimum user requirements.
+Customermates avoids all five: transparent tiers from [[commercial.price.starter.monthly]]/user/month, CRM-focused design, every core CRM feature from day one, complete support, and no onboarding fees or minimum user requirements.
 
 ## Data protection and hosting
 
@@ -219,17 +222,17 @@ HubSpot has one of the largest integration marketplaces in the CRM space with ov
 
 Pipedrive offers 300+ native marketplace integrations and a RESTful API with webhooks available to all users. Automation capabilities are restricted by plan, with the number of active automations capped on lower tiers (up to 30 on Lite, 60 on Growth). Pipedrive has an active developer community and Zapier compatibility fills integration gaps.
 
-Customermates includes n8n automation from day one, connecting to thousands of apps and services without plan restrictions or automation caps. Full API access is available immediately with no artificial limits. Being open-source, you can extend the platform without marketplace dependency.
+Customermates works with n8n automation from day one, connecting to thousands of apps and services without plan restrictions or automation caps. Full API access is available immediately with no artificial limits. Being open-source, you can extend the platform without marketplace dependency.
 
 ## Scalability
 
 Pipedrive is more cost-effective for small teams but less attractive as a business grows, its Ultimate tier lacks new functionality, only offering higher limits and support. HubSpot scales horizontally (additional Hubs for Marketing, Service, Operations, Content) and vertically (tier upgrades add significant functionality), but this pre-integrated ecosystem comes with escalating costs.
 
-Customermates scales differently. Add users at the same tier price with no core CRM feature restrictions; messaging capacity and the hosted Assistant allowance change when you move to Pro or Business. External MCP access remains available in every tier, and self-hosting retains MCP with your own provider.
+Customermates scales differently. Add users at the same tier price with no core CRM feature restrictions; messaging capacity and the monthly hosted AI allowance change if you move to Pro or Business. For teams that outgrow the hosted version, self-hosting provides unlimited control. You get the scalability argument resolved without price escalation or ecosystem lock-in.
 
 ## Conclusion
 
-HubSpot and Pipedrive both force trade-offs. HubSpot offers breadth at the cost of complexity and escalating prices. Pipedrive offers simplicity at the cost of depth and feature gating. Customermates provides a modern alternative: complete core CRM functionality from €12/user/month, EU-hosted, open-source, and ready in minutes. For teams that want effective CRM without marketing bloat or pipeline-only limitations, it is the clear choice.
+HubSpot and Pipedrive both force trade-offs. HubSpot offers breadth at the cost of complexity and escalating prices. Pipedrive offers simplicity at the cost of depth and feature gating. Customermates provides a modern alternative: complete core CRM functionality from [[commercial.price.starter.monthly]]/user/month, EU-hosted, open-source, and ready in minutes. For teams that want effective CRM without marketing bloat or pipeline-only limitations, it is the clear choice.
 
 ### Related Comparisons
 

@@ -2,7 +2,7 @@
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { Sheet, SheetBody, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { VisuallyHidden } from "radix-ui";
@@ -16,8 +16,10 @@ import { UnsavedChangesGuard } from "@/components/modal/unsaved-changes-guard";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { PageState } from "@/components/page-state/page-state";
+import { EntityDetailDrawerSkeleton } from "@/components/entity-detail/entity-detail-page-skeleton";
 import { Button } from "@/components/ui/button";
 import { EntityDrawerLoadGate } from "@/components/entity-detail/entity-drawer-load-gate";
+import { resolveEntityDrawerPageState } from "@/components/entity-detail/entity-detail-page-state";
 
 export const EntityDrawer = observer(() => {
   const t = useTranslations();
@@ -95,8 +97,12 @@ export const EntityDrawer = observer(() => {
   const detailStore = top ? detailConfig?.store(rootStore) : null;
   const DetailView = detailConfig?.DetailView ?? null;
   const isPrepared = activeKey !== null && preparedKey === activeKey;
-  const isNotFound = top?.id !== "new" && detailStore?.entityLoadState === "not-found";
-  const hasLoadError = detailStore?.entityLoadState === "error";
+  const drawerState = resolveEntityDrawerPageState({
+    hasActiveEntity: Boolean(top),
+    isNew: top?.id === "new",
+    isPrepared,
+    requestState: detailStore?.entityLoadState ?? "idle",
+  });
 
   function retry() {
     if (!top || !detailStore || !activeKey) return;
@@ -107,10 +113,51 @@ export const EntityDrawer = observer(() => {
     });
   }
 
+  let drawerBody: ReactNode;
+  switch (drawerState) {
+    case "closed":
+      drawerBody = null;
+      break;
+    case "loading":
+      drawerBody = (
+        <PageState
+          background={<EntityDetailDrawerSkeleton showFooter={Boolean(detailStore?.canManage)} />}
+          className="h-full"
+          label={t("PageState.loading")}
+          state="loading"
+        />
+      );
+      break;
+    case "not-found":
+    case "error":
+      drawerBody = (
+        <PageState
+          action={
+            <Button size="sm" variant="outline" onClick={retry}>
+              {t("ErrorCard.retry")}
+            </Button>
+          }
+          className="h-full"
+          description={drawerState === "not-found" ? t("PageState.notFoundDescription") : t("ErrorCard.contactSupport")}
+          state="error"
+          title={drawerState === "not-found" ? t("PageState.notFoundTitle") : t("ErrorCard.title")}
+        />
+      );
+      break;
+    case "content":
+      drawerBody = DetailView ? <DetailView layout="drawer" /> : null;
+      break;
+    default: {
+      const exhaustive: never = drawerState;
+      drawerBody = exhaustive;
+    }
+  }
+
   return (
     <>
       <Sheet open={Boolean(top)} onOpenChange={handleOpenChange}>
         <SheetContent
+          aria-describedby={undefined}
           className="gap-0 sm:max-w-[640px]"
           side="left"
           {...focusReturn}
@@ -120,30 +167,7 @@ export const EntityDrawer = observer(() => {
             <SheetTitle>{top ? singular(top.entityType) : t("Common.details")}</SheetTitle>
           </VisuallyHidden.Root>
 
-          <SheetBody className="flex flex-col overflow-hidden px-0">
-            {top && !isPrepared && !hasLoadError && !isNotFound ? (
-              <PageState
-                className="h-full"
-                label={t("PageState.loading")}
-                skeleton={{ kind: "detail" }}
-                state="loading"
-              />
-            ) : hasLoadError || isNotFound ? (
-              <PageState
-                action={
-                  <Button size="sm" variant="outline" onClick={retry}>
-                    {t("ErrorCard.retry")}
-                  </Button>
-                }
-                className="h-full"
-                description={isNotFound ? t("PageState.notFoundDescription") : t("ErrorCard.contactSupport")}
-                state="error"
-                title={isNotFound ? t("PageState.notFoundTitle") : t("ErrorCard.title")}
-              />
-            ) : (
-              DetailView && <DetailView layout="drawer" />
-            )}
-          </SheetBody>
+          <SheetBody className="flex flex-col overflow-hidden px-0">{drawerBody}</SheetBody>
         </SheetContent>
       </Sheet>
 

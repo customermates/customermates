@@ -43,13 +43,12 @@ function stubRoot(): RootStore {
       pushRecentItem: vi.fn(),
       removeRecentItem: vi.fn(),
     },
-    activitiesStore: { refreshFor: vi.fn() },
     localeStore: { locale: "en", getTranslation: (key: string) => key },
   } as unknown as RootStore;
 }
 
-function makeStore(): ContactDetailStore {
-  return new ContactDetailStore(stubRoot());
+function makeStore(rootStore = stubRoot()): ContactDetailStore {
+  return new ContactDetailStore(rootStore);
 }
 
 function makeStoreWithRoot(root: RootStore): ContactDetailStore {
@@ -296,7 +295,8 @@ describe("ContactDetailStore.loadById", () => {
 
 describe("ContactDetailStore.onSubmit", () => {
   it("sends staged channels through a single create call", async () => {
-    const store = makeStore();
+    const rootStore = stubRoot();
+    const store = makeStore(rootStore);
     contactActions.createContactAction.mockResolvedValue({
       ok: true,
       data: { ...contactWithTasks(), id: CONTACT_ID },
@@ -318,6 +318,7 @@ describe("ContactDetailStore.onSubmit", () => {
     const payload = contactActions.createContactAction.mock.calls[0][0];
     expect(payload.id).toBeUndefined();
     expect(payload.identifiers.map((i: { value: string }) => i.value)).toEqual(["a@example.com", "jane-doe"]);
+    expect(rootStore.contactsStore.upsertItem).toHaveBeenCalledWith(expect.objectContaining({ id: CONTACT_ID }));
   });
 
   it("sends an empty identifier list when no channel was staged", async () => {

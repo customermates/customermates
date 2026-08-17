@@ -379,7 +379,7 @@
         "stage": "Stage",
         "status": "Status",
         "strategySprint": "Strategy sprint",
-        "tasksByStatus": "Tasks by status",
+        "tasksByStatus": "Tasks by custom status",
         "teamPlan": "Team plan",
         "toDo": "To do",
         "won": "Won"
@@ -940,7 +940,7 @@
       "body": "Get started by adding your first {singular}.",
       "clearFilters": "Clear filters",
       "cta": "Add your first {singular}",
-      "dashboardBody": "Charts and metrics appear here as you add data.",
+      "dashboardBody": "Widgets appear here as you add data.",
       "dashboardTitle": "Nothing to show yet",
       "filteredBody": "No {plural} match your filters.",
       "filteredTitle": "No matches",
@@ -951,7 +951,10 @@
       "title": "No {plural} yet"
     },
     "errors": {
-      "activityScopeRequiresBoth": "entityType and entityId must be provided together to scope to one record.",
+      "activityDuplicateFilterField": "Each activity filter field can be configured only once.",
+      "activityPageOutOfRange": "The activity feed cannot page that far back. Narrow the filters instead.",
+      "activityScopeTooManyIds": "An activity scope cannot select more than 50 records of one type.",
+      "activitySourcesUnavailable": "You do not have access to any activity timeline source.",
       "apiKeyMaxExpiration": "API key expiration cannot exceed 365 days.",
       "assigneeRequired": "You must assign yourself to this item. Please note that you will only be able to view items assigned to you.",
       "calendarEventNotFound": "Calendar event ID not found or not accessible.",
@@ -1037,6 +1040,7 @@
       "widgetGroupByCustomColumnIdRequired": "Custom column ID is required when grouping by custom column.",
       "widgetGroupByEntityTypeNotAllowedForCount": "Grouping by element type itself is not allowed when aggregation type is count.",
       "widgetGroupByTypeMustMatchEntityType": "Group by type must match the chart's element type.",
+      "widgetKindImmutable": "A widget's type cannot be changed after it is created.",
       "widgetNotFound": "Widget ID not found or not accessible.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Tasks can only be grouped by custom columns, not by element types."
     },
@@ -1173,6 +1177,7 @@
         "none": "No preset"
       },
       "searchLabel": "Search",
+      "selectionLimit": "You can select up to {count} values.",
       "selectOperator": "Select a condition…",
       "unavailableValue": "Filter not available"
     },
@@ -1196,11 +1201,8 @@
       "description": "Description",
       "displayLanguage": "Display Language",
       "displayOptions": {
-        "barColors": "Bar Colors",
-        "displayType": "Display Type",
         "reverseXAxis": "Reverse X-axis",
         "reverseYAxis": "Reverse Y-axis",
-        "showFilters": "Show filters",
         "showLegend": "Show legend",
         "useGroupColors": "Use option colors"
       },
@@ -1213,7 +1215,6 @@
       "firstName": "First Name",
       "formattingLocale": "Formatting Locale",
       "groupByValue": "Grouping",
-      "isTemplate": "Share as template for other users of your organization",
       "label": "Label",
       "lastName": "Last Name",
       "message": "Message",
@@ -1228,7 +1229,6 @@
       "roleId": "Role",
       "secret": "Secret",
       "status": "Status",
-      "template": "Template",
       "theme": "Theme",
       "type": "Type",
       "unavailableSelection": "Selection unavailable",
@@ -1268,8 +1268,7 @@
       "whatsapp": "WhatsApp"
     },
     "scroll": {
-      "backToTop": "Back to top",
-      "jumpToLatest": "Jump to latest"
+      "backToTop": "Back to top"
     },
     "sidebar": {
       "description": "Displays the mobile sidebar.",
@@ -1294,22 +1293,34 @@
         "channels": "Channels",
         "contacts": "Contacts",
         "createdAt": "Created at",
+        "customFieldValues": "Custom fields",
         "deals": "Deals",
         "description": "Description",
+        "displayName": "Display name",
         "email": "E-Mail",
+        "emailAddress": "Email address",
+        "enabled": "Enabled",
         "entity": "Element",
         "entityId": "Element ID",
+        "entityType": "Record type",
         "event": "Event",
         "events": "Events",
         "expiresAt": "Expires at",
         "firstName": "First Name",
+        "id": "ID",
         "identifiers": "Channels",
+        "isSystemRole": "System role",
+        "label": "Label",
         "lastName": "Last Name",
         "lastRequest": "Last used",
         "name": "Name",
         "notes": "Notes",
+        "options": "Options",
         "organizations": "Organizations",
+        "permissions": "Permissions",
+        "provider": "Provider",
         "role": "Role",
+        "secret": "Secret",
         "services": "Services",
         "status": "Status",
         "statusCode": "Status Code",
@@ -1376,7 +1387,7 @@
     }
   },
   "ConnectedAccountsCard": {
-    "accountLimitReached": "Business includes 3 connected accounts per user. Contact us about Enterprise for unlimited accounts.",
+    "accountLimitReached": "You reached the connected-account limit for this plan. Contact us about Enterprise for unlimited accounts.",
     "alreadyExistsToastDescription": "This account is already connected by a member of your workspace. Ask them to share it with the workspace so the inbox does not show duplicate messages.",
     "alreadyExistsToastTitle": "Account already connected",
     "channels": {
@@ -1493,7 +1504,19 @@
     "title": "Let's talk."
   },
   "Dashboard": {
-    "addCard": "Add Chart",
+    "activityWidget": {
+      "activityCount": "{count, plural, =1 {1 activity} other {# activities}}",
+      "error": "Activity could not be loaded.",
+      "loadOlderError": "Older activity could not be loaded. The entries already shown are still available.",
+      "noAccount": "Connect a messaging or calendar account to show activity.",
+      "noActivity": "No activity yet.",
+      "noMatches": "No activity matches the current filters.",
+      "noPermission": "You do not have access to any activity in this workspace.",
+      "pageLimitReached": "The oldest available page has been reached. Narrow the current selection to inspect older activity.",
+      "scopeTooBroad": "These relationship filters match too many contacts to load safely. Select fewer records.",
+      "title": "Recent activity"
+    },
+    "addCard": "Add widget",
     "aggregationTypes": {
       "count": "Count {entities}",
       "dealQuantity": "Number of {services} in {deals}",
@@ -1511,14 +1534,85 @@
     "groupBys": {
       "none": "No Grouping"
     },
-    "selectWidgetTemplateDescription": "You can select existing charts from members of your organizations and use them as a template for your new chart.",
     "tabs": {
-      "config": "Configuration",
       "dealFilters": "Filters for {deals}",
-      "display": "Display",
       "filters": "{entityType} Filters"
     },
-    "widget": "Chart"
+    "widgetEditor": {
+      "addTitle": "Add widget",
+      "appearance": {
+        "chartStyle": "Chart style",
+        "colorOption": "Color {number}",
+        "colors": "Colors",
+        "showFilters": "Show activity count and filters",
+        "showMetricAndFilters": "Show metric and filters"
+      },
+      "create": "Create widget",
+      "danger": {
+        "deleteLabel": "Delete widget {name}"
+      },
+      "editTitle": "Edit {name}",
+      "filters": {
+        "activityTypeOptions": {
+          "activities": {
+            "description": "Events from connected accounts and calendars.",
+            "label": "Account & calendar"
+          },
+          "changes": {
+            "description": "Updates to CRM records, fields, and relationships.",
+            "label": "Record changes"
+          },
+          "messages": {
+            "description": "Messages sent or received through connected channels.",
+            "label": "Messages"
+          }
+        },
+        "activityTypes": "Activity types",
+        "noneAvailable": "No filters are available for this widget.",
+        "removeUnavailable": "Remove unavailable {field} filter",
+        "title": "Filters",
+        "unavailable": "{count, plural, =1 {One saved filter is no longer available. You can keep or remove it.} other {# saved filters are no longer available. You can keep or remove them.}}"
+      },
+      "kind": {
+        "activityTimelineDescription": "Follow record changes, messages, and account or calendar activity in time order.",
+        "chartDescription": "Compare CRM data in a visual chart.",
+        "title": "Choose a Widget"
+      },
+      "preview": {
+        "activitySummary": "{title}. Filters: {filters, plural, =0 {none} =1 {1 active} other {# active}}.",
+        "chartSummary": "{title}. {summary}. Metric: {metric}. Chart style: {chart}.",
+        "filterSummary": "{count, plural, =1 {1 filter} other {# filters}}",
+        "groupLabel": "Group {number}",
+        "title": "Preview",
+        "untitled": "Untitled widget"
+      },
+      "progress": "Step {current} of {total}",
+      "progressLabel": "Widget creation progress",
+      "save": "Save changes",
+      "sharing": {
+        "template": "Share as a template"
+      },
+      "steps": {
+        "chooseDescription": "Choose a format or start from a setup shared in your workspace.",
+        "configureDescription": "Choose what this widget shows and how it looks."
+      },
+      "tabs": {
+        "appearance": "Appearance",
+        "data": "Data",
+        "filters": "Filters",
+        "filtersLabel": "{count, plural, =0 {Filters, none active} =1 {Filters, 1 active} other {Filters, # active}}",
+        "label": "Widget settings"
+      },
+      "templates": {
+        "by": "Shared by {name}",
+        "description": "Use a setup shared in your workspace, then make it your own.",
+        "title": "Start from a template"
+      }
+    },
+    "widgetKinds": {
+      "activityTimeline": "Activity timeline",
+      "chart": "Chart"
+    }
   },
   "DataView": {
     "dragToReorder": "Drag to reorder",
@@ -1764,7 +1858,13 @@
     }
   },
   "EntityTimeline": {
+    "detailDescription": "Activity details and related record context.",
+    "error": "Activity could not be loaded.",
     "loadOlder": "Load older",
+    "loadOlderError": "Older activity could not be loaded. The entries already shown are still available.",
+    "moreRecords": "+{count} more",
+    "pageLimitReached": "The oldest available page has been reached. Narrow the current selection to inspect older activity.",
+    "scopeTooBroad": "These relationship filters match too many contacts to load safely. Select fewer records.",
     "types": {
       "activities": "Activities",
       "changes": "Changes",
@@ -1864,34 +1964,34 @@
       "badge": "Popular",
       "compareText": "Compare plans",
       "ctaText": "Start free",
-      "featureBusiness": "Business: 1,200 hosted AI credits, 3 accounts and shared inboxes",
-      "featurePro": "Pro: 500 hosted AI credits and unified inbox",
-      "featureStarter": "Starter: full CRM and 200 hosted AI credits",
+      "featureBusiness": "Business: {accounts, plural, one {# account per user} other {# accounts per user}}, shared accounts & priority support",
+      "featurePro": "Pro: unified inbox, {accounts, plural, one {# connected account per user} other {# connected accounts per user}}",
+      "featureStarter": "Starter: the core CRM",
       "period": "/ user / month",
-      "price": "from €12",
-      "tag": "Managed in Frankfurt. Start free, no credit card.",
+      "price": "from {price}",
+      "tag": "Managed for you; database in an EU region. Other providers may process data elsewhere.",
       "title": "Cloud"
     },
     "compare": {
       "cancelAnytime": "Cancel anytime",
-      "gdpr": "GDPR compliant",
+      "gdpr": "EU database region; no certification claim",
       "noLimits": "Transparent tiers",
       "openSource": "Open core"
     },
     "eyebrow": "Pricing",
     "selfHosted": {
       "ctaText": "Download",
-      "featureApi": "All API, MCP & webhooks",
+      "featureApi": "Documented API, MCP & webhook interfaces",
       "featureCommunity": "Community support",
-      "featureN8n": "n8n integrations",
-      "featureRecords": "Unlimited records",
-      "featureUsers": "Unlimited users",
-      "period": "forever",
-      "price": "Free",
-      "tag": "Run on your server with Docker Compose. AGPL Community Edition with source-available components.",
+      "featureN8n": "Interfaces for a separate n8n instance",
+      "featureRecords": "Core CRM records",
+      "featureUsers": "Workspace users",
+      "period": "under AGPL",
+      "price": "Free core",
+      "tag": "Run the AGPL core app and PostgreSQL on your server with Docker Compose at Starter scope. External services stay separate.",
       "title": "Self-Hosted"
     },
-    "subtitle": "Transparent tiers, no hidden costs. Self-host free forever, or start on Cloud with no credit card.",
+    "subtitle": "Transparent tiers, no hidden costs. Self-host the AGPL core for free; external services stay separate. Or start on Cloud with no credit card.",
     "title": "Simple, honest, European"
   },
   "HomepageStatsRow": {
@@ -2030,7 +2130,6 @@
     "informationBody": "We updated the legal information listed below. This notice does not require acceptance unless the email also identifies updated Terms or a Data Processing Agreement.",
     "informationSubject": "Customermates legal information updated",
     "informationTitle": "Legal information updated",
-    "liveLabel": "Live document",
     "signoff": "Best regards,\nBen",
     "subprocessorDeadlineLabel": "Subprocessor objection deadline",
     "subprocessorObjection": "No acceptance is required. If you object to the listed subprocessor change, reply without undue delay and before the stated deadline, giving reasonable data-protection grounds.",
@@ -2051,7 +2150,6 @@
     "memberWaiting": "A company administrator must accept the updated Terms and DPA. You can retry after they have done so or sign out.",
     "privacy": "Privacy Policy",
     "retry": "Retry",
-    "signOut": "Sign out",
     "subprocessors": "Subprocessors",
     "subtitle": "An authorised company administrator must accept by {date}.",
     "terms": "Terms",
@@ -2218,6 +2316,7 @@
     },
     "next": "Next",
     "progress": "Step {current} of {total}",
+    "progressLabel": "Onboarding progress",
     "steps": {
       "ai": {
         "subtitle": "Choose one to connect now. You can add the others later.",
@@ -2311,7 +2410,7 @@
     "buttonLabel": "Register with {provider}",
     "inviteSubtitle": "You have been invited to join a team on Customermates. Choose your sign-in method to accept the invitation.",
     "inviteTitle": "Accept Company Invitation",
-    "newCompanySubtitle": "Register a new company and test Customermates for free for 7 days. No credit card required.",
+    "newCompanySubtitle": "Register a new company and test Customermates for free for {days} days. No credit card required.",
     "or": "OR",
     "signUpCta": "Create account",
     "switchToSignIn": "Already have an account? <signInLink>Sign in</signInLink>",
@@ -2332,10 +2431,11 @@
     "managedExternallyNote": "This workspace is on an Enterprise plan billed by invoice. Contact your account manager to make changes.",
     "manageWithLemonSqueezy": "Manage with Lemon Squeezy",
     "picker": {
+      "connectedAccountsPerUser": "{accounts, plural, one {# connected account per user} other {# connected accounts per user}}",
       "creditNote": "Hosted AI credits refresh monthly, even on annual billing. External MCP clients use your own AI provider and do not consume these credits.",
       "features": {
-        "business": ["Everything in Pro", "3 connected accounts per user", "Shared accounts and priority support"],
-        "pro": ["Everything in Starter", "Unified inbox", "1 connected account per user"],
+        "business": ["Everything in Pro", "Shared accounts and priority support"],
+        "pro": ["Everything in Starter", "Unified inbox"],
         "starter": [
           "Full CRM: contacts, deals, organizations, tasks",
           "Audit log",
@@ -2345,12 +2445,7 @@
       },
       "hostedAiCredits": "{credits, number} hosted AI credits per active user / month",
       "mostPopular": "Most popular",
-      "perUserMonth": "per user / month",
-      "price": {
-        "business": "€69",
-        "pro": "€29",
-        "starter": "€12"
-      }
+      "perUserMonth": "per user / month"
     },
     "plan": "Plan",
     "planNames": {
@@ -2376,9 +2471,12 @@
     "trialEnds": "Trial ends"
   },
   "SubscriptionExpiredView": {
+    "administratorRequiredDescription": "A company administrator must restore the subscription. Retry after they have done so, or contact our support team for help.",
     "contactSupportCta": "Contact Support",
-    "description": "Your trial period has ended and your company is not currently subscribed. Please subscribe to continue using Customermates, or contact our support team if you have any questions.",
-    "subtitle": "Your trial has expired",
+    "manualEnterpriseBillingDescription": "Your enterprise workspace is billed manually. Contact our support team to restore access, then retry.",
+    "retry": "Retry",
+    "selfServiceCheckoutDescription": "Your workspace no longer has an active subscription. Choose a plan to continue using Customermates, or contact our support team if you have any questions.",
+    "subtitle": "Workspace access is paused",
     "supportEmailSubject": "Subscription Inquiry",
     "title": "Subscription Required"
   },

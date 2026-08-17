@@ -113,7 +113,7 @@ These are the tools that the AI Overview for "customer communication management 
 
 This is the category most SMB buyers actually need. A CRM that handles contact records, deals, tasks, and communication, with templates, automation, and tracking, all in one tool, on one customer record.
 
-**Customermates.** Open source, AGPL licensed, cloud from 12 euros per user per month or free to self host via Docker. The angle relevant to this article: the native unified inbox (on the Pro tier at 29 euros) puts email, LinkedIn, WhatsApp, Instagram, and Telegram in one place inside the CRM, and the AI agents you already use (Claude, ChatGPT, Gemini) can read, draft, and send across every channel through a native MCP integration. For rule-based outbound, an n8n workflow node plus 26 webhook events drive any message you need: deal stage changes trigger emails, custom field updates trigger SMS via any provider you connect. The communication layer lives inside the CRM instead of scattered across tools. See [pricing](/pricing) for the breakdown.
+**Customermates.** Open source, AGPL licensed, cloud from [[commercial.price.starter.monthly]] per user per month or free to self host via Docker. The angle relevant to this article: the native unified inbox (on the Pro tier at [[commercial.price.pro.monthly]]) puts email, LinkedIn, WhatsApp, Instagram, and Telegram in one place inside the CRM, and the AI agents you already use (Claude, ChatGPT, Gemini) can read, draft, and send across every channel through a native MCP integration. For rule-based outbound, an n8n workflow node plus [[derived.webhooks.events.total]] webhook events drive any message you need: deal stage changes trigger emails, custom field updates trigger SMS via any provider you connect. The communication layer lives inside the CRM instead of scattered across tools. See [pricing](/pricing) for the breakdown.
 
 **Pipedrive.** From 14 dollars per user per month. Strong sales pipeline focus, built in email templates and tracking. The [comparison with Pipedrive](/compare/pipedrive-alternative) covers the trade offs.
 
@@ -123,21 +123,21 @@ This is the category most SMB buyers actually need. A CRM that handles contact r
 
 ## Comparison Table: Customer Communication Management Software by Use Case
 
-| Tool | Tier | Starting Price | Best For |
-|---|---|---|---|
-| Quadient Inspire | Enterprise CCM | Custom (100K+) | Insurance, banking, utilities |
-| OpenText Exstream | Enterprise CCM | Custom | Financial services, regulated industries |
-| Smart Communications | Enterprise CCM | Custom | Cloud native enterprise CCM |
-| Salesforce Service Cloud | Customer service | $25/user/month | Salesforce ecosystems |
-| Zendesk | Customer service | $19/agent/month | Support heavy organizations |
-| Intercom | Engagement | $29/seat/month | Product led, in app messaging |
-| Freshdesk | Customer service | $15/agent/month | Value option for SMB support |
-| Front | Engagement | $19/seat/month | Shared inbox, email heavy teams |
-| HubSpot Service Hub | Engagement | Free / $20/user | Marketing led teams |
-| Customermates | CRM with comms | EUR 29/user/month (Pro, unified inbox) | SMB sales and customer success, AI agent driven |
-| Pipedrive | CRM with comms | $14/user/month | Sales focused SMB |
-| HubSpot CRM | CRM with comms | Free / $20/user | All in one stack |
-| Salesflare | CRM with comms | $49/user/month | Auto data capture |
+| Tool                     | Tier             | Starting Price                                                   | Best For                                        |
+| ------------------------ | ---------------- | ---------------------------------------------------------------- | ----------------------------------------------- |
+| Quadient Inspire         | Enterprise CCM   | Custom (100K+)                                                   | Insurance, banking, utilities                   |
+| OpenText Exstream        | Enterprise CCM   | Custom                                                           | Financial services, regulated industries        |
+| Smart Communications     | Enterprise CCM   | Custom                                                           | Cloud native enterprise CCM                     |
+| Salesforce Service Cloud | Customer service | $25/user/month                                                   | Salesforce ecosystems                           |
+| Zendesk                  | Customer service | $19/agent/month                                                  | Support heavy organizations                     |
+| Intercom                 | Engagement       | $29/seat/month                                                   | Product led, in app messaging                   |
+| Freshdesk                | Customer service | $15/agent/month                                                  | Value option for SMB support                    |
+| Front                    | Engagement       | $19/seat/month                                                   | Shared inbox, email heavy teams                 |
+| HubSpot Service Hub      | Engagement       | Free / $20/user                                                  | Marketing led teams                             |
+| Customermates            | CRM with comms   | [[commercial.price.pro.monthly]]/user/month (Pro, unified inbox) | SMB sales and customer success, AI agent driven |
+| Pipedrive                | CRM with comms   | $14/user/month                                                   | Sales focused SMB                               |
+| HubSpot CRM              | CRM with comms   | Free / $20/user                                                  | All in one stack                                |
+| Salesflare               | CRM with comms   | $49/user/month                                                   | Auto data capture                               |
 
 ## Core Features to Evaluate in Customer Communication Management Software
 
@@ -169,9 +169,9 @@ Traditional CCM separates content (the template) from data (the customer record)
 
 When the customer record is exposed to an AI agent through MCP (model context protocol), the production line changes. The agent reads the customer record, reads the conversation history, drafts a personalized message, and writes it back to the CRM as a draft. A human reviews and sends. Templates become starting points, not constraints. The 80 percent of communications that are routine (follow ups, check ins, status updates) get drafted by the agent in seconds. The 20 percent that need human judgment still get human judgment.
 
-This is what the 45 [MCP tools](https://customermates.com/docs/concepts/mcp) in Customermates enable. An agent like Claude or ChatGPT reads the contact record, the deal history, the previous email thread, and drafts the next message in your voice. The CRM updates itself with the draft. You review, edit, and send. The communication layer collapses from "marketing builds template, sales pulls template, message sends" to "agent drafts, you review, message sends."
+This is what the [[derived.mcp.tools.total]] [MCP tools](https://customermates.com/docs/concepts/mcp) in Customermates enable. An agent like Claude or ChatGPT reads the contact record, the deal history, the previous email thread, and drafts the next message in your voice. The CRM updates itself with the draft. You review, edit, and send. The communication layer collapses from "marketing builds template, sales pulls template, message sends" to "agent drafts, you review, message sends."
 
-The pitch is not the mechanism. It is the outcome: messages get sent faster, more personally, with less effort. The CRM that updates itself is the headline. The 26 webhook events, covering every contact, organization, deal, service, and task change plus messaging and calendar activity, are the underlying plumbing.
+The pitch is not the mechanism. It is the outcome: messages get sent faster, more personally, with less effort. The CRM that updates itself is the headline. The [[derived.webhooks.events.total]] webhook events, covering every contact, organization, deal, service, and task change plus messaging and calendar activity, are the underlying plumbing.
 
 For the broader sales communication context, see [sales follow up email best practices](/blog/sales-follow-up-email).
 
@@ -195,7 +195,7 @@ For a deeper dive into stack decisions for sales teams, see the [CRM for sales](
 
 If you are a SaaS founder, an agency, or a sales team under 100 people, the practical customer communication management stack looks like this.
 
-**One CRM as the source of truth.** Contacts, organizations, deals, custom fields, tasks. Customermates fits here from 12 euros per user per month with the open source escape hatch.
+**One CRM as the source of truth.** Contacts, organizations, deals, custom fields, tasks. Customermates fits here from [[commercial.price.starter.monthly]] per user per month with the open source escape hatch.
 
 **One email provider integrated with the CRM.** Gmail or Outlook, with two way sync. Templates and tracking handled by the email provider plus n8n workflows on the automation side.
 
@@ -219,7 +219,7 @@ CRM stores the customer record: contacts, organizations, deals, activities, and 
 
 ### What is the best customer communication management software for small business?
 
-For small business, a CRM with built in communication features is usually a better fit than dedicated CCM software. Customermates from 12 euros per user per month (unified inbox on Pro at 29 euros), Pipedrive at 14 dollars per user per month, and HubSpot CRM (free tier) all cover sales and customer communication needs without the complexity or cost of enterprise CCM platforms like Quadient or OpenText.
+For small business, a CRM with built in communication features is usually a better fit than dedicated CCM software. Customermates from [[commercial.price.starter.monthly]] per user per month (unified inbox on Pro at [[commercial.price.pro.monthly]]), Pipedrive at 14 dollars per user per month, and HubSpot CRM (free tier) all cover sales and customer communication needs without the complexity or cost of enterprise CCM platforms like Quadient or OpenText.
 
 ### Is Salesforce a CCM software?
 
@@ -239,7 +239,7 @@ AI agents do not replace the underlying delivery infrastructure (the email provi
 
 ### Is open source customer communication management software available?
 
-Yes. Customermates is an open source CRM (AGPL 3.0) with built in communication features, n8n workflow integration, and 26 webhook events covering every record and messaging change. It is free to self host via Docker, with cloud tiers from 12 euros per user per month. For pure CCM in the document composition sense, open source options are limited because the category is dominated by enterprise vendors.
+Yes. Customermates is an open source CRM (AGPL 3.0) with built in communication features, n8n workflow integration, and [[derived.webhooks.events.total]] webhook events covering every record and messaging change. It is free to self host via Docker, with cloud tiers from [[commercial.price.starter.monthly]] per user per month. For pure CCM in the document composition sense, open source options are limited because the category is dominated by enterprise vendors.
 
 ## Conclusion
 
@@ -247,6 +247,6 @@ Customer communication management software is two markets pretending to be one. 
 
 If you are evaluating customer communication management software and you do not have a procurement department, you are probably looking at the wrong category. Buy a CRM that handles communication, connect it to your email and your workflow engine, and let an AI agent handle the personalization. The result is a stack that costs 30 to 50 euros per user per month and works the way a small team actually works.
 
-Customermates is built for that scale: open source, AGPL licensed, EU hosted, with the n8n node, 26 webhook events, and the MCP tools that let Claude or ChatGPT draft customer communications directly from the CRM. The data stays on EU infrastructure, the price starts at 12 euros per user per month, and the CRM updates itself rather than waiting for someone to type into it. See the [pricing](/pricing) page for the full breakdown.
+Customermates is built for that scale: open source, AGPL licensed, EU hosted, with the n8n node, [[derived.webhooks.events.total]] webhook events, and the MCP tools that let Claude or ChatGPT draft customer communications directly from the CRM. The hosted database runs in the EU region, the price starts at [[commercial.price.starter.monthly]] per user per month, and the CRM updates itself rather than waiting for someone to type into it. See the [pricing](/pricing) page for the full breakdown.
 
 Pick the leanest stack that does the job. The customer does not care which category you bought from. They care whether the message arrived on time, in the right channel, with the right context.

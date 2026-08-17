@@ -394,9 +394,9 @@ Loop in legal team
       "Deal Value By Organizations",
       "Sales Pipeline",
       "Total Deal Value",
-      "Deal Value By Type",
       "Deal Overview",
       "Organizations",
+      "Latest Activities",
     ]);
   });
 

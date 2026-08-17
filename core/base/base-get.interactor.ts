@@ -75,6 +75,7 @@ export abstract class BaseGetInteractor<T> {
     protected entityType: EntityType | undefined,
     protected defaultParams?: GetQueryParams,
     protected queryParamsPrecheck?: QueryParamsPrecheckInteractor,
+    protected queryParamsPrecheckFilterableFields?: FilterableField[],
   ) {}
 
   async invoke(params: GetQueryParams = {}): Validated<GetResult<T>> {
@@ -136,7 +137,16 @@ export abstract class BaseGetInteractor<T> {
       if (!precheck) throw new Error("api mode requires a queryParamsPrecheck");
 
       const checked = await runPrecheck({ filters, sortDescriptor }, (data, ctx) =>
-        precheck.invoke({ filterableFields, customColumns, sortableFields }, this.entityType, data, ctx),
+        precheck.invoke(
+          {
+            filterableFields: this.queryParamsPrecheckFilterableFields ?? filterableFields,
+            customColumns,
+            sortableFields,
+          },
+          this.entityType,
+          data,
+          ctx,
+        ),
       );
       if (!checked.ok) return { ok: false as const, error: checked.error };
     }

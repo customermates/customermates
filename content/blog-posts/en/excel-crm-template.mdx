@@ -45,23 +45,23 @@ For businesses with fewer than 100 to 200 contacts and one to two people managin
 
 The contacts sheet is your master database. Every person your business interacts with gets a row here.
 
-| Column | Field | Format | Validation |
-|--------|-------|--------|------------|
-| A | Contact ID | Number | Auto-increment: `=IF(B2="","",ROW()-1)` |
-| B | First Name | Text | Required |
-| C | Last Name | Text | Required |
-| D | Email | Text | Custom validation for @ symbol |
-| E | Phone | Text | - |
-| F | Company | Text | - |
-| G | Job Title | Text | - |
-| H | Contact Type | Dropdown | Lead, Customer, Partner, Vendor |
-| I | Source | Dropdown | Website, Referral, Trade Show, LinkedIn, Cold Outreach, Other |
-| J | Status | Dropdown | New, Contacted, Qualified, Customer, Inactive, Lost |
-| K | Owner | Dropdown | Your team members |
-| L | Date Added | Date | No future dates |
-| M | Last Contacted | Date | - |
-| N | Next Follow-Up | Date | - |
-| O | Notes | Text | - |
+| Column | Field          | Format   | Validation                                                    |
+| ------ | -------------- | -------- | ------------------------------------------------------------- |
+| A      | Contact ID     | Number   | Auto-increment: `=IF(B2="","",ROW()-1)`                       |
+| B      | First Name     | Text     | Required                                                      |
+| C      | Last Name      | Text     | Required                                                      |
+| D      | Email          | Text     | Custom validation for @ symbol                                |
+| E      | Phone          | Text     | -                                                             |
+| F      | Company        | Text     | -                                                             |
+| G      | Job Title      | Text     | -                                                             |
+| H      | Contact Type   | Dropdown | Lead, Customer, Partner, Vendor                               |
+| I      | Source         | Dropdown | Website, Referral, Trade Show, LinkedIn, Cold Outreach, Other |
+| J      | Status         | Dropdown | New, Contacted, Qualified, Customer, Inactive, Lost           |
+| K      | Owner          | Dropdown | Your team members                                             |
+| L      | Date Added     | Date     | No future dates                                               |
+| M      | Last Contacted | Date     | -                                                             |
+| N      | Next Follow-Up | Date     | -                                                             |
+| O      | Notes          | Text     | -                                                             |
 
 **Setup steps:**
 
@@ -76,20 +76,20 @@ The contacts sheet is your master database. Every person your business interacts
 
 Separate company information from contacts to avoid redundancy. Link contacts to companies through the Company column.
 
-| Column | Field | Format | Validation |
-|--------|-------|--------|------------|
-| A | Company ID | Number | Auto-increment |
-| B | Company Name | Text | Required |
-| C | Industry | Dropdown | Your relevant industries |
-| D | Website | Text | URL format |
-| E | Address | Text | - |
-| F | City | Text | - |
-| G | Country | Dropdown | Country list |
-| H | Size | Dropdown | 1-10, 11-50, 51-200, 201-1000, 1000+ |
-| I | Annual Revenue | Dropdown | Revenue ranges |
-| J | Account Owner | Dropdown | Your team members |
-| K | Date Added | Date | - |
-| L | Notes | Text | - |
+| Column | Field          | Format   | Validation                           |
+| ------ | -------------- | -------- | ------------------------------------ |
+| A      | Company ID     | Number   | Auto-increment                       |
+| B      | Company Name   | Text     | Required                             |
+| C      | Industry       | Dropdown | Your relevant industries             |
+| D      | Website        | Text     | URL format                           |
+| E      | Address        | Text     | -                                    |
+| F      | City           | Text     | -                                    |
+| G      | Country        | Dropdown | Country list                         |
+| H      | Size           | Dropdown | 1-10, 11-50, 51-200, 201-1000, 1000+ |
+| I      | Annual Revenue | Dropdown | Revenue ranges                       |
+| J      | Account Owner  | Dropdown | Your team members                    |
+| K      | Date Added     | Date     | -                                    |
+| L      | Notes          | Text     | -                                    |
 
 **Tip:** Always standardize company names. Decide on "GmbH" or "GmbH." and stick with it. Inconsistent names break VLOOKUP formulas and COUNTIF calculations.
 
@@ -97,23 +97,23 @@ Separate company information from contacts to avoid redundancy. Link contacts to
 
 The deals sheet tracks your sales opportunities through each stage.
 
-| Column | Field | Format | Validation |
-|--------|-------|--------|------------|
-| A | Deal ID | Number | Auto-increment |
-| B | Deal Name | Text | Required |
-| C | Company | Text | Reference to Companies sheet |
-| D | Contact | Text | Reference to Contacts sheet |
-| E | Deal Value | Currency | Number greater than 0 |
-| F | Stage | Dropdown | New Lead, Qualified, Meeting Scheduled, Proposal Sent, Negotiation, Closed Won, Closed Lost |
-| G | Probability | Percentage | 0 to 100 percent |
-| H | Weighted Value | Formula | `=IF(E2="","",E2*G2)` |
-| I | Created Date | Date | - |
-| J | Expected Close | Date | - |
-| K | Actual Close | Date | - |
-| L | Owner | Dropdown | Your team members |
-| M | Status | Dropdown | Open, Won, Lost |
-| N | Loss Reason | Dropdown | Price, Competitor, Timing, No Need, Other |
-| O | Notes | Text | - |
+| Column | Field          | Format     | Validation                                                                                  |
+| ------ | -------------- | ---------- | ------------------------------------------------------------------------------------------- |
+| A      | Deal ID        | Number     | Auto-increment                                                                              |
+| B      | Deal Name      | Text       | Required                                                                                    |
+| C      | Company        | Text       | Reference to Companies sheet                                                                |
+| D      | Contact        | Text       | Reference to Contacts sheet                                                                 |
+| E      | Deal Value     | Currency   | Number greater than 0                                                                       |
+| F      | Stage          | Dropdown   | New Lead, Qualified, Meeting Scheduled, Proposal Sent, Negotiation, Closed Won, Closed Lost |
+| G      | Probability    | Percentage | 0 to 100 percent                                                                            |
+| H      | Weighted Value | Formula    | `=IF(E2="","",E2*G2)`                                                                       |
+| I      | Created Date   | Date       | -                                                                                           |
+| J      | Expected Close | Date       | -                                                                                           |
+| K      | Actual Close   | Date       | -                                                                                           |
+| L      | Owner          | Dropdown   | Your team members                                                                           |
+| M      | Status         | Dropdown   | Open, Won, Lost                                                                             |
+| N      | Loss Reason    | Dropdown   | Price, Competitor, Timing, No Need, Other                                                   |
+| O      | Notes          | Text       | -                                                                                           |
 
 Apply conditional formatting to color-code the Stage column so each pipeline stage has a distinct color. This makes scanning the pipeline much faster.
 
@@ -121,20 +121,20 @@ Apply conditional formatting to color-code the Stage column so each pipeline sta
 
 Track every touchpoint with contacts and companies. This is the sheet most people skip but it is the most valuable for follow-up discipline.
 
-| Column | Field | Format | Validation |
-|--------|-------|--------|------------|
-| A | Activity ID | Number | Auto-increment |
-| B | Date | Date | Required |
-| C | Contact | Text | Reference to Contacts sheet |
-| D | Company | Text | Reference to Companies sheet |
-| E | Type | Dropdown | Call, Email, Meeting, Task, Note |
-| F | Subject | Text | Required |
-| G | Details | Text | - |
-| H | Outcome | Dropdown | Successful, No Answer, Postponed, Completed |
-| I | Next Step | Text | - |
-| J | Follow-Up Date | Date | - |
-| K | Follow-Up Done | Dropdown | Yes, No |
-| L | Deal Link | Text | Associated deal name |
+| Column | Field          | Format   | Validation                                  |
+| ------ | -------------- | -------- | ------------------------------------------- |
+| A      | Activity ID    | Number   | Auto-increment                              |
+| B      | Date           | Date     | Required                                    |
+| C      | Contact        | Text     | Reference to Contacts sheet                 |
+| D      | Company        | Text     | Reference to Companies sheet                |
+| E      | Type           | Dropdown | Call, Email, Meeting, Task, Note            |
+| F      | Subject        | Text     | Required                                    |
+| G      | Details        | Text     | -                                           |
+| H      | Outcome        | Dropdown | Successful, No Answer, Postponed, Completed |
+| I      | Next Step      | Text     | -                                           |
+| J      | Follow-Up Date | Date     | -                                           |
+| K      | Follow-Up Done | Dropdown | Yes, No                                     |
+| L      | Deal Link      | Text     | Associated deal name                        |
 
 **Conditional formatting rule:** Highlight rows where Follow-Up Date is before today and Follow-Up Done is No. This creates a simple but effective overdue task list.
 
@@ -145,36 +145,43 @@ The dashboard sheet summarizes your CRM data using formulas and charts. No VBA m
 **Key formulas:**
 
 **Total contacts:**
+
 ```
 =COUNTA(Contacts!B2:B10000)
 ```
 
 **Active deals:**
+
 ```
 =COUNTIF(Deals!M2:M10000,"Open")
 ```
 
 **Total pipeline value:**
+
 ```
 =SUMIF(Deals!M2:M10000,"Open",Deals!E2:E10000)
 ```
 
 **Weighted pipeline value:**
+
 ```
 =SUMPRODUCT((Deals!M2:M10000="Open")*(Deals!E2:E10000)*(Deals!G2:G10000))
 ```
 
 **Deals won this month:**
+
 ```
 =COUNTIFS(Deals!M2:M10000,"Won",Deals!K2:K10000,">="&DATE(YEAR(TODAY()),MONTH(TODAY()),1),Deals!K2:K10000,"<="&EOMONTH(TODAY(),0))
 ```
 
 **Win rate:**
+
 ```
 =COUNTIF(Deals!M2:M10000,"Won")/(COUNTIF(Deals!M2:M10000,"Won")+COUNTIF(Deals!M2:M10000,"Lost"))
 ```
 
 **Contacts added this month:**
+
 ```
 =COUNTIFS(Contacts!L2:L10000,">="&DATE(YEAR(TODAY()),MONTH(TODAY()),1),Contacts!L2:L10000,"<="&EOMONTH(TODAY(),0))
 ```
@@ -246,24 +253,24 @@ Spreadsheets offer no consent tracking, no structured process for data subject a
 
 ## Excel CRM vs Dedicated CRM: Side-by-Side Comparison
 
-| Capability | Excel CRM Template | Dedicated CRM (e.g. Customermates) |
-|------------|-------------------|--------------------------------------|
-| Cost | Free (with Microsoft 365) | From 12 EUR per user per month |
-| Setup time | 1 to 2 hours | 30 minutes to 1 day |
-| Contact limit | Slows at 5,000+ rows | Unlimited |
-| Multi-user editing | Conflict-prone | Real-time, no conflicts |
-| Mobile access | Impractical | Full mobile support |
-| Email integration | None | Built-in |
-| Automation | None (manual VBA only) | Workflows, reminders, n8n integration |
-| Pipeline visualization | Manual charts | Drag-and-drop Kanban board |
-| Reporting | Pivot tables | Built-in dashboards and analytics |
-| GDPR compliance | No built-in support | Audit logs, consent tracking, EU hosting |
-| Permissions | None (file-level only) | Role-based access control |
-| Data relationships | VLOOKUP (fragile) | Automatic linking across all records |
-| Audit trail | None | Full change history |
-| Integrations | None | API, webhooks, n8n automation |
-| Backup and recovery | Manual | Automatic |
-| Self-hosting option | N/A | Available (open source) |
+| Capability             | Excel CRM Template        | Dedicated CRM (e.g. Customermates)                           |
+| ---------------------- | ------------------------- | ------------------------------------------------------------ |
+| Cost                   | Free (with Microsoft 365) | From [[commercial.price.starter.monthly]] per user per month |
+| Setup time             | 1 to 2 hours              | 30 minutes to 1 day                                          |
+| Contact limit          | Slows at 5,000+ rows      | Unlimited                                                    |
+| Multi-user editing     | Conflict-prone            | Real-time, no conflicts                                      |
+| Mobile access          | Impractical               | Full mobile support                                          |
+| Email integration      | None                      | Built-in                                                     |
+| Automation             | None (manual VBA only)    | Workflows, reminders, n8n integration                        |
+| Pipeline visualization | Manual charts             | Drag-and-drop Kanban board                                   |
+| Reporting              | Pivot tables              | Built-in dashboards and analytics                            |
+| GDPR compliance        | No built-in support       | Audit logs, consent tracking, EU hosting                     |
+| Permissions            | None (file-level only)    | Role-based access control                                    |
+| Data relationships     | VLOOKUP (fragile)         | Automatic linking across all records                         |
+| Audit trail            | None                      | Full change history                                          |
+| Integrations           | None                      | API, webhooks, n8n automation                                |
+| Backup and recovery    | Manual                    | Automatic                                                    |
+| Self-hosting option    | N/A                       | Available (open source)                                      |
 
 ## When to Upgrade From Excel to a Real CRM
 
@@ -278,7 +285,7 @@ The transition from spreadsheet CRM to dedicated CRM software makes sense when a
 - You want to integrate email, calendar, or other tools
 - You have lost deals because follow-ups fell through the cracks
 
-If three or more items resonate, the cost of staying on Excel exceeds the cost of a CRM subscription. From 12 EUR per user per month with Customermates, the break-even point arrives within the first week of recovered productivity.
+If three or more items resonate, the cost of staying on Excel exceeds the cost of a CRM subscription. From [[commercial.price.starter.monthly]] per user per month with Customermates, the break-even point arrives within the first week of recovered productivity.
 
 ## How to Migrate From Your Excel CRM Template to a Dedicated CRM
 
@@ -307,7 +314,7 @@ Import in this sequence to preserve relationships:
 
 ### Step 4: Map Fields During Import
 
-Customermates supports full CSV import with automatic field mapping. During import you match your CSV column headers to CRM fields, preview the data, and confirm. Common column names like First Name, Email, and Company are recognized automatically.
+Customermates has no CSV importer or field-mapping screen; records are created through the REST API or by an external AI client over MCP. For migration, map CSV columns to CRM fields outside the product, verify the mapping, and then load supported records through REST or MCP. Align common columns such as First Name, Email, and Company directly.
 
 ### Step 5: Verify After Import
 
@@ -320,7 +327,7 @@ After import, spot-check 20 to 30 records:
 
 ### Step 6: Set Up Your First Automation
 
-Start with one simple automation: a follow-up reminder for deals that have had no activity in the last 7 days. The n8n integration in Customermates makes this possible in minutes without writing code. This single automation will immediately demonstrate the value over your Excel workflow.
+If you need a timed follow-up, run it in your own n8n instance or another scheduler. Keep the follow-up date in a custom field, read records through the API, and have the external workflow create a task or notification at the chosen time. Customermates does not host n8n or schedule reminders itself.
 
 ## Why Customermates Is the Natural Next Step After Excel
 
@@ -330,7 +337,7 @@ Customermates was built with the understanding that many businesses start in Exc
 - **Self-hostable**: Run Customermates on your own server or use the EU cloud
 - **GDPR-native**: Role-based access, audit logs, and EU hosting for businesses that take data privacy seriously
 - **n8n automation**: The workflow automation that Excel can never offer, without programming
-- **From 12 EUR per user per month**: The full core CRM included, no per-contact fees, no surprises
+- **From [[commercial.price.starter.monthly]] per user per month**: The full core CRM included, no per-contact fees, no surprises
 
 ## Frequently Asked Questions
 
@@ -352,7 +359,7 @@ Excel can technically store over one million rows, but performance degrades sign
 
 ### How Do I Migrate My Excel CRM Data to a Real CRM?
 
-Export each sheet as a CSV file, then import into your CRM in this order: companies, contacts, deals, activities. Most modern CRM platforms including Customermates support CSV import with field mapping. Clean your data (remove duplicates, standardize names) before exporting for the smoothest transition.
+Export each sheet as a CSV file, then import into your CRM in this order: companies, contacts, deals, activities. Most modern CRM platforms support CSV import with field mapping. Customermates does not; it migrates through the REST API or an AI agent over MCP. Clean your data (remove duplicates, standardize names) before exporting for the smoothest transition.
 
 ### Is Google Sheets Better Than Excel for a CRM Template?
 
@@ -362,4 +369,4 @@ Google Sheets offers better real-time collaboration and free access without Micr
 
 An Excel CRM template is a valid starting point for managing customer relationships. It teaches you which data matters, how your sales process flows, and what you actually need from a CRM system. That knowledge makes you a better buyer when you are ready to invest in dedicated software.
 
-Build the five-sheet template from this guide, follow the best practices for data hygiene, and migrate when the limitations start costing you more than the solution. With Customermates from 12 EUR per user per month, the upgrade from spreadsheet to professional CRM is a CSV export and import away.
+Build the five-sheet template from this guide, follow the best practices for data hygiene, and migrate when the limitations start costing you more than the solution. With Customermates from [[commercial.price.starter.monthly]] per user per month, the upgrade from spreadsheet to professional CRM is an API call or one agent session away.

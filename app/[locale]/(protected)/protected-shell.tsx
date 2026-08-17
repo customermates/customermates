@@ -25,6 +25,7 @@ import { TranslationSync } from "@/components/shared/translation-sync";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { CustomColumnModal } from "@/components/data-view/custom-columns/custom-column-modal";
 import { TimelineDetailModal } from "@/features/messaging/activities/activities-detail-modal";
+import { useProtectedEnhancementsAllowed } from "@/app/components/navigation/protected-enhancements-context";
 
 type Props = {
   agentChatEnabled: boolean;
@@ -33,11 +34,16 @@ type Props = {
 
 export function ProtectedShell({ agentChatEnabled, children }: Props) {
   const pathname = usePathname();
-  const { closeAllModals, globalSearchModalStore } = useRootStore();
+  const rootStore = useRootStore();
+  const { closeAllModals } = rootStore;
+  const protectedEnhancementsAllowed = useProtectedEnhancementsAllowed();
 
-  useEffect(() => closeAllModals(), [pathname, closeAllModals]);
+  useEffect(() => closeAllModals(), [pathname, closeAllModals, protectedEnhancementsAllowed]);
 
   useEffect(() => {
+    if (!protectedEnhancementsAllowed) return;
+    const { globalSearchModalStore } = rootStore;
+
     function handleKeyDown(event: KeyboardEvent) {
       if ((event.metaKey || event.ctrlKey) && event.key === "k") {
         event.preventDefault();
@@ -50,7 +56,7 @@ export function ProtectedShell({ agentChatEnabled, children }: Props) {
     return () => {
       document.removeEventListener("keydown", handleKeyDown, true);
     };
-  }, [globalSearchModalStore]);
+  }, [protectedEnhancementsAllowed, rootStore]);
 
   return (
     <>
@@ -58,43 +64,47 @@ export function ProtectedShell({ agentChatEnabled, children }: Props) {
 
       <Toaster />
 
-      <DeleteConfirmationModal />
-
-      <NavigationGuardModal />
-
       <LoadingOverlay />
 
       <UnexpectedErrorToaster />
 
       <TranslationSync />
 
-      <GlobalSearchModal />
+      {protectedEnhancementsAllowed ? (
+        <>
+          <DeleteConfirmationModal />
 
-      <CompanyUserModal />
+          <NavigationGuardModal />
 
-      <CompanyInviteModal />
+          <GlobalSearchModal />
 
-      <EntityDrawer />
+          <CompanyUserModal />
 
-      <FeedbackModal />
+          <CompanyInviteModal />
 
-      <CustomColumnModal />
+          <EntityDrawer />
 
-      <AuditLogModal />
+          <FeedbackModal />
 
-      <ApiKeyModal />
+          <CustomColumnModal />
 
-      <ConnectedAccountModal />
+          <AuditLogModal />
 
-      <ConnectUpsellModal />
+          <ApiKeyModal />
 
-      <TimelineDetailModal />
+          <ConnectedAccountModal />
 
-      <WebhookDeliveryModal />
+          <ConnectUpsellModal />
 
-      <WebhookModal />
+          <TimelineDetailModal />
 
-      {agentChatEnabled && <AgentChat />}
+          <WebhookDeliveryModal />
+
+          <WebhookModal />
+
+          {agentChatEnabled && <AgentChat />}
+        </>
+      ) : null}
     </>
   );
 }

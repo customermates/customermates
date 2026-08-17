@@ -316,9 +316,9 @@ const AgentChatPanel = observer(function AgentChatPanel() {
           </Button>
         </ActionTooltip>
 
-        <ActionTooltip label={t(store.isExpanded ? "Common.actions.collapse" : "Common.actions.expand")}>
+        <ActionTooltip label={store.isExpanded ? t("Common.actions.collapse") : t("Common.actions.expand")}>
           <Button
-            aria-label={t(store.isExpanded ? "Common.actions.collapse" : "Common.actions.expand")}
+            aria-label={store.isExpanded ? t("Common.actions.collapse") : t("Common.actions.expand")}
             className="size-8"
             size="icon"
             variant="ghost"
@@ -1167,7 +1167,7 @@ function CreditBlockedNotice({ usage }: { usage: AgentUsageSummary }) {
           else router.push("/company/subscription");
         }}
       >
-        {t(contact ? "AgentChat.credits.contact" : "AgentChat.credits.viewPlans")}
+        {contact ? t("AgentChat.credits.contact") : t("AgentChat.credits.viewPlans")}
       </Button>
     </div>
   );

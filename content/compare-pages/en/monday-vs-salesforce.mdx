@@ -7,12 +7,12 @@ competitor: monday
 competitor2: salesforce
 hero:
   title: "Monday vs Salesforce: There Is a Better Way"
-  description: Monday CRM offers visual simplicity. Salesforce offers enterprise depth. Compare both to Customermates, the open-source CRM that balances usability with functionality, transparent tiers from €12/user/month.
+  description: Monday CRM offers visual simplicity. Salesforce offers enterprise depth. Compare both to Customermates, the open-source CRM that balances usability with functionality, transparent tiers from [[commercial.price.starter.monthly]]/user/month.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: ✓ No credit card required ✓ First 7 days free
+  hint: ✓ No credit card required ✓ First [[commercial.trial.days]] days free
 comparison:
   competitorName: Monday CRM
   competitor2Name: Salesforce
@@ -25,15 +25,15 @@ comparison:
       competitor: hours (DIY templates)
       competitor2: weeks to months
     - name: Starting price
-      source: From €12 / month / user
+      source: From [[commercial.price.starter.monthly]] / month / user
       competitor: $12/seat/month (3-seat min)
       competitor2: $25/user/month Starter
     - name: Mid-tier price
-      source: €29 / month / user (Pro)
+      source: "[[commercial.price.pro.monthly]] / month / user (Pro)"
       competitor: $17/seat Standard
       competitor2: $100/user Pro Suite
     - name: Enterprise price
-      source: €69 / month / user (Business)
+      source: "[[commercial.price.business.monthly]] / month / user (Business)"
       competitor: custom
       competitor2: $175/user Enterprise
     - name: Free start
@@ -79,7 +79,7 @@ comparison:
       competitor: email via integrations
       competitor2: email; social via add-ons
     - name: AI agents operate the CRM (native MCP)
-      source: 45 MCP tools (Claude, ChatGPT, Gemini)
+      source: "[[derived.mcp.tools.total]] MCP tools (Claude, ChatGPT, Gemini)"
       competitor: Monday AI (beta)
       competitor2: Einstein / Agentforce (paid add-on)
     - name: Open source
@@ -88,12 +88,12 @@ comparison:
       competitor2: 'no'
   - title: Data protection & security
     features:
-    - name: GDPR compliant
-      source: true
+    - name: GDPR documentation
+      source: DPA + SCCs; no certification
       competitor: partially
       competitor2: partially
     - name: Hosting
-      source: EU / Germany
+      source: EU database region
       competitor: USA (AWS)
       competitor2: global / USA
     - name: Self-hosting available
@@ -129,10 +129,10 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: ✓ No credit card required ✓ First 7 days free
+  hint: ✓ No credit card required ✓ First [[commercial.trial.days]] days free
 ---
 
-> Monday CRM and Salesforce sit at opposite ends of the CRM spectrum. Monday is the visual, approachable option, a project management platform with CRM features added, labeled an "AI-first CRM" though many AI features remain in beta. Salesforce is the enterprise standard, deep, configurable, and complex, with Einstein AI and the new Agentforce for autonomous task handling. Teams comparing these two are usually deciding between simplicity and power. Customermates offers what both miss, built on two ideas: AI agents (Claude, ChatGPT, Gemini) operate the CRM directly through a native MCP integration (45 tools), and a native unified inbox handles email, LinkedIn, WhatsApp, Instagram, and Telegram in one place the same agents can work. Dedicated CRM with real depth, modern usability, and transparent tiers from €12/user/month.
+> Monday CRM and Salesforce sit at opposite ends of the CRM spectrum. Monday is the visual, approachable option, a project management platform with CRM features added, labeled an "AI-first CRM" though many AI features remain in beta. Salesforce is the enterprise standard, deep, configurable, and complex, with Einstein AI and the new Agentforce for autonomous task handling. Teams comparing these two are usually deciding between simplicity and power. Customermates offers what both miss, built on two ideas: AI agents (Claude, ChatGPT, Gemini) operate the CRM directly through a native MCP integration ([[derived.mcp.tools.total]] tools), and a native unified inbox handles email, LinkedIn, WhatsApp, Instagram, and Telegram in one place the same agents can work. Dedicated CRM with real depth, modern usability, and transparent tiers from [[commercial.price.starter.monthly]]/user/month.
 
 ## Is Monday CRM better than Salesforce?
 
@@ -140,7 +140,7 @@ For small teams and solo users who need fast, visual deal tracking, yes. Monday 
 
 For mid-market and enterprise teams with complex sales processes, no. Salesforce offers account hierarchies, territory management, CPQ, advanced forecasting, industry-specific clouds, and Flow Builder automation that Monday cannot match. G2 rates it 4.4/5 (25,000+ reviews), reflecting its dominance in enterprise sales.
 
-The real question is whether you need either extreme. Most growing teams need more CRM depth than Monday provides but far less complexity than Salesforce demands. Customermates occupies that middle ground: full core CRM functionality, modern interface, and pricing from €12/user/month with no implementation costs.
+The real question is whether you need either extreme. Most growing teams need more CRM depth than Monday provides but far less complexity than Salesforce demands. Customermates occupies that middle ground: full core CRM functionality, modern interface, and pricing from [[commercial.price.starter.monthly]]/user/month with no implementation costs.
 
 ## The fundamental trade-off
 
@@ -148,7 +148,7 @@ Monday CRM trades CRM depth for ease of use. You get visual pipelines, drag-and-
 
 Salesforce trades usability for capability. It covers every CRM use case imaginable, territory management, CPQ, partner portals, advanced forecasting, industry-specific clouds. Einstein AI provides assistive insights and email drafting, while Agentforce handles autonomous task execution. But implementation requires specialized knowledge, often a dedicated admin, and months of configuration. The learning curve is steep for non-technical users, and most small to mid-sized teams never use more than 20% of its features while paying for 100%.
 
-Customermates is purpose-built CRM that balances both sides. Full core CRM functionality on Starter, contacts, organizations, deals, pipelines, tasks, services, native AI integration, n8n automation, plus AI agents that operate the CRM through native MCP and a unified inbox across email, LinkedIn, WhatsApp, Instagram, and Telegram from Pro, without the configuration overhead of Salesforce or the CRM limitations of Monday.
+Customermates is purpose-built CRM that balances both sides. Full core CRM functionality on Starter, contacts, organizations, deals, pipelines, tasks, services, MCP access for external AI clients, n8n automation, plus AI agents that operate the CRM through native MCP and a unified inbox across email, LinkedIn, WhatsApp, Instagram, and Telegram from Pro, without the configuration overhead of Salesforce or the CRM limitations of Monday.
 
 ## Setup and onboarding
 
@@ -162,21 +162,22 @@ Customermates is purpose-built CRM that balances both sides. Full core CRM funct
 
 Yes, significantly. Monday CRM starts at $12/seat/month (Basic, billed annually), while Salesforce starts at $25/user/month (Starter). At the mid-tier level, Monday Standard costs $17/seat versus Salesforce Pro Suite at $100/user. For a 10-person team:
 
-| Plan level | Monday CRM | Salesforce | Customermates |
-|---|---|---|---|
-| Entry tier | $120/month | $250/month | €120/month (Starter) |
-| Mid tier | $170/month | $1,000/month | €290/month (Pro) |
-| Advanced tier | $280/month | $1,750/month | €690/month (Business) |
-| Implementation | $0 | $10,000-$50,000 | €0 |
-| Annual admin cost | $0 | $5,000-$15,000 | €0 |
+| Plan level        | Monday CRM | Salesforce      | Customermates                                                   |
+| ----------------- | ---------- | --------------- | --------------------------------------------------------------- |
+| Entry tier        | $120/month | $250/month      | [[commercial.price.starter.monthly.seats.10]]/month (Starter)   |
+| Mid tier          | $170/month | $1,000/month    | [[commercial.price.pro.monthly.seats.10]]/month (Pro)           |
+| Advanced tier     | $280/month | $1,750/month    | [[commercial.price.business.monthly.seats.10]]/month (Business) |
+| Implementation    | $0         | $10,000-$50,000 | €0                                                              |
+| Annual admin cost | $0         | $5,000-$15,000  | €0                                                              |
 
 Monday CRM is 60-85% cheaper than Salesforce on license fees alone. But the cost comparison misses the functionality gap. Monday's lower price buys less CRM capability, basic deal and lead management appear only on higher tiers, reporting is limited to one dashboard for entry users, and forecasting requires Pro or above.
 
-Customermates is cheaper than both while providing complete core CRM functionality on every tier. Starter is €12/user/month for the full CRM, no implementation costs, no ongoing admin fees.
+Customermates is cheaper than both while providing complete core CRM functionality on every tier. Starter is [[commercial.price.starter.monthly]]/user/month for the full CRM, no implementation costs, no ongoing admin fees.
 
 ## Pricing breakdown (2026)
 
 **Monday CRM** (per seat, 3-seat minimum):
+
 - Basic: $12/seat/month, boards, contacts, limited deal management
 - Standard: $17/seat/month, email integration, 250 automations/month
 - Pro: $28/seat/month, advanced analytics, forecasting, 25,000 automations/month
@@ -185,6 +186,7 @@ Customermates is cheaper than both while providing complete core CRM functionali
 A 10-person team on Pro pays $280/month. The 3-seat minimum means even small teams start at $36-$84/month.
 
 **Salesforce** (per user, billed annually):
+
 - Starter: $25/user/month, basic CRM, limited customization
 - Pro Suite: $100/user/month, pipeline management, forecasting
 - Enterprise: $175/user/month, advanced customization, workflow automation
@@ -192,7 +194,7 @@ A 10-person team on Pro pays $280/month. The 3-seat minimum means even small tea
 
 A 10-person team on Pro Suite pays $1,000/month before implementation costs. Add-ons like CPQ, Einstein AI (for advanced features), and additional storage increase the total. AppExchange plugins add further costs, for example, the Docusign connector costs $45/user/month.
 
-**Customermates**: from €12/user/month (Starter) for every core CRM feature. A 10-person team pays €120/month. No seat minimums, no implementation costs, no add-on pricing; Pro (€29) and Business (€69) add the unified inbox across email, LinkedIn, WhatsApp, Instagram, and Telegram, plus more connected accounts.
+**Customermates**: from [[commercial.price.starter.monthly]]/user/month (Starter) for every core CRM feature. A 10-person team pays [[commercial.price.starter.monthly.seats.10]]/month. No seat minimums, no implementation costs, no add-on pricing; Pro ([[commercial.price.pro.monthly]]) and Business ([[commercial.price.business.monthly]]) add the unified inbox across email, LinkedIn, WhatsApp, Instagram, and Telegram, plus more connected accounts.
 
 ## AI capabilities comparison
 
@@ -200,7 +202,7 @@ A 10-person team on Pro Suite pays $1,000/month before implementation costs. Add
 
 **Salesforce Einstein** provides AI-powered lead scoring, opportunity insights, forecasting, and email drafting. Agentforce Sales extends this with autonomous task handling, scheduling follow-ups, updating records, and suggesting next actions. These capabilities are powerful but require Enterprise tier ($175/user) or paid add-ons. Configuration demands specialist knowledge.
 
-**Customermates** was built so external AI agents operate the CRM directly through native MCP (45 tools): Claude, ChatGPT, or Gemini move deal stages, draft follow-ups, and keep contact notes current. External MCP access is available at every tier; the hosted in-app Assistant uses each plan's published monthly credit allowance and needs no specialist configuration.
+**Customermates** was built so AI agents operate the CRM directly through a native MCP integration ([[derived.mcp.tools.total]] tools): Claude, ChatGPT, or Gemini move deal stages, draft follow-ups, and keep contact notes current, and from Pro the same agents work a unified inbox across email, LinkedIn, WhatsApp, Instagram, and Telegram. MCP access for external AI clients is included at every tier, starting at [[commercial.price.starter.monthly]]/user/month, with the monthly hosted AI allowance scaling by tier and no specialist configuration required.
 
 ## Feature comparison by use case
 
@@ -208,11 +210,11 @@ A 10-person team on Pro Suite pays $1,000/month before implementation costs. Add
 
 **Contact and organization management**: Salesforce excels with accounts, contacts, hierarchies, and relationship mapping. Monday CRM stores contacts as board items without organizational depth. Customermates offers full contact and organization management as native objects.
 
-**Sales automation**: Salesforce Flow Builder is powerful but requires admin expertise. Monday automations are visual and easy to create but quota-limited (250-25,000/month). Customermates includes n8n automation with no caps and access to thousands of integrations.
+**Sales automation**: Salesforce Flow Builder is powerful but requires admin expertise. Monday automations are visual and easy to create but quota-limited (250-25,000/month). Customermates works with n8n automation with no caps and access to thousands of integrations.
 
 **Reporting and analytics**: Salesforce reporting is comprehensive but complex to configure. Monday offers dashboards that are visually appealing but analytically limited, entry users get only one dashboard. Customermates provides built-in reporting at the base price.
 
-**Scalability**: Salesforce scales to thousands of users with role hierarchies, territory management, and multi-currency support. Monday CRM scales linearly by cost but not by CRM capability. Customermates scales by adding users at the same tier price, starting at €12/each, with no core feature degradation.
+**Scalability**: Salesforce scales to thousands of users with role hierarchies, territory management, and multi-currency support. Monday CRM scales linearly by cost but not by CRM capability. Customermates scales by adding users at the same tier price, starting at [[commercial.price.starter.monthly]]/each, with no core feature degradation.
 
 ## Data protection and hosting
 
@@ -228,11 +230,11 @@ Customermates hosts exclusively in the EU (Germany) and is GDPR/DSGVO compliant 
 
 **Choose Salesforce** if you are a large enterprise (100+ sales users) with complex sales processes, need industry-specific solutions, require advanced forecasting and territory management, and have budget for implementation and ongoing administration.
 
-**Choose Customermates** if you want dedicated CRM with real functionality, not a project management overlay or an enterprise platform. It is the right choice for teams of 1 to 100 who need contacts, deals, automation, native AI integration, and EU data protection at a predictable price.
+**Choose Customermates** if you want dedicated CRM with real functionality, not a project management overlay or an enterprise platform. It is the right choice for teams of 1 to 100 who need contacts, deals, automation, MCP access for external AI clients, and EU data protection at a predictable price.
 
 ## Conclusion
 
-Monday CRM and Salesforce represent opposite extremes: too simple or too complex for most growing teams. Monday gives you visual pipelines and fast setup but limits CRM depth and caps automation. Salesforce gives you everything but demands enterprise budgets, specialized administrators, and months of implementation. Customermates occupies the space between them, complete core CRM functionality, modern interface, from €12/user/month, EU-hosted, and open-source. For teams that need more than a board and less than an enterprise platform, it is the direct choice.
+Monday CRM and Salesforce represent opposite extremes: too simple or too complex for most growing teams. Monday gives you visual pipelines and fast setup but limits CRM depth and caps automation. Salesforce gives you everything but demands enterprise budgets, specialized administrators, and months of implementation. Customermates occupies the space between them, complete core CRM functionality, modern interface, from [[commercial.price.starter.monthly]]/user/month, EU-hosted, and open-source. For teams that need more than a board and less than an enterprise platform, it is the direct choice.
 
 ### Related Comparisons
 

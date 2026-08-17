@@ -1,16 +1,16 @@
 ---
 title: "CRM Reporting: Dashboards & Analytics"
-description: "CRM reporting with configurable dashboard charts over your pipeline, deals, and activity. AI agents keep the data clean and answer questions on demand. Open-source, EU-hosted."
+description: "CRM reporting with configurable dashboard charts over your pipeline, deals, and activity. External AI clients can query supported data through MCP. Open-source, with a managed database in an EU region."
 featureName: CRM Reporting
 
 hero:
   title: CRM Reporting That Gives You Answers, Not Just Data
-  description: Build dashboards from configurable chart widgets over your pipeline, deals, and activity. AI agents keep the underlying data current and answer questions on demand, so your numbers are trustworthy without a separate BI tool.
+  description: Build dashboards from configurable chart widgets over your pipeline, deals, and activity. Supported external AI clients can query permitted CRM data through MCP, while the client and model remain separate.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First 7 days free"
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
   action: Ready to turn your CRM data into decisions?
@@ -19,7 +19,7 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First 7 days free"
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
 ## What Is CRM Reporting?
@@ -46,19 +46,19 @@ Not every team needs the same reports, but these five cover the fundamentals tha
 
 ## How CRM Reporting Works in Customermates
 
-Customermates gives you reporting through configurable dashboard widgets over your CRM data, without a separate BI tool. Two things make the numbers trustworthy: AI agents keep the underlying records current, and every widget updates live as data changes.
+Customermates gives you reporting through configurable dashboard widgets over your CRM data, without a separate BI tool. Widgets update as supported records change; an external AI client can query permitted data through MCP.
 
-**AI keeps the data trustworthy, and answers questions.** A report is only as good as its data. Because AI agents (Claude, ChatGPT, Gemini) do the entry through the native MCP integration, contacts, deal stages, and notes stay current, so your dashboards reflect reality. You can also ask an agent for any figure ("how much is in the Proposal stage?", "which source closed the most last month?") and it queries the CRM directly, no widget setup required.
+**External AI clients can update and query CRM data.** Supported clients such as Claude, ChatGPT, or Gemini can use MCP to update allowed contacts, deal fields, and notes or query permitted records. Customermates includes no AI chat or model; client subscription, model usage, and provider handling remain external.
 
 **Pipeline dashboards.** Build a dashboard of chart widgets (bar, doughnut, or radar) that show deal distribution across stages and pipeline value by stage. Widgets update automatically as deals progress, so you always see the current state of your business.
 
 **Revenue and deal charts.** Chart won and lost deals by sales representative, lead source, organization, or any custom field, over the date range you filter. Identify which channels deliver the highest-value deals.
 
-**Task and activity charts.** Chart tasks by status, assignee, or due date to see the effort behind the outcomes. Compare activity patterns across the team to spot coaching opportunities early.
+**Task and activity charts.** Chart tasks by assignee, linked record, or customer-defined custom fields to see the effort behind outcomes. Native tasks have no due or status fields; those values must be modeled in custom fields.
 
 **Filter and segment by any field.** Every widget can be filtered and segmented by any standard or custom field. Want pipeline value for a specific region? Filter by your custom region field. Need to compare one quarter against another? Set the date range. The filtering is flexible enough to answer the specific questions your business asks.
 
-**Per-user dashboards.** Each user builds their own dashboard. A sales rep tracks their own pipeline and tasks; a manager builds a team-wide view; an owner watches high-level pipeline health. Your dashboard shows exactly what you configure.
+**Per-user dashboards.** Each user builds a personal dashboard. A sales rep tracks a pipeline and tasks; a manager configures their own broader view over permitted records. Dashboard configurations are personal, not shared team-wide objects.
 
 ## Reporting Best Practices
 
@@ -70,7 +70,7 @@ Getting reporting right is not just about having the tools. It is about building
 
 **Standardize definitions.** Make sure every team member agrees on what counts as a qualified deal, when a deal moves to the next stage, and how activities are logged. Inconsistent data entry produces unreliable reports. Clear definitions are the foundation of trustworthy analytics.
 
-**Automate report delivery.** Use n8n automation to deliver reports proactively. Schedule weekly pipeline summaries to Slack, trigger alerts when pipeline value drops below a threshold, or send automated performance digests to team leads every Monday morning. Reporting becomes a living system that pushes information to the people who need it.
+**Automate report delivery externally.** A separate n8n instance can schedule pipeline summaries through Slack or another provider, evaluate customer-defined thresholds, and deliver performance digests. Customermates does not bundle n8n, Slack, a scheduler, or an alert engine.
 
 **Act on the data.** The best reporting system in the world is worthless if the insights do not lead to action. Every report review should end with specific next steps: deals to follow up on, processes to adjust, coaching conversations to have, or resources to reallocate.
 
@@ -78,28 +78,28 @@ Getting reporting right is not just about having the tools. It is about building
 
 **Weekly pipeline reviews.** Start each week with a clear picture of your pipeline. Review total value by stage, identify deals that have been stagnant too long, and prioritize follow-ups based on deal age and value. The dashboard gives your team a shared starting point for planning the week.
 
-**Monthly performance tracking.** Compare month-over-month metrics for deals won, revenue closed, conversion rates, and average deal cycle time. Track progress against targets and identify trends before they become problems.
+**Monthly performance tracking.** Review supported deal counts and values month over month in personal dashboards. Conversion rates, cycle time, targets, and cross-user performance require customer-defined fields or calculations in a separate reporting system.
 
-**Lead source analysis.** Understand which lead sources deliver the best results. Compare conversion rates and deal values across sources to allocate your marketing budget more effectively. If referrals close at twice the rate of cold outreach, your reporting will make that clear.
+**Lead source analysis.** Store lead source in a custom field and chart supported deal counts or values by source. Calculate source conversion rates and attribution in a separate reporting system when your analysis requires derived metrics.
 
 **Forecasting and planning.** Use pipeline data and historical conversion rates to forecast future revenue. Chart pipeline value by stage, and apply your own win probabilities (as a custom field or an n8n calculation) to get a realistic view of expected income from your current deals.
 
-**Sales coaching insights.** Compare individual activity and performance metrics to identify specific areas for development. If one representative has high activity but low conversion, the data points toward skill coaching. If another has strong conversion but low activity, the data points toward motivation or time management.
+**Sales coaching inputs.** Use supported records and customer-defined fields as inputs for coaching. Cross-user performance comparisons, conversion rates, targets, and cycle metrics require a separate calculation or reporting system.
 
 ## Why Choose Customermates for CRM Reporting
 
-**No separate BI tool required.** Many CRM platforms force you to export data to a third-party tool for meaningful analysis, adding cost and complexity. Customermates includes reporting natively, so insights are available without additional software or integration work.
+**Native dashboards for stored CRM data.** Personal dashboard widgets can visualize supported counts, values, and groupings without a separate BI tool. Derived metrics such as conversion rates, cycle time, attribution, or cross-user performance require fields or calculations maintained in a separate reporting system.
 
 **Open source and transparent.** Your reporting runs on code you can inspect and extend. There are no black-box algorithms or hidden data transformations between your raw data and your reports.
 
-**EU-hosted and GDPR-compliant.** All reporting data stays in European data centers with full GDPR and DSGVO compliance. Analyze customer data with confidence that your reporting infrastructure meets European data protection standards.
+**EU database region with documented providers.** Reporting reads the managed database, which runs in an EU region. Application hosting and other providers may process data elsewhere; this deployment fact is not a GDPR or other compliance certification.
 
-**Simple, fair pricing.** CRM reporting is included from EUR 12 per user per month (Starter tier). Dashboard chart widgets, filters, and native AI/MCP access are included at every tier. No per-report charges, and you can add as many widgets as you need.
+**Simple, fair pricing.** CRM reporting is included from [[commercial.price.starter.monthly]] per user per month (Starter tier). Dashboard chart widgets, filters, and MCP access for external AI clients are included at every tier. No per-report charges, and you can add as many widgets as you need.
 
-**n8n automation for proactive reporting.** Combine reporting with n8n automation to schedule digests, trigger alerts, and deliver insights without manual effort. Reporting becomes a system that works for you, not one you have to remember to check.
+**Separate n8n for proactive reporting.** Connect your own n8n instance through documented interfaces to schedule digests, evaluate thresholds, and ask external providers to deliver alerts. The n8n runtime, provider accounts, limits, logs, and costs remain external.
 
-**Self-hostable for full control.** Deploy Customermates on your own infrastructure and keep all reporting data on your servers. Self-hosting ensures that sensitive business intelligence never leaves your environment.
+**Self-hostable application and database.** Deploy the Customermates application and PostgreSQL database on your own infrastructure. External AI, workflow, and delivery providers still receive any data your configuration sends; self-hosting is not a compliance certification.
 
 ## Get Started with CRM Reporting Today
 
-Setting up reporting in Customermates takes no special configuration. As your team logs deals, contacts, and activities, dashboards and reports populate automatically. Sign up for a free account, start entering your data, and watch your business insights come to life from day one.
+Setting up CRM reporting starts with personal dashboard widgets over permitted records. As your team records deals, contacts, and activities, configured widgets update with supported data. Create an account, add the fields your process needs, and build the views that answer your business questions.

@@ -25,7 +25,7 @@ export class McpConsentStore extends BaseStore {
 
     const result = await decideMcpConsentAction({ consentCode, accept }).catch(() => null);
 
-    if (result?.redirectURI) return result.redirectURI;
+    if (result?.ok && result.data?.redirectURI) return result.data.redirectURI;
 
     this.toastError("McpConsentCard.error");
     runInAction(() => {

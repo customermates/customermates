@@ -1,6 +1,6 @@
 import { Resource } from "@/generated/prisma";
 
-import { AuditLogsCard } from "../components/audit-log/audit-logs-card";
+import { AuditLogsPageView } from "../components/audit-log/audit-logs-page-view";
 
 import { getGetAuditLogsInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
@@ -27,7 +27,7 @@ export default async function CompanyAuditLogsPage({ searchParams }: Props) {
 
   return (
     <PageContainer padded={false}>
-      <AuditLogsCard initialAuditLogs={auditLogs} />
+      <AuditLogsPageView initialAuditLogs={auditLogs} />
     </PageContainer>
   );
 }

@@ -10,7 +10,7 @@ hero:
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
-  hint: ✓ Keine Kreditkarte benötigt ✓ Erste 7 Tage kostenlos
+  hint: ✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos
 
 comparison:
   competitorName: GoHighLevel
@@ -22,13 +22,13 @@ comparison:
         source: 2 Minuten
         competitor: Stunden bis Tage
       - name: Kosten
-        source: Ab 12 € / User / Monat
+        source: Ab [[commercial.price.starter.monthly]] / User / Monat
         competitor: $97 bis $497 / Monat (pauschal)
       - name: Preismodell
         source: Pro User
         competitor: Pro Agentur / Sub-Account-Stufe
       - name: Kostenloser Start
-        source: 7 Tage Pro
+        source: "[[commercial.trial.days]] Tage Pro"
         competitor: Nur 14-Tage-Test
       - name: Kreditkarte nötig
         source: false
@@ -57,7 +57,7 @@ comparison:
         source: 10 Feldtypen
         competitor: Eingeschränkt
       - name: Nativer Unified Inbox (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram)
-        source: Ab Pro (29 €)
+        source: Ab Pro ([[commercial.price.pro.monthly]])
         competitor: Ja (SMS, E-Mail, FB/IG, WhatsApp)
       - name: Mobil optimiert
         source: true
@@ -77,12 +77,12 @@ comparison:
         source: false
         competitor: true
       - name: White-Label SaaS-Modus
-        source: White-Label (Enterprise, nur CRM)
+        source: White-Label (vertraglich, nicht gebaut)
         competitor: true (Agency Pro)
   - title: KI & Automatisierung
     features:
-      - name: Native KI-Agent-Integration (MCP)
-        source: 45 MCP-Tools
+      - name: Externe KI-Clients via MCP
+        source: "[[derived.mcp.tools.total]] MCP-Tools"
         competitor: false
       - name: Claude / ChatGPT bedient das CRM
         source: true
@@ -91,7 +91,7 @@ comparison:
         source: true
         competitor: false
       - name: Webhook-Events
-        source: 26 Events (15 Datensatz + 11 Messaging)
+        source: "[[derived.webhooks.events.total]] Events ([[derived.webhooks.events.records]] Datensatz + [[derived.webhooks.events.messaging]] Messaging)"
         competitor: Eingeschränkt
       - name: REST-API
         source: Vollständig, OpenAPI 3.1
@@ -101,11 +101,11 @@ comparison:
         competitor: true
   - title: Datenschutz & Hosting
     features:
-      - name: DSGVO-konform
-        source: true
+      - name: DSGVO-Dokumentation
+        source: AVV + SCCs; keine Zertifizierung
         competitor: Eingeschränkt
       - name: Hosting-Region
-        source: EU / Deutschland
+        source: EU-Datenbankregion
         competitor: Nur USA
       - name: Datensouveränität
         source: true
@@ -121,10 +121,10 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
-  hint: ✓ Keine Kreditkarte benötigt ✓ Erste 7 Tage kostenlos
+  hint: ✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos
 ---
 
-> GoHighLevel (auch HighLevel genannt) ist eine All-in-One-Plattform für Vertrieb und Marketing, die primär für Agenturen gebaut wurde. Sie bündelt ein CRM mit Funnels, SMS-Marketing, E-Mail-Automatisierung, Terminbuchung und einem White-Label-Reseller-Modus. Customermates ist ein fokussiertes Open-Source-CRM mit zwei prägenden Features: KI-Agenten bedienen das CRM direkt über 45 [MCP](/features/api)-Tools (plus einen [n8n](/features/workflow-automation)-Community-Node und 26 Webhook-Events, 15 Datensatz und 11 Messaging), und ein nativer Unified Inbox bringt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram an einem Ort zusammen, bedienbar durch dieselben Agenten. Diese Seite stellt beide gegenüber, damit Sie entscheiden können, welches Tool zu Ihrem Bedarf passt.
+> GoHighLevel (auch HighLevel genannt) ist eine All-in-One-Plattform für Vertrieb und Marketing, die primär für Agenturen gebaut wurde. Sie bündelt ein CRM mit Funnels, SMS-Marketing, E-Mail-Automatisierung, Terminbuchung und einem White-Label-Reseller-Modus. Customermates ist ein fokussiertes Open-Source-CRM mit zwei prägenden Features: KI-Agenten bedienen das CRM direkt über [[derived.mcp.tools.total]] [MCP](/features/api)-Tools (plus einen [n8n](/features/workflow-automation)-Community-Node und [[derived.webhooks.events.total]] Webhook-Events, [[derived.webhooks.events.records]] Datensatz und [[derived.webhooks.events.messaging]] Messaging), und ein nativer Unified Inbox bringt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram an einem Ort zusammen, bedienbar durch dieselben Agenten. Diese Seite stellt beide gegenüber, damit Sie entscheiden können, welches Tool zu Ihrem Bedarf passt.
 
 ## Was ist GoHighLevel?
 
@@ -134,21 +134,21 @@ Für eine Agentur, die einen einzigen Anbieter für alles möchte, ist das prakt
 
 ## Was ist Customermates?
 
-Customermates ist ein CRM, das sich selbst aktualisiert, wenn Sie bereits [Claude](/blog/chatgpt-summarize-notes), ChatGPT oder Codex nutzen. Die Pipeline bewegt sich, Follow-ups werden entworfen und Kontaktnotizen bleiben aktuell, weil die KI tippt. Dazu kommt ein nativer Unified Inbox (E-Mail, LinkedIn, WhatsApp, Instagram und Telegram an einem Ort) ab Pro, den dieselben Agenten bedienen können. Unter dieser Outcome-Schicht steckt ein moderner Pipedrive-Ersatz: Kontakte, Unternehmen, Deals, Aufgaben, Services, zwei Ansichten (Tabelle und Kanban), zehn Custom-Field-Typen und eine vollständige REST-API. Open Source unter AGPL-3.0, kostenlos selbst hostbar via Docker, in der Cloud EU-gehostet ab 12 € pro User pro Monat (10 € im Jahres-Starter-Plan), mit MCP-Server, REST-API und n8n-Automatisierung in jeder Stufe.
+Customermates ist ein CRM, das sich selbst aktualisiert, wenn Sie bereits [Claude](/blog/chatgpt-summarize-notes), ChatGPT oder Codex nutzen. Die Pipeline bewegt sich, Follow-ups werden entworfen und Kontaktnotizen bleiben aktuell, weil die KI tippt. Dazu kommt ein nativer Unified Inbox (E-Mail, LinkedIn, WhatsApp, Instagram und Telegram an einem Ort) ab Pro, den dieselben Agenten bedienen können. Unter dieser Outcome-Schicht steckt ein moderner Pipedrive-Ersatz: Kontakte, Unternehmen, Deals, Aufgaben, Services, zwei Ansichten (Tabelle und Kanban), zehn Custom-Field-Typen und eine vollständige REST-API. Open Source unter AGPL-3.0, kostenlos selbst hostbar via Docker, in der Cloud EU-gehostet ab [[commercial.price.starter.monthly]] pro User pro Monat, mit MCP-Server, REST-API und n8n-Automatisierung in jeder Stufe.
 
-Der Mechanismus, der die KI-Integration real macht: ein eingebauter MCP-Server mit 45 Tools, ein n8n-Community-Node, 26 Webhook-Events (15 Datensatz + 11 Messaging) und die OpenAPI-3.1-Spezifikation unter `/api/v1/openapi`. Sie müssen nichts davon nutzen, aber es ist der Grund, warum der Agenten-Winkel echt ist und nicht Marketing.
+Der Mechanismus, der die KI-Integration real macht: ein eingebauter MCP-Server mit [[derived.mcp.tools.total]] Tools, ein n8n-Community-Node, [[derived.webhooks.events.total]] Webhook-Events ([[derived.webhooks.events.records]] Datensatz + [[derived.webhooks.events.messaging]] Messaging) und die OpenAPI-3.1-Spezifikation unter `/api/v1/openapi`. Sie müssen nichts davon nutzen, aber es ist der Grund, warum der Agenten-Winkel echt ist und nicht Marketing.
 
 ## Preisvergleich
 
-| Plan | GoHighLevel | Customermates |
-|---|---|---|
-| Einstieg | Starter, $97/Monat pauschal (3 Sub-Accounts) | Starter, 10 €/User/Monat (jährlich, oder 12 € monatlich) |
-| Mittel | Unlimited, $297/Monat pauschal | Pro, 24 €/User/Monat (jährlich, oder 29 € monatlich), ergänzt den Unified Inbox |
-| Top | Agency Pro, $497/Monat (SaaS-Modus) | Enterprise, individuell |
-| Kostenloser Start | 14 Tage Test, Kreditkarte nötig | 7 Tage Pro, keine Kreditkarte |
-| Self-Hosting | Nicht verfügbar | Kostenlos, Docker Compose |
+| Plan              | GoHighLevel                                  | Customermates                                                               |
+| ----------------- | -------------------------------------------- | --------------------------------------------------------------------------- |
+| Einstieg          | Starter, $97/Monat pauschal (3 Sub-Accounts) | Starter, [[commercial.price.starter.monthly]]/User/Monat                    |
+| Mittel            | Unlimited, $297/Monat pauschal               | Pro, [[commercial.price.pro.monthly]]/User/Monat, ergänzt den Unified Inbox |
+| Top               | Agency Pro, $497/Monat (SaaS-Modus)          | Enterprise, individuell                                                     |
+| Kostenloser Start | 14 Tage Test, Kreditkarte nötig              | [[commercial.trial.days]] Tage Pro, keine Kreditkarte                       |
+| Self-Hosting      | Nicht verfügbar                              | Kostenlos, Docker Compose                                                   |
 
-GoHighLevel rechnet pauschal pro Agentur ab. Das wirkt attraktiv, sobald Sie viele Sub-Accounts haben. Für ein kleines Team ohne Sub-Accounts heißt $97 im Monat etwa $19 pro User auf fünf Personen, und die meisten Funktionen bleiben ungenutzt. Customermates rechnet pro User ab, also zahlt ein Fünfer-Team 60 € im Monat im Starter-Tarif und ein Fünfzehner-Team 180 €, mit jeder CRM-Kernfunktion inklusive und ohne Sub-Account-Sperren.
+GoHighLevel rechnet pauschal pro Agentur ab. Das wirkt attraktiv, sobald Sie viele Sub-Accounts haben. Für ein kleines Team ohne Sub-Accounts heißt $97 im Monat etwa $19 pro User auf fünf Personen, und die meisten Funktionen bleiben ungenutzt. Customermates rechnet pro User ab, also zahlt ein Fünfer-Team [[commercial.price.starter.monthly.seats.5]] im Monat im Starter-Tarif und ein Fünfzehner-Team [[commercial.price.starter.monthly.seats.15]], mit jeder CRM-Kernfunktion inklusive und ohne Sub-Account-Sperren.
 
 ## Setup und Onboarding
 
@@ -168,7 +168,7 @@ Customermates ist CRM-first. Die fünf Entitätstypen (Kontakte, Unternehmen, De
 
 GoHighLevel hat KI-Funktionen über kostenpflichtige Add-ons eingeführt (Conversation AI, Voice AI, AI Employee). Sie sind auf Marketing-Anwendungsfälle fokussiert: Chatbots für Lead-Erfassung, KI-getriebene Terminbuchung, KI-Rebill-Margen im SaaS-Modus. Nützlich, aber außerhalb des Basispreises.
 
-Customermates wurde von Anfang an so gebaut, dass es von KI-Agenten bedient wird. Der MCP-Server stellt 45 Tools bereit, die jede CRM-Operation abdecken: Deals anlegen, Notizen aktualisieren, Entitäten verknüpfen, Custom Columns konfigurieren, Filter ausführen. Wer Claude oder Codex hat, richtet `/api/v1/mcp` mit dem API-Key ein, und das Modell liest und schreibt direkt in das CRM. Dieselbe Schicht treibt einen [nativen n8n-Community-Node](/blog/n8n-for-beginners-build-your-first-workflow) und 26 Webhook-Events (15 Datensatz + 11 Messaging), sodass KI-Workflows in n8n synchron bleiben, ohne pollen zu müssen.
+Customermates wurde von Anfang an so gebaut, dass es von KI-Agenten bedient wird. Der MCP-Server stellt [[derived.mcp.tools.total]] Tools bereit, die jede CRM-Operation abdecken: Deals anlegen, Notizen aktualisieren, Entitäten verknüpfen, Custom Columns konfigurieren, Filter ausführen. Wer Claude oder Codex hat, richtet `/api/v1/mcp` mit dem API-Key ein, und das Modell liest und schreibt direkt in das CRM. Dieselbe Schicht treibt einen [nativen n8n-Community-Node](/blog/n8n-for-beginners-build-your-first-workflow) und [[derived.webhooks.events.total]] Webhook-Events ([[derived.webhooks.events.records]] Datensatz + [[derived.webhooks.events.messaging]] Messaging), sodass KI-Workflows in n8n synchron bleiben, ohne pollen zu müssen.
 
 Das ist der Unterschied zwischen „KI als kostenpflichtiges Add-on dazugesteckt" und „Das CRM ist so gebaut, dass die KI es bedient". Letzteres heißt, dass Kontaktnotizen, Pipeline-Updates und Follow-up-Entwürfe vollständig keine menschliche Arbeit mehr sein müssen.
 
@@ -176,13 +176,13 @@ Das ist der Unterschied zwischen „KI als kostenpflichtiges Add-on dazugesteckt
 
 GoHighLevel ist Closed-Source und in den USA gehostet. Es gibt keinen Self-Hosting-Pfad. Ihre Daten leben auf deren Infrastruktur unter US-Datenrecht. Migration weg von der Plattform heißt: exportieren, was geht, und neu aufbauen, was nicht geht.
 
-Customermates steht unter [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). Der vollständige Quellcode liegt auf [GitHub](https://github.com/customermates/customermates). Self-Hosting via `docker compose up -d` startet drei Container (App auf Port 4000, PostgreSQL 16, Webhook-Worker). Die Cloud-Version steht in Deutschland, DSGVO-nativ. Falls das Projekt jemals stoppt, gehören Ihnen die Daten und der Code immer noch.
+Customermates steht unter [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). Der vollständige Quellcode liegt auf [GitHub](https://github.com/customermates/customermates). Das mitgelieferte `docker compose up -d` startet zwei Dienste: die Anwendung auf Port 4000 und PostgreSQL 16. Hintergrundjobs laufen im Anwendungsprozess; einen separaten Webhook-Worker-Container gibt es nicht. Beim verwalteten Dienst liegt die Anwendungsdatenbank in einer EU-Region; offengelegte Unterauftragsverarbeiter und internationale Übermittlungen gelten weiterhin. Beim Self-Hosting kontrolliert der Betreiber Datenbank und Bereitstellung.
 
 ## Wann GoHighLevel die bessere Wahl ist
 
 Wer eine Marketing-Agentur betreibt, die Services an Kleinunternehmens-Kunden weiterverkauft, und einen einzigen Anbieter für Abrechnung, Schulung und Wartung will, bekommt mit GoHighLevel etwas, das in dieser Disziplin wirklich gut ist. Der White-Label-SaaS-Modus (Agency-Pro-Plan, $497/Monat) erlaubt gebrandete Sub-Accounts pro Kunde, ohne etwas selbst zu bauen. Die Funnels, SMS und das Call-Routing sind echte Funktionen.
 
-Wenn das Ihr Geschäft ist, ist Customermates heute nicht Ihr Tool. Customermates bietet White-Label zwar als Teil seines [Enterprise-Tarifs](/pricing) für Agenturen, die ein gehostetes CRM unter eigener Marke und Domain betreiben wollen, aber das ist nur CRM, nicht der komplette Marketing-Stack.
+Wenn das Ihr Geschäft ist, ist Customermates heute nicht Ihr Tool. White-Label steht im Customermates-[Enterprise-Tarif](/pricing) als vertraglich vereinbarter Punkt, im Produkt ist heute aber kein Reseller-Branding implementiert, es lässt sich also nicht einfach einschalten.
 
 ## Wann Customermates die bessere Wahl ist
 
@@ -192,7 +192,7 @@ Es ist auch die richtige Wahl, wenn Datensouveränität wichtig ist: Open Source
 
 ## Fazit
 
-GoHighLevel ist eine Marketing-Plattform mit eingebautem CRM. Sie verdient ihre $97 bis $497 im Monat, wenn eine Agentur die Funnels, SMS, Kalender und den SaaS-Modus tatsächlich nutzt. Für ein kleines Team, das einfach nur ein CRM will, ist sie überdimensioniert und teuer. Customermates liefert fokussiertes, quelloffenes CRM ab 12 € pro User pro Monat, mit echter KI-Agent-Integration über 45 MCP-Tools, einem nativen Unified Inbox über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram, einem n8n-Community-Node, EU-Hosting und Self-Hosting via Docker. Wenn Ihr Hebel „Das CRM aktualisiert sich selbst, weil ich Claude bereits nutze" ist, dann ist Customermates dafür gebaut.
+GoHighLevel ist eine Marketing-Plattform mit eingebautem CRM. Sie verdient ihre $97 bis $497 im Monat, wenn eine Agentur die Funnels, SMS, Kalender und den SaaS-Modus tatsächlich nutzt. Für ein kleines Team, das einfach nur ein CRM will, ist sie überdimensioniert und teuer. Customermates liefert fokussiertes, quelloffenes CRM ab [[commercial.price.starter.monthly]] pro User pro Monat, mit echter KI-Agent-Integration über [[derived.mcp.tools.total]] MCP-Tools, einem nativen Unified Inbox über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram, einem n8n-Community-Node, EU-Hosting und Self-Hosting via Docker. Wenn Ihr Hebel „Das CRM aktualisiert sich selbst, weil ich Claude bereits nutze" ist, dann ist Customermates dafür gebaut.
 
 ## Häufig gestellte Fragen
 
@@ -206,7 +206,7 @@ Der Starter-Plan kostet $97/Monat (3 Sub-Accounts), Unlimited $297/Monat (unbegr
 Marketing-Agenturen, die Marketing-Services an Kleinunternehmens-Kunden weiterverkaufen und einen einzigen Anbieter für Funnels, SMS, Kalender, E-Mail und CRM wollen. Für kleine Teams ohne Sub-Accounts oder Marketing-Stack ist die Plattform überdimensioniert.
 
 **Ist GoHighLevel kostenlos?**
-Nein. Der günstigste Plan startet bei $97/Monat. Es gibt einen 14-tägigen kostenlosen Test, aber eine Kreditkarte ist nötig. Customermates bietet einen 7-tägigen Pro-Test ohne Kreditkarte und ist als Open Source unter AGPL-3.0 kostenlos selbst hostbar.
+Nein. Der günstigste Plan startet bei $97/Monat. Es gibt einen 14-tägigen kostenlosen Test, aber eine Kreditkarte ist nötig. Customermates bietet einen [[commercial.trial.days]]-tägigen Pro-Test ohne Kreditkarte und ist als Open Source unter AGPL-3.0 kostenlos selbst hostbar.
 
 **Kann ich Claude oder ChatGPT nutzen, um GoHighLevel zu bedienen?**
-Nicht direkt. GoHighLevel hat KI-Features als kostenpflichtige Add-ons, aber keinen MCP-Server, also können externe Agenten wie Claude oder Codex das CRM nicht strukturiert lesen oder schreiben. Customermates legt 45 MCP-Tools offen, die jede CRM-Operation abdecken, sodass jeder MCP-kompatible Agent das CRM direkt bedienen kann.
+Nicht direkt. GoHighLevel hat KI-Features als kostenpflichtige Add-ons, aber keinen MCP-Server, also können externe Agenten wie Claude oder Codex das CRM nicht strukturiert lesen oder schreiben. Customermates legt [[derived.mcp.tools.total]] MCP-Tools offen, die jede CRM-Operation abdecken, sodass jeder MCP-kompatible Agent das CRM direkt bedienen kann.

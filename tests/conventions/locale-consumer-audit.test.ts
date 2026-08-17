@@ -389,6 +389,13 @@ function hardCodedLocaleComparisonsInSource(source: string, repoPath: string): s
   return found;
 }
 
+const ALLOWED_LOCALE_BRANCHING = new Map([
+  [
+    "core/commercial/commercial-tokens.ts",
+    "Build-time MDX token expansion picks one of two literals; content locales are the two the tokens ship in.",
+  ],
+]);
+
 const ALLOWED_LOCALE_KEYED_TABLES = new Map([
   ["scripts/audit-i18n.ts", "The translation glossary is reference data for auditing catalogs, never rendered copy."],
 ]);
@@ -557,7 +564,9 @@ describe("locale consumer audit", () => {
   });
 
   it.skipIf(!ENFORCED)("branches on no language prefix and narrows to no two-locale literal", () => {
-    const found = scanProductionSources(localeBranchingInSource);
+    const found = scanProductionSources(localeBranchingInSource).filter(
+      (site) => !ALLOWED_LOCALE_BRANCHING.has(site.split(":")[0]),
+    );
     expect(
       found,
       `language-prefix branching (resolve the locale through the registry and keep every app locale reachable):\n${found.join("\n")}`,

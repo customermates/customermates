@@ -5,94 +5,18 @@ import {
   listSubscriptionItems,
   updateSubscriptionItem,
 } from "@lemonsqueezy/lemonsqueezy.js";
-import { SubscriptionStatus, SubscriptionPlan } from "@/generated/prisma";
+import { SubscriptionStatus } from "@/generated/prisma";
 
-import type { Subscription } from "@/generated/prisma";
+import type { Subscription, SubscriptionPlan } from "@/generated/prisma";
 
 import { z } from "zod";
 
 import { env } from "@/env";
-import { assertValidDate } from "@/core/utils/date";
+import { CLOUD_TRIAL, type CommercialOffer } from "@/core/commercial/plan-catalog";
 
-export function variantToPlan(variantId: string): SubscriptionPlan | null {
-  if (variantId === env.LEMONSQUEEZY_VARIANT_ID_STARTER) return SubscriptionPlan.starter;
-  if (variantId === env.LEMONSQUEEZY_VARIANT_ID_BUSINESS) return SubscriptionPlan.business;
-  if (variantId === env.LEMONSQUEEZY_VARIANT_ID_PRO) return SubscriptionPlan.pro;
-  return null;
-}
-
-export function planToVariant(plan: SubscriptionPlan): string {
-  const variantId = {
-    [SubscriptionPlan.starter]: env.LEMONSQUEEZY_VARIANT_ID_STARTER,
-    [SubscriptionPlan.pro]: env.LEMONSQUEEZY_VARIANT_ID_PRO,
-    [SubscriptionPlan.business]: env.LEMONSQUEEZY_VARIANT_ID_BUSINESS,
-    [SubscriptionPlan.enterprise]: undefined,
-  }[plan];
-
-  if (!variantId) throw new Error(`No LemonSqueezy variant configured for plan ${plan}`);
-
-  return variantId;
-}
-
-export function lemonSqueezyStatusToSubscriptionStatus(lemonSqueezyStatus: string): SubscriptionStatus {
-  switch (lemonSqueezyStatus) {
-    case "active":
-      return SubscriptionStatus.active;
-    case "on_trial":
-      return SubscriptionStatus.trial;
-    case "cancelled":
-      return SubscriptionStatus.cancelled;
-    case "expired":
-    case "paused":
-      return SubscriptionStatus.expired;
-    case "past_due":
-      return SubscriptionStatus.pastDue;
-    case "unpaid":
-      return SubscriptionStatus.unPaid;
-    default:
-      return SubscriptionStatus.expired;
-  }
-}
-
-export function deriveAgentCreditAnchorFromLemonSqueezy(input: {
-  billingAnchor: number;
-  renewsAt: Date;
-  providerUpdatedAt: Date;
-  now: Date;
-}): Date {
-  if (!Number.isInteger(input.billingAnchor) || input.billingAnchor < 1 || input.billingAnchor > 31)
-    throw new Error("Lemon Squeezy billing anchor must be a day from 1 to 31");
-  assertValidDate(input.renewsAt, "Lemon Squeezy renewal date");
-  assertValidDate(input.providerUpdatedAt, "Lemon Squeezy update date");
-  assertValidDate(input.now, "Subscription sync time");
-
-  const referenceAt = new Date(Math.min(input.providerUpdatedAt.getTime(), input.now.getTime()));
-
-  for (let monthOffset = 0; monthOffset < 24; monthOffset += 1) {
-    const month = new Date(Date.UTC(referenceAt.getUTCFullYear(), referenceAt.getUTCMonth() - monthOffset, 1));
-    const daysInMonth = new Date(Date.UTC(month.getUTCFullYear(), month.getUTCMonth() + 1, 0)).getUTCDate();
-    if (input.billingAnchor > daysInMonth) continue;
-
-    const candidate = new Date(
-      Date.UTC(
-        month.getUTCFullYear(),
-        month.getUTCMonth(),
-        input.billingAnchor,
-        input.renewsAt.getUTCHours(),
-        input.renewsAt.getUTCMinutes(),
-        input.renewsAt.getUTCSeconds(),
-        input.renewsAt.getUTCMilliseconds(),
-      ),
-    );
-    if (candidate.getTime() <= referenceAt.getTime()) return candidate;
-  }
-
-  throw new Error("Could not derive a non-future Lemon Squeezy billing anchor");
-}
+import { offerToVariant, variantToOffer } from "./lemon-squeezy-bindings";
 
 export abstract class SubscriptionRepo {
-  abstract withSubscriptionCompanyLockUnscoped<T>(companyId: string, fn: () => Promise<T>): Promise<T>;
-
   abstract getSubscriptionOrThrowUnscoped(companyId: string): Promise<Subscription>;
 
   abstract upsertSubscriptionUnscoped(data: {
@@ -121,7 +45,7 @@ export class SubscriptionService {
   }
 
   async createCheckoutOrThrow(options: {
-    variantId: string;
+    offer: CommercialOffer;
     quantity: number;
     custom?: Record<string, unknown>;
     redirectUrl?: string;
@@ -130,21 +54,30 @@ export class SubscriptionService {
 
     const storeId = env.LEMONSQUEEZY_STORE_ID;
     if (!storeId) throw new Error("LEMONSQUEEZY_STORE_ID is not configured");
+    const variantId = offerToVariant(options.offer);
 
-    const result = await createCheckout(storeId, options.variantId, {
+    const result = await createCheckout(storeId, variantId, {
       checkoutData: {
         custom: options.custom,
-        variantQuantities: [{ variantId: Number(options.variantId), quantity: options.quantity }],
+        variantQuantities: [{ variantId: Number(variantId), quantity: options.quantity }],
       },
       productOptions: {
         redirectUrl: options.redirectUrl,
+        enabledVariants: [Number(variantId)],
+      },
+      checkoutOptions: {
+        skipTrial: CLOUD_TRIAL.owner === "application",
       },
     });
 
     if (result.error) throw new Error(result.error.message || "Failed to create checkout");
 
     return z
-      .looseObject({ data: z.looseObject({ attributes: z.looseObject({ url: z.string().min(1) }) }) })
+      .looseObject({
+        data: z.looseObject({
+          attributes: z.looseObject({ url: z.string().min(1) }),
+        }),
+      })
       .parse(result.data);
   }
 
@@ -161,12 +94,10 @@ export class SubscriptionService {
           id: z.string().min(1),
           attributes: z.looseObject({
             status: z.enum(["on_trial", "active", "paused", "past_due", "unpaid", "cancelled", "expired"]),
-            billing_anchor: z.number().int().min(1).max(31),
-            renews_at: z.iso.datetime(),
+            renews_at: z.string().nullish(),
             ends_at: z.string().nullish(),
             trial_ends_at: z.string().nullish(),
             variant_id: z.number().nullish(),
-            updated_at: z.iso.datetime(),
             first_subscription_item: z.looseObject({ quantity: z.number().nullish() }).nullish(),
             urls: z.looseObject({ customer_portal: z.string().nullish() }).nullish(),
           }),
@@ -187,49 +118,31 @@ export class SubscriptionService {
     const subscription = await this.getSubscriptionOrThrowUnscoped(subscriptionId);
 
     const attributes = subscription.data.attributes;
-    const status = lemonSqueezyStatusToSubscriptionStatus(attributes.status);
-    const renewsAt = new Date(attributes.renews_at);
+    const status = this.mapLemonSqueezyStatusToSubscriptionStatus(attributes.status);
+    const renewsAt = attributes.renews_at ? new Date(attributes.renews_at) : undefined;
     const endsAt = attributes.ends_at ? new Date(attributes.ends_at) : undefined;
     const trialEndsAt = attributes.trial_ends_at ? new Date(attributes.trial_ends_at) : undefined;
     const quantity = attributes.first_subscription_item?.quantity ?? undefined;
     const variantId = attributes.variant_id?.toString();
 
-    return this.subscriptionRepo.withSubscriptionCompanyLockUnscoped(resolvedCompanyId, async () => {
-      const existing = await this.subscriptionRepo.getSubscriptionOrThrowUnscoped(resolvedCompanyId);
-      const syncedPlan = variantId ? variantToPlan(variantId) : null;
-      const trialToPaid = existing.status === SubscriptionStatus.trial && status === SubscriptionStatus.active;
-      const syncedAt = new Date();
-      const existingAnchorIsUsable =
-        existing.agentCreditAnchorAt instanceof Date &&
-        Number.isFinite(existing.agentCreditAnchorAt.getTime()) &&
-        existing.agentCreditAnchorAt.getTime() <= syncedAt.getTime();
-      const shouldDerivePaidAnchor = status === SubscriptionStatus.active && (trialToPaid || !existingAnchorIsUsable);
-      const agentCreditAnchorAt = shouldDerivePaidAnchor
-        ? deriveAgentCreditAnchorFromLemonSqueezy({
-            billingAnchor: attributes.billing_anchor,
-            renewsAt,
-            providerUpdatedAt: new Date(attributes.updated_at),
-            now: syncedAt,
-          })
-        : (existing.agentCreditAnchorAt ?? existing.createdAt);
+    const existing = await this.subscriptionRepo.getSubscriptionOrThrowUnscoped(resolvedCompanyId);
+    const syncedPlan = variantId ? (variantToOffer(variantId)?.plan ?? null) : null;
 
-      await this.subscriptionRepo.upsertSubscriptionUnscoped({
-        companyId: resolvedCompanyId,
-        lemonSqueezyId: subscription.data.id,
-        lemonSqueezyVariantId: variantId,
-        status,
-        plan: syncedPlan ?? existing.plan,
-        quantity,
-        trialEndDate: trialEndsAt,
-        currentPeriodEnd: renewsAt || endsAt,
-        agentCreditAnchorAt,
-      });
-
-      return {
-        companyId: resolvedCompanyId,
-        changedPlan: syncedPlan !== null && syncedPlan !== existing.plan ? syncedPlan : null,
-      };
+    await this.subscriptionRepo.upsertSubscriptionUnscoped({
+      companyId: resolvedCompanyId,
+      lemonSqueezyId: subscription.data.id,
+      lemonSqueezyVariantId: variantId,
+      status,
+      plan: syncedPlan ?? existing.plan,
+      quantity,
+      trialEndDate: trialEndsAt,
+      currentPeriodEnd: renewsAt || endsAt,
     });
+
+    return {
+      companyId: resolvedCompanyId,
+      changedPlan: syncedPlan !== null && syncedPlan !== existing.plan ? syncedPlan : null,
+    };
   }
 
   async updateSubscriptionQuantityOrThrow(subscriptionId: string, quantity: number): Promise<void> {
@@ -243,16 +156,39 @@ export class SubscriptionService {
       throw new Error(subscriptionItemsResult.error.message || "Failed to list subscription items");
 
     const items = z
-      .looseObject({ data: z.array(z.looseObject({ id: z.union([z.number(), z.string()]) })) })
+      .looseObject({
+        data: z.array(z.looseObject({ id: z.union([z.number(), z.string()]) })),
+      })
       .parse(subscriptionItemsResult.data).data;
 
     if (items.length === 0) throw new Error("No subscription items found");
 
     const subscriptionItem = items[0];
 
-    const updateResult = await updateSubscriptionItem(subscriptionItem.id, { quantity });
+    const updateResult = await updateSubscriptionItem(subscriptionItem.id, {
+      quantity,
+    });
 
     if (updateResult.error) throw new Error(updateResult.error.message || "Failed to update subscription quantity");
+  }
+
+  private mapLemonSqueezyStatusToSubscriptionStatus(lemonSqueezyStatus: string): SubscriptionStatus {
+    switch (lemonSqueezyStatus) {
+      case "active":
+        return SubscriptionStatus.active;
+      case "on_trial":
+        return SubscriptionStatus.trial;
+      case "cancelled":
+        return SubscriptionStatus.cancelled;
+      case "expired":
+        return SubscriptionStatus.expired;
+      case "past_due":
+        return SubscriptionStatus.pastDue;
+      case "unpaid":
+        return SubscriptionStatus.unPaid;
+      default:
+        return SubscriptionStatus.trial;
+    }
   }
 
   private ensureConfigured(): void {

@@ -13,6 +13,7 @@ import type { CountActiveUsersRepo } from "./count-active-users.repo";
 import type { SendTrialExtensionOfferActionRepo } from "@/ee/lifecycle/send-trial-extension-offer.interactor";
 import type { SendTrialInactivationReminderActionRepo } from "@/ee/lifecycle/send-trial-inactivation-reminder.interactor";
 import type { DeactivateTrialUsersAndSendNoticeRepo } from "@/ee/lifecycle/deactivate-trial-users-and-send-notice.interactor";
+import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
 import type { DeactivateUsersAfterSubscriptionGracePeriodRepo } from "@/ee/lifecycle/deactivate-users-after-subscription-grace-period.interactor";
 import type { WebhookUserRepo } from "@/ee/messaging/webhooks/account/account-webhook.repo";
 import type { SendLegalDocumentNoticesRepo } from "@/ee/lifecycle/send-legal-document-notices.interactor";
@@ -200,8 +201,8 @@ export class PrismaUserRepo
 
     const users = await this.prisma.user.findMany({
       where: {
-        id: { in: Array.from(ids) },
         ...this.accessWhere("user"),
+        AND: [{ id: { in: Array.from(ids) } }],
       },
       select: { id: true },
     });
@@ -212,8 +213,8 @@ export class PrismaUserRepo
   async getUserById(id: string) {
     const user = await this.prisma.user.findFirst({
       where: {
-        id,
         ...this.accessWhere("user"),
+        AND: [{ id }],
       },
       select: this.userSelect,
     });
@@ -332,7 +333,7 @@ export class PrismaUserRepo
     });
 
     const trialEndDate = new Date();
-    trialEndDate.setDate(trialEndDate.getDate() + 7);
+    trialEndDate.setDate(trialEndDate.getDate() + CLOUD_TRIAL.days);
 
     await this.prisma.subscription.create({
       data:
@@ -340,6 +341,7 @@ export class PrismaUserRepo
           ? {
               companyId: company.id,
               status: SubscriptionStatus.trial,
+              plan: CLOUD_TRIAL.plan,
               trialEndDate,
               agentCreditAnchorAt: new Date(),
             }

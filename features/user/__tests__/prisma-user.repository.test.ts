@@ -3,18 +3,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CustomColumnType, EntityType, Status } from "@/generated/prisma";
 
 import { CHIP_COLORS } from "@/constants/chip-colors";
+import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
 
 const customColumnCreate = vi.fn().mockResolvedValue({ id: "column-1" });
-const transactionUserUpdate = vi.fn().mockResolvedValue({ id: "user-1" });
-const transactionClient = {
-  $executeRaw: vi.fn().mockResolvedValue(0),
-  user: { update: transactionUserUpdate },
-};
 
 const prismaMock = {
-  $transaction: vi.fn(async (callback: (tx: typeof transactionClient) => Promise<unknown>) =>
-    callback(transactionClient),
-  ),
   user: {
     findFirst: vi.fn().mockResolvedValue(null),
     findMany: vi.fn().mockResolvedValue([]),
@@ -33,6 +26,13 @@ vi.mock("next-intl/server", () => ({
 }));
 vi.mock("@/core/decorators/transaction.decorator", () => ({
   Transaction: () => undefined,
+}));
+vi.mock("@/env", () => ({
+  env: {
+    APP_MODE: "cloud",
+    AUTH_GOOGLE_ID: undefined,
+    AUTH_MICROSOFT_ENTRA_ID_ID: undefined,
+  },
 }));
 
 const { PrismaUserRepo } = await import("../prisma-user.repository");
@@ -101,31 +101,18 @@ describe("PrismaUserRepo.createCompanyAndUser", () => {
     expect(prismaMock.user.create).toHaveBeenCalledTimes(1);
     expect(customColumnCreate).toHaveBeenCalledTimes(3);
   });
-});
 
-describe("PrismaUserRepo.deactivateUserOrThrow", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+  it("creates the catalog-owned Pro cloud trial", async () => {
+    const before = new Date();
+    before.setDate(before.getDate() + CLOUD_TRIAL.days);
+    await new PrismaUserRepo().createCompanyAndUser(registerArgs);
+    const after = new Date();
+    after.setDate(after.getDate() + CLOUD_TRIAL.days);
 
-  it("takes the hosted-AI company lock before deactivating the seat", async () => {
-    const companyId = "00000000-0000-4000-8000-000000000001";
-    const userId = "00000000-0000-4000-8000-000000000002";
-    prismaMock.user.findUniqueOrThrow.mockResolvedValueOnce({ companyId });
-
-    await new PrismaUserRepo().deactivateUserOrThrow(userId);
-
-    expect(prismaMock.user.findUniqueOrThrow).toHaveBeenCalledWith({
-      where: { id: userId },
-      select: { companyId: true },
-    });
-    expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
-    expect(transactionClient.$executeRaw).toHaveBeenCalledWith(expect.any(Array), companyId);
-    expect(transactionUserUpdate).toHaveBeenCalledWith({
-      where: { id: userId, companyId },
-      data: { status: Status.inactive, agentCreditActivatedAt: null },
-    });
-    expect(transactionClient.$executeRaw).toHaveBeenCalledBefore(transactionUserUpdate);
+    const data = prismaMock.subscription.create.mock.calls[0][0].data;
+    expect(data).toMatchObject({ plan: CLOUD_TRIAL.plan, status: "trial" });
+    expect(data.trialEndDate.getTime()).toBeGreaterThanOrEqual(before.getTime());
+    expect(data.trialEndDate.getTime()).toBeLessThanOrEqual(after.getTime());
   });
 });
 
@@ -156,7 +143,10 @@ describe("PrismaUserRepo.findActiveLegalNoticeRecipientsUnscoped", () => {
     expect(prismaMock.user.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { status: Status.active },
-        select: expect.objectContaining({ createdAt: true, formattingLocale: true }),
+        select: expect.objectContaining({
+          createdAt: true,
+          formattingLocale: true,
+        }),
       }),
     );
   });

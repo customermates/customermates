@@ -19,7 +19,8 @@ describe("technical-id loading contract", () => {
     expect(topbar).toContain("data-entity-crumb-loading");
     expect(topbar).toContain("<Skeleton");
     expect(crumbs).toContain("runtimeIdentity.key === inboxThreadId");
-    expect(detail).toContain("const showLoading = !hasCurrentEntity && !showLoadError");
+    expect(detail).toContain("resolveEntityDetailPageState");
+    expect(detail).toContain('const showLoading = pageState === "loading"');
     expect(detail).toContain("layoutStore.setRuntimeIdentity");
   });
 
@@ -32,7 +33,8 @@ describe("technical-id loading contract", () => {
     expect(store).toContain("isCurrentRequest");
     expect(store).toContain("if (!isCurrentRequest()) return");
     expect(store).toContain("this.entityLoadGeneration !== generation");
-    expect(drawer).toContain('skeleton={{ kind: "detail" }}');
+    expect(drawer).toContain("resolveEntityDrawerPageState");
+    expect(drawer).toContain("background={<EntityDetailDrawerSkeleton");
     expect(drawer).toContain('t("ErrorCard.retry")');
     expect(drawer).toContain("loadGate.isCurrent(attempt, activeKey)");
     expect(drawer).toContain("[activeKey, topEntityType, topId, rootStore, loadGate]");

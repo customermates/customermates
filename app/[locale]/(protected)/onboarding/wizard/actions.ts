@@ -2,11 +2,11 @@
 
 import type { RegisterUserData } from "@/features/user/register/register-user.interactor";
 
+import { refresh } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { Status } from "@/generated/prisma";
 
-import { getCompleteOnboardingWizardInteractor, getRegisterUserInteractor, getUserService } from "@/core/di";
+import { getCompleteOnboardingWizardInteractor, getRegisterUserInteractor } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 
 export async function registerProfileAction(data: RegisterUserData) {
@@ -14,15 +14,17 @@ export async function registerProfileAction(data: RegisterUserData) {
   if (result.ok) {
     const cookieStore = await cookies();
     cookieStore.delete("inviteToken");
-    const user = await getUserService().getUser();
-    if (user?.status === Status.pendingAuthorization) redirect("/auth/pending");
-    redirect("/onboarding/wizard");
+    refresh();
+    redirect(result.data.redirectTo);
   }
   return result;
 }
 
 export async function completeOnboardingWizardAction() {
   const result = await serializeResult(getCompleteOnboardingWizardInteractor().invoke());
-  if (result.ok) redirect("/");
+  if (result.ok) {
+    refresh();
+    redirect(result.data.redirectTo);
+  }
   return result;
 }

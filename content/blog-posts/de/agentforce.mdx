@@ -50,12 +50,14 @@ Salesforce bietet drei Preismodelle für Agentforce an. Alle kommen zusätzlich 
 **Nutzerbasierte Lizenzierung.** Eine sitzplatzbasierte Option ab 125 US-Dollar pro Nutzer pro Monat, bis 550 US-Dollar pro Nutzer pro Monat für die Edition Agentforce 1 Sales. Sinnvoll, wenn die Nutzung hoch und vorhersagbar genug ist, dass ein fester Sitzplatzpreis die verbrauchsbasierte Abrechnung schlägt.
 
 Für ein typisches Mittelstands-Vertriebsteam mit Agentforce-SDR im Outbound:
+
 - Konversationen pro Tag: 50 bis 200 Interessenten
 - Aktionen pro Konversation: 5 bis 15 (Recherche, Entwurf, Versand, Protokoll)
 - Tägliche Aktionen: 250 bis 3.000
 - Monatliche Kosten bei 0,10 €/Aktion: 750 bis 9.000 € allein für Agentforce, zusätzlich zur Sales-Cloud-Lizenz
 
 Für Kundenservice:
+
 - Tickets pro Tag: 100 bis 500
 - Konversationskosten: 200 bis 1.000 €/Tag, 6.000 bis 30.000 €/Monat
 
@@ -77,7 +79,7 @@ Drei Kontexte, in denen Agentforce sinnvoll ist:
 
 Drei Kontexte, in denen es die falsche Wahl ist:
 
-**Kleine bis mittelständische Teams ohne bestehendes Salesforce.** Die Gesamtkosten zum Einstieg (Sales Cloud + Agentforce + Implementierungspartner) starten bei rund 50.000 € pro Jahr für ein kleines Team. Zum Vergleich: Ein kleines Team mit Customermates plus Claude-API kostet etwa 1.500 bis 3.000 € pro Jahr all-in. Die Lücke ist nicht klein.
+**Kleine bis mittelständische Teams ohne bestehendes Salesforce.** Die Gesamtkosten zum Einstieg (Sales Cloud + Agentforce + Implementierungspartner) starten bei rund 50.000 € pro Jahr für ein kleines Team. Zum Vergleich setzt sich Customermates aus dem aktuellen CRM-Abo plus der gemessenen API-Nutzung beim gewählten Modellanbieter zusammen; vergleichen Sie die Stacks daher mit Ihrer tatsächlichen Teamgröße und Nutzung statt mit einer festen All-in-Schätzung.
 
 **Teams, die ihr bevorzugtes KI-Modell nutzen wollen.** Agentforce nutzt standardmäßig Salesforces gehostete Modelle. BYOM (bring your own model) gibt es, fügt aber Aufwand und Kosten hinzu. Wer Claude bereits intern nutzt und denselben Modell-Stack im CRM-Agenten haben will, bekommt das mit einem Open-Source-CRM samt [MCP-Unterstützung](/features/api) nativ.
 
@@ -91,15 +93,15 @@ Der Markt hat sich auf drei Architekturen für KI-Agenten im CRM eingependelt:
 
 **HubSpot Breeze Agents.** Closed Source, gehostet, in HubSpot integriert. Kleinerer Funktionsumfang als Agentforce, einfacher aufzusetzen. Preis: enthalten ab Sales Hub Pro. Eingeschränkte Sprachunterstützung außerhalb Englisch.
 
-**Open-Source-CRM + externes LLM über MCP.** [Customermates](/blog/open-source-crm) plus Claude, Codex oder ein beliebiges MCP-fähiges Modell. Open Source unter AGPL-3.0, selbst hostbar, EU-gehostete Cloud-Option. Preis: ab 12 €/Nutzer/Monat fürs CRM (Starter; Pro ab 29 € mit vereinheitlichtem Posteingang) plus KI-API-Kosten (typisch 5 bis 50 €/Monat für kleine Teams).
+**Open-Source-CRM + externes LLM über MCP.** [Customermates](/blog/open-source-crm) plus Claude, Codex oder ein beliebiges MCP-fähiges Modell. Open Source unter AGPL-3.0, selbst hostbar, EU-gehostete Cloud-Option. Preis: ab [[commercial.price.starter.monthly]]/Nutzer/Monat fürs CRM (Starter; Pro ab [[commercial.price.pro.monthly]] mit vereinheitlichtem Posteingang) plus KI-API-Kosten (typisch 5 bis 50 €/Monat für kleine Teams).
 
 Der architektonische Unterschied: Agentforce und Breeze packen den Agenten in den CRM-Anbieter-Stack. Open Source plus MCP hält den Agenten getrennt vom CRM, sodass Sie Modelle tauschen, Anbieter wechseln und die Datenschicht selbst besitzen können.
 
-Für die meisten Teams unter 100 Nutzern liefert der Open-Source-Pfad 80 bis 90 Prozent der Agent-Funktionalität zu 5 bis 10 Prozent der Kosten. Für Enterprise mit bestehender Salesforce-Investition erweitert Agentforce das Vorhandene, statt es zu ersetzen.
+Für viele Teams unter 100 Nutzern liefert der Open-Source-Pfad einen großen Teil der relevanten Agent-Funktionalität zu deutlich niedrigeren Softwarekosten. Für Enterprise mit bestehender Salesforce-Investition erweitert Agentforce das Vorhandene, statt es zu ersetzen.
 
 ## Customermates als Open-Source-Agentforce-Alternative
 
-Customermates stellt 45 MCP-Tools bereit, die Claude, Codex, ChatGPT oder einen beliebigen anderen MCP-fähigen Agenten das vollständige CRM bedienen lassen:
+Customermates stellt [[derived.mcp.tools.total]] MCP-Tools bereit, die Claude, Codex, ChatGPT oder einen beliebigen anderen MCP-fähigen Agenten das vollständige CRM bedienen lassen:
 
 **Lese-Operationen.** Kontakte, Unternehmen, Deals, Aufgaben, Services durchsuchen. Filter nach beliebigem Feld. Kommunikationshistorie abrufen. Pipeline-Status abfragen.
 
@@ -109,7 +111,7 @@ Customermates stellt 45 MCP-Tools bereit, die Claude, Codex, ChatGPT oder einen 
 
 Die Agenten-Schicht ist Ihre Wahl: Claude Sonnet für kostengünstige Routinearbeit, Claude Opus für komplexe Schlussfolgerungen, GPT-4o für spezifische Anwendungsfälle, lokale Modelle wie Mistral oder Llama für vollständige Datensouveränität.
 
-Das CRM ist Open Source unter AGPL-3.0. Self-Hosted kostet die Servermiete (Hetzner CX21 für 5 €/Monat reicht für ein 20-Personen-Team). Cloud-gehostet startet die [Preisgestaltung](/pricing) bei 12 €/Nutzer/Monat (10 € im Jahresplan, Starter), mit EU-Hosting (Deutschland) als Standard.
+Das CRM ist Open Source unter AGPL-3.0. Self-Hosted kostet die Servermiete (Hetzner CX21 für 5 €/Monat reicht für ein 20-Personen-Team). Cloud-gehostet startet die [Preisgestaltung](/pricing) bei [[commercial.price.starter.monthly]]/Nutzer/Monat (Starter), mit EU-Hosting (Deutschland) als Standard.
 
 Der Trade-off ist ehrlich: Salesforce hat einen 25-Jahres-Vorsprung bei Enterprise-Integrationen, branchenspezifischen Funktionen und Partner-Ökosystem. Customermates hat einen kleineren Funktionsumfang, weniger Integrationen und ein jüngeres Produkt. Für Vertriebsteams, die Agent-natives CRM ohne Salesforces Preisschild und Lock-in wollen, fällt der Trade-off zugunsten Customermates aus. Für Großunternehmen mit komplexer Salesforce-Installation ist Agentforce die natürliche Erweiterung.
 
@@ -175,11 +177,11 @@ Einstein ist Salesforces ältere KI-Suite: prädiktive Funktionen, Scoring, GPT-
 
 **Was ist die beste Agentforce-Alternative für kleine Teams?**
 
-Für Teams unter 50 Nutzern ohne bestehendes Salesforce ist die kosteneffizienteste Alternative ein Open-Source-CRM mit MCP-Unterstützung plus Ihr bevorzugtes LLM. [Customermates](/blog/open-source-crm) plus Claude oder ChatGPT liefert den Großteil der Agent-Erfahrung zu 5 bis 10 Prozent der Agentforce-Kosten. Der Trade-off ist das kleinere Integrations-Ökosystem; für viele kleine Teams ist das nicht die bindende Begrenzung.
+Für Teams unter 50 Nutzern ohne bestehendes Salesforce ist die kosteneffizienteste Alternative ein Open-Source-CRM mit MCP-Unterstützung plus Ihr bevorzugtes LLM. [Customermates](/blog/open-source-crm) plus Claude oder ChatGPT liefert einen großen Teil der relevanten Agent-Erfahrung zu deutlich niedrigeren Softwarekosten. Der Trade-off ist das kleinere Integrations-Ökosystem; für viele kleine Teams ist das nicht die bindende Begrenzung.
 
 **Was kostet Agentforce für kleine Teams?**
 
-Die realistische Mindestkosten für Agentforce sind die Salesforce-Plattform-Lizenz plus die Agentforce-Nutzung. Für ein 10-Personen-Team sind das grob 2.000 bis 5.000 US-Dollar pro Monat für Sales Cloud Enterprise plus Agentforce, vor Implementierung. Die meisten kleinen Teams können das nicht rechtfertigen. Zum Vergleich: dasselbe Team auf Customermates plus Claude-API läuft bei rund 100 bis 200 € pro Monat.
+Die realistischen Mindestkosten für Agentforce sind die Salesforce-Plattform-Lizenz plus die Agentforce-Nutzung. Für ein 10-Personen-Team sind das grob 2.000 bis 5.000 US-Dollar pro Monat für Sales Cloud Enterprise plus Agentforce, vor Implementierung. Die meisten kleinen Teams können das nicht rechtfertigen. Zum Vergleich kostet das Customermates-Starter-Abo für dasselbe Team [[commercial.price.starter.monthly.seats.10]] pro Monat vor der gemessenen Claude-API-Nutzung beim gewählten Anbieter.
 
 **Wie migriere ich später von Agentforce, falls nötig?**
 

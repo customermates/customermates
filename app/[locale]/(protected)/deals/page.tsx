@@ -1,6 +1,6 @@
 import { Resource } from "@/generated/prisma";
 
-import { DealsCard } from "./components/deals-card";
+import { DealsPageView } from "./components/deals-page-view";
 
 import { getGetDealsInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
@@ -24,7 +24,7 @@ export default async function DealsPage({ searchParams }: Props) {
 
   return (
     <PageContainer padded={false}>
-      <DealsCard deals={deals} />
+      <DealsPageView deals={deals} />
     </PageContainer>
   );
 }

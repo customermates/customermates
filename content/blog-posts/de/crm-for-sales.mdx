@@ -54,7 +54,7 @@ Worauf Sie beim Pipeline-Management achten sollten:
 - **Stagnations-Warnungen**, die Deals markieren, die zu lange in einer Phase verharren
 - **Gewichtete Pipeline-Werte**, die den Deal-Wert mit der Phasen-Wahrscheinlichkeit multiplizieren
 
-Customermates bietet vollständig anpassbare Pipelines mit Drag-and-Drop, benutzerdefinierten Feldern und automatischen Stagnations-Benachrichtigungen.
+Customermates bietet vollständig anpassbare Pipelines mit Drag-and-Drop und benutzerdefinierten Feldern. Eine Stagnations-Benachrichtigung ist nicht eingebaut; sie entsteht aus einem Webhook plus einem geplanten Job in Ihrer eigenen n8n-Instanz.
 
 ### Sales-Automatisierung
 
@@ -166,12 +166,12 @@ Die Wahl des richtigen Vertriebs-CRM hängt von Teamgröße, Budget und den wich
 
 | Funktion | Customermates | Salesforce Sales Cloud | HubSpot Sales Hub | Pipedrive | Monday CRM | Zoho CRM |
 |---|---|---|---|---|---|---|
-| Startpreis pro Nutzer/Monat | Ab 12 EUR | 25 EUR | Kostenlos (limitiert) / 15 EUR | 14 EUR | 12 EUR (min. 3 Seats) | Kostenlos (limitiert) / 14 EUR |
+| Startpreis pro Nutzer/Monat | Ab [[commercial.price.starter.monthly]] | 25 EUR | Kostenlos (limitiert) / 15 EUR | 14 EUR | 12 EUR (min. 3 Seats) | Kostenlos (limitiert) / 14 EUR |
 | Visuelle Pipeline | Ja | Ja | Ja | Ja | Ja | Ja |
 | Individuelle Pipelines | Unbegrenzt | Unbegrenzt | Im Free-Plan limitiert | Unbegrenzt | Ja | Ja |
 | Sales-Automatisierung | Via n8n (unbegrenzt) | Integriert (gestuft) | Integriert (gestuft) | Integriert (gestuft) | Integriert (Basis) | Integriert (gestuft) |
-| E-Mail-Integration | Gmail + Outlook (Pro-Stufe, 29 EUR) | Gmail + Outlook | Gmail + Outlook | Gmail + Outlook | Gmail + Outlook | Gmail + Outlook |
-| KI-Funktionen | Native KI (MCP) inklusive | Einstein (Aufpreis) | KI (ab Pro-Plan) | KI (Aufpreis) | KI (limitiert) | Zia (inklusive) |
+| E-Mail-Integration | Gmail + Outlook (Pro-Stufe, [[commercial.price.pro.monthly]]) | Gmail + Outlook | Gmail + Outlook | Gmail + Outlook | Gmail + Outlook | Gmail + Outlook |
+| KI-Funktionen | Externe KI-Clients via MCP inklusive | Einstein (Aufpreis) | KI (ab Pro-Plan) | KI (Aufpreis) | KI (limitiert) | Zia (inklusive) |
 | KI-Agenten bedienen das CRM (native MCP) | Ja | Nein | Nein | Nein | Nein | Nein |
 | Nativer vereinheitlichter Posteingang (E-Mail/LinkedIn/WhatsApp/Instagram/Telegram) | Ja (ab Pro) | Begrenzt | Begrenzt | Begrenzt | Begrenzt | Begrenzt |
 | DSGVO / EU-Hosting | Ja, EU + Self-Hosting | Primär US | Primär US | EU verfügbar | Primär US | EU verfügbar |
@@ -181,7 +181,7 @@ Die Wahl des richtigen Vertriebs-CRM hängt von Teamgröße, Budget und den wich
 
 ### Wichtigste Erkenntnisse aus dem Vergleich
 
-**Customermates** hebt sich für Vertriebsteams hervor, die volle Funktionalität ohne Feature-Preisstufen wollen. Ab 12 Euro pro Nutzer und Monat erhält jeder Mitarbeiter Pipeline-Management, Automatisierung via n8n, native KI, bei der Agenten das CRM direkt bedienen, und Reporting; die Pro-Stufe für 29 Euro ergänzt den nativen vereinheitlichten Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram). Das Open-Source-Modell und die Self-Hosting-Option sprechen zudem Teams mit strengen Datenschutzanforderungen an.
+**Customermates** hebt sich für Vertriebsteams hervor, die volle Funktionalität ohne Feature-Preisstufen wollen. Ab [[commercial.price.starter.monthly]] pro Nutzer und Monat erhält jeder Mitarbeiter Pipeline-Management, Automatisierung via n8n, externe KI über MCP, bei der Agenten das CRM direkt bedienen, und Reporting; die Pro-Stufe für [[commercial.price.pro.monthly]] ergänzt den nativen vereinheitlichten Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram). Das Open-Source-Modell und die Self-Hosting-Option sprechen zudem Teams mit strengen Datenschutzanforderungen an.
 
 **Salesforce** bleibt die funktionsreichste Option, bringt aber erhebliche Komplexität und Kosten mit sich. Es eignet sich am besten für Unternehmen mit dedizierten Administratoren.
 
@@ -243,12 +243,14 @@ Reagieren Sie sofort auf niedrige Adoption. Wenn ein Mitarbeiter nach Woche drei
 ### Beispiel 1: IT-Dienstleister mit 8 Vertriebsmitarbeitern
 
 **Vor dem CRM**:
+
 - 15 Prozent der Leads wurden nicht nachverfolgt
 - Durchschnittlicher Verkaufszyklus: 60 Tage
 - Abschlussrate: 18 Prozent
 - Prognosegenauigkeit: 30 Prozent Abweichung
 
 **Nach 6 Monaten mit Vertriebs-CRM**:
+
 - 100 Prozent Lead-Follow-up
 - Durchschnittlicher Verkaufszyklus: 42 Tage (30 Prozent Reduktion)
 - Abschlussrate: 25 Prozent
@@ -259,12 +261,14 @@ Reagieren Sie sofort auf niedrige Adoption. Wenn ein Mitarbeiter nach Woche drei
 ### Beispiel 2: SaaS-Unternehmen mit 3 Vertriebsmitarbeitern
 
 **Vor dem CRM**:
+
 - Deals wurden in einer geteilten Tabelle verfolgt
 - Keine Transparenz über die Leistung einzelner Mitarbeiter
 - Inkonsistente Follow-ups, besonders nach Demo-Calls
 - Monatlicher Umsatz schwankte unvorhersehbar
 
 **Nach 3 Monaten mit Vertriebs-CRM**:
+
 - Jede Demo löst automatisch eine Follow-up-Aufgabe nach drei Tagen aus
 - Pipeline-Dashboard zeigt Echtzeit-Umsatzprognose
 - Manager erkennt, dass die Abschlussquote eines Mitarbeiters um 40 Prozent steigt, wenn er innerhalb von 24 Stunden nach der Demo eine Case Study sendet, das Team übernimmt dies als Standardprozess
@@ -276,14 +280,14 @@ Customermates bietet alles, was ein Vertriebsteam braucht, ohne die Komplexität
 
 - **Pipeline-Management**: Visuelle Boards mit Drag-and-Drop, individuellen Phasen und Stagnations-Warnungen
 - **Unbegrenzte Automatisierung**: Verbindung mit [n8n](/blog/n8n-for-beginners-build-your-first-workflow) für Follow-up-Sequenzen, Lead-Routing, phasenbasierte Aktionen und Eskalationsregeln
-- **KI-Agenten bedienen das CRM**: Über eine native MCP-Integration (45 Tools) aktualisieren Claude, ChatGPT oder Gemini Deal-Phasen, entwerfen Follow-ups und halten Kontaktnotizen aktuell, sodass Mitarbeiter das System nicht mehr meiden und die Pipeline die Realität abbildet
+- **KI-Agenten bedienen das CRM**: Über eine native MCP-Integration ([[derived.mcp.tools.total]] Tools) aktualisieren Claude, ChatGPT oder Gemini Deal-Phasen, entwerfen Follow-ups und halten Kontaktnotizen aktuell, sodass Mitarbeiter das System nicht mehr meiden und die Pipeline die Realität abbildet
 - **Nativer vereinheitlichter Posteingang** (ab der Pro-Stufe): E-Mail, LinkedIn, WhatsApp, Instagram und Telegram in einem Posteingang im CRM, und dieselben KI-Agenten können über jeden Kanal lesen, entwerfen und senden
 - **Reporting**: Echtzeit-Dashboards für Pipeline-Gesundheit, Mitarbeiter-Performance, Conversion-Raten und Prognosegenauigkeit
 - **Kontakt- und Deal-Management**: Verknüpfung von Kontakten, Organisationen und Deals mit vollständiger Interaktionshistorie
 - **DSGVO-konform**: EU-Hosting und [Self-Hosting](/features/self-hosted)-Option für vollständige Datenhoheit
 - **Open Source**: Kein Vendor Lock-in, volle Code-Transparenz und Community-getriebene Entwicklung
 
-All das ab 12 Euro pro Nutzer und Monat, ohne Automatisierungs-Limits. Jede Kernfunktion und externer MCP-Zugriff sind in jeder Stufe enthalten; höhere Tarife bieten mehr Messaging-Umfang und größere Kontingente für den gehosteten Assistenten.
+All das ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, ohne Automatisierungs-Limits. Jede Kernfunktion ist in jeder Stufe enthalten; mehr zahlen Sie für Messaging-Umfang und ein größeres Kontingent für die gehostete KI.
 
 Möchten Sie sehen, wie Customermates Ihren Vertriebsprozess abbildet? [Starten Sie Ihre kostenlose Testphase](/auth/signup) oder entdecken Sie die [Pipeline-Management-Funktionen](/features/pipeline).
 
@@ -295,7 +299,7 @@ Ein CRM für den Vertrieb ist eine Software, die Vertriebsteams hilft, ihre Pipe
 
 ### Was ist das beste CRM für den Vertrieb?
 
-Das beste CRM für den Vertrieb hängt von Ihrer Teamgröße, Ihrem Budget und Ihren technischen Anforderungen ab. Salesforce ist die funktionsreichste, aber auch komplexeste und teuerste Lösung. HubSpot bietet einen Free-Tarif, schränkt aber fortgeschrittene Funktionen hinter steilen Preisstufen ein. Pipedrive ist intuitiv, limitiert aber die Automatisierung in niedrigeren Tarifen. Customermates bietet das volle Kern-CRM ab 12 Euro pro Nutzer und Monat, mit Open-Source-Transparenz und EU-Hosting, das beste Preis-Leistungs-Verhältnis für kleine bis mittelgroße Vertriebsteams.
+Das beste CRM für den Vertrieb hängt von Ihrer Teamgröße, Ihrem Budget und Ihren technischen Anforderungen ab. Salesforce ist die funktionsreichste, aber auch komplexeste und teuerste Lösung. HubSpot bietet einen Free-Tarif, schränkt aber fortgeschrittene Funktionen hinter steilen Preisstufen ein. Pipedrive ist intuitiv, limitiert aber die Automatisierung in niedrigeren Tarifen. Customermates bietet das volle Kern-CRM ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, mit Open-Source-Transparenz und EU-Hosting, das beste Preis-Leistungs-Verhältnis für kleine bis mittelgroße Vertriebsteams.
 
 ### Wie unterscheidet sich ein Vertriebs-CRM von einem Marketing-CRM?
 
@@ -303,7 +307,7 @@ Ein Vertriebs-CRM konzentriert sich auf Deal-Management, Pipeline-Tracking, Akti
 
 ### Was kostet ein Vertriebs-CRM?
 
-Die Preise für Vertriebs-CRM reichen von kostenlos (mit eingeschränkten Funktionen) bis über 100 Euro pro Nutzer und Monat für Enterprise-Plattformen. Gängige Preismodelle umfassen monatliche Nutzergebühren, Feature-Stufen, die fortgeschrittene Automatisierung hinter höheren Tarifen verbergen, und Aufpreise für KI oder Premium-Integrationen. Customermates berechnet ab 12 Euro pro Nutzer und Monat für das volle Kern-CRM; die Pro-Stufe für 29 Euro ergänzt den vereinheitlichten Posteingang.
+Die Preise für Vertriebs-CRM reichen von kostenlos (mit eingeschränkten Funktionen) bis über 100 Euro pro Nutzer und Monat für Enterprise-Plattformen. Gängige Preismodelle umfassen monatliche Nutzergebühren, Feature-Stufen, die fortgeschrittene Automatisierung hinter höheren Tarifen verbergen, und Aufpreise für KI oder Premium-Integrationen. Customermates berechnet ab [[commercial.price.starter.monthly]] pro Nutzer und Monat für das volle Kern-CRM; die Pro-Stufe für [[commercial.price.pro.monthly]] ergänzt den vereinheitlichten Posteingang.
 
 ### Wie lange dauert die Implementierung eines Vertriebs-CRM?
 
@@ -317,4 +321,4 @@ Ja, und es sollte es auch. Tabellen bieten keine Automatisierung, keine Echtzeit
 
 Ein CRM für den Vertrieb ist keine Kostenstelle, es ist ein Umsatz-Multiplikator. Es liefert Ergebnisse über fünf Mechanismen: null Lead-Verlust, kürzere Verkaufszyklen, höhere Abschlussquoten, systematisches Expansions-Selling und präzise Prognosen. Der Unterschied zwischen einem CRM, das Staub ansetzt, und einem, das Umsatz treibt, liegt in der Adoption, und die hängt davon ab, ein System zu wählen, das widerspiegelt, wie Ihr Team tatsächlich verkauft, und die Reibung für Vertriebsmitarbeiter zu minimieren.
 
-Wenn Sie ein Vertriebs-CRM suchen, bei dem KI-Agenten das CRM direkt bedienen (native MCP), ein nativer vereinheitlichter Posteingang E-Mail, LinkedIn, WhatsApp, Instagram und Telegram abwickelt und Sie zugleich volles Pipeline-Management und unbegrenzte Automatisierung ohne Enterprise-Komplexität oder -Preise erhalten, ist [Customermates](/auth/signup) dafür gebaut. Open Source, DSGVO-nativ und ab 12 Euro pro Nutzer und Monat.
+Wenn Sie ein Vertriebs-CRM suchen, bei dem KI-Agenten das CRM direkt bedienen (native MCP), ein nativer vereinheitlichter Posteingang E-Mail, LinkedIn, WhatsApp, Instagram und Telegram abwickelt und Sie zugleich volles Pipeline-Management und unbegrenzte Automatisierung ohne Enterprise-Komplexität oder -Preise erhalten, ist [Customermates](/auth/signup) dafür gebaut. Open Source, DSGVO-nativ und ab [[commercial.price.starter.monthly]] pro Nutzer und Monat.

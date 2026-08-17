@@ -3,35 +3,9 @@ import type { Data } from "@/core/validation/validation.utils";
 import { z } from "zod";
 
 import { zx } from "@/core/validation/validation.utils";
+import { WEBHOOK_EVENTS } from "./webhook-event-registry";
 
-export const WebhookEventSchema = z.enum([
-  "contact.created",
-  "contact.updated",
-  "contact.deleted",
-  "organization.created",
-  "organization.updated",
-  "organization.deleted",
-  "deal.created",
-  "deal.updated",
-  "deal.deleted",
-  "service.created",
-  "service.updated",
-  "service.deleted",
-  "task.created",
-  "task.updated",
-  "task.deleted",
-  "messaging.message.received",
-  "messaging.message.updated",
-  "messaging.message.deleted",
-  "messaging.message.reaction",
-  "messaging.email.received",
-  "messaging.email.deleted",
-  "messaging.chat.updated",
-  "messaging.chat.deleted",
-  "messaging.calendar.changed",
-  "messaging.calendar_event.changed",
-  "messaging.relation.created",
-]);
+export const WebhookEventSchema = z.enum(WEBHOOK_EVENTS);
 
 export const WebhookDtoSchema = z.object({
   id: z.uuid(),
@@ -46,6 +20,8 @@ export const WebhookDtoSchema = z.object({
 
 export type WebhookDto = Data<typeof WebhookDtoSchema>;
 
-export const WebhookPublicDtoSchema = WebhookDtoSchema.omit({ secret: true }).extend({
+export const WebhookPublicDtoSchema = WebhookDtoSchema.omit({
+  secret: true,
+}).extend({
   hasSecret: z.boolean(),
 });

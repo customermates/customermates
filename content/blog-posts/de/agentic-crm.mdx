@@ -46,7 +46,7 @@ Agentische KI im CRM arbeitet typischerweise über eines von zwei Integrationsmu
 
 **MCP-verbundene Agenten** nutzen das [Model Context Protocol](/features/api), einen offenen Standard, mit dem externe KI-Assistenten (Claude, ChatGPT oder eigene Modelle) CRM-Daten über eine strukturierte API lesen und schreiben können. Dieser Ansatz funktioniert mit jedem KI-Modell und gibt Teams volle Kontrolle darüber, welchen Agenten sie verwenden und wie er sich verhält.
 
-Customermates unterstützt das MCP-Muster nativ. Es stellt 45 MCP-Tools bereit, die alle Entitätstypen abdecken: Kontakte, Unternehmen, Deals, Services, Aufgaben, benutzerdefinierte Felder, Webhooks und Widgets. Neun dieser Tools bedienen einen nativen vereinheitlichten Posteingang, sodass derselbe Agent auch über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram lesen, entwerfen und senden kann, direkt im CRM. Ein über MCP verbundener Agent kann das gesamte Spektrum agentischer CRM-Verhaltensweisen ausführen, ohne proprietäre Abhängigkeiten.
+Customermates unterstützt das MCP-Muster nativ. Es stellt [[derived.mcp.tools.total]] MCP-Tools bereit, die alle Entitätstypen abdecken: Kontakte, Unternehmen, Deals, Services, Aufgaben, benutzerdefinierte Felder, Webhooks und Widgets. Neun dieser Tools bedienen einen nativen vereinheitlichten Posteingang, sodass derselbe Agent auch über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram lesen, entwerfen und senden kann, direkt im CRM. Ein über MCP verbundener Agent kann das gesamte Spektrum agentischer CRM-Verhaltensweisen ausführen, ohne proprietäre Abhängigkeiten.
 
 ## Warum agentisches CRM eine strukturelle Veränderung ist
 
@@ -90,7 +90,7 @@ Damit agentische KI in einem CRM funktioniert, muss die Plattform drei technisch
 
 **Vollständiger API-Zugang.** Der Agent muss jeden Datensatz lesen und jedes Feld schreiben können, ohne Lücken. Unvollständige API-Abdeckung erzwingt Workarounds, die den agentischen Workflow unterbrechen.
 
-**Webhook-Ereignisse.** Das CRM muss Echtzeit-Ereignisse auslösen, wenn sich Datensätze ändern, damit Agenten auf die Welt reagieren können, ohne Polling zu betreiben. Customermates feuert 26 Webhook-Ereignisse: 15 Datensatz-Ereignisse, die jeden Entitätslebenszyklus abdecken (angelegt, aktualisiert, gelöscht), plus 11 Messaging- und Kalender-Ereignisse.
+**Webhook-Ereignisse.** Das CRM muss Echtzeit-Ereignisse auslösen, wenn sich Datensätze ändern, damit Agenten auf die Welt reagieren können, ohne Polling zu betreiben. Customermates feuert [[derived.webhooks.events.total]] Webhook-Ereignisse: [[derived.webhooks.events.records]] Datensatz-Ereignisse, die jeden Entitätslebenszyklus abdecken (angelegt, aktualisiert, gelöscht), plus [[derived.webhooks.events.messaging]] Messaging- und Kalender-Ereignisse.
 
 **Berechtigungsmodell.** Agenten sollten innerhalb von menschen-definierten Grenzen arbeiten. Ein Agent, der jeden Datensatz ohne Prüfspur modifizieren kann, ist eine Haftung. Ein CRM mit rollenbasierter Zugriffskontrolle und Audit-Log gibt Teams die nötige Kontrolle.
 
@@ -114,7 +114,7 @@ Für Customermates:
 
 Der Agent erledigt den Rest. Er fragt das CRM ab, liest den Deal-Kontext und erstellt die Entwürfe, oder er versendet sie bei entsprechenden Berechtigungen direkt.
 
-Die [vollständige API-Dokumentation](/features/api) deckt Authentifizierung und verfügbare Tools ab. Die [Preise](/pricing) für Customermates Cloud beginnen bei 12 Euro pro Nutzer und Monat (Starter-Stufe; 10 Euro bei jährlicher Zahlung), mit einer kostenlosen Self-Hosting-Option.
+Die [vollständige API-Dokumentation](/features/api) deckt Authentifizierung und verfügbare Tools ab. Die [Preise](/pricing) für Customermates Cloud beginnen bei [[commercial.price.starter.monthly]] pro Nutzer und Monat (Starter-Stufe), mit einer kostenlosen Self-Hosting-Option.
 
 ## Agentisches CRM vs. KI-natives CRM
 
@@ -152,15 +152,15 @@ Der Markt bewegt sich schnell. Hier ist der Stand 2026 für die wichtigsten Plat
 
 **folk.** Einfaches CRM mit integriertem KI-Assistenten, der bei Outreach-Personalisierung und Kontaktanreicherung hilft. Stärke: intuitive Bedienung. Weniger gut für komplexe agentische Workflows geeignet.
 
-**Customermates.** Kein nativer KI-Agent im Produkt. Stattdessen: 45 MCP-Tools, über die jeder externe KI-Agent (Claude, GPT-4o, eigene Modelle) das vollständige CRM bedienen kann, plus ein nativer vereinheitlichter Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram), den derselbe Agent lesen und versenden kann. Vorteil: Modellunabhängigkeit, volle Datenkontrolle, DSGVO-freundliches Self-Hosting. Cloud ab 12 Euro/Nutzer/Monat (Starter), Posteingang ab Pro (29 Euro).
+**Customermates.** Kein nativer KI-Agent im Produkt. Stattdessen: [[derived.mcp.tools.total]] MCP-Tools, über die jeder externe KI-Agent (Claude, GPT-4o, eigene Modelle) das vollständige CRM bedienen kann, plus ein nativer vereinheitlichter Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram), den derselbe Agent lesen und versenden kann. Vorteil: Modellunabhängigkeit, volle Datenkontrolle, DSGVO-freundliches Self-Hosting. Cloud ab [[commercial.price.starter.monthly]]/Nutzer/Monat (Starter), Posteingang ab Pro ([[commercial.price.pro.monthly]]).
 
-| Plattform | Nativer Agent | MCP-Unterstützung | Self-Hosting | Preis (ca.) |
-|---|---|---|---|---|
-| Salesforce Agentforce | Ja | Nein | Nein | ab $25/Nutzer/Monat + Add-ons |
-| HubSpot Breeze | Ja | Nein | Nein | ab €20/Nutzer/Monat |
-| Dynamics 365 Copilot | Ja | Begrenzt | Nein | variabel |
-| Zoho mit Zia | Teilweise | Nein | Nein | ab €20/Nutzer/Monat |
-| Customermates | Nein (extern) | Ja, nativ | Ja | ab €12/Nutzer/Monat |
+| Plattform             | Nativer Agent | MCP-Unterstützung | Self-Hosting | Preis (ca.)                                          |
+| --------------------- | ------------- | ----------------- | ------------ | ---------------------------------------------------- |
+| Salesforce Agentforce | Ja            | Nein              | Nein         | ab $25/Nutzer/Monat + Add-ons                        |
+| HubSpot Breeze        | Ja            | Nein              | Nein         | ab €20/Nutzer/Monat                                  |
+| Dynamics 365 Copilot  | Ja            | Begrenzt          | Nein         | variabel                                             |
+| Zoho mit Zia          | Teilweise     | Nein              | Nein         | ab €20/Nutzer/Monat                                  |
+| Customermates         | Nein (extern) | Ja, nativ         | Ja           | ab [[commercial.price.starter.monthly]]/Nutzer/Monat |
 
 ## Stärken und Grenzen agentischer KI im CRM
 
@@ -198,7 +198,7 @@ Generative KI produziert Inhalte auf Anfrage. Agentische KI handelt auf der Grun
 Ein KI-Modell, das konfiguriert ist, über eine API- oder MCP-Verbindung mit CRM-Daten zu interagieren. Es kann Datensätze lesen, Aktualisierungen schreiben, Aufgaben auslösen und Follow-ups basierend auf von Ihnen definierter Geschäftslogik erstellen.
 
 **Unterstützt Customermates agentische CRM-Workflows?**
-Ja. Customermates stellt 45 MCP-Tools bereit, damit jeder MCP-kompatible KI-Agent das vollständige CRM bedienen kann. Webhooks feuern bei jeder Entitätsänderung, damit Agenten in Echtzeit reagieren können.
+Ja. Customermates stellt [[derived.mcp.tools.total]] MCP-Tools bereit, damit jeder MCP-kompatible KI-Agent das vollständige CRM bedienen kann. Webhooks feuern bei jeder Entitätsänderung, damit Agenten in Echtzeit reagieren können.
 
 **Was ist das beste Open-Source agentische CRM?**
 Customermates ist eine Open-Source-Option (AGPL, selbst hostbar) mit nativem MCP-Support, was es zu einer praktischen Wahl für Teams macht, die agentische Vertriebsworkflows mit voller Kontrolle über ihre Daten und KI-Konfiguration aufbauen möchten.

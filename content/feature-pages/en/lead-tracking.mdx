@@ -1,25 +1,25 @@
 ---
-title: "CRM Lead Tracking: Score, Route & Convert"
-description: "CRM lead tracking that captures, scores, and routes leads through your pipeline. Source attribution, conversion tracking, and automated follow-ups included."
+title: "CRM Lead Tracking: Qualify, Track & Convert"
+description: "CRM lead tracking through custom fields and pipeline stages. Store source and qualification data; scoring, routing, and automated follow-ups run in separate workflows."
 featureName: Lead Tracking
 
 hero:
   title: "Lead Tracking Software: Never Lose a Lead Again"
-  description: Track every lead from first touch to closed deal. AI agents keep every record current, a native unified inbox logs touchpoints from email, LinkedIn, WhatsApp, Instagram, and Telegram, and scoring plus source attribution keep your team focused on the leads most likely to convert.
+  description: Track every lead from first touch to closed deal with pipeline stages, custom fields, and supported inbox context. A configured external AI client can update allowed records through MCP; scoring, routing, and enrichment remain external.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First 7 days free"
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
   action: Ready to track your leads?
-  description: Start capturing, scoring, and converting leads today with Customermates, the open-source CRM built for modern sales teams.
+  description: Start tracking, qualifying, and converting leads with Customermates. Store qualification values in custom fields and connect a separate workflow when you need scoring or routing.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First 7 days free"
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
 ## What Is Lead Tracking?
@@ -34,56 +34,56 @@ Effective lead tracking eliminates these blind spots. Every lead is captured wit
 
 | Feature | Customermates | Pipedrive | HubSpot | Salesforce | Freshsales |
 |---------|--------------|-----------|---------|------------|------------|
-| Price/user | From €12/month | $14/mo | Free (limited) | $25/mo | $9/mo |
-| Lead scoring | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusAvailable /> | <StatusAvailable /> |
+| Price/user | From [[commercial.price.starter.monthly]]/month | $14/mo | Free (limited) | $25/mo | $9/mo |
+| Native lead scoring | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> | <StatusAvailable /> | <StatusAvailable /> |
 | Source attribution | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> |
-| Workflow automation | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
+| Built-in workflow engine | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
 | Custom fields (10 types) | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
-| EU/GDPR hosting | <StatusAvailable /> | <StatusPartial /> | <StatusUnavailable /> | <StatusPartial /> | <StatusUnavailable /> |
+| Managed database in an EU region | <StatusAvailable /> | <StatusPartial /> | <StatusUnavailable /> | <StatusPartial /> | <StatusUnavailable /> |
 | Open source | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 | Self-hosting option | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 
 ## How Lead Tracking Works in Customermates
 
-Customermates gives you end-to-end lead tracking, from the first click to the signed deal, with full pipeline visibility. Two native capabilities do the heavy lifting: AI agents (Claude, ChatGPT, Gemini) read and write the CRM through the MCP integration and keep records current, and the unified inbox pulls every conversation from email, LinkedIn, WhatsApp, Instagram, and Telegram onto the lead record. Core lead tracking is included from the Starter tier; the unified inbox is included from the Pro tier.
+Customermates tracks leads as contacts and deals with configurable stages, custom fields, and supported communication context. A separately configured external AI client can update allowed records through MCP, and the unified inbox brings supported channels into the CRM from Pro. Customermates does not calculate lead scores, enrich records, route leads, or run nurture sequences.
 
-**Lead capture and creation.** Create leads manually or automatically through n8n integrations. When a prospect fills out a web form, clicks an ad, or downloads a resource, an n8n workflow can create a contact and deal in Customermates with source data, UTM parameters, and custom fields pre-populated. No leads slip through the cracks.
+**Lead capture and creation.** Create supported records manually or through a separate n8n integration. An external form or ad provider can pass data to a customer-run workflow, which may create a contact and deal through REST with source, UTM, and custom-field values. Customermates has no native form or capture engine.
 
 **Source attribution.** Record exactly where every lead comes from: organic search, paid ads, referral, social media, events, or any other channel. Attribute leads to specific campaigns, landing pages, or content assets. This data is the foundation for understanding which marketing spend drives real pipeline, not just clicks.
 
-**Lead scoring.** Define scoring rules based on demographic fit, firmographic data, engagement signals, and behavioral triggers. Increase scores when a lead visits your pricing page, opens emails, or requests a demo. Decrease scores after inactivity. n8n workflows calculate and update scores automatically, so your team always knows which leads deserve immediate attention and which belong in a [nurture sequence](/features/follow-up).
+**External lead scoring.** Define the qualification values you need in custom fields. A separately operated workflow can call external data providers, calculate a score from approved inputs, and write it back through REST. Customermates itself has no lead-scoring, website-behavior, enrichment, or [nurture-sequence](/features/follow-up) engine.
 
 **Pipeline stage tracking.** Move leads through clearly defined stages: new lead, contacted, qualified, proposal sent, negotiation, closed-won, or closed-lost. Stage tracking shows you exactly where every prospect stands and reveals bottlenecks where leads tend to stall. Combine it with [pipeline management](/features/pipeline) for a complete view.
 
-**Conversion tracking.** Measure stage-to-stage conversion rates across your entire funnel. Track how many leads convert from MQL to SQL, from SQL to opportunity, and from opportunity to customer. Conversion data reveals which stages need attention and helps you forecast revenue accurately.
+**Conversion context.** Use configured stages and dashboard widgets to review current stored counts and values. Customermates does not calculate a fixed MQL-to-SQL funnel, predictive conversion model, or revenue forecast; analyze those metrics in an external reporting system when needed.
 
 **Activity tracking.** Log every touchpoint on a lead record: emails, calls, meetings, notes, and tasks. With the unified inbox connected (Pro tier), messages from email, LinkedIn, WhatsApp, Instagram, and Telegram are logged on the lead automatically. The full activity timeline gives your team context for every conversation. Anyone can pick up a lead and continue without asking "what happened last time?"
 
-**Lead assignment and routing.** Route leads to the right sales rep instantly based on territory, lead score, product interest, or round-robin rules. Automated routing through n8n reduces response time from hours to seconds, and faster response directly correlates with higher conversion.
+**External lead assignment and routing.** A separate n8n workflow can evaluate territory, an externally calculated score, product interest, or round-robin logic and write supported ownership fields through REST. Customermates has no native routing engine.
 
 ## Key Benefits of Lead Tracking Software
 
 **Know which channels deliver revenue.** Source attribution connects marketing spend to pipeline and closed deals. Stop guessing which campaigns work and allocate budget based on actual lead quality and conversion data.
 
-**Prioritize high-value leads.** Lead scoring separates hot prospects from tire-kickers. Your team spends time on leads with the highest probability of converting, while lower-priority leads enter automated nurture workflows.
+**Prioritize with stored qualification data.** Record the criteria your team uses in custom fields. An external provider or workflow can calculate a score and coordinate nurture in separate tools; Customermates does not calculate conversion probability.
 
-**Respond faster, convert more.** Research consistently shows that responding to a lead within five minutes dramatically increases conversion rates. Automated lead routing ensures new leads reach a rep instantly.
+**Respond with a defined process.** Research consistently shows that fast responses matter. Use team ownership and supported records in Customermates; any automatic routing or delivery timing must run in a separate customer-operated workflow.
 
 **Identify funnel bottlenecks.** Stage-by-stage conversion metrics show exactly where leads drop off. If 80% of qualified leads stall at the proposal stage, you know where to focus your process improvement.
 
-**Build institutional knowledge.** Every lead has a complete history of interactions, score changes, and stage transitions. This data is invaluable for refining your sales process, training new reps, and understanding what separates won deals from lost ones.
+**Build institutional knowledge.** Supported messages, notes, tasks, custom values, and stage changes provide recorded context where captured. Externally calculated scores remain ordinary field values rather than a native score history or complete audit trail.
 
 **Align sales and marketing.** When both teams share lead data in one CRM, marketing sees which leads convert and sales sees where leads came from. This shared visibility eliminates finger-pointing and creates a feedback loop that improves lead quality over time.
 
 ## Common Lead Tracking Workflows
 
-**Inbound lead capture.** A prospect submits a form on your website. An n8n workflow creates a contact and deal in Customermates, sets the lead source and campaign, calculates an initial score based on form data, and routes the lead to the appropriate rep, all within seconds.
+**Inbound lead capture.** An external form submits to a separately operated n8n workflow. It can create supported CRM records through REST, store source values, calculate a score externally, and write an approved assignee field. Runtime, mapping, routing, limits, and timing remain external.
 
-**Lead scoring automation.** Build scoring workflows that update in real time. Add points when a lead opens an email, visits your pricing page, or matches your ideal customer profile. Subtract points after 30 days of inactivity. Trigger an alert when a lead crosses your sales-ready threshold.
+**External lead-scoring automation.** Build a customer-run workflow that receives permitted signals from external providers, calculates a score, and writes it to a custom field. Any real-time updates, inactivity checks, thresholds, or alerts belong to that workflow and its providers.
 
-**Lead nurture sequences.** Leads that are not ready to buy enter automated [follow-up sequences](/features/follow-up). Send educational content, share case studies, and maintain regular touchpoints. When engagement signals indicate buying intent, escalate the lead to sales.
+**External lead-nurture sequences.** A separate [follow-up provider](/features/follow-up) can send educational content and maintain a cadence. A customer-run workflow may write approved results back to CRM fields; Customermates sends individual messages rather than automated sequences.
 
-**Lead recycling.** When a lead goes cold, move it to a recycling stage with a scheduled re-engagement in 90 or 180 days. Automated reminders bring recycled leads back to your team's attention at the right time, many deals close on the second or third attempt.
+**Lead recycling.** Move a lead to a recycling stage and store a next-action date in a custom field. A separately operated scheduler can evaluate it after 90 or 180 days and send a notification through an external provider; Customermates sends no native reminder.
 
 **Source performance reporting.** Track lead volume, conversion rate, average deal value, and revenue by source. Monthly reports show you exactly which channels are worth scaling and which are underperforming.
 
@@ -91,17 +91,17 @@ Customermates gives you end-to-end lead tracking, from the first click to the si
 
 ## Why Choose Customermates for Lead Tracking
 
-**Open source and transparent.** Customermates is fully open source. Your lead data, scoring logic, and routing rules run on code you can inspect, audit, and customize. No black-box algorithms deciding which leads your team sees.
+**Open source and transparent.** Customermates is open source, so you can inspect and adapt its CRM interfaces. Scoring logic, routing rules, enrichment, and sequence delivery remain in separate systems you choose and operate.
 
-**EU-hosted and GDPR-compliant.** All lead data is stored in European data centers with full GDPR and DSGVO compliance. Process prospect data with confidence, consent tracking, data retention, and right-to-erasure are built into the platform.
+**EU database region with documented providers.** The hosted database runs in an EU region. Application hosting and connected providers, including US providers, may process data elsewhere; this is not a GDPR or other compliance certification.
 
-**From €12 per user per month.** Lead scoring, source attribution, pipeline tracking, routing automation, custom fields, and native AI/MCP access are all included from the Starter tier. The unified inbox is included from the Pro tier at €29. No per-lead charges. No hidden costs.
+**From [[commercial.price.starter.monthly]] per user per month.** Pipeline stages, custom fields, REST, webhooks, and MCP access start with Starter. Lead scoring, routing, enrichment, n8n, and AI clients remain separate. The unified inbox starts with Pro at [[commercial.price.pro.monthly]].
 
-**n8n automation engine.** Build sophisticated lead capture, scoring, routing, and nurture workflows with the visual n8n automation engine. Connect to 400+ tools including your forms, ad platforms, email systems, and [CRM integrations](/features/crm-integration), without writing code.
+**Separate n8n automation.** Connect an n8n instance you operate through REST, webhooks, MCP, or the community node. Its visual builder, forms, ad platforms, scoring, routing, email delivery, 400+ connectors, plans, limits, logs, and costs remain external.
 
-**Self-hostable for full control.** Deploy Customermates on your own infrastructure and keep all prospect data on your servers. Self-hosting gives you complete control over lead data, scoring algorithms, and compliance requirements.
+**Self-hostable core CRM.** Run the Customermates application and PostgreSQL database on your infrastructure with Starter entitlements. Connected AI, workflow, messaging, and data providers still receive what your configuration sends.
 
-**AI agents operate the CRM.** Through the native MCP integration (45 tools), AI agents like Claude, ChatGPT, and Gemini enrich lead records, summarize conversation history, and draft the next follow-up. The data stays current because the agent does the entry, not the rep. AI helps your team work smarter without replacing the human judgment that closes deals.
+**External AI clients operate allowed CRM data.** Supported clients such as Claude, ChatGPT, or Gemini can use [[derived.mcp.tools.total]] MCP tools to update records, summarize allowed context, and draft one follow-up. Customermates includes no AI client, model, scoring, or enrichment service; separate providers own those results.
 
 ## Frequently Asked Questions
 
@@ -112,14 +112,14 @@ Lead tracking in CRM means recording every potential customer in your system, mo
 Lead scoring assigns numerical values to leads based on criteria you define, such as job title, company size, website behavior, and email engagement. Leads that match your ideal customer profile and show buying signals score higher, helping your team prioritize outreach.
 
 **What is the difference between lead tracking and lead management?**
-Lead tracking focuses on monitoring where leads are in your pipeline and measuring their progression. Lead management is the broader discipline that includes tracking plus lead generation, qualification, nurturing, and routing. Customermates covers the full [lead management](/features/lead-management) lifecycle.
+Lead tracking focuses on monitoring where leads are in your pipeline and measuring their progression. Lead management is the broader discipline that includes tracking plus lead generation, qualification, nurturing, and routing. Customermates supplies CRM records and open interfaces for supported parts of that lifecycle; generation, nurturing, and routing remain external.
 
 **Can I track where my leads come from?**
 Yes. Customermates supports source attribution through custom fields and n8n integrations. You can record UTM parameters, campaign names, referral sources, and advertising channels for every lead, then report on which sources generate the highest-quality pipeline.
 
 **How much does lead tracking software cost?**
-Pricing varies widely. Salesforce charges from $25/user/month, Pipedrive starts at $14/user/month, and many tools restrict lead scoring to premium tiers. Customermates includes all lead tracking features from €12/user/month with no separate lead-scoring add-on.
+Pricing varies widely. Salesforce charges from $25/user/month, Pipedrive starts at $14/user/month, and many tools restrict lead scoring to premium tiers. Customermates starts at [[commercial.price.starter.monthly]]/user/month for core tracking; it has no native lead-scoring add-on.
 
 ## Get Started with Lead Tracking Today
 
-Start tracking your leads in Customermates in minutes. Set up your pipeline stages, configure your lead sources, and create your first scoring workflow. Every feature, scoring, attribution, routing, conversion tracking, is available from day one with no premium upgrades required. Sign up for a free account and take control of your lead funnel.
+Start tracking leads with pipeline stages, custom fields, and stored source data. If you need scoring, routing, enrichment, or nurture, connect separate workflows and providers through the open interfaces. Sign up and begin with the CRM capabilities in your plan.

@@ -43,46 +43,46 @@ Here's the column structure that works in practice. You can rebuild this templat
 
 **Contacts tab:**
 
-| Column | Type | Example |
-|---|---|---|
-| ID | Number, auto-increment | 1, 2, 3 |
-| First Name | Text | Anna |
-| Last Name | Text | Smith |
-| Email | Text | anna@example.com |
-| Phone | Text | +1 415 555 0100 |
-| Company | Text | Example Inc. |
-| Role | Text | CEO |
-| Lead Source | Dropdown | LinkedIn, Referral, Website, Event |
-| Status | Dropdown | Lead, Qualified, Active, Inactive |
-| Owner | Text | Rep name |
-| Last Contact | Date | 2026-04-15 |
-| Notes | Text | free entry |
+| Column       | Type                   | Example                            |
+| ------------ | ---------------------- | ---------------------------------- |
+| ID           | Number, auto-increment | 1, 2, 3                            |
+| First Name   | Text                   | Anna                               |
+| Last Name    | Text                   | Smith                              |
+| Email        | Text                   | anna@example.com                   |
+| Phone        | Text                   | +1 415 555 0100                    |
+| Company      | Text                   | Example Inc.                       |
+| Role         | Text                   | CEO                                |
+| Lead Source  | Dropdown               | LinkedIn, Referral, Website, Event |
+| Status       | Dropdown               | Lead, Qualified, Active, Inactive  |
+| Owner        | Text                   | Rep name                           |
+| Last Contact | Date                   | 2026-04-15                         |
+| Notes        | Text                   | free entry                         |
 
 **Deals tab:**
 
-| Column | Type | Example |
-|---|---|---|
-| Deal ID | Number | 1, 2, 3 |
-| Deal Name | Text | Q3 Implementation |
-| Contact ID | Number (link) | 1 |
-| Company | Text | Example Inc. |
-| Stage | Dropdown | First Call, Proposal, Negotiation, Closed Won, Closed Lost |
-| Value | Currency | $15,000 |
-| Probability | Percent | 70% |
-| Expected Close | Date | 2026-08-30 |
-| Owner | Text | Rep name |
-| Next Step | Text | Revise proposal |
-| Next Action Date | Date | 2026-05-12 |
+| Column           | Type          | Example                                                    |
+| ---------------- | ------------- | ---------------------------------------------------------- |
+| Deal ID          | Number        | 1, 2, 3                                                    |
+| Deal Name        | Text          | Q3 Implementation                                          |
+| Contact ID       | Number (link) | 1                                                          |
+| Company          | Text          | Example Inc.                                               |
+| Stage            | Dropdown      | First Call, Proposal, Negotiation, Closed Won, Closed Lost |
+| Value            | Currency      | $15,000                                                    |
+| Probability      | Percent       | 70%                                                        |
+| Expected Close   | Date          | 2026-08-30                                                 |
+| Owner            | Text          | Rep name                                                   |
+| Next Step        | Text          | Revise proposal                                            |
+| Next Action Date | Date          | 2026-05-12                                                 |
 
 **Activities tab:**
 
-| Column | Type | Example |
-|---|---|---|
-| Date | Date | 2026-05-05 |
-| Contact ID | Number | 1 |
-| Type | Dropdown | Call, Email, Meeting, Demo |
-| Outcome | Text | free entry |
-| Next Step | Text | Schedule follow-up |
+| Column     | Type     | Example                    |
+| ---------- | -------- | -------------------------- |
+| Date       | Date     | 2026-05-05                 |
+| Contact ID | Number   | 1                          |
+| Type       | Dropdown | Call, Email, Meeting, Demo |
+| Outcome    | Text     | free entry                 |
+| Next Step  | Text     | Schedule follow-up         |
 
 With this structure, you have a working customer database that scales to 1 to 3 reps and up to 100 active contacts.
 
@@ -170,13 +170,13 @@ If your bottleneck is forgetting follow-ups, you don't need a CRM yet, you need 
 
 ```js
 function sendOverdueFollowups() {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Deals');
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Deals");
   const data = sheet.getDataRange().getValues();
   const headers = data[0];
-  const ownerCol = headers.indexOf('Owner');
-  const nextDateCol = headers.indexOf('Next Action Date');
-  const dealCol = headers.indexOf('Deal Name');
-  const stageCol = headers.indexOf('Stage');
+  const ownerCol = headers.indexOf("Owner");
+  const nextDateCol = headers.indexOf("Next Action Date");
+  const dealCol = headers.indexOf("Deal Name");
+  const stageCol = headers.indexOf("Stage");
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -185,17 +185,24 @@ function sendOverdueFollowups() {
     const row = data[i];
     const nextDate = row[nextDateCol];
     const stage = row[stageCol];
-    if (!nextDate || stage === 'Closed Won' || stage === 'Closed Lost') continue;
+    if (!nextDate || stage === "Closed Won" || stage === "Closed Lost")
+      continue;
     if (new Date(nextDate) < today) {
       const owner = row[ownerCol];
       if (!overdueByOwner[owner]) overdueByOwner[owner] = [];
-      overdueByOwner[owner].push(`- ${row[dealCol]} (${row[stageCol]}, due ${nextDate.toISOString().slice(0, 10)})`);
+      overdueByOwner[owner].push(
+        `- ${row[dealCol]} (${row[stageCol]}, due ${nextDate.toISOString().slice(0, 10)})`,
+      );
     }
   }
 
   for (const owner in overdueByOwner) {
-    const body = `Overdue follow-ups:\n\n${overdueByOwner[owner].join('\n')}`;
-    MailApp.sendEmail(`${owner.toLowerCase()}@yourcompany.com`, 'Overdue follow-ups', body);
+    const body = `Overdue follow-ups:\n\n${overdueByOwner[owner].join("\n")}`;
+    MailApp.sendEmail(
+      `${owner.toLowerCase()}@yourcompany.com`,
+      "Overdue follow-ups",
+      body,
+    );
   }
 }
 ```
@@ -232,15 +239,15 @@ Three picks based on your priorities:
 
 - **Sales-led with pipeline focus**: Pipedrive from $14 per user, simple onboarding.
 - **Marketing inbound funnel**: HubSpot CRM Free, with a path to Marketing Hub.
-- **Open source, EU hosting, AI agent control**: Customermates from €12 per user per month (Starter), free to self-host.
+- **Open source, EU hosting, AI agent control**: Customermates from [[commercial.price.starter.monthly]] per user per month (Starter), free to self-host.
 
 ## From spreadsheet CRM to an open-source alternative
 
 Customermates is built for exactly this transition. The Table view (one of two default views alongside the Card/Kanban view) feels familiar to spreadsheet users: columns, rows, filters, sorting. Ten typed custom field types (plain, single-select, currency, date, date range, dateTime, dateTime range, email, link, and phone) cover most columns you bring from Excel, now with validation and search indexing.
 
-The decisive difference from spreadsheet world: Customermates can be operated by AI agents. Through a built-in [MCP server](https://modelcontextprotocol.io) with 45 tools, Claude, ChatGPT, or Codex can read and write inside the CRM directly, including a native unified inbox across email, LinkedIn, WhatsApp, Instagram, and Telegram. In practice: you forward an email to Claude, and Claude creates the contact, writes the note, updates the deal stage. The data hygiene that's manual in a spreadsheet runs through the agent instead.
+The decisive difference from spreadsheet world: Customermates can be operated by AI agents. Through a built-in [MCP server](https://modelcontextprotocol.io) with [[derived.mcp.tools.total]] tools, Claude, ChatGPT, or Codex can read and write inside the CRM directly, including a native unified inbox across email, LinkedIn, WhatsApp, Instagram, and Telegram. In practice: you forward an email to Claude, and Claude creates the contact, writes the note, updates the deal stage. The data hygiene that's manual in a spreadsheet runs through the agent instead.
 
-Cloud hosting in Germany from €12 per user per month (Starter tier). Self-hosting via `docker compose up -d` is free under [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). Migration from Excel: CSV export, CSV import into Customermates, configure custom fields. With an AI agent, the migration runs in one morning.
+Cloud hosting in the EU region from [[commercial.price.starter.monthly]] per user per month (Starter tier). Self-hosting via `docker compose up -d` is free under [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). Migration from Excel: Export the sheet, create the records through the REST API or an AI agent over MCP, configure custom fields. With an AI agent, the migration runs in one morning.
 
 ## Bottom line
 
@@ -263,10 +270,10 @@ Contacts tab: ID, First Name, Last Name, Email, Phone, Company, Role, Lead Sourc
 For multi-user setups yes, because Sheets is built for concurrent editing. Excel is more powerful at pivot tables, macros, and performance on large datasets. For solo founders without multi-user needs, they're roughly equivalent. For 2 to 5 people, I recommend Sheets.
 
 **Is there a free open-source CRM I can use instead?**
-Yes. Customermates is licensed under AGPL-3.0 and free to self-host via `docker compose up -d`. Three containers, 30 minutes, the system is ready. Other options: EspoCRM, SuiteCRM, Krayin. The Customermates cloud version starts at €12 per user per month (Starter) and is hosted in Germany.
+Yes. Customermates is licensed under AGPL-3.0 and free to self-host via `docker compose up -d`. Three containers, 30 minutes, the system is ready. Other options: EspoCRM, SuiteCRM, Krayin. The Customermates cloud version starts at [[commercial.price.starter.monthly]] per user per month (Starter) and is hosted in the EU region.
 
 **How many users can collaborate on a Google Sheets CRM?**
 Up to about 5 active editors, in practice. Google Sheets technically supports 100 simultaneous editors, but conflicts on filter views, pivot table refreshes, and concurrent cell edits get unpleasant past 5. For 2 to 3 editors it works smoothly. For 4 to 5 editors, set up protected ranges and clear ownership rules. Above 5, the spreadsheet has aged out and a real CRM saves more time than it costs.
 
 **What's the cheapest path from spreadsheet to a real CRM?**
-Self-host an open-source CRM. Customermates runs on a €5/month VPS via `docker compose up -d`, free under AGPL-3.0, your only cost is the server. EspoCRM, SuiteCRM, and Krayin work the same way. If you don't want to manage a server, the cheapest cloud option among modern CRMs is HubSpot Free (genuinely free for up to 1,000 contacts) or Customermates Cloud from €12 per user per month (Starter). Pipedrive starts at $14, Salesforce at $25.
+Self-host an open-source CRM. Customermates runs on a €5/month VPS via `docker compose up -d`, free under AGPL-3.0, your only cost is the server. EspoCRM, SuiteCRM, and Krayin work the same way. If you don't want to manage a server, the cheapest cloud option among modern CRMs is HubSpot Free (genuinely free for up to 1,000 contacts) or Customermates Cloud from [[commercial.price.starter.monthly]] per user per month (Starter). Pipedrive starts at $14, Salesforce at $25.

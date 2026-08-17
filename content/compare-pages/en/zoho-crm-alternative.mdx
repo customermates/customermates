@@ -10,7 +10,7 @@ hero:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: ✓ No credit card required ✓ First 7 days free
+  hint: ✓ No credit card required ✓ First [[commercial.trial.days]] days free
 
 comparison:
   competitorName: Zoho CRM
@@ -22,10 +22,10 @@ comparison:
         source: 2 minutes
         competitor: 1-2 weeks
       - name: Pricing structure
-        source: From €12 / month / user
+        source: From [[commercial.price.starter.monthly]] / month / user
         competitor: €14 to €52 / month / user
       - name: Free start
-        source: 7-day trial + free self-host
+        source: "[[commercial.trial.days]]-day trial + free self-host"
         competitor: Free plan (up to 3 users)
       - name: Credit card required
         source: false
@@ -54,18 +54,18 @@ comparison:
         source: true
         competitor: true
       - name: AI agents operate the CRM (native MCP)
-        source: 45 tools (from Starter)
+        source: "[[derived.mcp.tools.total]] tools (from Starter)"
         competitor: Zia AI (Enterprise+)
       - name: Native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram)
-        source: Pro+ (€29)
+        source: Pro+ ([[commercial.price.pro.monthly]])
         competitor: Email only
   - title: Data protection & security
     features:
-      - name: GDPR compliant
-        source: true
+      - name: GDPR documentation
+        source: DPA + SCCs; no certification
         competitor: Partially
       - name: Hosting
-        source: EU / Germany
+        source: EU database region
         competitor: Global / USA & India
       - name: Data control
         source: true
@@ -82,7 +82,7 @@ comparison:
         source: true
         competitor: Only from Standard plan
       - name: Workflow automation
-        source: Unlimited
+        source: Via separately operated n8n
         competitor: Plan-dependent (1-20 rules)
       - name: Bring your own AI (Claude, ChatGPT, Gemini)
         source: true (native MCP)
@@ -96,10 +96,10 @@ comparison:
         source: true
         competitor: Yes, but limited
       - name: Audit log
-        source: true
+        source: Not claimed pending documentation reconciliation
         competitor: Only from Professional
-      - name: Notifications
-        source: true
+      - name: In-app notification center
+        source: false
         competitor: Yes, but limited
 
 cta:
@@ -109,10 +109,10 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: ✓ No credit card required ✓ First 7 days free
+  hint: ✓ No credit card required ✓ First [[commercial.trial.days]] days free
 ---
 
-> If you are searching for a Zoho alternative that is transparent, affordable, and built for European data standards, Customermates delivers exactly that. [Zoho CRM](https://www.zoho.com/crm/) is a feature-rich platform with an attractive entry price on the surface. In practice, important features are locked behind higher tiers, the interface is overloaded with modules, and data hosting defaults to servers outside Europe. Customermates is an open-source Zoho alternative built on two things Zoho locks behind higher tiers: AI agents that operate the CRM (Claude, ChatGPT, and Gemini read and write your records through native MCP with 45 tools) and a native unified inbox for email, LinkedIn, WhatsApp, Instagram, and Telegram from the Pro tier. It stays simple and focused: EU-hosted, GDPR-native, with n8n automation and every core CRM feature included, starting at €12 per user per month.
+> If you are searching for a Zoho alternative that is transparent, affordable, and built for European data standards, Customermates delivers exactly that. [Zoho CRM](https://www.zoho.com/crm/) is a feature-rich platform with an attractive entry price on the surface. In practice, important features are locked behind higher tiers, the interface is overloaded with modules, and data hosting defaults to servers outside Europe. Customermates is an open-source Zoho alternative built on two things Zoho locks behind higher tiers: AI agents that operate the CRM (Claude, ChatGPT, and Gemini read and write your records through native MCP with [[derived.mcp.tools.total]] tools) and a native unified inbox for email, LinkedIn, WhatsApp, Instagram, and Telegram from the Pro tier. It stays simple and focused: EU-hosted, GDPR-native, with n8n automation and every core CRM feature included, starting at [[commercial.price.starter.monthly]] per user per month.
 
 ## Why Teams Look for a Zoho Alternative
 
@@ -134,11 +134,11 @@ Zoho CRM advertises easy setup, but the reality is different. The system contain
 
 ## Pricing: Transparent Tiers vs. Feature-Gated Plans
 
-Customermates starts at €12 per user per month (Starter), with every core CRM feature included and no caps or surprise add-ons. Higher tiers (Pro at €29, Business at €69) add messaging capacity and larger hosted Assistant allowances. Visit our [pricing page](/pricing) for complete details.
+Customermates starts at [[commercial.price.starter.monthly]] per user per month (Starter), with every core CRM feature included and no caps or surprise add-ons. Higher tiers (Pro at [[commercial.price.pro.monthly]], Business at [[commercial.price.business.monthly]]) only add messaging capacity. Visit our [pricing page](/pricing) for complete details.
 
 Zoho CRM starts at €14/user/month on the Standard plan (annual billing), but escalates to €23 (Professional), €40 (Enterprise), or €52 (Ultimate). Monthly billing adds 20-50% on top. The free plan is limited to three users and lacks essential features like API access, advanced workflows, and professional reports.
 
-Hidden costs accumulate quickly: premium support (24/5 or 24/7) costs extra, additional storage and data backups are paid add-ons, and portals for external users are separate charges. For a team of 10 users on the Professional plan, Zoho costs at least €230/month, nearly double what the same team pays on Customermates Starter (€120/month) while getting fewer core CRM features.
+Hidden costs accumulate quickly: premium support (24/5 or 24/7) costs extra, additional storage and data backups are paid add-ons, and portals for external users are separate charges. For a team of 10 users on the Professional plan, Zoho costs at least €230/month, which exceeds the current Customermates Starter total of [[commercial.price.starter.monthly.seats.10]]/month while providing fewer core CRM features.
 
 ## Features: Everything Included vs. Plan-Dependent
 
@@ -156,7 +156,7 @@ Zoho CRM hosts data globally, primarily in the USA and India. While EU servers a
 
 ## Integration & Automation
 
-Customermates includes [n8n](https://n8n.io/) automation from day one, connecting to thousands of third-party services without restrictions. Full [API access](/features/api) is available at the base price, enabling flexible, self-configured [workflow automations](/features/workflow-automation), no tier barriers. Whether you need to sync contacts with your [accounting software](/features/integrations), trigger [Slack notifications](/features/slack-integration) on deal updates, or build custom [reporting dashboards](/features/reporting), the tools are available without plan restrictions.
+Customermates connects to [n8n](https://n8n.io/) from day one through webhooks and the REST API, reaching thousands of third-party services without restrictions on our side. Full [API access](/features/api) is available at the base price, enabling flexible, self-configured [workflow automations](/features/workflow-automation), no tier barriers. Whether you need to sync contacts with your [accounting software](/features/integrations), trigger [Slack notifications](/features/slack-integration) on deal updates, or build custom [reporting dashboards](/features/reporting), the tools are available without plan restrictions.
 
 Zoho CRM offers many integrations, but most are limited to higher-tier plans. API access is missing entirely from the free plan and only available from Standard onwards. Workflow automation is heavily restricted: one rule on Free, ten on Standard, only from Professional does it become genuinely usable. For teams that rely on [sales automation](/features/sales-automation), this means paying €23+/user/month before the CRM does real work for them.
 
@@ -184,11 +184,11 @@ Switching from Zoho CRM to Customermates is straightforward:
 
 ### Is Customermates really a viable Zoho alternative for larger teams?
 
-Yes. Customermates supports unlimited users, unlimited records, and custom fields (10 field types) starting at €12/user/month. Permission management and audit logging are included for every team, regardless of size.
+Yes. Customermates supports unlimited users, unlimited records, and custom fields (10 field types) starting at [[commercial.price.starter.monthly]]/user/month. Permission management and audit logging are included for every team, regardless of size.
 
 ### How does Customermates compare to Zoho CRM on pricing?
 
-Customermates starts at €12/user/month with every core CRM feature; Pro (€29) and Business (€69) add messaging capacity and larger hosted Assistant allowances. Zoho CRM ranges from €14 to €52/user/month depending on the plan, with many features locked behind higher tiers. For a 10-person team, Customermates costs €120/month on Starter with full core functionality, while Zoho Professional costs €230/month with restrictions still in place.
+Customermates starts at [[commercial.price.starter.monthly]]/user/month with every core CRM feature; Pro ([[commercial.price.pro.monthly]]) and Business ([[commercial.price.business.monthly]]) only add messaging capacity. Zoho CRM ranges from €14 to €52/user/month depending on the plan, with many features locked behind higher tiers. For a 10-person team, Customermates costs [[commercial.price.starter.monthly.seats.10]]/month on Starter with full core functionality, while Zoho Professional costs €230/month with restrictions still in place.
 
 ### Can I self-host Customermates like Zoho does not allow?
 
@@ -204,11 +204,11 @@ Customermates is GDPR-native. All data is hosted in the EU (Germany) by default,
 
 ### What about Zoho's free plan: can Customermates compete?
 
-Zoho's free plan supports three users but severely restricts features: one workflow rule, no API access, limited reports, and basic customization only. Customermates offers a 7-day free trial with full functionality (plus a free open-source self-host option) and then starts at €12/user/month with no core-feature restrictions.
+Zoho's free plan supports three users but severely restricts features: one workflow rule, no API access, limited reports, and basic customization only. Customermates offers a [[commercial.trial.days]]-day free trial with full functionality (plus a free open-source self-host option) and then starts at [[commercial.price.starter.monthly]]/user/month with no core-feature restrictions.
 
 ## Conclusion
 
-Zoho CRM's apparent affordability masks a system of tiered restrictions, complex navigation, and non-EU default hosting. If you are looking for a Zoho alternative that eliminates these compromises, Customermates is built for you: open-source, EU-hosted, GDPR-native, with n8n automation and AI agents that operate the CRM (native MCP), all from €12/user/month with no hidden limits. [Start your free trial today](/auth/signup) and experience the difference. See also how Customermates compares to [HubSpot](/compare/hubspot-alternative), [Pipedrive](/compare/pipedrive-alternative), or [Salesforce](/compare/salesforce-alternative).
+Zoho CRM's apparent affordability masks a system of tiered restrictions, complex navigation, and non-EU default hosting. If you are looking for a Zoho alternative that eliminates these compromises, Customermates is built for you: open-source, EU-hosted, GDPR-native, with n8n automation and AI agents that operate the CRM (native MCP), all from [[commercial.price.starter.monthly]]/user/month with no hidden limits. [Start your free trial today](/auth/signup) and experience the difference. See also how Customermates compares to [HubSpot](/compare/hubspot-alternative), [Pipedrive](/compare/pipedrive-alternative), or [Salesforce](/compare/salesforce-alternative).
 
 ### Related Comparisons
 

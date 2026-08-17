@@ -1,126 +1,117 @@
 ---
 title: "CRM Email Integration: Gmail & Outlook Sync"
-description: "CRM email integration with automatic two-way Gmail and Outlook sync, email tracking, templates, and sequences. Full communication history. EU-hosted."
+description: "CRM email integration for supported Gmail and Outlook accounts, individual drafts and sends, and message history. Campaigns and sequences stay in separate tools; the hosted database uses an EU region."
 featureName: Email Integration
 
 hero:
   title: Email Integration That Connects Every Conversation to Your CRM
-  description: Sync Gmail and Outlook with Customermates automatically. Every email logged, every contact matched, every thread visible to your team. Email is part of a native unified inbox that also covers LinkedIn, WhatsApp, Instagram, and Telegram, and AI agents can read, draft, and send across all of them. Templates, tracking, and automated sequences via n8n, included from the Pro tier at EUR 29 per user per month.
+  description: Connect supported Gmail and Outlook accounts with Customermates. Matching conversations appear in the unified inbox alongside LinkedIn, WhatsApp, Instagram, and Telegram. Supported external AI clients can read context, draft, and send through MCP; sequences require separate n8n and delivery providers.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First 7 days free"
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
   action: Ready to connect your inbox?
-  description: Connect your Gmail or Outlook account to Customermates in under two minutes. Every email integration feature is available from day one.
+  description: Open Profile, connect a supported account through the hosted authentication flow, and work with its imported email threads in Customermates.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
-  buttonRightText: Watch live demo
-  buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First 7 days free"
+  buttonRightText: Read the inbox guide
+  buttonRightHref: /docs/app-inbox
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-## What Is CRM Email Integration?
+## What CRM Email Integration Means Here
 
-CRM email integration connects your email client to your customer relationship management system so that every message you send and receive is automatically associated with the right contact record. It eliminates the manual process of logging communications and ensures your entire team has visibility into customer conversations.
+Customermates imports email threads from a connected Gmail, Microsoft Outlook, or IMAP account into its unified inbox. The same inbox also supports LinkedIn, WhatsApp, Instagram, and Telegram accounts. A connected account belongs to one user unless it is explicitly shared with the workspace.
 
-Without email integration, critical information is trapped in individual inboxes. When a colleague is out of office or a deal gets reassigned, the new owner lacks context. They have to ask for forwarded threads, search through shared mailboxes, or start conversations over from scratch. Email integration solves this by making communication history a shared, searchable resource attached to every contact and deal record.
+This is an operational inbox, not an email-marketing suite. You can read synchronized threads, reply on the original channel, save or replace one local draft on an existing thread, change a thread's state, and link thread participants to CRM contacts. New outbound email can be sent immediately from a contact or through the API and MCP tools.
 
-For sales and customer success teams, email integration is the single highest-impact CRM feature. It bridges the gap between where communication happens (your inbox) and where relationship data lives (your CRM), without changing how your team works.
+## How to Connect Email
 
-## How Email Integration Works in Customermates
+1. Open **Profile → Connected accounts**.
+2. Choose **Connect an account** and complete the provider's hosted authentication flow.
+3. Select the folders to import when the account supports folder selection.
+4. Open the [Inbox](/docs/app-inbox) to read and reply to synchronized threads.
 
-Customermates provides native email integration that connects your existing email accounts to your CRM. Setup takes under two minutes and requires no IT involvement. Email integration is part of the unified messaging inbox and is included from the Pro tier (€29/user/month); the entry-level Starter tier (€12/user/month) covers the core CRM without a connected inbox.
+Authentication happens in the provider connection flow. Customermates does not ask you to paste a Gmail or Microsoft password into the CRM.
 
-### Step 1: Connect Your Email Account
+## What Ships Today
 
-Navigate to Settings, select Email Integration, and connect your Gmail or Microsoft [Outlook](/features/outlook-integration) account with OAuth authentication. Customermates supports Gmail, Outlook 365, and any IMAP-compatible email provider. Your credentials are encrypted and stored in EU data centers.
+**Unified email threads.** Incoming and outgoing email from connected accounts is synchronized into the inbox. Thread participants can be linked to CRM contacts, giving the team relationship context without claiming that every message is automatically attached to every deal or organization.
 
-### Step 2: Configure Sync Rules
+**Immediate replies and new messages.** Reply from an existing inbox thread, start a new email from a contact, or use the documented `send_email` API or MCP tool. Delivery is immediate.
 
-Choose what gets synced. Options include syncing all emails, only emails matching existing CRM contacts, or only emails you manually associate. You control the scope so only relevant communications enter the CRM.
+**Drafts for existing threads.** Save one local draft per existing thread for a user to review. Saving again replaces that draft. Drafting does not deliver a message, and there is no draft object for a brand-new outbound email.
 
-### Step 3: Start Working
+**AI-accessible messaging.** Authorized MCP clients can list connected accounts and threads, read messages, save a reply draft, and send email. Sending tools deliver immediately, so an agent should use the draft tool when human review is required.
 
-Once connected, emails sync automatically. Every incoming and outgoing email matching a CRM contact appears on their timeline. Your team works in their inbox as usual while the CRM captures everything in the background.
+**External AI clients draft and send.** Supported clients such as Claude, ChatGPT, and Gemini can use [[derived.mcp.tools.total]] MCP tools to read allowed context, draft one reply, and send where permitted. Customermates supplies the MCP endpoint, not the client, model, subscription, or autonomous result. Messaging tools are available on Pro and above.
 
-## Core Email Integration Features
+**Customer-run automation.** Your own n8n instance or another automation service can use Customermates webhooks and APIs. Customermates does not host or bundle n8n, and the current product has no native scheduled-send, sequence, or bulk-campaign engine.
 
-**Gmail and Outlook sync.** Bidirectional email synchronization with Gmail, Outlook 365, and IMAP providers. Emails are matched to contact records based on email addresses. New emails appear on CRM timelines within seconds of being sent or received.
+**Scheduled email through an external provider.** Write and review an individual draft in Customermates, then let a separately operated workflow and delivery provider schedule it. Customermates has no built-in send-later scheduler or campaign engine.
 
-**Automatic contact matching.** When an email arrives, Customermates checks sender and recipient addresses against your contact database. Matching emails are linked to the correct record automatically. If the sender is not in your CRM, you can create a new contact directly from the email with one click.
+**Individual email sending.** Send a reviewed message to one recipient at a time through a supported account and keep it with the supported conversation history. Customermates does not provide bulk email or mass outreach; use a separate campaign provider for groups.
 
-**Email timeline on every record.** Every contact, organization, and deal record includes a complete email timeline showing all correspondence. Emails are displayed chronologically alongside notes, tasks, calls, and deal updates. One screen gives you the full picture of every interaction.
-
-**Reusable email templates.** Create templates for introductions, follow-ups, proposals, meeting requests, and any other recurring message. Templates support dynamic variables that auto-fill with contact data: first name, company name, deal value, and custom fields. A template that sends in 30 seconds would take five minutes to compose manually. Across 20 emails per day, that saves over 1.5 hours daily per sales representative.
-
-**Send emails from the CRM.** Compose and send emails directly from within Customermates. Sent emails are automatically logged on the contact record and replies flow back into the same thread. Your team handles email without switching between applications.
-
-**AI agents draft and send.** Claude, ChatGPT, and Gemini connect through a native MCP integration (45 tools) and work the inbox with you. They draft replies from the full contact context, send from the CRM, and log everything on the record. The same agents operate across the rest of the unified inbox (LinkedIn, WhatsApp, Instagram, Telegram) too. Messaging tools are available on the Pro tier and above.
-
-**Email open and click tracking.** Know when your emails are opened and which links are clicked. Tracking data appears on the contact timeline and helps your team prioritize follow-ups with prospects who are actively engaging. Open and click rates are aggregated in [reporting dashboards](/features/reporting) so you can measure email effectiveness across the team.
-
-**Scheduled email sending.** Write emails now, send them later. Schedule emails to arrive at the optimal time for your recipient's time zone. Scheduled sending is built into the CRM composer, no third-party tools needed.
-
-**Bulk email sending.** Send personalized emails to groups of contacts using templates and dynamic variables. Filter your contact list, select recipients, choose a template, and send. Each email is personalized and logged individually on the recipient's record.
-
-**Automated email sequences with n8n.** Go beyond manual email with the built-in n8n automation engine. Set up triggers that send emails automatically based on CRM events:
+**Email sequences in an external provider with n8n.** Go beyond manual email with the n8n automation engine. Set up triggers that send emails automatically based on CRM events:
 
 - When a deal moves to "Proposal Sent," send a follow-up template after 3 days if no reply
 - When a new contact is created from a web form, trigger a welcome email sequence
-- When a task is overdue, notify the responsible team member by email
+- When a customer-defined task date is reached, let an external scheduler send a notification through an external provider
 - When a deal is marked as won, send a thank-you email to the customer
 
-Build these workflows visually in n8n with no coding required. Sequences that would require a dedicated email marketing tool like Mailchimp or a sales engagement platform run directly inside your CRM.
+Build these workflows visually in a separate n8n instance with no coding required. Campaigns and sequences run in that workflow and an external delivery provider, not directly inside Customermates.
 
-## Key Benefits
+Connected-account transport is provided through Unipile. The managed application database is configured in an EU region, while the legal pages disclose every relevant cloud subprocessor, processing location, and transfer safeguard. Do not treat that database setting as a promise that all processing stays in one country or never involves a US provider. See [Privacy](/privacy), [Subprocessors](/subprocessors), and the [DPA](/dpa).
 
-**Complete communication history.** Every email associated with a contact is visible on their record, accessible to the entire team. No more searching through individual inboxes, asking colleagues to forward threads, or losing context when team members change. The full conversation history is always one click away.
+The community self-hosted build does not include the Enterprise Edition unified inbox. A self-hosted operator that contracts for Enterprise Edition controls its own deployment but must still evaluate every connected provider and subprocessor it enables.
 
-**Save hours daily with templates.** Standardize your most common email communications without sacrificing personalization. Dynamic variables ensure every email feels personal while eliminating repetitive typing. Teams that adopt email templates typically report 30 to 50 percent time savings on email-related work.
-
-**Automated email workflows.** n8n-powered sequences handle follow-ups, welcome emails, deal stage notifications, and reminder emails without manual intervention. Your team focuses on high-value conversations while automation handles the routine messages.
+**Automated email workflows.** A separate n8n instance and external delivery provider can handle follow-ups, welcome emails, deal-stage notifications, and reminders. Your team focuses on high-value conversations while the external workflow handles routine messages.
 
 **Better team collaboration.** When every email is logged in the CRM, any team member can pick up a conversation or cover for a colleague instantly. Deal handoffs become seamless because the incoming owner has full visibility into every prior communication.
-
-**Engagement insights from tracking.** Open and click tracking tells you which contacts are engaged and which emails are being ignored. Use this data to prioritize outreach, refine messaging, and focus energy on prospects who are actively reading your emails.
 
 **No tool switching.** Your team continues using Gmail or [Outlook](/features/outlook-integration) as they always have. The CRM works in the background to capture and organize everything. Alternatively, they can compose and send directly from the CRM. Either way, the communication is logged.
 
 ## Why Choose Customermates for Email Integration
 
-**Native integration, no separate add-on.** Email integration is included from the Pro tier at EUR 29 per user per month, as part of the unified messaging inbox alongside LinkedIn, WhatsApp, Instagram, and Telegram. There are no per-email charges and no separate email sync product to buy on top of Pro. Compare that to CRMs that charge $50 or more per user for email features.
+**Native integration, no separate add-on.** Email integration is included from the Pro tier at [[commercial.price.pro.monthly]] per user per month, as part of the unified messaging inbox alongside LinkedIn, WhatsApp, Instagram, and Telegram. There are no per-email charges and no separate email sync product to buy on top of Pro. Compare that to CRMs that charge $50 or more per user for email features.
 
-**Privacy-first email sync.** Email data synced to Customermates is stored in EU data centers with full GDPR and DSGVO compliance. Unlike CRM providers that route email data through US servers, Customermates keeps your communications within European jurisdiction. When you self-host, email data never leaves your own infrastructure.
+**Documented hosting boundaries.** The managed Customermates database runs in an EU region. Application hosting, messaging services, and other providers, including US providers, may process data elsewhere and are documented separately; this is not a compliance certification. Self-hosting has Starter entitlements and excludes the cloud inbox.
 
-**Open-source transparency.** The email integration code is open source. You can verify exactly how your email data is handled, processed, and stored. No black boxes and no hidden data processing. If your organization requires a security audit of email handling, the source code is available for review.
-
-**n8n-powered email automation.** The integrated n8n engine turns Customermates into an email automation platform. Build sequences that rival dedicated tools like Lemlist, Woodpecker, or HubSpot Sales sequences, all within your CRM at no additional cost.
-
-**Works with your existing email provider.** Gmail, Outlook 365, and any IMAP-compatible email service. Your team keeps using the inbox they prefer. No proprietary email system to adopt and no migration required.
+**n8n-powered email automation.** Connect a separate n8n instance and external delivery provider through Customermates interfaces. Campaigns and sequences run outside the CRM; their plans, limits, logs, and costs remain separate.
 
 ## Frequently Asked Questions
 
-**Which email providers are supported?**
-Customermates supports Gmail, Microsoft Outlook 365, and any email provider that supports IMAP. This covers the vast majority of business email setups including Google Workspace, Microsoft 365, and self-hosted email servers.
+### Which email accounts can I connect?
 
-**Is email tracking included?**
-Yes. Email open and click tracking is included with email integration from the Pro tier (EUR 29 per user per month). There is no separate tracking add-on on top of that.
+Hosted connection flows support Gmail, Microsoft Outlook, and IMAP inboxes. A connected account belongs to one user unless it is explicitly shared with the workspace.
 
-**How quickly do emails sync?**
-Emails typically appear on CRM contact timelines within seconds of being sent or received. Synchronization runs continuously, not on a delayed schedule.
+### Can I track opens and clicks?
 
-**Can I send automated email sequences?**
-Yes. The built-in n8n automation engine lets you build multi-step email sequences triggered by CRM events. Sequences can include delays, conditions, and branching logic, all configured visually without code.
+No. The current product ignores provider open- and click-tracking events and does not expose engagement dashboards.
 
-**Does email integration work with shared mailboxes?**
-Shared, team-wide inbox visibility is included from the Business tier at EUR 69 per user per month. On Pro, each user connects and sees their own mailbox; on Business, emails sent to a team address are logged on the appropriate contact records and multiple team members can access the same email thread from the CRM.
+### Can I schedule or bulk-send email?
 
-**Is my email data stored in the EU?**
-Yes. All email synchronization data is stored in European data centers with full GDPR compliance. When you self-host Customermates, email data is stored on your own servers in whatever jurisdiction you choose.
+No. Customermates sends email immediately. Scheduled sends, bulk campaigns, reusable templates, and sequences require a separately operated system.
 
-## Get Started with Email Integration Today
+### Can an AI agent draft without sending?
 
-Connecting your email to Customermates takes under two minutes. Sign up, navigate to Settings, connect your Gmail or Outlook account, and your email history begins syncing immediately. Create your first template, send a test message from the CRM, and set up your first automated sequence in n8n. Every email integration feature is available from day one.
+Yes, on an existing thread. An authorized MCP client can save or replace one local reply draft for human review. There is no draft object for a brand-new outbound email, and sending tools deliver immediately.
+
+### Can I send email sequences through an external provider?
+
+Yes, through separate services. A customer-run n8n workflow can react to documented CRM events, while an external delivery provider owns delays, conditions, branching, sending, limits, logs, and costs. Customermates itself has no sequence engine.
+
+### Is the calendar two-way?
+
+No. Connected Google or Microsoft calendar events appear in a read-only CRM view. Customermates does not create, edit, or schedule provider-calendar events.
+
+### Is my email data stored in the EU?
+
+The managed Customermates database runs in an EU region. Application hosting, messaging services, and connected providers may process data elsewhere, including through US providers; this is not a compliance certification. Self-hosting excludes the cloud email integration.
+
+## Get Started
+
+Connect an account from **Profile → Connected accounts**, then open the [Inbox](/docs/app-inbox). Read a synchronized thread, link its participant to the right contact, and either reply immediately or save a draft for review.

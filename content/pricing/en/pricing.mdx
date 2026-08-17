@@ -1,62 +1,47 @@
 ---
 title: "Pricing: The Agentic Open-Source CRM"
 titleAccent: simple, honest, European.
-description: "Fair, transparent pricing for the Agentic Open-Source CRM. AI agents operate the CRM through native MCP, and the hosted Assistant is included with a monthly credit allowance. Every core CRM feature is available from €12, while higher tiers add messaging capacity and more hosted AI credits."
+description: "Fair, transparent pricing for the Agentic Open-Source CRM. External AI clients operate the CRM through MCP, and a unified inbox covers email, LinkedIn, WhatsApp, Instagram, and Telegram. Every core CRM feature in every tier from [[commercial.price.starter.monthly]], with a managed database in an EU region."
 
 pricing:
   ariaLabelSlider: Number of users
-  ariaLabelTabs: Pricing period
+  customPrice: Custom
   users: Users
-  monthly: Monthly
-  yearly: Yearly
-  yearlySavings: 2 months free
   footnote: "A connected account is one linked mailbox, LinkedIn, WhatsApp, Instagram, or Telegram profile that belongs to a single user. Connected account limits vary by plan, see below."
-  totalSuffixSingular: "EUR/month total for {count} user"
-  totalSuffixPlural: "EUR/month total for {count} users"
+  totalSuffixSingular: "/month total for {count} user"
+  totalSuffixPlural: "/month total for {count} users"
   pricingCards:
-  - title: Starter
-    description: Your AI CRM
-    price: "12"
-    monthlyPrice: 12
-    annualPrice: 10
-    priceSubtext: EUR/Month
-    priceNote: billed annually
+  - plan: starter
+    title: Starter
+    description: Core CRM & MCP
     buttonText: Start free trial
     buttonHref: /auth/signup
     buttonColor: default
     buttonVariant: bordered
     features:
       - Contacts, organizations, deals, services & tasks
+      - "MCP access: connect an external AI client such as Claude, ChatGPT, or Gemini"
+      - REST API, webhooks & interfaces for your own n8n
       - "Monthly hosted AI allowance: 200 credits per active user"
-      - "External AI via MCP: connect Claude, ChatGPT or Gemini"
-      - REST API, webhooks & n8n automation
-  - title: Pro
-    description: CRM + unified inbox. Includes your 7-day free trial.
-    badge: 7-day free trial
-    price: "29"
-    monthlyPrice: 29
-    annualPrice: 24
-    priceSubtext: EUR/Month
-    priceNote: billed annually
+  - plan: pro
+    title: Pro
+    description: CRM + unified inbox. Includes your [[commercial.trial.days]]-day free trial.
+    badge: "[[commercial.trial.days]]-day free trial"
     buttonText: Start free trial
     buttonHref: /auth/signup
     buttonColor: default
     buttonVariant: bordered
     features:
       - Everything in Starter
-      - "Monthly hosted AI allowance: 500 credits per active user"
       - "Unified inbox: Email, LinkedIn, WhatsApp, Instagram, Telegram"
-      - 1 connected account per user included
-      - Calendar sync & LinkedIn Sales Navigator
-  - title: Business
+      - "[[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user included"
+      - Read-only calendar access & LinkedIn Sales Navigator
+      - "Monthly hosted AI allowance: 500 credits per active user"
+  - plan: business
+    title: Business
     description: For teams
     badge: Most popular
     featured: true
-    price: "69"
-    monthlyPrice: 69
-    annualPrice: 57
-    priceSubtext: EUR/Month
-    priceNote: billed annually
     buttonText: Start free trial
     buttonHref: /auth/signup
     buttonColor: primary
@@ -65,28 +50,30 @@ pricing:
     cardClassName: border-2 border-primary shadow-[0_0_24px] shadow-primary/20 dark:bg-content2
     features:
       - Everything in Pro
-      - "Monthly hosted AI allowance: 1,200 credits per active user"
-      - 3 connected accounts per user included
+      - "[[commercial.entitlement.business.includedAccountsPerUser]] connected accounts per user included"
       - "Shared accounts: team-wide inbox visibility"
       - One team-wide timeline across every channel
       - Priority support
-  - title: Enterprise
-    description: Scale & compliance
-    price: Custom
+      - "Monthly hosted AI allowance: 1,200 credits per active user"
+  - plan: enterprise
+    title: Enterprise
+    description: Custom scope & support
     buttonText: Contact sales
     buttonHref: mailto:sales@customermates.com?subject=Enterprise%20Plan%20Inquiry
     buttonColor: primary
     buttonVariant: solid
     features:
       - Everything in Business
-      - Finite, contract-configured hosted AI allowance per active user/month
-      - Custom AI agents, lead finding & enrichment
+      - Contracted custom-agent or lead-data workflows (not built in)
       - Done-for-you setup
-      - SSO, white-label & unlimited connected accounts (fair use)
+      - "[[commercial.entitlement.enterprise.includedAccountsPerUser]] connected accounts (fair use); SSO & white-label are not implemented and require contracted work"
       - Dedicated support & custom terms
+      - Finite, contract-configured hosted AI allowance per active user/month
 
 comparison:
+  customValue: Custom
   header: Plans
+  unlimitedValue: Unlimited (fair use)
   plans:
     starter:
       name: Starter
@@ -109,33 +96,16 @@ comparison:
   - title: Price & users
     rows:
       - label: Price per user/month
-        starter: "€12"
-        pro: "€29"
-        business: "€69"
-        enterprise: "Custom"
-      - label: Price per user/month (billed yearly)
-        starter: "€10"
-        pro: "€24"
-        business: "€57"
-        enterprise: "Custom"
+        catalogFact: monthlyPrice
   - title: Messaging
     rows:
       - label: Unified inbox
-        starter: false
-        pro: true
-        business: true
-        enterprise: true
+        catalogFact: messaging
       - label: Connected accounts per user
-        starter: "0"
-        pro: "1"
-        business: "3"
-        enterprise: "Unlimited (fair use)"
+        catalogFact: includedAccountsPerUser
       - label: Shared accounts
-        starter: false
-        pro: false
-        business: true
-        enterprise: true
-      - label: Calendar sync
+        catalogFact: sharedAccounts
+      - label: Read-only calendar access
         starter: false
         pro: true
         business: true
@@ -147,18 +117,6 @@ comparison:
         enterprise: true
       - label: LinkedIn Sales Navigator
         starter: false
-        pro: true
-        business: true
-        enterprise: true
-  - title: AI & automation
-    rows:
-      - label: Monthly hosted AI Assistant allowance per active user
-        starter: "200"
-        pro: "500"
-        business: "1,200"
-        enterprise: "Finite, contract-configured"
-      - label: External AI clients via MCP using your provider
-        starter: true
         pro: true
         business: true
         enterprise: true
@@ -174,7 +132,7 @@ comparison:
         pro: true
         business: true
         enterprise: true
-      - label: Audit log
+      - label: Linked records & notes
         starter: true
         pro: true
         business: true
@@ -184,38 +142,38 @@ comparison:
         pro: true
         business: true
         enterprise: true
-      - label: External AI access via MCP
+      - label: MCP access for an external AI client
         starter: true
         pro: true
         business: true
         enterprise: true
-      - label: n8n integration
+      - label: Interfaces for an external n8n instance
         starter: true
         pro: true
         business: true
         enterprise: true
   - title: Enterprise
     rows:
-      - label: Single Sign-On
+      - label: Single Sign-On (not yet built, by agreement)
         starter: false
         pro: false
         business: false
-        enterprise: true
-      - label: White-label
+        enterprise: "On request"
+      - label: White-label (not yet built, by agreement)
         starter: false
         pro: false
         business: false
-        enterprise: true
-      - label: Custom AI agents
+        enterprise: "On request"
+      - label: Contracted custom-agent workflow (not built in)
         starter: false
         pro: false
         business: false
-        enterprise: true
-      - label: Lead finding & enrichment
+        enterprise: "On request"
+      - label: Contracted lead-data workflow (not built in)
         starter: false
         pro: false
         business: false
-        enterprise: true
+        enterprise: "On request"
       - label: Support
         starter: "Community & Email"
         pro: "Email"
@@ -233,16 +191,16 @@ faq:
     content: We grow organically and invest directly in the product and support. This keeps our CRM permanently future-proof.
   - id: pricing-faq-3
     title: Why a specialized CRM?
-    content: An agentic Open-Source CRM adapts to your workflows instead of forcing them. Teams stay flexible, work more efficiently, and can extend the system with native AI integration and automation.
+    content: An agentic Open-Source CRM adapts to your workflows instead of forcing them. Teams can extend it through open APIs, customer-run automation, and external AI clients connected via MCP.
   - id: pricing-faq-4
     title: How does your CRM improve productivity?
     content: We focus on an intuitive user interface and true 1-click operation. This eliminates the need for intensive training. As a result, you save time, avoid mistakes, and focus on your customers, not on the system.
   - id: pricing-faq-5
     title: Why is your CRM a strong choice?
-    content: "We offer the core CRM functionality most teams need, combined with native AI integration, open APIs, and seamless integration with systems like n8n. That gives you an agentic Open-Source CRM with flexible extensions, fair pricing, and no expensive add-on modules."
+    content: "We offer the core CRM functionality most teams need, combined with MCP access for external AI clients, open APIs, and interfaces for a separate n8n instance. That gives you an agentic Open-Source CRM with flexible extensions and clear product boundaries."
   - id: pricing-faq-6
     title: What counts as a connected account?
-    content: "A connected account is one linked mailbox, LinkedIn, WhatsApp, Instagram, or Telegram profile that belongs to a single user. Pro includes 1 connected account per user, Business includes 3 per user, and Enterprise is unlimited under fair use. If you need more than 3 accounts per user, Enterprise is the right plan."
+    content: "A connected account is one linked mailbox, LinkedIn, WhatsApp, Instagram, or Telegram profile that belongs to a single user. Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, Business includes [[commercial.entitlement.business.includedAccountsPerUser]] per user, and Enterprise is [[commercial.entitlement.enterprise.includedAccountsPerUser]] under fair use. If you need more than [[commercial.entitlement.business.includedAccountsPerUser]] accounts per user, Enterprise is the right plan."
   - id: pricing-faq-7
     title: How does monthly billing work?
     content: "You pay per active user. When you add or remove users, the change is prorated on your next invoice. Plan upgrades apply immediately with a prorated charge for the remainder of the billing period, and downgrades apply immediately with the unused portion credited."
@@ -257,5 +215,5 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: View live demo
   buttonRightHref: https://demo.customermates.com
-  hint: ✓ No credit card required ✓ First 7 days free
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---

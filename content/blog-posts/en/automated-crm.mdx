@@ -53,11 +53,11 @@ An [agent-native CRM](/blog/ai-sales-agent) sidesteps all three: the agent is th
 
 Three layers that run together:
 
-**Layer 1: Native automation rules.** Field-change triggers, time-based reminders, simple multi-step sequences. Every modern CRM has this. Customermates ships rule-based [workflow automation](/features/workflow-automation) plus 26 webhook events that fire on key state changes.
+**Layer 1: Native automation rules.** Field-change triggers, time-based reminders, simple multi-step sequences. Every modern CRM has this. Customermates ships rule-based [workflow automation](/features/workflow-automation) plus [[derived.webhooks.events.total]] webhook events that fire on key state changes.
 
 **Layer 2: Integration platform.** A workflow engine that connects the CRM to other tools without code. n8n, Make, Zapier. Customermates ships an [n8n community node](/features/integrations) plus a full [REST API](/features/api), so any external system can read and write CRM state.
 
-**Layer 3: AI agent over MCP.** Claude, ChatGPT, Gemini, or any MCP-compatible agent connects to the CRM through Model Context Protocol. The agent reads contacts, deals, tasks; writes notes, follow-ups, stage changes; and runs multi-step workflows in plain English instead of pre-built rules. Customermates exposes [45 MCP tools](/features/api) for exactly this.
+**Layer 3: AI agent over MCP.** Claude, ChatGPT, Gemini, or any MCP-compatible agent connects to the CRM through Model Context Protocol. The agent reads contacts, deals, tasks; writes notes, follow-ups, stage changes; and runs multi-step workflows in plain English instead of pre-built rules. Customermates exposes [[[derived.mcp.tools.total]] MCP tools](/features/api) for exactly this.
 
 The first two layers are commodity. The third is where the experience changes.
 
@@ -109,7 +109,7 @@ Eight criteria, in order of impact:
 
 **Pricing that does not penalize automation.** Some CRMs charge separately for API access, webhooks, or "advanced automation tier." The economics of automation break if usage is metered.
 
-Customermates checks all eight. The [pricing](/pricing) starts at €12/user/month (€10 annually, Starter tier); workflow automation, webhooks, and the MCP server are included at every tier, with no separate "automation tier."
+Customermates checks all eight. The [pricing](/pricing) starts at [[commercial.price.starter.monthly]]/user/month (Starter tier); workflow automation, webhooks, and the MCP server are included at every tier, with no separate "automation tier."
 
 ## CRM automation tools, compared
 
@@ -127,11 +127,11 @@ The choice depends on whether you already use AI agents in your workflow. If you
 
 Customermates is built on the assumption that an AI agent will operate the system. That shapes every decision:
 
-**Native workflow automation.** Rule-based [workflow automation](/features/workflow-automation) with conditional logic, time delays, and 26 webhook events covering every state change. Free with the base plan, no separate tier.
+**Native workflow automation.** Rule-based [workflow automation](/features/workflow-automation) with conditional logic, time delays, and [[derived.webhooks.events.total]] webhook events covering every state change. Free with the base plan, no separate tier.
 
 **n8n community node.** Visual workflow design connecting Customermates to any of n8n's 400+ integrations. Useful for non-technical teams that want automation without code.
 
-**45 MCP tools.** Native MCP server exposes every CRM operation (create contact, update deal, log activity, query pipeline, generate report) to Claude, ChatGPT, Gemini, or any other MCP-compatible agent. The agent reads the inbox and writes back to the CRM in plain English.
+**[[derived.mcp.tools.total]] MCP tools.** Native MCP server exposes every CRM operation (create contact, update deal, log activity, query pipeline, generate report) to Claude, ChatGPT, Gemini, or any other MCP-compatible agent. The agent reads the inbox and writes back to the CRM in plain English.
 
 **Native unified inbox.** Email, LinkedIn, WhatsApp, Instagram, and Telegram in one inbox inside the CRM (Pro and up). Nine of the MCP tools operate that inbox, so the same agent that updates records can read, draft, and send across every channel. The pipeline and the conversation stay in one system.
 
@@ -153,7 +153,7 @@ A practical comparison of the platforms most teams evaluate. All have meaningful
 
 **Zoho CRM.** A low-cost option, €14-€52/user/month depending on tier (Standard €14, Professional €23, Enterprise €40, Ultimate €52, annual). Workflow rules and blueprints offer flexibility on par with Salesforce at a fraction of the cost. UX is dated and the learning curve is steep. Best for cost-conscious teams comfortable trading polish for value.
 
-**Customermates.** Open-source under AGPL-3.0, EU-hosted cloud from €12/user/month (Starter) or self-hosted free. Native [workflow automation](/features/workflow-automation), 26 webhook events, [n8n community node](/features/integrations), a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram on Pro and up), and 45 MCP tools for direct AI agent operation. Smaller ecosystem than HubSpot or Salesforce; the agent-native architecture is the differentiator. Best for technical SMBs or any team already running Claude, ChatGPT, or Gemini daily.
+**Customermates.** Open-source under AGPL-3.0, EU-hosted cloud from [[commercial.price.starter.monthly]]/user/month (Starter) or self-hosted free. Native [workflow automation](/features/workflow-automation), [[derived.webhooks.events.total]] webhook events, [n8n community node](/features/integrations), a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram on Pro and up), and [[derived.mcp.tools.total]] MCP tools for direct AI agent operation. Smaller ecosystem than HubSpot or Salesforce; the agent-native architecture is the differentiator. Best for technical SMBs or any team already running Claude, ChatGPT, or Gemini daily.
 
 **Monday CRM.** Visual automation through Monday's "Boards" model. Strong on team workflow visibility, weaker on sales-specific automation patterns. Pricing $15-$41/user/month (annual) with a three-seat minimum and no free plan. Best for cross-functional teams that already use Monday for project management and want a CRM in the same tool.
 
@@ -193,7 +193,7 @@ A CRM where the system updates itself instead of waiting for the rep to type. Pi
 
 **Can I automate an existing CRM, or do I need a new one?**
 
-Existing CRMs (HubSpot, Salesforce, Pipedrive) all have workflow rules and basic sequences; you can use n8n, Make, or Zapier to connect them to AI tools. The limitation is the depth of integration: most legacy CRMs were not built with agent operation in mind, so the agent has to work through API edges. Agent-native CRMs like Customermates expose richer interfaces (45 MCP tools) that let the agent operate everything natively.
+Existing CRMs (HubSpot, Salesforce, Pipedrive) all have workflow rules and basic sequences; you can use n8n, Make, or Zapier to connect them to AI tools. The limitation is the depth of integration: most legacy CRMs were not built with agent operation in mind, so the agent has to work through API edges. Agent-native CRMs like Customermates expose richer interfaces ([[derived.mcp.tools.total]] MCP tools) that let the agent operate everything natively.
 
 **What is the easiest first automation to set up?**
 
@@ -205,7 +205,7 @@ No. It removes the data-entry tax from the team. The conversations, judgment cal
 
 **How much does an automated CRM cost?**
 
-Native CRM automation runs $12-$175/user/month depending on tier (HubSpot, Salesforce, Pipedrive, Customermates). External automation platforms add $20-$150/month (Zapier, Make, n8n cloud). AI agent costs (Claude, ChatGPT API) typically run $5-$50/month for small teams. Total realistic budget: $20-$300/user/month all-in for a fully automated stack, depending on which CRM and which automation tools.
+Managed Customermates starts at [[commercial.price.starter.monthly]] per user per month; HubSpot, Salesforce, and Pipedrive vary by tier. External automation platforms and AI APIs are separate, usage-dependent costs. Calculate the complete stack from the current CRM subscription, the automation service you choose, and measured model usage rather than relying on a fixed all-in range.
 
 **Is open-source automated CRM worth it?**
 

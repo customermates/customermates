@@ -44,22 +44,22 @@ Open Google Sheets and create a new blank spreadsheet. Name it something clear l
 
 Your Contacts sheet is the foundation. Every other sheet references it. Here is a proven column structure:
 
-| Column | Purpose | Data Type |
-|--------|---------|-----------|
-| A: First Name | Contact first name | Text |
-| B: Last Name | Contact last name | Text |
-| C: Email | Primary email | Text (email format) |
-| D: Phone | Primary phone number | Text |
-| E: Company | Company or organization name | Text |
-| F: Job Title | Role at their company | Text |
-| G: Source | How you found them (referral, website, event) | Dropdown |
-| H: Status | Lead status (New, Contacted, Qualified, Customer, Inactive) | Dropdown |
-| I: Owner | Team member responsible | Dropdown |
-| J: Last Contact Date | Date of most recent interaction | Date |
-| K: Next Follow-Up | Date of next planned contact | Date |
-| L: Deal Value | Estimated revenue potential | Currency |
-| M: Notes | Free-text notes about the contact | Text |
-| N: Tags | Categorization labels | Text (comma-separated) |
+| Column               | Purpose                                                     | Data Type              |
+| -------------------- | ----------------------------------------------------------- | ---------------------- |
+| A: First Name        | Contact first name                                          | Text                   |
+| B: Last Name         | Contact last name                                           | Text                   |
+| C: Email             | Primary email                                               | Text (email format)    |
+| D: Phone             | Primary phone number                                        | Text                   |
+| E: Company           | Company or organization name                                | Text                   |
+| F: Job Title         | Role at their company                                       | Text                   |
+| G: Source            | How you found them (referral, website, event)               | Dropdown               |
+| H: Status            | Lead status (New, Contacted, Qualified, Customer, Inactive) | Dropdown               |
+| I: Owner             | Team member responsible                                     | Dropdown               |
+| J: Last Contact Date | Date of most recent interaction                             | Date                   |
+| K: Next Follow-Up    | Date of next planned contact                                | Date                   |
+| L: Deal Value        | Estimated revenue potential                                 | Currency               |
+| M: Notes             | Free-text notes about the contact                           | Text                   |
+| N: Tags              | Categorization labels                                       | Text (comma-separated) |
 
 **Configuration steps:**
 
@@ -74,20 +74,20 @@ Your Contacts sheet is the foundation. Every other sheet references it. Here is 
 
 Track sales opportunities and their progress through your pipeline:
 
-| Column | Purpose | Data Type |
-|--------|---------|-----------|
-| A: Deal Name | Descriptive name for the opportunity | Text |
-| B: Company | Associated company name | Text |
-| C: Contact | Primary contact for this deal | Text |
-| D: Deal Value | Expected revenue | Currency |
-| E: Stage | Pipeline stage | Dropdown |
-| F: Probability | Estimated likelihood of closing | Percentage |
-| G: Weighted Value | Deal Value multiplied by Probability | Formula |
-| H: Created Date | When the deal was created | Date |
-| I: Expected Close | Target close date | Date |
-| J: Owner | Sales rep responsible | Dropdown |
-| K: Next Action | What needs to happen next | Text |
-| L: Notes | Additional context | Text |
+| Column            | Purpose                              | Data Type  |
+| ----------------- | ------------------------------------ | ---------- |
+| A: Deal Name      | Descriptive name for the opportunity | Text       |
+| B: Company        | Associated company name              | Text       |
+| C: Contact        | Primary contact for this deal        | Text       |
+| D: Deal Value     | Expected revenue                     | Currency   |
+| E: Stage          | Pipeline stage                       | Dropdown   |
+| F: Probability    | Estimated likelihood of closing      | Percentage |
+| G: Weighted Value | Deal Value multiplied by Probability | Formula    |
+| H: Created Date   | When the deal was created            | Date       |
+| I: Expected Close | Target close date                    | Date       |
+| J: Owner          | Sales rep responsible                | Dropdown   |
+| K: Next Action    | What needs to happen next            | Text       |
+| L: Notes          | Additional context                   | Text       |
 
 **Pipeline stage best practice:** Define your stages based on buyer actions, not seller activities. "Demo Completed" is better than "Needs Follow-Up" because it is objective and verifiable. Keep your stages to five or fewer:
 
@@ -103,53 +103,60 @@ For the Weighted Value formula in column G, enter: `=D2*F2`. This gives you a re
 
 Log every meaningful interaction. The rule: every call, email, or meeting gets logged before you close the tab. It takes 30 seconds and keeps your pipeline accurate.
 
-| Column | Purpose | Data Type |
-|--------|---------|-----------|
-| A: Date | When the activity occurred | Date |
-| B: Contact | Who you interacted with | Text |
-| C: Company | Associated company | Text |
-| D: Type | Activity type (Call, Email, Meeting, Note) | Dropdown |
-| E: Subject | Brief description | Text |
-| F: Details | Full details of the interaction | Text |
-| G: Follow-Up Needed | Whether follow-up is required | Checkbox |
-| H: Follow-Up Date | When to follow up | Date |
-| I: Logged By | Team member who logged the activity | Dropdown |
+| Column              | Purpose                                    | Data Type |
+| ------------------- | ------------------------------------------ | --------- |
+| A: Date             | When the activity occurred                 | Date      |
+| B: Contact          | Who you interacted with                    | Text      |
+| C: Company          | Associated company                         | Text      |
+| D: Type             | Activity type (Call, Email, Meeting, Note) | Dropdown  |
+| E: Subject          | Brief description                          | Text      |
+| F: Details          | Full details of the interaction            | Text      |
+| G: Follow-Up Needed | Whether follow-up is required              | Checkbox  |
+| H: Follow-Up Date   | When to follow up                          | Date      |
+| I: Logged By        | Team member who logged the activity        | Dropdown  |
 
 ### Step 5: Build a Dashboard Sheet
 
 Create a summary sheet using formulas that pull from your other tabs:
 
 **Total open pipeline value:**
+
 ```
 =SUMIF(Deals!E:E,"<>Closed Won",Deals!D:D)-SUMIF(Deals!E:E,"Closed Lost",Deals!D:D)
 ```
 
 **Weighted pipeline value:**
+
 ```
 =SUMPRODUCT((Deals!E:E<>"Closed Won")*(Deals!E:E<>"Closed Lost")*Deals!G:G)
 ```
 
 **Deals by stage** (repeat for each stage):
+
 ```
 =COUNTIF(Deals!E:E,"Discovery / Demo")
 ```
 
 **Win rate:**
+
 ```
 =COUNTIF(Deals!E:E,"Closed Won")/(COUNTIF(Deals!E:E,"Closed Won")+COUNTIF(Deals!E:E,"Closed Lost"))
 ```
 
 **Average deal size:**
+
 ```
 =AVERAGEIF(Deals!E:E,"Closed Won",Deals!D:D)
 ```
 
 **Overdue follow-ups (contacts who need attention now):**
+
 ```
 =COUNTIFS(Contacts!K:K,"<"&TODAY(),Contacts!K:K,"<>")
 ```
 
 **Contacts by status:**
+
 ```
 =COUNTIF(Contacts!H:H,"Qualified")
 ```
@@ -221,7 +228,7 @@ When a company changes its name or a contact moves to a different organization, 
 
 Google Sheets cannot natively trigger actions based on data changes. You cannot create a rule that says "when a deal moves to Proposal Sent, email the customer a pricing sheet" or "when a follow-up date passes, alert the assigned rep in Slack."
 
-You can build workarounds with Apps Script or Zapier, but these are fragile, limited to simple triggers, and require technical maintenance. In comparison, a CRM like Customermates includes native n8n integration that provides visual, code-free [workflow automation](/features/workflow-automation) for processes of any complexity.
+You can build workarounds with Apps Script or Zapier, but these are fragile, limited to simple triggers, and require technical maintenance. In comparison, a CRM like Customermates includes separate n8n integration that provides visual, code-free [workflow automation](/features/workflow-automation) for processes of any complexity.
 
 ### 3. Poor Multi-User Collaboration
 
@@ -328,7 +335,7 @@ In Customermates:
 2. Import Deals next (link to existing contacts and companies during the mapping step)
 3. Import Activities last (associate with contacts and deals)
 
-Customermates provides a field-mapping interface during import that lets you match CSV columns to CRM fields. Most teams complete the entire migration in a single afternoon.
+Customermates has no import screen and no field-mapping interface. An AI agent over MCP does the mapping conversationally instead. Most teams complete the entire migration in a single afternoon.
 
 ### Step 5: Build What Google Sheets Could Not
 
@@ -340,7 +347,7 @@ Now set up the capabilities your spreadsheet lacked:
 - **Automated lead scoring and routing** with n8n workflows
 - **Real-time dashboards** that update without manual formula maintenance
 - **Role-based permissions** so team members see only relevant data
-- **native AI integration** for data entry, follow-up drafting, and task management
+- **MCP integration for external AI clients** for data entry, follow-up drafting, and task management
 
 ## Why Customermates Is the Natural Upgrade from Google Sheets
 
@@ -348,17 +355,17 @@ Does Google have a CRM option? Not directly. Google Workspace includes productiv
 
 **Familiar simplicity.** The interface is clean and intuitive. If your team can use Google Sheets, they can use Customermates. The learning curve is measured in hours, not weeks.
 
-**Transparent pricing.** From EUR 12 per user per month with the full core CRM included. No per-contact charges, no add-on costs to unlock the basics. That is barely more than many Google Workspace subscriptions.
+**Transparent pricing.** From [[commercial.price.starter.monthly]] per user per month with the full core CRM included. No per-contact charges, no add-on costs to unlock the basics. That is barely more than many Google Workspace subscriptions.
 
-**Automation from day one.** Native n8n integration means you can automate the follow-ups, notifications, and data updates that consumed your time in the spreadsheet. No coding required.
+**Automation from day one.** A separate n8n integration means you can automate the follow-ups, notifications, and data updates that consumed your time in the spreadsheet. No coding required.
 
-**native AI integration.** Let artificial intelligence handle data entry, follow-up drafting, meeting summaries, and task management. These are the repetitive tasks that ate your time in Google Sheets.
+**MCP integration for external AI clients.** Let artificial intelligence handle data entry, follow-up drafting, meeting summaries, and task management. These are the repetitive tasks that ate your time in Google Sheets.
 
 **GDPR compliance built in.** Purpose-built for EU data protection. Audit logging, access controls, data retention policies, and EU hosting replace the compliance gaps Google Sheets leaves open.
 
 **Self-hostable and open source.** Deploy on your own servers for complete data control. Inspect and modify the source code. No vendor lock-in, ever.
 
-**CSV import.** Migrating from Google Sheets is as simple as exporting CSVs and importing them into Customermates. The field mapper handles the rest.
+**API and agent import.** Migrating from Google Sheets means exporting the data and creating the records through the REST API, or letting an AI agent over MCP do it from the file. The field mapper handles the rest.
 
 ## Frequently Asked Questions
 
@@ -368,11 +375,11 @@ Yes. Google Sheets can function as a basic CRM for tracking contacts, deals, and
 
 ### Is Google Sheets a good CRM?
 
-Google Sheets is a good *starting* CRM, but it is not a good *long-term* CRM. It excels at being free, familiar, and immediately available. It falls short on automation, multi-user collaboration, email integration, pipeline visualization, and compliance. Most teams outgrow a Google Sheets CRM within 6 to 12 months of serious use. The key question is not whether to start with Google Sheets, but when to recognize you have outgrown it.
+Google Sheets is a good _starting_ CRM, but it is not a good _long-term_ CRM. It excels at being free, familiar, and immediately available. It falls short on automation, multi-user collaboration, email integration, pipeline visualization, and compliance. Most teams outgrow a Google Sheets CRM within 6 to 12 months of serious use. The key question is not whether to start with Google Sheets, but when to recognize you have outgrown it.
 
 ### Does Google have a CRM option?
 
-Google does not offer a dedicated CRM product. Google Workspace (Gmail, Sheets, Calendar, Contacts) provides the building blocks that people combine into makeshift CRM workflows, but there is no unified CRM application from Google. Google Contacts is the closest thing, but it lacks deal tracking, pipeline management, automation, and reporting. For a purpose-built CRM that integrates well with Google Workspace, consider [Customermates](/) from EUR 12 per user per month.
+Google does not offer a dedicated CRM product. Google Workspace (Gmail, Sheets, Calendar, Contacts) provides the building blocks that people combine into makeshift CRM workflows, but there is no unified CRM application from Google. Google Contacts is the closest thing, but it lacks deal tracking, pipeline management, automation, and reporting. For a purpose-built CRM that integrates well with Google Workspace, consider [Customermates](/) from [[commercial.price.starter.monthly]] per user per month.
 
 ### How many contacts can a Google Sheets CRM handle?
 
@@ -384,7 +391,7 @@ The best template depends on your sales process. Sheetify CRM is popular for sol
 
 ### When should I switch from Google Sheets to a real CRM?
 
-Switch when you notice any of these signs: more than 3 people using the spreadsheet, more than 500 contacts, missed follow-ups due to lack of reminders, compliance requirements (especially GDPR), or when building reports takes longer than using the information in them. The cost of a CRM like Customermates (from EUR 12 per user per month) is almost always less than the revenue lost from dropped follow-ups and messy data.
+Switch when you notice any of these signs: more than 3 people using the spreadsheet, more than 500 contacts, missed follow-ups due to lack of reminders, compliance requirements (especially GDPR), or when building reports takes longer than using the information in them. The cost of a CRM like Customermates (from [[commercial.price.starter.monthly]] per user per month) is almost always less than the revenue lost from dropped follow-ups and messy data.
 
 ## Conclusion
 
@@ -392,6 +399,6 @@ Google Sheets is a capable starting point for customer relationship management. 
 
 But recognize the ceiling. When your team grows, when you need automation, when follow-ups start falling through the cracks, or when compliance requirements surface, Google Sheets stops being a solution and starts being an obstacle that costs you real revenue.
 
-The good news is that modern CRM software has become remarkably affordable and easy to adopt. Customermates, from EUR 12 per user per month, provides everything a Google Sheets CRM cannot: relational data, [workflow automation](/features/workflow-automation), pipeline visualization, email integration, GDPR compliance, and native AI integration, all in an [open-source](/blog/open-source-crm), self-hostable package.
+The good news is that modern CRM software has become remarkably affordable and easy to adopt. Customermates, from [[commercial.price.starter.monthly]] per user per month, provides everything a Google Sheets CRM cannot: relational data, [workflow automation](/features/workflow-automation), pipeline visualization, email integration, GDPR compliance, and MCP integration for external AI clients, all in an [open-source](/blog/open-source-crm), self-hostable package.
 
 Start with the templates if you need to. But bookmark this guide for when it is time to graduate.

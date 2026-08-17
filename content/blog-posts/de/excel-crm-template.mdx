@@ -45,23 +45,23 @@ Für Unternehmen mit weniger als 100 bis 200 Kontakten und ein bis zwei Personen
 
 Das Kontaktblatt ist Ihre zentrale Datenbank. Jede Person, mit der Ihr Unternehmen interagiert, erhält hier eine Zeile.
 
-| Spalte | Feldname | Datentyp | Validierung |
-|--------|----------|----------|-------------|
-| A | Kontakt-ID | Zahl | Auto-Inkrement: `=WENN(B2="";"";ZEILE()-1)` |
-| B | Vorname | Text | Pflichtfeld |
-| C | Nachname | Text | Pflichtfeld |
-| D | E-Mail | Text | Benutzerdefinierte Prüfung auf @-Zeichen |
-| E | Telefon | Text | - |
-| F | Firma | Text | - |
-| G | Position | Text | - |
-| H | Kontakttyp | Dropdown | Lead, Kunde, Partner, Lieferant |
-| I | Quelle | Dropdown | Website, Empfehlung, Messe, LinkedIn, Kaltakquise, Sonstige |
-| J | Status | Dropdown | Neu, Kontaktiert, Qualifiziert, Kunde, Inaktiv, Verloren |
-| K | Zuständig | Dropdown | Ihre Teammitglieder |
-| L | Erstellt am | Datum | Keine Zukunftsdaten |
-| M | Letzter Kontakt | Datum | - |
-| N | Nächster Follow-up | Datum | - |
-| O | Notizen | Text | - |
+| Spalte | Feldname           | Datentyp | Validierung                                                 |
+| ------ | ------------------ | -------- | ----------------------------------------------------------- |
+| A      | Kontakt-ID         | Zahl     | Auto-Inkrement: `=WENN(B2="";"";ZEILE()-1)`                 |
+| B      | Vorname            | Text     | Pflichtfeld                                                 |
+| C      | Nachname           | Text     | Pflichtfeld                                                 |
+| D      | E-Mail             | Text     | Benutzerdefinierte Prüfung auf @-Zeichen                    |
+| E      | Telefon            | Text     | -                                                           |
+| F      | Firma              | Text     | -                                                           |
+| G      | Position           | Text     | -                                                           |
+| H      | Kontakttyp         | Dropdown | Lead, Kunde, Partner, Lieferant                             |
+| I      | Quelle             | Dropdown | Website, Empfehlung, Messe, LinkedIn, Kaltakquise, Sonstige |
+| J      | Status             | Dropdown | Neu, Kontaktiert, Qualifiziert, Kunde, Inaktiv, Verloren    |
+| K      | Zuständig          | Dropdown | Ihre Teammitglieder                                         |
+| L      | Erstellt am        | Datum    | Keine Zukunftsdaten                                         |
+| M      | Letzter Kontakt    | Datum    | -                                                           |
+| N      | Nächster Follow-up | Datum    | -                                                           |
+| O      | Notizen            | Text     | -                                                           |
 
 **Einrichtungsschritte:**
 
@@ -76,21 +76,21 @@ Das Kontaktblatt ist Ihre zentrale Datenbank. Jede Person, mit der Ihr Unternehm
 
 Trennen Sie Firmeninformationen von Kontakten, um Redundanzen zu vermeiden. Verknüpfen Sie Kontakte über die Firma-Spalte mit Firmen.
 
-| Spalte | Feldname | Datentyp | Validierung |
-|--------|----------|----------|-------------|
-| A | Firmen-ID | Zahl | Auto-Inkrement |
-| B | Firmenname | Text | Pflichtfeld |
-| C | Branche | Dropdown | Ihre relevanten Branchen |
-| D | Website | Text | URL-Format |
-| E | Straße | Text | - |
-| F | PLZ | Text | - |
-| G | Ort | Text | - |
-| H | Land | Dropdown | Länderliste |
-| I | Größe | Dropdown | 1-10, 11-50, 51-200, 201-1000, 1000+ |
-| J | Jahresumsatz | Dropdown | Umsatzbereiche |
-| K | Zuständig | Dropdown | Ihre Teammitglieder |
-| L | Erstellt am | Datum | - |
-| M | Notizen | Text | - |
+| Spalte | Feldname     | Datentyp | Validierung                          |
+| ------ | ------------ | -------- | ------------------------------------ |
+| A      | Firmen-ID    | Zahl     | Auto-Inkrement                       |
+| B      | Firmenname   | Text     | Pflichtfeld                          |
+| C      | Branche      | Dropdown | Ihre relevanten Branchen             |
+| D      | Website      | Text     | URL-Format                           |
+| E      | Straße       | Text     | -                                    |
+| F      | PLZ          | Text     | -                                    |
+| G      | Ort          | Text     | -                                    |
+| H      | Land         | Dropdown | Länderliste                          |
+| I      | Größe        | Dropdown | 1-10, 11-50, 51-200, 201-1000, 1000+ |
+| J      | Jahresumsatz | Dropdown | Umsatzbereiche                       |
+| K      | Zuständig    | Dropdown | Ihre Teammitglieder                  |
+| L      | Erstellt am  | Datum    | -                                    |
+| M      | Notizen      | Text     | -                                    |
 
 **Tipp:** Standardisieren Sie Firmennamen konsequent. Entscheiden Sie sich für „GmbH" oder „GmbH." und bleiben Sie dabei. Inkonsistente Namen lassen SVERWEIS und ZÄHLENWENN scheitern.
 
@@ -98,23 +98,23 @@ Trennen Sie Firmeninformationen von Kontakten, um Redundanzen zu vermeiden. Verk
 
 Das Deal-Blatt verfolgt Ihre Verkaufschancen durch die einzelnen Phasen.
 
-| Spalte | Feldname | Datentyp | Validierung |
-|--------|----------|----------|-------------|
-| A | Deal-ID | Zahl | Auto-Inkrement |
-| B | Deal-Name | Text | Pflichtfeld |
-| C | Firma | Text | Referenz auf Firmenblatt |
-| D | Kontakt | Text | Referenz auf Kontaktblatt |
-| E | Dealwert | Währung | Zahl größer 0 |
-| F | Phase | Dropdown | Akquise, Qualifiziert, Termin vereinbart, Angebot versendet, Verhandlung, Gewonnen, Verloren |
-| G | Wahrscheinlichkeit | Prozent | 0 bis 100 Prozent |
-| H | Gewichteter Wert | Formel | `=WENN(E2="";"";E2*G2)` |
-| I | Erstellt am | Datum | - |
-| J | Erwarteter Abschluss | Datum | - |
-| K | Tatsächlicher Abschluss | Datum | - |
-| L | Zuständig | Dropdown | Ihre Teammitglieder |
-| M | Status | Dropdown | Offen, Gewonnen, Verloren |
-| N | Verlustgrund | Dropdown | Preis, Wettbewerb, Timing, Kein Bedarf, Sonstige |
-| O | Notizen | Text | - |
+| Spalte | Feldname                | Datentyp | Validierung                                                                                  |
+| ------ | ----------------------- | -------- | -------------------------------------------------------------------------------------------- |
+| A      | Deal-ID                 | Zahl     | Auto-Inkrement                                                                               |
+| B      | Deal-Name               | Text     | Pflichtfeld                                                                                  |
+| C      | Firma                   | Text     | Referenz auf Firmenblatt                                                                     |
+| D      | Kontakt                 | Text     | Referenz auf Kontaktblatt                                                                    |
+| E      | Dealwert                | Währung  | Zahl größer 0                                                                                |
+| F      | Phase                   | Dropdown | Akquise, Qualifiziert, Termin vereinbart, Angebot versendet, Verhandlung, Gewonnen, Verloren |
+| G      | Wahrscheinlichkeit      | Prozent  | 0 bis 100 Prozent                                                                            |
+| H      | Gewichteter Wert        | Formel   | `=WENN(E2="";"";E2*G2)`                                                                      |
+| I      | Erstellt am             | Datum    | -                                                                                            |
+| J      | Erwarteter Abschluss    | Datum    | -                                                                                            |
+| K      | Tatsächlicher Abschluss | Datum    | -                                                                                            |
+| L      | Zuständig               | Dropdown | Ihre Teammitglieder                                                                          |
+| M      | Status                  | Dropdown | Offen, Gewonnen, Verloren                                                                    |
+| N      | Verlustgrund            | Dropdown | Preis, Wettbewerb, Timing, Kein Bedarf, Sonstige                                             |
+| O      | Notizen                 | Text     | -                                                                                            |
 
 Nutzen Sie bedingte Formatierung, um die Phase-Spalte farblich zu codieren. Jede Pipeline-Phase erhält eine eigene Farbe. So scannen Sie die Pipeline deutlich schneller.
 
@@ -122,20 +122,20 @@ Nutzen Sie bedingte Formatierung, um die Phase-Spalte farblich zu codieren. Jede
 
 Protokollieren Sie jeden Kontaktpunkt mit Kunden und Firmen. Dieses Blatt wird von den meisten ausgelassen, ist aber das wertvollste für Follow-up-Disziplin.
 
-| Spalte | Feldname | Datentyp | Validierung |
-|--------|----------|----------|-------------|
-| A | Aktivitäts-ID | Zahl | Auto-Inkrement |
-| B | Datum | Datum | Pflichtfeld |
-| C | Kontakt | Text | Referenz auf Kontaktblatt |
-| D | Firma | Text | Referenz auf Firmenblatt |
-| E | Art | Dropdown | Anruf, E-Mail, Meeting, Aufgabe, Notiz |
-| F | Betreff | Text | Pflichtfeld |
-| G | Details | Text | - |
-| H | Ergebnis | Dropdown | Erfolgreich, Kein Erreichen, Vertagt, Erledigt |
-| I | Nächster Schritt | Text | - |
-| J | Fällig am | Datum | - |
-| K | Follow-up erledigt | Dropdown | Ja, Nein |
-| L | Zuständig | Dropdown | Ihre Teammitglieder |
+| Spalte | Feldname           | Datentyp | Validierung                                    |
+| ------ | ------------------ | -------- | ---------------------------------------------- |
+| A      | Aktivitäts-ID      | Zahl     | Auto-Inkrement                                 |
+| B      | Datum              | Datum    | Pflichtfeld                                    |
+| C      | Kontakt            | Text     | Referenz auf Kontaktblatt                      |
+| D      | Firma              | Text     | Referenz auf Firmenblatt                       |
+| E      | Art                | Dropdown | Anruf, E-Mail, Meeting, Aufgabe, Notiz         |
+| F      | Betreff            | Text     | Pflichtfeld                                    |
+| G      | Details            | Text     | -                                              |
+| H      | Ergebnis           | Dropdown | Erfolgreich, Kein Erreichen, Vertagt, Erledigt |
+| I      | Nächster Schritt   | Text     | -                                              |
+| J      | Fällig am          | Datum    | -                                              |
+| K      | Follow-up erledigt | Dropdown | Ja, Nein                                       |
+| L      | Zuständig          | Dropdown | Ihre Teammitglieder                            |
 
 **Bedingte Formatierung:** Markieren Sie Zeilen, in denen das Fälligkeitsdatum vor HEUTE() liegt und Follow-up erledigt auf Nein steht. So entsteht eine einfache aber effektive Überfällig-Liste.
 
@@ -146,31 +146,37 @@ Das Dashboard-Blatt fasst Ihre CRM-Daten mit Formeln und Diagrammen zusammen. Ke
 **Wichtige Formeln:**
 
 **Gesamtanzahl Kontakte:**
+
 ```
 =ANZAHL2(Kontakte!B2:B10000)
 ```
 
 **Aktive Deals:**
+
 ```
 =ZÄHLENWENN(Deals!M2:M10000;"Offen")
 ```
 
 **Gesamter Pipeline-Wert:**
+
 ```
 =SUMMEWENN(Deals!M2:M10000;"Offen";Deals!E2:E10000)
 ```
 
 **Gewichteter Pipeline-Wert:**
+
 ```
 =SUMMENPRODUKT((Deals!M2:M10000="Offen")*(Deals!E2:E10000)*(Deals!G2:G10000))
 ```
 
 **Gewonnene Deals (aktueller Monat):**
+
 ```
 =ZÄHLENWENNS(Deals!M2:M10000;"Gewonnen";Deals!K2:K10000;">="&DATUM(JAHR(HEUTE());MONAT(HEUTE());1);Deals!K2:K10000;"<="&MONATSENDE(HEUTE();0))
 ```
 
 **Gewinnrate:**
+
 ```
 =ZÄHLENWENN(Deals!M2:M10000;"Gewonnen")/(ZÄHLENWENN(Deals!M2:M10000;"Gewonnen")+ZÄHLENWENN(Deals!M2:M10000;"Verloren"))
 ```
@@ -242,24 +248,24 @@ Tabellenkalkulationen bieten keine Einwilligungsverfolgung, keinen strukturierte
 
 ## Excel CRM vs Dediziertes CRM: Vergleichstabelle
 
-| Funktion | Excel CRM Vorlage | Dediziertes CRM (z. B. Customermates) |
-|----------|-------------------|----------------------------------------|
-| Kosten | Kostenlos (mit Microsoft 365) | Ab 12 EUR pro Nutzer und Monat |
-| Einrichtungszeit | 1 bis 2 Stunden | 30 Minuten bis 1 Tag |
-| Kontaktlimit | Wird ab 5.000+ Zeilen langsam | Unbegrenzt |
-| Mehrbenutzer-Bearbeitung | Konfliktanfällig | Echtzeit, keine Konflikte |
-| Mobile Nutzung | Unpraktisch | Volle mobile Unterstützung |
-| E-Mail-Integration | Keine | Integriert |
-| Automatisierung | Keine (nur manuelles VBA) | Workflows, Erinnerungen, n8n-Integration |
-| Pipeline-Visualisierung | Manuelle Diagramme | Drag-and-Drop-Kanban-Board |
-| Reporting | Pivot-Tabellen | Integrierte Dashboards und Analysen |
-| DSGVO-Konformität | Keine integrierte Unterstützung | Audit-Logs, Einwilligungsverfolgung, EU-Hosting |
-| Berechtigungen | Keine (nur auf Dateiebene) | Rollenbasierte Zugriffskontrolle |
-| Datenbeziehungen | SVERWEIS (fragil) | Automatische Verknüpfung über alle Datensätze |
-| Änderungsverlauf | Keiner | Vollständige Änderungshistorie |
-| Integrationen | Keine | API, Webhooks, n8n-Automatisierung |
-| Backup und Recovery | Manuell | Automatisch |
-| Self-Hosting-Option | N/A | Verfügbar (Open Source) |
+| Funktion                 | Excel CRM Vorlage               | Dediziertes CRM (z. B. Customermates)                        |
+| ------------------------ | ------------------------------- | ------------------------------------------------------------ |
+| Kosten                   | Kostenlos (mit Microsoft 365)   | Ab [[commercial.price.starter.monthly]] pro Nutzer und Monat |
+| Einrichtungszeit         | 1 bis 2 Stunden                 | 30 Minuten bis 1 Tag                                         |
+| Kontaktlimit             | Wird ab 5.000+ Zeilen langsam   | Unbegrenzt                                                   |
+| Mehrbenutzer-Bearbeitung | Konfliktanfällig                | Echtzeit, keine Konflikte                                    |
+| Mobile Nutzung           | Unpraktisch                     | Volle mobile Unterstützung                                   |
+| E-Mail-Integration       | Keine                           | Integriert                                                   |
+| Automatisierung          | Keine (nur manuelles VBA)       | Workflows, Erinnerungen, n8n-Integration                     |
+| Pipeline-Visualisierung  | Manuelle Diagramme              | Drag-and-Drop-Kanban-Board                                   |
+| Reporting                | Pivot-Tabellen                  | Integrierte Dashboards und Analysen                          |
+| DSGVO-Konformität        | Keine integrierte Unterstützung | Audit-Logs, Einwilligungsverfolgung, EU-Hosting              |
+| Berechtigungen           | Keine (nur auf Dateiebene)      | Rollenbasierte Zugriffskontrolle                             |
+| Datenbeziehungen         | SVERWEIS (fragil)               | Automatische Verknüpfung über alle Datensätze                |
+| Änderungsverlauf         | Keiner                          | Vollständige Änderungshistorie                               |
+| Integrationen            | Keine                           | API, Webhooks, n8n-Automatisierung                           |
+| Backup und Recovery      | Manuell                         | Automatisch                                                  |
+| Self-Hosting-Option      | N/A                             | Verfügbar (Open Source)                                      |
 
 ## Wann Sie von Excel auf ein echtes CRM umsteigen sollten
 
@@ -274,7 +280,7 @@ Der Wechsel vom Tabellen-CRM zu dedizierter CRM-Software ist sinnvoll, wenn mind
 - Sie wollen E-Mail, Kalender oder andere Tools integrieren
 - Sie haben Deals verloren, weil Follow-ups untergegangen sind
 
-Wenn drei oder mehr Punkte zutreffen, übersteigen die Kosten des Excel-Verbleibs die Kosten eines CRM-Abonnements. Ab 12 EUR pro Nutzer und Monat mit Customermates erreichen Sie den Break-even innerhalb der ersten Woche durch wiedergewonnene Produktivität.
+Wenn drei oder mehr Punkte zutreffen, übersteigen die Kosten des Excel-Verbleibs die Kosten eines CRM-Abonnements. Ab [[commercial.price.starter.monthly]] pro Nutzer und Monat mit Customermates erreichen Sie den Break-even innerhalb der ersten Woche durch wiedergewonnene Produktivität.
 
 ## Migration von der Excel CRM Vorlage zum dedizierten CRM
 
@@ -303,7 +309,7 @@ Importieren Sie in dieser Reihenfolge, um Beziehungen zu erhalten:
 
 ### Schritt 4: Felder beim Import zuordnen
 
-Customermates unterstützt vollständigen CSV-Import mit automatischer Feldzuordnung. Beim Import ordnen Sie Ihre CSV-Spaltenüberschriften den CRM-Feldern zu, sehen eine Vorschau und bestätigen. Gängige Spaltenbezeichnungen wie Vorname, E-Mail und Firma werden automatisch erkannt.
+Customermates besitzt weder einen CSV-Importer noch eine Feldzuordnungsmaske; Datensätze entstehen über die REST API oder durch einen externen KI-Client per MCP. Für die Migration ordnen Sie Ihre CSV-Spalten vorab den CRM-Feldern zu, prüfen die Zuordnung und laden die Datensätze dann per REST API oder MCP. Gängige Spaltennamen wie Vorname, E-Mail und Firma können Sie dabei direkt angleichen.
 
 ### Schritt 5: Nach dem Import verifizieren
 
@@ -316,7 +322,7 @@ Prüfen Sie stichprobenartig 20 bis 30 Datensätze:
 
 ### Schritt 6: Erste Automatisierung einrichten
 
-Starten Sie mit einer einfachen Automatisierung: einer Follow-up-Erinnerung für Deals, die seit mehr als 7 Tagen keine Aktivität hatten. Die n8n-Integration in Customermates macht das in wenigen Minuten ohne Programmierung möglich. Allein diese eine Automatisierung zeigt sofort den Mehrwert gegenüber Ihrem Excel-Workflow.
+Wenn Sie ein zeitgesteuertes Follow-Up brauchen, betreiben Sie es in Ihrer eigenen n8n-Instanz oder einem anderen Scheduler. Speichern Sie das Follow-Up-Datum in einem Custom Field, lesen Sie Datensätze über die API und lassen Sie den externen Workflow zum gewählten Zeitpunkt eine Aufgabe oder Benachrichtigung erstellen. Customermates hostet n8n nicht und plant selbst keine Erinnerungen.
 
 ## Warum Customermates der logische nächste Schritt nach Excel ist
 
@@ -326,7 +332,7 @@ Customermates wurde mit dem Verständnis entwickelt, dass viele Unternehmen in E
 - **Selbst hostbar**: Betreiben Sie Customermates auf Ihrem eigenen Server oder nutzen Sie die EU-Cloud
 - **DSGVO-nativ**: Rollenbasierte Zugriffskontrolle, Audit-Logs und EU-Hosting für Unternehmen, die Datenschutz ernst nehmen
 - **n8n-Automatisierung**: Die Workflow-Automatisierung, die Excel nie bieten kann, ohne Programmierung
-- **Ab 12 EUR pro Nutzer und Monat**: Das volle Kern-CRM inklusive, keine Kontaktgebühren, keine Überraschungen
+- **Ab [[commercial.price.starter.monthly]] pro Nutzer und Monat**: Das volle Kern-CRM inklusive, keine Kontaktgebühren, keine Überraschungen
 
 ## Häufig gestellte Fragen
 
@@ -348,7 +354,7 @@ Excel kann technisch über eine Million Zeilen speichern, aber die Performance v
 
 ### Wie migriere ich meine Excel-CRM-Daten in ein echtes CRM?
 
-Exportieren Sie jedes Blatt als CSV-Datei und importieren Sie dann in dieser Reihenfolge in Ihr CRM: Firmen, Kontakte, Deals, Aktivitäten. Die meisten modernen CRM-Plattformen einschließlich Customermates unterstützen CSV-Import mit Feldzuordnung. Bereinigen Sie Ihre Daten (Duplikate entfernen, Namen standardisieren) vor dem Export für den reibungslosesten Übergang.
+Exportieren Sie jedes Blatt als CSV-Datei und importieren Sie dann in dieser Reihenfolge in Ihr CRM: Firmen, Kontakte, Deals, Aktivitäten. Die meisten modernen CRM-Plattformen unterstützen CSV-Import mit Feldzuordnung. Customermates nicht; dort läuft die Migration über die REST API oder einen KI-Agenten per MCP. Bereinigen Sie Ihre Daten (Duplikate entfernen, Namen standardisieren) vor dem Export für den reibungslosesten Übergang.
 
 ### Ist Google Sheets besser als Excel für eine CRM-Vorlage?
 
@@ -358,4 +364,4 @@ Google Sheets bietet bessere Echtzeit-Zusammenarbeit und kostenlosen Zugang ohne
 
 Eine Excel CRM Vorlage ist ein sinnvoller Startpunkt für die Verwaltung von Kundenbeziehungen. Sie lehrt Sie, welche Daten wichtig sind, wie Ihr Vertriebsprozess fließt und was Sie tatsächlich von einem CRM-System brauchen. Dieses Wissen macht Sie zu einem besseren Käufer, wenn Sie bereit sind, in dedizierte Software zu investieren.
 
-Bauen Sie die Fünf-Blatt-Vorlage aus diesem Ratgeber auf, befolgen Sie die Best Practices für Datenhygiene und migrieren Sie, wenn die Einschränkungen Sie mehr kosten als die Lösung. Mit Customermates ab 12 EUR pro Nutzer und Monat ist der Aufstieg von der Tabelle zum professionellen CRM nur einen CSV-Export und Import entfernt.
+Bauen Sie die Fünf-Blatt-Vorlage aus diesem Ratgeber auf, befolgen Sie die Best Practices für Datenhygiene und migrieren Sie, wenn die Einschränkungen Sie mehr kosten als die Lösung. Mit Customermates ab [[commercial.price.starter.monthly]] pro Nutzer und Monat ist der Aufstieg von der Tabelle zum professionellen CRM einen API-Aufruf oder eine Agenten-Sitzung entfernt.

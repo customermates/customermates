@@ -1,6 +1,6 @@
 import { Resource } from "@/generated/prisma";
 
-import { WebhooksCard } from "../components/webhook/webhooks-card";
+import { WebhooksPageView } from "../components/webhook/webhooks-page-view";
 
 import { getGetWebhooksInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
@@ -24,7 +24,7 @@ export default async function CompanyWebhooksPage({ searchParams }: Props) {
 
   return (
     <PageContainer padded={false}>
-      <WebhooksCard initialWebhooks={webhooks} />
+      <WebhooksPageView initialWebhooks={webhooks} />
     </PageContainer>
   );
 }

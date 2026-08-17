@@ -1,16 +1,16 @@
 ---
 title: "Customer Service CRM: Resolve Issues Faster"
-description: "Customer service CRM that logs communications, tracks service history, and resolves issues faster with AI-assisted workflows. Full context on every ticket."
+description: "Customer service CRM context for supported communications, linked notes, tasks, and service history. External AI clients can assist through MCP; Customermates is not a ticketing or SLA platform."
 featureName: Customer Service
 
 hero:
   title: "Customer Service CRM: Resolve Issues Faster With Full Context"
-  description: Track every service interaction and log customer communications across email, LinkedIn, WhatsApp, Instagram, and Telegram in one native inbox. Give your team the complete context they need to resolve issues on the first contact. AI agents help draft replies and keep records current at scale.
+  description: Track supported service interactions across email, LinkedIn, WhatsApp, Instagram, and Telegram in the unified inbox. Give your team recorded CRM context for individual replies. A supported external AI client can draft through MCP; the client and model remain separate.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First 7 days free"
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
   action: Ready to transform your customer service?
@@ -19,7 +19,7 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First 7 days free"
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
 ## What Is a Customer Service CRM?
@@ -34,13 +34,13 @@ Good customer service is not just about speed. It is about making customers feel
 
 | Feature | Customermates | Salesforce Service | HubSpot Service | Zendesk | Freshdesk |
 |---------|--------------|-------------------|----------------|---------|-----------|
-| Price/user | From €12/month | $25/mo | Free (limited) | $19/mo | $15/mo |
+| Price/user | From [[commercial.price.starter.monthly]]/month | $25/mo | Free (limited) | $19/mo | $15/mo |
 | Full customer timeline | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> |
 | Task-based issue tracking | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> |
 | CRM + service unified | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
-| AI assistance | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusAvailable /> |
-| Workflow automation | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusPartial /> |
-| EU/GDPR hosting | <StatusAvailable /> | <StatusPartial /> | <StatusUnavailable /> | <StatusPartial /> | <StatusUnavailable /> |
+| MCP for external AI clients | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusAvailable /> |
+| External automation interfaces | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusPartial /> |
+| Managed database in an EU region | <StatusAvailable /> | <StatusPartial /> | <StatusUnavailable /> | <StatusPartial /> | <StatusUnavailable /> |
 | Open source | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 | Self-hosting option | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 
@@ -52,17 +52,17 @@ Customermates provides the tools to manage customer service directly within your
 
 **Notes and communication logging.** Log every customer communication directly on the contact or organization record. Document phone call outcomes, meeting notes, email exchanges, and chat conversations. Every interaction becomes part of the permanent record, building the institutional knowledge that enables better service over time.
 
-**Task-based issue tracking.** Create tasks to track customer service issues and assign them to the right team members. Set due dates, priorities, and detailed descriptions. Monitor progress through to resolution. Task-based tracking ensures every customer issue has a clear owner, a deadline, and a documented outcome.
+**Task-based issue context.** Create tasks for customer issues, link them to supported records, assign an owner, and add a subject or description. Store any target date or priority in custom fields you define. Native tasks have no due date, overdue state, deadline, priority, or service-ticket status.
 
 **Linked deal and account context.** When handling a service request, your team sees the customer's full business context: deal history, current subscriptions, account value, contract terms, and relationship tier. A long-standing, high-value customer may warrant a different response than a trial user, and your team has the data to make that judgment call.
 
-**Native unified inbox.** Customers reach out on many channels. Customermates brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one unified inbox inside the CRM, so every message is logged on the customer's record automatically and your team replies without leaving the CRM. The unified inbox is included from the Pro tier (€29/user/month); shared, team-wide inboxes come with the Business tier (€69/user/month). Phone calls, meetings, and notes are logged on the same timeline.
+**Native unified inbox.** Customers reach out on many channels. Customermates brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one unified inbox inside the CRM, so every message is logged on the customer's record automatically and your team replies without leaving the CRM. The unified inbox is included from the Pro tier ([[commercial.price.pro.monthly]]/user/month); shared, team-wide inboxes come with the Business tier ([[commercial.price.business.monthly]]/user/month). Phone calls, meetings, and notes are logged on the same timeline.
 
 **Custom fields for service data.** Add custom fields to contact and organization records to track service-specific information: preferred communication channel, service level agreement (SLA), contract type, support tier, product version, or any attribute that helps your team deliver better service.
 
-**Automated service workflows.** Use n8n to automate service processes. Create tasks automatically when a customer reaches a milestone or reports an issue. Send satisfaction surveys after service interactions. Route requests based on customer attributes or issue type. Trigger escalation workflows when SLA deadlines approach. Automate the routine so your team focuses on solving problems.
+**External service workflows.** A separate n8n instance can react to documented CRM events, create supported tasks, or ask external providers to deliver surveys and routing notifications. Customermates does not bundle n8n and has no native SLA, escalation, survey, or routing engine.
 
-**AI agents and AI assistance.** Claude, ChatGPT, and Gemini connect through a native MCP integration (45 tools) and work in your service data directly. They summarize long conversation histories so new agents get up to speed instantly, draft response templates based on similar past issues, classify incoming requests by type and urgency, and keep records current. AI enhances your team's capability without replacing the human empathy that good service requires.
+**External AI-client assistance.** Supported clients such as Claude, ChatGPT, or Gemini can use [[derived.mcp.tools.total]] MCP tools to summarize allowed context, draft an individual response, and update supported fields. Customermates includes no AI chat or model; classification logic, client subscription, usage, and provider handling remain external.
 
 ## Key Benefits of a Customer Service CRM
 
@@ -74,37 +74,37 @@ Customermates provides the tools to manage customer service directly within your
 
 **Sales and service alignment.** Because service and sales data live in the same CRM, both teams have full visibility. Sales knows when a customer has open service issues before making an upsell call. Service knows the customer's deal history and account value. This alignment prevents embarrassing disconnects and creates a seamless customer experience.
 
-**Complete audit trail for compliance.** Every service interaction is logged with timestamps and user attribution. This trail is essential for regulatory compliance, dispute resolution, SLA tracking, and continuous service improvement. In regulated industries, a complete audit trail is not optional, it is required.
+**Recorded service context.** Supported messages, notes, tasks, and record changes retain timestamps and user context where the product records them. Do not describe this as a complete compliance audit trail or native SLA record; Customermates holds no compliance certification.
 
 **Reduced customer churn.** Customers leave when they feel ignored or when issues go unresolved. A customer service CRM ensures no request falls through the cracks, follow-ups happen on time, and your team has the context to resolve issues thoroughly the first time.
 
 ## Common Customer Service Use Cases
 
-**Service request management.** When a customer reports an issue, create a task, assign it to the right person, set a due date, and track it to resolution. The customer's full history provides context, and the resolution becomes part of their permanent record for future reference.
+**Service request context.** When a customer reports an issue, create and assign a linked task, add its description, and store any target date in a custom field. Customermates has no native task due date, overdue state, service-ticket status, or resolution workflow.
 
 **Customer onboarding support.** After a sale closes, the service team takes over onboarding. With access to the deal history, sales notes, and customer requirements, the service team has full context without needing a manual handoff meeting. The customer experiences a seamless transition from sales to service.
 
-**SLA management and tracking.** Define service level agreements using custom fields and automated workflows. Track response times and resolution times against SLA targets. Trigger escalation alerts when deadlines approach. Report on SLA compliance to identify areas for improvement.
+**Customer-defined SLA fields.** Store SLA targets or service tiers in custom fields. Response-time calculations, deadline monitoring, escalation alerts, and compliance reporting must be implemented in a separate customer-run workflow or reporting system.
 
-**Account health check-ins.** Schedule regular check-in tasks for your customer base. Proactive outreach keeps relationships healthy, surfaces potential issues before they escalate, and demonstrates that you value the relationship beyond transactions.
+**Account-health check-in context.** Record the next check-in date in a custom field and review it manually, or let an external scheduler evaluate it. Customermates does not natively schedule or remind on tasks.
 
-**Escalation management.** When a service issue requires escalation, the entire interaction history travels with it. The escalation handler sees every previous message, note, and action, so the customer never has to repeat themselves. Escalation workflows can be automated based on issue type, customer tier, or time elapsed.
+**External escalation workflows.** Recorded messages, notes, and tasks provide context. A separate workflow can evaluate customer-defined fields and send a notification through an external provider; Customermates has no native escalation or elapsed-time engine.
 
-**Customer satisfaction tracking.** Send satisfaction surveys after service interactions using automated n8n workflows. Track CSAT or NPS scores on customer records. Monitor trends over time and correlate satisfaction data with service team performance, issue types, and resolution times.
+**Customer satisfaction data.** Store a CSAT or NPS value in custom fields. Survey delivery, score collection, trend calculation, and any n8n runtime stay in separate services you operate.
 
-**Service performance reporting.** Track service metrics including average response time, resolution rate, task volumes, escalation frequency, and satisfaction scores. Use [reporting dashboards](/features/reporting) to identify staffing needs, training gaps, and process improvements.
+**Service performance reporting.** Store customer-defined response, resolution, escalation, and satisfaction values in custom fields. Chart supported fields in personal [reporting dashboards](/features/reporting), or calculate service metrics in a separate reporting system.
 
 ## Why Choose Customermates for Customer Service
 
-**Open source and transparent.** Customermates is fully open source. Your customer service data is managed by software you can inspect, audit, and extend. No vendor lock-in, no proprietary limitations on how you handle customer data.
+**Open-source core.** The AGPL core CRM application and supported record model are inspectable and extensible. The managed-cloud unified inbox, connected messaging providers, external AI clients, and workflow services remain separate boundaries.
 
-**EU-hosted and GDPR-compliant.** All customer communication and service data is stored in European data centers with full GDPR and DSGVO compliance. Handle customer service interactions with confidence that your data processing meets the strictest European privacy standards.
+**EU database region with documented providers.** The managed database runs in an EU region. Application hosting, messaging services, and other providers, including US providers, may process data elsewhere; this deployment fact is not a GDPR or other compliance certification.
 
-**From €12 per user per month.** Customer service features, AI assistance, task tracking, automation, custom fields, and reporting are all included from the Starter tier. No separate service desk add-on and no per-ticket charges at any tier. Teams that want automatic email logging as part of the service timeline add the unified inbox from the Pro tier at €29/user/month.
+**From [[commercial.price.starter.monthly]] per user per month.** Core CRM records, linked tasks, custom fields, and dashboards start with Starter; the unified inbox starts with Pro at [[commercial.price.pro.monthly]]. Customermates includes no service desk, ticket system, SLA engine, AI model, or n8n runtime.
 
-**n8n automation for service workflows.** Build automated workflows for request routing, SLA alerts, satisfaction surveys, escalation triggers, and data synchronization with external tools. The visual n8n engine connects to 400+ systems and eliminates manual, repetitive service tasks.
+**Separate n8n for service workflows.** Connect your own n8n instance through REST, webhooks, MCP, or the community node. Request routing, surveys, SLA calculations, escalation logic, provider delivery, logs, limits, and costs remain external.
 
-**Self-hostable for full control.** Deploy on your own infrastructure and keep all customer service data on your servers. Self-hosting ensures complete control over sensitive customer communications, essential for organizations in healthcare, finance, legal, and other regulated industries.
+**Self-hostable application and database.** Run the Customermates application and PostgreSQL database on infrastructure you control. Connected messaging, workflow, and AI providers still receive the data your configuration sends; self-hosting is not a compliance certification.
 
 **Unified CRM and service.** Unlike standalone help desks that disconnect service from sales and account data, Customermates keeps everything in one system. Your service team sees the full customer picture, and your sales team knows about service issues. No integration headaches, no data silos.
 
@@ -114,17 +114,17 @@ Customermates provides the tools to manage customer service directly within your
 A customer service CRM is a platform that manages all customer interactions, service requests, and communication history in one place. It combines traditional CRM capabilities, contacts, deals, accounts, with service-specific features like issue tracking, communication logging, and service automation.
 
 **How is a customer service CRM different from a help desk?**
-A help desk focuses narrowly on ticket management and support workflows. A customer service CRM integrates service with the full customer relationship, sales history, account data, deal pipeline, and contact management. Customermates provides both capabilities in one unified platform, so your team sees the complete customer picture.
+A help desk focuses on ticket management and support workflows. A customer service CRM connects service context with relationship, sales, account, deal, and contact data. Customermates supplies CRM records, linked tasks, and the unified inbox rather than help-desk ticketing or native SLA workflows.
 
 **Can I track customer satisfaction in Customermates?**
-Yes. You can track CSAT and NPS scores using custom fields, send automated satisfaction surveys through n8n workflows, and monitor satisfaction trends over time. Satisfaction data lives on the customer record alongside all other interaction history.
+You can store CSAT or NPS values in custom fields. Survey delivery, score collection, trend calculation, and n8n execution remain in external systems.
 
 **Does Customermates support SLA tracking?**
-Yes. Define SLA rules using custom fields and n8n automation. Track response times and resolution times against targets, trigger escalation alerts when deadlines approach, and report on SLA compliance across your service team.
+No native SLA model is included. Store customer-defined targets in custom fields and evaluate deadlines, alerts, and reports in a separate customer-run system.
 
 **How much does customer service CRM software cost?**
-Pricing ranges from free (with significant limitations) to $25+/user/month for enterprise platforms. Zendesk starts at $19/user/month, Freshdesk at $15, and Salesforce Service Cloud at $25. Customermates starts at €12/user/month with no per-ticket charges at any tier; the unified inbox for automatic email logging is available from €29/user/month (Pro).
+Pricing ranges from free (with significant limitations) to $25+/user/month for enterprise platforms. Zendesk starts at $19/user/month, Freshdesk at $15, and Salesforce Service Cloud at $25. Customermates starts at [[commercial.price.starter.monthly]]/user/month with no per-ticket charges at any tier; the unified inbox for automatic email logging is available from [[commercial.price.pro.monthly]]/user/month (Pro).
 
 ## Get Started with Customer Service Today
 
-Start managing customer service in Customermates today. Log your first customer interaction, create a service task, and see how complete context transforms your team's ability to help. Every feature, AI assistance, automation, SLA tracking, communication logging, is available from day one. Sign up for a free account and deliver the service your customers deserve.
+Start managing customer service context in Customermates today. Record a supported interaction, create a linked task, and add the fields your process needs. Ticketing, SLA tracking, AI clients, survey delivery, and automation runtimes remain external.

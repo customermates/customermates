@@ -102,16 +102,16 @@ Das Muster: Sie starten mit einem Open-Source-CRM (Weg 3), das einen MCP-Server,
 
 Was das praktisch bedeutet: Die Grenze zwischen „No-Code-Plattform konfigurieren" und „CRM selbst programmieren" ist für die mittlere Lücke verschwunden. Wenn Sie den Workflow beschreiben können, können Sie ihn bauen lassen. Das CRM, mit dem Sie starten, zählt mehr als die Build-Skills, weil es bestimmt, gegen welche API-Oberfläche die KI arbeiten kann.
 
-Customermates stellt 45 MCP-Tools, 26 Webhook-Events und eine vollständige REST-API genau aus diesem Grund bereit. Claude oder Codex, auf das CRM gerichtet, kann Deals lesen, Follow-ups entwerfen, Notizen aktualisieren und eigene Workflows ausführen, ohne dass ich selbst ins CRM tippe. Das ist „CRM selbst erstellen" in der Bedeutung, auf die es immer ankam: Das System beugt sich Ihrem Workflow, nicht umgekehrt.
+Customermates stellt [[derived.mcp.tools.total]] MCP-Tools, [[derived.webhooks.events.total]] Webhook-Events und eine vollständige REST-API genau aus diesem Grund bereit. Claude oder Codex, auf das CRM gerichtet, kann Deals lesen, Follow-ups entwerfen, Notizen aktualisieren und eigene Workflows ausführen, ohne dass ich selbst ins CRM tippe. Das ist „CRM selbst erstellen" in der Bedeutung, auf die es immer ankam: Das System beugt sich Ihrem Workflow, nicht umgekehrt.
 
 ## Realistischer Kostenvergleich
 
-| Weg | Kosten Jahr 1 (10 User) | Zeit bis Live | Quellcode |
-|---|---|---|---|
-| Komplett selbst programmieren | 80.000 € bis 250.000 € | 6 bis 12 Monate | Ihrer |
-| No-Code-Plattform | 5.000 € bis 25.000 € | 2 bis 6 Wochen | der Plattform |
-| Open-Source selbst gehostet | 1.500 € bis 5.000 € | 1 Woche | Ihrer |
-| Open-Source Cloud | 1.000 € bis 2.000 € | 1 Tag | öffentlich auf GitHub |
+| Weg                           | Kosten Jahr 1 (10 User) | Zeit bis Live   | Quellcode             |
+| ----------------------------- | ----------------------- | --------------- | --------------------- |
+| Komplett selbst programmieren | 80.000 € bis 250.000 €  | 6 bis 12 Monate | Ihrer                 |
+| No-Code-Plattform             | 5.000 € bis 25.000 €    | 2 bis 6 Wochen  | der Plattform         |
+| Open-Source selbst gehostet   | 1.500 € bis 5.000 €     | 1 Woche         | Ihrer                 |
+| Open-Source Cloud             | 1.000 € bis 2.000 €     | 1 Tag           | öffentlich auf GitHub |
 
 Die Kostendifferenz zwischen dem günstigsten und teuersten Weg liegt bei zwei Größenordnungen. Die Funktionsdifferenz für die meisten Mittelständler liegt das nicht.
 
@@ -121,7 +121,7 @@ Für DACH-Unternehmen kommt zur Frage „welcher Weg lohnt sich" eine zweite Fra
 
 - **Selbst programmieren auf eigenen Servern**: maximale Datenhoheit, aber dafür voller Wartungsaufwand und eigene Verantwortung für Sicherheit, Backups, Verschlüsselung und Audit-Logs.
 - **No-Code US-Plattform**: AVV nötig, Schrems-II-Analyse, Risiko bei jedem Datenschutz-Vorfall. Funktioniert, ist aber mit Aufwand verbunden, den Sie als Geschäftsführer dauerhaft tragen.
-- **Open-Source selbst gehostet in Deutschland oder der EU**: kein AVV mit Drittlandanbieter, klare Datenresidenz, Quellcode auditierbar. Der einfachste Weg zur DSGVO-Konformität, den ich kenne.
+- **Open-Source selbst in der EU-Region gehostet oder der EU**: kein AVV mit Drittlandanbieter, klare Datenresidenz, Quellcode auditierbar. Der einfachste Weg zur DSGVO-Konformität, den ich kenne.
 
 Das ist kein Marketing-Argument, sondern eine rechtliche Realität. Wenn Sie im Mittelstand sind, mit Personalakten oder sensiblen Geschäftspartner-Daten arbeiten, oder einfach keine Lust auf laufende Compliance-Diskussionen haben, ist Open-Source-Selbst-Hosting der pragmatische Weg.
 
@@ -170,4 +170,4 @@ Hängt von Ihrem Stack ab. [Customermates](/) ist die moderne Option (TypeScript
 Ja, für kleine Teams mit leichten Vertriebsprozessen. Airtable, Ninox, Seatable, Softr und Notion funktionieren alle. Achten Sie auf die Preisentwicklung und die Decken bei Berechtigungen und Integrationen.
 
 **Sollte ich KI nutzen, um mein CRM zu bauen?**
-Nutzen Sie KI, um ein bestehendes CRM zu erweitern, nicht um eines von Grund auf zu schreiben. Der Hebel ist enorm, wenn die KI eine API zum Arbeiten hat. Customermates bietet [45 MCP-Tools, Webhooks und eine REST-API](/docs) genau dafür.
+Nutzen Sie KI, um ein bestehendes CRM zu erweitern, nicht um eines von Grund auf zu schreiben. Der Hebel ist enorm, wenn die KI eine API zum Arbeiten hat. Customermates bietet [[[derived.mcp.tools.total]] MCP-Tools, Webhooks und eine REST-API](/docs) genau dafür.

@@ -41,7 +41,7 @@ const PROTECTED_SOURCE_TERMS = ["open core"];
 
 const REQUIRED_TRANSLATION_FRAGMENTS: Record<string, Record<string, readonly string[]>> = {
   de: {
-    "HomepagePricing.cloud.tag": ["in frankfurt verwaltet"],
+    "HomepagePricing.cloud.tag": ["datenbank-region eu"],
     "LegalDocumentNotice.contractObjection": ["vor ablauf"],
     "LegalDocumentNotice.subprocessorObjectionWithDeadline": ["bis zum"],
     "LegalUpdateAlert.adminDescription": ["bis zum"],
@@ -49,7 +49,7 @@ const REQUIRED_TRANSLATION_FRAGMENTS: Record<string, Record<string, readonly str
     "LegalUpdateView.subtitle": ["bis zum"],
   },
   fr: {
-    "HomepagePricing.cloud.tag": ["géré à francfort"],
+    "HomepagePricing.cloud.tag": ["région ue"],
     "LegalDocumentNotice.contractObjection": ["avant la date limite"],
     "LegalDocumentNotice.subprocessorObjectionWithDeadline": ["au plus tard"],
     "LegalUpdateAlert.adminDescription": ["au plus tard"],
@@ -57,7 +57,7 @@ const REQUIRED_TRANSLATION_FRAGMENTS: Record<string, Record<string, readonly str
     "LegalUpdateView.subtitle": ["au plus tard"],
   },
   it: {
-    "HomepagePricing.cloud.tag": ["gestito a francoforte"],
+    "HomepagePricing.cloud.tag": ["regione ue"],
     "LegalDocumentNotice.contractObjection": ["prima del termine"],
     "LegalDocumentNotice.subprocessorObjectionWithDeadline": ["entro il"],
     "LegalUpdateAlert.adminDescription": ["entro il"],
@@ -65,7 +65,7 @@ const REQUIRED_TRANSLATION_FRAGMENTS: Record<string, Record<string, readonly str
     "LegalUpdateView.subtitle": ["entro il"],
   },
   es: {
-    "HomepagePricing.cloud.tag": ["gestionado en fráncfort"],
+    "HomepagePricing.cloud.tag": ["región ue"],
     "LegalDocumentNotice.contractObjection": ["antes de la fecha límite"],
     "LegalDocumentNotice.subprocessorObjectionWithDeadline": ["a más tardar"],
     "LegalUpdateAlert.adminDescription": ["a más tardar"],
@@ -93,6 +93,7 @@ const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
   "de:ConnectedAccountsCard.channels.linkedinSalesNavigator",
   "de:ContactPage.highlights.direct.title",
   "de:Common.inputs.defaultOption",
+  "es:Dashboard.widgetEditor.appearance.colorOption",
   "de:DocsSidebar.openapi",
   "de:DocsSidebar.selfHosting",
   "de:OnboardingWizard.ai.choices.claudeDesktop",
@@ -103,7 +104,6 @@ const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
   "fr:Common.filters.fields.participants",
   "fr:Common.filters.fields.timelineThreadId",
   "fr:ConnectedAccountsCard.channels.linkedinClassic",
-  "fr:Dashboard.tabs.config",
   "fr:DocsSidebar.introduction",
   "fr:DocsSidebar.openapi",
   "fr:NavigationBar.docs",

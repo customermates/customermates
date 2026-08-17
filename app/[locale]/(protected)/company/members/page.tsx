@@ -1,6 +1,6 @@
 import { Resource } from "@/generated/prisma";
 
-import { UsersCard } from "../components/user/users-card";
+import { MembersPageView } from "../components/user/members-page-view";
 
 import { getGetRolesInteractor, getGetUsersInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
@@ -25,7 +25,7 @@ export default async function CompanyUsersPage({ searchParams }: Props) {
 
   return (
     <PageContainer padded={false}>
-      <UsersCard initialRoles={roles} initialUsers={users} />
+      <MembersPageView initialRoles={roles} initialUsers={users} />
     </PageContainer>
   );
 }

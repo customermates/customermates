@@ -3,6 +3,8 @@ import type { LocalizedRoute } from "@/core/seo/sitemap";
 
 import { env } from "@/env";
 import { assembleSitemap } from "@/core/seo/sitemap";
+import { hubPageCountForSource, hubPageHref } from "@/core/seo/hub-pagination";
+import { LANDING_HUBS } from "@/core/seo/landing-hubs";
 import { CONTENT_LOCALES, stripLocalePrefix } from "@/i18n/locale-registry";
 import { PUBLIC_ROUTES_SEO } from "@/i18n/routing";
 import { ROUTE_SOURCE_MAP } from "@/core/fumadocs/route-source-map";
@@ -35,7 +37,23 @@ function collectLocalizedRoutes(): LocalizedRoute[] {
       const page = routeMapping.source.getPage(routeMapping.path, locale);
       if (!page) continue;
 
-      localizedRoutes.push({ locale, routePath: route, lastModified: getLastModified(page.data.lastModified) });
+      localizedRoutes.push({
+        locale,
+        routePath: route,
+        lastModified: getLastModified(page.data.lastModified),
+      });
+    }
+
+    for (const hub of LANDING_HUBS) {
+      const source = ROUTE_SOURCE_MAP[hub.detailRoute].source;
+      const pageCount = hubPageCountForSource(source);
+
+      for (let page = 2; page <= pageCount; page++) {
+        localizedRoutes.push({
+          locale,
+          routePath: hubPageHref(hub.hubPath, page),
+        });
+      }
     }
   }
 

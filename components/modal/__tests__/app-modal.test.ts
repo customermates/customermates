@@ -25,6 +25,7 @@ vi.mock("@/components/ui/dialog", () => ({
   DialogContent: ({ children, ...props }: { children: ReactNode }) =>
     createElement("div", { ...props, "data-slot": "dialog-content" }, children),
   DialogTitle: ({ children }: { children: ReactNode }) => createElement("h1", null, children),
+  DialogDescription: ({ children }: { children: ReactNode }) => createElement("p", null, children),
 }));
 
 vi.mock("@/components/ui/drawer", () => ({
@@ -32,6 +33,7 @@ vi.mock("@/components/ui/drawer", () => ({
   DrawerContent: ({ children, ...props }: { children: ReactNode }) =>
     createElement("div", { ...props, "data-slot": "drawer-content" }, children),
   DrawerTitle: ({ children }: { children: ReactNode }) => createElement("h1", null, children),
+  DrawerDescription: ({ children }: { children: ReactNode }) => createElement("p", null, children),
 }));
 
 vi.mock("../unsaved-changes-guard", () => ({
@@ -49,6 +51,23 @@ function renderModal(actions?: AppModalActions) {
       TestAppModal,
       { actions, open: true, title: "Example modal", onClose: vi.fn() },
       createElement("div", { "data-slot": "modal-body" }, "Body"),
+    ),
+  );
+}
+
+function renderConfiguredModal(isWide: boolean) {
+  testContext.isWide = isWide;
+
+  return renderToStaticMarkup(
+    createElement(
+      TestAppModal,
+      {
+        description: "Example description",
+        open: true,
+        title: "Example modal",
+        onClose: vi.fn(),
+      },
+      createElement("div", null, "Body"),
     ),
   );
 }
@@ -85,6 +104,16 @@ describe("AppModal actions", () => {
     expect(html).not.toContain('data-slot="app-modal-actions"');
     expect(html).not.toContain("data-overlay-actions");
     expect(html).not.toContain("data-overlay-action-count");
+  });
+
+  it.each([
+    ["dialog", true],
+    ["drawer", false],
+  ])("applies shared content classes and descriptions on the %s surface", (surface, isWide) => {
+    const html = renderConfiguredModal(isWide);
+
+    expect(html).toContain(`data-root="${surface}"`);
+    expect(html).toContain("Example description");
   });
 
   it.each([

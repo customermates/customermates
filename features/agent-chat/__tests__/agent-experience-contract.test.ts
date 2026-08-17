@@ -327,7 +327,7 @@ describe("agent experience contract", () => {
     expect(plan.widgets.map((widget) => widget.name)).toEqual([
       "Pipeline-Wert nach Phase",
       "Deals nach Phase",
-      "Aufgaben nach Status",
+      "Aufgaben nach benutzerdefiniertem Status",
     ]);
     expect(JSON.stringify(plan)).not.toContain("Pipeline value by stage");
     expect(JSON.stringify(plan)).not.toContain("Confirm discovery goals");

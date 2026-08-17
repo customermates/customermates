@@ -47,9 +47,12 @@ export class MessagingThreadsStore extends BaseDataViewStore<MessagingThread> {
             href: `/${this.rootStore.localeStore.locale}${MESSAGING_RATE_LIMITS_DOCS_PATH}`,
           },
         });
-      } else this.toastSuccess("Inbox.refreshDone");
+      }
 
       await this.refresh();
+      if (!result.data.rateLimited) this.toastSuccess("Inbox.refreshDone");
+    } catch {
+      this.toastError("Common.notifications.unexpectedError");
     } finally {
       runInAction(() => (this.isRefreshingInbox = false));
     }

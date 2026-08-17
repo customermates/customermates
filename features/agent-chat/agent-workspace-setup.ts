@@ -302,7 +302,7 @@ const SHARED_WIDGETS: AgentSetupWidgetPlan[] = [
   },
   {
     semanticKey: "tasks-by-status",
-    name: "Tasks by status",
+    name: "Tasks by custom status",
     entityType: "task",
     aggregation: "count",
     groupByColumnSemanticKey: "task-status",
@@ -569,7 +569,7 @@ const SETUP_TEXT_KEYS: Record<string, string> = {
   "Due date": "dueDate",
   "Pipeline value by stage": "pipelineValueByStage",
   "Deals by stage": "dealsByStage",
-  "Tasks by status": "tasksByStatus",
+  "Tasks by custom status": "tasksByStatus",
   "Project health": "projectHealth",
   "On track": "onTrack",
   "At risk": "atRisk",

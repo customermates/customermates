@@ -10,7 +10,7 @@ hero:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: ✓ No credit card required ✓ First 7 days free
+  hint: ✓ No credit card required ✓ First [[commercial.trial.days]] days free
 comparison:
   competitorName: Pipedrive
   competitor2Name: Salesforce
@@ -23,19 +23,19 @@ comparison:
       competitor: hours to days
       competitor2: weeks to months
     - name: Starting price
-      source: From €12 / month / user
+      source: From [[commercial.price.starter.monthly]] / month / user
       competitor: $14 Lite
       competitor2: $25 Starter Suite
     - name: Mid-tier price
-      source: €29 / month / user (Pro)
+      source: "[[commercial.price.pro.monthly]] / month / user (Pro)"
       competitor: $49 Premium
       competitor2: $100 Pro Suite
     - name: Top-tier price
-      source: €69 / month / user (Business)
+      source: "[[commercial.price.business.monthly]] / month / user (Business)"
       competitor: $69 Ultimate
       competitor2: $350 Unlimited
     - name: Free trial
-      source: 7 days (full Pro access)
+      source: "[[commercial.trial.days]] days (full Pro access)"
       competitor: 14 days
       competitor2: 30 days
     - name: Credit card required
@@ -47,7 +47,7 @@ comparison:
       competitor: 'no'
       competitor2: typically yes ($10K-$50K+)
     - name: Total cost 10 users/year (mid-tier)
-      source: ~€3,480
+      source: ~[[commercial.price.pro.monthly.seats.10.months.12]]
       competitor: ~$5,880
       competitor2: ~$21,000+
   - title: Core features
@@ -80,18 +80,18 @@ comparison:
       source: Pro+ (all 5 channels)
       competitor: Email only
       competitor2: Email; social via add-ons
-    - name: AI agents operate the CRM (native MCP, 45 tools)
+    - name: AI agents operate the CRM (native MCP, [[derived.mcp.tools.total]] tools)
       source: All tiers
       competitor: AI Sales Assistant (Premium+)
       competitor2: Agentforce add-on
   - title: Data protection & security
     features:
-    - name: GDPR compliant
-      source: true
+    - name: GDPR documentation
+      source: DPA + SCCs; no certification
       competitor: partially
       competitor2: partially
     - name: Hosting
-      source: EU / Germany
+      source: EU database region
       competitor: mixed EU & USA
       competitor2: global/USA
     - name: Data control
@@ -123,10 +123,10 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: ✓ No credit card required ✓ First 7 days free
+  hint: ✓ No credit card required ✓ First [[commercial.trial.days]] days free
 ---
 
-> If you are evaluating Pipedrive against Salesforce, you likely value simplicity and sales focus over enterprise complexity. Pipedrive is the lightweight, pipeline-first CRM built for intuitive deal management, rapid user adoption, and cost-effective sales automation. Salesforce is the enterprise giant, comprehensive marketing automation, advanced customization, and all-in-one capabilities at scale. Customermates offers the middle ground both miss: AI agents (Claude, ChatGPT, Gemini) that operate the CRM through a native MCP integration, a native unified inbox for email, LinkedIn, WhatsApp, Instagram, and Telegram, complete core CRM features from €12/user/month, EU hosting, and open-source flexibility.
+> If you are evaluating Pipedrive against Salesforce, you likely value simplicity and sales focus over enterprise complexity. Pipedrive is the lightweight, pipeline-first CRM built for intuitive deal management, rapid user adoption, and cost-effective sales automation. Salesforce is the enterprise giant, comprehensive marketing automation, advanced customization, and all-in-one capabilities at scale. Customermates offers the middle ground both miss: AI agents (Claude, ChatGPT, Gemini) that operate the CRM through a native MCP integration, a native unified inbox for email, LinkedIn, WhatsApp, Instagram, and Telegram, complete core CRM features from [[commercial.price.starter.monthly]]/user/month, EU hosting, and open-source flexibility.
 
 ## How does Pipedrive compare to Salesforce?
 
@@ -138,7 +138,7 @@ Here is how to decide:
 
 - **Choose Pipedrive** if you have fewer than 50 users, want fast adoption with minimal training, and primarily need visual deal tracking and activity management. Pipedrive achieves user adoption within days.
 - **Choose Salesforce** if you need complex cross-departmental workflows, advanced territory management, industry-specific solutions, or deep customization that goes beyond standard CRM. Be prepared for significant investment in time, consulting, and licensing. Full implementation requires weeks to months.
-- **Choose Customermates** if you want Pipedrive's ease of use combined with the depth to grow, unlimited records, AI agents that operate the CRM, a native unified inbox, full API access, n8n automation, from €12/user/month with no core CRM feature gated, and EU data residency.
+- **Choose Customermates** if you want Pipedrive's ease of use combined with the depth to grow, unlimited records, AI agents that operate the CRM, a native unified inbox, full API access, n8n automation, from [[commercial.price.starter.monthly]]/user/month with no core CRM feature gated, and EU data residency.
 
 ## Ease of use
 
@@ -151,6 +151,7 @@ Customermates matches Pipedrive's simplicity. The interface is clean and pipelin
 ## Pricing comparison
 
 **Pipedrive pricing (per user/month, billed annually):**
+
 - Lite: $14 (annual) / $24 (monthly), basic pipeline management
 - Growth: $24 (annual) / $49 (monthly), email tracking, workflow automation
 - Premium: $49 (annual) / $79 (monthly), AI sales assistant, contract management, forecasting
@@ -159,6 +160,7 @@ Customermates matches Pipedrive's simplicity. The interface is clean and pipelin
 Pipedrive's pricing is more transparent than Salesforce, but features are still tiered. Automation requires Growth tier, AI requires Premium, and add-ons like LeadBooster ($32.50/month) and Web Visitors ($49-$299/month) inflate the total. One reviewer noted "pricing jumps quickly for growing teams."
 
 **Salesforce pricing (per user/month, billed annually):**
+
 - Starter Suite: $25, basic CRM with limited customization
 - Pro Suite: $100, workflow automation, forecasting
 - Enterprise: $175, advanced customization, API access, Agentforce AI
@@ -167,7 +169,8 @@ Pipedrive's pricing is more transparent than Salesforce, but features are still 
 Note: Salesforce implemented a 6% price increase effective August 2025. Beyond license fees, Salesforce typically requires implementation consulting ($10,000-$50,000+), ongoing admin costs ($80,000-$120,000/year for a dedicated administrator), and paid add-ons. Many critical features, workflow automation, advanced reporting, unrestricted API access, are gated behind Enterprise at $175/user/month.
 
 **Customermates pricing:**
-- Starter (€12/user/month): every core CRM feature. Pro (€29) adds the unified inbox. Business (€69) adds more connected accounts. No implementation costs, no add-ons, no core-feature tier gates.
+
+- Starter ([[commercial.price.starter.monthly]]/user/month): every core CRM feature. Pro ([[commercial.price.pro.monthly]]) adds the unified inbox. Business ([[commercial.price.business.monthly]]) adds more connected accounts. No implementation costs, no add-ons, no core-feature tier gates.
 
 ## What is the number one CRM?
 
@@ -185,7 +188,7 @@ Customermates provides visual pipeline management with kanban boards comparable 
 
 A frequent argument for Salesforce is scalability: "You will outgrow Pipedrive." This is partly true, Pipedrive's record limits, restricted custom fields, and capped automations on lower tiers can constrain growing teams. But the solution is not necessarily Salesforce's complexity and cost. The wrong choice costs more than money, it impacts team productivity, customer relationships, and business growth for years.
 
-Customermates scales differently. Unlimited records, unlimited custom fields, and unlimited automations are included at every tier, starting at €12/user/month. For teams that outgrow the hosted version, self-hosting provides complete control. You get the scalability argument resolved without the Salesforce price tag or complexity overhead.
+Customermates scales differently. Unlimited records, unlimited custom fields, and unlimited automations are included at every tier, starting at [[commercial.price.starter.monthly]]/user/month. For teams that outgrow the hosted version, self-hosting provides complete control. You get the scalability argument resolved without the Salesforce price tag or complexity overhead.
 
 ## Which CRM does Coca-Cola use?
 
@@ -205,11 +208,11 @@ Pipedrive offers 500+ marketplace integrations and built-in workflow automation.
 
 Salesforce has the AppExchange with thousands of integrations and Flow Builder for automation. Flow Builder is powerful but requires admin expertise to configure effectively. Many integrations and API capabilities are restricted by plan tier.
 
-Customermates includes n8n automation built in with no restrictions. Full API access at the base price connects to thousands of services without caps on automations or API calls. Open-source architecture means custom integrations are always possible.
+Customermates works with n8n automation built in with no restrictions. Full API access at the base price connects to thousands of services without caps on automations or API calls. Open-source architecture means custom integrations are always possible.
 
 ## Conclusion
 
-Pipedrive and Salesforce represent two extremes: simplicity with limitations, or power with complexity. If you are coming from the Pipedrive perspective, valuing usability and sales focus, Salesforce likely feels like overkill. If you need Salesforce's depth but dread the cost and complexity, there is a better path. Customermates offers what both miss: complete core CRM functionality from €12/user/month, EU-hosted, open-source, and ready in minutes. For teams that want more depth than Pipedrive without Salesforce's overhead, it is the clear alternative.
+Pipedrive and Salesforce represent two extremes: simplicity with limitations, or power with complexity. If you are coming from the Pipedrive perspective, valuing usability and sales focus, Salesforce likely feels like overkill. If you need Salesforce's depth but dread the cost and complexity, there is a better path. Customermates offers what both miss: complete core CRM functionality from [[commercial.price.starter.monthly]]/user/month, EU-hosted, open-source, and ready in minutes. For teams that want more depth than Pipedrive without Salesforce's overhead, it is the clear alternative.
 
 ### Related Comparisons
 

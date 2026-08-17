@@ -32,6 +32,7 @@ A recruiting CRM is a candidate relationship management system. It overlaps heav
 The best modern tools combine both. The labels are blurry.
 
 What you actually want it to do:
+
 - Store every candidate the team has ever talked to
 - Log calls, emails, interview notes
 - Track jobs as a pipeline (sourcing → screen → submit → interview → placed)
@@ -45,15 +46,15 @@ If the system you are looking at does not do all six well, it is the wrong syste
 
 Most "best recruiting CRM" lists compare ten vertical tools (Bullhorn, Recruit CRM, Loxo, Crelate, Manatal, Recruiterflow, Gem, etc.). They skip the question that matters most: do you want a recruiting-specific tool with everything pre-built but locked in, or a horizontal CRM you configure for recruiting and own outright?
 
-| | Vertical recruiting CRM | Horizontal CRM, configured |
-|---|---|---|
-| Pre-built fields | Candidate, job, submission, placement, fee | Generic; you add custom fields |
-| Job board integrations | Built in (LinkedIn, Indeed, Monster) | Via API or Zapier |
-| Reports | Recruiting-specific (time to fill, source) | Generic; you build them |
-| Vendor lock-in | High (data export is painful) | Low (open formats, API) |
-| Pricing | $99-$299/user/month typical | $9-$30/user/month or self-hosted |
-| Adapt to non-standard process | Limited | Total |
-| Years of vertical features | 5 to 20 | 0 |
+|                               | Vertical recruiting CRM                    | Horizontal CRM, configured       |
+| ----------------------------- | ------------------------------------------ | -------------------------------- |
+| Pre-built fields              | Candidate, job, submission, placement, fee | Generic; you add custom fields   |
+| Job board integrations        | Built in (LinkedIn, Indeed, Monster)       | Via API or Zapier                |
+| Reports                       | Recruiting-specific (time to fill, source) | Generic; you build them          |
+| Vendor lock-in                | High (data export is painful)              | Low (open formats, API)          |
+| Pricing                       | $99-$299/user/month typical                | $9-$30/user/month or self-hosted |
+| Adapt to non-standard process | Limited                                    | Total                            |
+| Years of vertical features    | 5 to 20                                    | 0                                |
 
 The vertical option wins on day one because everything you need is pre-built. The horizontal option wins over three to five years because pricing is multiples lower, you own your data, and you can adapt the system to your process instead of adapting your process to the system.
 
@@ -133,11 +134,11 @@ The mid-tier vertical tools (Manatal, Recruiterflow, JobAdder, Zoho Recruit, plu
 
 ### Customermates
 
-The CRM I build. Open-source, EU-hosted or self-hosted. From €12/user/month (€10 yearly, Starter) or self-hosted for server cost. Configurable: define candidate, job, submission, placement entities with custom fields. The native unified inbox (LinkedIn, WhatsApp, email, Instagram, Telegram) keeps candidate conversations across every channel in the CRM, and AI agents can draft and send outreach. Agent-native via MCP, full REST API, n8n community node, 26 webhook events. Best for: boutique agencies (1-15 recruiters), in-house TA teams that want data ownership, agencies that value AI tools (Claude, Codex) driving the CRM directly.
+The CRM I build. Open-source and self-hostable, with a managed application database configured in an EU region. From [[commercial.price.starter.monthly]]/user/month (Starter) or self-hosted for your own infrastructure cost. Configure the fixed contact, organization, deal, service, and task records with custom fields and relations for a recruiting workflow. The native unified inbox (LinkedIn, WhatsApp, email, Instagram, Telegram) brings connected-account conversations into the CRM from Pro, and authorized AI agents can draft or send outreach. Agent-native via MCP, full REST API, n8n community node, [[derived.webhooks.events.total]] webhook events. Best for: boutique agencies and in-house TA teams that want data ownership and AI tools driving the CRM directly.
 
-**Concrete recruiting setup with Customermates.** Day 1: install on a small EU VPS or sign up for the cloud version. Day 2: configure custom entities: Candidate (name, email, skills, status, last contact), Client (company hiring), Job (the open role with requirements, status, fee structure), Submission (links candidate to job at a stage). Day 3: import your existing candidate spreadsheet, deduplicate, set up the placement pipeline stages. Day 5: connect [email](/features/email-integration) and [calendar](/features/follow-up) for two-way sync. Week 2: have Claude or Codex write a custom workflow ("when a placement closes, automatically generate the invoice draft in Lexoffice and ping the back office in Slack"). Total setup time: under two weeks for a mid-size boutique agency. See [self-hosted](/features/self-hosted) for the hosting model and the [pipeline feature](/features/pipeline) for the underlying mechanics.
+**Concrete recruiting setup with Customermates.** Configure contacts as candidates, organizations as hiring clients, and deals as jobs or placements, then add the recruiting-specific custom fields and pipeline stages you need. Clean and deduplicate the existing spreadsheet before loading supported records through the REST API or an AI agent over MCP; there is no CSV importer. On Pro, connect [email](/features/email-integration) and use the imported read-only calendar view. If you need a placement workflow that creates a draft in lexoffice and alerts the back office, run it in your own n8n instance or another automation service through API and webhooks. Setup time depends on data quality, mappings, permissions, and the external workflow. See [self-hosted](/features/self-hosted) for the hosting model and the [pipeline feature](/features/pipeline) for the underlying mechanics.
 
-**Concrete cost over 3 years (8 recruiters).** Cloud at €12/user × 8 = €96/month → €3,456 over 3 years. Self-hosted on a Hetzner CX21 EU VPS at €5/month + admin time (~30 hours total) → €180 in server cost + maybe €1,500 in time at €50/hour = €1,680. Either way, multiples cheaper than Bullhorn ($14,000+) or Recruit CRM ($9,600+) at the same headcount. The trade-off is the smaller community and fewer pre-built recruiting-specific integrations.
+**Concrete cost over 3 years (8 recruiters).** Cloud at [[commercial.price.starter.monthly]]/user × 8 = [[commercial.price.starter.monthly.seats.8]]/month → [[commercial.price.starter.monthly.seats.8.months.36]] over 3 years. Self-hosted on a Hetzner CX21 EU VPS at €5/month + admin time (~30 hours total) → €180 in server cost + maybe €1,500 in time at €50/hour = €1,680. Either way, multiples cheaper than Bullhorn ($14,000+) or Recruit CRM ($9,600+) at the same headcount. The trade-off is the smaller community and fewer pre-built recruiting-specific integrations.
 
 ### Pipedrive (configured)
 
@@ -167,7 +168,7 @@ For agencies with under 1,000 candidates, the differences are small. For agencie
 
 Three failure modes I see repeatedly:
 
-**Failure 1: Buying Bullhorn before you need it.** A 5-recruiter agency signs a $99/user contract because the demo was great. Year-one cost is $5,940 in license alone. The same agency would have run on Recruit CRM at $40/user (~$2,400) or [Customermates](/) at €12/user (~€720) and spent the difference on actual marketing.
+**Failure 1: Buying Bullhorn before you need it.** A 5-recruiter agency signs a $99/user contract because the demo was great. Year-one cost is $5,940 in license alone. The same agency would have run on Recruit CRM at $40/user (~$2,400) or [Customermates](/) at [[commercial.price.starter.monthly]]/user ([[commercial.price.starter.monthly.seats.5.months.12]] per year) and spent the difference on actual marketing.
 
 **Failure 2: Buying a sales CRM and never configuring it for recruiting.** A team buys Pipedrive, customizes nothing, and tries to use generic deal stages for the placement pipeline. After six months, the data is messy, the activities don't capture what recruiters actually need to log, and the team migrates anyway. The CRM was not the problem; the absence of configuration was.
 
@@ -177,7 +178,7 @@ Three failure modes I see repeatedly:
 
 The case for horizontal CRMs has gotten stronger in the last year. AI coding assistants like Claude Code and Codex can write custom workflows on top of a CRM faster than ever. What used to be "I need a recruiting CRM with this specific feature" now is "I need a CRM with an API; my AI tools build the feature."
 
-[Customermates](/) exposes 45 MCP tools, REST API, and webhooks specifically for this. A recruiting agency can have Claude:
+[Customermates](/) exposes [[derived.mcp.tools.total]] MCP tools, REST API, and webhooks specifically for this. A recruiting agency can have Claude:
 - Read incoming resumes and create candidate records with structured fields
 - Match candidates to open jobs based on custom criteria
 - Draft personalized outreach for re-engaging dormant candidates
@@ -187,38 +188,30 @@ This used to require a developer or a vertical SaaS. Now it requires writing a c
 
 ## Quick decision matrix
 
-| Your situation | Pick |
-|---|---|
-| Agency with 10+ recruiters, standard placement process, has admin budget | Bullhorn or Recruit CRM |
-| Mid-size agency wanting modern UI without Bullhorn price | Recruit CRM, Loxo, or Crelate |
-| Boutique agency, value data ownership, use AI tools | [Customermates](/) configured |
-| In-house TA team focused on sourcing passive candidates | Gem |
-| Very small team (under 5), already in Notion/Airtable | Configure what you have, switch later |
-| Tech-savvy owner who wants full control | EspoCRM, SuiteCRM, or Customermates self-hosted |
+| Your situation                                                           | Pick                                            |
+| ------------------------------------------------------------------------ | ----------------------------------------------- |
+| Agency with 10+ recruiters, standard placement process, has admin budget | Bullhorn or Recruit CRM                         |
+| Mid-size agency wanting modern UI without Bullhorn price                 | Recruit CRM, Loxo, or Crelate                   |
+| Boutique agency, value data ownership, use AI tools                      | [Customermates](/) configured                   |
+| In-house TA team focused on sourcing passive candidates                  | Gem                                             |
+| Very small team (under 5), already in Notion/Airtable                    | Configure what you have, switch later           |
+| Tech-savvy owner who wants full control                                  | EspoCRM, SuiteCRM, or Customermates self-hosted |
 
 ## The 12-question vetting checklist
 
 Before signing any recruiting CRM contract, walk through these 12 questions with the vendor's sales rep on a recorded call. The answers predict adoption better than any feature comparison.
 
 **Data and integrations:**
+
 1. Show me a CSV export of every candidate, every job, and every activity log. How long does it take, what does it cost?
 2. What's the time-to-import for 10,000 candidates with 30 fields each from a CSV?
 3. Which of these integrations exist as native (not Zapier): LinkedIn Recruiter, [your job board], [your VMS], [your accounting tool]?
 
-**Adoption and UX:**
-4. Show me, on this call, a recruiter logging a 30-minute interview with notes, follow-up tasks, and a candidate score change. Time it.
-5. What does the mobile app let me do that the desktop does, and what does it not?
-6. Show me a candidate who's been in the system for 18 months: what does their record look like, can I see all interactions in one timeline?
+**Adoption and UX:** 4. Show me, on this call, a recruiter logging a 30-minute interview with notes, follow-up tasks, and a candidate score change. Time it. 5. What does the mobile app let me do that the desktop does, and what does it not? 6. Show me a candidate who's been in the system for 18 months: what does their record look like, can I see all interactions in one timeline?
 
-**Reporting and pipeline:**
-7. Show me yesterday's submissions broken down by recruiter, source, and outcome.
-8. What does forecasting look like, both placements next month and revenue this quarter?
-9. How do you handle a candidate who's "active" with one recruiter and "talent pool" with another?
+**Reporting and pipeline:** 7. Show me yesterday's submissions broken down by recruiter, source, and outcome. 8. What does forecasting look like, both placements next month and revenue this quarter? 9. How do you handle a candidate who's "active" with one recruiter and "talent pool" with another?
 
-**Compliance and exit:**
-10. Where is candidate data stored geographically, and what's the data processing agreement?
-11. Walk me through a GDPR/CCPA right-to-be-forgotten request. Click by click.
-12. If I cancel my contract today, when can I get my data, and in what format?
+**Compliance and exit:** 10. Where is candidate data stored geographically, and what's the data processing agreement? 11. Walk me through a GDPR/CCPA right-to-be-forgotten request. Click by click. 12. If I cancel my contract today, when can I get my data, and in what format?
 
 Vendors that hesitate on questions 1, 10, 11, or 12 are signaling vendor lock-in or weak compliance posture. Vendors that nail questions 4, 5, 6 with confident demos are showing actual product depth.
 
@@ -278,7 +271,7 @@ Most "switch from X to Y" decisions assume migration is mostly automatic. It rar
 
 **Bullhorn → Recruit CRM (15-recruiter agency).** Migration project: 11 weeks elapsed. Data import: 80 hours of recruiter time cleaning 35,000 candidate records. Integration rebuild: 3 critical integrations (VMS, payroll, custom job board feed) at ~120 hours of developer time. New recruiter training: 2 hours per recruiter × 15 = 30 hours. Total internal cost (loaded): ~$28,000. Annual license savings: ~$12,000. Payback: 2.3 years.
 
-**Recruit CRM → Customermates self-hosted (8-recruiter boutique).** Migration: 4 weeks elapsed. CSV export was clean from Recruit CRM, import to Customermates was 90% automatic via the [REST API](/features/api). Custom workflow rebuild: 30 hours (some candidate-stage automations). Internal cost: ~$6,000. Annual savings: ~$5,000 (license) + admin simplicity. Payback: 1.2 years.
+**Recruit CRM → Customermates self-hosted (8-recruiter boutique).** Migration: 4 weeks elapsed. CSV export was clean from Recruit CRM. Supported records were loaded through a customer-run [REST API](/features/api) integration that owned mapping, validation, and deduplication. Custom workflow rebuild: 30 hours. Internal cost: about $6,000. Annual savings: about $5,000 plus simpler administration. Payback: 1.2 years.
 
 **Notion → Bullhorn (12-recruiter agency that grew fast).** Migration: 14 weeks. The Notion-to-CRM migration is hardest because Notion has no proper schema; recruiters had freeformed candidate records in a hundred different ways. Data normalization took 200 hours. Total internal cost: ~$45,000. Annual incremental cost (Bullhorn vs Notion): ~$18,000. Payback never (the agency couldn't have scaled to 30 recruiters on Notion, so the cost is "the cost of professionalizing").
 

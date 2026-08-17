@@ -1,16 +1,16 @@
 ---
 title: "Sales Tracking: Monitor Deals & Revenue"
-description: "Sales tracking software to monitor deals, activities, and revenue in real time. Dashboards, conversion analytics, and forecasting. Open-source CRM."
+description: "Sales tracking software for deal records, linked CRM context, custom fields, and live dashboards. Model conversion inputs in your CRM and calculate forecasts externally. Open-source CRM."
 featureName: Sales Tracking
 
 hero:
   title: "Sales Tracking Software: Full Pipeline Visibility for Every Deal"
-  description: Track every deal, activity, and conversion in one place. See exactly where each opportunity stands, measure team performance, and forecast revenue with confidence.
+  description: Track every deal and its linked CRM context in one place. Model each opportunity's stage and next step with custom fields, then review permitted pipeline data in personal dashboards.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First 7 days free"
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
   action: Ready to track your sales?
@@ -19,7 +19,7 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First 7 days free"
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
 ## What Is Sales Tracking?
@@ -34,77 +34,77 @@ A dedicated sales tracking system solves these problems by creating a single sou
 
 | Feature | Customermates | Freshsales | HubSpot | Pipedrive | Salesforce |
 |---------|--------------|------------|---------|-----------|------------|
-| Price/user | From €12/month | $9/mo | Free (limited) | $14/mo | $25/mo |
+| Price/user | From [[commercial.price.starter.monthly]]/month | $9/mo | Free (limited) | $14/mo | $25/mo |
 | Deal tracking | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> |
 | Activity logging | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> |
-| Pipeline velocity | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusAvailable /> | <StatusAvailable /> |
-| Workflow automation | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusPartial /> | <StatusAvailable /> |
+| Native pipeline velocity | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> | <StatusAvailable /> | <StatusAvailable /> |
+| External automation interfaces | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusPartial /> | <StatusAvailable /> |
 | Unlimited custom fields | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusPartial /> | <StatusAvailable /> |
-| EU/GDPR hosting | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> |
+| Managed database in an EU region | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> |
 | Open source | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 | Self-hosting option | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 
 ## How Sales Tracking Works in Customermates
 
-Customermates provides end-to-end sales tracking built directly into the CRM, giving you complete pipeline visibility without bolt-on tools or premium upgrades.
+Customermates provides deal records, linked CRM context, typed custom fields, and personal dashboards for sales tracking. Native conversion analytics, pipeline velocity, and forecasting are not included.
 
-**Deal tracking.** Every sales opportunity is a deal record with structured data: deal value, stage, expected close date, assigned owner, probability, and linked contacts or organizations. As deals progress through your [pipeline](/features/pipeline), the full history is preserved, every stage change, note, and activity creates a complete audit trail.
+**Deal tracking.** Every sales opportunity is a deal record with supported values, a configurable stage, assigned owner, custom fields, and linked contacts or organizations. As deals progress through your [pipeline](/features/pipeline), recorded stage changes, notes, and activities provide context; do not treat this as a complete compliance audit trail.
 
 **Activity logging.** Track every sales activity tied to a deal: calls made, emails sent, meetings held, tasks completed, and notes added. With the native unified inbox (a Pro-tier feature), messages across email, LinkedIn, WhatsApp, Instagram, and Telegram log against the right record automatically. Activity logging ensures no interaction is lost, so anyone on the team can pick up a deal with full context and continue the conversation seamlessly.
 
-**Pipeline velocity metrics.** Measure how quickly deals move through each stage. Track average time per stage, identify bottlenecks where deals stall, and calculate overall velocity from first contact to closed-won. Pipeline velocity is an early indicator of revenue, if deals are slowing down, you will know before it hits your numbers.
+**Pipeline-stage context.** Use current deal stages, values, recorded activities, and customer-defined date fields to review where work is moving or stalling. Customermates does not calculate pipeline velocity or time-in-stage metrics; analyze those values through a separate reporting workflow when needed.
 
-**Conversion rate tracking.** Measure stage-to-stage conversion rates across your entire funnel. If your team converts 60% of qualified leads to proposals but only 20% of proposals to closed-won, you know exactly where to focus coaching and process improvements.
+**Externally calculated conversion rates.** Read supported deal data through REST or MCP and calculate stage-to-stage conversion rates in your reporting system. Store approved results in custom fields or use them for coaching without presenting a fixed native analytics catalog.
 
-**Revenue forecasting.** Combine deal values, stage probabilities, and historical conversion rates to build weighted pipeline forecasts. Know your expected revenue for any time period based on real data rather than optimistic guesses.
+**Current pipeline values, not forecasting.** Configurable dashboard widgets show stored deal counts and values. Customermates does not calculate weighted or predictive revenue forecasts; store externally calculated probabilities in custom fields or analyze records through REST.
 
 **Custom fields for your sales process.** Every business tracks different data points. Add unlimited custom fields to deal records to capture product type, contract length, competitor involved, deal source, or any attribute relevant to your sales methodology.
 
-**Team performance dashboards.** See how each rep performs against their targets. Track deals won, revenue closed, activity volume, pipeline value, and average deal size per person. Managers get actionable coaching data without micromanaging, and reps get visibility into their own progress.
+**Personal dashboard widgets.** Configure charts over supported CRM fields, such as current deal counts, values, stages, or owners. Customermates does not ship a fixed set of per-rep targets, conversion rates, or coaching metrics; calculate those in an external reporting system.
 
 **Real-time sales dashboards.** View your entire pipeline in real time with customizable dashboards. Filter by stage, owner, date range, or custom field to get exactly the view you need. Dashboards update as deals move, so your data is always current.
 
 ## Key Benefits of Sales Tracking Software
 
-**Nothing falls through the cracks.** When every deal and activity lives in one system, your team never loses sight of an opportunity. Overdue tasks and stagnant deals are immediately visible, so you can act before it is too late.
+**Keep deal context visible.** Store deals and recorded activities in one system and use custom date or status fields for the process values your team needs. Native tasks have no overdue state or reminder engine; a person or separate scheduler decides when action is required.
 
-**Accurate revenue forecasting.** With consistent deal data and stage-based conversion metrics, your revenue forecasts are built on real numbers. Weighted pipeline reports give you a realistic picture of expected revenue, not wishful thinking.
+**External revenue planning.** Consistent deal data gives a reporting system useful inputs. Customermates itself does not calculate weighted forecasts, conversion metrics, or expected revenue; use current pipeline widgets or analyze supported records externally.
 
 **Data-driven coaching.** Sales tracking data reveals performance patterns that are invisible without structured tracking. If one rep has a 40% close rate while another has 15%, the data helps you identify what the top performer does differently and share that approach.
 
 **Faster onboarding for new reps.** When your sales history lives in the CRM, new hires get up to speed quickly. They review past interactions, understand deal context, and follow established processes without relying on tribal knowledge.
 
-**Complete audit trail.** Every change to a deal record is logged with timestamps and user attribution. This trail is invaluable for understanding deal outcomes, resolving disputes, and maintaining process compliance.
+**Recorded deal context.** Activity history retains supported changes with timestamps and user context where the product records them. It helps explain deal outcomes, but is not a complete compliance audit guarantee or dedicated export record.
 
 **Sales and marketing alignment.** When sales tracking data connects to [lead tracking](/features/lead-tracking) and source attribution, both teams share a common language. Marketing sees which leads convert to revenue, and sales sees which channels produce the best prospects.
 
 ## Common Sales Tracking Workflows
 
-**Daily pipeline review.** Start each day by reviewing active deals sorted by next action date. Identify which deals need attention today, which follow-ups are overdue, and which opportunities are approaching their expected close date.
+**Daily pipeline review.** Review active deals using stages, recorded activity, and customer-defined date or status fields. Native tasks have no next-action date or overdue state; use a personal filter, team practice, or separate scheduler to decide what needs attention.
 
 **Weekly team stand-ups.** Use pipeline dashboards to run efficient weekly meetings. Review new deals entered, deals advanced to new stages, deals won and lost, and overall pipeline health. The data is already there, the meeting focuses on strategy, not status collection.
 
-**Deal stage automation.** Trigger automated actions when deals enter specific stages. Create a task to send a proposal when a deal reaches the "qualified" stage. Send an alert to the manager when a deal has been stagnant for more than 14 days. Sync deal updates with your [email integration](/features/email-integration) automatically.
+**External deal-stage automation.** A separate n8n instance can react to documented deal events, create supported tasks through REST, or send a notification through an external provider. Its scheduler, stage-duration logic, delivery, logs, limits, and costs remain outside Customermates.
 
 **Win/loss analysis.** After every closed deal, review the full history to understand what led to the outcome. Track win and loss reasons systematically using custom fields to build a knowledge base that improves your team's approach over time.
 
-**End-of-month reporting.** Generate accurate reports showing total revenue closed, deals won and lost, pipeline changes, average deal size, and individual rep performance. With consistent tracking, end-of-period reporting takes minutes, not hours.
+**End-of-month reporting.** Build personal dashboard widgets for supported counts, deal value, deal quantity, and groupings over permitted records. Conversion rates, average cycle time, forecasting, and cross-user performance analysis require fields or calculations you maintain separately.
 
-**Sales forecasting.** Combine weighted pipeline data with historical conversion trends to project revenue for the next 30, 60, or 90 days. Update forecasts in real time as deals progress or fall off, and share them with leadership through [reporting dashboards](/features/reporting).
+**Sales planning from supported data.** Review current deal counts and values in [reporting dashboards](/features/reporting), or calculate conversion trends and forecasts in a separate analysis system. Customermates does not publish weighted or predictive forecasts.
 
 ## Why Choose Customermates for Sales Tracking
 
-**Open source and transparent.** Customermates is fully open source. Your sales data is managed by code you can inspect, no proprietary algorithms affecting how your pipeline metrics are calculated or what data you can export.
+**Open source and transparent.** Customermates uses code you can inspect and documents supported record operations. Read supported CRM resources through REST or MCP for customer-run analysis; there is no dedicated CSV or full-record export workflow.
 
-**EU-hosted and GDPR-compliant.** All sales data is stored in European data centers with full GDPR and DSGVO compliance. Track deals and customer interactions with confidence that your data handling meets European regulatory standards.
+**EU database region with documented providers.** The managed database runs in an EU region. Application hosting and other providers, including US providers, may process data elsewhere; this deployment fact is not a GDPR or other compliance certification.
 
-**From €12 per user per month.** Every tracking feature, dashboard, forecast, and reporting capability is included from the Starter tier. No per-deal charges. No limits on pipeline stages, custom fields, or activity records.
+**From [[commercial.price.starter.monthly]] per user per month.** Core deal tracking, configurable stages, custom fields, activity context, API access, and dashboard widgets start with Starter. Forecasts, velocity, fixed conversion metrics, and external automation are not included product calculations or runtimes.
 
-**n8n automation for sales workflows.** Automate routine tracking tasks with the built-in n8n engine. Create tasks when deals enter stages, send alerts for stagnant deals, sync data with external tools, and build custom [sales automation](/features/sales-automation) workflows, all visually, without code.
+**Separate n8n for sales workflows.** Connect an n8n instance you run or subscribe to through REST, webhooks, MCP, or the community node. [Sales automation](/features/sales-automation) logic, scheduler, 400+ connectors, provider delivery, logs, limits, and costs remain external.
 
-**Self-hostable for full control.** Deploy on your own infrastructure with Docker and keep complete control over your sales data. Self-hosting ensures your pipeline intelligence and competitive data never leaves your servers.
+**Self-hostable application and database.** Deploy the Customermates application and PostgreSQL database on your infrastructure with Starter entitlements. Connected AI, workflow, messaging, and reporting providers still receive whatever data your configuration sends.
 
-**AI-powered sales insights.** Through a native MCP integration, AI agents like Claude, ChatGPT, and Gemini can read and update the CRM directly: summarize deal histories, suggest next actions, draft follow-up emails, keep records current, and flag deals at risk. AI augments your sales process without replacing the human relationships that close deals.
+**External AI-client assistance.** Supported clients such as Claude, ChatGPT, or Gemini can use MCP to read allowed records, summarize history, update supported fields, and draft one follow-up. Customermates includes no AI model or risk score; client, subscription, provider handling, and results remain separate.
 
 ## Frequently Asked Questions
 
@@ -115,14 +115,14 @@ Sales tracking software is a tool that records and monitors every deal, activity
 Sales tracking is a core function within a CRM. While a CRM manages the full customer lifecycle, contacts, marketing, service, and support, sales tracking focuses specifically on monitoring deals through pipeline stages and measuring sales performance. Customermates includes sales tracking as part of its complete [CRM platform](/features/cloud-crm).
 
 **What metrics should I track for sales?**
-Key metrics include pipeline value, deal count by stage, stage-to-stage conversion rates, average deal size, sales cycle length, pipeline velocity, win/loss ratio, and activity volume per rep. Customermates tracks all of these out of the box.
+Useful metrics can include pipeline value, deal count by stage, conversion rates, average deal size, cycle length, velocity, win/loss ratio, and activity volume. Customermates shows supported stored values; calculate derived metrics externally.
 
 **Can I track individual rep performance?**
-Yes. Customermates provides per-rep dashboards showing deals won, revenue closed, pipeline value, activity volume, and conversion rates. Managers can compare performance across the team and identify coaching opportunities.
+Configure personal dashboard widgets over supported fields such as deal owner, stage, count, or value. Calculate targets, conversion rates, and cross-rep coaching metrics in an external reporting system.
 
 **How much does sales tracking software cost?**
-Pricing ranges from free (with significant limitations) to $25+/user/month for enterprise platforms. Freshsales starts at $9/user/month, Pipedrive at $14, and Salesforce at $25. Customermates includes all sales tracking features from €12/user/month with no separate analytics add-on.
+Pricing ranges from free to $25+/user/month for enterprise platforms. Freshsales starts at $9/user/month, Pipedrive at $14, and Salesforce at $25. Customermates includes core deal records, typed custom fields, and dashboards from [[commercial.price.starter.monthly]]/user/month; forecasting and external analytics are separate.
 
 ## Get Started with Sales Tracking Today
 
-Setting up sales tracking in Customermates takes minutes. Create your pipeline stages, enter your first deals, and invite your team. Every feature, deal tracking, activity logging, conversion analytics, forecasting, and dashboards, is available from day one with no setup complexity. Start tracking your sales the way they deserve to be tracked.
+Set up sales tracking by configuring pipeline stages, adding deals, and inviting your team. Core records, activity context, fields, views, and dashboard widgets follow your plan; conversion analytics, forecasts, reminders, AI clients, and automation runtimes remain external.

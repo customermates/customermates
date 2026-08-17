@@ -43,14 +43,14 @@ Generative KI erzeugt Inhalte auf Anfrage: Text, Bilder, Code, Zusammenfassungen
 
 Agentische KI handelt. Sie führt Aufgaben aus, ruft Werkzeuge auf, schreibt Daten zurück in Systeme und trifft Entscheidungen im Verlauf eines Prozesses. Der Unterschied ist nicht graduell, sondern strukturell:
 
-| Merkmal | Generative KI | Agentische KI |
-|---|---|---|
-| Verhalten | Reaktiv | Proaktiv |
-| Eingabe | Prompt | Ziel |
-| Ausgabe | Inhalt | Aktion |
-| Werkzeuge | Keiner | Browser, APIs, Datenbanken |
-| Gedächtnis | Nur im Kontextfenster | Persistente Zustandsverwaltung |
-| Aufsicht | Mensch nach jedem Schritt | Mensch definiert Grenzen, Agent handelt |
+| Merkmal    | Generative KI             | Agentische KI                           |
+| ---------- | ------------------------- | --------------------------------------- |
+| Verhalten  | Reaktiv                   | Proaktiv                                |
+| Eingabe    | Prompt                    | Ziel                                    |
+| Ausgabe    | Inhalt                    | Aktion                                  |
+| Werkzeuge  | Keiner                    | Browser, APIs, Datenbanken              |
+| Gedächtnis | Nur im Kontextfenster     | Persistente Zustandsverwaltung          |
+| Aufsicht   | Mensch nach jedem Schritt | Mensch definiert Grenzen, Agent handelt |
 
 Ein einfaches Beispiel: Ich bitte ChatGPT (generativ), eine Outreach-E-Mail zu schreiben. Der Text ist gut, aber ich muss ihn selbst kopieren, in das CRM einfügen und versenden. Ein agentischer KI-Agent hingegen schreibt die E-Mail, trägt den Kontakt in das CRM ein, versendet die Nachricht und legt eine Wiedervorlage an, alles in einem einzigen Arbeitsschritt.
 
@@ -82,7 +82,7 @@ Ein agentischer KI-Agent im Kundenservice empfängt eine Anfrage, überprüft de
 
 Im Vertrieb ist agentische KI besonders wertvoll, weil CRM-Daten konstant veralten. Ein agentischer KI-Agent liest E-Mails und Gesprächstranskripte, leitet Informationen ab, und aktualisiert Kontakte, Deals und Aufgaben im CRM automatisch.
 
-Customermates ist so konzipiert, dass KI-Agenten über [MCP (Model Context Protocol)](/features/api) direkt auf das CRM zugreifen können. Mit 45 MCP-Tools können Agenten alle Entitäten lesen und schreiben: Kontakte, Organisationen, Deals, Services, Aufgaben und benutzerdefinierte Felder. Das macht Customermates zu einer praktischen Grundlage für agentische KI im [Vertrieb](/blog/ai-in-sales). Die [Preise](/pricing) starten bei 12 Euro pro Nutzer und Monat (Starter), oder kostenlos selbst gehostet. Wer Salesforce Agentforce als Vergleichspunkt im Kopf hat, findet im [Salesforce-Alternative-Vergleich](/compare/salesforce-alternative) die Gegenüberstellung der agentischen Funktionen.
+Customermates ist so konzipiert, dass KI-Agenten über [MCP (Model Context Protocol)](/features/api) direkt auf das CRM zugreifen können. Mit [[derived.mcp.tools.total]] MCP-Tools können Agenten alle Entitäten lesen und schreiben: Kontakte, Organisationen, Deals, Services, Aufgaben und benutzerdefinierte Felder. Das macht Customermates zu einer praktischen Grundlage für agentische KI im [Vertrieb](/blog/ai-in-sales). Die [Preise](/pricing) starten bei [[commercial.price.starter.monthly]] pro Nutzer und Monat (Starter), oder kostenlos selbst gehostet. Wer Salesforce Agentforce als Vergleichspunkt im Kopf hat, findet im [Salesforce-Alternative-Vergleich](/compare/salesforce-alternative) die Gegenüberstellung der agentischen Funktionen.
 
 ### Lieferkettenmanagement
 
@@ -120,7 +120,7 @@ Agentische KI hat reale Risiken, die Teams bei der Einführung kennen sollten:
 
 Wer agentische KI selbst entwickeln oder konfigurieren möchte, hat mehrere Optionen:
 
-**Model Context Protocol (MCP).** Ein offener Standard von Anthropic, der es KI-Agenten ermöglicht, über eine standardisierte Schnittstelle auf externe Tools und Daten zuzugreifen. Customermates implementiert MCP mit 45 Tools, die alle CRM-Entitäten abdecken. Das erlaubt es, Claude oder ein anderes MCP-kompatibles Modell direkt als CRM-Agenten zu nutzen.
+**Model Context Protocol (MCP).** Ein offener Standard von Anthropic, der es KI-Agenten ermöglicht, über eine standardisierte Schnittstelle auf externe Tools und Daten zuzugreifen. Customermates implementiert MCP mit [[derived.mcp.tools.total]] Tools, die alle CRM-Entitäten abdecken. Das erlaubt es, Claude oder ein anderes MCP-kompatibles Modell direkt als CRM-Agenten zu nutzen.
 
 **LangChain und LangGraph.** Python-Frameworks für den Aufbau agentischer Systeme. LangGraph ermöglicht die Modellierung von Agenten-Workflows als zustandsbasierte Graphen mit Schleifen und Verzweigungen. Gut für Entwickler, die volle Kontrolle über die Architektur wollen.
 

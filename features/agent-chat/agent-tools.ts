@@ -3,7 +3,7 @@ import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 import { asSchema, tool, jsonSchema, type ToolSet } from "ai";
 
-import { ALL_MCP_TOOLS } from "@/features/mcp-tools/all-tools";
+import { ALL_MCP_TOOLS } from "@/features/mcp-tools/tool-registry";
 import { VALIDATION_ERROR_PREFIX } from "@/features/mcp-tools/utils";
 import { RequestSupportSchema } from "@/features/mcp-tools/support.mcp-tools";
 import type { McpToolResult } from "@/app/api/v1/mcp/mcp-route-utils";

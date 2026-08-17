@@ -305,6 +305,7 @@ export class ApplyAgentWorkspaceSetupInteractor extends AuthenticatedInteractor<
 
       const widget = await dataOrThrow(
         this.deps.upsertWidget.invoke({
+          kind: "chart",
           name: widgetPlan.name,
           entityType: EntityType[widgetPlan.entityType],
           entityFilters: [],

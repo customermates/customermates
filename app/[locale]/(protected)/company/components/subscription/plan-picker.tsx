@@ -2,81 +2,94 @@
 
 import { useTranslations } from "next-intl";
 import { Check } from "lucide-react";
+import { observer } from "mobx-react-lite";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { cn } from "@/core/utils/cn";
-import { getEntitlements } from "@/ee/subscription/entitlements";
+import { useRootStore } from "@/core/stores/root-store.provider";
+import {
+  formatCommercialAmount,
+  PLAN_CATALOG,
+  PURCHASABLE_PLAN_IDS,
+  type AvailableBillingCadence,
+  type PurchasablePlanId,
+} from "@/core/commercial/plan-catalog";
 
-export type SelectablePlan = "starter" | "pro" | "business";
-
-const SELECTABLE_PLANS: SelectablePlan[] = ["starter", "pro", "business"];
+export type SelectableOffer = {
+  plan: PurchasablePlanId;
+  cadence: AvailableBillingCadence;
+};
 
 type Props = {
   isLoading?: boolean;
-  onSelect: (plan: SelectablePlan) => void;
+  onSelect: (offer: SelectableOffer) => void;
 };
 
-export function PlanPicker({ isLoading, onSelect }: Props) {
+export const PlanPicker = observer(function PlanPicker({ isLoading, onSelect }: Props) {
   const t = useTranslations();
+  const { intlStore } = useRootStore();
+  const locale = intlStore.resolvedFormattingLanguageTag;
 
-  function handleCardClick(plan: SelectablePlan) {
-    if (!isLoading) onSelect(plan);
+  function handleCardClick(offer: SelectableOffer) {
+    if (!isLoading) onSelect(offer);
   }
 
   return (
-    <div className="space-y-3">
-      <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-3">
-        {SELECTABLE_PLANS.map((plan) => {
-          const featured = plan === "business";
-          const features = t.raw(`Subscription.picker.features.${plan}`) as string[];
-          const credits = getEntitlements(plan).hostedAiCreditsPerActiveUser;
-          if (typeof credits !== "number")
-            throw new Error(`Selectable plan ${plan} has no finite hosted AI allowance.`);
+    <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-3">
+      {PURCHASABLE_PLAN_IDS.map((plan) => {
+        const featured = plan === "business";
+        const offer = PLAN_CATALOG[plan].offers.monthly;
+        const selection: SelectableOffer = { plan, cadence: offer.cadence };
+        const accountAllowance = PLAN_CATALOG[plan].entitlements.includedAccountsPerUser;
+        const credits = PLAN_CATALOG[plan].entitlements.hostedAiCreditsPerActiveUser;
+        const features = t.raw(`Subscription.picker.features.${plan}`) as string[];
+        const renderedFeatures = [
+          ...features,
+          ...(accountAllowance === 0
+            ? []
+            : [t("Subscription.picker.connectedAccountsPerUser", { accounts: accountAllowance })]),
+          ...(typeof credits === "number" ? [t("Subscription.picker.hostedAiCredits", { credits })] : []),
+        ];
 
-          return (
-            <button
-              key={plan}
-              className={cn(
-                "interactive-surface flex flex-col gap-3 rounded-xl border bg-card p-4 text-left disabled:cursor-not-allowed disabled:opacity-60",
-                featured ? "border-2 border-primary" : "border-border",
-              )}
-              disabled={isLoading}
-              type="button"
-              onClick={() => handleCardClick(plan)}
-            >
-              <div className="flex items-center justify-between gap-2">
-                <h4 className="text-sm font-semibold">{t(`Subscription.planNames.${plan}`)}</h4>
+        return (
+          <button
+            key={plan}
+            className={cn(
+              "interactive-surface flex flex-col gap-3 rounded-xl border bg-card p-4 text-left disabled:pointer-events-none disabled:opacity-50",
+              featured ? "border-2 border-primary" : "border-border",
+            )}
+            disabled={isLoading}
+            type="button"
+            onClick={() => handleCardClick(selection)}
+          >
+            <span className="flex items-center justify-between gap-2">
+              <span className="text-sm font-semibold">{t(`Subscription.planNames.${plan}`)}</span>
 
-                {featured && <AppChip variant="info">{t("Subscription.picker.mostPopular")}</AppChip>}
-              </div>
+              {featured && <AppChip variant="info">{t("Subscription.picker.mostPopular")}</AppChip>}
+            </span>
 
-              <div className="flex items-baseline gap-1">
-                <span className="text-xl font-bold">{t(`Subscription.picker.price.${plan}`)}</span>
+            <span className="flex items-baseline gap-1">
+              <span className="text-xl font-bold">
+                {formatCommercialAmount(offer.unitPriceMinor, locale, offer.currency)}
+              </span>
 
-                <span className="text-xs text-muted-foreground">{t("Subscription.picker.perUserMonth")}</span>
-              </div>
+              <span className="text-xs text-muted-foreground">{t("Subscription.picker.perUserMonth")}</span>
+            </span>
 
-              <ul className="flex flex-col gap-1.5">
-                <li className="flex items-start gap-1.5 text-xs text-muted-foreground">
+            <span className="flex flex-col gap-1.5" role="list">
+              {renderedFeatures.map((feature, index) => (
+                <span key={index} className="flex items-start gap-1.5 text-xs text-muted-foreground" role="listitem">
                   <Check aria-hidden className="mt-0.5 size-3 shrink-0 text-primary" strokeWidth={2.5} />
 
-                  <span>{t("Subscription.picker.hostedAiCredits", { credits })}</span>
-                </li>
+                  <span>{feature}</span>
+                </span>
+              ))}
+            </span>
+          </button>
+        );
+      })}
 
-                {features.map((feature, index) => (
-                  <li key={index} className="flex items-start gap-1.5 text-xs text-muted-foreground">
-                    <Check aria-hidden className="mt-0.5 size-3 shrink-0 text-primary" strokeWidth={2.5} />
-
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </button>
-          );
-        })}
-      </div>
-
-      <p className="text-xs text-muted-foreground">{t("Subscription.picker.creditNote")}</p>
+      <p className="text-muted-foreground text-xs sm:col-span-3">{t("Subscription.picker.creditNote")}</p>
     </div>
   );
-}
+});

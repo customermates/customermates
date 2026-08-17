@@ -10,7 +10,7 @@ hero:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: ✓ No credit card required ✓ First 7 days free
+  hint: ✓ No credit card required ✓ First [[commercial.trial.days]] days free
 comparison:
   competitorName: HubSpot
   competitor2Name: Zoho CRM
@@ -23,15 +23,15 @@ comparison:
       competitor: days to weeks
       competitor2: hours to days
     - name: Starting price
-      source: From €12 / month / user
+      source: From [[commercial.price.starter.monthly]] / month / user
       competitor: Free / $15 Starter
       competitor2: Free (3 users) / $14 Standard
     - name: Mid-tier price
-      source: €29 / month / user (Pro)
+      source: "[[commercial.price.pro.monthly]] / month / user (Pro)"
       competitor: $90 / seat Professional (annual)
       competitor2: $23 Professional
     - name: Top-tier price
-      source: €69 / month / user (Business)
+      source: "[[commercial.price.business.monthly]] / month / user (Business)"
       competitor: $150 / seat Enterprise
       competitor2: $40 Enterprise
     - name: Free plan
@@ -77,17 +77,17 @@ comparison:
       competitor: email and chat; WhatsApp add-on
       competitor2: email; WhatsApp/social via add-ons
     - name: AI agents operate the CRM (native MCP)
-      source: 45 MCP tools (Claude, ChatGPT, Gemini)
+      source: "[[derived.mcp.tools.total]] MCP tools (Claude, ChatGPT, Gemini)"
       competitor: Breeze AI (Professional+, assistive)
       competitor2: Zia AI (Enterprise, assistive)
   - title: Data protection & security
     features:
-    - name: GDPR compliant
-      source: true
+    - name: GDPR documentation
+      source: DPA + SCCs; no certification
       competitor: partially
       competitor2: partially
     - name: Hosting
-      source: EU / Germany
+      source: EU database region
       competitor: global/USA
       competitor2: mixed EU & USA (Dublin, Amsterdam)
     - name: Data control
@@ -119,10 +119,10 @@ cta:
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: ✓ No credit card required ✓ First 7 days free
+  hint: ✓ No credit card required ✓ First [[commercial.trial.days]] days free
 ---
 
-> HubSpot and Zoho CRM are two of the most compared CRM platforms for growing teams, but they serve different philosophies. HubSpot is the polished marketing-first platform with an intuitive interface and excellent free tier that becomes expensive at scale, the jump from Starter ($15/seat) to Professional ($90/seat) catches most teams off guard. Zoho is the budget-friendly suite with deep customization and highly configurable workflows that sometimes sacrifices user experience for flexibility. Customermates offers a third path built on two ideas: AI agents (Claude, ChatGPT, Gemini) operate the CRM directly through a native MCP integration (45 tools), and a native unified inbox handles email, LinkedIn, WhatsApp, Instagram, and Telegram in one place the same agents can work. Every core CRM feature is included from €12/user/month, EU-hosted, open-source, and operational in two minutes.
+> HubSpot and Zoho CRM are two of the most compared CRM platforms for growing teams, but they serve different philosophies. HubSpot is the polished marketing-first platform with an intuitive interface and excellent free tier that becomes expensive at scale, the jump from Starter ($15/seat) to Professional ($90/seat) catches most teams off guard. Zoho is the budget-friendly suite with deep customization and highly configurable workflows that sometimes sacrifices user experience for flexibility. Customermates offers a third path built on two ideas: AI agents (Claude, ChatGPT, Gemini) operate the CRM directly through a native MCP integration ([[derived.mcp.tools.total]] tools), and a native unified inbox handles email, LinkedIn, WhatsApp, Instagram, and Telegram in one place the same agents can work. Every core CRM feature is included from [[commercial.price.starter.monthly]]/user/month, EU-hosted, open-source, and operational in two minutes.
 
 ## Which CRM is better Zoho or HubSpot?
 
@@ -134,13 +134,13 @@ The choice depends on three factors:
 2. **Ease of use priority**: HubSpot has a cleaner, more unified interface with minimal setup.
 3. **Customization priority**: Zoho offers deeper configuration with custom modules, rule-based workflows, and scripting for complex automation.
 
-Customermates offers a fourth option: modern UX, complete core CRM features, and transparent tiers from €12/user/month, with no core feature ever gated behind a higher plan.
+Customermates offers a fourth option: modern UX, complete core CRM features, and transparent tiers from [[commercial.price.starter.monthly]]/user/month, with no core feature ever gated behind a higher plan.
 
 Here is the recommendation:
 
 - **Choose HubSpot** if your priority is a polished user experience, strong inbound marketing tools (email campaigns, landing pages, lead nurturing), and you can absorb the cost jump to Professional ($90/seat) where the real power unlocks.
 - **Choose Zoho CRM** if budget is your primary concern, you need deep customization options (custom modules, fields, layouts), and you are already invested in the Zoho ecosystem (Zoho One, Zoho Desk, Zoho Analytics).
-- **Choose Customermates** if you want a modern, consistent CRM experience with every core feature included from €12/user/month, no module sprawl, no steep price cliffs, and guaranteed EU data residency.
+- **Choose Customermates** if you want a modern, consistent CRM experience with every core feature included from [[commercial.price.starter.monthly]]/user/month, no module sprawl, no steep price cliffs, and guaranteed EU data residency.
 
 ## Setup and onboarding
 
@@ -153,6 +153,7 @@ Customermates is ready in two minutes. The interface is designed for focus: set 
 ## Pricing breakdown
 
 **HubSpot pricing (seat-based model):**
+
 - Free: basic CRM, limited contacts and features
 - Starter ($15/seat/month): removes branding, adds simple automation
 - Professional ($90/seat/month, annual; $100 monthly, plus a one-time onboarding fee of about $1,500): custom reporting, sequences, workflow automation, AI features
@@ -161,6 +162,7 @@ Customermates is ready in two minutes. The interface is designed for focus: set 
 The gap between Starter ($15/seat) and Professional ($90/seat) is where most teams feel the pinch. Features many consider standard, custom reporting, workflow automation, sequences, are locked behind the Professional plan. Total cost for a 10-person team on Professional: approximately $10,800/year before add-ons and onboarding.
 
 **Zoho CRM pricing (per user/month, billed annually):**
+
 - Free: up to 3 users, basic features
 - Standard ($14): scoring rules, workflows (10 rules), custom dashboards
 - Professional ($23): process management, inventory management, workflows (15 rules)
@@ -170,7 +172,8 @@ The gap between Starter ($15/seat) and Professional ($90/seat) is where most tea
 Zoho is more affordable than HubSpot at every tier. However, features are fragmented across plans. Workflow rules are capped (10 on Standard, 15 on Professional, 30 on Enterprise). Custom modules and Zia AI require Enterprise ($40). The Zoho ecosystem pushes toward additional products (Zoho Desk, Zoho Analytics, Zoho One with 45+ apps), adding capability but also complexity and cost.
 
 **Customermates pricing:**
-- Starter (€12/user/month): every core CRM feature, no messaging. Pro (€29) adds the unified inbox. Business (€69) adds more connected accounts. A 10-person team on Starter costs €1,440/year. No workflow caps, no core-feature restrictions, no ecosystem upsells.
+
+- Starter ([[commercial.price.starter.monthly]]/user/month): every core CRM feature, no messaging. Pro ([[commercial.price.pro.monthly]]) adds the unified inbox. Business ([[commercial.price.business.monthly]]) adds more connected accounts. A 10-person team on Starter costs [[commercial.price.starter.monthly.seats.10.months.12]]/year. No workflow caps, no core-feature restrictions, no ecosystem upsells.
 
 ## What are the negatives of Zoho?
 
@@ -191,7 +194,7 @@ HubSpot excels at the intersection of marketing and sales. Email marketing, land
 
 Zoho CRM covers a wider range of business functions: contacts, deals, activities, campaigns, social integration, inventory management, and project tracking. The breadth is impressive and the reporting is highly customizable with advanced analytics. But the user experience is inconsistent, different modules behave differently, the interface has not kept pace with modern design standards, and the mobile app can be sluggish according to user reviews.
 
-Customermates focuses on what CRM teams use daily: contacts, organizations, deals, pipelines, tasks, services, native AI integration, and n8n automation, all on Starter, with the unified inbox for email, LinkedIn, WhatsApp, Instagram, and Telegram starting on Pro. The interface is modern and consistent, and no core CRM feature is ever locked behind a higher plan.
+Customermates focuses on what CRM teams use daily: contacts, organizations, deals, pipelines, tasks, services, MCP access for external AI clients, and n8n automation, all on Starter, with the unified inbox for email, LinkedIn, WhatsApp, Instagram, and Telegram starting on Pro. The interface is modern and consistent, and no core CRM feature is ever locked behind a higher plan.
 
 ## What are the top 3 CRM systems?
 
@@ -205,7 +208,7 @@ The "top" CRM depends entirely on context. For marketing-led organizations: HubS
 
 **Zoho Zia AI** provides predictive sales insights, lead and deal scoring, anomaly detection, and a conversational assistant. Zia is available starting from Enterprise tier ($40/user/month). Lower tiers have limited or no AI access. Zia offers the broadest AI feature set of the three at its price point.
 
-**Customermates** is built so external AI agents operate the CRM directly: through native MCP (45 tools), Claude, ChatGPT, or Gemini move deal stages, draft follow-ups, and keep contact notes current. External MCP access is available at every tier from €12/user/month; hosted Assistant processing uses each plan's published monthly credit allowance, with no automatic overage fees.
+**Customermates** is built so AI agents operate the CRM directly: through a native MCP integration ([[derived.mcp.tools.total]] tools), Claude, ChatGPT, or Gemini move deal stages, draft follow-ups, and keep contact notes current, and from Pro the same agents work a unified inbox across email, LinkedIn, WhatsApp, Instagram, and Telegram. MCP access for external AI clients is included at every tier from [[commercial.price.starter.monthly]]/user/month, with the monthly hosted AI allowance scaling by tier and no add-on fees.
 
 ## Data protection and hosting
 
@@ -221,7 +224,7 @@ HubSpot has over 1,500 marketplace integrations and powerful built-in automation
 
 Zoho CRM integrates natively with Zoho's own app ecosystem and third-party tools. Workflow automation is available but capped by plan: Standard allows 10 workflow rules, Professional 15, and Enterprise 30. Custom functions and advanced integrations require higher tiers. The push toward Zoho's own ecosystem (Zoho Flow, Zoho Analytics) adds products but also complexity. Real-time data sync between CRM and other tools can be inconsistent without third-party connectors.
 
-Customermates includes n8n automation without restrictions from day one. Connect to thousands of services, build complex workflows, and access the full API, all at the base price. No workflow caps, no ecosystem lock-in, no tier gates.
+Customermates works with n8n automation without restrictions from day one. Connect to thousands of services, build complex workflows, and access the full API, all at the base price. No workflow caps, no ecosystem lock-in, no tier gates.
 
 ## The ecosystem question
 
@@ -231,7 +234,7 @@ Customermates takes the opposite approach. As an open-source CRM with n8n integr
 
 ## Conclusion
 
-HubSpot and Zoho both offer solid CRM foundations, but each forces compromises. HubSpot delivers polish at a premium price with steep tier jumps. Zoho delivers breadth and value but at the cost of user experience, consistency, and workflow caps. Customermates provides a focused, modern alternative: complete core CRM from €12/user/month, EU-hosted, open-source, and ready in minutes. For teams that want effective CRM without marketing overhead, module sprawl, or ecosystem lock-in, it is the direct choice.
+HubSpot and Zoho both offer solid CRM foundations, but each forces compromises. HubSpot delivers polish at a premium price with steep tier jumps. Zoho delivers breadth and value but at the cost of user experience, consistency, and workflow caps. Customermates provides a focused, modern alternative: complete core CRM from [[commercial.price.starter.monthly]]/user/month, EU-hosted, open-source, and ready in minutes. For teams that want effective CRM without marketing overhead, module sprawl, or ecosystem lock-in, it is the direct choice.
 
 ### Related Comparisons
 

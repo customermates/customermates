@@ -1,6 +1,6 @@
 import { Resource } from "@/generated/prisma";
 
-import { ServicesCard } from "./components/services-card";
+import { ServicesPageView } from "./components/services-page-view";
 
 import { getGetServicesInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
@@ -26,7 +26,7 @@ export default async function ServicesPage({ searchParams }: Props) {
 
   return (
     <PageContainer padded={false}>
-      <ServicesCard services={services} />
+      <ServicesPageView services={services} />
     </PageContainer>
   );
 }

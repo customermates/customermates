@@ -105,14 +105,14 @@ FAINT glänzt in Märkten, in denen Sie Nachfrage erzeugen, statt auf sie zu rea
 
 ### Welches Framework sollten Sie verwenden?
 
-| Faktor | BANT | MEDDIC | ANUM | FAINT |
-|--------|------|--------|------|-------|
-| Vertriebszyklus-Länge | Kurz (Tage-Wochen) | Lang (Monate) | Mittel (Wochen) | Variabel |
-| Durchschnittliche Deal-Größe | Unter 10.000 EUR | Über 10.000 EUR | 5.000-50.000 EUR | Beliebig |
-| Entscheider | 1-2 Personen | 3+ (Buying Committee) | 1-2 Personen | 1-3 Personen |
-| Am besten für | KMU, klare Preise | Enterprise, beratungsintensiv | Outbound, Mid-Market | Neue Kategorien, Demand Creation |
-| KI-Scoring-Komplexität | Niedriger (4 Dimensionen) | Höher (6 Dimensionen) | Mittel (4 Dimensionen) | Mittel (5 Dimensionen) |
-| Budget-Status | Allokiert | Allokiert | Ggf. nicht allokiert | Noch nicht allokiert |
+| Faktor                       | BANT                      | MEDDIC                        | ANUM                   | FAINT                            |
+| ---------------------------- | ------------------------- | ----------------------------- | ---------------------- | -------------------------------- |
+| Vertriebszyklus-Länge        | Kurz (Tage-Wochen)        | Lang (Monate)                 | Mittel (Wochen)        | Variabel                         |
+| Durchschnittliche Deal-Größe | Unter 10.000 EUR          | Über 10.000 EUR               | 5.000-50.000 EUR       | Beliebig                         |
+| Entscheider                  | 1-2 Personen              | 3+ (Buying Committee)         | 1-2 Personen           | 1-3 Personen                     |
+| Am besten für                | KMU, klare Preise         | Enterprise, beratungsintensiv | Outbound, Mid-Market   | Neue Kategorien, Demand Creation |
+| KI-Scoring-Komplexität       | Niedriger (4 Dimensionen) | Höher (6 Dimensionen)         | Mittel (4 Dimensionen) | Mittel (5 Dimensionen)           |
+| Budget-Status                | Allokiert                 | Allokiert                     | Ggf. nicht allokiert   | Noch nicht allokiert             |
 
 Die meisten kleinen und mittleren Teams starten mit BANT. Wenn Sie an Unternehmen mit komplexen Beschaffungsprozessen verkaufen, lohnt sich der Mehraufwand für MEDDIC. Wenn Ihr Outbound-Team Entscheidungsbefugnis schnell validieren muss, nutzen Sie ANUM. Wenn Sie eine neue Produktkategorie schaffen oder an Unternehmen ohne bestehendes Budget verkaufen, starten Sie mit FAINT.
 
@@ -289,7 +289,7 @@ Neuer Lead kommt an (Webhook / CRM-Trigger / Formular)
 ### Schritt-für-Schritt-Umsetzung
 
 **1. Trigger: Neue Leads erfassen.**
-Verwenden Sie einen n8n-Webhook-Node oder einen CRM-Trigger. Bei [Customermates](/) lösen neue Kontakte automatisch Workflows über die native n8n-Integration aus. Alternativ lassen sich Webformulare, E-Mail-Parser oder Chatbot-Ausgaben anbinden.
+Verwenden Sie einen n8n-Webhook-Node oder einen CRM-Trigger. Bei [Customermates](/) lösen neue Kontakte automatisch Workflows über die separate n8n-Integration aus. Alternativ lassen sich Webformulare, E-Mail-Parser oder Chatbot-Ausgaben anbinden.
 
 **2. Lead-Daten anreichern (optional).**
 Vor dem Scoring können Sie zusätzlichen Kontext ergänzen. Nutzen Sie einen HTTP-Request-Node, um Unternehmensdaten von Clearbit, Apollo oder LinkedIn abzurufen. Mehr Kontext verbessert die Scoring-Genauigkeit. Selbst Basis-Anreicherung (Unternehmensgröße, Branche, Standort) kann den ICP-Fit-Score eines Leads von "Unbekannt" zu "Stark" oder "Schwach" verschieben.
@@ -301,10 +301,11 @@ Fügen Sie einen OpenAI-Node hinzu. Setzen Sie den BANT-, MEDDIC- oder ANUM-Prom
 Nutzen Sie einen Code-Node oder JSON-Parser, um die einzelnen Scores, die Klassifizierung und die empfohlene Aktion aus der ChatGPT-Antwort zu extrahieren. Mappen Sie diese auf Variablen für die nächsten Schritte.
 
 **5. CRM aktualisieren.**
-Fügen Sie einen CRM-Node hinzu, um die Ergebnisse zu schreiben. In Customermates mappen Sie den Gesamtscore auf ein Custom-Feld, setzen die Klassifizierung als Tag und fügen das detaillierte Scoring als Notiz hinzu. So ist die Qualifizierung auf der Deal-Karte sichtbar, ohne einen separaten Report öffnen zu müssen.
+Fügen Sie einen CRM-Node hinzu, um die Ergebnisse zu schreiben. In Customermates mappen Sie den Gesamtscore auf ein Custom-Feld, setzen die Klassifizierung als Einfachauswahl-Spalte und fügen das detaillierte Scoring als Notiz hinzu. So ist die Qualifizierung auf der Deal-Karte sichtbar, ohne einen separaten Report öffnen zu müssen.
 
 **6. Routing nach Klassifizierung.**
 Nutzen Sie einen If-Node, um den Workflow zu verzweigen:
+
 - **Hot Leads (Score 16-20):** Sofortige Slack-Nachricht oder E-Mail an den zuständigen Vertriebsmitarbeiter mit Lead-Zusammenfassung und Score-Aufschlüsselung.
 - **Warm Leads (Score 10-15):** In E-Mail-Nurture-Sequenz aufnehmen oder Follow-up-Aufgabe im CRM planen.
 - **Cold Leads (Score 1-9):** Für regelmäßige Überprüfung taggen. Nicht verwerfen, Umstände ändern sich.
@@ -312,12 +313,12 @@ Nutzen Sie einen If-Node, um den Workflow zu verzweigen:
 
 ### Kostenaufstellung des Workflows
 
-| Komponente | Monatliche Kosten |
-|-----------|------------------|
-| n8n Cloud (Starter) | 20 EUR |
-| OpenAI API (200 Leads bewertet) | 5-10 EUR |
-| Customermates CRM | 12 EUR/Nutzer |
-| **Gesamt (1 Nutzer)** | **34-39 EUR** |
+| Komponente                      | Monatliche Kosten                                            |
+| ------------------------------- | ------------------------------------------------------------ |
+| n8n Cloud (Starter)             | 20 EUR                                                       |
+| OpenAI API (200 Leads bewertet) | 5-10 EUR                                                     |
+| Customermates CRM               | [[commercial.price.starter.monthly]]/Nutzer                  |
+| **Gesamt (1 Nutzer)**           | **20 EUR + 5-10 EUR + [[commercial.price.starter.monthly]]** |
 
 Bei 200 Leads pro Monat kostet die gesamte Automatisierung weniger als eine Stunde eines Vertriebsmitarbeiters.
 
@@ -347,16 +348,16 @@ Nutzen Sie KI für den ersten Durchlauf: automatisch bewerten, klassifizieren un
 
 Viele CRMs bieten eingebautes Lead-Scoring. So schneiden sie im Vergleich zum ChatGPT-Ansatz aus diesem Artikel ab.
 
-| Merkmal | Customermates + ChatGPT | HubSpot Lead Scoring | Pipedrive Lead Scoring |
-|---------|------------------------|---------------------|----------------------|
-| Scoring-Methode | KI (Framework-basiert) | Regelbasiert (manuelles Setup) | Kein natives Scoring |
-| Unterstützte Frameworks | BANT, MEDDIC, ANUM, FAINT | Nur Custom-Regeln | N/A |
-| Einrichtungszeit | 1-2 Stunden (n8n-Workflow) | 2-4 Stunden (Regel-Konfiguration) | N/A (externes Tool nötig) |
-| Scoring-Konsistenz | Sehr hoch (KI wendet gleiche Kriterien an) | Hoch (Regeln sind konsistent) | N/A |
-| Anpassungsfähigkeit | Prompt ändern = Framework ändern | Regeln für jede Änderung neu bauen | N/A |
-| Qualitative Analyse | Ja (liest Text, erkennt Signale) | Nein (nur numerische/boolesche Regeln) | N/A |
-| Kosten | 12 EUR/Nutzer + 5-10 EUR API | Ab ~90 EUR/Sitz (Professional-Plan) | 14 EUR/Nutzer + externes Tool |
-| n8n-Integration | Nativ | API verfügbar | API verfügbar |
+| Merkmal                 | Customermates + ChatGPT                                    | HubSpot Lead Scoring                   | Pipedrive Lead Scoring        |
+| ----------------------- | ---------------------------------------------------------- | -------------------------------------- | ----------------------------- |
+| Scoring-Methode         | KI (Framework-basiert)                                     | Regelbasiert (manuelles Setup)         | Kein natives Scoring          |
+| Unterstützte Frameworks | BANT, MEDDIC, ANUM, FAINT                                  | Nur Custom-Regeln                      | N/A                           |
+| Einrichtungszeit        | 1-2 Stunden (n8n-Workflow)                                 | 2-4 Stunden (Regel-Konfiguration)      | N/A (externes Tool nötig)     |
+| Scoring-Konsistenz      | Sehr hoch (KI wendet gleiche Kriterien an)                 | Hoch (Regeln sind konsistent)          | N/A                           |
+| Anpassungsfähigkeit     | Prompt ändern = Framework ändern                           | Regeln für jede Änderung neu bauen     | N/A                           |
+| Qualitative Analyse     | Ja (liest Text, erkennt Signale)                           | Nein (nur numerische/boolesche Regeln) | N/A                           |
+| Kosten                  | [[commercial.price.starter.monthly]]/Nutzer + 5-10 EUR API | Ab ~90 EUR/Sitz (Professional-Plan)    | 14 EUR/Nutzer + externes Tool |
+| n8n-Integration         | Nativ                                                      | API verfügbar                          | API verfügbar                 |
 
 **HubSpots eingebautes Scoring** ist regelbasiert: Sie definieren Punkte für Aktionen (E-Mail geöffnet = +5, Preisseite besucht = +10). Es funktioniert für Engagement-Scoring, kann aber den Inhalt einer Lead-Nachricht nicht analysieren oder Qualifizierungs-Frameworks auf Freitext anwenden.
 
@@ -368,12 +369,12 @@ Viele CRMs bieten eingebautes Lead-Scoring. So schneiden sie im Vergleich zum Ch
 
 ### Zeitersparnis
 
-| Kennzahl | Vor KI | Nach KI |
-|----------|--------|---------|
-| Tägliche Scoring-Zeit | 1,5 Stunden | 10 Minuten (nur Prüfung) |
-| Monatliche Scoring-Zeit | 30 Stunden | 3,5 Stunden |
-| Eingesparte Zeit pro Monat |, | 26,5 Stunden |
-| Wert bei 50 EUR/Stunde |, | 1.325 EUR/Monat |
+| Kennzahl                   | Vor KI      | Nach KI                  |
+| -------------------------- | ----------- | ------------------------ |
+| Tägliche Scoring-Zeit      | 1,5 Stunden | 10 Minuten (nur Prüfung) |
+| Monatliche Scoring-Zeit    | 30 Stunden  | 3,5 Stunden              |
+| Eingesparte Zeit pro Monat | ,           | 26,5 Stunden             |
+| Wert bei 50 EUR/Stunde     | ,           | 1.325 EUR/Monat          |
 
 ### Conversion-Verbesserung
 
@@ -389,7 +390,7 @@ Teams, die von manueller auf KI-gestützte Qualifizierung umstellen, sehen typis
 
 Ihr CRM muss Custom-Felder, Tagging und Automatisierungs-Trigger unterstützen, damit dieser Workflow reibungslos funktioniert.
 
-**Customermates.** Ab 12 EUR/Nutzer/Monat (Starter), das volle Kern-CRM inklusive. Custom-Felder für Scores, Tags für Klassifizierung, native n8n-Integration für automatische Updates, DSGVO-konformes EU-Hosting. Über die native MCP-Integration (45 Tools) bedienen Claude, ChatGPT oder Gemini das CRM direkt, und ein vereinheitlichter Posteingang bringt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ab der Pro-Stufe an einem Ort zusammen. Automatisierung ist in jeder Stufe enthalten, Sie zahlen also nicht extra für Funktionen, die Enterprise-CRMs hinter höheren Tarifen verstecken.
+**Customermates.** Ab [[commercial.price.starter.monthly]]/Nutzer/Monat (Starter), das volle Kern-CRM inklusive. Custom-Felder für Scores, Tags für Klassifizierung, native n8n-Integration für automatische Updates, DSGVO-konformes EU-Hosting. Über die native MCP-Integration ([[derived.mcp.tools.total]] Tools) bedienen Claude, ChatGPT oder Gemini das CRM direkt, und ein vereinheitlichter Posteingang bringt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ab der Pro-Stufe an einem Ort zusammen. Automatisierung ist in jeder Stufe enthalten, Sie zahlen also nicht extra für Funktionen, die Enterprise-CRMs hinter höheren Tarifen verstecken.
 
 **HubSpot.** Lead-Scoring ist im Professional-Plan verfügbar (ab etwa 90 EUR pro Sitz und Monat). Das integrierte Scoring ist regelbasiert, nicht KI-gestützt. Für KI-Scoring über n8n funktioniert der kostenlose CRM-Tarif, bietet aber keine fortgeschrittenen Automatisierungs-Trigger.
 
@@ -421,7 +422,7 @@ Bauen Sie eine Feedback-Schleife ein. Wenn ein Vertriebsmitarbeiter mit einem KI
 
 ### Ist es DSGVO-konform, Lead-Daten an ChatGPT zu senden?
 
-Bei Nutzung der OpenAI-API mit Business-Vereinbarung und AVV werden Daten verarbeitet, aber nicht für Training verwendet. Für maximale Compliance minimieren Sie die gesendeten personenbezogenen Daten (Firmenname und Nachrichteninhalt statt persönlicher E-Mail-Adressen) und erwägen Sie ein selbst gehostetes LLM über Ollama für sensible Daten. Auf CRM-Seite speichert Customermates Daten standardmäßig in der EU und ist vollständig DSGVO-konform.
+Bei Nutzung der OpenAI-API mit Business-Vereinbarung und AVV werden Daten verarbeitet, aber nicht für Training verwendet. Für maximale Compliance minimieren Sie die gesendeten personenbezogenen Daten (Firmenname und Nachrichteninhalt statt persönlicher E-Mail-Adressen) und erwägen Sie ein selbst gehostetes LLM über Ollama für sensible Daten. Auf CRM-Seite speichert Customermates Daten standardmäßig in der EU und stellt AVV und SCCs bereit, besitzt aber keine Compliance-Zertifizierung.
 
 ### Lohnt sich Automatisierung auch bei nur 20 Leads pro Monat?
 

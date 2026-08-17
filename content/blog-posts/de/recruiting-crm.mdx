@@ -32,6 +32,7 @@ Ein Recruiting-CRM ist ein Candidate Relationship Management System. Es überlap
 Die besten modernen Tools kombinieren beides. Die Begriffe verschwimmen.
 
 Was Sie tatsächlich brauchen:
+
 - Jeden Kandidaten, mit dem das Team je gesprochen hat, speichern
 - Anrufe, E-Mails, Interview-Notizen dokumentieren
 - Stellen als Pipeline führen (Sourcing → Screening → Vorstellung → Interview → Vermittlung)
@@ -45,15 +46,15 @@ Wenn das System, das Sie sich ansehen, nicht alle sechs gut macht, ist es das fa
 
 Die meisten „beste Recruiting-CRM"-Listen vergleichen zehn vertikale Tools (Bullhorn, Recruit CRM, Loxo, Crelate, Manatal, Recruiterflow, Gem, etc.). Sie überspringen die wichtigste Frage: Wollen Sie ein recruiting-spezifisches Tool mit allem fertig eingebaut, aber gebunden, oder ein horizontales CRM, das Sie für Recruiting konfigurieren und das Ihnen vollständig gehört?
 
-| | Vertikales Recruiting-CRM | Horizontales CRM, konfiguriert |
-|---|---|---|
-| Vorgefertigte Felder | Kandidat, Stelle, Vorstellung, Vermittlung, Honorar | Generisch, Sie ergänzen Custom Fields |
-| Job-Board-Integrationen | Eingebaut (LinkedIn, Indeed, StepStone) | Über API oder Zapier |
-| Reports | Recruiting-spezifisch (Time-to-Fill, Quelle) | Generisch, Sie bauen sie |
-| Vendor-Lock-in | Hoch (Datenexport ist mühsam) | Niedrig (offene Formate, API) |
-| Preis | 99 € bis 299 €/User/Monat typisch | 12 € bis 30 €/User/Monat oder selbst gehostet |
-| Anpassung an nicht-standardmäßigen Prozess | Begrenzt | Vollständig |
-| Jahre vertikaler Funktionen | 5 bis 20 | 0 |
+|                                            | Vertikales Recruiting-CRM                           | Horizontales CRM, konfiguriert                |
+| ------------------------------------------ | --------------------------------------------------- | --------------------------------------------- |
+| Vorgefertigte Felder                       | Kandidat, Stelle, Vorstellung, Vermittlung, Honorar | Generisch, Sie ergänzen Custom Fields         |
+| Job-Board-Integrationen                    | Eingebaut (LinkedIn, Indeed, StepStone)             | Über API oder Zapier                          |
+| Reports                                    | Recruiting-spezifisch (Time-to-Fill, Quelle)        | Generisch, Sie bauen sie                      |
+| Vendor-Lock-in                             | Hoch (Datenexport ist mühsam)                       | Niedrig (offene Formate, API)                 |
+| Preis                                      | 99 € bis 299 €/User/Monat typisch                   | 12 € bis 30 €/User/Monat oder selbst gehostet |
+| Anpassung an nicht-standardmäßigen Prozess | Begrenzt                                            | Vollständig                                   |
+| Jahre vertikaler Funktionen                | 5 bis 20                                            | 0                                             |
 
 Die vertikale Option gewinnt am ersten Tag, weil alles fertig eingebaut ist. Die horizontale Option gewinnt über drei bis fünf Jahre, weil der Preis ein Vielfaches niedriger ist, Sie Ihre Daten besitzen und das System an Ihren Prozess anpassen können statt umgekehrt.
 
@@ -121,11 +122,11 @@ Im DACH-Markt zusätzlich relevant: onlyfy (XING-eigenes ATS, gut für deutschen
 
 ### Customermates
 
-Das CRM, das ich baue. Open Source, EU-gehostet oder selbst gehostet. Ab 12 €/User/Monat (10 € jährlich, Starter) oder selbst gehostet nur Serverkosten. Konfigurierbar: Sie definieren Kandidaten, Stellen, Vorstellungen, Vermittlungen als Entitäten mit Custom Fields. Der native vereinheitlichte Posteingang (LinkedIn, WhatsApp, E-Mail, Instagram, Telegram) hält Kandidatengespräche über jeden Kanal im CRM, und KI-Agenten können Outreach entwerfen und senden. Agent-nativ über MCP, vollständige REST-API, n8n-Community-Node, 26 Webhook-Events. Geeignet für: Boutique-Agenturen (1 bis 15 Recruiter), interne TA-Teams, die Datenhoheit wollen, Agenturen, die KI-Tools (Claude, Codex) das CRM direkt steuern lassen wollen.
+Das CRM, das ich baue. Open Source und selbst hostbar, mit einer verwalteten Anwendungsdatenbank in einer EU-Region. Ab [[commercial.price.starter.monthly]]/User/Monat (Starter) oder selbst gehostet zu Ihren eigenen Infrastrukturkosten. Konfigurieren Sie die festen Kontakt-, Organisations-, Deal-, Service- und Aufgaben-Datensätze mit Custom Fields und Beziehungen für Ihren Recruiting-Ablauf. Der native vereinheitlichte Posteingang (LinkedIn, WhatsApp, E-Mail, Instagram, Telegram) bringt ab Pro Konversationen verbundener Konten ins CRM; autorisierte KI-Agenten können Outreach entwerfen oder senden. Agent-nativ über MCP, vollständige REST-API, n8n-Community-Node, [[derived.webhooks.events.total]] Webhook-Events. Geeignet für Boutique-Agenturen und interne TA-Teams, die Datenhoheit und KI-Werkzeuge zur direkten CRM-Bedienung wollen.
 
-**Konkretes Recruiting-Setup mit Customermates.** Tag 1: Installation auf einem kleinen EU-VPS oder Anmeldung für die Cloud-Version. Tag 2: Custom-Entitäten konfigurieren: Kandidat (Name, E-Mail, Skills, Status, letzter Kontakt), Kunde (einstellendes Unternehmen), Stelle (offene Rolle mit Anforderungen, Status, Honorarstruktur), Vorstellung (verbindet Kandidat mit Stelle in einer Stufe). Tag 3: Bestehende Kandidaten-Excel importieren, deduplizieren, Vermittlungs-Pipeline-Stufen aufsetzen. Tag 5: [E-Mail](/features/email-integration) und [Kalender](/features/follow-up) für bidirektionale Synchronisation verbinden. Woche 2: Claude oder Codex einen Custom-Workflow schreiben lassen („wenn eine Vermittlung abschließt, automatisch den Rechnungsentwurf in lexoffice generieren und das Back Office in Slack pingen"). Gesamt-Setup-Zeit: unter zwei Wochen für eine mittelgroße Boutique-Agentur. Siehe [Self-Hosted](/features/self-hosted) für das Hosting-Modell und die [Pipeline-Feature-Seite](/features/pipeline) für die zugrunde liegende Mechanik.
+**Konkretes Recruiting-Setup mit Customermates.** Tag 1: Installation auf einem kleinen EU-VPS oder Anmeldung für die Cloud-Version. Tag 2: Den Recruiting-Ablauf auf feste CRM-Entitäten und eigene Felder abbilden: Kontakte für Kandidaten, Organisationen für Kunden und Deals für Stellen oder Vorstellungen. Tag 3: Bestehende Kandidaten-Excel für die REST API aufbereiten, deduplizieren und Pipeline-Stufen aufsetzen. Tag 5: [E-Mail](/features/email-integration) und nur lesenden [Kalenderzugriff](/features/follow-up) verbinden. Woche 2: Einen separat betriebenen n8n-Workflow erstellen, der bei Abschluss Daten an lexoffice übergibt und das Back Office in Slack informiert. Der Aufwand hängt von Daten, Mapping und externen Diensten ab. Siehe [Self-Hosted](/features/self-hosted) und [Pipeline](/features/pipeline).
 
-**Konkrete Kosten über 3 Jahre (8 Recruiter).** Cloud zu 12 € × 8 = 96 €/Monat → 3.456 € über 3 Jahre. Selbst gehostet auf einem Hetzner-CX21-EU-VPS zu 5 €/Monat + Admin-Zeit (~30 Stunden gesamt) → 180 € Serverkosten + etwa 1.500 € Zeit bei 50 €/Stunde = 1.680 €. So oder so ein Vielfaches günstiger als Bullhorn (über 14.000 €) oder Recruit CRM (über 9.600 €) bei gleicher Personalstärke. Der Kompromiss ist die kleinere Community und weniger vorgefertigte recruiting-spezifische Integrationen.
+**Konkrete Kosten über 3 Jahre (8 Recruiter).** Cloud zu [[commercial.price.starter.monthly]] × 8 = [[commercial.price.starter.monthly.seats.8]]/Monat → [[commercial.price.starter.monthly.seats.8.months.36]] über 3 Jahre. Selbst gehostet auf einem Hetzner-CX21-EU-VPS zu 5 €/Monat + Admin-Zeit (~30 Stunden gesamt) → 180 € Serverkosten + etwa 1.500 € Zeit bei 50 €/Stunde = 1.680 €. So oder so ein Vielfaches günstiger als Bullhorn (über 14.000 €) oder Recruit CRM (über 9.600 €) bei gleicher Personalstärke. Der Kompromiss ist die kleinere Community und weniger vorgefertigte recruiting-spezifische Integrationen.
 
 ### Pipedrive (konfiguriert)
 
@@ -155,7 +156,7 @@ Für Agenturen mit unter 1.000 Kandidaten sind die Unterschiede klein. Für Agen
 
 Drei Fehlermuster, die ich wiederholt sehe:
 
-**Fehler 1: Bullhorn kaufen, bevor Sie es brauchen.** Eine 5-Recruiter-Agentur unterzeichnet einen 99 €/User-Vertrag, weil die Demo gut war. Jahres-1-Kosten allein für Lizenzen sind 5.940 €. Dieselbe Agentur hätte mit Recruit CRM zu 40 €/User (~2.400 €) oder [Customermates](/) zu 12 €/User (~720 €) laufen können und die Differenz in echtes Marketing investieren können.
+**Fehler 1: Bullhorn kaufen, bevor Sie es brauchen.** Eine 5-Recruiter-Agentur unterzeichnet einen 99 €/User-Vertrag, weil die Demo gut war. Jahres-1-Kosten allein für Lizenzen sind 5.940 €. Dieselbe Agentur hätte mit Recruit CRM zu 40 €/User (~2.400 €) oder [Customermates](/) zu [[commercial.price.starter.monthly]]/User ([[commercial.price.starter.monthly.seats.5.months.12]] pro Jahr) laufen können und die Differenz in echtes Marketing investieren können.
 
 **Fehler 2: Vertriebs-CRM kaufen und nie für Recruiting konfigurieren.** Ein Team kauft Pipedrive, passt nichts an und versucht, generische Deal-Stufen für die Vermittlungs-Pipeline zu nutzen. Nach sechs Monaten sind die Daten chaotisch, die Aktivitäten erfassen nicht das, was Recruiter eigentlich loggen müssen, und das Team migriert ohnehin. Das CRM war nicht das Problem; die fehlende Konfiguration war es.
 
@@ -165,7 +166,7 @@ Drei Fehlermuster, die ich wiederholt sehe:
 
 Das Argument für horizontale CRMs ist im letzten Jahr stärker geworden. KI-Coding-Assistenten wie Claude Code und Codex können Custom-Workflows auf einem CRM schneller schreiben als je zuvor. Was früher hieß „ich brauche ein Recruiting-CRM mit dieser spezifischen Funktion", heißt jetzt „ich brauche ein CRM mit einer API, meine KI baut die Funktion".
 
-[Customermates](/) stellt 45 MCP-Tools, REST-API und Webhooks genau dafür bereit. Eine Personalagentur kann Claude die folgenden Aufgaben übergeben:
+[Customermates](/) stellt [[derived.mcp.tools.total]] MCP-Tools, REST-API und Webhooks genau dafür bereit. Eine Personalagentur kann Claude die folgenden Aufgaben übergeben:
 - Eingehende Lebensläufe lesen und Kandidaten-Datensätze mit strukturierten Feldern anlegen
 - Kandidaten zu offenen Stellen anhand eigener Kriterien matchen
 - Personalisiertes Outreach für die Reaktivierung schlafender Kandidaten entwerfen
@@ -175,39 +176,31 @@ Das hat früher einen Entwickler oder eine vertikale SaaS gebraucht. Jetzt brauc
 
 ## Schnelle Entscheidungsmatrix
 
-| Ihre Situation | Wählen Sie |
-|---|---|
-| Agentur mit 10+ Recruitern, standardisierter Vermittlungsprozess, Admin-Budget | Bullhorn oder Recruit CRM |
-| Mittelgroße Agentur, modernes UI ohne Bullhorn-Preis | Recruit CRM, Loxo oder Crelate |
-| Boutique-Agentur, Datenhoheit, KI-Tools | [Customermates](/) konfiguriert |
-| Internes TA-Team mit Fokus auf passives Sourcing | Gem |
-| Sehr kleines Team (unter 5), bereits in Notion/Airtable | Konfigurieren, was Sie haben, später wechseln |
-| Technisch versierter Inhaber, der volle Kontrolle will | EspoCRM, SuiteCRM oder Customermates selbst gehostet |
-| Deutscher Mittelstand, XING-Fokus | onlyfy |
+| Ihre Situation                                                                 | Wählen Sie                                           |
+| ------------------------------------------------------------------------------ | ---------------------------------------------------- |
+| Agentur mit 10+ Recruitern, standardisierter Vermittlungsprozess, Admin-Budget | Bullhorn oder Recruit CRM                            |
+| Mittelgroße Agentur, modernes UI ohne Bullhorn-Preis                           | Recruit CRM, Loxo oder Crelate                       |
+| Boutique-Agentur, Datenhoheit, KI-Tools                                        | [Customermates](/) konfiguriert                      |
+| Internes TA-Team mit Fokus auf passives Sourcing                               | Gem                                                  |
+| Sehr kleines Team (unter 5), bereits in Notion/Airtable                        | Konfigurieren, was Sie haben, später wechseln        |
+| Technisch versierter Inhaber, der volle Kontrolle will                         | EspoCRM, SuiteCRM oder Customermates selbst gehostet |
+| Deutscher Mittelstand, XING-Fokus                                              | onlyfy                                               |
 
 ## Die 12-Fragen-Prüfliste vor der Vertragsunterschrift
 
 Bevor Sie irgendeinen Recruiting-CRM-Vertrag unterzeichnen, gehen Sie diese 12 Fragen mit dem Vertriebler des Anbieters in einem aufgezeichneten Call durch. Die Antworten sagen Adoption besser voraus als jeder Funktionsvergleich.
 
 **Daten und Integrationen:**
+
 1. Zeigen Sie mir einen CSV-Export jedes Kandidaten, jeder Stelle und jedes Aktivitäts-Logs. Wie lange dauert es, was kostet es?
 2. Wie lange dauert der Import von 10.000 Kandidaten mit 30 Feldern aus einer CSV?
 3. Welche dieser Integrationen existieren als nativ (nicht Zapier): LinkedIn Recruiter, [Ihr Job-Board], [Ihr VMS], [Ihr Buchhaltungs-Tool]?
 
-**Adoption und UX:**
-4. Zeigen Sie mir live in diesem Call einen Recruiter, der ein 30-Minuten-Interview mit Notizen, Follow-up-Aufgaben und einer Kandidaten-Score-Änderung erfasst. Stoppen Sie die Zeit.
-5. Was kann die mobile App, was die Desktop-Version kann, und was nicht?
-6. Zeigen Sie mir einen Kandidaten, der seit 18 Monaten im System ist: wie sieht sein Datensatz aus, kann ich alle Interaktionen in einer Zeitleiste sehen?
+**Adoption und UX:** 4. Zeigen Sie mir live in diesem Call einen Recruiter, der ein 30-Minuten-Interview mit Notizen, Follow-up-Aufgaben und einer Kandidaten-Score-Änderung erfasst. Stoppen Sie die Zeit. 5. Was kann die mobile App, was die Desktop-Version kann, und was nicht? 6. Zeigen Sie mir einen Kandidaten, der seit 18 Monaten im System ist: wie sieht sein Datensatz aus, kann ich alle Interaktionen in einer Zeitleiste sehen?
 
-**Reporting und Pipeline:**
-7. Zeigen Sie mir die Vorstellungen von gestern aufgeschlüsselt nach Recruiter, Quelle und Ergebnis.
-8. Wie sieht Forecasting aus, sowohl Vermittlungen im nächsten Monat als auch Umsatz dieses Quartal?
-9. Wie behandeln Sie einen Kandidaten, der mit einem Recruiter „aktiv" und mit einem anderen im „Talent Pool" ist?
+**Reporting und Pipeline:** 7. Zeigen Sie mir die Vorstellungen von gestern aufgeschlüsselt nach Recruiter, Quelle und Ergebnis. 8. Wie sieht Forecasting aus, sowohl Vermittlungen im nächsten Monat als auch Umsatz dieses Quartal? 9. Wie behandeln Sie einen Kandidaten, der mit einem Recruiter „aktiv" und mit einem anderen im „Talent Pool" ist?
 
-**Compliance und Exit:**
-10. Wo werden Kandidatendaten geografisch gespeichert, und wie sieht der Auftragsverarbeitungs-Vertrag aus?
-11. Führen Sie mich durch eine DSGVO-Auskunfts- oder Löschungsanfrage. Klick für Klick.
-12. Wenn ich den Vertrag heute kündige, wann bekomme ich meine Daten und in welchem Format?
+**Compliance und Exit:** 10. Wo werden Kandidatendaten geografisch gespeichert, und wie sieht der Auftragsverarbeitungs-Vertrag aus? 11. Führen Sie mich durch eine DSGVO-Auskunfts- oder Löschungsanfrage. Klick für Klick. 12. Wenn ich den Vertrag heute kündige, wann bekomme ich meine Daten und in welchem Format?
 
 Anbieter, die bei Frage 1, 10, 11 oder 12 zögern, signalisieren Vendor-Lock-in oder schwache Compliance. Anbieter, die Frage 4, 5, 6 mit selbstbewussten Demos meistern, zeigen echte Produkttiefe.
 
@@ -221,7 +214,7 @@ Drei Fragen, die vorhersagen, ob das Recruiting-CRM für Sie funktioniert:
 
 ## DSGVO und Datenhoheit
 
-Recruiting-Daten sind besonders sensible personenbezogene Daten. Für DACH-Agenturen kommt zur Auswahl die DSGVO-Frage hinzu. Bullhorn (USA), Recruit CRM (USA), Loxo (USA), Crelate (USA) sind US-gehostet und brauchen einen Auftragsverarbeitungs-Vertrag plus Schrems-II-Analyse. Customermates ist EU-gehostet (Deutschland) oder selbst hostbar, mit Quellcode auf GitHub als Audit-Pfad. Wenn Sie Bewerberdaten von DACH-Kandidaten verwalten, ist Open Source mit EU-Hosting der einfachste Compliance-Weg.
+Recruiting-Daten sind besonders sensible personenbezogene Daten. Für DACH-Agenturen kommt zur Auswahl die DSGVO-Frage hinzu. Bullhorn (USA), Recruit CRM (USA), Loxo (USA), Crelate (USA) sind US-gehostet und brauchen einen Auftragsverarbeitungs-Vertrag plus Schrems-II-Analyse. Customermates ist EU-gehostet oder selbst hostbar, mit Quellcode auf GitHub als Audit-Pfad. Wenn Sie Bewerberdaten von DACH-Kandidaten verwalten, ist Open Source mit EU-Hosting der einfachste Compliance-Weg.
 
 ## Was ich tatsächlich tun würde
 
@@ -271,7 +264,7 @@ Die meisten „von X nach Y wechseln"-Entscheidungen gehen davon aus, dass Migra
 
 **Bullhorn → Recruit CRM (15-Recruiter-Agentur).** Migrationsprojekt: 11 Wochen. Datenimport: 80 Stunden Recruiter-Zeit für die Bereinigung von 35.000 Kandidatendatensätzen. Integrations-Wiederaufbau: 3 kritische Integrationen (VMS, Lohnabrechnung, Custom-Job-Board-Feed) bei rund 120 Stunden Entwicklerzeit. Schulung neuer Recruiter: 2 Stunden pro Recruiter × 15 = 30 Stunden. Interne Gesamtkosten (vollkostiert): rund 28.000 €. Jährliche Lizenzersparnis: rund 12.000 €. Amortisation: 2,3 Jahre.
 
-**Recruit CRM → Customermates selbst gehostet (8-Recruiter-Boutique).** Migration: 4 Wochen. CSV-Export aus Recruit CRM war sauber, Import in Customermates zu 90 % automatisch über die [REST-API](/features/api). Custom-Workflow-Wiederaufbau: 30 Stunden (einige Kandidaten-Stufen-Automatisierungen). Interne Kosten: rund 6.000 €. Jährliche Ersparnis: rund 5.000 € (Lizenz) plus Admin-Einfachheit. Amortisation: 1,2 Jahre.
+**Recruit CRM → Customermates selbst gehostet (8-Recruiter-Boutique).** Migration: 4 Wochen. Der CSV-Export aus Recruit CRM war sauber. Das Laden unterstützter Datensätze in Customermates lief über eine kundenseitige [REST-API](/features/api)-Integration, die Mapping, Validierung und Deduplizierung übernahm. Custom-Workflow-Wiederaufbau: 30 Stunden. Interne Kosten: rund 6.000 €. Jährliche Ersparnis: rund 5.000 € plus einfachere Administration. Amortisation: 1,2 Jahre.
 
 **Notion → Bullhorn (12-Recruiter-Agentur, schnell gewachsen).** Migration: 14 Wochen. Notion-zu-CRM-Migration ist am schwierigsten, weil Notion kein echtes Schema hat; Recruiter hatten Kandidatendatensätze auf hundert verschiedene Arten freigeschrieben. Datennormalisierung dauerte 200 Stunden. Interne Gesamtkosten: rund 45.000 €. Jährliche Mehrkosten (Bullhorn vs. Notion): rund 18.000 €. Amortisation nie (die Agentur hätte mit Notion nicht auf 30 Recruiter skalieren können, also sind die Kosten „Kosten der Professionalisierung").
 

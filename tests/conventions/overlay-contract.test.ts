@@ -265,6 +265,15 @@ describe("overlay contract", () => {
     expect(missing, missing.join("\n")).toEqual([]);
   });
 
+  it("keeps AppModal responsive while supporting guarded wide task modals", () => {
+    const appModal = readFileSync(join(REPO_ROOT, "components/modal/app-modal.tsx"), "utf8");
+
+    expect(appModal).toContain('useIsWiderThan("md")');
+    expect(appModal).toContain("<Dialog open={isOpen}");
+    expect(appModal).toContain("<Drawer open={isOpen}");
+    expect(appModal).toContain("sizeClassMap[size]");
+  });
+
   it("keeps task overlay headers left-aligned", () => {
     const contract = readFileSync(join(REPO_ROOT, "components/ui/overlay-contract.ts"), "utf8");
     expect(contract).toContain('OVERLAY_HEADER_ALIGNMENT_CLASS = "text-left"');

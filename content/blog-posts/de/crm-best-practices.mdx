@@ -77,12 +77,12 @@ Fügen Sie Komplexität erst hinzu, wenn echte Nutzer sie aufgrund echten Bedarf
 
 **Stufenweiser Rollout-Plan:**
 
-| Phase | Zeitraum | Was hinzufügen |
-|---|---|---|
-| Phase 1: Fundament | Woche 1-4 | Kernfelder, eine Pipeline, E-Mail-Sync, Basis-Dashboard |
-| Phase 2: Automatisierung | Woche 5-8 | Lead-Zuweisung, Follow-up-Erinnerungen, Aktivitätsprotokoll |
-| Phase 3: Integration | Woche 9-12 | Kalender-Sync, Marketing-Tools, Kommunikationskanäle |
-| Phase 4: Erweitert | Ab Monat 4 | Individuelle Reports, KI-Scoring, erweiterte Workflows, API-Anbindungen |
+| Phase                    | Zeitraum   | Was hinzufügen                                                          |
+| ------------------------ | ---------- | ----------------------------------------------------------------------- |
+| Phase 1: Fundament       | Woche 1-4  | Kernfelder, eine Pipeline, E-Mail-Sync, Basis-Dashboard                 |
+| Phase 2: Automatisierung | Woche 5-8  | Lead-Zuweisung, Follow-up-Erinnerungen, Aktivitätsprotokoll             |
+| Phase 3: Integration     | Woche 9-12 | Kalender-Sync, Marketing-Tools, Kommunikationskanäle                    |
+| Phase 4: Erweitert       | Ab Monat 4 | Individuelle Reports, KI-Scoring, erweiterte Workflows, API-Anbindungen |
 
 ## 4. CRM-Datenhygiene-Regeln etablieren und durchsetzen
 
@@ -100,12 +100,12 @@ Schlechte Daten sind der häufigste CRM-Killer. Wenn Datensätze unvollständig,
 
 **Framework zur Datenqualitätsbewertung:**
 
-| Score | Kriterien | Maßnahme |
-|---|---|---|
-| A (90-100 %) | Alle Pflichtfelder ausgefüllt, innerhalb von 30 Tagen aktualisiert, keine Duplikate | Beibehalten |
-| B (70-89 %) | Die meisten Felder ausgefüllt, innerhalb von 60 Tagen aktualisiert | Leichte Bereinigung nötig |
-| C (50-69 %) | Mehrere Felder fehlen, innerhalb von 90 Tagen aktualisiert | Audit einplanen |
-| D (unter 50 %) | Kritische Felder fehlen, seit 90+ Tagen nicht aktualisiert | Sofortige Korrektur |
+| Score          | Kriterien                                                                           | Maßnahme                  |
+| -------------- | ----------------------------------------------------------------------------------- | ------------------------- |
+| A (90-100 %)   | Alle Pflichtfelder ausgefüllt, innerhalb von 30 Tagen aktualisiert, keine Duplikate | Beibehalten               |
+| B (70-89 %)    | Die meisten Felder ausgefüllt, innerhalb von 60 Tagen aktualisiert                  | Leichte Bereinigung nötig |
+| C (50-69 %)    | Mehrere Felder fehlen, innerhalb von 90 Tagen aktualisiert                          | Audit einplanen           |
+| D (unter 50 %) | Kritische Felder fehlen, seit 90+ Tagen nicht aktualisiert                          | Sofortige Korrektur       |
 
 Mit Customermates können Sie Pflichtfelder erzwingen, benutzerdefinierte Validierungsregeln erstellen und n8n-Automatisierungen nutzen, um veraltete Datensätze zu erkennen, Duplikate aufzuspüren und Formatierungen automatisch zu standardisieren.
 
@@ -171,16 +171,16 @@ Automatisierung ist ein Multiplikator, wenn sie richtig eingesetzt wird, und ein
 
 **Automatisierungs-Prioritätsmatrix:**
 
-| Priorität | Automatisierung | Wirkung | Komplexität |
-|---|---|---|---|
-| 1 | Lead-Zuweisung | Hoch | Niedrig |
-| 2 | Follow-up-Erinnerungen | Hoch | Niedrig |
-| 3 | E-Mail-Protokollierung | Hoch | Niedrig |
-| 4 | Phasenwechsel-Benachrichtigungen | Mittel | Niedrig |
-| 5 | Berichtsverteilung | Mittel | Niedrig |
-| 6 | Datenanreicherung | Mittel | Mittel |
-| 7 | Lead-Scoring | Hoch | Mittel |
-| 8 | Mehrstufige Nurture-Sequenzen | Hoch | Hoch |
+| Priorität | Automatisierung                  | Wirkung | Komplexität |
+| --------- | -------------------------------- | ------- | ----------- |
+| 1         | Lead-Zuweisung                   | Hoch    | Niedrig     |
+| 2         | Follow-up-Erinnerungen           | Hoch    | Niedrig     |
+| 3         | E-Mail-Protokollierung           | Hoch    | Niedrig     |
+| 4         | Phasenwechsel-Benachrichtigungen | Mittel  | Niedrig     |
+| 5         | Berichtsverteilung               | Mittel  | Niedrig     |
+| 6         | Datenanreicherung                | Mittel  | Mittel      |
+| 7         | Lead-Scoring                     | Hoch    | Mittel      |
+| 8         | Mehrstufige Nurture-Sequenzen    | Hoch    | Hoch        |
 
 Customermates integriert sich mit n8n für Workflow-Automatisierung. So können Sie praktisch jede repetitive Aufgabe ohne Code automatisieren und behalten volle Transparenz darüber, was jede Automatisierung tut.
 
@@ -190,16 +190,16 @@ CRM-Berichte sind nur wertvoll, wenn jemand sie liest und darauf reagiert. Defin
 
 **Empfohlener Reporting-Zeitplan:**
 
-| Kadenz | Bericht | Zielgruppe | Zweck |
-|---|---|---|---|
-| Täglich | Aktivitäts-Dashboard | Einzelne Vertriebler | Eigene Kontaktaufnahmen und Follow-ups verfolgen |
-| Wöchentlich | Pipeline-Review | Vertriebsteam und Manager | Stagnierte Deals erkennen, Forecast-Genauigkeit |
-| Wöchentlich | Lead-Reaktionszeit | Vertriebsmanager | SLA-Einhaltung sicherstellen |
-| Zweiwöchentlich | Marketing-Vertrieb-Übergabe | Marketing- und Vertriebsleitung | Lead-Qualität und Conversion messen |
-| Monatlich | Win/Loss-Analyse | Vertriebsleitung | Verstehen, warum Deals gewonnen oder verloren werden |
-| Monatlich | Datenqualitäts-Scorecard | CRM-Verantwortlicher | Vollständigkeit, Duplikate, Verfall verfolgen |
-| Vierteljährlich | CRM-Adoptions-Metriken | Alle Stakeholder | Nutzung teamübergreifend messen |
-| Vierteljährlich | ROI-Bewertung | Geschäftsführung | CRM-Investition gegen Ziele validieren |
+| Kadenz          | Bericht                     | Zielgruppe                      | Zweck                                                |
+| --------------- | --------------------------- | ------------------------------- | ---------------------------------------------------- |
+| Täglich         | Aktivitäts-Dashboard        | Einzelne Vertriebler            | Eigene Kontaktaufnahmen und Follow-ups verfolgen     |
+| Wöchentlich     | Pipeline-Review             | Vertriebsteam und Manager       | Stagnierte Deals erkennen, Forecast-Genauigkeit      |
+| Wöchentlich     | Lead-Reaktionszeit          | Vertriebsmanager                | SLA-Einhaltung sicherstellen                         |
+| Zweiwöchentlich | Marketing-Vertrieb-Übergabe | Marketing- und Vertriebsleitung | Lead-Qualität und Conversion messen                  |
+| Monatlich       | Win/Loss-Analyse            | Vertriebsleitung                | Verstehen, warum Deals gewonnen oder verloren werden |
+| Monatlich       | Datenqualitäts-Scorecard    | CRM-Verantwortlicher            | Vollständigkeit, Duplikate, Verfall verfolgen        |
+| Vierteljährlich | CRM-Adoptions-Metriken      | Alle Stakeholder                | Nutzung teamübergreifend messen                      |
+| Vierteljährlich | ROI-Bewertung               | Geschäftsführung                | CRM-Investition gegen Ziele validieren               |
 
 **Reporting Best Practices:**
 
@@ -263,7 +263,7 @@ Je mehr Ihr CRM zur zentralen Datenquelle für Kundenbeziehungen wird, desto wic
 - [ ] Feldebenen-Sicherheit für sensible Daten wie Umsatzzahlen, Vertragsbedingungen und personenbezogene Kennungen implementieren
 - [ ] Alle Nutzer im Onboarding zu Datenhandhabungsrichtlinien schulen
 
-Customermates ist vollständig DSGVO-konform und wird in der EU gehostet. Audit-Logging, rollenbasierte Berechtigungen und Auftragsverarbeitungsverträge sind standardmäßig enthalten.
+Customermates stellt AVV und SCCs bereit, besitzt aber keine Compliance-Zertifizierung und wird in der EU gehostet. Audit-Logging, rollenbasierte Berechtigungen und Auftragsverarbeitungsverträge sind standardmäßig enthalten.
 
 ## 12. CRM mobil nutzen
 
@@ -295,7 +295,7 @@ Ein CRM, das nur am Schreibtisch funktioniert, verliert an Wert bei jedem Kunden
 - Nutzen Sie KI zur Ergänzung menschlichen Urteilsvermögens, nicht als Ersatz. KI-Scoring sollte Vertriebsentscheidungen informieren, nicht übersteuern.
 - Prüfen Sie die Genauigkeit der KI-Modelle vierteljährlich und trainieren Sie nach, wenn sich Ihr Geschäft oder Markt wesentlich verändert
 
-Customermates kombiniert native KI-Integration (über MCP) mit n8n-Automatisierung, die repetitive Aufgaben übernimmt, Daten anreichert und Erkenntnisse generiert, ohne technisches Setup.
+Customermates verbindet externe KI-Clients per MCP und unterstützt eine separat betriebene n8n-Instanz. Anreicherung braucht einen externen Datenanbieter; REST, Webhooks und MCP stellen die Integrationsflächen bereit.
 
 ## 14. Regelmäßig aufräumen: Das vierteljährliche CRM-Audit
 
@@ -388,7 +388,7 @@ Nutzen Sie diese konsolidierte Checkliste als Schnellreferenz zur Bewertung Ihre
 
 ### Welche CRM Best Practices sind für kleine Unternehmen am wichtigsten?
 
-Für kleine Unternehmen sind drei Grundlagen entscheidend: Datenhygiene, Pipeline-Disziplin und Integration. Halten Sie Ihre Konfiguration einfach, erzwingen Sie Pflichtfelder ab Tag eins und verbinden Sie Ihr CRM mindestens mit E-Mail und Kalender. Kleine Teams können sich den Produktivitätsverlust durch doppelte Dateneingabe oder veraltete Datensätze nicht leisten. Ein CRM wie Customermates bietet kleinen Unternehmen das volle Kern-CRM ab 12 Euro pro Nutzer und Monat, mit E-Mail- und Kalender-Sync ab der Pro-Stufe für 29 Euro, sodass der Preis Sie nicht zwingt, auf eine Best Practice zu verzichten, die Sie wirklich brauchen.
+Für kleine Unternehmen sind drei Grundlagen entscheidend: Datenhygiene, Pipeline-Disziplin und Integration. Halten Sie Ihre Konfiguration einfach, erzwingen Sie Pflichtfelder ab Tag eins und verbinden Sie Ihr CRM mindestens mit E-Mail und Kalender. Kleine Teams können sich den Produktivitätsverlust durch doppelte Dateneingabe oder veraltete Datensätze nicht leisten. Ein CRM wie Customermates bietet kleinen Unternehmen das volle Kern-CRM ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, mit dem gemeinsamen Postfach und der nur lesenden Kalender-Ansicht ab der Pro-Stufe für [[commercial.price.pro.monthly]], sodass der Preis Sie nicht zwingt, auf eine Best Practice zu verzichten, die Sie wirklich brauchen.
 
 ### Wie verbessere ich die CRM-Nutzerakzeptanz?
 
@@ -422,4 +422,4 @@ Beginnen Sie mit den wirkungsvollsten Integrationen bei geringster Komplexität:
 
 CRM-Erfolg ist keine Frage der perfekten Software. Es geht darum, mit klaren Zielen zu implementieren, Datenqualität aufrechtzuerhalten, Team-Adoption zu sichern, die richtigen Aufgaben zu automatisieren, KI dort einzusetzen, wo sie Mehrwert schafft, und kontinuierlich zu verbessern. Diese Regeln funktionieren unabhängig von der CRM-Plattform.
 
-Wenn Sie ein CRM suchen, das diese Best Practices einfacher umsetzbar macht, bietet Customermates eine intuitive Plattform mit integrierter Automatisierung durch n8n, DSGVO-Konformität, EU-Hosting, rollenbasierte Berechtigungen, Audit-Logging und das volle Kern-CRM ab 12 Euro pro Nutzer und Monat. Keine versteckten Kosten. Open-Source und transparent. Einfach ein CRM, das so arbeitet wie Ihr Team.
+Wenn Sie ein CRM suchen, das diese Best Practices einfacher umsetzbar macht, bietet Customermates eine intuitive Plattform mit Automatisierung über separat betriebenes n8n, DSGVO-Konformität, EU-Hosting, rollenbasierte Berechtigungen, Audit-Logging und das volle Kern-CRM ab [[commercial.price.starter.monthly]] pro Nutzer und Monat. Keine versteckten Kosten. Open-Source und transparent. Einfach ein CRM, das so arbeitet wie Ihr Team.

@@ -2,12 +2,14 @@
 
 import type { ChartDataPoint } from "./chart.types";
 
-import { Bar, BarChart, XAxis, YAxis, ResponsiveContainer, Cell } from "recharts";
+import { Bar, BarChart, XAxis, YAxis, Cell } from "recharts";
 import { observer } from "mobx-react-lite";
 import { AggregationType } from "@/generated/prisma";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { ChartTooltip } from "@/components/chart/chart-tooltip";
+
+import { DashboardChartContainer } from "./dashboard-chart-container";
 
 type Props = {
   aggregationType?: AggregationType;
@@ -24,7 +26,7 @@ export const VerticalBarChart = observer(
     const { intlStore } = useRootStore();
 
     return (
-      <ResponsiveContainer height="100%" width="100%">
+      <DashboardChartContainer>
         <BarChart data={chartData}>
           <XAxis
             dataKey="label"
@@ -57,7 +59,7 @@ export const VerticalBarChart = observer(
             ))}
           </Bar>
         </BarChart>
-      </ResponsiveContainer>
+      </DashboardChartContainer>
     );
   },
 );

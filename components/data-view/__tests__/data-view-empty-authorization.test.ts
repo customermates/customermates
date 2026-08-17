@@ -26,9 +26,9 @@ function render(canManage: boolean) {
   return renderToStaticMarkup(
     createElement(DataViewEmpty<Item>, {
       actionLabel: "Add record",
+      background: createElement("div", { "data-test-background": true }),
       descriptor: { body: "Empty description", title: "Empty title" },
       reason: "true-empty",
-      skeleton: { kind: "data-view", tableVariant: "plain", view: "table" },
       store: store(canManage),
       onAdd: vi.fn(),
     }),

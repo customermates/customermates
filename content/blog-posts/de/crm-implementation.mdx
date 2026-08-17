@@ -69,6 +69,7 @@ Bevor Sie Software evaluieren oder konfigurieren, definieren Sie, wie Erfolg aus
 Dann definieren Sie den Umfang. Die gefährlichsten Worte bei einer CRM Implementierung sind „wenn wir schon dabei sind". Scope Creep ist die häufigste Ursache für Verzögerungen.
 
 **Im Umfang des ersten Rollouts** (minimal halten):
+
 - Kontakt- und Unternehmensverwaltung
 - Primäre [Vertriebspipeline](/blog/sales-pipeline)
 - E-Mail-Integration
@@ -78,6 +79,7 @@ Dann definieren Sie den Umfang. Die gefährlichsten Worte bei einer CRM Implemen
 - Ein bis zwei zentrale Automatisierungen
 
 **Nicht im ersten Rollout** (später ergänzen):
+
 - Sekundäre Pipelines
 - Komplexe Automatisierungs-Workflows
 - Integrationen über E-Mail und Kalender hinaus
@@ -104,13 +106,13 @@ Unser [CRM-Vergleich](/blog/crm-comparison) und der Guide [Bestes CRM](/blog/bes
 
 Ein realistischer Zeitplan für die CRM Implementierung in kleinen und mittleren Unternehmen:
 
-| Phase | Dauer | Aktivitäten |
-|-------|-------|-------------|
-| Planung | 3-7 Tage | Team zusammenstellen, Ziele definieren, CRM auswählen |
-| Konfiguration | 3-5 Tage | System einrichten, Felder, Pipelines, Berechtigungen |
-| Datenmigration | 3-5 Tage | Exportieren, bereinigen, mappen, importieren, prüfen |
-| Test und Schulung | 3-5 Tage | Workflow-Tests, Abnahme, rollenbasierte Schulung |
-| Go-Live und Optimierung | Fortlaufend | Produktivstart, Monitoring, iterative Verbesserungen |
+| Phase                   | Dauer       | Aktivitäten                                           |
+| ----------------------- | ----------- | ----------------------------------------------------- |
+| Planung                 | 3-7 Tage    | Team zusammenstellen, Ziele definieren, CRM auswählen |
+| Konfiguration           | 3-5 Tage    | System einrichten, Felder, Pipelines, Berechtigungen  |
+| Datenmigration          | 3-5 Tage    | Exportieren, bereinigen, mappen, importieren, prüfen  |
+| Test und Schulung       | 3-5 Tage    | Workflow-Tests, Abnahme, rollenbasierte Schulung      |
+| Go-Live und Optimierung | Fortlaufend | Produktivstart, Monitoring, iterative Verbesserungen  |
 
 **Gesamt: circa 2-4 Wochen bis zum stabilen Betrieb.**
 
@@ -125,12 +127,14 @@ Mit abgeschlossener Planung konfigurieren Sie das CRM passend zu Ihren Geschäft
 Erstellen Sie Ihre Pipeline mit Phasen, die Ihren tatsächlichen Vertriebsprozess abbilden. Widerstehen Sie dem Drang, zu viel zu planen. Fünf bis sieben Phasen sind für die meisten Unternehmen optimal.
 
 **Richtlinien für das Pipeline-Design**:
+
 - Jede Phase sollte einen echten Meilenstein im Vertriebsprozess darstellen
 - Phasennamen sollten klar und eindeutig sein
 - „Gewonnen" und „Verloren" als Abschlussphasen einplanen
 - Ein „Verloren-Grund"-Feld ergänzen, um Absagegründe zu tracken
 
 **Beispiel-Pipeline für ein B2B-Dienstleistungsunternehmen**:
+
 1. Neue Anfrage
 2. Qualifiziert
 3. Termin vereinbart
@@ -146,12 +150,14 @@ Mehr zum Aufbau einer effektiven [Vertriebspipeline](/blog/sales-pipeline).
 Legen Sie nur die Felder an, die Sie für den ersten Rollout wirklich brauchen. Jedes unnötige Feld verlangsamt die Dateneingabe und verringert die Akzeptanz.
 
 **Typische essentielle Felder**:
+
 - Lead-Quelle (Dropdown: Website, Empfehlung, Event, Kaltakquise)
 - Branche (Dropdown)
 - Unternehmensgröße (Dropdown: 1-10, 11-50, 51-200, 200+)
 - Deal-Typ (Dropdown passend zu Ihren Produkt- oder Servicekategorien)
 
 **Später ergänzen**:
+
 - Wettbewerbsinformationen
 - Erweiterte Qualifizierungsbewertungen
 - Individuelle Beziehungstypen
@@ -174,7 +180,7 @@ Richten Sie die Integrationen ein, die für den täglichen Betrieb essenziell si
 
 **Kalender-Integration**: Synchronisieren Sie Kalender, damit Termine im CRM erscheinen und CRM-Aktivitäten im Kalender sichtbar werden. Mehr dazu in unserem Guide zur [Calendly-CRM-Integration](/blog/calendly-crm-integration).
 
-**Weitere Integrationen**: Nutzen Sie die integrierte n8n-Automatisierung in Customermates, um Ihr CRM ohne Code mit Hunderten anderen Apps zu verbinden. Beschränken Sie sich aber auf das, was zum Start wirklich nötig ist.
+**Weitere Integrationen**: Nutzen Sie die n8n-Automatisierung in Customermates, um Ihr CRM ohne Code mit Hunderten anderen Apps zu verbinden. Beschränken Sie sich aber auf das, was zum Start wirklich nötig ist.
 
 #### Erste Automatisierungen erstellen
 
@@ -210,6 +216,7 @@ Exportieren Sie Daten aus allen Quellen in CSV-Dateien. Wenn Daten an verschiede
 Dies ist der wichtigste Schritt der Datenmigration. Unsaubere Daten in ein neues CRM zu importieren ist, als würde man in ein neues Büro ziehen und den ganzen alten Ballast mitnehmen.
 
 **Bereinigungsaufgaben**:
+
 - **Duplikate entfernen**: Nach E-Mail oder Firmenname sortieren und zusammenführen. Achten Sie auf Varianten (z. B. „Schmidt GmbH" vs. „Schmidt GmbH & Co. KG").
 - **Formate vereinheitlichen**: Einheitliche Ländervorwahlen, Telefonnummern, Datumsformate
 - **Veraltete Datensätze archivieren**: Kontakte, die seit Jahren inaktiv sind, entfernen
@@ -223,17 +230,18 @@ Dies ist der wichtigste Schritt der Datenmigration. Unsaubere Daten in ein neues
 
 Erstellen Sie ein Mapping-Dokument, das zeigt, welches Quellfeld welchem CRM-Feld entspricht:
 
-| Quellfeld | CRM-Feld | Hinweise |
-|-----------|----------|----------|
-| Firma | Unternehmensname | Direkte Zuordnung |
-| Ansprechpartner | Vorname + Nachname | Am Leerzeichen aufteilen |
-| Mail | E-Mail | Validieren |
-| Tel. | Telefon | Format normalisieren |
-| Status | Lead-Quelle | Werte auf Dropdown-Optionen mappen |
+| Quellfeld       | CRM-Feld           | Hinweise                           |
+| --------------- | ------------------ | ---------------------------------- |
+| Firma           | Unternehmensname   | Direkte Zuordnung                  |
+| Ansprechpartner | Vorname + Nachname | Am Leerzeichen aufteilen           |
+| Mail            | E-Mail             | Validieren                         |
+| Tel.            | Telefon            | Format normalisieren               |
+| Status          | Lead-Quelle        | Werte auf Dropdown-Optionen mappen |
 
 #### Schritt 5: Testimport
 
 Importieren Sie zunächst einen kleinen Datensatz (20-50 Datensätze). Prüfen Sie:
+
 - Alle Felder korrekt zugeordnet
 - Datentypen stimmen (Datum als Datum, Zahlen als Zahlen)
 - Beziehungen erhalten (Kontakte mit richtigen Unternehmen verknüpft)
@@ -267,6 +275,7 @@ Sammeln Sie das Feedback und nehmen Sie Anpassungen vor, bevor Sie das breitere 
 Schulung ist der entscheidende Faktor für die CRM-Akzeptanz. Machen Sie es gut, und das CRM wird Teil des Arbeitsalltags. Machen Sie es schlecht, und das System wird langsam aufgegeben.
 
 **Schulungsprinzipien**:
+
 - **Rollenspezifisch**: Vertriebsmitarbeiter brauchen andere Schulung als Manager
 - **Praxisorientiert**: Während der Schulung üben, nicht nur zuschauen
 - **Mit echten Szenarien**: Mit echten Kundendaten und Workflows trainieren
@@ -274,16 +283,17 @@ Schulung ist der entscheidende Faktor für die CRM-Akzeptanz. Machen Sie es gut,
 
 **Empfohlene Schulungen**:
 
-| Schulung | Zielgruppe | Dauer | Themen |
-|----------|-----------|-------|--------|
-| Schulung 1 | Alle Nutzer | 90 Min. | Warum CRM, Navigation, Kontakte, Aktivitäten, Aufgaben |
-| Schulung 2 | Vertriebsteam | 60 Min. | Pipeline-Management, Deal-Phasen, Prognosen |
-| Schulung 3 | Führungskräfte | 60 Min. | Dashboards, Berichte, Team-Monitoring |
-| Schulung 4 | CRM-Admin | 60 Min. | Konfiguration, Felder, Automatisierungen, Nutzerverwaltung |
+| Schulung   | Zielgruppe     | Dauer   | Themen                                                     |
+| ---------- | -------------- | ------- | ---------------------------------------------------------- |
+| Schulung 1 | Alle Nutzer    | 90 Min. | Warum CRM, Navigation, Kontakte, Aktivitäten, Aufgaben     |
+| Schulung 2 | Vertriebsteam  | 60 Min. | Pipeline-Management, Deal-Phasen, Prognosen                |
+| Schulung 3 | Führungskräfte | 60 Min. | Dashboards, Berichte, Team-Monitoring                      |
+| Schulung 4 | CRM-Admin      | 60 Min. | Konfiguration, Felder, Automatisierungen, Nutzerverwaltung |
 
 Für die fortlaufende Weiterbildung empfehlen wir unseren [CRM-Training-Leitfaden](/blog/crm-training).
 
 **Referenzmaterialien erstellen**:
+
 - Eine Kurzanleitung mit den fünf häufigsten Aufgaben auf einer Seite
 - Videoaufnahmen der Schulungen für neue Mitarbeiter
 - Ein FAQ-Dokument, das mit echten Fragen wächst
@@ -295,12 +305,14 @@ Für die fortlaufende Weiterbildung empfehlen wir unseren [CRM-Training-Leitfade
 Der Go-Live sollte unspektakulär sein. Wenn die vorherigen Phasen gut liefen, ist der Produktivstart einfach der Moment, ab dem das CRM das offizielle System ist.
 
 **Erwartungen kommunizieren**:
+
 - Alle neuen Leads und Kundeninteraktionen gehen ab heute ins CRM
 - Die Pipeline ist die einzige Quelle der Wahrheit für den Deal-Status
 - Bisherige Systeme (Tabellen, andere Tools) werden nicht mehr aktualisiert
 - Fragen gehen an den CRM-Admin oder den Fachbereichsvertreter
 
 **In der ersten Woche engmaschig überwachen**:
+
 - Login-Aktivität: Greifen alle auf das System zu?
 - Dateneingabe: Werden Datensätze erstellt und aktualisiert?
 - Hilfeanfragen: Welche häufigen Fragen tauchen auf?
@@ -323,6 +335,7 @@ Die ersten Wochen nach dem Go-Live sind die Zeit, in der sich Gewohnheiten bilde
 Nutzen Sie diese Checkliste, um Ihren Fortschritt durch jede Phase zu verfolgen:
 
 ### Planung
+
 - [ ] Projektteam zusammengestellt (Projektleiter, technischer Ansprechpartner, Fachbereichsvertreter, Sponsor)
 - [ ] Ziele und Erfolgsmetriken definiert
 - [ ] Umfang dokumentiert (im Scope und außerhalb)
@@ -331,6 +344,7 @@ Nutzen Sie diese Checkliste, um Ihren Fortschritt durch jede Phase zu verfolgen:
 - [ ] Budget freigegeben
 
 ### Konfiguration
+
 - [ ] Vertriebspipeline mit passenden Phasen erstellt
 - [ ] Essentielle benutzerdefinierte Felder angelegt
 - [ ] Benutzerkonten mit korrekten Berechtigungen erstellt
@@ -340,6 +354,7 @@ Nutzen Sie diese Checkliste, um Ihren Fortschritt durch jede Phase zu verfolgen:
 - [ ] Benachrichtigungseinstellungen konfiguriert
 
 ### Datenmigration
+
 - [ ] Alle Datenquellen identifiziert
 - [ ] Daten exportiert und in CSV-Dateien konsolidiert
 - [ ] Daten bereinigt (Duplikate entfernt, Formate vereinheitlicht, veraltete Datensätze archiviert)
@@ -349,6 +364,7 @@ Nutzen Sie diese Checkliste, um Ihren Fortschritt durch jede Phase zu verfolgen:
 - [ ] Qualitätsprüfung nach dem Import bestanden
 
 ### Test und Schulung
+
 - [ ] Alle Kern-Workflows end-to-end getestet
 - [ ] Benutzerakzeptanztest durch Fachbereichsvertreter abgeschlossen
 - [ ] Feedback eingearbeitet und Anpassungen vorgenommen
@@ -357,6 +373,7 @@ Nutzen Sie diese Checkliste, um Ihren Fortschritt durch jede Phase zu verfolgen:
 - [ ] FAQ-Dokument erstellt
 
 ### Go-Live
+
 - [ ] Geschäftsführung hat das CRM als offizielles System kommuniziert
 - [ ] Alle Nutzer haben sich eingeloggt und Zugang bestätigt
 - [ ] Bisherige Systeme zur Abschaltung markiert
@@ -371,7 +388,7 @@ Reale Beispiele helfen Ihnen, Ihre eigene CRM Implementierung besser zu planen.
 
 **Herausforderung**: Kundendaten verstreut über Tabellen, E-Mail-Postfächer und das Gedächtnis eines Partners. Keine Pipeline-Transparenz. Deals gingen regelmäßig verloren.
 
-**Vorgehen**: Das Unternehmen entschied sich für Customermates wegen der schnellen Einrichtung, auf der Pro-Stufe für 29 Euro pro Nutzer und Monat für den Gmail-Posteingang. Sie konfigurierten eine 6-Phasen-Pipeline, importierten 2.400 Kontakte aus einer konsolidierten Tabelle und verbanden Gmail für alle Teammitglieder.
+**Vorgehen**: In diesem illustrativen Plan entscheidet sich das Unternehmen für Customermates Pro zu [[commercial.price.pro.monthly]] pro Nutzer und Monat für den vereinheitlichten Posteingang. Es konfiguriert eine 6-Phasen-Pipeline, bereinigt die konsolidierte Tabelle, lädt Datensätze über die REST API und verbindet Gmail für Teammitglieder.
 
 **Zeitrahmen**: 5 Arbeitstage vom Start bis zum Go-Live. Zwei Wochen Stabilisierung.
 
@@ -492,12 +509,12 @@ Customermates ist für schnelle, eigenständige CRM Implementierung konzipiert. 
 Das ist möglich, weil Customermates den Overhead eliminiert, der komplexe CRM-Implementierungen belastet:
 - Kein Professional Service für das Setup nötig
 - CSV-Import für die Datenmigration ohne Berater
-- Integrierte n8n-Automatisierung ersetzt teure Integrationsprojekte
+- n8n-Automatisierung ersetzt teure Integrationsprojekte
 - Intuitives Interface minimiert den Schulungsaufwand
 - Open-Source mit voller Datenportabilität
-- EU-gehostet, DSGVO-nativ von Haus aus
+- Verwaltete Anwendungsdatenbank in einer EU-Region konfiguriert; Cloud-Unterauftragsverarbeiter und Übermittlungsgarantien sind auf den rechtlichen Seiten offengelegt
 - Native KI-Integration für Lead-Qualifizierung und [Zusammenfassung von Notizen](/blog/chatgpt-summarize-notes)
-- Das volle Kern-CRM ab 12 Euro pro Nutzer und Monat, keine versteckten Kosten
+- Das volle Kern-CRM ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, keine versteckten Kosten
 
 ## Häufig gestellte Fragen
 
@@ -523,7 +540,7 @@ Die Dauer einer CRM Implementierung variiert je nach Unternehmensgröße und Kom
 
 ### Was kostet eine CRM Implementierung?
 
-Die Kosten einer CRM Implementierung umfassen die Software-Lizenz, den Zeitaufwand für Konfiguration und Datenmigration, Schulungskosten und eventuelle Drittanbieter-Integrationskosten. Mit Customermates ab 12 Euro pro Nutzer und Monat und Self-Service-Setup liegen die Gesamtkosten für ein 10-Personen-Team typischerweise unter 2.000 Euro inklusive Arbeitszeit. Enterprise-CRM-Implementierungen können 50.000 bis 500.000 Euro oder mehr kosten. Mehr dazu in unserem [CRM-Kosten-Guide](/blog/crm-cost).
+Die Kosten einer CRM Implementierung umfassen die Software-Lizenz, den Zeitaufwand für Konfiguration und Datenmigration, Schulungskosten und eventuelle Drittanbieter-Integrationskosten. Bei Customermates beträgt das Starter-Abonnement für 10 Personen im ersten Jahr [[commercial.price.starter.monthly.seats.10.months.12]], hinzu kommt die Arbeitszeit für das Self-Service-Setup. Enterprise-CRM-Implementierungen können 50.000 bis 500.000 Euro oder mehr kosten. Mehr dazu in unserem [CRM-Kosten-Guide](/blog/crm-cost).
 
 ### Was ist ein CRM-Implementierungsprojektplan?
 
@@ -539,4 +556,4 @@ Eine erfolgreiche CRM Implementierung gelingt, wenn Sie sie als Mensch-Projekt m
 
 Die wichtigsten Prinzipien: Mit minimalem Umfang starten und schrittweise erweitern, intensiv in die Datenbereinigung investieren, praxisnah mit echten Szenarien schulen, die Akzeptanz in den ersten Wochen engmaschig überwachen und den Go-Live als Startpunkt der fortlaufenden Optimierung betrachten.
 
-Mit einem CRM, das für schnelle Einführung konzipiert ist, wie Customermates, Open-Source, EU-gehostet, DSGVO-nativ und ab 12 Euro pro Nutzer und Monat, kann Ihr Team in Tagen statt Monaten vom Entschluss zur produktiven Nutzung gelangen. Je schneller Ihre CRM Implementierung abgeschlossen und angenommen ist, desto schneller liefert sie [messbaren ROI](/blog/crm-roi).
+Mit einem CRM, das für schnelle Einführung konzipiert ist, wie Customermates, Open-Source, EU-gehostet, DSGVO-nativ und ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, kann Ihr Team in Tagen statt Monaten vom Entschluss zur produktiven Nutzung gelangen. Je schneller Ihre CRM Implementierung abgeschlossen und angenommen ist, desto schneller liefert sie [messbaren ROI](/blog/crm-roi).

@@ -64,11 +64,13 @@ Diese Trennung ist wichtig. Ohne sie wird Ihr „Deals"-Blatt zu einem Mix aus A
 Kopieren Sie diese Spaltenkopfzeilen in eine neue Google-Tabelle oder Excel-Datei:
 
 **Blatt 1 (Deals):**
+
 ```
 Deal-Name | Unternehmen | Kontakt | E-Mail | Stufe | Betrag (€) | Wahrscheinlichkeit % | Erwarteter Abschluss | Letzte Aktivität | Nächster Schritt | Verantwortlich | Quelle | Notizen
 ```
 
 **Blatt 2 (Aktivitäten):**
+
 ```
 Datum | Deal-Name | Typ | Notizen
 ```
@@ -139,7 +141,7 @@ Wenn zwei oder mehr davon heute zutreffen, kostet Sie die Tabelle Geld. Wechseln
 Der realistische Aufstieg für ein Team unter 15 Personen:
 
 1. **Solo- oder 2-Personen-Team:** Google-Tabelle mit den Spalten oben
-2. **3- bis 10-Personen-Team:** schlankes CRM ([Customermates](/) ab 12 €, Pipedrive Lite zu 14 €, HubSpot Free)
+2. **3- bis 10-Personen-Team:** schlankes CRM ([Customermates](/) ab [[commercial.price.starter.monthly]], Pipedrive Lite zu 14 €, HubSpot Free)
 3. **10- bis 25-Personen-Team:** Mittelklasse-CRM (Pipedrive Growth, [Customermates](/), HubSpot Sales Starter)
 4. **25+ Personen-Team:** Vollausstattungs-CRM (Pipedrive Premium, HubSpot Sales Hub Pro, Salesforce mit Admin-Budget)
 
@@ -157,7 +159,7 @@ Ein zusammengesetzter Fall aus Teams, mit denen ich gearbeitet habe, gezeichnet,
 
 **Monat 10 (Auslöser-Ereignis).** Der dritte verpasste Follow-up kostet eine echte Kundenbeziehung. Das Team verpflichtet sich in Woche 41 zu einer CRM-Evaluation.
 
-**Monat 11 bis 12 (Übergang).** Wählen Sie ein CRM, das CSV sauber importiert: Pipedrive, [Customermates](/), HubSpot. Migration dauert 4 bis 6 Stunden fokussierte Arbeit. Die ersten 30 Tage im CRM sind langsamer als die Tabelle, weil das Team neues UX lernt. Bis Monat 13 ist das CRM tatsächlich schneller als die Tabelle vorher war, besonders für Reporting und Erinnerungen.
+**Monat 11 bis 12 (Übergang).** Wählen Sie ein CRM mit klarem CSV-Migrationsweg: Pipedrive und HubSpot importieren Dateien; für [Customermates](/) bereiten Sie die CSV auf und laden unterstützte Datensätze per REST oder MCP. Der Aufwand hängt von Datenqualität, Zuordnung und Prüfung ab. Planen Sie eine Eingewöhnungsphase für die neue CRM-Oberfläche ein.
 
 Das Muster: **Die meisten Teams wechseln 2 bis 3 Monate später als sie sollten.** Die Tabelle fühlt sich an, als würde sie funktionieren, weil Fehlermodi still sind (verpasste Deals melden sich nicht). Das CRM ist lauter, was Teil davon ist, warum es besser funktioniert.
 
@@ -165,12 +167,12 @@ Das Muster: **Die meisten Teams wechseln 2 bis 3 Monate später als sie sollten.
 
 Die vier Dinge, die sich verschieben, in der Reihenfolge der Wirkung:
 
-- **Aktivitätserfassung wird automatisch.** Echte bidirektionale E-Mail- und Kalendersynchronisation bedeutet, dass Aktivitäten ohne Tippen erscheinen.
-- **Erinnerungen überleben das Gedächtnis.** „Freitag nachfassen" lebt im System, nicht in Ihrem Kopf.
+- **Aktivitätskontext lässt sich leichter erfassen.** Ein verbundenes Postfach, eine schreibgeschützte Kalenderansicht und KI-gestützte Notizen reduzieren manuelle Eingabe; das genaue Verhalten hängt vom CRM ab.
+- **Nächste Schritte werden sichtbar.** Aufgaben und Verantwortlichkeit halten das Follow-Up an der Beziehung; zeitgesteuerte Erinnerungen brauchen ein Produkt, das sie ausliefert, oder einen externen Scheduler.
 - **Reports brauchen einen Klick.** Pipeline nach Stufe, Quelle oder Verantwortlichem ist eingebaut.
 - **Mobil funktioniert wirklich.** Vertriebler erfassen Aktivitäten aus dem Auto. Daten bleiben aktuell.
 
-Der neue Aspekt für 2026: KI-Tools (Claude, Codex, ChatGPT) können das CRM direkt über MCP oder API steuern. [Customermates](/) stellt 45 MCP-Tools bereit, sodass Claude Deals lesen, Follow-ups entwerfen und Notizen aus einem Transkript schreiben kann, ohne dass der Vertriebler ins CRM tippt. Das ist die Tabellen-Ersatz-Erfahrung, die endlich gut wird.
+Der neue Aspekt für 2026: KI-Tools (Claude, Codex, ChatGPT) können das CRM direkt über MCP oder API steuern. [Customermates](/) stellt [[derived.mcp.tools.total]] MCP-Tools bereit, sodass Claude Deals lesen, Follow-ups entwerfen und Notizen aus einem Transkript schreiben kann, ohne dass der Vertriebler ins CRM tippt. Das ist die Tabellen-Ersatz-Erfahrung, die endlich gut wird.
 
 ## Wann dauerhaft auf der Tabelle bleiben legitim ist
 
@@ -186,8 +188,6 @@ Wenn Sie ein echtes B2B-Geschäft führen, mehrere Personen in Vertriebsgespräc
 
 Die [offizielle DSGVO-Verordnung](https://eur-lex.europa.eu/eli/reg/2016/679/oj) regelt die Verarbeitung personenbezogener Daten und gilt auch für Excel-Tabellen mit Kundendaten.
 
-
-
 Eine Excel- oder Google-Tabelle mit Kundendaten ist DSGVO-rechtlich heikel:
 
 - **Excel lokal:** OK, aber kein Audit-Pfad, kein Berechtigungsmodell, kein Lösch-Workflow für Auskunfts- oder Löschanträge.
@@ -200,7 +200,7 @@ Wenn Sie Vertriebsdaten von DACH-Kunden tracken, ist eine Excel-Tabelle bestenfa
 
 Wenn Sie heute starten: Bauen Sie die Tabellenvorlage oben (30 Minuten), nutzen Sie sie 4 bis 12 Wochen. Achten Sie auf die fünf Signale.
 
-Wenn zwei der fünf Signale auslösen, wechseln Sie. Wählen Sie ein CRM, das Ihre CSV sauber importiert: Pipedrive, [Customermates](/), HubSpot Free. Vermeiden Sie Salesforce für kleine Teams.
+Wenn zwei der fünf Signale auslösen, wechseln Sie. Wählen Sie ein CRM mit klarem CSV-Migrationsweg: Pipedrive und HubSpot importieren Dateien; für [Customermates](/) bereiten Sie die CSV auf und laden unterstützte Datensätze per REST oder MCP. Vermeiden Sie Salesforce für kleine Teams.
 
 Die Tabelle ist ein Starter. Sie soll ersetzt werden. Behandeln Sie sie so, und Sie wechseln zum richtigen Zeitpunkt.
 

@@ -98,7 +98,7 @@ A strategic CRM database combines operational and analytical capabilities with l
 **Best for**: Enterprises with complex, high-value customer relationships
 **Examples**: SAP CRM, Oracle CX, enterprise Salesforce implementations
 
-Most small and mid-sized businesses need an operational CRM database with basic analytical capabilities built in. Customermates delivers both: day-to-day pipeline and contact management plus dashboards and reports that surface the insights you need, all in one system from €12/user/month.
+Most small and mid-sized businesses need an operational CRM database with basic analytical capabilities built in. Customermates delivers both: day-to-day pipeline and contact management plus dashboards and reports that surface the insights you need, all in one system from [[commercial.price.starter.monthly]]/user/month.
 
 ## Is Excel a CRM Database?
 
@@ -106,41 +106,41 @@ This is one of the most common questions businesses ask, and the honest answer i
 
 Excel (and Google Sheets) can function as a basic contact list. Many businesses start there, and it works for a while. But spreadsheets break down as a CRM database for specific, predictable reasons:
 
-| Capability | Excel / Google Sheets | CRM Database |
-|---|---|---|
-| Contact storage | Yes | Yes |
-| Relational data (contact-to-company links) | No (manual workarounds) | Built-in |
-| Automatic interaction tracking | No | Yes |
-| Pipeline visualization | No (manual charts) | Native drag-and-drop |
-| Email integration | No | Native |
-| Automation workflows | Limited (macros/scripts) | Built-in or via n8n |
-| Audit trail / GDPR compliance | No | Built-in |
-| Multi-user collaboration | Limited (conflicts, no permissions) | Real-time with role-based access |
-| Duplicate detection | Manual | Automatic |
-| Reporting dashboards | Manual chart creation | Built-in and dynamic |
+| Capability                                 | Excel / Google Sheets               | CRM Database                     |
+| ------------------------------------------ | ----------------------------------- | -------------------------------- |
+| Contact storage                            | Yes                                 | Yes                              |
+| Relational data (contact-to-company links) | No (manual workarounds)             | Built-in                         |
+| Automatic interaction tracking             | No                                  | Yes                              |
+| Pipeline visualization                     | No (manual charts)                  | Native drag-and-drop             |
+| Email integration                          | No                                  | Native                           |
+| Automation workflows                       | Limited (macros/scripts)            | Built-in or via n8n              |
+| Audit trail / GDPR compliance              | No                                  | Built-in                         |
+| Multi-user collaboration                   | Limited (conflicts, no permissions) | Real-time with role-based access |
+| Duplicate detection                        | Manual                              | Automatic                        |
+| Reporting dashboards                       | Manual chart creation               | Built-in and dynamic             |
 
 **When Excel works**: Fewer than 100 contacts, one person managing the data, simple processes with no pipeline tracking needed.
 
 **When Excel fails**: More than 200 contacts, multiple team members accessing data, any need for pipeline visualization, follow-up automation, or compliance documentation. At this point, a spreadsheet becomes a liability. See our [Google Sheets CRM guide](/blog/google-sheets-crm) and [Excel CRM template guide](/blog/excel-crm-template) for a detailed comparison.
 
-**The real cost of staying in Excel**: The time your team spends maintaining spreadsheets, searching for information, and re-entering data is almost always more expensive than a CRM subscription. From €12/user/month, Customermates costs less than the hourly wage of the time wasted on spreadsheet management.
+**The real cost of staying in Excel**: The time your team spends maintaining spreadsheets, searching for information, and re-entering data is almost always more expensive than a CRM subscription. From [[commercial.price.starter.monthly]]/user/month, Customermates costs less than the hourly wage of the time wasted on spreadsheet management.
 
 ## CRM Database vs. Standalone Database
 
 Some businesses consider building a customer database from scratch using tools like MySQL, PostgreSQL, Airtable, or Supabase. This approach offers flexibility but requires significant effort for things a CRM handles out of the box:
 
-| Capability | Standalone Database | CRM Database |
-|---|---|---|
-| Contact storage | Yes | Yes |
-| Relational data model | Manual setup | Built-in |
-| Interaction tracking | Custom development | Automatic |
-| Pipeline visualization | Not included | Native |
-| Email integration | Custom development | Native |
-| Automation workflows | Custom development | Built-in or via n8n |
-| Audit trail / GDPR | Custom development | Built-in |
-| Reporting dashboards | Custom development | Built-in |
-| Time to production | Months | Days |
-| Ongoing maintenance | Your responsibility | Vendor-managed |
+| Capability             | Standalone Database | CRM Database        |
+| ---------------------- | ------------------- | ------------------- |
+| Contact storage        | Yes                 | Yes                 |
+| Relational data model  | Manual setup        | Built-in            |
+| Interaction tracking   | Custom development  | Automatic           |
+| Pipeline visualization | Not included        | Native              |
+| Email integration      | Custom development  | Native              |
+| Automation workflows   | Custom development  | Built-in or via n8n |
+| Audit trail / GDPR     | Custom development  | Built-in            |
+| Reporting dashboards   | Custom development  | Built-in            |
+| Time to production     | Months              | Days                |
+| Ongoing maintenance    | Your responsibility | Vendor-managed      |
 
 **Bottom line:** A standalone database makes sense only when your data model is so unusual that no CRM can accommodate it. For 95% of businesses, a dedicated CRM with a flexible data model saves months of development and ongoing maintenance.
 
@@ -169,21 +169,27 @@ A clear entity-relationship model prevents confusion later. If you are migrating
 Not all data is equally valuable. Focus on these categories:
 
 **Identity data**, Who is the contact?
+
 - Full name, email, phone, job title, company, LinkedIn profile
 
 **Descriptive data**, What characterizes them?
+
 - Industry, company size, location, annual revenue, technology stack
 
 **Behavioral data**, What have they done?
+
 - Website visits, email opens, meeting attendance, support tickets, product usage
 
 **Transactional data**, What have they bought?
+
 - Purchase history, deal values, contract dates, recurring revenue
 
 **Qualitative data**, What is the relationship context?
+
 - Notes from calls, meeting summaries, preferences, objections raised
 
 **Compliance data**, What are you allowed to do?
+
 - Consent status, legal basis, opt-in dates, data subject requests
 
 Prioritize data your team will actually use. Fields nobody fills in are worse than no fields at all because they create the illusion of completeness.
@@ -247,12 +253,12 @@ Data cleaning is tedious but essential. It is far easier to clean data before im
 
 Create a mapping between your source data fields and your CRM fields. Decide where each piece of information goes, what needs to be transformed, and what can be discarded. A simple mapping table works:
 
-| Source Field | CRM Field | Transformation |
-|---|---|---|
-| Name | First Name + Last Name | Split on space |
-| Company | Company Name | Standardize format |
-| Tel | Phone | Add country code |
-| Status | Deal Stage | Map values |
+| Source Field | CRM Field              | Transformation     |
+| ------------ | ---------------------- | ------------------ |
+| Name         | First Name + Last Name | Split on space     |
+| Company      | Company Name           | Standardize format |
+| Tel          | Phone                  | Add country code   |
+| Status       | Deal Stage             | Map values         |
 
 ### Step 4: Import in Batches
 
@@ -317,7 +323,7 @@ Manual data hygiene does not scale. Use automation to maintain quality passively
 
 Customermates supports automated data quality workflows through [n8n integration](/features/workflow-automation). You can build visual automations that check for duplicates, validate data formats, enrich records, and alert team members about quality issues, without writing code. [Learn more about n8n workflows](/blog/n8n-for-beginners-build-your-first-workflow)
 
-Beyond n8n, AI agents can operate the database directly through the native MCP integration (45 tools). An agent (Claude, ChatGPT, or Gemini) with an API key can merge duplicates, enrich records, update fields, and write notes as if it were a human user, which turns routine data hygiene into a task an agent runs in minutes.
+Beyond n8n, AI agents can operate the database directly through the native MCP integration ([[derived.mcp.tools.total]] tools). An agent (Claude, ChatGPT, or Gemini) with an API key can merge duplicates, enrich records, update fields, and write notes as if it were a human user, which turns routine data hygiene into a task an agent runs in minutes.
 
 ### Assign Data Ownership
 
@@ -384,18 +390,18 @@ Customermates addresses CRM database security and compliance directly:
 
 Choosing the right CRM database depends on your team size, budget, and data requirements. Here is how the major platforms compare:
 
-| Feature | Salesforce | HubSpot | Pipedrive | Customermates |
-|---|---|---|---|---|
-| **Starting price** | $25/user/mo | Free (limited) | €14/user/mo | From €12/user/mo |
-| **Custom fields** | Unlimited (Enterprise) | Limited on free plan | Limited on Lite | Yes (10 field types) |
-| **Data hosting** | US (default) | US (default) | EU available | EU (default) |
-| **Self-hosting** | No | No | No | Yes (open source) |
-| **Audit logging** | Enterprise only | Enterprise only | Not available | All plans |
-| **API access** | Yes | Yes (rate-limited) | Yes | Yes |
-| **n8n integration** | Via API | Via API | Via API | Native |
-| **GDPR tools** | Add-on | Add-on | Basic | Built-in |
-| **Duplicate detection** | Yes | Yes | Basic | Yes |
-| **Setup complexity** | High | Medium | Low | Low |
+| Feature                 | Salesforce             | HubSpot              | Pipedrive       | Customermates                                     |
+| ----------------------- | ---------------------- | -------------------- | --------------- | ------------------------------------------------- |
+| **Starting price**      | $25/user/mo            | Free (limited)       | €14/user/mo     | From [[commercial.price.starter.monthly]]/user/mo |
+| **Custom fields**       | Unlimited (Enterprise) | Limited on free plan | Limited on Lite | Yes (10 field types)                              |
+| **Data hosting**        | US (default)           | US (default)         | EU available    | EU (default)                                      |
+| **Self-hosting**        | No                     | No                   | No              | Yes (open source)                                 |
+| **Audit logging**       | Enterprise only        | Enterprise only      | Not available   | All plans                                         |
+| **API access**          | Yes                    | Yes (rate-limited)   | Yes             | Yes                                               |
+| **n8n integration**     | Via API                | Via API              | Via API         | Native                                            |
+| **GDPR tools**          | Add-on                 | Add-on               | Basic           | Built-in                                          |
+| **Duplicate detection** | Yes                    | Yes                  | Basic           | Yes                                               |
+| **Setup complexity**    | High                   | Medium               | Low             | Low                                               |
 
 **Salesforce** offers the most powerful CRM database for enterprises with complex data models and large teams. But the complexity, cost, and US-default hosting make it overkill for most SMBs.
 
@@ -403,7 +409,7 @@ Choosing the right CRM database depends on your team size, budget, and data requ
 
 **Pipedrive** focuses on sales pipeline management with a clean interface. The database capabilities are solid for sales teams but less suited for marketing or service use cases.
 
-**Customermates** delivers a complete CRM database with custom fields (ten types), EU hosting, self-hosting, audit logging, and n8n automation from €12/user/month. Two features set it apart: AI agents operate the database directly through a native MCP integration (deduping, enriching, and updating records), and a native unified inbox logs email, LinkedIn, WhatsApp, Instagram, and Telegram interactions into the timeline automatically (Pro tier and up).
+**Customermates** delivers a complete CRM database with custom fields (ten types), EU hosting, self-hosting, audit logging, and n8n automation from [[commercial.price.starter.monthly]]/user/month. Two features set it apart: AI agents operate the database directly through a native MCP integration (deduping, enriching, and updating records), and a native unified inbox logs email, LinkedIn, WhatsApp, Instagram, and Telegram interactions into the timeline automatically (Pro tier and up).
 
 ## CRM Database Best Practices
 
@@ -487,7 +493,7 @@ A CRM database can be GDPR-compliant if the system supports the necessary featur
 
 ### How much does a CRM database cost?
 
-CRM database costs range from free (with significant limitations) to over $300/user/month for enterprise platforms like Salesforce. Most small and mid-sized businesses pay between $10 and $50 per user per month. Customermates costs from €12/user/month for the full core CRM, no add-ons needed for the basics. Self-hosting is free and open source. [Full CRM cost comparison](/blog/crm-cost)
+CRM database costs range from free (with significant limitations) to over $300/user/month for enterprise platforms like Salesforce. Most small and mid-sized businesses pay between $10 and $50 per user per month. Customermates costs from [[commercial.price.starter.monthly]]/user/month for the full core CRM, no add-ons needed for the basics. Self-hosting is free and open source. [Full CRM cost comparison](/blog/crm-cost)
 
 ## Conclusion
 
@@ -495,4 +501,4 @@ Your CRM database is not just a list of names and email addresses. It is the ope
 
 The choice between building a custom database and using a dedicated CRM is straightforward for most businesses: a CRM gives you the data model, automation, reporting, and compliance features that would take months to build from scratch.
 
-Customermates gives you a flexible, GDPR-compliant CRM database with custom fields across ten field types, powerful segmentation, automated data quality via n8n and AI agents (native MCP), full self-hosting control, and EU hosting by default, from €12 per user per month. [See pricing](/pricing)
+Customermates gives you a flexible, GDPR-compliant CRM database with custom fields across ten field types, powerful segmentation, automated data quality via n8n and AI agents (native MCP), full self-hosting control, and EU hosting by default, from [[commercial.price.starter.monthly]] per user per month. [See pricing](/pricing)

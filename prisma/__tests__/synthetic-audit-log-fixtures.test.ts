@@ -276,6 +276,19 @@ describe("synthetic audit-log fixtures", () => {
     expect(fixtures.some(({ event }) => event.startsWith("messaging."))).toBe(false);
     expect(buildFixtures(snapshot)).toEqual(fixtures);
 
+    const timestamps = fixtures.map(({ createdAt }) => createdAt.getTime());
+    const earliest = Math.min(...timestamps);
+    const latest = Math.max(...timestamps);
+    const reference = Date.parse("2026-08-06T00:00:00.000Z");
+    const coveredMonths = new Set(
+      fixtures.map(({ createdAt }) => `${createdAt.getUTCFullYear()}-${createdAt.getUTCMonth()}`),
+    );
+
+    expect(earliest).toBeGreaterThanOrEqual(reference - 365 * 24 * 60 * 60_000);
+    expect(earliest).toBeLessThanOrEqual(reference - 360 * 24 * 60 * 60_000);
+    expect(latest).toBeLessThan(reference);
+    expect(coveredMonths.size).toBeGreaterThanOrEqual(10);
+
     for (const fixture of fixtures) {
       expect(eventData(fixture)).toMatchObject({
         companyId: fixture.companyId,
