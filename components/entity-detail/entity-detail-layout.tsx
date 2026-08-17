@@ -8,7 +8,7 @@ import type {
   FormEntityDto,
 } from "@/core/base/base-custom-column-entity-modal.store";
 
-import { Pencil, SquarePen, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
@@ -297,15 +297,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
           )}
         >
           <div className="flex flex-col bg-background @4xl/detail:min-h-0 @4xl/detail:overflow-auto">
-            <div className="flex items-center gap-2 px-4 pt-3 pb-1 shrink-0 min-h-8">
-              <Icon className="size-3.5 text-muted-foreground" icon={SquarePen} />
-
-              <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                {t("Common.actions.labelData")}
-              </span>
-            </div>
-
-            <div className="p-4 pt-2 @4xl/detail:flex-1 @4xl/detail:min-h-0">
+            <div className="p-4 @4xl/detail:flex-1 @4xl/detail:min-h-0">
               {masterData}
 
               {isEditingCustomField && canManage && (

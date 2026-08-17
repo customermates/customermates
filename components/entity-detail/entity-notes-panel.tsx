@@ -6,13 +6,11 @@ import type {
   FormEntityDto,
 } from "@/core/base/base-custom-column-entity-modal.store";
 
-import { FileText } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useRef } from "react";
 
 import { Editor } from "@/components/editor/editor";
-import { Icon } from "@/components/shared/icon";
 import { cn } from "@/core/utils/cn";
 
 type Props<Form extends FormEntityDto, Dto extends EntityDto> = {
@@ -52,18 +50,14 @@ export const EntityNotesPanel = observer(function EntityNotesPanel<Form extends 
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex items-center gap-2 px-4 pt-4 pb-1 shrink-0">
-        <Icon className="size-3.5 text-muted-foreground" icon={FileText} />
-
-        <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-          {t("Common.actions.labelNotes")}
-        </span>
+      <div className="flex items-center gap-1.5 px-4 pt-4 pb-1.5 shrink-0">
+        <span className="text-xs font-normal text-muted-foreground">{t("Common.actions.labelNotes")}</span>
       </div>
 
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- forwards clicks in the empty padding to the already-interactive ProseMirror editor inside */}
       <div
         ref={containerRef}
-        className={cn("flex-1 min-h-0 overflow-auto p-4 pt-2", readOnly ? "cursor-default" : "cursor-text")}
+        className={cn("flex-1 min-h-0 overflow-auto px-4 pb-4", readOnly ? "cursor-default" : "cursor-text")}
         onMouseDown={handleContainerMouseDown}
       >
         <Editor data={store.form.notes} readOnly={readOnly} onChange={handleNotesChange} />
