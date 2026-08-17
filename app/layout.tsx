@@ -2,12 +2,12 @@ import "@/styles/globals.css";
 
 import type { Metadata, Viewport } from "next";
 
-import { Inter, JetBrains_Mono, Lora } from "next/font/google";
 import { getLocale, getMessages } from "next-intl/server";
 import { cookies } from "next/headers";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 
+import { latin, mono, serif } from "./fonts";
 import { Providers } from "./providers";
 import { NavigationSwitch } from "./components/navigation/navigation-switch";
 import { loadNavigationData } from "./components/navigation/navigation-data";
@@ -24,28 +24,6 @@ import { accountNeedsAction } from "@/ee/messaging/provider";
 import { env } from "@/env";
 import { GLOBAL_METADATA } from "@/core/seo/homepage-metadata";
 import { resolveRequestAccountState } from "@/features/auth/next/resolve-account-state";
-
-const latin = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-  variable: "--font-sans",
-});
-
-const mono = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  display: "swap",
-  variable: "--font-mono",
-});
-
-const serif = Lora({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
-  display: "swap",
-  variable: "--font-serif",
-});
 
 export const metadata: Metadata = GLOBAL_METADATA;
 
