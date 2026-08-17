@@ -39,6 +39,23 @@ type AvatarItem = {
   email?: string | null;
 };
 
+const ISO_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
+
+function isPrimitive(value: unknown): boolean {
+  return typeof value === "string" || typeof value === "number" || typeof value === "boolean";
+}
+
+function formatUnknownValue(value: unknown): string {
+  if (isPrimitive(value)) return String(value);
+  if (Array.isArray(value) && value.every(isPrimitive)) return value.join(", ");
+  if (!Array.isArray(value) && typeof value === "object" && value !== null) {
+    const entries = Object.entries(value);
+    if (entries.length > 0 && entries.every(([, entryValue]) => isPrimitive(entryValue)))
+      return entries.map(([entryKey, entryValue]) => `${entryKey}: ${String(entryValue)}`).join(", ");
+  }
+  return JSON.stringify(value) ?? "";
+}
+
 function ChangeRow({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div>
@@ -178,7 +195,9 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
             />
           );
         }
-        return String(value);
+        if (typeof value === "string" && ISO_DATE_TIME.test(value))
+          return intlStore.formatNumericalShortDateTime(new Date(value));
+        return formatUnknownValue(value);
     }
   }
 
@@ -195,14 +214,13 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
       previous: change.previous,
       current: change.current,
       customColumn,
+      snapshot: change.snapshot === true,
     };
   });
 
-  const isCreatedEvent = entry.event.endsWith(".created");
-
   function renderChangeRow(change: (typeof changes)[number]): ReactNode {
-    if (isCreatedEvent)
-      return <div className="min-w-0">{renderValue(change.key, change.current, change.customColumn)}</div>;
+    if (change.snapshot)
+      return <div className="min-w-0 break-words">{renderValue(change.key, change.current, change.customColumn)}</div>;
 
     if (change.key === "notes") return <NotesDiff current={change.current} previous={change.previous} />;
 
@@ -222,6 +240,50 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
 
   const category = auditCategory(entry.event);
 
+  const rows = changes
+    .map((change, index) => {
+      const key = `${entry.id}-${change.field}-${index}`;
+
+      if (
+        !change.snapshot &&
+        ["users", "contacts", "organizations", "deals", "services", "tasks", "identifiers"].includes(change.key)
+      ) {
+        const { added, removed } = partitionRelationIds(change.previous, change.current);
+        if (added.length === 0 && removed.length === 0) return null;
+
+        return (
+          <Fragment key={key}>
+            {removed.length > 0 && (
+              <ChangeRow
+                label={t("AuditLogModal.relationsDeleted", {
+                  field: change.field,
+                })}
+              >
+                {renderValue(change.key, removed, change.customColumn)}
+              </ChangeRow>
+            )}
+
+            {added.length > 0 && (
+              <ChangeRow
+                label={t("AuditLogModal.relationsAdded", {
+                  field: change.field,
+                })}
+              >
+                {renderValue(change.key, added, change.customColumn)}
+              </ChangeRow>
+            )}
+          </Fragment>
+        );
+      }
+
+      return (
+        <ChangeRow key={key} label={change.field}>
+          {renderChangeRow(change)}
+        </ChangeRow>
+      );
+    })
+    .filter((row) => row !== null);
+
   return (
     <AppCard>
       <DetailHeader
@@ -239,52 +301,11 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
       />
 
       <AppCardBody>
-        <div className="flex flex-col gap-4">
-          {changes.map((change, index) => {
-            const key = `${entry.id}-${change.field}-${index}`;
-
-            if (
-              !isCreatedEvent &&
-              ["users", "contacts", "organizations", "deals", "services", "tasks", "identifiers"].includes(change.key)
-            ) {
-              const { added, removed } = partitionRelationIds(change.previous, change.current);
-              if (added.length === 0 && removed.length === 0) return null;
-
-              return (
-                <Fragment key={key}>
-                  {removed.length > 0 && (
-                    <ChangeRow
-                      label={t("AuditLogModal.relationsDeleted", {
-                        field: change.field,
-                      })}
-                    >
-                      {renderValue(change.key, removed, change.customColumn)}
-                    </ChangeRow>
-                  )}
-
-                  {added.length > 0 && (
-                    <ChangeRow
-                      label={t("AuditLogModal.relationsAdded", {
-                        field: change.field,
-                      })}
-                    >
-                      {renderValue(change.key, added, change.customColumn)}
-                    </ChangeRow>
-                  )}
-                </Fragment>
-              );
-            }
-
-            const row = renderChangeRow(change);
-            if (row === null) return null;
-
-            return (
-              <ChangeRow key={key} label={change.field}>
-                {row}
-              </ChangeRow>
-            );
-          })}
-        </div>
+        {rows.length > 0 ? (
+          <div className="flex flex-col gap-4">{rows}</div>
+        ) : (
+          <p className="text-muted-foreground text-sm">{t("EntityTimeline.noFurtherDetail")}</p>
+        )}
       </AppCardBody>
     </AppCard>
   );

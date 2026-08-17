@@ -1131,6 +1131,7 @@
     "loadOlder": "Ältere laden",
     "loadOlderError": "Ältere Aktivitäten konnten nicht geladen werden. Bereits angezeigte Einträge bleiben verfügbar.",
     "moreRecords": "+{count} weitere",
+    "noFurtherDetail": "Für dieses Ereignis wurden keine weiteren Details gespeichert.",
     "pageLimitReached": "Die älteste verfügbare Seite wurde erreicht. Grenze die aktuelle Auswahl ein, um ältere Aktivitäten zu prüfen.",
     "scopeTooBroad": "Diese Beziehungsfilter treffen auf zu viele Kontakte zu, um sie sicher zu laden. Wähle weniger Datensätze aus.",
     "types": {

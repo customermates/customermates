@@ -401,6 +401,10 @@ const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
     TABLE_COLUMN_KEYS,
   ],
   [
+    "components/entity-terminology/use-column-label.ts :: t.has :: Common.table.columns.${columnId}",
+    TABLE_COLUMN_KEYS,
+  ],
+  [
     'components/entity-terminology/use-filter-field-label.ts :: t :: Common.filters.fields.${field.replace(/\\./g, "_")}',
     FILTER_FIELD_KEYS,
   ],
@@ -490,6 +494,7 @@ export const DYNAMIC_KEY_SITES = [
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Inbox.threadStates.${state}",
   "components/data-view/header/active-filters-bar.tsx :: t :: Common.filters.operators.${filter.operator}",
   "components/entity-terminology/use-column-label.ts :: t :: Common.table.columns.${columnId}",
+  "components/entity-terminology/use-column-label.ts :: t.has :: Common.table.columns.${columnId}",
   'components/entity-terminology/use-filter-field-label.ts :: t :: Common.filters.fields.${field.replace(/\\./g, "_")}',
   "components/forms/form-iso-date-picker.tsx :: t :: Common.datePresets.${preset.key}",
   "components/forms/form-iso-date-range-picker.tsx :: t :: Common.datePresets.${key}",

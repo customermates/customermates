@@ -1131,6 +1131,7 @@
     "loadOlder": "Carica elementi precedenti",
     "loadOlderError": "Non è stato possibile caricare le attività precedenti. Le voci già mostrate restano disponibili.",
     "moreRecords": "+{count} altri",
+    "noFurtherDetail": "Non sono stati registrati altri dettagli per questo evento.",
     "pageLimitReached": "Hai raggiunto la pagina più vecchia disponibile. Restringi la selezione attuale per esaminare le attività precedenti.",
     "scopeTooBroad": "Questi filtri sulle relazioni corrispondono a troppi contatti per un caricamento sicuro. Seleziona meno record.",
     "types": {

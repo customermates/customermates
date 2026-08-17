@@ -1131,6 +1131,7 @@
     "loadOlder": "Charger les plus anciens",
     "loadOlderError": "Les activités plus anciennes n'ont pas pu être chargées. Les entrées déjà affichées restent disponibles.",
     "moreRecords": "+{count} autres",
+    "noFurtherDetail": "Aucun détail supplémentaire n'a été enregistré pour cet événement.",
     "pageLimitReached": "La page la plus ancienne disponible a été atteinte. Affinez la sélection actuelle pour consulter des activités plus anciennes.",
     "scopeTooBroad": "Ces filtres de relation correspondent à trop de contacts pour un chargement fiable. Sélectionnez moins d'enregistrements.",
     "types": {

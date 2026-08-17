@@ -1131,6 +1131,7 @@
     "loadOlder": "Load older",
     "loadOlderError": "Older activity could not be loaded. The entries already shown are still available.",
     "moreRecords": "+{count} more",
+    "noFurtherDetail": "No further detail was recorded for this event.",
     "pageLimitReached": "The oldest available page has been reached. Narrow the current selection to inspect older activity.",
     "scopeTooBroad": "These relationship filters match too many contacts to load safely. Select fewer records.",
     "types": {
