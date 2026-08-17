@@ -50,11 +50,7 @@ function assertTenantScopedWhere(
 
   const direct = where?.companyId;
   const scoped =
-    typeof direct === "string"
-      ? direct
-      : allowCompoundSelector && where
-        ? compoundSelectorCompanyId(where)
-        : undefined;
+    typeof direct === "string" ? direct : allowCompoundSelector && where ? compoundSelectorCompanyId(where) : undefined;
 
   if (!scoped) throw tenantError(model, operation, "companyId must be set in where");
 
