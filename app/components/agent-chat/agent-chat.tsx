@@ -258,7 +258,8 @@ const AgentChatPanel = observer(function AgentChatPanel() {
     <div
       aria-label={t("AgentChat.title")}
       className={cn(
-        "fixed z-40 flex flex-col overflow-hidden rounded-2xl border bg-card shadow-xl",
+        "fixed z-40 flex flex-col overflow-hidden rounded-2xl border bg-card",
+        "shadow-2xl shadow-black/25 dark:shadow-black/80 dark:ring-1 dark:ring-white/10",
         store.isExpanded
           ? "h-[85dvh] w-[720px] max-w-[calc(100dvw-2rem)]"
           : "h-[560px] max-h-[calc(100dvh-2rem)] w-[400px] max-w-[calc(100dvw-2rem)]",
