@@ -1,10 +1,24 @@
+import type { SkeletonTone } from "@/components/ui/skeleton";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/core/utils/cn";
 
-export function SelectionValueSkeleton({ className }: { className?: string }) {
+export function SelectionValueSkeleton({
+  barClassName,
+  className,
+  tone,
+}: {
+  barClassName?: string;
+  className?: string;
+  tone?: SkeletonTone;
+}) {
   return (
-    <span aria-hidden="true" className={cn("inline-flex h-5 items-center", className)} data-selection-loading="value">
-      <Skeleton className="h-3.5 w-20 rounded-sm" />
+    <span
+      aria-hidden="true"
+      className={cn("inline-flex h-5 items-center align-middle", className)}
+      data-selection-loading="value"
+    >
+      <Skeleton className={cn("h-3.5 w-20 rounded-sm", barClassName)} tone={tone} />
     </span>
   );
 }
