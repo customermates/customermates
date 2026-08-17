@@ -60,7 +60,7 @@ export const FilterChipValue = observer(
           {prefix}
 
           <span data-filter-value-loading aria-label={t("Loading.text")} role="status">
-            <SelectionValueSkeleton className="h-4" />
+            <SelectionValueSkeleton barClassName="h-2.5 w-14 rounded-full" className="h-3" tone="current" />
           </span>
         </>
       );

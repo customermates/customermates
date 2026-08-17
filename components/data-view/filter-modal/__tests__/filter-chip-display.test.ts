@@ -67,6 +67,32 @@ describe("FilterChipValue", () => {
     expect(html.match(/Unavailable/g)).toHaveLength(1);
   });
 
+  it("tints the pending value placeholder with the chip colour and centers it", () => {
+    selectItems.mockReturnValue({
+      items: [],
+      getItems: undefined,
+      isLoading: true,
+    });
+
+    const html = renderToStaticMarkup(
+      createElement(FilterChipValue, {
+        customColumns: [],
+        filter: {
+          field: "organizationIds",
+          operator: "in",
+          value: ["15c1df79-6c87-46f7-8de4-02a1f49c83be"],
+        } as never,
+        label: "Organization",
+        operator: "in",
+      }),
+    );
+
+    expect(html).toContain("data-filter-value-loading");
+    expect(html).toContain("bg-current/40");
+    expect(html).not.toContain("bg-placeholder");
+    expect(html).toContain("align-middle");
+  });
+
   it("preserves literal customer-entered filter text", () => {
     selectItems.mockReturnValue({
       items: [],
