@@ -16,6 +16,51 @@ function tenantError(model: string, operation: string, message: string): Error {
   return new Error(`${message} [model=${model}, operation=${operation}]`);
 }
 
+function compoundSelectorCompanyId(where: Record<string, unknown>): string | undefined {
+  for (const [key, value] of Object.entries(where)) {
+    if (!key.includes("_") || !value || typeof value !== "object" || Array.isArray(value)) continue;
+
+    const nested = (value as Record<string, unknown>).companyId;
+    if (typeof nested === "string") return nested;
+  }
+
+  return undefined;
+}
+
+function assertTenantScopedWhere(
+  model: string,
+  operation: string,
+  args: unknown,
+  companyId: string,
+  allowCompoundSelector: boolean,
+) {
+  if (!args || typeof args !== "object" || !("where" in args))
+    throw tenantError(model, operation, "where must be provided to enforce tenant scoping");
+
+  const where = (args as { where?: Record<string, unknown> }).where;
+
+  if (model === "Company") {
+    if (!where?.id) throw tenantError(model, operation, "companyId (id) must be set in where for Company");
+
+    if (where.id !== companyId)
+      throw tenantError(model, operation, "companyId (id) does not match tenant in where for Company");
+
+    return;
+  }
+
+  const direct = where?.companyId;
+  const scoped =
+    typeof direct === "string"
+      ? direct
+      : allowCompoundSelector && where
+        ? compoundSelectorCompanyId(where)
+        : undefined;
+
+  if (!scoped) throw tenantError(model, operation, "companyId must be set in where");
+
+  if (scoped !== companyId) throw tenantError(model, operation, "companyId does not match tenant in where");
+}
+
 const prisma = basePrisma.$extends({
   query: {
     $allModels: {
@@ -53,6 +98,8 @@ const prisma = basePrisma.$extends({
                 throw tenantError(model, operation, "companyId does not match tenant");
             }
 
+            assertTenantScopedWhere(model, operation, args, companyId, false);
+
             return query(args);
 
           case "createMany":
@@ -74,6 +121,8 @@ const prisma = basePrisma.$extends({
                 throw tenantError(model, operation, "companyId does not match tenant in data");
             }
 
+            assertTenantScopedWhere(model, operation, args, companyId, false);
+
             return query(args);
 
           case "upsert":
@@ -89,22 +138,12 @@ const prisma = basePrisma.$extends({
                 throw tenantError(model, operation, "companyId does not match tenant in update");
             }
 
+            assertTenantScopedWhere(model, operation, args, companyId, true);
+
             return query(args);
         }
 
-        if ("where" in args) {
-          if (model !== "Company") {
-            if (!args.where?.companyId) throw tenantError(model, operation, "companyId must be set in where");
-
-            if (args.where.companyId !== companyId)
-              throw tenantError(model, operation, "companyId does not match tenant in where");
-          } else {
-            if (!args.where?.id) throw tenantError(model, operation, "companyId (id) must be set in where for Company");
-
-            if (args.where.id !== companyId)
-              throw tenantError(model, operation, "companyId (id) does not match tenant in where for Company");
-          }
-        } else throw tenantError(model, operation, "where must be provided to enforce tenant scoping");
+        assertTenantScopedWhere(model, operation, args, companyId, false);
 
         return query(args);
       },
