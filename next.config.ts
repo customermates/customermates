@@ -27,8 +27,7 @@ const nextConfig: NextConfig = {
   compress: true,
 
   experimental: {
-    turbopackSourceMaps: false,
-    turbopackMemoryLimit: 6 * 1024 * 1024 * 1024,
+    turbopackSourceMaps: true,
     serverActions: {
       bodySizeLimit: "25mb",
     },
@@ -67,9 +66,10 @@ const sentryOptions = {
   org: env.SENTRY_ORG,
   project: env.SENTRY_PROJECT,
   authToken: env.SENTRY_AUTH_TOKEN,
-  silent: !env.CI,
+  silent: false,
+  widenClientFileUpload: true,
   sourcemaps: {
-    disable: true,
+    deleteSourcemapsAfterUpload: true,
   },
   tunnelRoute: "/monitoring",
 };
