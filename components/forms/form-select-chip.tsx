@@ -69,7 +69,7 @@ export const FormSelectChip = observer(
           disabled={isDisabled}
           open={isReadOnly ? false : undefined}
           value={value}
-          onValueChange={(next) => store?.onChange(id, next)}
+          onValueChange={isReadOnly ? undefined : (next) => store?.onChange(id, next)}
         >
           <SelectTrigger
             aria-invalid={hasError}

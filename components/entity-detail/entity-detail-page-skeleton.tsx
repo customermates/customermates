@@ -19,21 +19,17 @@ function FormFieldSkeleton({ animated, short = false }: { animated: boolean; sho
 function SectionHeader({
   animated,
   labelWidth,
-  master = false,
-  timeline = false,
+  endAction = false,
 }: {
   animated: boolean;
   labelWidth: string;
-  master?: boolean;
-  timeline?: boolean;
+  endAction?: boolean;
 }) {
   return (
-    <div
-      className={cn("flex shrink-0 items-center gap-2 px-4 pt-4", timeline ? "pb-2" : "pb-1", master && "min-h-8 pt-3")}
-    >
-      <Shape animated={animated} className="size-3.5 rounded" />
-
+    <div className="flex h-4 shrink-0 items-center px-4 pt-4 pb-1.5 box-content">
       <Shape breathe animated={animated} className={cn("h-2.5", labelWidth)} motionPhase={1} />
+
+      {endAction && <Shape animated={animated} className="ml-auto size-3 rounded" />}
     </div>
   );
 }
@@ -53,9 +49,7 @@ export function EntityDetailPageSkeleton({ animated = true }: Props) {
           className="flex flex-col bg-background @4xl/detail:min-h-0 @4xl/detail:overflow-auto"
           data-skeleton-group="0"
         >
-          <SectionHeader master animated={animated} labelWidth="w-20" />
-
-          <div className="p-4 pt-2 @4xl/detail:min-h-0 @4xl/detail:flex-1">
+          <div className="p-4 @4xl/detail:min-h-0 @4xl/detail:flex-1">
             <div className="flex w-full flex-col gap-4">
               <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
                 <div data-skeleton-group="1">
@@ -81,7 +75,7 @@ export function EntityDetailPageSkeleton({ animated = true }: Props) {
           >
             <SectionHeader animated={animated} labelWidth="w-16" />
 
-            <div className="min-h-0 flex-1 overflow-auto p-4 pt-2">
+            <div className="min-h-0 flex-1 overflow-auto px-4 pb-4">
               <Shape animated={animated} className="min-h-52 w-full" motionPhase={2} />
             </div>
           </div>
@@ -90,9 +84,9 @@ export function EntityDetailPageSkeleton({ animated = true }: Props) {
             className="flex flex-col bg-background @4xl/detail:min-h-0 @4xl/detail:flex-1 @4xl/detail:overflow-hidden"
             data-skeleton-group="2"
           >
-            <SectionHeader timeline animated={animated} labelWidth="w-20" />
+            <SectionHeader endAction animated={animated} labelWidth="w-20" />
 
-            <div className="min-h-0 flex-1 overflow-auto px-2 pt-2 pb-4">
+            <div className="min-h-0 flex-1 overflow-auto px-2 pb-4">
               {TIMELINE_ROWS.map((row) => (
                 <div key={row} className="flex items-start gap-3 rounded-md p-2" data-skeleton-group={row % 4}>
                   <Shape animated={animated} className="size-8 shrink-0 rounded-lg" />

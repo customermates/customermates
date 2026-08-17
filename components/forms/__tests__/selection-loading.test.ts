@@ -13,6 +13,21 @@ describe("selection loading", () => {
     expect(html).toContain("motion-reduce:animate-none");
   });
 
+  it("centers the value placeholder on the surrounding text instead of its baseline", () => {
+    const html = renderToStaticMarkup(createElement(SelectionValueSkeleton));
+
+    expect(html).toContain("align-middle");
+  });
+
+  it("keeps the neutral tone by default and inherits the surface colour on request", () => {
+    expect(renderToStaticMarkup(createElement(SelectionValueSkeleton))).toContain("bg-placeholder");
+
+    const toned = renderToStaticMarkup(createElement(SelectionValueSkeleton, { tone: "current" }));
+
+    expect(toned).toContain("bg-current/40");
+    expect(toned).not.toContain("bg-placeholder");
+  });
+
   it("renders option-shaped rows under one accessible status", () => {
     const html = renderToStaticMarkup(createElement(SelectionOptionsSkeleton, { label: "Loading options" }));
 
