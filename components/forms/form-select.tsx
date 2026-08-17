@@ -78,7 +78,9 @@ export const FormSelect = observer(
           disabled={isLoading}
           open={isReadOnly ? false : undefined}
           value={value}
-          onValueChange={(next) => (onValueChange ? onValueChange(next) : store?.onChange(id, next))}
+          onValueChange={
+            isReadOnly ? undefined : (next) => (onValueChange ? onValueChange(next) : store?.onChange(id, next))
+          }
         >
           <SelectTrigger
             aria-busy={optionsLoading || undefined}
