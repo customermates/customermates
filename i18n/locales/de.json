@@ -809,8 +809,6 @@
     },
     "tourUi": {
       "back": "Zurück",
-      "pause": "Pausieren",
-      "resume": "Tour fortsetzen",
       "title": "Geführte Tour"
     },
     "ui": {

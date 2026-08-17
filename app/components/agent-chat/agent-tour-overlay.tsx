@@ -3,7 +3,7 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Pause, X } from "lucide-react";
+import { X } from "lucide-react";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,6 @@ export const AgentTourOverlay = observer(function AgentTourOverlay() {
   const t = useTranslations();
   const copy = tourCopy(t);
   const [rect, setRect] = useState<DOMRect | null>(null);
-  const resumeButtonRef = useRef<HTMLButtonElement>(null);
   const nextButtonRef = useRef<HTMLButtonElement>(null);
 
   const active = store.active;
@@ -40,27 +39,7 @@ export const AgentTourOverlay = observer(function AgentTourOverlay() {
     };
   }, [active]);
 
-  useEffect(() => {
-    if (!active || !store.isTourPaused) return;
-    requestAnimationFrame(() => resumeButtonRef.current?.focus());
-  }, [active, store.isTourPaused]);
-
   if (!active) return null;
-  if (store.isTourPaused) {
-    return (
-      <Button
-        ref={resumeButtonRef}
-        className="fixed z-50 rounded-full shadow-lg"
-        style={{
-          right: "max(1rem, var(--safe-right))",
-          bottom: "max(1rem, var(--safe-bottom))",
-        }}
-        onClick={store.resume}
-      >
-        {copy.resume}
-      </Button>
-    );
-  }
   if (!rect) return null;
 
   const isTour = active.note !== null;
@@ -79,7 +58,7 @@ export const AgentTourOverlay = observer(function AgentTourOverlay() {
       />
 
       {isTour && (
-        <Popover open={!store.isTourPaused && hasRect}>
+        <Popover open={hasRect}>
           <PopoverAnchor asChild>
             <div
               className="pointer-events-none fixed"
@@ -102,21 +81,15 @@ export const AgentTourOverlay = observer(function AgentTourOverlay() {
                   {`${active.stepIndex + 1} / ${active.totalSteps}`}
                 </span>
 
-                <div className="flex items-center">
-                  <Button aria-label={copy.pause} className="size-7" size="icon" variant="ghost" onClick={store.pause}>
-                    <Pause />
-                  </Button>
-
-                  <Button
-                    aria-label={t("AgentChat.tour.skip")}
-                    className="size-7"
-                    size="icon"
-                    variant="ghost"
-                    onClick={store.end}
-                  >
-                    <X />
-                  </Button>
-                </div>
+                <Button
+                  aria-label={t("AgentChat.tour.skip")}
+                  className="size-7"
+                  size="icon"
+                  variant="ghost"
+                  onClick={store.end}
+                >
+                  <X />
+                </Button>
               </div>
 
               {active.note && (
@@ -145,8 +118,6 @@ export const AgentTourOverlay = observer(function AgentTourOverlay() {
 function tourCopy(t: ReturnType<typeof useTranslations>) {
   return {
     back: t("AgentChat.tourUi.back"),
-    pause: t("AgentChat.tourUi.pause"),
-    resume: t("AgentChat.tourUi.resume"),
     title: t("AgentChat.tourUi.title"),
   };
 }

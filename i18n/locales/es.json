@@ -809,8 +809,6 @@
     },
     "tourUi": {
       "back": "Atrás",
-      "pause": "Pausar",
-      "resume": "Reanudar el tour",
       "title": "Visita guiada"
     },
     "ui": {

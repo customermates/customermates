@@ -39,7 +39,6 @@ export function findAgentTargetElement(targetId: string) {
 
 export class AgentUiControlStore extends BaseStore {
   active: Spotlight | null = null;
-  isTourPaused = false;
   private tourSteps: AgentGuidedTourStep[] = [];
   private navigateCallback: ((path: string) => Promise<AgentNavigationOutcome>) | null = null;
   private clearTimer: ReturnType<typeof setTimeout> | null = null;
@@ -50,11 +49,8 @@ export class AgentUiControlStore extends BaseStore {
     super(rootStore);
     makeObservable(this, {
       active: observable.ref,
-      isTourPaused: observable,
       showStep: action,
       previousStep: action,
-      pause: action,
-      resume: action,
       end: action,
     });
   }
@@ -107,7 +103,6 @@ export class AgentUiControlStore extends BaseStore {
   startGuidedTour = async (tourId: AgentTourId | undefined) => {
     if (!tourId) return { ok: false, result: "The requested tour is not available." };
     this.tourSteps = agentGuidedTour(tourId, this.t);
-    this.isTourPaused = false;
     this.captureFocus();
     const runVersion = ++this.tourRunVersion;
     const shown = await this.showTourStep(0, runVersion, 1);
@@ -120,7 +115,7 @@ export class AgentUiControlStore extends BaseStore {
   };
 
   nextStep = () => {
-    if (!this.active || this.isTourPaused) return;
+    if (!this.active) return;
 
     const next = this.active.stepIndex + 1;
     if (next >= this.tourSteps.length) this.end();
@@ -128,27 +123,14 @@ export class AgentUiControlStore extends BaseStore {
   };
 
   previousStep = () => {
-    if (!this.active || this.isTourPaused) return;
+    if (!this.active) return;
     this.requestTourStep(Math.max(0, this.active.stepIndex - 1), -1);
-  };
-
-  pause = () => {
-    if (!this.active?.note) return;
-    this.isTourPaused = true;
-    this.tourRunVersion += 1;
-  };
-
-  resume = () => {
-    if (!this.active || !this.isTourPaused) return;
-    this.isTourPaused = false;
-    this.requestTourStep(this.active.stepIndex, 1);
   };
 
   end = () => {
     this.tourRunVersion += 1;
     this.active = null;
     this.tourSteps = [];
-    this.isTourPaused = false;
     if (this.clearTimer) clearTimeout(this.clearTimer);
     focusOverlayTarget(this.previousFocus);
     this.previousFocus = null;
