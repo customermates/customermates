@@ -27,7 +27,7 @@ type Props = {
 
 export const RoleModal = observer(({ store }: Props) => {
   const t = useTranslations();
-  const { form, isDisabledOrSystemRole, isLoading, canDeleteRole, isSystemRole } = store;
+  const { form, isDisabledOrSystemRole, isLoading, canDeleteRole, isSystemRole, isOwnRole } = store;
   const { showDeleteConfirmation } = useDeleteConfirmation();
 
   function renderResourcePermissions(resource: Resource) {
@@ -103,6 +103,8 @@ export const RoleModal = observer(({ store }: Props) => {
 
           <AppCardBody>
             {isSystemRole && <Alert color="primary" description={t("RoleModal.systemAlert")} />}
+
+            {!isSystemRole && isOwnRole && <Alert color="warning" description={t("RoleModal.ownRoleAlert")} />}
 
             {isSystemRole ? (
               <Input disabled readOnly id="name" value={t("RoleModal.systemName")} />

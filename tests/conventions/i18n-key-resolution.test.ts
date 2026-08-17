@@ -104,6 +104,7 @@ const DATE_PRESET_KEYS = [
 ] as const;
 const DIRECT_COMMON_ERROR_KEYS = [
   "linkedinInboxUnavailable",
+  "roleSelfEditForbidden",
   "roleSystemRequired",
   "salesNavigatorNotAvailable",
   "salesNavigatorRequiresLinkedin",
