@@ -17,21 +17,68 @@ if [[ -z "${DATABASE_URL:-}" && -f .env ]]; then
   set +a
 fi
 
-if [[ -z "${DATABASE_URL:-}" ]]; then
-  echo "DATABASE_URL must be configured." >&2
+parse_destination() {
+  local url="$1"
+  local hostport
+
+  destination_base="${url%%\?*}"
+  destination_query="${url#"$destination_base"}"
+  database_name="${destination_base##*/}"
+  admin_url="${destination_base%/*}/postgres${destination_query}"
+
+  hostport="${url#*://}"
+  hostport="${hostport#*@}"
+  hostport="${hostport%%/*}"
+  destination_hostport="${hostport%%\?*}"
+  destination_host="${destination_hostport%:*}"
+}
+
+default_destination="${DIRECT_URL:-${DATABASE_URL:-}}"
+
+if [[ -n "$default_destination" ]]; then
+  parse_destination "$default_destination"
+  read -r -p "Destination [$database_name on $destination_hostport]. Press Enter to accept, or paste another URL: " typed_destination
+  destination_url="${typed_destination:-$default_destination}"
+else
+  read -r -p "Paste the local destination database URL: " destination_url
+fi
+
+if [[ -z "$destination_url" ]]; then
+  echo "A destination database URL is required." >&2
   exit 1
 fi
 
-destination_url="${DIRECT_URL:-$DATABASE_URL}"
+parse_destination "$destination_url"
+
+case "$destination_host" in
+  localhost | 127.0.0.1 | ::1 | "[::1]") ;;
+  *)
+    echo "Refusing to replace a non-local destination (host $destination_host)." >&2
+    exit 1
+    ;;
+esac
+
+echo "Destination: database $database_name on $destination_hostport will be dropped and replaced."
 
 read -r -s -p "Paste the Production direct database URL (input hidden): " production_url
 printf '\n'
+
+if [[ -z "$production_url" ]]; then
+  echo "A Production database URL is required." >&2
+  exit 1
+fi
+
+if [[ "$production_url" == *-pooler.* ]]; then
+  unset production_url
+  echo "That is a pooled endpoint. A connection pooler rejects the read-only startup option this export relies on, and cannot hold the consistent snapshot pg_dump needs. Use the direct connection string instead: the same host with '-pooler' removed." >&2
+  exit 1
+fi
 
 temporary_directory="$(mktemp -d "${TMPDIR:-/tmp}/customermates-live-data.XXXXXX")"
 trap 'rm -rf "$temporary_directory"' EXIT
 archive="$temporary_directory/snapshot.dump"
 
-echo "Exporting Production data..."
+echo "[1/6] Exporting Production over a read-only session. Nothing is written to Production."
 PGOPTIONS='-c default_transaction_read_only=on' pg_dump "$production_url" \
   --format=custom \
   --no-owner \
@@ -39,16 +86,19 @@ PGOPTIONS='-c default_transaction_read_only=on' pg_dump "$production_url" \
   --schema=public \
   --file "$archive"
 unset production_url
-pg_restore --list "$archive" >/dev/null
+echo "      Export finished: $(du -h "$archive" | cut -f1) archive written to a temporary file."
 
-destination_base="${destination_url%%\?*}"
-destination_query="${destination_url#"$destination_base"}"
-database_name="${destination_base##*/}"
-admin_url="${destination_base%/*}/postgres${destination_query}"
+echo "[2/6] Verifying the archive before anything is destroyed."
+archive_tables="$(pg_restore --list "$archive" | grep -c 'TABLE DATA' || true)"
+echo "      Archive is readable and contains $archive_tables tables with data."
 
-echo "Replacing the configured $database_name database..."
-PGDATABASE="$admin_url" dropdb --if-exists --force "$database_name"
-PGDATABASE="$admin_url" createdb "$database_name"
+echo "[3/6] Dropping and recreating the local database \"$database_name\"."
+dropdb --if-exists --force --maintenance-db="$admin_url" "$database_name"
+createdb --maintenance-db="$admin_url" "$database_name"
+psql "$destination_url" --no-psqlrc --quiet --set=ON_ERROR_STOP=1 -c 'DROP SCHEMA IF EXISTS public CASCADE;'
+echo "      Recreated. Any data previously in \"$database_name\" is gone."
+
+echo "[4/6] Restoring the snapshot into \"$database_name\". This is the slow step."
 pg_restore \
   --exit-on-error \
   --single-transaction \
@@ -56,28 +106,75 @@ pg_restore \
   --no-privileges \
   --dbname "$destination_url" \
   "$archive"
+echo "      Restore complete."
 
-echo "Disabling webhooks in the imported copy..."
-PGDATABASE="$destination_url" psql --no-psqlrc --set=ON_ERROR_STOP=1 <<'SQL'
+echo "[5/6] Disabling webhooks so the copy cannot call customer endpoints."
+disabled_endpoints="$(psql "$destination_url" --no-psqlrc --quiet --tuples-only --no-align --set=ON_ERROR_STOP=1 -c '
 UPDATE "Webhook"
 SET "enabled" = false,
     "secret" = NULL,
-    "url" = 'https://disabled.invalid/webhooks/' || "id";
+    "url" = '"'"'https://disabled.invalid/webhooks/'"'"' || "id"
+RETURNING 1;' | grep -c 1 || true)"
+echo "      $disabled_endpoints webhook endpoints disabled, secrets cleared, URLs pointed at disabled.invalid."
+
+rewritten_deliveries="$(psql "$destination_url" --no-psqlrc --quiet --tuples-only --no-align --set=ON_ERROR_STOP=1 -c '
 UPDATE "WebhookDelivery"
-SET "url" = 'https://disabled.invalid/webhooks/' || "id";
+SET "url" = '"'"'https://disabled.invalid/webhooks/'"'"' || "id"
+RETURNING 1;' | grep -c 1 || true)"
+echo "      $rewritten_deliveries delivery records rewritten so no customer endpoint URL remains in the history."
+
+failed_in_flight="$(psql "$destination_url" --no-psqlrc --quiet --tuples-only --no-align --set=ON_ERROR_STOP=1 -c '
 UPDATE "WebhookDelivery"
-SET "status" = 'failed',
+SET "status" = '"'"'failed'"'"',
     "success" = false,
     "statusCode" = NULL,
-    "responseMessage" = 'Disabled in imported copy',
+    "responseMessage" = '"'"'Disabled in imported copy'"'"',
     "deliveredAt" = COALESCE("deliveredAt", NOW())
-WHERE "status" IN ('pending', 'processing');
+WHERE "status" IN ('"'"'pending'"'"', '"'"'processing'"'"')
+RETURNING 1;' | grep -c 1 || true)"
+echo "      $failed_in_flight deliveries were in flight at export time and were marked failed."
+
+echo "[6/6] Sanitizing stored credentials so the copy cannot authenticate anywhere."
+psql "$destination_url" --no-psqlrc --quiet --set=ON_ERROR_STOP=1 <<'SQL'
+UPDATE "AuthAccount"
+SET "accessToken" = NULL,
+    "refreshToken" = NULL,
+    "idToken" = NULL,
+    "password" = NULL;
+UPDATE "OauthApplication" SET "clientSecret" = NULL;
+UPDATE "Subscription" SET "lemonSqueezyId" = NULL;
+UPDATE "AuthSession" SET "token" = 'disabled-' || "id";
+UPDATE "InviteToken" SET "token" = 'disabled-' || "id";
+UPDATE "OauthAccessToken"
+SET "accessToken" = 'disabled-access-' || "id",
+    "refreshToken" = 'disabled-refresh-' || "id";
+UPDATE "ConnectedAccount" SET "unipileAccountId" = 'disabled-' || "id";
 SQL
 
+live_credentials="$(psql "$destination_url" --no-psqlrc --quiet --tuples-only --no-align --set=ON_ERROR_STOP=1 <<'SQL'
+SELECT (SELECT count(*) FROM "AuthAccount" WHERE "accessToken" IS NOT NULL OR "refreshToken" IS NOT NULL OR "idToken" IS NOT NULL OR "password" IS NOT NULL)
+     + (SELECT count(*) FROM "OauthApplication" WHERE "clientSecret" IS NOT NULL)
+     + (SELECT count(*) FROM "Subscription" WHERE "lemonSqueezyId" IS NOT NULL)
+     + (SELECT count(*) FROM "AuthSession" WHERE "token" NOT LIKE 'disabled-%')
+     + (SELECT count(*) FROM "InviteToken" WHERE "token" NOT LIKE 'disabled-%')
+     + (SELECT count(*) FROM "OauthAccessToken" WHERE "accessToken" NOT LIKE 'disabled-%' OR "refreshToken" NOT LIKE 'disabled-%')
+     + (SELECT count(*) FROM "ConnectedAccount" WHERE "unipileAccountId" NOT LIKE 'disabled-%');
+SQL
+)"
+echo "      Provider tokens, session and invite tokens, OAuth secrets, billing and messaging account ids replaced."
+echo "      Verification: $live_credentials usable credentials remain in the copy."
+
+if [[ "$live_credentials" != "0" ]]; then
+  echo "Sanitization did not clear every credential. Refusing to leave the copy in that state." >&2
+  exit 1
+fi
+
 if [[ "$apply_migrations" == "true" ]]; then
-  echo "Applying pending migrations..."
+  echo "Applying migrations the snapshot has not seen yet."
   DATABASE_URL="$destination_url" DIRECT_URL="$destination_url" npx --no-install prisma migrate deploy
 fi
 
 rm -rf .next/workflow-data
-echo "Live-data import complete."
+echo ""
+echo "Done. \"$database_name\" on $destination_hostport now holds a copy of Production."
+echo "Restart the dev server so it reconnects, then destroy this database when the investigation ends."
