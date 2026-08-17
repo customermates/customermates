@@ -257,6 +257,11 @@ export class MessagingService {
 
   private get sdk() {
     if (!this.sdkInstance) {
+      if (env.NODE_ENV === "development") {
+        throw new Error(
+          "Unipile is unreachable in development so a local copy of production data cannot act on real customer accounts",
+        );
+      }
       if (!env.UNIPILE_API_KEY) throw new Error("UNIPILE_API_KEY env var is not set");
 
       const client = createClient(
