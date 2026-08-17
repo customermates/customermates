@@ -10,7 +10,6 @@ import { Clock } from "lucide-react";
 
 import { FilterPopover } from "@/components/data-view/header/filter-popover";
 import { DataViewActiveFiltersBar } from "@/components/data-view/header/active-filters-bar";
-import { Icon } from "@/components/shared/icon";
 import { PageState } from "@/components/page-state/page-state";
 
 import { ActivitiesList, TimelineEmptyState, TimelineNotice } from "./activities-list";
@@ -79,12 +78,8 @@ export const EntityTimelinePanel = observer(({ entityType, entityId, initial }: 
   return (
     <ActivityQueryProvider filters={store.filters} scope={store.scope}>
       <div className="flex h-full flex-col">
-        <div className="flex shrink-0 items-center gap-2 px-4 pt-4 pb-2">
-          <Icon className="text-muted-foreground size-3.5" icon={Clock} />
-
-          <span className="text-muted-foreground text-[11px] font-medium uppercase tracking-wide">
-            {t("Common.actions.labelHistory")}
-          </span>
+        <div className="flex shrink-0 items-center gap-1.5 px-4 pt-4 pb-1.5">
+          <span className="text-muted-foreground text-xs font-normal">{t("Common.actions.labelHistory")}</span>
 
           <div className="ml-auto flex items-center gap-1.5">
             <FilterPopover compact store={store} />
@@ -93,7 +88,7 @@ export const EntityTimelinePanel = observer(({ entityType, entityId, initial }: 
 
         <DataViewActiveFiltersBar noBorder store={store} />
 
-        <div className="min-h-0 flex-1 overflow-auto px-2 pt-2 pb-4">
+        <div className="min-h-0 flex-1 overflow-auto px-2 pb-4">
           {store.scopeTruncated && store.items.length > 0 && (
             <TimelineNotice label={t("EntityTimeline.scopeTooBroad")} />
           )}
