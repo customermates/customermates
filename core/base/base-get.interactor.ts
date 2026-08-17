@@ -7,19 +7,20 @@ import type {
   FilterableField,
   Filter,
   GetQueryParams,
+  GroupValueSums,
   GroupedPaginationRequest,
   PaginationRequest,
   PaginationResponse,
   SortDescriptor,
 } from "./base-get.schema";
 
-import { CustomColumnType } from "@/generated/prisma";
+import { CustomColumnType, EntityType } from "@/generated/prisma";
 
-import type { EntityType } from "@/generated/prisma";
+import type { NumericFieldSums, SummableModel } from "./base-repository";
 import type { QueryParamsPrecheckInteractor } from "./query-params-precheck.interactor";
 
 import { env } from "@/env";
-import { KANBAN_EMPTY_GROUP_KEY, KANBAN_PER_GROUP_DEFAULT } from "./base-get.schema";
+import { GROUP_VALUE_SUM_FIELDS, KANBAN_EMPTY_GROUP_KEY, KANBAN_PER_GROUP_DEFAULT } from "./base-get.schema";
 import { FilterOperatorKey, ViewMode } from "./base-query-builder";
 import { runPrecheck } from "../validation/run-precheck";
 
@@ -39,6 +40,7 @@ export interface GetResult<T> {
   viewMode?: ViewMode;
   groupingColumnId?: string;
   groupCounts?: Record<string, number>;
+  groupValueSums?: Record<string, GroupValueSums>;
 }
 
 export abstract class P13nRepo {
@@ -61,11 +63,28 @@ export abstract class BaseGetRepo<T> {
   }): SortDescriptor | undefined;
 }
 
+type NumericFieldSumsRepo = {
+  sumNumericFields<F extends string>(opts: {
+    model: SummableModel;
+    fields: readonly F[];
+    params: GetQueryParams;
+  }): Promise<NumericFieldSums<F>>;
+};
+
+function supportsNumericFieldSums(repo: unknown): repo is NumericFieldSumsRepo {
+  return typeof (repo as Partial<NumericFieldSumsRepo>).sumNumericFields === "function";
+}
+
 type BaseQuery = { filters?: Filter[]; searchTerm?: string; sortDescriptor?: SortDescriptor };
 
 type SingleSelectColumn = Extract<CustomColumnDto, { type: typeof CustomColumnType.singleSelect }>;
 
-type FetchResult<T> = { items: T[]; total: number; groupCounts?: Record<string, number> };
+type FetchResult<T> = {
+  items: T[];
+  total: number;
+  groupCounts?: Record<string, number>;
+  groupValueSums?: Record<string, GroupValueSums>;
+};
 
 export abstract class BaseGetInteractor<T> {
   constructor(
@@ -168,7 +187,7 @@ export abstract class BaseGetInteractor<T> {
     const baseQuery: BaseQuery = { filters, searchTerm, sortDescriptor };
     const groupingColumn = pickGroupingColumn(params.groupedPagination, viewMode, groupingColumnId, customColumns);
 
-    const { items, total, groupCounts } = groupingColumn
+    const { items, total, groupCounts, groupValueSums } = groupingColumn
       ? await this.fetchGrouped(
           baseQuery,
           params.groupedPagination ?? { groupingColumnId: groupingColumn.id, perGroup: KANBAN_PER_GROUP_DEFAULT },
@@ -196,6 +215,7 @@ export abstract class BaseGetInteractor<T> {
         viewMode,
         groupingColumnId,
         groupCounts,
+        groupValueSums,
         pagination: {
           page,
           pageSize,
@@ -231,19 +251,38 @@ export abstract class BaseGetInteractor<T> {
             ? { field: groupingColumn.id, operator: FilterOperatorKey.isNull }
             : { field: groupingColumn.id, operator: FilterOperatorKey.in, value: [groupKey] };
         const filters = [...(baseQuery.filters ?? []), groupFilter];
-        const [items, count] = await Promise.all([
+        const [items, count, valueSums] = await Promise.all([
           this.repo.getItems({ ...baseQuery, filters, take: takeFor(groupKey), skip: 0 }),
           this.repo.getCount({ filters, searchTerm: baseQuery.searchTerm }),
+          this.fetchGroupValueSums({ filters, searchTerm: baseQuery.searchTerm }),
         ]);
-        return { groupKey, items, count };
+        return { groupKey, items, count, valueSums };
       }),
     );
 
     const items = results.flatMap((r) => r.items);
     const groupCounts = Object.fromEntries(results.map((r) => [r.groupKey, r.count]));
+    const summedGroups = results.flatMap((r) => (r.valueSums ? [[r.groupKey, r.valueSums] as const] : []));
+    const groupValueSums = summedGroups.length > 0 ? Object.fromEntries(summedGroups) : undefined;
     const total = results.reduce((sum, r) => sum + r.count, 0);
 
-    return { items, total, groupCounts };
+    return { items, total, groupCounts, groupValueSums };
+  }
+
+  private async fetchGroupValueSums(params: GetQueryParams): Promise<GroupValueSums | undefined> {
+    const repo = this.repo;
+    if (this.entityType !== EntityType.deal || !supportsNumericFieldSums(repo)) return undefined;
+
+    const sums = await repo.sumNumericFields({
+      model: EntityType.deal,
+      fields: [GROUP_VALUE_SUM_FIELDS.total, GROUP_VALUE_SUM_FIELDS.weighted],
+      params,
+    });
+
+    const total = sums[GROUP_VALUE_SUM_FIELDS.total] ?? 0;
+    const weighted = sums[GROUP_VALUE_SUM_FIELDS.weighted];
+
+    return weighted == null ? { total } : { total, weighted };
   }
 }
 

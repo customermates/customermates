@@ -22,6 +22,7 @@ import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import { getCustomColumnRepo } from "@/core/di";
+import { computeWeightedValue, readOptionWeights } from "./deal-weighting";
 
 export class PrismaDealRepo
   extends BaseRepository
@@ -43,6 +44,7 @@ export class PrismaDealRepo
       name: true,
       totalValue: true,
       totalQuantity: true,
+      weightedValue: true,
       notes: true,
       createdAt: true,
       updatedAt: true,
@@ -108,6 +110,7 @@ export class PrismaDealRepo
       { field: "name", resolvedFields: ["name"] },
       { field: "totalValue", resolvedFields: ["totalValue"] },
       { field: "totalQuantity", resolvedFields: ["totalQuantity"] },
+      { field: "weightedValue", resolvedFields: ["weightedValue"] },
       { field: "createdAt", resolvedFields: ["createdAt"] },
       { field: "updatedAt", resolvedFields: ["updatedAt"] },
     ];
@@ -504,15 +507,16 @@ export class PrismaDealRepo
     const { companyId } = this.user;
     const uniqueDealIds = Array.from(new Set(dealIds));
 
-    const [existingDeals, serviceDeals] = await Promise.all([
+    const [existingDeals, serviceDeals, weighting] = await Promise.all([
       this.prisma.deal.findMany({
         where: { id: { in: uniqueDealIds }, companyId },
-        select: { id: true, totalValue: true, totalQuantity: true },
+        select: { id: true, totalValue: true, totalQuantity: true, weightedValue: true },
       }),
       this.prisma.serviceDeal.findMany({
         where: { dealId: { in: uniqueDealIds }, companyId },
         include: { service: { select: { amount: true } } },
       }),
+      this.resolveDealWeighting(companyId),
     ]);
 
     const computedTotalsByDealId = new Map<string, { totalValue: number; totalQuantity: number }>(
@@ -526,16 +530,70 @@ export class PrismaDealRepo
       totals.totalQuantity += serviceDeal.quantity;
     }
 
+    const stageValueByDealId = weighting
+      ? await this.findStageValuesByDealId(weighting.columnId, uniqueDealIds, companyId)
+      : new Map<string, string>();
+
     const existingDealsById = new Map(existingDeals.map((deal) => [deal.id, deal]));
     const updates: Promise<unknown>[] = [];
 
     for (const [dealId, totals] of computedTotalsByDealId.entries()) {
       const existing = existingDealsById.get(dealId);
       if (!existing) continue;
-      if (existing.totalValue === totals.totalValue && existing.totalQuantity === totals.totalQuantity) continue;
-      updates.push(this.prisma.deal.update({ where: { id: dealId, companyId }, data: totals }));
+
+      const stageValue = stageValueByDealId.get(dealId);
+      const weightedValue = weighting
+        ? computeWeightedValue(
+            totals.totalValue,
+            stageValue ? weighting.weightByOptionValue.get(stageValue) : undefined,
+          )
+        : null;
+
+      if (
+        existing.totalValue === totals.totalValue &&
+        existing.totalQuantity === totals.totalQuantity &&
+        existing.weightedValue === weightedValue
+      )
+        continue;
+
+      updates.push(this.prisma.deal.update({ where: { id: dealId, companyId }, data: { ...totals, weightedValue } }));
     }
 
     await Promise.all(updates);
+  }
+
+  async recalculateWeightedValuesForCompany() {
+    const { companyId } = this.user;
+
+    const deals = await this.prisma.deal.findMany({ where: { companyId }, select: { id: true } });
+
+    await this.recalculateTotals(deals.map((deal) => deal.id));
+  }
+
+  private async resolveDealWeighting(companyId: string) {
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+      select: { dealWeightingColumnId: true },
+    });
+
+    if (!company?.dealWeightingColumnId) return null;
+
+    const column = await this.prisma.customColumn.findFirst({
+      where: { id: company.dealWeightingColumnId, companyId, entityType: EntityType.deal },
+      select: { id: true, options: true },
+    });
+
+    if (!column) return null;
+
+    return { columnId: column.id, weightByOptionValue: readOptionWeights(column.options) };
+  }
+
+  private async findStageValuesByDealId(columnId: string, dealIds: string[], companyId: string) {
+    const rows = await this.prisma.customFieldValue.findMany({
+      where: { columnId, companyId, dealId: { in: dealIds } },
+      select: { dealId: true, value: true },
+    });
+
+    return new Map(rows.flatMap((row) => (row.dealId && row.value ? [[row.dealId, row.value] as const] : [])));
   }
 }

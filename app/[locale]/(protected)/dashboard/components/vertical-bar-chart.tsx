@@ -1,10 +1,11 @@
 "use client";
 
 import type { ChartDataPoint } from "./chart.types";
+import { isCurrencyAggregation } from "@/features/widget/widget-aggregation";
 
 import { Bar, BarChart, XAxis, YAxis, Cell } from "recharts";
 import { observer } from "mobx-react-lite";
-import { AggregationType } from "@/generated/prisma";
+import type { AggregationType } from "@/generated/prisma";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { ChartTooltip } from "@/components/chart/chart-tooltip";
@@ -43,9 +44,7 @@ export const VerticalBarChart = observer(
             stroke={gridColor}
             tick={{ fill: textColor, fontSize: 12, fontFamily: "Inter" }}
             tickFormatter={(value) =>
-              aggregationType === AggregationType.dealValue
-                ? intlStore.formatCurrency(value)
-                : intlStore.formatNumber(value)
+              isCurrencyAggregation(aggregationType) ? intlStore.formatCurrency(value) : intlStore.formatNumber(value)
             }
             type="number"
             width="auto"

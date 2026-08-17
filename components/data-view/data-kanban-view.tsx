@@ -17,13 +17,20 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { useTranslations } from "next-intl";
+import { Layers } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { AppChip } from "@/components/chip/app-chip";
 import type { CustomColumnOption } from "@/features/custom-column/custom-column.schema";
-import { KANBAN_EMPTY_GROUP_KEY } from "@/core/base/base-get.schema";
+import type { GroupValueSums } from "@/core/base/base-get.schema";
+import { GROUP_VALUE_SUM_FIELDS, KANBAN_EMPTY_GROUP_KEY } from "@/core/base/base-get.schema";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import type { EntityType } from "@/generated/prisma";
+
+import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
+import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { DataCardBody } from "./data-card-body";
 import {
@@ -126,11 +133,13 @@ type LoadMoreAction = {
   onClick: () => void;
 };
 
-function KanbanColumn({
+const KanbanColumn = observer(function KanbanColumn({
   id,
   label,
   count,
+  valueSums,
   option,
+  entityType,
   onHeaderClick,
   loadMore,
   children,
@@ -138,29 +147,31 @@ function KanbanColumn({
   id: string;
   label: string;
   count: number;
+  valueSums?: GroupValueSums;
   option?: CustomColumnOption;
+  entityType?: EntityType;
   onHeaderClick?: () => void;
   loadMore?: LoadMoreAction;
   children: ReactNode;
 }) {
+  const t = useTranslations();
+  const { intlStore } = useRootStore();
+  const columnLabel = useColumnLabel();
+  const { singular, plural } = useEntityTerminology();
   const { setNodeRef } = useDroppable({ id });
+
+  const formatSum = (amount: number) =>
+    intlStore.formatCurrency(amount, undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+  const countLabel = entityType ? `${count} ${count === 1 ? singular(entityType) : plural(entityType)}` : String(count);
+  const rateLabel = t("Common.stageProbability");
 
   const headerContent = option ? (
     <AppChip size="sm" variant={option.color}>
-      <span className="truncate">
-        {label}
-
-        <span className="opacity-60 mx-1">·</span>
-
-        <span className="tabular-nums">{count}</span>
-      </span>
+      <span className="truncate">{label}</span>
     </AppChip>
   ) : (
-    <span className="text-sm font-medium">
-      {label}
-
-      <span className="ml-1 text-xs text-muted-foreground tabular-nums">· {count}</span>
-    </span>
+    <span className="text-sm font-medium">{label}</span>
   );
 
   return (
@@ -176,6 +187,54 @@ function KanbanColumn({
           </button>
         ) : (
           headerContent
+        )}
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="flex items-center gap-1 text-xs text-muted-foreground tabular-nums">
+              <Layers aria-hidden="true" className="size-3.5 shrink-0 opacity-70" />
+
+              {count}
+            </span>
+          </TooltipTrigger>
+
+          <TooltipContent>{countLabel}</TooltipContent>
+        </Tooltip>
+
+        {option?.weight !== undefined && valueSums?.weighted !== undefined && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="text-xs text-muted-foreground tabular-nums">{option.weight}%</span>
+            </TooltipTrigger>
+
+            <TooltipContent>{rateLabel}</TooltipContent>
+          </Tooltip>
+        )}
+
+        {valueSums && (
+          <span className="ml-auto flex min-w-0 shrink items-baseline gap-1 text-xs text-muted-foreground tabular-nums">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="truncate opacity-65">{formatSum(valueSums.total)}</span>
+              </TooltipTrigger>
+
+              <TooltipContent>{columnLabel(GROUP_VALUE_SUM_FIELDS.total)}</TooltipContent>
+            </Tooltip>
+
+            {valueSums.weighted !== undefined && (
+              <>
+                <span className="shrink-0 opacity-50">→</span>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="truncate text-foreground">{formatSum(valueSums.weighted)}</span>
+                  </TooltipTrigger>
+
+                  <TooltipContent>{columnLabel(GROUP_VALUE_SUM_FIELDS.weighted)}</TooltipContent>
+                </Tooltip>
+              </>
+            )}
+          </span>
         )}
       </div>
 
@@ -197,7 +256,7 @@ function KanbanColumn({
       )}
     </div>
   );
-}
+});
 
 export const DataKanbanView = observer(function DataKanbanView<E extends HasCustomFieldValues>({
   store,
@@ -294,10 +353,12 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
               <KanbanColumn
                 key={key}
                 count={total}
+                entityType={store.entityType}
                 id={key}
                 label={label}
                 loadMore={loadMore}
                 option={option}
+                valueSums={store.groupValueSums?.[key]}
                 onHeaderClick={
                   groupingCustomColumn ? () => customColumnModalStore.openWithColumn(groupingCustomColumn) : undefined
                 }

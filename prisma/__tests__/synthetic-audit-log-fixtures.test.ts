@@ -127,6 +127,7 @@ function syntheticSnapshot(): SyntheticAuditSnapshot {
       name: `Deal ${index + 1}`,
       totalQuantity: quantity,
       totalValue: service.amount * quantity,
+      weightedValue: null,
       notes: null,
       ...SYNTHETIC_SEED_TIMELINE.deal(index),
       organizations: [{ id: organizations[index].id, name: organizations[index].name }],

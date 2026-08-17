@@ -68,6 +68,7 @@ function makeDealDto(overrides: Record<string, unknown> = {}) {
     name: "Test Deal",
     totalValue: 100,
     totalQuantity: 1,
+    weightedValue: null,
     notes: null,
     createdAt: new Date("2025-01-01"),
     updatedAt: new Date("2025-01-01"),

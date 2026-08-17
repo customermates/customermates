@@ -4,54 +4,56 @@ import { Fragment } from "react";
 import { observer } from "mobx-react-lite";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useLocale, useTranslations } from "next-intl";
 import { EntityType, Resource } from "@/generated/prisma";
 
 import { FormNumberInput } from "@/components/forms/form-number-input";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
+import { FormLabel } from "@/components/forms/form-label";
 import { Icon } from "@/components/shared/icon";
+import { InfoRow } from "@/components/shared/info-row";
 import { useEntityHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppChip } from "@/components/chip/app-chip";
+import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { terminologyLabelForSentence } from "@/features/entity-terminology/entity-terminology-label.utils";
 
 export const DealServicesSelection = observer(() => {
   const { dealDetailStore, intlStore, userStore } = useRootStore();
-  const { form, fetchedEntity, canManage, addService, deleteService, serviceAmountById, totalQuantity, totalValue } =
-    dealDetailStore;
+  const {
+    form,
+    fetchedEntity,
+    canManage,
+    addService,
+    deleteService,
+    serviceAmountById,
+    totalQuantity,
+    totalValue,
+    weightedValueBreakdown,
+  } = dealDetailStore;
   const entityHref = useEntityHref();
   const locale = useLocale();
   const t = useTranslations();
   const { plural } = useEntityTerminology();
+  const columnLabel = useColumnLabel();
 
   if (!userStore.canAccess(Resource.services)) return null;
 
   return (
     <div className="flex w-full flex-col space-y-2 items-start">
       <div className="w-full grid grid-cols-[minmax(40px,1fr)_minmax(70px,130px)_40px] gap-2 gap-y-3 items-center">
-        <div className="flex items-center w-full min-w-0">
-          <label className="flex-1 text-x-md truncate min-w-0 text-muted-foreground">
-            {plural(EntityType.service)}
-          </label>
+        <div className="flex items-center w-full min-w-0 gap-2">
+          <FormLabel className="block flex-1 truncate min-w-0">{plural(EntityType.service)}</FormLabel>
 
-          <label className="text-x-md text-right truncate min-w-0 text-muted-foreground pl-2">
-            {t("DealModal.quantityLabel")}
-          </label>
+          <FormLabel className="block w-20 shrink-0 text-right truncate">{t("DealModal.quantityLabel")}</FormLabel>
         </div>
 
-        <label className="text-x-md text-right truncate min-w-0 text-muted-foreground">
-          {t("DealModal.valueLabel")}
-        </label>
+        <FormLabel className="block text-right truncate min-w-0">{t("DealModal.valueLabel")}</FormLabel>
 
-        {canManage ? (
-          <Button size="icon" type="button" variant="default" onClick={addService}>
-            <Icon icon={Plus} />
-          </Button>
-        ) : (
-          <span />
-        )}
+        <span />
 
         {(form.services || []).map((service, index) => {
           const selectedServiceIds = (form.services || [])
@@ -64,11 +66,10 @@ export const DealServicesSelection = observer(() => {
 
           return (
             <Fragment key={index}>
-              <div className="flex items-stretch w-full">
+              <div className="flex items-stretch w-full gap-2">
                 <FormAutocomplete
                   required
                   chipHref={(id) => entityHref(EntityType.service, id)}
-                  className="rounded-r-none border-r-0"
                   containerClassName="flex-1 min-w-0"
                   filterFunction={(availableService) => !selectedServiceIds.includes(availableService.id)}
                   getItems={dealDetailStore.searchServiceOptions}
@@ -120,7 +121,7 @@ export const DealServicesSelection = observer(() => {
 
                 <FormNumberInput
                   required
-                  className="rounded-l-none border-l-0 text-right font-mono tabular-nums"
+                  className="text-right font-mono tabular-nums"
                   containerClassName="w-20 shrink-0"
                   id={`services[${index}].quantity`}
                   label={null}
@@ -135,9 +136,22 @@ export const DealServicesSelection = observer(() => {
               </span>
 
               {canManage ? (
-                <Button size="icon" type="button" variant="destructiveOutline" onClick={() => deleteService(index)}>
-                  <Icon icon={Trash2} />
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      aria-label={t("Common.actions.delete")}
+                      className="text-destructive hover:text-destructive"
+                      size="icon-sm"
+                      type="button"
+                      variant="ghost"
+                      onClick={() => deleteService(index)}
+                    >
+                      <Icon icon={Trash2} />
+                    </Button>
+                  </TooltipTrigger>
+
+                  <TooltipContent>{t("Common.actions.delete")}</TooltipContent>
+                </Tooltip>
               ) : (
                 <span />
               )}
@@ -145,32 +159,41 @@ export const DealServicesSelection = observer(() => {
           );
         })}
 
-        {(form.services || []).length > 0 && (
+        {canManage && (
           <>
-            <div className="flex items-center w-full min-w-0 gap-2">
-              <span className="flex-1 text-x-md text-right text-muted-foreground pt-1 truncate min-w-0">
-                {t("DealModal.totalLabel")}
-              </span>
-
-              <span
-                className="text-x-md text-right font-mono tabular-nums font-medium pt-1 truncate min-w-0 px-3"
-                title={intlStore.formatNumber(totalQuantity)}
-              >
-                {intlStore.formatNumber(totalQuantity)}
-              </span>
-            </div>
-
-            <span
-              className="text-x-md text-right font-mono tabular-nums font-medium truncate min-w-0 pt-1"
-              title={intlStore.formatCurrency(totalValue)}
+            <Button
+              className="w-full justify-start text-muted-foreground"
+              type="button"
+              variant="outline"
+              onClick={addService}
             >
-              {intlStore.formatCurrency(totalValue)}
-            </span>
+              <Icon icon={Plus} />
+
+              {t("Common.inputs.addService")}
+            </Button>
+
+            <span />
 
             <span />
           </>
         )}
       </div>
+
+      {(form.services || []).length > 0 && (
+        <div className="mt-3 flex w-full flex-col gap-1.5">
+          <InfoRow label={columnLabel("totalQuantity")}>{intlStore.formatNumber(totalQuantity)}</InfoRow>
+
+          <InfoRow label={columnLabel("totalValue")}>{intlStore.formatCurrency(totalValue)}</InfoRow>
+
+          {weightedValueBreakdown && (
+            <InfoRow
+              label={`${columnLabel("weightedValue")} · ${weightedValueBreakdown.stage} ${weightedValueBreakdown.percent}%`}
+            >
+              {intlStore.formatCurrency(weightedValueBreakdown.weightedValue)}
+            </InfoRow>
+          )}
+        </div>
+      )}
 
       {(form.services || []).length === 0 && (
         <p className="text-x-sm text-subdued">

@@ -112,6 +112,14 @@ export const GroupedPaginationRequestSchema = z.object({
 });
 export type GroupedPaginationRequest = Data<typeof GroupedPaginationRequestSchema>;
 
+export const GROUP_VALUE_SUM_FIELDS = { total: "totalValue", weighted: "weightedValue" } as const;
+
+export const GroupValueSumsSchema = z.object({
+  total: z.number(),
+  weighted: z.number().optional(),
+});
+export type GroupValueSums = Data<typeof GroupValueSumsSchema>;
+
 export const SavedFilterPresetSchema = z.object({
   id: z.uuid(),
   name: z.string().min(1),
@@ -194,5 +202,6 @@ export function createGetResultSchema<T extends z.ZodSchema>(itemSchema: T) {
     viewMode: z.string().optional(),
     groupingColumnId: z.string().optional(),
     groupCounts: z.record(z.string(), z.number()).optional(),
+    groupValueSums: z.record(z.string(), GroupValueSumsSchema).optional(),
   });
 }

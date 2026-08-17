@@ -98,7 +98,7 @@ describe("registration against a real database", () => {
 
     expect(columns.map((column) => [column.entityType, column.label])).toEqual([
       ["contact", "Sales Pipeline"],
-      ["deal", "Status"],
+      ["deal", "Stage"],
       ["task", "Status"],
     ]);
 

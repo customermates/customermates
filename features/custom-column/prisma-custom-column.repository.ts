@@ -18,6 +18,7 @@ import type { Prisma } from "@/generated/prisma";
 import { type CustomColumnDto } from "./custom-column.schema";
 
 import { BaseRepository } from "@/core/base/base-repository";
+import { getDealRepo } from "@/core/di";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 
@@ -195,6 +196,13 @@ export class PrismaCustomColumnRepo
   async delete(id: string) {
     const { companyId } = this.user;
 
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+      select: { dealWeightingColumnId: true },
+    });
+
+    const wasWeightingColumn = company?.dealWeightingColumnId === id;
+
     await Promise.all([
       this.prisma.widget.deleteMany({
         where: { groupByCustomColumnId: id, companyId },
@@ -206,6 +214,8 @@ export class PrismaCustomColumnRepo
         where: { id, companyId },
       }),
     ]);
+
+    if (wasWeightingColumn) await getDealRepo().recalculateWeightedValuesForCompany();
 
     return { id };
   }
@@ -248,7 +258,22 @@ export class PrismaCustomColumnRepo
       if (defaultOption) await this.createDefaultCustomFieldValues(column.id, args.entityType, defaultOption.value);
     }
 
+    await this.recalculateDealsWhenWeightingColumn(column.id);
+
     return column as CustomColumnDto;
+  }
+
+  private async recalculateDealsWhenWeightingColumn(columnId: string) {
+    const { companyId } = this.user;
+
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+      select: { dealWeightingColumnId: true },
+    });
+
+    if (company?.dealWeightingColumnId !== columnId) return;
+
+    await getDealRepo().recalculateWeightedValuesForCompany();
   }
 
   async findCustomFieldValuesMap(columnId: string, entityType: EntityType, entityIds: string[]) {

@@ -180,11 +180,14 @@
         }
       },
       "deal": {
-        "columnLabel": "Stato",
+        "columnLabel": "Fase",
         "options": {
-          "abandoned": "Abbandonata",
+          "demo": "Demo",
           "lost": "Persa",
-          "open": "Aperta",
+          "negotiation": "Negoziazione",
+          "proposal": "Proposta",
+          "prospecting": "Prospezione",
+          "qualification": "Qualificazione",
           "won": "Vinta"
         }
       },
@@ -313,7 +316,8 @@
       "widgetGroupByTypeMustMatchEntityType": "Il tipo di raggruppamento deve corrispondere al tipo di elemento del grafico.",
       "widgetKindImmutable": "Il tipo di un widget non può essere modificato dopo la creazione.",
       "widgetNotFound": "ID widget non trovato o non accessibile.",
-      "widgetTaskCanOnlyGroupByCustomColumn": "Le attività possono essere raggruppate solo per colonne personalizzate, non per tipi di elemento."
+      "widgetTaskCanOnlyGroupByCustomColumn": "Le attività possono essere raggruppate solo per colonne personalizzate, non per tipi di elemento.",
+      "widgetWeightedValueNotAllowedForService": "L'aggregazione del valore ponderato non è consentita per il tipo di elemento Servizio."
     },
     "events": {
       "company": {
@@ -458,6 +462,7 @@
     },
     "inputs": {
       "addOption": "Aggiungi \"{value}\"",
+      "addService": "Aggiungi servizio",
       "aggregationType": "Metrica",
       "amount": "Importo",
       "avatarUrl": "URL dell'avatar",
@@ -491,10 +496,12 @@
       "message": "Messaggio",
       "name": "Nome",
       "options": {
+        "addOption": "Aggiungi opzione",
         "allowMultiple": "Consenti più valori",
         "color": "Colore",
         "currency": "Valuta",
-        "displayFormat": "Formato"
+        "displayFormat": "Formato",
+        "lastOption": "Una selezione singola richiede almeno un'opzione"
       },
       "password": "Password",
       "roleId": "Ruolo",
@@ -528,7 +535,7 @@
       "unexpectedError": "Si è verificato un errore. Riprova.",
       "updated": "Aggiornato"
     },
-    "options": "Opzioni",
+    "probability": "Probabilità",
     "providers": {
       "google": "Gmail",
       "instagram": "Instagram",
@@ -548,6 +555,7 @@
       "descending": "Decrescente",
       "field": "Ordina per"
     },
+    "stageProbability": "Probabilità della fase",
     "systemTasks": {
       "userPendingAuthorization": {
         "alert": "Questa è un'attività di sistema che non può essere eliminata manualmente. Approva l'utente nelle <link>impostazioni dell'azienda</link> per risolverla.",
@@ -599,7 +607,8 @@
         "updatedAt": "Aggiornato il",
         "url": "URL",
         "user": "Utente",
-        "users": "Assegnato a"
+        "users": "Assegnato a",
+        "weightedValue": "Valore ponderato"
       },
       "groupBy": "Raggruppa per",
       "layout": "Disposizione",
@@ -640,7 +649,17 @@
     "title": "Invita un utente"
   },
   "CompanySettings": {
-    "currencyDescription": "Usata per tutti i valori monetari del CRM, ad esempio: {deals}, {services}."
+    "currencyDescription": "Usata per tutti i valori monetari del CRM, ad esempio: {deals}, {services}.",
+    "dataModelTitle": "Modello di dati",
+    "forecasting": {
+      "columnLabel": "Colonna della fase",
+      "columnPlaceholder": "Seleziona una colonna",
+      "currentTotal": "Pipeline ponderata",
+      "description": "Pondera ogni fase di {deal} con la sua probabilità di chiusura per vedere un valore di pipeline scontato.",
+      "noColumn": "Non configurato",
+      "title": "Previsione",
+      "weightsTitle": "Probabilità per fase"
+    }
   },
   "CompanyUserModal": {
     "activeUserWarning": "Puoi modificare il tuo account nelle tue <settingsLink>impostazioni</settingsLink>.",
@@ -789,7 +808,9 @@
       "count": "Numero di {entities}",
       "dealQuantity": "Numero di {services} nelle {deals}",
       "dealValue": "Valore di {deal}",
-      "dealValueRelated": "Valore di {deal} relativo a {entity}"
+      "dealValueRelated": "Valore di {deal} relativo a {entity}",
+      "dealWeightedValue": "Valore ponderato di {deal}",
+      "dealWeightedValueRelated": "Valore ponderato di {deal} relativo a {entity}"
     },
     "displayTypes": {
       "doughnutChart": "Grafico ad anello",
@@ -896,7 +917,6 @@
     "noServicesAdded": "Ancora nessuna voce «{entity}» aggiunta",
     "quantityLabel": "Quantità",
     "title": "Trattativa",
-    "totalLabel": "Totale",
     "valueLabel": "Valore"
   },
   "Diagrams": {

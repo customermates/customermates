@@ -8,6 +8,8 @@ export function CompanySettingsPageSkeleton({ animated = true }: { animated?: bo
     <SettingsFormSkeleton data-company-settings-page-skeleton animated={animated}>
       <SettingsFieldSkeleton description short animated={animated} />
 
+      <SettingsFieldSkeleton description animated={animated} />
+
       <section data-company-terminology-skeleton className="flex flex-col gap-1.5">
         <Shape breathe animated={animated} className="h-3 w-32" />
 

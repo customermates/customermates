@@ -28,6 +28,15 @@ export function useDealColumns(): ColumnDef<DealDto>[] {
         cell: ({ row }) => <span className="text-sm">{intlStore.formatCurrency(row.original.totalValue)}</span>,
       },
       {
+        id: "weightedValue",
+        cell: ({ row }) =>
+          row.original.weightedValue === null ? (
+            <span />
+          ) : (
+            <span className="text-sm">{intlStore.formatCurrency(row.original.weightedValue)}</span>
+          ),
+      },
+      {
         id: "totalQuantity",
         cell: ({ row }) => <span className="text-sm">{intlStore.formatNumber(row.original.totalQuantity)}</span>,
       },

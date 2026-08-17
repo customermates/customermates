@@ -59,9 +59,19 @@ const ChartWidgetInputSchema = z
       });
     }
 
+    if (data.aggregationType === AggregationType.dealWeightedValue && data.entityType === EntityType.service) {
+      ctx.addIssue({
+        code: "custom",
+        params: { error: CustomErrorCode.widgetWeightedValueNotAllowedForService },
+        path: ["aggregationType"],
+      });
+    }
+
     if (
       data.entityType === EntityType.task &&
-      (data.aggregationType === AggregationType.dealValue || data.aggregationType === AggregationType.dealQuantity)
+      (data.aggregationType === AggregationType.dealValue ||
+        data.aggregationType === AggregationType.dealQuantity ||
+        data.aggregationType === AggregationType.dealWeightedValue)
     ) {
       ctx.addIssue({
         code: "custom",

@@ -58,7 +58,7 @@ describe("page skeleton families", () => {
 
     expect(profile).toContain("data-profile-settings-avatar");
     expect(count(profile, "data-settings-field")).toBe(7);
-    expect(count(company, "data-settings-field")).toBe(1);
+    expect(count(company, "data-settings-field")).toBe(2);
     expect(count(company, "data-company-terminology-node")).toBe(5);
     expect(company).toContain("sm:grid-cols-2");
     expect(company).toContain("sm:min-h-14");

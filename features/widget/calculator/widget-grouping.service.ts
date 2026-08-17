@@ -91,12 +91,17 @@ export class WidgetGroupingService extends BaseRepository {
     return Array.from(acc.values());
   }
 
-  private getDealValue(deal: { totalValue: number; totalQuantity: number }, aggregationType: AggregationType): number {
+  private getDealValue(
+    deal: { totalValue: number; totalQuantity: number; weightedValue?: number | null },
+    aggregationType: AggregationType,
+  ): number {
     switch (aggregationType) {
       case AggregationType.dealValue:
         return deal.totalValue;
       case AggregationType.dealQuantity:
         return deal.totalQuantity;
+      case AggregationType.dealWeightedValue:
+        return deal.weightedValue ?? 0;
       default:
         return 0;
     }

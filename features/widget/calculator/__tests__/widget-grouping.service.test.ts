@@ -22,7 +22,7 @@ describe("WidgetGroupingService semantic labels", () => {
     "returns a system no-group point for an unassigned %s grouping",
     (groupByType) => {
       const points = service.groupDealsByEntityType(widget(groupByType), [
-        { id: "deal-1", name: "Deal", totalQuantity: 1, totalValue: 42 },
+        { id: "deal-1", name: "Deal", totalQuantity: 1, totalValue: 42, weightedValue: null },
       ]);
 
       expect(points).toEqual([{ labelKind: "system", systemLabelKey: "noGroup", value: 42 }]);

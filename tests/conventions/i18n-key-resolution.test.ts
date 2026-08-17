@@ -89,6 +89,7 @@ const AGGREGATION_TYPE_KEYS = [
     (aggregationType) => `Dashboard.aggregationTypes.${aggregationType}`,
   ),
   "Dashboard.aggregationTypes.dealValueRelated",
+  "Dashboard.aggregationTypes.dealWeightedValueRelated",
 ] as const;
 const DATE_PRESET_KEYS = [
   "Common.datePresets.endTime",
@@ -146,6 +147,7 @@ const FORM_FIELD_INPUT_KEYS = [
 ] as const;
 const TABLE_COLUMN_KEYS = [
   "Common.table.columns.amount",
+  "Common.table.columns.weightedValue",
   "Common.table.columns.avatarUrl",
   "Common.table.columns.channels",
   "Common.table.columns.contacts",
@@ -271,9 +273,12 @@ const DEFAULT_DATA_OPTION_KEYS = [
   "Common.defaultData.contact.options.new",
   "Common.defaultData.contact.options.qualified",
   "Common.defaultData.contact.options.won",
-  "Common.defaultData.deal.options.abandoned",
+  "Common.defaultData.deal.options.demo",
   "Common.defaultData.deal.options.lost",
-  "Common.defaultData.deal.options.open",
+  "Common.defaultData.deal.options.negotiation",
+  "Common.defaultData.deal.options.proposal",
+  "Common.defaultData.deal.options.prospecting",
+  "Common.defaultData.deal.options.qualification",
   "Common.defaultData.deal.options.won",
   "Common.defaultData.task.options.archived",
   "Common.defaultData.task.options.blocked",

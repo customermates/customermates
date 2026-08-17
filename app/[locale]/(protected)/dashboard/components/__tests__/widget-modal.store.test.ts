@@ -259,9 +259,9 @@ describe("WidgetModalStore chart combinations", () => {
   });
 
   it.each([
-    [EntityType.contact, [AggregationType.count, AggregationType.dealValue]],
-    [EntityType.organization, [AggregationType.count, AggregationType.dealValue]],
-    [EntityType.deal, [AggregationType.count, AggregationType.dealValue]],
+    [EntityType.contact, [AggregationType.count, AggregationType.dealValue, AggregationType.dealWeightedValue]],
+    [EntityType.organization, [AggregationType.count, AggregationType.dealValue, AggregationType.dealWeightedValue]],
+    [EntityType.deal, [AggregationType.count, AggregationType.dealValue, AggregationType.dealWeightedValue]],
     [EntityType.service, [AggregationType.count, AggregationType.dealValue, AggregationType.dealQuantity]],
     [EntityType.task, [AggregationType.count]],
   ])("offers only compatible metrics for %s", (entityType, expected) => {

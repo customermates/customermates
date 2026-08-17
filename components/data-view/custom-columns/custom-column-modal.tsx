@@ -4,6 +4,7 @@ import type { DragEndEvent } from "@dnd-kit/core";
 import type { CustomColumnOption } from "@/features/custom-column/custom-column.schema";
 
 import { observer } from "mobx-react-lite";
+import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import {
   Calendar,
@@ -37,10 +38,12 @@ import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppForm } from "@/components/forms/form-context";
 import { FormAutocompleteCurrency } from "@/components/forms/form-autocomplete-currency";
 import { FormInput } from "@/components/forms/form-input";
+import { FormNumberInput } from "@/components/forms/form-number-input";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormSwitch } from "@/components/forms/form-switch";
 import { AppModal } from "@/components/modal";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Icon } from "@/components/shared/icon";
 import {
   DropdownMenu,
@@ -82,19 +85,55 @@ type SortableOptionItemProps = {
   index: number;
   labelId: string;
   colorId: string;
+  weightId: string;
+  showWeight: boolean;
+  isWeightReadOnly: boolean;
   isDisabled: boolean;
+  canDelete: boolean;
+  shouldFocus: boolean;
+  onFocused: () => void;
   onChange: (id: string, value: string) => void;
   toggleDefaultOption: (option: CustomColumnOption) => void;
   deleteOption: (option: CustomColumnOption) => void;
 };
 
 const SortableOptionItem = observer(
-  ({ option, labelId, colorId, isDisabled, onChange, toggleDefaultOption, deleteOption }: SortableOptionItemProps) => {
+  ({
+    option,
+    labelId,
+    colorId,
+    weightId,
+    showWeight,
+    isWeightReadOnly,
+    isDisabled,
+    canDelete,
+    shouldFocus,
+    onFocused,
+    onChange,
+    toggleDefaultOption,
+    deleteOption,
+  }: SortableOptionItemProps) => {
     const t = useTranslations();
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
       id: option.value,
       disabled: isDisabled,
     });
+
+    useEffect(() => {
+      if (!shouldFocus) return;
+
+      const timer = setTimeout(() => {
+        const input = document.getElementById(labelId);
+        if (input instanceof HTMLInputElement) {
+          input.focus();
+          input.select();
+        }
+
+        onFocused();
+      }, 0);
+
+      return () => clearTimeout(timer);
+    }, [shouldFocus, labelId, onFocused]);
 
     const style = {
       transform: CSS.Transform.toString(transform),
@@ -155,28 +194,49 @@ const SortableOptionItem = observer(
           </DropdownMenu>
         </div>
 
-        <Button
-          className={cn(
-            option.isDefault && "bg-primary/20 border-primary text-primary hover:text-primary hover:bg-primary/35",
-          )}
-          disabled={isDisabled}
-          size="sm"
-          type="button"
-          variant="outline"
-          onClick={() => toggleDefaultOption(option)}
-        >
-          {t("Common.default")}
-        </Button>
+        {showWeight && (
+          <FormNumberInput
+            aria-label={t("CompanySettings.forecasting.weightsTitle")}
+            className="text-right font-mono tabular-nums"
+            containerClassName="w-24 shrink-0"
+            endContent={<span className="mr-1.5">%</span>}
+            id={weightId}
+            label={null}
+            readOnly={isWeightReadOnly}
+          />
+        )}
 
-        <Button
-          disabled={isDisabled}
-          size="icon"
-          type="button"
-          variant="destructiveOutline"
-          onClick={() => deleteOption(option)}
-        >
-          <Icon icon={Trash2} />
-        </Button>
+        <span className="flex w-14 shrink-0 justify-center">
+          <input
+            aria-label={t("Common.default")}
+            checked={option.isDefault}
+            className="size-4 accent-primary"
+            disabled={isDisabled}
+            name="custom-column-default-option"
+            type="radio"
+            onChange={() => toggleDefaultOption(option)}
+          />
+        </span>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              aria-label={t("Common.actions.delete")}
+              className="text-destructive hover:text-destructive"
+              disabled={isDisabled || !canDelete}
+              size="icon-sm"
+              type="button"
+              variant="ghost"
+              onClick={() => deleteOption(option)}
+            >
+              <Icon icon={Trash2} />
+            </Button>
+          </TooltipTrigger>
+
+          <TooltipContent>
+            {canDelete ? t("Common.actions.delete") : t("Common.inputs.options.lastOption")}
+          </TooltipContent>
+        </Tooltip>
       </div>
     );
   },
@@ -325,12 +385,16 @@ export const CustomColumnModal = observer(() => {
 
             {form.type === CustomColumnType.singleSelect && (
               <div className="flex w-full flex-col space-y-2 items-start">
-                <div className="flex w-full justify-between items-center gap-3">
-                  <h3 className="text-x-md">{t("Common.options")}</h3>
+                <div className="flex w-full items-center gap-2 pl-7 text-xs text-muted-foreground">
+                  <span className="flex-1">{t("Common.table.columns.name")}</span>
 
-                  <Button disabled={store.isDisabled} size="icon" type="button" variant="default" onClick={addOption}>
-                    <Icon icon={Plus} />
-                  </Button>
+                  {store.isDealWeightingColumn && (
+                    <span className="w-24 shrink-0 text-right whitespace-nowrap">{t("Common.probability")}</span>
+                  )}
+
+                  <span className="w-14 shrink-0 text-center">{t("Common.default")}</span>
+
+                  <span className="w-8 shrink-0" />
                 </div>
 
                 <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
@@ -344,23 +408,50 @@ export const CustomColumnModal = observer(() => {
                       .map((option, index) => {
                         const labelId = `options.options[${index}].label`;
                         const colorId = `options.options[${index}].color`;
+                        const weightId = `options.options[${index}].weight`;
 
                         return (
                           <SortableOptionItem
                             key={option.value}
+                            canDelete={store.canDeleteOption}
                             colorId={colorId}
                             deleteOption={deleteOption}
                             index={index}
                             isDisabled={store.isDisabled}
+                            isWeightReadOnly={store.isOptionWeightReadOnly}
                             labelId={labelId}
                             option={option}
+                            shouldFocus={store.pendingFocusOptionValue === option.value}
+                            showWeight={store.isDealWeightingColumn}
                             toggleDefaultOption={toggleDefaultOption}
+                            weightId={weightId}
                             onChange={onChange}
+                            onFocused={store.clearPendingFocusOptionValue}
                           />
                         );
                       })}
                   </SortableContext>
                 </DndContext>
+
+                <div className="flex w-full items-center gap-2 pl-7">
+                  <Button
+                    className="flex-1 justify-start text-muted-foreground"
+                    disabled={store.isDisabled}
+                    type="button"
+                    variant="outline"
+                    onClick={addOption}
+                  >
+                    <Icon icon={Plus} />
+
+                    {t("Common.inputs.options.addOption")}
+                  </Button>
+
+                  {store.isDealWeightingColumn && <span className="w-24 shrink-0" />}
+
+                  <span className="w-14 shrink-0" />
+
+                  <span className="w-8 shrink-0" />
+                </div>
               </div>
             )}
           </AppCardBody>

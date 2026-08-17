@@ -15,6 +15,7 @@ import type { CreateAuthLinkSubscriptionRepo } from "@/ee/messaging/connect/crea
 
 import { SubscriptionStatus } from "@/generated/prisma";
 
+import { getDealRepo } from "@/core/di";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseRepository } from "@/core/base/base-repository";
@@ -58,6 +59,41 @@ export class PrismaCompanyRepo
       select: { entityType: true, presetKey: true },
       orderBy: { entityType: "asc" },
     });
+  }
+
+  @Transaction
+  async setDealStageWeights(entries: RepoArgs<UpdateCompanySettingsRepo, "setDealStageWeights">) {
+    const { companyId } = this.user;
+
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+      select: { dealWeightingColumnId: true },
+    });
+
+    if (!company?.dealWeightingColumnId) return;
+
+    const column = await this.prisma.customColumn.findFirst({
+      where: { id: company.dealWeightingColumnId, companyId },
+      select: { id: true, options: true },
+    });
+
+    const stored = (column?.options as { options?: unknown } | null)?.options;
+
+    if (!column || !Array.isArray(stored)) return;
+
+    const weightByOptionValue = new Map(entries.map((entry) => [entry.optionValue, entry.weight]));
+
+    const options = (stored as Array<Record<string, unknown>>).map((option) =>
+      typeof option.value === "string" && weightByOptionValue.has(option.value)
+        ? { ...option, weight: weightByOptionValue.get(option.value) }
+        : option,
+    );
+
+    await this.prisma.customColumn.update({ where: { id: column.id, companyId }, data: { options: { options } } });
+  }
+
+  async recalculateDealWeightedValues() {
+    await getDealRepo().recalculateWeightedValuesForCompany();
   }
 
   @Transaction

@@ -285,7 +285,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     if (form.entityType === EntityType.service)
       return [...base, { key: AggregationType.dealValue }, { key: AggregationType.dealQuantity }];
 
-    return [...base, { key: AggregationType.dealValue }];
+    return [...base, { key: AggregationType.dealValue }, { key: AggregationType.dealWeightedValue }];
   }
 
   get groupBySelectOptions() {
