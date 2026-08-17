@@ -177,7 +177,6 @@ model User {
   trialInactivationReminderSentAt DateTime?
   trialInactivationNoticeSentAt   DateTime?
   onboardingWizardCompletedAt     DateTime?
-  preAuthorizedAgentTools         String[]            @default([])
   agentWeeklyLimitCents           Int?
   agentMonthlyLimitCents          Int?
   agentCreditActivatedAt          DateTime?

@@ -122,7 +122,6 @@ function ctx(overrides: Partial<AgentRunContext> = {}): AgentRunContext {
     conversationId: "cv1",
     locale: "en",
     appBaseUrl: "http://localhost",
-    preAuthorized: [],
     toolNames: ["list_records", "request_support"],
     messages: [{ role: "user", text: "create a contact named Anna" }],
     turnBudget: {
@@ -381,41 +380,6 @@ describe("agent runner approval rendezvous", () => {
         ]),
       }),
     );
-  });
-
-  it("treats a tool as pre-authorized only when it is in the session's preAuthorized set", async () => {
-    aiMock.streamText.mockReturnValue(
-      scripted(function* () {
-        yield { type: "text-delta", text: "ok" };
-      }),
-    );
-
-    await runAndRead(
-      ctx({
-        preAuthorized: [
-          "create_contacts",
-          "delete_records",
-          "manage_custom_columns",
-          "manage_record_links",
-          "manage_team",
-          "manage_webhooks",
-          "manage_widgets",
-          "request_support",
-          "update_record_notes",
-        ],
-      }),
-    );
-
-    const deps = toolsMock.captured as Deps;
-    expect(deps.isPreAuthorized("create_contacts")).toBe(true);
-    expect(deps.isPreAuthorized("delete_records")).toBe(false);
-    expect(deps.isPreAuthorized("manage_custom_columns")).toBe(false);
-    expect(deps.isPreAuthorized("manage_record_links")).toBe(false);
-    expect(deps.isPreAuthorized("manage_team")).toBe(false);
-    expect(deps.isPreAuthorized("manage_webhooks")).toBe(false);
-    expect(deps.isPreAuthorized("manage_widgets")).toBe(false);
-    expect(deps.isPreAuthorized("request_support")).toBe(false);
-    expect(deps.isPreAuthorized("update_record_notes")).toBe(false);
   });
 
   it("surfaces tool errors as a safe activity result and still finishes the turn", async () => {

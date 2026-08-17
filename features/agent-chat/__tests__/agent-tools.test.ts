@@ -22,7 +22,6 @@ vi.mock("next-intl/server", () => ({
 }));
 
 import { searchDocsTool } from "@/features/mcp-tools/docs.mcp-tools";
-import { createContactsTool } from "@/features/mcp-tools/contact.mcp-tools";
 
 import { resolveAgentTurnBudget } from "../agent-budget-policy";
 import { conservativeAgentInitialContextBytes } from "../agent-provider-context";
@@ -40,7 +39,6 @@ function deps(overrides: Partial<AgentToolDeps> = {}): AgentToolDeps {
   return {
     runUiCommand: vi.fn().mockResolvedValue({ ok: true, result: "browser result" }),
     requestApproval: vi.fn().mockResolvedValue("approve"),
-    isPreAuthorized: vi.fn().mockReturnValue(true),
     createSupportTicket: vi.fn().mockResolvedValue({ ok: true, result: "created" }),
     resultMaxChars: 6000,
     ...overrides,
@@ -330,7 +328,6 @@ describe("agent tools", () => {
     const createSupportTicket = vi.fn().mockResolvedValue({ ok: true, result: "ticket opened" });
     const tools = getAgentAiTools(
       deps({
-        isPreAuthorized: vi.fn().mockReturnValue(false),
         requestApproval,
         createSupportTicket,
       }),
@@ -342,31 +339,6 @@ describe("agent tools", () => {
     });
     expect(requestApproval).toHaveBeenCalledWith("support-1", "request_support", input);
     expect(createSupportTicket).toHaveBeenCalledWith("support-1", input.subject, input.body);
-  });
-
-  it("cannot preauthorize support escalation even when a caller supplies a stale preference", async () => {
-    const input = {
-      subject: "Need help",
-      body: "Please connect me with a human.",
-    };
-    const requestApproval = vi.fn().mockResolvedValue("reject");
-    const isPreAuthorized = vi.fn().mockReturnValue(true);
-    const createSupportTicket = vi.fn().mockResolvedValue({ ok: true, result: "ticket opened" });
-    const tools = getAgentAiTools(
-      deps({
-        isPreAuthorized,
-        requestApproval,
-        createSupportTicket,
-      }),
-    );
-
-    await expect(execute(tools.request_support, input, "support-stale")).resolves.toMatchObject({
-      agentToolStatus: "cancelled",
-      reason: "rejected",
-    });
-    expect(requestApproval).toHaveBeenCalledWith("support-stale", "request_support", input);
-    expect(isPreAuthorized).not.toHaveBeenCalled();
-    expect(createSupportTicket).not.toHaveBeenCalled();
   });
 
   it.each([
@@ -384,40 +356,15 @@ describe("agent tools", () => {
     "manage_team",
     "manage_webhooks",
     "connect_messaging_account",
-  ])("requires a fresh approval for sensitive tool %s despite a stored legacy preference", async (toolName) => {
+  ])("requires an approval for sensitive tool %s", async (toolName) => {
     const requestApproval = vi.fn().mockResolvedValue("reject");
-    const isPreAuthorized = vi.fn().mockReturnValue(true);
-    const tools = getAgentAiTools(
-      deps({
-        isPreAuthorized,
-        requestApproval,
-      }),
-    );
+    const tools = getAgentAiTools(deps({ requestApproval }));
 
     await expect(execute(tools[toolName], {}, `sensitive-${toolName}`)).resolves.toMatchObject({
       agentToolStatus: "cancelled",
       reason: "rejected",
     });
     expect(requestApproval).toHaveBeenCalledWith(`sensitive-${toolName}`, toolName, {});
-    expect(isPreAuthorized).not.toHaveBeenCalled();
-  });
-
-  it("uses a remembered approval only for an allowlisted ordinary CRM action", async () => {
-    const requestApproval = vi.fn().mockResolvedValue("reject");
-    vi.spyOn(createContactsTool, "execute").mockResolvedValueOnce("Created one contact" as never);
-    const tools = getAgentAiTools(
-      deps({
-        isPreAuthorized: vi.fn().mockReturnValue(true),
-        requestApproval,
-      }),
-    );
-
-    await expect(
-      execute(tools.create_contacts, {
-        contacts: [{ firstName: "Ada", lastName: "Lovelace" }],
-      }),
-    ).resolves.toEqual({ ok: true, result: "Created one contact" });
-    expect(requestApproval).not.toHaveBeenCalled();
   });
 
   it.each(["reject", "timeout"] as const)("does not open support when escalation resolves to %s", async (decision) => {
@@ -425,7 +372,6 @@ describe("agent tools", () => {
     const createSupportTicket = vi.fn().mockResolvedValue({ ok: true, result: "ticket opened" });
     const tools = getAgentAiTools(
       deps({
-        isPreAuthorized: vi.fn().mockReturnValue(false),
         requestApproval,
         createSupportTicket,
       }),

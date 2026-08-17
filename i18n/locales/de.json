@@ -265,9 +265,6 @@
       "yourRecords": "Datensätze"
     },
     "approval": {
-      "always": "Freigegeben (ab jetzt immer erlaubt)",
-      "alwaysAction": "Immer freigeben",
-      "alwaysUnavailable": "Diese Aktion fragt jedes Mal nach.",
       "approve": "Freigegeben",
       "approveOnceAction": "Einmal freigeben",
       "reject": "Abgelehnt",
@@ -823,7 +820,6 @@
       "back": "Zurück zum Chat",
       "cancel": "Abbrechen",
       "chats": "Chats",
-      "creditUnavailable": "Kontingent nicht verfügbar",
       "deleteChat": "Chat löschen",
       "deleteChatBody": "Nachrichten, Freigaben, Assistentenaktionen und Einrichtungsdaten dieses Chats werden endgültig gelöscht. KI-Nutzungs- und Abrechnungsdaten, über den Chat erstellte CRM-Einträge und separat erstellte Support-Tickets bleiben erhalten.",
       "deleteChatTitle": "Chat endgültig löschen?",

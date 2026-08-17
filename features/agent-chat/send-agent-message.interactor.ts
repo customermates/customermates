@@ -226,10 +226,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       }
       await this.repo.touchConversation(conversation.id);
 
-      const [recent, settings] = await Promise.all([
-        this.repo.listRecentMessages(conversation.id, AGENT_REPLAY_COUNT),
-        this.repo.getUserAgentSettingsOrThrow(),
-      ]);
+      const recent = await this.repo.listRecentMessages(conversation.id, AGENT_REPLAY_COUNT);
       const pageContext = data.pageContext ? `<page_context route="${data.pageContext.route}"/>\n` : "";
       const messages = recent
         .map((message) => {
@@ -254,7 +251,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           userName,
           conversationId: conversation.id,
           locale,
-          preAuthorized: settings.preAuthorizedAgentTools,
           toolNames,
           messages,
           turnBudget: creditAdmission.reservation.budget,

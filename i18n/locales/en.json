@@ -265,9 +265,6 @@
       "yourRecords": "your records"
     },
     "approval": {
-      "always": "Approved (always allowed from now on)",
-      "alwaysAction": "Approve always",
-      "alwaysUnavailable": "This action asks every time.",
       "approve": "Approved",
       "approveOnceAction": "Approve once",
       "reject": "Rejected",
@@ -823,7 +820,6 @@
       "back": "Back to chat",
       "cancel": "Cancel",
       "chats": "Chats",
-      "creditUnavailable": "Allowance unavailable",
       "deleteChat": "Delete chat",
       "deleteChatBody": "This permanently deletes the chat’s messages, approvals, assistant actions, and setup history. AI usage and billing records, CRM records created through the chat, and separately created support tickets remain.",
       "deleteChatTitle": "Permanently delete this chat?",

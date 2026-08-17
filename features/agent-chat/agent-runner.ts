@@ -21,7 +21,7 @@ import {
 } from "./agent-tools";
 import { sse, type ReplayMessage } from "./agent-stream-utils";
 import { type AgentMessagePart } from "./agent-chat.schema";
-import { describeAgentTool, isAgentToolRememberable, type AgentActivityResource } from "./agent-activity";
+import { describeAgentTool, type AgentActivityResource } from "./agent-activity";
 import { AgentVisibleTextStreamSanitizer } from "./agent-output-safety";
 import {
   PrepareAgentWorkspaceSetupSchema,
@@ -57,7 +57,6 @@ export type AgentRunContext = {
   conversationId: string;
   locale: string;
   appBaseUrl: string;
-  preAuthorized: string[];
   toolNames: string[];
   messages: ReplayMessage[];
   turnBudget: AgentTurnBudget;
@@ -145,7 +144,6 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
       };
       const repo = getAgentChatRepo();
 
-      const preAuthorized = new Set(ctx.preAuthorized);
       const copy = agentRunnerCopy(agentTranslator(ctx.locale));
 
       const requestApproval = async (
@@ -299,7 +297,6 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
         const deps: AgentToolDeps = {
           runUiCommand,
           requestApproval,
-          isPreAuthorized: (name) => preAuthorized.has(name) && isAgentToolRememberable(name),
           createSupportTicket: (toolCallId, subject, body) =>
             createSupportTicket(ctx.conversationId, ctx.turnRequestId, toolCallId, subject, body),
           resultMaxChars: resolveAgentToolResultMaxChars(ctx.turnBudget.maxToolResultChars),

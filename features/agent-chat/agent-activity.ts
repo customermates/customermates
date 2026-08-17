@@ -375,12 +375,6 @@ export function describeAgentTool(toolName: string, input: unknown): AgentActivi
   return descriptor("generic", resource, "read");
 }
 
-export function isAgentToolRememberable(toolName: string) {
-  if (!TOOL_RESOURCE[toolName]) return false;
-  const activity = describeAgentTool(toolName, undefined);
-  return activity.risk === "write" && (activity.kind === "records.create" || activity.kind === "records.update");
-}
-
 type ActivityCopy = {
   running: string;
   done: string;

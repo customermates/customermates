@@ -18,10 +18,9 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn() }));
 
-import { AgentLimitExceededError, AgentSessionUnavailableError, ForbiddenError } from "@/core/errors/app-errors";
+import { AgentLimitExceededError, AgentSessionUnavailableError } from "@/core/errors/app-errors";
 
 import { GetAgentConversationInteractor } from "../get-agent-conversation.interactor";
-import { RespondToApprovalInteractor } from "../respond-to-approval.interactor";
 import { RespondToUiCommandInteractor } from "../respond-to-ui-command.interactor";
 import { SendAgentMessageInteractor } from "../send-agent-message.interactor";
 import { buildAgentWorkspaceSetupPlan } from "../agent-workspace-setup";
@@ -101,7 +100,6 @@ describe("agent access", () => {
           },
         ]),
       ),
-      getUserAgentSettingsOrThrow: vi.fn().mockResolvedValue({ preAuthorizedAgentTools: [] }),
     };
 
     const result = await new SendAgentMessageInteractor(repo as never, usageService() as never).invoke({
@@ -185,7 +183,6 @@ describe("agent access", () => {
           },
         ]),
       ),
-      getUserAgentSettingsOrThrow: vi.fn().mockResolvedValue({ preAuthorizedAgentTools: [] }),
     };
 
     const result = await new SendAgentMessageInteractor(repo as never, usageService() as never).invoke({
@@ -233,7 +230,6 @@ describe("agent access", () => {
               ],
         );
       }),
-      getUserAgentSettingsOrThrow: vi.fn().mockResolvedValue({ preAuthorizedAgentTools: [] }),
     };
 
     const result = await new SendAgentMessageInteractor(repo as never, usageService() as never).invoke({
@@ -367,7 +363,6 @@ describe("agent access", () => {
           parts: [{ type: "text", text: "retry this" }],
         },
       ]),
-      getUserAgentSettingsOrThrow: vi.fn().mockResolvedValue({ preAuthorizedAgentTools: [] }),
     };
 
     const result = await new SendAgentMessageInteractor(repo as never, usageService() as never).invoke({
@@ -760,153 +755,6 @@ describe("agent access", () => {
         status: "ready",
       }),
     ]);
-  });
-
-  it("allows an owned approval and records an always preference for a signed-in non-admin", async () => {
-    const repo = {
-      findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),
-      resolvePendingApprovalRequest: vi.fn().mockResolvedValue({ toolName: "create_contacts", resolved: true }),
-      getUserAgentSettingsOrThrow: vi.fn().mockResolvedValue({ preAuthorizedAgentTools: [] }),
-      setPreAuthorizedAgentTools: vi.fn().mockResolvedValue(undefined),
-    };
-
-    const result = await new RespondToApprovalInteractor(repo as never).invoke({
-      conversationId: CONVERSATION_ID,
-      requestId: "request-1",
-      decision: "always",
-    });
-
-    expect(result.ok).toBe(true);
-    expect(repo.setPreAuthorizedAgentTools).toHaveBeenCalledWith(["create_contacts"]);
-    expect(repo.resolvePendingApprovalRequest).toHaveBeenCalledWith({
-      conversationId: CONVERSATION_ID,
-      requestId: "request-1",
-      decision: "approve",
-      requireRememberable: true,
-    });
-  });
-
-  it("removes legacy sensitive and duplicate preferences when recording Always allow", async () => {
-    const repo = {
-      findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),
-      resolvePendingApprovalRequest: vi.fn().mockResolvedValue({ toolName: "update_deals", resolved: true }),
-      getUserAgentSettingsOrThrow: vi.fn().mockResolvedValue({
-        preAuthorizedAgentTools: ["delete_records", "create_contacts", "request_support", "create_contacts"],
-      }),
-      setPreAuthorizedAgentTools: vi.fn().mockResolvedValue(undefined),
-    };
-
-    const result = await new RespondToApprovalInteractor(repo as never).invoke({
-      conversationId: CONVERSATION_ID,
-      requestId: "request-legacy",
-      decision: "always",
-    });
-
-    expect(result.ok).toBe(true);
-    expect(repo.setPreAuthorizedAgentTools).toHaveBeenCalledWith(["create_contacts", "update_deals"]);
-  });
-
-  it.each(["approve", "reject"] as const)("does not change remembered approvals on a one-time %s", async (decision) => {
-    const repo = {
-      findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),
-      resolvePendingApprovalRequest: vi.fn().mockResolvedValue({ toolName: "create_contacts", resolved: true }),
-      getUserAgentSettingsOrThrow: vi.fn(),
-      setPreAuthorizedAgentTools: vi.fn(),
-    };
-
-    const result = await new RespondToApprovalInteractor(repo as never).invoke({
-      conversationId: CONVERSATION_ID,
-      requestId: `request-${decision}`,
-      decision,
-    });
-
-    expect(result.ok).toBe(true);
-    expect(repo.resolvePendingApprovalRequest).toHaveBeenCalledWith({
-      conversationId: CONVERSATION_ID,
-      requestId: `request-${decision}`,
-      decision,
-      requireRememberable: false,
-    });
-    expect(repo.getUserAgentSettingsOrThrow).not.toHaveBeenCalled();
-    expect(repo.setPreAuthorizedAgentTools).not.toHaveBeenCalled();
-  });
-
-  it.each(["same-company other user", "different company"])(
-    "rejects an always approval for a %s conversation before any mutation",
-    async () => {
-      const repo = {
-        findConversation: vi.fn().mockResolvedValue(null),
-        getUserAgentSettingsOrThrow: vi.fn(),
-        setPreAuthorizedAgentTools: vi.fn(),
-        resolvePendingApprovalRequest: vi.fn(),
-      };
-
-      await expect(
-        new RespondToApprovalInteractor(repo as never).invoke({
-          conversationId: CONVERSATION_ID,
-          requestId: "request-2",
-          decision: "always",
-        }),
-      ).rejects.toBeInstanceOf(AgentSessionUnavailableError);
-      expect(repo.getUserAgentSettingsOrThrow).not.toHaveBeenCalled();
-      expect(repo.setPreAuthorizedAgentTools).not.toHaveBeenCalled();
-      expect(repo.resolvePendingApprovalRequest).not.toHaveBeenCalled();
-    },
-  );
-
-  it.each([
-    "delete_records",
-    "manage_custom_columns",
-    "manage_record_links",
-    "manage_team",
-    "manage_webhooks",
-    "manage_widgets",
-    "request_support",
-    "send_email",
-    "update_record_notes",
-    "unknown_tool",
-  ])("never stores persistent approval for sensitive or unknown action %s", async (toolName) => {
-    const repo = {
-      findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),
-      resolvePendingApprovalRequest: vi.fn().mockResolvedValue({ toolName, resolved: false }),
-      getUserAgentSettingsOrThrow: vi.fn(),
-      setPreAuthorizedAgentTools: vi.fn(),
-    };
-
-    await expect(
-      new RespondToApprovalInteractor(repo as never).invoke({
-        conversationId: CONVERSATION_ID,
-        requestId: "request-sensitive",
-        decision: "always",
-      }),
-    ).rejects.toBeInstanceOf(ForbiddenError);
-    expect(repo.resolvePendingApprovalRequest).toHaveBeenCalledWith({
-      conversationId: CONVERSATION_ID,
-      requestId: "request-sensitive",
-      decision: "approve",
-      requireRememberable: true,
-    });
-    expect(repo.getUserAgentSettingsOrThrow).not.toHaveBeenCalled();
-    expect(repo.setPreAuthorizedAgentTools).not.toHaveBeenCalled();
-  });
-
-  it("rejects a forged or expired approval request before granting a preference", async () => {
-    const repo = {
-      findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),
-      resolvePendingApprovalRequest: vi.fn().mockResolvedValue(null),
-      getUserAgentSettingsOrThrow: vi.fn(),
-      setPreAuthorizedAgentTools: vi.fn(),
-    };
-
-    await expect(
-      new RespondToApprovalInteractor(repo as never).invoke({
-        conversationId: CONVERSATION_ID,
-        requestId: "forged-request",
-        decision: "always",
-      }),
-    ).rejects.toBeInstanceOf(AgentSessionUnavailableError);
-    expect(repo.getUserAgentSettingsOrThrow).not.toHaveBeenCalled();
-    expect(repo.setPreAuthorizedAgentTools).not.toHaveBeenCalled();
   });
 
   it("records UI feedback only for an owned conversation", async () => {

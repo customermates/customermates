@@ -265,9 +265,6 @@
       "yourRecords": "sus registros"
     },
     "approval": {
-      "always": "Aprobado (permitido siempre a partir de ahora)",
-      "alwaysAction": "Aprobar siempre",
-      "alwaysUnavailable": "Esta acción pide confirmación cada vez.",
       "approve": "Aprobado",
       "approveOnceAction": "Aprobar una vez",
       "reject": "Rechazado",
@@ -823,7 +820,6 @@
       "back": "Volver al chat",
       "cancel": "Cancelar",
       "chats": "Chats",
-      "creditUnavailable": "Cupo no disponible",
       "deleteChat": "Eliminar chat",
       "deleteChatBody": "Esto elimina de forma permanente los mensajes, las aprobaciones, las acciones del asistente y el historial de configuración de este chat. Se conservan los datos de uso de IA y de facturación, los registros del CRM creados a través del chat y los tickets de soporte creados por separado.",
       "deleteChatTitle": "¿Eliminar este chat definitivamente?",

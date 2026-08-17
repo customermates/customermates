@@ -990,7 +990,6 @@ function chatUiCopy(t: ChatTranslator) {
     back: t("AgentChat.ui.back"),
     cancel: t("AgentChat.ui.cancel"),
     chats: t("AgentChat.ui.chats"),
-    creditUnavailable: t("AgentChat.ui.creditUnavailable"),
     deleteChat: t("AgentChat.ui.deleteChat"),
     deleteChatBody: t("AgentChat.ui.deleteChatBody"),
     deleteChatTitle: t("AgentChat.ui.deleteChatTitle"),
@@ -1100,19 +1099,7 @@ const UsageFooter = observer(function UsageFooter() {
   const t = useTranslations();
   if (!store.usage) return null;
   const usage = store.usage;
-  const copy = chatUiCopy(t);
-  if (usage.creditsLimit <= 0) {
-    return (
-      <div
-        className="flex w-full items-center justify-between gap-2 px-1 pb-2 text-xs text-muted-foreground"
-        data-testid="agent-usage"
-      >
-        <span>{usage.plan ? t(`Subscription.planNames.${usage.plan}`) : t("AgentChat.title")}</span>
-
-        <span>{copy.creditUnavailable}</span>
-      </div>
-    );
-  }
+  if (usage.creditsLimit <= 0) return null;
   const pct = usage.usedPct;
   const resetAt = intlStore.formatDayMonth(new Date(usage.resetAt));
 
@@ -1251,7 +1238,7 @@ const AgentChatItemView = observer(function AgentChatItemView({ item }: { item: 
   const terminology = useAgentActivityTerminology();
   const decideApproval = async (
     approval: Extract<AgentChatItem, { kind: "approval" }>,
-    decision: "approve" | "reject" | "always",
+    decision: "approve" | "reject",
   ) => {
     await store.respondToApproval(approval, decision);
     if (approval.resolution) focusAgentComposer();
@@ -1352,7 +1339,6 @@ const AgentChatItemView = observer(function AgentChatItemView({ item }: { item: 
   if (item.kind === "activity") return <AgentActivity items={[item]} />;
 
   const copy = agentActivityCopy(item.activity, t, terminology);
-  const canAlwaysAllow = item.activity.kind === "records.create" || item.activity.kind === "records.update";
 
   return (
     <div className="rounded-2xl border px-4 py-3.5 text-sm" data-testid="agent-approval">
@@ -1378,20 +1364,6 @@ const AgentChatItemView = observer(function AgentChatItemView({ item }: { item: 
               {t("AgentChat.approval.approveOnceAction")}
             </Button>
 
-            {canAlwaysAllow && (
-              <Button
-                aria-busy={item.pendingDecision === "always"}
-                disabled={Boolean(item.pendingDecision) || store.isWorkspaceSetupPending}
-                size="sm"
-                variant="outline"
-                onClick={() => void decideApproval(item, "always")}
-              >
-                {item.pendingDecision === "always" && <Loader2 className="size-3.5 animate-spin" />}
-
-                {t("AgentChat.approval.alwaysAction")}
-              </Button>
-            )}
-
             <Button
               aria-busy={item.pendingDecision === "reject"}
               disabled={Boolean(item.pendingDecision) || store.isWorkspaceSetupPending}
@@ -1404,10 +1376,6 @@ const AgentChatItemView = observer(function AgentChatItemView({ item }: { item: 
               {t("AgentChat.approval.rejectAction")}
             </Button>
           </div>
-
-          {!canAlwaysAllow && (
-            <p className="mt-2 text-xs text-muted-foreground">{t("AgentChat.approval.alwaysUnavailable")}</p>
-          )}
         </>
       )}
     </div>

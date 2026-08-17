@@ -236,7 +236,7 @@ const ONBOARDING_METHODS = ["account", "local"] as const;
 const onboardingMethodKeys = (field: string) =>
   ONBOARDING_METHODS.map((method) => `OnboardingWizard.ai.methods.${method}.${field}`);
 const LEGAL_DOCUMENT_KEYS = ALL_LEGAL_DOCUMENTS.map((document) => `LegalDocumentNotice.documents.${document}`);
-const AGENT_APPROVAL_RESOLUTION_KEYS = ["approve", "always", "reject", "timeout"].map(
+const AGENT_APPROVAL_RESOLUTION_KEYS = ["approve", "reject", "timeout"].map(
   (resolution) => `AgentChat.approval.${resolution}`,
 );
 const AGENT_CREDIT_BLOCKED_KEYS = [

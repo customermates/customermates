@@ -13,7 +13,6 @@ import { toolResultText } from "./agent-stream-utils";
 import { AGENT_NAV_TARGET_IDS, AGENT_UI_TARGET_IDS, AGENT_UI_TARGETS } from "./ui-targets";
 import { AgentTourIdSchema } from "./agent-tours";
 import { PrepareAgentWorkspaceSetupSchema } from "./agent-workspace-setup";
-import { isRememberableAgentTool } from "./agent-approval";
 
 export type ApprovalDecision = "approve" | "reject" | "timeout";
 export type AgentUiCommandOutcome = { ok: boolean; result: string };
@@ -320,7 +319,6 @@ export function selectAgentToolNames(args: {
 export type AgentToolDeps = {
   runUiCommand: (commandId: string, name: string, input: Record<string, unknown>) => Promise<AgentUiCommandOutcome>;
   requestApproval: (requestId: string, toolName: string, input: unknown) => Promise<ApprovalDecision>;
-  isPreAuthorized: (toolName: string) => boolean;
   createSupportTicket: (toolCallId: string, subject: string, body: string) => Promise<AgentToolOutcome>;
   resultMaxChars: number;
 };
@@ -343,11 +341,8 @@ async function runGated(
   input: unknown,
   run: () => Promise<AgentToolOutcome>,
 ) {
-  const mayUseStoredApproval = isRememberableAgentTool(name) && deps.isPreAuthorized(name);
-  if (!mayUseStoredApproval) {
-    const decision = await deps.requestApproval(toolCallId, name, input);
-    if (decision !== "approve") return declineResult(decision);
-  }
+  const decision = await deps.requestApproval(toolCallId, name, input);
+  if (decision !== "approve") return declineResult(decision);
   return run();
 }
 
@@ -492,7 +487,6 @@ export function describeAgentAiTools(tools: ToolSet): AgentAiToolDefinition[] {
 const TOOL_DEFINITION_DEPS: AgentToolDeps = {
   runUiCommand: () => Promise.resolve({ ok: false, result: "Definition-only tool." }),
   requestApproval: () => Promise.resolve("reject"),
-  isPreAuthorized: () => false,
   createSupportTicket: () => Promise.resolve({ ok: false, result: "Definition-only tool." }),
   resultMaxChars: 1,
 };

@@ -265,9 +265,6 @@
       "yourRecords": "vos enregistrements"
     },
     "approval": {
-      "always": "Approuvé (toujours autorisé désormais)",
-      "alwaysAction": "Toujours approuver",
-      "alwaysUnavailable": "Cette action demande une confirmation à chaque fois.",
       "approve": "Approuvé",
       "approveOnceAction": "Approuver une fois",
       "reject": "Refusé",
@@ -823,7 +820,6 @@
       "back": "Retour au chat",
       "cancel": "Annuler",
       "chats": "Discussions",
-      "creditUnavailable": "Quota indisponible",
       "deleteChat": "Supprimer la discussion",
       "deleteChatBody": "Cette action supprime définitivement les messages, les approbations, les actions de l’assistant et l’historique de configuration de cette discussion. Les données d’utilisation et de facturation de l’IA, les enregistrements CRM créés via la discussion et les tickets de support créés séparément sont conservés.",
       "deleteChatTitle": "Supprimer définitivement ce chat ?",

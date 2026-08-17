@@ -74,8 +74,8 @@ export type AgentChatItem =
       id: string;
       requestId: string;
       activity: AgentActivityDescriptor;
-      resolution: "approve" | "reject" | "always" | "timeout" | null;
-      pendingDecision: "approve" | "reject" | "always" | null;
+      resolution: "approve" | "reject" | "timeout" | null;
+      pendingDecision: "approve" | "reject" | null;
       at?: Date;
     }
   | {
@@ -1343,10 +1343,7 @@ export class AgentChatStore extends BaseStore {
     }
   };
 
-  respondToApproval = async (
-    item: Extract<AgentChatItem, { kind: "approval" }>,
-    decision: "approve" | "reject" | "always",
-  ) => {
+  respondToApproval = async (item: Extract<AgentChatItem, { kind: "approval" }>, decision: "approve" | "reject") => {
     if (!this.conversationId || this.isWorkspaceSetupPending || item.resolution || item.pendingDecision) return;
 
     try {

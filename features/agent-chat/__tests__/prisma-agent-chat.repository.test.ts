@@ -872,27 +872,6 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     });
   });
 
-  it("does not resolve a sensitive pending approval when persistent authorization is requested", async () => {
-    const pendingToolName = pendingAgentApprovalToolName("request_support", new Date(Date.now() + 60_000));
-    prismaMock.agentApproval.findFirst.mockResolvedValue({
-      id: "approval-1",
-      toolName: pendingToolName,
-    });
-
-    const result = await runWithTenant(user, () =>
-      new PrismaAgentChatRepo().resolvePendingApprovalRequest({
-        conversationId: "conversation-1",
-        requestId: "request-1",
-        decision: "approve",
-        requireRememberable: true,
-      }),
-    );
-
-    expect(result).toEqual({ toolName: "request_support", resolved: false });
-    expect(prismaMock.agentApproval.updateMany).not.toHaveBeenCalled();
-    expect(prismaMock.agentApproval.deleteMany).not.toHaveBeenCalled();
-  });
-
   it("deletes an expired pending approval instead of resolving it", async () => {
     const pendingToolName = pendingAgentApprovalToolName("delete_records", new Date(Date.now() - 60_000));
     prismaMock.agentApproval.findFirst.mockResolvedValue({

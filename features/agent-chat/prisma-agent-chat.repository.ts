@@ -29,7 +29,6 @@ import {
   hashAgentWorkspaceSetupPlan,
 } from "./agent-workspace-setup";
 import {
-  isRememberableAgentTool,
   isPendingAgentApprovalToolName,
   parsePendingAgentApprovalToolName,
   pendingAgentApprovalToolName,
@@ -752,7 +751,6 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     conversationId: string;
     requestId: string;
     decision: AgentApprovalDecision;
-    requireRememberable?: boolean;
   }) {
     const pending = await this.prisma.agentApproval.findFirst({
       where: {
@@ -780,9 +778,6 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       });
       return null;
     }
-
-    if (args.requireRememberable && !isRememberableAgentTool(parsed.toolName))
-      return { toolName: parsed.toolName, resolved: false as const };
 
     const resolved = await this.prisma.agentApproval.updateMany({
       where: {
@@ -1520,22 +1515,6 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
   @BypassTenantGuard
   async releaseAgentRunLeaseUnscoped(args: { userId: string; companyId: string; runId: string }) {
     await this.prisma.agentRunLease.deleteMany({ where: args });
-  }
-
-  async getUserAgentSettingsOrThrow() {
-    return this.prisma.user.findUniqueOrThrow({
-      where: { id: this.userId, companyId: this.companyId },
-      select: {
-        preAuthorizedAgentTools: true,
-      },
-    });
-  }
-
-  async setPreAuthorizedAgentTools(toolNames: string[]) {
-    await this.prisma.user.updateMany({
-      where: { id: this.userId, companyId: this.companyId },
-      data: { preAuthorizedAgentTools: toolNames },
-    });
   }
 
   @BypassTenantGuard
