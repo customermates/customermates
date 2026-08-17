@@ -6,6 +6,7 @@ import { getLocale, getMessages } from "next-intl/server";
 import { cookies } from "next/headers";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
+import * as Sentry from "@sentry/nextjs";
 
 import { latin, mono, serif } from "./fonts";
 import { Providers } from "./providers";
@@ -72,6 +73,9 @@ export default async function RootLayout({ children }: Props) {
   const accountAllowed = account.state === "allowed";
   const appUser = accountAllowed ? account.user : null;
   const sidebarUser = toSidebarUser(account.user);
+
+  Sentry.setUser(appUser ? { id: appUser.id } : null);
+  Sentry.setTag("companyId", appUser?.companyId);
 
   return (
     <html
