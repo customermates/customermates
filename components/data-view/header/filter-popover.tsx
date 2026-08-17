@@ -83,14 +83,14 @@ export const FilterPopover = observer(function FilterPopover({ store, compact, i
       aria-label={t("Common.ariaLabels.tooltipFilters")}
       className={cn(
         "relative",
-        compact ? "text-muted-foreground hover:text-foreground size-4 hover:bg-transparent" : "h-8",
+        compact ? "text-muted-foreground hover:text-foreground size-3 rounded-sm hover:bg-transparent" : "h-8",
       )}
       id={id}
       size={compact ? "icon-xs" : "sm"}
       type="button"
       variant={compact ? "ghost" : "secondary"}
     >
-      <Filter className="size-3.5" />
+      <Filter className={compact ? "size-3" : "size-3.5"} />
 
       {activeFilterCount > 0 && (
         <span
