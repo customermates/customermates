@@ -46,17 +46,7 @@ export async function register() {
       },
     } satisfies Sentry.NodeOptions;
 
-    if (env.NEXT_RUNTIME === "nodejs") {
-      Sentry.init({
-        ...init,
-        integrations: [
-          Sentry.requestDataIntegration({
-            include: { cookies: false, data: false, headers: true, ip: false, query_string: true, url: true },
-          }),
-          Sentry.httpIntegration({ disableIncomingRequestSpans: true, maxIncomingRequestBodySize: "none" }),
-        ],
-      });
-    }
+    if (env.NEXT_RUNTIME === "nodejs") Sentry.init(init);
     if (env.NEXT_RUNTIME === "edge") Sentry.init(init);
   }
 
