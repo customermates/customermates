@@ -110,6 +110,8 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
 
   const currentSortField = store.sortDescriptor?.field ?? "";
   const currentSortDirection = store.sortDescriptor?.direction ?? "asc";
+  const currentSortDirectionLabel =
+    currentSortDirection === "asc" ? t("Common.sort.ascending") : t("Common.sort.descending");
   const currentGroupingId = store.groupingColumnId ?? "";
   const hasActiveOption = Boolean(currentSortField) || Boolean(currentGroupingId) || store.hiddenColumns.length > 0;
 
@@ -298,9 +300,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
-                          aria-label={
-                            currentSortDirection === "asc" ? t("Common.sort.descending") : t("Common.sort.ascending")
-                          }
+                          aria-label={currentSortDirectionLabel}
                           className="h-8 shrink-0"
                           size="icon"
                           variant="secondary"
@@ -314,9 +314,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
                         </Button>
                       </TooltipTrigger>
 
-                      <TooltipContent>
-                        {currentSortDirection === "asc" ? t("Common.sort.ascending") : t("Common.sort.descending")}
-                      </TooltipContent>
+                      <TooltipContent>{currentSortDirectionLabel}</TooltipContent>
                     </Tooltip>
                   )}
                 </div>
