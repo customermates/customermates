@@ -25,7 +25,7 @@ import { roleDisplayName } from "@/features/role/role-display-name";
 export const CompanyUserModal = observer(() => {
   const t = useTranslations();
   const { userModalStore: store, rolesStore } = useRootStore();
-  const { form, savedState, isOwnProfile, isDisabledOrOwnProfile } = store;
+  const { form, savedState, isOwnProfile } = store;
 
   return (
     <AppModal store={store} title={t("CompanyUserModal.title")}>
@@ -50,7 +50,7 @@ export const CompanyUserModal = observer(() => {
               <FormInput required id="lastName" />
             </div>
 
-            <FormAutocompleteCountry required disabled={isDisabledOrOwnProfile} id="country" value={form.country} />
+            <FormAutocompleteCountry required id="country" value={form.country} />
 
             <FormSelect
               required
@@ -66,7 +66,6 @@ export const CompanyUserModal = observer(() => {
 
             <FormSelectChip
               required
-              disabled={isDisabledOrOwnProfile}
               disabledKeys={new Set([Status.pendingAuthorization])}
               id="status"
               items={USER_STATUS_OPTIONS}
@@ -88,12 +87,7 @@ export const CompanyUserModal = observer(() => {
             )}
           </AppCardBody>
 
-          <FormActions
-            showInitially
-            anchorScope="member-modal"
-            overrideDisabled={isDisabledOrOwnProfile}
-            store={store}
-          />
+          <FormActions showInitially anchorScope="member-modal" store={store} />
         </AppCard>
       </AppForm>
     </AppModal>
