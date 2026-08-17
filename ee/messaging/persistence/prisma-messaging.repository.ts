@@ -990,6 +990,7 @@ export class PrismaMessagingRepo
   }
 
   private async reconcileOutboundChatEcho(args: {
+    companyId: string;
     messagingThreadId: string;
     connectedAccountId: string;
     unipileMessageId: string;
@@ -1017,7 +1018,7 @@ export class PrismaMessagingRepo
     if (!candidate) return false;
 
     await this.prisma.messagingMessage.update({
-      where: { id: candidate.id, companyId: this.companyId },
+      where: { id: candidate.id, companyId: args.companyId },
       data: { unipileMessageId: args.unipileMessageId },
     });
 
@@ -1330,6 +1331,7 @@ export class PrismaMessagingRepo
       !isEmailProvider(message.provider)
     ) {
       const reconciled = await this.reconcileOutboundChatEcho({
+        companyId,
         messagingThreadId: thread.id,
         connectedAccountId,
         unipileMessageId: message.unipileMessageId,

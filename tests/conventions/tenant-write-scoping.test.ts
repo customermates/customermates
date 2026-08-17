@@ -28,9 +28,6 @@ const GUARD_EXEMPT_MODELS = new Set([
 
 const REACHED_ONLY_FROM_BYPASSED_CALLERS = new Set([
   "core/auth/better-auth.ts:99",
-  "ee/messaging/persistence/prisma-messaging.repository.ts:506",
-  "ee/messaging/persistence/prisma-messaging.repository.ts:566",
-  "ee/messaging/persistence/prisma-messaging.repository.ts:584",
   "features/user/prisma-user.repository.ts:573",
   "features/user/prisma-user.repository.ts:583",
   "features/user/prisma-user.repository.ts:593",
@@ -61,14 +58,55 @@ function enclosingMethod(node: ts.Node): ts.MethodDeclaration | undefined {
   return undefined;
 }
 
-function bypassesTenantGuard(method: ts.MethodDeclaration | undefined): boolean {
-  if (!method) return false;
+function declaresBypass(method: ts.MethodDeclaration): boolean {
   return (method.modifiers ?? []).some(
     (modifier) =>
       ts.isDecorator(modifier) &&
       ts.isIdentifier(modifier.expression) &&
       modifier.expression.text === BYPASS_DECORATOR,
   );
+}
+
+function methodsByName(source: ts.SourceFile): Map<string, ts.MethodDeclaration> {
+  const found = new Map<string, ts.MethodDeclaration>();
+  const visit = (node: ts.Node) => {
+    if (ts.isMethodDeclaration(node) && node.name) found.set(node.name.getText(source), node);
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return found;
+}
+
+function callersOf(name: string, methods: Map<string, ts.MethodDeclaration>, source: ts.SourceFile): string[] {
+  const callers: string[] = [];
+  for (const [callerName, method] of methods) {
+    if (callerName === name) continue;
+    if (new RegExp(`this\\.${name}\\s*\\(`).test(method.getText(source))) callers.push(callerName);
+  }
+  return callers;
+}
+
+function bypassedMethodNames(source: ts.SourceFile): Set<string> {
+  const methods = methodsByName(source);
+  const bypassed = new Set<string>();
+  for (const [name, method] of methods) if (declaresBypass(method)) bypassed.add(name);
+
+  for (let pass = 0; pass < methods.size; pass++) {
+    let grew = false;
+    for (const [name, method] of methods) {
+      if (bypassed.has(name)) continue;
+      if (!(method.modifiers ?? []).some((m) => m.kind === ts.SyntaxKind.PrivateKeyword)) continue;
+
+      const callers = callersOf(name, methods, source);
+      if (callers.length > 0 && callers.every((caller) => bypassed.has(caller))) {
+        bypassed.add(name);
+        grew = true;
+      }
+    }
+    if (!grew) break;
+  }
+
+  return bypassed;
 }
 
 function whereInitializer(call: ts.CallExpression, source: ts.SourceFile): ts.Expression | undefined {
@@ -107,6 +145,7 @@ function writeSites(): WriteSite[] {
     if (!WRITE_OPERATIONS.values().some((operation) => text.includes(`.${operation}(`))) continue;
 
     const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true);
+    const bypassed = bypassedMethodNames(source);
 
     const visit = (node: ts.Node) => {
       if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)) {
@@ -117,10 +156,11 @@ function writeSites(): WriteSite[] {
 
         if (WRITE_OPERATIONS.has(operation) && PRISMA_TARGET.test(target) && !GUARD_EXEMPT_MODELS.has(model)) {
           const method = enclosingMethod(node);
+          const methodName = method?.name.getText(source) ?? "";
           const relativePath = relative(REPO_ROOT, file);
           const line = source.getLineAndCharacterOfPosition(node.getStart()).line + 1;
 
-          if (!bypassesTenantGuard(method) && !REACHED_ONLY_FROM_BYPASSED_CALLERS.has(`${relativePath}:${line}`))
+          if (!bypassed.has(methodName) && !REACHED_ONLY_FROM_BYPASSED_CALLERS.has(`${relativePath}:${line}`))
             sites.push({
               file: relativePath,
               line,
