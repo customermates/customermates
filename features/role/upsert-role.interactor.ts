@@ -4,7 +4,6 @@ import type { Data } from "@/core/validation/validation.utils";
 import type { ValidateRoleIdsInteractor } from "@/core/validation/validators/validate-role-ids.interactor";
 
 import { z } from "zod";
-import { getTranslations } from "next-intl/server";
 import { Resource, Action } from "@/generated/prisma";
 
 import { DomainEvent } from "@/features/event/domain-events";
@@ -12,7 +11,8 @@ import { RoleDtoSchema } from "./role.schema";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { getTenantUser } from "@/core/decorators/tenant-context";
-import { createZodError, zx, type Validated } from "@/core/validation/validation.utils";
+import { validateOwnRoleGuard } from "@/core/validation/validate-own-role-guard";
+import { zx, type Validated } from "@/core/validation/validation.utils";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
@@ -88,19 +88,13 @@ export class UpsertRoleInteractor extends AuthenticatedInteractor<UpsertRoleData
   @Write({
     input: Schema,
     output: RoleDtoSchema,
-    precheck: (self, data, ctx) => self.validator.invoke([{ ids: data.id, path: ["id"] }], ctx),
+    precheck: async (self, data, ctx) => {
+      validateOwnRoleGuard(data.id, getTenantUser().roleId, ctx, ["id"]);
+      await self.validator.invoke([{ ids: data.id, path: ["id"] }], ctx);
+    },
   })
   async invoke(data: UpsertRoleData): Validated<RoleDto> {
     if (data.id && (await this.repo.isSystemRoleOrThrow(data.id))) throw new Error("Cannot update system roles");
-
-    if (data.id && data.id === getTenantUser().roleId) {
-      const t = await getTranslations();
-
-      return {
-        ok: false,
-        error: createZodError<UpsertRoleData>(t("Common.errors.roleSelfEditForbidden"), ["id"]),
-      };
-    }
 
     const previousRole = data.id ? await this.repo.getRoleByIdOrThrow(data.id) : undefined;
     const role = await this.repo.upsertRoleOrThrow(data);

@@ -8,6 +8,7 @@ import { CustomColumnType, EntityType, MessagingProvider } from "@/generated/pri
 
 import { CustomErrorCode } from "../validation.types";
 import { validateAssigneeGuard } from "../validate-assignee-guard";
+import { validateOwnRoleGuard } from "../validate-own-role-guard";
 import { normalizeChannelValue } from "@/features/contacts/channel-value";
 import { validateIdentifierConflicts, validateIdentifiers } from "@/features/contacts/upsert/validate-identifiers";
 import { validateCustomFieldEmail } from "../validate-custom-field-email";
@@ -545,6 +546,34 @@ describe("validateAssigneeGuard", () => {
     const ctx = createMockCtx();
     validateAssigneeGuard(null, "user-1", false, ctx, ["userIds"]);
     expect(ctx.addIssue).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("validateOwnRoleGuard", () => {
+  it("skips when no role id is supplied, as when creating a role", () => {
+    const ctx = createMockCtx();
+    validateOwnRoleGuard(undefined, "role-1", ctx, ["id"]);
+    expect(ctx.addIssue).not.toHaveBeenCalled();
+  });
+
+  it("skips when the caller holds no role", () => {
+    const ctx = createMockCtx();
+    validateOwnRoleGuard("role-1", null, ctx, ["id"]);
+    expect(ctx.addIssue).not.toHaveBeenCalled();
+  });
+
+  it("passes when editing a role the caller does not hold", () => {
+    const ctx = createMockCtx();
+    validateOwnRoleGuard("role-2", "role-1", ctx, ["id"]);
+    expect(ctx.addIssue).not.toHaveBeenCalled();
+  });
+
+  it("adds issue when editing the role the caller holds", () => {
+    const ctx = createMockCtx();
+    validateOwnRoleGuard("role-1", "role-1", ctx, ["id"]);
+    expect(ctx.addIssue).toHaveBeenCalledWith(
+      expect.objectContaining({ params: { error: CustomErrorCode.roleSelfEditForbidden }, path: ["id"] }),
+    );
   });
 });
 
