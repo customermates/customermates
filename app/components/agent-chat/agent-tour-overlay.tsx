@@ -3,6 +3,7 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { Pause, X } from "lucide-react";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { Button } from "@/components/ui/button";
@@ -96,34 +97,42 @@ export const AgentTourOverlay = observer(function AgentTourOverlay() {
             <PopoverTitle className="sr-only">{copy.title}</PopoverTitle>
 
             <div>
+              <div className="-mt-1 -mr-1 flex items-center justify-between gap-2">
+                <span aria-live="polite" className="text-xs whitespace-nowrap text-muted-foreground tabular-nums">
+                  {`${active.stepIndex + 1} / ${active.totalSteps}`}
+                </span>
+
+                <div className="flex items-center">
+                  <Button aria-label={copy.pause} className="size-7" size="icon" variant="ghost" onClick={store.pause}>
+                    <Pause />
+                  </Button>
+
+                  <Button
+                    aria-label={t("AgentChat.tour.skip")}
+                    className="size-7"
+                    size="icon"
+                    variant="ghost"
+                    onClick={store.end}
+                  >
+                    <X />
+                  </Button>
+                </div>
+              </div>
+
               {active.note && (
-                <p aria-live="polite" className="text-sm">
+                <p aria-live="polite" className="mt-1 text-sm">
                   {active.note}
                 </p>
               )}
 
-              <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <span aria-live="polite" className="text-xs text-muted-foreground tabular-nums">
-                  {`${active.stepIndex + 1} / ${active.totalSteps}`}
-                </span>
+              <div className="mt-3 flex justify-end gap-2">
+                <Button disabled={active.stepIndex === 0} size="sm" variant="outline" onClick={store.previousStep}>
+                  {copy.back}
+                </Button>
 
-                <div className="flex flex-wrap justify-end gap-2">
-                  <Button size="sm" variant="ghost" onClick={store.end}>
-                    {t("AgentChat.tour.skip")}
-                  </Button>
-
-                  <Button size="sm" variant="ghost" onClick={store.pause}>
-                    {copy.pause}
-                  </Button>
-
-                  <Button disabled={active.stepIndex === 0} size="sm" variant="outline" onClick={store.previousStep}>
-                    {copy.back}
-                  </Button>
-
-                  <Button ref={nextButtonRef} size="sm" onClick={store.nextStep}>
-                    {active.stepIndex + 1 >= active.totalSteps ? t("AgentChat.tour.done") : t("AgentChat.tour.next")}
-                  </Button>
-                </div>
+                <Button ref={nextButtonRef} size="sm" onClick={store.nextStep}>
+                  {active.stepIndex + 1 >= active.totalSteps ? t("AgentChat.tour.done") : t("AgentChat.tour.next")}
+                </Button>
               </div>
             </div>
           </PopoverContent>
