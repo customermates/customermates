@@ -299,7 +299,6 @@ import { RespondToApprovalInteractor } from "@/features/agent-chat/respond-to-ap
 import { RespondToUiCommandInteractor } from "@/features/agent-chat/respond-to-ui-command.interactor";
 import { GetAgentConversationInteractor } from "@/features/agent-chat/get-agent-conversation.interactor";
 import { CreateChatSupportTicketInteractor } from "@/features/agent-chat/create-chat-support-ticket.interactor";
-import { SeedAgentDemoDataInteractor } from "@/features/agent-chat/seed-agent-demo-data.interactor";
 import { PrismaAgentWorkspaceSetupRepo } from "@/features/agent-chat/prisma-agent-workspace-setup.repository";
 import { ListAgentConversationsInteractor } from "@/features/agent-chat/list-agent-conversations.interactor";
 import { DeleteAgentConversationInteractor } from "@/features/agent-chat/delete-agent-conversation.interactor";
@@ -1495,13 +1494,3 @@ export const getCleanupAgentWorkspaceSetupInteractor = () =>
 
 export const getCreateChatSupportTicketInteractor = () =>
   new CreateChatSupportTicketInteractor(getAgentChatRepo(), getCreateSupportTicketInteractor());
-
-export const getSeedAgentDemoDataInteractor = () =>
-  new SeedAgentDemoDataInteractor(
-    getAgentChatRepo(),
-    getCreateManyOrganizationsInteractor(),
-    getCreateManyContactsInteractor(),
-    getCreateManyServicesInteractor(),
-    getCreateManyDealsInteractor(),
-    getCreateManyTasksInteractor(),
-  );

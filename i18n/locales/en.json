@@ -9,7 +9,6 @@
   },
   "AgentChat": {
     "activity": {
-      "addWidget": "Add dashboard widget",
       "cancelled": "Stopped",
       "consequence": {
         "accountConnect": "Connect a messaging channel",
@@ -41,30 +40,6 @@
         "preview": "Preview",
         "subject": "Subject",
         "to": "To"
-      },
-      "navTarget": {
-        "nav-company": "Company settings",
-        "nav-company-audit-logs": "Audit logs",
-        "nav-company-members": "Team members",
-        "nav-company-roles": "Roles",
-        "nav-company-settings": "Company settings",
-        "nav-company-subscription": "Subscription",
-        "nav-company-webhook-deliveries": "Webhook deliveries",
-        "nav-company-webhooks": "Webhooks",
-        "nav-contacts": "Contacts",
-        "nav-dashboard": "Dashboard",
-        "nav-deals": "Deals",
-        "nav-documentation": "Documentation",
-        "nav-feedback": "Feedback",
-        "nav-inbox": "Inbox",
-        "nav-organizations": "Organizations",
-        "nav-profile": "Profile settings",
-        "nav-profile-api-keys": "API keys",
-        "nav-profile-connected-accounts": "Connected accounts",
-        "nav-profile-settings": "Profile settings",
-        "nav-search": "Global search",
-        "nav-services": "Services",
-        "nav-tasks": "Tasks"
       },
       "resource": {
         "contacts": "contacts",
@@ -136,11 +111,6 @@
             "done": "Changed the conversation state",
             "error": "Couldn’t change the conversation state",
             "running": "Ready to change the conversation state"
-          },
-          "write": {
-            "done": "Message action completed",
-            "error": "Couldn’t complete the message action",
-            "running": "Preparing the message"
           }
         },
         "records": {
@@ -219,49 +189,6 @@
           }
         }
       },
-      "targetAction": {
-        "add": "Add {target}",
-        "displayOptions": "{target} display options",
-        "filter": "{target} filters",
-        "reset": "Reset in {target}",
-        "save": "Save in {target}",
-        "search": "{target} search"
-      },
-      "targetFallback": "Selected interface control",
-      "targetScope": {
-        "company-audit-logs": "audit logs",
-        "company-members": "team members",
-        "company-roles": "roles",
-        "company-settings": "company settings",
-        "company-webhook-deliveries": "webhook deliveries",
-        "company-webhooks": "webhooks",
-        "contacts": "contacts",
-        "deals": "deals",
-        "member-modal": "team member dialog",
-        "organizations": "organizations",
-        "profile-settings": "profile settings",
-        "services": "services",
-        "tasks": "tasks",
-        "webhook-modal": "webhook dialog",
-        "widget-modal": "dashboard widget dialog"
-      },
-      "targetScopeSingular": {
-        "company-audit-logs": "audit logs",
-        "company-members": "team member",
-        "company-roles": "role",
-        "company-settings": "company settings",
-        "company-webhook-deliveries": "webhook deliveries",
-        "company-webhooks": "webhook",
-        "contacts": "contact",
-        "deals": "deal",
-        "member-modal": "team member dialog",
-        "organizations": "organization",
-        "profile-settings": "profile settings",
-        "services": "service",
-        "tasks": "task",
-        "webhook-modal": "webhook dialog",
-        "widget-modal": "dashboard widget dialog"
-      },
       "yourRecords": "your records"
     },
     "approval": {
@@ -320,10 +247,6 @@
       "editPlan": "Edit plan",
       "editPrompt": "I’d like to change this workspace setup plan. Please ask me what I want to adjust.",
       "entities": {
-        "contact": "Contact",
-        "deal": "Deal",
-        "organization": "Organization",
-        "service": "Service",
         "task": "Task"
       },
       "fields": "Fields",
@@ -770,7 +693,6 @@
       "activityCancelled": "{count} {count, plural, one {step} other {steps}} stopped",
       "activityComplete": "{count} {count, plural, one {step} other {steps}} completed",
       "activityError": "{count} {count, plural, one {step needs} other {steps need}} attention",
-      "activityRunning": "Running {count} {count, plural, one {step} other {steps}}…",
       "archive": "Archive chat",
       "archived": "Archived",
       "archivedChats": "Archived chats",
@@ -794,7 +716,6 @@
       "noChatMatches": "No matching chats found.",
       "noChats": "No chats yet",
       "noChatsBody": "Start a chat to return to your questions and completed work later.",
-      "queueAction": "Queue message",
       "queued": "Up next",
       "refreshHistoryFailed": "Chat history couldn’t be refreshed. Your existing chats remain visible.",
       "removeQueued": "Remove queued message",

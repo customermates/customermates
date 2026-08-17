@@ -152,7 +152,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     ]);
     prismaMock.agentMessage.findMany.mockResolvedValue([{ conversationId: "conversation-1", sequence: 5n }]);
 
-    const result = await runWithTenant(user, () => new PrismaAgentChatRepo().listConversations());
+    const result = await runWithTenant(user, () =>
+      new PrismaAgentChatRepo().listConversationPage({ archived: false }).then((page) => page.conversations),
+    );
 
     expect(result).toEqual([
       expect.objectContaining({
@@ -186,7 +188,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     ]);
     prismaMock.agentMessage.findMany.mockResolvedValue([]);
 
-    const result = await runWithTenant(user, () => new PrismaAgentChatRepo().listConversations());
+    const result = await runWithTenant(user, () =>
+      new PrismaAgentChatRepo().listConversationPage({ archived: false }).then((page) => page.conversations),
+    );
 
     expect(result[0]?.preview).toBe("Opened [internal reference].");
   });
@@ -209,7 +213,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     ]);
     prismaMock.agentMessage.findMany.mockResolvedValue([]);
 
-    const result = await runWithTenant(user, () => new PrismaAgentChatRepo().listConversations());
+    const result = await runWithTenant(user, () =>
+      new PrismaAgentChatRepo().listConversationPage({ archived: false }).then((page) => page.conversations),
+    );
 
     expect(result[0]).toMatchObject({ title: "Legacy context", preview: "Show open deals" });
   });
@@ -490,7 +496,11 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     ]);
     prismaMock.agentMessage.findMany.mockResolvedValue([{ conversationId: "conversation-1", sequence: 11n }]);
 
-    await expect(runWithTenant(user, () => new PrismaAgentChatRepo().listConversations())).resolves.toEqual([
+    await expect(
+      runWithTenant(user, () =>
+        new PrismaAgentChatRepo().listConversationPage({ archived: false }).then((page) => page.conversations),
+      ),
+    ).resolves.toEqual([
       expect.objectContaining({
         id: "conversation-1",
         unreadSupport: true,

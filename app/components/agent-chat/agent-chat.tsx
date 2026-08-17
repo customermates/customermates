@@ -98,12 +98,6 @@ export const AgentChat = observer(function AgentChat() {
   }, [store]);
 
   useEffect(() => {
-    if (!store.isOpen || !store.composerFocusRequested) return;
-    document.getElementById("agent-composer")?.focus();
-    store.consumeComposerFocus();
-  }, [store, store.isOpen, store.composerFocusRequested]);
-
-  useEffect(() => {
     const revalidate = () => {
       if (document.visibilityState === "visible") void store.revalidateSupportReplies();
     };
@@ -679,12 +673,6 @@ const ConversationHistory = observer(function ConversationHistory() {
 
       {search}
 
-      {!hasHistory && query.trim() && !store.historySearchPending && (
-        <p className="px-3 py-6 text-center text-xs text-muted-foreground" role="status">
-          {copy.noChatMatches}
-        </p>
-      )}
-
       <div className="space-y-1" role="list">
         {store.conversations.map((conversation) => {
           const index = store.conversations.findIndex((candidate) => candidate.id === conversation.id);
@@ -1006,7 +994,6 @@ function chatUiCopy(t: ChatTranslator) {
     noChatMatches: t("AgentChat.ui.noChatMatches"),
     noChats: t("AgentChat.ui.noChats"),
     noChatsBody: t("AgentChat.ui.noChatsBody"),
-    queueAction: t("AgentChat.ui.queueAction"),
     queued: t("AgentChat.ui.queued"),
     refreshHistoryFailed: t("AgentChat.ui.refreshHistoryFailed"),
     removeQueued: t("AgentChat.ui.removeQueued"),
@@ -1019,7 +1006,7 @@ function chatUiCopy(t: ChatTranslator) {
     undo: t("AgentChat.ui.undo"),
     unreadSupport: t("AgentChat.ui.unreadSupport"),
     untitled: t("AgentChat.ui.untitled"),
-    activitySummary: (status: "running" | "error" | "cancelled" | "complete", count: number) =>
+    activitySummary: (status: "error" | "cancelled" | "complete", count: number) =>
       t(`AgentChat.ui.activity${status.charAt(0).toUpperCase()}${status.slice(1)}`, { count }),
     thinking: t("AgentChat.ui.thinking"),
     thoughtFor: (seconds: number) => t("AgentChat.ui.thoughtFor", { seconds }),
@@ -1408,7 +1395,7 @@ const WorkspaceSetupCard = observer(function WorkspaceSetupCard({
     organization: presetLabel(EntityType.organization, plan.terminology.organization, "singular"),
     deal: presetLabel(EntityType.deal, plan.terminology.deal, "singular"),
     service: presetLabel(EntityType.service, plan.terminology.service, "singular"),
-    task: copy.entities.task,
+    task: copy.taskEntity,
   };
   const recordCount =
     plan.records.organizations.length +
@@ -1703,13 +1690,7 @@ function workspaceSetupCopy(t: ChatTranslator) {
     description: t("AgentChat.setup.description"),
     editPlan: t("AgentChat.setup.editPlan"),
     editPrompt: t("AgentChat.setup.editPrompt"),
-    entities: {
-      contact: t("AgentChat.setup.entities.contact"),
-      deal: t("AgentChat.setup.entities.deal"),
-      organization: t("AgentChat.setup.entities.organization"),
-      service: t("AgentChat.setup.entities.service"),
-      task: t("AgentChat.setup.entities.task"),
-    },
+    taskEntity: t("AgentChat.setup.entities.task"),
     fields: t("AgentChat.setup.fields"),
     fullCleanup: t("AgentChat.setup.fullCleanup"),
     organizations: t("AgentChat.setup.organizations"),

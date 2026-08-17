@@ -9,7 +9,6 @@
   },
   "AgentChat": {
     "activity": {
-      "addWidget": "Dashboard-Widget hinzufügen",
       "cancelled": "Gestoppt",
       "consequence": {
         "accountConnect": "Einen Nachrichtenkanal verbinden",
@@ -41,30 +40,6 @@
         "preview": "Vorschau",
         "subject": "Betreff",
         "to": "An"
-      },
-      "navTarget": {
-        "nav-company": "Unternehmenseinstellungen",
-        "nav-company-audit-logs": "Auditprotokoll",
-        "nav-company-members": "Teammitglieder",
-        "nav-company-roles": "Rollen",
-        "nav-company-settings": "Unternehmenseinstellungen",
-        "nav-company-subscription": "Abonnement",
-        "nav-company-webhook-deliveries": "Webhook-Zustellungen",
-        "nav-company-webhooks": "Webhooks",
-        "nav-contacts": "Kontakte",
-        "nav-dashboard": "Dashboard",
-        "nav-deals": "Deals",
-        "nav-documentation": "Dokumentation",
-        "nav-feedback": "Feedback",
-        "nav-inbox": "Posteingang",
-        "nav-organizations": "Organisationen",
-        "nav-profile": "Profileinstellungen",
-        "nav-profile-api-keys": "API-Schlüssel",
-        "nav-profile-connected-accounts": "Verbundene Konten",
-        "nav-profile-settings": "Profileinstellungen",
-        "nav-search": "Globale Suche",
-        "nav-services": "Leistungen",
-        "nav-tasks": "Aufgaben"
       },
       "resource": {
         "contacts": "Kontakte",
@@ -136,11 +111,6 @@
             "done": "Unterhaltungsstatus wurde geändert",
             "error": "Unterhaltungsstatus konnte nicht geändert werden",
             "running": "Unterhaltungsstatus ist zum Ändern bereit"
-          },
-          "write": {
-            "done": "Nachrichtenaktion abgeschlossen",
-            "error": "Nachrichtenaktion fehlgeschlagen",
-            "running": "Nachricht wird vorbereitet"
           }
         },
         "records": {
@@ -219,49 +189,6 @@
           }
         }
       },
-      "targetAction": {
-        "add": "{target} hinzufügen",
-        "displayOptions": "Anzeigeoptionen für {target}",
-        "filter": "Filter für {target}",
-        "reset": "Zurücksetzen in {target}",
-        "save": "Speichern in {target}",
-        "search": "Suche für {target}"
-      },
-      "targetFallback": "Ausgewähltes Bedienelement",
-      "targetScope": {
-        "company-audit-logs": "Auditprotokoll",
-        "company-members": "Teammitglieder",
-        "company-roles": "Rollen",
-        "company-settings": "Unternehmenseinstellungen",
-        "company-webhook-deliveries": "Webhook-Zustellungen",
-        "company-webhooks": "Webhooks",
-        "contacts": "Kontakte",
-        "deals": "Deals",
-        "member-modal": "Teammitglieder-Dialog",
-        "organizations": "Organisationen",
-        "profile-settings": "Profileinstellungen",
-        "services": "Leistungen",
-        "tasks": "Aufgaben",
-        "webhook-modal": "Webhook-Dialog",
-        "widget-modal": "Dashboard-Widget-Dialog"
-      },
-      "targetScopeSingular": {
-        "company-audit-logs": "Auditprotokoll",
-        "company-members": "Teammitglied",
-        "company-roles": "Rolle",
-        "company-settings": "Unternehmenseinstellungen",
-        "company-webhook-deliveries": "Webhook-Zustellungen",
-        "company-webhooks": "Webhook",
-        "contacts": "Kontakt",
-        "deals": "Deal",
-        "member-modal": "Teammitglieder-Dialog",
-        "organizations": "Organisation",
-        "profile-settings": "Profileinstellungen",
-        "services": "Leistung",
-        "tasks": "Aufgabe",
-        "webhook-modal": "Webhook-Dialog",
-        "widget-modal": "Dashboard-Widget-Dialog"
-      },
       "yourRecords": "Datensätze"
     },
     "approval": {
@@ -320,10 +247,6 @@
       "editPlan": "Plan anpassen",
       "editPrompt": "Ich möchte diesen Einrichtungsplan ändern. Frag mich bitte, was ich anpassen möchte.",
       "entities": {
-        "contact": "Kontakt",
-        "deal": "Deal",
-        "organization": "Organisation",
-        "service": "Leistung",
         "task": "Aufgabe"
       },
       "fields": "Felder",
@@ -770,7 +693,6 @@
       "activityCancelled": "{count} {count, plural, one {Arbeitsschritt} other {Arbeitsschritte}} gestoppt",
       "activityComplete": "{count} {count, plural, one {Arbeitsschritt} other {Arbeitsschritte}} abgeschlossen",
       "activityError": "{count} {count, plural, one {Arbeitsschritt benötigt} other {Arbeitsschritte benötigen}} Aufmerksamkeit",
-      "activityRunning": "{count} {count, plural, one {Arbeitsschritt wird} other {Arbeitsschritte werden}} ausgeführt …",
       "archive": "Chat archivieren",
       "archived": "Archiviert",
       "archivedChats": "Archivierte Chats",
@@ -794,7 +716,6 @@
       "noChatMatches": "Keine passenden Chats gefunden.",
       "noChats": "Noch keine Chats",
       "noChatsBody": "Starte einen Chat, um Fragen und Arbeitsschritte später wiederzufinden.",
-      "queueAction": "Nachricht vormerken",
       "queued": "Als Nächstes",
       "refreshHistoryFailed": "Der Chatverlauf konnte nicht aktualisiert werden. Deine vorhandenen Chats bleiben sichtbar.",
       "removeQueued": "Vorgemerkte Nachricht entfernen",

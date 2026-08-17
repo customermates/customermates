@@ -1318,7 +1318,7 @@ describe("AgentChatStore", () => {
     ];
 
     const archive = store.archiveConversation(conversationId);
-    await vi.waitFor(() => expect(store.historyMutationPending).toBe("archive"));
+    await vi.waitFor(() => expect(store.historyMutationPending).toBe(true));
     store.conversationNextCursor = "next-page";
     await store.loadMoreConversations("active");
     await store.restoreArchivedConversation(conversationId);
@@ -1335,7 +1335,7 @@ describe("AgentChatStore", () => {
       data: { activeConversationId: null, conversations: [], nextCursor: null },
     });
     await expect(archive).resolves.toBe(true);
-    expect(store.historyMutationPending).toBeNull();
+    expect(store.historyMutationPending).toBe(false);
   });
 
   it("supersedes an older setup loaded upward when a newer review is already visible", async () => {

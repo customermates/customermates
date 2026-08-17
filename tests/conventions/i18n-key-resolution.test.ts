@@ -246,79 +246,9 @@ const AGENT_CREDIT_BLOCKED_KEYS = [
   "self_hosted",
   "subscription_unavailable",
 ].map((reason) => `AgentChat.credits.blocked.${reason}`);
-const AGENT_ACTIVITY_STATUS_KEYS = ["Cancelled", "Complete", "Error", "Running"].map(
+const AGENT_ACTIVITY_STATUS_KEYS = ["Cancelled", "Complete", "Error"].map(
   (status) => `AgentChat.ui.activity${status}`,
 );
-
-const AGENT_ACTIVITY_NAV_TARGET_KEYS = [
-  "AgentChat.activity.navTarget.nav-company",
-  "AgentChat.activity.navTarget.nav-company-audit-logs",
-  "AgentChat.activity.navTarget.nav-company-members",
-  "AgentChat.activity.navTarget.nav-company-roles",
-  "AgentChat.activity.navTarget.nav-company-settings",
-  "AgentChat.activity.navTarget.nav-company-subscription",
-  "AgentChat.activity.navTarget.nav-company-webhook-deliveries",
-  "AgentChat.activity.navTarget.nav-company-webhooks",
-  "AgentChat.activity.navTarget.nav-contacts",
-  "AgentChat.activity.navTarget.nav-dashboard",
-  "AgentChat.activity.navTarget.nav-deals",
-  "AgentChat.activity.navTarget.nav-documentation",
-  "AgentChat.activity.navTarget.nav-feedback",
-  "AgentChat.activity.navTarget.nav-inbox",
-  "AgentChat.activity.navTarget.nav-organizations",
-  "AgentChat.activity.navTarget.nav-profile",
-  "AgentChat.activity.navTarget.nav-profile-api-keys",
-  "AgentChat.activity.navTarget.nav-profile-connected-accounts",
-  "AgentChat.activity.navTarget.nav-profile-settings",
-  "AgentChat.activity.navTarget.nav-search",
-  "AgentChat.activity.navTarget.nav-services",
-  "AgentChat.activity.navTarget.nav-tasks",
-];
-
-const AGENT_ACTIVITY_SCOPE_KEYS = [
-  "AgentChat.activity.targetScope.company-audit-logs",
-  "AgentChat.activity.targetScope.company-members",
-  "AgentChat.activity.targetScope.company-roles",
-  "AgentChat.activity.targetScope.company-settings",
-  "AgentChat.activity.targetScope.company-webhook-deliveries",
-  "AgentChat.activity.targetScope.company-webhooks",
-  "AgentChat.activity.targetScope.contacts",
-  "AgentChat.activity.targetScope.deals",
-  "AgentChat.activity.targetScope.member-modal",
-  "AgentChat.activity.targetScope.organizations",
-  "AgentChat.activity.targetScope.profile-settings",
-  "AgentChat.activity.targetScope.services",
-  "AgentChat.activity.targetScope.tasks",
-  "AgentChat.activity.targetScope.webhook-modal",
-  "AgentChat.activity.targetScope.widget-modal",
-];
-
-const AGENT_ACTIVITY_SCOPE_SINGULAR_KEYS = [
-  "AgentChat.activity.targetScopeSingular.company-audit-logs",
-  "AgentChat.activity.targetScopeSingular.company-members",
-  "AgentChat.activity.targetScopeSingular.company-roles",
-  "AgentChat.activity.targetScopeSingular.company-settings",
-  "AgentChat.activity.targetScopeSingular.company-webhook-deliveries",
-  "AgentChat.activity.targetScopeSingular.company-webhooks",
-  "AgentChat.activity.targetScopeSingular.contacts",
-  "AgentChat.activity.targetScopeSingular.deals",
-  "AgentChat.activity.targetScopeSingular.member-modal",
-  "AgentChat.activity.targetScopeSingular.organizations",
-  "AgentChat.activity.targetScopeSingular.profile-settings",
-  "AgentChat.activity.targetScopeSingular.services",
-  "AgentChat.activity.targetScopeSingular.tasks",
-  "AgentChat.activity.targetScopeSingular.webhook-modal",
-  "AgentChat.activity.targetScopeSingular.widget-modal",
-];
-
-const AGENT_ACTIVITY_TARGET_ACTION_KEYS = [
-  "AgentChat.activity.targetAction.add",
-  "AgentChat.activity.targetAction.displayOptions",
-  "AgentChat.activity.targetAction.filter",
-  "AgentChat.activity.targetAction.reset",
-  "AgentChat.activity.targetAction.save",
-  "AgentChat.activity.targetAction.search",
-];
 
 const AGENT_ACTIVITY_RESOURCE_KEYS = [
   "AgentChat.activity.resource.contacts",
@@ -377,9 +307,6 @@ const AGENT_ACTIVITY_STATE_KEYS = [
   "AgentChat.activity.state.messages.triage.done",
   "AgentChat.activity.state.messages.triage.error",
   "AgentChat.activity.state.messages.triage.running",
-  "AgentChat.activity.state.messages.write.done",
-  "AgentChat.activity.state.messages.write.error",
-  "AgentChat.activity.state.messages.write.running",
   "AgentChat.activity.state.records.create.done",
   "AgentChat.activity.state.records.create.error",
   "AgentChat.activity.state.records.create.running",
@@ -496,10 +423,6 @@ const AGENT_SETUP_TEXT_KEYS = [
 
 const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["AgentChat.setup.text.${*}", AGENT_SETUP_TEXT_KEYS],
-  ["AgentChat.activity.navTarget.${*}", AGENT_ACTIVITY_NAV_TARGET_KEYS],
-  ["AgentChat.activity.targetScope.${*}", AGENT_ACTIVITY_SCOPE_KEYS],
-  ["AgentChat.activity.targetScopeSingular.${*}", AGENT_ACTIVITY_SCOPE_SINGULAR_KEYS],
-  ["AgentChat.activity.targetAction.${*}", AGENT_ACTIVITY_TARGET_ACTION_KEYS],
   ["AgentChat.activity.resource.${*}", AGENT_ACTIVITY_RESOURCE_KEYS],
   ["AgentChat.activity.resourceSingular.${*}", AGENT_ACTIVITY_RESOURCE_SINGULAR_KEYS],
   ["AgentChat.activity.label.${*}", AGENT_ACTIVITY_LABEL_KEYS],
@@ -662,13 +585,9 @@ export const DYNAMIC_KEY_SITES = [
   "features/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.readOnly.${id}.label",
   "features/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.readOnly.${id}.prompt",
   "features/agent-chat/agent-activity.ts :: t :: AgentChat.activity.label.${name}",
-  "features/agent-chat/agent-activity.ts :: t :: AgentChat.activity.navTarget.${targetKey}",
   "features/agent-chat/agent-activity.ts :: t :: AgentChat.activity.resource.${activity.resource}",
   "features/agent-chat/agent-activity.ts :: t :: AgentChat.activity.resourceSingular.${resourceKey}",
   "features/agent-chat/agent-activity.ts :: t :: AgentChat.activity.state.${activity.kind}.${name}",
-  "features/agent-chat/agent-activity.ts :: t :: AgentChat.activity.targetAction.${TARGET_ACTION_KEYS[action]}",
-  "features/agent-chat/agent-activity.ts :: t :: AgentChat.activity.targetScope.${scope}",
-  "features/agent-chat/agent-activity.ts :: t :: AgentChat.activity.targetScopeSingular.${scope}",
   "app/components/agent-chat/agent-chat.tsx :: t :: AgentChat.approval.${item.resolution}",
   "app/components/agent-chat/agent-chat.tsx :: t :: AgentChat.credits.blocked.${reason}",
   "app/components/agent-chat/agent-chat.tsx :: t :: AgentChat.ui.activity${status.charAt(0).toUpperCase()}${status.slice(1)}",

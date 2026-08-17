@@ -7,7 +7,7 @@ import es from "@/i18n/locales/es.json";
 import fr from "@/i18n/locales/fr.json";
 import itLocale from "@/i18n/locales/it.json";
 
-import { AgentActivityDescriptorSchema, agentActivityCopy, describeAgentTool } from "../agent-activity";
+import { agentActivityCopy, describeAgentTool } from "../agent-activity";
 import { agentActionPageFromPathname, agentPageActions, agentPageState } from "../agent-page-actions";
 import { agentGuidedTour, AgentTourSchema, AGENT_TOUR_MAX_STEPS } from "../agent-tours";
 import {
@@ -175,7 +175,7 @@ describe("agent experience contract", () => {
     expect(JSON.stringify([created, updated])).not.toMatch(/Ada|Grace|Private project|never-show|00000000/);
   });
 
-  it("retains only allowlisted semantic UI target keys and localizes their readable names", () => {
+  it("keeps no input-derived data on a navigate or highlight activity", () => {
     const navigate = describeAgentTool("navigate", {
       targetId: "nav-contacts",
       recordId: "00000000-0000-4000-8000-000000000001",
@@ -184,42 +184,18 @@ describe("agent experience contract", () => {
       targetId: "contacts-add",
       selector: "#private-record-00000000-0000-4000-8000-000000000002",
     });
-    const rejected = describeAgentTool("highlight_element", {
-      targetId: "00000000-0000-4000-8000-000000000003",
-    });
 
-    expect(navigate).toEqual({
-      kind: "interface.navigate",
-      affectedResources: [],
-      risk: "read",
-      targetKey: "nav-contacts",
-    });
-    expect(highlight).toMatchObject({ targetKey: "contacts-add" });
-    expect(rejected).not.toHaveProperty("targetKey");
-    expect(agentActivityCopy(navigate, enT).detail).toBe("Contacts");
-    expect(agentActivityCopy(navigate, deT).detail).toBe("Kontakte");
-    expect(agentActivityCopy(highlight, enT).detail).toBe("Add contact");
-    expect(agentActivityCopy(highlight, deT).detail).toBe("Kontakt hinzufügen");
-    expect(JSON.stringify([navigate, highlight, rejected])).not.toContain("00000000");
+    for (const activity of [navigate, highlight]) {
+      expect(activity).toEqual({ kind: "interface.navigate", affectedResources: [], risk: "read" });
+      expect(JSON.stringify(activity)).not.toContain("00000000");
+      expect(JSON.stringify(activity)).not.toContain("private-record");
+    }
 
-    const forged = AgentActivityDescriptorSchema.parse({
-      ...navigate,
-      targetKey: "00000000-0000-4000-8000-000000000004",
-    });
-    expect(forged.targetKey).toBeUndefined();
-    expect(JSON.stringify(forged)).not.toContain("00000000");
-
-    for (const targetKey of AGENT_UI_TARGET_IDS) {
-      const activity = describeAgentTool("highlight_element", {
-        targetId: targetKey,
-      });
-      const english = agentActivityCopy(activity, enT).detail;
-      const german = agentActivityCopy(activity, deT).detail;
-      expect(english).toBeTruthy();
-      expect(german).toBeTruthy();
-      expect(english).not.toBe("Selected interface control");
-      expect(german).not.toBe("Ausgewähltes Bedienelement");
-      expect(`${english}${german}`).not.toContain(targetKey);
+    for (const targetId of AGENT_UI_TARGET_IDS) {
+      const activity = describeAgentTool("highlight_element", { targetId });
+      expect(JSON.stringify(activity)).not.toContain(targetId);
+      expect(agentActivityCopy(activity, enT).running).toBeTruthy();
+      expect(agentActivityCopy(activity, deT).running).toBeTruthy();
     }
   });
 

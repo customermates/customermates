@@ -182,7 +182,7 @@ export function agentPageActions(
 
 function readOnlyAgentPageActions(page: SupportedPage, t: AgentTranslator): AgentPageAction[] {
   return READ_ONLY_ACTION_IDS.map((id) => ({
-    id: `${page}-${id === "relationships" ? "relationships" : id}-read-only`,
+    id: `${page}-${id}-read-only`,
     label: t(`AgentChat.suggestions.readOnly.${id}.label`),
     prompt: t(`AgentChat.suggestions.readOnly.${id}.prompt`),
   }));

@@ -9,7 +9,6 @@
   },
   "AgentChat": {
     "activity": {
-      "addWidget": "Aggiungere un widget alla dashboard",
       "cancelled": "Interrotto",
       "consequence": {
         "accountConnect": "Collegare un canale di messaggistica",
@@ -41,30 +40,6 @@
         "preview": "Anteprima",
         "subject": "Oggetto",
         "to": "A"
-      },
-      "navTarget": {
-        "nav-company": "Impostazioni azienda",
-        "nav-company-audit-logs": "Log di controllo",
-        "nav-company-members": "Membri del team",
-        "nav-company-roles": "Ruoli",
-        "nav-company-settings": "Impostazioni aziendali",
-        "nav-company-subscription": "Abbonamento",
-        "nav-company-webhook-deliveries": "Consegne webhook",
-        "nav-company-webhooks": "Webhook",
-        "nav-contacts": "Contatti",
-        "nav-dashboard": "Dashboard",
-        "nav-deals": "Trattative",
-        "nav-documentation": "Documentazione",
-        "nav-feedback": "Feedback",
-        "nav-inbox": "Posta in arrivo",
-        "nav-organizations": "Organizzazioni",
-        "nav-profile": "Impostazioni profilo",
-        "nav-profile-api-keys": "Chiavi API",
-        "nav-profile-connected-accounts": "Account collegati",
-        "nav-profile-settings": "Impostazioni profilo",
-        "nav-search": "Ricerca globale",
-        "nav-services": "Servizi",
-        "nav-tasks": "Attività"
       },
       "resource": {
         "contacts": "contatti",
@@ -136,11 +111,6 @@
             "done": "Stato della conversazione modificato",
             "error": "Impossibile modificare lo stato della conversazione",
             "running": "Pronto a cambiare lo stato della conversazione"
-          },
-          "write": {
-            "done": "Azione sul messaggio completata",
-            "error": "Impossibile completare l’azione sul messaggio",
-            "running": "Preparazione del messaggio"
           }
         },
         "records": {
@@ -219,49 +189,6 @@
           }
         }
       },
-      "targetAction": {
-        "add": "Aggiungi {target}",
-        "displayOptions": "Opzioni di visualizzazione per {target}",
-        "filter": "Filtri per {target}",
-        "reset": "Reimposta in {target}",
-        "save": "Salva in {target}",
-        "search": "Ricerca in {target}"
-      },
-      "targetFallback": "Elemento dell’interfaccia selezionato",
-      "targetScope": {
-        "company-audit-logs": "registri di controllo",
-        "company-members": "membri del team",
-        "company-roles": "ruoli",
-        "company-settings": "impostazioni azienda",
-        "company-webhook-deliveries": "consegne webhook",
-        "company-webhooks": "webhook",
-        "contacts": "contatti",
-        "deals": "trattative",
-        "member-modal": "finestra di dialogo membro del team",
-        "organizations": "organizzazioni",
-        "profile-settings": "impostazioni del profilo",
-        "services": "servizi",
-        "tasks": "attività",
-        "webhook-modal": "finestra di dialogo webhook",
-        "widget-modal": "finestra di dialogo widget della dashboard"
-      },
-      "targetScopeSingular": {
-        "company-audit-logs": "registri di controllo",
-        "company-members": "membro del team",
-        "company-roles": "ruolo",
-        "company-settings": "impostazioni azienda",
-        "company-webhook-deliveries": "consegne webhook",
-        "company-webhooks": "webhook",
-        "contacts": "contatto",
-        "deals": "trattativa",
-        "member-modal": "finestra di dialogo membro del team",
-        "organizations": "organizzazione",
-        "profile-settings": "impostazioni del profilo",
-        "services": "servizio",
-        "tasks": "attività",
-        "webhook-modal": "finestra di dialogo webhook",
-        "widget-modal": "finestra di dialogo widget della dashboard"
-      },
       "yourRecords": "i record"
     },
     "approval": {
@@ -320,10 +247,6 @@
       "editPlan": "Modifica piano",
       "editPrompt": "Vorrei modificare questo piano di configurazione dell’area di lavoro. Chiedimi che cosa voglio cambiare.",
       "entities": {
-        "contact": "Contatto",
-        "deal": "Trattativa",
-        "organization": "Organizzazione",
-        "service": "Servizio",
         "task": "Attività"
       },
       "fields": "Campi",
@@ -770,7 +693,6 @@
       "activityCancelled": "{count} {count, plural, one {passaggio interrotto} other {passaggi interrotti}}",
       "activityComplete": "{count} {count, plural, one {passaggio completato} other {passaggi completati}}",
       "activityError": "{count} {count, plural, one {passaggio richiede} other {passaggi richiedono}} attenzione",
-      "activityRunning": "Esecuzione di {count} {count, plural, one {passaggio} other {passaggi}}…",
       "archive": "Archivia chat",
       "archived": "Archiviato",
       "archivedChats": "Chat archiviate",
@@ -794,7 +716,6 @@
       "noChatMatches": "Nessuna chat corrispondente trovata.",
       "noChats": "Ancora nessuna chat",
       "noChatsBody": "Avvia una chat per ritrovare in seguito le domande e il lavoro completato.",
-      "queueAction": "Metti il messaggio in coda",
       "queued": "In coda",
       "refreshHistoryFailed": "Non è stato possibile aggiornare la cronologia delle chat. Le chat esistenti restano visibili.",
       "removeQueued": "Rimuovi il messaggio in coda",

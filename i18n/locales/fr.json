@@ -9,7 +9,6 @@
   },
   "AgentChat": {
     "activity": {
-      "addWidget": "Ajouter un widget de Dashboard",
       "cancelled": "Arrêté",
       "consequence": {
         "accountConnect": "Connecter un canal de messagerie",
@@ -41,30 +40,6 @@
         "preview": "Aperçu",
         "subject": "Objet",
         "to": "À"
-      },
-      "navTarget": {
-        "nav-company": "Paramètres de l’entreprise",
-        "nav-company-audit-logs": "Journaux d’audit",
-        "nav-company-members": "Membres de l’équipe",
-        "nav-company-roles": "Rôles",
-        "nav-company-settings": "Paramètres de l’entreprise",
-        "nav-company-subscription": "Abonnement",
-        "nav-company-webhook-deliveries": "Livraisons webhook",
-        "nav-company-webhooks": "Webhooks",
-        "nav-contacts": "Contacts",
-        "nav-dashboard": "Dashboard",
-        "nav-deals": "Affaires",
-        "nav-documentation": "Documentation",
-        "nav-feedback": "Retours",
-        "nav-inbox": "Boîte de réception",
-        "nav-organizations": "Organisations",
-        "nav-profile": "Paramètres du profil",
-        "nav-profile-api-keys": "Clés API",
-        "nav-profile-connected-accounts": "Comptes connectés",
-        "nav-profile-settings": "Paramètres du profil",
-        "nav-search": "Recherche globale",
-        "nav-services": "Services",
-        "nav-tasks": "Tâches"
       },
       "resource": {
         "contacts": "contacts",
@@ -136,11 +111,6 @@
             "done": "Statut de la conversation modifié",
             "error": "Impossible de modifier l’état de la conversation",
             "running": "État de la conversation prêt à être modifié"
-          },
-          "write": {
-            "done": "Action sur le message terminée",
-            "error": "Impossible d’effectuer l’action sur le message",
-            "running": "Préparation du message"
           }
         },
         "records": {
@@ -219,49 +189,6 @@
           }
         }
       },
-      "targetAction": {
-        "add": "Ajouter {target}",
-        "displayOptions": "Options d’affichage pour {target}",
-        "filter": "Filtres pour {target}",
-        "reset": "Réinitialiser dans {target}",
-        "save": "Enregistrer dans {target}",
-        "search": "Recherche dans {target}"
-      },
-      "targetFallback": "Élément d’interface sélectionné",
-      "targetScope": {
-        "company-audit-logs": "journaux d’audit",
-        "company-members": "membres de l’équipe",
-        "company-roles": "rôles",
-        "company-settings": "paramètres de l’entreprise",
-        "company-webhook-deliveries": "envois de webhooks",
-        "company-webhooks": "webhooks",
-        "contacts": "contacts",
-        "deals": "affaires",
-        "member-modal": "boîte de dialogue des membres de l’équipe",
-        "organizations": "organisations",
-        "profile-settings": "paramètres du profil",
-        "services": "services",
-        "tasks": "tâches",
-        "webhook-modal": "boîte de dialogue Webhook",
-        "widget-modal": "boîte de dialogue des widgets du Dashboard"
-      },
-      "targetScopeSingular": {
-        "company-audit-logs": "journal d’audit",
-        "company-members": "membre de l’équipe",
-        "company-roles": "rôle",
-        "company-settings": "paramètres de l’entreprise",
-        "company-webhook-deliveries": "envois de webhooks",
-        "company-webhooks": "webhook",
-        "contacts": "contact",
-        "deals": "affaire",
-        "member-modal": "boîte de dialogue des membres de l’équipe",
-        "organizations": "organisation",
-        "profile-settings": "paramètres du profil",
-        "services": "service",
-        "tasks": "tâche",
-        "webhook-modal": "boîte de dialogue Webhook",
-        "widget-modal": "boîte de dialogue des widgets du Dashboard"
-      },
       "yourRecords": "vos enregistrements"
     },
     "approval": {
@@ -320,10 +247,6 @@
       "editPlan": "Modifier le plan",
       "editPrompt": "Je souhaite modifier ce plan de configuration de l’espace de travail. Demandez-moi ce que je veux ajuster.",
       "entities": {
-        "contact": "Contact",
-        "deal": "Opportunité",
-        "organization": "Organisation",
-        "service": "Service",
         "task": "Tâche"
       },
       "fields": "Champs",
@@ -770,7 +693,6 @@
       "activityCancelled": "{count} {count, plural, one {étape arrêtée} other {étapes arrêtées}}",
       "activityComplete": "{count} {count, plural, one {étape terminée} other {étapes terminées}}",
       "activityError": "{count} {count, plural, one {étape nécessite} other {étapes nécessitent}} votre attention",
-      "activityRunning": "Exécution de {count} {count, plural, one {étape} other {étapes}}…",
       "archive": "Archiver la discussion",
       "archived": "Archivé",
       "archivedChats": "Discussions archivées",
@@ -794,7 +716,6 @@
       "noChatMatches": "Aucune discussion correspondante.",
       "noChats": "Aucun chat pour l’instant",
       "noChatsBody": "Démarrez une discussion pour retrouver plus tard vos questions et le travail effectué.",
-      "queueAction": "Mettre le message en attente",
       "queued": "À suivre",
       "refreshHistoryFailed": "L’historique des discussions n’a pas pu être actualisé. Vos discussions existantes restent visibles.",
       "removeQueued": "Supprimer le message en attente",

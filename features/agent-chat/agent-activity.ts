@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 import { sanitizeAgentVisibleText } from "./agent-output-safety";
-import { AGENT_UI_TARGET_IDS, findAgentUiTarget } from "./ui-targets";
 import type { AgentTranslator } from "./agent-translator";
 
 export const AGENT_ACTIVITY_KINDS = [
@@ -13,7 +12,6 @@ export const AGENT_ACTIVITY_KINDS = [
   "records.link",
   "records.note",
   "messages.read",
-  "messages.write",
   "messages.send",
   "messages.draft",
   "messages.discard",
@@ -81,18 +79,12 @@ export const AgentActivityConsequenceSchema = z
 
 export type AgentActivityConsequence = z.infer<typeof AgentActivityConsequenceSchema>;
 
-const AgentActivityUiTargetKeySchema = z.preprocess(
-  (value) => (typeof value === "string" && findAgentUiTarget(value) ? value : undefined),
-  z.enum(AGENT_UI_TARGET_IDS).optional(),
-);
-
 export const AgentActivityDescriptorSchema = z.object({
   kind: z.enum(AGENT_ACTIVITY_KINDS),
   resource: z.enum(AGENT_ACTIVITY_RESOURCES).optional(),
   affectedResources: z.array(z.enum(AGENT_ACTIVITY_RESOURCES)).max(8),
   risk: z.enum(["read", "write", "sensitive"]),
   count: z.number().int().min(1).max(100).optional(),
-  targetKey: AgentActivityUiTargetKeySchema,
   consequence: AgentActivityConsequenceSchema.optional(),
 });
 
@@ -178,10 +170,6 @@ function boundedMutationCount(input: unknown, resource: AgentActivityResource | 
   return Array.isArray(records) && records.length > 0 ? Math.min(records.length, 100) : undefined;
 }
 
-function safeUiTargetKey(value: unknown) {
-  return typeof value === "string" && findAgentUiTarget(value) ? value : undefined;
-}
-
 function actionValue(input: Record<string, unknown>) {
   return typeof input.action === "string" ? input.action : undefined;
 }
@@ -192,13 +180,8 @@ export function describeAgentTool(toolName: string, input: unknown): AgentActivi
 
   if (toolName === "list_ui_targets" || toolName === "get_workspace_context")
     return descriptor("workspace.read", undefined, "read");
-  if (toolName === "navigate" || toolName === "highlight_element") {
-    const targetKey = safeUiTargetKey(details.targetId);
-    return {
-      ...descriptor("interface.navigate", undefined, "read"),
-      ...(targetKey ? { targetKey } : {}),
-    };
-  }
+  if (toolName === "navigate" || toolName === "highlight_element")
+    return descriptor("interface.navigate", undefined, "read");
   if (toolName === "start_tour") return descriptor("interface.tour", undefined, "read");
   if (toolName === "open_workspace_setup") {
     return descriptor("workspace.setup", undefined, "read", [
@@ -217,28 +200,6 @@ export function describeAgentTool(toolName: string, input: unknown): AgentActivi
       subject: safeText(details.subject, 200),
       preview: safeText(details.body, 240),
     });
-  }
-  if (toolName === "apply_workspace_setup" || toolName === "seed_demo_data") {
-    return descriptor("workspace.setup", undefined, "sensitive", [
-      "contacts",
-      "organizations",
-      "deals",
-      "services",
-      "tasks",
-      "widgets",
-      "terminology",
-    ]);
-  }
-  if (toolName === "cleanup_workspace_setup") {
-    return descriptor("workspace.cleanup", undefined, "sensitive", [
-      "contacts",
-      "organizations",
-      "deals",
-      "services",
-      "tasks",
-      "widgets",
-      "terminology",
-    ]);
   }
   if (toolName === "manage_custom_columns" || toolName === "manage_widgets") {
     return descriptor("workspace.configure", resource, "sensitive", resource ? [resource] : ["terminology"], {
@@ -383,78 +344,6 @@ type ActivityCopy = {
   detail?: string;
 };
 
-const NAV_TARGET_IDS = new Set<string>([
-  "nav-company",
-  "nav-company-audit-logs",
-  "nav-company-members",
-  "nav-company-roles",
-  "nav-company-settings",
-  "nav-company-subscription",
-  "nav-company-webhook-deliveries",
-  "nav-company-webhooks",
-  "nav-contacts",
-  "nav-dashboard",
-  "nav-deals",
-  "nav-documentation",
-  "nav-feedback",
-  "nav-inbox",
-  "nav-organizations",
-  "nav-profile",
-  "nav-profile-api-keys",
-  "nav-profile-connected-accounts",
-  "nav-profile-settings",
-  "nav-search",
-  "nav-services",
-  "nav-tasks",
-]);
-
-const TARGET_SCOPE_IDS = new Set<string>([
-  "company-audit-logs",
-  "company-members",
-  "company-roles",
-  "company-settings",
-  "company-webhook-deliveries",
-  "company-webhooks",
-  "contacts",
-  "deals",
-  "member-modal",
-  "organizations",
-  "profile-settings",
-  "services",
-  "tasks",
-  "webhook-modal",
-  "widget-modal",
-]);
-
-const TARGET_ACTIONS = ["display-options", "add", "search", "filter", "save", "reset"] as const;
-const TARGET_ACTION_KEYS: Record<(typeof TARGET_ACTIONS)[number], string> = {
-  "display-options": "displayOptions",
-  add: "add",
-  filter: "filter",
-  reset: "reset",
-  save: "save",
-  search: "search",
-};
-
-function agentUiTargetCopy(targetKey: string, t: AgentTranslator) {
-  if (!findAgentUiTarget(targetKey)) return undefined;
-  if (NAV_TARGET_IDS.has(targetKey)) return t(`AgentChat.activity.navTarget.${targetKey}`);
-  if (targetKey === "dashboard-add-widget") return t("AgentChat.activity.addWidget");
-
-  const action = TARGET_ACTIONS.find((candidate) => targetKey.endsWith(`-${candidate}`));
-  if (!action) return t("AgentChat.activity.targetFallback");
-
-  const scope = targetKey.slice(0, -(action.length + 1));
-  if (!TARGET_SCOPE_IDS.has(scope)) return t("AgentChat.activity.targetFallback");
-
-  const target =
-    action === "add"
-      ? t(`AgentChat.activity.targetScopeSingular.${scope}`)
-      : t(`AgentChat.activity.targetScope.${scope}`);
-
-  return t(`AgentChat.activity.targetAction.${TARGET_ACTION_KEYS[action]}`, { target });
-}
-
 function countedResourceCopy(
   count: number | undefined,
   resourceKey: AgentActivityResource | undefined,
@@ -562,10 +451,8 @@ export function agentActivityCopy(
     : undefined;
   const hasCustomTerminology = Boolean(activity.resource && terminology[activity.resource]);
   const mutationTarget = countedResourceCopy(activity.count, activity.resource, t, resource, hasCustomTerminology);
-  const uiTarget = activity.targetKey ? agentUiTargetCopy(activity.targetKey, t) : undefined;
   const detail =
     agentConsequenceDetail(activity, t, resource, hasCustomTerminology) ??
-    uiTarget ??
     (resource ? resource.charAt(0).toUpperCase() + resource.slice(1) : undefined);
   const state = (name: "running" | "done" | "error") =>
     t(`AgentChat.activity.state.${activity.kind}.${name}`, {

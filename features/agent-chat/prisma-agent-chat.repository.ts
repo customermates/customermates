@@ -17,12 +17,7 @@ import { env } from "@/env";
 
 import type { AgentUsageRepo } from "./agent-usage.service";
 import { AGENT_CONVERSATION_PAGE_SIZE, AGENT_MESSAGE_PAGE_SIZE, type AgentConversationPage } from "./agent-history";
-import {
-  clientSafeAgentMessageParts,
-  hasRenderableAgentMessageParts,
-  partsToText,
-  type AgentConversationSummary,
-} from "./agent-chat.schema";
+import { clientSafeAgentMessageParts, hasRenderableAgentMessageParts, partsToText } from "./agent-chat.schema";
 import {
   AgentWorkspaceSetupPlanSchema,
   PrepareAgentWorkspaceSetupSchema,
@@ -172,14 +167,6 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         archivedAt: null,
       },
     });
-  }
-
-  async listConversations(limit = AGENT_CONVERSATION_PAGE_SIZE): Promise<AgentConversationSummary[]> {
-    return (await this.listConversationPage({ archived: false, limit })).conversations;
-  }
-
-  async listArchivedConversations(limit = AGENT_CONVERSATION_PAGE_SIZE): Promise<AgentConversationSummary[]> {
-    return (await this.listConversationPage({ archived: true, limit })).conversations;
   }
 
   async listConversationPage(args: {
