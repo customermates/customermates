@@ -87,6 +87,7 @@ export class PrismaRoleRepo
     const savedRole = await this.prisma.userRole.upsert({
       where: {
         id: args.id ?? "",
+        companyId,
       },
       create: roleData,
       update: roleData,

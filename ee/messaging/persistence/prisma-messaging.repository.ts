@@ -811,7 +811,7 @@ export class PrismaMessagingRepo
 
     if (existing) {
       const row = await this.prisma.messagingMessage.update({
-        where: { id: existing.id },
+        where: { id: existing.id, companyId: this.companyId },
         data: {
           sender: args.sender,
           senderIdentifier: args.sender.identifier || null,
@@ -906,7 +906,7 @@ export class PrismaMessagingRepo
     if (!draft) return null;
 
     const row = await this.prisma.messagingMessage.update({
-      where: { id: draft.id },
+      where: { id: draft.id, companyId: this.companyId },
       data: {
         unipileMessageId: args.unipileMessageId,
         providerMessageId: args.providerMessageId,
@@ -925,7 +925,7 @@ export class PrismaMessagingRepo
 
     const preview = args.bodyText?.trim() || args.bodyHtml?.replace(/<[^>]*>/g, "").trim() || null;
     await this.prisma.messagingThread.update({
-      where: { id: draft.messagingThreadId },
+      where: { id: draft.messagingThreadId, companyId: this.companyId },
       data: { lastMessageAt: args.sentAt, lastMessagePreview: preview, lastMessageIsSender: true },
     });
 

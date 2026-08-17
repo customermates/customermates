@@ -232,7 +232,7 @@ export class PrismaCustomColumnRepo
     if ("options" in args && args.options !== undefined) columnData.options = args.options;
 
     const column = await this.prisma.customColumn.upsert({
-      where: { id: args.id ?? "" },
+      where: { id: args.id ?? "", companyId },
       create: columnData,
       update: columnData,
       select: this.baseSelect,
