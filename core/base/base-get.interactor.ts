@@ -42,6 +42,7 @@ export interface GetResult<T> {
   groupingColumnId?: string;
   groupCounts?: Record<string, number>;
   groupValueSums?: Record<string, GroupValueSums>;
+  valueSums?: GroupValueSums;
 }
 
 export abstract class P13nRepo {
@@ -78,6 +79,7 @@ type FetchResult<T> = {
   total: number;
   groupCounts?: Record<string, number>;
   groupValueSums?: Record<string, GroupValueSums>;
+  valueSums?: GroupValueSums;
 };
 
 export abstract class BaseGetInteractor<T> {
@@ -190,6 +192,8 @@ export abstract class BaseGetInteractor<T> {
         )
       : await this.fetchFlat(baseQuery, pagination);
 
+    const valueSums = await this.sumDeclaredFields(baseQuery);
+
     const pageSize = pagination?.pageSize || 100;
     const page = pagination?.page || 1;
 
@@ -211,6 +215,7 @@ export abstract class BaseGetInteractor<T> {
         groupingColumnId,
         groupCounts,
         groupValueSums,
+        valueSums,
         pagination: {
           page,
           pageSize,
@@ -249,7 +254,7 @@ export abstract class BaseGetInteractor<T> {
         const [items, count, valueSums] = await Promise.all([
           this.repo.getItems({ ...baseQuery, filters, take: takeFor(groupKey), skip: 0 }),
           this.repo.getCount({ filters, searchTerm: baseQuery.searchTerm }),
-          this.fetchGroupValueSums({ filters, searchTerm: baseQuery.searchTerm }),
+          this.sumDeclaredFields({ filters, searchTerm: baseQuery.searchTerm }),
         ]);
         return { groupKey, items, count, valueSums };
       }),
@@ -264,7 +269,7 @@ export abstract class BaseGetInteractor<T> {
     return { items, total, groupCounts, groupValueSums };
   }
 
-  private async fetchGroupValueSums(params: GetQueryParams): Promise<GroupValueSums | undefined> {
+  private async sumDeclaredFields(params: GetQueryParams): Promise<GroupValueSums | undefined> {
     if (this.groupValueSumFields.length === 0 || !this.entityType) return undefined;
 
     const sums = await this.repo.sumNumericFields({

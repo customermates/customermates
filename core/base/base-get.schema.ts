@@ -198,5 +198,6 @@ export function createGetResultSchema<T extends z.ZodSchema>(itemSchema: T) {
     groupingColumnId: z.string().optional(),
     groupCounts: z.record(z.string(), z.number()).optional(),
     groupValueSums: z.record(z.string(), GroupValueSumsSchema).optional(),
+    valueSums: GroupValueSumsSchema.optional(),
   });
 }
