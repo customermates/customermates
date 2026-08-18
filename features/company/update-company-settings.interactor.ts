@@ -17,7 +17,6 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { getTenantUser } from "@/core/decorators/tenant-context";
 
 export const DealStageWeightSchema = z.object({
   optionValue: z.string(),
@@ -72,10 +71,8 @@ export class UpdateCompanySettingsInteractor extends AuthenticatedInteractor<
     if (data.dealWeightingColumnId !== undefined || data.dealStageWeights?.length)
       await this.repo.recalculateDealWeightedValues();
 
-    const { companyId } = getTenantUser();
-
     await this.eventService.publish(DomainEvent.COMPANY_UPDATED, {
-      entityId: companyId,
+      entityId: this.companyId,
       payload: data,
     });
 

@@ -28,7 +28,7 @@ function makeRole(overrides: Partial<RoleDto> = {}): RoleDto {
   };
 }
 
-function makeStore(role: RoleDto): RoleModalStore {
+function makeStore(role: RoleDto, signedInRoleId: string | null = null): RoleModalStore {
   const rolesStore = {
     items: [role],
     removeItem: vi.fn(),
@@ -43,7 +43,7 @@ function makeStore(role: RoleDto): RoleModalStore {
     registerModalStore: vi.fn(),
     rolesStore,
     userStore: {
-      user: null,
+      user: signedInRoleId ? { roleId: signedInRoleId } : null,
       canManage: vi.fn().mockReturnValue(true),
     },
   } as unknown as RootStore;
@@ -88,5 +88,54 @@ describe("RoleModalStore delete availability", () => {
 
     expect(store.rootStore.rolesStore.items[0]?.hasUsersAssigned).toBe(true);
     expect(store.canDeleteRole).toBe(false);
+  });
+});
+
+const UNHELD_ROLE_ID = "20000000-0000-4000-8000-000000000009";
+
+describe("RoleModalStore own-role guard", () => {
+  it("makes the role assigned to the signed-in user read-only", () => {
+    const role = makeRole({ hasUsersAssigned: true });
+    const store = makeStore(role, role.id);
+
+    expect(store.isOwnRole).toBe(true);
+    expect(store.isReadOnly).toBe(true);
+    expect(store.isDisabledOrSystemRole).toBe(true);
+    expect(store.canDeleteRole).toBe(false);
+  });
+
+  it("leaves a role the signed-in user does not hold editable", () => {
+    const store = makeStore(makeRole(), UNHELD_ROLE_ID);
+
+    expect(store.isOwnRole).toBe(false);
+    expect(store.isReadOnly).toBe(false);
+    expect(store.isDisabledOrSystemRole).toBe(false);
+  });
+
+  it("never submits the role assigned to the signed-in user", async () => {
+    const role = makeRole({ hasUsersAssigned: true });
+    const store = makeStore(role, role.id);
+
+    await store.onSubmit();
+
+    expect(companyActions.upsertRoleAction).not.toHaveBeenCalled();
+  });
+
+  it("still submits a role the signed-in user does not hold", async () => {
+    const role = makeRole();
+    companyActions.upsertRoleAction.mockResolvedValue({ ok: true, data: RoleDtoSchema.parse(role) });
+    const store = makeStore(role, UNHELD_ROLE_ID);
+
+    await store.onSubmit();
+
+    expect(companyActions.upsertRoleAction).toHaveBeenCalledOnce();
+  });
+
+  it("does not treat a new role as the signed-in user's own", () => {
+    const store = makeStore(makeRole(), UNHELD_ROLE_ID);
+    store.add();
+
+    expect(store.isOwnRole).toBe(false);
+    expect(store.isReadOnly).toBe(false);
   });
 });

@@ -283,6 +283,8 @@
       "passwordMismatch": "Passwörter müssen übereinstimmen.",
       "relationNotAllowed": "Die Beziehung '{relation}' ist für {entity} nicht erlaubt. Erlaubte Beziehungen: {allowed}.",
       "roleNotFound": "Rollen-ID nicht gefunden oder nicht zugänglich.",
+      "roleSelfEditForbidden": "Du kannst die Berechtigungen deiner eigenen Rolle nicht ändern.",
+      "roleSystemImmutable": "Systemrollen können nicht bearbeitet werden.",
       "roleSystemRequired": "Mindestens ein Nutzer muss Systemadministrator sein.",
       "salesNavigatorNotAvailable": "Dieses LinkedIn-Konto hat Sales Navigator nicht verbunden.",
       "salesNavigatorRequiresLinkedin": "Sales Navigator braucht ein verbundenes LinkedIn-Konto, dieses Konto ist aber {provider}.",
@@ -1655,6 +1657,7 @@
   "RoleModal": {
     "manageAccess": "Verwalten",
     "no": "Nein",
+    "ownRoleAlert": "Diese Rolle ist dir zugewiesen und kann nicht bearbeitet werden. Bitte einen anderen Administrator, sie zu ändern.",
     "readAccess": "Lesen",
     "readAll": "Alle",
     "readNone": "Keine",

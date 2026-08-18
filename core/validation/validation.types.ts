@@ -54,6 +54,8 @@ export enum CustomErrorCode {
   calendarEventNotFound = "calendarEventNotFound",
   connectedAccountNotFound = "connectedAccountNotFound",
   roleNotFound = "roleNotFound",
+  roleSelfEditForbidden = "roleSelfEditForbidden",
+  roleSystemImmutable = "roleSystemImmutable",
   invalidFilterField = "invalidFilterField",
   invalidFilterOperator = "invalidFilterOperator",
   invalidFilterValue = "invalidFilterValue",
