@@ -296,6 +296,8 @@
       "passwordMismatch": "Les mots de passe doivent correspondre.",
       "relationNotAllowed": "La relation '{relation}' n'est pas autorisée sur {entity}. Relations autorisées : {allowed}.",
       "roleNotFound": "ID de rôle introuvable ou inaccessible.",
+      "roleSelfEditForbidden": "Vous ne pouvez pas modifier les autorisations de votre propre rôle.",
+      "roleSystemImmutable": "Les rôles système ne peuvent pas être modifiés.",
       "roleSystemRequired": "Au moins un utilisateur doit être administrateur système.",
       "salesNavigatorNotAvailable": "Ce compte LinkedIn n'a pas Sales Navigator connecté.",
       "salesNavigatorRequiresLinkedin": "Sales Navigator nécessite un compte LinkedIn connecté, or ce compte est {provider}.",
@@ -1649,6 +1651,7 @@
   "RoleModal": {
     "manageAccess": "Gérer",
     "no": "Non",
+    "ownRoleAlert": "Ce rôle vous est attribué et ne peut pas être modifié. Demandez à un autre administrateur de le modifier.",
     "readAccess": "Accès en lecture",
     "readAll": "Tous",
     "readNone": "Aucun",

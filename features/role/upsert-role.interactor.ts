@@ -10,6 +10,7 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { RoleDtoSchema } from "./role.schema";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx, type Validated } from "@/core/validation/validation.utils";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -86,11 +87,9 @@ export class UpsertRoleInteractor extends AuthenticatedInteractor<UpsertRoleData
   @Write({
     input: Schema,
     output: RoleDtoSchema,
-    precheck: (self, data, ctx) => self.validator.invoke([{ ids: data.id, path: ["id"] }], ctx),
+    precheck: (self, data, ctx) => self.precheck(data, ctx),
   })
   async invoke(data: UpsertRoleData): Validated<RoleDto> {
-    if (data.id && (await this.repo.isSystemRoleOrThrow(data.id))) throw new Error("Cannot update system roles");
-
     const previousRole = data.id ? await this.repo.getRoleByIdOrThrow(data.id) : undefined;
     const role = await this.repo.upsertRoleOrThrow(data);
 
@@ -110,5 +109,15 @@ export class UpsertRoleInteractor extends AuthenticatedInteractor<UpsertRoleData
     await eventPromise;
 
     return { ok: true as const, data: role };
+  }
+
+  private async precheck(data: UpsertRoleData, ctx: z.RefinementCtx) {
+    if (data.id && data.id === this.user.roleId)
+      ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.roleSelfEditForbidden }, path: ["id"] });
+
+    if (data.id && (await this.repo.isSystemRoleOrThrow(data.id)))
+      ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.roleSystemImmutable }, path: ["id"] });
+
+    await this.validator.invoke([{ ids: data.id, path: ["id"] }], ctx);
   }
 }
