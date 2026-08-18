@@ -39,7 +39,6 @@ function Avatar({
       )}
       data-size={size}
       data-slot="avatar"
-      title={title}
       {...props}
     >
       {children ?? (
@@ -52,14 +51,16 @@ function Avatar({
     </AvatarPrimitive.Root>
   );
 
-  if (!unlinked || !unlinkedLabel) return root;
+  const tooltipLabel = unlinked && unlinkedLabel ? unlinkedLabel : title;
+
+  if (!tooltipLabel) return root;
 
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>{root}</TooltipTrigger>
 
-        <TooltipContent>{unlinkedLabel}</TooltipContent>
+        <TooltipContent className="whitespace-pre-line">{tooltipLabel}</TooltipContent>
       </Tooltip>
     </TooltipProvider>
   );

@@ -11,6 +11,7 @@ import { FormNumberInput } from "@/components/forms/form-number-input";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { Icon } from "@/components/shared/icon";
+import { TruncatedText } from "@/components/shared/truncated-text";
 import { useEntityHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppChip } from "@/components/chip/app-chip";
@@ -127,12 +128,9 @@ export const DealServicesSelection = observer(() => {
                 />
               </div>
 
-              <span
-                className="text-x-md text-right font-mono tabular-nums text-foreground/80 truncate min-w-0"
-                title={lineTotal > 0 ? intlStore.formatCurrency(lineTotal) : undefined}
-              >
+              <TruncatedText className="text-x-md text-right font-mono tabular-nums text-foreground/80">
                 {lineTotal > 0 ? intlStore.formatCurrency(lineTotal) : ""}
-              </span>
+              </TruncatedText>
 
               {canManage ? (
                 <Button size="icon" type="button" variant="destructiveOutline" onClick={() => deleteService(index)}>
@@ -152,20 +150,14 @@ export const DealServicesSelection = observer(() => {
                 {t("DealModal.totalLabel")}
               </span>
 
-              <span
-                className="text-x-md text-right font-mono tabular-nums font-medium pt-1 truncate min-w-0 px-3"
-                title={intlStore.formatNumber(totalQuantity)}
-              >
+              <TruncatedText className="text-x-md text-right font-mono tabular-nums font-medium pt-1 px-3">
                 {intlStore.formatNumber(totalQuantity)}
-              </span>
+              </TruncatedText>
             </div>
 
-            <span
-              className="text-x-md text-right font-mono tabular-nums font-medium truncate min-w-0 pt-1"
-              title={intlStore.formatCurrency(totalValue)}
-            >
+            <TruncatedText className="text-x-md text-right font-mono tabular-nums font-medium pt-1">
               {intlStore.formatCurrency(totalValue)}
-            </span>
+            </TruncatedText>
 
             <span />
           </>

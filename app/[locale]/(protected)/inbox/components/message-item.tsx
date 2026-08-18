@@ -11,6 +11,7 @@ import { ImageOff, Pencil, Send, Trash2 } from "lucide-react";
 import { AppChip } from "@/components/chip/app-chip";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { isEmailProvider } from "@/ee/messaging/provider";
 import { isPlainTextEmailBody, splitQuotedText } from "@/ee/messaging/email-quote";
 import { deriveMessageSender, displayableIdentifier, isUnipileUnsupportedBody } from "@/ee/messaging/thread-display";
@@ -256,14 +257,21 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
           {pendingFiles.length > 0 && (
             <div className="flex flex-col gap-1.5 p-1.5">
               {pendingFiles.map((file, fileIndex) => {
-                const { Icon: FileTypeIcon, accent } = describeFile({ mime: file.type, fileName: file.name });
+                const { Icon: FileTypeIcon, accent } = describeFile({
+                  mime: file.type,
+                  fileName: file.name,
+                });
                 return (
                   <AttachmentRow
                     key={`${file.name}-${fileIndex}`}
                     accent={accent}
                     fileIcon={FileTypeIcon}
                     name={file.name}
-                    subtitle={attachmentSubtitle(t, { mime: file.type, fileName: file.name, size: file.size })}
+                    subtitle={attachmentSubtitle(t, {
+                      mime: file.type,
+                      fileName: file.name,
+                      size: file.size,
+                    })}
                     onOpen={() => downloadLocalFile(file)}
                   />
                 );
@@ -275,27 +283,37 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
             <div className="flex flex-wrap items-center gap-2 px-3 py-1.5">
               {isDraft ? (
                 <span className="flex items-center gap-1">
-                  <Button
-                    aria-label={t("Inbox.compose.draftEdit")}
-                    size="icon-xs"
-                    title={t("Inbox.compose.draftEdit")}
-                    type="button"
-                    variant="secondary"
-                    onClick={() => compose.loadDraft(message)}
-                  >
-                    <Pencil />
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        aria-label={t("Inbox.compose.draftEdit")}
+                        size="icon-xs"
+                        type="button"
+                        variant="secondary"
+                        onClick={() => compose.loadDraft(message)}
+                      >
+                        <Pencil />
+                      </Button>
+                    </TooltipTrigger>
 
-                  <Button
-                    aria-label={t("Inbox.compose.draftDiscard")}
-                    size="icon-xs"
-                    title={t("Inbox.compose.draftDiscard")}
-                    type="button"
-                    variant="softDestructive"
-                    onClick={() => void compose.discardDraft(message.id)}
-                  >
-                    <Trash2 />
-                  </Button>
+                    <TooltipContent>{t("Inbox.compose.draftEdit")}</TooltipContent>
+                  </Tooltip>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        aria-label={t("Inbox.compose.draftDiscard")}
+                        size="icon-xs"
+                        type="button"
+                        variant="softDestructive"
+                        onClick={() => void compose.discardDraft(message.id)}
+                      >
+                        <Trash2 />
+                      </Button>
+                    </TooltipTrigger>
+
+                    <TooltipContent>{t("Inbox.compose.draftDiscard")}</TooltipContent>
+                  </Tooltip>
 
                   <Button
                     size="xs"
