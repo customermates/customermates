@@ -1,4 +1,5 @@
 import type { DeliverWebhookPayload } from "@/features/webhook/deliver-webhook.interactor";
+import type { WorkflowTenant } from "./workflow-tenant";
 
 import { getDeliverWebhookInteractor } from "@/core/di";
 import { isExpectedError, WebhookExternalFailure, WebhookNonRetryableFailure } from "@/core/errors/app-errors";
@@ -7,6 +8,8 @@ import { reportFailure, toWorkflowFailure } from "./capture-failure";
 
 const WORKFLOW_NAME = "deliver-webhook";
 const RETRYABLE_4XX = new Set([408, 425, 429]);
+
+export type DeliverWebhookWorkflowPayload = DeliverWebhookPayload & { tenant?: WorkflowTenant };
 
 async function deliverStep(payload: DeliverWebhookPayload): Promise<void> {
   "use step";
@@ -23,13 +26,15 @@ async function deliverStep(payload: DeliverWebhookPayload): Promise<void> {
 }
 deliverStep.maxRetries = 5;
 
-export async function deliverWebhook(payload: DeliverWebhookPayload): Promise<void> {
+export async function deliverWebhook(payload: DeliverWebhookWorkflowPayload): Promise<void> {
   "use workflow";
+  const { tenant, ...delivery } = payload;
+
   try {
-    await deliverStep(payload);
+    await deliverStep(delivery);
   } catch (err) {
     if (isExpectedError(err)) return;
-    await reportFailure(WORKFLOW_NAME, toWorkflowFailure(err));
+    await reportFailure(WORKFLOW_NAME, toWorkflowFailure(err), tenant);
     throw err;
   }
 }

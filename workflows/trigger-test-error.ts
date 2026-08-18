@@ -1,8 +1,10 @@
+import type { WorkflowTenant } from "./workflow-tenant";
+
 import { reportFailure, toWorkflowFailure } from "./capture-failure";
 
 const WORKFLOW_NAME = "trigger-test-error";
 
-export type TriggerTestErrorPayload = { message: string };
+export type TriggerTestErrorPayload = { message: string; tenant?: WorkflowTenant };
 
 async function failStep(message: string): Promise<void> {
   "use step";
@@ -16,7 +18,7 @@ export async function triggerTestError(payload: TriggerTestErrorPayload): Promis
   try {
     await failStep(payload.message);
   } catch (err) {
-    await reportFailure(WORKFLOW_NAME, toWorkflowFailure(err));
+    await reportFailure(WORKFLOW_NAME, toWorkflowFailure(err), payload.tenant);
     throw err;
   }
 }
