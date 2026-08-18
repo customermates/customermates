@@ -180,18 +180,24 @@ export const DealServicesSelection = observer(() => {
       </div>
 
       {(form.services || []).length > 0 && (
-        <div className="mt-3 flex w-full flex-col gap-1.5">
-          <InfoRow label={columnLabel("totalQuantity")}>{intlStore.formatNumber(totalQuantity)}</InfoRow>
-
-          <InfoRow label={columnLabel("totalValue")}>{intlStore.formatCurrency(totalValue)}</InfoRow>
+        <div className="mt-3 flex w-full flex-col gap-1.5 pr-12">
+          <InfoRow label={columnLabel("totalValue")}>
+            <span className="text-x-md font-mono tabular-nums">{intlStore.formatCurrency(totalValue)}</span>
+          </InfoRow>
 
           {weightedValueBreakdown && (
             <InfoRow
               label={`${columnLabel("weightedValue")} · ${weightedValueBreakdown.stage} ${weightedValueBreakdown.percent}%`}
             >
-              {intlStore.formatCurrency(weightedValueBreakdown.weightedValue)}
+              <span className="text-x-md font-mono tabular-nums">
+                {intlStore.formatCurrency(weightedValueBreakdown.weightedValue)}
+              </span>
             </InfoRow>
           )}
+
+          <InfoRow label={columnLabel("totalQuantity")}>
+            <span className="text-x-md font-mono tabular-nums">{intlStore.formatNumber(totalQuantity)}</span>
+          </InfoRow>
         </div>
       )}
 
