@@ -13,7 +13,6 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { getTenantUser } from "@/core/decorators/tenant-context";
 import { resolveRequestOrigin } from "@/core/config/environment";
 import { env } from "@/env";
 import CompanyInvite from "@/components/emails/company-invite";
@@ -46,7 +45,7 @@ export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
   @Validate(InviteUsersByEmailSchema)
   @ValidateOutput(OutputSchema)
   async invoke(data: InviteUsersByEmailData): Validated<InviteUsersByEmailResult> {
-    const user = getTenantUser();
+    const user = this.user;
     const tokenResult = await this.getOrCreateInviteToken.invoke();
 
     const requestOrigin = (await headers()).get("origin") ?? env.BASE_URL;

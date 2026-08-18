@@ -5,7 +5,6 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { getTenantUser } from "@/core/decorators/tenant-context";
 import {
   StoredDisplayLanguageSchema,
   StoredFormattingLocaleSchema,
@@ -56,7 +55,7 @@ export class GetUserDetailsInteractor extends AuthenticatedInteractor<void, User
       theme,
       displayLanguage,
       formattingLocale,
-    } = getTenantUser();
+    } = this.user;
 
     return {
       ok: true as const,

@@ -12,7 +12,6 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { DomainEvent } from "@/features/event/domain-events";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { getTenantUser } from "@/core/decorators/tenant-context";
 import {
   StoredDisplayLanguageSchema,
   StoredFormattingLocaleSchema,
@@ -72,7 +71,7 @@ export class UpdateUserDetailsInteractor extends AuthenticatedInteractor<UpdateU
     };
 
     await this.eventService.publish(DomainEvent.USER_UPDATED, {
-      entityId: getTenantUser().id,
+      entityId: this.userId,
       payload: {
         firstName: profile.firstName,
         lastName: profile.lastName,
