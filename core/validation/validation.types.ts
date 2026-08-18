@@ -54,6 +54,7 @@ export enum CustomErrorCode {
   connectedAccountNotFound = "connectedAccountNotFound",
   roleNotFound = "roleNotFound",
   roleSelfEditForbidden = "roleSelfEditForbidden",
+  roleSystemImmutable = "roleSystemImmutable",
   invalidFilterField = "invalidFilterField",
   invalidFilterOperator = "invalidFilterOperator",
   invalidFilterValue = "invalidFilterValue",

@@ -90,8 +90,6 @@ export class UpsertRoleInteractor extends AuthenticatedInteractor<UpsertRoleData
     precheck: (self, data, ctx) => self.precheck(data, ctx),
   })
   async invoke(data: UpsertRoleData): Validated<RoleDto> {
-    if (data.id && (await this.repo.isSystemRoleOrThrow(data.id))) throw new Error("Cannot update system roles");
-
     const previousRole = data.id ? await this.repo.getRoleByIdOrThrow(data.id) : undefined;
     const role = await this.repo.upsertRoleOrThrow(data);
 
@@ -116,6 +114,9 @@ export class UpsertRoleInteractor extends AuthenticatedInteractor<UpsertRoleData
   private async precheck(data: UpsertRoleData, ctx: z.RefinementCtx) {
     if (data.id && data.id === this.user.roleId)
       ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.roleSelfEditForbidden }, path: ["id"] });
+
+    if (data.id && (await this.repo.isSystemRoleOrThrow(data.id)))
+      ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.roleSystemImmutable }, path: ["id"] });
 
     await this.validator.invoke([{ ids: data.id, path: ["id"] }], ctx);
   }

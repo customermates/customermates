@@ -280,6 +280,7 @@
       "relationNotAllowed": "La relation '{relation}' n'est pas autorisée sur {entity}. Relations autorisées : {allowed}.",
       "roleNotFound": "ID de rôle introuvable ou inaccessible.",
       "roleSelfEditForbidden": "Vous ne pouvez pas modifier les autorisations de votre propre rôle.",
+      "roleSystemImmutable": "Les rôles système ne peuvent pas être modifiés.",
       "roleSystemRequired": "Au moins un utilisateur doit être administrateur système.",
       "salesNavigatorNotAvailable": "Ce compte LinkedIn n'a pas Sales Navigator connecté.",
       "salesNavigatorRequiresLinkedin": "Sales Navigator nécessite un compte LinkedIn connecté, or ce compte est {provider}.",

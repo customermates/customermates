@@ -108,10 +108,12 @@ describe("UpsertRoleInteractor self-escalation guard", () => {
     expect(repo.upsertRoleOrThrow).toHaveBeenCalledOnce();
   });
 
-  it("still refuses a system role", async () => {
+  it("still refuses a system role, now as a validation result rather than a throw", async () => {
     const repo = new MockRepo();
 
-    await expect(invoke(repo, payload(SYSTEM_ROLE_ID))).rejects.toThrow("Cannot update system roles");
+    const result = await invoke(repo, payload(SYSTEM_ROLE_ID));
+
+    expect(result.ok).toBe(false);
     expect(repo.upsertRoleOrThrow).not.toHaveBeenCalled();
   });
 
