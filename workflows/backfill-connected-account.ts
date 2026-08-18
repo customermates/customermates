@@ -12,6 +12,8 @@ import {
 } from "@/core/di";
 import { getRetryAfterSeconds, isUnipileRateLimit, isUnipileTimeout } from "@/ee/messaging/messaging.service";
 
+import type { WorkflowTenant } from "./workflow-tenant";
+
 import { reportFailure, reportWarning, toWorkflowFailure } from "./capture-failure";
 
 const WORKFLOW_NAME = "backfill-connected-account";
@@ -25,7 +27,11 @@ const FINAL_SWEEP_DELAY_MS = 45 * 60_000;
 const MAX_PAGE_TIMEOUT_RETRIES = 4;
 const CALENDAR_SOURCE = "calendar";
 
-export type BackfillConnectedAccountPayload = { connectedAccountId: string; sourceFilter?: string[] };
+export type BackfillConnectedAccountPayload = {
+  connectedAccountId: string;
+  sourceFilter?: string[];
+  tenant?: WorkflowTenant;
+};
 
 type PageKind = "chat" | "email" | "calendar";
 type ListPageResult = { nextCursor: string | null; done: boolean; retryAfterSeconds?: number; timedOut?: boolean };
@@ -99,7 +105,12 @@ async function awaitReady(connectedAccountId: string, token: string, sourceFilte
 
 type SourceProgress = { source: string; cursor: string | null; timeoutCount: number };
 
-async function drainSources(kind: PageKind, connectedAccountId: string, sources: string[]): Promise<boolean> {
+async function drainSources(
+  kind: PageKind,
+  connectedAccountId: string,
+  sources: string[],
+  tenant?: WorkflowTenant,
+): Promise<boolean> {
   let pending: SourceProgress[] = sources.map((source) => ({ source, cursor: null, timeoutCount: 0 }));
 
   while (pending.length > 0) {
@@ -113,6 +124,7 @@ async function drainSources(kind: PageKind, connectedAccountId: string, sources:
           await reportWarning(
             WORKFLOW_NAME,
             `source "${progress.source}" abandoned after ${MAX_PAGE_TIMEOUT_RETRIES} timeouts (account ${connectedAccountId})`,
+            tenant,
           );
         } else {
           await sleep(CATCHUP_DELAY_MS);
@@ -133,16 +145,21 @@ async function drainSources(kind: PageKind, connectedAccountId: string, sources:
   return false;
 }
 
-async function drainWithResweeps(kind: PageKind, connectedAccountId: string, sources: string[]): Promise<boolean> {
-  let paused = await drainSources(kind, connectedAccountId, sources);
+async function drainWithResweeps(
+  kind: PageKind,
+  connectedAccountId: string,
+  sources: string[],
+  tenant?: WorkflowTenant,
+): Promise<boolean> {
+  let paused = await drainSources(kind, connectedAccountId, sources, tenant);
   for (let sweep = 0; sweep < BACKFILL_RESWEEPS && !paused; sweep += 1) {
     await sleep(RESWEEP_DELAY_MS);
-    paused = await drainSources(kind, connectedAccountId, sources);
+    paused = await drainSources(kind, connectedAccountId, sources, tenant);
   }
   return paused;
 }
 
-async function finalSweep(connectedAccountId: string, sourceFilter?: string[]): Promise<void> {
+async function finalSweep(connectedAccountId: string, sourceFilter?: string[], tenant?: WorkflowTenant): Promise<void> {
   const token = await claimBackfill(connectedAccountId);
   if (!token) return;
 
@@ -150,14 +167,15 @@ async function finalSweep(connectedAccountId: string, sourceFilter?: string[]): 
     const plan = await prepare(connectedAccountId, token, sourceFilter);
 
     if (plan.status === "ready") {
-      const paused = plan.kind === "none" ? false : await drainSources(plan.kind, connectedAccountId, plan.sources);
+      const paused =
+        plan.kind === "none" ? false : await drainSources(plan.kind, connectedAccountId, plan.sources, tenant);
 
-      if (!paused && plan.hasCalendar) await drainSources("calendar", connectedAccountId, [CALENDAR_SOURCE]);
+      if (!paused && plan.hasCalendar) await drainSources("calendar", connectedAccountId, [CALENDAR_SOURCE], tenant);
     }
 
     await releaseClaim(connectedAccountId, token);
   } catch (err) {
-    await reportFailure(WORKFLOW_NAME, toWorkflowFailure(err));
+    await reportFailure(WORKFLOW_NAME, toWorkflowFailure(err), tenant);
     await releaseClaim(connectedAccountId, token).catch(() => undefined);
     throw err;
   }
@@ -165,7 +183,7 @@ async function finalSweep(connectedAccountId: string, sourceFilter?: string[]): 
 
 export async function backfillConnectedAccount(payload: BackfillConnectedAccountPayload): Promise<void> {
   "use workflow";
-  const { connectedAccountId, sourceFilter } = payload;
+  const { connectedAccountId, sourceFilter, tenant } = payload;
 
   const token = await claimBackfill(connectedAccountId);
   if (!token) return;
@@ -175,18 +193,18 @@ export async function backfillConnectedAccount(payload: BackfillConnectedAccount
 
     if (plan.status === "ready") {
       const paused =
-        plan.kind === "none" ? false : await drainWithResweeps(plan.kind, connectedAccountId, plan.sources);
+        plan.kind === "none" ? false : await drainWithResweeps(plan.kind, connectedAccountId, plan.sources, tenant);
 
-      if (!paused && plan.hasCalendar) await drainSources("calendar", connectedAccountId, [CALENDAR_SOURCE]);
+      if (!paused && plan.hasCalendar) await drainSources("calendar", connectedAccountId, [CALENDAR_SOURCE], tenant);
     }
 
     await releaseClaim(connectedAccountId, token);
   } catch (err) {
-    await reportFailure(WORKFLOW_NAME, toWorkflowFailure(err));
+    await reportFailure(WORKFLOW_NAME, toWorkflowFailure(err), tenant);
     await releaseClaim(connectedAccountId, token).catch(() => undefined);
     throw err;
   }
 
   await sleep(FINAL_SWEEP_DELAY_MS);
-  await finalSweep(connectedAccountId, sourceFilter);
+  await finalSweep(connectedAccountId, sourceFilter, tenant);
 }
