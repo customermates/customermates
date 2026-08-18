@@ -18,10 +18,6 @@ function expandExponential(text: string): string {
   return `${sign}${digits.slice(0, pointIndex)}.${digits.slice(pointIndex)}`;
 }
 
-export function isCanonicalFilterNumber(value: string): boolean {
-  return PLAIN_DECIMAL_NUMBER.test(value);
-}
-
 export function canonicalFilterNumber(value: number): string | undefined {
   if (!Number.isFinite(value)) return undefined;
 

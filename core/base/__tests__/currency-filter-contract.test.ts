@@ -5,13 +5,15 @@ import { describe, expect, it, vi } from "vitest";
 
 import { FilterSchema } from "@/core/base/base-get.schema";
 import { FilterOperatorKey, defaultValidateFilters } from "@/core/base/base-query-builder";
-import { canonicalFilterNumber, filterNumberValue, isCanonicalFilterNumber } from "@/core/base/filter-value";
+import { canonicalFilterNumber, filterNumberValue } from "@/core/base/filter-value";
 import { parseLocalizedNumberToCanonical } from "@/core/stores/intl-number";
 import { decodeGetParams, encodeGetParams } from "@/core/utils/get-params";
 import { validateCustomFieldCurrency } from "@/core/validation/validate-custom-field-currency";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const CURRENCY_FIELD = "16000000-0000-4000-8000-0000000000c1";
+
+const PLAIN_DECIMAL = /^-?\d+(?:\.\d+)?$/u;
 
 const CURRENCY_VALUE_OPERATORS = [
   FilterOperatorKey.equals,
@@ -48,7 +50,8 @@ describe("canonical currency filter values", () => {
     expect(canonicalFilterNumber(1234.5)).toBe("1234.5");
     expect(canonicalFilterNumber(0)).toBe("0");
     expect(canonicalFilterNumber(-0)).toBe("0");
-    expect(isCanonicalFilterNumber(canonicalFilterNumber(1e21) ?? "")).toBe(true);
+    expect(canonicalFilterNumber(1e21)).toMatch(PLAIN_DECIMAL);
+    expect(canonicalFilterNumber(1e-7)).toMatch(PLAIN_DECIMAL);
     expect(canonicalFilterNumber(1e21)).not.toContain("e");
     expect(canonicalFilterNumber(Number.NaN)).toBeUndefined();
     expect(canonicalFilterNumber(Number.POSITIVE_INFINITY)).toBeUndefined();
@@ -167,7 +170,14 @@ describe("validateCustomFieldCurrency", () => {
     expect(ctx.addIssue).not.toHaveBeenCalled();
   });
 
-  it.each(["1e+21", " ", "1,5", "1.234,5", "12abc"])("reports %s as an invalid currency value", (value) => {
+  it.each([".5", "5.", "+50", "1e-7"])("keeps accepting the record-write form %s", (value) => {
+    const ctx = createMockCtx();
+    validateCustomFieldCurrency(value, ctx, ["value"]);
+
+    expect(ctx.addIssue).not.toHaveBeenCalled();
+  });
+
+  it.each(["1,5", "1.234,5", "12abc"])("reports %s as an invalid currency value", (value) => {
     const ctx = createMockCtx();
     validateCustomFieldCurrency(value, ctx, ["value"]);
 

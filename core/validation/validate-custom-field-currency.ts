@@ -1,6 +1,5 @@
-import type { z } from "zod";
+import { z } from "zod";
 
-import { isCanonicalFilterNumber } from "@/core/base/filter-value";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 export function validateCustomFieldCurrency(
@@ -12,10 +11,8 @@ export function validateCustomFieldCurrency(
   const isArray = Array.isArray(value);
 
   for (let i = 0; i < values.length; i++) {
-    const candidate = values[i];
-    const isCanonical = typeof candidate === "string" && isCanonicalFilterNumber(candidate.trim());
-
-    if (!isCanonical) {
+    const numberResult = z.coerce.number().safeParse(values[i]);
+    if (!numberResult.success) {
       ctx.addIssue({
         code: "custom",
         params: { error: CustomErrorCode.customFieldInvalidCurrency },
