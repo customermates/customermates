@@ -13,6 +13,8 @@ import { cloneDeep } from "lodash";
 import equal from "fast-deep-equal/es6";
 import { Currency, CustomColumnType, EntityType, Resource } from "@/generated/prisma";
 
+import { KANBAN_EMPTY_GROUP_KEY } from "@/core/base/base-get.schema";
+
 import { getCustomColumnsByEntityTypeAction } from "@/app/actions";
 
 import { getDealStageValueSumsAction, updateCompanyAction } from "../../actions";
@@ -82,6 +84,7 @@ export class CompanySettingsStore extends BaseFormStore<CompanySettingsFormData>
       selectedStageColumn: computed,
       selectedStageValueSums: computed,
       pipelineTotal: computed,
+      unweightedPipelineTotal: computed,
       weightedPipelineTotal: computed,
       hasForecastingChanges: computed,
       onSubmit: action,
@@ -116,10 +119,19 @@ export class CompanySettingsStore extends BaseFormStore<CompanySettingsFormData>
     const stageValueSums = this.selectedStageValueSums;
     if (!stageValueSums) return 0;
 
-    return this.form.dealStageWeights.reduce(
-      (total, { optionValue }) => total + (stageValueSums[optionValue]?.total ?? 0),
-      0,
+    return (
+      this.form.dealStageWeights.reduce(
+        (total, { optionValue }) => total + (stageValueSums[optionValue]?.total ?? 0),
+        0,
+      ) + this.unweightedPipelineTotal
     );
+  }
+
+  get unweightedPipelineTotal(): number {
+    const stageValueSums = this.selectedStageValueSums;
+    if (!stageValueSums) return 0;
+
+    return stageValueSums[KANBAN_EMPTY_GROUP_KEY]?.total ?? 0;
   }
 
   get weightedPipelineTotal(): number {

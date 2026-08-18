@@ -133,6 +133,7 @@
       "tooltipFilters": "Filter"
     },
     "avatarUrlDescription": "Gib optional einen Link zu einem Bild ein, das als dein Avatar verwendet wird. Das Bild sollte öffentlich zugänglich sein.",
+    "clearDefault": "Standard entfernen",
     "colors": {
       "default": "Blau",
       "destructive": "Rot",
@@ -545,6 +546,7 @@
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
+    "setAsDefault": "Als Standard festlegen",
     "sidebar": {
       "description": "Zeigt die mobile Seitenleiste an.",
       "title": "Seitenleiste",
@@ -659,7 +661,8 @@
       "noColumn": "Nicht konfiguriert",
       "title": "Prognose",
       "totalPipeline": "Gesamtpipeline",
-      "weightsTitle": "Phasenwahrscheinlichkeiten"
+      "weightsTitle": "Phasenwahrscheinlichkeiten",
+      "withoutStage": "Nicht gewichtet · kein {column}"
     }
   },
   "CompanyUserModal": {

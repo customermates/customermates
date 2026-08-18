@@ -138,6 +138,16 @@ export const CompanyForecastingSection = observer(() => {
               {intlStore.formatCurrency(store.weightedPipelineTotal, store.form.currency)}
             </span>
           </InfoRow>
+
+          {store.unweightedPipelineTotal > 0 && (
+            <InfoRow
+              label={t("CompanySettings.forecasting.withoutStage", { column: store.selectedStageColumn?.label ?? "" })}
+            >
+              <span className="text-x-md text-subdued font-mono tabular-nums">
+                {intlStore.formatCurrency(store.unweightedPipelineTotal, store.form.currency)}
+              </span>
+            </InfoRow>
+          )}
         </div>
       )}
     </section>

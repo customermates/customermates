@@ -217,11 +217,7 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
     if (index === -1) return;
 
     const options = [...innerOptions];
-    const wasDefault = options[index].isDefault;
-
     options.splice(index, 1);
-
-    if (wasDefault && options.length > 0) options[0].isDefault = true;
 
     this.form = {
       ...this.form,

@@ -133,6 +133,7 @@
       "tooltipFilters": "Filters"
     },
     "avatarUrlDescription": "Optionally provide a link to an image that will be used as your avatar. The image should be publicly accessible.",
+    "clearDefault": "Clear default",
     "colors": {
       "default": "Blue",
       "destructive": "Red",
@@ -545,6 +546,7 @@
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
+    "setAsDefault": "Set as default",
     "sidebar": {
       "description": "Displays the mobile sidebar.",
       "title": "Sidebar",
@@ -659,7 +661,8 @@
       "noColumn": "Not configured",
       "title": "Forecasting",
       "totalPipeline": "Total pipeline",
-      "weightsTitle": "Stage probabilities"
+      "weightsTitle": "Stage probabilities",
+      "withoutStage": "Not weighted · no {column}"
     }
   },
   "CompanyUserModal": {

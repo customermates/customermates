@@ -133,6 +133,7 @@
       "tooltipFilters": "Filtri"
     },
     "avatarUrlDescription": "Puoi indicare il link di un'immagine da usare come avatar. L'immagine deve essere accessibile pubblicamente.",
+    "clearDefault": "Rimuovi predefinito",
     "colors": {
       "default": "Blu",
       "destructive": "Rosso",
@@ -545,6 +546,7 @@
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
+    "setAsDefault": "Imposta come predefinito",
     "sidebar": {
       "description": "Mostra la barra laterale per dispositivi mobili.",
       "title": "Barra laterale",
@@ -659,7 +661,8 @@
       "noColumn": "Non configurato",
       "title": "Previsione",
       "totalPipeline": "Pipeline totale",
-      "weightsTitle": "Probabilità per fase"
+      "weightsTitle": "Probabilità per fase",
+      "withoutStage": "Non ponderato · senza {column}"
     }
   },
   "CompanyUserModal": {

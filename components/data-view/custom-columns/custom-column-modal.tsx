@@ -207,15 +207,25 @@ const SortableOptionItem = observer(
         )}
 
         <span className="flex w-14 shrink-0 justify-center">
-          <input
-            aria-label={t("Common.default")}
-            checked={option.isDefault}
-            className="size-4 accent-primary"
-            disabled={isDisabled}
-            name="custom-column-default-option"
-            type="radio"
-            onChange={() => toggleDefaultOption(option)}
-          />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                aria-label={option.isDefault ? t("Common.clearDefault") : t("Common.setAsDefault")}
+                aria-pressed={option.isDefault}
+                className={cn(
+                  "flex size-4 items-center justify-center rounded-full border transition-colors disabled:pointer-events-none disabled:opacity-50",
+                  option.isDefault ? "border-primary" : "border-input hover:border-primary/60",
+                )}
+                disabled={isDisabled}
+                type="button"
+                onClick={() => toggleDefaultOption(option)}
+              >
+                {option.isDefault && <span className="size-2 rounded-full bg-primary" />}
+              </button>
+            </TooltipTrigger>
+
+            <TooltipContent>{option.isDefault ? t("Common.clearDefault") : t("Common.setAsDefault")}</TooltipContent>
+          </Tooltip>
         </span>
 
         <Tooltip>
