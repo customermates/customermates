@@ -65,7 +65,6 @@ import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 export const AgentChat = observer(function AgentChat() {
   const { agentChatStore: store, agentUiControlStore } = useRootStore();
   const t = useTranslations();
-  const copy = chatUiCopy(useTranslations());
   const router = useRouter();
   const pathname = usePathname();
   const pathnameRef = useRef(pathname);
@@ -94,21 +93,6 @@ export const AgentChat = observer(function AgentChat() {
     return () => {
       cancelled = true;
       if (timer) clearTimeout(timer);
-    };
-  }, [store]);
-
-  useEffect(() => {
-    const revalidate = () => {
-      if (document.visibilityState === "visible") void store.revalidateSupportReplies();
-    };
-    const onVisibilityChange = () => revalidate();
-    const interval = window.setInterval(revalidate, 60000);
-    window.addEventListener("focus", revalidate);
-    document.addEventListener("visibilitychange", onVisibilityChange);
-    return () => {
-      window.clearInterval(interval);
-      window.removeEventListener("focus", revalidate);
-      document.removeEventListener("visibilitychange", onVisibilityChange);
     };
   }, [store]);
 
@@ -178,11 +162,7 @@ export const AgentChat = observer(function AgentChat() {
     <>
       {!store.isOpen && (
         <Button
-          aria-label={
-            store.unreadSupport > 0
-              ? `${t("AgentChat.title")}. ${copy.unreadReplies(store.unreadSupport)}`
-              : t("AgentChat.title")
-          }
+          aria-label={t("AgentChat.title")}
           className="fixed z-40 size-12 rounded-full shadow-lg"
           data-testid="agent-launcher"
           id="agent-launcher"
@@ -194,15 +174,6 @@ export const AgentChat = observer(function AgentChat() {
           onClick={store.open}
         >
           <MessageCircle className="size-5" />
-
-          {store.unreadSupport > 0 && (
-            <span
-              className="absolute -top-0.5 -right-0.5 size-3 rounded-full bg-destructive"
-              data-testid="agent-unread"
-            >
-              <span className="sr-only">{copy.unreadReplies(store.unreadSupport)}</span>
-            </span>
-          )}
         </Button>
       )}
 
@@ -696,12 +667,6 @@ const ConversationHistory = observer(function ConversationHistory() {
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-2">
                     <span className="truncate text-sm font-medium">{conversation.title || copy.untitled}</span>
-
-                    {conversation.unreadSupport && (
-                      <span className="size-2 shrink-0 rounded-full bg-info">
-                        <span className="sr-only">{copy.unreadSupport}</span>
-                      </span>
-                    )}
                   </span>
 
                   {conversation.preview && (
@@ -1004,13 +969,11 @@ function chatUiCopy(t: ChatTranslator) {
     searchingChats: t("AgentChat.ui.searchingChats"),
     turnFailed: t("AgentChat.ui.turnFailed"),
     undo: t("AgentChat.ui.undo"),
-    unreadSupport: t("AgentChat.ui.unreadSupport"),
     untitled: t("AgentChat.ui.untitled"),
     activitySummary: (status: "error" | "cancelled" | "complete", count: number) =>
       t(`AgentChat.ui.activity${status.charAt(0).toUpperCase()}${status.slice(1)}`, { count }),
     thinking: t("AgentChat.ui.thinking"),
     thoughtFor: (seconds: number) => t("AgentChat.ui.thoughtFor", { seconds }),
-    unreadReplies: (count: number) => t("AgentChat.ui.unreadReplies", { count }),
   };
 }
 
@@ -1241,22 +1204,6 @@ const AgentChatItemView = observer(function AgentChatItemView({ item }: { item: 
 
           <ItemTime at={item.at} />
         </div>
-      </article>
-    );
-  }
-
-  if (item.kind === "support") {
-    return (
-      <article
-        aria-label={t("AgentChat.support.badge")}
-        className="rounded-2xl border border-info/40 bg-info/10 px-4 py-3 text-sm"
-        data-testid="agent-support-message"
-      >
-        <Badge className="mb-1" variant="info">
-          {t("AgentChat.support.badge")}
-        </Badge>
-
-        <p className="whitespace-pre-wrap">{item.text}</p>
       </article>
     );
   }

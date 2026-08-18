@@ -32,7 +32,6 @@ import {
   cleanupAgentWorkspaceSetupAction,
   deleteAgentConversationAction,
   listAgentConversationsAction,
-  markAgentConversationReadAction,
   restoreAgentConversationAction,
   respondToApprovalAction,
   respondToUiCommandAction,
@@ -49,7 +48,6 @@ export type AgentChatItem =
       streaming: boolean;
       at?: Date;
     }
-  | { kind: "support"; id: string; text: string; at?: Date }
   | {
       kind: "turn_error";
       id: string;
@@ -159,14 +157,10 @@ export class AgentChatStore extends BaseStore {
   queuedPrompt: string | null = null;
   autoOpenedPages = new Set<string>();
   isWorking = false;
-  unreadSupport = 0;
   private abortController: AbortController | null = null;
   private configRequest: Promise<AgentConfigLoadStatus> | null = null;
-  private supportRevalidationRequest: Promise<void> | null = null;
   private conversationLoadVersion = 0;
   private isDraftConversationSelected = false;
-  private observedSupportMessageByConversation = new Map<string, string>();
-  private unreadStateVersion = 0;
   private activeTurnFailed = false;
   private activeTurnCompleted = false;
   private activeTurnDisposition: "stream" | "running" | "failed" | "uncertain" | "conflict" | "transport" = "stream";
@@ -207,7 +201,6 @@ export class AgentChatStore extends BaseStore {
       composerDraft: observable,
       queuedPrompt: observable,
       isWorking: observable,
-      unreadSupport: observable,
       isWorkspaceSetupPending: computed,
       open: action,
       close: action,
@@ -226,7 +219,7 @@ export class AgentChatStore extends BaseStore {
 
   open = () => {
     this.isOpen = true;
-    void this.revalidateSupportReplies();
+    void this.loadConfig();
   };
 
   get isWorkspaceSetupPending() {
@@ -245,7 +238,6 @@ export class AgentChatStore extends BaseStore {
     const opening = !this.isHistoryOpen;
     this.isHistoryOpen = opening;
     if (opening) void this.refreshConversations();
-    if (!this.isHistoryOpen && this.conversationId) void this.markConversationRead(this.conversationId);
   };
 
   newConversation = () => {
@@ -485,11 +477,6 @@ export class AgentChatStore extends BaseStore {
   selectConversation = async (id: string) => {
     if (this.isWorking || this.isWorkspaceSetupPending || this.historyMutationPending) return;
     if (this.conversationId === id && !this.conversationLoadError) {
-      const current = this.conversations.find((conversation) => conversation.id === id);
-      if (current?.unreadSupport) {
-        await this.loadConversation(id);
-        return;
-      }
       runInAction(() => {
         this.isHistoryOpen = false;
       });
@@ -524,12 +511,8 @@ export class AgentChatStore extends BaseStore {
         this.conversationLoadPendingId = null;
         this.isHistoryOpen = false;
         this.olderMessagesCursor = data.nextCursor;
-        const observedSupport = [...data.messages].reverse().find((message) => message.role === "support");
-        if (observedSupport) this.observedSupportMessageByConversation.set(id, observedSupport.id);
-        else this.observedSupportMessageByConversation.delete(id);
         this.appendMessages(data.messages);
       });
-      if (this.isOpen) await this.markConversationRead(id);
     } catch {
       if (loadVersion !== this.conversationLoadVersion) return;
       runInAction(() => {
@@ -551,7 +534,6 @@ export class AgentChatStore extends BaseStore {
     try {
       const data = await getAgentConversationAction(conversationId, before);
       if (!data || loadVersion !== this.conversationLoadVersion || this.conversationId !== conversationId) return;
-      const observedSupport = [...data.messages].reverse().find((message) => message.role === "support");
       runInAction(() => {
         const existing = this.items;
         this.items = [];
@@ -559,10 +541,7 @@ export class AgentChatStore extends BaseStore {
         this.items = [...this.items, ...existing];
         this.normalizeWorkspaceSetups();
         this.olderMessagesCursor = data.nextCursor;
-        if (observedSupport && !this.observedSupportMessageByConversation.has(conversationId))
-          this.observedSupportMessageByConversation.set(conversationId, observedSupport.id);
       });
-      if (observedSupport && this.isOpen) await this.markConversationRead(conversationId);
     } catch {
       this.toastError("AgentChat.errors.sendFailed");
     } finally {
@@ -616,22 +595,6 @@ export class AgentChatStore extends BaseStore {
     for (const item of actionable) if (item !== latest) item.status = "superseded";
   }
 
-  private markConversationRead = async (id: string) => {
-    try {
-      const result = await markAgentConversationReadAction({
-        conversationId: id,
-        observedSupportMessageId: this.observedSupportMessageByConversation.get(id),
-      });
-      if (!result?.ok) return;
-      runInAction(() => {
-        this.unreadStateVersion += 1;
-        const summary = this.conversations.find((conversation) => conversation.id === id);
-        if (summary) summary.unreadSupport = result.data.unreadSupport;
-        this.unreadSupport = result.data.unreadSupportCount;
-      });
-    } catch {}
-  };
-
   private appendPart(
     role: string,
     part: {
@@ -658,13 +621,6 @@ export class AgentChatStore extends BaseStore {
           kind: "user",
           id,
           messageId: messageId ?? id,
-          text: part.text,
-          at,
-        });
-      } else if (role === "support") {
-        this.items.push({
-          kind: "support",
-          id: nextItemId(),
           text: part.text,
           at,
         });
@@ -818,7 +774,6 @@ export class AgentChatStore extends BaseStore {
   };
 
   private loadConfigOnce = async (): Promise<AgentConfigLoadStatus> => {
-    const unreadVersion = this.unreadStateVersion;
     try {
       const response = await withDeadline(getAgentConfigAction(), AGENT_CONFIG_LOAD_TIMEOUT_MS);
       if (!response.enabled) {
@@ -831,18 +786,10 @@ export class AgentChatStore extends BaseStore {
       if (!config) return "retry";
 
       runInAction(() => {
-        const preserveUnread = unreadVersion !== this.unreadStateVersion;
         const preserveExactHistory = Boolean(this.historyQuery) || Boolean(this.historyMutationPending);
         const preserveLoadedPages = preserveExactHistory || this.isHistoryOpen;
-        const currentUnread = new Map(
-          this.conversations.map((conversation) => [conversation.id, conversation.unreadSupport]),
-        );
         const conversations = (config.conversations ?? []).map((conversation) => ({
           ...conversation,
-          unreadSupport:
-            preserveUnread && currentUnread.has(conversation.id)
-              ? (currentUnread.get(conversation.id) ?? false)
-              : conversation.unreadSupport,
           updatedAt: new Date(conversation.updatedAt),
         }));
         const archivedConversations = (config.archivedConversations ?? []).map((conversation) => ({
@@ -851,7 +798,6 @@ export class AgentChatStore extends BaseStore {
         }));
         this.enabled = true;
         this.usage = config.usage;
-        if (!preserveUnread) this.unreadSupport = config.unreadSupport;
         this.counts = config.counts;
         if (preserveExactHistory) {
           const activeById = new Map(conversations.map((conversation) => [conversation.id, conversation]));
@@ -879,36 +825,6 @@ export class AgentChatStore extends BaseStore {
     } catch {
       return "retry";
     }
-  };
-
-  revalidateSupportReplies = () => {
-    if (this.supportRevalidationRequest) return this.supportRevalidationRequest;
-
-    const request = this.revalidateSupportRepliesOnce().finally(() => {
-      if (this.supportRevalidationRequest === request) this.supportRevalidationRequest = null;
-    });
-    this.supportRevalidationRequest = request;
-    return request;
-  };
-
-  private revalidateSupportRepliesOnce = async () => {
-    const status = await this.loadConfig();
-    if (status !== "ready") return;
-
-    const conversationId = this.conversationId;
-    if (
-      !conversationId ||
-      !this.isOpen ||
-      this.isHistoryOpen ||
-      this.isWorking ||
-      this.isWorkspaceSetupPending ||
-      this.historyMutationPending ||
-      this.conversationLoadPendingId
-    )
-      return;
-
-    const conversation = this.conversations.find((candidate) => candidate.id === conversationId);
-    if (conversation?.unreadSupport) await this.loadConversation(conversationId);
   };
 
   refreshConversations = async (query = this.historyQuery) => {

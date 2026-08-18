@@ -291,7 +291,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
         if (sessionUser.companyId !== ctx.companyId || sessionUser.id !== ctx.userId)
           throw new Error("The agent turn was admitted for a different session than the one now running it.");
 
-        const last = [...ctx.messages].reverse().find((message) => message.role !== "support");
+        const last = ctx.messages.at(-1);
         if (last?.role !== "user") throw new Error("The admitted agent turn is missing its user message.");
 
         const deps: AgentToolDeps = {

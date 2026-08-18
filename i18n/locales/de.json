@@ -676,9 +676,6 @@
         }
       }
     },
-    "support": {
-      "badge": "Customermates · Support"
-    },
     "title": "Assistent",
     "tour": {
       "done": "Fertig",
@@ -728,8 +725,6 @@
       "thoughtFor": "{seconds}s nachgedacht",
       "turnFailed": "Diese Antwort konnte nicht abgeschlossen werden.",
       "undo": "Rückgängig",
-      "unreadReplies": "{count} ungelesene {count, plural, one {Support-Antwort} other {Support-Antworten}}",
-      "unreadSupport": "Ungelesene Support-Antworten",
       "untitled": "Neuer Chat"
     }
   },

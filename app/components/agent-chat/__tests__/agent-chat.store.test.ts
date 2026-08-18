@@ -39,7 +39,6 @@ const CONFIG = {
     recentTurnCredits: 1,
     blockedReason: null,
   },
-  unreadSupport: 0,
   counts: {
     contacts: false,
     organizations: false,
@@ -122,7 +121,6 @@ describe("AgentChatStore", () => {
     });
     actionsMock.markAgentConversationReadAction.mockResolvedValue({
       ok: true,
-      data: { marked: true, unreadSupport: false, unreadSupportCount: 0 },
     });
   });
 
@@ -309,174 +307,6 @@ describe("AgentChatStore", () => {
     expect(store.items).toMatchObject([{ kind: "assistant", text: "Keep this transcript" }]);
     expect(store.conversationLoadError).toBe(true);
     expect(store.conversationLoadPendingId).toBeNull();
-  });
-
-  it("marks only the newest support message actually loaded into the transcript", async () => {
-    const conversationId = "00000000-0000-4000-8000-000000000001";
-    const supportMessageId = "00000000-0000-4000-8000-000000000010";
-    actionsMock.getAgentConversationAction.mockResolvedValue({
-      id: conversationId,
-      title: "Support",
-      messages: [
-        {
-          id: supportMessageId,
-          role: "support",
-          parts: [{ type: "text", text: "We can help." }],
-        },
-      ],
-    });
-    const store = new AgentChatStore(root() as never);
-    store.open();
-
-    await store.selectConversation(conversationId);
-
-    expect(actionsMock.markAgentConversationReadAction).toHaveBeenCalledWith({
-      conversationId,
-      observedSupportMessageId: supportMessageId,
-    });
-  });
-
-  it("revalidates and loads a new support reply into the current open transcript", async () => {
-    const conversationId = "00000000-0000-4000-8000-000000000001";
-    const supportMessageId = "00000000-0000-4000-8000-000000000010";
-    actionsMock.getAgentConfigAction.mockResolvedValue({
-      enabled: true,
-      config: {
-        ...CONFIG,
-        conversationId,
-        unreadSupport: 1,
-        conversations: [
-          {
-            id: conversationId,
-            title: "Support",
-            preview: "A new reply",
-            updatedAt: new Date("2026-08-06T12:00:00.000Z"),
-            unreadSupport: true,
-          },
-        ],
-      },
-    });
-    actionsMock.getAgentConversationAction.mockResolvedValue({
-      id: conversationId,
-      title: "Support",
-      messages: [
-        {
-          id: supportMessageId,
-          role: "support",
-          parts: [{ type: "text", text: "Here is the answer from support." }],
-        },
-      ],
-      nextCursor: null,
-    });
-    const store = new AgentChatStore(root() as never);
-    store.isOpen = true;
-    store.conversationId = conversationId;
-    store.items = [{ kind: "assistant", id: "old", text: "Earlier reply", streaming: false }];
-
-    await store.revalidateSupportReplies();
-
-    expect(store.items).toMatchObject([{ kind: "support", text: "Here is the answer from support." }]);
-    expect(actionsMock.markAgentConversationReadAction).toHaveBeenCalledWith({
-      conversationId,
-      observedSupportMessageId: supportMessageId,
-    });
-  });
-
-  it("reloads the already-selected chat when its history row has an unread support reply", async () => {
-    const conversationId = "00000000-0000-4000-8000-000000000001";
-    actionsMock.getAgentConversationAction.mockResolvedValue({
-      id: conversationId,
-      title: "Support",
-      messages: [
-        {
-          id: "00000000-0000-4000-8000-000000000010",
-          role: "support",
-          parts: [{ type: "text", text: "Fresh support reply" }],
-        },
-      ],
-      nextCursor: null,
-    });
-    const store = new AgentChatStore(root() as never);
-    store.isOpen = true;
-    store.isHistoryOpen = true;
-    store.conversationId = conversationId;
-    store.conversations = [
-      {
-        id: conversationId,
-        title: "Support",
-        preview: "Fresh support reply",
-        updatedAt: new Date(),
-        unreadSupport: true,
-      },
-    ];
-
-    await store.selectConversation(conversationId);
-
-    expect(actionsMock.getAgentConversationAction).toHaveBeenCalledWith(conversationId);
-    expect(store.isHistoryOpen).toBe(false);
-    expect(store.items).toMatchObject([{ kind: "support", text: "Fresh support reply" }]);
-  });
-
-  it("keeps the unread indicator when the server reports a newer racing support reply", async () => {
-    const conversationId = "00000000-0000-4000-8000-000000000001";
-    const supportMessageId = "00000000-0000-4000-8000-000000000010";
-    actionsMock.getAgentConversationAction.mockResolvedValue({
-      id: conversationId,
-      title: "Support",
-      messages: [
-        {
-          id: supportMessageId,
-          role: "support",
-          parts: [{ type: "text", text: "First reply" }],
-        },
-      ],
-    });
-    actionsMock.markAgentConversationReadAction.mockResolvedValue({
-      ok: true,
-      data: { marked: true, unreadSupport: true, unreadSupportCount: 1 },
-    });
-    let resolveConfig!: (value: unknown) => void;
-    actionsMock.getAgentConfigAction.mockImplementationOnce(
-      () =>
-        new Promise((resolve) => {
-          resolveConfig = resolve;
-        }),
-    );
-    const store = new AgentChatStore(root() as never);
-    store.conversationId = conversationId;
-    store.conversations = [
-      {
-        id: conversationId,
-        title: "Support",
-        preview: "A newer reply",
-        updatedAt: new Date(),
-        unreadSupport: true,
-      },
-    ];
-    store.unreadSupport = 1;
-    store.open();
-
-    await store.selectConversation(conversationId);
-    resolveConfig({
-      enabled: true,
-      config: {
-        ...CONFIG,
-        unreadSupport: 0,
-        conversations: [
-          {
-            id: conversationId,
-            title: "Support",
-            preview: "Stale snapshot",
-            updatedAt: new Date(),
-            unreadSupport: false,
-          },
-        ],
-      },
-    });
-    await vi.waitFor(() => expect(actionsMock.markAgentConversationReadAction).toHaveBeenCalledTimes(2));
-
-    expect(store.conversations[0]?.unreadSupport).toBe(true);
-    expect(store.unreadSupport).toBe(1);
   });
 
   it("posts the command id and exact browser result back to the owning conversation", async () => {
@@ -844,7 +674,6 @@ describe("AgentChatStore", () => {
       title: "Pipeline review",
       preview: "Summarize my deals",
       updatedAt: new Date("2026-08-06T08:00:00.000Z"),
-      unreadSupport: false,
     };
     actionsMock.archiveAgentConversationAction.mockResolvedValue({
       ok: true,
@@ -877,59 +706,12 @@ describe("AgentChatStore", () => {
     expect(store.conversationId).toBe(conversationId);
   });
 
-  it("refreshes the global unread total after archiving a non-current unread chat", async () => {
-    const currentId = "00000000-0000-4000-8000-000000000001";
-    const unreadId = "00000000-0000-4000-8000-000000000002";
-    const current = {
-      id: currentId,
-      title: "Current chat",
-      preview: "Current",
-      updatedAt: new Date("2026-08-06T08:00:00.000Z"),
-      unreadSupport: false,
-    };
-    const unread = {
-      id: unreadId,
-      title: "Support chat",
-      preview: "New reply",
-      updatedAt: new Date("2026-08-06T09:00:00.000Z"),
-      unreadSupport: true,
-    };
-    actionsMock.archiveAgentConversationAction.mockResolvedValue({
-      ok: true,
-      data: {
-        activeConversationId: currentId,
-        conversations: [current],
-        nextCursor: null,
-      },
-    });
-    actionsMock.getAgentConfigAction.mockResolvedValue({
-      enabled: true,
-      config: {
-        ...CONFIG,
-        conversationId: currentId,
-        conversations: [current],
-        unreadSupport: 0,
-      },
-    });
-    const store = new AgentChatStore(root() as never);
-    store.conversationId = currentId;
-    store.conversations = [current, unread];
-    store.unreadSupport = 1;
-
-    await store.archiveConversation(unreadId);
-
-    expect(actionsMock.getAgentConfigAction).toHaveBeenCalledOnce();
-    expect(store.unreadSupport).toBe(0);
-    expect(store.conversations).toEqual([current]);
-  });
-
   it("preserves existing history and exposes an error when refresh fails", async () => {
     const summary = {
       id: "00000000-0000-4000-8000-000000000001",
       title: "Pipeline review",
       preview: "Summarize my deals",
       updatedAt: new Date("2026-08-06T08:00:00.000Z"),
-      unreadSupport: false,
     };
     actionsMock.listAgentConversationsAction.mockResolvedValueOnce(null);
     const store = new AgentChatStore(root() as never);
@@ -969,7 +751,6 @@ describe("AgentChatStore", () => {
             title: "Newer",
             preview: "",
             updatedAt: "2026-08-06T10:00:00.000Z",
-            unreadSupport: false,
           },
         ],
         nextCursor: null,
@@ -985,7 +766,6 @@ describe("AgentChatStore", () => {
             title: "Older",
             preview: "",
             updatedAt: "2026-08-06T09:00:00.000Z",
-            unreadSupport: false,
           },
         ],
         nextCursor: null,
@@ -1006,7 +786,6 @@ describe("AgentChatStore", () => {
             title: "Customer launch",
             preview: "Prepare the launch",
             updatedAt: "2026-08-06T10:00:00.000Z",
-            unreadSupport: false,
           },
         ],
         nextCursor: "active-next",
@@ -1018,7 +797,6 @@ describe("AgentChatStore", () => {
             title: "Archived launch",
             preview: "Customer launch notes",
             updatedAt: "2026-08-05T10:00:00.000Z",
-            unreadSupport: false,
           },
         ],
         nextCursor: "archive-next",
@@ -1045,7 +823,6 @@ describe("AgentChatStore", () => {
       title: "Customer launch",
       preview: "Matching result",
       updatedAt: new Date("2026-08-06T10:00:00.000Z"),
-      unreadSupport: false,
     };
     actionsMock.getAgentConfigAction.mockResolvedValueOnce({
       enabled: true,
@@ -1057,7 +834,6 @@ describe("AgentChatStore", () => {
             title: "Unrelated newest chat",
             preview: "Does not match",
             updatedAt: new Date("2026-08-06T11:00:00.000Z"),
-            unreadSupport: false,
           },
         ],
         conversationNextCursor: "unfiltered-next",
@@ -1081,7 +857,6 @@ describe("AgentChatStore", () => {
       title: `Chat ${index + 1}`,
       preview: "",
       updatedAt: new Date(2026, 7, 26 - index),
-      unreadSupport: false,
     }));
     actionsMock.getAgentConfigAction.mockResolvedValueOnce({
       enabled: true,
@@ -1113,7 +888,6 @@ describe("AgentChatStore", () => {
             title: "Second page",
             preview: "",
             updatedAt: "2026-08-05T10:00:00.000Z",
-            unreadSupport: false,
           },
         ],
         nextCursor: null,
@@ -1129,7 +903,6 @@ describe("AgentChatStore", () => {
         title: "First page",
         preview: "",
         updatedAt: new Date("2026-08-06T10:00:00.000Z"),
-        unreadSupport: false,
       },
     ];
 
@@ -1150,7 +923,6 @@ describe("AgentChatStore", () => {
       title: "Existing chat",
       preview: "",
       updatedAt: new Date("2026-08-06T10:00:00.000Z"),
-      unreadSupport: false,
     };
     actionsMock.listAgentConversationsAction.mockResolvedValueOnce({
       active: {
@@ -1186,7 +958,6 @@ describe("AgentChatStore", () => {
               title: "Fresh result",
               preview: "",
               updatedAt: "2026-08-06T10:00:00.000Z",
-              unreadSupport: false,
             },
           ],
           nextCursor: null,
@@ -1210,7 +981,6 @@ describe("AgentChatStore", () => {
             title: "Stale result",
             preview: "",
             updatedAt: "2026-08-05T10:00:00.000Z",
-            unreadSupport: false,
           },
         ],
         nextCursor: null,
@@ -1313,7 +1083,6 @@ describe("AgentChatStore", () => {
         title: "Archive me",
         preview: "",
         updatedAt: new Date("2026-08-06T10:00:00.000Z"),
-        unreadSupport: false,
       },
     ];
 
@@ -1375,46 +1144,6 @@ describe("AgentChatStore", () => {
     });
     expect(setups[1]).toBe(newer);
     expect(newer.status).toBe("ready");
-  });
-
-  it("marks an unread support reply observed only on an older transcript page", async () => {
-    const conversationId = "00000000-0000-4000-8000-000000000072";
-    actionsMock.getAgentConversationAction
-      .mockResolvedValueOnce({
-        id: conversationId,
-        title: "Support chat",
-        messages: [
-          {
-            id: "message-new",
-            role: "assistant",
-            parts: [{ type: "text", text: "Newer" }],
-          },
-        ],
-        nextCursor: "older-page",
-      })
-      .mockResolvedValueOnce({
-        id: conversationId,
-        title: "Support chat",
-        messages: [
-          {
-            id: "support-old",
-            role: "support",
-            parts: [{ type: "text", text: "We can help." }],
-          },
-        ],
-        nextCursor: null,
-      });
-    const store = new AgentChatStore(root() as never);
-    store.isOpen = true;
-    await store.selectConversation(conversationId);
-    actionsMock.markAgentConversationReadAction.mockClear();
-
-    await store.loadOlderMessages();
-
-    expect(actionsMock.markAgentConversationReadAction).toHaveBeenCalledWith({
-      conversationId,
-      observedSupportMessageId: "support-old",
-    });
   });
 
   it("clears a superseded older-message load when the user switches conversations", async () => {
@@ -1492,7 +1221,6 @@ describe("AgentChatStore", () => {
         title: "Archived",
         preview: "",
         updatedAt: new Date("2026-08-06T10:00:00.000Z"),
-        unreadSupport: false,
       },
     ];
 
@@ -1522,7 +1250,6 @@ describe("AgentChatStore", () => {
       title: "Archived",
       preview: "",
       updatedAt: new Date("2026-08-06T10:00:00.000Z"),
-      unreadSupport: false,
     };
     const store = new AgentChatStore(root() as never);
     store.archivedConversations = [archived];
@@ -1710,7 +1437,7 @@ describe("AgentChatStore", () => {
         text: "old request",
       },
       errorItem,
-      { kind: "support", id: "support-new", text: "A human replied later." },
+      { kind: "assistant", id: "assistant-new", text: "A later reply.", streaming: false },
     ];
     const send = vi.spyOn(store, "sendMessage").mockResolvedValue(undefined);
 

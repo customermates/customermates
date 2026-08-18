@@ -215,7 +215,6 @@ export const AgentConversationSummarySchema = z.object({
   title: z.string().nullable(),
   preview: z.string(),
   updatedAt: z.date(),
-  unreadSupport: z.boolean(),
 });
 
 export type AgentConversationSummary = Data<typeof AgentConversationSummarySchema>;
@@ -271,25 +270,18 @@ export function partsToText(parts: unknown): string {
     .join("\n");
 }
 
-export const TRANSCRIPT_FALLBACK_SUBJECT = "Support request";
-export const TRANSCRIPT_FALLBACK_BODY = "No conversation context.";
+export const SUPPORT_TRANSCRIPT_MESSAGE_LIMIT = 20;
+export const SUPPORT_TRANSCRIPT_LINE_MAX_CHARS = 1000;
 
-export function buildTicketContentFromTranscript(messages: { role: string; parts: unknown }[]) {
-  const transcript = messages
+export function formatSupportTranscript(messages: { role: string; parts: unknown }[]): string {
+  return messages
     .map((message) => {
       const rawText = partsToText(message.parts);
       const text = sanitizeAgentVisibleText(
         message.role === "user" ? stripLegacyUserPageContextPrefix(rawText) : rawText,
-      ).slice(0, 300);
-      const role =
-        message.role === "user" ? "user" : message.role === "support" ? "Customermates human support" : "assistant";
-      return `${role}: ${text}`;
+      ).slice(0, SUPPORT_TRANSCRIPT_LINE_MAX_CHARS);
+      return `${message.role === "user" ? "user" : "assistant"}: ${text}`;
     })
     .filter((line) => !line.endsWith(": "))
     .join("\n");
-
-  return {
-    subject: transcript.split("\n")[0]?.slice(0, 200) || TRANSCRIPT_FALLBACK_SUBJECT,
-    body: transcript || TRANSCRIPT_FALLBACK_BODY,
-  };
 }

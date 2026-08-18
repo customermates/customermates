@@ -5,7 +5,6 @@ import {
   AgentMessageRole,
   Resource,
   Status,
-  SupportTicketSource,
   type Prisma,
   type SubscriptionPlan,
   type SubscriptionStatus,
@@ -202,7 +201,6 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         id: true,
         title: true,
         updatedAt: true,
-        userLastReadSequence: true,
         messages: {
           orderBy: { sequence: "desc" },
           take: 1,
@@ -212,25 +210,9 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     });
 
     const pageRows = rows.slice(0, limit);
-    const latestSupportRows = pageRows.length
-      ? await this.prisma.agentMessage.findMany({
-          where: {
-            companyId: this.companyId,
-            conversationId: { in: pageRows.map((row) => row.id) },
-            role: AgentMessageRole.support,
-          },
-          orderBy: { sequence: "desc" },
-          distinct: ["conversationId"],
-          select: { conversationId: true, sequence: true },
-        })
-      : [];
-    const latestSupportByConversation = new Map(
-      latestSupportRows.map((message) => [message.conversationId, message.sequence]),
-    );
 
     const conversations = pageRows.map((row) => {
       const latest = row.messages[0];
-      const latestSupport = latestSupportByConversation.get(row.id);
       const latestText = latest ? partsToText(latest.parts) : "";
       return {
         id: row.id,
@@ -240,7 +222,6 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           : sanitizeAgentVisibleText(latestText)
         ).slice(0, 140),
         updatedAt: row.updatedAt,
-        unreadSupport: latestSupport !== undefined && latestSupport > (row.userLastReadSequence ?? 0n),
       };
     });
 
@@ -343,54 +324,6 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     });
   }
 
-  async markConversationRead(id: string, observedSupportMessageId?: string) {
-    const now = new Date();
-    if (!observedSupportMessageId) {
-      const selected = await this.prisma.agentConversation.updateMany({
-        where: {
-          id,
-          companyId: this.companyId,
-          userId: this.userId,
-          archivedAt: null,
-        },
-        data: { selectedAt: now },
-      });
-      return selected.count === 1;
-    }
-
-    const observed = await this.prisma.agentMessage.findFirst({
-      where: {
-        id: observedSupportMessageId,
-        companyId: this.companyId,
-        conversationId: id,
-        role: AgentMessageRole.support,
-        conversation: {
-          companyId: this.companyId,
-          userId: this.userId,
-          archivedAt: null,
-        },
-      },
-      select: { createdAt: true, sequence: true },
-    });
-    if (!observed) return false;
-
-    await this.prisma.agentConversation.updateMany({
-      where: {
-        id,
-        companyId: this.companyId,
-        userId: this.userId,
-        archivedAt: null,
-        OR: [{ userLastReadSequence: null }, { userLastReadSequence: { lt: observed.sequence } }],
-      },
-      data: {
-        userLastReadAt: observed.createdAt,
-        userLastReadSequence: observed.sequence,
-        selectedAt: now,
-      },
-    });
-    return true;
-  }
-
   async getSuggestionSignals() {
     const select = { id: true };
     const [contact, organization, deal, service, task, connectedAccount] = await Promise.all([
@@ -454,130 +387,6 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       tasks: Boolean(task),
       connectedAccounts: false,
     };
-  }
-
-  @BypassTenantGuard
-  async createSupportMessageForTicketOrThrowUnscoped(args: { ticketId: string; messageId: string; text: string }) {
-    if (!args.ticketId || !args.messageId) throw new Error("Support reply identifiers are required.");
-    const safeText = sanitizeAgentVisibleText(args.text).trim();
-    if (!safeText) throw new Error("Support reply text is empty after sanitization.");
-
-    const route = await this.prisma.supportTicket.findFirst({
-      where: {
-        id: args.ticketId,
-        source: SupportTicketSource.chat,
-        agentConversationId: { not: null },
-      },
-      select: {
-        id: true,
-        companyId: true,
-        userId: true,
-        source: true,
-        agentConversationId: true,
-      },
-    });
-    if (!route?.agentConversationId) throw new Error("Support ticket has no hosted Assistant conversation.");
-
-    return this.withCompanyTransaction(route.companyId, async () => {
-      const ticket = await this.prisma.supportTicket.findFirst({
-        where: {
-          id: route.id,
-          companyId: route.companyId,
-          userId: route.userId,
-          source: SupportTicketSource.chat,
-          agentConversationId: route.agentConversationId,
-        },
-        select: {
-          id: true,
-          companyId: true,
-          userId: true,
-          source: true,
-          agentConversationId: true,
-        },
-      });
-      if (!ticket?.agentConversationId) throw new Error("Support ticket conversation changed before reply delivery.");
-
-      const existing = await this.prisma.agentMessage.findFirst({
-        where: {
-          id: args.messageId,
-          conversationId: ticket.agentConversationId,
-          companyId: ticket.companyId,
-          role: AgentMessageRole.support,
-        },
-        select: { id: true },
-      });
-      if (existing) return { id: existing.id, created: false as const };
-
-      const now = new Date();
-      const updated = await this.prisma.agentConversation.updateMany({
-        where: {
-          id: ticket.agentConversationId,
-          companyId: ticket.companyId,
-          userId: ticket.userId,
-        },
-        data: { archivedAt: null, updatedAt: now },
-      });
-      if (updated.count !== 1) throw new Error("Hosted Assistant conversation not found for support reply.");
-
-      const message = await this.prisma.agentMessage.create({
-        data: {
-          id: args.messageId,
-          conversationId: ticket.agentConversationId,
-          companyId: ticket.companyId,
-          role: AgentMessageRole.support,
-          parts: [{ type: "text", text: safeText }],
-          searchText: messageSearchText(AgentMessageRole.support, [{ type: "text", text: safeText }]),
-          createdAt: now,
-        },
-      });
-      return { id: message.id, created: true as const };
-    });
-  }
-
-  async countUnreadSupport() {
-    const conversations = await this.prisma.agentConversation.findMany({
-      where: {
-        companyId: this.companyId,
-        userId: this.userId,
-        archivedAt: null,
-      },
-      select: {
-        userLastReadSequence: true,
-        messages: {
-          where: { role: AgentMessageRole.support },
-          select: { sequence: true },
-        },
-      },
-    });
-
-    return conversations.reduce(
-      (total, conversation) =>
-        total +
-        conversation.messages.filter((message) => message.sequence > (conversation.userLastReadSequence ?? 0n)).length,
-      0,
-    );
-  }
-
-  async isConversationSupportUnread(id: string) {
-    const conversation = await this.prisma.agentConversation.findFirst({
-      where: {
-        id,
-        companyId: this.companyId,
-        userId: this.userId,
-        archivedAt: null,
-      },
-      select: {
-        userLastReadSequence: true,
-        messages: {
-          where: { role: AgentMessageRole.support },
-          orderBy: { sequence: "desc" },
-          take: 1,
-          select: { sequence: true },
-        },
-      },
-    });
-    const latest = conversation?.messages[0]?.sequence;
-    return latest !== undefined && latest > (conversation?.userLastReadSequence ?? 0n);
   }
 
   async findUserMessage(id: string) {

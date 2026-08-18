@@ -84,8 +84,6 @@ const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
   "fr:AgentChat.activity.countedSingular",
   "it:AgentChat.activity.countedSingular",
   "it:AgentChat.activity.countedRecordInResource",
-  "de:AgentChat.support.badge",
-  "fr:AgentChat.support.badge",
   "fr:AgentChat.activity.resource.messages",
   "fr:AgentChat.activity.resourceSingular.messages",
   "de:ConnectedAccountsCard.channels.linkedinClassic",

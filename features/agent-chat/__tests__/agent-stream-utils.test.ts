@@ -3,18 +3,6 @@ import { describe, expect, it } from "vitest";
 import { sse, toModelMessages } from "../agent-stream-utils";
 
 describe("toModelMessages", () => {
-  it("labels replayed human replies as Customermates support context", () => {
-    expect(
-      toModelMessages([
-        { role: "user", text: "Can someone help?" },
-        { role: "support", text: "  A human has reviewed this issue.  " },
-      ]),
-    ).toEqual([
-      { role: "user", content: "Can someone help?" },
-      { role: "assistant", content: "Customermates human support:\nA human has reviewed this issue." },
-    ]);
-  });
-
   it("does not mislabel ordinary assistant replies", () => {
     expect(
       toModelMessages([

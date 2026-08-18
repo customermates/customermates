@@ -17,7 +17,6 @@ import { laneModelId } from "./llm.service";
 const OutputSchema = z.object({
   enabled: z.literal(true),
   usage: AgentUsageSummarySchema,
-  unreadSupport: z.number(),
   counts: AgentDataCountsSchema,
   conversationId: z.string().nullable(),
   conversations: z.array(AgentConversationSummarySchema),
@@ -43,9 +42,8 @@ export class GetAgentConfigInteractor extends AuthenticatedInteractor<void, Agen
     const user = getTenantUser();
     await this.repo.normalizeExpiredAgentRunLease(new Date(), laneModelId("agent"));
 
-    const [usage, unreadSupport, counts, conversation, conversationPage, archivedConversationPage] = await Promise.all([
+    const [usage, counts, conversation, conversationPage, archivedConversationPage] = await Promise.all([
       this.usageService.getUsageSummary(user.id),
-      this.repo.countUnreadSupport(),
       this.repo.getSuggestionSignals(),
       this.repo.findMyConversation(),
       this.repo.listConversationPage({ archived: false }),
@@ -57,7 +55,6 @@ export class GetAgentConfigInteractor extends AuthenticatedInteractor<void, Agen
       data: {
         enabled: true,
         usage,
-        unreadSupport,
         counts,
         conversationId: conversation?.id ?? null,
         conversations: conversationPage.conversations,

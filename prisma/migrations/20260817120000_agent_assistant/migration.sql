@@ -20,7 +20,7 @@ CREATE TYPE "AgentSetupResourceStatus" AS ENUM ('active', 'retained', 'deleted',
 CREATE TYPE "AgentSetupCleanupReason" AS ENUM ('edited', 'dependent');
 
 -- CreateEnum
-CREATE TYPE "AgentMessageRole" AS ENUM ('user', 'assistant', 'support');
+CREATE TYPE "AgentMessageRole" AS ENUM ('user', 'assistant');
 
 -- CreateEnum
 CREATE TYPE "AgentApprovalDecision" AS ENUM ('approve', 'reject');
@@ -43,8 +43,6 @@ CREATE TABLE "AgentConversation" (
     "companyId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "title" TEXT,
-    "userLastReadAt" TIMESTAMP(3),
-    "userLastReadSequence" BIGINT,
     "archivedAt" TIMESTAMP(3),
     "selectedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

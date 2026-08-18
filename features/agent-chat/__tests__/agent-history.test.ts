@@ -28,7 +28,6 @@ describe("agent conversation history", () => {
       title: "Newest update",
       preview: "",
       updatedAt: new Date("2026-08-06T12:00:00.000Z"),
-      unreadSupport: false,
     };
     const repo = {
       archiveConversation: vi.fn().mockResolvedValue(true),

@@ -4,57 +4,48 @@ import { MOCK_ENV_MODULE } from "@/tests/helpers/interactor-test-setup";
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 
-import {
-  buildTicketContentFromTranscript,
-  TRANSCRIPT_FALLBACK_BODY,
-  TRANSCRIPT_FALLBACK_SUBJECT,
-} from "../agent-chat.schema";
+import { formatSupportTranscript, SUPPORT_TRANSCRIPT_LINE_MAX_CHARS } from "../agent-chat.schema";
 
 const message = (role: string, text: string) => ({ role, parts: [{ type: "text", text }] });
 
-describe("buildTicketContentFromTranscript", () => {
-  it("derives the subject from the first transcript line and keeps the full transcript as the body", () => {
-    const result = buildTicketContentFromTranscript([
+describe("formatSupportTranscript", () => {
+  it("labels each side and keeps the exchange in order", () => {
+    const transcript = formatSupportTranscript([
       message("user", "How do I import contacts?"),
       message("assistant", "You can use the CSV importer."),
     ]);
 
-    expect(result.subject).toBe("user: How do I import contacts?");
-    expect(result.body).toContain("assistant: You can use the CSV importer.");
+    expect(transcript).toBe("user: How do I import contacts?\nassistant: You can use the CSV importer.");
   });
 
-  it("never returns an empty subject or body when there is no transcript", () => {
-    const result = buildTicketContentFromTranscript([]);
-
-    expect(result.subject).toBe(TRANSCRIPT_FALLBACK_SUBJECT);
-    expect(result.body).toBe(TRANSCRIPT_FALLBACK_BODY);
+  it("returns nothing when there is no transcript to send", () => {
+    expect(formatSupportTranscript([])).toBe("");
   });
 
-  it("never returns an empty subject when every message has no text", () => {
-    const result = buildTicketContentFromTranscript([
+  it("drops messages that carry no readable text", () => {
+    const transcript = formatSupportTranscript([
       { role: "user", parts: [] },
       { role: "assistant", parts: [{ type: "tool_use", name: "list_records" }] },
+      message("user", "Still stuck"),
     ]);
 
-    expect(result.subject).toBe(TRANSCRIPT_FALLBACK_SUBJECT);
-    expect(result.body).toBe(TRANSCRIPT_FALLBACK_BODY);
+    expect(transcript).toBe("user: Still stuck");
   });
 
-  it("truncates a long first line to the kernel's 200 character subject limit", () => {
-    const result = buildTicketContentFromTranscript([message("user", "x".repeat(400))]);
+  it("truncates a very long message rather than mailing the whole thing", () => {
+    const transcript = formatSupportTranscript([message("user", "x".repeat(4000))]);
 
-    expect(result.subject).toHaveLength(200);
+    expect(transcript).toHaveLength("user: ".length + SUPPORT_TRANSCRIPT_LINE_MAX_CHARS);
   });
 
-  it("labels human support explicitly and redacts legacy internal output", () => {
-    const result = buildTicketContentFromTranscript([
+  it("redacts internal output and the legacy page-context marker before it leaves the product", () => {
+    const transcript = formatSupportTranscript([
       message("user", '<page_context route="/en/dashboard"/>\nPlease help'),
-      message("support", "A human reviewed 00000000-0000-4000-8000-000000000001. apiKey=never-show"),
+      message("assistant", "I looked at 00000000-0000-4000-8000-000000000001. apiKey=never-show"),
       message("provider", "modelId=gpt-5.6-luna; inputTokens=321"),
     ]);
 
-    expect(result.body).toContain("Customermates human support:");
-    expect(result.body).toContain("assistant:");
-    expect(result.body).not.toMatch(/page_context|00000000|never-show|gpt-5\.6|inputTokens|321/);
+    expect(transcript).toContain("user: Please help");
+    expect(transcript).not.toMatch(/page_context|00000000|never-show|gpt-5\.6|inputTokens|321/);
   });
 });

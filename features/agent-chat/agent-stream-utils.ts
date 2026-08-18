@@ -14,7 +14,7 @@ export function toModelMessages(messages: ReplayMessage[]): ModelMessage[] {
       const text = message.text.trim();
       return {
         role: message.role === "user" ? ("user" as const) : ("assistant" as const),
-        content: message.role === "support" && text ? `Customermates human support:\n${text}` : text,
+        content: text,
       };
     })
     .filter((message) => message.content);

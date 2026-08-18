@@ -30,7 +30,6 @@ const COUNTS = {
 describe("GetAgentConfigInteractor", () => {
   let repo: {
     normalizeExpiredAgentRunLease: ReturnType<typeof vi.fn>;
-    countUnreadSupport: ReturnType<typeof vi.fn>;
     getSuggestionSignals: ReturnType<typeof vi.fn>;
     findMyConversation: ReturnType<typeof vi.fn>;
     listConversationPage: ReturnType<typeof vi.fn>;
@@ -53,7 +52,6 @@ describe("GetAgentConfigInteractor", () => {
     vi.clearAllMocks();
     repo = {
       normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
-      countUnreadSupport: vi.fn().mockResolvedValue(2),
       getSuggestionSignals: vi.fn().mockResolvedValue(COUNTS),
       findMyConversation: vi.fn().mockResolvedValue({ id: "conv-1" }),
       listConversationPage: vi.fn().mockResolvedValue({ conversations: [], nextCursor: null }),
@@ -65,7 +63,6 @@ describe("GetAgentConfigInteractor", () => {
 
     expect(result.ok).toBe(true);
     expect(result.data.counts).toEqual(COUNTS);
-    expect(result.data.unreadSupport).toBe(2);
     expect(result.data).not.toHaveProperty("preAuthorizedTools");
     expect(usageService.getUsageSummary).toHaveBeenCalledWith(mockUser.id);
     expect(mockUser.role?.isSystemRole).toBe(false);
@@ -84,7 +81,6 @@ describe("GetAgentConfigInteractor", () => {
 
     expect(repo.normalizeExpiredAgentRunLease).toHaveBeenCalledWith(expect.any(Date), "gpt-5.6-luna");
     expect(usageService.getUsageSummary).not.toHaveBeenCalled();
-    expect(repo.countUnreadSupport).not.toHaveBeenCalled();
     expect(repo.getSuggestionSignals).not.toHaveBeenCalled();
     expect(repo.findMyConversation).not.toHaveBeenCalled();
     expect(repo.listConversationPage).not.toHaveBeenCalled();

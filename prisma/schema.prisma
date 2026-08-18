@@ -1627,8 +1627,6 @@ model AgentConversation {
   companyId            String
   userId               String
   title                String?
-  userLastReadAt       DateTime?
-  userLastReadSequence BigInt?
   archivedAt           DateTime?
   selectedAt           DateTime?
   createdAt            DateTime               @default(now())
@@ -1820,7 +1818,6 @@ enum AgentSetupCleanupReason {
 enum AgentMessageRole {
   user
   assistant
-  support
 }
 
 model AgentApproval {

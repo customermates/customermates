@@ -9,7 +9,6 @@ import {
   getGetAgentConfigInteractor,
   getGetAgentConversationInteractor,
   getListAgentConversationsInteractor,
-  getMarkAgentConversationReadInteractor,
   getRespondToApprovalInteractor,
   getRespondToUiCommandInteractor,
   getRestoreAgentConversationInteractor,
@@ -21,7 +20,6 @@ import type { RespondToUiCommandData } from "@/features/agent-chat/respond-to-ui
 import type { ArchiveAgentConversationData } from "@/features/agent-chat/archive-agent-conversation.interactor";
 import type { ListAgentConversationsData } from "@/features/agent-chat/agent-history";
 import type { DeleteAgentConversationData } from "@/features/agent-chat/delete-agent-conversation.interactor";
-import type { MarkAgentConversationReadData } from "@/features/agent-chat/mark-agent-conversation-read.interactor";
 import type { ApplyAgentWorkspaceSetupData } from "@/features/agent-chat/apply-agent-workspace-setup.interactor";
 import type { CleanupAgentWorkspaceSetupData } from "@/features/agent-chat/cleanup-agent-workspace-setup.interactor";
 
@@ -66,12 +64,6 @@ export async function restoreAgentConversationAction(data: ArchiveAgentConversat
   if (!isAgentChatEnabled()) return null;
 
   return serializeResult(getRestoreAgentConversationInteractor().invoke(data));
-}
-
-export async function markAgentConversationReadAction(data: MarkAgentConversationReadData) {
-  if (!isAgentChatEnabled()) return null;
-
-  return serializeResult(getMarkAgentConversationReadInteractor().invoke(data));
 }
 
 export async function respondToApprovalAction(data: RespondToApprovalData) {

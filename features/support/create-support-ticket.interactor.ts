@@ -24,6 +24,7 @@ export const CreateSupportTicketSchema = z
     source: z.enum(SupportTicketSource),
     idempotencyId: z.uuid().optional(),
     agentConversationId: z.uuid().optional(),
+    transcript: z.string().max(40000).optional(),
   })
   .refine((data) => !data.agentConversationId || data.source === SupportTicketSource.chat, {
     path: ["agentConversationId"],
@@ -65,7 +66,7 @@ export class CreateSupportTicketInteractor extends AuthenticatedInteractor<Creat
           companyName: user.companyId,
           conversationTitle: `#${creation.number}: ${data.subject}`,
           layoutCopy: DEFAULT_EMAIL_LAYOUT_COPY,
-          lastMessages: data.body,
+          lastMessages: data.transcript?.trim() || data.body,
           locale: DEFAULT_LOCALE,
         }),
       });

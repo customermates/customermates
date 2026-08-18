@@ -15,12 +15,15 @@ export const requestSupportTool = {
   description:
     "Open a support ticket with the Customermates team. " +
     "Use when the user has a question, bug report, or request that needs a human. " +
-    "The Customermates team follows up by email and in the in-app chat. Returns the ticket number.",
+    "The recent chat is attached to the ticket automatically. The Customermates team replies by email, " +
+    "not in this chat. Returns the ticket number.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
   inputSchema: RequestSupportSchema,
   execute: (params: z.infer<typeof RequestSupportSchema>) =>
     runInteractor(
       getCreateSupportTicketInteractor().invoke({ ...params, source: "mcp" }),
-      (data) => `Support ticket #${data.number} opened. The Customermates team will follow up by email.`,
+      (data) =>
+        `Support ticket #${data.number} opened and the Customermates team has been notified by email, ` +
+        `with this conversation attached. They reply to the email address on your account, not in this chat.`,
     ),
 };

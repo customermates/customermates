@@ -306,7 +306,6 @@ import { ListAgentConversationsInteractor } from "@/features/agent-chat/list-age
 import { DeleteAgentConversationInteractor } from "@/features/agent-chat/delete-agent-conversation.interactor";
 import { ArchiveAgentConversationInteractor } from "@/features/agent-chat/archive-agent-conversation.interactor";
 import { RestoreAgentConversationInteractor } from "@/features/agent-chat/restore-agent-conversation.interactor";
-import { MarkAgentConversationReadInteractor } from "@/features/agent-chat/mark-agent-conversation-read.interactor";
 import { ApplyAgentWorkspaceSetupInteractor } from "@/features/agent-chat/apply-agent-workspace-setup.interactor";
 import { CleanupAgentWorkspaceSetupInteractor } from "@/features/agent-chat/cleanup-agent-workspace-setup.interactor";
 // Validators
@@ -1489,8 +1488,6 @@ export const getDeleteAgentConversationInteractor = () => new DeleteAgentConvers
 export const getArchiveAgentConversationInteractor = () => new ArchiveAgentConversationInteractor(getAgentChatRepo());
 
 export const getRestoreAgentConversationInteractor = () => new RestoreAgentConversationInteractor(getAgentChatRepo());
-
-export const getMarkAgentConversationReadInteractor = () => new MarkAgentConversationReadInteractor(getAgentChatRepo());
 
 export const getApplyAgentWorkspaceSetupInteractor = () =>
   new ApplyAgentWorkspaceSetupInteractor({

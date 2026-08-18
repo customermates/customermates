@@ -676,9 +676,6 @@
         }
       }
     },
-    "support": {
-      "badge": "Customermates · Support"
-    },
     "title": "Assistant",
     "tour": {
       "done": "Terminé",
@@ -728,8 +725,6 @@
       "thoughtFor": "Réflexion pendant {seconds} s",
       "turnFailed": "Cette réponse n’a pas pu être terminée.",
       "undo": "Annuler",
-      "unreadReplies": "{count} {count, plural, one {réponse non lue} other {réponses non lues}} du support",
-      "unreadSupport": "Réponses du support non lues",
       "untitled": "Nouvelle discussion"
     }
   },

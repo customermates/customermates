@@ -25,7 +25,9 @@ describe("CreateChatSupportTicketInteractor", () => {
   it("derives the repository idempotency id from the admitted turn and provider tool call", async () => {
     const repo = {
       findConversation: vi.fn().mockResolvedValue({ id: conversationId }),
-      listRecentMessages: vi.fn(),
+      listRecentMessages: vi
+        .fn()
+        .mockResolvedValue([{ role: "user", parts: [{ type: "text", text: "Import keeps failing" }] }]),
     };
     const createSupportTicket = {
       invoke: vi.fn().mockResolvedValue({
@@ -46,6 +48,7 @@ describe("CreateChatSupportTicketInteractor", () => {
     expect(createSupportTicket.invoke).toHaveBeenCalledWith({
       subject: "Need a human",
       body: "Please help with this import error.",
+      transcript: "user: Import keeps failing",
       source: "chat",
       agentConversationId: conversationId,
       idempotencyId: deriveChatSupportTicketId({
@@ -53,6 +56,6 @@ describe("CreateChatSupportTicketInteractor", () => {
         toolCallId: "call_request_support_1",
       }),
     });
-    expect(repo.listRecentMessages).not.toHaveBeenCalled();
+    expect(repo.listRecentMessages).toHaveBeenCalled();
   });
 });
