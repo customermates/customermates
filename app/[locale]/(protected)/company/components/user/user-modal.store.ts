@@ -2,7 +2,7 @@ import type { FormEvent } from "react";
 import type { AdminUpdateUserDetailsData } from "@/features/user/upsert/admin-update-user-details.interactor";
 import type { RootStore } from "@/core/stores/root.store";
 
-import { action, computed, makeObservable, toJS } from "mobx";
+import { action, computed, makeObservable, observable, toJS } from "mobx";
 import { CountryCode, Resource, Status } from "@/generated/prisma";
 
 import { adminUpdateUserDetailsAction, getRolesAction, getUserByIdAction } from "../../actions";
@@ -10,6 +10,8 @@ import { adminUpdateUserDetailsAction, getRolesAction, getUserByIdAction } from 
 import { BaseModalStore } from "@/core/base/base-modal.store";
 
 export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
+  public loadedUserId: string | null = null;
+
   constructor(rootStore: RootStore) {
     super(
       rootStore,
@@ -28,9 +30,10 @@ export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
     makeObservable(this, {
       onSubmit: action,
       loadById: action,
+      setLoadedUserId: action,
 
+      loadedUserId: observable,
       isOwnProfile: computed,
-      isDisabledOrOwnProfile: computed,
       customColumns: computed,
     });
   }
@@ -40,15 +43,22 @@ export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
   }
 
   get isOwnProfile() {
-    return this.form.email === this.rootStore.userStore.user?.email;
+    const signedInUserId = this.rootStore.userStore.user?.id;
+
+    return signedInUserId !== undefined && this.loadedUserId === signedInUserId;
   }
 
-  get isDisabledOrOwnProfile() {
-    return this.isOwnProfile || this.isDisabled;
+  get isReadOnly(): boolean {
+    return this.isOwnProfile || super.isReadOnly;
   }
+
+  setLoadedUserId = (loadedUserId: string | null) => {
+    this.loadedUserId = loadedUserId;
+  };
 
   loadById = async (id: string) => {
     this.setIsLoading(true);
+    this.setLoadedUserId(null);
 
     try {
       const [{ user }, roles] = await Promise.all([getUserByIdAction({ id }), getRolesAction()]);
@@ -58,6 +68,7 @@ export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
       if (!user) return;
 
       this.setError(undefined);
+      this.setLoadedUserId(user.id);
 
       this.openWith({
         email: user.email,
@@ -75,6 +86,8 @@ export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
 
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
+    if (this.isReadOnly) return;
+
     this.setIsLoading(true);
 
     try {

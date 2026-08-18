@@ -904,7 +904,7 @@
     "editColumn": "Editar columna",
     "noValue": "Sin valor",
     "resizeColumn": "Redimensiona la columna {column}. Arrastra o usa las teclas de flecha; toca dos veces o pulsa Intro para restablecer.",
-    "resizeHint": "Arrastra para redimensionar. Haz doble clic, toca dos veces o pulsa Intro para restablecer.",
+    "resizeHint": "Arrastra para redimensionar. Haz doble clic para restablecer.",
     "selectAllRows": "Seleccionar todas las filas",
     "selectGroupingColumn": "Selecciona una columna de agrupación para ver la vista kanban.",
     "selectRow": "Seleccionar fila {id}"
