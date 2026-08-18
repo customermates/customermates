@@ -335,11 +335,6 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
           </span>
 
           <div className="relative flex min-h-6 w-full flex-col items-center justify-center sm:min-h-14">
-            <span
-              aria-hidden="true"
-              className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-border sm:hidden"
-            />
-
             <span aria-hidden="true" className="hidden w-px flex-1 bg-border sm:block" />
 
             <Badge
