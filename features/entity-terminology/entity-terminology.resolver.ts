@@ -7,13 +7,11 @@ import type {
   TerminologyMap,
 } from "./entity-terminology.types";
 
-import { resolveTerminologyPresetKey } from "./entity-terminology.constants";
+import { terminologyMessageKey } from "./entity-terminology.constants";
+
+export { terminologyMessageKey };
 
 export type TerminologyTranslate = (key: string) => string;
-
-export function terminologyMessageKey(entityType: EntityType, presetKey: string, form: TerminologyForm): string {
-  return `EntityTerminology.presets.${entityType}.${resolveTerminologyPresetKey(entityType, presetKey)}.${form}`;
-}
 
 export function resolveEntityTerm(
   entityType: EntityType,

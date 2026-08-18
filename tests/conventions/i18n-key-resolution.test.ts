@@ -589,6 +589,10 @@ export const DYNAMIC_KEY_SITES = [
 
 const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   [
+    'features/messaging/activities/audit-detail.tsx :: t :: terminologyMessageKey(selection.entityType, presetKey, "plural") as never',
+    1,
+  ],
+  [
     "app/[locale]/(protected)/contacts/components/add-channel-popover.tsx :: t :: SOURCE_HINT_KEYS[source]",
     1,
   ],
@@ -733,7 +737,7 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
     ],
   },
   {
-    file: "features/entity-terminology/entity-terminology.resolver.ts",
+    file: "features/entity-terminology/entity-terminology.constants.ts",
     keys: ENTITY_TERMINOLOGY_KEYS,
     evidence: TERMINOLOGY_TEMPLATE_EVIDENCE,
   },

@@ -31,7 +31,10 @@ import { useEntityHref, useOpenEntity } from "@/components/entity-detail/hooks/u
 import { CustomColumnType, EntityType, TaskType } from "@/generated/prisma";
 import { getSystemTaskNameTranslationKey } from "@/app/[locale]/(protected)/tasks/components/system-task.config";
 import { useCanonicalColumnLabel } from "@/components/entity-terminology/use-column-label";
-import { CANONICAL_TERMINOLOGY_PRESET_KEY } from "@/features/entity-terminology/entity-terminology.constants";
+import {
+  CANONICAL_TERMINOLOGY_PRESET_KEY,
+  terminologyMessageKey,
+} from "@/features/entity-terminology/entity-terminology.constants";
 import { countryLabelForLocale } from "@/constants/countries";
 import { getCurrencyLabel } from "@/constants/currencies";
 import type { AppLocale } from "@/i18n/locale-registry";
@@ -53,14 +56,6 @@ function isPrimitive(value: unknown): boolean {
 }
 
 const STRUCTURAL_KEYS = new Set(["id", "columnId", "createdAt", "updatedAt"]);
-
-const CANONICAL_ENTITY_COLUMN_KEY: Partial<Record<EntityType, string>> = {
-  [EntityType.contact]: "contacts",
-  [EntityType.organization]: "organizations",
-  [EntityType.deal]: "deals",
-  [EntityType.service]: "services",
-  [EntityType.task]: "tasks",
-};
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -352,14 +347,15 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
         return (
           <div className="flex flex-wrap items-center gap-1.5">
             {selections.map((selection) => {
-              const canonicalName = columnLabel(
-                CANONICAL_ENTITY_COLUMN_KEY[selection.entityType] ?? selection.entityType,
-              );
-              const isCanonical = selection.presetKey === CANONICAL_TERMINOLOGY_PRESET_KEY[selection.entityType];
+              const presetName = (presetKey: string) =>
+                t(terminologyMessageKey(selection.entityType, presetKey, "plural") as never);
+
+              const canonicalName = presetName(CANONICAL_TERMINOLOGY_PRESET_KEY[selection.entityType]);
+              const chosenName = presetName(selection.presetKey);
 
               return (
                 <AppChip key={selection.entityType} size="sm">
-                  {isCanonical ? canonicalName : `${canonicalName} → ${selection.presetKey}`}
+                  {canonicalName === chosenName ? canonicalName : `${canonicalName} → ${chosenName}`}
                 </AppChip>
               );
             })}
