@@ -38,7 +38,6 @@ export abstract class UpdateCompanySettingsRepo {
   abstract updateDetails(args: { currency?: Currency; dealWeightingColumnId?: string | null }): Promise<void>;
   abstract upsertTerminology(entries: EntityTerminologyEntry[]): Promise<void>;
   abstract setDealStageWeights(entries: DealStageWeight[]): Promise<void>;
-  abstract recalculateDealWeightedValues(): Promise<void>;
 }
 
 @TenantInteractor({ resource: Resource.company, action: Action.update })
@@ -67,9 +66,6 @@ export class UpdateCompanySettingsInteractor extends AuthenticatedInteractor<
     if (Object.keys(details).length > 0) await this.repo.updateDetails(details);
 
     if (data.dealStageWeights?.length) await this.repo.setDealStageWeights(data.dealStageWeights);
-
-    if (data.dealWeightingColumnId !== undefined || data.dealStageWeights?.length)
-      await this.repo.recalculateDealWeightedValues();
 
     await this.eventService.publish(DomainEvent.COMPANY_UPDATED, {
       entityId: this.companyId,

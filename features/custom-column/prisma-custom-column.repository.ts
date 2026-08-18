@@ -263,6 +263,32 @@ export class PrismaCustomColumnRepo
     return column as CustomColumnDto;
   }
 
+  @Transaction
+  async setOptionWeights(columnId: string, entries: Array<{ optionValue: string; weight: number }>) {
+    const { companyId } = this.user;
+
+    const column = await this.prisma.customColumn.findFirst({
+      where: { id: columnId, companyId },
+      select: { id: true, options: true },
+    });
+
+    const stored = (column?.options as { options?: unknown } | null)?.options;
+
+    if (!column || !Array.isArray(stored)) return;
+
+    const weightByOptionValue = new Map(entries.map((entry) => [entry.optionValue, entry.weight]));
+
+    const options = (stored as Array<Record<string, unknown>>).map((option) =>
+      typeof option.value === "string" && weightByOptionValue.has(option.value)
+        ? { ...option, weight: weightByOptionValue.get(option.value) }
+        : option,
+    );
+
+    await this.prisma.customColumn.update({ where: { id: column.id, companyId }, data: { options: { options } } });
+
+    await this.recalculateDealsWhenWeightingColumn(column.id);
+  }
+
   private async recalculateDealsWhenWeightingColumn(columnId: string) {
     const { companyId } = this.user;
 
