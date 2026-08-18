@@ -16,6 +16,16 @@ const COLUMN_TERMINOLOGY: Record<string, { entityType: EntityType; form: Termino
   tasks: { entityType: EntityType.task, form: "plural" },
 };
 
+function humanizeColumnId(columnId: string): string {
+  const words = columnId
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/[_-]+/g, " ")
+    .trim()
+    .split(/\s+/);
+
+  return words.map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+}
+
 export function useColumnLabel() {
   const t = useTranslations();
   const { term } = useEntityTerminology();
@@ -29,19 +39,12 @@ export function useColumnLabel() {
   };
 }
 
-function humanizeColumnId(columnId: string): string {
-  const words = columnId
-    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
-    .replace(/[_-]+/g, " ")
-    .trim()
-    .split(/\s+/);
-
-  return words.map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
-}
-
 export function useCanonicalColumnLabel() {
   const t = useTranslations();
 
-  return (columnId: string) =>
-    t.has(`Common.table.columns.${columnId}`) ? t(`Common.table.columns.${columnId}`) : humanizeColumnId(columnId);
+  return (columnId: string) => {
+    if (t.has(`Common.table.columns.${columnId}`)) return t(`Common.table.columns.${columnId}`);
+    if (t.has(`AuditLogModal.fields.${columnId}`)) return t(`AuditLogModal.fields.${columnId}`);
+    return humanizeColumnId(columnId);
+  };
 }

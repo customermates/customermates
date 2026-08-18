@@ -144,6 +144,24 @@ const FORM_FIELD_INPUT_KEYS = [
   "Common.inputs.url",
   "Common.inputs.userIds",
 ] as const;
+const AUDIT_FIELD_KEYS = [
+  "AuditLogModal.fields.acceptanceType",
+  "AuditLogModal.fields.acceptingEmail",
+  "AuditLogModal.fields.changedDocuments",
+  "AuditLogModal.fields.city",
+  "AuditLogModal.fields.country",
+  "AuditLogModal.fields.currency",
+  "AuditLogModal.fields.effectiveAt",
+  "AuditLogModal.fields.emails",
+  "AuditLogModal.fields.isNewCompany",
+  "AuditLogModal.fields.postalCode",
+  "AuditLogModal.fields.recipientEmail",
+  "AuditLogModal.fields.street",
+  "AuditLogModal.fields.terminology",
+  "AuditLogModal.fields.versions",
+  "AuditLogModal.fields.visibility",
+] as const;
+
 const TABLE_COLUMN_KEYS = [
   "Common.table.columns.amount",
   "Common.table.columns.avatarUrl",
@@ -318,6 +336,7 @@ const LEGAL_DOCUMENT_KEYS = ALL_LEGAL_DOCUMENTS.map(
 );
 
 const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
+  ["AuditLogModal.fields.${*}", AUDIT_FIELD_KEYS],
   ["AuthSocialErrors.${*}", AUTH_SOCIAL_ERROR_KEYS],
   ["Common.colors.${*}", COLOR_KEYS],
   ["Common.customColumnTypes.${*}", CUSTOM_COLUMN_TYPE_KEYS],
@@ -545,6 +564,14 @@ export const DYNAMIC_KEY_SITES = [
   "features/messaging/activities/activities-list.tsx :: t :: Common.events.${entry.event}",
   "features/messaging/activities/activities-list.tsx :: t :: Common.providers.${ev.provider}",
   "features/messaging/activities/activities-list.tsx :: t :: Common.providers.${message.provider}",
+  "components/entity-terminology/use-column-label.ts :: t :: AuditLogModal.fields.${columnId}",
+  "components/entity-terminology/use-column-label.ts :: t.has :: AuditLogModal.fields.${columnId}",
+  "features/messaging/activities/audit-detail.tsx :: t :: Common.customColumnTypes.${String(value)}",
+  "features/messaging/activities/audit-detail.tsx :: t :: Common.providers.${String(value)}",
+  "features/messaging/activities/audit-detail.tsx :: t :: Common.userStatuses.${String(value)}",
+  "features/messaging/activities/audit-detail.tsx :: t.has :: Common.customColumnTypes.${String(value)}",
+  "features/messaging/activities/audit-detail.tsx :: t.has :: Common.providers.${String(value)}",
+  "features/messaging/activities/audit-detail.tsx :: t.has :: Common.userStatuses.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t :: Common.events.${entry.event}",
   "features/user/prisma-user.repository.ts :: t :: Common.defaultData.${column.entityType}.columnLabel",
   "features/user/prisma-user.repository.ts :: t :: Common.defaultData.${column.entityType}.options.${option.key}",
@@ -646,6 +673,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     1,
   ],
   ["features/messaging/activities/audit-detail.tsx :: t :: nameKey", 1],
+  ["features/messaging/activities/audit-detail.tsx :: t :: systemTaskKey as never", 1],
 ]);
 
 const SOURCE_DIRECTORIES = [

@@ -79,6 +79,11 @@ function buildSegments(before: string, after: string): Segment[] {
   return segments;
 }
 
+export function hasNotesDiff(previous: unknown, current: unknown): boolean {
+  const segments = buildSegments(toMarkdown(previous), toMarkdown(current));
+  return segments.some((segment) => segment.kind === "added" || segment.kind === "removed");
+}
+
 export function NotesDiff({ previous, current }: Props) {
   const t = useTranslations();
 

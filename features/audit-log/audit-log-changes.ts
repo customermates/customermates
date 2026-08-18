@@ -34,6 +34,27 @@ const IGNORED_FIELDS = new Set(["id", "createdAt", "updatedAt", "avatarUrl", "ro
 
 const REDACTED_FIELDS = new Set(["secret"]);
 
+const IDENTITY_FIELDS = new Set(["name", "firstName", "lastName", "label", "displayName"]);
+
+const RELATION_FIELDS = new Set([
+  "users",
+  "contacts",
+  "organizations",
+  "deals",
+  "services",
+  "tasks",
+  "identifiers",
+  "emails",
+]);
+
+function fieldRank(change: AuditChange): number {
+  if (change.columnId !== undefined) return 4;
+  if (change.field === "notes") return 3;
+  if (RELATION_FIELDS.has(change.field)) return 2;
+  if (IDENTITY_FIELDS.has(change.field)) return 0;
+  return 1;
+}
+
 export function extractAuditChanges(eventData: unknown): AuditChange[] {
   if (!eventData || typeof eventData !== "object" || Array.isArray(eventData)) return [];
   const payload = (eventData as { payload?: unknown }).payload;
@@ -81,5 +102,8 @@ export function extractAuditChanges(eventData: unknown): AuditChange[] {
     result.push({ field, ...(isSnapshot && { snapshot: true }), previous: value.previous, current: value.current });
   }
 
-  return result;
+  return result
+    .map((change, index) => ({ change, index }))
+    .sort((left, right) => fieldRank(left.change) - fieldRank(right.change) || left.index - right.index)
+    .map(({ change }) => change);
 }
