@@ -95,13 +95,13 @@ export function NotesDiff({ previous, current }: Props) {
   if (!hasChanges) return null;
 
   return (
-    <div className="overflow-hidden rounded-md border border-border text-[11px] leading-4">
+    <div className="overflow-hidden rounded-md border border-border text-sm">
       {segments.map((segment, index) => {
         const key = `${index}-${segment.kind}`;
 
         if (segment.kind === "collapsed") {
           return (
-            <div key={key} className="bg-muted/30 px-2 py-0.5 text-center text-[9px] text-subdued">
+            <div key={key} className="bg-muted/30 px-2 py-0.5 text-center text-xs text-subdued">
               {t("AuditLogModal.unchangedLines", { count: segment.count })}
             </div>
           );
@@ -129,7 +129,7 @@ export function NotesDiff({ previous, current }: Props) {
 
                 <div className="min-w-0 flex-1">
                   {line.trim() ? (
-                    <div className="prose prose-xs dark:prose-invert max-w-none text-[11px] *:my-0 *:text-[11px] *:leading-4">
+                    <div className="prose prose-sm dark:prose-invert max-w-none *:my-0">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>{line}</ReactMarkdown>
                     </div>
                   ) : (

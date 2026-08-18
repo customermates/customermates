@@ -31,7 +31,6 @@
   },
   "AuditLogModal": {
     "createdAt": "Created At",
-    "customFieldCount": "{count, plural, one {# custom field} other {# custom fields}}",
     "deletedField": "Deleted field",
     "deletedFieldChanged": "Value changed on a field that has since been deleted.",
     "entity": "Element",

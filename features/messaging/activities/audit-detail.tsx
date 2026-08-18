@@ -4,8 +4,8 @@ import type { CustomColumnDto } from "@/features/custom-column/custom-column.sch
 import type { MessagingProvider } from "@/generated/prisma";
 import type { ActivityEntryDto } from "@/ee/messaging/activities/activities.schema";
 
-import { Fragment, useState, type ReactNode } from "react";
-import { ArrowRight, ChevronDown } from "lucide-react";
+import { Fragment, type ReactNode } from "react";
+import { ArrowRight } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useLocale, useTranslations } from "next-intl";
 import ReactMarkdown from "react-markdown";
@@ -20,8 +20,6 @@ import { hasNotesDiff, NotesDiff } from "@/app/[locale]/(protected)/company/comp
 import { auditCategory, DetailHeader, IdentityAvatar, TypeBadge } from "./activities-row";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { cn } from "@/core/utils/cn";
 import { AvatarStack } from "@/components/shared/avatar-stack";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { CustomFieldValue } from "@/components/data-view/custom-columns/custom-field-value";
@@ -46,8 +44,6 @@ type AvatarItem = {
 const ISO_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
 
 const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
-
-const BODY_ROW_BUDGET = 8;
 
 function isPrimitive(value: unknown): boolean {
   return typeof value === "string" || typeof value === "number" || typeof value === "boolean";
@@ -134,7 +130,6 @@ type Props = {
 export const AuditDetail = observer(({ entry, customColumns }: Props) => {
   const t = useTranslations();
   const locale = useLocale() as AppLocale;
-  const [customFieldsOpen, setCustomFieldsOpen] = useState(false);
   const columnLabel = useCanonicalColumnLabel();
   const { intlStore, userModalStore } = useRootStore();
   const openEntity = useOpenEntity();
@@ -175,7 +170,7 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
         try {
           const markdown = typeof value === "string" ? value : serializeJSONToMarkdown(value as object);
           return (
-            <div className="prose prose-xs dark:prose-invert max-w-none">
+            <div className="prose prose-sm dark:prose-invert max-w-none">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdown}</ReactMarkdown>
             </div>
           );
@@ -395,16 +390,7 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
     );
   };
 
-  const isCustomField = (change: (typeof changes)[number]) => change.key === "customFieldValues";
-  const primaryRows = changes
-    .map((change, index) => (isCustomField(change) ? null : renderRow(change, index)))
-    .filter((row) => row !== null);
-  const customFieldRows = changes
-    .map((change, index) => (isCustomField(change) ? renderRow(change, index) : null))
-    .filter((row) => row !== null);
-  const collapseCustomFields =
-    customFieldRows.length > 1 && primaryRows.length + customFieldRows.length > BODY_ROW_BUDGET;
-  const rows = collapseCustomFields ? primaryRows : [...primaryRows, ...customFieldRows];
+  const rows = changes.map(renderRow).filter((row) => row !== null);
 
   return (
     <AppCard>
@@ -423,22 +409,8 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
       />
 
       <AppCardBody>
-        {rows.length > 0 || collapseCustomFields ? (
-          <div className="flex flex-col gap-4">
-            {rows}
-
-            {collapseCustomFields && (
-              <Collapsible open={customFieldsOpen} onOpenChange={setCustomFieldsOpen}>
-                <CollapsibleTrigger className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 flex items-center gap-1.5 rounded-sm text-xs focus-visible:outline-none focus-visible:ring-[3px]">
-                  <ChevronDown className={cn("size-3.5 transition-transform", customFieldsOpen && "rotate-180")} />
-
-                  {t("AuditLogModal.customFieldCount", { count: customFieldRows.length })}
-                </CollapsibleTrigger>
-
-                <CollapsibleContent className="flex flex-col gap-4 pt-4">{customFieldRows}</CollapsibleContent>
-              </Collapsible>
-            )}
-          </div>
+        {rows.length > 0 ? (
+          <div className="flex flex-col gap-4">{rows}</div>
         ) : (
           <p className="text-muted-foreground text-sm">{t("EntityTimeline.noFurtherDetail")}</p>
         )}
