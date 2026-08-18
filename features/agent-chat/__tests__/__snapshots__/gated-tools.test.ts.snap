@@ -1,38 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`gated-tools > snapshots the surface so new tools force a conscious gating decision 1`] = `
-[
-  "connect_messaging_account",
-  "create_contacts",
-  "create_deals",
-  "create_organizations",
-  "create_services",
-  "create_tasks",
-  "delete_records",
-  "discard_message_draft",
-  "linkedin_manage_sales_lists",
-  "manage_custom_columns",
-  "manage_record_links",
-  "manage_social_relations",
-  "manage_team",
-  "manage_webhooks",
-  "manage_widgets",
-  "request_support",
-  "save_message_draft",
-  "send_chat_message",
-  "send_email",
-  "update_contacts",
-  "update_deals",
-  "update_messaging_thread",
-  "update_organizations",
-  "update_record_notes",
-  "update_services",
-  "update_tasks",
-  "update_workspace_settings",
-]
-`;
-
-exports[`gated-tools > snapshots the surface so new tools force a conscious gating decision 2`] = `
+exports[`gated-tools > snapshots the surface so new tools and actions force a conscious approval decision 1`] = `
 [
   "fetch",
   "get_activities",
@@ -54,4 +22,64 @@ exports[`gated-tools > snapshots the surface so new tools force a conscious gati
   "search_docs",
   "search_records",
 ]
+`;
+
+exports[`gated-tools > snapshots the surface so new tools and actions force a conscious approval decision 2`] = `
+[
+  "connect_messaging_account",
+  "create_contacts",
+  "create_deals",
+  "create_organizations",
+  "create_services",
+  "create_tasks",
+  "manage_custom_columns",
+  "manage_record_links",
+  "manage_team",
+  "manage_webhooks",
+  "manage_widgets",
+  "save_message_draft",
+  "update_contacts",
+  "update_deals",
+  "update_messaging_thread",
+  "update_organizations",
+  "update_record_notes",
+  "update_services",
+  "update_tasks",
+  "update_workspace_settings",
+]
+`;
+
+exports[`gated-tools > snapshots the surface so new tools and actions force a conscious approval decision 3`] = `
+[
+  "delete_records",
+  "discard_message_draft",
+  "linkedin_manage_sales_lists",
+  "manage_social_relations",
+  "request_support",
+  "send_chat_message",
+  "send_email",
+]
+`;
+
+exports[`gated-tools > snapshots the surface so new tools and actions force a conscious approval decision 4`] = `
+{
+  "manage_custom_columns": [
+    "list",
+    "upsert",
+  ],
+  "manage_webhooks": [
+    "list",
+    "get",
+    "list_deliveries",
+    "create",
+    "update",
+    "resend_delivery",
+  ],
+  "manage_widgets": [
+    "list",
+    "get",
+    "create",
+    "update",
+  ],
+}
 `;

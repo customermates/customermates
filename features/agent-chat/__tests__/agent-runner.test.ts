@@ -183,18 +183,19 @@ describe("agent runner approval rendezvous", () => {
   it("emits approval_request, resolves on a recorded approve decision, then persists the reply", async () => {
     repoMock.findApprovalDecisionUnscoped.mockResolvedValue({
       decision: "approve",
-      toolName: "create_contacts",
+      toolName: "delete_records",
     });
     aiMock.streamText.mockReturnValue(
       scripted(async function* () {
         yield {
           type: "tool-call",
           toolCallId: "t1",
-          toolName: "create_contacts",
-          input: { name: "Anna", apiKey: "never-show" },
+          toolName: "delete_records",
+          input: { entity: "contact", ids: ["00000000-0000-4000-8000-000000000001"], apiKey: "never-show" },
         };
-        const decision = await (toolsMock.captured as Deps).requestApproval("t1", "create_contacts", {
-          name: "Anna",
+        const decision = await (toolsMock.captured as Deps).requestApproval("t1", "delete_records", {
+          entity: "contact",
+          ids: ["00000000-0000-4000-8000-000000000001"],
           apiKey: "never-show",
         });
         yield {
@@ -202,7 +203,7 @@ describe("agent runner approval rendezvous", () => {
           toolCallId: "t1",
           output: `decision:${decision}`,
         };
-        yield { type: "text-delta", text: "Created Anna." };
+        yield { type: "text-delta", text: "Removed the contact." };
       }),
     );
 
@@ -210,25 +211,26 @@ describe("agent runner approval rendezvous", () => {
 
     expect(
       events.some(
-        (e) => e.type === "activity" && e.activity?.kind === "records.create" && e.activity?.resource === "contacts",
+        (e) => e.type === "activity" && e.activity?.kind === "records.delete" && e.activity?.resource === "contacts",
       ),
     ).toBe(true);
     const approvalRequest = events.find((event) => event.type === "approval_request");
     expect(approvalRequest).toMatchObject({ requestId: expect.any(String) });
     expect(approvalRequest).not.toHaveProperty("toolName");
     expect(approvalRequest?.activity).toMatchObject({
-      kind: "records.create",
+      kind: "records.delete",
       resource: "contacts",
-      risk: "write",
+      risk: "sensitive",
     });
     expect(JSON.stringify(events)).not.toContain("never-show");
+    expect(JSON.stringify(events)).not.toContain("00000000-0000-4000-8000-000000000001");
     expect(
       events.some(
         (e) => e.type === "approval_resolved" && e.decision === "approve" && e.requestId === approvalRequest?.requestId,
       ),
     ).toBe(true);
     expect(events.some((e) => e.type === "activity_result" && e.isError === false)).toBe(true);
-    expect(events.some((e) => e.type === "delta" && e.text === "Created Anna.")).toBe(true);
+    expect(events.some((e) => e.type === "delta" && e.text === "Removed the contact.")).toBe(true);
     expect(events.at(-1)).toMatchObject({ type: "turn_done", isError: false });
     expect(aiMock.streamText).toHaveBeenCalledWith(expect.objectContaining({ maxRetries: 0 }));
     expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
@@ -239,9 +241,11 @@ describe("agent runner approval rendezvous", () => {
             id: "t1",
             activity: {
               affectedResources: ["contacts"],
-              kind: "records.create",
+              consequence: { action: "records.delete", count: 1 },
+              count: 1,
+              kind: "records.delete",
               resource: "contacts",
-              risk: "write",
+              risk: "sensitive",
             },
             status: "done",
           },
@@ -250,13 +254,15 @@ describe("agent runner approval rendezvous", () => {
             id: expect.any(String),
             activity: {
               affectedResources: ["contacts"],
-              kind: "records.create",
+              consequence: { action: "records.delete", count: 1 },
+              count: 1,
+              kind: "records.delete",
               resource: "contacts",
-              risk: "write",
+              risk: "sensitive",
             },
             status: "approved",
           },
-          { type: "text", text: "Created Anna." },
+          { type: "text", text: "Removed the contact." },
         ],
       }),
     );
@@ -335,17 +341,20 @@ describe("agent runner approval rendezvous", () => {
   it("marks a rejected tool execution as cancelled instead of completed", async () => {
     repoMock.findApprovalDecisionUnscoped.mockResolvedValue({
       decision: "reject",
-      toolName: "create_contacts",
+      toolName: "delete_records",
     });
     aiMock.streamText.mockReturnValue(
       scripted(async function* () {
         yield {
           type: "tool-call",
           toolCallId: "t-cancelled",
-          toolName: "create_contacts",
-          input: { name: "Anna" },
+          toolName: "delete_records",
+          input: { entity: "contact", ids: ["00000000-0000-4000-8000-000000000001"] },
         };
-        await (toolsMock.captured as Deps).requestApproval("t-cancelled", "create_contacts", { name: "Anna" });
+        await (toolsMock.captured as Deps).requestApproval("t-cancelled", "delete_records", {
+          entity: "contact",
+          ids: ["00000000-0000-4000-8000-000000000001"],
+        });
         yield {
           type: "tool-result",
           toolCallId: "t-cancelled",

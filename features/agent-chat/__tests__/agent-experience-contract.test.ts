@@ -199,30 +199,27 @@ describe("agent experience contract", () => {
     }
   });
 
-  it.each(["manage_custom_columns", "manage_widgets"])(
-    "keeps multiplexed delete-capable tool %s sensitive for every action",
+  it.each(["manage_custom_columns", "manage_widgets", "manage_webhooks"])(
+    "marks multiplexed tool %s sensitive only when the call needs approval",
     (toolName) => {
-      expect(describeAgentTool(toolName, { action: "list" }).risk).toBe("sensitive");
+      expect(describeAgentTool(toolName, { action: "list" }).risk).toBe("write");
       expect(describeAgentTool(toolName, { action: "delete" }).risk).toBe("sensitive");
+      expect(describeAgentTool(toolName, { action: "no_such_action" }).risk).toBe("sensitive");
       expect(describeAgentTool(toolName, undefined).risk).toBe("sensitive");
     },
   );
 
-  it.each([
-    "manage_custom_columns",
-    "manage_record_links",
-    "manage_team",
-    "manage_webhooks",
-    "manage_widgets",
-    "update_record_notes",
-  ])("never persistently authorizes multiplexed sensitive tool %s", (toolName) => {
-    expect(describeAgentTool(toolName, undefined).risk).toBe("sensitive");
-  });
+  it.each(["manage_record_links", "manage_team", "update_record_notes"])(
+    "marks approval-free workspace tool %s as an ordinary write",
+    (toolName) => {
+      expect(describeAgentTool(toolName, undefined).risk).toBe("write");
+    },
+  );
 
   it.each([undefined, { mode: "append", notes: "Follow up next week" }, { mode: "replace", notes: "" }])(
-    "keeps every notes mutation sensitive for input %j",
+    "keeps every notes mutation an unapproved ordinary write for input %j",
     (input) => {
-      expect(describeAgentTool("update_record_notes", input).risk).toBe("sensitive");
+      expect(describeAgentTool("update_record_notes", input).risk).toBe("write");
     },
   );
 

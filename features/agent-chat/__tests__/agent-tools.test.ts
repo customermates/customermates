@@ -338,30 +338,55 @@ describe("agent tools", () => {
   });
 
   it.each([
-    "delete_records",
-    "update_record_notes",
-    "manage_record_links",
-    "send_email",
-    "send_chat_message",
-    "save_message_draft",
-    "discard_message_draft",
-    "update_messaging_thread",
-    "manage_custom_columns",
-    "manage_widgets",
-    "update_workspace_settings",
-    "manage_team",
-    "manage_webhooks",
-    "connect_messaging_account",
-  ])("requires an approval for sensitive tool %s", async (toolName) => {
-    const requestApproval = vi.fn().mockResolvedValue("reject");
-    const tools = getAgentAiTools(deps({ requestApproval }));
+    ["delete_records", {}],
+    ["send_email", {}],
+    ["send_chat_message", {}],
+    ["discard_message_draft", {}],
+    ["manage_custom_columns", { action: "delete" }],
+    ["manage_widgets", { action: "delete" }],
+    ["manage_webhooks", { action: "delete" }],
+    ["manage_custom_columns", {}],
+    ["manage_widgets", {}],
+    ["manage_webhooks", {}],
+  ] as [string, Record<string, unknown>][])(
+    "requires an approval for destructive call %s %j",
+    async (toolName, input) => {
+      const requestApproval = vi.fn().mockResolvedValue("reject");
+      const tools = getAgentAiTools(deps({ requestApproval }));
 
-    await expect(execute(tools[toolName], {}, `sensitive-${toolName}`)).resolves.toMatchObject({
-      agentToolStatus: "cancelled",
-      reason: "rejected",
-    });
-    expect(requestApproval).toHaveBeenCalledWith(`sensitive-${toolName}`, toolName, {});
-  });
+      await expect(execute(tools[toolName], input, `sensitive-${toolName}`)).resolves.toMatchObject({
+        agentToolStatus: "cancelled",
+        reason: "rejected",
+      });
+      expect(requestApproval).toHaveBeenCalledWith(`sensitive-${toolName}`, toolName, input);
+    },
+  );
+
+  it.each([
+    ["create_contacts", {}],
+    ["update_contacts", {}],
+    ["update_record_notes", {}],
+    ["manage_record_links", { action: "add" }],
+    ["manage_record_links", { action: "remove" }],
+    ["save_message_draft", {}],
+    ["update_messaging_thread", {}],
+    ["update_workspace_settings", {}],
+    ["manage_team", {}],
+    ["connect_messaging_account", {}],
+    ["manage_custom_columns", { action: "list" }],
+    ["manage_widgets", { action: "list" }],
+    ["manage_webhooks", { action: "list" }],
+  ] as [string, Record<string, unknown>][])(
+    "runs ordinary CRM call %s %j without asking for approval",
+    async (toolName, input) => {
+      const requestApproval = vi.fn().mockResolvedValue("reject");
+      const tools = getAgentAiTools(deps({ requestApproval }));
+
+      await Promise.resolve(execute(tools[toolName], input, `free-${toolName}`)).catch(() => undefined);
+
+      expect(requestApproval).not.toHaveBeenCalled();
+    },
+  );
 
   it.each(["reject", "timeout"] as const)("does not open support when escalation resolves to %s", async (decision) => {
     const requestApproval = vi.fn().mockResolvedValue(decision);
@@ -391,11 +416,10 @@ describe("agent tools", () => {
     });
 
     expect(prompt).not.toMatch(/Always allow/i);
-    expect(prompt).toContain("require a fresh approval every time; there is no standing permission to offer");
-    expect(prompt).toContain(
-      "support escalation, and every other sensitive action require a fresh explicit confirmation",
-    );
-    expect(prompt).toContain("If an action is declined or times out, nothing changed");
+    expect(prompt).toContain("runs immediately without confirmation");
+    expect(prompt).toContain("require a fresh explicit approval every time; there is no standing permission to offer");
+    expect(prompt).toContain("Destructive actions");
+    expect(prompt).toContain("If an approval is declined or times out, nothing changed");
     expect(prompt).toContain("A support ticket is created only after the user explicitly confirms");
     expect(prompt).toContain("it does not apply changes");
   });

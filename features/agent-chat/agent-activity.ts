@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { approvalFreeActionsForTool } from "./gated-tools";
+
 import { sanitizeAgentVisibleText } from "./agent-output-safety";
 import type { AgentTranslator } from "./agent-translator";
 
@@ -173,6 +175,12 @@ function actionValue(input: Record<string, unknown>) {
   return typeof input.action === "string" ? input.action : undefined;
 }
 
+function multiplexedRisk(toolName: string, details: Record<string, unknown>): "write" | "sensitive" {
+  const approvalFree = approvalFreeActionsForTool(toolName);
+  const action = actionValue(details);
+  return approvalFree && action && approvalFree.includes(action) ? "write" : "sensitive";
+}
+
 export function describeAgentTool(toolName: string, input: unknown): AgentActivityDescriptor {
   const resource = TOOL_RESOURCE[toolName] ?? entityResource(input);
   const details = inputRecord(input);
@@ -201,20 +209,26 @@ export function describeAgentTool(toolName: string, input: unknown): AgentActivi
     });
   }
   if (toolName === "manage_custom_columns" || toolName === "manage_widgets") {
-    return descriptor("workspace.configure", resource, "sensitive", resource ? [resource] : ["terminology"], {
-      action: "workspace.configure",
-      state: safeText(actionValue(details), 80),
-    });
+    return descriptor(
+      "workspace.configure",
+      resource,
+      multiplexedRisk(toolName, details),
+      resource ? [resource] : ["terminology"],
+      {
+        action: "workspace.configure",
+        state: safeText(actionValue(details), 80),
+      },
+    );
   }
   if (toolName === "update_workspace_settings") {
-    return descriptor("workspace.configure", resource, "sensitive", resource ? [resource] : ["terminology"], {
+    return descriptor("workspace.configure", resource, "write", resource ? [resource] : ["terminology"], {
       action: "workspace.settings",
       state: safeText(details.target, 80),
     });
   }
   if (toolName === "manage_team") {
     const action = actionValue(details);
-    return descriptor("team.manage", undefined, "sensitive", [], {
+    return descriptor("team.manage", undefined, "write", [], {
       action: action === "invite" ? "team.invite" : "team.update",
       target: action === "invite" ? safeStringList(details.emails) : "the selected team member",
       count: action === "invite" ? boundedCount(details.emails) : undefined,
@@ -233,7 +247,7 @@ export function describeAgentTool(toolName: string, input: unknown): AgentActivi
             : action === "resend_delivery"
               ? "webhook.resend"
               : "webhook.inspect";
-    return descriptor("webhooks.manage", undefined, "sensitive", [], {
+    return descriptor("webhooks.manage", undefined, multiplexedRisk(toolName, details), [], {
       action: consequenceAction,
       target: safeText(details.url, 240),
       preview: safeText(details.description, 240),
@@ -242,7 +256,7 @@ export function describeAgentTool(toolName: string, input: unknown): AgentActivi
     });
   }
   if (toolName === "connect_messaging_account") {
-    return descriptor("accounts.connect", undefined, "sensitive", [], {
+    return descriptor("accounts.connect", undefined, "write", [], {
       action: "account.connect",
       target: safeText(details.channel, 80),
     });
@@ -276,7 +290,7 @@ export function describeAgentTool(toolName: string, input: unknown): AgentActivi
     });
   }
   if (toolName === "save_message_draft") {
-    return descriptor("messages.draft", "messages", "sensitive", ["messages"], {
+    return descriptor("messages.draft", "messages", "write", ["messages"], {
       action: "draft.save",
       subject: safeText(details.subject, 200),
       preview: safeText(details.body, 240),
@@ -288,7 +302,7 @@ export function describeAgentTool(toolName: string, input: unknown): AgentActivi
     });
   }
   if (toolName === "update_messaging_thread") {
-    return descriptor("messages.triage", "messages", "sensitive", ["messages"], {
+    return descriptor("messages.triage", "messages", "write", ["messages"], {
       action: "thread.update",
       state: safeText(details.state, 80),
     });
@@ -300,7 +314,7 @@ export function describeAgentTool(toolName: string, input: unknown): AgentActivi
     toolName === "get_records"
   )
     return descriptor("records.read", resource, "read");
-  if (toolName === "update_record_notes") return descriptor("records.note", resource, "sensitive");
+  if (toolName === "update_record_notes") return descriptor("records.note", resource, "write");
   if (toolName.startsWith("create_")) {
     const count = boundedMutationCount(input, resource);
     return {
@@ -326,7 +340,7 @@ export function describeAgentTool(toolName: string, input: unknown): AgentActivi
     };
   }
   if (toolName === "manage_record_links") {
-    return descriptor("records.link", resource, "sensitive", resource ? [resource] : [], {
+    return descriptor("records.link", resource, "write", resource ? [resource] : [], {
       action: "records.link",
       count: boundedCount(details.ids),
       state: safeText(details.action, 80),

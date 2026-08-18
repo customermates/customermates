@@ -8,7 +8,7 @@ import { VALIDATION_ERROR_PREFIX } from "@/features/mcp-tools/utils";
 import { RequestSupportSchema } from "@/features/mcp-tools/support.mcp-tools";
 import type { McpToolResult } from "@/app/api/v1/mcp/mcp-route-utils";
 
-import { isReadOnlyTool } from "./gated-tools";
+import { requiresApproval } from "./gated-tools";
 import { toolResultText } from "./agent-stream-utils";
 import { AGENT_NAV_TARGET_IDS, AGENT_UI_TARGETS, UiTargetIdSchema } from "./ui-targets";
 import { AgentTourSchema } from "./agent-tours";
@@ -376,7 +376,6 @@ function providerSafeSchema(inputSchema: (typeof ALL_MCP_TOOLS)[number]["inputSc
 }
 
 function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
-  const readOnly = isReadOnlyTool(mcp);
   const execute = mcp.execute as (input: unknown) => Promise<McpToolResult>;
 
   return tool({
@@ -387,7 +386,7 @@ function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
         const result = toolResultText(await execute(input)).slice(0, deps.resultMaxChars);
         return { ok: !result.startsWith(VALIDATION_ERROR_PREFIX), result };
       };
-      return runSafely(() => (readOnly ? run() : runGated(deps, toolCallId, mcp.name, input, run)));
+      return runSafely(() => (requiresApproval(mcp, input) ? runGated(deps, toolCallId, mcp.name, input, run) : run()));
     },
   });
 }
