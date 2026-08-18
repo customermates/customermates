@@ -24,7 +24,7 @@ import type { ApplyAgentWorkspaceSetupData } from "@/features/agent-chat/apply-a
 import type { CleanupAgentWorkspaceSetupData } from "@/features/agent-chat/cleanup-agent-workspace-setup.interactor";
 
 function isAgentChatEnabled() {
-  return env.APP_MODE === "cloud";
+  return env.APP_MODE === "cloud" && env.AGENT_CHAT_ENABLED;
 }
 
 export async function getAgentConfigAction() {

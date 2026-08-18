@@ -47,7 +47,7 @@ function completedReplayStream(data: Extract<SendAgentMessageResult, { dispositi
 }
 
 export async function POST(request: NextRequest) {
-  if (env.APP_MODE !== "cloud") return new Response(null, { status: 404 });
+  if (env.APP_MODE !== "cloud" || !env.AGENT_CHAT_ENABLED) return new Response(null, { status: 404 });
 
   try {
     const data = await request.json();
