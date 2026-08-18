@@ -51,6 +51,14 @@ Route: `/dashboard`. All app routes are locale-prefixed, for example `https://cu
 | Open documentation | Sidebar footer | `#nav-documentation` | Opens `/docs` |
 | Send feedback | Sidebar footer | `#nav-feedback` | Opens the feedback dialog |
 
+## The widget editor
+
+The widget modal is organized in three tabs: `#widget-tab-data` chooses the source (record type or activity timeline) and the aggregation, `#widget-tab-filters` narrows what counts (`#widget-entity-filters-heading` marks the record filter block), and `#widget-tab-appearance` sets the display type, axes, and colors. A live preview under `#widget-preview-heading` reflects every change before you save, and `#widget-template-heading` offers ready-made starting points. Save or discard with `#widget-modal-save` / `#widget-modal-reset`.
+
+## Global search
+
+`#nav-search` (or Cmd/Ctrl+K anywhere) opens the search modal; `#global-search-input` takes the query. It matches contacts, organizations, deals, services, and tasks by their names and jumps straight to the record you pick. It searches records, not messages; the Inbox has its own search.
+
 ## First run
 
 New accounts land in the onboarding wizard at `/onboarding/wizard` before they see the Dashboard. It walks through profile, company, entities, demo data, AI setup, and team invites. Navigate it with the anchor ids `#onboarding-next` and `#onboarding-back`.

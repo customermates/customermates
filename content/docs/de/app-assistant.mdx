@@ -1,0 +1,69 @@
+---
+title: Assistent
+description: Mate, der gehostete In-App-Assistent, was er selbstständig erledigt, was immer erst fragt, Credits, Touren und Support-Eskalation.
+---
+
+Customermates Cloud enthält **Mate**, den gehosteten In-App-Assistenten. Diese Seite dokumentiert das Assistenten-Panel für Menschen und für KI-Agenten, die die Oberfläche steuern. Mate gibt es nur in der Cloud; Self-Hosted-Deployments behalten stattdessen den vollen MCP-Zugriff für externe KI-Clients mit eigenem Anbieter.
+
+## Zweck
+
+Mate sitzt im runden Launcher unten rechts auf jedem App-Bildschirm. Stellen Sie Fragen zu Ihrem Workspace oder zum Produkt, lassen Sie Daten ändern, die Oberfläche bedienen oder sich durch die App führen. Mate antwortet in Ihrer Oberflächensprache.
+
+## Was sofort läuft und was erst fragt
+
+Gewöhnliche CRM-Arbeit läuft, sobald Sie sie anstoßen: Einträge anlegen und ändern, Notizen, Verknüpfungen, Nachrichtenentwürfe, Posteingangs-Triage, Workspace-Einstellungen, eigene Felder, Widget- und Webhook-Einrichtung, Team-Änderungen und Kontoverbindungen. Mate sagt vorher, was es ändert, und berichtet danach genau, was sich geändert hat.
+
+Nur Aktionen, die sich nicht rückgängig machen lassen oder den Workspace verlassen, halten jedes Mal für Ihre Freigabe an:
+
+| Fragt immer | Warum |
+|-------------|-------|
+| Einträge löschen | Endgültiges Löschen, nicht umkehrbar |
+| Eigenes Feld, Widget oder Webhook löschen | Zerstört Konfiguration und gespeicherte Werte |
+| Nachrichtenentwurf verwerfen | Entfernt geschriebene Inhalte |
+| E-Mail oder Chat-Nachricht senden | Erreicht eine echte Person außerhalb des Workspace |
+| Support-Ticket eröffnen | Sendet eine E-Mail an das Customermates-Team |
+
+Die Freigabekarte nennt die Aktion und ihre Konsequenz. Lehnen Sie ab oder läuft die Anfrage ab, hat sich nichts geändert. Es gibt keine Dauerfreigabe: Jede dieser Aktionen fragt beim nächsten Mal erneut.
+
+## Die Oberfläche bedienen
+
+Mate kann die App so benutzen wie Sie. Es schaltet eine Liste zwischen Tabelle, Karten und Kanban um, ändert Gruppierung, Sortierung, Suche und Filter, öffnet einen bestimmten Eintrag als Drawer oder ganze Seite und füllt Formulare Feld für Feld sichtbar aus. Kanban braucht ein Einfachauswahl-Feld zum Gruppieren; hat die Ansicht keins, bietet Mate an, eins anzulegen.
+
+Wenn Sie Mate bitten, Daten zu ändern, nutzt es seine Werkzeuge direkt. Wollen Sie zusehen oder selbst abschließen, öffnet es das Formular und tippt sichtbar in die Felder, und **Sie** drücken Speichern; abgesendet wird nur, wenn Sie das ausdrücklich verlangen. Ein Formular mit Ihren eigenen ungespeicherten Änderungen wird nie angefasst.
+
+## Geführte Touren
+
+Bitten Sie um eine Tour zu allem Möglichen: eine einzelne Seite, ein Arbeitsablauf oder die ganze App. Mate stellt jede Tour aus Ihrer Frage heraus neu zusammen, wechselt unterwegs die Seiten und erklärt jede Station in Ihrer Sprache. Schließen Sie das Overlay, endet die Tour.
+
+## Workspace-Einrichtung
+
+In einem leeren Workspace kann Mate eine Starteinrichtung vorschlagen: Terminologie, eigene Felder, einen kleinen verknüpften Beispieldatensatz und Dashboard-Widgets. Es bereitet immer nur einen prüfbaren Plan vor; angewendet wird er ausdrücklich von Ihnen im Panel, und die angelegten Daten lassen sich später wieder entfernen, ebenfalls mit ausdrücklicher Bestätigung pro Aufräumschritt.
+
+## Credits
+
+Gehostete KI-Verarbeitung nutzt Credits aus dem monatlichen Kontingent Ihres Tarifs pro aktivem Nutzer. Der Zähler über dem Eingabefeld zeigt den verbrauchten Anteil und den Zurücksetzungstermin; der Stichtag folgt Ihrem Abrechnungsjubiläum, auch bei jährlicher Abrechnung. Einfache Anfragen kosten meist einen Credit, mehrstufige Arbeit mehr. Ist das Kontingent aufgebraucht, sagt das Panel das, und der Verlauf bleibt lesbar. Externe MCP-Clients nutzen Ihren eigenen KI-Anbieter und verbrauchen diese Credits nie.
+
+## Chat-Verlauf
+
+Chats werden automatisch betitelt. Die Verlaufsansicht listet aktive und archivierte Chats, beide serverseitig durchsuchbar. Archivieren ist umkehrbar; das Löschen eines Chats entfernt seine Nachrichten, Freigaben und Einrichtungshistorie endgültig, während CRM-Einträge und Abrechnungsdaten bestehen bleiben.
+
+## Support
+
+Sagen Sie Mate, wenn etwas nicht klappt, und es bietet an, ein Support-Ticket zu eröffnen. Nach Ihrer Bestätigung wird das Customermates-Team per E-Mail benachrichtigt, mit dem jüngsten Gesprächsverlauf im Anhang, und antwortet an die E-Mail-Adresse Ihres Kontos, nicht im Chat. Mate nennt Ihnen die Ticketnummer.
+
+## Zentrale Aktionen
+
+| Aktion | Wo | Anchor-Id | Was passiert |
+|--------|-----|-----------|--------------|
+| Assistent öffnen | Launcher unten rechts | `#agent-launcher` | Öffnet das Panel |
+| Das Panel selbst | Schwebende Karte | `#agent-panel-dialog` | Nicht-modaler Dialog über der Seite |
+| An Mate schreiben | Panel-Fußzeile | `#agent-composer` | Enter sendet, Shift+Enter bricht die Zeile um |
+| Credit-Zähler | Über dem Eingabefeld | `#agent-usage` | Zeigt Verbrauch und Zurücksetzungstermin |
+| Vorgeschlagene Prompts | Neuer Chat | `#agent-suggestions` | Füllt das Eingabefeld vor, sendet nicht |
+| Zurück aus dem Verlauf | Verlaufsansicht | `#agent-history-back` | Kehrt zum aktuellen Chat zurück |
+| Archivierte Chats | Verlaufsansicht | `#agent-archive-summary` | Klappt die Archivliste auf |
+| Mehr Chats laden | Verlaufsansicht | `#agent-load-more-active` / `#agent-load-more-archived` | Nächste Seite der Chats |
+
+## Verfügbarkeit
+
+Nur in der Cloud, in jedem Tarif, in jeder Oberflächensprache (Englisch, Deutsch, Spanisch, Französisch, Italienisch). Self-Hosted-Deployments enthalten den gehosteten Assistenten nicht; sie verbinden externe KI-Clients über den [MCP-Server](/docs/mcp).

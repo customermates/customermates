@@ -502,7 +502,11 @@ const SuggestedQuestions = observer(function SuggestedQuestions() {
   };
 
   return (
-    <div className="mt-1 flex w-full max-w-[280px] flex-col items-stretch gap-2" data-testid="agent-suggestions">
+    <div
+      className="mt-1 flex w-full max-w-[280px] flex-col items-stretch gap-2"
+      data-testid="agent-suggestions"
+      id="agent-suggestions"
+    >
       {([1, 2, 3] as const).map((index) => {
         const action = actions[index - 1];
         if (!action) return null;
@@ -1059,7 +1063,11 @@ const UsageFooter = observer(function UsageFooter() {
   const resetAt = intlStore.formatDayMonth(new Date(usage.resetAt));
 
   return (
-    <details className="group w-full px-1 pb-2 text-xs text-muted-foreground" data-testid="agent-usage">
+    <details
+      className="group w-full px-1 pb-2 text-xs text-muted-foreground"
+      data-testid="agent-usage"
+      id="agent-usage"
+    >
       <summary className="cursor-pointer list-none rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring">
         <div className="flex items-center justify-between gap-2">
           <span>{t("AgentChat.credits.resetShort", { resetAt })}</span>

@@ -1,0 +1,69 @@
+---
+title: Assistant
+description: Mate, the hosted in-app assistant, what it can do on its own, what always asks first, credits, tours, and support escalation.
+---
+
+Customermates Cloud ships with **Mate**, the hosted in-app assistant. This page documents the assistant panel for humans and for AI agents that drive the UI. Mate is cloud-only; self-hosted deployments keep full MCP access for external AI clients with your own provider instead.
+
+## Purpose
+
+Mate lives in the round launcher at the bottom-right of every app screen. Ask it questions about your workspace or the product, tell it to change data, have it operate the interface, or let it walk you through the app. It answers in your interface language.
+
+## What runs immediately and what asks first
+
+Ordinary CRM work runs as soon as you ask: creating and updating records, notes, record links, message drafts, inbox triage, workspace settings, custom fields, widget and webhook setup, team changes, and account connections. Mate says what it is about to change and reports exactly what changed.
+
+Only actions that cannot be taken back or that leave your workspace stop for your approval, every single time:
+
+| Always asks | Why |
+|-------------|-----|
+| Deleting records | Hard delete, cannot be undone |
+| Deleting a custom field, widget, or webhook | Destroys configuration and stored values |
+| Discarding a message draft | Removes written content |
+| Sending an email or chat message | Reaches a real person outside the workspace |
+| Opening a support ticket | Emails the Customermates team |
+
+An approval card names the action and its consequence. Decline it or let it time out and nothing has changed. There is no standing permission: each of these actions asks again next time.
+
+## Operating the interface
+
+Mate can use the app the way you do. It switches a list between table, cards, and kanban, changes grouping, sorting, search, and filters, opens a specific record as a drawer or full page, and fills forms field by field while you watch. Kanban needs a single-select field to group by; if the view has none, Mate offers to create one.
+
+When you ask Mate to change data, it uses its tools directly. When you want to see it done or finish it yourself, it opens the form and types into the visible fields, and **you** press Save; it only submits when you explicitly tell it to complete the action. A form holding your own unsaved edits is never touched.
+
+## Guided tours
+
+Ask for a tour of anything: a single page, a workflow, or the whole app. Mate composes each tour for you on the spot from what you asked, navigates between pages as the tour progresses, and explains each stop in your language. Close the overlay and the tour ends.
+
+## Workspace setup
+
+On an empty workspace, Mate can propose a starter setup: terminology, custom fields, a small linked sample dataset, and dashboard widgets. It only ever prepares a reviewable plan; you apply it explicitly in the panel, and you can remove the created data again later, also with explicit confirmation per cleanup.
+
+## Credits
+
+Hosted AI processing uses credits from your plan's monthly allowance per active user. The meter above the composer shows the share used and when it resets; the reset day follows your billing anniversary, also on annual billing. Simple requests usually cost one credit, multi-step work more. When the allowance is exhausted, the panel says so and history stays readable. External MCP clients use your own AI provider and never consume these credits.
+
+## Chat history
+
+Chats are titled automatically. The history view lists active and archived chats, both searchable server-side. Archiving is reversible; deleting a chat permanently removes its messages, approvals, and setup history while CRM records and billing entries remain.
+
+## Support
+
+Tell Mate when something does not work out and it offers to open a support ticket. After your confirmation the Customermates team is notified by email with the recent conversation attached, and replies to the email address on your account, not in the chat. Mate tells you the ticket number.
+
+## Key actions
+
+| Action | Where | Anchor id | What happens |
+|--------|-------|-----------|--------------|
+| Open the assistant | Bottom-right launcher | `#agent-launcher` | Opens the panel |
+| The panel itself | Floating card | `#agent-panel-dialog` | Non-modal dialog over the page |
+| Write to Mate | Panel footer | `#agent-composer` | Enter sends, Shift+Enter breaks the line |
+| Credit meter | Above the composer | `#agent-usage` | Shows usage and the reset date |
+| Suggested prompts | Fresh chat | `#agent-suggestions` | Prefills the composer, does not send |
+| Back from history | History view | `#agent-history-back` | Returns to the current chat |
+| Archived chats | History view | `#agent-archive-summary` | Expands the archived list |
+| Load more chats | History view | `#agent-load-more-active` / `#agent-load-more-archived` | Next page of chats |
+
+## Availability
+
+Cloud-only, on every plan, in every interface language (English, German, Spanish, French, Italian). Self-hosted deployments do not include the hosted assistant; they connect external AI clients through the [MCP server](/docs/mcp) instead.
