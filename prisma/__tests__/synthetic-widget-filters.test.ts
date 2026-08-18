@@ -38,7 +38,7 @@ describe("synthetic widget filters", () => {
     });
 
     const widgets = calls.map(({ create }) => create);
-    expect(widgets).toHaveLength(8);
+    expect(widgets).toHaveLength(7);
     expect(widgets.map(({ name }) => name)).toEqual(SYNTHETIC_WIDGET_NAMES);
     expect(deleteMany).toHaveBeenCalledOnce();
     expect(calls.every(({ create, update }) => JSON.stringify(create) === JSON.stringify(update))).toBe(true);
@@ -76,20 +76,13 @@ describe("synthetic widget filters", () => {
         },
       ],
       [],
-      [
-        {
-          field: SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus,
-          operator: "notIn",
-          value: [SYNTHETIC_CUSTOM_OPTION_IDS.dealStatus.abandoned],
-        },
-      ],
       Prisma.DbNull,
     ]);
     expect(widgets.map(({ timelineFilters }) => timelineFilters).slice(0, -1)).toEqual(
-      Array.from({ length: 7 }, () => Prisma.DbNull),
+      Array.from({ length: 6 }, () => Prisma.DbNull),
     );
     expect(widgets.map(({ kind }) => kind)).toEqual([
-      ...Array.from({ length: 7 }, () => WidgetKind.chart),
+      ...Array.from({ length: 6 }, () => WidgetKind.chart),
       WidgetKind.activityTimeline,
     ]);
     expect(widgets.slice(-1).map(({ timelineFilters }) => timelineFilters)).toEqual([
@@ -97,12 +90,12 @@ describe("synthetic widget filters", () => {
     ]);
     expect(widgets.slice(-1).map(({ id, layout }) => ({ id, layout }))).toEqual([
       {
-        id: "15000000-0000-4000-8000-000000000008",
+        id: "15000000-0000-4000-8000-000000000007",
         layout: {
-          lg: { h: 3, i: "15000000-0000-4000-8000-000000000008", w: 4, x: 8, y: 2 },
-          md: { h: 4, i: "15000000-0000-4000-8000-000000000008", w: 4, x: 4, y: 3 },
-          sm: { h: 4, i: "15000000-0000-4000-8000-000000000008", w: 2, x: 2, y: 3 },
-          xs: { h: 4, i: "15000000-0000-4000-8000-000000000008", w: 2, x: 0, y: 9 },
+          lg: { h: 3, i: "15000000-0000-4000-8000-000000000007", w: 4, x: 8, y: 2 },
+          md: { h: 4, i: "15000000-0000-4000-8000-000000000007", w: 4, x: 4, y: 3 },
+          sm: { h: 4, i: "15000000-0000-4000-8000-000000000007", w: 2, x: 2, y: 3 },
+          xs: { h: 4, i: "15000000-0000-4000-8000-000000000007", w: 2, x: 0, y: 9 },
         },
       },
     ]);
