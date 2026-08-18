@@ -10,7 +10,6 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { RoleDtoSchema } from "./role.schema";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
-import { getTenantUser } from "@/core/decorators/tenant-context";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx, type Validated } from "@/core/validation/validation.utils";
 import { calculateChanges } from "@/core/utils/calculate-changes";
@@ -115,7 +114,7 @@ export class UpsertRoleInteractor extends AuthenticatedInteractor<UpsertRoleData
   }
 
   private async precheck(data: UpsertRoleData, ctx: z.RefinementCtx) {
-    if (data.id && data.id === getTenantUser().roleId)
+    if (data.id && data.id === this.user.roleId)
       ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.roleSelfEditForbidden }, path: ["id"] });
 
     await this.validator.invoke([{ ids: data.id, path: ["id"] }], ctx);
