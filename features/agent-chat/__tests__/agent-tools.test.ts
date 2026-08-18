@@ -239,6 +239,49 @@ describe("agent tools", () => {
     }
   });
 
+  it("accepts only real record ids in open_record and rejects paths and URLs", () => {
+    const tools = getAgentAiTools(deps());
+    const schema = schemaOf(tools.open_record);
+
+    expect(schema.safeParse?.({ entity: "contact", recordId: "00000000-0000-4000-8000-000000000001" })).toMatchObject({
+      success: true,
+    });
+    expect(schema.safeParse?.({ entity: "contact", recordId: "new" })).toMatchObject({ success: true });
+    for (const recordId of ["/contacts/abc", "javascript:alert(1)", "https://example.com", "abc", "1234"])
+      expect(schema.safeParse?.({ entity: "contact", recordId })).toMatchObject({ success: false });
+
+    expect(schema.safeParse?.({ entity: "company", recordId: "00000000-0000-4000-8000-000000000001" })).toMatchObject({
+      success: false,
+    });
+  });
+
+  it("bounds fill_form to twenty named fields and configure_view to five filters", () => {
+    const tools = getAgentAiTools(deps());
+    const fillSchema = schemaOf(tools.fill_form);
+    const viewSchema = schemaOf(tools.configure_view);
+
+    expect(fillSchema.safeParse?.({ form: "contact", fields: [{ field: "firstName", value: "Anna" }] })).toMatchObject({
+      success: true,
+    });
+    expect(fillSchema.safeParse?.({ form: "contact", fields: [] })).toMatchObject({ success: false });
+    expect(
+      fillSchema.safeParse?.({
+        form: "contact",
+        fields: Array.from({ length: 21 }, (_, index) => ({ field: `f${index}`, value: "x" })),
+      }),
+    ).toMatchObject({ success: false });
+    expect(viewSchema.safeParse?.({ view: "deals", layout: "kanban", groupBy: "Status" })).toMatchObject({
+      success: true,
+    });
+    expect(viewSchema.safeParse?.({ view: "everything" })).toMatchObject({ success: false });
+    expect(
+      viewSchema.safeParse?.({
+        view: "deals",
+        filters: Array.from({ length: 6 }, (_, index) => ({ field: `f${index}`, operator: "equals", value: "x" })),
+      }),
+    ).toMatchObject({ success: false });
+  });
+
   it.each([
     ["navigate", { targetId: "nav-contacts" }, "navigation failed"],
     ["highlight_element", { targetId: "contacts-add" }, "highlight failed"],
@@ -416,7 +459,7 @@ describe("agent tools", () => {
     });
 
     expect(prompt).not.toMatch(/Always allow/i);
-    expect(prompt).toContain("runs immediately without confirmation");
+    expect(prompt).toContain("Ordinary CRM work also runs immediately");
     expect(prompt).toContain("require a fresh explicit approval every time; there is no standing permission to offer");
     expect(prompt).toContain("Destructive actions");
     expect(prompt).toContain("If an approval is declined or times out, nothing changed");

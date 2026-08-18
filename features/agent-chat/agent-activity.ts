@@ -25,6 +25,8 @@ export const AGENT_ACTIVITY_KINDS = [
   "workspace.setup",
   "interface.navigate",
   "interface.tour",
+  "interface.configure",
+  "interface.fill",
   "support.escalate",
   "generic",
 ] as const;
@@ -187,8 +189,16 @@ export function describeAgentTool(toolName: string, input: unknown): AgentActivi
 
   if (toolName === "list_ui_targets" || toolName === "get_workspace_context")
     return descriptor("workspace.read", undefined, "read");
-  if (toolName === "navigate" || toolName === "highlight_element")
+  if (toolName === "navigate" || toolName === "highlight_element" || toolName === "open_record")
     return descriptor("interface.navigate", undefined, "read");
+  if (toolName === "configure_view") return descriptor("interface.configure", undefined, "read");
+  if (toolName === "fill_form") {
+    const fieldCount = boundedCount(details.fields);
+    return {
+      ...descriptor("interface.fill", undefined, details.submit === true ? "write" : "read"),
+      ...(fieldCount ? { count: fieldCount } : {}),
+    };
+  }
   if (toolName === "start_tour") return descriptor("interface.tour", undefined, "read");
   if (toolName === "open_workspace_setup") {
     return descriptor("workspace.setup", undefined, "read", [

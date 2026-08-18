@@ -12,6 +12,7 @@ import { requiresApproval } from "./gated-tools";
 import { toolResultText } from "./agent-stream-utils";
 import { AGENT_NAV_TARGET_IDS, AGENT_UI_TARGETS, UiTargetIdSchema } from "./ui-targets";
 import { AgentTourSchema } from "./agent-tours";
+import { ConfigureViewSchema, FillFormSchema, OpenRecordSchema } from "./ui-operations";
 import { PrepareAgentWorkspaceSetupSchema } from "./agent-workspace-setup";
 
 export type ApprovalDecision = "approve" | "reject" | "timeout";
@@ -54,7 +55,12 @@ const UI_TOOL_NAMES = [
   "highlight_element",
   "start_tour",
   "open_workspace_setup",
+  "configure_view",
+  "open_record",
+  "fill_form",
 ] as const;
+
+const CORE_UI_TOOL_NAMES = ["list_ui_targets", "navigate", "highlight_element", "start_tour", "open_workspace_setup"];
 
 const CORE_AGENT_TOOL_NAMES = [
   "get_record_schema",
@@ -64,7 +70,7 @@ const CORE_AGENT_TOOL_NAMES = [
   "get_workspace_context",
   "search_docs",
   "get_docs_page",
-  ...UI_TOOL_NAMES,
+  ...CORE_UI_TOOL_NAMES,
   "request_support",
 ] as const;
 
@@ -276,6 +282,68 @@ export function selectAgentToolNames(args: {
     selected.add("manage_custom_columns");
   if (includesAny(request, ["widget", "chart", "diagramm", "gráfic", "grafic", "graphiq"]))
     selected.add("manage_widgets");
+  if (
+    includesAny(request, [
+      "view",
+      "kanban",
+      "board",
+      "table",
+      "card",
+      "group",
+      "sort",
+      "filter",
+      "search",
+      "ansicht",
+      "tafel",
+      "tabelle",
+      "karte",
+      "gruppier",
+      "sortier",
+      "vista",
+      "tablero",
+      "tabla",
+      "agrupa",
+      "ordena",
+      "filtr",
+      "vue",
+      "tableau",
+      "carte",
+      "group",
+      "tri",
+      "scheda",
+      "tabella",
+      "raggrupp",
+      "ordina",
+    ])
+  )
+    selected.add("configure_view");
+  if (
+    includesAny(request, [
+      "open",
+      "show",
+      "form",
+      "fill",
+      "öffne",
+      "zeig",
+      "formular",
+      "ausfüll",
+      "abre",
+      "muestra",
+      "formulario",
+      "rellena",
+      "ouvre",
+      "montre",
+      "formulaire",
+      "rempli",
+      "apri",
+      "mostra",
+      "modulo",
+      "compila",
+    ])
+  ) {
+    selected.add("open_record");
+    selected.add("fill_form");
+  }
   if (includesAny(request, ["webhook"])) selected.add("manage_webhooks");
   if (
     includesAny(request, [
@@ -436,6 +504,24 @@ function uiTools(deps: AgentToolDeps): ToolSet {
         "Open a reviewable workspace setup plan after learning the user's use case, terminology, and useful custom fields. Ask focused questions first. This only prepares a hashed plan; the user applies it explicitly in the UI.",
       inputSchema: PrepareAgentWorkspaceSetupSchema,
       execute: (input, { toolCallId }) => runSafely(() => deps.runUiCommand(toolCallId, "open_workspace_setup", input)),
+    }),
+    configure_view: tool({
+      description:
+        "Change how a list page is shown: table, cards, or kanban layout, grouping, sorting, search, and filters. Pass column names exactly as the user says them; relay the tool's message when something is unavailable, for example kanban without a single-select field.",
+      inputSchema: ConfigureViewSchema,
+      execute: (input, { toolCallId }) => runSafely(() => deps.runUiCommand(toolCallId, "configure_view", input)),
+    }),
+    open_record: tool({
+      description:
+        "Open one record after finding its id with list_records or search_records. Use the drawer to keep context, the page for a full view, and recordId 'new' for a blank form to fill with fill_form.",
+      inputSchema: OpenRecordSchema,
+      execute: (input, { toolCallId }) => runSafely(() => deps.runUiCommand(toolCallId, "open_record", input)),
+    }),
+    fill_form: tool({
+      description:
+        "Visibly fill fields on the form that is open on screen; the user reviews and presses Save. Set submit true only when the user explicitly told you to complete or save it. Refuses a form that carries the user's own unsaved edits - never work around that refusal.",
+      inputSchema: FillFormSchema,
+      execute: (input, { toolCallId }) => runSafely(() => deps.runUiCommand(toolCallId, "fill_form", input)),
     }),
   };
 }

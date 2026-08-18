@@ -890,6 +890,67 @@ describe("agent runner approval rendezvous", () => {
     );
   });
 
+  it("round-trips a configure_view command through the browser mailbox", async () => {
+    repoMock.takeUiCommandResultUnscoped.mockResolvedValueOnce(null).mockResolvedValueOnce({
+      name: "configure_view",
+      ok: true,
+      result: "Adjusted the deals view: kanban layout, grouped by Status.",
+    });
+    aiMock.streamText.mockReturnValue(
+      scripted(async function* () {
+        yield {
+          type: "tool-call",
+          toolCallId: "view1",
+          toolName: "configure_view",
+          input: { view: "deals", layout: "kanban", groupBy: "Status" },
+        };
+        const output = await (toolsMock.captured as Deps).runUiCommand("view1", "configure_view", {
+          view: "deals",
+          layout: "kanban",
+          groupBy: "Status",
+        });
+        expect(output).toEqual({
+          ok: true,
+          result: "Adjusted the deals view: kanban layout, grouped by Status.",
+        });
+        yield { type: "tool-result", toolCallId: "view1", output };
+        yield { type: "text-delta", text: "Your deals are now a kanban board." };
+      }),
+    );
+
+    const events = await runAndRead(ctx());
+
+    const command = events.find((event) => event.type === "ui_command");
+    expect(command).toMatchObject({
+      name: "configure_view",
+      input: { view: "deals", layout: "kanban", groupBy: "Status" },
+    });
+    expect(events.some((event) => event.type === "activity" && event.activity?.kind === "interface.configure")).toBe(
+      true,
+    );
+    expect(events.some((event) => event.type === "activity_result" && event.status === "done")).toBe(true);
+    expect(events.some((event) => event.type === "approval_request")).toBe(false);
+  });
+
+  it("fails closed when the browser answers a configure_view with a different command name", async () => {
+    repoMock.takeUiCommandResultUnscoped.mockResolvedValue({
+      name: "navigate",
+      ok: true,
+      result: "Navigated.",
+    });
+    aiMock.streamText.mockReturnValue(
+      scripted(async function* () {
+        const output = await (toolsMock.captured as Deps).runUiCommand("view2", "configure_view", {
+          view: "deals",
+        });
+        expect(output.ok).toBe(false);
+        yield { type: "text-delta", text: "done" };
+      }),
+    );
+
+    await runAndRead(ctx());
+  });
+
   it("waits for the browser result and returns its exact failure to the model", async () => {
     repoMock.takeUiCommandResultUnscoped.mockResolvedValueOnce(null).mockResolvedValueOnce({
       name: "highlight_element",

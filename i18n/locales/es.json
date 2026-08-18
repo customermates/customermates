@@ -75,6 +75,16 @@
           "running": "Procesando la solicitud"
         },
         "interface": {
+          "configure": {
+            "done": "Vista ajustada",
+            "error": "No se pudo ajustar la vista",
+            "running": "Ajustando la vista"
+          },
+          "fill": {
+            "done": "Campos del formulario rellenados",
+            "error": "No se pudo rellenar el formulario",
+            "running": "Rellenando los campos del formulario"
+          },
           "navigate": {
             "done": "Vista correspondiente abierta",
             "error": "No se pudo abrir esa vista",

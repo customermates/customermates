@@ -26,6 +26,10 @@ export class NavigationGuardController {
     this.stores.delete(store);
   };
 
+  isRegistered = (store: BaseFormStore): boolean => {
+    return this.stores.has(store);
+  };
+
   get isGuarding(): boolean {
     for (const store of this.stores) if (store.withUnsavedChangesGuard && store.hasUnsavedChanges) return true;
     return false;

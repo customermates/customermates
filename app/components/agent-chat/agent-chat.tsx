@@ -98,7 +98,7 @@ export const AgentChat = observer(function AgentChat() {
 
   useEffect(() => {
     const pending = pendingNavigationRef.current;
-    if (pending?.path === pathname) {
+    if (pending && pending.path.split("?")[0] === pathname) {
       clearTimeout(pending.timer);
       pendingNavigationRef.current = null;
       pending.resolve("navigated");
@@ -111,9 +111,11 @@ export const AgentChat = observer(function AgentChat() {
 
   useEffect(() => {
     agentUiControlStore.registerNavigate(async (path) => {
+      const targetPathname = path.split("?")[0];
       if (pathnameRef.current === path) return "navigated";
       const accepted = routerRef.current.push(path) as unknown as boolean;
       if (accepted === false) return "blocked";
+      if (pathnameRef.current === targetPathname) return "navigated";
 
       const current = pendingNavigationRef.current;
       if (current) {

@@ -75,6 +75,16 @@
           "running": "Anfrage wird bearbeitet"
         },
         "interface": {
+          "configure": {
+            "done": "Ansicht angepasst",
+            "error": "Ansicht konnte nicht angepasst werden",
+            "running": "Ansicht wird angepasst"
+          },
+          "fill": {
+            "done": "Formularfelder ausgefüllt",
+            "error": "Formular konnte nicht ausgefüllt werden",
+            "running": "Formularfelder werden ausgefüllt"
+          },
           "navigate": {
             "done": "Passende Ansicht wurde geöffnet",
             "error": "Ansicht konnte nicht geöffnet werden",

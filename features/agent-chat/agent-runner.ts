@@ -64,7 +64,7 @@ export type AgentRunContext = {
 
 const AGENT_APPROVAL_TIMEOUT_MS = 120_000;
 const AGENT_APPROVAL_POLL_MS = 1_000;
-const UI_COMMAND_TIMEOUT_MS = 10000;
+const UI_COMMAND_TIMEOUT_MS = 15000;
 const UI_COMMAND_POLL_MS = 100;
 
 function delay(ms: number, signal: AbortSignal): Promise<void> {
