@@ -8,6 +8,11 @@ export type CountryOption = { key: CountryCode; label: string };
 
 export const COUNTRY_CODES: readonly CountryCode[] = Object.values(CountryCode);
 
+export function countryLabelForLocale(countryCode: string, locale: AppLocale): string {
+  const displayNames = new Intl.DisplayNames([formattingTagFor(locale)], { type: "region" });
+  return displayNames.of(countryCode.toUpperCase()) ?? countryCode.toUpperCase();
+}
+
 export function countryOptionsForLocale(locale: AppLocale): CountryOption[] {
   const localeTag = formattingTagFor(locale);
   const displayNames = new Intl.DisplayNames([localeTag], { type: "region" });

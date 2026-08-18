@@ -7,7 +7,7 @@ import type { ActivityEntryDto } from "@/ee/messaging/activities/activities.sche
 import { Fragment, type ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -15,7 +15,7 @@ import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 
 import { isEmpty, partitionRelationIds } from "@/features/audit-log/audit-log-changes";
-import { NotesDiff } from "@/app/[locale]/(protected)/company/components/audit-log/notes-diff";
+import { hasNotesDiff, NotesDiff } from "@/app/[locale]/(protected)/company/components/audit-log/notes-diff";
 
 import { auditCategory, DetailHeader, IdentityAvatar, TypeBadge } from "./activities-row";
 import { AppCard } from "@/components/card/app-card";
@@ -30,6 +30,8 @@ import { useEntityHref, useOpenEntity } from "@/components/entity-detail/hooks/u
 import { EntityType, TaskType } from "@/generated/prisma";
 import { getSystemTaskNameTranslationKey } from "@/app/[locale]/(protected)/tasks/components/system-task.config";
 import { useCanonicalColumnLabel } from "@/components/entity-terminology/use-column-label";
+import { countryLabelForLocale } from "@/constants/countries";
+import type { AppLocale } from "@/i18n/locale-registry";
 
 type AvatarItem = {
   id: string;
@@ -38,6 +40,77 @@ type AvatarItem = {
   avatarUrl?: string | null;
   email?: string | null;
 };
+
+const ISO_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
+
+const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
+
+function isPrimitive(value: unknown): boolean {
+  return typeof value === "string" || typeof value === "number" || typeof value === "boolean";
+}
+
+const STRUCTURAL_KEYS = new Set(["id", "columnId", "createdAt", "updatedAt"]);
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function describeEntries(value: Record<string, unknown>): string {
+  return Object.entries(value)
+    .filter(([entryKey, entryValue]) => !STRUCTURAL_KEYS.has(entryKey) && !isEmpty(entryValue))
+    .map(([entryKey, entryValue]) => `${humanizeKey(entryKey)}: ${describeInline(entryValue)}`)
+    .join(" \u00B7 ");
+}
+
+function describeInline(value: unknown): string {
+  if (isPrimitive(value)) return String(value);
+  if (Array.isArray(value)) {
+    if (value.every(isPrimitive)) return value.join(", ");
+    return value.map((item) => (isPlainObject(item) ? describeEntries(item) : String(item))).join(" \u00B7 ");
+  }
+  if (isPlainObject(value)) return describeEntries(value);
+  return String(value);
+}
+
+function humanizeKey(key: string): string {
+  const words = key
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/[_-]+/g, " ")
+    .trim()
+    .split(/\s+/);
+
+  return words.map((word, index) => (index === 0 ? word.charAt(0).toUpperCase() + word.slice(1) : word)).join(" ");
+}
+
+function StructuredValue({ value }: { value: unknown }) {
+  const rows = Array.isArray(value)
+    ? value.map((item) => (isPlainObject(item) ? describeEntries(item) : String(item)))
+    : isPlainObject(value)
+      ? Object.entries(value)
+          .filter(([entryKey, entryValue]) => !STRUCTURAL_KEYS.has(entryKey) && !isEmpty(entryValue))
+          .map(([entryKey, entryValue]) => `${humanizeKey(entryKey)}: ${describeInline(entryValue)}`)
+      : [String(value)];
+
+  const visible = rows.filter((row) => row.length > 0);
+  if (visible.length === 0) return <span className="break-words">{JSON.stringify(value)}</span>;
+  if (visible.length === 1) return <span className="break-words">{visible[0]}</span>;
+
+  return (
+    <ul className="space-y-0.5">
+      {visible.map((row) => (
+        <li key={row} className="break-words">
+          {row}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function formatUnknownValue(value: unknown): string {
+  if (isPrimitive(value)) return String(value);
+  if (Array.isArray(value) && value.every(isPrimitive)) return value.join(", ");
+  return JSON.stringify(value) ?? "";
+}
 
 function ChangeRow({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -56,10 +129,24 @@ type Props = {
 
 export const AuditDetail = observer(({ entry, customColumns }: Props) => {
   const t = useTranslations();
+  const locale = useLocale() as AppLocale;
   const columnLabel = useCanonicalColumnLabel();
   const { intlStore, userModalStore } = useRootStore();
   const openEntity = useOpenEntity();
   const entityHref = useEntityHref();
+
+  function legalDocumentLabel(document: string): string {
+    return t.has(`LegalDocumentNotice.documents.${document}`)
+      ? t(`LegalDocumentNotice.documents.${document}`)
+      : document;
+  }
+
+  function formatDateValue(value: unknown): string {
+    if (typeof value !== "string") return String(value);
+    if (DATE_ONLY.test(value)) return intlStore.formatNumericalLongDate(new Date(`${value}T00:00:00`));
+    if (ISO_DATE_TIME.test(value)) return intlStore.formatNumericalShortDateTime(new Date(value));
+    return value;
+  }
 
   function renderValue(key: string, value: unknown, customColumn?: CustomColumnDto): string | JSX.Element {
     if (isEmpty(value)) return t("AuditLogModal.noValue");
@@ -83,7 +170,7 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
         try {
           const markdown = typeof value === "string" ? value : serializeJSONToMarkdown(value as object);
           return (
-            <div className="prose prose-xs dark:prose-invert max-w-none">
+            <div className="prose prose-sm dark:prose-invert max-w-none">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdown}</ReactMarkdown>
             </div>
           );
@@ -166,6 +253,36 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
         return intlStore.formatCurrency(value as number);
       case "totalQuantity":
         return intlStore.formatNumber(value as number);
+      case "country":
+        return countryLabelForLocale(String(value), locale);
+      case "changedDocuments":
+        return (value as string[]).map((document) => legalDocumentLabel(document)).join(", ");
+      case "versions":
+        return (
+          <ul className="space-y-0.5">
+            {Object.entries(value as Record<string, unknown>).map(([document, version]) => (
+              <li key={document} className="break-words">
+                {`${legalDocumentLabel(document)}: ${formatDateValue(version)}`}
+              </li>
+            ))}
+          </ul>
+        );
+      case "provider":
+        return t.has(`Common.providers.${String(value)}`) ? t(`Common.providers.${String(value)}`) : String(value);
+      case "status":
+        return t.has(`Common.userStatuses.${String(value)}`)
+          ? t(`Common.userStatuses.${String(value)}`)
+          : String(value);
+      case "type": {
+        if (entry.event.startsWith("custom_column.")) {
+          return t.has(`Common.customColumnTypes.${String(value)}`)
+            ? t(`Common.customColumnTypes.${String(value)}`)
+            : String(value);
+        }
+
+        const systemTaskKey = getSystemTaskNameTranslationKey(value as TaskType);
+        return systemTaskKey ? t(systemTaskKey as never) : String(value);
+      }
       default:
         if (customColumn) {
           return (
@@ -178,31 +295,38 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
             />
           );
         }
-        return String(value);
+        if (typeof value === "string" && (ISO_DATE_TIME.test(value) || DATE_ONLY.test(value)))
+          return formatDateValue(value);
+        if (!isPrimitive(value) && !(Array.isArray(value) && value.every(isPrimitive)))
+          return <StructuredValue value={value} />;
+        return formatUnknownValue(value);
     }
   }
 
   const authorName = `${entry.actor.firstName} ${entry.actor.lastName}`.trim();
   const customColumnsById = new Map(customColumns.map((customColumn) => [customColumn.id, customColumn]));
-  const changes = entry.changes.map((change) => {
-    const customColumn = change.columnId !== undefined ? customColumnsById.get(change.columnId) : undefined;
-    return {
-      key: change.field,
-      field:
-        change.columnId !== undefined
-          ? (customColumn?.label ?? t("AuditLogModal.deletedField"))
-          : columnLabel(change.field),
-      previous: change.previous,
-      current: change.current,
-      customColumn,
-    };
-  });
-
-  const isCreatedEvent = entry.event.endsWith(".created");
+  const isUninformativeTaskType = (change: { field: string; current: unknown }) =>
+    change.field === "type" && entry.event.startsWith("task.") && change.current === TaskType.custom;
+  const changes = entry.changes
+    .filter((change) => !isUninformativeTaskType(change))
+    .map((change) => {
+      const customColumn = change.columnId !== undefined ? customColumnsById.get(change.columnId) : undefined;
+      return {
+        key: change.field,
+        field:
+          change.columnId !== undefined
+            ? (customColumn?.label ?? t("AuditLogModal.deletedField"))
+            : columnLabel(change.field),
+        previous: change.previous,
+        current: change.current,
+        customColumn,
+        snapshot: change.snapshot === true,
+      };
+    });
 
   function renderChangeRow(change: (typeof changes)[number]): ReactNode {
-    if (isCreatedEvent)
-      return <div className="min-w-0">{renderValue(change.key, change.current, change.customColumn)}</div>;
+    if (change.snapshot)
+      return <div className="min-w-0 break-words">{renderValue(change.key, change.current, change.customColumn)}</div>;
 
     if (change.key === "notes") return <NotesDiff current={change.current} previous={change.previous} />;
 
@@ -222,6 +346,52 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
 
   const category = auditCategory(entry.event);
 
+  const renderRow = (change: (typeof changes)[number], index: number) => {
+    const key = `${entry.id}-${change.field}-${index}`;
+
+    if (!change.snapshot && change.key === "notes" && !hasNotesDiff(change.previous, change.current)) return null;
+
+    if (
+      !change.snapshot &&
+      ["users", "contacts", "organizations", "deals", "services", "tasks", "identifiers"].includes(change.key)
+    ) {
+      const { added, removed } = partitionRelationIds(change.previous, change.current);
+      if (added.length === 0 && removed.length === 0) return null;
+
+      return (
+        <Fragment key={key}>
+          {removed.length > 0 && (
+            <ChangeRow
+              label={t("AuditLogModal.relationsDeleted", {
+                field: change.field,
+              })}
+            >
+              {renderValue(change.key, removed, change.customColumn)}
+            </ChangeRow>
+          )}
+
+          {added.length > 0 && (
+            <ChangeRow
+              label={t("AuditLogModal.relationsAdded", {
+                field: change.field,
+              })}
+            >
+              {renderValue(change.key, added, change.customColumn)}
+            </ChangeRow>
+          )}
+        </Fragment>
+      );
+    }
+
+    return (
+      <ChangeRow key={key} label={change.field}>
+        {renderChangeRow(change)}
+      </ChangeRow>
+    );
+  };
+
+  const rows = changes.map(renderRow).filter((row) => row !== null);
+
   return (
     <AppCard>
       <DetailHeader
@@ -239,52 +409,11 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
       />
 
       <AppCardBody>
-        <div className="flex flex-col gap-4">
-          {changes.map((change, index) => {
-            const key = `${entry.id}-${change.field}-${index}`;
-
-            if (
-              !isCreatedEvent &&
-              ["users", "contacts", "organizations", "deals", "services", "tasks", "identifiers"].includes(change.key)
-            ) {
-              const { added, removed } = partitionRelationIds(change.previous, change.current);
-              if (added.length === 0 && removed.length === 0) return null;
-
-              return (
-                <Fragment key={key}>
-                  {removed.length > 0 && (
-                    <ChangeRow
-                      label={t("AuditLogModal.relationsDeleted", {
-                        field: change.field,
-                      })}
-                    >
-                      {renderValue(change.key, removed, change.customColumn)}
-                    </ChangeRow>
-                  )}
-
-                  {added.length > 0 && (
-                    <ChangeRow
-                      label={t("AuditLogModal.relationsAdded", {
-                        field: change.field,
-                      })}
-                    >
-                      {renderValue(change.key, added, change.customColumn)}
-                    </ChangeRow>
-                  )}
-                </Fragment>
-              );
-            }
-
-            const row = renderChangeRow(change);
-            if (row === null) return null;
-
-            return (
-              <ChangeRow key={key} label={change.field}>
-                {row}
-              </ChangeRow>
-            );
-          })}
-        </div>
+        {rows.length > 0 ? (
+          <div className="flex flex-col gap-4">{rows}</div>
+        ) : (
+          <p className="text-muted-foreground text-sm">{t("EntityTimeline.noFurtherDetail")}</p>
+        )}
       </AppCardBody>
     </AppCard>
   );
