@@ -42,6 +42,20 @@ export const CompanyUserModal = observer(() => {
           </AppCardHeader>
 
           <AppCardBody>
+            {isOwnProfile && (
+              <Alert color="warning">
+                <p className="text-x-sm">
+                  {t.rich("CompanyUserModal.activeUserWarning", {
+                    settingsLink: (chunks) => (
+                      <AppLink inheritSize appearance="inline" href="/profile/settings">
+                        {chunks}
+                      </AppLink>
+                    ),
+                  })}
+                </p>
+              </Alert>
+            )}
+
             <FormInput readOnly id="email" label={t("Common.email")} type="email" />
 
             <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
@@ -71,20 +85,6 @@ export const CompanyUserModal = observer(() => {
               items={USER_STATUS_OPTIONS}
               translateFn={(key) => t(`Common.userStatuses.${key}`)}
             />
-
-            {isOwnProfile && (
-              <Alert color="warning">
-                <p className="text-x-sm">
-                  {t.rich("CompanyUserModal.activeUserWarning", {
-                    settingsLink: (chunks) => (
-                      <AppLink inheritSize appearance="inline" href="/profile/settings">
-                        {chunks}
-                      </AppLink>
-                    ),
-                  })}
-                </p>
-              </Alert>
-            )}
           </AppCardBody>
 
           <FormActions showInitially anchorScope="member-modal" store={store} />
