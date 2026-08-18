@@ -210,6 +210,7 @@ export class AgentChatStore extends BaseStore {
       composerDraft: observable,
       queuedPrompt: observable,
       isWorking: observable,
+      conversationTitle: computed,
       isWorkspaceSetupPending: computed,
       open: action,
       close: action,
@@ -230,6 +231,12 @@ export class AgentChatStore extends BaseStore {
     this.isOpen = true;
     void this.loadConfig();
   };
+
+  get conversationTitle() {
+    if (!this.conversationId) return null;
+    const summary = this.conversations.find((conversation) => conversation.id === this.conversationId);
+    return summary?.title ?? null;
+  }
 
   get isWorkspaceSetupPending() {
     return this.items.some((item) => item.kind === "workspace_setup" && Boolean(item.pendingAction));

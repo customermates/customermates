@@ -221,12 +221,15 @@
       "usedPercent": "{pct}% utilizzato",
       "viewPlans": "Vedi i piani"
     },
-    "empty": "Chiedi qualsiasi cosa sul CRM. Posso cercare informazioni, creare e aggiornare record previa approvazione e mostrare come muoversi nell’app.",
     "errors": {
       "approvalFailed": "Non è stato possibile inviare l’approvazione.",
       "limitReached": "È stato raggiunto il limite di utilizzo dell’IA.",
       "sendFailed": "L’assistente non è riuscito a elaborare il messaggio.",
       "turnFailed": "L’assistente ha riscontrato un errore."
+    },
+    "greeting": {
+      "intro": "Ciao, sono Mate, il tuo assistente Customermates. Chiedimi qualsiasi cosa sul tuo workspace, oppure dimmi cosa fare e me ne occupo io.",
+      "support": "E se qualcosa non va, posso aprire un ticket di supporto per te in qualsiasi momento. Il nostro team legge ogni ticket tempestivamente e ti risponde via e-mail."
     },
     "placeholder": "Chiedi al tuo CRM…",
     "runner": {
@@ -681,7 +684,7 @@
         }
       }
     },
-    "title": "Assistente",
+    "title": "Mate",
     "tour": {
       "done": "Fine",
       "next": "Avanti",

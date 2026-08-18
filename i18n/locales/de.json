@@ -221,12 +221,15 @@
       "usedPercent": "{pct} % verbraucht",
       "viewPlans": "Tarife ansehen"
     },
-    "empty": "Frag mich alles zu deinem CRM. Ich kann Daten nachschlagen, mit deiner Freigabe Einträge anlegen und ändern und dir die App zeigen.",
     "errors": {
       "approvalFailed": "Die Freigabe konnte nicht übermittelt werden.",
       "limitReached": "Dein KI-Nutzungslimit ist erreicht.",
       "sendFailed": "Der Assistent konnte deine Nachricht nicht verarbeiten.",
       "turnFailed": "Beim Assistenten ist ein Fehler aufgetreten."
+    },
+    "greeting": {
+      "intro": "Hey, ich bin Mate, dein Customermates-Assistent. Frag mich alles zu deinem Workspace, oder sag mir, was ich für dich erledigen soll.",
+      "support": "Und wenn etwas nicht klappt, eröffne ich jederzeit ein Support-Ticket für dich. Unser Team liest jedes Ticket zeitnah und antwortet dir per E-Mail."
     },
     "placeholder": "Frag dein CRM…",
     "runner": {
@@ -681,7 +684,7 @@
         }
       }
     },
-    "title": "Assistent",
+    "title": "Mate",
     "tour": {
       "done": "Fertig",
       "next": "Weiter",

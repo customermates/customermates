@@ -22,7 +22,6 @@ import {
   Plus,
   RotateCcw,
   Search,
-  Sparkles,
   Square,
   Trash2,
   WandSparkles,
@@ -260,7 +259,9 @@ const AgentChatPanel = observer(function AgentChatPanel() {
           <AppImage alt="" className="size-5 rounded-md" height={20} src="customermates-square.svg" width={20} />
         )}
 
-        <span className="mr-auto text-sm font-medium">{store.isHistoryOpen ? copy.chats : t("AgentChat.title")}</span>
+        <span className="mr-auto truncate text-sm font-medium">
+          {store.isHistoryOpen ? copy.chats : (store.conversationTitle ?? t("AgentChat.title"))}
+        </span>
 
         {!store.isHistoryOpen && (
           <ActionTooltip label={copy.history}>
@@ -323,10 +324,12 @@ const AgentChatPanel = observer(function AgentChatPanel() {
       {store.isHistoryOpen ? (
         <ConversationHistory />
       ) : store.items.length === 0 ? (
-        <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center text-muted-foreground">
-          <Sparkles className="size-8 opacity-40" />
+        <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4">
+          <article aria-label={t("AgentChat.title")} className="flex flex-col gap-2 text-sm leading-relaxed">
+            <p>{t("AgentChat.greeting.intro")}</p>
 
-          <p className="text-sm">{t("AgentChat.empty")}</p>
+            <p>{t("AgentChat.greeting.support")}</p>
+          </article>
 
           {!blocked && <SuggestedQuestions />}
         </div>

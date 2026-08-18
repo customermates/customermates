@@ -221,12 +221,15 @@
       "usedPercent": "{pct}% used",
       "viewPlans": "View plans"
     },
-    "empty": "Ask anything about your CRM. I can look things up, create and update records with your approval, and show you around the app.",
     "errors": {
       "approvalFailed": "The approval could not be delivered.",
       "limitReached": "Your AI usage limit is reached.",
       "sendFailed": "The assistant could not process your message.",
       "turnFailed": "The assistant ran into an error."
+    },
+    "greeting": {
+      "intro": "Hey, I'm Mate, your Customermates assistant. Ask me anything about your workspace, or tell me what to do and I'll take care of it.",
+      "support": "And if something doesn't work out, I can open a support ticket for you any time. Our team reads every ticket promptly and replies to you by email."
     },
     "placeholder": "Ask your CRM…",
     "runner": {
@@ -681,7 +684,7 @@
         }
       }
     },
-    "title": "Assistant",
+    "title": "Mate",
     "tour": {
       "done": "Done",
       "next": "Next",
