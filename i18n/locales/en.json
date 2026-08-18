@@ -658,6 +658,7 @@
       "description": "Weight each {deal} stage by its win probability to see a discounted pipeline value.",
       "noColumn": "Not configured",
       "title": "Forecasting",
+      "totalPipeline": "Total pipeline",
       "weightsTitle": "Stage probabilities"
     }
   },

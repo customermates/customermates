@@ -658,6 +658,7 @@
       "description": "Pondera cada etapa de {deal} por su probabilidad de cierre para ver un valor de cartera descontado.",
       "noColumn": "Sin configurar",
       "title": "Previsión",
+      "totalPipeline": "Pipeline total",
       "weightsTitle": "Probabilidades por etapa"
     }
   },

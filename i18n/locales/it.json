@@ -658,6 +658,7 @@
       "description": "Pondera ogni fase di {deal} con la sua probabilità di chiusura per vedere un valore di pipeline scontato.",
       "noColumn": "Non configurato",
       "title": "Previsione",
+      "totalPipeline": "Pipeline totale",
       "weightsTitle": "Probabilità per fase"
     }
   },

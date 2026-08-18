@@ -658,6 +658,7 @@
       "description": "Pondérez chaque étape de {deal} par sa probabilité de conclusion pour obtenir une valeur de pipeline actualisée.",
       "noColumn": "Non configuré",
       "title": "Prévision",
+      "totalPipeline": "Pipeline total",
       "weightsTitle": "Probabilités par étape"
     }
   },

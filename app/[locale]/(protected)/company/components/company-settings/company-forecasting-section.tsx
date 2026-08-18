@@ -70,8 +70,6 @@ export const CompanyForecastingSection = observer(() => {
     case "content":
       body = (
         <div className="flex flex-col gap-2">
-          <h3 className="text-subdued text-xs font-medium">{t("CompanySettings.forecasting.weightsTitle")}</h3>
-
           <ul className="flex flex-col gap-2">
             {store.form.dealStageWeights.map((stage, index) => {
               const option = optionByValue.get(stage.optionValue);
@@ -113,7 +111,11 @@ export const CompanyForecastingSection = observer(() => {
           label={t("CompanySettings.forecasting.columnLabel")}
           optionsLoading={store.isLoadingDealStageColumns}
           placeholder={t("CompanySettings.forecasting.columnPlaceholder")}
-          onValueChange={(value) => store.setDealWeightingColumn(value === NO_COLUMN_VALUE ? null : value)}
+          onValueChange={(value) => {
+            if (!value) return;
+
+            store.setDealWeightingColumn(value === NO_COLUMN_VALUE ? null : value);
+          }}
         />
 
         <p className="text-subdued text-xs">
@@ -124,9 +126,19 @@ export const CompanyForecastingSection = observer(() => {
       {body}
 
       {state === "content" && (
-        <InfoRow label={t("CompanySettings.forecasting.currentTotal")}>
-          {intlStore.formatCurrency(store.weightedPipelineTotal, store.form.currency)}
-        </InfoRow>
+        <div className="flex flex-col gap-1.5">
+          <InfoRow label={t("CompanySettings.forecasting.totalPipeline")}>
+            <span className="text-x-md font-mono tabular-nums">
+              {intlStore.formatCurrency(store.pipelineTotal, store.form.currency)}
+            </span>
+          </InfoRow>
+
+          <InfoRow label={t("CompanySettings.forecasting.currentTotal")}>
+            <span className="text-x-md font-mono tabular-nums">
+              {intlStore.formatCurrency(store.weightedPipelineTotal, store.form.currency)}
+            </span>
+          </InfoRow>
+        </div>
       )}
     </section>
   );

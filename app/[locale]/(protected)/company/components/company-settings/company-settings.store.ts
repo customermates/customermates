@@ -81,6 +81,7 @@ export class CompanySettingsStore extends BaseFormStore<CompanySettingsFormData>
       isLoadingDealStageColumns: computed,
       selectedStageColumn: computed,
       selectedStageValueSums: computed,
+      pipelineTotal: computed,
       weightedPipelineTotal: computed,
       hasForecastingChanges: computed,
       onSubmit: action,
@@ -109,6 +110,16 @@ export class CompanySettingsStore extends BaseFormStore<CompanySettingsFormData>
     if (!columnId) return undefined;
 
     return this.stageValueSumsByColumnId[columnId];
+  }
+
+  get pipelineTotal(): number {
+    const stageValueSums = this.selectedStageValueSums;
+    if (!stageValueSums) return 0;
+
+    return this.form.dealStageWeights.reduce(
+      (total, { optionValue }) => total + (stageValueSums[optionValue]?.total ?? 0),
+      0,
+    );
   }
 
   get weightedPipelineTotal(): number {

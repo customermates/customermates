@@ -658,6 +658,7 @@
       "description": "Gewichte jede {deal}-Phase mit ihrer Abschlusswahrscheinlichkeit, um einen abgezinsten Pipeline-Wert zu sehen.",
       "noColumn": "Nicht konfiguriert",
       "title": "Prognose",
+      "totalPipeline": "Gesamtpipeline",
       "weightsTitle": "Phasenwahrscheinlichkeiten"
     }
   },
