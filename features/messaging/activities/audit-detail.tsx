@@ -45,6 +45,8 @@ type AvatarItem = {
 
 const ISO_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
 
+const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
+
 const BODY_ROW_BUDGET = 8;
 
 function isPrimitive(value: unknown): boolean {
@@ -137,6 +139,19 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
   const { intlStore, userModalStore } = useRootStore();
   const openEntity = useOpenEntity();
   const entityHref = useEntityHref();
+
+  function legalDocumentLabel(document: string): string {
+    return t.has(`LegalDocumentNotice.documents.${document}`)
+      ? t(`LegalDocumentNotice.documents.${document}`)
+      : document;
+  }
+
+  function formatDateValue(value: unknown): string {
+    if (typeof value !== "string") return String(value);
+    if (DATE_ONLY.test(value)) return intlStore.formatNumericalLongDate(new Date(`${value}T00:00:00`));
+    if (ISO_DATE_TIME.test(value)) return intlStore.formatNumericalShortDateTime(new Date(value));
+    return value;
+  }
 
   function renderValue(key: string, value: unknown, customColumn?: CustomColumnDto): string | JSX.Element {
     if (isEmpty(value)) return t("AuditLogModal.noValue");
@@ -245,6 +260,18 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
         return intlStore.formatNumber(value as number);
       case "country":
         return countryLabelForLocale(String(value), locale);
+      case "changedDocuments":
+        return (value as string[]).map((document) => legalDocumentLabel(document)).join(", ");
+      case "versions":
+        return (
+          <ul className="space-y-0.5">
+            {Object.entries(value as Record<string, unknown>).map(([document, version]) => (
+              <li key={document} className="break-words">
+                {`${legalDocumentLabel(document)}: ${formatDateValue(version)}`}
+              </li>
+            ))}
+          </ul>
+        );
       case "provider":
         return t.has(`Common.providers.${String(value)}`) ? t(`Common.providers.${String(value)}`) : String(value);
       case "status":
@@ -273,8 +300,8 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
             />
           );
         }
-        if (typeof value === "string" && ISO_DATE_TIME.test(value))
-          return intlStore.formatNumericalShortDateTime(new Date(value));
+        if (typeof value === "string" && (ISO_DATE_TIME.test(value) || DATE_ONLY.test(value)))
+          return formatDateValue(value);
         if (!isPrimitive(value) && !(Array.isArray(value) && value.every(isPrimitive)))
           return <StructuredValue value={value} />;
         return formatUnknownValue(value);
