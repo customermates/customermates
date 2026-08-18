@@ -3,6 +3,8 @@ import type { Prisma } from "@/generated/prisma";
 import type { ContactSeedData } from "./contacts";
 import type { SeedContext } from "./context";
 import type { DealSeedData } from "./deals";
+
+import { SYNTHETIC_DEAL_STATUS_WEIGHTS } from "./deals";
 import type { OrganizationSeedData } from "./organizations";
 import type { ServiceSeedData } from "./services";
 import { SYNTHETIC_TASK_PRIORITY_INDEXES, type TaskSeedData } from "./tasks";
@@ -156,13 +158,14 @@ export async function seedCustomFields(
   const { prisma, ids } = context;
   const { contacts, deals, dealDefinitions, organizations, services, tasks, taskDefinitions } = entities;
 
-  const selectOptions = (entries: ReadonlyArray<readonly [string, string, string, boolean?]>) =>
-    entries.map(([value, label, color, isDefault], index) => ({
+  const selectOptions = (entries: ReadonlyArray<readonly [string, string, string, boolean?, number?]>) =>
+    entries.map(([value, label, color, isDefault, weight], index) => ({
       color,
       index,
       isDefault: isDefault ?? index === 0,
       label,
       value,
+      ...(weight === undefined ? {} : { weight }),
     }));
 
   const serviceTypeOptions = selectOptions([
@@ -201,17 +204,33 @@ export async function seedCustomFields(
     ],
   ]);
   const dealStatusOptions = selectOptions([
-    [SYNTHETIC_CUSTOM_OPTION_IDS.dealStatus.open, SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[5].optionLabels[0], "warning"],
-    [SYNTHETIC_CUSTOM_OPTION_IDS.dealStatus.won, SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[5].optionLabels[1], "success"],
+    [
+      SYNTHETIC_CUSTOM_OPTION_IDS.dealStatus.open,
+      SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[5].optionLabels[0],
+      "warning",
+      undefined,
+      SYNTHETIC_DEAL_STATUS_WEIGHTS[0],
+    ],
+    [
+      SYNTHETIC_CUSTOM_OPTION_IDS.dealStatus.won,
+      SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[5].optionLabels[1],
+      "success",
+      undefined,
+      SYNTHETIC_DEAL_STATUS_WEIGHTS[1],
+    ],
     [
       SYNTHETIC_CUSTOM_OPTION_IDS.dealStatus.lost,
       SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[5].optionLabels[2],
       "destructive",
+      undefined,
+      SYNTHETIC_DEAL_STATUS_WEIGHTS[2],
     ],
     [
       SYNTHETIC_CUSTOM_OPTION_IDS.dealStatus.abandoned,
       SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[5].optionLabels[3],
       "secondary",
+      undefined,
+      SYNTHETIC_DEAL_STATUS_WEIGHTS[3],
     ],
   ]);
   const taskStatusOptions = selectOptions([
@@ -517,6 +536,11 @@ export async function seedCustomFields(
       companyId: ids.company,
       id: { startsWith: "16000000-", notIn: customColumns.map(({ id }) => id) },
     },
+  });
+
+  await prisma.company.update({
+    where: { id: ids.company },
+    data: { dealWeightingColumnId: SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus },
   });
 
   return {

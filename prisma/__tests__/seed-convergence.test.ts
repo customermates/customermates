@@ -216,7 +216,7 @@ describe("synthetic seed convergence after UI edits", () => {
     expectStalePrune(service, "90000000-", 43);
     expectStalePrune(deal, "80000000-", 10);
     expectStalePrune(task, "a0000000-", 15);
-    expectStalePrune(widget, "15000000-", 7);
+    expectStalePrune(widget, "15000000-", 8);
   });
 
   it("removes a recreated duplicate custom-field row before restoring the canonical fixture", async () => {
@@ -246,6 +246,7 @@ describe("synthetic seed convergence after UI edits", () => {
     };
     const customColumn = relationDelegate();
     const prisma = {
+      company: { update: vi.fn().mockResolvedValue({}) },
       customColumn,
       customFieldValue,
     } as unknown as PrismaClient;

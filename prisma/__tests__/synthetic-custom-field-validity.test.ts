@@ -64,7 +64,9 @@ describe("synthetic seed custom-field values", () => {
     const columns = captureUpsert<CustomColumnDto>();
     const values = captureUpsert<{ columnId: string; value: string | null }>();
 
+    const companyUpdate = vi.fn().mockResolvedValue({});
     const prisma = {
+      company: { update: companyUpdate },
       customColumn: columns.delegate,
       customFieldValue: values.delegate,
     } as unknown as PrismaClient;
@@ -73,6 +75,9 @@ describe("synthetic seed custom-field values", () => {
 
     expect(columns.created.length).toBeGreaterThan(0);
     expect(values.created.length).toBeGreaterThan(0);
+    expect(companyUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { dealWeightingColumnId: expect.any(String) } }),
+    );
 
     const failures: string[] = [];
     for (const row of values.created) {

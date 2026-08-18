@@ -50,7 +50,7 @@ const SYNTHETIC_FIXTURE_COUNTS = {
   users: 3,
   webhookDeliveries: 14,
   webhooks: 1,
-  widgets: 7,
+  widgets: 8,
 } as const;
 
 const SYNTHETIC_RELATIONSHIP_COUNTS = {
@@ -396,6 +396,7 @@ Loop in legal team
       "Total Deal Value",
       "Deal Overview",
       "Organizations",
+      "Weighted Pipeline",
       "Latest Activities",
     ]);
   });
@@ -418,7 +419,7 @@ Loop in legal team
       users: 3,
       webhookDeliveries: 14,
       webhooks: 1,
-      widgets: 7,
+      widgets: 8,
     });
     expect(SYNTHETIC_RELATIONSHIP_COUNTS).toEqual({
       contactOrganizations: 30,

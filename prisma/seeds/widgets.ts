@@ -12,6 +12,7 @@ export const SYNTHETIC_WIDGET_NAMES = [
   "Total Deal Value",
   "Deal Overview",
   "Organizations",
+  "Weighted Pipeline",
   "Latest Activities",
 ] as const;
 
@@ -52,6 +53,12 @@ function widgetLayout(id: string, index: number) {
       md: { h: 2, w: 2, x: 0, y: 2 },
       sm: { h: 2, w: 1, x: 0, y: 2 },
       xs: { h: 2, w: 1, x: 0, y: 7 },
+    },
+    {
+      lg: { h: 3, w: 4, x: 0, y: 5 },
+      md: { h: 3, w: 4, x: 0, y: 7 },
+      sm: { h: 3, w: 2, x: 0, y: 7 },
+      xs: { h: 3, w: 2, x: 0, y: 13 },
     },
   ] as const;
   const layout = layouts[index];
@@ -100,6 +107,13 @@ export async function seedWidgets(context: SeedContext, customFields: CustomFiel
       },
     ],
     [],
+    [
+      {
+        field: customColumnIds.dealStatus,
+        operator: "notIn",
+        value: [customOptionIds.dealStatus.abandoned],
+      },
+    ],
   ] as const;
   const definitions = [
     [SYNTHETIC_WIDGET_NAMES[0], "service", "dealQuantity", "none", null, "doughnutChart", ["secondary1"], true],
@@ -151,6 +165,16 @@ export async function seedWidgets(context: SeedContext, customFields: CustomFiel
       customColumnIds.organizationType,
       "doughnutChart",
       ["primary1", "secondary1"],
+      true,
+    ],
+    [
+      SYNTHETIC_WIDGET_NAMES[6],
+      "deal",
+      "dealWeightedValue",
+      "customColumn",
+      customColumnIds.dealStatus,
+      "verticalBarChart",
+      ["success1", "warning1", "danger1"],
       true,
     ],
   ] as const;
