@@ -4,7 +4,7 @@ import type { CustomColumnDto } from "@/features/custom-column/custom-column.sch
 import type { MessagingProvider } from "@/generated/prisma";
 import type { ActivityEntryDto } from "@/ee/messaging/activities/activities.schema";
 
-import { Fragment, type ReactNode } from "react";
+import { Fragment, type ComponentProps, type ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useLocale, useTranslations } from "next-intl";
@@ -21,6 +21,7 @@ import { auditCategory, DetailHeader, IdentityAvatar, TypeBadge } from "./activi
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AvatarStack } from "@/components/shared/avatar-stack";
+import { AppChip } from "@/components/chip/app-chip";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { CustomFieldValue } from "@/components/data-view/custom-columns/custom-field-value";
 import { Icon } from "@/components/shared/icon";
@@ -30,6 +31,7 @@ import { useEntityHref, useOpenEntity } from "@/components/entity-detail/hooks/u
 import { CustomColumnType, EntityType, TaskType } from "@/generated/prisma";
 import { getSystemTaskNameTranslationKey } from "@/app/[locale]/(protected)/tasks/components/system-task.config";
 import { useCanonicalColumnLabel } from "@/components/entity-terminology/use-column-label";
+import { CANONICAL_TERMINOLOGY_PRESET_KEY } from "@/features/entity-terminology/entity-terminology.constants";
 import { countryLabelForLocale } from "@/constants/countries";
 import { getCurrencyLabel } from "@/constants/currencies";
 import type { AppLocale } from "@/i18n/locale-registry";
@@ -51,6 +53,14 @@ function isPrimitive(value: unknown): boolean {
 }
 
 const STRUCTURAL_KEYS = new Set(["id", "columnId", "createdAt", "updatedAt"]);
+
+const CANONICAL_ENTITY_COLUMN_KEY: Partial<Record<EntityType, string>> = {
+  [EntityType.contact]: "contacts",
+  [EntityType.organization]: "organizations",
+  [EntityType.deal]: "deals",
+  [EntityType.service]: "services",
+  [EntityType.task]: "tasks",
+};
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -261,22 +271,99 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
       case "dealWeightingColumnId":
         return customColumns.find((candidate) => candidate.id === value)?.label ?? t("AuditLogModal.deletedField");
       case "dealStageWeights": {
-        const stageLabels = new Map(
+        const stageOptions = new Map(
           customColumns.flatMap((candidate) =>
             candidate.type === CustomColumnType.singleSelect
-              ? (candidate.options?.options ?? []).map((option) => [option.value, option.label] as const)
+              ? (candidate.options?.options ?? []).map((option) => [option.value, option] as const)
               : [],
           ),
         );
 
         return (
-          <ul className="space-y-0.5">
-            {(value as { optionValue: string; weight: number }[]).map((stage) => (
-              <li key={stage.optionValue} className="break-words">
-                {`${stageLabels.get(stage.optionValue) ?? t("AuditLogModal.deletedField")} \u00B7 ${stage.weight}%`}
-              </li>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {(value as { optionValue: string; weight: number }[]).map((stage) => {
+              const option = stageOptions.get(stage.optionValue);
+
+              return (
+                <AppChip
+                  key={stage.optionValue}
+                  endContent={
+                    <span className="flex shrink-0 items-center gap-1">
+                      <span className="opacity-60">·</span>
+
+                      <span className="tabular-nums">{stage.weight}%</span>
+                    </span>
+                  }
+                  size="sm"
+                  variant={option?.color}
+                >
+                  {option?.label ?? t("AuditLogModal.deletedField")}
+                </AppChip>
+              );
+            })}
+          </div>
+        );
+      }
+      case "options": {
+        const configured = isPlainObject(value) ? value.options : undefined;
+
+        if (!Array.isArray(configured)) return <StructuredValue value={value} />;
+
+        const definitions = configured as {
+          value: string;
+          label: string;
+          color?: ComponentProps<typeof AppChip>["variant"];
+          weight?: number;
+          isDefault?: boolean;
+        }[];
+
+        return (
+          <div className="flex flex-wrap items-center gap-1.5">
+            {definitions.map((definition) => (
+              <AppChip
+                key={definition.value}
+                endContent={
+                  definition.weight === undefined && !definition.isDefault ? undefined : (
+                    <span className="flex shrink-0 items-center gap-1">
+                      <span className="opacity-60">·</span>
+
+                      <span className="tabular-nums">
+                        {definition.weight === undefined
+                          ? t("Common.default")
+                          : definition.isDefault
+                            ? `${definition.weight}% · ${t("Common.default")}`
+                            : `${definition.weight}%`}
+                      </span>
+                    </span>
+                  )
+                }
+                size="sm"
+                variant={definition.color}
+              >
+                {definition.label}
+              </AppChip>
             ))}
-          </ul>
+          </div>
+        );
+      }
+      case "terminology": {
+        const selections = value as { entityType: EntityType; presetKey: string }[];
+
+        return (
+          <div className="flex flex-wrap items-center gap-1.5">
+            {selections.map((selection) => {
+              const canonicalName = columnLabel(
+                CANONICAL_ENTITY_COLUMN_KEY[selection.entityType] ?? selection.entityType,
+              );
+              const isCanonical = selection.presetKey === CANONICAL_TERMINOLOGY_PRESET_KEY[selection.entityType];
+
+              return (
+                <AppChip key={selection.entityType} size="sm">
+                  {isCanonical ? canonicalName : `${canonicalName} → ${selection.presetKey}`}
+                </AppChip>
+              );
+            })}
+          </div>
         );
       }
       case "changedDocuments":
