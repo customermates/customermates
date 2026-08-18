@@ -673,12 +673,11 @@
     "currencyDescription": "Wird für alle Geldwerte im CRM verwendet, zum Beispiel: {deals}, {services}.",
     "dataModelTitle": "Datenmodell",
     "forecasting": {
-      "columnLabel": "Phasenspalte",
-      "columnPlaceholder": "Spalte auswählen",
+      "columnLabel": "{deal}-Phasenfeld",
+      "columnPlaceholder": "Feld auswählen",
       "currentTotal": "Gewichtete Pipeline",
       "description": "Gewichte jede {deal}-Phase mit ihrer Abschlusswahrscheinlichkeit, um einen abgezinsten Pipeline-Wert zu sehen.",
       "noColumn": "Nicht konfiguriert",
-      "title": "Prognose",
       "totalPipeline": "Gesamtpipeline",
       "weightsTitle": "Phasenwahrscheinlichkeiten",
       "withoutStage": "Nicht gewichtet · kein {column}"

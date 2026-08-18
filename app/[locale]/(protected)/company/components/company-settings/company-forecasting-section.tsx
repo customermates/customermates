@@ -102,13 +102,11 @@ export const CompanyForecastingSection = observer(() => {
 
   return (
     <section data-company-forecasting className="flex flex-col gap-3">
-      <h2 className="text-sm font-medium">{t("CompanySettings.forecasting.title")}</h2>
-
       <div className="flex flex-col gap-1.5">
         <FormSelect
           id="dealWeightingColumnId"
           items={columnItems}
-          label={t("CompanySettings.forecasting.columnLabel")}
+          label={t("CompanySettings.forecasting.columnLabel", { deal: singular(EntityType.deal) })}
           optionsLoading={store.isLoadingDealStageColumns}
           placeholder={t("CompanySettings.forecasting.columnPlaceholder")}
           onValueChange={(value) => {

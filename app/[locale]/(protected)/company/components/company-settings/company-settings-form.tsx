@@ -75,8 +75,6 @@ export const CompanySettingsForm = observer(({ currency, dealWeightingColumnId }
           </p>
         </div>
 
-        <div className="border-t border-border" />
-
         <CompanyForecastingSection />
 
         <div className="border-t border-border" />

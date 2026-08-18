@@ -673,12 +673,11 @@
     "currencyDescription": "Utilisée pour toutes les valeurs monétaires du CRM, par exemple : {deals}, {services}.",
     "dataModelTitle": "Modèle de données",
     "forecasting": {
-      "columnLabel": "Colonne d'étape",
-      "columnPlaceholder": "Sélectionnez une colonne",
+      "columnLabel": "Champ d'étape de {deal}",
+      "columnPlaceholder": "Sélectionnez un champ",
       "currentTotal": "Pipeline pondéré",
       "description": "Pondérez chaque étape de {deal} par sa probabilité de conclusion pour obtenir une valeur de pipeline actualisée.",
       "noColumn": "Non configuré",
-      "title": "Prévision",
       "totalPipeline": "Pipeline total",
       "weightsTitle": "Probabilités par étape",
       "withoutStage": "Non pondéré · sans {column}"

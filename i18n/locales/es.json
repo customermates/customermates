@@ -673,12 +673,11 @@
     "currencyDescription": "Se usa para todos los valores monetarios del CRM, por ejemplo: {deals}, {services}.",
     "dataModelTitle": "Modelo de datos",
     "forecasting": {
-      "columnLabel": "Columna de etapa",
-      "columnPlaceholder": "Selecciona una columna",
+      "columnLabel": "Campo de etapa de {deal}",
+      "columnPlaceholder": "Selecciona un campo",
       "currentTotal": "Cartera ponderada",
       "description": "Pondera cada etapa de {deal} por su probabilidad de cierre para ver un valor de cartera descontado.",
       "noColumn": "Sin configurar",
-      "title": "Previsión",
       "totalPipeline": "Pipeline total",
       "weightsTitle": "Probabilidades por etapa",
       "withoutStage": "Sin ponderar · sin {column}"

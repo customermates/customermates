@@ -673,12 +673,11 @@
     "currencyDescription": "Usata per tutti i valori monetari del CRM, ad esempio: {deals}, {services}.",
     "dataModelTitle": "Modello di dati",
     "forecasting": {
-      "columnLabel": "Colonna della fase",
-      "columnPlaceholder": "Seleziona una colonna",
+      "columnLabel": "Campo della fase di {deal}",
+      "columnPlaceholder": "Seleziona un campo",
       "currentTotal": "Pipeline ponderata",
       "description": "Pondera ogni fase di {deal} con la sua probabilità di chiusura per vedere un valore di pipeline scontato.",
       "noColumn": "Non configurato",
-      "title": "Previsione",
       "totalPipeline": "Pipeline totale",
       "weightsTitle": "Probabilità per fase",
       "withoutStage": "Non ponderato · senza {column}"
