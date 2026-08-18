@@ -1608,7 +1608,7 @@
     "editColumn": "Modifica colonna",
     "noValue": "Nessun valore",
     "resizeColumn": "Ridimensiona la colonna «{column}». Trascina o usa i tasti freccia; tocca due volte o premi Invio per ripristinare.",
-    "resizeHint": "Trascina per ridimensionare. Fai doppio clic, tocca due volte o premi Invio per ripristinare.",
+    "resizeHint": "Trascina per ridimensionare. Fai doppio clic per ripristinare.",
     "selectAllRows": "Seleziona tutte le righe",
     "selectGroupingColumn": "Seleziona una colonna di raggruppamento per visualizzare la vista kanban.",
     "selectRow": "Seleziona la riga {id}"

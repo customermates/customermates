@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 
 import { OverlappingStack } from "@/components/shared/overlapping-stack";
 import { StackDropdownItem } from "@/components/shared/stack-dropdown-item";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { channelLabelKey } from "@/ee/messaging/provider";
 import { getChannelIcon } from "@/ee/messaging/provider-icon";
 import { channelDisplayLabel } from "@/ee/messaging/thread-display";
@@ -31,12 +32,15 @@ export function ChannelIconStack({ identifiers, maxVisible = 3, className, onIte
       renderBadge={(provider) => {
         const Icon = getChannelIcon(provider);
         return (
-          <span
-            className="bg-foreground/10 dark:bg-foreground/15 flex size-6 items-center justify-center overflow-hidden rounded-full"
-            title={t(`Common.providers.${channelLabelKey(provider)}`)}
-          >
-            <Icon className="size-6" />
-          </span>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="bg-foreground/10 dark:bg-foreground/15 flex size-6 items-center justify-center overflow-hidden rounded-full">
+                <Icon className="size-6" />
+              </span>
+            </TooltipTrigger>
+
+            <TooltipContent>{t(`Common.providers.${channelLabelKey(provider)}`)}</TooltipContent>
+          </Tooltip>
         );
       }}
       renderOverflow={(count) => (

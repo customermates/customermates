@@ -1608,7 +1608,7 @@
     "editColumn": "Spalte bearbeiten",
     "noValue": "Kein Wert",
     "resizeColumn": "Größe der Spalte „{column}“ ändern. Ziehe oder verwende die Pfeiltasten; doppeltippe oder drücke zum Zurücksetzen die Eingabetaste.",
-    "resizeHint": "Zum Ändern der Größe ziehen. Zum Zurücksetzen doppelklicken, doppeltippen oder die Eingabetaste drücken.",
+    "resizeHint": "Zum Ändern der Größe ziehen. Zum Zurücksetzen doppelklicken.",
     "selectAllRows": "Alle Zeilen auswählen",
     "selectGroupingColumn": "Wähle eine Gruppierungsspalte aus, um die Kanban-Ansicht anzuzeigen.",
     "selectRow": "Zeile {id} auswählen"
