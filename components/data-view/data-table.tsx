@@ -297,7 +297,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                   }
                 >
                   {header.isPlaceholder ? null : (
-                    <div className="flex min-w-0 items-center gap-1 overflow-hidden">
+                    <div className="-ml-2 flex min-w-0 items-center gap-1 overflow-hidden pl-2">
                       {canSort ? (
                         <Button
                           className="-ml-2 h-8 min-w-0 shrink justify-start !px-2 font-medium uppercase tracking-wide text-muted-foreground"
