@@ -38,8 +38,6 @@ vi.mock("@/env", () => ({
   env: {
     AGENT_MAX_OUTPUT_TOKENS: 4096,
     AGENT_MAX_STEPS: 12,
-    AGENT_APPROVAL_TIMEOUT_MS: 0,
-    AGENT_APPROVAL_POLL_MS: 1,
     AGENT_CRM_TOOL_RESULT_MAX_CHARS: 6000,
   },
 }));
@@ -131,6 +129,8 @@ function ctx(overrides: Partial<AgentRunContext> = {}): AgentRunContext {
       maxContextBytes: 200_000,
       maxToolResultChars: 6_000,
     },
+    approvalTimeoutMs: 0,
+    approvalPollMs: 1,
     ...overrides,
   };
 }

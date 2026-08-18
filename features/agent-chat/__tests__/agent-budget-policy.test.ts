@@ -6,6 +6,7 @@ import {
   AGENT_MAX_STEPS_PER_TURN,
   agentTurnWorstCaseUsd,
   isAgentContextWithinBudget,
+  isAgentModelWithinBudgetEnvelope,
   resolveAgentTurnBudget,
 } from "../agent-budget-policy";
 
@@ -15,9 +16,6 @@ describe("agent turn credit budget", () => {
   it("uses the full safe envelope when the user has enough credits", () => {
     const budget = resolveAgentTurnBudget({
       availableCredits: 500,
-      modelSpec: MODEL,
-      configuredMaxSteps: 8,
-      configuredMaxOutputTokens: 2048,
     });
 
     expect(budget).toEqual(
@@ -33,9 +31,6 @@ describe("agent turn credit budget", () => {
   it("shrinks the provider envelope to the user's remaining credits", () => {
     const budget = resolveAgentTurnBudget({
       availableCredits: 3,
-      modelSpec: MODEL,
-      configuredMaxSteps: 8,
-      configuredMaxOutputTokens: 2048,
     });
 
     expect(budget).not.toBeNull();
@@ -47,9 +42,6 @@ describe("agent turn credit budget", () => {
   it("can safely admit a final one-credit request", () => {
     const budget = resolveAgentTurnBudget({
       availableCredits: 1,
-      modelSpec: MODEL,
-      configuredMaxSteps: 8,
-      configuredMaxOutputTokens: 2048,
     });
 
     expect(budget).not.toBeNull();
@@ -63,19 +55,10 @@ describe("agent turn credit budget", () => {
     expect(
       resolveAgentTurnBudget({
         availableCredits: 0,
-        modelSpec: MODEL,
-        configuredMaxSteps: 8,
-        configuredMaxOutputTokens: 2048,
       }),
     ).toBeNull();
-    expect(
-      resolveAgentTurnBudget({
-        availableCredits: 500,
-        modelSpec: "openai:gpt-5.6-sol",
-        configuredMaxSteps: 8,
-        configuredMaxOutputTokens: 2048,
-      }),
-    ).toBeNull();
+    expect(isAgentModelWithinBudgetEnvelope("openai:gpt-5.6-sol")).toBe(false);
+    expect(isAgentModelWithinBudgetEnvelope(MODEL)).toBe(true);
   });
 
   it("checks the serialized context against the per-turn dynamic bound", () => {

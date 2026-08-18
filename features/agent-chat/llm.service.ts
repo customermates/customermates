@@ -1,37 +1,22 @@
 import type { LanguageModelUsage } from "ai";
 
-import { createProviderRegistry } from "ai";
-import { createAnthropic } from "@ai-sdk/anthropic";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createOpenAI } from "@ai-sdk/openai";
-
-import { env } from "@/env";
 
 import type { TokenCounts } from "./model-pricing";
 import { buildAgentUsageSettlement } from "./agent-usage-settlement";
 
-const registry = createProviderRegistry({
-  anthropic: createAnthropic(),
-  google: createGoogleGenerativeAI(),
-  openai: createOpenAI(),
-});
+export const AGENT_MODEL_ID = "gpt-5.6-luna";
+
+const openai = createOpenAI();
 
 export type AgentModelLane = "agent";
 
-function laneSpec(_lane: AgentModelLane) {
-  return env.AGENT_MODEL;
+export function laneModel(_lane: AgentModelLane) {
+  return openai(AGENT_MODEL_ID);
 }
 
-type ProviderModelSpec = `anthropic:${string}` | `google:${string}` | `openai:${string}`;
-
-export function laneModel(lane: AgentModelLane) {
-  return registry.languageModel(laneSpec(lane) as ProviderModelSpec);
-}
-
-export function laneModelId(lane: AgentModelLane) {
-  const spec = laneSpec(lane);
-  const colon = spec.indexOf(":");
-  return colon === -1 ? spec : spec.slice(colon + 1);
+export function laneModelId(_lane: AgentModelLane) {
+  return AGENT_MODEL_ID;
 }
 
 export function buildLaneUsageSettlement(

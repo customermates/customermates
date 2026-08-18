@@ -63,21 +63,12 @@ export function agentTurnWorstCaseUsd(
   return budget.maxSteps * stepWorstCaseUsd(modelSpec, budget.maxContextBytes, budget.maxOutputTokens);
 }
 
-function positiveIntegerWithin(configured: number, maximum: number) {
-  if (!Number.isFinite(configured) || configured <= 0) return 1;
-  return Math.min(Math.floor(configured), maximum);
-}
-
 export function resolveAgentTurnBudget(args: {
   availableCredits: number;
-  modelSpec: string;
-  configuredMaxSteps: number;
-  configuredMaxOutputTokens: number;
-  configuredMaxToolResultChars?: number;
   requiredContextBytes?: number;
 }): AgentTurnBudget | null {
   if (!Number.isSafeInteger(args.availableCredits) || args.availableCredits < 1) return null;
-  if (!isAgentModelWithinBudgetEnvelope(args.modelSpec)) return null;
+  if (!isAgentModelWithinBudgetEnvelope(SAFE_AGENT_MODEL_SPEC)) return null;
 
   const requiredContextBytes = args.requiredContextBytes ?? AGENT_MIN_CONTEXT_BYTES_PER_STEP;
   if (
@@ -87,16 +78,13 @@ export function resolveAgentTurnBudget(args: {
   )
     return null;
 
-  const configuredSteps = positiveIntegerWithin(args.configuredMaxSteps, AGENT_MAX_STEPS_PER_TURN);
-  const configuredOutput = positiveIntegerWithin(args.configuredMaxOutputTokens, AGENT_MAX_OUTPUT_TOKENS_PER_STEP);
-  const configuredToolResultChars = positiveIntegerWithin(
-    args.configuredMaxToolResultChars ?? AGENT_MAX_TOOL_RESULT_CHARS,
-    AGENT_MAX_TOOL_RESULT_CHARS,
-  );
+  const configuredSteps = AGENT_MAX_STEPS_PER_TURN;
+  const configuredOutput = AGENT_MAX_OUTPUT_TOKENS_PER_STEP;
+  const configuredToolResultChars = AGENT_MAX_TOOL_RESULT_CHARS;
   const fullTurnCredits = Math.max(
     1,
     Math.ceil(
-      agentTurnWorstCaseUsd(args.modelSpec, {
+      agentTurnWorstCaseUsd(SAFE_AGENT_MODEL_SPEC, {
         maxSteps: configuredSteps,
         maxOutputTokens: configuredOutput,
         maxContextBytes: AGENT_MAX_CONTEXT_BYTES_PER_STEP,
@@ -105,7 +93,7 @@ export function resolveAgentTurnBudget(args: {
   );
   const reservedCredits = Math.min(args.availableCredits, fullTurnCredits);
   const turnBudgetUsd = reservedCredits * USD_PER_AGENT_CREDIT;
-  const pricing = resolveModelPricing(modelId(args.modelSpec));
+  const pricing = resolveModelPricing(modelId(SAFE_AGENT_MODEL_SPEC));
   const maxInputRate = Math.max(pricing.inputPerMTok, pricing.cacheReadPerMTok, pricing.cacheWritePerMTok);
 
   for (let maxSteps = configuredSteps; maxSteps >= 1; maxSteps -= 1) {
@@ -150,7 +138,7 @@ export function resolveAgentTurnBudget(args: {
         maxContextBytes,
         maxToolResultChars,
       };
-      if (agentTurnWorstCaseUsd(args.modelSpec, budget) <= turnBudgetUsd) return budget;
+      if (agentTurnWorstCaseUsd(SAFE_AGENT_MODEL_SPEC, budget) <= turnBudgetUsd) return budget;
     }
   }
 
@@ -171,14 +159,7 @@ export function isAgentContextWithinBudget(value: unknown, maxContextBytes = AGE
   return bytes !== null && bytes <= maxContextBytes;
 }
 
-export function resolveAgentMaxSteps(configured: number) {
-  return positiveIntegerWithin(configured, AGENT_MAX_STEPS_PER_TURN);
-}
-
-export function resolveAgentMaxOutputTokens(configured: number) {
-  return positiveIntegerWithin(configured, AGENT_MAX_OUTPUT_TOKENS_PER_STEP);
-}
-
 export function resolveAgentToolResultMaxChars(configured: number) {
-  return positiveIntegerWithin(configured, AGENT_MAX_TOOL_RESULT_CHARS);
+  if (!Number.isFinite(configured) || configured <= 0) return 1;
+  return Math.min(Math.floor(configured), AGENT_MAX_TOOL_RESULT_CHARS);
 }

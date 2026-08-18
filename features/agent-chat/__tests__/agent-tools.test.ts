@@ -184,10 +184,6 @@ describe("agent tools", () => {
 
     const oneCredit = resolveAgentTurnBudget({
       availableCredits: 1,
-      modelSpec: "openai:gpt-5.6-luna",
-      configuredMaxSteps: 8,
-      configuredMaxOutputTokens: 2048,
-      configuredMaxToolResultChars: 6000,
       requiredContextBytes: coreBytes ?? 0,
     });
     expect(oneCredit).toMatchObject({ reservedCredits: 1, maxSteps: 1 });
@@ -195,10 +191,6 @@ describe("agent tools", () => {
 
     const threeCredits = resolveAgentTurnBudget({
       availableCredits: 3,
-      modelSpec: "openai:gpt-5.6-luna",
-      configuredMaxSteps: 8,
-      configuredMaxOutputTokens: 2048,
-      configuredMaxToolResultChars: 6000,
       requiredContextBytes: coreBytes ?? 0,
     });
     expect(threeCredits?.maxSteps).toBeGreaterThanOrEqual(2);
@@ -219,18 +211,12 @@ describe("agent tools", () => {
     expect(
       resolveAgentTurnBudget({
         availableCredits: 1,
-        modelSpec: "openai:gpt-5.6-luna",
-        configuredMaxSteps: 8,
-        configuredMaxOutputTokens: 2048,
         requiredContextBytes: fullBytes ?? 0,
       }),
     ).toBeNull();
     for (const availableCredits of [3, 19, 20]) {
       const budget = resolveAgentTurnBudget({
         availableCredits,
-        modelSpec: "openai:gpt-5.6-luna",
-        configuredMaxSteps: 8,
-        configuredMaxOutputTokens: 2048,
         requiredContextBytes: fullBytes ?? 0,
       });
       expect(budget, `${availableCredits} credits`).not.toBeNull();

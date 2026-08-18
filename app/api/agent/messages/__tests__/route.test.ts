@@ -7,8 +7,7 @@ const runAgentLane = vi.hoisted(() => vi.fn());
 
 vi.mock("@/env", () => ({
   env: {
-    CLOUD_HOSTED: true,
-    AGENT_CHAT_ENABLED: true,
+    APP_MODE: "cloud" as const,
     BASE_URL: "https://app.example.com",
   },
 }));

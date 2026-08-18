@@ -6,8 +6,6 @@ import type { Prisma } from "@/generated/prisma";
 
 import { getAgentChatRepo, getCreateChatSupportTicketInteractor, getUserService } from "@/core/di";
 
-import { env } from "@/env";
-
 import { buildLaneUsageSettlement, hasProviderUsageEvidence, laneModel, usageToTokenCounts } from "./llm.service";
 import { type TokenCounts } from "./model-pricing";
 import { buildAgentSystemPrompt } from "./system-prompt";
@@ -60,8 +58,12 @@ export type AgentRunContext = {
   toolNames: string[];
   messages: ReplayMessage[];
   turnBudget: AgentTurnBudget;
+  approvalTimeoutMs?: number;
+  approvalPollMs?: number;
 };
 
+const AGENT_APPROVAL_TIMEOUT_MS = 120_000;
+const AGENT_APPROVAL_POLL_MS = 1_000;
 const UI_COMMAND_TIMEOUT_MS = 10000;
 const UI_COMMAND_POLL_MS = 100;
 
@@ -152,7 +154,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
         input: unknown,
       ): Promise<ApprovalDecision> => {
         const requestId = randomUUID();
-        const deadline = Date.now() + env.AGENT_APPROVAL_TIMEOUT_MS;
+        const deadline = Date.now() + (ctx.approvalTimeoutMs ?? AGENT_APPROVAL_TIMEOUT_MS);
         await repo.createPendingApprovalRequestOrThrowUnscoped({
           conversationId: ctx.conversationId,
           requestId,
@@ -195,7 +197,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
             emit("approval_resolved", { requestId, decision: "timeout" });
             return "timeout";
           }
-          await delay(env.AGENT_APPROVAL_POLL_MS, signal);
+          await delay(ctx.approvalPollMs ?? AGENT_APPROVAL_POLL_MS, signal);
         }
         await repo.discardPendingApprovalRequestUnscoped({
           conversationId: ctx.conversationId,
