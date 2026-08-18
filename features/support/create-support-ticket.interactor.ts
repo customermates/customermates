@@ -6,7 +6,6 @@ import { SupportTicketSource } from "@/generated/prisma";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { getTenantUser } from "@/core/decorators/tenant-context";
 import { type Data, type Validated } from "@/core/validation/validation.utils";
 import { env } from "@/env";
 import SupportEscalation from "@/components/emails/support-escalation";
@@ -46,7 +45,7 @@ export class CreateSupportTicketInteractor extends AuthenticatedInteractor<Creat
 
   @Validate(CreateSupportTicketSchema)
   async invoke(data: CreateSupportTicketData): Validated<CreatedTicket> {
-    const user = getTenantUser();
+    const user = this.user;
 
     const creation = await this.repo.createSupportTicketOrThrow({
       subject: data.subject,

@@ -44,10 +44,21 @@ export class RoleModalStore extends BaseModalStore<UpsertRoleData> {
       setRole: action,
       onSubmit: action,
       isSystemRole: computed,
+      isOwnRole: computed,
       isDisabledOrSystemRole: computed,
       hasUsersAssigned: computed,
       canDeleteRole: computed,
     });
+  }
+
+  get isOwnRole() {
+    const signedInRoleId = this.rootStore.userStore.user?.roleId;
+
+    return Boolean(this.form.id) && this.form.id === signedInRoleId;
+  }
+
+  get isReadOnly(): boolean {
+    return this.isOwnRole || super.isReadOnly;
   }
 
   get isSystemRole() {
@@ -161,6 +172,8 @@ export class RoleModalStore extends BaseModalStore<UpsertRoleData> {
 
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
+    if (this.isReadOnly) return;
+
     this.setIsLoading(true);
 
     try {

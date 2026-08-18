@@ -16,9 +16,14 @@ export function relationshipTargets(links: ReadonlyArray<readonly [number, numbe
   return links.filter(([candidateIndex]) => candidateIndex === sourceIndex).map(([, targetIndex]) => targetIndex);
 }
 
+const FIXTURE_UPSERT_CONCURRENCY = 10;
+
 export async function upsertFixturesById<T extends { id: string }>(
   fixtures: ReadonlyArray<T>,
   upsert: (fixture: T) => Promise<unknown>,
 ): Promise<void> {
-  for (const fixture of fixtures) await upsert(fixture);
+  for (let start = 0; start < fixtures.length; start += FIXTURE_UPSERT_CONCURRENCY) {
+    const batch = fixtures.slice(start, start + FIXTURE_UPSERT_CONCURRENCY);
+    await Promise.all(batch.map((fixture) => upsert(fixture)));
+  }
 }

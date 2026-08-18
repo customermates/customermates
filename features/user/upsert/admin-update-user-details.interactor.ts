@@ -15,7 +15,6 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { createZodError, zx, type Validated } from "@/core/validation/validation.utils";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { getTenantUser } from "@/core/decorators/tenant-context";
 import { checkIds } from "@/core/validation/validators/check-ids";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
@@ -70,7 +69,7 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
     const targetUser = await this.userRepo.findOrThrowCompanyWide(data.email);
     const targetUserId = targetUser.id;
 
-    if (targetUserId === getTenantUser().id) throw new Error("Cannot update own details.");
+    if (targetUserId === this.userId) throw new Error("Cannot update own details.");
 
     const targetIsSystem = targetUser.roleId ? await this.roleRepo.isSystemRoleOrThrow(targetUser.roleId) : false;
     const newRoleIsSystemAndActive =

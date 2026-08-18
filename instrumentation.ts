@@ -4,10 +4,11 @@ import { isExpectedError } from "@/core/errors/app-errors";
 import { env } from "@/env";
 
 export async function register() {
-  if (env.NEXT_PUBLIC_SENTRY_DSN) {
-    const init = {
+  if (env.NEXT_PUBLIC_SENTRY_DSN && (env.NEXT_RUNTIME === "nodejs" || env.NEXT_RUNTIME === "edge")) {
+    Sentry.init({
       dsn: env.NEXT_PUBLIC_SENTRY_DSN,
       tracesSampleRate: 0,
+      integrations: [Sentry.requestDataIntegration({ include: { cookies: false, data: false, headers: false } })],
       beforeSend(event: Sentry.ErrorEvent, hint: Sentry.EventHint) {
         if (isExpectedError(hint?.originalException)) return null;
 
@@ -18,10 +19,7 @@ export async function register() {
 
         return event;
       },
-    } satisfies Sentry.NodeOptions;
-
-    if (env.NEXT_RUNTIME === "nodejs") Sentry.init(init);
-    if (env.NEXT_RUNTIME === "edge") Sentry.init(init);
+    } satisfies Sentry.NodeOptions);
   }
 
   if (env.NEXT_RUNTIME === "nodejs" && env.WORKFLOW_TARGET_WORLD) {

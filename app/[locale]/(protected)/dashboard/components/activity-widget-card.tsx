@@ -79,13 +79,15 @@ export const ActivityWidgetCard = observer(({ widget }: Props) => {
       {store.pageLimitReached && <TimelineNotice label={t("Dashboard.activityWidget.pageLimitReached")} />}
     </>
   );
-  const withNotices = (children: ReactNode) => (
-    <div className="px-4 pb-4 pt-2">
-      {notices}
+  const withBodyPadding = (children: ReactNode) => <div className="px-4 pb-4 pt-2">{children}</div>;
+  const withNotices = (children: ReactNode) =>
+    withBodyPadding(
+      <>
+        {notices}
 
-      {children}
-    </div>
-  );
+        {children}
+      </>,
+    );
 
   let body: ReactNode;
   switch (state) {
@@ -93,13 +95,13 @@ export const ActivityWidgetCard = observer(({ widget }: Props) => {
       body = <EmptyState label={t("Dashboard.activityWidget.noPermission")} />;
       break;
     case "loading":
-      body = (
+      body = withBodyPadding(
         <PageState
           background={<ActivityTimelineSkeleton />}
           className="min-h-40"
           label={t("PageState.loading")}
           state="loading"
-        />
+        />,
       );
       break;
     case "error":

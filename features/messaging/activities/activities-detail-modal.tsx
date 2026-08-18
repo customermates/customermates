@@ -138,6 +138,10 @@ const CalendarEventDetail = observer(({ entry }: { entry: Extract<ActivityEntryD
       />
 
       <AppCardBody className="space-y-4">
+        {event.status !== "cancelled" && !event.location && event.attendees.length === 0 && !description && (
+          <p className="text-muted-foreground text-sm">{t("EntityTimeline.noFurtherDetail")}</p>
+        )}
+
         {event.status === "cancelled" && (
           <p className="text-destructive text-sm font-medium">{t("ContactHistory.calendarCancelled")}</p>
         )}

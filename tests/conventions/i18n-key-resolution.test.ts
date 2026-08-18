@@ -144,6 +144,24 @@ const FORM_FIELD_INPUT_KEYS = [
   "Common.inputs.url",
   "Common.inputs.userIds",
 ] as const;
+const AUDIT_FIELD_KEYS = [
+  "AuditLogModal.fields.acceptanceType",
+  "AuditLogModal.fields.acceptingEmail",
+  "AuditLogModal.fields.changedDocuments",
+  "AuditLogModal.fields.city",
+  "AuditLogModal.fields.country",
+  "AuditLogModal.fields.currency",
+  "AuditLogModal.fields.effectiveAt",
+  "AuditLogModal.fields.emails",
+  "AuditLogModal.fields.isNewCompany",
+  "AuditLogModal.fields.postalCode",
+  "AuditLogModal.fields.recipientEmail",
+  "AuditLogModal.fields.street",
+  "AuditLogModal.fields.terminology",
+  "AuditLogModal.fields.versions",
+  "AuditLogModal.fields.visibility",
+] as const;
+
 const TABLE_COLUMN_KEYS = [
   "Common.table.columns.amount",
   "Common.table.columns.avatarUrl",
@@ -413,36 +431,6 @@ const AGENT_READ_ONLY_SUGGESTION_KEYS = [
   "AgentChat.suggestions.readOnly.tour",
 ];
 
-
-const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
-  [
-    "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.description",
-    FEEDBACK_DESCRIPTION_KEYS,
-  ],
-  [
-    "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.title",
-    FEEDBACK_TITLE_KEYS,
-  ],
-  [
-    "components/entity-terminology/use-column-label.ts :: t :: Common.table.columns.${columnId}",
-    TABLE_COLUMN_KEYS,
-  ],
-  [
-    'components/entity-terminology/use-filter-field-label.ts :: t :: Common.filters.fields.${field.replace(/\\./g, "_")}',
-    FILTER_FIELD_KEYS,
-  ],
-  [
-    "components/forms/use-form-field.ts :: t :: Common.inputs.${id}",
-    FORM_FIELD_INPUT_KEYS,
-  ],
-  [
-    "ee/subscription/entitlement.service.ts :: t :: ConnectedAccountsCard.${code}",
-    ENTITLEMENT_DENIAL_KEYS,
-  ],
-]);
-
-const ENFORCED = true;
-
 const AGENT_ACTIVITY_STATUS_KEYS = ["Cancelled", "Complete", "Error"].map(
   (status) => `AgentChat.ui.activity${status}`,
 );
@@ -595,6 +583,7 @@ const AGENT_CREDIT_BLOCKED_KEYS = [
 ].map((reason) => `AgentChat.credits.blocked.${reason}`);
 
 const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
+  ["AuditLogModal.fields.${*}", AUDIT_FIELD_KEYS],
   ["AuthSocialErrors.${*}", AUTH_SOCIAL_ERROR_KEYS],
   ["Common.colors.${*}", COLOR_KEYS],
   ["Common.customColumnTypes.${*}", CUSTOM_COLUMN_TYPE_KEYS],
@@ -605,6 +594,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["Common.events.${*}", DOMAIN_EVENT_KEYS],
   ["Common.filters.operators.${*}", FILTER_OPERATOR_KEYS],
   ["Common.locales.${*}", LOCALE_KEYS],
+  ["LegalDocumentNotice.documents.${*}", LEGAL_DOCUMENT_KEYS],
   ["Common.providers.${*}", PROVIDER_KEYS],
   ["Common.themes.${*}", THEME_KEYS],
   ["Common.userStatuses.${*}", USER_STATUS_KEYS],
@@ -688,6 +678,39 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ],
 ]);
 
+const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
+  [
+    "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.description",
+    FEEDBACK_DESCRIPTION_KEYS,
+  ],
+  [
+    "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.title",
+    FEEDBACK_TITLE_KEYS,
+  ],
+  [
+    "components/entity-terminology/use-column-label.ts :: t :: Common.table.columns.${columnId}",
+    TABLE_COLUMN_KEYS,
+  ],
+  [
+    "components/entity-terminology/use-column-label.ts :: t.has :: Common.table.columns.${columnId}",
+    TABLE_COLUMN_KEYS,
+  ],
+  [
+    'components/entity-terminology/use-filter-field-label.ts :: t :: Common.filters.fields.${field.replace(/\\./g, "_")}',
+    FILTER_FIELD_KEYS,
+  ],
+  [
+    "components/forms/use-form-field.ts :: t :: Common.inputs.${id}",
+    FORM_FIELD_INPUT_KEYS,
+  ],
+  [
+    "ee/subscription/entitlement.service.ts :: t :: ConnectedAccountsCard.${code}",
+    ENTITLEMENT_DENIAL_KEYS,
+  ],
+]);
+
+const ENFORCED = true;
+
 export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/company/components/audit-log/audit-log-modal.tsx :: t :: Common.events.${auditLog.event}",
   "app/[locale]/(protected)/company/components/audit-log/use-audit-log-columns.tsx :: t :: Common.events.${row.original.event}",
@@ -698,19 +721,28 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/company/components/subscription/plan-picker.tsx :: t.raw :: Subscription.picker.features.${plan}",
   "app/[locale]/(protected)/company/components/subscription/subscription-panel.tsx :: t :: Subscription.planNames.${subscription?.plan ?? SubscriptionPlan.pro}",
   "app/[locale]/(protected)/company/components/subscription/subscription-panel.tsx :: t :: Subscription.status.${subscription?.status ?? SubscriptionStatus.trial}",
-  "app/[locale]/(protected)/company/components/user/user-modal.tsx :: t :: Common.userStatuses.${key}",
   "app/[locale]/(protected)/company/components/user/use-member-columns.tsx :: t :: Common.userStatuses.${row.original.status}",
+  "app/[locale]/(protected)/company/components/user/user-modal.tsx :: t :: Common.userStatuses.${key}",
+  "app/[locale]/(protected)/company/components/webhook/use-webhook-columns.tsx :: t :: Common.events.${event}",
   "app/[locale]/(protected)/company/components/webhook/use-webhook-delivery-columns.tsx :: t :: Common.events.${row.original.event}",
   "app/[locale]/(protected)/company/components/webhook/use-webhook-delivery-columns.tsx :: t :: WebhookDeliveryModal.deliveryStatus.${row.original.status}",
   "app/[locale]/(protected)/company/components/webhook/webhook-delivery-modal.tsx :: t :: Common.events.${delivery.event}",
   "app/[locale]/(protected)/company/components/webhook/webhook-delivery-modal.tsx :: t :: WebhookDeliveryModal.deliveryStatus.${delivery.status}",
   "app/[locale]/(protected)/company/components/webhook/webhook-modal.tsx :: t :: Common.events.${item.key}",
-  "app/[locale]/(protected)/company/components/webhook/use-webhook-columns.tsx :: t :: Common.events.${event}",
   "app/[locale]/(protected)/contacts/components/add-channel-popover.tsx :: t :: Common.providers.${provider}",
   "app/[locale]/(protected)/contacts/components/channel-icon-stack.tsx :: t :: Common.providers.${channelLabelKey(id.provider)}",
   "app/[locale]/(protected)/contacts/components/channel-icon-stack.tsx :: t :: Common.providers.${channelLabelKey(provider)}",
   "app/[locale]/(protected)/contacts/components/contact-channels.tsx :: t :: Common.providers.${channelLabelKey(identifier.provider)}",
   "app/[locale]/(protected)/contacts/components/contact-compose-popover.tsx :: t :: Common.providers.${provider}",
+  "app/[locale]/(protected)/dashboard/components/activity-filter-fields.tsx :: t :: Common.filters.operators.${filter.operator}",
+  "app/[locale]/(protected)/dashboard/components/activity-filter-fields.tsx :: t :: Dashboard.widgetEditor.filters.activityTypeOptions.${value}.description",
+  "app/[locale]/(protected)/dashboard/components/activity-filter-fields.tsx :: t :: Dashboard.widgetEditor.filters.activityTypeOptions.${value}.label",
+  "app/[locale]/(protected)/dashboard/components/widget-display-type-picker.tsx :: t :: Dashboard.displayTypes.${type}",
+  "app/[locale]/(protected)/dashboard/components/widget-filter-chip.tsx :: t :: Common.filters.operators.${filter.operator}",
+  "app/[locale]/(protected)/dashboard/components/widget-preview.tsx :: t :: Dashboard.displayTypes.${displayType}",
+  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetEditor.kind.${kind}Description",
+  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetKinds.${kind}",
+  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetKinds.${widget.kind}",
   "app/[locale]/(protected)/inbox/components/thread-row.tsx :: t :: Common.providers.${thread.provider}",
   "app/[locale]/(protected)/inbox/components/thread-row.tsx :: t :: Inbox.threadStates.${thread.state}",
   "app/[locale]/(protected)/inbox/components/thread-state-picker.tsx :: t :: Inbox.threadStates.${state}",
@@ -736,6 +768,10 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.${card.titleKey}.tag",
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.${card.titleKey}.title",
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.compare.${key}",
+  "app/components/agent-chat/agent-chat.tsx :: t :: AgentChat.approval.${item.resolution}",
+  "app/components/agent-chat/agent-chat.tsx :: t :: AgentChat.credits.blocked.${reason}",
+  "app/components/agent-chat/agent-chat.tsx :: t :: AgentChat.ui.activity${status.charAt(0).toUpperCase()}${status.slice(1)}",
+  "app/components/agent-chat/agent-chat.tsx :: t :: Subscription.planNames.${usage.plan}",
   "app/components/navigation/plan-subtitle.ts :: t :: Subscription.planNames.${plan}",
   "app/components/navigation/plan-subtitle.ts :: t :: Subscription.status.${status}",
   "components/ai-connection/ai-connection-api-key-setup.tsx :: t :: OnboardingWizard.ai.choices.${tool}",
@@ -761,8 +797,10 @@ export const DYNAMIC_KEY_SITES = [
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: EntityTimeline.types.${type}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Inbox.threadStates.${state}",
   "components/data-view/header/active-filters-bar.tsx :: t :: Common.filters.operators.${filter.operator}",
+  "components/entity-terminology/use-column-label.ts :: t :: AuditLogModal.fields.${columnId}",
   "components/entity-terminology/use-column-label.ts :: t :: Common.table.columns.${columnId}",
-  'components/entity-terminology/use-filter-field-label.ts :: t :: Common.filters.fields.${field.replace(/\\./g, "_")}',
+  "components/entity-terminology/use-column-label.ts :: t.has :: AuditLogModal.fields.${columnId}",
+  "components/entity-terminology/use-column-label.ts :: t.has :: Common.table.columns.${columnId}",
   "components/forms/form-iso-date-picker.tsx :: t :: Common.datePresets.${preset.key}",
   "components/forms/form-iso-date-range-picker.tsx :: t :: Common.datePresets.${key}",
   "components/forms/use-form-field.ts :: t :: Common.inputs.${id}",
@@ -795,39 +833,35 @@ export const DYNAMIC_KEY_SITES = [
   "ee/messaging/sales-navigator/linkedin-search-sales-navigator.interactor.ts :: t :: Common.errors.${res.error}",
   "ee/messaging/sales-navigator/linkedin-search-sales-people.interactor.ts :: t :: Common.errors.${res.error}",
   "ee/subscription/entitlement.service.ts :: t :: ConnectedAccountsCard.${code}",
+  "features/agent-chat/agent-activity.ts :: t :: AgentChat.activity.label.${name}",
+  "features/agent-chat/agent-activity.ts :: t :: AgentChat.activity.resource.${activity.resource}",
+  "features/agent-chat/agent-activity.ts :: t :: AgentChat.activity.resourceSingular.${resourceKey}",
+  "features/agent-chat/agent-activity.ts :: t :: AgentChat.activity.state.${activity.kind}.${name}",
+  "features/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.pages.${page}.${state}.${id}.label",
+  "features/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.pages.${page}.${state}.${id}.prompt",
+  "features/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.readOnly.${id}.label",
+  "features/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.readOnly.${id}.prompt",
+  "features/agent-chat/agent-workspace-setup.ts :: t :: AgentChat.setup.text.${key}",
   "features/auth/sign-in-with-email.interactor.ts :: t :: Common.errors.${res.error}",
   "features/auth/sign-up-with-email.interactor.ts :: t :: Common.errors.${res.error}",
   "features/messaging/activities/activities-detail-modal.tsx :: t :: Common.events.${entry.event}",
   "features/messaging/activities/activities-detail-modal.tsx :: t :: Common.providers.${event.provider}",
   "features/messaging/activities/activities-detail-modal.tsx :: t :: Common.providers.${message.provider}",
-  "app/[locale]/(protected)/dashboard/components/activity-filter-fields.tsx :: t :: Common.filters.operators.${filter.operator}",
-  "app/[locale]/(protected)/dashboard/components/activity-filter-fields.tsx :: t :: Dashboard.widgetEditor.filters.activityTypeOptions.${value}.description",
-  "app/[locale]/(protected)/dashboard/components/activity-filter-fields.tsx :: t :: Dashboard.widgetEditor.filters.activityTypeOptions.${value}.label",
-  "app/[locale]/(protected)/dashboard/components/widget-display-type-picker.tsx :: t :: Dashboard.displayTypes.${type}",
-  "app/[locale]/(protected)/dashboard/components/widget-filter-chip.tsx :: t :: Common.filters.operators.${filter.operator}",
-  "app/[locale]/(protected)/dashboard/components/widget-preview.tsx :: t :: Dashboard.displayTypes.${displayType}",
-  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetEditor.kind.${kind}Description",
-  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetKinds.${kind}",
-  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetKinds.${widget.kind}",
   "features/messaging/activities/activities-list.tsx :: t :: Common.events.${entry.event}",
   "features/messaging/activities/activities-list.tsx :: t :: Common.providers.${ev.provider}",
   "features/messaging/activities/activities-list.tsx :: t :: Common.providers.${message.provider}",
+  "features/messaging/activities/audit-detail.tsx :: t :: Common.customColumnTypes.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t :: Common.events.${entry.event}",
+  "features/messaging/activities/audit-detail.tsx :: t :: Common.providers.${String(value)}",
+  "features/messaging/activities/audit-detail.tsx :: t :: Common.userStatuses.${String(value)}",
+  "features/messaging/activities/audit-detail.tsx :: t :: LegalDocumentNotice.documents.${document}",
+  "features/messaging/activities/audit-detail.tsx :: t.has :: Common.customColumnTypes.${String(value)}",
+  "features/messaging/activities/audit-detail.tsx :: t.has :: Common.providers.${String(value)}",
+  "features/messaging/activities/audit-detail.tsx :: t.has :: Common.userStatuses.${String(value)}",
+  "features/messaging/activities/audit-detail.tsx :: t.has :: LegalDocumentNotice.documents.${document}",
   "features/user/prisma-user.repository.ts :: t :: Common.defaultData.${column.entityType}.columnLabel",
   "features/user/prisma-user.repository.ts :: t :: Common.defaultData.${column.entityType}.options.${option.key}",
-  "features/agent-chat/agent-workspace-setup.ts :: t :: AgentChat.setup.text.${key}",
-  "features/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.pages.${page}.${state}.${id}.label",
-  "features/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.pages.${page}.${state}.${id}.prompt",
-  "features/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.readOnly.${id}.label",
-  "features/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.readOnly.${id}.prompt",
-  "features/agent-chat/agent-activity.ts :: t :: AgentChat.activity.label.${name}",
-  "features/agent-chat/agent-activity.ts :: t :: AgentChat.activity.resource.${activity.resource}",
-  "features/agent-chat/agent-activity.ts :: t :: AgentChat.activity.resourceSingular.${resourceKey}",
-  "features/agent-chat/agent-activity.ts :: t :: AgentChat.activity.state.${activity.kind}.${name}",
-  "app/components/agent-chat/agent-chat.tsx :: t :: AgentChat.approval.${item.resolution}",
-  "app/components/agent-chat/agent-chat.tsx :: t :: AgentChat.credits.blocked.${reason}",
-  "app/components/agent-chat/agent-chat.tsx :: t :: AgentChat.ui.activity${status.charAt(0).toUpperCase()}${status.slice(1)}",
-  "app/components/agent-chat/agent-chat.tsx :: t :: Subscription.planNames.${usage.plan}",
+  'components/entity-terminology/use-filter-field-label.ts :: t :: Common.filters.fields.${field.replace(/\\./g, "_")}',
 ];
 
 const NONLITERAL_T_CALL_SITES = new Map<string, number>([
@@ -926,6 +960,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     1,
   ],
   ["features/messaging/activities/audit-detail.tsx :: t :: nameKey", 1],
+  ["features/messaging/activities/audit-detail.tsx :: t :: systemTaskKey as never", 1],
 ]);
 
 const SOURCE_DIRECTORIES = [

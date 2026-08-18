@@ -10,6 +10,7 @@ import type { SidebarUser } from "./sidebar-user";
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useLayoutEffect } from "react";
+import * as Sentry from "@sentry/nextjs";
 
 import { AppSidebar } from "../app-sidebar";
 import { AppTopBar } from "../app-topbar";
@@ -100,6 +101,11 @@ export function NavigationSwitch({
   }, [router]);
 
   useLayoutEffect(() => {
+    const identifiedUser = accountAllowed ? appUser : null;
+
+    Sentry.setUser(identifiedUser ? { id: identifiedUser.id } : null);
+    Sentry.setTag("companyId", identifiedUser?.companyId);
+
     userStore.setUser(accountAllowed ? appUser : null);
     companyStore.setCompany(accountAllowed ? company : null);
     terminologyStore.setOverrides(accountAllowed ? terminology : []);

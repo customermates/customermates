@@ -74,7 +74,8 @@ afterAll(async () => {
   await prisma.$disconnect();
 });
 
-const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
+const databaseUrl = getLocalDatabaseTestUrl();
+const describeDatabase = databaseUrl ? describe : describe.skip;
 
 describeDatabase("registration against a real database", () => {
   it("provisions a workspace with default select fields and no demo records", async () => {
