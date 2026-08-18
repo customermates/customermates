@@ -17,7 +17,7 @@ export function TruncatedText({ children, className }: Props) {
 
   const content = (
     <span className={cn("flex min-w-0", className)}>
-      <span ref={textRef} className="truncate min-w-0">
+      <span ref={textRef} className="truncate min-w-0 flex-1">
         {children}
       </span>
     </span>
