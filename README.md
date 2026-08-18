@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/customermates-customermates-badge.png)](https://mseep.ai/app/customermates-customermates)
+
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="public/images/dark/customermates.svg">
