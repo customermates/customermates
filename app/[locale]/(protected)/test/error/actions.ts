@@ -1,6 +1,7 @@
 "use server";
 
-import { getBackgroundTaskService } from "@/core/di";
+import { getBackgroundTaskService, getUserService } from "@/core/di";
+import { runWithTenant } from "@/core/decorators/tenant-context";
 
 export async function triggerServerErrorAction() {
   await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -8,7 +9,11 @@ export async function triggerServerErrorAction() {
 }
 
 export async function triggerWorkflowErrorAction() {
-  await getBackgroundTaskService().dispatch("trigger-test-error", {
-    message: "Test workflow error from background job - should trigger reportFailure + Sentry",
-  });
+  const user = await getUserService().getActiveUserOrThrow();
+
+  await runWithTenant(user, () =>
+    getBackgroundTaskService().dispatch("trigger-test-error", {
+      message: "Test workflow error from background job - should trigger reportFailure + Sentry",
+    }),
+  );
 }
