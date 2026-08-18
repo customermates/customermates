@@ -25,6 +25,7 @@ function fakeDataViewStore(overrides: Partial<AgentDataViewStore> = {}) {
     ],
     setViewOptions: vi.fn(),
     setQueryOptions: vi.fn(),
+    refreshQuery: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   } as unknown as AgentDataViewStore;
 }
@@ -227,6 +228,28 @@ describe("AgentUiControlStore.fillForm", () => {
     expect(submit).toHaveBeenCalledTimes(1);
     expect(outcome.ok).toBe(true);
     expect(outcome.result).toContain("saved the form");
+  });
+});
+
+describe("AgentUiControlStore.configureView", () => {
+  it("keeps an explicit table layout even when the model also passes a grouping", async () => {
+    const refreshQuery = vi.fn().mockResolvedValue(undefined);
+    const dataStore = fakeDataViewStore({
+      singleSelectCustomColumns: [{ id: "col-1", label: "Status", type: "singleSelect" }],
+      refreshQuery,
+    } as never);
+    const { store } = controlStoreWith({ dealsStore: dataStore });
+    Object.defineProperty(globalThis, "window", {
+      value: { location: { pathname: "/en/deals" } },
+      configurable: true,
+    });
+
+    const outcome = await store.configureView({ view: "deals", layout: "table", groupBy: "Status" });
+
+    expect(outcome.ok).toBe(true);
+    expect(dataStore.setViewOptions).toHaveBeenCalledTimes(1);
+    expect(dataStore.setViewOptions).toHaveBeenCalledWith({ viewMode: "table" });
+    expect(refreshQuery).toHaveBeenCalledTimes(1);
   });
 });
 

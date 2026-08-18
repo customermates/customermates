@@ -252,7 +252,7 @@ export class AgentUiControlStore extends BaseStore {
       store.setViewOptions({ viewMode: ViewMode.card, groupingColumnId: grouping.value });
       applied.push("kanban layout");
     }
-    if (input.groupBy && input.layout !== "kanban") {
+    if (input.groupBy && input.layout === undefined) {
       if (input.groupBy.trim().toLowerCase() === "none") {
         store.setViewOptions({ groupingColumnId: undefined });
         applied.push("grouping cleared");
@@ -282,6 +282,8 @@ export class AgentUiControlStore extends BaseStore {
       store.setQueryOptions({ filters: filters.value });
       applied.push(`${filters.value.length} ${filters.value.length === 1 ? "filter" : "filters"}`);
     }
+
+    if (applied.length) await store.refreshQuery().catch(() => undefined);
 
     return {
       ok: true,
