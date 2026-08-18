@@ -147,7 +147,8 @@ describe("TerminologyRelationshipDiagram", () => {
 
     expect(html).toContain('<div class="sr-only"><div class="flex flex-col gap-2">');
     expect(html).toContain('class="sr-only" id="terminology-task-relationship-label"');
-    expect(html).toContain("relative flex min-h-6 w-full flex-col items-center justify-center sm:min-h-14");
+    expect(html).toContain("relative flex min-h-0 w-full flex-col items-center justify-center sm:min-h-14");
+    expect(html).toContain('<div class="flex flex-col gap-3 sm:gap-0">');
     expect(html).not.toContain("bg-border sm:hidden");
     expect(html).not.toContain("sm:sr-only");
   });

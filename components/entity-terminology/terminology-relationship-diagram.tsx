@@ -270,7 +270,7 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
         {t("EntityTerminology.relationships.dataModelLabel")}
       </p>
 
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-3 sm:gap-0">
         {relationshipMap()}
 
         <div aria-labelledby="terminology-task-relationship-label" className="flex flex-col items-center" role="group">
@@ -278,7 +278,7 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
             {taskScopeLabel}
           </span>
 
-          <div className="relative flex min-h-6 w-full flex-col items-center justify-center sm:min-h-14">
+          <div className="relative flex min-h-0 w-full flex-col items-center justify-center sm:min-h-14">
             <span aria-hidden="true" className="hidden w-px flex-1 bg-border sm:block" />
 
             <Badge
