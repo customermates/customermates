@@ -28232,18 +28232,21 @@
                       },
                       "additionalProperties": {
                         "type": "object",
-                        "properties": {
-                          "total": {
-                            "type": "number"
-                          },
-                          "weighted": {
-                            "type": "number"
-                          }
+                        "propertyNames": {
+                          "type": "string"
                         },
-                        "required": [
-                          "total"
-                        ],
-                        "additionalProperties": false
+                        "additionalProperties": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "valueSums": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "type": "number"
                       }
                     }
                   },
@@ -55075,18 +55078,21 @@
             },
             "additionalProperties": {
               "type": "object",
-              "properties": {
-                "total": {
-                  "type": "number"
-                },
-                "weighted": {
-                  "type": "number"
-                }
+              "propertyNames": {
+                "type": "string"
               },
-              "required": [
-                "total"
-              ],
-              "additionalProperties": false
+              "additionalProperties": {
+                "type": "number"
+              }
+            }
+          },
+          "valueSums": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "number"
             }
           },
           "availableSources": {
