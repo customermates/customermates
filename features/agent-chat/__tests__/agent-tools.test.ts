@@ -9,7 +9,7 @@ import {
 } from "@/tests/helpers/interactor-test-setup";
 
 const mockUser = createMockUser();
-const sentryMock = vi.hoisted(() => ({ captureException: vi.fn() }));
+const sentryMock = vi.hoisted(() => ({ captureException: vi.fn(), setTag: vi.fn(), setUser: vi.fn() }));
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));

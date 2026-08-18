@@ -42,7 +42,7 @@ vi.mock("@/env", () => ({
   },
 }));
 vi.mock("ai", () => aiMock);
-vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn() }));
+vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn(), setTag: vi.fn(), setUser: vi.fn() }));
 let sessionUser: { id: string; companyId: string } = { id: "u1", companyId: "c1" };
 
 vi.mock("@/core/di", () => ({
