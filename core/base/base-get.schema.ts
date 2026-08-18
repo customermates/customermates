@@ -112,12 +112,7 @@ export const GroupedPaginationRequestSchema = z.object({
 });
 export type GroupedPaginationRequest = Data<typeof GroupedPaginationRequestSchema>;
 
-export const GROUP_VALUE_SUM_FIELDS = { total: "totalValue", weighted: "weightedValue" } as const;
-
-export const GroupValueSumsSchema = z.object({
-  total: z.number(),
-  weighted: z.number().optional(),
-});
+export const GroupValueSumsSchema = z.record(z.string(), z.number());
 export type GroupValueSums = Data<typeof GroupValueSumsSchema>;
 
 export const SavedFilterPresetSchema = z.object({

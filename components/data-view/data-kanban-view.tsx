@@ -25,7 +25,8 @@ import { Button } from "@/components/ui/button";
 import { AppChip } from "@/components/chip/app-chip";
 import type { CustomColumnOption } from "@/features/custom-column/custom-column.schema";
 import type { GroupValueSums } from "@/core/base/base-get.schema";
-import { GROUP_VALUE_SUM_FIELDS, KANBAN_EMPTY_GROUP_KEY } from "@/core/base/base-get.schema";
+import { KANBAN_EMPTY_GROUP_KEY } from "@/core/base/base-get.schema";
+import { DEAL_GROUP_SUM_FIELDS } from "@/features/deals/deal-weighting";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import type { EntityType } from "@/generated/prisma";
 
@@ -163,6 +164,9 @@ const KanbanColumn = observer(function KanbanColumn({
   const formatSum = (amount: number) =>
     intlStore.formatCurrency(amount, undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
+  const totalSum = valueSums?.[DEAL_GROUP_SUM_FIELDS.total];
+  const weightedSum = valueSums?.[DEAL_GROUP_SUM_FIELDS.weighted];
+
   const countLabel = entityType ? `${count} ${count === 1 ? singular(entityType) : plural(entityType)}` : String(count);
   const rateLabel = t("Common.stageProbability");
 
@@ -201,7 +205,7 @@ const KanbanColumn = observer(function KanbanColumn({
           <TooltipContent>{countLabel}</TooltipContent>
         </Tooltip>
 
-        {option?.weight !== undefined && valueSums?.weighted !== undefined && (
+        {option?.weight !== undefined && weightedSum !== undefined && (
           <Tooltip>
             <TooltipTrigger asChild>
               <span className="text-xs text-muted-foreground tabular-nums">{option.weight}%</span>
@@ -211,26 +215,26 @@ const KanbanColumn = observer(function KanbanColumn({
           </Tooltip>
         )}
 
-        {valueSums && (
+        {totalSum !== undefined && (
           <span className="ml-auto flex min-w-0 shrink items-baseline gap-1 text-xs text-muted-foreground tabular-nums">
             <Tooltip>
               <TooltipTrigger asChild>
-                <span className="truncate opacity-65">{formatSum(valueSums.total)}</span>
+                <span className="truncate opacity-65">{formatSum(totalSum)}</span>
               </TooltipTrigger>
 
-              <TooltipContent>{columnLabel(GROUP_VALUE_SUM_FIELDS.total)}</TooltipContent>
+              <TooltipContent>{columnLabel(DEAL_GROUP_SUM_FIELDS.total)}</TooltipContent>
             </Tooltip>
 
-            {valueSums.weighted !== undefined && (
+            {weightedSum !== undefined && (
               <>
                 <span className="shrink-0 opacity-50">→</span>
 
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span className="truncate text-foreground">{formatSum(valueSums.weighted)}</span>
+                    <span className="truncate text-foreground">{formatSum(weightedSum)}</span>
                   </TooltipTrigger>
 
-                  <TooltipContent>{columnLabel(GROUP_VALUE_SUM_FIELDS.weighted)}</TooltipContent>
+                  <TooltipContent>{columnLabel(DEAL_GROUP_SUM_FIELDS.weighted)}</TooltipContent>
                 </Tooltip>
               </>
             )}

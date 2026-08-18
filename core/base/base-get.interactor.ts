@@ -14,13 +14,14 @@ import type {
   SortDescriptor,
 } from "./base-get.schema";
 
-import { CustomColumnType, EntityType } from "@/generated/prisma";
+import { CustomColumnType } from "@/generated/prisma";
 
+import type { EntityType } from "@/generated/prisma";
 import type { NumericFieldSums, SummableModel } from "./base-repository";
 import type { QueryParamsPrecheckInteractor } from "./query-params-precheck.interactor";
 
 import { env } from "@/env";
-import { GROUP_VALUE_SUM_FIELDS, KANBAN_EMPTY_GROUP_KEY, KANBAN_PER_GROUP_DEFAULT } from "./base-get.schema";
+import { KANBAN_EMPTY_GROUP_KEY, KANBAN_PER_GROUP_DEFAULT } from "./base-get.schema";
 import { FilterOperatorKey, ViewMode } from "./base-query-builder";
 import { runPrecheck } from "../validation/run-precheck";
 
@@ -61,18 +62,11 @@ export abstract class BaseGetRepo<T> {
     sortableFields: SortableField[];
     customColumns?: CustomColumnDto[];
   }): SortDescriptor | undefined;
-}
-
-type NumericFieldSumsRepo = {
-  sumNumericFields<F extends string>(opts: {
+  abstract sumNumericFields<F extends string>(opts: {
     model: SummableModel;
     fields: readonly F[];
     params: GetQueryParams;
   }): Promise<NumericFieldSums<F>>;
-};
-
-function supportsNumericFieldSums(repo: unknown): repo is NumericFieldSumsRepo {
-  return typeof (repo as Partial<NumericFieldSumsRepo>).sumNumericFields === "function";
 }
 
 type BaseQuery = { filters?: Filter[]; searchTerm?: string; sortDescriptor?: SortDescriptor };
@@ -95,6 +89,7 @@ export abstract class BaseGetInteractor<T> {
     protected defaultParams?: GetQueryParams,
     protected queryParamsPrecheck?: QueryParamsPrecheckInteractor,
     protected queryParamsPrecheckFilterableFields?: FilterableField[],
+    protected groupValueSumFields: readonly string[] = [],
   ) {}
 
   async invoke(params: GetQueryParams = {}): Validated<GetResult<T>> {
@@ -270,19 +265,17 @@ export abstract class BaseGetInteractor<T> {
   }
 
   private async fetchGroupValueSums(params: GetQueryParams): Promise<GroupValueSums | undefined> {
-    const repo = this.repo;
-    if (this.entityType !== EntityType.deal || !supportsNumericFieldSums(repo)) return undefined;
+    if (this.groupValueSumFields.length === 0 || !this.entityType) return undefined;
 
-    const sums = await repo.sumNumericFields({
-      model: EntityType.deal,
-      fields: [GROUP_VALUE_SUM_FIELDS.total, GROUP_VALUE_SUM_FIELDS.weighted],
+    const sums = await this.repo.sumNumericFields({
+      model: this.entityType as SummableModel,
+      fields: this.groupValueSumFields,
       params,
     });
 
-    const total = sums[GROUP_VALUE_SUM_FIELDS.total] ?? 0;
-    const weighted = sums[GROUP_VALUE_SUM_FIELDS.weighted];
-
-    return weighted == null ? { total } : { total, weighted };
+    return Object.fromEntries(
+      this.groupValueSumFields.flatMap((field) => (typeof sums[field] === "number" ? [[field, sums[field]]] : [])),
+    );
   }
 }
 

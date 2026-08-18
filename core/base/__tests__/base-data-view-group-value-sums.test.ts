@@ -52,7 +52,7 @@ function groupedResult(): GetResult<Item> {
   return {
     items: [{ id: "deal-1", totalValue: 300, weightedValue: 90 }],
     groupCounts: { won: 2, lost: 1 },
-    groupValueSums: { won: { total: 1000, weighted: 400 }, lost: { total: 300 } },
+    groupValueSums: { won: { totalValue: 1000, weightedValue: 400 }, lost: { totalValue: 300 } },
   };
 }
 
@@ -84,7 +84,7 @@ describe("BaseDataViewStore group value sums", () => {
   it("adopts the sums reported by the server", () => {
     const store = createStore();
 
-    expect(store.groupValueSums).toEqual({ won: { total: 1000, weighted: 400 }, lost: { total: 300 } });
+    expect(store.groupValueSums).toEqual({ won: { totalValue: 1000, weightedValue: 400 }, lost: { totalValue: 300 } });
   });
 
   it("drops the sums when a later result omits them", () => {
@@ -103,7 +103,10 @@ describe("BaseDataViewStore group value sums", () => {
     await move(store, item, "won", "lost");
 
     expect(store.groupCounts).toEqual({ won: 1, lost: 2 });
-    expect(store.groupValueSums).toEqual({ won: { total: 750, weighted: 300 }, lost: { total: 550, weighted: 100 } });
+    expect(store.groupValueSums).toEqual({
+      won: { totalValue: 750, weightedValue: 300 },
+      lost: { totalValue: 550, weightedValue: 100 },
+    });
   });
 
   it("leaves the weighted sums untouched for an unweighted item", async () => {
@@ -113,7 +116,7 @@ describe("BaseDataViewStore group value sums", () => {
 
     await move(store, item, "won", "lost");
 
-    expect(store.groupValueSums).toEqual({ won: { total: 750, weighted: 400 }, lost: { total: 550 } });
+    expect(store.groupValueSums).toEqual({ won: { totalValue: 750, weightedValue: 400 }, lost: { totalValue: 550 } });
   });
 
   it("restores the sums when the move is rejected", async () => {
@@ -124,7 +127,7 @@ describe("BaseDataViewStore group value sums", () => {
     await move(store, item, "won", "lost");
 
     expect(store.groupCounts).toEqual({ won: 2, lost: 1 });
-    expect(store.groupValueSums).toEqual({ won: { total: 1000, weighted: 400 }, lost: { total: 300 } });
+    expect(store.groupValueSums).toEqual({ won: { totalValue: 1000, weightedValue: 400 }, lost: { totalValue: 300 } });
   });
 
   it("ignores items that carry no summable values", async () => {
@@ -135,6 +138,6 @@ describe("BaseDataViewStore group value sums", () => {
     await move(store, item, "won", "lost");
 
     expect(store.groupCounts).toEqual({ won: 1, lost: 2 });
-    expect(store.groupValueSums).toEqual({ won: { total: 1000, weighted: 400 }, lost: { total: 300 } });
+    expect(store.groupValueSums).toEqual({ won: { totalValue: 1000, weightedValue: 400 }, lost: { totalValue: 300 } });
   });
 });

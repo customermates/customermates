@@ -1,3 +1,5 @@
+export const DEAL_GROUP_SUM_FIELDS = { total: "totalValue", weighted: "weightedValue" } as const;
+
 type StoredOption = { value?: unknown; weight?: unknown };
 
 export function readOptionWeights(options: unknown): Map<string, number> {

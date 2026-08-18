@@ -17,7 +17,7 @@ import { toastZodErrorTree } from "../utils/toast-zod-error-tree";
 import { ViewMode } from "./base-query-builder";
 import { BaseStore } from "./base.store";
 
-import { GROUP_VALUE_SUM_FIELDS, KANBAN_PER_GROUP_DEFAULT } from "./base-get.schema";
+import { KANBAN_PER_GROUP_DEFAULT } from "./base-get.schema";
 import {
   upsertP13nAction,
   getCustomColumnsByEntityTypeAction,
@@ -45,21 +45,21 @@ export type DataViewRequestState =
 
 type DataViewRefreshMode = "background" | "visible";
 
-function readItemValueSums(item: unknown): GroupValueSums | undefined {
+function readItemValueSums(item: unknown, fields: readonly string[]): GroupValueSums | undefined {
   const values = item as Record<string, unknown>;
-  const total = values[GROUP_VALUE_SUM_FIELDS.total];
-  if (typeof total !== "number") return undefined;
+  const summed = fields.flatMap((field) =>
+    typeof values[field] === "number" ? [[field, values[field]] as const] : [],
+  );
 
-  const weighted = values[GROUP_VALUE_SUM_FIELDS.weighted];
-  return typeof weighted === "number" ? { total, weighted } : { total };
+  return summed.length > 0 ? Object.fromEntries(summed) : undefined;
 }
 
 function shiftValueSums(group: GroupValueSums, item: GroupValueSums, sign: 1 | -1): GroupValueSums {
-  const total = Math.max(0, group.total + sign * item.total);
-  if (item.weighted === undefined)
-    return group.weighted === undefined ? { total } : { total, weighted: group.weighted };
+  const fields = new Set([...Object.keys(group), ...Object.keys(item)]);
 
-  return { total, weighted: Math.max(0, (group.weighted ?? 0) + sign * item.weighted) };
+  return Object.fromEntries(
+    [...fields].map((field) => [field, Math.max(0, (group[field] ?? 0) + sign * (item[field] ?? 0))]),
+  );
 }
 
 export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore {
@@ -264,7 +264,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       return;
     }
 
-    const itemValueSums = readItemValueSums(params.item);
+    const summedFields = [...new Set(Object.values(this.groupValueSums).flatMap((sums) => Object.keys(sums)))];
+    const itemValueSums = readItemValueSums(params.item, summedFields);
     const valueSumsBeforeMove = this.groupValueSums;
 
     this.upsertItemLocal(params.optimisticItem);
