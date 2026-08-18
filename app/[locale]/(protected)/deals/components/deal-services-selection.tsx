@@ -45,11 +45,13 @@ export const DealServicesSelection = observer(() => {
 
   return (
     <div className="flex w-full flex-col space-y-2 items-start">
-      <div className="w-full grid grid-cols-[minmax(40px,1fr)_minmax(70px,130px)_40px] gap-2 gap-y-3 items-center">
+      <div className="w-full grid grid-cols-[minmax(40px,1fr)_minmax(70px,112px)_40px] gap-2 gap-y-3 items-center">
         <div className="flex items-center w-full min-w-0 gap-2">
           <FormLabel className="block flex-1 truncate min-w-0">{plural(EntityType.service)}</FormLabel>
 
-          <FormLabel className="block w-20 shrink-0 text-right truncate">{t("DealModal.quantityLabel")}</FormLabel>
+          <FormLabel className="block w-[4.5rem] shrink-0 text-right truncate">
+            {t("DealModal.quantityLabel")}
+          </FormLabel>
         </div>
 
         <FormLabel className="block text-right truncate min-w-0">{t("DealModal.valueLabel")}</FormLabel>
@@ -123,7 +125,7 @@ export const DealServicesSelection = observer(() => {
                 <FormNumberInput
                   required
                   className="text-right font-mono tabular-nums"
-                  containerClassName="w-20 shrink-0"
+                  containerClassName="w-[4.5rem] shrink-0"
                   id={`services[${index}].quantity`}
                   label={null}
                 />
