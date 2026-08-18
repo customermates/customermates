@@ -890,6 +890,78 @@ describe("agent runner approval rendezvous", () => {
     );
   });
 
+  it("runs an unapproved create straight through without an approval rendezvous", async () => {
+    aiMock.streamText.mockReturnValue(
+      scripted(function* () {
+        yield {
+          type: "tool-call",
+          toolCallId: "c1",
+          toolName: "create_contacts",
+          input: { contacts: [{ firstName: "Anna" }] },
+        };
+        yield { type: "tool-result", toolCallId: "c1", output: "Created 1 contact." };
+        yield { type: "text-delta", text: "Anna is in your contacts now." };
+      }),
+    );
+
+    const events = await runAndRead(ctx());
+
+    expect(events.some((event) => event.type === "approval_request")).toBe(false);
+    expect(
+      events.some(
+        (event) =>
+          event.type === "activity" && event.activity?.kind === "records.create" && event.activity?.risk === "write",
+      ),
+    ).toBe(true);
+    expect(events.some((event) => event.type === "activity_result" && event.status === "done")).toBe(true);
+    const done = events.at(-1);
+    expect(done).toMatchObject({ type: "turn_done", isError: false });
+    expect(done?.affectedResources).toContain("contacts");
+    expect(repoMock.createPendingApprovalRequestOrThrowUnscoped).not.toHaveBeenCalled();
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({
+        parts: expect.not.arrayContaining([expect.objectContaining({ type: "approval" })]),
+      }),
+    );
+  });
+
+  it("links records and verifies with a read, all without approvals", async () => {
+    aiMock.streamText.mockReturnValue(
+      scripted(function* () {
+        yield {
+          type: "tool-call",
+          toolCallId: "l1",
+          toolName: "manage_record_links",
+          input: { action: "add", entity: "contact", sourceId: "s", relation: "organizations", ids: ["o"] },
+        };
+        yield { type: "tool-result", toolCallId: "l1", output: "Linked 1 organizations to contact s (was 0, now 1)" };
+        yield {
+          type: "tool-call",
+          toolCallId: "l2",
+          toolName: "list_records",
+          input: { entity: "contact" },
+        };
+        yield { type: "tool-result", toolCallId: "l2", output: "1 contact" };
+        yield { type: "text-delta", text: "Linked and verified." };
+      }),
+    );
+
+    const events = await runAndRead(ctx());
+
+    expect(events.some((event) => event.type === "approval_request")).toBe(false);
+    const kinds = events
+      .filter((event) => event.type === "activity")
+      .map((event) => (event.activity as { kind?: string })?.kind);
+    expect(kinds).toEqual(["records.link", "records.read"]);
+    expect(
+      events.some(
+        (event) =>
+          event.type === "activity" && event.activity?.kind === "records.link" && event.activity?.risk === "write",
+      ),
+    ).toBe(true);
+    expect(events.at(-1)).toMatchObject({ type: "turn_done", isError: false });
+  });
+
   it("round-trips a configure_view command through the browser mailbox", async () => {
     repoMock.takeUiCommandResultUnscoped.mockResolvedValueOnce(null).mockResolvedValueOnce({
       name: "configure_view",
