@@ -5,6 +5,7 @@ import type { TenantUser } from "@/features/user/user.schema";
 import { createTranslator } from "next-intl";
 
 import messages from "@/i18n/locales/en.json";
+import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
 const activeTenantUser = vi.hoisted(() => ({
   value: null as TenantUser | null,
@@ -72,7 +73,10 @@ afterAll(async () => {
   await prisma.$disconnect();
 });
 
-describe("registration against a real database", () => {
+const databaseUrl = getLocalDatabaseTestUrl();
+const describeDatabase = databaseUrl ? describe : describe.skip;
+
+describeDatabase("registration against a real database", () => {
   it("provisions a workspace with default select fields and no demo records", async () => {
     const repo = new PrismaUserRepo();
     const user = await runWithoutTenant(() =>
