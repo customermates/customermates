@@ -35,6 +35,13 @@ ALTER TABLE "SupportTicket" ADD COLUMN     "agentConversationId" TEXT;
 -- AlterTable
 ALTER TABLE "User" ADD COLUMN     "agentCreditActivatedAt" TIMESTAMP(3);
 
+-- Seats that already exist when this ships have never been stamped, and an unstamped seat reads as
+-- "no subscription" to the credit policy. Without this, every current paying user would be told to
+-- buy a subscription they already have. Their seat became active when the user was created, which is
+-- at or before the current credit period for anyone who is not brand new, so they get a full
+-- allowance; a seat created mid-period keeps the same proration a new seat gets today.
+UPDATE "User" SET "agentCreditActivatedAt" = "createdAt" WHERE "status" = 'active';
+
 -- CreateTable
 CREATE TABLE "AgentConversation" (
     "id" TEXT NOT NULL,

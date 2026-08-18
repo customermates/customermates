@@ -106,6 +106,32 @@ describeDatabase("agent assistant migration", { timeout: 120_000 }, () => {
     });
   });
 
+  it("gives seats that already existed a credit stamp, so nobody is told to buy what they have", async () => {
+    await withTemporaryDatabase(requiredDatabaseUrl(), async (client) => {
+      const names = migrationNames();
+      await applyMigrations(client, names.slice(0, -1));
+
+      await client.query(`INSERT INTO "Company" ("id","updatedAt") VALUES ('co1', NOW())`);
+      await client.query(
+        `INSERT INTO "User" ("id","email","firstName","lastName","companyId","status","createdAt","updatedAt")
+         VALUES ('u-active','a@example.com','Ada','One','co1','active', TIMESTAMP '2026-01-05 09:00:00', NOW()),
+                ('u-inactive','b@example.com','Bo','Two','co1','inactive', TIMESTAMP '2026-01-05 09:00:00', NOW()),
+                ('u-pending','c@example.com','Cy','Three','co1','pendingAuthorization', TIMESTAMP '2026-01-05 09:00:00', NOW())`,
+      );
+
+      await applyMigrations(client, names.slice(-1));
+
+      const rows = await client.query<{ id: string; stamp: string | null }>(
+        `SELECT "id", "agentCreditActivatedAt"::text AS stamp FROM "User" ORDER BY "id"`,
+      );
+      const stamps = Object.fromEntries(rows.rows.map((row) => [row.id, row.stamp]));
+
+      expect(stamps["u-active"]).toBe("2026-01-05 09:00:00");
+      expect(stamps["u-inactive"]).toBeNull();
+      expect(stamps["u-pending"]).toBeNull();
+    });
+  });
+
   it("applies cleanly onto a database already carrying every earlier migration", async () => {
     await withTemporaryDatabase(requiredDatabaseUrl(), async (client) => {
       const names = migrationNames();
