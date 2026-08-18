@@ -152,6 +152,8 @@ const AUDIT_FIELD_KEYS = [
   "AuditLogModal.fields.city",
   "AuditLogModal.fields.country",
   "AuditLogModal.fields.currency",
+  "AuditLogModal.fields.dealStageWeights",
+  "AuditLogModal.fields.dealWeightingColumnId",
   "AuditLogModal.fields.effectiveAt",
   "AuditLogModal.fields.emails",
   "AuditLogModal.fields.isNewCompany",

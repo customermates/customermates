@@ -45,6 +45,8 @@
       "city": "Ciudad",
       "country": "País",
       "currency": "Moneda",
+      "dealStageWeights": "Probabilidades de etapa",
+      "dealWeightingColumnId": "Campo de etapa",
       "effectiveAt": "Vigente desde",
       "emails": "Direcciones de correo",
       "isNewCompany": "Primera persona del espacio",

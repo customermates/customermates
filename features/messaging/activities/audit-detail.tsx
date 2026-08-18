@@ -27,10 +27,11 @@ import { Icon } from "@/components/shared/icon";
 import { serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useEntityHref, useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
-import { EntityType, TaskType } from "@/generated/prisma";
+import { CustomColumnType, EntityType, TaskType } from "@/generated/prisma";
 import { getSystemTaskNameTranslationKey } from "@/app/[locale]/(protected)/tasks/components/system-task.config";
 import { useCanonicalColumnLabel } from "@/components/entity-terminology/use-column-label";
 import { countryLabelForLocale } from "@/constants/countries";
+import { getCurrencyLabel } from "@/constants/currencies";
 import type { AppLocale } from "@/i18n/locale-registry";
 
 type AvatarItem = {
@@ -255,6 +256,29 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
         return intlStore.formatNumber(value as number);
       case "country":
         return countryLabelForLocale(String(value), locale);
+      case "currency":
+        return getCurrencyLabel(String(value), locale);
+      case "dealWeightingColumnId":
+        return customColumns.find((candidate) => candidate.id === value)?.label ?? t("AuditLogModal.deletedField");
+      case "dealStageWeights": {
+        const stageLabels = new Map(
+          customColumns.flatMap((candidate) =>
+            candidate.type === CustomColumnType.singleSelect
+              ? (candidate.options?.options ?? []).map((option) => [option.value, option.label] as const)
+              : [],
+          ),
+        );
+
+        return (
+          <ul className="space-y-0.5">
+            {(value as { optionValue: string; weight: number }[]).map((stage) => (
+              <li key={stage.optionValue} className="break-words">
+                {`${stageLabels.get(stage.optionValue) ?? t("AuditLogModal.deletedField")} \u00B7 ${stage.weight}%`}
+              </li>
+            ))}
+          </ul>
+        );
+      }
       case "changedDocuments":
         return (value as string[]).map((document) => legalDocumentLabel(document)).join(", ");
       case "versions":

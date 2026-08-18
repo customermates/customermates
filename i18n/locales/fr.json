@@ -45,6 +45,8 @@
       "city": "Ville",
       "country": "Pays",
       "currency": "Devise",
+      "dealStageWeights": "Probabilités d'étape",
+      "dealWeightingColumnId": "Champ d'étape",
       "effectiveAt": "En vigueur à partir du",
       "emails": "Adresses e-mail",
       "isNewCompany": "Première personne de l'espace",

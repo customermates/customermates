@@ -45,6 +45,8 @@
       "city": "Città",
       "country": "Paese",
       "currency": "Valuta",
+      "dealStageWeights": "Probabilità di fase",
+      "dealWeightingColumnId": "Campo della fase",
       "effectiveAt": "In vigore dal",
       "emails": "Indirizzi e-mail",
       "isNewCompany": "Prima persona nello spazio",

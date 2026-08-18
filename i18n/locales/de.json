@@ -45,6 +45,8 @@
       "city": "Stadt",
       "country": "Land",
       "currency": "Währung",
+      "dealStageWeights": "Phasenwahrscheinlichkeiten",
+      "dealWeightingColumnId": "Phasenfeld",
       "effectiveAt": "Gültig ab",
       "emails": "E-Mail-Adressen",
       "isNewCompany": "Erste Person im Workspace",

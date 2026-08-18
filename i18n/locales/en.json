@@ -45,6 +45,8 @@
       "city": "City",
       "country": "Country",
       "currency": "Currency",
+      "dealStageWeights": "Stage probabilities",
+      "dealWeightingColumnId": "Stage field",
       "effectiveAt": "Effective from",
       "emails": "Email addresses",
       "isNewCompany": "First user in the workspace",
