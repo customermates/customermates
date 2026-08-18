@@ -82,7 +82,7 @@ export const ThreadSettings = observer(
               <Users className="size-3.5" />
             )
           }
-          title={t("Inbox.settings.tooltip")}
+          tooltip={t("Inbox.settings.tooltip")}
           variant="secondary"
           onClick={() => threadParticipantsStore.setOpen(true)}
         >

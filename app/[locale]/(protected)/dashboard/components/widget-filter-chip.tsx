@@ -24,7 +24,6 @@ export function WidgetFilterChip({ customColumns, filter, label, onOpen }: Props
       className="hover:bg-muted/50 hover:text-foreground cursor-pointer transition-[color,background-color,transform] active:scale-[0.97] motion-reduce:transition-none"
       role="button"
       tabIndex={0}
-      title={label}
       {...{ [WIDGET_INTERACTIVE_ATTRIBUTE]: "true" }}
       onClick={(event) => {
         event.stopPropagation();
