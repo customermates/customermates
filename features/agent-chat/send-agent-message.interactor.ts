@@ -172,6 +172,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       systemPrompt: buildAgentSystemPrompt({
         userName,
         appBaseUrl: env.BASE_URL,
+        locale,
       }),
       currentText: data.text,
       pageRoute,

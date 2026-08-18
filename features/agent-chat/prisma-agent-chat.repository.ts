@@ -641,6 +641,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       },
       create: { ...args, companyId: this.companyId },
       update: {
+        companyId: this.companyId,
         name: args.name,
         ok: args.ok,
         result: args.result,

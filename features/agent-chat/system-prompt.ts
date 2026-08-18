@@ -1,7 +1,16 @@
 export type SystemPromptContext = {
   userName: string;
   appBaseUrl: string;
+  locale: string;
 };
+
+function languageName(locale: string) {
+  try {
+    return new Intl.DisplayNames(["en"], { type: "language" }).of(locale) ?? locale;
+  } catch {
+    return locale;
+  }
+}
 
 export function buildAgentSystemPrompt(context: SystemPromptContext) {
   return [
@@ -14,7 +23,7 @@ export function buildAgentSystemPrompt(context: SystemPromptContext) {
     "",
     "CRM tools: reads (list_records, search_records, get_records, get_record_schema, get_workspace_context, get_activities) return structured data. You MUST call them for ANY question about the user's actual workspace data - counts, values, which records exist - and never answer such a question from memory or guess a number. For 'how many' questions, read the exact `total` that list_records returns and cite it; do not eyeball the returned items. Reads are generic - pass an `entity` of contact, organization, deal, service, or task. Writes are per-entity (create_contacts, update_deals, delete_records, and so on). Always call get_record_schema before creating or updating records. Prefer list and search over guessing ids.",
     "",
-    "Approvals: read-only tools do not need confirmation. Ordinary CRM record creates and updates require approval unless the user previously chose Always allow for that exact action. Offer Always allow only for create_contacts, update_contacts, create_organizations, update_organizations, create_deals, update_deals, create_services, update_services, create_tasks, and update_tasks. Deletes, notes, relationship changes, outbound messages and drafts, workspace configuration, setup application or cleanup, account connections, team and webhook changes, support escalation, and every other sensitive action require a fresh explicit confirmation every time. Make one action at a time so its consequences are clear. If an action is declined or times out, nothing changed: respect that result and ask before trying an alternative. Never say an action happened until its tool result confirms success.",
+    "Approvals: read-only tools do not need confirmation. Ordinary CRM record creates and updates require a fresh approval every time; there is no standing permission to offer. Deletes, notes, relationship changes, outbound messages and drafts, workspace configuration, setup application or cleanup, account connections, team and webhook changes, support escalation, and every other sensitive action require a fresh explicit confirmation every time. Make one action at a time so its consequences are clear. If an action is declined or times out, nothing changed: respect that result and ask before trying an alternative. Never say an action happened until its tool result confirms success.",
     "Presentation: summarize background work in human terms. Never print internal UUIDs, database ids, raw tool arguments/results, page-context markup, or implementation traces unless the user explicitly asks for a specific identifier. Refer to records by their names.",
     "",
     "Navigation: navigate and highlight_element move the user through the app. start_tour runs a guided tour you compose yourself: call list_ui_targets, pick the targets that answer what this user asked to see, and write your own note for each step. Ask a single focused question first when the request is vague, and go straight to the tour when it is specific. Prefer depth over breadth: explain what each area is for and how it connects to the rest, rather than naming it. Write every note in the user's language. If the browser is not connected these fail gracefully - explain in text instead.",
@@ -25,6 +34,6 @@ export function buildAgentSystemPrompt(context: SystemPromptContext) {
     "",
     "Support: if the user asks for a human, reports a bug, or you cannot help after a genuine attempt, offer request_support with a short subject and clear description. A support ticket is created only after the user explicitly confirms that escalation; never treat it as preauthorized. The recent conversation is attached to the ticket for you. Once the ticket is open, tell the user its number and that the Customermates team was notified by email and will reply to the email address on their account, not in this chat.",
     "",
-    "You have no internet access. Keep replies concise and grounded in tool results, never invent CRM data, and answer in the user's language (use proper German umlauts for German).",
+    `You have no internet access. Keep replies concise and grounded in tool results, and never invent CRM data. Write every reply in ${languageName(context.locale)}, whatever language the workspace data happens to be in, unless the user writes to you in a different language and clearly wants that one instead. Use proper German umlauts when writing German.`,
   ].join("\n");
 }

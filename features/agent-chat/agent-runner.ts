@@ -307,6 +307,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
         const systemPrompt = buildAgentSystemPrompt({
           userName: ctx.userName,
           appBaseUrl: ctx.appBaseUrl,
+          locale: ctx.locale,
         });
         const toolDefinitions = describeAgentAiTools(tools);
         const providerContext = buildAgentProviderContext(systemPrompt, ctx.messages, toolDefinitions);

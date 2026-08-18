@@ -169,6 +169,7 @@ describe("agent tools", () => {
     const systemPrompt = buildAgentSystemPrompt({
       userName: "Ada Lovelace",
       appBaseUrl: "https://app.example.com",
+      locale: "en",
     });
     const coreNames = selectAgentToolNames({
       text: "Hello",
@@ -386,14 +387,35 @@ describe("agent tools", () => {
     const prompt = buildAgentSystemPrompt({
       userName: "Ada",
       appBaseUrl: "https://app.example.com",
+      locale: "en",
     });
 
-    expect(prompt).toContain("Offer Always allow only for create_contacts");
+    expect(prompt).not.toMatch(/Always allow/i);
+    expect(prompt).toContain("require a fresh approval every time; there is no standing permission to offer");
     expect(prompt).toContain(
       "support escalation, and every other sensitive action require a fresh explicit confirmation",
     );
     expect(prompt).toContain("If an action is declined or times out, nothing changed");
     expect(prompt).toContain("A support ticket is created only after the user explicitly confirms");
     expect(prompt).toContain("it does not apply changes");
+  });
+});
+
+describe("system prompt reply language", () => {
+  it("names the interface language so workspace data cannot decide it", () => {
+    const german = buildAgentSystemPrompt({
+      userName: "Ada",
+      appBaseUrl: "https://app.example.com",
+      locale: "de",
+    });
+    const english = buildAgentSystemPrompt({
+      userName: "Ada",
+      appBaseUrl: "https://app.example.com",
+      locale: "en",
+    });
+
+    expect(german).toContain("Write every reply in German");
+    expect(english).toContain("Write every reply in English");
+    expect(english).toContain("whatever language the workspace data happens to be in");
   });
 });

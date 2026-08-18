@@ -739,6 +739,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         companyId: user.companyId,
       },
       update: {
+        companyId: user.companyId,
         name: "navigate",
         ok: true,
         result: "navigated",
