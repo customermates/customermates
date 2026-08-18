@@ -214,9 +214,10 @@ export const ActivitiesList = observer(({ customColumns, hasMore, items, loading
           }
 
           const actorName = resolveActorName(entry.actor.firstName, entry.actor.lastName, entry.actor.email);
-          const fields = formatFieldList(
-            entry.changes.map((c) => auditChangeLabel(c, customColumnsById, t, columnLabel)),
-          );
+          const isRecordSnapshot = !entry.event.endsWith(".created") && entry.changes.some((c) => c.snapshot);
+          const fields = isRecordSnapshot
+            ? ""
+            : formatFieldList(entry.changes.map((c) => auditChangeLabel(c, customColumnsById, t, columnLabel)));
           const category = auditCategory(entry.event);
 
           return (

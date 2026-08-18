@@ -10,7 +10,6 @@ import { type Validated } from "@/core/validation/validation.utils";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { getTenantUser } from "@/core/decorators/tenant-context";
 import Feedback from "@/components/emails/feedback";
 import { DEFAULT_EMAIL_LAYOUT_COPY } from "@/components/emails/base/email-layout-copy";
 import { env } from "@/env";
@@ -29,7 +28,7 @@ export class SendFeedbackInteractor extends AuthenticatedInteractor<SendFeedback
   @Validate(SendFeedbackSchema)
   @ValidateOutput(SendFeedbackSchema)
   async invoke(data: SendFeedbackData): Validated<SendFeedbackData> {
-    const { email, firstName, lastName } = getTenantUser();
+    const { email, firstName, lastName } = this.user;
     const userName = `${firstName} ${lastName}`;
 
     const subject = SUBJECT_MAP[data.type];
