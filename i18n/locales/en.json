@@ -279,6 +279,8 @@
       "passwordMismatch": "Passwords must match.",
       "relationNotAllowed": "Relation '{relation}' is not allowed on {entity}. Allowed relations: {allowed}.",
       "roleNotFound": "Role ID not found or not accessible.",
+      "roleSelfEditForbidden": "You cannot change the permissions of the role assigned to you.",
+      "roleSystemImmutable": "System roles cannot be edited.",
       "roleSystemRequired": "At least one user must be a system administrator.",
       "salesNavigatorNotAvailable": "This LinkedIn account doesn't have Sales Navigator connected.",
       "salesNavigatorRequiresLinkedin": "Sales Navigator requires a connected LinkedIn account, but this account is {provider}.",
@@ -1631,6 +1633,7 @@
   "RoleModal": {
     "manageAccess": "Manage",
     "no": "No",
+    "ownRoleAlert": "This role is assigned to you and cannot be edited. Ask another administrator to change it.",
     "readAccess": "Read access",
     "readAll": "All",
     "readNone": "None",
