@@ -10,8 +10,8 @@ import type { Subscription } from "@/generated/prisma";
 import type { CountActiveUsersRepo } from "@/features/user/count-active-users.repo";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { UserAccessor } from "@/core/base/user-accessor";
 import { Validate } from "@/core/decorators/validate.decorator";
-import { getTenantUser } from "@/core/decorators/tenant-context";
 import { resolveRequestOrigin } from "@/core/config/environment";
 import { redirectTo } from "@/features/auth/auth-outcome";
 import { env } from "@/env";
@@ -28,12 +28,14 @@ export abstract class CreateCheckoutCompanyRepo {
 }
 
 @TenantInteractor({ resource: Resource.company, action: Action.update })
-export class CreateCheckoutSessionInteractor {
+export class CreateCheckoutSessionInteractor extends UserAccessor {
   constructor(
     private lemonSqueezyService: SubscriptionService,
     private repo: CreateCheckoutCompanyRepo,
     private userRepo: CountActiveUsersRepo,
-  ) {}
+  ) {
+    super();
+  }
 
   @Validate(Schema)
   async invoke(data: CreateCheckoutSessionData): Promise<Redirect | { ok: false; error: z.ZodError }> {
@@ -52,7 +54,7 @@ export class CreateCheckoutSessionInteractor {
       offer,
       quantity: activeUsersCount,
       custom: {
-        company_id: getTenantUser().companyId,
+        company_id: this.companyId,
       },
       redirectUrl,
     });
