@@ -33,9 +33,7 @@ ADD COLUMN     "enterpriseAgentCreditsPerUser" INTEGER;
 ALTER TABLE "SupportTicket" ADD COLUMN     "agentConversationId" TEXT;
 
 -- AlterTable
-ALTER TABLE "User" ADD COLUMN     "agentCreditActivatedAt" TIMESTAMP(3),
-ADD COLUMN     "agentMonthlyLimitCents" INTEGER,
-ADD COLUMN     "agentWeeklyLimitCents" INTEGER;
+ALTER TABLE "User" ADD COLUMN     "agentCreditActivatedAt" TIMESTAMP(3);
 
 -- CreateTable
 CREATE TABLE "AgentConversation" (

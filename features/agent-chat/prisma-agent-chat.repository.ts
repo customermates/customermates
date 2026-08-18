@@ -1407,36 +1407,6 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
   }
 
   @BypassTenantGuard
-  async recordUsageEventUnscoped(event: {
-    id: string;
-    companyId: string;
-    userId: string;
-    sessionId: string | null;
-    model: string;
-    inputTokens: number;
-    outputTokens: number;
-    cacheReadTokens: number;
-    cacheWriteTokens: number;
-    costMicrocents: number;
-    chargedCredits: number;
-    state: "settled" | "retained";
-    policyBreach: boolean;
-    settledAt: Date;
-  }) {
-    const { id, ...data } = event;
-    const settled = await this.prisma.agentUsageEvent.updateMany({
-      where: {
-        id,
-        companyId: event.companyId,
-        userId: event.userId,
-        state: "reserved",
-      },
-      data,
-    });
-    if (settled.count !== 1) throw new Error("Agent usage reservation could not be settled.");
-  }
-
-  @BypassTenantGuard
   async reserveUsageEventUnscoped(event: {
     id: string;
     companyId: string;

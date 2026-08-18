@@ -5,10 +5,8 @@ import { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma
 import { env } from "@/env";
 import type { Data } from "@/core/validation/validation.utils";
 
-import type { TokenCounts } from "./model-pricing";
 import { resolveAgentCreditEntitlement, AgentCreditEntitlementBlockedReasonSchema } from "./agent-credit-policy";
 import { resolveAgentTurnBudget, type AgentTurnBudget } from "./agent-budget-policy";
-import { buildAgentUsageSettlement } from "./agent-usage-settlement";
 
 export type AgentUsageLedgerState = "reserved" | "settled" | "retained" | "released";
 
@@ -34,22 +32,6 @@ export abstract class AgentUsageRepo {
       createdAt: Date;
     } | null;
   } | null>;
-  abstract recordUsageEventUnscoped(event: {
-    id: string;
-    companyId: string;
-    userId: string;
-    sessionId: string;
-    model: string;
-    inputTokens: number;
-    outputTokens: number;
-    cacheReadTokens: number;
-    cacheWriteTokens: number;
-    costMicrocents: number;
-    chargedCredits: number;
-    state: Extract<AgentUsageLedgerState, "settled" | "retained">;
-    policyBreach: boolean;
-    settledAt: Date;
-  }): Promise<void>;
   abstract reserveUsageEventUnscoped(event: {
     id: string;
     companyId: string;
@@ -240,43 +222,6 @@ export class AgentUsageService {
         budget,
       },
     };
-  }
-
-  async recordUsage(args: {
-    companyId: string;
-    userId: string;
-    sessionId: string;
-    model: string;
-    tokens: TokenCounts;
-    reservedCredits: number;
-    retainReservation?: boolean;
-    now?: Date;
-  }) {
-    const settlement = buildAgentUsageSettlement({
-      model: args.model,
-      tokens: args.tokens,
-      reservedCredits: args.reservedCredits,
-      retainReservation: Boolean(args.retainReservation),
-    });
-
-    await this.repo.recordUsageEventUnscoped({
-      id: args.sessionId,
-      companyId: args.companyId,
-      userId: args.userId,
-      sessionId: args.sessionId,
-      model: settlement.model,
-      inputTokens: settlement.inputTokens,
-      outputTokens: settlement.outputTokens,
-      cacheReadTokens: settlement.cacheReadTokens,
-      cacheWriteTokens: settlement.cacheWriteTokens,
-      costMicrocents: settlement.costMicrocents,
-      chargedCredits: settlement.chargedCredits,
-      state: settlement.state,
-      policyBreach: settlement.policyBreach,
-      settledAt: args.now ?? new Date(),
-    });
-
-    if (settlement.policyBreach) throw new Error("Agent usage exceeded its reserved turn budget.");
   }
 
   async reserveUsage(args: {

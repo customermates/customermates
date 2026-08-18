@@ -177,8 +177,6 @@ model User {
   trialInactivationReminderSentAt DateTime?
   trialInactivationNoticeSentAt   DateTime?
   onboardingWizardCompletedAt     DateTime?
-  agentWeeklyLimitCents           Int?
-  agentMonthlyLimitCents          Int?
   agentCreditActivatedAt          DateTime?
   createdAt                       DateTime            @default(now())
   updatedAt                       DateTime            @updatedAt

@@ -167,11 +167,6 @@
           }
         },
         "workspace": {
-          "cleanup": {
-            "done": "Limpieza de los registros iniciales completada",
-            "error": "No se pudo finalizar la limpieza",
-            "running": "Limpiando los registros iniciales"
-          },
           "configure": {
             "done": "Espacio de trabajo actualizado",
             "error": "No se pudo actualizar su espacio de trabajo",

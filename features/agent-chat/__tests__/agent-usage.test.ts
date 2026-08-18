@@ -13,7 +13,6 @@ vi.mock("@/env", () => ({
   },
 }));
 
-import { computeCostMicrocents } from "../model-pricing";
 import { AgentUsageService, type AgentUsageRepo } from "../agent-usage.service";
 import { buildAgentUsageSettlement } from "../agent-usage-settlement";
 
@@ -234,62 +233,6 @@ describe("AgentUsageService admission and ledger", () => {
         periodStart: new Date("2026-07-15T10:30:00.000Z"),
         periodEnd: new Date("2026-08-15T10:30:00.000Z"),
       }),
-    );
-  });
-
-  it("settles all model calls in a turn to started-cent credits", async () => {
-    const repo = makeRepo();
-    const service = new AgentUsageService(repo);
-    const tokens = {
-      inputTokens: 1000,
-      outputTokens: 500,
-      cacheReadTokens: 200,
-      cacheWriteTokens: 300,
-    };
-
-    await service.recordUsage({
-      companyId: "company-1",
-      userId: "user-1",
-      sessionId: "run-1",
-      model: "gpt-5.6-luna",
-      tokens,
-      reservedCredits: 10,
-      now: NOW,
-    });
-
-    expect(computeCostMicrocents("gpt-5.6-luna", tokens)).toBeLessThan(1_000_000);
-    expect(repo.recordUsageEventUnscoped).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: "run-1",
-        chargedCredits: 1,
-        state: "settled",
-        settledAt: NOW,
-      }),
-    );
-  });
-
-  it("retains the bounded reservation after a provider-started failure with unknown usage", async () => {
-    const repo = makeRepo();
-    const service = new AgentUsageService(repo);
-
-    await service.recordUsage({
-      companyId: "company-1",
-      userId: "user-1",
-      sessionId: "run-1",
-      model: "gpt-5.6-luna",
-      tokens: {
-        inputTokens: 0,
-        outputTokens: 0,
-        cacheReadTokens: 0,
-        cacheWriteTokens: 0,
-      },
-      reservedCredits: 7,
-      retainReservation: true,
-      now: NOW,
-    });
-
-    expect(repo.recordUsageEventUnscoped).toHaveBeenCalledWith(
-      expect.objectContaining({ chargedCredits: 7, state: "retained" }),
     );
   });
 

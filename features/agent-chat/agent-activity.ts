@@ -21,7 +21,6 @@ export const AGENT_ACTIVITY_KINDS = [
   "accounts.connect",
   "workspace.configure",
   "workspace.setup",
-  "workspace.cleanup",
   "interface.navigate",
   "interface.tour",
   "support.escalate",

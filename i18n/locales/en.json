@@ -167,11 +167,6 @@
           }
         },
         "workspace": {
-          "cleanup": {
-            "done": "Starter-record cleanup is complete",
-            "error": "Couldn’t finish the cleanup",
-            "running": "Cleaning up starter records"
-          },
           "configure": {
             "done": "Updated your workspace",
             "error": "Couldn’t update your workspace",

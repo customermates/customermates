@@ -167,11 +167,6 @@
           }
         },
         "workspace": {
-          "cleanup": {
-            "done": "Nettoyage des enregistrements de démarrage terminé",
-            "error": "Impossible de terminer le nettoyage",
-            "running": "Nettoyage des enregistrements de démarrage"
-          },
           "configure": {
             "done": "Espace de travail mis à jour",
             "error": "Impossible de mettre à jour votre espace de travail",

@@ -5,7 +5,6 @@ import { createAnthropic } from "@ai-sdk/anthropic";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createOpenAI } from "@ai-sdk/openai";
 
-import { getAgentUsageService } from "@/core/di";
 import { env } from "@/env";
 
 import type { TokenCounts } from "./model-pricing";
@@ -74,51 +73,4 @@ export function usageToTokenCounts(usage: LanguageModelUsage): TokenCounts {
 
 export function hasProviderUsageEvidence(usage: LanguageModelUsage) {
   return typeof usage.inputTokens === "number" && typeof usage.outputTokens === "number";
-}
-
-export type LlmUsageContext = {
-  companyId: string;
-  userId: string;
-  sessionId: string;
-  reservedCredits: number;
-};
-
-export async function recordLaneTokens(
-  ctx: LlmUsageContext,
-  lane: AgentModelLane,
-  tokens: TokenCounts,
-  options: { retainReservation?: boolean } = {},
-) {
-  if (env.AGENT_GATEWAY_DEBUG) {
-    console.log(
-      JSON.stringify({
-        tag: "agent-lane-usage",
-        lane,
-        sessionId: ctx.sessionId,
-        ...tokens,
-      }),
-    );
-  }
-
-  await getAgentUsageService().recordUsage({
-    companyId: ctx.companyId,
-    userId: ctx.userId,
-    sessionId: ctx.sessionId,
-    model: laneModelId(lane),
-    tokens,
-    reservedCredits: ctx.reservedCredits,
-    retainReservation: options.retainReservation,
-  });
-}
-
-export async function releaseLaneReservation(ctx: LlmUsageContext) {
-  await getAgentUsageService().releaseReservation({
-    reservationId: ctx.sessionId,
-    companyId: ctx.companyId,
-    userId: ctx.userId,
-  });
-}
-
-export async function recordLaneUsage(ctx: LlmUsageContext, lane: AgentModelLane, usage: LanguageModelUsage) {
-  await recordLaneTokens(ctx, lane, usageToTokenCounts(usage));
 }

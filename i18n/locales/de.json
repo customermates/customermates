@@ -167,11 +167,6 @@
           }
         },
         "workspace": {
-          "cleanup": {
-            "done": "Starteinträge wurden bereinigt",
-            "error": "Bereinigung fehlgeschlagen",
-            "running": "Starteinträge werden bereinigt"
-          },
           "configure": {
             "done": "Workspace wurde aktualisiert",
             "error": "Workspace konnte nicht aktualisiert werden",

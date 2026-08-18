@@ -167,11 +167,6 @@
           }
         },
         "workspace": {
-          "cleanup": {
-            "done": "Pulizia dei record iniziali completata",
-            "error": "Impossibile completare la pulizia",
-            "running": "Pulizia dei record iniziali"
-          },
           "configure": {
             "done": "Spazio di lavoro aggiornato",
             "error": "Impossibile aggiornare lo spazio di lavoro",

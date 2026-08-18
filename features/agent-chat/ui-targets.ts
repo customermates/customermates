@@ -3,7 +3,6 @@ import { z } from "zod";
 import { WORKSPACE_SECTIONS } from "@/app/components/navigation/workspace-sections";
 
 import {
-  FORM_PAGES,
   PRIMARY_NAV_PAGES,
   STATIC_NAV_PAGES,
   TOOLBAR_PAGES_WITH_ADD,
@@ -77,21 +76,6 @@ function toolbarTargets(page: AnchorPage, hasAdd: boolean): AgentUiTarget[] {
   ];
 }
 
-function formTargets(page: AnchorPage): AgentUiTarget[] {
-  return [
-    {
-      id: `${page.scope}-save`,
-      route: page.route,
-      description: `Save button of the ${page.label}`,
-    },
-    {
-      id: `${page.scope}-reset`,
-      route: page.route,
-      description: `Reset button of the ${page.label} (shown when edited)`,
-    },
-  ];
-}
-
 export const AGENT_UI_TARGETS: AgentUiTarget[] = [
   ...navTargets(),
   {
@@ -101,7 +85,6 @@ export const AGENT_UI_TARGETS: AgentUiTarget[] = [
   },
   ...TOOLBAR_PAGES_WITH_ADD.flatMap((page) => toolbarTargets(page, true)),
   ...TOOLBAR_PAGES_WITHOUT_ADD.flatMap((page) => toolbarTargets(page, false)),
-  ...FORM_PAGES.flatMap(formTargets),
 ];
 
 export const AGENT_UI_TARGET_IDS = AGENT_UI_TARGETS.map((target) => target.id) as [string, ...string[]];
