@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 
 import { Icon } from "@/components/shared/icon";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/core/utils/cn";
 import { Theme } from "@/generated/prisma";
 
@@ -46,17 +47,24 @@ export function ThemeSwitcher({ className, onThemeChange }: Props) {
   const selectedThemeLabel = selectedTheme === Theme.dark ? t("Common.themes.dark") : t("Common.themes.light");
 
   return (
-    <Button
-      aria-label={`${t("Common.ariaLabels.themeSwitcher")}: ${selectedThemeLabel}`}
-      aria-pressed={selectedTheme === Theme.dark}
-      className={cn("size-8 rounded-md p-0 text-subdued hover:text-foreground", className)}
-      data-theme={selectedTheme}
-      size="icon-sm"
-      title={selectedThemeLabel}
-      variant="ghost"
-      onClick={() => void handleThemeChange(nextTheme)}
-    >
-      <Icon aria-hidden icon={SelectedIcon} size="md" />
-    </Button>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            aria-label={`${t("Common.ariaLabels.themeSwitcher")}: ${selectedThemeLabel}`}
+            aria-pressed={selectedTheme === Theme.dark}
+            className={cn("size-8 rounded-md p-0 text-subdued hover:text-foreground", className)}
+            data-theme={selectedTheme}
+            size="icon-sm"
+            variant="ghost"
+            onClick={() => void handleThemeChange(nextTheme)}
+          >
+            <Icon aria-hidden icon={SelectedIcon} size="md" />
+          </Button>
+        </TooltipTrigger>
+
+        <TooltipContent>{selectedThemeLabel}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }

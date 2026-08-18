@@ -887,7 +887,7 @@
     "editColumn": "Edit column",
     "noValue": "No value",
     "resizeColumn": "Resize {column} column. Drag or use arrow keys to resize; double-tap or press Enter to reset.",
-    "resizeHint": "Drag to resize. Double-click, double-tap, or press Enter to reset.",
+    "resizeHint": "Drag to resize. Double-click to reset.",
     "selectAllRows": "Select all rows",
     "selectGroupingColumn": "Select a grouping column to see the Kanban view.",
     "selectRow": "Select row {id}"
