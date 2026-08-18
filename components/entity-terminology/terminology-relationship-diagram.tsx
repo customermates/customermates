@@ -172,101 +172,49 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
           preserveAspectRatio="none"
           viewBox="0 0 100 100"
         >
-          <g data-relationship="contact-organization">
-            <line
-              data-relationship-segment="start"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              vectorEffect="non-scaling-stroke"
-              x1="42"
-              x2="45"
-              y1="13"
-              y2="13"
-            />
+          <line
+            data-relationship-connector="contact-organization"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            vectorEffect="non-scaling-stroke"
+            x1="30"
+            x2="70"
+            y1="13"
+            y2="13"
+          />
 
-            <line
-              data-relationship-segment="end"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              vectorEffect="non-scaling-stroke"
-              x1="55"
-              x2="58"
-              y1="13"
-              y2="13"
-            />
-          </g>
+          <line
+            data-relationship-connector="contact-deal"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            vectorEffect="non-scaling-stroke"
+            x1="21"
+            x2="21"
+            y1="10"
+            y2="90"
+          />
 
-          <g data-relationship="contact-deal">
-            <line
-              data-relationship-segment="start"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              vectorEffect="non-scaling-stroke"
-              x1="21"
-              x2="21"
-              y1="26"
-              y2="42"
-            />
+          <line
+            data-relationship-connector="organization-deal"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            vectorEffect="non-scaling-stroke"
+            x1="79"
+            x2="21"
+            y1="26"
+            y2="74"
+          />
 
-            <line
-              data-relationship-segment="end"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              vectorEffect="non-scaling-stroke"
-              x1="21"
-              x2="21"
-              y1="58"
-              y2="74"
-            />
-          </g>
-
-          <g data-relationship="organization-deal">
-            <line
-              data-relationship-segment="start"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              vectorEffect="non-scaling-stroke"
-              x1="79"
-              x2="57"
-              y1="26"
-              y2="44"
-            />
-
-            <line
-              data-relationship-segment="end"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              vectorEffect="non-scaling-stroke"
-              x1="43"
-              x2="21"
-              y1="56"
-              y2="74"
-            />
-          </g>
-
-          <g data-relationship="deal-service">
-            <line
-              data-relationship-segment="start"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              vectorEffect="non-scaling-stroke"
-              x1="42"
-              x2="45"
-              y1="87"
-              y2="87"
-            />
-
-            <line
-              data-relationship-segment="end"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              vectorEffect="non-scaling-stroke"
-              x1="55"
-              x2="58"
-              y1="87"
-              y2="87"
-            />
-          </g>
+          <line
+            data-relationship-connector="deal-service"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            vectorEffect="non-scaling-stroke"
+            x1="30"
+            x2="70"
+            y1="87"
+            y2="87"
+          />
         </svg>
 
         <div className="relative z-10 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-x-24 sm:gap-y-16">
@@ -279,41 +227,37 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
           {node(EntityType.service)}
         </div>
 
-        <Badge
+        <span
           aria-hidden="true"
-          className="pointer-events-none absolute left-1/2 top-[13%] z-20 hidden -translate-1/2 sm:inline-flex"
+          className="pointer-events-none absolute left-1/2 top-[13%] z-20 hidden -translate-1/2 rounded-md bg-background sm:inline-flex"
           data-relationship-label="contact-organization"
-          variant="secondary"
         >
-          {t("EntityTerminology.relationships.workAt")}
-        </Badge>
+          <Badge variant="secondary">{t("EntityTerminology.relationships.workAt")}</Badge>
+        </span>
 
-        <Badge
+        <span
           aria-hidden="true"
-          className="pointer-events-none absolute left-[21%] top-1/2 z-20 hidden -translate-1/2 sm:inline-flex"
+          className="pointer-events-none absolute left-[21%] top-1/2 z-20 hidden -translate-1/2 rounded-md bg-background sm:inline-flex"
           data-relationship-label="contact-deal"
-          variant="secondary"
         >
-          {t("EntityTerminology.relationships.involvedIn")}
-        </Badge>
+          <Badge variant="secondary">{t("EntityTerminology.relationships.involvedIn")}</Badge>
+        </span>
 
-        <Badge
+        <span
           aria-hidden="true"
-          className="pointer-events-none absolute left-1/2 top-1/2 z-20 hidden -translate-1/2 sm:inline-flex"
+          className="pointer-events-none absolute left-1/2 top-1/2 z-20 hidden -translate-1/2 rounded-md bg-background sm:inline-flex"
           data-relationship-label="organization-deal"
-          variant="secondary"
         >
-          {t("EntityTerminology.relationships.linkedTo")}
-        </Badge>
+          <Badge variant="secondary">{t("EntityTerminology.relationships.linkedTo")}</Badge>
+        </span>
 
-        <Badge
+        <span
           aria-hidden="true"
-          className="pointer-events-none absolute left-1/2 top-[87%] z-20 hidden -translate-1/2 sm:inline-flex"
+          className="pointer-events-none absolute left-1/2 top-[87%] z-20 hidden -translate-1/2 rounded-md bg-background sm:inline-flex"
           data-relationship-label="deal-service"
-          variant="secondary"
         >
-          {t("EntityTerminology.relationships.include")}
-        </Badge>
+          <Badge variant="secondary">{t("EntityTerminology.relationships.include")}</Badge>
+        </span>
       </div>
 
       <div className="sr-only">{relationshipList()}</div>
