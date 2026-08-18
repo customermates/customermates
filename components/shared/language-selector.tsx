@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { FormAutocompleteCountryItem } from "@/components/forms/form-autocomplete-country-item";
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,17 +38,24 @@ export const LanguageSelector = observer(({ className }: Props) => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          aria-label={`${t("Common.language")}: ${currentLocaleLabel}`}
-          className={cn("size-8 rounded-md p-0 text-subdued", className)}
-          size="icon-sm"
-          title={currentLocaleLabel}
-          variant="ghost"
-        >
-          <span aria-hidden>{currentLocale.toUpperCase()}</span>
-        </Button>
-      </DropdownMenuTrigger>
+      <TooltipProvider>
+        <Tooltip>
+          <DropdownMenuTrigger asChild>
+            <TooltipTrigger asChild>
+              <Button
+                aria-label={`${t("Common.language")}: ${currentLocaleLabel}`}
+                className={cn("size-8 rounded-md p-0 text-subdued", className)}
+                size="icon-sm"
+                variant="ghost"
+              >
+                <span aria-hidden>{currentLocale.toUpperCase()}</span>
+              </Button>
+            </TooltipTrigger>
+          </DropdownMenuTrigger>
+
+          <TooltipContent>{currentLocaleLabel}</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       <DropdownMenuContent align="start" className="min-w-40">
         {CONTENT_LOCALES.map((locale) => {

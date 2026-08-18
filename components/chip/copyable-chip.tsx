@@ -48,7 +48,7 @@ export function CopyableChip({ value, onClick, children, ...props }: Props) {
   return (
     <ClickableChip
       {...props}
-      title={t("Common.actions.copy")}
+      tooltip={t("Common.actions.copy")}
       onClick={handleClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}

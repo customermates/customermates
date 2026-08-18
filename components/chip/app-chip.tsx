@@ -2,11 +2,12 @@
 
 import type { ComponentProps, ReactNode } from "react";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useIsTruncated } from "@/core/utils/use-is-truncated";
 import { cn } from "@/core/utils/cn";
 
 const chipVariants = cva("", {
@@ -40,20 +41,7 @@ export function AppChip({
   ...props
 }: Props) {
   const labelRef = useRef<HTMLSpanElement | null>(null);
-  const [isTruncated, setIsTruncated] = useState(false);
-
-  useEffect(() => {
-    const el = labelRef.current;
-    if (!el) return;
-
-    const update = () => setIsTruncated(el.scrollWidth > el.clientWidth + 1);
-    update();
-
-    if (typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [children]);
+  const isTruncated = useIsTruncated(labelRef, children);
 
   const chip = (
     <Badge

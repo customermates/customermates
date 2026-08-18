@@ -909,7 +909,7 @@
     "editColumn": "Modifier la colonne",
     "noValue": "Aucune valeur",
     "resizeColumn": "Redimensionnez la colonne « {column} ». Faites glisser ou utilisez les touches fléchées ; touchez deux fois ou appuyez sur Entrée pour réinitialiser.",
-    "resizeHint": "Faites glisser pour redimensionner. Double-cliquez, touchez deux fois ou appuyez sur Entrée pour réinitialiser.",
+    "resizeHint": "Faites glisser pour redimensionner. Double-cliquez pour réinitialiser.",
     "selectAllRows": "Sélectionner toutes les lignes",
     "selectGroupingColumn": "Sélectionnez une colonne de regroupement pour afficher la vue kanban.",
     "selectRow": "Sélectionner la ligne {id}"

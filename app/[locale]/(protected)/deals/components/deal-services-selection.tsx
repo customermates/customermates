@@ -14,6 +14,7 @@ import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item"
 import { FormLabel } from "@/components/forms/form-label";
 import { Icon } from "@/components/shared/icon";
 import { InfoRow } from "@/components/shared/info-row";
+import { TruncatedText } from "@/components/shared/truncated-text";
 import { useEntityHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppChip } from "@/components/chip/app-chip";
@@ -128,12 +129,9 @@ export const DealServicesSelection = observer(() => {
                 />
               </div>
 
-              <span
-                className="text-x-md text-right font-mono tabular-nums text-foreground/80 truncate min-w-0"
-                title={lineTotal > 0 ? intlStore.formatCurrency(lineTotal) : undefined}
-              >
+              <TruncatedText className="text-x-md text-right font-mono tabular-nums text-foreground/80">
                 {lineTotal > 0 ? intlStore.formatCurrency(lineTotal) : ""}
-              </span>
+              </TruncatedText>
 
               {canManage ? (
                 <Tooltip>

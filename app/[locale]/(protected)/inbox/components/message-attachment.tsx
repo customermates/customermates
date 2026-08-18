@@ -3,6 +3,7 @@
 import { Ban, ExternalLink } from "lucide-react";
 
 import { Icon } from "@/components/shared/icon";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 import {
   type AttachmentMeta,
@@ -29,7 +30,7 @@ export function MessageAttachment({ messageId, att, t }: Props) {
 
   if (att.unavailable) {
     return (
-      <span className={attachmentRowClass(false, "opacity-70")} title={t("Inbox.attachmentUnavailable")}>
+      <span className={attachmentRowClass(false, "opacity-70")}>
         <Icon className="text-muted-foreground size-5 shrink-0" icon={Ban} />
 
         <span className="truncate">{t("Inbox.attachmentUnavailable")}</span>
@@ -39,13 +40,7 @@ export function MessageAttachment({ messageId, att, t }: Props) {
 
   if (kind === "post" && att.linkUrl) {
     return (
-      <a
-        className={attachmentRowClass(true)}
-        href={att.linkUrl}
-        rel="noreferrer noopener"
-        target="_blank"
-        title={t("Inbox.attachmentLinkedinPost")}
-      >
+      <a className={attachmentRowClass(true)} href={att.linkUrl} rel="noreferrer noopener" target="_blank">
         <Icon className="text-muted-foreground size-5 shrink-0" icon={ExternalLink} />
 
         <span className="truncate">{t("Inbox.attachmentLinkedinPost")}</span>
@@ -55,11 +50,17 @@ export function MessageAttachment({ messageId, att, t }: Props) {
 
   if (kind === "unsupported") {
     return (
-      <span className={attachmentRowClass(false, "opacity-80")} title={t("Inbox.attachmentUnsupported")}>
-        <Icon className="text-muted-foreground size-5 shrink-0" icon={Ban} />
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span className={attachmentRowClass(false, "opacity-80")}>
+            <Icon className="text-muted-foreground size-5 shrink-0" icon={Ban} />
 
-        <span className="truncate">{t("Inbox.attachmentUnknown")}</span>
-      </span>
+            <span className="truncate">{t("Inbox.attachmentUnknown")}</span>
+          </span>
+        </TooltipTrigger>
+
+        <TooltipContent className="max-w-xs">{t("Inbox.attachmentUnsupported")}</TooltipContent>
+      </Tooltip>
     );
   }
 
