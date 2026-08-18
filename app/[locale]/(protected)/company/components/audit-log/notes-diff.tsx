@@ -79,15 +79,22 @@ function buildSegments(before: string, after: string): Segment[] {
   return segments;
 }
 
+function visibleSegments(before: string, after: string): Segment[] {
+  return buildSegments(before, after).filter(
+    (segment) => segment.kind === "collapsed" || segment.lines.some((line) => line.trim().length > 0),
+  );
+}
+
 export function hasNotesDiff(previous: unknown, current: unknown): boolean {
-  const segments = buildSegments(toMarkdown(previous), toMarkdown(current));
-  return segments.some((segment) => segment.kind === "added" || segment.kind === "removed");
+  return visibleSegments(toMarkdown(previous), toMarkdown(current)).some(
+    (segment) => segment.kind === "added" || segment.kind === "removed",
+  );
 }
 
 export function NotesDiff({ previous, current }: Props) {
   const t = useTranslations();
 
-  const segments = useMemo(() => buildSegments(toMarkdown(previous), toMarkdown(current)), [previous, current]);
+  const segments = useMemo(() => visibleSegments(toMarkdown(previous), toMarkdown(current)), [previous, current]);
 
   if (segments.length === 0) return null;
 
@@ -101,7 +108,7 @@ export function NotesDiff({ previous, current }: Props) {
 
         if (segment.kind === "collapsed") {
           return (
-            <div key={key} className="bg-muted/30 px-2 py-0.5 text-center text-xs text-subdued">
+            <div key={key} className="bg-muted/30 p-2 text-center text-xs text-subdued">
               {t("AuditLogModal.unchangedLines", { count: segment.count })}
             </div>
           );
@@ -120,9 +127,9 @@ export function NotesDiff({ previous, current }: Props) {
         const gutter = segment.kind === "added" ? "+" : segment.kind === "removed" ? "−" : " ";
 
         return (
-          <div key={key}>
+          <div key={key} className={`p-2 leading-6 ${rowClass}`}>
             {segment.lines.map((line, lineIndex) => (
-              <div key={`${key}-${lineIndex}`} className={`flex gap-1.5 px-2 leading-4 ${rowClass}`}>
+              <div key={`${key}-${lineIndex}`} className="flex gap-1.5">
                 <span aria-hidden className={`w-2 shrink-0 select-none text-center ${gutterColor}`}>
                   {gutter}
                 </span>
