@@ -367,7 +367,7 @@ export class PrismaActivitiesRepo
         at: log.createdAt,
         actor: log.user,
         event: log.event,
-        changes: extractAuditChanges(log.event, log.eventData),
+        changes: extractAuditChanges(log.eventData),
         records: EMPTY_RECORD_CONTEXT,
         unresolvedRefs: auditRecordRefs(log.event, log.entityId),
         unresolvedIdentifiers: [],

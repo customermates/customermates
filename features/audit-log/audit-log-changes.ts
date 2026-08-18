@@ -21,6 +21,7 @@ export function isEmpty(value: unknown): boolean {
 export const AuditChangeSchema = z.object({
   field: z.string(),
   columnId: z.string().optional(),
+  snapshot: z.boolean().optional(),
   previous: z.unknown(),
   current: z.unknown(),
 });
@@ -29,23 +30,50 @@ export type AuditChange = Data<typeof AuditChangeSchema>;
 
 type Changes = DomainEventMap[DomainEvent.DEAL_UPDATED]["payload"]["changes"];
 
-export function extractAuditChanges(event: string, eventData: unknown): AuditChange[] {
+const IGNORED_FIELDS = new Set(["id", "createdAt", "updatedAt", "avatarUrl", "roleId"]);
+
+const REDACTED_FIELDS = new Set(["secret"]);
+
+const IDENTITY_FIELDS = new Set(["name", "firstName", "lastName", "label", "displayName"]);
+
+const RELATION_FIELDS = new Set([
+  "users",
+  "contacts",
+  "organizations",
+  "deals",
+  "services",
+  "tasks",
+  "identifiers",
+  "emails",
+]);
+
+function fieldRank(change: AuditChange): number {
+  if (change.columnId !== undefined) return 4;
+  if (change.field === "notes") return 3;
+  if (RELATION_FIELDS.has(change.field)) return 2;
+  if (IDENTITY_FIELDS.has(change.field)) return 0;
+  return 1;
+}
+
+export function extractAuditChanges(eventData: unknown): AuditChange[] {
   if (!eventData || typeof eventData !== "object" || Array.isArray(eventData)) return [];
   const payload = (eventData as { payload?: unknown }).payload;
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) return [];
 
   let changes: Changes;
+  let isSnapshot = false;
   if ("changes" in payload) changes = (payload as Record<string, unknown>).changes as Changes;
-  else if (event.endsWith(".created")) {
+  else {
+    isSnapshot = true;
     changes = {};
     for (const [key, value] of Object.entries(payload))
       if (!isEmpty(value)) changes[key] = { previous: undefined, current: value };
-  } else return [];
+  }
 
   const result: AuditChange[] = [];
 
   for (const [field, value] of Object.entries(changes)) {
-    if (field === "id" || field === "updatedAt" || field === "createdAt") continue;
+    if (IGNORED_FIELDS.has(field) || REDACTED_FIELDS.has(field)) continue;
 
     if (field === "customFieldValues") {
       const previousItems = Array.isArray(value.previous)
@@ -63,6 +91,7 @@ export function extractAuditChanges(event: string, eventData: unknown): AuditCha
         result.push({
           field: "customFieldValues",
           columnId,
+          ...(isSnapshot && { snapshot: true }),
           previous: previousMap.get(columnId),
           current: currentMap.get(columnId),
         });
@@ -70,8 +99,11 @@ export function extractAuditChanges(event: string, eventData: unknown): AuditCha
       continue;
     }
 
-    result.push({ field, previous: value.previous, current: value.current });
+    result.push({ field, ...(isSnapshot && { snapshot: true }), previous: value.previous, current: value.current });
   }
 
-  return result;
+  return result
+    .map((change, index) => ({ change, index }))
+    .sort((left, right) => fieldRank(left.change) - fieldRank(right.change) || left.index - right.index)
+    .map(({ change }) => change);
 }

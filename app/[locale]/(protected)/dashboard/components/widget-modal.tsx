@@ -442,7 +442,7 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
             )}
           </AppCardHeader>
 
-          <AppCardBody className={isChooseStep ? "md:flex-none" : "md:min-h-96"}>
+          <AppCardBody className={isChooseStep ? "md:flex-initial" : "md:min-h-96"}>
             {widgetModalStore.isHydrating ? (
               <WidgetModalSkeleton />
             ) : isChooseStep ? (
