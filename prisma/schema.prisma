@@ -248,8 +248,6 @@ model Company {
   agentMessages                AgentMessage[]
   agentUsageEvents             AgentUsageEvent[]
   agentTurnRequests            AgentTurnRequest[]
-  agentWorkspaceSetups         AgentWorkspaceSetup[]
-  agentWorkspaceSetupResources AgentWorkspaceSetupResource[]
   agentApprovals               AgentApproval[]
   agentUiCommandResults        AgentUiCommandResult[]
 }
@@ -1635,7 +1633,6 @@ model AgentConversation {
   approvals            AgentApproval[]
   uiCommandResults     AgentUiCommandResult[]
   turnRequests         AgentTurnRequest[]
-  workspaceSetups      AgentWorkspaceSetup[]
   supportTickets       SupportTicket[]
 
   @@index([companyId, userId, archivedAt, updatedAt])
@@ -1739,78 +1736,6 @@ enum AgentTurnTerminalCode {
   error
   cancelled
   policyBreach
-}
-
-model AgentWorkspaceSetup {
-  id               String                        @id @default(uuid())
-  companyId        String
-  company          Company                       @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  userId           String
-  conversationId   String
-  reviewMessageId  String
-  commandId        String
-  plan             Json
-  planHash         String
-  schemaVersion    Int
-  revision         Int
-  priorTerminology Json
-  status           AgentWorkspaceSetupStatus
-  appliedAt        DateTime
-  cleanedAt        DateTime?
-  createdAt        DateTime                      @default(now())
-  updatedAt        DateTime                      @updatedAt
-  conversation     AgentConversation             @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  resources        AgentWorkspaceSetupResource[]
-
-  @@unique([conversationId, reviewMessageId, commandId])
-  @@index([companyId, userId, conversationId])
-  @@index([companyId, userId, status])
-}
-
-model AgentWorkspaceSetupResource {
-  id               String                   @id @default(uuid())
-  setupId          String
-  companyId        String
-  company          Company                  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  kind             AgentSetupResourceKind
-  resourceId       String
-  initialUpdatedAt DateTime
-  status           AgentSetupResourceStatus
-  cleanupReason    AgentSetupCleanupReason?
-  resolvedAt       DateTime?
-  createdAt        DateTime                 @default(now())
-  setup            AgentWorkspaceSetup      @relation(fields: [setupId], references: [id], onDelete: Cascade)
-
-  @@index([companyId, setupId, createdAt, id])
-  @@index([setupId, companyId, status])
-}
-
-enum AgentWorkspaceSetupStatus {
-  applied
-  partiallyCleaned
-  cleaned
-}
-
-enum AgentSetupResourceKind {
-  customColumn
-  organization
-  contact
-  service
-  deal
-  task
-  widget
-}
-
-enum AgentSetupResourceStatus {
-  active
-  retained
-  deleted
-  missing
-}
-
-enum AgentSetupCleanupReason {
-  edited
-  dependent
 }
 
 enum AgentMessageRole {

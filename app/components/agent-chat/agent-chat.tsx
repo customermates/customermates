@@ -6,13 +6,10 @@ import { useLocale, useTranslations } from "next-intl";
 import {
   Archive,
   ArrowUp,
-  BarChart3,
   Check,
   ChevronDown,
   ChevronLeft,
-  Columns3,
   Copy,
-  Database,
   History,
   Loader2,
   Maximize2,
@@ -24,7 +21,6 @@ import {
   Search,
   Square,
   Trash2,
-  WandSparkles,
   X,
 } from "lucide-react";
 import { Action, EntityType, Resource } from "@/generated/prisma";
@@ -37,14 +33,12 @@ import { suggestionPageId, type AgentConversationSummary } from "@/features/agen
 import { agentActivityCopy, type AgentActivityResource } from "@/features/agent-chat/agent-activity";
 import { agentPageActions, agentPageState } from "@/features/agent-chat/agent-page-actions";
 import type { AgentUsageSummary } from "@/features/agent-chat/agent-usage.service";
-import type { AgentWorkspaceSetupPlan } from "@/features/agent-chat/agent-workspace-setup";
 
 import { MessageDateSeparator, isSameDay } from "@/app/[locale]/(protected)/inbox/components/message-date-separator";
 import { MessagesScrollContainer } from "@/components/scroll/messages-scroll-container";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -281,7 +275,7 @@ const AgentChatPanel = observer(function AgentChatPanel() {
           <Button
             aria-label={copy.newChat}
             className="size-7"
-            disabled={store.isWorking || store.isWorkspaceSetupPending || Boolean(store.historyMutationPending)}
+            disabled={store.isWorking || Boolean(store.historyMutationPending)}
             size="icon"
             variant="ghost"
             onClick={store.newConversation}
@@ -400,7 +394,6 @@ const AgentChatPanel = observer(function AgentChatPanel() {
                   aria-label={t("AgentChat.placeholder")}
                   className="max-h-40 min-h-9 flex-1 resize-none border-0 bg-transparent px-1 py-1.5 shadow-none focus-visible:border-0 focus-visible:ring-0"
                   data-testid="agent-composer"
-                  disabled={store.isWorkspaceSetupPending}
                   id="agent-composer"
                   placeholder={t("AgentChat.placeholder")}
                   rows={2}
@@ -431,9 +424,7 @@ const AgentChatPanel = observer(function AgentChatPanel() {
                     <Button
                       aria-label={t("AgentChat.send")}
                       className="size-9 shrink-0 rounded-full"
-                      disabled={
-                        store.isWorkspaceSetupPending || !store.composerDraft.trim() || Boolean(store.queuedPrompt)
-                      }
+                      disabled={!store.composerDraft.trim() || Boolean(store.queuedPrompt)}
                       size="icon"
                       onClick={submit}
                     >
@@ -537,10 +528,7 @@ const ConversationHistory = observer(function ConversationHistory() {
   const firstSearchRender = useRef(true);
   const hasHistory = store.conversations.length + store.archivedConversations.length > 0;
   const historyActionsDisabled =
-    store.isWorking ||
-    store.isWorkspaceSetupPending ||
-    Boolean(store.conversationLoadPendingId) ||
-    Boolean(store.historyMutationPending);
+    store.isWorking || Boolean(store.conversationLoadPendingId) || Boolean(store.historyMutationPending);
 
   const debouncedQuery = useDebouncedValue(query);
 
@@ -780,12 +768,7 @@ const ArchiveUndo = observer(function ArchiveUndo() {
 
       <Button
         className="h-7 shrink-0 px-2"
-        disabled={
-          store.isWorking ||
-          store.isWorkspaceSetupPending ||
-          Boolean(store.conversationLoadPendingId) ||
-          Boolean(store.historyMutationPending)
-        }
+        disabled={store.isWorking || Boolean(store.conversationLoadPendingId) || Boolean(store.historyMutationPending)}
         size="sm"
         variant="ghost"
         onClick={() => void store.restoreLastArchivedConversation()}
@@ -804,10 +787,7 @@ const ArchivedConversationList = observer(function ArchivedConversationList() {
   const [archivedOpen, setArchivedOpen] = useState(Boolean(store.historyQuery));
   const conversations = store.archivedConversations;
   const historyActionsDisabled =
-    store.isWorking ||
-    store.isWorkspaceSetupPending ||
-    Boolean(store.conversationLoadPendingId) ||
-    Boolean(store.historyMutationPending);
+    store.isWorking || Boolean(store.conversationLoadPendingId) || Boolean(store.historyMutationPending);
 
   useEffect(() => {
     if (store.historyQuery) setArchivedOpen(true);
@@ -1030,7 +1010,7 @@ const QueuedPrompt = observer(function QueuedPrompt() {
       <Button
         aria-label={copy.editQueued}
         className="size-7 shrink-0"
-        disabled={Boolean(store.usage?.blockedReason) || store.isWorkspaceSetupPending}
+        disabled={Boolean(store.usage?.blockedReason)}
         size="icon"
         title={copy.editQueued}
         variant="ghost"
@@ -1262,12 +1242,7 @@ const AgentChatItemView = observer(function AgentChatItemView({ item }: { item: 
 
         <Button
           className="shrink-0"
-          disabled={
-            store.isWorking ||
-            store.isWorkspaceSetupPending ||
-            Boolean(store.usage?.blockedReason) ||
-            !store.canRetryFailedTurn(item)
-          }
+          disabled={store.isWorking || Boolean(store.usage?.blockedReason) || !store.canRetryFailedTurn(item)}
           size="sm"
           variant="outline"
           onClick={() => {
@@ -1280,8 +1255,6 @@ const AgentChatItemView = observer(function AgentChatItemView({ item }: { item: 
       </div>
     );
   }
-
-  if (item.kind === "workspace_setup") return <WorkspaceSetupCard item={item} />;
 
   if (item.kind === "activity") return <AgentActivity items={[item]} />;
 
@@ -1302,7 +1275,7 @@ const AgentChatItemView = observer(function AgentChatItemView({ item }: { item: 
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <Button
               aria-busy={item.pendingDecision === "approve"}
-              disabled={Boolean(item.pendingDecision) || store.isWorkspaceSetupPending}
+              disabled={Boolean(item.pendingDecision)}
               size="sm"
               onClick={() => void decideApproval(item, "approve")}
             >
@@ -1313,7 +1286,7 @@ const AgentChatItemView = observer(function AgentChatItemView({ item }: { item: 
 
             <Button
               aria-busy={item.pendingDecision === "reject"}
-              disabled={Boolean(item.pendingDecision) || store.isWorkspaceSetupPending}
+              disabled={Boolean(item.pendingDecision)}
               size="sm"
               variant="ghost"
               onClick={() => void decideApproval(item, "reject")}
@@ -1328,423 +1301,6 @@ const AgentChatItemView = observer(function AgentChatItemView({ item }: { item: 
     </div>
   );
 });
-
-const WorkspaceSetupCard = observer(function WorkspaceSetupCard({
-  item,
-}: {
-  item: Extract<AgentChatItem, { kind: "workspace_setup" }>;
-}) {
-  const { agentChatStore: store } = useRootStore();
-  const copy = workspaceSetupCopy(useTranslations());
-  const { presetLabel } = useEntityTerminology();
-  const [reviewOpen, setReviewOpen] = useState(item.status === "ready");
-  const [confirmFullCleanup, setConfirmFullCleanup] = useState(false);
-  const cardRef = useRef<HTMLElement>(null);
-  const fullCleanupTriggerRef = useRef<HTMLButtonElement>(null);
-  const fullCleanupCancelRef = useRef<HTMLButtonElement>(null);
-  const wasPending = useRef(Boolean(item.pendingAction));
-  const { plan } = item;
-  const terminologyLabels = [
-    presetLabel(EntityType.contact, plan.terminology.contact, "plural"),
-    presetLabel(EntityType.organization, plan.terminology.organization, "plural"),
-    presetLabel(EntityType.deal, plan.terminology.deal, "plural"),
-    presetLabel(EntityType.service, plan.terminology.service, "plural"),
-  ];
-  const entityLabels: Record<AgentWorkspaceSetupPlan["columns"][number]["entityType"], string> = {
-    contact: presetLabel(EntityType.contact, plan.terminology.contact, "singular"),
-    organization: presetLabel(EntityType.organization, plan.terminology.organization, "singular"),
-    deal: presetLabel(EntityType.deal, plan.terminology.deal, "singular"),
-    service: presetLabel(EntityType.service, plan.terminology.service, "singular"),
-    task: copy.taskEntity,
-  };
-  const recordCount =
-    plan.records.organizations.length +
-    plan.records.contacts.length +
-    plan.records.services.length +
-    plan.records.deals.length +
-    plan.records.tasks.length;
-  const status = item.pendingAction ? copy.pending[item.pendingAction] : copy.status[item.status];
-  const statusVariant =
-    item.status === "applied" || item.status === "cleaned"
-      ? "success"
-      : item.status === "failed" || item.status === "notEmpty"
-        ? "destructive"
-        : item.status === "partiallyCleaned"
-          ? "warning"
-          : "secondary";
-
-  useEffect(() => {
-    if (item.status === "ready") setReviewOpen(true);
-    if (item.status !== "partiallyCleaned") setConfirmFullCleanup(false);
-  }, [item.status]);
-
-  useEffect(() => {
-    const completed = wasPending.current && !item.pendingAction;
-    wasPending.current = Boolean(item.pendingAction);
-    if (!completed) return;
-    requestAnimationFrame(() => cardRef.current?.focus());
-  }, [item.pendingAction]);
-
-  useEffect(() => {
-    if (confirmFullCleanup) requestAnimationFrame(() => fullCleanupCancelRef.current?.focus());
-  }, [confirmFullCleanup]);
-
-  return (
-    <section
-      ref={cardRef}
-      aria-labelledby={`${item.id}-title`}
-      className="rounded-xl border bg-card p-3 shadow-xs"
-      data-testid="agent-workspace-setup"
-      tabIndex={-1}
-    >
-      <div className="flex items-start gap-2">
-        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-          <WandSparkles aria-hidden="true" className="size-4" />
-        </span>
-
-        <div className="min-w-0">
-          <h3 className="text-sm font-medium" id={`${item.id}-title`}>
-            {copy.title}
-          </h3>
-
-          <p className="mt-0.5 text-xs text-muted-foreground">{plan.goal || copy.description}</p>
-        </div>
-      </div>
-
-      <div
-        aria-live={item.status === "failed" ? undefined : "polite"}
-        className="mt-3 flex flex-wrap items-center gap-2"
-        role={item.status === "failed" ? "alert" : "status"}
-      >
-        <Badge variant={statusVariant}>{status.label}</Badge>
-
-        {item.pendingAction && <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />}
-
-        <p className="min-w-0 flex-1 text-xs text-muted-foreground">{status.description}</p>
-      </div>
-
-      {item.cleanupSummary && (
-        <p className="mt-2 text-xs text-muted-foreground">{copy.cleanupSummary(item.cleanupSummary)}</p>
-      )}
-
-      <div aria-label={copy.summary} className="mt-3 grid grid-cols-3 gap-2">
-        <SetupMetric icon={Columns3} label={copy.fields} value={plan.columns.length} />
-
-        <SetupMetric icon={Database} label={copy.records} value={recordCount} />
-
-        <SetupMetric icon={BarChart3} label={copy.widgets} value={plan.widgets.length} />
-      </div>
-
-      <details
-        aria-busy={Boolean(item.pendingAction)}
-        className="mt-3 rounded-lg border bg-background/60 px-3 py-2 text-xs"
-        open={reviewOpen}
-        onToggle={(event) => setReviewOpen(event.currentTarget.open)}
-      >
-        <summary className="cursor-pointer font-medium select-none">{copy.review}</summary>
-
-        <div className="mt-3 space-y-3 text-muted-foreground">
-          <div>
-            <p className="font-medium text-foreground">{copy.terminology}</p>
-
-            <p className="mt-1">{terminologyLabels.join(" · ")}</p>
-          </div>
-
-          <div>
-            <p className="font-medium text-foreground">{copy.fields}</p>
-
-            <ul className="mt-1 space-y-1">
-              {plan.columns.map((column) => (
-                <li key={column.semanticKey}>
-                  <span className="font-medium text-foreground">{column.label}</span>
-
-                  <span> · {entityLabels[column.entityType]}</span>
-
-                  {column.options.length > 0 && <span> · {column.options.join(", ")}</span>}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <p className="font-medium text-foreground">{copy.sampleData}</p>
-
-            <p className="mt-1">
-              {copy.sampleDataDetail({
-                organizations: plan.records.organizations.length,
-                contacts: plan.records.contacts.length,
-                services: plan.records.services.length,
-                deals: plan.records.deals.length,
-                tasks: plan.records.tasks.length,
-              })}
-            </p>
-
-            <div className="mt-2 space-y-1">
-              <p>
-                <span className="font-medium text-foreground">{copy.organizations}:</span>
-
-                <span>{` ${plan.records.organizations.join(", ")}`}</span>
-              </p>
-
-              <p>
-                <span className="font-medium text-foreground">{copy.contacts}:</span>
-
-                <span>{` ${plan.records.contacts.map((contact) => `${contact.firstName} ${contact.lastName}`.trim()).join(", ")}`}</span>
-              </p>
-
-              <p>
-                <span className="font-medium text-foreground">{copy.services}:</span>
-
-                <span>{` ${plan.records.services.map((service) => service.name).join(", ")}`}</span>
-              </p>
-
-              <p>
-                <span className="font-medium text-foreground">{copy.deals}:</span>
-
-                <span>{` ${plan.records.deals.map((deal) => deal.name).join(", ")}`}</span>
-              </p>
-
-              <p>
-                <span className="font-medium text-foreground">{copy.tasks}:</span>
-
-                <span>{` ${plan.records.tasks.map((task) => `${task.name} (${copy.dueInDays(task.dueInDays)})`).join(", ")}`}</span>
-              </p>
-            </div>
-          </div>
-
-          <div>
-            <p className="font-medium text-foreground">{copy.widgets}</p>
-
-            <ul className="mt-1 list-inside list-disc">
-              {plan.widgets.map((widget) => (
-                <li key={widget.semanticKey}>{widget.name}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </details>
-
-      {item.status === "ready" && <p className="mt-3 text-xs text-muted-foreground">{copy.safety}</p>}
-
-      {item.status === "ready" && (
-        <div className="mt-3 flex flex-wrap gap-2">
-          <Button
-            disabled={store.isWorking || store.isWorkspaceSetupPending || Boolean(item.pendingAction)}
-            size="sm"
-            onClick={() => void store.applyWorkspaceSetup(item)}
-          >
-            {item.pendingAction === "apply" && <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />}
-
-            {copy.applyPlan}
-          </Button>
-
-          <Button
-            disabled={store.isWorking || store.isWorkspaceSetupPending || Boolean(item.pendingAction)}
-            size="sm"
-            variant="outline"
-            onClick={() => {
-              store.editWorkspaceSetup(copy.editPrompt);
-              focusAgentComposer();
-            }}
-          >
-            <Pencil aria-hidden="true" className="size-3.5" />
-
-            {copy.editPlan}
-          </Button>
-        </div>
-      )}
-
-      {item.status === "applied" && (
-        <div className="mt-3 space-y-2">
-          <p className="text-xs text-muted-foreground">{copy.safeCleanup}</p>
-
-          <Button
-            disabled={store.isWorking || store.isWorkspaceSetupPending || Boolean(item.pendingAction)}
-            size="sm"
-            variant="outline"
-            onClick={() => void store.cleanupWorkspaceSetup(item, "safe")}
-          >
-            {item.pendingAction === "safeCleanup" && <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />}
-
-            {copy.removeSetup}
-          </Button>
-        </div>
-      )}
-
-      {item.status === "partiallyCleaned" && item.cleanupSummary?.retainedReasons.includes("edited") && (
-        <div className="mt-3 rounded-lg border border-destructive/30 bg-destructive/5 p-2.5">
-          <p className="text-xs text-muted-foreground">{copy.fullCleanup}</p>
-
-          {confirmFullCleanup ? (
-            <div aria-label={copy.fullCleanup} className="mt-2 flex flex-wrap gap-2" role="group">
-              <Button
-                ref={fullCleanupCancelRef}
-                disabled={store.isWorking || store.isWorkspaceSetupPending || Boolean(item.pendingAction)}
-                size="sm"
-                variant="ghost"
-                onClick={() => {
-                  setConfirmFullCleanup(false);
-                  requestAnimationFrame(() => fullCleanupTriggerRef.current?.focus());
-                }}
-              >
-                {copy.cancel}
-              </Button>
-
-              <Button
-                disabled={store.isWorking || store.isWorkspaceSetupPending || Boolean(item.pendingAction)}
-                size="sm"
-                variant="destructive"
-                onClick={() => void store.cleanupWorkspaceSetup(item, "full")}
-              >
-                {item.pendingAction === "fullCleanup" && (
-                  <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />
-                )}
-
-                {copy.confirmFullCleanup}
-              </Button>
-            </div>
-          ) : (
-            <Button
-              ref={fullCleanupTriggerRef}
-              className="mt-2"
-              disabled={store.isWorking || store.isWorkspaceSetupPending || Boolean(item.pendingAction)}
-              size="sm"
-              variant="outline"
-              onClick={() => setConfirmFullCleanup(true)}
-            >
-              {copy.removeEdited}
-            </Button>
-          )}
-        </div>
-      )}
-
-      {item.errorAction && (
-        <p className="mt-2 text-xs text-destructive" role="alert">
-          {copy.actionFailed}
-        </p>
-      )}
-    </section>
-  );
-});
-
-function SetupMetric({ icon: Icon, label, value }: { icon: typeof Columns3; label: string; value: number }) {
-  return (
-    <div className="rounded-lg bg-muted/50 p-2">
-      <Icon aria-hidden="true" className="mb-1 size-3.5 text-muted-foreground" />
-
-      <p className="text-sm font-semibold tabular-nums">{value}</p>
-
-      <p className="truncate text-[11px] text-muted-foreground">{label}</p>
-    </div>
-  );
-}
-
-function workspaceSetupCopy(t: ChatTranslator) {
-  return {
-    actionFailed: t("AgentChat.setup.actionFailed"),
-    applyPlan: t("AgentChat.setup.applyPlan"),
-    cancel: t("AgentChat.setup.cancel"),
-    confirmFullCleanup: t("AgentChat.setup.confirmFullCleanup"),
-    contacts: t("AgentChat.setup.contacts"),
-    deals: t("AgentChat.setup.deals"),
-    description: t("AgentChat.setup.description"),
-    editPlan: t("AgentChat.setup.editPlan"),
-    editPrompt: t("AgentChat.setup.editPrompt"),
-    taskEntity: t("AgentChat.setup.entities.task"),
-    fields: t("AgentChat.setup.fields"),
-    fullCleanup: t("AgentChat.setup.fullCleanup"),
-    organizations: t("AgentChat.setup.organizations"),
-    pending: {
-      apply: {
-        description: t("AgentChat.setup.pending.apply.description"),
-        label: t("AgentChat.setup.pending.apply.label"),
-      },
-      fullCleanup: {
-        description: t("AgentChat.setup.pending.fullCleanup.description"),
-        label: t("AgentChat.setup.pending.fullCleanup.label"),
-      },
-      safeCleanup: {
-        description: t("AgentChat.setup.pending.safeCleanup.description"),
-        label: t("AgentChat.setup.pending.safeCleanup.label"),
-      },
-    },
-    records: t("AgentChat.setup.records"),
-    removeEdited: t("AgentChat.setup.removeEdited"),
-    removeSetup: t("AgentChat.setup.removeSetup"),
-    review: t("AgentChat.setup.review"),
-    safeCleanup: t("AgentChat.setup.safeCleanup"),
-    safety: t("AgentChat.setup.safety"),
-    sampleData: t("AgentChat.setup.sampleData"),
-    services: t("AgentChat.setup.services"),
-    status: {
-      applied: {
-        description: t("AgentChat.setup.status.applied.description"),
-        label: t("AgentChat.setup.status.applied.label"),
-      },
-      cleaned: {
-        description: t("AgentChat.setup.status.cleaned.description"),
-        label: t("AgentChat.setup.status.cleaned.label"),
-      },
-      failed: {
-        description: t("AgentChat.setup.status.failed.description"),
-        label: t("AgentChat.setup.status.failed.label"),
-      },
-      notEmpty: {
-        description: t("AgentChat.setup.status.notEmpty.description"),
-        label: t("AgentChat.setup.status.notEmpty.label"),
-      },
-      partiallyCleaned: {
-        description: t("AgentChat.setup.status.partiallyCleaned.description"),
-        label: t("AgentChat.setup.status.partiallyCleaned.label"),
-      },
-      preparing: {
-        description: t("AgentChat.setup.status.preparing.description"),
-        label: t("AgentChat.setup.status.preparing.label"),
-      },
-      ready: {
-        description: t("AgentChat.setup.status.ready.description"),
-        label: t("AgentChat.setup.status.ready.label"),
-      },
-      superseded: {
-        description: t("AgentChat.setup.status.superseded.description"),
-        label: t("AgentChat.setup.status.superseded.label"),
-      },
-    },
-    summary: t("AgentChat.setup.summary"),
-    tasks: t("AgentChat.setup.tasks"),
-    terminology: t("AgentChat.setup.terminology"),
-    title: t("AgentChat.setup.title"),
-    widgets: t("AgentChat.setup.widgets"),
-    sampleDataDetail: (counts: {
-      organizations: number;
-      contacts: number;
-      services: number;
-      deals: number;
-      tasks: number;
-    }) => t("AgentChat.setup.sampleDataDetail", counts),
-    cleanupSummary: (summary: {
-      deletedResources: number;
-      retainedResources: number;
-      missingResources: number;
-      retainedReasons: ("edited" | "dependent")[];
-    }) => {
-      const reasons = summary.retainedReasons
-        .map((reason) =>
-          reason === "edited" ? t("AgentChat.setup.cleanupReasonEdited") : t("AgentChat.setup.cleanupReasonDependent"),
-        )
-        .join(", ");
-      const values = {
-        deleted: summary.deletedResources,
-        retained: summary.retainedResources,
-        missing: summary.missingResources,
-      };
-      return reasons
-        ? t("AgentChat.setup.cleanupSummaryReasons", { ...values, reasons })
-        : t("AgentChat.setup.cleanupSummary", values);
-    },
-    dueInDays: (days: number) => t("AgentChat.setup.dueInDays", { days }),
-  };
-}
 
 function consecutiveActivityItems(items: AgentChatItem[], start: number) {
   const activities: Extract<AgentChatItem, { kind: "activity" }>[] = [];

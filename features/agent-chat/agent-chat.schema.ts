@@ -6,9 +6,7 @@ import { type Data } from "@/core/validation/validation.utils";
 
 import type { AgentActivityDescriptor } from "./agent-activity";
 import { AgentActivityDescriptorSchema, describeAgentTool } from "./agent-activity";
-import { AgentWorkspaceSetupPlanSchema, type AgentWorkspaceSetupPlan } from "./agent-workspace-setup";
 import { sanitizeAgentVisibleText, stripLegacyUserPageContextPrefix } from "./agent-output-safety";
-import type { AgentWorkspaceSetupCleanupSummary } from "./agent-workspace-setup.repository";
 
 export const AgentPageContextSchema = z.object({
   route: z.string().max(500),
@@ -28,13 +26,6 @@ export const SendAgentMessageSchema = z.object({
 
 export type SendAgentMessageData = Data<typeof SendAgentMessageSchema>;
 
-export const AgentWorkspaceSetupCleanupSummarySchema = z.object({
-  deletedResources: z.number().int().nonnegative(),
-  retainedResources: z.number().int().nonnegative(),
-  missingResources: z.number().int().nonnegative(),
-  retainedReasons: z.array(z.enum(["edited", "dependent"])),
-});
-
 export type AgentMessagePart =
   | { type: "text"; text: string }
   | {
@@ -48,20 +39,10 @@ export type AgentMessagePart =
       id: string;
       activity: AgentActivityDescriptor;
       status: "pending" | "approved" | "rejected" | "timeout" | "cancelled";
-    }
-  | {
-      type: "workspace_setup";
-      id: string;
-      plan: AgentWorkspaceSetupPlan;
-      planHash: string;
-      setupId?: string;
-      status: "preparing" | "ready" | "superseded" | "applied" | "partiallyCleaned" | "cleaned" | "notEmpty" | "failed";
-      cleanupSummary?: AgentWorkspaceSetupCleanupSummary;
     };
 
 const ACTIVITY_STATUSES = ["running", "done", "error", "cancelled"] as const;
 const APPROVAL_STATUSES = ["pending", "approved", "rejected", "timeout", "cancelled"] as const;
-const PERSISTED_WORKSPACE_SETUP_STATUSES = ["preparing", "ready", "failed"] as const;
 
 function includes<T extends string>(values: readonly T[], value: unknown): value is T {
   return typeof value === "string" && values.includes(value as T);
@@ -110,26 +91,6 @@ export function clientSafeAgentMessageParts(
           type: "approval",
           id: part.id,
           activity: activity.data,
-          status: part.status,
-        },
-      ];
-    }
-
-    if (part.type === "workspace_setup" && typeof part.id === "string") {
-      const plan = AgentWorkspaceSetupPlanSchema.safeParse(part.plan);
-      if (
-        !plan.success ||
-        typeof part.planHash !== "string" ||
-        !/^[a-f0-9]{64}$/.test(part.planHash) ||
-        !includes(PERSISTED_WORKSPACE_SETUP_STATUSES, part.status)
-      )
-        return [];
-      return [
-        {
-          type: "workspace_setup",
-          id: part.id,
-          plan: plan.data,
-          planHash: part.planHash,
           status: part.status,
         },
       ];

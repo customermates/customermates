@@ -2,9 +2,7 @@
 
 import { env } from "@/env";
 import {
-  getApplyAgentWorkspaceSetupInteractor,
   getArchiveAgentConversationInteractor,
-  getCleanupAgentWorkspaceSetupInteractor,
   getDeleteAgentConversationInteractor,
   getGetAgentConfigInteractor,
   getGetAgentConversationInteractor,
@@ -20,8 +18,6 @@ import type { RespondToUiCommandData } from "@/features/agent-chat/respond-to-ui
 import type { ArchiveAgentConversationData } from "@/features/agent-chat/archive-agent-conversation.interactor";
 import type { ListAgentConversationsData } from "@/features/agent-chat/agent-history";
 import type { DeleteAgentConversationData } from "@/features/agent-chat/delete-agent-conversation.interactor";
-import type { ApplyAgentWorkspaceSetupData } from "@/features/agent-chat/apply-agent-workspace-setup.interactor";
-import type { CleanupAgentWorkspaceSetupData } from "@/features/agent-chat/cleanup-agent-workspace-setup.interactor";
 
 function isAgentChatEnabled() {
   return env.APP_MODE === "cloud" && env.AGENT_CHAT_ENABLED;
@@ -76,16 +72,4 @@ export async function respondToUiCommandAction(data: RespondToUiCommandData) {
   if (!isAgentChatEnabled()) return null;
 
   return serializeResult(getRespondToUiCommandInteractor().invoke(data));
-}
-
-export async function applyAgentWorkspaceSetupAction(data: ApplyAgentWorkspaceSetupData) {
-  if (!isAgentChatEnabled()) return null;
-
-  return serializeResult(getApplyAgentWorkspaceSetupInteractor().invoke(data));
-}
-
-export async function cleanupAgentWorkspaceSetupAction(data: CleanupAgentWorkspaceSetupData) {
-  if (!isAgentChatEnabled()) return null;
-
-  return serializeResult(getCleanupAgentWorkspaceSetupInteractor().invoke(data));
 }

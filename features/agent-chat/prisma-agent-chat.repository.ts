@@ -17,7 +17,6 @@ import { env } from "@/env";
 import type { AgentUsageRepo } from "./agent-usage.service";
 import { AGENT_CONVERSATION_PAGE_SIZE, AGENT_MESSAGE_PAGE_SIZE, type AgentConversationPage } from "./agent-history";
 import { clientSafeAgentMessageParts, hasRenderableAgentMessageParts, partsToText } from "./agent-chat.schema";
-import { AgentWorkspaceSetupPlanSchema, hashAgentWorkspaceSetupPlan } from "./agent-workspace-setup";
 import {
   isPendingAgentApprovalToolName,
   parsePendingAgentApprovalToolName,
@@ -55,12 +54,6 @@ type StoredAgentTurnRow = {
   affectedResources: unknown;
 };
 
-type AgentSetupReviewScanRow = {
-  id: string;
-  parts: Prisma.JsonValue;
-  sequence: bigint;
-};
-
 export type AgentTurnReplay = {
   snapshot: AgentTurnRequestSnapshot;
   assistantMessage: { id: string; parts: unknown; createdAt: Date } | null;
@@ -75,7 +68,6 @@ export type FinalizedAgentTurn = {
 };
 
 const TURN_STATUSES = new Set<AgentTurnRequestStatus>(["running", "completed", "failed", "uncertain"]);
-const AGENT_SETUP_REVIEW_SCAN_PAGE_SIZE = 200;
 
 function encodeConversationCursor(updatedAt: Date, id: string) {
   return Buffer.from(JSON.stringify({ updatedAt: updatedAt.toISOString(), id }), "utf8").toString("base64url");
@@ -368,27 +360,6 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     };
   }
 
-  async getWorkspaceSetupSignals() {
-    const where = { companyId: this.companyId };
-    const select = { id: true };
-    const [contact, organization, deal, service, task] = await Promise.all([
-      this.prisma.contact.findFirst({ where, select }),
-      this.prisma.organization.findFirst({ where, select }),
-      this.prisma.deal.findFirst({ where, select }),
-      this.prisma.service.findFirst({ where, select }),
-      this.prisma.task.findFirst({ where, select }),
-    ]);
-
-    return {
-      contacts: Boolean(contact),
-      organizations: Boolean(organization),
-      deals: Boolean(deal),
-      services: Boolean(service),
-      tasks: Boolean(task),
-      connectedAccounts: false,
-    };
-  }
-
   async findUserMessage(id: string) {
     return this.prisma.agentMessage.findFirst({
       where: {
@@ -451,58 +422,6 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       messages: pageRows.reverse(),
       nextCursor: rows.length > AGENT_MESSAGE_PAGE_SIZE && oldest ? oldest.sequence.toString() : null,
     };
-  }
-
-  async findReviewedWorkspaceSetup(args: { conversationId: string; commandId: string }) {
-    let beforeSequence: bigint | null = null;
-
-    for (;;) {
-      const messages: AgentSetupReviewScanRow[] = await this.prisma.agentMessage.findMany({
-        where: {
-          conversationId: args.conversationId,
-          companyId: this.companyId,
-          role: AgentMessageRole.assistant,
-          conversation: {
-            userId: this.userId,
-            companyId: this.companyId,
-            archivedAt: null,
-          },
-          ...(beforeSequence !== null ? { sequence: { lt: beforeSequence } } : {}),
-        },
-        orderBy: { sequence: "desc" },
-        take: AGENT_SETUP_REVIEW_SCAN_PAGE_SIZE,
-        select: { id: true, parts: true, sequence: true },
-      });
-
-      for (const message of messages) {
-        if (!Array.isArray(message.parts)) continue;
-        for (const value of [...message.parts].reverse()) {
-          if (!value || typeof value !== "object" || Array.isArray(value)) continue;
-          const part = value as Record<string, unknown>;
-          if (part.type !== "workspace_setup") continue;
-          if (part.id !== args.commandId || part.status !== "ready") return null;
-          const plan = AgentWorkspaceSetupPlanSchema.safeParse(part.plan);
-          if (
-            plan.success &&
-            typeof part.planHash === "string" &&
-            (await hashAgentWorkspaceSetupPlan(plan.data)) === part.planHash
-          ) {
-            return {
-              reviewMessageId: message.id,
-              plan: plan.data,
-              planHash: part.planHash,
-            };
-          }
-          return null;
-        }
-      }
-
-      if (messages.length < AGENT_SETUP_REVIEW_SCAN_PAGE_SIZE) return null;
-      const oldestSequence = messages.at(-1)?.sequence;
-      if (oldestSequence === undefined || oldestSequence === beforeSequence)
-        throw new Error("Agent setup review pagination did not advance.");
-      beforeSequence = oldestSequence;
-    }
   }
 
   @BypassTenantGuard

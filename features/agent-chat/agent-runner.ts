@@ -22,11 +22,6 @@ import { type AgentMessagePart } from "./agent-chat.schema";
 import { describeAgentTool, type AgentActivityResource } from "./agent-activity";
 import { AgentVisibleTextStreamSanitizer } from "./agent-output-safety";
 import {
-  PrepareAgentWorkspaceSetupSchema,
-  buildAgentWorkspaceSetupPlan,
-  hashAgentWorkspaceSetupPlan,
-} from "./agent-workspace-setup";
-import {
   isAgentContextWithinBudget,
   resolveAgentToolResultMaxChars,
   type AgentTurnBudget,
@@ -244,7 +239,6 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
       const replyParts: AgentMessagePart[] = [];
       const toolParts = new Map<string, Extract<AgentMessagePart, { type: "activity" }>>();
       const approvalParts = new Map<string, Extract<AgentMessagePart, { type: "approval" }>>();
-      const setupParts = new Map<string, Extract<AgentMessagePart, { type: "workspace_setup" }>>();
       const affectedResources = new Set<AgentActivityResource>();
       let tokens = EMPTY_TOKENS;
       let providerStepsObserved = 0;
@@ -276,8 +270,6 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
         const toolPart = toolParts.get(id);
         if (!toolPart) return;
         toolPart.status = status;
-        const setupPart = setupParts.get(id);
-        if (setupPart) setupPart.status = status === "done" ? "ready" : "failed";
         if (status === "done" && toolPart.activity.risk !== "read")
           toolPart.activity.affectedResources.forEach((resource) => affectedResources.add(resource));
       };
@@ -353,21 +345,6 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
             };
             toolParts.set(part.toolCallId, toolPart);
             replyParts.push(toolPart);
-            if (part.toolName === "open_workspace_setup") {
-              const setup = PrepareAgentWorkspaceSetupSchema.safeParse(part.input);
-              if (setup.success) {
-                const plan = buildAgentWorkspaceSetupPlan(setup.data, agentTranslator(ctx.locale));
-                const setupPart: Extract<AgentMessagePart, { type: "workspace_setup" }> = {
-                  type: "workspace_setup",
-                  id: part.toolCallId,
-                  plan,
-                  planHash: await hashAgentWorkspaceSetupPlan(plan),
-                  status: "preparing",
-                };
-                setupParts.set(part.toolCallId, setupPart);
-                replyParts.push(setupPart);
-              }
-            }
             emit("activity", {
               id: part.toolCallId,
               activity,

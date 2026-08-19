@@ -67,7 +67,6 @@ describeDatabase("agent assistant migration", { timeout: 120_000 }, () => {
         "AgentUsageEvent_released_state_uncharged",
         "AgentUsageEvent_reserved_state_unsettled",
         "AgentUsageEvent_terminal_state_settled",
-        "AgentWorkspaceSetup_versions_positive",
       ]);
     });
   });
@@ -109,7 +108,8 @@ describeDatabase("agent assistant migration", { timeout: 120_000 }, () => {
   it("gives seats that already existed a credit stamp, so nobody is told to buy what they have", async () => {
     await withTemporaryDatabase(requiredDatabaseUrl(), async (client) => {
       const names = migrationNames();
-      await applyMigrations(client, names.slice(0, -1));
+      const cut = names.indexOf("20260817120000_agent_assistant");
+      await applyMigrations(client, names.slice(0, cut));
 
       await client.query(`INSERT INTO "Company" ("id","updatedAt") VALUES ('co1', NOW())`);
       await client.query(
@@ -119,7 +119,7 @@ describeDatabase("agent assistant migration", { timeout: 120_000 }, () => {
                 ('u-pending','c@example.com','Cy','Three','co1','pendingAuthorization', TIMESTAMP '2026-01-05 09:00:00', NOW())`,
       );
 
-      await applyMigrations(client, names.slice(-1));
+      await applyMigrations(client, names.slice(cut));
 
       const rows = await client.query<{ id: string; stamp: string | null }>(
         `SELECT "id", "agentCreditActivatedAt"::text AS stamp FROM "User" ORDER BY "id"`,
@@ -136,10 +136,10 @@ describeDatabase("agent assistant migration", { timeout: 120_000 }, () => {
     await withTemporaryDatabase(requiredDatabaseUrl(), async (client) => {
       const names = migrationNames();
 
-      expect(names.at(-1)).toBe("20260817120000_agent_assistant");
+      const cut = names.indexOf("20260817120000_agent_assistant");
 
-      await applyMigrations(client, names.slice(0, -1));
-      await applyMigrations(client, names.slice(-1));
+      await applyMigrations(client, names.slice(0, cut));
+      await applyMigrations(client, names.slice(cut));
 
       const tables = await client.query<{ table_name: string }>(
         `SELECT table_name FROM information_schema.tables
@@ -154,8 +154,6 @@ describeDatabase("agent assistant migration", { timeout: 120_000 }, () => {
         "AgentTurnRequest",
         "AgentUiCommandResult",
         "AgentUsageEvent",
-        "AgentWorkspaceSetup",
-        "AgentWorkspaceSetupResource",
       ]);
     });
   });

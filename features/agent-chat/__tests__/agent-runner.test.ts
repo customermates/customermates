@@ -484,56 +484,6 @@ describe("agent runner approval rendezvous", () => {
     );
   });
 
-  it("persists the exact deterministic workspace plan that the user reviews", async () => {
-    aiMock.streamText.mockReturnValue(
-      scripted(function* () {
-        yield {
-          type: "tool-call",
-          toolCallId: "setup-1",
-          toolName: "open_workspace_setup",
-          input: {
-            useCase: "b2bSales",
-            businessName: "Acme GmbH",
-            goal: "Build a useful first sales pipeline",
-          },
-        };
-        yield {
-          type: "tool-result",
-          toolCallId: "setup-1",
-          output: "plan opened",
-        };
-      }),
-    );
-
-    await runAndRead(ctx());
-
-    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
-      expect.objectContaining({
-        parts: [
-          expect.objectContaining({
-            type: "activity",
-            id: "setup-1",
-            status: "done",
-          }),
-          expect.objectContaining({
-            type: "workspace_setup",
-            id: "setup-1",
-            status: "ready",
-            plan: expect.objectContaining({
-              schemaVersion: 1,
-              revision: 1,
-              useCase: "b2bSales",
-              columns: expect.any(Array),
-              records: expect.any(Object),
-              widgets: expect.any(Array),
-            }),
-            planHash: expect.stringMatching(/^[a-f0-9]{64}$/),
-          }),
-        ],
-      }),
-    );
-  });
-
   it("retains the full reservation when a later provider step errors after reporting partial usage", async () => {
     llmMock.usageToTokenCounts.mockReturnValueOnce({
       inputTokens: 100,
@@ -1071,59 +1021,6 @@ describe("agent runner approval rendezvous", () => {
             type: "activity",
             id: "ui1",
             status: "error",
-          }),
-        ]),
-      }),
-    );
-  });
-
-  it("marks a workspace setup review as failed when its browser command fails", async () => {
-    repoMock.takeUiCommandResultUnscoped.mockResolvedValue({
-      name: "open_workspace_setup",
-      ok: false,
-      result: "The setup review could not be opened.",
-    });
-    const input = {
-      useCase: "b2bSales",
-      businessName: "Acme",
-      goal: "Build a small sales workspace",
-    };
-    aiMock.streamText.mockReturnValue(
-      scripted(async function* () {
-        yield {
-          type: "tool-call",
-          toolCallId: "setup-1",
-          toolName: "open_workspace_setup",
-          input,
-        };
-        const output = await (toolsMock.captured as Deps).runUiCommand("setup-1", "open_workspace_setup", input);
-        yield { type: "tool-result", toolCallId: "setup-1", output };
-        yield { type: "text-delta", text: output.result };
-      }),
-    );
-
-    const events = await runAndRead(ctx());
-
-    expect(events).toContainEqual(
-      expect.objectContaining({
-        type: "activity_result",
-        id: "setup-1",
-        isError: true,
-        status: "error",
-      }),
-    );
-    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
-      expect.objectContaining({
-        parts: expect.arrayContaining([
-          expect.objectContaining({
-            type: "activity",
-            id: "setup-1",
-            status: "error",
-          }),
-          expect.objectContaining({
-            type: "workspace_setup",
-            id: "setup-1",
-            status: "failed",
           }),
         ]),
       }),

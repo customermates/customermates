@@ -22,7 +22,6 @@ export const AGENT_ACTIVITY_KINDS = [
   "webhooks.manage",
   "accounts.connect",
   "workspace.configure",
-  "workspace.setup",
   "interface.navigate",
   "interface.tour",
   "interface.configure",
@@ -200,17 +199,6 @@ export function describeAgentTool(toolName: string, input: unknown): AgentActivi
     };
   }
   if (toolName === "start_tour") return descriptor("interface.tour", undefined, "read");
-  if (toolName === "open_workspace_setup") {
-    return descriptor("workspace.setup", undefined, "read", [
-      "contacts",
-      "organizations",
-      "deals",
-      "services",
-      "tasks",
-      "widgets",
-      "terminology",
-    ]);
-  }
   if (toolName === "request_support") {
     return descriptor("support.escalate", undefined, "sensitive", [], {
       action: "support.request",

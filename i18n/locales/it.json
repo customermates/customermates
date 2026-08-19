@@ -186,11 +186,6 @@
             "done": "Spazio di lavoro verificato",
             "error": "Impossibile controllare lo spazio di lavoro",
             "running": "Controllo dell’area di lavoro"
-          },
-          "setup": {
-            "done": "Configurazione dello spazio di lavoro pronta",
-            "error": "Impossibile completare la configurazione dello spazio di lavoro",
-            "running": "Configurazione dell’area di lavoro"
           }
         }
       },
@@ -239,162 +234,6 @@
       "turnError": "Non sono riuscito a completare la richiesta. Riprova."
     },
     "send": "Invia",
-    "setup": {
-      "actionFailed": "Non è stato possibile completare l’azione. È possibile riprovare.",
-      "applyPlan": "Applica configurazione",
-      "cancel": "Annulla",
-      "cleanupReasonDependent": "ancora collegato",
-      "cleanupReasonEdited": "modificato",
-      "cleanupSummary": "{deleted} rimossi · {retained} conservati · {missing} già assenti",
-      "cleanupSummaryReasons": "{deleted} rimossi · {retained} mantenuti · {missing} già assenti · Mantenuti: {reasons}",
-      "confirmFullCleanup": "Rimuovi definitivamente",
-      "contacts": "Contatti",
-      "deals": "Trattative",
-      "description": "Un punto di partenza compatto e già collegato, su misura per il tuo caso d’uso.",
-      "dueInDays": "in scadenza tra {days} giorni",
-      "editPlan": "Modifica piano",
-      "editPrompt": "Vorrei modificare questo piano di configurazione dell’area di lavoro. Chiedimi che cosa voglio cambiare.",
-      "entities": {
-        "task": "Attività"
-      },
-      "fields": "Campi",
-      "fullCleanup": "Alcuni elementi della configurazione sono stati modificati, quindi la pulizia sicura li ha conservati. È possibile rimuovere anche questi; gli elementi ancora collegati restano protetti. L’operazione non può essere annullata.",
-      "organizations": "Organizzazioni",
-      "pending": {
-        "apply": {
-          "description": "La configurazione approvata dell’area di lavoro è in fase di applicazione…",
-          "label": "Applicazione in corso"
-        },
-        "fullCleanup": {
-          "description": "Vengono rimossi anche gli elementi modificati creati da questa configurazione…",
-          "label": "Rimozione degli elementi modificati"
-        },
-        "safeCleanup": {
-          "description": "Rimozione degli elementi invariati creati da questa configurazione…",
-          "label": "Rimozione in corso"
-        }
-      },
-      "records": "Record",
-      "removeEdited": "Rimuovi elementi modificati…",
-      "removeSetup": "Rimuovi i dati di configurazione",
-      "review": "Rivedi il piano",
-      "safeCleanup": "È possibile rimuovere questa configurazione in un secondo momento. La pulizia sicura conserva gli elementi modificati o ancora collegati ad altri dati.",
-      "safety": "Non è ancora stato modificato nulla. Applica crea esattamente i campi verificati, i record iniziali collegati e i widget personali.",
-      "sampleData": "Record iniziali",
-      "sampleDataDetail": "{organizations} organizzazioni, {contacts} contatti, {services} servizi, {deals} trattative e {tasks} attività",
-      "services": "Servizi",
-      "status": {
-        "applied": {
-          "description": "Questa configurazione è attiva nell’area di lavoro.",
-          "label": "Applicata"
-        },
-        "cleaned": {
-          "description": "Gli elementi creati da questa configurazione sono stati rimossi.",
-          "label": "Rimosso"
-        },
-        "failed": {
-          "description": "Non è stato possibile completare la configurazione dello spazio di lavoro.",
-          "label": "Non riuscito"
-        },
-        "notEmpty": {
-          "description": "L’area di lavoro contiene ormai dei dati, quindi questo piano iniziale non è stato applicato.",
-          "label": "Non applicata"
-        },
-        "partiallyCleaned": {
-          "description": "Gli elementi modificati o collegati sono stati mantenuti in sicurezza.",
-          "label": "Rimosso parzialmente"
-        },
-        "preparing": {
-          "description": "Il piano di configurazione dello spazio di lavoro è in preparazione.",
-          "label": "Preparazione in corso"
-        },
-        "ready": {
-          "description": "Rivedi il piano prima di applicarlo.",
-          "label": "Pronta per la revisione"
-        },
-        "superseded": {
-          "description": "Un piano di configurazione più recente sostituisce questa versione.",
-          "label": "Sostituito"
-        }
-      },
-      "summary": "Riepilogo della configurazione dello spazio di lavoro",
-      "tasks": "Attività",
-      "terminology": "Terminologia",
-      "text": {
-        "active": "Attivo",
-        "advisorySession": "Sessione di consulenza",
-        "atRisk": "A rischio",
-        "blocked": "Bloccato",
-        "bookProjectKickoff": "Fissare il kickoff del progetto",
-        "brightpathRelaunch": "Rilancio Brightpath",
-        "cedarIntroduction": "Primo contatto Cedar",
-        "cedarPartnership": "Partnership Cedar",
-        "clarifyRequirements": "Chiarire i requisiti",
-        "collectProjectRequirements": "Raccogliere i requisiti di progetto",
-        "commonGroundAdvisory": "Consulenza Common Ground",
-        "confirmDiscoveryGoals": "Confermare gli obiettivi di discovery",
-        "confirmSeatRequirements": "Confermare il numero di licenze",
-        "coreOffering": "Offerta principale",
-        "customerOpportunity": "Opportunità cliente",
-        "dealsByStage": "Trattative per fase",
-        "discoveryWorkshop": "Workshop di discovery",
-        "done": "Completato",
-        "draftPartnershipOutline": "Redigere la bozza di partnership",
-        "dueDate": "Data di scadenza",
-        "enterprise": "Enterprise",
-        "enterprisePlan": "Piano Enterprise",
-        "exampleCustomer": "Cliente di esempio",
-        "examplePartner": "Partner di esempio",
-        "expandedOffering": "Offerta ampliata",
-        "growthRollout": "Rollout di crescita",
-        "implementationProject": "Progetto di implementazione",
-        "inbound": "In entrata",
-        "inProgress": "In corso",
-        "juniperDiscovery": "Discovery Juniper",
-        "juniperImplementation": "Implementazione Juniper",
-        "keyRelationship": "Relazione chiave",
-        "lindenExpansion": "Espansione Linden",
-        "midMarket": "Media impresa",
-        "new": "Nuovo",
-        "northstarPilot": "Pilota Northstar",
-        "northstarRollout": "Rollout Northstar",
-        "oakFieldExpansion": "Espansione Oak & Field",
-        "oakFieldTeamPlan": "Piano Team Oak & Field",
-        "onTrack": "In linea",
-        "outbound": "In uscita",
-        "partnerExpansion": "Espansione partner",
-        "partnerOpportunity": "Opportunità partner",
-        "partnershipProgram": "Programma di partnership",
-        "pipelineValueByStage": "Valore pipeline per fase",
-        "prepareProductDemo": "Preparare la demo del prodotto",
-        "prepareRolloutProposal": "Preparare la proposta di rollout",
-        "prepareTheNextStep": "Preparare il passo successivo",
-        "projectHealth": "Stato del progetto",
-        "proposal": "Proposta",
-        "qualified": "Qualificato",
-        "referral": "Segnalazione",
-        "relationship": "Relazione",
-        "reviewDeliveryPlan": "Rivedere il piano di consegna",
-        "scheduleACheckIn": "Fissare un check-in",
-        "scheduleAFollowUp": "Fissare un follow-up",
-        "scheduleStakeholderReview": "Fissare la review con gli stakeholder",
-        "segment": "Segmento",
-        "sendIntroductionNote": "Inviare la nota di presentazione",
-        "shareSecurityPackage": "Condividere la documentazione di sicurezza",
-        "smallTeam": "Piccolo team",
-        "solarisEnterprisePlan": "Piano Enterprise Solaris",
-        "source": "Origine",
-        "stage": "Fase",
-        "status": "Stato",
-        "strategySprint": "Sprint strategico",
-        "tasksByStatus": "Attività per stato personalizzato",
-        "teamPlan": "Piano Team",
-        "toDo": "Da fare",
-        "won": "Vinto"
-      },
-      "title": "Configura lo spazio di lavoro",
-      "widgets": "Widget"
-    },
     "stop": "Interrompi",
     "suggestions": {
       "pages": {
@@ -706,7 +545,7 @@
       "cancel": "Annulla",
       "chats": "Chat",
       "deleteChat": "Elimina chat",
-      "deleteChatBody": "Questa operazione elimina definitivamente i messaggi, le approvazioni, le azioni dell’assistente e la cronologia di configurazione della chat. Restano i dati di utilizzo AI e di fatturazione, i record CRM creati tramite la chat e i ticket di assistenza creati separatamente.",
+      "deleteChatBody": "Questa operazione elimina definitivamente i messaggi, le approvazioni e le azioni dell’assistente della chat. Restano i dati di utilizzo AI e di fatturazione, i record CRM creati tramite la chat e i ticket di assistenza creati separatamente.",
       "deleteChatTitle": "Eliminare definitivamente questa chat?",
       "deletePermanently": "Elimina definitivamente",
       "editQueued": "Modifica il messaggio in coda",

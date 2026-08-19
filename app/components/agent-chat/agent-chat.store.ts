@@ -3,17 +3,8 @@ import { makeObservable, observable, action, computed, runInAction } from "mobx"
 import type { RootStore } from "@/core/stores/root.store";
 import type { AgentUsageSummary } from "@/features/agent-chat/agent-usage.service";
 import type { AgentConversationSummary, AgentDataCounts } from "@/features/agent-chat/agent-chat.schema";
-import { AgentWorkspaceSetupCleanupSummarySchema } from "@/features/agent-chat/agent-chat.schema";
 import { AgentTourSchema } from "@/features/agent-chat/agent-tours";
 import { ConfigureViewSchema, FillFormSchema, OpenRecordSchema } from "@/features/agent-chat/ui-operations";
-import {
-  PrepareAgentWorkspaceSetupSchema,
-  AgentWorkspaceSetupPlanSchema,
-  agentWorkspaceSetupCounts,
-  buildAgentWorkspaceSetupPlan,
-  hashAgentWorkspaceSetupPlan,
-  type AgentWorkspaceSetupPlan,
-} from "@/features/agent-chat/agent-workspace-setup";
 import {
   AgentActivityDescriptorSchema,
   AGENT_ACTIVITY_RESOURCES,
@@ -26,11 +17,9 @@ import { agentPageState, agentActionPageFromPathname } from "@/features/agent-ch
 import { BaseStore } from "@/core/base/base.store";
 
 import {
-  applyAgentWorkspaceSetupAction,
   getAgentConfigAction,
   getAgentConversationAction,
   archiveAgentConversationAction,
-  cleanupAgentWorkspaceSetupAction,
   deleteAgentConversationAction,
   listAgentConversationsAction,
   restoreAgentConversationAction,
@@ -75,25 +64,6 @@ export type AgentChatItem =
       resolution: "approve" | "reject" | "timeout" | null;
       pendingDecision: "approve" | "reject" | null;
       at?: Date;
-    }
-  | {
-      kind: "workspace_setup";
-      id: string;
-      commandId: string;
-      turnKey?: string;
-      plan: AgentWorkspaceSetupPlan;
-      planHash: string;
-      setupId?: string;
-      status: "preparing" | "ready" | "superseded" | "applied" | "partiallyCleaned" | "cleaned" | "notEmpty" | "failed";
-      pendingAction?: "apply" | "safeCleanup" | "fullCleanup" | null;
-      errorAction?: "apply" | "safeCleanup" | "fullCleanup" | null;
-      cleanupSummary?: {
-        deletedResources: number;
-        retainedResources: number;
-        missingResources: number;
-        retainedReasons: ("edited" | "dependent")[];
-      };
-      at?: Date;
     };
 
 let itemSeq = 0;
@@ -102,7 +72,6 @@ const UI_COMMAND_NAMES = [
   "navigate",
   "highlight_element",
   "start_tour",
-  "open_workspace_setup",
   "configure_view",
   "open_record",
   "fill_form",
@@ -211,12 +180,10 @@ export class AgentChatStore extends BaseStore {
       queuedPrompt: observable,
       isWorking: observable,
       conversationTitle: computed,
-      isWorkspaceSetupPending: computed,
       open: action,
       close: action,
       toggleExpanded: action,
       setComposerDraft: action,
-      editWorkspaceSetup: action,
       submitDraft: action,
       openForEmptyPage: action,
       editQueuedPrompt: action,
@@ -238,10 +205,6 @@ export class AgentChatStore extends BaseStore {
     return summary?.title ?? null;
   }
 
-  get isWorkspaceSetupPending() {
-    return this.items.some((item) => item.kind === "workspace_setup" && Boolean(item.pendingAction));
-  }
-
   close = () => {
     this.isOpen = false;
   };
@@ -257,7 +220,7 @@ export class AgentChatStore extends BaseStore {
   };
 
   newConversation = () => {
-    if (this.isWorking || this.isWorkspaceSetupPending || this.historyMutationPending) return;
+    if (this.isWorking || this.historyMutationPending) return;
     this.beginNewConversation();
   };
 
@@ -280,138 +243,10 @@ export class AgentChatStore extends BaseStore {
   };
 
   setComposerDraft = (value: string) => {
-    if (this.isWorkspaceSetupPending) return;
     this.composerDraft = value;
   };
 
-  editWorkspaceSetup = (prompt: string) => {
-    if (this.isWorkspaceSetupPending) return;
-    this.composerDraft = prompt;
-    this.isHistoryOpen = false;
-  };
-
-  applyWorkspaceSetup = async (item: Extract<AgentChatItem, { kind: "workspace_setup" }>) => {
-    if (
-      !this.conversationId ||
-      this.isWorking ||
-      this.isWorkspaceSetupPending ||
-      item.status !== "ready" ||
-      item.pendingAction
-    )
-      return;
-
-    runInAction(() => {
-      item.pendingAction = "apply";
-      item.errorAction = null;
-    });
-    try {
-      const result = await applyAgentWorkspaceSetupAction({
-        conversationId: this.conversationId,
-        commandId: item.commandId,
-        planHash: item.planHash,
-      });
-      if (!result?.ok) throw new Error("Workspace setup could not be applied.");
-      if (result.data.status === "notEmpty") {
-        runInAction(() => {
-          item.status = "notEmpty";
-          delete item.setupId;
-        });
-      } else {
-        if (!result.data.setupId) throw new Error("Workspace setup identity is missing.");
-        runInAction(() => {
-          item.status = "applied";
-          item.setupId = result.data.setupId ?? undefined;
-          delete item.cleanupSummary;
-        });
-      }
-      await this.refreshAffectedResources([
-        "contacts",
-        "organizations",
-        "deals",
-        "services",
-        "tasks",
-        "widgets",
-        "terminology",
-      ]);
-      await this.loadConfig();
-    } catch {
-      runInAction(() => {
-        item.errorAction = "apply";
-      });
-      this.toastError("AgentChat.errors.sendFailed");
-    } finally {
-      runInAction(() => {
-        item.pendingAction = null;
-      });
-    }
-  };
-
-  cleanupWorkspaceSetup = async (item: Extract<AgentChatItem, { kind: "workspace_setup" }>, mode: "safe" | "full") => {
-    const canSafelyClean = mode === "safe" && item.status === "applied";
-    const canFullyClean =
-      mode === "full" &&
-      item.status === "partiallyCleaned" &&
-      Boolean(item.cleanupSummary?.retainedReasons.includes("edited"));
-    if (
-      !this.conversationId ||
-      !item.setupId ||
-      this.isWorking ||
-      this.isWorkspaceSetupPending ||
-      item.pendingAction ||
-      (!canSafelyClean && !canFullyClean)
-    )
-      return;
-
-    const priorStatus = item.status;
-    const pendingAction = mode === "safe" ? "safeCleanup" : "fullCleanup";
-    runInAction(() => {
-      item.pendingAction = pendingAction;
-      item.errorAction = null;
-    });
-    try {
-      const result = await cleanupAgentWorkspaceSetupAction({
-        conversationId: this.conversationId,
-        setupId: item.setupId,
-        planHash: item.planHash,
-        mode,
-      });
-      if (!result?.ok || result.data.setupId !== item.setupId)
-        throw new Error("Workspace setup cleanup identity does not match.");
-
-      runInAction(() => {
-        item.status = result.data.status === "partiallyCleaned" ? "partiallyCleaned" : "cleaned";
-        item.cleanupSummary = {
-          deletedResources: result.data.deletedResources,
-          retainedResources: result.data.retainedResources,
-          missingResources: result.data.missingResources,
-          retainedReasons: result.data.retainedReasons,
-        };
-      });
-      await this.refreshAffectedResources([
-        "contacts",
-        "organizations",
-        "deals",
-        "services",
-        "tasks",
-        "widgets",
-        "terminology",
-      ]);
-      await this.loadConfig();
-    } catch {
-      runInAction(() => {
-        item.status = priorStatus;
-        item.errorAction = pendingAction;
-      });
-      this.toastError("AgentChat.errors.sendFailed");
-    } finally {
-      runInAction(() => {
-        item.pendingAction = null;
-      });
-    }
-  };
-
   submitDraft = () => {
-    if (this.isWorkspaceSetupPending) return;
     const text = this.composerDraft.trim();
     if (!text) return;
     if (this.isWorking) {
@@ -429,7 +264,7 @@ export class AgentChatStore extends BaseStore {
   };
 
   editQueuedPrompt = () => {
-    if (!this.queuedPrompt || this.isWorkspaceSetupPending) return;
+    if (!this.queuedPrompt) return;
     this.composerDraft = this.queuedPrompt;
     this.queuedPrompt = null;
     this.queuedPromptMessageId = null;
@@ -445,7 +280,7 @@ export class AgentChatStore extends BaseStore {
   };
 
   retryFailedTurn = (item: Extract<AgentChatItem, { kind: "turn_error" }>) => {
-    if (this.isWorking || this.isWorkspaceSetupPending || this.usage?.blockedReason) return;
+    if (this.isWorking || this.usage?.blockedReason) return;
     if (!this.canRetryFailedTurn(item)) return;
     let userIndex = -1;
     for (let index = this.items.length - 1; index >= 0; index -= 1) {
@@ -491,7 +326,7 @@ export class AgentChatStore extends BaseStore {
   }
 
   selectConversation = async (id: string) => {
-    if (this.isWorking || this.isWorkspaceSetupPending || this.historyMutationPending) return;
+    if (this.isWorking || this.historyMutationPending) return;
     if (this.conversationId === id && !this.conversationLoadError) {
       runInAction(() => {
         this.isHistoryOpen = false;
@@ -555,7 +390,6 @@ export class AgentChatStore extends BaseStore {
         this.items = [];
         this.appendMessages(data.messages);
         this.items = [...this.items, ...existing];
-        this.normalizeWorkspaceSetups();
         this.olderMessagesCursor = data.nextCursor;
       });
     } catch {
@@ -589,26 +423,10 @@ export class AgentChatStore extends BaseStore {
         status?: string;
         input?: unknown;
         activity?: unknown;
-        setup?: unknown;
-        plan?: unknown;
-        planHash?: unknown;
-        cleanupSummary?: unknown;
-        setupId?: unknown;
       }[];
       for (const part of parts) this.appendPart(message.role, part, at, message.id);
       if (message.role === "assistant") this.persistedAssistantMessageIds.add(message.id);
     }
-    this.normalizeWorkspaceSetups();
-  }
-
-  private normalizeWorkspaceSetups() {
-    const actionable = this.items.filter(
-      (item): item is Extract<AgentChatItem, { kind: "workspace_setup" }> =>
-        item.kind === "workspace_setup" &&
-        (item.status === "preparing" || item.status === "ready" || item.status === "failed"),
-    );
-    const latest = actionable.at(-1);
-    for (const item of actionable) if (item !== latest) item.status = "superseded";
   }
 
   private appendPart(
@@ -621,11 +439,6 @@ export class AgentChatStore extends BaseStore {
       status?: string;
       input?: unknown;
       activity?: unknown;
-      setup?: unknown;
-      plan?: unknown;
-      planHash?: unknown;
-      cleanupSummary?: unknown;
-      setupId?: unknown;
     },
     at?: Date,
     messageId?: string,
@@ -686,34 +499,6 @@ export class AgentChatStore extends BaseStore {
               : part.status === "timeout" || part.status === "cancelled"
                 ? "timeout"
                 : null,
-        at,
-      });
-    } else if (part.type === "workspace_setup" && part.id) {
-      const plan = AgentWorkspaceSetupPlanSchema.safeParse(part.plan);
-      const cleanupSummary = AgentWorkspaceSetupCleanupSummarySchema.safeParse(part.cleanupSummary);
-      if (!plan.success || typeof part.planHash !== "string") return;
-      const status = [
-        "preparing",
-        "ready",
-        "superseded",
-        "applied",
-        "partiallyCleaned",
-        "cleaned",
-        "notEmpty",
-        "failed",
-      ].includes(part.status ?? "")
-        ? (part.status as Extract<AgentChatItem, { kind: "workspace_setup" }>["status"])
-        : "failed";
-      this.items.push({
-        kind: "workspace_setup",
-        id: nextItemId(),
-        commandId: part.id,
-        ...(messageId ? { turnKey: `message-${messageId}` } : {}),
-        plan: plan.data,
-        planHash: part.planHash,
-        ...(typeof part.setupId === "string" ? { setupId: part.setupId } : {}),
-        status,
-        ...(cleanupSummary.success ? { cleanupSummary: cleanupSummary.data } : {}),
         at,
       });
     } else if (part.type === "tool_use" && part.id && part.name) {
@@ -928,8 +713,7 @@ export class AgentChatStore extends BaseStore {
   };
 
   archiveConversation = async (id: string) => {
-    if (this.isWorking || this.isWorkspaceSetupPending || this.historyMutationPending || this.conversationLoadPendingId)
-      return false;
+    if (this.isWorking || this.historyMutationPending || this.conversationLoadPendingId) return false;
     const archivedConversation = this.conversations.find((conversation) => conversation.id === id) ?? null;
     runInAction(() => {
       this.historyMutationPending = true;
@@ -977,14 +761,13 @@ export class AgentChatStore extends BaseStore {
 
   restoreLastArchivedConversation = async () => {
     const archived = this.lastArchivedConversation;
-    if (!archived || this.isWorking || this.isWorkspaceSetupPending || this.historyMutationPending) return;
+    if (!archived || this.isWorking || this.historyMutationPending) return;
 
     await this.restoreArchivedConversation(archived.id);
   };
 
   restoreArchivedConversation = async (id: string) => {
-    if (this.isWorking || this.isWorkspaceSetupPending || this.historyMutationPending || this.conversationLoadPendingId)
-      return false;
+    if (this.isWorking || this.historyMutationPending || this.conversationLoadPendingId) return false;
 
     runInAction(() => {
       this.historyMutationPending = true;
@@ -1021,8 +804,7 @@ export class AgentChatStore extends BaseStore {
   };
 
   deleteArchivedConversation = async (id: string) => {
-    if (this.isWorking || this.isWorkspaceSetupPending || this.historyMutationPending || this.conversationLoadPendingId)
-      return false;
+    if (this.isWorking || this.historyMutationPending || this.conversationLoadPendingId) return false;
     runInAction(() => {
       this.historyMutationPending = true;
     });
@@ -1061,7 +843,6 @@ export class AgentChatStore extends BaseStore {
       reconcile?: boolean;
     } = {},
   ) => {
-    if (this.isWorkspaceSetupPending) return;
     const trimmed = text.trim();
     if (!trimmed || (this.isWorking && !options.reconcile)) return;
     const messageId = options.messageId ?? globalThis.crypto.randomUUID();
@@ -1264,7 +1045,7 @@ export class AgentChatStore extends BaseStore {
   };
 
   respondToApproval = async (item: Extract<AgentChatItem, { kind: "approval" }>, decision: "approve" | "reject") => {
-    if (!this.conversationId || this.isWorkspaceSetupPending || item.resolution || item.pendingDecision) return;
+    if (!this.conversationId || item.resolution || item.pendingDecision) return;
 
     try {
       runInAction(() => {
@@ -1318,7 +1099,6 @@ export class AgentChatStore extends BaseStore {
             if (!part || typeof part !== "object" || Array.isArray(part)) continue;
             this.appendPart("assistant", part as Parameters<AgentChatStore["appendPart"]>[1], at, messageId);
           }
-          this.normalizeWorkspaceSetups();
           break;
         }
         case "message_committed": {
@@ -1472,45 +1252,6 @@ export class AgentChatStore extends BaseStore {
     turnKey: string;
   }) => {
     const ui = this.rootStore.agentUiControlStore;
-
-    if (command.name === "open_workspace_setup") {
-      const input = PrepareAgentWorkspaceSetupSchema.safeParse(command.input);
-      if (!input.success) return { ok: false, result: "The workspace setup plan was invalid." };
-
-      const plan = buildAgentWorkspaceSetupPlan(input.data, this.rootStore.localeStore.translation ?? undefined);
-      const planHash = await hashAgentWorkspaceSetupPlan(plan);
-      const counts = agentWorkspaceSetupCounts(plan);
-      runInAction(() => {
-        for (const item of this.items) {
-          if (
-            item.kind === "workspace_setup" &&
-            (item.commandId !== command.commandId || item.turnKey !== command.turnKey) &&
-            (item.status === "preparing" || item.status === "ready" || item.status === "failed")
-          )
-            item.status = "superseded";
-        }
-        const existing = this.items.find(
-          (item): item is Extract<AgentChatItem, { kind: "workspace_setup" }> =>
-            item.kind === "workspace_setup" && item.commandId === command.commandId && item.turnKey === command.turnKey,
-        );
-        if (!existing) {
-          this.items.push({
-            kind: "workspace_setup",
-            id: nextItemId(),
-            commandId: command.commandId,
-            turnKey: command.turnKey,
-            plan,
-            planHash,
-            status: "ready",
-            at: new Date(),
-          });
-        }
-      });
-      return {
-        ok: true,
-        result: `Prepared a review plan with ${counts.columns} fields, ${counts.records} linked records, and ${counts.widgets} widgets.`,
-      };
-    }
 
     if (command.name === "navigate") return ui.navigate(String(command.input.targetId ?? ""));
 

@@ -301,13 +301,10 @@ import { RespondToApprovalInteractor } from "@/features/agent-chat/respond-to-ap
 import { RespondToUiCommandInteractor } from "@/features/agent-chat/respond-to-ui-command.interactor";
 import { GetAgentConversationInteractor } from "@/features/agent-chat/get-agent-conversation.interactor";
 import { CreateChatSupportTicketInteractor } from "@/features/agent-chat/create-chat-support-ticket.interactor";
-import { PrismaAgentWorkspaceSetupRepo } from "@/features/agent-chat/prisma-agent-workspace-setup.repository";
 import { ListAgentConversationsInteractor } from "@/features/agent-chat/list-agent-conversations.interactor";
 import { DeleteAgentConversationInteractor } from "@/features/agent-chat/delete-agent-conversation.interactor";
 import { ArchiveAgentConversationInteractor } from "@/features/agent-chat/archive-agent-conversation.interactor";
 import { RestoreAgentConversationInteractor } from "@/features/agent-chat/restore-agent-conversation.interactor";
-import { ApplyAgentWorkspaceSetupInteractor } from "@/features/agent-chat/apply-agent-workspace-setup.interactor";
-import { CleanupAgentWorkspaceSetupInteractor } from "@/features/agent-chat/cleanup-agent-workspace-setup.interactor";
 // Validators
 
 // ─── Section 2: Repos ───────────────────────────────────────────────────────
@@ -336,8 +333,6 @@ export const getCalendarRepo = () => new PrismaCalendarRepo();
 export const getCalendarEventsRepo = () => new PrismaCalendarEventsRepo();
 export const getSupportRepo = () => new PrismaSupportRepo();
 export const getAgentChatRepo = () => new PrismaAgentChatRepo();
-export const getAgentWorkspaceSetupRepo = () => new PrismaAgentWorkspaceSetupRepo();
-
 // ─── Section 3: Services ────────────────────────────────────────────────────
 
 export const getEmailService = () => new EmailService();
@@ -1478,8 +1473,7 @@ export const getRespondToApprovalInteractor = () => new RespondToApprovalInterac
 
 export const getRespondToUiCommandInteractor = () => new RespondToUiCommandInteractor(getAgentChatRepo());
 
-export const getGetAgentConversationInteractor = () =>
-  new GetAgentConversationInteractor(getAgentChatRepo(), getAgentWorkspaceSetupRepo());
+export const getGetAgentConversationInteractor = () => new GetAgentConversationInteractor(getAgentChatRepo());
 
 export const getListAgentConversationsInteractor = () => new ListAgentConversationsInteractor(getAgentChatRepo());
 
@@ -1488,36 +1482,6 @@ export const getDeleteAgentConversationInteractor = () => new DeleteAgentConvers
 export const getArchiveAgentConversationInteractor = () => new ArchiveAgentConversationInteractor(getAgentChatRepo());
 
 export const getRestoreAgentConversationInteractor = () => new RestoreAgentConversationInteractor(getAgentChatRepo());
-
-export const getApplyAgentWorkspaceSetupInteractor = () =>
-  new ApplyAgentWorkspaceSetupInteractor({
-    chatRepo: getAgentChatRepo(),
-    setupRepo: getAgentWorkspaceSetupRepo(),
-    getCompanySettings: getGetCompanySettingsInteractor(),
-    updateCompanySettings: getUpdateCompanySettingsInteractor(),
-    upsertCustomColumn: getUpsertCustomColumnInteractor(),
-    createOrganizations: getCreateManyOrganizationsInteractor(),
-    createContacts: getCreateManyContactsInteractor(),
-    createServices: getCreateManyServicesInteractor(),
-    createDeals: getCreateManyDealsInteractor(),
-    createTasks: getCreateManyTasksInteractor(),
-    upsertWidget: getUpsertWidgetInteractor(),
-  });
-
-export const getCleanupAgentWorkspaceSetupInteractor = () =>
-  new CleanupAgentWorkspaceSetupInteractor({
-    chatRepo: getAgentChatRepo(),
-    setupRepo: getAgentWorkspaceSetupRepo(),
-    getCompanySettings: getGetCompanySettingsInteractor(),
-    updateCompanySettings: getUpdateCompanySettingsInteractor(),
-    deleteWidget: getDeleteWidgetInteractor(),
-    deleteTask: getDeleteTaskInteractor(),
-    deleteDeal: getDeleteDealInteractor(),
-    deleteService: getDeleteServiceInteractor(),
-    deleteContact: getDeleteContactInteractor(),
-    deleteOrganization: getDeleteOrganizationInteractor(),
-    deleteCustomColumn: getDeleteCustomColumnInteractor(),
-  });
 
 export const getCreateChatSupportTicketInteractor = () =>
   new CreateChatSupportTicketInteractor(getAgentChatRepo(), getCreateSupportTicketInteractor());

@@ -13,7 +13,6 @@ import { toolResultText } from "./agent-stream-utils";
 import { AGENT_NAV_TARGET_IDS, AGENT_UI_TARGETS, UiTargetIdSchema } from "./ui-targets";
 import { AgentTourSchema } from "./agent-tours";
 import { ConfigureViewSchema, FillFormSchema, OpenRecordSchema } from "./ui-operations";
-import { PrepareAgentWorkspaceSetupSchema } from "./agent-workspace-setup";
 
 export type ApprovalDecision = "approve" | "reject" | "timeout";
 export type AgentUiCommandOutcome = { ok: boolean; result: string };
@@ -54,13 +53,12 @@ const UI_TOOL_NAMES = [
   "navigate",
   "highlight_element",
   "start_tour",
-  "open_workspace_setup",
   "configure_view",
   "open_record",
   "fill_form",
 ] as const;
 
-const CORE_UI_TOOL_NAMES = ["list_ui_targets", "navigate", "highlight_element", "start_tour", "open_workspace_setup"];
+const CORE_UI_TOOL_NAMES = ["list_ui_targets", "navigate", "highlight_element", "start_tour"];
 
 const CORE_AGENT_TOOL_NAMES = [
   "get_record_schema",
@@ -498,12 +496,6 @@ function uiTools(deps: AgentToolDeps): ToolSet {
       inputSchema: AgentTourSchema,
       execute: (input, { toolCallId }) =>
         runSafely(() => deps.runUiCommand(toolCallId, "start_tour", { steps: input.steps })),
-    }),
-    open_workspace_setup: tool({
-      description:
-        "Open a reviewable workspace setup plan after learning the user's use case, terminology, and useful custom fields. Ask focused questions first. This only prepares a hashed plan; the user applies it explicitly in the UI.",
-      inputSchema: PrepareAgentWorkspaceSetupSchema,
-      execute: (input, { toolCallId }) => runSafely(() => deps.runUiCommand(toolCallId, "open_workspace_setup", input)),
     }),
     configure_view: tool({
       description:

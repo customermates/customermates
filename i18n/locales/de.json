@@ -186,11 +186,6 @@
             "done": "Workspace wurde geprüft",
             "error": "Workspace konnte nicht geprüft werden",
             "running": "Workspace wird geprüft"
-          },
-          "setup": {
-            "done": "Workspace-Einrichtung ist fertig",
-            "error": "Workspace-Einrichtung fehlgeschlagen",
-            "running": "Workspace wird eingerichtet"
           }
         }
       },
@@ -239,162 +234,6 @@
       "turnError": "Ich konnte diese Anfrage nicht abschließen. Bitte versuche es erneut."
     },
     "send": "Senden",
-    "setup": {
-      "actionFailed": "Die Aktion konnte nicht abgeschlossen werden. Du kannst es erneut versuchen.",
-      "applyPlan": "Einrichtung anwenden",
-      "cancel": "Abbrechen",
-      "cleanupReasonDependent": "weiterhin verknüpft",
-      "cleanupReasonEdited": "bearbeitet",
-      "cleanupSummary": "{deleted} entfernt · {retained} behalten · {missing} bereits nicht vorhanden",
-      "cleanupSummaryReasons": "{deleted} entfernt · {retained} behalten · {missing} bereits nicht vorhanden · Behalten: {reasons}",
-      "confirmFullCleanup": "Endgültig entfernen",
-      "contacts": "Kontakte",
-      "deals": "Deals",
-      "description": "Ein kleiner, verknüpfter Startpunkt für deinen Anwendungsfall.",
-      "dueInDays": "in {days} Tagen fällig",
-      "editPlan": "Plan anpassen",
-      "editPrompt": "Ich möchte diesen Einrichtungsplan ändern. Frag mich bitte, was ich anpassen möchte.",
-      "entities": {
-        "task": "Aufgabe"
-      },
-      "fields": "Felder",
-      "fullCleanup": "Einige Einträge wurden bearbeitet und deshalb behalten. Du kannst auch diese entfernen; weiterhin verknüpfte Einträge bleiben geschützt. Dies kann nicht rückgängig gemacht werden.",
-      "organizations": "Organisationen",
-      "pending": {
-        "apply": {
-          "description": "Die geprüfte Einrichtung wird jetzt angewendet …",
-          "label": "Wird angewendet"
-        },
-        "fullCleanup": {
-          "description": "Bearbeitete Einträge aus dieser Einrichtung werden ebenfalls entfernt …",
-          "label": "Wird vollständig entfernt"
-        },
-        "safeCleanup": {
-          "description": "Unveränderte Einträge aus dieser Einrichtung werden entfernt …",
-          "label": "Wird entfernt"
-        }
-      },
-      "records": "Einträge",
-      "removeEdited": "Bearbeitete Einträge entfernen …",
-      "removeSetup": "Einrichtungsdaten entfernen",
-      "review": "Plan prüfen",
-      "safeCleanup": "Du kannst diese Einrichtung wieder entfernen. Bearbeitete oder weiterhin verknüpfte Einträge bleiben dabei erhalten.",
-      "safety": "Noch wurde nichts geändert. Anwenden erstellt genau die geprüften Felder, verknüpften Starteinträge und persönlichen Widgets.",
-      "sampleData": "Starteinträge",
-      "sampleDataDetail": "{organizations} Organisationen, {contacts} Kontakte, {services} Leistungen, {deals} Deals und {tasks} Aufgaben",
-      "services": "Leistungen",
-      "status": {
-        "applied": {
-          "description": "Diese Einrichtung ist in deinem Arbeitsbereich aktiv.",
-          "label": "Angewendet"
-        },
-        "cleaned": {
-          "description": "Die von dieser Einrichtung erstellten Einträge wurden entfernt.",
-          "label": "Entfernt"
-        },
-        "failed": {
-          "description": "Die Einrichtung konnte nicht abgeschlossen werden.",
-          "label": "Fehlgeschlagen"
-        },
-        "notEmpty": {
-          "description": "Der Arbeitsbereich enthält inzwischen Daten; dieser Startplan wurde nicht angewendet.",
-          "label": "Nicht angewendet"
-        },
-        "partiallyCleaned": {
-          "description": "Bearbeitete oder verknüpfte Einträge wurden sicher beibehalten.",
-          "label": "Teilweise entfernt"
-        },
-        "preparing": {
-          "description": "Der Einrichtungsplan wird erstellt.",
-          "label": "Wird vorbereitet"
-        },
-        "ready": {
-          "description": "Prüfe den Plan, bevor du ihn anwendest.",
-          "label": "Bereit zur Prüfung"
-        },
-        "superseded": {
-          "description": "Ein neuerer Einrichtungsplan ersetzt diese Version.",
-          "label": "Ersetzt"
-        }
-      },
-      "summary": "Zusammenfassung der Einrichtung",
-      "tasks": "Aufgaben",
-      "terminology": "Begriffe",
-      "text": {
-        "active": "Aktiv",
-        "advisorySession": "Beratungstermin",
-        "atRisk": "Gefährdet",
-        "blocked": "Blockiert",
-        "bookProjectKickoff": "Projekt-Kick-off terminieren",
-        "brightpathRelaunch": "Brightpath-Relaunch",
-        "cedarIntroduction": "Cedar-Erstgespräch",
-        "cedarPartnership": "Cedar-Partnerschaft",
-        "clarifyRequirements": "Anforderungen klären",
-        "collectProjectRequirements": "Projektanforderungen sammeln",
-        "commonGroundAdvisory": "Common Ground Beratung",
-        "confirmDiscoveryGoals": "Discovery-Ziele abstimmen",
-        "confirmSeatRequirements": "Nutzerbedarf abstimmen",
-        "coreOffering": "Kernangebot",
-        "customerOpportunity": "Kundenchance",
-        "dealsByStage": "Deals nach Phase",
-        "discoveryWorkshop": "Discovery-Workshop",
-        "done": "Erledigt",
-        "draftPartnershipOutline": "Partnerschaftskonzept entwerfen",
-        "dueDate": "Fälligkeitsdatum",
-        "enterprise": "Enterprise",
-        "enterprisePlan": "Enterprise-Tarif",
-        "exampleCustomer": "Beispielkunde",
-        "examplePartner": "Beispielpartner",
-        "expandedOffering": "Erweitertes Angebot",
-        "growthRollout": "Wachstums-Rollout",
-        "implementationProject": "Umsetzungsprojekt",
-        "inbound": "Inbound",
-        "inProgress": "In Bearbeitung",
-        "juniperDiscovery": "Juniper-Discovery",
-        "juniperImplementation": "Juniper-Umsetzung",
-        "keyRelationship": "Schlüsselbeziehung",
-        "lindenExpansion": "Linden-Erweiterung",
-        "midMarket": "Mittelstand",
-        "new": "Neu",
-        "northstarPilot": "Northstar-Pilot",
-        "northstarRollout": "Northstar-Rollout",
-        "oakFieldExpansion": "Oak & Field Erweiterung",
-        "oakFieldTeamPlan": "Oak & Field Team-Tarif",
-        "onTrack": "Im Plan",
-        "outbound": "Outbound",
-        "partnerExpansion": "Partnererweiterung",
-        "partnerOpportunity": "Partnerchance",
-        "partnershipProgram": "Partnerschaftsprogramm",
-        "pipelineValueByStage": "Pipeline-Wert nach Phase",
-        "prepareProductDemo": "Produktdemo vorbereiten",
-        "prepareRolloutProposal": "Rollout-Angebot vorbereiten",
-        "prepareTheNextStep": "Nächsten Schritt vorbereiten",
-        "projectHealth": "Projektstatus",
-        "proposal": "Angebot",
-        "qualified": "Qualifiziert",
-        "referral": "Empfehlung",
-        "relationship": "Beziehung",
-        "reviewDeliveryPlan": "Umsetzungsplan prüfen",
-        "scheduleACheckIn": "Check-in terminieren",
-        "scheduleAFollowUp": "Folgetermin vereinbaren",
-        "scheduleStakeholderReview": "Stakeholder-Review terminieren",
-        "segment": "Segment",
-        "sendIntroductionNote": "Vorstellungsnachricht senden",
-        "shareSecurityPackage": "Sicherheitsunterlagen senden",
-        "smallTeam": "Kleines Team",
-        "solarisEnterprisePlan": "Solaris Enterprise-Tarif",
-        "source": "Quelle",
-        "stage": "Phase",
-        "status": "Status",
-        "strategySprint": "Strategie-Sprint",
-        "tasksByStatus": "Aufgaben nach benutzerdefiniertem Status",
-        "teamPlan": "Team-Tarif",
-        "toDo": "Offen",
-        "won": "Gewonnen"
-      },
-      "title": "Arbeitsbereich einrichten",
-      "widgets": "Widgets"
-    },
     "stop": "Stopp",
     "suggestions": {
       "pages": {
@@ -706,7 +545,7 @@
       "cancel": "Abbrechen",
       "chats": "Chats",
       "deleteChat": "Chat löschen",
-      "deleteChatBody": "Nachrichten, Freigaben, Assistentenaktionen und Einrichtungsdaten dieses Chats werden endgültig gelöscht. KI-Nutzungs- und Abrechnungsdaten, über den Chat erstellte CRM-Einträge und separat erstellte Support-Tickets bleiben erhalten.",
+      "deleteChatBody": "Nachrichten, Freigaben und Assistentenaktionen dieses Chats werden endgültig gelöscht. KI-Nutzungs- und Abrechnungsdaten, über den Chat erstellte CRM-Einträge und separat erstellte Support-Tickets bleiben erhalten.",
       "deleteChatTitle": "Chat endgültig löschen?",
       "deletePermanently": "Endgültig löschen",
       "editQueued": "Vorgemerkte Nachricht bearbeiten",

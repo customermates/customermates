@@ -464,7 +464,7 @@ describe("agent tools", () => {
     expect(prompt).toContain("Destructive actions");
     expect(prompt).toContain("If an approval is declined or times out, nothing changed");
     expect(prompt).toContain("A support ticket is created only after the user explicitly confirms");
-    expect(prompt).toContain("it does not apply changes");
+    expect(prompt).toContain("build it yourself with the ordinary tools");
   });
 });
 

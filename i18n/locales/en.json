@@ -186,11 +186,6 @@
             "done": "Checked your workspace",
             "error": "Couldn’t check your workspace",
             "running": "Checking your workspace"
-          },
-          "setup": {
-            "done": "Workspace setup is ready",
-            "error": "Couldn’t finish the workspace setup",
-            "running": "Setting up your workspace"
           }
         }
       },
@@ -239,162 +234,6 @@
       "turnError": "I couldn't complete that request. Please try again."
     },
     "send": "Send",
-    "setup": {
-      "actionFailed": "The action couldn’t be completed. You can try again.",
-      "applyPlan": "Apply setup",
-      "cancel": "Cancel",
-      "cleanupReasonDependent": "still linked",
-      "cleanupReasonEdited": "edited",
-      "cleanupSummary": "{deleted} removed · {retained} kept · {missing} already missing",
-      "cleanupSummaryReasons": "{deleted} removed · {retained} kept · {missing} already missing · Kept: {reasons}",
-      "confirmFullCleanup": "Remove permanently",
-      "contacts": "Contacts",
-      "deals": "Deals",
-      "description": "A small, connected starting point tailored to your use case.",
-      "dueInDays": "due in {days} days",
-      "editPlan": "Edit plan",
-      "editPrompt": "I’d like to change this workspace setup plan. Please ask me what I want to adjust.",
-      "entities": {
-        "task": "Task"
-      },
-      "fields": "Fields",
-      "fullCleanup": "Some setup items were edited, so safe cleanup kept them. You can remove those too; still-linked items remain protected. This cannot be undone.",
-      "organizations": "Organizations",
-      "pending": {
-        "apply": {
-          "description": "The reviewed workspace setup is being applied…",
-          "label": "Applying"
-        },
-        "fullCleanup": {
-          "description": "Edited items created by this setup are being removed too…",
-          "label": "Removing edited items"
-        },
-        "safeCleanup": {
-          "description": "Unchanged items created by this setup are being removed…",
-          "label": "Removing"
-        }
-      },
-      "records": "Records",
-      "removeEdited": "Remove edited items…",
-      "removeSetup": "Remove setup data",
-      "review": "Review plan",
-      "safeCleanup": "You can remove this setup later. Safe cleanup keeps anything you edited or that is still linked to other data.",
-      "safety": "Nothing has changed yet. Apply creates exactly the reviewed fields, linked starter records, and personal widgets.",
-      "sampleData": "Starter records",
-      "sampleDataDetail": "{organizations} organizations, {contacts} contacts, {services} services, {deals} deals and {tasks} tasks",
-      "services": "Services",
-      "status": {
-        "applied": {
-          "description": "This setup is active in your workspace.",
-          "label": "Applied"
-        },
-        "cleaned": {
-          "description": "Items created by this setup were removed.",
-          "label": "Removed"
-        },
-        "failed": {
-          "description": "The workspace setup could not be completed.",
-          "label": "Failed"
-        },
-        "notEmpty": {
-          "description": "The workspace now contains data, so this starter plan was not applied.",
-          "label": "Not applied"
-        },
-        "partiallyCleaned": {
-          "description": "Edited or linked items were safely kept.",
-          "label": "Partially removed"
-        },
-        "preparing": {
-          "description": "The workspace setup plan is being prepared.",
-          "label": "Preparing"
-        },
-        "ready": {
-          "description": "Review the plan before applying it.",
-          "label": "Ready to review"
-        },
-        "superseded": {
-          "description": "A newer setup plan replaces this version.",
-          "label": "Replaced"
-        }
-      },
-      "summary": "Workspace setup summary",
-      "tasks": "Tasks",
-      "terminology": "Terminology",
-      "text": {
-        "active": "Active",
-        "advisorySession": "Advisory session",
-        "atRisk": "At risk",
-        "blocked": "Blocked",
-        "bookProjectKickoff": "Book project kickoff",
-        "brightpathRelaunch": "Brightpath relaunch",
-        "cedarIntroduction": "Cedar introduction",
-        "cedarPartnership": "Cedar partnership",
-        "clarifyRequirements": "Clarify requirements",
-        "collectProjectRequirements": "Collect project requirements",
-        "commonGroundAdvisory": "Common Ground advisory",
-        "confirmDiscoveryGoals": "Confirm discovery goals",
-        "confirmSeatRequirements": "Confirm seat requirements",
-        "coreOffering": "Core offering",
-        "customerOpportunity": "Customer opportunity",
-        "dealsByStage": "Deals by stage",
-        "discoveryWorkshop": "Discovery workshop",
-        "done": "Done",
-        "draftPartnershipOutline": "Draft partnership outline",
-        "dueDate": "Due date",
-        "enterprise": "Enterprise",
-        "enterprisePlan": "Enterprise plan",
-        "exampleCustomer": "Example Customer",
-        "examplePartner": "Example Partner",
-        "expandedOffering": "Expanded offering",
-        "growthRollout": "Growth rollout",
-        "implementationProject": "Implementation project",
-        "inbound": "Inbound",
-        "inProgress": "In progress",
-        "juniperDiscovery": "Juniper discovery",
-        "juniperImplementation": "Juniper implementation",
-        "keyRelationship": "Key relationship",
-        "lindenExpansion": "Linden expansion",
-        "midMarket": "Mid-market",
-        "new": "New",
-        "northstarPilot": "Northstar pilot",
-        "northstarRollout": "Northstar rollout",
-        "oakFieldExpansion": "Oak & Field expansion",
-        "oakFieldTeamPlan": "Oak & Field team plan",
-        "onTrack": "On track",
-        "outbound": "Outbound",
-        "partnerExpansion": "Partner expansion",
-        "partnerOpportunity": "Partner opportunity",
-        "partnershipProgram": "Partnership program",
-        "pipelineValueByStage": "Pipeline value by stage",
-        "prepareProductDemo": "Prepare product demo",
-        "prepareRolloutProposal": "Prepare rollout proposal",
-        "prepareTheNextStep": "Prepare the next step",
-        "projectHealth": "Project health",
-        "proposal": "Proposal",
-        "qualified": "Qualified",
-        "referral": "Referral",
-        "relationship": "Relationship",
-        "reviewDeliveryPlan": "Review delivery plan",
-        "scheduleACheckIn": "Schedule a check-in",
-        "scheduleAFollowUp": "Schedule a follow-up",
-        "scheduleStakeholderReview": "Schedule stakeholder review",
-        "segment": "Segment",
-        "sendIntroductionNote": "Send introduction note",
-        "shareSecurityPackage": "Share security package",
-        "smallTeam": "Small team",
-        "solarisEnterprisePlan": "Solaris enterprise plan",
-        "source": "Source",
-        "stage": "Stage",
-        "status": "Status",
-        "strategySprint": "Strategy sprint",
-        "tasksByStatus": "Tasks by custom status",
-        "teamPlan": "Team plan",
-        "toDo": "To do",
-        "won": "Won"
-      },
-      "title": "Set up your workspace",
-      "widgets": "Widgets"
-    },
     "stop": "Stop",
     "suggestions": {
       "pages": {
@@ -706,7 +545,7 @@
       "cancel": "Cancel",
       "chats": "Chats",
       "deleteChat": "Delete chat",
-      "deleteChatBody": "This permanently deletes the chat’s messages, approvals, assistant actions, and setup history. AI usage and billing records, CRM records created through the chat, and separately created support tickets remain.",
+      "deleteChatBody": "This permanently deletes the chat’s messages, approvals, assistant actions. AI usage and billing records, CRM records created through the chat, and separately created support tickets remain.",
       "deleteChatTitle": "Permanently delete this chat?",
       "deletePermanently": "Delete permanently",
       "editQueued": "Edit queued message",
