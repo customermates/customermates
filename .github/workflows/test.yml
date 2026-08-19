@@ -44,6 +44,13 @@ jobs:
           npx --no-install prisma db seed
       - run: yarn openapi:generate
       - run: yarn raw-docs:generate
+      - name: Verify generated files are committed
+        run: |
+          if ! git diff --quiet; then
+            echo "::error::Generated files are out of date. Run 'yarn openapi:generate' and commit the result."
+            git diff --stat
+            exit 1
+          fi
       - run: yarn typecheck
       - run: yarn lint
       - run: yarn test
