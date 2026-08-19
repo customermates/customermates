@@ -7,6 +7,7 @@ import type { Filter, FilterableField } from "@/core/base/base-get.schema";
 import { makeObservable, action, observable, computed, reaction, toJS } from "mobx";
 
 import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
+import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { upsertFilterPresetAction, deleteFilterPresetAction } from "@/app/actions";
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
@@ -112,7 +113,14 @@ export class EditFiltersModalStore extends BaseModalStore<UpsertFilterPresetData
     tableStore.setQueryOptions({ filters: this.validDraftFilters(), refreshMode: "background" });
   };
 
-  private validDraftFilters = (): Filter[] => toJS(this.form.filters ?? []).filter(hasValidFilterConfiguration);
+  private validDraftFilters = (): Filter[] =>
+    toJS(this.form.filters ?? [])
+      .filter(hasValidFilterConfiguration)
+      .map((filter) =>
+        filter.operator === FilterOperatorKey.hasSome || filter.operator === FilterOperatorKey.hasNone
+          ? { field: filter.field, operator: filter.operator }
+          : filter,
+      );
 
   private markDraftApplied = () => {
     this.onInitOrRefresh({});

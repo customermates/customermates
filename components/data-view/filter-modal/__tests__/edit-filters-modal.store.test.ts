@@ -14,12 +14,17 @@ vi.mock("@/app/actions", () => ({ deleteFilterPresetAction, upsertFilterPresetAc
 
 import { EditFiltersModalStore, FILTER_AUTO_APPLY_DELAY_MS } from "../edit-filters-modal.store";
 
+import { ActivityFiltersSchema } from "@/ee/messaging/activities/activities.schema";
+
 type SavedPreset = { id: string; name: string; filters: unknown };
 
 const FILTERABLE_FIELDS: FilterableField[] = [
   { field: "name", operators: ["contains", "equals", "isNull"] },
-  { field: "userIds", operators: ["in", "hasSome"] },
+  { field: "userIds", operators: ["in", "notIn", "hasSome", "hasNone"] },
+  { field: "contactIds", operators: ["in", "notIn", "hasSome", "hasNone"] },
 ] as unknown as FilterableField[];
+
+const A_CONTACT = "60000000-0000-4000-8000-000000000008";
 
 function tableStore(overrides: { filters?: Filter[]; savedFilterPresets?: SavedPreset[] } = {}) {
   return {
@@ -183,7 +188,7 @@ describe("EditFiltersModalStore auto-apply", () => {
     const store = openedOn(table);
 
     expect(() => store.onChange("presetId", "preset-1")).not.toThrow();
-    expect(store.form.filters.map((filter) => filter.field)).toEqual(["name", "userIds"]);
+    expect(store.form.filters.map((filter) => filter.field)).toEqual(["name", "userIds", "contactIds"]);
     expect(committedFilters(table)).toEqual({ filters: [], refreshMode: "background" });
   });
 
@@ -212,6 +217,23 @@ describe("EditFiltersModalStore auto-apply", () => {
     vi.advanceTimersByTime(FILTER_AUTO_APPLY_DELAY_MS);
 
     expect(table.setQueryOptions).not.toHaveBeenCalled();
+  });
+
+  it("keeps a relation-existence operator from carrying a value into the timeline schema", () => {
+    const poisoned = { field: "contactIds", operator: "hasSome", value: [A_CONTACT] } as unknown as Filter;
+    const table = tableStore({ filters: [poisoned] });
+    const store = openedOn(table);
+
+    store.onChange("filters[0].operator", "contains");
+    store.onChange("filters[0].value", "acme");
+    vi.advanceTimersByTime(FILTER_AUTO_APPLY_DELAY_MS);
+
+    const committed = (committedFilters(table).filters as Filter[]).find((filter) => filter.field === "contactIds");
+
+    expect(committed).toEqual({ field: "contactIds", operator: "hasSome" });
+    expect("value" in (committed as object)).toBe(false);
+    expect(() => ActivityFiltersSchema.parse([committed])).not.toThrow();
+    expect(() => ActivityFiltersSchema.parse([poisoned])).toThrow();
   });
 
   it("never writes a preset when submitting outside preset mode", async () => {
