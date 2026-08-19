@@ -85,7 +85,7 @@ export function isExpectedError(err: unknown): boolean {
   const message = (err as { message?: unknown } | null | undefined)?.message;
   if (typeof message !== "string") return false;
 
-  return message.startsWith(WEBHOOK_FAILURE_MESSAGE_PREFIX) || message.startsWith(DEMO_MODE_MESSAGE);
+  return message.includes(WEBHOOK_FAILURE_MESSAGE_PREFIX) || message.startsWith(DEMO_MODE_MESSAGE);
 }
 
 export function appErrorResponse(err: unknown): { message: string; statusCode: number } | null {

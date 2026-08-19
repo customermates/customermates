@@ -81,6 +81,16 @@ describe("isExpectedError", () => {
     expect(isExpectedError({ name: "FatalError", message: "Webhook target responded 503 down" })).toBe(true);
   });
 
+  it("recognizes a webhook failure wrapped by the workflow retry-exhaustion message", () => {
+    expect(
+      isExpectedError({
+        name: "FatalError",
+        message:
+          'Step "step//./workflows/deliver-webhook//deliverStep" failed after 5 retries: Webhook target responded 500 Internal Server Error',
+      }),
+    ).toBe(true);
+  });
+
   it("recognizes a DemoModeError that lost its class identity across a serialization boundary, by message", () => {
     expect(isExpectedError({ name: "Error", message: DEMO_MODE_MESSAGE })).toBe(true);
     expect(isExpectedError(new Error(DEMO_MODE_MESSAGE))).toBe(true);

@@ -43,7 +43,7 @@ export class UserService {
   async getActiveUserOrThrow() {
     const user = await this.getUserOrThrow();
 
-    if (user.status !== Status.active) throw new Error("User is not active");
+    if (user.status !== Status.active) throw new ForbiddenError("User is not active");
 
     return user;
   }
