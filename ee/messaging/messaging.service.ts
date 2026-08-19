@@ -169,6 +169,13 @@ export function isUnipileTimeout(err: unknown): boolean {
   return err instanceof UnipileRequestError && err.status === 0;
 }
 
+export function isUnipileCursorPaginationRequired(err: unknown): boolean {
+  if (!(err instanceof UnipileRequestError) || err.status !== 400) return false;
+  if (!(err.errorType ?? "").endsWith("/invalid_parameters")) return false;
+
+  return /cursor for pagination/i.test(err.bodyText);
+}
+
 export function isUnipileResourceNotFound(err: unknown): boolean {
   if (!(err instanceof UnipileRequestError)) return false;
 
