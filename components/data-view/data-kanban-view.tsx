@@ -307,6 +307,17 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
 
   const rowsById = new Map(table.getRowModel().rows.map((row) => [row.id, row]));
 
+  function projectValueSumsForGroup(item: E, groupKey: string): GroupValueSums | undefined {
+    const total = (item as { totalValue?: unknown }).totalValue;
+    if (typeof total !== "number") return undefined;
+
+    const weight = groupingCustomColumn?.options?.options?.find((opt) => opt.value === groupKey)?.weight;
+
+    return weight === undefined
+      ? { [DEAL_GROUP_SUM_FIELDS.total]: total }
+      : { [DEAL_GROUP_SUM_FIELDS.total]: total, [DEAL_GROUP_SUM_FIELDS.weighted]: (total * weight) / 100 };
+  }
+
   async function handleDragEnd(event: DragEndEvent) {
     if (!event.over || !event.active) return;
     const itemId = String(event.active.id);
@@ -327,6 +338,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
       fromGroupKey: currentValue,
       toGroupKey: targetGroup,
       value: nextValue,
+      destinationValueSums: projectValueSumsForGroup(item, targetGroup),
     });
   }
 

@@ -65,7 +65,13 @@ function createStore() {
   return store;
 }
 
-function move(store: TestStore, item: Item, fromGroupKey: string, toGroupKey: string) {
+function move(
+  store: TestStore,
+  item: Item,
+  fromGroupKey: string,
+  toGroupKey: string,
+  destinationValueSums?: Record<string, number>,
+) {
   return store.moveItemBetweenGroups({
     item,
     optimisticItem: item,
@@ -73,6 +79,7 @@ function move(store: TestStore, item: Item, fromGroupKey: string, toGroupKey: st
     fromGroupKey,
     toGroupKey,
     value: toGroupKey,
+    destinationValueSums,
   });
 }
 
@@ -93,6 +100,19 @@ describe("BaseDataViewStore group value sums", () => {
     store.setItems({ items: [] });
 
     expect(store.groupValueSums).toEqual({});
+  });
+
+  it("credits the destination what the item is worth there, not what it was worth before", async () => {
+    const store = createStore();
+    const item = { id: "deal-1", totalValue: 250, weightedValue: 75 };
+    updateEntityCustomFieldValueAction.mockResolvedValue({ ok: true, data: item });
+
+    await move(store, item, "won", "lost", { totalValue: 250, weightedValue: 250 });
+
+    expect(store.groupValueSums).toEqual({
+      won: { totalValue: 750, weightedValue: 325 },
+      lost: { totalValue: 550, weightedValue: 250 },
+    });
   });
 
   it("moves both sums with the dragged item", async () => {

@@ -253,6 +253,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     fromGroupKey: string;
     toGroupKey: string;
     value: string | null;
+    destinationValueSums?: GroupValueSums;
   }): Promise<void> => {
     const entityType = this.entityType;
     if (!entityType) return;
@@ -269,7 +270,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     const valueSumsBeforeMove = this.groupValueSums;
 
     this.upsertItemLocal(params.optimisticItem);
-    this.transferItemBetweenGroups(params.fromGroupKey, params.toGroupKey, itemValueSums);
+    this.transferItemBetweenGroups(params.fromGroupKey, params.toGroupKey, itemValueSums, params.destinationValueSums);
 
     const valueSumsAfterMove = this.groupValueSums;
 
@@ -413,7 +414,12 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.groupedTakeOverrides = {};
   };
 
-  transferItemBetweenGroups = (fromGroupKey: string, toGroupKey: string, itemValueSums?: GroupValueSums): void => {
+  transferItemBetweenGroups = (
+    fromGroupKey: string,
+    toGroupKey: string,
+    itemValueSums?: GroupValueSums,
+    destinationValueSums?: GroupValueSums,
+  ): void => {
     if (fromGroupKey === toGroupKey) return;
     const fromCount = this.groupCounts[fromGroupKey] ?? 0;
     const toCount = this.groupCounts[toGroupKey] ?? 0;
@@ -430,7 +436,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.groupValueSums = {
       ...this.groupValueSums,
       [fromGroupKey]: shiftValueSums(fromValueSums, itemValueSums, -1),
-      [toGroupKey]: shiftValueSums(toValueSums, itemValueSums, 1),
+      [toGroupKey]: shiftValueSums(toValueSums, destinationValueSums ?? itemValueSums, 1),
     };
   };
 
