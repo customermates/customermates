@@ -31,8 +31,8 @@ export class ProcessChatUpdateWebhookInteractor {
 
   @Enforce(Schema)
   async invoke(envelope: Payload): Promise<void> {
-    const account = await this.accountRepo.findAccountByUnipileIdOrThrowUnscoped(envelope.account_id);
-    if (account.status === ConnectedAccountStatus.deleted) return;
+    const account = await this.accountRepo.findAccountByUnipileIdUnscoped(envelope.account_id);
+    if (!account || account.status === ConnectedAccountStatus.deleted) return;
 
     const chat = envelope.payload;
     const type: MessagingThreadType | undefined = chat.is_group ? "group" : chat.is_channel ? "channel" : undefined;

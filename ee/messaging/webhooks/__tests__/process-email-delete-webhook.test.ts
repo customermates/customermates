@@ -60,6 +60,7 @@ function build(
   };
   const accountRepo = {
     findAccountByUnipileIdOrThrowUnscoped: vi.fn().mockResolvedValue(account),
+    findAccountByUnipileIdUnscoped: vi.fn().mockResolvedValue(account),
   };
   const eventService = { publish: vi.fn().mockResolvedValue(undefined) };
   const messagingService = {

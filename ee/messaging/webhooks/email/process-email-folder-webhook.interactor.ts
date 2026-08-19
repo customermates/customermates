@@ -26,8 +26,8 @@ export class ProcessEmailFolderWebhookInteractor {
 
   @Enforce(Schema)
   async invoke(envelope: Payload): Promise<void> {
-    const account = await this.accountRepo.findAccountByUnipileIdOrThrowUnscoped(envelope.account_id);
-    if (account.status === ConnectedAccountStatus.deleted) return;
+    const account = await this.accountRepo.findAccountByUnipileIdUnscoped(envelope.account_id);
+    if (!account || account.status === ConnectedAccountStatus.deleted) return;
 
     const page = await this.messagingService.listFolders({ accountId: account.unipileAccountId });
     const folders = (page.data ?? []).flatMap((raw) => {
