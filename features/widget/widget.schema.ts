@@ -157,7 +157,9 @@ export function supportsDealFilters({
 }) {
   return (
     entityType !== EntityType.deal &&
-    (aggregationType === AggregationType.dealValue || aggregationType === AggregationType.dealQuantity)
+    (aggregationType === AggregationType.dealValue ||
+      aggregationType === AggregationType.dealQuantity ||
+      aggregationType === AggregationType.dealWeightedValue)
   );
 }
 

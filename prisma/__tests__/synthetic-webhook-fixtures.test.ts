@@ -86,6 +86,7 @@ function dealRows() {
     name: SYNTHETIC_DEAL_NAMES[index],
     totalValue: 15_000 + index * 2_500,
     totalQuantity: 2 + index,
+    weightedValue: null,
     notes: null,
     createdAt: new Date(`2026-03-${String(index + 1).padStart(2, "0")}T09:00:00.000Z`),
     updatedAt: new Date(`2026-03-${String(index + 1).padStart(2, "0")}T10:00:00.000Z`),

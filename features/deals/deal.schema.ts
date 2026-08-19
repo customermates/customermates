@@ -18,6 +18,7 @@ export const DealDtoSchema = z.object({
   name: z.string(),
   totalValue: z.number(),
   totalQuantity: z.number(),
+  weightedValue: z.number().nullable(),
   notes: NotesSchema,
   createdAt: z.date(),
   updatedAt: z.date(),

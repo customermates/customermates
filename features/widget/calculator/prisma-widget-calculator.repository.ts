@@ -22,6 +22,9 @@ export class PrismaWidgetCalculatorRepo extends BaseRepository {
       case AggregationType.dealQuantity:
         data = await this.calculateDealQuantity(widget);
         break;
+      case AggregationType.dealWeightedValue:
+        data = await this.calculateDealWeightedValue(widget);
+        break;
     }
 
     return [...data].sort((a, b) => b.value - a.value);
@@ -70,6 +73,29 @@ export class PrismaWidgetCalculatorRepo extends BaseRepository {
           labelKind: "system",
           systemLabelKey: "total",
           value: await getWidgetDataFetcher().sumDealField(widget, "totalValue"),
+        },
+      ];
+    }
+
+    const deals = await getWidgetDataFetcher().getDealsForEntityType(widget);
+
+    if (groupByType === WidgetGroupByType.customColumn && groupByCustomColumnId)
+      return await getWidgetGroupingService().groupDealsByCustomColumn(widget, deals);
+
+    return getWidgetGroupingService().groupDealsByEntityType(widget, deals);
+  }
+
+  private async calculateDealWeightedValue(widget: WidgetForCalculation): Promise<DiagramDataPoint[]> {
+    const { entityType, groupByType, groupByCustomColumnId } = widget;
+
+    if (entityType === EntityType.service || entityType === EntityType.task) return [];
+
+    if (groupByType === WidgetGroupByType.none) {
+      return [
+        {
+          labelKind: "system",
+          systemLabelKey: "total",
+          value: await getWidgetDataFetcher().sumDealField(widget, "weightedValue"),
         },
       ];
     }

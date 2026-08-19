@@ -67,10 +67,16 @@ export class WidgetDataFetcher extends BaseRepository {
     }
   }
 
-  async sumDealField(widget: WidgetForCalculation, field: "totalValue" | "totalQuantity"): Promise<number> {
+  async sumDealField(
+    widget: WidgetForCalculation,
+    field: "totalValue" | "totalQuantity" | "weightedValue",
+  ): Promise<number> {
     const where = await this.boundedDealWhere(widget);
-    const result = await this.prisma.deal.aggregate({ where, _sum: { totalValue: true, totalQuantity: true } });
-    return (field === "totalValue" ? result._sum.totalValue : result._sum.totalQuantity) ?? 0;
+    const result = await this.prisma.deal.aggregate({
+      where,
+      _sum: { totalValue: true, totalQuantity: true, weightedValue: true },
+    });
+    return result._sum[field] ?? 0;
   }
 
   async getDealsForEntityType(widget: WidgetForCalculation): Promise<DealRecord[]> {
@@ -80,7 +86,13 @@ export class WidgetDataFetcher extends BaseRepository {
     const where = await this.boundedDealWhere(widget);
     const entityWhere = await this.entityWhere(entityType, widget.entityFilters);
 
-    const select: Prisma.DealSelect = { id: true, name: true, totalValue: true, totalQuantity: true };
+    const select: Prisma.DealSelect = {
+      id: true,
+      name: true,
+      totalValue: true,
+      totalQuantity: true,
+      weightedValue: true,
+    };
 
     if (entityType === EntityType.contact) {
       select.contacts = {
@@ -112,6 +124,7 @@ export class WidgetDataFetcher extends BaseRepository {
       name: deal.name as string,
       totalValue: deal.totalValue as number,
       totalQuantity: deal.totalQuantity as number,
+      weightedValue: deal.weightedValue as number | null,
       contacts: deal.contacts as DealRecord["contacts"],
       organizations: deal.organizations as DealRecord["organizations"],
       services: deal.services as DealRecord["services"],

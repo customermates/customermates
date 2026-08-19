@@ -108,14 +108,21 @@ describe("TerminologyRelationshipDiagram", () => {
     );
 
     for (const relationship of ["contact-organization", "contact-deal", "organization-deal", "deal-service"])
-      expect(html.match(new RegExp(`data-relationship="${relationship}"`, "g"))).toHaveLength(2);
+      expect(html.match(new RegExp(`data-relationship-connector="${relationship}"`, "g"))).toHaveLength(1);
 
     expect(html).toContain('<svg aria-hidden="true"');
     expect(html).toContain("text-border");
     expect(html).toContain("bg-border");
-    expect(html.match(/stroke-width="1.5"/g)).toHaveLength(8);
-    expect(html.match(/data-relationship-segment="start"/g)).toHaveLength(4);
-    expect(html.match(/data-relationship-segment="end"/g)).toHaveLength(4);
+    expect(html.match(/stroke-width="1.5"/g)).toHaveLength(4);
+    expect(html).not.toContain("data-relationship-segment");
+    expect(html).toContain('data-relationship-connector="contact-organization" stroke="currentColor"');
+
+    for (const [connector, x1, x2] of [
+      ["contact-organization", "30", "70"],
+      ["deal-service", "30", "70"],
+    ] as const)
+      expect(html).toMatch(new RegExp(`data-relationship-connector="${connector}"[^>]*x1="${x1}"[^>]*x2="${x2}"`));
+
     expect(html.match(/data-relationship-label=/g)).toHaveLength(5);
     expect(html.match(/data-slot="badge"/g)).toHaveLength(5);
     expect(html.match(/data-variant="secondary"/g)).toHaveLength(5);
@@ -140,8 +147,9 @@ describe("TerminologyRelationshipDiagram", () => {
 
     expect(html).toContain('<div class="sr-only"><div class="flex flex-col gap-2">');
     expect(html).toContain('class="sr-only" id="terminology-task-relationship-label"');
-    expect(html).toContain("relative flex min-h-6 w-full flex-col items-center justify-center sm:min-h-14");
-    expect(html).toContain("bg-border sm:hidden");
+    expect(html).toContain("relative flex min-h-0 w-full flex-col items-center justify-center sm:min-h-14");
+    expect(html).toContain('<div class="flex flex-col gap-3 sm:gap-0">');
+    expect(html).not.toContain("bg-border sm:hidden");
     expect(html).not.toContain("sm:sr-only");
   });
 

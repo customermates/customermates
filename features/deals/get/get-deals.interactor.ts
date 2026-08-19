@@ -12,6 +12,7 @@ import { GetQueryParamsSchema, type GetQueryParams, createGetResultSchema } from
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { DealDtoSchema } from "../deal.schema";
+import { DEAL_GROUP_SUM_FIELDS } from "../deal-weighting";
 
 export abstract class GetDealsRepo extends BaseGetRepo<DealDto> {}
 
@@ -37,6 +38,8 @@ export class GetDealsInteractor extends BaseGetInteractor<DealDto> {
       EntityType.deal,
       { sortDescriptor: { field: "name", direction: "asc" } },
       queryParamsPrecheck,
+      undefined,
+      [DEAL_GROUP_SUM_FIELDS.total, DEAL_GROUP_SUM_FIELDS.weighted],
     );
   }
 

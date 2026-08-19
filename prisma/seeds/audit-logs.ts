@@ -24,6 +24,7 @@ import type { SeedContext } from "./context";
 import type { RelationshipSeedInput } from "./relationships";
 
 import { SYNTHETIC_CUSTOM_COLUMN_IDS } from "./custom-fields";
+import { dealSeedSelect } from "./deal-select";
 import { fixtureId } from "./helpers";
 import {
   SYNTHETIC_CONTACT_UPDATE_INDEXES,
@@ -616,28 +617,7 @@ async function loadSyntheticAuditSnapshot(
         companyId: context.ids.company,
       },
       orderBy: { id: "asc" },
-      select: {
-        id: true,
-        name: true,
-        totalValue: true,
-        totalQuantity: true,
-        notes: true,
-        createdAt: true,
-        updatedAt: true,
-        organizations: {
-          select: { organization: { select: organizationReferenceSelect } },
-        },
-        users: { select: { user: { select: userReferenceSelect } } },
-        contacts: { select: { contact: { select: contactReferenceSelect } } },
-        services: {
-          select: {
-            service: { select: { id: true, name: true, amount: true } },
-            quantity: true,
-          },
-        },
-        tasks: { select: { task: { select: taskReferenceSelect } } },
-        customFieldValues: { select: customFieldValueSelect },
-      },
+      select: dealSeedSelect,
     }),
     prisma.service.findMany({
       where: {

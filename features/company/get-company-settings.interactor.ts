@@ -16,6 +16,7 @@ const TerminologyLabelSchema = z.object({ singular: z.string(), plural: z.string
 const OutputSchema = z.object({
   id: z.string(),
   currency: z.enum(Currency),
+  dealWeightingColumnId: z.string().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
   terminology: z.object({

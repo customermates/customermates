@@ -18,6 +18,7 @@ import type { Prisma } from "@/generated/prisma";
 import { type CustomColumnDto } from "./custom-column.schema";
 
 import { BaseRepository } from "@/core/base/base-repository";
+import { getDealRepo } from "@/core/di";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 
@@ -195,6 +196,13 @@ export class PrismaCustomColumnRepo
   async delete(id: string) {
     const { companyId } = this.user;
 
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+      select: { dealWeightingColumnId: true },
+    });
+
+    const wasWeightingColumn = company?.dealWeightingColumnId === id;
+
     await Promise.all([
       this.prisma.widget.deleteMany({
         where: { groupByCustomColumnId: id, companyId },
@@ -206,6 +214,8 @@ export class PrismaCustomColumnRepo
         where: { id, companyId },
       }),
     ]);
+
+    if (wasWeightingColumn) await getDealRepo().recalculateWeightedValuesForCompany();
 
     return { id };
   }
@@ -248,7 +258,48 @@ export class PrismaCustomColumnRepo
       if (defaultOption) await this.createDefaultCustomFieldValues(column.id, args.entityType, defaultOption.value);
     }
 
+    await this.recalculateDealsWhenWeightingColumn(column.id);
+
     return column as CustomColumnDto;
+  }
+
+  @Transaction
+  async setOptionWeights(columnId: string, entries: Array<{ optionValue: string; weight: number }>) {
+    const { companyId } = this.user;
+
+    const column = await this.prisma.customColumn.findFirst({
+      where: { id: columnId, companyId },
+      select: { id: true, options: true },
+    });
+
+    const stored = (column?.options as { options?: unknown } | null)?.options;
+
+    if (!column || !Array.isArray(stored)) return;
+
+    const weightByOptionValue = new Map(entries.map((entry) => [entry.optionValue, entry.weight]));
+
+    const options = (stored as Array<Record<string, unknown>>).map((option) =>
+      typeof option.value === "string" && weightByOptionValue.has(option.value)
+        ? { ...option, weight: weightByOptionValue.get(option.value) }
+        : option,
+    );
+
+    await this.prisma.customColumn.update({ where: { id: column.id, companyId }, data: { options: { options } } });
+
+    await this.recalculateDealsWhenWeightingColumn(column.id);
+  }
+
+  private async recalculateDealsWhenWeightingColumn(columnId: string) {
+    const { companyId } = this.user;
+
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+      select: { dealWeightingColumnId: true },
+    });
+
+    if (company?.dealWeightingColumnId !== columnId) return;
+
+    await getDealRepo().recalculateWeightedValuesForCompany();
   }
 
   async findCustomFieldValuesMap(columnId: string, entityType: EntityType, entityIds: string[]) {

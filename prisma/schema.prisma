@@ -199,6 +199,8 @@ model User {
 model Company {
   id                          String                       @id @default(uuid())
   currency                    Currency                     @default(eur)
+  dealWeightingColumnId       String?
+  dealWeightingColumn         CustomColumn?                @relation("CompanyDealWeightingColumn", fields: [dealWeightingColumnId], references: [id], onDelete: SetNull)
   createdAt                   DateTime                     @default(now())
   updatedAt                   DateTime                     @updatedAt
   tasks                       Task[]
@@ -387,6 +389,7 @@ model CustomColumn {
   companyId        String
   Company          Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
   CustomFieldValue CustomFieldValue[]
+  weightingFor     Company[]          @relation("CompanyDealWeightingColumn")
 
   @@index([companyId])
   @@index([companyId, entityType])
@@ -436,6 +439,7 @@ model Deal {
   name              String
   totalValue        Float              @default(0)
   totalQuantity     Float              @default(0)
+  weightedValue     Float?
   companyId         String
   notes             Json?
   createdAt         DateTime           @default(now())
@@ -453,6 +457,7 @@ model Deal {
   @@index([createdAt])
   @@index([totalValue])
   @@index([totalQuantity])
+  @@index([weightedValue])
 }
 
 model Service {
@@ -1270,6 +1275,7 @@ enum AggregationType {
   count
   dealValue
   dealQuantity
+  dealWeightedValue
 }
 
 enum SubscriptionStatus {

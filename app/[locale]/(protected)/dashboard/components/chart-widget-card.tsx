@@ -1,13 +1,14 @@
 "use client";
 
 import type { ChartWidgetDto } from "@/features/widget/widget.schema";
+import { isCurrencyAggregation } from "@/features/widget/widget-aggregation";
 import type { Filter } from "@/core/base/base-get.schema";
 
 import { Fragment } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
-import { AggregationType, EntityType } from "@/generated/prisma";
+import { EntityType } from "@/generated/prisma";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppCard } from "@/components/card/app-card";
@@ -39,10 +40,9 @@ export const ChartWidgetCard = observer(({ widget }: Props) => {
 
   const data = widget.data ?? [];
   const total = data.reduce((sum, item) => sum + (Number(item.value) || 0), 0);
-  const formattedTotal =
-    widget.aggregationType === AggregationType.dealValue
-      ? intlStore.formatCurrency(total, undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })
-      : intlStore.formatNumber(total);
+  const formattedTotal = isCurrencyAggregation(widget.aggregationType)
+    ? intlStore.formatCurrency(total, undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })
+    : intlStore.formatNumber(total);
   const subheader = widgetSubheader(data.length, formattedTotal, t("Diagrams.groups"));
 
   const cardContent =

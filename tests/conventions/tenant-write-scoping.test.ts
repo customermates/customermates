@@ -28,11 +28,11 @@ const GUARD_EXEMPT_MODELS = new Set([
 
 const REACHED_ONLY_FROM_BYPASSED_CALLERS = new Set([
   "core/auth/better-auth.ts:99",
-  "features/user/prisma-user.repository.ts:573",
-  "features/user/prisma-user.repository.ts:583",
-  "features/user/prisma-user.repository.ts:593",
-  "features/user/prisma-user.repository.ts:603",
-  "features/user/prisma-user.repository.ts:612",
+  "features/user/prisma-user.repository.ts:590",
+  "features/user/prisma-user.repository.ts:600",
+  "features/user/prisma-user.repository.ts:610",
+  "features/user/prisma-user.repository.ts:620",
+  "features/user/prisma-user.repository.ts:629",
 ]);
 
 type WriteSite = {

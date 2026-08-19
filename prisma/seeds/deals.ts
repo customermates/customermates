@@ -79,6 +79,8 @@ export const SYNTHETIC_SERVICE_DEAL_LINKS = [
 
 export const SYNTHETIC_DEAL_STATUS_INDEXES = [2, 0, 1, 1, 0, 0, 2, 1, 3, 1] as const;
 
+export const SYNTHETIC_DEAL_STATUS_WEIGHTS = [30, 100, 0, 0] as const;
+
 export type DealDefinition = readonly [
   name: string,
   organizationIndex: number,
@@ -111,6 +113,7 @@ export async function seedDeals(context: SeedContext, serviceData: ServiceSeedDa
       0,
     );
     const totalQuantity = links.reduce((sum, [, , quantity]) => sum + quantity, 0);
+    const weight = SYNTHETIC_DEAL_STATUS_WEIGHTS[SYNTHETIC_DEAL_STATUS_INDEXES[index]];
 
     return {
       id: fixtureId("80000000", index + 1),
@@ -118,6 +121,7 @@ export async function seedDeals(context: SeedContext, serviceData: ServiceSeedDa
       name,
       totalQuantity,
       totalValue,
+      weightedValue: (totalValue * weight) / 100,
       ...SYNTHETIC_SEED_TIMELINE.deal(index),
     } satisfies Prisma.DealCreateManyInput;
   });

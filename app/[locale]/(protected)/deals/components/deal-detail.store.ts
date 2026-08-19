@@ -3,7 +3,7 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { DealDto } from "@/features/deals/deal.schema";
 
 import { action, computed, makeObservable, observable } from "mobx";
-import { Resource } from "@/generated/prisma";
+import { CustomColumnType, Resource } from "@/generated/prisma";
 
 import { deleteDealAction, getDealByIdAction, createDealAction, updateDealAction } from "../actions";
 import { createServiceByNameAction, getServicesAction } from "../../services/actions";
@@ -43,6 +43,7 @@ export class DealDetailStore extends BaseCustomColumnEntityModalStore<CreateDeal
       rememberServiceAmounts: action,
       totalQuantity: computed,
       totalValue: computed,
+      weightedValueBreakdown: computed,
     });
   }
 
@@ -136,6 +137,30 @@ export class DealDetailStore extends BaseCustomColumnEntityModalStore<CreateDeal
       total += amount * (entry.quantity ?? 0);
     }
     return total;
+  }
+
+  get weightedValueBreakdown(): { value: number; percent: number; stage: string; weightedValue: number } | null {
+    const entity = this.fetchedEntity;
+    if (!entity || entity.weightedValue === null) return null;
+
+    const weightingColumnId = this.rootStore.companyStore.company?.dealWeightingColumnId;
+    if (!weightingColumnId) return null;
+
+    const column = this.customColumns.find((it) => it.id === weightingColumnId);
+    if (column?.type !== CustomColumnType.singleSelect) return null;
+
+    const selectedValue = entity.customFieldValues.find((it) => it.columnId === weightingColumnId)?.value;
+    if (!selectedValue) return null;
+
+    const option = column.options.options.find((it) => it.value === selectedValue);
+    if (!option || option.weight === undefined) return null;
+
+    return {
+      value: entity.totalValue,
+      percent: option.weight,
+      stage: option.label,
+      weightedValue: entity.weightedValue,
+    };
   }
 
   protected buildRecentSearchItem(entity: DealDto) {
