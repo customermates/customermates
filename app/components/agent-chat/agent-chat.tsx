@@ -18,7 +18,6 @@ import {
   Pencil,
   Plus,
   RotateCcw,
-  Search,
   Square,
   Trash2,
   X,
@@ -42,7 +41,6 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { AppCard } from "@/components/card/app-card";
@@ -54,7 +52,6 @@ import { MessageResponse } from "@/components/ai-elements/message";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { OVERLAY_SCROLL_REGION } from "@/components/ui/overlay-contract";
 import { cn } from "@/core/utils/cn";
-import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 
 export const AgentChat = observer(function AgentChat() {
   const { agentChatStore: store, agentUiControlStore } = useRootStore();
@@ -523,21 +520,9 @@ const ConversationHistory = observer(function ConversationHistory() {
   const { agentChatStore: store, intlStore } = useRootStore();
   const t = useTranslations();
   const copy = chatUiCopy(t);
-  const [query, setQuery] = useState(store.historyQuery);
-  const firstSearchRender = useRef(true);
   const hasHistory = store.conversations.length + store.archivedConversations.length > 0;
   const historyActionsDisabled =
     store.isWorking || Boolean(store.conversationLoadPendingId) || Boolean(store.historyMutationPending);
-
-  const debouncedQuery = useDebouncedValue(query);
-
-  useEffect(() => {
-    if (firstSearchRender.current) {
-      firstSearchRender.current = false;
-      return;
-    }
-    void store.refreshConversations(debouncedQuery);
-  }, [debouncedQuery, store]);
 
   const archive = async (conversationId: string, index: number) => {
     const neighbor = store.conversations[index + 1] ?? store.conversations[index - 1] ?? null;
@@ -567,33 +552,6 @@ const ConversationHistory = observer(function ConversationHistory() {
     });
   };
 
-  const search =
-    hasHistory || query ? (
-      <label className="relative mb-2 block">
-        <span className="sr-only">{copy.searchChats}</span>
-
-        <Search
-          aria-hidden="true"
-          className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground"
-        />
-
-        <Input
-          className="h-9 px-8 text-xs"
-          placeholder={copy.searchChats}
-          type="search"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-        />
-
-        {store.historySearchPending && (
-          <Loader2
-            aria-label={copy.searchingChats}
-            className="absolute top-1/2 right-2.5 size-3.5 -translate-y-1/2 animate-spin text-muted-foreground"
-          />
-        )}
-      </label>
-    ) : null;
-
   if (store.conversations.length === 0) {
     return (
       <div className={cn(OVERLAY_SCROLL_REGION, "flex flex-col p-2")}>
@@ -601,9 +559,7 @@ const ConversationHistory = observer(function ConversationHistory() {
 
         <ConversationHistoryStatus />
 
-        {search}
-
-        {!hasHistory && !query.trim() && (
+        {!hasHistory && (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 px-4 text-center text-muted-foreground">
             <History className="size-8 opacity-40" />
 
@@ -621,12 +577,6 @@ const ConversationHistory = observer(function ConversationHistory() {
           </div>
         )}
 
-        {!hasHistory && query.trim() && !store.historySearchPending && (
-          <p className="px-3 py-6 text-center text-xs text-muted-foreground" role="status">
-            {copy.noChatMatches}
-          </p>
-        )}
-
         <ArchivedConversationList />
       </div>
     );
@@ -637,8 +587,6 @@ const ConversationHistory = observer(function ConversationHistory() {
       <ArchiveUndo />
 
       <ConversationHistoryStatus />
-
-      {search}
 
       <div className="space-y-1" role="list">
         {store.conversations.map((conversation) => {
@@ -677,17 +625,18 @@ const ConversationHistory = observer(function ConversationHistory() {
                 </span>
               </Button>
 
-              <Button
-                aria-label={`${copy.archive}: ${conversation.title || copy.untitled}`}
-                className="mr-1 size-8 shrink-0 opacity-70 transition-opacity hover:opacity-100 focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
-                disabled={historyActionsDisabled}
-                size="icon"
-                title={copy.archive}
-                variant="ghost"
-                onClick={() => void archive(conversation.id, index)}
-              >
-                <Archive className="size-4" />
-              </Button>
+              <ActionTooltip label={copy.archive}>
+                <Button
+                  aria-label={`${copy.archive}: ${conversation.title || copy.untitled}`}
+                  className="mr-1 size-8 shrink-0 opacity-70 transition-opacity hover:opacity-100 focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+                  disabled={historyActionsDisabled}
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => void archive(conversation.id, index)}
+                >
+                  <Archive className="size-4" />
+                </Button>
+              </ActionTooltip>
             </div>
           );
         })}
@@ -783,14 +732,10 @@ const ArchivedConversationList = observer(function ArchivedConversationList() {
   const copy = chatUiCopy(useTranslations());
   const [deleteCandidate, setDeleteCandidate] = useState<AgentConversationSummary | null>(null);
   const [deletePending, setDeletePending] = useState(false);
-  const [archivedOpen, setArchivedOpen] = useState(Boolean(store.historyQuery));
+  const [archivedOpen, setArchivedOpen] = useState(false);
   const conversations = store.archivedConversations;
   const historyActionsDisabled =
     store.isWorking || Boolean(store.conversationLoadPendingId) || Boolean(store.historyMutationPending);
-
-  useEffect(() => {
-    if (store.historyQuery) setArchivedOpen(true);
-  }, [store.historyQuery]);
 
   if (conversations.length === 0 && !deleteCandidate) return null;
 
@@ -845,30 +790,32 @@ const ArchivedConversationList = observer(function ArchivedConversationList() {
               )}
             </span>
 
-            <Button
-              aria-label={`${copy.restore}: ${conversation.title || copy.untitled}`}
-              className="size-7 shrink-0"
-              disabled={historyActionsDisabled}
-              id={`agent-archived-${conversation.id}`}
-              size="icon"
-              title={copy.restore}
-              variant="ghost"
-              onClick={() => void store.restoreArchivedConversation(conversation.id)}
-            >
-              <RotateCcw className="size-3.5" />
-            </Button>
+            <ActionTooltip label={copy.restore}>
+              <Button
+                aria-label={`${copy.restore}: ${conversation.title || copy.untitled}`}
+                className="size-7 shrink-0"
+                disabled={historyActionsDisabled}
+                id={`agent-archived-${conversation.id}`}
+                size="icon"
+                variant="ghost"
+                onClick={() => void store.restoreArchivedConversation(conversation.id)}
+              >
+                <RotateCcw className="size-3.5" />
+              </Button>
+            </ActionTooltip>
 
-            <Button
-              aria-label={`${copy.deleteChat}: ${conversation.title || copy.untitled}`}
-              className="size-7 shrink-0 text-destructive hover:text-destructive"
-              disabled={historyActionsDisabled}
-              size="icon"
-              title={copy.deleteChat}
-              variant="ghost"
-              onClick={() => setDeleteCandidate(conversation)}
-            >
-              <Trash2 className="size-3.5" />
-            </Button>
+            <ActionTooltip label={copy.deleteChat}>
+              <Button
+                aria-label={`${copy.deleteChat}: ${conversation.title || copy.untitled}`}
+                className="size-7 shrink-0 text-destructive hover:text-destructive"
+                disabled={historyActionsDisabled}
+                size="icon"
+                variant="ghost"
+                onClick={() => setDeleteCandidate(conversation)}
+              >
+                <Trash2 className="size-3.5" />
+              </Button>
+            </ActionTooltip>
           </div>
         ))}
 
@@ -944,7 +891,6 @@ function chatUiCopy(t: ChatTranslator) {
     loadingChat: t("AgentChat.ui.loadingChat"),
     loadingOlderMessages: t("AgentChat.ui.loadingOlderMessages"),
     newChat: t("AgentChat.ui.newChat"),
-    noChatMatches: t("AgentChat.ui.noChatMatches"),
     noChats: t("AgentChat.ui.noChats"),
     noChatsBody: t("AgentChat.ui.noChatsBody"),
     queued: t("AgentChat.ui.queued"),
@@ -953,8 +899,6 @@ function chatUiCopy(t: ChatTranslator) {
     responseComplete: t("AgentChat.ui.responseComplete"),
     restore: t("AgentChat.ui.restore"),
     retryTurn: t("AgentChat.ui.retryTurn"),
-    searchChats: t("AgentChat.ui.searchChats"),
-    searchingChats: t("AgentChat.ui.searchingChats"),
     turnFailed: t("AgentChat.ui.turnFailed"),
     undo: t("AgentChat.ui.undo"),
     untitled: t("AgentChat.ui.untitled"),
@@ -1006,28 +950,30 @@ const QueuedPrompt = observer(function QueuedPrompt() {
         <span>{` ${prompt}`}</span>
       </span>
 
-      <Button
-        aria-label={copy.editQueued}
-        className="size-7 shrink-0"
-        disabled={Boolean(store.usage?.blockedReason)}
-        size="icon"
-        title={copy.editQueued}
-        variant="ghost"
-        onClick={store.editQueuedPrompt}
-      >
-        <Pencil className="size-3.5" />
-      </Button>
+      <ActionTooltip label={copy.editQueued}>
+        <Button
+          aria-label={copy.editQueued}
+          className="size-7 shrink-0"
+          disabled={Boolean(store.usage?.blockedReason)}
+          size="icon"
+          variant="ghost"
+          onClick={store.editQueuedPrompt}
+        >
+          <Pencil className="size-3.5" />
+        </Button>
+      </ActionTooltip>
 
-      <Button
-        aria-label={copy.removeQueued}
-        className="size-7 shrink-0"
-        size="icon"
-        title={copy.removeQueued}
-        variant="ghost"
-        onClick={store.removeQueuedPrompt}
-      >
-        <X className="size-3.5" />
-      </Button>
+      <ActionTooltip label={copy.removeQueued}>
+        <Button
+          aria-label={copy.removeQueued}
+          className="size-7 shrink-0"
+          size="icon"
+          variant="ghost"
+          onClick={store.removeQueuedPrompt}
+        >
+          <X className="size-3.5" />
+        </Button>
+      </ActionTooltip>
     </div>
   );
 });
@@ -1173,7 +1119,11 @@ const ItemTime = observer(function ItemTime({ at }: { at?: Date }) {
   );
 });
 
-const AgentChatItemView = observer(function AgentChatItemView({ item }: { item: AgentChatItem }) {
+const AgentChatItemView = observer(function AgentChatItemView({
+  item,
+}: {
+  item: Exclude<AgentChatItem, { kind: "activity" }>;
+}) {
   const { agentChatStore: store } = useRootStore();
   const t = useTranslations();
   const copyToClipboard = useCopyToClipboard();
@@ -1254,8 +1204,6 @@ const AgentChatItemView = observer(function AgentChatItemView({ item }: { item: 
       </div>
     );
   }
-
-  if (item.kind === "activity") return <AgentActivity isWorking={false} items={[item]} />;
 
   const copy = agentActivityCopy(item.activity, t, terminology);
 

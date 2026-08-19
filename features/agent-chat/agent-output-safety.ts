@@ -229,27 +229,27 @@ export function stripLegacyUserPageContextPrefix(value: string) {
   return value.replace(LEGACY_USER_PAGE_CONTEXT_PREFIX, "");
 }
 
-const MARKDOWN_BLOCK_PREFIX = /^[ \t]{0,3}(?:#{1,6}[ \t]+|>[ \t]?|[-*+][ \t]+|\d{1,9}[.)][ \t]+)/gm;
-const MARKDOWN_RULE_LINE = /^[ \t]{0,3}(?:[-*_][ \t]*){3,}$/gm;
-const MARKDOWN_FENCE = /^[ \t]{0,3}(?:`{3,}|~{3,}).*$/gm;
-const MARKDOWN_IMAGE = /!\[([^\]]*)\]\([^)]*\)/g;
-const MARKDOWN_LINK = /\[([^\]]+)\]\([^)]*\)/g;
-const MARKDOWN_BOLD_ITALIC = /(\*{1,3})(?=\S)([\s\S]*?\S)\1/g;
-const MARKDOWN_STRIKETHROUGH = /~~(?=\S)([\s\S]*?\S)~~/g;
-const MARKDOWN_UNDERSCORE_EMPHASIS = /(?<![\w\\])(_{1,3})(?=\S)([\s\S]*?\S)\1(?![\w])/g;
-const MARKDOWN_CODE = /`+([^`]+)`+/g;
+const MARKDOWN_BLOCK_PREFIX_PATTERN = /^[ \t]{0,3}(?:#{1,6}[ \t]+|>[ \t]?|[-*+][ \t]+|\d{1,9}[.)][ \t]+)/gm;
+const MARKDOWN_RULE_LINE_PATTERN = /^[ \t]{0,3}(?:[-*_][ \t]*){3,}$/gm;
+const MARKDOWN_FENCE_PATTERN = /^[ \t]{0,3}(?:`{3,}|~{3,}).*$/gm;
+const MARKDOWN_IMAGE_PATTERN = /!\[([^\]]*)\]\([^)]*\)/g;
+const MARKDOWN_LINK_PATTERN = /\[([^\]]+)\]\([^)]*\)/g;
+const MARKDOWN_BOLD_ITALIC_PATTERN = /(\*{1,3})(?=\S)([\s\S]*?\S)\1/g;
+const MARKDOWN_STRIKETHROUGH_PATTERN = /~~(?=\S)([\s\S]*?\S)~~/g;
+const MARKDOWN_UNDERSCORE_EMPHASIS_PATTERN = /(?<![\w\\])(_{1,3})(?=\S)([\s\S]*?\S)\1(?![\w])/g;
+const MARKDOWN_CODE_PATTERN = /`+([^`]+)`+/g;
 
 export function agentPlainTextPreview(value: string, maxChars: number) {
   const plain = value
-    .replace(MARKDOWN_FENCE, " ")
-    .replace(MARKDOWN_RULE_LINE, " ")
-    .replace(MARKDOWN_BLOCK_PREFIX, "")
-    .replace(MARKDOWN_IMAGE, "$1")
-    .replace(MARKDOWN_LINK, "$1")
-    .replace(MARKDOWN_CODE, "$1")
-    .replace(MARKDOWN_BOLD_ITALIC, "$2")
-    .replace(MARKDOWN_STRIKETHROUGH, "$1")
-    .replace(MARKDOWN_UNDERSCORE_EMPHASIS, "$2")
+    .replace(MARKDOWN_FENCE_PATTERN, " ")
+    .replace(MARKDOWN_RULE_LINE_PATTERN, " ")
+    .replace(MARKDOWN_BLOCK_PREFIX_PATTERN, "")
+    .replace(MARKDOWN_IMAGE_PATTERN, "$1")
+    .replace(MARKDOWN_LINK_PATTERN, "$1")
+    .replace(MARKDOWN_CODE_PATTERN, "$1")
+    .replace(MARKDOWN_BOLD_ITALIC_PATTERN, "$2")
+    .replace(MARKDOWN_STRIKETHROUGH_PATTERN, "$1")
+    .replace(MARKDOWN_UNDERSCORE_EMPHASIS_PATTERN, "$2")
     .replace(/\s+/g, " ")
     .trim();
   return plain.slice(0, maxChars);

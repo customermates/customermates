@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { approvalFreeActionsForTool } from "./gated-tools";
+import { approvalFreeActionsForTool, readOnlyActionsForTool } from "./gated-tools";
 
 import { sanitizeAgentVisibleText } from "./agent-output-safety";
 import type { AgentTranslator } from "./agent-translator";
@@ -176,15 +176,9 @@ function actionValue(input: Record<string, unknown>) {
   return typeof input.action === "string" ? input.action : undefined;
 }
 
-const MULTIPLEXED_READ_ACTIONS: Record<string, readonly string[]> = {
-  manage_custom_columns: ["list"],
-  manage_webhooks: ["list", "get", "list_deliveries"],
-  manage_widgets: ["list", "get"],
-};
-
 function isMultiplexedRead(toolName: string, details: Record<string, unknown>): boolean {
   const action = actionValue(details);
-  return Boolean(action && MULTIPLEXED_READ_ACTIONS[toolName]?.includes(action));
+  return Boolean(action && readOnlyActionsForTool(toolName)?.includes(action));
 }
 
 function multiplexedRisk(toolName: string, details: Record<string, unknown>): "write" | "sensitive" {

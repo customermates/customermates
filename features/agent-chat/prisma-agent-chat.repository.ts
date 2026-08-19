@@ -89,13 +89,6 @@ function decodeConversationCursor(cursor: string) {
   }
 }
 
-function messageSearchText(role: AgentMessageRole, parts: unknown) {
-  const text = partsToText(parts);
-  return sanitizeAgentVisibleText(
-    role === AgentMessageRole.user ? stripLegacyUserPageContextPrefix(text) : text,
-  ).trim();
-}
-
 function turnStatus(value: string): AgentTurnRequestStatus {
   if (!TURN_STATUSES.has(value as AgentTurnRequestStatus)) throw new Error("Stored agent turn status is invalid.");
   return value as AgentTurnRequestStatus;
@@ -159,12 +152,10 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
 
   async listConversationPage(args: {
     archived: boolean;
-    query?: string;
     cursor?: string | null;
     limit?: number;
   }): Promise<AgentConversationPage> {
     const limit = Math.min(AGENT_CONVERSATION_PAGE_SIZE, Math.max(1, args.limit ?? AGENT_CONVERSATION_PAGE_SIZE));
-    const query = args.query?.trim() ?? "";
     const cursor = args.cursor ? decodeConversationCursor(args.cursor) : null;
     const filters: Prisma.AgentConversationWhereInput[] = [];
     if (cursor) {
@@ -172,15 +163,6 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         OR: [{ updatedAt: { lt: cursor.updatedAt } }, { updatedAt: cursor.updatedAt, id: { lt: cursor.id } }],
       });
     }
-    if (query) {
-      filters.push({
-        OR: [
-          { title: { contains: query, mode: "insensitive" } },
-          { messages: { some: { searchText: { contains: query, mode: "insensitive" } } } },
-        ],
-      });
-    }
-
     const rows = await this.prisma.agentConversation.findMany({
       where: {
         companyId: this.companyId,
@@ -387,7 +369,6 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         companyId: this.companyId,
         role: AgentMessageRole.user,
         parts: args.parts,
-        searchText: messageSearchText(AgentMessageRole.user, args.parts),
       },
     });
   }
@@ -912,7 +893,6 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         turnRequestId: args.turnRequestId,
         role: AgentMessageRole.user,
         parts: [{ type: "text", text: args.text }],
-        searchText: messageSearchText(AgentMessageRole.user, [{ type: "text", text: args.text }]),
       },
     });
   }
@@ -1170,7 +1150,6 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           turnRequestId: args.turnRequestId,
           role: AgentMessageRole.assistant,
           parts: safeParts as unknown as Prisma.InputJsonValue,
-          searchText: messageSearchText(AgentMessageRole.assistant, safeParts),
           createdAt: committedAt,
         },
       });
@@ -1255,7 +1234,6 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           companyId: args.companyId,
           role: AgentMessageRole.assistant,
           parts: args.parts,
-          searchText: messageSearchText(AgentMessageRole.assistant, args.parts),
           createdAt: now,
         },
       });

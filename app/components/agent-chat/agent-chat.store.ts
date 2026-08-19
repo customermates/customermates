@@ -122,8 +122,7 @@ export class AgentChatStore extends BaseStore {
   conversationLoadPendingId: string | null = null;
   conversationLoadError = false;
   historyRefreshError = false;
-  historyQuery = "";
-  historySearchPending = false;
+  historyRefreshPending = false;
   conversationNextCursor: string | null = null;
   archivedConversationNextCursor: string | null = null;
   historyLoadMorePending: "active" | "archived" | null = null;
@@ -167,8 +166,7 @@ export class AgentChatStore extends BaseStore {
       conversationLoadPendingId: observable,
       conversationLoadError: observable,
       historyRefreshError: observable,
-      historyQuery: observable,
-      historySearchPending: observable,
+      historyRefreshPending: observable,
       conversationNextCursor: observable,
       archivedConversationNextCursor: observable,
       historyLoadMorePending: observable,
@@ -587,7 +585,7 @@ export class AgentChatStore extends BaseStore {
       if (!config) return "retry";
 
       runInAction(() => {
-        const preserveExactHistory = Boolean(this.historyQuery) || Boolean(this.historyMutationPending);
+        const preserveExactHistory = Boolean(this.historyMutationPending);
         const preserveLoadedPages = preserveExactHistory || this.isHistoryOpen;
         const conversations = (config.conversations ?? []).map((conversation) => ({
           ...conversation,
@@ -628,19 +626,14 @@ export class AgentChatStore extends BaseStore {
     }
   };
 
-  refreshConversations = async (query = this.historyQuery) => {
+  refreshConversations = async () => {
     const refreshVersion = ++this.historyRefreshVersion;
-    const normalizedQuery = query.trim();
     runInAction(() => {
-      this.historyQuery = normalizedQuery;
-      this.historySearchPending = true;
+      this.historyRefreshPending = true;
       this.historyLoadMorePending = null;
     });
     try {
-      const result = await listAgentConversationsAction({
-        query: normalizedQuery,
-        kind: "both",
-      });
+      const result = await listAgentConversationsAction({ kind: "both" });
       const active = result?.active;
       const archived = result?.archived;
       if (!active || !archived) throw new Error("Conversation history could not be refreshed.");
@@ -657,20 +650,20 @@ export class AgentChatStore extends BaseStore {
         this.conversationNextCursor = active.nextCursor;
         this.archivedConversationNextCursor = archived.nextCursor;
         this.historyRefreshError = false;
-        this.historySearchPending = false;
+        this.historyRefreshPending = false;
       });
     } catch {
       if (refreshVersion !== this.historyRefreshVersion) return;
       runInAction(() => {
         this.historyRefreshError = true;
-        this.historySearchPending = false;
+        this.historyRefreshPending = false;
       });
     }
   };
 
   loadMoreConversations = async (kind: "active" | "archived") => {
     const cursor = kind === "active" ? this.conversationNextCursor : this.archivedConversationNextCursor;
-    if (!cursor || this.historyLoadMorePending || this.historySearchPending || this.historyMutationPending) return;
+    if (!cursor || this.historyLoadMorePending || this.historyRefreshPending || this.historyMutationPending) return;
     const refreshVersion = this.historyRefreshVersion;
     runInAction(() => {
       this.historyLoadMorePending = kind;
@@ -678,7 +671,6 @@ export class AgentChatStore extends BaseStore {
 
     try {
       const result = await listAgentConversationsAction({
-        query: this.historyQuery,
         kind,
         cursor,
       });
@@ -729,7 +721,7 @@ export class AgentChatStore extends BaseStore {
         updatedAt: new Date(conversation.updatedAt),
       }));
       runInAction(() => {
-        this.historySearchPending = false;
+        this.historyRefreshPending = false;
         this.historyLoadMorePending = null;
         this.conversations = conversations;
         this.conversationNextCursor = result.data.nextCursor;
@@ -747,7 +739,6 @@ export class AgentChatStore extends BaseStore {
         else runInAction(() => this.beginNewConversation());
       }
       await this.loadConfig();
-      if (this.historyQuery) await this.refreshConversations(this.historyQuery);
       return true;
     } catch {
       this.toastError("AgentChat.errors.sendFailed");
@@ -783,7 +774,7 @@ export class AgentChatStore extends BaseStore {
         updatedAt: new Date(conversation.updatedAt),
       }));
       runInAction(() => {
-        this.historySearchPending = false;
+        this.historyRefreshPending = false;
         this.historyLoadMorePending = null;
         this.conversations = conversations;
         this.conversationNextCursor = result.data.nextCursor;
@@ -791,7 +782,6 @@ export class AgentChatStore extends BaseStore {
         if (this.lastArchivedConversation?.id === id) this.lastArchivedConversation = null;
       });
       await this.loadConversation(result.data.activeConversationId);
-      if (this.historyQuery) await this.refreshConversations(this.historyQuery);
       return true;
     } catch {
       this.toastError("AgentChat.errors.sendFailed");
@@ -815,7 +805,7 @@ export class AgentChatStore extends BaseStore {
       if (!result?.ok) throw new Error();
       this.historyRefreshVersion += 1;
       runInAction(() => {
-        this.historySearchPending = false;
+        this.historyRefreshPending = false;
         this.historyLoadMorePending = null;
         this.archivedConversations = this.archivedConversations.filter((conversation) => conversation.id !== id);
         if (this.lastArchivedConversation?.id === id) this.lastArchivedConversation = null;

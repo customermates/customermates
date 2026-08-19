@@ -430,47 +430,7 @@ describe("AgentChatStore", () => {
     expect(store.conversations).toMatchObject([{ title: "Newer" }]);
   });
 
-  it("searches both active and archived transcript history on the server", async () => {
-    actionsMock.listAgentConversationsAction.mockResolvedValueOnce({
-      active: {
-        conversations: [
-          {
-            id: "00000000-0000-4000-8000-000000000001",
-            title: "Customer launch",
-            preview: "Prepare the launch",
-            updatedAt: "2026-08-06T10:00:00.000Z",
-          },
-        ],
-        nextCursor: "active-next",
-      },
-      archived: {
-        conversations: [
-          {
-            id: "00000000-0000-4000-8000-000000000002",
-            title: "Archived launch",
-            preview: "Customer launch notes",
-            updatedAt: "2026-08-05T10:00:00.000Z",
-          },
-        ],
-        nextCursor: "archive-next",
-      },
-    });
-    const store = new AgentChatStore(root() as never);
-
-    await store.refreshConversations("  customer launch  ");
-
-    expect(actionsMock.listAgentConversationsAction).toHaveBeenCalledWith({
-      query: "customer launch",
-      kind: "both",
-    });
-    expect(store.historyQuery).toBe("customer launch");
-    expect(store.conversations).toHaveLength(1);
-    expect(store.archivedConversations).toHaveLength(1);
-    expect(store.conversationNextCursor).toBe("active-next");
-    expect(store.archivedConversationNextCursor).toBe("archive-next");
-  });
-
-  it("does not replace a filtered history view with unfiltered config polling results", async () => {
+  it("does not replace history with config polling results while a mutation is in flight", async () => {
     const matching = {
       id: "00000000-0000-4000-8000-000000000001",
       title: "Customer launch",
@@ -494,7 +454,7 @@ describe("AgentChatStore", () => {
     });
     const store = new AgentChatStore(root() as never);
     store.isHistoryOpen = true;
-    store.historyQuery = "customer launch";
+    store.historyMutationPending = true;
     store.conversations = [matching];
     store.conversationNextCursor = "filtered-next";
 
@@ -548,7 +508,6 @@ describe("AgentChatStore", () => {
       archived: null,
     });
     const store = new AgentChatStore(root() as never);
-    store.historyQuery = "pipeline";
     store.conversationNextCursor = "active-next";
     store.conversations = [
       {
@@ -562,7 +521,6 @@ describe("AgentChatStore", () => {
     await store.loadMoreConversations("active");
 
     expect(actionsMock.listAgentConversationsAction).toHaveBeenCalledWith({
-      query: "pipeline",
       kind: "active",
       cursor: "active-next",
     });
@@ -618,12 +576,11 @@ describe("AgentChatStore", () => {
         archived: { conversations: [], nextCursor: null },
       });
     const store = new AgentChatStore(root() as never);
-    store.historyQuery = "old";
     store.conversationNextCursor = "old-next";
 
     const stale = store.loadMoreConversations("active");
     await vi.waitFor(() => expect(store.historyLoadMorePending).toBe("active"));
-    await store.refreshConversations("fresh");
+    await store.refreshConversations();
 
     expect(store.historyLoadMorePending).toBeNull();
     resolveStale({
@@ -869,7 +826,7 @@ describe("AgentChatStore", () => {
     store.archivedConversations = [archived];
 
     const staleRefresh = store.refreshConversations();
-    await vi.waitFor(() => expect(store.historySearchPending).toBe(true));
+    await vi.waitFor(() => expect(store.historyRefreshPending).toBe(true));
     await store.deleteArchivedConversation(conversationId);
     resolveRefresh({
       active: { conversations: [], nextCursor: null },
@@ -878,7 +835,7 @@ describe("AgentChatStore", () => {
     await staleRefresh;
 
     expect(store.archivedConversations).toEqual([]);
-    expect(store.historySearchPending).toBe(false);
+    expect(store.historyRefreshPending).toBe(false);
     expect(store.historyLoadMorePending).toBeNull();
   });
 

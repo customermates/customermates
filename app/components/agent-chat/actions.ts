@@ -37,7 +37,7 @@ export async function getAgentConversationAction(conversationId: string, before?
   return result.ok ? result.data : null;
 }
 
-export async function listAgentConversationsAction(data: ListAgentConversationsData = { query: "", kind: "both" }) {
+export async function listAgentConversationsAction(data: ListAgentConversationsData = { kind: "both" }) {
   if (!isAgentChatEnabled()) return { active: null, archived: null };
 
   const result = await getListAgentConversationsInteractor().invoke(data);

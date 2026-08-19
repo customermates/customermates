@@ -2,7 +2,9 @@ export function isReadOnlyTool(tool: { annotations?: Record<string, boolean> }) 
   return tool.annotations?.readOnlyHint === true;
 }
 
-type AgentApprovalPolicy = { approvalFree: true } | { approvalFreeActions: readonly string[] };
+type AgentApprovalPolicy =
+  | { approvalFree: true }
+  | { approvalFreeActions: readonly string[]; readOnlyActions?: readonly string[] };
 
 const AGENT_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
   connect_messaging_account: { approvalFree: true },
@@ -11,11 +13,14 @@ const AGENT_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
   create_organizations: { approvalFree: true },
   create_services: { approvalFree: true },
   create_tasks: { approvalFree: true },
-  manage_custom_columns: { approvalFreeActions: ["list", "upsert"] },
+  manage_custom_columns: { approvalFreeActions: ["list", "upsert"], readOnlyActions: ["list"] },
   manage_record_links: { approvalFree: true },
   manage_team: { approvalFree: true },
-  manage_webhooks: { approvalFreeActions: ["list", "get", "list_deliveries", "create", "update", "resend_delivery"] },
-  manage_widgets: { approvalFreeActions: ["list", "get", "create", "update"] },
+  manage_webhooks: {
+    approvalFreeActions: ["list", "get", "list_deliveries", "create", "update", "resend_delivery"],
+    readOnlyActions: ["list", "get", "list_deliveries"],
+  },
+  manage_widgets: { approvalFreeActions: ["list", "get", "create", "update"], readOnlyActions: ["list", "get"] },
   save_message_draft: { approvalFree: true },
   update_contacts: { approvalFree: true },
   update_deals: { approvalFree: true },
@@ -32,6 +37,11 @@ export const AGENT_APPROVAL_POLICY_TOOL_NAMES = Object.keys(AGENT_APPROVAL_POLIC
 export function approvalFreeActionsForTool(name: string): readonly string[] | null {
   const policy = AGENT_APPROVAL_POLICY[name];
   return policy && "approvalFreeActions" in policy ? policy.approvalFreeActions : null;
+}
+
+export function readOnlyActionsForTool(name: string): readonly string[] | null {
+  const policy = AGENT_APPROVAL_POLICY[name];
+  return policy && "readOnlyActions" in policy ? (policy.readOnlyActions ?? null) : null;
 }
 
 export function requiresApproval(tool: { name: string; annotations?: Record<string, boolean> }, input: unknown) {

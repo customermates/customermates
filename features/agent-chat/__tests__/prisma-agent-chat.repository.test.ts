@@ -188,7 +188,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     expect(result[0]).toMatchObject({ title: "Legacy context", preview: "Show open deals" });
   });
 
-  it("searches titles and sanitized transcript text with a stable 25-chat cursor", async () => {
+  it("pages conversations in stable 25-chat windows with a resumable cursor", async () => {
     const rows = Array.from({ length: 26 }, (_, index) => ({
       id: `conversation-${String(index + 1).padStart(2, "0")}`,
       title: `Customer ${index + 1}`,
@@ -200,9 +200,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentMessage.findMany.mockResolvedValue([]);
     const repo = new PrismaAgentChatRepo();
 
-    const first = await runWithTenant(user, () =>
-      repo.listConversationPage({ archived: false, query: "customer launch" }),
-    );
+    const first = await runWithTenant(user, () => repo.listConversationPage({ archived: false }));
 
     expect(first.conversations).toHaveLength(25);
     expect(first.nextCursor).toEqual(expect.any(String));
@@ -213,27 +211,13 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           companyId: user.companyId,
           userId: user.id,
           archivedAt: null,
-          AND: [
-            {
-              OR: [
-                { title: { contains: "customer launch", mode: "insensitive" } },
-                {
-                  messages: {
-                    some: { searchText: { contains: "customer launch", mode: "insensitive" } },
-                  },
-                },
-              ],
-            },
-          ],
         }),
         orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
         take: 26,
       }),
     );
 
-    await runWithTenant(user, () =>
-      repo.listConversationPage({ archived: false, query: "customer launch", cursor: first.nextCursor }),
-    );
+    await runWithTenant(user, () => repo.listConversationPage({ archived: false, cursor: first.nextCursor }));
     const secondWhere = prismaMock.agentConversation.findMany.mock.calls[1]?.[0]?.where;
     expect(secondWhere.AND[0]).toEqual({
       OR: [{ updatedAt: { lt: rows[24]?.updatedAt } }, { updatedAt: rows[24]?.updatedAt, id: { lt: rows[24]?.id } }],
@@ -352,7 +336,6 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         companyId: user.companyId,
         role: "assistant",
         parts,
-        searchText: "Done.",
         createdAt: promotedAt,
       },
     });

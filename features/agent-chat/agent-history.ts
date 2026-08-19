@@ -8,7 +8,6 @@ export const AGENT_CONVERSATION_PAGE_SIZE = 25;
 export const AGENT_MESSAGE_PAGE_SIZE = 50;
 
 export const ListAgentConversationsSchema = z.object({
-  query: z.string().trim().max(120).default(""),
   kind: z.enum(["active", "archived", "both"]).default("both"),
   cursor: z.string().max(500).nullable().optional(),
 });

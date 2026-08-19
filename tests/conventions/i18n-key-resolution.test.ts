@@ -359,7 +359,9 @@ const AGENT_ACTIVITY_LABEL_KEYS = [
   "AgentChat.activity.label.preview",
   "AgentChat.activity.label.subject",
   "AgentChat.activity.label.to",
-];const AGENT_READ_ONLY_SUGGESTION_KEYS = [
+];
+
+const AGENT_READ_ONLY_SUGGESTION_KEYS = [
   "AgentChat.suggestions.readOnly.explain",
   "AgentChat.suggestions.readOnly.relationships",
   "AgentChat.suggestions.readOnly.tour",

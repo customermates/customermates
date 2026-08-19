@@ -1653,7 +1653,6 @@ model AgentMessage {
   turnRequestId  String?
   role           AgentMessageRole
   parts          Json
-  searchText     String
   sequence       BigInt            @default(autoincrement())
   createdAt      DateTime          @default(now())
   conversation   AgentConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)

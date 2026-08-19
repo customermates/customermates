@@ -23,10 +23,10 @@ const ToolOptionSchema = OptionSchema.partial({ value: true, color: true, isDefa
 
 function completeOptions(options: z.infer<typeof ToolOptionSchema>[]) {
   return options.map((option, index) => ({
+    ...option,
     value: option.value ?? randomUUID(),
-    label: option.label,
-    color: option.color ?? CHIP_COLORS[index % CHIP_COLORS.length],
-    isDefault: option.isDefault ?? false,
+    color: option.color ?? "secondary",
+    isDefault: option.isDefault ?? index === 0,
     index: option.index ?? index,
   }));
 }
@@ -125,7 +125,7 @@ export const manageCustomColumnsTool = {
   description:
     "Use this when you need to list, create, update, or delete custom columns on an entity type. " +
     "action list returns { id, label, type, entityType, options } per column. " +
-    "action upsert requires type, entityType, label; omit id to CREATE, pass id to UPDATE (type and entityType are immutable). " +
+    "action upsert requires type, entityType, label; OMIT id to CREATE a column, pass an existing id only to UPDATE one (type and entityType are then immutable). " +
     "For singleSelect, options.options REPLACES the full option list: keep an existing option's stable value uuid to preserve stored records, use a fresh uuid for new options; dropping one deletes its stored values. " +
     "action delete is IRREVERSIBLE and removes the column plus ALL values stored against it.",
   annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
@@ -149,7 +149,7 @@ export const manageCustomColumnsTool = {
         : parsed.data;
       if (parsed.data.id) {
         const loaded = await loadColumnOrError(parsed.data.id, parsed.data.type);
-        if (!loaded.ok) return `${loaded.error} To create a new column instead, call upsert again without id.`;
+        if (!loaded.ok) return loaded.error;
         data = { ...data, entityType: loaded.column.entityType as EntityType };
       }
       const result = await getUpsertCustomColumnInteractor().invoke(data as UpsertCustomColumnData);

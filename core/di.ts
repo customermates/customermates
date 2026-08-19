@@ -333,6 +333,7 @@ export const getCalendarRepo = () => new PrismaCalendarRepo();
 export const getCalendarEventsRepo = () => new PrismaCalendarEventsRepo();
 export const getSupportRepo = () => new PrismaSupportRepo();
 export const getAgentChatRepo = () => new PrismaAgentChatRepo();
+
 // ─── Section 3: Services ────────────────────────────────────────────────────
 
 export const getEmailService = () => new EmailService();

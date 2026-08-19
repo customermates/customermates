@@ -65,10 +65,15 @@ describe("manage_custom_columns option defaults", () => {
       "Installed",
     ]);
     expect(sent.options.options.map((option: { index: number }) => option.index)).toEqual([0, 1, 2, 3]);
+    expect(sent.options.options.map((option: { isDefault: boolean }) => option.isDefault)).toEqual([
+      true,
+      false,
+      false,
+      false,
+    ]);
     for (const option of sent.options.options) {
       expect(option.value).toMatch(UUID);
-      expect(option.isDefault).toBe(false);
-      expect(typeof option.color).toBe("string");
+      expect(option.color).toBe("secondary");
     }
     expect(new Set(sent.options.options.map((option: { value: string }) => option.value)).size).toBe(4);
     expect(String(result)).toContain("created successfully");
@@ -94,7 +99,7 @@ describe("manage_custom_columns option defaults", () => {
     expect(sent.options.options[1].value).not.toBe(existingOptionValue);
   });
 
-  it("tells the model how to recover when it invents an id for a new column", async () => {
+  it("writes nothing when the model invents an id for a column that does not exist", async () => {
     spies.getAll.mockResolvedValue({ data: [] });
 
     const result = await manageCustomColumnsTool.execute({
@@ -105,8 +110,18 @@ describe("manage_custom_columns option defaults", () => {
       label: "Roof note",
     } as never);
 
-    expect(String(result)).toMatch(/without id/i);
+    expect(String(result)).toContain("Validation error:");
     expect(spies.upsert).not.toHaveBeenCalled();
+  });
+
+  it("keeps a stage weight the caller passed through", async () => {
+    await manageCustomColumnsTool.execute(
+      upsertParams([{ label: "Survey", value: existingOptionValue, weight: 40 }, { label: "Won" }]) as never,
+    );
+
+    const sent = spies.upsert.mock.calls[0][0];
+    expect(sent.options.options[0]).toMatchObject({ value: existingOptionValue, weight: 40 });
+    expect(sent.options.options[1].weight).toBeUndefined();
   });
 
   it("leaves non-select columns untouched", async () => {

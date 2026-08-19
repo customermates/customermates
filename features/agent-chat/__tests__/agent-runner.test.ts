@@ -844,14 +844,24 @@ describe("agent runner approval rendezvous", () => {
     aiMock.streamText.mockReturnValue(
       scripted(function* () {
         yield { type: "tool-call", toolCallId: "f1", toolName: "create_contacts", input: { contacts: [{}] } };
-        yield { type: "tool-result", toolCallId: "f1", output: { ok: false, result: "Validation error: firstName" } };
+        yield {
+          type: "tool-result",
+          toolCallId: "f1",
+          toolName: "create_contacts",
+          output: { ok: false, result: "Validation error: firstName" },
+        };
         yield {
           type: "tool-call",
           toolCallId: "f2",
           toolName: "create_contacts",
           input: { contacts: [{ firstName: "Anna" }] },
         };
-        yield { type: "tool-result", toolCallId: "f2", output: { ok: true, result: "Created 1 contact." } };
+        yield {
+          type: "tool-result",
+          toolCallId: "f2",
+          toolName: "create_contacts",
+          output: { ok: true, result: "Created 1 contact." },
+        };
         yield { type: "text-delta", text: "Anna is in your contacts now." };
       }),
     );
@@ -879,9 +889,14 @@ describe("agent runner approval rendezvous", () => {
     aiMock.streamText.mockReturnValue(
       scripted(function* () {
         yield { type: "tool-call", toolCallId: "f1", toolName: "create_contacts", input: { contacts: [{}] } };
-        yield { type: "tool-result", toolCallId: "f1", output: { ok: false, result: "Validation error: firstName" } };
+        yield {
+          type: "tool-result",
+          toolCallId: "f1",
+          toolName: "create_contacts",
+          output: { ok: false, result: "Validation error: firstName" },
+        };
         yield { type: "tool-call", toolCallId: "r1", toolName: "list_records", input: { entity: "contact" } };
-        yield { type: "tool-result", toolCallId: "r1", output: "0 contacts" };
+        yield { type: "tool-result", toolCallId: "r1", toolName: "list_records", output: "0 contacts" };
         yield { type: "text-delta", text: "I could not create the contact." };
       }),
     );
@@ -902,7 +917,12 @@ describe("agent runner approval rendezvous", () => {
         yield { type: "tool-call", toolCallId: "b1", toolName: "update_deals", input: {} };
         yield { type: "tool-error", toolCallId: "b1", error: new Error("boom") };
         yield { type: "tool-call", toolCallId: "b2", toolName: "update_deals", input: {} };
-        yield { type: "tool-result", toolCallId: "b2", output: { ok: true, result: "Updated 1 deal." } };
+        yield {
+          type: "tool-result",
+          toolCallId: "b2",
+          toolName: "update_deals",
+          output: { ok: true, result: "Updated 1 deal." },
+        };
         yield { type: "text-delta", text: "Second attempt worked." };
       }),
     );
