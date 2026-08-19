@@ -56,7 +56,8 @@ export class BackfillChatsInteractor {
   @Enforce(Schema)
   async invoke({ connectedAccountId, source, cursor }: BackfillChatsPayload): Promise<PageResult> {
     const account = await this.repo.findAccountByIdUnscoped(connectedAccountId);
-    if (!account || account.status === ConnectedAccountStatus.deleted) return { nextCursor: null, done: true };
+    if (!account || account.status === ConnectedAccountStatus.deleted)
+      return { nextCursor: null, done: true, complete: false };
 
     const limit = UNIPILE_MAX_LIMIT;
 

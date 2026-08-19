@@ -800,7 +800,7 @@ export class MessagingService {
     body: string;
     inReplyTo?: string;
     attachments?: MessageFile[];
-  }): Promise<MessagingSendResult<{ id: string; messageId: string }>> {
+  }): Promise<MessagingSendResult<{ id: string; messageId: string | null }>> {
     try {
       const raw = await requestData(
         this.sdk.emails.sendEmail({
@@ -826,9 +826,9 @@ export class MessagingService {
           ...multipartOptions(input.attachments),
         }),
       );
-      const data = z.looseObject({ id: z.string().min(1), message_id: z.string().min(1) }).parse(raw);
+      const data = z.looseObject({ id: z.string().min(1), message_id: z.string().min(1).optional() }).parse(raw);
 
-      return { ok: true, data: { id: data.id, messageId: data.message_id } };
+      return { ok: true, data: { id: data.id, messageId: data.message_id ?? null } };
     } catch (err) {
       return this.mapError(err);
     }

@@ -37,7 +37,8 @@ export class BackfillEmailsInteractor {
   @Enforce(Schema)
   async invoke({ connectedAccountId, source, cursor }: BackfillEmailsPayload): Promise<PageResult> {
     const account = await this.repo.findAccountByIdUnscoped(connectedAccountId);
-    if (!account || account.status === ConnectedAccountStatus.deleted) return { nextCursor: null, done: true };
+    if (!account || account.status === ConnectedAccountStatus.deleted)
+      return { nextCursor: null, done: true, complete: false };
 
     const since = backfillSince();
     const after = since.toISOString();
@@ -71,7 +72,7 @@ export class BackfillEmailsInteractor {
       },
     });
 
-    if (result.done && cursor === null && source !== ACCOUNT_WIDE_SOURCE) {
+    if (result.done && result.complete && cursor === null && source !== ACCOUNT_WIDE_SOURCE) {
       await this.ingest.reconcileFolderMembershipUnscoped({
         companyId: account.companyId,
         connectedAccountId: account.id,

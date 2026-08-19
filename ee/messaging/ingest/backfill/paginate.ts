@@ -21,7 +21,7 @@ async function paceUnipileRequest(): Promise<void> {
   lastUnipileRequestAt = Date.now();
 }
 
-export type PageResult = { nextCursor: string | null; done: boolean };
+export type PageResult = { nextCursor: string | null; done: boolean; complete: boolean };
 export type PageQuery = { cursor?: string; offset?: number };
 type FetchPage = (query: PageQuery) => Promise<{ data?: unknown[]; next_cursor?: string | null }>;
 
@@ -51,7 +51,8 @@ export async function paginateStep(opts: {
     try {
       result = await opts.fetchPage(mode === "offset" ? { offset } : { cursor });
     } catch (error) {
-      if (mode === "offset" && isUnipileCursorPaginationRequired(error)) return { nextCursor: null, done: true };
+      if (mode === "offset" && isUnipileCursorPaginationRequired(error))
+        return { nextCursor: null, done: true, complete: false };
       throw error;
     }
 
@@ -62,13 +63,13 @@ export async function paginateStep(opts: {
     if (!mode) mode = result.next_cursor ? "cursor" : "offset";
 
     if (mode === "cursor") {
-      if (!result.next_cursor) return { nextCursor: null, done: true };
+      if (!result.next_cursor) return { nextCursor: null, done: true, complete: true };
       cursor = result.next_cursor;
     } else {
-      if (items.length < opts.limit) return { nextCursor: null, done: true };
+      if (items.length < opts.limit) return { nextCursor: null, done: true, complete: true };
       offset += items.length;
     }
   }
 
-  return { nextCursor: mode === "cursor" ? `c:${cursor}` : String(offset), done: false };
+  return { nextCursor: mode === "cursor" ? `c:${cursor}` : String(offset), done: false, complete: false };
 }

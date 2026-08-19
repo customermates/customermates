@@ -34,7 +34,7 @@ describe("paginateStep", () => {
       },
     });
 
-    expect(result).toEqual({ nextCursor: null, done: true });
+    expect(result).toEqual({ nextCursor: null, done: true, complete: true });
     expect(fetchPage.mock.calls[1][0]).toEqual({ cursor: "c1" });
     expect(handled).toHaveLength(UNIPILE_MAX_LIMIT + 3);
   });
@@ -50,7 +50,7 @@ describe("paginateStep", () => {
     });
 
     expect(fetchPage.mock.calls[1][0]).toEqual({ offset: UNIPILE_MAX_LIMIT });
-    expect(result).toEqual({ nextCursor: null, done: true });
+    expect(result).toEqual({ nextCursor: null, done: true, complete: true });
   });
 
   it("stops cleanly when a cursor-only provider rejects the offset probe", async () => {
@@ -66,7 +66,7 @@ describe("paginateStep", () => {
       handleItem: () => Promise.resolve(),
     });
 
-    expect(result).toEqual({ nextCursor: null, done: true });
+    expect(result).toEqual({ nextCursor: null, done: true, complete: false });
     expect(fetchPage).toHaveBeenCalledTimes(2);
   });
 
