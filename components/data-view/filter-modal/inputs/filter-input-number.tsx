@@ -40,6 +40,7 @@ export const FilterInputNumber = observer(({ id, isValidFilter }: Props) => {
         const canonical = intlStore.parseNumberToCanonical(text);
         setText(fmt(filterNumberValue(canonical)));
         store?.onChange(id, canonical);
+        store?.flushPendingChanges?.();
       }}
       onChange={(e) => {
         const next = e.target.value;

@@ -46,7 +46,10 @@ export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersB
             className="max-w-md"
             startContent={<BookmarkIcon className="size-3 opacity-70" />}
             variant="secondary"
-            onClick={() => store.changeFilterPreset(preset.id)}
+            onClick={() => {
+              store.changeFilterPreset(preset.id);
+              editFiltersModalStore.syncDraftFromTable(store);
+            }}
           >
             <span className="truncate text-[11px]">{preset.name}</span>
           </ClickableChip>
@@ -99,6 +102,7 @@ export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersB
                 onClick={(e) => {
                   e.stopPropagation();
                   store.removeFilter(filter);
+                  editFiltersModalStore.syncDraftFromTable(store);
                 }}
               >
                 <XIcon className="size-3" />
@@ -123,7 +127,10 @@ export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersB
           size="xs"
           type="button"
           variant="secondary"
-          onClick={() => store.setQueryOptions({ filters: [], searchTerm: "" })}
+          onClick={() => {
+            store.setQueryOptions({ filters: [], searchTerm: "" });
+            editFiltersModalStore.syncDraftFromTable(store);
+          }}
         >
           {t("Common.filters.clearAll")}
         </Button>

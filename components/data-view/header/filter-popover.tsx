@@ -5,6 +5,7 @@ import type { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import { BookmarkPlus, Check, ChevronDown, Filter, Trash2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
+import { useEffect } from "react";
 
 import { FilterAccordion } from "@/components/data-view/filter-modal/filter-accordion";
 import { cn } from "@/core/utils/cn";
@@ -37,6 +38,8 @@ export const FilterPopover = observer(function FilterPopover({ store, compact, i
   const { editFiltersModalStore: modalStore } = useRootStore();
   const { showDeleteConfirmation } = useDeleteConfirmation();
 
+  useEffect(() => () => modalStore.flushPendingChanges(), [modalStore]);
+
   if (store.filterableFields.length === 0) return null;
 
   const activeFilterCount = store.filters?.length ?? 0;
@@ -53,12 +56,13 @@ export const FilterPopover = observer(function FilterPopover({ store, compact, i
     else modalStore.close();
   }
 
-  function handleApply() {
+  function handleSavePreset() {
     void modalStore.onSubmit();
   }
 
   function handleClear() {
-    store.setQueryOptions({ filters: [], forceRefresh: true });
+    modalStore.cancelPendingAutoApply();
+    store.setQueryOptions({ filters: [], forceRefresh: true, refreshMode: "background" });
     modalStore.openFor(store);
   }
 
@@ -125,9 +129,11 @@ export const FilterPopover = observer(function FilterPopover({ store, compact, i
         </Button>
       )}
 
-      <Button className="h-8" disabled={cannotSavePreset} size="sm" type="button" onClick={handleApply}>
-        {isCreatingPreset || isEditingPreset ? t("Common.actions.save") : t("Common.filters.apply")}
-      </Button>
+      {(isCreatingPreset || isEditingPreset) && (
+        <Button className="h-8" disabled={cannotSavePreset} size="sm" type="button" onClick={handleSavePreset}>
+          {t("Common.actions.save")}
+        </Button>
+      )}
     </>
   );
 

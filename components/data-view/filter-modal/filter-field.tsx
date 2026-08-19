@@ -9,7 +9,12 @@ import { useTranslations } from "next-intl";
 import { useCallback } from "react";
 import { XIcon } from "lucide-react";
 
-import { hasValidFilterConfiguration, isCustomField } from "@/components/data-view/table-view.utils";
+import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
+import {
+  resolveFilterDateGranularity,
+  resolveFilterValueClass,
+  shouldPreserveFilterValue,
+} from "@/components/data-view/filter-modal/filter-value-class";
 import { FilterInputSelect } from "@/components/data-view/filter-modal/inputs/filter-input-select";
 import { FilterInputNumber } from "@/components/data-view/filter-modal/inputs/filter-input-number";
 import { FilterInputText } from "@/components/data-view/filter-modal/inputs/filter-input-text";
@@ -18,8 +23,9 @@ import { FilterInputIsoDateRange } from "@/components/data-view/filter-modal/inp
 import { FilterInputDaysCount } from "@/components/data-view/filter-modal/inputs/filter-input-days-count";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAppForm } from "@/components/forms/form-context";
-import { FilterFieldKey } from "@/core/types/filter-field-key";
-import { FilterOperatorKey, isStandaloneOperator } from "@/core/base/base-query-builder";
+import type { FilterOperatorKey } from "@/core/base/base-query-builder";
+
+import { isStandaloneOperator } from "@/core/base/base-query-builder";
 import { cn } from "@/core/utils/cn";
 
 type Props = {
@@ -44,14 +50,11 @@ export const FilterField = observer(({ customColumns, filter, filterableFields, 
 
   const renderFilterFieldBody = useCallback((): ReactElement => {
     const id = `${baseId}.value`;
-    const isBetween = operator === FilterOperatorKey.between;
-    const isInLastDays = operator === FilterOperatorKey.inLastDays;
-    const isCustomField_ = isCustomField(filter.field);
+    const valueClass = resolveFilterValueClass(filter.field, operator, customColumns);
+    const granularity = resolveFilterDateGranularity(filter.field, customColumns);
 
-    if (isCustomField_) {
-      const customColumn = customColumns?.find((col) => col.id === filter.field);
-
-      if (!customColumn) {
+    switch (valueClass) {
+      case "unavailable":
         return (
           <div
             data-filter-value-unavailable
@@ -61,95 +64,40 @@ export const FilterField = observer(({ customColumns, filter, filterableFields, 
             {t("Common.filters.unavailableValue")}
           </div>
         );
-      }
-
-      switch (customColumn?.type) {
-        case "singleSelect":
-          return (
-            <FilterInputSelect
-              customColumns={customColumns}
-              filter={filter}
-              id={id}
-              isValidFilter={isValidFilter}
-              onValueChange={() => onFilterChange?.(filter.field)}
-            />
-          );
-        case "currency":
-          return <FilterInputNumber id={id} isValidFilter={isValidFilter} />;
-        case "date":
-        case "dateRange":
-          if (isInLastDays) return <FilterInputDaysCount id={id} isValidFilter={isValidFilter} />;
-          return isBetween ? (
-            <FilterInputIsoDateRange granularity="day" id={id} isValidFilter={isValidFilter} />
-          ) : (
-            <FilterInputIsoDate granularity="day" id={id} isValidFilter={isValidFilter} />
-          );
-        case "dateTime":
-        case "dateTimeRange":
-          if (isInLastDays) return <FilterInputDaysCount id={id} isValidFilter={isValidFilter} />;
-          return isBetween ? (
-            <FilterInputIsoDateRange granularity="minute" id={id} isValidFilter={isValidFilter} />
-          ) : (
-            <FilterInputIsoDate granularity="minute" id={id} isValidFilter={isValidFilter} />
-          );
-        case "link":
-        case "plain":
-        case "email":
-        case "phone":
-          return <FilterInputText id={id} isValidFilter={isValidFilter} />;
-      }
+      case "stringArray":
+        return (
+          <FilterInputSelect
+            customColumns={customColumns}
+            filter={filter}
+            id={id}
+            isValidFilter={isValidFilter}
+            onValueChange={() => onFilterChange?.(filter.field)}
+          />
+        );
+      case "numericString":
+        return <FilterInputNumber id={id} isValidFilter={isValidFilter} />;
+      case "daysCount":
+        return <FilterInputDaysCount id={id} isValidFilter={isValidFilter} />;
+      case "isoRange":
+        return <FilterInputIsoDateRange granularity={granularity} id={id} isValidFilter={isValidFilter} />;
+      case "isoDate":
+        return <FilterInputIsoDate granularity={granularity} id={id} isValidFilter={isValidFilter} />;
+      default:
+        return <FilterInputText id={id} isValidFilter={isValidFilter} />;
     }
-
-    const relationFields = [
-      FilterFieldKey.userIds,
-      FilterFieldKey.contactIds,
-      FilterFieldKey.participantContactId,
-      FilterFieldKey.serviceIds,
-      FilterFieldKey.dealIds,
-      FilterFieldKey.organizationIds,
-      FilterFieldKey.taskIds,
-      FilterFieldKey.event,
-      FilterFieldKey.status,
-      FilterFieldKey.provider,
-      FilterFieldKey.state,
-      FilterFieldKey.timelineKind,
-      FilterFieldKey.timelineThreadId,
-      FilterFieldKey.connectedAccountId,
-      FilterFieldKey.participants,
-    ];
-
-    if (relationFields.includes(filter.field as FilterFieldKey)) {
-      return (
-        <FilterInputSelect
-          customColumns={customColumns}
-          filter={filter}
-          id={id}
-          isValidFilter={isValidFilter}
-          onValueChange={() => onFilterChange?.(filter.field)}
-        />
-      );
-    }
-
-    const dateFields = [FilterFieldKey.updatedAt, FilterFieldKey.createdAt];
-    if (dateFields.includes(filter.field as FilterFieldKey)) {
-      if (isInLastDays) return <FilterInputDaysCount id={id} isValidFilter={isValidFilter} />;
-      return isBetween ? (
-        <FilterInputIsoDateRange granularity="minute" id={id} isValidFilter={isValidFilter} />
-      ) : (
-        <FilterInputIsoDate granularity="minute" id={id} isValidFilter={isValidFilter} />
-      );
-    }
-
-    return <FilterInputText id={id} isValidFilter={isValidFilter} />;
-  }, [customColumns, filter, baseId, isValidFilter, onFilterChange, operator, filterableFields, t]);
+  }, [customColumns, filter, baseId, isValidFilter, onFilterChange, operator, t]);
 
   const operatorId = `${baseId}.operator`;
   const bodyShown = !isStandalone && !operatorIsEmpty;
 
   function handleOperatorChange(next: string | undefined) {
     if (isDisabled) return;
+
+    const keepValue = shouldPreserveFilterValue(filter, next as FilterOperatorKey | undefined, customColumns);
+
     form?.onChange(operatorId, next);
-    form?.onChange(`${baseId}.value`, undefined);
+    if (!keepValue) form?.onChange(`${baseId}.value`, undefined);
+    form?.flushPendingChanges?.();
     onFilterChange?.(filter.field);
   }
 
