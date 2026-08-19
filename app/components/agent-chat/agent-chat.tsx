@@ -36,6 +36,8 @@ import type { AgentUsageSummary } from "@/features/agent-chat/agent-usage.servic
 
 import { MessageDateSeparator, isSameDay } from "@/app/[locale]/(protected)/inbox/components/message-date-separator";
 import { MessagesScrollContainer } from "@/components/scroll/messages-scroll-container";
+
+import { useActivityGroupState } from "./use-activity-group-state";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
@@ -350,7 +352,7 @@ const AgentChatPanel = observer(function AgentChatPanel() {
 
                   {item.kind === "activity" ? (
                     prev?.kind === "activity" ? null : (
-                      <AgentActivity items={consecutiveActivityItems(store.items, index)} />
+                      <AgentActivity isWorking={store.isWorking} items={consecutiveActivityItems(store.items, index)} />
                     )
                   ) : (
                     <AgentChatItemView item={item} />
@@ -1253,7 +1255,7 @@ const AgentChatItemView = observer(function AgentChatItemView({ item }: { item: 
     );
   }
 
-  if (item.kind === "activity") return <AgentActivity items={[item]} />;
+  if (item.kind === "activity") return <AgentActivity isWorking={false} items={[item]} />;
 
   const copy = agentActivityCopy(item.activity, t, terminology);
 
@@ -1310,8 +1312,10 @@ function consecutiveActivityItems(items: AgentChatItem[], start: number) {
 }
 
 const AgentActivity = observer(function AgentActivity({
+  isWorking,
   items,
 }: {
+  isWorking: boolean;
   items: Extract<AgentChatItem, { kind: "activity" }>[];
 }) {
   const t = useTranslations();
@@ -1320,23 +1324,12 @@ const AgentActivity = observer(function AgentActivity({
   const hasRunning = items.some((item) => item.status === "running");
   const hasError = items.some((item) => item.status === "error");
   const hasCancelled = items.some((item) => item.status === "cancelled");
-  const wasRunning = useRef(hasRunning);
-  const startedAt = useRef<number | null>(null);
-  const [open, setOpen] = useState(hasRunning);
-  const [elapsedSeconds, setElapsedSeconds] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (hasRunning || hasError) setOpen(true);
-    else if (wasRunning.current) setOpen(false);
-
-    if (hasRunning && startedAt.current === null) startedAt.current = Date.now();
-    if (!hasRunning && wasRunning.current && startedAt.current !== null) {
-      setElapsedSeconds(Math.max(1, Math.round((Date.now() - startedAt.current) / 1000)));
-      startedAt.current = null;
-    }
-
-    wasRunning.current = hasRunning;
-  }, [hasError, hasRunning]);
+  const { open, setOpen, elapsedSeconds } = useActivityGroupState({
+    hasError,
+    hasRunning,
+    isWorking,
+    startedAt: items[0]?.at,
+  });
 
   const firstCopy = items[0] ? agentActivityCopy(items[0].activity, t, terminology) : null;
   const settledSummary =
