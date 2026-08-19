@@ -1309,19 +1309,30 @@ export class PrismaMessagingRepo
     const hidden = safeMessage.isHidden === true;
     const canonicalSentAt = existing?.sentAt ?? safeMessage.sentAt;
 
-    const thread = await this.upsertChatThreadUnscoped({
-      companyId,
-      connectedAccountId,
-      unipileThreadId,
-      provider: safeMessage.provider,
-      type: threadType,
-      subject: safeMessage.subject,
-      lastMessageAt: hidden ? undefined : canonicalSentAt,
-      lastMessagePreview: hidden ? undefined : (previewSource ?? null),
-      lastMessageIsSender: hidden ? undefined : safeMessage.direction === MessagingMessageDirection.outbound,
-      participants: [safeMessage.sender, ...safeMessage.recipients.to, ...safeMessage.recipients.cc],
-      markUnread: !hidden && !backfill && !existing && isInbound,
-    });
+    const settledThread = existing
+      ? await this.prisma.messagingThread.findUnique({
+          where: { id: existing.messagingThreadId },
+          select: { id: true, unipileThreadId: true },
+        })
+      : null;
+    const misroutedTarget = settledThread && settledThread.unipileThreadId !== unipileThreadId ? settledThread : null;
+    const misroutedUpdate = misroutedTarget !== null;
+
+    const thread = misroutedTarget
+      ? misroutedTarget
+      : await this.upsertChatThreadUnscoped({
+          companyId,
+          connectedAccountId,
+          unipileThreadId,
+          provider: safeMessage.provider,
+          type: threadType,
+          subject: safeMessage.subject,
+          lastMessageAt: hidden ? undefined : canonicalSentAt,
+          lastMessagePreview: hidden ? undefined : (previewSource ?? null),
+          lastMessageIsSender: hidden ? undefined : safeMessage.direction === MessagingMessageDirection.outbound,
+          participants: [safeMessage.sender, ...safeMessage.recipients.to, ...safeMessage.recipients.cc],
+          markUnread: !hidden && !backfill && !existing && isInbound,
+        });
 
     if (
       !existing &&
@@ -1345,6 +1356,7 @@ export class PrismaMessagingRepo
       companyId,
       connectedAccountId,
       messagingThreadId: thread.id,
+      keepSettledSender: misroutedUpdate,
     });
 
     const contactId = isInbound ? await this.resolveSenderContactId(companyId, message) : null;
@@ -1398,10 +1410,11 @@ export class PrismaMessagingRepo
       companyId: string;
       connectedAccountId: string;
       messagingThreadId: string;
+      keepSettledSender?: boolean;
     },
   ) {
     const updateData = {
-      ...(args.sender.attendeeId.trim()
+      ...(!args.keepSettledSender && args.sender.attendeeId.trim()
         ? {
             sender: args.sender,
             senderIdentifier: args.sender.identifier || null,

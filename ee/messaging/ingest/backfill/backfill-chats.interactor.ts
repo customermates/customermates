@@ -10,7 +10,7 @@ import { z } from "zod";
 
 import * as Sentry from "@sentry/node";
 
-import { ConnectedAccountStatus } from "@/generated/prisma";
+import { ConnectedAccountStatus, MessagingProvider } from "@/generated/prisma";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
@@ -30,7 +30,8 @@ function isSelfAccount(account: ConnectedAccount, identifier: string | null | un
   return ownDigits.length > 0 && (identifier ?? "").replace(/\D/g, "") === ownDigits;
 }
 
-function altThreadIdFromChat(chat: UnipileChat): string | null {
+function altThreadIdFromChat(chat: UnipileChat, provider: MessagingProvider): string | null {
+  if (provider === MessagingProvider.linkedin) return null;
   if (chat.is_group || chat.is_channel) return null;
   const alt = chat.user_id;
   if (!alt || alt === "undefined" || alt === chat.id) return null;
@@ -111,7 +112,7 @@ export class BackfillChatsInteractor {
         companyId: account.companyId,
         connectedAccountId: account.id,
         unipileThreadId: chat.id,
-        unipileThreadAltId: altThreadIdFromChat(chat),
+        unipileThreadAltId: altThreadIdFromChat(chat, account.provider),
         provider: account.provider,
         type,
         name: chat.name ?? null,
