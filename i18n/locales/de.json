@@ -613,6 +613,8 @@
       "city": "Stadt",
       "country": "Land",
       "currency": "Währung",
+      "dealStageWeights": "Phasenwahrscheinlichkeiten",
+      "dealWeightingColumnId": "Phasenfeld",
       "effectiveAt": "Gültig ab",
       "emails": "E-Mail-Adressen",
       "isNewCompany": "Erste Person im Workspace",
@@ -720,6 +722,7 @@
       "tooltipFilters": "Filter"
     },
     "avatarUrlDescription": "Gib optional einen Link zu einem Bild ein, das als dein Avatar verwendet wird. Das Bild sollte öffentlich zugänglich sein.",
+    "clearDefault": "Standard entfernen",
     "colors": {
       "default": "Blau",
       "destructive": "Rot",
@@ -767,11 +770,14 @@
         }
       },
       "deal": {
-        "columnLabel": "Status",
+        "columnLabel": "Phase",
         "options": {
-          "abandoned": "Abgebrochen",
+          "demo": "Demo",
           "lost": "Verloren",
-          "open": "Offen",
+          "negotiation": "Verhandlung",
+          "proposal": "Angebot",
+          "prospecting": "Akquise",
+          "qualification": "Qualifizierung",
           "won": "Gewonnen"
         }
       },
@@ -902,7 +908,8 @@
       "widgetGroupByTypeMustMatchEntityType": "Gruppierungstyp muss mit dem Elementtyp des Diagramms übereinstimmen.",
       "widgetKindImmutable": "Der Typ eines Widgets kann nach dem Erstellen nicht geändert werden.",
       "widgetNotFound": "Widget-ID nicht gefunden oder nicht zugänglich.",
-      "widgetTaskCanOnlyGroupByCustomColumn": "Aufgaben können nur nach benutzerdefinierten Spalten gruppiert werden, nicht nach Elementtypen."
+      "widgetTaskCanOnlyGroupByCustomColumn": "Aufgaben können nur nach benutzerdefinierten Spalten gruppiert werden, nicht nach Elementtypen.",
+      "widgetWeightedValueNotAllowedForService": "Gewichtete Wert-Aggregation ist für den Elementtyp Service nicht erlaubt."
     },
     "events": {
       "company": {
@@ -1047,6 +1054,7 @@
     },
     "inputs": {
       "addOption": "„{value}“ hinzufügen",
+      "addService": "Leistung hinzufügen",
       "aggregationType": "Metrik",
       "amount": "Betrag",
       "avatarUrl": "Avatar-URL",
@@ -1080,10 +1088,12 @@
       "message": "Nachricht",
       "name": "Name",
       "options": {
+        "addOption": "Option hinzufügen",
         "allowMultiple": "Mehrere erlauben",
         "color": "Farbe",
         "currency": "Währung",
-        "displayFormat": "Format"
+        "displayFormat": "Format",
+        "lastOption": "Eine Einfachauswahl benötigt mindestens eine Option"
       },
       "password": "Passwort",
       "roleId": "Rolle",
@@ -1117,7 +1127,7 @@
       "unexpectedError": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
       "updated": "Aktualisiert"
     },
-    "options": "Optionen",
+    "probability": "Wahrscheinlichkeit",
     "providers": {
       "google": "Gmail",
       "instagram": "Instagram",
@@ -1130,6 +1140,7 @@
     "scroll": {
       "backToTop": "Nach oben"
     },
+    "setAsDefault": "Als Standard festlegen",
     "sidebar": {
       "description": "Zeigt die mobile Seitenleiste an.",
       "title": "Seitenleiste",
@@ -1140,6 +1151,7 @@
       "descending": "Absteigend",
       "field": "Sortieren nach"
     },
+    "stageProbability": "Phasenwahrscheinlichkeit",
     "systemTasks": {
       "userPendingAuthorization": {
         "alert": "Dies ist eine Systemaufgabe, die nicht manuell gelöscht werden kann. Genehmige den Benutzer in den <link>Unternehmenseinstellungen</link>, um diese Aufgabe zu lösen.",
@@ -1191,7 +1203,8 @@
         "updatedAt": "Aktualisiert am",
         "url": "URL",
         "user": "Benutzer",
-        "users": "Zugewiesen"
+        "users": "Zugewiesen",
+        "weightedValue": "Gewichteter Wert"
       },
       "groupBy": "Gruppieren nach",
       "layout": "Ansicht",
@@ -1232,7 +1245,18 @@
     "title": "Benutzer einladen"
   },
   "CompanySettings": {
-    "currencyDescription": "Wird für alle Geldwerte im CRM verwendet, zum Beispiel: {deals}, {services}."
+    "currencyDescription": "Wird für alle Geldwerte im CRM verwendet, zum Beispiel: {deals}, {services}.",
+    "dataModelTitle": "Datenmodell",
+    "forecasting": {
+      "columnLabel": "{deal}-Phasenfeld",
+      "columnPlaceholder": "Feld auswählen",
+      "currentTotal": "Gewichtete Pipeline",
+      "description": "Gewichte jede {deal}-Phase mit ihrer Abschlusswahrscheinlichkeit, um einen abgezinsten Pipeline-Wert zu sehen.",
+      "noColumn": "Nicht konfiguriert",
+      "totalPipeline": "Gesamtpipeline",
+      "weightsTitle": "Phasenwahrscheinlichkeiten",
+      "withoutStage": "Nicht gewichtet · kein {column}"
+    }
   },
   "CompanyUserModal": {
     "activeUserWarning": "Du kannst dein eigenes Benutzerkonto in deinen <settingsLink>Einstellungen</settingsLink> bearbeiten.",
@@ -1381,7 +1405,9 @@
       "count": "Anzahl {entities}",
       "dealQuantity": "Anzahl {services} in {deals}",
       "dealValue": "{deal}-Wert",
-      "dealValueRelated": "{deal}-Wert bezogen auf {entity}"
+      "dealValueRelated": "{deal}-Wert bezogen auf {entity}",
+      "dealWeightedValue": "Gewichteter {deal}-Wert",
+      "dealWeightedValueRelated": "Gewichteter {deal}-Wert bezogen auf {entity}"
     },
     "displayTypes": {
       "doughnutChart": "Ringdiagramm",
@@ -1488,7 +1514,6 @@
     "noServicesAdded": "Noch keine {entity} hinzugefügt",
     "quantityLabel": "Anzahl",
     "title": "Deal",
-    "totalLabel": "Gesamt",
     "valueLabel": "Wert"
   },
   "Diagrams": {

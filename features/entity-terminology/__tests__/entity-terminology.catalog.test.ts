@@ -4,10 +4,14 @@ import { createTranslator } from "next-intl";
 
 import en from "@/i18n/locales/en.json";
 import de from "@/i18n/locales/de.json";
+import es from "@/i18n/locales/es.json";
+import fr from "@/i18n/locales/fr.json";
+import italian from "@/i18n/locales/it.json";
 
-import { ENTITY_TERMINOLOGY_PRESETS } from "../entity-terminology.constants";
+import { ENTITY_TERMINOLOGY_PRESETS, terminologyMessageKey } from "../entity-terminology.constants";
 
 const catalogs = { en, de } as const;
+const allCatalogs = { en, de, es, fr, it: italian } as const;
 const expectedPresetMatrix = {
   [EntityType.contact]: ["contact", "person", "client", "lead"],
   [EntityType.organization]: ["organization", "company", "account"],
@@ -20,6 +24,27 @@ describe("entity terminology catalogs", () => {
   it("pins the approved preset matrix independently of production constants", () => {
     expect(ENTITY_TERMINOLOGY_PRESETS).toEqual(expectedPresetMatrix);
   });
+
+  it.each(Object.entries(allCatalogs))(
+    "resolves every %s preset name through the shared message key, capitalised",
+    (locale, messages) => {
+      const t = createTranslator({ locale, messages });
+
+      for (const entityType of Object.values(EntityType)) {
+        for (const presetKey of ENTITY_TERMINOLOGY_PRESETS[entityType]) {
+          for (const form of ["singular", "plural"] as const) {
+            const key = terminologyMessageKey(entityType, presetKey, form);
+            const label = t(key as never);
+
+            expect(label).not.toBe("");
+            expect(label).not.toContain("EntityTerminology.presets");
+            expect(label.trim()).toBe(label);
+            expect(label.charAt(0)).toBe(label.charAt(0).toUpperCase());
+          }
+        }
+      }
+    },
+  );
 
   it.each(Object.entries(catalogs))("keeps %s presets aligned with the curated catalog", (_locale, messages) => {
     for (const entityType of Object.values(EntityType)) {

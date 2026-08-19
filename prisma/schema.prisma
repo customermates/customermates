@@ -200,56 +200,58 @@ model User {
 }
 
 model Company {
-  id                           String                        @id @default(uuid())
-  currency                     Currency                      @default(eur)
-  createdAt                    DateTime                      @default(now())
-  updatedAt                    DateTime                      @updatedAt
-  tasks                        Task[]
-  users                        User[]
-  inviteTokens                 InviteToken[]
-  contacts                     Contact[]
-  organizations                Organization[]
-  deals                        Deal[]
-  services                     Service[]
-  CustomColumn                 CustomColumn[]
-  auditLogs                    AuditLog[]
-  customFieldValues            CustomFieldValue[]
-  serviceDeals                 ServiceDeal[]
-  dealOrganizations            DealOrganization[]
-  dealUsers                    DealUser[]
-  dealContacts                 DealContact[]
-  contactUsers                 ContactUser[]
-  contactOrganizations         ContactOrganization[]
-  organizationUsers            OrganizationUser[]
-  serviceUsers                 ServiceUser[]
-  taskUsers                    TaskUser[]
-  taskContacts                 TaskContact[]
-  taskOrganizations            TaskOrganization[]
-  taskDeals                    TaskDeal[]
-  taskServices                 TaskService[]
-  widgets                      Widget[]
-  userRoles                    UserRole[]
-  rolePermissions              RolePermission[]
-  p13n                         P13n[]
-  webhooks                     Webhook[]
-  webhookDeliveries            WebhookDelivery[]
-  connectedAccounts            ConnectedAccount[]
-  messagingThreads             MessagingThread[]
-  messagingMessages            MessagingMessage[]
-  messagingThreadParticipants  MessagingThreadParticipant[]
-  accountActivities            AccountActivity[]
-  contactIdentifiers           ContactIdentifier[]
-  calendars                    Calendar[]
-  calendarEvents               CalendarEvent[]
-  subscription                 Subscription?
-  entityTerminology            EntityTerminology[]
-  agentConversations           AgentConversation[]
-  agentRunLeases               AgentRunLease[]
-  agentMessages                AgentMessage[]
-  agentUsageEvents             AgentUsageEvent[]
-  agentTurnRequests            AgentTurnRequest[]
-  agentApprovals               AgentApproval[]
-  agentUiCommandResults        AgentUiCommandResult[]
+  id                          String                       @id @default(uuid())
+  currency                    Currency                     @default(eur)
+  dealWeightingColumnId       String?
+  dealWeightingColumn         CustomColumn?                @relation("CompanyDealWeightingColumn", fields: [dealWeightingColumnId], references: [id], onDelete: SetNull)
+  createdAt                   DateTime                     @default(now())
+  updatedAt                   DateTime                     @updatedAt
+  tasks                       Task[]
+  users                       User[]
+  inviteTokens                InviteToken[]
+  contacts                    Contact[]
+  organizations               Organization[]
+  deals                       Deal[]
+  services                    Service[]
+  CustomColumn                CustomColumn[]
+  auditLogs                   AuditLog[]
+  customFieldValues           CustomFieldValue[]
+  serviceDeals                ServiceDeal[]
+  dealOrganizations           DealOrganization[]
+  dealUsers                   DealUser[]
+  dealContacts                DealContact[]
+  contactUsers                ContactUser[]
+  contactOrganizations        ContactOrganization[]
+  organizationUsers           OrganizationUser[]
+  serviceUsers                ServiceUser[]
+  taskUsers                   TaskUser[]
+  taskContacts                TaskContact[]
+  taskOrganizations           TaskOrganization[]
+  taskDeals                   TaskDeal[]
+  taskServices                TaskService[]
+  widgets                     Widget[]
+  userRoles                   UserRole[]
+  rolePermissions             RolePermission[]
+  p13n                        P13n[]
+  webhooks                    Webhook[]
+  webhookDeliveries           WebhookDelivery[]
+  connectedAccounts           ConnectedAccount[]
+  messagingThreads            MessagingThread[]
+  messagingMessages           MessagingMessage[]
+  messagingThreadParticipants MessagingThreadParticipant[]
+  accountActivities           AccountActivity[]
+  contactIdentifiers          ContactIdentifier[]
+  calendars                   Calendar[]
+  calendarEvents              CalendarEvent[]
+  subscription                Subscription?
+  entityTerminology           EntityTerminology[]
+  agentConversations          AgentConversation[]
+  agentRunLeases              AgentRunLease[]
+  agentMessages               AgentMessage[]
+  agentUsageEvents            AgentUsageEvent[]
+  agentTurnRequests           AgentTurnRequest[]
+  agentApprovals              AgentApproval[]
+  agentUiCommandResults       AgentUiCommandResult[]
 }
 
 model EntityTerminology {
@@ -397,6 +399,7 @@ model CustomColumn {
   companyId        String
   Company          Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
   CustomFieldValue CustomFieldValue[]
+  weightingFor     Company[]          @relation("CompanyDealWeightingColumn")
 
   @@index([companyId])
   @@index([companyId, entityType])
@@ -446,6 +449,7 @@ model Deal {
   name              String
   totalValue        Float              @default(0)
   totalQuantity     Float              @default(0)
+  weightedValue     Float?
   companyId         String
   notes             Json?
   createdAt         DateTime           @default(now())
@@ -463,6 +467,7 @@ model Deal {
   @@index([createdAt])
   @@index([totalValue])
   @@index([totalQuantity])
+  @@index([weightedValue])
 }
 
 model Service {
@@ -1282,6 +1287,7 @@ enum AggregationType {
   count
   dealValue
   dealQuantity
+  dealWeightedValue
 }
 
 enum SubscriptionStatus {
@@ -1619,21 +1625,21 @@ enum SupportTicketSource {
 }
 
 model AgentConversation {
-  id                   String                 @id @default(uuid())
-  companyId            String
-  userId               String
-  title                String?
-  archivedAt           DateTime?
-  selectedAt           DateTime?
-  createdAt            DateTime               @default(now())
-  updatedAt            DateTime               @updatedAt
-  company              Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  messages             AgentMessage[]
-  approvals            AgentApproval[]
-  uiCommandResults     AgentUiCommandResult[]
-  turnRequests         AgentTurnRequest[]
-  supportTickets       SupportTicket[]
+  id               String                 @id @default(uuid())
+  companyId        String
+  userId           String
+  title            String?
+  archivedAt       DateTime?
+  selectedAt       DateTime?
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  company          Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user             User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages         AgentMessage[]
+  approvals        AgentApproval[]
+  uiCommandResults AgentUiCommandResult[]
+  turnRequests     AgentTurnRequest[]
+  supportTickets   SupportTicket[]
 
   @@index([companyId, userId, archivedAt, updatedAt])
   @@index([companyId, userId, archivedAt, selectedAt])

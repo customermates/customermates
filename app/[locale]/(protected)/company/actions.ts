@@ -16,6 +16,7 @@ import type { CreateCheckoutSessionData } from "@/ee/subscription/create-checkou
 import { z } from "zod";
 
 import {
+  getGetDealsInteractor,
   getGetUsersInteractor,
   getGetUserByIdInteractor,
   getAdminUpdateUserDetailsInteractor,
@@ -58,6 +59,16 @@ export async function getSubscriptionAction() {
 
 export async function updateCompanyAction(data: UpdateCompanySettingsData) {
   return serializeResult(getUpdateCompanySettingsInteractor().invoke(data));
+}
+
+export async function getDealStageValueSumsAction(columnId: string) {
+  const result = await getGetDealsInteractor().invoke({
+    groupedPagination: { groupingColumnId: columnId, perGroup: 1 },
+  });
+
+  if (!result.ok) return { ok: false as const, error: z.treeifyError(result.error) };
+
+  return { ok: true as const, data: result.data.groupValueSums ?? {} };
 }
 
 export async function sendFeedbackAction(data: SendFeedbackData) {

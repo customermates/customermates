@@ -2020,6 +2020,11 @@
                                         },
                                         "index": {
                                           "type": "number"
+                                        },
+                                        "weight": {
+                                          "type": "number",
+                                          "minimum": 0,
+                                          "maximum": 100
                                         }
                                       },
                                       "required": [
@@ -3633,6 +3638,11 @@
                                         },
                                         "index": {
                                           "type": "number"
+                                        },
+                                        "weight": {
+                                          "type": "number",
+                                          "minimum": 0,
+                                          "maximum": 100
                                         }
                                       },
                                       "required": [
@@ -4813,6 +4823,11 @@
                                         },
                                         "index": {
                                           "type": "number"
+                                        },
+                                        "weight": {
+                                          "type": "number",
+                                          "minimum": 0,
+                                          "maximum": 100
                                         }
                                       },
                                       "required": [
@@ -7408,6 +7423,11 @@
                                         },
                                         "index": {
                                           "type": "number"
+                                        },
+                                        "weight": {
+                                          "type": "number",
+                                          "minimum": 0,
+                                          "maximum": 100
                                         }
                                       },
                                       "required": [
@@ -8953,6 +8973,11 @@
                                         },
                                         "index": {
                                           "type": "number"
+                                        },
+                                        "weight": {
+                                          "type": "number",
+                                          "minimum": 0,
+                                          "maximum": 100
                                         }
                                       },
                                       "required": [
@@ -10063,6 +10088,11 @@
                                         },
                                         "index": {
                                           "type": "number"
+                                        },
+                                        "weight": {
+                                          "type": "number",
+                                          "minimum": 0,
+                                          "maximum": 100
                                         }
                                       },
                                       "required": [
@@ -10778,6 +10808,16 @@
                     "totalQuantity": {
                       "type": "number"
                     },
+                    "weightedValue": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "notes": {
                       "description": "Markdown content",
                       "anyOf": [
@@ -10984,6 +11024,7 @@
                     "name",
                     "totalValue",
                     "totalQuantity",
+                    "weightedValue",
                     "createdAt",
                     "updatedAt",
                     "organizations",
@@ -11087,6 +11128,16 @@
                       "totalQuantity": {
                         "type": "number"
                       },
+                      "weightedValue": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
                       "notes": {
                         "description": "Markdown content",
                         "anyOf": [
@@ -11293,6 +11344,7 @@
                       "name",
                       "totalValue",
                       "totalQuantity",
+                      "weightedValue",
                       "createdAt",
                       "updatedAt",
                       "organizations",
@@ -11395,6 +11447,16 @@
                       "totalQuantity": {
                         "type": "number"
                       },
+                      "weightedValue": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
                       "notes": {
                         "description": "Markdown content",
                         "anyOf": [
@@ -11601,6 +11663,7 @@
                       "name",
                       "totalValue",
                       "totalQuantity",
+                      "weightedValue",
                       "createdAt",
                       "updatedAt",
                       "organizations",
@@ -12651,6 +12714,11 @@
                                         },
                                         "index": {
                                           "type": "number"
+                                        },
+                                        "weight": {
+                                          "type": "number",
+                                          "minimum": 0,
+                                          "maximum": 100
                                         }
                                       },
                                       "required": [
@@ -13340,6 +13408,16 @@
                           "totalQuantity": {
                             "type": "number"
                           },
+                          "weightedValue": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
                           "notes": {
                             "description": "Markdown content",
                             "anyOf": [
@@ -13546,6 +13624,7 @@
                           "name",
                           "totalValue",
                           "totalQuantity",
+                          "weightedValue",
                           "createdAt",
                           "updatedAt",
                           "organizations",
@@ -14234,6 +14313,11 @@
                                         },
                                         "index": {
                                           "type": "number"
+                                        },
+                                        "weight": {
+                                          "type": "number",
+                                          "minimum": 0,
+                                          "maximum": 100
                                         }
                                       },
                                       "required": [
@@ -14557,6 +14641,16 @@
                             "totalQuantity": {
                               "type": "number"
                             },
+                            "weightedValue": {
+                              "anyOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
                             "notes": {
                               "description": "Markdown content",
                               "anyOf": [
@@ -14763,6 +14857,7 @@
                             "name",
                             "totalValue",
                             "totalQuantity",
+                            "weightedValue",
                             "createdAt",
                             "updatedAt",
                             "organizations",
@@ -15382,6 +15477,11 @@
                                         },
                                         "index": {
                                           "type": "number"
+                                        },
+                                        "weight": {
+                                          "type": "number",
+                                          "minimum": 0,
+                                          "maximum": 100
                                         }
                                       },
                                       "required": [
@@ -15779,6 +15879,16 @@
                     "totalQuantity": {
                       "type": "number"
                     },
+                    "weightedValue": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "notes": {
                       "description": "Markdown content",
                       "anyOf": [
@@ -15985,6 +16095,7 @@
                     "name",
                     "totalValue",
                     "totalQuantity",
+                    "weightedValue",
                     "createdAt",
                     "updatedAt",
                     "organizations",
@@ -17823,6 +17934,11 @@
                                         },
                                         "index": {
                                           "type": "number"
+                                        },
+                                        "weight": {
+                                          "type": "number",
+                                          "minimum": 0,
+                                          "maximum": 100
                                         }
                                       },
                                       "required": [
@@ -19335,6 +19451,11 @@
                                         },
                                         "index": {
                                           "type": "number"
+                                        },
+                                        "weight": {
+                                          "type": "number",
+                                          "minimum": 0,
+                                          "maximum": 100
                                         }
                                       },
                                       "required": [
@@ -20412,6 +20533,11 @@
                                         },
                                         "index": {
                                           "type": "number"
+                                        },
+                                        "weight": {
+                                          "type": "number",
+                                          "minimum": 0,
+                                          "maximum": 100
                                         }
                                       },
                                       "required": [
@@ -22920,6 +23046,11 @@
                                         },
                                         "index": {
                                           "type": "number"
+                                        },
+                                        "weight": {
+                                          "type": "number",
+                                          "minimum": 0,
+                                          "maximum": 100
                                         }
                                       },
                                       "required": [
@@ -24491,6 +24622,11 @@
                                         },
                                         "index": {
                                           "type": "number"
+                                        },
+                                        "weight": {
+                                          "type": "number",
+                                          "minimum": 0,
+                                          "maximum": 100
                                         }
                                       },
                                       "required": [
@@ -25627,6 +25763,11 @@
                                         },
                                         "index": {
                                           "type": "number"
+                                        },
+                                        "weight": {
+                                          "type": "number",
+                                          "minimum": 0,
+                                          "maximum": 100
                                         }
                                       },
                                       "required": [
@@ -28083,6 +28224,30 @@
                       "additionalProperties": {
                         "type": "number"
                       }
+                    },
+                    "groupValueSums": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "valueSums": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "type": "number"
+                      }
                     }
                   },
                   "required": [
@@ -30067,6 +30232,11 @@
                                         },
                                         "index": {
                                           "type": "number"
+                                        },
+                                        "weight": {
+                                          "type": "number",
+                                          "minimum": 0,
+                                          "maximum": 100
                                         }
                                       },
                                       "required": [
@@ -31926,6 +32096,11 @@
                                         },
                                         "index": {
                                           "type": "number"
+                                        },
+                                        "weight": {
+                                          "type": "number",
+                                          "minimum": 0,
+                                          "maximum": 100
                                         }
                                       },
                                       "required": [
@@ -45969,6 +46144,16 @@
                   "totalQuantity": {
                     "type": "number"
                   },
+                  "weightedValue": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
                   "notes": {
                     "description": "Markdown content",
                     "anyOf": [
@@ -46169,6 +46354,7 @@
                   "name",
                   "totalValue",
                   "totalQuantity",
+                  "weightedValue",
                   "createdAt",
                   "updatedAt",
                   "organizations",
@@ -46243,6 +46429,16 @@
                       },
                       "totalQuantity": {
                         "type": "number"
+                      },
+                      "weightedValue": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
                       },
                       "notes": {
                         "description": "Markdown content",
@@ -46444,6 +46640,7 @@
                       "name",
                       "totalValue",
                       "totalQuantity",
+                      "weightedValue",
                       "createdAt",
                       "updatedAt",
                       "organizations",
@@ -46495,6 +46692,35 @@
                           },
                           "current": {
                             "type": "number"
+                          }
+                        },
+                        "required": [
+                          "previous",
+                          "current"
+                        ]
+                      },
+                      "weightedValue": {
+                        "type": "object",
+                        "properties": {
+                          "previous": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "current": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
                           }
                         },
                         "required": [
@@ -47007,6 +47233,16 @@
                   "totalQuantity": {
                     "type": "number"
                   },
+                  "weightedValue": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
                   "notes": {
                     "description": "Markdown content",
                     "anyOf": [
@@ -47207,6 +47443,7 @@
                   "name",
                   "totalValue",
                   "totalQuantity",
+                  "weightedValue",
                   "createdAt",
                   "updatedAt",
                   "organizations",
@@ -54826,6 +55063,30 @@
             "type": "string"
           },
           "groupCounts": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "number"
+            }
+          },
+          "groupValueSums": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {
+                "type": "number"
+              }
+            }
+          },
+          "valueSums": {
             "type": "object",
             "propertyNames": {
               "type": "string"

@@ -15,11 +15,14 @@ import { TerminologyRelationshipDiagram } from "@/components/entity-terminology/
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { useRouter } from "@/i18n/navigation";
 
+import { CompanyForecastingSection } from "./company-forecasting-section";
+
 type Props = {
   currency: Currency;
+  dealWeightingColumnId: string | null;
 };
 
-export const CompanySettingsForm = observer(({ currency }: Props) => {
+export const CompanySettingsForm = observer(({ currency, dealWeightingColumnId }: Props) => {
   const t = useTranslations();
   const router = useRouter();
   const formId = useId();
@@ -39,6 +42,10 @@ export const CompanySettingsForm = observer(({ currency }: Props) => {
   useEffect(() => {
     store.initTerminology(terminologyStore.overrides);
   }, [store, terminologyStore.overrides]);
+
+  useEffect(() => {
+    void store.loadForecasting(dealWeightingColumnId);
+  }, [store, dealWeightingColumnId]);
 
   const topBarActions = useMemo(
     () => <FormActions anchorScope="company-settings" formId={formId} store={store} variant="topbar" />,
@@ -68,11 +75,19 @@ export const CompanySettingsForm = observer(({ currency }: Props) => {
           </p>
         </div>
 
-        <TerminologyRelationshipDiagram
-          readOnly={!canManage}
-          selections={store.form.terminology}
-          onPreset={canManage ? store.setTerminologyPreset : undefined}
-        />
+        <CompanyForecastingSection />
+
+        <div className="border-t border-border" />
+
+        <section className="flex flex-col gap-1">
+          <h2 className="text-sm font-medium">{t("CompanySettings.dataModelTitle")}</h2>
+
+          <TerminologyRelationshipDiagram
+            readOnly={!canManage}
+            selections={store.form.terminology}
+            onPreset={canManage ? store.setTerminologyPreset : undefined}
+          />
+        </section>
       </div>
     </AppForm>
   );

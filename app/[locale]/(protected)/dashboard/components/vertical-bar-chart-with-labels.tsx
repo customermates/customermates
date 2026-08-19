@@ -1,10 +1,11 @@
 "use client";
 
 import type { ChartDataPoint } from "./chart.types";
+import { isCurrencyAggregation } from "@/features/widget/widget-aggregation";
 
 import { Bar, BarChart, LabelList, XAxis, YAxis, Cell } from "recharts";
 import { observer } from "mobx-react-lite";
-import { AggregationType } from "@/generated/prisma";
+import type { AggregationType } from "@/generated/prisma";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { ChartTooltip } from "@/components/chart/chart-tooltip";
@@ -73,7 +74,7 @@ export const VerticalBarChartWithLabels = observer(
               dataKey="value"
               formatter={(value) => {
                 const numValue = typeof value === "number" ? value : Number(value) || 0;
-                return aggregationType === AggregationType.dealValue
+                return isCurrencyAggregation(aggregationType)
                   ? intlStore.formatCurrency(numValue)
                   : intlStore.formatNumber(numValue);
               }}

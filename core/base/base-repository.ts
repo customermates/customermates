@@ -22,6 +22,10 @@ export type ModelWhereInputMap = {
   task: Prisma.TaskWhereInput;
 };
 
+export type SummableModel = keyof ModelWhereInputMap;
+
+export type NumericFieldSums<F extends string> = Partial<Record<F, number | null>>;
+
 export abstract class BaseRepository<
   TWhereInput extends Record<string, unknown> = Record<string, unknown>,
 > extends BaseQueryBuilder<TWhereInput> {
@@ -110,6 +114,23 @@ export abstract class BaseRepository<
     }),
     task: (companyId, userId) => ({ companyId, users: { some: { userId } } }),
   };
+
+  async sumNumericFields<F extends string>(opts: {
+    model: SummableModel;
+    fields: readonly F[];
+    params: GetQueryParams;
+  }): Promise<NumericFieldSums<F>> {
+    const aggregate = (args: unknown): Promise<{ _sum: NumericFieldSums<F> | null }> =>
+      (this.prisma as unknown as Record<string, { aggregate: (a: unknown) => Promise<unknown> }>)[opts.model].aggregate(
+        args,
+      ) as Promise<{ _sum: NumericFieldSums<F> | null }>;
+
+    const baseWhere = this.accessWhere(opts.model) as unknown as TWhereInput;
+    const { where } = await this.buildQueryArgs(opts.params, baseWhere);
+    const result = await aggregate({ where, _sum: Object.fromEntries(opts.fields.map((field) => [field, true])) });
+
+    return result._sum ?? {};
+  }
 
   protected async list<TRow extends { id: string }, TMapped>(opts: {
     model: ListableModel;

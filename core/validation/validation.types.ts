@@ -32,6 +32,7 @@ export enum CustomErrorCode {
   customFieldInvalidSingleSelect = "customFieldInvalidSingleSelect",
   widgetGroupByCustomColumnIdRequired = "widgetGroupByCustomColumnIdRequired",
   widgetDealQuantityOnlyForService = "widgetDealQuantityOnlyForService",
+  widgetWeightedValueNotAllowedForService = "widgetWeightedValueNotAllowedForService",
   widgetGroupByEntityTypeNotAllowedForCount = "widgetGroupByEntityTypeNotAllowedForCount",
   widgetGroupByTypeMustMatchEntityType = "widgetGroupByTypeMustMatchEntityType",
   widgetDealFiltersNotAllowedForDealEntityType = "widgetDealFiltersNotAllowedForDealEntityType",

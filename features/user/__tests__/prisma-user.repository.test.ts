@@ -14,7 +14,10 @@ const prismaMock = {
     create: vi.fn().mockResolvedValue({ id: "user-1" }),
     findUniqueOrThrow: vi.fn().mockResolvedValue({ id: "user-1", email: "owner@example.com" }),
   },
-  company: { create: vi.fn().mockResolvedValue({ id: "company-1" }) },
+  company: {
+    create: vi.fn().mockResolvedValue({ id: "company-1" }),
+    update: vi.fn().mockResolvedValue({ id: "company-1" }),
+  },
   userRole: { create: vi.fn().mockResolvedValue({ id: "role-1" }) },
   subscription: { create: vi.fn().mockResolvedValue({ id: "subscription-1" }) },
   customColumn: { create: customColumnCreate },
@@ -91,6 +94,32 @@ describe("PrismaUserRepo.createCompanyAndUser", () => {
       expect(options[0].isDefault).toBe(true);
       expect(new Set(options.map((option) => option.value)).size).toBe(options.length);
     }
+  });
+
+  it("gives the deal field a weighted stage pipeline and points the company at it", async () => {
+    await new PrismaUserRepo().createCompanyAndUser(registerArgs);
+
+    const created = customColumnCreate.mock.calls.map((call) => call[0].data);
+    const dealColumn = created.find((data) => data.entityType === EntityType.deal);
+    const options = dealColumn.options.options as Array<{ label: string; weight?: number }>;
+
+    expect(options.map((option) => [option.label, option.weight])).toEqual([
+      ["Common.defaultData.deal.options.prospecting", 10],
+      ["Common.defaultData.deal.options.qualification", 20],
+      ["Common.defaultData.deal.options.demo", 40],
+      ["Common.defaultData.deal.options.proposal", 60],
+      ["Common.defaultData.deal.options.negotiation", 80],
+      ["Common.defaultData.deal.options.won", 100],
+      ["Common.defaultData.deal.options.lost", 0],
+    ]);
+
+    for (const data of created.filter((column) => column.entityType !== EntityType.deal))
+      for (const option of data.options.options as Array<{ weight?: number }>) expect(option.weight).toBeUndefined();
+
+    expect(prismaMock.company.update).toHaveBeenCalledWith({
+      where: { id: "company-1" },
+      data: { dealWeightingColumnId: "column-1" },
+    });
   });
 
   it("provisions the workspace without seeding demo records", async () => {

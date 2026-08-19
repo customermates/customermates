@@ -109,3 +109,58 @@ describe("CompanySettingsStore terminology", () => {
     expect(store.error).toEqual(error);
   });
 });
+
+describe("CompanySettingsStore pipeline totals", () => {
+  const COLUMN_ID = "column-stage";
+  const OPEN = "option-open";
+  const WON = "option-won";
+
+  function storeWithSums(sums: Record<string, Record<string, number>>) {
+    const store = new CompanySettingsStore(makeRootStore());
+
+    store.applyDealStageColumns(
+      [
+        {
+          id: COLUMN_ID,
+          label: "Status",
+          options: [
+            { value: OPEN, label: "Open", color: "warning", isDefault: true, index: 0, weight: 30 },
+            { value: WON, label: "Won", color: "success", isDefault: false, index: 1, weight: 100 },
+          ],
+        },
+      ] as never,
+      COLUMN_ID,
+    );
+    store.applyStageValueSums(COLUMN_ID, sums);
+
+    return store;
+  }
+
+  it("adds up the deal value column the interactor actually returns", () => {
+    const store = storeWithSums({
+      [OPEN]: { totalValue: 725500, weightedValue: 217650 },
+      [WON]: { totalValue: 545500, weightedValue: 545500 },
+    });
+
+    expect(store.pipelineTotal).toBe(1271000);
+    expect(store.weightedPipelineTotal).toBe(725500 * 0.3 + 545500);
+  });
+
+  it("counts stageless deals in the total while leaving them unweighted", () => {
+    const store = storeWithSums({
+      [OPEN]: { totalValue: 100000, weightedValue: 30000 },
+      __empty__: { totalValue: 418500 },
+    });
+
+    expect(store.unweightedPipelineTotal).toBe(418500);
+    expect(store.pipelineTotal).toBe(518500);
+    expect(store.weightedPipelineTotal).toBe(30000);
+  });
+
+  it("reports nothing rather than zero when no sums have arrived", () => {
+    const store = new CompanySettingsStore(makeRootStore());
+
+    expect(store.pipelineTotal).toBe(0);
+    expect(store.weightedPipelineTotal).toBe(0);
+  });
+});

@@ -103,9 +103,21 @@ describeDatabase("registration against a real database", () => {
 
     expect(columns.map((column) => [column.entityType, column.label])).toEqual([
       ["contact", "Sales Pipeline"],
-      ["deal", "Status"],
+      ["deal", "Stage"],
       ["task", "Status"],
     ]);
+
+    const company = await runWithoutTenant(() =>
+      prisma.company.findUniqueOrThrow({ where: { id: companyId }, select: { dealWeightingColumnId: true } }),
+    );
+    const dealColumn = columns.find((column) => column.entityType === "deal");
+
+    expect(company.dealWeightingColumnId).toBe(dealColumn?.id);
+
+    const stages = (dealColumn?.options as { options: { weight?: number; isDefault: boolean }[] }).options;
+
+    expect(stages.map((stage) => stage.weight)).toEqual([10, 20, 40, 60, 80, 100, 0]);
+    expect(stages.filter((stage) => stage.isDefault)).toHaveLength(1);
 
     const counts = await runWithoutTenant(() =>
       Promise.all([

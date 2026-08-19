@@ -285,7 +285,15 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     if (form.entityType === EntityType.service)
       return [...base, { key: AggregationType.dealValue }, { key: AggregationType.dealQuantity }];
 
-    return [...base, { key: AggregationType.dealValue }];
+    const hasWeighting =
+      Boolean(this.rootStore.companyStore.company?.dealWeightingColumnId) ||
+      form.aggregationType === AggregationType.dealWeightedValue;
+
+    return [
+      ...base,
+      { key: AggregationType.dealValue },
+      ...(hasWeighting ? [{ key: AggregationType.dealWeightedValue }] : []),
+    ];
   }
 
   get groupBySelectOptions() {

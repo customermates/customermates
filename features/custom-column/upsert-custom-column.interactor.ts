@@ -28,6 +28,14 @@ export const OptionSchema = z.object({
   color: z.enum(CHIP_COLORS),
   isDefault: z.boolean(),
   index: z.number().min(0),
+  weight: z
+    .number()
+    .min(0)
+    .max(100)
+    .optional()
+    .describe(
+      "Win probability of this stage as a percentage, used only when the column is the company's deal weighting column.",
+    ),
 });
 
 const BaseSchema = z.object({

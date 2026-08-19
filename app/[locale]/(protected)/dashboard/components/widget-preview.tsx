@@ -1,6 +1,7 @@
 "use client";
 
 import type { WidgetModalForm } from "./widget-modal.store";
+import { isCurrencyAggregation } from "@/features/widget/widget-aggregation";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { Filter } from "@/core/base/base-get.schema";
 import type { ReactNode } from "react";
@@ -8,7 +9,7 @@ import type { ReactNode } from "react";
 import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { AggregationType, WidgetKind } from "@/generated/prisma";
+import { WidgetKind } from "@/generated/prisma";
 
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
@@ -149,13 +150,12 @@ export const WidgetPreview = observer(({ activeFilterCount, activityFilters, cus
       groupByType: form.groupByType,
     });
     const previewTotal = getChartPreviewTotal(form.aggregationType);
-    const formattedTotal =
-      form.aggregationType === AggregationType.dealValue
-        ? intlStore.formatCurrency(previewTotal, undefined, {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-          })
-        : intlStore.formatNumber(previewTotal);
+    const formattedTotal = isCurrencyAggregation(form.aggregationType)
+      ? intlStore.formatCurrency(previewTotal, undefined, {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        })
+      : intlStore.formatNumber(previewTotal);
     const previewSummary = widgetSubheader(previewData.length, formattedTotal, t("Diagrams.groups")) ?? formattedTotal;
     const metric = aggregationTypeLabel(form.aggregationType, form.entityType);
 

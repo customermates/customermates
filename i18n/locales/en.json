@@ -613,6 +613,8 @@
       "city": "City",
       "country": "Country",
       "currency": "Currency",
+      "dealStageWeights": "Stage probabilities",
+      "dealWeightingColumnId": "Stage field",
       "effectiveAt": "Effective from",
       "emails": "Email addresses",
       "isNewCompany": "First user in the workspace",
@@ -720,6 +722,7 @@
       "tooltipFilters": "Filters"
     },
     "avatarUrlDescription": "Optionally provide a link to an image that will be used as your avatar. The image should be publicly accessible.",
+    "clearDefault": "Clear default",
     "colors": {
       "default": "Blue",
       "destructive": "Red",
@@ -767,11 +770,14 @@
         }
       },
       "deal": {
-        "columnLabel": "Status",
+        "columnLabel": "Stage",
         "options": {
-          "abandoned": "Abandoned",
+          "demo": "Demo",
           "lost": "Lost",
-          "open": "Open",
+          "negotiation": "Negotiation",
+          "proposal": "Proposal",
+          "prospecting": "Prospecting",
+          "qualification": "Qualification",
           "won": "Won"
         }
       },
@@ -902,7 +908,8 @@
       "widgetGroupByTypeMustMatchEntityType": "Group by type must match the chart's element type.",
       "widgetKindImmutable": "A widget's type cannot be changed after it is created.",
       "widgetNotFound": "Widget ID not found or not accessible.",
-      "widgetTaskCanOnlyGroupByCustomColumn": "Tasks can only be grouped by custom columns, not by element types."
+      "widgetTaskCanOnlyGroupByCustomColumn": "Tasks can only be grouped by custom columns, not by element types.",
+      "widgetWeightedValueNotAllowedForService": "Weighted value aggregation is not allowed for Service element type."
     },
     "events": {
       "company": {
@@ -1047,6 +1054,7 @@
     },
     "inputs": {
       "addOption": "Add \"{value}\"",
+      "addService": "Add service",
       "aggregationType": "Metric",
       "amount": "Amount",
       "avatarUrl": "Avatar URL",
@@ -1080,10 +1088,12 @@
       "message": "Message",
       "name": "Name",
       "options": {
+        "addOption": "Add option",
         "allowMultiple": "Allow Multiple",
         "color": "Color",
         "currency": "Currency",
-        "displayFormat": "Format"
+        "displayFormat": "Format",
+        "lastOption": "A single select needs at least one option"
       },
       "password": "Password",
       "roleId": "Role",
@@ -1117,7 +1127,7 @@
       "unexpectedError": "Something went wrong. Please try again.",
       "updated": "Updated"
     },
-    "options": "Options",
+    "probability": "Probability",
     "providers": {
       "google": "Gmail",
       "instagram": "Instagram",
@@ -1130,6 +1140,7 @@
     "scroll": {
       "backToTop": "Back to top"
     },
+    "setAsDefault": "Set as default",
     "sidebar": {
       "description": "Displays the mobile sidebar.",
       "title": "Sidebar",
@@ -1140,6 +1151,7 @@
       "descending": "Descending",
       "field": "Sort by"
     },
+    "stageProbability": "Stage probability",
     "systemTasks": {
       "userPendingAuthorization": {
         "alert": "This is a system task that cannot be manually deleted. Please approve the user in <link>company settings</link> to resolve this task.",
@@ -1191,7 +1203,8 @@
         "updatedAt": "Updated at",
         "url": "URL",
         "user": "User",
-        "users": "Assigned"
+        "users": "Assigned",
+        "weightedValue": "Weighted Value"
       },
       "groupBy": "Group By",
       "layout": "Layout",
@@ -1232,7 +1245,18 @@
     "title": "Invite User"
   },
   "CompanySettings": {
-    "currencyDescription": "Used for all money values across the CRM, for example: {deals}, {services}."
+    "currencyDescription": "Used for all money values across the CRM, for example: {deals}, {services}.",
+    "dataModelTitle": "Data model",
+    "forecasting": {
+      "columnLabel": "{deal} stage field",
+      "columnPlaceholder": "Select a field",
+      "currentTotal": "Weighted pipeline",
+      "description": "Weight each {deal} stage by its win probability to see a discounted pipeline value.",
+      "noColumn": "Not configured",
+      "totalPipeline": "Total pipeline",
+      "weightsTitle": "Stage probabilities",
+      "withoutStage": "Not weighted · no {column}"
+    }
   },
   "CompanyUserModal": {
     "activeUserWarning": "You can edit your own user account in your <settingsLink>settings</settingsLink>.",
@@ -1381,7 +1405,9 @@
       "count": "Count {entities}",
       "dealQuantity": "Number of {services} in {deals}",
       "dealValue": "{deal} value",
-      "dealValueRelated": "{deal} value related to {entity}"
+      "dealValueRelated": "{deal} value related to {entity}",
+      "dealWeightedValue": "Weighted {deal} value",
+      "dealWeightedValueRelated": "Weighted {deal} value related to {entity}"
     },
     "displayTypes": {
       "doughnutChart": "Doughnut Chart",
@@ -1488,7 +1514,6 @@
     "noServicesAdded": "No {entity} added yet",
     "quantityLabel": "Quantity",
     "title": "Deal",
-    "totalLabel": "Total",
     "valueLabel": "Value"
   },
   "Diagrams": {

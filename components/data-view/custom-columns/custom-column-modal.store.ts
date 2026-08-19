@@ -3,9 +3,9 @@ import type { UpsertCustomColumnData } from "@/features/custom-column/upsert-cus
 import type { RootStore } from "@/core/stores/root.store";
 import type { CustomColumnOption, CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
-import { action, makeObservable, toJS } from "mobx";
+import { action, computed, makeObservable, observable, toJS } from "mobx";
 import { cloneDeep } from "lodash";
-import { CustomColumnType, EntityType, Currency, Resource } from "@/generated/prisma";
+import { CustomColumnType, EntityType, Currency, Resource, Action } from "@/generated/prisma";
 
 import { type ChipColor } from "@/constants/chip-colors";
 import { type DateDisplayFormat } from "@/constants/date-format";
@@ -14,6 +14,8 @@ import { BaseModalStore } from "@/core/base/base-modal.store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnData> {
+  pendingFocusOptionValue?: string;
+
   constructor(rootStore: RootStore) {
     super(rootStore, {
       id: undefined,
@@ -23,10 +25,13 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
     });
 
     makeObservable(this, {
+      pendingFocusOptionValue: observable,
+      canDeleteOption: computed,
       onSubmit: action,
       initialize: action,
       openWithColumn: action,
       addOption: action,
+      clearPendingFocusOptionValue: action,
       deleteOption: action,
       deleteColumn: action,
       toggleDefaultOption: action,
@@ -52,6 +57,18 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
     if (!resource) return false;
 
     return !this.rootStore.userStore.canManage(resource);
+  }
+
+  get isDealWeightingColumn(): boolean {
+    if (this.form.type !== CustomColumnType.singleSelect || !this.form.id) return false;
+
+    return this.rootStore.companyStore.company?.dealWeightingColumnId === this.form.id;
+  }
+
+  get isOptionWeightReadOnly(): boolean {
+    void this.rootStore.userStore.user;
+
+    return this.isDisabled || !this.rootStore.userStore.can(Resource.company, Action.update);
   }
 
   get customColumns() {
@@ -151,6 +168,7 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
       color: "secondary" as const,
       isDefault: currentOptions.length === 0,
       index: currentOptions.length,
+      ...(this.isDealWeightingColumn ? { weight: 0 } : {}),
     };
 
     this.form = {
@@ -159,6 +177,12 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
         options: [...currentOptions, newOption],
       },
     };
+
+    this.pendingFocusOptionValue = newOption.value;
+  };
+
+  clearPendingFocusOptionValue = () => {
+    this.pendingFocusOptionValue = undefined;
   };
 
   reorderOptions = (oldIndex: number, newIndex: number) => {
@@ -178,19 +202,22 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
     };
   };
 
+  get canDeleteOption(): boolean {
+    if (this.form.type !== CustomColumnType.singleSelect) return false;
+
+    return this.form.options.options.length > 1;
+  }
+
   deleteOption = (option: CustomColumnOption) => {
     if (this.form.type !== CustomColumnType.singleSelect) return;
+    if (!this.canDeleteOption) return;
 
     const innerOptions = this.form.options.options;
     const index = innerOptions.findIndex((opt) => opt.value === option.value);
     if (index === -1) return;
 
     const options = [...innerOptions];
-    const wasDefault = options[index].isDefault;
-
     options.splice(index, 1);
-
-    if (wasDefault && options.length > 0) options[0].isDefault = true;
 
     this.form = {
       ...this.form,

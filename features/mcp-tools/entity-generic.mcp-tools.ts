@@ -265,7 +265,13 @@ export const listRecordsTool = {
     "Use this when you need to search, filter, sort, or count records of a single entity type. " +
     "Required: entity. Optional: searchTerm, filters, sortDescriptor, page, pageSize (5/10/25/100, default 10). " +
     "Returns id and name per item plus the matching total (it is always returned, use it for counts too); " +
-    "deal items add totalValue and totalQuantity, service items add amount. " +
+    "deal items add totalValue, totalQuantity and weightedValue, service items add amount. " +
+    "When the entity has numeric columns it also returns sums: the total of each numeric column across " +
+    "every record matching the filters, not just the current page. Read sums directly instead of adding " +
+    "up items, which would only cover one page. For deals sums holds totalValue (pipeline), totalQuantity " +
+    "and weightedValue (pipeline weighted by each stage's win probability). " +
+    "Numeric columns of the record are summable; single-select and other custom fields are not, so filter " +
+    "or group by those instead. " +
     "Use get_records (batched, pass many ids in one call) to fetch full field/custom-column values.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: ListRecordsSchema,
@@ -291,9 +297,13 @@ export const listRecordsTool = {
         name: entityNameExtractors[entity](item),
         ...(item.totalValue !== undefined && { totalValue: item.totalValue }),
         ...(item.totalQuantity !== undefined && { totalQuantity: item.totalQuantity }),
+        ...(item.weightedValue != null && { weightedValue: item.weightedValue }),
         ...(item.amount !== undefined && { amount: item.amount }),
       })),
       total: result.data.pagination?.total ?? result.data.items.length,
+      ...(result.data.valueSums && Object.keys(result.data.valueSums).length > 0
+        ? { sums: result.data.valueSums }
+        : {}),
       page,
       ...(filters ? { filters } : {}),
     });

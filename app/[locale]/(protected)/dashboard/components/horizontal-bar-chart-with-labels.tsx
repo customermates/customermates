@@ -1,10 +1,11 @@
 "use client";
 
 import type { ChartDataPoint } from "./chart.types";
+import { isCurrencyAggregation } from "@/features/widget/widget-aggregation";
 
 import { Bar, BarChart, LabelList, XAxis, YAxis, Cell } from "recharts";
 import { observer } from "mobx-react-lite";
-import { AggregationType } from "@/generated/prisma";
+import type { AggregationType } from "@/generated/prisma";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { ChartTooltip } from "@/components/chart/chart-tooltip";
@@ -35,7 +36,7 @@ export const HorizontalBarChartWithLabels = observer(
     const { intlStore } = useRootStore();
 
     const formatValue = (value: number) =>
-      aggregationType === AggregationType.dealValue ? intlStore.formatCurrency(value) : intlStore.formatNumber(value);
+      isCurrencyAggregation(aggregationType) ? intlStore.formatCurrency(value) : intlStore.formatNumber(value);
 
     const maxValue = chartData[0].value;
     const formattedMaxValue = formatValue(maxValue);

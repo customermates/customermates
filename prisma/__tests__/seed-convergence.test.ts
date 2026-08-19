@@ -246,6 +246,7 @@ describe("synthetic seed convergence after UI edits", () => {
     };
     const customColumn = relationDelegate();
     const prisma = {
+      company: { update: vi.fn().mockResolvedValue({}) },
       customColumn,
       customFieldValue,
     } as unknown as PrismaClient;

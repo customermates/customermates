@@ -138,6 +138,7 @@ export function buildSyntheticP13nFixtures(
       columnOrder: [
         customColumnIds.dealStatus,
         "totalValue",
+        "weightedValue",
         "tasks",
         "totalQuantity",
         customColumnIds.dealProjectPeriod,

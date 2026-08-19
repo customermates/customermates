@@ -140,11 +140,12 @@ function companyWidget(id: string, name: string): CompanyWidget {
   };
 }
 
-function createStoreWithMocks() {
+function createStoreWithMocks(dealWeightingColumnId: string | null = "column-weighting") {
   const refresh = vi.fn();
   const removeItem = vi.fn();
   const rootStore = {
     registerModalStore: vi.fn(),
+    companyStore: { company: { dealWeightingColumnId } },
     userStore: { can: vi.fn(() => true), canAccess: vi.fn(() => true) },
     widgetsStore: { refresh, removeItem },
   } as unknown as RootStore;
@@ -259,9 +260,9 @@ describe("WidgetModalStore chart combinations", () => {
   });
 
   it.each([
-    [EntityType.contact, [AggregationType.count, AggregationType.dealValue]],
-    [EntityType.organization, [AggregationType.count, AggregationType.dealValue]],
-    [EntityType.deal, [AggregationType.count, AggregationType.dealValue]],
+    [EntityType.contact, [AggregationType.count, AggregationType.dealValue, AggregationType.dealWeightedValue]],
+    [EntityType.organization, [AggregationType.count, AggregationType.dealValue, AggregationType.dealWeightedValue]],
+    [EntityType.deal, [AggregationType.count, AggregationType.dealValue, AggregationType.dealWeightedValue]],
     [EntityType.service, [AggregationType.count, AggregationType.dealValue, AggregationType.dealQuantity]],
     [EntityType.task, [AggregationType.count]],
   ])("offers only compatible metrics for %s", (entityType, expected) => {
@@ -270,6 +271,29 @@ describe("WidgetModalStore chart combinations", () => {
     store.onChange("entityType", entityType);
 
     expect(store.aggregationTypeOptions.map(({ key }) => key)).toEqual(expected);
+  });
+
+  it.each([[EntityType.contact], [EntityType.organization], [EntityType.deal]])(
+    "hides the weighted metric for %s until a stage column drives the forecast",
+    (entityType) => {
+      const store = createStoreWithMocks(null).store;
+      startChart(store);
+      store.onChange("entityType", entityType);
+
+      expect(store.aggregationTypeOptions.map(({ key }) => key)).toEqual([
+        AggregationType.count,
+        AggregationType.dealValue,
+      ]);
+    },
+  );
+
+  it("keeps the weighted metric selectable while editing a widget that already uses it", () => {
+    const store = createStoreWithMocks(null).store;
+    startChart(store);
+    store.onChange("entityType", EntityType.deal);
+    store.onChange("aggregationType", AggregationType.dealWeightedValue);
+
+    expect(store.aggregationTypeOptions.map(({ key }) => key)).toContain(AggregationType.dealWeightedValue);
   });
 
   it("offers custom grouping for every entity and relation grouping only for non-count metrics", () => {
