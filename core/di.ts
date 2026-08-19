@@ -1178,7 +1178,6 @@ export const getProcessUnipileWebhookInteractor = () => {
     "account.remove": getProcessAccountRemoveWebhookInteractor(),
     "account.status.disconnected": accountStatus,
     "account.status.errored": accountStatus,
-    "account.status.paused": accountStatus,
     "account.status.running": accountStatus,
     "account.status.degraded": accountStatus,
     "account.status.partial": accountStatus,
@@ -1191,7 +1190,6 @@ export const getProcessUnipileWebhookInteractor = () => {
     "calendar.event.update": calendarEventUpsert,
     "calendar.event.delete": getProcessCalendarEventDeleteWebhookInteractor(),
     "relation.new": relation,
-    "relation.request.accept": relation,
   };
 
   return new ProcessUnipileWebhookInteractor(getUnipileWebhookRepo(), handlers);

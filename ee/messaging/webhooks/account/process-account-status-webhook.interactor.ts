@@ -14,7 +14,6 @@ const Schema = z.object({
     "account.status.disconnected",
     "account.status.errored",
     "account.status.partial",
-    "account.status.paused",
     "account.status.running",
   ]),
   account_id: z.string(),
