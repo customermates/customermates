@@ -1,3 +1,5 @@
+import { isUnipileCursorPaginationRequired } from "../../messaging.service";
+
 export const UNIPILE_MAX_LIMIT = 25;
 export const UNIPILE_EMAIL_MAX_LIMIT = 100;
 export const BACKFILL_EMAIL_TIMEOUT_MS = 90_000;
@@ -44,7 +46,15 @@ export async function paginateStep(opts: {
 
   for (let page = 0; page < PAGE_SAFETY; page++) {
     await paceUnipileRequest();
-    const result = await opts.fetchPage(mode === "offset" ? { offset } : { cursor });
+
+    let result;
+    try {
+      result = await opts.fetchPage(mode === "offset" ? { offset } : { cursor });
+    } catch (error) {
+      if (mode === "offset" && isUnipileCursorPaginationRequired(error)) return { nextCursor: null, done: true };
+      throw error;
+    }
+
     const items = result.data ?? [];
 
     for (const item of items) await opts.handleItem(item);
