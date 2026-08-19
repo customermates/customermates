@@ -24,6 +24,16 @@ export class IntlStore {
     makeAutoObservable(this);
   }
 
+  private clientHydrated = false;
+
+  markClientHydrated = (): void => {
+    this.clientHydrated = true;
+  };
+
+  get rendersZonedValues(): boolean {
+    return this.clientHydrated;
+  }
+
   get companyCurrency() {
     return this.rootStore.companyStore.company?.currency;
   }
@@ -113,6 +123,7 @@ export class IntlStore {
 
   formatNumericalLongDate(date: Date | undefined): string {
     if (date === undefined) return "";
+    if (!this.clientHydrated) return "";
 
     return new Intl.DateTimeFormat(this.formattingLocale, {
       year: "numeric" as const,
@@ -123,6 +134,7 @@ export class IntlStore {
 
   formatNumericalShortDate(date: Date | undefined): string {
     if (date === undefined) return "";
+    if (!this.clientHydrated) return "";
 
     return new Intl.DateTimeFormat(this.formattingLocale, {
       year: "2-digit" as const,
@@ -133,6 +145,7 @@ export class IntlStore {
 
   formatDescriptiveShortDate(date: Date | undefined): string {
     if (date === undefined) return "";
+    if (!this.clientHydrated) return "";
 
     return new Intl.DateTimeFormat(this.formattingLocale, {
       year: "numeric" as const,
@@ -143,6 +156,7 @@ export class IntlStore {
 
   formatDescriptiveLongDate(date: Date | undefined): string {
     if (date === undefined) return "";
+    if (!this.clientHydrated) return "";
 
     return new Intl.DateTimeFormat(this.formattingLocale, {
       year: "numeric" as const,
@@ -153,6 +167,7 @@ export class IntlStore {
 
   formatNumericalLongDateTime(date: Date | undefined): string {
     if (date === undefined) return "";
+    if (!this.clientHydrated) return "";
 
     return new Intl.DateTimeFormat(this.formattingLocale, {
       year: "numeric" as const,
@@ -165,6 +180,7 @@ export class IntlStore {
 
   formatNumericalShortDateTime(date: Date | undefined): string {
     if (date === undefined) return "";
+    if (!this.clientHydrated) return "";
 
     return new Intl.DateTimeFormat(this.formattingLocale, {
       year: "2-digit" as const,
@@ -177,6 +193,7 @@ export class IntlStore {
 
   formatDescriptiveShortDateTime(date: Date | undefined): string {
     if (date === undefined) return "";
+    if (!this.clientHydrated) return "";
 
     return new Intl.DateTimeFormat(this.formattingLocale, {
       year: "numeric" as const,
@@ -189,6 +206,7 @@ export class IntlStore {
 
   formatDescriptiveLongDateTime(date: Date | undefined): string {
     if (date === undefined) return "";
+    if (!this.clientHydrated) return "";
 
     return new Intl.DateTimeFormat(this.formattingLocale, {
       year: "numeric" as const,
@@ -201,6 +219,7 @@ export class IntlStore {
 
   formatTime(date: Date | undefined): string {
     if (date === undefined) return "";
+    if (!this.clientHydrated) return "";
 
     return new Intl.DateTimeFormat(this.formattingLocale, {
       hour: "2-digit" as const,
@@ -210,6 +229,7 @@ export class IntlStore {
 
   formatRelativeTime(date: Date | undefined): string {
     if (date === undefined) return "";
+    if (!this.clientHydrated) return "";
 
     return format(date, this.rootStore.localeStore.locale);
   }

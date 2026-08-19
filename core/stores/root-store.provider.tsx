@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 
-import { createContext, useContext, useMemo } from "react";
+import { createContext, useContext, useEffect, useMemo } from "react";
 
 import { RootStore } from "@/core/stores/root.store";
 import type { AppMode } from "@/core/config/environment";
@@ -16,6 +16,10 @@ type Props = {
 
 export function RootStoreProvider({ appMode, children }: Props) {
   const rootStore = useMemo(() => new RootStore(appMode), [appMode]);
+
+  useEffect(() => {
+    rootStore.intlStore.markClientHydrated();
+  }, [rootStore]);
 
   return <RootStoreContext.Provider value={rootStore}>{children}</RootStoreContext.Provider>;
 }

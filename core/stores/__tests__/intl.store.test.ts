@@ -56,3 +56,40 @@ describe("IntlStore locale resolution", () => {
     expect(store.resolvedFormattingLanguageTag).toBe("de-DE");
   });
 });
+
+describe("IntlStore zoned-value hydration gate", () => {
+  function createStore() {
+    return new IntlStore({
+      companyStore: { company: null },
+      userStore: { user: { formattingLocale: Locale.en } },
+    } as unknown as RootStore);
+  }
+
+  const date = new Date("2025-09-09T15:00:00.000Z");
+
+  it("renders no zoned value before the client has mounted, so server output cannot depend on the server's timezone", () => {
+    const store = createStore();
+
+    expect(store.rendersZonedValues).toBe(false);
+    expect(store.formatNumericalShortDateTime(date)).toBe("");
+    expect(store.formatNumericalShortDate(date)).toBe("");
+    expect(store.formatDescriptiveLongDateTime(date)).toBe("");
+    expect(store.formatTime(date)).toBe("");
+    expect(store.formatRelativeTime(date)).toBe("");
+  });
+
+  it("renders zoned values once the client has mounted", () => {
+    const store = createStore();
+    store.markClientHydrated();
+
+    expect(store.rendersZonedValues).toBe(true);
+    expect(store.formatNumericalShortDateTime(date)).not.toBe("");
+    expect(store.formatTime(date)).not.toBe("");
+  });
+
+  it("keeps timezone-independent formatting available before mount", () => {
+    const store = createStore();
+
+    expect(store.formatNumber(1234.5)).not.toBe("");
+  });
+});
