@@ -52774,6 +52774,9 @@
                           "columnId": {
                             "type": "string"
                           },
+                          "snapshot": {
+                            "type": "boolean"
+                          },
                           "previous": {},
                           "current": {}
                         },
