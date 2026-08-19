@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import { z } from "zod";
 import { EntityType, CustomColumnType, Currency } from "@/generated/prisma";
 
@@ -17,6 +19,18 @@ import { DATE_DISPLAY_FORMATS } from "@/constants/date-format";
 const entityTypeValues = Object.values(EntityType);
 const customColumnTypeValues = Object.values(CustomColumnType);
 
+const ToolOptionSchema = OptionSchema.partial({ value: true, color: true, isDefault: true, index: true });
+
+function completeOptions(options: z.infer<typeof ToolOptionSchema>[]) {
+  return options.map((option, index) => ({
+    value: option.value ?? randomUUID(),
+    label: option.label,
+    color: option.color ?? CHIP_COLORS[index % CHIP_COLORS.length],
+    isDefault: option.isDefault ?? false,
+    index: option.index ?? index,
+  }));
+}
+
 const UpsertCustomColumnToolSchema = z.object({
   id: z
     .uuid()
@@ -35,10 +49,10 @@ const UpsertCustomColumnToolSchema = z.object({
       color: z.enum(CHIP_COLORS).optional().describe("link / email / phone only"),
       allowMultiple: z.boolean().optional().describe("link / email / phone only"),
       options: z
-        .array(OptionSchema)
+        .array(ToolOptionSchema)
         .optional()
         .describe(
-          "singleSelect only. REPLACES the full option list; keep an existing option's value to preserve its records.",
+          "singleSelect only. REPLACES the full option list. A label is enough for a new option; value, color, isDefault and index are filled in when omitted. Keep an existing option's value to preserve its records.",
         ),
     })
     .optional()
@@ -129,11 +143,14 @@ export const manageCustomColumnsTool = {
     if (params.action === "upsert") {
       const parsed = UpsertCustomColumnToolSchema.safeParse(params);
       if (!parsed.success) return validationError(parsed.error);
-      let data = parsed.data;
+      const selectOptions = parsed.data.options?.options;
+      let data = selectOptions
+        ? { ...parsed.data, options: { ...parsed.data.options, options: completeOptions(selectOptions) } }
+        : parsed.data;
       if (parsed.data.id) {
         const loaded = await loadColumnOrError(parsed.data.id, parsed.data.type);
-        if (!loaded.ok) return loaded.error;
-        data = { ...parsed.data, entityType: loaded.column.entityType as EntityType };
+        if (!loaded.ok) return `${loaded.error} To create a new column instead, call upsert again without id.`;
+        data = { ...data, entityType: loaded.column.entityType as EntityType };
       }
       const result = await getUpsertCustomColumnInteractor().invoke(data as UpsertCustomColumnData);
       if (!result.ok) return validationError(result.error);
