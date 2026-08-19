@@ -3,7 +3,7 @@ import { EntityType, Resource } from "@/generated/prisma";
 
 import { EntityDetailPageView } from "@/components/entity-detail/entity-detail-page-view";
 
-import { getGetActivitiesInteractor } from "@/core/di";
+import { getGetActivitiesInteractor, getGetTaskByIdInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
 import { ACTIVITIES_P13N_ID } from "@/features/messaging/activities/activities.store";
 
@@ -16,6 +16,9 @@ export default async function TaskDetailPage({ params }: Props) {
 
   const { id } = await params;
 
+  const entityResult = await getGetTaskByIdInteractor().invoke({ id });
+  const entity = entityResult.ok ? entityResult.data.task : null;
+
   const timelineResult = await getGetActivitiesInteractor().invoke({
     scope: activityScopeForRecord(EntityType.task, id),
     pagination: { page: 1, pageSize: 25 },
@@ -24,6 +27,7 @@ export default async function TaskDetailPage({ params }: Props) {
 
   return (
     <EntityDetailPageView
+      entityInitial={entity && entityResult.ok ? { entity, customColumns: entityResult.data.customColumns } : null}
       entityType={EntityType.task}
       id={id}
       timelineInitial={
