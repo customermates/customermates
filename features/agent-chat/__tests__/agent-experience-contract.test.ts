@@ -196,12 +196,26 @@ describe("agent experience contract", () => {
   it.each(["manage_custom_columns", "manage_widgets", "manage_webhooks"])(
     "marks multiplexed tool %s sensitive only when the call needs approval",
     (toolName) => {
-      expect(describeAgentTool(toolName, { action: "list" }).risk).toBe("write");
       expect(describeAgentTool(toolName, { action: "delete" }).risk).toBe("sensitive");
       expect(describeAgentTool(toolName, { action: "no_such_action" }).risk).toBe("sensitive");
       expect(describeAgentTool(toolName, undefined).risk).toBe("sensitive");
     },
   );
+
+  it.each([
+    ["manage_custom_columns", "list", "upsert"],
+    ["manage_widgets", "get", "create"],
+    ["manage_webhooks", "list_deliveries", "create"],
+  ])("never tells the user %s changed the workspace when it only read it", (toolName, readAction, writeAction) => {
+    const read = describeAgentTool(toolName, { action: readAction });
+    expect(read.risk).toBe("read");
+    expect(read.kind).toBe("workspace.read");
+    expect(agentActivityCopy(read, enT).done).toBe("Checked your workspace");
+
+    const write = describeAgentTool(toolName, { action: writeAction });
+    expect(write.risk).toBe("write");
+    expect(write.kind).not.toBe("workspace.read");
+  });
 
   it.each(["manage_record_links", "manage_team", "update_record_notes"])(
     "marks approval-free workspace tool %s as an ordinary write",

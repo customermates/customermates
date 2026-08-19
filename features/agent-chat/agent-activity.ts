@@ -176,6 +176,17 @@ function actionValue(input: Record<string, unknown>) {
   return typeof input.action === "string" ? input.action : undefined;
 }
 
+const MULTIPLEXED_READ_ACTIONS: Record<string, readonly string[]> = {
+  manage_custom_columns: ["list"],
+  manage_webhooks: ["list", "get", "list_deliveries"],
+  manage_widgets: ["list", "get"],
+};
+
+function isMultiplexedRead(toolName: string, details: Record<string, unknown>): boolean {
+  const action = actionValue(details);
+  return Boolean(action && MULTIPLEXED_READ_ACTIONS[toolName]?.includes(action));
+}
+
 function multiplexedRisk(toolName: string, details: Record<string, unknown>): "write" | "sensitive" {
   const approvalFree = approvalFreeActionsForTool(toolName);
   const action = actionValue(details);
@@ -206,6 +217,7 @@ export function describeAgentTool(toolName: string, input: unknown): AgentActivi
       preview: safeText(details.body, 240),
     });
   }
+  if (isMultiplexedRead(toolName, details)) return descriptor("workspace.read", undefined, "read");
   if (toolName === "manage_custom_columns" || toolName === "manage_widgets") {
     return descriptor(
       "workspace.configure",
