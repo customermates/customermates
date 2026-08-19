@@ -30,7 +30,7 @@ export function ScrollReturnButton({ className, direction, isAway, label, onRetu
       )}
       size="sm"
       type="button"
-      variant="outline"
+      variant="secondary"
       onClick={onReturn}
     >
       <Icon aria-hidden="true" className="size-3.5" />

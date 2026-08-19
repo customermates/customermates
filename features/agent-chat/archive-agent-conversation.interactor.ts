@@ -7,6 +7,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { AgentSessionUnavailableError } from "@/core/errors/app-errors";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
+import { RequiresAgentChat } from "./agent-availability";
 import { AgentConversationSummarySchema } from "./agent-chat.schema";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 
@@ -38,6 +39,7 @@ export class ArchiveAgentConversationInteractor extends AuthenticatedInteractor<
     output: ArchiveAgentConversationResultSchema,
     tx: false,
   })
+  @RequiresAgentChat
   async invoke(data: ArchiveAgentConversationData): Validated<ArchiveAgentConversationResult> {
     const archived = await this.repo.archiveConversation(data.conversationId);
     if (!archived) throw new AgentSessionUnavailableError("Conversation not found.");

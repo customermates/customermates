@@ -99,7 +99,7 @@ export const AgentTourOverlay = observer(function AgentTourOverlay() {
               )}
 
               <div className="mt-3 flex justify-end gap-2">
-                <Button disabled={active.stepIndex === 0} size="sm" variant="outline" onClick={store.previousStep}>
+                <Button disabled={active.stepIndex === 0} size="sm" variant="secondary" onClick={store.previousStep}>
                   {copy.back}
                 </Button>
 

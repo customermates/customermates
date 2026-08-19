@@ -7,6 +7,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { AgentSessionUnavailableError } from "@/core/errors/app-errors";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
+import { RequiresAgentChat } from "./agent-availability";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 
 export const DeleteAgentConversationSchema = z.object({ conversationId: z.uuid() });
@@ -29,6 +30,7 @@ export class DeleteAgentConversationInteractor extends AuthenticatedInteractor<
     output: DeleteAgentConversationResultSchema,
     tx: false,
   })
+  @RequiresAgentChat
   async invoke(data: DeleteAgentConversationData): Validated<{ deleted: true }> {
     const deleted = await this.repo.deleteArchivedConversation(data.conversationId);
     if (!deleted) throw new AgentSessionUnavailableError("Archived conversation not found.");

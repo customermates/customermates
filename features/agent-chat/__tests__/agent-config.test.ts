@@ -10,7 +10,7 @@ import {
 const mockUser = createMockUserWithPermissions([]);
 
 vi.mock("@/env", () => ({
-  env: { ...MOCK_ENV_MODULE.env, AGENT_MODEL: "openai:gpt-5.6-luna" },
+  env: { ...MOCK_ENV_MODULE.env, APP_MODE: "cloud" as const, AGENT_MODEL: "openai:gpt-5.6-luna" },
 }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);

@@ -18,6 +18,7 @@ import {
   type SendAgentMessageData,
   partsToText,
 } from "./agent-chat.schema";
+import { RequiresAgentChat } from "./agent-availability";
 import type { AgentRunContext } from "./agent-runner";
 import type { AgentUsageService } from "./agent-usage.service";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
@@ -66,6 +67,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     super();
   }
 
+  @RequiresAgentChat
   @Write({ input: SendAgentMessageSchema })
   async invoke(data: SendAgentMessageData): Validated<SendAgentMessageResult> {
     const user = getTenantUser();

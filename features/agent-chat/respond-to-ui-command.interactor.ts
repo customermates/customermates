@@ -6,6 +6,7 @@ import { Write } from "@/core/decorators/write.decorator";
 import { AgentSessionUnavailableError } from "@/core/errors/app-errors";
 import { type Data, type Validated } from "@/core/validation/validation.utils";
 
+import { RequiresAgentChat } from "./agent-availability";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 
 export const RespondToUiCommandSchema = z.object({
@@ -26,6 +27,7 @@ export class RespondToUiCommandInteractor extends AuthenticatedInteractor<Respon
     super();
   }
 
+  @RequiresAgentChat
   @Write({ input: RespondToUiCommandSchema, output: OutputSchema, tx: false })
   async invoke(data: RespondToUiCommandData): Validated<{ resolved: true }> {
     const conversation = await this.repo.findConversation(data.conversationId);

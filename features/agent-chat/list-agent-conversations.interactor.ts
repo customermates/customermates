@@ -11,6 +11,7 @@ import {
   type ListAgentConversationsData,
   ListAgentConversationsSchema,
 } from "./agent-history";
+import { RequiresAgentChat } from "./agent-availability";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 
 @AllowInDemoMode
@@ -23,6 +24,7 @@ export class ListAgentConversationsInteractor extends AuthenticatedInteractor<
     super();
   }
 
+  @RequiresAgentChat
   @Validate(ListAgentConversationsSchema)
   @ValidateOutput(AgentConversationHistoryResultSchema)
   async invoke(data: ListAgentConversationsData): Validated<AgentConversationHistoryResult> {

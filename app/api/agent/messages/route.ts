@@ -4,6 +4,7 @@ import { z } from "zod";
 import { env } from "@/env";
 import { getSendAgentMessageInteractor } from "@/core/di";
 import { handleError } from "@/core/api/interactor-handler";
+import { isAgentChatAvailable } from "@/features/agent-chat/agent-availability";
 import { runAgentLane } from "@/features/agent-chat/agent-runner";
 import { sse } from "@/features/agent-chat/agent-stream-utils";
 import type { SendAgentMessageResult } from "@/features/agent-chat/send-agent-message.interactor";
@@ -47,7 +48,7 @@ function completedReplayStream(data: Extract<SendAgentMessageResult, { dispositi
 }
 
 export async function POST(request: NextRequest) {
-  if (env.APP_MODE !== "cloud" || !env.AGENT_CHAT_ENABLED) return new Response(null, { status: 404 });
+  if (!isAgentChatAvailable()) return new Response(null, { status: 404 });
 
   try {
     const data = await request.json();

@@ -8,7 +8,7 @@ vi.mock("@/env", () => ({
   env: {
     APP_MODE: "cloud",
     CLOUD_HOSTED: true,
-    AGENT_CHAT_ENABLED: true,
+    AGENT_CHAT_DISABLED: false,
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: "test",
   },

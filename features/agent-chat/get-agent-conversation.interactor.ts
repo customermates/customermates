@@ -8,6 +8,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { type Validated } from "@/core/validation/validation.utils";
 import { AgentSessionUnavailableError } from "@/core/errors/app-errors";
 
+import { RequiresAgentChat } from "./agent-availability";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { clientSafeAgentMessageParts } from "./agent-chat.schema";
 import { sanitizeAgentConversationTitle } from "./agent-output-safety";
@@ -48,6 +49,7 @@ export class GetAgentConversationInteractor extends AuthenticatedInteractor<
     super();
   }
 
+  @RequiresAgentChat
   @Validate(GetAgentConversationSchema)
   @ValidateOutput(OutputSchema)
   async invoke(data: GetAgentConversationData): Validated<AgentConversationDetail> {

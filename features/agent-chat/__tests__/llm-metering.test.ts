@@ -3,7 +3,7 @@ import { describe, it, expect, vi } from "vitest";
 import { MOCK_ENV_MODULE } from "@/tests/helpers/interactor-test-setup";
 
 vi.mock("@/env", () => ({
-  env: { ...MOCK_ENV_MODULE.env, AGENT_MODEL: "openai:gpt-5.6-luna" },
+  env: { ...MOCK_ENV_MODULE.env, APP_MODE: "cloud" as const, AGENT_MODEL: "openai:gpt-5.6-luna" },
 }));
 
 import { hasProviderUsageEvidence, usageToTokenCounts, laneModelId } from "../llm.service";

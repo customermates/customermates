@@ -7,6 +7,7 @@ import { z } from "zod";
 
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
+import { RequiresAgentChat } from "./agent-availability";
 import { AgentConversationSummarySchema } from "./agent-chat.schema";
 import {
   ArchiveAgentConversationSchema,
@@ -37,6 +38,7 @@ export class RestoreAgentConversationInteractor extends AuthenticatedInteractor<
     output: RestoreAgentConversationResultSchema,
     tx: false,
   })
+  @RequiresAgentChat
   async invoke(data: ArchiveAgentConversationData): Validated<RestoreAgentConversationResult> {
     const restored = await this.repo.restoreConversation(data.conversationId);
     if (!restored) throw new AgentSessionUnavailableError("Archived conversation not found.");

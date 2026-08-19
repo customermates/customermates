@@ -422,7 +422,7 @@ const AgentChatPanel = observer(function AgentChatPanel() {
                       aria-label={t("AgentChat.stop")}
                       className="size-9 shrink-0 rounded-full"
                       size="icon"
-                      variant="outline"
+                      variant="secondary"
                       onClick={() => void store.interrupt()}
                     >
                       <Square className="size-3.5" />
@@ -530,7 +530,7 @@ const SuggestedQuestions = observer(function SuggestedQuestions() {
             key={index}
             className="h-auto gap-1.5 rounded-full px-3 py-2 text-xs font-normal whitespace-normal"
             size="sm"
-            variant="outline"
+            variant="secondary"
             onClick={() => choose(prompt)}
           >
             <Icon aria-hidden="true" className="size-3.5" />
@@ -878,7 +878,7 @@ const ArchivedConversationList = observer(function ArchivedConversationList() {
           </AppCardBody>
 
           <AppCardFooter>
-            <Button disabled={deletePending} variant="outline" onClick={() => setDeleteCandidate(null)}>
+            <Button disabled={deletePending} variant="secondary" onClick={() => setDeleteCandidate(null)}>
               {copy.cancel}
             </Button>
 
@@ -1089,7 +1089,7 @@ function CreditBlockedNotice({ usage }: { usage: AgentUsageSummary }) {
       <Button
         className="shrink-0"
         size="sm"
-        variant="outline"
+        variant="secondary"
         onClick={() => {
           if (contact) window.location.assign("mailto:support@customermates.com?subject=Hosted%20Assistant%20credits");
           else router.push("/company/subscription");
@@ -1220,7 +1220,7 @@ const AgentChatItemView = observer(function AgentChatItemView({
           className="shrink-0"
           disabled={store.isWorking || Boolean(store.usage?.blockedReason) || !store.canRetryFailedTurn(item)}
           size="sm"
-          variant="outline"
+          variant="secondary"
           onClick={() => {
             store.retryFailedTurn(item);
             focusAgentComposer();

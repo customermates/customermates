@@ -6,8 +6,6 @@ const oauthProxySecret = process.env.OAUTH_PROXY_SECRET?.trim() ? process.env.OA
 if (Boolean(oauthProxyUrl) !== Boolean(oauthProxySecret))
   throw new Error("OAUTH_PROXY_URL and OAUTH_PROXY_SECRET must be configured together");
 
-const AGENT_CHAT_OFF_VALUES = new Set(["false", "0", "no", "off"]);
-
 export const env = {
   DATABASE_URL: process.env.DATABASE_URL as string,
   BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET as string,
@@ -22,10 +20,7 @@ export const env = {
   CI: process.env.CI,
 
   APP_MODE: resolveAppMode(process.env),
-  // Kill switch for the hosted in-app Assistant. On by default wherever it is supported, so
-  // forgetting it can never silently ship no assistant. Reached for under pressure, so it accepts
-  // any of false, 0, no or off in any case rather than only one exact spelling.
-  AGENT_CHAT_ENABLED: !AGENT_CHAT_OFF_VALUES.has((process.env.AGENT_CHAT_ENABLED ?? "").trim().toLowerCase()),
+  AGENT_CHAT_DISABLED: Boolean(process.env.AGENT_CHAT_DISABLED),
 
   RESEND_API_KEY: process.env.RESEND_API_KEY,
   RESEND_OPERATOR_EMAIL: process.env.RESEND_OPERATOR_EMAIL as string,

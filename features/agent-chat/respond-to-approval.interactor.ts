@@ -8,6 +8,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { AgentSessionUnavailableError } from "@/core/errors/app-errors";
 import { type Data, type Validated } from "@/core/validation/validation.utils";
 
+import { RequiresAgentChat } from "./agent-availability";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 
 export const RespondToApprovalSchema = z
@@ -28,6 +29,7 @@ export class RespondToApprovalInteractor extends AuthenticatedInteractor<Respond
     super();
   }
 
+  @RequiresAgentChat
   @Write({ input: RespondToApprovalSchema, output: OutputSchema })
   async invoke(data: RespondToApprovalData): Validated<{ resolved: true }> {
     const conversation = await this.repo.findConversation(data.conversationId);

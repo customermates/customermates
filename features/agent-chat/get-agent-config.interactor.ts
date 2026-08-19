@@ -7,6 +7,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 import { type Data, type Validated } from "@/core/validation/validation.utils";
 
+import { RequiresAgentChat } from "./agent-availability";
 import type { AgentUsageService } from "./agent-usage.service";
 import { AgentUsageSummarySchema } from "./agent-usage.service";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
@@ -37,6 +38,7 @@ export class GetAgentConfigInteractor extends AuthenticatedInteractor<void, Agen
     super();
   }
 
+  @RequiresAgentChat
   @ValidateOutput(OutputSchema)
   async invoke(): Validated<AgentConfig> {
     const user = getTenantUser();

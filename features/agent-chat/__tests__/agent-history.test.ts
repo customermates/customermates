@@ -10,7 +10,7 @@ import {
 
 const mockUser = createMockUserWithPermissions([]);
 
-vi.mock("@/env", () => ({ env: MOCK_ENV_MODULE.env }));
+vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, APP_MODE: "cloud" as const } }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
