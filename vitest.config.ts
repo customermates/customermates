@@ -17,6 +17,7 @@ const domTestFiles = [
   "app/[locale]/(protected)/__tests__/protected-layout.test.ts",
   "app/components/navigation/__tests__/navigation-switch.test.ts",
   "components/data-view/__tests__/data-view-url-sync.test.ts",
+  "components/data-view/__tests__/use-data-view-sync.test.ts",
   "components/data-view/filter-modal/inputs/__tests__/filter-input-number.test.ts",
   "components/forms/__tests__/selection-command.test.ts",
   "features/messaging/activities/__tests__/use-owned-activities-store.test.ts",

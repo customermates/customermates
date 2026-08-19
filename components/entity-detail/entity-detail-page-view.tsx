@@ -2,6 +2,7 @@
 
 import type { EntityType } from "@/generated/prisma";
 import type { ActivitiesResult } from "@/ee/messaging/activities/activities.schema";
+import type { EntityDetailInitial } from "@/components/entity-detail/entity-detail-layout";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
@@ -15,10 +16,11 @@ import { useEntityTerminology } from "@/components/entity-terminology/use-entity
 type Props = {
   entityType: EntityType;
   id: string;
+  entityInitial?: EntityDetailInitial | null;
   timelineInitial: ActivitiesResult;
 };
 
-export const EntityDetailPageView = observer(({ entityType, id, timelineInitial }: Props) => {
+export const EntityDetailPageView = observer(({ entityType, id, entityInitial, timelineInitial }: Props) => {
   const t = useTranslations();
   const { singular } = useEntityTerminology();
   const root = useRootStore();
@@ -30,6 +32,7 @@ export const EntityDetailPageView = observer(({ entityType, id, timelineInitial 
     <EntityDetailLayout
       canDelete={config.canDelete?.(store)}
       entityId={id}
+      entityInitial={entityInitial}
       entityType={entityType}
       fallbackTitle={singular(entityType)}
       historyPanel={<EntityTimelinePanel entityId={id} entityType={entityType} initial={timelineInitial} />}

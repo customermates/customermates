@@ -3,7 +3,7 @@
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 import type { GetResult } from "@/core/base/base-get.interactor";
 
-import { useEffect, useLayoutEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import { connectDataViewUrlSync } from "./data-view-url-sync";
 
@@ -14,7 +14,12 @@ export function useDataViewSync<E extends HasId>(
   initialResult: GetResult<E>,
   linkedStores: LinkedStore[] = [],
 ): void {
-  useLayoutEffect(() => store.setItems(initialResult), [initialResult]);
+  const appliedResult = useRef<GetResult<E> | null>(null);
+
+  if (appliedResult.current !== initialResult) {
+    appliedResult.current = initialResult;
+    store.setItems(initialResult);
+  }
 
   useEffect(() => {
     const cleanupUrlSync = connectDataViewUrlSync(store);
