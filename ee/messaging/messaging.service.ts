@@ -169,6 +169,10 @@ export function isUnipileTimeout(err: unknown): boolean {
   return err instanceof UnipileRequestError && err.status === 0;
 }
 
+export function isUnipileDisconnectedAccount(err: unknown): err is UnipileRequestError {
+  return err instanceof UnipileRequestError && unipileErrorCode(err) === CustomErrorCode.unipileDisconnectedAccount;
+}
+
 export function isUnipileResourceNotFound(err: unknown): boolean {
   if (!(err instanceof UnipileRequestError)) return false;
 
