@@ -840,6 +840,86 @@ describe("agent runner approval rendezvous", () => {
     );
   });
 
+  it("supersedes a validation-failed call once the model retries the same tool", async () => {
+    aiMock.streamText.mockReturnValue(
+      scripted(function* () {
+        yield { type: "tool-call", toolCallId: "f1", toolName: "create_contacts", input: { contacts: [{}] } };
+        yield { type: "tool-result", toolCallId: "f1", output: { ok: false, result: "Validation error: firstName" } };
+        yield {
+          type: "tool-call",
+          toolCallId: "f2",
+          toolName: "create_contacts",
+          input: { contacts: [{ firstName: "Anna" }] },
+        };
+        yield { type: "tool-result", toolCallId: "f2", output: { ok: true, result: "Created 1 contact." } };
+        yield { type: "text-delta", text: "Anna is in your contacts now." };
+      }),
+    );
+
+    const events = await runAndRead(ctx());
+
+    const supersededIndex = events.findIndex((event) => event.type === "activity_superseded" && event.id === "f1");
+    const retryIndex = events.findIndex((event) => event.type === "activity" && event.id === "f2");
+    expect(supersededIndex).toBeGreaterThan(-1);
+    expect(supersededIndex).toBeLessThan(retryIndex);
+    expect(events.at(-1)).toMatchObject({ type: "turn_done", isError: false });
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({
+        parts: expect.not.arrayContaining([expect.objectContaining({ type: "activity", id: "f1" })]),
+      }),
+    );
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({
+        parts: expect.arrayContaining([expect.objectContaining({ type: "activity", id: "f2", status: "done" })]),
+      }),
+    );
+  });
+
+  it("keeps a validation failure that no same-tool retry ever superseded", async () => {
+    aiMock.streamText.mockReturnValue(
+      scripted(function* () {
+        yield { type: "tool-call", toolCallId: "f1", toolName: "create_contacts", input: { contacts: [{}] } };
+        yield { type: "tool-result", toolCallId: "f1", output: { ok: false, result: "Validation error: firstName" } };
+        yield { type: "tool-call", toolCallId: "r1", toolName: "list_records", input: { entity: "contact" } };
+        yield { type: "tool-result", toolCallId: "r1", output: "0 contacts" };
+        yield { type: "text-delta", text: "I could not create the contact." };
+      }),
+    );
+
+    const events = await runAndRead(ctx());
+
+    expect(events.some((event) => event.type === "activity_superseded")).toBe(false);
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({
+        parts: expect.arrayContaining([expect.objectContaining({ type: "activity", id: "f1", status: "error" })]),
+      }),
+    );
+  });
+
+  it("never supersedes a thrown tool error, even when the same tool runs again", async () => {
+    aiMock.streamText.mockReturnValue(
+      scripted(function* () {
+        yield { type: "tool-call", toolCallId: "b1", toolName: "update_deals", input: {} };
+        yield { type: "tool-error", toolCallId: "b1", error: new Error("boom") };
+        yield { type: "tool-call", toolCallId: "b2", toolName: "update_deals", input: {} };
+        yield { type: "tool-result", toolCallId: "b2", output: { ok: true, result: "Updated 1 deal." } };
+        yield { type: "text-delta", text: "Second attempt worked." };
+      }),
+    );
+
+    const events = await runAndRead(ctx());
+
+    expect(events.some((event) => event.type === "activity_superseded")).toBe(false);
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({
+        parts: expect.arrayContaining([
+          expect.objectContaining({ type: "activity", id: "b1", status: "error" }),
+          expect.objectContaining({ type: "activity", id: "b2", status: "done" }),
+        ]),
+      }),
+    );
+  });
+
   it("runs an unapproved create straight through without an approval rendezvous", async () => {
     aiMock.streamText.mockReturnValue(
       scripted(function* () {

@@ -238,6 +238,8 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
       let visibleText = new AgentVisibleTextStreamSanitizer();
       const replyParts: AgentMessagePart[] = [];
       const toolParts = new Map<string, Extract<AgentMessagePart, { type: "activity" }>>();
+      const toolNamesByCallId = new Map<string, string>();
+      const retryableFailureByTool = new Map<string, string>();
       const approvalParts = new Map<string, Extract<AgentMessagePart, { type: "approval" }>>();
       const affectedResources = new Set<AgentActivityResource>();
       let tokens = EMPTY_TOKENS;
@@ -336,6 +338,16 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
           if (part.type === "text-delta" && part.text) emitVisibleText(visibleText.push(part.text));
           else if (part.type === "tool-call") {
             finishVisibleTextSegment();
+            const supersededId = retryableFailureByTool.get(part.toolName);
+            if (supersededId) {
+              retryableFailureByTool.delete(part.toolName);
+              const supersededPart = toolParts.get(supersededId);
+              const supersededIndex = supersededPart ? replyParts.indexOf(supersededPart) : -1;
+              if (supersededIndex >= 0) replyParts.splice(supersededIndex, 1);
+              toolParts.delete(supersededId);
+              emit("activity_superseded", { id: supersededId });
+            }
+            toolNamesByCallId.set(part.toolCallId, part.toolName);
             const activity = describeAgentTool(part.toolName, part.input);
             const toolPart: Extract<AgentMessagePart, { type: "activity" }> = {
               type: "activity",
@@ -353,6 +365,8 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
             const cancelled = isAgentToolCancellation(part.output);
             const failed = !cancelled && isStructuredToolFailure(part.output);
             const status = cancelled ? "cancelled" : failed ? "error" : "done";
+            const failedTool = toolNamesByCallId.get(part.toolCallId);
+            if (failed && failedTool) retryableFailureByTool.set(failedTool, part.toolCallId);
             finishTool(part.toolCallId, status);
             emit("activity_result", {
               id: part.toolCallId,

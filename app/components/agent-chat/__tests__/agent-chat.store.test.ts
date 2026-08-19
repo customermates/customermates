@@ -1280,6 +1280,26 @@ describe("AgentChatStore", () => {
     vi.useRealTimers();
   });
 
+  it("drops a superseded retry chip and keeps the surviving attempt", () => {
+    const store = new AgentChatStore(root() as never);
+    const handleEvent = (
+      store as unknown as {
+        handleEvent: (event: Record<string, unknown>) => void;
+      }
+    ).handleEvent;
+    const descriptor = { kind: "records.create", resource: "contacts", affectedResources: [], risk: "write" };
+
+    handleEvent({ seq: 1, type: "activity", id: "f1", activity: descriptor });
+    handleEvent({ seq: 2, type: "activity_result", id: "f1", isError: true });
+    handleEvent({ seq: 3, type: "activity_superseded", id: "f1" });
+    handleEvent({ seq: 4, type: "activity", id: "f2", activity: descriptor });
+    handleEvent({ seq: 5, type: "activity_result", id: "f2", isError: false });
+
+    const chips = store.items.filter((item) => item.kind === "activity");
+    expect(chips).toHaveLength(1);
+    expect(chips[0]).toMatchObject({ providerCallId: "f2", status: "done" });
+  });
+
   it("keeps only a human-safe activity descriptor as the streamed tool completes", () => {
     const store = new AgentChatStore(root() as never);
     const handleEvent = (

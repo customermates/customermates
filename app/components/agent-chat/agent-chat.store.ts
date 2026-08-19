@@ -1150,6 +1150,18 @@ export class AgentChatStore extends BaseStore {
           if (activity) activity.status = event.status === "cancelled" ? "cancelled" : event.isError ? "error" : "done";
           break;
         }
+        case "activity_superseded": {
+          const providerCallId = String(event.id);
+          this.items = this.items.filter(
+            (item) =>
+              !(
+                item.kind === "activity" &&
+                item.providerCallId === providerCallId &&
+                item.turnKey === this.activeStreamKey
+              ),
+          );
+          break;
+        }
         case "approval_request": {
           const activity = AgentActivityDescriptorSchema.safeParse(event.activity);
           if (!activity.success) break;
