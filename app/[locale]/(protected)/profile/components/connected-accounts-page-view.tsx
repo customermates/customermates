@@ -183,7 +183,7 @@ export const ConnectedAccountsPageView = observer(({ accounts, locked = false }:
           action={
             <Button
               size="sm"
-              variant="outline"
+              variant="secondary"
               onClick={() => void connectedAccountsStore.refreshQuery().catch(() => undefined)}
             >
               {t("ErrorCard.retry")}

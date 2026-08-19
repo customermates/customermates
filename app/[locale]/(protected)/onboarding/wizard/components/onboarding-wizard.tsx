@@ -110,7 +110,7 @@ export const OnboardingWizard = observer(
               disabled={isFirstStep || isSubmitting}
               id="onboarding-back"
               type="button"
-              variant="outline"
+              variant="secondary"
               onClick={back}
             >
               {t("OnboardingWizard.back")}

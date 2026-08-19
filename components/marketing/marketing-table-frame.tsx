@@ -30,7 +30,7 @@ export function MarketingTableFrame({ className, children }: Props) {
   }, []);
 
   return (
-    <div className={cn("relative overflow-clip rounded-xl bg-card shadow-xs", className)}>
+    <div className={cn("relative overflow-clip rounded-xl border border-border bg-card shadow-xs", className)}>
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 hidden dark:block"

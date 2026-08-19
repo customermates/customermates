@@ -71,7 +71,7 @@ function DrawerContent({
         data-slot="drawer-content"
         {...props}
       >
-        <div className="mx-auto mt-4 hidden h-2 w-[100px] shrink-0 rounded-full bg-muted group-data-[vaul-drawer-direction=bottom]/drawer-content:block group-data-[overlay-actions]/drawer-content:hidden!" />
+        <div className="mx-auto mt-4 hidden h-2 w-[100px] shrink-0 rounded-full bg-border-strong group-data-[vaul-drawer-direction=bottom]/drawer-content:block group-data-[overlay-actions]/drawer-content:hidden!" />
 
         {children}
 

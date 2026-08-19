@@ -98,7 +98,7 @@ export function HomepageHero({ heroSection }: Props) {
               <AppLink href={heroSection.buttonLeftHref}>{heroSection.buttonLeftText}</AppLink>
             </Button>
 
-            <Button asChild className="w-full sm:w-auto" size="lg" variant="outline">
+            <Button asChild className="w-full sm:w-auto" size="lg" variant="secondary">
               {heroSection.buttonRightHref.startsWith("#") ? (
                 <a href={heroSection.buttonRightHref}>
                   {heroSection.buttonRightText}

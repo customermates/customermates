@@ -58,7 +58,11 @@ export async function FAQSection({ faqs, title }: Props) {
 
       <Accordion collapsible className="flex flex-col gap-3" defaultValue={faqs[0].id} type="single">
         {faqs.map((faq) => (
-          <AccordionItem key={faq.id} className="rounded-xl border-b-0 bg-card px-2" value={faq.id}>
+          <AccordionItem
+            key={faq.id}
+            className="rounded-xl border border-border bg-card px-2 last:border-b"
+            value={faq.id}
+          >
             <AccordionTrigger className="text-x-lg px-4 py-5">{faq.title}</AccordionTrigger>
 
             <AccordionContent className="text-x-lg px-4 pb-5">{faq.content}</AccordionContent>

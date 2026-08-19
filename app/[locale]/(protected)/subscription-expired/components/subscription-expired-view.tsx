@@ -42,7 +42,7 @@ export const SubscriptionExpiredView = observer(({ recoveryPath }: { recoveryPat
       <AppCardFooter>
         <Button
           className="w-full"
-          variant="outline"
+          variant="secondary"
           onClick={() => {
             window.location.href = `mailto:mail@customermates.com?subject=${encodeURIComponent(t("SubscriptionExpiredView.supportEmailSubject"))}`;
           }}

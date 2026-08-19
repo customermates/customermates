@@ -65,7 +65,7 @@ export const MembersPageView = observer(function MembersPageView({ initialRoles,
       body = (
         <PageState
           action={
-            <Button size="sm" variant="outline" onClick={() => usersStore.setQueryOptions({ forceRefresh: true })}>
+            <Button size="sm" variant="secondary" onClick={() => usersStore.setQueryOptions({ forceRefresh: true })}>
               {t("ErrorCard.retry")}
             </Button>
           }

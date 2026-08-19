@@ -43,7 +43,7 @@ export function DataViewEmptyState({ icon: Icon = Inbox, title, body, primaryAct
           )}
 
           {secondaryAction && (
-            <Button size="sm" variant="outline" onClick={secondaryAction.onClick}>
+            <Button size="sm" variant="secondary" onClick={secondaryAction.onClick}>
               {secondaryAction.label}
             </Button>
           )}

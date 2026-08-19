@@ -183,7 +183,7 @@ const KanbanColumn = observer(function KanbanColumn({
       <div className={DATA_KANBAN_HEADER_CLASS_NAME}>
         {onHeaderClick ? (
           <button
-            className="inline-flex items-center rounded-md cursor-pointer transition-[background-color,transform] hover:bg-muted/50 active:scale-[0.97] motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="inline-flex items-center rounded-md cursor-pointer transition-[background-color,transform] hover:bg-accent active:scale-[0.97] motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             type="button"
             onClick={onHeaderClick}
           >

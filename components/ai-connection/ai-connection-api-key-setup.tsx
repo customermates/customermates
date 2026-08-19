@@ -63,7 +63,7 @@ export function AiConnectionApiKeySetup({
           data-api-key-setup={tool}
           disabled={isCreating}
           type="button"
-          variant="outline"
+          variant="secondary"
           onClick={onCreate}
         >
           <span
@@ -100,7 +100,7 @@ export function AiConnectionApiKeySetup({
   }
 
   return (
-    <div className={cn("flex min-w-0 flex-col gap-3", !nested && "rounded-xl border bg-muted/30 p-4")}>
+    <div className={cn("flex min-w-0 flex-col gap-3", !nested && "rounded-xl border bg-muted p-4")}>
       <div className="flex flex-col gap-1">
         <h3
           ref={resultHeadingRef}

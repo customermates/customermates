@@ -67,7 +67,7 @@ export const ServicesPageView = observer(function ServicesPageView({ services }:
       body = (
         <PageState
           action={
-            <Button size="sm" variant="outline" onClick={() => servicesStore.setQueryOptions({ forceRefresh: true })}>
+            <Button size="sm" variant="secondary" onClick={() => servicesStore.setQueryOptions({ forceRefresh: true })}>
               {t("ErrorCard.retry")}
             </Button>
           }

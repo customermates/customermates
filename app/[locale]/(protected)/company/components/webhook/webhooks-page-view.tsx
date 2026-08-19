@@ -60,7 +60,7 @@ export const WebhooksPageView = observer(function WebhooksPageView({ initialWebh
       body = (
         <PageState
           action={
-            <Button size="sm" variant="outline" onClick={() => webhooksStore.setQueryOptions({ forceRefresh: true })}>
+            <Button size="sm" variant="secondary" onClick={() => webhooksStore.setQueryOptions({ forceRefresh: true })}>
               {t("ErrorCard.retry")}
             </Button>
           }

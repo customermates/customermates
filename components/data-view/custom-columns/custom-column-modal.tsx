@@ -169,7 +169,7 @@ const SortableOptionItem = observer(
                 disabled={isDisabled}
                 size="icon"
                 type="button"
-                variant="outline"
+                variant="field"
               >
                 <span className={cn("size-3 inline-block rounded-full", COLOR_DOT_CLASSES[option.color])}>
                   <span className="sr-only">{t(`Common.colors.${option.color}`)}</span>
@@ -448,7 +448,7 @@ export const CustomColumnModal = observer(() => {
                     className="flex-1 justify-start text-muted-foreground"
                     disabled={store.isDisabled}
                     type="button"
-                    variant="outline"
+                    variant="field"
                     onClick={addOption}
                   >
                     <Icon icon={Plus} />

@@ -31,7 +31,7 @@ export default async function OpenApiDocPage({ params }: { params: Promise<{ slu
         <aside className="hidden lg:flex w-72 shrink-0 self-start sticky top-0 h-full md:h-[calc(100dvh-3rem)] flex-col mr-6">
           <nav className="space-y-2 min-h-0 overflow-y-auto">
             <AppLink
-              className="block rounded-md px-2 py-1.5 transition-colors text-subdued hover:text-foreground hover:bg-muted no-underline"
+              className="block rounded-md px-2 py-1.5 transition-colors text-subdued hover:text-foreground hover:bg-accent no-underline"
               href="/docs/openapi"
             >
               <span className="truncate text-sm">{t("NavigationBar.overview")}</span>
@@ -48,7 +48,7 @@ export default async function OpenApiDocPage({ params }: { params: Promise<{ slu
                     "block rounded-md px-2 py-1.5 transition-colors no-underline",
                     isSelected
                       ? "bg-primary/10 text-primary font-medium"
-                      : "text-subdued hover:text-foreground hover:bg-muted",
+                      : "text-subdued hover:text-foreground hover:bg-accent",
                   )}
                   href={stripLocalePrefix(doc.url)}
                 >

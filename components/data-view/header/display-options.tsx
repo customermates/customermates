@@ -65,7 +65,7 @@ function FieldRow({ uid, label, isVisible, isPinned, onToggle }: FieldRowProps) 
           "flex h-6 w-4 shrink-0 items-center justify-center rounded text-muted-foreground",
           isPinned
             ? "opacity-20 cursor-not-allowed"
-            : "cursor-grab transition-[color,background-color,transform] hover:bg-muted/50 hover:text-foreground active:scale-[0.97] active:cursor-grabbing motion-reduce:transition-none",
+            : "cursor-grab transition-[color,background-color,transform] hover:bg-accent hover:text-foreground active:scale-[0.97] active:cursor-grabbing motion-reduce:transition-none",
         )}
         disabled={isPinned}
         type="button"
