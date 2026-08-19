@@ -11,9 +11,14 @@ import { upsertFilterPresetAction, deleteFilterPresetAction } from "@/app/action
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
+export const FILTER_AUTO_APPLY_DELAY_MS = 300;
+
+const FILTER_DRAFT_PATH_PREFIX = "filters";
+
 export class EditFiltersModalStore extends BaseModalStore<UpsertFilterPresetData> {
   tableStore?: BaseDataViewStore<HasId>;
   expandedField: string | undefined = undefined;
+  private autoApplyTimer: ReturnType<typeof setTimeout> | undefined = undefined;
 
   constructor(rootStore: RootStore) {
     super(rootStore, {
@@ -30,11 +35,13 @@ export class EditFiltersModalStore extends BaseModalStore<UpsertFilterPresetData
       savedPresets: computed,
       isEditingPreset: computed,
       isCreatingPreset: computed,
+      isPresetMode: computed,
 
       openFor: action,
       onSubmit: action,
       deletePreset: action,
       setExpandedField: action,
+      syncDraftFromTable: action,
     });
 
     reaction(
@@ -60,63 +67,120 @@ export class EditFiltersModalStore extends BaseModalStore<UpsertFilterPresetData
     return this.form.presetId === "new";
   }
 
+  get isPresetMode() {
+    return this.isCreatingPreset || this.isEditingPreset;
+  }
+
+  protected override afterChange(id: string): void {
+    if (!this.isOpen || !this.tableStore) return;
+    if (!id.startsWith(FILTER_DRAFT_PATH_PREFIX)) return;
+
+    this.scheduleAutoApply();
+  }
+
+  private scheduleAutoApply = () => {
+    this.cancelPendingAutoApply();
+    this.autoApplyTimer = setTimeout(() => {
+      this.autoApplyTimer = undefined;
+      this.autoApply();
+    }, FILTER_AUTO_APPLY_DELAY_MS);
+  };
+
+  cancelPendingAutoApply = () => {
+    if (this.autoApplyTimer === undefined) return;
+
+    clearTimeout(this.autoApplyTimer);
+    this.autoApplyTimer = undefined;
+  };
+
+  flushPendingChanges = () => {
+    if (this.autoApplyTimer === undefined) return;
+
+    this.cancelPendingAutoApply();
+    this.autoApply();
+  };
+
+  private autoApply = () => {
+    this.applyDraftToTable();
+    if (!this.isPresetMode) this.markDraftApplied();
+  };
+
+  private applyDraftToTable = () => {
+    const tableStore = this.tableStore;
+    if (!tableStore) return;
+
+    tableStore.setQueryOptions({ filters: this.validDraftFilters(), refreshMode: "background" });
+  };
+
+  private validDraftFilters = (): Filter[] => toJS(this.form.filters ?? []).filter(hasValidFilterConfiguration);
+
+  private markDraftApplied = () => {
+    this.onInitOrRefresh({});
+  };
+
   private updateFormFromPresetId = (presetId: string | undefined) => {
     if (!this.isOpen) return;
 
     if (presetId === "new") {
       this.onChange("presetId", "new");
       this.onChange("name", "");
-    } else if (presetId) {
-      const preset = this.tableStore?.savedFilterPresets?.find((p) => p.id === presetId);
-      if (preset) {
-        this.form = {
-          filters: this.mergeFiltersWithFilterableFields(this.tableStore?.filterableFields ?? [], preset.filters),
-          presetId: presetId,
-          p13nId: this.tableStore?.p13nId ?? "",
-          name: preset.name,
-        };
-      }
-    } else {
+      return;
+    }
+
+    if (!presetId) {
       this.onChange("presetId", undefined);
       this.onChange("name", "");
+      return;
     }
+
+    const preset = this.tableStore?.savedFilterPresets?.find((p) => p.id === presetId);
+    if (!preset) return;
+
+    this.cancelPendingAutoApply();
+    this.form = {
+      filters: this.mergeFiltersWithFilterableFields(this.tableStore?.filterableFields ?? [], preset.filters),
+      presetId: presetId,
+      p13nId: this.tableStore?.p13nId ?? "",
+      name: preset.name,
+    };
+    this.markDraftApplied();
+    this.applyDraftToTable();
   };
 
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
+    this.flushPendingChanges();
+
+    if (!this.isPresetMode) return;
+    if (!this.tableStore?.p13nId) {
+      this.close();
+      return;
+    }
+
     this.setIsLoading(true);
 
     try {
-      const validFilters = toJS(this.form.filters).filter(hasValidFilterConfiguration);
+      const res = await upsertFilterPresetAction({
+        p13nId: this.form.p13nId,
+        name: this.form.name,
+        presetId: this.isCreatingPreset ? undefined : this.form.presetId,
+        filters: this.validDraftFilters(),
+      });
 
-      if (this.tableStore?.p13nId && (this.isEditingPreset || this.isCreatingPreset)) {
-        const presetId = this.isCreatingPreset ? undefined : this.form.presetId;
-
-        const res = await upsertFilterPresetAction({
-          p13nId: this.form.p13nId,
-          name: this.form.name,
-          presetId,
-          filters: validFilters,
-        });
-
-        if (!res.ok) {
-          this.setError(res.error);
-          this.setIsLoading(false);
-          return;
-        }
+      if (!res.ok) {
+        this.setError(res.error);
+        return;
       }
 
+      this.markDraftApplied();
       this.close();
-      this.tableStore?.setQueryOptions({
-        filters: validFilters,
-        forceRefresh: true,
-      });
     } finally {
       this.setIsLoading(false);
     }
   };
 
   openFor = (tableStore: BaseDataViewStore<any>, expandField?: string) => {
+    this.cancelPendingAutoApply();
     this.tableStore = tableStore;
     const filterableFields = this.tableStore?.filterableFields ?? [];
     const currentFilters = tableStore.filters ?? [];
@@ -132,6 +196,17 @@ export class EditFiltersModalStore extends BaseModalStore<UpsertFilterPresetData
     });
   };
 
+  syncDraftFromTable = (tableStore: BaseDataViewStore<any>) => {
+    if (!this.isOpen || this.tableStore !== tableStore) return;
+
+    this.cancelPendingAutoApply();
+    this.form = {
+      ...this.form,
+      filters: this.mergeFiltersWithFilterableFields(tableStore.filterableFields ?? [], tableStore.filters ?? []),
+    };
+    if (!this.isPresetMode) this.markDraftApplied();
+  };
+
   deletePreset = async () => {
     if (!this.form.presetId || !this.tableStore?.p13nId) return;
 
@@ -144,13 +219,24 @@ export class EditFiltersModalStore extends BaseModalStore<UpsertFilterPresetData
       return;
     }
 
-    this.tableStore?.setQueryOptions({ filters: [], forceRefresh: true });
+    this.cancelPendingAutoApply();
+    this.tableStore?.setQueryOptions({ filters: [], forceRefresh: true, refreshMode: "background" });
     this.close();
   };
 
+  protected override prepareToClose(): boolean {
+    this.flushPendingChanges();
+    return true;
+  }
+
   private mergeFiltersWithFilterableFields = (filterableFields: FilterableField[], currentFilters: Filter[]) => {
     const existingFiltersMap = new Map<string, Filter>();
-    currentFilters.forEach((filter) => {
+    const knownFilters = Array.isArray(currentFilters) ? currentFilters : [];
+
+    knownFilters.forEach((filter) => {
+      if (!filter || typeof filter !== "object") return;
+      if (typeof filter.field !== "string") return;
+
       existingFiltersMap.set(filter.field, filter);
     });
 

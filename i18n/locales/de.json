@@ -427,7 +427,6 @@
       }
     },
     "filters": {
-      "apply": "Anwenden",
       "clearAll": "Alle entfernen",
       "clearSearch": "Suche löschen",
       "daysPlaceholder": "Tage",

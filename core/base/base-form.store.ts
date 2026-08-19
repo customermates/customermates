@@ -122,6 +122,8 @@ export abstract class BaseFormStore<T extends object = object> extends BaseStore
 
   onSubmit?: (event?: FormEvent<HTMLFormElement>) => Promise<void>;
 
+  flushPendingChanges?: () => void;
+
   getValue = (id: string): unknown => {
     const path = this.normalizeJsonPath(id);
     return JSONPath({ path, json: this.form, wrap: false }) ?? undefined;
@@ -182,8 +184,13 @@ export abstract class BaseFormStore<T extends object = object> extends BaseStore
       if (parent == null || typeof parent !== "object") return;
       parent = (parent as Record<string, unknown>)[token];
     }
-    if (parent != null && typeof parent === "object") (parent as Record<string, unknown>)[leaf] = value;
+    if (parent == null || typeof parent !== "object") return;
+
+    (parent as Record<string, unknown>)[leaf] = value;
+    this.afterChange(id, value);
   };
+
+  protected afterChange(_id: string, _value: unknown): void {}
 
   private normalizeJsonPath(id: string): string {
     if (id.startsWith("$")) return id;

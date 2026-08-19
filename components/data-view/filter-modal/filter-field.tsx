@@ -150,6 +150,7 @@ export const FilterField = observer(({ customColumns, filter, filterableFields, 
     if (isDisabled) return;
     form?.onChange(operatorId, next);
     form?.onChange(`${baseId}.value`, undefined);
+    form?.flushPendingChanges?.();
     onFilterChange?.(filter.field);
   }
 

@@ -42,9 +42,11 @@ export const FilterInputIsoDate = observer(({ id, isValidFilter, granularity = "
   function commit(date: Date | undefined) {
     if (!date) {
       store?.onChange(id, undefined);
+      store?.flushPendingChanges?.();
       return;
     }
     store?.onChange(id, toLocalIso(date, dateOnly));
+    store?.flushPendingChanges?.();
     setCurrentMonth(startOfMonth(date));
   }
 
