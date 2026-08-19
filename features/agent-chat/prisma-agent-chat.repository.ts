@@ -23,6 +23,7 @@ import {
   pendingAgentApprovalToolName,
 } from "./agent-approval";
 import {
+  agentPlainTextPreview,
   sanitizeAgentConversationTitle,
   sanitizeAgentVisibleText,
   stripLegacyUserPageContextPrefix,
@@ -209,10 +210,12 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       return {
         id: row.id,
         title: sanitizeAgentConversationTitle(row.title),
-        preview: (latest?.role === AgentMessageRole.user
-          ? stripLegacyUserPageContextPrefix(latestText)
-          : sanitizeAgentVisibleText(latestText)
-        ).slice(0, 140),
+        preview: agentPlainTextPreview(
+          latest?.role === AgentMessageRole.user
+            ? stripLegacyUserPageContextPrefix(latestText)
+            : sanitizeAgentVisibleText(latestText),
+          140,
+        ),
         updatedAt: row.updatedAt,
       };
     });

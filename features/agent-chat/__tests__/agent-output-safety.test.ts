@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { clientSafeAgentMessageParts } from "../agent-chat.schema";
 import {
   AgentVisibleTextStreamSanitizer,
+  agentPlainTextPreview,
   sanitizeAgentConversationTitle,
   sanitizeAgentVisibleText,
 } from "../agent-output-safety";
@@ -123,5 +124,47 @@ describe("agent client-visible output safety", () => {
     expect(title).toMatch(/^Launch /);
     expect(title).not.toMatch(/page_context|never-show/);
     expect(sanitizeAgentConversationTitle('<page_context route="/private"/>')).toBeNull();
+  });
+});
+
+describe("agent conversation preview", () => {
+  it("reads a formatted answer as plain prose", () => {
+    const preview = agentPlainTextPreview(
+      [
+        "I checked the data in sequence:",
+        "",
+        "1. **Organization with the highest total deal value:** **Continental**",
+        "    **€560,500 total** across two Deals",
+        "- Data Center Refresh — €418,500",
+      ].join("\n"),
+      140,
+    );
+
+    expect(preview).toBe(
+      "I checked the data in sequence: Organization with the highest total deal value: Continental €560,500 total across two Deals Data Center Refr",
+    );
+    expect(preview).not.toContain("*");
+  });
+
+  it("keeps link and code text while dropping their syntax", () => {
+    expect(agentPlainTextPreview("See [the deals page](/en/deals) and run `yarn dev` now.", 140)).toBe(
+      "See the deals page and run yarn dev now.",
+    );
+    expect(agentPlainTextPreview("## Heading\n> quoted line\n~~dropped~~ kept", 140)).toBe(
+      "Heading quoted line dropped kept",
+    );
+  });
+
+  it("leaves ordinary punctuation and identifiers untouched", () => {
+    expect(agentPlainTextPreview("Rate is 3 * 4 and first_name stays intact.", 140)).toBe(
+      "Rate is 3 * 4 and first_name stays intact.",
+    );
+    expect(agentPlainTextPreview("Total: €1,200 (up 5%) — nothing to strip.", 140)).toBe(
+      "Total: €1,200 (up 5%) — nothing to strip.",
+    );
+  });
+
+  it("still bounds the preview length", () => {
+    expect(agentPlainTextPreview(`**${"a".repeat(400)}**`, 140)).toHaveLength(140);
   });
 });
