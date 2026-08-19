@@ -176,6 +176,10 @@ export function isUnipileCursorPaginationRequired(err: unknown): boolean {
   return /cursor for pagination/i.test(err.bodyText);
 }
 
+export function isUnipileDisconnectedAccount(err: unknown): err is UnipileRequestError {
+  return err instanceof UnipileRequestError && unipileErrorCode(err) === CustomErrorCode.unipileDisconnectedAccount;
+}
+
 export function isUnipileResourceNotFound(err: unknown): boolean {
   if (!(err instanceof UnipileRequestError)) return false;
 
