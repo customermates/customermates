@@ -236,6 +236,7 @@ describe("getAccount consumer drift policies", () => {
     const messagingService = { getAccount: vi.fn().mockRejectedValue(new z.ZodError([])) };
     const repo = {
       findAccountByUnipileIdOrThrowUnscoped: vi.fn().mockResolvedValue(account),
+      findAccountByUnipileIdUnscoped: vi.fn().mockResolvedValue(account),
       updateAccountUnscoped: vi.fn().mockResolvedValue(undefined),
     };
     const backgroundTaskService = { dispatch: vi.fn().mockResolvedValue(undefined) };
@@ -260,6 +261,7 @@ describe("getAccount consumer drift policies", () => {
     const messagingService = { getAccount: vi.fn().mockRejectedValue(new Error("Unipile v2 request failed: 500")) };
     const repo = {
       findAccountByUnipileIdOrThrowUnscoped: vi.fn().mockResolvedValue(account),
+      findAccountByUnipileIdUnscoped: vi.fn().mockResolvedValue(account),
       updateAccountUnscoped: vi.fn().mockResolvedValue(undefined),
     };
     const backgroundTaskService = { dispatch: vi.fn() };

@@ -29,8 +29,8 @@ export class ProcessRelationWebhookInteractor {
 
   @Enforce(Schema)
   async invoke(envelope: Payload): Promise<void> {
-    const account = await this.accountRepo.findAccountByUnipileIdOrThrowUnscoped(envelope.account_id);
-    if (account.status === ConnectedAccountStatus.deleted) return;
+    const account = await this.accountRepo.findAccountByUnipileIdUnscoped(envelope.account_id);
+    if (!account || account.status === ConnectedAccountStatus.deleted) return;
 
     const user = envelope.payload.user;
     const fullName = user.display_name ?? ([user.first_name, user.last_name].filter(Boolean).join(" ").trim() || null);
