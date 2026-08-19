@@ -45,6 +45,8 @@
       "city": "Ville",
       "country": "Pays",
       "currency": "Devise",
+      "dealStageWeights": "Probabilités d'étape",
+      "dealWeightingColumnId": "Champ d'étape",
       "effectiveAt": "En vigueur à partir du",
       "emails": "Adresses e-mail",
       "isNewCompany": "Première personne de l'espace",
@@ -150,6 +152,7 @@
       "tooltipFilters": "Filtres"
     },
     "avatarUrlDescription": "Vous pouvez indiquer le lien d'une image qui servira d'avatar. L'image doit être accessible publiquement.",
+    "clearDefault": "Retirer la valeur par défaut",
     "colors": {
       "default": "Bleu",
       "destructive": "Rouge",
@@ -197,11 +200,14 @@
         }
       },
       "deal": {
-        "columnLabel": "Statut",
+        "columnLabel": "Étape",
         "options": {
-          "abandoned": "Abandonnée",
+          "demo": "Démo",
           "lost": "Perdue",
-          "open": "Ouverte",
+          "negotiation": "Négociation",
+          "proposal": "Proposition",
+          "prospecting": "Prospection",
+          "qualification": "Qualification",
           "won": "Gagnée"
         }
       },
@@ -332,7 +338,8 @@
       "widgetGroupByTypeMustMatchEntityType": "Le type de regroupement doit correspondre au type d'élément du graphique.",
       "widgetKindImmutable": "Le type d'un widget ne peut pas être modifié après sa création.",
       "widgetNotFound": "ID de widget introuvable ou inaccessible.",
-      "widgetTaskCanOnlyGroupByCustomColumn": "Les tâches ne peuvent être regroupées que par colonnes personnalisées, pas par types d'élément."
+      "widgetTaskCanOnlyGroupByCustomColumn": "Les tâches ne peuvent être regroupées que par colonnes personnalisées, pas par types d'élément.",
+      "widgetWeightedValueNotAllowedForService": "L'agrégation de valeur pondérée n'est pas autorisée pour le type d'élément Service."
     },
     "events": {
       "company": {
@@ -477,6 +484,7 @@
     },
     "inputs": {
       "addOption": "Ajouter \"{value}\"",
+      "addService": "Ajouter un service",
       "aggregationType": "Indicateur",
       "amount": "Montant",
       "avatarUrl": "URL de l'avatar",
@@ -510,10 +518,12 @@
       "message": "Message",
       "name": "Nom",
       "options": {
+        "addOption": "Ajouter une option",
         "allowMultiple": "Autoriser plusieurs valeurs",
         "color": "Couleur",
         "currency": "Devise",
-        "displayFormat": "Format"
+        "displayFormat": "Format",
+        "lastOption": "Une sélection unique nécessite au moins une option"
       },
       "password": "Mot de passe",
       "roleId": "Rôle",
@@ -547,7 +557,7 @@
       "unexpectedError": "Une erreur est survenue. Veuillez réessayer.",
       "updated": "Mis à jour"
     },
-    "options": "Options",
+    "probability": "Probabilité",
     "providers": {
       "google": "Gmail",
       "instagram": "Instagram",
@@ -557,6 +567,7 @@
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
+    "setAsDefault": "Définir par défaut",
     "sidebar": {
       "description": "Affiche la barre latérale mobile.",
       "title": "Barre latérale",
@@ -567,6 +578,7 @@
       "descending": "Décroissant",
       "field": "Trier par"
     },
+    "stageProbability": "Probabilité de l'étape",
     "systemTasks": {
       "userPendingAuthorization": {
         "alert": "Il s'agit d'une tâche système qui ne peut pas être supprimée manuellement. Approuvez l'utilisateur dans les <link>paramètres de l'entreprise</link> pour résoudre cette tâche.",
@@ -618,7 +630,8 @@
         "updatedAt": "Mis à jour le",
         "url": "URL",
         "user": "Utilisateur",
-        "users": "Assigné à"
+        "users": "Assigné à",
+        "weightedValue": "Valeur pondérée"
       },
       "groupBy": "Grouper par",
       "layout": "Disposition",
@@ -659,7 +672,18 @@
     "title": "Inviter un utilisateur"
   },
   "CompanySettings": {
-    "currencyDescription": "Utilisée pour toutes les valeurs monétaires du CRM, par exemple : {deals}, {services}."
+    "currencyDescription": "Utilisée pour toutes les valeurs monétaires du CRM, par exemple : {deals}, {services}.",
+    "dataModelTitle": "Modèle de données",
+    "forecasting": {
+      "columnLabel": "Champ d'étape de {deal}",
+      "columnPlaceholder": "Sélectionnez un champ",
+      "currentTotal": "Pipeline pondéré",
+      "description": "Pondérez chaque étape de {deal} par sa probabilité de conclusion pour obtenir une valeur de pipeline actualisée.",
+      "noColumn": "Non configuré",
+      "totalPipeline": "Pipeline total",
+      "weightsTitle": "Probabilités par étape",
+      "withoutStage": "Non pondéré · sans {column}"
+    }
   },
   "CompanyUserModal": {
     "activeUserWarning": "Vous pouvez modifier votre propre compte dans vos <settingsLink>paramètres</settingsLink>.",
@@ -808,7 +832,9 @@
       "count": "Nombre de {entities}",
       "dealQuantity": "Nombre de {services} dans les {deals}",
       "dealValue": "Valeur de {deal}",
-      "dealValueRelated": "Valeur de {deal} liée à {entity}"
+      "dealValueRelated": "Valeur de {deal} liée à {entity}",
+      "dealWeightedValue": "Valeur pondérée de {deal}",
+      "dealWeightedValueRelated": "Valeur pondérée de {deal} liée à {entity}"
     },
     "displayTypes": {
       "doughnutChart": "Graphique en anneau",
@@ -915,7 +941,6 @@
     "noServicesAdded": "Aucun élément « {entity} » ajouté pour le moment",
     "quantityLabel": "Quantité",
     "title": "Affaire",
-    "totalLabel": "Total",
     "valueLabel": "Valeur"
   },
   "Diagrams": {

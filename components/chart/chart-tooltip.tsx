@@ -1,12 +1,13 @@
 "use client";
 
 import type { TooltipProps } from "recharts";
+import { isCurrencyAggregation } from "@/features/widget/widget-aggregation";
 
 import { Tooltip } from "recharts";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
-import { AggregationType } from "@/generated/prisma";
+import type { AggregationType } from "@/generated/prisma";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 type TooltipContentProps = {
@@ -31,7 +32,7 @@ const TooltipContent = observer((props: TooltipContentProps) => {
 
   const isPieChart = payload.length > 0 && payload[0].name && payload[0].name !== "value";
   const format = (value: number) =>
-    aggregationType === AggregationType.dealValue ? intlStore.formatCurrency(value) : intlStore.formatNumber(value);
+    isCurrencyAggregation(aggregationType) ? intlStore.formatCurrency(value) : intlStore.formatNumber(value);
 
   if (payload.length === 1) {
     const entry = payload[0];

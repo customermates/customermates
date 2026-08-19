@@ -104,6 +104,7 @@ describe("synthetic personalization fixtures", () => {
       columnOrder: [
         SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus,
         "totalValue",
+        "weightedValue",
         "tasks",
         "totalQuantity",
         SYNTHETIC_CUSTOM_COLUMN_IDS.dealProjectPeriod,

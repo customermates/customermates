@@ -59,6 +59,10 @@ export function resolveTerminologyPresetKey(entityType: EntityType, key: string 
   return key && isTerminologyPresetKey(entityType, key) ? key : CANONICAL_TERMINOLOGY_PRESET_KEY[entityType];
 }
 
+export function terminologyMessageKey(entityType: EntityType, presetKey: string, form: TerminologyForm): string {
+  return `EntityTerminology.presets.${entityType}.${resolveTerminologyPresetKey(entityType, presetKey)}.${form}`;
+}
+
 export function defaultTerminologySelections(): TerminologySelectionMap {
   return CONFIGURABLE_TERMINOLOGY_ENTITY_TYPES.reduce((selections, entityType) => {
     selections[entityType] = CANONICAL_TERMINOLOGY_PRESET_KEY[entityType];

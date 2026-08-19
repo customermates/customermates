@@ -25,6 +25,13 @@ export function useAggregationTypeLabel(): (aggregationType: AggregationType, en
           deals: plural(EntityType.deal),
           services: plural(EntityType.service),
         });
+      case AggregationType.dealWeightedValue:
+        return entityType === EntityType.deal
+          ? t("Dashboard.aggregationTypes.dealWeightedValue", { deal: singular(EntityType.deal) })
+          : t("Dashboard.aggregationTypes.dealWeightedValueRelated", {
+              deal: singular(EntityType.deal),
+              entity: singular(entityType),
+            });
     }
   };
 }

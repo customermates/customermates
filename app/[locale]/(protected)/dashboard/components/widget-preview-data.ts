@@ -7,6 +7,7 @@ const PREVIEW_TOTALS: Record<AggregationType, number> = {
   [AggregationType.count]: 128,
   [AggregationType.dealValue]: 375000,
   [AggregationType.dealQuantity]: 86,
+  [AggregationType.dealWeightedValue]: 142500,
 };
 
 const DISTRIBUTIONS: Record<number, number[]> = {

@@ -33,6 +33,10 @@ import { ActivitiesApiParamsSchema } from "../activities.schema";
 import { GetActivitiesInteractor, GetActivitiesRepo } from "../get-activities.interactor";
 
 class MockActivitiesRepo extends GetActivitiesRepo {
+  sumNumericFields<F extends string>(): Promise<Partial<Record<F, number | null>>> {
+    return Promise.resolve({});
+  }
+
   canReadMessagingSources(): boolean {
     return true;
   }

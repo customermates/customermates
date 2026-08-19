@@ -15,6 +15,7 @@ import type { CreateAuthLinkSubscriptionRepo } from "@/ee/messaging/connect/crea
 
 import { SubscriptionStatus } from "@/generated/prisma";
 
+import { getCustomColumnRepo, getDealRepo } from "@/core/di";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseRepository } from "@/core/base/base-repository";
@@ -43,6 +44,8 @@ export class PrismaCompanyRepo
       data: { ...args, id: companyId },
       where: { id: companyId },
     });
+
+    if (args.dealWeightingColumnId !== undefined) await getDealRepo().recalculateWeightedValuesForCompany();
   }
 
   async getDetails() {
@@ -58,6 +61,20 @@ export class PrismaCompanyRepo
       select: { entityType: true, presetKey: true },
       orderBy: { entityType: "asc" },
     });
+  }
+
+  @Transaction
+  async setDealStageWeights(entries: RepoArgs<UpdateCompanySettingsRepo, "setDealStageWeights">) {
+    const { companyId } = this.user;
+
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+      select: { dealWeightingColumnId: true },
+    });
+
+    if (!company?.dealWeightingColumnId) return;
+
+    await getCustomColumnRepo().setOptionWeights(company.dealWeightingColumnId, entries);
   }
 
   @Transaction

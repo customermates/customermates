@@ -32,6 +32,9 @@ vi.mock("@/components/forms/form-autocomplete-currency", () => ({
   FormAutocompleteCurrency: () => createElement("div", { "data-currency": true }),
 }));
 vi.mock("@/components/card/form-actions", () => ({ FormActions: () => null }));
+vi.mock("../company-forecasting-section", () => ({
+  CompanyForecastingSection: () => createElement("div", { "data-forecasting": true }),
+}));
 vi.mock("@/components/entity-terminology/terminology-relationship-diagram", () => ({
   TerminologyRelationshipDiagram: ({ readOnly, onPreset }: { readOnly: boolean; onPreset?: unknown }) =>
     createElement("div", {
@@ -52,6 +55,7 @@ function renderForm(canManage: boolean): string {
       error: null,
       form: { terminology: {} },
       initTerminology: vi.fn(),
+      loadForecasting: vi.fn().mockResolvedValue(undefined),
       onInitOrRefresh: vi.fn(),
       onSubmit: vi.fn().mockResolvedValue(undefined),
       setTerminologyPreset: vi.fn(),
@@ -59,7 +63,7 @@ function renderForm(canManage: boolean): string {
     terminologyStore: { overrides: [] },
   } as unknown as RootStore;
 
-  return renderToString(createElement(CompanySettingsForm, { currency: Currency.eur }));
+  return renderToString(createElement(CompanySettingsForm, { currency: Currency.eur, dealWeightingColumnId: null }));
 }
 
 beforeEach(() => {
@@ -96,9 +100,13 @@ describe("CompanySettingsForm terminology permissions", () => {
 
       const recoverableErrors: unknown[] = [];
       const root = await act(() =>
-        hydrateRoot(container, createElement(CompanySettingsForm, { currency: Currency.eur }), {
-          onRecoverableError: (error) => recoverableErrors.push(error),
-        }),
+        hydrateRoot(
+          container,
+          createElement(CompanySettingsForm, { currency: Currency.eur, dealWeightingColumnId: null }),
+          {
+            onRecoverableError: (error) => recoverableErrors.push(error),
+          },
+        ),
       );
       mountedRoots.push(root);
 

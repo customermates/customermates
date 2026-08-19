@@ -1,6 +1,6 @@
 import type { ObservableSet } from "mobx";
 import type { RootStore } from "../stores/root.store";
-import type { Filter, FilterableField, PaginationRequest, SortDescriptor } from "./base-get.schema";
+import type { Filter, FilterableField, GroupValueSums, PaginationRequest, SortDescriptor } from "./base-get.schema";
 import type { GetResult } from "./base-get.interactor";
 import type { GetQueryParams, GroupedPaginationRequest } from "@/core/base/base-get.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
@@ -45,6 +45,23 @@ export type DataViewRequestState =
 
 type DataViewRefreshMode = "background" | "visible";
 
+function readItemValueSums(item: unknown, fields: readonly string[]): GroupValueSums | undefined {
+  const values = item as Record<string, unknown>;
+  const summed = fields.flatMap((field) =>
+    typeof values[field] === "number" ? [[field, values[field]] as const] : [],
+  );
+
+  return summed.length > 0 ? Object.fromEntries(summed) : undefined;
+}
+
+function shiftValueSums(group: GroupValueSums, item: GroupValueSums, sign: 1 | -1): GroupValueSums {
+  const fields = new Set([...Object.keys(group), ...Object.keys(item)]);
+
+  return Object.fromEntries(
+    [...fields].map((field) => [field, Math.max(0, (group[field] ?? 0) + sign * (item[field] ?? 0))]),
+  );
+}
+
 export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore {
   items: Entity[] = [];
   customColumns: CustomColumnDto[] = [];
@@ -65,6 +82,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   selectedIds: ObservableSet<string> = observable.set();
 
   groupCounts: Record<string, number> = {};
+  groupValueSums: Record<string, GroupValueSums> = {};
   groupedTakeOverrides: Record<string, number> = {};
   isBulkMutating = false;
 
@@ -108,6 +126,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       selectedIds: observable,
 
       groupCounts: observable,
+      groupValueSums: observable,
       groupedTakeOverrides: observable,
       isBulkMutating: observable,
 
@@ -139,6 +158,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       loadMoreInGroup: action,
       resetGroupedTakeOverrides: action,
       transferItemBetweenGroups: action,
+      restoreGroupValueSums: action,
       setBulkMutating: action,
       bulkDelete: action,
       bulkUpdateCustomField: action,
@@ -233,6 +253,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     fromGroupKey: string;
     toGroupKey: string;
     value: string | null;
+    destinationValueSums?: GroupValueSums;
   }): Promise<void> => {
     const entityType = this.entityType;
     if (!entityType) return;
@@ -244,12 +265,19 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       return;
     }
 
+    const summedFields = [...new Set(Object.values(this.groupValueSums).flatMap((sums) => Object.keys(sums)))];
+    const itemValueSums = readItemValueSums(params.item, summedFields);
+    const valueSumsBeforeMove = this.groupValueSums;
+
     this.upsertItemLocal(params.optimisticItem);
-    this.transferItemBetweenGroups(params.fromGroupKey, params.toGroupKey);
+    this.transferItemBetweenGroups(params.fromGroupKey, params.toGroupKey, itemValueSums, params.destinationValueSums);
+
+    const valueSumsAfterMove = this.groupValueSums;
 
     const revert = () => {
       this.upsertItemLocal(params.item);
       this.transferItemBetweenGroups(params.toGroupKey, params.fromGroupKey);
+      this.restoreGroupValueSums(valueSumsBeforeMove, valueSumsAfterMove);
     };
 
     try {
@@ -368,6 +396,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       this.groupingColumnId = args.groupingColumnId;
     }
     this.groupCounts = args.groupCounts ?? {};
+    this.groupValueSums = args.groupValueSums ?? {};
     this.requestState = { status: "ready" };
   }
 
@@ -385,7 +414,12 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.groupedTakeOverrides = {};
   };
 
-  transferItemBetweenGroups = (fromGroupKey: string, toGroupKey: string): void => {
+  transferItemBetweenGroups = (
+    fromGroupKey: string,
+    toGroupKey: string,
+    itemValueSums?: GroupValueSums,
+    destinationValueSums?: GroupValueSums,
+  ): void => {
     if (fromGroupKey === toGroupKey) return;
     const fromCount = this.groupCounts[fromGroupKey] ?? 0;
     const toCount = this.groupCounts[toGroupKey] ?? 0;
@@ -394,6 +428,24 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       [fromGroupKey]: Math.max(0, fromCount - 1),
       [toGroupKey]: toCount + 1,
     };
+
+    const fromValueSums = this.groupValueSums[fromGroupKey];
+    const toValueSums = this.groupValueSums[toGroupKey];
+    if (!itemValueSums || !fromValueSums || !toValueSums) return;
+
+    this.groupValueSums = {
+      ...this.groupValueSums,
+      [fromGroupKey]: shiftValueSums(fromValueSums, itemValueSums, -1),
+      [toGroupKey]: shiftValueSums(toValueSums, destinationValueSums ?? itemValueSums, 1),
+    };
+  };
+
+  restoreGroupValueSums = (
+    snapshot: Record<string, GroupValueSums>,
+    expected: Record<string, GroupValueSums>,
+  ): void => {
+    if (this.groupValueSums !== expected) return;
+    this.groupValueSums = snapshot;
   };
 
   setViewOptions = (updates: {

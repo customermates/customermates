@@ -33,6 +33,10 @@ class MockActivitiesRepo extends GetActivitiesRepo {
   messagingEnabled = false;
   total = 0;
 
+  sumNumericFields<F extends string>(): Promise<Partial<Record<F, number | null>>> {
+    return Promise.resolve({});
+  }
+
   canReadMessagingSources(): boolean {
     return this.messagingAllowed;
   }

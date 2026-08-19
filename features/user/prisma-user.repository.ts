@@ -33,7 +33,12 @@ import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import { env } from "@/env";
 
-const DEFAULT_SELECT_COLUMNS = [
+type DefaultSelectColumn = {
+  entityType: EntityType;
+  options: { key: string; color: string; weight?: number }[];
+};
+
+const DEFAULT_SELECT_COLUMNS: DefaultSelectColumn[] = [
   {
     entityType: EntityType.contact,
     options: [
@@ -48,10 +53,13 @@ const DEFAULT_SELECT_COLUMNS = [
   {
     entityType: EntityType.deal,
     options: [
-      { key: "open", color: "warning" },
-      { key: "won", color: "success" },
-      { key: "lost", color: "destructive" },
-      { key: "abandoned", color: "secondary" },
+      { key: "prospecting", color: "secondary", weight: 10 },
+      { key: "qualification", color: "info", weight: 20 },
+      { key: "demo", color: "info", weight: 40 },
+      { key: "proposal", color: "warning", weight: 60 },
+      { key: "negotiation", color: "warning", weight: 80 },
+      { key: "won", color: "success", weight: 100 },
+      { key: "lost", color: "destructive", weight: 0 },
     ],
   },
   {
@@ -282,9 +290,10 @@ export class PrismaUserRepo
 
   private async createDefaultCustomColumns(companyId: string) {
     const t = await getTranslations();
+    let dealColumnId: string | undefined;
 
     for (const column of DEFAULT_SELECT_COLUMNS) {
-      await this.prisma.customColumn.create({
+      const created = await this.prisma.customColumn.create({
         data: {
           label: t(`Common.defaultData.${column.entityType}.columnLabel`),
           type: CustomColumnType.singleSelect,
@@ -297,11 +306,16 @@ export class PrismaUserRepo
               color: option.color,
               isDefault: index === 0,
               index,
+              ...(option.weight === undefined ? {} : { weight: option.weight }),
             })),
           },
         },
       });
+
+      if (column.entityType === EntityType.deal) dealColumnId = created.id;
     }
+
+    return dealColumnId;
   }
 
   @Transaction
@@ -310,7 +324,10 @@ export class PrismaUserRepo
 
     const company = await this.prisma.company.create({ data: {} });
 
-    await this.createDefaultCustomColumns(company.id);
+    const dealWeightingColumnId = await this.createDefaultCustomColumns(company.id);
+
+    if (dealWeightingColumnId)
+      await this.prisma.company.update({ where: { id: company.id }, data: { dealWeightingColumnId } });
 
     const adminRole = await this.prisma.userRole.create({
       data: {

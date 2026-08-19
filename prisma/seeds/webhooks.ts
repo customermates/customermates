@@ -16,6 +16,7 @@ import {
   SYNTHETIC_PREVIOUS_DEAL_NAMES,
   SYNTHETIC_PREVIOUS_ORGANIZATION_NAMES,
 } from "./audit-logs";
+import { dealSeedSelect } from "./deal-select";
 import { fixtureId, upsertFixturesById } from "./helpers";
 import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
 
@@ -250,28 +251,7 @@ async function loadWebhookSnapshots(context: SeedContext): Promise<WebhookSnapsh
     prisma.deal.findMany({
       where: { id: { in: dealIds }, companyId: ids.company },
       orderBy: { id: "asc" },
-      select: {
-        id: true,
-        name: true,
-        totalValue: true,
-        totalQuantity: true,
-        notes: true,
-        createdAt: true,
-        updatedAt: true,
-        organizations: {
-          select: { organization: { select: organizationReferenceSelect } },
-        },
-        users: { select: { user: { select: userReferenceSelect } } },
-        contacts: { select: { contact: { select: contactReferenceSelect } } },
-        services: {
-          select: {
-            service: { select: { id: true, name: true, amount: true } },
-            quantity: true,
-          },
-        },
-        tasks: { select: { task: { select: taskReferenceSelect } } },
-        customFieldValues: { select: customFieldValueSelect },
-      },
+      select: dealSeedSelect,
     }),
     prisma.organization.findMany({
       where: { id: { in: organizationIds }, companyId: ids.company },

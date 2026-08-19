@@ -12,6 +12,7 @@ const OptionSchema = z.object({
   color: z.enum(CHIP_COLORS),
   isDefault: z.boolean(),
   index: z.number(),
+  weight: z.number().min(0).max(100).optional(),
 });
 export type CustomColumnOption = Data<typeof OptionSchema>;
 
