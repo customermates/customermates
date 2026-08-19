@@ -48,7 +48,6 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppModal } from "@/components/modal/app-modal";
-import { AppImage } from "@/components/shared/app-image";
 import { MessageResponse } from "@/components/ai-elements/message";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { OVERLAY_SCROLL_REGION } from "@/components/ui/overlay-contract";
@@ -235,7 +234,7 @@ const AgentChatPanel = observer(function AgentChatPanel() {
       tabIndex={-1}
     >
       <div className="flex items-center gap-1 border-b px-3 py-2">
-        {store.isHistoryOpen ? (
+        {store.isHistoryOpen && (
           <ActionTooltip label={copy.back}>
             <Button
               aria-label={copy.back}
@@ -249,8 +248,6 @@ const AgentChatPanel = observer(function AgentChatPanel() {
               <ChevronLeft className="size-4" />
             </Button>
           </ActionTooltip>
-        ) : (
-          <AppImage alt="" className="size-5 rounded-md" height={20} src="customermates-square.svg" width={20} />
         )}
 
         <span className="mr-auto truncate text-sm font-medium">
