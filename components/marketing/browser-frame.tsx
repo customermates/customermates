@@ -53,7 +53,7 @@ export function BrowserFrame({ src, title }: Props) {
         ref={frameRef}
         className="relative overflow-hidden rounded-[14px] border border-border bg-card shadow-[0_22px_48px_-14px_rgba(0,0,0,0.22)]"
       >
-        <div className="flex h-[34px] items-center gap-1.5 border-b border-border bg-muted/50 px-3">
+        <div className="flex h-[34px] items-center gap-1.5 border-b border-border bg-muted px-3">
           <span className="size-2.5 rounded-full bg-[#ff5f56]" />
 
           <span className="size-2.5 rounded-full bg-[#ffbd2e]" />

@@ -52,7 +52,7 @@ export const WebhookDeliveriesPageView = observer(function WebhookDeliveriesPage
           action={
             <Button
               size="sm"
-              variant="outline"
+              variant="secondary"
               onClick={() => webhookDeliveriesStore.setQueryOptions({ forceRefresh: true })}
             >
               {t("ErrorCard.retry")}

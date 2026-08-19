@@ -295,7 +295,7 @@ export function OverlayGallery() {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button className="mt-3 w-full" id="overlay-nested-dropdown" variant="outline">
+                <Button className="mt-3 w-full" id="overlay-nested-dropdown" variant="secondary">
                   Benutzerdefiniert
                 </Button>
               </DropdownMenuTrigger>

@@ -133,7 +133,7 @@ export const EntityDrawer = observer(() => {
       drawerBody = (
         <PageState
           action={
-            <Button size="sm" variant="outline" onClick={retry}>
+            <Button size="sm" variant="secondary" onClick={retry}>
               {t("ErrorCard.retry")}
             </Button>
           }

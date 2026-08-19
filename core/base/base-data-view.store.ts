@@ -43,7 +43,7 @@ export type DataViewRequestState =
   | { readonly status: "refreshing" }
   | { readonly status: "refresh-error"; readonly error: unknown };
 
-type DataViewRefreshMode = "background" | "visible";
+export type DataViewRefreshMode = "background" | "visible";
 
 function readItemValueSums(item: unknown, fields: readonly string[]): GroupValueSums | undefined {
   const values = item as Record<string, unknown>;
@@ -91,6 +91,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   private persistViewOptionsTimer?: number;
   private requestGeneration = 0;
+  private backgroundRefreshRunning = false;
+  private backgroundRefreshQueued = false;
   private requestState: DataViewRequestState = { status: "uninitialized" };
   private onChangesCallbacks: (() => void | Promise<void>)[] = [];
 
@@ -520,6 +522,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     sortDescriptor?: SortDescriptor | undefined;
     searchTerm?: string;
     forceRefresh?: boolean;
+    refreshMode?: DataViewRefreshMode;
   }) => {
     let hasChanges = false;
     let queryShapeChanged = false;
@@ -561,7 +564,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       this.resetGroupedTakeOverrides();
     }
 
-    if (hasChanges || updates.forceRefresh) this.refreshQueryInBackground();
+    if (!hasChanges && !updates.forceRefresh) return;
+
+    if (updates.refreshMode === "background") this.refreshInBackground();
+    else this.refreshQueryInBackground();
   };
 
   removeFilter = (filter: Filter) => {
@@ -726,6 +732,34 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   private refreshQueryInBackground = (): void => {
     void this.refreshQuery().catch(() => undefined);
+  };
+
+  refreshInBackground = (): void => {
+    if (!this.isReady) return;
+
+    if (this.backgroundRefreshRunning) {
+      this.backgroundRefreshQueued = true;
+      return;
+    }
+
+    void this.drainBackgroundRefreshes();
+  };
+
+  private drainBackgroundRefreshes = async (): Promise<void> => {
+    this.backgroundRefreshRunning = true;
+
+    try {
+      do {
+        this.backgroundRefreshQueued = false;
+        try {
+          await this.executeRefresh("background", () => !this.backgroundRefreshQueued);
+        } catch {
+          this.toastError("Common.notifications.unexpectedError");
+        }
+      } while (this.backgroundRefreshQueued);
+    } finally {
+      this.backgroundRefreshRunning = false;
+    }
   };
 
   protected refreshAction(_params?: GetQueryParams): Promise<GetResult<Entity>> {

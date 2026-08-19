@@ -13,14 +13,14 @@ type Props = {
 
 export function PricingCardComponent({ card, displayPrice, priceSubtext }: Props) {
   const featured = card.featured === true;
-  const buttonVariant = card.buttonVariant === "bordered" ? "outline" : "default";
+  const buttonVariant = card.buttonVariant === "bordered" ? "secondary" : "default";
 
   return (
     <div
       className={`relative flex h-full flex-col rounded-xl p-6 ${
         featured
           ? "border-2 border-primary bg-primary/10 shadow-2xl shadow-primary/30 xl:z-10 xl:scale-[1.04]"
-          : "bg-card shadow-xs"
+          : "border border-border bg-card shadow-xs"
       }`}
     >
       <div className="mb-1 flex items-center justify-between">

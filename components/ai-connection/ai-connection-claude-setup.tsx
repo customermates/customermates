@@ -49,7 +49,7 @@ export const AiConnectionClaudeSetup = observer(function AiConnectionClaudeSetup
         )}
         disabled={disabled}
         type="button"
-        variant="outline"
+        variant="secondary"
         onClick={() => store.selectClaudeMethod(candidate)}
       >
         <span className="flex w-full items-start justify-between gap-2">
@@ -97,7 +97,7 @@ export const AiConnectionClaudeSetup = observer(function AiConnectionClaudeSetup
         <div
           aria-invalid={store.hasError || undefined}
           className={cn(
-            "flex flex-col gap-3 rounded-xl border bg-muted/30 p-4",
+            "flex flex-col gap-3 rounded-xl border bg-muted p-4",
             store.hasError && "border-destructive bg-destructive/5",
           )}
           id="claude-local-details"
@@ -129,7 +129,7 @@ export const AiConnectionClaudeSetup = observer(function AiConnectionClaudeSetup
                   disabled={disabled}
                   size="sm"
                   type="button"
-                  variant="outline"
+                  variant="secondary"
                   onClick={() => store.selectClaudeClient(candidate)}
                 >
                   {isSelected ? <Check aria-hidden /> : null}

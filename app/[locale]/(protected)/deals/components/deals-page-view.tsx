@@ -67,7 +67,7 @@ export const DealsPageView = observer(function DealsPageView({ deals }: Props) {
       body = (
         <PageState
           action={
-            <Button size="sm" variant="outline" onClick={() => dealsStore.setQueryOptions({ forceRefresh: true })}>
+            <Button size="sm" variant="secondary" onClick={() => dealsStore.setQueryOptions({ forceRefresh: true })}>
               {t("ErrorCard.retry")}
             </Button>
           }

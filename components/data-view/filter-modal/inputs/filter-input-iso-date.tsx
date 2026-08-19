@@ -42,9 +42,11 @@ export const FilterInputIsoDate = observer(({ id, isValidFilter, granularity = "
   function commit(date: Date | undefined) {
     if (!date) {
       store?.onChange(id, undefined);
+      store?.flushPendingChanges?.();
       return;
     }
     store?.onChange(id, toLocalIso(date, dateOnly));
+    store?.flushPendingChanges?.();
     setCurrentMonth(startOfMonth(date));
   }
 
@@ -90,7 +92,7 @@ export const FilterInputIsoDate = observer(({ id, isValidFilter, granularity = "
           disabled={store?.isDisabled}
           id={id}
           type="button"
-          variant="outline"
+          variant="field"
         >
           <CalendarIcon className="mr-2 size-4 shrink-0" />
 
@@ -143,7 +145,7 @@ export const FilterInputIsoDate = observer(({ id, isValidFilter, granularity = "
               disabled={store?.isDisabled}
               size="sm"
               type="button"
-              variant="outline"
+              variant="secondary"
               onClick={() => handlePreset(preset.compute)}
             >
               {t(`Common.datePresets.${preset.key}`)}

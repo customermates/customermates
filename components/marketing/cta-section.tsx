@@ -98,7 +98,7 @@ export function CTASection({
                   <IntlLink href={buttonLeftHref}>{buttonLeftText}</IntlLink>
                 </Button>
 
-                <Button asChild className="w-full sm:w-auto" size="lg" variant="outline">
+                <Button asChild className="w-full sm:w-auto" size="lg" variant="secondary">
                   <IntlLink href={buttonRightHref} target="_blank">
                     {buttonRightText}
                   </IntlLink>

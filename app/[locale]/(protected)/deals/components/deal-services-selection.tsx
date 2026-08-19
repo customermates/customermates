@@ -164,7 +164,7 @@ export const DealServicesSelection = observer(() => {
             <Button
               className="w-full justify-start text-muted-foreground"
               type="button"
-              variant="outline"
+              variant="secondary"
               onClick={addService}
             >
               <Icon icon={Plus} />

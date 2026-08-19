@@ -84,7 +84,7 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
               <div className="flex flex-col items-center gap-2 px-3 py-4 text-center text-sm" role="alert">
                 <span className="text-muted-foreground">{t("Common.notifications.unexpectedError")}</span>
 
-                <Button size="sm" type="button" variant="outline" onClick={() => void store.retrySearch()}>
+                <Button size="sm" type="button" variant="secondary" onClick={() => void store.retrySearch()}>
                   {t("ErrorCard.retry")}
                 </Button>
               </div>

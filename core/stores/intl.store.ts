@@ -13,7 +13,7 @@ import { Currency } from "@/generated/prisma";
 import type { AppLocale } from "@/i18n/locale-registry";
 
 import { DEFAULT_LOCALE, formattingTagFor, isFormattingLocale } from "@/i18n/locale-registry";
-import { formatLocalizedNumber, parseLocalizedNumber } from "./intl-number";
+import { formatLocalizedNumber, parseLocalizedNumber, parseLocalizedNumberToCanonical } from "./intl-number";
 
 const TIMEAGO_LOCALES = { de, en, es, fr, it } satisfies Record<AppLocale, Parameters<typeof register>[1]>;
 
@@ -22,6 +22,16 @@ for (const [locale, definition] of Object.entries(TIMEAGO_LOCALES)) register(loc
 export class IntlStore {
   constructor(private readonly rootStore: RootStore) {
     makeAutoObservable(this);
+  }
+
+  private clientHydrated = false;
+
+  markClientHydrated = (): void => {
+    this.clientHydrated = true;
+  };
+
+  get rendersZonedValues(): boolean {
+    return this.clientHydrated;
   }
 
   get companyCurrency() {
@@ -103,12 +113,17 @@ export class IntlStore {
     return parseLocalizedNumber(value, locale);
   }
 
+  parseNumberToCanonical(value: string, locale = this.formattingLocale): string | undefined {
+    return parseLocalizedNumberToCanonical(value, locale);
+  }
+
   get collator(): Intl.Collator {
     return new Intl.Collator(this.formattingLocale);
   }
 
   formatNumericalLongDate(date: Date | undefined): string {
     if (date === undefined) return "";
+    if (!this.clientHydrated) return "";
 
     return new Intl.DateTimeFormat(this.formattingLocale, {
       year: "numeric" as const,
@@ -119,6 +134,7 @@ export class IntlStore {
 
   formatNumericalShortDate(date: Date | undefined): string {
     if (date === undefined) return "";
+    if (!this.clientHydrated) return "";
 
     return new Intl.DateTimeFormat(this.formattingLocale, {
       year: "2-digit" as const,
@@ -129,6 +145,7 @@ export class IntlStore {
 
   formatDescriptiveShortDate(date: Date | undefined): string {
     if (date === undefined) return "";
+    if (!this.clientHydrated) return "";
 
     return new Intl.DateTimeFormat(this.formattingLocale, {
       year: "numeric" as const,
@@ -148,6 +165,7 @@ export class IntlStore {
 
   formatDescriptiveLongDate(date: Date | undefined): string {
     if (date === undefined) return "";
+    if (!this.clientHydrated) return "";
 
     return new Intl.DateTimeFormat(this.formattingLocale, {
       year: "numeric" as const,
@@ -158,6 +176,7 @@ export class IntlStore {
 
   formatNumericalLongDateTime(date: Date | undefined): string {
     if (date === undefined) return "";
+    if (!this.clientHydrated) return "";
 
     return new Intl.DateTimeFormat(this.formattingLocale, {
       year: "numeric" as const,
@@ -170,6 +189,7 @@ export class IntlStore {
 
   formatNumericalShortDateTime(date: Date | undefined): string {
     if (date === undefined) return "";
+    if (!this.clientHydrated) return "";
 
     return new Intl.DateTimeFormat(this.formattingLocale, {
       year: "2-digit" as const,
@@ -182,6 +202,7 @@ export class IntlStore {
 
   formatDescriptiveShortDateTime(date: Date | undefined): string {
     if (date === undefined) return "";
+    if (!this.clientHydrated) return "";
 
     return new Intl.DateTimeFormat(this.formattingLocale, {
       year: "numeric" as const,
@@ -194,6 +215,7 @@ export class IntlStore {
 
   formatDescriptiveLongDateTime(date: Date | undefined): string {
     if (date === undefined) return "";
+    if (!this.clientHydrated) return "";
 
     return new Intl.DateTimeFormat(this.formattingLocale, {
       year: "numeric" as const,
@@ -206,6 +228,7 @@ export class IntlStore {
 
   formatTime(date: Date | undefined): string {
     if (date === undefined) return "";
+    if (!this.clientHydrated) return "";
 
     return new Intl.DateTimeFormat(this.formattingLocale, {
       hour: "2-digit" as const,
@@ -215,6 +238,7 @@ export class IntlStore {
 
   formatRelativeTime(date: Date | undefined): string {
     if (date === undefined) return "";
+    if (!this.clientHydrated) return "";
 
     return format(date, this.rootStore.localeStore.locale);
   }

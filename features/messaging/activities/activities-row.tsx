@@ -24,7 +24,7 @@ const BADGE_TONE: Record<BadgeTone, string> = {
   created: "border-success/30 bg-success/20 text-success",
   updated: "border-primary/30 bg-primary/20 text-primary",
   deleted: "border-destructive/30 bg-destructive/20 text-destructive",
-  received: "border-foreground/15 bg-foreground/5 text-foreground/80 dark:bg-foreground/10",
+  received: "border-input bg-foreground/5 text-foreground/80",
   sent: "border-primary/30 bg-primary/20 text-primary",
   calendar: "border-warning/30 bg-warning/20 text-warning",
   activity: "border-info/30 bg-info/20 text-info",

@@ -995,7 +995,6 @@
       }
     },
     "filters": {
-      "apply": "Appliquer",
       "clearAll": "Tout effacer",
       "clearSearch": "Effacer la recherche",
       "daysPlaceholder": "Jours",

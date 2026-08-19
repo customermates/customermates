@@ -24,6 +24,11 @@ export const FilterInputDaysCount = observer(({ id, isValidFilter }: Props) => {
     store?.onChange(id, next);
   }
 
+  function commitNow(next: number | undefined) {
+    commit(next);
+    store?.flushPendingChanges?.();
+  }
+
   return (
     <div className="flex flex-col gap-2 min-w-0">
       <div className="relative">
@@ -37,6 +42,7 @@ export const FilterInputDaysCount = observer(({ id, isValidFilter }: Props) => {
           step={1}
           type="number"
           value={value ?? ""}
+          onBlur={() => store?.flushPendingChanges?.()}
           onChange={(e) => {
             const next = e.target.value;
             if (next === "") {
@@ -65,7 +71,7 @@ export const FilterInputDaysCount = observer(({ id, isValidFilter }: Props) => {
             )}
             disabled={store?.isDisabled}
             type="button"
-            onClick={() => commit(days)}
+            onClick={() => commitNow(days)}
           >
             {t("Common.filters.daysPreset", { count: days })}
           </button>

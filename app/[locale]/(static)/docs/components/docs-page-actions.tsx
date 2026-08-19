@@ -78,7 +78,7 @@ export function DocsPageActions({ markdownUrl, mcpUrl }: DocsPageActionsProps) {
   }
 
   const rowClassName =
-    "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted";
+    "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-accent";
 
   return (
     <div className="flex items-stretch">
@@ -92,7 +92,7 @@ export function DocsPageActions({ markdownUrl, mcpUrl }: DocsPageActionsProps) {
         <PopoverTrigger asChild>
           <Button
             aria-label={t("DocsPage.open")}
-            className="border-secondary-foreground/20 rounded-l-none border-l px-1.5"
+            className="rounded-l-none border-l border-border px-1.5"
             size="sm"
             variant="secondary"
           >

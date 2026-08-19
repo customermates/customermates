@@ -79,7 +79,7 @@ export const OrganizationsPageView = observer(function OrganizationsPageView({ o
           action={
             <Button
               size="sm"
-              variant="outline"
+              variant="secondary"
               onClick={() => organizationsStore.setQueryOptions({ forceRefresh: true })}
             >
               {t("ErrorCard.retry")}

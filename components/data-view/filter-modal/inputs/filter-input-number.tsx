@@ -6,6 +6,7 @@ import { observer } from "mobx-react-lite";
 import { useAppForm } from "@/components/forms/form-context";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/core/utils/cn";
+import { filterNumberValue } from "@/core/base/filter-value";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 type Props = {
@@ -18,7 +19,7 @@ export const FilterInputNumber = observer(({ id, isValidFilter }: Props) => {
   const { intlStore } = useRootStore();
   const fmt = useCallback((n: number | undefined) => intlStore.formatNumber(n), [intlStore]);
 
-  const storeNumber = store?.getValue(id) as number | undefined;
+  const storeNumber = filterNumberValue(store?.getValue(id));
   const [focused, setFocused] = useState(false);
   const [text, setText] = useState<string>(() => fmt(storeNumber));
 
@@ -36,14 +37,15 @@ export const FilterInputNumber = observer(({ id, isValidFilter }: Props) => {
       value={text}
       onBlur={() => {
         setFocused(false);
-        const parsed = intlStore.parseNumber(text);
-        setText(fmt(parsed));
-        store?.onChange(id, parsed);
+        const canonical = intlStore.parseNumberToCanonical(text);
+        setText(fmt(filterNumberValue(canonical)));
+        store?.onChange(id, canonical);
+        store?.flushPendingChanges?.();
       }}
       onChange={(e) => {
         const next = e.target.value;
         setText(next);
-        store?.onChange(id, intlStore.parseNumber(next));
+        store?.onChange(id, intlStore.parseNumberToCanonical(next));
       }}
       onFocus={() => {
         setText(intlStore.formatNumberForEditing(storeNumber));

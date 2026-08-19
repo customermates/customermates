@@ -44,7 +44,7 @@ export const AddChannelPopover = observer(({ contactId }: { contactId?: string }
     <CommandPrimitive shouldFilter={false}>
       <Popover open={showList} onOpenChange={(next) => store.setOpen(next)}>
         <PopoverAnchor asChild>
-          <div className="border-border bg-card focus-within:border-ring focus-within:ring-ring/50 flex w-full items-center gap-3 rounded-md border px-3 py-2 shadow-xs transition-[color,box-shadow] focus-within:ring-[3px] focus-within:ring-inset">
+          <div className="border-input bg-input-background focus-within:border-ring focus-within:ring-ring/50 flex w-full items-center gap-3 rounded-md border px-3 py-2 shadow-xs transition-[color,box-shadow] focus-within:ring-[3px] focus-within:ring-inset">
             <Search aria-hidden className="text-muted-foreground size-5 shrink-0" />
 
             <CommandPrimitive.Input
@@ -80,7 +80,7 @@ export const AddChannelPopover = observer(({ contactId }: { contactId?: string }
               <div className="flex flex-col items-center gap-2 px-3 py-4 text-center text-sm" role="alert">
                 <span className="text-muted-foreground">{t("Common.notifications.unexpectedError")}</span>
 
-                <Button size="sm" type="button" variant="outline" onClick={() => void store.retrySearch()}>
+                <Button size="sm" type="button" variant="secondary" onClick={() => void store.retrySearch()}>
                   {t("ErrorCard.retry")}
                 </Button>
               </div>

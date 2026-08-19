@@ -108,7 +108,7 @@ export function NotesDiff({ previous, current }: Props) {
 
         if (segment.kind === "collapsed") {
           return (
-            <div key={key} className="bg-muted/30 p-2 text-center text-xs text-subdued">
+            <div key={key} className="bg-muted p-2 text-center text-xs text-subdued">
               {t("AuditLogModal.unchangedLines", { count: segment.count })}
             </div>
           );

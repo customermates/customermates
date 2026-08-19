@@ -24,7 +24,7 @@ export function FooterContent({ blogPosts = [], competitors = [], featureLinks =
   const t = useTranslations();
 
   return (
-    <footer className="bg-muted dark:bg-card mt-auto w-full text-x-sm">
+    <footer className="bg-muted mt-auto w-full text-x-sm">
       <div className="max-w-[1300px] mx-auto px-6 py-12">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-8 mb-12">
           <div className="col-span-2 sm:col-span-3 lg:col-span-1 flex flex-col items-start gap-4">

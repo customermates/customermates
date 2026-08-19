@@ -17,7 +17,7 @@ export function BaseFeaturesSection({ features, hasSecondaryBackground = false, 
   const numberLabel = typeof index === "number" ? String(index + 1).padStart(2, "0") : null;
 
   return (
-    <section className={`relative w-full py-12 md:py-16 ${hasSecondaryBackground ? "bg-muted/50" : ""}`}>
+    <section className={`relative w-full py-12 md:py-16 ${hasSecondaryBackground ? "bg-muted" : ""}`}>
       <div className="mx-auto max-w-7xl px-4">
         <div className="mb-10 md:mb-12">
           {numberLabel ? (

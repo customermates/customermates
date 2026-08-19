@@ -45,7 +45,7 @@ function ReadOnlyField({
     <div className={cn("space-y-1.5", className)}>
       <FormLabel>{label}</FormLabel>
 
-      <div className="flex h-9 w-full items-center rounded-md border border-input bg-muted/30 px-3 py-1.5 text-sm shadow-xs">
+      <div className="flex h-9 w-full items-center rounded-md border border-input bg-muted px-3 py-1.5 text-sm shadow-xs">
         {children}
       </div>
 

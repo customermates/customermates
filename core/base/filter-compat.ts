@@ -1,8 +1,10 @@
 import type { Filter } from "./base-get.schema";
 
+import { normalizeFilterNumberValueInput } from "./filter-value";
+
 const RELATION_EXISTENCE_OPERATORS = new Set(["hasNone", "hasSome"]);
 
-export function normalizeLegacyRelationFilterInput(input: unknown): unknown {
+function normalizeLegacyRelationFilterInput(input: unknown): unknown {
   if (!input || typeof input !== "object" || Array.isArray(input)) return input;
 
   const filter = input as Record<string, unknown>;
@@ -23,10 +25,14 @@ export function normalizeLegacyRelationFilterInput(input: unknown): unknown {
   return input;
 }
 
-export function normalizeLegacyRelationFilter(filter: Filter): Filter {
-  return normalizeLegacyRelationFilterInput(filter) as Filter;
+export function normalizeFilterInput(input: unknown): unknown {
+  return normalizeLegacyRelationFilterInput(normalizeFilterNumberValueInput(input));
 }
 
-export function normalizeLegacyRelationFilters(filters: Filter[]): Filter[] {
-  return filters.map(normalizeLegacyRelationFilter);
+export function normalizeFilter(filter: Filter): Filter {
+  return normalizeFilterInput(filter) as Filter;
+}
+
+export function normalizeFilters(filters: Filter[]): Filter[] {
+  return filters.map(normalizeFilter);
 }

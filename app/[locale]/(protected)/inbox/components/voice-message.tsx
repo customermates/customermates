@@ -98,7 +98,7 @@ export function VoiceMessage({ src, durationSeconds }: Props) {
             key={index}
             className={cn(
               "w-[3px] shrink-0 rounded-full transition-colors",
-              index / BAR_COUNT <= progress ? "bg-primary" : "bg-muted-foreground/25",
+              index / BAR_COUNT <= progress ? "bg-primary" : "bg-border-strong",
             )}
             style={{ height: `${Math.round(height * 100)}%` }}
           />

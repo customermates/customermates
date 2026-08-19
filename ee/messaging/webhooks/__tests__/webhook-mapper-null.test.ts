@@ -32,7 +32,10 @@ const account = {
 } as any;
 
 function accountRepo() {
-  return { findAccountByUnipileIdOrThrowUnscoped: vi.fn().mockResolvedValue(account) };
+  return {
+    findAccountByUnipileIdOrThrowUnscoped: vi.fn().mockResolvedValue(account),
+    findAccountByUnipileIdUnscoped: vi.fn().mockResolvedValue(account),
+  };
 }
 
 beforeEach(() => vi.clearAllMocks());

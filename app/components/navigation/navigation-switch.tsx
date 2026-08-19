@@ -130,7 +130,7 @@ export function NavigationSwitch({
   } else if (shellMode === "public") {
     shell = (
       <div className="h-svh flex">
-        <main className="flex flex-col relative flex-1 overflow-y-auto bg-background min-w-0">
+        <main className="flex flex-col relative flex-1 overflow-y-auto bg-background min-w-0 [--table-sticky-top:4rem]">
           <header className="sticky top-0 z-30 bg-background/80 backdrop-blur flex flex-col">
             <PublicNavbar accountState={currentAccountState} hasValidSession={hasValidSession} />
           </header>
@@ -147,7 +147,9 @@ export function NavigationSwitch({
         <SidebarInset className="min-w-0 overflow-x-clip">
           <ShellHeader />
 
-          <div className="flex flex-1 flex-col min-w-0 overflow-y-auto overflow-x-clip">{children}</div>
+          <div className="flex flex-1 flex-col min-w-0 overflow-y-auto overflow-x-clip [--table-sticky-top:0px]">
+            {children}
+          </div>
         </SidebarInset>
       </SidebarProvider>
     );
@@ -170,7 +172,9 @@ export function NavigationSwitch({
           <TopBarActionsProvider>
             <AppTopBar />
 
-            <div className="flex flex-1 flex-col min-w-0 overflow-y-auto overflow-x-clip">{children}</div>
+            <div className="flex flex-1 flex-col min-w-0 overflow-y-auto overflow-x-clip [--table-sticky-top:0px]">
+              {children}
+            </div>
           </TopBarActionsProvider>
         </SidebarInset>
       </SidebarProvider>

@@ -132,28 +132,28 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
       </span>
 
       <ul className="grid gap-1.5 text-xs text-muted-foreground sm:grid-cols-2">
-        <li className="rounded-md border bg-muted/20 px-2.5 py-2" data-relationship="contact-organization">
+        <li className="rounded-md border bg-muted px-2.5 py-2" data-relationship="contact-organization">
           {t("EntityTerminology.relationships.contactOrganizationSummary", {
             contacts: entityLabel(EntityType.contact),
             organizations: entityLabel(EntityType.organization),
           })}
         </li>
 
-        <li className="rounded-md border bg-muted/20 px-2.5 py-2" data-relationship="contact-deal">
+        <li className="rounded-md border bg-muted px-2.5 py-2" data-relationship="contact-deal">
           {t("EntityTerminology.relationships.contactDealSummary", {
             contacts: entityLabel(EntityType.contact),
             deals: entityLabel(EntityType.deal),
           })}
         </li>
 
-        <li className="rounded-md border bg-muted/20 px-2.5 py-2" data-relationship="organization-deal">
+        <li className="rounded-md border bg-muted px-2.5 py-2" data-relationship="organization-deal">
           {t("EntityTerminology.relationships.organizationDealSummary", {
             deals: entityLabel(EntityType.deal),
             organizations: entityLabel(EntityType.organization),
           })}
         </li>
 
-        <li className="rounded-md border bg-muted/20 px-2.5 py-2" data-relationship="deal-service">
+        <li className="rounded-md border bg-muted px-2.5 py-2" data-relationship="deal-service">
           {t("EntityTerminology.relationships.dealServiceSummary", {
             deals: entityLabel(EntityType.deal),
             services: entityLabel(EntityType.service),

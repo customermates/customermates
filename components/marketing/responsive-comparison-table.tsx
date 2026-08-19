@@ -59,7 +59,7 @@ export function ResponsiveComparisonTable({ header, columns, sections }: Respons
     return () => observer.disconnect();
   }, []);
 
-  const stickyHeaderEdge = pinned ? "border-b border-border/60 shadow-[0_10px_20px_-12px_rgb(0_0_0_/_0.55)]" : "";
+  const stickyHeaderEdge = pinned ? "border-b border-border shadow-[0_10px_20px_-12px_rgb(0_0_0_/_0.55)]" : "";
   const totalColumns = columns.length + 1;
 
   return (
@@ -67,7 +67,7 @@ export function ResponsiveComparisonTable({ header, columns, sections }: Respons
       <div ref={sentinelRef} aria-hidden className="absolute left-0 top-0 size-px" />
 
       <table className="w-full border-separate border-spacing-0 text-left">
-        <thead className="sticky! top-[var(--table-sticky-top,4rem)] z-[27]">
+        <thead className="sticky! top-[var(--table-sticky-top,0px)] z-[27]">
           <tr>
             <th
               className={`min-w-[150px] bg-card px-3 py-5 align-middle text-base font-semibold break-words hyphens-auto md:text-x-xl lg:px-6 ${stickyHeaderEdge}`}
@@ -94,7 +94,7 @@ export function ResponsiveComparisonTable({ header, columns, sections }: Respons
               {section.title ? (
                 <tr>
                   <th
-                    className="border-t border-border/50 bg-muted/20 px-2 py-3 text-left text-base font-semibold lg:px-6 dark:bg-muted/40"
+                    className="border-t border-border bg-card px-2 py-3 text-left text-base font-semibold lg:px-6"
                     colSpan={totalColumns}
                     scope="colgroup"
                   >
@@ -106,7 +106,7 @@ export function ResponsiveComparisonTable({ header, columns, sections }: Respons
               {section.rows.map((row, rowIndex) => (
                 <tr key={rowIndex}>
                   <th
-                    className="min-w-[150px] border-t border-border/50 px-2 py-3 text-left text-xs font-normal text-subdued break-words hyphens-auto md:text-x-sm lg:px-6"
+                    className="min-w-[150px] border-t border-border px-2 py-3 text-left text-xs font-normal text-subdued break-words hyphens-auto md:text-x-sm lg:px-6"
                     scope="row"
                   >
                     {row.label}
@@ -115,7 +115,7 @@ export function ResponsiveComparisonTable({ header, columns, sections }: Respons
                   {row.values.map((value, valueIndex) => (
                     <td
                       key={valueIndex}
-                      className="min-w-[130px] border-t border-border/50 px-1 py-3 text-center align-middle lg:px-4"
+                      className="min-w-[130px] border-t border-border px-1 py-3 text-center align-middle lg:px-4"
                     >
                       <CellValue value={value} />
                     </td>

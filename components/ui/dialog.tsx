@@ -54,7 +54,7 @@ function DialogContent({
 
       <DialogPrimitive.Content
         className={cn(
-          "fixed top-[50%] left-[50%] z-50 grid max-h-(--overlay-block-budget) w-full max-w-[calc(100%-2rem)] translate-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg duration-200 outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 sm:max-w-lg",
+          "fixed top-[50%] left-[50%] z-50 grid max-h-(--overlay-block-budget) w-full max-w-[calc(100%-2rem)] translate-[-50%] gap-4 rounded-lg border border-border-strong bg-card p-6 shadow-lg duration-200 outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 sm:max-w-lg",
           className,
         )}
         data-overlay-close={showCloseButton ? "" : undefined}
@@ -109,7 +109,7 @@ function DialogFooter({
 
       {showCloseButton && (
         <DialogPrimitive.Close asChild>
-          <Button variant="outline">{t("Common.actions.close")}</Button>
+          <Button variant="secondary">{t("Common.actions.close")}</Button>
         </DialogPrimitive.Close>
       )}
     </div>

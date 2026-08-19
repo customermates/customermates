@@ -59,7 +59,7 @@ function hasValidIntegerGrouping(groups: string[], syntax: LocaleNumberSyntax): 
   );
 }
 
-export function parseLocalizedNumber(raw: string, locale: string | undefined): number | undefined {
+export function parseLocalizedNumberToCanonical(raw: string, locale: string | undefined): string | undefined {
   const syntax = getLocaleNumberSyntax(locale);
   let normalized = raw.trim();
   if (!normalized || normalized === syntax.minus || normalized === syntax.plus) return undefined;
@@ -89,9 +89,15 @@ export function parseLocalizedNumber(raw: string, locale: string | undefined): n
   const groups = integerPart ? integerPart.split(syntax.group) : ["0"];
   if (!hasValidIntegerGrouping(groups, syntax)) return undefined;
 
-  const canonical = `${sign}${groups.join("")}${fractionPart === undefined ? "" : `.${fractionPart}`}`;
-  const parsed = Number(canonical);
-  return Number.isFinite(parsed) ? parsed : undefined;
+  const integerDigits = groups.join("") || "0";
+  const signPrefix = sign === "-" ? "-" : "";
+  const canonical = fractionPart ? `${signPrefix}${integerDigits}.${fractionPart}` : `${signPrefix}${integerDigits}`;
+  return Number.isFinite(Number(canonical)) ? canonical : undefined;
+}
+
+export function parseLocalizedNumber(raw: string, locale: string | undefined): number | undefined {
+  const canonical = parseLocalizedNumberToCanonical(raw, locale);
+  return canonical === undefined ? undefined : Number(canonical);
 }
 
 export function formatLocalizedNumber(

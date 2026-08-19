@@ -23,17 +23,17 @@ export function ComparisonTable({ columns, rows }: Props) {
   const [labelColumn, ...valueColumns] = columns;
 
   return (
-    <div className="not-prose my-6 overflow-x-auto rounded-xl bg-card">
+    <div className="not-prose my-6 overflow-x-auto rounded-xl border border-border bg-card">
       <div
         className="grid min-w-max text-[13px]"
         style={{
           gridTemplateColumns: `minmax(180px, 1.5fr) repeat(${valueColumns.length}, minmax(130px, 1fr))`,
         }}
       >
-        <div className="bg-muted/40 px-4 py-3 text-left font-semibold text-foreground">{labelColumn}</div>
+        <div className="px-4 py-3 text-left font-semibold text-foreground">{labelColumn}</div>
 
         {valueColumns.map((column) => (
-          <div key={column} className="bg-muted/40 px-4 py-3 text-left font-semibold text-foreground">
+          <div key={column} className="px-4 py-3 text-left font-semibold text-foreground">
             {column}
           </div>
         ))}

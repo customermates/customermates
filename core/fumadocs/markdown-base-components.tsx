@@ -96,7 +96,7 @@ export const markdownBaseComponents: Pick<
     </MarketingTableFrame>
   ),
   thead: ({ className, children, ...props }) => (
-    <thead className={cn("sticky top-[var(--table-sticky-top,4rem)] z-10 bg-card", className)} {...props}>
+    <thead className={cn("sticky top-[var(--table-sticky-top,0px)] z-10 bg-card", className)} {...props}>
       {children}
     </thead>
   ),
@@ -106,14 +106,14 @@ export const markdownBaseComponents: Pick<
     </tbody>
   ),
   tr: ({ className, children, ...props }) => (
-    <tr className={cn("transition-colors hover:bg-muted/30", className)} {...props}>
+    <tr className={cn("transition-colors hover:bg-accent", className)} {...props}>
       {children}
     </tr>
   ),
   th: ({ className, children, ...props }) => (
     <th
       className={cn(
-        "min-w-[130px] bg-muted/20 px-6 py-3 text-left text-x-sm font-semibold text-foreground align-top dark:bg-muted/40",
+        "min-w-[130px] bg-card px-6 py-3 text-left text-x-sm font-semibold text-foreground align-top",
         className,
       )}
       {...props}
@@ -123,7 +123,7 @@ export const markdownBaseComponents: Pick<
   ),
   td: ({ className, children, ...props }) => (
     <td
-      className={cn("min-w-[130px] px-6 py-3 text-x-sm text-foreground align-top border-t border-border/50", className)}
+      className={cn("min-w-[130px] px-6 py-3 text-x-sm text-foreground align-top border-t border-border", className)}
       {...props}
     >
       {children}

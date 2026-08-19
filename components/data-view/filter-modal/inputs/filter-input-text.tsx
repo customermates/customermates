@@ -21,6 +21,7 @@ export const FilterInputText = observer(({ id, isValidFilter }: Props) => {
       disabled={store?.isDisabled}
       id={id}
       value={value}
+      onBlur={() => store?.flushPendingChanges?.()}
       onChange={(event) => store?.onChange(id, event.target.value)}
     />
   );

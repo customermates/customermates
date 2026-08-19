@@ -73,7 +73,7 @@ export const ContactsPageView = observer(function ContactsPageView({ contacts }:
       body = (
         <PageState
           action={
-            <Button size="sm" variant="outline" onClick={() => contactsStore.setQueryOptions({ forceRefresh: true })}>
+            <Button size="sm" variant="secondary" onClick={() => contactsStore.setQueryOptions({ forceRefresh: true })}>
               {t("ErrorCard.retry")}
             </Button>
           }

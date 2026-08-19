@@ -92,14 +92,14 @@ export function LazyMedia({ src, className, children }: Props) {
       )}
 
       {state === "loading" && (
-        <div className="bg-muted absolute inset-0 flex items-center justify-center">
+        <div className="bg-placeholder absolute inset-0 flex items-center justify-center">
           <Loader2 className="text-muted-foreground size-5 animate-spin" />
         </div>
       )}
 
       {state === "failed" && (
         <button
-          className="bg-muted hover:bg-muted/80 absolute inset-0 flex cursor-pointer flex-col items-center justify-center gap-1.5 transition-colors active:scale-[0.97]"
+          className="bg-placeholder hover:bg-placeholder absolute inset-0 flex cursor-pointer flex-col items-center justify-center gap-1.5 transition-colors active:scale-[0.97]"
           type="button"
           onClick={() => {
             setAttempt((n) => n + 1);
@@ -113,7 +113,7 @@ export function LazyMedia({ src, className, children }: Props) {
       )}
 
       {state === "unavailable" && (
-        <div className="bg-muted absolute inset-0 flex flex-col items-center justify-center gap-1.5">
+        <div className="bg-placeholder absolute inset-0 flex flex-col items-center justify-center gap-1.5">
           <Ban className="text-muted-foreground size-5" />
 
           <span className="text-muted-foreground text-[11px]">{t("Inbox.mediaUnavailable")}</span>

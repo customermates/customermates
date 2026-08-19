@@ -55,7 +55,11 @@ export const AuditLogsPageView = observer(function AuditLogsPageView({ initialAu
       body = (
         <PageState
           action={
-            <Button size="sm" variant="outline" onClick={() => auditLogsStore.setQueryOptions({ forceRefresh: true })}>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => auditLogsStore.setQueryOptions({ forceRefresh: true })}
+            >
               {t("ErrorCard.retry")}
             </Button>
           }

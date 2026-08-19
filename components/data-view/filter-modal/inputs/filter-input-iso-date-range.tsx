@@ -58,11 +58,13 @@ export const FilterInputIsoDateRange = observer(({ id, isValidFilter, granularit
     if (!range?.from || !range?.to) {
       if (!range?.from) {
         store?.onChange(id, undefined);
+        store?.flushPendingChanges?.();
         return;
       }
       return;
     }
     store?.onChange(id, [toLocalIso(range.from, dateOnly), toLocalIso(range.to, dateOnly)]);
+    store?.flushPendingChanges?.();
     setCurrentMonth(startOfMonth(range.from));
   }
 
@@ -116,7 +118,7 @@ export const FilterInputIsoDateRange = observer(({ id, isValidFilter, granularit
           disabled={store?.isDisabled}
           id={id}
           type="button"
-          variant="outline"
+          variant="field"
         >
           <CalendarIcon className="mr-2 size-4 shrink-0" />
 
@@ -186,7 +188,7 @@ export const FilterInputIsoDateRange = observer(({ id, isValidFilter, granularit
               disabled={store?.isDisabled}
               size="sm"
               type="button"
-              variant="outline"
+              variant="secondary"
               onClick={() => handlePreset(key)}
             >
               {t(`Common.datePresets.${key}`)}

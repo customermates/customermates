@@ -10,8 +10,7 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default: "bg-primary/20 text-primary [a&]:hover:bg-primary/35",
-        secondary:
-          "bg-foreground/5 text-foreground/80 dark:bg-foreground/10 [a&]:hover:bg-foreground/10 dark:[a&]:hover:bg-foreground/15",
+        secondary: "bg-foreground/5 text-foreground/80 [a&]:hover:bg-foreground/10",
         destructive: "bg-destructive/20 text-destructive [a&]:hover:bg-destructive/35",
         success: "bg-success/20 text-success [a&]:hover:bg-success/35",
         warning: "bg-warning/20 text-warning [a&]:hover:bg-warning/35",
@@ -27,7 +26,7 @@ const badgeVariants = cva(
     },
     compoundVariants: [
       { variant: "default", interactive: true, class: "hover:bg-primary/35" },
-      { variant: "secondary", interactive: true, class: "hover:bg-foreground/10 dark:hover:bg-foreground/15" },
+      { variant: "secondary", interactive: true, class: "hover:bg-foreground/10" },
       { variant: "destructive", interactive: true, class: "hover:bg-destructive/35" },
       { variant: "success", interactive: true, class: "hover:bg-success/35" },
       { variant: "warning", interactive: true, class: "hover:bg-warning/35" },

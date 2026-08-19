@@ -109,6 +109,7 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
   function commit(next: string[] | undefined) {
     const value = next && next.length === 0 ? undefined : next;
     store?.onChange(id, value);
+    store?.flushPendingChanges?.();
     onValueChange?.(value);
     setInput("");
   }
@@ -146,7 +147,7 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
           id={id}
           role="combobox"
           type="button"
-          variant="outline"
+          variant="field"
         >
           <span className="flex flex-wrap items-center gap-1 text-left">
             {selectedKeys.length > 0 ? (
@@ -214,7 +215,7 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
                 <Button
                   size="sm"
                   type="button"
-                  variant="outline"
+                  variant="secondary"
                   onClick={() => setOptionAttempt((value) => value + 1)}
                 >
                   {t("ErrorCard.retry")}

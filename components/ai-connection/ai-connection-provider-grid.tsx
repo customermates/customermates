@@ -44,7 +44,7 @@ export function AiConnectionProviderGrid({ disabled, onSelect, registerRef, sele
             data-provider={provider}
             disabled={disabled}
             type="button"
-            variant="outline"
+            variant="secondary"
             onClick={() => onSelect(provider)}
           >
             <span

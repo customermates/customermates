@@ -352,7 +352,7 @@ describe("registration legal copy covers the DPA", () => {
     expect(view).not.toContain('t("LegalUpdateView.continue")');
     expect(view).toContain("<Label");
     expect(view).not.toContain("items-start gap-3 text-sm");
-    expect(view).toContain('variant="outline"');
+    expect(view).toContain('variant="secondary"');
     expect(view).not.toContain('t("LegalUpdateView.signOut")');
     expect(action).toContain("refresh()");
     expect(action).toContain('redirect("/")');

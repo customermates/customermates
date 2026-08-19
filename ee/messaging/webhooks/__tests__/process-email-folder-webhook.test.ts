@@ -35,6 +35,7 @@ const folders = [
 function build(account: unknown, folderItems: unknown[]) {
   const accountRepo = {
     findAccountByUnipileIdOrThrowUnscoped: vi.fn().mockResolvedValue(account),
+    findAccountByUnipileIdUnscoped: vi.fn().mockResolvedValue(account),
     updateAccountUnscoped: vi.fn().mockResolvedValue(undefined),
   };
   const messagingService = {

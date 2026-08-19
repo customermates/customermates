@@ -18,7 +18,7 @@ export function DashboardPageSkeleton({ animated = true }: Props) {
       {CARDS.map((card) => (
         <div
           key={card}
-          className="flex h-[264px] flex-col gap-0 rounded-xl bg-card py-0 shadow-xs"
+          className="flex h-[264px] flex-col gap-0 rounded-xl border border-border bg-card py-0 shadow-xs"
           data-dashboard-card={card}
           data-skeleton-group={card}
         >
@@ -80,7 +80,7 @@ export function DashboardPageSkeleton({ animated = true }: Props) {
             ) : (
               <div className="grid flex-1 grid-cols-2 gap-4">
                 {ROWS.map((row) => (
-                  <div key={row} className="flex flex-col justify-center gap-3 rounded-lg bg-muted/50 p-4">
+                  <div key={row} className="flex flex-col justify-center gap-3 rounded-lg bg-placeholder p-4">
                     <Shape animated={animated} className="h-3 w-16" motionPhase={row < 2 ? 2 : 3} />
 
                     <Shape animated={animated} breathe={row === 0} className="h-7 w-24" motionPhase={row < 2 ? 2 : 3} />

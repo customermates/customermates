@@ -30,7 +30,7 @@ export const ContactForm = observer(() => {
 
           <p className="text-x-sm text-subdued max-w-md">{t("ContactPage.form.successBody")}</p>
 
-          <Button className="mt-2" variant="outline" onClick={reset}>
+          <Button className="mt-2" variant="secondary" onClick={reset}>
             {t("ContactPage.form.successCta")}
           </Button>
         </AppCardBody>

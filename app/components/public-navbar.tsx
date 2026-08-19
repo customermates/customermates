@@ -122,7 +122,7 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
     ) : null;
 
   const contactButton = actions.showContact ? (
-    <Button asChild className="bg-transparent shadow-none" size="sm" variant="outline" onClick={closeMenu}>
+    <Button asChild size="sm" variant="secondary" onClick={closeMenu}>
       <IntlLink href="/contact">{t("Common.actions.contact")}</IntlLink>
     </Button>
   ) : null;
@@ -170,7 +170,7 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
               </Button>
             </SheetTrigger>
 
-            <SheetContent className="w-80 max-w-[85vw] gap-0" side="right">
+            <SheetContent className="w-80 max-w-[85vw] gap-0 bg-sidebar text-sidebar-foreground" side="right">
               <SheetHeader>
                 <SheetTitle className="sr-only">{logoAlt}</SheetTitle>
 

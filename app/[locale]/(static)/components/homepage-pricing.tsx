@@ -11,7 +11,7 @@ type CardConfig = {
   badgeKey?: string;
   periodKey?: string;
   titleKey: "selfHosted" | "cloud";
-  variant: "outline" | "default";
+  variant: "secondary" | "default";
   featureKeys: string[];
   compareHref?: string;
   compareTextKey?: string;
@@ -22,7 +22,7 @@ const CARDS: CardConfig[] = [
     titleKey: "selfHosted",
     href: "https://github.com/customermates/customermates",
     periodKey: "period",
-    variant: "outline",
+    variant: "secondary",
     featureKeys: ["featureUsers", "featureRecords", "featureApi", "featureN8n", "featureCommunity"],
   },
   {
@@ -97,7 +97,7 @@ export async function HomepagePricing() {
             return (
               <div
                 key={card.titleKey}
-                className={`relative flex flex-col rounded-xl bg-card p-6 shadow-xs ${
+                className={`relative flex flex-col rounded-xl border border-border bg-card p-6 shadow-xs ${
                   featured ? "border-2 border-primary" : ""
                 }`}
               >
@@ -135,7 +135,7 @@ export async function HomepagePricing() {
                   )}
                 </div>
 
-                <Button asChild className="w-full" variant={featured ? "default" : "outline"}>
+                <Button asChild className="w-full" variant={featured ? "default" : "secondary"}>
                   <AppLink external={card.href.startsWith("http")} href={card.href}>
                     {t(`HomepagePricing.${card.titleKey}.ctaText`)}
                   </AppLink>

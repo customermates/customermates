@@ -17,7 +17,7 @@ export function AiConnectionConnectorSetup({ mcpUrl, provider }: Props) {
   const isClaude = provider === "claude";
 
   return (
-    <div className="flex min-w-0 flex-col gap-3 rounded-xl border bg-muted/30 p-4">
+    <div className="flex min-w-0 flex-col gap-3 rounded-xl border bg-muted p-4">
       <div className="flex flex-col gap-1">
         <h3 className="text-sm font-medium">
           {isClaude ? t("OnboardingWizard.ai.connector.claudeTitle") : t("OnboardingWizard.ai.connector.chatgptTitle")}

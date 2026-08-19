@@ -7,6 +7,7 @@ import type {
   EntityDto,
   FormEntityDto,
 } from "@/core/base/base-custom-column-entity-modal.store";
+import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
@@ -36,9 +37,15 @@ type IdentityProps = {
   pictureUrl?: string | null;
 };
 
+export type EntityDetailInitial = {
+  entity: EntityDto;
+  customColumns: CustomColumnDto[];
+};
+
 type Props<Form extends FormEntityDto, Dto extends EntityDto> = {
   entityId: string;
   entityType: EntityType;
+  entityInitial?: EntityDetailInitial | null;
   store: BaseCustomColumnEntityModalStore<Form, Dto>;
   masterData: ReactNode;
   identity: IdentityProps;
@@ -53,6 +60,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
 >({
   entityId,
   entityType,
+  entityInitial,
   store,
   masterData,
   identity,
@@ -68,8 +76,15 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
   const [hasMounted, setHasMounted] = useState(false);
   const formId = useId();
   const drawerWasOpenRef = useRef(entityDrawerStack.length > 0);
+  const seededEntityId = useRef<string | null>(null);
+
+  if (entityInitial?.entity.id === entityId && seededEntityId.current !== entityId) {
+    seededEntityId.current = entityId;
+    store.hydrate(entityInitial.entity as Dto, entityInitial.customColumns);
+  }
 
   useEffect(() => {
+    if (seededEntityId.current === entityId) return;
     void store.loadById(entityId);
   }, [entityId, store]);
 
@@ -269,7 +284,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
       return (
         <PageState
           action={
-            <Button size="sm" variant="outline" onClick={() => void store.loadById(entityId)}>
+            <Button size="sm" variant="secondary" onClick={() => void store.loadById(entityId)}>
               {t("ErrorCard.retry")}
             </Button>
           }
