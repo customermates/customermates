@@ -15,7 +15,8 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { getSystemTaskNameTranslationKey } from "../../tasks/components/system-task.config";
 
 export function useDealColumns(): ColumnDef<DealDto>[] {
-  const { dealsStore, intlStore, userModalStore } = useRootStore();
+  const { companyStore, dealsStore, intlStore, userModalStore } = useRootStore();
+  const forecastsByStage = Boolean(companyStore.company?.dealWeightingColumnId);
   const openEntity = useOpenEntity();
   const entityHref = useEntityHref();
   const t = useTranslations();
@@ -27,15 +28,19 @@ export function useDealColumns(): ColumnDef<DealDto>[] {
         id: "totalValue",
         cell: ({ row }) => <span className="text-sm">{intlStore.formatCurrency(row.original.totalValue)}</span>,
       },
-      {
-        id: "weightedValue",
-        cell: ({ row }) =>
-          row.original.weightedValue === null ? (
-            <span />
-          ) : (
-            <span className="text-sm">{intlStore.formatCurrency(row.original.weightedValue)}</span>
-          ),
-      },
+      ...(forecastsByStage
+        ? [
+            {
+              id: "weightedValue",
+              cell: ({ row }: { row: { original: DealDto } }) =>
+                row.original.weightedValue === null ? (
+                  <span />
+                ) : (
+                  <span className="text-sm">{intlStore.formatCurrency(row.original.weightedValue)}</span>
+                ),
+            },
+          ]
+        : []),
       {
         id: "totalQuantity",
         cell: ({ row }) => <span className="text-sm">{intlStore.formatNumber(row.original.totalQuantity)}</span>,
@@ -91,6 +96,6 @@ export function useDealColumns(): ColumnDef<DealDto>[] {
       },
       ...standardTailColumns({ store: dealsStore, intlStore, userModalStore }),
     ],
-    [dealsStore, dealsStore.customColumns, entityHref, intlStore, openEntity, t, userModalStore],
+    [dealsStore, dealsStore.customColumns, entityHref, forecastsByStage, intlStore, openEntity, t, userModalStore],
   );
 }
