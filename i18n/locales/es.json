@@ -427,7 +427,6 @@
       }
     },
     "filters": {
-      "apply": "Aplicar",
       "clearAll": "Borrar todo",
       "clearSearch": "Borrar la búsqueda",
       "daysPlaceholder": "Días",

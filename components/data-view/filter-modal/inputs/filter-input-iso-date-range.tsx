@@ -58,11 +58,13 @@ export const FilterInputIsoDateRange = observer(({ id, isValidFilter, granularit
     if (!range?.from || !range?.to) {
       if (!range?.from) {
         store?.onChange(id, undefined);
+        store?.flushPendingChanges?.();
         return;
       }
       return;
     }
     store?.onChange(id, [toLocalIso(range.from, dateOnly), toLocalIso(range.to, dateOnly)]);
+    store?.flushPendingChanges?.();
     setCurrentMonth(startOfMonth(range.from));
   }
 

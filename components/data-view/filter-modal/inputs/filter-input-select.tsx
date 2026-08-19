@@ -109,6 +109,7 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
   function commit(next: string[] | undefined) {
     const value = next && next.length === 0 ? undefined : next;
     store?.onChange(id, value);
+    store?.flushPendingChanges?.();
     onValueChange?.(value);
     setInput("");
   }
