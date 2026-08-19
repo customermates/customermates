@@ -1,7 +1,7 @@
 import type { Filter, GetQueryParams, PaginationRequest, SortDescriptor } from "@/core/base/base-get.schema";
 
 import { FilterOperatorKey } from "../base/base-query-builder";
-import { normalizeLegacyRelationFilter } from "../base/filter-compat";
+import { normalizeFilter } from "../base/filter-compat";
 
 export function encodeGetParams(params: GetQueryParams = {}): URLSearchParams {
   const sp = new URLSearchParams();
@@ -26,7 +26,7 @@ export function encodeGetParams(params: GetQueryParams = {}): URLSearchParams {
 
   if (params.filters && params.filters.length > 0) {
     for (const candidate of params.filters) {
-      const f = normalizeLegacyRelationFilter(candidate);
+      const f = normalizeFilter(candidate);
       const valuePart = serializeFilterValue(f.operator, "value" in f ? f.value : undefined);
       const token =
         valuePart !== undefined && valuePart !== null && valuePart !== ""

@@ -4,13 +4,13 @@ import { z } from "zod";
 import { Prisma } from "@/generated/prisma";
 
 import { FilterOperatorKey } from "./base-query-builder";
-import { normalizeLegacyRelationFilterInput } from "./filter-compat";
+import { normalizeFilterInput } from "./filter-compat";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { CustomColumnDtoSchema } from "@/features/custom-column/custom-column.schema";
 
 export const FilterSchema = z.preprocess(
-  normalizeLegacyRelationFilterInput,
+  normalizeFilterInput,
   z.discriminatedUnion("operator", [
     z
       .object({

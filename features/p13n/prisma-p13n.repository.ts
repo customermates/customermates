@@ -9,7 +9,7 @@ import type { P13nRepo } from "@/core/base/base-get.interactor";
 import { Prisma } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
-import { normalizeLegacyRelationFilters } from "@/core/base/filter-compat";
+import { normalizeFilters } from "@/core/base/filter-compat";
 
 export type SavedFilterPreset = {
   id: string;
@@ -32,7 +32,7 @@ export interface P13nEntry {
 }
 
 function normalizeStoredFilters(value: unknown): Filter[] | undefined {
-  return Array.isArray(value) ? normalizeLegacyRelationFilters(value as unknown as Filter[]) : undefined;
+  return Array.isArray(value) ? normalizeFilters(value as unknown as Filter[]) : undefined;
 }
 
 function normalizeStoredFilterPresets(value: unknown): SavedFilterPreset[] | undefined {

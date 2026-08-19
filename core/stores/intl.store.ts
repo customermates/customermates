@@ -13,7 +13,7 @@ import { Currency } from "@/generated/prisma";
 import type { AppLocale } from "@/i18n/locale-registry";
 
 import { DEFAULT_LOCALE, formattingTagFor, isFormattingLocale } from "@/i18n/locale-registry";
-import { formatLocalizedNumber, parseLocalizedNumber } from "./intl-number";
+import { formatLocalizedNumber, parseLocalizedNumber, parseLocalizedNumberToCanonical } from "./intl-number";
 
 const TIMEAGO_LOCALES = { de, en, es, fr, it } satisfies Record<AppLocale, Parameters<typeof register>[1]>;
 
@@ -101,6 +101,10 @@ export class IntlStore {
 
   parseNumber(value: string, locale = this.formattingLocale): number | undefined {
     return parseLocalizedNumber(value, locale);
+  }
+
+  parseNumberToCanonical(value: string, locale = this.formattingLocale): string | undefined {
+    return parseLocalizedNumberToCanonical(value, locale);
   }
 
   get collator(): Intl.Collator {

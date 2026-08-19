@@ -18,7 +18,7 @@ import { BREAKPOINTS } from "@/constants/breakpoints";
 import { getWidgetCalculatorRepo } from "@/core/di";
 import { ActivityWidgetDtoSchema } from "./widget.schema";
 import { activityFilterableFieldsForViewer } from "@/ee/messaging/activities/activity-filterable-fields";
-import { normalizeLegacyRelationFilters } from "@/core/base/filter-compat";
+import { normalizeFilters } from "@/core/base/filter-compat";
 
 export class PrismaWidgetRepo
   extends BaseRepository
@@ -92,7 +92,7 @@ export class PrismaWidgetRepo
 
     if (row.kind === WidgetKind.activityTimeline) {
       const timelineFilters = Array.isArray(row.timelineFilters)
-        ? normalizeLegacyRelationFilters(row.timelineFilters as unknown as Filter[])
+        ? normalizeFilters(row.timelineFilters as unknown as Filter[])
         : (row.timelineFilters ?? []);
       const parsed = ActivityWidgetDtoSchema.safeParse({
         ...base,
@@ -106,8 +106,8 @@ export class PrismaWidgetRepo
 
     const entityType = row.entityType as EntityType;
     const aggregationType = row.aggregationType as AggregationType;
-    const entityFilters = normalizeLegacyRelationFilters((row.entityFilters as unknown as Filter[] | null) ?? []);
-    const dealFilters = normalizeLegacyRelationFilters((row.dealFilters as unknown as Filter[] | null) ?? []);
+    const entityFilters = normalizeFilters((row.entityFilters as unknown as Filter[] | null) ?? []);
+    const dealFilters = normalizeFilters((row.dealFilters as unknown as Filter[] | null) ?? []);
     const chart = {
       ...base,
       kind: WidgetKind.chart,

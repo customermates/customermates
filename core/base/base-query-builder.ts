@@ -12,7 +12,7 @@ import { CustomColumnType } from "@/generated/prisma";
 
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { isCustomField } from "@/core/utils/custom-field";
-import { normalizeLegacyRelationFilter } from "@/core/base/filter-compat";
+import { normalizeFilter } from "@/core/base/filter-compat";
 
 export interface SortableField {
   field: string;
@@ -547,7 +547,7 @@ export function defaultValidateFilters(args: {
 
     if (!hasValidStructure) continue;
 
-    const filter = normalizeLegacyRelationFilter(candidate);
+    const filter = normalizeFilter(candidate);
     const fieldConfig = filterableFields.find((f) => f.field === filter.field);
     if (!fieldConfig || !fieldConfig.operators.includes(filter.operator)) continue;
 
