@@ -34,7 +34,7 @@ export function ChannelIconStack({ identifiers, maxVisible = 3, className, onIte
         return (
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className="bg-foreground/10 dark:bg-foreground/15 flex size-6 items-center justify-center overflow-hidden rounded-full">
+              <span className="bg-foreground/10 flex size-6 items-center justify-center overflow-hidden rounded-full">
                 <Icon className="size-6" />
               </span>
             </TooltipTrigger>
@@ -44,7 +44,7 @@ export function ChannelIconStack({ identifiers, maxVisible = 3, className, onIte
         );
       }}
       renderOverflow={(count) => (
-        <span className="bg-foreground/10 dark:bg-foreground/15 text-foreground/70 flex size-6 items-center justify-center rounded-full text-[10px]">
+        <span className="bg-foreground/10 text-foreground/70 flex size-6 items-center justify-center rounded-full text-[10px]">
           +{count}
         </span>
       )}

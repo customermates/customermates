@@ -44,7 +44,7 @@ const ExpiresInPicker = observer(() => {
             disabled={apiKeyModalStore.isDisabled}
             id="expiresIn"
             type="button"
-            variant="outline"
+            variant="secondary"
           >
             <CalendarIcon className="mr-2 size-4" />
 
@@ -118,7 +118,7 @@ export const ApiKeyModal = observer(() => {
         className="h-auto w-full justify-start gap-3 whitespace-normal rounded-xl p-4 text-left"
         data-api-key-option="plain"
         type="button"
-        variant="outline"
+        variant="secondary"
         onClick={apiKeyModalStore.choosePlain}
       >
         <span

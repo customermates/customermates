@@ -60,7 +60,11 @@ export const ApiKeysPageView = observer(({ apiKeys }: Props) => {
       body = (
         <PageState
           action={
-            <Button size="sm" variant="outline" onClick={() => void apiKeysStore.refreshQuery().catch(() => undefined)}>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => void apiKeysStore.refreshQuery().catch(() => undefined)}
+            >
               {t("ErrorCard.retry")}
             </Button>
           }

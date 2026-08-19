@@ -31,7 +31,7 @@ export const ConnectUpsellModal = observer(() => {
         </AppCardBody>
 
         <AppCardFooter>
-          <Button disabled={isLoading} type="button" variant="outline" onClick={close}>
+          <Button disabled={isLoading} type="button" variant="secondary" onClick={close}>
             {t("Common.actions.cancel")}
           </Button>
 

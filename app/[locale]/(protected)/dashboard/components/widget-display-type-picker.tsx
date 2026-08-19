@@ -39,7 +39,7 @@ function ChartTypeIllustration({ className, type }: IllustrationProps) {
       <div className={cn("flex flex-col justify-center gap-2", className)}>
         {["w-4/5", "w-3/5", "w-full"].map((width, index) => (
           <div key={width} className="flex items-center gap-1.5">
-            {withLabels && <span className="h-1.5 w-5 rounded-full bg-muted-foreground/30" />}
+            {withLabels && <span className="h-1.5 w-5 rounded-full bg-border-strong" />}
 
             <span className={cn("h-2.5 rounded-sm bg-primary", width, index === 1 && "bg-primary/55")} />
           </div>
@@ -54,7 +54,7 @@ function ChartTypeIllustration({ className, type }: IllustrationProps) {
         <div key={height} className="flex h-full flex-col items-center justify-end gap-1">
           <span className={cn("w-3 rounded-sm bg-primary", height, index === 2 && "bg-primary/55")} />
 
-          {withLabels && <span className="h-1 w-3 rounded-full bg-muted-foreground/30" />}
+          {withLabels && <span className="h-1 w-3 rounded-full bg-border-strong" />}
         </div>
       ))}
     </div>

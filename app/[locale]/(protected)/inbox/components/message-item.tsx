@@ -76,7 +76,7 @@ function TextWithQuote({ visible, quoted, onPaper }: { visible: string; quoted: 
             <div
               className={cn(
                 "mt-1 border-l-2 pl-2",
-                onPaper ? "border-neutral-300 text-neutral-500" : "border-border/60 text-muted-foreground",
+                onPaper ? "border-neutral-300 text-neutral-500" : "border-border text-muted-foreground",
               )}
             >
               <MessageText text={quoted} />
@@ -110,7 +110,7 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
   if (message.isEvent) {
     return (
       <div className="flex justify-center px-4 py-2">
-        <div className="bg-muted/60 text-muted-foreground rounded-full px-3 py-1 text-[11px] italic">
+        <div className="bg-muted text-muted-foreground rounded-full px-3 py-1 text-[11px] italic">
           {message.bodyText?.trim() || t("Inbox.systemEvent")}
 
           <span className="text-muted-foreground/70 ml-2">
@@ -208,7 +208,7 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
           ) : isEmail ? (
             <>
               {recipientRows.length > 0 && (
-                <div className="border-border/60 text-muted-foreground flex flex-col gap-1 border-b px-3.5 py-2 text-xs">
+                <div className="border-border text-muted-foreground flex flex-col gap-1 border-b px-3.5 py-2 text-xs">
                   {recipientRows.map(([labelKey, list]) => (
                     <div key={labelKey} className="flex flex-wrap items-center gap-1">
                       <span className="font-medium">{t(labelKey)}:</span>

@@ -184,7 +184,7 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
           action={
             <Button
               size="sm"
-              variant="outline"
+              variant="secondary"
               onClick={() => messagingThreadsStore.setQueryOptions({ forceRefresh: true })}
             >
               {t("ErrorCard.retry")}

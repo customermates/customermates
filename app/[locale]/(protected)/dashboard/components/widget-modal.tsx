@@ -292,11 +292,11 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
           <DropdownMenuTrigger asChild>
             <Button
               aria-label={t("Dashboard.widgetEditor.appearance.colors")}
-              className="w-full justify-between border-input bg-input-background font-normal shadow-xs"
+              className="w-full justify-between font-normal"
               disabled={isDisabled}
               id="displayOptions.barColors"
               type="button"
-              variant="outline"
+              variant="field"
             >
               <span className="flex flex-wrap items-center gap-1">
                 {(form.displayOptions?.barColors ?? []).map((key) => (
@@ -513,7 +513,7 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
           {isCreate ? (
             widgetModalStore.creationStep === "configure" && (
               <AppCardFooter className="gap-2">
-                <Button disabled={isDisabled} type="button" variant="outline" onClick={goBackToKindStep}>
+                <Button disabled={isDisabled} type="button" variant="secondary" onClick={goBackToKindStep}>
                   {t("Common.actions.back")}
                 </Button>
 

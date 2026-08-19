@@ -19,7 +19,7 @@ export default function SignInProviderButton({ className, providerId, label, isL
       key={providerId}
       className={cn("w-full min-w-0", className)}
       disabled={isLoading}
-      variant="outline"
+      variant="secondary"
       onClick={onClick}
     >
       <AppImage

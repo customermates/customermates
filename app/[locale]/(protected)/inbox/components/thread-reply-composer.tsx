@@ -148,7 +148,7 @@ export const ThreadReplyComposer = observer(
     const form = (
       <AppForm className="flex flex-col" store={threadComposeStore} onSubmit={threadComposeStore.send}>
         {senders.length > 1 && activeSender && (
-          <div className="border-border/60 flex items-center gap-2 border-b px-3 py-1">
+          <div className="border-border flex items-center gap-2 border-b px-3 py-1">
             <span className="text-muted-foreground w-8 shrink-0 text-xs font-medium">{t("Inbox.compose.from")}</span>
 
             <DropdownMenu>
@@ -182,7 +182,7 @@ export const ThreadReplyComposer = observer(
         {isLinkedin && isNewThread && (
           <>
             {availableProducts.length > 1 && (
-              <div className="border-border/60 flex items-center gap-2 border-b px-3 py-1">
+              <div className="border-border flex items-center gap-2 border-b px-3 py-1">
                 <span className="text-muted-foreground shrink-0 text-xs font-medium">{t("Inbox.compose.sendAs")}</span>
 
                 <DropdownMenu>
@@ -217,7 +217,7 @@ export const ThreadReplyComposer = observer(
               <>
                 <FormInput
                   className="h-9 rounded-none border-0 bg-transparent px-3 text-sm shadow-none focus-visible:ring-0"
-                  containerClassName="border-border/60 w-full border-b"
+                  containerClassName="border-border w-full border-b"
                   id="subject"
                   label={null}
                   placeholder={t("Inbox.compose.inmailSubjectPlaceholder")}
@@ -226,7 +226,7 @@ export const ThreadReplyComposer = observer(
                 {linkedinProduct === "recruiter" && (
                   <FormInput
                     className="h-9 rounded-none border-0 bg-transparent px-3 text-sm shadow-none focus-visible:ring-0"
-                    containerClassName="border-border/60 w-full border-b"
+                    containerClassName="border-border w-full border-b"
                     id="inmailSignature"
                     label={null}
                     placeholder={t("Inbox.compose.inmailSignaturePlaceholder")}
@@ -241,14 +241,14 @@ export const ThreadReplyComposer = observer(
           <>
             <FormInput
               className="h-9 rounded-none border-0 bg-transparent px-3 text-sm shadow-none focus-visible:ring-0"
-              containerClassName="border-border/60 w-full border-b"
+              containerClassName="border-border w-full border-b"
               id="subject"
               label={null}
               placeholder={t("Inbox.compose.subjectPlaceholder")}
             />
 
             {!isNewThread && (
-              <div className="border-border/60 flex items-center gap-2 border-b px-3 py-1">
+              <div className="border-border flex items-center gap-2 border-b px-3 py-1">
                 <span className="text-muted-foreground w-8 shrink-0 text-xs font-medium">
                   {t("Inbox.compose.toLabel")}
                 </span>
@@ -264,7 +264,7 @@ export const ThreadReplyComposer = observer(
             )}
 
             {showCcBcc && (
-              <div className="border-border/60 flex flex-col border-b">
+              <div className="border-border flex flex-col border-b">
                 <div className="flex items-center gap-2 px-3 py-1">
                   <span className="text-muted-foreground w-8 shrink-0 text-xs font-medium">
                     {t("Inbox.compose.ccLabel")}
@@ -279,7 +279,7 @@ export const ThreadReplyComposer = observer(
                   />
                 </div>
 
-                <div className="border-border/60 flex items-center gap-2 border-t px-3 py-1">
+                <div className="border-border flex items-center gap-2 border-t px-3 py-1">
                   <span className="text-muted-foreground w-8 shrink-0 text-xs font-medium">
                     {t("Inbox.compose.bccLabel")}
                   </span>
@@ -424,7 +424,7 @@ export const ThreadReplyComposer = observer(
 
     return (
       <div className="bg-background shrink-0 px-4 pt-2 pb-4">
-        <div className="bg-card focus-within:ring-ring/50 flex flex-col rounded-xl shadow-xs transition-[color,box-shadow] focus-within:ring-[3px] focus-within:ring-inset">
+        <div className="bg-input-background focus-within:ring-ring/50 flex flex-col rounded-xl border border-input shadow-xs transition-[color,box-shadow] focus-within:ring-[3px] focus-within:ring-inset">
           {form}
         </div>
       </div>

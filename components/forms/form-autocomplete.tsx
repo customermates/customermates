@@ -371,7 +371,7 @@ export const FormAutocomplete = observer(
               id={id}
               role="combobox"
               type="button"
-              variant="outline"
+              variant="field"
             >
               <span className="flex flex-wrap items-center gap-1 text-left flex-1 min-w-0">
                 {selectedKeys.length ? renderedSelection : resolvedPlaceholder}
@@ -415,7 +415,7 @@ export const FormAutocomplete = observer(
                     <Button
                       size="sm"
                       type="button"
-                      variant="outline"
+                      variant="secondary"
                       onClick={() => setOptionAttempt((value) => value + 1)}
                     >
                       {t("ErrorCard.retry")}

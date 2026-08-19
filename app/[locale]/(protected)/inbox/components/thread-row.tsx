@@ -58,8 +58,8 @@ export const ThreadRow = observer(({ thread, selected, onClick }: Props) => {
     <button
       className={cn(
         "flex w-full items-center gap-3 border-b border-border p-3 text-left transition last:border-b-0",
-        "hover:bg-muted/60 active:scale-[0.97] motion-reduce:transition-none",
-        selected && "bg-muted",
+        "hover:bg-accent active:scale-[0.97] motion-reduce:transition-none",
+        selected && "bg-selected",
       )}
       data-thread-id={thread.id}
       type="button"

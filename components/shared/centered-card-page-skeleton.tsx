@@ -16,7 +16,7 @@ export function CenteredCardPageSkeleton({ animated = true, children, maxWidth =
       <div className="flex min-h-full w-full items-center justify-center p-4">
         <div
           className={cn(
-            "flex w-full flex-col gap-0 rounded-xl bg-card py-0 shadow-xs",
+            "flex w-full flex-col gap-0 rounded-xl border border-border bg-card py-0 shadow-xs",
             maxWidth === "3xl" ? "max-w-3xl" : "max-w-2xl",
           )}
           data-skeleton-group="0"

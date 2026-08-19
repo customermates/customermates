@@ -284,7 +284,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
       return (
         <PageState
           action={
-            <Button size="sm" variant="outline" onClick={() => void store.loadById(entityId)}>
+            <Button size="sm" variant="secondary" onClick={() => void store.loadById(entityId)}>
               {t("ErrorCard.retry")}
             </Button>
           }

@@ -76,7 +76,7 @@ function TranscriptSkeleton({ animated }: { animated: boolean }) {
 
       <div className="shrink-0 bg-background px-4 pt-2 pb-4">
         <div
-          className="flex min-h-[6rem] flex-col justify-between rounded-xl bg-card p-3 shadow-xs"
+          className="flex min-h-[6rem] flex-col justify-between rounded-xl border border-border bg-card p-3 shadow-xs"
           data-skeleton-group="3"
         >
           <Shape breathe animated={animated} className="h-3 w-2/3" />

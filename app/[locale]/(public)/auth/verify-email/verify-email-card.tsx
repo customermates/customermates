@@ -29,7 +29,7 @@ export const VerifyEmailCard = observer(({ email }: { email?: string }) => {
       </AppCardBody>
 
       <AppCardFooter>
-        <Button className="w-full" variant="outline" onClick={() => window.location.reload()}>
+        <Button className="w-full" variant="secondary" onClick={() => window.location.reload()}>
           {t("Common.actions.refresh")}
         </Button>
 

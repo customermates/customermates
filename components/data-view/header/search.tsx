@@ -77,11 +77,7 @@ export const DataViewSearch = observer(function DataViewSearch<E extends HasId>(
 
         <Input
           ref={inputRef}
-          className={cn(
-            "h-8 border-transparent bg-secondary pl-7.5 text-sm hover:bg-secondary/80",
-            expandedMobile && "pr-7.5 md:pr-2",
-            value && "border-primary",
-          )}
+          className={cn("h-8 pl-7.5 text-sm", expandedMobile && "pr-7.5 md:pr-2", value && "border-primary")}
           id={id}
           placeholder={resolvedPlaceholder}
           type="search"

@@ -126,7 +126,7 @@ export const FormIsoDatePicker = observer(
               disabled={store?.isDisabled}
               id={id}
               type="button"
-              variant="outline"
+              variant="field"
             >
               <CalendarIcon className="mr-2 size-4 shrink-0" />
 
@@ -179,7 +179,7 @@ export const FormIsoDatePicker = observer(
                   disabled={store?.isDisabled}
                   size="sm"
                   type="button"
-                  variant="outline"
+                  variant="secondary"
                   onClick={() => handlePreset(preset.compute)}
                 >
                   {t(`Common.datePresets.${preset.key}`)}

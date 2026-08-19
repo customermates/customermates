@@ -34,7 +34,7 @@ function ProfileResourcePageSkeleton({ animated = true, resource }: Props & { re
         {CARDS.map((card) => (
           <div
             key={card}
-            className="flex flex-col gap-3 rounded-xl bg-card py-4 shadow-xs"
+            className="flex flex-col gap-3 rounded-xl border border-border bg-card py-4 shadow-xs"
             data-skeleton-group={card % 4}
           >
             <div className="flex flex-col gap-2 px-4">

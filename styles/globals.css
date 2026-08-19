@@ -18,6 +18,8 @@
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
+  --color-selected: var(--selected);
+  --color-tooltip: var(--tooltip);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
@@ -33,6 +35,7 @@
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-input: var(--input);
   --color-input-background: var(--input-background);
   --color-ring: var(--ring);
@@ -222,22 +225,82 @@
 }
 
 
+/* Surface system (CUS-246).
+   Three mechanisms, because fill alone cannot express the whole interface. White is a
+   hard ceiling in light and near-black a hard floor in dark, so an opaque ladder runs
+   out after three levels, while the app nests five deep: field, card, card in a card,
+   page panel, app canvas.
+
+   FILL — three opaque rungs, structure only, never more than three.
+     canvas  --sidebar     the app shell behind everything, including the 8px gutter
+     panel   --background  the floating page body
+     raised  --card        card, popover, menu, dialog
+   Light steps are +2.40 and +2.63 OKLCH L; dark steps are +4.76 and +4.42, a 1.80x
+   ratio. Equal lightness steps would NOT mirror: matching a light step of 2.5 L needs
+   3.62 L in dark. The quantity that carries across themes is the contrast ratio, not
+   the lightness step, which is why moving one token or shifting the ladder by a fixed
+   amount cannot work. Every rung is within 0.4 L of Linear's shipped app shell.
+
+   BORDER — alpha, not opaque, so one value per tier is correct on all three rungs.
+     --border         ~1.18:1  container rims and rules: panel, card, table, separators
+     --input          ~1.35:1  a control edge at rest
+     --border-strong  ~1.70:1  control hover, selected, floating-surface rim
+   Two jobs only: delineation (where a container ends) and affordance (what you can
+   click into). Never hierarchy — that is primary, neutral, destructive, ghost. The
+   soft weight matches what shadcn, Linear and Primer ship and is short of WCAG 1.4.11
+   for a resting control; focus and aria-invalid carry that at 4.3:1 to 5.9:1.
+
+   WASH — translucent, so state composes at any nesting depth.
+     --input-background  a field sits at the RAISED rung, never below its parent
+     --muted             a subdued surface, relative to whatever it sits on
+     --accent            hover, moves toward the foreground
+     --selected          selected rows and items
+     --tooltip           the one overlay that carries no rim, so its fill must clear
+                         every rung on its own: it steps away from the extreme, like
+                         the ladder does, and never inverts out of its own theme
+     (--secondary is NOT a wash: see the note below)
+     --placeholder       skeleton fill
+   Alphas differ per theme by the same 1.8x reasoning as the rungs.
+
+   --muted is a wash, not a rung. "Subdued" is inherently relative to the host, and a
+   host can be two rungs away: pinned to the canvas rung it read as a gentle stripe on a
+   light card and as a hole punched in a dark one, at the same measured contrast. Equal
+   contrast is not equal reading when the direction of travel differs from what the eye
+   expects. Its /20 to /60 call sites were taming a value that was too strong, exactly as
+   the border divisors were, and they go the same way. Hover belongs to --accent; the call
+   sites that were reaching for hover through --muted now say so. Anything needing an
+   opaque well rather than a tint uses --placeholder.
+
+   Nothing interactive is ever darker at rest than the surface it sits on. On a light
+   surface a darker fill is the disabled convention, so recessing an editable field or a
+   neutral button steals the one signal that "you may not change this" has left. shadcn,
+   Primer and Radix all avoid it in light. So --input-background and --secondary both sit
+   at the raised rung: a field or a neutral button lifts off the page panel and goes flat
+   inside a card, where its border alone identifies it. That leaves recession free for
+   read-only and disabled, which is where CUS-241 needs it.
+
+   A wash still moves toward the foreground, and that stays correct for STATE: a hover or
+   a selection must raise contrast against whatever it sits on, so it darkens in light and
+   lightens in dark. The distinction is resting elevation versus state, not light versus
+   dark. --accent and --selected are washes; --secondary is not. */
 :root {
   --radius: 0.5rem;
   --background: #f6f6f8;
   --foreground: #000000;
   --card: #ffffff;
   --card-foreground: #000000;
-  --popover: #ffffff;
+  --popover: var(--card);
   --popover-foreground: #000000;
   --primary: #5e4ae3;
   --primary-foreground: #ffffff;
-  --secondary: #eeeef0;
+  --secondary: var(--card);
   --secondary-foreground: #000000;
-  --muted: #eeeef0;
+  --selected: rgb(0 0 0 / 5.5%);
+  --tooltip: #d6d6dd;
+  --muted: rgb(0 0 0 / 5.1%);
   --muted-foreground: #656567;
-  --placeholder: #e6e6ea;
-  --accent: #eeeef0;
+  --placeholder: rgb(0 0 0 / 7%);
+  --accent: rgb(0 0 0 / 2.4%);
   --accent-foreground: #000000;
   --destructive: #ff3b30;
   --destructive-foreground: #ffffff;
@@ -247,9 +310,10 @@
   --warning-foreground: #ffffff;
   --info: #007aff;
   --info-foreground: #ffffff;
-  --border: #e5e5e9;
-  --input: #dcdce0;
-  --input-background: #fafafa;
+  --border: rgb(0 0 0 / 7.5%);
+  --border-strong: rgb(0 0 0 / 22.3%);
+  --input: rgb(0 0 0 / 12.9%);
+  --input-background: var(--card);
   --ring: #5e4ae3;
   --chart-1: #5e4ae3;
   --chart-2: #129490;
@@ -273,31 +337,33 @@
   --color-fd-accent: color-mix(in srgb, #e3e3e6 50%, transparent);
   --color-fd-accent-foreground: #000000;
   --color-fd-ring: #d4d4d8;
-  --sidebar: #ffffff;
+  --sidebar: #eeeef0;
   --sidebar-foreground: #0a0a0b;
   --sidebar-primary: #5e4ae3;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #ececee;
+  --sidebar-accent: rgb(0 0 0 / 5.5%);
   --sidebar-accent-foreground: #0a0a0b;
-  --sidebar-border: #e4e4e7;
+  --sidebar-border: var(--border);
   --sidebar-ring: #5e4ae3;
 }
 
 .dark {
-  --background: #000000;
+  --background: #121215;
   --foreground: #fafafa;
-  --card: #121215;
+  --card: #1c1c1f;
   --card-foreground: #fafafa;
-  --popover: #1a1a1d;
+  --popover: var(--card);
   --popover-foreground: #fafafa;
   --primary: #7c6df2;
   --primary-foreground: #ffffff;
-  --secondary: #1a1a1d;
+  --secondary: var(--card);
   --secondary-foreground: #fafafa;
-  --muted: #141417;
+  --selected: rgb(255 255 255 / 5.5%);
+  --tooltip: #303036;
+  --muted: rgb(255 255 255 / 4.5%);
   --muted-foreground: #a1a1a8;
-  --placeholder: #222228;
-  --accent: #2e2e36;
+  --placeholder: rgb(255 255 255 / 7%);
+  --accent: rgb(255 255 255 / 2.7%);
   --accent-foreground: #fafafa;
   --destructive: #f87171;
   --destructive-foreground: #ffffff;
@@ -307,9 +373,10 @@
   --warning-foreground: #451a03;
   --info: #60a5fa;
   --info-foreground: #082f49;
-  --border: #1c1c20;
-  --input: #2a2a30;
-  --input-background: #18181c;
+  --border: rgb(255 255 255 / 6.8%);
+  --border-strong: rgb(255 255 255 / 18.1%);
+  --input: rgb(255 255 255 / 11.2%);
+  --input-background: var(--card);
   --ring: #7c6df2;
 
   --color-fd-background: #0e0e10;
@@ -328,13 +395,13 @@
   --color-fd-accent: color-mix(in srgb, #26262a 30%, transparent);
   --color-fd-accent-foreground: #ffffff;
   --color-fd-ring: #65656b;
-  --sidebar: #121215;
+  --sidebar: #08080b;
   --sidebar-foreground: #e4e4e7;
   --sidebar-primary: #7c6df2;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1f1f24;
+  --sidebar-accent: rgb(255 255 255 / 5.5%);
   --sidebar-accent-foreground: #fafafa;
-  --sidebar-border: #1c1c20;
+  --sidebar-border: var(--border);
   --sidebar-ring: #7c6df2;
 }
 
@@ -507,11 +574,11 @@ path:focus {
   }
 
   .interactive-surface {
-    @apply cursor-pointer no-underline transition-[background-color,box-shadow,transform] hover:bg-muted/60 hover:no-underline active:scale-[0.97] motion-reduce:transition-none;
+    @apply cursor-pointer no-underline transition-[background-color,box-shadow,transform] hover:bg-accent hover:no-underline active:scale-[0.97] motion-reduce:transition-none;
   }
 
   .interactive-surface-elevated {
-    @apply cursor-pointer no-underline transition-[background-color,box-shadow,transform] hover:bg-muted/60 hover:no-underline hover:shadow-md active:scale-[0.97] motion-reduce:transition-none;
+    @apply cursor-pointer no-underline transition-[background-color,box-shadow,transform] hover:bg-accent hover:no-underline hover:shadow-md active:scale-[0.97] motion-reduce:transition-none;
   }
 
   .prose

@@ -137,7 +137,7 @@ function CardsSkeleton({ animated, identity }: { animated: boolean; identity: "a
         {CARDS.map((card) => (
           <div
             key={card}
-            className="relative flex flex-col gap-3 rounded-xl bg-card py-4 shadow-xs"
+            className="relative flex flex-col gap-3 rounded-xl border border-border bg-card py-4 shadow-xs"
             data-skeleton-group={card % 4}
           >
             <div className="px-4">
@@ -166,7 +166,7 @@ function BoardSkeleton({ animated, identity }: { animated: boolean; identity: "a
 
             <div className={DATA_KANBAN_CARDS_CLASS_NAME}>
               {BOARD_CARDS.map((card) => (
-                <div key={card} className="flex flex-col gap-2 rounded-xl bg-card py-3 shadow-xs">
+                <div key={card} className="flex flex-col gap-2 rounded-xl border border-border bg-card py-3 shadow-xs">
                   <div className="px-3">
                     <CardBodySkeleton animated={animated} identity={identity} rows={card === 0 ? 4 : 3} />
                   </div>

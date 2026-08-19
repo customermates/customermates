@@ -67,7 +67,7 @@ export const TasksPageView = observer(function TasksPageView({ tasks }: Props) {
       body = (
         <PageState
           action={
-            <Button size="sm" variant="outline" onClick={() => tasksStore.setQueryOptions({ forceRefresh: true })}>
+            <Button size="sm" variant="secondary" onClick={() => tasksStore.setQueryOptions({ forceRefresh: true })}>
               {t("ErrorCard.retry")}
             </Button>
           }

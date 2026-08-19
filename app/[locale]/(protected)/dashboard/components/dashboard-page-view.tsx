@@ -134,7 +134,11 @@ export const DashboardPageView = observer(function DashboardPageView({
       body = (
         <PageState
           action={
-            <Button size="sm" variant="outline" onClick={() => void widgetsStore.refreshQuery().catch(() => undefined)}>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => void widgetsStore.refreshQuery().catch(() => undefined)}
+            >
               {t("ErrorCard.retry")}
             </Button>
           }

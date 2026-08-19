@@ -59,7 +59,7 @@ export function AutomationHero({
               <AppLink href={buttonLeftHref}>{buttonLeftText}</AppLink>
             </Button>
 
-            <Button asChild className="w-full sm:w-auto" size="lg" variant="outline">
+            <Button asChild className="w-full sm:w-auto" size="lg" variant="secondary">
               <AppLink external href={buttonRightHref}>
                 {buttonRightText}
               </AppLink>

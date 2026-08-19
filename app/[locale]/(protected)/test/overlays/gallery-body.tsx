@@ -107,7 +107,7 @@ export function GalleryActions({ count, loading }: { count: number; loading: boo
           disabled={loading}
           id={index === 0 ? "overlay-action-submit" : `overlay-action-${index}`}
           type="button"
-          variant={index === 0 ? "default" : "outline"}
+          variant={index === 0 ? "default" : "secondary"}
         >
           {label}
         </Button>

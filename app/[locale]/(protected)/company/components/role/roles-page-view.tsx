@@ -58,7 +58,7 @@ export const RolesPageView = observer(function RolesPageView({ initialRoles }: P
       body = (
         <PageState
           action={
-            <Button size="sm" variant="outline" onClick={() => void rolesStore.refreshQuery().catch(() => undefined)}>
+            <Button size="sm" variant="secondary" onClick={() => void rolesStore.refreshQuery().catch(() => undefined)}>
               {t("ErrorCard.retry")}
             </Button>
           }
