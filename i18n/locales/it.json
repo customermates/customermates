@@ -223,8 +223,9 @@
       "turnFailed": "L’assistente ha riscontrato un errore."
     },
     "greeting": {
-      "intro": "Ciao, sono Mate, il tuo assistente Customermates. Chiedimi qualsiasi cosa sul tuo workspace, oppure dimmi cosa fare e me ne occupo io.",
-      "support": "E se qualcosa non va, posso aprire un ticket di supporto per te in qualsiasi momento. Il nostro team legge ogni ticket tempestivamente e ti risponde via e-mail."
+      "headline": "Ciao, sono Mate",
+      "subtitle": "Chiedimi qualsiasi cosa sul tuo workspace, oppure dimmi cosa fare e me ne occupo io.",
+      "support": "Se qualcosa non va, posso aprire un ticket di supporto e il nostro team ti risponde via e-mail."
     },
     "placeholder": "Chiedi al tuo CRM…",
     "runner": {

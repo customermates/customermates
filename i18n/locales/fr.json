@@ -223,8 +223,9 @@
       "turnFailed": "L’assistant a rencontré une erreur."
     },
     "greeting": {
-      "intro": "Bonjour, je suis Mate, votre assistant Customermates. Posez-moi toutes vos questions sur votre espace de travail, ou dites-moi quoi faire et je m'en occupe.",
-      "support": "Et si quelque chose ne fonctionne pas, je peux ouvrir un ticket de support pour vous à tout moment. Notre équipe lit chaque ticket rapidement et vous répond par e-mail."
+      "headline": "Bonjour, je suis Mate",
+      "subtitle": "Posez-moi toutes vos questions sur votre espace de travail, ou dites-moi quoi faire et je m'en occupe.",
+      "support": "Si quelque chose ne fonctionne pas, je peux ouvrir un ticket de support et notre équipe vous répond par e-mail."
     },
     "placeholder": "Interrogez votre CRM…",
     "runner": {

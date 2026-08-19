@@ -223,8 +223,9 @@
       "turnFailed": "The assistant ran into an error."
     },
     "greeting": {
-      "intro": "Hey, I'm Mate, your Customermates assistant. Ask me anything about your workspace, or tell me what to do and I'll take care of it.",
-      "support": "And if something doesn't work out, I can open a support ticket for you any time. Our team reads every ticket promptly and replies to you by email."
+      "headline": "Hey, I'm Mate",
+      "subtitle": "Ask me anything about your workspace, or tell me what to do and I'll take care of it.",
+      "support": "If something doesn't work out, I can open a support ticket and our team replies by email."
     },
     "placeholder": "Ask your CRM…",
     "runner": {

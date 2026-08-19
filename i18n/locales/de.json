@@ -223,8 +223,9 @@
       "turnFailed": "Beim Assistenten ist ein Fehler aufgetreten."
     },
     "greeting": {
-      "intro": "Hey, ich bin Mate, dein Customermates-Assistent. Frag mich alles zu deinem Workspace, oder sag mir, was ich für dich erledigen soll.",
-      "support": "Und wenn etwas nicht klappt, eröffne ich jederzeit ein Support-Ticket für dich. Unser Team liest jedes Ticket zeitnah und antwortet dir per E-Mail."
+      "headline": "Hey, ich bin Mate",
+      "subtitle": "Frag mich alles zu deinem Workspace, oder sag mir, was ich für dich erledigen soll.",
+      "support": "Wenn etwas nicht klappt, eröffne ich ein Support-Ticket und unser Team antwortet dir per E-Mail."
     },
     "placeholder": "Frag dein CRM…",
     "runner": {

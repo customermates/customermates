@@ -9,15 +9,18 @@ import {
   Check,
   ChevronDown,
   ChevronLeft,
+  Compass,
   Copy,
   History,
+  Link2,
   Loader2,
   Maximize2,
-  MessageCircle,
   Minimize2,
   Pencil,
   Plus,
   RotateCcw,
+  Search,
+  Sparkles,
   Square,
   Trash2,
   X,
@@ -48,6 +51,7 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppModal } from "@/components/modal/app-modal";
+import { IconContainer } from "@/components/shared/icon-container";
 import { MessageResponse } from "@/components/ai-elements/message";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { OVERLAY_SCROLL_REGION } from "@/components/ui/overlay-contract";
@@ -156,7 +160,7 @@ export const AgentChat = observer(function AgentChat() {
       {!store.isOpen && (
         <Button
           aria-label={t("AgentChat.title")}
-          className="fixed z-40 size-12 rounded-full shadow-lg"
+          className="fixed z-40 size-12 rounded-full shadow-2xl shadow-black/25 dark:shadow-black/80 dark:ring-1 dark:ring-white/10"
           data-testid="agent-launcher"
           id="agent-launcher"
           size="icon"
@@ -166,7 +170,7 @@ export const AgentChat = observer(function AgentChat() {
           }}
           onClick={store.open}
         >
-          <MessageCircle className="size-5" />
+          <Sparkles className="size-5" />
         </Button>
       )}
 
@@ -314,14 +318,23 @@ const AgentChatPanel = observer(function AgentChatPanel() {
       {store.isHistoryOpen ? (
         <ConversationHistory />
       ) : store.items.length === 0 ? (
-        <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4">
-          <article aria-label={t("AgentChat.title")} className="flex flex-col gap-2 text-sm leading-relaxed">
-            <p>{t("AgentChat.greeting.intro")}</p>
+        <div className={cn(OVERLAY_SCROLL_REGION, "flex flex-col justify-end gap-3 p-4 text-center")}>
+          <article
+            aria-label={t("AgentChat.title")}
+            className="animate-page-empty-in flex flex-col items-center gap-3 motion-reduce:animate-none"
+          >
+            <IconContainer icon={Sparkles} size="md" />
 
-            <p>{t("AgentChat.greeting.support")}</p>
+            <div className="flex flex-col gap-1">
+              <p className="text-sm font-medium text-foreground">{t("AgentChat.greeting.headline")}</p>
+
+              <p className="text-sm text-muted-foreground">{t("AgentChat.greeting.subtitle")}</p>
+            </div>
           </article>
 
           {!blocked && <SuggestedQuestions />}
+
+          <p className="text-xs text-muted-foreground">{t("AgentChat.greeting.support")}</p>
         </div>
       ) : (
         <MessagesScrollContainer
@@ -437,6 +450,17 @@ const AgentChatPanel = observer(function AgentChatPanel() {
   );
 });
 
+const SUGGESTION_ICONS = [
+  { icon: Compass, match: /tour|explain|capabilities/ },
+  { icon: Link2, match: /connect/ },
+  { icon: Plus, match: /create|first|import|setup/ },
+  { icon: Search, match: /gaps|cleanup|relationships|needs-reply/ },
+] as const;
+
+function suggestionIcon(id: string) {
+  return SUGGESTION_ICONS.find((candidate) => candidate.match.test(id))?.icon ?? Sparkles;
+}
+
 const SuggestedQuestions = observer(function SuggestedQuestions() {
   const { agentChatStore: store, userStore } = useRootStore();
   const { map } = useEntityTerminology();
@@ -490,7 +514,7 @@ const SuggestedQuestions = observer(function SuggestedQuestions() {
 
   return (
     <div
-      className="mt-1 flex w-full max-w-[280px] flex-col items-stretch gap-2"
+      className="flex flex-wrap items-center justify-center gap-2"
       data-testid="agent-suggestions"
       id="agent-suggestions"
     >
@@ -499,15 +523,18 @@ const SuggestedQuestions = observer(function SuggestedQuestions() {
         if (!action) return null;
         const question = action.label;
         const prompt = action.prompt;
+        const Icon = suggestionIcon(action.id);
 
         return (
           <Button
             key={index}
-            className="h-auto justify-center rounded-full px-3 py-2 text-xs font-normal"
-            size="lg"
+            className="h-auto gap-1.5 rounded-full px-3 py-2 text-xs font-normal whitespace-normal"
+            size="sm"
             variant="outline"
             onClick={() => choose(prompt)}
           >
+            <Icon aria-hidden="true" className="size-3.5" />
+
             {question}
           </Button>
         );
