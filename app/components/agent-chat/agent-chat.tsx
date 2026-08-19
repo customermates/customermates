@@ -250,7 +250,7 @@ const AgentChatPanel = observer(function AgentChatPanel() {
         )}
 
         <span className="mr-auto truncate text-sm font-medium">
-          {store.isHistoryOpen ? copy.chats : (store.conversationTitle ?? t("AgentChat.title"))}
+          {store.isHistoryOpen ? copy.chats : (store.conversationTitle ?? copy.newChat)}
         </span>
 
         {!store.isHistoryOpen && (
