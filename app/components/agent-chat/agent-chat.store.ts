@@ -4,7 +4,7 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { AgentUsageSummary } from "@/features/agent-chat/agent-usage.service";
 import type { AgentConversationSummary, AgentDataCounts } from "@/features/agent-chat/agent-chat.schema";
 import { AgentTourSchema } from "@/features/agent-chat/agent-tours";
-import { ConfigureViewSchema, FillFormSchema, OpenRecordSchema } from "@/features/agent-chat/ui-operations";
+import { ConfigureViewSchema, OpenRecordSchema } from "@/features/agent-chat/ui-operations";
 import {
   AgentActivityDescriptorSchema,
   AGENT_ACTIVITY_RESOURCES,
@@ -68,14 +68,7 @@ export type AgentChatItem =
 
 let itemSeq = 0;
 const nextItemId = () => `item-${++itemSeq}`;
-const UI_COMMAND_NAMES = [
-  "navigate",
-  "highlight_element",
-  "start_tour",
-  "configure_view",
-  "open_record",
-  "fill_form",
-] as const;
+const UI_COMMAND_NAMES = ["navigate", "highlight_element", "start_tour", "configure_view", "open_record"] as const;
 const AGENT_TURN_POLL_MAX_ATTEMPTS = 100;
 const AGENT_TURN_POLL_DELAY_MS = 1500;
 const AGENT_CONFIG_LOAD_TIMEOUT_MS = 15000;
@@ -1267,12 +1260,6 @@ export class AgentChatStore extends BaseStore {
       const input = OpenRecordSchema.safeParse(command.input);
       if (!input.success) return { ok: false, result: "The record request was invalid." };
       return ui.openRecord(input.data);
-    }
-
-    if (command.name === "fill_form") {
-      const input = FillFormSchema.safeParse(command.input);
-      if (!input.success) return { ok: false, result: "The form request was invalid." };
-      return ui.fillForm(input.data);
     }
 
     if (command.name === "highlight_element" || command.name === "start_tour") {

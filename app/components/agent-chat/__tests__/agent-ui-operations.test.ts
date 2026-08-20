@@ -5,7 +5,6 @@ import type { RootStore } from "@/core/stores/root.store";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { AgentUiControlStore } from "../ui-control.store";
 import { resolveGroupByColumn, resolveSortColumn, toFilters, type AgentDataViewStore } from "../agent-view-ops";
-import { resolveFormField, type AgentFormStore } from "../agent-form-ops";
 
 function fakeDataViewStore(overrides: Partial<AgentDataViewStore> = {}) {
   return {
@@ -82,154 +81,12 @@ describe("agent view operations", () => {
   });
 });
 
-function fakeFormStore(form: Record<string, unknown>, overrides: Record<string, unknown> = {}) {
-  const store = {
-    form,
-    savedState: structuredClone(form),
-    hasUnsavedChanges: false,
-    getValue: (path: string) => {
-      const match = /^customFieldValues\[(\d+)\]\.value$/.exec(path);
-      if (match) return (form.customFieldValues as { value: unknown }[])[Number(match[1])]?.value;
-      return form[path];
-    },
-    onChange: vi.fn(),
-    customColumns: [],
-    ...overrides,
-  };
-  return store as unknown as AgentFormStore;
-}
-
-describe("agent form operations", () => {
-  it("resolves a field by path or label and coerces booleans and numbers", () => {
-    const store = fakeFormStore({ firstName: "", newsletter: false, seats: 3 });
-
-    expect(resolveFormField(store, "firstName", "Anna")).toEqual({ ok: true, path: "firstName", value: "Anna" });
-    expect(resolveFormField(store, "newsletter", "yes")).toEqual({ ok: true, path: "newsletter", value: true });
-    expect(resolveFormField(store, "seats", "12")).toEqual({ ok: true, path: "seats", value: 12 });
-  });
-
-  it("resolves a custom column by label and maps select option labels to stored values", () => {
-    const store = fakeFormStore(
-      { customFieldValues: [{ value: "" }] },
-      {
-        customColumns: [
-          {
-            id: "col-1",
-            label: "Status",
-            type: "singleSelect",
-            options: { options: [{ value: "opt-open", label: "Open" }] },
-          },
-        ],
-      },
-    );
-
-    expect(resolveFormField(store, "Status", "Open")).toEqual({
-      ok: true,
-      path: "customFieldValues[0].value",
-      value: "opt-open",
-    });
-    expect(resolveFormField(store, "Status", "Closed")).toMatchObject({
-      ok: false,
-      message: '"Closed" is not an option for "Status". Options: Open.',
-    });
-  });
-
-  it("names the available fields when asked for one that does not exist", () => {
-    const store = fakeFormStore({ firstName: "", lastName: "" });
-
-    expect(resolveFormField(store, "nickname", "x")).toMatchObject({
-      ok: false,
-      message: 'No field named "nickname" on this form. Fields: firstName, lastName.',
-    });
-  });
-});
-
 function controlStoreWith(rootOverrides: Record<string, unknown>) {
   const root = {
-    navigationGuard: { isRegistered: () => true },
     ...rootOverrides,
   } as unknown as RootStore;
   return { store: new AgentUiControlStore(root), root };
 }
-
-describe("AgentUiControlStore.fillForm", () => {
-  const baseForm = () => ({ firstName: "", lastName: "" });
-
-  function formStore(overrides: Record<string, unknown> = {}) {
-    const form = baseForm();
-    return {
-      form,
-      hasUnsavedChanges: false,
-      getValue: (path: string) => (form as Record<string, unknown>)[path],
-      onChange: vi.fn((path: string, value: unknown) => {
-        (form as Record<string, unknown>)[path] = value;
-      }),
-      customColumns: [],
-      ...overrides,
-    };
-  }
-
-  it("refuses when the form is not mounted", async () => {
-    const target = formStore();
-    const { store } = controlStoreWith({
-      contactDetailStore: target,
-      navigationGuard: { isRegistered: () => false },
-    });
-
-    const outcome = await store.fillForm({ form: "contact", fields: [{ field: "firstName", value: "Anna" }] });
-
-    expect(outcome.ok).toBe(false);
-    expect(target.onChange).not.toHaveBeenCalled();
-  });
-
-  it("refuses a form carrying the user's own unsaved edits without touching it", async () => {
-    const target = formStore({ hasUnsavedChanges: true });
-    const { store } = controlStoreWith({ contactDetailStore: target });
-
-    const outcome = await store.fillForm({ form: "contact", fields: [{ field: "firstName", value: "Anna" }] });
-
-    expect(outcome).toMatchObject({
-      ok: false,
-      result:
-        "This form has unsaved changes made by the user. Never overwrite them - ask the user to save or discard first.",
-    });
-    expect(target.onChange).not.toHaveBeenCalled();
-  });
-
-  it("fills a pristine form, allows its own second pass, and refuses after a user edit", async () => {
-    const target = formStore();
-    const { store } = controlStoreWith({ contactDetailStore: target });
-
-    const first = await store.fillForm({ form: "contact", fields: [{ field: "firstName", value: "Anna" }] });
-    expect(first.ok).toBe(true);
-    expect(target.onChange).toHaveBeenCalledWith("firstName", "Anna");
-
-    target.hasUnsavedChanges = true;
-    const second = await store.fillForm({ form: "contact", fields: [{ field: "lastName", value: "Schmidt" }] });
-    expect(second.ok).toBe(true);
-
-    (target.form as Record<string, unknown>).firstName = "USER EDIT";
-    const third = await store.fillForm({ form: "contact", fields: [{ field: "lastName", value: "Other" }] });
-    expect(third.ok).toBe(false);
-    expect(target.onChange).toHaveBeenCalledTimes(2);
-  });
-
-  it("submits only when asked and reports a validation failure", async () => {
-    const submit = vi.fn().mockResolvedValue(undefined);
-    const target = formStore({ onSubmit: submit, error: undefined });
-    const { store } = controlStoreWith({ contactDetailStore: target });
-
-    const outcome = await store.fillForm({
-      form: "contact",
-      fields: [{ field: "firstName", value: "Anna" }],
-      submit: true,
-    });
-
-    expect(submit).toHaveBeenCalledTimes(1);
-    expect(outcome.ok).toBe(true);
-    expect(outcome.result).toContain("saved the form");
-  });
-});
 
 describe("AgentUiControlStore.configureView", () => {
   it("keeps an explicit table layout even when the model also passes a grouping", async () => {

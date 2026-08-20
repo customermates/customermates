@@ -12,7 +12,7 @@ import { requiresApproval } from "./gated-tools";
 import { toolResultText } from "./agent-stream-utils";
 import { AGENT_NAV_TARGET_IDS, AGENT_UI_TARGETS, UiTargetIdSchema } from "./ui-targets";
 import { AgentTourSchema } from "./agent-tours";
-import { ConfigureViewSchema, FillFormSchema, OpenRecordSchema } from "./ui-operations";
+import { ConfigureViewSchema, OpenRecordSchema } from "./ui-operations";
 
 export type ApprovalDecision = "approve" | "reject" | "timeout";
 export type AgentUiCommandOutcome = { ok: boolean; result: string };
@@ -55,7 +55,6 @@ const UI_TOOL_NAMES = [
   "start_tour",
   "configure_view",
   "open_record",
-  "fill_form",
 ] as const;
 
 const CORE_UI_TOOL_NAMES = ["list_ui_targets", "navigate", "highlight_element", "start_tour"];
@@ -338,10 +337,9 @@ export function selectAgentToolNames(args: {
       "modulo",
       "compila",
     ])
-  ) {
+  )
     selected.add("open_record");
-    selected.add("fill_form");
-  }
+
   if (includesAny(request, ["webhook"])) selected.add("manage_webhooks");
   if (
     includesAny(request, [
@@ -505,15 +503,9 @@ function uiTools(deps: AgentToolDeps): ToolSet {
     }),
     open_record: tool({
       description:
-        "Open one record after finding its id with list_records or search_records. Use the drawer to keep context, the page for a full view, and recordId 'new' for a blank form to fill with fill_form.",
+        "Open one record after finding its id with list_records or search_records. Use the drawer to keep context, the page for a full view, and recordId 'new' for a blank form the user fills in.",
       inputSchema: OpenRecordSchema,
       execute: (input, { toolCallId }) => runSafely(() => deps.runUiCommand(toolCallId, "open_record", input)),
-    }),
-    fill_form: tool({
-      description:
-        "Visibly fill fields on the form that is open on screen; the user reviews and presses Save. Set submit true only when the user explicitly told you to complete or save it. Refuses a form that carries the user's own unsaved edits - never work around that refusal.",
-      inputSchema: FillFormSchema,
-      execute: (input, { toolCallId }) => runSafely(() => deps.runUiCommand(toolCallId, "fill_form", input)),
     }),
   };
 }

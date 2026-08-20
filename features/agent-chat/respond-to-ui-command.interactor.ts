@@ -12,7 +12,7 @@ import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 export const RespondToUiCommandSchema = z.object({
   conversationId: z.uuid(),
   commandId: z.string().min(1).max(200),
-  name: z.enum(["navigate", "highlight_element", "start_tour", "configure_view", "open_record", "fill_form"]),
+  name: z.enum(["navigate", "highlight_element", "start_tour", "configure_view", "open_record"]),
   ok: z.boolean(),
   result: z.string().min(1).max(1000),
 });

@@ -255,21 +255,10 @@ describe("agent tools", () => {
     });
   });
 
-  it("bounds fill_form to twenty named fields and configure_view to five filters", () => {
+  it("bounds configure_view to five filters and known views", () => {
     const tools = getAgentAiTools(deps());
-    const fillSchema = schemaOf(tools.fill_form);
     const viewSchema = schemaOf(tools.configure_view);
 
-    expect(fillSchema.safeParse?.({ form: "contact", fields: [{ field: "firstName", value: "Anna" }] })).toMatchObject({
-      success: true,
-    });
-    expect(fillSchema.safeParse?.({ form: "contact", fields: [] })).toMatchObject({ success: false });
-    expect(
-      fillSchema.safeParse?.({
-        form: "contact",
-        fields: Array.from({ length: 21 }, (_, index) => ({ field: `f${index}`, value: "x" })),
-      }),
-    ).toMatchObject({ success: false });
     expect(viewSchema.safeParse?.({ view: "deals", layout: "kanban", groupBy: "Status" })).toMatchObject({
       success: true,
     });

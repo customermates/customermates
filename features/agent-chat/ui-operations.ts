@@ -57,32 +57,3 @@ export const OpenRecordSchema = z.object({
 });
 
 export type OpenRecordData = Data<typeof OpenRecordSchema>;
-
-export const AGENT_FORM_IDS = [
-  "contact",
-  "organization",
-  "deal",
-  "service",
-  "task",
-  "member",
-  "webhook",
-  "widget",
-  "profile-settings",
-  "company-settings",
-] as const;
-
-export const FillFormSchema = z.object({
-  form: z.enum(AGENT_FORM_IDS),
-  fields: z
-    .array(
-      z.object({
-        field: z.string().trim().min(1).max(120),
-        value: z.string().max(2000),
-      }),
-    )
-    .min(1)
-    .max(20),
-  submit: z.boolean().optional(),
-});
-
-export type FillFormData = Data<typeof FillFormSchema>;

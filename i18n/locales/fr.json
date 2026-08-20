@@ -80,11 +80,6 @@
             "error": "Impossible d’ajuster la vue",
             "running": "Ajustement de la vue"
           },
-          "fill": {
-            "done": "Champs du formulaire remplis",
-            "error": "Impossible de remplir le formulaire",
-            "running": "Remplissage des champs du formulaire"
-          },
           "navigate": {
             "done": "Vue correspondante ouverte",
             "error": "Impossible d’ouvrir cette vue",

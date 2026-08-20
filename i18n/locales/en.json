@@ -80,11 +80,6 @@
             "error": "Couldn’t adjust the view",
             "running": "Adjusting the view"
           },
-          "fill": {
-            "done": "Filled the form fields",
-            "error": "Couldn’t fill the form",
-            "running": "Filling the form fields"
-          },
           "navigate": {
             "done": "Opened the right place",
             "error": "Couldn’t open that view",

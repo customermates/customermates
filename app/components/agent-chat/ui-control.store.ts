@@ -1,9 +1,7 @@
-import equal from "fast-deep-equal";
-import { makeObservable, observable, action, toJS } from "mobx";
+import { makeObservable, observable, action } from "mobx";
 
 import type { RootStore } from "@/core/stores/root.store";
-import type { BaseFormStore } from "@/core/base/base-form.store";
-import type { ConfigureViewData, FillFormData, OpenRecordData } from "@/features/agent-chat/ui-operations";
+import type { ConfigureViewData, OpenRecordData } from "@/features/agent-chat/ui-operations";
 
 import { BaseStore } from "@/core/base/base.store";
 import { ViewMode } from "@/core/base/base-query-builder";
@@ -18,7 +16,6 @@ import {
   toFilters,
   toSortDescriptor,
 } from "./agent-view-ops";
-import { resolveFormStore, resolveFormField } from "./agent-form-ops";
 import { agentGuidedTour, type AgentGuidedTourStep, type AgentTourStepData } from "@/features/agent-chat/agent-tours";
 import {
   captureOverlayFocusTarget,
@@ -218,8 +215,6 @@ export class AgentUiControlStore extends BaseStore {
     return true;
   }
 
-  private formFillSnapshots = new WeakMap<BaseFormStore<Record<string, unknown>>, unknown>();
-
   configureView = async (input: ConfigureViewData) => {
     const store = resolveDataViewStore(this.rootStore, input.view);
     if (!store) return { ok: false, result: `The view ${input.view} is not available.` };
@@ -304,52 +299,12 @@ export class AgentUiControlStore extends BaseStore {
         ok: true,
         result:
           input.recordId === "new"
-            ? `Opened a blank ${input.entity} form. Fill it with fill_form; the user presses Save.`
+            ? `Opened a blank ${input.entity} form for the user to fill in.`
             : `Opened the ${input.entity}.`,
       };
     }
     if (outcome === "blocked") return { ok: false, result: "Navigation requires the user to resolve unsaved changes." };
     return { ok: false, result: `Opening the ${input.entity} did not finish.` };
-  };
-
-  fillForm = async (input: FillFormData) => {
-    const store = resolveFormStore(this.rootStore, input.form);
-    if (!store) return { ok: false, result: `The form ${input.form} is not available.` };
-    if (!this.rootStore.navigationGuard.isRegistered(store)) {
-      return {
-        ok: false,
-        result: `The ${input.form} form is not open. Open it first (open_record with recordId "new" creates a blank one).`,
-      };
-    }
-    if (store.hasUnsavedChanges && !equal(toJS(store.form), this.formFillSnapshots.get(store))) {
-      return {
-        ok: false,
-        result:
-          "This form has unsaved changes made by the user. Never overwrite them - ask the user to save or discard first.",
-      };
-    }
-
-    const filled: string[] = [];
-    for (const entry of input.fields) {
-      const resolution = resolveFormField(store, entry.field, entry.value);
-      if (!resolution.ok) return { ok: false, result: resolution.message };
-      if (typeof document !== "undefined")
-        document.getElementById(resolution.path)?.scrollIntoView({ block: "center", behavior: "smooth" });
-      store.onChange(resolution.path, resolution.value);
-      filled.push(entry.field);
-      await new Promise<void>((resolve) => setTimeout(resolve, 150));
-    }
-    this.formFillSnapshots.set(store, structuredClone(toJS(store.form)));
-
-    if (input.submit) {
-      if (!store.onSubmit) return { ok: false, result: "This form cannot be submitted by the assistant." };
-      await store.onSubmit();
-      this.formFillSnapshots.delete(store);
-      if (store.error) return { ok: false, result: "Saving failed; the form shows what needs correcting." };
-      return { ok: true, result: `Filled ${filled.join(", ")} and saved the form.` };
-    }
-
-    return { ok: true, result: `Filled ${filled.join(", ")}. The user reviews and presses Save.` };
   };
 
   private awaitViewReady = async (store: { isReady: boolean }) => {

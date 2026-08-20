@@ -80,11 +80,6 @@
             "error": "Impossibile adattare la vista",
             "running": "Adattamento della vista"
           },
-          "fill": {
-            "done": "Campi del modulo compilati",
-            "error": "Impossibile compilare il modulo",
-            "running": "Compilazione dei campi del modulo"
-          },
           "navigate": {
             "done": "Aperta la vista corretta",
             "error": "Impossibile aprire la vista",
