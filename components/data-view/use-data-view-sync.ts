@@ -16,7 +16,7 @@ export function useDataViewSync<E extends HasId>(
 ): void {
   const appliedResult = useRef<GetResult<E> | null>(null);
 
-  if (appliedResult.current === null) {
+  if (appliedResult.current === null && !store.isReady) {
     appliedResult.current = initialResult;
     store.setItems(initialResult);
   }

@@ -112,11 +112,9 @@ export const ThreadRow = observer(({ thread, selected, onClick }: Props) => {
             )}
           </div>
 
-          {relativeTime && (
-            <time suppressHydrationWarning className="text-muted-foreground shrink-0 text-xs whitespace-nowrap">
-              {relativeTime}
-            </time>
-          )}
+          <time suppressHydrationWarning className="text-muted-foreground shrink-0 text-xs whitespace-nowrap">
+            {relativeTime}
+          </time>
         </div>
 
         <p
