@@ -62,6 +62,7 @@ import {
 const UNIPILE_BASE_URL = "https://api.unipile.com";
 const UNIPILE_REQUEST_TIMEOUT_MS = 30_000;
 const OUTBOUND_SEND_TIMEOUT_MS = 90_000;
+const UNIPILE_TIMEOUT_HEADER = "x-customermates-timeout-ms";
 
 type MessageFile = { filename: string; content_type: string; content: string };
 
@@ -190,8 +191,23 @@ export function getUnipileStatus(err: unknown): number | null {
   return err instanceof UnipileRequestError ? err.status : null;
 }
 
+export function requestedTimeoutMs(input: RequestInfo | URL): number {
+  if (!(input instanceof Request)) return UNIPILE_REQUEST_TIMEOUT_MS;
+
+  const header = Number(input.headers.get(UNIPILE_TIMEOUT_HEADER));
+  if (!Number.isFinite(header) || header <= 0) return UNIPILE_REQUEST_TIMEOUT_MS;
+
+  try {
+    input.headers.delete(UNIPILE_TIMEOUT_HEADER);
+  } catch {
+    return header;
+  }
+
+  return header;
+}
+
 const fetchWithTimeout: typeof fetch = (input, init) =>
-  fetch(input, { ...init, signal: init?.signal ?? AbortSignal.timeout(UNIPILE_REQUEST_TIMEOUT_MS) });
+  fetch(input, { ...init, signal: init?.signal ?? AbortSignal.timeout(requestedTimeoutMs(input)) });
 
 function isMessageFile(value: unknown): value is MessageFile {
   return (
@@ -375,7 +391,7 @@ export class MessagingService {
           input.cursor != null
             ? { cursor: input.cursor, limit: input.limit }
             : { offset: input.offset, limit: input.limit },
-        ...(input.timeoutMs != null ? { signal: AbortSignal.timeout(input.timeoutMs) } : {}),
+        ...(input.timeoutMs != null ? { headers: { [UNIPILE_TIMEOUT_HEADER]: String(input.timeoutMs) } } : {}),
       }),
     );
   }
@@ -421,7 +437,7 @@ export class MessagingService {
                 before: input.before,
                 meta_only: input.metaOnly,
               },
-        ...(input.timeoutMs != null ? { signal: AbortSignal.timeout(input.timeoutMs) } : {}),
+        ...(input.timeoutMs != null ? { headers: { [UNIPILE_TIMEOUT_HEADER]: String(input.timeoutMs) } } : {}),
       }),
     );
   }
@@ -430,7 +446,7 @@ export class MessagingService {
     return requestData(
       this.sdk.emails.getFoldersList({
         path: { account_id: input.accountId },
-        ...(input.timeoutMs != null ? { signal: AbortSignal.timeout(input.timeoutMs) } : {}),
+        ...(input.timeoutMs != null ? { headers: { [UNIPILE_TIMEOUT_HEADER]: String(input.timeoutMs) } } : {}),
       }),
     );
   }
@@ -459,7 +475,7 @@ export class MessagingService {
                 before: input.before,
                 meta_only: input.metaOnly,
               },
-        ...(input.timeoutMs != null ? { signal: AbortSignal.timeout(input.timeoutMs) } : {}),
+        ...(input.timeoutMs != null ? { headers: { [UNIPILE_TIMEOUT_HEADER]: String(input.timeoutMs) } } : {}),
       }),
     );
   }
@@ -477,7 +493,7 @@ export class MessagingService {
     return requestData(
       this.sdk.emails.getEmail({
         path: { account_id: input.accountId, email_id: input.emailId },
-        ...(input.timeoutMs != null ? { signal: AbortSignal.timeout(input.timeoutMs) } : {}),
+        ...(input.timeoutMs != null ? { headers: { [UNIPILE_TIMEOUT_HEADER]: String(input.timeoutMs) } } : {}),
       }),
     );
   }
@@ -729,7 +745,7 @@ export class MessagingService {
         this.sdk.messaging.sendMessage({
           path: { account_id: input.accountId, chat_id: input.chatId },
           body: { text: input.text, ...(input.attachments ? { attachments: input.attachments } : {}) },
-          signal: AbortSignal.timeout(OUTBOUND_SEND_TIMEOUT_MS),
+          headers: { [UNIPILE_TIMEOUT_HEADER]: String(OUTBOUND_SEND_TIMEOUT_MS) },
           ...multipartOptions(input.attachments),
         }),
       );
@@ -765,13 +781,13 @@ export class MessagingService {
           ? this.sdk.messaging.startChatFromInbox({
               path: { account_id: input.accountId, inbox_id: input.inboxId },
               body,
-              signal: AbortSignal.timeout(OUTBOUND_SEND_TIMEOUT_MS),
+              headers: { [UNIPILE_TIMEOUT_HEADER]: String(OUTBOUND_SEND_TIMEOUT_MS) },
               ...multipartOptions(input.attachments),
             })
           : this.sdk.messaging.startChat({
               path: { account_id: input.accountId },
               body,
-              signal: AbortSignal.timeout(OUTBOUND_SEND_TIMEOUT_MS),
+              headers: { [UNIPILE_TIMEOUT_HEADER]: String(OUTBOUND_SEND_TIMEOUT_MS) },
               ...multipartOptions(input.attachments),
             }),
       );
@@ -822,7 +838,7 @@ export class MessagingService {
               : {}),
             ...(input.attachments ? { attachments: input.attachments } : {}),
           },
-          signal: AbortSignal.timeout(OUTBOUND_SEND_TIMEOUT_MS),
+          headers: { [UNIPILE_TIMEOUT_HEADER]: String(OUTBOUND_SEND_TIMEOUT_MS) },
           ...multipartOptions(input.attachments),
         }),
       );

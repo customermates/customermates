@@ -1337,7 +1337,7 @@ export class PrismaMessagingRepo
     if (
       !existing &&
       !isInbound &&
-      message.origin === MessagingMessageOrigin.unipile &&
+      message.origin === MessagingMessageOrigin.external &&
       !isEmailProvider(message.provider)
     ) {
       const reconciled = await this.reconcileOutboundChatEcho({

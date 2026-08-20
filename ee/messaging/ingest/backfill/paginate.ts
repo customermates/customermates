@@ -1,6 +1,7 @@
 import { isUnipileCursorPaginationRequired } from "../../messaging.service";
 
 export const UNIPILE_MAX_LIMIT = 25;
+export const BACKFILL_MESSAGE_PAGE_BUDGET = 4;
 export const UNIPILE_CALENDAR_EVENT_MAX_LIMIT = 100;
 export const UNIPILE_EMAIL_MAX_LIMIT = 100;
 export const BACKFILL_EMAIL_TIMEOUT_MS = 90_000;
@@ -37,15 +38,17 @@ function decodePosition(token: string | null): Position {
 export async function paginateStep(opts: {
   startCursor: string | null;
   limit: number;
+  maxPages?: number;
   fetchPage: FetchPage;
   handleItem: (item: unknown) => Promise<void>;
 }): Promise<PageResult> {
+  const pageBudget = Math.min(opts.maxPages ?? PAGE_SAFETY, PAGE_SAFETY);
   const position = decodePosition(opts.startCursor);
   let cursor = position.cursor;
   let offset = position.offset;
   let mode = position.mode;
 
-  for (let page = 0; page < PAGE_SAFETY; page++) {
+  for (let page = 0; page < pageBudget; page++) {
     await paceUnipileRequest();
 
     let result;

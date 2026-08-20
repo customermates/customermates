@@ -19,7 +19,7 @@ import { isExcludedChatId, mapParticipantRecord, mapUnipileUser, normalizeChatMe
 import { UnipileChatSchema, UnipileMessageSchema } from "../../unipile.schema";
 import { ACCOUNT_WIDE_SOURCE } from "./prepare-backfill.interactor";
 
-import { UNIPILE_MAX_LIMIT, paginateStep } from "./paginate";
+import { BACKFILL_MESSAGE_PAGE_BUDGET, UNIPILE_MAX_LIMIT, paginateStep } from "./paginate";
 import { isUnipileRateLimit } from "../../messaging.service";
 
 const BACKFILL_MESSAGE_TIMEOUT_MS = 10_000;
@@ -184,15 +184,30 @@ export class BackfillChatsInteractor {
     account: ConnectedAccount,
     chatId: string,
   ): Promise<{ message: IngestMessage; raw: UnipileMessage }[]> {
-    const page = await this.messagingService.listChatMessages({
-      accountId: account.unipileAccountId,
-      chatId,
+    const raws: unknown[] = [];
+
+    await paginateStep({
+      startCursor: null,
       limit: UNIPILE_MAX_LIMIT,
-      timeoutMs: BACKFILL_MESSAGE_TIMEOUT_MS,
+      maxPages: BACKFILL_MESSAGE_PAGE_BUDGET,
+      fetchPage: (query) =>
+        this.messagingService.listChatMessages({
+          accountId: account.unipileAccountId,
+          chatId,
+          limit: UNIPILE_MAX_LIMIT,
+          cursor: query.cursor,
+          offset: query.offset,
+          timeoutMs: BACKFILL_MESSAGE_TIMEOUT_MS,
+        }),
+      handleItem: (raw) => {
+        raws.push(raw);
+
+        return Promise.resolve();
+      },
     });
 
     const messages: { message: IngestMessage; raw: UnipileMessage }[] = [];
-    for (const raw of page.data ?? []) {
+    for (const raw of raws) {
       const parsed = UnipileMessageSchema.safeParse(raw);
 
       if (!parsed.success) {
