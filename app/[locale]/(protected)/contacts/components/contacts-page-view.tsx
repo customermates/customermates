@@ -31,13 +31,13 @@ type Props = {
 
 export const ContactsPageView = observer(function ContactsPageView({ contacts }: Props) {
   const { contactsStore, dealsStore, organizationsStore } = useRootStore();
+
+  useDataViewSync(contactsStore, contacts, [dealsStore, organizationsStore]);
   const openEntity = useOpenEntity();
   const entityHref = useEntityHref();
   const columns = useContactColumns();
   const { singular } = useEntityTerminology();
   const t = useTranslations();
-
-  useDataViewSync(contactsStore, contacts, [dealsStore, organizationsStore]);
 
   const view = resolveDataViewView(contactsStore.viewMode, contactsStore.groupingColumnId);
   const hasActiveQuery = Boolean(contactsStore.searchTerm?.trim()) || (contactsStore.filters?.length ?? 0) > 0;

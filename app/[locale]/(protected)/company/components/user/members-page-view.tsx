@@ -27,10 +27,11 @@ type Props = { initialRoles: GetResult<RoleDto>; initialUsers: GetResult<UserDto
 
 export const MembersPageView = observer(function MembersPageView({ initialRoles, initialUsers }: Props) {
   const { companyInviteModalStore, rolesStore, userModalStore, usersStore } = useRootStore();
+
+  useDataViewSync(usersStore, initialUsers);
   const columns = useMemberColumns();
   const t = useTranslations();
 
-  useDataViewSync(usersStore, initialUsers);
   useLayoutEffect(() => rolesStore.setItems(initialRoles), [initialRoles, rolesStore]);
 
   const view = resolveDataViewView(usersStore.viewMode, usersStore.groupingColumnId);

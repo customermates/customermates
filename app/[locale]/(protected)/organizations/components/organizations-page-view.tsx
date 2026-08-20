@@ -31,13 +31,13 @@ type Props = {
 
 export const OrganizationsPageView = observer(function OrganizationsPageView({ organizations }: Props) {
   const { contactsStore, dealsStore, organizationsStore } = useRootStore();
+
+  useDataViewSync(organizationsStore, organizations, [contactsStore, dealsStore]);
   const openEntity = useOpenEntity();
   const entityHref = useEntityHref();
   const columns = useOrganizationColumns();
   const { singular } = useEntityTerminology();
   const t = useTranslations();
-
-  useDataViewSync(organizationsStore, organizations, [contactsStore, dealsStore]);
 
   const view = resolveDataViewView(organizationsStore.viewMode, organizationsStore.groupingColumnId);
   const hasActiveQuery =

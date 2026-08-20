@@ -26,9 +26,10 @@ type Props = { initialWebhooks: GetResult<WebhookDto> };
 
 export const WebhooksPageView = observer(function WebhooksPageView({ initialWebhooks }: Props) {
   const { webhookModalStore, webhooksStore } = useRootStore();
+
+  useDataViewSync(webhooksStore, initialWebhooks);
   const columns = useWebhookColumns();
   const t = useTranslations();
-  useDataViewSync(webhooksStore, initialWebhooks);
   const view = resolveDataViewView(webhooksStore.viewMode, webhooksStore.groupingColumnId);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
