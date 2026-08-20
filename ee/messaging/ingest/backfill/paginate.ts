@@ -1,6 +1,7 @@
 import { isUnipileCursorPaginationRequired } from "../../messaging.service";
 
 export const UNIPILE_MAX_LIMIT = 25;
+export const UNIPILE_CALENDAR_EVENT_MAX_LIMIT = 100;
 export const UNIPILE_EMAIL_MAX_LIMIT = 100;
 export const BACKFILL_EMAIL_TIMEOUT_MS = 90_000;
 export const PAGE_SAFETY = 200;
