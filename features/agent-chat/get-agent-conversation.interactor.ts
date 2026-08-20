@@ -5,7 +5,7 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { type Validated } from "@/core/validation/validation.utils";
+import { type Data, type Validated } from "@/core/validation/validation.utils";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
@@ -16,13 +16,6 @@ import { AgentMessagePageSchema, type AgentMessagePageData } from "./agent-histo
 export const GetAgentConversationSchema = AgentMessagePageSchema;
 
 export type GetAgentConversationData = AgentMessagePageData;
-
-type AgentConversationDetail = {
-  id: string;
-  title: string | null;
-  messages: { id: string; role: string; parts: unknown; createdAt: Date }[];
-  nextCursor: string | null;
-};
 
 const OutputSchema = z.object({
   id: z.string(),
@@ -37,6 +30,8 @@ const OutputSchema = z.object({
   ),
   nextCursor: z.string().nullable(),
 });
+
+type AgentConversationDetail = Data<typeof OutputSchema>;
 
 @AllowInDemoMode
 @TenantInteractor()

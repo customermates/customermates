@@ -4,7 +4,6 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { getTenantUser } from "@/core/decorators/tenant-context";
 import { type Data } from "@/core/validation/validation.utils";
 import type { EntitlementDenialCode, EntitlementService } from "@/ee/subscription/entitlement.service";
 
@@ -46,11 +45,10 @@ export class GetAgentConfigInteractor extends AuthenticatedInteractor<void, Agen
     const denied = await this.entitlements.require("agentChat");
     if (denied) return denied;
 
-    const user = getTenantUser();
     await this.repo.normalizeExpiredAgentRunLease(new Date(), laneModelId("agent"));
 
     const [usage, counts, conversation, conversationPage, archivedConversationPage] = await Promise.all([
-      this.usageService.getUsageSummary(user.id),
+      this.usageService.getUsageSummary(this.userId),
       this.repo.getSuggestionSignals(),
       this.repo.findMyConversation(),
       this.repo.listConversationPage({ archived: false }),

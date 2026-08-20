@@ -5,7 +5,6 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { getTenantUser } from "@/core/decorators/tenant-context";
 import { type Validated } from "@/core/validation/validation.utils";
 import { env } from "@/env";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
@@ -73,7 +72,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
 
   @Write({ input: SendAgentMessageSchema, precheck: (self, _data, ctx) => self.precheckEntitlement(ctx) })
   async invoke(data: SendAgentMessageData): Validated<SendAgentMessageResult> {
-    const user = getTenantUser();
+    const user = this.user;
     const now = new Date();
     const model = laneModelId("agent");
     await this.repo.normalizeExpiredAgentRunLease(now, model);

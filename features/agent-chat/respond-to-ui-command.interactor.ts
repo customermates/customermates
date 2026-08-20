@@ -40,6 +40,6 @@ export class RespondToUiCommandInteractor extends AuthenticatedInteractor<Respon
     if (!conversation) throw new Error("Conversation not found.");
 
     await this.repo.recordUiCommandResult(data);
-    return { ok: true, data: { resolved: true } };
+    return { ok: true as const, data: { resolved: true } };
   }
 }
