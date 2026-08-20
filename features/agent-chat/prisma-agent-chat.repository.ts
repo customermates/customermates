@@ -68,6 +68,29 @@ export type FinalizedAgentTurn = {
   chargedCredits: number;
 };
 
+type AgentTurnAdmissionArgs = {
+  conversationId: string | null;
+  title: string | null;
+  runId: string;
+  recentMessageLimit: number;
+  turn:
+    | {
+        kind: "create";
+        turnRequestId: string;
+        clientRequestId: string;
+        text: string;
+        pageRoute: string | null;
+        userMessageId: string;
+      }
+    | {
+        kind: "retry";
+        turnRequestId: string;
+        priorRunId: string;
+        priorAttemptCount: number;
+        userMessageId: string;
+      };
+};
+
 const TURN_STATUSES = new Set<AgentTurnRequestStatus>(["running", "completed", "failed", "uncertain"]);
 
 function encodeConversationCursor(updatedAt: Date, id: string) {
@@ -209,15 +232,128 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     };
   }
 
-  async createConversation(args: { title: string | null }) {
-    const now = new Date();
-    return this.prisma.agentConversation.create({
-      data: {
-        companyId: this.companyId,
-        userId: this.userId,
-        title: sanitizeAgentConversationTitle(args.title),
-        selectedAt: now,
-      },
+  async admitAgentTurnOrThrow(args: AgentTurnAdmissionArgs) {
+    const companyId = this.companyId;
+    const userId = this.userId;
+    return this.withCompanyTransaction(companyId, async () => {
+      const admittedAt = new Date();
+      const renewedLease = await this.prisma.agentRunLease.updateMany({
+        where: {
+          companyId,
+          userId,
+          runId: args.runId,
+          expiresAt: { gt: admittedAt },
+        },
+        data: { expiresAt: new Date(admittedAt.getTime() + AGENT_RUN_LEASE_MS) },
+      });
+      if (renewedLease.count !== 1) throw new Error("Agent run lease expired before admission.");
+
+      const reservation = await this.prisma.agentUsageEvent.findFirst({
+        where: {
+          id: args.runId,
+          companyId,
+          userId,
+          state: "reserved",
+          providerStartedAt: null,
+        },
+        select: { id: true },
+      });
+      if (!reservation) throw new Error("Agent usage reservation is missing before admission.");
+
+      let conversationId = args.conversationId;
+      if (conversationId) {
+        const conversation = await this.prisma.agentConversation.findFirst({
+          where: { id: conversationId, companyId, userId, archivedAt: null },
+          select: { id: true },
+        });
+        if (!conversation) throw new Error("Conversation not found.");
+      } else {
+        if (args.turn.kind === "retry") throw new Error("Conversation not found.");
+        const conversation = await this.prisma.agentConversation.create({
+          data: {
+            companyId,
+            userId,
+            title: sanitizeAgentConversationTitle(args.title),
+            selectedAt: admittedAt,
+          },
+          select: { id: true },
+        });
+        conversationId = conversation.id;
+      }
+
+      if (args.turn.kind === "retry") {
+        const retried = await this.prisma.agentTurnRequest.updateMany({
+          where: {
+            id: args.turn.turnRequestId,
+            companyId,
+            userId,
+            conversationId,
+            runId: args.turn.priorRunId,
+            attemptCount: args.turn.priorAttemptCount,
+            status: "failed",
+            providerStartedAt: null,
+            assistantMessageId: null,
+          },
+          data: {
+            status: "running",
+            runId: args.runId,
+            attemptCount: { increment: 1 },
+            terminalAt: null,
+            terminalCode: null,
+            affectedResources: [],
+          },
+        });
+        if (retried.count !== 1) throw new Error("The assistant retry could not be started.");
+      } else {
+        await this.prisma.agentTurnRequest.create({
+          data: {
+            id: args.turn.turnRequestId,
+            companyId,
+            userId,
+            conversationId,
+            clientRequestId: args.turn.clientRequestId,
+            text: args.turn.text,
+            pageRoute: args.turn.pageRoute,
+            status: "running",
+            runId: args.runId,
+            attemptCount: 1,
+            userMessageId: args.turn.userMessageId,
+            affectedResources: [],
+          },
+        });
+        await this.prisma.agentMessage.create({
+          data: {
+            id: args.turn.userMessageId,
+            conversationId,
+            companyId,
+            turnRequestId: args.turn.turnRequestId,
+            role: AgentMessageRole.user,
+            parts: [{ type: "text", text: args.turn.text }],
+          },
+        });
+      }
+
+      const touched = await this.prisma.agentConversation.updateMany({
+        where: { id: conversationId, companyId, userId, archivedAt: null },
+        data: { updatedAt: admittedAt, selectedAt: admittedAt },
+      });
+      if (touched.count !== 1) throw new Error("Conversation not found.");
+
+      const recentMessages = await this.prisma.agentMessage.findMany({
+        where: {
+          conversationId,
+          companyId,
+          conversation: { userId, companyId, archivedAt: null },
+        },
+        orderBy: { sequence: "desc" },
+        take: args.recentMessageLimit,
+      });
+
+      return {
+        conversationId,
+        userMessageId: args.turn.userMessageId,
+        recentMessages: recentMessages.reverse(),
+      };
     });
   }
 
@@ -288,19 +424,6 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     });
   }
 
-  async touchConversation(id: string) {
-    const now = new Date();
-    await this.prisma.agentConversation.updateMany({
-      where: {
-        id,
-        companyId: this.companyId,
-        userId: this.userId,
-        archivedAt: null,
-      },
-      data: { updatedAt: now, selectedAt: now },
-    });
-  }
-
   async getSuggestionSignals() {
     const select = { id: true };
     const [contact, organization, deal, service, task, connectedAccount] = await Promise.all([
@@ -358,18 +481,6 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         },
       },
       select: { id: true, conversationId: true, parts: true },
-    });
-  }
-
-  async createUserMessage(args: { id?: string; conversationId: string; parts: Prisma.InputJsonValue }) {
-    return this.prisma.agentMessage.create({
-      data: {
-        id: args.id,
-        conversationId: args.conversationId,
-        companyId: this.companyId,
-        role: AgentMessageRole.user,
-        parts: args.parts,
-      },
     });
   }
 
@@ -860,72 +971,6 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     };
   }
 
-  async createAgentTurnRequest(args: {
-    turnRequestId: string;
-    clientRequestId: string;
-    conversationId: string;
-    text: string;
-    pageRoute: string | null;
-    runId: string;
-    userMessageId: string;
-  }) {
-    await this.prisma.agentTurnRequest.create({
-      data: {
-        id: args.turnRequestId,
-        companyId: this.companyId,
-        userId: this.userId,
-        conversationId: args.conversationId,
-        clientRequestId: args.clientRequestId,
-        text: args.text,
-        pageRoute: args.pageRoute,
-        status: "running",
-        runId: args.runId,
-        attemptCount: 1,
-        userMessageId: args.userMessageId,
-        affectedResources: [],
-      },
-    });
-    return this.prisma.agentMessage.create({
-      data: {
-        id: args.userMessageId,
-        conversationId: args.conversationId,
-        companyId: this.companyId,
-        turnRequestId: args.turnRequestId,
-        role: AgentMessageRole.user,
-        parts: [{ type: "text", text: args.text }],
-      },
-    });
-  }
-
-  async retryAgentTurnRequest(args: {
-    turnRequestId: string;
-    priorRunId: string;
-    priorAttemptCount: number;
-    runId: string;
-  }) {
-    const retried = await this.prisma.agentTurnRequest.updateMany({
-      where: {
-        id: args.turnRequestId,
-        companyId: this.companyId,
-        userId: this.userId,
-        runId: args.priorRunId,
-        attemptCount: args.priorAttemptCount,
-        status: "failed",
-        providerStartedAt: null,
-        assistantMessageId: null,
-      },
-      data: {
-        status: "running",
-        runId: args.runId,
-        attemptCount: { increment: 1 },
-        terminalAt: null,
-        terminalCode: null,
-        affectedResources: [],
-      },
-    });
-    return retried.count === 1;
-  }
-
   async claimAgentRunLease(runId: string, expiresAt: Date) {
     const claimed = await this.prisma.agentRunLease.createMany({
       data: [{ userId: this.userId, companyId: this.companyId, runId, expiresAt }],
@@ -1204,8 +1249,44 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
   }
 
   @BypassTenantGuard
-  async releaseAgentRunLeaseUnscoped(args: { userId: string; companyId: string; runId: string }) {
-    await this.prisma.agentRunLease.deleteMany({ where: args });
+  async releasePreProviderAdmissionOrThrowUnscoped(args: { userId: string; companyId: string; runId: string }) {
+    return this.withCompanyTransaction(args.companyId, async () => {
+      const turn = await this.prisma.agentTurnRequest.findFirst({
+        where: {
+          companyId: args.companyId,
+          userId: args.userId,
+          runId: args.runId,
+        },
+        select: { id: true },
+      });
+      if (turn) return { disposition: "turn_exists" as const };
+
+      const usage = await this.prisma.agentUsageEvent.findFirst({
+        where: { id: args.runId, companyId: args.companyId, userId: args.userId },
+        select: { state: true, providerStartedAt: true },
+      });
+      if (usage && (usage.state === "settled" || usage.state === "retained" || usage.providerStartedAt !== null))
+        throw new Error("Agent usage has provider-start evidence and cannot be released.");
+
+      if (usage?.state === "reserved") {
+        const released = await this.prisma.agentUsageEvent.updateMany({
+          where: {
+            id: args.runId,
+            companyId: args.companyId,
+            userId: args.userId,
+            state: "reserved",
+            providerStartedAt: null,
+          },
+          data: { state: "released", chargedCredits: 0, settledAt: new Date() },
+        });
+        if (released.count !== 1) throw new Error("Agent usage reservation could not be released.");
+      }
+
+      await this.prisma.agentRunLease.deleteMany({
+        where: { companyId: args.companyId, userId: args.userId, runId: args.runId },
+      });
+      return { disposition: "released" as const };
+    });
   }
 
   @BypassTenantGuard

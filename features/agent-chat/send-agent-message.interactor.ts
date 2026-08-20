@@ -1,11 +1,13 @@
 import { randomUUID } from "node:crypto";
 import type { z } from "zod";
+import * as Sentry from "@sentry/nextjs";
 
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { type Validated } from "@/core/validation/validation.utils";
+import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { env } from "@/env";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
@@ -31,7 +33,6 @@ import {
   AGENT_REPLAY_MAX_CHARS,
   conservativeAgentInitialContextBytes,
 } from "./agent-provider-context";
-import { sanitizeAgentConversationTitle } from "./agent-output-safety";
 import { createAgentLimitExceededError } from "./agent-errors";
 
 type AdmittedAgentRun = { disposition: "run" } & Omit<AgentRunContext, "appBaseUrl">;
@@ -70,7 +71,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     super();
   }
 
-  @Write({ input: SendAgentMessageSchema, precheck: (self, _data, ctx) => self.precheckEntitlement(ctx) })
+  @Write({ input: SendAgentMessageSchema, precheck: (self, _data, ctx) => self.precheckEntitlement(ctx), tx: false })
   async invoke(data: SendAgentMessageData): Validated<SendAgentMessageResult> {
     const user = this.user;
     const now = new Date();
@@ -154,7 +155,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       };
     }
 
-    let conversation =
+    const conversation =
       decision.disposition === "retry"
         ? await this.repo.findConversation(decision.turn.conversationId)
         : data.conversationId
@@ -185,50 +186,56 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     if (requiredContextBytes === null) throw new Error("The Assistant request context could not be measured safely.");
 
     const creditAdmission = await this.usageService.prepareTurn(user.id, now, requiredContextBytes);
-    if (!creditAdmission.reservation) throw createAgentLimitExceededError();
+    const reservation = creditAdmission.reservation;
+    if (!reservation) throw createAgentLimitExceededError();
 
     const runId = randomUUID();
-    const claimed = await this.repo.claimAgentRunLease(runId, new Date(now.getTime() + AGENT_RUN_LEASE_MS));
-    if (!claimed) throw new Error("Another assistant turn is already running.");
-    let reservationCreated = false;
     try {
-      await this.usageService.reserveUsage({
-        reservationId: runId,
-        companyId: user.companyId,
-        userId: user.id,
-        reservation: creditAdmission.reservation,
+      const claimed = await runInTransaction(async () => {
+        const phaseOneAt = new Date();
+        const leaseClaimed = await this.repo.claimAgentRunLease(
+          runId,
+          new Date(phaseOneAt.getTime() + AGENT_RUN_LEASE_MS),
+        );
+        if (!leaseClaimed) return false;
+        await this.usageService.reserveUsage({
+          reservationId: runId,
+          companyId: user.companyId,
+          userId: user.id,
+          reservation,
+        });
+        return true;
       });
-      reservationCreated = true;
+      if (!claimed) throw new Error("Another assistant turn is already running.");
 
-      conversation ??= await this.repo.createConversation({
-        title: sanitizeAgentConversationTitle(data.text),
-      });
       const turnRequestId = decision.disposition === "retry" ? decision.turn.id : randomUUID();
       const userMessageId = decision.disposition === "retry" ? decision.turn.userMessageId : randomUUID();
-      if (decision.disposition === "retry") {
-        const retried = await this.repo.retryAgentTurnRequest({
-          turnRequestId,
-          priorRunId: decision.turn.runId,
-          priorAttemptCount: decision.turn.attemptCount,
-          runId,
-        });
-        if (!retried) throw new Error("The assistant retry could not be started.");
-      } else {
-        await this.repo.createAgentTurnRequest({
-          turnRequestId,
-          clientRequestId: data.clientRequestId,
-          conversationId: conversation.id,
-          text: data.text,
-          pageRoute,
-          runId,
-          userMessageId,
-        });
-      }
-      await this.repo.touchConversation(conversation.id);
+      const admission = await this.repo.admitAgentTurnOrThrow({
+        conversationId: conversation?.id ?? null,
+        title: data.text,
+        runId,
+        recentMessageLimit: AGENT_REPLAY_COUNT,
+        turn:
+          decision.disposition === "retry"
+            ? {
+                kind: "retry",
+                turnRequestId,
+                priorRunId: decision.turn.runId,
+                priorAttemptCount: decision.turn.attemptCount,
+                userMessageId,
+              }
+            : {
+                kind: "create",
+                turnRequestId,
+                clientRequestId: data.clientRequestId,
+                text: data.text,
+                pageRoute,
+                userMessageId,
+              },
+      });
 
-      const recent = await this.repo.listRecentMessages(conversation.id, AGENT_REPLAY_COUNT);
       const pageContext = data.pageContext ? `<page_context route="${data.pageContext.route}"/>\n` : "";
-      const messages = recent
+      const messages = admission.recentMessages
         .map((message) => {
           const text = partsToText(message.parts);
           return {
@@ -246,33 +253,26 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           userId: user.id,
           runId,
           turnRequestId,
-          userMessageId,
+          userMessageId: admission.userMessageId,
           clientRequestId: data.clientRequestId,
           userName,
-          conversationId: conversation.id,
+          conversationId: admission.conversationId,
           locale,
           toolNames,
           messages,
-          turnBudget: creditAdmission.reservation.budget,
+          turnBudget: reservation.budget,
         },
       };
     } catch (error) {
-      await Promise.allSettled([
-        ...(reservationCreated
-          ? [
-              this.usageService.releaseReservation({
-                reservationId: runId,
-                companyId: user.companyId,
-                userId: user.id,
-              }),
-            ]
-          : []),
-        this.repo.releaseAgentRunLeaseUnscoped({
+      try {
+        await this.repo.releasePreProviderAdmissionOrThrowUnscoped({
           companyId: user.companyId,
           userId: user.id,
           runId,
-        }),
-      ]);
+        });
+      } catch (cleanupError) {
+        Sentry.captureException(cleanupError, { tags: { kind: "agent-admission-cleanup-failure" } });
+      }
       throw error;
     }
   }

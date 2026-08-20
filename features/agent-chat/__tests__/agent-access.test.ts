@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import * as Sentry from "@sentry/nextjs";
 
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import { mockEntitlementService } from "@/tests/helpers/mock-entitlement-service";
@@ -74,59 +75,64 @@ describe("agent access", () => {
   it("admits a new turn, keeps page context private, and preserves the complete current message", async () => {
     const currentText = "x".repeat(2000);
     let persistedUserMessageId = "";
+    const usage = usageService();
     const repo = {
       normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
       findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
       claimAgentRunLease: vi.fn().mockResolvedValue(true),
-      createConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),
-      createAgentTurnRequest: vi.fn().mockImplementation((args) => {
-        persistedUserMessageId = args.userMessageId;
-        return Promise.resolve();
+      admitAgentTurnOrThrow: vi.fn().mockImplementation((args) => {
+        persistedUserMessageId = args.turn.userMessageId;
+        return Promise.resolve({
+          conversationId: CONVERSATION_ID,
+          userMessageId: persistedUserMessageId,
+          recentMessages: [
+            {
+              id: "old",
+              role: "assistant",
+              parts: [{ type: "text", text: "y".repeat(2000) }],
+            },
+            {
+              id: persistedUserMessageId,
+              role: "user",
+              parts: [{ type: "text", text: currentText }],
+            },
+          ],
+        });
       }),
-      touchConversation: vi.fn().mockResolvedValue(undefined),
-      listRecentMessages: vi.fn().mockImplementation(() =>
-        Promise.resolve([
-          {
-            id: "old",
-            role: "assistant",
-            parts: [{ type: "text", text: "y".repeat(2000) }],
-          },
-          {
-            id: persistedUserMessageId,
-            role: "user",
-            parts: [{ type: "text", text: currentText }],
-          },
-        ]),
-      ),
     };
 
-    const result = await new SendAgentMessageInteractor(
-      repo as never,
-      usageService() as never,
-      mockEntitlementService(),
-    ).invoke({
-      clientRequestId: CLIENT_REQUEST_ID,
-      text: currentText,
-      pageContext: { route: "/en/contacts" },
-      locale: "de",
-      retry: false,
-    });
+    const result = await new SendAgentMessageInteractor(repo as never, usage as never, mockEntitlementService()).invoke(
+      {
+        clientRequestId: CLIENT_REQUEST_ID,
+        text: currentText,
+        pageContext: { route: "/en/contacts" },
+        locale: "de",
+        retry: false,
+      },
+    );
 
     expect(result.ok).toBe(true);
     if (!result.ok || result.data.disposition !== "run") return;
     expect(result.data.messages[0]?.text).toHaveLength(1200);
     expect(result.data.messages[1]?.text).toBe(`<page_context route="/en/contacts"/>\n${currentText}`);
     expect(result.data.locale).toBe("de");
-    expect(repo.createAgentTurnRequest).toHaveBeenCalledWith(
+    expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
       expect.objectContaining({
-        clientRequestId: CLIENT_REQUEST_ID,
-        conversationId: CONVERSATION_ID,
-        text: currentText,
-        pageRoute: "/en/contacts",
-        userMessageId: expect.any(String),
+        conversationId: null,
+        runId: expect.any(String),
+        turn: expect.objectContaining({
+          kind: "create",
+          clientRequestId: CLIENT_REQUEST_ID,
+          text: currentText,
+          pageRoute: "/en/contacts",
+          userMessageId: expect.any(String),
+        }),
       }),
     );
     expect(repo.claimAgentRunLease).toHaveBeenCalledWith(expect.any(String), expect.any(Date));
+    expect(repo.claimAgentRunLease).toHaveBeenCalledBefore(usage.reserveUsage);
+    expect(usage.reserveUsage).toHaveBeenCalledBefore(repo.admitAgentTurnOrThrow);
+    expect(MOCK_PRISMA_DB_MODULE.prisma.$transaction).toHaveBeenCalledOnce();
   });
 
   it("checks reservation headroom only after replay admission", async () => {
@@ -164,26 +170,24 @@ describe("agent access", () => {
   });
 
   it("continues only an explicitly owned conversation and never silently switches chats", async () => {
-    let persistedUserMessageId = "";
     const repo = {
       normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
       findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
       claimAgentRunLease: vi.fn().mockResolvedValue(true),
       findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),
-      createConversation: vi.fn(),
-      createAgentTurnRequest: vi.fn().mockImplementation((args) => {
-        persistedUserMessageId = args.userMessageId;
-        return Promise.resolve();
-      }),
-      touchConversation: vi.fn().mockResolvedValue(undefined),
-      listRecentMessages: vi.fn().mockImplementation(() =>
-        Promise.resolve([
-          {
-            id: persistedUserMessageId,
-            role: "user",
-            parts: [{ type: "text", text: "continue" }],
-          },
-        ]),
+      listRecentMessages: vi.fn().mockResolvedValue([]),
+      admitAgentTurnOrThrow: vi.fn().mockImplementation((args) =>
+        Promise.resolve({
+          conversationId: CONVERSATION_ID,
+          userMessageId: args.turn.userMessageId,
+          recentMessages: [
+            {
+              id: args.turn.userMessageId,
+              role: "user",
+              parts: [{ type: "text", text: "continue" }],
+            },
+          ],
+        }),
       ),
     };
 
@@ -200,12 +204,12 @@ describe("agent access", () => {
 
     expect(result.ok && result.data.disposition).toBe("run");
     expect(repo.findConversation).toHaveBeenCalledWith(CONVERSATION_ID);
-    expect(repo.createConversation).not.toHaveBeenCalled();
+    expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
+      expect.objectContaining({ conversationId: CONVERSATION_ID }),
+    );
   });
 
   it("carries bounded prior user intent into a multi-turn action tool profile", async () => {
-    let persistedUserMessageId = "";
-    let messageRead = 0;
     const priorMessage = {
       id: "prior-user-message",
       role: "user",
@@ -216,26 +220,21 @@ describe("agent access", () => {
       findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
       claimAgentRunLease: vi.fn().mockResolvedValue(true),
       findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),
-      createAgentTurnRequest: vi.fn().mockImplementation((args) => {
-        persistedUserMessageId = args.userMessageId;
-        return Promise.resolve();
-      }),
-      touchConversation: vi.fn().mockResolvedValue(undefined),
-      listRecentMessages: vi.fn().mockImplementation(() => {
-        messageRead += 1;
-        return Promise.resolve(
-          messageRead === 1
-            ? [priorMessage]
-            : [
-                priorMessage,
-                {
-                  id: persistedUserMessageId,
-                  role: "user",
-                  parts: [{ type: "text", text: "Alice Smith" }],
-                },
-              ],
-        );
-      }),
+      listRecentMessages: vi.fn().mockResolvedValue([priorMessage]),
+      admitAgentTurnOrThrow: vi.fn().mockImplementation((args) =>
+        Promise.resolve({
+          conversationId: CONVERSATION_ID,
+          userMessageId: args.turn.userMessageId,
+          recentMessages: [
+            priorMessage,
+            {
+              id: args.turn.userMessageId,
+              role: "user",
+              parts: [{ type: "text", text: "Alice Smith" }],
+            },
+          ],
+        }),
+      ),
     };
 
     const result = await new SendAgentMessageInteractor(
@@ -253,7 +252,7 @@ describe("agent access", () => {
     expect(result.ok && result.data.disposition).toBe("run");
     if (!result.ok || result.data.disposition !== "run") return;
     expect(result.data.toolNames).toEqual(expect.arrayContaining(["create_contacts", "update_contacts"]));
-    expect(repo.listRecentMessages).toHaveBeenCalledTimes(2);
+    expect(repo.listRecentMessages).toHaveBeenCalledOnce();
   });
 
   it("replays a completed turn before budget, lease, reservation, or provider work", async () => {
@@ -300,6 +299,7 @@ describe("agent access", () => {
     expect(usage.prepareTurn).not.toHaveBeenCalled();
     expect(usage.reserveUsage).not.toHaveBeenCalled();
     expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
+    expect(MOCK_PRISMA_DB_MODULE.prisma.$transaction).not.toHaveBeenCalled();
   });
 
   it("fails closed when a completed replay has no client-renderable canonical content", async () => {
@@ -367,9 +367,6 @@ describe("agent access", () => {
       findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue({ snapshot: failedTurn, assistantMessage: null }),
       claimAgentRunLease: vi.fn().mockResolvedValue(true),
       findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),
-      retryAgentTurnRequest: vi.fn().mockResolvedValue(true),
-      createAgentTurnRequest: vi.fn(),
-      touchConversation: vi.fn().mockResolvedValue(undefined),
       listRecentMessages: vi.fn().mockResolvedValue([
         {
           id: MESSAGE_ID,
@@ -377,6 +374,17 @@ describe("agent access", () => {
           parts: [{ type: "text", text: "retry this" }],
         },
       ]),
+      admitAgentTurnOrThrow: vi.fn().mockResolvedValue({
+        conversationId: CONVERSATION_ID,
+        userMessageId: MESSAGE_ID,
+        recentMessages: [
+          {
+            id: MESSAGE_ID,
+            role: "user",
+            parts: [{ type: "text", text: "retry this" }],
+          },
+        ],
+      }),
     };
 
     const result = await new SendAgentMessageInteractor(
@@ -390,14 +398,18 @@ describe("agent access", () => {
     });
 
     expect(result.ok && result.data.disposition).toBe("run");
-    expect(repo.retryAgentTurnRequest).toHaveBeenCalledWith(
+    expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
       expect.objectContaining({
-        turnRequestId: "turn-1",
-        priorRunId: "run-1",
-        priorAttemptCount: 1,
+        conversationId: CONVERSATION_ID,
+        turn: {
+          kind: "retry",
+          turnRequestId: "turn-1",
+          priorRunId: "run-1",
+          priorAttemptCount: 1,
+          userMessageId: MESSAGE_ID,
+        },
       }),
     );
-    expect(repo.createAgentTurnRequest).not.toHaveBeenCalled();
     expect(result.ok && result.data.disposition === "run" && result.data.userMessageId).toBe(MESSAGE_ID);
   });
 
@@ -447,8 +459,7 @@ describe("agent access", () => {
       findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
       claimAgentRunLease: vi.fn().mockResolvedValue(true),
       findConversation: vi.fn().mockResolvedValue(null),
-      createConversation: vi.fn(),
-      createAgentTurnRequest: vi.fn(),
+      admitAgentTurnOrThrow: vi.fn(),
     };
 
     await expect(
@@ -459,8 +470,7 @@ describe("agent access", () => {
         retry: false,
       }),
     ).rejects.toThrow("Conversation not found.");
-    expect(repo.createConversation).not.toHaveBeenCalled();
-    expect(repo.createAgentTurnRequest).not.toHaveBeenCalled();
+    expect(repo.admitAgentTurnOrThrow).not.toHaveBeenCalled();
     expect(usage.prepareTurn).not.toHaveBeenCalled();
     expect(usage.reserveUsage).not.toHaveBeenCalled();
     expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
@@ -471,8 +481,8 @@ describe("agent access", () => {
       normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
       findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
       claimAgentRunLease: vi.fn().mockResolvedValue(false),
-      createConversation: vi.fn(),
-      createAgentTurnRequest: vi.fn(),
+      admitAgentTurnOrThrow: vi.fn(),
+      releasePreProviderAdmissionOrThrowUnscoped: vi.fn().mockResolvedValue({ disposition: "released" }),
     };
 
     await expect(
@@ -482,19 +492,23 @@ describe("agent access", () => {
         retry: false,
       }),
     ).rejects.toThrow("Another assistant turn is already running.");
-    expect(repo.createConversation).not.toHaveBeenCalled();
-    expect(repo.createAgentTurnRequest).not.toHaveBeenCalled();
+    expect(repo.admitAgentTurnOrThrow).not.toHaveBeenCalled();
+    expect(repo.releasePreProviderAdmissionOrThrowUnscoped).toHaveBeenCalledWith({
+      companyId: mockUser.companyId,
+      userId: mockUser.id,
+      runId: expect.any(String),
+    });
   });
 
-  it("releases the reservation and lease when pre-provider persistence fails", async () => {
+  it("atomically cleans up phase-one state when chat admission fails", async () => {
     const failure = new Error("conversation persistence failed");
     const usage = usageService();
     const repo = {
       normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
       findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
       claimAgentRunLease: vi.fn().mockResolvedValue(true),
-      createConversation: vi.fn().mockRejectedValue(failure),
-      releaseAgentRunLeaseUnscoped: vi.fn().mockResolvedValue(undefined),
+      admitAgentTurnOrThrow: vi.fn().mockRejectedValue(failure),
+      releasePreProviderAdmissionOrThrowUnscoped: vi.fn().mockResolvedValue({ disposition: "released" }),
     };
 
     await expect(
@@ -513,15 +527,63 @@ describe("agent access", () => {
         reservationId: expect.any(String),
       }),
     );
-    expect(usage.releaseReservation).toHaveBeenCalledWith({
-      reservationId: reservation?.reservationId,
-      companyId: mockUser.companyId,
-      userId: mockUser.id,
-    });
-    expect(repo.releaseAgentRunLeaseUnscoped).toHaveBeenCalledWith({
+    expect(repo.releasePreProviderAdmissionOrThrowUnscoped).toHaveBeenCalledWith({
       companyId: mockUser.companyId,
       userId: mockUser.id,
       runId: reservation?.reservationId,
+    });
+  });
+
+  it("does not admit a chat turn when phase-one credit reservation fails", async () => {
+    const failure = new Error("credit reservation failed");
+    const usage = usageService();
+    usage.reserveUsage.mockRejectedValue(failure);
+    const repo = {
+      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
+      claimAgentRunLease: vi.fn().mockResolvedValue(true),
+      admitAgentTurnOrThrow: vi.fn(),
+      releasePreProviderAdmissionOrThrowUnscoped: vi.fn().mockResolvedValue({ disposition: "released" }),
+    };
+
+    await expect(
+      new SendAgentMessageInteractor(repo as never, usage as never, mockEntitlementService()).invoke({
+        clientRequestId: CLIENT_REQUEST_ID,
+        text: "hello",
+        retry: false,
+      }),
+    ).rejects.toBe(failure);
+
+    expect(repo.claimAgentRunLease).toHaveBeenCalledBefore(usage.reserveUsage);
+    expect(repo.admitAgentTurnOrThrow).not.toHaveBeenCalled();
+    expect(repo.releasePreProviderAdmissionOrThrowUnscoped).toHaveBeenCalledWith({
+      companyId: mockUser.companyId,
+      userId: mockUser.id,
+      runId: expect.any(String),
+    });
+  });
+
+  it("reports cleanup failure without replacing the admission error", async () => {
+    const admissionFailure = new Error("admission failed");
+    const cleanupFailure = new Error("cleanup failed");
+    const repo = {
+      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
+      claimAgentRunLease: vi.fn().mockResolvedValue(true),
+      admitAgentTurnOrThrow: vi.fn().mockRejectedValue(admissionFailure),
+      releasePreProviderAdmissionOrThrowUnscoped: vi.fn().mockRejectedValue(cleanupFailure),
+    };
+
+    await expect(
+      new SendAgentMessageInteractor(repo as never, usageService() as never, mockEntitlementService()).invoke({
+        clientRequestId: CLIENT_REQUEST_ID,
+        text: "hello",
+        retry: false,
+      }),
+    ).rejects.toBe(admissionFailure);
+
+    expect(Sentry.captureException).toHaveBeenCalledWith(cleanupFailure, {
+      tags: { kind: "agent-admission-cleanup-failure" },
     });
   });
 
