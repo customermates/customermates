@@ -1708,7 +1708,7 @@
     "title": "Service"
   },
   "SignInForm": {
-    "agreeToTerms": "Siehe unsere <termsOfServiceLink>AGB</termsOfServiceLink>, unseren <dpaLink>AVV</dpaLink> und unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink>.",
+    "agreeToTerms": "Mit dem Fortfahren stimmst du unseren <termsOfServiceLink>AGB</termsOfServiceLink> zu und nimmst unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> zur Kenntnis. Siehe unseren <dpaLink>AVV</dpaLink>.",
     "buttonLabel": "Anmelden mit {provider}",
     "forgotPassword": "Passwort vergessen?",
     "or": "ODER",
@@ -1719,7 +1719,7 @@
   },
   "SignUpForm": {
     "acceptInviteCta": "Einladung annehmen",
-    "agreeToTerms": "Siehe unsere <termsOfServiceLink>AGB</termsOfServiceLink>, unseren <dpaLink>AVV</dpaLink> und unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink>.",
+    "agreeToTerms": "Mit dem Fortfahren stimmst du unseren <termsOfServiceLink>AGB</termsOfServiceLink> zu und nimmst unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> zur Kenntnis. Siehe unseren <dpaLink>AVV</dpaLink>.",
     "buttonLabel": "Registrieren mit {provider}",
     "inviteSubtitle": "Du wurdest eingeladen, einem Team auf Customermates beizutreten. Wähle deine Anmeldemethode, um die Einladung anzunehmen.",
     "inviteTitle": "Firmeneinladung annehmen",
