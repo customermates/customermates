@@ -29,9 +29,9 @@ vi.mock("@/core/di", () => ({
 }));
 vi.mock("@/core/validation/zod-error-map-server", () => ({ getZodParseContext: vi.fn().mockResolvedValue(undefined) }));
 
-const { PrismaAgentChatRepo } = await import("@/features/agent-chat/prisma-agent-chat.repository");
-const { AgentUsageService } = await import("@/features/agent-chat/agent-usage.service");
-const { SendAgentMessageInteractor } = await import("@/features/agent-chat/send-agent-message.interactor");
+const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.repository");
+const { AgentUsageService } = await import("@/ee/agent-chat/agent-usage.service");
+const { SendAgentMessageInteractor } = await import("@/ee/agent-chat/send-agent-message.interactor");
 const { prisma } = await import("@/prisma/db");
 const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
 type PrismaAgentChatRepoInstance = InstanceType<typeof PrismaAgentChatRepo>;

@@ -4,11 +4,11 @@ import { z } from "zod";
 import { env } from "@/env";
 import { getSendAgentMessageInteractor } from "@/core/di";
 import { handleError } from "@/core/api/interactor-handler";
-import { runAgentLane } from "@/features/agent-chat/agent-runner";
-import { sse } from "@/features/agent-chat/agent-stream-utils";
-import type { SendAgentMessageResult } from "@/features/agent-chat/send-agent-message.interactor";
-import { isAgentTurnTerminalError } from "@/features/agent-chat/agent-turn-request";
-import { AGENT_LIMIT_EXCEEDED_MESSAGE, isAgentLimitExceededError } from "@/features/agent-chat/agent-errors";
+import { runAgentLane } from "@/ee/agent-chat/agent-runner";
+import { sse } from "@/ee/agent-chat/agent-stream-utils";
+import type { SendAgentMessageResult } from "@/ee/agent-chat/send-agent-message.interactor";
+import { isAgentTurnTerminalError } from "@/ee/agent-chat/agent-turn-request";
+import { AGENT_LIMIT_EXCEEDED_MESSAGE, isAgentLimitExceededError } from "@/ee/agent-chat/agent-errors";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;

@@ -8,8 +8,8 @@ import {
   NAV_KEYS,
   TOOLBAR_SCOPES_WITH_ADD,
   TOOLBAR_SCOPES_WITHOUT_ADD,
-} from "@/features/agent-chat/ui-anchors";
-import { AGENT_UI_TARGETS } from "@/features/agent-chat/ui-targets";
+} from "@/ee/agent-chat/ui-anchors";
+import { AGENT_UI_TARGETS } from "@/ee/agent-chat/ui-targets";
 
 import { REPO_ROOT, walkFiles } from "./walk";
 

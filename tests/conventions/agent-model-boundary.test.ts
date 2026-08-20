@@ -8,7 +8,7 @@ import { REPO_ROOT, walkFiles } from "./walk";
 const MODEL_CALL_PATTERN =
   /\b(?:streamText|generateText|generateObject|embed|embedMany)\s*\(/;
 const LANE_MODEL_CALL_PATTERN = /\blaneModel\s*\(/;
-const APPROVED_MODEL_CALL_FILE = "features/agent-chat/agent-runner.ts";
+const APPROVED_MODEL_CALL_FILE = "ee/agent-chat/agent-runner.ts";
 
 function productionTypeScriptFiles() {
   return walkFiles(REPO_ROOT, (path) => {
@@ -39,7 +39,7 @@ describe("agent model budget boundary", () => {
       .map((path) => relative(REPO_ROOT, path));
 
     expect(laneModelCallers.sort()).toEqual(
-      [APPROVED_MODEL_CALL_FILE, "features/agent-chat/llm.service.ts"].sort(),
+      [APPROVED_MODEL_CALL_FILE, "ee/agent-chat/llm.service.ts"].sort(),
     );
   });
 });

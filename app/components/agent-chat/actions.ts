@@ -15,11 +15,11 @@ import {
 import { serializeResult } from "@/core/utils/action-result";
 import { env } from "@/env";
 
-import type { RespondToApprovalData } from "@/features/agent-chat/respond-to-approval.interactor";
-import type { RespondToUiCommandData } from "@/features/agent-chat/respond-to-ui-command.interactor";
-import type { ArchiveAgentConversationData } from "@/features/agent-chat/archive-agent-conversation.interactor";
-import type { ListAgentConversationsData } from "@/features/agent-chat/agent-history";
-import type { DeleteAgentConversationData } from "@/features/agent-chat/delete-agent-conversation.interactor";
+import type { RespondToApprovalData } from "@/ee/agent-chat/respond-to-approval.interactor";
+import type { RespondToUiCommandData } from "@/ee/agent-chat/respond-to-ui-command.interactor";
+import type { ArchiveAgentConversationData } from "@/ee/agent-chat/archive-agent-conversation.interactor";
+import type { ListAgentConversationsData } from "@/ee/agent-chat/agent-history";
+import type { DeleteAgentConversationData } from "@/ee/agent-chat/delete-agent-conversation.interactor";
 
 export async function getAgentConfigAction() {
   if (env.AGENT_CHAT_DISABLED) {

@@ -293,18 +293,18 @@ import { DeliverWebhookInteractor } from "@/features/webhook/deliver-webhook.int
 import { GetAuditLogsInteractor } from "@/features/audit-log/get/get-audit-logs.interactor";
 import { CreateSupportTicketInteractor } from "@/features/support/create-support-ticket.interactor";
 import { FeedbackCreator } from "@/features/feedback/feedback.creator";
-import { PrismaAgentChatRepo } from "@/features/agent-chat/prisma-agent-chat.repository";
-import { AgentUsageService } from "@/features/agent-chat/agent-usage.service";
-import { SendAgentMessageInteractor } from "@/features/agent-chat/send-agent-message.interactor";
-import { GetAgentConfigInteractor } from "@/features/agent-chat/get-agent-config.interactor";
-import { RespondToApprovalInteractor } from "@/features/agent-chat/respond-to-approval.interactor";
-import { RespondToUiCommandInteractor } from "@/features/agent-chat/respond-to-ui-command.interactor";
-import { GetAgentConversationInteractor } from "@/features/agent-chat/get-agent-conversation.interactor";
-import { CreateChatSupportTicketInteractor } from "@/features/agent-chat/create-chat-support-ticket.interactor";
-import { ListAgentConversationsInteractor } from "@/features/agent-chat/list-agent-conversations.interactor";
-import { DeleteAgentConversationInteractor } from "@/features/agent-chat/delete-agent-conversation.interactor";
-import { ArchiveAgentConversationInteractor } from "@/features/agent-chat/archive-agent-conversation.interactor";
-import { RestoreAgentConversationInteractor } from "@/features/agent-chat/restore-agent-conversation.interactor";
+import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
+import { AgentUsageService } from "@/ee/agent-chat/agent-usage.service";
+import { SendAgentMessageInteractor } from "@/ee/agent-chat/send-agent-message.interactor";
+import { GetAgentConfigInteractor } from "@/ee/agent-chat/get-agent-config.interactor";
+import { RespondToApprovalInteractor } from "@/ee/agent-chat/respond-to-approval.interactor";
+import { RespondToUiCommandInteractor } from "@/ee/agent-chat/respond-to-ui-command.interactor";
+import { GetAgentConversationInteractor } from "@/ee/agent-chat/get-agent-conversation.interactor";
+import { CreateChatSupportTicketInteractor } from "@/ee/agent-chat/create-chat-support-ticket.interactor";
+import { ListAgentConversationsInteractor } from "@/ee/agent-chat/list-agent-conversations.interactor";
+import { DeleteAgentConversationInteractor } from "@/ee/agent-chat/delete-agent-conversation.interactor";
+import { ArchiveAgentConversationInteractor } from "@/ee/agent-chat/archive-agent-conversation.interactor";
+import { RestoreAgentConversationInteractor } from "@/ee/agent-chat/restore-agent-conversation.interactor";
 // Validators
 
 // ─── Section 2: Repos ───────────────────────────────────────────────────────

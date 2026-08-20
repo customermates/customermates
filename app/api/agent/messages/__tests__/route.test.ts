@@ -16,10 +16,10 @@ vi.mock("@/core/di", () => ({ getSendAgentMessageInteractor: () => ({ invoke }) 
 vi.mock("@/core/api/interactor-handler", () => ({
   handleError: () => new Response(null, { status: 500 }),
 }));
-vi.mock("@/features/agent-chat/agent-runner", () => ({ runAgentLane }));
+vi.mock("@/ee/agent-chat/agent-runner", () => ({ runAgentLane }));
 
 import { POST } from "../route";
-import { createAgentLimitExceededError } from "@/features/agent-chat/agent-errors";
+import { createAgentLimitExceededError } from "@/ee/agent-chat/agent-errors";
 
 const clientRequestId = "00000000-0000-4000-8000-000000000001";
 const conversationId = "00000000-0000-4000-8000-000000000002";

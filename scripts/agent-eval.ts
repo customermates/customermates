@@ -34,11 +34,11 @@ vi.mock("@/features/user/user.service", () => ({
 }));
 
 const { getSendAgentMessageInteractor, getRespondToApprovalInteractor } = await import("@/core/di");
-const { runAgentLane } = await import("@/features/agent-chat/agent-runner");
-const { PrismaAgentChatRepo } = await import("@/features/agent-chat/prisma-agent-chat.repository");
+const { runAgentLane } = await import("@/ee/agent-chat/agent-runner");
+const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.repository");
 const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
-const { AGENT_UI_TARGET_IDS } = await import("@/features/agent-chat/ui-targets");
+const { AGENT_UI_TARGET_IDS } = await import("@/ee/agent-chat/ui-targets");
 
 const companyId = randomUUID();
 const sentinelCompanyId = randomUUID();

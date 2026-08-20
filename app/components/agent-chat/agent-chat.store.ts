@@ -1,18 +1,18 @@
 import { makeObservable, observable, action, computed, runInAction } from "mobx";
 
 import type { RootStore } from "@/core/stores/root.store";
-import type { AgentUsageSummary } from "@/features/agent-chat/agent-usage.service";
-import type { AgentConversationSummary, AgentDataCounts } from "@/features/agent-chat/agent-chat.schema";
-import { AgentTourSchema } from "@/features/agent-chat/agent-tours";
-import { ConfigureViewSchema, OpenRecordSchema } from "@/features/agent-chat/ui-operations";
+import type { AgentUsageSummary } from "@/ee/agent-chat/agent-usage.service";
+import type { AgentConversationSummary, AgentDataCounts } from "@/ee/agent-chat/agent-chat.schema";
+import { AgentTourSchema } from "@/ee/agent-chat/agent-tours";
+import { ConfigureViewSchema, OpenRecordSchema } from "@/ee/agent-chat/ui-operations";
 import {
   AgentActivityDescriptorSchema,
   AGENT_ACTIVITY_RESOURCES,
   describeAgentTool,
   type AgentActivityDescriptor,
   type AgentActivityResource,
-} from "@/features/agent-chat/agent-activity";
-import { agentPageState, agentActionPageFromPathname } from "@/features/agent-chat/agent-page-actions";
+} from "@/ee/agent-chat/agent-activity";
+import { agentPageState, agentActionPageFromPathname } from "@/ee/agent-chat/agent-page-actions";
 
 import { BaseStore } from "@/core/base/base.store";
 

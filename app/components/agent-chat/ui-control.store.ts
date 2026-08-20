@@ -1,14 +1,14 @@
 import { makeObservable, observable, action } from "mobx";
 
 import type { RootStore } from "@/core/stores/root.store";
-import type { ConfigureViewData, OpenRecordData } from "@/features/agent-chat/ui-operations";
+import type { ConfigureViewData, OpenRecordData } from "@/ee/agent-chat/ui-operations";
 
 import { BaseStore } from "@/core/base/base.store";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { ENTITY_URL_SEGMENT } from "@/components/entity-detail/entity-relations";
 import { EntityType } from "@/generated/prisma";
-import { findAgentNavigationTarget } from "@/features/agent-chat/ui-targets";
-import { AGENT_VIEW_ROUTES } from "@/features/agent-chat/ui-operations";
+import { findAgentNavigationTarget } from "@/ee/agent-chat/ui-targets";
+import { AGENT_VIEW_ROUTES } from "@/ee/agent-chat/ui-operations";
 import {
   resolveDataViewStore,
   resolveGroupByColumn,
@@ -16,7 +16,7 @@ import {
   toFilters,
   toSortDescriptor,
 } from "./agent-view-ops";
-import { agentGuidedTour, type AgentGuidedTourStep, type AgentTourStepData } from "@/features/agent-chat/agent-tours";
+import { agentGuidedTour, type AgentGuidedTourStep, type AgentTourStepData } from "@/ee/agent-chat/agent-tours";
 import {
   captureOverlayFocusTarget,
   focusOverlayTarget,

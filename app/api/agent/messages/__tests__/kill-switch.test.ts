@@ -14,7 +14,7 @@ vi.mock("@/core/di", () => ({ getSendAgentMessageInteractor: () => ({ invoke }) 
 vi.mock("@/core/api/interactor-handler", () => ({
   handleError: () => new Response(null, { status: 500 }),
 }));
-vi.mock("@/features/agent-chat/agent-runner", () => ({ runAgentLane }));
+vi.mock("@/ee/agent-chat/agent-runner", () => ({ runAgentLane }));
 
 import { POST } from "../route";
 

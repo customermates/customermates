@@ -3,7 +3,7 @@ import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import type { Filter, SortDescriptor } from "@/core/base/base-get.schema";
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 import type { RootStore } from "@/core/stores/root.store";
-import type { ConfigureViewData } from "@/features/agent-chat/ui-operations";
+import type { ConfigureViewData } from "@/ee/agent-chat/ui-operations";
 
 export type AgentDataViewStore = BaseDataViewStore<HasId>;
 

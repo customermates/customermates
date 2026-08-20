@@ -31,10 +31,10 @@ import type { AgentChatItem } from "./agent-chat.store";
 
 import { AgentTourOverlay } from "./agent-tour-overlay";
 
-import { suggestionPageId, type AgentConversationSummary } from "@/features/agent-chat/agent-chat.schema";
-import { agentActivityCopy, type AgentActivityResource } from "@/features/agent-chat/agent-activity";
-import { agentPageActions, agentPageState } from "@/features/agent-chat/agent-page-actions";
-import type { AgentUsageSummary } from "@/features/agent-chat/agent-usage.service";
+import { suggestionPageId, type AgentConversationSummary } from "@/ee/agent-chat/agent-chat.schema";
+import { agentActivityCopy, type AgentActivityResource } from "@/ee/agent-chat/agent-activity";
+import { agentPageActions, agentPageState } from "@/ee/agent-chat/agent-page-actions";
+import type { AgentUsageSummary } from "@/ee/agent-chat/agent-usage.service";
 
 import { MessageDateSeparator, isSameDay } from "@/app/[locale]/(protected)/inbox/components/message-date-separator";
 import { MessagesScrollContainer } from "@/components/scroll/messages-scroll-container";
