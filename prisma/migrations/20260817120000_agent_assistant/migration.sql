@@ -8,18 +8,6 @@ CREATE TYPE "AgentTurnStatus" AS ENUM ('running', 'completed', 'failed', 'uncert
 CREATE TYPE "AgentTurnTerminalCode" AS ENUM ('completed', 'partial', 'error', 'cancelled', 'policyBreach');
 
 -- CreateEnum
-CREATE TYPE "AgentWorkspaceSetupStatus" AS ENUM ('applied', 'partiallyCleaned', 'cleaned');
-
--- CreateEnum
-CREATE TYPE "AgentSetupResourceKind" AS ENUM ('customColumn', 'organization', 'contact', 'service', 'deal', 'task', 'widget');
-
--- CreateEnum
-CREATE TYPE "AgentSetupResourceStatus" AS ENUM ('active', 'retained', 'deleted', 'missing');
-
--- CreateEnum
-CREATE TYPE "AgentSetupCleanupReason" AS ENUM ('edited', 'dependent');
-
--- CreateEnum
 CREATE TYPE "AgentMessageRole" AS ENUM ('user', 'assistant');
 
 -- CreateEnum
@@ -28,9 +16,6 @@ CREATE TYPE "AgentApprovalDecision" AS ENUM ('approve', 'reject');
 -- AlterTable
 ALTER TABLE "Subscription" ADD COLUMN     "agentCreditAnchorAt" TIMESTAMP(3),
 ADD COLUMN     "enterpriseAgentCreditsPerUser" INTEGER;
-
--- AlterTable
-ALTER TABLE "SupportTicket" ADD COLUMN     "agentConversationId" TEXT;
 
 -- AlterTable
 ALTER TABLE "User" ADD COLUMN     "agentCreditActivatedAt" TIMESTAMP(3);
@@ -64,7 +49,6 @@ CREATE TABLE "AgentMessage" (
     "turnRequestId" TEXT,
     "role" "AgentMessageRole" NOT NULL,
     "parts" JSONB NOT NULL,
-    "searchText" TEXT NOT NULL,
     "sequence" BIGSERIAL NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -121,44 +105,6 @@ CREATE TABLE "AgentTurnRequest" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "AgentTurnRequest_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "AgentWorkspaceSetup" (
-    "id" TEXT NOT NULL,
-    "companyId" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
-    "conversationId" TEXT NOT NULL,
-    "reviewMessageId" TEXT NOT NULL,
-    "commandId" TEXT NOT NULL,
-    "plan" JSONB NOT NULL,
-    "planHash" TEXT NOT NULL,
-    "schemaVersion" INTEGER NOT NULL,
-    "revision" INTEGER NOT NULL,
-    "priorTerminology" JSONB NOT NULL,
-    "status" "AgentWorkspaceSetupStatus" NOT NULL,
-    "appliedAt" TIMESTAMP(3) NOT NULL,
-    "cleanedAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "AgentWorkspaceSetup_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "AgentWorkspaceSetupResource" (
-    "id" TEXT NOT NULL,
-    "setupId" TEXT NOT NULL,
-    "companyId" TEXT NOT NULL,
-    "kind" "AgentSetupResourceKind" NOT NULL,
-    "resourceId" TEXT NOT NULL,
-    "initialUpdatedAt" TIMESTAMP(3) NOT NULL,
-    "status" "AgentSetupResourceStatus" NOT NULL,
-    "cleanupReason" "AgentSetupCleanupReason",
-    "resolvedAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "AgentWorkspaceSetupResource_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -233,21 +179,6 @@ CREATE INDEX "AgentTurnRequest_conversationId_companyId_userId_status_idx" ON "A
 CREATE UNIQUE INDEX "AgentTurnRequest_companyId_userId_clientRequestId_key" ON "AgentTurnRequest"("companyId", "userId", "clientRequestId");
 
 -- CreateIndex
-CREATE INDEX "AgentWorkspaceSetup_companyId_userId_conversationId_idx" ON "AgentWorkspaceSetup"("companyId", "userId", "conversationId");
-
--- CreateIndex
-CREATE INDEX "AgentWorkspaceSetup_companyId_userId_status_idx" ON "AgentWorkspaceSetup"("companyId", "userId", "status");
-
--- CreateIndex
-CREATE UNIQUE INDEX "AgentWorkspaceSetup_conversationId_reviewMessageId_commandI_key" ON "AgentWorkspaceSetup"("conversationId", "reviewMessageId", "commandId");
-
--- CreateIndex
-CREATE INDEX "AgentWorkspaceSetupResource_companyId_setupId_createdAt_id_idx" ON "AgentWorkspaceSetupResource"("companyId", "setupId", "createdAt", "id");
-
--- CreateIndex
-CREATE INDEX "AgentWorkspaceSetupResource_setupId_companyId_status_idx" ON "AgentWorkspaceSetupResource"("setupId", "companyId", "status");
-
--- CreateIndex
 CREATE INDEX "AgentApproval_companyId_idx" ON "AgentApproval"("companyId");
 
 -- CreateIndex
@@ -264,12 +195,6 @@ CREATE INDEX "AgentRunLease_companyId_idx" ON "AgentRunLease"("companyId");
 
 -- CreateIndex
 CREATE INDEX "AgentRunLease_expiresAt_idx" ON "AgentRunLease"("expiresAt");
-
--- CreateIndex
-CREATE INDEX "SupportTicket_agentConversationId_idx" ON "SupportTicket"("agentConversationId");
-
--- AddForeignKey
-ALTER TABLE "SupportTicket" ADD CONSTRAINT "SupportTicket_agentConversationId_fkey" FOREIGN KEY ("agentConversationId") REFERENCES "AgentConversation"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "AgentConversation" ADD CONSTRAINT "AgentConversation_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -294,18 +219,6 @@ ALTER TABLE "AgentTurnRequest" ADD CONSTRAINT "AgentTurnRequest_companyId_fkey" 
 
 -- AddForeignKey
 ALTER TABLE "AgentTurnRequest" ADD CONSTRAINT "AgentTurnRequest_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "AgentConversation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "AgentWorkspaceSetup" ADD CONSTRAINT "AgentWorkspaceSetup_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "AgentWorkspaceSetup" ADD CONSTRAINT "AgentWorkspaceSetup_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "AgentConversation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "AgentWorkspaceSetupResource" ADD CONSTRAINT "AgentWorkspaceSetupResource_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "AgentWorkspaceSetupResource" ADD CONSTRAINT "AgentWorkspaceSetupResource_setupId_fkey" FOREIGN KEY ("setupId") REFERENCES "AgentWorkspaceSetup"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "AgentApproval" ADD CONSTRAINT "AgentApproval_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -348,6 +261,3 @@ ALTER TABLE "AgentUsageEvent"
 
 ALTER TABLE "AgentTurnRequest"
   ADD CONSTRAINT "AgentTurnRequest_attempt_count_positive" CHECK ("attemptCount" >= 1);
-
-ALTER TABLE "AgentWorkspaceSetup"
-  ADD CONSTRAINT "AgentWorkspaceSetup_versions_positive" CHECK ("schemaVersion" >= 1 AND "revision" >= 1);
