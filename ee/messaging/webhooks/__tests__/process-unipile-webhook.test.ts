@@ -20,6 +20,7 @@ import * as Sentry from "@sentry/node";
 
 import { ProcessUnipileWebhookInteractor } from "../process-unipile-webhook.interactor";
 import { UnmappableWebhookPayloadError } from "@/core/errors/app-errors";
+import { UnipileRequestError } from "../../messaging.service";
 
 const EVENT_ID = "11111111-1111-4111-8111-111111111111";
 
@@ -55,6 +56,38 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
     expect(events.markWebhookEventProcessedUnscoped).toHaveBeenCalledWith(EVENT_ID);
     expect(events.markWebhookEventFailedUnscoped).not.toHaveBeenCalled();
     expect(Sentry.captureException).not.toHaveBeenCalled();
+  });
+
+  it("retires a disconnected-account rejection without reporting it", async () => {
+    const disconnected = new UnipileRequestError(
+      401,
+      "provider/invalid_authorization",
+      '{"object":"Error","status":401,"type":"provider/invalid_authorization","title":"Invalid authorization","detail":"Account is disconnected.","req_id":"req-8gb"}',
+    );
+    const handler = { invoke: vi.fn().mockRejectedValue(disconnected) };
+    const { interactor, events } = build(row({ type: "email.folder.update", account_id: "acc_1", payload: {} }), {
+      "email.folder.update": handler,
+    });
+
+    await invoke(interactor);
+
+    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(events.markWebhookEventFailedUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({ id: EVENT_ID, terminal: true }),
+    );
+    expect(events.markWebhookEventProcessedUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("still reports an unrelated Unipile rejection", async () => {
+    const serverError = new UnipileRequestError(500, "api/unknown", '{"detail":"boom"}');
+    const handler = { invoke: vi.fn().mockRejectedValue(serverError) };
+    const { interactor } = build(row({ type: "email.folder.update", account_id: "acc_1", payload: {} }), {
+      "email.folder.update": handler,
+    });
+
+    await invoke(interactor);
+
+    expect(Sentry.captureException).toHaveBeenCalledOnce();
   });
 
   it("marks a transient handler error non-terminal, captures it once, and does not rethrow", async () => {

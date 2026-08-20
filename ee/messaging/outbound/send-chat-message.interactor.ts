@@ -1,7 +1,13 @@
 import type { ValidateThreadIdsInteractor } from "@/core/validation/validators/validate-thread-ids.interactor";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
-import type { MessagingAttendee, MessagingMessage, MessagingThread, IngestMessage } from "../messaging.schema";
+import type {
+  MessagingAttendee,
+  MessagingMessage,
+  MessagingThread,
+  IngestMessage,
+  AttachmentMeta,
+} from "../messaging.schema";
 import type { MessagingMessageDto } from "../inbox/inbox.schema";
 import type { MessagingService } from "../messaging.service";
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
@@ -65,6 +71,7 @@ export abstract class SendChatMessageRepo {
     subject: string | null;
     bodyText: string | null;
     bodyHtml: string | null;
+    attachmentsMeta: AttachmentMeta[];
     sentAt: Date;
   }): Promise<MessagingMessage | null>;
 }
@@ -147,6 +154,7 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
         subject: null,
         bodyText: data.text,
         bodyHtml: null,
+        attachmentsMeta: [],
         sentAt,
       });
 

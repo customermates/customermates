@@ -13,7 +13,7 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { UnipileUserSchema } from "../../unipile.schema";
 
 const Schema = z.object({
-  type: z.enum(["relation.new", "relation.request.accept"]),
+  type: z.literal("relation.new"),
   account_id: z.string(),
   payload: z.looseObject({ user: UnipileUserSchema, created_at: z.string().nullish() }),
 });

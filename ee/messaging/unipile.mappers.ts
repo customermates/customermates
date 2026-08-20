@@ -96,7 +96,9 @@ const STATUS_TO_DB_STATUS: Record<string, ConnectedAccountStatus> = {
   running: ConnectedAccountStatus.ok,
   paused: ConnectedAccountStatus.stopped,
   errored: ConnectedAccountStatus.error,
+  degraded: ConnectedAccountStatus.error,
   disconnected: ConnectedAccountStatus.credentials,
+  partial: ConnectedAccountStatus.credentials,
 };
 
 export function mapUnipileStatus(status: string | null | undefined): ConnectedAccountStatus {

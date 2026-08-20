@@ -16,6 +16,7 @@ const domTestFiles = [
   "app/**/dashboard/components/__tests__/widget-chart.test.ts",
   "app/[locale]/(protected)/__tests__/protected-layout.test.ts",
   "app/components/navigation/__tests__/navigation-switch.test.ts",
+  "core/base/__tests__/persist-view-options-rejection.test.ts",
   "components/data-view/__tests__/data-view-url-sync.test.ts",
   "components/data-view/__tests__/use-data-view-sync.test.ts",
   "components/data-view/filter-modal/inputs/__tests__/filter-input-number.test.ts",

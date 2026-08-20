@@ -89,7 +89,7 @@ describe("BackfillChatsInteractor (list-only page)", () => {
     expect(args.lastMessageIsSender).toBe(false);
     expect(args.lastMessageAt).toEqual(new Date("2025-06-01T00:00:00.000Z"));
 
-    expect(result).toEqual({ nextCursor: null, done: true });
+    expect(result).toEqual({ nextCursor: null, done: true, complete: true });
   });
 
   it("withholds thread pointers when the chat's last_message has no text", async () => {

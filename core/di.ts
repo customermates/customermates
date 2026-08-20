@@ -1155,6 +1155,7 @@ export const getProcessUnipileWebhookInteractor = () => {
     "message.update": messageNew,
     "message.delete": getProcessMessageDeleteWebhookInteractor(),
     "message.reaction.new": getProcessMessageReactionWebhookInteractor(),
+    "message.reaction.delete": ignoreEvent,
     "message.receipt.read": ignoreEvent,
     "message.receipt.delivery": ignoreEvent,
     "email.new": emailNew,
@@ -1168,6 +1169,8 @@ export const getProcessUnipileWebhookInteractor = () => {
     "tracking.open": ignoreEvent,
     "tracking.click": ignoreEvent,
     "account.add": getProcessAccountAddWebhookInteractor(),
+    "account.locked": ignoreEvent,
+    "account.unlocked": ignoreEvent,
     "account.initial_sync.running": ignoreEvent,
     "account.initial_sync.failed": ignoreEvent,
     "account.initial_sync.completed": getProcessAccountReadyWebhookInteractor(),
@@ -1175,8 +1178,9 @@ export const getProcessUnipileWebhookInteractor = () => {
     "account.remove": getProcessAccountRemoveWebhookInteractor(),
     "account.status.disconnected": accountStatus,
     "account.status.errored": accountStatus,
-    "account.status.paused": accountStatus,
     "account.status.running": accountStatus,
+    "account.status.degraded": accountStatus,
+    "account.status.partial": accountStatus,
     "chat.update": getProcessChatUpdateWebhookInteractor(),
     "chat.delete": getProcessChatDeleteWebhookInteractor(),
     "calendar.create": calendarUpsert,
@@ -1186,7 +1190,6 @@ export const getProcessUnipileWebhookInteractor = () => {
     "calendar.event.update": calendarEventUpsert,
     "calendar.event.delete": getProcessCalendarEventDeleteWebhookInteractor(),
     "relation.new": relation,
-    "relation.request.accept": relation,
   };
 
   return new ProcessUnipileWebhookInteractor(getUnipileWebhookRepo(), handlers);

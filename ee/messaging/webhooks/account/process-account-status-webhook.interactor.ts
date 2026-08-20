@@ -10,9 +10,10 @@ import type { AccountWebhookRepo } from "./account-webhook.repo";
 
 const Schema = z.object({
   type: z.enum([
+    "account.status.degraded",
     "account.status.disconnected",
     "account.status.errored",
-    "account.status.paused",
+    "account.status.partial",
     "account.status.running",
   ]),
   account_id: z.string(),

@@ -5,12 +5,7 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 import { AppLink } from "@/components/shared/app-link";
-
-function isDemoEnvironment(): boolean {
-  if (typeof window === "undefined") return false;
-
-  return window.location.hostname.includes("demo");
-}
+import { registerApplicationErrorHandler, isDemoEnvironment } from "@/core/errors/report-application-error";
 
 function containsString(error: unknown, searchString: string): boolean {
   if (typeof error === "string") return error.includes(searchString);
@@ -75,6 +70,8 @@ export function UnexpectedErrorToaster() {
       handleApplicationError(e.error || e.message);
     }
 
+    const unregister = registerApplicationErrorHandler(handleApplicationError);
+
     window.addEventListener("unhandledrejection", handlePromise);
     window.addEventListener("error", handleErrorEvent);
     window.addEventListener("beforeunload", markNavigating);
@@ -82,6 +79,7 @@ export function UnexpectedErrorToaster() {
     window.addEventListener("pageshow", clearNavigating);
 
     return () => {
+      unregister();
       window.removeEventListener("unhandledrejection", handlePromise);
       window.removeEventListener("error", handleErrorEvent);
       window.removeEventListener("beforeunload", markNavigating);

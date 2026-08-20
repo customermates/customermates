@@ -15,7 +15,7 @@ import { Enforce } from "@/core/decorators/enforce.decorator";
 import { buildCalendarEvent, collectAttendeeEmails } from "@/ee/calendar/calendar-normalize";
 import { UnipileCalendarEventSchema, UnipileCalendarSchema } from "@/ee/messaging/unipile.schema";
 
-import { backfillSince, paginateStep, UNIPILE_MAX_LIMIT } from "./paginate";
+import { backfillSince, paginateStep, UNIPILE_CALENDAR_EVENT_MAX_LIMIT, UNIPILE_MAX_LIMIT } from "./paginate";
 import { isUnipileRateLimit, isUnipileTimeout } from "../../messaging.service";
 
 type CalendarContext = { unipileCalendarId: string; calendarId: string };
@@ -112,21 +112,33 @@ export class BackfillCalendarsInteractor {
     start: string,
     expandRecurring: boolean,
   ): Promise<void> {
-    await paginateStep({
+    const result = await paginateStep({
       startCursor: null,
-      limit: UNIPILE_MAX_LIMIT,
+      limit: UNIPILE_CALENDAR_EVENT_MAX_LIMIT,
       fetchPage: (query) =>
         this.messagingService.listCalendarEvents({
           accountId: account.unipileAccountId,
           calendarId: calendar.unipileCalendarId,
           cursor: query.cursor,
           offset: query.offset,
-          limit: UNIPILE_MAX_LIMIT,
+          limit: UNIPILE_CALENDAR_EVENT_MAX_LIMIT,
           start,
           expandRecurring,
         }),
       handleItem: (rawEvent) => this.processCalendarEvent(account, calendar.calendarId, rawEvent),
     });
+
+    if (!result.complete) {
+      Sentry.captureMessage("Calendar event backfill stopped before the end of the calendar", {
+        level: "warning",
+        tags: {
+          unipileAccountId: account.unipileAccountId,
+          companyId: account.companyId,
+          connectedAccountId: account.id,
+          step: "calendar-events",
+        },
+      });
+    }
   }
 
   private async upsertCalendar(account: ConnectedAccount, rawCalendar: unknown): Promise<CalendarContext | null> {

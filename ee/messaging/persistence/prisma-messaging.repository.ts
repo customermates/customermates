@@ -918,7 +918,7 @@ export class PrismaMessagingRepo
         subject: args.subject,
         bodyText: args.bodyText,
         bodyHtml: args.bodyHtml,
-        ...(args.attachmentsMeta.length > 0 ? { attachmentsMeta: args.attachmentsMeta } : {}),
+        ...(args.attachmentsMeta?.length ? { attachmentsMeta: args.attachmentsMeta } : {}),
         sentAt: args.sentAt,
       },
     });
@@ -1309,24 +1309,35 @@ export class PrismaMessagingRepo
     const hidden = safeMessage.isHidden === true;
     const canonicalSentAt = existing?.sentAt ?? safeMessage.sentAt;
 
-    const thread = await this.upsertChatThreadUnscoped({
-      companyId,
-      connectedAccountId,
-      unipileThreadId,
-      provider: safeMessage.provider,
-      type: threadType,
-      subject: safeMessage.subject,
-      lastMessageAt: hidden ? undefined : canonicalSentAt,
-      lastMessagePreview: hidden ? undefined : (previewSource ?? null),
-      lastMessageIsSender: hidden ? undefined : safeMessage.direction === MessagingMessageDirection.outbound,
-      participants: [safeMessage.sender, ...safeMessage.recipients.to, ...safeMessage.recipients.cc],
-      markUnread: !hidden && !backfill && !existing && isInbound,
-    });
+    const settledThread = existing
+      ? await this.prisma.messagingThread.findUnique({
+          where: { id: existing.messagingThreadId },
+          select: { id: true, unipileThreadId: true },
+        })
+      : null;
+    const misroutedTarget = settledThread && settledThread.unipileThreadId !== unipileThreadId ? settledThread : null;
+    const misroutedUpdate = misroutedTarget !== null;
+
+    const thread = misroutedTarget
+      ? misroutedTarget
+      : await this.upsertChatThreadUnscoped({
+          companyId,
+          connectedAccountId,
+          unipileThreadId,
+          provider: safeMessage.provider,
+          type: threadType,
+          subject: safeMessage.subject,
+          lastMessageAt: hidden ? undefined : canonicalSentAt,
+          lastMessagePreview: hidden ? undefined : (previewSource ?? null),
+          lastMessageIsSender: hidden ? undefined : safeMessage.direction === MessagingMessageDirection.outbound,
+          participants: [safeMessage.sender, ...safeMessage.recipients.to, ...safeMessage.recipients.cc],
+          markUnread: !hidden && !backfill && !existing && isInbound,
+        });
 
     if (
       !existing &&
       !isInbound &&
-      message.origin === MessagingMessageOrigin.unipile &&
+      message.origin === MessagingMessageOrigin.external &&
       !isEmailProvider(message.provider)
     ) {
       const reconciled = await this.reconcileOutboundChatEcho({
@@ -1345,6 +1356,8 @@ export class PrismaMessagingRepo
       companyId,
       connectedAccountId,
       messagingThreadId: thread.id,
+      keepSettledSender: misroutedUpdate,
+      settledAttachmentsMeta: existing?.attachmentsMeta,
     });
 
     const contactId = isInbound ? await this.resolveSenderContactId(companyId, message) : null;
@@ -1398,18 +1411,32 @@ export class PrismaMessagingRepo
       companyId: string;
       connectedAccountId: string;
       messagingThreadId: string;
+      keepSettledSender?: boolean;
+      settledAttachmentsMeta?: AttachmentMeta[];
     },
   ) {
+    const attachmentsMeta = args.attachmentsMeta.map((incoming, index) => {
+      const settled = args.settledAttachmentsMeta?.[index];
+      if (!settled) return incoming;
+
+      return {
+        ...incoming,
+        name: incoming.name ?? settled.name,
+        fileName: incoming.fileName ?? settled.fileName,
+        size: incoming.size ?? settled.size,
+      };
+    });
+
     const updateData = {
-      ...(args.sender.attendeeId.trim()
+      ...(!args.keepSettledSender && args.sender.attendeeId.trim()
         ? {
             sender: args.sender,
             senderIdentifier: args.sender.identifier || null,
           }
         : {}),
-      ...(args.attachmentsMeta.length > 0
+      ...(attachmentsMeta.length > 0
         ? {
-            attachmentsMeta: args.attachmentsMeta,
+            attachmentsMeta,
             bodyText: args.bodyText,
             bodyHtml: args.bodyHtml,
             isHidden: args.isHidden,

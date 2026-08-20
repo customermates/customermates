@@ -78,15 +78,25 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
   const drawerWasOpenRef = useRef(entityDrawerStack.length > 0);
   const seededEntityId = useRef<string | null>(null);
 
-  if (entityInitial?.entity.id === entityId && seededEntityId.current !== entityId) {
+  const canSeed = entityInitial?.entity.id === entityId && seededEntityId.current !== entityId;
+
+  if (canSeed && seededEntityId.current === null) {
     seededEntityId.current = entityId;
     store.hydrate(entityInitial.entity as Dto, entityInitial.customColumns);
   }
 
   useEffect(() => {
     if (seededEntityId.current === entityId) return;
+
+    if (entityInitial?.entity.id === entityId) {
+      seededEntityId.current = entityId;
+      store.hydrate(entityInitial.entity as Dto, entityInitial.customColumns);
+
+      return;
+    }
+
     void store.loadById(entityId);
-  }, [entityId, store]);
+  }, [entityId, store, entityInitial]);
 
   useEffect(() => {
     const drawerIsOpen = entityDrawerStack.length > 0;
