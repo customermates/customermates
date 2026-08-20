@@ -109,3 +109,90 @@ describeDatabase("a misrouted message.update cannot move a message or rewrite it
     for (const row of stray.rows) expect(row.lastMessagePreview).toBeNull();
   });
 });
+
+describeDatabase("a provider echo keeps the filename recorded at send time", () => {
+  const client = new Client({ connectionString: databaseUrl ?? undefined });
+  const companyId = randomUUID();
+  const accountId = randomUUID();
+  const ownerId = randomUUID();
+  const unipileMessageId = `att-${randomUUID()}`;
+  const chatId = `att-chat-${randomUUID()}@lid`;
+
+  function attendee(isSelf: boolean) {
+    return { attendeeId: "a1", displayName: "A", identifier: "+491", isSelf, provider: "whatsapp" } as never;
+  }
+
+  function payload(attachmentsMeta: unknown[], origin = "unipile") {
+    return {
+      unipileMessageId,
+      unipileThreadId: chatId,
+      threadType: "single",
+      provider: "whatsapp",
+      direction: "outbound",
+      origin,
+      sender: attendee(true),
+      recipients: { to: [], cc: [], bcc: [] },
+      bodyText: "with attachment",
+      bodyHtml: null,
+      subject: null,
+      attachmentsMeta,
+      folderIds: [],
+      isDraft: false,
+      isHidden: false,
+      sentAt: new Date("2026-08-20T10:00:00.000Z"),
+    } as never;
+  }
+
+  beforeAll(async () => {
+    await client.connect();
+    await client.query('INSERT INTO "Company" ("id", "updatedAt") VALUES ($1, CURRENT_TIMESTAMP)', [companyId]);
+    await client.query(
+      'INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "updatedAt") VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)',
+      [ownerId, `att-${ownerId}@example.com`, "Att", "Owner", companyId],
+    );
+    await client.query(
+      'INSERT INTO "ConnectedAccount" ("id", "companyId", "userId", "provider", "unipileAccountId", "status", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)',
+      [accountId, companyId, ownerId, "whatsapp", `unipile-${accountId}`, "ok"],
+    );
+  });
+
+  afterAll(async () => {
+    await client.query('DELETE FROM "Company" WHERE "id" = $1', [companyId]);
+    await client.end();
+  });
+
+  it("keeps our filename and size when the echo reports neither", async () => {
+    const repo = new PrismaMessagingRepo();
+
+    await runWithoutTenant(() =>
+      repo.ingestMessageUnscoped({
+        companyId,
+        connectedAccountId: accountId,
+        message: payload([{ id: "outbound-0", name: "shot.png", fileName: "shot.png", mime: "image/png", size: 4242 }]),
+        backfill: false,
+      }),
+    );
+
+    await runWithoutTenant(() =>
+      repo.ingestMessageUnscoped({
+        companyId,
+        connectedAccountId: accountId,
+        message: payload(
+          [{ id: "provider-1", name: null, mime: "image/jpeg", url: "https://cdn.test/x.jpg" }],
+          "external",
+        ),
+        backfill: false,
+      }),
+    );
+
+    const row = await client.query('SELECT "attachmentsMeta" FROM "MessagingMessage" WHERE "unipileMessageId" = $1', [
+      unipileMessageId,
+    ]);
+    const meta = row.rows[0].attachmentsMeta[0];
+
+    expect(meta.mime).toBe("image/jpeg");
+    expect(meta.url).toBe("https://cdn.test/x.jpg");
+    expect(meta.fileName).toBe("shot.png");
+    expect(meta.size).toBe(4242);
+  });
+});

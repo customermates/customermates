@@ -1357,6 +1357,7 @@ export class PrismaMessagingRepo
       connectedAccountId,
       messagingThreadId: thread.id,
       keepSettledSender: misroutedUpdate,
+      settledAttachmentsMeta: existing?.attachmentsMeta,
     });
 
     const contactId = isInbound ? await this.resolveSenderContactId(companyId, message) : null;
@@ -1411,8 +1412,21 @@ export class PrismaMessagingRepo
       connectedAccountId: string;
       messagingThreadId: string;
       keepSettledSender?: boolean;
+      settledAttachmentsMeta?: AttachmentMeta[];
     },
   ) {
+    const attachmentsMeta = args.attachmentsMeta.map((incoming, index) => {
+      const settled = args.settledAttachmentsMeta?.[index];
+      if (!settled) return incoming;
+
+      return {
+        ...incoming,
+        name: incoming.name ?? settled.name,
+        fileName: incoming.fileName ?? settled.fileName,
+        size: incoming.size ?? settled.size,
+      };
+    });
+
     const updateData = {
       ...(!args.keepSettledSender && args.sender.attendeeId.trim()
         ? {
@@ -1420,9 +1434,9 @@ export class PrismaMessagingRepo
             senderIdentifier: args.sender.identifier || null,
           }
         : {}),
-      ...(args.attachmentsMeta.length > 0
+      ...(attachmentsMeta.length > 0
         ? {
-            attachmentsMeta: args.attachmentsMeta,
+            attachmentsMeta,
             bodyText: args.bodyText,
             bodyHtml: args.bodyHtml,
             isHidden: args.isHidden,
