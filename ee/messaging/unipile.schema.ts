@@ -130,7 +130,7 @@ export const UnipileAccountSchema = z.looseObject({
   user_id: z.string().nullish(),
   name: z.string().nullish(),
   provider: z.string().nullish(),
-  status: z.enum(["running", "errored", "disconnected", "paused"]).nullish(),
+  status: z.enum(["running", "errored", "disconnected", "degraded", "partial", "paused"]).nullish(),
   oauth_scope: z.union([z.string(), z.array(z.string())]).nullish(),
   metadata: z
     .looseObject({
