@@ -102,26 +102,19 @@ function isStructuredToolFailure(output: unknown) {
   );
 }
 
-async function createSupportTicket(
-  conversationId: string,
-  turnRequestId: string,
-  toolCallId: string,
-  subject: string,
-  body: string,
-): Promise<AgentToolOutcome> {
+async function createSupportTicket(conversationId: string, subject: string, body: string): Promise<AgentToolOutcome> {
   const result = await getCreateChatSupportTicketInteractor().invoke({
     conversationId,
-    turnRequestId,
-    toolCallId,
     subject,
     body,
   });
   return result.ok
     ? {
         ok: true,
-        result: `Support ticket #${result.data.number} opened. The Customermates team will follow up here and by email.`,
+        result:
+          "Support request email accepted for delivery. The Customermates team will reply to the email address on your account.",
       }
-    : { ok: false, result: "The support ticket could not be created." };
+    : { ok: false, result: "The support request email could not be sent." };
 }
 
 export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): ReadableStream<Uint8Array> {
@@ -292,8 +285,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
         const deps: AgentToolDeps = {
           runUiCommand,
           requestApproval,
-          createSupportTicket: (toolCallId, subject, body) =>
-            createSupportTicket(ctx.conversationId, ctx.turnRequestId, toolCallId, subject, body),
+          createSupportTicket: (_toolCallId, subject, body) => createSupportTicket(ctx.conversationId, subject, body),
           resultMaxChars: resolveAgentToolResultMaxChars(ctx.turnBudget.maxToolResultChars),
         };
         const tools = getAgentAiTools(deps, ctx.toolNames);

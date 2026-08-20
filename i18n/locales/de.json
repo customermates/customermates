@@ -152,9 +152,9 @@
         },
         "support": {
           "escalate": {
-            "done": "Support wurde kontaktiert",
-            "error": "Support konnte nicht kontaktiert werden",
-            "running": "Customermates Support wird kontaktiert"
+            "done": "Support-E-Mail wurde zum Versand angenommen",
+            "error": "Support-E-Mail konnte nicht gesendet werden",
+            "running": "Support-E-Mail wird gesendet"
           }
         },
         "team": {
@@ -222,7 +222,7 @@
     "greeting": {
       "headline": "Hey, ich bin Mate",
       "subtitle": "Frag mich alles zu deinem Workspace, oder sag mir, was ich für dich erledigen soll.",
-      "support": "Wenn etwas nicht klappt, eröffne ich ein Support-Ticket und unser Team antwortet dir per E-Mail."
+      "support": "Wenn etwas nicht klappt, kann ich unserem Team den letzten Gesprächsverlauf per E-Mail senden. Es antwortet dir per E-Mail."
     },
     "placeholder": "Frag dein CRM…",
     "runner": {
@@ -543,7 +543,7 @@
       "cancel": "Abbrechen",
       "chats": "Chats",
       "deleteChat": "Chat löschen",
-      "deleteChatBody": "Nachrichten, Freigaben und Assistentenaktionen dieses Chats werden endgültig gelöscht. KI-Nutzungs- und Abrechnungsdaten, über den Chat erstellte CRM-Einträge und separat erstellte Support-Tickets bleiben erhalten.",
+      "deleteChatBody": "Nachrichten, Freigaben und Assistentenaktionen dieses Chats werden endgültig gelöscht. KI-Nutzungs- und Abrechnungsdaten sowie über den Chat erstellte CRM-Einträge bleiben erhalten. Bereits gesendete Support-E-Mails werden nicht zurückgerufen.",
       "deleteChatTitle": "Chat endgültig löschen?",
       "deletePermanently": "Endgültig löschen",
       "editQueued": "Vorgemerkte Nachricht bearbeiten",

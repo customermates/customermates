@@ -31,6 +31,8 @@ export class FeedbackModalStore extends BaseModalStore<SendFeedbackData> {
         this.onInitOrRefresh({ feedback: "", type: this.form.type });
         this.toastSuccess("feedback.success");
       } else this.setError(res.error);
+    } catch {
+      this.toastError("Common.notifications.unexpectedError");
     } finally {
       this.setIsLoading(false);
     }

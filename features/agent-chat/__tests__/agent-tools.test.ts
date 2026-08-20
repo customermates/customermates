@@ -347,13 +347,13 @@ describe("agent tools", () => {
     });
   });
 
-  it("shows request_support as an approval-gated action before opening a ticket", async () => {
+  it("shows request_support as an approval-gated action before sending an email", async () => {
     const input = {
       subject: "Need help",
       body: "Please connect me with a human.",
     };
     const requestApproval = vi.fn().mockResolvedValue("approve");
-    const createSupportTicket = vi.fn().mockResolvedValue({ ok: true, result: "ticket opened" });
+    const createSupportTicket = vi.fn().mockResolvedValue({ ok: true, result: "request emailed" });
     const tools = getAgentAiTools(
       deps({
         requestApproval,
@@ -363,7 +363,7 @@ describe("agent tools", () => {
 
     await expect(execute(tools.request_support, input, "support-1")).resolves.toEqual({
       ok: true,
-      result: "ticket opened",
+      result: "request emailed",
     });
     expect(requestApproval).toHaveBeenCalledWith("support-1", "request_support", input);
     expect(createSupportTicket).toHaveBeenCalledWith("support-1", input.subject, input.body);
@@ -420,9 +420,9 @@ describe("agent tools", () => {
     },
   );
 
-  it.each(["reject", "timeout"] as const)("does not open support when escalation resolves to %s", async (decision) => {
+  it.each(["reject", "timeout"] as const)("does not email support when escalation resolves to %s", async (decision) => {
     const requestApproval = vi.fn().mockResolvedValue(decision);
-    const createSupportTicket = vi.fn().mockResolvedValue({ ok: true, result: "ticket opened" });
+    const createSupportTicket = vi.fn().mockResolvedValue({ ok: true, result: "request emailed" });
     const tools = getAgentAiTools(
       deps({
         requestApproval,
@@ -452,7 +452,7 @@ describe("agent tools", () => {
     expect(prompt).toContain("require a fresh explicit approval every time; there is no standing permission to offer");
     expect(prompt).toContain("Destructive actions");
     expect(prompt).toContain("If an approval is declined or times out, nothing changed");
-    expect(prompt).toContain("A support ticket is created only after the user explicitly confirms");
+    expect(prompt).toContain("A support email is sent only after the user explicitly confirms");
     expect(prompt).toContain("build it yourself with the ordinary tools");
   });
 });

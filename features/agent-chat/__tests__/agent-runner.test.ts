@@ -31,7 +31,7 @@ const toolsMock = vi.hoisted(() => ({
   error: null as Error | null,
 }));
 const interactorMock = vi.hoisted(() => ({
-  createSupportTicket: vi.fn().mockResolvedValue({ ok: true, data: { number: 1 } }),
+  createSupportTicket: vi.fn().mockResolvedValue({ ok: true, data: { sent: true } }),
 }));
 
 vi.mock("@/env", () => ({
@@ -151,7 +151,7 @@ beforeEach(() => {
   toolsMock.error = null;
   interactorMock.createSupportTicket.mockResolvedValue({
     ok: true,
-    data: { number: 1 },
+    data: { sent: true },
   });
   repoMock.takeUiCommandResultUnscoped.mockResolvedValue(null);
   repoMock.createPendingApprovalRequestOrThrowUnscoped.mockResolvedValue(undefined);
@@ -428,7 +428,48 @@ describe("agent runner approval rendezvous", () => {
     );
   });
 
-  it("marks a rejected support escalation as an error activity", async () => {
+  it("reports success after the support email is accepted", async () => {
+    aiMock.streamText.mockReturnValue(
+      scripted(async function* () {
+        yield {
+          type: "tool-call",
+          toolCallId: "support-1",
+          toolName: "request_support",
+          input: {
+            subject: "Need help",
+            body: "Please connect me with a human.",
+          },
+        };
+        const output = await (toolsMock.captured as Deps).createSupportTicket(
+          "support-1",
+          "Need help",
+          "Please connect me with a human.",
+        );
+        yield { type: "tool-result", toolCallId: "support-1", output };
+        yield { type: "text-delta", text: output.result };
+      }),
+    );
+
+    await runAndRead(ctx());
+
+    expect(interactorMock.createSupportTicket).toHaveBeenCalledWith({
+      conversationId: "cv1",
+      subject: "Need help",
+      body: "Please connect me with a human.",
+    });
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({
+        parts: expect.arrayContaining([
+          {
+            type: "text",
+            text: "Support request email accepted for delivery. The Customermates team will reply to the email address on your account.",
+          },
+        ]),
+      }),
+    );
+  });
+
+  it("marks a rejected support email as an error activity", async () => {
     interactorMock.createSupportTicket.mockResolvedValueOnce({
       ok: false,
       error: {},
@@ -466,8 +507,6 @@ describe("agent runner approval rendezvous", () => {
     );
     expect(interactorMock.createSupportTicket).toHaveBeenCalledWith({
       conversationId: "cv1",
-      turnRequestId: "turn1",
-      toolCallId: "support-1",
       subject: "Need help",
       body: "Please connect me with a human.",
     });

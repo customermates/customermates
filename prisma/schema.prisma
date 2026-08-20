@@ -1595,35 +1595,6 @@ enum UnipileWebhookSource {
   users
 }
 
-model SupportTicket {
-  id                  String              @id @default(uuid())
-  number              Int                 @unique @default(autoincrement())
-  companyId           String
-  userId              String
-  subject             String
-  body                String
-  status              SupportTicketStatus @default(open)
-  source              SupportTicketSource
-  agentConversationId String?
-  createdAt           DateTime            @default(now())
-  resolvedAt          DateTime?
-  agentConversation   AgentConversation?  @relation(fields: [agentConversationId], references: [id], onDelete: SetNull)
-
-  @@index([companyId, status])
-  @@index([status, createdAt])
-  @@index([agentConversationId])
-}
-
-enum SupportTicketStatus {
-  open
-  resolved
-}
-
-enum SupportTicketSource {
-  chat
-  mcp
-}
-
 model AgentConversation {
   id               String                 @id @default(uuid())
   companyId        String
@@ -1639,7 +1610,6 @@ model AgentConversation {
   approvals        AgentApproval[]
   uiCommandResults AgentUiCommandResult[]
   turnRequests     AgentTurnRequest[]
-  supportTickets   SupportTicket[]
 
   @@index([companyId, userId, archivedAt, updatedAt])
   @@index([companyId, userId, archivedAt, selectedAt])

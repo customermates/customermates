@@ -115,6 +115,8 @@ const COMMON_ERROR_KEYS = [
   ...DIRECT_COMMON_ERROR_KEYS.map((code) => `Common.errors.${code}`),
 ];
 const ENTITLEMENT_DENIAL_KEYS = [
+  "ConnectedAccountsCard.agentChatRequiresCloud",
+  "ConnectedAccountsCard.agentChatRequiresPlan",
   "ConnectedAccountsCard.messagingRequiresCloud",
   "ConnectedAccountsCard.messagingRequiresPro",
   "ConnectedAccountsCard.paidSubscriptionRequired",

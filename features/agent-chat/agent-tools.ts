@@ -518,7 +518,7 @@ export function getAgentAiTools(deps: AgentToolDeps, allowedToolNames?: readonly
   const extras: ToolSet = {
     request_support: tool({
       description:
-        "Open a support ticket with the Customermates team. Use when the user asks for a human, reports a bug, or you cannot help after a genuine attempt. The team follows up here and by email.",
+        "Email a support request to the Customermates team. Use when the user asks for a human, reports a bug, or you cannot help after a genuine attempt. The recent Assistant conversation is included, and the team replies to the email address on the user's account.",
       inputSchema: RequestSupportSchema,
       execute: async (input, { toolCallId }) =>
         runSafely(() =>

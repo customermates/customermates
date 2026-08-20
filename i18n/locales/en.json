@@ -152,9 +152,9 @@
         },
         "support": {
           "escalate": {
-            "done": "Support has been contacted",
-            "error": "Couldn’t contact support",
-            "running": "Contacting Customermates support"
+            "done": "Support email accepted for delivery",
+            "error": "Couldn’t send support email",
+            "running": "Sending support request email"
           }
         },
         "team": {
@@ -222,7 +222,7 @@
     "greeting": {
       "headline": "Hey, I'm Mate",
       "subtitle": "Ask me anything about your workspace, or tell me what to do and I'll take care of it.",
-      "support": "If something doesn't work out, I can open a support ticket and our team replies by email."
+      "support": "If something doesn't work out, I can email our team with the recent conversation, and they reply by email."
     },
     "placeholder": "Ask your CRM…",
     "runner": {
@@ -543,7 +543,7 @@
       "cancel": "Cancel",
       "chats": "Chats",
       "deleteChat": "Delete chat",
-      "deleteChatBody": "This permanently deletes the chat’s messages, approvals, and assistant actions. AI usage and billing records, CRM records created through the chat, and separately created support tickets remain.",
+      "deleteChatBody": "This permanently deletes the chat’s messages, approvals, and assistant actions. AI usage and billing records and CRM records created through the chat remain. Support emails already sent are not recalled.",
       "deleteChatTitle": "Permanently delete this chat?",
       "deletePermanently": "Delete permanently",
       "editQueued": "Edit queued message",

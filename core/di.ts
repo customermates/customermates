@@ -291,8 +291,8 @@ import { AcceptLegalDocumentsInteractor } from "@/features/legal/accept-legal-do
 import { DeliverWebhookInteractor } from "@/features/webhook/deliver-webhook.interactor";
 // Audit log interactors
 import { GetAuditLogsInteractor } from "@/features/audit-log/get/get-audit-logs.interactor";
-import { PrismaSupportRepo } from "@/features/support/prisma-support.repository";
 import { CreateSupportTicketInteractor } from "@/features/support/create-support-ticket.interactor";
+import { FeedbackCreator } from "@/features/feedback/feedback.creator";
 import { PrismaAgentChatRepo } from "@/features/agent-chat/prisma-agent-chat.repository";
 import { AgentUsageService } from "@/features/agent-chat/agent-usage.service";
 import { SendAgentMessageInteractor } from "@/features/agent-chat/send-agent-message.interactor";
@@ -331,7 +331,6 @@ export const getConnectedAccountRepo = () => new PrismaConnectedAccountRepo();
 export const getUnipileWebhookRepo = () => new PrismaUnipileWebhookRepo();
 export const getCalendarRepo = () => new PrismaCalendarRepo();
 export const getCalendarEventsRepo = () => new PrismaCalendarEventsRepo();
-export const getSupportRepo = () => new PrismaSupportRepo();
 export const getAgentChatRepo = () => new PrismaAgentChatRepo();
 
 // ─── Section 3: Services ────────────────────────────────────────────────────
@@ -1387,7 +1386,9 @@ export const getDeleteFilterPresetInteractor = () => new DeleteFilterPresetInter
 
 // --- Feedback ---
 
-export const getSendFeedbackInteractor = () => new SendFeedbackInteractor(getEmailService());
+export const getFeedbackCreator = () => new FeedbackCreator(getEmailService());
+
+export const getSendFeedbackInteractor = () => new SendFeedbackInteractor(getFeedbackCreator());
 
 // --- Contact ---
 
@@ -1459,8 +1460,7 @@ export const getAcceptLegalDocumentsInteractor = () =>
 export const getDeliverWebhookInteractor = () =>
   new DeliverWebhookInteractor(getWebhookDeliveryRepo(), getWebhookRepo());
 
-export const getCreateSupportTicketInteractor = () =>
-  new CreateSupportTicketInteractor(getSupportRepo(), getEmailService());
+export const getCreateSupportTicketInteractor = () => new CreateSupportTicketInteractor(getFeedbackCreator());
 
 export const getAgentUsageService = () => new AgentUsageService(getAgentChatRepo());
 
@@ -1492,4 +1492,4 @@ export const getRestoreAgentConversationInteractor = () =>
   new RestoreAgentConversationInteractor(getAgentChatRepo(), getEntitlementService());
 
 export const getCreateChatSupportTicketInteractor = () =>
-  new CreateChatSupportTicketInteractor(getAgentChatRepo(), getCreateSupportTicketInteractor());
+  new CreateChatSupportTicketInteractor(getAgentChatRepo(), getFeedbackCreator());

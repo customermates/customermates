@@ -99,11 +99,6 @@ const ALLOWED_VISIBLE_COPY_SITES = new Map<string, VisibleCopyException>([
     'components/emails/feedback.tsx :: jsx-label :: "Feedback"',
     'components/emails/new-user-notification.tsx :: jsx-label :: "User"',
     'components/emails/new-user-notification.tsx :: jsx-label :: "Provider"',
-    'components/emails/support-escalation.tsx :: jsx-title :: "Support request"',
-    'components/emails/support-escalation.tsx :: jsx-label :: "From"',
-    'components/emails/support-escalation.tsx :: jsx-label :: "Company"',
-    'components/emails/support-escalation.tsx :: jsx-label :: "Conversation"',
-    'components/emails/support-escalation.tsx :: jsx-label :: "Recent messages"',
   ]),
   ...reviewedVisibleCopy("The parser enables this only when Intl selects the ASCII AM/PM time grammar.", [
     'components/forms/time-input.tsx :: jsx-placeholder :: "12:00:00 AM"',

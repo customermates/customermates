@@ -152,9 +152,9 @@
         },
         "support": {
           "escalate": {
-            "done": "Le support a été contacté",
-            "error": "Impossible de contacter le support",
-            "running": "Contact avec le support Customermates"
+            "done": "E-mail d’assistance accepté pour envoi",
+            "error": "Impossible d’envoyer l’e-mail d’assistance",
+            "running": "Envoi de l’e-mail d’assistance"
           }
         },
         "team": {
@@ -222,7 +222,7 @@
     "greeting": {
       "headline": "Bonjour, je suis Mate",
       "subtitle": "Posez-moi toutes vos questions sur votre espace de travail, ou dites-moi quoi faire et je m'en occupe.",
-      "support": "Si quelque chose ne fonctionne pas, je peux ouvrir un ticket de support et notre équipe vous répond par e-mail."
+      "support": "Si quelque chose ne fonctionne pas, je peux envoyer la conversation récente à notre équipe par e-mail, qui vous répondra par e-mail."
     },
     "placeholder": "Interrogez votre CRM…",
     "runner": {
@@ -543,7 +543,7 @@
       "cancel": "Annuler",
       "chats": "Discussions",
       "deleteChat": "Supprimer la discussion",
-      "deleteChatBody": "Cette action supprime définitivement les messages, les approbations et les actions de l’assistant de cette discussion. Les données d’utilisation et de facturation de l’IA, les enregistrements CRM créés via la discussion et les tickets de support créés séparément sont conservés.",
+      "deleteChatBody": "Cette action supprime définitivement les messages, les approbations et les actions de l’assistant de cette discussion. Les données d’utilisation et de facturation de l’IA ainsi que les enregistrements CRM créés via la discussion sont conservés. Les e-mails d’assistance déjà envoyés ne sont pas rappelés.",
       "deleteChatTitle": "Supprimer définitivement ce chat ?",
       "deletePermanently": "Supprimer définitivement",
       "editQueued": "Modifier le message en attente",

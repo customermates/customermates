@@ -155,6 +155,21 @@ describeDatabase("agent assistant migration", { timeout: 120_000 }, () => {
         "AgentUiCommandResult",
         "AgentUsageEvent",
       ]);
+
+      const retiredSupportArtifacts = await client.query<{
+        table_name: string | null;
+        enum_names: string[];
+      }>(
+        `SELECT to_regclass('public."SupportTicket"')::text AS table_name,
+                ARRAY(SELECT typname::text FROM pg_type
+                      WHERE typname IN ('SupportTicketStatus', 'SupportTicketSource')
+                      ORDER BY typname)::text[] AS enum_names`,
+      );
+
+      expect(retiredSupportArtifacts.rows[0]).toEqual({
+        table_name: null,
+        enum_names: [],
+      });
     });
   });
 });

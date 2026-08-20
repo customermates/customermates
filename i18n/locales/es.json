@@ -152,9 +152,9 @@
         },
         "support": {
           "escalate": {
-            "done": "Se ha contactado con el soporte",
-            "error": "No se pudo contactar con el soporte",
-            "running": "Contactando con el soporte de Customermates"
+            "done": "Correo de soporte aceptado para su envío",
+            "error": "No se pudo enviar el correo de soporte",
+            "running": "Enviando correo de soporte"
           }
         },
         "team": {
@@ -222,7 +222,7 @@
     "greeting": {
       "headline": "Hola, soy Mate",
       "subtitle": "Pregúnteme lo que quiera sobre su espacio de trabajo o dígame qué hacer y me encargo.",
-      "support": "Si algo no sale bien, puedo abrir un ticket de soporte y nuestro equipo le responde por correo electrónico."
+      "support": "Si algo no sale bien, puedo enviar por correo electrónico a nuestro equipo la conversación reciente, y le responderán por correo electrónico."
     },
     "placeholder": "Pregunte a su CRM…",
     "runner": {
@@ -543,7 +543,7 @@
       "cancel": "Cancelar",
       "chats": "Chats",
       "deleteChat": "Eliminar chat",
-      "deleteChatBody": "Esto elimina de forma permanente los mensajes, las aprobaciones y las acciones del asistente de este chat. Se conservan los datos de uso de IA y de facturación, los registros del CRM creados a través del chat y los tickets de soporte creados por separado.",
+      "deleteChatBody": "Esto elimina de forma permanente los mensajes, las aprobaciones y las acciones del asistente de este chat. Se conservan los datos de uso de IA y de facturación, así como los registros del CRM creados a través del chat. Los correos de soporte ya enviados no se retiran.",
       "deleteChatTitle": "¿Eliminar este chat definitivamente?",
       "deletePermanently": "Eliminar definitivamente",
       "editQueued": "Editar el mensaje en cola",

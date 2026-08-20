@@ -152,9 +152,9 @@
         },
         "support": {
           "escalate": {
-            "done": "Il supporto è stato contattato",
-            "error": "Impossibile contattare l’assistenza",
-            "running": "Contatto con il supporto Customermates"
+            "done": "E-mail di assistenza accettata per l’invio",
+            "error": "Impossibile inviare l’e-mail di assistenza",
+            "running": "Invio dell’e-mail di assistenza"
           }
         },
         "team": {
@@ -222,7 +222,7 @@
     "greeting": {
       "headline": "Ciao, sono Mate",
       "subtitle": "Chiedimi qualsiasi cosa sul tuo workspace, oppure dimmi cosa fare e me ne occupo io.",
-      "support": "Se qualcosa non va, posso aprire un ticket di supporto e il nostro team ti risponde via e-mail."
+      "support": "Se qualcosa non va, posso inviare al nostro team via e-mail la conversazione recente e il team ti risponderà via e-mail."
     },
     "placeholder": "Chiedi al tuo CRM…",
     "runner": {
@@ -543,7 +543,7 @@
       "cancel": "Annulla",
       "chats": "Chat",
       "deleteChat": "Elimina chat",
-      "deleteChatBody": "Questa operazione elimina definitivamente i messaggi, le approvazioni e le azioni dell’assistente della chat. Restano i dati di utilizzo AI e di fatturazione, i record CRM creati tramite la chat e i ticket di assistenza creati separatamente.",
+      "deleteChatBody": "Questa operazione elimina definitivamente i messaggi, le approvazioni e le azioni dell’assistente della chat. Restano i dati di utilizzo AI e di fatturazione e i record CRM creati tramite la chat. Le e-mail di assistenza già inviate non vengono richiamate.",
       "deleteChatTitle": "Eliminare definitivamente questa chat?",
       "deletePermanently": "Elimina definitivamente",
       "editQueued": "Modifica il messaggio in coda",

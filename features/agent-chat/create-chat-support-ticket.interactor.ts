@@ -6,16 +6,13 @@ import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { type Data, type Validated } from "@/core/validation/validation.utils";
 
-import type { CreateSupportTicketInteractor } from "@/features/support/create-support-ticket.interactor";
+import type { FeedbackCreator } from "@/features/feedback/feedback.creator";
 
 import { formatSupportTranscript, SUPPORT_TRANSCRIPT_MESSAGE_LIMIT } from "./agent-chat.schema";
-import { deriveChatSupportTicketId } from "./agent-support-ticket-idempotency";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 
 export const CreateChatSupportTicketSchema = z.object({
   conversationId: z.uuid(),
-  turnRequestId: z.uuid(),
-  toolCallId: z.string().min(1).max(256),
   subject: z.string().min(1).max(200),
   body: z.string().min(1).max(10000),
 });
@@ -23,45 +20,43 @@ export const CreateChatSupportTicketSchema = z.object({
 export type CreateChatSupportTicketData = Data<typeof CreateChatSupportTicketSchema>;
 
 const OutputSchema = z.object({
-  id: z.string(),
-  number: z.number().int(),
+  sent: z.literal(true),
 });
 
-type CreatedTicket = Data<typeof OutputSchema>;
+type SupportRequestResult = Data<typeof OutputSchema>;
 
 @AllowInDemoMode
 @TenantInteractor()
 export class CreateChatSupportTicketInteractor extends AuthenticatedInteractor<
   CreateChatSupportTicketData,
-  CreatedTicket
+  SupportRequestResult
 > {
   constructor(
     private repo: PrismaAgentChatRepo,
-    private createSupportTicket: CreateSupportTicketInteractor,
+    private feedbackCreator: FeedbackCreator,
   ) {
     super();
   }
 
-  @Write({ input: CreateChatSupportTicketSchema, output: OutputSchema, tx: false })
-  async invoke(data: CreateChatSupportTicketData): Validated<CreatedTicket> {
+  @Write({
+    input: CreateChatSupportTicketSchema,
+    output: OutputSchema,
+    tx: false,
+  })
+  async invoke(data: CreateChatSupportTicketData): Validated<SupportRequestResult> {
     const conversation = await this.repo.findConversation(data.conversationId);
     if (!conversation) throw new Error("Conversation not found.");
 
     const messages = await this.repo.listRecentMessages(conversation.id, SUPPORT_TRANSCRIPT_MESSAGE_LIMIT);
+    const transcript = formatSupportTranscript(messages);
+    const details = transcript ? `${data.body}\n\nRecent Assistant conversation:\n${transcript}` : data.body;
 
-    const ticket = await this.createSupportTicket.invoke({
-      subject: data.subject,
-      body: data.body,
-      transcript: formatSupportTranscript(messages),
-      source: "chat",
-      agentConversationId: conversation.id,
-      idempotencyId: deriveChatSupportTicketId({
-        turnRequestId: data.turnRequestId,
-        toolCallId: data.toolCallId,
-      }),
+    await this.feedbackCreator.create({
+      details,
+      subject: `Support request: ${data.subject}`,
+      user: this.user,
     });
-    if (!ticket.ok) return ticket;
 
-    return { ok: true as const, data: ticket.data };
+    return { ok: true as const, data: { sent: true as const } };
   }
 }

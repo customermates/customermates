@@ -40,7 +40,6 @@ const prismaMock = vi.hoisted(() => ({
     create: vi.fn(),
     updateMany: vi.fn(),
   },
-  supportTicket: { findFirst: vi.fn() },
 }));
 
 vi.mock("@/prisma/db", () => ({ prisma: prismaMock }));

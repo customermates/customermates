@@ -16,46 +16,70 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
 import { CreateChatSupportTicketInteractor } from "../create-chat-support-ticket.interactor";
-import { deriveChatSupportTicketId } from "../agent-support-ticket-idempotency";
 
 const conversationId = "00000000-0000-4000-8000-000000000001";
-const turnRequestId = "00000000-0000-4000-8000-000000000002";
 
 describe("CreateChatSupportTicketInteractor", () => {
-  it("derives the repository idempotency id from the admitted turn and provider tool call", async () => {
+  it("emails the support details with the recent Assistant transcript", async () => {
     const repo = {
       findConversation: vi.fn().mockResolvedValue({ id: conversationId }),
-      listRecentMessages: vi
-        .fn()
-        .mockResolvedValue([{ role: "user", parts: [{ type: "text", text: "Import keeps failing" }] }]),
+      listRecentMessages: vi.fn().mockResolvedValue([
+        {
+          role: "user",
+          parts: [{ type: "text", text: "Import keeps failing" }],
+        },
+      ]),
     };
-    const createSupportTicket = {
-      invoke: vi.fn().mockResolvedValue({
-        ok: true,
-        data: { id: "ticket-id", number: 12 },
-      }),
-    };
+    const feedbackCreator = { create: vi.fn().mockResolvedValue(undefined) };
 
-    const result = await new CreateChatSupportTicketInteractor(repo as never, createSupportTicket as never).invoke({
+    const result = await new CreateChatSupportTicketInteractor(repo as never, feedbackCreator as never).invoke({
       conversationId,
-      turnRequestId,
-      toolCallId: "call_request_support_1",
       subject: "Need a human",
       body: "Please help with this import error.",
     });
 
-    expect(result).toEqual({ ok: true, data: { id: "ticket-id", number: 12 } });
-    expect(createSupportTicket.invoke).toHaveBeenCalledWith({
-      subject: "Need a human",
-      body: "Please help with this import error.",
-      transcript: "user: Import keeps failing",
-      source: "chat",
-      agentConversationId: conversationId,
-      idempotencyId: deriveChatSupportTicketId({
-        turnRequestId,
-        toolCallId: "call_request_support_1",
-      }),
+    expect(result).toEqual({ ok: true, data: { sent: true } });
+    expect(feedbackCreator.create).toHaveBeenCalledWith({
+      details: "Please help with this import error.\n\nRecent Assistant conversation:\nuser: Import keeps failing",
+      subject: "Support request: Need a human",
+      user: mockUser,
     });
-    expect(repo.listRecentMessages).toHaveBeenCalled();
+    expect(repo.listRecentMessages).toHaveBeenCalledWith(conversationId, 20);
+  });
+
+  it("does not send an email for an inaccessible conversation", async () => {
+    const repo = {
+      findConversation: vi.fn().mockResolvedValue(null),
+      listRecentMessages: vi.fn(),
+    };
+    const feedbackCreator = { create: vi.fn() };
+
+    await expect(
+      new CreateChatSupportTicketInteractor(repo as never, feedbackCreator as never).invoke({
+        conversationId,
+        subject: "Need a human",
+        body: "Please help with this import error.",
+      }),
+    ).rejects.toThrow("Conversation not found.");
+    expect(repo.listRecentMessages).not.toHaveBeenCalled();
+    expect(feedbackCreator.create).not.toHaveBeenCalled();
+  });
+
+  it("propagates a rejected support email", async () => {
+    const repo = {
+      findConversation: vi.fn().mockResolvedValue({ id: conversationId }),
+      listRecentMessages: vi.fn().mockResolvedValue([]),
+    };
+    const feedbackCreator = {
+      create: vi.fn().mockRejectedValue(new Error("Resend rejected the email")),
+    };
+
+    await expect(
+      new CreateChatSupportTicketInteractor(repo as never, feedbackCreator as never).invoke({
+        conversationId,
+        subject: "Need a human",
+        body: "Please help with this import error.",
+      }),
+    ).rejects.toThrow("Resend rejected the email");
   });
 });

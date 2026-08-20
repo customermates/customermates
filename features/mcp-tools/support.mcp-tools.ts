@@ -13,17 +13,21 @@ export const requestSupportTool = {
   name: "request_support",
   title: "Request support",
   description:
-    "Open a support ticket with the Customermates team. " +
+    "Email a support request to the Customermates team. " +
     "Use when the user has a question, bug report, or request that needs a human. " +
-    "The recent chat is attached to the ticket automatically. The Customermates team replies by email, " +
-    "not in this chat. Returns the ticket number.",
-  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+    "Include all relevant context in the description. The Customermates team replies to the email address " +
+    "on the user's account. Returns confirmation only after the email provider accepts the request.",
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: false,
+    idempotentHint: false,
+    openWorldHint: true,
+  },
   inputSchema: RequestSupportSchema,
   execute: (params: z.infer<typeof RequestSupportSchema>) =>
     runInteractor(
-      getCreateSupportTicketInteractor().invoke({ ...params, source: "mcp" }),
-      (data) =>
-        `Support ticket #${data.number} opened and the Customermates team has been notified by email, ` +
-        `with this conversation attached. They reply to the email address on your account, not in this chat.`,
+      getCreateSupportTicketInteractor().invoke(params),
+      () =>
+        "Support request email accepted for delivery. The Customermates team will reply to the email address on your account.",
     ),
 };
