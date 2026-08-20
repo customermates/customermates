@@ -136,7 +136,7 @@ export const SignInForm = observer(({ isInvited, socialProviders }: Props) => {
             </Button>
 
             {appMode === "cloud" && !isInvited ? (
-              <p className="text-x-xs text-subdued text-center mt-2">
+              <p className="text-x-xs text-subdued text-center mt-2 max-w-sm">
                 {t.rich("SignInForm.agreeToTerms", {
                   dataPrivacyLink: (chunks) => (
                     <AppLink inheritSize appearance="inline" href="/privacy" target="_blank">

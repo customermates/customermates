@@ -2279,7 +2279,7 @@
     "title": "Service"
   },
   "SignInForm": {
-    "agreeToTerms": "Consultez nos <termsOfServiceLink>conditions générales</termsOfServiceLink>, notre <dpaLink>DPA</dpaLink> et notre <dataPrivacyLink>politique de confidentialité</dataPrivacyLink>.",
+    "agreeToTerms": "En continuant, vous acceptez nos <termsOfServiceLink>conditions générales</termsOfServiceLink> et reconnaissez avoir lu notre <dataPrivacyLink>politique de confidentialité</dataPrivacyLink>. Consultez notre <dpaLink>DPA</dpaLink>.",
     "buttonLabel": "Continuer avec {provider}",
     "forgotPassword": "Mot de passe oublié ?",
     "or": "OU",
@@ -2290,7 +2290,7 @@
   },
   "SignUpForm": {
     "acceptInviteCta": "Accepter l'invitation",
-    "agreeToTerms": "Consultez nos <termsOfServiceLink>conditions générales</termsOfServiceLink>, notre <dpaLink>DPA</dpaLink> et notre <dataPrivacyLink>politique de confidentialité</dataPrivacyLink>.",
+    "agreeToTerms": "En continuant, vous acceptez nos <termsOfServiceLink>conditions générales</termsOfServiceLink> et reconnaissez avoir lu notre <dataPrivacyLink>politique de confidentialité</dataPrivacyLink>. Consultez notre <dpaLink>DPA</dpaLink>.",
     "buttonLabel": "S'inscrire avec {provider}",
     "inviteSubtitle": "Vous avez été invité à rejoindre une équipe sur Customermates. Choisissez votre méthode de connexion pour accepter l'invitation.",
     "inviteTitle": "Accepter l'invitation de l'entreprise",

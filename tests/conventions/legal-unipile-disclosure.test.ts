@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 import { REPO_ROOT, walkFiles } from "./walk";
 
 import { LEGAL_DOCUMENT_VERSIONS } from "@/constants/legal-documents";
-import { CONTENT_LOCALES } from "@/i18n/locale-registry";
+import { APP_LOCALES, CONTENT_LOCALES, type AppLocale, type ContentLocale } from "@/i18n/locale-registry";
 
 // Guards the connected-account disclosure (CUS-56) against one-language drift and
 // against describing processing the product does not perform.
@@ -29,6 +29,29 @@ const EXTERNAL_IMAGE_HOSTS = [
   "startupfa.me",
   "open-launch.com",
 ] as const;
+
+const ONBOARDING_COPY = {
+  en: {
+    onboarding:
+      "I am authorised to act for the business customer and accept the <termsOfServiceLink>Terms</termsOfServiceLink> and <dpaLink>DPA</dpaLink>. I have read the <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
+    invited:
+      "I agree to comply with the <termsOfServiceLink>Terms</termsOfServiceLink> and have read the <dpaLink>DPA</dpaLink> and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
+  },
+  de: {
+    onboarding:
+      "Ich bin berechtigt, für den Geschäftskunden zu handeln, und stimme den <termsOfServiceLink>AGB</termsOfServiceLink> sowie dem <dpaLink>AVV</dpaLink> zu. Die <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> habe ich gelesen.",
+    invited:
+      "Ich verpflichte mich, die <termsOfServiceLink>AGB</termsOfServiceLink> einzuhalten, und habe den <dpaLink>AVV</dpaLink> sowie die <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> gelesen.",
+  },
+} satisfies Record<ContentLocale, { onboarding: string; invited: string }>;
+
+const AUTH_CONTINUATION_COPY = {
+  en: "By continuing, you agree to our <termsOfServiceLink>Terms</termsOfServiceLink> and acknowledge our <dataPrivacyLink>Privacy Policy</dataPrivacyLink>. See our <dpaLink>DPA</dpaLink>.",
+  de: "Mit dem Fortfahren stimmst du unseren <termsOfServiceLink>AGB</termsOfServiceLink> zu und nimmst unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> zur Kenntnis. Siehe unseren <dpaLink>AVV</dpaLink>.",
+  fr: "En continuant, vous acceptez nos <termsOfServiceLink>conditions générales</termsOfServiceLink> et reconnaissez avoir lu notre <dataPrivacyLink>politique de confidentialité</dataPrivacyLink>. Consultez notre <dpaLink>DPA</dpaLink>.",
+  it: "Continuando, accetti i nostri <termsOfServiceLink>Termini</termsOfServiceLink> e dichiari di aver letto la nostra <dataPrivacyLink>Informativa sulla privacy</dataPrivacyLink>. Consulta il nostro <dpaLink>DPA</dpaLink>.",
+  es: "Al continuar, aceptas nuestros <termsOfServiceLink>Términos</termsOfServiceLink> y reconoces haber leído nuestra <dataPrivacyLink>Política de privacidad</dataPrivacyLink>. Consulta nuestro <dpaLink>DPA</dpaLink>.",
+} satisfies Record<AppLocale, string>;
 
 function legal(locale: string, slug: string): string {
   return readFileSync(join(REPO_ROOT, "content", "legal", locale, `${slug}.mdx`), "utf8");
@@ -234,43 +257,34 @@ describe("legal document versions stay coupled to the acceptance record", () => 
 });
 
 describe("registration legal copy covers the DPA", () => {
-  it.each(CONTENT_LOCALES)("legal-document messages (%s) link the DPA", (name) => {
+  it.each(APP_LOCALES)("legal-document messages (%s) link the DPA", (name) => {
     const messages = locale(name);
 
     for (const [namespace, key] of LEGAL_COPY_MESSAGES)
       expect(messages[namespace][key], `${namespace}.${key} is missing the DPA link`).toContain("<dpaLink>");
   });
 
-  it("keeps rich-text tags identical across locales", () => {
+  it.each(APP_LOCALES)("keeps rich-text tags identical across locales (%s)", (name) => {
     const en = locale("en");
-    const de = locale("de");
+    const messages = locale(name);
 
     for (const [namespace, key] of LEGAL_COPY_MESSAGES)
-      expect(richTags(de[namespace][key]), `${namespace}.${key} tag mismatch`).toEqual(richTags(en[namespace][key]));
+      expect(richTags(messages[namespace][key]), `${namespace}.${key} tag mismatch`).toEqual(richTags(en[namespace][key]));
   });
 
-  it.each(CONTENT_LOCALES)("places assent at onboarding rather than sign-in or initial sign-up (%s)", (name) => {
+  it.each(CONTENT_LOCALES)("keeps the auth continuation notice distinct from explicit onboarding assent (%s)", (name) => {
     const messages = locale(name);
-    const expected = name === "en"
-      ? {
-          onboarding:
-            "I am authorised to act for the business customer and accept the <termsOfServiceLink>Terms</termsOfServiceLink> and <dpaLink>DPA</dpaLink>. I have read the <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
-          invited:
-            "I agree to comply with the <termsOfServiceLink>Terms</termsOfServiceLink> and have read the <dpaLink>DPA</dpaLink> and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
-          auth: "See our <termsOfServiceLink>Terms</termsOfServiceLink>, <dpaLink>DPA</dpaLink>, and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
-        }
-      : {
-          onboarding:
-            "Ich bin berechtigt, für den Geschäftskunden zu handeln, und stimme den <termsOfServiceLink>AGB</termsOfServiceLink> sowie dem <dpaLink>AVV</dpaLink> zu. Die <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> habe ich gelesen.",
-          invited:
-            "Ich verpflichte mich, die <termsOfServiceLink>AGB</termsOfServiceLink> einzuhalten, und habe den <dpaLink>AVV</dpaLink> sowie die <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> gelesen.",
-          auth: "Siehe unsere <termsOfServiceLink>AGB</termsOfServiceLink>, unseren <dpaLink>AVV</dpaLink> und unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink>.",
-        };
+    const expected = ONBOARDING_COPY[name];
 
     expect(messages.OnboardingForm.agreeToTerms).toBe(expected.onboarding);
     expect(messages.OnboardingForm.invitedAgreeToTerms).toBe(expected.invited);
-    expect(messages.SignUpForm.agreeToTerms).toBe(expected.auth);
-    expect(messages.SignInForm.agreeToTerms).toBe(expected.auth);
+  });
+
+  it.each(APP_LOCALES)("pins the auth continuation notice in every application locale (%s)", (name) => {
+    const messages = locale(name);
+
+    expect(messages.SignUpForm.agreeToTerms).toBe(AUTH_CONTINUATION_COPY[name]);
+    expect(messages.SignInForm.agreeToTerms).toBe(AUTH_CONTINUATION_COPY[name]);
   });
 
   it("renders a DPA link in every legal-copy surface", () => {
