@@ -5,13 +5,7 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 import { AppLink } from "@/components/shared/app-link";
-import { registerApplicationErrorHandler } from "@/core/errors/report-application-error";
-
-function isDemoEnvironment(): boolean {
-  if (typeof window === "undefined") return false;
-
-  return window.location.hostname.includes("demo");
-}
+import { registerApplicationErrorHandler, isDemoEnvironment } from "@/core/errors/report-application-error";
 
 function containsString(error: unknown, searchString: string): boolean {
   if (typeof error === "string") return error.includes(searchString);

@@ -13,6 +13,9 @@ vi.mock("@/app/actions", () => ({
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn(() => true) }));
 vi.mock("../../utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn(() => true) }));
 
+const captureException = vi.fn();
+vi.mock("@sentry/nextjs", () => ({ captureException: (...args: unknown[]) => captureException(...args) }));
+
 import { BaseDataViewStore, type HasId, type TableColumn } from "../base-data-view.store";
 import { registerApplicationErrorHandler } from "@/core/errors/report-application-error";
 
@@ -93,6 +96,36 @@ describe("persistViewOptions rejection handling", () => {
     expect(seen).toEqual([]);
 
     unregister();
+  });
+});
+
+describe("Sentry reporting for handled application errors", () => {
+  const setHostname = (hostname: string) => {
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      value: { ...window.location, hostname },
+    });
+  };
+
+  beforeEach(() => captureException.mockClear());
+
+  it("reports a genuine failure to Sentry, because catching it hides it from the global handler", async () => {
+    const { reportApplicationError } = await import("@/core/errors/report-application-error");
+    setHostname("app.customermates.com");
+
+    const boom = new Error("network down");
+    reportApplicationError(boom);
+
+    expect(captureException).toHaveBeenCalledExactlyOnceWith(boom);
+  });
+
+  it("stays silent on the demo host, where the rejection is the expected demo guard", async () => {
+    const { reportApplicationError } = await import("@/core/errors/report-application-error");
+    setHostname("demo.customermates.com");
+
+    reportApplicationError(new Error("Saving is not available in demo mode."));
+
+    expect(captureException).not.toHaveBeenCalled();
   });
 });
 
