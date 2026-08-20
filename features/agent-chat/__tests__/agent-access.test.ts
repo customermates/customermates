@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
+import { mockEntitlementService } from "@/tests/helpers/mock-entitlement-service";
 import {
   createMockDiModule,
   MOCK_ENV_MODULE,
@@ -101,7 +102,11 @@ describe("agent access", () => {
       ),
     };
 
-    const result = await new SendAgentMessageInteractor(repo as never, usageService() as never).invoke({
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usageService() as never,
+      mockEntitlementService(),
+    ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: currentText,
       pageContext: { route: "/en/contacts" },
@@ -149,7 +154,7 @@ describe("agent access", () => {
     });
 
     await expect(
-      new SendAgentMessageInteractor(repo as never, usage as never).invoke({
+      new SendAgentMessageInteractor(repo as never, usage as never, mockEntitlementService()).invoke({
         clientRequestId: CLIENT_REQUEST_ID,
         text: "hello",
         retry: false,
@@ -184,7 +189,11 @@ describe("agent access", () => {
       ),
     };
 
-    const result = await new SendAgentMessageInteractor(repo as never, usageService() as never).invoke({
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usageService() as never,
+      mockEntitlementService(),
+    ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       conversationId: CONVERSATION_ID,
       text: "continue",
@@ -231,7 +240,11 @@ describe("agent access", () => {
       }),
     };
 
-    const result = await new SendAgentMessageInteractor(repo as never, usageService() as never).invoke({
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usageService() as never,
+      mockEntitlementService(),
+    ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       conversationId: CONVERSATION_ID,
       text: "Alice Smith",
@@ -275,11 +288,13 @@ describe("agent access", () => {
       claimAgentRunLease: vi.fn(),
     };
 
-    const result = await new SendAgentMessageInteractor(repo as never, usage as never).invoke({
-      clientRequestId: CLIENT_REQUEST_ID,
-      text: "same",
-      retry: false,
-    });
+    const result = await new SendAgentMessageInteractor(repo as never, usage as never, mockEntitlementService()).invoke(
+      {
+        clientRequestId: CLIENT_REQUEST_ID,
+        text: "same",
+        retry: false,
+      },
+    );
 
     expect(result.ok && result.data.disposition).toBe("completedReplay");
     if (!result.ok || result.data.disposition !== "completedReplay") return;
@@ -319,11 +334,13 @@ describe("agent access", () => {
       claimAgentRunLease: vi.fn(),
     };
 
-    const result = await new SendAgentMessageInteractor(repo as never, usage as never).invoke({
-      clientRequestId: CLIENT_REQUEST_ID,
-      text: "same",
-      retry: false,
-    });
+    const result = await new SendAgentMessageInteractor(repo as never, usage as never, mockEntitlementService()).invoke(
+      {
+        clientRequestId: CLIENT_REQUEST_ID,
+        text: "same",
+        retry: false,
+      },
+    );
 
     expect(result.ok && result.data.disposition).toBe("uncertain");
     expect(usage.prepareTurn).not.toHaveBeenCalled();
@@ -364,7 +381,11 @@ describe("agent access", () => {
       ]),
     };
 
-    const result = await new SendAgentMessageInteractor(repo as never, usageService() as never).invoke({
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usageService() as never,
+      mockEntitlementService(),
+    ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "retry this",
       retry: true,
@@ -408,11 +429,13 @@ describe("agent access", () => {
       claimAgentRunLease: vi.fn(),
     };
 
-    const result = await new SendAgentMessageInteractor(repo as never, usage as never).invoke({
-      clientRequestId: CLIENT_REQUEST_ID,
-      text: "different",
-      retry: true,
-    });
+    const result = await new SendAgentMessageInteractor(repo as never, usage as never, mockEntitlementService()).invoke(
+      {
+        clientRequestId: CLIENT_REQUEST_ID,
+        text: "different",
+        retry: true,
+      },
+    );
 
     expect(result.ok && result.data.disposition).toBe("conflict");
     expect(usage.prepareTurn).not.toHaveBeenCalled();
@@ -431,7 +454,7 @@ describe("agent access", () => {
     };
 
     await expect(
-      new SendAgentMessageInteractor(repo as never, usage as never).invoke({
+      new SendAgentMessageInteractor(repo as never, usage as never, mockEntitlementService()).invoke({
         clientRequestId: CLIENT_REQUEST_ID,
         conversationId: CONVERSATION_ID,
         text: "continue",
@@ -455,7 +478,7 @@ describe("agent access", () => {
     };
 
     await expect(
-      new SendAgentMessageInteractor(repo as never, usageService() as never).invoke({
+      new SendAgentMessageInteractor(repo as never, usageService() as never, mockEntitlementService()).invoke({
         clientRequestId: CLIENT_REQUEST_ID,
         text: "hello",
         retry: false,
@@ -477,7 +500,7 @@ describe("agent access", () => {
     };
 
     await expect(
-      new SendAgentMessageInteractor(repo as never, usage as never).invoke({
+      new SendAgentMessageInteractor(repo as never, usage as never, mockEntitlementService()).invoke({
         clientRequestId: CLIENT_REQUEST_ID,
         text: "hello",
         retry: false,
@@ -530,7 +553,9 @@ describe("agent access", () => {
       ),
     };
 
-    const result = await new GetAgentConversationInteractor(repo as never).invoke({ conversationId: CONVERSATION_ID });
+    const result = await new GetAgentConversationInteractor(repo as never, mockEntitlementService()).invoke({
+      conversationId: CONVERSATION_ID,
+    });
 
     expect(result.ok).toBe(true);
     if (!result.ok) return;
@@ -574,7 +599,9 @@ describe("agent access", () => {
       ),
     };
 
-    const result = await new GetAgentConversationInteractor(repo as never).invoke({ conversationId: CONVERSATION_ID });
+    const result = await new GetAgentConversationInteractor(repo as never, mockEntitlementService()).invoke({
+      conversationId: CONVERSATION_ID,
+    });
 
     expect(result.ok && result.data.messages[0]?.parts).toEqual([
       {
@@ -591,7 +618,7 @@ describe("agent access", () => {
       recordUiCommandResult: vi.fn().mockResolvedValue(undefined),
     };
 
-    const result = await new RespondToUiCommandInteractor(repo as never).invoke({
+    const result = await new RespondToUiCommandInteractor(repo as never, mockEntitlementService()).invoke({
       conversationId: CONVERSATION_ID,
       commandId: "command-1",
       name: "navigate",

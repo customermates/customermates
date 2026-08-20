@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
+import { mockEntitlementService } from "@/tests/helpers/mock-entitlement-service";
 import {
   MOCK_ENV_MODULE,
   createMockDiModule,
@@ -59,7 +60,11 @@ describe("GetAgentConfigInteractor", () => {
   });
 
   it("returns the per-entity suggestion signals alongside the existing config", async () => {
-    const result: any = await new GetAgentConfigInteractor(repo as never, usageService as never).invoke();
+    const result: any = await new GetAgentConfigInteractor(
+      repo as never,
+      usageService as never,
+      mockEntitlementService(),
+    ).invoke();
 
     expect(result.ok).toBe(true);
     expect(result.data.counts).toEqual(COUNTS);
@@ -76,7 +81,11 @@ describe("GetAgentConfigInteractor", () => {
     });
     repo.normalizeExpiredAgentRunLease.mockReturnValue(normalization);
 
-    const invocation = new GetAgentConfigInteractor(repo as never, usageService as never).invoke();
+    const invocation = new GetAgentConfigInteractor(
+      repo as never,
+      usageService as never,
+      mockEntitlementService(),
+    ).invoke();
     await vi.waitFor(() => expect(repo.normalizeExpiredAgentRunLease).toHaveBeenCalledTimes(1));
 
     expect(repo.normalizeExpiredAgentRunLease).toHaveBeenCalledWith(expect.any(Date), "gpt-5.6-luna");

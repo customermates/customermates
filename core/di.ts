@@ -1465,24 +1465,31 @@ export const getCreateSupportTicketInteractor = () =>
 export const getAgentUsageService = () => new AgentUsageService(getAgentChatRepo());
 
 export const getSendAgentMessageInteractor = () =>
-  new SendAgentMessageInteractor(getAgentChatRepo(), getAgentUsageService());
+  new SendAgentMessageInteractor(getAgentChatRepo(), getAgentUsageService(), getEntitlementService());
 
 export const getGetAgentConfigInteractor = () =>
-  new GetAgentConfigInteractor(getAgentChatRepo(), getAgentUsageService());
+  new GetAgentConfigInteractor(getAgentChatRepo(), getAgentUsageService(), getEntitlementService());
 
-export const getRespondToApprovalInteractor = () => new RespondToApprovalInteractor(getAgentChatRepo());
+export const getRespondToApprovalInteractor = () =>
+  new RespondToApprovalInteractor(getAgentChatRepo(), getEntitlementService());
 
-export const getRespondToUiCommandInteractor = () => new RespondToUiCommandInteractor(getAgentChatRepo());
+export const getRespondToUiCommandInteractor = () =>
+  new RespondToUiCommandInteractor(getAgentChatRepo(), getEntitlementService());
 
-export const getGetAgentConversationInteractor = () => new GetAgentConversationInteractor(getAgentChatRepo());
+export const getGetAgentConversationInteractor = () =>
+  new GetAgentConversationInteractor(getAgentChatRepo(), getEntitlementService());
 
-export const getListAgentConversationsInteractor = () => new ListAgentConversationsInteractor(getAgentChatRepo());
+export const getListAgentConversationsInteractor = () =>
+  new ListAgentConversationsInteractor(getAgentChatRepo(), getEntitlementService());
 
-export const getDeleteAgentConversationInteractor = () => new DeleteAgentConversationInteractor(getAgentChatRepo());
+export const getDeleteAgentConversationInteractor = () =>
+  new DeleteAgentConversationInteractor(getAgentChatRepo(), getEntitlementService());
 
-export const getArchiveAgentConversationInteractor = () => new ArchiveAgentConversationInteractor(getAgentChatRepo());
+export const getArchiveAgentConversationInteractor = () =>
+  new ArchiveAgentConversationInteractor(getAgentChatRepo(), getEntitlementService());
 
-export const getRestoreAgentConversationInteractor = () => new RestoreAgentConversationInteractor(getAgentChatRepo());
+export const getRestoreAgentConversationInteractor = () =>
+  new RestoreAgentConversationInteractor(getAgentChatRepo(), getEntitlementService());
 
 export const getCreateChatSupportTicketInteractor = () =>
   new CreateChatSupportTicketInteractor(getAgentChatRepo(), getCreateSupportTicketInteractor());

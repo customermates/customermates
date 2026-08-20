@@ -1,5 +1,7 @@
 import { randomUUID } from "node:crypto";
+import type { z } from "zod";
 
+import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -7,6 +9,7 @@ import { getTenantUser } from "@/core/decorators/tenant-context";
 import { type Validated } from "@/core/validation/validation.utils";
 import { AgentLimitExceededError, AgentSessionUnavailableError } from "@/core/errors/app-errors";
 import { env } from "@/env";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { resolveUserLocale } from "@/i18n/user-locale";
 
@@ -18,7 +21,6 @@ import {
   type SendAgentMessageData,
   partsToText,
 } from "./agent-chat.schema";
-import { RequiresAgentChat } from "./agent-availability";
 import type { AgentRunContext } from "./agent-runner";
 import type { AgentUsageService } from "./agent-usage.service";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
@@ -58,17 +60,18 @@ export type SendAgentMessageResult =
       retryAllowed: boolean;
     };
 
+@AllowInDemoMode
 @TenantInteractor()
 export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgentMessageData, SendAgentMessageResult> {
   constructor(
     private repo: PrismaAgentChatRepo,
     private usageService: AgentUsageService,
+    private entitlements: EntitlementService,
   ) {
     super();
   }
 
-  @RequiresAgentChat
-  @Write({ input: SendAgentMessageSchema })
+  @Write({ input: SendAgentMessageSchema, precheck: (self, _data, ctx) => self.precheckEntitlement(ctx) })
   async invoke(data: SendAgentMessageData): Validated<SendAgentMessageResult> {
     const user = getTenantUser();
     const now = new Date();
@@ -278,5 +281,15 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       ]);
       throw error;
     }
+  }
+
+  private async precheckEntitlement(ctx: z.RefinementCtx) {
+    const denied = await this.entitlements.require("agentChat");
+    if (!denied) return;
+
+    ctx.addIssue({
+      code: "custom",
+      message: denied.error.issues[0]?.message ?? "The Assistant is unavailable.",
+    });
   }
 }

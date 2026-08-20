@@ -568,14 +568,16 @@ export class AgentChatStore extends BaseStore {
   private loadConfigOnce = async (): Promise<AgentConfigLoadStatus> => {
     try {
       const response = await withDeadline(getAgentConfigAction(), AGENT_CONFIG_LOAD_TIMEOUT_MS);
-      if (!response.enabled) {
-        runInAction(() => {
-          this.enabled = false;
-        });
-        return "disabled";
+      if (!response.ok) {
+        if (response.code) {
+          runInAction(() => {
+            this.enabled = false;
+          });
+          return "disabled";
+        }
+        return "retry";
       }
-      const config = response.config;
-      if (!config) return "retry";
+      const config = response.data;
 
       runInAction(() => {
         const preserveExactHistory = Boolean(this.historyMutationPending);

@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { type Data, type Validated } from "@/core/validation/validation.utils";
@@ -29,6 +30,7 @@ const OutputSchema = z.object({
 
 type CreatedTicket = Data<typeof OutputSchema>;
 
+@AllowInDemoMode
 @TenantInteractor()
 export class CreateChatSupportTicketInteractor extends AuthenticatedInteractor<
   CreateChatSupportTicketData,

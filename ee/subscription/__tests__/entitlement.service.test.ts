@@ -69,6 +69,17 @@ describe('EntitlementService.require("sharedAccounts")', () => {
   });
 });
 
+describe('EntitlementService.require("agentChat")', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("allows every active cloud plan", async () => {
+    for (const plan of ["starter", "pro", "business", "enterprise"]) {
+      const { service } = makeService({ status: "active", trialEndDate: null, plan });
+      expect(await service.require("agentChat")).toBeNull();
+    }
+  });
+});
+
 describe("EntitlementService self-hosted", () => {
   beforeEach(() => vi.clearAllMocks());
 
@@ -91,5 +102,30 @@ describe("EntitlementService self-hosted", () => {
     expect(denialCode(shared)).toBe("sharedAccountsRequiresCloud");
 
     expect(getSubscriptionOrThrow).not.toHaveBeenCalled();
+  });
+});
+
+describe("EntitlementService demo", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("denies agent chat before any subscription lookup", async () => {
+    vi.resetModules();
+    vi.doMock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, APP_MODE: "demo" } }));
+    vi.doMock("next-intl/server", () => ({
+      getTranslations: () => Promise.resolve((key: string) => key),
+      getLocale: () => Promise.resolve("en"),
+    }));
+
+    const { EntitlementService: Demo } = await import("../entitlement.service");
+    const getSubscriptionOrThrow = vi.fn();
+    const service = new Demo({ getSubscriptionOrThrow } as never);
+
+    const denied = await service.require("agentChat");
+    expect(denialCode(denied)).toBe("agentChatRequiresCloud");
+    expect(getSubscriptionOrThrow).not.toHaveBeenCalled();
+
+    getSubscriptionOrThrow.mockResolvedValue({ status: "active", trialEndDate: null, plan: "pro" });
+    expect(await service.require("messaging")).toBeNull();
+    expect(getSubscriptionOrThrow).toHaveBeenCalledOnce();
   });
 });

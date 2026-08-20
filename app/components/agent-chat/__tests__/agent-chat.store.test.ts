@@ -24,7 +24,6 @@ import { AgentChatStore } from "../agent-chat.store";
 import { AgentUiControlStore } from "../ui-control.store";
 
 const CONFIG = {
-  enabled: true as const,
   usage: {
     creditsUsed: 10,
     creditsRemaining: 490,
@@ -78,8 +77,8 @@ describe("AgentChatStore", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     actionsMock.getAgentConfigAction.mockResolvedValue({
-      enabled: true,
-      config: CONFIG,
+      ok: true,
+      data: CONFIG,
     });
     actionsMock.respondToUiCommandAction.mockResolvedValue({
       ok: true,
@@ -94,13 +93,16 @@ describe("AgentChatStore", () => {
     });
   });
 
-  it("distinguishes a transient config failure from an explicit disabled result", async () => {
+  it("retries transient and validation failures but latches off for an explicit denial code", async () => {
     actionsMock.getAgentConfigAction
       .mockRejectedValueOnce(new Error("temporary"))
-      .mockResolvedValueOnce({ enabled: true, config: CONFIG })
-      .mockResolvedValueOnce({ enabled: false });
+      .mockResolvedValueOnce({ ok: false, error: {} })
+      .mockResolvedValueOnce({ ok: true, data: CONFIG })
+      .mockResolvedValueOnce({ ok: false, error: {}, code: "agentChatRequiresCloud" });
     const store = new AgentChatStore(root() as never);
 
+    await expect(store.loadConfig()).resolves.toBe("retry");
+    expect(store.enabled).toBeNull();
     await expect(store.loadConfig()).resolves.toBe("retry");
     expect(store.enabled).toBeNull();
     await expect(store.loadConfig()).resolves.toBe("ready");
@@ -110,7 +112,7 @@ describe("AgentChatStore", () => {
   });
 
   it("coalesces concurrent config loads", async () => {
-    let resolve!: (value: { enabled: true; config: typeof CONFIG }) => void;
+    let resolve!: (value: { ok: true; data: typeof CONFIG }) => void;
     actionsMock.getAgentConfigAction.mockImplementationOnce(
       () =>
         new Promise((done) => {
@@ -122,7 +124,7 @@ describe("AgentChatStore", () => {
     const first = store.loadConfig();
     const second = store.loadConfig();
     expect(first).toBe(second);
-    resolve({ enabled: true, config: CONFIG });
+    resolve({ ok: true, data: CONFIG });
     await expect(first).resolves.toBe("ready");
     expect(actionsMock.getAgentConfigAction).toHaveBeenCalledOnce();
   });
@@ -130,8 +132,8 @@ describe("AgentChatStore", () => {
   it("keeps an explicitly selected new-chat draft across config reloads", async () => {
     const existingConversationId = "00000000-0000-4000-8000-000000000001";
     actionsMock.getAgentConfigAction.mockResolvedValue({
-      enabled: true,
-      config: { ...CONFIG, conversationId: existingConversationId },
+      ok: true,
+      data: { ...CONFIG, conversationId: existingConversationId },
     });
     const store = new AgentChatStore(root() as never);
 
@@ -438,8 +440,8 @@ describe("AgentChatStore", () => {
       updatedAt: new Date("2026-08-06T10:00:00.000Z"),
     };
     actionsMock.getAgentConfigAction.mockResolvedValueOnce({
-      enabled: true,
-      config: {
+      ok: true,
+      data: {
         ...CONFIG,
         conversations: [
           {
@@ -472,8 +474,8 @@ describe("AgentChatStore", () => {
       updatedAt: new Date(2026, 7, 26 - index),
     }));
     actionsMock.getAgentConfigAction.mockResolvedValueOnce({
-      enabled: true,
-      config: {
+      ok: true,
+      data: {
         ...CONFIG,
         conversations: [{ ...loaded[0], preview: "Updated preview" }],
         conversationNextCursor: "first-page-next",
@@ -896,7 +898,7 @@ describe("AgentChatStore", () => {
   });
 
   it("keeps the active turn locked until housekeeping hands off its queued follow-up", async () => {
-    let resolveConfig!: (value: { enabled: true; config: typeof CONFIG }) => void;
+    let resolveConfig!: (value: { ok: true; data: typeof CONFIG }) => void;
     actionsMock.getAgentConfigAction.mockImplementationOnce(
       () =>
         new Promise((resolve) => {
@@ -928,10 +930,10 @@ describe("AgentChatStore", () => {
     expect(bodies).toHaveLength(1);
 
     actionsMock.getAgentConfigAction.mockResolvedValue({
-      enabled: true,
-      config: CONFIG,
+      ok: true,
+      data: CONFIG,
     });
-    resolveConfig({ enabled: true, config: CONFIG });
+    resolveConfig({ ok: true, data: CONFIG });
     await first;
     await vi.waitFor(() => expect(bodies).toHaveLength(2));
 
@@ -1436,8 +1438,8 @@ describe("AgentChatStore", () => {
   it("converts legacy persisted tool activity without exposing its detail after reload", async () => {
     const conversationId = "00000000-0000-4000-8000-000000000001";
     actionsMock.getAgentConfigAction.mockResolvedValueOnce({
-      enabled: true,
-      config: { ...CONFIG, conversationId },
+      ok: true,
+      data: { ...CONFIG, conversationId },
     });
     actionsMock.getAgentConversationAction.mockResolvedValueOnce({
       id: conversationId,

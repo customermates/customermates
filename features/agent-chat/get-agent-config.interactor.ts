@@ -5,9 +5,9 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { getTenantUser } from "@/core/decorators/tenant-context";
-import { type Data, type Validated } from "@/core/validation/validation.utils";
+import { type Data } from "@/core/validation/validation.utils";
+import type { EntitlementDenialCode, EntitlementService } from "@/ee/subscription/entitlement.service";
 
-import { RequiresAgentChat } from "./agent-availability";
 import type { AgentUsageService } from "./agent-usage.service";
 import { AgentUsageSummarySchema } from "./agent-usage.service";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
@@ -16,7 +16,6 @@ import { AgentConversationSummarySchema, AgentDataCountsSchema } from "./agent-c
 import { laneModelId } from "./llm.service";
 
 const OutputSchema = z.object({
-  enabled: z.literal(true),
   usage: AgentUsageSummarySchema,
   counts: AgentDataCountsSchema,
   conversationId: z.string().nullable(),
@@ -27,6 +26,9 @@ const OutputSchema = z.object({
 });
 
 type AgentConfig = Data<typeof OutputSchema>;
+export type GetAgentConfigInvocationResult =
+  | { ok: true; data: AgentConfig }
+  | { ok: false; error: z.ZodError; code?: EntitlementDenialCode };
 
 @AllowInDemoMode
 @TenantInteractor()
@@ -34,13 +36,16 @@ export class GetAgentConfigInteractor extends AuthenticatedInteractor<void, Agen
   constructor(
     private repo: PrismaAgentChatRepo,
     private usageService: AgentUsageService,
+    private entitlements: EntitlementService,
   ) {
     super();
   }
 
-  @RequiresAgentChat
   @ValidateOutput(OutputSchema)
-  async invoke(): Validated<AgentConfig> {
+  async invoke(): Promise<GetAgentConfigInvocationResult> {
+    const denied = await this.entitlements.require("agentChat");
+    if (denied) return denied;
+
     const user = getTenantUser();
     await this.repo.normalizeExpiredAgentRunLease(new Date(), laneModelId("agent"));
 
@@ -55,7 +60,6 @@ export class GetAgentConfigInteractor extends AuthenticatedInteractor<void, Agen
     return {
       ok: true as const,
       data: {
-        enabled: true,
         usage,
         counts,
         conversationId: conversation?.id ?? null,

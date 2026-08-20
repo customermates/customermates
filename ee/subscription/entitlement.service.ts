@@ -15,6 +15,8 @@ export abstract class EntitlementSubscriptionRepo {
 }
 
 export type EntitlementDenialCode =
+  | "agentChatRequiresCloud"
+  | "agentChatRequiresPlan"
   | "messagingRequiresCloud"
   | "messagingRequiresPro"
   | "sharedAccountsRequiresCloud"
@@ -25,6 +27,7 @@ export type EntitlementDenial = { ok: false; error: z.ZodError; code: Entitlemen
 type Translator = Awaited<ReturnType<typeof getTranslations>>;
 
 const FEATURE_DENIALS: Record<EntitlementFeature, { cloud: EntitlementDenialCode; plan: EntitlementDenialCode }> = {
+  agentChat: { cloud: "agentChatRequiresCloud", plan: "agentChatRequiresPlan" },
   messaging: { cloud: "messagingRequiresCloud", plan: "messagingRequiresPro" },
   sharedAccounts: { cloud: "sharedAccountsRequiresCloud", plan: "sharedAccountsRequiresBusiness" },
 };
@@ -36,6 +39,7 @@ export class EntitlementService {
     const t = await getTranslations();
 
     if (env.APP_MODE === "self-hosted") return this.denial(t, FEATURE_DENIALS[feature].cloud);
+    if (env.APP_MODE === "demo" && feature === "agentChat") return this.denial(t, FEATURE_DENIALS[feature].cloud);
 
     const subscription = await this.repo.getSubscriptionOrThrow();
 

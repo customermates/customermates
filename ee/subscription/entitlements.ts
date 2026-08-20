@@ -7,7 +7,7 @@ import { PLAN_CATALOG } from "@/core/commercial/plan-catalog";
 
 export type { PlanEntitlements } from "@/core/commercial/plan-catalog";
 
-export type EntitlementFeature = "messaging" | "sharedAccounts";
+export type EntitlementFeature = "agentChat" | "messaging" | "sharedAccounts";
 
 export const TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER = 500;
 

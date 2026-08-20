@@ -212,6 +212,7 @@
       "usedPercent": "{pct} % utilizado",
       "viewPlans": "Ver planes"
     },
+    "demoUnavailable": "El asistente no está disponible en la demostración.",
     "errors": {
       "approvalFailed": "No se pudo enviar la aprobación.",
       "limitReached": "Se ha alcanzado el límite de uso de IA.",
@@ -1265,6 +1266,8 @@
   },
   "ConnectedAccountsCard": {
     "accountLimitReached": "Has alcanzado el límite de cuentas conectadas de este plan. Contáctanos sobre el plan Enterprise para tener cuentas ilimitadas.",
+    "agentChatRequiresCloud": "El asistente está disponible en Customermates Cloud.",
+    "agentChatRequiresPlan": "El asistente no está disponible con su plan actual.",
     "alreadyExistsToastDescription": "Esta cuenta ya está conectada por un miembro de tu espacio de trabajo. Pídele que la comparta con el espacio de trabajo para evitar mensajes duplicados en la bandeja de entrada.",
     "alreadyExistsToastTitle": "Cuenta ya conectada",
     "channels": {

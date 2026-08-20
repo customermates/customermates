@@ -50,6 +50,7 @@ describe("commercial plan catalog", () => {
       providerTrialDays: 0,
     });
     expect(getPlanDefinition("starter").entitlements).toEqual({
+      agentChat: true,
       messaging: false,
       includedAccountsPerUser: 0,
       sharedAccounts: false,

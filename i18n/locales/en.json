@@ -212,6 +212,7 @@
       "usedPercent": "{pct}% used",
       "viewPlans": "View plans"
     },
+    "demoUnavailable": "The Assistant is unavailable in the demo.",
     "errors": {
       "approvalFailed": "The approval could not be delivered.",
       "limitReached": "Your AI usage limit is reached.",
@@ -1265,6 +1266,8 @@
   },
   "ConnectedAccountsCard": {
     "accountLimitReached": "You reached the connected-account limit for this plan. Contact us about Enterprise for unlimited accounts.",
+    "agentChatRequiresCloud": "The Assistant is available on Customermates Cloud.",
+    "agentChatRequiresPlan": "The Assistant is not available on your current plan.",
     "alreadyExistsToastDescription": "This account is already connected by a member of your workspace. Ask them to share it with the workspace so the inbox does not show duplicate messages.",
     "alreadyExistsToastTitle": "Account already connected",
     "channels": {

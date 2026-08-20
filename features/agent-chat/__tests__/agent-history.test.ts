@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
+import { mockEntitlementService } from "@/tests/helpers/mock-entitlement-service";
 import {
   createMockDiModule,
   MOCK_ENV_MODULE,
@@ -38,7 +39,7 @@ describe("agent conversation history", () => {
       findMyConversation: vi.fn().mockResolvedValue({ id: SELECTED_CONVERSATION_ID }),
     };
 
-    const result = await new ArchiveAgentConversationInteractor(repo as never).invoke({
+    const result = await new ArchiveAgentConversationInteractor(repo as never, mockEntitlementService()).invoke({
       conversationId: CONVERSATION_ID,
     });
 

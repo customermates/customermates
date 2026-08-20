@@ -7,8 +7,8 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { type Validated } from "@/core/validation/validation.utils";
 import { AgentSessionUnavailableError } from "@/core/errors/app-errors";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
-import { RequiresAgentChat } from "./agent-availability";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { clientSafeAgentMessageParts } from "./agent-chat.schema";
 import { sanitizeAgentConversationTitle } from "./agent-output-safety";
@@ -45,14 +45,19 @@ export class GetAgentConversationInteractor extends AuthenticatedInteractor<
   GetAgentConversationData,
   AgentConversationDetail
 > {
-  constructor(private repo: PrismaAgentChatRepo) {
+  constructor(
+    private repo: PrismaAgentChatRepo,
+    private entitlements: EntitlementService,
+  ) {
     super();
   }
 
-  @RequiresAgentChat
   @Validate(GetAgentConversationSchema)
   @ValidateOutput(OutputSchema)
   async invoke(data: GetAgentConversationData): Validated<AgentConversationDetail> {
+    const denied = await this.entitlements.require("agentChat");
+    if (denied) return denied;
+
     const conversation = await this.repo.findConversation(data.conversationId);
     if (!conversation) throw new AgentSessionUnavailableError("Conversation not found.");
 

@@ -6,8 +6,8 @@ import { AgentSessionUnavailableError } from "@/core/errors/app-errors";
 import { z } from "zod";
 
 import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
-import { RequiresAgentChat } from "./agent-availability";
 import { AgentConversationSummarySchema } from "./agent-chat.schema";
 import {
   ArchiveAgentConversationSchema,
@@ -29,7 +29,10 @@ export class RestoreAgentConversationInteractor extends AuthenticatedInteractor<
   ArchiveAgentConversationData,
   RestoreAgentConversationResult
 > {
-  constructor(private repo: PrismaAgentChatRepo) {
+  constructor(
+    private repo: PrismaAgentChatRepo,
+    private entitlements: EntitlementService,
+  ) {
     super();
   }
 
@@ -38,8 +41,10 @@ export class RestoreAgentConversationInteractor extends AuthenticatedInteractor<
     output: RestoreAgentConversationResultSchema,
     tx: false,
   })
-  @RequiresAgentChat
   async invoke(data: ArchiveAgentConversationData): Validated<RestoreAgentConversationResult> {
+    const denied = await this.entitlements.require("agentChat");
+    if (denied) return denied;
+
     const restored = await this.repo.restoreConversation(data.conversationId);
     if (!restored) throw new AgentSessionUnavailableError("Archived conversation not found.");
 

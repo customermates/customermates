@@ -212,6 +212,7 @@
       "usedPercent": "{pct} % verbraucht",
       "viewPlans": "Tarife ansehen"
     },
+    "demoUnavailable": "Der Assistent ist in der Demo nicht verfügbar.",
     "errors": {
       "approvalFailed": "Die Freigabe konnte nicht übermittelt werden.",
       "limitReached": "Dein KI-Nutzungslimit ist erreicht.",
@@ -1265,6 +1266,8 @@
   },
   "ConnectedAccountsCard": {
     "accountLimitReached": "Du hast das Limit für verbundene Konten in diesem Tarif erreicht. Kontaktiere uns für unbegrenzte Konten im Enterprise-Tarif.",
+    "agentChatRequiresCloud": "Der Assistent ist in Customermates Cloud verfügbar.",
+    "agentChatRequiresPlan": "Der Assistent ist in deinem aktuellen Tarif nicht verfügbar.",
     "alreadyExistsToastDescription": "Dieses Konto wurde bereits von einem Mitglied deines Workspace verbunden. Bitte sie oder ihn, es mit dem Workspace zu teilen, damit im Posteingang keine doppelten Nachrichten erscheinen.",
     "alreadyExistsToastTitle": "Konto bereits verbunden",
     "channels": {
