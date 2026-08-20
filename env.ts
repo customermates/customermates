@@ -21,6 +21,7 @@ export const env = {
 
   APP_MODE: resolveAppMode(process.env),
   AGENT_CHAT_DISABLED: Boolean(process.env.AGENT_CHAT_DISABLED),
+  OPENAI_API_KEY: process.env.OPENAI_API_KEY,
 
   RESEND_API_KEY: process.env.RESEND_API_KEY,
   RESEND_OPERATOR_EMAIL: process.env.RESEND_OPERATOR_EMAIL as string,

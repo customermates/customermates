@@ -2,12 +2,14 @@ import type { LanguageModelUsage } from "ai";
 
 import { createOpenAI } from "@ai-sdk/openai";
 
+import { env } from "@/env";
+
 import type { TokenCounts } from "./model-pricing";
 import { buildAgentUsageSettlement } from "./agent-usage-settlement";
 
 export const AGENT_MODEL_ID = "gpt-5.6-luna";
 
-const openai = createOpenAI();
+const openai = createOpenAI({ apiKey: env.OPENAI_API_KEY });
 
 export type AgentModelLane = "agent";
 
