@@ -918,7 +918,7 @@ export class PrismaMessagingRepo
         subject: args.subject,
         bodyText: args.bodyText,
         bodyHtml: args.bodyHtml,
-        ...(args.attachmentsMeta.length > 0 ? { attachmentsMeta: args.attachmentsMeta } : {}),
+        ...(args.attachmentsMeta?.length ? { attachmentsMeta: args.attachmentsMeta } : {}),
         sentAt: args.sentAt,
       },
     });
