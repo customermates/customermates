@@ -268,7 +268,7 @@ export class BackfillChatsInteractor {
 
       if (inline.length) return inline;
 
-      if (opts.allowFetch && (chat.participants_count ?? 0) > 0) return this.fetchParticipants(account, chat.id);
+      if (opts.allowFetch) return this.fetchParticipants(account, chat.id);
 
       return [];
     }
@@ -284,16 +284,24 @@ export class BackfillChatsInteractor {
     const participants: MessagingAttendee[] = [];
 
     try {
-      const page = await this.messagingService.listChatParticipants({
-        accountId: account.unipileAccountId,
-        chatId,
+      await paginateStep({
+        startCursor: null,
         limit: UNIPILE_MAX_LIMIT,
-      });
+        fetchPage: (query) =>
+          this.messagingService.listChatParticipants({
+            accountId: account.unipileAccountId,
+            chatId,
+            limit: UNIPILE_MAX_LIMIT,
+            cursor: query.cursor,
+            offset: query.offset,
+          }),
+        handleItem: (raw) => {
+          const attendee = mapParticipantRecord(raw);
+          if (attendee) participants.push(attendee);
 
-      for (const raw of page.data ?? []) {
-        const attendee = mapParticipantRecord(raw);
-        if (attendee) participants.push(attendee);
-      }
+          return Promise.resolve();
+        },
+      });
     } catch (err) {
       if (isUnipileRateLimit(err)) throw err;
 
