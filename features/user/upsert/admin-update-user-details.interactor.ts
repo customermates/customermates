@@ -33,6 +33,8 @@ export abstract class AdminUpdateUserDetailsRepo {
   abstract findExistingEmailsCompanyWide(emails: Set<string>): Promise<Set<string>>;
   abstract findOrThrowCompanyWide(email: string): Promise<TenantUser>;
   abstract adminUpdateDetailsOrThrow(args: { userId: string } & AdminUpdateUserDetailsData): Promise<void>;
+  abstract markAgentCreditActivatedOrThrow(userId: string): Promise<void>;
+  abstract clearAgentCreditActivatedOrThrow(userId: string): Promise<void>;
 }
 
 export abstract class UpdateUserRoleRepo {
@@ -96,7 +98,12 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
 
     const statusChanged = targetUser.status !== data.status;
 
-    if (statusChanged) await this.handleSubscriptionQuantityUpdate();
+    if (statusChanged) {
+      if (data.status === Status.active) await this.userRepo.markAgentCreditActivatedOrThrow(targetUserId);
+      else await this.userRepo.clearAgentCreditActivatedOrThrow(targetUserId);
+
+      await this.handleSubscriptionQuantityUpdate();
+    }
 
     await this.eventService.publish(DomainEvent.USER_UPDATED, {
       entityId: targetUserId,

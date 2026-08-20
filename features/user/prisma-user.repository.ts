@@ -274,16 +274,6 @@ export class PrismaUserRepo
   @Transaction
   async adminUpdateDetailsOrThrow(args: RepoArgs<AdminUpdateUserDetailsRepo, "adminUpdateDetailsOrThrow">) {
     const { companyId } = this.user;
-    const current = await this.prisma.user.findUniqueOrThrow({
-      where: { id: args.userId, companyId },
-      select: { status: true },
-    });
-    const activatedAt =
-      args.status === Status.inactive
-        ? null
-        : current.status !== Status.active && args.status === Status.active
-          ? new Date()
-          : undefined;
 
     await this.prisma.user.update({
       data: {
@@ -293,7 +283,6 @@ export class PrismaUserRepo
         avatarUrl: args.avatarUrl,
         country: args.country,
         roleId: args.roleId,
-        agentCreditActivatedAt: activatedAt,
       },
       where: { id: args.userId, companyId },
     });
@@ -637,6 +626,26 @@ export class PrismaUserRepo
     });
 
     return result.count > 0;
+  }
+
+  @Transaction
+  async markAgentCreditActivatedOrThrow(userId: string) {
+    const { companyId } = this.user;
+
+    await this.prisma.user.update({
+      where: { id: userId, companyId },
+      data: { agentCreditActivatedAt: new Date() },
+    });
+  }
+
+  @Transaction
+  async clearAgentCreditActivatedOrThrow(userId: string) {
+    const { companyId } = this.user;
+
+    await this.prisma.user.update({
+      where: { id: userId, companyId },
+      data: { agentCreditActivatedAt: null },
+    });
   }
 
   async deactivateUserOrThrow(userId: string) {
