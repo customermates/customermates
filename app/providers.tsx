@@ -10,6 +10,7 @@ type DeepPartial<Type> = {
 };
 
 type Props = {
+  agentChatEnabled: boolean;
   appMode: AppMode;
   children: React.ReactNode;
   defaultTheme?: string;
@@ -17,7 +18,7 @@ type Props = {
   messages?: DeepPartial<Record<string, any>> | null | undefined;
 };
 
-export function Providers({ appMode, children, defaultTheme, displayLanguage, messages }: Props) {
+export function Providers({ agentChatEnabled, appMode, children, defaultTheme, displayLanguage, messages }: Props) {
   return (
     <RootProvider
       search={{
@@ -26,7 +27,9 @@ export function Providers({ appMode, children, defaultTheme, displayLanguage, me
     >
       <ServerThemeProvider serverTheme={defaultTheme}>
         <NextIntlClientProvider locale={displayLanguage} messages={messages} timeZone="UTC">
-          <RootStoreProvider appMode={appMode}>{children}</RootStoreProvider>
+          <RootStoreProvider agentChatEnabled={agentChatEnabled} appMode={appMode}>
+            {children}
+          </RootStoreProvider>
         </NextIntlClientProvider>
       </ServerThemeProvider>
     </RootProvider>

@@ -10,12 +10,13 @@ import type { AppMode } from "@/core/config/environment";
 const RootStoreContext = createContext<RootStore | null>(null);
 
 type Props = {
+  agentChatEnabled: boolean;
   appMode: AppMode;
   children: ReactNode;
 };
 
-export function RootStoreProvider({ appMode, children }: Props) {
-  const rootStore = useMemo(() => new RootStore(appMode), [appMode]);
+export function RootStoreProvider({ agentChatEnabled, appMode, children }: Props) {
+  const rootStore = useMemo(() => new RootStore(appMode, agentChatEnabled), [agentChatEnabled, appMode]);
 
   useEffect(() => {
     rootStore.intlStore.markClientHydrated();

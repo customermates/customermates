@@ -356,7 +356,7 @@ const FullAppSidebar = observer(
           <NavHeader
             addLabel={t("Common.actions.add")}
             assistantLabel={
-              rootStore.agentChatStore.enabled === true || rootStore.appMode === "demo"
+              rootStore.appMode === "demo" || (rootStore.agentChatEnabled && rootStore.agentChatStore.enabled === true)
                 ? t("AgentChat.askAi")
                 : undefined
             }

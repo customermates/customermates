@@ -72,7 +72,7 @@ describe("guarded account-state route contract", () => {
   });
 
   it("keeps tenant enhancements and keyboard search unmounted for restricted shells", () => {
-    const layout = source("app/[locale]/(protected)/protected-shell.tsx");
+    const layout = source("app/[locale]/(protected)/layout.tsx");
     const navigation = source("app/components/navigation/navigation-switch.tsx");
     const context = source("app/components/navigation/protected-enhancements-context.tsx");
     const guardedMarkup = layout.indexOf("{protectedEnhancementsAllowed ? (");

@@ -24,6 +24,7 @@ import { accountNeedsAction } from "@/ee/messaging/provider";
 import { env } from "@/env";
 import { GLOBAL_METADATA } from "@/core/seo/homepage-metadata";
 import { resolveRequestAccountState } from "@/features/auth/next/resolve-account-state";
+import { isAgentChatAvailable } from "@/features/agent-chat/agent-availability";
 
 export const metadata: Metadata = GLOBAL_METADATA;
 
@@ -81,6 +82,7 @@ export default async function RootLayout({ children }: Props) {
     >
       <body className="h-svh flex flex-col font-sans antialiased">
         <Providers
+          agentChatEnabled={isAgentChatAvailable()}
           appMode={env.APP_MODE}
           defaultTheme={themeCookie}
           displayLanguage={displayLanguage}

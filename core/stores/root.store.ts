@@ -144,9 +144,11 @@ export class RootStore {
   private _agentUiControlStore?: AgentUiControlStore;
 
   readonly appMode: AppMode;
+  readonly agentChatEnabled: boolean;
 
-  constructor(appMode: AppMode) {
+  constructor(appMode: AppMode, agentChatEnabled: boolean) {
     this.appMode = appMode;
+    this.agentChatEnabled = agentChatEnabled;
   }
 
   get layoutStore() {
