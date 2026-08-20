@@ -354,6 +354,8 @@ const FullAppSidebar = observer(
         <Sidebar collapsible="icon" side="left" variant="inset">
           <NavHeader
             addLabel={t("Common.actions.add")}
+            assistantLabel={rootStore.agentChatStore.enabled === true ? t("AgentChat.askAi") : undefined}
+            assistantShortcut="⌘J"
             brandName="Customermates"
             brandSubtitle={planSubtitle}
             homeHref={
@@ -372,6 +374,14 @@ const FullAppSidebar = observer(
                 addPickerFallbackRef.current = document.getElementById("sidebar-trigger");
                 setIsAddPickerOpen(true);
               });
+            }}
+            onAssistant={() => {
+              if (restricted) {
+                closeMobileSidebar(recheckAccountState);
+                return;
+              }
+
+              closeMobileSidebar(() => rootStore.agentChatStore.open());
             }}
             onSearch={(invoker) => {
               if (restricted) {

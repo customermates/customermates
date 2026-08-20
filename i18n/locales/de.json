@@ -194,6 +194,7 @@
       "timeout": "Zeit abgelaufen, keine Antwort",
       "title": "Der Assistent möchte ausführen:"
     },
+    "askAi": "KI fragen",
     "credits": {
       "blocked": {
         "configuration_unavailable": "Der gehostete Assistent ist vorübergehend nicht verfügbar. Dein Verlauf bleibt zugänglich.",

@@ -194,6 +194,7 @@
       "timeout": "Tiempo agotado sin respuesta",
       "title": "El asistente quiere ejecutar:"
     },
+    "askAi": "Preguntar a la IA",
     "credits": {
       "blocked": {
         "configuration_unavailable": "El Asistente alojado no está disponible temporalmente. El historial sigue estando accesible.",

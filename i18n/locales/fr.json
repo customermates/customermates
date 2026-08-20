@@ -194,6 +194,7 @@
       "timeout": "Délai dépassé sans réponse",
       "title": "L’assistant souhaite exécuter :"
     },
+    "askAi": "Demander à l'IA",
     "credits": {
       "blocked": {
         "configuration_unavailable": "L’Assistant hébergé est temporairement indisponible. Votre historique reste accessible.",

@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Sparkles } from "lucide-react";
 
 import { AppImage } from "@/components/shared/app-image";
 import { AppLink } from "@/components/shared/app-link";
@@ -15,8 +15,11 @@ type Props = {
   brandName: string;
   brandSubtitle?: ReactNode;
   logoAlt: string;
+  assistantLabel?: string;
+  assistantShortcut?: string;
   searchLabel: string;
   addLabel: string;
+  onAssistant?: (invoker: HTMLElement) => void;
   onSearch: (invoker: HTMLElement) => void;
   onAdd: (invoker: HTMLElement) => void;
 };
@@ -26,8 +29,11 @@ export function NavHeader({
   brandName,
   brandSubtitle,
   logoAlt,
+  assistantLabel,
+  assistantShortcut,
   searchLabel,
   addLabel,
+  onAssistant,
   onSearch,
   onAdd,
 }: Props) {
@@ -72,6 +78,26 @@ export function NavHeader({
             </kbd>
           </SidebarMenuButton>
         </SidebarMenuItem>
+
+        {assistantLabel && onAssistant && (
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              id="nav-assistant"
+              tooltip={assistantLabel}
+              onClick={(event) => onAssistant(event.currentTarget)}
+            >
+              <Sparkles />
+
+              <span>{assistantLabel}</span>
+
+              {assistantShortcut && (
+                <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-0.5 rounded border border-sidebar-border bg-sidebar-accent/60 px-1.5 font-sans text-[11px] text-sidebar-foreground/70">
+                  {assistantShortcut}
+                </kbd>
+              )}
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        )}
 
         <SidebarMenuItem>
           <SidebarMenuButton id="nav-add" tooltip={addLabel} onClick={(event) => onAdd(event.currentTarget)}>

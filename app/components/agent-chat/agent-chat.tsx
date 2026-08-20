@@ -59,7 +59,6 @@ import { cn } from "@/core/utils/cn";
 
 export const AgentChat = observer(function AgentChat() {
   const { agentChatStore: store, agentUiControlStore } = useRootStore();
-  const t = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
   const pathnameRef = useRef(pathname);
@@ -137,15 +136,6 @@ export const AgentChat = observer(function AgentChat() {
   }, [agentUiControlStore]);
 
   useEffect(() => {
-    if (store.enabled !== true) return;
-    const root = document.documentElement;
-    root.style.setProperty("--agent-launcher-space", "3.5rem");
-    return () => {
-      root.style.removeProperty("--agent-launcher-space");
-    };
-  }, [store.enabled]);
-
-  useEffect(() => {
     const wasOpen = wasOpenRef.current;
     wasOpenRef.current = store.isOpen;
     const targetId = store.isOpen
@@ -153,7 +143,7 @@ export const AgentChat = observer(function AgentChat() {
         ? "agent-history-back"
         : "agent-composer"
       : wasOpen
-        ? "agent-launcher"
+        ? "nav-assistant"
         : null;
     if (!targetId) return;
     requestAnimationFrame(() => {
@@ -166,23 +156,6 @@ export const AgentChat = observer(function AgentChat() {
 
   return (
     <>
-      {!store.isOpen && (
-        <Button
-          aria-label={t("AgentChat.title")}
-          className="fixed z-40 size-12 rounded-full shadow-2xl shadow-black/25 dark:shadow-black/80 dark:ring-1 dark:ring-white/10"
-          data-testid="agent-launcher"
-          id="agent-launcher"
-          size="icon"
-          style={{
-            right: "max(1rem, var(--safe-right))",
-            bottom: "max(1rem, var(--safe-bottom))",
-          }}
-          onClick={store.open}
-        >
-          <Sparkles className="size-5" />
-        </Button>
-      )}
-
       {store.isOpen && (
         <TooltipProvider>
           <AgentChatPanel />

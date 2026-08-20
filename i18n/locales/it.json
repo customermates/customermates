@@ -194,6 +194,7 @@
       "timeout": "Tempo scaduto senza risposta",
       "title": "L’assistente vuole eseguire:"
     },
+    "askAi": "Chiedi all'IA",
     "credits": {
       "blocked": {
         "configuration_unavailable": "L’Assistente ospitato non è al momento disponibile. La cronologia resta accessibile.",

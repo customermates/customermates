@@ -45,9 +45,16 @@ export function ProtectedShell({ agentChatEnabled, children }: Props) {
     const { globalSearchModalStore } = rootStore;
 
     function handleKeyDown(event: KeyboardEvent) {
-      if ((event.metaKey || event.ctrlKey) && event.key === "k") {
+      if (!event.metaKey && !event.ctrlKey) return;
+
+      if (event.key === "k") {
         event.preventDefault();
         globalSearchModalStore.open();
+      }
+
+      if (event.key === "j" && rootStore.agentChatStore.enabled === true) {
+        event.preventDefault();
+        rootStore.agentChatStore.open();
       }
     }
 

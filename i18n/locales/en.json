@@ -194,6 +194,7 @@
       "timeout": "Timed out without a response",
       "title": "The assistant wants to run:"
     },
+    "askAi": "Ask AI",
     "credits": {
       "blocked": {
         "configuration_unavailable": "The hosted Assistant is temporarily unavailable. Your history remains accessible.",
