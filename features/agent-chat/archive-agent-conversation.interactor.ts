@@ -4,7 +4,6 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { AgentSessionUnavailableError } from "@/core/errors/app-errors";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
@@ -47,7 +46,7 @@ export class ArchiveAgentConversationInteractor extends AuthenticatedInteractor<
     if (denied) return denied;
 
     const archived = await this.repo.archiveConversation(data.conversationId);
-    if (!archived) throw new AgentSessionUnavailableError("Conversation not found.");
+    if (!archived) throw new Error("Conversation not found.");
 
     const [page, selected] = await Promise.all([
       this.repo.listConversationPage({ archived: false }),

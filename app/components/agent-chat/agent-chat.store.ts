@@ -239,7 +239,7 @@ export class AgentChatStore extends BaseStore {
 
   submitDraft = () => {
     const text = this.composerDraft.trim();
-    if (!text) return;
+    if (!text || this.usage?.blockedReason) return;
     if (this.isWorking) {
       if (this.queuedPrompt) return;
       this.queuedPrompt = text;
@@ -830,6 +830,7 @@ export class AgentChatStore extends BaseStore {
   ) => {
     const trimmed = text.trim();
     if (!trimmed || (this.isWorking && !options.reconcile)) return;
+    if (this.usage?.blockedReason && !options.reconcile) return;
     const messageId = options.messageId ?? globalThis.crypto.randomUUID();
     const pageRoute = options.pageRoute ?? (typeof window === "undefined" ? "/" : window.location.pathname);
     const conversationId = options.conversationId === undefined ? this.conversationId : options.conversationId;

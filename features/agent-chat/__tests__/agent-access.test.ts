@@ -19,8 +19,6 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn(), setTag: vi.fn(), setUser: vi.fn() }));
 
-import { AgentLimitExceededError, AgentSessionUnavailableError } from "@/core/errors/app-errors";
-
 import { GetAgentConversationInteractor } from "../get-agent-conversation.interactor";
 import { RespondToUiCommandInteractor } from "../respond-to-ui-command.interactor";
 import { SendAgentMessageInteractor } from "../send-agent-message.interactor";
@@ -159,7 +157,7 @@ describe("agent access", () => {
         text: "hello",
         retry: false,
       }),
-    ).rejects.toBeInstanceOf(AgentLimitExceededError);
+    ).rejects.toThrow("Your AI usage limit is reached.");
 
     expect(repo.findAgentTurnRequestForAdmission).toHaveBeenCalledBefore(usage.prepareTurn);
     expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
@@ -460,7 +458,7 @@ describe("agent access", () => {
         text: "continue",
         retry: false,
       }),
-    ).rejects.toBeInstanceOf(AgentSessionUnavailableError);
+    ).rejects.toThrow("Conversation not found.");
     expect(repo.createConversation).not.toHaveBeenCalled();
     expect(repo.createAgentTurnRequest).not.toHaveBeenCalled();
     expect(usage.prepareTurn).not.toHaveBeenCalled();
@@ -483,7 +481,7 @@ describe("agent access", () => {
         text: "hello",
         retry: false,
       }),
-    ).rejects.toBeInstanceOf(AgentSessionUnavailableError);
+    ).rejects.toThrow("Another assistant turn is already running.");
     expect(repo.createConversation).not.toHaveBeenCalled();
     expect(repo.createAgentTurnRequest).not.toHaveBeenCalled();
   });

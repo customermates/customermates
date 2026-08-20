@@ -6,7 +6,6 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { AgentSessionUnavailableError } from "@/core/errors/app-errors";
 import { type Data, type Validated } from "@/core/validation/validation.utils";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
@@ -40,14 +39,14 @@ export class RespondToApprovalInteractor extends AuthenticatedInteractor<Respond
     if (denied) return denied;
 
     const conversation = await this.repo.findConversation(data.conversationId);
-    if (!conversation) throw new AgentSessionUnavailableError("Conversation not found.");
+    if (!conversation) throw new Error("Conversation not found.");
 
     const resolved = await this.repo.resolvePendingApprovalRequest({
       conversationId: data.conversationId,
       requestId: data.requestId,
       decision: data.decision === "reject" ? AgentApprovalDecision.reject : AgentApprovalDecision.approve,
     });
-    if (!resolved) throw new AgentSessionUnavailableError("Approval request is unavailable or expired.");
+    if (!resolved) throw new Error("Approval request is unavailable or expired.");
 
     return { ok: true as const, data: { resolved: true } };
   }

@@ -8,6 +8,7 @@ import { runAgentLane } from "@/features/agent-chat/agent-runner";
 import { sse } from "@/features/agent-chat/agent-stream-utils";
 import type { SendAgentMessageResult } from "@/features/agent-chat/send-agent-message.interactor";
 import { isAgentTurnTerminalError } from "@/features/agent-chat/agent-turn-request";
+import { AGENT_LIMIT_EXCEEDED_MESSAGE, isAgentLimitExceededError } from "@/features/agent-chat/agent-errors";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -87,6 +88,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
+    if (isAgentLimitExceededError(error)) return NextResponse.json(AGENT_LIMIT_EXCEEDED_MESSAGE, { status: 429 });
     return handleError(error);
   }
 }

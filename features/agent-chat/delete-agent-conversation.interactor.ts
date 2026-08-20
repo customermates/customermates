@@ -4,7 +4,6 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { AgentSessionUnavailableError } from "@/core/errors/app-errors";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
@@ -38,7 +37,7 @@ export class DeleteAgentConversationInteractor extends AuthenticatedInteractor<
     if (denied) return denied;
 
     const deleted = await this.repo.deleteArchivedConversation(data.conversationId);
-    if (!deleted) throw new AgentSessionUnavailableError("Archived conversation not found.");
+    if (!deleted) throw new Error("Archived conversation not found.");
 
     return { ok: true as const, data: { deleted: true as const } };
   }

@@ -7,7 +7,6 @@ import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 import { type Validated } from "@/core/validation/validation.utils";
-import { AgentLimitExceededError, AgentSessionUnavailableError } from "@/core/errors/app-errors";
 import { env } from "@/env";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
@@ -34,6 +33,7 @@ import {
   conservativeAgentInitialContextBytes,
 } from "./agent-provider-context";
 import { sanitizeAgentConversationTitle } from "./agent-output-safety";
+import { createAgentLimitExceededError } from "./agent-errors";
 
 type AdmittedAgentRun = { disposition: "run" } & Omit<AgentRunContext, "appBaseUrl">;
 
@@ -162,7 +162,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           ? await this.repo.findConversation(data.conversationId)
           : null;
     if ((decision.disposition === "retry" || data.conversationId) && !conversation)
-      throw new AgentSessionUnavailableError("Conversation not found.");
+      throw new Error("Conversation not found.");
 
     const userName = `${user.firstName} ${user.lastName}`.trim();
     const locale = data.locale ?? resolveUserLocale(user);
@@ -183,19 +183,14 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       pageRoute,
       toolDefinitions: getAgentAiToolDefinitions(toolNames),
     });
-    if (requiredContextBytes === null)
-      throw new AgentSessionUnavailableError("The Assistant request context could not be measured safely.");
+    if (requiredContextBytes === null) throw new Error("The Assistant request context could not be measured safely.");
 
     const creditAdmission = await this.usageService.prepareTurn(user.id, now, requiredContextBytes);
-    if (!creditAdmission.reservation) {
-      throw new AgentLimitExceededError(
-        `The hosted Assistant cannot start another turn. Reason: ${creditAdmission.summary.blockedReason ?? "unavailable"}. Reset: ${creditAdmission.summary.resetAt.toISOString()}.`,
-      );
-    }
+    if (!creditAdmission.reservation) throw createAgentLimitExceededError();
 
     const runId = randomUUID();
     const claimed = await this.repo.claimAgentRunLease(runId, new Date(now.getTime() + AGENT_RUN_LEASE_MS));
-    if (!claimed) throw new AgentSessionUnavailableError("Another assistant turn is already running.");
+    if (!claimed) throw new Error("Another assistant turn is already running.");
     let reservationCreated = false;
     try {
       await this.usageService.reserveUsage({
@@ -218,7 +213,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           priorAttemptCount: decision.turn.attemptCount,
           runId,
         });
-        if (!retried) throw new AgentSessionUnavailableError("The assistant retry could not be started.");
+        if (!retried) throw new Error("The assistant retry could not be started.");
       } else {
         await this.repo.createAgentTurnRequest({
           turnRequestId,

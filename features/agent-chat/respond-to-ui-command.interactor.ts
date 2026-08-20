@@ -4,7 +4,6 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
-import { AgentSessionUnavailableError } from "@/core/errors/app-errors";
 import { type Data, type Validated } from "@/core/validation/validation.utils";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
@@ -38,7 +37,7 @@ export class RespondToUiCommandInteractor extends AuthenticatedInteractor<Respon
     if (denied) return denied;
 
     const conversation = await this.repo.findConversation(data.conversationId);
-    if (!conversation) throw new AgentSessionUnavailableError("Conversation not found.");
+    if (!conversation) throw new Error("Conversation not found.");
 
     await this.repo.recordUiCommandResult(data);
     return { ok: true, data: { resolved: true } };

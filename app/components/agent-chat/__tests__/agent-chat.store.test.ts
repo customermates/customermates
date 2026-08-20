@@ -168,6 +168,40 @@ describe("AgentChatStore", () => {
     expect(store.queuedPrompt).toBeNull();
   });
 
+  it("keeps a blocked draft intact and does not queue or submit it", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch");
+    const store = new AgentChatStore(root() as never);
+    store.usage = { ...CONFIG.usage, blockedReason: "credits_exhausted" };
+    store.isWorking = true;
+    store.setComposerDraft("Keep this draft");
+
+    store.submitDraft();
+    await store.sendMessage("Do not send directly");
+
+    expect(store.composerDraft).toBe("Keep this draft");
+    expect(store.queuedPrompt).toBeNull();
+    expect(store.items).toEqual([]);
+    expect(fetchMock).not.toHaveBeenCalled();
+    fetchMock.mockRestore();
+  });
+
+  it("continues reconciliation for an admitted turn after the visible allowance becomes blocked", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response('data: {"seq":1,"type":"turn_done"}\n\n', {
+        headers: { "content-type": "text/event-stream" },
+      }),
+    );
+    const store = new AgentChatStore(root() as never);
+    store.usage = { ...CONFIG.usage, blockedReason: "credits_exhausted" };
+    store.isWorking = true;
+
+    await store.sendMessage("Reconcile this turn", { appendUser: false, reconcile: true });
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect(store.items).toEqual([]);
+    fetchMock.mockRestore();
+  });
+
   it("ignores a stale conversation response after the user selects another chat", async () => {
     const firstId = "00000000-0000-4000-8000-000000000001";
     const secondId = "00000000-0000-4000-8000-000000000002";

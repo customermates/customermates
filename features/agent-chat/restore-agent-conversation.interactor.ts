@@ -2,7 +2,6 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { AgentSessionUnavailableError } from "@/core/errors/app-errors";
 import { z } from "zod";
 
 import type { Data, Validated } from "@/core/validation/validation.utils";
@@ -46,7 +45,7 @@ export class RestoreAgentConversationInteractor extends AuthenticatedInteractor<
     if (denied) return denied;
 
     const restored = await this.repo.restoreConversation(data.conversationId);
-    if (!restored) throw new AgentSessionUnavailableError("Archived conversation not found.");
+    if (!restored) throw new Error("Archived conversation not found.");
 
     const page = await this.repo.listConversationPage({ archived: false });
     return {

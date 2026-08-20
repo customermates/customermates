@@ -6,7 +6,6 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { type Validated } from "@/core/validation/validation.utils";
-import { AgentSessionUnavailableError } from "@/core/errors/app-errors";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
@@ -59,7 +58,7 @@ export class GetAgentConversationInteractor extends AuthenticatedInteractor<
     if (denied) return denied;
 
     const conversation = await this.repo.findConversation(data.conversationId);
-    if (!conversation) throw new AgentSessionUnavailableError("Conversation not found.");
+    if (!conversation) throw new Error("Conversation not found.");
 
     const page = await this.repo.listMessagePage(conversation.id, data.before);
     const messages = page.messages;

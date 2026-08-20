@@ -19,6 +19,7 @@ vi.mock("@/core/api/interactor-handler", () => ({
 vi.mock("@/features/agent-chat/agent-runner", () => ({ runAgentLane }));
 
 import { POST } from "../route";
+import { createAgentLimitExceededError } from "@/features/agent-chat/agent-errors";
 
 const clientRequestId = "00000000-0000-4000-8000-000000000001";
 const conversationId = "00000000-0000-4000-8000-000000000002";
@@ -37,6 +38,16 @@ beforeEach(() => {
 });
 
 describe("agent message admission route", () => {
+  it("maps an exhausted allowance to a safe 429 response", async () => {
+    invoke.mockRejectedValue(createAgentLimitExceededError());
+
+    const response = await POST(request());
+
+    expect(response.status).toBe(429);
+    expect(await response.json()).toBe("Your AI usage limit is reached.");
+    expect(runAgentLane).not.toHaveBeenCalled();
+  });
+
   it("starts the provider lane only for a newly admitted run", async () => {
     invoke.mockResolvedValue({
       ok: true,

@@ -5,7 +5,6 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { type Data, type Validated } from "@/core/validation/validation.utils";
-import { AgentSessionUnavailableError } from "@/core/errors/app-errors";
 
 import type { CreateSupportTicketInteractor } from "@/features/support/create-support-ticket.interactor";
 
@@ -46,7 +45,7 @@ export class CreateChatSupportTicketInteractor extends AuthenticatedInteractor<
   @Write({ input: CreateChatSupportTicketSchema, output: OutputSchema, tx: false })
   async invoke(data: CreateChatSupportTicketData): Validated<CreatedTicket> {
     const conversation = await this.repo.findConversation(data.conversationId);
-    if (!conversation) throw new AgentSessionUnavailableError("Conversation not found.");
+    if (!conversation) throw new Error("Conversation not found.");
 
     const messages = await this.repo.listRecentMessages(conversation.id, SUPPORT_TRANSCRIPT_MESSAGE_LIMIT);
 
