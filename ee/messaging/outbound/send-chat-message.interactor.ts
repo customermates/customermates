@@ -28,7 +28,6 @@ import { formatRetryAfter } from "../retry-after";
 import { toMessagingMessageDto } from "../inbox/inbox.schema";
 import { EMPTY_ATTENDEE } from "../unipile.mappers";
 import { SendAttachmentSchema } from "./send-email.interactor";
-import type { SendAttachment } from "./send-email.interactor";
 
 export const DUPLICATE_OUTBOUND_WINDOW_MS = 60_000;
 
@@ -75,16 +74,6 @@ export abstract class SendChatMessageRepo {
     attachmentsMeta: AttachmentMeta[];
     sentAt: Date;
   }): Promise<MessagingMessage | null>;
-}
-
-function outboundAttachmentsMeta(attachments: SendAttachment[] | undefined): AttachmentMeta[] {
-  return (attachments ?? []).map((attachment, index) => ({
-    id: `outbound-${index}`,
-    name: attachment.filename,
-    fileName: attachment.filename,
-    mime: attachment.content_type,
-    size: Math.floor((attachment.content.length * 3) / 4),
-  }));
 }
 
 @TenantInteractor({ resource: Resource.inboxMessages, action: Action.create })
@@ -165,7 +154,7 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
         subject: null,
         bodyText: data.text,
         bodyHtml: null,
-        attachmentsMeta: outboundAttachmentsMeta(data.attachments),
+        attachmentsMeta: [],
         sentAt,
       });
 
@@ -185,7 +174,7 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
         subject: null,
         bodyText: data.text,
         bodyHtml: null,
-        attachmentsMeta: outboundAttachmentsMeta(data.attachments),
+        attachmentsMeta: [],
         isEvent: false,
         isDeleted: false,
         isHidden: false,

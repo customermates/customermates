@@ -13,6 +13,7 @@ import { CustomColumnType } from "@/generated/prisma";
 import type { Resource, EntityType } from "@/generated/prisma";
 
 import { toastZodErrorTree } from "../utils/toast-zod-error-tree";
+import { reportApplicationError } from "../errors/report-application-error";
 
 import { ViewMode } from "./base-query-builder";
 import { BaseStore } from "./base.store";
@@ -779,9 +780,11 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
         hiddenColumns: toJS(this.hiddenColumns),
         viewMode: toJS(this.viewMode),
         groupingColumnId: this.groupingColumnId,
-      }).then((res) => {
-        if (!res.ok) toastZodErrorTree(res.error);
-      });
+      })
+        .then((res) => {
+          if (!res.ok) toastZodErrorTree(res.error);
+        })
+        .catch(reportApplicationError);
     }, 1000);
   };
 
