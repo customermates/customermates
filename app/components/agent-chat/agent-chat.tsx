@@ -137,6 +137,15 @@ export const AgentChat = observer(function AgentChat() {
   }, [agentUiControlStore]);
 
   useEffect(() => {
+    if (store.enabled !== true) return;
+    const root = document.documentElement;
+    root.style.setProperty("--agent-launcher-space", "3.5rem");
+    return () => {
+      root.style.removeProperty("--agent-launcher-space");
+    };
+  }, [store.enabled]);
+
+  useEffect(() => {
     const wasOpen = wasOpenRef.current;
     wasOpenRef.current = store.isOpen;
     const targetId = store.isOpen

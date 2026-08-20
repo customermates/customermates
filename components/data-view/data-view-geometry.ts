@@ -8,4 +8,4 @@ export const DATA_KANBAN_HEADER_CLASS_NAME =
 export const DATA_KANBAN_CARDS_CLASS_NAME = "flex min-h-20 flex-1 flex-col gap-3";
 
 export const DATA_VIEW_PAGINATION_RAIL_CLASS_NAME =
-  "flex h-[3.25rem] shrink-0 items-center justify-between gap-3 px-4 py-2.5";
+  "flex h-[3.25rem] shrink-0 items-center justify-between gap-3 py-2.5 ps-4 pe-[calc(1rem+var(--agent-launcher-space))]";

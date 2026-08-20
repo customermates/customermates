@@ -327,7 +327,7 @@ export const ThreadReplyComposer = observer(
           </div>
         )}
 
-        <div className="flex items-center justify-between gap-2 px-2 pt-0.5 pb-1.5">
+        <div className="flex items-center justify-between gap-2 ps-2 pe-[calc(0.5rem+var(--agent-launcher-space))] pt-0.5 pb-1.5">
           <div className="flex items-center gap-0.5">
             <input
               ref={fileInputRef}

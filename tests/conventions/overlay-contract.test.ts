@@ -357,6 +357,23 @@ describe("overlay contract", () => {
     );
   });
 
+  it("keeps bottom rails clear of the floating assistant launcher", () => {
+    const launcher = readFileSync(join(REPO_ROOT, "app/components/agent-chat/agent-chat.tsx"), "utf8");
+    const tokens = readFileSync(join(REPO_ROOT, "styles/globals.css"), "utf8");
+    const rails = [
+      "components/data-view/data-view-geometry.ts",
+      "app/[locale]/(protected)/inbox/components/thread-reply-composer.tsx",
+    ];
+
+    expect(tokens).toContain("--agent-launcher-space: 0px;");
+    expect(launcher).toContain('root.style.setProperty("--agent-launcher-space"');
+
+    for (const rail of rails)
+      expect(readFileSync(join(REPO_ROOT, rail), "utf8"), `${rail} must reserve the launcher gutter`).toContain(
+        "var(--agent-launcher-space)",
+      );
+  });
+
   it("keeps task-overlay headers and action footers divider-free", () => {
     const entityDetail = readFileSync(join(REPO_ROOT, "components/entity-detail/entity-detail-body.tsx"), "utf8");
     const responsiveOverlay = readFileSync(join(REPO_ROOT, "components/modal/responsive-overlay.tsx"), "utf8");

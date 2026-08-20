@@ -219,6 +219,11 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
 
+  /* Room the floating assistant launcher occupies in the bottom-inline-end corner.
+     The launcher sets it while it is on screen; bottom rails pay it so their
+     controls never sit underneath. */
+  --agent-launcher-space: 0px;
+
   /* Centred overlays pay a gutter on both block edges. */
   --overlay-block-budget: calc(
     var(--viewport-block) - var(--keyboard-inset) - var(--safe-top) - var(--safe-bottom) - 2 * var(--viewport-gutter)
