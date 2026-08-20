@@ -249,7 +249,7 @@ describe("registration legal copy covers the DPA", () => {
       expect(richTags(de[namespace][key]), `${namespace}.${key} tag mismatch`).toEqual(richTags(en[namespace][key]));
   });
 
-  it.each(CONTENT_LOCALES)("places assent at onboarding rather than sign-in or initial sign-up (%s)", (name) => {
+  it.each(CONTENT_LOCALES)("keeps the auth continuation notice distinct from explicit onboarding assent (%s)", (name) => {
     const messages = locale(name);
     const expected = name === "en"
       ? {
@@ -257,14 +257,16 @@ describe("registration legal copy covers the DPA", () => {
             "I am authorised to act for the business customer and accept the <termsOfServiceLink>Terms</termsOfServiceLink> and <dpaLink>DPA</dpaLink>. I have read the <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
           invited:
             "I agree to comply with the <termsOfServiceLink>Terms</termsOfServiceLink> and have read the <dpaLink>DPA</dpaLink> and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
-          auth: "See our <termsOfServiceLink>Terms</termsOfServiceLink>, <dpaLink>DPA</dpaLink>, and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
+          auth:
+            "By continuing, you agree to our <termsOfServiceLink>Terms</termsOfServiceLink> and acknowledge our <dataPrivacyLink>Privacy Policy</dataPrivacyLink>. See our <dpaLink>DPA</dpaLink>.",
         }
       : {
           onboarding:
             "Ich bin berechtigt, für den Geschäftskunden zu handeln, und stimme den <termsOfServiceLink>AGB</termsOfServiceLink> sowie dem <dpaLink>AVV</dpaLink> zu. Die <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> habe ich gelesen.",
           invited:
             "Ich verpflichte mich, die <termsOfServiceLink>AGB</termsOfServiceLink> einzuhalten, und habe den <dpaLink>AVV</dpaLink> sowie die <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> gelesen.",
-          auth: "Siehe unsere <termsOfServiceLink>AGB</termsOfServiceLink>, unseren <dpaLink>AVV</dpaLink> und unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink>.",
+          auth:
+            "Mit dem Fortfahren stimmst du unseren <termsOfServiceLink>AGB</termsOfServiceLink> zu und nimmst unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> zur Kenntnis. Siehe unseren <dpaLink>AVV</dpaLink>.",
         };
 
     expect(messages.OnboardingForm.agreeToTerms).toBe(expected.onboarding);
