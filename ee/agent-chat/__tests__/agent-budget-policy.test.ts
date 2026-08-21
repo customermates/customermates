@@ -133,6 +133,11 @@ describe("agent turn credit budget", () => {
         role: "assistant",
         content: [
           {
+            type: "reasoning",
+            text: "x".repeat(10_000),
+            providerOptions: { openai: { itemId: "rs-catalog", reasoningEncryptedContent: null } },
+          },
+          {
             type: "tool-call",
             toolCallId: "search-call",
             toolName: "discover_customermates_tools",

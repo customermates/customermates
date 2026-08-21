@@ -75,6 +75,16 @@ function step(
 }
 
 function hostedToolSearchStep(): AgentContinuationStep {
+  const reasoning = {
+    type: "reasoning",
+    text: "I should discover the deferred record tools.",
+    providerOptions: {
+      openai: {
+        itemId: "rs-catalog",
+        reasoningEncryptedContent: null,
+      },
+    },
+  };
   const searchCall = {
     type: "tool-call",
     toolCallId: "search-call",
@@ -95,8 +105,13 @@ function hostedToolSearchStep(): AgentContinuationStep {
   const assistantMessage = {
     role: "assistant",
     content: [
+      reasoning,
       searchCall,
       searchResult,
+      {
+        type: "reasoning",
+        text: "Unstored reasoning must not survive compaction.",
+      },
       {
         type: "tool-call",
         toolCallId: "client-call",
@@ -119,7 +134,7 @@ function hostedToolSearchStep(): AgentContinuationStep {
 
   return {
     finishReason: "tool-calls",
-    content: [searchCall, searchResult],
+    content: [reasoning, searchCall, searchResult],
     response: { messages: [assistantMessage, clientResultMessage] },
   };
 }
@@ -267,16 +282,26 @@ describe("agent continuation context compaction", () => {
 
     expect(compacted.retainedToolSearchResponseSteps).toBe(1);
     expect(compacted.messages[1]).not.toBe(hostedSearch.response.messages[0]);
-    expect((compacted.messages[1]?.content as unknown[])[0]).toBe(
-      (hostedSearch.response.messages[0]?.content as unknown[])[0],
-    );
-    expect((compacted.messages[1]?.content as unknown[])[1]).toBe(
-      (hostedSearch.response.messages[0]?.content as unknown[])[1],
-    );
+    const retainedContent = compacted.messages[1]?.content as Array<{
+      type: string;
+      providerOptions?: { openai?: { itemId?: string } };
+    }>;
+    const originalContent = hostedSearch.response.messages[0]?.content as unknown[];
+    expect(retainedContent.map((part) => part.type)).toEqual(["reasoning", "tool-call", "tool-result"]);
+    expect(retainedContent.map((part) => part.providerOptions?.openai?.itemId)).toEqual([
+      "rs-catalog",
+      "tsc-catalog",
+      "tso-catalog",
+    ]);
+    expect(retainedContent[0]).toBe(originalContent[0]);
+    expect(retainedContent[1]).toBe(originalContent[1]);
+    expect(retainedContent[2]).toBe(originalContent[2]);
+    expect(JSON.stringify(compacted.messages[1])).toContain("rs-catalog");
     expect(JSON.stringify(compacted.messages[1])).toContain("tsc-catalog");
     expect(JSON.stringify(compacted.messages[1])).toContain("tso-catalog");
     expect(JSON.stringify(compacted.messages)).not.toContain("client-call");
     expect(JSON.stringify(compacted.messages)).not.toContain("private old result");
+    expect(JSON.stringify(compacted.messages)).not.toContain("Unstored reasoning");
     expect(compacted.checkpoint).toMatchObject({
       completedSteps: 1,
       completedActivities: 0,

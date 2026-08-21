@@ -33,13 +33,16 @@ function storedOpenAiItemReference(part: unknown) {
     toolName?: unknown;
     providerOptions?: { openai?: { itemId?: unknown } };
   };
-  if (candidate.type !== "tool-call" && candidate.type !== "tool-result") return null;
-  if (candidate.toolName !== AGENT_TOOL_SEARCH_NAME) return null;
+  const isReasoning = candidate.type === "reasoning";
+  const isHostedToolSearch =
+    (candidate.type === "tool-call" || candidate.type === "tool-result") &&
+    candidate.toolName === AGENT_TOOL_SEARCH_NAME;
+  if (!isReasoning && !isHostedToolSearch) return null;
   const itemId = candidate.providerOptions?.openai?.itemId;
   return typeof itemId === "string" && itemId ? { type: "item_reference", id: itemId } : null;
 }
 
-function compactStoredToolSearchMessages(messages: ModelMessage[]) {
+function compactStoredOpenAiItemMessages(messages: ModelMessage[]) {
   return messages.map((message) => {
     if (!Array.isArray(message.content)) return message;
     let changed = false;
@@ -61,7 +64,7 @@ export function isAgentStepContextWithinBudget(
   return isAgentContextWithinBudget(
     {
       ...providerContext,
-      messages: compactStoredToolSearchMessages(messages),
+      messages: compactStoredOpenAiItemMessages(messages),
     },
     maxContextBytes,
   );

@@ -198,7 +198,7 @@ describe("agent tools", () => {
     );
   });
 
-  it("preserves distinct hosted tool-search item ids across a client-tool continuation", async () => {
+  it("preserves reasoning and hosted tool-search item ids across a client-tool continuation", async () => {
     const requestBodies: Array<Record<string, unknown>> = [];
     const preparedMessages: ModelMessage[][] = [];
     const lookup = vi.fn().mockResolvedValue({ count: 4 });
@@ -209,6 +209,12 @@ describe("agent tools", () => {
         const output =
           requestBodies.length === 1
             ? [
+                {
+                  type: "reasoning",
+                  id: "rs_catalog",
+                  summary: [{ type: "summary_text", text: "Discover the deferred record tools." }],
+                  encrypted_content: null,
+                },
                 {
                   type: "tool_search_call",
                   id: "tsc_catalog",
@@ -304,7 +310,7 @@ describe("agent tools", () => {
       (requestBodies[1]?.input as Array<{ id?: string; type?: string }> | undefined)
         ?.filter((item) => item.type === "item_reference")
         .map((item) => item.id),
-    ).toEqual(expect.arrayContaining(["tsc_catalog", "tso_catalog"]));
+    ).toEqual(["rs_catalog", "tsc_catalog", "tso_catalog"]);
 
     const continuation = preparedMessages[1] ?? [];
     const providerContext = { system: "system", messages: [] as ModelMessage[], tools: [] };

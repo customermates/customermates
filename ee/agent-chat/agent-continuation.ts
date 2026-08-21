@@ -266,7 +266,12 @@ function hostedToolSearchMessages(messages: readonly ModelMessage[]) {
     if (!Array.isArray(message.content)) return [];
     const content = message.content.filter((rawPart) => {
       const part = record(rawPart);
-      return (part?.type === "tool-call" || part?.type === "tool-result") && part.toolName === AGENT_TOOL_SEARCH_NAME;
+      const openAiOptions = record(record(part?.providerOptions)?.openai);
+      const isStoredReasoning = part?.type === "reasoning" && stringValue(openAiOptions?.itemId) !== null;
+      return (
+        isStoredReasoning ||
+        ((part?.type === "tool-call" || part?.type === "tool-result") && part.toolName === AGENT_TOOL_SEARCH_NAME)
+      );
     });
     return content.length > 0 ? [{ ...message, content } as ModelMessage] : [];
   });
