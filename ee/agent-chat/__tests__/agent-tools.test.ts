@@ -433,6 +433,15 @@ describe("agent tools", () => {
     expect(longFunded?.maxOutputTokens).toBeGreaterThanOrEqual(800);
   });
 
+  it("publishes the preferred custom-field option shape to the hosted provider", () => {
+    const definition = getAgentAiToolDefinitions().find(({ name }) => name === "manage_custom_columns");
+    const schema = definition?.inputSchema as { properties?: Record<string, unknown> } | undefined;
+    const selectOptions = schema?.properties?.selectOptions as { type?: string; minItems?: number } | undefined;
+
+    expect(selectOptions).toMatchObject({ type: "array", minItems: 1 });
+    expect(JSON.stringify(schema?.properties?.id)).toContain('"null"');
+  });
+
   it("accepts only exact navigation target ids and rejects URL-like model input", () => {
     const tools = getAgentAiTools(deps());
     const schema = schemaOf(tools.navigate);
@@ -835,6 +844,9 @@ describe("agent tools", () => {
     expect(prompt).toContain("Make one focused list_ui_targets query");
     expect(prompt).toContain("A tour navigates to each step itself");
     expect(prompt).toContain("asks to walk them through or show them how to connect an account");
+    expect(prompt).toContain("action=upsert, intent=create, and no id");
+    expect(prompt).toContain("top-level selectOptions");
+    expect(prompt).toContain("retry that tool once");
     expect(prompt).toContain("Never print or imitate tool-call syntax as text");
   });
 });

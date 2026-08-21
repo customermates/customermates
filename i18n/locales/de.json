@@ -233,14 +233,29 @@
         },
         "widgets": {
           "configure": {
-            "done": "Dashboard-Widgets wurden aktualisiert",
-            "error": "Dashboard-Widgets konnten nicht aktualisiert werden",
-            "running": "Dashboard-Widgets werden aktualisiert"
+            "done": "Dashboard-Widgets wurden konfiguriert",
+            "error": "Dashboard-Widgets konnten nicht konfiguriert werden",
+            "running": "Dashboard-Widgets werden konfiguriert"
+          },
+          "create": {
+            "done": "Dashboard-Widget wurde erstellt",
+            "error": "Dashboard-Widget konnte nicht erstellt werden",
+            "running": "Dashboard-Widget wird erstellt"
+          },
+          "delete": {
+            "done": "Dashboard-Widget wurde entfernt",
+            "error": "Dashboard-Widget konnte nicht entfernt werden",
+            "running": "Dashboard-Widget wird entfernt"
           },
           "read": {
             "done": "Dashboard-Widgets wurden geprüft",
             "error": "Dashboard-Widgets konnten nicht geprüft werden",
             "running": "Dashboard-Widgets werden geprüft"
+          },
+          "update": {
+            "done": "Dashboard-Widget wurde aktualisiert",
+            "error": "Dashboard-Widget konnte nicht aktualisiert werden",
+            "running": "Dashboard-Widget wird aktualisiert"
           }
         },
         "workspace": {

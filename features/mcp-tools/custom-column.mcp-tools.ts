@@ -33,6 +33,7 @@ const ToolOptionSchema = OptionSchema.partial({
   isDefault: true,
   index: true,
 });
+const ToolSelectOptionsSchema = z.array(ToolOptionSchema).min(1);
 const CustomColumnMutationIntentSchema = z.enum(["create", "update"]);
 
 function completeOptions(options: z.infer<typeof ToolOptionSchema>[]) {
@@ -64,6 +65,9 @@ const UpsertCustomColumnToolSchema = z.object({
     .describe(
       "Column label. On update, this must exactly match the existing label; create a new column for a new label.",
     ),
+  selectOptions: ToolSelectOptionsSchema.optional().describe(
+    "Preferred singleSelect config. Pass the complete option list directly as [{label, value?, color?, isDefault?, index?}]. Do not also pass options.options.",
+  ),
   options: z
     .object({
       displayFormat: z
@@ -75,14 +79,15 @@ const UpsertCustomColumnToolSchema = z.object({
       allowMultiple: z.boolean().optional().describe("link / email / phone only"),
       options: z
         .array(ToolOptionSchema)
+        .min(1)
         .optional()
         .describe(
-          "singleSelect only. REPLACES the full option list. A label is enough for a new option; value, color, isDefault and index are filled in when omitted. Keep an existing option's value to preserve its records.",
+          "Legacy singleSelect shape. Prefer top-level selectOptions. REPLACES the full option list. A label is enough for a new option; value, color, isDefault and index are filled in when omitted. Keep an existing option's value to preserve its records.",
         ),
     })
     .optional()
     .describe(
-      "Type-specific config. plain: omit. date*: {displayFormat?}. currency: {currency}. link/email/phone: {color, allowMultiple}. singleSelect: {options:[{value,label,color,isDefault,index}]}.",
+      "Type-specific config. plain: omit. date*: {displayFormat?}. currency: {currency}. link/email/phone: {color, allowMultiple}. Legacy singleSelect clients may use {options:[...]}; new calls should use top-level selectOptions.",
     ),
 });
 
@@ -102,9 +107,10 @@ const ManageCustomColumnsSchema = z.object({
     ),
   id: z
     .uuid()
+    .nullable()
     .optional()
     .describe(
-      "Custom column id. Required for delete. On upsert: omit to CREATE, pass an existing id to UPDATE (label, type and entityType are then immutable).",
+      "Custom column id. Required for delete. On upsert: omit to CREATE, pass an existing id to UPDATE (label, type and entityType are then immutable). null is accepted only with intent=create and is normalized to omission.",
     ),
   intent: CustomColumnMutationIntentSchema.optional().describe(
     "upsert only. Use create with no id for a new column. UPDATE requires intent=update plus an existing id. Omitted intent is accepted only for backwards-compatible CREATE calls without an id.",
@@ -121,8 +127,11 @@ const ManageCustomColumnsSchema = z.object({
     .describe(
       "Column label. Required for upsert. On update, this must exactly match the existing label; create a new column for a new label.",
     ),
+  selectOptions: UpsertCustomColumnToolSchema.shape.selectOptions.describe(
+    "Preferred for singleSelect upserts. Pass the complete option list directly. Do not also pass legacy options.options.",
+  ),
   options: UpsertCustomColumnToolSchema.shape.options.describe(
-    "upsert only. Type-specific config. plain: omit. date*: {displayFormat?}. currency: {currency}. link/email/phone: {color, allowMultiple}. singleSelect: {options:[{value,label,color,isDefault,index}]}.",
+    "upsert only. Type-specific config. plain: omit. date*: {displayFormat?}. currency: {currency}. link/email/phone: {color, allowMultiple}. Legacy singleSelect clients may use options.options; prefer top-level selectOptions.",
   ),
 });
 
@@ -166,8 +175,8 @@ export const manageCustomColumnsTool = {
   description:
     "Use this when you need to list, create, update, or delete custom columns on an entity type. " +
     "action list returns { id, label, type, entityType, options } per column. " +
-    "action upsert requires type, entityType, label. For CREATE, use intent=create and OMIT id (legacy callers may omit intent only when id is also omitted). For UPDATE, intent=update and an existing id are both required; mismatched intent/id pairs are rejected without writing. Label, type and entityType are immutable through this tool, so create a new column instead of repurposing an existing one. " +
-    "For singleSelect, options.options REPLACES the full option list: keep an existing option's stable value uuid to preserve stored records, use a fresh uuid for new options; dropping one deletes its stored values. " +
+    "action upsert requires type, entityType, label. For CREATE, use intent=create and OMIT id (a null id is normalized to omission only for explicit creates; legacy callers may omit intent only when id is also omitted). For UPDATE, intent=update and an existing id are both required; mismatched intent/id pairs are rejected without writing. Label, type and entityType are immutable through this tool, so create a new column instead of repurposing an existing one. " +
+    'For singleSelect, prefer top-level selectOptions; for example {"action":"upsert","intent":"create","entityType":"contact","type":"singleSelect","label":"Priority","selectOptions":[{"label":"High"}]}. Legacy options.options remains accepted, but never pass both. The list REPLACES every option: keep an existing option\'s stable value uuid to preserve stored records, use a fresh uuid for new options; dropping one deletes its stored values. ' +
     "action delete is IRREVERSIBLE and removes the column plus ALL values stored against it.",
   annotations: {
     readOnlyHint: false,
@@ -189,7 +198,8 @@ export const manageCustomColumnsTool = {
       return encodeToToon({ items: all.data });
     }
     if (params.action === "upsert") {
-      const parsed = UpsertCustomColumnToolSchema.safeParse(params);
+      const normalizedParams = params.intent === "create" && params.id === null ? { ...params, id: undefined } : params;
+      const parsed = UpsertCustomColumnToolSchema.safeParse(normalizedParams);
       if (!parsed.success) return mcpValidationFailure(parsed.error);
       if (parsed.data.intent === "create" && parsed.data.id) {
         return mcpMessageFailure(
@@ -205,9 +215,29 @@ export const manageCustomColumnsTool = {
           ["intent"],
         );
       }
-      const selectOptions = parsed.data.options?.options;
+      if (parsed.data.selectOptions && parsed.data.options?.options) {
+        return mcpMessageFailure(
+          "Pass single-select choices once: use top-level selectOptions, or legacy options.options, but not both.",
+          ["selectOptions"],
+        );
+      }
+      const selectOptions = parsed.data.selectOptions ?? parsed.data.options?.options;
+      if (parsed.data.type === CustomColumnType.singleSelect && !selectOptions) {
+        return mcpMessageFailure(
+          "singleSelect requires a non-empty top-level selectOptions list (legacy options.options is also accepted).",
+          ["selectOptions"],
+        );
+      }
+      if (parsed.data.type !== CustomColumnType.singleSelect && selectOptions) {
+        return mcpMessageFailure(
+          "Single-select choices are available only when type=singleSelect.",
+          parsed.data.selectOptions ? ["selectOptions"] : ["options", "options"],
+        );
+      }
       const columnParams = { ...parsed.data };
       delete columnParams.intent;
+      delete columnParams.selectOptions;
+      if (columnParams.id === undefined) delete columnParams.id;
       let data = selectOptions
         ? {
             ...columnParams,

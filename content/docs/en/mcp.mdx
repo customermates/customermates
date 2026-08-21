@@ -63,7 +63,7 @@ The MCP surface is built so that models with weaker planning can use it reliably
 - **Inline enum hints**: every enum field lists its valid values inline in the description, so the model does not have to resolve external types.
 - **Filter examples inline**: every `filters` parameter has a concrete JSON example in its description.
 - **Relationship safety**: relations change only through `manage_record_links` (add or remove); passing `null` on a relationship array is rejected with a remediation hint.
-- **Explicit column intent**: new integrations create with `intent=create` and no id, while legacy id-less calls remain create-only. Updates require `intent=update` plus an existing id. The tool keeps `label`, `type`, and `entityType` fixed on update, so a different label or type requires a new column.
+- **Explicit column intent**: new integrations create with `intent=create` and no id, while legacy id-less calls remain create-only. Updates require `intent=update` plus an existing id. For `singleSelect`, pass the full choice list in top-level `selectOptions`; legacy `options.options` remains accepted, but never pass both. The tool keeps `label`, `type`, and `entityType` fixed on update, so a different label or type requires a new column.
 - **Destructive flags**: every destructive tool or action has `destructiveHint: true` and an `IRREVERSIBLE` description prefix.
 
 ## CLI use
@@ -158,9 +158,9 @@ Messaging-backed tools are available from the Pro tier in cloud mode. `get_activ
 
 ### Custom columns
 
-| Tool                    | Read | Destructive | Purpose                                                                                                                                                                                                                                                                                                                                                                      |
-| ----------------------- | ---- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `manage_custom_columns` |      | ✓           | One tool with an `action` switch: list, upsert (create or update), delete. New integrations use explicit `intent=create` without an id; legacy id-less creates remain accepted. Updates require `intent=update` with an existing id. Covers all ten column types; label, type and entityType are immutable on update. Delete is IRREVERSIBLE and removes every stored value. |
+| Tool                    | Read | Destructive | Purpose                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ----------------------- | ---- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `manage_custom_columns` |      | ✓           | One tool with an `action` switch: list, upsert (create or update), delete. New integrations use explicit `intent=create` without an id; legacy id-less creates remain accepted. Updates require `intent=update` with an existing id. For `singleSelect`, prefer top-level `selectOptions`; legacy `options.options` is still accepted. Covers all ten column types; label, type and entityType are immutable on update. Delete is IRREVERSIBLE and removes every stored value. |
 
 ### Widgets
 

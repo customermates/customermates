@@ -233,14 +233,29 @@
         },
         "widgets": {
           "configure": {
-            "done": "Widgets du tableau de bord mis à jour",
-            "error": "Impossible de mettre à jour les widgets du tableau de bord",
-            "running": "Mise à jour des widgets du tableau de bord"
+            "done": "Widgets du tableau de bord configurés",
+            "error": "Impossible de configurer les widgets du tableau de bord",
+            "running": "Configuration des widgets du tableau de bord"
+          },
+          "create": {
+            "done": "Widget du tableau de bord créé",
+            "error": "Impossible de créer le widget du tableau de bord",
+            "running": "Création d’un widget du tableau de bord"
+          },
+          "delete": {
+            "done": "Widget du tableau de bord supprimé",
+            "error": "Impossible de supprimer le widget du tableau de bord",
+            "running": "Suppression du widget du tableau de bord"
           },
           "read": {
             "done": "Widgets du tableau de bord vérifiés",
             "error": "Impossible de vérifier les widgets du tableau de bord",
             "running": "Vérification des widgets du tableau de bord"
+          },
+          "update": {
+            "done": "Widget du tableau de bord mis à jour",
+            "error": "Impossible de mettre à jour le widget du tableau de bord",
+            "running": "Mise à jour du widget du tableau de bord"
           }
         },
         "workspace": {

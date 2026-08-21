@@ -17,6 +17,9 @@ export const AGENT_ACTIVITY_KINDS = [
   "customFields.delete",
   "customFields.configure",
   "widgets.read",
+  "widgets.create",
+  "widgets.update",
+  "widgets.delete",
   "widgets.configure",
   "docs.search",
   "docs.read",
@@ -244,8 +247,19 @@ export function describeAgentTool(toolName: string, input: unknown): AgentActivi
     return descriptor(kind, resource, action === "list" ? "read" : multiplexedRisk(toolName, details));
   }
   if (toolName === "manage_widgets") {
+    const action = actionValue(details);
+    const kind: AgentActivityKind =
+      action === "list" || action === "get"
+        ? "widgets.read"
+        : action === "create"
+          ? "widgets.create"
+          : action === "update"
+            ? "widgets.update"
+            : action === "delete"
+              ? "widgets.delete"
+              : "widgets.configure";
     return descriptor(
-      isMultiplexedRead(toolName, details) ? "widgets.read" : "widgets.configure",
+      kind,
       "widgets",
       isMultiplexedRead(toolName, details) ? "read" : multiplexedRisk(toolName, details),
     );

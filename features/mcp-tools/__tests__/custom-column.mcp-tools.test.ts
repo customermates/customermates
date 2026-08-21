@@ -87,6 +87,113 @@ describe("manage_custom_columns option defaults", () => {
     expect(String(result)).toContain("created successfully");
   });
 
+  it("accepts the preferred flat selectOptions shape and a null id for an explicit create", async () => {
+    const params = {
+      action: "upsert" as const,
+      intent: "create" as const,
+      id: null,
+      entityType: "contact" as const,
+      type: "singleSelect" as const,
+      label: "AI maturity CUS125-E2E-3F186FBA-8D41C2",
+      selectOptions: [
+        {
+          label: "Exploring",
+          value: "9e7a5c21-4d88-4f6a-9b32-71c0e5d4a8f3",
+          color: "info" as const,
+          isDefault: false,
+          index: 0,
+        },
+        {
+          label: "Piloting",
+          value: "2c4f8b73-a159-47de-b6c1-5e90d2a7f844",
+          color: "warning" as const,
+          isDefault: false,
+          index: 1,
+        },
+        {
+          label: "Scaling",
+          value: "d1b6e902-7c35-4a8f-8d74-3f29c6b105ee",
+          color: "success" as const,
+          isDefault: false,
+          index: 2,
+        },
+      ],
+    };
+
+    const parsed = manageCustomColumnsTool.inputSchema.parse(params);
+    const result = await manageCustomColumnsTool.execute(parsed);
+
+    expect(String(result)).toContain("created successfully");
+    expect(spies.upsert).toHaveBeenCalledWith({
+      entityType: "contact",
+      type: "singleSelect",
+      label: "AI maturity CUS125-E2E-3F186FBA-8D41C2",
+      options: { options: params.selectOptions },
+    });
+  });
+
+  it("completes defaults for preferred selectOptions just like the legacy shape", async () => {
+    await manageCustomColumnsTool.execute({
+      action: "upsert",
+      intent: "create",
+      entityType: "deal",
+      type: "singleSelect",
+      label: "Preferred stage",
+      selectOptions: [{ label: "Survey" }, { label: "Won" }],
+    });
+
+    const sent = spies.upsert.mock.calls[0][0];
+    expect(sent.options.options.map((option: { label: string }) => option.label)).toEqual(["Survey", "Won"]);
+    expect(sent.options.options.map((option: { isDefault: boolean }) => option.isDefault)).toEqual([true, false]);
+    for (const option of sent.options.options) {
+      expect(option.value).toMatch(UUID);
+      expect(option.color).toBe("secondary");
+    }
+  });
+
+  it("rejects ambiguous duplicate select option shapes without writing", async () => {
+    const result = await manageCustomColumnsTool.execute({
+      ...upsertParams([{ label: "Legacy" }]),
+      selectOptions: [{ label: "Preferred" }],
+    } as never);
+
+    expect(mcpToolResultText(result)).toContain("but not both");
+    expect(result).toMatchObject({
+      failure: { kind: "validation", issues: [{ path: ["selectOptions"] }] },
+    });
+    expect(spies.upsert).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    { action: "upsert", intent: "update", id: null, entityType: "deal", type: "plain", label: "Roof note" },
+    { action: "delete", id: null },
+  ])("does not normalize a null id outside explicit create", async (params) => {
+    const result = await manageCustomColumnsTool.execute(params as never);
+
+    expect(mcpToolResultText(result)).toContain("Validation error:");
+    expect(result).toMatchObject({ failure: { kind: "validation", issues: [{ path: ["id"] }] } });
+    expect(spies.upsert).not.toHaveBeenCalled();
+    expect(spies.remove).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    [{ selectOptions: [{ label: "Wrong shape" }] }, ["selectOptions"]],
+    [{ options: { options: [{ label: "Wrong legacy shape" }] } }, ["options", "options"]],
+  ])("rejects select choices for a non-select column", async (config, path) => {
+    const result = await manageCustomColumnsTool.execute({
+      action: "upsert",
+      intent: "create",
+      entityType: "deal",
+      type: "plain",
+      label: "Roof note",
+      ...config,
+    } as never);
+
+    expect(mcpToolResultText(result)).toContain("only when type=singleSelect");
+    expect(result).toMatchObject({ failure: { kind: "validation", issues: [{ path }] } });
+    expect(spies.upsert).not.toHaveBeenCalled();
+  });
+
   it("preserves an existing option value so its stored records survive an edit", async () => {
     await manageCustomColumnsTool.execute(
       upsertParams([

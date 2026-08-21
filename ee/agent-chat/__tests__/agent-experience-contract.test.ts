@@ -300,7 +300,9 @@ describe("agent experience contract", () => {
       ],
       ["manage_custom_columns", { action: "delete", id: privateId }, "customFields.delete"],
       ["manage_widgets", { action: "get", ids: [privateId] }, "widgets.read"],
-      ["manage_widgets", { action: "update", id: privateId, name: "Private widget" }, "widgets.configure"],
+      ["manage_widgets", { action: "create", name: "Private widget" }, "widgets.create"],
+      ["manage_widgets", { action: "update", id: privateId, name: "Private widget" }, "widgets.update"],
+      ["manage_widgets", { action: "delete", id: privateId }, "widgets.delete"],
       [
         "update_workspace_settings",
         {
@@ -325,7 +327,9 @@ describe("agent experience contract", () => {
         "Benutzerdefiniertes Feld wurde aktualisiert",
         "Benutzerdefiniertes Feld wurde entfernt",
         "Dashboard-Widgets wurden geprüft",
-        "Dashboard-Widgets wurden aktualisiert",
+        "Dashboard-Widget wurde erstellt",
+        "Dashboard-Widget wurde aktualisiert",
+        "Dashboard-Widget wurde entfernt",
         "Workspace-Bezeichnungen wurden aktualisiert",
         "Workspace-Einstellungen wurden aktualisiert",
         "Profil wurde aktualisiert",
@@ -336,7 +340,9 @@ describe("agent experience contract", () => {
         "Updated a custom field",
         "Removed a custom field",
         "Reviewed dashboard widgets",
-        "Updated dashboard widgets",
+        "Created a dashboard widget",
+        "Updated a dashboard widget",
+        "Removed a dashboard widget",
         "Updated workspace terminology",
         "Updated workspace settings",
         "Updated your profile",
@@ -347,7 +353,9 @@ describe("agent experience contract", () => {
         "Campo personalizado actualizado",
         "Campo personalizado eliminado",
         "Widgets del panel revisados",
-        "Widgets del panel actualizados",
+        "Widget del panel creado",
+        "Widget del panel actualizado",
+        "Widget del panel eliminado",
         "Terminología del espacio de trabajo actualizada",
         "Configuración del espacio de trabajo actualizada",
         "Perfil actualizado",
@@ -358,7 +366,9 @@ describe("agent experience contract", () => {
         "Champ personnalisé mis à jour",
         "Champ personnalisé supprimé",
         "Widgets du tableau de bord vérifiés",
-        "Widgets du tableau de bord mis à jour",
+        "Widget du tableau de bord créé",
+        "Widget du tableau de bord mis à jour",
+        "Widget du tableau de bord supprimé",
         "Terminologie de l’espace de travail mise à jour",
         "Paramètres de l’espace de travail mis à jour",
         "Profil mis à jour",
@@ -369,7 +379,9 @@ describe("agent experience contract", () => {
         "Campo personalizzato aggiornato",
         "Campo personalizzato rimosso",
         "Widget della dashboard controllati",
-        "Widget della dashboard aggiornati",
+        "Widget della dashboard creato",
+        "Widget della dashboard aggiornato",
+        "Widget della dashboard rimosso",
         "Terminologia dell’area di lavoro aggiornata",
         "Impostazioni dell’area di lavoro aggiornate",
         "Profilo aggiornato",
@@ -390,6 +402,17 @@ describe("agent experience contract", () => {
     expect(ambiguousLegacyActivity.kind).toBe("customFields.configure");
     expect(agentActivityCopy(ambiguousLegacyActivity, enT).done).toBe("Configured custom fields");
     expect(JSON.stringify(ambiguousLegacyActivity)).not.toContain(privateId);
+    const ambiguousWidgetActivity = describeAgentTool("manage_widgets", { action: "legacy" });
+    expect(ambiguousWidgetActivity.kind).toBe("widgets.configure");
+    expect(agentActivityCopy(ambiguousWidgetActivity, enT).done).toBe("Configured dashboard widgets");
+    expect(
+      AgentActivityDescriptorSchema.parse({
+        kind: "widgets.configure",
+        resource: "widgets",
+        affectedResources: ["widgets"],
+        risk: "write",
+      }),
+    ).toMatchObject({ kind: "widgets.configure" });
     expect(
       AgentActivityDescriptorSchema.parse({
         kind: "workspace.configure",
@@ -509,7 +532,7 @@ describe("agent experience contract", () => {
 
   it.each([
     ["manage_custom_columns", "list", "upsert", "customFields.read", "customFields.create"],
-    ["manage_widgets", "get", "create", "widgets.read", "widgets.configure"],
+    ["manage_widgets", "get", "create", "widgets.read", "widgets.create"],
     ["manage_webhooks", "list_deliveries", "create", "workspace.read", "webhooks.manage"],
   ])("classifies %s read and write actions independently", (toolName, readAction, writeAction, readKind, writeKind) => {
     const read = describeAgentTool(toolName, { action: readAction });

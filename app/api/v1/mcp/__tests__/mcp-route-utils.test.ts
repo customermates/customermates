@@ -3,12 +3,19 @@ import { z } from "zod";
 
 import { createZodError } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { manageCustomColumnsTool } from "@/features/mcp-tools/custom-column.mcp-tools";
 import { mcpInteractorFailure, type McpTool } from "@/features/mcp-tools/mcp-tool";
 
 const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
 
 vi.mock("@sentry/nextjs", () => sentry);
 vi.mock("@/env", () => ({ env: { BASE_URL: "http://localhost:4105" } }));
+vi.mock("@/core/di", () => ({
+  getUpsertCustomColumnInteractor: vi.fn(),
+  getGetCustomColumnsInteractor: vi.fn(),
+  getGetCustomColumnsByEntityTypeInteractor: vi.fn(),
+  getDeleteCustomColumnInteractor: vi.fn(),
+}));
 
 import { createMcpRoute } from "../mcp-route-utils";
 
@@ -83,7 +90,7 @@ async function rpc(
 describe("public MCP execution boundary", () => {
   it("round-trips structured expected failures and redacts unexpected failures", async () => {
     const handler = createMcpRoute({
-      test: [expectedFailureTool, unexpectedFailureTool],
+      test: [expectedFailureTool, unexpectedFailureTool, manageCustomColumnsTool],
     });
     const initialized = await rpc(handler, requestBody("initialize", 1));
     const sessionId = initialized.response.headers.get("mcp-session-id") ?? undefined;
@@ -99,6 +106,12 @@ describe("public MCP execution boundary", () => {
       properties: { value: { type: "string" } },
       required: ["value"],
     });
+    const customColumnsDefinition = tools.find((tool) => tool.name === "manage_custom_columns");
+    const customColumnsInput = customColumnsDefinition?.inputSchema as
+      | { properties?: Record<string, unknown> }
+      | undefined;
+    expect(customColumnsInput?.properties?.selectOptions).toMatchObject({ type: "array", minItems: 1 });
+    expect(JSON.stringify(customColumnsInput?.properties?.id)).toContain('"null"');
 
     const expected = await rpc(
       handler,

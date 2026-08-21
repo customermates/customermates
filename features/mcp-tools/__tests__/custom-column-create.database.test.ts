@@ -73,15 +73,15 @@ describeDatabase("manage_custom_columns against a real database", { timeout: 120
     await prisma.$disconnect();
   });
 
-  it("creates a select field when the model sends option labels only", async () => {
+  it("creates a select field from the preferred top-level option list", async () => {
     const result = await manageCustomColumnsTool.execute({
       action: "upsert",
+      intent: "create",
+      id: null,
       entityType: "deal",
       type: "singleSelect",
       label: "Install Stage",
-      options: {
-        options: [{ label: "Survey" }, { label: "Quoted" }, { label: "Scheduled" }, { label: "Installed" }],
-      },
+      selectOptions: [{ label: "Survey" }, { label: "Quoted" }, { label: "Scheduled" }, { label: "Installed" }],
     } as never);
 
     const stored = await runWithoutTenant(() =>

@@ -233,14 +233,29 @@
         },
         "widgets": {
           "configure": {
-            "done": "Updated dashboard widgets",
-            "error": "Couldn’t update dashboard widgets",
-            "running": "Updating dashboard widgets"
+            "done": "Configured dashboard widgets",
+            "error": "Couldn’t configure dashboard widgets",
+            "running": "Configuring dashboard widgets"
+          },
+          "create": {
+            "done": "Created a dashboard widget",
+            "error": "Couldn’t create the dashboard widget",
+            "running": "Creating a dashboard widget"
+          },
+          "delete": {
+            "done": "Removed a dashboard widget",
+            "error": "Couldn’t remove the dashboard widget",
+            "running": "Removing a dashboard widget"
           },
           "read": {
             "done": "Reviewed dashboard widgets",
             "error": "Couldn’t review dashboard widgets",
             "running": "Reviewing dashboard widgets"
+          },
+          "update": {
+            "done": "Updated a dashboard widget",
+            "error": "Couldn’t update the dashboard widget",
+            "running": "Updating a dashboard widget"
           }
         },
         "workspace": {

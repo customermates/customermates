@@ -233,14 +233,29 @@
         },
         "widgets": {
           "configure": {
-            "done": "Widget della dashboard aggiornati",
-            "error": "Impossibile aggiornare i widget della dashboard",
-            "running": "Aggiornamento dei widget della dashboard"
+            "done": "Widget della dashboard configurati",
+            "error": "Impossibile configurare i widget della dashboard",
+            "running": "Configurazione dei widget della dashboard"
+          },
+          "create": {
+            "done": "Widget della dashboard creato",
+            "error": "Impossibile creare il widget della dashboard",
+            "running": "Creazione di un widget della dashboard"
+          },
+          "delete": {
+            "done": "Widget della dashboard rimosso",
+            "error": "Impossibile rimuovere il widget della dashboard",
+            "running": "Rimozione del widget della dashboard"
           },
           "read": {
             "done": "Widget della dashboard controllati",
             "error": "Impossibile controllare i widget della dashboard",
             "running": "Controllo dei widget della dashboard"
+          },
+          "update": {
+            "done": "Widget della dashboard aggiornato",
+            "error": "Impossibile aggiornare il widget della dashboard",
+            "running": "Aggiornamento del widget della dashboard"
           }
         },
         "workspace": {
