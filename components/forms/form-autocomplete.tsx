@@ -21,6 +21,7 @@ import { useAppForm } from "./form-context";
 import { useFormFieldErrors, useResolvedFieldLabel } from "./use-form-field";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { SelectionOptionsSkeleton, SelectionValueSkeleton } from "./selection-loading";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 type Identifiable = { id: string } | { key: string } | { value: string };
 
@@ -399,7 +400,7 @@ export const FormAutocomplete = observer(
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && showCreate) {
                     e.preventDefault();
-                    void handleCreate();
+                    runUserAction(handleCreate);
                   }
                 }}
                 onValueChange={setInput}
@@ -429,7 +430,7 @@ export const FormAutocomplete = observer(
 
                 {showCreate && (
                   <CommandGroup>
-                    <CommandItem value={`__create__${input}`} onSelect={() => void handleCreate()}>
+                    <CommandItem value={`__create__${input}`} onSelect={() => runUserAction(handleCreate)}>
                       {t("Common.inputs.addOption", { value: input.trim() })}
                     </CommandItem>
                   </CommandGroup>

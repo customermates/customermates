@@ -10,7 +10,7 @@ import { z } from "zod";
 
 import * as Sentry from "@sentry/node";
 
-import { ConnectedAccountStatus } from "@/generated/prisma";
+import { ConnectedAccountStatus, MessagingProvider } from "@/generated/prisma";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
@@ -19,7 +19,7 @@ import { isExcludedChatId, mapParticipantRecord, mapUnipileUser, normalizeChatMe
 import { UnipileChatSchema, UnipileMessageSchema } from "../../unipile.schema";
 import { ACCOUNT_WIDE_SOURCE } from "./prepare-backfill.interactor";
 
-import { UNIPILE_MAX_LIMIT, paginateStep } from "./paginate";
+import { BACKFILL_MESSAGE_PAGE_BUDGET, UNIPILE_MAX_LIMIT, paginateStep } from "./paginate";
 import { isUnipileRateLimit } from "../../messaging.service";
 
 const BACKFILL_MESSAGE_TIMEOUT_MS = 10_000;
@@ -30,7 +30,8 @@ function isSelfAccount(account: ConnectedAccount, identifier: string | null | un
   return ownDigits.length > 0 && (identifier ?? "").replace(/\D/g, "") === ownDigits;
 }
 
-function altThreadIdFromChat(chat: UnipileChat): string | null {
+function altThreadIdFromChat(chat: UnipileChat, provider: MessagingProvider): string | null {
+  if (provider === MessagingProvider.linkedin) return null;
   if (chat.is_group || chat.is_channel) return null;
   const alt = chat.user_id;
   if (!alt || alt === "undefined" || alt === chat.id) return null;
@@ -56,7 +57,8 @@ export class BackfillChatsInteractor {
   @Enforce(Schema)
   async invoke({ connectedAccountId, source, cursor }: BackfillChatsPayload): Promise<PageResult> {
     const account = await this.repo.findAccountByIdUnscoped(connectedAccountId);
-    if (!account || account.status === ConnectedAccountStatus.deleted) return { nextCursor: null, done: true };
+    if (!account || account.status === ConnectedAccountStatus.deleted)
+      return { nextCursor: null, done: true, complete: false };
 
     const limit = UNIPILE_MAX_LIMIT;
 
@@ -110,7 +112,7 @@ export class BackfillChatsInteractor {
         companyId: account.companyId,
         connectedAccountId: account.id,
         unipileThreadId: chat.id,
-        unipileThreadAltId: altThreadIdFromChat(chat),
+        unipileThreadAltId: altThreadIdFromChat(chat, account.provider),
         provider: account.provider,
         type,
         name: chat.name ?? null,
@@ -182,15 +184,30 @@ export class BackfillChatsInteractor {
     account: ConnectedAccount,
     chatId: string,
   ): Promise<{ message: IngestMessage; raw: UnipileMessage }[]> {
-    const page = await this.messagingService.listChatMessages({
-      accountId: account.unipileAccountId,
-      chatId,
+    const raws: unknown[] = [];
+
+    await paginateStep({
+      startCursor: null,
       limit: UNIPILE_MAX_LIMIT,
-      timeoutMs: BACKFILL_MESSAGE_TIMEOUT_MS,
+      maxPages: BACKFILL_MESSAGE_PAGE_BUDGET,
+      fetchPage: (query) =>
+        this.messagingService.listChatMessages({
+          accountId: account.unipileAccountId,
+          chatId,
+          limit: UNIPILE_MAX_LIMIT,
+          cursor: query.cursor,
+          offset: query.offset,
+          timeoutMs: BACKFILL_MESSAGE_TIMEOUT_MS,
+        }),
+      handleItem: (raw) => {
+        raws.push(raw);
+
+        return Promise.resolve();
+      },
     });
 
     const messages: { message: IngestMessage; raw: UnipileMessage }[] = [];
-    for (const raw of page.data ?? []) {
+    for (const raw of raws) {
       const parsed = UnipileMessageSchema.safeParse(raw);
 
       if (!parsed.success) {
@@ -266,7 +283,7 @@ export class BackfillChatsInteractor {
 
       if (inline.length) return inline;
 
-      if (opts.allowFetch && (chat.participants_count ?? 0) > 0) return this.fetchParticipants(account, chat.id);
+      if (opts.allowFetch) return this.fetchParticipants(account, chat.id);
 
       return [];
     }
@@ -282,16 +299,24 @@ export class BackfillChatsInteractor {
     const participants: MessagingAttendee[] = [];
 
     try {
-      const page = await this.messagingService.listChatParticipants({
-        accountId: account.unipileAccountId,
-        chatId,
+      await paginateStep({
+        startCursor: null,
         limit: UNIPILE_MAX_LIMIT,
-      });
+        fetchPage: (query) =>
+          this.messagingService.listChatParticipants({
+            accountId: account.unipileAccountId,
+            chatId,
+            limit: UNIPILE_MAX_LIMIT,
+            cursor: query.cursor,
+            offset: query.offset,
+          }),
+        handleItem: (raw) => {
+          const attendee = mapParticipantRecord(raw);
+          if (attendee) participants.push(attendee);
 
-      for (const raw of page.data ?? []) {
-        const attendee = mapParticipantRecord(raw);
-        if (attendee) participants.push(attendee);
-      }
+          return Promise.resolve();
+        },
+      });
     } catch (err) {
       if (isUnipileRateLimit(err)) throw err;
 

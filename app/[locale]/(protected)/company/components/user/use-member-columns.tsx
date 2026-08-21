@@ -10,10 +10,12 @@ import { AppChip } from "@/components/chip/app-chip";
 import { Avatar } from "@/components/ui/avatar";
 import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { roleDisplayName } from "@/features/role/role-display-name";
 
 export function useMemberColumns(): ColumnDef<UserDto>[] {
-  const { intlStore, rolesStore } = useRootStore();
+  const { rolesStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const t = useTranslations();
   const roles = rolesStore.items;
 

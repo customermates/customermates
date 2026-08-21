@@ -10,10 +10,12 @@ import { useLayoutEffect } from "react";
 import { SubscriptionStatus, SubscriptionPlan } from "@/generated/prisma";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { FormLabel } from "@/components/forms/form-label";
 import { AppChip } from "@/components/chip/app-chip";
 import { Alert } from "@/components/shared/alert";
 import { cn } from "@/core/utils/cn";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 import { PlanPicker } from "./plan-picker";
 
@@ -56,7 +58,8 @@ function ReadOnlyField({
 
 export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
   const t = useTranslations();
-  const { subscriptionStore, intlStore, loadingOverlayStore } = useRootStore();
+  const { subscriptionStore, loadingOverlayStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
 
   useLayoutEffect(() => subscriptionStore.setSubscription(initialSubscription), [initialSubscription]);
 
@@ -106,7 +109,7 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
           {!hasActiveSubscription && (
             <PlanPicker
               isLoading={loadingOverlayStore.isLoading}
-              onSelect={(plan) => void subscriptionStore.handleSubscribe(plan)}
+              onSelect={(plan) => runUserAction(() => subscriptionStore.handleSubscribe(plan))}
             />
           )}
         </>

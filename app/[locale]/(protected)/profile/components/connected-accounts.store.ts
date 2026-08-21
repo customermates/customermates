@@ -122,10 +122,16 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
     return [];
   }
 
-  disconnect = async (id: string): Promise<void> => {
-    await this.rootStore.loadingOverlayStore.withLoading(async () => {
+  disconnect = async (id: string): Promise<boolean> => {
+    return this.rootStore.loadingOverlayStore.withLoading(async () => {
       const res = await disconnectConnectedAccountAction(id);
-      if (res.ok) await this.removeItem(id);
+      if (!res.ok) {
+        toastZodErrorTree(res.error);
+        return false;
+      }
+
+      await this.removeItem(id);
+      return true;
     });
   };
 

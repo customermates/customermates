@@ -17,13 +17,15 @@ import { InfoRow } from "@/components/shared/info-row";
 import { TruncatedText } from "@/components/shared/truncated-text";
 import { useEntityHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { AppChip } from "@/components/chip/app-chip";
 import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { terminologyLabelForSentence } from "@/features/entity-terminology/entity-terminology-label.utils";
 
 export const DealServicesSelection = observer(() => {
-  const { dealDetailStore, intlStore, userStore } = useRootStore();
+  const { dealDetailStore, userStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const {
     form,
     fetchedEntity,

@@ -12,10 +12,12 @@ import { standardTailColumns } from "@/components/data-view/standard-columns";
 import { useEntityHref, useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { AvatarStack } from "@/components/shared/avatar-stack";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { getSystemTaskNameTranslationKey } from "../../tasks/components/system-task.config";
 
 export function useDealColumns(): ColumnDef<DealDto>[] {
-  const { companyStore, dealsStore, intlStore, userModalStore } = useRootStore();
+  const { companyStore, dealsStore, userModalStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const forecastsByStage = Boolean(companyStore.company?.dealWeightingColumnId);
   const openEntity = useOpenEntity();
   const entityHref = useEntityHref();
@@ -23,7 +25,10 @@ export function useDealColumns(): ColumnDef<DealDto>[] {
 
   return useMemo<ColumnDef<DealDto>[]>(
     () => [
-      { id: "name", cell: ({ row }) => <span className="truncate text-sm">{row.original.name ?? ""}</span> },
+      {
+        id: "name",
+        cell: ({ row }) => <span className="truncate text-sm">{row.original.name ?? ""}</span>,
+      },
       {
         id: "totalValue",
         cell: ({ row }) => <span className="text-sm">{intlStore.formatCurrency(row.original.totalValue)}</span>,
@@ -88,7 +93,10 @@ export function useDealColumns(): ColumnDef<DealDto>[] {
             chipHref={(task) => entityHref(EntityType.task, task.id)}
             items={row.original.tasks.map((task) => {
               const nameKey = getSystemTaskNameTranslationKey(task.type);
-              return { id: task.id, label: nameKey && task.type !== TaskType.custom ? t(nameKey) : task.name };
+              return {
+                id: task.id,
+                label: nameKey && task.type !== TaskType.custom ? t(nameKey) : task.name,
+              };
             })}
             size="sm"
           />

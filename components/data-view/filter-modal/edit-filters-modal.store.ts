@@ -11,6 +11,7 @@ import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { upsertFilterPresetAction, deleteFilterPresetAction } from "@/app/actions";
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { reportApplicationError } from "@/core/errors/report-application-error";
 
 export const FILTER_AUTO_APPLY_DELAY_MS = 300;
 
@@ -182,6 +183,8 @@ export class EditFiltersModalStore extends BaseModalStore<UpsertFilterPresetData
 
       this.markDraftApplied();
       this.close();
+    } catch (error) {
+      reportApplicationError(error);
     } finally {
       this.setIsLoading(false);
     }
@@ -215,21 +218,27 @@ export class EditFiltersModalStore extends BaseModalStore<UpsertFilterPresetData
     if (!this.isPresetMode) this.markDraftApplied();
   };
 
-  deletePreset = async () => {
-    if (!this.form.presetId || !this.tableStore?.p13nId) return;
+  deletePreset = async (): Promise<boolean> => {
+    if (!this.form.presetId || !this.tableStore?.p13nId) return false;
 
-    const res = await deleteFilterPresetAction({
-      p13nId: this.tableStore.p13nId,
-      presetId: this.form.presetId,
-    });
-    if (!res.ok) {
-      toastZodErrorTree(res.error);
-      return;
+    try {
+      const res = await deleteFilterPresetAction({
+        p13nId: this.tableStore.p13nId,
+        presetId: this.form.presetId,
+      });
+      if (!res.ok) {
+        toastZodErrorTree(res.error);
+        return false;
+      }
+
+      this.cancelPendingAutoApply();
+      this.tableStore?.setQueryOptions({ filters: [], forceRefresh: true, refreshMode: "background" });
+      this.close();
+      return true;
+    } catch (error) {
+      reportApplicationError(error);
+      return false;
     }
-
-    this.cancelPendingAutoApply();
-    this.tableStore?.setQueryOptions({ filters: [], forceRefresh: true, refreshMode: "background" });
-    this.close();
   };
 
   protected override prepareToClose(): boolean {

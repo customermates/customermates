@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/shared/icon";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { cn } from "@/core/utils/cn";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 type Props = {
   value: string;
@@ -38,7 +39,7 @@ export function CopyableCode({ value, className }: Props) {
         size="icon-sm"
         type="button"
         variant="ghost"
-        onClick={() => void handleCopy()}
+        onClick={() => runUserAction(handleCopy)}
       >
         <Icon icon={copied ? Check : Clipboard} />
       </Button>

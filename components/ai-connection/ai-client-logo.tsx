@@ -2,9 +2,11 @@ import type { AiConnectionProvider } from "./ai-connection.store";
 
 import { cn } from "@/core/utils/cn";
 
+export type AiClientLogoProvider = AiConnectionProvider | "chatgpt" | "codex";
+
 type Props = {
   className?: string;
-  provider: AiConnectionProvider;
+  provider: AiClientLogoProvider;
 };
 
 const commonProps = {
@@ -26,7 +28,7 @@ export function AiClientLogo({ provider, className }: Props) {
     );
   }
 
-  if (provider === "chatgpt") {
+  if (provider === "openai" || provider === "chatgpt") {
     return (
       <svg {...commonProps} className={classes} fill="currentColor" viewBox="0 0 24 24">
         <path d="M22.3 10a5.5 5.5 0 0 0-.5-4.5A5.6 5.6 0 0 0 15.7 3a5.6 5.6 0 0 0-4.3-2 5.6 5.6 0 0 0-5.4 3.9A5.6 5.6 0 0 0 2.3 7.6a5.6 5.6 0 0 0 .7 6.6 5.6 5.6 0 0 0 .5 4.5 5.6 5.6 0 0 0 6 2.7 5.6 5.6 0 0 0 4.3 1.9 5.6 5.6 0 0 0 5.4-3.9 5.6 5.6 0 0 0 3.7-2.7 5.6 5.6 0 0 0-.6-6.7ZM13.9 21.7a4.1 4.1 0 0 1-2.7-1l.1-.1 4.5-2.6a.7.7 0 0 0 .4-.7v-6.4l1.9 1.1v5.3a4.2 4.2 0 0 1-4.2 4.2Zm-9-3.8a4.1 4.1 0 0 1-.5-2.8l.1.1 4.5 2.6a.7.7 0 0 0 .8 0l5.5-3.2v2.2l-4.6 2.6a4.2 4.2 0 0 1-5.7-1.5ZM3.7 8.8a4.1 4.1 0 0 1 2.2-1.9v5.4a.7.7 0 0 0 .4.7l5.5 3.2-1.9 1.1-4.6-2.6a4.2 4.2 0 0 1-1.6-5.9Zm15.6 3.6-5.5-3.2 1.9-1.1 4.6 2.6a4.2 4.2 0 0 1-.6 7.7v-5.4a.7.7 0 0 0-.4-.6Zm1.9-2.8-.1-.1-4.5-2.6a.7.7 0 0 0-.8 0L10.3 10V7.8l4.6-2.6a4.2 4.2 0 0 1 6.2 4.4ZM9.3 13.6l-1.9-1.1V7.3a4.2 4.2 0 0 1 6.9-3.2l-.1.1-4.5 2.6a.7.7 0 0 0-.4.7v6.1Zm1-2.2L12.8 10l2.5 1.4v2.9l-2.5 1.4L10.3 14.3v-2.9Z" />

@@ -20,7 +20,7 @@ import { Separator } from "@/components/ui/separator";
 import { TimeInput } from "./time-input";
 import { cn } from "@/core/utils/cn";
 import { useIsWiderThan } from "@/hooks/use-media-query";
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
 import { useAppForm } from "./form-context";
 import { useFormFieldErrors } from "./use-form-field";
@@ -50,7 +50,7 @@ export const FormIsoDateRangePicker = observer(
     const t = useTranslations();
     const resolvedPlaceholder = placeholder ?? t("Common.inputs.dateRangePlaceholder");
     const store = useAppForm();
-    const { intlStore } = useRootStore();
+    const intlStore = useHydratedIntlStore();
 
     const raw = store?.getValue(id);
     const csvValue = typeof raw === "string" ? raw : undefined;

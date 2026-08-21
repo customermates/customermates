@@ -15,9 +15,10 @@ import { useDataViewSync } from "../use-data-view-sync";
 
 const roots: Root[] = [];
 
-function createStore() {
+function createStore({ isReady = false }: { isReady?: boolean } = {}) {
   const setItems = vi.fn();
   const store = {
+    isReady,
     setItems,
     refresh: vi.fn(),
     registerOnChange: vi.fn(() => () => {}),
@@ -61,6 +62,30 @@ describe("useDataViewSync", () => {
     const html = renderToStaticMarkup(createElement(SeedProbe));
 
     expect(html).toContain('data-seeded="true"');
+    expect(setItems).toHaveBeenCalledExactlyOnceWith(initial);
+  });
+
+  it("does not seed during render when the shared store is already populated, so a remount never updates its live observers mid-render", () => {
+    const { setItems, store } = createStore({ isReady: true });
+    const initial = createResult("a");
+
+    function SeedProbe() {
+      useDataViewSync(store, initial);
+      return createElement("div", { "data-seeded": String(setItems.mock.calls.length > 0) });
+    }
+
+    const html = renderToStaticMarkup(createElement(SeedProbe));
+
+    expect(html).toContain('data-seeded="false"');
+    expect(setItems).not.toHaveBeenCalled();
+  });
+
+  it("still applies the server result from the effect when the store was already populated", () => {
+    const { setItems, store } = createStore({ isReady: true });
+    const initial = createResult("a");
+
+    mount(createElement(Harness, { initial, store }));
+
     expect(setItems).toHaveBeenCalledExactlyOnceWith(initial);
   });
 

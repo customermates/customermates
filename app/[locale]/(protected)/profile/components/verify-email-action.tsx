@@ -5,6 +5,7 @@ import { MailWarning } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 export function VerifyEmailAction() {
   const t = useTranslations();
@@ -16,7 +17,7 @@ export function VerifyEmailAction() {
       size="sm"
       type="button"
       variant="secondary"
-      onClick={() => void userStore.resendVerificationEmail()}
+      onClick={() => runUserAction(() => userStore.resendVerificationEmail())}
     >
       <MailWarning className="size-3.5" />
 

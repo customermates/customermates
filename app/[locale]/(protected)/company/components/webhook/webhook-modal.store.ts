@@ -39,8 +39,8 @@ export class WebhookModalStore extends BaseModalStore<UpsertWebhookData> {
     this.showSecret = !this.showSecret;
   };
 
-  delete = async () => {
-    if (!this.form.id) return;
+  delete = async (): Promise<boolean> => {
+    if (!this.form.id) return false;
 
     this.setIsLoading(true);
 
@@ -48,11 +48,12 @@ export class WebhookModalStore extends BaseModalStore<UpsertWebhookData> {
       const res = await deleteWebhookAction({ id: this.form.id });
       if (!res.ok) {
         toastZodErrorTree(res.error);
-        return;
+        return false;
       }
 
       await this.rootStore.webhooksStore.removeItem(res.data);
       this.close();
+      return true;
     } finally {
       this.setIsLoading(false);
     }

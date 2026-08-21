@@ -14,6 +14,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { TerminologyRelationshipDiagram } from "@/components/entity-terminology/terminology-relationship-diagram";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { useRouter } from "@/i18n/navigation";
+import { reportApplicationError } from "@/core/errors/report-application-error";
 
 import { CompanyForecastingSection } from "./company-forecasting-section";
 
@@ -44,7 +45,7 @@ export const CompanySettingsForm = observer(({ currency, dealWeightingColumnId }
   }, [store, terminologyStore.overrides]);
 
   useEffect(() => {
-    void store.loadForecasting(dealWeightingColumnId);
+    void store.loadForecasting(dealWeightingColumnId).catch(reportApplicationError);
   }, [store, dealWeightingColumnId]);
 
   const topBarActions = useMemo(
@@ -58,7 +59,7 @@ export const CompanySettingsForm = observer(({ currency, dealWeightingColumnId }
       id={formId}
       store={store}
       onSubmit={(event) =>
-        void store.onSubmit(event).then(() => {
+        store.onSubmit(event).then(() => {
           if (!store.error) router.refresh();
         })
       }

@@ -25,6 +25,7 @@ import { env } from "@/env";
 import { GLOBAL_METADATA } from "@/core/seo/homepage-metadata";
 import { resolveRequestAccountState } from "@/features/auth/next/resolve-account-state";
 import { isAgentChatAvailable } from "@/ee/agent-chat/agent-availability";
+import { DEFAULT_LOCALE, isRoutingLocale } from "@/i18n/locale-registry";
 
 export const metadata: Metadata = GLOBAL_METADATA;
 
@@ -86,6 +87,13 @@ export default async function RootLayout({ children }: Props) {
           appMode={env.APP_MODE}
           defaultTheme={themeCookie}
           displayLanguage={displayLanguage}
+          initialStoreState={{
+            locale: isRoutingLocale(displayLanguage) ? displayLanguage : DEFAULT_LOCALE,
+            user: appUser,
+            company: accountAllowed ? navigation.company : null,
+            terminology: accountAllowed ? navigation.terminology : [],
+            subscription: accountAllowed ? navigation.subscription : null,
+          }}
           messages={messages}
         >
           <NavigationSwitch

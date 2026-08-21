@@ -27,6 +27,7 @@ import { ThemeSwitcher } from "@/components/shared/theme-switcher";
 import { cn } from "@/core/utils/cn";
 import { signOutAction } from "@/app/[locale]/actions";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { runUserAction } from "@/core/errors/report-application-error";
 import { resolvePublicNavbarActions } from "./navigation/public-navbar-model";
 
 type Props = {
@@ -100,10 +101,15 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
   async function handleSignOut() {
     if (isSigningOut) return;
     setIsSigningOut(true);
-    const result = await signOutAction();
-    if (!result.ok) {
+    try {
+      const result = await signOutAction();
+      if (result.ok) return;
+
       toastZodErrorTree(result.error);
       setIsSigningOut(false);
+    } catch (error) {
+      setIsSigningOut(false);
+      throw error;
     }
   }
 
@@ -113,7 +119,7 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
         disabled={isSigningOut}
         size="sm"
         variant={actions.signOut === "setupEscape" ? "destructiveOutline" : "ghost"}
-        onClick={() => void handleSignOut()}
+        onClick={() => runUserAction(handleSignOut)}
       >
         <LogOut aria-hidden className="size-4" />
 

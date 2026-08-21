@@ -25,7 +25,7 @@ beforeEach(() => {
 });
 
 describe("AiConnectionStore routing", () => {
-  it("starts on the five-provider chooser with Finish disabled", () => {
+  it("starts on the four-provider chooser with Finish disabled", () => {
     const store = makeStore();
 
     expect(store.route).toEqual({ screen: "providers" });
@@ -35,8 +35,7 @@ describe("AiConnectionStore routing", () => {
 
   it.each([
     ["claude", { screen: "claude" }, null, false],
-    ["chatgpt", { screen: "setup", provider: "chatgpt" }, null, true],
-    ["codex", { screen: "setup", provider: "codex" }, "codex", false],
+    ["openai", { screen: "openai" }, null, false],
     ["cursor", { screen: "setup", provider: "cursor" }, "cursor", false],
     ["gemini", { screen: "setup", provider: "gemini" }, "gemini", false],
   ] as const)("routes %s to its supported setup", (provider, route, tool, canFinish) => {
@@ -47,6 +46,23 @@ describe("AiConnectionStore routing", () => {
     expect(store.route).toEqual(route);
     expect(store.selectedTool).toBe(tool);
     expect(store.canFinish).toBe(canFinish);
+  });
+
+  it("reveals ChatGPT and Codex as two methods of the same OpenAI app surface", () => {
+    const store = makeStore();
+    store.selectProvider("openai");
+
+    store.selectOpenAiMethod("chatgpt");
+
+    expect(store.connectorProvider).toBe("chatgpt");
+    expect(store.selectedTool).toBeNull();
+    expect(store.canFinish).toBe(true);
+
+    store.selectOpenAiMethod("codex");
+
+    expect(store.connectorProvider).toBeNull();
+    expect(store.selectedTool).toBe("codex");
+    expect(store.canFinish).toBe(false);
   });
 
   it("reveals the Claude account path without creating a key", () => {
@@ -97,7 +113,8 @@ describe("AiConnectionStore API-key lifecycle", () => {
   it("creates a key for the exact client and enables Finish", async () => {
     profileActions.createApiKeyAction.mockResolvedValue(successfulKey("key-id", "secret-key"));
     const store = makeStore();
-    store.selectProvider("codex");
+    store.selectProvider("openai");
+    store.selectOpenAiMethod("codex");
 
     await store.createApiKey();
 
@@ -142,15 +159,17 @@ describe("AiConnectionStore API-key lifecycle", () => {
       .mockResolvedValueOnce(successfulKey("codex-id", "codex-secret"))
       .mockResolvedValueOnce(successfulKey("cursor-id", "cursor-secret"));
     const store = makeStore();
-    store.selectProvider("codex");
+    store.selectProvider("openai");
+    store.selectOpenAiMethod("codex");
     await store.createApiKey();
     store.backToProviders();
     store.selectProvider("cursor");
     await store.createApiKey();
     store.backToProviders();
-    store.selectProvider("codex");
+    store.selectProvider("openai");
 
     expect(store.apiKey).toBe("codex-secret");
+    expect(store.openAiMethod).toBe("codex");
 
     await store.createApiKey();
 
@@ -177,7 +196,7 @@ describe("AiConnectionStore API-key lifecycle", () => {
 
     store.backToProviders();
     store.selectSkip();
-    store.selectProvider("chatgpt");
+    store.selectProvider("openai");
 
     expect(store.route).toEqual({ screen: "setup", provider: "gemini" });
 
@@ -190,7 +209,10 @@ describe("AiConnectionStore API-key lifecycle", () => {
 
   it("surfaces a structured failure, keeps Finish disabled, and permits retry", async () => {
     profileActions.createApiKeyAction
-      .mockResolvedValueOnce({ ok: false, error: { formErrors: [], fieldErrors: {} } })
+      .mockResolvedValueOnce({
+        ok: false,
+        error: { formErrors: [], fieldErrors: {} },
+      })
       .mockResolvedValueOnce(successfulKey("retry-id", "retry-secret"));
     const store = makeStore();
     store.selectProvider("cursor");
@@ -234,6 +256,7 @@ describe("AiConnectionStore API-key lifecycle", () => {
 
     expect(store.route).toEqual({ screen: "providers" });
     expect(store.selectedProvider).toBeNull();
+    expect(store.openAiMethod).toBeNull();
     expect(store.credentials).toEqual({});
     expect(store.apiKey).toBeNull();
   });

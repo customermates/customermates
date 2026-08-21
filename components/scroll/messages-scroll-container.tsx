@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
+import { reportApplicationError } from "@/core/errors/report-application-error";
 
 import { ScrollReturnButton } from "./scroll-return-button";
 import { prefersReducedMotion, scrollToAnchor } from "./use-scroll-return";
@@ -101,22 +102,24 @@ export function MessagesScrollContainer({
     const version = scrollVersion.current;
     const prevHeight = el.scrollHeight;
     const prevTop = el.scrollTop;
-    void onTopReach().finally(() => {
-      requestAnimationFrame(() => {
-        if (version !== scrollVersion.current || ref.current !== el) {
+    void onTopReach()
+      .finally(() => {
+        requestAnimationFrame(() => {
+          if (version !== scrollVersion.current || ref.current !== el) {
+            setIsLoadingOlder(false);
+            return;
+          }
+          const grown = el.scrollHeight - prevHeight;
+          if (grown > 0) el.scrollTop = prevTop + grown;
+          const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 120;
+          stickToBottom.current = isNearBottom;
+          setIsAwayFromLatest(!isNearBottom);
+          topReachInFlight.current = false;
           setIsLoadingOlder(false);
-          return;
-        }
-        const grown = el.scrollHeight - prevHeight;
-        if (grown > 0) el.scrollTop = prevTop + grown;
-        const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 120;
-        stickToBottom.current = isNearBottom;
-        setIsAwayFromLatest(!isNearBottom);
-        topReachInFlight.current = false;
-        setIsLoadingOlder(false);
-        if (restoreRegionFocus && !loadOlderButtonRef.current) el.focus({ preventScroll: true });
-      });
-    });
+          if (restoreRegionFocus && !loadOlderButtonRef.current) el.focus({ preventScroll: true });
+        });
+      })
+      .catch(reportApplicationError);
   };
 
   const handleScroll = () => {

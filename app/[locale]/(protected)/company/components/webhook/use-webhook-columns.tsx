@@ -8,10 +8,10 @@ import { useTranslations } from "next-intl";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
 export function useWebhookColumns(): ColumnDef<WebhookDto>[] {
-  const { intlStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const t = useTranslations();
   return useMemo<ColumnDef<WebhookDto>[]>(
     () => [
@@ -30,7 +30,10 @@ export function useWebhookColumns(): ColumnDef<WebhookDto>[] {
         header: t("Common.table.columns.events"),
         cell: ({ row }) => (
           <AppChipStack
-            items={row.original.events.map((event) => ({ id: event, label: t(`Common.events.${event}`) }))}
+            items={row.original.events.map((event) => ({
+              id: event,
+              label: t(`Common.events.${event}`),
+            }))}
             size="sm"
           />
         ),

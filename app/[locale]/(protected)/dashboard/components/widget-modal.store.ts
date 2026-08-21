@@ -19,6 +19,7 @@ import { upsertWidgetAction, deleteWidgetAction, getWidgetByIdAction, getCompany
 import { ChartColor, DisplayType, supportsDealFilters } from "@/features/widget/widget.schema";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { BaseModalStore } from "@/core/base/base-modal.store";
+import { reportApplicationError } from "@/core/errors/report-application-error";
 import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { mergeActivityFiltersForForm } from "./activity-filter-form";
@@ -366,7 +367,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
   openWithFilter = (id: string, section: WidgetModalSection, field?: string) => {
     this.expandedSection = section;
     this.expandedFilterField = field;
-    void this.loadById(id);
+    return this.loadById(id);
   };
 
   add = (defaultActivityName?: string) => {
@@ -385,7 +386,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
 
     this.open();
 
-    void this.fetchCompanyWidgets();
+    void this.fetchCompanyWidgets().catch(reportApplicationError);
   };
 
   fetchCompanyWidgets = async () => {

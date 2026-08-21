@@ -13,6 +13,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { deriveThreadDisplay } from "@/ee/messaging/thread-display";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActionsOverride } from "@/app/components/topbar-actions-context";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 import { ThreadSettings } from "./thread-settings";
 import { ThreadStatePicker } from "./thread-state-picker";
@@ -49,7 +50,12 @@ export const ThreadTopBar = observer(({ thread }: Props) => {
           {canUpdate && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button size="icon-sm" type="button" variant="secondary" onClick={() => void store.resyncThread()}>
+                <Button
+                  size="icon-sm"
+                  type="button"
+                  variant="secondary"
+                  onClick={() => runUserAction(() => store.resyncThread())}
+                >
                   <RefreshCw className="size-3.5" />
                 </Button>
               </TooltipTrigger>

@@ -5,7 +5,7 @@ import { join } from "node:path";
 
 import { REPO_ROOT } from "./walk";
 
-const WIRE_ONLY_EVENTS = new Set(["relation.new"]);
+const WIRE_ONLY_EVENTS = new Set<string>();
 
 function specTriggerEvents(): Set<string> {
   const source = readFileSync(join(REPO_ROOT, "node_modules/@unipile/sdk/dist/types.gen.d.ts"), "utf8");

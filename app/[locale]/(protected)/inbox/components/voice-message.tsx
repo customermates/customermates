@@ -7,6 +7,7 @@ import { Pause, Play } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
+import { reportApplicationError } from "@/core/errors/report-application-error";
 
 import { useClassifyMediaLoadError } from "./lazy-media";
 
@@ -120,9 +121,15 @@ export function VoiceMessage({ src, durationSeconds }: Props) {
         }}
         onError={() => {
           setPlaying(false);
-          void classifyLoadError(src).then((kind) => {
-            if (kind === "unavailable") toast.error(t("Inbox.mediaUnavailable"), { id: "media-unavailable" });
-          });
+          void classifyLoadError(src)
+            .then((kind) => {
+              if (kind === "unavailable") {
+                toast.error(t("Inbox.mediaUnavailable"), {
+                  id: "media-unavailable",
+                });
+              }
+            })
+            .catch(reportApplicationError);
         }}
         onLoadedMetadata={(event) => {
           const value = event.currentTarget.duration;

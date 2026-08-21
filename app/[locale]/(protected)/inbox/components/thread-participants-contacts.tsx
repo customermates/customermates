@@ -15,6 +15,7 @@ import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-d
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { displayableIdentifier, isAttendeeUnlinked, participantLabel } from "@/ee/messaging/thread-display";
 import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 type ManagerProps = {
   participants: MessagingAttendee[];
@@ -68,10 +69,10 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
               if (store.isLoading || store.searchError || store.pending) return;
               if (store.showCreate) {
                 e.preventDefault();
-                void store.createAndAssign(activeIdentifier, store.query);
+                runUserAction(() => store.createAndAssign(activeIdentifier, store.query));
               } else if (showSuggestedCreate) {
                 e.preventDefault();
-                void store.createAndAssign(activeIdentifier, trimmedSuggestion);
+                runUserAction(() => store.createAndAssign(activeIdentifier, trimmedSuggestion));
               }
             }}
             onValueChange={store.setQuery}
@@ -84,7 +85,12 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
               <div className="flex flex-col items-center gap-2 px-3 py-4 text-center text-sm" role="alert">
                 <span className="text-muted-foreground">{t("Common.notifications.unexpectedError")}</span>
 
-                <Button size="sm" type="button" variant="secondary" onClick={() => void store.retrySearch()}>
+                <Button
+                  size="sm"
+                  type="button"
+                  variant="secondary"
+                  onClick={() => runUserAction(() => store.retrySearch())}
+                >
                   {t("ErrorCard.retry")}
                 </Button>
               </div>
@@ -102,7 +108,9 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
                   disabled={store.pending}
                   value="__create__"
                   onSelect={() =>
-                    void store.createAndAssign(activeIdentifier, showSuggestedCreate ? trimmedSuggestion : store.query)
+                    runUserAction(() =>
+                      store.createAndAssign(activeIdentifier, showSuggestedCreate ? trimmedSuggestion : store.query),
+                    )
                   }
                 >
                   <Plus className="size-3.5" />
@@ -125,7 +133,7 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
                       key={c.id}
                       disabled={store.pending}
                       value={c.id}
-                      onSelect={() => void store.link(activeIdentifier, c.id)}
+                      onSelect={() => runUserAction(() => store.link(activeIdentifier, c.id))}
                     >
                       <Avatar name={label} size="sm" src={c.avatarUrl ?? undefined} />
 
@@ -200,7 +208,7 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
                         disabled={store.pending}
                         type="button"
                         variant="softDestructive"
-                        onClick={() => void store.unlink(p.identifier)}
+                        onClick={() => runUserAction(() => store.unlink(p.identifier))}
                       >
                         <Unlink className="size-3.5" />
                       </Button>

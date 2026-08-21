@@ -6,7 +6,7 @@ import { observer } from "mobx-react-lite";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { cn } from "@/core/utils/cn";
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import {
   formatCommercialAmount,
   PLAN_CATALOG,
@@ -27,7 +27,7 @@ type Props = {
 
 export const PlanPicker = observer(function PlanPicker({ isLoading, onSelect }: Props) {
   const t = useTranslations();
-  const { intlStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const locale = intlStore.resolvedFormattingLanguageTag;
 
   function handleCardClick(offer: SelectableOffer) {

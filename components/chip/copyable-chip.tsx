@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 
 import { Icon } from "@/components/shared/icon";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 import { ClickableChip } from "./clickable-chip";
 
@@ -32,7 +33,7 @@ export function CopyableChip({ value, onClick, children, ...props }: Props) {
   function handleClick(e: React.MouseEvent<HTMLDivElement>) {
     onClick?.(e);
     e.stopPropagation();
-    void handleCopy();
+    runUserAction(handleCopy);
   }
 
   function getIcon() {

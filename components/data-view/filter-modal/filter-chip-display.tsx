@@ -13,7 +13,7 @@ import { FilterOperatorKey, isStandaloneOperator } from "@/core/base/base-query-
 import { SelectionValueSkeleton } from "@/components/forms/selection-loading";
 import { filterValueKind } from "@/core/types/filter-field-value-kind";
 import { isCustomField } from "@/core/utils/custom-field";
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import {
   type FilterSelectItem,
   useFilterSelectItems,
@@ -43,7 +43,7 @@ export const FilterChipValue = observer(
   }) => {
     const t = useTranslations();
     const { items, getItems, isLoading } = useFilterSelectItems(filter, customColumns);
-    const { intlStore } = useRootStore();
+    const intlStore = useHydratedIntlStore();
 
     const prefix = (
       <>

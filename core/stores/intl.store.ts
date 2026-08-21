@@ -12,7 +12,8 @@ import { Currency } from "@/generated/prisma";
 
 import type { AppLocale } from "@/i18n/locale-registry";
 
-import { DEFAULT_LOCALE, formattingTagFor, isFormattingLocale } from "@/i18n/locale-registry";
+import { appLocaleOrDefault, formattingTagFor, isFormattingLocale } from "@/i18n/locale-registry";
+import { resolveUserFormattingTag } from "@/i18n/user-locale";
 import { formatLocalizedNumber, parseLocalizedNumber, parseLocalizedNumberToCanonical } from "./intl-number";
 
 const TIMEAGO_LOCALES = { de, en, es, fr, it } satisfies Record<AppLocale, Parameters<typeof register>[1]>;
@@ -40,18 +41,15 @@ export class IntlStore {
 
   get formattingLocale() {
     const user = this.rootStore.userStore.user;
+    const displayLocale = appLocaleOrDefault(this.rootStore.localeStore.locale);
 
-    if (!user) return formattingTagFor(DEFAULT_LOCALE);
-
-    const locale = user.formattingLocale;
-
-    return isFormattingLocale(locale) ? formattingTagFor(locale) : undefined;
+    if (!user) return formattingTagFor(displayLocale);
+    if (isFormattingLocale(user.formattingLocale)) return formattingTagFor(user.formattingLocale);
+    return resolveUserFormattingTag(user, displayLocale);
   }
 
   get resolvedFormattingLanguageTag(): string {
-    const explicitOrDefault = this.formattingLocale;
-    if (explicitOrDefault) return explicitOrDefault;
-    return typeof navigator === "undefined" ? formattingTagFor(DEFAULT_LOCALE) : navigator.language;
+    return this.formattingLocale;
   }
 
   get use12Hour(): boolean {

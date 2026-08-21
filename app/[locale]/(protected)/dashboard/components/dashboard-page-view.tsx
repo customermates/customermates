@@ -22,6 +22,7 @@ import { Icon } from "@/components/shared/icon";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useIsTouchDevice } from "@/core/utils/use-is-touch-device";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 import { DashboardPageSkeleton } from "./dashboard-page-skeleton";
 import { GRID_BREAKPOINTS, GRID_COLS } from "./grid.constants";
@@ -59,7 +60,12 @@ export const DashboardPageView = observer(function DashboardPageView({
   const { items, layouts } = widgetsStore;
   const canAddWidget = widgetModalStore.availableEntityTypes.length > 0;
   const isTouchDevice = useIsTouchDevice();
-  const pointerStart = useRef<{ id: string; x: number; y: number; interactive: boolean } | null>(null);
+  const pointerStart = useRef<{
+    id: string;
+    x: number;
+    y: number;
+    interactive: boolean;
+  } | null>(null);
   const t = useTranslations();
 
   useLayoutEffect(
@@ -90,7 +96,7 @@ export const DashboardPageView = observer(function DashboardPageView({
           startedOnInteractive: interactive,
         })
       )
-        openWidgetEditor(widgetModalStore, id);
+        runUserAction(() => openWidgetEditor(widgetModalStore, id));
     }
     document.addEventListener("pointerup", onPointerUp);
     return () => document.removeEventListener("pointerup", onPointerUp);
@@ -137,7 +143,7 @@ export const DashboardPageView = observer(function DashboardPageView({
             <Button
               size="sm"
               variant="secondary"
-              onClick={() => void widgetsStore.refreshQuery().catch(() => undefined)}
+              onClick={() => runUserAction(() => widgetsStore.refreshQuery().catch(() => undefined))}
             >
               {t("ErrorCard.retry")}
             </Button>

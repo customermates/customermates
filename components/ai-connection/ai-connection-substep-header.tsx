@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 type Props = {
   backDisabled: boolean;
   backLabel: string;
+  showBack?: boolean;
   mode: "dialog" | "inline";
   headingRef: Ref<HTMLHeadingElement>;
   subtitle: string;
@@ -19,6 +20,7 @@ type Props = {
 export function AiConnectionSubstepHeader({
   backDisabled,
   backLabel,
+  showBack = true,
   mode,
   headingRef,
   subtitle,
@@ -29,11 +31,20 @@ export function AiConnectionSubstepHeader({
 
   return (
     <div className="flex flex-col gap-3">
-      <Button className="-ml-2 w-fit" disabled={backDisabled} size="sm" type="button" variant="ghost" onClick={onBack}>
-        <ArrowLeft aria-hidden />
+      {showBack ? (
+        <Button
+          className="-ml-2 w-fit"
+          disabled={backDisabled}
+          size="sm"
+          type="button"
+          variant="ghost"
+          onClick={onBack}
+        >
+          <ArrowLeft aria-hidden />
 
-        {backLabel}
-      </Button>
+          {backLabel}
+        </Button>
+      ) : null}
 
       <div className="flex flex-col gap-1">
         <h2

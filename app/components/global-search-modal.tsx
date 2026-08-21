@@ -23,6 +23,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { initialsFor } from "@/core/utils/initials";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 const TYPE_META: Record<GlobalSearchResultItem["type"], { icon: LucideIcon; entityType: EntityType }> = {
   contact: { icon: Users, entityType: EntityType.contact },
@@ -55,9 +56,11 @@ export const GlobalSearchModal = observer(() => {
   };
 
   const openRecentItem = (item: GlobalSearchResultItem) => {
-    void globalSearchModalStore.verifyRecentItem(item).then((exists) => {
-      if (exists) openItem(item);
-    });
+    runUserAction(() =>
+      globalSearchModalStore.verifyRecentItem(item).then((exists) => {
+        if (exists) openItem(item);
+      }),
+    );
   };
 
   const groupedResults = useMemo((): {

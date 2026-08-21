@@ -14,6 +14,7 @@ import { widgetLayoutGeometry } from "./widget-layout";
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import { BREAKPOINTS } from "@/constants/breakpoints";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { reportApplicationError } from "@/core/errors/report-application-error";
 
 type MutableLayouts = Record<string, LayoutItem[]>;
 
@@ -75,10 +76,12 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
 
     this.layouts = layouts;
 
-    void this.rootStore.loadingOverlayStore.withLoading(async () => {
-      const res = await updateWidgetLayoutsAction({ layouts: payloadNew });
-      if (!res.ok) toastZodErrorTree(res.error);
-    });
+    void this.rootStore.loadingOverlayStore
+      .withLoading(async () => {
+        const res = await updateWidgetLayoutsAction({ layouts: payloadNew });
+        if (!res.ok) toastZodErrorTree(res.error);
+      })
+      .catch(reportApplicationError);
   }
 
   protected async refreshAction() {

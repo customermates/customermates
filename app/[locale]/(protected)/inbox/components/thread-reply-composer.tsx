@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 const COMPOSER_EMOJIS = [
   "😀",
@@ -117,13 +118,19 @@ export const ThreadReplyComposer = observer(
       if (initializedThreadId.current === threadId) return;
       initializedThreadId.current = threadId;
       if (threadComposeStore.form.threadId === threadId) return;
-      threadComposeStore.initialize({ provider, threadId, defaultSubject, defaultRecipients, defaultCc });
+      threadComposeStore.initialize({
+        provider,
+        threadId,
+        defaultSubject,
+        defaultRecipients,
+        defaultCc,
+      });
     }, [threadComposeStore, provider, threadId, defaultSubject, defaultRecipients, defaultCc]);
 
     function handleKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
       if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
         event.preventDefault();
-        void threadComposeStore.send();
+        runUserAction(() => threadComposeStore.send());
       }
     }
 
@@ -310,7 +317,10 @@ export const ThreadReplyComposer = observer(
         {attachments.length > 0 && (
           <div className="flex flex-col gap-1.5 px-3 pb-1.5">
             {attachments.map((file, index) => {
-              const { Icon: FileTypeIcon, accent } = describeFile({ mime: file.type, fileName: file.name });
+              const { Icon: FileTypeIcon, accent } = describeFile({
+                mime: file.type,
+                fileName: file.name,
+              });
               return (
                 <AttachmentRow
                   key={`${file.name}-${index}`}
@@ -318,7 +328,11 @@ export const ThreadReplyComposer = observer(
                   fileIcon={FileTypeIcon}
                   name={file.name}
                   removeLabel={t("Inbox.compose.attachRemove")}
-                  subtitle={attachmentSubtitle(t, { mime: file.type, fileName: file.name, size: file.size })}
+                  subtitle={attachmentSubtitle(t, {
+                    mime: file.type,
+                    fileName: file.name,
+                    size: file.size,
+                  })}
                   onOpen={() => downloadLocalFile(file)}
                   onRemove={() => threadComposeStore.removeAttachment(index)}
                 />
@@ -409,7 +423,7 @@ export const ThreadReplyComposer = observer(
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent align="end" className="min-w-40">
-                  <DropdownMenuItem onSelect={() => void threadComposeStore.saveDraft()}>
+                  <DropdownMenuItem onSelect={() => runUserAction(() => threadComposeStore.saveDraft())}>
                     {editingDraftId ? t("Inbox.compose.updateDraft") : t("Inbox.compose.saveDraft")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>

@@ -13,7 +13,7 @@ import { WidgetKind } from "@/generated/prisma";
 
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { DisplayType } from "@/features/widget/widget.schema";
 import { ActivitiesList } from "@/features/messaging/activities/activities-list";
 import { useOwnedActivitiesStore } from "@/features/messaging/activities/use-owned-activities-store";
@@ -132,7 +132,7 @@ const ActivityPreviewFeed = observer(({ filters }: { filters: Filter[] }) => {
 export const WidgetPreview = observer(({ activeFilterCount, activityFilters, customColumns, form }: Props) => {
   const t = useTranslations();
   const aggregationTypeLabel = useAggregationTypeLabel();
-  const { intlStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const title = form.name.trim() || t("Dashboard.widgetEditor.preview.untitled");
   const showSummary = form.displayOptions?.showFilters !== false;
 

@@ -114,7 +114,7 @@ export const ProfileSettingsForm = observer(({ userDetails, emailVerified }: Pro
       store={store}
       onSubmit={(event) => {
         const previousDisplayLanguage = store.savedState.displayLanguage;
-        void store.onSubmit(event).then(() => {
+        return store.onSubmit(event).then(() => {
           if (store.error) return;
           setTheme(store.form.theme ?? Theme.system);
           const locale = store.form.displayLanguage;

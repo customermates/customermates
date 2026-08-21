@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 type Props = { status: LegalUpdateStatus };
 
@@ -88,7 +89,10 @@ export const LegalUpdateView = observer(({ status }: Props) => {
         ) : null}
 
         {status.isSystemAdministrator ? (
-          <Button disabled={!store.checked || loadingOverlayStore.isLoading} onClick={() => void store.accept()}>
+          <Button
+            disabled={!store.checked || loadingOverlayStore.isLoading}
+            onClick={() => runUserAction(() => store.accept())}
+          >
             {t("LegalUpdateView.accept")}
           </Button>
         ) : null}

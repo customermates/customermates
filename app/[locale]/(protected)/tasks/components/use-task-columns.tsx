@@ -15,11 +15,13 @@ import { useEntityTerminology } from "@/components/entity-terminology/use-entity
 import { Icon } from "@/components/shared/icon";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
 import { getSystemTaskNameTranslationKey } from "./system-task.config";
 
 export function useTaskColumns(): ColumnDef<TaskDto>[] {
-  const { intlStore, tasksStore, userModalStore } = useRootStore();
+  const { tasksStore, userModalStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const entityHref = useEntityHref();
   const { singular } = useEntityTerminology();
   const taskLabel = singular(EntityType.task);
@@ -83,7 +85,10 @@ export function useTaskColumns(): ColumnDef<TaskDto>[] {
         cell: ({ row }) => (
           <AppChipStack
             chipHref={(deal) => entityHref(EntityType.deal, deal.id)}
-            items={row.original.deals.map((deal) => ({ id: deal.id, label: deal.name }))}
+            items={row.original.deals.map((deal) => ({
+              id: deal.id,
+              label: deal.name,
+            }))}
             size="sm"
           />
         ),
@@ -93,7 +98,10 @@ export function useTaskColumns(): ColumnDef<TaskDto>[] {
         cell: ({ row }) => (
           <AppChipStack
             chipHref={(service) => entityHref(EntityType.service, service.id)}
-            items={row.original.services.map((service) => ({ id: service.id, label: service.name }))}
+            items={row.original.services.map((service) => ({
+              id: service.id,
+              label: service.name,
+            }))}
             size="sm"
           />
         ),

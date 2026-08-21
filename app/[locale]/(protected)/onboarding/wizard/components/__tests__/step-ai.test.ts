@@ -38,7 +38,7 @@ vi.mock("../../../../profile/actions", () => ({
 }));
 
 import { AiConnectionStore } from "@/components/ai-connection/ai-connection.store";
-import { StepAi } from "../step-ai";
+import { StepAi, StepAiFooter } from "../step-ai";
 
 const stubRootStore = {} as RootStore;
 
@@ -49,13 +49,14 @@ function makeStore(): AiConnectionStore {
 function renderStep(store: AiConnectionStore, isSubmitting = false): string {
   testContext.rootStore = {
     onboardingWizardStore: {
+      back: vi.fn(),
       complete: vi.fn(),
       isSubmitting,
     },
     stepAiStore: store,
   } as unknown as RootStore;
 
-  return renderToStaticMarkup(createElement(StepAi));
+  return renderToStaticMarkup(createElement("div", null, createElement(StepAi), createElement(StepAiFooter)));
 }
 
 function buttons(html: string): string[] {
@@ -66,6 +67,12 @@ function buttonContaining(html: string, text: string): string {
   const button = buttons(html).find((candidate) => candidate.includes(text));
   expect(button, `button containing ${text}`).toBeDefined();
   return button ?? "";
+}
+
+function linkContaining(html: string, text: string): string {
+  const link = (html.match(/<a\b[\s\S]*?<\/a>/g) ?? []).find((candidate) => candidate.includes(text));
+  expect(link, `link containing ${text}`).toBeDefined();
+  return link ?? "";
 }
 
 function paragraphContaining(html: string, text: string): string {
@@ -84,33 +91,35 @@ beforeEach(() => {
 });
 
 describe("StepAi provider chooser", () => {
-  it("renders exactly five provider-first buttons and a quiet Skip action", () => {
+  it("renders four provider-first buttons with Back and Skip but no Finish", () => {
     const html = renderStep(makeStore());
     const providerButtons = buttons(html).filter((button) => button.includes("data-provider="));
 
-    expect(providerButtons).toHaveLength(5);
+    expect(providerButtons).toHaveLength(4);
     expect(providerButtons.map((button) => button.match(/data-provider="([^"]+)"/)?.[1])).toEqual([
       "claude",
-      "chatgpt",
-      "codex",
+      "openai",
       "cursor",
       "gemini",
     ]);
     expect(providerButtons.join(" ")).not.toMatch(/connector|api.?key|mcp/i);
     const skipButton = buttonContaining(html, "OnboardingWizard.ai.choices.skip");
-    const finishButton = buttonContaining(html, "OnboardingWizard.finish");
 
     expect(skipButton).not.toContain("data-provider=");
     expect(skipButton).toContain('data-size="default"');
+    expect(skipButton).toContain('data-variant="default"');
     expect(skipButton).toContain("h-9");
     expect(skipButton).not.toContain("h-auto");
-    expect(finishButton).toContain('data-size="default"');
-    expect(finishButton).toContain("h-9");
-    expect(finishButton).not.toContain("h-auto");
-    expectButtonDisabled(finishButton, true);
+    expect(html).not.toContain("OnboardingWizard.finish");
+    expect(buttonContaining(html, "OnboardingWizard.back")).toContain('data-variant="secondary"');
+    const footer = html.match(/<div[^>]*data-slot="card-footer"[^>]*>/)?.[0];
+
+    expect(footer).toContain("justify-end");
+    expect(footer).not.toContain("justify-between");
+    expect(html.indexOf("OnboardingWizard.back")).toBeLessThan(html.indexOf("OnboardingWizard.ai.choices.skip"));
   });
 
-  it("exposes visible and programmatic selection when returning from a provider", () => {
+  it("does not leave a provider looking selected when returning to the chooser", () => {
     const store = makeStore();
     store.selectProvider("claude");
     store.backToProviders();
@@ -118,8 +127,8 @@ describe("StepAi provider chooser", () => {
     const html = renderStep(store);
     const claudeButton = buttonContaining(html, "OnboardingWizard.ai.choices.claude");
 
-    expect(claudeButton).toContain('aria-pressed="true"');
-    expect(claudeButton).toContain("lucide-check");
+    expect(claudeButton).not.toContain("aria-pressed");
+    expect(claudeButton).not.toContain("lucide-check");
   });
 });
 
@@ -137,6 +146,8 @@ describe("StepAi Claude setup", () => {
     expect(html).toContain("OnboardingWizard.ai.methods.local.title");
     expect(html).toContain("OnboardingWizard.ai.methods.local.description");
     expect(html).not.toContain("OnboardingWizard.ai.createKey");
+    expect(html).not.toContain("OnboardingWizard.ai.screen.back");
+    expect(buttonContaining(html, "OnboardingWizard.back")).toContain('data-variant="secondary"');
     expectButtonDisabled(buttonContaining(html, "OnboardingWizard.finish"), true);
   });
 
@@ -147,11 +158,22 @@ describe("StepAi Claude setup", () => {
 
     const html = renderStep(store);
 
-    expect(buttonContaining(html, "OnboardingWizard.ai.methods.account.title")).toContain('aria-expanded="true"');
+    const accountButton = buttonContaining(html, "OnboardingWizard.ai.methods.account.title");
+
+    expect(accountButton).toContain('aria-expanded="true"');
+    expect(accountButton).not.toContain("aria-pressed");
+    expect(accountButton).not.toContain("border-primary");
+    expect(accountButton).not.toContain("lucide-check");
     expect(html).toContain("OnboardingWizard.ai.connector.claudeTitle");
     expect(html).toContain("OnboardingWizard.ai.connector.claudeButton");
-    expect(html).not.toContain("OnboardingWizard.ai.connector.paidPlan");
     expect(html).not.toContain("OnboardingWizard.ai.connector.chatgptSteps");
+    const connectButton = linkContaining(html, "OnboardingWizard.ai.connector.claudeButton");
+
+    expect(connectButton).toContain('data-size="default"');
+    expect(connectButton).toContain('data-variant="secondary"');
+    expect(connectButton).toContain("self-start");
+    expect(connectButton).not.toContain("w-full");
+    expect(connectButton).not.toContain("h-auto");
     expectButtonDisabled(buttonContaining(html, "OnboardingWizard.finish"), false);
   });
 
@@ -179,34 +201,67 @@ describe("StepAi Claude setup", () => {
   });
 });
 
-describe("StepAi direct setup", () => {
-  it("renders ChatGPT connector instructions without the Claude deep link", () => {
+describe("StepAi ChatGPT and Codex setup", () => {
+  it("offers both OpenAI methods before showing either setup", () => {
     const store = makeStore();
-    store.selectProvider("chatgpt");
+    store.selectProvider("openai");
 
     const html = renderStep(store);
 
+    expect(html).toContain("OnboardingWizard.ai.screen.openai.title");
+    expect(html).toContain("OnboardingWizard.ai.openai.methods.chatgpt.title");
+    expect(html).toContain("OnboardingWizard.ai.openai.methods.chatgpt.description");
+    expect(html).toContain("OnboardingWizard.ai.openai.methods.codex.title");
+    expect(html).toContain("OnboardingWizard.ai.openai.methods.codex.description");
+    expect(html).not.toContain("OnboardingWizard.ai.connector.chatgptTitle");
+    expect(html).not.toContain("OnboardingWizard.ai.createKey");
+    expectButtonDisabled(buttonContaining(html, "OnboardingWizard.finish"), true);
+  });
+
+  it("renders current ChatGPT desktop MCP instructions without the Claude deep link", () => {
+    const store = makeStore();
+    store.selectProvider("openai");
+    store.selectOpenAiMethod("chatgpt");
+
+    const html = renderStep(store);
+
+    const chatGptButton = buttonContaining(html, "OnboardingWizard.ai.openai.methods.chatgpt.title");
+
+    expect(chatGptButton).toContain('aria-expanded="true"');
+    expect(chatGptButton).not.toContain("aria-pressed");
+    expect(chatGptButton).not.toContain("border-primary");
+    expect(chatGptButton).not.toContain("lucide-check");
     expect(html).toContain("OnboardingWizard.ai.connector.chatgptTitle");
     expect(html).toContain("OnboardingWizard.ai.connector.chatgptSteps");
-    expect(html).toContain("OnboardingWizard.ai.connector.paidPlan");
     expect(html).not.toContain("OnboardingWizard.ai.connector.claudeButton");
     expect(html).toContain("http://localhost:4000/api/v1/mcp");
     expect(paragraphContaining(html, "OnboardingWizard.ai.connector.externalNote")).toContain(">guide</a>");
+    expect(html).toContain("https://learn.chatgpt.com/docs/extend/mcp");
     expect(html).toContain('class="inline-link');
     expectButtonDisabled(buttonContaining(html, "OnboardingWizard.finish"), false);
   });
 
-  it("shows only the selected local client's key flow and snippet", () => {
+  it("shows only the selected Codex key flow and snippet", () => {
     const store = makeStore();
-    store.selectProvider("codex");
+    store.selectProvider("openai");
+    store.selectOpenAiMethod("codex");
 
     const beforeKey = renderStep(store);
 
     const createCard = buttonContaining(beforeKey, "OnboardingWizard.ai.createKey");
+    const codexButton = buttonContaining(beforeKey, "OnboardingWizard.ai.openai.methods.codex.title");
 
+    expect(codexButton).toContain('aria-expanded="true"');
+    expect(codexButton).not.toContain("aria-pressed");
+    expect(codexButton).not.toContain("border-primary");
+    expect(codexButton).not.toContain("lucide-check");
     expect(createCard).toContain('data-api-key-setup="codex"');
     expect(createCard).toContain("OnboardingWizard.ai.createKeyIntro");
     expect(createCard).toContain("lucide-arrow-right");
+    expect(beforeKey).not.toContain('id="openai-codex-details" aria-invalid');
+    expect(beforeKey).not.toContain(
+      'id="openai-codex-details" class="flex flex-col gap-3 rounded-xl border bg-muted p-4"',
+    );
     expect(beforeKey).not.toContain("OnboardingWizard.ai.install.instruction.codex");
     expectButtonDisabled(buttonContaining(beforeKey, "OnboardingWizard.finish"), true);
 
@@ -276,7 +331,8 @@ describe("StepAi direct setup", () => {
     expect(html).toContain("OnboardingWizard.ai.screen.skip.title");
     expect(html).toContain("OnboardingWizard.ai.screen.skip.subtitle");
     expect(html).not.toContain("OnboardingWizard.ai.skipHint");
-    expect(html).toContain("OnboardingWizard.ai.screen.back");
+    expect(html).not.toContain("OnboardingWizard.ai.screen.back");
+    expect(buttonContaining(html, "OnboardingWizard.back")).toContain('data-variant="secondary"');
     expectButtonDisabled(buttonContaining(html, "OnboardingWizard.finish"), false);
   });
 });

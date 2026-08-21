@@ -4,40 +4,47 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
 import { AiConnectionFlow } from "@/components/ai-connection/ai-connection-flow";
+import { AppCardFooter } from "@/components/card/app-card-footer";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 export const StepAi = observer(() => {
+  const { onboardingWizardStore, stepAiStore } = useRootStore();
+
+  return <AiConnectionFlow disabled={onboardingWizardStore.isSubmitting} showInlineBack={false} store={stepAiStore} />;
+});
+
+export const StepAiFooter = observer(() => {
   const t = useTranslations();
   const { onboardingWizardStore, stepAiStore } = useRootStore();
   const interactionDisabled = stepAiStore.isCreating || onboardingWizardStore.isSubmitting;
+  const isProviderChooser = stepAiStore.route.screen === "providers";
 
   return (
-    <div className="flex flex-col gap-4">
-      <AiConnectionFlow disabled={onboardingWizardStore.isSubmitting} store={stepAiStore} />
+    <AppCardFooter>
+      <Button
+        disabled={interactionDisabled}
+        type="button"
+        variant="secondary"
+        onClick={isProviderChooser ? onboardingWizardStore.back : stepAiStore.backToProviders}
+      >
+        {t("OnboardingWizard.back")}
+      </Button>
 
-      <div className="flex flex-col-reverse gap-2 xs:flex-row xs:justify-end">
-        {stepAiStore.route.screen === "providers" ? (
-          <Button
-            className="w-full xs:w-fit"
-            disabled={interactionDisabled}
-            type="button"
-            variant="ghost"
-            onClick={stepAiStore.selectSkip}
-          >
-            {t("OnboardingWizard.ai.choices.skip")}
-          </Button>
-        ) : null}
-
+      {isProviderChooser ? (
+        <Button disabled={interactionDisabled} type="button" onClick={stepAiStore.selectSkip}>
+          {t("OnboardingWizard.ai.choices.skip")}
+        </Button>
+      ) : (
         <Button
-          className="w-full xs:w-fit"
           disabled={!stepAiStore.canFinish || onboardingWizardStore.isSubmitting}
           type="button"
-          onClick={() => void onboardingWizardStore.complete()}
+          onClick={() => runUserAction(() => onboardingWizardStore.complete())}
         >
           {t("OnboardingWizard.finish")}
         </Button>
-      </div>
-    </div>
+      )}
+    </AppCardFooter>
   );
 });

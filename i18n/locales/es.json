@@ -1867,6 +1867,7 @@
     "retry": "Inténtalo de nuevo",
     "subtitle": "¡Vaya! Algo ha fallado",
     "title": "Qué incómodo",
+    "transportInterrupted": "La conexión se ha interrumpido. Es posible que el cambio ya se haya aplicado. Comprueba el estado actual antes de volver a intentarlo.",
     "unexpectedError": "Se ha producido un error inesperado. No te preocupes, se nos ha avisado y estamos en ello."
   },
   "ErrorTestPage": {
@@ -2214,17 +2215,17 @@
         "codex": "Codex",
         "cursor": "Cursor",
         "gemini": "Gemini",
+        "openai": "ChatGPT & Codex",
         "skip": "Omitir por ahora"
       },
       "connector": {
-        "chatgptDescription": "Usa la URL siguiente como conector MCP personalizado y elige la autenticación OAuth.",
-        "chatgptSteps": "En ChatGPT: Configuración → Conectores → Añadir conector → Conector personalizado (MCP). Pega la URL, elige OAuth, guarda, inicia sesión en Customermates y aprueba el acceso.",
-        "chatgptTitle": "Añadir el conector de Customermates",
+        "chatgptDescription": "En la aplicación de escritorio de ChatGPT, añade Customermates como servidor MCP Streamable HTTP. La autenticación usa OAuth.",
+        "chatgptSteps": "Abre Configuración → Servidores MCP → Añadir servidor, elige Streamable HTTP y pega la URL. Guarda, reinicia la aplicación y selecciona Autenticar junto a Customermates. Inicia sesión y aprueba el acceso.",
+        "chatgptTitle": "Añadir Customermates como servidor MCP",
         "claudeButton": "Añadir a Claude",
         "claudeDescription": "Abre el cuadro de diálogo preconfigurado de Claude para conectores personalizados, inicia sesión en Customermates y aprueba el acceso.",
         "claudeTitle": "Conecta tu cuenta de Claude",
         "externalNote": "Esta configuración se realiza en una pestaña nueva o en tu IA. Customermates no verifica automáticamente la conexión externa. <guide>Lee la guía de configuración completa</guide>.",
-        "paidPlan": "Los conectores personalizados requieren un plan de pago de Claude o ChatGPT.",
         "urlLabel": "URL del servidor MCP"
       },
       "createKey": "Crear una clave de API",
@@ -2264,6 +2265,23 @@
           "title": "Claude Code o Desktop"
         }
       },
+      "openai": {
+        "methods": {
+          "ariaLabel": "Métodos de conexión de ChatGPT y Codex",
+          "chatgpt": {
+            "description": "Añade Customermates en la aplicación e inicia sesión una vez. No necesitas una clave de API ni un archivo de configuración.",
+            "meta": "Servidor MCP · OAuth",
+            "note": "La misma configuración MCP se comparte con Codex en este ordenador.",
+            "title": "Aplicación ChatGPT"
+          },
+          "codex": {
+            "description": "Crea una clave de API y añade un bloque de configuración de Codex.",
+            "meta": "Configuración local · Clave de API",
+            "note": "Usa esta opción si prefieres una clave estática en tu configuración local de Codex.",
+            "title": "Codex CLI o IDE"
+          }
+        }
+      },
       "providers": {
         "ariaLabel": "Clientes de IA"
       },
@@ -2273,9 +2291,12 @@
           "subtitle": "Ambas opciones usan MCP y las mismas herramientas de Customermates. Elige la configuración que se adapte a cómo usas Claude.",
           "title": "¿Cómo usas Claude?"
         },
+        "openai": {
+          "subtitle": "Ambas opciones usan MCP y las mismas herramientas de Customermates. Elige la configuración que mejor se adapte a tu forma de trabajar.",
+          "title": "¿Cómo usas ChatGPT o Codex?"
+        },
         "setup": {
           "apiKeySubtitle": "Crea una clave de API y sigue la configuración preparada para {provider}.",
-          "connectorSubtitle": "Añade Customermates como conector personalizado. No necesitas una clave de API ni un archivo de configuración.",
           "title": "Conectar {provider}"
         },
         "skip": {

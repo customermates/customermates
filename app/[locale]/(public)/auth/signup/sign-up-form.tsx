@@ -8,8 +8,6 @@ import { Separator } from "@/components/ui/separator";
 import { useEffect } from "react";
 
 import SignInProviderButton from "../signin/sign-in-provider-button";
-import { continueWithGoogleAction, continueWithMicrosoftAction } from "../actions";
-import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { SocialErrorToast } from "../social-error-toast";
 
 import { AppLink } from "@/components/shared/app-link";
@@ -23,6 +21,7 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { CardHeroHeader } from "@/components/card/card-hero-header";
 import { Reveal } from "@/components/shared/reveal";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 type Props = {
   isInvited: boolean;
@@ -71,36 +70,22 @@ export const SignUpForm = observer(({ isInvited, socialProviders }: Props) => {
                 {socialProviders.google && (
                   <SignInProviderButton
                     className="w-full sm:flex-1"
+                    isLoading={isLoading}
                     label={t("SignUpForm.buttonLabel", { provider: "Google" })}
                     providerId="google"
-                    onClick={() =>
-                      void continueWithGoogleAction(undefined, "/auth/signup").then((res) => {
-                        if (!res.ok) {
-                          toastZodErrorTree(res.error);
-                          return;
-                        }
-                        if (res.data.url) window.location.assign(res.data.url);
-                      })
-                    }
+                    onClick={() => runUserAction(() => signUpStore.continueWithProvider("google"))}
                   />
                 )}
 
                 {socialProviders.microsoft && (
                   <SignInProviderButton
                     className="w-full sm:flex-1"
+                    isLoading={isLoading}
                     label={t("SignUpForm.buttonLabel", {
                       provider: "Microsoft",
                     })}
                     providerId="microsoft"
-                    onClick={() =>
-                      void continueWithMicrosoftAction(undefined, "/auth/signup").then((res) => {
-                        if (!res.ok) {
-                          toastZodErrorTree(res.error);
-                          return;
-                        }
-                        if (res.data.url) window.location.assign(res.data.url);
-                      })
-                    }
+                    onClick={() => runUserAction(() => signUpStore.continueWithProvider("microsoft"))}
                   />
                 )}
               </div>

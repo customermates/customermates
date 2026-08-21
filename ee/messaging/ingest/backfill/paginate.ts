@@ -1,4 +1,8 @@
+import { isUnipileCursorPaginationRequired } from "../../messaging.service";
+
 export const UNIPILE_MAX_LIMIT = 25;
+export const BACKFILL_MESSAGE_PAGE_BUDGET = 4;
+export const UNIPILE_CALENDAR_EVENT_MAX_LIMIT = 100;
 export const UNIPILE_EMAIL_MAX_LIMIT = 100;
 export const BACKFILL_EMAIL_TIMEOUT_MS = 90_000;
 export const PAGE_SAFETY = 200;
@@ -19,7 +23,7 @@ async function paceUnipileRequest(): Promise<void> {
   lastUnipileRequestAt = Date.now();
 }
 
-export type PageResult = { nextCursor: string | null; done: boolean };
+export type PageResult = { nextCursor: string | null; done: boolean; complete: boolean };
 export type PageQuery = { cursor?: string; offset?: number };
 type FetchPage = (query: PageQuery) => Promise<{ data?: unknown[]; next_cursor?: string | null }>;
 
@@ -34,17 +38,28 @@ function decodePosition(token: string | null): Position {
 export async function paginateStep(opts: {
   startCursor: string | null;
   limit: number;
+  maxPages?: number;
   fetchPage: FetchPage;
   handleItem: (item: unknown) => Promise<void>;
 }): Promise<PageResult> {
+  const pageBudget = Math.min(opts.maxPages ?? PAGE_SAFETY, PAGE_SAFETY);
   const position = decodePosition(opts.startCursor);
   let cursor = position.cursor;
   let offset = position.offset;
   let mode = position.mode;
 
-  for (let page = 0; page < PAGE_SAFETY; page++) {
+  for (let page = 0; page < pageBudget; page++) {
     await paceUnipileRequest();
-    const result = await opts.fetchPage(mode === "offset" ? { offset } : { cursor });
+
+    let result;
+    try {
+      result = await opts.fetchPage(mode === "offset" ? { offset } : { cursor });
+    } catch (error) {
+      if (mode === "offset" && isUnipileCursorPaginationRequired(error))
+        return { nextCursor: null, done: true, complete: false };
+      throw error;
+    }
+
     const items = result.data ?? [];
 
     for (const item of items) await opts.handleItem(item);
@@ -52,13 +67,13 @@ export async function paginateStep(opts: {
     if (!mode) mode = result.next_cursor ? "cursor" : "offset";
 
     if (mode === "cursor") {
-      if (!result.next_cursor) return { nextCursor: null, done: true };
+      if (!result.next_cursor) return { nextCursor: null, done: true, complete: true };
       cursor = result.next_cursor;
     } else {
-      if (items.length < opts.limit) return { nextCursor: null, done: true };
+      if (items.length < opts.limit) return { nextCursor: null, done: true, complete: true };
       offset += items.length;
     }
   }
 
-  return { nextCursor: mode === "cursor" ? `c:${cursor}` : String(offset), done: false };
+  return { nextCursor: mode === "cursor" ? `c:${cursor}` : String(offset), done: false, complete: false };
 }

@@ -13,6 +13,7 @@ import { CustomColumnType } from "@/generated/prisma";
 import type { Resource, EntityType } from "@/generated/prisma";
 
 import { toastZodErrorTree } from "../utils/toast-zod-error-tree";
+import { reportApplicationError } from "../errors/report-application-error";
 
 import { ViewMode } from "./base-query-builder";
 import { BaseStore } from "./base.store";
@@ -185,21 +186,22 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.isBulkMutating = next;
   };
 
-  bulkDelete = async (): Promise<void> => {
+  bulkDelete = async (): Promise<boolean> => {
     const ids = Array.from(this.selectedIds);
-    if (ids.length === 0 || !this.entityType) return;
+    if (ids.length === 0 || !this.entityType) return false;
 
     this.setBulkMutating(true);
     try {
       const res = await bulkDeleteEntitiesAction({ entityType: this.entityType, ids });
       if (res && !res.ok) {
-        const announced = toastZodErrorTree(res.error);
+        toastZodErrorTree(res.error);
         await this.refresh();
-        throw new Error(announced ? "" : this.t("Common.notifications.unexpectedError"));
+        return false;
       }
       this.rootStore.activityTimelines.refreshForMany(this.entityType, ids);
       this.clearSelection();
       await this.refresh();
+      return true;
     } finally {
       this.setBulkMutating(false);
     }
@@ -779,9 +781,11 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
         hiddenColumns: toJS(this.hiddenColumns),
         viewMode: toJS(this.viewMode),
         groupingColumnId: this.groupingColumnId,
-      }).then((res) => {
-        if (!res.ok) toastZodErrorTree(res.error);
-      });
+      })
+        .then((res) => {
+          if (!res.ok) toastZodErrorTree(res.error);
+        })
+        .catch(reportApplicationError);
     }, 1000);
   };
 

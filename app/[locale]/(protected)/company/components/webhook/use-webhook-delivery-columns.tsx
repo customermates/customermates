@@ -7,12 +7,12 @@ import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 
 import { AppChip } from "@/components/chip/app-chip";
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { getEntityName } from "@/features/event/entity-name.utils";
 import { WEBHOOK_DELIVERY_QUEUE_STATUS_CHIP_COLOR } from "@/features/webhook/webhook-delivery-chip-colors";
 
 export function useWebhookDeliveryColumns(): ColumnDef<WebhookDeliveryDto>[] {
-  const { intlStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const t = useTranslations();
   return useMemo<ColumnDef<WebhookDeliveryDto>[]>(
     () => [

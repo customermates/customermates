@@ -17,7 +17,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Separator } from "@/components/ui/separator";
 import { TimeInput } from "./time-input";
 import { cn } from "@/core/utils/cn";
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
 import { useAppForm } from "./form-context";
 import { useFormFieldErrors } from "./use-form-field";
@@ -47,7 +47,7 @@ export const FormIsoDatePicker = observer(
     const t = useTranslations();
     const resolvedPlaceholder = placeholder ?? t("Common.inputs.datePlaceholder");
     const store = useAppForm();
-    const { intlStore } = useRootStore();
+    const intlStore = useHydratedIntlStore();
 
     const raw = store?.getValue(id);
     const isoValue = typeof raw === "string" ? raw : undefined;

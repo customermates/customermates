@@ -17,10 +17,16 @@ const domTestFiles = [
   "app/[locale]/(protected)/__tests__/protected-layout.test.ts",
   "app/components/agent-chat/__tests__/use-activity-group-state.test.ts",
   "app/components/navigation/__tests__/navigation-switch.test.ts",
+  "core/base/__tests__/persist-view-options-rejection.test.ts",
   "components/data-view/__tests__/data-view-url-sync.test.ts",
   "components/data-view/__tests__/use-data-view-sync.test.ts",
   "components/data-view/filter-modal/inputs/__tests__/filter-input-number.test.ts",
+  "components/forms/__tests__/form-context.test.ts",
   "components/forms/__tests__/selection-command.test.ts",
+  "components/modal/__tests__/delete-confirmation-modal.test.ts",
+  "components/shared/__tests__/unexpected-error-toaster.test.ts",
+  "core/stores/__tests__/root-store-provider.test.ts",
+  "core/stores/__tests__/use-hydrated-intl-store.test.ts",
   "features/messaging/activities/__tests__/use-owned-activities-store.test.ts",
 ];
 

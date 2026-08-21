@@ -31,6 +31,9 @@ vi.mock("@/core/stores/root-store.provider", () => ({
     intlStore: { resolvedFormattingLanguageTag: "de-DE" },
   }),
 }));
+vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
+  useHydratedIntlStore: () => ({ resolvedFormattingLanguageTag: "de-DE" }),
+}));
 
 vi.mock("@/components/ui/slider", () => ({
   Slider: (props: { value: number[] }) => createElement("div", { "data-slider-value": props.value.join(",") }),

@@ -15,6 +15,7 @@ import { InfoRow } from "@/components/shared/info-row";
 import { PageState } from "@/components/page-state/page-state";
 import { SettingsFieldSkeleton, SettingsFormSkeleton } from "@/components/forms/settings-form-skeleton";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
 import { resolveForecastingState } from "./company-forecasting-state";
 
@@ -22,7 +23,8 @@ const NO_COLUMN_VALUE = "__none__";
 
 export const CompanyForecastingSection = observer(() => {
   const t = useTranslations();
-  const { companySettingsStore: store, intlStore } = useRootStore();
+  const { companySettingsStore: store } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const { singular } = useEntityTerminology();
 
   const state = resolveForecastingState({

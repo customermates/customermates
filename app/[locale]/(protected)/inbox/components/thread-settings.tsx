@@ -25,6 +25,7 @@ import { cn } from "@/core/utils/cn";
 
 import { ThreadPeopleManager } from "./thread-participants-contacts";
 import { displayableIdentifier, participantLabel } from "@/ee/messaging/thread-display";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 type Props = {
   threadId: string;
@@ -145,7 +146,7 @@ export const ThreadSettings = observer(
                   checked={isShared}
                   disabled={accountShared || !isOwner}
                   id="thread-shared"
-                  onCheckedChange={(next) => void messagingThreadDetailStore.toggleSharing(next)}
+                  onCheckedChange={(next) => runUserAction(() => messagingThreadDetailStore.toggleSharing(next))}
                 />
               </label>
 

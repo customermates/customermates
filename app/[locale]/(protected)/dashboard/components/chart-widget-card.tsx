@@ -11,6 +11,7 @@ import { useTranslations } from "next-intl";
 import { EntityType } from "@/generated/prisma";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -28,7 +29,8 @@ type Props = {
 export const ChartWidgetCard = observer(({ widget }: Props) => {
   const t = useTranslations();
   const filterFieldLabel = useFilterFieldLabel();
-  const { intlStore, widgetModalStore, widgetsStore } = useRootStore();
+  const { widgetModalStore, widgetsStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const customColumns = widgetsStore.customColumns;
   const dealCustomColumns = customColumns.filter((c) => c.entityType === EntityType.deal);
   const entityCustomColumns = customColumns.filter((c) => c.entityType === widget.entityType);
@@ -61,7 +63,7 @@ export const ChartWidgetCard = observer(({ widget }: Props) => {
     label: string;
     customColumns: typeof entityCustomColumns;
     filter: Filter;
-    onClick: () => void;
+    onClick: () => Promise<void>;
   }> = showFilters
     ? [
         ...activeEntityFilters.map((filter, index) => ({

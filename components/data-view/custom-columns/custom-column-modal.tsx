@@ -31,6 +31,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { CustomColumnType } from "@/generated/prisma";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
@@ -254,7 +255,8 @@ const SortableOptionItem = observer(
 
 export const CustomColumnModal = observer(() => {
   const t = useTranslations();
-  const { customColumnModalStore: store, intlStore } = useRootStore();
+  const { customColumnModalStore: store } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const { showDeleteConfirmation } = useDeleteConfirmation();
   const { form, onChange, addOption, deleteOption, toggleDefaultOption, reorderOptions } = store;
 
