@@ -19,9 +19,70 @@ type Props = {
   features: FeatureItem[];
   subtitle: string;
   title: string;
+  variant?: "default" | "editorial";
 };
 
-export function FeatureSection({ badge, features, subtitle, title }: Props) {
+export function FeatureSection({ badge, features, subtitle, title, variant = "default" }: Props) {
+  if (variant === "editorial") {
+    return (
+      <section
+        className="w-full border-b border-foreground/15 py-20 sm:py-24 lg:py-32"
+        data-homepage-section="features"
+        id="features"
+      >
+        <div className="mx-auto w-full max-w-[1440px] px-5 sm:px-8">
+          <div className="grid gap-6 lg:grid-cols-[minmax(180px,0.45fr)_minmax(0,1.55fr)] lg:gap-12">
+            <p className="pt-1 text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase">{badge}</p>
+
+            <div>
+              <h2 className="m-0 max-w-[980px] text-[clamp(2.5rem,5.2vw,5.25rem)] font-medium leading-[0.98] tracking-[-0.05em] text-balance">
+                {title}
+              </h2>
+
+              <p className="mt-5 max-w-[720px] text-base leading-relaxed text-muted-foreground sm:text-lg">
+                {subtitle}
+              </p>
+            </div>
+          </div>
+
+          <div className="-mx-5 mt-12 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-4 sm:-mx-8 sm:px-8 md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 md:pb-0 lg:mt-16">
+            {features.map((feature) => {
+              const Icon = ICONS[feature.icon];
+
+              return (
+                <article
+                  key={feature.title}
+                  className="w-[78vw] max-w-[320px] shrink-0 snap-start overflow-hidden rounded-[20px] bg-muted/45 sm:w-[44vw] sm:max-w-[380px] md:w-auto md:max-w-none md:shrink md:snap-none"
+                >
+                  {feature.image ? (
+                    <AppImage
+                      alt={feature.title}
+                      className="aspect-[1.45/1] w-full object-cover object-top"
+                      height={900}
+                      sizes="(max-width: 639px) 78vw, (max-width: 767px) 44vw, 50vw"
+                      src={feature.image}
+                      width={1516}
+                    />
+                  ) : null}
+
+                  <div className="p-6 sm:p-7">
+                    <FeatureIcon icon={Icon} />
+
+                    <h3 className="mt-8 text-2xl font-medium leading-tight tracking-[-0.03em]">{feature.title}</h3>
+
+                    <p className="mt-3 max-w-[560px] text-sm leading-relaxed text-muted-foreground">
+                      {feature.description}
+                    </p>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="relative isolate w-full max-w-6xl px-4 py-14 md:py-20" id="features">
       <WaveDecoration className="-right-40 top-10 hidden w-[min(820px,70%)] md:block" opacity={0.3} variant="wave-2" />

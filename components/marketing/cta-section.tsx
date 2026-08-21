@@ -13,6 +13,7 @@ type Props = {
   description: string;
   hint: string;
   image?: ReactNode;
+  variant?: "default" | "editorial";
 };
 
 export function CTASection({
@@ -24,7 +25,49 @@ export function CTASection({
   description,
   hint,
   image,
+  variant = "default",
 }: Props) {
+  if (variant === "editorial") {
+    return (
+      <section className="w-full py-5 sm:py-8" data-homepage-section="cta">
+        <div className="mx-auto w-full max-w-[1440px] px-5 sm:px-8">
+          <div className="flex min-h-[420px] flex-col items-center justify-center rounded-[24px] bg-foreground px-6 py-16 text-center text-background sm:min-h-[500px] sm:px-10 sm:py-20">
+            {image ? <div className="mb-8">{image}</div> : null}
+
+            <h2 className="max-w-[900px] text-[clamp(2.5rem,5.3vw,5.5rem)] font-medium leading-[0.98] tracking-[-0.05em] text-balance">
+              {action}
+            </h2>
+
+            <p className="mt-6 max-w-[720px] text-sm leading-relaxed text-background/65 sm:text-base">{description}</p>
+
+            <div className="mt-9 flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row sm:items-center">
+              <Button
+                asChild
+                className="h-11 rounded-full bg-background px-6 text-foreground hover:bg-background/85"
+                size="lg"
+              >
+                <IntlLink href={buttonLeftHref}>{buttonLeftText}</IntlLink>
+              </Button>
+
+              <Button
+                asChild
+                className="h-11 rounded-full border-background/25 bg-transparent px-6 text-background hover:bg-background/10 hover:text-background"
+                size="lg"
+                variant="secondary"
+              >
+                <IntlLink href={buttonRightHref} target="_blank">
+                  {buttonRightText}
+                </IntlLink>
+              </Button>
+            </div>
+
+            <p className="mt-6 text-xs leading-relaxed text-background/55">{hint}</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="relative w-full overflow-hidden py-14 md:py-20">
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">

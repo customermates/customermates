@@ -12,10 +12,21 @@ describe("public navigation preferences", () => {
 
     expect(navbar.match(/<LanguageSelector/g)).toHaveLength(1);
     expect(navbar.match(/<ThemeSwitcher/g)).toHaveLength(1);
-    expect(navbar.match(/\{renderPreferenceButtons\(\)\}/g)).toHaveLength(2);
-    expect(navbar).toContain('className="hidden items-center gap-2 md:flex"');
-    expect(navbar).toContain('className="flex w-full items-center justify-between md:hidden"');
-    expect(navbar).toContain('className="my-1 py-3"');
+    expect(navbar.match(/\{renderPreferenceButtons\([^}]*\)\}/g)).toHaveLength(2);
+    expect(navbar).toContain('const PUBLIC_NAV_DESKTOP_QUERY = "(min-width: 56rem)"');
+    expect(navbar).toContain("useMediaQuery(PUBLIC_NAV_DESKTOP_QUERY)");
+    expect(navbar).toContain("open={!isDesktop && layoutStore.isMenuOpen}");
+    expect(navbar.match(/min-\[56rem\]:flex/g)).toHaveLength(3);
+    expect(navbar.match(/min-\[56rem\]:hidden/g)).toHaveLength(1);
+    expect(navbar).toContain('className="hidden items-center gap-2 min-[56rem]:flex"');
+    expect(navbar).toContain('className="flex w-full items-center justify-between min-[56rem]:hidden"');
+    expect(navbar).toContain('className="inline-flex rounded-full border border-sidebar-border/80');
+    expect(navbar).toContain('aria-current={isNavItemActive(item.href) ? "page" : undefined}');
+    expect(navbar).toContain('actions.signOut !== "setupEscape" &&');
+    expect(navbar).toContain("ref={index === 0 ? firstMobileNavItemRef : undefined}");
+    expect(navbar).toContain("firstMobileNavItemRef.current?.focus()");
+    expect(navbar).toContain("desktopHomeButtonRef.current?.focus()");
+    expect(navbar).toContain('className="mt-auto pt-12 sm:pt-16"');
     expect(navbar).not.toContain("border-y");
     expect(navbar).not.toContain("github.com/customermates/customermates");
     expect(footer).not.toContain("LanguageSelector");
@@ -25,10 +36,7 @@ describe("public navigation preferences", () => {
   it("shows the locale code with navbar typography and reuses the complete profile country option", () => {
     const languageSelector = readFileSync(join(REPO_ROOT, "components/shared/language-selector.tsx"), "utf8");
     const countrySelector = readFileSync(join(REPO_ROOT, "components/forms/form-autocomplete-country.tsx"), "utf8");
-    const countryItem = readFileSync(
-      join(REPO_ROOT, "components/forms/form-autocomplete-country-item.tsx"),
-      "utf8",
-    );
+    const countryItem = readFileSync(join(REPO_ROOT, "components/forms/form-autocomplete-country-item.tsx"), "utf8");
 
     expect(languageSelector).toContain("currentLocale.toUpperCase()");
     expect(languageSelector).toContain('className={cn("size-8 rounded-md p-0 text-subdued", className)}');
@@ -36,7 +44,9 @@ describe("public navigation preferences", () => {
     expect(languageSelector).toContain("FormAutocompleteItem({");
     expect(countrySelector).toContain("FormAutocompleteItem({");
     expect(languageSelector).toContain("textValue: label");
-    expect(languageSelector).toContain('<FormAutocompleteCountryItem countryKey={flagCodeFor(locale)} label={label} />');
+    expect(languageSelector).toContain(
+      "<FormAutocompleteCountryItem countryKey={flagCodeFor(locale)} label={label} />",
+    );
     expect(languageSelector).toContain('className={cn(isSelected && "bg-accent")}');
     expect(languageSelector).toContain("data-selected={isSelected}");
     expect(languageSelector).not.toContain("AvatarImage");

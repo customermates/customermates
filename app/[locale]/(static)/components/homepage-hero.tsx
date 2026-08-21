@@ -1,6 +1,6 @@
 import type { Hero } from "@/core/fumadocs/schemas/homepage";
 
-import { ChevronDown } from "lucide-react";
+import { ArrowUpRight, ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,88 +17,92 @@ import {
   XTwitter,
 } from "@/components/icons/channel-icon";
 import { AgplGithubBadge } from "@/components/marketing/agpl-github-badge";
-import { WaveDecoration } from "@/components/marketing/wave-decoration";
+import { AppLink } from "@/components/shared/app-link";
 
 import { HeroDemoIframe } from "./hero-demo-iframe";
-
-import { AppLink } from "@/components/shared/app-link";
 
 type Props = {
   heroSection: Hero;
 };
 
+const CHANNELS = [
+  { name: "LinkedIn", mark: <Linkedin size={22} />, status: "supported" },
+  { name: "Instagram", mark: <Instagram size={22} />, status: "supported" },
+  { name: "WhatsApp", mark: <Whatsapp size={22} />, status: "supported" },
+  { name: "Telegram", mark: <Telegram size={22} />, status: "supported" },
+  { name: "Gmail", mark: <Google size={22} />, status: "supported" },
+  { name: "Outlook", mark: <Outlook size={22} />, status: "supported" },
+  { name: "IMAP", mark: <Mail size={22} />, status: "supported" },
+  { name: "Google Calendar", mark: <GoogleCalendar size={22} />, status: "supported" },
+  { name: "Outlook Calendar", mark: <OutlookCalendar size={22} />, status: "supported" },
+  { name: "X / Twitter", mark: <XTwitter size={22} />, status: "concept" },
+  { name: "Messenger", mark: <Messenger size={22} />, status: "concept" },
+] as const;
+
 export function HomepageHero({ heroSection }: Props) {
   return (
-    <section className="relative isolate w-full overflow-hidden pt-16 pb-14 md:pt-24 md:pb-16">
-      <WaveDecoration
-        className="-top-20 -left-40 w-[min(900px,92vw)] md:-top-20 md:-left-40"
-        opacity={0.25}
-        variant="wave-1"
-      />
-
-      <WaveDecoration
-        className="top-5 right-0 hidden w-[min(620px,55vw)] md:block md:-right-20 md:top-5"
-        opacity={0.3}
-        variant="wave-2"
-      />
-
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-5 bg-[radial-gradient(ellipse_60%_60%_at_50%_35%,var(--background)_0%,transparent_70%)]"
-      />
-
-      <div className="relative z-10 flex w-full flex-col items-center">
-        <div className="mx-auto flex w-full max-w-[1000px] flex-col items-center px-4 text-center">
+    <section className="w-full border-b border-foreground/15" data-homepage-section="hero">
+      <div className="mx-auto flex min-h-[calc(100svh-4rem)] w-full max-w-[1440px] flex-col px-5 sm:px-8">
+        <div className="flex flex-1 flex-col items-center justify-center py-16 text-center sm:py-24 lg:py-28">
           <AgplGithubBadge />
 
-          <h1 className="m-0 max-w-[900px] bg-[linear-gradient(to_bottom,#171717,#262626_45%,#525252)] bg-clip-text text-[44px] font-extrabold leading-[1.02] tracking-[-0.035em] text-transparent [background-repeat:repeat-y] [background-size:100%_1.02em] sm:text-[58px] md:text-[72px] dark:bg-[linear-gradient(to_bottom,#fafafa,#e5e5e5_45%,#a3a3a3)]">
+          <h1 className="mt-7 max-w-[1120px] text-[clamp(2.75rem,6.6vw,6.25rem)] font-medium leading-[0.94] tracking-[-0.055em] text-balance">
             {/* eslint-disable react/jsx-newline */}
             {heroSection.title}{" "}
             {heroSection.titleAccent ? (
-              <span
-                className="bg-[linear-gradient(110deg,#8b5cf6,#6366f1)] bg-clip-text font-semibold italic text-transparent"
-                style={{ fontFamily: "var(--font-serif)" }}
-              >
-                {heroSection.titleAccent}
-              </span>
+              <span className="font-serif font-normal italic tracking-[-0.035em]">{heroSection.titleAccent}</span>
             ) : null}
             {/* eslint-enable react/jsx-newline */}
           </h1>
 
-          <p className="mx-auto mt-6 max-w-[680px] text-[16px] font-medium leading-normal text-muted-foreground md:text-[18px]">
-            {heroSection.subtitle}
-          </p>
+          <div className="mt-10 w-full max-w-[780px] rounded-[28px] border border-foreground/10 bg-muted/55 p-5 text-left shadow-[0_20px_70px_-48px_rgba(0,0,0,0.8)] sm:p-6">
+            <p className="max-w-[680px] text-[15px] leading-relaxed text-muted-foreground sm:text-base">
+              {heroSection.subtitle}
+            </p>
 
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-4">
-            <Linkedin size={28} />
+            <div className="mt-7 flex items-end justify-between gap-4">
+              <ul aria-hidden className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:gap-2.5">
+                {CHANNELS.map((channel) => (
+                  <li
+                    key={channel.name}
+                    className={`flex size-8 items-center justify-center rounded-full border bg-background sm:size-9 ${
+                      channel.status === "concept"
+                        ? "border-dashed border-foreground/35 opacity-45 grayscale"
+                        : "border-foreground/10"
+                    }`}
+                    data-prototype-status={channel.status}
+                  >
+                    {channel.mark}
+                  </li>
+                ))}
+              </ul>
 
-            <Instagram size={28} />
-
-            <Whatsapp size={28} />
-
-            <Messenger size={28} />
-
-            <Telegram size={28} />
-
-            <XTwitter size={28} />
-
-            <Google size={28} />
-
-            <Outlook size={28} />
-
-            <Mail size={28} />
-
-            <OutlookCalendar size={28} />
-
-            <GoogleCalendar size={28} />
+              <Button
+                asChild
+                className="size-11 shrink-0 rounded-full bg-foreground p-0 text-background hover:bg-foreground/85"
+                size="icon-lg"
+              >
+                <AppLink aria-label={heroSection.buttonLeftText} href={heroSection.buttonLeftHref}>
+                  <ArrowUpRight className="size-5" />
+                </AppLink>
+              </Button>
+            </div>
           </div>
 
-          <div className="my-8 flex flex-col items-center gap-3 sm:flex-row sm:gap-4">
-            <Button asChild className="w-full shadow-[0_6px_14px_-4px_rgba(94,74,227,0.45)] sm:w-auto" size="lg">
-              <AppLink href={heroSection.buttonLeftHref}>{heroSection.buttonLeftText}</AppLink>
+          <div className="mt-6 flex w-full max-w-[780px] flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
+            <Button
+              asChild
+              className="h-11 rounded-full bg-foreground px-6 text-background hover:bg-foreground/85"
+              size="lg"
+            >
+              <AppLink href={heroSection.buttonLeftHref}>
+                {heroSection.buttonLeftText}
+
+                <ArrowUpRight className="size-4" />
+              </AppLink>
             </Button>
 
-            <Button asChild className="w-full sm:w-auto" size="lg" variant="secondary">
+            <Button asChild className="h-11 rounded-full bg-transparent px-6" size="lg" variant="secondary">
               {heroSection.buttonRightHref.startsWith("#") ? (
                 <a href={heroSection.buttonRightHref}>
                   {heroSection.buttonRightText}
@@ -113,12 +117,12 @@ export function HomepageHero({ heroSection }: Props) {
             </Button>
           </div>
 
-          <p className="mb-6 text-xs text-muted-foreground">{heroSection.startFree}</p>
+          <p className="mt-5 text-xs leading-relaxed text-muted-foreground">{heroSection.startFree}</p>
         </div>
+      </div>
 
-        <div className="w-full px-4">
-          <HeroDemoIframe />
-        </div>
+      <div className="mx-auto w-full max-w-[1440px] px-5 pb-20 sm:px-8 sm:pb-28">
+        <HeroDemoIframe />
       </div>
     </section>
   );

@@ -3,8 +3,8 @@ import { getLocale, getTranslations } from "next-intl/server";
 
 import { Button } from "@/components/ui/button";
 import { AppLink } from "@/components/shared/app-link";
-import { WaveDecoration } from "@/components/marketing/wave-decoration";
 import { formatCommercialAmount, PLAN_CATALOG } from "@/core/commercial/plan-catalog";
+import { cn } from "@/core/utils/cn";
 
 type CardConfig = {
   href: string;
@@ -43,80 +43,68 @@ export async function HomepagePricing() {
   const [t, locale] = await Promise.all([getTranslations(), getLocale()]);
 
   return (
-    <section className="relative isolate w-full overflow-hidden py-20 md:py-28" id="pricing">
-      <WaveDecoration className="-top-10 -left-32 w-[min(560px,70%)] -scale-x-100" opacity={0.4} variant="wave-1" />
-
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute left-[10%] top-[20%] size-[360px] rounded-full bg-[rgba(94,74,227,0.18)] blur-[80px]" />
-
-        <div className="absolute right-[8%] bottom-[10%] size-[320px] rounded-full bg-[rgba(18,148,144,0.15)] blur-[80px]" />
-
-        <div
-          className="absolute inset-0 opacity-[0.35] bg-[radial-gradient(circle_at_1px_1px,rgba(94,74,227,0.12)_1px,transparent_0)] bg-size-[24px_24px]"
-          style={{
-            maskImage: "radial-gradient(ellipse 70% 60% at 50% 50%, #000 30%, transparent 85%)",
-            WebkitMaskImage: "radial-gradient(ellipse 70% 60% at 50% 50%, #000 30%, transparent 85%)",
-          }}
-        />
-      </div>
-
-      <div className="relative mx-auto max-w-[820px] px-4">
-        <div className="relative mb-10 text-center">
-          <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 font-mono text-[12px] font-medium uppercase tracking-[0.05em] text-primary">
-            <span className="size-[5px] rounded-full bg-primary" style={{ boxShadow: "0 0 8px var(--primary)" }} />
-
+    <section
+      className="w-full border-b border-foreground/15 py-20 sm:py-24 lg:py-32"
+      data-homepage-section="pricing"
+      id="pricing"
+    >
+      <div className="mx-auto w-full max-w-[1440px] px-5 sm:px-8">
+        <div className="grid gap-6 lg:grid-cols-[minmax(180px,0.45fr)_minmax(0,1.55fr)] lg:gap-12">
+          <p className="pt-1 text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase">
             {t("HomepagePricing.eyebrow")}
-          </span>
+          </p>
 
-          <h2 className="text-x-3xl pb-4">{t("HomepagePricing.title")}</h2>
+          <div>
+            <h2 className="m-0 max-w-[980px] text-[clamp(2.5rem,5.2vw,5.25rem)] font-medium leading-[0.98] tracking-[-0.05em] text-balance">
+              {t("HomepagePricing.title")}
+            </h2>
 
-          <p className="mx-auto max-w-[560px] text-x-lg text-subdued">{t("HomepagePricing.subtitle")}</p>
-
-          <svg
-            aria-hidden
-            className="absolute -top-2 left-[calc(50%-220px)] size-4 text-primary opacity-45"
-            fill="none"
-            viewBox="0 0 16 16"
-          >
-            <path d="M8 0v16M0 8h16" stroke="currentColor" strokeWidth="1" />
-          </svg>
-
-          <svg
-            aria-hidden
-            className="absolute -top-2 right-[calc(50%-220px)] size-4 text-primary opacity-45"
-            fill="none"
-            viewBox="0 0 16 16"
-          >
-            <path d="M8 0v16M0 8h16" stroke="currentColor" strokeWidth="1" />
-          </svg>
+            <p className="mt-5 max-w-[680px] text-base leading-relaxed text-muted-foreground sm:text-lg">
+              {t("HomepagePricing.subtitle")}
+            </p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="mt-12 grid grid-cols-1 gap-3 md:grid-cols-2 lg:mt-16">
           {CARDS.map((card) => {
             const featured = card.variant === "default";
-            return (
-              <div
-                key={card.titleKey}
-                className={`relative flex flex-col rounded-xl border border-border bg-card p-6 shadow-xs ${
-                  featured ? "border-2 border-primary" : ""
-                }`}
-              >
-                <div className="mb-1 flex items-center justify-between">
-                  <h3 className="m-0 text-[19px] font-semibold">{t(`HomepagePricing.${card.titleKey}.title`)}</h3>
 
-                  {card.badgeKey && (
-                    <span className="rounded-full bg-primary/15 px-2.5 py-0.5 text-[11px] font-medium text-primary">
+            return (
+              <article
+                key={card.titleKey}
+                className={cn(
+                  "flex min-h-[560px] flex-col rounded-[24px] bg-muted/45 p-6 sm:p-8",
+                  featured && "bg-foreground text-background",
+                )}
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <h3 className="m-0 text-2xl font-medium tracking-[-0.03em]">
+                    {t(`HomepagePricing.${card.titleKey}.title`)}
+                  </h3>
+
+                  {card.badgeKey ? (
+                    <span
+                      className={cn(
+                        "rounded-full border border-foreground/20 px-3 py-1 text-xs",
+                        featured && "border-background/25",
+                      )}
+                    >
                       {t(`HomepagePricing.${card.titleKey}.${card.badgeKey}`)}
                     </span>
-                  )}
+                  ) : null}
                 </div>
 
-                <p className="m-0 min-h-[40px] text-[13px] leading-[1.55] text-muted-foreground">
+                <p
+                  className={cn(
+                    "mt-3 max-w-[520px] text-sm leading-relaxed text-muted-foreground",
+                    featured && "text-background/65",
+                  )}
+                >
                   {t(`HomepagePricing.${card.titleKey}.tag`)}
                 </p>
 
-                <div className="my-4">
-                  <span className="text-[34px] font-bold tracking-[-0.02em]">
+                <div className="mt-10">
+                  <span className="text-[clamp(3rem,6vw,5.5rem)] font-medium leading-none tracking-[-0.055em]">
                     {card.titleKey === "cloud"
                       ? t("HomepagePricing.cloud.price", {
                           price: formatCommercialAmount(
@@ -128,29 +116,44 @@ export async function HomepagePricing() {
                       : t("HomepagePricing.selfHosted.price")}
                   </span>
 
-                  {card.periodKey && (
-                    <span className="ml-1.5 text-[13px] text-muted-foreground">
+                  {card.periodKey ? (
+                    <span className={cn("ml-2 text-sm text-muted-foreground", featured && "text-background/65")}>
                       {t(`HomepagePricing.${card.titleKey}.${card.periodKey}`)}
                     </span>
-                  )}
+                  ) : null}
                 </div>
 
-                <Button asChild className="w-full" variant={featured ? "default" : "secondary"}>
+                <Button
+                  asChild
+                  className={cn(
+                    "mt-8 h-11 w-full rounded-full bg-foreground text-background hover:bg-foreground/85",
+                    featured && "bg-background text-foreground hover:bg-background/85",
+                  )}
+                >
                   <AppLink external={card.href.startsWith("http")} href={card.href}>
                     {t(`HomepagePricing.${card.titleKey}.ctaText`)}
                   </AppLink>
                 </Button>
 
-                {card.compareHref && card.compareTextKey && (
-                  <AppLink className="mt-3 text-center text-[12px] text-muted-foreground" href={card.compareHref}>
+                {card.compareHref && card.compareTextKey ? (
+                  <AppLink
+                    className={cn(
+                      "mt-3 text-center text-xs text-muted-foreground underline-offset-4 hover:underline",
+                      featured && "text-background/65",
+                    )}
+                    href={card.compareHref}
+                  >
                     {t(`HomepagePricing.${card.titleKey}.${card.compareTextKey}`)}
                   </AppLink>
-                )}
+                ) : null}
 
-                <ul className="m-0 mt-4 flex flex-col gap-2 p-0">
+                <ul className="m-0 mt-8 flex flex-col border-t border-current/20 p-0">
                   {card.featureKeys.map((featureKey) => (
-                    <li key={featureKey} className="flex items-start gap-2 text-[13px] text-foreground">
-                      <Check aria-hidden className="mt-0.5 size-3.5 shrink-0 text-primary" strokeWidth={2.5} />
+                    <li
+                      key={featureKey}
+                      className="flex items-start gap-3 border-b border-current/20 py-3.5 text-sm leading-relaxed last:border-b-0"
+                    >
+                      <Check aria-hidden className="mt-1 size-3.5 shrink-0" strokeWidth={2.5} />
 
                       <span>
                         {t(`HomepagePricing.${card.titleKey}.${featureKey}`, {
@@ -163,21 +166,17 @@ export async function HomepagePricing() {
                     </li>
                   ))}
                 </ul>
-              </div>
+              </article>
             );
           })}
         </div>
 
-        <div className="mx-auto mt-8 flex max-w-[820px] flex-wrap items-center justify-center gap-x-5 gap-y-2 font-mono text-[11px] uppercase tracking-[0.04em] text-muted-foreground">
-          {COMPARE_KEYS.map((key, i) => (
-            <span key={key} className="inline-flex items-center gap-1.5">
-              {i > 0 && <span className="opacity-30">|</span>}
+        <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs text-muted-foreground">
+          {COMPARE_KEYS.map((key) => (
+            <span key={key} className="inline-flex items-center gap-2">
+              <Check aria-hidden className="size-3.5" />
 
-              <span className="inline-flex items-center gap-1.5">
-                <span className="text-[#34c759]">✓</span>
-
-                {t(`HomepagePricing.compare.${key}`)}
-              </span>
+              {t(`HomepagePricing.compare.${key}`)}
             </span>
           ))}
         </div>

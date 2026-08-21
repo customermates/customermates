@@ -12,12 +12,56 @@ type FAQItem = {
 type Props = {
   faqs: FAQItem[];
   title?: string;
+  variant?: "default" | "editorial";
 };
 
-export async function FAQSection({ faqs, title }: Props) {
+export async function FAQSection({ faqs, title, variant = "default" }: Props) {
   if (!faqs.length) return null;
 
   const t = await getTranslations();
+
+  if (variant === "editorial") {
+    return (
+      <section className="w-full border-b border-foreground/15 py-20 sm:py-24 lg:py-32" data-homepage-section="faq">
+        <div className="mx-auto grid w-full max-w-[1440px] gap-12 px-5 sm:px-8 lg:grid-cols-[minmax(260px,0.7fr)_minmax(0,1.3fr)] lg:gap-20">
+          <div>
+            <p className="text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase">
+              {t("FAQSection.label")}
+            </p>
+
+            {title ? (
+              <h2 className="mt-5 max-w-[560px] text-[clamp(2.5rem,4.8vw,4.75rem)] font-medium leading-[0.98] tracking-[-0.05em] text-balance">
+                {title}
+              </h2>
+            ) : null}
+
+            {/* eslint-disable react/jsx-newline */}
+            <p className="mt-6 max-w-[420px] text-sm leading-relaxed text-muted-foreground">
+              {t("FAQSection.contactIntro")}{" "}
+              <AppLink appearance="inline" className="font-medium text-foreground" href="/contact">
+                {t("FAQSection.contactCta")}
+              </AppLink>
+            </p>
+            {/* eslint-enable react/jsx-newline */}
+          </div>
+
+          <Accordion collapsible className="border-t border-foreground/20" defaultValue={faqs[0].id} type="single">
+            {faqs.map((faq) => (
+              <AccordionItem key={faq.id} className="border-b border-foreground/20" value={faq.id}>
+                <AccordionTrigger className="py-6 text-left text-lg font-medium tracking-[-0.02em] sm:py-7 sm:text-xl">
+                  {faq.title}
+                </AccordionTrigger>
+
+                <AccordionContent className="max-w-[760px] pb-7 text-sm leading-relaxed text-muted-foreground sm:text-base">
+                  {faq.content}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="relative isolate mx-auto w-full max-w-[860px] overflow-visible px-4 py-20">

@@ -53,7 +53,7 @@ export default async function HomePage() {
   const { hero, howItWorks, walkthrough, benefits, features, faq, cta } = homepagePage.data;
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex w-full flex-col items-center overflow-x-clip bg-background text-foreground">
       <JsonLd schema={organizationSchema()} />
 
       <JsonLd
@@ -80,13 +80,13 @@ export default async function HomePage() {
 
       <HomepageBenefits benefitsSection={benefits} />
 
-      <FeatureSection {...features} />
+      <FeatureSection {...features} variant="editorial" />
 
       <HomepagePricing />
 
-      <FAQSection {...faq} />
+      <FAQSection {...faq} variant="editorial" />
 
-      <CTASection {...cta} />
+      <CTASection {...cta} variant="editorial" />
 
       <Footer />
     </div>
