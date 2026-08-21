@@ -4,9 +4,10 @@ import type { RootStore } from "@/core/stores/root.store";
 
 import { action, makeObservable, observable, toJS } from "mobx";
 
-import { signInWithEmailAction } from "../actions";
+import { continueWithGoogleAction, continueWithMicrosoftAction, signInWithEmailAction } from "../actions";
 
 import { BaseFormStore } from "@/core/base/base-form.store";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 export class SignInStore extends BaseFormStore<EmailSignInData> {
   callbackURL?: string;
@@ -20,6 +21,7 @@ export class SignInStore extends BaseFormStore<EmailSignInData> {
       callbackURL: observable,
 
       onSubmit: action,
+      continueWithProvider: action,
       toggleShowPassword: action,
       setCallbackURL: action,
     });
@@ -35,15 +37,43 @@ export class SignInStore extends BaseFormStore<EmailSignInData> {
 
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
+    if (this.isLoading) return;
+
     this.setIsLoading(true);
+    let isNavigating = false;
 
     try {
-      const res = await signInWithEmailAction({ ...toJS(this.form), callbackURL: this.callbackURL });
+      const res = await signInWithEmailAction({
+        ...toJS(this.form),
+        callbackURL: this.callbackURL,
+      });
 
-      if (res.ok) window.location.assign(res.data.url);
-      else this.setError(res.error);
+      if (res.ok) {
+        window.location.assign(res.data.url);
+        isNavigating = true;
+      } else this.setError(res.error);
     } finally {
-      this.setIsLoading(false);
+      if (!isNavigating) this.setIsLoading(false);
+    }
+  };
+
+  continueWithProvider = async (provider: "google" | "microsoft") => {
+    if (this.isLoading) return;
+
+    this.setIsLoading(true);
+    let isNavigating = false;
+
+    try {
+      const action = provider === "google" ? continueWithGoogleAction : continueWithMicrosoftAction;
+      const res = await action(this.callbackURL, "/auth/signin");
+
+      if (!res.ok) toastZodErrorTree(res.error);
+      else if (res.data.url) {
+        window.location.assign(res.data.url);
+        isNavigating = true;
+      }
+    } finally {
+      if (!isNavigating) this.setIsLoading(false);
     }
   };
 }

@@ -20,7 +20,10 @@ const domTestFiles = [
   "components/data-view/__tests__/data-view-url-sync.test.ts",
   "components/data-view/__tests__/use-data-view-sync.test.ts",
   "components/data-view/filter-modal/inputs/__tests__/filter-input-number.test.ts",
+  "components/forms/__tests__/form-context.test.ts",
   "components/forms/__tests__/selection-command.test.ts",
+  "components/modal/__tests__/delete-confirmation-modal.test.ts",
+  "components/shared/__tests__/unexpected-error-toaster.test.ts",
   "features/messaging/activities/__tests__/use-owned-activities-store.test.ts",
 ];
 

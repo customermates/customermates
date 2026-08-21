@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 
 import { AppLink } from "@/components/shared/app-link";
 import { registerApplicationErrorHandler, isDemoEnvironment } from "@/core/errors/report-application-error";
+import { isClientTransportError } from "@/core/errors/client-transport-error";
 
 function containsString(error: unknown, searchString: string): boolean {
   if (typeof error === "string") return error.includes(searchString);
@@ -30,6 +31,10 @@ function useApplicationErrorHandler(): (error: unknown) => void {
   return useCallback(
     (error: unknown) => {
       if (isNoise(error)) return;
+      if (isClientTransportError(error)) {
+        toast.warning(t("ErrorCard.transportInterrupted"));
+        return;
+      }
       if (isDemoEnvironment()) {
         toast.warning(
           t.rich("ErrorCard.demoModeError", {

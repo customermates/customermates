@@ -1193,6 +1193,7 @@
     "retry": "Réessayer",
     "subtitle": "Oups ! Une erreur est survenue",
     "title": "Voilà qui est gênant",
+    "transportInterrupted": "La connexion a été interrompue. La modification a peut-être déjà été appliquée. Vérifiez l'état actuel avant de réessayer.",
     "unexpectedError": "Une erreur inattendue est survenue. Pas d'inquiétude, nous avons été prévenus et nous nous en occupons."
   },
   "ErrorTestPage": {

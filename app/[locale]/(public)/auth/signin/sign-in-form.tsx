@@ -7,9 +7,6 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
-import { continueWithGoogleAction, continueWithMicrosoftAction } from "../actions";
-import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
-
 import SignInProviderButton from "./sign-in-provider-button";
 
 import { SocialErrorToast } from "../social-error-toast";
@@ -24,6 +21,7 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { CardHeroHeader } from "@/components/card/card-hero-header";
+import { runClientAction } from "@/core/errors/report-application-error";
 
 type Props = {
   isInvited: boolean;
@@ -36,7 +34,7 @@ export const SignInForm = observer(({ isInvited, socialProviders }: Props) => {
   const t = useTranslations();
 
   const { signInStore, appMode } = useRootStore();
-  const { callbackURL, isLoading } = signInStore;
+  const { isLoading } = signInStore;
 
   useEffect(() => {
     signInStore.setCallbackURL(searchParams.get("callbackURL") ?? undefined);
@@ -69,36 +67,22 @@ export const SignInForm = observer(({ isInvited, socialProviders }: Props) => {
                 {socialProviders.google && (
                   <SignInProviderButton
                     className="w-full sm:flex-1"
+                    isLoading={isLoading}
                     label={t("SignInForm.buttonLabel", { provider: "Google" })}
                     providerId="google"
-                    onClick={() =>
-                      void continueWithGoogleAction(callbackURL, "/auth/signin").then((res) => {
-                        if (!res.ok) {
-                          toastZodErrorTree(res.error);
-                          return;
-                        }
-                        if (res.data.url) window.location.assign(res.data.url);
-                      })
-                    }
+                    onClick={() => runClientAction(() => signInStore.continueWithProvider("google"))}
                   />
                 )}
 
                 {socialProviders.microsoft && (
                   <SignInProviderButton
                     className="w-full sm:flex-1"
+                    isLoading={isLoading}
                     label={t("SignInForm.buttonLabel", {
                       provider: "Microsoft",
                     })}
                     providerId="microsoft"
-                    onClick={() =>
-                      void continueWithMicrosoftAction(callbackURL, "/auth/signin").then((res) => {
-                        if (!res.ok) {
-                          toastZodErrorTree(res.error);
-                          return;
-                        }
-                        if (res.data.url) window.location.assign(res.data.url);
-                      })
-                    }
+                    onClick={() => runClientAction(() => signInStore.continueWithProvider("microsoft"))}
                   />
                 )}
               </div>

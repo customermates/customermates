@@ -4,9 +4,10 @@ import type { EmailSignUpData } from "@/features/auth/sign-up-with-email.interac
 
 import { action, makeObservable, observable, toJS } from "mobx";
 
-import { signUpWithEmailAction } from "../actions";
+import { continueWithGoogleAction, continueWithMicrosoftAction, signUpWithEmailAction } from "../actions";
 
 import { BaseFormStore } from "@/core/base/base-form.store";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 export class SignUpStore extends BaseFormStore<EmailSignUpData> {
   showPassword = false;
@@ -18,6 +19,7 @@ export class SignUpStore extends BaseFormStore<EmailSignUpData> {
       showPassword: observable,
 
       onSubmit: action,
+      continueWithProvider: action,
       toggleShowPassword: action,
     });
   }
@@ -36,6 +38,26 @@ export class SignUpStore extends BaseFormStore<EmailSignUpData> {
       if (!res.ok) this.setError(res.error);
     } finally {
       this.setIsLoading(false);
+    }
+  };
+
+  continueWithProvider = async (provider: "google" | "microsoft") => {
+    if (this.isLoading) return;
+
+    this.setIsLoading(true);
+    let isNavigating = false;
+
+    try {
+      const action = provider === "google" ? continueWithGoogleAction : continueWithMicrosoftAction;
+      const res = await action(undefined, "/auth/signup");
+
+      if (!res.ok) toastZodErrorTree(res.error);
+      else if (res.data.url) {
+        window.location.assign(res.data.url);
+        isNavigating = true;
+      }
+    } finally {
+      if (!isNavigating) this.setIsLoading(false);
     }
   };
 }

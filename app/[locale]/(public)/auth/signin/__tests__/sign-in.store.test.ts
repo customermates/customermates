@@ -4,9 +4,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const authActions = vi.hoisted(() => ({
   signInWithEmailAction: vi.fn(),
+  continueWithGoogleAction: vi.fn(),
+  continueWithMicrosoftAction: vi.fn(),
 }));
 
 vi.mock("@/app/[locale]/(public)/auth/actions", () => authActions);
+const toastZodErrorTree = vi.hoisted(() => vi.fn());
+vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree }));
 
 import { SignInStore } from "../sign-in.store";
 
@@ -38,7 +42,10 @@ describe("SignInStore", () => {
       callbackURL: "/en/onboarding/wizard",
     });
     expect(assign).toHaveBeenCalledWith("/en/onboarding/wizard");
-    expect(store.isLoading).toBe(false);
+    expect(store.isLoading).toBe(true);
+
+    await store.onSubmit();
+    expect(authActions.signInWithEmailAction).toHaveBeenCalledTimes(1);
   });
 
   it("does not navigate when authentication returns a validation error", async () => {
@@ -52,5 +59,44 @@ describe("SignInStore", () => {
 
     expect(assign).not.toHaveBeenCalled();
     expect(store.error).toEqual({ errors: ["Invalid credentials"] });
+    expect(store.isLoading).toBe(false);
+  });
+
+  it("keeps both social providers locked after hard navigation starts", async () => {
+    authActions.continueWithGoogleAction.mockResolvedValue({
+      ok: true,
+      data: { url: "https://accounts.google.test/authorize" },
+    });
+    const store = new SignInStore(rootStore);
+    store.setCallbackURL("/en/dashboard");
+
+    await store.continueWithProvider("google");
+    await store.continueWithProvider("google");
+
+    expect(authActions.continueWithGoogleAction).toHaveBeenCalledExactlyOnceWith("/en/dashboard", "/auth/signin");
+    expect(assign).toHaveBeenCalledExactlyOnceWith("https://accounts.google.test/authorize");
+    expect(store.isLoading).toBe(true);
+  });
+
+  it("releases the social-provider lock when the action fails before navigation", async () => {
+    const error = new TypeError("Load failed");
+    authActions.continueWithMicrosoftAction.mockRejectedValue(error);
+    const store = new SignInStore(rootStore);
+
+    await expect(store.continueWithProvider("microsoft")).rejects.toBe(error);
+
+    expect(store.isLoading).toBe(false);
+    expect(assign).not.toHaveBeenCalled();
+  });
+
+  it("shows a social validation error and releases the lock", async () => {
+    const error = { errors: ["Social sign-in unavailable"] };
+    authActions.continueWithGoogleAction.mockResolvedValue({ ok: false, error });
+    const store = new SignInStore(rootStore);
+
+    await store.continueWithProvider("google");
+
+    expect(toastZodErrorTree).toHaveBeenCalledExactlyOnceWith(error);
+    expect(store.isLoading).toBe(false);
   });
 });
