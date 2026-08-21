@@ -27,6 +27,7 @@ import { CustomFieldValue } from "@/components/data-view/custom-columns/custom-f
 import { Icon } from "@/components/shared/icon";
 import { serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { useEntityHref, useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { CustomColumnType, EntityType, TaskType } from "@/generated/prisma";
 import { getSystemTaskNameTranslationKey } from "@/app/[locale]/(protected)/tasks/components/system-task.config";
@@ -138,7 +139,8 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
   const t = useTranslations();
   const locale = useLocale() as AppLocale;
   const columnLabel = useCanonicalColumnLabel();
-  const { intlStore, userModalStore } = useRootStore();
+  const { userModalStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const openEntity = useOpenEntity();
   const entityHref = useEntityHref();
 

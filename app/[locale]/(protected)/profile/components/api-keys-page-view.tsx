@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { InfoRow } from "@/components/shared/info-row";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { PageState } from "@/components/page-state/page-state";
 import { resolveResourcePageState } from "@/components/page-state/resource-page-state";
@@ -27,7 +28,8 @@ type Props = {
 
 export const ApiKeysPageView = observer(({ apiKeys }: Props) => {
   const t = useTranslations();
-  const { apiKeyModalStore, apiKeysStore, intlStore } = useRootStore();
+  const { apiKeyModalStore, apiKeysStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const { canManage } = apiKeysStore;
 
   useLayoutEffect(() => apiKeysStore.setItems({ items: apiKeys }), [apiKeys]);

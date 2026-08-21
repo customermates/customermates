@@ -1,6 +1,6 @@
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 import type { CustomFieldValueDto } from "@/core/base/base-entity.schema";
-import type { IntlStore } from "@/core/stores/intl.store";
+import type { HydrationSafeIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import type { UserModalStore } from "@/app/[locale]/(protected)/company/components/user/user-modal.store";
 import type { ColumnDef } from "@tanstack/react-table";
 
@@ -26,7 +26,7 @@ type StandardEntity = HasId & {
 
 type Args<E extends StandardEntity> = {
   store: BaseDataViewStore<E>;
-  intlStore: IntlStore;
+  intlStore: HydrationSafeIntlStore;
   userModalStore: UserModalStore;
 };
 

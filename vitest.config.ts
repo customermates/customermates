@@ -24,6 +24,8 @@ const domTestFiles = [
   "components/forms/__tests__/selection-command.test.ts",
   "components/modal/__tests__/delete-confirmation-modal.test.ts",
   "components/shared/__tests__/unexpected-error-toaster.test.ts",
+  "core/stores/__tests__/root-store-provider.test.ts",
+  "core/stores/__tests__/use-hydrated-intl-store.test.ts",
   "features/messaging/activities/__tests__/use-owned-activities-store.test.ts",
 ];
 

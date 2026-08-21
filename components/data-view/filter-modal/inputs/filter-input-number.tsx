@@ -7,7 +7,7 @@ import { useAppForm } from "@/components/forms/form-context";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/core/utils/cn";
 import { filterNumberValue } from "@/core/base/filter-value";
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
 type Props = {
   id: string;
@@ -16,7 +16,7 @@ type Props = {
 
 export const FilterInputNumber = observer(({ id, isValidFilter }: Props) => {
   const store = useAppForm();
-  const { intlStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const fmt = useCallback((n: number | undefined) => intlStore.formatNumber(n), [intlStore]);
 
   const storeNumber = filterNumberValue(store?.getValue(id));

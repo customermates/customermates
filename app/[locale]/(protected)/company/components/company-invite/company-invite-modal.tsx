@@ -14,6 +14,7 @@ import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { Icon } from "@/components/shared/icon";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { runUserAction } from "@/core/errors/report-application-error";
 
@@ -22,7 +23,8 @@ import { InviteByEmailForm } from "./invite-by-email-form";
 export const CompanyInviteModal = observer(() => {
   const t = useTranslations();
 
-  const { companyInviteModalStore, intlStore } = useRootStore();
+  const { companyInviteModalStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
 
   const { form, isLoading } = companyInviteModalStore;
   const copy = useCopyToClipboard();

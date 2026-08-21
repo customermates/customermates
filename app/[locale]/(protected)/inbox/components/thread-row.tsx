@@ -15,7 +15,7 @@ import { THREAD_STATE_DOT } from "./thread-state-visuals";
 import { Avatar } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/core/utils/cn";
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
 type Props = {
   thread: MessagingThread;
@@ -27,7 +27,7 @@ const ROW_BADGE_STATES: MessagingThreadState[] = ["unread", "closed", "spam"];
 
 export const ThreadRow = observer(({ thread, selected, onClick }: Props) => {
   const t = useTranslations();
-  const { intlStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const isUnread = thread.state === "unread";
   const showStateBadge = ROW_BADGE_STATES.includes(thread.state);
 

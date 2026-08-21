@@ -1,8 +1,13 @@
 "use client";
 
 import type { ReactNode } from "react";
+import type { TenantUser } from "@/features/user/user.schema";
+import type { Company } from "@/generated/prisma";
+import type { EntityTerminologyOverride } from "@/features/entity-terminology/entity-terminology.types";
+import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
+import type { RoutingLocale } from "@/i18n/locale-registry";
 
-import { createContext, useContext, useEffect, useMemo } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 import { RootStore } from "@/core/stores/root.store";
 import type { AppMode } from "@/core/config/environment";
@@ -12,10 +17,29 @@ const RootStoreContext = createContext<RootStore | null>(null);
 type Props = {
   appMode: AppMode;
   children: ReactNode;
+  initialState: RootStoreInitialState;
 };
 
-export function RootStoreProvider({ appMode, children }: Props) {
-  const rootStore = useMemo(() => new RootStore(appMode), [appMode]);
+export type RootStoreInitialState = {
+  locale: RoutingLocale;
+  user: TenantUser | null;
+  company: Company | null;
+  terminology: EntityTerminologyOverride[];
+  subscription: SubscriptionDto | null;
+};
+
+function createRootStore(appMode: AppMode, initialState: RootStoreInitialState): RootStore {
+  const rootStore = new RootStore(appMode);
+  rootStore.localeStore.setLocale(initialState.locale);
+  rootStore.userStore.setUser(initialState.user);
+  rootStore.companyStore.setCompany(initialState.company);
+  rootStore.terminologyStore.setOverrides(initialState.terminology);
+  rootStore.subscriptionStore.setSubscription(initialState.subscription);
+  return rootStore;
+}
+
+export function RootStoreProvider({ appMode, children, initialState }: Props) {
+  const [rootStore] = useState(() => createRootStore(appMode, initialState));
 
   useEffect(() => {
     rootStore.intlStore.markClientHydrated();

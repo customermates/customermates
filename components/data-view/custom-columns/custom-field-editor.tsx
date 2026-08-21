@@ -18,7 +18,7 @@ import { Favicon } from "@/components/shared/favicon";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { openableLinkTarget } from "@/core/validation/openable-link-target";
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
 type Props = {
   column: CustomColumnDto;
@@ -37,7 +37,7 @@ function formStringToNumber(value: string | undefined): number | undefined {
 
 export const CustomFieldEditor = observer(({ column, value, onChange, id, label, hideLabel = false }: Props) => {
   const copy = useCopyToClipboard();
-  const { intlStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
 
   const inputId = `custom-field-editor-${column.id}`;
   const resolvedLabel = label === undefined ? column.label : label;

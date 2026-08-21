@@ -17,6 +17,7 @@ import { isPlainTextEmailBody, splitQuotedText } from "@/ee/messaging/email-quot
 import { deriveMessageSender, displayableIdentifier, isUnipileUnsupportedBody } from "@/ee/messaging/thread-display";
 import { cn } from "@/core/utils/cn";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 import { attachmentSubtitle, classifyAttachment, describeFile, downloadLocalFile } from "./attachment-classify";
@@ -91,12 +92,8 @@ function TextWithQuote({ visible, quoted, onPaper }: { visible: string; quoted: 
 
 export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, isMine }: Props) => {
   const t = useTranslations();
-  const {
-    intlStore,
-    messagingThreadDetailStore: detail,
-    threadComposeStore: compose,
-    threadParticipantsStore,
-  } = useRootStore();
+  const { messagingThreadDetailStore: detail, threadComposeStore: compose, threadParticipantsStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const [showRemoteImages, setShowRemoteImages] = useState(false);
 
   const isOutbound = message.direction === "outbound";

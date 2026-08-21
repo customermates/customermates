@@ -19,6 +19,7 @@ import { cn } from "@/core/utils/cn";
 import { isEmailProvider } from "@/ee/messaging/provider";
 import { messageSenderName } from "@/ee/messaging/thread-display";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { AuditDetail } from "./audit-detail";
 import { calendarEventTitle } from "./activity-labels";
 import { DetailHeader, IdentityAvatar, TypeBadge } from "./activities-row";
@@ -40,7 +41,7 @@ function payloadString(payload: Record<string, unknown>, key: string): string | 
 }
 
 const MessageDetail = observer(({ entry }: { entry: Extract<ActivityEntryDto, { kind: "message" }> }) => {
-  const { intlStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const t = useTranslations();
   const { message, thread, senderIsMine } = entry;
   const isOutbound = message.direction === "outbound";
@@ -104,7 +105,7 @@ const MessageDetail = observer(({ entry }: { entry: Extract<ActivityEntryDto, { 
 
 const CalendarEventDetail = observer(({ entry }: { entry: Extract<ActivityEntryDto, { kind: "calendar_event" }> }) => {
   const { event } = entry;
-  const { intlStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const t = useTranslations();
   const organizerName = event.organizer?.displayName?.trim() || event.organizer?.email || null;
   const timeRange = event.allDay
@@ -200,7 +201,7 @@ const CalendarEventDetail = observer(({ entry }: { entry: Extract<ActivityEntryD
 
 const ActivityDetail = observer(({ entry }: { entry: Extract<ActivityEntryDto, { kind: "activity" }> }) => {
   const { payload, at } = entry;
-  const { intlStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const t = useTranslations();
   const fullName = payloadString(payload, "fullName");
   const headline = payloadString(payload, "headline");
@@ -234,7 +235,8 @@ const ActivityDetail = observer(({ entry }: { entry: Extract<ActivityEntryDto, {
 });
 
 export const TimelineDetailModal = observer(() => {
-  const { intlStore, timelineDetailModalStore: store } = useRootStore();
+  const { timelineDetailModalStore: store } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const t = useTranslations();
   const { isOpen } = store;
   const { entry, customColumns } = store.form;

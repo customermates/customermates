@@ -8,6 +8,7 @@ import { observer } from "mobx-react-lite";
 import { cn } from "@/core/utils/cn";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { appLocaleOrDefault } from "@/i18n/locale-registry";
 import { calendarDayKey, calendarIntlFormatters, dayPickerLocaleFor } from "./calendar-locales";
 
@@ -25,7 +26,8 @@ const Calendar = observer(function Calendar({
   buttonVariant?: React.ComponentProps<typeof Button>["variant"];
 }) {
   const defaultClassNames = getDefaultClassNames();
-  const { intlStore, localeStore } = useRootStore();
+  const { localeStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const languageTag = intlStore.resolvedFormattingLanguageTag;
   const displayLocale = appLocaleOrDefault(localeStore.locale);
   const resolvedLocale = locale ?? dayPickerLocaleFor(displayLocale, languageTag);

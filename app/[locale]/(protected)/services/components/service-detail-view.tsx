@@ -9,13 +9,15 @@ import { CustomFieldInputs } from "@/components/data-view/custom-columns/custom-
 import { FormInput } from "@/components/forms/form-input";
 import { FormNumberInput } from "@/components/forms/form-number-input";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
 type Props = {
   layout?: "drawer" | "page";
 };
 
 export const ServiceDetailView = observer(({ layout = "drawer" }: Props) => {
-  const { serviceDetailStore, intlStore } = useRootStore();
+  const { serviceDetailStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const { isEditingCustomField, customColumns, fetchedEntity } = serviceDetailStore;
 
   return (

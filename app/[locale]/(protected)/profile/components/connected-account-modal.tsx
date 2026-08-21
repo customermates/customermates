@@ -15,6 +15,7 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { InfoRow } from "@/components/shared/info-row";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
@@ -27,14 +28,9 @@ import { AccountFolders } from "./account-folders";
 export const ConnectedAccountModal = observer(() => {
   const t = useTranslations();
   const rootStore = useRootStore();
-  const {
-    connectedAccountModalStore,
-    connectedAccountsStore,
-    intlStore,
-    userModalStore,
-    userStore,
-    subscriptionStore,
-  } = rootStore;
+  const { connectedAccountModalStore, connectedAccountsStore, userModalStore, userStore, subscriptionStore } =
+    rootStore;
+  const intlStore = useHydratedIntlStore();
   const { form: account, close } = connectedAccountModalStore;
   const { showDeleteConfirmation } = useDeleteConfirmation();
   const canUpdate = userStore.can(Resource.inboxMessages, Action.update);

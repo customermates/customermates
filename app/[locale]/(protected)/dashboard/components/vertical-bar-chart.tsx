@@ -7,7 +7,7 @@ import { Bar, BarChart, XAxis, YAxis, Cell } from "recharts";
 import { observer } from "mobx-react-lite";
 import type { AggregationType } from "@/generated/prisma";
 
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { ChartTooltip } from "@/components/chart/chart-tooltip";
 
 import { DashboardChartContainer } from "./dashboard-chart-container";
@@ -24,7 +24,7 @@ type Props = {
 
 export const VerticalBarChart = observer(
   ({ aggregationType, chartData, colors, gridColor, textColor, reverseXAxis, reverseYAxis }: Props) => {
-    const { intlStore } = useRootStore();
+    const intlStore = useHydratedIntlStore();
 
     return (
       <DashboardChartContainer>

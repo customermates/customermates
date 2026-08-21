@@ -28,6 +28,7 @@ import type { GroupValueSums } from "@/core/base/base-get.schema";
 import { KANBAN_EMPTY_GROUP_KEY } from "@/core/base/base-get.schema";
 import { DEAL_GROUP_SUM_FIELDS } from "@/features/deals/deal-weighting";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import type { EntityType } from "@/generated/prisma";
 
 import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
@@ -157,7 +158,7 @@ const KanbanColumn = observer(function KanbanColumn({
   children: ReactNode;
 }) {
   const t = useTranslations();
-  const { intlStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const columnLabel = useColumnLabel();
   const { singular, plural } = useEntityTerminology();
   const { setNodeRef } = useDroppable({ id });

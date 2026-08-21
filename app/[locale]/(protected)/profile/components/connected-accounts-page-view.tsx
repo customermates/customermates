@@ -25,6 +25,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { InfoRow } from "@/components/shared/info-row";
 import { AppLink } from "@/components/shared/app-link";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { PageState } from "@/components/page-state/page-state";
@@ -168,7 +169,8 @@ const ConnectedAccountsAlert = () => {
 
 export const ConnectedAccountsPageView = observer(({ accounts, locked = false }: Props) => {
   const t = useTranslations();
-  const { connectedAccountsStore, connectedAccountModalStore, intlStore, userStore } = useRootStore();
+  const { connectedAccountsStore, connectedAccountModalStore, userStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const canConnect = userStore.can(Resource.inboxMessages, Action.create);
 
   useLayoutEffect(() => connectedAccountsStore.setItems({ items: accounts }), [accounts, connectedAccountsStore]);

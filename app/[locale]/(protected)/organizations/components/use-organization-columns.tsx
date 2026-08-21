@@ -12,11 +12,13 @@ import { standardTailColumns } from "@/components/data-view/standard-columns";
 import { useEntityHref, useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { AvatarStack } from "@/components/shared/avatar-stack";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
 import { getSystemTaskNameTranslationKey } from "../../tasks/components/system-task.config";
 
 export function useOrganizationColumns(): ColumnDef<OrganizationDto>[] {
-  const { intlStore, organizationsStore, userModalStore } = useRootStore();
+  const { organizationsStore, userModalStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const openEntity = useOpenEntity();
   const entityHref = useEntityHref();
   const t = useTranslations();
@@ -42,7 +44,10 @@ export function useOrganizationColumns(): ColumnDef<OrganizationDto>[] {
         cell: ({ row }) => (
           <AppChipStack
             chipHref={(deal) => entityHref(EntityType.deal, deal.id)}
-            items={row.original.deals.map((deal) => ({ id: deal.id, label: deal.name }))}
+            items={row.original.deals.map((deal) => ({
+              id: deal.id,
+              label: deal.name,
+            }))}
             size="sm"
           />
         ),
@@ -61,7 +66,11 @@ export function useOrganizationColumns(): ColumnDef<OrganizationDto>[] {
           />
         ),
       },
-      ...standardTailColumns({ store: organizationsStore, intlStore, userModalStore }),
+      ...standardTailColumns({
+        store: organizationsStore,
+        intlStore,
+        userModalStore,
+      }),
     ],
     [entityHref, intlStore, openEntity, organizationsStore, organizationsStore.customColumns, t, userModalStore],
   );

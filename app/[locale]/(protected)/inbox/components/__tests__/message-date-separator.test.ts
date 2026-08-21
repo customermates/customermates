@@ -10,6 +10,9 @@ const intlStore = {
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({ intlStore }),
 }));
+vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
+  useHydratedIntlStore: () => intlStore,
+}));
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,

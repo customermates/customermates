@@ -10,11 +10,13 @@ import { AppChip } from "@/components/chip/app-chip";
 import { CopyableChip } from "@/components/chip/copyable-chip";
 import { AvatarStack } from "@/components/shared/avatar-stack";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { getEntityName } from "@/features/event/entity-name.utils";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 export function useAuditLogColumns(): ColumnDef<AuditLogDto>[] {
-  const { intlStore, userModalStore } = useRootStore();
+  const { userModalStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const t = useTranslations();
   return useMemo<ColumnDef<AuditLogDto>[]>(
     () => [

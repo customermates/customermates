@@ -19,6 +19,7 @@ import { auditChangeLabel } from "@/components/entity-detail/audit-event-tone";
 import { useCanonicalColumnLabel } from "@/components/entity-terminology/use-column-label";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
 import { auditCategory, IdentityAvatar, ProviderAvatar, TimelineRow, TypeBadge } from "./activities-row";
 import { calendarEventTitle } from "./activity-labels";
@@ -58,7 +59,8 @@ function messagePreview(message: MessagingMessageDto): string | null {
 export const ActivitiesList = observer(({ customColumns, hasMore, items, loading, onLoadOlder }: Props) => {
   const t = useTranslations();
   const columnLabel = useCanonicalColumnLabel();
-  const { intlStore, timelineDetailModalStore } = useRootStore();
+  const { timelineDetailModalStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const customColumnsById = new Map(customColumns.map((c) => [c.id, c]));
 
   return (

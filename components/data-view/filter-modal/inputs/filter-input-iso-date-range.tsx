@@ -24,7 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { cn } from "@/core/utils/cn";
 import { useIsWiderThan } from "@/hooks/use-media-query";
 
@@ -37,7 +37,7 @@ type Props = {
 export const FilterInputIsoDateRange = observer(({ id, isValidFilter, granularity = "day" }: Props) => {
   const store = useAppForm();
   const t = useTranslations();
-  const { intlStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const raw = store?.getValue(id);
   const tuple = Array.isArray(raw) ? (raw as Array<string | undefined>) : undefined;
   const dateOnly = granularity === "day";

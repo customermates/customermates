@@ -8,7 +8,7 @@ import { observer } from "mobx-react-lite";
 import { Input } from "@/components/ui/input";
 import { FormLabel } from "./form-label";
 import { cn } from "@/core/utils/cn";
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
 import { useAppForm } from "./form-context";
 import { useFormFieldErrors, useResolvedFieldLabel } from "./use-form-field";
@@ -44,7 +44,7 @@ export const FormNumberInput = observer(
     const isReq = required;
     const resolvedLabel = useResolvedFieldLabel(id, label);
     const store = useAppForm();
-    const { intlStore } = useRootStore();
+    const intlStore = useHydratedIntlStore();
     const controlled = onValueChange !== undefined;
 
     const { hasError } = useFormFieldErrors(id);

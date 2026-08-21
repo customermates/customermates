@@ -10,6 +10,7 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { InfoRow } from "@/components/shared/info-row";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { AvatarStack } from "@/components/shared/avatar-stack";
 import { CopyableChip } from "@/components/chip/copyable-chip";
@@ -18,7 +19,8 @@ import { CodeBlockAccordion } from "@/components/shared/code-block-accordion";
 
 export const AuditLogModal = observer(() => {
   const t = useTranslations();
-  const { auditLogModalStore: store, intlStore, userModalStore } = useRootStore();
+  const { auditLogModalStore: store, userModalStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const auditLog = store.form;
 
   return (
