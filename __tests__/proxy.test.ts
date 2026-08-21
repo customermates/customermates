@@ -191,3 +191,56 @@ describe("automatic demo authentication proxy", () => {
     );
   });
 });
+
+describe("MCP OAuth authorization proxy", () => {
+  const loopbackRedirectUri = "http://127.0.0.1:54754/callback/4FEaTo4rPQf2";
+  const authorizePath =
+    "/api/auth/mcp/authorize?response_type=code&client_id=codex-test-client" +
+    `&redirect_uri=${encodeURIComponent(loopbackRedirectUri)}` +
+    "&code_challenge=test-challenge&code_challenge_method=S256";
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockEnv.APP_MODE = "cloud";
+    mockEnv.AUTH_ALLOWED_HOSTS = ["customermates.com", "*.customermates.com"];
+    mockEnv.BASE_URL = "https://customermates.com";
+    mocks.intlMiddleware.mockImplementation(() => NextResponse.next());
+    mocks.isPublicPage.mockReturnValue(false);
+  });
+
+  it("preserves a loopback redirect URI inside the unauthenticated sign-in callback", async () => {
+    const response = await proxy(request(authorizePath, undefined, "https://customermates.com"));
+
+    expect(response.status).toBe(307);
+    const location = response.headers.get("location");
+    if (!location) throw new Error("Expected the proxy to redirect to sign-in");
+    const signInUrl = new URL(location);
+    const callback = signInUrl.searchParams.get("callbackURL");
+    if (!callback) throw new Error("Expected the sign-in redirect to retain its callback URL");
+    const callbackUrl = new URL(callback, "https://customermates.com");
+
+    expect(signInUrl.pathname).toBe("/auth/signin");
+    expect(callbackUrl.pathname).toBe("/api/auth/mcp/authorize");
+    expect(callbackUrl.searchParams.get("redirect_uri")).toBe(loopbackRedirectUri);
+    expect(callbackUrl.searchParams.get("prompt")).toBe("consent");
+  });
+
+  it("preserves a loopback redirect URI when an authenticated consent request passes through", async () => {
+    mocks.getSession.mockResolvedValue({
+      session: { expiresAt: new Date(Date.now() + 60_000) },
+      user: { email: "codex-user@example.com" },
+    });
+    const incomingRequest = request(
+      `${authorizePath}&prompt=consent`,
+      "app.session_token=codex-session",
+      "https://customermates.com",
+    );
+
+    const response = await proxy(incomingRequest);
+
+    expect(mocks.getSession).toHaveBeenCalledWith({ headers: incomingRequest.headers });
+    expect(incomingRequest.nextUrl.searchParams.get("redirect_uri")).toBe(loopbackRedirectUri);
+    expect(response.headers.get("x-middleware-next")).toBe("1");
+    expect(response.headers.get("location")).toBeNull();
+  });
+});
