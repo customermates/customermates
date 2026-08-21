@@ -10,10 +10,10 @@ type WidgetEditorStore = {
   setExpandedSection: (section: string) => void;
 };
 
-export function openWidgetEditor(store: WidgetEditorStore, id: string): void {
+export function openWidgetEditor(store: WidgetEditorStore, id: string): Promise<void> {
   store.setExpandedSection("config");
   store.setExpandedFilterField(undefined);
-  void store.loadById(id);
+  return Promise.resolve(store.loadById(id));
 }
 
 export function isInteractiveTarget(target: EventTarget | null): boolean {

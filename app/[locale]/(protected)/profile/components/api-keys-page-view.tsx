@@ -16,6 +16,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { PageState } from "@/components/page-state/page-state";
 import { resolveResourcePageState } from "@/components/page-state/resource-page-state";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 import { ApiKeysPageSkeleton } from "./profile-resource-page-skeleton";
 import { PROFILE_RESOURCE_CARD_GRID_CLASS_NAME } from "./profile-resource-page-geometry";
@@ -40,7 +41,7 @@ export const ApiKeysPageView = observer(({ apiKeys }: Props) => {
           id="profile-api-keys-generate"
           size="sm"
           variant="default"
-          onClick={() => void apiKeyModalStore.add()}
+          onClick={() => apiKeyModalStore.add()}
         >
           <Plus className="size-3.5" />
 
@@ -63,7 +64,7 @@ export const ApiKeysPageView = observer(({ apiKeys }: Props) => {
             <Button
               size="sm"
               variant="secondary"
-              onClick={() => void apiKeysStore.refreshQuery().catch(() => undefined)}
+              onClick={() => runUserAction(() => apiKeysStore.refreshQuery().catch(() => undefined))}
             >
               {t("ErrorCard.retry")}
             </Button>
@@ -79,7 +80,7 @@ export const ApiKeysPageView = observer(({ apiKeys }: Props) => {
         <PageState
           action={
             canManage ? (
-              <Button size="sm" variant="secondary" onClick={() => void apiKeyModalStore.add()}>
+              <Button size="sm" variant="secondary" onClick={() => apiKeyModalStore.add()}>
                 {t("Common.actions.add")}
               </Button>
             ) : undefined

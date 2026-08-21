@@ -11,6 +11,7 @@ import { linkContactToThreadAction, unlinkContactFromThreadAction } from "../act
 
 import { isHandleProvider } from "@/ee/messaging/provider";
 import { Debouncer } from "@/core/utils/debounce";
+import { reportApplicationError } from "@/core/errors/report-application-error";
 
 type ActionOutcome = { ok: boolean };
 
@@ -75,7 +76,7 @@ export class ThreadParticipantsStore extends BaseStore {
   setOpen = (next: boolean) => {
     this.isOpen = next;
     this.reset();
-    if (!next) void this.rootStore.messagingThreadDetailStore.refresh();
+    if (!next) void this.rootStore.messagingThreadDetailStore.refresh().catch(reportApplicationError);
   };
 
   startLink = (identifier: string) => {

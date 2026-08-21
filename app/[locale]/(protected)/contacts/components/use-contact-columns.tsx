@@ -14,6 +14,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { channelDisplayLabel } from "@/ee/messaging/thread-display";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 import { getSystemTaskNameTranslationKey } from "../../tasks/components/system-task.config";
 import { ChannelIconStack } from "./channel-icon-stack";
@@ -46,8 +47,8 @@ export function useContactColumns(): ColumnDef<ContactDto>[] {
           <ChannelIconStack
             identifiers={row.original.identifiers ?? []}
             onItemClick={(item) =>
-              void copy(
-                channelDisplayLabel(item.provider, item.value, item.profileUrl) || item.displayName || item.value,
+              runUserAction(() =>
+                copy(channelDisplayLabel(item.provider, item.value, item.profileUrl) || item.displayName || item.value),
               )
             }
           />

@@ -98,8 +98,8 @@ export class RoleModalStore extends BaseModalStore<UpsertRoleData> {
     });
   };
 
-  delete = async () => {
-    if (!this.form.id) return;
+  delete = async (): Promise<boolean> => {
+    if (!this.form.id) return false;
 
     this.setIsLoading(true);
 
@@ -107,11 +107,12 @@ export class RoleModalStore extends BaseModalStore<UpsertRoleData> {
       const res = await deleteRoleAction({ id: this.form.id });
       if (!res.ok) {
         toastZodErrorTree(res.error);
-        return;
+        return false;
       }
 
       await this.rootStore.rolesStore.removeItem(this.form.id);
       this.close();
+      return true;
     } finally {
       this.setIsLoading(false);
     }

@@ -23,6 +23,7 @@ import { openableLinkTarget } from "@/core/validation/openable-link-target";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { Icon } from "@/components/shared/icon";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 type Props<E extends HasId & { customFieldValues: CustomFieldValueDto[] }> = {
   column: CustomColumnDto;
@@ -81,7 +82,10 @@ export const CustomFieldValue = observer(
 
                 <DropdownMenuContent className="max-h-60 overflow-y-auto">
                   {options.map((option) => (
-                    <DropdownMenuItem key={option.value} onSelect={() => void handleSelectOption(option.value)}>
+                    <DropdownMenuItem
+                      key={option.value}
+                      onSelect={() => runUserAction(() => handleSelectOption(option.value))}
+                    >
                       <AppChip variant={option.color}>{option.label}</AppChip>
                     </DropdownMenuItem>
                   ))}
@@ -218,7 +222,7 @@ export const CustomFieldValue = observer(
                 label: it,
               }))}
               size="sm"
-              onChipClick={(e) => void copy(e.label)}
+              onChipClick={(e) => runUserAction(() => copy(e.label))}
             />
           ) : (
             <span />

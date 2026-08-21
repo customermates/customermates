@@ -11,6 +11,7 @@ import { openWidgetEditor } from "./widget-interaction";
 
 import { isChartWidget } from "@/features/widget/widget.schema";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 type Props = {
   widget: WidgetDto;
@@ -29,7 +30,7 @@ export const WidgetCard = observer(({ widget }: Props) => {
         })}
         className="pointer-events-none absolute inset-0 z-20 rounded-xl opacity-0 outline-none focus-visible:opacity-100 focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50"
         type="button"
-        onClick={() => openWidgetEditor(widgetModalStore, widget.id)}
+        onClick={() => runUserAction(() => openWidgetEditor(widgetModalStore, widget.id))}
       />
 
       {card}

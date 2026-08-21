@@ -8,7 +8,7 @@ import { observer } from "mobx-react-lite";
 
 import { useNavigationGuard } from "@/components/modal/use-navigation-guard";
 import { cn } from "@/core/utils/cn";
-import { runClientAction } from "@/core/errors/report-application-error";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 type AppFormProps = Omit<FormHTMLAttributes<HTMLFormElement>, "onSubmit"> & {
   store: BaseFormStore;
@@ -35,7 +35,7 @@ export const AppForm = observer(({ store, onSubmit, className, children, ...prop
         className={cn("contents", className)}
         onSubmit={(event) => {
           event.preventDefault();
-          if (handleSubmit) runClientAction(() => handleSubmit(event));
+          if (handleSubmit) runUserAction(() => handleSubmit(event));
         }}
       >
         {children}

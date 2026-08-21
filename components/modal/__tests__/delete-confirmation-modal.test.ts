@@ -8,8 +8,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const testContext = vi.hoisted(() => ({ rootStore: null as RootStore | null }));
 const captureException = vi.hoisted(() => vi.fn());
+const toastSuccess = vi.hoisted(() => vi.fn());
 
 vi.mock("@sentry/nextjs", () => ({ captureException }));
+vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: toastSuccess } }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => testContext.rootStore,
@@ -52,6 +54,7 @@ vi.mock("@/components/ui/alert-dialog", () => ({
 }));
 
 import { DeleteConfirmationModal } from "../delete-confirmation-modal";
+import { DeleteConfirmationModalStore } from "../delete-confirmation-modal.store";
 import { registerApplicationErrorHandler } from "@/core/errors/report-application-error";
 
 let root: ReactRoot | undefined;
@@ -60,6 +63,7 @@ let container: HTMLDivElement | undefined;
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   captureException.mockClear();
+  toastSuccess.mockClear();
 });
 
 afterEach(() => {
@@ -98,5 +102,33 @@ describe("DeleteConfirmationModal submission boundary", () => {
     expect(onSubmit).toHaveBeenCalledTimes(1);
     expect(captureException).not.toHaveBeenCalled();
     unregister();
+  });
+
+  it("closes and announces only an explicitly successful confirmation", async () => {
+    const store = new DeleteConfirmationModalStore({
+      localeStore: { getTranslation: (key: string) => key },
+      registerModalStore: vi.fn(),
+    } as unknown as RootStore);
+    store.openWith({
+      message: "Delete it?",
+      title: "Delete",
+      onConfirm: vi.fn().mockResolvedValue(false),
+    });
+
+    await store.onSubmit();
+
+    expect(store.isOpen).toBe(true);
+    expect(store.isLoading).toBe(false);
+    expect(toastSuccess).not.toHaveBeenCalled();
+
+    store.onInitOrRefresh({ onConfirm: vi.fn().mockResolvedValue(true) });
+    await store.onSubmit();
+
+    expect(store.isOpen).toBe(false);
+    expect(store.isLoading).toBe(false);
+    expect(toastSuccess).toHaveBeenCalledExactlyOnceWith("Common.notifications.deleted", {
+      action: undefined,
+      description: undefined,
+    });
   });
 });

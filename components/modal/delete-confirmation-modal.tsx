@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { runClientAction } from "@/core/errors/report-application-error";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 export const DeleteConfirmationModal = observer(() => {
   const t = useTranslations();
@@ -60,7 +60,7 @@ export const DeleteConfirmationModal = observer(() => {
               variant="destructive"
               onClick={(event) => {
                 event.preventDefault();
-                runClientAction(() => store.onSubmit());
+                runUserAction(() => store.onSubmit());
               }}
             >
               {t("Common.actions.delete")}

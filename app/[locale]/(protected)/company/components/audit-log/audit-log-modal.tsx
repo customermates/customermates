@@ -10,6 +10,7 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { InfoRow } from "@/components/shared/info-row";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { runUserAction } from "@/core/errors/report-application-error";
 import { AvatarStack } from "@/components/shared/avatar-stack";
 import { CopyableChip } from "@/components/chip/copyable-chip";
 import { AppChip } from "@/components/chip/app-chip";
@@ -49,7 +50,10 @@ export const AuditLogModal = observer(() => {
           </InfoRow>
 
           <InfoRow label={t("AuditLogModal.userId")}>
-            <AvatarStack items={[auditLog.user]} onAvatarClick={(user) => void userModalStore.loadById(user.id)} />
+            <AvatarStack
+              items={[auditLog.user]}
+              onAvatarClick={(user) => runUserAction(() => userModalStore.loadById(user.id))}
+            />
           </InfoRow>
 
           <InfoRow label={t("AuditLogModal.createdAt")}>

@@ -61,7 +61,7 @@ export const ChartWidgetCard = observer(({ widget }: Props) => {
     label: string;
     customColumns: typeof entityCustomColumns;
     filter: Filter;
-    onClick: () => void;
+    onClick: () => Promise<void>;
   }> = showFilters
     ? [
         ...activeEntityFilters.map((filter, index) => ({

@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useState } from "react";
 import { useTheme } from "next-themes";
+import { reportApplicationError } from "@/core/errors/report-application-error";
 
 type Props = {
   chart: string;
@@ -42,7 +43,7 @@ export function Mermaid({ chart }: Props) {
       if (!isCancelled) setSvg(renderedSvg);
     }
 
-    void render();
+    void render().catch(reportApplicationError);
 
     return () => {
       isCancelled = true;

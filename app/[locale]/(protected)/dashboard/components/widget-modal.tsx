@@ -48,6 +48,7 @@ import { WIDGET_EDITOR_GRID_CLASS } from "./widget-editor-layout";
 import { WidgetPreview } from "./widget-preview";
 import { WidgetStarterPicker } from "./widget-starter-picker";
 import { WizardProgress } from "@/components/shared/wizard-progress";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 type Props = {
   customColumns: CustomColumnDto[];
@@ -104,7 +105,10 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
       : widgetModalStore.activeTimelineFiltersCount;
   const isChooseStep = isCreate && widgetModalStore.creationStep === "choose";
   const creationStepNumber = isChooseStep ? 1 : 2;
-  const progressText = t("Dashboard.widgetEditor.progress", { current: creationStepNumber, total: 2 });
+  const progressText = t("Dashboard.widgetEditor.progress", {
+    current: creationStepNumber,
+    total: 2,
+  });
   const dialogTitle = isChooseStep
     ? t("Dashboard.widgetEditor.kind.title")
     : isCreate
@@ -253,7 +257,9 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
           <section aria-labelledby="deal-widget-filters-heading" className="space-y-3">
             <div className="flex items-center justify-between gap-3">
               <h4 className="text-sm font-medium" id="deal-widget-filters-heading">
-                {t("Dashboard.tabs.dealFilters", { deals: plural(EntityType.deal) })}
+                {t("Dashboard.tabs.dealFilters", {
+                  deals: plural(EntityType.deal),
+                })}
               </h4>
 
               <Badge variant="secondary">{widgetModalStore.activeDealFiltersCount}</Badge>
@@ -405,11 +411,13 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
           ? [
               {
                 id: "delete-widget",
-                label: t("Dashboard.widgetEditor.danger.deleteLabel", { name: form.name }),
+                label: t("Dashboard.widgetEditor.danger.deleteLabel", {
+                  name: form.name,
+                }),
                 icon: Trash2,
                 variant: "destructive",
                 disabled: isDisabled,
-                onClick: () => showDeleteConfirmation(() => void widgetModalStore.delete(), form.name),
+                onClick: () => showDeleteConfirmation(() => widgetModalStore.delete(), form.name),
               },
             ]
           : []
@@ -452,7 +460,7 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
                   disabled={isDisabled}
                   templates={companyWideWidgets}
                   onSelectKind={(kind) => widgetModalStore.startFromKind(kind, t("Dashboard.activityWidget.title"))}
-                  onSelectTemplate={(id) => void widgetModalStore.loadTemplate(id)}
+                  onSelectTemplate={(id) => runUserAction(() => widgetModalStore.loadTemplate(id))}
                 />
               </div>
             ) : (

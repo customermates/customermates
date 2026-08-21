@@ -14,6 +14,7 @@ import { FormLabel } from "@/components/forms/form-label";
 import { AppChip } from "@/components/chip/app-chip";
 import { Alert } from "@/components/shared/alert";
 import { cn } from "@/core/utils/cn";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 import { PlanPicker } from "./plan-picker";
 
@@ -106,7 +107,7 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
           {!hasActiveSubscription && (
             <PlanPicker
               isLoading={loadingOverlayStore.isLoading}
-              onSelect={(plan) => void subscriptionStore.handleSubscribe(plan)}
+              onSelect={(plan) => runUserAction(() => subscriptionStore.handleSubscribe(plan))}
             />
           )}
         </>

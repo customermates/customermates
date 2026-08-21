@@ -17,6 +17,7 @@ import { isPlainTextEmailBody, splitQuotedText } from "@/ee/messaging/email-quot
 import { deriveMessageSender, displayableIdentifier, isUnipileUnsupportedBody } from "@/ee/messaging/thread-display";
 import { cn } from "@/core/utils/cn";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 import { attachmentSubtitle, classifyAttachment, describeFile, downloadLocalFile } from "./attachment-classify";
 import { AttachmentRow } from "./attachment-row";
@@ -306,7 +307,7 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
                         size="icon-xs"
                         type="button"
                         variant="softDestructive"
-                        onClick={() => void compose.discardDraft(message.id)}
+                        onClick={() => runUserAction(() => compose.discardDraft(message.id))}
                       >
                         <Trash2 />
                       </Button>
@@ -320,7 +321,7 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
                     type="button"
                     onClick={() => {
                       compose.loadDraft(message);
-                      void compose.send();
+                      runUserAction(() => compose.send());
                     }}
                   >
                     <Send />
@@ -329,7 +330,12 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
                   </Button>
                 </span>
               ) : isFailed ? (
-                <Button size="xs" type="button" variant="secondary" onClick={() => void compose.retrySend(message.id)}>
+                <Button
+                  size="xs"
+                  type="button"
+                  variant="secondary"
+                  onClick={() => runUserAction(() => compose.retrySend(message.id))}
+                >
                   {t("Inbox.compose.retry")}
                 </Button>
               ) : canLoadRemoteImages ? (

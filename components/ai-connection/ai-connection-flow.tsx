@@ -13,6 +13,7 @@ import { executeAiConnectionKeyCreation } from "./ai-connection-key-creation";
 import { AiConnectionOpenAiSetup } from "./ai-connection-openai-setup";
 import { AiConnectionProviderGrid } from "./ai-connection-provider-grid";
 import { AiConnectionSubstepHeader } from "./ai-connection-substep-header";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 type Props = {
   backLabel?: string;
@@ -102,7 +103,7 @@ export const AiConnectionFlow = observer(
             mcpUrl={mcpUrl}
             resultHeadingRef={resultHeadingRef}
             store={store}
-            onCreate={() => void createKey()}
+            onCreate={() => runUserAction(createKey)}
           />
         </div>
       );
@@ -143,7 +144,7 @@ export const AiConnectionFlow = observer(
             mcpUrl={mcpUrl}
             resultHeadingRef={resultHeadingRef}
             store={store}
-            onCreate={() => void createKey()}
+            onCreate={() => runUserAction(createKey)}
           />
         </div>
       );
@@ -177,7 +178,7 @@ export const AiConnectionFlow = observer(
             isCreating={store.isCreating}
             resultHeadingRef={resultHeadingRef}
             tool={store.selectedTool}
-            onCreate={() => void createKey()}
+            onCreate={() => runUserAction(createKey)}
           />
         ) : null}
       </div>

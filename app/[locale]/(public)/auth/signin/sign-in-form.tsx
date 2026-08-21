@@ -21,7 +21,7 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { CardHeroHeader } from "@/components/card/card-hero-header";
-import { runClientAction } from "@/core/errors/report-application-error";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 type Props = {
   isInvited: boolean;
@@ -70,7 +70,7 @@ export const SignInForm = observer(({ isInvited, socialProviders }: Props) => {
                     isLoading={isLoading}
                     label={t("SignInForm.buttonLabel", { provider: "Google" })}
                     providerId="google"
-                    onClick={() => runClientAction(() => signInStore.continueWithProvider("google"))}
+                    onClick={() => runUserAction(() => signInStore.continueWithProvider("google"))}
                   />
                 )}
 
@@ -82,7 +82,7 @@ export const SignInForm = observer(({ isInvited, socialProviders }: Props) => {
                       provider: "Microsoft",
                     })}
                     providerId="microsoft"
-                    onClick={() => runClientAction(() => signInStore.continueWithProvider("microsoft"))}
+                    onClick={() => runUserAction(() => signInStore.continueWithProvider("microsoft"))}
                   />
                 )}
               </div>

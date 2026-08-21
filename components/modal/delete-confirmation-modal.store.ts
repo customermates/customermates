@@ -7,7 +7,7 @@ export interface DeleteConfirmationData {
   title: string;
   message: string;
   entityName?: string;
-  onConfirm: () => Promise<void> | void;
+  onConfirm: () => Promise<boolean>;
 }
 
 export class DeleteConfirmationModalStore extends BaseModalStore<DeleteConfirmationData> {
@@ -15,7 +15,7 @@ export class DeleteConfirmationModalStore extends BaseModalStore<DeleteConfirmat
     super(rootStore, {
       title: "",
       message: "",
-      onConfirm: () => {},
+      onConfirm: () => Promise.resolve(false),
     });
   }
 
@@ -26,7 +26,9 @@ export class DeleteConfirmationModalStore extends BaseModalStore<DeleteConfirmat
 
     this.setIsLoading(true);
     try {
-      await this.form.onConfirm();
+      const confirmed = await this.form.onConfirm();
+      if (!confirmed) return;
+
       this.toastSuccess("Common.notifications.deleted");
       this.close();
     } finally {

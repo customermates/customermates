@@ -11,6 +11,7 @@ import { CopyableChip } from "@/components/chip/copyable-chip";
 import { AvatarStack } from "@/components/shared/avatar-stack";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { getEntityName } from "@/features/event/entity-name.utils";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 export function useAuditLogColumns(): ColumnDef<AuditLogDto>[] {
   const { intlStore, userModalStore } = useRootStore();
@@ -48,7 +49,7 @@ export function useAuditLogColumns(): ColumnDef<AuditLogDto>[] {
         cell: ({ row }) => (
           <AvatarStack
             items={row.original.user ? [row.original.user] : []}
-            onAvatarClick={(user) => void userModalStore.loadById(user.id)}
+            onAvatarClick={(user) => runUserAction(() => userModalStore.loadById(user.id))}
           />
         ),
       },

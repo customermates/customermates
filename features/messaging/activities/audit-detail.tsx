@@ -38,6 +38,7 @@ import {
 import { countryLabelForLocale } from "@/constants/countries";
 import { getCurrencyLabel } from "@/constants/currencies";
 import type { AppLocale } from "@/i18n/locale-registry";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 type AvatarItem = {
   id: string;
@@ -161,7 +162,13 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
       case "identifiers":
         return (
           <AppChipStack
-            items={(value as { id?: string; provider: MessagingProvider; value: string }[]).map((identifier) => {
+            items={(
+              value as {
+                id?: string;
+                provider: MessagingProvider;
+                value: string;
+              }[]
+            ).map((identifier) => {
               const ProviderIcon = getProviderIcon(identifier.provider);
               return {
                 id: identifier.id ?? `${identifier.provider}:${identifier.value}`,
@@ -185,7 +192,10 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
         }
       case "users":
         return (
-          <AvatarStack items={value as AvatarItem[]} onAvatarClick={(user) => void userModalStore.loadById(user.id)} />
+          <AvatarStack
+            items={value as AvatarItem[]}
+            onAvatarClick={(user) => runUserAction(() => userModalStore.loadById(user.id))}
+          />
         );
       case "contacts":
         return (
@@ -342,7 +352,10 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
         );
       }
       case "terminology": {
-        const selections = value as { entityType: EntityType; presetKey: string }[];
+        const selections = value as {
+          entityType: EntityType;
+          presetKey: string;
+        }[];
 
         return (
           <div className="flex flex-wrap items-center gap-1.5">

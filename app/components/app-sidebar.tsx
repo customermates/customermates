@@ -51,6 +51,7 @@ import { NavUser } from "./navigation/nav-user";
 import { LegalUpdateAlert } from "./navigation/legal-update-alert";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { sidebarUserCanAccess, sidebarUserCanManage } from "./navigation/sidebar-user";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 type FullProps = {
   systemTaskCount: number;
@@ -135,7 +136,12 @@ const FullAppSidebar = observer(
     function handleThemeChange() {
       const next = resolvedTheme === "dark" ? ThemeEnum.light : ThemeEnum.dark;
       setTheme(next);
-      if (!restricted) void userStore.updateTheme(next);
+      if (!restricted) runUserAction(() => userStore.updateTheme(next));
+    }
+
+    async function handleSignOut() {
+      const res = await signOutAction();
+      if (!res.ok) toastZodErrorTree(res.error);
     }
 
     function recheckAccountState() {
@@ -409,12 +415,10 @@ const FullAppSidebar = observer(
               user={user}
               onSignOut={() =>
                 closeMobileSidebar(() => {
-                  void signOutAction().then((res) => {
-                    if (!res.ok) toastZodErrorTree(res.error);
-                  });
+                  runUserAction(handleSignOut);
                 })
               }
-              onThemeChange={() => void handleThemeChange()}
+              onThemeChange={handleThemeChange}
             />
           </SidebarFooter>
         </Sidebar>

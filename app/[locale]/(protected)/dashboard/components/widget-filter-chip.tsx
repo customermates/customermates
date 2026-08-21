@@ -6,6 +6,7 @@ import type { Filter } from "@/core/base/base-get.schema";
 import { useTranslations } from "next-intl";
 
 import { FilterChipValue } from "@/components/data-view/filter-modal/filter-chip-display";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 import { WIDGET_INTERACTIVE_ATTRIBUTE } from "./widget-interaction";
 
@@ -13,7 +14,7 @@ type Props = {
   customColumns?: CustomColumnDto[];
   filter: Filter;
   label: string;
-  onOpen: () => void;
+  onOpen: () => unknown;
 };
 
 export function WidgetFilterChip({ customColumns, filter, label, onOpen }: Props) {
@@ -27,14 +28,14 @@ export function WidgetFilterChip({ customColumns, filter, label, onOpen }: Props
       {...{ [WIDGET_INTERACTIVE_ATTRIBUTE]: "true" }}
       onClick={(event) => {
         event.stopPropagation();
-        onOpen();
+        runUserAction(onOpen);
       }}
       onKeyDown={(event) => {
         if (event.key !== "Enter" && event.key !== " ") return;
 
         event.preventDefault();
         event.stopPropagation();
-        onOpen();
+        runUserAction(onOpen);
       }}
       onPointerDown={(event) => event.stopPropagation()}
     >

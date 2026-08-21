@@ -16,6 +16,7 @@ import { FormIsoDateRangePicker } from "@/components/forms/form-iso-date-range-p
 import { Icon } from "@/components/shared/icon";
 import { Favicon } from "@/components/shared/favicon";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
+import { runUserAction } from "@/core/errors/report-application-error";
 import { openableLinkTarget } from "@/core/validation/openable-link-target";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
@@ -179,7 +180,7 @@ export const CustomFieldEditor = observer(({ column, value, onChange, id, label,
           id={id ?? inputId}
           label={formLabel}
           value={value}
-          onChipClick={(val) => void copy(val)}
+          onChipClick={(val) => runUserAction(() => copy(val))}
           onValueChange={onChange}
         />
       );
@@ -192,7 +193,7 @@ export const CustomFieldEditor = observer(({ column, value, onChange, id, label,
           id={id ?? inputId}
           label={formLabel}
           value={value}
-          onChipClick={(val) => void copy(val)}
+          onChipClick={(val) => runUserAction(() => copy(val))}
           onValueChange={onChange}
         />
       );

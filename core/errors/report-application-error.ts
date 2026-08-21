@@ -25,6 +25,10 @@ export function reportApplicationError(error: unknown): void {
   activeHandler?.(error);
 }
 
-export function runClientAction(action: () => unknown): void {
-  void Promise.resolve().then(action).catch(reportApplicationError);
+export function runUserAction(action: () => unknown): void {
+  try {
+    void Promise.resolve(action()).catch(reportApplicationError);
+  } catch (error) {
+    reportApplicationError(error);
+  }
 }

@@ -19,6 +19,7 @@ import { ActivityQueryProvider } from "./activity-query-context";
 import { useOwnedActivitiesStore } from "./use-owned-activities-store";
 import { ACTIVITIES_P13N_ID } from "./activities.store";
 import { activityScopeForRecord } from "@/ee/messaging/activities/activity-scope.schema";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 type Props = {
   entityType: EntityType;
@@ -65,7 +66,7 @@ export const EntityTimelinePanel = observer(({ entityType, entityId, initial }: 
           hasMore={store.hasMore}
           items={store.items}
           loading={store.loading}
-          onLoadOlder={() => void store.loadOlder()}
+          onLoadOlder={() => runUserAction(() => store.loadOlder())}
         />
       );
       break;

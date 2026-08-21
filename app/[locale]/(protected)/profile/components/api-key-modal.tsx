@@ -160,8 +160,9 @@ export const ApiKeyModal = observer(() => {
                 disabled: isLoading,
                 onClick: () =>
                   showDeleteConfirmation(async () => {
-                    await apiKeysStore.delete(viewingKey.id);
-                    close();
+                    const deleted = await apiKeysStore.delete(viewingKey.id);
+                    if (deleted) close();
+                    return deleted;
                   }, viewingKey.name ?? undefined),
               },
             ]

@@ -20,6 +20,7 @@ import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
+import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 
 import { AddChannelPopover } from "./add-channel-popover";
 import { ContactComposePopover } from "./contact-compose-popover";
@@ -40,7 +41,7 @@ export const ContactChannels = observer(({ contactId, emptyHint }: Props) => {
   const identifiers = contactDetailStore.channels;
 
   useEffect(() => {
-    if (canStartThread) void connectedAccountsStore.ensureLoaded();
+    if (canStartThread) void connectedAccountsStore.ensureLoaded().catch(reportApplicationError);
   }, [canStartThread, connectedAccountsStore]);
 
   async function openCompose(identifier: IdentifierInput, key: string) {
@@ -116,7 +117,7 @@ export const ContactChannels = observer(({ contactId, emptyHint }: Props) => {
                       <IconButton
                         icon={Copy}
                         label={t("EntityChannels.ariaCopy")}
-                        onClick={() => void copy(copyValue)}
+                        onClick={() => runUserAction(() => copy(copyValue))}
                       />
                     </div>
                   </div>
@@ -139,7 +140,9 @@ export const ContactChannels = observer(({ contactId, emptyHint }: Props) => {
                         <TooltipTrigger asChild>
                           <Button
                             aria-expanded={composing}
-                            aria-label={t("EntityChannels.ariaStartThread", { provider: providerLabel })}
+                            aria-label={t("EntityChannels.ariaStartThread", {
+                              provider: providerLabel,
+                            })}
                             className={cn(
                               "text-muted-foreground hover:text-foreground",
                               composing && "bg-accent text-foreground",
@@ -149,7 +152,7 @@ export const ContactChannels = observer(({ contactId, emptyHint }: Props) => {
                             variant="ghost"
                             onClick={() => {
                               if (composing) setComposeKey(null);
-                              else void openCompose(identifier, channelKey);
+                              else runUserAction(() => openCompose(identifier, channelKey));
                             }}
                           >
                             <Send className="size-4" />

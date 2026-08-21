@@ -5,6 +5,7 @@ import type { UserModalStore } from "@/app/[locale]/(protected)/company/componen
 import type { ColumnDef } from "@tanstack/react-table";
 
 import { AvatarStack } from "@/components/shared/avatar-stack";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 import { CustomFieldValue } from "./custom-columns/custom-field-value";
 
@@ -43,7 +44,10 @@ export function standardTailColumns<E extends StandardEntity>({
     {
       id: "users",
       cell: ({ row }) => (
-        <AvatarStack items={row.original.users || []} onAvatarClick={(user) => void userModalStore.loadById(user.id)} />
+        <AvatarStack
+          items={row.original.users || []}
+          onAvatarClick={(user) => runUserAction(() => userModalStore.loadById(user.id))}
+        />
       ),
     },
     {

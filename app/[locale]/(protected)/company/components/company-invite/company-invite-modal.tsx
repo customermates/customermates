@@ -15,6 +15,7 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { Icon } from "@/components/shared/icon";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 import { InviteByEmailForm } from "./invite-by-email-form";
 
@@ -60,7 +61,12 @@ export const CompanyInviteModal = observer(() => {
                 <div className="flex gap-2 items-center">
                   <Input readOnly className="truncate" disabled={isLoading} id="inviteLink" value={resolvedValue} />
 
-                  <Button disabled={isLoading} size="icon" variant="ghost" onClick={() => void copy(form.inviteLink)}>
+                  <Button
+                    disabled={isLoading}
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => runUserAction(() => copy(form.inviteLink))}
+                  >
                     <Icon icon={Clipboard} />
                   </Button>
                 </div>

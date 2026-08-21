@@ -972,7 +972,7 @@ describe("WidgetModalStore loads", () => {
     const store = createStore();
     actionMocks.getWidgetByIdAction.mockResolvedValue(chartWidget("11111111-1111-4111-8111-111111111111", "Contacts"));
 
-    store.openWithFilter("11111111-1111-4111-8111-111111111111", "filters", "status");
+    await store.openWithFilter("11111111-1111-4111-8111-111111111111", "filters", "status");
 
     await vi.waitFor(() => expect(store.form.id).toBe("11111111-1111-4111-8111-111111111111"));
     expect(store.expandedSection).toBe("filters");

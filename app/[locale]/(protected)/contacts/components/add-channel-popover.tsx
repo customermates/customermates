@@ -14,6 +14,7 @@ import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 const SOURCE_HINT_KEYS = {
   conversation: "EntityChannels.addChannel.sourceConversations",
@@ -80,7 +81,12 @@ export const AddChannelPopover = observer(({ contactId }: { contactId?: string }
               <div className="flex flex-col items-center gap-2 px-3 py-4 text-center text-sm" role="alert">
                 <span className="text-muted-foreground">{t("Common.notifications.unexpectedError")}</span>
 
-                <Button size="sm" type="button" variant="secondary" onClick={() => void store.retrySearch()}>
+                <Button
+                  size="sm"
+                  type="button"
+                  variant="secondary"
+                  onClick={() => runUserAction(() => store.retrySearch())}
+                >
                   {t("ErrorCard.retry")}
                 </Button>
               </div>
@@ -101,7 +107,7 @@ export const AddChannelPopover = observer(({ contactId }: { contactId?: string }
                     <CommandItem
                       key={`${candidate.provider}:${candidate.value}`}
                       value={`${candidate.provider}:${candidate.value}`}
-                      onSelect={() => void store.selectCandidate(candidate)}
+                      onSelect={() => runUserAction(() => store.selectCandidate(candidate))}
                     >
                       <ProviderIcon className="size-5 shrink-0" />
 
@@ -123,12 +129,15 @@ export const AddChannelPopover = observer(({ contactId }: { contactId?: string }
                 <CommandItem
                   key={`add:${addAsNewOptions[0]}`}
                   value={`add:${addAsNewOptions[0]}`}
-                  onSelect={() => void store.addAsNew(addAsNewOptions[0])}
+                  onSelect={() => runUserAction(() => store.addAsNew(addAsNewOptions[0]))}
                 >
                   <Plus className="size-5 shrink-0" />
 
                   <span className="min-w-0 flex-1 truncate text-sm">
-                    {t("EntityChannels.addChannel.addAs", { value, provider: providerLabel(addAsNewOptions[0]) })}
+                    {t("EntityChannels.addChannel.addAs", {
+                      value,
+                      provider: providerLabel(addAsNewOptions[0]),
+                    })}
                   </span>
                 </CommandItem>
               </CommandGroup>
@@ -149,7 +158,7 @@ export const AddChannelPopover = observer(({ contactId }: { contactId?: string }
                         aria-label={providerLabel(provider)}
                         className="hover:bg-accent flex size-8 items-center justify-center rounded-md transition-[background-color,transform] active:scale-[0.97] motion-reduce:transition-none"
                         type="button"
-                        onClick={() => void store.addAsNew(provider)}
+                        onClick={() => runUserAction(() => store.addAsNew(provider))}
                       >
                         <ProviderIcon className="size-5" />
                       </button>

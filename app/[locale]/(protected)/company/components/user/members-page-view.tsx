@@ -19,11 +19,15 @@ import { useDataViewSync } from "@/components/data-view/use-data-view-sync";
 import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 import { MembersPageSkeleton } from "./members-page-skeleton";
 import { useMemberColumns } from "./use-member-columns";
 
-type Props = { initialRoles: GetResult<RoleDto>; initialUsers: GetResult<UserDto> };
+type Props = {
+  initialRoles: GetResult<RoleDto>;
+  initialUsers: GetResult<UserDto>;
+};
 
 export const MembersPageView = observer(function MembersPageView({ initialRoles, initialUsers }: Props) {
   const { companyInviteModalStore, rolesStore, userModalStore, usersStore } = useRootStore();
@@ -42,7 +46,7 @@ export const MembersPageView = observer(function MembersPageView({ initialRoles,
     total: usersStore.pagination?.total,
   });
   const handleAdd = useCallback(() => {
-    void companyInviteModalStore.generateInviteLink();
+    runUserAction(() => companyInviteModalStore.generateInviteLink());
     companyInviteModalStore.open();
   }, [companyInviteModalStore]);
   const allowedAdd = usersStore.canManage ? handleAdd : undefined;
@@ -100,7 +104,7 @@ export const MembersPageView = observer(function MembersPageView({ initialRoles,
           columns={columns}
           store={usersStore}
           view={view}
-          onRowClick={(user) => void userModalStore.loadById(user.id)}
+          onRowClick={(user) => runUserAction(() => userModalStore.loadById(user.id))}
         />
       );
       break;

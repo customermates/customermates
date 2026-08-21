@@ -7,7 +7,7 @@ vi.mock("@sentry/nextjs", () => ({
 }));
 
 import { isClientTransportError } from "../client-transport-error";
-import { registerApplicationErrorHandler, reportApplicationError, runClientAction } from "../report-application-error";
+import { registerApplicationErrorHandler, reportApplicationError, runUserAction } from "../report-application-error";
 
 let unregister = () => {};
 
@@ -60,17 +60,20 @@ describe("client action reporting", () => {
     expect(captureException).toHaveBeenCalledExactlyOnceWith(error);
   });
 
-  it("contains both synchronous throws and asynchronous rejections", async () => {
+  it("runs immediately and contains both synchronous throws and asynchronous rejections", async () => {
     const seen: unknown[] = [];
     unregister = registerApplicationErrorHandler((error) => seen.push(error));
     const synchronous = new Error("sync");
     const asynchronous = new Error("async");
 
-    runClientAction(() => {
+    let ranSynchronously = false;
+    runUserAction(() => {
+      ranSynchronously = true;
       throw synchronous;
     });
-    runClientAction(() => Promise.reject(asynchronous));
+    runUserAction(() => Promise.reject(asynchronous));
 
+    expect(ranSynchronously).toBe(true);
     await vi.waitFor(() => expect(seen).toEqual([synchronous, asynchronous]));
   });
 });

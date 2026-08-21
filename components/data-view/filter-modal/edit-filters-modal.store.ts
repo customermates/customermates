@@ -218,8 +218,8 @@ export class EditFiltersModalStore extends BaseModalStore<UpsertFilterPresetData
     if (!this.isPresetMode) this.markDraftApplied();
   };
 
-  deletePreset = async () => {
-    if (!this.form.presetId || !this.tableStore?.p13nId) return;
+  deletePreset = async (): Promise<boolean> => {
+    if (!this.form.presetId || !this.tableStore?.p13nId) return false;
 
     try {
       const res = await deleteFilterPresetAction({
@@ -228,14 +228,16 @@ export class EditFiltersModalStore extends BaseModalStore<UpsertFilterPresetData
       });
       if (!res.ok) {
         toastZodErrorTree(res.error);
-        return;
+        return false;
       }
 
       this.cancelPendingAutoApply();
       this.tableStore?.setQueryOptions({ filters: [], forceRefresh: true, refreshMode: "background" });
       this.close();
+      return true;
     } catch (error) {
       reportApplicationError(error);
+      return false;
     }
   };
 

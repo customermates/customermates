@@ -116,7 +116,7 @@ export const OnboardingWizard = observer(
               {t("OnboardingWizard.back")}
             </Button>
 
-            <Button disabled={isSubmitting} id="onboarding-next" type="button" onClick={() => void next()}>
+            <Button disabled={isSubmitting} id="onboarding-next" type="button" onClick={() => next()}>
               {t("OnboardingWizard.next")}
             </Button>
           </AppCardFooter>

@@ -13,6 +13,7 @@ import { CardHeroHeader } from "@/components/card/card-hero-header";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { PlanPicker } from "@/app/[locale]/(protected)/company/components/subscription/plan-picker";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 export const SubscriptionExpiredView = observer(({ recoveryPath }: { recoveryPath: SubscriptionRecoveryPath }) => {
   const t = useTranslations();
@@ -34,7 +35,7 @@ export const SubscriptionExpiredView = observer(({ recoveryPath }: { recoveryPat
         {recoveryPath === "selfServiceCheckout" ? (
           <PlanPicker
             isLoading={loadingOverlayStore.isLoading}
-            onSelect={(plan) => void subscriptionExpiredStore.handleSubscribe(plan)}
+            onSelect={(plan) => runUserAction(() => subscriptionExpiredStore.handleSubscribe(plan))}
           />
         ) : null}
       </AppCardBody>

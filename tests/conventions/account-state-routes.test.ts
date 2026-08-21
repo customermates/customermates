@@ -118,7 +118,7 @@ describe("guarded account-state route contract", () => {
     const sidebar = source("app/components/app-sidebar.tsx");
     expect(sidebar).toContain("<NavUser");
     expect(sidebar).toContain("signOutAction()");
-    expect(sidebar).toContain("if (!restricted) void userStore.updateTheme(next)");
+    expect(sidebar).toContain("if (!restricted) runUserAction(() => userStore.updateTheme(next))");
     expect(source("app/[locale]/(protected)/legal-update/components/legal-update-view.tsx")).not.toContain(
       "signOutAction",
     );

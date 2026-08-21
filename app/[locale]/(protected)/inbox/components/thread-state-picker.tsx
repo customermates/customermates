@@ -13,6 +13,7 @@ import { badgeVariants } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 import { THREAD_STATE_CHIP_COLOR, ThreadStateDot } from "./thread-state-visuals";
 
@@ -37,12 +38,15 @@ export const ThreadStatePicker = observer(({ state }: Props) => {
   return (
     <Select
       value={state}
-      onValueChange={(next) => void messagingThreadDetailStore.setState(next as MessagingThreadState)}
+      onValueChange={(next) => runUserAction(() => messagingThreadDetailStore.setState(next as MessagingThreadState))}
     >
       <SelectTrigger
         aria-label={t(`Inbox.threadStates.${state}`)}
         className={cn(
-          badgeVariants({ variant: THREAD_STATE_CHIP_COLOR[state], interactive: true }),
+          badgeVariants({
+            variant: THREAD_STATE_CHIP_COLOR[state],
+            interactive: true,
+          }),
           "h-8! w-auto gap-1.5 rounded-md border-transparent px-2 text-xs shadow-none",
         )}
         id="inbox-thread-state"

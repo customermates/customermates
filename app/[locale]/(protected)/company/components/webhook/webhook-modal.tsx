@@ -20,7 +20,9 @@ import { Icon } from "@/components/shared/icon";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { AppCardHeader } from "@/components/card/app-card-header";
 
-const WEBHOOK_EVENTS = WebhookEventSchema.options.map((event) => ({ key: event }));
+const WEBHOOK_EVENTS = WebhookEventSchema.options.map((event) => ({
+  key: event,
+}));
 
 export const WebhookModal = observer(() => {
   const t = useTranslations();
@@ -39,7 +41,7 @@ export const WebhookModal = observer(() => {
                 icon: Trash2,
                 variant: "destructive",
                 disabled: isDisabled,
-                onClick: () => showDeleteConfirmation(() => void webhookModalStore.delete()),
+                onClick: () => showDeleteConfirmation(() => webhookModalStore.delete()),
               },
             ]
           : []

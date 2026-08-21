@@ -24,6 +24,7 @@ import { ResponsiveOverlay } from "@/components/modal";
 import { Separator } from "@/components/ui/separator";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 import { PopoverSection } from "./popover-section";
 
@@ -57,12 +58,16 @@ export const FilterPopover = observer(function FilterPopover({ store, compact, i
   }
 
   function handleSavePreset() {
-    void modalStore.onSubmit();
+    runUserAction(() => modalStore.onSubmit());
   }
 
   function handleClear() {
     modalStore.cancelPendingAutoApply();
-    store.setQueryOptions({ filters: [], forceRefresh: true, refreshMode: "background" });
+    store.setQueryOptions({
+      filters: [],
+      forceRefresh: true,
+      refreshMode: "background",
+    });
     modalStore.openFor(store);
   }
 
@@ -79,7 +84,7 @@ export const FilterPopover = observer(function FilterPopover({ store, compact, i
   }
 
   function handleDeletePreset() {
-    showDeleteConfirmation(() => void modalStore.deletePreset(), modalStore.form.name);
+    showDeleteConfirmation(() => modalStore.deletePreset(), modalStore.form.name);
   }
 
   const trigger = (

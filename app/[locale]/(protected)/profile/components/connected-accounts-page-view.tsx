@@ -30,6 +30,7 @@ import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { PageState } from "@/components/page-state/page-state";
 import { resolveResourcePageState, type ResourcePageState } from "@/components/page-state/resource-page-state";
 import { cn } from "@/core/utils/cn";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 import { accountStatusChipColor, getProviderDisplayLabel } from "./account-status-color";
 import { ConnectedAccountsPageSkeleton } from "./profile-resource-page-skeleton";
@@ -42,19 +43,39 @@ type Props = {
 
 type ConnectedAccountsPageState = ResourcePageState | "locked";
 
-const CONNECT_CHANNEL_OPTIONS: { key: ConnectChannel; icon: MessagingProvider; labelKey: string }[] = [
+const CONNECT_CHANNEL_OPTIONS: {
+  key: ConnectChannel;
+  icon: MessagingProvider;
+  labelKey: string;
+}[] = [
   { key: "google", icon: "google", labelKey: "Common.providers.google" },
   { key: "outlook", icon: "outlook", labelKey: "Common.providers.outlook" },
-  { key: "imap", icon: "mail", labelKey: "ConnectedAccountsCard.channels.imap" },
+  {
+    key: "imap",
+    icon: "mail",
+    labelKey: "ConnectedAccountsCard.channels.imap",
+  },
   { key: "whatsapp", icon: "whatsapp", labelKey: "Common.providers.whatsapp" },
-  { key: "linkedin", icon: "linkedin", labelKey: "ConnectedAccountsCard.channels.linkedinClassic" },
+  {
+    key: "linkedin",
+    icon: "linkedin",
+    labelKey: "ConnectedAccountsCard.channels.linkedinClassic",
+  },
   {
     key: "linkedin_sales_navigator",
     icon: "linkedin",
     labelKey: "ConnectedAccountsCard.channels.linkedinSalesNavigator",
   },
-  { key: "linkedin_recruiter", icon: "linkedin", labelKey: "ConnectedAccountsCard.channels.linkedinRecruiter" },
-  { key: "instagram", icon: "instagram", labelKey: "Common.providers.instagram" },
+  {
+    key: "linkedin_recruiter",
+    icon: "linkedin",
+    labelKey: "ConnectedAccountsCard.channels.linkedinRecruiter",
+  },
+  {
+    key: "instagram",
+    icon: "instagram",
+    labelKey: "Common.providers.instagram",
+  },
   { key: "telegram", icon: "telegram", labelKey: "Common.providers.telegram" },
 ];
 
@@ -103,7 +124,10 @@ const ConnectAction = observer(({ id, variant = "default" }: { id: string; varia
         {CONNECT_CHANNEL_OPTIONS.map((option) => {
           const ChannelIcon = getProviderIcon(option.icon);
           return (
-            <DropdownMenuItem key={option.key} onClick={() => void connectedAccountsStore.connectAccount(option.key)}>
+            <DropdownMenuItem
+              key={option.key}
+              onClick={() => runUserAction(() => connectedAccountsStore.connectAccount(option.key))}
+            >
               <ChannelIcon className="size-4" />
 
               {t(option.labelKey)}
@@ -184,7 +208,7 @@ export const ConnectedAccountsPageView = observer(({ accounts, locked = false }:
             <Button
               size="sm"
               variant="secondary"
-              onClick={() => void connectedAccountsStore.refreshQuery().catch(() => undefined)}
+              onClick={() => runUserAction(() => connectedAccountsStore.refreshQuery().catch(() => undefined))}
             >
               {t("ErrorCard.retry")}
             </Button>

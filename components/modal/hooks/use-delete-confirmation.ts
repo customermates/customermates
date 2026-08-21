@@ -8,7 +8,7 @@ export function useDeleteConfirmation() {
   const t = useTranslations();
   const { deleteConfirmationModalStore } = useRootStore();
 
-  function showDeleteConfirmation(onConfirm: () => Promise<void> | void, entityName?: string) {
+  function showDeleteConfirmation(onConfirm: () => Promise<boolean>, entityName?: string) {
     const data: DeleteConfirmationData = {
       title: t("Common.deleteConfirmation.title"),
       message: entityName
