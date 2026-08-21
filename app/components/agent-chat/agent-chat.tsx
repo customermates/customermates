@@ -46,7 +46,9 @@ import { MessagesScrollContainer } from "@/components/scroll/messages-scroll-con
 import { useActivityGroupState } from "./use-activity-group-state";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
+import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -84,10 +86,10 @@ export const AgentChat = observer(function AgentChat() {
       const status = await store.loadConfig();
       if (cancelled || status !== "retry") return;
       const wait = Math.min(30000, 1000 * 2 ** attempt++);
-      timer = setTimeout(() => void load(), wait);
+      timer = setTimeout(() => void load().catch(reportApplicationError), wait);
     };
 
-    if (store.enabled === null) void load();
+    if (store.enabled === null) void load().catch(reportApplicationError);
     return () => {
       cancelled = true;
       if (timer) clearTimeout(timer);
@@ -409,7 +411,7 @@ const AgentChatPanel = observer(function AgentChatPanel() {
                       className="size-9 shrink-0 rounded-full"
                       size="icon"
                       variant="secondary"
-                      onClick={() => void store.interrupt()}
+                      onClick={() => runUserAction(() => store.interrupt())}
                     >
                       <Square className="size-3.5" />
                     </Button>
@@ -530,7 +532,8 @@ const SuggestedQuestions = observer(function SuggestedQuestions() {
 });
 
 const ConversationHistory = observer(function ConversationHistory() {
-  const { agentChatStore: store, intlStore } = useRootStore();
+  const { agentChatStore: store } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const t = useTranslations();
   const copy = chatUiCopy(t);
   const hasHistory = store.conversations.length + store.archivedConversations.length > 0;
@@ -619,7 +622,7 @@ const ConversationHistory = observer(function ConversationHistory() {
                 disabled={historyActionsDisabled}
                 id={`agent-history-${conversation.id}`}
                 variant="ghost"
-                onClick={() => void store.selectConversation(conversation.id)}
+                onClick={() => runUserAction(() => store.selectConversation(conversation.id))}
               >
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-2">
@@ -645,7 +648,7 @@ const ConversationHistory = observer(function ConversationHistory() {
                   disabled={historyActionsDisabled}
                   size="icon"
                   variant="ghost"
-                  onClick={() => void archive(conversation.id, index)}
+                  onClick={() => runUserAction(() => archive(conversation.id, index))}
                 >
                   <Archive className="size-4" />
                 </Button>
@@ -662,7 +665,7 @@ const ConversationHistory = observer(function ConversationHistory() {
           id="agent-load-more-active"
           size="sm"
           variant="ghost"
-          onClick={() => void loadMoreActive()}
+          onClick={() => runUserAction(loadMoreActive)}
         >
           {store.historyLoadMorePending === "active" && <Loader2 className="size-3.5 animate-spin" />}
 
@@ -732,7 +735,7 @@ const ArchiveUndo = observer(function ArchiveUndo() {
         disabled={store.isWorking || Boolean(store.conversationLoadPendingId) || Boolean(store.historyMutationPending)}
         size="sm"
         variant="ghost"
-        onClick={() => void store.restoreLastArchivedConversation()}
+        onClick={() => runUserAction(() => store.restoreLastArchivedConversation())}
       >
         {copy.undo}
       </Button>
@@ -811,7 +814,7 @@ const ArchivedConversationList = observer(function ArchivedConversationList() {
                 id={`agent-archived-${conversation.id}`}
                 size="icon"
                 variant="ghost"
-                onClick={() => void store.restoreArchivedConversation(conversation.id)}
+                onClick={() => runUserAction(() => store.restoreArchivedConversation(conversation.id))}
               >
                 <RotateCcw className="size-3.5" />
               </Button>
@@ -839,7 +842,7 @@ const ArchivedConversationList = observer(function ArchivedConversationList() {
             id="agent-load-more-archived"
             size="sm"
             variant="ghost"
-            onClick={() => void loadMoreArchived()}
+            onClick={() => runUserAction(loadMoreArchived)}
           >
             {store.historyLoadMorePending === "archived" && <Loader2 className="size-3.5 animate-spin" />}
 
@@ -868,7 +871,7 @@ const ArchivedConversationList = observer(function ArchivedConversationList() {
               {copy.cancel}
             </Button>
 
-            <Button disabled={deletePending} variant="destructive" onClick={() => void deletePermanently()}>
+            <Button disabled={deletePending} variant="destructive" onClick={() => runUserAction(deletePermanently)}>
               {deletePending && <Loader2 className="size-3.5 animate-spin" />}
 
               {copy.deletePermanently}
@@ -990,7 +993,8 @@ const QueuedPrompt = observer(function QueuedPrompt() {
 });
 
 const UsageFooter = observer(function UsageFooter() {
-  const { agentChatStore: store, intlStore } = useRootStore();
+  const { agentChatStore: store } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const t = useTranslations();
   if (!store.usage) return null;
   const usage = store.usage;
@@ -1059,7 +1063,7 @@ const UsageFooter = observer(function UsageFooter() {
 });
 
 function CreditBlockedNotice({ usage }: { usage: AgentUsageSummary }) {
-  const { intlStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const t = useTranslations();
   const router = useRouter();
   const reason = usage.blockedReason ?? "credits_exhausted";
@@ -1120,7 +1124,7 @@ const AgentStatusAnnouncer = observer(function AgentStatusAnnouncer() {
 });
 
 const ItemTime = observer(function ItemTime({ at }: { at?: Date }) {
-  const { intlStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   if (!at) return null;
 
   return (
@@ -1178,7 +1182,7 @@ const AgentChatItemView = observer(function AgentChatItemView({
                 className="size-7 text-muted-foreground opacity-0 transition-opacity focus-visible:opacity-100 group-hover/message:opacity-100"
                 size="icon"
                 variant="ghost"
-                onClick={() => void copyToClipboard(item.text)}
+                onClick={() => runUserAction(() => copyToClipboard(item.text))}
               >
                 <Copy className="size-3.5" />
               </Button>
@@ -1235,7 +1239,7 @@ const AgentChatItemView = observer(function AgentChatItemView({
               aria-busy={item.pendingDecision === "approve"}
               disabled={Boolean(item.pendingDecision)}
               size="sm"
-              onClick={() => void decideApproval(item, "approve")}
+              onClick={() => runUserAction(() => decideApproval(item, "approve"))}
             >
               {item.pendingDecision === "approve" && <Loader2 className="size-3.5 animate-spin" />}
 
@@ -1247,7 +1251,7 @@ const AgentChatItemView = observer(function AgentChatItemView({
               disabled={Boolean(item.pendingDecision)}
               size="sm"
               variant="ghost"
-              onClick={() => void decideApproval(item, "reject")}
+              onClick={() => runUserAction(() => decideApproval(item, "reject"))}
             >
               {item.pendingDecision === "reject" && <Loader2 className="size-3.5 animate-spin" />}
 
