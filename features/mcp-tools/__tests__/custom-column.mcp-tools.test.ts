@@ -151,17 +151,72 @@ describe("manage_custom_columns option defaults", () => {
     }
   });
 
-  it("rejects ambiguous duplicate select option shapes without writing", async () => {
+  it("rejects any conflicting preferred and legacy option lists without writing", async () => {
+    const legacyChoices = [
+      {
+        label: "Exploring",
+        value: "9e7a5c21-4d88-4f6a-9b32-71c0e5d4a8f3",
+        color: "info",
+        isDefault: true,
+        index: 0,
+        weight: 10,
+      },
+      {
+        label: "Piloting",
+        value: "2c4f8b73-a159-47de-b6c1-5e90d2a7f844",
+        color: "warning",
+        isDefault: false,
+        index: 1,
+        weight: 20,
+      },
+    ];
+    const conflictingChoices = [
+      [{ ...legacyChoices[0], label: "Changed" }, legacyChoices[1]],
+      [{ ...legacyChoices[0], value: "d1b6e902-7c35-4a8f-8d74-3f29c6b105ee" }, legacyChoices[1]],
+      [{ ...legacyChoices[0], color: "success" }, legacyChoices[1]],
+      [{ ...legacyChoices[0], isDefault: false }, legacyChoices[1]],
+      [{ ...legacyChoices[0], index: 2 }, legacyChoices[1]],
+      [{ ...legacyChoices[0], weight: 11 }, legacyChoices[1]],
+      [legacyChoices[1], legacyChoices[0]],
+    ];
+
+    for (const selectOptions of conflictingChoices) {
+      const result = await manageCustomColumnsTool.execute({
+        ...upsertParams(legacyChoices),
+        selectOptions,
+      } as never);
+
+      expect(mcpToolResultText(result)).toContain("Conflicting single-select choices");
+      expect(result).toMatchObject({
+        failure: { kind: "validation", issues: [{ path: ["selectOptions"] }] },
+      });
+    }
+    expect(spies.upsert).not.toHaveBeenCalled();
+  });
+
+  it("normalizes identical preferred and legacy option lists", async () => {
+    const choices = [
+      {
+        label: "Piloting",
+        value: "2c4f8b73-a159-47de-b6c1-5e90d2a7f844",
+        color: "warning" as const,
+        isDefault: false,
+        index: 1,
+      },
+    ];
     const result = await manageCustomColumnsTool.execute({
-      ...upsertParams([{ label: "Legacy" }]),
-      selectOptions: [{ label: "Preferred" }],
+      ...upsertParams(choices),
+      selectOptions: choices,
     } as never);
 
-    expect(mcpToolResultText(result)).toContain("but not both");
-    expect(result).toMatchObject({
-      failure: { kind: "validation", issues: [{ path: ["selectOptions"] }] },
+    expect(mcpToolResultText(result)).toContain("created successfully");
+    expect(spies.upsert).toHaveBeenCalledTimes(1);
+    expect(spies.upsert).toHaveBeenCalledWith({
+      entityType: "deal",
+      type: "singleSelect",
+      label: "Install Stage",
+      options: { options: choices },
     });
-    expect(spies.upsert).not.toHaveBeenCalled();
   });
 
   it.each([

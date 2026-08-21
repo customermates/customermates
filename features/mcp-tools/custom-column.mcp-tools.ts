@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 
+import deepEqual from "fast-deep-equal/es6";
 import { z } from "zod";
 import { EntityType, CustomColumnType, Currency } from "@/generated/prisma";
 
@@ -215,9 +216,13 @@ export const manageCustomColumnsTool = {
           ["intent"],
         );
       }
-      if (parsed.data.selectOptions && parsed.data.options?.options) {
+      if (
+        parsed.data.selectOptions &&
+        parsed.data.options?.options &&
+        !deepEqual(parsed.data.selectOptions, parsed.data.options.options)
+      ) {
         return mcpMessageFailure(
-          "Pass single-select choices once: use top-level selectOptions, or legacy options.options, but not both.",
+          "Conflicting single-select choices were provided in selectOptions and options.options. Pass only one list, or make them identical.",
           ["selectOptions"],
         );
       }

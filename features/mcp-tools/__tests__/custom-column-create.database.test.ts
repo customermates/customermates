@@ -73,7 +73,8 @@ describeDatabase("manage_custom_columns against a real database", { timeout: 120
     await prisma.$disconnect();
   });
 
-  it("creates a select field from the preferred top-level option list", async () => {
+  it("creates a select field when a model duplicates the same preferred and legacy option list", async () => {
+    const selectOptions = [{ label: "Survey" }, { label: "Quoted" }, { label: "Scheduled" }, { label: "Installed" }];
     const result = await manageCustomColumnsTool.execute({
       action: "upsert",
       intent: "create",
@@ -81,7 +82,8 @@ describeDatabase("manage_custom_columns against a real database", { timeout: 120
       entityType: "deal",
       type: "singleSelect",
       label: "Install Stage",
-      selectOptions: [{ label: "Survey" }, { label: "Quoted" }, { label: "Scheduled" }, { label: "Installed" }],
+      selectOptions,
+      options: { options: selectOptions },
     } as never);
 
     const stored = await runWithoutTenant(() =>
