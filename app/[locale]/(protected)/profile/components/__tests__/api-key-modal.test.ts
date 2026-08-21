@@ -69,7 +69,7 @@ vi.mock("@/i18n/navigation", () => ({
 import { ApiKeyModalStore } from "../api-key-modal.store";
 import { ApiKeyModal } from "../api-key-modal";
 
-function renderModal(path: "wizard" | "plain" = "wizard", provider?: "codex" | "cursor" | "gemini") {
+function renderModal(path: "wizard" | "plain" = "wizard", provider?: "openai" | "cursor" | "gemini") {
   const rootStore = {
     apiKeysStore: { delete: vi.fn(), refresh: vi.fn() },
     intlStore: {
@@ -133,12 +133,12 @@ beforeEach(() => {
 });
 
 describe("ApiKeyModal add wizard", () => {
-  it("starts with one standard key option and the same five quick connections", () => {
+  it("starts with one standard key option and the same four quick connections", () => {
     const html = renderModal();
 
     expect(html).not.toContain('data-slot="app-modal-actions"');
     expect(html.match(/data-api-key-option="plain"/g)).toHaveLength(1);
-    expect(html.match(/data-provider=/g)).toHaveLength(5);
+    expect(html.match(/data-provider=/g)).toHaveLength(4);
     expect(html).toContain("ApiKeyModal.quickTitle");
     expect(html).toContain("Common.actions.cancel");
     expect(html).not.toContain("Common.actions.back");
@@ -170,9 +170,11 @@ describe("ApiKeyModal add wizard", () => {
   });
 
   it("promotes quick-connection titles into the modal header and moves Back into the footer", () => {
-    const html = renderModal("wizard", "codex");
+    const html = renderModal("wizard", "openai");
 
-    expect(html.match(/OnboardingWizard\.ai\.screen\.setup\.title/g)).toHaveLength(1);
+    expect(html.match(/OnboardingWizard\.ai\.screen\.openai\.title/g)).toHaveLength(1);
+    expect(html).toContain("OnboardingWizard.ai.openai.methods.chatgpt.title");
+    expect(html).toContain("OnboardingWizard.ai.openai.methods.codex.title");
     expect(html).toContain("Common.actions.back");
     expect(html).toContain("ApiKeyModal.done");
     expect(html).not.toContain("Common.actions.cancel");

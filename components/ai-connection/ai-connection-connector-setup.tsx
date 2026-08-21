@@ -37,7 +37,7 @@ export function AiConnectionConnectorSetup({ mcpUrl, provider }: Props) {
       </div>
 
       {isClaude ? (
-        <Button asChild className="h-auto w-full whitespace-normal xs:w-fit" size="sm">
+        <Button asChild className="self-start" variant="secondary">
           <a
             href={`https://claude.ai/customize/connectors?modal=add-custom-connector&connectorName=Customermates&connectorUrl=${encodeURIComponent(mcpUrl)}`}
             rel="noreferrer noopener"
@@ -60,7 +60,7 @@ export function AiConnectionConnectorSetup({ mcpUrl, provider }: Props) {
             <AppLink
               inheritSize
               appearance="inline"
-              href="/docs/connect-custom-connector"
+              href={isClaude ? "/docs/connect-custom-connector" : "https://learn.chatgpt.com/docs/extend/mcp"}
               rel="noreferrer noopener"
               target="_blank"
             >
@@ -69,10 +69,6 @@ export function AiConnectionConnectorSetup({ mcpUrl, provider }: Props) {
           ),
         })}
       </p>
-
-      {!isClaude ? (
-        <p className="text-xs leading-relaxed text-muted-foreground">{t("OnboardingWizard.ai.connector.paidPlan")}</p>
-      ) : null}
     </div>
   );
 }

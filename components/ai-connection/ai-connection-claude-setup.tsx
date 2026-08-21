@@ -42,11 +42,7 @@ export const AiConnectionClaudeSetup = observer(function AiConnectionClaudeSetup
       <Button
         aria-controls={`claude-${candidate}-details`}
         aria-expanded={isSelected}
-        aria-pressed={isSelected}
-        className={cn(
-          "relative h-auto min-h-36 w-full flex-col items-start justify-start whitespace-normal rounded-xl p-4 text-left",
-          isSelected && "border-primary bg-primary/5 shadow-[inset_0_0_0_1px_var(--primary)]",
-        )}
+        className="relative h-auto min-h-36 w-full flex-col items-start justify-start whitespace-normal rounded-xl p-4 text-left"
         disabled={disabled}
         type="button"
         variant="secondary"
@@ -69,8 +65,6 @@ export const AiConnectionClaudeSetup = observer(function AiConnectionClaudeSetup
         <span className="mt-auto pt-2 text-[11px] font-normal leading-relaxed text-muted-foreground">
           {t(`OnboardingWizard.ai.methods.${candidate}.note`)}
         </span>
-
-        {isSelected ? <Check aria-hidden className="absolute bottom-3 right-3 text-primary" /> : null}
       </Button>
     );
   };

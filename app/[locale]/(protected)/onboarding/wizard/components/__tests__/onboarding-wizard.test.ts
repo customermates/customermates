@@ -29,6 +29,7 @@ vi.mock("../step-invite", () => ({
 }));
 vi.mock("../step-ai", () => ({
   StepAi: () => createElement("div", { "data-step": "ai" }),
+  StepAiFooter: () => createElement("div", { "data-step-footer": "ai" }),
 }));
 
 import { OnboardingWizardStore } from "../onboarding-wizard.store";
@@ -70,5 +71,6 @@ describe("OnboardingWizard", () => {
     expect(renderStep(1)).toContain('id="onboarding-back"');
     expect(renderStep(1)).toContain('id="onboarding-next"');
     expect(renderStep(2)).not.toContain('id="onboarding-next"');
+    expect(renderStep(2)).toContain('data-step-footer="ai"');
   });
 });

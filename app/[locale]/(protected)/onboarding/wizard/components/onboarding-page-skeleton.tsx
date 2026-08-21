@@ -1,9 +1,12 @@
+import type { ReactNode } from "react";
+
 import { CenteredCardPageSkeleton } from "@/components/shared/centered-card-page-skeleton";
+import { DotPattern } from "@/components/shared/dot-pattern";
 import { SkeletonShape as Shape } from "@/components/page-state/skeleton-shape";
 
 export function OnboardingPageSkeleton({ animated = true }: { animated?: boolean }) {
   return (
-    <CenteredCardPageSkeleton animated={animated}>
+    <OnboardingSkeletonSurface animated={animated}>
       <div data-onboarding-profile-skeleton className="flex min-h-0 flex-1 flex-col gap-4 p-6">
         <div className="flex flex-col gap-1">
           <Shape animated={animated} className="h-3 w-20" />
@@ -44,7 +47,19 @@ export function OnboardingPageSkeleton({ animated = true }: { animated?: boolean
           />
         </div>
       </div>
-    </CenteredCardPageSkeleton>
+    </OnboardingSkeletonSurface>
+  );
+}
+
+function OnboardingSkeletonSurface({ animated, children }: { animated: boolean; children: ReactNode }) {
+  return (
+    <div className="relative size-full min-h-0 isolate">
+      <DotPattern />
+
+      <div className="relative z-10 size-full min-h-0">
+        <CenteredCardPageSkeleton animated={animated}>{children}</CenteredCardPageSkeleton>
+      </div>
+    </div>
   );
 }
 
