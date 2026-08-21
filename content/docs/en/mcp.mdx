@@ -35,16 +35,16 @@ The `x-api-key` header is the API-key method. The key is 64 characters, base62 (
 
 ## Connect a client
 
-| Client | Method | Guide |
-|---|---|---|
-| Claude web & mobile | Custom connector (OAuth) | [Connect with a custom connector](/docs/connect-custom-connector) |
-| Claude Desktop | Connector (OAuth) or config key | [Connect Claude Desktop](/docs/connect-custom-connector#claude) |
-| ChatGPT | Connector (OAuth) or key header | [Connect ChatGPT](/docs/connect-custom-connector#chatgpt) |
-| Claude Code | API key | [Connect Claude Code](/docs/connect-cli#claude-code) |
-| Codex | API key | [Connect Codex](/docs/connect-cli#codex) |
-| Cursor | API key | [Connect Cursor](/docs/connect-cli#cursor) |
-| Gemini CLI | API key | [Connect Gemini](/docs/connect-cli#gemini-cli) |
-| Any MCP client | Key header | Use the endpoint and header above |
+| Client              | Method                          | Guide                                                             |
+| ------------------- | ------------------------------- | ----------------------------------------------------------------- |
+| Claude web & mobile | Custom connector (OAuth)        | [Connect with a custom connector](/docs/connect-custom-connector) |
+| Claude Desktop      | Connector (OAuth) or config key | [Connect Claude Desktop](/docs/connect-custom-connector#claude)   |
+| ChatGPT             | Connector (OAuth) or key header | [Connect ChatGPT](/docs/connect-custom-connector#chatgpt)         |
+| Claude Code         | API key                         | [Connect Claude Code](/docs/connect-cli#claude-code)              |
+| Codex               | API key                         | [Connect Codex](/docs/connect-cli#codex)                          |
+| Cursor              | API key                         | [Connect Cursor](/docs/connect-cli#cursor)                        |
+| Gemini CLI          | API key                         | [Connect Gemini](/docs/connect-cli#gemini-cli)                    |
+| Any MCP client      | Key header                      | Use the endpoint and header above                                 |
 
 The server briefs the model automatically the moment a client connects. Clients that support MCP prompts can also run the built-in `get-started` prompt for a personalized start.
 
@@ -63,7 +63,7 @@ The MCP surface is built so that models with weaker planning can use it reliably
 - **Inline enum hints**: every enum field lists its valid values inline in the description, so the model does not have to resolve external types.
 - **Filter examples inline**: every `filters` parameter has a concrete JSON example in its description.
 - **Relationship safety**: relations change only through `manage_record_links` (add or remove); passing `null` on a relationship array is rejected with a remediation hint.
-- **Immutable column type**: `manage_custom_columns` keeps `type` and `entityType` fixed on update (taken from the existing column); changing a type means delete and recreate.
+- **Explicit column intent**: new integrations create with `intent=create` and no id, while legacy id-less calls remain create-only. Updates require `intent=update` plus an existing id. The tool keeps `label`, `type`, and `entityType` fixed on update, so a different label or type requires a new column.
 - **Destructive flags**: every destructive tool or action has `destructiveHint: true` and an `IRREVERSIBLE` description prefix.
 
 ## CLI use
@@ -89,103 +89,103 @@ Full JSON Schema for every tool is available live at `POST /api/v1/mcp` with `me
 
 Seventeen tools work against the five record types (contact, organization, deal, service, task). Records carry custom columns defined per workspace, so `get_record_schema` is the anchor: it returns the custom-column ids and option values that writes need. Fields such as a deal or task status are configurable singleSelect custom columns, not fixed native fields; `get_record_schema` returns whatever columns the workspace actually has.
 
-| Tool | Read | Destructive | Purpose |
-|---|---|---|---|
-| `get_record_schema` | ✓ | | Schema and custom-column metadata, never record data. One entity type, or all five when `entity` is omitted. Call before any create or update. |
-| `list_records` | ✓ | | Search, filter, sort, paginate one entity type. Always returns the total. Deals include totalValue and totalQuantity, services include amount. |
-| `search_records` | ✓ | | Free-text search across one or more entity types in one call. |
-| `get_records` | ✓ | | Full record data by id, up to 100, mixed entity types allowed; contacts also by email, phone, or provider:handle. Always returns fields; add markdown notes per item with include=withNotes. |
-| `create_contacts` | | | Create up to 100 contacts, custom-column values and relation ids inline. |
-| `create_organizations` | | | Create up to 100 organizations, custom-column values and contact/user/deal/task ids inline. |
-| `create_deals` | | | Create up to 100 deals, services as an inline array. |
-| `create_services` | | | Create up to 100 services, custom-column values and user/deal/task ids inline. |
-| `create_tasks` | | | Create up to 100 tasks, custom-column values and relation ids inline. |
-| `update_contacts` | | | Partial update by contact key (id, email, phone, or provider:value); org/deal/user/task relations untouched, but a provided `identifiers` array REPLACES the contact's messaging channels (unlisted ones are unlinked). |
-| `update_organizations` | | | Partial update by id. Never touches relations. |
-| `update_deals` | | | Partial update by id, including singleSelect custom-column values and `services` (an inline `{serviceId, quantity}` array that REPLACES the deal's full service set); org/user/contact/task relations untouched (use manage_record_links). |
-| `update_services` | | | Partial update by id. |
-| `update_tasks` | | | Partial update by id, including singleSelect custom-column values. Never touches relations. |
-| `update_record_notes` | | | Replace or append markdown notes on 1 to 100 records, selected by `mode`. |
-| `manage_record_links` | | | Add or remove ids on one relation (`action` add or remove). The only way to change relations. |
-| `delete_records` | | ✓ | IRREVERSIBLE hard-delete of 1 to 100 records by id (contacts also by email, phone, or provider:value). |
+| Tool                   | Read | Destructive | Purpose                                                                                                                                                                                                                                    |
+| ---------------------- | ---- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `get_record_schema`    | ✓    |             | Schema and custom-column metadata, never record data. One entity type, or all five when `entity` is omitted. Call before any create or update.                                                                                             |
+| `list_records`         | ✓    |             | Search, filter, sort, paginate one entity type. Always returns the total. Deals include totalValue and totalQuantity, services include amount.                                                                                             |
+| `search_records`       | ✓    |             | Free-text search across one or more entity types in one call.                                                                                                                                                                              |
+| `get_records`          | ✓    |             | Full record data by id, up to 100, mixed entity types allowed; contacts also by email, phone, or provider:handle. Always returns fields; add markdown notes per item with include=withNotes.                                               |
+| `create_contacts`      |      |             | Create up to 100 contacts, custom-column values and relation ids inline.                                                                                                                                                                   |
+| `create_organizations` |      |             | Create up to 100 organizations, custom-column values and contact/user/deal/task ids inline.                                                                                                                                                |
+| `create_deals`         |      |             | Create up to 100 deals, services as an inline array.                                                                                                                                                                                       |
+| `create_services`      |      |             | Create up to 100 services, custom-column values and user/deal/task ids inline.                                                                                                                                                             |
+| `create_tasks`         |      |             | Create up to 100 tasks, custom-column values and relation ids inline.                                                                                                                                                                      |
+| `update_contacts`      |      |             | Partial update by contact key (id, email, phone, or provider:value); org/deal/user/task relations untouched, but a provided `identifiers` array REPLACES the contact's messaging channels (unlisted ones are unlinked).                    |
+| `update_organizations` |      |             | Partial update by id. Never touches relations.                                                                                                                                                                                             |
+| `update_deals`         |      |             | Partial update by id, including singleSelect custom-column values and `services` (an inline `{serviceId, quantity}` array that REPLACES the deal's full service set); org/user/contact/task relations untouched (use manage_record_links). |
+| `update_services`      |      |             | Partial update by id.                                                                                                                                                                                                                      |
+| `update_tasks`         |      |             | Partial update by id, including singleSelect custom-column values. Never touches relations.                                                                                                                                                |
+| `update_record_notes`  |      |             | Replace or append markdown notes on 1 to 100 records, selected by `mode`.                                                                                                                                                                  |
+| `manage_record_links`  |      |             | Add or remove ids on one relation (`action` add or remove). The only way to change relations.                                                                                                                                              |
+| `delete_records`       |      | ✓           | IRREVERSIBLE hard-delete of 1 to 100 records by id (contacts also by email, phone, or provider:value).                                                                                                                                     |
 
 All create and update tools take custom-column values via customFieldValues; call `get_record_schema` first for the column ids.
 
 ### Workspace
 
-| Tool | Read | Destructive | Purpose |
-|---|---|---|---|
-| `get_workspace_context` | ✓ | | Your user, the company profile, all roles including permissions, and your connected messaging accounts (your own plus any shared with the workspace) in one call. The natural first call of a session. |
-| `list_users` | ✓ | | Team members with id, name, email, roleId, and status. |
+| Tool                    | Read | Destructive | Purpose                                                                                                                                                                                                |
+| ----------------------- | ---- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `get_workspace_context` | ✓    |             | Your user, the company profile, all roles including permissions, and your connected messaging accounts (your own plus any shared with the workspace) in one call. The natural first call of a session. |
+| `list_users`            | ✓    |             | Team members with id, name, email, roleId, and status.                                                                                                                                                 |
 
 ### Messaging
 
 Messaging-backed tools are available from the Pro tier in cloud mode. `get_activities` can still return audit-log changes without the messaging entitlement when the caller has Audit Log permission. Its messaging, connected-account, and calendar sources require Inbox permission plus the messaging entitlement.
 
-| Tool | Read | Destructive | Purpose |
-|---|---|---|---|
-| `get_messaging_threads` | ✓ | | Two modes: without threadId lists inbox threads with filters and sorting (threads with no message yet are hidden unless they hold a draft); with threadId returns one thread plus a page of its messages (default 25, newest first, drafts included). |
-| `get_activities` | ✓ |  | Activity timeline with an optional low-level entity scope plus AND-combined filters. Filters support category/raw kind, conversation, provider, connected account, and related contact, organization, deal, service, or task. Each activity filter field may appear once; alternatives belong in the value array of one membership rule. Relationship fields accept `in`, `notIn`, `hasSome`, and `hasNone`; membership takes 1–50 UUIDs. Relationship UUIDs must resolve to records you can read; unresolvable ids are rejected. The result includes `availableSources`, `scopeTruncated`, `pageLimitReached`, total, and page. Pages are capped at 40. |
-| `get_calendars` | ✓ | | Three modes: list: "calendars" (default) lists the calendars of accessible connected accounts; list: "events" lists calendar events ordered by start time, filterable by calendarId or a startsAt date range; with eventId it returns one event's detail including organizer and attendees. Ids match the entityId of calendar webhook events. |
-| `send_chat_message` | | | Delivers immediately. With threadId replies in an existing chat; with connectedAccountId plus attendeeIdentifiers starts a new one (optional chatName names a group). New LinkedIn chats default to Classic; set linkedinProduct to sales_navigator or recruiter to send an InMail (needs inmailSubject), or inmail:true to InMail someone outside your network on Classic. |
-| `send_email` | | | Delivers immediately. Send or reply from a connected email account; can send a saved draft via draftMessageId. |
-| `save_message_draft` | | | Prepare a reply for review: the draft shows up in the inbox compose box and the user sends it. Drafts are thread-bound, one per thread, saving again updates it. |
-| `discard_message_draft` | | ✓ | Delete a draft by its draft message id. |
-| `update_messaging_thread` | | | Set the thread state: unread, open, closed, or spam. |
-| `connect_messaging_account` | | | Generate a link the user opens in a browser to connect a channel (WhatsApp, LinkedIn, email, Instagram, Telegram). You return the link; the user finishes auth there. Expires in 30 minutes. |
+| Tool                        | Read | Destructive | Purpose                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| --------------------------- | ---- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `get_messaging_threads`     | ✓    |             | Two modes: without threadId lists inbox threads with filters and sorting (threads with no message yet are hidden unless they hold a draft); with threadId returns one thread plus a page of its messages (default 25, newest first, drafts included).                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `get_activities`            | ✓    |             | Activity timeline with an optional low-level entity scope plus AND-combined filters. Filters support category/raw kind, conversation, provider, connected account, and related contact, organization, deal, service, or task. Each activity filter field may appear once; alternatives belong in the value array of one membership rule. Relationship fields accept `in`, `notIn`, `hasSome`, and `hasNone`; membership takes 1–50 UUIDs. Relationship UUIDs must resolve to records you can read; unresolvable ids are rejected. The result includes `availableSources`, `scopeTruncated`, `pageLimitReached`, total, and page. Pages are capped at 40. |
+| `get_calendars`             | ✓    |             | Three modes: list: "calendars" (default) lists the calendars of accessible connected accounts; list: "events" lists calendar events ordered by start time, filterable by calendarId or a startsAt date range; with eventId it returns one event's detail including organizer and attendees. Ids match the entityId of calendar webhook events.                                                                                                                                                                                                                                                                                                           |
+| `send_chat_message`         |      |             | Delivers immediately. With threadId replies in an existing chat; with connectedAccountId plus attendeeIdentifiers starts a new one (optional chatName names a group). New LinkedIn chats default to Classic; set linkedinProduct to sales_navigator or recruiter to send an InMail (needs inmailSubject), or inmail:true to InMail someone outside your network on Classic.                                                                                                                                                                                                                                                                              |
+| `send_email`                |      |             | Delivers immediately. Send or reply from a connected email account; can send a saved draft via draftMessageId.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| `save_message_draft`        |      |             | Prepare a reply for review: the draft shows up in the inbox compose box and the user sends it. Drafts are thread-bound, one per thread, saving again updates it.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `discard_message_draft`     |      | ✓           | Delete a draft by its draft message id.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `update_messaging_thread`   |      |             | Set the thread state: unread, open, closed, or spam.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `connect_messaging_account` |      |             | Generate a link the user opens in a browser to connect a channel (WhatsApp, LinkedIn, email, Instagram, Telegram). You return the link; the user finishes auth there. Expires in 30 minutes.                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 
 ### Social posts
 
-| Tool | Read | Destructive | Purpose |
-|---|---|---|---|
-| `get_social_posts` | ✓ | | Posts on LinkedIn or Instagram, read through a connected account. Lists any user's posts via authorIdentifier (a public identifier or provider member id, e.g. from a contact's linkedin channel; defaults to `me`, the account owner), or fetches a single post by postId. |
-| `get_social_post_engagement` | ✓ | | Engagement on a post: kind=comments (default) lists comments, kind=reactions lists who reacted; with commentId it returns the reactions on that comment. |
-| `get_social_profile` | ✓ | | A LinkedIn or Instagram profile of a person or company by identifier (the `/in/<slug>` or `/company/<slug>` part of the profile url, a provider id, or `me`); returns name, headline, location, counts and network distance where available, plus a type telling person and organization apart. |
-| `manage_social_relations` | | | Connection requests: list invitations (received by default, or your own sent/outgoing via direction), invite (sends a real request), accept, or cancel by invitationId. |
-| `linkedin_search_sales_leads` | ✓ | | Finds people via LinkedIn Sales Navigator: either from a pasted search URL or as a structured search with filters (keywords, location, industry, company, job title, seniority and more). Lead rows include the current positions (company, role and company id, usable with `get_social_profile`). Requires a Sales Navigator subscription. |
-| `linkedin_search_sales_companies` | ✓ | | Finds companies via LinkedIn Sales Navigator: either from a pasted company search URL or as a structured search with filters (keywords, location, industry, headcount, annual revenue and more). Requires a Sales Navigator subscription. |
-| `linkedin_get_sales_search_parameters` | ✓ | | Resolves the ids behind LinkedIn Sales Navigator search inputs by type (locations, industries, job titles, functions, companies, schools, groups and more) plus your lead/account lists and saved/recent searches; keyword is optional, so a bare type enumerates the whole family. |
-| `linkedin_manage_sales_lists` | | | LinkedIn Sales Navigator lead and account lists: list them, browse the members of one, or save a lead or company to an existing list. New lists are created in Sales Navigator itself. |
+| Tool                                   | Read | Destructive | Purpose                                                                                                                                                                                                                                                                                                                                      |
+| -------------------------------------- | ---- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `get_social_posts`                     | ✓    |             | Posts on LinkedIn or Instagram, read through a connected account. Lists any user's posts via authorIdentifier (a public identifier or provider member id, e.g. from a contact's linkedin channel; defaults to `me`, the account owner), or fetches a single post by postId.                                                                  |
+| `get_social_post_engagement`           | ✓    |             | Engagement on a post: kind=comments (default) lists comments, kind=reactions lists who reacted; with commentId it returns the reactions on that comment.                                                                                                                                                                                     |
+| `get_social_profile`                   | ✓    |             | A LinkedIn or Instagram profile of a person or company by identifier (the `/in/<slug>` or `/company/<slug>` part of the profile url, a provider id, or `me`); returns name, headline, location, counts and network distance where available, plus a type telling person and organization apart.                                              |
+| `manage_social_relations`              |      |             | Connection requests: list invitations (received by default, or your own sent/outgoing via direction), invite (sends a real request), accept, or cancel by invitationId.                                                                                                                                                                      |
+| `linkedin_search_sales_leads`          | ✓    |             | Finds people via LinkedIn Sales Navigator: either from a pasted search URL or as a structured search with filters (keywords, location, industry, company, job title, seniority and more). Lead rows include the current positions (company, role and company id, usable with `get_social_profile`). Requires a Sales Navigator subscription. |
+| `linkedin_search_sales_companies`      | ✓    |             | Finds companies via LinkedIn Sales Navigator: either from a pasted company search URL or as a structured search with filters (keywords, location, industry, headcount, annual revenue and more). Requires a Sales Navigator subscription.                                                                                                    |
+| `linkedin_get_sales_search_parameters` | ✓    |             | Resolves the ids behind LinkedIn Sales Navigator search inputs by type (locations, industries, job titles, functions, companies, schools, groups and more) plus your lead/account lists and saved/recent searches; keyword is optional, so a bare type enumerates the whole family.                                                          |
+| `linkedin_manage_sales_lists`          |      |             | LinkedIn Sales Navigator lead and account lists: list them, browse the members of one, or save a lead or company to an existing list. New lists are created in Sales Navigator itself.                                                                                                                                                       |
 
 ### Documentation and deep research
 
-| Tool | Read | Destructive | Purpose |
-|---|---|---|---|
-| `search_docs` | ✓ | | Full-text search over the docs; defaults to the product guides (source=docs); pass source=api or all to include the REST API reference. Returns slug, source, title, url, snippet. |
-| `get_docs_page` | ✓ | | One documentation page as markdown with its canonical URL. Lists valid slugs on a miss. |
-| `search` | ✓ | | Required by ChatGPT deep research connectors; federates CRM records and docs. Interactive agents should prefer `search_records` or `search_docs`. |
-| `fetch` | ✓ | | Deep-research companion to `search`: fetches one result by its id. |
+| Tool            | Read | Destructive | Purpose                                                                                                                                                                            |
+| --------------- | ---- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `search_docs`   | ✓    |             | Full-text search over the docs; defaults to the product guides (source=docs); pass source=api or all to include the REST API reference. Returns slug, source, title, url, snippet. |
+| `get_docs_page` | ✓    |             | One documentation page as markdown with its canonical URL. Lists valid slugs on a miss.                                                                                            |
+| `search`        | ✓    |             | Required by ChatGPT deep research connectors; federates CRM records and docs. Interactive agents should prefer `search_records` or `search_docs`.                                  |
+| `fetch`         | ✓    |             | Deep-research companion to `search`: fetches one result by its id.                                                                                                                 |
 
 ### Custom columns
 
-| Tool | Read | Destructive | Purpose |
-|---|---|---|---|
-| `manage_custom_columns` | | ✓ | One tool with an `action` switch: list, upsert (create or update), delete. Covers all ten column types; type and entityType are immutable on update. Delete is IRREVERSIBLE and removes every stored value. |
+| Tool                    | Read | Destructive | Purpose                                                                                                                                                                                                                                                                                                                                                                      |
+| ----------------------- | ---- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `manage_custom_columns` |      | ✓           | One tool with an `action` switch: list, upsert (create or update), delete. New integrations use explicit `intent=create` without an id; legacy id-less creates remain accepted. Updates require `intent=update` with an existing id. Covers all ten column types; label, type and entityType are immutable on update. Delete is IRREVERSIBLE and removes every stored value. |
 
 ### Widgets
 
-| Tool | Read | Destructive | Purpose |
-|---|---|---|---|
-| `manage_widgets` |  | ✓ | One tool with an `action` switch: list, get, create, update, delete. Omitted create `kind` remains `chart`. Activity creation accepts `name`, optional `timelineFilters`, and optional `showFilters`; each activity filter field may appear once. Update infers the immutable stored kind, preserves omitted fields, and clears filters with `timelineFilters: []`. Create rejects newly inaccessible relationship UUIDs. Update may retain or remove an unavailable relationship UUID only when that UUID is already stored on the widget; adding another inaccessible UUID is rejected. list/get/create/update all return `kind`; get also returns chart data for charts and reusable `timelineFilters` for activity widgets. Chart-only and activity-only fields cannot be mixed. |
+| Tool             | Read | Destructive | Purpose                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| ---------------- | ---- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `manage_widgets` |      | ✓           | One tool with an `action` switch: list, get, create, update, delete. Omitted create `kind` remains `chart`. Activity creation accepts `name`, optional `timelineFilters`, and optional `showFilters`; each activity filter field may appear once. Update infers the immutable stored kind, preserves omitted fields, and clears filters with `timelineFilters: []`. Create rejects newly inaccessible relationship UUIDs. Update may retain or remove an unavailable relationship UUID only when that UUID is already stored on the widget; adding another inaccessible UUID is rejected. list/get/create/update all return `kind`; get also returns chart data for charts and reusable `timelineFilters` for activity widgets. Chart-only and activity-only fields cannot be mixed. |
 
 ### Webhooks
 
-| Tool | Read | Destructive | Purpose |
-|---|---|---|---|
-| `manage_webhooks` | | ✓ | One tool with an `action` switch: list, get, create, update, delete, plus the delivery log (action list_deliveries, scoped to one webhook's current url when you pass its `id`) and re-delivery (action resend_delivery). |
+| Tool              | Read | Destructive | Purpose                                                                                                                                                                                                                   |
+| ----------------- | ---- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `manage_webhooks` |      | ✓           | One tool with an `action` switch: list, get, create, update, delete, plus the delivery log (action list_deliveries, scoped to one webhook's current url when you pass its `id`) and re-delivery (action resend_delivery). |
 
 ### Admin and team
 
-| Tool | Read | Destructive | Purpose |
-|---|---|---|---|
-| `update_workspace_settings` | | | `target` profile updates your own name, country, and avatar; `target` company updates the workspace currency (admin only). |
-| `manage_team` | | | Invite members by email (action invite, up to 20, sends real invitation emails) or change a member's role and status (action update_member). |
+| Tool                        | Read | Destructive | Purpose                                                                                                                                                                |
+| --------------------------- | ---- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `update_workspace_settings` |      |             | `target` profile updates your own name, country, and avatar; `target` company updates the workspace currency and the preset names used for core entities (admin only). |
+| `manage_team`               |      |             | Invite members by email (action invite, up to 20, sends real invitation emails) or change a member's role and status (action update_member).                           |
 
 ### Support
 
-| Tool | Read | Destructive | Purpose |
-|---|---|---|---|
-| `request_support` | | | Email a support request to the Customermates team (subject plus description). Include all relevant context in the description. The team replies to the email address on your account. Returns confirmation after the email provider accepts the request. |
+| Tool              | Read | Destructive | Purpose                                                                                                                                                                                                                                                  |
+| ----------------- | ---- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `request_support` |      |             | Email a support request to the Customermates team (subject plus description). Include all relevant context in the description. The team replies to the email address on your account. Returns confirmation after the email provider accepts the request. |
 
 ### Narrowing with ?toolsets=
 

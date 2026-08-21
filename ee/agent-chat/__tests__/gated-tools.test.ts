@@ -58,7 +58,14 @@ describe("gated-tools", () => {
   });
 
   it("fails closed: a multiplexed call with a missing or unknown action requires approval", () => {
-    for (const name of ["manage_custom_columns", "manage_widgets", "manage_webhooks"]) {
+    for (const name of [
+      "manage_custom_columns",
+      "manage_widgets",
+      "manage_webhooks",
+      "manage_team",
+      "manage_social_relations",
+      "linkedin_manage_sales_lists",
+    ]) {
       const tool = toolByName(name);
       expect(requiresApproval(tool, {})).toBe(true);
       expect(requiresApproval(tool, { action: "purge_everything" })).toBe(true);
@@ -72,6 +79,15 @@ describe("gated-tools", () => {
       expect(requiresApproval(toolByName(name), {})).toBe(true);
     for (const name of ["manage_custom_columns", "manage_widgets", "manage_webhooks"])
       expect(requiresApproval(toolByName(name), { action: "delete" })).toBe(true);
+    for (const [name, action] of [
+      ["manage_social_relations", "invite"],
+      ["manage_social_relations", "accept"],
+      ["manage_social_relations", "cancel"],
+      ["linkedin_manage_sales_lists", "save"],
+      ["manage_team", "invite"],
+      ["manage_webhooks", "resend_delivery"],
+    ] as const)
+      expect(requiresApproval(toolByName(name), { action })).toBe(true);
   });
 
   it("lets ordinary CRM work run without approval", () => {
@@ -86,11 +102,13 @@ describe("gated-tools", () => {
       ["save_message_draft", {}],
       ["update_messaging_thread", {}],
       ["update_workspace_settings", {}],
-      ["manage_team", {}],
+      ["manage_team", { action: "update_member" }],
       ["connect_messaging_account", {}],
       ["manage_custom_columns", { action: "upsert" }],
       ["manage_widgets", { action: "create" }],
-      ["manage_webhooks", { action: "resend_delivery" }],
+      ["manage_social_relations", { action: "list" }],
+      ["linkedin_manage_sales_lists", { action: "list" }],
+      ["linkedin_manage_sales_lists", { action: "browse" }],
     ];
     for (const [name, input] of freeCalls) expect(requiresApproval(toolByName(name), input)).toBe(false);
   });

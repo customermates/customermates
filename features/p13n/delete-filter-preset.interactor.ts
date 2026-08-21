@@ -1,5 +1,5 @@
 import type { P13nEntry, SavedFilterPreset } from "./prisma-p13n.repository";
-import type { Data } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 
@@ -9,6 +9,8 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { P13nEntrySchema } from "./p13n.schema";
+import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const Schema = z.object({
   p13nId: z.string().min(1),
@@ -29,13 +31,14 @@ export class DeleteFilterPresetInteractor extends AuthenticatedInteractor<Delete
   }
 
   @Enforce(Schema)
-  @ValidateOutput(P13nEntrySchema)
   @Transaction
-  async invoke(data: DeleteFilterPresetData): Promise<{ ok: true; data: P13nEntry }> {
+  @ValidateOutput(P13nEntrySchema)
+  async invoke(data: DeleteFilterPresetData): Validated<P13nEntry> {
     const p13nData = await this.repo.getP13n(data.p13nId);
     const existingPresets = p13nData?.savedFilterPresets ?? [];
 
-    if (existingPresets.findIndex((p) => p.id === data.presetId) < 0) throw new Error("Preset not found");
+    if (existingPresets.findIndex((p) => p.id === data.presetId) < 0)
+      return createInteractorFailure(CustomErrorCode.presetNotFound, ["presetId"]);
 
     const updatedPresets = existingPresets.filter((p) => p.id !== data.presetId);
 

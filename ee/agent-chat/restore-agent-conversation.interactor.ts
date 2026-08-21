@@ -13,6 +13,8 @@ import {
   type ArchiveAgentConversationData,
 } from "./archive-agent-conversation.interactor";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
+import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const RestoreAgentConversationResultSchema = z.object({
   activeConversationId: z.string(),
@@ -45,7 +47,7 @@ export class RestoreAgentConversationInteractor extends AuthenticatedInteractor<
     if (denied) return denied;
 
     const restored = await this.repo.restoreConversation(data.conversationId);
-    if (!restored) throw new Error("Archived conversation not found.");
+    if (!restored) return createInteractorFailure(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
     const page = await this.repo.listConversationPage({ archived: false });
     return {

@@ -41,6 +41,7 @@ vi.mock("@/features/user/user.service", () => ({
 
 await import("@/core/di");
 const { manageCustomColumnsTool } = await import("../custom-column.mcp-tools");
+const { mcpToolResultText } = await import("../mcp-tool");
 const { prisma } = await import("@/prisma/db");
 const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
 
@@ -92,5 +93,77 @@ describeDatabase("manage_custom_columns against a real database", { timeout: 120
     expect(stored[0].label).toBe("Install Stage");
     const options = (stored[0].options as { options: { label: string; value: string }[] }).options;
     expect(options.map((option) => option.label)).toEqual(["Survey", "Quoted", "Scheduled", "Installed"]);
+  });
+
+  it("does not let an agent update repurpose an existing field", async () => {
+    await manageCustomColumnsTool.execute({
+      action: "upsert",
+      intent: "create",
+      entityType: "organization",
+      type: "plain",
+      label: "Type",
+    } as never);
+    const existing = await runWithoutTenant(() =>
+      prisma.customColumn.findFirstOrThrow({
+        where: { companyId: company, entityType: "organization", label: "Type" },
+      }),
+    );
+
+    const result = await manageCustomColumnsTool.execute({
+      action: "upsert",
+      intent: "update",
+      id: existing.id,
+      entityType: "organization",
+      type: "plain",
+      label: "AI maturity",
+    } as never);
+
+    expect(mcpToolResultText(result)).toContain('Refusing to rename the existing custom column "Type"');
+    await expect(
+      runWithoutTenant(() =>
+        prisma.customColumn.findMany({
+          where: { companyId: company, entityType: "organization" },
+          select: { label: true },
+        }),
+      ),
+    ).resolves.toEqual([{ label: "Type" }]);
+  });
+
+  it("does not let a field id redirect an update to another entity type", async () => {
+    await manageCustomColumnsTool.execute({
+      action: "upsert",
+      intent: "create",
+      entityType: "organization",
+      type: "singleSelect",
+      label: "Status",
+      options: { options: [{ label: "Original" }] },
+    } as never);
+    const existing = await runWithoutTenant(() =>
+      prisma.customColumn.findFirstOrThrow({
+        where: { companyId: company, entityType: "organization", label: "Status" },
+      }),
+    );
+
+    const result = await manageCustomColumnsTool.execute({
+      action: "upsert",
+      intent: "update",
+      id: existing.id,
+      entityType: "contact",
+      type: "singleSelect",
+      label: "Status",
+      options: { options: [{ label: "Replacement" }] },
+    } as never);
+
+    expect(mcpToolResultText(result)).toContain("Refusing to update a custom column on organization as contact");
+    const stored = await runWithoutTenant(() =>
+      prisma.customColumn.findUniqueOrThrow({
+        where: { id: existing.id },
+        select: { entityType: true, options: true },
+      }),
+    );
+    expect(stored.entityType).toBe("organization");
+    expect((stored.options as { options: Array<{ label: string }> }).options.map((option) => option.label)).toEqual([
+      "Original",
+    ]);
   });
 });

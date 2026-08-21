@@ -37,6 +37,10 @@ const MODEL_ID_PATTERN = /\b(?:gpt-\d[a-z0-9_.-]*|claude-[a-z0-9_.-]+|gemini-[a-
 const TOKEN_COUNT_PATTERN = /\b\d[\d,.]*\s+(?:(?:input|output|reasoning|cached)\s+)?tokens?\b/gi;
 const INTERNAL_COST_PATTERN =
   /\b(?:internal\s+)?(?:model|provider)\s+cost(?:s|ed)?\s*(?::|=|is|was)?\s*(?:[$€£]\s*)?\d[\d.,]*/gi;
+const TOOL_PROTOCOL_PATTERN =
+  /(?:^|\s)(?:assistant[ \t]+)?to[ \t]*=[ \t]*[a-z][a-z0-9_-]*(?:\.[a-z][a-z0-9_-]*)+[ \t]*(?:\((?:json|tool|code)\)|\r?\n[ \t]*[{[])/i;
+const TOOL_PROTOCOL_PREFIX_PATTERN =
+  /(?:^|\s)(?:assistant[ \t]+)?to[ \t]*=[ \t]*[a-z][a-z0-9_.-]*(?:[ \t]*\([a-z]*|[ \t]*\r?\n[ \t]*)?$/i;
 
 const PRIVATE_MARKERS = [
   "<page_context",
@@ -170,6 +174,14 @@ function incompletePrivateMarkerStart(value: string) {
   return start;
 }
 
+function toolProtocolStart(value: string) {
+  return TOOL_PROTOCOL_PATTERN.exec(value)?.index ?? null;
+}
+
+function incompleteToolProtocolStart(value: string) {
+  return TOOL_PROTOCOL_PREFIX_PATTERN.exec(value)?.index ?? null;
+}
+
 function protectStreamBoundary(value: string, requestedEnd: number) {
   let safeEnd = requestedEnd;
   let changed = true;
@@ -213,8 +225,11 @@ function redactCompleteAgentVisibleText(value: string) {
 export function sanitizeAgentVisibleText(value: string) {
   const withoutClosedPrivateContent = stripClosedPrivateContent(value);
   const unsafeStart = earliest(
-    openPrivateContentStart(withoutClosedPrivateContent),
-    incompletePrivateMarkerStart(withoutClosedPrivateContent),
+    earliest(
+      openPrivateContentStart(withoutClosedPrivateContent),
+      incompletePrivateMarkerStart(withoutClosedPrivateContent),
+    ),
+    toolProtocolStart(withoutClosedPrivateContent),
   );
   const complete = redactCompleteAgentVisibleText(
     unsafeStart === null ? withoutClosedPrivateContent : withoutClosedPrivateContent.slice(0, unsafeStart),
@@ -267,14 +282,30 @@ export function sanitizeAgentConversationTitle(value: string | null | undefined)
 export class AgentVisibleTextStreamSanitizer {
   private buffer = "";
   private finished = false;
+  private toolProtocolRemoved = false;
+
+  get removedToolProtocol() {
+    return this.toolProtocolRemoved;
+  }
 
   push(value: string) {
-    if (this.finished) return "";
+    if (this.finished || this.toolProtocolRemoved) return "";
     this.buffer += value;
 
+    const protocolStart = toolProtocolStart(this.buffer);
+    if (protocolStart !== null) {
+      const visible = sanitizeAgentVisibleText(this.buffer.slice(0, protocolStart));
+      this.buffer = "";
+      this.toolProtocolRemoved = true;
+      return visible;
+    }
+
     const requestedEnd = Math.max(0, this.buffer.length - STREAM_TAIL_LENGTH);
-    const privateStart = earliest(openPrivateContentStart(this.buffer), incompletePrivateMarkerStart(this.buffer));
-    const safeEnd = protectStreamBoundary(this.buffer, Math.min(requestedEnd, privateStart ?? this.buffer.length));
+    const unsafeStart = earliest(
+      earliest(openPrivateContentStart(this.buffer), incompletePrivateMarkerStart(this.buffer)),
+      incompleteToolProtocolStart(this.buffer),
+    );
+    const safeEnd = protectStreamBoundary(this.buffer, Math.min(requestedEnd, unsafeStart ?? this.buffer.length));
     const visible = sanitizeAgentVisibleText(this.buffer.slice(0, safeEnd));
     this.buffer = this.buffer.slice(safeEnd);
     return visible;
@@ -283,6 +314,14 @@ export class AgentVisibleTextStreamSanitizer {
   finish() {
     if (this.finished) return "";
     this.finished = true;
+
+    const protocolStart = toolProtocolStart(this.buffer);
+    if (protocolStart !== null) {
+      const visible = sanitizeAgentVisibleText(this.buffer.slice(0, protocolStart));
+      this.buffer = "";
+      this.toolProtocolRemoved = true;
+      return visible;
+    }
 
     const visible = sanitizeAgentVisibleText(this.buffer);
     this.buffer = "";

@@ -5,7 +5,7 @@ import { Status } from "@/generated/prisma";
 
 import type { Action, Resource } from "@/generated/prisma";
 
-import { AuthError, ForbiddenError } from "@/core/errors/app-errors";
+import { AppErrorCode, AuthError, ForbiddenError } from "@/core/errors/app-errors";
 
 export type { TenantUser } from "./user.schema";
 
@@ -43,7 +43,7 @@ export class UserService {
   async getActiveUserOrThrow() {
     const user = await this.getUserOrThrow();
 
-    if (user.status !== Status.active) throw new ForbiddenError("User is not active");
+    if (user.status !== Status.active) throw new ForbiddenError("User is not active", AppErrorCode.inactiveUser);
 
     return user;
   }
@@ -71,6 +71,6 @@ export class UserService {
   async hasPermissionOrThrow(resource: Resource, action: Action): Promise<void> {
     const hasPermission = await this.hasPermission(resource, action);
 
-    if (!hasPermission) throw new ForbiddenError("User has insufficient permissions");
+    if (!hasPermission) throw new ForbiddenError("User has insufficient permissions", AppErrorCode.permissionDenied);
   }
 }

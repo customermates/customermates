@@ -10,6 +10,8 @@ import type { FeedbackCreator } from "@/features/feedback/feedback.creator";
 
 import { formatSupportTranscript, SUPPORT_TRANSCRIPT_MESSAGE_LIMIT } from "./agent-chat.schema";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
+import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 export const CreateChatSupportTicketSchema = z.object({
   conversationId: z.uuid(),
@@ -45,7 +47,7 @@ export class CreateChatSupportTicketInteractor extends AuthenticatedInteractor<
   })
   async invoke(data: CreateChatSupportTicketData): Validated<SupportRequestResult> {
     const conversation = await this.repo.findConversation(data.conversationId);
-    if (!conversation) throw new Error("Conversation not found.");
+    if (!conversation) return createInteractorFailure(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
     const messages = await this.repo.listRecentMessages(conversation.id, SUPPORT_TRANSCRIPT_MESSAGE_LIMIT);
     const transcript = formatSupportTranscript(messages);

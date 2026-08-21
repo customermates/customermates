@@ -17,9 +17,18 @@
         "draftDiscard": "Supprimer définitivement le brouillon enregistré sélectionné",
         "draftSave": "Enregistrer un brouillon dans la conversation sélectionnée",
         "emailSend": "Envoyer un e-mail aux destinataires sélectionnés",
+        "externalManage": "Modifier des données dans le compte externe connecté",
         "recordsDelete": "Cette action est irréversible.",
         "recordsLink": "Lier des enregistrements",
         "recordsUnlink": "Supprimer les liens",
+        "salesListSave": "Ajouter le prospect sélectionné à une liste Sales Navigator",
+        "salesListSaveTarget": "Ajouter {target} à la liste Sales Navigator {list}",
+        "socialAccept": "Accepter la demande de connexion sélectionnée",
+        "socialAcceptTarget": "Accepter la demande de connexion de {target}",
+        "socialCancel": "Retirer ou refuser la demande de connexion sélectionnée",
+        "socialCancelTarget": "Retirer ou refuser la demande de connexion concernant {target}",
+        "socialInvite": "Envoyer une demande de connexion depuis le compte connecté",
+        "socialInviteTarget": "Envoyer une demande de connexion à {target}",
         "teamInvite": "Envoyer des e-mails d’invitation aux personnes sélectionnées",
         "teamInviteTarget": "Envoyer {count} e-mail(s) d’invitation à : {target}",
         "teamUpdate": "Modifier le rôle ou le statut du membre de l’équipe sélectionné",
@@ -69,16 +78,60 @@
             "running": "Préparation d’un lien de connexion sécurisé"
           }
         },
+        "customFields": {
+          "configure": {
+            "done": "Champs personnalisés configurés",
+            "error": "Impossible de configurer les champs personnalisés",
+            "running": "Configuration des champs personnalisés"
+          },
+          "create": {
+            "done": "Champ personnalisé créé",
+            "error": "Impossible de créer le champ personnalisé",
+            "running": "Création d’un champ personnalisé"
+          },
+          "delete": {
+            "done": "Champ personnalisé supprimé",
+            "error": "Impossible de supprimer le champ personnalisé",
+            "running": "Suppression d’un champ personnalisé"
+          },
+          "read": {
+            "done": "Champs personnalisés vérifiés",
+            "error": "Impossible de vérifier les champs personnalisés",
+            "running": "Vérification des champs personnalisés"
+          },
+          "update": {
+            "done": "Champ personnalisé mis à jour",
+            "error": "Impossible de mettre à jour le champ personnalisé",
+            "running": "Mise à jour d’un champ personnalisé"
+          }
+        },
+        "docs": {
+          "read": {
+            "done": "Guide correspondant consulté",
+            "error": "Impossible de consulter le guide correspondant",
+            "running": "Consultation du guide correspondant"
+          },
+          "search": {
+            "done": "Documentation consultée",
+            "error": "Impossible de consulter la documentation",
+            "running": "Consultation de la documentation"
+          }
+        },
         "generic": {
           "done": "Étape terminée",
           "error": "Cette étape requiert votre attention",
           "running": "Traitement de votre demande"
         },
         "interface": {
-          "configure": {
-            "done": "Vue ajustée",
-            "error": "Impossible d’ajuster la vue",
-            "running": "Ajustement de la vue"
+          "inspect": {
+            "done": "Éléments d’interface disponibles vérifiés",
+            "error": "Impossible de vérifier les éléments d’interface disponibles",
+            "running": "Vérification des éléments d’interface disponibles"
+          },
+          "interact": {
+            "done": "Commande activée",
+            "error": "Impossible d’activer cette commande",
+            "running": "Activation de la commande"
           },
           "navigate": {
             "done": "Vue correspondante ouverte",
@@ -116,6 +169,13 @@
             "done": "Statut de la conversation modifié",
             "error": "Impossible de modifier l’état de la conversation",
             "running": "État de la conversation prêt à être modifié"
+          }
+        },
+        "profile": {
+          "configure": {
+            "done": "Profil mis à jour",
+            "error": "Impossible de mettre à jour le profil",
+            "running": "Mise à jour du profil"
           }
         },
         "records": {
@@ -171,16 +231,43 @@
             "running": "Envoi des webhooks prêt à être modifié"
           }
         },
+        "widgets": {
+          "configure": {
+            "done": "Widgets du tableau de bord mis à jour",
+            "error": "Impossible de mettre à jour les widgets du tableau de bord",
+            "running": "Mise à jour des widgets du tableau de bord"
+          },
+          "read": {
+            "done": "Widgets du tableau de bord vérifiés",
+            "error": "Impossible de vérifier les widgets du tableau de bord",
+            "running": "Vérification des widgets du tableau de bord"
+          }
+        },
         "workspace": {
           "configure": {
             "done": "Espace de travail mis à jour",
             "error": "Impossible de mettre à jour votre espace de travail",
             "running": "Mise à jour de votre espace de travail"
           },
+          "inspect": {
+            "done": "Informations de l’espace de travail vérifiées",
+            "error": "Impossible de vérifier les informations de l’espace de travail",
+            "running": "Vérification des informations de l’espace de travail"
+          },
           "read": {
             "done": "Espace de travail vérifié",
             "error": "Impossible de consulter votre espace de travail",
             "running": "Vérification de votre espace de travail"
+          },
+          "settings": {
+            "done": "Paramètres de l’espace de travail mis à jour",
+            "error": "Impossible de mettre à jour les paramètres de l’espace de travail",
+            "running": "Mise à jour des paramètres de l’espace de travail"
+          },
+          "terminology": {
+            "done": "Terminologie de l’espace de travail mise à jour",
+            "error": "Impossible de mettre à jour la terminologie de l’espace de travail",
+            "running": "Mise à jour de la terminologie de l’espace de travail"
           }
         }
       },
@@ -215,7 +302,7 @@
     "demoUnavailable": "L’assistant n’est pas disponible dans la démo.",
     "errors": {
       "approvalFailed": "L’approbation n’a pas pu être transmise.",
-      "limitReached": "Votre limite d’utilisation de l’IA est atteinte.",
+      "limitReached": "Il ne reste pas assez de crédits IA pour lancer une autre demande.",
       "sendFailed": "L’assistant n’a pas pu traiter votre message.",
       "turnFailed": "L’assistant a rencontré une erreur."
     },
@@ -228,7 +315,9 @@
     "runner": {
       "cancelled": "Cette réponse a été arrêtée.",
       "emptyReply": "Je n'ai pas pu générer de réponse. Veuillez réessayer.",
-      "maxSteps": "Je n'ai pas pu terminer dans le nombre d'étapes autorisé. Pour les travaux plus importants, connectez votre propre agent IA à Customermates via MCP.",
+      "maxSteps": "J’ai réalisé une partie de cette demande, mais j’ai atteint la limite d’étapes de ce tour. Demandez-moi de continuer et je reprendrai à partir du travail déjà effectué.",
+      "outputLimit": "J’ai rédigé une partie de cette réponse, mais j’ai atteint la limite de sortie de ce tour. Demandez-moi de continuer et je terminerai à partir du travail déjà effectué.",
+      "safetyLimit": "J’ai réalisé une partie de cette demande, mais je me suis arrêté parce que les dernières étapes se répétaient, échouaient ou avaient atteint une limite de sécurité. Le travail terminé reste en place ; vérifiez les étapes ci-dessus avant de me demander de poursuivre.",
       "turnError": "Je n'ai pas pu traiter cette demande. Veuillez réessayer."
     },
     "send": "Envoyer",
@@ -814,6 +903,10 @@
       "activityPageOutOfRange": "La chronologie des activités ne peut pas remonter aussi loin. Affinez plutôt les filtres.",
       "activityScopeTooManyIds": "Un périmètre d'activité ne peut pas sélectionner plus de 50 enregistrements d'un même type.",
       "activitySourcesUnavailable": "Vous n'avez accès à aucune source de la chronologie des activités.",
+      "agentApprovalUnavailable": "Cette demande d’approbation n’est pas disponible ou a expiré.",
+      "agentConversationNotFound": "Cette conversation est introuvable ou n’est plus accessible.",
+      "agentLimitReached": "Il ne reste pas assez de crédits IA pour lancer une autre demande.",
+      "agentTurnAlreadyRunning": "Une autre demande de l’assistant est déjà en cours.",
       "apiKeyMaxExpiration": "L'expiration d'une clé API ne peut pas dépasser 365 jours.",
       "assigneeRequired": "Vous devez vous assigner cet élément. Notez que vous ne pourrez consulter que les éléments qui vous sont assignés.",
       "calendarEventNotFound": "ID d'évènement d'agenda introuvable ou inaccessible.",
@@ -834,6 +927,7 @@
       "customFieldInvalidSingleSelect": "La valeur du choix unique est invalide. Elle doit faire partie des options autorisées : {validValues}.",
       "customFieldInvalidUrl": "L'URL est invalide. Elle doit respecter le format d'une URL (par exemple https://example.com). Pour plusieurs URL, séparez-les par une virgule (par exemple https://example.com, https://example.org).",
       "dealNotFound": "ID d'affaire introuvable ou inaccessible.",
+      "demoMode": "Cette action n’est pas disponible en mode démo. Connectez-vous pour accéder à toutes les fonctionnalités.",
       "draftMessageNotFound": "Ce brouillon est introuvable. Il a peut-être déjà été envoyé ou supprimé.",
       "duplicateChannel": "Ce canal figure plusieurs fois. N’ajoutez chaque adresse e-mail, numéro de téléphone ou identifiant qu’une seule fois.",
       "duplicateOutboundSuppressed": "Un message identique vient d'être envoyé dans cette conversation. Modifiez le texte ou attendez une minute avant de réessayer.",
@@ -841,6 +935,7 @@
       "emailAlreadyExists": "Un compte existe déjà avec cette adresse e-mail.",
       "emailMismatch": "Les adresses e-mail doivent correspondre.",
       "emailNotVerified": "Adresse e-mail non vérifiée.",
+      "enterpriseCheckoutUnavailable": "Les espaces de travail Enterprise sont facturés manuellement et ne peuvent pas lancer le paiement en libre-service.",
       "filterBetweenInvalidArrayLength": "L'opérateur 'between' requiert un tableau contenant exactement 2 éléments.",
       "generic": "Une erreur est survenue.",
       "inmailSignatureRequired": "Ajoutez une signature pour l'InMail Recruiter.",
@@ -854,18 +949,23 @@
       "invalidFilterValue": "Valeur de filtre invalide. La valeur doit correspondre au type du champ et à l'opérateur (par exemple un nombre pour gt/lt, une date ISO pour les champs de date, ou un id pour in/notIn).",
       "invalidSortField": "Champ de tri introuvable ou inaccessible. Champs disponibles : {validValues}.",
       "invalidUrl": "Saisissez une URL valide.",
+      "legalNoticeNotDelivered": "La mise à jour juridique actuelle n’a pas encore été remise à cet espace de travail.",
       "linkedinInboxUnavailable": "Ce compte LinkedIn n'a pas de boîte de réception {product}. Connectez le compte avec {product} associé pour l'utiliser.",
       "linkedinProductRequiresLinkedin": "Les options InMail et produit LinkedIn nécessitent un compte LinkedIn.",
       "linkedinProductUnavailable": "Ce compte LinkedIn n'a pas ce produit connecté.",
       "messageContentRequired": "Ajoutez un message ou une pièce jointe.",
       "mustNotBeBlank": "Ne doit pas être vide.",
       "mustNotContainNullChars": "Ne doit pas contenir de caractères nuls.",
+      "notAuthenticated": "Connectez-vous pour utiliser cette action.",
       "notesExceedsMaxLength": "Le contenu des notes dépasse la longueur maximale.",
       "notesInvalidFormat": "Format de notes invalide. Il doit s'agir de JSON Tiptap valide ou de texte markdown.",
       "organizationNotFound": "ID d'organisation introuvable ou inaccessible.",
       "passwordInvalid": "Le mot de passe doit comporter au moins 8 caractères et contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial.",
       "passwordMismatch": "Les mots de passe doivent correspondre.",
+      "permissionDenied": "Cette action n’est pas disponible avec vos autorisations actuelles.",
+      "presetNotFound": "Ce filtre enregistré est introuvable.",
       "relationNotAllowed": "La relation '{relation}' n'est pas autorisée sur {entity}. Relations autorisées : {allowed}.",
+      "roleAssignedCannotDelete": "Un rôle attribué à des utilisateurs ne peut pas être supprimé.",
       "roleNotFound": "ID de rôle introuvable ou inaccessible.",
       "roleSelfEditForbidden": "Vous ne pouvez pas modifier les autorisations de votre propre rôle.",
       "roleSystemImmutable": "Les rôles système ne peuvent pas être modifiés.",
@@ -891,7 +991,9 @@
       "unipileResourceNotFound": "Le destinataire ou la conversation est introuvable sur ce canal.",
       "unipileServiceUnavailable": "Le service de messagerie est temporairement indisponible. Réessayez dans un instant.",
       "unipileUnknown": "Le fournisseur a rejeté ce message. Réessayez ou contactez l'assistance.",
+      "userInactive": "Votre compte utilisateur est inactif. Contactez un administrateur de l’espace de travail.",
       "userNotFound": "ID d'utilisateur introuvable ou inaccessible.",
+      "userSelfAdminUpdateForbidden": "Vous ne pouvez pas mettre à jour votre propre compte depuis l’administration de l’équipe.",
       "webhookDeliveryNotFound": "ID de livraison de webhook introuvable ou inaccessible.",
       "webhookEventsRequired": "Sélectionnez au moins un évènement.",
       "webhookNotFound": "ID de webhook introuvable ou inaccessible.",
@@ -1266,6 +1368,7 @@
   },
   "ConnectedAccountsCard": {
     "accountLimitReached": "Vous avez atteint la limite de comptes connectés de cette formule. Contactez-nous au sujet de la formule Enterprise pour un nombre illimité de comptes.",
+    "agentChatDisabled": "L’assistant est temporairement indisponible.",
     "agentChatRequiresCloud": "L’assistant est disponible sur Customermates Cloud.",
     "agentChatRequiresPlan": "L’assistant n’est pas disponible avec votre offre actuelle.",
     "alreadyExistsToastDescription": "Ce compte est déjà connecté par un membre de votre espace de travail. Demandez-lui de le partager avec l'espace de travail pour éviter les messages en double dans la boîte de réception.",

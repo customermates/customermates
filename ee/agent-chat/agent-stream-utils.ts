@@ -1,7 +1,5 @@
 import type { ModelMessage } from "ai";
 
-import type { McpToolResult } from "@/app/api/v1/mcp/mcp-route-utils";
-
 import { clientSafeAgentMessageParts } from "./agent-chat.schema";
 
 export type ReplayMessage = { role: string; text: string };
@@ -32,8 +30,4 @@ export function sse(seq: number, type: string, payload: Record<string, unknown> 
         }
       : payload;
   return encoder.encode(`id: ${seq}\ndata: ${JSON.stringify({ seq, type, ...safePayload })}\n\n`);
-}
-
-export function toolResultText(result: McpToolResult): string {
-  return typeof result === "string" ? result : result.text;
 }

@@ -7,6 +7,19 @@ import type { AgentTranslator } from "./agent-translator";
 
 export const AGENT_ACTIVITY_KINDS = [
   "workspace.read",
+  "workspace.inspect",
+  "workspace.settings",
+  "workspace.terminology",
+  "profile.configure",
+  "customFields.read",
+  "customFields.create",
+  "customFields.update",
+  "customFields.delete",
+  "customFields.configure",
+  "widgets.read",
+  "widgets.configure",
+  "docs.search",
+  "docs.read",
   "records.read",
   "records.create",
   "records.update",
@@ -22,9 +35,10 @@ export const AGENT_ACTIVITY_KINDS = [
   "webhooks.manage",
   "accounts.connect",
   "workspace.configure",
+  "interface.inspect",
   "interface.navigate",
   "interface.tour",
-  "interface.configure",
+  "interface.interact",
   "support.escalate",
   "generic",
 ] as const;
@@ -64,6 +78,10 @@ export const AGENT_CONSEQUENCE_ACTIONS = [
   "workspace.configure",
   "workspace.settings",
   "account.connect",
+  "social.invite",
+  "social.accept",
+  "social.cancel",
+  "salesList.save",
   "external.manage",
 ] as const;
 
@@ -80,14 +98,21 @@ export const AgentActivityConsequenceSchema = z
 
 export type AgentActivityConsequence = z.infer<typeof AgentActivityConsequenceSchema>;
 
-export const AgentActivityDescriptorSchema = z.object({
-  kind: z.enum(AGENT_ACTIVITY_KINDS),
-  resource: z.enum(AGENT_ACTIVITY_RESOURCES).optional(),
-  affectedResources: z.array(z.enum(AGENT_ACTIVITY_RESOURCES)).max(8),
-  risk: z.enum(["read", "write", "sensitive"]),
-  count: z.number().int().min(1).max(100).optional(),
-  consequence: AgentActivityConsequenceSchema.optional(),
-});
+export const AgentActivityDescriptorSchema = z.preprocess(
+  (value) => {
+    if (!value || typeof value !== "object" || Array.isArray(value)) return value;
+    const descriptor = value as Record<string, unknown>;
+    return descriptor.kind === "interface.configure" ? { ...descriptor, kind: "interface.interact" } : value;
+  },
+  z.object({
+    kind: z.enum(AGENT_ACTIVITY_KINDS),
+    resource: z.enum(AGENT_ACTIVITY_RESOURCES).optional(),
+    affectedResources: z.array(z.enum(AGENT_ACTIVITY_RESOURCES)).max(8),
+    risk: z.enum(["read", "write", "sensitive"]),
+    count: z.number().int().min(1).max(100).optional(),
+    consequence: AgentActivityConsequenceSchema.optional(),
+  }),
+);
 
 export type AgentActivityDescriptor = z.infer<typeof AgentActivityDescriptorSchema>;
 
@@ -190,11 +215,12 @@ export function describeAgentTool(toolName: string, input: unknown): AgentActivi
   const resource = TOOL_RESOURCE[toolName] ?? entityResource(input);
   const details = inputRecord(input);
 
-  if (toolName === "list_ui_targets" || toolName === "get_workspace_context")
-    return descriptor("workspace.read", undefined, "read");
+  if (toolName === "list_ui_targets") return descriptor("interface.inspect", undefined, "read");
+  if (toolName === "get_workspace_context") return descriptor("workspace.inspect", undefined, "read");
   if (toolName === "navigate" || toolName === "highlight_element" || toolName === "open_record")
     return descriptor("interface.navigate", undefined, "read");
-  if (toolName === "configure_view") return descriptor("interface.configure", undefined, "read");
+  if (toolName === "click_ui_target" || toolName === "configure_view")
+    return descriptor("interface.interact", undefined, "read");
   if (toolName === "start_tour") return descriptor("interface.tour", undefined, "read");
   if (toolName === "request_support") {
     return descriptor("support.escalate", undefined, "sensitive", [], {
@@ -203,28 +229,41 @@ export function describeAgentTool(toolName: string, input: unknown): AgentActivi
       preview: safeText(details.body, 240),
     });
   }
-  if (isMultiplexedRead(toolName, details)) return descriptor("workspace.read", undefined, "read");
-  if (toolName === "manage_custom_columns" || toolName === "manage_widgets") {
+  if (toolName === "manage_custom_columns") {
+    const action = actionValue(details);
+    const kind: AgentActivityKind =
+      action === "list"
+        ? "customFields.read"
+        : action === "delete"
+          ? "customFields.delete"
+          : action === "upsert" && details.intent === "update"
+            ? "customFields.update"
+            : action === "upsert" && (details.intent === "create" || (details.intent === undefined && !details.id))
+              ? "customFields.create"
+              : "customFields.configure";
+    return descriptor(kind, resource, action === "list" ? "read" : multiplexedRisk(toolName, details));
+  }
+  if (toolName === "manage_widgets") {
     return descriptor(
-      "workspace.configure",
-      resource,
-      multiplexedRisk(toolName, details),
-      resource ? [resource] : ["terminology"],
-      {
-        action: "workspace.configure",
-        state: safeText(actionValue(details), 80),
-      },
+      isMultiplexedRead(toolName, details) ? "widgets.read" : "widgets.configure",
+      "widgets",
+      isMultiplexedRead(toolName, details) ? "read" : multiplexedRisk(toolName, details),
     );
   }
+  if (isMultiplexedRead(toolName, details)) return descriptor("workspace.read", undefined, "read");
   if (toolName === "update_workspace_settings") {
-    return descriptor("workspace.configure", resource, "write", resource ? [resource] : ["terminology"], {
-      action: "workspace.settings",
-      state: safeText(details.target, 80),
-    });
+    const updatesTerminology = Array.isArray(details.terminology) && details.terminology.length > 0;
+    const kind =
+      details.target === "profile"
+        ? "profile.configure"
+        : updatesTerminology && details.currency === undefined
+          ? "workspace.terminology"
+          : "workspace.settings";
+    return descriptor(kind, undefined, "write", updatesTerminology ? ["terminology"] : []);
   }
   if (toolName === "manage_team") {
     const action = actionValue(details);
-    return descriptor("team.manage", undefined, "write", [], {
+    return descriptor("team.manage", undefined, multiplexedRisk(toolName, details), [], {
       action: action === "invite" ? "team.invite" : "team.update",
       target: action === "invite" ? safeStringList(details.emails) : "the selected team member",
       count: action === "invite" ? boundedCount(details.emails) : undefined,
@@ -257,14 +296,31 @@ export function describeAgentTool(toolName: string, input: unknown): AgentActivi
       target: safeText(details.channel, 80),
     });
   }
-  if (toolName === "linkedin_manage_sales_lists" || toolName === "manage_social_relations") {
+  if (toolName === "manage_social_relations") {
+    const action = actionValue(details);
+    const consequenceAction =
+      action === "invite"
+        ? "social.invite"
+        : action === "accept"
+          ? "social.accept"
+          : action === "cancel"
+            ? "social.cancel"
+            : "external.manage";
     return descriptor("generic", undefined, "sensitive", [], {
-      action: "external.manage",
-      state: safeText(actionValue(details), 80),
+      action: consequenceAction,
+      target: safeText(details.targetLabel, 120),
+      preview: action === "invite" ? safeText(details.message, 240) : undefined,
     });
   }
-  if (toolName === "search_docs" || toolName === "get_docs_page")
-    return descriptor("workspace.read", undefined, "read");
+  if (toolName === "linkedin_manage_sales_lists") {
+    return descriptor("generic", undefined, "sensitive", [], {
+      action: actionValue(details) === "save" ? "salesList.save" : "external.manage",
+      target: safeText(details.targetLabel, 120),
+      state: safeText(details.listLabel, 80),
+    });
+  }
+  if (toolName === "search_docs") return descriptor("docs.search", undefined, "read");
+  if (toolName === "get_docs_page") return descriptor("docs.read", undefined, "read");
   if (toolName === "get_messaging_threads" || toolName === "get_activities" || toolName === "get_calendars")
     return descriptor("messages.read", "messages", "read");
   if (toolName === "send_email") {
@@ -401,13 +457,18 @@ function agentConsequenceDetail(
       return t("AgentChat.activity.consequence.draftDiscard");
     case "thread.update":
       return consequence.state
-        ? t("AgentChat.activity.consequence.threadUpdateState", { state: consequence.state })
+        ? t("AgentChat.activity.consequence.threadUpdateState", {
+            state: consequence.state,
+          })
         : t("AgentChat.activity.consequence.threadUpdate");
     case "support.request":
       return compact([subject, preview]);
     case "team.invite":
       return consequence.target
-        ? t("AgentChat.activity.consequence.teamInviteTarget", { count: count ?? 1, target: consequence.target })
+        ? t("AgentChat.activity.consequence.teamInviteTarget", {
+            count: count ?? 1,
+            target: consequence.target,
+          })
         : t("AgentChat.activity.consequence.teamInvite");
     case "team.update":
       return compact([t("AgentChat.activity.consequence.teamUpdate"), consequence.state]);
@@ -441,12 +502,43 @@ function agentConsequenceDetail(
       ]);
     case "workspace.configure":
     case "workspace.settings":
-    case "external.manage":
       return consequence.state;
     case "account.connect":
       return consequence.target
-        ? t("AgentChat.activity.consequence.accountConnectTarget", { target: consequence.target })
+        ? t("AgentChat.activity.consequence.accountConnectTarget", {
+            target: consequence.target,
+          })
         : t("AgentChat.activity.consequence.accountConnect");
+    case "social.invite":
+      return compact([
+        consequence.target
+          ? t("AgentChat.activity.consequence.socialInviteTarget", {
+              target: consequence.target,
+            })
+          : t("AgentChat.activity.consequence.socialInvite"),
+        preview,
+      ]);
+    case "social.accept":
+      return consequence.target
+        ? t("AgentChat.activity.consequence.socialAcceptTarget", {
+            target: consequence.target,
+          })
+        : t("AgentChat.activity.consequence.socialAccept");
+    case "social.cancel":
+      return consequence.target
+        ? t("AgentChat.activity.consequence.socialCancelTarget", {
+            target: consequence.target,
+          })
+        : t("AgentChat.activity.consequence.socialCancel");
+    case "salesList.save":
+      return consequence.target && consequence.state
+        ? t("AgentChat.activity.consequence.salesListSaveTarget", {
+            target: consequence.target,
+            list: consequence.state,
+          })
+        : t("AgentChat.activity.consequence.salesListSave");
+    case "external.manage":
+      return t("AgentChat.activity.consequence.externalManage");
   }
 }
 
@@ -477,4 +569,26 @@ export function agentActivityCopy(
     cancelled: t("AgentChat.activity.cancelled"),
     ...(detail ? { detail } : {}),
   };
+}
+
+export function agentActivityGroupSummary(
+  statuses: readonly ("running" | "done" | "error" | "cancelled")[],
+  t: AgentTranslator,
+) {
+  if (statuses.includes("running")) return t("AgentChat.ui.thinking");
+
+  const counts = statuses.reduce(
+    (result, status) => {
+      result[status] += 1;
+      return result;
+    },
+    { done: 0, error: 0, cancelled: 0, running: 0 },
+  );
+  return [
+    counts.done ? t("AgentChat.ui.activityComplete", { count: counts.done }) : undefined,
+    counts.error ? t("AgentChat.ui.activityError", { count: counts.error }) : undefined,
+    counts.cancelled ? t("AgentChat.ui.activityCancelled", { count: counts.cancelled }) : undefined,
+  ]
+    .filter((segment): segment is string => Boolean(segment))
+    .join(" · ");
 }

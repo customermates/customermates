@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { z } from "zod";
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import { mockEntitlementService } from "@/tests/helpers/mock-entitlement-service";
 import {
@@ -11,7 +12,11 @@ import {
 const mockUser = createMockUserWithPermissions([]);
 
 vi.mock("@/env", () => ({
-  env: { ...MOCK_ENV_MODULE.env, APP_MODE: "cloud" as const, AGENT_MODEL: "openai:gpt-5.6-luna" },
+  env: {
+    ...MOCK_ENV_MODULE.env,
+    APP_MODE: "cloud" as const,
+    AGENT_MODEL: "openai:gpt-5.6-luna",
+  },
 }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
@@ -98,5 +103,28 @@ describe("GetAgentConfigInteractor", () => {
     await invocation;
 
     expect(usageService.getUsageSummary).toHaveBeenCalledWith(mockUser.id);
+  });
+
+  it("preserves a disabled denial before reading usage or repository state", async () => {
+    const denial = {
+      ok: false as const,
+      error: new z.ZodError([{ code: "custom", path: [], message: "The Assistant is unavailable." }]),
+      code: "agentChatDisabled" as const,
+    };
+    const entitlements = { require: vi.fn().mockResolvedValue(denial) };
+
+    const result = await new GetAgentConfigInteractor(
+      repo as never,
+      usageService as never,
+      entitlements as never,
+    ).invoke();
+
+    expect(result).toBe(denial);
+    expect(entitlements.require).toHaveBeenCalledWith("agentChat");
+    expect(repo.normalizeExpiredAgentRunLease).not.toHaveBeenCalled();
+    expect(usageService.getUsageSummary).not.toHaveBeenCalled();
+    expect(repo.getSuggestionSignals).not.toHaveBeenCalled();
+    expect(repo.findMyConversation).not.toHaveBeenCalled();
+    expect(repo.listConversationPage).not.toHaveBeenCalled();
   });
 });

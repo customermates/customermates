@@ -13,6 +13,9 @@ const mockUser = createMockUser();
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
+vi.mock("next-intl/server", () => ({
+  getTranslations: () => Promise.resolve({ raw: (key: string) => key }),
+}));
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
 import { CreateChatSupportTicketInteractor } from "../create-chat-support-ticket.interactor";
@@ -54,13 +57,15 @@ describe("CreateChatSupportTicketInteractor", () => {
     };
     const feedbackCreator = { create: vi.fn() };
 
-    await expect(
-      new CreateChatSupportTicketInteractor(repo as never, feedbackCreator as never).invoke({
-        conversationId,
-        subject: "Need a human",
-        body: "Please help with this import error.",
-      }),
-    ).rejects.toThrow("Conversation not found.");
+    const result = await new CreateChatSupportTicketInteractor(repo as never, feedbackCreator as never).invoke({
+      conversationId,
+      subject: "Need a human",
+      body: "Please help with this import error.",
+    });
+    expect(result).toMatchObject({
+      ok: false,
+      error: { issues: [{ params: { error: "agentConversationNotFound" } }] },
+    });
     expect(repo.listRecentMessages).not.toHaveBeenCalled();
     expect(feedbackCreator.create).not.toHaveBeenCalled();
   });

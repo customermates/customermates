@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { interactorFailureStatus } from "@/core/validation/validation.utils";
 
 import { env } from "@/env";
 import { getSendAgentMessageInteractor } from "@/core/di";
@@ -8,7 +9,6 @@ import { runAgentLane } from "@/ee/agent-chat/agent-runner";
 import { sse } from "@/ee/agent-chat/agent-stream-utils";
 import type { SendAgentMessageResult } from "@/ee/agent-chat/send-agent-message.interactor";
 import { isAgentTurnTerminalError } from "@/ee/agent-chat/agent-turn-request";
-import { AGENT_LIMIT_EXCEEDED_MESSAGE, isAgentLimitExceededError } from "@/ee/agent-chat/agent-errors";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -53,7 +53,11 @@ export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
     const result = await getSendAgentMessageInteractor().invoke(data);
-    if (!result.ok) return NextResponse.json(z.prettifyError(result.error), { status: 400 });
+    if (!result.ok) {
+      const status = interactorFailureStatus(result.error);
+      const message = status === 429 ? result.error.issues[0]?.message : z.prettifyError(result.error);
+      return NextResponse.json(message, { status });
+    }
 
     if (result.data.disposition !== "run" && result.data.disposition !== "completedReplay") {
       const headers = new Headers({
@@ -88,7 +92,6 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    if (isAgentLimitExceededError(error)) return NextResponse.json(AGENT_LIMIT_EXCEEDED_MESSAGE, { status: 429 });
     return handleError(error);
   }
 }

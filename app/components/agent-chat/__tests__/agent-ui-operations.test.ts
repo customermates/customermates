@@ -1,119 +1,173 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { RootStore } from "@/core/stores/root.store";
 
-import { ViewMode } from "@/core/base/base-query-builder";
 import { AgentUiControlStore } from "../ui-control.store";
-import { resolveGroupByColumn, resolveSortColumn, toFilters, type AgentDataViewStore } from "../agent-view-ops";
 
-function fakeDataViewStore(overrides: Partial<AgentDataViewStore> = {}) {
-  return {
-    isReady: true,
-    viewMode: ViewMode.table,
-    groupingColumnId: undefined,
-    customColumns: [],
-    singleSelectCustomColumns: [],
-    columnsDefinition: [
-      { uid: "name", sortable: true, label: "Name" },
-      { uid: "createdAt", sortable: true, label: "Created" },
-      { uid: "avatar", sortable: false },
-    ],
-    filterableFields: [
-      { field: "status", operators: ["equals", "in", "isNull"], label: "Status" },
-      { field: "createdAt", operators: ["gt", "lt", "between", "inLastDays"], label: "Created" },
-    ],
-    setViewOptions: vi.fn(),
-    setQueryOptions: vi.fn(),
-    refreshQuery: vi.fn().mockResolvedValue(undefined),
-    ...overrides,
-  } as unknown as AgentDataViewStore;
+class FakeElement {
+  tagName = "BUTTON";
+  isConnected = true;
+  hidden = false;
+  disabled = false;
+  attributes = new Map<string, string>();
+  click = vi.fn();
+  scrollIntoView = vi.fn();
+  closest = vi.fn().mockReturnValue(null);
+  getClientRects = vi.fn().mockReturnValue([{}]);
+
+  getAttribute(name: string) {
+    return this.attributes.get(name) ?? null;
+  }
+
+  setAttribute(name: string, value: string) {
+    this.attributes.set(name, value);
+  }
 }
 
-describe("agent view operations", () => {
-  it("refuses kanban with a helpful message when no single-select column exists", () => {
-    const resolution = resolveGroupByColumn(fakeDataViewStore(), "Status");
+function controlStore() {
+  return new AgentUiControlStore({} as RootStore);
+}
 
-    expect(resolution).toMatchObject({
-      ok: false,
-      message: "Kanban needs a single-select custom field to group by; this view has none. Offer to create one.",
-    });
+function mount(elements: Record<string, FakeElement>, style: Record<string, string> = {}) {
+  vi.stubGlobal("window", {
+    getComputedStyle: () => ({
+      display: "block",
+      visibility: "visible",
+      opacity: "1",
+      pointerEvents: "auto",
+      ...style,
+    }),
   });
-
-  it("resolves a grouping label case-insensitively to the column uuid and lists alternatives", () => {
-    const store = fakeDataViewStore({
-      singleSelectCustomColumns: [
-        { id: "col-1", label: "Status", type: "singleSelect" },
-        { id: "col-2", label: "Priority", type: "singleSelect" },
-      ],
-    } as never);
-
-    expect(resolveGroupByColumn(store, "status")).toEqual({ ok: true, value: "col-1" });
-    expect(resolveGroupByColumn(store, "Stage")).toMatchObject({
-      ok: false,
-      message: 'No single-select field named "Stage". Available: Status, Priority.',
-    });
+  vi.stubGlobal("document", {
+    getElementById: (id: string) => elements[id] ?? null,
   });
+}
 
-  it("resolves sort columns by uid or label and rejects unsortable ones", () => {
-    const store = fakeDataViewStore();
-
-    expect(resolveSortColumn(store, "Created")).toEqual({ ok: true, value: "createdAt" });
-    expect(resolveSortColumn(store, "name")).toEqual({ ok: true, value: "name" });
-    expect(resolveSortColumn(store, "avatar")).toMatchObject({ ok: false });
-  });
-
-  it("reshapes flat filters into the typed union and validates operators per field", () => {
-    const store = fakeDataViewStore();
-
-    expect(toFilters(store, [{ field: "Status", operator: "in", values: ["open", "won"] }])).toEqual({
-      ok: true,
-      value: [{ field: "status", operator: "in", value: ["open", "won"] }],
-    });
-    expect(toFilters(store, [{ field: "createdAt", operator: "inLastDays", value: "7" }])).toEqual({
-      ok: true,
-      value: [{ field: "createdAt", operator: "inLastDays", value: 7 }],
-    });
-    expect(toFilters(store, [{ field: "status", operator: "gt", value: "x" }])).toMatchObject({ ok: false });
-    expect(toFilters(store, [{ field: "missing", operator: "equals", value: "x" }])).toMatchObject({ ok: false });
-    expect(toFilters(store, [{ field: "createdAt", operator: "between", values: ["a"] }])).toMatchObject({
-      ok: false,
-    });
-  });
+afterEach(() => {
+  vi.useRealTimers();
+  vi.unstubAllGlobals();
 });
 
-function controlStoreWith(rootOverrides: Record<string, unknown>) {
-  const root = {
-    ...rootOverrides,
-  } as unknown as RootStore;
-  return { store: new AgentUiControlStore(root), root };
-}
+describe("AgentUiControlStore.clickTarget", () => {
+  it("activates an allowlisted display control only after its expanded state is visible", async () => {
+    const target = new FakeElement();
+    target.setAttribute("aria-expanded", "false");
+    target.click.mockImplementation(() => target.setAttribute("aria-expanded", "true"));
+    mount({ "deals-display-options": target });
 
-describe("AgentUiControlStore.configureView", () => {
-  it("keeps an explicit table layout even when the model also passes a grouping", async () => {
-    const refreshQuery = vi.fn().mockResolvedValue(undefined);
-    const dataStore = fakeDataViewStore({
-      singleSelectCustomColumns: [{ id: "col-1", label: "Status", type: "singleSelect" }],
-      refreshQuery,
-    } as never);
-    const { store } = controlStoreWith({ dealsStore: dataStore });
-    Object.defineProperty(globalThis, "window", {
-      value: { location: { pathname: "/en/deals" } },
-      configurable: true,
+    await expect(controlStore().clickTarget("deals-display-options")).resolves.toEqual({
+      ok: true,
+      result: "Activated deals-display-options.",
+    });
+    expect(target.scrollIntoView).toHaveBeenCalledOnce();
+    expect(target.click).toHaveBeenCalledOnce();
+  });
+
+  it("requires the display-options prerequisite before a layout control can be used", async () => {
+    mount({});
+
+    await expect(controlStore().clickTarget("deals-layout-kanban")).resolves.toEqual({
+      ok: false,
+      result: "Target deals-layout-kanban is not available. Open deals-display-options first.",
+    });
+  });
+
+  it("treats an already selected layout as a successful no-op", async () => {
+    const target = new FakeElement();
+    target.setAttribute("data-state", "active");
+    mount({ "deals-layout-table": target });
+
+    await expect(controlStore().clickTarget("deals-layout-table")).resolves.toEqual({
+      ok: true,
+      result: "Target deals-layout-table is already active.",
+    });
+    expect(target.click).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["arbitrary selectors", "#deals-display-options"],
+    ["form submission controls", "company-settings-save"],
+    ["navigation controls", "nav-contacts"],
+  ])("rejects %s outside the click allowlist", async (_label, targetId) => {
+    mount({});
+
+    await expect(controlStore().clickTarget(targetId)).resolves.toEqual({
+      ok: false,
+      result: `Target ${targetId} is not an allowed interface control.`,
+    });
+  });
+
+  it.each([
+    ["disabled", { disabled: true }],
+    ["hidden", { hidden: true }],
+    ["disconnected", { isConnected: false }],
+  ])("rejects a %s button without clicking it", async (state, overrides) => {
+    const target = Object.assign(new FakeElement(), overrides);
+    target.setAttribute("aria-expanded", "false");
+    mount({ "deals-display-options": target });
+
+    const outcome = await controlStore().clickTarget("deals-display-options");
+
+    expect(outcome.ok).toBe(false);
+    expect(outcome.result).toContain(state === "disabled" ? "disabled" : "not visible");
+    expect(target.click).not.toHaveBeenCalled();
+  });
+
+  it("rejects inert ancestors and non-button targets", async () => {
+    const inert = new FakeElement();
+    inert.closest.mockReturnValue({});
+    inert.setAttribute("aria-expanded", "false");
+    mount({ "deals-display-options": inert });
+    await expect(controlStore().clickTarget("deals-display-options")).resolves.toMatchObject({
+      ok: false,
+      result: "Target deals-display-options is not visible.",
     });
 
-    const outcome = await store.configureView({ view: "deals", layout: "table", groupBy: "Status" });
+    const input = new FakeElement();
+    input.tagName = "INPUT";
+    mount({ "deals-display-options": input });
+    await expect(controlStore().clickTarget("deals-display-options")).resolves.toEqual({
+      ok: false,
+      result: "Target deals-display-options is not an activatable button.",
+    });
+  });
 
-    expect(outcome.ok).toBe(true);
-    expect(dataStore.setViewOptions).toHaveBeenCalledTimes(1);
-    expect(dataStore.setViewOptions).toHaveBeenCalledWith({ viewMode: "table" });
-    expect(refreshQuery).toHaveBeenCalledTimes(1);
+  it.each([
+    ["transparent", { opacity: "0" }],
+    ["non-interactive", { pointerEvents: "none" }],
+  ])("rejects a %s computed style", async (_state, style) => {
+    const target = new FakeElement();
+    target.setAttribute("aria-expanded", "false");
+    mount({ "deals-display-options": target }, style);
+
+    await expect(controlStore().clickTarget("deals-display-options")).resolves.toEqual({
+      ok: false,
+      result: "Target deals-display-options is not visible.",
+    });
+    expect(target.click).not.toHaveBeenCalled();
+  });
+
+  it("reports failure when a click does not reach its required postcondition", async () => {
+    vi.useFakeTimers();
+    const target = new FakeElement();
+    target.setAttribute("data-state", "inactive");
+    mount({ "deals-layout-cards": target });
+
+    const outcome = controlStore().clickTarget("deals-layout-cards");
+    await vi.advanceTimersByTimeAsync(1100);
+
+    await expect(outcome).resolves.toEqual({
+      ok: false,
+      result: "Target deals-layout-cards did not activate.",
+    });
+    expect(target.click).toHaveBeenCalledOnce();
   });
 });
 
 describe("AgentUiControlStore.openRecord", () => {
   it("builds page and drawer paths and propagates a blocked navigation", async () => {
     const navigate = vi.fn().mockResolvedValue("navigated");
-    const { store } = controlStoreWith({});
+    const store = controlStore();
     store.registerNavigate(navigate);
 
     await store.openRecord({

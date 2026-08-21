@@ -6,7 +6,7 @@ export type ModelPricing = {
 };
 
 const PRICING: Record<string, ModelPricing> = {
-  "gpt-5.6-luna": { inputPerMTok: 0.2, outputPerMTok: 1.2, cacheReadPerMTok: 0.02, cacheWritePerMTok: 0.2 },
+  "gpt-5.6-luna": { inputPerMTok: 0.2, outputPerMTok: 1.2, cacheReadPerMTok: 0.02, cacheWritePerMTok: 0.25 },
 };
 
 const UNKNOWN_MODEL_PRICING: ModelPricing = {

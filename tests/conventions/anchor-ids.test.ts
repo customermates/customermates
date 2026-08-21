@@ -67,6 +67,9 @@ function codeIds(): Set<string> {
         ids.add(`${scope}-search`);
         ids.add(`${scope}-filter`);
         ids.add(`${scope}-display-options`);
+        ids.add(`${scope}-layout-table`);
+        ids.add(`${scope}-layout-cards`);
+        ids.add(`${scope}-layout-kanban`);
         if (TOOLBAR_SCOPES_WITH_ADD.includes(scope)) ids.add(`${scope}-add`);
       }
       if (FORM_SCOPES.includes(scope)) {
@@ -82,9 +85,26 @@ function codeIds(): Set<string> {
 function expectedDocumentedIds(): Set<string> {
   const ids = new Set<string>();
   for (const scope of TOOLBAR_SCOPES_WITH_ADD)
-    for (const suffix of ["-add", "-search", "-filter", "-display-options"]) ids.add(`${scope}${suffix}`);
+    for (const suffix of [
+      "-add",
+      "-search",
+      "-filter",
+      "-display-options",
+      "-layout-table",
+      "-layout-cards",
+      "-layout-kanban",
+    ])
+      ids.add(`${scope}${suffix}`);
   for (const scope of TOOLBAR_SCOPES_WITHOUT_ADD)
-    for (const suffix of ["-search", "-filter", "-display-options"]) ids.add(`${scope}${suffix}`);
+    for (const suffix of [
+      "-search",
+      "-filter",
+      "-display-options",
+      "-layout-table",
+      "-layout-cards",
+      "-layout-kanban",
+    ])
+      ids.add(`${scope}${suffix}`);
   for (const scope of FORM_SCOPES) for (const suffix of ["-save", "-reset"]) ids.add(`${scope}${suffix}`);
   for (const key of NAV_KEYS) ids.add(`nav-${key}`);
   for (const file of sourceFiles()) {

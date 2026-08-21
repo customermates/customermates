@@ -21,6 +21,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator";
+import { assertInvariant } from "@/core/errors/assert-invariant";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 const RELATION_ENTITY = ["contact", "organization", "deal", "service", "task"] as const;
@@ -157,7 +158,7 @@ export class ModifyEntityRelationInteractor extends AuthenticatedInteractor<
     const next = mode === "add" ? [...new Set([...current, ...ids])] : current.filter((id) => !removeSet.has(id));
 
     const field = WRITE_FIELD[entity][relation];
-    if (!field) throw new Error(`No write field for ${entity}.${relation}`);
+    assertInvariant(field, `No write field for ${entity}.${relation}`);
 
     const result = await this.writeRelation(entity, sourceId, field, next);
     if (!result.ok) return result;

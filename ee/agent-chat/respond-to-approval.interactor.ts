@@ -10,6 +10,8 @@ import { type Data, type Validated } from "@/core/validation/validation.utils";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
+import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 export const RespondToApprovalSchema = z
   .object({
@@ -39,14 +41,14 @@ export class RespondToApprovalInteractor extends AuthenticatedInteractor<Respond
     if (denied) return denied;
 
     const conversation = await this.repo.findConversation(data.conversationId);
-    if (!conversation) throw new Error("Conversation not found.");
+    if (!conversation) return createInteractorFailure(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
     const resolved = await this.repo.resolvePendingApprovalRequest({
       conversationId: data.conversationId,
       requestId: data.requestId,
       decision: data.decision === "reject" ? AgentApprovalDecision.reject : AgentApprovalDecision.approve,
     });
-    if (!resolved) throw new Error("Approval request is unavailable or expired.");
+    if (!resolved) return createInteractorFailure(CustomErrorCode.agentApprovalUnavailable, ["requestId"]);
 
     return { ok: true as const, data: { resolved: true } };
   }

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as Sentry from "@sentry/nextjs";
+import { z } from "zod";
 
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import { mockEntitlementService } from "@/tests/helpers/mock-entitlement-service";
@@ -13,12 +14,23 @@ import {
 const mockUser = createMockUserWithPermissions([]);
 
 vi.mock("@/env", () => ({
-  env: { ...MOCK_ENV_MODULE.env, APP_MODE: "cloud" as const, AGENT_MODEL: "anthropic:claude-test" },
+  env: {
+    ...MOCK_ENV_MODULE.env,
+    APP_MODE: "cloud" as const,
+    AGENT_MODEL: "anthropic:claude-test",
+  },
 }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
+vi.mock("next-intl/server", () => ({
+  getTranslations: () => Promise.resolve({ raw: (key: string) => key }),
+}));
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
-vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn(), setTag: vi.fn(), setUser: vi.fn() }));
+vi.mock("@sentry/nextjs", () => ({
+  captureException: vi.fn(),
+  setTag: vi.fn(),
+  setUser: vi.fn(),
+}));
 
 import { GetAgentConversationInteractor } from "../get-agent-conversation.interactor";
 import { RespondToUiCommandInteractor } from "../respond-to-ui-command.interactor";
@@ -45,14 +57,14 @@ function usageService() {
     prepareTurn: vi.fn().mockResolvedValue({
       summary,
       reservation: {
-        reservedCredits: 36,
+        reservedCredits: 44,
         planSnapshot: "pro",
         subscriptionStatusSnapshot: "active",
         allowanceCreditsSnapshot: 500,
         periodStart: summary.periodStart,
         periodEnd: summary.resetAt,
         budget: {
-          reservedCredits: 36,
+          reservedCredits: 44,
           maxSteps: 8,
           maxOutputTokens: 2048,
           maxContextBytes: 200_000,
@@ -70,6 +82,42 @@ describe("agent access", () => {
     vi.clearAllMocks();
     expect(mockUser.role?.isSystemRole).toBe(false);
     expect(mockUser.role?.permissions).toEqual([]);
+  });
+
+  it("denies a direct send invocation before admission or usage work when the kill switch is active", async () => {
+    const repo = {
+      normalizeExpiredAgentRunLease: vi.fn(),
+      findAgentTurnRequestForAdmission: vi.fn(),
+      claimAgentRunLease: vi.fn(),
+      admitAgentTurnOrThrow: vi.fn(),
+    };
+    const usage = usageService();
+    const entitlements = {
+      require: vi.fn().mockResolvedValue({
+        ok: false,
+        error: new z.ZodError([
+          {
+            code: "custom",
+            path: [],
+            message: "The Assistant is unavailable.",
+          },
+        ]),
+        code: "agentChatDisabled",
+      }),
+    };
+
+    const result = await new SendAgentMessageInteractor(repo as never, usage as never, entitlements as never).invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: "hello",
+      retry: false,
+    });
+
+    expect(result.ok).toBe(false);
+    expect(entitlements.require).toHaveBeenCalledWith("agentChat");
+    expect(repo.normalizeExpiredAgentRunLease).not.toHaveBeenCalled();
+    expect(repo.findAgentTurnRequestForAdmission).not.toHaveBeenCalled();
+    expect(usage.prepareTurn).not.toHaveBeenCalled();
+    expect(usage.reserveUsage).not.toHaveBeenCalled();
   });
 
   it("admits a new turn, keeps page context private, and preserves the complete current message", async () => {
@@ -157,13 +205,18 @@ describe("agent access", () => {
       reservation: null,
     });
 
-    await expect(
-      new SendAgentMessageInteractor(repo as never, usage as never, mockEntitlementService()).invoke({
+    const result = await new SendAgentMessageInteractor(repo as never, usage as never, mockEntitlementService()).invoke(
+      {
         clientRequestId: CLIENT_REQUEST_ID,
         text: "hello",
         retry: false,
-      }),
-    ).rejects.toThrow("Your AI usage limit is reached.");
+      },
+    );
+
+    expect(result).toMatchObject({
+      ok: false,
+      error: { issues: [{ params: { error: "agentLimitReached" } }] },
+    });
 
     expect(repo.findAgentTurnRequestForAdmission).toHaveBeenCalledBefore(usage.prepareTurn);
     expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
@@ -209,50 +262,44 @@ describe("agent access", () => {
     );
   });
 
-  it("carries bounded prior user intent into a multi-turn action tool profile", async () => {
-    const priorMessage = {
-      id: "prior-user-message",
-      role: "user",
-      parts: [{ type: "text", text: "Please create a contact for this customer." }],
-    };
+  it("does not query prior messages to decide which capabilities are available", async () => {
     const repo = {
       normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
       findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
       claimAgentRunLease: vi.fn().mockResolvedValue(true),
       findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),
-      listRecentMessages: vi.fn().mockResolvedValue([priorMessage]),
+      listRecentMessages: vi.fn(),
       admitAgentTurnOrThrow: vi.fn().mockImplementation((args) =>
         Promise.resolve({
           conversationId: CONVERSATION_ID,
           userMessageId: args.turn.userMessageId,
           recentMessages: [
-            priorMessage,
             {
               id: args.turn.userMessageId,
               role: "user",
-              parts: [{ type: "text", text: "Alice Smith" }],
+              parts: [{ type: "text", text: "Decide yourself." }],
             },
           ],
         }),
       ),
     };
 
-    const result = await new SendAgentMessageInteractor(
-      repo as never,
-      usageService() as never,
-      mockEntitlementService(),
-    ).invoke({
-      clientRequestId: CLIENT_REQUEST_ID,
-      conversationId: CONVERSATION_ID,
-      text: "Alice Smith",
-      pageContext: { route: "/en/contacts" },
-      retry: false,
-    });
+    const usage = usageService();
+    const result = await new SendAgentMessageInteractor(repo as never, usage as never, mockEntitlementService()).invoke(
+      {
+        clientRequestId: CLIENT_REQUEST_ID,
+        conversationId: CONVERSATION_ID,
+        text: "Decide yourself.",
+        pageContext: { route: "/en/organizations" },
+        retry: false,
+      },
+    );
 
     expect(result.ok && result.data.disposition).toBe("run");
     if (!result.ok || result.data.disposition !== "run") return;
-    expect(result.data.toolNames).toEqual(expect.arrayContaining(["create_contacts", "update_contacts"]));
-    expect(repo.listRecentMessages).toHaveBeenCalledOnce();
+    expect(result.data).not.toHaveProperty("toolNames");
+    expect(repo.listRecentMessages).not.toHaveBeenCalled();
+    expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), expect.any(Number), 4);
   });
 
   it("replays a completed turn before budget, lease, reservation, or provider work", async () => {
@@ -462,14 +509,18 @@ describe("agent access", () => {
       admitAgentTurnOrThrow: vi.fn(),
     };
 
-    await expect(
-      new SendAgentMessageInteractor(repo as never, usage as never, mockEntitlementService()).invoke({
+    const result = await new SendAgentMessageInteractor(repo as never, usage as never, mockEntitlementService()).invoke(
+      {
         clientRequestId: CLIENT_REQUEST_ID,
         conversationId: CONVERSATION_ID,
         text: "continue",
         retry: false,
-      }),
-    ).rejects.toThrow("Conversation not found.");
+      },
+    );
+    expect(result).toMatchObject({
+      ok: false,
+      error: { issues: [{ params: { error: "agentConversationNotFound" } }] },
+    });
     expect(repo.admitAgentTurnOrThrow).not.toHaveBeenCalled();
     expect(usage.prepareTurn).not.toHaveBeenCalled();
     expect(usage.reserveUsage).not.toHaveBeenCalled();
@@ -485,19 +536,21 @@ describe("agent access", () => {
       releasePreProviderAdmissionOrThrowUnscoped: vi.fn().mockResolvedValue({ disposition: "released" }),
     };
 
-    await expect(
-      new SendAgentMessageInteractor(repo as never, usageService() as never, mockEntitlementService()).invoke({
-        clientRequestId: CLIENT_REQUEST_ID,
-        text: "hello",
-        retry: false,
-      }),
-    ).rejects.toThrow("Another assistant turn is already running.");
-    expect(repo.admitAgentTurnOrThrow).not.toHaveBeenCalled();
-    expect(repo.releasePreProviderAdmissionOrThrowUnscoped).toHaveBeenCalledWith({
-      companyId: mockUser.companyId,
-      userId: mockUser.id,
-      runId: expect.any(String),
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usageService() as never,
+      mockEntitlementService(),
+    ).invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: "hello",
+      retry: false,
     });
+    expect(result).toMatchObject({
+      ok: false,
+      error: { issues: [{ params: { error: "agentTurnAlreadyRunning" } }] },
+    });
+    expect(repo.admitAgentTurnOrThrow).not.toHaveBeenCalled();
+    expect(repo.releasePreProviderAdmissionOrThrowUnscoped).not.toHaveBeenCalled();
   });
 
   it("atomically cleans up phase-one state when chat admission fails", async () => {

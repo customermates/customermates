@@ -50,6 +50,42 @@ describe("agent client-visible output safety", () => {
     }
   });
 
+  it("removes provider tool protocol and its payload across every chunk boundary", () => {
+    const source = [
+      "I prepared the first batch.",
+      " to=customer_records.create_contacts  (json)",
+      '\n{"contacts":[{"email":"private@example.com","apiKey":"never-show"}]}',
+    ].join("");
+    const expected = "I prepared the first batch.";
+
+    expect(sanitizeAgentVisibleText(source)).toBe(expected);
+
+    for (let split = 0; split <= source.length; split += 1) {
+      const sanitizer = new AgentVisibleTextStreamSanitizer();
+      const visible = `${sanitizer.push(source.slice(0, split))}${sanitizer.push(source.slice(split))}${sanitizer.finish()}`;
+      expect(visible).toBe(expected);
+      expect(sanitizer.removedToolProtocol).toBe(true);
+    }
+  });
+
+  it("keeps ordinary recipient and prose lines that only share a protocol prefix", () => {
+    const values = [
+      "to=finance@example.com",
+      "to=customer",
+      "Send the report to=customer when it is ready.",
+      "Send the report to=customer.records when it is ready.",
+    ];
+
+    for (const source of values) {
+      for (let split = 0; split <= source.length; split += 1) {
+        const sanitizer = new AgentVisibleTextStreamSanitizer();
+        const visible = `${sanitizer.push(source.slice(0, split))}${sanitizer.push(source.slice(split))}${sanitizer.finish()}`;
+        expect(visible).toBe(source);
+        expect(sanitizer.removedToolProtocol).toBe(false);
+      }
+    }
+  });
+
   it("fails closed for incomplete private tails", () => {
     expect(sanitizeAgentVisibleText("Safe answer. <analysis>private reasoning")).toBe("Safe answer. ");
     expect(sanitizeAgentVisibleText('Safe answer. <page_context route="/private')).toBe("Safe answer. ");
@@ -58,6 +94,12 @@ describe("agent client-visible output safety", () => {
 
     const sanitizer = new AgentVisibleTextStreamSanitizer();
     expect(`${sanitizer.push("Safe answer. <think>private")}${sanitizer.finish()}`).toBe("Safe answer. ");
+
+    const protocol = new AgentVisibleTextStreamSanitizer();
+    expect(`${protocol.push("Safe answer.\nassistant to=customer_")}${protocol.finish()}`).toBe(
+      "Safe answer.\nassistant to=customer_",
+    );
+    expect(protocol.removedToolProtocol).toBe(false);
   });
 
   it("keeps already-sanitized text stable", () => {
@@ -88,6 +130,16 @@ describe("agent client-visible output safety", () => {
           rawResult: "never-show",
         },
         {
+          type: "activity",
+          id: "legacy-interface-activity",
+          activity: {
+            kind: "interface.configure",
+            affectedResources: [],
+            risk: "write",
+          },
+          status: "done",
+        },
+        {
           type: "tool_use",
           id: "legacy-tool-1",
           name: "send_email",
@@ -99,6 +151,13 @@ describe("agent client-visible output safety", () => {
           },
           resultPreview: "never-show",
         },
+        {
+          type: "tool_use",
+          id: "legacy-configure-view",
+          name: "configure_view",
+          input: { page: "contacts", layout: "cards" },
+          status: "done",
+        },
         { type: "reasoning", text: "hidden chain of thought" },
         { type: "tool_result", result: { apiKey: "never-show" } },
         { type: "provider_metadata", modelId: "gpt-5.6-luna", inputTokens: 321 },
@@ -107,9 +166,12 @@ describe("agent client-visible output safety", () => {
     );
     const serialized = JSON.stringify(parts);
 
-    expect(parts.map((part) => part.type)).toEqual(["text", "activity", "activity"]);
+    expect(parts.map((part) => part.type)).toEqual(["text", "activity", "activity", "activity", "activity"]);
     expect(serialized).toContain("records.read");
     expect(serialized).toContain("messages.send");
+    expect(serialized).toContain("interface.interact");
+    expect(serialized).not.toContain("interface.configure");
+    expect(serialized).not.toContain("configure_view");
     expect(serialized).not.toMatch(
       /page_context|00000000|never-show|rawArguments|rawResult|resultPreview|reasoning|tool_result|provider_metadata|gpt-5\.6|321/,
     );

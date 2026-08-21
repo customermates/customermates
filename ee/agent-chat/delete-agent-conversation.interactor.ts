@@ -8,6 +8,8 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
+import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 export const DeleteAgentConversationSchema = z.object({ conversationId: z.uuid() });
 export type DeleteAgentConversationData = Data<typeof DeleteAgentConversationSchema>;
@@ -37,7 +39,7 @@ export class DeleteAgentConversationInteractor extends AuthenticatedInteractor<
     if (denied) return denied;
 
     const deleted = await this.repo.deleteArchivedConversation(data.conversationId);
-    if (!deleted) throw new Error("Archived conversation not found.");
+    if (!deleted) return createInteractorFailure(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
     return { ok: true as const, data: { deleted: true as const } };
   }

@@ -17,9 +17,18 @@
         "draftDiscard": "Descartar de forma permanente el borrador guardado seleccionado",
         "draftSave": "Guardar un borrador en la conversación seleccionada",
         "emailSend": "Enviar un correo a los destinatarios seleccionados",
+        "externalManage": "Cambiar datos en la cuenta externa conectada",
         "recordsDelete": "Esta acción no se puede deshacer.",
         "recordsLink": "Vincular registros",
         "recordsUnlink": "Eliminar vínculos",
+        "salesListSave": "Añadir el prospecto seleccionado a una lista de Sales Navigator",
+        "salesListSaveTarget": "Añadir {target} a la lista {list} de Sales Navigator",
+        "socialAccept": "Aceptar la solicitud de conexión seleccionada",
+        "socialAcceptTarget": "Aceptar la solicitud de conexión de {target}",
+        "socialCancel": "Retirar o rechazar la solicitud de conexión seleccionada",
+        "socialCancelTarget": "Retirar o rechazar la solicitud de conexión relacionada con {target}",
+        "socialInvite": "Enviar una solicitud de conexión desde la cuenta conectada",
+        "socialInviteTarget": "Enviar una solicitud de conexión a {target}",
         "teamInvite": "Enviar correos de invitación a las personas seleccionadas",
         "teamInviteTarget": "Enviar {count} correo(s) de invitación a: {target}",
         "teamUpdate": "Cambiar el rol o el estado del miembro del equipo seleccionado",
@@ -69,16 +78,60 @@
             "running": "Preparando un enlace de conexión seguro"
           }
         },
+        "customFields": {
+          "configure": {
+            "done": "Campos personalizados configurados",
+            "error": "No se pudieron configurar los campos personalizados",
+            "running": "Configurando campos personalizados"
+          },
+          "create": {
+            "done": "Campo personalizado creado",
+            "error": "No se pudo crear el campo personalizado",
+            "running": "Creando un campo personalizado"
+          },
+          "delete": {
+            "done": "Campo personalizado eliminado",
+            "error": "No se pudo eliminar el campo personalizado",
+            "running": "Eliminando un campo personalizado"
+          },
+          "read": {
+            "done": "Campos personalizados revisados",
+            "error": "No se pudieron revisar los campos personalizados",
+            "running": "Revisando campos personalizados"
+          },
+          "update": {
+            "done": "Campo personalizado actualizado",
+            "error": "No se pudo actualizar el campo personalizado",
+            "running": "Actualizando un campo personalizado"
+          }
+        },
+        "docs": {
+          "read": {
+            "done": "Guía correspondiente consultada",
+            "error": "No se pudo consultar la guía correspondiente",
+            "running": "Consultando la guía correspondiente"
+          },
+          "search": {
+            "done": "Documentación consultada",
+            "error": "No se pudo consultar la documentación",
+            "running": "Consultando la documentación"
+          }
+        },
         "generic": {
           "done": "Paso completado",
           "error": "Este paso requiere atención",
           "running": "Procesando la solicitud"
         },
         "interface": {
-          "configure": {
-            "done": "Vista ajustada",
-            "error": "No se pudo ajustar la vista",
-            "running": "Ajustando la vista"
+          "inspect": {
+            "done": "Controles disponibles revisados",
+            "error": "No se pudieron revisar los controles disponibles",
+            "running": "Revisando los controles disponibles"
+          },
+          "interact": {
+            "done": "Control activado",
+            "error": "No se pudo activar el control",
+            "running": "Activando el control"
           },
           "navigate": {
             "done": "Vista correspondiente abierta",
@@ -116,6 +169,13 @@
             "done": "Estado de la conversación cambiado",
             "error": "No se pudo cambiar el estado de la conversación",
             "running": "Listo para cambiar el estado de la conversación"
+          }
+        },
+        "profile": {
+          "configure": {
+            "done": "Perfil actualizado",
+            "error": "No se pudo actualizar el perfil",
+            "running": "Actualizando el perfil"
           }
         },
         "records": {
@@ -171,16 +231,43 @@
             "running": "Listo para cambiar la entrega del webhook"
           }
         },
+        "widgets": {
+          "configure": {
+            "done": "Widgets del panel actualizados",
+            "error": "No se pudieron actualizar los widgets del panel",
+            "running": "Actualizando los widgets del panel"
+          },
+          "read": {
+            "done": "Widgets del panel revisados",
+            "error": "No se pudieron revisar los widgets del panel",
+            "running": "Revisando los widgets del panel"
+          }
+        },
         "workspace": {
           "configure": {
             "done": "Espacio de trabajo actualizado",
             "error": "No se pudo actualizar su espacio de trabajo",
             "running": "Actualizando el espacio de trabajo"
           },
+          "inspect": {
+            "done": "Detalles del espacio de trabajo revisados",
+            "error": "No se pudieron revisar los detalles del espacio de trabajo",
+            "running": "Revisando los detalles del espacio de trabajo"
+          },
           "read": {
             "done": "Espacio de trabajo revisado",
             "error": "No se pudo comprobar su espacio de trabajo",
             "running": "Revisando el espacio de trabajo"
+          },
+          "settings": {
+            "done": "Configuración del espacio de trabajo actualizada",
+            "error": "No se pudo actualizar la configuración del espacio de trabajo",
+            "running": "Actualizando la configuración del espacio de trabajo"
+          },
+          "terminology": {
+            "done": "Terminología del espacio de trabajo actualizada",
+            "error": "No se pudo actualizar la terminología del espacio de trabajo",
+            "running": "Actualizando la terminología del espacio de trabajo"
           }
         }
       },
@@ -215,7 +302,7 @@
     "demoUnavailable": "El asistente no está disponible en la demostración.",
     "errors": {
       "approvalFailed": "No se pudo enviar la aprobación.",
-      "limitReached": "Se ha alcanzado el límite de uso de IA.",
+      "limitReached": "No quedan suficientes créditos de IA para iniciar otra solicitud.",
       "sendFailed": "El asistente no ha podido procesar su mensaje.",
       "turnFailed": "Se ha producido un error en el asistente."
     },
@@ -228,7 +315,9 @@
     "runner": {
       "cancelled": "Esta respuesta se ha detenido.",
       "emptyReply": "No he podido generar una respuesta. Inténtalo de nuevo.",
-      "maxSteps": "No he podido terminar esto dentro del número de pasos permitido. Para tareas más grandes, conecta tu propio agente de IA a Customermates mediante MCP.",
+      "maxSteps": "He completado parte de esta solicitud, pero he alcanzado el límite de pasos de este turno. Pídeme que continúe y retomaré el trabajo ya completado.",
+      "outputLimit": "He completado parte de esta respuesta, pero he alcanzado el límite de salida de este turno. Pídeme que continúe y terminaré a partir del trabajo ya completado.",
+      "safetyLimit": "He completado parte de esta solicitud, pero me he detenido porque los últimos pasos se repetían, fallaban o alcanzaron un límite de seguridad. El trabajo completado se conserva; revisa los pasos anteriores antes de pedirme que siga.",
       "turnError": "No he podido completar esa solicitud. Inténtalo de nuevo."
     },
     "send": "Enviar",
@@ -814,6 +903,10 @@
       "activityPageOutOfRange": "La cronología de actividad no puede retroceder tanto. Acota los filtros en su lugar.",
       "activityScopeTooManyIds": "Un ámbito de actividad no puede seleccionar más de 50 registros de un mismo tipo.",
       "activitySourcesUnavailable": "No tienes acceso a ninguna fuente de la cronología de actividad.",
+      "agentApprovalUnavailable": "Esta solicitud de aprobación no está disponible o ha caducado.",
+      "agentConversationNotFound": "No se encontró esta conversación o ya no es accesible.",
+      "agentLimitReached": "No quedan suficientes créditos de IA para iniciar otra solicitud.",
+      "agentTurnAlreadyRunning": "Ya se está ejecutando otra solicitud del asistente.",
       "apiKeyMaxExpiration": "La caducidad de una clave de API no puede superar los 365 días.",
       "assigneeRequired": "Debes asignarte este elemento. Ten en cuenta que solo podrás ver los elementos asignados a ti.",
       "calendarEventNotFound": "ID de evento de calendario no encontrado o no accesible.",
@@ -834,6 +927,7 @@
       "customFieldInvalidSingleSelect": "El valor de selección única no es válido. Debe ser una de las opciones permitidas: {validValues}.",
       "customFieldInvalidUrl": "La URL no es válida. Debe respetar el formato de una URL (por ejemplo https://example.com). Para varias URL, sepáralas con una coma (por ejemplo https://example.com, https://example.org).",
       "dealNotFound": "ID de oportunidad no encontrado o no accesible.",
+      "demoMode": "Esta acción no está disponible en el modo de demostración. Inicia sesión para acceder a todas las funciones.",
       "draftMessageNotFound": "No se ha encontrado ese borrador. Puede que ya se haya enviado o descartado.",
       "duplicateChannel": "Este canal aparece más de una vez. Añade cada dirección de correo, número de teléfono o identificador una sola vez.",
       "duplicateOutboundSuppressed": "Hace un momento se envió un mensaje idéntico a esta conversación. Cambia el texto o espera un minuto antes de reintentar.",
@@ -841,6 +935,7 @@
       "emailAlreadyExists": "Ya existe una cuenta con este correo.",
       "emailMismatch": "Las direcciones de correo deben coincidir.",
       "emailNotVerified": "Correo no verificado.",
+      "enterpriseCheckoutUnavailable": "Los espacios de trabajo Enterprise se facturan manualmente y no pueden iniciar el pago de autoservicio.",
       "filterBetweenInvalidArrayLength": "El operador 'between' requiere un array con exactamente 2 elementos.",
       "generic": "Se ha producido un error.",
       "inmailSignatureRequired": "Añade una firma para el InMail de Recruiter.",
@@ -854,18 +949,23 @@
       "invalidFilterValue": "Valor de filtro no válido. El valor debe corresponder al tipo del campo y al operador (por ejemplo un número para gt/lt, una fecha ISO para los campos de fecha, o un id para in/notIn).",
       "invalidSortField": "Campo de ordenación no encontrado o no accesible. Campos disponibles: {validValues}.",
       "invalidUrl": "Introduce una URL válida.",
+      "legalNoticeNotDelivered": "La actualización legal actual aún no se ha entregado a este espacio de trabajo.",
       "linkedinInboxUnavailable": "Esta cuenta de LinkedIn no tiene bandeja de entrada {product}. Conecta la cuenta con {product} asociado para usarla.",
       "linkedinProductRequiresLinkedin": "Las opciones de InMail y producto de LinkedIn requieren una cuenta de LinkedIn.",
       "linkedinProductUnavailable": "Esta cuenta de LinkedIn no tiene ese producto conectado.",
       "messageContentRequired": "Añade un mensaje o un archivo adjunto.",
       "mustNotBeBlank": "No debe estar vacío.",
       "mustNotContainNullChars": "No debe contener caracteres nulos.",
+      "notAuthenticated": "Inicia sesión para usar esta acción.",
       "notesExceedsMaxLength": "El contenido de las notas supera la longitud máxima.",
       "notesInvalidFormat": "Formato de notas no válido. Debe ser JSON de Tiptap válido o texto markdown.",
       "organizationNotFound": "ID de organización no encontrado o no accesible.",
       "passwordInvalid": "La contraseña debe tener al menos 8 caracteres e incluir al menos una mayúscula, una minúscula, un número y un carácter especial.",
       "passwordMismatch": "Las contraseñas deben coincidir.",
+      "permissionDenied": "Esta acción no está disponible con tus permisos actuales.",
+      "presetNotFound": "No se encontró este filtro guardado.",
       "relationNotAllowed": "La relación '{relation}' no está permitida en {entity}. Relaciones permitidas: {allowed}.",
+      "roleAssignedCannotDelete": "No se puede eliminar un rol asignado a usuarios.",
       "roleNotFound": "ID de rol no encontrado o no accesible.",
       "roleSelfEditForbidden": "No puedes cambiar los permisos del rol que tienes asignado.",
       "roleSystemImmutable": "Los roles del sistema no se pueden editar.",
@@ -891,7 +991,9 @@
       "unipileResourceNotFound": "No se ha encontrado el destinatario o la conversación en este canal.",
       "unipileServiceUnavailable": "El servicio de mensajería no está disponible temporalmente. Inténtalo de nuevo en breve.",
       "unipileUnknown": "El proveedor rechazó este mensaje. Inténtalo de nuevo o contacta con soporte.",
+      "userInactive": "Tu cuenta de usuario está inactiva. Contacta con un administrador del espacio de trabajo.",
       "userNotFound": "ID de usuario no encontrado o no accesible.",
+      "userSelfAdminUpdateForbidden": "No puedes actualizar tu propia cuenta desde la administración del equipo.",
       "webhookDeliveryNotFound": "ID de entrega de webhook no encontrado o no accesible.",
       "webhookEventsRequired": "Selecciona al menos un evento.",
       "webhookNotFound": "ID de webhook no encontrado o no accesible.",
@@ -1266,6 +1368,7 @@
   },
   "ConnectedAccountsCard": {
     "accountLimitReached": "Has alcanzado el límite de cuentas conectadas de este plan. Contáctanos sobre el plan Enterprise para tener cuentas ilimitadas.",
+    "agentChatDisabled": "El asistente no está disponible temporalmente.",
     "agentChatRequiresCloud": "El asistente está disponible en Customermates Cloud.",
     "agentChatRequiresPlan": "El asistente no está disponible con su plan actual.",
     "alreadyExistsToastDescription": "Esta cuenta ya está conectada por un miembro de tu espacio de trabajo. Pídele que la comparta con el espacio de trabajo para evitar mensajes duplicados en la bandeja de entrada.",

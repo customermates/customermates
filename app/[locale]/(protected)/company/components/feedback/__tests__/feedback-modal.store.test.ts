@@ -36,15 +36,15 @@ describe("FeedbackModalStore", () => {
     expect(store.isOpen).toBe(false);
   });
 
-  it("shows an error and preserves the form when email delivery is rejected", async () => {
+  it("lets the global error handler own a rejected delivery and preserves retry state", async () => {
     actions.sendFeedbackAction.mockRejectedValue(new Error("Resend rejected the email"));
     const store = new FeedbackModalStore(rootStore);
     store.open();
     store.onChange("feedback", "Please help.");
 
-    await store.onSubmit();
+    await expect(store.onSubmit()).rejects.toThrow("Resend rejected the email");
 
-    expect(toasts.error).toHaveBeenCalledWith("Common.notifications.unexpectedError", expect.anything());
+    expect(toasts.error).not.toHaveBeenCalled();
     expect(toasts.success).not.toHaveBeenCalled();
     expect(store.form.feedback).toBe("Please help.");
     expect(store.isOpen).toBe(true);

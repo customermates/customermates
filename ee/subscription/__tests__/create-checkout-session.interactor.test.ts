@@ -25,6 +25,9 @@ vi.mock("@/env", () => ({
   },
 }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
+vi.mock("next-intl/server", () => ({
+  getTranslations: () => Promise.resolve({ raw: (key: string) => key }),
+}));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 vi.mock("next/headers", () => ({
@@ -106,7 +109,10 @@ describe("CreateCheckoutSessionInteractor", () => {
       makeUserRepo() as never,
     );
 
-    await expect(interactor.invoke({ plan: "pro", cadence: "monthly" } as never)).rejects.toThrow("Enterprise");
+    await expect(interactor.invoke({ plan: "pro", cadence: "monthly" } as never)).resolves.toMatchObject({
+      ok: false,
+      error: { issues: [{ params: { error: "enterpriseCheckoutUnavailable" } }] },
+    });
     expect(subscriptionService.createCheckoutOrThrow).not.toHaveBeenCalled();
   });
 

@@ -9,6 +9,8 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { AgentConversationSummarySchema } from "./agent-chat.schema";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
+import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 export const ArchiveAgentConversationSchema = z.object({
   conversationId: z.uuid(),
@@ -46,7 +48,7 @@ export class ArchiveAgentConversationInteractor extends AuthenticatedInteractor<
     if (denied) return denied;
 
     const archived = await this.repo.archiveConversation(data.conversationId);
-    if (!archived) throw new Error("Conversation not found.");
+    if (!archived) return createInteractorFailure(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
     const [page, selected] = await Promise.all([
       this.repo.listConversationPage({ archived: false }),

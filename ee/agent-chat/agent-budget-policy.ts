@@ -1,14 +1,17 @@
 import { resolveModelPricing } from "./model-pricing";
 
-export const AGENT_MAX_STEPS_PER_TURN = 8;
+export const AGENT_MAX_STEPS_PER_TURN = 20;
+export const AGENT_MIN_STEPS_WITH_FULL_TOOL_CATALOG = 4;
 export const AGENT_MAX_OUTPUT_TOKENS_PER_STEP = 2048;
-export const AGENT_MIN_OUTPUT_TOKENS_PER_STEP = 256;
+export const AGENT_MIN_OUTPUT_TOKENS_PER_STEP = 800;
 export const AGENT_MAX_TOOL_RESULT_CHARS = 6000;
 export const AGENT_MAX_CONTEXT_BYTES_PER_STEP = 200_000;
 export const AGENT_MIN_CONTEXT_BYTES_PER_STEP = 24_000;
 export const AGENT_MIN_TOOL_RESULT_CHARS = 512;
+export const AGENT_CONTEXT_ACCUMULATION_STEPS = 3;
 
 const AGENT_PROVIDER_TOKENIZATION_AND_FRAMING_OVERHEAD_PER_STEP = 10_000;
+const AGENT_PROVIDER_LONG_CONTEXT_PRICING_THRESHOLD_UNITS = 272_000;
 const AGENT_INTERSTEP_FRAMING_BYTES = 1_024;
 const AGENT_OUTPUT_CONTEXT_BYTES_PER_TOKEN = 4;
 const AGENT_TOOL_RESULT_CONTEXT_BYTES_PER_CHAR = 4;
@@ -38,7 +41,9 @@ export function isAgentModelWithinBudgetEnvelope(modelSpec: string) {
     pricing.inputPerMTok <= SAFE_MODEL_PRICING.inputPerMTok &&
     pricing.outputPerMTok <= SAFE_MODEL_PRICING.outputPerMTok &&
     pricing.cacheReadPerMTok <= SAFE_MODEL_PRICING.cacheReadPerMTok &&
-    pricing.cacheWritePerMTok <= SAFE_MODEL_PRICING.cacheWritePerMTok
+    pricing.cacheWritePerMTok <= SAFE_MODEL_PRICING.cacheWritePerMTok &&
+    AGENT_MAX_CONTEXT_BYTES_PER_STEP + AGENT_PROVIDER_TOKENIZATION_AND_FRAMING_OVERHEAD_PER_STEP <=
+      AGENT_PROVIDER_LONG_CONTEXT_PRICING_THRESHOLD_UNITS
   );
 }
 
@@ -66,6 +71,7 @@ export function agentTurnWorstCaseUsd(
 export function resolveAgentTurnBudget(args: {
   availableCredits: number;
   requiredContextBytes?: number;
+  minimumSteps?: number;
 }): AgentTurnBudget | null {
   if (!Number.isSafeInteger(args.availableCredits) || args.availableCredits < 1) return null;
   if (!isAgentModelWithinBudgetEnvelope(SAFE_AGENT_MODEL_SPEC)) return null;
@@ -77,6 +83,8 @@ export function resolveAgentTurnBudget(args: {
     requiredContextBytes > AGENT_MAX_CONTEXT_BYTES_PER_STEP
   )
     return null;
+  const minimumSteps = args.minimumSteps ?? 1;
+  if (!Number.isSafeInteger(minimumSteps) || minimumSteps < 1 || minimumSteps > AGENT_MAX_STEPS_PER_TURN) return null;
 
   const configuredSteps = AGENT_MAX_STEPS_PER_TURN;
   const configuredOutput = AGENT_MAX_OUTPUT_TOKENS_PER_STEP;
@@ -96,7 +104,7 @@ export function resolveAgentTurnBudget(args: {
   const pricing = resolveModelPricing(modelId(SAFE_AGENT_MODEL_SPEC));
   const maxInputRate = Math.max(pricing.inputPerMTok, pricing.cacheReadPerMTok, pricing.cacheWritePerMTok);
 
-  for (let maxSteps = configuredSteps; maxSteps >= 1; maxSteps -= 1) {
+  for (let maxSteps = configuredSteps; maxSteps >= minimumSteps; maxSteps -= 1) {
     const stepBudgetUsd = turnBudgetUsd / maxSteps;
     const minimumContextBytes = Math.max(AGENT_MIN_CONTEXT_BYTES_PER_STEP, requiredContextBytes);
     const minimumInputCost =
@@ -121,7 +129,8 @@ export function resolveAgentTurnBudget(args: {
 
       let maxToolResultChars = configuredToolResultChars;
       if (maxSteps > 1) {
-        const availableGrowthBytesPerStep = Math.floor((maxContextBytes - requiredContextBytes) / (maxSteps - 1));
+        const accumulatedSteps = Math.min(maxSteps - 1, AGENT_CONTEXT_ACCUMULATION_STEPS);
+        const availableGrowthBytesPerStep = Math.floor((maxContextBytes - requiredContextBytes) / accumulatedSteps);
         const outputAndFramingBytes =
           maxOutputTokens * AGENT_OUTPUT_CONTEXT_BYTES_PER_TOKEN + AGENT_INTERSTEP_FRAMING_BYTES;
         maxToolResultChars = Math.min(

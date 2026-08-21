@@ -27,6 +27,14 @@ Jeder Datensatztyp hat seine eigene Route und seine eigenen Toolbar-Ids, mit dem
 | Services | `/services` | `service` | `#nav-services` | `#services-add`, `#services-search`, `#services-filter`, `#services-display-options` |
 | Tasks | `/tasks` | `task` | `#nav-tasks` | `#tasks-add`, `#tasks-search`, `#tasks-filter`, `#tasks-display-options` |
 
+In jedem Display-options-Popover haben die Layout-Steuerelemente stabile Ids:
+
+- Contacts: `#contacts-layout-table`, `#contacts-layout-cards`, `#contacts-layout-kanban`
+- Organizations: `#organizations-layout-table`, `#organizations-layout-cards`, `#organizations-layout-kanban`
+- Deals: `#deals-layout-table`, `#deals-layout-cards`, `#deals-layout-kanban`
+- Services: `#services-layout-table`, `#services-layout-cards`, `#services-layout-kanban`
+- Tasks: `#tasks-layout-table`, `#tasks-layout-cards`, `#tasks-layout-kanban`
+
 ## Drawer- und Detail-Aktionen
 
 Diese Ids teilen sich alle Datensatztypen.
@@ -51,7 +59,7 @@ Alle fünf teilen dieselbe Maschinerie: dieselben Listenansichten, denselben Dra
 
 ## Ansichten wechseln
 
-Jede Liste bietet eine Tabelle, ein Kartenraster und ein Board. `#{type}-display-options` öffnet den Umschalter; das Board braucht zusätzlich eine `singleSelect`-Spalte zum Gruppieren, und die Gruppierungsauswahl listet genau diese. Sortierung, Suche und Filter liegen in derselben Toolbar (`#{type}-search`, `#{type}-filter`). Ansichtswahlen bleiben pro Nutzer erhalten und überstehen Reloads. Sie können auch einfach Mate fragen: "Stell diese Ansicht auf Kanban um und gruppiere nach Status" erledigt all das in einem Schritt, und Mate bietet an, eine Einfachauswahl-Spalte anzulegen, wenn die Ansicht keine hat.
+Jede Liste bietet eine Tabelle, ein Kartenraster und ein Board. `#{type}-display-options` öffnet den Umschalter; das Board braucht zusätzlich eine `singleSelect`-Spalte zum Gruppieren, und die Gruppierungsauswahl listet genau diese. Sortierung, Suche und Filter liegen in derselben Toolbar (`#{type}-search`, `#{type}-filter`). Ansichtswahlen bleiben pro Nutzer erhalten und überstehen Reloads. Mate kann die Display-options öffnen und das stabile Tabellen-, Karten- oder Kanban-Ziel aktivieren. Dynamische Werte für Gruppierung, Sortierung, Suche und Filter bleiben unter direkter Kontrolle des Nutzers; Mate kann Suche und Filter hervorheben oder für Sortierung und Gruppierung die Display-options öffnen.
 
 ## Custom Columns und die Board-Ansicht
 

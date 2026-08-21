@@ -8,11 +8,13 @@ import { type Data, type Validated } from "@/core/validation/validation.utils";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
+import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 export const RespondToUiCommandSchema = z.object({
   conversationId: z.uuid(),
   commandId: z.string().min(1).max(200),
-  name: z.enum(["navigate", "highlight_element", "start_tour", "configure_view", "open_record"]),
+  name: z.enum(["navigate", "highlight_element", "start_tour", "click_ui_target", "open_record"]),
   ok: z.boolean(),
   result: z.string().min(1).max(1000),
 });
@@ -37,7 +39,7 @@ export class RespondToUiCommandInteractor extends AuthenticatedInteractor<Respon
     if (denied) return denied;
 
     const conversation = await this.repo.findConversation(data.conversationId);
-    if (!conversation) throw new Error("Conversation not found.");
+    if (!conversation) return createInteractorFailure(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
     await this.repo.recordUiCommandResult(data);
     return { ok: true as const, data: { resolved: true } };

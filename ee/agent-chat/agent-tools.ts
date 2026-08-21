@@ -1,22 +1,26 @@
-import * as Sentry from "@sentry/nextjs";
-
 import { z } from "zod";
 import { asSchema, tool, jsonSchema, type ToolSet } from "ai";
 
-import { ALL_MCP_TOOLS } from "@/features/mcp-tools/tool-registry";
-import { VALIDATION_ERROR_PREFIX } from "@/features/mcp-tools/utils";
+import { ALL_MCP_TOOLS, MCP_ALWAYS_ON_TOOLS, MCP_TOOL_GROUPS } from "@/features/mcp-tools/tool-registry";
+import { executeMcpTool, expectedMcpToolFailure, type McpToolExecutionResult } from "@/features/mcp-tools/mcp-tool";
 import { RequestSupportSchema } from "@/features/mcp-tools/support.mcp-tools";
-import type { McpToolResult } from "@/app/api/v1/mcp/mcp-route-utils";
+import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 
 import { requiresApproval } from "./gated-tools";
-import { toolResultText } from "./agent-stream-utils";
-import { AGENT_NAV_TARGET_IDS, AGENT_UI_TARGETS, UiTargetIdSchema } from "./ui-targets";
+import {
+  AGENT_UI_TARGETS,
+  ClickUiTargetIdSchema,
+  NavigationUiTargetIdSchema,
+  UiTargetIdSchema,
+  type AgentUiTarget,
+} from "./ui-targets";
 import { AgentTourSchema } from "./agent-tours";
-import { ConfigureViewSchema, OpenRecordSchema } from "./ui-operations";
+import { OpenRecordSchema } from "./ui-operations";
+import type { AgentApprovalContextResolution } from "./agent-external-approval-context";
+import { AGENT_TOOL_SEARCH_NAME, laneToolSearch } from "./llm.service";
 
 export type ApprovalDecision = "approve" | "reject" | "timeout";
 export type AgentUiCommandOutcome = { ok: boolean; result: string };
-export type AgentToolOutcome = { ok: boolean; result: string };
 
 export type AgentToolCancellation = {
   agentToolStatus: "cancelled";
@@ -34,356 +38,120 @@ export function isAgentToolCancellation(value: unknown): value is AgentToolCance
   );
 }
 
-const EXCLUDED_TOOL_NAMES = new Set([
-  "search",
-  "fetch",
-  "request_support",
-  "get_social_posts",
-  "get_social_post_engagement",
-  "get_social_profile",
-  "manage_social_relations",
-  "linkedin_search_sales_leads",
-  "linkedin_search_sales_companies",
-  "linkedin_get_sales_search_parameters",
-  "linkedin_manage_sales_lists",
-]);
-
-const UI_TOOL_NAMES = [
+export const AGENT_UI_TOOL_NAMES = [
   "list_ui_targets",
   "navigate",
   "highlight_element",
   "start_tour",
-  "configure_view",
+  "click_ui_target",
   "open_record",
 ] as const;
 
-const CORE_UI_TOOL_NAMES = ["list_ui_targets", "navigate", "highlight_element", "start_tour"];
-
-const CORE_AGENT_TOOL_NAMES = [
-  "get_record_schema",
-  "list_records",
-  "search_records",
-  "get_records",
-  "get_workspace_context",
-  "search_docs",
-  "get_docs_page",
-  ...CORE_UI_TOOL_NAMES,
-  "request_support",
-] as const;
-
-const ENTITY_WRITE_TOOLS = {
-  contact: ["create_contacts", "update_contacts"],
-  organization: ["create_organizations", "update_organizations"],
-  deal: ["create_deals", "update_deals"],
-  service: ["create_services", "update_services"],
-  task: ["create_tasks", "update_tasks"],
+export const AGENT_TOOL_NAMESPACES = {
+  record_reads: {
+    name: "record_reads",
+    description: "Read and search CRM records and inspect their schemas.",
+  },
+  customer_records: {
+    name: "customer_records",
+    description: "Create and update contacts and organizations.",
+  },
+  work_records: {
+    name: "work_records",
+    description: "Create and update deals, services, and tasks.",
+  },
+  record_details: {
+    name: "record_details",
+    description: "Manage CRM record notes and links, or delete records.",
+  },
+  workspace: {
+    name: "workspace",
+    description: "Workspace context, users, settings, team, fields, widgets, and webhooks.",
+  },
+  messaging: {
+    name: "messaging",
+    description: "Inbox, email and chat, drafts, activities, calendars, and account connections.",
+  },
+  social_sales: {
+    name: "social_sales",
+    description: "Connected social profiles, posts, relations, and Sales Navigator.",
+  },
+  research: {
+    name: "research",
+    description: "Search and read Customermates documentation and local CRM research results.",
+  },
+  interface: {
+    name: "interface",
+    description: "Navigate, highlight, tour, activate safe display controls, and open records.",
+  },
+  support: {
+    name: "support",
+    description: "Escalate a confirmed support request to the Customermates team.",
+  },
+  general: {
+    name: "general",
+    description: "Other Customermates workspace capabilities.",
+  },
 } as const;
 
-const ENTITY_HINTS = {
-  contact: ["contact", "person", "lead", "kontakt", "ansprechpartner", "contatt"],
-  organization: [
-    "organization",
-    "organisation",
-    "company",
-    "account",
-    "firma",
-    "unternehmen",
-    "organizaci",
-    "organizz",
-    "empresa",
-    "entreprise",
-    "azienda",
-    "socie",
-  ],
-  deal: [
-    "deal",
-    "opportunity",
-    "opportunit",
-    "pipeline",
-    "geschäft",
-    "verkauf",
-    "chance",
-    "negocio",
-    "oportunidad",
-    "affaire",
-    "affare",
-    "trattativa",
-  ],
-  service: [
-    "service",
-    "product",
-    "catalog",
-    "leistung",
-    "produkt",
-    "katalog",
-    "servici",
-    "serviz",
-    "produi",
-    "prodott",
-    "catálogo",
-  ],
-  task: [
-    "task",
-    "todo",
-    "to-do",
-    "aufgabe",
-    "erinnerung",
-    "tarea",
-    "tâche",
-    "compito",
-    "attivit",
-    "rappel",
-    "recordatorio",
-    "promemoria",
-  ],
-} as const;
+export type AgentToolNamespace = (typeof AGENT_TOOL_NAMESPACES)[keyof typeof AGENT_TOOL_NAMESPACES];
 
-const MESSAGING_TOOL_NAMES = [
-  "get_messaging_threads",
-  "get_activities",
-  "get_calendars",
-  "send_chat_message",
-  "send_email",
-  "save_message_draft",
-  "discard_message_draft",
-  "update_messaging_thread",
-  "connect_messaging_account",
-] as const;
+const RECORD_READ_TOOL_NAMES = new Set(["get_record_schema", "list_records", "search_records", "get_records"]);
+const CUSTOMER_RECORD_TOOL_NAMES = new Set([
+  "create_contacts",
+  "update_contacts",
+  "create_organizations",
+  "update_organizations",
+]);
+const WORK_RECORD_TOOL_NAMES = new Set([
+  "create_deals",
+  "update_deals",
+  "create_services",
+  "update_services",
+  "create_tasks",
+  "update_tasks",
+]);
+let mcpGroupByToolName: Map<string, string> | undefined;
 
-function hostedAgentToolNames() {
-  return [
-    ...ALL_MCP_TOOLS.filter((agentTool) => !EXCLUDED_TOOL_NAMES.has(agentTool.name)).map((agentTool) => agentTool.name),
-    ...UI_TOOL_NAMES,
-    "request_support",
-  ];
+function resolveMcpGroup(toolName: string) {
+  mcpGroupByToolName ??= new Map(
+    Object.entries(MCP_TOOL_GROUPS).flatMap(([group, tools]) =>
+      tools.map((agentTool) => [agentTool.name, group] as const),
+    ),
+  );
+  return mcpGroupByToolName.get(toolName);
 }
 
-function includesAny(value: string, hints: readonly string[]) {
-  return hints.some((hint) => value.includes(hint));
+export function agentToolNamespace(toolName: string): AgentToolNamespace {
+  if ((AGENT_UI_TOOL_NAMES as readonly string[]).includes(toolName)) return AGENT_TOOL_NAMESPACES.interface;
+  if (toolName === "request_support") return AGENT_TOOL_NAMESPACES.support;
+  if (MCP_ALWAYS_ON_TOOLS.some((agentTool) => agentTool.name === toolName)) return AGENT_TOOL_NAMESPACES.research;
+
+  const group = resolveMcpGroup(toolName);
+  if (group === "records") {
+    if (RECORD_READ_TOOL_NAMES.has(toolName)) return AGENT_TOOL_NAMESPACES.record_reads;
+    if (CUSTOMER_RECORD_TOOL_NAMES.has(toolName)) return AGENT_TOOL_NAMESPACES.customer_records;
+    if (WORK_RECORD_TOOL_NAMES.has(toolName)) return AGENT_TOOL_NAMESPACES.work_records;
+    return AGENT_TOOL_NAMESPACES.record_details;
+  }
+  if (group === "docs") return AGENT_TOOL_NAMESPACES.research;
+  if (["workspace", "custom-columns", "widgets", "webhooks", "admin"].includes(group ?? ""))
+    return AGENT_TOOL_NAMESPACES.workspace;
+  if (group === "messaging") return AGENT_TOOL_NAMESPACES.messaging;
+  if (group === "social") return AGENT_TOOL_NAMESPACES.social_sales;
+  if (group === "support") return AGENT_TOOL_NAMESPACES.support;
+  return AGENT_TOOL_NAMESPACES.general;
 }
 
-const GERMAN_WRITE_VERB_STEM_PATTERN = /\b(leg|trag|füg|setz)/u;
-
-const AGENT_TOOL_INTENT_MESSAGE_LIMIT = 3;
-const AGENT_TOOL_INTENT_MESSAGE_MAX_CHARS = 1000;
-
-export function selectAgentToolNames(args: {
-  text: string;
-  pageRoute: string | null;
-  priorUserTexts?: readonly string[];
-}): string[] {
-  const priorIntent = (args.priorUserTexts ?? [])
-    .slice(-AGENT_TOOL_INTENT_MESSAGE_LIMIT)
-    .map((text) => text.slice(0, AGENT_TOOL_INTENT_MESSAGE_MAX_CHARS));
-  const request = [...priorIntent, args.text].join("\n").toLocaleLowerCase();
-  const route = (args.pageRoute ?? "").toLocaleLowerCase();
-  const selected = new Set<string>(CORE_AGENT_TOOL_NAMES);
-  const hasWriteIntent =
-    includesAny(request, [
-      "create",
-      "add",
-      "new ",
-      "update",
-      "edit",
-      "change",
-      "set ",
-      "erstell",
-      "hinzufüg",
-      "neu ",
-      "aktualisier",
-      "änder",
-      "anleg",
-      "angeleg",
-      "anzuleg",
-      "erfass",
-      "eintrag",
-      "speicher",
-      "pfleg",
-      "crear",
-      "añad",
-      "agreg",
-      "nuev",
-      "actualiz",
-      "modific",
-      "establec",
-      "registr",
-      "créer",
-      "ajout",
-      "nouve",
-      "mettre à jour",
-      "enregistr",
-      "aggiung",
-      "aggiorn",
-      "inserir",
-      "insert",
-    ]) || GERMAN_WRITE_VERB_STEM_PATTERN.test(request);
-
-  for (const [entity, hints] of Object.entries(ENTITY_HINTS) as Array<[keyof typeof ENTITY_HINTS, readonly string[]]>) {
-    const routeHint = entity === "organization" ? "organizations" : `${entity}s`;
-    if (hasWriteIntent && (route.includes(`/${routeHint}`) || includesAny(request, hints)))
-      ENTITY_WRITE_TOOLS[entity].forEach((name) => selected.add(name));
-  }
-
-  if (
-    includesAny(request, ["delete", "remove", "erase", "löschen", "entfern", "elimin", "borrar", "supprim", "cancell"])
-  )
-    selected.add("delete_records");
-  if (includesAny(request, ["note", "notes", "notiz", "nota"])) selected.add("update_record_notes");
-  if (
-    includesAny(request, [
-      "link",
-      "relation",
-      "relationship",
-      "verknüpf",
-      "zuord",
-      "enlac",
-      "vincul",
-      "relaci",
-      "relier",
-      " lien",
-      "colleg",
-    ])
-  )
-    selected.add("manage_record_links");
-
-  if (
-    includesAny(request, [
-      "inbox",
-      "message",
-      "email",
-      "e-mail",
-      "calendar",
-      "chat",
-      "nachricht",
-      "kalender",
-      "mensaje",
-      "messagg",
-      "correo",
-      "courriel",
-      "calendri",
-    ])
-  )
-    MESSAGING_TOOL_NAMES.forEach((name) => selected.add(name));
-  if (
-    includesAny(request, [
-      "column",
-      "custom field",
-      "custom-field",
-      "spalte",
-      "eigenes feld",
-      "colonn",
-      "campo personaliz",
-      "champ personnalis",
-    ])
-  )
-    selected.add("manage_custom_columns");
-  if (includesAny(request, ["widget", "chart", "diagramm", "gráfic", "grafic", "graphiq"]))
-    selected.add("manage_widgets");
-  if (
-    includesAny(request, [
-      "view",
-      "kanban",
-      "board",
-      "table",
-      "card",
-      "group",
-      "sort",
-      "filter",
-      "search",
-      "ansicht",
-      "tafel",
-      "tabelle",
-      "karte",
-      "gruppier",
-      "sortier",
-      "vista",
-      "tablero",
-      "tabla",
-      "agrupa",
-      "ordena",
-      "filtr",
-      "vue",
-      "tableau",
-      "carte",
-      "group",
-      "tri",
-      "scheda",
-      "tabella",
-      "raggrupp",
-      "ordina",
-    ])
-  )
-    selected.add("configure_view");
-  if (
-    includesAny(request, [
-      "open",
-      "show",
-      "form",
-      "fill",
-      "öffne",
-      "zeig",
-      "formular",
-      "ausfüll",
-      "abre",
-      "muestra",
-      "formulario",
-      "rellena",
-      "ouvre",
-      "montre",
-      "formulaire",
-      "rempli",
-      "apri",
-      "mostra",
-      "modulo",
-      "compila",
-    ])
-  )
-    selected.add("open_record");
-
-  if (includesAny(request, ["webhook"])) selected.add("manage_webhooks");
-  if (
-    includesAny(request, [
-      "team",
-      "member",
-      "seat",
-      "user",
-      "mitglied",
-      "benutzer",
-      "equipo",
-      "équipe",
-      "squadra",
-      "membr",
-      "usuario",
-      "utilisateur",
-      "utente",
-    ])
-  ) {
-    selected.add("list_users");
-    selected.add("manage_team");
-  }
-  if (
-    includesAny(request, [
-      "workspace setting",
-      "company setting",
-      "arbeitsbereich",
-      "firmeneinstellung",
-      "espacio de trabajo",
-      "espace de travail",
-      "spazio di lavoro",
-      "ajustes",
-      "paramètre",
-      "impostazion",
-    ])
-  )
-    selected.add("update_workspace_settings");
-
-  return hostedAgentToolNames().filter((name) => selected.has(name));
+function deferredProviderOptions(namespace: AgentToolNamespace) {
+  return { openai: { deferLoading: true, namespace } } as const;
 }
 
 export type AgentToolDeps = {
   runUiCommand: (commandId: string, name: string, input: Record<string, unknown>) => Promise<AgentUiCommandOutcome>;
   requestApproval: (requestId: string, toolName: string, input: unknown) => Promise<ApprovalDecision>;
-  createSupportTicket: (toolCallId: string, subject: string, body: string) => Promise<AgentToolOutcome>;
+  resolveApprovalContext: (toolName: string, input: unknown) => Promise<AgentApprovalContextResolution>;
+  createSupportTicket: (toolCallId: string, subject: string, body: string) => Promise<McpToolExecutionResult>;
   resultMaxChars: number;
 };
 
@@ -398,24 +166,32 @@ function declineResult(decision: Exclude<ApprovalDecision, "approve">): AgentToo
   };
 }
 
-async function runGated(
+async function runGated<T>(
   deps: AgentToolDeps,
   toolCallId: string,
   name: string,
   input: unknown,
-  run: () => Promise<AgentToolOutcome>,
-) {
+  run: () => Promise<T>,
+): Promise<T | AgentToolCancellation> {
   const decision = await deps.requestApproval(toolCallId, name, input);
   if (decision !== "approve") return declineResult(decision);
   return run();
 }
 
-async function runSafely<T>(run: () => Promise<T> | T): Promise<T> {
+function agentToolResult(outcome: McpToolExecutionResult, maxChars: number) {
+  return { ok: outcome.ok, result: outcome.result.slice(0, maxChars) };
+}
+
+async function runSafely<T>(
+  run: () => Promise<T> | T,
+  maxChars: number,
+): Promise<T | ReturnType<typeof agentToolResult>> {
   try {
     return await run();
   } catch (error) {
-    Sentry.captureException(error);
-    throw new Error("The assistant tool could not be completed.");
+    const expected = await expectedMcpToolFailure(error);
+    if (expected) return agentToolResult(expected, maxChars);
+    throw redactUnexpectedError(error, "The assistant tool could not be completed.");
   }
 }
 
@@ -439,101 +215,174 @@ function providerSafeSchema(inputSchema: (typeof ALL_MCP_TOOLS)[number]["inputSc
   );
 }
 
-function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
-  const execute = mcp.execute as (input: unknown) => Promise<McpToolResult>;
+const ListUiTargetsSchema = z.object({
+  query: z
+    .string()
+    .trim()
+    .min(1)
+    .max(100)
+    .optional()
+    .describe("Optional page name, route, target prefix, or exact target id used to narrow the catalog."),
+  cursor: z.number().int().min(0).max(10_000).optional().describe("Continue a previous result page."),
+});
 
+function compactUiTarget(target: AgentUiTarget) {
+  const actions = [...(target.route.startsWith("/") ? ["n"] : []), "h", ...(target.activation ? ["c"] : [])].join("");
+  const prerequisite = target.activation?.kind === "selected" ? `|>${target.activation.prerequisite}` : "";
+  return `${target.id}|${target.route}|${actions}${prerequisite}`;
+}
+
+function listUiTargets(input: z.infer<typeof ListUiTargetsSchema>, resultMaxChars: number) {
+  const query = input.query?.toLocaleLowerCase();
+  const targets = query
+    ? AGENT_UI_TARGETS.filter((target) =>
+        `${target.id} ${target.route} ${target.description}`.toLocaleLowerCase().includes(query),
+      )
+    : AGENT_UI_TARGETS;
+  const cursor = Math.min(input.cursor ?? 0, targets.length);
+  const header = "actions n=navigate,h=highlight,c=click; >target is a prerequisite\n";
+  if (targets.length === 0) return `No interface targets match ${input.query}.`.slice(0, resultMaxChars);
+
+  const lines: string[] = [];
+  let nextCursor = cursor;
+  while (nextCursor < targets.length) {
+    const line = compactUiTarget(targets[nextCursor]);
+    const candidateNext = nextCursor + 1;
+    const footer = candidateNext < targets.length ? `\nnextCursor=${candidateNext};total=${targets.length}` : "\nend";
+    const candidate = `${header}${[...lines, line].join("\n")}${footer}`;
+    if (candidate.length > resultMaxChars) break;
+    lines.push(line);
+    nextCursor = candidateNext;
+  }
+
+  if (lines.length === 0)
+    return `The target page is too large for this turn. Retry with its exact id as query.`.slice(0, resultMaxChars);
+
+  const footer = nextCursor < targets.length ? `nextCursor=${nextCursor};total=${targets.length}` : "end";
+  return `${header}${lines.join("\n")}\n${footer}`;
+}
+
+function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
   return tool({
     description: mcp.description,
     inputSchema: providerSafeSchema(mcp.inputSchema),
+    providerOptions: deferredProviderOptions(agentToolNamespace(mcp.name)),
     execute: async (input: unknown, { toolCallId }) => {
-      const run = async (): Promise<AgentToolOutcome> => {
-        const result = toolResultText(await execute(input)).slice(0, deps.resultMaxChars);
-        return { ok: !result.startsWith(VALIDATION_ERROR_PREFIX), result };
+      const run = async () => {
+        const outcome = await executeMcpTool(mcp, [input]);
+        return agentToolResult(outcome, deps.resultMaxChars);
       };
-      return runSafely(() => (requiresApproval(mcp, input) ? runGated(deps, toolCallId, mcp.name, input, run) : run()));
+      return runSafely(async () => {
+        if (!requiresApproval(mcp, input)) return run();
+        const approvalContext = await deps.resolveApprovalContext(mcp.name, input);
+        if (!approvalContext.ok) return { ok: false, result: approvalContext.result };
+        return runGated(deps, toolCallId, mcp.name, approvalContext.input, run);
+      }, deps.resultMaxChars);
     },
   });
 }
 
-const NavigationTargetIdSchema = z.enum(AGENT_NAV_TARGET_IDS);
 function uiTools(deps: AgentToolDeps): ToolSet {
+  const providerOptions = deferredProviderOptions(AGENT_TOOL_NAMESPACES.interface);
+  const runUiCommand = async (toolCallId: string, name: string, input: Record<string, unknown>) => {
+    const outcome = await deps.runUiCommand(toolCallId, name, input);
+    return { ...outcome, result: outcome.result.slice(0, deps.resultMaxChars) };
+  };
+
   return {
     list_ui_targets: tool({
       description:
-        "List the interface targets you can navigate to or highlight. Call this before navigate or highlight_element.",
-      inputSchema: z.object({}),
-      execute: () => AGENT_UI_TARGETS.map((t) => `${t.id} (${t.route}): ${t.description}`).join("\n"),
+        "List exact stable interface target ids before using an interface tool. Make one focused query with the workflow or page phrase and reuse every relevant id it returns instead of querying ids one by one. Results use action codes n=navigate, h=highlight, c=click and >target for a prerequisite; continue only when nextCursor is present.",
+      inputSchema: ListUiTargetsSchema,
+      providerOptions,
+      execute: (input) => listUiTargets(input, deps.resultMaxChars),
     }),
     navigate: tool({
       description: "Open an app destination by its target id from list_ui_targets.",
       inputSchema: z.object({
-        targetId: NavigationTargetIdSchema.describe("A routable target id."),
+        targetId: NavigationUiTargetIdSchema.describe("A routable target id."),
       }),
+      providerOptions,
       execute: (input, { toolCallId }) =>
-        runSafely(() =>
-          deps.runUiCommand(toolCallId, "navigate", {
-            targetId: input.targetId,
-          }),
-        ),
+        runSafely(() => runUiCommand(toolCallId, "navigate", { targetId: input.targetId }), deps.resultMaxChars),
     }),
     highlight_element: tool({
       description: "Spotlight a single interface target by its id (from list_ui_targets) on the current page.",
       inputSchema: z.object({
         targetId: UiTargetIdSchema.describe("A target id from list_ui_targets."),
       }),
+      providerOptions,
       execute: (input, { toolCallId }) =>
-        runSafely(() =>
-          deps.runUiCommand(toolCallId, "highlight_element", {
-            targetId: input.targetId,
-          }),
+        runSafely(
+          () =>
+            runUiCommand(toolCallId, "highlight_element", {
+              targetId: input.targetId,
+            }),
+          deps.resultMaxChars,
         ),
     }),
     start_tour: tool({
       description:
-        "Run a guided tour you compose for this user. Call list_ui_targets first, then choose the targets that answer what they asked to see and write your own note for each one. Ask what they want to see when the request is vague; go straight to the tour when it is specific. Be thorough: walk the whole journey rather than naming each screen, and write every note in the user's language.",
+        "Run a guided tour you compose for this user. Call list_ui_targets once, then choose the targets that answer what they asked to see and write your own note for each one. The tour navigates to each step itself, so do not call navigate first. Ask what they want to see when the request is vague; go straight to the tour when it is specific. Be thorough: walk the whole journey rather than naming each screen, and write every note in the user's language.",
       inputSchema: AgentTourSchema,
+      providerOptions,
       execute: (input, { toolCallId }) =>
-        runSafely(() => deps.runUiCommand(toolCallId, "start_tour", { steps: input.steps })),
+        runSafely(() => runUiCommand(toolCallId, "start_tour", { steps: input.steps }), deps.resultMaxChars),
     }),
-    configure_view: tool({
+    click_ui_target: tool({
       description:
-        "Change how a list page is shown: table, cards, or kanban layout, grouping, sorting, search, and filters. Pass column names exactly as the user says them; relay the tool's message when something is unavailable, for example kanban without a single-select field.",
-      inputSchema: ConfigureViewSchema,
-      execute: (input, { toolCallId }) => runSafely(() => deps.runUiCommand(toolCallId, "configure_view", input)),
+        "Activate one reversible display control by its exact id from list_ui_targets. Navigate to the target first. Layout controls require opening the matching display-options target first. A successful result means the browser verified the control is expanded or selected.",
+      inputSchema: z.object({
+        targetId: ClickUiTargetIdSchema.describe("An activatable target id from list_ui_targets."),
+      }),
+      providerOptions,
+      execute: (input, { toolCallId }) =>
+        runSafely(
+          () =>
+            runUiCommand(toolCallId, "click_ui_target", {
+              targetId: input.targetId,
+            }),
+          deps.resultMaxChars,
+        ),
     }),
     open_record: tool({
       description:
         "Open one record after finding its id with list_records or search_records. Use the drawer to keep context, the page for a full view, and recordId 'new' for a blank form the user fills in.",
       inputSchema: OpenRecordSchema,
-      execute: (input, { toolCallId }) => runSafely(() => deps.runUiCommand(toolCallId, "open_record", input)),
+      providerOptions,
+      execute: (input, { toolCallId }) =>
+        runSafely(() => runUiCommand(toolCallId, "open_record", input), deps.resultMaxChars),
     }),
   };
 }
 
-export function getAgentAiTools(deps: AgentToolDeps, allowedToolNames?: readonly string[]): ToolSet {
-  const crm = ALL_MCP_TOOLS.filter((mcp) => !EXCLUDED_TOOL_NAMES.has(mcp.name)).map(
+export function getAgentAiTools(deps: AgentToolDeps): ToolSet {
+  const crm = ALL_MCP_TOOLS.filter((mcp) => mcp.name !== "request_support").map(
     (mcp) => [mcp.name, crmTool(mcp, deps)] as const,
   );
+  const providerOptions = deferredProviderOptions(AGENT_TOOL_NAMESPACES.support);
 
-  const extras: ToolSet = {
+  return {
+    [AGENT_TOOL_SEARCH_NAME]: laneToolSearch(),
+    ...Object.fromEntries(crm),
+    ...uiTools(deps),
     request_support: tool({
       description:
         "Email a support request to the Customermates team. Use when the user asks for a human, reports a bug, or you cannot help after a genuine attempt. The recent Assistant conversation is included, and the team replies to the email address on the user's account.",
       inputSchema: RequestSupportSchema,
+      providerOptions,
       execute: async (input, { toolCallId }) =>
-        runSafely(() =>
-          runGated(deps, toolCallId, "request_support", input, () =>
-            deps.createSupportTicket(toolCallId, input.subject, input.body),
-          ),
+        runSafely(
+          () =>
+            runGated(deps, toolCallId, "request_support", input, () =>
+              deps
+                .createSupportTicket(toolCallId, input.subject, input.body)
+                .then((outcome) => agentToolResult(outcome, deps.resultMaxChars)),
+            ),
+          deps.resultMaxChars,
         ),
     }),
-  };
-
-  const catalog = { ...Object.fromEntries(crm), ...uiTools(deps), ...extras };
-  if (!allowedToolNames) return catalog;
-
-  const allowed = new Set(allowedToolNames);
-  return Object.fromEntries(Object.entries(catalog).filter(([name]) => allowed.has(name)));
+  } as unknown as ToolSet;
 }
 
 export type AgentAiToolDefinition = {
@@ -553,10 +402,11 @@ export function describeAgentAiTools(tools: ToolSet): AgentAiToolDefinition[] {
 const TOOL_DEFINITION_DEPS: AgentToolDeps = {
   runUiCommand: () => Promise.resolve({ ok: false, result: "Definition-only tool." }),
   requestApproval: () => Promise.resolve("reject"),
-  createSupportTicket: () => Promise.resolve({ ok: false, result: "Definition-only tool." }),
+  resolveApprovalContext: (_toolName, input) => Promise.resolve({ ok: true, input }),
+  createSupportTicket: () => Promise.resolve({ ok: true, result: "Definition-only tool." }),
   resultMaxChars: 1,
 };
 
-export function getAgentAiToolDefinitions(allowedToolNames: readonly string[]): AgentAiToolDefinition[] {
-  return describeAgentAiTools(getAgentAiTools(TOOL_DEFINITION_DEPS, allowedToolNames));
+export function getAgentAiToolDefinitions(): AgentAiToolDefinition[] {
+  return describeAgentAiTools(getAgentAiTools(TOOL_DEFINITION_DEPS));
 }

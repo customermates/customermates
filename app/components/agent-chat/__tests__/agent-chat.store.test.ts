@@ -16,9 +16,10 @@ const actionsMock = vi.hoisted(() => ({
   respondToApprovalAction: vi.fn(),
   respondToUiCommandAction: vi.fn(),
 }));
+const toastMock = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn() }));
 
 vi.mock("../actions", () => actionsMock);
-vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+vi.mock("sonner", () => ({ toast: toastMock }));
 
 import { AgentChatStore } from "../agent-chat.store";
 import { AgentUiControlStore } from "../ui-control.store";
@@ -296,6 +297,58 @@ describe("AgentChatStore", () => {
         result: "Navigation did not finish.",
       }),
     );
+  });
+
+  it("serializes dependent browser commands through their acknowledgements", async () => {
+    let resolveFirst!: (value: { ok: true; result: string }) => void;
+    const order: string[] = [];
+    const clickTarget = vi
+      .fn()
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            order.push("display:start");
+            resolveFirst = resolve;
+          }),
+      )
+      .mockImplementationOnce(() => {
+        order.push("layout:start");
+        return { ok: true, result: "Cards layout selected." };
+      });
+    actionsMock.respondToUiCommandAction.mockImplementation(({ commandId }: { commandId: string }) => {
+      order.push(`${commandId}:acknowledged`);
+      return Promise.resolve({ ok: true, data: { resolved: true } });
+    });
+    const store = new AgentChatStore(root({ clickTarget }) as never);
+    store.conversationId = "00000000-0000-4000-8000-000000000001";
+    const handleEvent = (
+      store as unknown as {
+        handleEvent: (event: Record<string, unknown>) => void;
+      }
+    ).handleEvent;
+
+    handleEvent({
+      seq: 1,
+      type: "ui_command",
+      commandId: "display",
+      name: "click_ui_target",
+      input: { targetId: "contacts-display-options" },
+    });
+    handleEvent({
+      seq: 2,
+      type: "ui_command",
+      commandId: "layout",
+      name: "click_ui_target",
+      input: { targetId: "contacts-layout-cards" },
+    });
+
+    await vi.waitFor(() => expect(clickTarget).toHaveBeenCalledOnce());
+    expect(order).toEqual(["display:start"]);
+    resolveFirst({ ok: true, result: "Display options opened." });
+
+    await vi.waitFor(() => expect(clickTarget).toHaveBeenCalledTimes(2));
+    expect(order.slice(0, 3)).toEqual(["display:start", "display:acknowledged", "layout:start"]);
+    await vi.waitFor(() => expect(actionsMock.respondToUiCommandAction).toHaveBeenCalledTimes(2));
   });
 
   it("keeps an awaited browser outcome bound to the conversation that requested it", async () => {
@@ -1181,6 +1234,7 @@ describe("AgentChatStore", () => {
     expect(fetchMock).toHaveBeenCalledOnce();
     expect(store.queuedPrompt).toBe("Keep this follow-up");
     expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+    expect(toastMock.error).not.toHaveBeenCalled();
     fetchMock.mockRestore();
     vi.unstubAllGlobals();
   });
@@ -1515,6 +1569,45 @@ describe("AgentChatStore", () => {
 });
 
 describe("AgentUiControlStore", () => {
+  it("self-navigates the connected-account walkthrough and reaches its connect control", async () => {
+    class FakeHTMLElement {
+      scrollIntoView = vi.fn();
+    }
+    const elements = new Map([
+      ["nav-profile-connected-accounts", new FakeHTMLElement()],
+      ["profile-connected-accounts-connect", new FakeHTMLElement()],
+    ]);
+    vi.stubGlobal("HTMLElement", FakeHTMLElement);
+    vi.stubGlobal("document", {
+      activeElement: null,
+      getElementById: vi.fn((id: string) => elements.get(id) ?? null),
+    });
+    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
+      callback(0);
+      return 1;
+    });
+    const navigate = vi.fn().mockResolvedValue("navigated");
+    const store = new AgentUiControlStore(root() as never);
+    store.registerNavigate(navigate);
+
+    try {
+      await expect(
+        store.startGuidedTour([
+          { targetId: "nav-profile-connected-accounts", note: "Open connected accounts." },
+          { targetId: "profile-connected-accounts-connect", note: "Choose WhatsApp here." },
+        ]),
+      ).resolves.toMatchObject({ ok: true });
+      expect(navigate).toHaveBeenCalledWith("/profile/connected-accounts");
+      expect(store.active?.targetId).toBe("nav-profile-connected-accounts");
+
+      store.nextStep();
+      await vi.waitFor(() => expect(store.active?.targetId).toBe("profile-connected-accounts-connect"));
+      expect(navigate).toHaveBeenLastCalledWith("/profile/connected-accounts");
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it("searches backward past unavailable tour targets", async () => {
     class FakeHTMLElement {
       scrollIntoView = vi.fn();

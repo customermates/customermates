@@ -27,13 +27,16 @@ import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { AGENT_RUN_LEASE_MS, decideAgentTurnAdmission, type AgentTurnRequestSnapshot } from "./agent-turn-request";
 import { laneModelId } from "./llm.service";
 import { buildAgentSystemPrompt } from "./system-prompt";
-import { getAgentAiToolDefinitions, selectAgentToolNames } from "./agent-tools";
+import { getAgentAiToolDefinitions } from "./agent-tools";
 import {
   AGENT_REPLAY_COUNT,
   AGENT_REPLAY_MAX_CHARS,
   conservativeAgentInitialContextBytes,
 } from "./agent-provider-context";
-import { createAgentLimitExceededError } from "./agent-errors";
+import { AGENT_MIN_STEPS_WITH_FULL_TOOL_CATALOG } from "./agent-budget-policy";
+import { assertInvariant } from "@/core/errors/assert-invariant";
+import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 type AdmittedAgentRun = { disposition: "run" } & Omit<AgentRunContext, "appBaseUrl">;
 
@@ -71,7 +74,11 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     super();
   }
 
-  @Write({ input: SendAgentMessageSchema, precheck: (self, _data, ctx) => self.precheckEntitlement(ctx), tx: false })
+  @Write({
+    input: SendAgentMessageSchema,
+    precheck: (self, _data, ctx) => self.precheckEntitlement(ctx),
+    tx: false,
+  })
   async invoke(data: SendAgentMessageData): Validated<SendAgentMessageResult> {
     const user = this.user;
     const now = new Date();
@@ -162,17 +169,10 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           ? await this.repo.findConversation(data.conversationId)
           : null;
     if ((decision.disposition === "retry" || data.conversationId) && !conversation)
-      throw new Error("Conversation not found.");
+      return createInteractorFailure(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
     const userName = `${user.firstName} ${user.lastName}`.trim();
     const locale = data.locale ?? resolveUserLocale(user);
-    const priorUserTexts = conversation
-      ? (await this.repo.listRecentMessages(conversation.id, AGENT_REPLAY_COUNT))
-          .filter((message) => message.role === "user")
-          .map((message) => partsToText(message.parts))
-          .filter(Boolean)
-      : [];
-    const toolNames = selectAgentToolNames({ text: data.text, pageRoute, priorUserTexts });
     const requiredContextBytes = conservativeAgentInitialContextBytes({
       systemPrompt: buildAgentSystemPrompt({
         userName,
@@ -181,13 +181,18 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       }),
       currentText: data.text,
       pageRoute,
-      toolDefinitions: getAgentAiToolDefinitions(toolNames),
+      toolDefinitions: getAgentAiToolDefinitions(),
     });
-    if (requiredContextBytes === null) throw new Error("The Assistant request context could not be measured safely.");
+    assertInvariant(requiredContextBytes !== null, "The Assistant request context could not be measured safely.");
 
-    const creditAdmission = await this.usageService.prepareTurn(user.id, now, requiredContextBytes);
+    const creditAdmission = await this.usageService.prepareTurn(
+      user.id,
+      now,
+      requiredContextBytes,
+      AGENT_MIN_STEPS_WITH_FULL_TOOL_CATALOG,
+    );
     const reservation = creditAdmission.reservation;
-    if (!reservation) throw createAgentLimitExceededError();
+    if (!reservation) return createInteractorFailure(CustomErrorCode.agentLimitReached);
 
     const runId = randomUUID();
     try {
@@ -206,7 +211,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         });
         return true;
       });
-      if (!claimed) throw new Error("Another assistant turn is already running.");
+      if (!claimed) return createInteractorFailure(CustomErrorCode.agentTurnAlreadyRunning);
 
       const turnRequestId = decision.disposition === "retry" ? decision.turn.id : randomUUID();
       const userMessageId = decision.disposition === "retry" ? decision.turn.userMessageId : randomUUID();
@@ -258,7 +263,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           userName,
           conversationId: admission.conversationId,
           locale,
-          toolNames,
           messages,
           turnBudget: reservation.budget,
         },
@@ -271,7 +275,9 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           runId,
         });
       } catch (cleanupError) {
-        Sentry.captureException(cleanupError, { tags: { kind: "agent-admission-cleanup-failure" } });
+        Sentry.captureException(cleanupError, {
+          tags: { kind: "agent-admission-cleanup-failure" },
+        });
       }
       throw error;
     }

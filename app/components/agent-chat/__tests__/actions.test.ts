@@ -1,4 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { z } from "zod";
 
 const di = vi.hoisted(() => ({
   getArchiveAgentConversationInteractor: vi.fn(),
@@ -11,9 +12,6 @@ const di = vi.hoisted(() => ({
   getRestoreAgentConversationInteractor: vi.fn(),
 }));
 
-vi.mock("@/env", () => ({
-  env: { AGENT_CHAT_DISABLED: true },
-}));
 vi.mock("@/core/di", () => di);
 
 import {
@@ -29,33 +27,100 @@ import {
 
 const conversationId = "00000000-0000-4000-8000-000000000001";
 
-describe("agent server action kill switch", () => {
-  it("returns a stable disabled code for configuration without invoking its interactor", async () => {
-    const result = await getAgentConfigAction();
+function useInteractor(getter: ReturnType<typeof vi.fn>, result: unknown) {
+  const invoke = vi.fn().mockResolvedValue(result);
+  getter.mockReturnValue({ invoke });
+  return invoke;
+}
 
-    expect(result).toMatchObject({ ok: false, code: "agentChatDisabled" });
-    expect(di.getGetAgentConfigInteractor).not.toHaveBeenCalled();
+describe("agent server actions", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("preserves the configuration denial code returned by the interactor", async () => {
+    const error = new z.ZodError([{ code: "custom", path: [], message: "The Assistant is unavailable." }]);
+    const invoke = useInteractor(di.getGetAgentConfigInteractor, {
+      ok: false,
+      error,
+      code: "agentChatDisabled",
+    });
+
+    await expect(getAgentConfigAction()).resolves.toMatchObject({ ok: false, code: "agentChatDisabled" });
+    expect(invoke).toHaveBeenCalledOnce();
   });
 
-  it("rejects every remaining action before dependency injection", async () => {
-    const actions = [
-      () => getAgentConversationAction(conversationId),
-      () => listAgentConversationsAction(),
-      () => deleteAgentConversationAction({ conversationId }),
-      () => archiveAgentConversationAction({ conversationId }),
-      () => restoreAgentConversationAction({ conversationId }),
-      () => respondToApprovalAction({ conversationId, requestId: "request-1", decision: "approve" }),
-      () =>
-        respondToUiCommandAction({
-          conversationId,
-          commandId: "command-1",
-          name: "navigate",
-          ok: true,
-          result: "Navigated.",
-        }),
-    ];
+  it("delegates every remaining operation and only shapes its result", async () => {
+    const getConversation = useInteractor(di.getGetAgentConversationInteractor, {
+      ok: true,
+      data: { messages: [] },
+    });
+    const listConversations = useInteractor(di.getListAgentConversationsInteractor, {
+      ok: true,
+      data: { conversations: [], nextCursor: null },
+    });
+    const deleteConversation = useInteractor(di.getDeleteAgentConversationInteractor, {
+      ok: true,
+      data: { deleted: true },
+    });
+    const archiveConversation = useInteractor(di.getArchiveAgentConversationInteractor, {
+      ok: true,
+      data: { archived: true },
+    });
+    const restoreConversation = useInteractor(di.getRestoreAgentConversationInteractor, {
+      ok: true,
+      data: { restored: true },
+    });
+    const respondToApproval = useInteractor(di.getRespondToApprovalInteractor, {
+      ok: true,
+      data: { resolved: true },
+    });
+    const respondToUiCommand = useInteractor(di.getRespondToUiCommandInteractor, {
+      ok: true,
+      data: { resolved: true },
+    });
 
-    for (const action of actions) await expect(action()).rejects.toThrow("The Assistant is unavailable.");
-    for (const getter of Object.values(di)) expect(getter).not.toHaveBeenCalled();
+    await expect(getAgentConversationAction(conversationId, "cursor-1")).resolves.toEqual({ messages: [] });
+    await expect(listAgentConversationsAction()).resolves.toEqual({ conversations: [], nextCursor: null });
+    await expect(deleteAgentConversationAction({ conversationId })).resolves.toEqual({
+      ok: true,
+      data: { deleted: true },
+    });
+    await expect(archiveAgentConversationAction({ conversationId })).resolves.toEqual({
+      ok: true,
+      data: { archived: true },
+    });
+    await expect(restoreAgentConversationAction({ conversationId })).resolves.toEqual({
+      ok: true,
+      data: { restored: true },
+    });
+    await expect(
+      respondToApprovalAction({ conversationId, requestId: "request-1", decision: "approve" }),
+    ).resolves.toEqual({ ok: true, data: { resolved: true } });
+    await expect(
+      respondToUiCommandAction({
+        conversationId,
+        commandId: "command-1",
+        name: "navigate",
+        ok: true,
+        result: "Navigated.",
+      }),
+    ).resolves.toEqual({ ok: true, data: { resolved: true } });
+
+    expect(getConversation).toHaveBeenCalledWith({ conversationId, before: "cursor-1" });
+    expect(listConversations).toHaveBeenCalledWith({ kind: "both" });
+    expect(deleteConversation).toHaveBeenCalledWith({ conversationId });
+    expect(archiveConversation).toHaveBeenCalledWith({ conversationId });
+    expect(restoreConversation).toHaveBeenCalledWith({ conversationId });
+    expect(respondToApproval).toHaveBeenCalledWith({
+      conversationId,
+      requestId: "request-1",
+      decision: "approve",
+    });
+    expect(respondToUiCommand).toHaveBeenCalledWith({
+      conversationId,
+      commandId: "command-1",
+      name: "navigate",
+      ok: true,
+      result: "Navigated.",
+    });
   });
 });

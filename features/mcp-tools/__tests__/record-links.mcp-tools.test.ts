@@ -36,6 +36,7 @@ vi.mock("@/core/di", () => ({
 }));
 
 import { manageRecordLinksTool } from "../entity-generic.mcp-tools";
+import { mcpToolResultText } from "../mcp-tool";
 
 const sourceId = "00000000-0000-4000-8000-000000000001";
 const orgOne = "00000000-0000-4000-8000-000000000002";
@@ -126,7 +127,8 @@ describe("manage_record_links", () => {
       ids: [orgOne],
     });
 
-    expect(result).toContain("Validation error:");
+    expect(mcpToolResultText(result)).toContain("Validation error:");
+    expect(result).toMatchObject({ failure: { kind: "validation" } });
     for (const spy of otherSpies()) expect(spy).not.toHaveBeenCalled();
   });
 });

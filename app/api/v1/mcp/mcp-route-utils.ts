@@ -3,28 +3,12 @@ import { z } from "zod";
 import { createMcpHandler } from "mcp-handler";
 import * as Sentry from "@sentry/nextjs";
 
-import { validationError, VALIDATION_ERROR_PREFIX } from "@/features/mcp-tools/utils";
+import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
+import { executeMcpTool, type McpTool } from "@/features/mcp-tools/mcp-tool";
 import { GET_STARTED_PROMPT, MCP_SERVER_INSTRUCTIONS } from "@/features/mcp-tools/server-instructions";
-import { prismaClientError } from "@/core/errors/prisma-client-error";
 import { env } from "@/env";
 
-function toClientError(error: unknown): string {
-  const code = (error as { code?: unknown } | null | undefined)?.code;
-  if (typeof code === "string" && /^P2\d{3}$/.test(code)) return "The operation could not be completed";
-  return error instanceof Error ? error.message : "Unknown error";
-}
-
-export type McpToolResult = string | { text: string; structuredContent: Record<string, unknown> };
-
-export type McpTool = {
-  name: string;
-  title: string;
-  description: string;
-  annotations?: Record<string, boolean>;
-  inputSchema: z.ZodType;
-  outputSchema?: z.ZodType;
-  execute: (...args: never[]) => Promise<McpToolResult> | McpToolResult;
-};
+export type { McpTool, McpToolResult } from "@/features/mcp-tools/mcp-tool";
 
 function createTextContent(text: string, isError = false) {
   return {
@@ -50,18 +34,20 @@ function registerAllTools(server: Parameters<Parameters<typeof createMcpHandler>
       },
       async (...args: unknown[]) => {
         try {
-          const result = await (tool.execute as (...a: unknown[]) => Promise<McpToolResult> | McpToolResult)(...args);
-          if (typeof result === "string") {
-            if (result.startsWith(VALIDATION_ERROR_PREFIX)) return createTextContent(result, true);
-            return createTextContent(result);
+          const result = await executeMcpTool(tool, args);
+          if (!result.ok) {
+            return {
+              ...createTextContent(result.result, true),
+              _meta: { failure: result.failure },
+            };
           }
-          return { ...createTextContent(result.text), structuredContent: result.structuredContent };
+          return {
+            ...createTextContent(result.result),
+            ...(result.structuredContent ? { structuredContent: result.structuredContent } : {}),
+          };
         } catch (error) {
-          if (error instanceof z.ZodError) return createTextContent(validationError(error), true);
-          const prismaError = prismaClientError(error);
-          if (prismaError) return createTextContent(`Error: ${prismaError.message}`, true);
-          Sentry.captureException(error);
-          return createTextContent(`Error: ${toClientError(error)}`, true);
+          Sentry.captureException(redactUnexpectedError(error, "The MCP tool could not be completed."));
+          return createTextContent("Error: The operation could not be completed", true);
         }
       },
     );
@@ -71,9 +57,17 @@ function registerAllTools(server: Parameters<Parameters<typeof createMcpHandler>
 function registerPrompts(server: Parameters<Parameters<typeof createMcpHandler>[0]>[0]) {
   server.registerPrompt(
     "get-started",
-    { title: "Get started", description: "Personalized CRM kickoff: interview the user, then summarize the workspace" },
+    {
+      title: "Get started",
+      description: "Personalized CRM kickoff: interview the user, then summarize the workspace",
+    },
     () => ({
-      messages: [{ role: "user" as const, content: { type: "text" as const, text: GET_STARTED_PROMPT } }],
+      messages: [
+        {
+          role: "user" as const,
+          content: { type: "text" as const, text: GET_STARTED_PROMPT },
+        },
+      ],
     }),
   );
 }

@@ -12,14 +12,17 @@ vi.mock("@/env", () => ({
     BASE_URL: "https://app.example.com",
   },
 }));
-vi.mock("@/core/di", () => ({ getSendAgentMessageInteractor: () => ({ invoke }) }));
+vi.mock("@/core/di", () => ({
+  getSendAgentMessageInteractor: () => ({ invoke }),
+}));
 vi.mock("@/core/api/interactor-handler", () => ({
   handleError: () => new Response(null, { status: 500 }),
 }));
 vi.mock("@/ee/agent-chat/agent-runner", () => ({ runAgentLane }));
 
 import { POST } from "../route";
-import { createAgentLimitExceededError } from "@/ee/agent-chat/agent-errors";
+import { createZodError } from "@/core/validation/validation.utils";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const clientRequestId = "00000000-0000-4000-8000-000000000001";
 const conversationId = "00000000-0000-4000-8000-000000000002";
@@ -39,12 +42,32 @@ beforeEach(() => {
 
 describe("agent message admission route", () => {
   it("maps an exhausted allowance to a safe 429 response", async () => {
-    invoke.mockRejectedValue(createAgentLimitExceededError());
+    invoke.mockResolvedValue({
+      ok: false,
+      error: createZodError("Not enough AI credits remain to start another request.", [], {
+        error: CustomErrorCode.agentLimitReached,
+      }),
+    });
 
     const response = await POST(request());
 
     expect(response.status).toBe(429);
-    expect(await response.json()).toBe("Your AI usage limit is reached.");
+    expect(await response.json()).toBe("Not enough AI credits remain to start another request.");
+    expect(runAgentLane).not.toHaveBeenCalled();
+  });
+
+  it("maps a canonical admission conflict to 409 without starting the provider", async () => {
+    invoke.mockResolvedValue({
+      ok: false,
+      error: createZodError("Another Assistant turn is already running.", [], {
+        error: CustomErrorCode.agentTurnAlreadyRunning,
+      }),
+    });
+
+    const response = await POST(request());
+
+    expect(response.status).toBe(409);
+    expect(await response.json()).toContain("Another Assistant turn is already running.");
     expect(runAgentLane).not.toHaveBeenCalled();
   });
 
@@ -81,7 +104,10 @@ describe("agent message admission route", () => {
     expect(response.headers.get("x-user-message-id")).toBe(userMessageId);
     expect(response.headers.get("x-client-request-id")).toBe(clientRequestId);
     expect(runAgentLane).toHaveBeenCalledWith(
-      expect.objectContaining({ disposition: "run", appBaseUrl: "https://app.example.com" }),
+      expect.objectContaining({
+        disposition: "run",
+        appBaseUrl: "https://app.example.com",
+      }),
       expect.any(AbortSignal),
     );
   });
@@ -154,6 +180,9 @@ describe("agent message admission route", () => {
 
     expect(response.status).toBe(409);
     expect(response.headers.get("x-conversation-id")).toBeNull();
-    expect(await response.json()).toMatchObject({ disposition: "conflict", retryAllowed: false });
+    expect(await response.json()).toMatchObject({
+      disposition: "conflict",
+      retryAllowed: false,
+    });
   });
 });

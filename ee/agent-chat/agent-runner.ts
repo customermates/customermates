@@ -5,8 +5,16 @@ import { streamText, stepCountIs } from "ai";
 import type { Prisma } from "@/generated/prisma";
 
 import { getAgentChatRepo, getCreateChatSupportTicketInteractor, getUserService } from "@/core/di";
+import { isExpectedErrorInCauseChain } from "@/core/errors/app-errors";
+import { mcpInteractorFailure, type McpToolExecutionResult } from "@/features/mcp-tools/mcp-tool";
 
-import { buildLaneUsageSettlement, hasProviderUsageEvidence, laneModel, usageToTokenCounts } from "./llm.service";
+import {
+  AGENT_TOOL_SEARCH_NAME,
+  buildLaneUsageSettlement,
+  hasProviderUsageEvidence,
+  laneModel,
+  usageToTokenCounts,
+} from "./llm.service";
 import { type TokenCounts } from "./model-pricing";
 import { buildAgentSystemPrompt } from "./system-prompt";
 import {
@@ -14,7 +22,6 @@ import {
   describeAgentAiTools,
   isAgentToolCancellation,
   type AgentToolDeps,
-  type AgentToolOutcome,
   type ApprovalDecision,
 } from "./agent-tools";
 import { sse, type ReplayMessage } from "./agent-stream-utils";
@@ -27,8 +34,15 @@ import {
   type AgentTurnBudget,
 } from "./agent-budget-policy";
 import { isAgentTurnTerminalError, type AgentTurnTerminalCode } from "./agent-turn-request";
-import { buildAgentProviderContext } from "./agent-provider-context";
+import { buildAgentProviderContext, isAgentStepContextWithinBudget } from "./agent-provider-context";
 import { agentTranslator, type AgentTranslator } from "./agent-translator";
+import { resolveAgentApprovalContext } from "./agent-external-approval-context";
+import {
+  agentContinuationShouldStop,
+  compactAgentContinuationContext,
+  decideAgentContinuationLoop,
+  type AgentContinuationDecision,
+} from "./agent-continuation";
 
 function agentRunnerCopy(t: AgentTranslator) {
   return {
@@ -36,6 +50,8 @@ function agentRunnerCopy(t: AgentTranslator) {
     turnError: t("AgentChat.runner.turnError"),
     cancelled: t("AgentChat.runner.cancelled"),
     maxSteps: t("AgentChat.runner.maxSteps"),
+    outputLimit: t("AgentChat.runner.outputLimit"),
+    safetyLimit: t("AgentChat.runner.safetyLimit"),
   };
 }
 
@@ -50,7 +66,6 @@ export type AgentRunContext = {
   conversationId: string;
   locale: string;
   appBaseUrl: string;
-  toolNames: string[];
   messages: ReplayMessage[];
   turnBudget: AgentTurnBudget;
   approvalTimeoutMs?: number;
@@ -61,6 +76,11 @@ const AGENT_APPROVAL_TIMEOUT_MS = 120_000;
 const AGENT_APPROVAL_POLL_MS = 1_000;
 const UI_COMMAND_TIMEOUT_MS = 15000;
 const UI_COMMAND_POLL_MS = 100;
+const AGENT_CONTINUATION_MAX_WRITE_ACTIVITIES = 16;
+const AGENT_CONTINUATION_MAX_ERRORS = 3;
+const AGENT_CONTINUATION_MAX_NO_PROGRESS_STEPS = 2;
+const AGENT_CONTINUATION_MAX_REPEATED_CALLS = 3;
+const AGENT_CONTINUATION_MAX_WALL_TIME_MS = 240_000;
 
 function delay(ms: number, signal: AbortSignal): Promise<void> {
   return new Promise((resolve) => {
@@ -102,19 +122,42 @@ function isStructuredToolFailure(output: unknown) {
   );
 }
 
-async function createSupportTicket(conversationId: string, subject: string, body: string): Promise<AgentToolOutcome> {
+function isAgentTimeoutError(error: unknown) {
+  const seen = new Set<unknown>();
+  let current = error;
+  for (let depth = 0; depth < 8 && current && typeof current === "object" && !seen.has(current); depth += 1) {
+    seen.add(current);
+    const candidate = current as { name?: unknown; cause?: unknown };
+    if (candidate.name === "TimeoutError") return true;
+    current = candidate.cause;
+  }
+  return false;
+}
+
+async function createSupportTicket(
+  conversationId: string,
+  subject: string,
+  body: string,
+): Promise<McpToolExecutionResult> {
   const result = await getCreateChatSupportTicketInteractor().invoke({
     conversationId,
     subject,
     body,
   });
-  return result.ok
-    ? {
-        ok: true,
-        result:
-          "Support request email accepted for delivery. The Customermates team will reply to the email address on your account.",
-      }
-    : { ok: false, result: "The support request email could not be sent." };
+  if (result.ok) {
+    return {
+      ok: true,
+      result:
+        "Support request email accepted for delivery. The Customermates team will reply to the email address on your account.",
+    };
+  }
+
+  const failure = mcpInteractorFailure(result.error);
+  return {
+    ok: false,
+    result: "The support request email could not be sent.",
+    failure: failure.failure,
+  };
 }
 
 export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): ReadableStream<Uint8Array> {
@@ -231,15 +274,18 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
       let visibleText = new AgentVisibleTextStreamSanitizer();
       const replyParts: AgentMessagePart[] = [];
       const toolParts = new Map<string, Extract<AgentMessagePart, { type: "activity" }>>();
+      const invalidToolCallIds = new Set<string>();
       const retryableFailureByTool = new Map<string, string>();
       const approvalParts = new Map<string, Extract<AgentMessagePart, { type: "approval" }>>();
       const affectedResources = new Set<AgentActivityResource>();
       let tokens = EMPTY_TOKENS;
-      let providerStepsObserved = 0;
+      let providerStepsStarted = 0;
+      let providerStepsFinished = 0;
       let everyProviderStepHasUsageEvidence = true;
       let providerAttempted = false;
-      let providerCompleted = false;
       let finishReason: string | undefined;
+      let removedToolProtocol = false;
+      const continuationState: { decision: AgentContinuationDecision | null } = { decision: null };
       let turnDone: {
         isError: boolean;
         numTurns: number;
@@ -258,6 +304,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
       };
       const finishVisibleTextSegment = () => {
         emitVisibleText(visibleText.finish());
+        removedToolProtocol ||= visibleText.removedToolProtocol;
         visibleText = new AgentVisibleTextStreamSanitizer();
       };
       const finishTool = (id: string, status: "done" | "error" | "cancelled") => {
@@ -285,10 +332,11 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
         const deps: AgentToolDeps = {
           runUiCommand,
           requestApproval,
+          resolveApprovalContext: resolveAgentApprovalContext,
           createSupportTicket: (_toolCallId, subject, body) => createSupportTicket(ctx.conversationId, subject, body),
           resultMaxChars: resolveAgentToolResultMaxChars(ctx.turnBudget.maxToolResultChars),
         };
-        const tools = getAgentAiTools(deps, ctx.toolNames);
+        const tools = getAgentAiTools(deps);
         const systemPrompt = buildAgentSystemPrompt({
           userName: ctx.userName,
           appBaseUrl: ctx.appBaseUrl,
@@ -299,6 +347,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
         const modelMessages = providerContext.messages;
         if (!isAgentContextWithinBudget(providerContext, ctx.turnBudget.maxContextBytes))
           throw new Error("The assistant context exceeds its safe turn budget.");
+
         if (signal.aborted) throw new Error("The agent turn was cancelled before provider access.");
         const model = laneModel("agent");
         await repo.markAgentTurnProviderStartedUnscoped({
@@ -309,25 +358,80 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
           runId: ctx.runId,
         });
         providerAttempted = true;
+        const continuationStartedAtMs = Date.now();
         const result = streamText({
           model,
           maxRetries: 0,
           maxOutputTokens: ctx.turnBudget.maxOutputTokens,
+          timeout: { totalMs: AGENT_CONTINUATION_MAX_WALL_TIME_MS },
           tools,
-          stopWhen: stepCountIs(ctx.turnBudget.maxSteps),
-          prepareStep: ({ messages }) => {
-            if (!isAgentContextWithinBudget({ ...providerContext, messages }, ctx.turnBudget.maxContextBytes))
+          providerOptions: {
+            openai: { parallelToolCalls: false, store: true },
+          },
+          stopWhen: [
+            stepCountIs(ctx.turnBudget.maxSteps),
+            ({ steps }) => {
+              if (steps.length >= ctx.turnBudget.maxSteps) return false;
+              const decision = decideAgentContinuationLoop(
+                {
+                  startedAtMs: continuationStartedAtMs,
+                  steps,
+                  observedAtMs: Date.now(),
+                },
+                {
+                  maxProviderSteps: ctx.turnBudget.maxSteps,
+                  maxWriteActivities: Math.min(AGENT_CONTINUATION_MAX_WRITE_ACTIVITIES, ctx.turnBudget.maxSteps),
+                  maxErrors: AGENT_CONTINUATION_MAX_ERRORS,
+                  maxNoProgressSteps: AGENT_CONTINUATION_MAX_NO_PROGRESS_STEPS,
+                  maxRepeatedActivityCalls: AGENT_CONTINUATION_MAX_REPEATED_CALLS,
+                  maxWallTimeMs: AGENT_CONTINUATION_MAX_WALL_TIME_MS,
+                },
+              );
+              if (decision.action === "error") continuationState.decision = decision;
+              return agentContinuationShouldStop(decision);
+            },
+          ],
+          experimental_onStepStart: () => {
+            providerStepsStarted += 1;
+          },
+          prepareStep: ({ steps = [] }) => {
+            const compacted = compactAgentContinuationContext({
+              system: providerContext.system,
+              initialMessages: modelMessages,
+              steps,
+            });
+            const compactedProviderContext = {
+              ...providerContext,
+              system: compacted.system,
+            };
+            if (
+              !isAgentStepContextWithinBudget(
+                compactedProviderContext,
+                compacted.messages,
+                ctx.turnBudget.maxContextBytes,
+              )
+            )
               throw new Error("The assistant context exceeds its safe turn budget.");
 
-            return undefined;
+            return {
+              system: compacted.system,
+              messages: compacted.messages,
+            };
           },
+          system: providerContext.system,
           messages: modelMessages,
           abortSignal: signal,
         });
 
         for await (const part of result.fullStream) {
-          if (part.type === "text-delta" && part.text) emitVisibleText(visibleText.push(part.text));
+          if (part.type === "text-delta" && part.text) {
+            emitVisibleText(visibleText.push(part.text));
+            removedToolProtocol ||= visibleText.removedToolProtocol;
+          } else if (part.type === "tool-call" && part.toolName === AGENT_TOOL_SEARCH_NAME) continue;
+          else if (part.type === "tool-result" && part.toolName === AGENT_TOOL_SEARCH_NAME) continue;
+          else if (part.type === "tool-error" && part.toolName === AGENT_TOOL_SEARCH_NAME) throw part.error;
           else if (part.type === "tool-call") {
+            if ("invalid" in part && part.invalid) invalidToolCallIds.add(part.toolCallId);
             finishVisibleTextSegment();
             const supersededId = retryableFailureByTool.get(part.toolName);
             if (supersededId) {
@@ -363,7 +467,8 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
               status,
             });
           } else if (part.type === "tool-error") {
-            Sentry.captureException(part.error);
+            if (!invalidToolCallIds.delete(part.toolCallId) && !isExpectedErrorInCauseChain(part.error))
+              Sentry.captureException(part.error);
             finishTool(part.toolCallId, "error");
             emit("activity_result", {
               id: part.toolCallId,
@@ -371,17 +476,40 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
             });
           } else if (part.type === "finish-step") {
             tokens = addTokens(tokens, usageToTokenCounts(part.usage));
-            providerStepsObserved += 1;
+            providerStepsFinished += 1;
             everyProviderStepHasUsageEvidence &&= hasProviderUsageEvidence(part.usage);
             finishReason = part.finishReason;
           } else if (part.type === "finish") finishReason = part.finishReason;
           else if (part.type === "error") throw part.error;
         }
         finishVisibleTextSegment();
-        providerCompleted = !signal.aborted;
         if (signal.aborted) throw new Error("The agent turn was cancelled.");
 
-        if (replyParts.length === 0) {
+        if (removedToolProtocol) {
+          Sentry.captureException(new Error("The assistant emitted tool protocol as visible text."));
+          const fallback = copy.turnError;
+          const delta = replyText.trim() ? `\n\n${fallback}` : fallback;
+          appendReplyText(delta);
+          emit("delta", { text: delta });
+          turnDone = {
+            isError: true,
+            numTurns: 1,
+            errorMessage: "error",
+          };
+        } else if (
+          continuationState.decision?.action === "error" &&
+          continuationState.decision.reason !== "step_limit"
+        ) {
+          const fallback = copy.safetyLimit;
+          const delta = replyText.trim() ? `\n\n${fallback}` : fallback;
+          appendReplyText(delta);
+          emit("delta", { text: delta });
+          turnDone = {
+            isError: true,
+            numTurns: 1,
+            errorMessage: "safety_limit",
+          };
+        } else if (replyParts.length === 0) {
           appendReplyText(copy.emptyReply);
           emit("delta", { text: copy.emptyReply });
           turnDone = {
@@ -398,6 +526,26 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
             isError: true,
             numTurns: 1,
             errorMessage: "max_turns",
+          };
+        } else if (finishReason === "length") {
+          const fallback = copy.outputLimit;
+          const delta = replyText.trim() ? `\n\n${fallback}` : fallback;
+          appendReplyText(delta);
+          emit("delta", { text: delta });
+          turnDone = {
+            isError: true,
+            numTurns: 1,
+            errorMessage: "output_limit",
+          };
+        } else if (finishReason && finishReason !== "stop") {
+          const fallback = copy.turnError;
+          const delta = replyText.trim() ? `\n\n${fallback}` : fallback;
+          appendReplyText(delta);
+          emit("delta", { text: delta });
+          turnDone = {
+            isError: true,
+            numTurns: 1,
+            errorMessage: "error",
           };
         } else {
           turnDone = {
@@ -416,8 +564,17 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
             numTurns: 1,
             errorMessage: "cancelled",
           };
+        } else if (isAgentTimeoutError(error)) {
+          const fallback = replyText.trim() ? `\n\n${copy.safetyLimit}` : copy.safetyLimit;
+          appendReplyText(fallback);
+          emit("delta", { text: fallback });
+          turnDone = {
+            isError: true,
+            numTurns: 1,
+            errorMessage: "safety_limit",
+          };
         } else {
-          Sentry.captureException(error);
+          if (!isExpectedErrorInCauseChain(error)) Sentry.captureException(error);
           const fallback = replyText.trim() ? `\n\n${copy.turnError}` : copy.turnError;
           appendReplyText(fallback);
           emit("delta", { text: fallback });
@@ -440,7 +597,9 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
 
         const terminalCode: AgentTurnTerminalCode = signal.aborted
           ? "cancelled"
-          : turnDone.errorMessage === "max_turns"
+          : turnDone.errorMessage === "max_turns" ||
+              turnDone.errorMessage === "output_limit" ||
+              turnDone.errorMessage === "safety_limit"
             ? "partial"
             : turnDone.isError
               ? "error"
@@ -459,7 +618,9 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
               ? buildLaneUsageSettlement("agent", tokens, {
                   reservedCredits: ctx.turnBudget.reservedCredits,
                   retainReservation:
-                    !providerCompleted || providerStepsObserved === 0 || !everyProviderStepHasUsageEvidence,
+                    providerStepsStarted !== providerStepsFinished ||
+                    providerStepsFinished === 0 ||
+                    !everyProviderStepHasUsageEvidence,
                 })
               : null,
           });

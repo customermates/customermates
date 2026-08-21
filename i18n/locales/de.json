@@ -17,9 +17,18 @@
         "draftDiscard": "Den ausgewählten gespeicherten Entwurf dauerhaft verwerfen",
         "draftSave": "Entwurf in der ausgewählten Unterhaltung speichern",
         "emailSend": "E-Mail an die ausgewählten Empfänger senden",
+        "externalManage": "Daten im verbundenen externen Konto ändern",
         "recordsDelete": "Das kann nicht rückgängig gemacht werden.",
         "recordsLink": "Datensätze verknüpfen",
         "recordsUnlink": "Verknüpfungen entfernen",
+        "salesListSave": "Den ausgewählten Interessenten zu einer Sales-Navigator-Liste hinzufügen",
+        "salesListSaveTarget": "{target} zur Sales-Navigator-Liste {list} hinzufügen",
+        "socialAccept": "Die ausgewählte Kontaktanfrage annehmen",
+        "socialAcceptTarget": "Kontaktanfrage von {target} annehmen",
+        "socialCancel": "Die ausgewählte Kontaktanfrage zurückziehen oder ablehnen",
+        "socialCancelTarget": "Kontaktanfrage mit {target} zurückziehen oder ablehnen",
+        "socialInvite": "Eine Kontaktanfrage über das verbundene Konto senden",
+        "socialInviteTarget": "Kontaktanfrage an {target} senden",
         "teamInvite": "Einladungs-E-Mails an die ausgewählten Personen senden",
         "teamInviteTarget": "{count} Einladung(en) per E-Mail senden an: {target}",
         "teamUpdate": "Rolle oder Status des ausgewählten Teammitglieds ändern",
@@ -69,16 +78,60 @@
             "running": "Sicherer Verbindungslink wird vorbereitet"
           }
         },
+        "customFields": {
+          "configure": {
+            "done": "Benutzerdefinierte Felder wurden konfiguriert",
+            "error": "Benutzerdefinierte Felder konnten nicht konfiguriert werden",
+            "running": "Benutzerdefinierte Felder werden konfiguriert"
+          },
+          "create": {
+            "done": "Benutzerdefiniertes Feld wurde erstellt",
+            "error": "Benutzerdefiniertes Feld konnte nicht erstellt werden",
+            "running": "Benutzerdefiniertes Feld wird erstellt"
+          },
+          "delete": {
+            "done": "Benutzerdefiniertes Feld wurde entfernt",
+            "error": "Benutzerdefiniertes Feld konnte nicht entfernt werden",
+            "running": "Benutzerdefiniertes Feld wird entfernt"
+          },
+          "read": {
+            "done": "Benutzerdefinierte Felder wurden geprüft",
+            "error": "Benutzerdefinierte Felder konnten nicht geprüft werden",
+            "running": "Benutzerdefinierte Felder werden geprüft"
+          },
+          "update": {
+            "done": "Benutzerdefiniertes Feld wurde aktualisiert",
+            "error": "Benutzerdefiniertes Feld konnte nicht aktualisiert werden",
+            "running": "Benutzerdefiniertes Feld wird aktualisiert"
+          }
+        },
+        "docs": {
+          "read": {
+            "done": "Passende Anleitung wurde gelesen",
+            "error": "Passende Anleitung konnte nicht gelesen werden",
+            "running": "Passende Anleitung wird gelesen"
+          },
+          "search": {
+            "done": "Dokumentation wurde durchsucht",
+            "error": "Dokumentation konnte nicht durchsucht werden",
+            "running": "Dokumentation wird durchsucht"
+          }
+        },
         "generic": {
           "done": "Schritt abgeschlossen",
           "error": "Dieser Schritt benötigt Aufmerksamkeit",
           "running": "Anfrage wird bearbeitet"
         },
         "interface": {
-          "configure": {
-            "done": "Ansicht angepasst",
-            "error": "Ansicht konnte nicht angepasst werden",
-            "running": "Ansicht wird angepasst"
+          "inspect": {
+            "done": "Verfügbare Steuerelemente wurden geprüft",
+            "error": "Verfügbare Steuerelemente konnten nicht geprüft werden",
+            "running": "Verfügbare Steuerelemente werden geprüft"
+          },
+          "interact": {
+            "done": "Steuerelement aktiviert",
+            "error": "Steuerelement konnte nicht aktiviert werden",
+            "running": "Steuerelement wird aktiviert"
           },
           "navigate": {
             "done": "Passende Ansicht wurde geöffnet",
@@ -116,6 +169,13 @@
             "done": "Unterhaltungsstatus wurde geändert",
             "error": "Unterhaltungsstatus konnte nicht geändert werden",
             "running": "Unterhaltungsstatus ist zum Ändern bereit"
+          }
+        },
+        "profile": {
+          "configure": {
+            "done": "Profil wurde aktualisiert",
+            "error": "Profil konnte nicht aktualisiert werden",
+            "running": "Profil wird aktualisiert"
           }
         },
         "records": {
@@ -171,16 +231,43 @@
             "running": "Webhook-Aktion ist bereit"
           }
         },
+        "widgets": {
+          "configure": {
+            "done": "Dashboard-Widgets wurden aktualisiert",
+            "error": "Dashboard-Widgets konnten nicht aktualisiert werden",
+            "running": "Dashboard-Widgets werden aktualisiert"
+          },
+          "read": {
+            "done": "Dashboard-Widgets wurden geprüft",
+            "error": "Dashboard-Widgets konnten nicht geprüft werden",
+            "running": "Dashboard-Widgets werden geprüft"
+          }
+        },
         "workspace": {
           "configure": {
             "done": "Workspace wurde aktualisiert",
             "error": "Workspace konnte nicht aktualisiert werden",
             "running": "Workspace wird aktualisiert"
           },
+          "inspect": {
+            "done": "Workspace-Details wurden geprüft",
+            "error": "Workspace-Details konnten nicht geprüft werden",
+            "running": "Workspace-Details werden geprüft"
+          },
           "read": {
             "done": "Workspace wurde geprüft",
             "error": "Workspace konnte nicht geprüft werden",
             "running": "Workspace wird geprüft"
+          },
+          "settings": {
+            "done": "Workspace-Einstellungen wurden aktualisiert",
+            "error": "Workspace-Einstellungen konnten nicht aktualisiert werden",
+            "running": "Workspace-Einstellungen werden aktualisiert"
+          },
+          "terminology": {
+            "done": "Workspace-Bezeichnungen wurden aktualisiert",
+            "error": "Workspace-Bezeichnungen konnten nicht aktualisiert werden",
+            "running": "Workspace-Bezeichnungen werden aktualisiert"
           }
         }
       },
@@ -215,7 +302,7 @@
     "demoUnavailable": "Der Assistent ist in der Demo nicht verfügbar.",
     "errors": {
       "approvalFailed": "Die Freigabe konnte nicht übermittelt werden.",
-      "limitReached": "Dein KI-Nutzungslimit ist erreicht.",
+      "limitReached": "Es sind nicht genügend KI-Credits übrig, um eine weitere Anfrage zu starten.",
       "sendFailed": "Der Assistent konnte deine Nachricht nicht verarbeiten.",
       "turnFailed": "Beim Assistenten ist ein Fehler aufgetreten."
     },
@@ -228,7 +315,9 @@
     "runner": {
       "cancelled": "Diese Antwort wurde gestoppt.",
       "emptyReply": "Ich konnte keine Antwort erstellen. Bitte versuche es erneut.",
-      "maxSteps": "Ich konnte das nicht innerhalb der erlaubten Schritte abschließen. Für größere Aufgaben kannst du deinen eigenen KI-Agenten über MCP mit Customermates verbinden.",
+      "maxSteps": "Ich habe einen Teil dieser Anfrage erledigt, aber die Schrittgrenze für diesen Durchlauf erreicht. Bitte mich, weiterzumachen; ich setze bei der bereits erledigten Arbeit fort.",
+      "outputLimit": "Ich habe einen Teil dieser Antwort erstellt, aber die Ausgabegrenze für diesen Durchlauf erreicht. Bitte mich, weiterzumachen; ich setze bei der bereits erledigten Arbeit fort.",
+      "safetyLimit": "Ich habe einen Teil dieser Anfrage erledigt, aber gestoppt, weil sich die letzten Schritte wiederholt haben, fehlgeschlagen sind oder eine Sicherheitsgrenze erreicht wurde. Die erledigte Arbeit bleibt bestehen; prüfe die Schritte oben, bevor du mich bittest fortzufahren.",
       "turnError": "Ich konnte diese Anfrage nicht abschließen. Bitte versuche es erneut."
     },
     "send": "Senden",
@@ -814,6 +903,10 @@
       "activityPageOutOfRange": "Der Aktivitätsverlauf kann nicht so weit zurückblättern. Grenzen Sie stattdessen die Filter ein.",
       "activityScopeTooManyIds": "Ein Aktivitätsbereich darf nicht mehr als 50 Datensätze eines Typs auswählen.",
       "activitySourcesUnavailable": "Sie haben keinen Zugriff auf eine Quelle des Aktivitätsverlaufs.",
+      "agentApprovalUnavailable": "Diese Freigabeanfrage ist nicht verfügbar oder abgelaufen.",
+      "agentConversationNotFound": "Diese Unterhaltung wurde nicht gefunden oder ist nicht mehr zugänglich.",
+      "agentLimitReached": "Es sind nicht genügend KI-Credits übrig, um eine weitere Anfrage zu starten.",
+      "agentTurnAlreadyRunning": "Eine andere Assistenten-Anfrage wird bereits ausgeführt.",
       "apiKeyMaxExpiration": "Die Ablaufzeit des API-Schlüssels darf 365 Tage nicht überschreiten.",
       "assigneeRequired": "Du musst dich diesem Element zuweisen. Beachte, dass du nur Elemente sehen kannst, die dir zugewiesen sind.",
       "calendarEventNotFound": "Kalenderereignis-ID nicht gefunden oder nicht zugänglich.",
@@ -834,6 +927,7 @@
       "customFieldInvalidSingleSelect": "Der Single-Select-Wert ist ungültig. Muss eine der erlaubten Optionen sein: {validValues}.",
       "customFieldInvalidUrl": "Der URL-Wert ist ungültig. Muss ein gültiges URL-Format haben (z.B. https://example.com). Bei mehreren URLs durch Komma trennen (z.B. https://example.com, https://example.org).",
       "dealNotFound": "Deal-ID nicht gefunden oder nicht zugänglich.",
+      "demoMode": "Diese Aktion ist im Demo-Modus nicht verfügbar. Melde dich an, um alle Funktionen zu nutzen.",
       "draftMessageNotFound": "Dieser Entwurf wurde nicht gefunden. Möglicherweise wurde er bereits gesendet oder verworfen.",
       "duplicateChannel": "Dieser Kanal ist mehrfach vorhanden. Füge jede E-Mail-Adresse, Telefonnummer und jeden Benutzernamen nur einmal hinzu.",
       "duplicateOutboundSuppressed": "Eine identische Nachricht wurde gerade eben in dieser Konversation gesendet. Ändere den Text oder warte eine Minute, bevor du es erneut versuchst.",
@@ -841,6 +935,7 @@
       "emailAlreadyExists": "Ein Konto mit dieser E-Mail-Adresse existiert bereits.",
       "emailMismatch": "E-Mail-Adressen müssen übereinstimmen.",
       "emailNotVerified": "E-Mail nicht verifiziert.",
+      "enterpriseCheckoutUnavailable": "Enterprise-Workspaces werden manuell abgerechnet und können keinen Self-Service-Checkout starten.",
       "filterBetweenInvalidArrayLength": "Der 'between'-Operator erfordert ein Array mit genau 2 Elementen.",
       "generic": "Ein Fehler ist aufgetreten.",
       "inmailSignatureRequired": "Füge eine Signatur für die Recruiter-InMail hinzu.",
@@ -854,18 +949,23 @@
       "invalidFilterValue": "Ungültiger Filterwert. Der Wert muss zum Typ und Operator des Felds passen (z. B. eine Zahl für gt/lt, ein ISO-Datum für Datumsfelder oder eine ID für in/notIn).",
       "invalidSortField": "Sortierfeld nicht gefunden oder nicht zugänglich. Verfügbare Felder: {validValues}.",
       "invalidUrl": "Gib eine gültige URL ein.",
+      "legalNoticeNotDelivered": "Die aktuelle rechtliche Änderung wurde diesem Workspace noch nicht zugestellt.",
       "linkedinInboxUnavailable": "Dieses LinkedIn-Konto hat keinen {product}-Posteingang. Verbinde das Konto mit {product}, um ihn zu nutzen.",
       "linkedinProductRequiresLinkedin": "InMail- und LinkedIn-Produktoptionen brauchen ein LinkedIn-Konto.",
       "linkedinProductUnavailable": "Dieses LinkedIn-Konto hat dieses Produkt nicht verbunden.",
       "messageContentRequired": "Bitte eine Nachricht oder einen Anhang hinzufügen.",
       "mustNotBeBlank": "Darf nicht leer sein.",
       "mustNotContainNullChars": "Darf keine Null-Zeichen enthalten.",
+      "notAuthenticated": "Melde dich an, um diese Aktion zu verwenden.",
       "notesExceedsMaxLength": "Notizinhalt überschreitet die maximale Länge.",
       "notesInvalidFormat": "Ungültiges Notizformat. Muss gültiges Tiptap JSON oder Markdown-Text sein.",
       "organizationNotFound": "Organisations-ID nicht gefunden oder nicht zugänglich.",
       "passwordInvalid": "Das Passwort muss mindestens 8 Zeichen lang sein und mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Zahl und ein Sonderzeichen enthalten.",
       "passwordMismatch": "Passwörter müssen übereinstimmen.",
+      "permissionDenied": "Diese Aktion ist mit deinen aktuellen Berechtigungen nicht verfügbar.",
+      "presetNotFound": "Diese gespeicherte Filtervoreinstellung wurde nicht gefunden.",
       "relationNotAllowed": "Die Beziehung '{relation}' ist für {entity} nicht erlaubt. Erlaubte Beziehungen: {allowed}.",
+      "roleAssignedCannotDelete": "Eine Nutzern zugewiesene Rolle kann nicht gelöscht werden.",
       "roleNotFound": "Rollen-ID nicht gefunden oder nicht zugänglich.",
       "roleSelfEditForbidden": "Du kannst die Berechtigungen deiner eigenen Rolle nicht ändern.",
       "roleSystemImmutable": "Systemrollen können nicht bearbeitet werden.",
@@ -891,7 +991,9 @@
       "unipileResourceNotFound": "Empfänger oder Konversation auf diesem Kanal nicht gefunden.",
       "unipileServiceUnavailable": "Der Messaging-Dienst ist vorübergehend nicht verfügbar. Bitte später erneut versuchen.",
       "unipileUnknown": "Der Anbieter hat diese Nachricht abgelehnt. Bitte erneut versuchen oder Support kontaktieren.",
+      "userInactive": "Dein Benutzerkonto ist inaktiv. Wende dich an einen Workspace-Administrator.",
       "userNotFound": "Benutzer-ID nicht gefunden oder nicht zugänglich.",
+      "userSelfAdminUpdateForbidden": "Du kannst dein eigenes Konto nicht über die Teamverwaltung aktualisieren.",
       "webhookDeliveryNotFound": "Webhook-Zustellungs-ID nicht gefunden oder nicht zugänglich.",
       "webhookEventsRequired": "Wähle mindestens ein Ereignis aus.",
       "webhookNotFound": "Webhook-ID nicht gefunden oder nicht zugänglich.",
@@ -1266,6 +1368,7 @@
   },
   "ConnectedAccountsCard": {
     "accountLimitReached": "Du hast das Limit für verbundene Konten in diesem Tarif erreicht. Kontaktiere uns für unbegrenzte Konten im Enterprise-Tarif.",
+    "agentChatDisabled": "Der Assistent ist vorübergehend nicht verfügbar.",
     "agentChatRequiresCloud": "Der Assistent ist in Customermates Cloud verfügbar.",
     "agentChatRequiresPlan": "Der Assistent ist in deinem aktuellen Tarif nicht verfügbar.",
     "alreadyExistsToastDescription": "Dieses Konto wurde bereits von einem Mitglied deines Workspace verbunden. Bitte sie oder ihn, es mit dem Workspace zu teilen, damit im Posteingang keine doppelten Nachrichten erscheinen.",

@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import type { ContentLocale } from "@/i18n/locale-registry";
 
-import { customErrorMessage, formatDatesInResponse, validationError, VALIDATION_ERROR_PREFIX } from "./utils";
+import { customMcpFailure, formatDatesInResponse, mcpInteractorFailure, mcpMessageFailure } from "./utils";
 import { getDocsPageRaw, listDocsSlugs, searchDocsRaw } from "./docs.mcp-tools";
 
 import { env } from "@/env";
@@ -70,10 +70,10 @@ const FetchOutputSchema = z.object({
 
 async function fetchRecord(entity: Entity, key: string) {
   const result = await detailsExecutors[entity](key);
-  if (!result.ok) return validationError(result.error);
+  if (!result.ok) return mcpInteractorFailure(result.error);
 
   const row = result.data?.[entity];
-  if (!row) return customErrorMessage(entityNotFoundCode[entity]);
+  if (!row) return customMcpFailure(entityNotFoundCode[entity]);
 
   const { notes, ...masterData } = row as Record<string, unknown> & { notes?: unknown };
   const noteMarkdown = notes ? serializeJSONToMarkdown(notes as object) : null;
@@ -95,7 +95,7 @@ function fetchDoc(locale: ContentLocale, slug: string) {
   const page = getDocsPageRaw(slug, locale, "docs");
   if (!page) {
     const validSlugs = listDocsSlugs(locale, "docs").join(", ");
-    return `${VALIDATION_ERROR_PREFIX} Unknown docs page "${slug}" for locale "${locale}". Valid slugs: ${validSlugs}`;
+    return mcpMessageFailure(`Unknown docs page "${slug}" for locale "${locale}". Valid slugs: ${validSlugs}`);
   }
 
   const output = {
@@ -162,10 +162,9 @@ export const fetchTool = {
     if (kind === "record" && qualifier && isEntity(qualifier) && key.length > 0) return fetchRecord(qualifier, key);
     if (kind === "doc" && isContentLocale(qualifier) && key.length > 0) return fetchDoc(qualifier, key);
 
-    return (
-      `${VALIDATION_ERROR_PREFIX} Unknown id "${id}". ` +
-      `Expected "record:<entity>:<id>" with entity one of contact, organization, deal, service, task, ` +
-      `or "doc:<locale>:<slug>" with locale ${CONTENT_LOCALES.join(" or ")}.`
+    return mcpMessageFailure(
+      `Unknown id "${id}". Expected "record:<entity>:<id>" with entity one of contact, organization, deal, service, task, ` +
+        `or "doc:<locale>:<slug>" with locale ${CONTENT_LOCALES.join(" or ")}.`,
     );
   },
 };

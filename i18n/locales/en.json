@@ -17,9 +17,18 @@
         "draftDiscard": "Permanently discard the selected saved draft",
         "draftSave": "Save a draft in the selected conversation",
         "emailSend": "Send an email to the selected recipients",
+        "externalManage": "Change data in the connected external account",
         "recordsDelete": "This cannot be undone.",
         "recordsLink": "Link records",
         "recordsUnlink": "Remove relationships",
+        "salesListSave": "Add the selected prospect to a Sales Navigator list",
+        "salesListSaveTarget": "Add {target} to Sales Navigator list {list}",
+        "socialAccept": "Accept the selected connection request",
+        "socialAcceptTarget": "Accept the connection request from {target}",
+        "socialCancel": "Withdraw or decline the selected connection request",
+        "socialCancelTarget": "Withdraw or decline the connection request involving {target}",
+        "socialInvite": "Send a connection request from the connected account",
+        "socialInviteTarget": "Send a connection request to {target}",
         "teamInvite": "Send invitation emails to the selected people",
         "teamInviteTarget": "Send {count} invitation email(s) to: {target}",
         "teamUpdate": "Change the selected team member’s role or status",
@@ -69,16 +78,60 @@
             "running": "Preparing a secure connection link"
           }
         },
+        "customFields": {
+          "configure": {
+            "done": "Configured custom fields",
+            "error": "Couldn’t configure custom fields",
+            "running": "Configuring custom fields"
+          },
+          "create": {
+            "done": "Created a custom field",
+            "error": "Couldn’t create the custom field",
+            "running": "Creating a custom field"
+          },
+          "delete": {
+            "done": "Removed a custom field",
+            "error": "Couldn’t remove the custom field",
+            "running": "Removing a custom field"
+          },
+          "read": {
+            "done": "Reviewed custom fields",
+            "error": "Couldn’t review custom fields",
+            "running": "Reviewing custom fields"
+          },
+          "update": {
+            "done": "Updated a custom field",
+            "error": "Couldn’t update the custom field",
+            "running": "Updating a custom field"
+          }
+        },
+        "docs": {
+          "read": {
+            "done": "Read the relevant guide",
+            "error": "Couldn’t read the relevant guide",
+            "running": "Reading the relevant guide"
+          },
+          "search": {
+            "done": "Searched the documentation",
+            "error": "Couldn’t search the documentation",
+            "running": "Searching the documentation"
+          }
+        },
         "generic": {
           "done": "Finished this step",
           "error": "This step needs attention",
           "running": "Working on your request"
         },
         "interface": {
-          "configure": {
-            "done": "Adjusted the view",
-            "error": "Couldn’t adjust the view",
-            "running": "Adjusting the view"
+          "inspect": {
+            "done": "Checked available controls",
+            "error": "Couldn’t check available controls",
+            "running": "Checking available controls"
+          },
+          "interact": {
+            "done": "Activated the control",
+            "error": "Couldn’t activate that control",
+            "running": "Activating the control"
           },
           "navigate": {
             "done": "Opened the right place",
@@ -116,6 +169,13 @@
             "done": "Changed the conversation state",
             "error": "Couldn’t change the conversation state",
             "running": "Ready to change the conversation state"
+          }
+        },
+        "profile": {
+          "configure": {
+            "done": "Updated your profile",
+            "error": "Couldn’t update your profile",
+            "running": "Updating your profile"
           }
         },
         "records": {
@@ -171,16 +231,43 @@
             "running": "Ready to change webhook delivery"
           }
         },
+        "widgets": {
+          "configure": {
+            "done": "Updated dashboard widgets",
+            "error": "Couldn’t update dashboard widgets",
+            "running": "Updating dashboard widgets"
+          },
+          "read": {
+            "done": "Reviewed dashboard widgets",
+            "error": "Couldn’t review dashboard widgets",
+            "running": "Reviewing dashboard widgets"
+          }
+        },
         "workspace": {
           "configure": {
             "done": "Updated your workspace",
             "error": "Couldn’t update your workspace",
             "running": "Updating your workspace"
           },
+          "inspect": {
+            "done": "Checked workspace details",
+            "error": "Couldn’t check workspace details",
+            "running": "Checking workspace details"
+          },
           "read": {
             "done": "Checked your workspace",
             "error": "Couldn’t check your workspace",
             "running": "Checking your workspace"
+          },
+          "settings": {
+            "done": "Updated workspace settings",
+            "error": "Couldn’t update workspace settings",
+            "running": "Updating workspace settings"
+          },
+          "terminology": {
+            "done": "Updated workspace terminology",
+            "error": "Couldn’t update workspace terminology",
+            "running": "Updating workspace terminology"
           }
         }
       },
@@ -215,7 +302,7 @@
     "demoUnavailable": "The Assistant is unavailable in the demo.",
     "errors": {
       "approvalFailed": "The approval could not be delivered.",
-      "limitReached": "Your AI usage limit is reached.",
+      "limitReached": "Not enough AI credits remain to start another request.",
       "sendFailed": "The assistant could not process your message.",
       "turnFailed": "The assistant ran into an error."
     },
@@ -228,7 +315,9 @@
     "runner": {
       "cancelled": "This response was stopped.",
       "emptyReply": "I couldn't produce a response. Please try again.",
-      "maxSteps": "I couldn't finish this within the allowed number of steps. For larger jobs, connect your own AI agent to Customermates over MCP.",
+      "maxSteps": "I completed part of this request, but reached this turn's step limit. Ask me to continue and I'll pick up from the completed work.",
+      "outputLimit": "I completed part of this response, but reached this turn's output limit. Ask me to continue and I'll finish from the completed work.",
+      "safetyLimit": "I completed part of this request, but stopped because the latest steps were repeating, failing, or reached a safety limit. Completed work remains in place; review the steps above before asking me to proceed.",
       "turnError": "I couldn't complete that request. Please try again."
     },
     "send": "Send",
@@ -814,6 +903,10 @@
       "activityPageOutOfRange": "The activity feed cannot page that far back. Narrow the filters instead.",
       "activityScopeTooManyIds": "An activity scope cannot select more than 50 records of one type.",
       "activitySourcesUnavailable": "You do not have access to any activity timeline source.",
+      "agentApprovalUnavailable": "This approval request is unavailable or has expired.",
+      "agentConversationNotFound": "This conversation was not found or is no longer accessible.",
+      "agentLimitReached": "Not enough AI credits remain to start another request.",
+      "agentTurnAlreadyRunning": "Another Assistant turn is already running.",
       "apiKeyMaxExpiration": "API key expiration cannot exceed 365 days.",
       "assigneeRequired": "You must assign yourself to this item. Please note that you will only be able to view items assigned to you.",
       "calendarEventNotFound": "Calendar event ID not found or not accessible.",
@@ -834,6 +927,7 @@
       "customFieldInvalidSingleSelect": "The single select value is invalid. Must be one of the allowed options: {validValues}.",
       "customFieldInvalidUrl": "The URL value is invalid. Must be a valid URL format (e.g., https://example.com). For multiple URLs, separate by comma (e.g., https://example.com, https://example.org).",
       "dealNotFound": "Deal ID not found or not accessible.",
+      "demoMode": "This action is not available in demo mode. Sign in to access all features.",
       "draftMessageNotFound": "That draft could not be found. It may have already been sent or discarded.",
       "duplicateChannel": "This channel is listed more than once. Add each email address, phone number, or handle only once.",
       "duplicateOutboundSuppressed": "An identical message was sent to this thread moments ago. Change the text or wait a minute before retrying.",
@@ -841,6 +935,7 @@
       "emailAlreadyExists": "An account with this email already exists.",
       "emailMismatch": "Email addresses must match.",
       "emailNotVerified": "Email not verified.",
+      "enterpriseCheckoutUnavailable": "Enterprise workspaces are billed manually and cannot start self-service checkout.",
       "filterBetweenInvalidArrayLength": "The 'between' operator requires an array with exactly 2 elements.",
       "generic": "An error occurred.",
       "inmailSignatureRequired": "Add a signature for the Recruiter InMail.",
@@ -854,18 +949,23 @@
       "invalidFilterValue": "Invalid filter value. The value must match the field's type and operator (e.g. a number for gt/lt, an ISO date for date fields, or an id for in/notIn).",
       "invalidSortField": "Sort field not found or not accessible. Available fields: {validValues}.",
       "invalidUrl": "Enter a valid URL.",
+      "legalNoticeNotDelivered": "The current legal update has not been delivered to this workspace yet.",
       "linkedinInboxUnavailable": "This LinkedIn account has no {product} inbox. Connect the account with {product} linked to use it.",
       "linkedinProductRequiresLinkedin": "InMail and LinkedIn product options require a LinkedIn account.",
       "linkedinProductUnavailable": "This LinkedIn account does not have that product connected.",
       "messageContentRequired": "Add a message or an attachment.",
       "mustNotBeBlank": "Must not be blank.",
       "mustNotContainNullChars": "Must not contain null characters.",
+      "notAuthenticated": "Sign in to use this action.",
       "notesExceedsMaxLength": "Notes content exceeds maximum length.",
       "notesInvalidFormat": "Invalid notes format. Must be valid Tiptap JSON or markdown text.",
       "organizationNotFound": "Organization ID not found or not accessible.",
       "passwordInvalid": "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
       "passwordMismatch": "Passwords must match.",
+      "permissionDenied": "This action is not available with your current permissions.",
+      "presetNotFound": "This saved filter preset was not found.",
       "relationNotAllowed": "Relation '{relation}' is not allowed on {entity}. Allowed relations: {allowed}.",
+      "roleAssignedCannotDelete": "A role assigned to users cannot be deleted.",
       "roleNotFound": "Role ID not found or not accessible.",
       "roleSelfEditForbidden": "You cannot change the permissions of the role assigned to you.",
       "roleSystemImmutable": "System roles cannot be edited.",
@@ -891,7 +991,9 @@
       "unipileResourceNotFound": "The recipient or thread couldn't be found on this channel.",
       "unipileServiceUnavailable": "The messaging service is temporarily unavailable. Please try again shortly.",
       "unipileUnknown": "The provider rejected this message. Please try again or contact support.",
+      "userInactive": "Your user account is inactive. Contact a workspace administrator.",
       "userNotFound": "User ID not found or not accessible.",
+      "userSelfAdminUpdateForbidden": "You cannot update your own account through team administration.",
       "webhookDeliveryNotFound": "Webhook delivery ID not found or not accessible.",
       "webhookEventsRequired": "Select at least one event.",
       "webhookNotFound": "Webhook ID not found or not accessible.",
@@ -1266,6 +1368,7 @@
   },
   "ConnectedAccountsCard": {
     "accountLimitReached": "You reached the connected-account limit for this plan. Contact us about Enterprise for unlimited accounts.",
+    "agentChatDisabled": "The Assistant is temporarily unavailable.",
     "agentChatRequiresCloud": "The Assistant is available on Customermates Cloud.",
     "agentChatRequiresPlan": "The Assistant is not available on your current plan.",
     "alreadyExistsToastDescription": "This account is already connected by a member of your workspace. Ask them to share it with the workspace so the inbox does not show duplicate messages.",

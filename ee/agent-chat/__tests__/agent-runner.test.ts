@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
+import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
+import { createZodError } from "@/core/validation/validation.utils";
+
 const repoMock = vi.hoisted(() => ({
   createPendingApprovalRequestOrThrowUnscoped: vi.fn().mockResolvedValue(undefined),
   discardPendingApprovalRequestUnscoped: vi.fn().mockResolvedValue(undefined),
@@ -13,11 +16,29 @@ const aiMock = vi.hoisted(() => ({
   stepCountIs: vi.fn(() => ({})),
 }));
 const llmMock = vi.hoisted(() => ({
+  AGENT_TOOL_SEARCH_NAME: "discover_customermates_tools",
   laneModel: vi.fn(() => ({}) as never),
   buildLaneUsageSettlement: vi.fn(),
   hasProviderUsageEvidence: vi.fn(
-    (usage: { inputTokens?: unknown; outputTokens?: unknown }) =>
-      typeof usage.inputTokens === "number" && typeof usage.outputTokens === "number",
+    (usage: {
+      inputTokens?: unknown;
+      inputTokenDetails?: {
+        noCacheTokens?: unknown;
+        cacheReadTokens?: unknown;
+        cacheWriteTokens?: unknown;
+      };
+      outputTokens?: unknown;
+    }) => {
+      const details = usage.inputTokenDetails;
+      return (
+        typeof usage.inputTokens === "number" &&
+        typeof usage.outputTokens === "number" &&
+        typeof details?.noCacheTokens === "number" &&
+        typeof details.cacheReadTokens === "number" &&
+        typeof details.cacheWriteTokens === "number" &&
+        details.noCacheTokens + details.cacheReadTokens + details.cacheWriteTokens === usage.inputTokens
+      );
+    },
   ),
   usageToTokenCounts: vi.fn(() => ({
     inputTokens: 0,
@@ -33,6 +54,14 @@ const toolsMock = vi.hoisted(() => ({
 const interactorMock = vi.hoisted(() => ({
   createSupportTicket: vi.fn().mockResolvedValue({ ok: true, data: { sent: true } }),
 }));
+const sentryMock = vi.hoisted(() => ({
+  captureException: vi.fn(),
+  setTag: vi.fn(),
+  setUser: vi.fn(),
+}));
+const userServiceMock = vi.hoisted(() => ({
+  getActiveUserOrThrow: vi.fn(),
+}));
 
 vi.mock("@/env", () => ({
   env: {
@@ -42,17 +71,21 @@ vi.mock("@/env", () => ({
   },
 }));
 vi.mock("ai", () => aiMock);
-vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn(), setTag: vi.fn(), setUser: vi.fn() }));
-let sessionUser: { id: string; companyId: string } = { id: "u1", companyId: "c1" };
+vi.mock("@sentry/nextjs", () => sentryMock);
+let sessionUser: { id: string; companyId: string } = {
+  id: "u1",
+  companyId: "c1",
+};
 
 vi.mock("@/core/di", () => ({
   getAgentChatRepo: () => repoMock,
   getCreateChatSupportTicketInteractor: () => ({
     invoke: interactorMock.createSupportTicket,
   }),
-  getUserService: () => ({
-    getActiveUserOrThrow: () => Promise.resolve(sessionUser),
-  }),
+  getUserService: () => userServiceMock,
+}));
+vi.mock("../agent-external-approval-context", () => ({
+  resolveAgentApprovalContext: (_toolName: string, input: unknown) => Promise.resolve({ ok: true, input }),
 }));
 vi.mock("../llm.service", () => llmMock);
 vi.mock("../system-prompt", () => ({ buildAgentSystemPrompt: () => "system" }));
@@ -85,6 +118,7 @@ import { runAgentLane, type AgentRunContext } from "../agent-runner";
 
 type Deps = {
   requestApproval: (requestId: string, toolName: string, input: unknown) => Promise<string>;
+  resolveApprovalContext: (toolName: string, input: unknown) => Promise<{ ok: true; input: unknown }>;
   isPreAuthorized: (name: string) => boolean;
   runUiCommand: (
     commandId: string,
@@ -100,7 +134,15 @@ function scripted(driver: () => AsyncGenerator<object> | Generator<object>, fini
       for await (const part of driver()) yield part;
       yield {
         type: "finish-step",
-        usage: { inputTokens: 10, outputTokens: 5 },
+        usage: {
+          inputTokens: 10,
+          inputTokenDetails: {
+            noCacheTokens: 10,
+            cacheReadTokens: 0,
+            cacheWriteTokens: 0,
+          },
+          outputTokens: 5,
+        },
         finishReason,
       };
       yield { type: "finish", finishReason };
@@ -120,10 +162,9 @@ function ctx(overrides: Partial<AgentRunContext> = {}): AgentRunContext {
     conversationId: "cv1",
     locale: "en",
     appBaseUrl: "http://localhost",
-    toolNames: ["list_records", "request_support"],
     messages: [{ role: "user", text: "create a contact named Anna" }],
     turnBudget: {
-      reservedCredits: 36,
+      reservedCredits: 44,
       maxSteps: 8,
       maxOutputTokens: 2048,
       maxContextBytes: 200_000,
@@ -149,6 +190,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   toolsMock.captured = null;
   toolsMock.error = null;
+  userServiceMock.getActiveUserOrThrow.mockImplementation(() => Promise.resolve(sessionUser));
   interactorMock.createSupportTicket.mockResolvedValue({
     ok: true,
     data: { sent: true },
@@ -179,6 +221,96 @@ beforeEach(() => {
   }));
 });
 
+describe("agent runner tool discovery", () => {
+  it("keeps hosted discovery internal while preserving real tool activity", async () => {
+    aiMock.streamText.mockReturnValue(
+      scripted(function* () {
+        yield {
+          type: "tool-call",
+          toolCallId: "discovery-1",
+          toolName: "discover_customermates_tools",
+          input: { arguments: { query: "create contacts" }, call_id: null },
+          providerExecuted: true,
+        };
+        yield {
+          type: "tool-result",
+          toolCallId: "discovery-1",
+          toolName: "discover_customermates_tools",
+          output: { tools: [{ name: "create_contacts" }] },
+          providerExecuted: true,
+        };
+        yield {
+          type: "tool-call",
+          toolCallId: "records-1",
+          toolName: "list_records",
+          input: { entity: "contact" },
+        };
+        yield {
+          type: "tool-result",
+          toolCallId: "records-1",
+          toolName: "list_records",
+          output: { ok: true, result: "1 contact" },
+        };
+        yield { type: "text-delta", text: "I found one contact." };
+      }),
+    );
+
+    const events = await runAndRead(ctx());
+
+    expect(JSON.stringify(events)).not.toContain("discovery-1");
+    expect(JSON.stringify(events)).not.toContain("discover_customermates_tools");
+    expect(events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "activity",
+          id: "records-1",
+          activity: expect.objectContaining({
+            kind: "records.read",
+            resource: "contacts",
+          }),
+        }),
+        expect.objectContaining({
+          type: "activity_result",
+          id: "records-1",
+          status: "done",
+        }),
+      ]),
+    );
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({
+        parts: expect.not.arrayContaining([expect.objectContaining({ id: "discovery-1" })]),
+      }),
+    );
+  });
+
+  it("fails the turn closed when hosted discovery itself errors", async () => {
+    aiMock.streamText.mockReturnValue(
+      scripted(function* () {
+        yield {
+          type: "tool-error",
+          toolCallId: "discovery-error",
+          toolName: "discover_customermates_tools",
+          error: new Error("provider discovery failed"),
+          providerExecuted: true,
+        };
+      }),
+    );
+
+    const events = await runAndRead(ctx());
+
+    expect(JSON.stringify(events)).not.toContain("discovery-error");
+    expect(JSON.stringify(events)).not.toContain("provider discovery failed");
+    expect(events.at(-1)).toMatchObject({
+      type: "turn_done",
+      isError: true,
+      errorMessage: "error",
+    });
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "error" }),
+    );
+  });
+});
+
 describe("agent runner approval rendezvous", () => {
   it("emits approval_request, resolves on a recorded approve decision, then persists the reply", async () => {
     repoMock.findApprovalDecisionUnscoped.mockResolvedValue({
@@ -191,7 +323,11 @@ describe("agent runner approval rendezvous", () => {
           type: "tool-call",
           toolCallId: "t1",
           toolName: "delete_records",
-          input: { entity: "contact", ids: ["00000000-0000-4000-8000-000000000001"], apiKey: "never-show" },
+          input: {
+            entity: "contact",
+            ids: ["00000000-0000-4000-8000-000000000001"],
+            apiKey: "never-show",
+          },
         };
         const decision = await (toolsMock.captured as Deps).requestApproval("t1", "delete_records", {
           entity: "contact",
@@ -232,7 +368,14 @@ describe("agent runner approval rendezvous", () => {
     expect(events.some((e) => e.type === "activity_result" && e.isError === false)).toBe(true);
     expect(events.some((e) => e.type === "delta" && e.text === "Removed the contact.")).toBe(true);
     expect(events.at(-1)).toMatchObject({ type: "turn_done", isError: false });
-    expect(aiMock.streamText).toHaveBeenCalledWith(expect.objectContaining({ maxRetries: 0 }));
+    expect(aiMock.streamText).toHaveBeenCalledWith(
+      expect.objectContaining({
+        maxRetries: 0,
+        providerOptions: { openai: { parallelToolCalls: false, store: true } },
+        system: "system",
+        timeout: { totalMs: 240_000 },
+      }),
+    );
     expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         parts: [
@@ -269,6 +412,131 @@ describe("agent runner approval rendezvous", () => {
     expect(repoMock.markAgentTurnProviderStartedUnscoped.mock.invocationCallOrder[0]).toBeLessThan(
       repoMock.finalizeAgentTurnOrThrowUnscoped.mock.invocationCallOrder[0],
     );
+  });
+
+  it("keeps tools available through the last funded provider step", async () => {
+    aiMock.streamText.mockReturnValue(
+      scripted(function* () {
+        yield { type: "text-delta", text: "Done." };
+      }),
+    );
+
+    const context = ctx();
+    await runAndRead(
+      ctx({
+        turnBudget: { ...context.turnBudget, maxSteps: 4 },
+      }),
+    );
+
+    const options = aiMock.streamText.mock.calls[0]?.[0] as {
+      prepareStep: (args: { messages: unknown[]; stepNumber: number; steps?: unknown[] }) => unknown;
+    };
+    expect(options.prepareStep({ messages: [], stepNumber: 2 })).toEqual({
+      system: "system",
+      messages: [{ role: "user", content: "create a contact named Anna" }],
+    });
+    expect(options.prepareStep({ messages: [], stepNumber: 3 })).toEqual({
+      system: "system",
+      messages: [{ role: "user", content: "create a contact named Anna" }],
+    });
+  });
+
+  it("wires bounded continuation compaction into each provider step", async () => {
+    let prepared: { system?: string; messages?: unknown[] } | undefined;
+    aiMock.streamText.mockImplementation(
+      (options: {
+        prepareStep: (args: { steps: unknown[] }) => {
+          system?: string;
+          messages?: unknown[];
+        };
+      }) => {
+        const cumulativeMessages: Array<{ role: string; content: string }> = [];
+        const step = (label: string, result: string) => {
+          cumulativeMessages.push({ role: "assistant", content: result });
+          return {
+            finishReason: "tool-calls",
+            content: [
+              {
+                type: "tool-call",
+                toolCallId: `${label}-call`,
+                toolName: "list_records",
+                input: { entity: "contact" },
+              },
+              {
+                type: "tool-result",
+                toolCallId: `${label}-call`,
+                toolName: "list_records",
+                output: { ok: true, result },
+              },
+            ],
+            response: {
+              messages: [...cumulativeMessages],
+            },
+          };
+        };
+        prepared = options.prepareStep({
+          steps: [
+            step("old", "private-old-result"),
+            step("recent-one", "recent-result-one"),
+            step("recent-two", "recent-result-two"),
+          ],
+        });
+        return scripted(function* () {
+          yield { type: "text-delta", text: "Done." };
+        });
+      },
+    );
+
+    await runAndRead(ctx());
+
+    expect(prepared?.system).toContain("<agent_continuation_checkpoint>");
+    expect(prepared?.system).not.toContain("private-old-result");
+    expect(prepared?.messages).toEqual([
+      { role: "user", content: "create a contact named Anna" },
+      { role: "assistant", content: "recent-result-one" },
+      { role: "assistant", content: "recent-result-two" },
+    ]);
+  });
+
+  it("stops a repeating tool loop with a truthful partial response", async () => {
+    aiMock.streamText.mockImplementation((options: { stopWhen: Array<(args: { steps: unknown[] }) => boolean> }) => {
+      const repeatedSteps = Array.from({ length: 3 }, (_, index) => ({
+        finishReason: "tool-calls",
+        content: [
+          {
+            type: "tool-call",
+            toolCallId: `repeat-${index}`,
+            toolName: "get_workspace_context",
+            input: {},
+          },
+          {
+            type: "tool-result",
+            toolCallId: `repeat-${index}`,
+            toolName: "get_workspace_context",
+            output: { ok: true, result: "done" },
+          },
+        ],
+        response: { messages: [] },
+      }));
+      expect(options.stopWhen[1]?.({ steps: repeatedSteps })).toBe(true);
+      return scripted(function* () {
+        yield { type: "text-delta", text: "I completed the safe work." };
+      }, "tool-calls");
+    });
+
+    const events = await runAndRead(ctx());
+    const visibleText = events
+      .filter((event) => event.type === "delta")
+      .map((event) => event.text)
+      .join("");
+
+    expect(visibleText).toContain("stopped because the latest steps were repeating");
+    expect(events.at(-1)).toMatchObject({
+      type: "turn_done",
+      terminalCode: "partial",
+      errorMessage: "safety_limit",
+    });
+    expect(sentryMock.captureException).not.toHaveBeenCalled();
   });
 
   it("rejects when the recorded decision was made for a different tool", async () => {
@@ -349,7 +617,10 @@ describe("agent runner approval rendezvous", () => {
           type: "tool-call",
           toolCallId: "t-cancelled",
           toolName: "delete_records",
-          input: { entity: "contact", ids: ["00000000-0000-4000-8000-000000000001"] },
+          input: {
+            entity: "contact",
+            ids: ["00000000-0000-4000-8000-000000000001"],
+          },
         };
         await (toolsMock.captured as Deps).requestApproval("t-cancelled", "delete_records", {
           entity: "contact",
@@ -392,6 +663,7 @@ describe("agent runner approval rendezvous", () => {
   });
 
   it("surfaces tool errors as a safe activity result and still finishes the turn", async () => {
+    const error = new Error("boom");
     aiMock.streamText.mockReturnValue(
       scripted(function* () {
         yield {
@@ -403,7 +675,7 @@ describe("agent runner approval rendezvous", () => {
         yield {
           type: "tool-error",
           toolCallId: "t1",
-          error: new Error("boom"),
+          error,
         };
         yield { type: "text-delta", text: "Sorry." };
       }),
@@ -413,6 +685,8 @@ describe("agent runner approval rendezvous", () => {
 
     expect(events.some((e) => e.type === "activity_result" && e.isError)).toBe(true);
     expect(events.some((e) => JSON.stringify(e).includes("boom"))).toBe(false);
+    expect(sentryMock.captureException).toHaveBeenCalledOnce();
+    expect(sentryMock.captureException).toHaveBeenCalledWith(error);
     expect(events.at(-1)).toMatchObject({ type: "turn_done", isError: false });
     expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -426,6 +700,65 @@ describe("agent runner approval rendezvous", () => {
         ],
       }),
     );
+  });
+
+  it.each([
+    ["direct", new ForbiddenError()],
+    ["cause", new Error("Safe tool wrapper", { cause: new ForbiddenError() })],
+    [
+      "nested cause",
+      new Error("Outer framework wrapper", {
+        cause: new Error("Safe tool wrapper", { cause: new ForbiddenError() }),
+      }),
+    ],
+  ])("does not capture an expected access failure from a tool %s", async (_kind, error) => {
+    aiMock.streamText.mockReturnValue(
+      scripted(function* () {
+        yield {
+          type: "tool-call",
+          toolCallId: "expected-1",
+          toolName: "update_deals",
+          input: {},
+        };
+        yield {
+          type: "tool-error",
+          toolCallId: "expected-1",
+          toolName: "update_deals",
+          error,
+        };
+        yield { type: "text-delta", text: "That action is not available." };
+      }),
+    );
+
+    const events = await runAndRead(ctx());
+
+    expect(events.some((event) => event.type === "activity_result" && event.isError)).toBe(true);
+    expect(sentryMock.captureException).not.toHaveBeenCalled();
+  });
+
+  it("does not capture an invalid model tool call or its paired tool error", async () => {
+    aiMock.streamText.mockReturnValue(
+      scripted(function* () {
+        yield {
+          type: "tool-call",
+          toolCallId: "invalid-1",
+          toolName: "update_deals",
+          input: {},
+          invalid: true,
+        };
+        yield {
+          type: "tool-error",
+          toolCallId: "invalid-1",
+          toolName: "update_deals",
+          error: new Error("Model generated invalid tool input"),
+        };
+        yield { type: "text-delta", text: "I need different input." };
+      }),
+    );
+
+    await runAndRead(ctx());
+
+    expect(sentryMock.captureException).not.toHaveBeenCalled();
   });
 
   it("reports success after the support email is accepted", async () => {
@@ -472,7 +805,7 @@ describe("agent runner approval rendezvous", () => {
   it("marks a rejected support email as an error activity", async () => {
     interactorMock.createSupportTicket.mockResolvedValueOnce({
       ok: false,
-      error: {},
+      error: createZodError("Support request rejected."),
     });
     aiMock.streamText.mockReturnValue(
       scripted(async function* () {
@@ -530,23 +863,44 @@ describe("agent runner approval rendezvous", () => {
       cacheReadTokens: 0,
       cacheWriteTokens: 0,
     });
-    aiMock.streamText.mockReturnValue({
+    aiMock.streamText.mockImplementation((options: { experimental_onStepStart: () => void }) => ({
       fullStream: (function* () {
+        options.experimental_onStepStart();
         yield {
           type: "finish-step",
-          usage: { inputTokens: 100, outputTokens: 20 },
+          usage: {
+            inputTokens: 100,
+            inputTokenDetails: {
+              noCacheTokens: 100,
+              cacheReadTokens: 0,
+              cacheWriteTokens: 0,
+            },
+            outputTokens: 20,
+          },
           finishReason: "tool-calls",
         };
+        options.experimental_onStepStart();
         yield { type: "error", error: new Error("upstream 529") };
       })(),
-    });
+    }));
 
-    const events = await runAndRead(ctx());
+    const context = ctx();
+    const events = await runAndRead(
+      ctx({
+        turnBudget: {
+          ...context.turnBudget,
+          reservedCredits: 110,
+          maxSteps: 20,
+          maxOutputTokens: 2048,
+          maxContextBytes: 200_000,
+        },
+      }),
+    );
 
     expect(llmMock.buildLaneUsageSettlement).toHaveBeenCalledWith(
       "agent",
       expect.objectContaining({ inputTokens: 100, outputTokens: 20 }),
-      { reservedCredits: 36, retainReservation: true },
+      { reservedCredits: 110, retainReservation: true },
     );
     expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -558,23 +912,66 @@ describe("agent runner approval rendezvous", () => {
     expect(events.at(-1)).toMatchObject({ type: "turn_done", isError: true });
   });
 
-  it("retains the full reservation when an in-flight turn is aborted after a completed step", async () => {
-    const abortController = new AbortController();
-    aiMock.streamText.mockReturnValue({
+  it("retains when the next provider step starts before the prior finish event is consumed", async () => {
+    aiMock.streamText.mockImplementation((options: { experimental_onStepStart: () => void }) => ({
       fullStream: (function* () {
+        options.experimental_onStepStart();
+        options.experimental_onStepStart();
         yield {
           type: "finish-step",
-          usage: { inputTokens: 100, outputTokens: 20 },
+          usage: {
+            inputTokens: 100,
+            inputTokenDetails: {
+              noCacheTokens: 100,
+              cacheReadTokens: 0,
+              cacheWriteTokens: 0,
+            },
+            outputTokens: 20,
+          },
           finishReason: "tool-calls",
         };
+        yield {
+          type: "error",
+          error: new Error("step two failed before usage"),
+        };
+      })(),
+    }));
+
+    await runAndRead(ctx());
+
+    expect(llmMock.buildLaneUsageSettlement).toHaveBeenCalledWith("agent", expect.anything(), {
+      reservedCredits: 44,
+      retainReservation: true,
+    });
+  });
+
+  it("retains the full reservation when an in-flight turn is aborted after a completed step", async () => {
+    const abortController = new AbortController();
+    aiMock.streamText.mockImplementation((options: { experimental_onStepStart: () => void }) => ({
+      fullStream: (function* () {
+        options.experimental_onStepStart();
+        yield {
+          type: "finish-step",
+          usage: {
+            inputTokens: 100,
+            inputTokenDetails: {
+              noCacheTokens: 100,
+              cacheReadTokens: 0,
+              cacheWriteTokens: 0,
+            },
+            outputTokens: 20,
+          },
+          finishReason: "tool-calls",
+        };
+        options.experimental_onStepStart();
         abortController.abort();
       })(),
-    });
+    }));
 
     const events = await runAndRead(ctx(), abortController.signal);
 
     expect(llmMock.buildLaneUsageSettlement).toHaveBeenCalledWith("agent", expect.anything(), {
-      reservedCredits: 36,
+      reservedCredits: 44,
       retainReservation: true,
     });
     expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
@@ -584,6 +981,60 @@ describe("agent runner approval rendezvous", () => {
       }),
     );
     expect(events.some((event) => event.type === "turn_done")).toBe(false);
+  });
+
+  it("settles reported usage when a local context guard blocks the next provider step", async () => {
+    llmMock.usageToTokenCounts.mockReturnValueOnce({
+      inputTokens: 100,
+      outputTokens: 20,
+      cacheReadTokens: 0,
+      cacheWriteTokens: 0,
+    });
+    aiMock.streamText.mockImplementation(
+      (options: {
+        experimental_onStepStart: () => void;
+        prepareStep: (args: { messages: Array<{ role: string; content: string }>; stepNumber: number }) => unknown;
+      }) => ({
+        fullStream: (function* () {
+          options.experimental_onStepStart();
+          yield {
+            type: "finish-step",
+            usage: {
+              inputTokens: 100,
+              inputTokenDetails: {
+                noCacheTokens: 100,
+                cacheReadTokens: 0,
+                cacheWriteTokens: 0,
+              },
+              outputTokens: 20,
+            },
+            finishReason: "tool-calls",
+          };
+          options.prepareStep({
+            messages: [{ role: "user", content: "x".repeat(250_000) }],
+            stepNumber: 1,
+          });
+        })(),
+      }),
+    );
+
+    const events = await runAndRead(ctx());
+
+    expect(llmMock.buildLaneUsageSettlement).toHaveBeenCalledWith(
+      "agent",
+      expect.objectContaining({ inputTokens: 100, outputTokens: 20 }),
+      { reservedCredits: 44, retainReservation: false },
+    );
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({
+        usageSettlement: expect.objectContaining({ chargedCredits: 1 }),
+      }),
+    );
+    expect(events.at(-1)).toMatchObject({
+      type: "turn_done",
+      isError: true,
+      creditsUsed: 1,
+    });
   });
 
   it("aborts provider work and still finalizes when the stream consumer cancels", async () => {
@@ -691,19 +1142,22 @@ describe("agent runner approval rendezvous", () => {
   });
 
   it("retains the reservation when the provider may have billed without reporting usage", async () => {
+    const error = new Error("provider unavailable");
     aiMock.streamText.mockReturnValue({
       fullStream: (function* () {
-        yield { type: "error", error: new Error("provider unavailable") };
+        yield { type: "error", error };
       })(),
     });
 
     const events = await runAndRead(ctx());
 
     expect(llmMock.buildLaneUsageSettlement).toHaveBeenCalledWith("agent", expect.anything(), {
-      reservedCredits: 36,
+      reservedCredits: 44,
       retainReservation: true,
     });
     expect(events.at(-1)).toMatchObject({ type: "turn_done", isError: true });
+    expect(sentryMock.captureException).toHaveBeenCalledOnce();
+    expect(sentryMock.captureException).toHaveBeenCalledWith(error);
     expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         parts: [
@@ -716,11 +1170,19 @@ describe("agent runner approval rendezvous", () => {
     );
   });
 
-  it("retains the reservation after a successful provider response with unproven usage", async () => {
+  it("retains the reservation after a successful provider response without explicit cache-write evidence", async () => {
     aiMock.streamText.mockReturnValue({
       fullStream: (function* () {
         yield { type: "text-delta", text: "Done." };
-        yield { type: "finish-step", usage: {}, finishReason: "stop" };
+        yield {
+          type: "finish-step",
+          usage: {
+            inputTokens: 100,
+            inputTokenDetails: { noCacheTokens: 100, cacheReadTokens: 0 },
+            outputTokens: 20,
+          },
+          finishReason: "stop",
+        };
         yield { type: "finish", finishReason: "stop" };
       })(),
     });
@@ -728,7 +1190,7 @@ describe("agent runner approval rendezvous", () => {
     await runAndRead(ctx());
 
     expect(llmMock.buildLaneUsageSettlement).toHaveBeenCalledWith("agent", expect.anything(), {
-      reservedCredits: 36,
+      reservedCredits: 44,
       retainReservation: true,
     });
   });
@@ -752,7 +1214,15 @@ describe("agent runner approval rendezvous", () => {
         yield { type: "text-delta", text: "Working on it." };
         yield {
           type: "finish-step",
-          usage: { inputTokens: 100, outputTokens: 20 },
+          usage: {
+            inputTokens: 100,
+            inputTokenDetails: {
+              noCacheTokens: 100,
+              cacheReadTokens: 0,
+              cacheWriteTokens: 0,
+            },
+            outputTokens: 20,
+          },
           finishReason: "tool-calls",
         };
         yield { type: "text-delta", text: " Done." };
@@ -767,7 +1237,7 @@ describe("agent runner approval rendezvous", () => {
     expect(llmMock.buildLaneUsageSettlement).toHaveBeenCalledWith(
       "agent",
       expect.objectContaining({ inputTokens: 100, outputTokens: 20 }),
-      { reservedCredits: 36, retainReservation: true },
+      { reservedCredits: 44, retainReservation: true },
     );
   });
 
@@ -811,6 +1281,28 @@ describe("agent runner approval rendezvous", () => {
         ],
       }),
     );
+  });
+
+  it("treats a provider timeout as a controlled partial turn", async () => {
+    const timeout = new Error("The bounded agent run timed out.");
+    timeout.name = "TimeoutError";
+    aiMock.streamText.mockReturnValue({
+      fullStream: (function* () {
+        yield { type: "text-delta", text: "I completed the first check." };
+        yield { type: "error", error: timeout };
+      })(),
+    });
+
+    const events = await runAndRead(ctx());
+
+    expect(events.at(-1)).toMatchObject({
+      type: "turn_done",
+      isError: true,
+      terminalCode: "partial",
+      errorMessage: "safety_limit",
+    });
+    expect(JSON.stringify(events)).toContain("reached a safety limit");
+    expect(sentryMock.captureException).not.toHaveBeenCalled();
   });
 
   it("persists a renderable assistant outcome when the provider finishes without output", async () => {
@@ -862,6 +1354,22 @@ describe("agent runner approval rendezvous", () => {
     expect(events.at(-1)).toMatchObject({ type: "turn_done", isError: true });
   });
 
+  it("does not capture an inactive user rejected before provider access", async () => {
+    userServiceMock.getActiveUserOrThrow.mockRejectedValue(
+      new ForbiddenError("User is not active", AppErrorCode.inactiveUser),
+    );
+
+    const events = await runAndRead(ctx());
+
+    expect(aiMock.streamText).not.toHaveBeenCalled();
+    expect(sentryMock.captureException).not.toHaveBeenCalled();
+    expect(events.at(-1)).toMatchObject({
+      type: "turn_done",
+      isError: true,
+      errorMessage: "error",
+    });
+  });
+
   it("localizes terminal fallback copy to the conversation locale", async () => {
     aiMock.streamText.mockReturnValue(scripted(function* () {}));
 
@@ -882,7 +1390,12 @@ describe("agent runner approval rendezvous", () => {
   it("supersedes a validation-failed call once the model retries the same tool", async () => {
     aiMock.streamText.mockReturnValue(
       scripted(function* () {
-        yield { type: "tool-call", toolCallId: "f1", toolName: "create_contacts", input: { contacts: [{}] } };
+        yield {
+          type: "tool-call",
+          toolCallId: "f1",
+          toolName: "create_contacts",
+          input: { contacts: [{}] },
+        };
         yield {
           type: "tool-result",
           toolCallId: "f1",
@@ -911,6 +1424,7 @@ describe("agent runner approval rendezvous", () => {
     const retryIndex = events.findIndex((event) => event.type === "activity" && event.id === "f2");
     expect(supersededIndex).toBeGreaterThan(-1);
     expect(supersededIndex).toBeLessThan(retryIndex);
+    expect(sentryMock.captureException).not.toHaveBeenCalled();
     expect(events.at(-1)).toMatchObject({ type: "turn_done", isError: false });
     expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -919,7 +1433,13 @@ describe("agent runner approval rendezvous", () => {
     );
     expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
-        parts: expect.arrayContaining([expect.objectContaining({ type: "activity", id: "f2", status: "done" })]),
+        parts: expect.arrayContaining([
+          expect.objectContaining({
+            type: "activity",
+            id: "f2",
+            status: "done",
+          }),
+        ]),
       }),
     );
   });
@@ -927,15 +1447,30 @@ describe("agent runner approval rendezvous", () => {
   it("keeps a validation failure that no same-tool retry ever superseded", async () => {
     aiMock.streamText.mockReturnValue(
       scripted(function* () {
-        yield { type: "tool-call", toolCallId: "f1", toolName: "create_contacts", input: { contacts: [{}] } };
+        yield {
+          type: "tool-call",
+          toolCallId: "f1",
+          toolName: "create_contacts",
+          input: { contacts: [{}] },
+        };
         yield {
           type: "tool-result",
           toolCallId: "f1",
           toolName: "create_contacts",
           output: { ok: false, result: "Validation error: firstName" },
         };
-        yield { type: "tool-call", toolCallId: "r1", toolName: "list_records", input: { entity: "contact" } };
-        yield { type: "tool-result", toolCallId: "r1", toolName: "list_records", output: "0 contacts" };
+        yield {
+          type: "tool-call",
+          toolCallId: "r1",
+          toolName: "list_records",
+          input: { entity: "contact" },
+        };
+        yield {
+          type: "tool-result",
+          toolCallId: "r1",
+          toolName: "list_records",
+          output: "0 contacts",
+        };
         yield { type: "text-delta", text: "I could not create the contact." };
       }),
     );
@@ -945,7 +1480,13 @@ describe("agent runner approval rendezvous", () => {
     expect(events.some((event) => event.type === "activity_superseded")).toBe(false);
     expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
-        parts: expect.arrayContaining([expect.objectContaining({ type: "activity", id: "f1", status: "error" })]),
+        parts: expect.arrayContaining([
+          expect.objectContaining({
+            type: "activity",
+            id: "f1",
+            status: "error",
+          }),
+        ]),
       }),
     );
   });
@@ -953,9 +1494,23 @@ describe("agent runner approval rendezvous", () => {
   it("never supersedes a thrown tool error, even when the same tool runs again", async () => {
     aiMock.streamText.mockReturnValue(
       scripted(function* () {
-        yield { type: "tool-call", toolCallId: "b1", toolName: "update_deals", input: {} };
-        yield { type: "tool-error", toolCallId: "b1", error: new Error("boom") };
-        yield { type: "tool-call", toolCallId: "b2", toolName: "update_deals", input: {} };
+        yield {
+          type: "tool-call",
+          toolCallId: "b1",
+          toolName: "update_deals",
+          input: {},
+        };
+        yield {
+          type: "tool-error",
+          toolCallId: "b1",
+          error: new Error("boom"),
+        };
+        yield {
+          type: "tool-call",
+          toolCallId: "b2",
+          toolName: "update_deals",
+          input: {},
+        };
         yield {
           type: "tool-result",
           toolCallId: "b2",
@@ -972,8 +1527,16 @@ describe("agent runner approval rendezvous", () => {
     expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         parts: expect.arrayContaining([
-          expect.objectContaining({ type: "activity", id: "b1", status: "error" }),
-          expect.objectContaining({ type: "activity", id: "b2", status: "done" }),
+          expect.objectContaining({
+            type: "activity",
+            id: "b1",
+            status: "error",
+          }),
+          expect.objectContaining({
+            type: "activity",
+            id: "b2",
+            status: "done",
+          }),
         ]),
       }),
     );
@@ -988,7 +1551,11 @@ describe("agent runner approval rendezvous", () => {
           toolName: "create_contacts",
           input: { contacts: [{ firstName: "Anna" }] },
         };
-        yield { type: "tool-result", toolCallId: "c1", output: "Created 1 contact." };
+        yield {
+          type: "tool-result",
+          toolCallId: "c1",
+          output: "Created 1 contact.",
+        };
         yield { type: "text-delta", text: "Anna is in your contacts now." };
       }),
     );
@@ -1021,9 +1588,19 @@ describe("agent runner approval rendezvous", () => {
           type: "tool-call",
           toolCallId: "l1",
           toolName: "manage_record_links",
-          input: { action: "add", entity: "contact", sourceId: "s", relation: "organizations", ids: ["o"] },
+          input: {
+            action: "add",
+            entity: "contact",
+            sourceId: "s",
+            relation: "organizations",
+            ids: ["o"],
+          },
         };
-        yield { type: "tool-result", toolCallId: "l1", output: "Linked 1 organizations to contact s (was 0, now 1)" };
+        yield {
+          type: "tool-result",
+          toolCallId: "l1",
+          output: "Linked 1 organizations to contact s (was 0, now 1)",
+        };
         yield {
           type: "tool-call",
           toolCallId: "l2",
@@ -1051,31 +1628,32 @@ describe("agent runner approval rendezvous", () => {
     expect(events.at(-1)).toMatchObject({ type: "turn_done", isError: false });
   });
 
-  it("round-trips a configure_view command through the browser mailbox", async () => {
+  it("round-trips a click_ui_target command through the browser mailbox", async () => {
     repoMock.takeUiCommandResultUnscoped.mockResolvedValueOnce(null).mockResolvedValueOnce({
-      name: "configure_view",
+      name: "click_ui_target",
       ok: true,
-      result: "Adjusted the deals view: kanban layout, grouped by Status.",
+      result: "Activated deals-layout-kanban.",
     });
     aiMock.streamText.mockReturnValue(
       scripted(async function* () {
         yield {
           type: "tool-call",
           toolCallId: "view1",
-          toolName: "configure_view",
-          input: { view: "deals", layout: "kanban", groupBy: "Status" },
+          toolName: "click_ui_target",
+          input: { targetId: "deals-layout-kanban" },
         };
-        const output = await (toolsMock.captured as Deps).runUiCommand("view1", "configure_view", {
-          view: "deals",
-          layout: "kanban",
-          groupBy: "Status",
+        const output = await (toolsMock.captured as Deps).runUiCommand("view1", "click_ui_target", {
+          targetId: "deals-layout-kanban",
         });
         expect(output).toEqual({
           ok: true,
-          result: "Adjusted the deals view: kanban layout, grouped by Status.",
+          result: "Activated deals-layout-kanban.",
         });
         yield { type: "tool-result", toolCallId: "view1", output };
-        yield { type: "text-delta", text: "Your deals are now a kanban board." };
+        yield {
+          type: "text-delta",
+          text: "Your deals are now a kanban board.",
+        };
       }),
     );
 
@@ -1083,17 +1661,17 @@ describe("agent runner approval rendezvous", () => {
 
     const command = events.find((event) => event.type === "ui_command");
     expect(command).toMatchObject({
-      name: "configure_view",
-      input: { view: "deals", layout: "kanban", groupBy: "Status" },
+      name: "click_ui_target",
+      input: { targetId: "deals-layout-kanban" },
     });
-    expect(events.some((event) => event.type === "activity" && event.activity?.kind === "interface.configure")).toBe(
+    expect(events.some((event) => event.type === "activity" && event.activity?.kind === "interface.interact")).toBe(
       true,
     );
     expect(events.some((event) => event.type === "activity_result" && event.status === "done")).toBe(true);
     expect(events.some((event) => event.type === "approval_request")).toBe(false);
   });
 
-  it("fails closed when the browser answers a configure_view with a different command name", async () => {
+  it("fails closed when the browser answers a click_ui_target with a different command name", async () => {
     repoMock.takeUiCommandResultUnscoped.mockResolvedValue({
       name: "navigate",
       ok: true,
@@ -1101,8 +1679,8 @@ describe("agent runner approval rendezvous", () => {
     });
     aiMock.streamText.mockReturnValue(
       scripted(async function* () {
-        const output = await (toolsMock.captured as Deps).runUiCommand("view2", "configure_view", {
-          view: "deals",
+        const output = await (toolsMock.captured as Deps).runUiCommand("view2", "click_ui_target", {
+          targetId: "deals-display-options",
         });
         expect(output.ok).toBe(false);
         yield { type: "text-delta", text: "done" };
@@ -1220,11 +1798,93 @@ describe("agent runner approval rendezvous", () => {
           }),
           {
             type: "text",
-            text: expect.stringContaining("I couldn't finish this within the allowed number of steps."),
+            text: expect.stringContaining("I completed part of this request"),
           },
         ],
       }),
     );
+  });
+
+  it("removes visible provider tool protocol and fails the turn safely", async () => {
+    aiMock.streamText.mockReturnValue(
+      scripted(function* () {
+        yield {
+          type: "text-delta",
+          text: "I prepared the first batch. to=customer_",
+        };
+        yield {
+          type: "text-delta",
+          text: 'records.create_contacts (json)\n{"email":"private@example.com","apiKey":"never-show"}',
+        };
+      }),
+    );
+
+    const events = await runAndRead(ctx());
+    const serializedEvents = JSON.stringify(events);
+    const persisted = repoMock.finalizeAgentTurnOrThrowUnscoped.mock.calls[0]?.[0];
+    const serializedPersisted = JSON.stringify(persisted?.parts);
+
+    expect(serializedEvents).toContain("I prepared the first batch.");
+    expect(serializedEvents).toContain("I couldn't complete that request");
+    expect(serializedEvents).not.toMatch(/customer_records|create_contacts|private@example|never-show|apiKey/);
+    expect(serializedPersisted).not.toMatch(/customer_records|create_contacts|private@example|never-show|apiKey/);
+    expect(events.at(-1)).toMatchObject({
+      type: "turn_done",
+      isError: true,
+      terminalCode: "error",
+      errorMessage: "error",
+    });
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "error" }),
+    );
+    expect(sentryMock.captureException).toHaveBeenCalledOnce();
+    expect(sentryMock.captureException.mock.calls[0]?.[0]).toMatchObject({
+      message: "The assistant emitted tool protocol as visible text.",
+    });
+  });
+
+  it("classifies protocol-only output as a safe provider error instead of an empty response", async () => {
+    aiMock.streamText.mockReturnValue(
+      scripted(function* () {
+        yield {
+          type: "text-delta",
+          text: "to=customer_records.create_contacts (json)\n",
+        };
+        yield { type: "text-delta", text: '{"email":"private@example.com"}' };
+      }),
+    );
+
+    const events = await runAndRead(ctx());
+    const serialized = JSON.stringify(events);
+
+    expect(serialized).toContain("I couldn't complete that request");
+    expect(serialized).not.toMatch(/customer_records|create_contacts|private@example/);
+    expect(events.at(-1)).toMatchObject({
+      type: "turn_done",
+      isError: true,
+      terminalCode: "error",
+      errorMessage: "error",
+    });
+    expect(sentryMock.captureException).toHaveBeenCalledOnce();
+  });
+
+  it("marks output-token exhaustion as partial", async () => {
+    aiMock.streamText.mockReturnValue(
+      scripted(function* () {
+        yield { type: "text-delta", text: "I completed the first part." };
+      }, "length"),
+    );
+
+    const events = await runAndRead(ctx());
+
+    expect(events.at(-1)).toMatchObject({
+      type: "turn_done",
+      isError: true,
+      terminalCode: "partial",
+      errorMessage: "output_limit",
+    });
+    expect(JSON.stringify(events)).toContain("reached this turn's output limit");
+    expect(sentryMock.captureException).not.toHaveBeenCalled();
   });
 
   it("hard-caps configured model steps and output tokens", async () => {
@@ -1237,7 +1897,12 @@ describe("agent runner approval rendezvous", () => {
     await runAndRead(ctx());
 
     expect(aiMock.stepCountIs).toHaveBeenCalledWith(8);
-    expect(aiMock.streamText).toHaveBeenCalledWith(expect.objectContaining({ maxOutputTokens: 2048 }));
+    expect(aiMock.streamText).toHaveBeenCalledWith(
+      expect.objectContaining({
+        maxOutputTokens: 2048,
+        timeout: { totalMs: 240_000 },
+      }),
+    );
   });
 
   it("never streams or persists tool input", async () => {
@@ -1295,7 +1960,9 @@ describe("agent runner approval rendezvous", () => {
 
     expect(aiMock.streamText).not.toHaveBeenCalled();
     expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
-      expect.objectContaining({ terminalCode: expect.not.stringMatching(/^ok$/) }),
+      expect.objectContaining({
+        terminalCode: expect.not.stringMatching(/^ok$/),
+      }),
     );
 
     sessionUser = { id: "u1", companyId: "c1" };

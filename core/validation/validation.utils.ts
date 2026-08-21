@@ -1,4 +1,4 @@
-import type { $ZodRawIssue } from "zod/v4/core";
+import type { $ZodIssue, $ZodRawIssue } from "zod/v4/core";
 
 import { z } from "zod";
 
@@ -6,7 +6,141 @@ import { CustomErrorCode } from "./validation.types";
 
 export type Data<T> = T extends z.ZodSchema<infer U> ? U : never;
 
-export type Validated<T> = Promise<{ ok: true; data: T } | { ok: false; error: z.ZodError }>;
+export type InteractorFailure = { ok: false; error: z.ZodError };
+
+export type InteractorOutcome<T> = { ok: true; data: T } | InteractorFailure;
+
+export type InteractorResult<T> = Promise<InteractorOutcome<T>>;
+
+export type Validated<T> = InteractorResult<T>;
+
+export function isInteractorFailure(value: unknown): value is InteractorFailure {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      !Array.isArray(value) &&
+      (value as { ok?: unknown }).ok === false &&
+      (value as { error?: unknown }).error instanceof z.ZodError,
+  );
+}
+
+export const InteractorFailureKindSchema = z.enum([
+  "validation",
+  "authentication",
+  "authorization",
+  "not_found",
+  "conflict",
+  "rate_limit",
+  "unavailable",
+]);
+
+export type InteractorFailureKind = z.infer<typeof InteractorFailureKindSchema>;
+
+export const SerializedInteractorIssueSchema = z.object({
+  code: z.string(),
+  path: z.array(z.union([z.string(), z.number()])),
+  message: z.string(),
+  customCode: z.enum(CustomErrorCode).optional(),
+});
+
+export const SerializedInteractorFailureSchema = z.object({
+  kind: InteractorFailureKindSchema,
+  issues: z.array(SerializedInteractorIssueSchema).min(1),
+});
+
+export type SerializedInteractorFailure = z.infer<typeof SerializedInteractorFailureSchema>;
+
+const AUTHENTICATION_FAILURE_CODES = new Set<CustomErrorCode>([CustomErrorCode.notAuthenticated]);
+const AUTHORIZATION_FAILURE_CODES = new Set<CustomErrorCode>([
+  CustomErrorCode.userInactive,
+  CustomErrorCode.permissionDenied,
+  CustomErrorCode.demoMode,
+  CustomErrorCode.roleSelfEditForbidden,
+  CustomErrorCode.userSelfAdminUpdateForbidden,
+]);
+const NOT_FOUND_FAILURE_CODES = new Set<CustomErrorCode>([
+  CustomErrorCode.agentConversationNotFound,
+  CustomErrorCode.calendarEventNotFound,
+  CustomErrorCode.connectedAccountNotFound,
+  CustomErrorCode.contactNotFound,
+  CustomErrorCode.customColumnNotFound,
+  CustomErrorCode.customColumnIdNotFound,
+  CustomErrorCode.dealNotFound,
+  CustomErrorCode.draftMessageNotFound,
+  CustomErrorCode.organizationNotFound,
+  CustomErrorCode.presetNotFound,
+  CustomErrorCode.roleNotFound,
+  CustomErrorCode.serviceNotFound,
+  CustomErrorCode.taskNotFound,
+  CustomErrorCode.threadNotFound,
+  CustomErrorCode.userNotFound,
+  CustomErrorCode.webhookDeliveryNotFound,
+  CustomErrorCode.webhookNotFound,
+  CustomErrorCode.widgetNotFound,
+]);
+const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([
+  CustomErrorCode.agentTurnAlreadyRunning,
+  CustomErrorCode.roleAssignedCannotDelete,
+  CustomErrorCode.roleSystemImmutable,
+]);
+const RATE_LIMIT_FAILURE_CODES = new Set<CustomErrorCode>([CustomErrorCode.agentLimitReached]);
+const UNAVAILABLE_FAILURE_CODES = new Set<CustomErrorCode>([
+  CustomErrorCode.agentApprovalUnavailable,
+  CustomErrorCode.enterpriseCheckoutUnavailable,
+  CustomErrorCode.legalNoticeNotDelivered,
+]);
+
+function issueCustomCode(issue: $ZodIssue): CustomErrorCode | null {
+  const candidate = issue.code === "custom" ? issue.params?.error : undefined;
+  return typeof candidate === "string" && Object.values(CustomErrorCode).includes(candidate as CustomErrorCode)
+    ? (candidate as CustomErrorCode)
+    : null;
+}
+
+export function interactorFailureKind(error: z.ZodError): InteractorFailureKind {
+  const codes = error.issues.map(issueCustomCode).filter((code): code is CustomErrorCode => Boolean(code));
+  if (codes.some((code) => AUTHENTICATION_FAILURE_CODES.has(code))) return "authentication";
+  if (codes.some((code) => AUTHORIZATION_FAILURE_CODES.has(code))) return "authorization";
+  if (codes.some((code) => NOT_FOUND_FAILURE_CODES.has(code))) return "not_found";
+  if (codes.some((code) => CONFLICT_FAILURE_CODES.has(code))) return "conflict";
+  if (codes.some((code) => RATE_LIMIT_FAILURE_CODES.has(code))) return "rate_limit";
+  if (codes.some((code) => UNAVAILABLE_FAILURE_CODES.has(code))) return "unavailable";
+  return "validation";
+}
+
+export function interactorFailureStatus(error: z.ZodError): number {
+  const kind = interactorFailureKind(error);
+  if (kind === "authentication") return 401;
+  if (kind === "authorization") return 403;
+  if (kind === "not_found") return 404;
+  if (kind === "conflict") return 409;
+  if (kind === "rate_limit") return 429;
+  if (kind === "unavailable") return 422;
+  return 400;
+}
+
+function serializableIssuePath(path: PropertyKey[]): Array<string | number> {
+  return path.map((part) => (typeof part === "symbol" ? (part.description ?? "symbol") : part));
+}
+
+export function serializeInteractorFailure(
+  error: z.ZodError,
+  kind: InteractorFailureKind = interactorFailureKind(error),
+): SerializedInteractorFailure {
+  return {
+    kind,
+    issues: error.issues.map((issue) => {
+      const customCode = issueCustomCode(issue) ?? undefined;
+
+      return {
+        code: issue.code,
+        path: serializableIssuePath(issue.path),
+        message: issue.message,
+        ...(customCode ? { customCode } : {}),
+      };
+    }),
+  };
+}
 
 export async function unwrapValidated<T>(result: Validated<T>): Promise<T> {
   const resolved = await result;

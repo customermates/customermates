@@ -144,33 +144,63 @@ describe("manage_social_relations routing", () => {
 
   it("creates a request for action=invite", async () => {
     spies.createRelationRequest.mockResolvedValue({ ok: true as const, data: { object: "RelationRequest", id: "r1" } });
-    await runRelations({ action: "invite", connectedAccountId: ACCOUNT_ID, identifier: "u1" });
+    await runRelations({
+      action: "invite",
+      connectedAccountId: ACCOUNT_ID,
+      identifier: "u1",
+    });
     expect(spies.createRelationRequest).toHaveBeenCalledOnce();
   });
 
-  it("rejects invite without identifier as a clean validation error", async () => {
-    const result = await runRelations({ action: "invite", connectedAccountId: ACCOUNT_ID });
-    expect(result).toContain("Validation error:");
+  it("rejects invite without identifier before execution", () => {
+    expect(() =>
+      manageSocialRelationsTool.inputSchema.parse({
+        action: "invite",
+        connectedAccountId: ACCOUNT_ID,
+      }),
+    ).toThrow(/identifier/);
     expect(spies.createRelationRequest).not.toHaveBeenCalled();
+  });
+
+  it("keeps the established public MCP mutation input backwards compatible", () => {
+    expect(
+      manageSocialRelationsTool.inputSchema.parse({
+        action: "invite",
+        connectedAccountId: ACCOUNT_ID,
+        identifier: "u1",
+      }),
+    ).toMatchObject({ action: "invite", identifier: "u1" });
   });
 
   it("accepts a request for action=accept", async () => {
     spies.acceptRelationRequest.mockResolvedValue({ ok: true as const, data: { object: "RelationRequestConfirmed" } });
-    await runRelations({ action: "accept", connectedAccountId: ACCOUNT_ID, invitationId: "r1" });
+    await runRelations({
+      action: "accept",
+      connectedAccountId: ACCOUNT_ID,
+      invitationId: "r1",
+    });
     expect(spies.acceptRelationRequest).toHaveBeenCalledOnce();
     expect(spies.cancelRelationRequest).not.toHaveBeenCalled();
   });
 
   it("cancels a request for action=cancel", async () => {
     spies.cancelRelationRequest.mockResolvedValue({ ok: true as const, data: { object: "RelationRequestCanceled" } });
-    await runRelations({ action: "cancel", connectedAccountId: ACCOUNT_ID, invitationId: "r1" });
+    await runRelations({
+      action: "cancel",
+      connectedAccountId: ACCOUNT_ID,
+      invitationId: "r1",
+    });
     expect(spies.cancelRelationRequest).toHaveBeenCalledOnce();
     expect(spies.acceptRelationRequest).not.toHaveBeenCalled();
   });
 
-  it("rejects accept without invitationId as a clean validation error", async () => {
-    const result = await runRelations({ action: "accept", connectedAccountId: ACCOUNT_ID });
-    expect(result).toContain("Validation error:");
+  it("rejects accept without invitationId before execution", () => {
+    expect(() =>
+      manageSocialRelationsTool.inputSchema.parse({
+        action: "accept",
+        connectedAccountId: ACCOUNT_ID,
+      }),
+    ).toThrow(/invitationId/);
     expect(spies.acceptRelationRequest).not.toHaveBeenCalled();
   });
 });

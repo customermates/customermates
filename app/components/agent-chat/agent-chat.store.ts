@@ -4,7 +4,7 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { AgentUsageSummary } from "@/ee/agent-chat/agent-usage.service";
 import type { AgentConversationSummary, AgentDataCounts } from "@/ee/agent-chat/agent-chat.schema";
 import { AgentTourSchema } from "@/ee/agent-chat/agent-tours";
-import { ConfigureViewSchema, OpenRecordSchema } from "@/ee/agent-chat/ui-operations";
+import { OpenRecordSchema } from "@/ee/agent-chat/ui-operations";
 import {
   AgentActivityDescriptorSchema,
   AGENT_ACTIVITY_RESOURCES,
@@ -68,7 +68,7 @@ export type AgentChatItem =
 
 let itemSeq = 0;
 const nextItemId = () => `item-${++itemSeq}`;
-const UI_COMMAND_NAMES = ["navigate", "highlight_element", "start_tour", "configure_view", "open_record"] as const;
+const UI_COMMAND_NAMES = ["navigate", "highlight_element", "start_tour", "click_ui_target", "open_record"] as const;
 const AGENT_TURN_POLL_MAX_ATTEMPTS = 100;
 const AGENT_TURN_POLL_DELAY_MS = 1500;
 const AGENT_CONFIG_LOAD_TIMEOUT_MS = 15000;
@@ -142,6 +142,7 @@ export class AgentChatStore extends BaseStore {
   private queuedPromptPageRoute: string | null = null;
   private activeStreamKey = "stream-0";
   private streamSequence = 0;
+  private uiCommandQueue: Promise<void> = Promise.resolve();
 
   constructor(rootStore: RootStore) {
     super(rootStore);
@@ -1182,11 +1183,12 @@ export class AgentChatStore extends BaseStore {
               )
             : [];
           if (resources.length) void this.refreshAffectedResources(resources);
-          if (event.isError && event.errorMessage) this.toastError("AgentChat.errors.turnFailed");
+          if (event.isError && event.errorMessage && event.terminalCode !== "partial")
+            this.toastError("AgentChat.errors.turnFailed");
           break;
         }
         case "ui_command": {
-          void this.executeUiCommand({
+          this.enqueueUiCommand({
             commandId: String(event.commandId),
             name: String(event.name),
             input: (event.input ?? {}) as Record<string, unknown>,
@@ -1218,7 +1220,7 @@ export class AgentChatStore extends BaseStore {
     await Promise.allSettled(refreshes);
   };
 
-  private executeUiCommand = async (command: {
+  private enqueueUiCommand = (command: {
     commandId: string;
     name: string;
     input: Record<string, unknown>;
@@ -1227,20 +1229,29 @@ export class AgentChatStore extends BaseStore {
     const conversationId = this.conversationId;
     if (!conversationId || !isUiCommandName(command.name)) return;
 
-    const outcome = await this.runUiCommand({
-      commandId: command.commandId,
-      name: command.name,
-      input: command.input,
-      turnKey: command.turnKey,
-    });
-    try {
-      await respondToUiCommandAction({
-        conversationId,
-        commandId: command.commandId,
-        name: command.name,
-        ...outcome,
-      });
-    } catch {}
+    const execute = async () => {
+      let outcome: { ok: boolean; result: string };
+      try {
+        outcome = await this.runUiCommand({
+          commandId: command.commandId,
+          name: command.name as UiCommandName,
+          input: command.input,
+          turnKey: command.turnKey,
+        });
+      } catch {
+        outcome = { ok: false, result: "The interface action could not be completed." };
+      }
+      try {
+        await respondToUiCommandAction({
+          conversationId,
+          commandId: command.commandId,
+          name: command.name as UiCommandName,
+          ...outcome,
+        });
+      } catch {}
+    };
+
+    this.uiCommandQueue = this.uiCommandQueue.then(execute, execute);
   };
 
   private runUiCommand = async (command: {
@@ -1253,11 +1264,7 @@ export class AgentChatStore extends BaseStore {
 
     if (command.name === "navigate") return ui.navigate(String(command.input.targetId ?? ""));
 
-    if (command.name === "configure_view") {
-      const input = ConfigureViewSchema.safeParse(command.input);
-      if (!input.success) return { ok: false, result: "The view request was invalid." };
-      return ui.configureView(input.data);
-    }
+    if (command.name === "click_ui_target") return ui.clickTarget(String(command.input.targetId ?? ""));
 
     if (command.name === "open_record") {
       const input = OpenRecordSchema.safeParse(command.input);

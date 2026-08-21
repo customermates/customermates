@@ -2,7 +2,7 @@ import type { SocialPost, RelationRequest, SocialProfile } from "@/ee/messaging/
 
 import { z } from "zod";
 
-import { encodeToToon, formatDatesInResponse, runInteractor, validationError } from "./utils";
+import { encodeToToon, formatDatesInResponse, mcpValidationFailure, runInteractor } from "./utils";
 
 import { ListSocialPostsSchema } from "@/ee/messaging/posts/list-social-posts.interactor";
 import { GetSocialPostSchema } from "@/ee/messaging/posts/get-social-post.interactor";
@@ -71,43 +71,55 @@ const GetSocialProfileToolSchema = z.object({
     ),
 });
 
-const ManageSocialRelationsToolSchema = z.object({
-  action: z
-    .enum(["list", "invite", "accept", "cancel"])
-    .describe(
-      "Relation-request operation: list (received or sent invitations, see direction), invite, accept, or cancel",
+const ManageSocialRelationsToolSchema = z
+  .object({
+    action: z
+      .enum(["list", "invite", "accept", "cancel"])
+      .describe(
+        "Relation-request operation: list (received or sent invitations, see direction), invite, accept, or cancel",
+      ),
+    connectedAccountId: z
+      .uuid()
+      .describe("Connected account id of a LinkedIn or Instagram account (from get_workspace_context)"),
+    identifier: z
+      .string()
+      .min(1)
+      .optional()
+      .describe(
+        "Required for invite: the provider user id to send the connection request to (e.g. from get_social_profile or a thread participant)",
+      ),
+    message: z
+      .string()
+      .max(300)
+      .optional()
+      .describe("Optional note sent with an invite (LinkedIn caps the length; keep it short)"),
+    invitationId: z
+      .string()
+      .min(1)
+      .optional()
+      .describe("Required for accept and cancel: the relation-request id from action list"),
+    direction: ListRelationRequestsSchema.shape.direction.describe(
+      "list: received (default) lists invitations sent TO you; sent lists invitations YOU sent. Hosted Assistant accept/cancel calls repeat the direction of the page containing invitationId so approval can verify the person.",
     ),
-  connectedAccountId: z
-    .uuid()
-    .describe("Connected account id of a LinkedIn or Instagram account (from get_workspace_context)"),
-  identifier: z
-    .string()
-    .min(1)
-    .optional()
-    .describe(
-      "Required for invite: the provider user id to send the connection request to (e.g. from get_social_profile or a thread participant)",
+    cursor: ListRelationRequestsSchema.shape.cursor.describe(
+      "list: pagination cursor from the previous page's next_cursor. Hosted Assistant accept/cancel calls repeat the cursor used for the page containing invitationId.",
     ),
-  message: z
-    .string()
-    .max(300)
-    .optional()
-    .describe("Optional note sent with an invite (LinkedIn caps the length; keep it short)"),
-  invitationId: z
-    .string()
-    .min(1)
-    .optional()
-    .describe("Required for accept and cancel: the relation-request id from action list"),
-  direction: ListRelationRequestsSchema.shape.direction.describe(
-    "list only: received (default) lists invitations sent TO you; sent lists invitations YOU sent (use this to find the invitationId for cancel)",
-  ),
-  cursor: ListRelationRequestsSchema.shape.cursor.describe(
-    "list only: pagination cursor from the previous page's next_cursor",
-  ),
-  offset: ListRelationRequestsSchema.shape.offset.describe(
-    "list only: pagination offset; use only when no cursor is available",
-  ),
-  limit: ListRelationRequestsSchema.shape.limit.describe("list only: items per page (1-100, default 10)"),
-});
+    offset: ListRelationRequestsSchema.shape.offset.describe(
+      "list: pagination offset; use only when no cursor is available. Hosted Assistant accept/cancel calls repeat the offset used for the page containing invitationId.",
+    ),
+    limit: ListRelationRequestsSchema.shape.limit.describe("list only: items per page (1-100, default 10)"),
+  })
+  .superRefine((data, ctx) => {
+    if (data.action === "invite" && !data.identifier)
+      ctx.addIssue({ code: "custom", path: ["identifier"], message: "identifier is required for invite." });
+    if ((data.action === "accept" || data.action === "cancel") && !data.invitationId) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["invitationId"],
+        message: "invitationId is required for accept and cancel.",
+      });
+    }
+  });
 
 const InviteRelationSchema = z.object({
   connectedAccountId: z.uuid(),
@@ -371,6 +383,7 @@ export const manageSocialRelationsTool = {
     "Use this to manage connection / relation requests on a connected LinkedIn or Instagram account. " +
     "action list returns invitations, each with an invitationId, sender and any message: direction=received (default) lists requests sent TO the account owner; direction=sent lists the owner's own outgoing/pending requests (use it to find the invitationId to cancel). " +
     "action invite SENDS A REAL connection request to identifier (a provider user id from get_social_profile or a thread participant), with an optional short message; confirm with the user before sending. " +
+    "The hosted Assistant verifies the person from the provider immediately before asking for approval. For accept or cancel, repeat the direction and cursor or offset used to list the page containing invitationId. " +
     "action accept confirms a received request by invitationId (from action list). " +
     "action cancel withdraws or refuses a request by invitationId. " +
     "Get connectedAccountId from get_workspace_context. Paginate list with cursor or offset plus limit.",
@@ -398,7 +411,7 @@ export const manageSocialRelationsTool = {
     }
     if (params.action === "invite") {
       const parsed = InviteRelationSchema.safeParse(params);
-      if (!parsed.success) return validationError(parsed.error);
+      if (!parsed.success) return mcpValidationFailure(parsed.error);
       return runInteractor(
         getCreateRelationRequestInteractor().invoke({
           connectedAccountId: parsed.data.connectedAccountId,
@@ -409,7 +422,7 @@ export const manageSocialRelationsTool = {
       );
     }
     const parsed = RelationByInvitationSchema.safeParse(params);
-    if (!parsed.success) return validationError(parsed.error);
+    if (!parsed.success) return mcpValidationFailure(parsed.error);
     if (params.action === "accept") {
       return runInteractor(
         getAcceptRelationRequestInteractor().invoke({

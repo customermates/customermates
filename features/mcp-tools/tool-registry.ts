@@ -44,7 +44,7 @@ import {
   searchSalesLeadsTool,
 } from "@/features/mcp-tools/sales-navigator.mcp-tools";
 
-import type { McpTool } from "@/app/api/v1/mcp/mcp-route-utils";
+import type { McpTool } from "@/features/mcp-tools/mcp-tool";
 
 export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
   records: [

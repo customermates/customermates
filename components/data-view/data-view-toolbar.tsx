@@ -50,7 +50,11 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
         <FilterPopover id={anchorScope ? `${anchorScope}-filter` : undefined} store={store} />
 
         {showDisplayOptions && (
-          <DataViewDisplayOptions id={anchorScope ? `${anchorScope}-display-options` : undefined} store={store} />
+          <DataViewDisplayOptions
+            anchorScope={anchorScope}
+            id={anchorScope ? `${anchorScope}-display-options` : undefined}
+            store={store}
+          />
         )}
 
         {onAdd && !store.isDisabled && (

@@ -196,17 +196,16 @@ describeEval("agent live eval", () => {
     await prisma.$disconnect();
   });
 
-  it("switches the deals view to kanban through a configure_view command", async () => {
-    const { frames } = await runTurn({ text: "Switch my deals view to a kanban board grouped by stage." });
+  it("switches the deals view to kanban through allowlisted DOM controls", async () => {
+    const { frames } = await runTurn({ text: "Switch my deals view to a kanban board." });
 
-    const command = frames.find(
-      (frame) => frame.type === "ui_command" && ["configure_view", "navigate"].includes(String(frame.name)),
+    const clicks = frames.filter((frame) => frame.type === "ui_command" && frame.name === "click_ui_target");
+    expect(clicks, JSON.stringify(frames)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ input: { targetId: "deals-display-options" } }),
+        expect.objectContaining({ input: { targetId: "deals-layout-kanban" } }),
+      ]),
     );
-    expect(command, JSON.stringify(frames)).toBeDefined();
-    const configure = frames.find((frame) => frame.type === "ui_command" && frame.name === "configure_view");
-    if (configure) {
-      expect(configure.input).toMatchObject({ view: "deals" });
-    }
     expect(frames.at(-1)).toMatchObject({ type: "turn_done" });
   });
 

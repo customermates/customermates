@@ -182,6 +182,7 @@ export class AgentUsageService {
     userId: string,
     now = new Date(),
     requiredContextBytes?: number,
+    minimumSteps?: number,
   ): Promise<{
     summary: AgentUsageSummary;
     reservation: AgentTurnCreditReservation | null;
@@ -190,7 +191,10 @@ export class AgentUsageService {
     if (state.summary.blockedReason) return { summary: state.summary, reservation: null };
     if (!state.user.subscription || !state.summary.plan) {
       return {
-        summary: { ...state.summary, blockedReason: "configuration_unavailable" },
+        summary: {
+          ...state.summary,
+          blockedReason: "configuration_unavailable",
+        },
         reservation: null,
       };
     }
@@ -198,10 +202,14 @@ export class AgentUsageService {
     const budget = resolveAgentTurnBudget({
       availableCredits: state.summary.creditsRemaining,
       requiredContextBytes,
+      minimumSteps,
     });
     if (!budget) {
       return {
-        summary: { ...state.summary, blockedReason: "configuration_unavailable" },
+        summary: {
+          ...state.summary,
+          blockedReason: "configuration_unavailable",
+        },
         reservation: null,
       };
     }

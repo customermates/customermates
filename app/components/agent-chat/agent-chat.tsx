@@ -32,7 +32,11 @@ import type { AgentChatItem } from "./agent-chat.store";
 import { AgentTourOverlay } from "./agent-tour-overlay";
 
 import { suggestionPageId, type AgentConversationSummary } from "@/ee/agent-chat/agent-chat.schema";
-import { agentActivityCopy, type AgentActivityResource } from "@/ee/agent-chat/agent-activity";
+import {
+  agentActivityCopy,
+  agentActivityGroupSummary,
+  type AgentActivityResource,
+} from "@/ee/agent-chat/agent-activity";
 import { agentPageActions, agentPageState } from "@/ee/agent-chat/agent-page-actions";
 import type { AgentUsageSummary } from "@/ee/agent-chat/agent-usage.service";
 
@@ -911,8 +915,6 @@ function chatUiCopy(t: ChatTranslator) {
     turnFailed: t("AgentChat.ui.turnFailed"),
     undo: t("AgentChat.ui.undo"),
     untitled: t("AgentChat.ui.untitled"),
-    activitySummary: (status: "error" | "cancelled" | "complete", count: number) =>
-      t(`AgentChat.ui.activity${status.charAt(0).toUpperCase()}${status.slice(1)}`, { count }),
     thinking: t("AgentChat.ui.thinking"),
     thoughtFor: (seconds: number) => t("AgentChat.ui.thoughtFor", { seconds }),
   };
@@ -1296,7 +1298,10 @@ const AgentActivity = observer(function AgentActivity({
         : hasCancelled
           ? firstCopy.cancelled
           : firstCopy.done
-      : uiCopy.activitySummary(hasError ? "error" : hasCancelled ? "cancelled" : "complete", items.length);
+      : agentActivityGroupSummary(
+          items.map((item) => item.status),
+          t,
+        );
   const summary = hasRunning
     ? uiCopy.thinking
     : !hasError && !hasCancelled && elapsedSeconds !== null

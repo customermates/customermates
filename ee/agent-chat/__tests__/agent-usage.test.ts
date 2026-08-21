@@ -254,6 +254,24 @@ describe("AgentUsageService admission and ledger", () => {
     expect(settlement.state).toBe("settled");
   });
 
+  it("charges two credits once cache-write cost crosses one cent", () => {
+    const settlement = buildAgentUsageSettlement({
+      model: "gpt-5.6-luna",
+      tokens: {
+        inputTokens: 0,
+        outputTokens: 0,
+        cacheReadTokens: 0,
+        cacheWriteTokens: 40_001,
+      },
+      reservedCredits: 44,
+      retainReservation: false,
+    });
+
+    expect(settlement.costMicrocents).toBe(1_000_025);
+    expect(settlement.chargedCredits).toBe(2);
+    expect(settlement.policyBreach).toBe(false);
+  });
+
   it("keeps a zero-credit released ledger row for pre-provider failures", async () => {
     const repo = makeRepo();
     const service = new AgentUsageService(repo);

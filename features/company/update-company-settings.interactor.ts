@@ -53,8 +53,8 @@ export class UpdateCompanySettingsInteractor extends AuthenticatedInteractor<
   }
 
   @Validate(UpdateCompanySettingsSchema)
-  @ValidateOutput(UpdateCompanySettingsSchema)
   @Transaction
+  @ValidateOutput(UpdateCompanySettingsSchema)
   async invoke(data: UpdateCompanySettingsData): Validated<UpdateCompanySettingsData> {
     if (data.terminology?.length) await this.repo.upsertTerminology(data.terminology);
 

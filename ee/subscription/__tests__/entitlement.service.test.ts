@@ -1,7 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MOCK_ENV_MODULE } from "@/tests/helpers/interactor-test-setup";
 
-vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, APP_MODE: "cloud" } }));
+vi.mock("@/env", () => ({
+  env: { ...MOCK_ENV_MODULE.env, APP_MODE: "cloud" },
+}));
 vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve((key: string) => key),
   getLocale: () => Promise.resolve("en"),
@@ -14,7 +16,10 @@ const EXPIRED_TRIAL = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
 function makeService(subscription: { status: string; trialEndDate: Date | null; plan: string }) {
   const getSubscriptionOrThrow = vi.fn().mockResolvedValue(subscription);
-  return { service: new EntitlementService({ getSubscriptionOrThrow } as never), getSubscriptionOrThrow };
+  return {
+    service: new EntitlementService({ getSubscriptionOrThrow } as never),
+    getSubscriptionOrThrow,
+  };
 }
 
 function denialCode(denied: { code: string } | null): unknown {
@@ -26,7 +31,11 @@ describe('EntitlementService.require("messaging")', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("denies starter with messagingRequiresPro", async () => {
-    const { service } = makeService({ status: "active", trialEndDate: null, plan: "starter" });
+    const { service } = makeService({
+      status: "active",
+      trialEndDate: null,
+      plan: "starter",
+    });
     const denied = await service.require("messaging");
     expect(denied?.ok).toBe(false);
     expect(denied?.error.issues[0].message).toBe("ConnectedAccountsCard.messagingRequiresPro");
@@ -35,18 +44,30 @@ describe('EntitlementService.require("messaging")', () => {
 
   it("allows pro, business and enterprise", async () => {
     for (const plan of ["pro", "business", "enterprise"]) {
-      const { service } = makeService({ status: "active", trialEndDate: null, plan });
+      const { service } = makeService({
+        status: "active",
+        trialEndDate: null,
+        plan,
+      });
       expect(await service.require("messaging")).toBeNull();
     }
   });
 
   it("allows an active trial on a messaging plan", async () => {
-    const { service } = makeService({ status: "trial", trialEndDate: ACTIVE_TRIAL, plan: "pro" });
+    const { service } = makeService({
+      status: "trial",
+      trialEndDate: ACTIVE_TRIAL,
+      plan: "pro",
+    });
     expect(await service.require("messaging")).toBeNull();
   });
 
   it("denies an unusable subscription with paidSubscriptionRequired", async () => {
-    const { service } = makeService({ status: "trial", trialEndDate: EXPIRED_TRIAL, plan: "pro" });
+    const { service } = makeService({
+      status: "trial",
+      trialEndDate: EXPIRED_TRIAL,
+      plan: "pro",
+    });
     const denied = await service.require("messaging");
     expect(denialCode(denied)).toBe("paidSubscriptionRequired");
   });
@@ -56,14 +77,22 @@ describe('EntitlementService.require("sharedAccounts")', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("denies pro with sharedAccountsRequiresBusiness", async () => {
-    const { service } = makeService({ status: "active", trialEndDate: null, plan: "pro" });
+    const { service } = makeService({
+      status: "active",
+      trialEndDate: null,
+      plan: "pro",
+    });
     const denied = await service.require("sharedAccounts");
     expect(denialCode(denied)).toBe("sharedAccountsRequiresBusiness");
   });
 
   it("allows business and enterprise", async () => {
     for (const plan of ["business", "enterprise"]) {
-      const { service } = makeService({ status: "active", trialEndDate: null, plan });
+      const { service } = makeService({
+        status: "active",
+        trialEndDate: null,
+        plan,
+      });
       expect(await service.require("sharedAccounts")).toBeNull();
     }
   });
@@ -74,7 +103,11 @@ describe('EntitlementService.require("agentChat")', () => {
 
   it("allows every active cloud plan", async () => {
     for (const plan of ["starter", "pro", "business", "enterprise"]) {
-      const { service } = makeService({ status: "active", trialEndDate: null, plan });
+      const { service } = makeService({
+        status: "active",
+        trialEndDate: null,
+        plan,
+      });
       expect(await service.require("agentChat")).toBeNull();
     }
   });
@@ -85,7 +118,9 @@ describe("EntitlementService self-hosted", () => {
 
   it("denies with the cloud message before any subscription lookup", async () => {
     vi.resetModules();
-    vi.doMock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, APP_MODE: "self-hosted" } }));
+    vi.doMock("@/env", () => ({
+      env: { ...MOCK_ENV_MODULE.env, APP_MODE: "self-hosted" },
+    }));
     vi.doMock("next-intl/server", () => ({
       getTranslations: () => Promise.resolve((key: string) => key),
       getLocale: () => Promise.resolve("en"),
@@ -110,7 +145,9 @@ describe("EntitlementService demo", () => {
 
   it("denies agent chat before any subscription lookup", async () => {
     vi.resetModules();
-    vi.doMock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, APP_MODE: "demo" } }));
+    vi.doMock("@/env", () => ({
+      env: { ...MOCK_ENV_MODULE.env, APP_MODE: "demo" },
+    }));
     vi.doMock("next-intl/server", () => ({
       getTranslations: () => Promise.resolve((key: string) => key),
       getLocale: () => Promise.resolve("en"),
@@ -124,7 +161,42 @@ describe("EntitlementService demo", () => {
     expect(denialCode(denied)).toBe("agentChatRequiresCloud");
     expect(getSubscriptionOrThrow).not.toHaveBeenCalled();
 
-    getSubscriptionOrThrow.mockResolvedValue({ status: "active", trialEndDate: null, plan: "pro" });
+    getSubscriptionOrThrow.mockResolvedValue({
+      status: "active",
+      trialEndDate: null,
+      plan: "pro",
+    });
+    expect(await service.require("messaging")).toBeNull();
+    expect(getSubscriptionOrThrow).toHaveBeenCalledOnce();
+  });
+});
+
+describe("EntitlementService Assistant kill switch", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("denies only agent chat before subscription lookup", async () => {
+    vi.resetModules();
+    vi.doMock("@/env", () => ({
+      env: {
+        ...MOCK_ENV_MODULE.env,
+        APP_MODE: "cloud",
+        AGENT_CHAT_DISABLED: true,
+      },
+    }));
+    vi.doMock("next-intl/server", () => ({
+      getTranslations: () => Promise.resolve((key: string) => key),
+      getLocale: () => Promise.resolve("en"),
+    }));
+
+    const { EntitlementService: Disabled } = await import("../entitlement.service");
+    const getSubscriptionOrThrow = vi.fn().mockResolvedValue({ status: "active", trialEndDate: null, plan: "pro" });
+    const service = new Disabled({ getSubscriptionOrThrow } as never);
+
+    const denied = await service.require("agentChat");
+    expect(denialCode(denied)).toBe("agentChatDisabled");
+    expect(denied?.error.issues[0]?.message).toBe("ConnectedAccountsCard.agentChatDisabled");
+    expect(getSubscriptionOrThrow).not.toHaveBeenCalled();
+
     expect(await service.require("messaging")).toBeNull();
     expect(getSubscriptionOrThrow).toHaveBeenCalledOnce();
   });

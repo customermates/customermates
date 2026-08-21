@@ -3,12 +3,15 @@ import { EntityType, WidgetGroupByType, AggregationType, WidgetKind } from "@/ge
 
 import {
   encodeToToon,
-  validationError,
   runInteractor,
-  customErrorMessage,
+  customMcpFailure,
   enumHint,
   formatDatesInResponse,
   FILTER_FIELD_DESCRIPTION,
+  mcpInteractorFailure,
+  mcpValidationFailure,
+  nestedCustomErrorText,
+  nestedValidationErrorText,
 } from "./utils";
 
 import {
@@ -211,7 +214,7 @@ export const manageWidgetsTool = {
   execute: async (params: z.infer<typeof ManageWidgetsSchema>) => {
     if (params.action === "list") {
       const parsed = ListWidgetsSchema.safeParse(params);
-      if (!parsed.success) return validationError(parsed.error);
+      if (!parsed.success) return mcpValidationFailure(parsed.error);
       const result = await getGetWidgetsInteractor().invoke();
       const widgets = result.data;
       return encodeToToon({
@@ -225,15 +228,15 @@ export const manageWidgetsTool = {
     }
     if (params.action === "get") {
       const parsed = GetWidgetsSchema.safeParse(params);
-      if (!parsed.success) return validationError(parsed.error);
+      if (!parsed.success) return mcpValidationFailure(parsed.error);
       const results = await Promise.all(
         parsed.data.ids.map(async (id) => {
           const result = await getGetWidgetByIdInteractor().invoke({ id });
-          if (!result.ok) return { error: validationError(result.error) };
+          if (!result.ok) return { error: nestedValidationErrorText(result.error) };
           const widget = result.data;
           if (!widget) {
             return {
-              error: await customErrorMessage(CustomErrorCode.widgetNotFound),
+              error: await nestedCustomErrorText(CustomErrorCode.widgetNotFound),
             };
           }
           return widget;
@@ -247,7 +250,7 @@ export const manageWidgetsTool = {
         kind === WidgetKind.activityTimeline
           ? ActivityCreateWidgetSchema.safeParse(params)
           : ChartCreateWidgetSchema.safeParse(params);
-      if (!parsed.success) return validationError(parsed.error);
+      if (!parsed.success) return mcpValidationFailure(parsed.error);
       const payload =
         parsed.data.kind === WidgetKind.activityTimeline
           ? ({
@@ -285,17 +288,17 @@ export const manageWidgetsTool = {
     }
     if (params.action === "update") {
       const target = z.object({ id: z.uuid() }).safeParse(params);
-      if (!target.success) return validationError(target.error);
+      if (!target.success) return mcpValidationFailure(target.error);
       const widgetResult = await getGetWidgetByIdInteractor().invoke({
         id: target.data.id,
       });
-      if (!widgetResult.ok) return validationError(widgetResult.error);
+      if (!widgetResult.ok) return mcpInteractorFailure(widgetResult.error);
       const widget = widgetResult.data;
-      if (!widget) return await customErrorMessage(CustomErrorCode.widgetNotFound);
+      if (!widget) return customMcpFailure(CustomErrorCode.widgetNotFound);
 
       if (widget.kind === WidgetKind.activityTimeline) {
         const parsed = ActivityUpdateWidgetSchema.safeParse(params);
-        if (!parsed.success) return validationError(parsed.error);
+        if (!parsed.success) return mcpValidationFailure(parsed.error);
         const updateParams = parsed.data;
         const displayOptions =
           updateParams.showFilters === undefined
@@ -312,7 +315,7 @@ export const manageWidgetsTool = {
           displayOptions,
           isTemplate: widget.isTemplate,
         });
-        if (!result.ok) return validationError(result.error);
+        if (!result.ok) return mcpInteractorFailure(result.error);
 
         return encodeToToon({
           id: result.data.id,
@@ -323,7 +326,7 @@ export const manageWidgetsTool = {
       }
 
       const parsed = ChartUpdateWidgetSchema.safeParse(params);
-      if (!parsed.success) return validationError(parsed.error);
+      if (!parsed.success) return mcpValidationFailure(parsed.error);
       const updateParams = parsed.data;
 
       const displayOptionsChanged =
@@ -365,7 +368,7 @@ export const manageWidgetsTool = {
         ...updates,
       });
 
-      if (!result.ok) return validationError(result.error);
+      if (!result.ok) return mcpInteractorFailure(result.error);
 
       return encodeToToon({
         id: result.data.id,
@@ -375,16 +378,16 @@ export const manageWidgetsTool = {
       });
     }
     const parsed = DeleteWidgetSchema.safeParse(params);
-    if (!parsed.success) return validationError(parsed.error);
+    if (!parsed.success) return mcpValidationFailure(parsed.error);
     const widgetResult = await getGetWidgetByIdInteractor().invoke({
       id: parsed.data.id,
     });
-    if (!widgetResult.ok) return validationError(widgetResult.error);
-    if (!widgetResult.data) return await customErrorMessage(CustomErrorCode.widgetNotFound);
+    if (!widgetResult.ok) return mcpInteractorFailure(widgetResult.error);
+    if (!widgetResult.data) return customMcpFailure(CustomErrorCode.widgetNotFound);
     const result = await getDeleteWidgetInteractor().invoke({
       id: parsed.data.id,
     });
-    if (!result.ok) return validationError(result.error);
+    if (!result.ok) return mcpInteractorFailure(result.error);
     return `Deleted widget ${parsed.data.id}`;
   },
 };

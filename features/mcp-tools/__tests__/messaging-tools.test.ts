@@ -21,7 +21,13 @@ vi.mock("@/core/di", () => ({
   getGetActivitiesApiInteractor: () => ({ invoke: spies.getActivities }),
 }));
 
-import { connectMessagingAccountTool, getActivitiesTool } from "../messaging.mcp-tools";
+import {
+  connectMessagingAccountTool,
+  getActivitiesTool,
+  getCalendarsTool,
+  getMessagingThreadsTool,
+} from "../messaging.mcp-tools";
+import { mcpToolResultText } from "../mcp-tool";
 
 function run(args: Record<string, unknown>) {
   return connectMessagingAccountTool.execute(connectMessagingAccountTool.inputSchema.parse(args));
@@ -33,7 +39,9 @@ beforeEach(() => {
 
 describe("connect_messaging_account", () => {
   it("returns the hosted-auth url for the requested channel", async () => {
-    spies.createAuthLink.mockResolvedValue({ redirect: "https://auth.example.com/link-abc" });
+    spies.createAuthLink.mockResolvedValue({
+      redirect: "https://auth.example.com/link-abc",
+    });
     const result = await run({ channel: "whatsapp" });
     expect(spies.createAuthLink).toHaveBeenCalledWith({ channel: "whatsapp" });
     expect(result).toContain("https://auth.example.com/link-abc");
@@ -44,7 +52,7 @@ describe("connect_messaging_account", () => {
     const error = parsed.success ? undefined : parsed.error;
     spies.createAuthLink.mockResolvedValue({ ok: false, error });
     const result = await run({ channel: "google" });
-    expect(result).toContain("Validation error:");
+    expect(mcpToolResultText(result)).toContain("Validation error:");
   });
 
   it("rejects an unknown channel at the schema boundary", () => {
@@ -182,6 +190,28 @@ describe("get_activities", () => {
     expect(
       getActivitiesTool.inputSchema.safeParse({
         entityId: "00000000-0000-4000-8000-000000000001",
+      }).success,
+    ).toBe(false);
+  });
+});
+
+describe.each([
+  ["get_messaging_threads", getMessagingThreadsTool],
+  ["get_calendars", getCalendarsTool],
+] as const)("%s query bounds", (_name, tool) => {
+  it("advertises the same search and filter limits enforced by the query interactor", () => {
+    const filter = { field: "state", operator: "equals", value: "open" };
+
+    expect(tool.inputSchema.safeParse({ searchTerm: "a".repeat(200) }).success).toBe(true);
+    expect(tool.inputSchema.safeParse({ searchTerm: "a".repeat(201) }).success).toBe(false);
+    expect(
+      tool.inputSchema.safeParse({
+        filters: Array.from({ length: 50 }, () => filter),
+      }).success,
+    ).toBe(true);
+    expect(
+      tool.inputSchema.safeParse({
+        filters: Array.from({ length: 51 }, () => filter),
       }).success,
     ).toBe(false);
   });

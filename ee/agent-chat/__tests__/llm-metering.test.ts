@@ -1,4 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
+import { generateText } from "ai";
+import { createOpenAI } from "@ai-sdk/openai";
 
 import { MOCK_ENV_MODULE } from "@/tests/helpers/interactor-test-setup";
 
@@ -10,6 +12,53 @@ import { hasProviderUsageEvidence, usageToTokenCounts, laneModelId } from "../ll
 import { resolveModelPricing } from "../model-pricing";
 
 describe("usageToTokenCounts", () => {
+  it("preserves cache-write usage from the real OpenAI Responses adapter", async () => {
+    const provider = createOpenAI({
+      apiKey: "test-key",
+      fetch: vi.fn(async () =>
+        Promise.resolve(
+          new Response(
+            JSON.stringify({
+              id: "resp_test",
+              created_at: 1_787_206_400,
+              error: null,
+              model: "gpt-5.6-luna",
+              output: [
+                {
+                  type: "message",
+                  role: "assistant",
+                  id: "msg_test",
+                  content: [{ type: "output_text", text: "Done.", annotations: [] }],
+                },
+              ],
+              incomplete_details: null,
+              usage: {
+                input_tokens: 27_000,
+                input_tokens_details: { cached_tokens: 0, cache_write_tokens: 26_973 },
+                output_tokens: 150,
+                output_tokens_details: { reasoning_tokens: 0 },
+              },
+            }),
+            { status: 200, headers: { "content-type": "application/json" } },
+          ),
+        ),
+      ) as never,
+    });
+
+    const result = await generateText({ model: provider("gpt-5.6-luna"), prompt: "Hello" });
+
+    expect(result.usage.inputTokenDetails).toEqual(
+      expect.objectContaining({ noCacheTokens: 27, cacheReadTokens: 0, cacheWriteTokens: 26_973 }),
+    );
+    expect(usageToTokenCounts(result.usage)).toEqual({
+      inputTokens: 27,
+      outputTokens: 150,
+      cacheReadTokens: 0,
+      cacheWriteTokens: 26_973,
+    });
+    expect(hasProviderUsageEvidence(result.usage)).toBe(true);
+  });
+
   it("maps the AI SDK v6 inputTokenDetails onto the 4-class TokenCounts (cacheWrite is first-class, not lost)", () => {
     const usage = {
       inputTokens: 27000,
@@ -56,7 +105,31 @@ describe("usageToTokenCounts", () => {
       cacheWriteTokens: 0,
     });
     expect(hasProviderUsageEvidence({} as never)).toBe(false);
-    expect(hasProviderUsageEvidence({ inputTokens: 0, outputTokens: 0 } as never)).toBe(true);
+    expect(hasProviderUsageEvidence({ inputTokens: 0, outputTokens: 0 } as never)).toBe(false);
+    expect(
+      hasProviderUsageEvidence({
+        inputTokens: 0,
+        inputTokenDetails: { noCacheTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 },
+        outputTokens: 0,
+      } as never),
+    ).toBe(true);
+  });
+
+  it("requires complete, internally consistent input-token classes before exact settlement", () => {
+    expect(
+      hasProviderUsageEvidence({
+        inputTokens: 10,
+        inputTokenDetails: { noCacheTokens: 10, cacheReadTokens: 0 },
+        outputTokens: 1,
+      } as never),
+    ).toBe(false);
+    expect(
+      hasProviderUsageEvidence({
+        inputTokens: 10,
+        inputTokenDetails: { noCacheTokens: 9, cacheReadTokens: 0, cacheWriteTokens: 0 },
+        outputTokens: 1,
+      } as never),
+    ).toBe(false);
   });
 
   it.each([{ inputTokens: -1 }, { outputTokens: Number.NaN }, { inputTokenDetails: { cacheReadTokens: 1.5 } }])(
@@ -75,5 +148,6 @@ describe("laneModelId + pricing coverage", () => {
   it("the configured agent model has a real pricing row (never the UNKNOWN_MODEL_PRICING spend-cap trap)", () => {
     const unknown = resolveModelPricing("definitely-not-a-real-model");
     expect(resolveModelPricing(laneModelId("agent"))).not.toEqual(unknown);
+    expect(resolveModelPricing(laneModelId("agent")).cacheWritePerMTok).toBe(0.25);
   });
 });

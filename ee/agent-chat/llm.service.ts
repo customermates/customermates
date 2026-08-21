@@ -7,6 +7,8 @@ import { env } from "@/env";
 import type { TokenCounts } from "./model-pricing";
 import { buildAgentUsageSettlement } from "./agent-usage-settlement";
 
+export { AGENT_TOOL_SEARCH_NAME } from "./agent-tool-search";
+
 export const AGENT_MODEL_ID = "gpt-5.6-luna";
 
 const openai = createOpenAI({ apiKey: env.OPENAI_API_KEY });
@@ -15,6 +17,10 @@ export type AgentModelLane = "agent";
 
 export function laneModel(_lane: AgentModelLane) {
   return openai(AGENT_MODEL_ID);
+}
+
+export function laneToolSearch() {
+  return openai.tools.toolSearch();
 }
 
 export function laneModelId(_lane: AgentModelLane) {
@@ -59,5 +65,15 @@ export function usageToTokenCounts(usage: LanguageModelUsage): TokenCounts {
 }
 
 export function hasProviderUsageEvidence(usage: LanguageModelUsage) {
-  return typeof usage.inputTokens === "number" && typeof usage.outputTokens === "number";
+  const isTokenCount = (value: unknown): value is number => Number.isSafeInteger(value) && Number(value) >= 0;
+  const details = usage.inputTokenDetails;
+  if (
+    !isTokenCount(usage.inputTokens) ||
+    !isTokenCount(usage.outputTokens) ||
+    !isTokenCount(details?.noCacheTokens) ||
+    !isTokenCount(details.cacheReadTokens) ||
+    !isTokenCount(details.cacheWriteTokens)
+  )
+    return false;
+  return details.noCacheTokens + details.cacheReadTokens + details.cacheWriteTokens === usage.inputTokens;
 }
