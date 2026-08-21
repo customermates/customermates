@@ -31,6 +31,7 @@ import {
   SYNTHETIC_TASK_ORGANIZATION_LINKS,
   SYNTHETIC_TASK_SERVICE_LINKS,
 } from "../seeds/tasks";
+import { SYNTHETIC_SEED_TIMELINE } from "../seeds/timeline";
 import { SYNTHETIC_WIDGET_NAMES } from "../seeds/widgets";
 
 const SYNTHETIC_FIXTURE_COUNTS = {
@@ -90,6 +91,7 @@ function expectValidLinks(links: ReadonlyArray<IndexLink>, leftCount: number, ri
 describe("canonical synthetic CRM fixture contract", () => {
   it("preserves the legacy active Pro subscription presentation", () => {
     expect(SYNTHETIC_SUBSCRIPTION).toEqual({
+      agentCreditAnchorAt: SYNTHETIC_SEED_TIMELINE.company.createdAt,
       plan: "pro",
       quantity: null,
       status: "active",
