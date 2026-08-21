@@ -20,6 +20,7 @@ vi.mock("next-intl", () => ({
       codex: "Codex",
       cursor: "Cursor",
       gemini: "Gemini",
+      openai: "ChatGPT & Codex",
     };
 
     return labels[provider ?? ""] ?? key;
@@ -40,6 +41,7 @@ vi.mock("@/app/[locale]/(protected)/profile/actions", () => ({
 
 import { AiConnectionClaudeSetup } from "../ai-connection-claude-setup";
 import { executeAiConnectionKeyCreation } from "../ai-connection-key-creation";
+import { AiConnectionOpenAiSetup } from "../ai-connection-openai-setup";
 import { AiConnectionProviderGrid } from "../ai-connection-provider-grid";
 
 beforeEach(() => {
@@ -95,26 +97,34 @@ describe("AiConnectionClaudeSetup", () => {
   });
 });
 
+describe("AiConnectionOpenAiSetup", () => {
+  it("remains observer-wrapped so method and key selections rerender", () => {
+    expect((AiConnectionOpenAiSetup as unknown as { $$typeof?: symbol }).$$typeof).toBe(Symbol.for("react.memo"));
+  });
+});
+
 describe("AiConnectionProviderGrid", () => {
-  it("renders the five quick connections in a balanced responsive two-row grid", () => {
+  it("renders four quick connections as two balanced rows with ChatGPT and Codex merged", () => {
     const html = renderToStaticMarkup(
       createElement(AiConnectionProviderGrid, {
         disabled: false,
         onSelect: vi.fn(),
         registerRef: vi.fn(),
-        selectedProvider: null,
       }),
     );
 
-    expect(html).toContain("sm:grid-cols-6");
-    expect(html).not.toContain("sm:grid-cols-5");
-    expect(html.match(/sm:col-span-2/g)).toHaveLength(3);
-    expect(html.match(/sm:col-span-3/g)).toHaveLength(2);
+    expect(html).toContain("sm:grid-cols-2");
+    expect(html).not.toContain("sm:grid-cols-4");
+    expect(html).not.toContain("sm:col-span");
 
-    for (const provider of ["claude", "chatgpt", "codex", "cursor", "gemini"])
+    for (const provider of ["claude", "openai", "cursor", "gemini"])
       expect(html).toContain(`data-provider="${provider}"`);
 
-    for (const label of ["Claude", "ChatGPT", "Codex", "Cursor", "Gemini"]) expect(html).toContain(`>${label}</span>`);
+    for (const label of ["Claude", "ChatGPT &amp; Codex", "Cursor", "Gemini"])
+      expect(html).toContain(`>${label}</span>`);
+
+    expect(html).not.toContain('data-provider="chatgpt"');
+    expect(html).not.toContain('data-provider="codex"');
 
     expect(html).not.toContain("truncate");
     expect(html).not.toContain("overflow-hidden");

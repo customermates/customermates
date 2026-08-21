@@ -9,8 +9,8 @@ import { observer } from "mobx-react-lite";
 
 import { AiConnectionApiKeySetup } from "./ai-connection-api-key-setup";
 import { AiConnectionClaudeSetup } from "./ai-connection-claude-setup";
-import { AiConnectionConnectorSetup } from "./ai-connection-connector-setup";
 import { executeAiConnectionKeyCreation } from "./ai-connection-key-creation";
+import { AiConnectionOpenAiSetup } from "./ai-connection-openai-setup";
 import { AiConnectionProviderGrid } from "./ai-connection-provider-grid";
 import { AiConnectionSubstepHeader } from "./ai-connection-substep-header";
 
@@ -18,13 +18,22 @@ type Props = {
   backLabel?: string;
   beforeProviders?: ReactNode;
   disabled?: boolean;
+  showInlineBack?: boolean;
   substepHeaderMode?: "dialog" | "inline";
   store: AiConnectionStore;
   onKeyCreated?: (credential: AiConnectionCredential) => Promise<void> | void;
 };
 
 export const AiConnectionFlow = observer(
-  ({ backLabel, beforeProviders, disabled = false, substepHeaderMode = "inline", store, onKeyCreated }: Props) => {
+  ({
+    backLabel,
+    beforeProviders,
+    disabled = false,
+    showInlineBack = true,
+    substepHeaderMode = "inline",
+    store,
+    onKeyCreated,
+  }: Props) => {
     const t = useTranslations();
     const providerRefs = useRef<Partial<Record<AiConnectionProvider, HTMLButtonElement | null>>>({});
     const screenHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -67,7 +76,6 @@ export const AiConnectionFlow = observer(
             registerRef={(provider, element) => {
               providerRefs.current[provider] = element;
             }}
-            selectedProvider={store.selectedProvider}
             onSelect={store.selectProvider}
           />
         </div>
@@ -82,6 +90,7 @@ export const AiConnectionFlow = observer(
             backLabel={resolvedBackLabel}
             headingRef={screenHeadingRef}
             mode={substepHeaderMode}
+            showBack={showInlineBack}
             subtitle={t("OnboardingWizard.ai.screen.claude.subtitle")}
             title={t("OnboardingWizard.ai.screen.claude.title")}
             onBack={store.backToProviders}
@@ -106,6 +115,7 @@ export const AiConnectionFlow = observer(
           backLabel={resolvedBackLabel}
           headingRef={screenHeadingRef}
           mode={substepHeaderMode}
+          showBack={showInlineBack}
           subtitle={t("OnboardingWizard.ai.screen.skip.subtitle")}
           title={t("OnboardingWizard.ai.screen.skip.title")}
           onBack={store.backToProviders}
@@ -113,9 +123,34 @@ export const AiConnectionFlow = observer(
       );
     }
 
+    if (store.route.screen === "openai") {
+      return (
+        <div className="flex flex-col gap-4">
+          <AiConnectionSubstepHeader
+            backDisabled={interactionDisabled}
+            backLabel={resolvedBackLabel}
+            headingRef={screenHeadingRef}
+            mode={substepHeaderMode}
+            showBack={showInlineBack}
+            subtitle={t("OnboardingWizard.ai.screen.openai.subtitle")}
+            title={t("OnboardingWizard.ai.screen.openai.title")}
+            onBack={store.backToProviders}
+          />
+
+          <AiConnectionOpenAiSetup
+            baseUrl={baseUrl}
+            disabled={interactionDisabled}
+            mcpUrl={mcpUrl}
+            resultHeadingRef={resultHeadingRef}
+            store={store}
+            onCreate={() => void createKey()}
+          />
+        </div>
+      );
+    }
+
     const provider = store.route.provider;
     const providerName = t(`OnboardingWizard.ai.choices.${provider}`);
-    const isConnector = provider === "chatgpt";
 
     return (
       <div className="flex flex-col gap-4">
@@ -124,18 +159,17 @@ export const AiConnectionFlow = observer(
           backLabel={resolvedBackLabel}
           headingRef={screenHeadingRef}
           mode={substepHeaderMode}
-          subtitle={
-            isConnector
-              ? t("OnboardingWizard.ai.screen.setup.connectorSubtitle", { provider: providerName })
-              : t("OnboardingWizard.ai.screen.setup.apiKeySubtitle", { provider: providerName })
-          }
-          title={t("OnboardingWizard.ai.screen.setup.title", { provider: providerName })}
+          showBack={showInlineBack}
+          subtitle={t("OnboardingWizard.ai.screen.setup.apiKeySubtitle", {
+            provider: providerName,
+          })}
+          title={t("OnboardingWizard.ai.screen.setup.title", {
+            provider: providerName,
+          })}
           onBack={store.backToProviders}
         />
 
-        {isConnector ? (
-          <AiConnectionConnectorSetup mcpUrl={mcpUrl} provider="chatgpt" />
-        ) : store.selectedTool ? (
+        {store.selectedTool ? (
           <AiConnectionApiKeySetup
             apiKey={store.apiKey}
             baseUrl={baseUrl}

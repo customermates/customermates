@@ -6,16 +6,18 @@ import { makeAutoObservable, runInAction } from "mobx";
 
 import { createApiKeyAction } from "@/app/[locale]/(protected)/profile/actions";
 
-export const AI_CONNECTION_PROVIDERS = ["claude", "chatgpt", "codex", "cursor", "gemini"] as const;
+export const AI_CONNECTION_PROVIDERS = ["claude", "openai", "cursor", "gemini"] as const;
 
 export type AiConnectionProvider = (typeof AI_CONNECTION_PROVIDERS)[number];
 export type AiConnectionClaudeMethod = "account" | "local";
 export type AiConnectionClaudeClient = Extract<McpTool, "claudeCode" | "claudeDesktop">;
-export type AiConnectionDirectProvider = Exclude<AiConnectionProvider, "claude">;
+export type AiConnectionOpenAiMethod = "chatgpt" | "codex";
+export type AiConnectionDirectProvider = Exclude<AiConnectionProvider, "claude" | "openai">;
 
 export type AiConnectionRoute =
   | { screen: "providers" }
   | { screen: "claude" }
+  | { screen: "openai" }
   | { screen: "setup"; provider: AiConnectionDirectProvider }
   | { screen: "skip" };
 
@@ -30,8 +32,7 @@ export type AiConnectionCreateResult =
   | { status: "failed"; error?: $ZodErrorTree<unknown> }
   | { status: "ignored" };
 
-const PROVIDER_TO_TOOL: Partial<Record<AiConnectionDirectProvider, McpTool>> = {
-  codex: "codex",
+const PROVIDER_TO_TOOL: Record<AiConnectionDirectProvider, McpTool> = {
   cursor: "cursor",
   gemini: "gemini",
 };
@@ -49,6 +50,7 @@ export class AiConnectionStore {
   selectedProvider: AiConnectionProvider | null = null;
   claudeMethod: AiConnectionClaudeMethod | null = null;
   claudeClient: AiConnectionClaudeClient | null = null;
+  openAiMethod: AiConnectionOpenAiMethod | null = null;
   credentials: Partial<Record<McpTool, AiConnectionCredential>> = {};
   pendingTool: McpTool | null = null;
   errorTool: McpTool | null = null;
@@ -61,16 +63,17 @@ export class AiConnectionStore {
     return this.route.screen;
   }
 
-  get connectorProvider(): Extract<AiConnectionProvider, "claude" | "chatgpt"> | null {
+  get connectorProvider(): "claude" | "chatgpt" | null {
     if (this.route.screen === "claude" && this.claudeMethod === "account") return "claude";
-    if (this.route.screen === "setup" && this.route.provider === "chatgpt") return "chatgpt";
+    if (this.route.screen === "openai" && this.openAiMethod === "chatgpt") return "chatgpt";
     return null;
   }
 
   get selectedTool(): McpTool | null {
     if (this.route.screen === "claude" && this.claudeMethod === "local") return this.claudeClient;
+    if (this.route.screen === "openai" && this.openAiMethod === "codex") return "codex";
     if (this.route.screen !== "setup") return null;
-    return PROVIDER_TO_TOOL[this.route.provider] ?? null;
+    return PROVIDER_TO_TOOL[this.route.provider];
   }
 
   get credential(): AiConnectionCredential | null {
@@ -103,6 +106,7 @@ export class AiConnectionStore {
     this.selectedProvider = null;
     this.claudeMethod = null;
     this.claudeClient = null;
+    this.openAiMethod = null;
     this.credentials = {};
     this.errorTool = null;
   };
@@ -112,7 +116,12 @@ export class AiConnectionStore {
 
     this.selectedProvider = provider;
     this.errorTool = null;
-    this.route = provider === "claude" ? { screen: "claude" } : { screen: "setup", provider };
+    this.route =
+      provider === "claude"
+        ? { screen: "claude" }
+        : provider === "openai"
+          ? { screen: "openai" }
+          : { screen: "setup", provider };
   };
 
   selectClaudeMethod = (method: AiConnectionClaudeMethod) => {
@@ -126,6 +135,13 @@ export class AiConnectionStore {
     if (this.isCreating || this.route.screen !== "claude" || this.claudeMethod !== "local") return;
 
     this.claudeClient = client;
+    this.errorTool = null;
+  };
+
+  selectOpenAiMethod = (method: AiConnectionOpenAiMethod) => {
+    if (this.isCreating || this.route.screen !== "openai") return;
+
+    this.openAiMethod = method;
     this.errorTool = null;
   };
 

@@ -12,7 +12,7 @@ import { WizardProgress } from "@/components/shared/wizard-progress";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { StepProfile } from "./step-profile";
-import { StepAi } from "./step-ai";
+import { StepAi, StepAiFooter } from "./step-ai";
 import { StepInvite } from "./step-invite";
 
 type Props = {
@@ -121,6 +121,8 @@ export const OnboardingWizard = observer(
             </Button>
           </AppCardFooter>
         )}
+
+        {currentStep === "ai" ? <StepAiFooter /> : null}
       </AppCard>
     );
   },

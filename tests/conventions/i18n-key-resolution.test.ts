@@ -321,6 +321,7 @@ const ONBOARDING_CHOICE_KEYS = [
   "codex",
   "cursor",
   "gemini",
+  "openai",
   "skip",
 ].map((choice) => `OnboardingWizard.ai.choices.${choice}`);
 const MCP_TOOL_KEYS = [
@@ -337,6 +338,11 @@ const ONBOARDING_METHODS = ["account", "local"] as const;
 const onboardingMethodKeys = (field: string) =>
   ONBOARDING_METHODS.map(
     (method) => `OnboardingWizard.ai.methods.${method}.${field}`,
+  );
+const ONBOARDING_OPENAI_METHODS = ["chatgpt", "codex"] as const;
+const onboardingOpenAiMethodKeys = (field: string) =>
+  ONBOARDING_OPENAI_METHODS.map(
+    (method) => `OnboardingWizard.ai.openai.methods.${method}.${field}`,
   );
 const LEGAL_DOCUMENT_KEYS = ALL_LEGAL_DOCUMENTS.map(
   (document) => `LegalDocumentNotice.documents.${document}`,
@@ -404,6 +410,22 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["OnboardingWizard.ai.methods.${*}.meta", onboardingMethodKeys("meta")],
   ["OnboardingWizard.ai.methods.${*}.note", onboardingMethodKeys("note")],
   ["OnboardingWizard.ai.methods.${*}.title", onboardingMethodKeys("title")],
+  [
+    "OnboardingWizard.ai.openai.methods.${*}.description",
+    onboardingOpenAiMethodKeys("description"),
+  ],
+  [
+    "OnboardingWizard.ai.openai.methods.${*}.meta",
+    onboardingOpenAiMethodKeys("meta"),
+  ],
+  [
+    "OnboardingWizard.ai.openai.methods.${*}.note",
+    onboardingOpenAiMethodKeys("note"),
+  ],
+  [
+    "OnboardingWizard.ai.openai.methods.${*}.title",
+    onboardingOpenAiMethodKeys("title"),
+  ],
   ["OnboardingWizard.steps.${*}.subtitle", ONBOARDING_STEP_SUBTITLE_KEYS],
   ["OnboardingWizard.steps.${*}.title", ONBOARDING_STEP_TITLE_KEYS],
   ["RoleModal.resources.${*}", ROLE_RESOURCE_KEYS],
@@ -505,6 +527,10 @@ export const DYNAMIC_KEY_SITES = [
   "components/ai-connection/ai-connection-claude-setup.tsx :: t :: OnboardingWizard.ai.methods.${candidate}.note",
   "components/ai-connection/ai-connection-claude-setup.tsx :: t :: OnboardingWizard.ai.methods.${candidate}.title",
   "components/ai-connection/ai-connection-flow.tsx :: t :: OnboardingWizard.ai.choices.${provider}",
+  "components/ai-connection/ai-connection-openai-setup.tsx :: t :: OnboardingWizard.ai.openai.methods.${candidate}.description",
+  "components/ai-connection/ai-connection-openai-setup.tsx :: t :: OnboardingWizard.ai.openai.methods.${candidate}.meta",
+  "components/ai-connection/ai-connection-openai-setup.tsx :: t :: OnboardingWizard.ai.openai.methods.${candidate}.note",
+  "components/ai-connection/ai-connection-openai-setup.tsx :: t :: OnboardingWizard.ai.openai.methods.${candidate}.title",
   "components/ai-connection/ai-connection-provider-grid.tsx :: t :: OnboardingWizard.ai.choices.${provider}",
   "components/data-view/custom-columns/custom-column-modal.tsx :: t :: Common.colors.${color}",
   "components/data-view/custom-columns/custom-column-modal.tsx :: t :: Common.colors.${option.color}",
@@ -687,7 +713,10 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     1,
   ],
   ["features/messaging/activities/audit-detail.tsx :: t :: nameKey", 1],
-  ["features/messaging/activities/audit-detail.tsx :: t :: systemTaskKey as never", 1],
+  [
+    "features/messaging/activities/audit-detail.tsx :: t :: systemTaskKey as never",
+    1,
+  ],
 ]);
 
 const SOURCE_DIRECTORIES = [
@@ -1181,22 +1210,20 @@ function scanSources(): {
   for (const [site, keys] of DYNAMIC_SITE_CONSUMERS) {
     if (!dynamicSites.has(site))
       indirectViolations.push(`stale dynamic consumer override ${site}`);
-    for (const key of keys) {
+    for (const key of keys)
       if (!catalog.leafPaths.has(key))
         indirectViolations.push(
           `${site} references missing catalog key ${key}`,
         );
-    }
   }
   for (const [template, keys] of DYNAMIC_TEMPLATE_CONSUMERS) {
     if (!dynamicTemplates.has(template))
       indirectViolations.push(`stale dynamic consumer template ${template}`);
-    for (const key of keys) {
+    for (const key of keys)
       if (!catalog.leafPaths.has(key))
         indirectViolations.push(
           `${template} references missing catalog key ${key}`,
         );
-    }
   }
 
   return {
