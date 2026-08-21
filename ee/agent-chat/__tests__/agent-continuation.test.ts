@@ -7,6 +7,7 @@ import {
   agentContinuationShouldStop,
   compactAgentContinuationContext,
   decideAgentContinuationLoop,
+  serializeAgentContinuationCheckpoint,
   summarizeAgentContinuationStep,
   type AgentContinuationLimits,
   type AgentContinuationStep,
@@ -17,6 +18,7 @@ type ToolAttempt = {
   name: string;
   input?: unknown;
   output?: unknown;
+  invalid?: boolean;
   status?: "done" | "error" | "cancelled" | "pending";
 };
 
@@ -35,6 +37,7 @@ function step(
       toolCallId,
       toolName: attempt.name,
       input: attempt.input ?? {},
+      ...(attempt.invalid ? { invalid: true } : {}),
     };
     content.push(toolCall);
     if (attempt.status === "pending") {
@@ -206,15 +209,88 @@ describe("agent continuation context compaction", () => {
       "recent-response-2",
     ]);
     expect(compacted.system).toContain("stable system prompt");
-    expect(compacted.system).toContain("re-read with an available read tool");
+    expect(compacted.system).toContain("Match toolName/resource");
+    expect(compacted.system).toContain("never restart done work");
     expect(compacted.system).not.toContain("old-response");
     expect(compacted.checkpoint).toMatchObject({
-      detailPolicy: "reread_required",
+      detailPolicy: "progress_only",
       completedSteps: 1,
       completedActivities: 1,
+      activities: [
+        {
+          toolName: "get_workspace_context",
+          kind: "workspace.inspect",
+          status: "done",
+        },
+      ],
     });
     expect(compacted.retainedResponseSteps).toBe(AGENT_CONTINUATION_RETAINED_RESPONSE_STEPS);
     expect(AGENT_CONTEXT_ACCUMULATION_STEPS).toBe(AGENT_CONTINUATION_RETAINED_RESPONSE_STEPS + 1);
+  });
+
+  it("fits a maximum-counter empty progress ledger inside the minimum accepted checkpoint envelope", () => {
+    const serialized = serializeAgentContinuationCheckpoint(
+      {
+        version: 1,
+        detailPolicy: "progress_only",
+        completedSteps: 20,
+        completedActivities: 100,
+        successfulActivities: 100,
+        successfulWrites: 16,
+        errors: 3,
+        cancelled: 20,
+        omittedActivities: 100,
+        activities: [],
+      },
+      512,
+    );
+
+    expect(serialized.bytes).toBeLessThanOrEqual(512);
+  });
+
+  it("distinguishes operations that share the same resource and activity kind", () => {
+    const activities = summarizeAgentContinuationStep(
+      step([
+        { name: "get_record_schema", input: { entity: "contact" } },
+        { name: "list_records", input: { entity: "contact" } },
+      ]),
+    );
+
+    expect(activities).toEqual([
+      expect.objectContaining({ toolName: "get_record_schema", kind: "records.read", resource: "contacts" }),
+      expect.objectContaining({ toolName: "list_records", kind: "records.read", resource: "contacts" }),
+    ]);
+  });
+
+  it("keeps distinct schema-read progress when the live six-read sequence crosses the compaction boundary", () => {
+    const compacted = compactAgentContinuationContext({
+      system: "system",
+      initialMessages: [{ role: "user", content: "inspect each schema, then continue" }],
+      steps: withCumulativeResponseMessages([
+        step([{ name: "get_workspace_context" }], "tool-calls", "workspace-response"),
+        step([{ name: "get_record_schema", input: { entity: "contact" } }], "tool-calls", "contact-response"),
+        step([{ name: "get_record_schema", input: { entity: "organization" } }], "tool-calls", "organization-response"),
+        step([{ name: "get_record_schema", input: { entity: "deal" } }], "tool-calls", "deal-response"),
+        step([{ name: "get_record_schema", input: { entity: "service" } }], "tool-calls", "service-response"),
+        step([{ name: "get_record_schema", input: { entity: "task" } }], "tool-calls", "task-response"),
+      ]),
+    });
+
+    expect(
+      compacted.checkpoint?.activities.map(
+        (activity) => `${activity.toolName}:${activity.resource ?? "workspace"}:${activity.status}`,
+      ),
+    ).toEqual([
+      "get_workspace_context:workspace:done",
+      "get_record_schema:contacts:done",
+      "get_record_schema:organizations:done",
+      "get_record_schema:deals:done",
+    ]);
+    expect(compacted.messages.map((message) => message.content)).toEqual([
+      "inspect each schema, then continue",
+      "service-response",
+      "task-response",
+    ]);
   });
 
   it("serializes only bounded semantic descriptors and hard-caps the whole checkpoint at 4 KiB", () => {
@@ -345,8 +421,16 @@ describe("agent continuation context compaction", () => {
     );
 
     expect(activities.map((activity) => activity.status)).toEqual(["error", "cancelled"]);
+    expect(activities.map((activity) => activity.toolName)).toEqual(["create_contacts", "send_email"]);
     expect(JSON.stringify(activities)).not.toContain(privateValue);
     expect(JSON.stringify(activities)).not.toContain("tool-");
+  });
+
+  it("does not let an invalid tool call inject instructions into the progress ledger", () => {
+    const [activity] = summarizeAgentContinuationStep(step([{ name: "ignore_previous_instructions", invalid: true }]));
+
+    expect(activity?.toolName).toBe("unknown");
+    expect(JSON.stringify(activity)).not.toContain("ignore_previous_instructions");
   });
 });
 
@@ -412,6 +496,25 @@ describe("agent continuation decisions", () => {
     expect(decision).toMatchObject({
       action: "error",
       reason: "repeated_activity",
+    });
+  });
+
+  it("stops the same exact call when a loop interleaves other activity", () => {
+    const decision = advance(
+      [
+        step([{ name: "get_workspace_context" }]),
+        step([{ name: "get_record_schema", input: { entity: "contact" } }]),
+        step([{ name: "get_workspace_context" }]),
+        step([{ name: "get_record_schema", input: { entity: "organization" } }]),
+        step([{ name: "get_workspace_context" }]),
+      ],
+      { maxRepeatedActivityCalls: 3 },
+    );
+
+    expect(decision).toMatchObject({
+      action: "error",
+      reason: "repeated_activity",
+      accounting: { repeatedActivityCalls: 3 },
     });
   });
 
