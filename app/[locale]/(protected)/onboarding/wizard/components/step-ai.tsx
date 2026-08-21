@@ -7,6 +7,7 @@ import { AiConnectionFlow } from "@/components/ai-connection/ai-connection-flow"
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 export const StepAi = observer(() => {
   const { onboardingWizardStore, stepAiStore } = useRootStore();
@@ -39,7 +40,7 @@ export const StepAiFooter = observer(() => {
         <Button
           disabled={!stepAiStore.canFinish || onboardingWizardStore.isSubmitting}
           type="button"
-          onClick={() => void onboardingWizardStore.complete()}
+          onClick={() => runUserAction(() => onboardingWizardStore.complete())}
         >
           {t("OnboardingWizard.finish")}
         </Button>

@@ -1193,6 +1193,7 @@
     "retry": "Try again",
     "subtitle": "Oops! Something went wrong",
     "title": "Well, that's awkward",
+    "transportInterrupted": "The connection was interrupted. The change may already have been applied, so check the current state before trying again.",
     "unexpectedError": "An unexpected error occurred. Don't worry though, we've been notified and are on it!"
   },
   "ErrorTestPage": {

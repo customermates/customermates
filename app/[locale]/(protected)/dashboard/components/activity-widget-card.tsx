@@ -19,6 +19,7 @@ import { ActivityTimelineSkeleton } from "@/features/messaging/activities/activi
 import { ActivityQueryProvider } from "@/features/messaging/activities/activity-query-context";
 import { useOwnedActivitiesStore } from "@/features/messaging/activities/use-owned-activities-store";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 import { WIDGET_INTERACTIVE_ATTRIBUTE } from "./widget-interaction";
 import { ActivityWidgetFilters } from "./activity-widget-filters";
@@ -135,7 +136,7 @@ export const ActivityWidgetCard = observer(({ widget }: Props) => {
           hasMore={store.hasMore}
           items={store.items}
           loading={store.loading}
-          onLoadOlder={() => void store.loadOlder()}
+          onLoadOlder={() => runUserAction(() => store.loadOlder())}
         />,
       );
       break;

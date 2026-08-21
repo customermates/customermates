@@ -9,6 +9,7 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { CardHeroHeader } from "@/components/card/card-hero-header";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 type Props = {
   clientName: string;
@@ -67,11 +68,15 @@ export const McpConsentCard = observer(({ clientName, consentCode, redirectHost,
       </AppCardBody>
 
       <AppCardFooter>
-        <Button disabled={mcpConsentStore.isSubmitting} variant="secondary" onClick={() => void decide(false)}>
+        <Button
+          disabled={mcpConsentStore.isSubmitting}
+          variant="secondary"
+          onClick={() => runUserAction(() => decide(false))}
+        >
           {t("McpConsentCard.deny")}
         </Button>
 
-        <Button disabled={mcpConsentStore.isSubmitting} onClick={() => void decide(true)}>
+        <Button disabled={mcpConsentStore.isSubmitting} onClick={() => runUserAction(() => decide(true))}>
           {t("McpConsentCard.approve")}
         </Button>
       </AppCardFooter>

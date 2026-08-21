@@ -19,6 +19,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/core/utils/cn";
 import { FormLabel } from "@/components/forms/form-label";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { Alert } from "@/components/shared/alert";
 import { CopyableCode } from "@/components/shared/copyable-code";
@@ -26,7 +27,8 @@ import { InfoRow } from "@/components/shared/info-row";
 
 const ExpiresInPicker = observer(() => {
   const t = useTranslations();
-  const { apiKeyModalStore, intlStore } = useRootStore();
+  const { apiKeyModalStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const { expiresAt } = apiKeyModalStore;
 
   const today = new Date();
@@ -72,7 +74,8 @@ const ExpiresInPicker = observer(() => {
 
 export const ApiKeyModal = observer(() => {
   const t = useTranslations();
-  const { apiKeyModalStore, apiKeysStore, intlStore } = useRootStore();
+  const { apiKeyModalStore, apiKeysStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const { aiConnectionStore, createdKey, creationPath, isLoading, close, hasUnsavedChanges, mode, viewingKey } =
     apiKeyModalStore;
   const { showDeleteConfirmation } = useDeleteConfirmation();
@@ -160,8 +163,9 @@ export const ApiKeyModal = observer(() => {
                 disabled: isLoading,
                 onClick: () =>
                   showDeleteConfirmation(async () => {
-                    await apiKeysStore.delete(viewingKey.id);
-                    close();
+                    const deleted = await apiKeysStore.delete(viewingKey.id);
+                    if (deleted) close();
+                    return deleted;
                   }, viewingKey.name ?? undefined),
               },
             ]

@@ -123,7 +123,7 @@ describe("environment configuration", () => {
     expect(useLiveData).not.toContain("DATABASE_URL_PROD");
     expect(useLiveData).not.toContain("DATABASE_DIRECT_URL_PROD");
     expect(useLiveData).toContain('read -r -s -p "Paste the Production direct database URL (input hidden): "');
-    expect(useLiveData).toContain('PGOPTIONS=\'-c default_transaction_read_only=on\' pg_dump "$production_url"');
+    expect(useLiveData).toContain("PGOPTIONS='-c default_transaction_read_only=on' pg_dump \"$production_url\"");
     expect(useLiveData).toContain('pg_restore --list "$archive"');
     expect(useLiveData).toContain("dropdb --if-exists --force");
     expect(useLiveData.indexOf('pg_restore --list "$archive"')).toBeLessThan(
@@ -177,14 +177,14 @@ describe("environment configuration", () => {
 
     expect(authConfig).toContain("allowedHosts: env.AUTH_ALLOWED_HOSTS");
     expect(authConfig).toContain("fallback: env.BASE_URL");
-    expect(authConfig).toContain('const baseUrlProtocol = new URL(env.BASE_URL).protocol === "https:" ? "https" : "http"');
+    expect(authConfig).toContain(
+      'const baseUrlProtocol = new URL(env.BASE_URL).protocol === "https:" ? "https" : "http"',
+    );
     expect(authConfig).toContain("protocol: baseUrlProtocol");
     expect(authConfig).toContain('useSecureCookies: baseUrlProtocol === "https"');
     expect(authConfig).not.toContain('protocol: "auto"');
     expect(authConfig).not.toContain("AUTH_USE_SECURE_COOKIES");
-    expect(invitationRoute).toContain(
-      "resolveRequestOrigin(request.url, env.AUTH_ALLOWED_HOSTS, env.BASE_URL)",
-    );
+    expect(invitationRoute).toContain("resolveRequestOrigin(request.url, env.AUTH_ALLOWED_HOSTS, env.BASE_URL)");
     expect(invitationRoute).toContain('secure: new URL(base).protocol === "https:"');
     expect(authConfig).toContain("productionURL: env.OAUTH_PROXY_URL");
     expect(authConfig).toContain("secret: env.OAUTH_PROXY_SECRET");
@@ -193,9 +193,11 @@ describe("environment configuration", () => {
   });
 });
 
+const sentryInit = vi.hoisted(() => vi.fn());
+
 vi.mock("@sentry/nextjs", () => ({
   captureRouterTransitionStart: vi.fn(),
-  init: vi.fn(),
+  init: sentryInit,
 }));
 vi.mock("@/env", () => {
   throw new Error("client instrumentation imported the server environment");
@@ -203,6 +205,7 @@ vi.mock("@/env", () => {
 
 describe("client instrumentation", () => {
   afterEach(() => {
+    vi.clearAllMocks();
     vi.unstubAllEnvs();
     vi.resetModules();
   });
@@ -214,5 +217,22 @@ describe("client instrumentation", () => {
     await expect(import("@/instrumentation-client")).resolves.toMatchObject({
       onRouterTransitionStart: undefined,
     });
+  });
+
+  it("keeps browser transport interruptions and genuine client defects unless an owning boundary handles them", async () => {
+    vi.stubEnv("NEXT_PUBLIC_SENTRY_DSN", "https://public@example.invalid/1");
+    vi.stubEnv("NODE_ENV", "production");
+
+    await import("@/instrumentation-client");
+
+    const options = sentryInit.mock.calls.at(-1)?.[0] as {
+      beforeSend?: (event: object, hint: { originalException?: unknown }) => object | null;
+    };
+    const event = { event_id: "event" };
+
+    expect(options.beforeSend?.(event, { originalException: new TypeError("Failed to fetch") })).toBe(event);
+    expect(
+      options.beforeSend?.(event, { originalException: new TypeError("Cannot read properties of undefined") }),
+    ).toBe(event);
   });
 });

@@ -13,12 +13,14 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { InfoRow } from "@/components/shared/info-row";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { AppChip } from "@/components/chip/app-chip";
 import { CodeBlockAccordion } from "@/components/shared/code-block-accordion";
 
 export const WebhookDeliveryModal = observer(() => {
   const t = useTranslations();
-  const { webhookDeliveryModalStore: store, intlStore } = useRootStore();
+  const { webhookDeliveryModalStore: store } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const delivery = store.form;
 
   return (

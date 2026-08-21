@@ -5,14 +5,18 @@ import type { WidgetDto } from "@/features/widget/widget.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { RootStore } from "@/core/stores/root.store";
 
-const { refreshWidgetsAction } = vi.hoisted(() => ({
+const { refreshWidgetsAction, updateWidgetLayoutsAction, captureException } = vi.hoisted(() => ({
   refreshWidgetsAction: vi.fn(),
+  updateWidgetLayoutsAction: vi.fn(),
+  captureException: vi.fn(),
 }));
 
 vi.mock("../../actions", () => ({
   refreshWidgetsAction,
-  updateWidgetLayoutsAction: vi.fn(),
+  updateWidgetLayoutsAction,
 }));
+
+vi.mock("@sentry/nextjs", () => ({ captureException }));
 
 vi.mock("@/app/actions", () => ({
   bulkDeleteEntitiesAction: vi.fn(),
@@ -23,6 +27,7 @@ vi.mock("@/app/actions", () => ({
 }));
 
 import { WidgetsStore } from "../widgets.store";
+import { registerApplicationErrorHandler } from "@/core/errors/report-application-error";
 
 const FIRST_ID = "00000000-0000-4000-8000-000000000001";
 const SECOND_ID = "00000000-0000-4000-8000-000000000002";
@@ -76,5 +81,33 @@ describe("WidgetsStore refresh compatibility", () => {
     expect(store.isReady).toBe(true);
     expect(store.isRefreshing).toBe(false);
     expect(store.dataRequest).toEqual({ status: "ready" });
+  });
+
+  it("reports a rejected layout write instead of leaving the dropped promise unhandled", async () => {
+    const root = {
+      localeStore: { getTranslation: (key: string) => key },
+      loadingOverlayStore: { withLoading: (run: () => Promise<unknown>) => run() },
+    } as unknown as RootStore;
+    const store = new WidgetsStore(root);
+    const initial = widget(FIRST_ID, 0, 0);
+    refreshWidgetsAction.mockResolvedValueOnce([initial]);
+    await store.refresh();
+
+    const error = new Error("layout write failed");
+    updateWidgetLayoutsAction.mockRejectedValueOnce(error);
+    const seen: unknown[] = [];
+    const unregister = registerApplicationErrorHandler((reported) => seen.push(reported));
+    const moved = {
+      ...store.layouts,
+      lg: [{ h: 2, i: FIRST_ID, w: 3, x: 1, y: 0 }],
+    };
+
+    store.onLayoutChange([], moved);
+
+    await vi.waitFor(() => expect(seen).toEqual([error]));
+    expect(updateWidgetLayoutsAction).toHaveBeenCalledTimes(1);
+    expect(store.layouts).toEqual(moved);
+    expect(captureException).toHaveBeenCalledExactlyOnceWith(error);
+    unregister();
   });
 });

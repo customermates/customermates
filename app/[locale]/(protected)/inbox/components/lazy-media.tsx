@@ -9,6 +9,7 @@ import { Ban, Loader2, RotateCw } from "lucide-react";
 
 import { formatRetryAfter } from "@/ee/messaging/retry-after";
 import { cn } from "@/core/utils/cn";
+import { reportApplicationError } from "@/core/errors/report-application-error";
 import { localizedContentHref } from "@/components/shared/app-link";
 
 export const MESSAGING_RATE_LIMITS_DOCS_PATH = "/docs/messaging-rate-limits";
@@ -59,9 +60,11 @@ export function LazyMedia({ src, className, children }: Props) {
 
   const onFailed = () => {
     setState("failed");
-    void classifyLoadError(src).then((kind) => {
-      if (kind === "unavailable") setState("unavailable");
-    });
+    void classifyLoadError(src)
+      .then((kind) => {
+        if (kind === "unavailable") setState("unavailable");
+      })
+      .catch(reportApplicationError);
   };
 
   useEffect(() => {

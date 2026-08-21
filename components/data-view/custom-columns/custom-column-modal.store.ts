@@ -225,8 +225,8 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
     };
   };
 
-  deleteColumn = async () => {
-    if (!this.form.id) return;
+  deleteColumn = async (): Promise<boolean> => {
+    if (!this.form.id) return false;
 
     this.setIsLoading(true);
 
@@ -234,11 +234,12 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
       const res = await deleteCustomColumnAction(this.form.id);
       if (!res.ok) {
         toastZodErrorTree(res.error);
-        return;
+        return false;
       }
 
       await this.refresh();
       this.close();
+      return true;
     } finally {
       this.setIsLoading(false);
     }

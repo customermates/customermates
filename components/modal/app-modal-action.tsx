@@ -11,6 +11,7 @@ import {
   OVERLAY_ICON_CONTROL_NEUTRAL_CLASS,
 } from "@/components/ui/overlay-contract";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 export type AppModalActionVariant = "neutral" | "destructive";
 
@@ -95,7 +96,7 @@ export function AppModalAction(props: AppModalActionProps) {
       data-variant={variant}
       disabled={props.disabled || isBusy}
       type="button"
-      onClick={() => void props.onClick()}
+      onClick={() => runUserAction(props.onClick)}
     >
       {content}
     </button>

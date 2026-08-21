@@ -28,6 +28,7 @@ import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-ava
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { useEntityHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 type RelationConfig = {
   resource: Resource;
@@ -132,7 +133,10 @@ export const EntityRelationField = observer(
       >
         {(item) => {
           const label = resolveLabel(item);
-          return FormAutocompleteItem({ children: label, textValue: typeof label === "string" ? label : item.name });
+          return FormAutocompleteItem({
+            children: label,
+            textValue: typeof label === "string" ? label : item.name,
+          });
         }}
       </FormAutocomplete>
     );
@@ -150,7 +154,7 @@ export const AssignedUsersField = observer(({ items }: { items: readonly any[] |
       id="userIds"
       items={items ?? []}
       selectionMode="multiple"
-      onChipClick={(id) => void userModalStore.loadById(id)}
+      onChipClick={(id) => runUserAction(() => userModalStore.loadById(id))}
     />
   );
 });

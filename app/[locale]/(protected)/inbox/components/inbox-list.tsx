@@ -25,6 +25,7 @@ import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { PageState } from "@/components/page-state/page-state";
 import { DataViewEmptyState } from "@/components/data-view/data-view-empty-state";
 import { resolveDataViewPageState, type DataViewPageState } from "@/components/data-view/data-view-state";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 import { InboxPageSkeleton } from "./inbox-page-skeleton";
 import { ThreadRow } from "./thread-row";
@@ -94,7 +95,7 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
             disabled={isRefreshing}
             size="sm"
             variant="secondary"
-            onClick={() => void messagingThreadsStore.refreshInbox()}
+            onClick={() => runUserAction(() => messagingThreadsStore.refreshInbox())}
           >
             <RefreshCw className={cn("size-3.5", isRefreshing && "animate-spin")} />
 

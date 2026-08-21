@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 
 import { cn } from "@/core/utils/cn";
+import { reportApplicationError } from "@/core/errors/report-application-error";
 
 type Props = {
   className?: string;
@@ -47,13 +48,15 @@ export function MessagesScrollContainer({ className, scrollKey, onTopReach, chil
       topReachInFlight.current = true;
       const prevHeight = el.scrollHeight;
       const prevTop = el.scrollTop;
-      void onTopReach().finally(() => {
-        requestAnimationFrame(() => {
-          const grown = el.scrollHeight - prevHeight;
-          if (grown > 0) el.scrollTop = prevTop + grown;
-          topReachInFlight.current = false;
-        });
-      });
+      void onTopReach()
+        .finally(() => {
+          requestAnimationFrame(() => {
+            const grown = el.scrollHeight - prevHeight;
+            if (grown > 0) el.scrollTop = prevTop + grown;
+            topReachInFlight.current = false;
+          });
+        })
+        .catch(reportApplicationError);
     }
   };
 

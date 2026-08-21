@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { CopyableCode } from "@/components/shared/copyable-code";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { reportApplicationError } from "@/core/errors/report-application-error";
 
 import { InviteByEmailForm } from "../../../company/components/company-invite/invite-by-email-form";
 
@@ -19,7 +20,7 @@ const InviteLink = observer(() => {
     inviteToken && typeof window !== "undefined" ? `${window.location.origin}/invitation/${inviteToken}` : null;
 
   useEffect(() => {
-    void inviteByEmailStore.loadInviteToken();
+    void inviteByEmailStore.loadInviteToken().catch(reportApplicationError);
   }, [inviteByEmailStore]);
 
   return (

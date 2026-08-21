@@ -8,7 +8,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
 import type { AggregationType } from "@/generated/prisma";
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
 type TooltipContentProps = {
   active?: boolean;
@@ -25,7 +25,7 @@ const BASE_CLASS = "rounded-md border border-border bg-popover px-3 py-2 text-po
 
 const TooltipContent = observer((props: TooltipContentProps) => {
   const { active, aggregationType, label, payload } = props;
-  const { intlStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const t = useTranslations();
 
   if (!active || !payload || payload.length === 0) return null;

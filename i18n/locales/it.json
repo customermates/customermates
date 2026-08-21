@@ -1193,6 +1193,7 @@
     "retry": "Riprova",
     "subtitle": "Ops! Si è verificato un errore",
     "title": "Che imbarazzo",
+    "transportInterrupted": "La connessione è stata interrotta. La modifica potrebbe essere già stata applicata. Controlla lo stato attuale prima di riprovare.",
     "unexpectedError": "Si è verificato un errore imprevisto. Nessun problema, siamo stati avvisati e ce ne stiamo occupando."
   },
   "ErrorTestPage": {

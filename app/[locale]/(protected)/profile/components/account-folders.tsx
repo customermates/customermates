@@ -9,7 +9,7 @@ import { observer } from "mobx-react-lite";
 import { Switch } from "@/components/ui/switch";
 import { Icon } from "@/components/shared/icon";
 import { cn } from "@/core/utils/cn";
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
 type Props = {
   account: ConnectedAccountDto;
@@ -19,7 +19,7 @@ type Props = {
 
 export const AccountFolders = observer(({ account, editable = false, onToggle }: Props) => {
   const t = useTranslations();
-  const { intlStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
 
   if (account.folders.length === 0) return null;
 

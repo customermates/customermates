@@ -11,6 +11,7 @@ import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interac
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 import { SubscriptionPanel } from "./subscription-panel";
 import { SubscribeManageButton } from "./subscribe-manage-button";
@@ -36,7 +37,7 @@ export const SubscriptionView = observer(({ initialSubscription }: Props) => {
             className="h-8"
             size="sm"
             variant="secondary"
-            onClick={() => void subscriptionStore.handleRefresh()}
+            onClick={() => runUserAction(() => subscriptionStore.handleRefresh())}
           >
             <RefreshCw className="size-3.5" />
 

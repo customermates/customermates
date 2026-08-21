@@ -17,6 +17,7 @@ import { DataViewToolbar } from "@/components/data-view/data-view-toolbar";
 import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 import { RoleModal } from "./role-modal";
 import { RolesPageSkeleton } from "./roles-page-skeleton";
@@ -58,7 +59,11 @@ export const RolesPageView = observer(function RolesPageView({ initialRoles }: P
       body = (
         <PageState
           action={
-            <Button size="sm" variant="secondary" onClick={() => void rolesStore.refreshQuery().catch(() => undefined)}>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => runUserAction(() => rolesStore.refreshQuery().catch(() => undefined))}
+            >
               {t("ErrorCard.retry")}
             </Button>
           }

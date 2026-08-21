@@ -2,6 +2,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { RootProvider } from "fumadocs-ui/provider/next";
 
 import { RootStoreProvider } from "@/core/stores/root-store.provider";
+import type { RootStoreInitialState } from "@/core/stores/root-store.provider";
 import { ServerThemeProvider } from "@/components/server-theme-provider";
 import type { AppMode } from "@/core/config/environment";
 
@@ -14,10 +15,11 @@ type Props = {
   children: React.ReactNode;
   defaultTheme?: string;
   displayLanguage: string | undefined;
+  initialStoreState: RootStoreInitialState;
   messages?: DeepPartial<Record<string, any>> | null | undefined;
 };
 
-export function Providers({ appMode, children, defaultTheme, displayLanguage, messages }: Props) {
+export function Providers({ appMode, children, defaultTheme, displayLanguage, initialStoreState, messages }: Props) {
   return (
     <RootProvider
       search={{
@@ -26,7 +28,9 @@ export function Providers({ appMode, children, defaultTheme, displayLanguage, me
     >
       <ServerThemeProvider serverTheme={defaultTheme}>
         <NextIntlClientProvider locale={displayLanguage} messages={messages} timeZone="UTC">
-          <RootStoreProvider appMode={appMode}>{children}</RootStoreProvider>
+          <RootStoreProvider appMode={appMode} initialState={initialStoreState}>
+            {children}
+          </RootStoreProvider>
         </NextIntlClientProvider>
       </ServerThemeProvider>
     </RootProvider>

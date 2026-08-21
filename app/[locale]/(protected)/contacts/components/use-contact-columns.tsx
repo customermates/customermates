@@ -12,14 +12,17 @@ import { standardTailColumns } from "@/components/data-view/standard-columns";
 import { useEntityHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { Avatar } from "@/components/ui/avatar";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { channelDisplayLabel } from "@/ee/messaging/thread-display";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 import { getSystemTaskNameTranslationKey } from "../../tasks/components/system-task.config";
 import { ChannelIconStack } from "./channel-icon-stack";
 
 export function useContactColumns(): ColumnDef<ContactDto>[] {
-  const { contactsStore, intlStore, userModalStore } = useRootStore();
+  const { contactsStore, userModalStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const entityHref = useEntityHref();
   const t = useTranslations();
   const copy = useCopyToClipboard();
@@ -46,8 +49,8 @@ export function useContactColumns(): ColumnDef<ContactDto>[] {
           <ChannelIconStack
             identifiers={row.original.identifiers ?? []}
             onItemClick={(item) =>
-              void copy(
-                channelDisplayLabel(item.provider, item.value, item.profileUrl) || item.displayName || item.value,
+              runUserAction(() =>
+                copy(channelDisplayLabel(item.provider, item.value, item.profileUrl) || item.displayName || item.value),
               )
             }
           />

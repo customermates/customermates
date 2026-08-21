@@ -20,9 +20,10 @@ import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { ClickableChip } from "@/components/chip/clickable-chip";
 import { Favicon } from "@/components/shared/favicon";
 import { openableLinkTarget } from "@/core/validation/openable-link-target";
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { Icon } from "@/components/shared/icon";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 type Props<E extends HasId & { customFieldValues: CustomFieldValueDto[] }> = {
   column: CustomColumnDto;
@@ -33,7 +34,7 @@ type Props<E extends HasId & { customFieldValues: CustomFieldValueDto[] }> = {
 export const CustomFieldValue = observer(
   <E extends HasId & { customFieldValues: CustomFieldValueDto[] }>({ column, item, store }: Props<E>) => {
     const copy = useCopyToClipboard();
-    const { intlStore } = useRootStore();
+    const intlStore = useHydratedIntlStore();
 
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -81,7 +82,10 @@ export const CustomFieldValue = observer(
 
                 <DropdownMenuContent className="max-h-60 overflow-y-auto">
                   {options.map((option) => (
-                    <DropdownMenuItem key={option.value} onSelect={() => void handleSelectOption(option.value)}>
+                    <DropdownMenuItem
+                      key={option.value}
+                      onSelect={() => runUserAction(() => handleSelectOption(option.value))}
+                    >
                       <AppChip variant={option.color}>{option.label}</AppChip>
                     </DropdownMenuItem>
                   ))}
@@ -218,7 +222,7 @@ export const CustomFieldValue = observer(
                 label: it,
               }))}
               size="sm"
-              onChipClick={(e) => void copy(e.label)}
+              onChipClick={(e) => runUserAction(() => copy(e.label))}
             />
           ) : (
             <span />

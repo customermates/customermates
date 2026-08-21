@@ -27,6 +27,7 @@ import { CustomFieldValue } from "@/components/data-view/custom-columns/custom-f
 import { Icon } from "@/components/shared/icon";
 import { serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { useEntityHref, useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { CustomColumnType, EntityType, TaskType } from "@/generated/prisma";
 import { getSystemTaskNameTranslationKey } from "@/app/[locale]/(protected)/tasks/components/system-task.config";
@@ -38,6 +39,7 @@ import {
 import { countryLabelForLocale } from "@/constants/countries";
 import { getCurrencyLabel } from "@/constants/currencies";
 import type { AppLocale } from "@/i18n/locale-registry";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 type AvatarItem = {
   id: string;
@@ -137,7 +139,8 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
   const t = useTranslations();
   const locale = useLocale() as AppLocale;
   const columnLabel = useCanonicalColumnLabel();
-  const { intlStore, userModalStore } = useRootStore();
+  const { userModalStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const openEntity = useOpenEntity();
   const entityHref = useEntityHref();
 
@@ -161,7 +164,13 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
       case "identifiers":
         return (
           <AppChipStack
-            items={(value as { id?: string; provider: MessagingProvider; value: string }[]).map((identifier) => {
+            items={(
+              value as {
+                id?: string;
+                provider: MessagingProvider;
+                value: string;
+              }[]
+            ).map((identifier) => {
               const ProviderIcon = getProviderIcon(identifier.provider);
               return {
                 id: identifier.id ?? `${identifier.provider}:${identifier.value}`,
@@ -185,7 +194,10 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
         }
       case "users":
         return (
-          <AvatarStack items={value as AvatarItem[]} onAvatarClick={(user) => void userModalStore.loadById(user.id)} />
+          <AvatarStack
+            items={value as AvatarItem[]}
+            onAvatarClick={(user) => runUserAction(() => userModalStore.loadById(user.id))}
+          />
         );
       case "contacts":
         return (
@@ -342,7 +354,10 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
         );
       }
       case "terminology": {
-        const selections = value as { entityType: EntityType; presetKey: string }[];
+        const selections = value as {
+          entityType: EntityType;
+          presetKey: string;
+        }[];
 
         return (
           <div className="flex flex-wrap items-center gap-1.5">

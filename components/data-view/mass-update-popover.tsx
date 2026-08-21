@@ -13,6 +13,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ResponsiveOverlay } from "@/components/modal";
+import { runUserAction } from "@/core/errors/report-application-error";
 type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
 };
@@ -96,7 +97,7 @@ export const MassUpdatePopover = observer(function MassUpdatePopover<E extends H
                     className="cursor-pointer outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={store.isBulkMutating}
                     type="button"
-                    onClick={() => void applyOption(column, option)}
+                    onClick={() => runUserAction(() => applyOption(column, option))}
                   >
                     <AppChip interactive variant={option.color}>
                       <span className="truncate">{option.label}</span>

@@ -15,10 +15,12 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { InfoRow } from "@/components/shared/info-row";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { getEffectiveEntitlements } from "@/ee/subscription/entitlements";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 import { accountStatusChipColor, getProviderDisplayLabel } from "./account-status-color";
 import { AccountFolders } from "./account-folders";
@@ -26,14 +28,9 @@ import { AccountFolders } from "./account-folders";
 export const ConnectedAccountModal = observer(() => {
   const t = useTranslations();
   const rootStore = useRootStore();
-  const {
-    connectedAccountModalStore,
-    connectedAccountsStore,
-    intlStore,
-    userModalStore,
-    userStore,
-    subscriptionStore,
-  } = rootStore;
+  const { connectedAccountModalStore, connectedAccountsStore, userModalStore, userStore, subscriptionStore } =
+    rootStore;
+  const intlStore = useHydratedIntlStore();
   const { form: account, close } = connectedAccountModalStore;
   const { showDeleteConfirmation } = useDeleteConfirmation();
   const canUpdate = userStore.can(Resource.inboxMessages, Action.update);
@@ -82,8 +79,9 @@ export const ConnectedAccountModal = observer(() => {
           variant: "destructive",
           onClick: () =>
             showDeleteConfirmation(async () => {
-              await connectedAccountsStore.disconnect(account.id);
-              close();
+              const disconnected = await connectedAccountsStore.disconnect(account.id);
+              if (disconnected) close();
+              return disconnected;
             }, title),
         }
       : null;
@@ -139,7 +137,7 @@ export const ConnectedAccountModal = observer(() => {
                       checked={account.shared}
                       disabled={!canUpdate}
                       id="connected-account-visibility"
-                      onCheckedChange={(next) => void connectedAccountModalStore.toggleVisibility(next)}
+                      onCheckedChange={(next) => runUserAction(() => connectedAccountModalStore.toggleVisibility(next))}
                     />
                   ) : (
                     <Tooltip>
@@ -172,13 +170,16 @@ export const ConnectedAccountModal = observer(() => {
                     avatarUrl: account.owner.avatarUrl,
                   },
                 ]}
-                onAvatarClick={(user) => void userModalStore.loadById(user.id)}
+                onAvatarClick={(user) => runUserAction(() => userModalStore.loadById(user.id))}
               />
             </InfoRow>
 
             {account.folders.length > 0 && (
               <InfoRow label={t("ConnectedAccountsCard.folders")}>
-                {t("ConnectedAccountsCard.foldersShown", { shown: shownFolders, total: account.folders.length })}
+                {t("ConnectedAccountsCard.foldersShown", {
+                  shown: shownFolders,
+                  total: account.folders.length,
+                })}
               </InfoRow>
             )}
 
@@ -197,7 +198,7 @@ export const ConnectedAccountModal = observer(() => {
             <AccountFolders
               account={account}
               editable={account.isOwner && canUpdate}
-              onToggle={(folderId, on) => void connectedAccountModalStore.toggleFolder(folderId, on)}
+              onToggle={(folderId, on) => runUserAction(() => connectedAccountModalStore.toggleFolder(folderId, on))}
             />
           )}
         </AppCardBody>

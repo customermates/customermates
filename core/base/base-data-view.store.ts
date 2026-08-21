@@ -186,21 +186,22 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.isBulkMutating = next;
   };
 
-  bulkDelete = async (): Promise<void> => {
+  bulkDelete = async (): Promise<boolean> => {
     const ids = Array.from(this.selectedIds);
-    if (ids.length === 0 || !this.entityType) return;
+    if (ids.length === 0 || !this.entityType) return false;
 
     this.setBulkMutating(true);
     try {
       const res = await bulkDeleteEntitiesAction({ entityType: this.entityType, ids });
       if (res && !res.ok) {
-        const announced = toastZodErrorTree(res.error);
+        toastZodErrorTree(res.error);
         await this.refresh();
-        throw new Error(announced ? "" : this.t("Common.notifications.unexpectedError"));
+        return false;
       }
       this.rootStore.activityTimelines.refreshForMany(this.entityType, ids);
       this.clearSelection();
       await this.refresh();
+      return true;
     } finally {
       this.setBulkMutating(false);
     }

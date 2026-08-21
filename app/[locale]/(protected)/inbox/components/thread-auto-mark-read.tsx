@@ -6,6 +6,7 @@ import { useEffect, useRef } from "react";
 import { Action, Resource } from "@/generated/prisma";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { reportApplicationError } from "@/core/errors/report-application-error";
 
 type Props = {
   threadId: string;
@@ -28,7 +29,7 @@ export function ThreadAutoMarkRead({ threadId, state }: Props) {
     if (state !== "unread") return;
     if (prev && prev.threadId === threadId && prev.state !== "unread") return;
 
-    void messagingThreadDetailStore.markRead();
+    void messagingThreadDetailStore.markRead().catch(reportApplicationError);
   }, [threadId, state, messagingThreadDetailStore, userStore]);
 
   return null;

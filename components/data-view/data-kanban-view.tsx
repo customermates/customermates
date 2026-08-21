@@ -28,6 +28,7 @@ import type { GroupValueSums } from "@/core/base/base-get.schema";
 import { KANBAN_EMPTY_GROUP_KEY } from "@/core/base/base-get.schema";
 import { DEAL_GROUP_SUM_FIELDS } from "@/features/deals/deal-weighting";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import type { EntityType } from "@/generated/prisma";
 
 import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
@@ -42,6 +43,7 @@ import {
   DATA_KANBAN_TRACK_CLASS_NAME,
 } from "./data-view-geometry";
 import { cn } from "@/core/utils/cn";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 type HasCustomFieldValues = HasId & {
   customFieldValues?: Array<{ columnId: string; value: unknown }>;
@@ -156,13 +158,16 @@ const KanbanColumn = observer(function KanbanColumn({
   children: ReactNode;
 }) {
   const t = useTranslations();
-  const { intlStore } = useRootStore();
+  const intlStore = useHydratedIntlStore();
   const columnLabel = useColumnLabel();
   const { singular, plural } = useEntityTerminology();
   const { setNodeRef } = useDroppable({ id });
 
   const formatSum = (amount: number) =>
-    intlStore.formatCurrency(amount, undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    intlStore.formatCurrency(amount, undefined, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    });
 
   const totalSum = valueSums?.[DEAL_GROUP_SUM_FIELDS.total];
   const weightedSum = valueSums?.[DEAL_GROUP_SUM_FIELDS.weighted];
@@ -315,7 +320,10 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
 
     return weight === undefined
       ? { [DEAL_GROUP_SUM_FIELDS.total]: total }
-      : { [DEAL_GROUP_SUM_FIELDS.total]: total, [DEAL_GROUP_SUM_FIELDS.weighted]: (total * weight) / 100 };
+      : {
+          [DEAL_GROUP_SUM_FIELDS.total]: total,
+          [DEAL_GROUP_SUM_FIELDS.weighted]: (total * weight) / 100,
+        };
   }
 
   async function handleDragEnd(event: DragEndEvent) {
@@ -347,7 +355,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
   const loadMoreLabel = t("Common.actions.loadMore");
 
   return (
-    <DndContext sensors={sensors} onDragEnd={(event) => void handleDragEnd(event)}>
+    <DndContext sensors={sensors} onDragEnd={(event) => runUserAction(() => handleDragEnd(event))}>
       <div className={cn(DATA_KANBAN_ROOT_CLASS_NAME, className)} data-slot="kanban-root">
         <div className={DATA_KANBAN_TRACK_CLASS_NAME}>
           {Array.from(groups.entries()).map(([key, items]) => {

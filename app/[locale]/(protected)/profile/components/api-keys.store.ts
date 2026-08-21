@@ -24,15 +24,16 @@ export class ApiKeysStore extends BaseDataViewStore<ApiKey> {
     return [];
   }
 
-  delete = async (id: string): Promise<void> => {
-    await this.rootStore.loadingOverlayStore.withLoading(async () => {
+  delete = async (id: string): Promise<boolean> => {
+    return this.rootStore.loadingOverlayStore.withLoading(async () => {
       const res = await deleteApiKeyAction({ id });
       if (!res.ok) {
         toastZodErrorTree(res.error);
-        return;
+        return false;
       }
 
       await this.removeItem(id);
+      return true;
     });
   };
 

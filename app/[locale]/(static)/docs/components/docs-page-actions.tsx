@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { useLocale, useTranslations } from "next-intl";
 
 import { Icon } from "@/components/shared/icon";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 const markdownCache = new Map<string, string>();
 
@@ -82,7 +83,12 @@ export function DocsPageActions({ markdownUrl, mcpUrl }: DocsPageActionsProps) {
 
   return (
     <div className="flex items-stretch">
-      <Button className="rounded-r-none pr-2.5" size="sm" variant="secondary" onClick={() => void handleCopyPage()}>
+      <Button
+        className="rounded-r-none pr-2.5"
+        size="sm"
+        variant="secondary"
+        onClick={() => runUserAction(handleCopyPage)}
+      >
         <Icon icon={isCopied ? Check : Clipboard} size="sm" />
 
         <span>{t("DocsPage.copyPage")}</span>
@@ -147,7 +153,7 @@ export function DocsPageActions({ markdownUrl, mcpUrl }: DocsPageActionsProps) {
             <button
               className={rowClassName}
               type="button"
-              onClick={() => void copyToClipboard(mcpConfig, t("DocsPage.mcpConfigCopied"))}
+              onClick={() => runUserAction(() => copyToClipboard(mcpConfig, t("DocsPage.mcpConfigCopied")))}
             >
               <Icon className="shrink-0 text-subdued" icon={Braces} size="sm" />
 
@@ -157,7 +163,7 @@ export function DocsPageActions({ markdownUrl, mcpUrl }: DocsPageActionsProps) {
             <button
               className={rowClassName}
               type="button"
-              onClick={() => void copyToClipboard(mcpCommand, t("DocsPage.mcpCommandCopied"))}
+              onClick={() => runUserAction(() => copyToClipboard(mcpCommand, t("DocsPage.mcpCommandCopied")))}
             >
               <Icon className="shrink-0 text-subdued" icon={SquareTerminal} size="sm" />
 

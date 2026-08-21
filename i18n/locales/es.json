@@ -1193,6 +1193,7 @@
     "retry": "Inténtalo de nuevo",
     "subtitle": "¡Vaya! Algo ha fallado",
     "title": "Qué incómodo",
+    "transportInterrupted": "La conexión se ha interrumpido. Es posible que el cambio ya se haya aplicado. Comprueba el estado actual antes de volver a intentarlo.",
     "unexpectedError": "Se ha producido un error inesperado. No te preocupes, se nos ha avisado y estamos en ello."
   },
   "ErrorTestPage": {

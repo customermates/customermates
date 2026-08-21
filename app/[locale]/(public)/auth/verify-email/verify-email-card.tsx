@@ -10,6 +10,7 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { CardHeroHeader } from "@/components/card/card-hero-header";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 export const VerifyEmailCard = observer(({ email }: { email?: string }) => {
   const t = useTranslations();
@@ -36,7 +37,7 @@ export const VerifyEmailCard = observer(({ email }: { email?: string }) => {
         <Button
           className="w-full"
           disabled={verifyEmailStore.isSent || !email}
-          onClick={() => void verifyEmailStore.resend()}
+          onClick={() => runUserAction(() => verifyEmailStore.resend())}
         >
           {t("VerifyEmailCard.ctaLabel")}
         </Button>

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/core/utils/cn";
 import { Theme } from "@/generated/prisma";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 type Props = {
   className?: string;
@@ -57,7 +58,7 @@ export function ThemeSwitcher({ className, onThemeChange }: Props) {
             data-theme={selectedTheme}
             size="icon-sm"
             variant="ghost"
-            onClick={() => void handleThemeChange(nextTheme)}
+            onClick={() => runUserAction(() => handleThemeChange(nextTheme))}
           >
             <Icon aria-hidden icon={SelectedIcon} size="md" />
           </Button>

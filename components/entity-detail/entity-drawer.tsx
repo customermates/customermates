@@ -7,6 +7,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Sheet, SheetBody, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { VisuallyHidden } from "radix-ui";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import {
   focusEntityDrawerInvoker,
   useEntityDrawerStack,
@@ -49,9 +50,11 @@ export const EntityDrawer = observer(() => {
 
     const store = ENTITY_DETAIL[topEntityType].store(rootStore);
     let active = true;
-    void (topId === "new" ? store.add() : store.loadById(topId)).finally(() => {
-      if (active && loadGate.isCurrent(attempt, activeKey)) setPreparedKey(activeKey);
-    });
+    void (topId === "new" ? store.add() : store.loadById(topId))
+      .finally(() => {
+        if (active && loadGate.isCurrent(attempt, activeKey)) setPreparedKey(activeKey);
+      })
+      .catch(reportApplicationError);
 
     return () => {
       active = false;
@@ -108,9 +111,11 @@ export const EntityDrawer = observer(() => {
     if (!top || !detailStore || !activeKey) return;
     setPreparedKey(null);
     const attempt = loadGate.begin(activeKey);
-    void (top.id === "new" ? detailStore.add() : detailStore.loadById(top.id)).finally(() => {
-      if (loadGate.isCurrent(attempt, activeKey)) setPreparedKey(activeKey);
-    });
+    runUserAction(() =>
+      (top.id === "new" ? detailStore.add() : detailStore.loadById(top.id)).finally(() => {
+        if (loadGate.isCurrent(attempt, activeKey)) setPreparedKey(activeKey);
+      }),
+    );
   }
 
   let drawerBody: ReactNode;

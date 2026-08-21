@@ -26,6 +26,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
 import { PageState } from "@/components/page-state/page-state";
 import { useEntityDrawerStack } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
+import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 
 import { EntityNotesPanel } from "./entity-notes-panel";
 import { EntityDetailPageSkeleton } from "./entity-detail-page-skeleton";
@@ -95,7 +96,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
       return;
     }
 
-    void store.loadById(entityId);
+    void store.loadById(entityId).catch(reportApplicationError);
   }, [entityId, store, entityInitial]);
 
   useEffect(() => {
@@ -103,7 +104,8 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
     const drawerWasOpen = drawerWasOpenRef.current;
     drawerWasOpenRef.current = drawerIsOpen;
 
-    if (drawerWasOpen && !drawerIsOpen && store.fetchedEntity?.id !== entityId) void store.loadById(entityId);
+    if (drawerWasOpen && !drawerIsOpen && store.fetchedEntity?.id !== entityId)
+      void store.loadById(entityId).catch(reportApplicationError);
   }, [entityDrawerStack.length, entityId, store]);
 
   useEffect(() => {
@@ -167,6 +169,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
     deleteConfirmationRef.current(async () => {
       const ok = await store.delete();
       if (ok) router.push(`/${ENTITY_URL_SEGMENT[entityType]}`);
+      return ok;
     });
   }, [store, router, entityType]);
   const onAddCustomField = useCallback(() => {
@@ -294,7 +297,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
       return (
         <PageState
           action={
-            <Button size="sm" variant="secondary" onClick={() => void store.loadById(entityId)}>
+            <Button size="sm" variant="secondary" onClick={() => runUserAction(() => store.loadById(entityId))}>
               {t("ErrorCard.retry")}
             </Button>
           }
