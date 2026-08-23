@@ -9,17 +9,16 @@ import { HomepageClipTerminal } from "./homepage-clip-terminal";
 type Step = { n: string; title: string; description: string };
 
 type Props = {
-  eyebrow: string;
   title: string;
   steps: Step[];
   clipTerminal: ClipTerminal;
 };
 
-export async function HomepageHowItWorks({ eyebrow, title, steps, clipTerminal }: Props) {
+export async function HomepageHowItWorks({ title, steps, clipTerminal }: Props) {
   const t = await getTranslations();
 
   return (
-    <MarketingSection eyebrow={eyebrow} id="how-it-works" title={title}>
+    <MarketingSection id="how-it-works" title={title}>
       <div className="mt-12 grid grid-cols-1 items-center gap-10 lg:mt-16 lg:grid-cols-2 lg:gap-14">
         <ol className="flex flex-col gap-5">
           {steps.map((step) => (

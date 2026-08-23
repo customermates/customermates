@@ -40,16 +40,11 @@ export function PageHero({
             </div>
           ) : null}
 
-          <h1 className="text-display m-0 max-w-5xl">{title}</h1>
-
-          {titleAccent ? (
-            <p
-              className="mt-2 text-2xl italic tracking-tight text-primary sm:text-3xl md:text-4xl"
-              style={{ fontFamily: "var(--font-serif)" }}
-            >
-              {titleAccent}
-            </p>
-          ) : null}
+          {/* eslint-disable react/jsx-newline */}
+          <h1 className="text-display m-0 max-w-5xl">
+            {title} {titleAccent ? <span className="text-muted-foreground">{titleAccent}</span> : null}
+          </h1>
+          {/* eslint-enable react/jsx-newline */}
 
           <p className="text-lede mt-6">{description}</p>
 

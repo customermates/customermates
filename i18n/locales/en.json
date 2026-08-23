@@ -1291,7 +1291,6 @@
       "noLimits": "Transparent tiers",
       "openSource": "Open core"
     },
-    "eyebrow": "Pricing",
     "selfHosted": {
       "ctaText": "Download",
       "featureApi": "Documented API, MCP & webhook interfaces",

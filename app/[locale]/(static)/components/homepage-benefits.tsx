@@ -10,12 +10,7 @@ type Props = {
 
 export function HomepageBenefits({ benefitsSection }: Props) {
   return (
-    <MarketingSection
-      description={benefitsSection.subtitle}
-      eyebrow={benefitsSection.badge}
-      id="benefits"
-      title={benefitsSection.title}
-    >
+    <MarketingSection description={benefitsSection.subtitle} id="benefits" title={benefitsSection.title}>
       <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4">
         {benefitsSection.benefits.map((benefit) => {
           const IconComponent = ICONS[benefit.icon];

@@ -44,12 +44,7 @@ export async function HomepagePricing() {
   const [t, locale] = await Promise.all([getTranslations(), getLocale()]);
 
   return (
-    <MarketingSection
-      description={t("HomepagePricing.subtitle")}
-      eyebrow={t("HomepagePricing.eyebrow")}
-      id="pricing"
-      title={t("HomepagePricing.title")}
-    >
+    <MarketingSection description={t("HomepagePricing.subtitle")} id="pricing" title={t("HomepagePricing.title")}>
       <div className="mt-12 lg:mt-16">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {CARDS.map((card) => {

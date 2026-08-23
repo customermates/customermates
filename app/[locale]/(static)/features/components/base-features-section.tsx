@@ -6,23 +6,17 @@ import { IconContainer } from "@/components/shared/icon-container";
 import { ICONS } from "@/components/shared/icons";
 import { cn } from "@/core/utils/cn";
 
-type Props = Feature & { index?: number };
+type Props = Feature;
 
-export function BaseFeaturesSection({ features, hasSecondaryBackground = false, index, subtitle, title }: Props) {
+export function BaseFeaturesSection({ features, hasSecondaryBackground = false, subtitle, title }: Props) {
   const heroFeature = features.length >= 3 ? features[0] : null;
   const restFeatures = heroFeature ? features.slice(1) : features;
   const heroSpansTwoRows = features.length >= 4;
 
   const HeroIcon = heroFeature ? ICONS[heroFeature.icon] : null;
-  const numberLabel = typeof index === "number" ? String(index + 1).padStart(2, "0") : null;
 
   return (
-    <MarketingSection
-      className={cn(hasSecondaryBackground && "bg-sidebar")}
-      description={subtitle}
-      eyebrow={numberLabel ?? undefined}
-      title={title}
-    >
+    <MarketingSection className={cn(hasSecondaryBackground && "bg-sidebar")} description={subtitle} title={title}>
       <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-16 lg:auto-rows-fr lg:grid-cols-4">
         {heroFeature && HeroIcon ? (
           <article

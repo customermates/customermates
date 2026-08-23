@@ -52,11 +52,7 @@ export function HomepageHero({ heroSection }: Props) {
           <h1 className="text-display m-0 mt-7 max-w-6xl">
             {/* eslint-disable react/jsx-newline */}
             {heroSection.title}{" "}
-            {heroSection.titleAccent ? (
-              <span className="font-normal italic" style={{ fontFamily: "var(--font-serif)" }}>
-                {heroSection.titleAccent}
-              </span>
-            ) : null}
+            {heroSection.titleAccent ? <span className="text-muted-foreground">{heroSection.titleAccent}</span> : null}
             {/* eslint-enable react/jsx-newline */}
           </h1>
 

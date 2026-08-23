@@ -32,16 +32,12 @@ export default async function PricingPage() {
           <div className="mb-12 flex flex-col items-center text-center">
             <AgplGithubBadge />
 
-            <h1 className="text-display m-0 max-w-5xl">{page.data.title}</h1>
-
-            {page.data.titleAccent ? (
-              <p
-                className="mt-2 text-2xl italic tracking-tight text-primary sm:text-3xl md:text-4xl"
-                style={{ fontFamily: "var(--font-serif)" }}
-              >
-                {page.data.titleAccent}
-              </p>
-            ) : null}
+            {/* eslint-disable react/jsx-newline */}
+            <h1 className="text-display m-0 max-w-5xl">
+              {page.data.title}{" "}
+              {page.data.titleAccent ? <span className="text-muted-foreground">{page.data.titleAccent}</span> : null}
+            </h1>
+            {/* eslint-enable react/jsx-newline */}
 
             <p className="text-lede mt-6">{page.data.description}</p>
           </div>

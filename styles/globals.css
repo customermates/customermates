@@ -316,6 +316,15 @@
    bound: the minimum is the size at which the longest shipped German headline still sets
    without a mid-word break at 375px.
 
+   One family, no serif. The two references this direction was set against carry no serif
+   and no italic in their markup at all, so contrast comes from size, weight and tracking.
+   The weights are split the way those references split them and are not interchangeable:
+   .text-display is 700, the weight measured on the ChatGPT overview hero, and carries the
+   page's one big statement. .text-display-sm is 500 at up to 3rem, the weight and size
+   measured on openai.com section headings, and carries every heading below the hero. Using
+   700 on a section heading makes a page of competing statements; using 500 on the hero
+   makes it recede.
+
    MEDIA --aspect-hero is 16/9 because every hero asset under public/images is exactly
    1920x1080 and tests/conventions/hero-asset-coverage.test.ts enforces it. Changing this
    ratio means regenerating 672 files, so presentation crops and frames the asset instead. */
@@ -645,7 +654,7 @@ path:focus {
   }
 
   .text-display {
-    @apply font-medium text-balance;
+    @apply font-bold text-balance;
     font-size: clamp(2.5rem, 5.2vw, 5.25rem);
     line-height: 0.98;
     letter-spacing: -0.045em;
@@ -653,8 +662,8 @@ path:focus {
 
   .text-display-sm {
     @apply font-medium text-balance;
-    font-size: clamp(1.75rem, 2.8vw, 2.5rem);
-    line-height: 1.06;
+    font-size: clamp(1.75rem, 2.8vw, 3rem);
+    line-height: 1.08;
     letter-spacing: -0.03em;
   }
 

@@ -9,11 +9,11 @@ type Props = {
 };
 
 export function HomepageWalkthrough({ walkthrough }: Props) {
-  const { badge, title, titleAccent, videoSrc, bullets } = walkthrough;
+  const { title, titleAccent, videoSrc, bullets } = walkthrough;
   const heading = titleAccent ? `${title} ${titleAccent}` : title;
 
   return (
-    <MarketingSection eyebrow={badge} id="walkthrough" title={heading}>
+    <MarketingSection id="walkthrough" title={heading}>
       <div className="mt-12 grid w-full grid-cols-1 items-center gap-10 lg:mt-16 lg:grid-cols-[1.55fr_1fr] lg:gap-14">
         <div className="overflow-hidden rounded-card border border-border bg-card">
           <div className="relative aspect-video w-full bg-placeholder">

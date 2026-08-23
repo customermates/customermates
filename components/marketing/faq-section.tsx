@@ -22,8 +22,8 @@ export async function FAQSection({ faqs, title }: Props) {
   const t = await getTranslations();
 
   return (
-    <MarketingSection alignBody eyebrow={t("FAQSection.label")} id="faq" title={title}>
-      <div className="mt-10 lg:mt-12">
+    <MarketingSection id="faq" title={title ?? t("FAQSection.label")}>
+      <div className="mx-auto mt-10 max-w-3xl lg:mt-12">
         <Accordion collapsible className="flex flex-col gap-3" defaultValue={faqs[0].id} type="single">
           {faqs.map((faq) => (
             <AccordionItem

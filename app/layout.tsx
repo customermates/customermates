@@ -7,7 +7,7 @@ import { cookies } from "next/headers";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 
-import { latin, mono, serif } from "./fonts";
+import { latin, mono } from "./fonts";
 import { Providers } from "./providers";
 import { NavigationSwitch } from "./components/navigation/navigation-switch";
 import { loadNavigationData } from "./components/navigation/navigation-data";
@@ -77,7 +77,7 @@ export default async function RootLayout({ children }: Props) {
   return (
     <html
       suppressHydrationWarning
-      className={`${latin.variable} ${mono.variable} ${serif.variable} ${latin.className}`}
+      className={`${latin.variable} ${mono.variable} ${latin.className}`}
       lang={displayLanguage}
     >
       <body className="h-svh flex flex-col font-sans antialiased">

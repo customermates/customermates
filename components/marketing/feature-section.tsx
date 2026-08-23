@@ -19,9 +19,9 @@ type Props = {
   title: string;
 };
 
-export function FeatureSection({ badge, features, subtitle, title }: Props) {
+export function FeatureSection({ features, subtitle, title }: Props) {
   return (
-    <MarketingSection description={subtitle} eyebrow={badge} id="features" title={title}>
+    <MarketingSection description={subtitle} id="features" title={title}>
       <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:mt-16">
         {features.map((feature) => {
           const Icon = ICONS[feature.icon];

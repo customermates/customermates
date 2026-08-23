@@ -14,7 +14,7 @@ type Props = {
 
 export function WhyFeaturesSection({ description, features, title }: Props) {
   return (
-    <MarketingSection alignBody description={description} title={title}>
+    <MarketingSection description={description} title={title}>
       <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:mt-16">
         {features.map((feature) => {
           const Icon = ICONS[feature.icon];

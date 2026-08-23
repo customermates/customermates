@@ -209,7 +209,10 @@ function violations(pattern: RegExp): string[] {
 function isProductionSource(repoPath: string): boolean {
   return (
     !/(^|\/)(?:tests|__tests__)(?:\/|$)/.test(repoPath) &&
-    !repoPath.startsWith("app/[locale]/(protected)/test/")
+    !repoPath.startsWith("app/[locale]/(protected)/test/") &&
+    // The style guide is an internal, noindex engineering reference. Its copy names tokens
+    // and CSS roles, so it is deliberately English-only and never shown to a customer.
+    !repoPath.startsWith("app/[locale]/(static)/styleguide/")
   );
 }
 
