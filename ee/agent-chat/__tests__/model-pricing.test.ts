@@ -101,3 +101,47 @@ describe("cost", () => {
     expect(() => computeCostMicrocents(GATEWAY_ID, tokens({ inputTokens: -1 }))).toThrow(/Invalid inputTokens/);
   });
 });
+
+describe("measured against the live gateway", () => {
+  const MEASURED = [
+    {
+      label: "a short call",
+      tokens: { inputTokens: 11, outputTokens: 5, cacheReadTokens: 0, cacheWriteTokens: 0 },
+      microcents: 820,
+    },
+    {
+      label: "207,811 prompt tokens, under the long-context boundary",
+      tokens: { inputTokens: 3, outputTokens: 18, cacheReadTokens: 0, cacheWriteTokens: 207_808 },
+      microcents: 5_197_420,
+    },
+    {
+      label: "315,811 prompt tokens, over the boundary on cached tokens alone",
+      tokens: { inputTokens: 3, outputTokens: 5, cacheReadTokens: 0, cacheWriteTokens: 315_808 },
+      microcents: 15_791_420,
+    },
+  ];
+
+  it.each(MEASURED)("prices $label exactly as the gateway billed it", ({ tokens, microcents }) => {
+    expect(computeCostMicrocents(GATEWAY_ID, tokens, "openai")).toBe(microcents);
+  });
+
+  it("counts cached tokens toward the long-context boundary, as the provider does", () => {
+    const cachedOnly = { inputTokens: 3, outputTokens: 5, cacheReadTokens: 0, cacheWriteTokens: 315_808 };
+
+    expect(promptTokensOf(cachedOnly)).toBeGreaterThan(BOUNDARY);
+    expect(cachedOnly.inputTokens).toBeLessThan(BOUNDARY);
+    expect(resolveModelPricing(GATEWAY_ID, promptTokensOf(cachedOnly), "openai").inputPerMTok).toBe(0.4);
+    expect(computeCostMicrocents(GATEWAY_ID, cachedOnly, "openai")).toBe(15_791_420);
+
+    const tier1 = resolveModelPricing(GATEWAY_ID, 0, "openai");
+    const ifOnlyUncachedCounted = Math.round(
+      (cachedOnly.inputTokens * tier1.inputPerMTok +
+        cachedOnly.outputTokens * tier1.outputPerMTok +
+        cachedOnly.cacheWriteTokens * tier1.cacheWritePerMTok) *
+        100,
+    );
+
+    expect(ifOnlyUncachedCounted).toBe(7_895_860);
+    expect(computeCostMicrocents(GATEWAY_ID, cachedOnly, "openai") - ifOnlyUncachedCounted).toBe(7_895_560);
+  });
+});

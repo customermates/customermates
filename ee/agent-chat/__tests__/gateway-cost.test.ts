@@ -49,6 +49,35 @@ const rateLimitedMetadata = {
   },
 };
 
+const AZURE_SERVED_LUNA = {
+  gateway: {
+    routing: {
+      canonicalSlug: "openai/gpt-5.6-luna",
+      finalProvider: "azure",
+      modelAttempts: [
+        {
+          canonicalSlug: "openai/gpt-5.6-luna",
+          success: true,
+          providerAttemptCount: 1,
+          providerAttempts: [
+            {
+              provider: "azure",
+              credentialType: "system",
+              success: true,
+              statusCode: 200,
+              providerRequestId: "b30138d7-ab40-4377-be97-e5fb2726c501",
+            },
+          ],
+        },
+      ],
+      totalProviderAttemptCount: 1,
+    },
+    inferenceCost: "0.000041",
+    cost: "0.000041",
+    surchargeCost: "0",
+  },
+};
+
 describe("gateway provider charge", () => {
   it("reads the inline cost of a served generation as exact microcents", () => {
     expect(readAgentProviderCharge(billedMetadata(), "openai")).toEqual({
@@ -113,6 +142,16 @@ describe("gateway provider charge", () => {
     expect(reading.outcome).toBe("unreadable");
     if (reading.outcome !== "unreadable") throw new Error("Expected an unreadable charge.");
     expect(reading.reason.length).toBeGreaterThan(0);
+  });
+
+  it("refuses the real azure routing payload that prices the shipped model at five times the pinned rate", () => {
+    const reading = readAgentProviderCharge(AZURE_SERVED_LUNA, "openai");
+
+    expect(reading.outcome).toBe("unreadable");
+    expect(readAgentProviderCharge(AZURE_SERVED_LUNA, "azure")).toMatchObject({
+      outcome: "measured",
+      charge: { costMicrocents: 4_100, finalProvider: "azure" },
+    });
   });
 
   it("accepts a zero upstream cost, which the gateway reports for its own served models", () => {

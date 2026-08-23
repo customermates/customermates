@@ -1118,7 +1118,11 @@ describe("agent runner approval rendezvous", () => {
       expect.anything(),
       expect.objectContaining({
         provider: "openai",
-        providerCharge: { billed: true, measuredCostMicrocents: 500_000, unreadableReason: null },
+        providerCharge: expect.objectContaining({
+          billed: true,
+          measuredCostMicrocents: 500_000,
+          unreadableReason: null,
+        }),
       }),
     );
     expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
@@ -1146,7 +1150,11 @@ describe("agent runner approval rendezvous", () => {
       "openai/gpt-5.6-luna",
       expect.anything(),
       expect.objectContaining({
-        providerCharge: { billed: false, measuredCostMicrocents: null, unreadableReason: null },
+        providerCharge: expect.objectContaining({
+          billed: false,
+          measuredCostMicrocents: null,
+          unreadableReason: null,
+        }),
       }),
     );
     expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
@@ -1205,9 +1213,17 @@ describe("agent runner approval rendezvous", () => {
       "openai/gpt-5.6-luna",
       expect.objectContaining({ inputTokens: 100, outputTokens: 20 }),
       expect.objectContaining({
-        providerCharge: { billed: true, measuredCostMicrocents: 500_000, unreadableReason: null },
+        providerCharge: expect.objectContaining({
+          billed: true,
+          measuredCostMicrocents: 500_000,
+          unreadableReason: null,
+        }),
       }),
     );
+
+    const [, , settlementOptions] = llmMock.buildTurnUsageSettlement.mock.calls.at(-1) ?? [];
+    expect(settlementOptions?.providerCharge?.stepTokens).toHaveLength(2);
+    expect(settlementOptions?.providerCharge?.stepTokens?.[0]).toMatchObject({ inputTokens: 100, outputTokens: 20 });
 
     const clientPayload = JSON.stringify(events);
     expect(clientPayload).not.toContain("gpt-5.6-luna");

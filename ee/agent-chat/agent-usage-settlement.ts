@@ -6,6 +6,7 @@ export type AgentUsageCostSource = "measured" | "estimated";
 export type AgentProviderChargeEvidence = {
   billed: boolean;
   measuredCostMicrocents: number | null;
+  stepTokens: readonly TokenCounts[];
   unreadableReason: string | null;
 };
 
@@ -18,6 +19,18 @@ export type AgentUsageSettlement = TokenCounts & {
   policyBreach: boolean;
   state: "settled" | "retained";
 };
+
+function estimateCostMicrocents(args: {
+  model: string;
+  provider?: string;
+  tokens: TokenCounts;
+  providerCharge: AgentProviderChargeEvidence;
+}) {
+  const steps = args.providerCharge.stepTokens;
+  if (steps.length === 0) return computeCostMicrocents(args.model, args.tokens, args.provider);
+
+  return steps.reduce((total, step) => total + computeCostMicrocents(args.model, step, args.provider), 0);
+}
 
 export function buildAgentUsageSettlement(args: {
   model: string;
@@ -45,7 +58,7 @@ export function buildAgentUsageSettlement(args: {
 
   const measured = args.providerCharge.measuredCostMicrocents;
   const costSource: AgentUsageCostSource = measured === null ? "estimated" : "measured";
-  const costMicrocents = measured ?? computeCostMicrocents(args.model, args.tokens, args.provider);
+  const costMicrocents = measured ?? estimateCostMicrocents(args);
   const meteredCredits = agentCreditsForStartedProviderCost(costMicrocents);
 
   return {

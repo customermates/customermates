@@ -278,6 +278,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
       let providerStepsFinished = 0;
       let providerAttempted = false;
       let providerBilled = false;
+      const stepTokens: TokenCounts[] = [];
       let measuredCostMicrocents: number | null = null;
       let chargeUnreadableReason: string | null = null;
       const accountProviderCharge = (reading: ReturnType<typeof readAgentProviderCharge>) => {
@@ -484,7 +485,9 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
               isError: true,
             });
           } else if (part.type === "finish-step") {
-            tokens = addTokens(tokens, usageToTokenCounts(part.usage));
+            const finishedStepTokens = usageToTokenCounts(part.usage);
+            stepTokens.push(finishedStepTokens);
+            tokens = addTokens(tokens, finishedStepTokens);
             providerStepsFinished += 1;
             accountProviderCharge(readAgentProviderCharge(part.providerMetadata, ctx.turnBudget.servingProvider));
             finishReason = part.finishReason;
@@ -633,6 +636,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
                     billed: providerBilled,
                     measuredCostMicrocents:
                       providerStepsStarted > providerStepsFinished ? null : measuredCostMicrocents,
+                    stepTokens,
                     unreadableReason: chargeUnreadableReason,
                   },
                 })

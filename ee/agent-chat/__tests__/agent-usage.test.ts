@@ -14,6 +14,7 @@ vi.mock("@/env", () => ({
 
 import { AgentUsageService, type AgentUsageRepo } from "../agent-usage.service";
 import { buildAgentUsageSettlement } from "../agent-usage-settlement";
+import { computeCostMicrocents, promptTokensOf } from "../model-pricing";
 import { MODEL_CATALOG } from "../model-catalog";
 
 const MODEL = MODEL_CATALOG.balanced;
@@ -248,7 +249,7 @@ describe("AgentUsageService admission and ledger", () => {
         cacheWriteTokens: 0,
       },
       reservedCredits: 2,
-      providerCharge: { billed: true, measuredCostMicrocents: null, unreadableReason: "test" },
+      providerCharge: { billed: true, measuredCostMicrocents: null, stepTokens: [], unreadableReason: "test" },
       retainReservation: false,
     });
 
@@ -262,7 +263,7 @@ describe("AgentUsageService admission and ledger", () => {
       model: "openai/gpt-5-nano",
       tokens: { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 },
       reservedCredits: 14,
-      providerCharge: { billed: false, measuredCostMicrocents: null, unreadableReason: null },
+      providerCharge: { billed: false, measuredCostMicrocents: null, stepTokens: [], unreadableReason: null },
       retainReservation: false,
     });
 
@@ -281,7 +282,7 @@ describe("AgentUsageService admission and ledger", () => {
       provider: "openai",
       tokens: { inputTokens: 35_329, outputTokens: 2_945, cacheReadTokens: 73_728, cacheWriteTokens: 0 },
       reservedCredits: 14,
-      providerCharge: { billed: true, measuredCostMicrocents: 2_000_001, unreadableReason: null },
+      providerCharge: { billed: true, measuredCostMicrocents: 2_000_001, stepTokens: [], unreadableReason: null },
       retainReservation: false,
     });
 
@@ -299,11 +300,40 @@ describe("AgentUsageService admission and ledger", () => {
       provider: "openai",
       tokens: { inputTokens: 35_329, outputTokens: 2_945, cacheReadTokens: 73_728, cacheWriteTokens: 0 },
       reservedCredits: 14,
-      providerCharge: { billed: true, measuredCostMicrocents: null, unreadableReason: "no usable cost figure" },
+      providerCharge: {
+        billed: true,
+        measuredCostMicrocents: null,
+        stepTokens: [],
+        unreadableReason: "no usable cost figure",
+      },
       retainReservation: false,
     });
 
     expect(settlement).toMatchObject({ costMicrocents: 331_309, costSource: "estimated", state: "settled" });
+  });
+
+  it("prices a multi-step turn per request, as the provider bills it, not on the turn aggregate", () => {
+    const steps = [
+      { inputTokens: 27, outputTokens: 251, cacheReadTokens: 143_000, cacheWriteTokens: 37_210 },
+      { inputTokens: 0, outputTokens: 276, cacheReadTokens: 144_247, cacheWriteTokens: 0 },
+    ];
+    const aggregate = { inputTokens: 27, outputTokens: 527, cacheReadTokens: 287_247, cacheWriteTokens: 37_210 };
+
+    expect(promptTokensOf(aggregate)).toBeGreaterThan(272_000);
+    for (const step of steps) expect(promptTokensOf(step)).toBeLessThan(272_000);
+
+    const settlement = buildAgentUsageSettlement({
+      model: "openai/gpt-5.6-luna",
+      provider: "openai",
+      tokens: aggregate,
+      reservedCredits: 40,
+      providerCharge: { billed: true, measuredCostMicrocents: null, stepTokens: steps, unreadableReason: "test" },
+      retainReservation: false,
+    });
+
+    expect(settlement.costMicrocents).toBe(1_568_524);
+    expect(computeCostMicrocents("openai/gpt-5.6-luna", aggregate, "openai")).toBe(3_105_428);
+    expect(settlement.chargedCredits).toBe(2);
   });
 
   it("charges two credits once cache-write cost crosses one cent", () => {
@@ -316,7 +346,7 @@ describe("AgentUsageService admission and ledger", () => {
         cacheWriteTokens: 40_001,
       },
       reservedCredits: 44,
-      providerCharge: { billed: true, measuredCostMicrocents: null, unreadableReason: "test" },
+      providerCharge: { billed: true, measuredCostMicrocents: null, stepTokens: [], unreadableReason: "test" },
       retainReservation: false,
     });
 
