@@ -13,6 +13,9 @@ import {
   agentActivityGroupSummary,
   describeAgentTool,
 } from "../agent-activity";
+import { internalToolIdentity } from "../tool-identity";
+
+const describeInternalTool = (name: string, input: unknown) => describeAgentTool(internalToolIdentity(name), input);
 import { agentActionPageFromPathname, agentPageActions, agentPageState } from "../agent-page-actions";
 import { agentGuidedTour, AgentTourSchema, AGENT_TOUR_MAX_STEPS } from "../agent-tours";
 import { AGENT_UI_TARGET_IDS } from "../ui-targets";
@@ -121,7 +124,7 @@ describe("agent experience contract", () => {
       id: "00000000-0000-4000-8000-000000000001",
       apiKey: "secret",
     };
-    const activity = describeAgentTool("update_contacts", input);
+    const activity = describeInternalTool("update_contacts", input);
 
     expect(activity).toEqual({
       kind: "records.update",
@@ -135,7 +138,7 @@ describe("agent experience contract", () => {
   });
 
   it("uses the workspace's custom entity terminology in safe activity copy", () => {
-    const activity = describeAgentTool("create_contacts", [{ firstName: "Ada" }, { firstName: "Grace" }]);
+    const activity = describeInternalTool("create_contacts", [{ firstName: "Ada" }, { firstName: "Grace" }]);
     const copy = agentActivityCopy(activity, deT, {
       contacts: "Kundinnen und Kunden",
     });
@@ -147,7 +150,7 @@ describe("agent experience contract", () => {
   });
 
   it("shows safe create and update counts without retaining record details", () => {
-    const created = describeAgentTool("create_contacts", {
+    const created = describeInternalTool("create_contacts", {
       contacts: [
         {
           firstName: "Ada",
@@ -156,7 +159,7 @@ describe("agent experience contract", () => {
         { firstName: "Grace", apiKey: "never-show" },
       ],
     });
-    const updated = describeAgentTool("update_deals", {
+    const updated = describeInternalTool("update_deals", {
       deals: [{ id: "00000000-0000-4000-8000-000000000002", name: "Private project" }],
     });
 
@@ -178,11 +181,11 @@ describe("agent experience contract", () => {
   });
 
   it("keeps no input-derived data on a navigate or highlight activity", () => {
-    const navigate = describeAgentTool("navigate", {
+    const navigate = describeInternalTool("navigate", {
       targetId: "nav-contacts",
       recordId: "00000000-0000-4000-8000-000000000001",
     });
-    const highlight = describeAgentTool("highlight_element", {
+    const highlight = describeInternalTool("highlight_element", {
       targetId: "contacts-add",
       selector: "#private-record-00000000-0000-4000-8000-000000000002",
     });
@@ -198,7 +201,7 @@ describe("agent experience contract", () => {
     }
 
     for (const targetId of AGENT_UI_TARGET_IDS) {
-      const activity = describeAgentTool("highlight_element", { targetId });
+      const activity = describeInternalTool("highlight_element", { targetId });
       expect(JSON.stringify(activity)).not.toContain(targetId);
       expect(agentActivityCopy(activity, enT).running).toBeTruthy();
       expect(agentActivityCopy(activity, deT).running).toBeTruthy();
@@ -206,7 +209,7 @@ describe("agent experience contract", () => {
   });
 
   it("classifies an allowlisted DOM activation without retaining its target", () => {
-    const activity = describeAgentTool("click_ui_target", {
+    const activity = describeInternalTool("click_ui_target", {
       targetId: "deals-layout-kanban",
       selector: "#private-record-00000000-0000-4000-8000-000000000002",
     });
@@ -230,7 +233,7 @@ describe("agent experience contract", () => {
       ["list_ui_targets", "interface.inspect"],
     ] as const;
     const activities = tools.map(([toolName, kind]) => {
-      const activity = describeAgentTool(toolName, {
+      const activity = describeInternalTool(toolName, {
         query: "private-workspace-value",
         page: "private-page-slug",
       });
@@ -315,7 +318,7 @@ describe("agent experience contract", () => {
       ["update_workspace_settings", { target: "profile", firstName: "Private name" }, "profile.configure"],
     ] as const;
     const activities = tools.map(([toolName, input, kind]) => {
-      const activity = describeAgentTool(toolName, input);
+      const activity = describeInternalTool(toolName, input);
       expect(activity.kind).toBe(kind);
       expect(AgentActivityDescriptorSchema.parse(JSON.parse(JSON.stringify(activity)))).toEqual(activity);
       return activity;
@@ -394,7 +397,7 @@ describe("agent experience contract", () => {
       expect(new Set(labels).size).toBe(labels.length);
     }
     expect(JSON.stringify(activities)).not.toMatch(/00000000|Private|secret/);
-    const ambiguousLegacyActivity = describeAgentTool("manage_custom_columns", {
+    const ambiguousLegacyActivity = describeInternalTool("manage_custom_columns", {
       action: "upsert",
       intent: "invalid",
       id: privateId,
@@ -402,7 +405,7 @@ describe("agent experience contract", () => {
     expect(ambiguousLegacyActivity.kind).toBe("customFields.configure");
     expect(agentActivityCopy(ambiguousLegacyActivity, enT).done).toBe("Configured custom fields");
     expect(JSON.stringify(ambiguousLegacyActivity)).not.toContain(privateId);
-    const ambiguousWidgetActivity = describeAgentTool("manage_widgets", { action: "legacy" });
+    const ambiguousWidgetActivity = describeInternalTool("manage_widgets", { action: "legacy" });
     expect(ambiguousWidgetActivity.kind).toBe("widgets.configure");
     expect(agentActivityCopy(ambiguousWidgetActivity, enT).done).toBe("Configured dashboard widgets");
     expect(
@@ -445,23 +448,23 @@ describe("agent experience contract", () => {
 
   it("localizes external social approvals without exposing provider identifiers", () => {
     const activities = [
-      describeAgentTool("manage_social_relations", {
+      describeInternalTool("manage_social_relations", {
         action: "invite",
         identifier: "provider-user-123",
         targetLabel: "Ada Lovelace",
         message: "Let's connect.",
       }),
-      describeAgentTool("manage_social_relations", {
+      describeInternalTool("manage_social_relations", {
         action: "accept",
         invitationId: "provider-invitation-456",
         targetLabel: "Grace Hopper",
       }),
-      describeAgentTool("manage_social_relations", {
+      describeInternalTool("manage_social_relations", {
         action: "cancel",
         invitationId: "provider-invitation-789",
         targetLabel: "Linus Torvalds",
       }),
-      describeAgentTool("linkedin_manage_sales_lists", {
+      describeInternalTool("linkedin_manage_sales_lists", {
         action: "save",
         listId: "provider-list-123",
         providerId: "provider-lead-456",
@@ -511,7 +514,7 @@ describe("agent experience contract", () => {
 
   it("keeps the longest allowed Sales list label inside the persisted activity schema", () => {
     const listLabel = "L".repeat(80);
-    const activity = describeAgentTool("linkedin_manage_sales_lists", {
+    const activity = describeInternalTool("linkedin_manage_sales_lists", {
       action: "save",
       targetLabel: "Ada Lovelace",
       listLabel,
@@ -524,9 +527,9 @@ describe("agent experience contract", () => {
   it.each(["manage_custom_columns", "manage_widgets", "manage_webhooks"])(
     "marks multiplexed tool %s sensitive only when the call needs approval",
     (toolName) => {
-      expect(describeAgentTool(toolName, { action: "delete" }).risk).toBe("sensitive");
-      expect(describeAgentTool(toolName, { action: "no_such_action" }).risk).toBe("sensitive");
-      expect(describeAgentTool(toolName, undefined).risk).toBe("sensitive");
+      expect(describeInternalTool(toolName, { action: "delete" }).risk).toBe("sensitive");
+      expect(describeInternalTool(toolName, { action: "no_such_action" }).risk).toBe("sensitive");
+      expect(describeInternalTool(toolName, undefined).risk).toBe("sensitive");
     },
   );
 
@@ -535,11 +538,11 @@ describe("agent experience contract", () => {
     ["manage_widgets", "get", "create", "widgets.read", "widgets.create"],
     ["manage_webhooks", "list_deliveries", "create", "workspace.read", "webhooks.manage"],
   ])("classifies %s read and write actions independently", (toolName, readAction, writeAction, readKind, writeKind) => {
-    const read = describeAgentTool(toolName, { action: readAction });
+    const read = describeInternalTool(toolName, { action: readAction });
     expect(read.risk).toBe("read");
     expect(read.kind).toBe(readKind);
 
-    const write = describeAgentTool(toolName, { action: writeAction });
+    const write = describeInternalTool(toolName, { action: writeAction });
     expect(write.risk).toBe("write");
     expect(write.kind).toBe(writeKind);
   });
@@ -547,45 +550,45 @@ describe("agent experience contract", () => {
   it.each(["manage_record_links", "update_record_notes"])(
     "marks approval-free workspace tool %s as an ordinary write",
     (toolName) => {
-      expect(describeAgentTool(toolName, undefined).risk).toBe("write");
+      expect(describeInternalTool(toolName, undefined).risk).toBe("write");
     },
   );
 
   it("gates a team invitation but keeps an ordinary member update immediate", () => {
     expect(
-      describeAgentTool("manage_team", {
+      describeInternalTool("manage_team", {
         action: "invite",
         emails: ["ada@example.com"],
       }).risk,
     ).toBe("sensitive");
-    expect(describeAgentTool("manage_team", { action: "update_member" }).risk).toBe("write");
+    expect(describeInternalTool("manage_team", { action: "update_member" }).risk).toBe("write");
   });
 
   it.each([undefined, { mode: "append", notes: "Follow up next week" }, { mode: "replace", notes: "" }])(
     "keeps every notes mutation an unapproved ordinary write for input %j",
     (input) => {
-      expect(describeAgentTool("update_record_notes", input).risk).toBe("write");
+      expect(describeInternalTool("update_record_notes", input).risk).toBe("write");
     },
   );
 
   it("shows distinct, bounded consequences for real sends, drafts, discards, and support", () => {
     const internalId = "00000000-0000-4000-8000-000000000001";
-    const email = describeAgentTool("send_email", {
+    const email = describeInternalTool("send_email", {
       threadId: internalId,
       to: [{ identifier: "ada@example.com", display_name: "Ada" }],
       subject: "Quarterly update",
       body: "Here is the agreed summary.",
       apiKey: "never-show",
     });
-    const draft = describeAgentTool("save_message_draft", {
+    const draft = describeInternalTool("save_message_draft", {
       threadId: internalId,
       subject: "Draft subject",
       body: "Please review this draft.",
     });
-    const discard = describeAgentTool("discard_message_draft", {
+    const discard = describeInternalTool("discard_message_draft", {
       messageId: internalId,
     });
-    const support = describeAgentTool("request_support", {
+    const support = describeInternalTool("request_support", {
       subject: "Import issue",
       body: `The record ${internalId} failed.`,
     });

@@ -1,3 +1,7 @@
+import type { AgentToolIdentity } from "./tool-identity";
+
+import { agentToolIdentityKey, internalToolIdentity, isInternalToolIdentity } from "./tool-identity";
+
 export function isReadOnlyTool(tool: { annotations?: Record<string, boolean> }) {
   return tool.annotations?.readOnlyHint === true;
 }
@@ -6,7 +10,7 @@ type AgentApprovalPolicy =
   | { approvalFree: true }
   | { approvalFreeActions: readonly string[]; readOnlyActions?: readonly string[] };
 
-const AGENT_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
+const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
   connect_messaging_account: { approvalFree: true },
   create_contacts: { approvalFree: true },
   create_deals: { approvalFree: true },
@@ -37,23 +41,42 @@ const AGENT_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
   update_workspace_settings: { approvalFree: true },
 };
 
-export const AGENT_APPROVAL_POLICY_TOOL_NAMES = Object.keys(AGENT_APPROVAL_POLICY);
+const AGENT_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = Object.fromEntries(
+  Object.entries(INTERNAL_APPROVAL_POLICY).map(([name, policy]) => [
+    agentToolIdentityKey(internalToolIdentity(name)),
+    policy,
+  ]),
+);
 
-export function approvalFreeActionsForTool(name: string): readonly string[] | null {
-  const policy = AGENT_APPROVAL_POLICY[name];
+export const AGENT_APPROVAL_POLICY_TOOL_NAMES = Object.keys(INTERNAL_APPROVAL_POLICY);
+
+function policyFor(identity: AgentToolIdentity): AgentApprovalPolicy | undefined {
+  if (!isInternalToolIdentity(identity)) return undefined;
+  return AGENT_APPROVAL_POLICY[agentToolIdentityKey(identity)];
+}
+
+export function approvalFreeActionsForTool(identity: AgentToolIdentity): readonly string[] | null {
+  const policy = policyFor(identity);
   return policy && "approvalFreeActions" in policy ? policy.approvalFreeActions : null;
 }
 
-export function readOnlyActionsForTool(name: string): readonly string[] | null {
-  const policy = AGENT_APPROVAL_POLICY[name];
+export function readOnlyActionsForTool(identity: AgentToolIdentity): readonly string[] | null {
+  const policy = policyFor(identity);
   return policy && "readOnlyActions" in policy ? (policy.readOnlyActions ?? null) : null;
 }
 
-export function requiresApproval(tool: { name: string; annotations?: Record<string, boolean> }, input: unknown) {
+export function requiresApproval(
+  identity: AgentToolIdentity,
+  tool: { annotations?: Record<string, boolean> },
+  input: unknown,
+) {
+  if (!isInternalToolIdentity(identity)) return true;
   if (isReadOnlyTool(tool)) return false;
-  const policy = AGENT_APPROVAL_POLICY[tool.name];
+
+  const policy = policyFor(identity);
   if (!policy) return true;
   if ("approvalFree" in policy) return false;
+
   const action =
     input && typeof input === "object" && !Array.isArray(input) ? (input as { action?: unknown }).action : undefined;
   return typeof action !== "string" || !policy.approvalFreeActions.includes(action);

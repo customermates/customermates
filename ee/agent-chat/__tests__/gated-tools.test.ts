@@ -16,14 +16,19 @@ import {
   isReadOnlyTool,
   requiresApproval,
 } from "../gated-tools";
+import { agentToolIdentityKey, internalToolIdentity, parseAgentToolIdentityKey } from "../tool-identity";
+
+const approvalNeeded = (tool: { name: string; annotations?: Record<string, boolean> }, input: unknown) =>
+  requiresApproval(internalToolIdentity(tool.name), tool, input);
+const describeInternalTool = (name: string, input: unknown) => describeAgentTool(internalToolIdentity(name), input);
 
 const readOnlyNames = () => ALL_MCP_TOOLS.filter((tool) => isReadOnlyTool(tool)).map((tool) => tool.name);
 const approvalFreeWriteNames = () =>
-  ALL_MCP_TOOLS.filter((tool) => !isReadOnlyTool(tool) && !requiresApproval(tool, { action: "list" })).map(
+  ALL_MCP_TOOLS.filter((tool) => !isReadOnlyTool(tool) && !approvalNeeded(tool, { action: "list" })).map(
     (tool) => tool.name,
   );
 const approvalRequiredNames = () =>
-  ALL_MCP_TOOLS.filter((tool) => requiresApproval(tool, { action: "list" })).map((tool) => tool.name);
+  ALL_MCP_TOOLS.filter((tool) => approvalNeeded(tool, { action: "list" })).map((tool) => tool.name);
 
 const toolByName = (name: string) => {
   const tool = ALL_MCP_TOOLS.find((candidate) => candidate.name === name);
@@ -53,8 +58,8 @@ describe("gated-tools", () => {
   });
 
   it("fails closed: a tool outside the policy map always requires approval", () => {
-    expect(requiresApproval({ name: "some_future_tool" }, {})).toBe(true);
-    expect(requiresApproval({ name: "some_future_tool" }, { action: "list" })).toBe(true);
+    expect(approvalNeeded({ name: "some_future_tool" }, {})).toBe(true);
+    expect(approvalNeeded({ name: "some_future_tool" }, { action: "list" })).toBe(true);
   });
 
   it("fails closed: a multiplexed call with a missing or unknown action requires approval", () => {
@@ -67,18 +72,18 @@ describe("gated-tools", () => {
       "linkedin_manage_sales_lists",
     ]) {
       const tool = toolByName(name);
-      expect(requiresApproval(tool, {})).toBe(true);
-      expect(requiresApproval(tool, { action: "purge_everything" })).toBe(true);
-      expect(requiresApproval(tool, { action: 7 })).toBe(true);
-      expect(requiresApproval(tool, undefined)).toBe(true);
+      expect(approvalNeeded(tool, {})).toBe(true);
+      expect(approvalNeeded(tool, { action: "purge_everything" })).toBe(true);
+      expect(approvalNeeded(tool, { action: 7 })).toBe(true);
+      expect(approvalNeeded(tool, undefined)).toBe(true);
     }
   });
 
   it("requires approval for exactly the destructive and outbound tools", () => {
     for (const name of ["delete_records", "discard_message_draft", "send_email", "send_chat_message"])
-      expect(requiresApproval(toolByName(name), {})).toBe(true);
+      expect(approvalNeeded(toolByName(name), {})).toBe(true);
     for (const name of ["manage_custom_columns", "manage_widgets", "manage_webhooks"])
-      expect(requiresApproval(toolByName(name), { action: "delete" })).toBe(true);
+      expect(approvalNeeded(toolByName(name), { action: "delete" })).toBe(true);
     for (const [name, action] of [
       ["manage_social_relations", "invite"],
       ["manage_social_relations", "accept"],
@@ -87,7 +92,7 @@ describe("gated-tools", () => {
       ["manage_team", "invite"],
       ["manage_webhooks", "resend_delivery"],
     ] as const)
-      expect(requiresApproval(toolByName(name), { action })).toBe(true);
+      expect(approvalNeeded(toolByName(name), { action })).toBe(true);
   });
 
   it("lets ordinary CRM work run without approval", () => {
@@ -110,12 +115,12 @@ describe("gated-tools", () => {
       ["linkedin_manage_sales_lists", { action: "list" }],
       ["linkedin_manage_sales_lists", { action: "browse" }],
     ];
-    for (const [name, input] of freeCalls) expect(requiresApproval(toolByName(name), input)).toBe(false);
+    for (const [name, input] of freeCalls) expect(approvalNeeded(toolByName(name), input)).toBe(false);
   });
 
   it("never lets a destructiveHint tool run unconditionally approval-free", () => {
     for (const tool of ALL_MCP_TOOLS.filter((tool) => tool.annotations?.destructiveHint === true))
-      expect(requiresApproval(tool, {})).toBe(true);
+      expect(approvalNeeded(tool, {})).toBe(true);
   });
 
   it("keeps every policy key pointing at a real tool", () => {
@@ -135,10 +140,10 @@ describe("gated-tools", () => {
     for (const tool of ALL_MCP_TOOLS) {
       if (isReadOnlyTool(tool)) continue;
       for (const input of inputs) {
-        const risk = describeAgentTool(tool.name, input).risk;
+        const risk = describeInternalTool(tool.name, input).risk;
         if (risk === "read") continue;
         expect(`${tool.name} ${JSON.stringify(input)} ${risk === "sensitive"}`).toBe(
-          `${tool.name} ${JSON.stringify(input)} ${requiresApproval(tool, input)}`,
+          `${tool.name} ${JSON.stringify(input)} ${approvalNeeded(tool, input)}`,
         );
       }
     }
@@ -172,10 +177,71 @@ describe("gated-tools", () => {
     expect(approvalRequiredNames().sort()).toMatchSnapshot();
     expect(
       Object.fromEntries(
-        AGENT_APPROVAL_POLICY_TOOL_NAMES.map((name) => [name, approvalFreeActionsForTool(name)]).filter(
-          ([, actions]) => actions,
-        ),
+        AGENT_APPROVAL_POLICY_TOOL_NAMES.map((name) => [
+          name,
+          approvalFreeActionsForTool(internalToolIdentity(name)),
+        ]).filter(([, actions]) => actions),
       ),
     ).toMatchSnapshot();
+  });
+});
+
+describe("tool identity", () => {
+  const COLLIDING_NAMES = ["search", "fetch", "send_email", "create_contacts", "delete_records"];
+
+  it("exposes names that a public MCP server would plausibly also expose", () => {
+    const internal = new Set(ALL_MCP_TOOLS.map((tool) => tool.name));
+
+    for (const name of ["search", "fetch"]) expect(internal.has(name)).toBe(true);
+  });
+
+  it.each(COLLIDING_NAMES)("does not let an external server inherit the internal policy for %s", (name) => {
+    const external = { source: "external-mcp" as const, serverId: "acme", name };
+    const claimsReadOnly = { name, annotations: { readOnlyHint: true } };
+
+    expect(requiresApproval(external, claimsReadOnly, { action: "list" })).toBe(true);
+    expect(requiresApproval(external, claimsReadOnly, {})).toBe(true);
+    expect(approvalFreeActionsForTool(external)).toBeNull();
+  });
+
+  it("ignores a read-only annotation from a source that did not earn trust", () => {
+    const internalReadOnly = { name: "search", annotations: { readOnlyHint: true } };
+
+    expect(requiresApproval(internalToolIdentity("search"), internalReadOnly, {})).toBe(false);
+    for (const source of ["external-mcp", "gateway-tool", "provider-native", "sandbox"] as const)
+      expect(requiresApproval({ source, serverId: null, name: "search" }, internalReadOnly, {})).toBe(true);
+  });
+
+  it("describes a tool from another source generically, never with the internal label", () => {
+    const input = { to: "someone@example.com", subject: "hello" };
+    const internal = describeAgentTool(internalToolIdentity("send_email"), input);
+    const external = describeAgentTool({ source: "external-mcp", serverId: "acme", name: "send_email" }, input);
+
+    expect(internal.kind).toBe("messages.send");
+    expect(external.kind).toBe("generic");
+    expect(external.resource).toBeUndefined();
+  });
+
+  it("never understates the risk of a tool it cannot vouch for", () => {
+    for (const source of ["external-mcp", "gateway-tool", "provider-native", "sandbox"] as const)
+      expect(describeAgentTool({ source, serverId: "acme", name: "get_records" }, {}).risk).toBe("sensitive");
+
+    expect(describeAgentTool(internalToolIdentity("get_records"), {}).risk).toBe("read");
+  });
+
+  it("round-trips an identity through its key without collapsing distinct sources", () => {
+    const identities = [
+      internalToolIdentity("search"),
+      { source: "external-mcp" as const, serverId: "acme", name: "search" },
+      { source: "external-mcp" as const, serverId: "other", name: "search" },
+      { source: "gateway-tool" as const, serverId: null, name: "search" },
+    ];
+    const keys = identities.map(agentToolIdentityKey);
+
+    expect(new Set(keys).size).toBe(identities.length);
+    for (const identity of identities)
+      expect(parseAgentToolIdentityKey(agentToolIdentityKey(identity))).toEqual(identity);
+    expect(parseAgentToolIdentityKey("not-a-source::acme::search")).toBeNull();
+    expect(parseAgentToolIdentityKey("external-mcp::acme")).toBeNull();
   });
 });

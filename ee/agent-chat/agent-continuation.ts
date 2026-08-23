@@ -7,6 +7,7 @@ import {
   type AgentActivityResource,
   type AgentActivityRisk,
 } from "./agent-activity";
+import { internalToolIdentity } from "./tool-identity";
 
 export const AGENT_CONTINUATION_RETAINED_RESPONSE_STEPS = 2;
 export const AGENT_CONTINUATION_CHECKPOINT_MAX_BYTES = 4 * 1024;
@@ -141,7 +142,7 @@ function projectActivity(
   status: AgentContinuationActivityStatus,
   trustedToolName: boolean,
 ): AgentContinuationActivitySummary {
-  const activity = describeAgentTool(toolName, input);
+  const activity = describeAgentTool(internalToolIdentity(toolName), input);
   return {
     toolName: trustedToolName ? safeToolName(toolName) : "unknown",
     kind: activity.kind,

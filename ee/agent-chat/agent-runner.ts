@@ -38,6 +38,7 @@ import {
   decideAgentContinuationLoop,
   type AgentContinuationDecision,
 } from "./agent-continuation";
+import { internalToolIdentity } from "./tool-identity";
 
 function agentRunnerCopy(t: AgentTranslator) {
   return {
@@ -189,7 +190,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
           userId: ctx.userId,
           expiresAt: new Date(deadline),
         });
-        const activity = describeAgentTool(toolName, input);
+        const activity = describeAgentTool(internalToolIdentity(toolName), input);
         const approvalPart: Extract<AgentMessagePart, { type: "approval" }> = {
           type: "approval",
           id: requestId,
@@ -452,7 +453,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
               toolParts.delete(supersededId);
               emit("activity_superseded", { id: supersededId });
             }
-            const activity = describeAgentTool(part.toolName, part.input);
+            const activity = describeAgentTool(internalToolIdentity(part.toolName), part.input);
             const toolPart: Extract<AgentMessagePart, { type: "activity" }> = {
               type: "activity",
               id: part.toolCallId,

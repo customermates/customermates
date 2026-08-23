@@ -7,6 +7,7 @@ import { type Data } from "@/core/validation/validation.utils";
 import type { AgentActivityDescriptor } from "./agent-activity";
 import { AgentActivityDescriptorSchema, describeAgentTool } from "./agent-activity";
 import { sanitizeAgentVisibleText, stripLegacyUserPageContextPrefix } from "./agent-output-safety";
+import { internalToolIdentity } from "./tool-identity";
 
 export const AgentPageContextSchema = z.object({
   route: z.string().max(500),
@@ -101,7 +102,7 @@ export function clientSafeAgentMessageParts(
         {
           type: "activity",
           id: part.id,
-          activity: describeAgentTool(part.name, part.input),
+          activity: describeAgentTool(internalToolIdentity(part.name), part.input),
           status: includes(ACTIVITY_STATUSES, part.status) ? part.status : "done",
         },
       ];

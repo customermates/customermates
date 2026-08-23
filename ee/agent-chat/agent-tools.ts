@@ -17,6 +17,7 @@ import {
 import { AgentTourSchema } from "./agent-tours";
 import { OpenRecordSchema } from "./ui-operations";
 import type { AgentApprovalContextResolution } from "./agent-external-approval-context";
+import { internalToolIdentity } from "./tool-identity";
 
 export type ApprovalDecision = "approve" | "reject" | "timeout";
 export type AgentUiCommandOutcome = { ok: boolean; result: string };
@@ -171,7 +172,7 @@ function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
         return agentToolResult(outcome, deps.resultMaxChars);
       };
       return runSafely(async () => {
-        if (!requiresApproval(mcp, input)) return run();
+        if (!requiresApproval(internalToolIdentity(mcp.name), mcp, input)) return run();
         const approvalContext = await deps.resolveApprovalContext(mcp.name, input);
         if (!approvalContext.ok) return { ok: false, result: approvalContext.result };
         return runGated(deps, toolCallId, mcp.name, approvalContext.input, run);

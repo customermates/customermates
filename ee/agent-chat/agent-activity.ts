@@ -1,6 +1,8 @@
 import { z } from "zod";
 
 import { approvalFreeActionsForTool, readOnlyActionsForTool } from "./gated-tools";
+import type { AgentToolIdentity } from "./tool-identity";
+import { internalToolIdentity, isInternalToolIdentity } from "./tool-identity";
 
 import { sanitizeAgentVisibleText } from "./agent-output-safety";
 import type { AgentTranslator } from "./agent-translator";
@@ -205,16 +207,19 @@ function actionValue(input: Record<string, unknown>) {
 
 function isMultiplexedRead(toolName: string, details: Record<string, unknown>): boolean {
   const action = actionValue(details);
-  return Boolean(action && readOnlyActionsForTool(toolName)?.includes(action));
+  return Boolean(action && readOnlyActionsForTool(internalToolIdentity(toolName))?.includes(action));
 }
 
 function multiplexedRisk(toolName: string, details: Record<string, unknown>): "write" | "sensitive" {
-  const approvalFree = approvalFreeActionsForTool(toolName);
+  const approvalFree = approvalFreeActionsForTool(internalToolIdentity(toolName));
   const action = actionValue(details);
   return approvalFree && action && approvalFree.includes(action) ? "write" : "sensitive";
 }
 
-export function describeAgentTool(toolName: string, input: unknown): AgentActivityDescriptor {
+export function describeAgentTool(identity: AgentToolIdentity, input: unknown): AgentActivityDescriptor {
+  if (!isInternalToolIdentity(identity)) return descriptor("generic", undefined, "sensitive");
+
+  const toolName = identity.name;
   const resource = TOOL_RESOURCE[toolName] ?? entityResource(input);
   const details = inputRecord(input);
 

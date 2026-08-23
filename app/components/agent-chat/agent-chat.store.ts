@@ -27,6 +27,7 @@ import {
   respondToUiCommandAction,
 } from "./actions";
 import { appLocaleOrDefault } from "@/i18n/locale-registry";
+import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 
 export type AgentChatItem =
   | { kind: "user"; id: string; messageId: string; text: string; at?: Date }
@@ -499,7 +500,7 @@ export class AgentChatStore extends BaseStore {
         id: nextItemId(),
         providerCallId: part.id,
         ...(messageId ? { turnKey: `message-${messageId}` } : {}),
-        activity: describeAgentTool(part.name, part.input),
+        activity: describeAgentTool(internalToolIdentity(part.name), part.input),
         status:
           part.status === "running"
             ? "running"
