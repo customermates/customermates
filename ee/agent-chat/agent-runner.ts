@@ -395,23 +395,27 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
             providerStepsStarted += 1;
           },
           prepareStep: ({ steps = [] }) => {
+            const fitsBudget = (context: ReturnType<typeof compactAgentContinuationContext>) =>
+              isAgentStepContextWithinBudget(
+                { ...providerContext, system: context.system },
+                context.messages,
+                ctx.turnBudget.maxContextBytes,
+              );
+
+            const whole = compactAgentContinuationContext({
+              system: providerContext.system,
+              initialMessages: modelMessages,
+              steps,
+              retainedResponseSteps: steps.length,
+            });
+            if (fitsBudget(whole)) return { system: whole.system, messages: whole.messages };
+
             const compacted = compactAgentContinuationContext({
               system: providerContext.system,
               initialMessages: modelMessages,
               steps,
             });
-            const compactedProviderContext = {
-              ...providerContext,
-              system: compacted.system,
-            };
-            if (
-              !isAgentStepContextWithinBudget(
-                compactedProviderContext,
-                compacted.messages,
-                ctx.turnBudget.maxContextBytes,
-              )
-            )
-              throw new Error("The assistant context exceeds its safe turn budget.");
+            if (!fitsBudget(compacted)) throw new Error("The assistant context exceeds its safe turn budget.");
 
             return {
               system: compacted.system,

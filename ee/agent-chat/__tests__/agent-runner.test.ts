@@ -441,7 +441,7 @@ describe("agent runner approval rendezvous", () => {
     });
   });
 
-  it("wires bounded continuation compaction into each provider step", async () => {
+  const compactionHarness = (oldResult: string) => {
     let prepared: { system?: string; messages?: unknown[] } | undefined;
     aiMock.streamText.mockImplementation(
       (options: {
@@ -450,33 +450,28 @@ describe("agent runner approval rendezvous", () => {
           messages?: unknown[];
         };
       }) => {
-        const cumulativeMessages: Array<{ role: string; content: string }> = [];
-        const step = (label: string, result: string) => {
-          cumulativeMessages.push({ role: "assistant", content: result });
-          return {
-            finishReason: "tool-calls",
-            content: [
-              {
-                type: "tool-call",
-                toolCallId: `${label}-call`,
-                toolName: "list_records",
-                input: { entity: "contact" },
-              },
-              {
-                type: "tool-result",
-                toolCallId: `${label}-call`,
-                toolName: "list_records",
-                output: { ok: true, result },
-              },
-            ],
-            response: {
-              messages: [...cumulativeMessages],
+        const step = (label: string, result: string) => ({
+          finishReason: "tool-calls",
+          content: [
+            {
+              type: "tool-call",
+              toolCallId: `${label}-call`,
+              toolName: "list_records",
+              input: { entity: "contact" },
             },
-          };
-        };
+            {
+              type: "tool-result",
+              toolCallId: `${label}-call`,
+              toolName: "list_records",
+              output: { ok: true, result },
+            },
+          ],
+          response: { messages: [{ role: "assistant", content: result }] },
+        });
+
         prepared = options.prepareStep({
           steps: [
-            step("old", "private-old-result"),
+            step("old", oldResult),
             step("recent-one", "recent-result-one"),
             step("recent-two", "recent-result-two"),
           ],
@@ -486,12 +481,31 @@ describe("agent runner approval rendezvous", () => {
         });
       },
     );
+    return () => prepared;
+  };
+
+  it("keeps every step of the transcript while it fits the step budget", async () => {
+    const read = compactionHarness("older-result");
 
     await runAndRead(ctx());
 
-    expect(prepared?.system).toContain("<agent_continuation_checkpoint>");
-    expect(prepared?.system).not.toContain("private-old-result");
-    expect(prepared?.messages).toEqual([
+    expect(read()?.system).not.toContain("<agent_continuation_checkpoint>");
+    expect(read()?.messages).toEqual([
+      { role: "user", content: "create a contact named Anna" },
+      { role: "assistant", content: "older-result" },
+      { role: "assistant", content: "recent-result-one" },
+      { role: "assistant", content: "recent-result-two" },
+    ]);
+  });
+
+  it("compacts older steps into a checkpoint once the transcript exceeds the step budget", async () => {
+    const read = compactionHarness(`private-old-result-${"x".repeat(220_000)}`);
+
+    await runAndRead(ctx());
+
+    expect(read()?.system).toContain("<agent_continuation_checkpoint>");
+    expect(read()?.system).not.toContain("private-old-result");
+    expect(read()?.messages).toEqual([
       { role: "user", content: "create a contact named Anna" },
       { role: "assistant", content: "recent-result-one" },
       { role: "assistant", content: "recent-result-two" },

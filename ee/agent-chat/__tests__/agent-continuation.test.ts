@@ -142,17 +142,6 @@ function hostedToolSearchStep(): AgentContinuationStep {
   };
 }
 
-function withCumulativeResponseMessages(steps: AgentContinuationStep[]) {
-  const messages: ModelMessage[] = [];
-  return steps.map((current) => {
-    messages.push(...current.response.messages);
-    return {
-      ...current,
-      response: { messages: [...messages] },
-    };
-  });
-}
-
 const limits: AgentContinuationLimits = {
   maxProviderSteps: 20,
   maxWriteActivities: 40,
@@ -188,11 +177,11 @@ describe("agent continuation context compaction", () => {
       { role: "assistant", content: "admitted replay" },
       { role: "user", content: "current admitted request" },
     ];
-    const steps = withCumulativeResponseMessages([
+    const steps = [
       step([{ name: "get_workspace_context" }], "tool-calls", "old-response"),
       step([{ name: "get_workspace_context" }], "tool-calls", "recent-response-1"),
       step([{ name: "get_workspace_context" }], "tool-calls", "recent-response-2"),
-    ]);
+    ];
 
     const compacted = compactAgentContinuationContext({
       system: "stable system prompt",
@@ -266,14 +255,14 @@ describe("agent continuation context compaction", () => {
     const compacted = compactAgentContinuationContext({
       system: "system",
       initialMessages: [{ role: "user", content: "inspect each schema, then continue" }],
-      steps: withCumulativeResponseMessages([
+      steps: [
         step([{ name: "get_workspace_context" }], "tool-calls", "workspace-response"),
         step([{ name: "get_record_schema", input: { entity: "contact" } }], "tool-calls", "contact-response"),
         step([{ name: "get_record_schema", input: { entity: "organization" } }], "tool-calls", "organization-response"),
         step([{ name: "get_record_schema", input: { entity: "deal" } }], "tool-calls", "deal-response"),
         step([{ name: "get_record_schema", input: { entity: "service" } }], "tool-calls", "service-response"),
         step([{ name: "get_record_schema", input: { entity: "task" } }], "tool-calls", "task-response"),
-      ]),
+      ],
     });
 
     expect(
@@ -313,11 +302,7 @@ describe("agent continuation context compaction", () => {
     const compacted = compactAgentContinuationContext({
       system: "system",
       initialMessages: [{ role: "user", content: "safe request" }],
-      steps: withCumulativeResponseMessages([
-        ...oldSteps,
-        step([], "tool-calls", "recent-1"),
-        step([], "tool-calls", "recent-2"),
-      ]),
+      steps: [...oldSteps, step([], "tool-calls", "recent-1"), step([], "tool-calls", "recent-2")],
       checkpointMaxBytes: AGENT_CONTINUATION_CHECKPOINT_MAX_BYTES,
     });
 
@@ -336,7 +321,7 @@ describe("agent continuation context compaction", () => {
     const compacted = compactAgentContinuationContext({
       system: "system",
       initialMessages,
-      steps: withCumulativeResponseMessages([step([], "tool-calls"), step([], "tool-calls")]),
+      steps: [step([], "tool-calls"), step([], "tool-calls")],
     });
 
     expect(compacted.system).toBe("system");
@@ -349,11 +334,7 @@ describe("agent continuation context compaction", () => {
     const compacted = compactAgentContinuationContext({
       system: "system",
       initialMessages: [{ role: "user", content: "request" }],
-      steps: withCumulativeResponseMessages([
-        hostedSearch,
-        step([], "tool-calls", "recent-1"),
-        step([], "tool-calls", "recent-2"),
-      ]),
+      steps: [hostedSearch, step([], "tool-calls", "recent-1"), step([], "tool-calls", "recent-2")],
     });
 
     expect(compacted.retainedToolSearchResponseSteps).toBe(1);
@@ -384,15 +365,15 @@ describe("agent continuation context compaction", () => {
     });
   });
 
-  it("derives each retained bundle from the SDK's cumulative response history", () => {
-    const steps = withCumulativeResponseMessages([
+  it("derives each retained bundle from the SDK's per-step response history", () => {
+    const steps = [
       step([], "tool-calls", "first"),
       step([], "tool-calls", "second"),
       step([], "tool-calls", "third"),
       step([], "tool-calls", "fourth"),
-    ]);
+    ];
 
-    expect(steps.map((current) => current.response.messages.length)).toEqual([1, 2, 3, 4]);
+    expect(steps.map((current) => current.response.messages.length)).toEqual([1, 1, 1, 1]);
 
     const compacted = compactAgentContinuationContext({
       system: "system",

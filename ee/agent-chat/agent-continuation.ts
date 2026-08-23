@@ -257,15 +257,7 @@ function stepHasHostedToolSearch(step: AgentContinuationStep) {
 }
 
 function responseMessagesByStep(steps: readonly AgentContinuationStep[]) {
-  let previousMessageCount = 0;
-  return steps.map((step) => {
-    const messages = step.response.messages;
-    if (messages.length < previousMessageCount)
-      throw new Error("Agent continuation response history is not cumulative.");
-    const currentStepMessages = messages.slice(previousMessageCount);
-    previousMessageCount = messages.length;
-    return currentStepMessages;
-  });
+  return steps.map((step) => step.response.messages);
 }
 
 function hostedToolSearchMessages(messages: readonly ModelMessage[]) {
@@ -330,9 +322,11 @@ export function compactAgentContinuationContext(args: {
   initialMessages: readonly ModelMessage[];
   steps: readonly AgentContinuationStep[];
   checkpointMaxBytes?: number;
+  retainedResponseSteps?: number;
 }): AgentContinuationContext {
   const responseMessages = responseMessagesByStep(args.steps);
-  const retainedStepStart = Math.max(0, args.steps.length - AGENT_CONTINUATION_RETAINED_RESPONSE_STEPS);
+  const retainedResponseSteps = args.retainedResponseSteps ?? AGENT_CONTINUATION_RETAINED_RESPONSE_STEPS;
+  const retainedStepStart = Math.max(0, args.steps.length - retainedResponseSteps);
   const retainedSteps = args.steps.slice(retainedStepStart);
   const olderSteps = args.steps.slice(0, retainedStepStart);
   const retainedToolSearchStepIndexes = olderSteps.flatMap((step, index) =>
