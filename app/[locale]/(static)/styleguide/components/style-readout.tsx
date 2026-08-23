@@ -18,6 +18,19 @@ function sameValues(a: Record<string, string>, b: Record<string, string>) {
   return keys.length === Object.keys(a).length && keys.every((key) => a[key] === b[key]);
 }
 
+function useViewportWidth() {
+  const [width, setWidth] = useState(0);
+
+  useEffect(() => {
+    const read = () => setWidth(window.innerWidth);
+    read();
+    window.addEventListener("resize", read);
+    return () => window.removeEventListener("resize", read);
+  }, []);
+
+  return width;
+}
+
 export function TokenTable({ rows }: { rows: TokenRow[] }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [values, setValues] = useState<Record<string, string>>({});
@@ -67,6 +80,7 @@ export function TypeTable({ rows }: { rows: TypeRow[] }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [values, setValues] = useState<Record<string, string>>({});
   const { resolvedTheme } = useTheme();
+  const width = useViewportWidth();
 
   useEffect(() => {
     const host = hostRef.current;
@@ -81,7 +95,7 @@ export function TypeTable({ rows }: { rows: TypeRow[] }) {
       next[row.className] = `${style.fontSize} / ${style.fontWeight} / ${style.letterSpacing} / ${style.lineHeight}`;
     }
     setValues((current) => (sameValues(current, next) ? current : next));
-  }, [rows, resolvedTheme]);
+  }, [rows, resolvedTheme, width]);
 
   return (
     <div ref={hostRef} className="flex flex-col gap-8">
@@ -100,6 +114,61 @@ export function TypeTable({ rows }: { rows: TypeRow[] }) {
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+const BREAKPOINTS = [
+  { min: 1024, name: "lg" },
+  { min: 896, name: "nav" },
+  { min: 768, name: "md" },
+  { min: 640, name: "sm" },
+  { min: 0, name: "base" },
+];
+
+export function GridReadout() {
+  const hostRef = useRef<HTMLDivElement>(null);
+  const [readout, setReadout] = useState({ column: "…", gap: "…" });
+  const width = useViewportWidth();
+
+  useEffect(() => {
+    const host = hostRef.current;
+    if (!host) return;
+
+    const first = host.firstElementChild;
+    if (!first) return;
+
+    const next = {
+      column: `${first.getBoundingClientRect().width.toFixed(1)}px`,
+      gap: getComputedStyle(host).columnGap,
+    };
+    setReadout((current) => (current.column === next.column && current.gap === next.gap ? current : next));
+  }, [width]);
+
+  const active = BREAKPOINTS.find((breakpoint) => width >= breakpoint.min)?.name ?? "base";
+
+  return (
+    <div>
+      <div ref={hostRef} className="marketing-grid h-24">
+        {Array.from({ length: 12 }, (_, index) => (
+          <div key={index} className="rounded-md bg-muted" />
+        ))}
+      </div>
+
+      <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
+        {[
+          { label: "viewport", value: width ? `${width}px` : "…" },
+          { label: "active variant", value: active },
+          { label: "column gap", value: readout.gap },
+          { label: "column width", value: readout.column },
+        ].map((entry) => (
+          <div key={entry.label}>
+            <dt className="text-eyebrow">{entry.label}</dt>
+
+            <dd className="mt-1.5 font-mono text-sm">{entry.value}</dd>
+          </div>
+        ))}
+      </dl>
     </div>
   );
 }

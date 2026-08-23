@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 
+import { ImageClasses } from "./components/image-classes";
+import { ResponsiveContract } from "./components/responsive-contract";
+import { SectionPatterns } from "./components/section-patterns";
 import { TokenTable, TypeTable } from "./components/style-readout";
 
 import { Footer } from "@/app/components/footer";
-import { CTASection } from "@/components/marketing/cta-section";
 import { MarketingContainer } from "@/components/marketing/marketing-container";
 import { MarketingSection } from "@/components/marketing/marketing-section";
 import { Button } from "@/components/ui/button";
@@ -12,6 +14,14 @@ export const metadata: Metadata = {
   title: "Marketing style guide",
   robots: { index: false, follow: false },
 };
+
+const CONTENTS = [
+  { href: "#foundations", label: "Foundations" },
+  { href: "#grid", label: "Grid and responsive contract" },
+  { href: "#patterns", label: "Section patterns" },
+  { href: "#images", label: "Image classes" },
+  { href: "#rules", label: "What the system forbids" },
+];
 
 const SURFACES = [
   { name: "--sidebar", role: "canvas — the plane behind the page, and the closing panel" },
@@ -52,14 +62,65 @@ const TYPE_ROLES = [
 ];
 
 const GEOMETRY = [
-  { label: "--container-marketing", value: "90rem", role: "the one content width every public page shares" },
-  { label: "--marketing-gutter", value: "1.25rem, 2rem from sm", role: "the page gutter" },
-  { label: "--breakpoint-nav", value: "56rem", role: "where the public navigation becomes a drawer" },
-  { label: "--radius-card", value: "--radius + 12px", role: "a media or content card" },
-  { label: "--radius-panel", value: "--radius + 16px", role: "a full-width band" },
-  { label: "--aspect-hero", value: "16 / 9", role: "pinned to the 1920×1080 hero assets" },
-  { label: "--marketing-duration", value: "200ms", role: "the one transition duration" },
-  { label: "--marketing-ease", value: "cubic-bezier(.22, 1, .36, 1)", role: "the one easing curve" },
+  { label: "--container-marketing", role: "the one content width every public page shares", value: "90rem" },
+  { label: "--marketing-gutter", role: "the page gutter, stepping at 40rem", value: "1.25rem → 2rem" },
+  { label: "--marketing-column-gap", role: "the grid gutter, stepping at 40rem and 64rem", value: "0.5 → 1 → 1.5rem" },
+  { label: "--breakpoint-nav", role: "where the public navigation becomes a drawer", value: "56rem" },
+  { label: "--radius-card", role: "a media or content card", value: "--radius + 12px" },
+  { label: "--radius-panel", role: "a full-width band", value: "--radius + 16px" },
+  { label: "--aspect-hero", role: "pinned to the 1920×1080 hero assets", value: "16 / 9" },
+  { label: "--aspect-social", role: "the card a link unfurls into", value: "1200 / 630" },
+  { label: "--marketing-duration", role: "the one transition duration", value: "200ms" },
+  { label: "--marketing-ease", role: "the one easing curve", value: "cubic-bezier(.22, 1, .36, 1)" },
+];
+
+const FORBIDDEN = [
+  { enforced: true, reason: "elevation is which rung a thing sits on, not how far it floats.", rule: "No shadow." },
+  {
+    enforced: true,
+    reason: "a wash carries state. Pinned to a surface it inverts between themes.",
+    rule: "No wash as a resting fill.",
+  },
+  {
+    enforced: true,
+    reason: "colour comes from the tokens, so a theme change reaches every pixel.",
+    rule: "No literal colour.",
+  },
+  {
+    enforced: true,
+    reason: "two radii cover every marketing surface, and a third reads as an accident.",
+    rule: "No radius off the scale.",
+  },
+  {
+    enforced: true,
+    reason: "the navigation boundary is declared once and read everywhere.",
+    rule: "No bespoke breakpoint.",
+  },
+  {
+    enforced: true,
+    reason: "the two display roles are fitted lines, not per-page guesses.",
+    rule: "No inline display clamp.",
+  },
+  {
+    enforced: false,
+    reason: "contrast comes from size, weight and tracking within one family.",
+    rule: "No second typeface.",
+  },
+  {
+    enforced: false,
+    reason: "the eyebrow is metadata. The reference site puts one above no section heading at all.",
+    rule: "No eyebrow above a section heading.",
+  },
+  {
+    enforced: false,
+    reason: "a third step turns a flat illustration into a rendering.",
+    rule: "No third ink opacity in an illustration.",
+  },
+  {
+    enforced: false,
+    reason: "a capture is evidence. A composited one is not.",
+    rule: "No product state the product cannot reach.",
+  },
 ];
 
 export default function StyleguidePage() {
@@ -72,20 +133,36 @@ export default function StyleguidePage() {
           <h1 className="text-display m-0 mt-6 max-w-5xl">The marketing design system, as it actually renders</h1>
 
           <p className="text-lede mt-8">
-            Every value on this page is read out of the running stylesheet at paint time, so it cannot drift from what
-            the public pages ship. Switch the theme in the navigation to see both grounds.
+            Every value on this page is read out of the running stylesheet at paint time, and every specimen is the
+            shipped component rather than a copy of it. Switch the theme in the navigation to see both grounds, and
+            resize the window to see the contract hold.
           </p>
+
+          <nav className="mt-12 flex flex-wrap gap-2.5">
+            {CONTENTS.map((entry) => (
+              <a
+                key={entry.href}
+                className="marketing-transition rounded-full border border-border bg-card px-4 py-2 text-sm hover:border-border-strong"
+                href={entry.href}
+              >
+                {entry.label}
+              </a>
+            ))}
+          </nav>
         </MarketingContainer>
       </section>
 
       <MarketingSection
         description="Three opaque rungs and no more. Fill says which plane a thing sits on; it never carries state."
+        id="foundations"
         title="Surfaces"
       >
-        <div className="mt-12 grid gap-4 lg:grid-cols-2">
-          <TokenTable rows={SURFACES} />
+        <div className="marketing-grid mt-14 gap-y-4 lg:mt-16">
+          <div className="col-span-12 lg:col-span-6">
+            <TokenTable rows={SURFACES} />
+          </div>
 
-          <div className="rounded-card border border-border bg-sidebar p-6">
+          <div className="col-span-12 rounded-card border border-border bg-sidebar p-6 lg:col-span-6">
             <p className="text-meta mb-4">Canvas, holding the page</p>
 
             <div className="rounded-card border border-border bg-background p-6">
@@ -103,10 +180,14 @@ export default function StyleguidePage() {
         description="Borders and washes are alpha, so one value per tier reads correctly on every rung and at any depth."
         title="Edges and washes"
       >
-        <div className="mt-12 grid gap-4 lg:grid-cols-2">
-          <TokenTable rows={EDGES} />
+        <div className="marketing-grid mt-14 gap-y-4 lg:mt-16">
+          <div className="col-span-12 lg:col-span-6">
+            <TokenTable rows={EDGES} />
+          </div>
 
-          <TokenTable rows={WASHES} />
+          <div className="col-span-12 lg:col-span-6">
+            <TokenTable rows={WASHES} />
+          </div>
         </div>
       </MarketingSection>
 
@@ -114,7 +195,7 @@ export default function StyleguidePage() {
         description="One accent, used where something resolves. Signal colours carry state and nothing else."
         title="Accent and signal"
       >
-        <div className="mt-12">
+        <div className="mt-14 lg:mt-16">
           <TokenTable rows={ACCENTS} />
         </div>
       </MarketingSection>
@@ -123,13 +204,13 @@ export default function StyleguidePage() {
         description="One family. Contrast comes from size, weight and tracking — the hero at 700, every heading below it at 500."
         title="Type"
       >
-        <div className="mt-12">
+        <div className="mt-14 lg:mt-16">
           <TypeTable rows={TYPE_ROLES} />
         </div>
       </MarketingSection>
 
       <MarketingSection description="Stated once, read everywhere." title="Geometry and motion">
-        <div className="mt-12 overflow-hidden rounded-card border border-border bg-card">
+        <div className="mt-14 overflow-hidden rounded-card border border-border bg-card lg:mt-16">
           <ul className="divide-y divide-border">
             {GEOMETRY.map((row) => (
               <li key={row.label} className="flex flex-wrap items-baseline gap-x-4 gap-y-1 px-5 py-3">
@@ -143,7 +224,7 @@ export default function StyleguidePage() {
           </ul>
         </div>
 
-        <div className="mt-8 flex flex-wrap items-end gap-6">
+        <div className="mt-10 flex flex-wrap items-end gap-6">
           <div>
             <p className="text-meta mb-3">rounded-card</p>
 
@@ -162,13 +243,8 @@ export default function StyleguidePage() {
             <div className="aspect-hero w-full rounded-card border border-border bg-placeholder" />
           </div>
         </div>
-      </MarketingSection>
 
-      <MarketingSection
-        description="The header above is the real component. Centred, no eyebrow, measure capped — the shape every section below the hero takes."
-        title="Sections and controls"
-      >
-        <div className="mt-12 flex flex-wrap gap-3">
+        <div className="mt-10 flex flex-wrap gap-3">
           <Button size="lg">Primary</Button>
 
           <Button size="lg" variant="secondary">
@@ -188,31 +264,53 @@ export default function StyleguidePage() {
           </Button>
         </div>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {["Card on the raised rung", "One border tier", "One radius", "No shadow"].map((label) => (
-            <article
-              key={label}
-              className="marketing-transition rounded-card border border-border bg-card p-6 hover:border-border-strong"
-            >
-              <h3 className="font-medium leading-tight">{label}</h3>
-
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Cards carry a single border and the card radius. Depth comes from the rung they sit on.
-              </p>
-            </article>
-          ))}
-        </div>
+        <p className="text-meta mt-5">
+          Every hover above moves over 200ms on the one curve. A control that animates on a different curve reads as a
+          different product.
+        </p>
       </MarketingSection>
 
-      <CTASection
-        action="This panel is the real closing component"
-        buttonLeftHref="/pricing"
-        buttonLeftText="Primary action"
-        buttonRightHref="/docs"
-        buttonRightText="Secondary action"
-        description="It sits on the canvas rung rather than inverting, so it reads as the end of the page in both themes without a second palette."
-        hint="Rendered from the shipped component, not a copy."
-      />
+      <div className="w-full" id="grid">
+        <ResponsiveContract />
+      </div>
+
+      <div className="w-full" id="patterns">
+        <MarketingContainer className="pt-20 pb-4">
+          <h2 className="text-display-sm m-0">Section patterns</h2>
+
+          <p className="text-lede mt-5">
+            Eleven shapes cover every public page. Each one below is rendered at full width, exactly as it ships, with
+            the grid spans it uses and the width it collapses at. A section that does not fit one of these is a new
+            pattern and belongs on this page before it belongs on a page.
+          </p>
+        </MarketingContainer>
+
+        <SectionPatterns />
+      </div>
+
+      <div className="w-full" id="images">
+        <ImageClasses />
+      </div>
+
+      <MarketingSection
+        description="The system is mostly a list of things it will not do. Six of these fail a convention test; the other four are read in review."
+        id="rules"
+        title="What the system forbids"
+      >
+        <div className="mt-14 overflow-hidden rounded-card border border-border bg-card lg:mt-16">
+          <ul className="divide-y divide-border">
+            {FORBIDDEN.map((entry) => (
+              <li key={entry.rule} className="flex flex-col gap-2 px-6 py-4 lg:flex-row lg:items-baseline lg:gap-6">
+                <span className="w-80 shrink-0 text-sm font-medium">{entry.rule}</span>
+
+                <span className="flex-1 text-sm text-muted-foreground">{entry.reason}</span>
+
+                <code className="text-meta shrink-0 font-mono">{entry.enforced ? "test" : "review"}</code>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </MarketingSection>
 
       <Footer />
     </div>
