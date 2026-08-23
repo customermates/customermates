@@ -37,7 +37,7 @@ import {
   type AgentTurnTerminalCode,
 } from "./agent-turn-request";
 import type { AgentUsageSettlement } from "./agent-usage-settlement";
-import { resolveAgentCreditEntitlement } from "./agent-credit-policy";
+import { agentCreditsForStartedProviderCost, resolveAgentCreditEntitlement } from "./agent-credit-policy";
 
 type StoredAgentTurnRow = {
   id: string;
@@ -73,6 +73,7 @@ type AgentTurnAdmissionArgs = {
   conversationId: string | null;
   title: string | null;
   runId: string;
+  reservationId: string;
   modelSpec: string;
   servingProvider: string;
   recentMessageLimit: number;
@@ -253,7 +254,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
 
       const reservation = await this.prisma.agentUsageEvent.findFirst({
         where: {
-          id: args.runId,
+          id: args.reservationId,
           companyId,
           userId,
           state: "reserved",
@@ -339,6 +340,12 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           },
         });
       }
+
+      const boundReservation = await this.prisma.agentUsageEvent.updateMany({
+        where: { id: args.reservationId, companyId, userId, state: "reserved" },
+        data: { turnRequestId: args.turn.turnRequestId },
+      });
+      if (boundReservation.count !== 1) throw new Error("Agent usage reservation could not be bound to the turn.");
 
       const touched = await this.prisma.agentConversation.updateMany({
         where: { id: conversationId, companyId, userId, archivedAt: null },
@@ -723,25 +730,27 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     if (nextStatus === "uncertain") {
       const reservation = await this.prisma.agentUsageEvent.findFirst({
         where: {
-          id: row.runId,
+          turnRequestId: row.id,
           companyId: this.companyId,
           userId: this.userId,
           state: "reserved",
         },
-        select: { reservedCredits: true },
+        select: { id: true },
       });
       if (!reservation) throw new Error("Interrupted agent usage reservation is missing.");
       const settled = await this.prisma.agentUsageEvent.updateMany({
         where: {
-          id: row.runId,
+          id: reservation.id,
           companyId: this.companyId,
           userId: this.userId,
           state: "reserved",
         },
         data: {
-          state: "retained",
+          state: "settled",
           model: row.modelSpec ?? model,
-          chargedCredits: reservation.reservedCredits,
+          costMicrocents: 0,
+          costSource: "estimated",
+          chargedCredits: agentCreditsForStartedProviderCost(0),
           settledAt: now,
         },
       });
@@ -749,7 +758,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     } else {
       const released = await this.prisma.agentUsageEvent.updateMany({
         where: {
-          id: row.runId,
+          turnRequestId: row.id,
           companyId: this.companyId,
           userId: this.userId,
           state: "reserved",
@@ -1023,13 +1032,18 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       });
       if (entitlement.blockedReason) throw new Error(`Agent credits are blocked: ${entitlement.blockedReason}.`);
       const reservation = await this.prisma.agentUsageEvent.findFirst({
-        where: { id: args.runId, companyId: args.companyId, userId: args.userId, state: "reserved" },
-        select: { reservedCredits: true },
+        where: {
+          turnRequestId: args.turnRequestId,
+          companyId: args.companyId,
+          userId: args.userId,
+          state: "reserved",
+        },
+        select: { id: true, reservedCredits: true },
       });
       if (!reservation) throw new Error("Agent usage reservation is missing at provider start.");
       const currentEvents = await this.prisma.agentUsageEvent.findMany({
         where: {
-          id: { not: args.runId },
+          id: { not: reservation.id },
           userId: args.userId,
           periodStart: entitlement.start,
           periodEnd: entitlement.resetAt,
@@ -1060,7 +1074,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
 
       const usage = await this.prisma.agentUsageEvent.updateMany({
         where: {
-          id: args.runId,
+          id: reservation.id,
           companyId: args.companyId,
           userId: args.userId,
           state: "reserved",
@@ -1161,7 +1175,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       if (settlement) {
         const settled = await this.prisma.agentUsageEvent.updateMany({
           where: {
-            id: args.runId,
+            turnRequestId: args.turnRequestId,
             companyId: args.companyId,
             userId: args.userId,
             state: "reserved",
@@ -1185,7 +1199,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       } else {
         const released = await this.prisma.agentUsageEvent.updateMany({
           where: {
-            id: args.runId,
+            turnRequestId: args.turnRequestId,
             companyId: args.companyId,
             userId: args.userId,
             state: "reserved",
@@ -1258,7 +1272,12 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
   }
 
   @BypassTenantGuard
-  async releasePreProviderAdmissionOrThrowUnscoped(args: { userId: string; companyId: string; runId: string }) {
+  async releasePreProviderAdmissionOrThrowUnscoped(args: {
+    userId: string;
+    companyId: string;
+    runId: string;
+    reservationId: string;
+  }) {
     return this.withCompanyTransaction(args.companyId, async () => {
       const turn = await this.prisma.agentTurnRequest.findFirst({
         where: {
@@ -1271,7 +1290,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       if (turn) return { disposition: "turn_exists" as const };
 
       const usage = await this.prisma.agentUsageEvent.findFirst({
-        where: { id: args.runId, companyId: args.companyId, userId: args.userId },
+        where: { id: args.reservationId, companyId: args.companyId, userId: args.userId },
         select: { state: true, providerStartedAt: true },
       });
       if (usage && (usage.state === "settled" || usage.state === "retained" || usage.providerStartedAt !== null))
@@ -1280,7 +1299,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       if (usage?.state === "reserved") {
         const released = await this.prisma.agentUsageEvent.updateMany({
           where: {
-            id: args.runId,
+            id: args.reservationId,
             companyId: args.companyId,
             userId: args.userId,
             state: "reserved",

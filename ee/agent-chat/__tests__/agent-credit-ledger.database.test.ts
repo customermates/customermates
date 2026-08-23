@@ -181,6 +181,49 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     expect(usage.usedCredits).toBe(8);
   });
 
+  it("binds the reservation to the turn, so it survives the run id changing under it", async () => {
+    const anchor = new Date(Date.UTC(2026, 0, 15));
+    const { companyId, userId } = await seedActiveSeat(anchor);
+    authState.user = createMockUser({ id: userId, companyId, email: `rekey-${userId}@example.com` });
+    const repo = new PrismaAgentChatRepo();
+    const usage = new AgentUsageService(repo);
+
+    const admitted = await new SendAgentMessageInteractor(repo, usage, entitlements as never).invoke({
+      clientRequestId: randomUUID(),
+      text: "Start a chat",
+      retry: false,
+    });
+    if (!admitted.ok || admitted.data.disposition !== "run") throw new Error("Expected an admitted turn.");
+    const { turnRequestId, runId, conversationId } = admitted.data;
+
+    const reservation = await runWithoutTenant(() =>
+      prisma.agentUsageEvent.findFirstOrThrow({ where: { userId, state: "reserved" } }),
+    );
+    expect(reservation.turnRequestId).toBe(turnRequestId);
+    expect(reservation.id).not.toBe(runId);
+
+    const movedRunId = randomUUID();
+    await runWithoutTenant(async () => {
+      await prisma.agentTurnRequest.update({ where: { id: turnRequestId }, data: { runId: movedRunId } });
+      await prisma.agentRunLease.update({ where: { userId }, data: { runId: movedRunId } });
+    });
+
+    await runWithoutTenant(() =>
+      repo.markAgentTurnProviderStartedUnscoped({
+        turnRequestId,
+        conversationId,
+        companyId,
+        userId,
+        runId: movedRunId,
+      }),
+    );
+
+    const started = await runWithoutTenant(() =>
+      prisma.agentUsageEvent.findUniqueOrThrow({ where: { id: reservation.id } }),
+    );
+    expect(started.providerStartedAt).not.toBeNull();
+  });
+
   it("rolls back a lease when phase-one credit reservation fails", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);

@@ -588,7 +588,8 @@ describe("agent access", () => {
     expect(repo.releasePreProviderAdmissionOrThrowUnscoped).toHaveBeenCalledWith({
       companyId: mockUser.companyId,
       userId: mockUser.id,
-      runId: reservation?.reservationId,
+      runId: expect.any(String),
+      reservationId: reservation?.reservationId,
     });
   });
 
@@ -618,6 +619,7 @@ describe("agent access", () => {
       companyId: mockUser.companyId,
       userId: mockUser.id,
       runId: expect.any(String),
+      reservationId: expect.any(String),
     });
   });
 

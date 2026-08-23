@@ -194,6 +194,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     if (!reservation) return createInteractorFailure(CustomErrorCode.agentLimitReached);
 
     const runId = randomUUID();
+    const reservationId = randomUUID();
     try {
       const claimed = await runInTransaction(async () => {
         const phaseOneAt = new Date();
@@ -203,7 +204,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         );
         if (!leaseClaimed) return false;
         await this.usageService.reserveUsage({
-          reservationId: runId,
+          reservationId,
           companyId: user.companyId,
           userId: user.id,
           reservation,
@@ -218,6 +219,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         conversationId: conversation?.id ?? null,
         title: data.text,
         runId,
+        reservationId,
         modelSpec: reservation.budget.modelSpec,
         servingProvider: reservation.budget.servingProvider,
         recentMessageLimit: AGENT_REPLAY_COUNT,
@@ -274,6 +276,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           companyId: user.companyId,
           userId: user.id,
           runId,
+          reservationId,
         });
       } catch (cleanupError) {
         Sentry.captureException(cleanupError, {

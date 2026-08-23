@@ -95,7 +95,8 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
 
   it("atomically admits a fenced turn and sanitizes its conversation title", async () => {
     prismaMock.agentRunLease.updateMany.mockResolvedValue({ count: 1 });
-    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({ id: "run-1" });
+    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({ id: "reservation-1" });
+    prismaMock.agentUsageEvent.updateMany.mockResolvedValue({ count: 1 });
     prismaMock.agentConversation.create.mockResolvedValue({ id: "conversation-1" });
     prismaMock.agentConversation.updateMany.mockResolvedValue({ count: 1 });
     prismaMock.agentMessage.findMany.mockResolvedValue([
@@ -107,6 +108,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         conversationId: null,
         title: '<page_context route="/private"/>Import failed apiKey=never-show',
         runId: "run-1",
+        reservationId: "reservation-1",
         modelSpec: "openai/gpt-5.6-luna",
         servingProvider: "openai",
         recentMessageLimit: 8,
@@ -141,7 +143,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     });
     expect(prismaMock.agentUsageEvent.findFirst).toHaveBeenCalledWith({
       where: {
-        id: "run-1",
+        id: "reservation-1",
         companyId: user.companyId,
         userId: user.id,
         state: "reserved",
@@ -182,6 +184,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           conversationId: null,
           title: "Hello",
           runId: "run-expired",
+          reservationId: "reservation-1",
           modelSpec: "openai/gpt-5.6-luna",
           servingProvider: "openai",
           recentMessageLimit: 8,
@@ -213,6 +216,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           conversationId: null,
           title: "Hello",
           runId: "run-missing",
+          reservationId: "reservation-1",
           modelSpec: "openai/gpt-5.6-luna",
           servingProvider: "openai",
           recentMessageLimit: 8,
@@ -235,7 +239,8 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
 
   it("retries a failed turn inside the fenced admission transaction", async () => {
     prismaMock.agentRunLease.updateMany.mockResolvedValue({ count: 1 });
-    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({ id: "run-2" });
+    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({ id: "reservation-1" });
+    prismaMock.agentUsageEvent.updateMany.mockResolvedValue({ count: 1 });
     prismaMock.agentConversation.findFirst.mockResolvedValue({ id: "conversation-1" });
     prismaMock.agentTurnRequest.updateMany.mockResolvedValue({ count: 1 });
     prismaMock.agentConversation.updateMany.mockResolvedValue({ count: 1 });
@@ -246,6 +251,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         conversationId: "conversation-1",
         title: null,
         runId: "run-2",
+        reservationId: "reservation-1",
         modelSpec: "openai/gpt-5.6-luna",
         servingProvider: "openai",
         recentMessageLimit: 8,
@@ -791,7 +797,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         },
       },
     });
-    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({ reservedCredits: 5 });
+    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({ id: "reservation-1", reservedCredits: 5 });
     prismaMock.agentUsageEvent.findMany.mockResolvedValue([]);
     prismaMock.agentUsageEvent.updateMany.mockResolvedValue({ count: 1 });
 
@@ -830,7 +836,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     });
     expect(prismaMock.agentUsageEvent.updateMany).toHaveBeenCalledWith({
       where: {
-        id: "run-1",
+        id: "reservation-1",
         companyId: user.companyId,
         userId: user.id,
         state: "reserved",
@@ -998,7 +1004,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     });
     expect(prismaMock.agentUsageEvent.updateMany).toHaveBeenCalledWith({
       where: {
-        id: "run-1",
+        turnRequestId: "turn-1",
         companyId: user.companyId,
         userId: user.id,
         state: "reserved",
@@ -1199,7 +1205,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     await runWithTenant(user, () => new PrismaAgentChatRepo().normalizeExpiredAgentRunLease(now, "claude-test"));
 
     expect(prismaMock.agentUsageEvent.updateMany).toHaveBeenCalledWith({
-      where: { id: "run-1", companyId: user.companyId, userId: user.id, state: "reserved" },
+      where: { turnRequestId: "turn-1", companyId: user.companyId, userId: user.id, state: "reserved" },
       data: { state: "released", chargedCredits: 0, settledAt: now },
     });
     expect(prismaMock.agentTurnRequest.updateMany).toHaveBeenCalledWith(
@@ -1207,7 +1213,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     );
   });
 
-  it("conservatively settles stale post-provider reservations and marks the turn uncertain", async () => {
+  it("charges an abandoned post-provider turn one started cent, not its whole reservation", async () => {
     const now = new Date("2026-08-06T10:10:00.000Z");
     prismaMock.agentRunLease.findFirst.mockResolvedValue({
       runId: "run-1",
@@ -1216,7 +1222,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentTurnRequest.findFirst.mockResolvedValue(
       storedTurn({ providerStartedAt: new Date("2026-08-06T09:59:00.000Z") }),
     );
-    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({ reservedCredits: 7 });
+    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({ id: "reservation-1" });
     prismaMock.agentUsageEvent.updateMany.mockResolvedValue({ count: 1 });
     prismaMock.agentTurnRequest.updateMany.mockResolvedValue({ count: 1 });
     prismaMock.agentRunLease.deleteMany.mockResolvedValue({ count: 1 });
@@ -1224,11 +1230,13 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     await runWithTenant(user, () => new PrismaAgentChatRepo().normalizeExpiredAgentRunLease(now, "claude-test"));
 
     expect(prismaMock.agentUsageEvent.updateMany).toHaveBeenCalledWith({
-      where: { id: "run-1", companyId: user.companyId, userId: user.id, state: "reserved" },
+      where: { id: "reservation-1", companyId: user.companyId, userId: user.id, state: "reserved" },
       data: {
-        state: "retained",
+        state: "settled",
         model: "claude-test",
-        chargedCredits: 7,
+        costMicrocents: 0,
+        costSource: "estimated",
+        chargedCredits: 1,
         settledAt: now,
       },
     });
@@ -1247,12 +1255,13 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       userId: user.id,
       companyId: user.companyId,
       runId: "run-2",
+      reservationId: "reservation-2",
     });
 
     expect(result).toEqual({ disposition: "released" });
     expect(prismaMock.agentUsageEvent.updateMany).toHaveBeenCalledWith({
       where: {
-        id: "run-2",
+        id: "reservation-2",
         userId: user.id,
         companyId: user.companyId,
         state: "reserved",
@@ -1277,6 +1286,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       userId: user.id,
       companyId: user.companyId,
       runId: "run-2",
+      reservationId: "reservation-2",
     });
 
     expect(result).toEqual({ disposition: "turn_exists" });
@@ -1296,6 +1306,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         userId: user.id,
         companyId: user.companyId,
         runId: "run-2",
+        reservationId: "reservation-2",
       });
 
       expect(result).toEqual({ disposition: "released" });
@@ -1314,6 +1325,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         userId: user.id,
         companyId: user.companyId,
         runId: "run-2",
+        reservationId: "reservation-2",
       }),
     ).rejects.toThrow("could not be released");
     expect(prismaMock.agentRunLease.deleteMany).not.toHaveBeenCalled();
@@ -1331,6 +1343,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         userId: user.id,
         companyId: user.companyId,
         runId: "run-2",
+        reservationId: "reservation-2",
       }),
     ).rejects.toThrow("provider-start evidence");
     expect(prismaMock.agentUsageEvent.updateMany).not.toHaveBeenCalled();
