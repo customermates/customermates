@@ -3,6 +3,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
 import { createZodError } from "@/core/validation/validation.utils";
 
+import { buildAgentUsageSettlement } from "../agent-usage-settlement";
+
 const repoMock = vi.hoisted(() => ({
   createPendingApprovalRequestOrThrowUnscoped: vi.fn().mockResolvedValue(undefined),
   discardPendingApprovalRequestUnscoped: vi.fn().mockResolvedValue(undefined),
@@ -17,27 +19,6 @@ const aiMock = vi.hoisted(() => ({
 }));
 const llmMock = vi.hoisted(() => ({
   buildTurnUsageSettlement: vi.fn(),
-  hasProviderUsageEvidence: vi.fn(
-    (usage: {
-      inputTokens?: unknown;
-      inputTokenDetails?: {
-        noCacheTokens?: unknown;
-        cacheReadTokens?: unknown;
-        cacheWriteTokens?: unknown;
-      };
-      outputTokens?: unknown;
-    }) => {
-      const details = usage.inputTokenDetails;
-      return (
-        typeof usage.inputTokens === "number" &&
-        typeof usage.outputTokens === "number" &&
-        typeof details?.noCacheTokens === "number" &&
-        typeof details.cacheReadTokens === "number" &&
-        typeof details.cacheWriteTokens === "number" &&
-        details.noCacheTokens + details.cacheReadTokens + details.cacheWriteTokens === usage.inputTokens
-      );
-    },
-  ),
   usageToTokenCounts: vi.fn(() => ({
     inputTokens: 0,
     outputTokens: 0,
@@ -212,15 +193,32 @@ beforeEach(() => {
       chargedCredits: args.usageSettlement?.chargedCredits ?? 0,
     }),
   );
-  llmMock.buildTurnUsageSettlement.mockImplementation((_lane, tokens, options) => ({
-    ...tokens,
-    model: "model-1",
-    costMicrocents: options?.retainReservation ? 20_000_000 : 100_000,
-    reservedCredits: options.reservedCredits,
-    chargedCredits: options?.retainReservation ? options.reservedCredits : 1,
-    policyBreach: false,
-  }));
+  llmMock.buildTurnUsageSettlement.mockImplementation((modelSpec, tokens, options) =>
+    buildAgentUsageSettlement({ model: modelSpec, tokens, ...options }),
+  );
 });
+
+function meteredStep(inferenceCost: string) {
+  return {
+    gateway: {
+      routing: {
+        finalProvider: "openai",
+        modelAttempts: [
+          { success: true, providerAttempts: [{ provider: "openai", credentialType: "system", success: true }] },
+        ],
+        totalProviderAttemptCount: 1,
+      },
+      inferenceCost,
+      generationId: "gen_test",
+    },
+  };
+}
+
+const UNBILLED_ATTEMPT = {
+  gateway: {
+    routing: { modelAttempts: [{ success: false, providerAttempts: [] }], totalProviderAttemptCount: 0 },
+  },
+};
 
 describe("agent runner approval rendezvous", () => {
   it("emits approval_request, resolves on a recorded approve decision, then persists the reply", async () => {
@@ -781,7 +779,7 @@ describe("agent runner approval rendezvous", () => {
     );
   });
 
-  it("retains the full reservation when a later provider step errors after reporting partial usage", async () => {
+  it("quarantines the measured total when a later provider step errors before it is accounted", async () => {
     llmMock.usageToTokenCounts.mockReturnValueOnce({
       inputTokens: 100,
       outputTokens: 20,
@@ -803,6 +801,7 @@ describe("agent runner approval rendezvous", () => {
             outputTokens: 20,
           },
           finishReason: "tool-calls",
+          providerMetadata: meteredStep("0.00500000"),
         };
         options.experimental_onStepStart();
         yield { type: "error", error: new Error("upstream 529") };
@@ -825,19 +824,25 @@ describe("agent runner approval rendezvous", () => {
     expect(llmMock.buildTurnUsageSettlement).toHaveBeenCalledWith(
       "openai/gpt-5.6-luna",
       expect.objectContaining({ inputTokens: 100, outputTokens: 20 }),
-      { reservedCredits: 110, retainReservation: true },
+      expect.objectContaining({
+        reservedCredits: 110,
+        providerCharge: expect.objectContaining({ billed: true, measuredCostMicrocents: null }),
+      }),
     );
     expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         usageSettlement: expect.objectContaining({
-          costMicrocents: 20_000_000,
+          costMicrocents: 4_400,
+          costSource: "estimated",
+          chargedCredits: 1,
+          state: "settled",
         }),
       }),
     );
     expect(events.at(-1)).toMatchObject({ type: "turn_done", isError: true });
   });
 
-  it("retains when the next provider step starts before the prior finish event is consumed", async () => {
+  it("does not bill a measured cost while a started step is still unaccounted", async () => {
     aiMock.streamText.mockImplementation((options: { experimental_onStepStart: () => void }) => ({
       fullStream: (function* () {
         options.experimental_onStepStart();
@@ -864,13 +869,16 @@ describe("agent runner approval rendezvous", () => {
 
     await runAndRead(ctx());
 
-    expect(llmMock.buildTurnUsageSettlement).toHaveBeenCalledWith("openai/gpt-5.6-luna", expect.anything(), {
-      reservedCredits: 44,
-      retainReservation: true,
-    });
+    expect(llmMock.buildTurnUsageSettlement).toHaveBeenCalledWith(
+      "openai/gpt-5.6-luna",
+      expect.anything(),
+      expect.objectContaining({
+        providerCharge: expect.objectContaining({ measuredCostMicrocents: null }),
+      }),
+    );
   });
 
-  it("retains the full reservation when an in-flight turn is aborted after a completed step", async () => {
+  it("charges only the completed step when an in-flight turn is aborted", async () => {
     const abortController = new AbortController();
     aiMock.streamText.mockImplementation((options: { experimental_onStepStart: () => void }) => ({
       fullStream: (function* () {
@@ -895,16 +903,14 @@ describe("agent runner approval rendezvous", () => {
 
     const events = await runAndRead(ctx(), abortController.signal);
 
-    expect(llmMock.buildTurnUsageSettlement).toHaveBeenCalledWith("openai/gpt-5.6-luna", expect.anything(), {
-      reservedCredits: 44,
-      retainReservation: true,
-    });
     expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         terminalCode: "cancelled",
-        usageSettlement: expect.any(Object),
+        usageSettlement: expect.objectContaining({ state: "settled", costSource: "estimated" }),
       }),
     );
+    const [settlement] = repoMock.finalizeAgentTurnOrThrowUnscoped.mock.calls.at(-1) ?? [];
+    expect(settlement?.usageSettlement?.chargedCredits).toBeLessThan(44);
     expect(events.some((event) => event.type === "turn_done")).toBe(false);
   });
 
@@ -948,7 +954,7 @@ describe("agent runner approval rendezvous", () => {
     expect(llmMock.buildTurnUsageSettlement).toHaveBeenCalledWith(
       "openai/gpt-5.6-luna",
       expect.objectContaining({ inputTokens: 100, outputTokens: 20 }),
-      { reservedCredits: 44, retainReservation: false },
+      expect.objectContaining({ reservedCredits: 44 }),
     );
     expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -1050,7 +1056,7 @@ describe("agent runner approval rendezvous", () => {
     );
   });
 
-  it("retains the reservation when the provider may have billed without reporting usage", async () => {
+  it("settles at the pinned estimate when a provider error leaves the charge unproven", async () => {
     const error = new Error("provider unavailable");
     aiMock.streamText.mockReturnValue({
       fullStream: (function* () {
@@ -1060,10 +1066,18 @@ describe("agent runner approval rendezvous", () => {
 
     const events = await runAndRead(ctx());
 
-    expect(llmMock.buildTurnUsageSettlement).toHaveBeenCalledWith("openai/gpt-5.6-luna", expect.anything(), {
-      reservedCredits: 44,
-      retainReservation: true,
-    });
+    expect(llmMock.buildTurnUsageSettlement).toHaveBeenCalledWith(
+      "openai/gpt-5.6-luna",
+      expect.anything(),
+      expect.objectContaining({
+        providerCharge: expect.objectContaining({ billed: true, measuredCostMicrocents: null }),
+      }),
+    );
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({
+        usageSettlement: expect.objectContaining({ state: "settled", costSource: "estimated", chargedCredits: 1 }),
+      }),
+    );
     expect(events.at(-1)).toMatchObject({ type: "turn_done", isError: true });
     expect(sentryMock.captureException).toHaveBeenCalledOnce();
     expect(sentryMock.captureException).toHaveBeenCalledWith(error);
@@ -1079,7 +1093,7 @@ describe("agent runner approval rendezvous", () => {
     );
   });
 
-  it("retains the reservation after a successful provider response without explicit cache-write evidence", async () => {
+  it("charges the gateway's measured cost for a completed single-step response", async () => {
     aiMock.streamText.mockReturnValue({
       fullStream: (function* () {
         yield { type: "text-delta", text: "Done." };
@@ -1091,6 +1105,7 @@ describe("agent runner approval rendezvous", () => {
             outputTokens: 20,
           },
           finishReason: "stop",
+          providerMetadata: meteredStep("0.00500000"),
         };
         yield { type: "finish", finishReason: "stop" };
       })(),
@@ -1098,13 +1113,50 @@ describe("agent runner approval rendezvous", () => {
 
     await runAndRead(ctx());
 
-    expect(llmMock.buildTurnUsageSettlement).toHaveBeenCalledWith("openai/gpt-5.6-luna", expect.anything(), {
-      reservedCredits: 44,
-      retainReservation: true,
-    });
+    expect(llmMock.buildTurnUsageSettlement).toHaveBeenCalledWith(
+      "openai/gpt-5.6-luna",
+      expect.anything(),
+      expect.objectContaining({
+        provider: "openai",
+        providerCharge: { billed: true, measuredCostMicrocents: 500_000, unreadableReason: null },
+      }),
+    );
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({
+        usageSettlement: expect.objectContaining({ costMicrocents: 500_000, costSource: "measured" }),
+      }),
+    );
   });
 
-  it("retains the reservation when a successful multi-step response mixes known and unknown usage", async () => {
+  it("releases the reservation when the gateway proves the provider never billed", async () => {
+    aiMock.streamText.mockReturnValue({
+      fullStream: (function* () {
+        yield {
+          type: "error",
+          error: Object.assign(new Error("rate limited"), {
+            data: { error: { type: "rate_limit_exceeded" }, providerMetadata: UNBILLED_ATTEMPT },
+          }),
+        };
+      })(),
+    });
+
+    await runAndRead(ctx());
+
+    expect(llmMock.buildTurnUsageSettlement).toHaveBeenCalledWith(
+      "openai/gpt-5.6-luna",
+      expect.anything(),
+      expect.objectContaining({
+        providerCharge: { billed: false, measuredCostMicrocents: null, unreadableReason: null },
+      }),
+    );
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({
+        usageSettlement: expect.objectContaining({ chargedCredits: 0, costMicrocents: 0, state: "settled" }),
+      }),
+    );
+  });
+
+  it("sums the measured cost across a successful multi-step response", async () => {
     llmMock.usageToTokenCounts
       .mockReturnValueOnce({
         inputTokens: 100,
@@ -1133,9 +1185,15 @@ describe("agent runner approval rendezvous", () => {
             outputTokens: 20,
           },
           finishReason: "tool-calls",
+          providerMetadata: meteredStep("0.00300000"),
         };
         yield { type: "text-delta", text: " Done." };
-        yield { type: "finish-step", usage: {}, finishReason: "stop" };
+        yield {
+          type: "finish-step",
+          usage: {},
+          finishReason: "stop",
+          providerMetadata: meteredStep("0.00200000"),
+        };
         yield { type: "finish", finishReason: "stop" };
       })(),
     });
@@ -1146,8 +1204,16 @@ describe("agent runner approval rendezvous", () => {
     expect(llmMock.buildTurnUsageSettlement).toHaveBeenCalledWith(
       "openai/gpt-5.6-luna",
       expect.objectContaining({ inputTokens: 100, outputTokens: 20 }),
-      { reservedCredits: 44, retainReservation: true },
+      expect.objectContaining({
+        providerCharge: { billed: true, measuredCostMicrocents: 500_000, unreadableReason: null },
+      }),
     );
+
+    const clientPayload = JSON.stringify(events);
+    expect(clientPayload).not.toContain("gpt-5.6-luna");
+    expect(clientPayload).not.toContain("500000");
+    expect(clientPayload).not.toContain("microcent");
+    expect(clientPayload).not.toMatch(/token/i);
   });
 
   it("finalizes an already-aborted request without model or provider access", async () => {

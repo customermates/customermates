@@ -2,6 +2,9 @@
 CREATE TYPE "AgentUsageState" AS ENUM ('reserved', 'settled', 'retained', 'released');
 
 -- CreateEnum
+CREATE TYPE "AgentUsageCostSource" AS ENUM ('measured', 'estimated');
+
+-- CreateEnum
 CREATE TYPE "AgentTurnStatus" AS ENUM ('running', 'awaitingApproval', 'waitingBudget', 'needsAttention', 'completed', 'failed', 'uncertain');
 
 -- CreateEnum
@@ -76,6 +79,7 @@ CREATE TABLE "AgentUsageEvent" (
     "cacheReadTokens" INTEGER NOT NULL DEFAULT 0,
     "cacheWriteTokens" INTEGER NOT NULL DEFAULT 0,
     "costMicrocents" BIGINT NOT NULL DEFAULT 0,
+    "costSource" "AgentUsageCostSource" NOT NULL DEFAULT 'estimated',
     "reservedCredits" INTEGER NOT NULL DEFAULT 0,
     "chargedCredits" INTEGER NOT NULL DEFAULT 0,
     "policyBreach" BOOLEAN NOT NULL DEFAULT false,

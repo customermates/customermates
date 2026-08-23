@@ -8,7 +8,7 @@ vi.mock("@/env", () => ({
   env: { ...MOCK_ENV_MODULE.env, APP_MODE: "cloud" as const },
 }));
 
-import { hasProviderUsageEvidence, usageToTokenCounts } from "../llm.service";
+import { usageToTokenCounts } from "../llm.service";
 import { MODEL_CATALOG } from "../model-catalog";
 import { resolveModelPricing } from "../model-pricing";
 
@@ -57,7 +57,6 @@ describe("usageToTokenCounts", () => {
       cacheReadTokens: 0,
       cacheWriteTokens: 26_973,
     });
-    expect(hasProviderUsageEvidence(result.usage)).toBe(true);
   });
 
   it("maps the AI SDK v6 inputTokenDetails onto the 4-class TokenCounts (cacheWrite is first-class, not lost)", () => {
@@ -102,39 +101,13 @@ describe("usageToTokenCounts", () => {
     });
   });
 
-  it("maps missing fields to zero but never treats them as proven provider usage", () => {
+  it("maps missing token fields to zero rather than guessing", () => {
     expect(usageToTokenCounts({} as never)).toEqual({
       inputTokens: 0,
       outputTokens: 0,
       cacheReadTokens: 0,
       cacheWriteTokens: 0,
     });
-    expect(hasProviderUsageEvidence({} as never)).toBe(false);
-    expect(hasProviderUsageEvidence({ inputTokens: 0, outputTokens: 0 } as never)).toBe(false);
-    expect(
-      hasProviderUsageEvidence({
-        inputTokens: 0,
-        inputTokenDetails: { noCacheTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 },
-        outputTokens: 0,
-      } as never),
-    ).toBe(true);
-  });
-
-  it("requires complete, internally consistent input-token classes before exact settlement", () => {
-    expect(
-      hasProviderUsageEvidence({
-        inputTokens: 10,
-        inputTokenDetails: { noCacheTokens: 10, cacheReadTokens: 0 },
-        outputTokens: 1,
-      } as never),
-    ).toBe(false);
-    expect(
-      hasProviderUsageEvidence({
-        inputTokens: 10,
-        inputTokenDetails: { noCacheTokens: 9, cacheReadTokens: 0, cacheWriteTokens: 0 },
-        outputTokens: 1,
-      } as never),
-    ).toBe(false);
   });
 
   it.each([{ inputTokens: -1 }, { outputTokens: Number.NaN }, { inputTokenDetails: { cacheReadTokens: 1.5 } }])(

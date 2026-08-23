@@ -8,7 +8,8 @@ import { getAgentChatRepo, getCreateChatSupportTicketInteractor, getUserService 
 import { isExpectedErrorInCauseChain } from "@/core/errors/app-errors";
 import { mcpInteractorFailure, type McpToolExecutionResult } from "@/features/mcp-tools/mcp-tool";
 
-import { buildTurnUsageSettlement, hasProviderUsageEvidence, usageToTokenCounts } from "./llm.service";
+import { buildTurnUsageSettlement, usageToTokenCounts } from "./llm.service";
+import { readAgentProviderCharge, readAgentProviderChargeFromError } from "./gateway-cost";
 import { type TokenCounts } from "./model-pricing";
 import { buildAgentSystemPrompt } from "./system-prompt";
 import {
@@ -275,8 +276,21 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
       let tokens = EMPTY_TOKENS;
       let providerStepsStarted = 0;
       let providerStepsFinished = 0;
-      let everyProviderStepHasUsageEvidence = true;
       let providerAttempted = false;
+      let providerBilled = false;
+      let measuredCostMicrocents: number | null = null;
+      let chargeUnreadableReason: string | null = null;
+      const accountProviderCharge = (reading: ReturnType<typeof readAgentProviderCharge>) => {
+        if (reading.outcome === "notBilled") return;
+        providerBilled = true;
+        if (reading.outcome === "unreadable") {
+          measuredCostMicrocents = null;
+          chargeUnreadableReason = reading.reason;
+          return;
+        }
+        if (chargeUnreadableReason === null)
+          measuredCostMicrocents = (measuredCostMicrocents ?? 0) + reading.charge.costMicrocents;
+      };
       let finishReason: string | undefined;
       let removedToolProtocol = false;
       const continuationState: { decision: AgentContinuationDecision | null } = { decision: null };
@@ -472,7 +486,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
           } else if (part.type === "finish-step") {
             tokens = addTokens(tokens, usageToTokenCounts(part.usage));
             providerStepsFinished += 1;
-            everyProviderStepHasUsageEvidence &&= hasProviderUsageEvidence(part.usage);
+            accountProviderCharge(readAgentProviderCharge(part.providerMetadata, ctx.turnBudget.servingProvider));
             finishReason = part.finishReason;
           } else if (part.type === "finish") finishReason = part.finishReason;
           else if (part.type === "error") throw part.error;
@@ -550,6 +564,8 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
           };
         }
       } catch (error) {
+        if (providerAttempted)
+          accountProviderCharge(readAgentProviderChargeFromError(error, ctx.turnBudget.servingProvider));
         finishVisibleTextSegment();
         if (signal.aborted) {
           const fallback = replyText.trim() ? `\n\n${copy.cancelled}` : copy.cancelled;
@@ -611,11 +627,14 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
             affectedResources: Array.from(affectedResources),
             usageSettlement: providerAttempted
               ? buildTurnUsageSettlement(ctx.turnBudget.modelSpec, tokens, {
+                  provider: ctx.turnBudget.servingProvider,
                   reservedCredits: ctx.turnBudget.reservedCredits,
-                  retainReservation:
-                    providerStepsStarted !== providerStepsFinished ||
-                    providerStepsFinished === 0 ||
-                    !everyProviderStepHasUsageEvidence,
+                  providerCharge: {
+                    billed: providerBilled,
+                    measuredCostMicrocents:
+                      providerStepsStarted > providerStepsFinished ? null : measuredCostMicrocents,
+                    unreadableReason: chargeUnreadableReason,
+                  },
                 })
               : null,
           });

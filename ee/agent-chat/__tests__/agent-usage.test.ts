@@ -248,12 +248,62 @@ describe("AgentUsageService admission and ledger", () => {
         cacheWriteTokens: 0,
       },
       reservedCredits: 2,
+      providerCharge: { billed: true, measuredCostMicrocents: null, unreadableReason: "test" },
       retainReservation: false,
     });
 
     expect(settlement.policyBreach).toBe(true);
     expect(settlement.chargedCredits).toBe(2);
     expect(settlement.state).toBe("settled");
+  });
+
+  it("releases the reservation when the gateway proves the provider never billed", () => {
+    const settlement = buildAgentUsageSettlement({
+      model: "openai/gpt-5-nano",
+      tokens: { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 },
+      reservedCredits: 14,
+      providerCharge: { billed: false, measuredCostMicrocents: null, unreadableReason: null },
+      retainReservation: false,
+    });
+
+    expect(settlement).toMatchObject({
+      chargedCredits: 0,
+      costMicrocents: 0,
+      costSource: "measured",
+      policyBreach: false,
+      state: "settled",
+    });
+  });
+
+  it("charges the gateway's measured cost rather than the pinned estimate", () => {
+    const settlement = buildAgentUsageSettlement({
+      model: "openai/gpt-5-nano",
+      provider: "openai",
+      tokens: { inputTokens: 35_329, outputTokens: 2_945, cacheReadTokens: 73_728, cacheWriteTokens: 0 },
+      reservedCredits: 14,
+      providerCharge: { billed: true, measuredCostMicrocents: 2_000_001, unreadableReason: null },
+      retainReservation: false,
+    });
+
+    expect(settlement).toMatchObject({
+      costMicrocents: 2_000_001,
+      costSource: "measured",
+      chargedCredits: 3,
+      state: "settled",
+    });
+  });
+
+  it("quarantines an unreadable cost against the pinned estimate instead of throwing", () => {
+    const settlement = buildAgentUsageSettlement({
+      model: "openai/gpt-5-nano",
+      provider: "openai",
+      tokens: { inputTokens: 35_329, outputTokens: 2_945, cacheReadTokens: 73_728, cacheWriteTokens: 0 },
+      reservedCredits: 14,
+      providerCharge: { billed: true, measuredCostMicrocents: null, unreadableReason: "no usable cost figure" },
+      retainReservation: false,
+    });
+
+    expect(settlement).toMatchObject({ costMicrocents: 331_309, costSource: "estimated", state: "settled" });
   });
 
   it("charges two credits once cache-write cost crosses one cent", () => {
@@ -266,6 +316,7 @@ describe("AgentUsageService admission and ledger", () => {
         cacheWriteTokens: 40_001,
       },
       reservedCredits: 44,
+      providerCharge: { billed: true, measuredCostMicrocents: null, unreadableReason: "test" },
       retainReservation: false,
     });
 

@@ -1,17 +1,24 @@
 import type { LanguageModelUsage } from "ai";
 
 import type { TokenCounts } from "./model-pricing";
-import { buildAgentUsageSettlement } from "./agent-usage-settlement";
+import { buildAgentUsageSettlement, type AgentProviderChargeEvidence } from "./agent-usage-settlement";
 
 export function buildTurnUsageSettlement(
   modelSpec: string,
   tokens: TokenCounts,
-  options: { reservedCredits: number; retainReservation?: boolean },
+  options: {
+    provider: string;
+    reservedCredits: number;
+    providerCharge: AgentProviderChargeEvidence;
+    retainReservation?: boolean;
+  },
 ) {
   return buildAgentUsageSettlement({
     model: modelSpec,
+    provider: options.provider,
     tokens,
     reservedCredits: options.reservedCredits,
+    providerCharge: options.providerCharge,
     retainReservation: Boolean(options.retainReservation),
   });
 }
@@ -38,18 +45,4 @@ export function usageToTokenCounts(usage: LanguageModelUsage): TokenCounts {
     cacheReadTokens,
     cacheWriteTokens,
   };
-}
-
-export function hasProviderUsageEvidence(usage: LanguageModelUsage) {
-  const isTokenCount = (value: unknown): value is number => Number.isSafeInteger(value) && Number(value) >= 0;
-  const details = usage.inputTokenDetails;
-  if (
-    !isTokenCount(usage.inputTokens) ||
-    !isTokenCount(usage.outputTokens) ||
-    !isTokenCount(details?.noCacheTokens) ||
-    !isTokenCount(details.cacheReadTokens) ||
-    !isTokenCount(details.cacheWriteTokens)
-  )
-    return false;
-  return details.noCacheTokens + details.cacheReadTokens + details.cacheWriteTokens === usage.inputTokens;
 }

@@ -191,6 +191,29 @@ describeDatabase("agent assistant migration", { timeout: 120_000 }, () => {
     });
   });
 
+  it("marks every settled charge as measured or estimated, defaulting to the reconcilable one", async () => {
+    await withTemporaryDatabase(requiredDatabaseUrl(), async (client) => {
+      await applyMigrations(client, migrationNames());
+
+      const source = await client.query<{ data_type: string; udt_name: string; column_default: string }>(
+        `SELECT data_type, udt_name, column_default FROM information_schema.columns
+          WHERE table_schema = 'public' AND table_name = 'AgentUsageEvent' AND column_name = 'costSource'`,
+      );
+      const values = await client.query<{ enumlabel: string }>(
+        `SELECT enumlabel FROM pg_enum JOIN pg_type ON pg_type.oid = pg_enum.enumtypid
+          WHERE typname = 'AgentUsageCostSource' ORDER BY enumsortorder`,
+      );
+
+      expect(source.rows).toEqual([
+        expect.objectContaining({
+          udt_name: "AgentUsageCostSource",
+          column_default: "'estimated'::\"AgentUsageCostSource\"",
+        }),
+      ]);
+      expect(values.rows.map((row) => row.enumlabel)).toEqual(["measured", "estimated"]);
+    });
+  });
+
   it("keeps billing when a conversation is deleted and takes its transcript with it", async () => {
     await withTemporaryDatabase(requiredDatabaseUrl(), async (client) => {
       await applyMigrations(client, migrationNames());

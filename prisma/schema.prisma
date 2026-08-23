@@ -1651,6 +1651,7 @@ model AgentUsageEvent {
   cacheReadTokens            Int                @default(0)
   cacheWriteTokens           Int                @default(0)
   costMicrocents             BigInt             @default(0)
+  costSource                 AgentUsageCostSource @default(estimated)
   reservedCredits            Int                @default(0)
   chargedCredits             Int                @default(0)
   policyBreach               Boolean            @default(false)
@@ -1667,6 +1668,11 @@ model AgentUsageEvent {
   @@index([companyId, createdAt])
   @@index([companyId, userId, periodStart, periodEnd, state])
   @@index([turnRequestId])
+}
+
+enum AgentUsageCostSource {
+  measured
+  estimated
 }
 
 enum AgentUsageState {

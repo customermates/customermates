@@ -1112,7 +1112,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         !Number.isSafeInteger(settlement.reservedCredits) ||
         settlement.reservedCredits < 1 ||
         !Number.isSafeInteger(settlement.chargedCredits) ||
-        settlement.chargedCredits < 1 ||
+        settlement.chargedCredits < 0 ||
         settlement.chargedCredits > settlement.reservedCredits ||
         (settlement.state !== "settled" && settlement.state !== "retained") ||
         !settlement.model ||
@@ -1175,6 +1175,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
             cacheReadTokens: settlement.cacheReadTokens,
             cacheWriteTokens: settlement.cacheWriteTokens,
             costMicrocents: settlement.costMicrocents,
+            costSource: settlement.costSource,
             chargedCredits: settlement.chargedCredits,
             policyBreach: settlement.policyBreach,
             settledAt: committedAt,
