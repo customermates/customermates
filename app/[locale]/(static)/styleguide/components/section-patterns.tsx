@@ -50,8 +50,14 @@ const STEPS = [
     body: "Point a supported external AI client at the Customermates MCP server and sign in once.",
     title: "Connect your client",
   },
-  { body: "Choose which CRM and inbox operations the client is allowed to call.", title: "Set what it may do" },
-  { body: "Its changes and drafts wait in Customermates until you approve them.", title: "Review its work" },
+  {
+    body: "It connects as one of your users, so give that user a role with the read and write access you want it to have.",
+    title: "Set what it may do",
+  },
+  {
+    body: "Message drafts wait in the thread until you send them, and every change it makes lands on the audit trail.",
+    title: "Review its work",
+  },
 ];
 
 function IconChip({ icon: Icon }: { icon: typeof Inbox }) {
@@ -75,7 +81,7 @@ function MediaCard({
 }) {
   return (
     <article className="flex flex-col overflow-hidden rounded-card border border-border bg-card">
-      <div className="border-b border-border bg-muted">{illustration}</div>
+      <div className="border-b border-border bg-card">{illustration}</div>
 
       <div className="flex flex-1 flex-col p-7">
         <IconChip icon={icon} />
@@ -200,8 +206,8 @@ export function SectionPatterns() {
             <h2 className="text-display-sm m-0">You decide what the agent may touch</h2>
 
             <p className="text-lede mt-5">
-              Permissions are set per operation, so an AI client can read the pipeline without being able to write to
-              it.
+              An agent connects as a user and inherits the role of that user. Roles split reading from writing per
+              record type, so a read-only role lets it read the pipeline without changing it.
             </p>
           </div>
         </div>

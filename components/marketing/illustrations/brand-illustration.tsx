@@ -175,18 +175,16 @@ export function FlowSchematic(props: IllustrationProps) {
 
   return (
     <svg {...illustrationSvgProps(props)}>
-      <defs>
-        <marker id="illustration-arrow" markerHeight="8" markerWidth="8" orient="auto" refX="6" refY="4">
-          <path d="M0 0l6 4-6 4" fill="none" stroke={ILLUSTRATION_INK} strokeOpacity={ILLUSTRATION_OPACITY.detail} />
-        </marker>
-      </defs>
-
-      <g {...EDGE} markerEnd="url(#illustration-arrow)">
+      <g {...EDGE}>
         <path d="M190 108C218 108 218 180 240 180" />
 
         <path d="M190 252C218 252 218 180 240 180" />
 
         <path d="M395 180h50" />
+
+        <path d="M232 174l6 6-6 6" strokeLinejoin="round" />
+
+        <path d="M437 174l6 6-6 6" strokeLinejoin="round" />
       </g>
 
       <g {...BODY}>

@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "next-themes";
 
+import { BREAKPOINT_QUERY } from "@/hooks/use-media-query";
+
 type TokenRow = {
   name: string;
   role: string;
@@ -118,34 +120,48 @@ export function TypeTable({ rows }: { rows: TypeRow[] }) {
   );
 }
 
-const BREAKPOINTS = [
-  { min: 1024, name: "lg" },
-  { min: 896, name: "nav" },
-  { min: 768, name: "md" },
-  { min: 640, name: "sm" },
-  { min: 0, name: "base" },
-];
+const VARIANT_ORDER = ["lg", "nav", "md", "sm"] as const;
 
 export function GridReadout() {
   const hostRef = useRef<HTMLDivElement>(null);
-  const [readout, setReadout] = useState({ column: "…", gap: "…" });
-  const width = useViewportWidth();
+  const [readout, setReadout] = useState({ column: "…", gap: "…", variant: "…", viewport: "…" });
 
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
 
-    const first = host.firstElementChild;
-    if (!first) return;
+    const read = () => {
+      const first = host.firstElementChild;
+      if (!first) return;
 
-    const next = {
-      column: `${first.getBoundingClientRect().width.toFixed(1)}px`,
-      gap: getComputedStyle(host).columnGap,
+      const matched = VARIANT_ORDER.find((name) => window.matchMedia(BREAKPOINT_QUERY[name]).matches);
+      const next = {
+        column: `${first.getBoundingClientRect().width.toFixed(1)}px`,
+        gap: getComputedStyle(host).columnGap,
+        variant: matched ?? "base",
+        viewport: `${window.innerWidth}px`,
+      };
+      setReadout((current) =>
+        current.column === next.column &&
+        current.gap === next.gap &&
+        current.variant === next.variant &&
+        current.viewport === next.viewport
+          ? current
+          : next,
+      );
     };
-    setReadout((current) => (current.column === next.column && current.gap === next.gap ? current : next));
-  }, [width]);
 
-  const active = BREAKPOINTS.find((breakpoint) => width >= breakpoint.min)?.name ?? "base";
+    read();
+    window.addEventListener("resize", read);
+
+    const observer = new ResizeObserver(read);
+    observer.observe(host);
+
+    return () => {
+      window.removeEventListener("resize", read);
+      observer.disconnect();
+    };
+  }, []);
 
   return (
     <div>
@@ -157,8 +173,8 @@ export function GridReadout() {
 
       <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
         {[
-          { label: "viewport", value: width ? `${width}px` : "…" },
-          { label: "active variant", value: active },
+          { label: "viewport", value: readout.viewport },
+          { label: "active variant", value: readout.variant },
           { label: "column gap", value: readout.gap },
           { label: "column width", value: readout.column },
         ].map((entry) => (

@@ -75,16 +75,27 @@ const GEOMETRY = [
 ];
 
 const FORBIDDEN = [
-  { enforced: true, reason: "elevation is which rung a thing sits on, not how far it floats.", rule: "No shadow." },
+  {
+    enforced: false,
+    reason:
+      "elevation is which rung a thing sits on, not how far it floats. A target rather than a fact: the pricing card and the nav header still carry one.",
+    rule: "No shadow on a new marketing surface.",
+  },
   {
     enforced: true,
-    reason: "a wash carries state. Pinned to a surface it inverts between themes.",
+    reason:
+      "a wash carries state. Pinned to a surface it inverts between themes. The test catches a wash at a custom alpha; a bare one is caught in review.",
     rule: "No wash as a resting fill.",
   },
   {
     enforced: true,
     reason: "colour comes from the tokens, so a theme change reaches every pixel.",
     rule: "No literal colour.",
+  },
+  {
+    enforced: true,
+    reason: "border alphas are derived per theme, so an ad-hoc foreground alpha inverts against its ground.",
+    rule: "No border-foreground alpha.",
   },
   {
     enforced: true,
@@ -133,9 +144,11 @@ export default function StyleguidePage() {
           <h1 className="text-display m-0 mt-6 max-w-5xl">The marketing design system, as it actually renders</h1>
 
           <p className="text-lede mt-8">
-            Every value on this page is read out of the running stylesheet at paint time, and every specimen is the
-            shipped component rather than a copy of it. Switch the theme in the navigation to see both grounds, and
-            resize the window to see the contract hold.
+            Token, type and grid figures are read out of the running stylesheet at paint time and cannot drift. The
+            contracts stated below them, geometry, breakpoints and the type ladder, are written down here and have to be
+            re-checked against styles/globals.css when a token moves. A specimen says so when it is the shipped
+            component; the rest are drawn here to show a shape no component owns yet. Switch the theme in the navigation
+            to see both grounds, and resize the window to see the contract hold.
           </p>
 
           <nav className="mt-12 flex flex-wrap gap-2.5">
@@ -293,7 +306,7 @@ export default function StyleguidePage() {
       </div>
 
       <MarketingSection
-        description="The system is mostly a list of things it will not do. Six of these fail a convention test; the other four are read in review."
+        description="The system is mostly a list of things it will not do. Six of these fail a convention test; the other five are read in review."
         id="rules"
         title="What the system forbids"
       >

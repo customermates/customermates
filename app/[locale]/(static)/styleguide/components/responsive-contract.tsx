@@ -22,7 +22,11 @@ const COLLAPSE = [
   { at: "lg · 1024px", pattern: "S-03 / S-04 Split", rule: "12 → 5 + 5, media placed by row-start" },
   { at: "md · 768px", pattern: "S-05 Metric row", rule: "6 → 3" },
   { at: "md · 768px", pattern: "S-06 Two-column verdict", rule: "12 → 6 / 6" },
+  { at: "md · 768px", pattern: "S-08 Numbered sequence", rule: "12 → 4 / 4 / 4" },
   { at: "never", pattern: "S-09 Pull quote", rule: "one column at every width" },
+  { at: "never", pattern: "S-07 Channel strip", rule: "wraps, centred at every width" },
+  { at: "never", pattern: "S-10 Product proof", rule: "full container width at every width" },
+  { at: "never", pattern: "S-11 Closing panel", rule: "stacked at every width" },
 ];
 
 export function ResponsiveContract() {

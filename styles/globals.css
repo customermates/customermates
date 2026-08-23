@@ -333,6 +333,13 @@
    from 375 all the way to 769 -- so the headline stopped responding across every phone
    and small tablet. The fixed term is what keeps the line moving inside that range.
 
+   WRAPPING both display roles set hyphens:auto and overflow-wrap:break-word because German
+   compounds are single unbreakable words at display size. "Versicherungsunternehmens" is
+   651px at the 660px-viewport display size, inside a 516px closing panel, so without a break
+   opportunity it leaves the panel on both sides. hyphens:auto resolves against the lang
+   attribute the layout already sets, so each locale hyphenates by its own rules, and
+   break-word is the fallback for a word no dictionary can split.
+
    GRID .marketing-grid is twelve columns at every width, with the gutter stepping
    0.5rem, 1rem, 1.5rem. Twelve divides by two, three, four and six, so a two-up, three-up
    or four-up row is a span change rather than a new grid, and a row can stay optically
@@ -696,6 +703,8 @@ path:focus {
     font-size: clamp(2.5rem, 1.7325rem + 3.275vw, 5.25rem);
     line-height: 0.98;
     letter-spacing: -0.045em;
+    hyphens: auto;
+    overflow-wrap: break-word;
   }
 
   .text-display-sm {
@@ -703,6 +712,8 @@ path:focus {
     font-size: clamp(2rem, 1.648rem + 1.502vw, 3rem);
     line-height: 1.08;
     letter-spacing: -0.03em;
+    hyphens: auto;
+    overflow-wrap: break-word;
   }
 
   .text-lede {

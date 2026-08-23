@@ -199,9 +199,7 @@ export function QueueCleared(props: IllustrationProps) {
 
           <div className="col-span-12 lg:col-span-6">
             <MediaPlate caption='variant="flush" — the media meets the rim. For an illustration, which is already drawn to the frame.'>
-              <div className="bg-muted">
-                <DetailMarked />
-              </div>
+              <DetailMarked />
             </MediaPlate>
           </div>
         </div>
