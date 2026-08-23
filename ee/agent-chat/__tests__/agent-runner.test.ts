@@ -11,6 +11,7 @@ const repoMock = vi.hoisted(() => ({
   findApprovalDecisionUnscoped: vi.fn(),
   takeUiCommandResultUnscoped: vi.fn(),
   markAgentTurnProviderStartedUnscoped: vi.fn().mockResolvedValue(undefined),
+  heartbeatAgentRunUnscoped: vi.fn().mockResolvedValue(true),
   finalizeAgentTurnOrThrowUnscoped: vi.fn(),
 }));
 const aiMock = vi.hoisted(() => ({
@@ -1129,6 +1130,33 @@ describe("agent runner approval rendezvous", () => {
       expect.objectContaining({
         usageSettlement: expect.objectContaining({ costMicrocents: 500_000, costSource: "measured" }),
       }),
+    );
+  });
+
+  it("stops a turn whose lease was reclaimed mid-run instead of writing its result", async () => {
+    repoMock.heartbeatAgentRunUnscoped.mockResolvedValueOnce(false);
+    aiMock.streamText.mockReturnValue({
+      fullStream: (function* () {
+        yield { type: "text-delta", text: "Working." };
+        yield {
+          type: "finish-step",
+          usage: {
+            inputTokens: 100,
+            inputTokenDetails: { noCacheTokens: 100, cacheReadTokens: 0, cacheWriteTokens: 0 },
+            outputTokens: 20,
+          },
+          finishReason: "stop",
+          providerMetadata: meteredStep("0.00500000"),
+        };
+        yield { type: "finish", finishReason: "stop" };
+      })(),
+    });
+
+    const events = await runAndRead(ctx());
+
+    expect(events.at(-1)).toMatchObject({ type: "turn_done", isError: true });
+    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "error" }),
     );
   });
 

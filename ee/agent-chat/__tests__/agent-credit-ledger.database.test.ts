@@ -33,7 +33,7 @@ const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.
 const { AgentUsageService } = await import("@/ee/agent-chat/agent-usage.service");
 const { SendAgentMessageInteractor } = await import("@/ee/agent-chat/send-agent-message.interactor");
 const { prisma } = await import("@/prisma/db");
-const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
+const { runWithoutTenant, runWithTenant } = await import("@/core/decorators/tenant-context");
 type PrismaAgentChatRepoInstance = InstanceType<typeof PrismaAgentChatRepo>;
 
 const companyIds: string[] = [];
@@ -222,6 +222,68 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       prisma.agentUsageEvent.findUniqueOrThrow({ where: { id: reservation.id } }),
     );
     expect(started.providerStartedAt).not.toBeNull();
+  });
+
+  it("keeps a heartbeating turn alive against the sweeper that would otherwise settle it", async () => {
+    const anchor = new Date(Date.UTC(2026, 0, 15));
+    const { companyId, userId } = await seedActiveSeat(anchor);
+    authState.user = createMockUser({ id: userId, companyId, email: `heartbeat-${userId}@example.com` });
+    const repo = new PrismaAgentChatRepo();
+    const usage = new AgentUsageService(repo);
+
+    const admitted = await new SendAgentMessageInteractor(repo, usage, entitlements as never).invoke({
+      clientRequestId: randomUUID(),
+      text: "Start a long chat",
+      retry: false,
+    });
+    if (!admitted.ok || admitted.data.disposition !== "run") throw new Error("Expected an admitted turn.");
+    const { turnRequestId, runId } = admitted.data;
+
+    const staleAt = new Date(Date.now() - 60_000);
+    await runWithoutTenant(() => prisma.agentRunLease.update({ where: { userId }, data: { expiresAt: staleAt } }));
+
+    const alive = await runWithoutTenant(() =>
+      repo.heartbeatAgentRunUnscoped({ turnRequestId, companyId, userId, runId }),
+    );
+    expect(alive).toBe(true);
+
+    const sweeper = authState.user;
+    if (!sweeper) throw new Error("Expected a tenant user.");
+    await runWithTenant(sweeper, () => repo.normalizeExpiredAgentRunLease(new Date(), "openai/gpt-5.6-luna"));
+
+    const [turn, lease, event] = await runWithoutTenant(() =>
+      Promise.all([
+        prisma.agentTurnRequest.findUniqueOrThrow({ where: { id: turnRequestId } }),
+        prisma.agentRunLease.findUnique({ where: { userId } }),
+        prisma.agentUsageEvent.findFirstOrThrow({ where: { turnRequestId } }),
+      ]),
+    );
+    expect(turn.status).toBe("running");
+    expect(turn.heartbeatAt).not.toBeNull();
+    expect(lease).not.toBeNull();
+    expect(event.state).toBe("reserved");
+  });
+
+  it("refuses to heartbeat a run whose lease another writer already reclaimed", async () => {
+    const anchor = new Date(Date.UTC(2026, 0, 15));
+    const { companyId, userId } = await seedActiveSeat(anchor);
+    authState.user = createMockUser({ id: userId, companyId, email: `reclaimed-${userId}@example.com` });
+    const repo = new PrismaAgentChatRepo();
+    const usage = new AgentUsageService(repo);
+
+    const admitted = await new SendAgentMessageInteractor(repo, usage, entitlements as never).invoke({
+      clientRequestId: randomUUID(),
+      text: "Start a chat",
+      retry: false,
+    });
+    if (!admitted.ok || admitted.data.disposition !== "run") throw new Error("Expected an admitted turn.");
+    const { turnRequestId, runId } = admitted.data;
+
+    await runWithoutTenant(() => prisma.agentRunLease.delete({ where: { userId } }));
+
+    await expect(
+      runWithoutTenant(() => repo.heartbeatAgentRunUnscoped({ turnRequestId, companyId, userId, runId })),
+    ).resolves.toBe(false);
   });
 
   it("rolls back a lease when phase-one credit reservation fails", async () => {

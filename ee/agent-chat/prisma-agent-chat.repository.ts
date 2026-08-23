@@ -828,10 +828,10 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
 
     await this.prisma.agentUsageEvent.updateMany({
       where: {
-        id: lease.runId,
         companyId: this.companyId,
         userId: this.userId,
         state: "reserved",
+        turnRequestId: null,
       },
       data: { state: "released", chargedCredits: 0, settledAt: now },
     });
@@ -994,6 +994,34 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       skipDuplicates: true,
     });
     return claimed.count === 1;
+  }
+
+  @BypassTenantGuard
+  async heartbeatAgentRunUnscoped(args: {
+    turnRequestId: string;
+    companyId: string;
+    userId: string;
+    runId: string;
+    now?: Date;
+  }): Promise<boolean> {
+    const beatAt = args.now ?? new Date();
+    const renewed = await this.prisma.agentRunLease.updateMany({
+      where: { companyId: args.companyId, userId: args.userId, runId: args.runId },
+      data: { expiresAt: new Date(beatAt.getTime() + AGENT_RUN_LEASE_MS) },
+    });
+    if (renewed.count !== 1) return false;
+
+    await this.prisma.agentTurnRequest.updateMany({
+      where: {
+        id: args.turnRequestId,
+        companyId: args.companyId,
+        userId: args.userId,
+        runId: args.runId,
+        status: "running",
+      },
+      data: { heartbeatAt: beatAt },
+    });
+    return true;
   }
 
   @BypassTenantGuard

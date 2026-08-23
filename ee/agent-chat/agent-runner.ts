@@ -486,6 +486,14 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
               isError: true,
             });
           } else if (part.type === "finish-step") {
+            const alive = await repo.heartbeatAgentRunUnscoped({
+              turnRequestId: ctx.turnRequestId,
+              companyId: ctx.companyId,
+              userId: ctx.userId,
+              runId: ctx.runId,
+            });
+            if (!alive) throw new Error("The agent run lease was reclaimed while the turn was still running.");
+
             const finishedStepTokens = usageToTokenCounts(part.usage);
             stepTokens.push(finishedStepTokens);
             tokens = addTokens(tokens, finishedStepTokens);
