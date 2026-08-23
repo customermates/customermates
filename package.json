@@ -1,9 +1,10 @@
 {
   "dependencies": {
     "@/generated/prisma": "link:./generated/prisma",
-    "@ai-sdk/mcp": "^1.0.18",
-    "@ai-sdk/openai": "^3.0.99",
-    "@ai-sdk/react": "^3.0.122",
+    "@ai-sdk/mcp": "2.0.36",
+    "@ai-sdk/openai": "4.0.46",
+    "@ai-sdk/react": "4.0.80",
+    "@ai-sdk/workflow": "2.0.7",
     "@better-auth/api-key": "1.6.23",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
@@ -60,8 +61,8 @@
     "@unipile/sdk": "2.32.0",
     "@vercel/analytics": "^1.5.0",
     "@vercel/kv": "3.0.0",
-    "@workflow/world-postgres": "4.1.5",
-    "ai": "^6.0.120",
+    "@workflow/world-postgres": "5.0.0-beta.36",
+    "ai": "7.0.77",
     "better-auth": "1.6.23",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -108,7 +109,7 @@
     "timeago.js": "^4.0.2",
     "tiptap-markdown": "^0.9.0",
     "vaul": "^1.1.2",
-    "workflow": "4.4.0",
+    "workflow": "5.0.0-beta.44",
     "zod": "4.3.6",
     "zod-openapi": "^5.4.5"
   },
@@ -167,7 +168,9 @@
   "resolutions": {
     "@modelcontextprotocol/sdk/zod": "4.3.6",
     "@types/react-dom/@types/react": "18.3.3",
+    "ai": "7.0.77",
     "import-in-the-middle": "3.0.1",
+    "jose": "^6.2.3",
     "pg": "8.20.0",
     "pg-cloudflare": "1.4.0",
     "pg-connection-string": "2.13.0",
@@ -199,7 +202,7 @@
     "test:watch": "vitest",
     "typecheck": "fumadocs-mdx core/fumadocs/source.config.ts && tsc --noEmit",
     "vercel-build": "bash scripts/vercel-build.sh",
-    "workflow:setup": "workflow-postgres-setup"
+    "workflow:setup": "bootstrap"
   },
   "type": "module",
   "version": "1.1.0"

@@ -394,7 +394,8 @@ export type AgentAiToolDefinition = {
 export function describeAgentAiTools(tools: ToolSet): AgentAiToolDefinition[] {
   return Object.entries(tools).map(([name, agentTool]) => ({
     name,
-    description: "description" in agentTool ? agentTool.description : undefined,
+    description:
+      "description" in agentTool && typeof agentTool.description === "string" ? agentTool.description : undefined,
     inputSchema: "inputSchema" in agentTool ? asSchema(agentTool.inputSchema).jsonSchema : undefined,
   }));
 }

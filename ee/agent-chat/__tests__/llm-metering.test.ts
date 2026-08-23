@@ -86,8 +86,12 @@ describe("usageToTokenCounts", () => {
     expect(usageToTokenCounts(usage)).toMatchObject({ inputTokens: 17, cacheReadTokens: 23329, cacheWriteTokens: 0 });
   });
 
-  it("falls back to inputTokens minus cache classes when a provider omits inputTokenDetails", () => {
-    const usage = { inputTokens: 100, outputTokens: 20, cachedInputTokens: 30 } as never;
+  it("derives uncached input by subtraction when a provider omits noCacheTokens", () => {
+    const usage = {
+      inputTokens: 100,
+      outputTokens: 20,
+      inputTokenDetails: { cacheReadTokens: 30, cacheWriteTokens: 0 },
+    } as never;
 
     expect(usageToTokenCounts(usage)).toEqual({
       inputTokens: 70,

@@ -48,7 +48,7 @@ export function usageToTokenCounts(usage: LanguageModelUsage): TokenCounts {
     return resolved;
   };
   const details = usage.inputTokenDetails;
-  const cacheReadTokens = tokenCount("cacheReadTokens", details?.cacheReadTokens ?? usage.cachedInputTokens);
+  const cacheReadTokens = tokenCount("cacheReadTokens", details?.cacheReadTokens);
   const cacheWriteTokens = tokenCount("cacheWriteTokens", details?.cacheWriteTokens);
   const totalInputTokens = tokenCount("inputTokens", usage.inputTokens);
   const inputTokens =
