@@ -16,9 +16,7 @@ const aiMock = vi.hoisted(() => ({
   stepCountIs: vi.fn(() => ({})),
 }));
 const llmMock = vi.hoisted(() => ({
-  AGENT_TOOL_SEARCH_NAME: "discover_customermates_tools",
-  laneModel: vi.fn(() => ({}) as never),
-  buildLaneUsageSettlement: vi.fn(),
+  buildTurnUsageSettlement: vi.fn(),
   hasProviderUsageEvidence: vi.fn(
     (usage: {
       inputTokens?: unknown;
@@ -164,10 +162,13 @@ function ctx(overrides: Partial<AgentRunContext> = {}): AgentRunContext {
     appBaseUrl: "http://localhost",
     messages: [{ role: "user", text: "create a contact named Anna" }],
     turnBudget: {
+      modelSpec: "openai/gpt-5.6-luna",
+      servingProvider: "openai",
       reservedCredits: 44,
       maxSteps: 8,
       maxOutputTokens: 2048,
-      maxContextBytes: 200_000,
+      maxContextTokens: 66_000,
+      maxContextBytes: 198_000,
       maxToolResultChars: 6_000,
     },
     approvalTimeoutMs: 0,
@@ -211,7 +212,7 @@ beforeEach(() => {
       chargedCredits: args.usageSettlement?.chargedCredits ?? 0,
     }),
   );
-  llmMock.buildLaneUsageSettlement.mockImplementation((_lane, tokens, options) => ({
+  llmMock.buildTurnUsageSettlement.mockImplementation((_lane, tokens, options) => ({
     ...tokens,
     model: "model-1",
     costMicrocents: options?.retainReservation ? 20_000_000 : 100_000,
@@ -219,96 +220,6 @@ beforeEach(() => {
     chargedCredits: options?.retainReservation ? options.reservedCredits : 1,
     policyBreach: false,
   }));
-});
-
-describe("agent runner tool discovery", () => {
-  it("keeps hosted discovery internal while preserving real tool activity", async () => {
-    aiMock.streamText.mockReturnValue(
-      scripted(function* () {
-        yield {
-          type: "tool-call",
-          toolCallId: "discovery-1",
-          toolName: "discover_customermates_tools",
-          input: { arguments: { query: "create contacts" }, call_id: null },
-          providerExecuted: true,
-        };
-        yield {
-          type: "tool-result",
-          toolCallId: "discovery-1",
-          toolName: "discover_customermates_tools",
-          output: { tools: [{ name: "create_contacts" }] },
-          providerExecuted: true,
-        };
-        yield {
-          type: "tool-call",
-          toolCallId: "records-1",
-          toolName: "list_records",
-          input: { entity: "contact" },
-        };
-        yield {
-          type: "tool-result",
-          toolCallId: "records-1",
-          toolName: "list_records",
-          output: { ok: true, result: "1 contact" },
-        };
-        yield { type: "text-delta", text: "I found one contact." };
-      }),
-    );
-
-    const events = await runAndRead(ctx());
-
-    expect(JSON.stringify(events)).not.toContain("discovery-1");
-    expect(JSON.stringify(events)).not.toContain("discover_customermates_tools");
-    expect(events).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          type: "activity",
-          id: "records-1",
-          activity: expect.objectContaining({
-            kind: "records.read",
-            resource: "contacts",
-          }),
-        }),
-        expect.objectContaining({
-          type: "activity_result",
-          id: "records-1",
-          status: "done",
-        }),
-      ]),
-    );
-    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
-      expect.objectContaining({
-        parts: expect.not.arrayContaining([expect.objectContaining({ id: "discovery-1" })]),
-      }),
-    );
-  });
-
-  it("fails the turn closed when hosted discovery itself errors", async () => {
-    aiMock.streamText.mockReturnValue(
-      scripted(function* () {
-        yield {
-          type: "tool-error",
-          toolCallId: "discovery-error",
-          toolName: "discover_customermates_tools",
-          error: new Error("provider discovery failed"),
-          providerExecuted: true,
-        };
-      }),
-    );
-
-    const events = await runAndRead(ctx());
-
-    expect(JSON.stringify(events)).not.toContain("discovery-error");
-    expect(JSON.stringify(events)).not.toContain("provider discovery failed");
-    expect(events.at(-1)).toMatchObject({
-      type: "turn_done",
-      isError: true,
-      errorMessage: "error",
-    });
-    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
-      expect.objectContaining({ terminalCode: "error" }),
-    );
-  });
 });
 
 describe("agent runner approval rendezvous", () => {
@@ -371,7 +282,7 @@ describe("agent runner approval rendezvous", () => {
     expect(aiMock.streamText).toHaveBeenCalledWith(
       expect.objectContaining({
         maxRetries: 0,
-        providerOptions: { openai: { parallelToolCalls: false, store: true } },
+        providerOptions: { gateway: { only: ["openai"] }, openai: { parallelToolCalls: false } },
         system: "system",
         timeout: { totalMs: 240_000 },
       }),
@@ -911,8 +822,8 @@ describe("agent runner approval rendezvous", () => {
       }),
     );
 
-    expect(llmMock.buildLaneUsageSettlement).toHaveBeenCalledWith(
-      "agent",
+    expect(llmMock.buildTurnUsageSettlement).toHaveBeenCalledWith(
+      "openai/gpt-5.6-luna",
       expect.objectContaining({ inputTokens: 100, outputTokens: 20 }),
       { reservedCredits: 110, retainReservation: true },
     );
@@ -953,7 +864,7 @@ describe("agent runner approval rendezvous", () => {
 
     await runAndRead(ctx());
 
-    expect(llmMock.buildLaneUsageSettlement).toHaveBeenCalledWith("agent", expect.anything(), {
+    expect(llmMock.buildTurnUsageSettlement).toHaveBeenCalledWith("openai/gpt-5.6-luna", expect.anything(), {
       reservedCredits: 44,
       retainReservation: true,
     });
@@ -984,7 +895,7 @@ describe("agent runner approval rendezvous", () => {
 
     const events = await runAndRead(ctx(), abortController.signal);
 
-    expect(llmMock.buildLaneUsageSettlement).toHaveBeenCalledWith("agent", expect.anything(), {
+    expect(llmMock.buildTurnUsageSettlement).toHaveBeenCalledWith("openai/gpt-5.6-luna", expect.anything(), {
       reservedCredits: 44,
       retainReservation: true,
     });
@@ -1034,8 +945,8 @@ describe("agent runner approval rendezvous", () => {
 
     const events = await runAndRead(ctx());
 
-    expect(llmMock.buildLaneUsageSettlement).toHaveBeenCalledWith(
-      "agent",
+    expect(llmMock.buildTurnUsageSettlement).toHaveBeenCalledWith(
+      "openai/gpt-5.6-luna",
       expect.objectContaining({ inputTokens: 100, outputTokens: 20 }),
       { reservedCredits: 44, retainReservation: false },
     );
@@ -1113,22 +1024,7 @@ describe("agent runner approval rendezvous", () => {
     await runAndRead(ctx());
 
     expect(aiMock.streamText).not.toHaveBeenCalled();
-    expect(llmMock.buildLaneUsageSettlement).not.toHaveBeenCalled();
-    expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
-      expect.objectContaining({ usageSettlement: null, terminalCode: "error" }),
-    );
-  });
-
-  it("resolves model configuration before recording provider start", async () => {
-    llmMock.laneModel.mockImplementationOnce(() => {
-      throw new Error("model configuration failed");
-    });
-
-    await runAndRead(ctx());
-
-    expect(repoMock.markAgentTurnProviderStartedUnscoped).not.toHaveBeenCalled();
-    expect(aiMock.streamText).not.toHaveBeenCalled();
-    expect(llmMock.buildLaneUsageSettlement).not.toHaveBeenCalled();
+    expect(llmMock.buildTurnUsageSettlement).not.toHaveBeenCalled();
     expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({ usageSettlement: null, terminalCode: "error" }),
     );
@@ -1146,10 +1042,9 @@ describe("agent runner approval rendezvous", () => {
       }),
     );
 
-    expect(llmMock.laneModel).not.toHaveBeenCalled();
     expect(repoMock.markAgentTurnProviderStartedUnscoped).not.toHaveBeenCalled();
     expect(aiMock.streamText).not.toHaveBeenCalled();
-    expect(llmMock.buildLaneUsageSettlement).not.toHaveBeenCalled();
+    expect(llmMock.buildTurnUsageSettlement).not.toHaveBeenCalled();
     expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({ usageSettlement: null, terminalCode: "error" }),
     );
@@ -1165,7 +1060,7 @@ describe("agent runner approval rendezvous", () => {
 
     const events = await runAndRead(ctx());
 
-    expect(llmMock.buildLaneUsageSettlement).toHaveBeenCalledWith("agent", expect.anything(), {
+    expect(llmMock.buildTurnUsageSettlement).toHaveBeenCalledWith("openai/gpt-5.6-luna", expect.anything(), {
       reservedCredits: 44,
       retainReservation: true,
     });
@@ -1203,7 +1098,7 @@ describe("agent runner approval rendezvous", () => {
 
     await runAndRead(ctx());
 
-    expect(llmMock.buildLaneUsageSettlement).toHaveBeenCalledWith("agent", expect.anything(), {
+    expect(llmMock.buildTurnUsageSettlement).toHaveBeenCalledWith("openai/gpt-5.6-luna", expect.anything(), {
       reservedCredits: 44,
       retainReservation: true,
     });
@@ -1248,8 +1143,8 @@ describe("agent runner approval rendezvous", () => {
     const events = await runAndRead(ctx());
 
     expect(events.at(-1)).toMatchObject({ type: "turn_done", isError: false });
-    expect(llmMock.buildLaneUsageSettlement).toHaveBeenCalledWith(
-      "agent",
+    expect(llmMock.buildTurnUsageSettlement).toHaveBeenCalledWith(
+      "openai/gpt-5.6-luna",
       expect.objectContaining({ inputTokens: 100, outputTokens: 20 }),
       { reservedCredits: 44, retainReservation: true },
     );
@@ -1261,10 +1156,9 @@ describe("agent runner approval rendezvous", () => {
 
     await runAndRead(ctx(), abortController.signal);
 
-    expect(llmMock.laneModel).not.toHaveBeenCalled();
     expect(repoMock.markAgentTurnProviderStartedUnscoped).not.toHaveBeenCalled();
     expect(aiMock.streamText).not.toHaveBeenCalled();
-    expect(llmMock.buildLaneUsageSettlement).not.toHaveBeenCalled();
+    expect(llmMock.buildTurnUsageSettlement).not.toHaveBeenCalled();
     expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         terminalCode: "cancelled",
@@ -1353,7 +1247,7 @@ describe("agent runner approval rendezvous", () => {
     const events = await runAndRead(ctx());
 
     expect(aiMock.streamText).not.toHaveBeenCalled();
-    expect(llmMock.buildLaneUsageSettlement).not.toHaveBeenCalled();
+    expect(llmMock.buildTurnUsageSettlement).not.toHaveBeenCalled();
     expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         parts: [

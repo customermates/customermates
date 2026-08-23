@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { generateText, stepCountIs, tool, type ModelMessage } from "ai";
+import { generateText, stepCountIs, tool } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
 import { z } from "zod";
 import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
@@ -36,20 +36,16 @@ import { searchDocsTool } from "@/features/mcp-tools/docs.mcp-tools";
 import { ALL_MCP_TOOLS } from "@/features/mcp-tools/tool-registry";
 
 import {
-  AGENT_MAX_CONTEXT_BYTES_PER_STEP,
-  AGENT_MAX_STEPS_PER_TURN,
   AGENT_MIN_STEPS_WITH_FULL_TOOL_CATALOG,
+  agentContextTokensToBytes,
   resolveAgentTurnBudget,
-  serializedAgentContextBytes,
 } from "../agent-budget-policy";
-import { conservativeAgentInitialContextBytes, isAgentStepContextWithinBudget } from "../agent-provider-context";
-import { AGENT_TOOL_SEARCH_NAME } from "../llm.service";
+import { conservativeAgentInitialContextBytes } from "../agent-provider-context";
+import { MODEL_CATALOG } from "../model-catalog";
 import { buildAgentSystemPrompt } from "../system-prompt";
 import { AGENT_CLICK_TARGETS, AGENT_UI_TARGETS } from "../ui-targets";
 import {
-  AGENT_TOOL_NAMESPACES,
   AGENT_UI_TOOL_NAMES,
-  agentToolNamespace,
   describeAgentAiTools,
   getAgentAiToolDefinitions,
   getAgentAiTools,
@@ -88,237 +84,15 @@ function execute(tool: unknown, input: unknown, toolCallId = "call-1") {
 }
 
 describe("agent tools", () => {
-  it("exposes the complete MCP registry plus hosted interface discovery on every turn", () => {
+  it("exposes the complete MCP registry plus the interface tools on every turn", () => {
     const names = Object.keys(getAgentAiTools(deps()));
-    const expected = new Set([
-      ...ALL_MCP_TOOLS.map((agentTool) => agentTool.name),
-      ...AGENT_UI_TOOL_NAMES,
-      AGENT_TOOL_SEARCH_NAME,
-    ]);
+    const expected = new Set([...ALL_MCP_TOOLS.map((agentTool) => agentTool.name), ...AGENT_UI_TOOL_NAMES]);
 
     expect(names.toSorted()).toEqual([...expected].toSorted());
     expect(names).toContain("search");
     expect(names).toContain("fetch");
     expect(names.filter((name) => name === "request_support")).toHaveLength(1);
-    expect(ALL_MCP_TOOLS.map((agentTool) => agentTool.name)).not.toContain(AGENT_TOOL_SEARCH_NAME);
-    expect(AGENT_UI_TOOL_NAMES).not.toContain(AGENT_TOOL_SEARCH_NAME as never);
-  });
-
-  it("defers every application tool behind a concise, bounded namespace", () => {
-    const tools = getAgentAiTools(deps());
-    const namespaceCounts = new Map<string, number>();
-
-    for (const [name, agentTool] of Object.entries(tools)) {
-      if (name === AGENT_TOOL_SEARCH_NAME) continue;
-      const openai = (
-        agentTool as {
-          providerOptions?: {
-            openai?: {
-              deferLoading?: boolean;
-              namespace?: { name?: string; description?: string };
-            };
-          };
-        }
-      ).providerOptions?.openai;
-      const expectedNamespace = agentToolNamespace(name);
-
-      expect(openai?.deferLoading, name).toBe(true);
-      expect(openai?.namespace, name).toEqual(expectedNamespace);
-      expect(openai?.namespace?.description?.length ?? 0, name).toBeGreaterThan(0);
-      namespaceCounts.set(expectedNamespace.name, (namespaceCounts.get(expectedNamespace.name) ?? 0) + 1);
-    }
-
-    expect(Math.max(...namespaceCounts.values())).toBeLessThanOrEqual(9);
-    expect([...namespaceCounts.keys()]).not.toContain(AGENT_TOOL_NAMESPACES.general.name);
-  });
-
-  it("serializes hosted discovery and deferred namespaces through the real OpenAI adapter", async () => {
-    let requestBody: Record<string, unknown> | undefined;
-    const provider = createOpenAI({
-      apiKey: "test-key",
-      fetch: vi.fn((_input, init) => {
-        requestBody = JSON.parse(String(init?.body)) as Record<string, unknown>;
-        return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              id: "resp_tool_catalog",
-              created_at: 1_787_206_400,
-              error: null,
-              model: "gpt-5.6-luna",
-              output: [
-                {
-                  type: "message",
-                  role: "assistant",
-                  id: "msg_tool_catalog",
-                  content: [{ type: "output_text", text: "Ready.", annotations: [] }],
-                },
-              ],
-              incomplete_details: null,
-              usage: {
-                input_tokens: 10,
-                input_tokens_details: { cached_tokens: 0, cache_write_tokens: 0 },
-                output_tokens: 2,
-                output_tokens_details: { reasoning_tokens: 0 },
-              },
-            }),
-            { status: 200, headers: { "content-type": "application/json" } },
-          ),
-        );
-      }) as never,
-    });
-
-    await generateText({
-      model: provider("gpt-5.6-luna"),
-      prompt: "Create onboarding data across the CRM.",
-      tools: getAgentAiTools(deps()),
-    });
-
-    const serializedTools = requestBody?.tools as
-      | Array<{
-          type?: string;
-          name?: string;
-          description?: string;
-          tools?: Array<{ name?: string; defer_loading?: boolean }>;
-        }>
-      | undefined;
-    expect(serializedTools).toBeDefined();
-    expect(serializedTools?.filter((entry) => entry.type === "tool_search")).toHaveLength(1);
-    const namespaces = serializedTools?.filter((entry) => entry.type === "namespace") ?? [];
-    expect(namespaces.map((namespace) => namespace.name).toSorted()).toEqual(
-      Object.values(AGENT_TOOL_NAMESPACES)
-        .filter((namespace) => namespace.name !== "general")
-        .map((namespace) => namespace.name)
-        .toSorted(),
-    );
-    const deferredTools = namespaces.flatMap((namespace) => namespace.tools ?? []);
-    expect(deferredTools).toHaveLength(ALL_MCP_TOOLS.length + AGENT_UI_TOOL_NAMES.length);
-    expect(deferredTools.every((entry) => entry.defer_loading === true)).toBe(true);
-    expect(deferredTools.map((entry) => entry.name)).toEqual(
-      expect.arrayContaining([...ALL_MCP_TOOLS.map((agentTool) => agentTool.name), ...AGENT_UI_TOOL_NAMES]),
-    );
-  });
-
-  it("preserves reasoning and hosted tool-search item ids across a client-tool continuation", async () => {
-    const requestBodies: Array<Record<string, unknown>> = [];
-    const preparedMessages: ModelMessage[][] = [];
-    const lookup = vi.fn().mockResolvedValue({ count: 4 });
-    const provider = createOpenAI({
-      apiKey: "test-key",
-      fetch: vi.fn((_input, init) => {
-        requestBodies.push(JSON.parse(String(init?.body)) as Record<string, unknown>);
-        const output =
-          requestBodies.length === 1
-            ? [
-                {
-                  type: "reasoning",
-                  id: "rs_catalog",
-                  summary: [{ type: "summary_text", text: "Discover the deferred record tools." }],
-                  encrypted_content: null,
-                },
-                {
-                  type: "tool_search_call",
-                  id: "tsc_catalog",
-                  execution: "server",
-                  call_id: null,
-                  status: "completed",
-                  arguments: { paths: ["records.lookup"] },
-                },
-                {
-                  type: "tool_search_output",
-                  id: "tso_catalog",
-                  execution: "server",
-                  call_id: null,
-                  status: "completed",
-                  tools: [
-                    {
-                      type: "function",
-                      name: "lookup",
-                      description: "x".repeat(60_000),
-                      parameters: { type: "object", properties: {} },
-                    },
-                  ],
-                },
-                {
-                  type: "function_call",
-                  id: "fc_lookup",
-                  call_id: "call_lookup",
-                  name: "lookup",
-                  namespace: "records",
-                  arguments: "{}",
-                  status: "completed",
-                },
-              ]
-            : [
-                {
-                  type: "message",
-                  role: "assistant",
-                  id: "msg_complete",
-                  content: [{ type: "output_text", text: "There are four records.", annotations: [] }],
-                },
-              ];
-        return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              id: `resp_${requestBodies.length}`,
-              created_at: 1_787_206_400,
-              error: null,
-              model: "gpt-5.6-luna",
-              output,
-              incomplete_details: null,
-              usage: {
-                input_tokens: 10,
-                input_tokens_details: { cached_tokens: 0, cache_write_tokens: 0 },
-                output_tokens: 2,
-                output_tokens_details: { reasoning_tokens: 0 },
-              },
-            }),
-            { status: 200, headers: { "content-type": "application/json" } },
-          ),
-        );
-      }) as never,
-    });
-
-    await generateText({
-      model: provider("gpt-5.6-luna"),
-      prompt: "Count the records.",
-      stopWhen: stepCountIs(2),
-      providerOptions: { openai: { store: true } },
-      prepareStep: ({ messages }) => {
-        preparedMessages.push(messages);
-        return undefined;
-      },
-      tools: {
-        discover_customermates_tools: provider.tools.toolSearch(),
-        lookup: tool({
-          description: "Count records.",
-          inputSchema: z.object({}),
-          providerOptions: {
-            openai: {
-              deferLoading: true,
-              namespace: { name: "records", description: "CRM record operations." },
-            },
-          },
-          execute: lookup,
-        }),
-      },
-    });
-
-    expect(lookup).toHaveBeenCalledOnce();
-    expect(requestBodies).toHaveLength(2);
-    expect(preparedMessages).toHaveLength(2);
-    expect(
-      (requestBodies[1]?.input as Array<{ id?: string; type?: string }> | undefined)
-        ?.filter((item) => item.type === "item_reference")
-        .map((item) => item.id),
-    ).toEqual(["rs_catalog", "tsc_catalog", "tso_catalog"]);
-
-    const continuation = preparedMessages[1] ?? [];
-    const providerContext = { system: "system", messages: [] as ModelMessage[], tools: [] };
-    const maxContextBytes = 46_000;
-    expect(serializedAgentContextBytes({ ...providerContext, messages: continuation })).toBeGreaterThan(
-      maxContextBytes,
-    );
-    expect(isAgentStepContextWithinBudget(providerContext, continuation, maxContextBytes)).toBe(true);
+    expect(names.every((name) => !name.startsWith("discover_"))).toBe(true);
   });
 
   it("completes more than sixteen sequential tool rounds inside the extended turn", async () => {
@@ -374,7 +148,7 @@ describe("agent tools", () => {
     const result = await generateText({
       model: provider("gpt-5.6-luna"),
       prompt: "Run eighteen independent checks, then summarize them.",
-      stopWhen: stepCountIs(AGENT_MAX_STEPS_PER_TURN),
+      stopWhen: stepCountIs(MODEL_CATALOG.balanced.maxSteps),
       tools: {
         lookup: tool({
           description: "Run one check.",
@@ -407,16 +181,19 @@ describe("agent tools", () => {
       toolDefinitions: definitions,
     });
 
+    const model = MODEL_CATALOG.balanced;
     expect(requiredContextBytes).not.toBeNull();
-    expect(requiredContextBytes).toBeLessThan(AGENT_MAX_CONTEXT_BYTES_PER_STEP);
+    expect(requiredContextBytes).toBeLessThan(agentContextTokensToBytes(model.maxContextTokens));
     expect(
       resolveAgentTurnBudget({
-        availableCredits: 3,
+        model,
+        availableCredits: 1,
         requiredContextBytes: requiredContextBytes ?? 0,
         minimumSteps: AGENT_MIN_STEPS_WITH_FULL_TOOL_CATALOG,
       }),
     ).toBeNull();
     const funded = resolveAgentTurnBudget({
+      model,
       availableCredits: 44,
       requiredContextBytes: requiredContextBytes ?? 0,
       minimumSteps: AGENT_MIN_STEPS_WITH_FULL_TOOL_CATALOG,
@@ -425,11 +202,12 @@ describe("agent tools", () => {
     expect(funded?.maxContextBytes).toBeGreaterThanOrEqual(requiredContextBytes ?? Number.POSITIVE_INFINITY);
 
     const longFunded = resolveAgentTurnBudget({
+      model,
       availableCredits: 500,
       requiredContextBytes: requiredContextBytes ?? 0,
       minimumSteps: AGENT_MIN_STEPS_WITH_FULL_TOOL_CATALOG,
     });
-    expect(longFunded?.maxSteps).toBe(AGENT_MAX_STEPS_PER_TURN);
+    expect(longFunded?.maxSteps).toBe(model.maxSteps);
     expect(longFunded?.maxOutputTokens).toBeGreaterThanOrEqual(800);
   });
 

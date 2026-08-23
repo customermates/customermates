@@ -2,79 +2,96 @@ import type { ModelMessage } from "ai";
 import { describe, expect, it } from "vitest";
 
 import {
-  AGENT_MAX_CONTEXT_BYTES_PER_STEP,
   AGENT_MIN_OUTPUT_TOKENS_PER_STEP,
-  AGENT_MAX_OUTPUT_TOKENS_PER_STEP,
-  AGENT_MAX_STEPS_PER_TURN,
+  agentContextTokensToBytes,
   agentTurnWorstCaseUsd,
   isAgentContextWithinBudget,
-  isAgentModelWithinBudgetEnvelope,
   resolveAgentTurnBudget,
   serializedAgentContextBytes,
 } from "../agent-budget-policy";
 import { buildAgentProviderContext, isAgentStepContextWithinBudget } from "../agent-provider-context";
+import { MODEL_CATALOG, isAgentModelWithinBudgetEnvelope } from "../model-catalog";
 
-const MODEL = "openai:gpt-5.6-luna";
+const BALANCED = MODEL_CATALOG.balanced;
+const FAST = MODEL_CATALOG.fast;
 
 describe("agent turn credit budget", () => {
-  it("uses the full safe envelope when the user has enough credits", () => {
-    const budget = resolveAgentTurnBudget({
-      availableCredits: 500,
-    });
+  it("uses each model's own full envelope when the user has enough credits", () => {
+    for (const model of [FAST, BALANCED]) {
+      const budget = resolveAgentTurnBudget({ model, availableCredits: 500 });
 
-    expect(budget).toEqual(
-      expect.objectContaining({
-        maxSteps: AGENT_MAX_STEPS_PER_TURN,
-        maxOutputTokens: AGENT_MAX_OUTPUT_TOKENS_PER_STEP,
-        maxContextBytes: AGENT_MAX_CONTEXT_BYTES_PER_STEP,
-      }),
-    );
-    expect(budget?.reservedCredits).toBe(Math.ceil(agentTurnWorstCaseUsd(MODEL) / 0.01));
-    expect(budget?.reservedCredits).toBe(110);
+      expect(budget).toEqual(
+        expect.objectContaining({
+          modelSpec: model.modelId,
+          servingProvider: model.servingProvider,
+          maxSteps: model.maxSteps,
+          maxOutputTokens: model.maxOutputTokens,
+          maxContextTokens: model.maxContextTokens,
+          maxContextBytes: agentContextTokensToBytes(model.maxContextTokens),
+        }),
+      );
+      expect(budget?.reservedCredits).toBe(Math.ceil(agentTurnWorstCaseUsd(model) / 0.01));
+    }
+  });
+
+  it("reserves strictly less for the cheaper model at the same envelope", () => {
+    const fast = resolveAgentTurnBudget({ model: FAST, availableCredits: 500 });
+    const balanced = resolveAgentTurnBudget({ model: BALANCED, availableCredits: 500 });
+
+    expect(fast?.reservedCredits).toBeLessThan(balanced?.reservedCredits ?? 0);
   });
 
   it("shrinks the provider envelope to the user's remaining credits", () => {
-    const budget = resolveAgentTurnBudget({
-      availableCredits: 3,
-    });
+    const budget = resolveAgentTurnBudget({ model: BALANCED, availableCredits: 3 });
 
     expect(budget).not.toBeNull();
     expect(budget?.reservedCredits).toBe(3);
     if (!budget) throw new Error("Expected a three-credit turn budget.");
-    expect(agentTurnWorstCaseUsd(MODEL, budget)).toBeLessThanOrEqual(0.03);
+    expect(agentTurnWorstCaseUsd(BALANCED, budget)).toBeLessThanOrEqual(0.03);
   });
 
   it("can safely admit a final one-credit request", () => {
-    const budget = resolveAgentTurnBudget({
-      availableCredits: 1,
-    });
+    const budget = resolveAgentTurnBudget({ model: BALANCED, availableCredits: 1 });
 
     expect(budget).not.toBeNull();
     expect(budget?.reservedCredits).toBe(1);
-    expect(budget?.maxSteps).toBe(1);
+    expect(budget?.maxSteps).toBeGreaterThanOrEqual(1);
     if (!budget) throw new Error("Expected a one-credit turn budget.");
-    expect(agentTurnWorstCaseUsd(MODEL, budget)).toBeLessThanOrEqual(0.01);
+    expect(agentTurnWorstCaseUsd(BALANCED, budget)).toBeLessThanOrEqual(0.01);
   });
 
   it("rejects a turn when its required workflow cannot fit the funded step count", () => {
     expect(
       resolveAgentTurnBudget({
-        availableCredits: 3,
+        model: BALANCED,
+        availableCredits: 1,
         requiredContextBytes: 90_000,
         minimumSteps: 4,
       }),
     ).toBeNull();
     expect(
       resolveAgentTurnBudget({
+        model: BALANCED,
         availableCredits: 500,
         requiredContextBytes: 90_000,
         minimumSteps: 4,
       }),
-    ).toEqual(expect.objectContaining({ maxSteps: AGENT_MAX_STEPS_PER_TURN }));
+    ).toEqual(expect.objectContaining({ maxSteps: BALANCED.maxSteps }));
+  });
+
+  it("refuses a context the model's envelope cannot hold", () => {
+    expect(
+      resolveAgentTurnBudget({
+        model: BALANCED,
+        availableCredits: 500,
+        requiredContextBytes: agentContextTokensToBytes(BALANCED.maxContextTokens) + 1,
+      }),
+    ).toBeNull();
   });
 
   it("funds a long full-catalog workflow without starving tool-call output", () => {
     const budget = resolveAgentTurnBudget({
+      model: BALANCED,
       availableCredits: 500,
       requiredContextBytes: 160_000,
       minimumSteps: 4,
@@ -82,18 +99,19 @@ describe("agent turn credit budget", () => {
 
     expect(budget).toEqual(
       expect.objectContaining({
-        maxSteps: AGENT_MAX_STEPS_PER_TURN,
-        maxContextBytes: AGENT_MAX_CONTEXT_BYTES_PER_STEP,
+        maxSteps: BALANCED.maxSteps,
+        maxContextTokens: BALANCED.maxContextTokens,
       }),
     );
     expect(budget?.maxOutputTokens).toBeGreaterThanOrEqual(800);
     expect(budget?.maxToolResultChars).toBeGreaterThanOrEqual(512);
   });
 
-  it.each([40, 72, 96, 100, 112])(
+  it.each([20, 28, 34, 40])(
     "preserves useful model output before adding steps with %i credits remaining",
     (availableCredits) => {
       const budget = resolveAgentTurnBudget({
+        model: BALANCED,
         availableCredits,
         requiredContextBytes: 160_000,
         minimumSteps: 4,
@@ -104,14 +122,14 @@ describe("agent turn credit budget", () => {
     },
   );
 
-  it("rejects no-credit and unapproved-model admissions", () => {
+  it("measures the pricing-tier envelope in prompt tokens, per model", () => {
+    expect(isAgentModelWithinBudgetEnvelope(FAST)).toBe(true);
+    expect(isAgentModelWithinBudgetEnvelope(BALANCED)).toBe(true);
+    expect(isAgentModelWithinBudgetEnvelope({ ...BALANCED, maxContextTokens: 400_000 })).toBe(false);
+    expect(resolveAgentTurnBudget({ model: BALANCED, availableCredits: 0 })).toBeNull();
     expect(
-      resolveAgentTurnBudget({
-        availableCredits: 0,
-      }),
+      resolveAgentTurnBudget({ model: { ...BALANCED, maxContextTokens: 400_000 }, availableCredits: 500 }),
     ).toBeNull();
-    expect(isAgentModelWithinBudgetEnvelope("openai:gpt-5.6-sol")).toBe(false);
-    expect(isAgentModelWithinBudgetEnvelope(MODEL)).toBe(true);
   });
 
   it("checks the serialized context against the per-turn dynamic bound", () => {
@@ -119,54 +137,24 @@ describe("agent turn credit budget", () => {
     expect(isAgentContextWithinBudget({ value: "x".repeat(200) }, 100)).toBe(false);
   });
 
-  it("counts the system prompt once and compacts stored hosted-search continuations", () => {
+  it("measures a step against the provider context plus that step's own messages", () => {
     const providerContext = buildAgentProviderContext(
-      "system instructions",
+      "system prompt",
       [{ role: "user", text: "hello" }],
       [{ name: "lookup", description: "Look up records.", inputSchema: { type: "object" } }],
     );
     expect(providerContext.messages).toEqual([{ role: "user", content: "hello" }]);
 
-    const storedMessages = [
+    const stepMessages = [
       ...providerContext.messages,
-      {
-        role: "assistant",
-        content: [
-          {
-            type: "reasoning",
-            text: "x".repeat(10_000),
-            providerOptions: { openai: { itemId: "rs-catalog", reasoningEncryptedContent: null } },
-          },
-          {
-            type: "tool-call",
-            toolCallId: "search-call",
-            toolName: "discover_customermates_tools",
-            input: { arguments: { paths: ["records.lookup"] }, call_id: null },
-            providerExecuted: true,
-            providerOptions: { openai: { itemId: "tsc-catalog" } },
-          },
-          {
-            type: "tool-result",
-            toolCallId: "search-call",
-            toolName: "discover_customermates_tools",
-            output: { type: "json", value: { tools: [{ schema: "x".repeat(10_000) }] } },
-            providerOptions: { openai: { itemId: "tso-catalog" } },
-          },
-        ],
-      },
+      { role: "assistant", content: [{ type: "text", text: "x".repeat(10_000) }] },
     ] as ModelMessage[];
     const maxContextBytes = 2_000;
 
-    expect(serializedAgentContextBytes({ ...providerContext, messages: storedMessages })).toBeGreaterThan(
+    expect(serializedAgentContextBytes({ ...providerContext, messages: stepMessages })).toBeGreaterThan(
       maxContextBytes,
     );
-    expect(isAgentStepContextWithinBudget(providerContext, storedMessages, maxContextBytes)).toBe(true);
-
-    const unreferencedMessages = structuredClone(storedMessages);
-    const assistant = unreferencedMessages.at(-1);
-    if (assistant && Array.isArray(assistant.content))
-      for (const part of assistant.content) if ("providerOptions" in part) delete part.providerOptions;
-
-    expect(isAgentStepContextWithinBudget(providerContext, unreferencedMessages, maxContextBytes)).toBe(false);
+    expect(isAgentStepContextWithinBudget(providerContext, stepMessages, maxContextBytes)).toBe(false);
+    expect(isAgentStepContextWithinBudget(providerContext, providerContext.messages, maxContextBytes)).toBe(true);
   });
 });

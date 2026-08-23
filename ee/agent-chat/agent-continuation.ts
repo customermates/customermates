@@ -7,7 +7,6 @@ import {
   type AgentActivityResource,
   type AgentActivityRisk,
 } from "./agent-activity";
-import { AGENT_TOOL_SEARCH_NAME } from "./agent-tool-search";
 
 export const AGENT_CONTINUATION_RETAINED_RESPONSE_STEPS = 2;
 export const AGENT_CONTINUATION_CHECKPOINT_MAX_BYTES = 4 * 1024;
@@ -63,7 +62,6 @@ export type AgentContinuationContext = {
   checkpoint: AgentContinuationCheckpoint | null;
   checkpointBytes: number;
   retainedResponseSteps: number;
-  retainedToolSearchResponseSteps: number;
 };
 
 export type AgentContinuationAccounting = {
@@ -173,7 +171,7 @@ export function summarizeAgentContinuationStep(step: AgentContinuationStep): Age
     if (part.type === "tool-call") {
       const id = stringValue(part.toolCallId);
       const toolName = stringValue(part.toolName);
-      if (!id || !toolName || toolName === AGENT_TOOL_SEARCH_NAME) continue;
+      if (!id || !toolName) continue;
       calls.push({
         id,
         toolName,
@@ -185,8 +183,7 @@ export function summarizeAgentContinuationStep(step: AgentContinuationStep): Age
 
     if (part.type === "tool-result" || part.type === "tool-error") {
       const id = stringValue(part.toolCallId);
-      const toolName = stringValue(part.toolName);
-      if (!id || toolName === AGENT_TOOL_SEARCH_NAME) continue;
+      if (!id) continue;
       statusByCallId.set(
         id,
         part.type === "tool-error"
@@ -204,7 +201,7 @@ export function summarizeAgentContinuationStep(step: AgentContinuationStep): Age
       const toolCall = record(part.toolCall);
       const id = stringValue(toolCall?.toolCallId);
       const toolName = stringValue(toolCall?.toolName);
-      if (!id || !toolName || toolName === AGENT_TOOL_SEARCH_NAME) continue;
+      if (!id || !toolName) continue;
       pendingApprovals.add(id);
       if (!calls.some((call) => call.id === id)) {
         calls.push({
@@ -249,31 +246,8 @@ function checkpointForSteps(steps: readonly AgentContinuationStep[]): AgentConti
   };
 }
 
-function stepHasHostedToolSearch(step: AgentContinuationStep) {
-  return step.content.some((rawPart) => {
-    const part = record(rawPart);
-    return (part?.type === "tool-call" || part?.type === "tool-result") && part.toolName === AGENT_TOOL_SEARCH_NAME;
-  });
-}
-
 function responseMessagesByStep(steps: readonly AgentContinuationStep[]) {
   return steps.map((step) => step.response.messages);
-}
-
-function hostedToolSearchMessages(messages: readonly ModelMessage[]) {
-  return messages.flatMap((message) => {
-    if (!Array.isArray(message.content)) return [];
-    const content = message.content.filter((rawPart) => {
-      const part = record(rawPart);
-      const openAiOptions = record(record(part?.providerOptions)?.openai);
-      const isStoredReasoning = part?.type === "reasoning" && stringValue(openAiOptions?.itemId) !== null;
-      return (
-        isStoredReasoning ||
-        ((part?.type === "tool-call" || part?.type === "tool-result") && part.toolName === AGENT_TOOL_SEARCH_NAME)
-      );
-    });
-    return content.length > 0 ? [{ ...message, content } as ModelMessage] : [];
-  });
 }
 
 const encoder = new TextEncoder();
@@ -329,14 +303,7 @@ export function compactAgentContinuationContext(args: {
   const retainedStepStart = Math.max(0, args.steps.length - retainedResponseSteps);
   const retainedSteps = args.steps.slice(retainedStepStart);
   const olderSteps = args.steps.slice(0, retainedStepStart);
-  const retainedToolSearchStepIndexes = olderSteps.flatMap((step, index) =>
-    stepHasHostedToolSearch(step) ? [index] : [],
-  );
-  const messages = [
-    ...args.initialMessages,
-    ...retainedToolSearchStepIndexes.flatMap((index) => hostedToolSearchMessages(responseMessages[index] ?? [])),
-    ...responseMessages.slice(retainedStepStart).flat(),
-  ] as ModelMessage[];
+  const messages = [...args.initialMessages, ...responseMessages.slice(retainedStepStart).flat()] as ModelMessage[];
 
   if (olderSteps.length === 0) {
     return {
@@ -345,7 +312,6 @@ export function compactAgentContinuationContext(args: {
       checkpoint: null,
       checkpointBytes: 0,
       retainedResponseSteps: retainedSteps.length,
-      retainedToolSearchResponseSteps: 0,
     };
   }
 
@@ -356,7 +322,6 @@ export function compactAgentContinuationContext(args: {
     checkpoint: serialized.checkpoint,
     checkpointBytes: serialized.bytes,
     retainedResponseSteps: retainedSteps.length,
-    retainedToolSearchResponseSteps: retainedToolSearchStepIndexes.length,
   };
 }
 
@@ -377,7 +342,7 @@ function toolCallSignatures(step: AgentContinuationStep) {
   return step.content.flatMap((rawPart) => {
     const part = record(rawPart);
     const toolName = part?.type === "tool-call" ? stringValue(part.toolName) : null;
-    if (!toolName || toolName === AGENT_TOOL_SEARCH_NAME) return [];
+    if (!toolName) return [];
     try {
       return [JSON.stringify({ toolName, input: part?.input })];
     } catch {
@@ -397,7 +362,7 @@ function accountActivities(
 
   for (const [index, step] of steps.entries()) {
     const activities = stepActivities[index] ?? [];
-    const madeProgress = activities.some((activity) => activity.status === "done") || stepHasHostedToolSearch(step);
+    const madeProgress = activities.some((activity) => activity.status === "done");
     noProgressSteps = madeProgress ? 0 : noProgressSteps + 1;
     for (const signature of toolCallSignatures(step)) {
       const count = (toolCallCounts.get(signature) ?? 0) + 1;

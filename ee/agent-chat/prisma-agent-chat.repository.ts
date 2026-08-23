@@ -52,6 +52,7 @@ type StoredAgentTurnRow = {
   userMessageId: string;
   assistantMessageId: string | null;
   terminalCode: string | null;
+  modelSpec: string | null;
   affectedResources: unknown;
 };
 
@@ -72,6 +73,8 @@ type AgentTurnAdmissionArgs = {
   conversationId: string | null;
   title: string | null;
   runId: string;
+  modelSpec: string;
+  servingProvider: string;
   recentMessageLimit: number;
   turn:
     | {
@@ -300,6 +303,8 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
             attemptCount: { increment: 1 },
             terminalAt: null,
             terminalCode: null,
+            modelSpec: args.modelSpec,
+            servingProvider: args.servingProvider,
             affectedResources: [],
           },
         });
@@ -318,6 +323,8 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
             runId: args.runId,
             attemptCount: 1,
             userMessageId: args.turn.userMessageId,
+            modelSpec: args.modelSpec,
+            servingProvider: args.servingProvider,
             affectedResources: [],
           },
         });
@@ -700,6 +707,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       providerStartedAt: true,
       userMessageId: true,
       assistantMessageId: true,
+      modelSpec: true,
       terminalCode: true,
       affectedResources: true,
     };
@@ -732,7 +740,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         },
         data: {
           state: "retained",
-          model,
+          model: row.modelSpec ?? model,
           chargedCredits: reservation.reservedCredits,
           settledAt: now,
         },

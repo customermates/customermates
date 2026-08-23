@@ -5,10 +5,11 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { MOCK_ENV_MODULE } from "@/tests/helpers/interactor-test-setup";
 
 vi.mock("@/env", () => ({
-  env: { ...MOCK_ENV_MODULE.env, APP_MODE: "cloud" as const, AGENT_MODEL: "openai:gpt-5.6-luna" },
+  env: { ...MOCK_ENV_MODULE.env, APP_MODE: "cloud" as const },
 }));
 
-import { hasProviderUsageEvidence, usageToTokenCounts, laneModelId } from "../llm.service";
+import { hasProviderUsageEvidence, usageToTokenCounts } from "../llm.service";
+import { MODEL_CATALOG } from "../model-catalog";
 import { resolveModelPricing } from "../model-pricing";
 
 describe("usageToTokenCounts", () => {
@@ -144,9 +145,12 @@ describe("usageToTokenCounts", () => {
   );
 });
 
-describe("laneModelId + pricing coverage", () => {
-  it("reports the provider-native id of the configured agent model", () => {
-    expect(laneModelId("agent")).toBe("gpt-5.6-luna");
+describe("model catalog + pricing coverage", () => {
+  it("addresses every catalog model by its gateway-namespaced id", () => {
+    expect(Object.values(MODEL_CATALOG).map((entry) => entry.modelId)).toEqual([
+      "openai/gpt-5-nano",
+      "openai/gpt-5.6-luna",
+    ]);
   });
 
   it("refuses to price an unpinned model instead of falling back to a spend cap", () => {
@@ -154,6 +158,6 @@ describe("laneModelId + pricing coverage", () => {
   });
 
   it("prices the configured agent model from the pinned snapshot", () => {
-    expect(resolveModelPricing(laneModelId("agent")).cacheWritePerMTok).toBe(0.25);
+    expect(resolveModelPricing(MODEL_CATALOG.balanced.modelId).cacheWritePerMTok).toBe(0.25);
   });
 });

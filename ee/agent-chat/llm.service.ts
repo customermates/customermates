@@ -1,39 +1,15 @@
 import type { LanguageModelUsage } from "ai";
 
-import { createOpenAI } from "@ai-sdk/openai";
-
-import { env } from "@/env";
-
 import type { TokenCounts } from "./model-pricing";
 import { buildAgentUsageSettlement } from "./agent-usage-settlement";
 
-export { AGENT_TOOL_SEARCH_NAME } from "./agent-tool-search";
-
-export const AGENT_MODEL_ID = "gpt-5.6-luna";
-
-const openai = createOpenAI({ apiKey: env.OPENAI_API_KEY });
-
-export type AgentModelLane = "agent";
-
-export function laneModel(_lane: AgentModelLane) {
-  return openai(AGENT_MODEL_ID);
-}
-
-export function laneToolSearch() {
-  return openai.tools.toolSearch();
-}
-
-export function laneModelId(_lane: AgentModelLane) {
-  return AGENT_MODEL_ID;
-}
-
-export function buildLaneUsageSettlement(
-  lane: AgentModelLane,
+export function buildTurnUsageSettlement(
+  modelSpec: string,
   tokens: TokenCounts,
   options: { reservedCredits: number; retainReservation?: boolean },
 ) {
   return buildAgentUsageSettlement({
-    model: laneModelId(lane),
+    model: modelSpec,
     tokens,
     reservedCredits: options.reservedCredits,
     retainReservation: Boolean(options.retainReservation),

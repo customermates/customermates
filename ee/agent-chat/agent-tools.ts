@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { asSchema, tool, jsonSchema, type ToolSet } from "ai";
 
-import { ALL_MCP_TOOLS, MCP_ALWAYS_ON_TOOLS, MCP_TOOL_GROUPS } from "@/features/mcp-tools/tool-registry";
+import { ALL_MCP_TOOLS } from "@/features/mcp-tools/tool-registry";
 import { executeMcpTool, expectedMcpToolFailure, type McpToolExecutionResult } from "@/features/mcp-tools/mcp-tool";
 import { RequestSupportSchema } from "@/features/mcp-tools/support.mcp-tools";
 import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
@@ -17,7 +17,6 @@ import {
 import { AgentTourSchema } from "./agent-tours";
 import { OpenRecordSchema } from "./ui-operations";
 import type { AgentApprovalContextResolution } from "./agent-external-approval-context";
-import { AGENT_TOOL_SEARCH_NAME, laneToolSearch } from "./llm.service";
 
 export type ApprovalDecision = "approve" | "reject" | "timeout";
 export type AgentUiCommandOutcome = { ok: boolean; result: string };
@@ -46,106 +45,6 @@ export const AGENT_UI_TOOL_NAMES = [
   "click_ui_target",
   "open_record",
 ] as const;
-
-export const AGENT_TOOL_NAMESPACES = {
-  record_reads: {
-    name: "record_reads",
-    description: "Read and search CRM records and inspect their schemas.",
-  },
-  customer_records: {
-    name: "customer_records",
-    description: "Create and update contacts and organizations.",
-  },
-  work_records: {
-    name: "work_records",
-    description: "Create and update deals, services, and tasks.",
-  },
-  record_details: {
-    name: "record_details",
-    description: "Manage CRM record notes and links, or delete records.",
-  },
-  workspace: {
-    name: "workspace",
-    description: "Workspace context, users, settings, team, fields, widgets, and webhooks.",
-  },
-  messaging: {
-    name: "messaging",
-    description: "Inbox, email and chat, drafts, activities, calendars, and account connections.",
-  },
-  social_sales: {
-    name: "social_sales",
-    description: "Connected social profiles, posts, relations, and Sales Navigator.",
-  },
-  research: {
-    name: "research",
-    description: "Search and read Customermates documentation and local CRM research results.",
-  },
-  interface: {
-    name: "interface",
-    description: "Navigate, highlight, tour, activate safe display controls, and open records.",
-  },
-  support: {
-    name: "support",
-    description: "Escalate a confirmed support request to the Customermates team.",
-  },
-  general: {
-    name: "general",
-    description: "Other Customermates workspace capabilities.",
-  },
-} as const;
-
-export type AgentToolNamespace = (typeof AGENT_TOOL_NAMESPACES)[keyof typeof AGENT_TOOL_NAMESPACES];
-
-const RECORD_READ_TOOL_NAMES = new Set(["get_record_schema", "list_records", "search_records", "get_records"]);
-const CUSTOMER_RECORD_TOOL_NAMES = new Set([
-  "create_contacts",
-  "update_contacts",
-  "create_organizations",
-  "update_organizations",
-]);
-const WORK_RECORD_TOOL_NAMES = new Set([
-  "create_deals",
-  "update_deals",
-  "create_services",
-  "update_services",
-  "create_tasks",
-  "update_tasks",
-]);
-let mcpGroupByToolName: Map<string, string> | undefined;
-
-function resolveMcpGroup(toolName: string) {
-  mcpGroupByToolName ??= new Map(
-    Object.entries(MCP_TOOL_GROUPS).flatMap(([group, tools]) =>
-      tools.map((agentTool) => [agentTool.name, group] as const),
-    ),
-  );
-  return mcpGroupByToolName.get(toolName);
-}
-
-export function agentToolNamespace(toolName: string): AgentToolNamespace {
-  if ((AGENT_UI_TOOL_NAMES as readonly string[]).includes(toolName)) return AGENT_TOOL_NAMESPACES.interface;
-  if (toolName === "request_support") return AGENT_TOOL_NAMESPACES.support;
-  if (MCP_ALWAYS_ON_TOOLS.some((agentTool) => agentTool.name === toolName)) return AGENT_TOOL_NAMESPACES.research;
-
-  const group = resolveMcpGroup(toolName);
-  if (group === "records") {
-    if (RECORD_READ_TOOL_NAMES.has(toolName)) return AGENT_TOOL_NAMESPACES.record_reads;
-    if (CUSTOMER_RECORD_TOOL_NAMES.has(toolName)) return AGENT_TOOL_NAMESPACES.customer_records;
-    if (WORK_RECORD_TOOL_NAMES.has(toolName)) return AGENT_TOOL_NAMESPACES.work_records;
-    return AGENT_TOOL_NAMESPACES.record_details;
-  }
-  if (group === "docs") return AGENT_TOOL_NAMESPACES.research;
-  if (["workspace", "custom-columns", "widgets", "webhooks", "admin"].includes(group ?? ""))
-    return AGENT_TOOL_NAMESPACES.workspace;
-  if (group === "messaging") return AGENT_TOOL_NAMESPACES.messaging;
-  if (group === "social") return AGENT_TOOL_NAMESPACES.social_sales;
-  if (group === "support") return AGENT_TOOL_NAMESPACES.support;
-  return AGENT_TOOL_NAMESPACES.general;
-}
-
-function deferredProviderOptions(namespace: AgentToolNamespace) {
-  return { openai: { deferLoading: true, namespace } } as const;
-}
 
 export type AgentToolDeps = {
   runUiCommand: (commandId: string, name: string, input: Record<string, unknown>) => Promise<AgentUiCommandOutcome>;
@@ -266,7 +165,6 @@ function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
   return tool({
     description: mcp.description,
     inputSchema: providerSafeSchema(mcp.inputSchema),
-    providerOptions: deferredProviderOptions(agentToolNamespace(mcp.name)),
     execute: async (input: unknown, { toolCallId }) => {
       const run = async () => {
         const outcome = await executeMcpTool(mcp, [input]);
@@ -283,7 +181,6 @@ function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
 }
 
 function uiTools(deps: AgentToolDeps): ToolSet {
-  const providerOptions = deferredProviderOptions(AGENT_TOOL_NAMESPACES.interface);
   const runUiCommand = async (toolCallId: string, name: string, input: Record<string, unknown>) => {
     const outcome = await deps.runUiCommand(toolCallId, name, input);
     return { ...outcome, result: outcome.result.slice(0, deps.resultMaxChars) };
@@ -294,7 +191,6 @@ function uiTools(deps: AgentToolDeps): ToolSet {
       description:
         "List exact stable interface target ids before using an interface tool. Make one focused query with the workflow or page phrase and reuse every relevant id it returns instead of querying ids one by one. Results use action codes n=navigate, h=highlight, c=click and >target for a prerequisite; continue only when nextCursor is present.",
       inputSchema: ListUiTargetsSchema,
-      providerOptions,
       execute: (input) => listUiTargets(input, deps.resultMaxChars),
     }),
     navigate: tool({
@@ -302,7 +198,6 @@ function uiTools(deps: AgentToolDeps): ToolSet {
       inputSchema: z.object({
         targetId: NavigationUiTargetIdSchema.describe("A routable target id."),
       }),
-      providerOptions,
       execute: (input, { toolCallId }) =>
         runSafely(() => runUiCommand(toolCallId, "navigate", { targetId: input.targetId }), deps.resultMaxChars),
     }),
@@ -311,7 +206,6 @@ function uiTools(deps: AgentToolDeps): ToolSet {
       inputSchema: z.object({
         targetId: UiTargetIdSchema.describe("A target id from list_ui_targets."),
       }),
-      providerOptions,
       execute: (input, { toolCallId }) =>
         runSafely(
           () =>
@@ -325,7 +219,6 @@ function uiTools(deps: AgentToolDeps): ToolSet {
       description:
         "Run a guided tour you compose for this user. Call list_ui_targets once, then choose the targets that answer what they asked to see and write your own note for each one. The tour navigates to each step itself, so do not call navigate first. Ask what they want to see when the request is vague; go straight to the tour when it is specific. Be thorough: walk the whole journey rather than naming each screen, and write every note in the user's language.",
       inputSchema: AgentTourSchema,
-      providerOptions,
       execute: (input, { toolCallId }) =>
         runSafely(() => runUiCommand(toolCallId, "start_tour", { steps: input.steps }), deps.resultMaxChars),
     }),
@@ -335,7 +228,6 @@ function uiTools(deps: AgentToolDeps): ToolSet {
       inputSchema: z.object({
         targetId: ClickUiTargetIdSchema.describe("An activatable target id from list_ui_targets."),
       }),
-      providerOptions,
       execute: (input, { toolCallId }) =>
         runSafely(
           () =>
@@ -349,7 +241,6 @@ function uiTools(deps: AgentToolDeps): ToolSet {
       description:
         "Open one record after finding its id with list_records or search_records. Use the drawer to keep context, the page for a full view, and recordId 'new' for a blank form the user fills in.",
       inputSchema: OpenRecordSchema,
-      providerOptions,
       execute: (input, { toolCallId }) =>
         runSafely(() => runUiCommand(toolCallId, "open_record", input), deps.resultMaxChars),
     }),
@@ -360,17 +251,13 @@ export function getAgentAiTools(deps: AgentToolDeps): ToolSet {
   const crm = ALL_MCP_TOOLS.filter((mcp) => mcp.name !== "request_support").map(
     (mcp) => [mcp.name, crmTool(mcp, deps)] as const,
   );
-  const providerOptions = deferredProviderOptions(AGENT_TOOL_NAMESPACES.support);
-
   return {
-    [AGENT_TOOL_SEARCH_NAME]: laneToolSearch(),
     ...Object.fromEntries(crm),
     ...uiTools(deps),
     request_support: tool({
       description:
         "Email a support request to the Customermates team. Use when the user asks for a human, reports a bug, or you cannot help after a genuine attempt. The recent Assistant conversation is included, and the team replies to the email address on the user's account.",
       inputSchema: RequestSupportSchema,
-      providerOptions,
       execute: async (input, { toolCallId }) =>
         runSafely(
           () =>

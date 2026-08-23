@@ -146,8 +146,8 @@ async function runTurn(args: {
 const enabled = process.env.RUN_AGENT_EVAL === "true" && Boolean(getLocalDatabaseTestUrl());
 const describeEval = enabled ? describe : describe.skip;
 
-if (process.env.RUN_AGENT_EVAL === "true" && !process.env.OPENAI_API_KEY)
-  throw new Error("OPENAI_API_KEY must be set for the agent eval.");
+if (process.env.RUN_AGENT_EVAL === "true" && !process.env.AI_GATEWAY_API_KEY)
+  throw new Error("AI_GATEWAY_API_KEY must be set for the agent eval.");
 
 const adaId = randomUUID();
 const acmeId = randomUUID();

@@ -107,6 +107,8 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         conversationId: null,
         title: '<page_context route="/private"/>Import failed apiKey=never-show',
         runId: "run-1",
+        modelSpec: "openai/gpt-5.6-luna",
+        servingProvider: "openai",
         recentMessageLimit: 8,
         turn: {
           kind: "create",
@@ -180,6 +182,8 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           conversationId: null,
           title: "Hello",
           runId: "run-expired",
+          modelSpec: "openai/gpt-5.6-luna",
+          servingProvider: "openai",
           recentMessageLimit: 8,
           turn: {
             kind: "create",
@@ -209,6 +213,8 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           conversationId: null,
           title: "Hello",
           runId: "run-missing",
+          modelSpec: "openai/gpt-5.6-luna",
+          servingProvider: "openai",
           recentMessageLimit: 8,
           turn: {
             kind: "create",
@@ -240,6 +246,8 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         conversationId: "conversation-1",
         title: null,
         runId: "run-2",
+        modelSpec: "openai/gpt-5.6-luna",
+        servingProvider: "openai",
         recentMessageLimit: 8,
         turn: {
           kind: "retry",
@@ -269,6 +277,8 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         attemptCount: { increment: 1 },
         terminalAt: null,
         terminalCode: null,
+        modelSpec: "openai/gpt-5.6-luna",
+        servingProvider: "openai",
         affectedResources: [],
       },
     });

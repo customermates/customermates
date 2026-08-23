@@ -11,13 +11,14 @@ import {
   MOCK_ZOD_MODULE,
 } from "@/tests/helpers/interactor-test-setup";
 
+import { MODEL_CATALOG } from "../model-catalog";
+
 const mockUser = createMockUserWithPermissions([]);
 
 vi.mock("@/env", () => ({
   env: {
     ...MOCK_ENV_MODULE.env,
     APP_MODE: "cloud" as const,
-    AGENT_MODEL: "anthropic:claude-test",
   },
 }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
@@ -299,7 +300,11 @@ describe("agent access", () => {
     if (!result.ok || result.data.disposition !== "run") return;
     expect(result.data).not.toHaveProperty("toolNames");
     expect(repo.listRecentMessages).not.toHaveBeenCalled();
-    expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), expect.any(Number), 4);
+    expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), {
+      model: MODEL_CATALOG.balanced,
+      requiredContextBytes: expect.any(Number),
+      minimumSteps: 4,
+    });
   });
 
   it("replays a completed turn before budget, lease, reservation, or provider work", async () => {

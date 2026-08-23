@@ -12,7 +12,7 @@ import { AgentUsageSummarySchema } from "./agent-usage.service";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 
 import { AgentConversationSummarySchema, AgentDataCountsSchema } from "./agent-chat.schema";
-import { laneModelId } from "./llm.service";
+import { resolveAgentModel } from "./model-catalog";
 
 const OutputSchema = z.object({
   usage: AgentUsageSummarySchema,
@@ -45,7 +45,7 @@ export class GetAgentConfigInteractor extends AuthenticatedInteractor<void, Agen
     const denied = await this.entitlements.require("agentChat");
     if (denied) return denied;
 
-    await this.repo.normalizeExpiredAgentRunLease(new Date(), laneModelId("agent"));
+    await this.repo.normalizeExpiredAgentRunLease(new Date(), resolveAgentModel().modelId);
 
     const [usage, counts, conversation, conversationPage, archivedConversationPage] = await Promise.all([
       this.usageService.getUsageSummary(this.userId),

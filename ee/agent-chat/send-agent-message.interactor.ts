@@ -25,7 +25,6 @@ import type { AgentRunContext } from "./agent-runner";
 import type { AgentUsageService } from "./agent-usage.service";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { AGENT_RUN_LEASE_MS, decideAgentTurnAdmission, type AgentTurnRequestSnapshot } from "./agent-turn-request";
-import { laneModelId } from "./llm.service";
 import { buildAgentSystemPrompt } from "./system-prompt";
 import { getAgentAiToolDefinitions } from "./agent-tools";
 import {
@@ -34,6 +33,7 @@ import {
   conservativeAgentInitialContextBytes,
 } from "./agent-provider-context";
 import { AGENT_MIN_STEPS_WITH_FULL_TOOL_CATALOG } from "./agent-budget-policy";
+import { resolveAgentModel } from "./model-catalog";
 import { assertInvariant } from "@/core/errors/assert-invariant";
 import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -82,10 +82,10 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
   async invoke(data: SendAgentMessageData): Validated<SendAgentMessageResult> {
     const user = this.user;
     const now = new Date();
-    const model = laneModelId("agent");
-    await this.repo.normalizeExpiredAgentRunLease(now, model);
+    const model = resolveAgentModel();
+    await this.repo.normalizeExpiredAgentRunLease(now, model.modelId);
 
-    const replay = await this.repo.findAgentTurnRequestForAdmission(data.clientRequestId, now, model);
+    const replay = await this.repo.findAgentTurnRequestForAdmission(data.clientRequestId, now, model.modelId);
     const pageRoute = data.pageContext?.route ?? null;
     const decision = decideAgentTurnAdmission(replay?.snapshot ?? null, {
       clientRequestId: data.clientRequestId,
@@ -185,12 +185,11 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     });
     assertInvariant(requiredContextBytes !== null, "The Assistant request context could not be measured safely.");
 
-    const creditAdmission = await this.usageService.prepareTurn(
-      user.id,
-      now,
+    const creditAdmission = await this.usageService.prepareTurn(user.id, now, {
+      model,
       requiredContextBytes,
-      AGENT_MIN_STEPS_WITH_FULL_TOOL_CATALOG,
-    );
+      minimumSteps: AGENT_MIN_STEPS_WITH_FULL_TOOL_CATALOG,
+    });
     const reservation = creditAdmission.reservation;
     if (!reservation) return createInteractorFailure(CustomErrorCode.agentLimitReached);
 
@@ -219,6 +218,8 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         conversationId: conversation?.id ?? null,
         title: data.text,
         runId,
+        modelSpec: reservation.budget.modelSpec,
+        servingProvider: reservation.budget.servingProvider,
         recentMessageLimit: AGENT_REPLAY_COUNT,
         turn:
           decision.disposition === "retry"

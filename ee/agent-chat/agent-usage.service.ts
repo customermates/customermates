@@ -7,6 +7,7 @@ import type { Data } from "@/core/validation/validation.utils";
 
 import { resolveAgentCreditEntitlement, AgentCreditEntitlementBlockedReasonSchema } from "./agent-credit-policy";
 import { resolveAgentTurnBudget, type AgentTurnBudget } from "./agent-budget-policy";
+import type { AgentModelEntry } from "./model-catalog";
 
 export type AgentUsageLedgerState = "reserved" | "settled" | "retained" | "released";
 
@@ -180,9 +181,8 @@ export class AgentUsageService {
 
   async prepareTurn(
     userId: string,
-    now = new Date(),
-    requiredContextBytes?: number,
-    minimumSteps?: number,
+    now: Date,
+    options: { model: AgentModelEntry; requiredContextBytes?: number; minimumSteps?: number },
   ): Promise<{
     summary: AgentUsageSummary;
     reservation: AgentTurnCreditReservation | null;
@@ -200,9 +200,10 @@ export class AgentUsageService {
     }
 
     const budget = resolveAgentTurnBudget({
+      model: options.model,
       availableCredits: state.summary.creditsRemaining,
-      requiredContextBytes,
-      minimumSteps,
+      requiredContextBytes: options.requiredContextBytes,
+      minimumSteps: options.minimumSteps,
     });
     if (!budget) {
       return {

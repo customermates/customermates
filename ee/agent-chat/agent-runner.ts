@@ -8,13 +8,7 @@ import { getAgentChatRepo, getCreateChatSupportTicketInteractor, getUserService 
 import { isExpectedErrorInCauseChain } from "@/core/errors/app-errors";
 import { mcpInteractorFailure, type McpToolExecutionResult } from "@/features/mcp-tools/mcp-tool";
 
-import {
-  AGENT_TOOL_SEARCH_NAME,
-  buildLaneUsageSettlement,
-  hasProviderUsageEvidence,
-  laneModel,
-  usageToTokenCounts,
-} from "./llm.service";
+import { buildTurnUsageSettlement, hasProviderUsageEvidence, usageToTokenCounts } from "./llm.service";
 import { type TokenCounts } from "./model-pricing";
 import { buildAgentSystemPrompt } from "./system-prompt";
 import {
@@ -349,7 +343,6 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
           throw new Error("The assistant context exceeds its safe turn budget.");
 
         if (signal.aborted) throw new Error("The agent turn was cancelled before provider access.");
-        const model = laneModel("agent");
         await repo.markAgentTurnProviderStartedUnscoped({
           turnRequestId: ctx.turnRequestId,
           conversationId: ctx.conversationId,
@@ -360,13 +353,14 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
         providerAttempted = true;
         const continuationStartedAtMs = Date.now();
         const result = streamText({
-          model,
+          model: ctx.turnBudget.modelSpec,
           maxRetries: 0,
           maxOutputTokens: ctx.turnBudget.maxOutputTokens,
           timeout: { totalMs: AGENT_CONTINUATION_MAX_WALL_TIME_MS },
           tools,
           providerOptions: {
-            openai: { parallelToolCalls: false, store: true },
+            gateway: { only: [ctx.turnBudget.servingProvider] },
+            openai: { parallelToolCalls: false },
           },
           stopWhen: [
             stepCountIs(ctx.turnBudget.maxSteps),
@@ -431,10 +425,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
           if (part.type === "text-delta" && part.text) {
             emitVisibleText(visibleText.push(part.text));
             removedToolProtocol ||= visibleText.removedToolProtocol;
-          } else if (part.type === "tool-call" && part.toolName === AGENT_TOOL_SEARCH_NAME) continue;
-          else if (part.type === "tool-result" && part.toolName === AGENT_TOOL_SEARCH_NAME) continue;
-          else if (part.type === "tool-error" && part.toolName === AGENT_TOOL_SEARCH_NAME) throw part.error;
-          else if (part.type === "tool-call") {
+          } else if (part.type === "tool-call") {
             if ("invalid" in part && part.invalid) invalidToolCallIds.add(part.toolCallId);
             finishVisibleTextSegment();
             const supersededId = retryableFailureByTool.get(part.toolName);
@@ -619,7 +610,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
             terminalCode,
             affectedResources: Array.from(affectedResources),
             usageSettlement: providerAttempted
-              ? buildLaneUsageSettlement("agent", tokens, {
+              ? buildTurnUsageSettlement(ctx.turnBudget.modelSpec, tokens, {
                   reservedCredits: ctx.turnBudget.reservedCredits,
                   retainReservation:
                     providerStepsStarted !== providerStepsFinished ||

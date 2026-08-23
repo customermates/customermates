@@ -15,7 +15,12 @@ const BOUNDARY = 272_000;
 
 describe("pinned pricing snapshot", () => {
   it("validates at module load and pins the configured endpoint", () => {
-    expect(pinnedModelEndpoints()).toEqual([{ modelId: GATEWAY_ID, provider: "openai" }]);
+    expect(pinnedModelEndpoints()).toEqual(expect.arrayContaining([{ modelId: GATEWAY_ID, provider: "openai" }]));
+    expect(
+      pinnedModelEndpoints()
+        .map((endpoint) => endpoint.modelId)
+        .toSorted(),
+    ).toEqual(["openai/gpt-5-nano", "openai/gpt-5.6-luna"]);
   });
 
   it("resolves by gateway id and by provider-native id alike", () => {

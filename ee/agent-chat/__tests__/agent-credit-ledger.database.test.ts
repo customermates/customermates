@@ -16,7 +16,7 @@ vi.mock("@/env", () => ({
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: "test",
     BASE_URL: "http://localhost:4000",
-    OPENAI_API_KEY: undefined,
+    AI_GATEWAY_API_KEY: undefined,
   },
 }));
 vi.mock("@/core/di", () => ({

@@ -1,132 +1,112 @@
+import type { AgentModelEntry } from "./model-catalog";
+
+import {
+  AGENT_CONTEXT_BYTES_PER_TOKEN,
+  AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS,
+  agentModelWorstCasePromptTokens,
+  isAgentModelWithinBudgetEnvelope,
+} from "./model-catalog";
 import { resolveModelPricing } from "./model-pricing";
 
-export const AGENT_MAX_STEPS_PER_TURN = 20;
 export const AGENT_MIN_STEPS_WITH_FULL_TOOL_CATALOG = 4;
-export const AGENT_MAX_OUTPUT_TOKENS_PER_STEP = 2048;
-export const AGENT_MIN_OUTPUT_TOKENS_PER_STEP = 800;
 export const AGENT_MAX_TOOL_RESULT_CHARS = 6000;
-export const AGENT_MAX_CONTEXT_BYTES_PER_STEP = 200_000;
-export const AGENT_MIN_CONTEXT_BYTES_PER_STEP = 24_000;
+export const AGENT_MIN_OUTPUT_TOKENS_PER_STEP = 800;
+export const AGENT_MIN_CONTEXT_TOKENS_PER_STEP = 8_000;
 export const AGENT_MIN_TOOL_RESULT_CHARS = 512;
 export const AGENT_CONTEXT_ACCUMULATION_STEPS = 3;
 
-const AGENT_PROVIDER_TOKENIZATION_AND_FRAMING_OVERHEAD_PER_STEP = 10_000;
-const AGENT_PROVIDER_LONG_CONTEXT_PRICING_THRESHOLD_UNITS = 272_000;
 const AGENT_INTERSTEP_FRAMING_BYTES = 1_024;
 const AGENT_OUTPUT_CONTEXT_BYTES_PER_TOKEN = 4;
 const AGENT_TOOL_RESULT_CONTEXT_BYTES_PER_CHAR = 4;
-const SAFE_AGENT_MODEL_SPEC = "openai:gpt-5.6-luna";
-const SAFE_MODEL_PRICING = resolveModelPricing("gpt-5.6-luna");
 const USD_PER_AGENT_CREDIT = 0.01;
 
 export type AgentTurnBudget = {
+  modelSpec: string;
+  servingProvider: string;
   reservedCredits: number;
   maxSteps: number;
   maxOutputTokens: number;
+  maxContextTokens: number;
   maxContextBytes: number;
   maxToolResultChars: number;
 };
 
-function modelId(modelSpec: string) {
-  const separator = modelSpec.indexOf(":");
-  return separator === -1 ? modelSpec : modelSpec.slice(separator + 1);
+export function agentContextBytesToTokens(bytes: number) {
+  return Math.ceil(bytes / AGENT_CONTEXT_BYTES_PER_TOKEN);
 }
 
-export function isAgentModelWithinBudgetEnvelope(modelSpec: string) {
-  if (modelSpec !== SAFE_AGENT_MODEL_SPEC) return false;
-
-  const resolvedModelId = modelId(modelSpec);
-  const pricing = resolveModelPricing(resolvedModelId);
-  return (
-    pricing.inputPerMTok <= SAFE_MODEL_PRICING.inputPerMTok &&
-    pricing.outputPerMTok <= SAFE_MODEL_PRICING.outputPerMTok &&
-    pricing.cacheReadPerMTok <= SAFE_MODEL_PRICING.cacheReadPerMTok &&
-    pricing.cacheWritePerMTok <= SAFE_MODEL_PRICING.cacheWritePerMTok &&
-    AGENT_MAX_CONTEXT_BYTES_PER_STEP + AGENT_PROVIDER_TOKENIZATION_AND_FRAMING_OVERHEAD_PER_STEP <=
-      AGENT_PROVIDER_LONG_CONTEXT_PRICING_THRESHOLD_UNITS
-  );
+export function agentContextTokensToBytes(tokens: number) {
+  return tokens * AGENT_CONTEXT_BYTES_PER_TOKEN;
 }
 
-function stepWorstCaseUsd(modelSpec: string, contextBytes: number, outputTokens: number) {
-  const pricing = resolveModelPricing(modelId(modelSpec));
+function stepWorstCaseUsd(entry: AgentModelEntry, contextTokens: number, outputTokens: number) {
+  const promptTokens = contextTokens + AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS;
+  const pricing = resolveModelPricing(entry.modelId, promptTokens, entry.servingProvider);
   const maxInputRate = Math.max(pricing.inputPerMTok, pricing.cacheReadPerMTok, pricing.cacheWritePerMTok);
 
-  return (
-    ((contextBytes + AGENT_PROVIDER_TOKENIZATION_AND_FRAMING_OVERHEAD_PER_STEP) * maxInputRate) / 1_000_000 +
-    (outputTokens * pricing.outputPerMTok) / 1_000_000
-  );
+  return (promptTokens * maxInputRate) / 1_000_000 + (outputTokens * pricing.outputPerMTok) / 1_000_000;
 }
 
 export function agentTurnWorstCaseUsd(
-  modelSpec: string,
-  budget: Pick<AgentTurnBudget, "maxSteps" | "maxOutputTokens" | "maxContextBytes"> = {
-    maxSteps: AGENT_MAX_STEPS_PER_TURN,
-    maxOutputTokens: AGENT_MAX_OUTPUT_TOKENS_PER_STEP,
-    maxContextBytes: AGENT_MAX_CONTEXT_BYTES_PER_STEP,
+  entry: AgentModelEntry,
+  budget: Pick<AgentTurnBudget, "maxSteps" | "maxOutputTokens" | "maxContextTokens"> = {
+    maxSteps: entry.maxSteps,
+    maxOutputTokens: entry.maxOutputTokens,
+    maxContextTokens: entry.maxContextTokens,
   },
 ) {
-  return budget.maxSteps * stepWorstCaseUsd(modelSpec, budget.maxContextBytes, budget.maxOutputTokens);
+  return budget.maxSteps * stepWorstCaseUsd(entry, budget.maxContextTokens, budget.maxOutputTokens);
 }
 
 export function resolveAgentTurnBudget(args: {
+  model: AgentModelEntry;
   availableCredits: number;
   requiredContextBytes?: number;
   minimumSteps?: number;
 }): AgentTurnBudget | null {
+  const entry = args.model;
   if (!Number.isSafeInteger(args.availableCredits) || args.availableCredits < 1) return null;
-  if (!isAgentModelWithinBudgetEnvelope(SAFE_AGENT_MODEL_SPEC)) return null;
+  if (!isAgentModelWithinBudgetEnvelope(entry)) return null;
 
-  const requiredContextBytes = args.requiredContextBytes ?? AGENT_MIN_CONTEXT_BYTES_PER_STEP;
-  if (
-    !Number.isSafeInteger(requiredContextBytes) ||
-    requiredContextBytes < 1 ||
-    requiredContextBytes > AGENT_MAX_CONTEXT_BYTES_PER_STEP
-  )
-    return null;
+  const requiredContextBytes =
+    args.requiredContextBytes ?? agentContextTokensToBytes(AGENT_MIN_CONTEXT_TOKENS_PER_STEP);
+  if (!Number.isSafeInteger(requiredContextBytes) || requiredContextBytes < 1) return null;
+  const requiredContextTokens = agentContextBytesToTokens(requiredContextBytes);
+  if (requiredContextTokens > entry.maxContextTokens) return null;
+
   const minimumSteps = args.minimumSteps ?? 1;
-  if (!Number.isSafeInteger(minimumSteps) || minimumSteps < 1 || minimumSteps > AGENT_MAX_STEPS_PER_TURN) return null;
+  if (!Number.isSafeInteger(minimumSteps) || minimumSteps < 1 || minimumSteps > entry.maxSteps) return null;
 
-  const configuredSteps = AGENT_MAX_STEPS_PER_TURN;
-  const configuredOutput = AGENT_MAX_OUTPUT_TOKENS_PER_STEP;
-  const configuredToolResultChars = AGENT_MAX_TOOL_RESULT_CHARS;
-  const fullTurnCredits = Math.max(
-    1,
-    Math.ceil(
-      agentTurnWorstCaseUsd(SAFE_AGENT_MODEL_SPEC, {
-        maxSteps: configuredSteps,
-        maxOutputTokens: configuredOutput,
-        maxContextBytes: AGENT_MAX_CONTEXT_BYTES_PER_STEP,
-      }) / USD_PER_AGENT_CREDIT,
-    ),
-  );
+  const configuredToolResultChars = Math.min(entry.maxToolResultChars, AGENT_MAX_TOOL_RESULT_CHARS);
+  const fullTurnCredits = Math.max(1, Math.ceil(agentTurnWorstCaseUsd(entry) / USD_PER_AGENT_CREDIT));
   const reservedCredits = Math.min(args.availableCredits, fullTurnCredits);
   const turnBudgetUsd = reservedCredits * USD_PER_AGENT_CREDIT;
-  const pricing = resolveModelPricing(modelId(SAFE_AGENT_MODEL_SPEC));
+  const pricing = resolveModelPricing(entry.modelId, agentModelWorstCasePromptTokens(entry), entry.servingProvider);
   const maxInputRate = Math.max(pricing.inputPerMTok, pricing.cacheReadPerMTok, pricing.cacheWritePerMTok);
 
-  for (let maxSteps = configuredSteps; maxSteps >= minimumSteps; maxSteps -= 1) {
+  for (let maxSteps = entry.maxSteps; maxSteps >= minimumSteps; maxSteps -= 1) {
     const stepBudgetUsd = turnBudgetUsd / maxSteps;
-    const minimumContextBytes = Math.max(AGENT_MIN_CONTEXT_BYTES_PER_STEP, requiredContextBytes);
+    const minimumContextTokens = Math.max(AGENT_MIN_CONTEXT_TOKENS_PER_STEP, requiredContextTokens);
     const minimumInputCost =
-      ((minimumContextBytes + AGENT_PROVIDER_TOKENIZATION_AND_FRAMING_OVERHEAD_PER_STEP) * maxInputRate) / 1_000_000;
+      ((minimumContextTokens + AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS) * maxInputRate) / 1_000_000;
     const maximumAffordableOutput = Math.floor(
       ((stepBudgetUsd - minimumInputCost) * 1_000_000) / pricing.outputPerMTok,
     );
-    const minimumOutputTokens = Math.min(configuredOutput, AGENT_MIN_OUTPUT_TOKENS_PER_STEP);
+    const minimumOutputTokens = Math.min(entry.maxOutputTokens, AGENT_MIN_OUTPUT_TOKENS_PER_STEP);
 
     for (
-      let maxOutputTokens = Math.min(configuredOutput, maximumAffordableOutput);
+      let maxOutputTokens = Math.min(entry.maxOutputTokens, maximumAffordableOutput);
       maxOutputTokens >= minimumOutputTokens;
       maxOutputTokens -= 1
     ) {
       const outputCost = (maxOutputTokens * pricing.outputPerMTok) / 1_000_000;
-      const maxContextBytes = Math.min(
-        AGENT_MAX_CONTEXT_BYTES_PER_STEP,
-        Math.floor(((stepBudgetUsd - outputCost) * 1_000_000) / maxInputRate) -
-          AGENT_PROVIDER_TOKENIZATION_AND_FRAMING_OVERHEAD_PER_STEP,
+      const maxContextTokens = Math.min(
+        entry.maxContextTokens,
+        Math.floor(((stepBudgetUsd - outputCost) * 1_000_000) / maxInputRate) - AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS,
       );
-      if (maxContextBytes < minimumContextBytes) continue;
+      if (maxContextTokens < minimumContextTokens) continue;
 
+      const maxContextBytes = agentContextTokensToBytes(maxContextTokens);
       let maxToolResultChars = configuredToolResultChars;
       if (maxSteps > 1) {
         const accumulatedSteps = Math.min(maxSteps - 1, AGENT_CONTEXT_ACCUMULATION_STEPS);
@@ -141,13 +121,16 @@ export function resolveAgentTurnBudget(args: {
       }
 
       const budget = {
+        modelSpec: entry.modelId,
+        servingProvider: entry.servingProvider,
         reservedCredits,
         maxSteps,
         maxOutputTokens,
+        maxContextTokens,
         maxContextBytes,
         maxToolResultChars,
       };
-      if (agentTurnWorstCaseUsd(SAFE_AGENT_MODEL_SPEC, budget) <= turnBudgetUsd) return budget;
+      if (agentTurnWorstCaseUsd(entry, budget) <= turnBudgetUsd) return budget;
     }
   }
 
@@ -162,7 +145,7 @@ export function serializedAgentContextBytes(value: unknown): number | null {
   }
 }
 
-export function isAgentContextWithinBudget(value: unknown, maxContextBytes = AGENT_MAX_CONTEXT_BYTES_PER_STEP) {
+export function isAgentContextWithinBudget(value: unknown, maxContextBytes: number) {
   if (!Number.isSafeInteger(maxContextBytes) || maxContextBytes < 1) return false;
   const bytes = serializedAgentContextBytes(value);
   return bytes !== null && bytes <= maxContextBytes;

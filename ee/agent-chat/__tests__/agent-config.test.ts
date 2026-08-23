@@ -15,7 +15,6 @@ vi.mock("@/env", () => ({
   env: {
     ...MOCK_ENV_MODULE.env,
     APP_MODE: "cloud" as const,
-    AGENT_MODEL: "openai:gpt-5.6-luna",
   },
 }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
@@ -93,7 +92,7 @@ describe("GetAgentConfigInteractor", () => {
     ).invoke();
     await vi.waitFor(() => expect(repo.normalizeExpiredAgentRunLease).toHaveBeenCalledTimes(1));
 
-    expect(repo.normalizeExpiredAgentRunLease).toHaveBeenCalledWith(expect.any(Date), "gpt-5.6-luna");
+    expect(repo.normalizeExpiredAgentRunLease).toHaveBeenCalledWith(expect.any(Date), "openai/gpt-5.6-luna");
     expect(usageService.getUsageSummary).not.toHaveBeenCalled();
     expect(repo.getSuggestionSignals).not.toHaveBeenCalled();
     expect(repo.findMyConversation).not.toHaveBeenCalled();

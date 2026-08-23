@@ -1,10 +1,14 @@
 import { writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 
 const GATEWAY_ENDPOINTS_URL = "https://ai-gateway.vercel.sh/v1/models";
 const SNAPSHOT_PATH = join(process.cwd(), "ee/agent-chat/model-pricing.snapshot.ts");
 
-const PINNED = [{ modelId: "openai/gpt-5.6-luna", providerNativeModelId: "gpt-5.6-luna", provider: "openai" }];
+const PINNED = [
+  { modelId: "openai/gpt-5.6-luna", providerNativeModelId: "gpt-5.6-luna", provider: "openai" },
+  { modelId: "openai/gpt-5-nano", providerNativeModelId: "gpt-5-nano", provider: "openai" },
+];
 
 type CatalogTier = { cost: string; min?: number; max?: number };
 type CatalogPricing = Record<string, string | CatalogTier[] | unknown>;
@@ -65,6 +69,7 @@ async function main() {
   };
 
   writeFileSync(SNAPSHOT_PATH, `export const MODEL_PRICING_SNAPSHOT = ${JSON.stringify(snapshot, null, 2)} as const;\n`);
+  execFileSync("npx", ["eslint", "--fix", SNAPSHOT_PATH], { stdio: "inherit" });
   console.log(`Refreshed pricing for ${endpoints.length} endpoint(s).`);
 }
 

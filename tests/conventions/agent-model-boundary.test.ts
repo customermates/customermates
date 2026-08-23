@@ -6,8 +6,9 @@ import { describe, expect, it } from "vitest";
 import { REPO_ROOT, walkFiles } from "./walk";
 
 const MODEL_CALL_PATTERN =
-  /\b(?:streamText|generateText|generateObject|embed|embedMany)\s*\(/;
-const LANE_MODEL_CALL_PATTERN = /\blaneModel\s*\(/;
+  /\b(?:streamText|generateText|generateObject|streamObject|embed|embedMany)\s*\(|\bnew\s+(?:Agent|WorkflowAgent|ToolLoopAgent)\s*\(/;
+const PROVIDER_FACTORY_PATTERN =
+  /\b(?:createOpenAI|createAnthropic|createGoogleGenerativeAI|createGateway|createProviderRegistry|customProvider|wrapProvider)\s*\(/;
 const APPROVED_MODEL_CALL_FILE = "ee/agent-chat/agent-runner.ts";
 
 function productionTypeScriptFiles() {
@@ -17,29 +18,32 @@ function productionTypeScriptFiles() {
     return (
       !repoPath.includes("/__tests__/") &&
       !repoPath.startsWith("tests/") &&
+      !repoPath.startsWith("scripts/") &&
       !repoPath.includes(".test.")
     );
   });
 }
 
+function matchingProductionFiles(pattern: RegExp) {
+  return productionTypeScriptFiles()
+    .filter((path) => pattern.test(readFileSync(path, "utf8")))
+    .map((path) => relative(REPO_ROOT, path))
+    .sort();
+}
+
 describe("agent model budget boundary", () => {
   it("keeps every production model invocation behind the metered agent runner", () => {
-    const modelCallers = productionTypeScriptFiles()
-      .filter((path) => MODEL_CALL_PATTERN.test(readFileSync(path, "utf8")))
-      .map((path) => relative(REPO_ROOT, path));
-
-    expect(modelCallers).toEqual([APPROVED_MODEL_CALL_FILE]);
+    expect(matchingProductionFiles(MODEL_CALL_PATTERN)).toEqual([APPROVED_MODEL_CALL_FILE].sort());
   });
 
-  it("does not let another production module obtain the agent model directly", () => {
-    const laneModelCallers = productionTypeScriptFiles()
-      .filter((path) =>
-        LANE_MODEL_CALL_PATTERN.test(readFileSync(path, "utf8")),
-      )
-      .map((path) => relative(REPO_ROOT, path));
+  it("never constructs a provider instance, so no api key can reach a durable step argument", () => {
+    expect(matchingProductionFiles(PROVIDER_FACTORY_PATTERN)).toEqual([]);
+  });
 
-    expect(laneModelCallers.sort()).toEqual(
-      [APPROVED_MODEL_CALL_FILE, "ee/agent-chat/llm.service.ts"].sort(),
-    );
+  it("addresses models by gateway id from the catalog rather than by a hardcoded string", () => {
+    const runner = readFileSync(`${REPO_ROOT}/${APPROVED_MODEL_CALL_FILE}`, "utf8");
+
+    expect(runner).toContain("model: ctx.turnBudget.modelSpec");
+    expect(runner).toContain("gateway: { only: [ctx.turnBudget.servingProvider] }");
   });
 });

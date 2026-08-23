@@ -77,71 +77,6 @@ function step(
   };
 }
 
-function hostedToolSearchStep(): AgentContinuationStep {
-  const reasoning = {
-    type: "reasoning",
-    text: "I should discover the deferred record tools.",
-    providerOptions: {
-      openai: {
-        itemId: "rs-catalog",
-        reasoningEncryptedContent: null,
-      },
-    },
-  };
-  const searchCall = {
-    type: "tool-call",
-    toolCallId: "search-call",
-    toolName: "discover_customermates_tools",
-    input: { paths: ["records.lookup"] },
-    providerOptions: { openai: { itemId: "tsc-catalog" } },
-  };
-  const searchResult = {
-    type: "tool-result",
-    toolCallId: "search-call",
-    toolName: "discover_customermates_tools",
-    output: {
-      type: "json",
-      value: { tools: [{ schema: "large-provider-owned-definition" }] },
-    },
-    providerOptions: { openai: { itemId: "tso-catalog" } },
-  };
-  const assistantMessage = {
-    role: "assistant",
-    content: [
-      reasoning,
-      searchCall,
-      searchResult,
-      {
-        type: "reasoning",
-        text: "Unstored reasoning must not survive compaction.",
-      },
-      {
-        type: "tool-call",
-        toolCallId: "client-call",
-        toolName: "list_records",
-        input: { entity: "contact" },
-      },
-    ],
-  } as unknown as ModelMessage;
-  const clientResultMessage = {
-    role: "tool",
-    content: [
-      {
-        type: "tool-result",
-        toolCallId: "client-call",
-        toolName: "list_records",
-        output: { ok: true, result: "private old result" },
-      },
-    ],
-  } as unknown as ModelMessage;
-
-  return {
-    finishReason: "tool-calls",
-    content: [reasoning, searchCall, searchResult],
-    response: { messages: [assistantMessage, clientResultMessage] },
-  };
-}
-
 const limits: AgentContinuationLimits = {
   maxProviderSteps: 20,
   maxWriteActivities: 40,
@@ -329,42 +264,6 @@ describe("agent continuation context compaction", () => {
     expect(compacted.checkpointBytes).toBe(0);
   });
 
-  it("preserves exact older hosted tool-search response bundles for deferred definitions", () => {
-    const hostedSearch = hostedToolSearchStep();
-    const compacted = compactAgentContinuationContext({
-      system: "system",
-      initialMessages: [{ role: "user", content: "request" }],
-      steps: [hostedSearch, step([], "tool-calls", "recent-1"), step([], "tool-calls", "recent-2")],
-    });
-
-    expect(compacted.retainedToolSearchResponseSteps).toBe(1);
-    expect(compacted.messages[1]).not.toBe(hostedSearch.response.messages[0]);
-    const retainedContent = compacted.messages[1]?.content as Array<{
-      type: string;
-      providerOptions?: { openai?: { itemId?: string } };
-    }>;
-    const originalContent = hostedSearch.response.messages[0]?.content as unknown[];
-    expect(retainedContent.map((part) => part.type)).toEqual(["reasoning", "tool-call", "tool-result"]);
-    expect(retainedContent.map((part) => part.providerOptions?.openai?.itemId)).toEqual([
-      "rs-catalog",
-      "tsc-catalog",
-      "tso-catalog",
-    ]);
-    expect(retainedContent[0]).toBe(originalContent[0]);
-    expect(retainedContent[1]).toBe(originalContent[1]);
-    expect(retainedContent[2]).toBe(originalContent[2]);
-    expect(JSON.stringify(compacted.messages[1])).toContain("rs-catalog");
-    expect(JSON.stringify(compacted.messages[1])).toContain("tsc-catalog");
-    expect(JSON.stringify(compacted.messages[1])).toContain("tso-catalog");
-    expect(JSON.stringify(compacted.messages)).not.toContain("client-call");
-    expect(JSON.stringify(compacted.messages)).not.toContain("private old result");
-    expect(JSON.stringify(compacted.messages)).not.toContain("Unstored reasoning");
-    expect(compacted.checkpoint).toMatchObject({
-      completedSteps: 1,
-      completedActivities: 0,
-    });
-  });
-
   it("derives each retained bundle from the SDK's per-step response history", () => {
     const steps = [
       step([], "tool-calls", "first"),
@@ -457,15 +356,6 @@ describe("agent continuation decisions", () => {
     });
 
     expect(decision).toMatchObject({ action: "error", reason: "no_progress" });
-  });
-
-  it("treats hosted tool discovery as progress even though it is intentionally absent from the checkpoint", () => {
-    const decision = advance([hostedToolSearchStep()]);
-
-    expect(decision).toMatchObject({
-      action: "continue",
-      accounting: { noProgressSteps: 0, errors: 0 },
-    });
   });
 
   it("stops a repeated semantic call even when opaque tool-call ids differ", () => {
