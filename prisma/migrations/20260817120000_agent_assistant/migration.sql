@@ -2,7 +2,13 @@
 CREATE TYPE "AgentUsageState" AS ENUM ('reserved', 'settled', 'retained', 'released');
 
 -- CreateEnum
-CREATE TYPE "AgentTurnStatus" AS ENUM ('running', 'completed', 'failed', 'uncertain');
+CREATE TYPE "AgentTurnStatus" AS ENUM ('running', 'awaitingApproval', 'waitingBudget', 'needsAttention', 'completed', 'failed', 'uncertain');
+
+-- CreateEnum
+CREATE TYPE "AgentTurnOrigin" AS ENUM ('interactive', 'schedule', 'webhook');
+
+-- CreateEnum
+CREATE TYPE "AgentToolReceiptState" AS ENUM ('claimed', 'settled', 'abandoned');
 
 -- CreateEnum
 CREATE TYPE "AgentTurnTerminalCode" AS ENUM ('completed', 'partial', 'error', 'cancelled', 'policyBreach');
@@ -33,6 +39,7 @@ CREATE TABLE "AgentConversation" (
     "companyId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "title" TEXT,
+    "modelKey" TEXT,
     "archivedAt" TIMESTAMP(3),
     "selectedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -61,13 +68,14 @@ CREATE TABLE "AgentUsageEvent" (
     "companyId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "sessionId" TEXT,
+    "turnRequestId" TEXT,
     "state" "AgentUsageState" NOT NULL DEFAULT 'reserved',
     "model" TEXT NOT NULL DEFAULT '',
     "inputTokens" INTEGER NOT NULL DEFAULT 0,
     "outputTokens" INTEGER NOT NULL DEFAULT 0,
     "cacheReadTokens" INTEGER NOT NULL DEFAULT 0,
     "cacheWriteTokens" INTEGER NOT NULL DEFAULT 0,
-    "costMicrocents" INTEGER NOT NULL DEFAULT 0,
+    "costMicrocents" BIGINT NOT NULL DEFAULT 0,
     "reservedCredits" INTEGER NOT NULL DEFAULT 0,
     "chargedCredits" INTEGER NOT NULL DEFAULT 0,
     "policyBreach" BOOLEAN NOT NULL DEFAULT false,
@@ -93,7 +101,16 @@ CREATE TABLE "AgentTurnRequest" (
     "text" TEXT NOT NULL,
     "pageRoute" TEXT,
     "status" "AgentTurnStatus" NOT NULL,
+    "origin" "AgentTurnOrigin" NOT NULL DEFAULT 'interactive',
     "runId" TEXT NOT NULL,
+    "externalRunId" TEXT,
+    "segmentIndex" INTEGER NOT NULL DEFAULT 0,
+    "lastRoundIndex" INTEGER NOT NULL DEFAULT 0,
+    "accruedCredits" INTEGER NOT NULL DEFAULT 0,
+    "modelSpec" TEXT,
+    "servingProvider" TEXT,
+    "heartbeatAt" TIMESTAMP(3),
+    "cancellationRequestedAt" TIMESTAMP(3),
     "attemptCount" INTEGER NOT NULL DEFAULT 1,
     "providerStartedAt" TIMESTAMP(3),
     "userMessageId" TEXT NOT NULL,
@@ -261,3 +278,73 @@ ALTER TABLE "AgentUsageEvent"
 
 ALTER TABLE "AgentTurnRequest"
   ADD CONSTRAINT "AgentTurnRequest_attempt_count_positive" CHECK ("attemptCount" >= 1);
+
+-- CreateTable
+CREATE TABLE "AgentRunRound" (
+    "id" TEXT NOT NULL,
+    "turnRequestId" TEXT NOT NULL,
+    "companyId" TEXT NOT NULL,
+    "runId" TEXT NOT NULL,
+    "roundIndex" INTEGER NOT NULL,
+    "parts" JSONB NOT NULL,
+    "finishReason" TEXT NOT NULL,
+    "inputTokens" INTEGER NOT NULL DEFAULT 0,
+    "outputTokens" INTEGER NOT NULL DEFAULT 0,
+    "cacheReadTokens" INTEGER NOT NULL DEFAULT 0,
+    "cacheWriteTokens" INTEGER NOT NULL DEFAULT 0,
+    "reasoningTokens" INTEGER NOT NULL DEFAULT 0,
+    "costMicrocents" BIGINT NOT NULL DEFAULT 0,
+    "modelSpec" TEXT NOT NULL,
+    "servingProvider" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "AgentRunRound_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "AgentToolReceipt" (
+    "id" TEXT NOT NULL,
+    "turnRequestId" TEXT NOT NULL,
+    "companyId" TEXT NOT NULL,
+    "toolCallId" TEXT NOT NULL,
+    "toolName" TEXT NOT NULL,
+    "state" "AgentToolReceiptState" NOT NULL DEFAULT 'claimed',
+    "resultJson" JSONB,
+    "claimedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "settledAt" TIMESTAMP(3),
+
+    CONSTRAINT "AgentToolReceipt_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE INDEX "AgentRunRound_companyId_createdAt_idx" ON "AgentRunRound"("companyId", "createdAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AgentRunRound_turnRequestId_roundIndex_key" ON "AgentRunRound"("turnRequestId", "roundIndex");
+
+-- CreateIndex
+CREATE INDEX "AgentToolReceipt_companyId_state_idx" ON "AgentToolReceipt"("companyId", "state");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AgentToolReceipt_turnRequestId_toolCallId_key" ON "AgentToolReceipt"("turnRequestId", "toolCallId");
+
+-- CreateIndex
+CREATE INDEX "AgentTurnRequest_companyId_status_updatedAt_idx" ON "AgentTurnRequest"("companyId", "status", "updatedAt");
+
+-- CreateIndex
+CREATE INDEX "AgentUsageEvent_turnRequestId_idx" ON "AgentUsageEvent"("turnRequestId");
+
+-- AddForeignKey
+ALTER TABLE "AgentUsageEvent" ADD CONSTRAINT "AgentUsageEvent_turnRequestId_fkey" FOREIGN KEY ("turnRequestId") REFERENCES "AgentTurnRequest"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentRunRound" ADD CONSTRAINT "AgentRunRound_turnRequestId_fkey" FOREIGN KEY ("turnRequestId") REFERENCES "AgentTurnRequest"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentRunRound" ADD CONSTRAINT "AgentRunRound_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentToolReceipt" ADD CONSTRAINT "AgentToolReceipt_turnRequestId_fkey" FOREIGN KEY ("turnRequestId") REFERENCES "AgentTurnRequest"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentToolReceipt" ADD CONSTRAINT "AgentToolReceipt_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;

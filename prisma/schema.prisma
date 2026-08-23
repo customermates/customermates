@@ -247,6 +247,8 @@ model Company {
   entityTerminology           EntityTerminology[]
   agentConversations          AgentConversation[]
   agentRunLeases              AgentRunLease[]
+  agentRunRounds              AgentRunRound[]
+  agentToolReceipts           AgentToolReceipt[]
   agentMessages               AgentMessage[]
   agentUsageEvents            AgentUsageEvent[]
   agentTurnRequests           AgentTurnRequest[]
@@ -1600,6 +1602,7 @@ model AgentConversation {
   companyId        String
   userId           String
   title            String?
+  modelKey         String?
   archivedAt       DateTime?
   selectedAt       DateTime?
   createdAt        DateTime               @default(now())
@@ -1639,13 +1642,15 @@ model AgentUsageEvent {
   company                    Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
   userId                     String
   sessionId                  String?
+  turnRequestId              String?
+  turnRequest                AgentTurnRequest?  @relation(fields: [turnRequestId], references: [id], onDelete: SetNull)
   state                      AgentUsageState    @default(reserved)
   model                      String             @default("")
   inputTokens                Int                @default(0)
   outputTokens               Int                @default(0)
   cacheReadTokens            Int                @default(0)
   cacheWriteTokens           Int                @default(0)
-  costMicrocents             Int                @default(0)
+  costMicrocents             BigInt             @default(0)
   reservedCredits            Int                @default(0)
   chargedCredits             Int                @default(0)
   policyBreach               Boolean            @default(false)
@@ -1661,6 +1666,7 @@ model AgentUsageEvent {
   @@index([userId, createdAt])
   @@index([companyId, createdAt])
   @@index([companyId, userId, periodStart, periodEnd, state])
+  @@index([turnRequestId])
 }
 
 enum AgentUsageState {
@@ -1671,38 +1677,60 @@ enum AgentUsageState {
 }
 
 model AgentTurnRequest {
-  id                 String                 @id @default(uuid())
-  companyId          String
-  company            Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  userId             String
-  conversationId     String
-  clientRequestId    String
-  text               String
-  pageRoute          String?
-  status             AgentTurnStatus
-  runId              String
-  attemptCount       Int                    @default(1)
-  providerStartedAt  DateTime?
-  userMessageId      String
-  assistantMessageId String?
-  terminalCode       AgentTurnTerminalCode?
-  affectedResources  Json                   @default("[]")
-  terminalAt         DateTime?
-  createdAt          DateTime               @default(now())
-  updatedAt          DateTime               @updatedAt
-  conversation       AgentConversation      @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  messages           AgentMessage[]
+  id                      String                 @id @default(uuid())
+  companyId               String
+  company                 Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  userId                  String
+  conversationId          String
+  clientRequestId         String
+  text                    String
+  pageRoute               String?
+  status                  AgentTurnStatus
+  origin                  AgentTurnOrigin        @default(interactive)
+  runId                   String
+  externalRunId           String?
+  segmentIndex            Int                    @default(0)
+  lastRoundIndex          Int                    @default(0)
+  accruedCredits          Int                    @default(0)
+  modelSpec               String?
+  servingProvider         String?
+  heartbeatAt             DateTime?
+  cancellationRequestedAt DateTime?
+  attemptCount            Int                    @default(1)
+  providerStartedAt       DateTime?
+  userMessageId           String
+  assistantMessageId      String?
+  terminalCode            AgentTurnTerminalCode?
+  affectedResources       Json                   @default("[]")
+  terminalAt              DateTime?
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+  conversation            AgentConversation      @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  messages                AgentMessage[]
+  rounds                  AgentRunRound[]
+  toolReceipts            AgentToolReceipt[]
+  usageEvents             AgentUsageEvent[]
 
   @@unique([companyId, userId, clientRequestId])
   @@index([companyId, userId, runId, status])
   @@index([conversationId, companyId, userId, status])
+  @@index([companyId, status, updatedAt])
 }
 
 enum AgentTurnStatus {
   running
+  awaitingApproval
+  waitingBudget
+  needsAttention
   completed
   failed
   uncertain
+}
+
+enum AgentTurnOrigin {
+  interactive
+  schedule
+  webhook
 }
 
 enum AgentTurnTerminalCode {
@@ -1747,6 +1775,53 @@ model AgentUiCommandResult {
 
   @@unique([companyId, conversationId, commandId])
   @@index([companyId])
+}
+
+model AgentRunRound {
+  id               String           @id @default(uuid())
+  turnRequestId    String
+  companyId        String
+  runId            String
+  roundIndex       Int
+  parts            Json
+  finishReason     String
+  inputTokens      Int              @default(0)
+  outputTokens     Int              @default(0)
+  cacheReadTokens  Int              @default(0)
+  cacheWriteTokens Int              @default(0)
+  reasoningTokens  Int              @default(0)
+  costMicrocents   BigInt           @default(0)
+  modelSpec        String
+  servingProvider  String?
+  createdAt        DateTime         @default(now())
+  turnRequest      AgentTurnRequest @relation(fields: [turnRequestId], references: [id], onDelete: Cascade)
+  company          Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([turnRequestId, roundIndex])
+  @@index([companyId, createdAt])
+}
+
+model AgentToolReceipt {
+  id            String                @id @default(uuid())
+  turnRequestId String
+  companyId     String
+  toolCallId    String
+  toolName      String
+  state         AgentToolReceiptState @default(claimed)
+  resultJson    Json?
+  claimedAt     DateTime              @default(now())
+  settledAt     DateTime?
+  turnRequest   AgentTurnRequest      @relation(fields: [turnRequestId], references: [id], onDelete: Cascade)
+  company       Company               @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([turnRequestId, toolCallId])
+  @@index([companyId, state])
+}
+
+enum AgentToolReceiptState {
+  claimed
+  settled
+  abandoned
 }
 
 model AgentRunLease {

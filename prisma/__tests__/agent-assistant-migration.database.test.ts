@@ -151,6 +151,8 @@ describeDatabase("agent assistant migration", { timeout: 120_000 }, () => {
         "AgentConversation",
         "AgentMessage",
         "AgentRunLease",
+        "AgentRunRound",
+        "AgentToolReceipt",
         "AgentTurnRequest",
         "AgentUiCommandResult",
         "AgentUsageEvent",
@@ -170,6 +172,47 @@ describeDatabase("agent assistant migration", { timeout: 120_000 }, () => {
         table_name: null,
         enum_names: [],
       });
+    });
+  });
+
+  it("widens metered cost beyond what a premium model can reach in one turn", async () => {
+    await withTemporaryDatabase(requiredDatabaseUrl(), async (client) => {
+      await applyMigrations(client, migrationNames());
+
+      const costColumns = await client.query<{ table_name: string; data_type: string }>(
+        `SELECT table_name, data_type FROM information_schema.columns
+          WHERE table_schema = 'public' AND column_name = 'costMicrocents' ORDER BY table_name`,
+      );
+
+      expect(costColumns.rows).toEqual([
+        { table_name: "AgentRunRound", data_type: "bigint" },
+        { table_name: "AgentUsageEvent", data_type: "bigint" },
+      ]);
+    });
+  });
+
+  it("keeps billing when a conversation is deleted and takes its transcript with it", async () => {
+    await withTemporaryDatabase(requiredDatabaseUrl(), async (client) => {
+      await applyMigrations(client, migrationNames());
+
+      const rules = await client.query<{ table_name: string; delete_rule: string }>(
+        `SELECT tc.table_name, rc.delete_rule
+           FROM information_schema.table_constraints tc
+           JOIN information_schema.referential_constraints rc
+             ON rc.constraint_name = tc.constraint_name
+           JOIN information_schema.key_column_usage kcu
+             ON kcu.constraint_name = tc.constraint_name
+          WHERE tc.constraint_type = 'FOREIGN KEY'
+            AND kcu.column_name = 'turnRequestId'
+            AND tc.table_name IN ('AgentRunRound', 'AgentToolReceipt', 'AgentUsageEvent')
+          ORDER BY tc.table_name`,
+      );
+
+      expect(rules.rows).toEqual([
+        { table_name: "AgentRunRound", delete_rule: "CASCADE" },
+        { table_name: "AgentToolReceipt", delete_rule: "CASCADE" },
+        { table_name: "AgentUsageEvent", delete_rule: "SET NULL" },
+      ]);
     });
   });
 });
