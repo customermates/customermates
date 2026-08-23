@@ -105,11 +105,20 @@ describeDatabase("background tenant context on PostgreSQL", () => {
   });
 
   it("refuses to assume a user that does not exist", async () => {
-    await expect(runAsBackgroundTenant(randomUUID(), () => getTenantUser())).rejects.toThrow();
+    await expect(runAsBackgroundTenant(randomUUID(), () => getTenantUser())).rejects.toThrow(
+      /No .*User.* found|not found|P2025/i,
+    );
   });
 
   it("leaves no ambient identity outside a background tenant", async () => {
     expect(() => getTenantUser()).toThrow(/Tenant context missing/);
-    await expect(new GuardedProbe().invoke()).rejects.toThrow();
+
+    const identity = await new GuardedProbe()
+      .invoke()
+      .then((value) => ({ assumed: true as const, value }))
+      .catch(() => ({ assumed: false as const, value: null }));
+
+    expect(identity.assumed).toBe(false);
+    expect(() => getTenantUser()).toThrow(/Tenant context missing/);
   });
 });

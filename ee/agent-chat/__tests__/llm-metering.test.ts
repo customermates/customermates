@@ -141,13 +141,15 @@ describe("usageToTokenCounts", () => {
 });
 
 describe("laneModelId + pricing coverage", () => {
-  it("strips the provider prefix from the model spec", () => {
+  it("reports the provider-native id of the configured agent model", () => {
     expect(laneModelId("agent")).toBe("gpt-5.6-luna");
   });
 
-  it("the configured agent model has a real pricing row (never the UNKNOWN_MODEL_PRICING spend-cap trap)", () => {
-    const unknown = resolveModelPricing("definitely-not-a-real-model");
-    expect(resolveModelPricing(laneModelId("agent"))).not.toEqual(unknown);
+  it("refuses to price an unpinned model instead of falling back to a spend cap", () => {
+    expect(() => resolveModelPricing("definitely-not-a-real-model")).toThrow(/No pinned pricing/);
+  });
+
+  it("prices the configured agent model from the pinned snapshot", () => {
     expect(resolveModelPricing(laneModelId("agent")).cacheWritePerMTok).toBe(0.25);
   });
 });
