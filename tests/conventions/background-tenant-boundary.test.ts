@@ -15,6 +15,7 @@ const AUTHENTICATED_TENANT_ENTRYPOINTS = [
   "app/[locale]/(protected)/test/error/actions.ts",
   "core/decorators/background-tenant.ts",
   "core/decorators/tenant-interactor.decorator.ts",
+  "ee/agent-chat/agent-runner.ts",
   "features/onboarding-wizard/complete-onboarding-wizard.interactor.ts",
   "features/user/register/register-user.interactor.ts",
 ];

@@ -34,6 +34,8 @@ const { AgentUsageService } = await import("@/ee/agent-chat/agent-usage.service"
 const { SendAgentMessageInteractor } = await import("@/ee/agent-chat/send-agent-message.interactor");
 const { prisma } = await import("@/prisma/db");
 const { runWithoutTenant, runWithTenant } = await import("@/core/decorators/tenant-context");
+const { runInTransaction } = await import("@/core/decorators/transaction-runner");
+const { getTransactionClient } = await import("@/core/decorators/transaction-context");
 type PrismaAgentChatRepoInstance = InstanceType<typeof PrismaAgentChatRepo>;
 
 const companyIds: string[] = [];
@@ -284,6 +286,205 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     await expect(
       runWithoutTenant(() => repo.heartbeatAgentRunUnscoped({ turnRequestId, companyId, userId, runId })),
     ).resolves.toBe(false);
+  });
+
+  it("keeps one row per round when the same round is recorded twice, as a replay would", async () => {
+    const anchor = new Date(Date.UTC(2026, 0, 15));
+    const { companyId, userId } = await seedActiveSeat(anchor);
+    authState.user = createMockUser({ id: userId, companyId, email: `rounds-${userId}@example.com` });
+    const repo = new PrismaAgentChatRepo();
+    const usage = new AgentUsageService(repo);
+
+    const admitted = await new SendAgentMessageInteractor(repo, usage, entitlements as never).invoke({
+      clientRequestId: randomUUID(),
+      text: "Start a chat",
+      retry: false,
+    });
+    if (!admitted.ok || admitted.data.disposition !== "run") throw new Error("Expected an admitted turn.");
+    const { turnRequestId, runId } = admitted.data;
+
+    const round = {
+      turnRequestId,
+      companyId,
+      runId,
+      roundIndex: 0,
+      finishReason: "tool-calls",
+      inputTokens: 100,
+      outputTokens: 20,
+      cacheReadTokens: 0,
+      cacheWriteTokens: 0,
+      reasoningTokens: 4,
+      costMicrocents: 4_400,
+      modelSpec: "openai/gpt-5.6-luna",
+      servingProvider: "openai",
+    };
+
+    await runWithoutTenant(() => repo.recordAgentRunRoundUnscoped({ ...round, parts: [{ role: "assistant" }] }));
+    await runWithoutTenant(() =>
+      repo.recordAgentRunRoundUnscoped({ ...round, costMicrocents: 5_500, parts: [{ role: "assistant" }] }),
+    );
+    await runWithoutTenant(() =>
+      repo.recordAgentRunRoundUnscoped({ ...round, roundIndex: 1, parts: [{ role: "assistant" }] }),
+    );
+
+    const rounds = await runWithoutTenant(() =>
+      prisma.agentRunRound.findMany({ where: { turnRequestId }, orderBy: { roundIndex: "asc" } }),
+    );
+    expect(rounds).toHaveLength(2);
+    expect(rounds[0].costMicrocents).toBe(5_500n);
+    expect(rounds[0].reasoningTokens).toBe(4);
+    expect(rounds[1].roundIndex).toBe(1);
+  });
+
+  it("takes a conversation's rounds with it on delete while its billing survives", async () => {
+    const anchor = new Date(Date.UTC(2026, 0, 15));
+    const { companyId, userId } = await seedActiveSeat(anchor);
+    authState.user = createMockUser({ id: userId, companyId, email: `cascade-${userId}@example.com` });
+    const repo = new PrismaAgentChatRepo();
+    const usage = new AgentUsageService(repo);
+
+    const admitted = await new SendAgentMessageInteractor(repo, usage, entitlements as never).invoke({
+      clientRequestId: randomUUID(),
+      text: "Start a chat",
+      retry: false,
+    });
+    if (!admitted.ok || admitted.data.disposition !== "run") throw new Error("Expected an admitted turn.");
+    const { turnRequestId, runId, conversationId } = admitted.data;
+
+    await runWithoutTenant(() =>
+      repo.recordAgentRunRoundUnscoped({
+        turnRequestId,
+        companyId,
+        runId,
+        roundIndex: 0,
+        parts: [{ role: "assistant" }],
+        finishReason: "stop",
+        inputTokens: 1,
+        outputTokens: 1,
+        cacheReadTokens: 0,
+        cacheWriteTokens: 0,
+        reasoningTokens: 0,
+        costMicrocents: 1,
+        modelSpec: "openai/gpt-5.6-luna",
+        servingProvider: "openai",
+      }),
+    );
+
+    await runWithoutTenant(() => prisma.agentConversation.delete({ where: { id: conversationId } }));
+
+    const [rounds, events] = await runWithoutTenant(() =>
+      Promise.all([
+        prisma.agentRunRound.count({ where: { turnRequestId } }),
+        prisma.agentUsageEvent.count({ where: { userId } }),
+      ]),
+    );
+    expect(rounds).toBe(0);
+    expect(events).toBe(1);
+  });
+
+  it("commits one mutation and one receipt when the same tool call is executed twice", async () => {
+    const anchor = new Date(Date.UTC(2026, 0, 15));
+    const { companyId, userId } = await seedActiveSeat(anchor);
+    authState.user = createMockUser({ id: userId, companyId, email: `receipt-${userId}@example.com` });
+    const repo = new PrismaAgentChatRepo();
+    const usage = new AgentUsageService(repo);
+
+    const admitted = await new SendAgentMessageInteractor(repo, usage, entitlements as never).invoke({
+      clientRequestId: randomUUID(),
+      text: "Start a chat",
+      retry: false,
+    });
+    if (!admitted.ok || admitted.data.disposition !== "run") throw new Error("Expected an admitted turn.");
+    const { turnRequestId } = admitted.data;
+    const toolCallId = randomUUID();
+
+    const exactlyOnce = async (mutate: () => Promise<unknown>) => {
+      const receipt = await repo.claimAgentToolReceiptUnscoped({
+        turnRequestId,
+        companyId,
+        toolCallId,
+        toolName: "create_contacts",
+      });
+      if (receipt.state === "settled") return receipt.resultJson;
+
+      return runInTransaction(async () => {
+        const result = await mutate();
+        await repo.settleAgentToolReceiptUnscoped({
+          turnRequestId,
+          companyId,
+          toolCallId,
+          resultJson: result as never,
+        });
+        return result;
+      });
+    };
+
+    const mutate = async () => {
+      const client = getTransactionClient<typeof prisma>() ?? prisma;
+      const created = await client.agentConversation.create({
+        data: { companyId, userId, title: "created by tool" },
+        select: { id: true },
+      });
+      return { ok: true, result: created.id };
+    };
+
+    const first = await runWithoutTenant(() => exactlyOnce(mutate));
+    const second = await runWithoutTenant(() => exactlyOnce(mutate));
+
+    expect(second).toEqual(first);
+    const [created, receipts] = await runWithoutTenant(() =>
+      Promise.all([
+        prisma.agentConversation.count({ where: { companyId, title: "created by tool" } }),
+        prisma.agentToolReceipt.findMany({ where: { turnRequestId } }),
+      ]),
+    );
+    expect(created).toBe(1);
+    expect(receipts).toHaveLength(1);
+    expect(receipts[0].state).toBe("settled");
+  });
+
+  it("leaves a receipt claimed and unsettled exactly when the mutation did not commit", async () => {
+    const anchor = new Date(Date.UTC(2026, 0, 15));
+    const { companyId, userId } = await seedActiveSeat(anchor);
+    authState.user = createMockUser({ id: userId, companyId, email: `rollback-${userId}@example.com` });
+    const repo = new PrismaAgentChatRepo();
+    const usage = new AgentUsageService(repo);
+
+    const admitted = await new SendAgentMessageInteractor(repo, usage, entitlements as never).invoke({
+      clientRequestId: randomUUID(),
+      text: "Start a chat",
+      retry: false,
+    });
+    if (!admitted.ok || admitted.data.disposition !== "run") throw new Error("Expected an admitted turn.");
+    const { turnRequestId } = admitted.data;
+    const toolCallId = randomUUID();
+
+    await runWithoutTenant(() =>
+      repo.claimAgentToolReceiptUnscoped({ turnRequestId, companyId, toolCallId, toolName: "create_contacts" }),
+    );
+
+    await expect(
+      runWithoutTenant(() =>
+        runInTransaction(async () => {
+          const client = getTransactionClient<typeof prisma>() ?? prisma;
+          await client.agentConversation.create({
+            data: { companyId, userId, title: "rolled back by tool" },
+            select: { id: true },
+          });
+          throw new Error("mutation failed after writing");
+        }),
+      ),
+    ).rejects.toThrow("mutation failed after writing");
+
+    const [created, receipt] = await runWithoutTenant(() =>
+      Promise.all([
+        prisma.agentConversation.count({ where: { companyId, title: "rolled back by tool" } }),
+        prisma.agentToolReceipt.findFirstOrThrow({ where: { turnRequestId, toolCallId } }),
+      ]),
+    );
+    expect(created).toBe(0);
+    expect(receipt.state).toBe("claimed");
+    expect(receipt.settledAt).toBeNull();
   });
 
   it("rolls back a lease when phase-one credit reservation fails", async () => {

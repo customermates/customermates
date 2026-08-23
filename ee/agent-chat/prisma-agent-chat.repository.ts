@@ -997,6 +997,101 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
   }
 
   @BypassTenantGuard
+  async claimAgentToolReceiptUnscoped(args: {
+    turnRequestId: string;
+    companyId: string;
+    toolCallId: string;
+    toolName: string;
+  }): Promise<{ state: "claimed" } | { state: "settled"; resultJson: unknown }> {
+    const existing = await this.prisma.agentToolReceipt.findUnique({
+      where: { turnRequestId_toolCallId: { turnRequestId: args.turnRequestId, toolCallId: args.toolCallId } },
+      select: { state: true, resultJson: true },
+    });
+    if (existing?.state === "settled") return { state: "settled", resultJson: existing.resultJson };
+    if (existing) return { state: "claimed" };
+
+    await this.prisma.agentToolReceipt.create({
+      data: {
+        turnRequestId: args.turnRequestId,
+        companyId: args.companyId,
+        toolCallId: args.toolCallId,
+        toolName: args.toolName,
+      },
+    });
+    return { state: "claimed" };
+  }
+
+  @BypassTenantGuard
+  async settleAgentToolReceiptUnscoped(args: {
+    turnRequestId: string;
+    companyId: string;
+    toolCallId: string;
+    resultJson: Prisma.InputJsonValue;
+  }) {
+    const settled = await this.prisma.agentToolReceipt.updateMany({
+      where: {
+        turnRequestId: args.turnRequestId,
+        companyId: args.companyId,
+        toolCallId: args.toolCallId,
+        state: "claimed",
+      },
+      data: { state: "settled", resultJson: args.resultJson, settledAt: new Date() },
+    });
+    if (settled.count !== 1) throw new Error("Agent tool receipt could not be settled.");
+  }
+
+  @BypassTenantGuard
+  async recordAgentRunRoundUnscoped(args: {
+    turnRequestId: string;
+    companyId: string;
+    runId: string;
+    roundIndex: number;
+    parts: Prisma.InputJsonValue;
+    finishReason: string;
+    inputTokens: number;
+    outputTokens: number;
+    cacheReadTokens: number;
+    cacheWriteTokens: number;
+    reasoningTokens: number;
+    costMicrocents: number;
+    modelSpec: string;
+    servingProvider: string | null;
+  }) {
+    const counts = [
+      args.inputTokens,
+      args.outputTokens,
+      args.cacheReadTokens,
+      args.cacheWriteTokens,
+      args.reasoningTokens,
+      args.costMicrocents,
+      args.roundIndex,
+    ];
+    if (counts.some((value) => !Number.isSafeInteger(value) || value < 0))
+      throw new Error("Agent run round accounting is invalid.");
+
+    const record = {
+      companyId: args.companyId,
+      runId: args.runId,
+      parts: args.parts,
+      finishReason: args.finishReason,
+      inputTokens: args.inputTokens,
+      outputTokens: args.outputTokens,
+      cacheReadTokens: args.cacheReadTokens,
+      cacheWriteTokens: args.cacheWriteTokens,
+      reasoningTokens: args.reasoningTokens,
+      costMicrocents: args.costMicrocents,
+      modelSpec: args.modelSpec,
+      servingProvider: args.servingProvider,
+    };
+
+    await this.prisma.agentRunRound.upsert({
+      where: { turnRequestId_roundIndex: { turnRequestId: args.turnRequestId, roundIndex: args.roundIndex } },
+      create: { ...record, turnRequestId: args.turnRequestId, roundIndex: args.roundIndex },
+      update: record,
+    });
+  }
+
+  @BypassTenantGuard
   async heartbeatAgentRunUnscoped(args: {
     turnRequestId: string;
     companyId: string;

@@ -1,12 +1,12 @@
 import { z } from "zod";
 import { asSchema, tool, jsonSchema, type ToolSet } from "ai";
 
-import { ALL_MCP_TOOLS } from "@/features/mcp-tools/tool-registry";
+import { ALL_MCP_TOOLS, MCP_TOOL_GROUPS } from "@/features/mcp-tools/tool-registry";
 import { executeMcpTool, expectedMcpToolFailure, type McpToolExecutionResult } from "@/features/mcp-tools/mcp-tool";
 import { RequestSupportSchema } from "@/features/mcp-tools/support.mcp-tools";
 import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 
-import { requiresApproval } from "./gated-tools";
+import { isReadOnlyTool, requiresApproval } from "./gated-tools";
 import {
   AGENT_UI_TARGETS,
   ClickUiTargetIdSchema,
@@ -47,11 +47,24 @@ export const AGENT_UI_TOOL_NAMES = [
   "open_record",
 ] as const;
 
+const NON_TRANSACTIONAL_TOOL_GROUPS = ["messaging", "social", "support"] as const;
+
+let nonTransactionalToolNames: ReadonlySet<string> | undefined;
+
+export function hasNonTransactionalEffect(toolName: string) {
+  nonTransactionalToolNames ??= new Set(
+    NON_TRANSACTIONAL_TOOL_GROUPS.flatMap((group) => (MCP_TOOL_GROUPS?.[group] ?? []).map((mcp) => mcp.name)),
+  );
+
+  return nonTransactionalToolNames.has(toolName);
+}
+
 export type AgentToolDeps = {
   runUiCommand: (commandId: string, name: string, input: Record<string, unknown>) => Promise<AgentUiCommandOutcome>;
   requestApproval: (requestId: string, toolName: string, input: unknown) => Promise<ApprovalDecision>;
   resolveApprovalContext: (toolName: string, input: unknown) => Promise<AgentApprovalContextResolution>;
   createSupportTicket: (toolCallId: string, subject: string, body: string) => Promise<McpToolExecutionResult>;
+  runExactlyOnce: <T>(toolCallId: string, toolName: string, run: () => Promise<T>) => Promise<T>;
   resultMaxChars: number;
 };
 
@@ -167,10 +180,12 @@ function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
     description: mcp.description,
     inputSchema: providerSafeSchema(mcp.inputSchema),
     execute: async (input: unknown, { toolCallId }) => {
-      const run = async () => {
+      const execute = async () => {
         const outcome = await executeMcpTool(mcp, [input]);
         return agentToolResult(outcome, deps.resultMaxChars);
       };
+      const enrollable = !isReadOnlyTool(mcp) && !hasNonTransactionalEffect(mcp.name);
+      const run = enrollable ? () => deps.runExactlyOnce(toolCallId, mcp.name, execute) : execute;
       return runSafely(async () => {
         if (!requiresApproval(internalToolIdentity(mcp.name), mcp, input)) return run();
         const approvalContext = await deps.resolveApprovalContext(mcp.name, input);
@@ -293,6 +308,7 @@ const TOOL_DEFINITION_DEPS: AgentToolDeps = {
   requestApproval: () => Promise.resolve("reject"),
   resolveApprovalContext: (_toolName, input) => Promise.resolve({ ok: true, input }),
   createSupportTicket: () => Promise.resolve({ ok: true, result: "Definition-only tool." }),
+  runExactlyOnce: (_toolCallId, _toolName, run) => run(),
   resultMaxChars: 1,
 };
 

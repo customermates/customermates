@@ -6,11 +6,13 @@ import type { Prisma } from "@/generated/prisma";
 
 import { getAgentChatRepo, getCreateChatSupportTicketInteractor, getUserService } from "@/core/di";
 import { isExpectedErrorInCauseChain } from "@/core/errors/app-errors";
+import { runInTransaction } from "@/core/decorators/transaction-runner";
+import { runWithTenant } from "@/core/decorators/tenant-context";
 import { mcpInteractorFailure, type McpToolExecutionResult } from "@/features/mcp-tools/mcp-tool";
 
 import { buildTurnUsageSettlement, usageToTokenCounts } from "./llm.service";
 import { readAgentProviderCharge, readAgentProviderChargeFromError } from "./gateway-cost";
-import { type TokenCounts } from "./model-pricing";
+import { computeCostMicrocents, type TokenCounts } from "./model-pricing";
 import { buildAgentSystemPrompt } from "./system-prompt";
 import {
   getAgentAiTools,
@@ -279,6 +281,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
       let providerStepsFinished = 0;
       let providerAttempted = false;
       let providerBilled = false;
+      let roundIndex = 0;
       const stepTokens: TokenCounts[] = [];
       let measuredCostMicrocents: number | null = null;
       let chargeUnreadableReason: string | null = null;
@@ -342,6 +345,28 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
         const deps: AgentToolDeps = {
           runUiCommand,
           requestApproval,
+          runExactlyOnce: async (toolCallId, toolName, run) => {
+            const receipt = await repo.claimAgentToolReceiptUnscoped({
+              turnRequestId: ctx.turnRequestId,
+              companyId: ctx.companyId,
+              toolCallId,
+              toolName,
+            });
+            if (receipt.state === "settled") return receipt.resultJson as Awaited<ReturnType<typeof run>>;
+
+            return runWithTenant(sessionUser, () =>
+              runInTransaction(async () => {
+                const result = await run();
+                await repo.settleAgentToolReceiptUnscoped({
+                  turnRequestId: ctx.turnRequestId,
+                  companyId: ctx.companyId,
+                  toolCallId,
+                  resultJson: result as Prisma.InputJsonValue,
+                });
+                return result;
+              }),
+            );
+          },
           resolveApprovalContext: resolveAgentApprovalContext,
           createSupportTicket: (_toolCallId, subject, body) => createSupportTicket(ctx.conversationId, subject, body),
           resultMaxChars: resolveAgentToolResultMaxChars(ctx.turnBudget.maxToolResultChars),
@@ -403,6 +428,27 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
           ],
           experimental_onStepStart: () => {
             providerStepsStarted += 1;
+          },
+          onStepEnd: async (step) => {
+            const roundTokens = usageToTokenCounts(step.usage);
+            const charge = readAgentProviderCharge(step.providerMetadata, ctx.turnBudget.servingProvider);
+
+            await repo.recordAgentRunRoundUnscoped({
+              turnRequestId: ctx.turnRequestId,
+              companyId: ctx.companyId,
+              runId: ctx.runId,
+              roundIndex: roundIndex++,
+              parts: step.response.messages as unknown as Prisma.InputJsonValue,
+              finishReason: step.finishReason,
+              ...roundTokens,
+              reasoningTokens: step.usage.outputTokenDetails?.reasoningTokens ?? 0,
+              costMicrocents:
+                charge.outcome === "measured"
+                  ? charge.charge.costMicrocents
+                  : computeCostMicrocents(ctx.turnBudget.modelSpec, roundTokens, ctx.turnBudget.servingProvider),
+              modelSpec: ctx.turnBudget.modelSpec,
+              servingProvider: ctx.turnBudget.servingProvider,
+            });
           },
           prepareStep: ({ steps = [] }) => {
             const fitsBudget = (context: ReturnType<typeof compactAgentContinuationContext>) =>

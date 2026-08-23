@@ -47,6 +47,7 @@ import { AGENT_CLICK_TARGETS, AGENT_UI_TARGETS } from "../ui-targets";
 import {
   AGENT_UI_TOOL_NAMES,
   describeAgentAiTools,
+  hasNonTransactionalEffect,
   getAgentAiToolDefinitions,
   getAgentAiTools,
   isAgentToolCancellation,
@@ -59,6 +60,7 @@ function deps(overrides: Partial<AgentToolDeps> = {}): AgentToolDeps {
     requestApproval: vi.fn().mockResolvedValue("approve"),
     resolveApprovalContext: vi.fn().mockImplementation((_toolName, input) => Promise.resolve({ ok: true, input })),
     createSupportTicket: vi.fn().mockResolvedValue({ ok: true, result: "created" }),
+    runExactlyOnce: <T>(_toolCallId: string, _toolName: string, run: () => Promise<T>) => run(),
     resultMaxChars: 6000,
     ...overrides,
   };
@@ -84,6 +86,40 @@ function execute(tool: unknown, input: unknown, toolCallId = "call-1") {
 }
 
 describe("agent tools", () => {
+  it("enrolls a mutation in an exactly-once receipt but never an effect it cannot roll back", async () => {
+    const enrolled: string[] = [];
+    const runExactlyOnce = <T>(toolCallId: string, toolName: string, run: () => Promise<T>) => {
+      enrolled.push(`${toolName}:${toolCallId}`);
+      return run();
+    };
+    const tools = getAgentAiTools(deps({ runExactlyOnce })) as unknown as Record<
+      string,
+      { execute: (input: unknown, options: { toolCallId: string }) => Promise<unknown> }
+    >;
+    const ignoringOutcome = (call: Promise<unknown>) => call.catch(() => undefined);
+
+    await ignoringOutcome(tools.create_contacts.execute({ contacts: [] }, { toolCallId: "call-write" }));
+    await ignoringOutcome(tools.send_email.execute({}, { toolCallId: "call-email" }));
+    await ignoringOutcome(tools.list_records.execute({ entity: "contact" }, { toolCallId: "call-read" }));
+
+    expect(enrolled).toEqual(["create_contacts:call-write"]);
+  });
+
+  it("classifies every tool that reaches a system it cannot roll back", () => {
+    for (const name of [
+      "send_email",
+      "send_chat_message",
+      "save_message_draft",
+      "connect_messaging_account",
+      "manage_social_relations",
+      "linkedin_manage_sales_lists",
+    ])
+      expect(hasNonTransactionalEffect(name), name).toBe(true);
+
+    for (const name of ["create_contacts", "update_deals", "delete_records", "manage_widgets", "manage_custom_columns"])
+      expect(hasNonTransactionalEffect(name), name).toBe(false);
+  });
+
   it("exposes the complete MCP registry plus the interface tools on every turn", () => {
     const names = Object.keys(getAgentAiTools(deps()));
     const expected = new Set([...ALL_MCP_TOOLS.map((agentTool) => agentTool.name), ...AGENT_UI_TOOL_NAMES]);

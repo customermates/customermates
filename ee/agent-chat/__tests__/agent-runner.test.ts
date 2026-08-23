@@ -12,6 +12,7 @@ const repoMock = vi.hoisted(() => ({
   takeUiCommandResultUnscoped: vi.fn(),
   markAgentTurnProviderStartedUnscoped: vi.fn().mockResolvedValue(undefined),
   heartbeatAgentRunUnscoped: vi.fn().mockResolvedValue(true),
+  recordAgentRunRoundUnscoped: vi.fn().mockResolvedValue(undefined),
   finalizeAgentTurnOrThrowUnscoped: vi.fn(),
 }));
 const aiMock = vi.hoisted(() => ({
@@ -1157,6 +1158,91 @@ describe("agent runner approval rendezvous", () => {
     expect(events.at(-1)).toMatchObject({ type: "turn_done", isError: true });
     expect(repoMock.finalizeAgentTurnOrThrowUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({ terminalCode: "error" }),
+    );
+  });
+
+  it("persists one round per provider step, with that step's own messages and measured cost", async () => {
+    llmMock.usageToTokenCounts.mockReturnValue({
+      inputTokens: 100,
+      outputTokens: 20,
+      cacheReadTokens: 0,
+      cacheWriteTokens: 0,
+    });
+    const stepOf = (index: number, cost: string) => ({
+      finishReason: index === 1 ? "stop" : "tool-calls",
+      usage: {
+        inputTokens: 100,
+        inputTokenDetails: { noCacheTokens: 100, cacheReadTokens: 0, cacheWriteTokens: 0 },
+        outputTokens: 20,
+        outputTokenDetails: { reasoningTokens: index === 0 ? 7 : 0 },
+      },
+      providerMetadata: meteredStep(cost),
+      response: { messages: [{ role: "assistant", content: [{ type: "text", text: `round ${index}` }] }] },
+    });
+    aiMock.streamText.mockImplementation(
+      (options: { onStepEnd: (step: unknown) => Promise<void>; experimental_onStepStart: () => void }) => ({
+        fullStream: (async function* () {
+          options.experimental_onStepStart();
+          await options.onStepEnd(stepOf(0, "0.00300000"));
+          options.experimental_onStepStart();
+          await options.onStepEnd(stepOf(1, "0.00200000"));
+          yield { type: "text-delta", text: "Done." };
+          yield { type: "finish", finishReason: "stop" };
+        })(),
+      }),
+    );
+
+    await runAndRead(ctx());
+
+    expect(repoMock.recordAgentRunRoundUnscoped).toHaveBeenCalledTimes(2);
+    expect(repoMock.recordAgentRunRoundUnscoped).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        turnRequestId: "turn1",
+        roundIndex: 0,
+        finishReason: "tool-calls",
+        inputTokens: 100,
+        outputTokens: 20,
+        reasoningTokens: 7,
+        costMicrocents: 300_000,
+        modelSpec: "openai/gpt-5.6-luna",
+        servingProvider: "openai",
+        parts: [{ role: "assistant", content: [{ type: "text", text: "round 0" }] }],
+      }),
+    );
+    expect(repoMock.recordAgentRunRoundUnscoped).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ roundIndex: 1, costMicrocents: 200_000, reasoningTokens: 0 }),
+    );
+  });
+
+  it("prices a round from the pinned snapshot when the gateway cost is unreadable", async () => {
+    llmMock.usageToTokenCounts.mockReturnValue({
+      inputTokens: 100,
+      outputTokens: 20,
+      cacheReadTokens: 0,
+      cacheWriteTokens: 0,
+    });
+    aiMock.streamText.mockImplementation((options: { onStepEnd: (step: unknown) => Promise<void> }) => ({
+      fullStream: (async function* () {
+        await options.onStepEnd({
+          finishReason: "stop",
+          usage: {
+            inputTokens: 100,
+            inputTokenDetails: { noCacheTokens: 100, cacheReadTokens: 0, cacheWriteTokens: 0 },
+            outputTokens: 20,
+          },
+          providerMetadata: undefined,
+          response: { messages: [] },
+        });
+        yield { type: "finish", finishReason: "stop" };
+      })(),
+    }));
+
+    await runAndRead(ctx());
+
+    expect(repoMock.recordAgentRunRoundUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({ roundIndex: 0, costMicrocents: 4_400 }),
     );
   });
 
