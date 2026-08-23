@@ -48,6 +48,12 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --radius-card: calc(var(--radius) + 12px);
+  --radius-panel: calc(var(--radius) + 16px);
+  --breakpoint-nav: 56rem;
+  --container-marketing: 90rem;
+  --aspect-hero: 16 / 9;
+  --ease-marketing: var(--marketing-ease);
   --font-family-sans: var(--font-sans), 'Inter', ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-family-mono: var(--font-mono), 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   --color-sidebar-ring: var(--sidebar-ring);
@@ -283,8 +289,42 @@
    a selection must raise contrast against whatever it sits on, so it darkens in light and
    lightens in dark. The distinction is resting elevation versus state, not light versus
    dark. --accent and --selected are washes; --secondary is not. */
+
+/* Marketing layout system (CUS-267).
+   The public pages share the colour system above without exception: canvas is --sidebar,
+   page is --background, raised is --card, rules are --border, control edges --input,
+   floating rims --border-strong. A marketing page introduces no colour of its own, so
+   the tokens below carry only geometry, rhythm, type scale and motion.
+
+   The homepage prototype that set this direction expressed all four inline, and drifted
+   inside a single three-file diff: three card radii (20/24/28px), two display clamps
+   (5.2vw and 5.3vw), two container widths (1440 and 1600px) and three divider alphas.
+   Every value therefore lands here once, and the marketing components read it.
+
+   RADIUS derives from --radius like the rest of the scale, so a change to the one radius
+   token still moves everything together. Two values only: --radius-card for a media or
+   content card, --radius-panel for a full-width band such as the closing call to action.
+
+   BREAKPOINT --breakpoint-nav is the one place the public navigation's desktop boundary
+   is stated, and it must stay a literal length because Tailwind expands it into a media
+   query, which cannot hold a var(). BREAKPOINT_QUERY.nav in hooks/use-media-query.ts
+   mirrors it for the matchMedia the navbar listens to, and a convention test fails when
+   the two disagree, so the query and the classes cannot drift apart.
+
+   TYPE the display sizes are viewport-clamped rather than stepped, because an editorial
+   headline should fill its measure at every width. German compound nouns set the lower
+   bound: the minimum is the size at which the longest shipped German headline still sets
+   without a mid-word break at 375px.
+
+   MEDIA --aspect-hero is 16/9 because every hero asset under public/images is exactly
+   1920x1080 and tests/conventions/hero-asset-coverage.test.ts enforces it. Changing this
+   ratio means regenerating 672 files, so presentation crops and frames the asset instead. */
 :root {
   --radius: 0.5rem;
+  --marketing-gutter: 1.25rem;
+  --marketing-gutter-lg: 2rem;
+  --marketing-duration: 200ms;
+  --marketing-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --background: #f6f6f8;
   --foreground: #000000;
   --card: #ffffff;
@@ -571,6 +611,64 @@ path:focus {
 
   .text-subdued {
     @apply relative text-muted-foreground;
+  }
+
+  .marketing-container {
+    @apply mx-auto w-full max-w-marketing;
+    padding-inline: var(--marketing-gutter);
+  }
+
+  @media (width >= 40rem) {
+    .marketing-container {
+      padding-inline: var(--marketing-gutter-lg);
+    }
+  }
+
+  .marketing-section {
+    @apply w-full border-b border-border py-20 sm:py-24 lg:py-32;
+  }
+
+  .marketing-section-flush {
+    @apply w-full py-20 sm:py-24 lg:py-32;
+  }
+
+  .marketing-transition {
+    transition-property: color, background-color, border-color, opacity, transform;
+    transition-duration: var(--marketing-duration);
+    transition-timing-function: var(--marketing-ease);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marketing-transition {
+      transition: none;
+    }
+  }
+
+  .text-display {
+    @apply font-medium text-balance;
+    font-size: clamp(2.5rem, 5.2vw, 5.25rem);
+    line-height: 0.98;
+    letter-spacing: -0.045em;
+  }
+
+  .text-display-sm {
+    @apply font-medium text-balance;
+    font-size: clamp(1.75rem, 2.8vw, 2.5rem);
+    line-height: 1.06;
+    letter-spacing: -0.03em;
+  }
+
+  .text-lede {
+    @apply text-base leading-relaxed text-muted-foreground sm:text-lg;
+    max-width: 44rem;
+  }
+
+  .text-eyebrow {
+    @apply text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase;
+  }
+
+  .text-meta {
+    @apply text-xs leading-relaxed text-muted-foreground;
   }
 
   .interactive-surface {

@@ -20,6 +20,37 @@ cta:
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
+faq:
+  title: "Häufig gestellte Fragen"
+  faqs:
+  - id: mid-market-faq-1
+    title: "Was macht ein CRM zu einem „Mittelstands-CRM\" im Vergleich zu einem KMU- oder Enterprise-CRM?"
+    content: |-
+        Ein CRM für den Mittelstand ist für Unternehmen mit ca. 50 bis 1.000 Mitarbeitern konzipiert, die Multi-Team-Zugriff, rollenbasierte Berechtigungen, Management-Reporting und Systemintegrationen brauchen, aber nicht die Komplexität, den Implementierungsaufwand oder die Kosten von Enterprise-Plattformen wie Salesforce oder Dynamics 365 benötigen. Customermates passt in diesen Bereich, indem es das Kern-CRM in jeder Stufe ab [[commercial.price.starter.monthly]]/Nutzer/Monat anbietet, mit einer Einrichtungszeit, die in Minuten gemessen wird, nicht in Monaten.
+  - id: mid-market-faq-2
+    title: "Wie handhabt Customermates den Übergang von einem KMU-CRM zu einem Mittelstands-CRM?"
+    content: |-
+        Customermates unterstützt Kontakte, Organisationen, Deals, konfigurierbare Pipelines und ressourcenbasierte Rollen. Bereiten Sie Quelldaten außerhalb des Produkts auf und erstellen Sie unterstützte Datensätze über REST oder einen externen KI-Client per MCP; Customermates hat keinen CSV-Uploader. Automatisierungen laufen in einer separaten Integration, die Sie selbst betreiben.
+  - id: mid-market-faq-3
+    title: "Kann Customermates mit unserem ERP und unserer Buchhaltungssoftware integriert werden?"
+    content: |-
+        Ja. Customermates bietet eine vollständige REST-API und Webhooks für Echtzeit-Integration mit jedem System, das eine API hat. Über n8n-Workflow-Automatisierung können Sie bidirektionale Datensynchronisation mit SAP, Oracle, DATEV, lexoffice, Xero, QuickBooks oder jeder anderen ERP- und Buchhaltungsplattform einrichten. Siehe unseren [CRM-ERP-Integrationsleitfaden](/blog/crm-erp-integration) für Implementierungsmuster.
+  - id: mid-market-faq-4
+    title: "Ist Customermates für Unternehmen mit mehreren Abteilungen und Teams geeignet?"
+    content: |-
+        Absolut. Customermates unterstützt mehrere Pipelines und ressourcenbasierte Berechtigungen. Vertrieb, Key Account Management, Customer Success und Service arbeiten im selben CRM mit gemeinsam zugänglichen Datensätzen; gespeicherte Ansichten und Filterkonfigurationen bleiben je Nutzer persönlich. Die Geschäftsleitung kann Dashboards und Reporting über zulässige Daten nutzen, ohne ein geteiltes Teamansichts-Objekt.
+  - id: mid-market-faq-5
+    title: "Wie stellt Customermates die DSGVO-Konformität für mittelständische Unternehmen sicher?"
+    content: |-
+        Die gehostete Customermates-Datenbank läuft in einer EU-Region; Application- und weitere Anbieter, darunter US-Anbieter, sind separat dokumentiert. Audit-Historie ist sichtbar; einen eingebauten vollständigen Datenexport, Einwilligungsworkflow oder eine Compliance-Zertifizierung gibt es nicht. Beim Self-Hosting wählt und betreibt Ihr Team Anwendung und Datenbank, während verbundene Anbieter separat zu prüfen sind.
+  - id: mid-market-faq-6
+    title: "Was bedeutet „Open Source\" für ein Mittelstands-CRM?"
+    content: |-
+        Open Source bedeutet, dass der vollständige Quellcode von Customermates öffentlich verfügbar ist. Ihr IT-Team kann den Code prüfen, Sicherheitspraktiken verifizieren und das System bei Bedarf anpassen. Es eliminiert auch Vendor Lock-in, Ihre Daten und Ihre CRM-Infrastruktur bleiben unter Ihrer Kontrolle, unabhängig davon, was mit dem Anbieter passiert. Für mittelständische Unternehmen, die Unabhängigkeit schätzen, ist das ein entscheidender Vorteil.
+  - id: mid-market-faq-7
+    title: "Wie lange dauert die Einrichtung von Customermates für ein mittelständisches Unternehmen?"
+    content: |-
+        Konto, Nutzer und Pipelines richten Sie in Customermates selbst ein. Aufwand und Dauer für Datenmigration, Berechtigungen und externe Automatisierungen hängen von der Quelldatenqualität, Ihrer Integration und Ihren Anforderungen ab; Customermates verspricht dafür keinen festen Zeitrahmen.
 ---
 
 ## Warum mittelständische Unternehmen ein spezialisiertes CRM für den Mittelstand brauchen
@@ -102,36 +133,6 @@ Mittelstands-CRM-Software sollte faire, transparente Preise haben, keine verscha
 - **Open Source**, kein Vendor Lock-in, keine Abhängigkeit von einem einzelnen Anbieter
 
 Mittelstandsteams, bei denen Vertrieb, Service und Customer Success alle geteilte Posteingänge brauchen, landen meist bei Business. 25 Nutzer in Business kosten [[commercial.price.business.monthly.seats.25]]/Monat. 50 Nutzer kosten [[commercial.price.business.monthly.seats.50]]/Monat. Vergleichen Sie das mit Enterprise-CRM-Preisen: Eine 50-Nutzer-Salesforce-Installation zu $150/Nutzer kostet $7.500/Monat. Für eine breitere Kostenanalyse siehe unseren [CRM-Kostenleitfaden](/blog/crm-cost).
-
-## Häufig gestellte Fragen
-
-### Was macht ein CRM zu einem „Mittelstands-CRM" im Vergleich zu einem KMU- oder Enterprise-CRM?
-
-Ein CRM für den Mittelstand ist für Unternehmen mit ca. 50 bis 1.000 Mitarbeitern konzipiert, die Multi-Team-Zugriff, rollenbasierte Berechtigungen, Management-Reporting und Systemintegrationen brauchen, aber nicht die Komplexität, den Implementierungsaufwand oder die Kosten von Enterprise-Plattformen wie Salesforce oder Dynamics 365 benötigen. Customermates passt in diesen Bereich, indem es das Kern-CRM in jeder Stufe ab [[commercial.price.starter.monthly]]/Nutzer/Monat anbietet, mit einer Einrichtungszeit, die in Minuten gemessen wird, nicht in Monaten.
-
-### Wie handhabt Customermates den Übergang von einem KMU-CRM zu einem Mittelstands-CRM?
-
-Customermates unterstützt Kontakte, Organisationen, Deals, konfigurierbare Pipelines und ressourcenbasierte Rollen. Bereiten Sie Quelldaten außerhalb des Produkts auf und erstellen Sie unterstützte Datensätze über REST oder einen externen KI-Client per MCP; Customermates hat keinen CSV-Uploader. Automatisierungen laufen in einer separaten Integration, die Sie selbst betreiben.
-
-### Kann Customermates mit unserem ERP und unserer Buchhaltungssoftware integriert werden?
-
-Ja. Customermates bietet eine vollständige REST-API und Webhooks für Echtzeit-Integration mit jedem System, das eine API hat. Über n8n-Workflow-Automatisierung können Sie bidirektionale Datensynchronisation mit SAP, Oracle, DATEV, lexoffice, Xero, QuickBooks oder jeder anderen ERP- und Buchhaltungsplattform einrichten. Siehe unseren [CRM-ERP-Integrationsleitfaden](/blog/crm-erp-integration) für Implementierungsmuster.
-
-### Ist Customermates für Unternehmen mit mehreren Abteilungen und Teams geeignet?
-
-Absolut. Customermates unterstützt mehrere Pipelines und ressourcenbasierte Berechtigungen. Vertrieb, Key Account Management, Customer Success und Service arbeiten im selben CRM mit gemeinsam zugänglichen Datensätzen; gespeicherte Ansichten und Filterkonfigurationen bleiben je Nutzer persönlich. Die Geschäftsleitung kann Dashboards und Reporting über zulässige Daten nutzen, ohne ein geteiltes Teamansichts-Objekt.
-
-### Wie stellt Customermates die DSGVO-Konformität für mittelständische Unternehmen sicher?
-
-Die gehostete Customermates-Datenbank läuft in einer EU-Region; Application- und weitere Anbieter, darunter US-Anbieter, sind separat dokumentiert. Audit-Historie ist sichtbar; einen eingebauten vollständigen Datenexport, Einwilligungsworkflow oder eine Compliance-Zertifizierung gibt es nicht. Beim Self-Hosting wählt und betreibt Ihr Team Anwendung und Datenbank, während verbundene Anbieter separat zu prüfen sind.
-
-### Was bedeutet „Open Source" für ein Mittelstands-CRM?
-
-Open Source bedeutet, dass der vollständige Quellcode von Customermates öffentlich verfügbar ist. Ihr IT-Team kann den Code prüfen, Sicherheitspraktiken verifizieren und das System bei Bedarf anpassen. Es eliminiert auch Vendor Lock-in, Ihre Daten und Ihre CRM-Infrastruktur bleiben unter Ihrer Kontrolle, unabhängig davon, was mit dem Anbieter passiert. Für mittelständische Unternehmen, die Unabhängigkeit schätzen, ist das ein entscheidender Vorteil.
-
-### Wie lange dauert die Einrichtung von Customermates für ein mittelständisches Unternehmen?
-
-Konto, Nutzer und Pipelines richten Sie in Customermates selbst ein. Aufwand und Dauer für Datenmigration, Berechtigungen und externe Automatisierungen hängen von der Quelldatenqualität, Ihrer Integration und Ihren Anforderungen ab; Customermates verspricht dafür keinen festen Zeitrahmen.
 
 ## So starten Sie mit Customermates für Ihr mittelständisches Unternehmen
 

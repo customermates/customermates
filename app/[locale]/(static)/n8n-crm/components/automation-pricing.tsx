@@ -13,12 +13,12 @@ export function AutomationPricing({ pricingSection, pricingSectionTitle }: Props
 
   return (
     <section className="relative py-16 md:py-24 w-full" id="pricing">
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="marketing-container">
         {pricingSectionTitle && (
           <div className="mb-12 text-center max-w-3xl mx-auto">
-            <h2 className="text-x-3xl pb-4">{pricingSectionTitle.title}</h2>
+            <h2 className="text-display-sm pb-4">{pricingSectionTitle.title}</h2>
 
-            <p className="text-x-lg text-subdued">{pricingSectionTitle.subtitle}</p>
+            <p className="text-lede mx-auto">{pricingSectionTitle.subtitle}</p>
           </div>
         )}
 

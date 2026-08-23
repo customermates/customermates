@@ -20,6 +20,33 @@ cta:
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
+faq:
+  title: "Frequently Asked Questions"
+  faqs:
+  - id: contact-management-faq-1
+    title: "How much does contact management software cost?"
+    content: |-
+        Prices range from free to $300+/user/month for enterprise CRM. Customermates starts at [[commercial.price.starter.monthly]]/user/month for the core CRM and publishes per-user rather than per-contact pricing. Verify current plan and deployment capacity for your volume. See [CRM Cost](/blog/crm-cost).
+  - id: contact-management-faq-2
+    title: "Is there free contact management software?"
+    content: |-
+        Yes. HubSpot and Zoho offer free versions with user limits and restricted features. The Customermates AGPL core CRM can be self-hosted with PostgreSQL under Starter entitlements; external services remain separate. More details: [Free CRM comparison](/blog/free-crm).
+  - id: contact-management-faq-3
+    title: "What's the difference between contact management and CRM?"
+    content: |-
+        Contact management is a core function of CRM software. A full CRM additionally includes [pipeline management](/features/pipeline), automation, reporting, and integrations. Every CRM includes contact management, but not every address book is a full CRM.
+  - id: contact-management-faq-4
+    title: "Can I use Excel for contact management?"
+    content: |-
+        For solo operators with few contacts, Excel can work. Once multiple people maintain customer data, contacts need to link to deals, or GDPR compliance is required, Excel hits its limits. An [Excel CRM template](/blog/excel-crm-template) can bridge the gap.
+  - id: contact-management-faq-5
+    title: "Can I import contacts from Excel?"
+    content: |-
+        Customermates has no CSV import tool. Prepare, map, validate, and deduplicate the spreadsheet outside the product, then create supported records through a customer-run REST integration or a supported external AI client over MCP. Your integration owns parsing, preview, retries, and merge decisions; Customermates does not supply that import workflow.
+  - id: contact-management-faq-6
+    title: "How many contacts can I manage?"
+    content: |-
+        Customermates publishes per-user rather than per-contact pricing, but this page makes no unlimited-capacity or performance guarantee. Review current plan terms and test your deployment with representative contact volume; API and database capacity depend on the chosen setup.
 ---
 
 ## What Is CRM Contact Management?
@@ -174,32 +201,6 @@ The transition does not have to be disruptive. Customermates has no CSV importer
 **External AI clients can update contacts.** Supported clients such as Claude, ChatGPT, and Gemini can use [[derived.mcp.tools.total]] MCP tools for allowed contact operations. Customermates supplies neither an AI chat nor a model; the client, subscription, usage, provider handling, and results remain separate.
 
 **Separate n8n automation.** A customer-run n8n workflow can receive external form submissions, synchronize supported fields, or request notifications through external providers. Runtime, connectors, credentials, delivery, limits, logs, and costs remain separate.
-
-## Frequently Asked Questions
-
-### How much does contact management software cost?
-
-Prices range from free to $300+/user/month for enterprise CRM. Customermates starts at [[commercial.price.starter.monthly]]/user/month for the core CRM and publishes per-user rather than per-contact pricing. Verify current plan and deployment capacity for your volume. See [CRM Cost](/blog/crm-cost).
-
-### Is there free contact management software?
-
-Yes. HubSpot and Zoho offer free versions with user limits and restricted features. The Customermates AGPL core CRM can be self-hosted with PostgreSQL under Starter entitlements; external services remain separate. More details: [Free CRM comparison](/blog/free-crm).
-
-### What's the difference between contact management and CRM?
-
-Contact management is a core function of CRM software. A full CRM additionally includes [pipeline management](/features/pipeline), automation, reporting, and integrations. Every CRM includes contact management, but not every address book is a full CRM.
-
-### Can I use Excel for contact management?
-
-For solo operators with few contacts, Excel can work. Once multiple people maintain customer data, contacts need to link to deals, or GDPR compliance is required, Excel hits its limits. An [Excel CRM template](/blog/excel-crm-template) can bridge the gap.
-
-### Can I import contacts from Excel?
-
-Customermates has no CSV import tool. Prepare, map, validate, and deduplicate the spreadsheet outside the product, then create supported records through a customer-run REST integration or a supported external AI client over MCP. Your integration owns parsing, preview, retries, and merge decisions; Customermates does not supply that import workflow.
-
-### How many contacts can I manage?
-
-Customermates publishes per-user rather than per-contact pricing, but this page makes no unlimited-capacity or performance guarantee. Review current plan terms and test your deployment with representative contact volume; API and database capacity depend on the chosen setup.
 
 ## Start Managing Contacts Today
 

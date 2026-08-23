@@ -20,6 +20,33 @@ cta:
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
+faq:
+  title: "Frequently Asked Questions"
+  faqs:
+  - id: outlook-integration-faq-1
+    title: "Does it work with Outlook desktop or only Outlook 365?"
+    content: |-
+        Customermates integrates with Microsoft Outlook 365 (Microsoft 365) through server-side sync. This covers Outlook on the web, Outlook desktop connected to a Microsoft 365 account, and the Outlook mobile app. On-premise Exchange servers are supported through IMAP configuration.
+  - id: outlook-integration-faq-2
+    title: "Do I need to install an Outlook plugin?"
+    content: |-
+        No. The integration works through server-side OAuth authentication. There is nothing to install in Outlook, no browser extensions, and no add-ins that need maintenance.
+  - id: outlook-integration-faq-3
+    title: "Can I choose which emails are synced?"
+    content: |-
+        Yes. You can sync all emails, only emails matching existing CRM contacts, or specific Outlook folders. You have full control over which communications enter the CRM.
+  - id: outlook-integration-faq-4
+    title: "Is calendar sync bidirectional?"
+    content: |-
+        No. Supported events from the connected Outlook calendar are read-only in Customermates. The CRM does not create, edit, book, delete, or synchronize events back to Outlook.
+  - id: outlook-integration-faq-5
+    title: "Can multiple team members connect their Outlook accounts?"
+    content: |-
+        Yes. Each team member connects their own Outlook account. Emails from all connected accounts are logged on the shared CRM contact records, giving the entire team visibility into all customer communications.
+  - id: outlook-integration-faq-6
+    title: "Where is hosted data processed?"
+    content: |-
+        The managed database runs in an EU region. Application hosting and connected providers may process data elsewhere, including through US providers; self-hosted Starter does not include this cloud email integration.
 ---
 
 ## What Is CRM Outlook Integration?
@@ -118,26 +145,6 @@ Supported email conversations can be matched to CRM contacts by address. Outlook
 **Separate n8n for custom workflows.** Connect an n8n instance you operate through REST, webhooks, MCP, or the community node. Its scheduling, logic, provider credentials, plan, limits, logs, and costs remain outside Customermates.
 
 **Self-hosted core CRM.** Self-hosting runs the application and PostgreSQL database on your infrastructure with Starter entitlements. It does not include the cloud unified inbox, Outlook email connection, or calendar view; external providers remain separate.
-
-## Frequently Asked Questions
-
-**Does it work with Outlook desktop or only Outlook 365?**
-Customermates integrates with Microsoft Outlook 365 (Microsoft 365) through server-side sync. This covers Outlook on the web, Outlook desktop connected to a Microsoft 365 account, and the Outlook mobile app. On-premise Exchange servers are supported through IMAP configuration.
-
-**Do I need to install an Outlook plugin?**
-No. The integration works through server-side OAuth authentication. There is nothing to install in Outlook, no browser extensions, and no add-ins that need maintenance.
-
-**Can I choose which emails are synced?**
-Yes. You can sync all emails, only emails matching existing CRM contacts, or specific Outlook folders. You have full control over which communications enter the CRM.
-
-**Is calendar sync bidirectional?**
-No. Supported events from the connected Outlook calendar are read-only in Customermates. The CRM does not create, edit, book, delete, or synchronize events back to Outlook.
-
-**Can multiple team members connect their Outlook accounts?**
-Yes. Each team member connects their own Outlook account. Emails from all connected accounts are logged on the shared CRM contact records, giving the entire team visibility into all customer communications.
-
-**Where is hosted data processed?**
-The managed database runs in an EU region. Application hosting and connected providers may process data elsewhere, including through US providers; self-hosted Starter does not include this cloud email integration.
 
 ## Get Started with Outlook Integration Today
 

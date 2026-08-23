@@ -13,8 +13,11 @@ describe("public navigation preferences", () => {
     expect(navbar.match(/<LanguageSelector/g)).toHaveLength(1);
     expect(navbar.match(/<ThemeSwitcher/g)).toHaveLength(1);
     expect(navbar.match(/\{renderPreferenceButtons\(\)\}/g)).toHaveLength(2);
-    expect(navbar).toContain('className="hidden items-center gap-2 md:flex"');
-    expect(navbar).toContain('className="flex w-full items-center justify-between md:hidden"');
+    expect(navbar).toContain('className="hidden items-center gap-2 nav:flex"');
+    expect(navbar).toContain('className="flex w-full items-center justify-between nav:hidden"');
+    expect(navbar).toContain("BREAKPOINT_QUERY.nav");
+    expect(navbar).not.toContain("md:flex");
+    expect(navbar).not.toContain("md:hidden");
     expect(navbar).toContain('className="my-1 py-3"');
     expect(navbar).not.toContain("border-y");
     expect(navbar).not.toContain("github.com/customermates/customermates");

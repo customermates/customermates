@@ -24,8 +24,8 @@ export function FooterContent({ blogPosts = [], competitors = [], featureLinks =
   const t = useTranslations();
 
   return (
-    <footer className="bg-muted mt-auto w-full text-x-sm">
-      <div className="max-w-[1300px] mx-auto px-6 py-12">
+    <footer className="mt-auto w-full border-t border-border bg-sidebar text-sm">
+      <div className="marketing-container py-12">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-8 mb-12">
           <div className="col-span-2 sm:col-span-3 lg:col-span-1 flex flex-col items-start gap-4">
             <AppLink aria-label={`${t("Common.imageAlt.logo")} ${t("UserAvatar.home")}`} href="/">
@@ -36,7 +36,7 @@ export function FooterContent({ blogPosts = [], competitors = [], featureLinks =
 
             <div className="flex gap-4">
               <a
-                className="text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors inline-flex items-center gap-1.5"
+                className="marketing-transition inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
                 href="https://github.com/customermates/customermates"
                 rel="noopener noreferrer"
                 target="_blank"
@@ -49,7 +49,7 @@ export function FooterContent({ blogPosts = [], competitors = [], featureLinks =
               </a>
 
               <a
-                className="text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors inline-flex items-center gap-1.5"
+                className="marketing-transition inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
                 href="https://www.linkedin.com/company/customermates/"
                 rel="noopener noreferrer"
                 target="_blank"
@@ -62,7 +62,7 @@ export function FooterContent({ blogPosts = [], competitors = [], featureLinks =
               </a>
 
               <a
-                className="text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors inline-flex items-center gap-1.5"
+                className="marketing-transition inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
                 href="https://x.com/benjiwagn"
                 rel="noopener noreferrer"
                 target="_blank"

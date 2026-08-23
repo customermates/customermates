@@ -20,6 +20,37 @@ cta:
   buttonRightText: Read the inbox guide
   buttonRightHref: /docs/app-inbox
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
+faq:
+  title: "Frequently Asked Questions"
+  faqs:
+  - id: email-integration-faq-1
+    title: "Which email accounts can I connect?"
+    content: |-
+        Hosted connection flows support Gmail, Microsoft Outlook, and IMAP inboxes. A connected account belongs to one user unless it is explicitly shared with the workspace.
+  - id: email-integration-faq-2
+    title: "Can I track opens and clicks?"
+    content: |-
+        No. The current product ignores provider open- and click-tracking events and does not expose engagement dashboards.
+  - id: email-integration-faq-3
+    title: "Can I schedule or bulk-send email?"
+    content: |-
+        No. Customermates sends email immediately. Scheduled sends, bulk campaigns, reusable templates, and sequences require a separately operated system.
+  - id: email-integration-faq-4
+    title: "Can an AI agent draft without sending?"
+    content: |-
+        Yes, on an existing thread. An authorized MCP client can save or replace one local reply draft for human review. There is no draft object for a brand-new outbound email, and sending tools deliver immediately.
+  - id: email-integration-faq-5
+    title: "Can I send email sequences through an external provider?"
+    content: |-
+        Yes, through separate services. A customer-run n8n workflow can react to documented CRM events, while an external delivery provider owns delays, conditions, branching, sending, limits, logs, and costs. Customermates itself has no sequence engine.
+  - id: email-integration-faq-6
+    title: "Is the calendar two-way?"
+    content: |-
+        No. Connected Google or Microsoft calendar events appear in a read-only CRM view. Customermates does not create, edit, or schedule provider-calendar events.
+  - id: email-integration-faq-7
+    title: "Is my email data stored in the EU?"
+    content: |-
+        The managed Customermates database runs in an EU region. Application hosting, messaging services, and connected providers may process data elsewhere, including through US providers; this is not a compliance certification. Self-hosting excludes the cloud email integration.
 ---
 
 ## What CRM Email Integration Means Here
@@ -81,36 +112,6 @@ The community self-hosted build does not include the Enterprise Edition unified 
 **Documented hosting boundaries.** The managed Customermates database runs in an EU region. Application hosting, messaging services, and other providers, including US providers, may process data elsewhere and are documented separately; this is not a compliance certification. Self-hosting has Starter entitlements and excludes the cloud inbox.
 
 **n8n-powered email automation.** Connect a separate n8n instance and external delivery provider through Customermates interfaces. Campaigns and sequences run outside the CRM; their plans, limits, logs, and costs remain separate.
-
-## Frequently Asked Questions
-
-### Which email accounts can I connect?
-
-Hosted connection flows support Gmail, Microsoft Outlook, and IMAP inboxes. A connected account belongs to one user unless it is explicitly shared with the workspace.
-
-### Can I track opens and clicks?
-
-No. The current product ignores provider open- and click-tracking events and does not expose engagement dashboards.
-
-### Can I schedule or bulk-send email?
-
-No. Customermates sends email immediately. Scheduled sends, bulk campaigns, reusable templates, and sequences require a separately operated system.
-
-### Can an AI agent draft without sending?
-
-Yes, on an existing thread. An authorized MCP client can save or replace one local reply draft for human review. There is no draft object for a brand-new outbound email, and sending tools deliver immediately.
-
-### Can I send email sequences through an external provider?
-
-Yes, through separate services. A customer-run n8n workflow can react to documented CRM events, while an external delivery provider owns delays, conditions, branching, sending, limits, logs, and costs. Customermates itself has no sequence engine.
-
-### Is the calendar two-way?
-
-No. Connected Google or Microsoft calendar events appear in a read-only CRM view. Customermates does not create, edit, or schedule provider-calendar events.
-
-### Is my email data stored in the EU?
-
-The managed Customermates database runs in an EU region. Application hosting, messaging services, and connected providers may process data elsewhere, including through US providers; this is not a compliance certification. Self-hosting excludes the cloud email integration.
 
 ## Get Started
 

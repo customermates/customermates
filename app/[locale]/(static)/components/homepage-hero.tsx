@@ -17,7 +17,8 @@ import {
   XTwitter,
 } from "@/components/icons/channel-icon";
 import { AgplGithubBadge } from "@/components/marketing/agpl-github-badge";
-import { WaveDecoration } from "@/components/marketing/wave-decoration";
+import { MarketingContainer } from "@/components/marketing/marketing-container";
+import { cn } from "@/core/utils/cn";
 
 import { HeroDemoIframe } from "./hero-demo-iframe";
 
@@ -27,78 +28,61 @@ type Props = {
   heroSection: Hero;
 };
 
+const CHANNELS = [
+  { name: "LinkedIn", mark: <Linkedin size={22} />, concept: false },
+  { name: "Instagram", mark: <Instagram size={22} />, concept: false },
+  { name: "WhatsApp", mark: <Whatsapp size={22} />, concept: false },
+  { name: "Telegram", mark: <Telegram size={22} />, concept: false },
+  { name: "Gmail", mark: <Google size={22} />, concept: false },
+  { name: "Outlook", mark: <Outlook size={22} />, concept: false },
+  { name: "IMAP", mark: <Mail size={22} />, concept: false },
+  { name: "Google Calendar", mark: <GoogleCalendar size={22} />, concept: false },
+  { name: "Outlook Calendar", mark: <OutlookCalendar size={22} />, concept: false },
+  { name: "X / Twitter", mark: <XTwitter size={22} />, concept: true },
+  { name: "Messenger", mark: <Messenger size={22} />, concept: true },
+];
+
 export function HomepageHero({ heroSection }: Props) {
   return (
-    <section className="relative isolate w-full overflow-hidden pt-16 pb-14 md:pt-24 md:pb-16">
-      <WaveDecoration
-        className="-top-20 -left-40 w-[min(900px,92vw)] md:-top-20 md:-left-40"
-        opacity={0.25}
-        variant="wave-1"
-      />
-
-      <WaveDecoration
-        className="top-5 right-0 hidden w-[min(620px,55vw)] md:block md:-right-20 md:top-5"
-        opacity={0.3}
-        variant="wave-2"
-      />
-
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-5 bg-[radial-gradient(ellipse_60%_60%_at_50%_35%,var(--background)_0%,transparent_70%)]"
-      />
-
-      <div className="relative z-10 flex w-full flex-col items-center">
-        <div className="mx-auto flex w-full max-w-[1000px] flex-col items-center px-4 text-center">
+    <section className="marketing-section-flush border-b border-border pt-0" id="hero">
+      <MarketingContainer>
+        <div className="flex flex-col items-center pt-16 pb-14 text-center sm:pt-24 sm:pb-20">
           <AgplGithubBadge />
 
-          <h1 className="m-0 max-w-[900px] bg-[linear-gradient(to_bottom,#171717,#262626_45%,#525252)] bg-clip-text text-[44px] font-extrabold leading-[1.02] tracking-[-0.035em] text-transparent [background-repeat:repeat-y] [background-size:100%_1.02em] sm:text-[58px] md:text-[72px] dark:bg-[linear-gradient(to_bottom,#fafafa,#e5e5e5_45%,#a3a3a3)]">
+          <h1 className="text-display m-0 mt-7 max-w-6xl">
             {/* eslint-disable react/jsx-newline */}
             {heroSection.title}{" "}
             {heroSection.titleAccent ? (
-              <span
-                className="bg-[linear-gradient(110deg,#8b5cf6,#6366f1)] bg-clip-text font-semibold italic text-transparent"
-                style={{ fontFamily: "var(--font-serif)" }}
-              >
+              <span className="font-normal italic" style={{ fontFamily: "var(--font-serif)" }}>
                 {heroSection.titleAccent}
               </span>
             ) : null}
             {/* eslint-enable react/jsx-newline */}
           </h1>
 
-          <p className="mx-auto mt-6 max-w-[680px] text-[16px] font-medium leading-normal text-muted-foreground md:text-[18px]">
-            {heroSection.subtitle}
-          </p>
+          <p className="text-lede mt-8">{heroSection.subtitle}</p>
 
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-4">
-            <Linkedin size={28} />
+          <ul aria-hidden className="mt-9 flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
+            {CHANNELS.map((channel) => (
+              <li
+                key={channel.name}
+                className={cn(
+                  "flex size-9 items-center justify-center rounded-full border bg-card sm:size-10",
+                  channel.concept ? "border-dashed border-border-strong opacity-45 grayscale" : "border-border",
+                )}
+                data-channel-status={channel.concept ? "concept" : "supported"}
+              >
+                {channel.mark}
+              </li>
+            ))}
+          </ul>
 
-            <Instagram size={28} />
-
-            <Whatsapp size={28} />
-
-            <Messenger size={28} />
-
-            <Telegram size={28} />
-
-            <XTwitter size={28} />
-
-            <Google size={28} />
-
-            <Outlook size={28} />
-
-            <Mail size={28} />
-
-            <OutlookCalendar size={28} />
-
-            <GoogleCalendar size={28} />
-          </div>
-
-          <div className="my-8 flex flex-col items-center gap-3 sm:flex-row sm:gap-4">
-            <Button asChild className="w-full shadow-[0_6px_14px_-4px_rgba(94,74,227,0.45)] sm:w-auto" size="lg">
+          <div className="mt-9 flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row sm:items-center">
+            <Button asChild size="lg">
               <AppLink href={heroSection.buttonLeftHref}>{heroSection.buttonLeftText}</AppLink>
             </Button>
 
-            <Button asChild className="w-full sm:w-auto" size="lg" variant="secondary">
+            <Button asChild size="lg" variant="secondary">
               {heroSection.buttonRightHref.startsWith("#") ? (
                 <a href={heroSection.buttonRightHref}>
                   {heroSection.buttonRightText}
@@ -113,13 +97,13 @@ export function HomepageHero({ heroSection }: Props) {
             </Button>
           </div>
 
-          <p className="mb-6 text-xs text-muted-foreground">{heroSection.startFree}</p>
+          <p className="text-meta mt-6">{heroSection.startFree}</p>
         </div>
 
-        <div className="w-full px-4">
+        <div className="pb-20 sm:pb-28">
           <HeroDemoIframe />
         </div>
-      </div>
+      </MarketingContainer>
     </section>
   );
 }

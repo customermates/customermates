@@ -345,7 +345,14 @@ function extractMdxUnits(file: string, source: string): ClaimUnit[] {
   let inFence = false;
   let inFrontmatter = lines[0]?.trim() === "---";
   let pendingName: { text: string; line: number } | undefined;
+  let pendingTitle: { text: string; line: number } | undefined;
   let productHeadingDepth: number | undefined;
+
+  const flushTitle = () => {
+    if (!pendingTitle) return;
+    units.push({ file, locator: String(pendingTitle.line), kind: "frontmatter", text: pendingTitle.text });
+    pendingTitle = undefined;
+  };
 
   for (let index = 0; index < lines.length; index += 1) {
     const raw = lines[index];
@@ -360,6 +367,7 @@ function extractMdxUnits(file: string, source: string): ClaimUnit[] {
 
     if (index === 0 && inFrontmatter) continue;
     if (inFrontmatter && trimmed === "---") {
+      flushTitle();
       inFrontmatter = false;
       continue;
     }
@@ -381,6 +389,39 @@ function extractMdxUnits(file: string, source: string): ClaimUnit[] {
         continue;
       }
       if (!isMixed) {
+        const block = raw.match(/^(\s*)(?:-\s*)?[A-Za-z][\w-]*:\s*\|-?\s*$/u);
+        if (block) {
+          const indent = block[1].length;
+          const collected: string[] = [];
+          let cursor = index + 1;
+          while (cursor < lines.length) {
+            const next = lines[cursor];
+            if (next.trim() && next.search(/\S/u) <= indent) break;
+            collected.push(next.trim());
+            cursor += 1;
+          }
+          // A block scalar carries prose, so scan it the way body prose is scanned:
+          // one unit per assertion, with interrogatives dropped. The question that
+          // labels it is not a claim, exactly as a body heading is not one.
+          for (const line of collected) {
+            for (const assertion of splitAssertions(line.replace(/^\s*(?:[-*+] |\d+\. )/u, ""))) {
+              if (!assertion || (COMPETITOR.test(assertion) && !PRODUCT.test(assertion))) continue;
+              units.push({ file, locator: String(pendingTitle?.line ?? line), kind: "prose", text: assertion });
+            }
+          }
+          pendingTitle = undefined;
+          index = cursor - 1;
+          continue;
+        }
+
+        const title = raw.match(/^\s*(?:-\s*)?title:\s*(.+?)\s*$/u);
+        if (title) {
+          flushTitle();
+          pendingTitle = { text: scalarValue(raw) ?? "", line };
+          continue;
+        }
+
+        flushTitle();
         const value = scalarValue(raw);
         if (value)
           units.push({

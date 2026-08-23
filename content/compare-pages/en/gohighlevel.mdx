@@ -122,6 +122,29 @@ cta:
   buttonRightText: View Live Demo
   buttonRightHref: https://demo.customermates.com
   hint: ✓ No credit card required ✓ First [[commercial.trial.days]] days free
+faq:
+  title: "Frequently asked questions"
+  faqs:
+  - id: gohighlevel-faq-1
+    title: "What is HighLevel CRM?"
+    content: |-
+        HighLevel CRM (also marketed as GoHighLevel) is the contact and pipeline module inside the broader HighLevel platform, an all-in-one marketing and sales suite designed for agencies. It bundles CRM with funnels, SMS, email automation, calendar booking, reputation management, and an Agency Pro SaaS-reseller mode. The CRM itself is competent but secondary to the marketing tools.
+  - id: gohighlevel-faq-2
+    title: "Does HighLevel actually have a CRM?"
+    content: |-
+        Yes. The CRM module manages contacts, opportunities, and pipelines, and it is included on every plan starting at $97 per month. It is not the deepest CRM on the market because the platform's primary focus is marketing automation, but it covers the basics for agency-style relationship management.
+  - id: gohighlevel-faq-3
+    title: "Is GoHighLevel CRM free?"
+    content: |-
+        No. The lowest tier is the Starter plan at $97 per month flat. There is a 14-day free trial, but a credit card is required and the trial is for the whole platform, not a permanent free CRM tier. Customermates offers a [[commercial.trial.days]]-day Pro trial without a credit card and is also free to self-host under AGPL-3.0.
+  - id: gohighlevel-faq-4
+    title: "What is the cheapest HighLevel CRM alternative?"
+    content: |-
+        For a small team that wants CRM without paying for funnels and SMS, Customermates starting at [[commercial.price.starter.monthly]] per user per month is significantly cheaper. A 5-person team on Starter is [[commercial.price.starter.monthly.seats.5]] per month versus HighLevel's $97 minimum. SuiteCRM and EspoCRM are free if self-hosted. For a fuller comparison of HighLevel alternatives see the [GoHighLevel alternative page](/compare/gohighlevel-alternative).
+  - id: gohighlevel-faq-5
+    title: "Can I use Claude or ChatGPT to operate HighLevel CRM?"
+    content: |-
+        Not directly. HighLevel exposes some AI features as paid add-ons, but there is no MCP server, so external agents like Claude or Codex cannot read or write the CRM in a structured way. Customermates exposes [[derived.mcp.tools.total]] MCP tools that map to every CRM operation, so any MCP-compatible agent can operate the CRM directly.
 ---
 
 > HighLevel CRM (also known as GoHighLevel) is an all-in-one sales and marketing platform built primarily for agencies. It bundles a CRM with funnels, SMS marketing, email automation, calendar booking, and a white-label reseller mode. Customermates is a focused, open-source CRM with two defining features: AI agents operate the CRM directly through [[derived.mcp.tools.total]] [MCP](/features/api) tools (plus an [n8n](/features/workflow-automation) community node and [[derived.webhooks.events.total]] webhook events), and a native unified inbox brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one place, operable by the same agents. This page compares the two so you can decide which one matches what you actually need.
@@ -193,20 +216,3 @@ It is also the right choice when data sovereignty matters: open-source, AGPL-lic
 ## Summary
 
 HighLevel CRM is a marketing platform that includes a CRM. It earns its $97 to $497 monthly price when an agency uses the funnels, SMS, calendar, and SaaS mode. For a small team that just wants a CRM, it is over-engineered and expensive. Customermates delivers focused, open-source CRM from [[commercial.price.starter.monthly]] per user per month, with a real AI agent integration through [[derived.mcp.tools.total]] MCP tools, a native unified inbox across email, LinkedIn, WhatsApp, Instagram, and Telegram, an n8n community node, EU hosting, and self-hosting via Docker. If your wedge is "the CRM updates itself because I already use Claude," that is what Customermates was built for.
-
-## Frequently asked questions
-
-**What is HighLevel CRM?**
-HighLevel CRM (also marketed as GoHighLevel) is the contact and pipeline module inside the broader HighLevel platform, an all-in-one marketing and sales suite designed for agencies. It bundles CRM with funnels, SMS, email automation, calendar booking, reputation management, and an Agency Pro SaaS-reseller mode. The CRM itself is competent but secondary to the marketing tools.
-
-**Does HighLevel actually have a CRM?**
-Yes. The CRM module manages contacts, opportunities, and pipelines, and it is included on every plan starting at $97 per month. It is not the deepest CRM on the market because the platform's primary focus is marketing automation, but it covers the basics for agency-style relationship management.
-
-**Is GoHighLevel CRM free?**
-No. The lowest tier is the Starter plan at $97 per month flat. There is a 14-day free trial, but a credit card is required and the trial is for the whole platform, not a permanent free CRM tier. Customermates offers a [[commercial.trial.days]]-day Pro trial without a credit card and is also free to self-host under AGPL-3.0.
-
-**What is the cheapest HighLevel CRM alternative?**
-For a small team that wants CRM without paying for funnels and SMS, Customermates starting at [[commercial.price.starter.monthly]] per user per month is significantly cheaper. A 5-person team on Starter is [[commercial.price.starter.monthly.seats.5]] per month versus HighLevel's $97 minimum. SuiteCRM and EspoCRM are free if self-hosted. For a fuller comparison of HighLevel alternatives see the [GoHighLevel alternative page](/compare/gohighlevel-alternative).
-
-**Can I use Claude or ChatGPT to operate HighLevel CRM?**
-Not directly. HighLevel exposes some AI features as paid add-ons, but there is no MCP server, so external agents like Claude or Codex cannot read or write the CRM in a structured way. Customermates exposes [[derived.mcp.tools.total]] MCP tools that map to every CRM operation, so any MCP-compatible agent can operate the CRM directly.

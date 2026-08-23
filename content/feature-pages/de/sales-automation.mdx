@@ -20,6 +20,29 @@ cta:
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
+faq:
+  title: "Häufig gestellte Fragen"
+  faqs:
+  - id: sales-automation-faq-1
+    title: "Was ist Vertriebsautomatisierung?"
+    content: |-
+        Vertriebsautomatisierung automatisiert wiederkehrende Aufgaben wie Follow-ups, Deal-Phasen-Aktionen, Zuweisung, Benachrichtigungen und Dateneingabe. Customermates liefert CRM-Datensätze, REST, Webhooks, MCP und einen Community-Node; ein separater n8n-Dienst liefert visuellen Workflow-Builder und Automatisierungslaufzeit.
+  - id: sales-automation-faq-2
+    title: "Wie kann ich meinen Vertrieb automatisieren?"
+    content: |-
+        Identifizieren Sie zunächst wiederkehrende Vertriebsprozesse: Follow-up-Zeitpunkte, Lead-Zuweisung oder Benachrichtigungen bei Deal-Änderungen. Verbinden Sie Customermates mit einer separat betriebenen n8n-Instanz, deren Scheduler und externe Anbieter die Automatisierung ausführen. [Workflow-Automatisierung entdecken →](/features/workflow-automation)
+  - id: sales-automation-faq-3
+    title: "Wie viele Automatisierungen kann ich erstellen?"
+    content: |-
+        Customermates veröffentlicht kein Versprechen unbegrenzter Automatisierung, weil es die Workflows nicht ausführt. Ihre separate [n8n-Instanz](/features/workflow-automation) und verbundene Anbieter bestimmen Workflow-, Ausführungs-, Konnektor- und Zustelllimits.
+  - id: sales-automation-faq-4
+    title: "Funktioniert die Vertriebsautomatisierung mit meinen bestehenden Tools?"
+    content: |-
+        Der separate n8n-Dienst bietet über 400 Konnektoren, darunter Slack, Gmail, Outlook, Google Sheets, Buchhaltung und Projekttools. Verbinden Sie ihn über unterstützte [Workflow-Schnittstellen](/features/workflow-automation); Anbieterabdeckung und Authentifizierung bleiben extern.
+  - id: sales-automation-faq-5
+    title: "Brauche ich technische Kenntnisse?"
+    content: |-
+        Nein. Der n8n-Workflow-Builder verwendet eine visuelle Drag-and-Drop-Oberfläche. Sie verbinden Trigger-Knoten, Bedingungs-Knoten und Aktions-Knoten visuell. Wenn Sie ein Flussdiagramm zeichnen können, können Sie eine Vertriebsautomatisierung erstellen.
 ---
 
 ## Was ist Vertriebsautomatisierung?
@@ -113,28 +136,6 @@ Customermates lässt sich mit [n8n](https://n8n.io/) verbinden, einem separaten 
 **Ab [[commercial.price.starter.monthly]]/Nutzer/Monat.** REST, Webhooks, MCP und der Community-Node beginnen mit Starter, ohne Customermates-Gebühr pro Workflow. n8n und jeder verbundene Anbieter haben separate Tarife, Ausführungen, Limits, Logs und Kosten. [Preise ansehen →](/pricing)
 
 **Self-hostbares Kern-CRM.** [Self-Hosting von Customermates](/features/self-hosted) betreibt Anwendung und PostgreSQL-Datenbank mit Starter-Berechtigungen. n8n ist eine separate Installation; verbundene Anbieter behalten eigene Daten- und Zugangsdaten-Grenzen.
-
-## Häufig gestellte Fragen
-
-### Was ist Vertriebsautomatisierung?
-
-Vertriebsautomatisierung automatisiert wiederkehrende Aufgaben wie Follow-ups, Deal-Phasen-Aktionen, Zuweisung, Benachrichtigungen und Dateneingabe. Customermates liefert CRM-Datensätze, REST, Webhooks, MCP und einen Community-Node; ein separater n8n-Dienst liefert visuellen Workflow-Builder und Automatisierungslaufzeit.
-
-### Wie kann ich meinen Vertrieb automatisieren?
-
-Identifizieren Sie zunächst wiederkehrende Vertriebsprozesse: Follow-up-Zeitpunkte, Lead-Zuweisung oder Benachrichtigungen bei Deal-Änderungen. Verbinden Sie Customermates mit einer separat betriebenen n8n-Instanz, deren Scheduler und externe Anbieter die Automatisierung ausführen. [Workflow-Automatisierung entdecken →](/features/workflow-automation)
-
-### Wie viele Automatisierungen kann ich erstellen?
-
-Customermates veröffentlicht kein Versprechen unbegrenzter Automatisierung, weil es die Workflows nicht ausführt. Ihre separate [n8n-Instanz](/features/workflow-automation) und verbundene Anbieter bestimmen Workflow-, Ausführungs-, Konnektor- und Zustelllimits.
-
-### Funktioniert die Vertriebsautomatisierung mit meinen bestehenden Tools?
-
-Der separate n8n-Dienst bietet über 400 Konnektoren, darunter Slack, Gmail, Outlook, Google Sheets, Buchhaltung und Projekttools. Verbinden Sie ihn über unterstützte [Workflow-Schnittstellen](/features/workflow-automation); Anbieterabdeckung und Authentifizierung bleiben extern.
-
-### Brauche ich technische Kenntnisse?
-
-Nein. Der n8n-Workflow-Builder verwendet eine visuelle Drag-and-Drop-Oberfläche. Sie verbinden Trigger-Knoten, Bedingungs-Knoten und Aktions-Knoten visuell. Wenn Sie ein Flussdiagramm zeichnen können, können Sie eine Vertriebsautomatisierung erstellen.
 
 ## Starten Sie mit der Vertriebsautomatisierung
 

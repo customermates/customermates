@@ -56,10 +56,6 @@ vi.mock("@/components/shared/app-link", () => ({
   AppLink: ({ children, href }: { children: ReactNode; href: string }) => createElement("a", { href }, children),
 }));
 
-vi.mock("@/components/marketing/wave-decoration", () => ({
-  WaveDecoration: () => null,
-}));
-
 vi.mock("@/components/chip/app-chip", () => ({
   AppChip: ({ children }: { children: ReactNode }) => createElement("span", null, children),
 }));

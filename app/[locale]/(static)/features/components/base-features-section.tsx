@@ -1,10 +1,10 @@
 import type { Feature } from "@/core/fumadocs/schemas/features";
 
-import { AppCard } from "@/components/card/app-card";
-import { AppCardBody } from "@/components/card/app-card-body";
+import { MarketingSection } from "@/components/marketing/marketing-section";
 import { FeatureIcon } from "@/components/shared/feature-icon";
 import { IconContainer } from "@/components/shared/icon-container";
 import { ICONS } from "@/components/shared/icons";
+import { cn } from "@/core/utils/cn";
 
 type Props = Feature & { index?: number };
 
@@ -17,63 +17,44 @@ export function BaseFeaturesSection({ features, hasSecondaryBackground = false, 
   const numberLabel = typeof index === "number" ? String(index + 1).padStart(2, "0") : null;
 
   return (
-    <section className={`relative w-full py-12 md:py-16 ${hasSecondaryBackground ? "bg-muted" : ""}`}>
-      <div className="mx-auto max-w-7xl px-4">
-        <div className="mb-10 md:mb-12">
-          {numberLabel ? (
-            <div className="mb-3 flex items-center gap-3 font-mono text-[12px] uppercase tracking-[0.08em] text-subdued">
-              <span className="font-medium text-primary">{numberLabel}</span>
+    <MarketingSection
+      className={cn(hasSecondaryBackground && "bg-sidebar")}
+      description={subtitle}
+      eyebrow={numberLabel ?? undefined}
+      title={title}
+    >
+      <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-16 lg:auto-rows-fr lg:grid-cols-4">
+        {heroFeature && HeroIcon ? (
+          <article
+            className={cn(
+              "flex flex-col justify-center gap-5 rounded-card border border-border bg-card p-6 sm:col-span-2 sm:p-7",
+              heroSpansTwoRows && "lg:row-span-2",
+            )}
+          >
+            <IconContainer className="size-12" icon={HeroIcon} iconClassName="h-5 w-5" iconSize="md" size="lg" />
 
-              <span>{title}</span>
+            <div className="flex flex-col gap-2">
+              <h3 className="text-xl font-medium leading-tight">{heroFeature.title}</h3>
 
-              <span className="h-px flex-1 bg-linear-to-r from-border to-transparent" />
+              <p className="leading-relaxed text-muted-foreground">{heroFeature.description}</p>
             </div>
-          ) : null}
+          </article>
+        ) : null}
 
-          <h2 className="text-x-3xl mb-3">{title}</h2>
+        {restFeatures.map((feature) => {
+          const IconComponent = ICONS[feature.icon];
 
-          <p className="text-x-lg max-w-2xl text-subdued">{subtitle}</p>
-        </div>
+          return (
+            <article key={feature.title} className="rounded-card border border-border bg-card p-6">
+              <FeatureIcon icon={IconComponent} />
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:auto-rows-fr lg:grid-cols-4">
-          {heroFeature && HeroIcon ? (
-            <AppCard
-              className={`relative overflow-hidden md:col-span-2 lg:col-span-2 ${heroSpansTwoRows ? "lg:row-span-2" : ""}`}
-            >
-              <div
-                aria-hidden
-                className="pointer-events-none absolute -right-12 -top-12 size-36 rounded-full bg-primary/10 blur-2xl"
-              />
+              <h3 className="mt-6 font-medium leading-tight">{feature.title}</h3>
 
-              <AppCardBody className="relative justify-center gap-5">
-                <IconContainer className="size-12" icon={HeroIcon} iconClassName="h-5 w-5" iconSize="md" size="lg" />
-
-                <div className="flex flex-col gap-2">
-                  <h3 className="text-x-xl font-semibold">{heroFeature.title}</h3>
-
-                  <p className="text-subdued leading-relaxed">{heroFeature.description}</p>
-                </div>
-              </AppCardBody>
-            </AppCard>
-          ) : null}
-
-          {restFeatures.map((feature, idx) => {
-            const IconComponent = ICONS[feature.icon];
-
-            return (
-              <AppCard key={idx}>
-                <AppCardBody>
-                  <FeatureIcon icon={IconComponent} />
-
-                  <h3 className="font-semibold">{feature.title}</h3>
-
-                  <p className="text-x-sm leading-relaxed text-subdued">{feature.description}</p>
-                </AppCardBody>
-              </AppCard>
-            );
-          })}
-        </div>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{feature.description}</p>
+            </article>
+          );
+        })}
       </div>
-    </section>
+    </MarketingSection>
   );
 }

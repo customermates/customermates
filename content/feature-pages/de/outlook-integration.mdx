@@ -20,6 +20,33 @@ cta:
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
+faq:
+  title: "Häufig gestellte Fragen"
+  faqs:
+  - id: outlook-integration-faq-1
+    title: "Funktioniert es mit Outlook Desktop oder nur Outlook 365?"
+    content: |-
+        Customermates integriert sich mit Microsoft Outlook 365 (Microsoft 365) über serverseitige Synchronisierung. Das umfasst Outlook im Web, Outlook Desktop mit Microsoft-365-Konto und die Outlook-Mobile-App. On-Premise-Exchange-Server werden über IMAP-Konfiguration unterstützt.
+  - id: outlook-integration-faq-2
+    title: "Muss ich ein Outlook-Plugin installieren?"
+    content: |-
+        Nein. Die Integration funktioniert über serverseitige OAuth-Authentifizierung. Es gibt nichts in Outlook zu installieren, keine Browser-Erweiterungen und keine Add-ins, die gewartet werden müssen.
+  - id: outlook-integration-faq-3
+    title: "Kann ich wählen, welche E-Mails synchronisiert werden?"
+    content: |-
+        Ja. Sie können alle E-Mails synchronisieren, nur E-Mails von bestehenden CRM-Kontakten oder bestimmte Outlook-Ordner. Sie haben volle Kontrolle darüber, welche Kommunikation ins CRM gelangt.
+  - id: outlook-integration-faq-4
+    title: "Ist die Kalendersynchronisierung bidirektional?"
+    content: |-
+        Nein. Unterstützte Termine des verbundenen Outlook-Kalenders sind in Customermates nur lesend. Das CRM erstellt, ändert, bucht oder löscht keine Termine und schreibt sie nicht in Outlook zurück.
+  - id: outlook-integration-faq-5
+    title: "Können mehrere Teammitglieder ihre Outlook-Konten verbinden?"
+    content: |-
+        Ja. Jedes Teammitglied verbindet sein eigenes Outlook-Konto. E-Mails aller verbundenen Konten werden bei den gemeinsamen CRM-Kontaktdatensätzen protokolliert, sodass das gesamte Team Einblick in alle Kundenkommunikation hat.
+  - id: outlook-integration-faq-6
+    title: "Wo werden gehostete Daten verarbeitet?"
+    content: |-
+        Die verwaltete Datenbank läuft in einer EU-Region. Anwendungshosting und verbundene Anbieter können Daten andernorts verarbeiten, auch über US-Anbieter; Self-Hosting mit Starter enthält diese Cloud-E-Mail-Integration nicht.
 ---
 
 ## Was ist eine CRM Outlook-Integration?
@@ -118,26 +145,6 @@ Unterstützte E-Mail-Konversationen können über die Adresse CRM-Kontakten zuge
 **Separates n8n für individuelle Workflows.** Verbinden Sie eine von Ihnen betriebene n8n-Instanz über REST, Webhooks, MCP oder Community-Node. Planung, Logik, Anbieterzugänge, Tarif, Limits, Logs und Kosten bleiben außerhalb von Customermates.
 
 **Self-Hosting des Kern-CRM.** Beim Self-Hosting laufen Anwendung und PostgreSQL-Datenbank mit Starter-Berechtigungen auf Ihrer Infrastruktur. Das Cloud-Postfach, die Outlook-E-Mail-Verbindung und Kalenderansicht sind nicht enthalten; externe Anbieter bleiben separat.
-
-## Häufig gestellte Fragen
-
-**Funktioniert es mit Outlook Desktop oder nur Outlook 365?**
-Customermates integriert sich mit Microsoft Outlook 365 (Microsoft 365) über serverseitige Synchronisierung. Das umfasst Outlook im Web, Outlook Desktop mit Microsoft-365-Konto und die Outlook-Mobile-App. On-Premise-Exchange-Server werden über IMAP-Konfiguration unterstützt.
-
-**Muss ich ein Outlook-Plugin installieren?**
-Nein. Die Integration funktioniert über serverseitige OAuth-Authentifizierung. Es gibt nichts in Outlook zu installieren, keine Browser-Erweiterungen und keine Add-ins, die gewartet werden müssen.
-
-**Kann ich wählen, welche E-Mails synchronisiert werden?**
-Ja. Sie können alle E-Mails synchronisieren, nur E-Mails von bestehenden CRM-Kontakten oder bestimmte Outlook-Ordner. Sie haben volle Kontrolle darüber, welche Kommunikation ins CRM gelangt.
-
-**Ist die Kalendersynchronisierung bidirektional?**
-Nein. Unterstützte Termine des verbundenen Outlook-Kalenders sind in Customermates nur lesend. Das CRM erstellt, ändert, bucht oder löscht keine Termine und schreibt sie nicht in Outlook zurück.
-
-**Können mehrere Teammitglieder ihre Outlook-Konten verbinden?**
-Ja. Jedes Teammitglied verbindet sein eigenes Outlook-Konto. E-Mails aller verbundenen Konten werden bei den gemeinsamen CRM-Kontaktdatensätzen protokolliert, sodass das gesamte Team Einblick in alle Kundenkommunikation hat.
-
-**Wo werden gehostete Daten verarbeitet?**
-Die verwaltete Datenbank läuft in einer EU-Region. Anwendungshosting und verbundene Anbieter können Daten andernorts verarbeiten, auch über US-Anbieter; Self-Hosting mit Starter enthält diese Cloud-E-Mail-Integration nicht.
 
 ## Starten Sie heute mit Outlook-Integration
 

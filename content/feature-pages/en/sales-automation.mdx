@@ -20,6 +20,29 @@ cta:
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
+faq:
+  title: "Frequently Asked Questions"
+  faqs:
+  - id: sales-automation-faq-1
+    title: "What is sales automation software?"
+    content: |-
+        Sales automation software automates repetitive tasks such as follow-ups, deal-stage actions, assignment, notifications, and data entry. Customermates supplies CRM records, REST, webhooks, MCP, and a community node; a separate n8n service supplies the visual workflow builder and automation runtime.
+  - id: sales-automation-faq-2
+    title: "Is SFA the same as CRM?"
+    content: |-
+        No. Sales Force Automation (SFA) specifically automates selling tasks like follow-ups, pipeline management, and deal tracking. CRM is broader, covering the full customer lifecycle including marketing, support, and retention. Customermates supplies the CRM records and interfaces; a separate automation service supplies the SFA workflows.
+  - id: sales-automation-faq-3
+    title: "How many automations can I create?"
+    content: |-
+        Customermates does not publish an unlimited-automation promise because it does not run the workflows. Your separate [n8n instance](/features/workflow-automation) and connected providers define workflow, execution, connector, and delivery limits.
+  - id: sales-automation-faq-4
+    title: "Can sales automation work with my existing tools?"
+    content: |-
+        The separate n8n service offers 400+ connectors, including Slack, Gmail, Outlook, Google Sheets, accounting, and project tools. Connect it through supported [workflow interfaces](/features/workflow-automation); provider coverage and authentication remain external.
+  - id: sales-automation-faq-5
+    title: "Do I need technical skills to set up automations?"
+    content: |-
+        No. The n8n workflow builder uses a visual drag-and-drop interface. You connect trigger nodes, condition nodes, and action nodes visually. If you can draw a flowchart, you can build a sales automation.
 ---
 
 ## What Is Sales Automation Software?
@@ -113,28 +136,6 @@ Customermates connects to [n8n](https://n8n.io/), a separate open-source automat
 **From [[commercial.price.starter.monthly]]/user/month.** REST, webhooks, MCP, and the community node start with Starter, without a per-workflow charge from Customermates. n8n and every connected provider have separate plans, executions, limits, logs, and costs. [See pricing →](/pricing)
 
 **Self-hostable core CRM.** [Self-hosting Customermates](/features/self-hosted) runs the application and PostgreSQL database with Starter entitlements. n8n is a separate deployment, and connected providers keep their own data and credential boundaries.
-
-## Frequently Asked Questions
-
-### What is sales automation software?
-
-Sales automation software automates repetitive tasks such as follow-ups, deal-stage actions, assignment, notifications, and data entry. Customermates supplies CRM records, REST, webhooks, MCP, and a community node; a separate n8n service supplies the visual workflow builder and automation runtime.
-
-### Is SFA the same as CRM?
-
-No. Sales Force Automation (SFA) specifically automates selling tasks like follow-ups, pipeline management, and deal tracking. CRM is broader, covering the full customer lifecycle including marketing, support, and retention. Customermates supplies the CRM records and interfaces; a separate automation service supplies the SFA workflows.
-
-### How many automations can I create?
-
-Customermates does not publish an unlimited-automation promise because it does not run the workflows. Your separate [n8n instance](/features/workflow-automation) and connected providers define workflow, execution, connector, and delivery limits.
-
-### Can sales automation work with my existing tools?
-
-The separate n8n service offers 400+ connectors, including Slack, Gmail, Outlook, Google Sheets, accounting, and project tools. Connect it through supported [workflow interfaces](/features/workflow-automation); provider coverage and authentication remain external.
-
-### Do I need technical skills to set up automations?
-
-No. The n8n workflow builder uses a visual drag-and-drop interface. You connect trigger nodes, condition nodes, and action nodes visually. If you can draw a flowchart, you can build a sales automation.
 
 ## Start Automating Your Sales Process
 

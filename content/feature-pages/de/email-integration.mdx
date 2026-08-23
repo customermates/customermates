@@ -20,6 +20,37 @@ cta:
   buttonRightText: Postfach-Anleitung lesen
   buttonRightHref: /docs/app-inbox
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
+faq:
+  title: "Häufig gestellte Fragen"
+  faqs:
+  - id: email-integration-faq-1
+    title: "Welche E-Mail-Konten kann ich verbinden?"
+    content: |-
+        Die gehosteten Verbindungsabläufe unterstützen Gmail-, Microsoft-Outlook- und IMAP-Postfächer. Ein verbundenes Konto gehört einem Nutzer, solange es nicht ausdrücklich mit dem Workspace geteilt wird.
+  - id: email-integration-faq-2
+    title: "Kann ich Öffnungen und Klicks tracken?"
+    content: |-
+        Nein. Das aktuelle Produkt ignoriert Öffnungs- und Klick-Tracking-Ereignisse des Anbieters und zeigt keine Engagement-Dashboards.
+  - id: email-integration-faq-3
+    title: "Kann ich E-Mails planen oder als Massenversand senden?"
+    content: |-
+        Nein. Customermates sendet E-Mails sofort. Zeitgesteuerter Versand, Massenkampagnen, wiederverwendbare Vorlagen und Sequenzen erfordern ein getrennt betriebenes System.
+  - id: email-integration-faq-4
+    title: "Kann ein KI-Agent nur entwerfen, ohne zu senden?"
+    content: |-
+        Ja, in einem bestehenden Thread. Ein autorisierter MCP-Client kann einen lokalen Antwortentwurf zur menschlichen Prüfung speichern oder ersetzen. Für eine neue ausgehende E-Mail gibt es kein Entwurfsobjekt; Versand-Tools senden sofort.
+  - id: email-integration-faq-5
+    title: "Kann ich E-Mail-Sequenzen in einem externen Anbieter senden?"
+    content: |-
+        Ja, über separate Dienste. Ein von Ihnen betriebener n8n-Workflow kann auf dokumentierte CRM-Ereignisse reagieren; ein externer Versandanbieter verantwortet Verzögerungen, Bedingungen, Verzweigungen, Zustellung, Limits, Logs und Kosten. Customermates besitzt keine Sequenz-Engine.
+  - id: email-integration-faq-6
+    title: "Ist der Kalender bidirektional?"
+    content: |-
+        Nein. Verbundene Google- oder Microsoft-Kalendertermine erscheinen in einer schreibgeschützten CRM-Ansicht. Customermates erstellt, bearbeitet oder plant keine Termine im Anbieter-Kalender.
+  - id: email-integration-faq-7
+    title: "Werden meine E-Mail-Daten in der EU gespeichert?"
+    content: |-
+        Die verwaltete Customermates-Datenbank läuft in einer EU-Region. Anwendungshosting, Messaging-Dienste und verbundene Anbieter können Daten andernorts verarbeiten, auch über US-Anbieter; dies ist keine Compliance-Zertifizierung. Self-Hosting enthält die Cloud-E-Mail-Integration nicht.
 ---
 
 ## Was E-Mail-Integration hier bedeutet
@@ -75,36 +106,6 @@ Der selbst gehostete Community-Build enthält das gemeinsame Postfach der Enterp
 **Dokumentierte Hosting-Grenzen.** Die verwaltete Customermates-Datenbank läuft in einer EU-Region. Anwendungshosting, Messaging-Dienste und weitere Anbieter, darunter US-Anbieter, können Daten andernorts verarbeiten und werden separat dokumentiert; dies ist keine Compliance-Zertifizierung. Self-Hosting hat Starter-Berechtigungen und enthält kein Cloud-Postfach.
 
 **n8n-getriebene E-Mail-Automatisierung.** Verbinden Sie eine separate n8n-Instanz und einen externen Versandanbieter über die Customermates-Schnittstellen. Kampagnen und Sequenzen laufen außerhalb des CRM; Tarife, Limits, Logs und Kosten bleiben separat.
-
-## Häufig gestellte Fragen
-
-### Welche E-Mail-Konten kann ich verbinden?
-
-Die gehosteten Verbindungsabläufe unterstützen Gmail-, Microsoft-Outlook- und IMAP-Postfächer. Ein verbundenes Konto gehört einem Nutzer, solange es nicht ausdrücklich mit dem Workspace geteilt wird.
-
-### Kann ich Öffnungen und Klicks tracken?
-
-Nein. Das aktuelle Produkt ignoriert Öffnungs- und Klick-Tracking-Ereignisse des Anbieters und zeigt keine Engagement-Dashboards.
-
-### Kann ich E-Mails planen oder als Massenversand senden?
-
-Nein. Customermates sendet E-Mails sofort. Zeitgesteuerter Versand, Massenkampagnen, wiederverwendbare Vorlagen und Sequenzen erfordern ein getrennt betriebenes System.
-
-### Kann ein KI-Agent nur entwerfen, ohne zu senden?
-
-Ja, in einem bestehenden Thread. Ein autorisierter MCP-Client kann einen lokalen Antwortentwurf zur menschlichen Prüfung speichern oder ersetzen. Für eine neue ausgehende E-Mail gibt es kein Entwurfsobjekt; Versand-Tools senden sofort.
-
-### Kann ich E-Mail-Sequenzen in einem externen Anbieter senden?
-
-Ja, über separate Dienste. Ein von Ihnen betriebener n8n-Workflow kann auf dokumentierte CRM-Ereignisse reagieren; ein externer Versandanbieter verantwortet Verzögerungen, Bedingungen, Verzweigungen, Zustellung, Limits, Logs und Kosten. Customermates besitzt keine Sequenz-Engine.
-
-### Ist der Kalender bidirektional?
-
-Nein. Verbundene Google- oder Microsoft-Kalendertermine erscheinen in einer schreibgeschützten CRM-Ansicht. Customermates erstellt, bearbeitet oder plant keine Termine im Anbieter-Kalender.
-
-### Werden meine E-Mail-Daten in der EU gespeichert?
-
-Die verwaltete Customermates-Datenbank läuft in einer EU-Region. Anwendungshosting, Messaging-Dienste und verbundene Anbieter können Daten andernorts verarbeiten, auch über US-Anbieter; dies ist keine Compliance-Zertifizierung. Self-Hosting enthält die Cloud-E-Mail-Integration nicht.
 
 ## Loslegen
 

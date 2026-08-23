@@ -1,0 +1,108 @@
+import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+
+const COLLECTIONS = ["for-pages", "compare-pages", "feature-pages"];
+const LOCALES = ["en", "de"];
+
+const FAQ_HEADING = /^##\s+(Frequently\s+asked\s+questions.*|Frequently\s+Asked\s+Questions.*|FAQ|Häufig\s+gestellte\s+Fragen.*)\s*$/u;
+const QUESTION = /^###\s+(.+?)\s*$/u;
+const BOLD_QUESTION = /^\*\*(.+?)\*\*\s*$/u;
+const APPLY = process.argv.includes("--write");
+
+function splitFrontmatter(source) {
+  if (!source.startsWith("---\n")) throw new Error("no frontmatter");
+  const end = source.indexOf("\n---\n", 4);
+  if (end < 0) throw new Error("unterminated frontmatter");
+  return { frontmatter: source.slice(4, end + 1), body: source.slice(end + 5) };
+}
+
+function blockScalar(value, indent) {
+  const pad = " ".repeat(indent);
+  const lines = value.split("\n").map((line) => (line.length ? pad + line : ""));
+  return `|-\n${lines.join("\n")}`;
+}
+
+function extractFaq(body, slug) {
+  const lines = body.split("\n");
+  const start = lines.findIndex((line) => FAQ_HEADING.test(line));
+  if (start < 0) return null;
+
+  let end = start + 1;
+  while (end < lines.length && !/^##\s/u.test(lines[end])) end += 1;
+
+  const heading = FAQ_HEADING.exec(lines[start])[1].trim();
+  const block = lines.slice(start + 1, end);
+  const marker = block.some((line) => QUESTION.test(line)) ? QUESTION : BOLD_QUESTION;
+  const faqs = [];
+  let current = null;
+
+  for (const line of block) {
+    const question = marker.exec(line);
+    if (question) {
+      if (current) faqs.push(current);
+      current = { title: question[1], answer: [] };
+      continue;
+    }
+    if (current) current.answer.push(line);
+    else if (line.trim()) return { unsupported: `prose before the first question: ${line.trim().slice(0, 60)}` };
+  }
+  if (current) faqs.push(current);
+  if (!faqs.length) return { unsupported: "no ### questions under the FAQ heading" };
+
+  const items = faqs.map((faq, index) => ({
+    id: `${slug}-faq-${index + 1}`,
+    title: faq.title,
+    content: faq.answer.join("\n").replace(/^\n+/, "").replace(/\n+$/, ""),
+  }));
+
+  if (items.some((item) => !item.content.trim())) return { unsupported: "an empty answer" };
+
+  const remaining = [...lines.slice(0, start), ...lines.slice(end)];
+  while (remaining.length && !remaining.at(-1).trim()) remaining.pop();
+
+  return { heading, items, body: `${remaining.join("\n")}\n` };
+}
+
+function renderFaqYaml(heading, items) {
+  const lines = ["faq:", `  title: ${JSON.stringify(heading)}`, "  faqs:"];
+  for (const item of items) {
+    lines.push(`  - id: ${item.id}`);
+    lines.push(`    title: ${JSON.stringify(item.title)}`);
+    lines.push(`    content: ${blockScalar(item.content, 8)}`);
+  }
+  return `${lines.join("\n")}\n`;
+}
+
+const summary = { migrated: 0, skipped: [], questions: 0 };
+
+for (const collection of COLLECTIONS) {
+  for (const locale of LOCALES) {
+    const dir = join("content", collection, locale);
+    for (const file of readdirSync(dir).filter((name) => name.endsWith(".mdx"))) {
+      const path = join(dir, file);
+      const slug = file.replace(/\.mdx$/u, "");
+      const source = readFileSync(path, "utf8");
+
+      if (/^faq:/mu.test(source)) {
+        summary.skipped.push(`${path}: already carries faq frontmatter`);
+        continue;
+      }
+
+      const { frontmatter, body } = splitFrontmatter(source);
+      const extracted = extractFaq(body, slug);
+      if (!extracted) continue;
+      if (extracted.unsupported) {
+        summary.skipped.push(`${path}: ${extracted.unsupported}`);
+        continue;
+      }
+
+      const next = `---\n${frontmatter}${renderFaqYaml(extracted.heading, extracted.items)}---\n${extracted.body}`;
+      if (APPLY) writeFileSync(path, next);
+      summary.migrated += 1;
+      summary.questions += extracted.items.length;
+    }
+  }
+}
+
+console.log(`${APPLY ? "migrated" : "would migrate"} ${summary.migrated} files, ${summary.questions} questions`);
+for (const skip of summary.skipped) console.log(`  SKIP ${skip}`);

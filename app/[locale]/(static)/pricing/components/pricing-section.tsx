@@ -51,9 +51,9 @@ export function PricingSection({
       <div className="max-w-xl mx-auto mb-8">
         <div className="mb-6">
           <div>
-            <h3 className="text-x-lg mb-2">{users}</h3>
+            <h3 className="mb-2 text-lg font-medium">{users}</h3>
 
-            <div className="text-x-3xl text-primary dark:text-primary">{userCount}</div>
+            <div className="text-display-sm text-primary">{userCount}</div>
           </div>
         </div>
 
@@ -67,7 +67,7 @@ export function PricingSection({
           onValueChange={(values) => setUserCount(values[0] ?? 1)}
         />
 
-        <div className="flex justify-between text-x-xs text-muted-foreground">
+        <div className="text-meta flex justify-between">
           {[1, 5, 10, 15, 20, maxUsers].map((value) => (
             <span key={value} className={userCount >= value ? "font-semibold text-primary" : ""}>
               {value}
@@ -76,7 +76,7 @@ export function PricingSection({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 max-w-7xl mx-auto justify-center items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 justify-center items-stretch">
         {mdxPricingCards.map((card) => {
           const { displayPrice, priceSubtext } = pricingCardPresentation({
             plan: card.plan,
@@ -93,7 +93,7 @@ export function PricingSection({
         })}
       </div>
 
-      {footnote && <p className="mx-auto mt-6 max-w-3xl text-center text-x-xs text-muted-foreground">{footnote}</p>}
+      {footnote && <p className="text-meta mx-auto mt-6 max-w-3xl text-center">{footnote}</p>}
     </>
   );
 }

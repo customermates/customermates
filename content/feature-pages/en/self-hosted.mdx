@@ -20,6 +20,33 @@ cta:
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
+faq:
+  title: "Frequently Asked Questions"
+  faqs:
+  - id: self-hosted-faq-1
+    title: "Can I switch between cloud and self-hosted?"
+    content: |-
+        Yes, but the entitlements and migration path differ. You can evaluate the [cloud version](/features/cloud-crm), then plan a move to self-hosting. Customermates has no dedicated CRM-record import/export workflow; migration requires a separately designed and validated API or database procedure.
+  - id: self-hosted-faq-2
+    title: "What infrastructure do I need to self-host?"
+    content: |-
+        A Linux server with Docker installed is sufficient. The minimum requirements are 4 GB RAM and 2 CPU cores for teams up to 50 users. Customermates uses PostgreSQL as its database and ships as Docker containers, so any Docker-capable environment works, including VPS providers, on-premise servers, and private cloud platforms.
+  - id: self-hosted-faq-3
+    title: "Is self-hosting free or does it cost extra?"
+    content: |-
+        The AGPL core can be self-hosted without a Customermates subscription. Self-hosted users manage their infrastructure and updates, and the product is fixed to Starter entitlements: core CRM, API, webhooks, and MCP. The unified [messaging inbox](/features/email-integration) and read-only calendar view are cloud-only from Pro. n8n remains separate, and white-label branding is a negotiated Enterprise item that is not implemented.
+  - id: self-hosted-faq-4
+    title: "How do I handle updates when self-hosting?"
+    content: |-
+        Updates are delivered as new Docker images. Pull the latest image, restart your containers, and the application handles database migrations automatically. You control when to update, giving you time to test new versions in a staging environment before rolling them out to production.
+  - id: self-hosted-faq-5
+    title: "Is the self-hosted version secure?"
+    content: |-
+        Self-hosting lets you configure TLS, network controls, backups, and access around the application. A self-hosted installation sends no Sentry data unless you configure a Sentry DSN, but that narrower fact is not a blanket no-telemetry guarantee. Review the code and every configured provider; the unified inbox and calendar view remain cloud-only.
+  - id: self-hosted-faq-6
+    title: "Can I integrate self-hosted Customermates with other tools?"
+    content: |-
+        Yes. Self-hosted Customermates includes the documented [API](/features/api), webhooks, MCP, and community node. Connect a separate n8n instance if you want visual workflows; its runtime, providers, credentials, limits, logs, and costs remain separate. The [unified inbox](/features/integrations) and read-only calendar view are cloud-only.
 ---
 
 ## What Is a Self-Hosted CRM?
@@ -144,32 +171,6 @@ Getting your self-hosted CRM running takes less than 30 minutes:
 6. **Set up backups.** Configure automated PostgreSQL backups and regularly test restoring them to protect your data.
 
 The documentation covers everything from basic single-server setup to production-ready configurations with TLS, monitoring, and [reporting dashboards](/features/reporting).
-
-## Frequently Asked Questions
-
-### Can I switch between cloud and self-hosted?
-
-Yes, but the entitlements and migration path differ. You can evaluate the [cloud version](/features/cloud-crm), then plan a move to self-hosting. Customermates has no dedicated CRM-record import/export workflow; migration requires a separately designed and validated API or database procedure.
-
-### What infrastructure do I need to self-host?
-
-A Linux server with Docker installed is sufficient. The minimum requirements are 4 GB RAM and 2 CPU cores for teams up to 50 users. Customermates uses PostgreSQL as its database and ships as Docker containers, so any Docker-capable environment works, including VPS providers, on-premise servers, and private cloud platforms.
-
-### Is self-hosting free or does it cost extra?
-
-The AGPL core can be self-hosted without a Customermates subscription. Self-hosted users manage their infrastructure and updates, and the product is fixed to Starter entitlements: core CRM, API, webhooks, and MCP. The unified [messaging inbox](/features/email-integration) and read-only calendar view are cloud-only from Pro. n8n remains separate, and white-label branding is a negotiated Enterprise item that is not implemented.
-
-### How do I handle updates when self-hosting?
-
-Updates are delivered as new Docker images. Pull the latest image, restart your containers, and the application handles database migrations automatically. You control when to update, giving you time to test new versions in a staging environment before rolling them out to production.
-
-### Is the self-hosted version secure?
-
-Self-hosting lets you configure TLS, network controls, backups, and access around the application. A self-hosted installation sends no Sentry data unless you configure a Sentry DSN, but that narrower fact is not a blanket no-telemetry guarantee. Review the code and every configured provider; the unified inbox and calendar view remain cloud-only.
-
-### Can I integrate self-hosted Customermates with other tools?
-
-Yes. Self-hosted Customermates includes the documented [API](/features/api), webhooks, MCP, and community node. Connect a separate n8n instance if you want visual workflows; its runtime, providers, credentials, limits, logs, and costs remain separate. The [unified inbox](/features/integrations) and read-only calendar view are cloud-only.
 
 ## Start Self-Hosting Your CRM Today
 

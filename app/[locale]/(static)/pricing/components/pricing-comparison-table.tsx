@@ -65,7 +65,7 @@ export function PricingComparisonTable({ customValue, header, locale, plans, sec
 
   return (
     <section className="relative w-full pb-8">
-      <div className="mx-auto max-w-7xl px-4">
+      <div className="marketing-container">
         <ResponsiveComparisonTable header={header} {...presentation} />
       </div>
     </section>

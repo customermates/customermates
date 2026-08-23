@@ -11,6 +11,16 @@ const ORGANIZATION_SAME_AS = [
 const FOUNDER_NAME = "Benjamin Wagner";
 const FOUNDER_URL = "https://www.linkedin.com/in/wagner-benjamin/";
 
+function plainText(markdown: string): string {
+  return markdown
+    .replace(/\[([^\]]+)\]\([^)]*\)/gu, "$1")
+    .replace(/\*\*([^*]+)\*\*/gu, "$1")
+    .replace(/^\s*[-*]\s+/gmu, "")
+    .replace(/^\s*\d+\.\s+/gmu, "")
+    .replace(/\s+/gu, " ")
+    .trim();
+}
+
 export function organizationSchema() {
   return {
     "@context": "https://schema.org",
@@ -53,6 +63,23 @@ export function softwareApplicationSchema(params: { description: string; locale:
       name: ORGANIZATION_NAME,
       url: env.BASE_URL,
     },
+  };
+}
+
+export function faqPageSchema(params: { faqs: { content: string; title: string }[] }) {
+  if (params.faqs.length === 0) return undefined;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: params.faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.title,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: plainText(faq.content),
+      },
+    })),
   };
 }
 

@@ -102,6 +102,33 @@ cta:
   buttonRightText: See live demo
   buttonRightHref: https://demo.customermates.com
   hint: ✓ No credit card required ✓ First [[commercial.trial.days]] days free
+faq:
+  title: "Frequently asked questions"
+  faqs:
+  - id: odoo-faq-1
+    title: "Is Odoo CRM really free?"
+    content: |-
+        Partly. Odoo offers a One App Free plan that lets you use a single app forever, free, with unlimited users (so just CRM works). The moment you need a second app, you fall back to Standard at €19.90 per user per month yearly. The Community Edition is also free but ships without many Enterprise modules. Customermates offers a [[commercial.trial.days]]-day Pro trial without a credit card and is free to self-host as open source under AGPL-3.0.
+  - id: odoo-faq-2
+    title: "Is Odoo good for CRM?"
+    content: |-
+        Yes, especially for companies already running the Odoo suite. Lead management, pipeline, quote generation, and AI lead scoring are mature. Weak points: no external AI client integration, REST API only on the Custom plan, and the CRM is designed as a module within a large suite, which means overhead for teams that don't need ERP or accounting.
+  - id: odoo-faq-3
+    title: "What is the best alternative to Odoo CRM?"
+    content: |-
+        Depends on the use case. Companies running ERP suite functionality stay with Odoo. Teams looking for a focused CRM with external AI client integration find Customermates as an open-source alternative starting at [[commercial.price.starter.monthly]] per user per month on Starter with full API included from the cheapest tier. For other CRM alternatives, see the [Pipedrive alternative](/compare/pipedrive-alternative) and [HubSpot alternative](/compare/hubspot-alternative) pages.
+  - id: odoo-faq-4
+    title: "Is Odoo a competitor of Salesforce?"
+    content: |-
+        Indirectly. Odoo positions itself as an integrated suite against the Salesforce ecosystem of Sales Cloud, Service Cloud, Marketing Cloud, Pardot, and many add-ons. They cover similar functional ground but with different pricing models. Salesforce is generally pricier and more implementation-heavy. Odoo is cheaper per user but carries its own suite complexity.
+  - id: odoo-faq-5
+    title: "Can I self-host Odoo CRM?"
+    content: |-
+        Yes, through the LGPLv3 Community Edition or through the Enterprise Custom plan with self-hosting enabled. The Community Edition runs on your infrastructure but only covers a subset of Enterprise modules. Customermates is self-hostable in full functionality under AGPL-3.0 via `docker compose up -d`.
+  - id: odoo-faq-6
+    title: "Does Odoo CRM have an API?"
+    content: |-
+        Yes, but only on the Custom plan (€29.90 per user per month yearly). The Standard plan does not include external REST API access. Customermates ships a full REST API with OpenAPI 3.1, an MCP server with [[derived.mcp.tools.total]] tools, and [[derived.webhooks.events.total]] webhook events starting at the [[commercial.price.starter.monthly]] Starter plan.
 ---
 
 > Odoo CRM is one module inside Odoo, an integrated suite of 80+ applications spanning CRM, ERP, accounting, inventory, and more. Customermates is a focused open-source CRM with modern UX built around two things: AI agents that operate the CRM directly through [[derived.mcp.tools.total]] [MCP](/features/api) tools (an [n8n](/features/workflow-automation) community node and [[derived.webhooks.events.total]] webhook events round it out), and a native unified inbox that brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one place the same agents can read, draft, and send. This page puts both side by side so you can pick the right tool for your situation.
@@ -175,23 +202,3 @@ If you want a focused CRM and don't need 80 modules, Customermates was built for
 ## Bottom line
 
 Odoo CRM is a mature CRM module inside an integrated business suite, with native lead management, AI lead scoring, and deep ties to ERP, accounting, and POS modules. Customermates is a focused open-source CRM with modern UX, built from the ground up for AI agents to operate directly through [[derived.mcp.tools.total]] MCP tools, n8n, and webhooks, with a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) the same agents can work. Pick Odoo if you need a suite where CRM is one piece. Pick Customermates if you want the AI to do the typing and open source, EU hosting, self-hosting, and full API from the entry plan are part of "done."
-
-## Frequently asked questions
-
-**Is Odoo CRM really free?**
-Partly. Odoo offers a One App Free plan that lets you use a single app forever, free, with unlimited users (so just CRM works). The moment you need a second app, you fall back to Standard at €19.90 per user per month yearly. The Community Edition is also free but ships without many Enterprise modules. Customermates offers a [[commercial.trial.days]]-day Pro trial without a credit card and is free to self-host as open source under AGPL-3.0.
-
-**Is Odoo good for CRM?**
-Yes, especially for companies already running the Odoo suite. Lead management, pipeline, quote generation, and AI lead scoring are mature. Weak points: no external AI client integration, REST API only on the Custom plan, and the CRM is designed as a module within a large suite, which means overhead for teams that don't need ERP or accounting.
-
-**What is the best alternative to Odoo CRM?**
-Depends on the use case. Companies running ERP suite functionality stay with Odoo. Teams looking for a focused CRM with external AI client integration find Customermates as an open-source alternative starting at [[commercial.price.starter.monthly]] per user per month on Starter with full API included from the cheapest tier. For other CRM alternatives, see the [Pipedrive alternative](/compare/pipedrive-alternative) and [HubSpot alternative](/compare/hubspot-alternative) pages.
-
-**Is Odoo a competitor of Salesforce?**
-Indirectly. Odoo positions itself as an integrated suite against the Salesforce ecosystem of Sales Cloud, Service Cloud, Marketing Cloud, Pardot, and many add-ons. They cover similar functional ground but with different pricing models. Salesforce is generally pricier and more implementation-heavy. Odoo is cheaper per user but carries its own suite complexity.
-
-**Can I self-host Odoo CRM?**
-Yes, through the LGPLv3 Community Edition or through the Enterprise Custom plan with self-hosting enabled. The Community Edition runs on your infrastructure but only covers a subset of Enterprise modules. Customermates is self-hostable in full functionality under AGPL-3.0 via `docker compose up -d`.
-
-**Does Odoo CRM have an API?**
-Yes, but only on the Custom plan (€29.90 per user per month yearly). The Standard plan does not include external REST API access. Customermates ships a full REST API with OpenAPI 3.1, an MCP server with [[derived.mcp.tools.total]] tools, and [[derived.webhooks.events.total]] webhook events starting at the [[commercial.price.starter.monthly]] Starter plan.

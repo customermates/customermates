@@ -2,8 +2,7 @@ import type { ClipTerminal } from "@/core/fumadocs/schemas/homepage";
 
 import { getTranslations } from "next-intl/server";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { WaveDecoration } from "@/components/marketing/wave-decoration";
+import { MarketingSection } from "@/components/marketing/marketing-section";
 
 import { HomepageClipTerminal } from "./homepage-clip-terminal";
 
@@ -18,73 +17,36 @@ type Props = {
 
 export async function HomepageHowItWorks({ eyebrow, title, steps, clipTerminal }: Props) {
   const t = await getTranslations();
+
   return (
-    <section className="relative w-full overflow-hidden px-4 py-14 md:py-20">
-      <WaveDecoration
-        className="-top-10 right-0 hidden w-[min(560px,40%)] -scale-x-100 opacity-50 md:block"
-        opacity={0.18}
-        variant="wave-2"
-      />
+    <MarketingSection eyebrow={eyebrow} id="how-it-works" title={title}>
+      <div className="mt-12 grid grid-cols-1 items-center gap-10 lg:mt-16 lg:grid-cols-2 lg:gap-14">
+        <ol className="flex flex-col gap-5">
+          {steps.map((step) => (
+            <li key={step.n} className="flex gap-4">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted font-mono text-sm font-medium">
+                {step.n}
+              </span>
 
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-12 left-[6%] size-[380px] rounded-full bg-[rgba(6,182,212,0.13)] blur-[110px]" />
+              <div>
+                <p className="font-medium">{step.title}</p>
 
-        <div className="absolute bottom-[8%] right-[10%] size-[300px] rounded-full bg-[rgba(139,92,246,0.13)] blur-[90px]" />
-
-        <div
-          className="absolute inset-0 opacity-[0.28] bg-[radial-gradient(circle_at_1px_1px,rgba(6,182,212,0.10)_1px,transparent_0)] bg-size-[26px_26px]"
-          style={{
-            maskImage: "radial-gradient(ellipse 70% 60% at 50% 50%, #000 30%, transparent 85%)",
-            WebkitMaskImage: "radial-gradient(ellipse 70% 60% at 50% 50%, #000 30%, transparent 85%)",
-          }}
-        />
-      </div>
-
-      <Card className="relative mx-auto w-full max-w-[1100px] overflow-hidden py-10 md:py-14">
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-          <div className="absolute -left-16 top-0 size-[360px] rounded-full bg-[rgba(94,74,227,0.12)] blur-[90px]" />
-
-          <div className="absolute -right-16 bottom-0 size-[340px] rounded-full bg-[rgba(18,148,144,0.10)] blur-[80px]" />
-        </div>
-
-        <CardContent>
-          <div className="mb-10 text-center">
-            <span className="mb-3 inline-block rounded-md bg-primary/15 px-3 py-1 text-[13px] font-medium text-primary">
-              {eyebrow}
-            </span>
-
-            <h2 className="m-0 text-[28px] font-bold leading-tight tracking-tight md:text-[32px]">{title}</h2>
-          </div>
-
-          <div className="grid grid-cols-1 items-center gap-14 md:grid-cols-2">
-            <ol className="flex flex-col gap-[18px]">
-              {steps.map((step) => (
-                <li key={step.n} className="flex gap-3.5">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 font-mono text-sm font-bold text-primary">
-                    {step.n}
-                  </div>
-
-                  <div>
-                    <div className="mb-0.5 text-[15px] font-semibold">{step.title}</div>
-
-                    <div className="text-[13px] leading-[1.55] text-muted-foreground">{step.description}</div>
-                  </div>
-                </li>
-              ))}
-            </ol>
-
-            <div className="relative">
-              <HomepageClipTerminal strings={clipTerminal} />
-
-              <div className="mt-2.5 flex items-center justify-between px-1 font-mono text-[11px] text-muted-foreground">
-                <span>{t("HomepageHowItWorks.loopCaption")}</span>
-
-                <span>{t("HomepageHowItWorks.tailCaption")}</span>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{step.description}</p>
               </div>
-            </div>
+            </li>
+          ))}
+        </ol>
+
+        <div>
+          <HomepageClipTerminal strings={clipTerminal} />
+
+          <div className="text-meta mt-2.5 flex items-center justify-between px-1 font-mono">
+            <span>{t("HomepageHowItWorks.loopCaption")}</span>
+
+            <span>{t("HomepageHowItWorks.tailCaption")}</span>
           </div>
-        </CardContent>
-      </Card>
-    </section>
+        </div>
+      </div>
+    </MarketingSection>
   );
 }
