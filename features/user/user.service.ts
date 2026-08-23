@@ -12,6 +12,7 @@ export type { TenantUser } from "./user.schema";
 export abstract class FindUserRepo {
   abstract findCurrentUserUnscoped(email: string): Promise<TenantUser | null>;
   abstract findCurrentUserOrThrowUnscoped(email: string): Promise<TenantUser>;
+  abstract findUserByIdOrThrowUnscoped(userId: string): Promise<TenantUser>;
 }
 
 export class UserService {
@@ -42,6 +43,14 @@ export class UserService {
 
   async getActiveUserOrThrow() {
     const user = await this.getUserOrThrow();
+
+    if (user.status !== Status.active) throw new ForbiddenError("User is not active", AppErrorCode.inactiveUser);
+
+    return user;
+  }
+
+  async getActiveUserByIdOrThrow(userId: string) {
+    const user = await this.repo.findUserByIdOrThrowUnscoped(userId);
 
     if (user.status !== Status.active) throw new ForbiddenError("User is not active", AppErrorCode.inactiveUser);
 
