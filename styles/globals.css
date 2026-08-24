@@ -372,11 +372,18 @@
      canvas  --sidebar     the app shell behind everything, including the 8px gutter
      panel   --background  the floating page body
      raised  --card        card, popover, menu, dialog
-   Light steps are +2.40 and +2.63 OKLCH L; dark steps are +4.76 and +4.42, a 1.80x
-   ratio. Equal lightness steps would NOT mirror: matching a light step of 2.5 L needs
-   3.62 L in dark. The quantity that carries across themes is the contrast ratio, not
-   the lightness step, which is why moving one token or shifting the ladder by a fixed
-   amount cannot work. Every rung is within 0.4 L of Linear's shipped app shell.
+   Light steps are +2.40 and +2.63 OKLCH L; dark steps are +3.25 and +3.12, a 1.27x
+   ratio. Equal lightness steps would NOT mirror, because matching a light step of 2.5 L
+   needs about 3.6 L in dark, so the quantity that carries across themes is the contrast
+   ratio rather than the lightness step: moving one token, or shifting the ladder by a
+   fixed amount, cannot work.
+
+   The dark ladder was deliberately compressed from the 1.82x that pure contrast-matching
+   gives. Borders are load-bearing here: every rung in this system carries one, and once a
+   rim delineates a surface the fill no longer has to shout the same thing twice. The cost
+   is that a surface with no border reads as less raised in dark than in light, which is
+   the trade being made on purpose rather than a drift. The page rung is the anchor and
+   does not move; only canvas and raised close in on it.
 
    BORDER — alpha, not opaque, so one value per tier is correct on all three rungs.
      --border         ~1.18:1  container rims and rules: panel, card, table, separators
@@ -556,7 +563,7 @@
 .dark {
   --background: #121215;
   --foreground: #fafafa;
-  --card: #1c1c1f;
+  --card: #19191c;
   --card-foreground: #fafafa;
   --popover: var(--card);
   --popover-foreground: #fafafa;
@@ -601,7 +608,7 @@
   --color-fd-accent: color-mix(in srgb, #26262a 30%, transparent);
   --color-fd-accent-foreground: #ffffff;
   --color-fd-ring: #65656b;
-  --sidebar: #08080b;
+  --sidebar: #0b0b0e;
   --sidebar-foreground: #e4e4e7;
   --sidebar-primary: #7c6df2;
   --sidebar-primary-foreground: #ffffff;

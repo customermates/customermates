@@ -62,6 +62,15 @@ const TARGETS = [
 
 const THEMES = ["light", "dark"];
 
+// The dev server injects its own overlay: a floating indicator, and an error badge when
+// something like a hydration mismatch fires. Neither is part of the product, and a capture
+// that shows them is not evidence of anything. Removing the element is safe because it lives
+// outside the app root and nothing in the page references it.
+const HIDE_DEV_OVERLAY = `(() => {
+  for (const node of document.querySelectorAll("nextjs-portal")) node.remove();
+  return true;
+})()`;
+
 const SETTLED = `(() => {
   const busy = document.querySelector('[data-page-skeleton-loading], [data-page-state="loading"], [data-page-loading], [aria-busy="true"]');
   if (busy) return false;
@@ -162,6 +171,8 @@ async function captureTarget(browser, target, theme) {
     })()`);
     await browser.eval("new Promise((r) => setTimeout(r, 700))");
   }
+
+  await browser.eval(HIDE_DEV_OVERLAY);
 
   return settledScreenshot(browser, target.settleFloorMs);
 }
