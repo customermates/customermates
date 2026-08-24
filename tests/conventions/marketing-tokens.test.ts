@@ -21,6 +21,10 @@ const DEPICTIONS = new Map([
     "renders a simulated terminal. Its palette depicts terminal output, which is dark in both themes, so it is content rather than a surface the design system owns.",
   ],
   [
+    "components/marketing/scenes/scene-cursor.tsx",
+    "depicts the operating system's own pointer. A native cursor is white with a dark outline in both themes, which is what makes it read as a cursor rather than as our UI; tokenising it would make it follow the theme and stop being recognisable.",
+  ],
+  [
     "app/[locale]/(static)/components/homepage-stats-row.tsx",
     "inlines the n8n brand mark. A third-party logo keeps its own colour and must never be tokenised.",
   ],

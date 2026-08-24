@@ -28,6 +28,14 @@ export function sceneStream(text: string, t: number, window: readonly [number, n
   return { done: false, typing: true, visible: text.slice(0, Math.floor(text.length * progress)) };
 }
 
+export function sceneUnstream(text: string, t: number, window: readonly [number, number]) {
+  const [from, to] = window;
+  if (t < from) return { done: false, typing: false, visible: text };
+  if (t >= to) return { done: true, typing: false, visible: "" };
+  const progress = (t - from) / (to - from);
+  return { done: false, typing: true, visible: text.slice(0, Math.floor(text.length * (1 - progress))) };
+}
+
 export function sceneAfter(t: number, at: number) {
   return t >= at;
 }
@@ -41,11 +49,13 @@ export function SceneFrame({
   children,
   className,
   crop = "bottom-right",
+  film = false,
   label,
 }: {
   children: ReactNode;
   className?: string;
   crop?: "bottom-right" | "bottom" | "none";
+  film?: boolean;
   label?: string;
 }) {
   const inset =
@@ -59,10 +69,14 @@ export function SceneFrame({
     <div
       aria-hidden={label ? undefined : true}
       aria-label={label}
-      className={cn("scene-ground scene-frame relative isolate overflow-hidden rounded-card", className)}
+      className={cn(
+        "relative isolate overflow-hidden rounded-card",
+        film ? "scene-frame-film bg-card" : "scene-ground scene-frame",
+        className,
+      )}
       role={label ? "img" : undefined}
     >
-      <div className={cn("absolute", inset)}>{children}</div>
+      <div className={cn(film ? "absolute inset-0" : "absolute", film ? undefined : inset)}>{children}</div>
     </div>
   );
 }
@@ -79,13 +93,13 @@ export function SceneWindow({
   return (
     <div className={cn("flex w-full flex-col overflow-hidden rounded-card border border-border bg-card", className)}>
       <div className="flex shrink-0 items-center gap-[1.2cqw] border-b border-border px-[2cqw] py-[1.4cqw]">
-        <span className="size-[1.1cqw] rounded-full bg-muted" />
+        <span className="scene-ink-surface size-[1.1cqw] rounded-full" />
 
-        <span className="size-[1.1cqw] rounded-full bg-muted" />
+        <span className="scene-ink-surface size-[1.1cqw] rounded-full" />
 
-        <span className="size-[1.1cqw] rounded-full bg-muted" />
+        <span className="scene-ink-surface size-[1.1cqw] rounded-full" />
 
-        {title ? <span className="scene-meta ml-[1.2cqw] truncate text-muted-foreground">{title}</span> : null}
+        {title ? <span className="scene-meta scene-ink-quiet ml-[1.2cqw] truncate">{title}</span> : null}
       </div>
 
       <div>{children}</div>
@@ -108,8 +122,8 @@ export function SceneBubble({
         className={cn(
           "scene-text max-w-[76%] rounded-panel px-[2.2cqw] py-[1.5cqw]",
           from === "them"
-            ? "bg-muted text-foreground"
-            : "border-2 border-dashed border-primary/70 bg-primary/10 text-foreground",
+            ? "scene-ink-surface scene-ink-body"
+            : "scene-ink-accent border-2 border-dashed border-primary/70 text-foreground",
         )}
       >
         {children}
@@ -136,8 +150,8 @@ export function SceneChip({
       className={cn(
         "scene-meta rounded-full px-[1.6cqw] py-[0.7cqw]",
         accent && "bg-primary text-primary-foreground",
-        !accent && conceptual && "border border-dashed border-input text-muted-foreground",
-        !accent && !conceptual && "border border-border bg-card text-foreground",
+        !accent && conceptual && "scene-ink-quiet border border-dashed border-input",
+        !accent && !conceptual && "scene-ink-body border border-border bg-card",
       )}
     >
       {children}
@@ -158,7 +172,7 @@ export function SceneRow({
     <div
       className={cn(
         "scene-text flex items-center gap-[1.6cqw] rounded-card px-[2cqw] py-[1.5cqw]",
-        accent ? "bg-primary/12 ring-1 ring-primary/35 ring-inset" : "bg-muted",
+        accent ? "scene-ink-accent text-foreground" : "scene-ink-surface scene-ink-body",
         className,
       )}
     >

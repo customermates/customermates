@@ -826,6 +826,62 @@ path:focus {
 
      Deliberately far larger than the running application uses, because a scene shows only
      the interface its point needs, at a size a reader takes in at a glance. */
+  /* Scene ink.
+     A scene is a poster, and a poster has one subject. The reference posters keep the window
+     solid but render its interior subdued: fills barely there, secondary text mid-grey,
+     structure hinted rather than stated. Only the thing that changed is at full strength, so
+     the eye lands on it without being told to.
+
+     These live in CSS rather than as Tailwind alpha utilities for two reasons. The marketing
+     convention test bans bg-muted/N in TSX, because a wash carries state and pinning one to a
+     surface inverts between themes. And expressing the ghost once here means a new scene
+     inherits it instead of choosing an opacity, which is the same reason the grammar exists.
+
+     The ghost lives in the TEXT, not the fills. Our surface washes are already alpha values
+     around 5%, so fading them further only makes them vanish while the words stay at full
+     strength -- measured at 2.4% alpha and SSIM 0.995 against the original, a change nobody
+     could see. The reference posters read quiet because their copy is mid-grey against a
+     visible fill, so the fills stay as they were and the ink comes down instead.
+
+     Built with color-mix toward transparent rather than an opacity property, so a ghosted
+     surface does not also fade the text sitting on it. */
+  .scene-ink-surface {
+    background-color: var(--muted);
+  }
+
+  .scene-ink-quiet {
+    color: color-mix(in oklab, var(--muted-foreground) 55%, transparent);
+  }
+
+  .scene-ink-body {
+    color: color-mix(in oklab, var(--foreground) 58%, transparent);
+  }
+
+  /* The one accent surface. Every scene marks exactly one thing, and it marks it the same way:
+     a primary wash with an inset ring, at full strength while everything around it is ghosted.
+     Stated once because it was written out four times before this. */
+  .scene-ink-accent {
+    background-color: color-mix(in oklab, var(--primary) 14%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--primary) 38%, transparent);
+  }
+
+  /* Un-typing.
+     sceneUnstream in the scene grammar is sceneStream run backwards, one character at a time.
+     A film has to arrive back at the frame it opened on or the loop visibly jumps, and the
+     cheapest honest way to un-say a sentence is to un-type it. The reference films all do this:
+     the chat retracts its answer, the terminal scrolls its banner back, the drag returns. */
+
+  /* Film canvas. A film is the window itself, edge to edge, with no ambient ground: the
+     reference films are all window-shaped (1.16:1 to 1.39:1), never 16:9, because the video IS
+     the product window rather than a picture of one sitting in atmosphere. */
+  .scene-frame-film {
+    /* Also the query container. Every cqw in the grammar resolves against the frame, and film
+       mode drops .scene-ground, which is what normally establishes it: without this line the
+       type silently sizes against some ancestor instead. */
+    container-type: inline-size;
+    aspect-ratio: 1280 / 920;
+  }
+
   .scene-frame {
     aspect-ratio: var(--aspect-hero);
   }
