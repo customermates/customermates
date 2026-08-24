@@ -110,13 +110,26 @@ async function runSafely<T>(
 
 const UNSUPPORTED_PATTERN = /\(\?=|\(\?!|\(\?<=|\(\?<!/;
 
-function providerSafeSchema(inputSchema: (typeof ALL_MCP_TOOLS)[number]["inputSchema"]) {
-  return jsonSchema(
+const PROVIDER_SAFE_FORMAT_PATTERNS: Record<string, string | undefined> = {
+  email: "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$",
+  uri: "^[A-Za-z][A-Za-z0-9+.-]*:\\S*$",
+};
+
+function providerSafeSchema<TSchema extends z.ZodType>(inputSchema: TSchema) {
+  return jsonSchema<z.infer<TSchema>>(
     z.toJSONSchema(inputSchema as never, {
       io: "input",
+      target: "draft-07",
       override: (ctx) => {
-        const schema = ctx.jsonSchema as { pattern?: string };
+        const schema = ctx.jsonSchema as { pattern?: string; format?: string };
         if (typeof schema.pattern === "string" && UNSUPPORTED_PATTERN.test(schema.pattern)) delete schema.pattern;
+
+        const format = schema.format;
+        delete schema.format;
+        if (schema.pattern === undefined && format !== undefined) {
+          const fallback = PROVIDER_SAFE_FORMAT_PATTERNS[format];
+          if (fallback) schema.pattern = fallback;
+        }
       },
     }) as never,
     {
@@ -127,6 +140,14 @@ function providerSafeSchema(inputSchema: (typeof ALL_MCP_TOOLS)[number]["inputSc
     },
   );
 }
+
+const NavigateSchema = z.object({ targetId: NavigationUiTargetIdSchema.describe("A routable target id.") });
+const HighlightElementSchema = z.object({
+  targetId: UiTargetIdSchema.describe("A target id from list_ui_targets."),
+});
+const ClickUiTargetSchema = z.object({
+  targetId: ClickUiTargetIdSchema.describe("An activatable target id from list_ui_targets."),
+});
 
 const ListUiTargetsSchema = z.object({
   query: z
@@ -206,22 +227,18 @@ function uiTools(deps: AgentToolDeps): ToolSet {
     list_ui_targets: tool({
       description:
         "List exact stable interface target ids before using an interface tool. Make one focused query with the workflow or page phrase and reuse every relevant id it returns instead of querying ids one by one. Results use action codes n=navigate, h=highlight, c=click and >target for a prerequisite; continue only when nextCursor is present.",
-      inputSchema: ListUiTargetsSchema,
+      inputSchema: providerSafeSchema(ListUiTargetsSchema),
       execute: (input) => listUiTargets(input, deps.resultMaxChars),
     }),
     navigate: tool({
       description: "Open an app destination by its target id from list_ui_targets.",
-      inputSchema: z.object({
-        targetId: NavigationUiTargetIdSchema.describe("A routable target id."),
-      }),
+      inputSchema: providerSafeSchema(NavigateSchema),
       execute: (input, { toolCallId }) =>
         runSafely(() => runUiCommand(toolCallId, "navigate", { targetId: input.targetId }), deps.resultMaxChars),
     }),
     highlight_element: tool({
       description: "Spotlight a single interface target by its id (from list_ui_targets) on the current page.",
-      inputSchema: z.object({
-        targetId: UiTargetIdSchema.describe("A target id from list_ui_targets."),
-      }),
+      inputSchema: providerSafeSchema(HighlightElementSchema),
       execute: (input, { toolCallId }) =>
         runSafely(
           () =>
@@ -234,16 +251,14 @@ function uiTools(deps: AgentToolDeps): ToolSet {
     start_tour: tool({
       description:
         "Run a guided tour you compose for this user. Call list_ui_targets once, then choose the targets that answer what they asked to see and write your own note for each one. The tour navigates to each step itself, so do not call navigate first. Ask what they want to see when the request is vague; go straight to the tour when it is specific. Be thorough: walk the whole journey rather than naming each screen, and write every note in the user's language.",
-      inputSchema: AgentTourSchema,
+      inputSchema: providerSafeSchema(AgentTourSchema),
       execute: (input, { toolCallId }) =>
         runSafely(() => runUiCommand(toolCallId, "start_tour", { steps: input.steps }), deps.resultMaxChars),
     }),
     click_ui_target: tool({
       description:
         "Activate one reversible display control by its exact id from list_ui_targets. Navigate to the target first. Layout controls require opening the matching display-options target first. A successful result means the browser verified the control is expanded or selected.",
-      inputSchema: z.object({
-        targetId: ClickUiTargetIdSchema.describe("An activatable target id from list_ui_targets."),
-      }),
+      inputSchema: providerSafeSchema(ClickUiTargetSchema),
       execute: (input, { toolCallId }) =>
         runSafely(
           () =>
@@ -256,7 +271,7 @@ function uiTools(deps: AgentToolDeps): ToolSet {
     open_record: tool({
       description:
         "Open one record after finding its id with list_records or search_records. Use the drawer to keep context, the page for a full view, and recordId 'new' for a blank form the user fills in.",
-      inputSchema: OpenRecordSchema,
+      inputSchema: providerSafeSchema(OpenRecordSchema),
       execute: (input, { toolCallId }) =>
         runSafely(() => runUiCommand(toolCallId, "open_record", input), deps.resultMaxChars),
     }),
@@ -273,7 +288,7 @@ export function getAgentAiTools(deps: AgentToolDeps): ToolSet {
     request_support: tool({
       description:
         "Email a support request to the Customermates team. Use when the user asks for a human, reports a bug, or you cannot help after a genuine attempt. The recent Assistant conversation is included, and the team replies to the email address on the user's account.",
-      inputSchema: RequestSupportSchema,
+      inputSchema: providerSafeSchema(RequestSupportSchema),
       execute: async (input, { toolCallId }) =>
         runSafely(
           () =>

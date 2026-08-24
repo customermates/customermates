@@ -256,44 +256,38 @@ describe("agent tools", () => {
     expect(JSON.stringify(schema?.properties?.id)).toContain('"null"');
   });
 
-  it("accepts only exact navigation target ids and rejects URL-like model input", () => {
+  it("accepts only exact navigation target ids and rejects URL-like model input", async () => {
     const tools = getAgentAiTools(deps());
-    const schema = schemaOf(tools.navigate);
+    const validate = schemaOf(tools.navigate).validate;
 
-    expect(schema.safeParse?.({ targetId: "nav-contacts" })).toMatchObject({ success: true });
+    expect(await validate?.({ targetId: "nav-contacts" })).toMatchObject({ success: true });
     for (const targetId of ["javascript:alert(1)", "https://example.com", "//example.com", "/contacts"])
-      expect(schema.safeParse?.({ targetId })).toMatchObject({ success: false });
+      expect(await validate?.({ targetId }), targetId).toMatchObject({ success: false });
   });
 
-  it("accepts only real record ids in open_record and rejects paths and URLs", () => {
+  it("accepts only real record ids in open_record and rejects paths and URLs", async () => {
     const tools = getAgentAiTools(deps());
-    const schema = schemaOf(tools.open_record);
+    const validate = schemaOf(tools.open_record).validate;
 
-    expect(
-      schema.safeParse?.({
-        entity: "contact",
-        recordId: "00000000-0000-4000-8000-000000000001",
-      }),
-    ).toMatchObject({ success: true });
-    expect(schema.safeParse?.({ entity: "contact", recordId: "new" })).toMatchObject({ success: true });
+    expect(await validate?.({ entity: "contact", recordId: "00000000-0000-4000-8000-000000000001" })).toMatchObject({
+      success: true,
+    });
+    expect(await validate?.({ entity: "contact", recordId: "new" })).toMatchObject({ success: true });
     for (const recordId of ["/contacts/abc", "javascript:alert(1)", "https://example.com", "abc", "1234"])
-      expect(schema.safeParse?.({ entity: "contact", recordId })).toMatchObject({ success: false });
+      expect(await validate?.({ entity: "contact", recordId }), recordId).toMatchObject({ success: false });
 
-    expect(
-      schema.safeParse?.({
-        entity: "company",
-        recordId: "00000000-0000-4000-8000-000000000001",
-      }),
-    ).toMatchObject({ success: false });
+    expect(await validate?.({ entity: "company", recordId: "00000000-0000-4000-8000-000000000001" })).toMatchObject({
+      success: false,
+    });
   });
 
-  it("allows only reversible display controls through click_ui_target", () => {
-    const schema = schemaOf(getAgentAiTools(deps()).click_ui_target);
+  it("allows only reversible display controls through click_ui_target", async () => {
+    const validate = schemaOf(getAgentAiTools(deps()).click_ui_target).validate;
 
-    expect(schema.safeParse?.({ targetId: "deals-display-options" })).toMatchObject({ success: true });
-    expect(schema.safeParse?.({ targetId: "deals-layout-kanban" })).toMatchObject({ success: true });
+    expect(await validate?.({ targetId: "deals-display-options" })).toMatchObject({ success: true });
+    expect(await validate?.({ targetId: "deals-layout-kanban" })).toMatchObject({ success: true });
     for (const targetId of ["#deals-display-options", "nav-contacts", "company-settings-save", "deals-filter"])
-      expect(schema.safeParse?.({ targetId })).toMatchObject({ success: false });
+      expect(await validate?.({ targetId }), targetId).toMatchObject({ success: false });
   });
 
   it("keeps the complete UI target catalog within the tool-result budget", async () => {
@@ -347,10 +341,10 @@ describe("agent tools", () => {
     expect(workflow).toContain("\nend");
     expect(provider).toContain("profile-connected-accounts-connect");
     expect(
-      schemaOf(tools.highlight_element).safeParse?.({ targetId: "profile-connected-accounts-connect" }),
+      await schemaOf(tools.highlight_element).validate?.({ targetId: "profile-connected-accounts-connect" }),
     ).toMatchObject({ success: true });
     expect(
-      schemaOf(tools.click_ui_target).safeParse?.({ targetId: "profile-connected-accounts-connect" }),
+      await schemaOf(tools.click_ui_target).validate?.({ targetId: "profile-connected-accounts-connect" }),
     ).toMatchObject({ success: false });
   });
 
