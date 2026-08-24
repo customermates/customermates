@@ -2,6 +2,8 @@ import "dotenv/config";
 
 import { randomUUID } from "node:crypto";
 
+import { createHmac, randomBytes } from "node:crypto";
+
 import { createTranslator } from "next-intl";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
@@ -13,37 +15,34 @@ vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
   getTranslations: () => Promise.resolve(createTranslator({ locale: "en", messages })),
 }));
-vi.mock("@/features/user/user.service", () => ({
-  UserService: class {
-    getUserOrThrow() {
-      return Promise.resolve(evalUser);
-    }
-
-    getActiveUserOrThrow() {
-      return Promise.resolve(evalUser);
-    }
-
-    hasPermission() {
-      return Promise.resolve(true);
-    }
-
-    hasPermissionOrThrow() {
-      return Promise.resolve();
-    }
-  },
-}));
-
-const { getSendAgentMessageInteractor, getRespondToApprovalInteractor } = await import("@/core/di");
-const { runAgentLane } = await import("@/ee/agent-chat/agent-runner");
+const { getRespondToApprovalInteractor } = await import("@/core/di");
 const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.repository");
 const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { AGENT_UI_TARGET_IDS } = await import("@/ee/agent-chat/ui-targets");
+const { wakeAgentUiCommand } = await import("@/ee/agent-chat/agent-run-wake");
 
 const companyId = randomUUID();
 const sentinelCompanyId = randomUUID();
 const userId = randomUUID();
 const evalUser = createMockUser({ companyId, id: userId });
+const APP_URL = process.env.BASE_URL ?? "http://localhost:4105";
+
+let sessionCookie = "";
+
+async function mintEvalSession() {
+  const secret = process.env.BETTER_AUTH_SECRET;
+  if (!secret) throw new Error("BETTER_AUTH_SECRET must be set for the agent eval.");
+
+  const token = randomBytes(32).toString("hex");
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+  await runWithoutTenant(() =>
+    prisma.authSession.create({ data: { id: randomUUID(), token, userId, expiresAt } }),
+  );
+
+  const signature = createHmac("sha256", secret).update(token).digest("base64");
+  sessionCookie = `app.session_token=${encodeURIComponent(`${token}.${signature}`)}`;
+}
 
 const SNAPSHOT_TABLES = [
   "contact",
@@ -82,8 +81,10 @@ async function runTurn(args: {
   conversationId?: string;
   onApproval?: "approve" | "reject" | "ignore";
 }): Promise<{ frames: Frame[]; conversationId: string }> {
-  const admission = await runWithTenant(evalUser, () =>
-    getSendAgentMessageInteractor().invoke({
+  const response = await fetch(`${APP_URL}/api/agent/messages`, {
+    method: "POST",
+    headers: { "content-type": "application/json", cookie: sessionCookie },
+    body: JSON.stringify({
       clientRequestId: randomUUID(),
       ...(args.conversationId ? { conversationId: args.conversationId } : {}),
       text: args.text,
@@ -91,18 +92,15 @@ async function runTurn(args: {
       pageContext: { route: "/en/contacts" },
       retry: false,
     }),
-  );
-  if (!admission.ok) throw new Error(`Admission failed: ${JSON.stringify(admission)}`);
-  const decision = admission.data;
-  if (decision.disposition !== "run") throw new Error(`Expected a run, got ${decision.disposition}`);
+  });
+  if (!response.ok || !response.body)
+    throw new Error(`Admission failed with ${response.status}: ${await response.text()}`);
 
-  const stream = runAgentLane(
-    { ...decision, appBaseUrl: "http://localhost:4000", approvalPollMs: 250, approvalTimeoutMs: 20_000 },
-    new AbortController().signal,
-  );
+  const conversationId = response.headers.get("x-conversation-id");
+  if (!conversationId) throw new Error("The agent response carried no conversation id.");
 
   const frames: Frame[] = [];
-  const reader = stream.getReader();
+  const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
   for (;;) {
@@ -121,18 +119,19 @@ async function runTurn(args: {
       if (frame.type === "ui_command") {
         await runWithTenant(evalUser, () =>
           new PrismaAgentChatRepo().recordUiCommandResult({
-            conversationId: decision.conversationId,
+            conversationId,
             commandId: String(frame.commandId),
             name: String(frame.name),
             ok: true,
             result: "Done.",
           }),
         );
+        await wakeAgentUiCommand(conversationId, String(frame.commandId));
       }
       if (frame.type === "approval_request" && args.onApproval && args.onApproval !== "ignore") {
         await runWithTenant(evalUser, () =>
           getRespondToApprovalInteractor().invoke({
-            conversationId: decision.conversationId,
+            conversationId,
             requestId: String(frame.requestId),
             decision: args.onApproval as "approve" | "reject",
           }),
@@ -140,7 +139,7 @@ async function runTurn(args: {
       }
     }
   }
-  return { frames, conversationId: decision.conversationId };
+  return { frames, conversationId };
 }
 
 const enabled = process.env.RUN_AGENT_EVAL === "true" && Boolean(getLocalDatabaseTestUrl());
@@ -186,6 +185,8 @@ describeEval("agent live eval", () => {
         data: { companyId: sentinelCompanyId, firstName: "Sentinel", lastName: "Person" },
       });
     });
+
+    await mintEvalSession();
   });
 
   afterAll(async () => {

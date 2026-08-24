@@ -21,7 +21,7 @@ import {
   type SendAgentMessageData,
   partsToText,
 } from "./agent-chat.schema";
-import type { AgentRunContext } from "./agent-runner";
+import type { AgentRunContext } from "./agent-run-context";
 import type { AgentUsageService } from "./agent-usage.service";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { AGENT_RUN_LEASE_MS, decideAgentTurnAdmission, type AgentTurnRequestSnapshot } from "./agent-turn-request";

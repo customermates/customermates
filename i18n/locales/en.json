@@ -346,7 +346,6 @@
       "cancelled": "This response was stopped.",
       "creditLimit": "I completed part of this request, but stopped because your Assistant credits ran out. Completed work remains in place; credits reset at the start of your next period.",
       "emptyReply": "I couldn't produce a response. Please try again.",
-      "maxSteps": "I completed part of this request, but reached this turn's step limit. Ask me to continue and I'll pick up from the completed work.",
       "outputLimit": "I completed part of this response, but reached this turn's output limit. Ask me to continue and I'll finish from the completed work.",
       "safetyLimit": "I completed part of this request, but stopped because the latest steps were repeating, failing, or reached a safety limit. Completed work remains in place; review the steps above before asking me to proceed.",
       "turnError": "I couldn't complete that request. Please try again."

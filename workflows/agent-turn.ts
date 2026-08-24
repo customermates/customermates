@@ -31,7 +31,7 @@ import { buildAgentSystemPrompt } from "@/ee/agent-chat/system-prompt";
 import { buildTurnUsageSettlement, usageToTokenCounts } from "@/ee/agent-chat/llm.service";
 import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
 import { agentCreditsForStartedProviderCost } from "@/ee/agent-chat/agent-credit-policy";
-import { createAgentSupportTicket } from "@/ee/agent-chat/agent-runner";
+import { createAgentSupportTicket } from "@/ee/agent-chat/agent-support-ticket";
 import { describeAgentTool } from "@/ee/agent-chat/agent-activity";
 import { agentToolOutcomeStatus, AGENT_TRANSCRIPT_FORWARDED_EVENTS } from "@/ee/agent-chat/agent-durable-stream";
 import {
@@ -282,13 +282,6 @@ async function publishAssistantText(text: string): Promise<void> {
   }
 }
 
-async function resolveSafetyStopMessage(locale: string): Promise<string> {
-  "use step";
-  const { agentTranslator } = await import("@/ee/agent-chat/agent-translator");
-  const t = agentTranslator(locale);
-  return t("AgentChat.runner.safetyLimit");
-}
-
 async function ensureTurnReservation(
   payload: AgentTurnWorkflowPayload,
   requiredCredits: number,
@@ -304,11 +297,19 @@ async function ensureTurnReservation(
   );
 }
 
-async function resolveCreditLimitMessage(locale: string): Promise<string> {
+type AgentRunnerMessageKind = "safetyLimit" | "creditLimit" | "outputLimit" | "turnError" | "emptyReply";
+
+async function resolveRunnerMessage(locale: string, kind: AgentRunnerMessageKind): Promise<string> {
   "use step";
   const { agentTranslator } = await import("@/ee/agent-chat/agent-translator");
   const t = agentTranslator(locale);
-  return t("AgentChat.runner.creditLimit");
+
+  if (kind === "creditLimit") return t("AgentChat.runner.creditLimit");
+  if (kind === "outputLimit") return t("AgentChat.runner.outputLimit");
+  if (kind === "turnError") return t("AgentChat.runner.turnError");
+  if (kind === "emptyReply") return t("AgentChat.runner.emptyReply");
+
+  return t("AgentChat.runner.safetyLimit");
 }
 
 async function readCancellation(payload: AgentTurnWorkflowPayload): Promise<boolean> {
@@ -789,16 +790,28 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
     transcript.finishTextSegment();
     if (roundFailure) await reportFailure(WORKFLOW_NAME, roundFailure, payload.tenant);
-    if (budgetStop || safetyStop || roundFailure) {
-      const message = budgetStop
-        ? await resolveCreditLimitMessage(payload.locale)
-        : await resolveSafetyStopMessage(payload.locale);
+
+    const stopKind: AgentRunnerMessageKind | null = budgetStop
+      ? "creditLimit"
+      : roundFailure
+        ? "turnError"
+        : safetyStop
+          ? "safetyLimit"
+          : finishReason === "length"
+            ? "outputLimit"
+            : null;
+    if (stopKind) {
+      const message = await resolveRunnerMessage(payload.locale, stopKind);
       const trailing = transcript.replyText.trim() ? `\n\n${message}` : message;
       transcript.appendText(trailing);
       await publishAssistantText(trailing);
     }
     transcript.failUnfinishedTools(cancelled ? "cancelled" : "error", true);
-    if (transcript.replyParts.length === 0) transcript.appendText(" ");
+    if (transcript.replyParts.length === 0) {
+      const message = await resolveRunnerMessage(payload.locale, "emptyReply");
+      transcript.appendText(message);
+      await publishAssistantText(message);
+    }
     await publishTranscriptEvents(queued.splice(0));
 
     await finalizeTurn(payload, {

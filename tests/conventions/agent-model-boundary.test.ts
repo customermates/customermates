@@ -9,7 +9,7 @@ const MODEL_CALL_PATTERN =
   /\b(?:streamText|generateText|generateObject|streamObject|embed|embedMany)\s*\(|\bnew\s+(?:Agent|WorkflowAgent|ToolLoopAgent)\s*\(/;
 const PROVIDER_FACTORY_PATTERN =
   /\b(?:createOpenAI|createAnthropic|createGoogleGenerativeAI|createGateway|createProviderRegistry|customProvider|wrapProvider)\s*\(/;
-const APPROVED_MODEL_CALL_FILES = ["ee/agent-chat/agent-runner.ts", "workflows/agent-turn.ts"];
+const APPROVED_MODEL_CALL_FILES = ["workflows/agent-turn.ts"];
 
 function productionTypeScriptFiles() {
   return walkFiles(REPO_ROOT, (path) => {
@@ -41,11 +41,8 @@ describe("agent model budget boundary", () => {
   });
 
   it("addresses models by gateway id from the catalog rather than by a hardcoded string", () => {
-    const runner = readFileSync(`${REPO_ROOT}/ee/agent-chat/agent-runner.ts`, "utf8");
     const workflow = readFileSync(`${REPO_ROOT}/workflows/agent-turn.ts`, "utf8");
 
-    expect(runner).toContain("model: ctx.turnBudget.modelSpec");
-    expect(runner).toContain("gateway: { only: [ctx.turnBudget.servingProvider] }");
     expect(workflow).toContain("model: payload.turnBudget.modelSpec");
     expect(workflow).toContain("gateway: { only: [payload.turnBudget.servingProvider] }");
   });
