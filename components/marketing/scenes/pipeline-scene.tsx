@@ -1,6 +1,5 @@
 import { SceneCursor, type CursorWaypoint } from "./scene-cursor";
 import { SceneFrame, SceneWindow, sceneAfter, type SceneBeats, type SceneProps } from "./scene-grammar";
-import { SceneAvatarStack } from "./scene-avatar-stack";
 import {
   AppChip,
   Card,
@@ -42,6 +41,22 @@ const DEALS = [
     value: 212_000,
     owner: OWNERS.max,
     home: "proposal",
+  },
+  {
+    home: "demo",
+    id: "cim",
+    name: "Cloud Infrastructure Migration",
+    org: "Continental",
+    owner: OWNERS.jonas,
+    value: 142_000,
+  },
+  {
+    home: "proposal",
+    id: "dcr",
+    name: "Data Center Refresh",
+    org: "Continental",
+    owner: OWNERS.max,
+    value: 418_500,
   },
   {
     id: "crm",
@@ -155,52 +170,33 @@ export function PipelineScene({ className, film, label, t }: SceneProps) {
                   <div className={DATA_KANBAN_CARDS_CLASS_NAME}>
                     {cards.map((deal) => {
                       const carried = deal.id === CARRIED && offset !== null;
+                      const focal = deal.id === CARRIED;
 
                       return (
                         <Card
                           key={deal.id}
                           className={cn(
                             "relative gap-2 py-3 select-none",
+                            focal && "bg-primary text-primary-foreground",
                             carried && "z-50 shadow-lg shadow-black/20 ring-1 ring-border/60",
                           )}
                           style={carried ? { transform: `translate3d(${offset}px, 0, 0)` } : undefined}
                         >
                           <CardContent className="px-3">
                             <div className="space-y-2">
-                              <div className="text-sm font-medium">{deal.name}</div>
+                              <div className="truncate text-sm font-medium">{deal.name}</div>
 
                               <div className="flex items-center justify-between gap-3 text-sm">
-                                <span className="shrink-0 text-xs text-muted-foreground">Stage</span>
-
-                                <AppChip size="sm" variant={stage.variant}>
-                                  {stage.label}
-                                </AppChip>
-                              </div>
-
-                              <div className="flex items-center justify-between gap-3 text-sm">
-                                <span className="shrink-0 text-xs text-muted-foreground">Deal Value</span>
-
-                                <span className="min-w-0 truncate text-right">{money(deal.value, 2)}</span>
-                              </div>
-
-                              <div className="flex items-center justify-between gap-3 text-sm">
-                                <span className="shrink-0 text-xs text-muted-foreground">Weighted Value</span>
-
-                                <span className="min-w-0 truncate text-right">
-                                  {money((deal.value * stage.weight) / 100, 2)}
+                                <span
+                                  className={cn(
+                                    "shrink-0 text-xs",
+                                    focal ? "text-primary-foreground/70" : "text-muted-foreground",
+                                  )}
+                                >
+                                  Deal Value
                                 </span>
-                              </div>
 
-                              <div className="flex items-center justify-between gap-3 text-sm">
-                                <span className="shrink-0 text-xs text-muted-foreground">Organizations</span>
-
-                                <AppChip size="sm">{deal.org}</AppChip>
-                              </div>
-
-                              <div className="flex items-center justify-between gap-3 text-sm">
-                                <span className="shrink-0 text-xs text-muted-foreground">Assigned</span>
-
-                                <SceneAvatarStack owners={[deal.owner]} />
+                                <span className="min-w-0 truncate text-right">{money(deal.value, 0)}</span>
                               </div>
                             </div>
                           </CardContent>

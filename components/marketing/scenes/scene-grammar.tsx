@@ -59,25 +59,30 @@ export function SceneFrame({
   film?: boolean;
   label?: string;
 }) {
-  const inset =
+  const stillInset =
     crop === "bottom-right"
       ? "left-[5%] top-[8%] right-[-8%]"
       : crop === "bottom"
         ? "left-[6%] top-[9%] right-[6%]"
         : "left-[6%] top-[9%] right-[6%] bottom-[9%]";
 
+  const filmInset =
+    crop === "bottom-right"
+      ? "left-[5%] top-[8%] right-[-8%] bottom-[8%]"
+      : "left-[6%] top-[9%] right-[6%] bottom-[9%]";
+
   return (
     <div
       aria-hidden={label ? undefined : true}
       aria-label={label}
       className={cn(
-        "relative isolate overflow-hidden rounded-card",
-        film ? "scene-frame-film bg-card" : "scene-ground scene-frame",
+        "scene-ground relative isolate overflow-hidden rounded-card",
+        film ? "scene-frame-film" : "scene-frame",
         className,
       )}
       role={label ? "img" : undefined}
     >
-      <div className={cn(film ? "absolute inset-0" : "absolute", film ? undefined : inset)}>{children}</div>
+      <div className={cn("absolute", film ? filmInset : stillInset)}>{children}</div>
     </div>
   );
 }

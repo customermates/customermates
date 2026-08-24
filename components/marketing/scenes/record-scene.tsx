@@ -3,11 +3,7 @@ import { AppChip, Avatar, Card, CardContent } from "./platform";
 
 const OWNER = { name: "Max Bergmann", photo: "/demo/avatars/photos/max-bergmann.png" };
 
-const FIELDS = [
-  { label: "Deal Value", value: "€198,500.00" },
-  { label: "Weighted Value", value: "€119,100.00" },
-  { label: "Service Quantity", value: "162" },
-];
+const FIELDS = [{ label: "Deal Value", value: "€198,500" }];
 
 export function RecordScene({ className, label }: SceneProps) {
   return (

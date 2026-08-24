@@ -23,12 +23,6 @@ const REPLY = "Great, Leon. I will share the migration checklist today and keep 
 
 const THREAD = [
   {
-    at: "09:31 AM",
-    id: "m2",
-    outbound: true,
-    text: "Appreciate that, Leon. We try to get one useful workflow live quickly, then expand from evidence.",
-  },
-  {
     at: "10:02 AM",
     id: "m3",
     outbound: false,
@@ -162,7 +156,7 @@ export function ChatDraftScene({ className, film, label, t }: SceneProps) {
                 focused && "ring-[3px] ring-ring/50 ring-inset",
               )}
             >
-              <div className="min-h-[56px] px-3 pt-2.5 text-sm whitespace-pre-wrap">
+              <div className="min-h-14 px-3 pt-2.5 text-sm whitespace-pre-wrap">
                 {composed.visible ? (
                   <>
                     <span>{composed.visible}</span>
