@@ -7,7 +7,7 @@ import { hubPageCountForSource, hubPageHref } from "@/core/seo/hub-pagination";
 import { LANDING_HUBS } from "@/core/seo/landing-hubs";
 import { isRetiredRoutePath } from "@/core/seo/route-aliases";
 import { CONTENT_LOCALES, stripLocalePrefix } from "@/i18n/locale-registry";
-import { SITEMAP_CONTENT_ROUTES } from "@/i18n/routing";
+import { SITEMAP_CODE_ROUTES, SITEMAP_CONTENT_ROUTES, SITEMAP_EXTRA_CONTENT_ROUTES } from "@/i18n/routing";
 import { ROUTE_SOURCE_MAP } from "@/core/fumadocs/route-source-map";
 
 function getLastModified(lastModified: Date | number | undefined) {
@@ -56,6 +56,20 @@ function collectLocalizedRoutes(): LocalizedRoute[] {
         lastModified: getLastModified(page.data.lastModified),
       });
     }
+
+    for (const route of SITEMAP_EXTRA_CONTENT_ROUTES) {
+      const routeMapping = ROUTE_SOURCE_MAP[route];
+      const page = routeMapping.source.getPage(routeMapping.path, locale);
+      if (!page) continue;
+
+      push({
+        locale,
+        routePath: route,
+        lastModified: getLastModified(page.data.lastModified),
+      });
+    }
+
+    for (const route of SITEMAP_CODE_ROUTES) push({ locale, routePath: route });
 
     for (const hub of LANDING_HUBS) {
       const source = ROUTE_SOURCE_MAP[hub.detailRoute].source;

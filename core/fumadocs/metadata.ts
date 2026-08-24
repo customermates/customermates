@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
 
+import { notFound } from "next/navigation";
+
 import { ROUTE_SOURCE_MAP } from "./route-source-map";
 
 import { env } from "@/env";
 import { buildAlternateLanguages } from "@/core/seo/alternates";
-import { CONTENT_LOCALES, buildLocalePath } from "@/i18n/locale-registry";
+import { CONTENT_LOCALES, buildLocalePath, isContentLocale } from "@/i18n/locale-registry";
 import { isNoindexPublicRoute } from "@/i18n/routing";
 
 type GenerateMetadataParams = {
   canonicalPath?: string;
   locale: string;
+  noindex?: boolean;
   route: keyof typeof ROUTE_SOURCE_MAP;
   params?: Record<string, string>;
   type?: "article" | "website";
@@ -17,6 +20,7 @@ type GenerateMetadataParams = {
 export function generateMetadataFromMeta({
   canonicalPath,
   locale,
+  noindex: noindexOverride,
   route,
   params = {},
   type = "website",
@@ -24,13 +28,17 @@ export function generateMetadataFromMeta({
   const { source, path: mappedPath } = ROUTE_SOURCE_MAP[route];
   const path = mappedPath.map((part) => (part.startsWith(":") ? (params[part.slice(1)] ?? part) : part));
   const page = source.getPage(path, locale);
+  const isSlugRoute = mappedPath.some((part) => part.startsWith(":"));
 
-  if (!page) return {};
+  if (!page) {
+    if (isSlugRoute || !isContentLocale(locale)) notFound();
+    throw new Error(`No content page backs ${route} in locale ${locale}; it would ship with no canonical`);
+  }
 
   const title = page.data.title?.trim() || "";
   const description = page.data.description?.trim() || "";
 
-  if (!title) return {};
+  if (!title) throw new Error(`The content page backing ${route} in locale ${locale} has no title`);
 
   const routePath = buildRoutePath(route, params);
   const publicPath = canonicalPath ?? routePath;
@@ -49,7 +57,7 @@ export function generateMetadataFromMeta({
     width: 1200,
   };
 
-  const noindex = isNoindexPublicRoute(route);
+  const noindex = noindexOverride ?? isNoindexPublicRoute(route);
 
   const metadata: Metadata = {
     alternates: alternates && !noindex ? { canonical, languages: alternates } : { canonical },
