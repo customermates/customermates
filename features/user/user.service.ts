@@ -6,6 +6,7 @@ import { Status } from "@/generated/prisma";
 import type { Action, Resource } from "@/generated/prisma";
 
 import { AppErrorCode, AuthError, ForbiddenError } from "@/core/errors/app-errors";
+import { tenantStorage } from "@/core/decorators/tenant-context";
 
 export type { TenantUser } from "./user.schema";
 
@@ -47,6 +48,22 @@ export class UserService {
     if (user.status !== Status.active) throw new ForbiddenError("User is not active", AppErrorCode.inactiveUser);
 
     return user;
+  }
+
+  async getActiveTenantUserOrThrow(): Promise<TenantUser> {
+    const ambient = tenantStorage.getStore()?.user;
+    if (!ambient) return this.getActiveUserOrThrow();
+
+    if (ambient.status !== Status.active) throw new ForbiddenError("User is not active", AppErrorCode.inactiveUser);
+
+    return ambient;
+  }
+
+  hasPermissionForUser(user: TenantUser, resource: Resource, action: Action): boolean {
+    if (!user.role) return false;
+    if (user.role.isSystemRole) return true;
+
+    return user.role.permissions.some((p) => p.resource === resource && p.action === action);
   }
 
   async getActiveUserByIdOrThrow(userId: string) {

@@ -59,7 +59,13 @@ export function createMockDiModule(getMockUser: () => TenantUser) {
   return {
     getUserService: () => ({
       getActiveUserOrThrow: vi.fn().mockResolvedValue(getMockUser()),
+      getActiveTenantUserOrThrow: vi.fn().mockResolvedValue(getMockUser()),
       getUser: vi.fn().mockResolvedValue(getMockUser()),
+      hasPermissionForUser: vi.fn().mockImplementation((user: TenantUser, resource: Resource, action: Action) => {
+        if (!user.role) return false;
+        if (user.role.isSystemRole) return true;
+        return user.role.permissions.some((p) => p.resource === resource && p.action === action);
+      }),
       hasPermission: vi.fn().mockImplementation((resource: Resource, action: Action) => {
         const user = getMockUser();
         if (!user.role) return false;

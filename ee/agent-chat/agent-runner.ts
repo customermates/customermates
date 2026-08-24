@@ -131,7 +131,7 @@ function isAgentTimeoutError(error: unknown) {
   return false;
 }
 
-async function createSupportTicket(
+export async function createAgentSupportTicket(
   conversationId: string,
   subject: string,
   body: string,
@@ -319,7 +319,8 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
             });
           },
           resolveApprovalContext: resolveAgentApprovalContext,
-          createSupportTicket: (_toolCallId, subject, body) => createSupportTicket(ctx.conversationId, subject, body),
+          createSupportTicket: (_toolCallId, subject, body) =>
+            createAgentSupportTicket(ctx.conversationId, subject, body),
           resultMaxChars: resolveAgentToolResultMaxChars(ctx.turnBudget.maxToolResultChars),
         };
         const tools = getAgentAiTools(deps);

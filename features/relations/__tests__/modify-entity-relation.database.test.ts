@@ -29,6 +29,14 @@ vi.mock("@/features/user/user.service", () => ({
       return Promise.resolve(tenantUser);
     }
 
+    getActiveTenantUserOrThrow() {
+      return Promise.resolve(tenantUser);
+    }
+
+    hasPermissionForUser() {
+      return true;
+    }
+
     hasPermission() {
       return Promise.resolve(true);
     }
