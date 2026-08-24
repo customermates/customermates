@@ -147,6 +147,7 @@ function ctx(overrides: Partial<AgentRunContext> = {}): AgentRunContext {
     turnBudget: {
       modelSpec: "openai/gpt-5.6-luna",
       servingProvider: "openai",
+      roundReserveCredits: 1,
       reservedCredits: 44,
       maxSteps: 8,
       maxOutputTokens: 2048,

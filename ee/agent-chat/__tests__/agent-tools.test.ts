@@ -35,11 +35,7 @@ vi.mock("next-intl/server", () => ({
 import { searchDocsTool } from "@/features/mcp-tools/docs.mcp-tools";
 import { ALL_MCP_TOOLS } from "@/features/mcp-tools/tool-registry";
 
-import {
-  AGENT_MIN_STEPS_WITH_FULL_TOOL_CATALOG,
-  agentContextTokensToBytes,
-  resolveAgentTurnBudget,
-} from "../agent-budget-policy";
+import { agentContextTokensToBytes, resolveAgentTurnBudget } from "../agent-budget-policy";
 import { conservativeAgentInitialContextBytes } from "../agent-provider-context";
 import { MODEL_CATALOG } from "../model-catalog";
 import { buildAgentSystemPrompt } from "../system-prompt";
@@ -246,31 +242,14 @@ describe("agent tools", () => {
     const model = MODEL_CATALOG.balanced;
     expect(requiredContextBytes).not.toBeNull();
     expect(requiredContextBytes).toBeLessThan(agentContextTokensToBytes(model.maxContextTokens));
-    expect(
-      resolveAgentTurnBudget({
-        model,
-        availableCredits: 1,
-        requiredContextBytes: requiredContextBytes ?? 0,
-        minimumSteps: AGENT_MIN_STEPS_WITH_FULL_TOOL_CATALOG,
-      }),
-    ).toBeNull();
     const funded = resolveAgentTurnBudget({
       model,
-      availableCredits: 44,
+      availableCredits: 1,
       requiredContextBytes: requiredContextBytes ?? 0,
-      minimumSteps: AGENT_MIN_STEPS_WITH_FULL_TOOL_CATALOG,
     });
-    expect(funded?.maxSteps).toBeGreaterThanOrEqual(AGENT_MIN_STEPS_WITH_FULL_TOOL_CATALOG);
+    expect(funded?.maxSteps).toBe(model.maxSteps);
     expect(funded?.maxContextBytes).toBeGreaterThanOrEqual(requiredContextBytes ?? Number.POSITIVE_INFINITY);
-
-    const longFunded = resolveAgentTurnBudget({
-      model,
-      availableCredits: 500,
-      requiredContextBytes: requiredContextBytes ?? 0,
-      minimumSteps: AGENT_MIN_STEPS_WITH_FULL_TOOL_CATALOG,
-    });
-    expect(longFunded?.maxSteps).toBe(model.maxSteps);
-    expect(longFunded?.maxOutputTokens).toBeGreaterThanOrEqual(800);
+    expect(funded?.maxOutputTokens).toBe(model.maxOutputTokens);
   });
 
   it("publishes the preferred custom-field option shape to the hosted provider", () => {

@@ -1693,6 +1693,60 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
   }
 
   @BypassTenantGuard
+  async extendUsageReservationUnscoped(args: {
+    turnRequestId: string;
+    companyId: string;
+    userId: string;
+    requiredCredits: number;
+  }): Promise<number | null> {
+    if (!Number.isSafeInteger(args.requiredCredits) || args.requiredCredits < 1)
+      throw new Error("Agent credit reservation extension is invalid.");
+
+    return this.withCompanyTransaction(args.companyId, async () => {
+      const reservation = await this.prisma.agentUsageEvent.findFirst({
+        where: {
+          turnRequestId: args.turnRequestId,
+          companyId: args.companyId,
+          userId: args.userId,
+          state: "reserved",
+        },
+        select: {
+          id: true,
+          reservedCredits: true,
+          periodStart: true,
+          periodEnd: true,
+          allowanceCreditsSnapshot: true,
+        },
+      });
+      if (!reservation) return null;
+      if (reservation.reservedCredits >= args.requiredCredits) return reservation.reservedCredits;
+
+      const others = await this.prisma.agentUsageEvent.findMany({
+        where: {
+          companyId: args.companyId,
+          userId: args.userId,
+          periodStart: reservation.periodStart,
+          periodEnd: reservation.periodEnd,
+          state: { in: ["reserved", "settled", "retained"] },
+          id: { not: reservation.id },
+        },
+        select: { state: true, reservedCredits: true, chargedCredits: true },
+      });
+      const committedElsewhere = others.reduce(
+        (total, item) => total + (item.state === "reserved" ? item.reservedCredits : item.chargedCredits),
+        0,
+      );
+      if (committedElsewhere + args.requiredCredits > reservation.allowanceCreditsSnapshot) return null;
+
+      const extended = await this.prisma.agentUsageEvent.updateMany({
+        where: { id: reservation.id, companyId: args.companyId, state: "reserved" },
+        data: { reservedCredits: args.requiredCredits },
+      });
+      return extended.count === 1 ? args.requiredCredits : null;
+    });
+  }
+
+  @BypassTenantGuard
   async releaseUsageReservationUnscoped(args: { id: string; companyId: string; userId: string; releasedAt: Date }) {
     const { releasedAt, ...where } = args;
     await this.prisma.agentUsageEvent.updateMany({

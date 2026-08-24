@@ -30,6 +30,7 @@ import { buildAgentProviderContext } from "@/ee/agent-chat/agent-provider-contex
 import { buildAgentSystemPrompt } from "@/ee/agent-chat/system-prompt";
 import { buildTurnUsageSettlement, usageToTokenCounts } from "@/ee/agent-chat/llm.service";
 import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
+import { agentCreditsForStartedProviderCost } from "@/ee/agent-chat/agent-credit-policy";
 import { createAgentSupportTicket } from "@/ee/agent-chat/agent-runner";
 import { describeAgentTool } from "@/ee/agent-chat/agent-activity";
 import { agentToolOutcomeStatus, AGENT_TRANSCRIPT_FORWARDED_EVENTS } from "@/ee/agent-chat/agent-durable-stream";
@@ -278,7 +279,30 @@ async function publishAssistantText(text: string): Promise<void> {
 async function resolveSafetyStopMessage(locale: string): Promise<string> {
   "use step";
   const { agentTranslator } = await import("@/ee/agent-chat/agent-translator");
-  return agentTranslator(locale)("AgentChat.runner.safetyLimit");
+  const t = agentTranslator(locale);
+  return t("AgentChat.runner.safetyLimit");
+}
+
+async function ensureTurnReservation(
+  payload: AgentTurnWorkflowPayload,
+  requiredCredits: number,
+): Promise<number | null> {
+  "use step";
+  return runAsBackgroundTenant(payload.userId, () =>
+    getAgentChatRepo().extendUsageReservationUnscoped({
+      turnRequestId: payload.turnRequestId,
+      companyId: payload.companyId,
+      userId: payload.userId,
+      requiredCredits,
+    }),
+  );
+}
+
+async function resolveCreditLimitMessage(locale: string): Promise<string> {
+  "use step";
+  const { agentTranslator } = await import("@/ee/agent-chat/agent-translator");
+  const t = agentTranslator(locale);
+  return t("AgentChat.runner.creditLimit");
 }
 
 async function readCancellation(payload: AgentTurnWorkflowPayload): Promise<boolean> {
@@ -405,6 +429,7 @@ async function finalizeTurn(
     affectedResources: AgentActivityResource[];
     tokens: TokenCounts;
     ledger: RoundLedgerEntry[];
+    reservedCredits: number;
   },
 ): Promise<void> {
   "use step";
@@ -423,7 +448,7 @@ async function finalizeTurn(
       affectedResources: outcome.affectedResources,
       usageSettlement: buildTurnUsageSettlement(payload.turnBudget.modelSpec, outcome.tokens, {
         provider: payload.turnBudget.servingProvider,
-        reservedCredits: payload.turnBudget.reservedCredits,
+        reservedCredits: outcome.reservedCredits,
         providerCharge: {
           billed: outcome.ledger.length > 0,
           measuredCostMicrocents:
@@ -493,6 +518,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const continuationSteps: AgentContinuationStep[] = [];
     const continuationLimits = agentDurableContinuationLimits(payload.turnBudget.maxSteps);
     let safetyStop: string | null = null;
+    let budgetStop = false;
+    let reservedCredits = payload.turnBudget.reservedCredits;
     let roundFailure: WorkflowFailure | null = null;
     const settledToolCallIds = new Set<string>();
 
@@ -558,6 +585,15 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         cancelled ||= roundCancelled;
         await publishTranscriptEvents(queued.splice(0));
 
+        const accruedMicrocents = ledger.reduce((total, entry) => total + entry.costMicrocents, 0);
+        const requiredCredits =
+          agentCreditsForStartedProviderCost(accruedMicrocents) + payload.turnBudget.roundReserveCredits;
+        if (requiredCredits > reservedCredits) {
+          const extended = await ensureTurnReservation(payload, requiredCredits);
+          if (extended === null) budgetStop = true;
+          else reservedCredits = extended;
+        }
+
         continuationSteps.push(toAgentContinuationStep(step, outcomes));
         const loop = decideAgentContinuationLoop(
           { startedAtMs: 0, steps: continuationSteps, observedAtMs: 0 },
@@ -571,7 +607,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
     let messages = providerContext.messages;
 
-    while (!cancelled && safetyStop === null && roundFailure === null) {
+    while (!cancelled && !budgetStop && safetyStop === null && roundFailure === null) {
       const agent = new WorkflowAgent({
         id: WORKFLOW_NAME,
         model: payload.turnBudget.modelSpec,
@@ -608,7 +644,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         },
         stopWhen: [
           isStepCount(payload.turnBudget.maxSteps),
-          () => cancelled || safetyStop !== null || roundFailure !== null,
+          () => cancelled || budgetStop || safetyStop !== null || roundFailure !== null,
         ],
         onToolExecutionEnd: (event) => {
           completedTools.push(
@@ -723,8 +759,10 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
     transcript.finishTextSegment();
     if (roundFailure) await reportFailure(WORKFLOW_NAME, roundFailure, payload.tenant);
-    if (safetyStop || roundFailure) {
-      const message = await resolveSafetyStopMessage(payload.locale);
+    if (budgetStop || safetyStop || roundFailure) {
+      const message = budgetStop
+        ? await resolveCreditLimitMessage(payload.locale)
+        : await resolveSafetyStopMessage(payload.locale);
       const trailing = transcript.replyText.trim() ? `\n\n${message}` : message;
       transcript.appendText(trailing);
       await publishAssistantText(trailing);
@@ -743,6 +781,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       affectedResources: transcript.affectedResources,
       tokens,
       ledger,
+      reservedCredits,
     });
     await closeTurnStream();
   } catch (error) {

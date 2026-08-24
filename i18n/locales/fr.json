@@ -329,6 +329,7 @@
     "placeholder": "Interrogez votre CRM…",
     "runner": {
       "cancelled": "Cette réponse a été arrêtée.",
+      "creditLimit": "J'ai traité une partie de cette demande, puis je me suis arrêté car vos crédits Assistant sont épuisés. Le travail effectué est conservé ; les crédits sont réinitialisés au début de votre prochaine période.",
       "emptyReply": "Je n'ai pas pu générer de réponse. Veuillez réessayer.",
       "maxSteps": "J’ai réalisé une partie de cette demande, mais j’ai atteint la limite d’étapes de ce tour. Demandez-moi de continuer et je reprendrai à partir du travail déjà effectué.",
       "outputLimit": "J’ai rédigé une partie de cette réponse, mais j’ai atteint la limite de sortie de ce tour. Demandez-moi de continuer et je terminerai à partir du travail déjà effectué.",

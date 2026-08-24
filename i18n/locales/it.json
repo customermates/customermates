@@ -329,6 +329,7 @@
     "placeholder": "Chiedi al tuo CRM…",
     "runner": {
       "cancelled": "Questa risposta è stata interrotta.",
+      "creditLimit": "Ho completato una parte di questa richiesta, ma mi sono fermato perché i tuoi crediti Assistant sono esauriti. Il lavoro completato resta valido; i crediti si azzerano all'inizio del prossimo periodo.",
       "emptyReply": "Non sono riuscito a generare una risposta. Riprova.",
       "maxSteps": "Ho completato parte della richiesta, ma ho raggiunto il limite di passaggi di questo turno. Chiedimi di continuare e riprenderò dal lavoro già completato.",
       "outputLimit": "Ho completato parte della risposta, ma ho raggiunto il limite di output di questo turno. Chiedimi di continuare e terminerò dal lavoro già completato.",

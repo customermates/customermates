@@ -32,7 +32,6 @@ import {
   AGENT_REPLAY_MAX_CHARS,
   conservativeAgentInitialContextBytes,
 } from "./agent-provider-context";
-import { AGENT_MIN_STEPS_WITH_FULL_TOOL_CATALOG } from "./agent-budget-policy";
 import { resolveAgentModel } from "./model-catalog";
 import { assertInvariant } from "@/core/errors/assert-invariant";
 import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
@@ -188,7 +187,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     const creditAdmission = await this.usageService.prepareTurn(user.id, now, {
       model,
       requiredContextBytes,
-      minimumSteps: AGENT_MIN_STEPS_WITH_FULL_TOOL_CATALOG,
     });
     const reservation = creditAdmission.reservation;
     if (!reservation) return createInteractorFailure(CustomErrorCode.agentLimitReached);

@@ -2,8 +2,9 @@ import type { ModelMessage } from "ai";
 import { describe, expect, it } from "vitest";
 
 import {
-  AGENT_MIN_OUTPUT_TOKENS_PER_STEP,
+  AGENT_RESERVATION_ROUNDS_AHEAD,
   agentContextTokensToBytes,
+  agentRoundWorstCaseCredits,
   agentTurnWorstCaseUsd,
   isAgentContextWithinBudget,
   resolveAgentTurnBudget,
@@ -16,7 +17,7 @@ const BALANCED = MODEL_CATALOG.balanced;
 const FAST = MODEL_CATALOG.fast;
 
 describe("agent turn credit budget", () => {
-  it("uses each model's own full envelope when the user has enough credits", () => {
+  it("gives every model its own full envelope, because affordability is no longer a smaller envelope", () => {
     for (const model of [FAST, BALANCED]) {
       const budget = resolveAgentTurnBudget({ model, availableCredits: 500 });
 
@@ -30,8 +31,16 @@ describe("agent turn credit budget", () => {
           maxContextBytes: agentContextTokensToBytes(model.maxContextTokens),
         }),
       );
-      expect(budget?.reservedCredits).toBe(Math.ceil(agentTurnWorstCaseUsd(model) / 0.01));
     }
+  });
+
+  it("reserves a few rounds ahead rather than a whole worst-case turn", () => {
+    const budget = resolveAgentTurnBudget({ model: BALANCED, availableCredits: 500 });
+    const perRound = agentRoundWorstCaseCredits(BALANCED);
+
+    expect(budget?.roundReserveCredits).toBe(perRound);
+    expect(budget?.reservedCredits).toBe(perRound * AGENT_RESERVATION_ROUNDS_AHEAD);
+    expect(budget?.reservedCredits).toBeLessThan(Math.ceil(agentTurnWorstCaseUsd(BALANCED) / 0.01));
   });
 
   it("reserves strictly less for the cheaper model at the same envelope", () => {
@@ -41,42 +50,22 @@ describe("agent turn credit budget", () => {
     expect(fast?.reservedCredits).toBeLessThan(balanced?.reservedCredits ?? 0);
   });
 
-  it("shrinks the provider envelope to the user's remaining credits", () => {
-    const budget = resolveAgentTurnBudget({ model: BALANCED, availableCredits: 3 });
+  it("never reserves more than the user actually has left", () => {
+    const budget = resolveAgentTurnBudget({ model: BALANCED, availableCredits: 1 });
 
-    expect(budget).not.toBeNull();
-    expect(budget?.reservedCredits).toBe(3);
-    if (!budget) throw new Error("Expected a three-credit turn budget.");
-    expect(agentTurnWorstCaseUsd(BALANCED, budget)).toBeLessThanOrEqual(0.03);
+    expect(budget?.reservedCredits).toBe(1);
+    expect(budget?.maxSteps).toBe(BALANCED.maxSteps);
   });
 
-  it("can safely admit a final one-credit request", () => {
+  it("admits a user with a single credit left, who tops up as the turn proceeds", () => {
     const budget = resolveAgentTurnBudget({ model: BALANCED, availableCredits: 1 });
 
     expect(budget).not.toBeNull();
-    expect(budget?.reservedCredits).toBe(1);
-    expect(budget?.maxSteps).toBeGreaterThanOrEqual(1);
-    if (!budget) throw new Error("Expected a one-credit turn budget.");
-    expect(agentTurnWorstCaseUsd(BALANCED, budget)).toBeLessThanOrEqual(0.01);
+    expect(budget?.reservedCredits).toBeGreaterThanOrEqual(1);
   });
 
-  it("rejects a turn when its required workflow cannot fit the funded step count", () => {
-    expect(
-      resolveAgentTurnBudget({
-        model: BALANCED,
-        availableCredits: 1,
-        requiredContextBytes: 90_000,
-        minimumSteps: 4,
-      }),
-    ).toBeNull();
-    expect(
-      resolveAgentTurnBudget({
-        model: BALANCED,
-        availableCredits: 500,
-        requiredContextBytes: 90_000,
-        minimumSteps: 4,
-      }),
-    ).toEqual(expect.objectContaining({ maxSteps: BALANCED.maxSteps }));
+  it("refuses a user with no credits at all", () => {
+    expect(resolveAgentTurnBudget({ model: BALANCED, availableCredits: 0 })).toBeNull();
   });
 
   it("refuses a context the model's envelope cannot hold", () => {
@@ -89,38 +78,11 @@ describe("agent turn credit budget", () => {
     ).toBeNull();
   });
 
-  it("funds a long full-catalog workflow without starving tool-call output", () => {
-    const budget = resolveAgentTurnBudget({
-      model: BALANCED,
-      availableCredits: 500,
-      requiredContextBytes: 160_000,
-      minimumSteps: 4,
-    });
+  it("keeps the full tool-result allowance, which the old ladder used to trim away", () => {
+    const budget = resolveAgentTurnBudget({ model: BALANCED, availableCredits: 500 });
 
-    expect(budget).toEqual(
-      expect.objectContaining({
-        maxSteps: BALANCED.maxSteps,
-        maxContextTokens: BALANCED.maxContextTokens,
-      }),
-    );
-    expect(budget?.maxOutputTokens).toBeGreaterThanOrEqual(800);
-    expect(budget?.maxToolResultChars).toBeGreaterThanOrEqual(512);
+    expect(budget?.maxToolResultChars).toBe(BALANCED.maxToolResultChars);
   });
-
-  it.each([20, 28, 34, 40])(
-    "preserves useful model output before adding steps with %i credits remaining",
-    (availableCredits) => {
-      const budget = resolveAgentTurnBudget({
-        model: BALANCED,
-        availableCredits,
-        requiredContextBytes: 160_000,
-        minimumSteps: 4,
-      });
-
-      expect(budget).not.toBeNull();
-      expect(budget?.maxOutputTokens).toBeGreaterThanOrEqual(AGENT_MIN_OUTPUT_TOKENS_PER_STEP);
-    },
-  );
 
   it("measures the pricing-tier envelope in prompt tokens, per model", () => {
     expect(isAgentModelWithinBudgetEnvelope(FAST)).toBe(true);
