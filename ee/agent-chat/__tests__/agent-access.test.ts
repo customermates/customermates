@@ -90,6 +90,9 @@ describe("agent access", () => {
       normalizeExpiredAgentRunLease: vi.fn(),
       findAgentTurnRequestForAdmission: vi.fn(),
       claimAgentRunLease: vi.fn(),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
       admitAgentTurnOrThrow: vi.fn(),
     };
     const usage = usageService();
@@ -128,7 +131,10 @@ describe("agent access", () => {
     const repo = {
       normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
       findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
-      claimAgentRunLease: vi.fn().mockResolvedValue(true),
+      claimAgentRunLease: vi.fn().mockResolvedValue("claimed"),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
       admitAgentTurnOrThrow: vi.fn().mockImplementation((args) => {
         persistedUserMessageId = args.turn.userMessageId;
         return Promise.resolve({
@@ -167,7 +173,7 @@ describe("agent access", () => {
     expect(result.data.locale).toBe("de");
     expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
       expect.objectContaining({
-        conversationId: null,
+        conversationId: expect.any(String),
         runId: expect.any(String),
         turn: expect.objectContaining({
           kind: "create",
@@ -178,7 +184,9 @@ describe("agent access", () => {
         }),
       }),
     );
-    expect(repo.claimAgentRunLease).toHaveBeenCalledWith(expect.any(String), expect.any(Date));
+    expect(repo.claimAgentRunLease).toHaveBeenCalledWith(
+      expect.objectContaining({ conversationId: expect.any(String), runId: expect.any(String) }),
+    );
     expect(repo.claimAgentRunLease).toHaveBeenCalledBefore(usage.reserveUsage);
     expect(usage.reserveUsage).toHaveBeenCalledBefore(repo.admitAgentTurnOrThrow);
     expect(MOCK_PRISMA_DB_MODULE.prisma.$transaction).toHaveBeenCalledOnce();
@@ -189,6 +197,9 @@ describe("agent access", () => {
       normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
       findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
       claimAgentRunLease: vi.fn(),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
     };
     const usage = usageService();
     usage.prepareTurn.mockResolvedValue({
@@ -227,7 +238,10 @@ describe("agent access", () => {
     const repo = {
       normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
       findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
-      claimAgentRunLease: vi.fn().mockResolvedValue(true),
+      claimAgentRunLease: vi.fn().mockResolvedValue("claimed"),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
       findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),
       listRecentMessages: vi.fn().mockResolvedValue([]),
       admitAgentTurnOrThrow: vi.fn().mockImplementation((args) =>
@@ -267,7 +281,10 @@ describe("agent access", () => {
     const repo = {
       normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
       findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
-      claimAgentRunLease: vi.fn().mockResolvedValue(true),
+      claimAgentRunLease: vi.fn().mockResolvedValue("claimed"),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
       findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),
       listRecentMessages: vi.fn(),
       admitAgentTurnOrThrow: vi.fn().mockImplementation((args) =>
@@ -335,6 +352,9 @@ describe("agent access", () => {
         },
       }),
       claimAgentRunLease: vi.fn(),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
     };
 
     const result = await new SendAgentMessageInteractor(repo as never, usage as never, mockEntitlementService()).invoke(
@@ -382,6 +402,9 @@ describe("agent access", () => {
         },
       }),
       claimAgentRunLease: vi.fn(),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
     };
 
     const result = await new SendAgentMessageInteractor(repo as never, usage as never, mockEntitlementService()).invoke(
@@ -417,7 +440,10 @@ describe("agent access", () => {
     const repo = {
       normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
       findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue({ snapshot: failedTurn, assistantMessage: null }),
-      claimAgentRunLease: vi.fn().mockResolvedValue(true),
+      claimAgentRunLease: vi.fn().mockResolvedValue("claimed"),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
       findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),
       listRecentMessages: vi.fn().mockResolvedValue([
         {
@@ -489,6 +515,9 @@ describe("agent access", () => {
         assistantMessage: null,
       }),
       claimAgentRunLease: vi.fn(),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
     };
 
     const result = await new SendAgentMessageInteractor(repo as never, usage as never, mockEntitlementService()).invoke(
@@ -509,7 +538,10 @@ describe("agent access", () => {
     const repo = {
       normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
       findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
-      claimAgentRunLease: vi.fn().mockResolvedValue(true),
+      claimAgentRunLease: vi.fn().mockResolvedValue("claimed"),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
       findConversation: vi.fn().mockResolvedValue(null),
       admitAgentTurnOrThrow: vi.fn(),
     };
@@ -536,7 +568,10 @@ describe("agent access", () => {
     const repo = {
       normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
       findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
-      claimAgentRunLease: vi.fn().mockResolvedValue(false),
+      claimAgentRunLease: vi.fn().mockResolvedValue("conversationBusy"),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
       admitAgentTurnOrThrow: vi.fn(),
       releasePreProviderAdmissionOrThrowUnscoped: vi.fn().mockResolvedValue({ disposition: "released" }),
     };
@@ -564,7 +599,10 @@ describe("agent access", () => {
     const repo = {
       normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
       findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
-      claimAgentRunLease: vi.fn().mockResolvedValue(true),
+      claimAgentRunLease: vi.fn().mockResolvedValue("claimed"),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
       admitAgentTurnOrThrow: vi.fn().mockRejectedValue(failure),
       releasePreProviderAdmissionOrThrowUnscoped: vi.fn().mockResolvedValue({ disposition: "released" }),
     };
@@ -600,7 +638,10 @@ describe("agent access", () => {
     const repo = {
       normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
       findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
-      claimAgentRunLease: vi.fn().mockResolvedValue(true),
+      claimAgentRunLease: vi.fn().mockResolvedValue("claimed"),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
       admitAgentTurnOrThrow: vi.fn(),
       releasePreProviderAdmissionOrThrowUnscoped: vi.fn().mockResolvedValue({ disposition: "released" }),
     };
@@ -629,7 +670,10 @@ describe("agent access", () => {
     const repo = {
       normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
       findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
-      claimAgentRunLease: vi.fn().mockResolvedValue(true),
+      claimAgentRunLease: vi.fn().mockResolvedValue("claimed"),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
       admitAgentTurnOrThrow: vi.fn().mockRejectedValue(admissionFailure),
       releasePreProviderAdmissionOrThrowUnscoped: vi.fn().mockRejectedValue(cleanupFailure),
     };

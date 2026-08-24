@@ -195,14 +195,24 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
 
     const runId = randomUUID();
     const reservationId = randomUUID();
+    const conversationId = conversation?.id ?? randomUUID();
+    const conversationIsNew = !conversation;
     try {
       const claimed = await runInTransaction(async () => {
         const phaseOneAt = new Date();
-        const leaseClaimed = await this.repo.claimAgentRunLease(
+        if (conversationIsNew) {
+          if (await this.repo.isAtAgentRunLimit(phaseOneAt)) return false;
+          await this.repo.createAgentConversationForRun({ conversationId, title: data.text, now: phaseOneAt });
+        }
+
+        const lease = await this.repo.claimAgentRunLease({
+          conversationId,
           runId,
-          new Date(phaseOneAt.getTime() + AGENT_RUN_LEASE_MS),
-        );
-        if (!leaseClaimed) return false;
+          expiresAt: new Date(phaseOneAt.getTime() + AGENT_RUN_LEASE_MS),
+          now: phaseOneAt,
+        });
+        if (lease !== "claimed") return false;
+
         await this.usageService.reserveUsage({
           reservationId,
           companyId: user.companyId,
@@ -216,7 +226,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       const turnRequestId = decision.disposition === "retry" ? decision.turn.id : randomUUID();
       const userMessageId = decision.disposition === "retry" ? decision.turn.userMessageId : randomUUID();
       const admission = await this.repo.admitAgentTurnOrThrow({
-        conversationId: conversation?.id ?? null,
+        conversationId,
         title: data.text,
         runId,
         reservationId,
@@ -278,6 +288,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           runId,
           reservationId,
         });
+        if (conversationIsNew) await this.repo.deleteUnusedAgentConversation(conversationId);
       } catch (cleanupError) {
         Sentry.captureException(cleanupError, {
           tags: { kind: "agent-admission-cleanup-failure" },

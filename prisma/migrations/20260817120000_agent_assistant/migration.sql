@@ -157,13 +157,14 @@ CREATE TABLE "AgentUiCommandResult" (
 
 -- CreateTable
 CREATE TABLE "AgentRunLease" (
-    "userId" TEXT NOT NULL,
+    "conversationId" TEXT NOT NULL,
     "companyId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
     "runId" TEXT NOT NULL,
     "expiresAt" TIMESTAMP(3) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "AgentRunLease_pkey" PRIMARY KEY ("userId")
+    CONSTRAINT "AgentRunLease_pkey" PRIMARY KEY ("conversationId")
 );
 
 -- CreateIndex
@@ -217,6 +218,9 @@ CREATE INDEX "AgentRunLease_companyId_idx" ON "AgentRunLease"("companyId");
 -- CreateIndex
 CREATE INDEX "AgentRunLease_expiresAt_idx" ON "AgentRunLease"("expiresAt");
 
+-- CreateIndex
+CREATE INDEX "AgentRunLease_companyId_userId_expiresAt_idx" ON "AgentRunLease"("companyId", "userId", "expiresAt");
+
 -- AddForeignKey
 ALTER TABLE "AgentConversation" ADD CONSTRAINT "AgentConversation_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -252,6 +256,9 @@ ALTER TABLE "AgentUiCommandResult" ADD CONSTRAINT "AgentUiCommandResult_companyI
 
 -- AddForeignKey
 ALTER TABLE "AgentUiCommandResult" ADD CONSTRAINT "AgentUiCommandResult_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "AgentConversation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentRunLease" ADD CONSTRAINT "AgentRunLease_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "AgentConversation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "AgentRunLease" ADD CONSTRAINT "AgentRunLease_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

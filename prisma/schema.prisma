@@ -192,7 +192,7 @@ model User {
   p13n                            P13n[]
   connectedAccounts               ConnectedAccount[]
   agentConversations              AgentConversation[]
-  agentRunLease                   AgentRunLease?
+  agentRunLeases                  AgentRunLease[]
 
   @@index([companyId])
   @@index([companyId, status])
@@ -1613,6 +1613,7 @@ model AgentConversation {
   approvals        AgentApproval[]
   uiCommandResults AgentUiCommandResult[]
   turnRequests     AgentTurnRequest[]
+  runLease         AgentRunLease?
 
   @@index([companyId, userId, archivedAt, updatedAt])
   @@index([companyId, userId, archivedAt, selectedAt])
@@ -1831,16 +1832,19 @@ enum AgentToolReceiptState {
 }
 
 model AgentRunLease {
-  userId    String   @id
-  companyId String
-  runId     String
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  conversationId String            @id
+  companyId      String
+  userId         String
+  runId          String
+  expiresAt      DateTime
+  createdAt      DateTime          @default(now())
+  conversation   AgentConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company        Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   @@index([companyId])
   @@index([expiresAt])
+  @@index([companyId, userId, expiresAt])
 }
 
 enum AgentApprovalDecision {

@@ -1,0 +1,1 @@
+export const AGENT_MAX_CONCURRENT_RUNS_PER_USER = 3;

@@ -16,6 +16,7 @@ import { env } from "@/env";
 
 import type { AgentUsageRepo } from "./agent-usage.service";
 import { AGENT_CONVERSATION_PAGE_SIZE, AGENT_MESSAGE_PAGE_SIZE, type AgentConversationPage } from "./agent-history";
+import { AGENT_MAX_CONCURRENT_RUNS_PER_USER } from "./agent-run-limits";
 import { clientSafeAgentMessageParts, hasRenderableAgentMessageParts, partsToText } from "./agent-chat.schema";
 import {
   isPendingAgentApprovalToolName,
@@ -70,7 +71,7 @@ export type FinalizedAgentTurn = {
 };
 
 type AgentTurnAdmissionArgs = {
-  conversationId: string | null;
+  conversationId: string;
   title: string | null;
   runId: string;
   reservationId: string;
@@ -264,26 +265,12 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       });
       if (!reservation) throw new Error("Agent usage reservation is missing before admission.");
 
-      let conversationId = args.conversationId;
-      if (conversationId) {
-        const conversation = await this.prisma.agentConversation.findFirst({
-          where: { id: conversationId, companyId, userId, archivedAt: null },
-          select: { id: true },
-        });
-        if (!conversation) throw new Error("Conversation not found.");
-      } else {
-        if (args.turn.kind === "retry") throw new Error("Conversation not found.");
-        const conversation = await this.prisma.agentConversation.create({
-          data: {
-            companyId,
-            userId,
-            title: sanitizeAgentConversationTitle(args.title),
-            selectedAt: admittedAt,
-          },
-          select: { id: true },
-        });
-        conversationId = conversation.id;
-      }
+      const conversationId = args.conversationId;
+      const conversation = await this.prisma.agentConversation.findFirst({
+        where: { id: conversationId, companyId, userId, archivedAt: null },
+        select: { id: true },
+      });
+      if (!conversation) throw new Error("Conversation not found.");
 
       if (args.turn.kind === "retry") {
         const retried = await this.prisma.agentTurnRequest.updateMany({
@@ -802,7 +789,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
   }
 
   private async normalizeExpiredAgentRunLeaseInTransaction(now: Date, model: string) {
-    const lease = await this.prisma.agentRunLease.findFirst({
+    const expired = await this.prisma.agentRunLease.findMany({
       where: {
         companyId: this.companyId,
         userId: this.userId,
@@ -810,8 +797,11 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       },
       select: { runId: true, expiresAt: true },
     });
-    if (!lease) return;
 
+    for (const lease of expired) await this.reconcileExpiredLease(lease, now, model);
+  }
+
+  private async reconcileExpiredLease(lease: { runId: string }, now: Date, model: string) {
     const turn = await this.prisma.agentTurnRequest.findFirst({
       where: {
         companyId: this.companyId,
@@ -988,12 +978,54 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     };
   }
 
-  async claimAgentRunLease(runId: string, expiresAt: Date) {
+  async createAgentConversationForRun(args: { conversationId: string; title: string | null; now: Date }) {
+    await this.prisma.agentConversation.create({
+      data: {
+        id: args.conversationId,
+        companyId: this.companyId,
+        userId: this.userId,
+        title: sanitizeAgentConversationTitle(args.title),
+        selectedAt: args.now,
+      },
+      select: { id: true },
+    });
+  }
+
+  async deleteUnusedAgentConversation(conversationId: string) {
+    await this.prisma.agentConversation.deleteMany({
+      where: {
+        id: conversationId,
+        companyId: this.companyId,
+        userId: this.userId,
+        messages: { none: {} },
+        turnRequests: { none: {} },
+      },
+    });
+  }
+
+  async isAtAgentRunLimit(now: Date) {
+    const active = await this.prisma.agentRunLease.count({
+      where: { companyId: this.companyId, userId: this.userId, expiresAt: { gt: now } },
+    });
+    return active >= AGENT_MAX_CONCURRENT_RUNS_PER_USER;
+  }
+
+  async claimAgentRunLease(args: { conversationId: string; runId: string; expiresAt: Date; now: Date }) {
+    if (await this.isAtAgentRunLimit(args.now)) return "atUserLimit" as const;
+
     const claimed = await this.prisma.agentRunLease.createMany({
-      data: [{ userId: this.userId, companyId: this.companyId, runId, expiresAt }],
+      data: [
+        {
+          conversationId: args.conversationId,
+          companyId: this.companyId,
+          userId: this.userId,
+          runId: args.runId,
+          expiresAt: args.expiresAt,
+        },
+      ],
       skipDuplicates: true,
     });
-    return claimed.count === 1;
+    return claimed.count === 1 ? ("claimed" as const) : ("conversationBusy" as const);
   }
 
   @BypassTenantGuard
