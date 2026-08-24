@@ -4,10 +4,15 @@ import { describeAgentTool } from "./agent-activity";
 import { internalToolIdentity } from "./tool-identity";
 import { isAgentToolCancellation } from "./agent-tool-cancellation";
 
-export const AGENT_FORWARDED_WORKFLOW_EVENTS = [
+export const AGENT_TRANSCRIPT_FORWARDED_EVENTS = [
   "activity_superseded",
   "approval_request",
   "approval_resolved",
+] as const;
+
+export const AGENT_CLIENT_PASSTHROUGH_EVENTS = [
+  ...AGENT_TRANSCRIPT_FORWARDED_EVENTS,
+  "activity_result",
   "ui_command",
   "message_committed",
   "turn_done",
@@ -40,7 +45,7 @@ export class AgentDurableStreamReader {
       payload?: Record<string, unknown>;
     };
 
-    if (part.type && (AGENT_FORWARDED_WORKFLOW_EVENTS as readonly string[]).includes(part.type))
+    if (part.type && (AGENT_CLIENT_PASSTHROUGH_EVENTS as readonly string[]).includes(part.type) && part.payload)
       return { type: part.type, payload: part.payload ?? {} };
 
     if (part.type === "text-delta" && part.text) return { type: "delta", payload: { text: part.text } };

@@ -7,6 +7,7 @@ import { RequestSupportSchema } from "@/features/mcp-tools/support.mcp-tools";
 import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 
 import { isReadOnlyTool, requiresApproval } from "./gated-tools";
+import { toAgentUiCommandInput } from "./agent-ui-command";
 import { type AgentToolCancellation as AgentToolCancellationValue } from "./agent-tool-cancellation";
 import {
   AGENT_UI_TARGETS,
@@ -25,14 +26,7 @@ export { isAgentToolCancellation, type AgentToolCancellation } from "./agent-too
 export type ApprovalDecision = "approve" | "reject" | "timeout";
 export type AgentUiCommandOutcome = { ok: boolean; result: string };
 
-export const AGENT_UI_TOOL_NAMES = [
-  "list_ui_targets",
-  "navigate",
-  "highlight_element",
-  "start_tour",
-  "click_ui_target",
-  "open_record",
-] as const;
+export { AGENT_UI_TOOL_NAMES } from "./agent-ui-command";
 
 const NON_TRANSACTIONAL_TOOL_GROUPS = ["messaging", "social", "support"] as const;
 
@@ -222,6 +216,10 @@ function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
   });
 }
 
+function panelInput(toolName: string, input: unknown): Record<string, unknown> {
+  return toAgentUiCommandInput(toolName, input) ?? {};
+}
+
 function uiTools(deps: AgentToolDeps): ToolSet {
   const runUiCommand = async (toolCallId: string, name: string, input: Record<string, unknown>) => {
     const outcome = await deps.runUiCommand(toolCallId, name, input);
@@ -239,17 +237,14 @@ function uiTools(deps: AgentToolDeps): ToolSet {
       description: "Open an app destination by its target id from list_ui_targets.",
       inputSchema: providerSafeSchema(NavigateSchema),
       execute: (input, { toolCallId }) =>
-        runSafely(() => runUiCommand(toolCallId, "navigate", { targetId: input.targetId }), deps.resultMaxChars),
+        runSafely(() => runUiCommand(toolCallId, "navigate", panelInput("navigate", input)), deps.resultMaxChars),
     }),
     highlight_element: tool({
       description: "Spotlight a single interface target by its id (from list_ui_targets) on the current page.",
       inputSchema: providerSafeSchema(HighlightElementSchema),
       execute: (input, { toolCallId }) =>
         runSafely(
-          () =>
-            runUiCommand(toolCallId, "highlight_element", {
-              targetId: input.targetId,
-            }),
+          () => runUiCommand(toolCallId, "highlight_element", panelInput("highlight_element", input)),
           deps.resultMaxChars,
         ),
     }),
@@ -258,7 +253,7 @@ function uiTools(deps: AgentToolDeps): ToolSet {
         "Run a guided tour you compose for this user. Call list_ui_targets once, then choose the targets that answer what they asked to see and write your own note for each one. The tour navigates to each step itself, so do not call navigate first. Ask what they want to see when the request is vague; go straight to the tour when it is specific. Be thorough: walk the whole journey rather than naming each screen, and write every note in the user's language.",
       inputSchema: providerSafeSchema(AgentTourSchema),
       execute: (input, { toolCallId }) =>
-        runSafely(() => runUiCommand(toolCallId, "start_tour", { steps: input.steps }), deps.resultMaxChars),
+        runSafely(() => runUiCommand(toolCallId, "start_tour", panelInput("start_tour", input)), deps.resultMaxChars),
     }),
     click_ui_target: tool({
       description:
@@ -266,10 +261,7 @@ function uiTools(deps: AgentToolDeps): ToolSet {
       inputSchema: providerSafeSchema(ClickUiTargetSchema),
       execute: (input, { toolCallId }) =>
         runSafely(
-          () =>
-            runUiCommand(toolCallId, "click_ui_target", {
-              targetId: input.targetId,
-            }),
+          () => runUiCommand(toolCallId, "click_ui_target", panelInput("click_ui_target", input)),
           deps.resultMaxChars,
         ),
     }),
@@ -278,7 +270,7 @@ function uiTools(deps: AgentToolDeps): ToolSet {
         "Open one record after finding its id with list_records or search_records. Use the drawer to keep context, the page for a full view, and recordId 'new' for a blank form the user fills in.",
       inputSchema: providerSafeSchema(OpenRecordSchema),
       execute: (input, { toolCallId }) =>
-        runSafely(() => runUiCommand(toolCallId, "open_record", input), deps.resultMaxChars),
+        runSafely(() => runUiCommand(toolCallId, "open_record", panelInput("open_record", input)), deps.resultMaxChars),
     }),
   };
 }

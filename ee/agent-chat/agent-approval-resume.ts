@@ -81,3 +81,24 @@ export function withApprovalResponses(messages: ModelMessage[], outcomes: AgentA
 
   return next;
 }
+
+export type AgentToolResumeResult = { toolCallId: string; toolName: string; output: unknown };
+
+export function withToolResults(messages: ModelMessage[], results: AgentToolResumeResult[]): ModelMessage[] {
+  const next: ModelMessage[] = messages.filter((message) => message.role !== "system");
+  if (results.length === 0) return next;
+
+  const parts = results.map((result) => ({
+    type: "tool-result" as const,
+    toolCallId: result.toolCallId,
+    toolName: result.toolName,
+    output: { type: "json" as const, value: result.output as never },
+  }));
+
+  const last = next.at(-1);
+  if (last?.role === "tool" && typeof last.content !== "string")
+    next[next.length - 1] = { ...last, content: [...(last.content as object[]), ...parts] } as ModelMessage;
+  else next.push({ role: "tool", content: parts } as unknown as ModelMessage);
+
+  return next;
+}

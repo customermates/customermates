@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { AgentDurableStreamReader, agentToolOutcomeStatus } from "../agent-durable-stream";
+import {
+  AGENT_TRANSCRIPT_FORWARDED_EVENTS,
+  AgentDurableStreamReader,
+  agentToolOutcomeStatus,
+} from "../agent-durable-stream";
 
 function read(chunks: unknown[]) {
   const reader = new AgentDurableStreamReader();
@@ -76,17 +80,30 @@ describe("agent durable stream reader", () => {
     ).toEqual([{ type: "activity_result", payload: { id: "call-1", isError: true, status: "error" } }]);
   });
 
-  it("passes through only the workflow events the client cannot derive itself", () => {
+  it("passes through the workflow events the client cannot derive itself", () => {
     expect(
       read([
         { type: "approval_request", payload: { requestId: "turn:call-1", activity: { kind: "records.delete" } } },
         { type: "approval_resolved", payload: { requestId: "turn:call-1", decision: "approve" } },
         { type: "activity_superseded", payload: { id: "call-0" } },
+        { type: "ui_command", payload: { commandId: "call-9", name: "navigate", input: {} } },
+        { type: "activity_result", payload: { id: "call-9", isError: false, status: "done" } },
         { type: "turn_done", payload: { terminalCode: "completed" } },
         { type: "activity", payload: { id: "call-9" } },
-        { type: "activity_result", payload: { id: "call-9" } },
       ]).map((event) => event?.type),
-    ).toEqual(["approval_request", "approval_resolved", "activity_superseded", "turn_done"]);
+    ).toEqual([
+      "approval_request",
+      "approval_resolved",
+      "activity_superseded",
+      "ui_command",
+      "activity_result",
+      "turn_done",
+    ]);
+  });
+
+  it("never lets the transcript forward an activity the client already derives, which would double it", () => {
+    expect(AGENT_TRANSCRIPT_FORWARDED_EVENTS).not.toContain("activity");
+    expect(AGENT_TRANSCRIPT_FORWARDED_EVENTS).not.toContain("activity_result");
   });
 
   it("streams assistant text through as deltas", () => {

@@ -20,16 +20,19 @@ import {
   pendingApprovalCalls,
   toolApprovalDecisionForGrant,
   withApprovalResponses,
+  withToolResults,
   type AgentApprovalOutcome,
+  type AgentToolResumeResult,
   type ToolApprovalGrant,
 } from "@/ee/agent-chat/agent-approval-resume";
+import { agentUiCommandHookToken, isAgentPanelTool, toAgentUiCommandInput } from "@/ee/agent-chat/agent-ui-command";
 import { buildAgentProviderContext } from "@/ee/agent-chat/agent-provider-context";
 import { buildAgentSystemPrompt } from "@/ee/agent-chat/system-prompt";
 import { buildTurnUsageSettlement, usageToTokenCounts } from "@/ee/agent-chat/llm.service";
 import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
 import { createAgentSupportTicket } from "@/ee/agent-chat/agent-runner";
 import { describeAgentTool } from "@/ee/agent-chat/agent-activity";
-import { agentToolOutcomeStatus, AGENT_FORWARDED_WORKFLOW_EVENTS } from "@/ee/agent-chat/agent-durable-stream";
+import { agentToolOutcomeStatus, AGENT_TRANSCRIPT_FORWARDED_EVENTS } from "@/ee/agent-chat/agent-durable-stream";
 import { getAgentChatRepo } from "@/core/di";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
@@ -44,6 +47,7 @@ import { reportFailure, toWorkflowFailure } from "./capture-failure";
 const WORKFLOW_NAME = "agent-turn";
 
 export const AGENT_DURABLE_APPROVAL_WINDOW_MS = 30 * 60 * 1000;
+export const AGENT_DURABLE_UI_COMMAND_WINDOW_MS = 30 * 1000;
 
 export type AgentTurnWorkflowPayload = {
   turnRequestId: string;
@@ -57,6 +61,7 @@ export type AgentTurnWorkflowPayload = {
   messages: ReplayMessage[];
   turnBudget: AgentTurnBudget;
   approvalWindowMs?: number;
+  uiCommandWindowMs?: number;
   tenant: WorkflowTenant;
 };
 
@@ -249,6 +254,68 @@ async function openApprovalRequests(
 }
 openApprovalRequests.maxRetries = 0;
 
+async function publishUiCommands(
+  commands: { toolCallId: string; name: string; input: Record<string, unknown> }[],
+): Promise<void> {
+  "use step";
+  const writer = getWritable<{ type: string; payload: Record<string, unknown> }>().getWriter();
+  try {
+    for (const command of commands) {
+      await writer.write({
+        type: "ui_command",
+        payload: { commandId: command.toolCallId, name: command.name, input: command.input },
+      });
+    }
+  } finally {
+    writer.releaseLock();
+  }
+}
+
+async function readUiCommandResults(
+  payload: AgentTurnWorkflowPayload,
+  commands: { toolCallId: string; name: string }[],
+): Promise<AgentToolResumeResult[]> {
+  "use step";
+  const repo = getAgentChatRepo();
+  const maxChars = resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars);
+
+  return runAsBackgroundTenant(payload.userId, async () => {
+    const resumed: AgentToolResumeResult[] = [];
+
+    for (const command of commands) {
+      const outcome = await repo.takeUiCommandResultUnscoped({
+        conversationId: payload.conversationId,
+        commandId: command.toolCallId,
+        companyId: payload.companyId,
+        userId: payload.userId,
+      });
+
+      resumed.push({
+        toolCallId: command.toolCallId,
+        toolName: command.name,
+        output: outcome
+          ? { ok: outcome.ok, result: outcome.result.slice(0, maxChars) }
+          : { ok: false, result: "The interface did not respond, so nothing changed on screen." },
+      });
+    }
+
+    const writer = getWritable<{ type: string; payload: Record<string, unknown> }>().getWriter();
+    try {
+      for (const entry of resumed) {
+        const status = agentToolOutcomeStatus(entry.output);
+        await writer.write({
+          type: "activity_result",
+          payload: { id: entry.toolCallId, isError: status.failed, status: status.status },
+        });
+      }
+    } finally {
+      writer.releaseLock();
+    }
+
+    return resumed;
+  });
+}
+
 async function readApprovalDecisions(
   payload: AgentTurnWorkflowPayload,
   requests: PendingApproval[],
@@ -367,7 +434,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
     const queued: AgentTranscriptEvent[] = [];
     const transcript = new AgentTurnTranscript((event) => {
-      if ((AGENT_FORWARDED_WORKFLOW_EVENTS as readonly string[]).includes(event.type)) queued.push(event);
+      if ((AGENT_TRANSCRIPT_FORWARDED_EVENTS as readonly string[]).includes(event.type)) queued.push(event);
     });
 
     const systemPrompt = buildAgentSystemPrompt({
@@ -464,14 +531,18 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                 ? (input: unknown) =>
                     requiresApproval(internalToolIdentity(shell.name), { annotations: shell.annotations }, input)
                 : false,
-              execute: (input: unknown, options: { toolCallId: string }) =>
-                executeAgentTool(
-                  payload,
-                  shell.name,
-                  options.toolCallId,
-                  input,
-                  grants.get(options.toolCallId) ?? "not-required",
-                ),
+              ...(isAgentPanelTool(shell.name)
+                ? {}
+                : {
+                    execute: (input: unknown, options: { toolCallId: string }) =>
+                      executeAgentTool(
+                        payload,
+                        shell.name,
+                        options.toolCallId,
+                        input,
+                        grants.get(options.toolCallId) ?? "not-required",
+                      ),
+                  }),
             },
           ]),
         ),
@@ -508,6 +579,35 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
       const pending = pendingApprovalCalls(result.messages);
       if (pending.length === 0) break;
+
+      const panelCalls = pending.filter((call) => isAgentPanelTool(call.toolName));
+      if (panelCalls.length > 0) {
+        const commands = panelCalls.map((call) => ({
+          toolCallId: call.toolCallId,
+          name: call.toolName,
+          input: toAgentUiCommandInput(call.toolName, call.input) ?? {},
+        }));
+        await publishUiCommands(commands);
+
+        const uiWindowMs = payload.uiCommandWindowMs ?? AGENT_DURABLE_UI_COMMAND_WINDOW_MS;
+        const uiHook = createHook<{ commandId: string }>({
+          token: agentUiCommandHookToken(payload.conversationId),
+        });
+        await Promise.race([
+          (async () => {
+            await uiHook;
+          })(),
+          sleep(uiWindowMs),
+        ]);
+        uiHook.dispose();
+
+        const resumed = await readUiCommandResults(payload, commands);
+        for (const outcome of resumed) settleToolOutcome(outcome.toolCallId, outcome.toolName, outcome.output);
+        await publishTranscriptEvents(queued.splice(0));
+
+        messages = withToolResults(result.messages, resumed);
+        continue;
+      }
 
       const requests: PendingApproval[] = pending.map((call) => ({
         requestId: agentApprovalRequestId(payload.turnRequestId, call.toolCallId),
