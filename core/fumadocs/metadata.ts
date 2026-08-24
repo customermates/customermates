@@ -5,6 +5,7 @@ import { ROUTE_SOURCE_MAP } from "./route-source-map";
 import { env } from "@/env";
 import { buildAlternateLanguages } from "@/core/seo/alternates";
 import { CONTENT_LOCALES, buildLocalePath } from "@/i18n/locale-registry";
+import { isNoindexPublicRoute } from "@/i18n/routing";
 
 type GenerateMetadataParams = {
   canonicalPath?: string;
@@ -48,8 +49,11 @@ export function generateMetadataFromMeta({
     width: 1200,
   };
 
+  const noindex = isNoindexPublicRoute(route);
+
   const metadata: Metadata = {
-    alternates: alternates ? { canonical, languages: alternates } : { canonical },
+    alternates: alternates && !noindex ? { canonical, languages: alternates } : { canonical },
+    ...(noindex ? { robots: { follow: true, index: false } } : {}),
     openGraph: {
       description,
       images: [image],

@@ -7,7 +7,7 @@ import { hubPageCountForSource, hubPageHref } from "@/core/seo/hub-pagination";
 import { LANDING_HUBS } from "@/core/seo/landing-hubs";
 import { isRetiredRoutePath } from "@/core/seo/route-aliases";
 import { CONTENT_LOCALES, stripLocalePrefix } from "@/i18n/locale-registry";
-import { PUBLIC_ROUTES_SEO } from "@/i18n/routing";
+import { SITEMAP_CONTENT_ROUTES } from "@/i18n/routing";
 import { ROUTE_SOURCE_MAP } from "@/core/fumadocs/route-source-map";
 
 function getLastModified(lastModified: Date | number | undefined) {
@@ -18,9 +18,17 @@ function getLastModified(lastModified: Date | number | undefined) {
 
 function collectLocalizedRoutes(): LocalizedRoute[] {
   const localizedRoutes: LocalizedRoute[] = [];
+  const emitted = new Set<string>();
+
+  const push = (route: LocalizedRoute) => {
+    const key = `${route.locale}:${route.routePath}`;
+    if (emitted.has(key)) return;
+    emitted.add(key);
+    localizedRoutes.push(route);
+  };
 
   for (const locale of CONTENT_LOCALES) {
-    for (const route of PUBLIC_ROUTES_SEO) {
+    for (const route of SITEMAP_CONTENT_ROUTES) {
       const routeMapping = ROUTE_SOURCE_MAP[route];
 
       if (route.includes(":")) {
@@ -28,7 +36,7 @@ function collectLocalizedRoutes(): LocalizedRoute[] {
           if (!page.url) continue;
           const routePath = stripLocalePrefix(page.url);
           if (isRetiredRoutePath(routePath)) continue;
-          localizedRoutes.push({
+          push({
             locale,
             routePath,
             lastModified: getLastModified(page.data.lastModified),
@@ -42,7 +50,7 @@ function collectLocalizedRoutes(): LocalizedRoute[] {
       const page = routeMapping.source.getPage(routeMapping.path, locale);
       if (!page) continue;
 
-      localizedRoutes.push({
+      push({
         locale,
         routePath: route,
         lastModified: getLastModified(page.data.lastModified),
@@ -54,7 +62,7 @@ function collectLocalizedRoutes(): LocalizedRoute[] {
       const pageCount = hubPageCountForSource(source);
 
       for (let page = 2; page <= pageCount; page++) {
-        localizedRoutes.push({
+        push({
           locale,
           routePath: hubPageHref(hub.hubPath, page),
         });
