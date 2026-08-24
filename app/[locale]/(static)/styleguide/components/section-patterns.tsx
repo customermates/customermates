@@ -6,11 +6,11 @@ import { CTASection } from "@/components/marketing/cta-section";
 import { MarketingSection } from "@/components/marketing/marketing-section";
 import { MediaPlate } from "@/components/marketing/media-plate";
 import {
-  ChannelsConverge,
-  ComparisonVerdict,
-  DetailMarked,
-  RecordResolved,
-} from "@/components/marketing/illustrations/brand-illustration";
+  AgentDraftsHumanSends,
+  AgentOperatesCrm,
+  AutomationNode,
+  ConnectionAccepted,
+} from "@/components/marketing/schematics/brand-schematic";
 import { Button } from "@/components/ui/button";
 
 const CAPABILITIES = [
@@ -113,7 +113,7 @@ export function SectionPatterns() {
             <MediaCard
               body="Threads from email, LinkedIn, WhatsApp, Instagram and Telegram, each linked to the contact and deal it belongs to."
               icon={Inbox}
-              illustration={<ChannelsConverge />}
+              illustration={<ConnectionAccepted />}
               title="One inbox, five channels"
             />
           </div>
@@ -122,7 +122,7 @@ export function SectionPatterns() {
             <MediaCard
               body="An agent prepares the reply in your voice. It waits in the thread until you send it."
               icon={PenLine}
-              illustration={<RecordResolved />}
+              illustration={<AgentOperatesCrm />}
               title="Drafts you approve"
             />
           </div>
@@ -181,7 +181,7 @@ export function SectionPatterns() {
 
           <div className="col-span-12 lg:col-start-8 lg:col-end-13">
             <MediaPlate>
-              <DetailMarked />
+              <AgentDraftsHumanSends />
             </MediaPlate>
           </div>
         </div>
@@ -198,7 +198,7 @@ export function SectionPatterns() {
         <div className="marketing-grid items-center gap-y-10">
           <div className="col-span-12 lg:col-span-5 lg:row-start-1">
             <MediaPlate>
-              <ComparisonVerdict />
+              <AutomationNode />
             </MediaPlate>
           </div>
 

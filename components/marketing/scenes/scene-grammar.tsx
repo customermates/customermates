@@ -118,78 +118,8 @@ export function SceneWindow({
   );
 }
 
-export function SceneBubble({
-  children,
-  className,
-  from = "them",
-}: {
-  children: ReactNode;
-  className?: string;
-  from?: "them" | "draft" | "mine";
-}) {
-  return (
-    <div className={cn("flex", from === "them" ? "justify-start" : "justify-end", className)}>
-      <div
-        className={cn(
-          "scene-text max-w-[76%] rounded-panel px-[2.2cqw] py-[1.5cqw]",
-          from === "them" && "scene-ink-surface scene-ink-body",
-          from === "draft" && "scene-ink-accent border-2 border-dashed border-primary/70 text-foreground",
-          from === "mine" && "scene-ink-accent border-2 border-solid border-primary/70 text-foreground",
-        )}
-      >
-        {children}
-      </div>
-    </div>
-  );
-}
-
 export function SceneLabel({ children, className }: { children: ReactNode; className?: string }) {
   return <p className={cn("text-eyebrow", className)}>{children}</p>;
-}
-
-export function SceneChip({
-  accent = false,
-  children,
-  conceptual = false,
-}: {
-  accent?: boolean;
-  children: ReactNode;
-  conceptual?: boolean;
-}) {
-  return (
-    <span
-      className={cn(
-        "scene-meta rounded-full px-[1.6cqw] py-[0.7cqw]",
-        accent && "bg-primary text-primary-foreground",
-        !accent && conceptual && "scene-ink-quiet border border-dashed border-input",
-        !accent && !conceptual && "scene-ink-body border border-border bg-card",
-      )}
-    >
-      {children}
-    </span>
-  );
-}
-
-export function SceneRow({
-  accent = false,
-  children,
-  className,
-}: {
-  accent?: boolean;
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <div
-      className={cn(
-        "scene-text flex items-center gap-[1.6cqw] rounded-card px-[2cqw] py-[1.5cqw]",
-        accent ? "scene-ink-accent text-foreground" : "scene-ink-surface scene-ink-body",
-        className,
-      )}
-    >
-      {children}
-    </div>
-  );
 }
 
 export function SceneCaret({ visible }: { visible: boolean }) {

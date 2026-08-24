@@ -217,7 +217,11 @@ function isProductionSource(repoPath: string): boolean {
     // depicted window is artwork, the same way the terminal scene's output is, and is only
     // rendered on the noindex style guide today. A scene that ships on a localized page
     // must take its copy as props; this exemption covers the depiction, not that duty.
-    !repoPath.startsWith("components/marketing/scenes/")
+    !repoPath.startsWith("components/marketing/scenes/") &&
+    // A schematic depicts a capability that has no screen, so its nodes and edge labels are
+    // artwork on the same footing as a scene's sample copy, and it carries the same duty: a
+    // schematic that ships on a localized page must take its copy as props.
+    !repoPath.startsWith("components/marketing/schematics/")
   );
 }
 

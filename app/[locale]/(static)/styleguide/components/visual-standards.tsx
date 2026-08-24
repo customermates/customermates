@@ -53,11 +53,11 @@ const DELIVERABLES = [
 
 const SCENE_RULES = [
   "A scene depicts one product state the product can actually reach. Never a composite, never a feature that does not exist.",
-  "Radically reduced. Only the interface the point needs, at type sizes far larger than the real app uses.",
-  "The window sits on the raised rung with one border and the card radius, exactly like every other surface.",
+  "Radically reduced. Fewer records than the real screen, at twice the size, but every component identical to the one the application ships.",
+  "Radius, spacing and type come from the platform scale, doubled by one factor. Nothing in a depiction is rounder than the application allows.",
   "Crop where the content genuinely continues, so the window runs off the frame edge rather than floating whole. The crop may never cut the accent.",
   "One ambient ground: a single radial accent glow. This is the only gradient the system allows.",
-  "Exactly one accent, on the payoff. A dashed rim means provisional, whether that is an unsupported channel or an unsent draft.",
+  "Accent where the product puts accent, and nowhere else. A dashed rim means provisional, because that is what an unsent draft looks like in the app.",
 ];
 
 const LIVING_RULES = [
@@ -300,15 +300,22 @@ export function VisualStandards() {
           </ol>
 
           <pre className="mt-8 overflow-x-auto rounded-card border border-border bg-card p-5 text-xs leading-relaxed">
-            <code className="font-mono">{`import { SceneFrame, SceneRow, SceneWindow, type SceneProps } from "./scene-grammar";
+            <code className="font-mono">{`import { SceneFrame, SceneWindow, type SceneProps } from "./scene-grammar";
+import { AppChip, Card, CardContent } from "./platform";
 
 export function NoteAddedScene({ className, label }: SceneProps) {
   return (
     <SceneFrame className={className} crop="bottom" label={label}>
       <SceneWindow title="Contacts · Leon Becker">
-        <div className="flex flex-col gap-[1.1cqw] p-[2.4cqw]">
-          <SceneRow>Call summary from Tuesday</SceneRow>
-          <SceneRow accent>Note written by the agent</SceneRow>
+        <div className="flex flex-col gap-4 p-6">
+          <Card className="gap-2 py-3">
+            <CardContent className="px-3">
+              <div className="flex items-center justify-between gap-3 text-sm">
+                <span className="shrink-0 text-xs text-muted-foreground">Stage</span>
+                <AppChip size="sm" variant="warning">Proposal</AppChip>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </SceneWindow>
     </SceneFrame>
@@ -317,7 +324,10 @@ export function NoteAddedScene({ className, label }: SceneProps) {
           </pre>
 
           <p className="text-meta mt-5">
-            Ground, crop, chrome, radius and ink are not written here. That is the point: they cannot drift.
+            No radius, no type size, no spacing is written here. Card, CardContent and AppChip are the
+            application&apos;s own components, and the scope around them rescales the spacing, radius and type variables
+            that Tailwind compiles every utility against. The depiction cannot drift from the product because it is
+            built out of it.
           </p>
         </div>
 

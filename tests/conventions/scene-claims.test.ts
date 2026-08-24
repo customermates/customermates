@@ -21,6 +21,12 @@ const HANDWRITTEN_MONEY =
 
 const SEAT_ARITHMETIC = /\b\d+\s+(?:seats?|users?|Nutzer|Sitze)\b/iu;
 
+// What separates a price from a depicted record. A deal worth EUR 198,500 on a drawn card is the
+// customer's own data and says nothing about what Customermates costs; "EUR 49 per seat per month"
+// is a commercial claim the catalog owns and a picture cannot resolve. Only the second is barred.
+const PRICING_CONTEXT =
+  /\b(?:price|pricing|costs?|per\s+(?:seat|user|month|year)|subscription|plan|billed|invoice|Preis|Kosten|monatlich)\b/iu;
+
 type Literal = {
   file: string;
   line: number;
@@ -91,12 +97,13 @@ describe("scene copy claim discipline", () => {
 
   it("prices nothing by hand", () => {
     const offences = collected
+      .filter((literal) => PRICING_CONTEXT.test(literal.text))
       .filter((literal) => HANDWRITTEN_MONEY.test(literal.text) || SEAT_ARITHMETIC.test(literal.text))
       .map((literal) => `${relative(REPO_ROOT, literal.file)}:${literal.line} ${literal.text}`);
 
     expect(
       offences,
-      "commercial figures come from the catalog, and a scene cannot resolve a token, so it must not state one",
+      "what Customermates costs comes from the catalog, and a scene cannot resolve a token, so it must not state a price. A deal value on a depicted card is the customer's own record rather than our price, and is formatted from a number the scene computes",
     ).toEqual([]);
   });
 });

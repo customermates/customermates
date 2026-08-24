@@ -50,7 +50,16 @@ const RULES = [
   {
     id: "bespoke-radius",
     pattern: /\brounded-\[[^\]]+\]/g,
-    reason: "radius comes from the --radius scale: rounded-card and rounded-panel for marketing surfaces.",
+    reason:
+      "radius comes from the --radius scale. Marketing chrome takes rounded-card and rounded-panel; a depicted product surface takes the platform's own step and is rescaled by .scene-platform.",
+  },
+  {
+    id: "marketing-radius-in-a-depiction",
+    pattern: /\brounded-(card|panel)\b/g,
+    reason:
+      "rounded-card and rounded-panel have no counterpart anywhere in app/[locale]/(protected) or components/ui. A depicted product surface takes the radius the application gives it.",
+    scope: (file: string) =>
+      file.startsWith("components/marketing/scenes/") && !file.endsWith("scene-grammar.tsx"),
   },
   {
     id: "bespoke-breakpoint",
@@ -87,6 +96,7 @@ describe("marketing token discipline", () => {
 
       for (const file of files) {
         if (isDepiction(file, rule.id)) continue;
+        if (rule.scope && !rule.scope(relative(REPO_ROOT, file))) continue;
 
         const source = readFileSync(file, "utf8");
         source.split("\n").forEach((line, index) => {

@@ -5,12 +5,11 @@ import { ThemePair } from "./theme-pair";
 import { MarketingSection } from "@/components/marketing/marketing-section";
 import { MediaPlate } from "@/components/marketing/media-plate";
 import {
-  ChannelsConverge,
-  ComparisonVerdict,
-  DetailMarked,
-  FlowSchematic,
-  RecordResolved,
-} from "@/components/marketing/illustrations/brand-illustration";
+  AgentDraftsHumanSends,
+  AgentOperatesCrm,
+  AutomationNode,
+  ConnectionAccepted,
+} from "@/components/marketing/schematics/brand-schematic";
 
 const GRAMMAR_RULES = [
   "The ground is a raised rung. Flat fill, no gradient, no shadow, no perspective.",
@@ -24,26 +23,26 @@ const GRAMMAR_RULES = [
 const ILLUSTRATIONS = [
   {
     accent: "the record the conversation landed on",
-    element: <RecordResolved />,
-    name: "RecordResolved",
+    element: <AgentOperatesCrm />,
+    name: "AgentOperatesCrm",
     use: "Homepage and feature heroes — a stack where one item is now settled",
   },
   {
     accent: "the single customer every channel meets at",
-    element: <ChannelsConverge />,
-    name: "ChannelsConverge",
+    element: <ConnectionAccepted />,
+    name: "ConnectionAccepted",
     use: "Industry and integration pages — many inputs, one destination",
   },
   {
     accent: "the column that wins",
-    element: <ComparisonVerdict />,
-    name: "ComparisonVerdict",
+    element: <AutomationNode />,
+    name: "AutomationNode",
     use: "Comparison and alternative pages — two sets weighed",
   },
   {
     accent: "the one row the page is actually about",
-    element: <DetailMarked />,
-    name: "DetailMarked",
+    element: <AgentDraftsHumanSends />,
+    name: "AgentDraftsHumanSends",
     use: "Feature pages — one detail inside a larger surface",
   },
 ];
@@ -187,7 +186,7 @@ export function QueueCleared(props: IllustrationProps) {
 
           <div className="col-span-12 lg:col-span-6">
             <MediaPlate caption='variant="flush" — the media meets the rim. For an illustration, which is already drawn to the frame.'>
-              <DetailMarked />
+              <AgentDraftsHumanSends />
             </MediaPlate>
           </div>
         </div>
@@ -257,7 +256,7 @@ node scripts/capture-product-proof.mjs --verify`}</code>
       >
         <div className="mt-14 lg:mt-16">
           <ThemePair>
-            <FlowSchematic />
+            <AgentOperatesCrm />
           </ThemePair>
         </div>
 
