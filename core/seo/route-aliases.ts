@@ -1,6 +1,6 @@
 import { CONTENT_LOCALES, DEFAULT_LOCALE, buildLocalePath } from "../../i18n/locale-registry";
 
-export const PERMANENT_ROUTE_ALIASES = {
+const RETIRED_ROUTE_ALIASES = {
   "/compare/monday-vs-hubspot": "/compare/hubspot-vs-monday",
   "/compare/pipedrive-vs-hubspot": "/compare/hubspot-vs-pipedrive",
   "/compare/zoho-vs-hubspot": "/compare/hubspot-vs-zoho",
@@ -38,7 +38,24 @@ export const PERMANENT_ROUTE_ALIASES = {
   "/docs/webhook-events": "/docs/webhooks",
 } as const satisfies Record<string, string>;
 
+const DUPLICATE_ROUTE_ALIASES = {
+  "/docs/intro-page": "/docs",
+} as const satisfies Record<string, string>;
+
+export const PERMANENT_ROUTE_ALIASES = {
+  ...RETIRED_ROUTE_ALIASES,
+  ...DUPLICATE_ROUTE_ALIASES,
+} as const satisfies Record<string, string>;
+
+export type DeletedRoutePath = keyof typeof RETIRED_ROUTE_ALIASES;
+
+export type DuplicateRoutePath = keyof typeof DUPLICATE_ROUTE_ALIASES;
+
 export type RetiredRoutePath = keyof typeof PERMANENT_ROUTE_ALIASES;
+
+export const DELETED_ROUTE_PATHS = Object.keys(RETIRED_ROUTE_ALIASES) as DeletedRoutePath[];
+
+export const DUPLICATE_ROUTE_PATHS = Object.keys(DUPLICATE_ROUTE_ALIASES) as DuplicateRoutePath[];
 
 export const RETIRED_ROUTE_PATHS = Object.keys(PERMANENT_ROUTE_ALIASES) as RetiredRoutePath[];
 

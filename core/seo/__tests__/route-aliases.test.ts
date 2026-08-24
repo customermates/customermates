@@ -3,6 +3,8 @@ import { extname, join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
+  DELETED_ROUTE_PATHS,
+  DUPLICATE_ROUTE_PATHS,
   PERMANENT_ROUTE_ALIASES,
   RETIRED_ROUTE_PATHS,
   isRetiredRoutePath,
@@ -53,15 +55,35 @@ describe("permanent route aliases", () => {
     }
   });
 
-  it("keeps every retired route genuinely retired in every content locale", () => {
+  it("keeps every deleted route genuinely deleted in every content locale", () => {
     for (const locale of CONTENT_LOCALES) {
-      for (const retired of RETIRED_ROUTE_PATHS) {
+      for (const retired of DELETED_ROUTE_PATHS) {
         expect(
           resolvesToLivePage(retired, locale),
           `${retired} is still published in ${locale}; a half-retirement leaves the duplicate competing on one side while the redirect fires on the other`,
         ).toBe(false);
       }
     }
+  });
+
+  it("keeps every duplicate route backed by content it no longer serves at its own URL", () => {
+    expect(
+      DUPLICATE_ROUTE_PATHS.length,
+      "a duplicate alias whose file was deleted belongs in the retired list instead",
+    ).toBeGreaterThan(0);
+
+    for (const locale of CONTENT_LOCALES) {
+      for (const duplicate of DUPLICATE_ROUTE_PATHS) {
+        expect(
+          resolvesToLivePage(duplicate, locale),
+          `${duplicate} has no content file in ${locale}; retiring it outright would delete the page its survivor renders`,
+        ).toBe(true);
+      }
+    }
+  });
+
+  it("covers every alias by exactly one of the two lists", () => {
+    expect([...DELETED_ROUTE_PATHS, ...DUPLICATE_ROUTE_PATHS].sort()).toEqual([...RETIRED_ROUTE_PATHS].sort());
   });
 
   it("never chains one alias into another", () => {
