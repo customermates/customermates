@@ -59,7 +59,7 @@ export function SceneFrame({
     <div
       aria-hidden={label ? undefined : true}
       aria-label={label}
-      className={cn("scene-ground aspect-hero relative isolate overflow-hidden rounded-card", className)}
+      className={cn("scene-ground scene-frame relative isolate overflow-hidden rounded-card", className)}
       role={label ? "img" : undefined}
     >
       <div className={cn("absolute", inset)}>{children}</div>

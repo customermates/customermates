@@ -99,6 +99,29 @@ export function VisualStandards() {
           ))}
         </div>
 
+        <div className="mx-auto mt-14 max-w-3xl overflow-hidden rounded-card border border-border bg-card">
+          <div className="text-eyebrow border-b border-border px-6 py-3.5">Two regimes, not one shrunk picture</div>
+
+          <ul className="divide-y divide-border">
+            {[
+              { note: "landscape frame, body text at 2% of the frame width", when: "from 40rem" },
+              { note: "portrait frame, body text at 3.9% of the frame width", when: "below 40rem" },
+            ].map((row) => (
+              <li key={row.when} className="flex flex-wrap items-baseline gap-x-5 gap-y-1 px-6 py-3.5">
+                <code className="text-meta w-32 shrink-0 font-mono">{row.when}</code>
+
+                <span className="text-sm text-muted-foreground">{row.note}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <p className="text-meta mx-auto mt-6 max-w-3xl text-center">
+          A sixteen-by-nine poster at a 375px viewport is 335px wide and 188px tall, and the body text lands at 6.7px.
+          No tuning fixes that, so the small regime turns the frame portrait and roughly doubles the type against it.
+          The composition does not change; how much of the frame one window may occupy does.
+        </p>
+
         <div className="mt-16 flex flex-col gap-14">
           <div>
             <div className="mb-5 flex flex-col gap-2 border-t border-border-strong pt-5 lg:flex-row lg:items-baseline lg:justify-between">
