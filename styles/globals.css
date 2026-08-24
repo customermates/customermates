@@ -874,6 +874,14 @@ path:focus {
   /* Film canvas. A film is the window itself, edge to edge, with no ambient ground: the
      reference films are all window-shaped (1.16:1 to 1.39:1), never 16:9, because the video IS
      the product window rather than a picture of one sitting in atmosphere. */
+  .scene-lift {
+    /* The one shadow in the grammar, and it is not elevation: it is the cast shadow of an object
+       a cursor has picked up. A cast shadow is dark in both themes because that is what light
+       does, so this stays a fixed black rather than following the foreground token, which would
+       turn it into a white glow in dark mode. Nothing at rest may use it. */
+    filter: drop-shadow(0 0.4cqw 0.9cqw rgb(0 0 0 / 28%));
+  }
+
   .scene-frame-film {
     /* Also the query container. Every cqw in the grammar resolves against the frame, and film
        mode drops .scene-ground, which is what normally establishes it: without this line the

@@ -44,9 +44,19 @@ export function SceneCursor({ path, t }: { path: readonly CursorWaypoint[]; t?: 
 
   return (
     <span
-      className={cn("pointer-events-none absolute z-10 block transition-none", point.pressed && "scale-90")}
+      className={cn(
+        "pointer-events-none absolute z-10 block origin-top-left transition-none",
+        point.pressed && "scale-90",
+      )}
       style={{ left: `${point.x}%`, top: `${point.y}%` }}
     >
+      {point.pressed ? (
+        <span
+          className="absolute -left-[1.7cqw] -top-[1.7cqw] block size-[3.4cqw] rounded-full"
+          style={{ background: "rgb(122 122 134 / 34%)" }}
+        />
+      ) : null}
+
       <svg
         aria-hidden
         className="block w-[2.6cqw] drop-shadow-[0_1px_3px_rgb(0_0_0_/_45%)]"

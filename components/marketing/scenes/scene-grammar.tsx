@@ -8,6 +8,7 @@ export const SCENE_MIN_RESOLVED_HOLD_MS = 1200;
 
 export type SceneProps = {
   className?: string;
+  film?: boolean;
   label?: string;
   t?: number;
 };
@@ -84,14 +85,22 @@ export function SceneFrame({
 export function SceneWindow({
   children,
   className,
+  fill = false,
   title,
 }: {
   children: ReactNode;
   className?: string;
+  fill?: boolean;
   title?: ReactNode;
 }) {
   return (
-    <div className={cn("flex w-full flex-col overflow-hidden rounded-card border border-border bg-card", className)}>
+    <div
+      className={cn(
+        "flex w-full flex-col overflow-hidden rounded-card border border-border bg-card",
+        fill && "h-full",
+        className,
+      )}
+    >
       <div className="flex shrink-0 items-center gap-[1.2cqw] border-b border-border px-[2cqw] py-[1.4cqw]">
         <span className="scene-ink-surface size-[1.1cqw] rounded-full" />
 
@@ -102,7 +111,7 @@ export function SceneWindow({
         {title ? <span className="scene-meta scene-ink-quiet ml-[1.2cqw] truncate">{title}</span> : null}
       </div>
 
-      <div>{children}</div>
+      <div className={cn(fill && "flex min-h-0 flex-1 flex-col")}>{children}</div>
     </div>
   );
 }

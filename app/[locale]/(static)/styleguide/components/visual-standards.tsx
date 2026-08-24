@@ -1,4 +1,9 @@
+import { statSync } from "node:fs";
+import { join } from "node:path";
+
 import { ThemePair } from "./theme-pair";
+
+import { AppVideo } from "@/components/shared/app-video";
 
 import { MarketingSection } from "@/components/marketing/marketing-section";
 import { ChatDraftScene } from "@/components/marketing/scenes/chat-draft-scene";
@@ -57,17 +62,43 @@ const LIVING_RULES = [
   "The scene is a pure function of one clock value. No accumulated state, so the same t always renders the same frame.",
   "Typing runs at 18 to 32 characters a second. Faster than reading is decoration.",
   "The resolved state holds for at least 1.2 seconds before the loop restarts.",
+  "At t = 1 the scene renders exactly what it renders at t = 0. Anything that only appears once is an entrance, and an entrance pops on every loop.",
   "One primary motion at a time. Two things moving for the same reason is one thing too many.",
+  "A cursor may reach, press and drag. It never appears in a still, because a still has nobody in it.",
   "The clock stops when the scene scrolls out of view and when the tab is hidden.",
   "Reduced motion renders the resolved frame as a still and never starts the clock at all.",
 ];
 
 const VIDEO_RULES = [
-  "16:9 at 1920 by 1080, six to fifteen seconds, one verb-and-object proof.",
-  "Legible with the sound off, because it will always be watched that way.",
-  "A clear start state, a held result, and a loop that returns to the first frame.",
-  "Embedded muted, looping and inline, in the same card frame a screenshot would use.",
-  "Rendered from the living scene, so the same command reproduces the same file.",
+  "Window-shaped, not cinema-shaped. 1280 by 920, because the subject is an interface rather than a scene, and the window fills the canvas edge to edge with no ground behind it.",
+  "Twelve seconds at 24 frames a second. One journey, from a resolved home state and back to it, with no cuts.",
+  "The last frame is the first frame. Closure is authored, never crossfaded: the draft un-types itself, the carried card is carried back.",
+  "A cursor is the actor. It reaches, presses and drags, and what it lifts follows it and casts the one shadow the grammar allows.",
+  "Silent, with no audio track at all, and never over a megabyte.",
+  "Shipped as a light file and a dark file, because an MP4 cannot follow a CSS theme.",
+];
+
+const FILMS = [
+  { journey: "a deal is carried from one stage to the next", name: "pipeline" },
+  { journey: "a draft is written for a human, and a human sends it", name: "chat-draft" },
+  { journey: "a week of stored numbers is read off a chart", name: "dashboard" },
+];
+
+function filmKilobytes(name: string): string {
+  const weights = (["dark", "light"] as const).map((theme) =>
+    Math.round(statSync(join(process.cwd(), "public", "scenes", theme, `${name}.mp4`)).size / 1024),
+  );
+
+  return `${weights[0]} and ${weights[1]} KB`;
+}
+
+const REFERENCE_DECODE = [
+  { measured: "1280 by 920 and 1280 by 900", ours: "1280 by 920", what: "Canvas" },
+  { measured: "24 and 30", ours: "24", what: "Frames a second" },
+  { measured: "5 to 12 seconds", ours: "12 seconds", what: "Length" },
+  { measured: "none, or a silent audio track", ours: "no audio track at all", what: "Audio" },
+  { measured: "368 KB to 1.1 MB", ours: "under 160 KB", what: "Weight" },
+  { measured: "0.87 to 0.9999", ours: "0.9995 and better", what: "First frame against last" },
 ];
 
 const DONTS = [
@@ -329,10 +360,11 @@ export function NoteAddedScene({ className, label }: SceneProps) {
 
           <ul className="divide-y divide-border">
             {[
-              { note: "the customer's message lands", value: "0.02 to 0.10" },
-              { note: "the draft types in at 23.9 characters a second", value: "0.14 to 0.46" },
-              { note: "the draft waits, held for 3740ms", value: "0.46 to 0.80" },
-              { note: "a human sends it", value: "0.80 to 1.00" },
+              { note: "the customer's message is already there, and stays there", value: "0.00 to 1.00" },
+              { note: "the draft types in at 26.9 characters a second", value: "0.12 to 0.38" },
+              { note: "the draft waits for a human, held for 3360ms", value: "0.38 to 0.66" },
+              { note: "the cursor presses Send, and the state holds again", value: "0.66 to 0.82" },
+              { note: "the draft un-types itself back to the first frame", value: "0.82 to 0.96" },
             ].map((row) => (
               <li key={row.value} className="flex flex-wrap items-baseline gap-x-5 gap-y-1 px-6 py-3.5">
                 <code className="text-meta w-32 shrink-0 font-mono">{row.value}</code>
@@ -350,24 +382,34 @@ export function NoteAddedScene({ className, label }: SceneProps) {
       </MarketingSection>
 
       <MarketingSection
-        description="The same scene again, captured frame by frame instead of played. Because the scene is a pure function of its clock, the same command produces the same file every time."
-        title="Standard three — the quick video"
+        description="The same scenes again, captured frame by frame instead of played. Public pages embed the file, not the animation: a marketing page ships MP4s, and a live JS animation exists only here, as the engine documenting itself."
+        title="Standard three — the film"
       >
-        <div className="mt-14 overflow-hidden rounded-card border border-border bg-card p-2 lg:mt-16">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="aspect-hero block w-full rounded-lg"
-            preload="metadata"
-            src="/scenes/chat-draft.mp4"
-          />
+        <div className="marketing-grid mt-14 gap-y-10 lg:mt-16">
+          {FILMS.map((film, index) => (
+            <div key={film.name} className={index === 0 ? "col-span-12" : "col-span-12 lg:col-span-6"}>
+              <div className="overflow-hidden rounded-card border border-border bg-card p-2">
+                <AppVideo
+                  className="block w-full rounded-lg"
+                  height={920}
+                  label={film.journey}
+                  name={film.name}
+                  width={1280}
+                />
+              </div>
+
+              <p className="text-meta mt-4">
+                <code className="font-mono text-primary">{film.name}</code>
+
+                <span>{`: ${film.journey}. ${filmKilobytes(film.name)}.`}</span>
+              </p>
+            </div>
+          ))}
         </div>
 
-        <p className="text-meta mt-4">
-          Eleven seconds, 1920 by 1080, no audio track at all, 176 KB. Rendered from the scene above rather than
-          recorded.
+        <p className="text-lede mx-auto mt-12 max-w-3xl text-center">
+          Each is twelve seconds at 24 frames a second, 1280 by 920, with no audio track. They follow the theme because
+          each one is two files, and the component picks the one that matches.
         </p>
 
         <div className="marketing-grid mt-14 gap-y-4">
@@ -383,20 +425,51 @@ export function NoteAddedScene({ className, label }: SceneProps) {
           ))}
         </div>
 
+        <div className="mx-auto mt-14 max-w-3xl overflow-hidden rounded-card border border-border bg-card">
+          <div className="text-eyebrow border-b border-border px-6 py-3.5">
+            Where the numbers came from, and where we landed
+          </div>
+
+          <ul className="divide-y divide-border">
+            {REFERENCE_DECODE.map((row) => (
+              <li key={row.what} className="flex flex-wrap items-baseline gap-x-5 gap-y-1 px-6 py-3.5">
+                <span className="w-44 shrink-0 text-sm font-medium">{row.what}</span>
+
+                <span className="text-meta w-52 shrink-0">{row.measured}</span>
+
+                <code className="font-mono text-sm text-primary">{row.ours}</code>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <p className="text-meta mx-auto mt-5 max-w-3xl">
+          The middle column is what we measured on the films we took as reference; the right column is what this system
+          ships. The only figure we deliberately beat rather than matched is the loop: theirs cut, ours does not.
+        </p>
+
         <div className="mx-auto mt-14 max-w-3xl">
           <p className="text-lede text-center">
-            Reproducing it is a command, not a memory. The determinism flag captures the whole clip twice and compares
-            every frame, so a claim that it re-renders identically is checked rather than asserted.
+            Reproducing a film is a command, not a memory. Two gates run on every capture, and both hold the file back
+            rather than reporting on it afterwards: a film that fails is never written.
           </p>
 
           <pre className="mt-6 overflow-x-auto rounded-card border border-border bg-card p-5 text-xs leading-relaxed">
             <code className="font-mono">{`yarn dev
-node scripts/capture-scene-video.mjs --verify`}</code>
+node scripts/capture-scene-video.mjs --scene pipeline --theme dark
+node scripts/capture-scene-video.mjs --scene pipeline --theme dark --verify`}</code>
           </pre>
 
           <p className="text-meta mt-5">
-            The capture clips to the scene itself. Capturing the whole viewport pulled the footer marquee into the
-            frames and two passes disagreed, which is how that flag earned its place.
+            The first gate is loop closure: the opening and closing frames are compared by SSIM and anything under 0.97
+            fails. The second is weight, capped at a megabyte. The verify flag adds a third, capturing the whole film
+            twice and comparing every frame, so determinism is checked rather than asserted.
+          </p>
+
+          <p className="text-meta mt-4">
+            The capture clips to the scene and renders it in a viewport taller than the clip. Both details were bought:
+            capturing the viewport pulled the footer marquee into the frames, and clipping to the exact viewport height
+            returned the last 43 rows blank, which sliced the day labels off every frame of the dashboard film.
           </p>
         </div>
       </MarketingSection>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { FrameDriver } from "./frame-driver";
+import { resolveSceneName } from "./scene-names";
 
 export const metadata: Metadata = {
   robots: { follow: false, index: false },
@@ -8,18 +9,19 @@ export const metadata: Metadata = {
 };
 
 type Props = {
-  searchParams: Promise<{ t?: string }>;
+  searchParams: Promise<{ scene?: string; t?: string }>;
 };
 
 export default async function SceneFramePage({ searchParams }: Props) {
-  const { t } = await searchParams;
+  const { scene, t } = await searchParams;
   const parsed = Number.parseFloat(t ?? "0");
   const initial = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 1) : 0;
+  const name = resolveSceneName(scene);
 
   return (
     <div className="bg-background">
-      <div data-scene-capture className="w-[1920px]">
-        <FrameDriver initial={initial} />
+      <div data-scene-capture className="w-[1280px]">
+        <FrameDriver initial={initial} scene={name} />
       </div>
     </div>
   );

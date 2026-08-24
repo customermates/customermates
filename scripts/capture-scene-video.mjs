@@ -15,8 +15,8 @@
 
 import { createHash } from "node:crypto";
 import { spawn } from "node:child_process";
-import { mkdir, rm, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
 
 import { launchChrome } from "./lib/cdp.mjs";
 
@@ -26,14 +26,34 @@ const flag = (name, fallback) => {
   return index === -1 ? fallback : args[index + 1];
 };
 
-const FPS = Number.parseInt(flag("fps", "30"), 10);
-const SECONDS = Number.parseFloat(flag("seconds", "11"));
+const FPS = Number.parseInt(flag("fps", "24"), 10);
+const SECONDS = Number.parseFloat(flag("seconds", "12"));
 const BASE = flag("url", "http://localhost:4000/en/styleguide/frame");
-const OUT = flag("out", "public/scenes/chat-draft.mp4");
-const WIDTH = 1920;
-const HEIGHT = 1080;
+const SCENE = flag("scene", "chat-draft");
+const THEME = flag("theme", "dark");
+const OUT = flag("out", `public/scenes/${THEME}/${SCENE}.mp4`);
+const MAX_BYTES = 1_048_576;
+const MIN_LOOP_SSIM = 0.97;
+const WIDTH = 1280;
+const HEIGHT = 920;
 const FRAMES = Math.round(FPS * SECONDS);
 const WORK = join("/tmp", `scene-capture-${process.pid}`);
+
+// Structural similarity between two frames, read back out of ffmpeg's own filter.
+async function ssim(a, b) {
+  return new Promise((resolve, reject) => {
+    const child = spawn("ffmpeg", ["-v", "info", "-i", a, "-i", b, "-filter_complex", "ssim", "-f", "null", "-"], {
+      stdio: ["ignore", "ignore", "pipe"],
+    });
+    let text = "";
+    child.stderr.on("data", (chunk) => (text += chunk.toString()));
+    child.on("error", reject);
+    child.on("exit", () => {
+      const match = text.match(/All:([0-9.]+)/u);
+      resolve(match ? Number.parseFloat(match[1]) : 0);
+    });
+  });
+}
 
 function run(command, commandArgs) {
   return new Promise((resolve, reject) => {
@@ -71,7 +91,7 @@ async function capturePass(browser, dir, clip) {
 
   for (let frame = 0; frame < FRAMES; frame += 1) {
     const t = frame / FRAMES;
-    await browser.eval(`(() => { window.setSceneFrame(${t}); return true; })()`);
+    await browser.eval(`(() => { ${DROP_DEV_OVERLAY} window.setSceneFrame(${t}); return true; })()`);
     const png = await settledScreenshot(browser, clip);
     hashes.push(createHash("sha1").update(png).digest("hex"));
     await writeFile(join(dir, `frame-${String(frame).padStart(5, "0")}.png`), png);
@@ -80,10 +100,19 @@ async function capturePass(browser, dir, clip) {
   return hashes;
 }
 
-const browser = await launchChrome({ width: WIDTH, height: HEIGHT, scale: 1 });
+// The dev server paints its own indicator into the corner of every page, and it lands inside
+// the clip. It is not part of the product, it re-mounts on its own, and a frame that carries it
+// is a frame we would have to retouch, so it is removed again before every single screenshot.
+const DROP_DEV_OVERLAY = 'for (const node of document.querySelectorAll("nextjs-portal")) node.remove();';
+
+// The viewport is deliberately taller than the frame we clip to. Chrome paints a clipped
+// screenshot only where it has painted the page, and a clip that reaches the very bottom of an
+// exactly-viewport-sized window came back with the last 43 rows blank: enough to slice the day
+// labels off the dashboard chart in every single frame.
+const browser = await launchChrome({ width: WIDTH, height: HEIGHT + 160, scale: 1 });
 
 try {
-  await browser.goto(`${BASE}?t=0`);
+  await browser.goto(`${BASE}?scene=${SCENE}&t=0`);
   await browser.eval(`(async () => {
     for (let i = 0; i < 200; i += 1) {
       if (window.sceneFrameReady) return true;
@@ -92,10 +121,18 @@ try {
     throw new Error("capture route never exposed setSceneFrame");
   })()`);
 
+  await browser.eval(`(() => { ${DROP_DEV_OVERLAY} return true; })()`);
+
   await browser.eval("document.fonts.ready.then(() => true)");
 
-  // The scene is authored dark, matching the reference posters.
-  await browser.eval(`(() => { document.documentElement.classList.remove("light"); document.documentElement.classList.add("dark"); return true; })()`);
+  // Theme is a flag now: a film ships as a light/dark pair because an MP4 cannot follow CSS.
+  await browser.eval(`(() => {
+    localStorage.setItem("theme", ${JSON.stringify(THEME)});
+    document.cookie = "theme=" + ${JSON.stringify(THEME)} + "; path=/; max-age=604800";
+    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.add(${JSON.stringify(THEME)});
+    return true;
+  })()`);
 
   // Clip to the scene itself. The capture route inherits the site layout, whose footer runs
   // a 25s infinite marquee; capturing the whole viewport pulled that animation into the
@@ -117,7 +154,10 @@ try {
     if (drift !== 0) process.exitCode = 1;
   }
 
-  await mkdir("public/scenes", { recursive: true });
+  // Nothing reaches public/ until every gate below has passed. A film that fails the loop or
+  // the weight budget used to be written anyway and only reported as an error, which left a
+  // broken artifact on disk looking exactly like a good one.
+  const staged = join(WORK, "staged.mp4");
   await run("ffmpeg", [
     "-y",
     "-framerate", String(FPS),
@@ -128,9 +168,34 @@ try {
     "-crf", "23",
     "-movflags", "+faststart",
     "-an",
-    OUT,
+    staged,
   ]);
-  console.log(`wrote ${OUT}`);
+
+  // A film has to arrive back where it started or the loop visibly jumps. The reference films
+  // measure 0.87 to 0.9999 first-vs-last frame; anything below 0.97 reads as a cut.
+  const closure = await ssim(join(WORK, "pass-1", "frame-00000.png"), join(WORK, "pass-1", `frame-${String(FRAMES - 1).padStart(5, "0")}.png`));
+  console.log(`loop closure SSIM ${closure.toFixed(4)}`);
+
+  const { size } = await stat(staged);
+  console.log(`${(size / 1024).toFixed(0)} KB`);
+
+  const failures = [];
+  if (closure < MIN_LOOP_SSIM) failures.push(`NOT a clean loop: ${closure.toFixed(4)} is below ${MIN_LOOP_SSIM}`);
+  if (size > MAX_BYTES) failures.push(`too heavy: ${(size / 1024).toFixed(0)} KB exceeds ${MAX_BYTES / 1024} KB`);
+
+  if (failures.length) {
+    for (const failure of failures) console.log(failure);
+    console.log(`kept ${OUT} as it was`);
+    process.exitCode = 1;
+  } else {
+    await mkdir(dirname(OUT), { recursive: true });
+    await writeFile(OUT, await readFile(staged));
+
+    // The poster is the film's own opening frame, so a video that has not loaded yet shows the
+    // state it will return to rather than an empty box.
+    await writeFile(OUT.replace(/\.mp4$/u, ".png"), await readFile(join(WORK, "pass-1", "frame-00000.png")));
+    console.log(`wrote ${OUT}`);
+  }
 } finally {
   await browser.close();
   await rm(WORK, { recursive: true, force: true });
