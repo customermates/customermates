@@ -182,6 +182,136 @@
   }
 }
 
+/* Illustration entrance.
+   The illustration's resting state IS its final state: nothing below sets an initial
+   value in base CSS. Each animation carries its own from-state inside its keyframes and
+   is applied with animation-fill-mode: backwards, so an element with no JavaScript, a
+   failed hydration, no IntersectionObserver, or reduced motion renders exactly the
+   finished drawing. The opposite arrangement (opacity: 0 in base CSS, revealed by the
+   animation) is how this pattern usually breaks: animation: none then freezes the
+   element invisible forever.
+
+   BODY and DETAIL fade with fill-opacity, not opacity. Their groups carry an opacity
+   presentation attribute (0.07 and 0.16); a CSS opacity declaration outranks a
+   presentation attribute, so animating opacity would end the sequence at full-strength
+   ink. fill-opacity multiplies with the group opacity instead of replacing it and ends
+   at its own initial value of 1, which is the render we already ship.
+
+   EDGE draws itself. pathLength="1" on each path normalises every length to one, so a
+   single inherited dasharray/dashoffset pair on the group means "my whole length" for a
+   short arrowhead and a long curve alike, with no JS measurement. The dash is 1 3 and
+   the offset overshoots to 1.02: a single repeating value would wrap a sliver of the
+   next dash onto the far end, and an offset landing exactly on a dash boundary paints a
+   round-cap dot at the path start.
+
+   ACCENT and MARK fade with opacity; their groups carry no opacity attribute, so 1 is
+   the correct end value. MARK sets transform-box: fill-box because the initial view-box
+   would scale the check about the SVG origin and fly it in from the corner. No element
+   holding a transform attribute may carry a part attribute: a CSS transform replaces the
+   attribute outright, so the accent check keeps its translate on an outer group and the
+   pop runs on a nested one.
+
+   Five beats inside 800ms on the one marketing curve. Durations are literals because
+   --marketing-duration is the control-transition duration and five beats are five
+   lengths. The delays are baked in here, as --animate-page-loading-in already does, so
+   no per-element CSS exists anywhere. */
+
+@keyframes illustration-body-in {
+  from {
+    fill-opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    fill-opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes illustration-detail-in {
+  from {
+    fill-opacity: 0;
+  }
+  to {
+    fill-opacity: 1;
+  }
+}
+
+@keyframes illustration-edge-draw {
+  from {
+    stroke-dashoffset: 1.02;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes illustration-accent-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes illustration-mark-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+[data-illustration-play] [data-illustration-part="body"] {
+  animation: illustration-body-in 260ms var(--marketing-ease) backwards;
+}
+
+[data-illustration-play] [data-illustration-part="detail"] {
+  animation: illustration-detail-in 200ms var(--marketing-ease) 180ms backwards;
+}
+
+[data-illustration-play] [data-illustration-part="edge"] {
+  stroke-dasharray: 1 3;
+  animation: illustration-edge-draw 300ms var(--marketing-ease) 300ms backwards;
+}
+
+[data-illustration-play] [data-illustration-part="accent"] {
+  animation: illustration-accent-in 260ms var(--marketing-ease) 480ms backwards;
+}
+
+[data-illustration-play] [data-illustration-part="mark"] {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: illustration-mark-pop 140ms var(--marketing-ease) 660ms backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-illustration-play] [data-illustration-part] {
+    animation: none;
+    fill-opacity: 1;
+    transform: none;
+  }
+
+  [data-illustration-play] [data-illustration-part="accent"],
+  [data-illustration-play] [data-illustration-part="mark"] {
+    opacity: 1;
+  }
+
+  [data-illustration-play] [data-illustration-part="edge"] {
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+  }
+}
+
 @keyframes collapsible-down {
   from { height: 0; }
   to { height: var(--radix-collapsible-content-height); }
