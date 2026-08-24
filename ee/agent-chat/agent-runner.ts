@@ -22,15 +22,14 @@ import {
   type ApprovalDecision,
 } from "./agent-tools";
 import { sse, type ReplayMessage } from "./agent-stream-utils";
-import { type AgentMessagePart } from "./agent-chat.schema";
-import { describeAgentTool, type AgentActivityResource } from "./agent-activity";
-import { AgentVisibleTextStreamSanitizer } from "./agent-output-safety";
+import { describeAgentTool } from "./agent-activity";
 import {
   isAgentContextWithinBudget,
   resolveAgentToolResultMaxChars,
   type AgentTurnBudget,
 } from "./agent-budget-policy";
 import { isAgentTurnTerminalError, type AgentTurnTerminalCode } from "./agent-turn-request";
+import { AgentTurnTranscript, type AgentTranscriptEvent } from "./agent-turn-transcript";
 import { buildAgentProviderContext, isAgentStepContextWithinBudget } from "./agent-provider-context";
 import { agentTranslator, type AgentTranslator } from "./agent-translator";
 import { resolveAgentApprovalContext } from "./agent-external-approval-context";
@@ -192,16 +191,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
           userId: ctx.userId,
           expiresAt: new Date(deadline),
         });
-        const activity = describeAgentTool(internalToolIdentity(toolName), input);
-        const approvalPart: Extract<AgentMessagePart, { type: "approval" }> = {
-          type: "approval",
-          id: requestId,
-          activity,
-          status: "pending",
-        };
-        approvalParts.set(requestId, approvalPart);
-        replyParts.push(approvalPart);
-        emit("approval_request", { requestId, activity });
+        transcript.beginApproval(requestId, describeAgentTool(internalToolIdentity(toolName), input));
         while (!signal.aborted) {
           const approval = await repo.findApprovalDecisionUnscoped({
             conversationId: ctx.conversationId,
@@ -211,8 +201,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
           });
           if (approval) {
             const decision = approval.toolName === toolName ? approval.decision : "reject";
-            approvalPart.status = decision === "approve" ? "approved" : "rejected";
-            emit("approval_resolved", { requestId, decision });
+            transcript.resolveApproval(requestId, decision === "approve" ? "approved" : "rejected", decision);
             return decision;
           }
           if (Date.now() > deadline) {
@@ -222,8 +211,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
               companyId: ctx.companyId,
               userId: ctx.userId,
             });
-            approvalPart.status = "timeout";
-            emit("approval_resolved", { requestId, decision: "timeout" });
+            transcript.resolveApproval(requestId, "timeout", "timeout");
             return "timeout";
           }
           await delay(ctx.approvalPollMs ?? AGENT_APPROVAL_POLL_MS, signal);
@@ -234,7 +222,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
           companyId: ctx.companyId,
           userId: ctx.userId,
         });
-        approvalPart.status = "cancelled";
+        transcript.setApprovalStatus(requestId, "cancelled");
         return "timeout";
       };
 
@@ -268,14 +256,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
         return { ok: false, result: "The interface command was interrupted." };
       };
 
-      let replyText = "";
-      let visibleText = new AgentVisibleTextStreamSanitizer();
-      const replyParts: AgentMessagePart[] = [];
-      const toolParts = new Map<string, Extract<AgentMessagePart, { type: "activity" }>>();
-      const invalidToolCallIds = new Set<string>();
-      const retryableFailureByTool = new Map<string, string>();
-      const approvalParts = new Map<string, Extract<AgentMessagePart, { type: "approval" }>>();
-      const affectedResources = new Set<AgentActivityResource>();
+      const transcript = new AgentTurnTranscript((event: AgentTranscriptEvent) => emit(event.type, event.payload));
       let tokens = EMPTY_TOKENS;
       let providerStepsStarted = 0;
       let providerStepsFinished = 0;
@@ -297,43 +278,14 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
           measuredCostMicrocents = (measuredCostMicrocents ?? 0) + reading.charge.costMicrocents;
       };
       let finishReason: string | undefined;
-      let removedToolProtocol = false;
       const continuationState: { decision: AgentContinuationDecision | null } = { decision: null };
       let turnDone: {
         isError: boolean;
         numTurns: number;
         errorMessage: string | null;
       } | null = null;
-      const appendReplyText = (text: string) => {
-        replyText += text;
-        const lastPart = replyParts.at(-1);
-        if (lastPart?.type === "text") lastPart.text += text;
-        else replyParts.push({ type: "text", text });
-      };
-      const emitVisibleText = (text: string) => {
-        if (!text) return;
-        appendReplyText(text);
-        emit("delta", { text });
-      };
-      const finishVisibleTextSegment = () => {
-        emitVisibleText(visibleText.finish());
-        removedToolProtocol ||= visibleText.removedToolProtocol;
-        visibleText = new AgentVisibleTextStreamSanitizer();
-      };
-      const finishTool = (id: string, status: "done" | "error" | "cancelled") => {
-        const toolPart = toolParts.get(id);
-        if (!toolPart) return;
-        toolPart.status = status;
-        if (status === "done" && toolPart.activity.risk !== "read")
-          toolPart.activity.affectedResources.forEach((resource) => affectedResources.add(resource));
-      };
-      const failUnfinishedTools = (shouldEmit: boolean) => {
-        for (const [id, toolPart] of toolParts) {
-          if (toolPart.status !== "running") continue;
-          finishTool(id, signal.aborted ? "cancelled" : "error");
-          if (shouldEmit) emit("activity_result", { id, isError: true });
-        }
-      };
+      const failUnfinishedTools = (shouldEmit: boolean) =>
+        transcript.failUnfinishedTools(signal.aborted ? "cancelled" : "error", shouldEmit);
       try {
         const sessionUser = await getUserService().getActiveUserOrThrow();
         if (sessionUser.companyId !== ctx.companyId || sessionUser.id !== ctx.userId)
@@ -483,53 +435,26 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
         });
 
         for await (const part of result.fullStream) {
-          if (part.type === "text-delta" && part.text) {
-            emitVisibleText(visibleText.push(part.text));
-            removedToolProtocol ||= visibleText.removedToolProtocol;
-          } else if (part.type === "tool-call") {
-            if ("invalid" in part && part.invalid) invalidToolCallIds.add(part.toolCallId);
-            finishVisibleTextSegment();
-            const supersededId = retryableFailureByTool.get(part.toolName);
-            if (supersededId) {
-              retryableFailureByTool.delete(part.toolName);
-              const supersededPart = toolParts.get(supersededId);
-              const supersededIndex = supersededPart ? replyParts.indexOf(supersededPart) : -1;
-              if (supersededIndex >= 0) replyParts.splice(supersededIndex, 1);
-              toolParts.delete(supersededId);
-              emit("activity_superseded", { id: supersededId });
-            }
-            const activity = describeAgentTool(internalToolIdentity(part.toolName), part.input);
-            const toolPart: Extract<AgentMessagePart, { type: "activity" }> = {
-              type: "activity",
-              id: part.toolCallId,
-              activity,
-              status: "running",
-            };
-            toolParts.set(part.toolCallId, toolPart);
-            replyParts.push(toolPart);
-            emit("activity", {
-              id: part.toolCallId,
-              activity,
+          if (part.type === "text-delta" && part.text) transcript.pushTextDelta(part.text);
+          else if (part.type === "tool-call") {
+            transcript.beginToolCall({
+              toolCallId: part.toolCallId,
+              toolName: part.toolName,
+              activity: describeAgentTool(internalToolIdentity(part.toolName), part.input),
+              invalid: "invalid" in part && part.invalid === true,
             });
           } else if (part.type === "tool-result") {
             const cancelled = isAgentToolCancellation(part.output);
             const failed = !cancelled && isStructuredToolFailure(part.output);
-            const status = cancelled ? "cancelled" : failed ? "error" : "done";
-            if (failed && part.toolName) retryableFailureByTool.set(part.toolName, part.toolCallId);
-            finishTool(part.toolCallId, status);
-            emit("activity_result", {
-              id: part.toolCallId,
-              isError: failed,
-              status,
+            transcript.completeToolCall({
+              toolCallId: part.toolCallId,
+              toolName: part.toolName,
+              status: cancelled ? "cancelled" : failed ? "error" : "done",
+              failed,
             });
           } else if (part.type === "tool-error") {
-            if (!invalidToolCallIds.delete(part.toolCallId) && !isExpectedErrorInCauseChain(part.error))
-              Sentry.captureException(part.error);
-            finishTool(part.toolCallId, "error");
-            emit("activity_result", {
-              id: part.toolCallId,
-              isError: true,
-            });
+            const { wasInvalidToolCall } = transcript.failToolCall(part.toolCallId);
+            if (!wasInvalidToolCall && !isExpectedErrorInCauseChain(part.error)) Sentry.captureException(part.error);
           } else if (part.type === "finish-step") {
             const alive = await repo.heartbeatAgentRunUnscoped({
               turnRequestId: ctx.turnRequestId,
@@ -548,14 +473,14 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
           } else if (part.type === "finish") finishReason = part.finishReason;
           else if (part.type === "error") throw part.error;
         }
-        finishVisibleTextSegment();
+        transcript.finishTextSegment();
         if (signal.aborted) throw new Error("The agent turn was cancelled.");
 
-        if (removedToolProtocol) {
+        if (transcript.removedToolProtocol) {
           Sentry.captureException(new Error("The assistant emitted tool protocol as visible text."));
           const fallback = copy.turnError;
-          const delta = replyText.trim() ? `\n\n${fallback}` : fallback;
-          appendReplyText(delta);
+          const delta = transcript.replyText.trim() ? `\n\n${fallback}` : fallback;
+          transcript.appendText(delta);
           emit("delta", { text: delta });
           turnDone = {
             isError: true,
@@ -567,16 +492,16 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
           continuationState.decision.reason !== "step_limit"
         ) {
           const fallback = copy.safetyLimit;
-          const delta = replyText.trim() ? `\n\n${fallback}` : fallback;
-          appendReplyText(delta);
+          const delta = transcript.replyText.trim() ? `\n\n${fallback}` : fallback;
+          transcript.appendText(delta);
           emit("delta", { text: delta });
           turnDone = {
             isError: true,
             numTurns: 1,
             errorMessage: "safety_limit",
           };
-        } else if (replyParts.length === 0) {
-          appendReplyText(copy.emptyReply);
+        } else if (transcript.replyParts.length === 0) {
+          transcript.appendText(copy.emptyReply);
           emit("delta", { text: copy.emptyReply });
           turnDone = {
             isError: true,
@@ -585,8 +510,8 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
           };
         } else if (finishReason === "tool-calls") {
           const fallback = copy.maxSteps;
-          const delta = replyText.trim() ? `\n\n${fallback}` : fallback;
-          appendReplyText(delta);
+          const delta = transcript.replyText.trim() ? `\n\n${fallback}` : fallback;
+          transcript.appendText(delta);
           emit("delta", { text: delta });
           turnDone = {
             isError: true,
@@ -595,8 +520,8 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
           };
         } else if (finishReason === "length") {
           const fallback = copy.outputLimit;
-          const delta = replyText.trim() ? `\n\n${fallback}` : fallback;
-          appendReplyText(delta);
+          const delta = transcript.replyText.trim() ? `\n\n${fallback}` : fallback;
+          transcript.appendText(delta);
           emit("delta", { text: delta });
           turnDone = {
             isError: true,
@@ -605,8 +530,8 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
           };
         } else if (finishReason && finishReason !== "stop") {
           const fallback = copy.turnError;
-          const delta = replyText.trim() ? `\n\n${fallback}` : fallback;
-          appendReplyText(delta);
+          const delta = transcript.replyText.trim() ? `\n\n${fallback}` : fallback;
+          transcript.appendText(delta);
           emit("delta", { text: delta });
           turnDone = {
             isError: true,
@@ -623,18 +548,18 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
       } catch (error) {
         if (providerAttempted)
           accountProviderCharge(readAgentProviderChargeFromError(error, ctx.turnBudget.servingProvider));
-        finishVisibleTextSegment();
+        transcript.finishTextSegment();
         if (signal.aborted) {
-          const fallback = replyText.trim() ? `\n\n${copy.cancelled}` : copy.cancelled;
-          appendReplyText(fallback);
+          const fallback = transcript.replyText.trim() ? `\n\n${copy.cancelled}` : copy.cancelled;
+          transcript.appendText(fallback);
           turnDone = {
             isError: true,
             numTurns: 1,
             errorMessage: "cancelled",
           };
         } else if (isAgentTimeoutError(error)) {
-          const fallback = replyText.trim() ? `\n\n${copy.safetyLimit}` : copy.safetyLimit;
-          appendReplyText(fallback);
+          const fallback = transcript.replyText.trim() ? `\n\n${copy.safetyLimit}` : copy.safetyLimit;
+          transcript.appendText(fallback);
           emit("delta", { text: fallback });
           turnDone = {
             isError: true,
@@ -643,8 +568,8 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
           };
         } else {
           if (!isExpectedErrorInCauseChain(error)) Sentry.captureException(error);
-          const fallback = replyText.trim() ? `\n\n${copy.turnError}` : copy.turnError;
-          appendReplyText(fallback);
+          const fallback = transcript.replyText.trim() ? `\n\n${copy.turnError}` : copy.turnError;
+          transcript.appendText(fallback);
           emit("delta", { text: fallback });
           turnDone = {
             isError: true,
@@ -655,7 +580,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
       } finally {
         failUnfinishedTools(!signal.aborted);
         if (!turnDone) {
-          appendReplyText(signal.aborted ? copy.cancelled : copy.turnError);
+          transcript.appendText(signal.aborted ? copy.cancelled : copy.turnError);
           turnDone = {
             isError: true,
             numTurns: 1,
@@ -679,9 +604,9 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
             companyId: ctx.companyId,
             userId: ctx.userId,
             runId: ctx.runId,
-            parts: replyParts as unknown as Prisma.InputJsonValue,
+            parts: transcript.replyParts as unknown as Prisma.InputJsonValue,
             terminalCode,
-            affectedResources: Array.from(affectedResources),
+            affectedResources: transcript.affectedResources,
             usageSettlement: providerAttempted
               ? buildTurnUsageSettlement(ctx.turnBudget.modelSpec, tokens, {
                   provider: ctx.turnBudget.servingProvider,
