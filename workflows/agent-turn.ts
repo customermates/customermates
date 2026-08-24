@@ -437,6 +437,16 @@ async function closeTurnStream(): Promise<void> {
   await getWritable().close();
 }
 
+async function closeTurnStreamAfterFailure(): Promise<void> {
+  "use step";
+  try {
+    await getWritable().close();
+  } catch {
+    return;
+  }
+}
+closeTurnStreamAfterFailure.maxRetries = 0;
+
 async function finalizeTurn(
   payload: AgentTurnWorkflowPayload,
   outcome: {
@@ -877,6 +887,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     await closeTurnStream();
   } catch (error) {
     await reportFailure(WORKFLOW_NAME, toWorkflowFailure(error), payload.tenant);
+    await closeTurnStreamAfterFailure();
     throw error;
   }
 }
