@@ -51,7 +51,7 @@ export function AgentOperatesCrm(props: SchematicProps) {
 
         <SchematicNode title="Customermates">
           <div className="flex flex-wrap gap-1.5">
-            <AppChip size="sm">{`${MCP_TOOL_COUNT} allowed operations`}</AppChip>
+            <AppChip size="sm">{`${MCP_TOOL_COUNT} operations`}</AppChip>
 
             <AppChip size="sm">your permissions</AppChip>
           </div>

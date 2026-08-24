@@ -1,8 +1,8 @@
 import { SceneCursor, type CursorWaypoint } from "./scene-cursor";
 import { SceneFrame, SceneWindow, sceneAfter, type SceneBeats, type SceneProps } from "./scene-grammar";
+import { SceneAvatarStack } from "./scene-avatar-stack";
 import {
   AppChip,
-  Avatar,
   Card,
   CardContent,
   DATA_KANBAN_CARDS_CLASS_NAME,
@@ -10,7 +10,6 @@ import {
   DATA_KANBAN_HEADER_CLASS_NAME,
   DATA_KANBAN_ROOT_CLASS_NAME,
   DATA_KANBAN_TRACK_CLASS_NAME,
-  OverlappingStack,
 } from "./platform";
 
 import { cn } from "@/core/utils/cn";
@@ -201,12 +200,7 @@ export function PipelineScene({ className, film, label, t }: SceneProps) {
                               <div className="flex items-center justify-between gap-3 text-sm">
                                 <span className="shrink-0 text-xs text-muted-foreground">Assigned</span>
 
-                                <OverlappingStack
-                                  badgeKey={(owner) => owner.name}
-                                  badges={[deal.owner]}
-                                  renderBadge={(owner) => <Avatar name={owner.name} src={owner.photo} />}
-                                  renderOverflow={(count) => <Avatar fallback={`+${count}`} />}
-                                />
+                                <SceneAvatarStack owners={[deal.owner]} />
                               </div>
                             </div>
                           </CardContent>

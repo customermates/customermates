@@ -12,38 +12,38 @@ import {
 } from "@/components/marketing/schematics/brand-schematic";
 
 const GRAMMAR_RULES = [
-  "The ground is a raised rung. Flat fill, no gradient, no shadow, no perspective.",
-  "Neutral shapes are the page ink at two opacities, 0.07 and 0.16. Never a third.",
-  "Exactly one element carries the accent. It is the subject of the sentence.",
-  "The accent marks what changed, resolved or won. Never what is merely present.",
-  "Rounded rectangles and circles only. The radius grows with the shape.",
-  "At least a third of the frame stays empty. If it does not, remove an element.",
+  "A schematic depicts a capability that has no single screen. If the thing has a screen, capture it or draw a scene instead.",
+  "Our own systems are real components. A node showing a deal is the application's Card, not a drawing of one.",
+  "A system that is not ours is a dashed, unfilled node. The reader must never mistake it for a surface we built.",
+  "Every edge carries the real name of what crosses it, in the monospace face: MCP, relation.new, writes.",
+  "Every claim is traceable. A count comes from the registry that produces it, not from memory.",
+  "Name the protocol, not the vendor. An AI client is generic, because the capability does not depend on which one.",
 ];
 
 const ILLUSTRATIONS = [
   {
-    accent: "the record the conversation landed on",
+    accent: "the record the client changed",
     element: <AgentOperatesCrm />,
     name: "AgentOperatesCrm",
-    use: "Homepage and feature heroes — a stack where one item is now settled",
+    use: "Homepage and MCP pages — an outside client operating your CRM",
   },
   {
-    accent: "the single customer every channel meets at",
+    accent: "the activity that appeared without anyone doing it",
     element: <ConnectionAccepted />,
     name: "ConnectionAccepted",
-    use: "Industry and integration pages — many inputs, one destination",
+    use: "Channel and integration pages — something happening elsewhere, landing here",
   },
   {
-    accent: "the column that wins",
+    accent: "the record the workflow wrote",
     element: <AutomationNode />,
     name: "AutomationNode",
-    use: "Comparison and alternative pages — two sets weighed",
+    use: "Automation pages — a workflow node calling in on a schedule",
   },
   {
-    accent: "the one row the page is actually about",
+    accent: "the message only a human can send",
     element: <AgentDraftsHumanSends />,
     name: "AgentDraftsHumanSends",
-    use: "Feature pages — one detail inside a larger surface",
+    use: "Inbox and agent pages — the half of the story that has no screen",
   },
 ];
 
@@ -72,11 +72,14 @@ export function ImageClasses() {
         <div className="marketing-grid mt-14 gap-y-4 lg:mt-16">
           {[
             {
-              body: "Token-driven SVG drawn from the grammar below. No model call, no file.",
-              title: "Brand illustration",
+              body: "Real components as nodes, for a capability that has no screen of its own.",
+              title: "Schematic",
             },
             { body: "A real capture of the running product, matted in a token frame.", title: "Product proof" },
-            { body: "Nodes, edges and one accent, for a flow that words alone would blur.", title: "Schematic" },
+            {
+              body: "A drawn product window, animatable and filmable, built from the real components.",
+              title: "Scene",
+            },
             { body: "The 1200×630 card a link unfurls into. Dark on both site themes.", title: "Social card" },
           ].map((item) => (
             <article
@@ -92,8 +95,8 @@ export function ImageClasses() {
       </MarketingSection>
 
       <MarketingSection
-        description="Six rules produce every illustration below. If one of them looks wrong, the rule that made it is the thing to change."
-        title="Class 1 — the brand illustration grammar"
+        description="Some capabilities are real and load-bearing but have no screen: the surface belongs to another platform, or the work happens in the background. A system made only of screenshots under-represents exactly those."
+        title="Class 1 — the schematic"
       >
         <div className="marketing-grid mt-14 gap-y-4 lg:mt-16">
           {GRAMMAR_RULES.map((rule, index) => (
@@ -110,9 +113,10 @@ export function ImageClasses() {
 
         <div className="mx-auto mt-16 max-w-3xl text-center">
           <p className="text-lede">
-            The neutral ink is <code className="font-mono text-sm text-foreground">var(--foreground)</code> at two
-            opacities rather than a colour token, so a shape reads identically on any rung and flips with the theme
-            without a second palette.
+            A schematic is the easiest place in the system to state something untrue, because it depicts a system rather
+            than a screen and cannot be falsified by looking at the product. Every node names something that exists in
+            the code and every edge is a real call path. The tool count below is imported from the registry rather than
+            typed.
           </p>
         </div>
 
@@ -129,7 +133,7 @@ export function ImageClasses() {
                 </div>
               </div>
 
-              <ThemePair>{illustration.element}</ThemePair>
+              <ThemePair stacked>{illustration.element}</ThemePair>
             </div>
           ))}
         </div>
