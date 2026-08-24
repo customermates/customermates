@@ -13,8 +13,15 @@ import { PUBLIC_ROUTES } from "@/i18n/routing";
 
 const REPO_ROOT = resolve(__dirname, "../../..");
 
-function comparePageSlugs(locale: string): Set<string> {
-  const directory = join(REPO_ROOT, "content", "compare-pages", locale);
+const COLLECTION_BY_PREFIX: Record<string, string> = {
+  "/compare/": "compare-pages",
+  "/docs/": "docs",
+};
+
+const STATIC_ROUTES = new Set<string>(PUBLIC_ROUTES.filter((route) => !route.includes(":")));
+
+function publishedSlugs(collection: string, locale: string): Set<string> {
+  const directory = join(REPO_ROOT, "content", collection, locale);
   if (!existsSync(directory)) return new Set();
   return new Set(
     readdirSync(directory, { withFileTypes: true })
@@ -23,18 +30,24 @@ function comparePageSlugs(locale: string): Set<string> {
   );
 }
 
-function slugOf(routePath: string): string {
-  return routePath.slice("/compare/".length);
+function prefixOf(routePath: string): string | null {
+  return Object.keys(COLLECTION_BY_PREFIX).find((prefix) => routePath.startsWith(prefix)) ?? null;
+}
+
+function resolvesToLivePage(routePath: string, locale: string): boolean {
+  if (STATIC_ROUTES.has(routePath)) return true;
+  const prefix = prefixOf(routePath);
+  if (!prefix) return false;
+  return publishedSlugs(COLLECTION_BY_PREFIX[prefix], locale).has(routePath.slice(prefix.length));
 }
 
 describe("permanent route aliases", () => {
-  it("points every retired route at a page that still exists", () => {
+  it("points every retired route at a destination that still resolves", () => {
     for (const locale of CONTENT_LOCALES) {
-      const slugs = comparePageSlugs(locale);
-      for (const survivor of Object.values(PERMANENT_ROUTE_ALIASES)) {
+      for (const destination of new Set(Object.values(PERMANENT_ROUTE_ALIASES))) {
         expect(
-          slugs.has(slugOf(survivor)),
-          `${survivor} does not exist in ${locale}, so the redirect would send a crawler from one dead URL to another`,
+          resolvesToLivePage(destination, locale),
+          `${destination} does not resolve in ${locale}, so the redirect would send a crawler from one dead URL to another`,
         ).toBe(true);
       }
     }
@@ -42,10 +55,9 @@ describe("permanent route aliases", () => {
 
   it("keeps every retired route genuinely retired in every content locale", () => {
     for (const locale of CONTENT_LOCALES) {
-      const slugs = comparePageSlugs(locale);
       for (const retired of RETIRED_ROUTE_PATHS) {
         expect(
-          slugs.has(slugOf(retired)),
+          resolvesToLivePage(retired, locale),
           `${retired} is still published in ${locale}; a half-retirement leaves the duplicate competing on one side while the redirect fires on the other`,
         ).toBe(false);
       }
@@ -62,9 +74,11 @@ describe("permanent route aliases", () => {
   });
 
   it("never retires a route the application still declares", () => {
-    const declared = new Set<string>(PUBLIC_ROUTES.filter((route) => !route.includes(":")));
-    for (const retired of RETIRED_ROUTE_PATHS)
-      expect(declared.has(retired), `${retired} is a declared public route and cannot be aliased away`).toBe(false);
+    for (const retired of RETIRED_ROUTE_PATHS) {
+      expect(STATIC_ROUTES.has(retired), `${retired} is a declared public route and cannot be aliased away`).toBe(
+        false,
+      );
+    }
   });
 
   it("emits a permanent redirect per content locale plus a locale-less entry", () => {
