@@ -49,7 +49,7 @@ export function ChatDraftScene({ className, film, label, t }: SceneProps) {
   const retracted = sceneUnstream(DRAFT, clock, CHAT_DRAFT_BEATS.reset);
   const resetting = sceneAfter(clock, CHAT_DRAFT_BEATS.reset[0]);
   const draft = resetting ? retracted : typed;
-  const sent = sceneAfter(clock, CHAT_DRAFT_BEATS.sent[0]) && !resetting;
+  const sent = sceneAfter(clock, CHAT_DRAFT_BEATS.sent[0]) && draft.visible.length > 0;
   const waiting = draft.visible.length > 0 && !draft.typing;
 
   return (
@@ -61,7 +61,7 @@ export function ChatDraftScene({ className, film, label, t }: SceneProps) {
           <SceneBubble>{INBOUND}</SceneBubble>
 
           <div style={{ opacity: draft.visible ? 1 : 0 }}>
-            <SceneBubble from={sent ? "them" : "draft"}>
+            <SceneBubble from={sent ? "mine" : "draft"}>
               {draft.visible}
 
               {draft.typing ? <SceneCaret visible={sceneCaretVisible(clock, CHAT_DRAFT_DURATION_MS)} /> : null}

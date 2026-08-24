@@ -123,16 +123,16 @@ export function SceneBubble({
 }: {
   children: ReactNode;
   className?: string;
-  from?: "them" | "draft";
+  from?: "them" | "draft" | "mine";
 }) {
   return (
-    <div className={cn("flex", from === "draft" ? "justify-end" : "justify-start", className)}>
+    <div className={cn("flex", from === "them" ? "justify-start" : "justify-end", className)}>
       <div
         className={cn(
           "scene-text max-w-[76%] rounded-panel px-[2.2cqw] py-[1.5cqw]",
-          from === "them"
-            ? "scene-ink-surface scene-ink-body"
-            : "scene-ink-accent border-2 border-dashed border-primary/70 text-foreground",
+          from === "them" && "scene-ink-surface scene-ink-body",
+          from === "draft" && "scene-ink-accent border-2 border-dashed border-primary/70 text-foreground",
+          from === "mine" && "scene-ink-accent border-2 border-solid border-primary/70 text-foreground",
         )}
       >
         {children}

@@ -56,8 +56,21 @@ const FILMED = {
 
 const LAST_FRAME = 1 - 1 / 288;
 
+const POINTER_AT = /left:([\d.]+)%;top:([\d.]+)%/u;
+
+const POINTER_TOLERANCE = 0.5;
+
 function withoutPointerPosition(markup: string): string {
   return markup.replaceAll(/left:[\d.]+%;top:[\d.]+%/gu, "left:*;top:*");
+}
+
+function pointerAt(markup: string): [number, number] | null {
+  const match = markup.match(POINTER_AT);
+  return match ? [Number.parseFloat(match[1]), Number.parseFloat(match[2])] : null;
+}
+
+function filmFrames(Scene: (typeof FILMED)[keyof typeof FILMED]) {
+  return [0, LAST_FRAME].map((t) => renderToStaticMarkup(createElement(Scene, { film: true, t })));
 }
 
 function parseStreamedText(source: string): { beat: string; text: string } | null {
@@ -137,16 +150,35 @@ describe("scene grammar", () => {
     const problems: string[] = [];
 
     for (const [file, Scene] of Object.entries(FILMED)) {
-      const opening = withoutPointerPosition(renderToStaticMarkup(createElement(Scene, { film: true, t: 0 })));
-      const closing = withoutPointerPosition(
-        renderToStaticMarkup(createElement(Scene, { film: true, t: LAST_FRAME })),
-      );
-      if (opening !== closing) problems.push(file);
+      const [opening, closing] = filmFrames(Scene);
+      if (withoutPointerPosition(opening) !== withoutPointerPosition(closing)) problems.push(file);
     }
 
     expect(
       problems,
       "the last frame has to render what the first frame renders, or the loop reads as a cut",
+    ).toEqual([]);
+  });
+
+  it("brings the cursor home, because the loop compares everything except where it points", () => {
+    const problems: string[] = [];
+
+    for (const [file, Scene] of Object.entries(FILMED)) {
+      const [opening, closing] = filmFrames(Scene).map(pointerAt);
+      if (!opening || !closing) {
+        problems.push(`${file}: rendered no cursor to check`);
+        continue;
+      }
+
+      const drift = Math.max(Math.abs(opening[0] - closing[0]), Math.abs(opening[1] - closing[1]));
+      if (drift > POINTER_TOLERANCE) {
+        problems.push(`${file}: cursor ends ${drift.toFixed(1)}% from where it started`);
+      }
+    }
+
+    expect(
+      problems,
+      "a cursor left anywhere but its opening position teleports on every loop, and it is far too small for the capture's SSIM gate to notice",
     ).toEqual([]);
   });
 

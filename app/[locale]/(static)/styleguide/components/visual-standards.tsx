@@ -101,6 +101,7 @@ const REFERENCE_DECODE = [
   { measured: "none, or a silent audio track", ours: "no audio track at all", what: "Audio" },
   { measured: "368 KB to 1.1 MB", ours: "under 160 KB", what: "Weight" },
   { measured: "0.87 to 0.9999", ours: "0.9995 and better", what: "First frame against last" },
+  { measured: "not applicable", ours: "0.95 floor, gated", what: "Roughest step inside" },
 ];
 
 const DONTS = [
@@ -336,7 +337,7 @@ export function NoteAddedScene({ className, label }: SceneProps) {
       </MarketingSection>
 
       <MarketingSection
-        description="The same components as the static scenes above, each handed a clock. This is what the films below are before they are captured, which is why they are the one live animation the system still allows and why they live here rather than on a public page."
+        description="The same components as the static scenes above, each handed a clock. This is what the films below are before they are captured, which is why a scene keeps a live version at all, and why that version belongs here rather than on a public page."
         id="motion"
         title="Standard two — the living scene"
       >
@@ -399,7 +400,7 @@ export function NoteAddedScene({ className, label }: SceneProps) {
       </MarketingSection>
 
       <MarketingSection
-        description="The same scenes again, captured frame by frame instead of played. Public pages embed the file, not the animation: a marketing page ships MP4s, and a live JS animation exists only here, as the engine documenting itself."
+        description="The same scenes again, captured frame by frame instead of played. A public page embeds the file rather than the animation, and the live version stays here as the engine documenting itself. One live animation still runs on a public page, the homepage clip terminal, and it predates this rule rather than qualifying it."
         title="Standard three — the film"
       >
         <div className="marketing-grid mt-14 gap-y-10 lg:mt-16">
@@ -479,8 +480,17 @@ node scripts/capture-scene-video.mjs --scene pipeline --theme dark --verify`}</c
 
           <p className="text-meta mt-5">
             The first gate is loop closure: the opening and closing frames are compared by SSIM and anything under 0.97
-            fails. The second is weight, capped at a megabyte. The verify flag adds a third, capturing the whole film
-            twice and comparing every frame, so determinism is checked rather than asserted.
+            fails. The second reads the inside of the film, comparing every frame with the one after it and failing
+            below 0.95, because a loop can close perfectly and still cut in the middle. The third is weight, capped at a
+            megabyte. The verify flag adds a fourth, capturing the whole film twice and comparing every frame, so
+            determinism is checked rather than asserted.
+          </p>
+
+          <p className="text-meta mt-4">
+            The second gate exists because a film shipped without it. A sent message reverted to an unsent draft in one
+            frame and jumped across the window, scoring 0.9418 between two adjacent frames, while the loop gate saw a
+            perfect 1.0000 and the convention test saw two identical end frames. The floor of 0.95 sits above the
+            noisiest legitimate step, which is text reflowing by a line at about 0.962.
           </p>
 
           <p className="text-meta mt-4">

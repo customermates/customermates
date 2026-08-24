@@ -48,6 +48,7 @@ export function PipelineScene({ className, film, label, t }: SceneProps) {
   const inbound = sceneAfter(clock, PIPELINE_BEATS.carryBack[0]) && !sceneAfter(clock, PIPELINE_BEATS.settle[0]);
   const carried = outbound || inbound;
   const landed = sceneAfter(clock, PIPELINE_BEATS.drop[0]) && !sceneAfter(clock, PIPELINE_BEATS.carryBack[0]);
+  const slotColumn = landed || inbound ? 1 : 0;
   const pointer = typeof t === "number" ? scenePointer(CURSOR_PATH, clock) : null;
 
   return (
@@ -73,7 +74,7 @@ export function PipelineScene({ className, film, label, t }: SceneProps) {
               <p className="scene-meta scene-ink-quiet m-0">{column.name}</p>
 
               {column.cards
-                .filter((card) => !(card === DRAGGED && (carried || landed)))
+                .filter((card) => card !== DRAGGED)
                 .map((card) => (
                   <div
                     key={card}
@@ -86,8 +87,13 @@ export function PipelineScene({ className, film, label, t }: SceneProps) {
                   </div>
                 ))}
 
-              {landed && columnIndex === 1 ? (
-                <div className="scene-text scene-ink-accent rounded-card px-[1.6cqw] py-[1.4cqw] text-foreground">
+              {columnIndex <= 1 ? (
+                <div
+                  className={cn(
+                    "scene-text rounded-card px-[1.6cqw] py-[1.4cqw]",
+                    !carried && columnIndex === slotColumn ? "scene-ink-accent text-foreground" : "invisible",
+                  )}
+                >
                   {DRAGGED}
                 </div>
               ) : null}

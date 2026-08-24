@@ -34,6 +34,12 @@ const THEME = flag("theme", "dark");
 const OUT = flag("out", `public/scenes/${THEME}/${SCENE}.mp4`);
 const MAX_BYTES = 1_048_576;
 const MIN_LOOP_SSIM = 0.97;
+
+// Loop closure only ever compared the two ends, so a hard cut in the middle of a film sailed
+// through both gates. One was shipped: a sent message reverted to a draft in a single frame and
+// jumped across the window, scoring 0.9418 between two adjacent frames. Text reflowing by a line
+// is the noisiest legitimate step and measures about 0.962, so the floor sits between the two.
+const MIN_STEP_SSIM = 0.95;
 const WIDTH = 1280;
 const HEIGHT = 920;
 const FRAMES = Math.round(FPS * SECONDS);
@@ -53,6 +59,28 @@ async function ssim(a, b) {
       resolve(match ? Number.parseFloat(match[1]) : 0);
     });
   });
+}
+
+// Every adjacent pair of frames in one ffmpeg pass: the same image sequence is opened twice, the
+// second starting one frame later, so frame n is compared with frame n + 1 all the way through.
+async function stepSimilarity(dir) {
+  const statsPath = join(dir, "steps.txt");
+  await run("ffmpeg", [
+    "-y", "-v", "error",
+    "-start_number", "0", "-i", join(dir, "frame-%05d.png"),
+    "-start_number", "1", "-i", join(dir, "frame-%05d.png"),
+    "-filter_complex", `ssim=stats_file=${statsPath}`,
+    "-f", "null", "-",
+  ]);
+
+  const stats = await readFile(statsPath, "utf8");
+  const steps = [];
+  for (const line of stats.split("\n")) {
+    const match = line.match(/n:(\d+).*All:([0-9.]+)/u);
+    if (match) steps.push({ frame: Number.parseInt(match[1], 10) - 1, value: Number.parseFloat(match[2]) });
+  }
+
+  return steps.sort((a, b) => a.value - b.value);
 }
 
 function run(command, commandArgs) {
@@ -176,11 +204,23 @@ try {
   const closure = await ssim(join(WORK, "pass-1", "frame-00000.png"), join(WORK, "pass-1", `frame-${String(FRAMES - 1).padStart(5, "0")}.png`));
   console.log(`loop closure SSIM ${closure.toFixed(4)}`);
 
+  const steps = await stepSimilarity(join(WORK, "pass-1"));
+  const roughest = steps[0];
+  console.log(
+    `roughest step SSIM ${roughest ? roughest.value.toFixed(4) : "n/a"}` +
+      (roughest ? ` at t ${(roughest.frame / FRAMES).toFixed(4)}` : ""),
+  );
+
   const { size } = await stat(staged);
   console.log(`${(size / 1024).toFixed(0)} KB`);
 
   const failures = [];
   if (closure < MIN_LOOP_SSIM) failures.push(`NOT a clean loop: ${closure.toFixed(4)} is below ${MIN_LOOP_SSIM}`);
+  for (const step of steps.filter((entry) => entry.value < MIN_STEP_SSIM)) {
+    failures.push(
+      `cuts mid-film: frames ${step.frame} to ${step.frame + 1} (t ${(step.frame / FRAMES).toFixed(4)}) score ${step.value.toFixed(4)}, below ${MIN_STEP_SSIM}`,
+    );
+  }
   if (size > MAX_BYTES) failures.push(`too heavy: ${(size / 1024).toFixed(0)} KB exceeds ${MAX_BYTES / 1024} KB`);
 
   if (failures.length) {
