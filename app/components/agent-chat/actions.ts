@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import {
   getArchiveAgentConversationInteractor,
+  getCancelAgentTurnInteractor,
   getDeleteAgentConversationInteractor,
   getGetAgentConfigInteractor,
   getGetAgentConversationInteractor,
@@ -14,6 +15,7 @@ import {
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 
+import type { CancelAgentTurnData } from "@/ee/agent-chat/cancel-agent-turn.interactor";
 import type { RespondToApprovalData } from "@/ee/agent-chat/respond-to-approval.interactor";
 import type { RespondToUiCommandData } from "@/ee/agent-chat/respond-to-ui-command.interactor";
 import type { ArchiveAgentConversationData } from "@/ee/agent-chat/archive-agent-conversation.interactor";
@@ -54,4 +56,8 @@ export async function respondToApprovalAction(data: RespondToApprovalData) {
 
 export async function respondToUiCommandAction(data: RespondToUiCommandData) {
   return serializeResult(getRespondToUiCommandInteractor().invoke(data));
+}
+
+export async function cancelAgentTurnAction(data: CancelAgentTurnData) {
+  return serializeResult(getCancelAgentTurnInteractor().invoke(data));
 }

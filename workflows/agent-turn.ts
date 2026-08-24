@@ -203,11 +203,11 @@ async function persistRound(
     reasoningTokens: number;
     costMicrocents: number;
   },
-): Promise<void> {
+): Promise<boolean> {
   "use step";
   const repo = getAgentChatRepo();
 
-  await runAsBackgroundTenant(payload.userId, async () => {
+  return runAsBackgroundTenant(payload.userId, async () => {
     await repo.heartbeatAgentRunUnscoped({
       turnRequestId: payload.turnRequestId,
       companyId: payload.companyId,
@@ -226,6 +226,11 @@ async function persistRound(
       costMicrocents: round.costMicrocents,
       modelSpec: payload.turnBudget.modelSpec,
       servingProvider: payload.turnBudget.servingProvider,
+    });
+
+    return repo.isAgentTurnCancellationRequestedUnscoped({
+      turnRequestId: payload.turnRequestId,
+      companyId: payload.companyId,
     });
   });
 }
@@ -253,6 +258,16 @@ async function openApprovalRequests(
   });
 }
 openApprovalRequests.maxRetries = 0;
+
+async function readCancellation(payload: AgentTurnWorkflowPayload): Promise<boolean> {
+  "use step";
+  return runAsBackgroundTenant(payload.userId, () =>
+    getAgentChatRepo().isAgentTurnCancellationRequestedUnscoped({
+      turnRequestId: payload.turnRequestId,
+      companyId: payload.companyId,
+    }),
+  );
+}
 
 async function publishUiCommands(
   commands: { toolCallId: string; name: string; input: Record<string, unknown> }[],
@@ -364,7 +379,7 @@ async function finalizeTurn(
   payload: AgentTurnWorkflowPayload,
   outcome: {
     parts: unknown;
-    terminalCode: "completed" | "partial";
+    terminalCode: "completed" | "partial" | "cancelled";
     affectedResources: AgentActivityResource[];
     tokens: TokenCounts;
     ledger: RoundLedgerEntry[];
@@ -445,6 +460,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const providerContext = buildAgentProviderContext(systemPrompt, payload.messages, []);
 
     let tokens = emptyTokens();
+    let cancelled = await readCancellation(payload);
     let roundIndex = 0;
     let appliedThisCall = 0;
     let finishReason = "unknown";
@@ -503,7 +519,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         unreadableReason: charge.outcome === "unreadable" ? charge.reason : undefined,
       });
 
-      await persistRound(payload, {
+      const roundCancelled = await persistRound(payload, {
         roundIndex: roundIndex++,
         parts: step.content,
         finishReason: step.finishReason,
@@ -511,12 +527,13 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         reasoningTokens: step.usage.outputTokenDetails?.reasoningTokens ?? 0,
         costMicrocents,
       });
+      cancelled ||= roundCancelled;
       await publishTranscriptEvents(queued.splice(0));
     };
 
     let messages = providerContext.messages;
 
-    for (;;) {
+    while (!cancelled) {
       const agent = new WorkflowAgent({
         id: WORKFLOW_NAME,
         model: payload.turnBudget.modelSpec,
@@ -551,7 +568,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           gateway: { only: [payload.turnBudget.servingProvider] },
           openai: { parallelToolCalls: false },
         },
-        stopWhen: isStepCount(payload.turnBudget.maxSteps),
+        stopWhen: [isStepCount(payload.turnBudget.maxSteps), () => cancelled],
         onToolExecutionEnd: (event) => {
           completedTools.push(
             event.success
@@ -601,6 +618,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         ]);
         uiHook.dispose();
 
+        cancelled = await readCancellation(payload);
         const resumed = await readUiCommandResults(payload, commands);
         for (const outcome of resumed) settleToolOutcome(outcome.toolCallId, outcome.toolName, outcome.output);
         await publishTranscriptEvents(queued.splice(0));
@@ -635,6 +653,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       ]);
       hook.dispose();
 
+      cancelled = await readCancellation(payload);
       const outcomes = await readApprovalDecisions(payload, requests);
       for (const outcome of outcomes) {
         const request = requests.find((candidate) => candidate.toolCallId === outcome.toolCallId);
@@ -642,7 +661,13 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         grants.set(outcome.toolCallId, outcome.decision === "approve" ? "approve" : "not-required");
         transcript.resolveApproval(
           request.requestId,
-          outcome.decision === "approve" ? "approved" : outcome.decision === "reject" ? "rejected" : "timeout",
+          outcome.decision === "approve"
+            ? "approved"
+            : outcome.decision === "reject"
+              ? "rejected"
+              : cancelled
+                ? "cancelled"
+                : "timeout",
           outcome.decision,
         );
         if (outcome.decision !== "approve") {
@@ -656,13 +681,13 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     }
 
     transcript.finishTextSegment();
-    transcript.failUnfinishedTools("error", true);
+    transcript.failUnfinishedTools(cancelled ? "cancelled" : "error", true);
     if (transcript.replyParts.length === 0) transcript.appendText(" ");
     await publishTranscriptEvents(queued.splice(0));
 
     await finalizeTurn(payload, {
       parts: transcript.replyParts,
-      terminalCode: finishReason === "stop" ? "completed" : "partial",
+      terminalCode: cancelled ? "cancelled" : finishReason === "stop" ? "completed" : "partial",
       affectedResources: transcript.affectedResources,
       tokens,
       ledger,

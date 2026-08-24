@@ -1091,6 +1091,29 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     });
   }
 
+  async requestAgentTurnCancellation(args: { conversationId: string }): Promise<boolean> {
+    const requested = await this.prisma.agentTurnRequest.updateMany({
+      where: {
+        conversationId: args.conversationId,
+        companyId: this.companyId,
+        userId: this.userId,
+        status: "running",
+        cancellationRequestedAt: null,
+      },
+      data: { cancellationRequestedAt: new Date() },
+    });
+    return requested.count > 0;
+  }
+
+  @BypassTenantGuard
+  async isAgentTurnCancellationRequestedUnscoped(args: { turnRequestId: string; companyId: string }): Promise<boolean> {
+    const turn = await this.prisma.agentTurnRequest.findFirst({
+      where: { id: args.turnRequestId, companyId: args.companyId },
+      select: { cancellationRequestedAt: true },
+    });
+    return Boolean(turn?.cancellationRequestedAt);
+  }
+
   @BypassTenantGuard
   async recordAgentTurnExternalRunUnscoped(args: {
     turnRequestId: string;

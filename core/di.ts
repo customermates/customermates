@@ -299,6 +299,7 @@ import { SendAgentMessageInteractor } from "@/ee/agent-chat/send-agent-message.i
 import { GetAgentConfigInteractor } from "@/ee/agent-chat/get-agent-config.interactor";
 import { RespondToApprovalInteractor } from "@/ee/agent-chat/respond-to-approval.interactor";
 import { RespondToUiCommandInteractor } from "@/ee/agent-chat/respond-to-ui-command.interactor";
+import { CancelAgentTurnInteractor } from "@/ee/agent-chat/cancel-agent-turn.interactor";
 import { GetAgentConversationInteractor } from "@/ee/agent-chat/get-agent-conversation.interactor";
 import { CreateChatSupportTicketInteractor } from "@/ee/agent-chat/create-chat-support-ticket.interactor";
 import { ListAgentConversationsInteractor } from "@/ee/agent-chat/list-agent-conversations.interactor";
@@ -1478,6 +1479,9 @@ export const getRespondToApprovalInteractor = () =>
 
 export const getRespondToUiCommandInteractor = () =>
   new RespondToUiCommandInteractor(getAgentChatRepo(), getEntitlementService());
+
+export const getCancelAgentTurnInteractor = () =>
+  new CancelAgentTurnInteractor(getAgentChatRepo(), getEntitlementService());
 
 export const getGetAgentConversationInteractor = () =>
   new GetAgentConversationInteractor(getAgentChatRepo(), getEntitlementService());

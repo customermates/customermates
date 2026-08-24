@@ -20,6 +20,7 @@ import {
   getAgentConfigAction,
   getAgentConversationAction,
   archiveAgentConversationAction,
+  cancelAgentTurnAction,
   deleteAgentConversationAction,
   listAgentConversationsAction,
   restoreAgentConversationAction,
@@ -516,6 +517,8 @@ export class AgentChatStore extends BaseStore {
 
   interrupt = () => {
     const activeController = this.abortController;
+    const conversationId = this.conversationId;
+    if (conversationId) void cancelAgentTurnAction({ conversationId });
     activeController?.abort();
     runInAction(() => {
       if (activeController) this.markActiveTurnStopped();
