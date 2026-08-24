@@ -805,60 +805,44 @@ path:focus {
      needs no literal colour. It sits on --sidebar, the canvas rung, so the window on
      --card still reads as raised above it in both themes. */
   /* Scene type.
-     Sized in container-query width units, not pixels, because a scene is a poster: the
-     same composition is embedded at a full-bleed 1376px on a marketing page, at 1280px for
-     video capture, and at half width inside a two-up card. Fixed px would be oversized in
-     one and illegible in another. cqw keeps the drawing's proportions identical at every
-     size, which is what makes one scene serve a still, an animation and a video frame.
+     Sized against the container, not the viewport, because a scene is embedded at widths the
+     viewport does not predict: full bleed on a page, half width in a two-up comparison, and
+     1920 for capture. A viewport query jumps discontinuously at 1024px, where a two-up column
+     halves the container while the viewport grows.
 
-     The values are deliberately far larger than the running application uses. A scene shows
-     only the interface its point needs, at a size a reader takes in at a glance. */
+     The scale is CONTINUOUS -- a fixed part plus a proportional part -- rather than two
+     regimes with a threshold. A pure cqw value is unreadable when the container is small: at
+     a 375px viewport the container is 335px and 2cqw lands at 6.7px. But a stepped container
+     query only relocates that cliff, dropping 18.7px to 9.6px either side of the threshold.
+     A line through both ends keeps the picture proportional at every width while never
+     falling below reading size: roughly 13px of body text at 293px and 28px at 1376px.
+
+     Deliberately far larger than the running application uses, because a scene shows only
+     the interface its point needs, at a size a reader takes in at a glance. */
   .scene-frame {
     aspect-ratio: var(--aspect-hero);
   }
 
+  @media (width < 40rem) {
+    .scene-frame {
+      aspect-ratio: 4 / 5;
+    }
+  }
+
   .scene-title {
-    font-size: 2.7cqw;
+    font-size: clamp(15px, 11.6px + 1.847cqw, 40px);
     line-height: 1.15;
     letter-spacing: -0.02em;
   }
 
   .scene-text {
-    font-size: 2cqw;
+    font-size: clamp(12px, 8.94px + 1.385cqw, 30px);
     line-height: 1.45;
   }
 
   .scene-meta {
-    font-size: 1.6cqw;
+    font-size: clamp(9px, 7.4px + 1.062cqw, 24px);
     line-height: 1.4;
-  }
-
-  /* Mobile is art-directed, not shrunk.
-     A sixteen-by-nine poster at a 375px viewport is 335px wide and 188px tall, and no
-     amount of tuning fits a readable product window into that: at the desktop ratios the
-     body text lands at 6.7px. So below 40rem the frame turns portrait, which buys vertical
-     room, and the type roughly doubles against the container. The composition is the same
-     and the proportions still hold at every size within each regime; what changes is how
-     much of the frame one window is allowed to occupy.
-
-     The aspect switch has to be a media query rather than a container query, because the
-     frame is the query container and an element cannot respond to its own container. */
-  @media (width < 40rem) {
-    .scene-frame {
-      aspect-ratio: 4 / 5;
-    }
-
-    .scene-title {
-      font-size: 5.1cqw;
-    }
-
-    .scene-text {
-      font-size: 3.9cqw;
-    }
-
-    .scene-meta {
-      font-size: 3.1cqw;
-    }
   }
 
   .scene-ground {

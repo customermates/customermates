@@ -5,13 +5,18 @@ import { describe, expect, it } from "vitest";
 
 import { REPO_ROOT } from "./walk";
 
+import {
+  SCENE_MIN_RESOLVED_HOLD_MS,
+  SCENE_TYPING_CHARS_PER_SECOND,
+} from "@/components/marketing/scenes/scene-grammar";
+
 const SCENES_DIR = join(REPO_ROOT, "components", "marketing", "scenes");
 
 const GRAMMAR = "scene-grammar.tsx";
 
-const TYPING_CHARS_PER_SECOND = { max: 32, min: 18 };
+const TYPING_CHARS_PER_SECOND = SCENE_TYPING_CHARS_PER_SECOND;
 
-const MIN_RESOLVED_HOLD_MS = 1200;
+const MIN_RESOLVED_HOLD_MS = SCENE_MIN_RESOLVED_HOLD_MS;
 
 function sceneFiles(): string[] {
   return readdirSync(SCENES_DIR).filter((file) => file.endsWith(".tsx") && file !== GRAMMAR);

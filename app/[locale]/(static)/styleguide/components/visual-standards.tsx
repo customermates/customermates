@@ -130,7 +130,7 @@ export function VisualStandards() {
               <span className="text-meta">A draft waiting for a human. Accent on the send affordance.</span>
             </div>
 
-            <ThemePair>
+            <ThemePair stacked>
               <ChatDraftScene />
             </ThemePair>
           </div>
@@ -279,7 +279,8 @@ export function QueueClearedScene({ className, label }: SceneProps) {
         </div>
 
         <p className="text-meta mt-4">
-          Eleven seconds, 1920 by 1080, silent, 179 KB. Rendered from the scene above rather than recorded.
+          Eleven seconds, 1920 by 1080, no audio track at all, 176 KB. Rendered from the scene above rather than
+          recorded.
         </p>
 
         <div className="marketing-grid mt-14 gap-y-4">

@@ -26,6 +26,8 @@ async function waitForJson(url, attempts = 60) {
   throw new Error(`devtools endpoint never came up: ${url}`);
 }
 
+const CALL_TIMEOUT_MS = 30_000;
+
 export async function launchChrome({ port = 9333, width = 1440, height = 900, scale = 1 } = {}) {
   const profile = await mkdtemp(join(tmpdir(), "cdp-profile-"));
   const child = spawn(
@@ -48,44 +50,104 @@ export async function launchChrome({ port = 9333, width = 1440, height = 900, sc
     { stdio: "ignore" },
   );
 
-  const version = await waitForJson(`http://127.0.0.1:${port}/json/version`);
-  const ws = new WebSocket(version.webSocketDebuggerUrl);
-  await new Promise((resolve, reject) => {
-    ws.addEventListener("open", resolve, { once: true });
-    ws.addEventListener("error", reject, { once: true });
-  });
-
+  let ws = null;
   let nextId = 0;
+  let sessionId = null;
   const pending = new Map();
-  ws.addEventListener("message", (event) => {
-    const message = JSON.parse(event.data);
-    const entry = pending.get(message.id);
-    if (!entry) return;
-    pending.delete(message.id);
-    if (message.error) entry.reject(new Error(`${message.error.message} (${entry.method})`));
-    else entry.resolve(message.result);
-  });
 
-  function send(method, params = {}, sessionId) {
+  function send(method, params = {}, session) {
     const id = (nextId += 1);
     return new Promise((resolve, reject) => {
-      pending.set(id, { method, resolve, reject });
-      ws.send(JSON.stringify({ id, method, params, sessionId }));
+      const timer = setTimeout(() => {
+        pending.delete(id);
+        reject(new Error(`devtools call timed out after ${CALL_TIMEOUT_MS}ms (${method})`));
+      }, CALL_TIMEOUT_MS);
+      pending.set(id, { method, reject, resolve, timer });
+      ws.send(JSON.stringify({ id, method, params, sessionId: session }));
     });
   }
 
-  const { targetId } = await send("Target.createTarget", { url: "about:blank" });
-  const { sessionId } = await send("Target.attachToTarget", { targetId, flatten: true });
   const call = (method, params) => send(method, params, sessionId);
 
-  await call("Page.enable");
-  await call("Runtime.enable");
-  await call("Emulation.setDeviceMetricsOverride", {
-    width,
-    height,
-    deviceScaleFactor: scale,
-    mobile: false,
-  });
+  // Every in-flight call has to be settled by something. Without this a lost reply -- a
+  // renderer crash part way through a few hundred screenshots, or an unresponsive browser --
+  // leaves its promise pending forever, and the script hangs silently with no error and no
+  // cleanup instead of failing.
+  function rejectAll(reason) {
+    for (const [id, entry] of pending) {
+      pending.delete(id);
+      entry.reject(new Error(`${reason} (${entry.method})`));
+    }
+  }
+
+  async function teardown() {
+    rejectAll("devtools connection closed");
+    try {
+      ws?.close();
+    } catch {
+      // already gone
+    }
+
+    // Wait for Chrome to actually exit before deleting its profile. Removing it while the
+    // browser is still flushing raises ENOTEMPTY, and a cleanup step must never be the thing
+    // that fails the caller, so the removal is best-effort too.
+    if (child.exitCode === null && child.signalCode === null) {
+      await new Promise((resolve) => {
+        const done = setTimeout(resolve, 5000);
+        child.once("exit", () => {
+          clearTimeout(done);
+          resolve();
+        });
+        child.kill("SIGTERM");
+      });
+    }
+
+    try {
+      await rm(profile, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
+    } catch {
+      // a leftover temp profile is not worth failing a capture over
+    }
+  }
+
+  try {
+    const version = await waitForJson(`http://127.0.0.1:${port}/json/version`);
+    ws = new WebSocket(version.webSocketDebuggerUrl);
+    await new Promise((resolve, reject) => {
+      ws.addEventListener("open", resolve, { once: true });
+      ws.addEventListener("error", () => reject(new Error("devtools websocket failed to open")), { once: true });
+    });
+
+    ws.addEventListener("message", (event) => {
+      const message = JSON.parse(event.data);
+      const entry = pending.get(message.id);
+      if (!entry) return;
+      pending.delete(message.id);
+      clearTimeout(entry.timer);
+      if (message.error) entry.reject(new Error(`${message.error.message} (${entry.method})`));
+      else entry.resolve(message.result);
+    });
+
+    ws.addEventListener("close", () => rejectAll("devtools connection closed"));
+    ws.addEventListener("error", () => rejectAll("devtools connection errored"));
+    child.on("exit", (code) => rejectAll(`chrome exited (${code})`));
+
+    const { targetId } = await send("Target.createTarget", { url: "about:blank" });
+    const attached = await send("Target.attachToTarget", { targetId, flatten: true });
+    sessionId = attached.sessionId;
+
+    await call("Page.enable");
+    await call("Runtime.enable");
+    await call("Emulation.setDeviceMetricsOverride", {
+      width,
+      height,
+      deviceScaleFactor: scale,
+      mobile: false,
+    });
+  } catch (error) {
+    // Nothing has been handed to the caller yet, so nothing else can clean this up.
+    await teardown();
+    throw error;
+  }
 
   return {
     call,
@@ -132,13 +194,7 @@ export async function launchChrome({ port = 9333, width = 1440, height = 900, sc
       return Buffer.from(data, "base64");
     },
     async close() {
-      try {
-        ws.close();
-      } catch {
-        // already gone
-      }
-      child.kill("SIGTERM");
-      await rm(profile, { recursive: true, force: true });
+      await teardown();
     },
   };
 }

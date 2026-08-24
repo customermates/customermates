@@ -41,7 +41,7 @@ export function ChatDraftScene({ className, label, t }: SceneProps) {
           </div>
 
           <div style={{ opacity: draft.visible ? 1 : 0 }}>
-            <SceneBubble from="draft">
+            <SceneBubble from={sent ? "them" : "draft"}>
               {draft.visible}
 
               {draft.typing ? <SceneCaret visible={sceneCaretVisible(clock, CHAT_DRAFT_DURATION_MS)} /> : null}
@@ -56,7 +56,7 @@ export function ChatDraftScene({ className, label, t }: SceneProps) {
             <span
               className={
                 sent
-                  ? "scene-meta rounded-full bg-success px-[2cqw] py-[0.9cqw] font-medium text-primary-foreground"
+                  ? "scene-meta rounded-full bg-success px-[2cqw] py-[0.9cqw] font-medium text-success-foreground"
                   : "scene-meta rounded-full bg-primary px-[2cqw] py-[0.9cqw] font-medium text-primary-foreground"
               }
             >
