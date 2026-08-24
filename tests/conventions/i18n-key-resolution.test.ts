@@ -552,6 +552,7 @@ export const DYNAMIC_KEY_SITES = [
   "components/forms/form-iso-date-picker.tsx :: t :: Common.datePresets.${preset.key}",
   "components/forms/form-iso-date-range-picker.tsx :: t :: Common.datePresets.${key}",
   "components/forms/use-form-field.ts :: t :: Common.inputs.${id}",
+  "app/components/footer-content.tsx :: t :: Common.locales.${locale}",
   "components/shared/language-selector.tsx :: t :: Common.locales.${currentLocale}",
   "components/shared/language-selector.tsx :: t :: Common.locales.${locale}",
   "core/validation/zod-error-map-server.ts :: t.raw :: Common.errors.${code}",

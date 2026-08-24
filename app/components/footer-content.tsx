@@ -1,12 +1,15 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { CompetitorLinks } from "./competitor-links";
 import { FooterBadges } from "./footer-badges";
 
 import { AppLink } from "@/components/shared/app-link";
 import { AppImage } from "@/components/shared/app-image";
+import { cn } from "@/core/utils/cn";
+import { CONTENT_LOCALES, buildLocalePath, contentLocaleOrDefault } from "@/i18n/locale-registry";
+import { usePathname } from "@/i18n/navigation";
 
 type LinkItem = {
   slug: string;
@@ -22,6 +25,8 @@ type FooterProps = {
 
 export function FooterContent({ blogPosts = [], competitors = [], featureLinks = [], industries = [] }: FooterProps) {
   const t = useTranslations();
+  const pathname = usePathname();
+  const activeLocale = contentLocaleOrDefault(useLocale());
 
   return (
     <footer className="bg-muted mt-auto w-full text-x-sm">
@@ -228,6 +233,25 @@ export function FooterContent({ blogPosts = [], competitors = [], featureLinks =
             </ul>
           </div>
         </div>
+
+        <nav
+          aria-label={t("Common.language")}
+          className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 pt-8 text-xs text-subdued"
+        >
+          <span>{t("Common.language")}</span>
+
+          {CONTENT_LOCALES.map((locale) => (
+            <a
+              key={locale}
+              aria-current={locale === activeLocale ? "true" : undefined}
+              className={cn("transition-colors hover:text-foreground", locale === activeLocale && "text-foreground")}
+              href={buildLocalePath(locale, pathname)}
+              hrefLang={locale}
+            >
+              {t(`Common.locales.${locale}`)}
+            </a>
+          ))}
+        </nav>
 
         <FooterBadges />
 

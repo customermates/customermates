@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
-import { CONTENT_LOCALES, flagCodeFor, type ContentLocale } from "@/i18n/locale-registry";
+import { CONTENT_LOCALES, buildLocalePath, flagCodeFor, type ContentLocale } from "@/i18n/locale-registry";
 import { usePathname } from "@/i18n/navigation";
 
 type Props = {
@@ -32,7 +32,7 @@ export const LanguageSelector = observer(({ className }: Props) => {
   function handleSelect(locale: ContentLocale) {
     if (locale === currentLocale) return;
     navigationGuard.tryNavigate(() => {
-      window.location.href = `/${locale}${pathname}`;
+      window.location.href = buildLocalePath(locale, pathname);
     });
   }
 
@@ -70,10 +70,17 @@ export const LanguageSelector = observer(({ className }: Props) => {
               role="menuitemradio"
               onSelect={() => handleSelect(locale)}
             >
-              {FormAutocompleteItem({
-                textValue: label,
-                children: <FormAutocompleteCountryItem countryKey={flagCodeFor(locale)} label={label} />,
-              })}
+              <a
+                className="contents"
+                href={buildLocalePath(locale, pathname)}
+                hrefLang={locale}
+                onClick={(event) => event.preventDefault()}
+              >
+                {FormAutocompleteItem({
+                  textValue: label,
+                  children: <FormAutocompleteCountryItem countryKey={flagCodeFor(locale)} label={label} />,
+                })}
+              </a>
             </DropdownMenuItem>
           );
         })}
