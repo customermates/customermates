@@ -170,7 +170,6 @@
     "@types/react-dom/@types/react": "18.3.3",
     "ai": "7.0.77",
     "import-in-the-middle": "3.0.1",
-    "jose": "^6.2.3",
     "pg": "8.20.0",
     "pg-cloudflare": "1.4.0",
     "pg-connection-string": "2.13.0",
