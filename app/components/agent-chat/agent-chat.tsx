@@ -51,6 +51,7 @@ import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -380,6 +381,8 @@ const AgentChatPanel = observer(function AgentChatPanel() {
         <div className="px-3 pt-2 pb-3">
           <div className="rounded-xl border border-input bg-card p-2 shadow-xs transition-[color,box-shadow] focus-within:ring-[3px] focus-within:ring-ring/50 focus-within:ring-inset">
             <UsageFooter />
+
+            <ModelPicker />
 
             {store.queuedPrompt && <QueuedPrompt />}
 
@@ -988,6 +991,50 @@ const QueuedPrompt = observer(function QueuedPrompt() {
           <X className="size-3.5" />
         </Button>
       </ActionTooltip>
+    </div>
+  );
+});
+
+const ModelPicker = observer(function ModelPicker() {
+  const { agentChatStore: store } = useRootStore();
+  const t = useTranslations();
+  if (!store.isModelSelectable) return null;
+  const activeKey = store.selectedModelKey ?? store.models[0]?.key;
+
+  return (
+    <div className="flex items-center gap-2 px-1 pb-2">
+      <Select
+        value={store.selectedModelKey ?? undefined}
+        onValueChange={(next) => runUserAction(() => store.selectModel(next))}
+      >
+        <SelectTrigger
+          aria-label={t("AgentChat.modelPicker.label")}
+          className="h-7 w-auto gap-1.5 border-transparent bg-transparent px-2 text-xs shadow-none"
+          id="agent-model-picker"
+        >
+          <span className="truncate">{t(`AgentChat.models.${activeKey}.name`)}</span>
+        </SelectTrigger>
+
+        <SelectContent>
+          {store.models.map((model) => (
+            <SelectItem key={model.key} textValue={t(`AgentChat.models.${model.key}.name`)} value={model.key}>
+              <span className="flex flex-col gap-0.5">
+                <span className="flex items-center gap-2 text-xs">
+                  {t(`AgentChat.models.${model.key}.name`)}
+
+                  <span className="text-muted-foreground tabular-nums">
+                    {t("AgentChat.modelPicker.costBand", { band: model.costBand })}
+                  </span>
+                </span>
+
+                <span className="text-muted-foreground text-xs">{t(`AgentChat.models.${model.key}.description`)}</span>
+              </span>
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <span className="text-muted-foreground text-xs">{t("AgentChat.modelPicker.newConversationsOnly")}</span>
     </div>
   );
 });

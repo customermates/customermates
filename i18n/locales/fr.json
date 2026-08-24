@@ -326,6 +326,21 @@
       "subtitle": "Posez-moi toutes vos questions sur votre espace de travail, ou dites-moi quoi faire et je m'en occupe.",
       "support": "Si quelque chose ne fonctionne pas, je peux envoyer la conversation récente à notre équipe par e-mail, qui vous répondra par e-mail."
     },
+    "modelPicker": {
+      "costBand": "{band}x crédits",
+      "label": "Modèle",
+      "newConversationsOnly": "Le modèle se choisit au démarrage d'une conversation."
+    },
+    "models": {
+      "balanced": {
+        "description": "Gère le travail en plusieurs étapes et les tâches plus longues. Le choix par défaut.",
+        "name": "Équilibré"
+      },
+      "fast": {
+        "description": "Des réponses rapides aux questions simples, pour le moins de crédits.",
+        "name": "Rapide"
+      }
+    },
     "placeholder": "Interrogez votre CRM…",
     "runner": {
       "cancelled": "Cette réponse a été arrêtée.",
@@ -922,6 +937,7 @@
       "agentApprovalUnavailable": "Cette demande d’approbation n’est pas disponible ou a expiré.",
       "agentConversationNotFound": "Cette conversation est introuvable ou n’est plus accessible.",
       "agentLimitReached": "Il ne reste pas assez de crédits IA pour lancer une autre demande.",
+      "agentModelUnavailable": "Ce modèle de l'Assistant n'est pas disponible.",
       "agentTurnAlreadyRunning": "Une autre demande de l’assistant est déjà en cours.",
       "apiKeyMaxExpiration": "L'expiration d'une clé API ne peut pas dépasser 365 jours.",
       "assigneeRequired": "Vous devez vous assigner cet élément. Notez que vous ne pourrez consulter que les éléments qui vous sont assignés.",

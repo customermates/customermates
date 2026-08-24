@@ -32,7 +32,7 @@ import {
   AGENT_REPLAY_MAX_CHARS,
   conservativeAgentInitialContextBytes,
 } from "./agent-provider-context";
-import { resolveAgentModel } from "./model-catalog";
+import { isEnabledAgentModelKey, resolveAgentModel } from "./model-catalog";
 import { assertInvariant } from "@/core/errors/assert-invariant";
 import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -170,6 +170,11 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     if ((decision.disposition === "retry" || data.conversationId) && !conversation)
       return createInteractorFailure(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
+    const requestedModelKey = conversation?.modelKey ?? data.modelKey ?? null;
+    if (requestedModelKey !== null && !isEnabledAgentModelKey(requestedModelKey))
+      return createInteractorFailure(CustomErrorCode.agentModelUnavailable, ["modelKey"]);
+    const turnModel = resolveAgentModel(requestedModelKey);
+
     const userName = `${user.firstName} ${user.lastName}`.trim();
     const locale = data.locale ?? resolveUserLocale(user);
     const requiredContextBytes = conservativeAgentInitialContextBytes({
@@ -185,7 +190,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     assertInvariant(requiredContextBytes !== null, "The Assistant request context could not be measured safely.");
 
     const creditAdmission = await this.usageService.prepareTurn(user.id, now, {
-      model,
+      model: turnModel,
       requiredContextBytes,
     });
     const reservation = creditAdmission.reservation;
@@ -200,7 +205,12 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         const phaseOneAt = new Date();
         if (conversationIsNew) {
           if (await this.repo.isAtAgentRunLimit(phaseOneAt)) return false;
-          await this.repo.createAgentConversationForRun({ conversationId, title: data.text, now: phaseOneAt });
+          await this.repo.createAgentConversationForRun({
+            conversationId,
+            title: data.text,
+            modelKey: requestedModelKey,
+            now: phaseOneAt,
+          });
         }
 
         const lease = await this.repo.claimAgentRunLease({

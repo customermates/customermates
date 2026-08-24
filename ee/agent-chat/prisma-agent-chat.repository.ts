@@ -978,13 +978,19 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     };
   }
 
-  async createAgentConversationForRun(args: { conversationId: string; title: string | null; now: Date }) {
+  async createAgentConversationForRun(args: {
+    conversationId: string;
+    title: string | null;
+    modelKey?: string | null;
+    now: Date;
+  }) {
     await this.prisma.agentConversation.create({
       data: {
         id: args.conversationId,
         companyId: this.companyId,
         userId: this.userId,
         title: sanitizeAgentConversationTitle(args.title),
+        modelKey: args.modelKey ?? null,
         selectedAt: args.now,
       },
       select: { id: true },

@@ -21,6 +21,7 @@ export const SendAgentMessageSchema = z.object({
   clientRequestId: z.uuid(),
   text: z.string().min(1).max(20000),
   pageContext: AgentPageContextSchema.optional(),
+  modelKey: z.string().min(1).max(50).optional(),
   locale: AgentAppLocaleSchema.optional(),
   retry: z.boolean().default(false),
 });

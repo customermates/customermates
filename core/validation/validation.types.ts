@@ -4,6 +4,7 @@ export enum CustomErrorCode {
   agentApprovalUnavailable = "agentApprovalUnavailable",
   agentConversationNotFound = "agentConversationNotFound",
   agentLimitReached = "agentLimitReached",
+  agentModelUnavailable = "agentModelUnavailable",
   agentTurnAlreadyRunning = "agentTurnAlreadyRunning",
   notAuthenticated = "notAuthenticated",
   userInactive = "userInactive",

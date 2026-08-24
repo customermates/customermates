@@ -326,6 +326,21 @@
       "subtitle": "Chiedimi qualsiasi cosa sul tuo workspace, oppure dimmi cosa fare e me ne occupo io.",
       "support": "Se qualcosa non va, posso inviare al nostro team via e-mail la conversazione recente e il team ti risponderà via e-mail."
     },
+    "modelPicker": {
+      "costBand": "{band}x crediti",
+      "label": "Modello",
+      "newConversationsOnly": "Il modello si sceglie all'avvio di una chat."
+    },
+    "models": {
+      "balanced": {
+        "description": "Gestisce lavori in più passaggi e attività più lunghe. La scelta predefinita.",
+        "name": "Bilanciato"
+      },
+      "fast": {
+        "description": "Risposte rapide a domande semplici, con il minor consumo di crediti.",
+        "name": "Veloce"
+      }
+    },
     "placeholder": "Chiedi al tuo CRM…",
     "runner": {
       "cancelled": "Questa risposta è stata interrotta.",
@@ -922,6 +937,7 @@
       "agentApprovalUnavailable": "Questa richiesta di approvazione non è disponibile o è scaduta.",
       "agentConversationNotFound": "Questa conversazione non è stata trovata o non è più accessibile.",
       "agentLimitReached": "Non restano abbastanza crediti IA per avviare un'altra richiesta.",
+      "agentModelUnavailable": "Questo modello dell'Assistant non è disponibile.",
       "agentTurnAlreadyRunning": "È già in corso un’altra richiesta dell’assistente.",
       "apiKeyMaxExpiration": "La scadenza di una chiave API non può superare i 365 giorni.",
       "assigneeRequired": "Devi assegnare questo elemento a te stesso. Nota che potrai vedere solo gli elementi assegnati a te.",

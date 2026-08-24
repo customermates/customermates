@@ -110,6 +110,8 @@ export class AgentChatStore extends BaseStore {
   usage: AgentUsageSummary | null = null;
   counts: AgentDataCounts | null = null;
   conversationId: string | null = null;
+  models: { key: string; costBand: number; isDefault: boolean }[] = [];
+  selectedModelKey: string | null = null;
   conversations: AgentConversationSummary[] = [];
   archivedConversations: AgentConversationSummary[] = [];
   lastArchivedConversation: AgentConversationSummary | null = null;
@@ -155,6 +157,9 @@ export class AgentChatStore extends BaseStore {
       usage: observable.ref,
       counts: observable.ref,
       conversationId: observable,
+      models: observable,
+      selectedModelKey: observable,
+      selectModel: action,
       conversations: observable,
       archivedConversations: observable,
       lastArchivedConversation: observable.ref,
@@ -515,6 +520,14 @@ export class AgentChatStore extends BaseStore {
     }
   }
 
+  selectModel = (key: string) => {
+    this.selectedModelKey = key;
+  };
+
+  get isModelSelectable() {
+    return this.models.length > 1 && this.conversationId === null;
+  }
+
   interrupt = () => {
     const activeController = this.abortController;
     const conversationId = this.conversationId;
@@ -596,6 +609,9 @@ export class AgentChatStore extends BaseStore {
           updatedAt: new Date(conversation.updatedAt),
         }));
         this.enabled = true;
+        this.models = config.models ?? [];
+        if (this.selectedModelKey === null)
+          this.selectedModelKey = this.models.find((model) => model.isDefault)?.key ?? null;
         this.usage = config.usage;
         this.counts = config.counts;
         if (preserveExactHistory) {
@@ -869,6 +885,7 @@ export class AgentChatStore extends BaseStore {
           clientRequestId: messageId,
           text: trimmed,
           pageContext: { route: pageRoute },
+          modelKey: conversationId ? undefined : (this.selectedModelKey ?? undefined),
           locale: appLocaleOrDefault(this.rootStore.localeStore.locale),
           retry: Boolean(options.retry),
         }),

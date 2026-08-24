@@ -326,6 +326,21 @@
       "subtitle": "Frag mich alles zu deinem Workspace, oder sag mir, was ich für dich erledigen soll.",
       "support": "Wenn etwas nicht klappt, kann ich unserem Team den letzten Gesprächsverlauf per E-Mail senden. Es antwortet dir per E-Mail."
     },
+    "modelPicker": {
+      "costBand": "{band}x Credits",
+      "label": "Modell",
+      "newConversationsOnly": "Das Modell wird beim Start eines Chats gewählt."
+    },
+    "models": {
+      "balanced": {
+        "description": "Bewältigt mehrstufige Arbeit und längere Aufgaben. Die Standardauswahl.",
+        "name": "Ausgewogen"
+      },
+      "fast": {
+        "description": "Schnelle Antworten auf einfache Fragen, mit den wenigsten Credits.",
+        "name": "Schnell"
+      }
+    },
     "placeholder": "Frag dein CRM…",
     "runner": {
       "cancelled": "Diese Antwort wurde gestoppt.",
@@ -922,6 +937,7 @@
       "agentApprovalUnavailable": "Diese Freigabeanfrage ist nicht verfügbar oder abgelaufen.",
       "agentConversationNotFound": "Diese Unterhaltung wurde nicht gefunden oder ist nicht mehr zugänglich.",
       "agentLimitReached": "Es sind nicht genügend KI-Credits übrig, um eine weitere Anfrage zu starten.",
+      "agentModelUnavailable": "Dieses Assistant-Modell ist nicht verfügbar.",
       "agentTurnAlreadyRunning": "Eine andere Assistenten-Anfrage wird bereits ausgeführt.",
       "apiKeyMaxExpiration": "Die Ablaufzeit des API-Schlüssels darf 365 Tage nicht überschreiten.",
       "assigneeRequired": "Du musst dich diesem Element zuweisen. Beachte, dass du nur Elemente sehen kannst, die dir zugewiesen sind.",
