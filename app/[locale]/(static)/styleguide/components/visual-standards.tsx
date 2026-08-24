@@ -11,6 +11,8 @@ import { ConnectScene } from "@/components/marketing/scenes/connect-scene";
 import { DashboardScene } from "@/components/marketing/scenes/dashboard-scene";
 import { PipelineScene } from "@/components/marketing/scenes/pipeline-scene";
 import { LivingChatDraft } from "@/components/marketing/scenes/living-chat-draft";
+import { LivingDashboard } from "@/components/marketing/scenes/living-dashboard";
+import { LivingPipeline } from "@/components/marketing/scenes/living-pipeline";
 import { RecordScene } from "@/components/marketing/scenes/record-scene";
 
 const ROUTING = [
@@ -341,6 +343,21 @@ export function NoteAddedScene({ className, label }: SceneProps) {
         <div className="mt-14 lg:mt-16">
           <LivingChatDraft />
         </div>
+
+        <div className="marketing-grid mt-6 gap-y-6">
+          <div className="col-span-12 lg:col-span-6">
+            <LivingPipeline />
+          </div>
+
+          <div className="col-span-12 lg:col-span-6">
+            <LivingDashboard />
+          </div>
+        </div>
+
+        <p className="text-meta mt-5">
+          Every scene takes the same clock, so any of them animates without being rewritten. The beat map below belongs
+          to the chat scene, and the other two are read the same way.
+        </p>
 
         <div className="marketing-grid mt-14 gap-y-4">
           {LIVING_RULES.map((rule, index) => (
