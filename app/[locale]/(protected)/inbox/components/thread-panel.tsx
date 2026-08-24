@@ -3,7 +3,7 @@
 import { Loader2, MessageSquare } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
-import { Fragment, useLayoutEffect, type ReactNode } from "react";
+import { useLayoutEffect, type ReactNode } from "react";
 
 import type { ThreadDetail } from "./messaging-thread-detail.store";
 import type { MessagingThread } from "@/ee/messaging/messaging.schema";
@@ -30,6 +30,28 @@ type ThreadPanelPageState =
   | { status: "loading" }
   | { status: "empty" }
   | { status: "content"; thread: MessagingThread };
+
+type MessageDayGroup<T> = { key: string; date: Date; messages: T[] };
+
+export function groupMessagesByDay<T extends { id: string; sentAt: Date | string }>(
+  messages: readonly T[],
+): MessageDayGroup<T>[] {
+  const groups: MessageDayGroup<T>[] = [];
+
+  for (const message of messages) {
+    const date = new Date(message.sentAt);
+    const currentGroup = groups.at(-1);
+
+    if (currentGroup && isSameDay(currentGroup.date, date)) {
+      currentGroup.messages.push(message);
+      continue;
+    }
+
+    groups.push({ key: message.id, date, messages: [message] });
+  }
+
+  return groups;
+}
 
 export function resolveThreadPanelPageState({
   locked,
@@ -106,15 +128,13 @@ export const ThreadPanel = observer(({ threadDetail, locked = false }: Props) =>
                 </div>
               ) : null}
 
-              {messages.map((message, index) => {
-                const previous = messages[index - 1];
-                const showDate = !previous || !isSameDay(new Date(previous.sentAt), new Date(message.sentAt));
+              {groupMessagesByDay(messages).map((group) => (
+                <section key={group.key} className="flex flex-col gap-1">
+                  <MessageDateSeparator date={group.date} />
 
-                return (
-                  <Fragment key={message.id}>
-                    {showDate ? <MessageDateSeparator date={new Date(message.sentAt)} /> : null}
-
+                  {group.messages.map((message) => (
                     <MessageItem
+                      key={message.id}
                       accountOwner={accountOwners[message.connectedAccountId] ?? null}
                       isMine={thread.isOwner}
                       message={message}
@@ -122,9 +142,9 @@ export const ThreadPanel = observer(({ threadDetail, locked = false }: Props) =>
                         message.sender.identifier ? avatarByIdentifier.get(message.sender.identifier) : undefined
                       }
                     />
-                  </Fragment>
-                );
-              })}
+                  ))}
+                </section>
+              ))}
             </div>
           </MessagesScrollContainer>
 
