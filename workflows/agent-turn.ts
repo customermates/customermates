@@ -216,12 +216,12 @@ async function persistRound(
     reasoningTokens: number;
     costMicrocents: number;
   },
-): Promise<boolean> {
+): Promise<{ cancelled: boolean; leaseLost: boolean }> {
   "use step";
   const repo = getAgentChatRepo();
 
   return runAsBackgroundTenant(payload.userId, async () => {
-    await repo.heartbeatAgentRunUnscoped({
+    const leaseHeld = await repo.heartbeatAgentRunUnscoped({
       turnRequestId: payload.turnRequestId,
       companyId: payload.companyId,
       userId: payload.userId,
@@ -241,10 +241,12 @@ async function persistRound(
       servingProvider: payload.turnBudget.servingProvider,
     });
 
-    return repo.isAgentTurnCancellationRequestedUnscoped({
+    const cancelled = await repo.isAgentTurnCancellationRequestedUnscoped({
       turnRequestId: payload.turnRequestId,
       companyId: payload.companyId,
     });
+
+    return { cancelled, leaseLost: !leaseHeld };
   });
 }
 
@@ -527,6 +529,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const continuationLimits = agentDurableContinuationLimits(Number.MAX_SAFE_INTEGER);
     let safetyStop: string | null = null;
     let budgetStop = false;
+    let abandoned = false;
     let reservedCredits = payload.turnBudget.reservedCredits;
     let roundFailure: WorkflowFailure | null = null;
     const settledToolCallIds = new Set<string>();
@@ -598,7 +601,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           unreadableReason: charge.outcome === "unreadable" ? charge.reason : undefined,
         });
 
-        const roundCancelled = await persistRound(payload, {
+        const roundOutcome = await persistRound(payload, {
           roundIndex: roundIndex++,
           parts: step.content,
           finishReason: step.finishReason,
@@ -606,7 +609,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           reasoningTokens: step.usage.outputTokenDetails?.reasoningTokens ?? 0,
           costMicrocents,
         });
-        cancelled ||= roundCancelled;
+        cancelled ||= roundOutcome.cancelled;
+        abandoned ||= roundOutcome.leaseLost;
         await publishTranscriptEvents(queued.splice(0));
 
         const accruedMicrocents = ledger.reduce((total, entry) => total + entry.costMicrocents, 0);
@@ -638,7 +642,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     let messages = providerContext.messages;
     let instructions = systemPrompt;
 
-    while (!cancelled && !budgetStop && safetyStop === null && roundFailure === null) {
+    while (!abandoned && !cancelled && !budgetStop && safetyStop === null && roundFailure === null) {
       const agent = new WorkflowAgent({
         id: WORKFLOW_NAME,
         model: payload.turnBudget.modelSpec,
@@ -675,7 +679,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         },
         stopWhen: [
           isStepCount(AGENT_SEGMENT_ROUNDS),
-          () => cancelled || budgetStop || safetyStop !== null || roundFailure !== null,
+          () => abandoned || cancelled || budgetStop || safetyStop !== null || roundFailure !== null,
         ],
         onToolExecutionEnd: (event) => {
           completedTools.push(
@@ -701,6 +705,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           settleToolOutcome(part.toolCallId, part.toolName, output && "value" in output ? output.value : output);
         }
       }
+
+      if (abandoned) break;
 
       const pending = pendingApprovalCalls(result.messages);
       if (pending.length === 0) {
@@ -817,6 +823,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         })),
       );
       messages = withApprovalResponses(result.messages, outcomes);
+    }
+
+    if (abandoned) {
+      await closeTurnStream();
+      return;
     }
 
     transcript.finishTextSegment();
