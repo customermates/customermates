@@ -920,6 +920,12 @@ path:focus {
     --text-xl: calc(var(--scene-unit) * 5);
     --text-2xl: calc(var(--scene-unit) * 6);
     --text-3xl: calc(var(--scene-unit) * 7.5);
+    --text-4xl: calc(var(--scene-unit) * 9);
+    --text-5xl: calc(var(--scene-unit) * 12);
+    --text-6xl: calc(var(--scene-unit) * 15);
+    --text-7xl: calc(var(--scene-unit) * 18);
+    --text-8xl: calc(var(--scene-unit) * 24);
+    --text-9xl: calc(var(--scene-unit) * 32);
   }
 
   /* Arbitrary-value utilities compile to literal pixels and so do not follow --spacing. These

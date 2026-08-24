@@ -101,17 +101,19 @@ export function SceneWindow({
         className,
       )}
     >
-      <div className="flex shrink-0 items-center gap-[1.2cqw] border-b border-border px-[2cqw] py-[1.4cqw]">
-        <span className="scene-ink-surface size-[1.1cqw] rounded-full" />
+      {fill ? null : (
+        <div className="flex shrink-0 items-center gap-[1.2cqw] border-b border-border px-[2cqw] py-[1.4cqw]">
+          <span className="scene-ink-surface size-[1.1cqw] rounded-full" />
 
-        <span className="scene-ink-surface size-[1.1cqw] rounded-full" />
+          <span className="scene-ink-surface size-[1.1cqw] rounded-full" />
 
-        <span className="scene-ink-surface size-[1.1cqw] rounded-full" />
+          <span className="scene-ink-surface size-[1.1cqw] rounded-full" />
 
-        {title ? <span className="scene-meta scene-ink-quiet ml-[1.2cqw] truncate">{title}</span> : null}
-      </div>
+          {title ? <span className="scene-meta scene-ink-quiet ml-[1.2cqw] truncate">{title}</span> : null}
+        </div>
+      )}
 
-      <div className={cn(fill && "flex min-h-0 flex-1 flex-col")}>{children}</div>
+      <div className={cn("scene-platform", fill && "flex min-h-0 flex-1 flex-col")}>{children}</div>
     </div>
   );
 }

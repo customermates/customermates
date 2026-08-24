@@ -1,38 +1,52 @@
-import { SceneFrame, SceneRow, SceneWindow, type SceneProps } from "./scene-grammar";
+import { SceneFrame, SceneWindow, type SceneProps } from "./scene-grammar";
+import { AppChip, Avatar, Card, CardContent } from "./platform";
 
-const ROWS = [
-  { by: "You", text: "Call booked for Thursday" },
-  { by: "You", text: "Quote sent, two extra seats" },
+const OWNER = { name: "Max Bergmann", photo: "/demo/avatars/photos/max-bergmann.png" };
+
+const FIELDS = [
+  { label: "Deal Value", value: "€198,500.00" },
+  { label: "Weighted Value", value: "€119,100.00" },
+  { label: "Service Quantity", value: "162" },
 ];
 
 export function RecordScene({ className, label }: SceneProps) {
   return (
     <SceneFrame className={className} crop="bottom" label={label}>
-      <SceneWindow title="Deals · Feldmann Logistik">
-        <div className="flex flex-col gap-[2cqw] p-[2.4cqw]">
-          <div className="flex items-baseline justify-between gap-4">
-            <p className="scene-title m-0 font-medium">Feldmann Logistik</p>
+      <SceneWindow title="Deals · Digital Customer Platform">
+        <div className="flex flex-col gap-4 p-6">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="m-0 truncate text-lg font-semibold">Digital Customer Platform</h2>
 
-            <span className="scene-meta rounded-full border border-border px-[1.6cqw] py-[0.7cqw] text-muted-foreground">
+            <AppChip size="sm" variant="warning">
               Proposal
-            </span>
+            </AppChip>
           </div>
 
-          <div className="flex flex-col gap-[1.1cqw]">
-            {ROWS.map((row) => (
-              <SceneRow key={row.text}>
-                <span className="scene-meta w-[6cqw] shrink-0 text-muted-foreground">{row.by}</span>
+          <Card className="gap-2 py-3">
+            <CardContent className="px-3">
+              <div className="space-y-2">
+                {FIELDS.map((field) => (
+                  <div key={field.label} className="flex items-center justify-between gap-3 text-sm">
+                    <span className="shrink-0 text-xs text-muted-foreground">{field.label}</span>
 
-                <span className="truncate">{row.text}</span>
-              </SceneRow>
-            ))}
+                    <span className="min-w-0 truncate text-right">{field.value}</span>
+                  </div>
+                ))}
 
-            <SceneRow accent>
-              <span className="scene-meta w-[6cqw] shrink-0 text-primary">Agent</span>
+                <div className="flex items-center justify-between gap-3 text-sm">
+                  <span className="shrink-0 text-xs text-muted-foreground">Organizations</span>
 
-              <span className="truncate">Moved to Proposal after the call</span>
-            </SceneRow>
-          </div>
+                  <AppChip size="sm">BMW</AppChip>
+                </div>
+
+                <div className="flex items-center justify-between gap-3 text-sm">
+                  <span className="shrink-0 text-xs text-muted-foreground">Assigned</span>
+
+                  <Avatar name={OWNER.name} size="default" src={OWNER.photo} />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </SceneWindow>
     </SceneFrame>

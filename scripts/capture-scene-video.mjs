@@ -153,6 +153,13 @@ try {
 
   await browser.eval("document.fonts.ready.then(() => true)");
 
+  // Radix paints an avatar only once its image has loaded, so a film whose first frames were
+  // captured before the photos decoded showed initials and then swapped to a face mid-loop.
+  await browser.eval(`(async () => {
+    await Promise.all([...document.images].map((image) => image.decode().catch(() => null)));
+    return true;
+  })()`);
+
   // Theme is a flag now: a film ships as a light/dark pair because an MP4 cannot follow CSS.
   await browser.eval(`(() => {
     localStorage.setItem("theme", ${JSON.stringify(THEME)});
