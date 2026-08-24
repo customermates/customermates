@@ -51,7 +51,7 @@ describe("sitemap reachability", () => {
         "a duplicate loc splits one page's signal across two identical entries",
       ).toBe(locations.length);
 
-      const retired = new Set(RETIRED_ROUTE_PATHS);
+      const retired = new Set<string>(RETIRED_ROUTE_PATHS);
       const submittedRetired = locations.filter((location) =>
         retired.has(new URL(location).pathname.replace(/^\/[a-z]{2}(?=\/|$)/u, "")),
       );

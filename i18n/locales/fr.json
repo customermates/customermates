@@ -566,6 +566,7 @@
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
+    "relatedPages": "Pages associées",
     "setAsDefault": "Définir par défaut",
     "sidebar": {
       "description": "Affiche la barre latérale mobile.",
