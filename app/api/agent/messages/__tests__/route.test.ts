@@ -3,7 +3,8 @@ import type { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const invoke = vi.hoisted(() => vi.fn());
-const runAgentLane = vi.hoisted(() => vi.fn());
+const dispatchAgentTurn = vi.hoisted(() => vi.fn());
+const agentTurnSseStream = vi.hoisted(() => vi.fn());
 
 vi.mock("@/env", () => ({
   env: {
@@ -18,7 +19,7 @@ vi.mock("@/core/di", () => ({
 vi.mock("@/core/api/interactor-handler", () => ({
   handleError: () => new Response(null, { status: 500 }),
 }));
-vi.mock("@/ee/agent-chat/agent-runner", () => ({ runAgentLane }));
+vi.mock("@/ee/agent-chat/agent-turn-stream", () => ({ dispatchAgentTurn, agentTurnSseStream }));
 
 import { POST } from "../route";
 import { createZodError } from "@/core/validation/validation.utils";
@@ -53,7 +54,7 @@ describe("agent message admission route", () => {
 
     expect(response.status).toBe(429);
     expect(await response.json()).toBe("Not enough AI credits remain to start another request.");
-    expect(runAgentLane).not.toHaveBeenCalled();
+    expect(dispatchAgentTurn).not.toHaveBeenCalled();
   });
 
   it("maps a canonical admission conflict to 409 without starting the provider", async () => {
@@ -68,7 +69,7 @@ describe("agent message admission route", () => {
 
     expect(response.status).toBe(409);
     expect(await response.json()).toContain("Another Assistant turn is already running.");
-    expect(runAgentLane).not.toHaveBeenCalled();
+    expect(dispatchAgentTurn).not.toHaveBeenCalled();
   });
 
   it("starts the provider lane only for a newly admitted run", async () => {
@@ -89,7 +90,8 @@ describe("agent message admission route", () => {
         messages: [{ role: "user", text: "Hello" }],
       },
     });
-    runAgentLane.mockReturnValue(
+    dispatchAgentTurn.mockResolvedValue("wrun_test");
+    agentTurnSseStream.mockReturnValue(
       new ReadableStream({
         start(controller) {
           controller.close();
@@ -103,13 +105,11 @@ describe("agent message admission route", () => {
     expect(response.headers.get("x-conversation-id")).toBe(conversationId);
     expect(response.headers.get("x-user-message-id")).toBe(userMessageId);
     expect(response.headers.get("x-client-request-id")).toBe(clientRequestId);
-    expect(runAgentLane).toHaveBeenCalledWith(
-      expect.objectContaining({
-        disposition: "run",
-        appBaseUrl: "https://app.example.com",
-      }),
-      expect.any(AbortSignal),
+    expect(dispatchAgentTurn).toHaveBeenCalledWith(
+      expect.objectContaining({ disposition: "run" }),
+      "https://app.example.com",
     );
+    expect(agentTurnSseStream).toHaveBeenCalledWith("wrun_test");
   });
 
   it("replays the exact canonical assistant message without invoking the provider", async () => {
@@ -134,7 +134,7 @@ describe("agent message admission route", () => {
     const body = await response.text();
 
     expect(response.status).toBe(200);
-    expect(runAgentLane).not.toHaveBeenCalled();
+    expect(dispatchAgentTurn).not.toHaveBeenCalled();
     expect(body).toContain('"type":"message_replay"');
     expect(body).toContain('"messageId":"assistant-1"');
     expect(body).toContain('"type":"turn_done"');
@@ -166,7 +166,7 @@ describe("agent message admission route", () => {
         disposition,
         retryAllowed: disposition === "failed",
       });
-      expect(runAgentLane).not.toHaveBeenCalled();
+      expect(dispatchAgentTurn).not.toHaveBeenCalled();
     },
   );
 

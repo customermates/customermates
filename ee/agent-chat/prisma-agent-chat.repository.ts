@@ -1092,6 +1092,37 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
   }
 
   @BypassTenantGuard
+  async recordAgentTurnExternalRunUnscoped(args: {
+    turnRequestId: string;
+    companyId: string;
+    externalRunId: string;
+  }): Promise<void> {
+    await this.prisma.agentTurnRequest.updateMany({
+      where: { id: args.turnRequestId, companyId: args.companyId },
+      data: { externalRunId: args.externalRunId },
+    });
+  }
+
+  @BypassTenantGuard
+  async findAgentTurnExternalRunUnscoped(args: {
+    conversationId: string;
+    companyId: string;
+    userId: string;
+  }): Promise<string | null> {
+    const turn = await this.prisma.agentTurnRequest.findFirst({
+      where: {
+        conversationId: args.conversationId,
+        companyId: args.companyId,
+        userId: args.userId,
+        externalRunId: { not: null },
+      },
+      orderBy: { createdAt: "desc" },
+      select: { externalRunId: true },
+    });
+    return turn?.externalRunId ?? null;
+  }
+
+  @BypassTenantGuard
   async heartbeatAgentRunUnscoped(args: {
     turnRequestId: string;
     companyId: string;

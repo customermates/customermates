@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
 const invoke = vi.hoisted(() => vi.fn());
-const runAgentLane = vi.hoisted(() => vi.fn());
+const dispatchAgentTurn = vi.hoisted(() => vi.fn());
+const agentTurnSseStream = vi.hoisted(() => vi.fn());
 
 vi.mock("@/env", () => ({
   env: {
@@ -14,7 +15,7 @@ vi.mock("@/core/di", () => ({ getSendAgentMessageInteractor: () => ({ invoke }) 
 vi.mock("@/core/api/interactor-handler", () => ({
   handleError: () => new Response(null, { status: 500 }),
 }));
-vi.mock("@/ee/agent-chat/agent-runner", () => ({ runAgentLane }));
+vi.mock("@/ee/agent-chat/agent-turn-stream", () => ({ dispatchAgentTurn, agentTurnSseStream }));
 
 import { POST } from "../route";
 
@@ -34,6 +35,6 @@ describe("agent message route kill switch", () => {
 
     expect(response.status).toBe(404);
     expect(invoke).not.toHaveBeenCalled();
-    expect(runAgentLane).not.toHaveBeenCalled();
+    expect(dispatchAgentTurn).not.toHaveBeenCalled();
   });
 });

@@ -3,6 +3,7 @@ import type { AgentToolDeps } from "@/ee/agent-chat/agent-tools";
 import type { AgentTurnBudget } from "@/ee/agent-chat/agent-budget-policy";
 import type { AgentActivityResource } from "@/ee/agent-chat/agent-activity";
 import type { AgentTranscriptEvent } from "@/ee/agent-chat/agent-turn-transcript";
+import type { AgentTurnTerminalEvent } from "@/ee/agent-chat/agent-durable-stream";
 import type { ReplayMessage } from "@/ee/agent-chat/agent-stream-utils";
 import type { TokenCounts } from "@/ee/agent-chat/model-pricing";
 import type { WorkflowTenant } from "./workflow-tenant";
@@ -12,6 +13,7 @@ import { createHook, getWritable, sleep } from "workflow";
 import { isStepCount, jsonSchema } from "ai";
 
 import { AgentTurnTranscript } from "@/ee/agent-chat/agent-turn-transcript";
+import { isAgentTurnTerminalError } from "@/ee/agent-chat/agent-turn-request";
 import {
   agentApprovalHookToken,
   agentApprovalRequestId,
@@ -27,7 +29,7 @@ import { buildTurnUsageSettlement, usageToTokenCounts } from "@/ee/agent-chat/ll
 import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
 import { createAgentSupportTicket } from "@/ee/agent-chat/agent-runner";
 import { describeAgentTool } from "@/ee/agent-chat/agent-activity";
-import { isAgentToolCancellation } from "@/ee/agent-chat/agent-tool-cancellation";
+import { agentToolOutcomeStatus, AGENT_FORWARDED_WORKFLOW_EVENTS } from "@/ee/agent-chat/agent-durable-stream";
 import { getAgentChatRepo } from "@/core/di";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
@@ -88,10 +90,6 @@ function addTokens(left: TokenCounts, right: TokenCounts): TokenCounts {
     cacheReadTokens: left.cacheReadTokens + right.cacheReadTokens,
     cacheWriteTokens: left.cacheWriteTokens + right.cacheWriteTokens,
   };
-}
-
-function isStructuredToolFailure(output: unknown) {
-  return Boolean(output && typeof output === "object" && (output as { ok?: unknown }).ok === false);
 }
 
 function backgroundToolDeps(payload: AgentTurnWorkflowPayload, grant: ToolApprovalGrant): AgentToolDeps {
@@ -309,7 +307,7 @@ async function finalizeTurn(
   const measured = outcome.ledger.every((entry) => entry.measured);
   const unreadableReason = outcome.ledger.find((entry) => entry.unreadableReason)?.unreadableReason ?? null;
 
-  await runAsBackgroundTenant(payload.userId, () =>
+  const committed = await runAsBackgroundTenant(payload.userId, () =>
     getAgentChatRepo().finalizeAgentTurnOrThrowUnscoped({
       turnRequestId: payload.turnRequestId,
       conversationId: payload.conversationId,
@@ -334,6 +332,29 @@ async function finalizeTurn(
       }),
     }),
   );
+
+  const writer = getWritable<AgentTranscriptEvent | AgentTurnTerminalEvent>().getWriter();
+  try {
+    await writer.write({
+      type: "message_committed",
+      payload: { messageId: committed.assistantMessage.id },
+    });
+    await writer.write({
+      type: "turn_done",
+      payload: {
+        isError: isAgentTurnTerminalError(committed.terminalCode),
+        terminalCode: committed.terminalCode,
+        assistantMessageId: committed.assistantMessage.id,
+        affectedResources: committed.affectedResources,
+        creditsUsed: committed.chargedCredits,
+        numTurns: outcome.ledger.length,
+        errorMessage: committed.terminalCode === "policyBreach" ? "policy_breach" : null,
+        replayed: false,
+      },
+    });
+  } finally {
+    writer.releaseLock();
+  }
 }
 finalizeTurn.maxRetries = 0;
 
@@ -346,7 +367,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
     const queued: AgentTranscriptEvent[] = [];
     const transcript = new AgentTurnTranscript((event) => {
-      if (event.type !== "delta") queued.push(event);
+      if ((AGENT_FORWARDED_WORKFLOW_EVENTS as readonly string[]).includes(event.type)) queued.push(event);
     });
 
     const systemPrompt = buildAgentSystemPrompt({
@@ -370,14 +391,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       if (settledToolCallIds.has(toolCallId)) return;
       settledToolCallIds.add(toolCallId);
 
-      const cancelled = isAgentToolCancellation(output);
-      const failed = !cancelled && isStructuredToolFailure(output);
-      transcript.completeToolCall({
-        toolCallId,
-        toolName,
-        status: cancelled ? "cancelled" : failed ? "error" : "done",
-        failed,
-      });
+      const outcome = agentToolOutcomeStatus(output);
+      transcript.completeToolCall({ toolCallId, toolName, status: outcome.status, failed: outcome.failed });
     };
 
     const applyRound = async (step: AgentRoundResult) => {
@@ -544,7 +559,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     transcript.failUnfinishedTools("error", true);
     if (transcript.replyParts.length === 0) transcript.appendText(" ");
     await publishTranscriptEvents(queued.splice(0));
-    await closeTurnStream();
 
     await finalizeTurn(payload, {
       parts: transcript.replyParts,
@@ -553,6 +567,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       tokens,
       ledger,
     });
+    await closeTurnStream();
   } catch (error) {
     await reportFailure(WORKFLOW_NAME, toWorkflowFailure(error), payload.tenant);
     throw error;
