@@ -87,6 +87,7 @@ describe("agent durable stream reader", () => {
         { type: "approval_resolved", payload: { requestId: "turn:call-1", decision: "approve" } },
         { type: "activity_superseded", payload: { id: "call-0" } },
         { type: "ui_command", payload: { commandId: "call-9", name: "navigate", input: {} } },
+        { type: "delta", payload: { text: "Stopped early." } },
         { type: "activity_result", payload: { id: "call-9", isError: false, status: "done" } },
         { type: "turn_done", payload: { terminalCode: "completed" } },
         { type: "activity", payload: { id: "call-9" } },
@@ -96,6 +97,7 @@ describe("agent durable stream reader", () => {
       "approval_resolved",
       "activity_superseded",
       "ui_command",
+      "delta",
       "activity_result",
       "turn_done",
     ]);

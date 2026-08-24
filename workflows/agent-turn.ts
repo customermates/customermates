@@ -33,6 +33,12 @@ import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
 import { createAgentSupportTicket } from "@/ee/agent-chat/agent-runner";
 import { describeAgentTool } from "@/ee/agent-chat/agent-activity";
 import { agentToolOutcomeStatus, AGENT_TRANSCRIPT_FORWARDED_EVENTS } from "@/ee/agent-chat/agent-durable-stream";
+import {
+  agentDurableContinuationLimits,
+  toAgentContinuationStep,
+  type AgentDurableToolOutcome,
+} from "@/ee/agent-chat/agent-durable-limits";
+import { decideAgentContinuationLoop, type AgentContinuationStep } from "@/ee/agent-chat/agent-continuation";
 import { getAgentChatRepo } from "@/core/di";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
@@ -42,7 +48,7 @@ import { resolveAgentToolResultMaxChars } from "@/ee/agent-chat/agent-budget-pol
 import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 
-import { reportFailure, toWorkflowFailure } from "./capture-failure";
+import { reportFailure, toWorkflowFailure, type WorkflowFailure } from "./capture-failure";
 
 const WORKFLOW_NAME = "agent-turn";
 
@@ -259,6 +265,22 @@ async function openApprovalRequests(
 }
 openApprovalRequests.maxRetries = 0;
 
+async function publishAssistantText(text: string): Promise<void> {
+  "use step";
+  const writer = getWritable<{ type: string; payload: Record<string, unknown> }>().getWriter();
+  try {
+    await writer.write({ type: "delta", payload: { text } });
+  } finally {
+    writer.releaseLock();
+  }
+}
+
+async function resolveSafetyStopMessage(locale: string): Promise<string> {
+  "use step";
+  const { agentTranslator } = await import("@/ee/agent-chat/agent-translator");
+  return agentTranslator(locale)("AgentChat.runner.safetyLimit");
+}
+
 async function readCancellation(payload: AgentTurnWorkflowPayload): Promise<boolean> {
   "use step";
   return runAsBackgroundTenant(payload.userId, () =>
@@ -468,6 +490,10 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const grants = new Map<string, ToolApprovalGrant>();
     const completedTools: ({ toolCallId: string; toolName: string } & ({ output: unknown } | { threw: true }))[] = [];
 
+    const continuationSteps: AgentContinuationStep[] = [];
+    const continuationLimits = agentDurableContinuationLimits(payload.turnBudget.maxSteps);
+    let safetyStop: string | null = null;
+    let roundFailure: WorkflowFailure | null = null;
     const settledToolCallIds = new Set<string>();
 
     const settleToolOutcome = (toolCallId: string, toolName: string | undefined, output: unknown) => {
@@ -481,59 +507,71 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const applyRound = async (step: AgentRoundResult) => {
       appliedThisCall += 1;
 
-      for (const raw of step.content) {
-        const part = raw as { type?: string; text?: string; toolCallId?: string; toolName?: string; input?: unknown };
-        if (part.type === "text" && part.text) transcript.pushTextDelta(part.text);
-        else if (part.type === "tool-call" && part.toolCallId && part.toolName) {
-          transcript.beginToolCall({
-            toolCallId: part.toolCallId,
-            toolName: part.toolName,
-            activity: describeAgentTool(internalToolIdentity(part.toolName), part.input),
-          });
+      try {
+        for (const raw of step.content) {
+          const part = raw as { type?: string; text?: string; toolCallId?: string; toolName?: string; input?: unknown };
+          if (part.type === "text" && part.text) transcript.pushTextDelta(part.text);
+          else if (part.type === "tool-call" && part.toolCallId && part.toolName) {
+            transcript.beginToolCall({
+              toolCallId: part.toolCallId,
+              toolName: part.toolName,
+              activity: describeAgentTool(internalToolIdentity(part.toolName), part.input),
+            });
+          }
         }
-      }
-      transcript.finishTextSegment();
+        transcript.finishTextSegment();
 
-      for (const completed of completedTools.splice(0)) {
-        if ("threw" in completed) {
-          settledToolCallIds.add(completed.toolCallId);
-          transcript.failToolCall(completed.toolCallId);
-          continue;
+        const outcomes: AgentDurableToolOutcome[] = completedTools.splice(0);
+        for (const completed of outcomes) {
+          if ("threw" in completed) {
+            settledToolCallIds.add(completed.toolCallId);
+            transcript.failToolCall(completed.toolCallId);
+            continue;
+          }
+
+          settleToolOutcome(completed.toolCallId, completed.toolName, completed.output);
         }
 
-        settleToolOutcome(completed.toolCallId, completed.toolName, completed.output);
+        const roundTokens = usageToTokenCounts(step.usage);
+        const charge = readAgentProviderCharge(step.providerMetadata, payload.turnBudget.servingProvider);
+        const costMicrocents =
+          charge.outcome === "measured"
+            ? charge.charge.costMicrocents
+            : computeCostMicrocents(payload.turnBudget.modelSpec, roundTokens, payload.turnBudget.servingProvider);
+
+        tokens = addTokens(tokens, roundTokens);
+        ledger.push({
+          tokens: roundTokens,
+          costMicrocents,
+          measured: charge.outcome === "measured",
+          unreadableReason: charge.outcome === "unreadable" ? charge.reason : undefined,
+        });
+
+        const roundCancelled = await persistRound(payload, {
+          roundIndex: roundIndex++,
+          parts: step.content,
+          finishReason: step.finishReason,
+          tokens: roundTokens,
+          reasoningTokens: step.usage.outputTokenDetails?.reasoningTokens ?? 0,
+          costMicrocents,
+        });
+        cancelled ||= roundCancelled;
+        await publishTranscriptEvents(queued.splice(0));
+
+        continuationSteps.push(toAgentContinuationStep(step, outcomes));
+        const loop = decideAgentContinuationLoop(
+          { startedAtMs: 0, steps: continuationSteps, observedAtMs: 0 },
+          continuationLimits,
+        );
+        if (loop.action === "error" && loop.reason !== "step_limit") safetyStop = loop.reason;
+      } catch (error) {
+        roundFailure ??= toWorkflowFailure(error);
       }
-
-      const roundTokens = usageToTokenCounts(step.usage);
-      const charge = readAgentProviderCharge(step.providerMetadata, payload.turnBudget.servingProvider);
-      const costMicrocents =
-        charge.outcome === "measured"
-          ? charge.charge.costMicrocents
-          : computeCostMicrocents(payload.turnBudget.modelSpec, roundTokens, payload.turnBudget.servingProvider);
-
-      tokens = addTokens(tokens, roundTokens);
-      ledger.push({
-        tokens: roundTokens,
-        costMicrocents,
-        measured: charge.outcome === "measured",
-        unreadableReason: charge.outcome === "unreadable" ? charge.reason : undefined,
-      });
-
-      const roundCancelled = await persistRound(payload, {
-        roundIndex: roundIndex++,
-        parts: step.content,
-        finishReason: step.finishReason,
-        tokens: roundTokens,
-        reasoningTokens: step.usage.outputTokenDetails?.reasoningTokens ?? 0,
-        costMicrocents,
-      });
-      cancelled ||= roundCancelled;
-      await publishTranscriptEvents(queued.splice(0));
     };
 
     let messages = providerContext.messages;
 
-    while (!cancelled) {
+    while (!cancelled && safetyStop === null && roundFailure === null) {
       const agent = new WorkflowAgent({
         id: WORKFLOW_NAME,
         model: payload.turnBudget.modelSpec,
@@ -568,7 +606,10 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           gateway: { only: [payload.turnBudget.servingProvider] },
           openai: { parallelToolCalls: false },
         },
-        stopWhen: [isStepCount(payload.turnBudget.maxSteps), () => cancelled],
+        stopWhen: [
+          isStepCount(payload.turnBudget.maxSteps),
+          () => cancelled || safetyStop !== null || roundFailure !== null,
+        ],
         onToolExecutionEnd: (event) => {
           completedTools.push(
             event.success
@@ -681,13 +722,24 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     }
 
     transcript.finishTextSegment();
+    if (roundFailure) await reportFailure(WORKFLOW_NAME, roundFailure, payload.tenant);
+    if (safetyStop || roundFailure) {
+      const message = await resolveSafetyStopMessage(payload.locale);
+      const trailing = transcript.replyText.trim() ? `\n\n${message}` : message;
+      transcript.appendText(trailing);
+      await publishAssistantText(trailing);
+    }
     transcript.failUnfinishedTools(cancelled ? "cancelled" : "error", true);
     if (transcript.replyParts.length === 0) transcript.appendText(" ");
     await publishTranscriptEvents(queued.splice(0));
 
     await finalizeTurn(payload, {
       parts: transcript.replyParts,
-      terminalCode: cancelled ? "cancelled" : finishReason === "stop" ? "completed" : "partial",
+      terminalCode: cancelled
+        ? "cancelled"
+        : safetyStop || roundFailure || finishReason !== "stop"
+          ? "partial"
+          : "completed",
       affectedResources: transcript.affectedResources,
       tokens,
       ledger,

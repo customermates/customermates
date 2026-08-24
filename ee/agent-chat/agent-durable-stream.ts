@@ -12,6 +12,7 @@ export const AGENT_TRANSCRIPT_FORWARDED_EVENTS = [
 
 export const AGENT_CLIENT_PASSTHROUGH_EVENTS = [
   ...AGENT_TRANSCRIPT_FORWARDED_EVENTS,
+  "delta",
   "activity_result",
   "ui_command",
   "message_committed",
