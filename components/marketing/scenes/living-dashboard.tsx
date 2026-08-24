@@ -13,7 +13,7 @@ export function LivingDashboard({ className, label }: SceneProps) {
 
   return (
     <div ref={hostRef}>
-      <DashboardScene className={className} label={label} t={t ?? undefined} />
+      <DashboardScene film className={className} label={label} t={t ?? undefined} />
     </div>
   );
 }

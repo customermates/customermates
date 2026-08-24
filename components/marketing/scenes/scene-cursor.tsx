@@ -2,7 +2,7 @@ import { cn } from "@/core/utils/cn";
 
 export type CursorWaypoint = {
   at: number;
-  press?: boolean;
+  holding?: boolean;
   x: number;
   y: number;
 };
@@ -16,8 +16,8 @@ export function scenePointer(path: readonly CursorWaypoint[], t: number) {
 
   const first = path[0];
   const last = path[path.length - 1];
-  if (t <= first.at) return { pressed: Boolean(first.press), x: first.x, y: first.y };
-  if (t >= last.at) return { pressed: Boolean(last.press), x: last.x, y: last.y };
+  if (t <= first.at) return { pressed: Boolean(first.holding), x: first.x, y: first.y };
+  if (t >= last.at) return { pressed: Boolean(last.holding), x: last.x, y: last.y };
 
   for (let index = 0; index < path.length - 1; index += 1) {
     const from = path[index];
@@ -27,13 +27,13 @@ export function scenePointer(path: readonly CursorWaypoint[], t: number) {
     const span = to.at - from.at;
     const progress = span === 0 ? 1 : easeInOut((t - from.at) / span);
     return {
-      pressed: Boolean(from.press),
+      pressed: Boolean(from.holding),
       x: from.x + (to.x - from.x) * progress,
       y: from.y + (to.y - from.y) * progress,
     };
   }
 
-  return { pressed: Boolean(last.press), x: last.x, y: last.y };
+  return { pressed: Boolean(last.holding), x: last.x, y: last.y };
 }
 
 export function SceneCursor({ path, t }: { path: readonly CursorWaypoint[]; t?: number }) {

@@ -13,7 +13,7 @@ export function LivingPipeline({ className, label }: SceneProps) {
 
   return (
     <div ref={hostRef}>
-      <PipelineScene className={className} label={label} t={t ?? undefined} />
+      <PipelineScene film className={className} label={label} t={t ?? undefined} />
     </div>
   );
 }

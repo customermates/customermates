@@ -35,12 +35,10 @@ const CURSOR_PATH: readonly CursorWaypoint[] = [
   { at: 0, ...CURSOR_IDLE },
   { at: 0.06, ...CURSOR_IDLE },
   { at: 0.2, ...CURSOR_HOME },
-  { at: 0.24, press: true, ...CURSOR_HOME },
-  { at: 0.44, press: true, ...CURSOR_SLOT },
-  { at: 0.48, ...CURSOR_SLOT },
-  { at: 0.7, press: true, ...CURSOR_SLOT },
-  { at: 0.88, press: true, ...CURSOR_HOME },
-  { at: 0.92, ...CURSOR_HOME },
+  { at: 0.24, holding: true, ...CURSOR_HOME },
+  { at: 0.44, ...CURSOR_SLOT },
+  { at: 0.7, holding: true, ...CURSOR_SLOT },
+  { at: 0.88, ...CURSOR_HOME },
   { at: 1, ...CURSOR_IDLE },
 ];
 

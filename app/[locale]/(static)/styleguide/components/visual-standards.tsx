@@ -336,7 +336,7 @@ export function NoteAddedScene({ className, label }: SceneProps) {
       </MarketingSection>
 
       <MarketingSection
-        description="The same component as the static scene above, handed a clock. Nothing about the composition changes; only time is added."
+        description="The same components as the static scenes above, each handed a clock. This is what the films below are before they are captured, which is why they are the one live animation the system still allows and why they live here rather than on a public page."
         id="motion"
         title="Standard two — the living scene"
       >

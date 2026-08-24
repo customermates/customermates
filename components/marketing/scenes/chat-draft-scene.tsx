@@ -28,7 +28,7 @@ export const CHAT_DRAFT_DURATION_MS = 12_000;
 
 export const CHAT_DRAFT_STILL_AT = 0.5;
 
-const CURSOR_IDLE = { x: 46, y: 62 } as const;
+const CURSOR_IDLE = { x: 24, y: 76 } as const;
 
 const CURSOR_SEND = { x: 91.4, y: 91.4 } as const;
 
@@ -36,8 +36,8 @@ const CURSOR_PATH: readonly CursorWaypoint[] = [
   { at: 0, ...CURSOR_IDLE },
   { at: 0.56, ...CURSOR_IDLE },
   { at: 0.645, ...CURSOR_SEND },
-  { at: 0.66, press: true, ...CURSOR_SEND },
-  { at: 0.7, press: true, ...CURSOR_SEND },
+  { at: 0.66, holding: true, ...CURSOR_SEND },
+  { at: 0.7, ...CURSOR_SEND },
   { at: 0.8, ...CURSOR_IDLE },
   { at: 1, ...CURSOR_IDLE },
 ];

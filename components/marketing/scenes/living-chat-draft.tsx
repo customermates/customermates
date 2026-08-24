@@ -13,7 +13,7 @@ export function LivingChatDraft({ className, label }: SceneProps) {
 
   return (
     <div ref={hostRef}>
-      <ChatDraftScene className={className} label={label} t={t ?? undefined} />
+      <ChatDraftScene film className={className} label={label} t={t ?? undefined} />
     </div>
   );
 }
