@@ -41,6 +41,7 @@ function deps(): AgentToolDeps {
     resolveApprovalContext: (_toolName, input) => Promise.resolve({ ok: true, input }),
     createSupportTicket: () => Promise.resolve({ ok: true, result: "" }),
     runExactlyOnce: (_toolCallId, _toolName, run) => run(),
+    runInCallerContext: (run) => run(),
     resultMaxChars: 6000,
   };
 }

@@ -65,8 +65,26 @@ export type AgentToolDeps = {
   resolveApprovalContext: (toolName: string, input: unknown) => Promise<AgentApprovalContextResolution>;
   createSupportTicket: (toolCallId: string, subject: string, body: string) => Promise<McpToolExecutionResult>;
   runExactlyOnce: <T>(toolCallId: string, toolName: string, run: () => Promise<T>) => Promise<T>;
+  runInCallerContext: <T>(run: () => Promise<T>) => Promise<T>;
   resultMaxChars: number;
 };
+
+function withCallerContext(tools: ToolSet, deps: AgentToolDeps): ToolSet {
+  return Object.fromEntries(
+    Object.entries(tools).map(([name, agentTool]) => {
+      const execute = (agentTool as { execute?: (...args: never[]) => Promise<unknown> }).execute;
+      if (typeof execute !== "function") return [name, agentTool];
+
+      return [
+        name,
+        {
+          ...agentTool,
+          execute: (...args: never[]) => deps.runInCallerContext(() => execute(...args)),
+        },
+      ];
+    }),
+  );
+}
 
 function declineResult(decision: Exclude<ApprovalDecision, "approve">): AgentToolCancellation {
   return {
@@ -282,25 +300,28 @@ export function getAgentAiTools(deps: AgentToolDeps): ToolSet {
   const crm = ALL_MCP_TOOLS.filter((mcp) => mcp.name !== "request_support").map(
     (mcp) => [mcp.name, crmTool(mcp, deps)] as const,
   );
-  return {
-    ...Object.fromEntries(crm),
-    ...uiTools(deps),
-    request_support: tool({
-      description:
-        "Email a support request to the Customermates team. Use when the user asks for a human, reports a bug, or you cannot help after a genuine attempt. The recent Assistant conversation is included, and the team replies to the email address on the user's account.",
-      inputSchema: providerSafeSchema(RequestSupportSchema),
-      execute: async (input, { toolCallId }) =>
-        runSafely(
-          () =>
-            runGated(deps, toolCallId, "request_support", input, () =>
-              deps
-                .createSupportTicket(toolCallId, input.subject, input.body)
-                .then((outcome) => agentToolResult(outcome, deps.resultMaxChars)),
-            ),
-          deps.resultMaxChars,
-        ),
-    }),
-  } as unknown as ToolSet;
+  return withCallerContext(
+    {
+      ...Object.fromEntries(crm),
+      ...uiTools(deps),
+      request_support: tool({
+        description:
+          "Email a support request to the Customermates team. Use when the user asks for a human, reports a bug, or you cannot help after a genuine attempt. The recent Assistant conversation is included, and the team replies to the email address on the user's account.",
+        inputSchema: providerSafeSchema(RequestSupportSchema),
+        execute: async (input, { toolCallId }) =>
+          runSafely(
+            () =>
+              runGated(deps, toolCallId, "request_support", input, () =>
+                deps
+                  .createSupportTicket(toolCallId, input.subject, input.body)
+                  .then((outcome) => agentToolResult(outcome, deps.resultMaxChars)),
+              ),
+            deps.resultMaxChars,
+          ),
+      }),
+    } as unknown as ToolSet,
+    deps,
+  );
 }
 
 export type AgentAiToolDefinition = {
@@ -324,6 +345,7 @@ const TOOL_DEFINITION_DEPS: AgentToolDeps = {
   resolveApprovalContext: (_toolName, input) => Promise.resolve({ ok: true, input }),
   createSupportTicket: () => Promise.resolve({ ok: true, result: "Definition-only tool." }),
   runExactlyOnce: (_toolCallId, _toolName, run) => run(),
+  runInCallerContext: (run) => run(),
   resultMaxChars: 1,
 };
 

@@ -345,6 +345,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
         const deps: AgentToolDeps = {
           runUiCommand,
           requestApproval,
+          runInCallerContext: (run) => runWithTenant(sessionUser, run),
           runExactlyOnce: async (toolCallId, toolName, run) => {
             const receipt = await repo.claimAgentToolReceiptUnscoped({
               turnRequestId: ctx.turnRequestId,
@@ -354,18 +355,16 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
             });
             if (receipt.state === "settled") return receipt.resultJson as Awaited<ReturnType<typeof run>>;
 
-            return runWithTenant(sessionUser, () =>
-              runInTransaction(async () => {
-                const result = await run();
-                await repo.settleAgentToolReceiptUnscoped({
-                  turnRequestId: ctx.turnRequestId,
-                  companyId: ctx.companyId,
-                  toolCallId,
-                  resultJson: result as Prisma.InputJsonValue,
-                });
-                return result;
-              }),
-            );
+            return runInTransaction(async () => {
+              const result = await run();
+              await repo.settleAgentToolReceiptUnscoped({
+                turnRequestId: ctx.turnRequestId,
+                companyId: ctx.companyId,
+                toolCallId,
+                resultJson: result as Prisma.InputJsonValue,
+              });
+              return result;
+            });
           },
           resolveApprovalContext: resolveAgentApprovalContext,
           createSupportTicket: (_toolCallId, subject, body) => createSupportTicket(ctx.conversationId, subject, body),

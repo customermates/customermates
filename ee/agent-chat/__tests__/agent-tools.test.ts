@@ -61,6 +61,7 @@ function deps(overrides: Partial<AgentToolDeps> = {}): AgentToolDeps {
     resolveApprovalContext: vi.fn().mockImplementation((_toolName, input) => Promise.resolve({ ok: true, input })),
     createSupportTicket: vi.fn().mockResolvedValue({ ok: true, result: "created" }),
     runExactlyOnce: <T>(_toolCallId: string, _toolName: string, run: () => Promise<T>) => run(),
+    runInCallerContext: (run) => run(),
     resultMaxChars: 6000,
     ...overrides,
   };
@@ -103,6 +104,31 @@ describe("agent tools", () => {
     await ignoringOutcome(tools.list_records.execute({ entity: "contact" }, { toolCallId: "call-read" }));
 
     expect(enrolled).toEqual(["create_contacts:call-write"]);
+  });
+
+  it("runs every tool through the caller's context, so none can execute without an identity", async () => {
+    const entered: string[] = [];
+    const runInCallerContext = async <T>(run: () => Promise<T>) => {
+      entered.push("enter");
+      try {
+        return await run();
+      } finally {
+        entered.push("exit");
+      }
+    };
+    const tools = getAgentAiTools(deps({ runInCallerContext })) as unknown as Record<
+      string,
+      { execute?: (input: unknown, options: { toolCallId: string }) => Promise<unknown> }
+    >;
+
+    const executable = Object.entries(tools).filter(([, agentTool]) => typeof agentTool.execute === "function");
+    expect(executable.length).toBeGreaterThanOrEqual(46);
+
+    for (const [name, agentTool] of executable) {
+      entered.length = 0;
+      await agentTool.execute?.({}, { toolCallId: `call-${name}` }).catch(() => undefined);
+      expect(entered, `${name} executed outside the caller context`).toEqual(["enter", "exit"]);
+    }
   });
 
   it("classifies every tool that reaches a system it cannot roll back", () => {
