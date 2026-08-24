@@ -3,6 +3,8 @@ import { ThemePair } from "./theme-pair";
 import { MarketingSection } from "@/components/marketing/marketing-section";
 import { ChatDraftScene } from "@/components/marketing/scenes/chat-draft-scene";
 import { ConnectScene } from "@/components/marketing/scenes/connect-scene";
+import { DashboardScene } from "@/components/marketing/scenes/dashboard-scene";
+import { PipelineScene } from "@/components/marketing/scenes/pipeline-scene";
 import { LivingChatDraft } from "@/components/marketing/scenes/living-chat-draft";
 import { RecordScene } from "@/components/marketing/scenes/record-scene";
 
@@ -218,6 +220,26 @@ export function VisualStandards() {
             </div>
 
             <ConnectScene />
+          </div>
+
+          <div>
+            <div className="mb-5 flex flex-col gap-2 border-t border-border-strong pt-5 lg:flex-row lg:items-baseline lg:justify-between">
+              <code className="font-mono text-sm text-primary">{"<PipelineScene />"}</code>
+
+              <span className="text-meta">Industry and pipeline pages. Accent on the deal that moved.</span>
+            </div>
+
+            <PipelineScene />
+          </div>
+
+          <div>
+            <div className="mb-5 flex flex-col gap-2 border-t border-border-strong pt-5 lg:flex-row lg:items-baseline lg:justify-between">
+              <code className="font-mono text-sm text-primary">{"<DashboardScene />"}</code>
+
+              <span className="text-meta">Pricing and overview pages. Accent on what the agent did.</span>
+            </div>
+
+            <DashboardScene />
           </div>
         </div>
       </MarketingSection>

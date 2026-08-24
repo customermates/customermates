@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { ThemePair } from "./theme-pair";
 
 import { MarketingSection } from "@/components/marketing/marketing-section";
@@ -173,9 +175,13 @@ export function QueueCleared(props: IllustrationProps) {
               caption='variant="matted" — an 8px card mat and an inner radius. For a screenshot, whose own edges are square.'
               variant="matted"
             >
-              <div className="aspect-hero flex items-center justify-center bg-placeholder">
-                <span className="text-meta font-mono">screen capture</span>
-              </div>
+              <Image
+                alt="The Customermates inbox with a conversation open"
+                className="block h-auto w-full"
+                height={1080}
+                src="/captures/dark/inbox.png"
+                width={1920}
+              />
             </MediaPlate>
           </div>
 
@@ -184,6 +190,49 @@ export function QueueCleared(props: IllustrationProps) {
               <DetailMarked />
             </MediaPlate>
           </div>
+        </div>
+
+        <div className="marketing-grid mt-14 gap-y-4">
+          <div className="col-span-12 lg:col-span-6">
+            <MediaPlate caption="The deals board, light" variant="matted">
+              <Image
+                alt="The Customermates deals board"
+                className="block h-auto w-full"
+                height={1080}
+                src="/captures/light/deals-board.png"
+                width={1920}
+              />
+            </MediaPlate>
+          </div>
+
+          <div className="col-span-12 lg:col-span-6">
+            <MediaPlate caption="The dashboard, dark" variant="matted">
+              <Image
+                alt="The Customermates dashboard"
+                className="block h-auto w-full"
+                height={1080}
+                src="/captures/dark/dashboard.png"
+                width={1920}
+              />
+            </MediaPlate>
+          </div>
+        </div>
+
+        <div className="mx-auto mt-14 max-w-3xl">
+          <p className="text-lede text-center">
+            These are produced, not chosen. One command drives a seeded local instance, freezes the clock so relative
+            times cannot drift, waits for the page to stop moving, and captures both themes.
+          </p>
+
+          <pre className="mt-6 overflow-x-auto rounded-card border border-border bg-card p-5 text-xs leading-relaxed">
+            <code className="font-mono">{`APP_MODE=demo yarn dev
+node scripts/capture-product-proof.mjs --verify`}</code>
+          </pre>
+
+          <p className="text-meta mt-5">
+            Adding a capture is adding an entry to the manifest inside that script: a route, and any clicks needed to
+            reach the view. The board above takes two.
+          </p>
         </div>
 
         <div className="mx-auto mt-14 max-w-3xl">

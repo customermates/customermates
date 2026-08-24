@@ -54,6 +54,12 @@ export async function launchChrome({ port = 9333, width = 1440, height = 900, sc
   let nextId = 0;
   let sessionId = null;
   const pending = new Map();
+  const listeners = new Map();
+
+  function onEvent(method, handler) {
+    const existing = listeners.get(method) ?? [];
+    listeners.set(method, [...existing, handler]);
+  }
 
   function send(method, params = {}, session) {
     const id = (nextId += 1);
@@ -119,6 +125,10 @@ export async function launchChrome({ port = 9333, width = 1440, height = 900, sc
 
     ws.addEventListener("message", (event) => {
       const message = JSON.parse(event.data);
+      if (message.method) {
+        for (const handler of listeners.get(message.method) ?? []) handler(message.params);
+        return;
+      }
       const entry = pending.get(message.id);
       if (!entry) return;
       pending.delete(message.id);
@@ -172,6 +182,31 @@ export async function launchChrome({ port = 9333, width = 1440, height = 900, sc
       }
       return result.result.value;
     },
+    // Runs before any page script on every navigation. Used to pin the clock: the app renders
+    // relative times client-side from Date.now(), and the inbox seed anchors to wall-clock at
+    // seed time, so without this two capture passes disagree on every "x minutes ago".
+    async addInitScript(source) {
+      await call("Page.addScriptToEvaluateOnNewDocument", { source });
+    },
+
+    // Seeded avatars are stored as absolute customermates.com URLs even though the same files
+    // ship locally under public/demo/. Left alone a capture depends on the network and races
+    // the initials fallback, so requests to that origin are served from the local app instead.
+    async rewriteOrigin(fromPrefix, toPrefix) {
+      await call("Fetch.enable", { patterns: [{ urlPattern: `${fromPrefix}*` }] });
+      onEvent("Fetch.requestPaused", (params) => {
+        const next = params.request.url.startsWith(fromPrefix)
+          ? toPrefix + params.request.url.slice(fromPrefix.length)
+          : null;
+        const action = next
+          ? call("Fetch.continueRequest", { requestId: params.requestId, url: next })
+          : call("Fetch.continueRequest", { requestId: params.requestId });
+        action.catch(() => {
+          // the request was already torn down with the page
+        });
+      });
+    },
+
     async setReducedMotion(reduce) {
       await call("Emulation.setEmulatedMedia", {
         features: [{ name: "prefers-reduced-motion", value: reduce ? "reduce" : "no-preference" }],
