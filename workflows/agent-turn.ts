@@ -260,8 +260,7 @@ async function openApprovalRequests(
   const expiresAt = new Date(Date.now() + windowMs);
 
   await runAsBackgroundTenant(payload.userId, async () => {
-    await repo.holdAgentRunForSuspensionUnscoped({
-      turnRequestId: payload.turnRequestId,
+    await repo.extendAgentRunLeaseForSuspensionUnscoped({
       companyId: payload.companyId,
       userId: payload.userId,
       runId: payload.runId,
@@ -402,13 +401,6 @@ async function readApprovalDecisions(
   const repo = getAgentChatRepo();
 
   return runAsBackgroundTenant(payload.userId, async () => {
-    await repo.resumeAgentRunFromSuspensionUnscoped({
-      turnRequestId: payload.turnRequestId,
-      companyId: payload.companyId,
-      userId: payload.userId,
-      runId: payload.runId,
-    });
-
     const outcomes: AgentApprovalOutcome[] = [];
 
     for (const request of requests) {
@@ -756,12 +748,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           name: call.toolName,
           input: toAgentUiCommandInput(call.toolName, call.input) ?? {},
         }));
-        await publishUiCommands(commands);
-
         const uiWindowMs = payload.uiCommandWindowMs ?? AGENT_DURABLE_UI_COMMAND_WINDOW_MS;
         const uiHook = createHook<{ commandId: string }>({
           token: agentUiCommandHookToken(payload.conversationId),
         });
+        await publishUiCommands(commands);
         await Promise.race([
           (async () => {
             await uiHook;
@@ -788,6 +779,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       }));
 
       const approvalWindowMs = payload.approvalWindowMs ?? AGENT_DURABLE_APPROVAL_WINDOW_MS;
+      const hook = createHook<{ requestId: string }>({ token: agentApprovalHookToken(payload.conversationId) });
       await openApprovalRequests(payload, requests, approvalWindowMs);
       for (const request of requests) {
         transcript.beginApproval(
@@ -797,7 +789,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       }
       await publishTranscriptEvents(queued.splice(0));
 
-      const hook = createHook<{ requestId: string }>({ token: agentApprovalHookToken(payload.conversationId) });
       await Promise.race([
         (async () => {
           await hook;

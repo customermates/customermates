@@ -31,6 +31,7 @@ vi.mock("@/core/validation/zod-error-map-server", () => ({ getZodParseContext: v
 
 const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.repository");
 const { AGENT_MAX_CONCURRENT_RUNS_PER_USER } = await import("@/ee/agent-chat/agent-run-limits");
+const { AGENT_RUN_LEASE_MS } = await import("@/ee/agent-chat/agent-turn-request");
 const { AgentUsageService } = await import("@/ee/agent-chat/agent-usage.service");
 const { SendAgentMessageInteractor } = await import("@/ee/agent-chat/send-agent-message.interactor");
 const { prisma } = await import("@/prisma/db");
@@ -283,7 +284,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     expect(event.state).toBe("reserved");
   });
 
-  it("does not sweep a turn suspended on an approval whose window outlasts an ordinary lease", async () => {
+  it("holds the lease for a whole approval window, so a sweep past the ordinary horizon leaves the turn alone", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
     authState.user = createMockUser({ id: userId, companyId, email: `suspended-${userId}@example.com` });
@@ -305,13 +306,14 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
 
     const approvalDeadline = new Date(Date.now() + 30 * 60_000);
     const held = await runWithoutTenant(() =>
-      repo.holdAgentRunForSuspensionUnscoped({ turnRequestId, companyId, userId, runId, until: approvalDeadline }),
+      repo.extendAgentRunLeaseForSuspensionUnscoped({ companyId, userId, runId, until: approvalDeadline }),
     );
     expect(held).toBe(true);
 
     const sweeper = authState.user;
     if (!sweeper) throw new Error("Expected a tenant user.");
-    await runWithTenant(sweeper, () => repo.normalizeExpiredAgentRunLease(new Date(), "openai/gpt-5.6-luna"));
+    const pastTheOrdinaryLease = new Date(Date.now() + AGENT_RUN_LEASE_MS * 2);
+    await runWithTenant(sweeper, () => repo.normalizeExpiredAgentRunLease(pastTheOrdinaryLease, "openai/gpt-5.6-luna"));
 
     const [turn, lease, event] = await runWithoutTenant(() =>
       Promise.all([
@@ -320,20 +322,20 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         prisma.agentUsageEvent.findFirstOrThrow({ where: { turnRequestId } }),
       ]),
     );
-    expect(turn.status).toBe("awaitingApproval");
+    expect(turn.status).toBe("running");
+    expect(turn.terminalCode).toBeNull();
     expect(lease?.expiresAt.getTime()).toBeGreaterThan(approvalDeadline.getTime());
     expect(event.state).toBe("reserved");
 
-    await runWithoutTenant(() =>
-      repo.resumeAgentRunFromSuspensionUnscoped({ turnRequestId, companyId, userId, runId }),
+    const beat = await runWithoutTenant(() =>
+      repo.heartbeatAgentRunUnscoped({ turnRequestId, companyId, userId, runId }),
     );
-    const resumed = await runWithoutTenant(() =>
-      prisma.agentTurnRequest.findUniqueOrThrow({ where: { id: turnRequestId } }),
-    );
-    expect(resumed.status).toBe("running");
+    expect(beat).toBe(true);
+    const resumed = await runWithoutTenant(() => prisma.agentRunLease.findFirstOrThrow({ where: { userId } }));
+    expect(resumed.expiresAt.getTime()).toBeLessThan(approvalDeadline.getTime());
   });
 
-  it("settles a suspended turn once its extended lease has genuinely expired", async () => {
+  it("settles a suspended turn once even its extended lease has genuinely expired", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
     authState.user = createMockUser({ id: userId, companyId, email: `abandoned-${userId}@example.com` });
@@ -355,7 +357,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
 
     const lapsed = new Date(Date.now() - 60 * 60_000);
     await runWithoutTenant(() =>
-      repo.holdAgentRunForSuspensionUnscoped({ turnRequestId, companyId, userId, runId, until: lapsed }),
+      repo.extendAgentRunLeaseForSuspensionUnscoped({ companyId, userId, runId, until: lapsed }),
     );
 
     const sweeper = authState.user;

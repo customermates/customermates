@@ -3,7 +3,6 @@ import { randomUUID } from "node:crypto";
 import {
   AgentApprovalDecision,
   AgentMessageRole,
-  AgentTurnStatus,
   Resource,
   Status,
   type Prisma,
@@ -762,7 +761,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         companyId: this.companyId,
         userId: this.userId,
         runId: row.runId,
-        status: { in: [AgentTurnStatus.running, AgentTurnStatus.awaitingApproval] },
+        status: "running",
       },
       data: {
         status: nextStatus,
@@ -808,7 +807,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         companyId: this.companyId,
         userId: this.userId,
         runId: lease.runId,
-        status: { in: [AgentTurnStatus.running, AgentTurnStatus.awaitingApproval] },
+        status: "running",
       },
       select: this.agentTurnSelect,
     });
@@ -1175,8 +1174,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
   }
 
   @BypassTenantGuard
-  async holdAgentRunForSuspensionUnscoped(args: {
-    turnRequestId: string;
+  async extendAgentRunLeaseForSuspensionUnscoped(args: {
     companyId: string;
     userId: string;
     runId: string;
@@ -1186,38 +1184,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       where: { companyId: args.companyId, userId: args.userId, runId: args.runId },
       data: { expiresAt: new Date(args.until.getTime() + AGENT_RUN_LEASE_MS) },
     });
-    if (held.count !== 1) return false;
-
-    await this.prisma.agentTurnRequest.updateMany({
-      where: {
-        id: args.turnRequestId,
-        companyId: args.companyId,
-        userId: args.userId,
-        runId: args.runId,
-        status: AgentTurnStatus.running,
-      },
-      data: { status: AgentTurnStatus.awaitingApproval },
-    });
-    return true;
-  }
-
-  @BypassTenantGuard
-  async resumeAgentRunFromSuspensionUnscoped(args: {
-    turnRequestId: string;
-    companyId: string;
-    userId: string;
-    runId: string;
-  }): Promise<void> {
-    await this.prisma.agentTurnRequest.updateMany({
-      where: {
-        id: args.turnRequestId,
-        companyId: args.companyId,
-        userId: args.userId,
-        runId: args.runId,
-        status: AgentTurnStatus.awaitingApproval,
-      },
-      data: { status: AgentTurnStatus.running },
-    });
+    return held.count === 1;
   }
 
   @BypassTenantGuard

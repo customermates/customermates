@@ -20,9 +20,7 @@ const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.
 const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { AGENT_UI_TARGET_IDS } = await import("@/ee/agent-chat/ui-targets");
-const { getBackgroundTaskService } = await import("@/core/di");
-const { agentUiCommandHookToken } = await import("@/ee/agent-chat/agent-ui-command");
-const { getCancelAgentTurnInteractor } = await import("@/core/di");
+const { getCancelAgentTurnInteractor, getRespondToUiCommandInteractor } = await import("@/core/di");
 const { MODEL_CATALOG } = await import("@/ee/agent-chat/model-catalog");
 const { AGENT_RUN_LEASE_MS } = await import("@/ee/agent-chat/agent-turn-request");
 
@@ -140,17 +138,14 @@ async function runTurn(args: {
       }
       if (frame.type === "ui_command") {
         await runWithTenant(evalUser, () =>
-          new PrismaAgentChatRepo().recordUiCommandResult({
+          getRespondToUiCommandInteractor().invoke({
             conversationId,
             commandId: String(frame.commandId),
-            name: String(frame.name),
+            name: String(frame.name) as never,
             ok: true,
             result: "Done.",
           }),
         );
-        await getBackgroundTaskService().resume(agentUiCommandHookToken(conversationId), {
-          commandId: String(frame.commandId),
-        });
       }
       if (frame.type === "approval_request" && args.onApproval && args.onApproval !== "ignore") {
         await runWithTenant(evalUser, () =>
@@ -230,6 +225,7 @@ const acmeId = randomUUID();
 const globexId = randomUUID();
 const throwawayId = randomUUID();
 const sweepId = randomUUID();
+const stoppableId = randomUUID();
 const evalRoleId = randomUUID();
 
 describeEval("agent live eval", () => {
@@ -277,6 +273,9 @@ describeEval("agent live eval", () => {
       await prisma.contact.create({
         data: { id: sweepId, companyId, firstName: "Sweepable", lastName: "Placeholder" },
       });
+      await prisma.contact.create({
+        data: { id: stoppableId, companyId, firstName: "Stoppable", lastName: "Placeholder" },
+      });
       await prisma.organization.create({ data: { id: acmeId, companyId, name: "ACME GmbH" } });
       await prisma.organization.create({ data: { id: globexId, companyId, name: "Globex" } });
       await prisma.contact.create({
@@ -293,6 +292,35 @@ describeEval("agent live eval", () => {
       await prisma.company.deleteMany({ where: { id: { in: [companyId, sentinelCompanyId] } } });
     });
     await prisma.$disconnect();
+  });
+
+  it("stops a turn that is suspended waiting for an approval", async () => {
+    const before = await countRows(companyId);
+    let stopped = false;
+
+    const { frames, conversationId } = await runTurn({
+      text: 'Delete the contact "Stoppable Placeholder". Yes, I am sure, go ahead and call the delete tool now.',
+      onApproval: "ignore",
+      onFrame: async (frame, conversation) => {
+        if (stopped || frame.type !== "approval_request") return;
+        stopped = true;
+        const result = await runWithTenant(evalUser, () =>
+          getCancelAgentTurnInteractor().invoke({ conversationId: conversation }),
+        );
+        expect(result.ok && result.data.cancelling, JSON.stringify(result)).toBe(true);
+      },
+    });
+
+    expect(stopped, JSON.stringify(frames)).toBe(true);
+    expect(frames.at(-1)).toMatchObject({ type: "turn_done", terminalCode: "cancelled" });
+    expect(await countRows(companyId)).toEqual(before);
+    expect(await runWithoutTenant(() => prisma.contact.count({ where: { companyId, id: stoppableId } }))).toBe(1);
+
+    const { turn } = await expectAccountingToBalance(conversationId, frames);
+    expect(turn.terminalCode).toBe("cancelled");
+
+    const lease = await runWithoutTenant(() => prisma.agentRunLease.findFirst({ where: { conversationId } }));
+    expect(lease).toBeNull();
   });
 
   it("switches the deals view to kanban through allowlisted DOM controls", async () => {
@@ -425,7 +453,7 @@ describeEval("agent live eval", () => {
 
   it("keeps a suspended approval alive past an ordinary lease and then applies it exactly once", async () => {
     const before = await countRows(companyId);
-    const observed: { status: string; leaseExists: boolean }[] = [];
+    const observed: { status: string; leaseHeadroomMs: number }[] = [];
 
     const { frames, conversationId } = await runTurn({
       text: 'Delete the contact "Sweepable Placeholder". Yes, I am sure, go ahead and call the delete tool now.',
@@ -445,12 +473,16 @@ describeEval("agent live eval", () => {
             prisma.agentRunLease.findFirst({ where: { conversationId: conversation } }),
           ]),
         );
-        observed.push({ status: turn.status, leaseExists: lease !== null });
+        observed.push({
+          status: turn.status,
+          leaseHeadroomMs: lease ? lease.expiresAt.getTime() - Date.now() : 0,
+        });
       },
     });
 
     expect(observed, JSON.stringify(frames)).toHaveLength(1);
-    expect(observed[0]).toEqual({ status: "awaitingApproval", leaseExists: true });
+    expect(observed[0].status).toBe("running");
+    expect(observed[0].leaseHeadroomMs).toBeGreaterThan(AGENT_RUN_LEASE_MS);
 
     expect(frames.at(-1)).toMatchObject({ type: "turn_done", terminalCode: "completed" });
     expect(await runWithoutTenant(() => prisma.contact.count({ where: { companyId, id: sweepId } }))).toBe(0);
@@ -483,5 +515,7 @@ describeEval("agent live eval", () => {
     expect(usage?.state).toBe("settled");
     expect(rounds.length).toBeGreaterThan(0);
   });
+
+
 
 });
