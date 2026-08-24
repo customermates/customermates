@@ -131,6 +131,17 @@ const FORBIDDEN = [
     rule: "No third ink opacity in an illustration.",
   },
   {
+    enforced: true,
+    reason:
+      "scene copy is scanned against the same retired-claim table as marketing prose, so a claim retired in words cannot return as a picture.",
+    rule: "No retired claim in a scene.",
+  },
+  {
+    enforced: true,
+    reason: "a scene cannot resolve a catalog token, so it may not state a price or a seat count.",
+    rule: "No commercial figure written by hand.",
+  },
+  {
     enforced: false,
     reason: "a capture is evidence. A composited one is not.",
     rule: "No product state the product cannot reach.",
@@ -311,7 +322,7 @@ export default function StyleguidePage() {
       <VisualStandards />
 
       <MarketingSection
-        description="The system is mostly a list of things it will not do. Six of these fail a convention test; the other five are read in review."
+        description="The system is mostly a list of things it will not do. Eight of these fail a convention test; the other five are read in review."
         id="rules"
         title="What the system forbids"
       >

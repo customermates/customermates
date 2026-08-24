@@ -6,6 +6,24 @@ import { ConnectScene } from "@/components/marketing/scenes/connect-scene";
 import { LivingChatDraft } from "@/components/marketing/scenes/living-chat-draft";
 import { RecordScene } from "@/components/marketing/scenes/record-scene";
 
+const ROUTING = [
+  {
+    need: "Prove it really works",
+    pick: "Product proof",
+    why: "a capture is evidence, and only a capture is",
+  },
+  { need: "Explain one thing the product does", pick: "Scene", why: "a drawing, reduced to the point" },
+  { need: "Show an order or a flow", pick: "Schematic", why: "nodes and edges carry sequence, prose blurs it" },
+  { need: "Carry a section with no subject", pick: "Brand illustration", why: "abstract, and cheap to place" },
+  { need: "Make a link unfurl well", pick: "Social card", why: "someone else's interface, so it is always dark" },
+];
+
+const INTAKE = [
+  "Which class. The table above answers it, and the answer decides everything after.",
+  "Which product state. Name it, then check the product actually reaches it.",
+  "What the accent marks. Exactly one thing in the frame is the payoff.",
+];
+
 const DELIVERABLES = [
   {
     body: "One chosen frame of a scene, frozen. Used as a hero, a section illustration, or exported as a card.",
@@ -62,8 +80,55 @@ export function VisualStandards() {
   return (
     <>
       <MarketingSection
-        description="Three things can be asked of an agent, and all three are the same scene at a different length of time. That is what keeps them consistent: one composition, frozen, driven, or captured."
+        description="Start here. The first question is never how to draw something, it is which kind of picture the need calls for, because that decides the tool, the rules and whether the result is evidence or a drawing."
         id="standards"
+        title="Which picture does this need"
+      >
+        <div className="mx-auto mt-14 max-w-4xl overflow-hidden rounded-card border border-border bg-card lg:mt-16">
+          <ul className="divide-y divide-border">
+            {ROUTING.map((row) => (
+              <li key={row.pick} className="flex flex-col gap-1 px-6 py-4 md:flex-row md:items-baseline md:gap-6">
+                <span className="w-72 shrink-0 text-sm">{row.need}</span>
+
+                <span className="w-48 shrink-0 text-sm font-medium text-primary">{row.pick}</span>
+
+                <span className="text-sm text-muted-foreground">{row.why}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="mx-auto mt-12 max-w-3xl">
+          <p className="text-lede text-center">
+            Then three facts settle the request. Without them an agent is guessing, and a guessed picture is where an
+            untrue one comes from.
+          </p>
+
+          <ol className="mt-6 flex flex-col gap-3">
+            {INTAKE.map((fact, index) => (
+              <li key={fact} className="flex gap-4 rounded-card border border-border bg-card px-6 py-4">
+                <code className="font-mono text-sm text-primary">{String(index + 1).padStart(2, "0")}</code>
+
+                <span className="text-sm leading-relaxed">{fact}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        <div className="mx-auto mt-12 max-w-3xl rounded-card border border-border-strong bg-card p-7">
+          <h3 className="m-0 font-medium">A capture and a scene are not interchangeable</h3>
+
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+            A capture is a photograph of the running product: it is evidence, and it may be presented as what the
+            product looks like. A scene is a drawing that uses the product&apos;s own tokens: it explains what the
+            product does, and it may never be presented as a screenshot. The two look deliberately different so a reader
+            can tell which they are looking at, and picking the wrong one turns an explanation into a claim.
+          </p>
+        </div>
+      </MarketingSection>
+
+      <MarketingSection
+        description="Three things can be asked of an agent, and all three are the same scene at a different length of time. That is what keeps them consistent: one composition, frozen, driven, or captured."
         title="The three visual deliverables"
       >
         <div className="marketing-grid mt-14 gap-y-4 lg:mt-16">
@@ -164,7 +229,7 @@ export function VisualStandards() {
         <div className="mx-auto mt-14 max-w-3xl lg:mt-16">
           <ol className="flex flex-col gap-4">
             {[
-              "Pick the one product state the picture is about, and verify the product reaches it.",
+              "Pick the one product state the picture is about, then verify it: the fact sheet's does-not-exist list rules a capability out, and governance/product-claims.json holds every countable figure. A scene may not be the first place a claim appears.",
               "Compose from the grammar: SceneFrame for ground and crop, SceneWindow for chrome, then the rows or bubbles the state needs.",
               "Place exactly one accent, on the payoff.",
               "Check it in both themes. The tokens do this for you if nothing was hardcoded.",
@@ -181,13 +246,13 @@ export function VisualStandards() {
           <pre className="mt-8 overflow-x-auto rounded-card border border-border bg-card p-5 text-xs leading-relaxed">
             <code className="font-mono">{`import { SceneFrame, SceneRow, SceneWindow, type SceneProps } from "./scene-grammar";
 
-export function QueueClearedScene({ className, label }: SceneProps) {
+export function NoteAddedScene({ className, label }: SceneProps) {
   return (
     <SceneFrame className={className} crop="bottom" label={label}>
-      <SceneWindow title="Tasks">
-        <div className="flex size-full flex-col gap-3 p-7">
-          <SceneRow>Follow up with Feldmann</SceneRow>
-          <SceneRow accent>Cleared by the agent</SceneRow>
+      <SceneWindow title="Contacts · Leon Becker">
+        <div className="flex flex-col gap-[1.1cqw] p-[2.4cqw]">
+          <SceneRow>Call summary from Tuesday</SceneRow>
+          <SceneRow accent>Note written by the agent</SceneRow>
         </div>
       </SceneWindow>
     </SceneFrame>

@@ -30,7 +30,7 @@ export function RecordScene({ className, label }: SceneProps) {
             <SceneRow accent>
               <span className="scene-meta w-[6cqw] shrink-0 text-primary">Agent</span>
 
-              <span className="truncate">Seat count updated to 12, value 18,400 EUR</span>
+              <span className="truncate">Moved to Proposal after the call</span>
             </SceneRow>
           </div>
         </div>
