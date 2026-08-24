@@ -123,8 +123,12 @@ export async function launchChrome({ port = 9333, width = 1440, height = 900, sc
         mobile: false,
       });
     },
-    async screenshot() {
-      const { data } = await call("Page.captureScreenshot", { format: "png", captureBeyondViewport: false });
+    async screenshot(clip) {
+      const { data } = await call("Page.captureScreenshot", {
+        format: "png",
+        captureBeyondViewport: Boolean(clip),
+        ...(clip ? { clip: { ...clip, scale: 1 } } : {}),
+      });
       return Buffer.from(data, "base64");
     },
     async close() {

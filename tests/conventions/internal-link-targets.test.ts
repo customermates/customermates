@@ -83,6 +83,7 @@ const CONTENT_ROOT = join(REPO_ROOT, "content");
 const CODE_BACKED_ROUTE_FILES = {
   "/contact": "app/[locale]/(public)/contact/page.tsx",
   "/styleguide": "app/[locale]/(static)/styleguide/page.tsx",
+  "/styleguide/frame": "app/[locale]/(static)/styleguide/frame/page.tsx",
   "/auth/pending": "app/[locale]/(public)/auth/pending/page.tsx",
   "/auth/error": "app/[locale]/(public)/auth/error/page.tsx",
   "/auth/verify-email": "app/[locale]/(public)/auth/verify-email/page.tsx",

@@ -37,6 +37,7 @@ export const PUBLIC_ROUTES = [
   ...PUBLIC_ROUTES_SEO,
   "/contact",
   "/styleguide",
+  "/styleguide/frame",
   "/auth/pending",
   "/auth/error",
   "/auth/verify-email",

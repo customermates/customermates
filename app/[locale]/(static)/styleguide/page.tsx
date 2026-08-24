@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { ImageClasses } from "./components/image-classes";
 import { ResponsiveContract } from "./components/responsive-contract";
+import { VisualStandards } from "./components/visual-standards";
 import { SectionPatterns } from "./components/section-patterns";
 import { TokenTable, TypeTable } from "./components/style-readout";
 
@@ -20,6 +21,8 @@ const CONTENTS = [
   { href: "#grid", label: "Grid and responsive contract" },
   { href: "#patterns", label: "Section patterns" },
   { href: "#images", label: "Image classes" },
+  { href: "#standards", label: "Visual standards" },
+  { href: "#motion", label: "Motion" },
   { href: "#rules", label: "What the system forbids" },
 ];
 
@@ -304,6 +307,8 @@ export default function StyleguidePage() {
       <div className="w-full" id="images">
         <ImageClasses />
       </div>
+
+      <VisualStandards />
 
       <MarketingSection
         description="The system is mostly a list of things it will not do. Six of these fail a convention test; the other five are read in review."

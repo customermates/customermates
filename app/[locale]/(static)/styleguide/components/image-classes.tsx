@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { ThemePair } from "./theme-pair";
 
 import { MarketingSection } from "@/components/marketing/marketing-section";
 import { MediaPlate } from "@/components/marketing/media-plate";
@@ -52,24 +52,6 @@ const SCHEMATIC_RULES = [
   "Every edge ends in an arrowhead. Direction is never left to the reader.",
   "The terminal node carries the accent. Sources and steps never do.",
 ];
-
-function ThemePair({ children }: { children: ReactNode }) {
-  return (
-    <div className="marketing-grid gap-y-4">
-      <div className="col-span-12 lg:col-span-6">
-        <div className="light rounded-card border border-border bg-card p-5 text-foreground">{children}</div>
-
-        <p className="text-meta mt-2.5">Light</p>
-      </div>
-
-      <div className="col-span-12 lg:col-span-6">
-        <div className="dark rounded-card border border-border bg-card p-5 text-foreground">{children}</div>
-
-        <p className="text-meta mt-2.5">Dark</p>
-      </div>
-    </div>
-  );
-}
 
 function CodeBlock({ children }: { children: string }) {
   return (

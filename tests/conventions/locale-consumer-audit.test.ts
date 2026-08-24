@@ -212,7 +212,12 @@ function isProductionSource(repoPath: string): boolean {
     !repoPath.startsWith("app/[locale]/(protected)/test/") &&
     // The style guide is an internal, noindex engineering reference. Its copy names tokens
     // and CSS roles, so it is deliberately English-only and never shown to a customer.
-    !repoPath.startsWith("app/[locale]/(static)/styleguide/")
+    !repoPath.startsWith("app/[locale]/(static)/styleguide/") &&
+    // A marketing scene depicts one reachable product state. The sample copy inside the
+    // depicted window is artwork, the same way the terminal scene's output is, and is only
+    // rendered on the noindex style guide today. A scene that ships on a localized page
+    // must take its copy as props; this exemption covers the depiction, not that duty.
+    !repoPath.startsWith("components/marketing/scenes/")
   );
 }
 
