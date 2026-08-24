@@ -5,6 +5,7 @@ import { env } from "@/env";
 import { assembleSitemap } from "@/core/seo/sitemap";
 import { hubPageCountForSource, hubPageHref } from "@/core/seo/hub-pagination";
 import { LANDING_HUBS } from "@/core/seo/landing-hubs";
+import { isRetiredRoutePath } from "@/core/seo/route-aliases";
 import { CONTENT_LOCALES, stripLocalePrefix } from "@/i18n/locale-registry";
 import { PUBLIC_ROUTES_SEO } from "@/i18n/routing";
 import { ROUTE_SOURCE_MAP } from "@/core/fumadocs/route-source-map";
@@ -25,14 +26,18 @@ function collectLocalizedRoutes(): LocalizedRoute[] {
       if (route.includes(":")) {
         for (const page of routeMapping.source.getPages(locale)) {
           if (!page.url) continue;
+          const routePath = stripLocalePrefix(page.url);
+          if (isRetiredRoutePath(routePath)) continue;
           localizedRoutes.push({
             locale,
-            routePath: stripLocalePrefix(page.url),
+            routePath,
             lastModified: getLastModified(page.data.lastModified),
           });
         }
         continue;
       }
+
+      if (isRetiredRoutePath(route)) continue;
 
       const page = routeMapping.source.getPage(routeMapping.path, locale);
       if (!page) continue;
