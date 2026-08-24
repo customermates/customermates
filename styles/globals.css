@@ -44,12 +44,17 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  /* Ratios, not offsets. At --radius 8px these resolve to 4, 6, 8, 12, 20 and 24, which is
+     exactly what the offsets they replaced produced, so nothing in the application moves. The
+     difference only shows where --radius is rescaled: an offset keeps its pixel constant, so
+     rounded-md landed at 14px inside .scene-platform instead of the 12px a doubled 6px wants,
+     and rounded-sm at 12px instead of 8px. A ratio scales. */
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-card: calc(var(--radius) + 12px);
-  --radius-panel: calc(var(--radius) + 16px);
+  --radius-xl: calc(var(--radius) * 1.5);
+  --radius-card: calc(var(--radius) * 2.5);
+  --radius-panel: calc(var(--radius) * 3);
   --breakpoint-nav: 56rem;
   --container-marketing: 90rem;
   --aspect-hero: 16 / 9;
@@ -880,6 +885,65 @@ path:focus {
        does, so this stays a fixed black rather than following the foreground token, which would
        turn it into a white glow in dark mode. Nothing at rest may use it. */
     filter: drop-shadow(0 0.4cqw 0.9cqw rgb(0 0 0 / 28%));
+  }
+
+  /* The product, enlarged. Everything inside this scope is drawn by the real application
+     components, so a depiction cannot drift from the thing it depicts.
+
+     Tailwind v4 emits every size as calc(var(--spacing) * N), var(--text-*) and
+     calc(var(--radius) +- N), and those three are ordinary inherited custom properties.
+     Redeclaring them here rescales every utility in the subtree, including utilities inside
+     components/ui, without editing one line of those files.
+
+     The whole platform scale is a rational multiple of one 4px unit: spacing 4, radius 8 (x2),
+     text-xs 12 (x3), sm 14 (x3.5), base 16 (x4), lg 18 (x4.5), xl 20 (x5), 2xl 24 (x6),
+     3xl 30 (x7.5). One variable therefore reproduces the entire scale exactly, and Tailwind's
+     line heights are unitless ratios, so they follow the font size for free.
+
+     Why one factor and not two. Before this, scene boxes ran about 1.25x the app's while scene
+     type ran about 1.9x. Two rates mean no scene can ever be proportionally identical to the
+     product however carefully it is drawn, which is how a 20px radius came to stand in for a
+     12px one. The floor is the app's own 4px, so a scene never renders smaller than the product;
+     at the 1280 capture width the factor is 2.0, which is to say the scene is always 160 spacing
+     units wide where the app at that viewport is 320. Half as much content, twice the size: the
+     abstraction, stated as a number. The ceiling engages just above capture width so a
+     full-container embed matches the film rather than outgrowing it. */
+  .scene-platform {
+    --scene-unit: clamp(4px, 2.58px + 0.4233cqw, 8px);
+
+    --spacing: var(--scene-unit);
+    --radius: calc(var(--scene-unit) * 2);
+    --text-xs: calc(var(--scene-unit) * 3);
+    --text-sm: calc(var(--scene-unit) * 3.5);
+    --text-base: calc(var(--scene-unit) * 4);
+    --text-lg: calc(var(--scene-unit) * 4.5);
+    --text-xl: calc(var(--scene-unit) * 5);
+    --text-2xl: calc(var(--scene-unit) * 6);
+    --text-3xl: calc(var(--scene-unit) * 7.5);
+  }
+
+  /* Arbitrary-value utilities compile to literal pixels and so do not follow --spacing. These
+     four are the only ones that show at rest anywhere in the components a scene may use; the
+     others are focus rings and an unlinked-participant outline, which a scene never renders.
+     Correcting them here rather than in components/ui keeps those files untouched.
+
+     Two literals are left alone on purpose: a 1px border and shadow-xs. A hairline reads as
+     crisper when the surface around it grows, and doubling it would turn a card into a
+     wireframe. */
+  .scene-platform [class~="text-[11px]"] {
+    font-size: calc(var(--scene-unit) * 2.75);
+  }
+
+  .scene-platform [class~="h-[22px]"] {
+    height: calc(var(--scene-unit) * 5.5);
+  }
+
+  .scene-platform [class~="h-[26px]"] {
+    height: calc(var(--scene-unit) * 6.5);
+  }
+
+  .scene-platform [class~="h-[30px]"] {
+    height: calc(var(--scene-unit) * 7.5);
   }
 
   .scene-frame-film {
