@@ -34,6 +34,14 @@ function canonicalOf(html: string): string {
   return /rel="canonical" href="([^"]+)"/u.exec(html)?.[1] ?? "";
 }
 
+function titleOf(html: string): string {
+  return /<title>([\s\S]*?)<\/title>/u.exec(html)?.[1].trim() ?? "";
+}
+
+function localeOf(location: string): string {
+  return new URL(location).pathname.split("/")[1] ?? "";
+}
+
 // Two defects put URLs into the sitemap that never belonged there. Eight auth URLs were submitted with
 // no noindex, and /docs/intro-page was submitted alongside /docs while both rendered the same MDX and
 // each canonicalised to itself. Neither showed up as a failure anywhere: both returned 200. The only
@@ -57,16 +65,39 @@ describe("sitemap reachability", () => {
       );
       expect(submittedRetired, "a retired URL in the sitemap asks Google to crawl a redirect").toEqual([]);
 
-      const failures = await mapWithLimit(locations, CONCURRENCY, async (location) => {
+      const pages = await mapWithLimit(locations, CONCURRENCY, async (location) => {
         const response = await fetch(location, { redirect: "manual", signal: AbortSignal.timeout(30_000) });
-        if (response.status !== 200) return `${location} answered ${response.status}`;
+        if (response.status !== 200) return { location, problem: `${location} answered ${response.status}`, title: "" };
 
-        const canonical = canonicalOf(await response.text());
-        if (canonical !== location) return `${location} canonicalises to ${canonical || "nothing"}`;
-        return null;
+        const html = await response.text();
+        const canonical = canonicalOf(html);
+
+        return {
+          location,
+          problem: canonical === location ? null : `${location} canonicalises to ${canonical || "nothing"}`,
+          title: titleOf(html),
+        };
       });
 
-      expect(failures.filter(Boolean), "every submitted URL must be the canonical live page").toEqual([]);
+      expect(
+        pages.map((page) => page.problem).filter(Boolean),
+        "every submitted URL must be the canonical live page",
+      ).toEqual([]);
+
+      const untitled = pages.filter((page) => page.title.length === 0).map((page) => page.location);
+      expect(untitled, "a page with no title cannot rank for anything").toEqual([]);
+
+      const seenTitles = new Map<string, string>();
+      const collisions: string[] = [];
+
+      for (const page of pages) {
+        const key = `${localeOf(page.location)}\u0000${page.title}`;
+        const owner = seenTitles.get(key);
+        if (owner) collisions.push(`${page.location} shares its title with ${owner}: ${page.title}`);
+        else seenTitles.set(key, page.location);
+      }
+
+      expect(collisions, "two URLs in one locale sharing a title compete for the same query").toEqual([]);
     },
     180_000,
   );

@@ -15,6 +15,7 @@ type GenerateMetadataParams = {
   noindex?: boolean;
   route: keyof typeof ROUTE_SOURCE_MAP;
   params?: Record<string, string>;
+  titleSuffix?: string;
   type?: "article" | "website";
 };
 export function generateMetadataFromMeta({
@@ -23,6 +24,7 @@ export function generateMetadataFromMeta({
   noindex: noindexOverride,
   route,
   params = {},
+  titleSuffix,
   type = "website",
 }: GenerateMetadataParams): Metadata {
   const { source, path: mappedPath } = ROUTE_SOURCE_MAP[route];
@@ -35,10 +37,11 @@ export function generateMetadataFromMeta({
     throw new Error(`No content page backs ${route} in locale ${locale}; it would ship with no canonical`);
   }
 
-  const title = page.data.title?.trim() || "";
-  const description = page.data.description?.trim() || "";
+  const baseTitle = page.data.metaTitle?.trim() || page.data.title?.trim() || "";
+  const title = titleSuffix ? `${baseTitle} - ${titleSuffix}` : baseTitle;
+  const description = page.data.metaDescription?.trim() || page.data.description?.trim() || "";
 
-  if (!title) throw new Error(`The content page backing ${route} in locale ${locale} has no title`);
+  if (!baseTitle) throw new Error(`The content page backing ${route} in locale ${locale} has no title`);
 
   const routePath = buildRoutePath(route, params);
   const publicPath = canonicalPath ?? routePath;

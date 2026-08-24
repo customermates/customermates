@@ -556,6 +556,7 @@
       "unexpectedError": "Si è verificato un errore. Riprova.",
       "updated": "Aggiornato"
     },
+    "pageNumber": "Pagina {page}",
     "probability": "Probabilità",
     "providers": {
       "google": "Gmail",

@@ -556,6 +556,7 @@
       "unexpectedError": "Une erreur est survenue. Veuillez réessayer.",
       "updated": "Mis à jour"
     },
+    "pageNumber": "Page {page}",
     "probability": "Probabilité",
     "providers": {
       "google": "Gmail",

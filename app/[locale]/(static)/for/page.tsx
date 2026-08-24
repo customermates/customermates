@@ -33,10 +33,13 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
   if (resolution.kind === "not-found") notFound();
 
+  const t = await getTranslations({ locale });
+
   return generateMetadataFromMeta({
     canonicalPath: hubPageHref("/for", resolution.page),
     locale,
     route: "/for",
+    titleSuffix: resolution.page > 1 ? t("Common.pageNumber", { page: resolution.page }) : undefined,
   });
 }
 

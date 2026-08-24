@@ -1,7 +1,7 @@
 import { frontmatterSchema } from "fumadocs-mdx/config";
 import { z } from "zod";
 
-import { ctaSchema, faqSchema } from "./common";
+import { ctaSchema, faqSchema, seoOverrideFields } from "./common";
 import { PLAN_IDS } from "@/core/commercial/plan-catalog";
 
 const manualPricingRowSchema = z.object({
@@ -88,6 +88,7 @@ export const comparisonTableSchema = z.object({
 export type ComparisonTable = z.infer<typeof comparisonTableSchema>;
 
 export const pricingSchema = frontmatterSchema.extend({
+  ...seoOverrideFields,
   comparison: comparisonTableSchema,
   cta: ctaSchema,
   description: z.string(),

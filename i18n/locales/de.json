@@ -556,6 +556,7 @@
       "unexpectedError": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
       "updated": "Aktualisiert"
     },
+    "pageNumber": "Seite {page}",
     "probability": "Wahrscheinlichkeit",
     "providers": {
       "google": "Gmail",

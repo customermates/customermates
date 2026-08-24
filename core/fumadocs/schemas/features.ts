@@ -1,7 +1,7 @@
 import { frontmatterSchema } from "fumadocs-mdx/config";
 import { z } from "zod";
 
-import { ctaSchema } from "./common";
+import { ctaSchema, seoOverrideFields } from "./common";
 
 const featureItemSchema = z.object({
   description: z.string(),
@@ -38,6 +38,7 @@ const whySchema = z.object({
 });
 
 export const featuresSchema = frontmatterSchema.extend({
+  ...seoOverrideFields,
   cta: ctaSchema,
   description: z.string(),
   features: z.array(featureSchema),
