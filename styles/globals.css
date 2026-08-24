@@ -868,9 +868,12 @@ path:focus {
      cheapest honest way to un-say a sentence is to un-type it. The reference films all do this:
      the chat retracts its answer, the terminal scrolls its banner back, the drag returns. */
 
-  /* Film canvas. A film is the window itself, edge to edge, with no ambient ground: the
-     reference films are all window-shaped (1.16:1 to 1.39:1), never 16:9, because the video IS
-     the product window rather than a picture of one sitting in atmosphere. */
+  /* Film canvas. A film is a still that moves: the same ambient ground, the same inset and the
+     same crop, differing only in aspect ratio. An earlier note here claimed the reference films
+     were all window-shaped and edge to edge; both halves were wrong. Five of the six inset their
+     window by 45 to 155px and let it bleed past one edge, and their native aspect ratios run from
+     1.22:1 to 1.93:1. The three that measured exactly 1280x920 turned out to be re-encodes of the
+     other three, so the canvas size was never a measurement at all. */
   .scene-lift {
     /* The one shadow in the grammar, and it is not elevation: it is the cast shadow of an object
        a cursor has picked up. A cast shadow is dark in both themes because that is what light

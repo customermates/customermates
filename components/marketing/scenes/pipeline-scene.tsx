@@ -135,7 +135,7 @@ export function PipelineScene({ className, film, label, t }: SceneProps) {
   const stageOf = (deal: (typeof DEALS)[number]) => (deal.id === CARRIED && landed ? "proposal" : deal.home);
 
   return (
-    <SceneFrame className={className} crop={film ? "none" : "bottom-right"} film={film} label={label}>
+    <SceneFrame className={className} crop="bottom-right" film={film} label={label}>
       <SceneWindow fill={film} title="Deals · Board">
         <div className={cn(DATA_KANBAN_ROOT_CLASS_NAME, film && "min-h-0 flex-1")}>
           <div className={DATA_KANBAN_TRACK_CLASS_NAME}>

@@ -8,11 +8,11 @@ import { ChartColor } from "@/features/widget/widget.schema";
 import { cn } from "@/core/utils/cn";
 
 const STAGES = [
-  { color: ChartColor.warning1, label: "Proposal", value: 630_500 },
-  { color: ChartColor.secondary1, label: "Prospecting", value: 498_400 },
+  { color: ChartColor.primary1, label: "Proposal", value: 630_500 },
+  { color: ChartColor.primary1, label: "Prospecting", value: 498_400 },
   { color: ChartColor.primary1, label: "Demo", value: 460_500 },
   { color: ChartColor.primary1, label: "Qualification", value: 252_500 },
-  { color: ChartColor.warning1, label: "Negotiation", value: 124_000 },
+  { color: ChartColor.primary1, label: "Negotiation", value: 124_000 },
 ] as const;
 
 export const DASHBOARD_BEATS = {
@@ -70,7 +70,7 @@ const BARS: SceneBar[] = STAGES.map((stage) => ({
   color: stage.color,
   label: stage.label,
   value: stage.value,
-  valueLabel: money(stage.value, 2),
+  valueLabel: money(stage.value, 0),
 }));
 
 function hoveredIndex(clock: number) {
@@ -110,7 +110,7 @@ export function DashboardScene({ className, film, label, t }: SceneProps) {
       {point && hovered !== null ? (
         <div
           className="scene-platform pointer-events-none absolute z-20 rounded-md border border-border bg-popover px-3 py-2 text-popover-foreground shadow-lg"
-          style={{ left: `${point.x + 1.2}%`, top: `${point.y + 1.4}%` }}
+          style={{ left: `${point.x + 1.2}%`, top: `${point.y + 4.4}%` }}
         >
           <div className="flex items-center justify-between gap-4 text-sm">
             <div className="flex min-w-0 items-center gap-2">
