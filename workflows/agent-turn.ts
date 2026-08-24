@@ -523,12 +523,29 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const completedTools: ({ toolCallId: string; toolName: string } & ({ output: unknown } | { threw: true }))[] = [];
 
     const continuationSteps: AgentContinuationStep[] = [];
+    let deferredRound: { step: AgentRoundResult; outcomes: AgentDurableToolOutcome[] } | null = null;
     const continuationLimits = agentDurableContinuationLimits(Number.MAX_SAFE_INTEGER);
     let safetyStop: string | null = null;
     let budgetStop = false;
     let reservedCredits = payload.turnBudget.reservedCredits;
     let roundFailure: WorkflowFailure | null = null;
     const settledToolCallIds = new Set<string>();
+
+    const recordContinuationRound = (step: AgentRoundResult, outcomes: AgentDurableToolOutcome[]) => {
+      continuationSteps.push(toAgentContinuationStep(step, outcomes));
+      const loop = decideAgentContinuationLoop(
+        { startedAtMs: 0, steps: continuationSteps, observedAtMs: 0 },
+        continuationLimits,
+      );
+      if (loop.action === "error" && loop.reason !== "step_limit") safetyStop = loop.reason;
+    };
+
+    const resolveDeferredRound = (resumed: readonly AgentDurableToolOutcome[]) => {
+      if (!deferredRound) return;
+      const pending = deferredRound;
+      deferredRound = null;
+      recordContinuationRound(pending.step, [...pending.outcomes, ...resumed]);
+    };
 
     const settleToolOutcome = (toolCallId: string, toolName: string | undefined, output: unknown) => {
       if (settledToolCallIds.has(toolCallId)) return;
@@ -601,12 +618,18 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           else reservedCredits = extended;
         }
 
-        continuationSteps.push(toAgentContinuationStep(step, outcomes));
-        const loop = decideAgentContinuationLoop(
-          { startedAtMs: 0, steps: continuationSteps, observedAtMs: 0 },
-          continuationLimits,
-        );
-        if (loop.action === "error" && loop.reason !== "step_limit") safetyStop = loop.reason;
+        const settledIds = new Set(outcomes.map((outcome) => outcome.toolCallId));
+        const hasPausedCall = step.content.some((raw) => {
+          const part = raw as { type?: string; toolCallId?: string };
+          return part.type === "tool-call" && Boolean(part.toolCallId) && !settledIds.has(part.toolCallId as string);
+        });
+
+        if (hasPausedCall) {
+          deferredRound = { step, outcomes };
+          return;
+        }
+
+        recordContinuationRound(step, outcomes);
       } catch (error) {
         roundFailure ??= toWorkflowFailure(error);
       }
@@ -728,6 +751,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
         cancelled = await readCancellation(payload);
         const resumed = await readUiCommandResults(payload, commands);
+        resolveDeferredRound(resumed.map((entry) => ({ ...entry })));
         for (const outcome of resumed) settleToolOutcome(outcome.toolCallId, outcome.toolName, outcome.output);
         await publishTranscriptEvents(queued.splice(0));
 
@@ -785,6 +809,13 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       }
       await publishTranscriptEvents(queued.splice(0));
 
+      resolveDeferredRound(
+        outcomes.map((outcome) => ({
+          toolCallId: outcome.toolCallId,
+          toolName: requests.find((request) => request.toolCallId === outcome.toolCallId)?.toolName ?? "",
+          output: { ok: outcome.decision === "approve", result: `Approval ${outcome.decision}.` },
+        })),
+      );
       messages = withApprovalResponses(result.messages, outcomes);
     }
 

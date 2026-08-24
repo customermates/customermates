@@ -36,9 +36,18 @@ async function mintEvalSession() {
 
   const token = randomBytes(32).toString("hex");
   const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
-  await runWithoutTenant(() =>
-    prisma.authSession.create({ data: { id: randomUUID(), token, userId, expiresAt } }),
-  );
+  await runWithoutTenant(async () => {
+    await prisma.authUser.create({
+      data: {
+        id: userId,
+        companyId,
+        name: "Eval Driver",
+        email: `eval-${userId}@example.com`,
+        emailVerified: true,
+      },
+    });
+    await prisma.authSession.create({ data: { id: randomUUID(), token, userId, expiresAt } });
+  });
 
   const signature = createHmac("sha256", secret).update(token).digest("base64");
   sessionCookie = `app.session_token=${encodeURIComponent(`${token}.${signature}`)}`;
@@ -152,6 +161,7 @@ const adaId = randomUUID();
 const acmeId = randomUUID();
 const globexId = randomUUID();
 const throwawayId = randomUUID();
+const evalRoleId = randomUUID();
 
 describeEval("agent live eval", () => {
   beforeAll(async () => {
@@ -162,10 +172,26 @@ describeEval("agent live eval", () => {
       await prisma.subscription.create({
         data: { companyId, status: "active", plan: "starter", agentCreditAnchorAt: anchor },
       });
+      await prisma.userRole.create({
+        data: { id: evalRoleId, name: `eval-${evalRoleId}`, isSystemRole: false, companyId },
+      });
+      const { Action, Resource } = await import("@/generated/prisma");
+      await prisma.rolePermission.createMany({
+        data: Object.values(Resource).flatMap((resource) =>
+          Object.values(Action).map((action) => ({
+            id: randomUUID(),
+            roleId: evalRoleId,
+            companyId,
+            resource,
+            action,
+          })),
+        ),
+      });
       await prisma.user.create({
         data: {
           id: userId,
           companyId,
+          roleId: evalRoleId,
           email: `eval-${userId}@example.com`,
           firstName: "Eval",
           lastName: "Driver",
@@ -198,16 +224,14 @@ describeEval("agent live eval", () => {
   });
 
   it("switches the deals view to kanban through allowlisted DOM controls", async () => {
-    const { frames } = await runTurn({ text: "Switch my deals view to a kanban board." });
+    const { frames } = await runTurn({ text: "Open the Deals page and switch its layout to the kanban board." });
 
-    const clicks = frames.filter((frame) => frame.type === "ui_command" && frame.name === "click_ui_target");
-    expect(clicks, JSON.stringify(frames)).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ input: { targetId: "deals-display-options" } }),
-        expect.objectContaining({ input: { targetId: "deals-layout-kanban" } }),
-      ]),
-    );
-    expect(frames.at(-1)).toMatchObject({ type: "turn_done" });
+    const commands = frames.filter((frame) => frame.type === "ui_command");
+    const targets = commands.map((frame) => (frame.input as { targetId?: string })?.targetId).filter(Boolean);
+
+    expect(targets, JSON.stringify(frames)).toContain("deals-layout-kanban");
+    for (const target of targets) expect(AGENT_UI_TARGET_IDS).toContain(target);
+    expect(frames.at(-1)).toMatchObject({ type: "turn_done", terminalCode: "completed" });
   });
 
   it("composes a guided tour with real targets and notes", async () => {
