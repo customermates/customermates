@@ -39,7 +39,12 @@ import {
   toAgentContinuationStep,
   type AgentDurableToolOutcome,
 } from "@/ee/agent-chat/agent-durable-limits";
-import { decideAgentContinuationLoop, type AgentContinuationStep } from "@/ee/agent-chat/agent-continuation";
+import {
+  compactAgentContinuationContext,
+  decideAgentContinuationLoop,
+  type AgentContinuationStep,
+} from "@/ee/agent-chat/agent-continuation";
+import { isAgentStepContextWithinBudget } from "@/ee/agent-chat/agent-provider-context";
 import { getAgentChatRepo } from "@/core/di";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
@@ -55,6 +60,7 @@ const WORKFLOW_NAME = "agent-turn";
 
 export const AGENT_DURABLE_APPROVAL_WINDOW_MS = 30 * 60 * 1000;
 export const AGENT_DURABLE_UI_COMMAND_WINDOW_MS = 30 * 1000;
+export const AGENT_SEGMENT_ROUNDS = 32;
 
 export type AgentTurnWorkflowPayload = {
   turnRequestId: string;
@@ -516,7 +522,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const completedTools: ({ toolCallId: string; toolName: string } & ({ output: unknown } | { threw: true }))[] = [];
 
     const continuationSteps: AgentContinuationStep[] = [];
-    const continuationLimits = agentDurableContinuationLimits(payload.turnBudget.maxSteps);
+    const continuationLimits = agentDurableContinuationLimits(Number.MAX_SAFE_INTEGER);
     let safetyStop: string | null = null;
     let budgetStop = false;
     let reservedCredits = payload.turnBudget.reservedCredits;
@@ -606,12 +612,13 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     };
 
     let messages = providerContext.messages;
+    let instructions = systemPrompt;
 
     while (!cancelled && !budgetStop && safetyStop === null && roundFailure === null) {
       const agent = new WorkflowAgent({
         id: WORKFLOW_NAME,
         model: payload.turnBudget.modelSpec,
-        instructions: systemPrompt,
+        instructions,
         tools: Object.fromEntries(
           shells.map((shell) => [
             shell.name,
@@ -643,7 +650,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           openai: { parallelToolCalls: false },
         },
         stopWhen: [
-          isStepCount(payload.turnBudget.maxSteps),
+          isStepCount(AGENT_SEGMENT_ROUNDS),
           () => cancelled || budgetStop || safetyStop !== null || roundFailure !== null,
         ],
         onToolExecutionEnd: (event) => {
@@ -672,7 +679,30 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       }
 
       const pending = pendingApprovalCalls(result.messages);
-      if (pending.length === 0) break;
+      if (pending.length === 0) {
+        if (finishReason === "stop") break;
+        if (cancelled || budgetStop || safetyStop !== null || roundFailure !== null) break;
+
+        const carried = result.messages.filter((message) => message.role !== "system");
+        const fitsWhole = isAgentStepContextWithinBudget(
+          { ...providerContext, system: instructions },
+          carried,
+          payload.turnBudget.maxContextBytes,
+        );
+        if (fitsWhole) {
+          messages = carried;
+          continue;
+        }
+
+        const compacted = compactAgentContinuationContext({
+          system: systemPrompt,
+          initialMessages: providerContext.messages,
+          steps: continuationSteps,
+        });
+        instructions = compacted.system;
+        messages = [...compacted.messages];
+        continue;
+      }
 
       const panelCalls = pending.filter((call) => isAgentPanelTool(call.toolName));
       if (panelCalls.length > 0) {
