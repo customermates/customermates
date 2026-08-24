@@ -7,6 +7,7 @@ import { RequestSupportSchema } from "@/features/mcp-tools/support.mcp-tools";
 import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 
 import { isReadOnlyTool, requiresApproval } from "./gated-tools";
+import { type AgentToolCancellation as AgentToolCancellationValue } from "./agent-tool-cancellation";
 import {
   AGENT_UI_TARGETS,
   ClickUiTargetIdSchema,
@@ -19,24 +20,10 @@ import { OpenRecordSchema } from "./ui-operations";
 import type { AgentApprovalContextResolution } from "./agent-external-approval-context";
 import { internalToolIdentity } from "./tool-identity";
 
+export { isAgentToolCancellation, type AgentToolCancellation } from "./agent-tool-cancellation";
+
 export type ApprovalDecision = "approve" | "reject" | "timeout";
 export type AgentUiCommandOutcome = { ok: boolean; result: string };
-
-export type AgentToolCancellation = {
-  agentToolStatus: "cancelled";
-  reason: "rejected" | "timeout";
-  message: string;
-};
-
-export function isAgentToolCancellation(value: unknown): value is AgentToolCancellation {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
-  const result = value as Partial<AgentToolCancellation>;
-  return (
-    result.agentToolStatus === "cancelled" &&
-    (result.reason === "rejected" || result.reason === "timeout") &&
-    typeof result.message === "string"
-  );
-}
 
 export const AGENT_UI_TOOL_NAMES = [
   "list_ui_targets",
@@ -86,7 +73,7 @@ function withCallerContext(tools: ToolSet, deps: AgentToolDeps): ToolSet {
   );
 }
 
-function declineResult(decision: Exclude<ApprovalDecision, "approve">): AgentToolCancellation {
+function declineResult(decision: Exclude<ApprovalDecision, "approve">): AgentToolCancellationValue {
   return {
     agentToolStatus: "cancelled",
     reason: decision === "reject" ? "rejected" : "timeout",
@@ -103,7 +90,7 @@ async function runGated<T>(
   name: string,
   input: unknown,
   run: () => Promise<T>,
-): Promise<T | AgentToolCancellation> {
+): Promise<T | AgentToolCancellationValue> {
   const decision = await deps.requestApproval(toolCallId, name, input);
   if (decision !== "approve") return declineResult(decision);
   return run();

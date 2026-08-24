@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { resumeHook } from "workflow/api";
 
 import { AgentApprovalDecision } from "@/generated/prisma";
 
@@ -12,6 +13,7 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { agentApprovalHookToken } from "./agent-approval-resume";
 
 export const RespondToApprovalSchema = z
   .object({
@@ -50,6 +52,16 @@ export class RespondToApprovalInteractor extends AuthenticatedInteractor<Respond
     });
     if (!resolved) return createInteractorFailure(CustomErrorCode.agentApprovalUnavailable, ["requestId"]);
 
+    await this.wakeDurableRun(data.conversationId, data.requestId);
+
     return { ok: true as const, data: { resolved: true } };
+  }
+
+  private async wakeDurableRun(conversationId: string, requestId: string) {
+    try {
+      await resumeHook(agentApprovalHookToken(conversationId), { requestId });
+    } catch {
+      return;
+    }
   }
 }
