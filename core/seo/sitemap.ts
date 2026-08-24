@@ -11,11 +11,7 @@ export type LocalizedRoute = {
   lastModified?: Date;
 };
 
-export function assembleSitemap(
-  localizedRoutes: readonly LocalizedRoute[],
-  baseUrl: string,
-  generatedAt: Date,
-): MetadataRoute.Sitemap {
+export function assembleSitemap(localizedRoutes: readonly LocalizedRoute[], baseUrl: string): MetadataRoute.Sitemap {
   const localesByRoutePath = new Map<string, ContentLocale[]>();
 
   for (const { routePath, locale } of localizedRoutes) {
@@ -32,7 +28,7 @@ export function assembleSitemap(
 
     return {
       url: `${baseUrl}${buildLocalePath(locale, routePath)}`,
-      lastModified: lastModified ?? generatedAt,
+      ...(lastModified ? { lastModified } : {}),
       ...(languages ? { alternates: { languages } } : {}),
     };
   });

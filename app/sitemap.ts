@@ -10,9 +10,16 @@ import { CONTENT_LOCALES, stripLocalePrefix } from "@/i18n/locale-registry";
 import { SITEMAP_CODE_ROUTES, SITEMAP_CONTENT_ROUTES, SITEMAP_EXTRA_CONTENT_ROUTES } from "@/i18n/routing";
 import { ROUTE_SOURCE_MAP } from "@/core/fumadocs/route-source-map";
 
-function getLastModified(lastModified: Date | number | undefined) {
-  if (!lastModified) return undefined;
-  const date = lastModified instanceof Date ? lastModified : new Date(lastModified);
+type DatedPageData = {
+  blogPost?: { date?: string };
+  updated?: string;
+};
+
+function declaredLastModified(data: DatedPageData): Date | undefined {
+  const declared = data.updated ?? data.blogPost?.date;
+  if (!declared) return undefined;
+
+  const date = new Date(declared);
   return isNaN(date.getTime()) ? undefined : date;
 }
 
@@ -39,7 +46,7 @@ function collectLocalizedRoutes(): LocalizedRoute[] {
           push({
             locale,
             routePath,
-            lastModified: getLastModified(page.data.lastModified),
+            lastModified: declaredLastModified(page.data),
           });
         }
         continue;
@@ -53,7 +60,7 @@ function collectLocalizedRoutes(): LocalizedRoute[] {
       push({
         locale,
         routePath: route,
-        lastModified: getLastModified(page.data.lastModified),
+        lastModified: declaredLastModified(page.data),
       });
     }
 
@@ -65,7 +72,7 @@ function collectLocalizedRoutes(): LocalizedRoute[] {
       push({
         locale,
         routePath: route,
-        lastModified: getLastModified(page.data.lastModified),
+        lastModified: declaredLastModified(page.data),
       });
     }
 
@@ -88,5 +95,5 @@ function collectLocalizedRoutes(): LocalizedRoute[] {
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return assembleSitemap(collectLocalizedRoutes(), env.BASE_URL, new Date());
+  return assembleSitemap(collectLocalizedRoutes(), env.BASE_URL);
 }
