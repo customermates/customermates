@@ -158,7 +158,7 @@ describeDatabase("registration against a real database", () => {
         createUnscoped: vi.fn().mockResolvedValue([]),
       },
       new PrismaAuditLogRepo(),
-      { dispatch: vi.fn().mockResolvedValue(undefined) },
+      { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
     );
     const interactor = new RegisterUserInteractor(
       authService as never,
@@ -304,7 +304,7 @@ describeDatabase("registration against a real database", () => {
         createUnscoped: vi.fn().mockResolvedValue([]),
       },
       new PrismaAuditLogRepo(),
-      { dispatch: vi.fn().mockResolvedValue(undefined) },
+      { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
     );
     const interactor = new RegisterUserInteractor(
       {
@@ -385,7 +385,7 @@ describeDatabase("registration against a real database", () => {
         createUnscoped: vi.fn().mockResolvedValue([]),
       },
       auditRepo,
-      { dispatch: vi.fn().mockResolvedValue(undefined) },
+      { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
     );
     const versions = currentLegalDocumentVersions();
     await runWithoutTenant(async () => {
@@ -483,7 +483,7 @@ describeDatabase("registration against a real database", () => {
         createUnscoped: vi.fn().mockResolvedValue([]),
       },
       new PrismaAuditLogRepo(),
-      { dispatch: vi.fn().mockResolvedValue(undefined) },
+      { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
     );
     const interactor = new RegisterUserInteractor(
       {

@@ -300,6 +300,7 @@ import { GetAgentConfigInteractor } from "@/ee/agent-chat/get-agent-config.inter
 import { RespondToApprovalInteractor } from "@/ee/agent-chat/respond-to-approval.interactor";
 import { RespondToUiCommandInteractor } from "@/ee/agent-chat/respond-to-ui-command.interactor";
 import { CancelAgentTurnInteractor } from "@/ee/agent-chat/cancel-agent-turn.interactor";
+import { GetAgentRunStreamInteractor } from "@/ee/agent-chat/get-agent-run-stream.interactor";
 import { GetAgentConversationInteractor } from "@/ee/agent-chat/get-agent-conversation.interactor";
 import { CreateChatSupportTicketInteractor } from "@/ee/agent-chat/create-chat-support-ticket.interactor";
 import { ListAgentConversationsInteractor } from "@/ee/agent-chat/list-agent-conversations.interactor";
@@ -1469,19 +1470,27 @@ export const getCreateSupportTicketInteractor = () => new CreateSupportTicketInt
 export const getAgentUsageService = () => new AgentUsageService(getAgentChatRepo());
 
 export const getSendAgentMessageInteractor = () =>
-  new SendAgentMessageInteractor(getAgentChatRepo(), getAgentUsageService(), getEntitlementService());
+  new SendAgentMessageInteractor(
+    getAgentChatRepo(),
+    getAgentUsageService(),
+    getEntitlementService(),
+    getBackgroundTaskService(),
+  );
 
 export const getGetAgentConfigInteractor = () =>
   new GetAgentConfigInteractor(getAgentChatRepo(), getAgentUsageService(), getEntitlementService());
 
 export const getRespondToApprovalInteractor = () =>
-  new RespondToApprovalInteractor(getAgentChatRepo(), getEntitlementService());
+  new RespondToApprovalInteractor(getAgentChatRepo(), getEntitlementService(), getBackgroundTaskService());
 
 export const getRespondToUiCommandInteractor = () =>
-  new RespondToUiCommandInteractor(getAgentChatRepo(), getEntitlementService());
+  new RespondToUiCommandInteractor(getAgentChatRepo(), getEntitlementService(), getBackgroundTaskService());
 
 export const getCancelAgentTurnInteractor = () =>
-  new CancelAgentTurnInteractor(getAgentChatRepo(), getEntitlementService());
+  new CancelAgentTurnInteractor(getAgentChatRepo(), getEntitlementService(), getBackgroundTaskService());
+
+export const getGetAgentRunStreamInteractor = () =>
+  new GetAgentRunStreamInteractor(getAgentChatRepo(), getEntitlementService());
 
 export const getGetAgentConversationInteractor = () =>
   new GetAgentConversationInteractor(getAgentChatRepo(), getEntitlementService());

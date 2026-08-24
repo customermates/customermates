@@ -1,4 +1,4 @@
-import { start } from "workflow/api";
+import { getHookByToken, resumeHook, start } from "workflow/api";
 
 import type { WorkflowId, WorkflowPayload } from "@/workflows/registry";
 import type { WorkflowTenant } from "@/workflows/workflow-tenant";
@@ -15,12 +15,8 @@ function currentTenant(): WorkflowTenant | undefined {
 
 export class BackgroundTaskService {
   async dispatch<TId extends WorkflowId>(id: TId, payload: WorkflowPayload<TId>): Promise<void> {
-    const tenant = currentTenant();
-    const stamped = tenant ? { ...payload, tenant } : payload;
-
     const run = async () => {
-      const workflow = WORKFLOW_REGISTRY[id] as (payload: unknown) => Promise<unknown>;
-      await start(workflow, [stamped]);
+      await this.startWorkflow(id, payload);
     };
 
     const store = transactionStorage.getStore();
@@ -30,5 +26,30 @@ export class BackgroundTaskService {
     }
 
     await run();
+  }
+
+  async dispatchTracked<TId extends WorkflowId>(id: TId, payload: WorkflowPayload<TId>): Promise<string> {
+    return this.startWorkflow(id, payload);
+  }
+
+  async resume(token: string, payload: Record<string, unknown>): Promise<boolean> {
+    try {
+      const hook = await getHookByToken(token);
+      if (!hook) return false;
+
+      await resumeHook(token, payload);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  private async startWorkflow<TId extends WorkflowId>(id: TId, payload: WorkflowPayload<TId>): Promise<string> {
+    const tenant = currentTenant();
+    const stamped = tenant ? { ...payload, tenant } : payload;
+    const workflow = WORKFLOW_REGISTRY[id] as (payload: unknown) => Promise<unknown>;
+    const run = await start(workflow, [stamped]);
+
+    return run.runId;
   }
 }

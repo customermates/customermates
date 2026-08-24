@@ -6,6 +6,7 @@ import { dirname, resolve } from "node:path";
 import { defineConfig } from "vitest/config";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const appUrl = process.env.BASE_URL ?? "http://localhost:4105";
 
 export default defineConfig({
   resolve: {
@@ -19,7 +20,8 @@ export default defineConfig({
     include: ["scripts/agent-eval.ts"],
     environment: "node",
     env: {
-      BASE_URL: process.env.BASE_URL ?? "http://localhost:4000",
+      BASE_URL: appUrl,
+      PORT: new URL(appUrl).port,
     },
     testTimeout: 300_000,
     hookTimeout: 120_000,

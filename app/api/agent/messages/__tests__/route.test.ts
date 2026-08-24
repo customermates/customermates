@@ -3,7 +3,6 @@ import type { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const invoke = vi.hoisted(() => vi.fn());
-const dispatchAgentTurn = vi.hoisted(() => vi.fn());
 const agentTurnSseStream = vi.hoisted(() => vi.fn());
 
 vi.mock("@/env", () => ({
@@ -19,7 +18,7 @@ vi.mock("@/core/di", () => ({
 vi.mock("@/core/api/interactor-handler", () => ({
   handleError: () => new Response(null, { status: 500 }),
 }));
-vi.mock("@/ee/agent-chat/agent-turn-stream", () => ({ dispatchAgentTurn, agentTurnSseStream }));
+vi.mock("@/ee/agent-chat/agent-turn-stream", () => ({ agentTurnSseStream }));
 
 import { POST } from "../route";
 import { createZodError } from "@/core/validation/validation.utils";
@@ -54,7 +53,7 @@ describe("agent message admission route", () => {
 
     expect(response.status).toBe(429);
     expect(await response.json()).toBe("Not enough AI credits remain to start another request.");
-    expect(dispatchAgentTurn).not.toHaveBeenCalled();
+    expect(agentTurnSseStream).not.toHaveBeenCalled();
   });
 
   it("maps a canonical admission conflict to 409 without starting the provider", async () => {
@@ -69,14 +68,15 @@ describe("agent message admission route", () => {
 
     expect(response.status).toBe(409);
     expect(await response.json()).toContain("Another Assistant turn is already running.");
-    expect(dispatchAgentTurn).not.toHaveBeenCalled();
+    expect(agentTurnSseStream).not.toHaveBeenCalled();
   });
 
-  it("starts the provider lane only for a newly admitted run", async () => {
+  it("serves the durable run only for a newly admitted turn", async () => {
     invoke.mockResolvedValue({
       ok: true,
       data: {
         disposition: "run",
+        externalRunId: "wrun_test",
         companyId: "company-1",
         userId: "user-1",
         runId: "run-1",
@@ -90,7 +90,6 @@ describe("agent message admission route", () => {
         messages: [{ role: "user", text: "Hello" }],
       },
     });
-    dispatchAgentTurn.mockResolvedValue("wrun_test");
     agentTurnSseStream.mockReturnValue(
       new ReadableStream({
         start(controller) {
@@ -105,10 +104,6 @@ describe("agent message admission route", () => {
     expect(response.headers.get("x-conversation-id")).toBe(conversationId);
     expect(response.headers.get("x-user-message-id")).toBe(userMessageId);
     expect(response.headers.get("x-client-request-id")).toBe(clientRequestId);
-    expect(dispatchAgentTurn).toHaveBeenCalledWith(
-      expect.objectContaining({ disposition: "run" }),
-      "https://app.example.com",
-    );
     expect(agentTurnSseStream).toHaveBeenCalledWith("wrun_test");
   });
 
@@ -134,7 +129,7 @@ describe("agent message admission route", () => {
     const body = await response.text();
 
     expect(response.status).toBe(200);
-    expect(dispatchAgentTurn).not.toHaveBeenCalled();
+    expect(agentTurnSseStream).not.toHaveBeenCalled();
     expect(body).toContain('"type":"message_replay"');
     expect(body).toContain('"messageId":"assistant-1"');
     expect(body).toContain('"type":"turn_done"');
@@ -166,7 +161,7 @@ describe("agent message admission route", () => {
         disposition,
         retryAllowed: disposition === "failed",
       });
-      expect(dispatchAgentTurn).not.toHaveBeenCalled();
+      expect(agentTurnSseStream).not.toHaveBeenCalled();
     },
   );
 

@@ -78,6 +78,12 @@ function usageService() {
   };
 }
 
+const backgroundTasks = () => ({
+  dispatch: vi.fn().mockResolvedValue(undefined),
+  dispatchTracked: vi.fn().mockResolvedValue("wrun_test"),
+  resume: vi.fn().mockResolvedValue(true),
+});
+
 describe("agent access", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -93,6 +99,7 @@ describe("agent access", () => {
       isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
       createAgentConversationForRun: vi.fn(),
       deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
       admitAgentTurnOrThrow: vi.fn(),
     };
     const usage = usageService();
@@ -110,7 +117,12 @@ describe("agent access", () => {
       }),
     };
 
-    const result = await new SendAgentMessageInteractor(repo as never, usage as never, entitlements as never).invoke({
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      entitlements as never,
+      backgroundTasks() as never,
+    ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "hello",
       retry: false,
@@ -135,6 +147,7 @@ describe("agent access", () => {
       isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
       createAgentConversationForRun: vi.fn(),
       deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
       admitAgentTurnOrThrow: vi.fn().mockImplementation((args) => {
         persistedUserMessageId = args.turn.userMessageId;
         return Promise.resolve({
@@ -156,15 +169,18 @@ describe("agent access", () => {
       }),
     };
 
-    const result = await new SendAgentMessageInteractor(repo as never, usage as never, mockEntitlementService()).invoke(
-      {
-        clientRequestId: CLIENT_REQUEST_ID,
-        text: currentText,
-        pageContext: { route: "/en/contacts" },
-        locale: "de",
-        retry: false,
-      },
-    );
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      mockEntitlementService(),
+      backgroundTasks() as never,
+    ).invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: currentText,
+      pageContext: { route: "/en/contacts" },
+      locale: "de",
+      retry: false,
+    });
 
     expect(result.ok).toBe(true);
     if (!result.ok || result.data.disposition !== "run") return;
@@ -200,6 +216,7 @@ describe("agent access", () => {
       isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
       createAgentConversationForRun: vi.fn(),
       deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
     };
     const usage = usageService();
     usage.prepareTurn.mockResolvedValue({
@@ -217,13 +234,16 @@ describe("agent access", () => {
       reservation: null,
     });
 
-    const result = await new SendAgentMessageInteractor(repo as never, usage as never, mockEntitlementService()).invoke(
-      {
-        clientRequestId: CLIENT_REQUEST_ID,
-        text: "hello",
-        retry: false,
-      },
-    );
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      mockEntitlementService(),
+      backgroundTasks() as never,
+    ).invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: "hello",
+      retry: false,
+    });
 
     expect(result).toMatchObject({
       ok: false,
@@ -242,6 +262,7 @@ describe("agent access", () => {
       isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
       createAgentConversationForRun: vi.fn(),
       deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
       findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),
       listRecentMessages: vi.fn().mockResolvedValue([]),
       admitAgentTurnOrThrow: vi.fn().mockImplementation((args) =>
@@ -263,6 +284,7 @@ describe("agent access", () => {
       repo as never,
       usageService() as never,
       mockEntitlementService(),
+      backgroundTasks() as never,
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       conversationId: CONVERSATION_ID,
@@ -285,6 +307,7 @@ describe("agent access", () => {
       isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
       createAgentConversationForRun: vi.fn(),
       deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
       findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),
       listRecentMessages: vi.fn(),
       admitAgentTurnOrThrow: vi.fn().mockImplementation((args) =>
@@ -303,15 +326,18 @@ describe("agent access", () => {
     };
 
     const usage = usageService();
-    const result = await new SendAgentMessageInteractor(repo as never, usage as never, mockEntitlementService()).invoke(
-      {
-        clientRequestId: CLIENT_REQUEST_ID,
-        conversationId: CONVERSATION_ID,
-        text: "Decide yourself.",
-        pageContext: { route: "/en/organizations" },
-        retry: false,
-      },
-    );
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      mockEntitlementService(),
+      backgroundTasks() as never,
+    ).invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      conversationId: CONVERSATION_ID,
+      text: "Decide yourself.",
+      pageContext: { route: "/en/organizations" },
+      retry: false,
+    });
 
     expect(result.ok && result.data.disposition).toBe("run");
     if (!result.ok || result.data.disposition !== "run") return;
@@ -354,15 +380,19 @@ describe("agent access", () => {
       isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
       createAgentConversationForRun: vi.fn(),
       deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
     };
 
-    const result = await new SendAgentMessageInteractor(repo as never, usage as never, mockEntitlementService()).invoke(
-      {
-        clientRequestId: CLIENT_REQUEST_ID,
-        text: "same",
-        retry: false,
-      },
-    );
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      mockEntitlementService(),
+      backgroundTasks() as never,
+    ).invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: "same",
+      retry: false,
+    });
 
     expect(result.ok && result.data.disposition).toBe("completedReplay");
     if (!result.ok || result.data.disposition !== "completedReplay") return;
@@ -404,15 +434,19 @@ describe("agent access", () => {
       isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
       createAgentConversationForRun: vi.fn(),
       deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
     };
 
-    const result = await new SendAgentMessageInteractor(repo as never, usage as never, mockEntitlementService()).invoke(
-      {
-        clientRequestId: CLIENT_REQUEST_ID,
-        text: "same",
-        retry: false,
-      },
-    );
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      mockEntitlementService(),
+      backgroundTasks() as never,
+    ).invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: "same",
+      retry: false,
+    });
 
     expect(result.ok && result.data.disposition).toBe("uncertain");
     expect(usage.prepareTurn).not.toHaveBeenCalled();
@@ -443,6 +477,7 @@ describe("agent access", () => {
       isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
       createAgentConversationForRun: vi.fn(),
       deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
       findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),
       listRecentMessages: vi.fn().mockResolvedValue([
         {
@@ -468,6 +503,7 @@ describe("agent access", () => {
       repo as never,
       usageService() as never,
       mockEntitlementService(),
+      backgroundTasks() as never,
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "retry this",
@@ -517,15 +553,19 @@ describe("agent access", () => {
       isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
       createAgentConversationForRun: vi.fn(),
       deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
     };
 
-    const result = await new SendAgentMessageInteractor(repo as never, usage as never, mockEntitlementService()).invoke(
-      {
-        clientRequestId: CLIENT_REQUEST_ID,
-        text: "different",
-        retry: true,
-      },
-    );
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      mockEntitlementService(),
+      backgroundTasks() as never,
+    ).invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: "different",
+      retry: true,
+    });
 
     expect(result.ok && result.data.disposition).toBe("conflict");
     expect(usage.prepareTurn).not.toHaveBeenCalled();
@@ -541,18 +581,22 @@ describe("agent access", () => {
       isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
       createAgentConversationForRun: vi.fn(),
       deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
       findConversation: vi.fn().mockResolvedValue(null),
       admitAgentTurnOrThrow: vi.fn(),
     };
 
-    const result = await new SendAgentMessageInteractor(repo as never, usage as never, mockEntitlementService()).invoke(
-      {
-        clientRequestId: CLIENT_REQUEST_ID,
-        conversationId: CONVERSATION_ID,
-        text: "continue",
-        retry: false,
-      },
-    );
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      mockEntitlementService(),
+      backgroundTasks() as never,
+    ).invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      conversationId: CONVERSATION_ID,
+      text: "continue",
+      retry: false,
+    });
     expect(result).toMatchObject({
       ok: false,
       error: { issues: [{ params: { error: "agentConversationNotFound" } }] },
@@ -571,6 +615,7 @@ describe("agent access", () => {
       isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
       createAgentConversationForRun: vi.fn(),
       deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
       admitAgentTurnOrThrow: vi.fn(),
       releasePreProviderAdmissionOrThrowUnscoped: vi.fn().mockResolvedValue({ disposition: "released" }),
     };
@@ -579,6 +624,7 @@ describe("agent access", () => {
       repo as never,
       usageService() as never,
       mockEntitlementService(),
+      backgroundTasks() as never,
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "hello",
@@ -602,12 +648,18 @@ describe("agent access", () => {
       isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
       createAgentConversationForRun: vi.fn(),
       deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
       admitAgentTurnOrThrow: vi.fn().mockRejectedValue(failure),
       releasePreProviderAdmissionOrThrowUnscoped: vi.fn().mockResolvedValue({ disposition: "released" }),
     };
 
     await expect(
-      new SendAgentMessageInteractor(repo as never, usage as never, mockEntitlementService()).invoke({
+      new SendAgentMessageInteractor(
+        repo as never,
+        usage as never,
+        mockEntitlementService(),
+        backgroundTasks() as never,
+      ).invoke({
         clientRequestId: CLIENT_REQUEST_ID,
         text: "hello",
         retry: false,
@@ -641,12 +693,18 @@ describe("agent access", () => {
       isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
       createAgentConversationForRun: vi.fn(),
       deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
       admitAgentTurnOrThrow: vi.fn(),
       releasePreProviderAdmissionOrThrowUnscoped: vi.fn().mockResolvedValue({ disposition: "released" }),
     };
 
     await expect(
-      new SendAgentMessageInteractor(repo as never, usage as never, mockEntitlementService()).invoke({
+      new SendAgentMessageInteractor(
+        repo as never,
+        usage as never,
+        mockEntitlementService(),
+        backgroundTasks() as never,
+      ).invoke({
         clientRequestId: CLIENT_REQUEST_ID,
         text: "hello",
         retry: false,
@@ -673,12 +731,18 @@ describe("agent access", () => {
       isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
       createAgentConversationForRun: vi.fn(),
       deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
       admitAgentTurnOrThrow: vi.fn().mockRejectedValue(admissionFailure),
       releasePreProviderAdmissionOrThrowUnscoped: vi.fn().mockRejectedValue(cleanupFailure),
     };
 
     await expect(
-      new SendAgentMessageInteractor(repo as never, usageService() as never, mockEntitlementService()).invoke({
+      new SendAgentMessageInteractor(
+        repo as never,
+        usageService() as never,
+        mockEntitlementService(),
+        backgroundTasks() as never,
+      ).invoke({
         clientRequestId: CLIENT_REQUEST_ID,
         text: "hello",
         retry: false,
@@ -781,7 +845,11 @@ describe("agent access", () => {
       recordUiCommandResult: vi.fn().mockResolvedValue(undefined),
     };
 
-    const result = await new RespondToUiCommandInteractor(repo as never, mockEntitlementService()).invoke({
+    const result = await new RespondToUiCommandInteractor(
+      repo as never,
+      mockEntitlementService(),
+      backgroundTasks() as never,
+    ).invoke({
       conversationId: CONVERSATION_ID,
       commandId: "command-1",
       name: "navigate",

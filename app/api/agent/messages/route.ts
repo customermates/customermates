@@ -5,7 +5,7 @@ import { interactorFailureStatus } from "@/core/validation/validation.utils";
 import { env } from "@/env";
 import { getSendAgentMessageInteractor } from "@/core/di";
 import { handleError } from "@/core/api/interactor-handler";
-import { agentTurnSseStream, dispatchAgentTurn } from "@/ee/agent-chat/agent-turn-stream";
+import { agentTurnSseStream } from "@/ee/agent-chat/agent-turn-stream";
 import { sse } from "@/ee/agent-chat/agent-stream-utils";
 import type { SendAgentMessageResult } from "@/ee/agent-chat/send-agent-message.interactor";
 import { isAgentTurnTerminalError } from "@/ee/agent-chat/agent-turn-request";
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
 
     const stream =
       result.data.disposition === "run"
-        ? agentTurnSseStream(await dispatchAgentTurn(result.data, env.BASE_URL))
+        ? agentTurnSseStream(result.data.externalRunId)
         : completedReplayStream(result.data);
     return new Response(stream, {
       status: 200,

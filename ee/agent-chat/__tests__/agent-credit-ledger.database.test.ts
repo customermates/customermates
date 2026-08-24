@@ -84,6 +84,12 @@ async function seedActiveSeat(allowanceAnchor: Date) {
   return { companyId, userId };
 }
 
+const backgroundTasks = () => ({
+  dispatch: vi.fn().mockResolvedValue(undefined),
+  dispatchTracked: vi.fn().mockResolvedValue("wrun_test"),
+  resume: vi.fn().mockResolvedValue(true),
+});
+
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const entitlements = { require: vi.fn().mockResolvedValue(null) };
 
@@ -191,7 +197,12 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     const repo = new PrismaAgentChatRepo();
     const usage = new AgentUsageService(repo);
 
-    const admitted = await new SendAgentMessageInteractor(repo, usage, entitlements as never).invoke({
+    const admitted = await new SendAgentMessageInteractor(
+      repo,
+      usage,
+      entitlements as never,
+      backgroundTasks() as never,
+    ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a chat",
       retry: false,
@@ -234,7 +245,12 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     const repo = new PrismaAgentChatRepo();
     const usage = new AgentUsageService(repo);
 
-    const admitted = await new SendAgentMessageInteractor(repo, usage, entitlements as never).invoke({
+    const admitted = await new SendAgentMessageInteractor(
+      repo,
+      usage,
+      entitlements as never,
+      backgroundTasks() as never,
+    ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a long chat",
       retry: false,
@@ -267,6 +283,96 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     expect(event.state).toBe("reserved");
   });
 
+  it("does not sweep a turn suspended on an approval whose window outlasts an ordinary lease", async () => {
+    const anchor = new Date(Date.UTC(2026, 0, 15));
+    const { companyId, userId } = await seedActiveSeat(anchor);
+    authState.user = createMockUser({ id: userId, companyId, email: `suspended-${userId}@example.com` });
+    const repo = new PrismaAgentChatRepo();
+    const usage = new AgentUsageService(repo);
+
+    const admitted = await new SendAgentMessageInteractor(
+      repo,
+      usage,
+      entitlements as never,
+      backgroundTasks() as never,
+    ).invoke({
+      clientRequestId: randomUUID(),
+      text: "Delete something that needs approval",
+      retry: false,
+    });
+    if (!admitted.ok || admitted.data.disposition !== "run") throw new Error("Expected an admitted turn.");
+    const { turnRequestId, runId } = admitted.data;
+
+    const approvalDeadline = new Date(Date.now() + 30 * 60_000);
+    const held = await runWithoutTenant(() =>
+      repo.holdAgentRunForSuspensionUnscoped({ turnRequestId, companyId, userId, runId, until: approvalDeadline }),
+    );
+    expect(held).toBe(true);
+
+    const sweeper = authState.user;
+    if (!sweeper) throw new Error("Expected a tenant user.");
+    await runWithTenant(sweeper, () => repo.normalizeExpiredAgentRunLease(new Date(), "openai/gpt-5.6-luna"));
+
+    const [turn, lease, event] = await runWithoutTenant(() =>
+      Promise.all([
+        prisma.agentTurnRequest.findUniqueOrThrow({ where: { id: turnRequestId } }),
+        prisma.agentRunLease.findFirst({ where: { userId } }),
+        prisma.agentUsageEvent.findFirstOrThrow({ where: { turnRequestId } }),
+      ]),
+    );
+    expect(turn.status).toBe("awaitingApproval");
+    expect(lease?.expiresAt.getTime()).toBeGreaterThan(approvalDeadline.getTime());
+    expect(event.state).toBe("reserved");
+
+    await runWithoutTenant(() =>
+      repo.resumeAgentRunFromSuspensionUnscoped({ turnRequestId, companyId, userId, runId }),
+    );
+    const resumed = await runWithoutTenant(() =>
+      prisma.agentTurnRequest.findUniqueOrThrow({ where: { id: turnRequestId } }),
+    );
+    expect(resumed.status).toBe("running");
+  });
+
+  it("settles a suspended turn once its extended lease has genuinely expired", async () => {
+    const anchor = new Date(Date.UTC(2026, 0, 15));
+    const { companyId, userId } = await seedActiveSeat(anchor);
+    authState.user = createMockUser({ id: userId, companyId, email: `abandoned-${userId}@example.com` });
+    const repo = new PrismaAgentChatRepo();
+    const usage = new AgentUsageService(repo);
+
+    const admitted = await new SendAgentMessageInteractor(
+      repo,
+      usage,
+      entitlements as never,
+      backgroundTasks() as never,
+    ).invoke({
+      clientRequestId: randomUUID(),
+      text: "Delete something and then die",
+      retry: false,
+    });
+    if (!admitted.ok || admitted.data.disposition !== "run") throw new Error("Expected an admitted turn.");
+    const { turnRequestId, runId } = admitted.data;
+
+    const lapsed = new Date(Date.now() - 60 * 60_000);
+    await runWithoutTenant(() =>
+      repo.holdAgentRunForSuspensionUnscoped({ turnRequestId, companyId, userId, runId, until: lapsed }),
+    );
+
+    const sweeper = authState.user;
+    if (!sweeper) throw new Error("Expected a tenant user.");
+    await runWithTenant(sweeper, () => repo.normalizeExpiredAgentRunLease(new Date(), "openai/gpt-5.6-luna"));
+
+    const [turn, lease] = await runWithoutTenant(() =>
+      Promise.all([
+        prisma.agentTurnRequest.findUniqueOrThrow({ where: { id: turnRequestId } }),
+        prisma.agentRunLease.findFirst({ where: { userId } }),
+      ]),
+    );
+    expect(turn.status).toBe("failed");
+    expect(turn.terminalAt).not.toBeNull();
+    expect(lease).toBeNull();
+  });
+
   it("refuses to heartbeat a run whose lease another writer already reclaimed", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
@@ -274,7 +380,12 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     const repo = new PrismaAgentChatRepo();
     const usage = new AgentUsageService(repo);
 
-    const admitted = await new SendAgentMessageInteractor(repo, usage, entitlements as never).invoke({
+    const admitted = await new SendAgentMessageInteractor(
+      repo,
+      usage,
+      entitlements as never,
+      backgroundTasks() as never,
+    ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a chat",
       retry: false,
@@ -296,7 +407,12 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     const repo = new PrismaAgentChatRepo();
     const usage = new AgentUsageService(repo);
 
-    const admitted = await new SendAgentMessageInteractor(repo, usage, entitlements as never).invoke({
+    const admitted = await new SendAgentMessageInteractor(
+      repo,
+      usage,
+      entitlements as never,
+      backgroundTasks() as never,
+    ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a chat",
       retry: false,
@@ -344,7 +460,12 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     const repo = new PrismaAgentChatRepo();
     const usage = new AgentUsageService(repo);
 
-    const admitted = await new SendAgentMessageInteractor(repo, usage, entitlements as never).invoke({
+    const admitted = await new SendAgentMessageInteractor(
+      repo,
+      usage,
+      entitlements as never,
+      backgroundTasks() as never,
+    ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a chat",
       retry: false,
@@ -390,7 +511,12 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     const repo = new PrismaAgentChatRepo();
     const usage = new AgentUsageService(repo);
 
-    const admitted = await new SendAgentMessageInteractor(repo, usage, entitlements as never).invoke({
+    const admitted = await new SendAgentMessageInteractor(
+      repo,
+      usage,
+      entitlements as never,
+      backgroundTasks() as never,
+    ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a chat",
       retry: false,
@@ -451,7 +577,12 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     const repo = new PrismaAgentChatRepo();
     const usage = new AgentUsageService(repo);
 
-    const admitted = await new SendAgentMessageInteractor(repo, usage, entitlements as never).invoke({
+    const admitted = await new SendAgentMessageInteractor(
+      repo,
+      usage,
+      entitlements as never,
+      backgroundTasks() as never,
+    ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a chat",
       retry: false,
@@ -499,7 +630,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     vi.spyOn(repo, "releasePreProviderAdmissionOrThrowUnscoped").mockResolvedValue({ disposition: "released" });
 
     await expect(
-      new SendAgentMessageInteractor(repo, usage, entitlements as never).invoke({
+      new SendAgentMessageInteractor(repo, usage, entitlements as never, backgroundTasks() as never).invoke({
         clientRequestId: randomUUID(),
         text: "Start a chat",
         retry: false,
@@ -529,7 +660,12 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
 
     const invoke = (text: string) => {
       const repo = new PrismaAgentChatRepo();
-      return new SendAgentMessageInteractor(repo, new AgentUsageService(repo), entitlements as never).invoke({
+      return new SendAgentMessageInteractor(
+        repo,
+        new AgentUsageService(repo),
+        entitlements as never,
+        backgroundTasks() as never,
+      ).invoke({
         clientRequestId: randomUUID(),
         conversationId,
         text,
@@ -563,7 +699,12 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
 
     const invoke = () => {
       const repo = new PrismaAgentChatRepo();
-      return new SendAgentMessageInteractor(repo, new AgentUsageService(repo), entitlements as never).invoke({
+      return new SendAgentMessageInteractor(
+        repo,
+        new AgentUsageService(repo),
+        entitlements as never,
+        backgroundTasks() as never,
+      ).invoke({
         clientRequestId: randomUUID(),
         text: "A separate thread",
         retry: false,
@@ -590,7 +731,12 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
 
     const invoke = () => {
       const repo = new PrismaAgentChatRepo();
-      return new SendAgentMessageInteractor(repo, new AgentUsageService(repo), entitlements as never).invoke({
+      return new SendAgentMessageInteractor(
+        repo,
+        new AgentUsageService(repo),
+        entitlements as never,
+        backgroundTasks() as never,
+      ).invoke({
         clientRequestId: randomUUID(),
         text: "Another thread",
         retry: false,
@@ -646,7 +792,12 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
 
     const failingRepo = new DuplicateMessageRepo();
     await expect(
-      new SendAgentMessageInteractor(failingRepo, new AgentUsageService(failingRepo), entitlements as never).invoke({
+      new SendAgentMessageInteractor(
+        failingRepo,
+        new AgentUsageService(failingRepo),
+        entitlements as never,
+        backgroundTasks() as never,
+      ).invoke({
         clientRequestId,
         text: "Create an atomic admission",
         retry: false,
@@ -678,6 +829,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       retryRepo,
       new AgentUsageService(retryRepo),
       entitlements as never,
+      backgroundTasks() as never,
     ).invoke({
       clientRequestId,
       text: "Create an atomic admission",

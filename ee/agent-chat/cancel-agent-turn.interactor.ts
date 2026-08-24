@@ -10,7 +10,8 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
-import { wakeAgentRunForCancellation } from "./agent-run-wake";
+import { agentApprovalHookToken } from "./agent-approval-resume";
+import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 
 export const CancelAgentTurnSchema = z.object({ conversationId: z.uuid() }).strict();
 
@@ -24,6 +25,7 @@ export class CancelAgentTurnInteractor extends AuthenticatedInteractor<CancelAge
   constructor(
     private repo: PrismaAgentChatRepo,
     private entitlements: EntitlementService,
+    private backgroundTaskService: BackgroundTaskService,
   ) {
     super();
   }
@@ -37,7 +39,8 @@ export class CancelAgentTurnInteractor extends AuthenticatedInteractor<CancelAge
     if (!conversation) return createInteractorFailure(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
     const cancelling = await this.repo.requestAgentTurnCancellation({ conversationId: data.conversationId });
-    if (cancelling) await wakeAgentRunForCancellation(data.conversationId);
+    if (cancelling)
+      await this.backgroundTaskService.resume(agentApprovalHookToken(data.conversationId), { cancelled: true });
 
     return { ok: true as const, data: { cancelling } };
   }

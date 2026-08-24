@@ -10,9 +10,10 @@ import { type Data, type Validated } from "@/core/validation/validation.utils";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
+import { agentApprovalHookToken } from "./agent-approval-resume";
 import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { wakeAgentApproval } from "./agent-run-wake";
+import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 
 export const RespondToApprovalSchema = z
   .object({
@@ -32,6 +33,7 @@ export class RespondToApprovalInteractor extends AuthenticatedInteractor<Respond
   constructor(
     private repo: PrismaAgentChatRepo,
     private entitlements: EntitlementService,
+    private backgroundTaskService: BackgroundTaskService,
   ) {
     super();
   }
@@ -51,7 +53,7 @@ export class RespondToApprovalInteractor extends AuthenticatedInteractor<Respond
     });
     if (!resolved) return createInteractorFailure(CustomErrorCode.agentApprovalUnavailable, ["requestId"]);
 
-    await wakeAgentApproval(data.conversationId, data.requestId);
+    await this.backgroundTaskService.resume(agentApprovalHookToken(data.conversationId), { requestId: data.requestId });
 
     return { ok: true as const, data: { resolved: true } };
   }

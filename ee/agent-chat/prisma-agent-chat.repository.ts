@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import {
   AgentApprovalDecision,
   AgentMessageRole,
+  AgentTurnStatus,
   Resource,
   Status,
   type Prisma,
@@ -761,7 +762,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         companyId: this.companyId,
         userId: this.userId,
         runId: row.runId,
-        status: "running",
+        status: { in: [AgentTurnStatus.running, AgentTurnStatus.awaitingApproval] },
       },
       data: {
         status: nextStatus,
@@ -807,7 +808,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         companyId: this.companyId,
         userId: this.userId,
         runId: lease.runId,
-        status: "running",
+        status: { in: [AgentTurnStatus.running, AgentTurnStatus.awaitingApproval] },
       },
       select: this.agentTurnSelect,
     });
@@ -1152,35 +1153,71 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     return Boolean(turn?.cancellationRequestedAt);
   }
 
-  @BypassTenantGuard
-  async recordAgentTurnExternalRunUnscoped(args: {
-    turnRequestId: string;
-    companyId: string;
-    externalRunId: string;
-  }): Promise<void> {
+  async recordAgentTurnExternalRun(turnRequestId: string, externalRunId: string): Promise<void> {
     await this.prisma.agentTurnRequest.updateMany({
-      where: { id: args.turnRequestId, companyId: args.companyId },
-      data: { externalRunId: args.externalRunId },
+      where: { id: turnRequestId, companyId: this.companyId, userId: this.userId },
+      data: { externalRunId },
     });
   }
 
-  @BypassTenantGuard
-  async findAgentTurnExternalRunUnscoped(args: {
-    conversationId: string;
-    companyId: string;
-    userId: string;
-  }): Promise<string | null> {
+  async findAgentTurnExternalRun(conversationId: string): Promise<string | null> {
     const turn = await this.prisma.agentTurnRequest.findFirst({
       where: {
-        conversationId: args.conversationId,
-        companyId: args.companyId,
-        userId: args.userId,
+        conversationId,
+        companyId: this.companyId,
+        userId: this.userId,
         externalRunId: { not: null },
       },
       orderBy: { createdAt: "desc" },
       select: { externalRunId: true },
     });
     return turn?.externalRunId ?? null;
+  }
+
+  @BypassTenantGuard
+  async holdAgentRunForSuspensionUnscoped(args: {
+    turnRequestId: string;
+    companyId: string;
+    userId: string;
+    runId: string;
+    until: Date;
+  }): Promise<boolean> {
+    const held = await this.prisma.agentRunLease.updateMany({
+      where: { companyId: args.companyId, userId: args.userId, runId: args.runId },
+      data: { expiresAt: new Date(args.until.getTime() + AGENT_RUN_LEASE_MS) },
+    });
+    if (held.count !== 1) return false;
+
+    await this.prisma.agentTurnRequest.updateMany({
+      where: {
+        id: args.turnRequestId,
+        companyId: args.companyId,
+        userId: args.userId,
+        runId: args.runId,
+        status: AgentTurnStatus.running,
+      },
+      data: { status: AgentTurnStatus.awaitingApproval },
+    });
+    return true;
+  }
+
+  @BypassTenantGuard
+  async resumeAgentRunFromSuspensionUnscoped(args: {
+    turnRequestId: string;
+    companyId: string;
+    userId: string;
+    runId: string;
+  }): Promise<void> {
+    await this.prisma.agentTurnRequest.updateMany({
+      where: {
+        id: args.turnRequestId,
+        companyId: args.companyId,
+        userId: args.userId,
+        runId: args.runId,
+        status: AgentTurnStatus.awaitingApproval,
+      },
+      data: { status: AgentTurnStatus.running },
+    });
   }
 
   @BypassTenantGuard

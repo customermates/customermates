@@ -33,11 +33,12 @@ import {
   conservativeAgentInitialContextBytes,
 } from "./agent-provider-context";
 import { isEnabledAgentModelKey, resolveAgentModel } from "./model-catalog";
+import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import { assertInvariant } from "@/core/errors/assert-invariant";
 import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-type AdmittedAgentRun = { disposition: "run" } & Omit<AgentRunContext, "appBaseUrl">;
+type AdmittedAgentRun = { disposition: "run"; externalRunId: string } & Omit<AgentRunContext, "appBaseUrl">;
 
 export type SendAgentMessageResult =
   | AdmittedAgentRun
@@ -69,6 +70,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     private repo: PrismaAgentChatRepo,
     private usageService: AgentUsageService,
     private entitlements: EntitlementService,
+    private backgroundTaskService: BackgroundTaskService,
   ) {
     super();
   }
@@ -271,10 +273,26 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         })
         .filter((message) => message.text);
 
+      const externalRunId = await this.backgroundTaskService.dispatchTracked("agent-turn", {
+        turnRequestId,
+        conversationId: admission.conversationId,
+        runId,
+        companyId: user.companyId,
+        userId: user.id,
+        userName,
+        locale,
+        appBaseUrl: env.BASE_URL,
+        messages,
+        turnBudget: reservation.budget,
+        tenant: { userId: user.id, companyId: user.companyId },
+      });
+      await this.repo.recordAgentTurnExternalRun(turnRequestId, externalRunId);
+
       return {
         ok: true as const,
         data: {
           disposition: "run",
+          externalRunId,
           companyId: user.companyId,
           userId: user.id,
           runId,

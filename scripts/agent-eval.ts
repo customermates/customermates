@@ -20,7 +20,11 @@ const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.
 const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { AGENT_UI_TARGET_IDS } = await import("@/ee/agent-chat/ui-targets");
-const { wakeAgentUiCommand } = await import("@/ee/agent-chat/agent-run-wake");
+const { getBackgroundTaskService } = await import("@/core/di");
+const { agentUiCommandHookToken } = await import("@/ee/agent-chat/agent-ui-command");
+const { getCancelAgentTurnInteractor } = await import("@/core/di");
+const { MODEL_CATALOG } = await import("@/ee/agent-chat/model-catalog");
+const { AGENT_RUN_LEASE_MS } = await import("@/ee/agent-chat/agent-turn-request");
 
 const companyId = randomUUID();
 const sentinelCompanyId = randomUUID();
@@ -88,14 +92,18 @@ type Frame = { type: string } & Record<string, unknown>;
 async function runTurn(args: {
   text: string;
   conversationId?: string;
+  modelKey?: string;
   onApproval?: "approve" | "reject" | "ignore";
-}): Promise<{ frames: Frame[]; conversationId: string }> {
+  onFrame?: (frame: Frame, conversationId: string) => Promise<void>;
+  detachAfter?: number;
+}): Promise<{ frames: Frame[]; conversationId: string; detached: boolean }> {
   const response = await fetch(`${APP_URL}/api/agent/messages`, {
     method: "POST",
     headers: { "content-type": "application/json", cookie: sessionCookie },
     body: JSON.stringify({
       clientRequestId: randomUUID(),
       ...(args.conversationId ? { conversationId: args.conversationId } : {}),
+      ...(args.modelKey ? { modelKey: args.modelKey } : {}),
       text: args.text,
       locale: "en",
       pageContext: { route: "/en/contacts" },
@@ -125,6 +133,11 @@ async function runTurn(args: {
       if (!dataLine) continue;
       const frame = JSON.parse(dataLine.slice(6)) as Frame;
       frames.push(frame);
+      if (args.onFrame) await args.onFrame(frame, conversationId);
+      if (args.detachAfter !== undefined && frames.length >= args.detachAfter) {
+        await reader.cancel();
+        return { frames, conversationId, detached: true };
+      }
       if (frame.type === "ui_command") {
         await runWithTenant(evalUser, () =>
           new PrismaAgentChatRepo().recordUiCommandResult({
@@ -135,7 +148,9 @@ async function runTurn(args: {
             result: "Done.",
           }),
         );
-        await wakeAgentUiCommand(conversationId, String(frame.commandId));
+        await getBackgroundTaskService().resume(agentUiCommandHookToken(conversationId), {
+          commandId: String(frame.commandId),
+        });
       }
       if (frame.type === "approval_request" && args.onApproval && args.onApproval !== "ignore") {
         await runWithTenant(evalUser, () =>
@@ -148,7 +163,60 @@ async function runTurn(args: {
       }
     }
   }
-  return { frames, conversationId };
+  return { frames, conversationId, detached: false };
+}
+
+async function readAgentStream(conversationId: string, startIndex: number): Promise<Frame[]> {
+  const response = await fetch(`${APP_URL}/api/agent/conversations/${conversationId}/stream?startIndex=${startIndex}`, {
+    headers: { cookie: sessionCookie },
+  });
+  if (!response.ok || !response.body)
+    throw new Error(`Reattach failed with ${response.status}: ${await response.text()}`);
+
+  const frames: Frame[] = [];
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    let boundary = buffer.indexOf("\n\n");
+    while (boundary >= 0) {
+      const rawFrame = buffer.slice(0, boundary);
+      buffer = buffer.slice(boundary + 2);
+      boundary = buffer.indexOf("\n\n");
+      const dataLine = rawFrame.split("\n").find((line) => line.startsWith("data: "));
+      if (dataLine) frames.push(JSON.parse(dataLine.slice(6)) as Frame);
+    }
+  }
+  return frames;
+}
+
+async function latestTurn(conversationId: string) {
+  return runWithoutTenant(() =>
+    prisma.agentTurnRequest.findFirstOrThrow({ where: { conversationId }, orderBy: { createdAt: "desc" } }),
+  );
+}
+
+async function expectAccountingToBalance(conversationId: string, frames: Frame[]) {
+  const done = frames.at(-1);
+  expect(done?.type, JSON.stringify(frames.map((frame) => frame.type))).toBe("turn_done");
+
+  const turn = await latestTurn(conversationId);
+  const [rounds, usage] = await runWithoutTenant(() =>
+    Promise.all([
+      prisma.agentRunRound.findMany({ where: { turnRequestId: turn.id }, orderBy: { roundIndex: "asc" } }),
+      prisma.agentUsageEvent.findFirst({ where: { turnRequestId: turn.id } }),
+    ]),
+  );
+
+  expect(done?.numTurns, `rounds recorded for ${turn.id}`).toBe(rounds.length);
+  expect(rounds.map((round) => round.roundIndex)).toEqual(rounds.map((_round, index) => index));
+  if (usage?.costSource === "measured")
+    expect(usage.costMicrocents).toBe(rounds.reduce((total, round) => total + round.costMicrocents, 0n));
+
+  return { turn, rounds, usage };
 }
 
 const enabled = process.env.RUN_AGENT_EVAL === "true" && Boolean(getLocalDatabaseTestUrl());
@@ -161,6 +229,7 @@ const adaId = randomUUID();
 const acmeId = randomUUID();
 const globexId = randomUUID();
 const throwawayId = randomUUID();
+const sweepId = randomUUID();
 const evalRoleId = randomUUID();
 
 describeEval("agent live eval", () => {
@@ -204,6 +273,9 @@ describeEval("agent live eval", () => {
       });
       await prisma.contact.create({
         data: { id: throwawayId, companyId, firstName: "Throwaway", lastName: "Duplicate" },
+      });
+      await prisma.contact.create({
+        data: { id: sweepId, companyId, firstName: "Sweepable", lastName: "Placeholder" },
       });
       await prisma.organization.create({ data: { id: acmeId, companyId, name: "ACME GmbH" } });
       await prisma.organization.create({ data: { id: globexId, companyId, name: "Globex" } });
@@ -302,4 +374,114 @@ describeEval("agent live eval", () => {
       await runWithoutTenant(() => prisma.contact.count({ where: { companyId, id: throwawayId } })),
     ).toBe(1);
   });
+
+  it("pins the model chosen at the start of a conversation to every later turn", async () => {
+    const first = await runTurn({
+      text: "How many contacts are in this workspace?",
+      modelKey: "fast",
+    });
+    await expectAccountingToBalance(first.conversationId, first.frames);
+
+    const second = await runTurn({
+      text: "And how many organizations?",
+      conversationId: first.conversationId,
+    });
+    await expectAccountingToBalance(second.conversationId, second.frames);
+
+    const rounds = await runWithoutTenant(() =>
+      prisma.agentRunRound.findMany({
+        where: { turnRequest: { conversationId: first.conversationId } },
+        select: { modelSpec: true },
+      }),
+    );
+    expect(rounds.length).toBeGreaterThanOrEqual(2);
+    for (const round of rounds) expect(round.modelSpec).toBe(MODEL_CATALOG.fast.modelId);
+  });
+
+  it("finishes a turn the client walked away from and reattaches without duplicating a frame", async () => {
+    const detached = await runTurn({
+      text: "List the organizations in this workspace and say one sentence about each.",
+      detachAfter: 2,
+    });
+    expect(detached.detached).toBe(true);
+    expect(detached.frames.at(-1)?.type).not.toBe("turn_done");
+
+    const lastSeq = Number(detached.frames.at(-1)?.seq);
+    expect(Number.isFinite(lastSeq)).toBe(true);
+
+    const resumed = await readAgentStream(detached.conversationId, lastSeq + 1);
+    expect(resumed.at(-1), JSON.stringify(resumed.map((frame) => frame.type))).toMatchObject({ type: "turn_done" });
+
+    const seqs = [...detached.frames, ...resumed].map((frame) => Number(frame.seq));
+    expect(new Set(seqs).size).toBe(seqs.length);
+
+    const reply = resumed
+      .filter((frame) => frame.type === "delta")
+      .map((frame) => String(frame.text ?? ""))
+      .join("");
+    expect(reply.trim().length).toBeGreaterThan(0);
+    await expectAccountingToBalance(detached.conversationId, resumed);
+  });
+
+  it("keeps a suspended approval alive past an ordinary lease and then applies it exactly once", async () => {
+    const before = await countRows(companyId);
+    const observed: { status: string; leaseExists: boolean }[] = [];
+
+    const { frames, conversationId } = await runTurn({
+      text: 'Delete the contact "Sweepable Placeholder". Yes, I am sure, go ahead and call the delete tool now.',
+      onApproval: "approve",
+      onFrame: async (frame, conversation) => {
+        if (frame.type !== "approval_request") return;
+        const beyondOrdinaryLease = new Date(Date.now() + AGENT_RUN_LEASE_MS * 2);
+        await runWithTenant(evalUser, () =>
+          new PrismaAgentChatRepo().normalizeExpiredAgentRunLease(beyondOrdinaryLease, MODEL_CATALOG.balanced.modelId),
+        );
+        const [turn, lease] = await runWithoutTenant(() =>
+          Promise.all([
+            prisma.agentTurnRequest.findFirstOrThrow({
+              where: { conversationId: conversation },
+              orderBy: { createdAt: "desc" },
+            }),
+            prisma.agentRunLease.findFirst({ where: { conversationId: conversation } }),
+          ]),
+        );
+        observed.push({ status: turn.status, leaseExists: lease !== null });
+      },
+    });
+
+    expect(observed, JSON.stringify(frames)).toHaveLength(1);
+    expect(observed[0]).toEqual({ status: "awaitingApproval", leaseExists: true });
+
+    expect(frames.at(-1)).toMatchObject({ type: "turn_done", terminalCode: "completed" });
+    expect(await runWithoutTenant(() => prisma.contact.count({ where: { companyId, id: sweepId } }))).toBe(0);
+    expect(await countRows(companyId)).toEqual({ ...before, contact: before.contact - 1 });
+    await expectAccountingToBalance(conversationId, frames);
+  });
+
+  it("stops a running turn on request and bills only what it had already spent", async () => {
+    const before = await countRows(companyId);
+    let cancelled = false;
+
+    const { frames, conversationId } = await runTurn({
+      text: "Review every contact and every organization, then summarize the workspace in detail.",
+      onFrame: async (frame, conversation) => {
+        if (cancelled || frame.type !== "activity") return;
+        cancelled = true;
+        const result = await runWithTenant(evalUser, () =>
+          getCancelAgentTurnInteractor().invoke({ conversationId: conversation }),
+        );
+        expect(result.ok).toBe(true);
+      },
+    });
+
+    expect(cancelled, JSON.stringify(frames)).toBe(true);
+    expect(frames.at(-1)).toMatchObject({ type: "turn_done", terminalCode: "cancelled" });
+    expect(await countRows(companyId)).toEqual(before);
+
+    const { turn, rounds, usage } = await expectAccountingToBalance(conversationId, frames);
+    expect(turn.terminalCode).toBe("cancelled");
+    expect(usage?.state).toBe("settled");
+    expect(rounds.length).toBeGreaterThan(0);
+  });
+
 });

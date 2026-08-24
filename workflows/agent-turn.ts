@@ -260,6 +260,14 @@ async function openApprovalRequests(
   const expiresAt = new Date(Date.now() + windowMs);
 
   await runAsBackgroundTenant(payload.userId, async () => {
+    await repo.holdAgentRunForSuspensionUnscoped({
+      turnRequestId: payload.turnRequestId,
+      companyId: payload.companyId,
+      userId: payload.userId,
+      runId: payload.runId,
+      until: expiresAt,
+    });
+
     for (const request of requests) {
       await repo.createPendingApprovalRequestOrThrowUnscoped({
         conversationId: payload.conversationId,
@@ -394,6 +402,13 @@ async function readApprovalDecisions(
   const repo = getAgentChatRepo();
 
   return runAsBackgroundTenant(payload.userId, async () => {
+    await repo.resumeAgentRunFromSuspensionUnscoped({
+      turnRequestId: payload.turnRequestId,
+      companyId: payload.companyId,
+      userId: payload.userId,
+      runId: payload.runId,
+    });
+
     const outcomes: AgentApprovalOutcome[] = [];
 
     for (const request of requests) {

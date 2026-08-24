@@ -159,6 +159,7 @@ export class AgentChatStore extends BaseStore {
       conversationId: observable,
       models: observable,
       selectedModelKey: observable,
+      isModelSelectable: computed,
       selectModel: action,
       conversations: observable,
       archivedConversations: observable,

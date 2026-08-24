@@ -8,9 +8,10 @@ import { type Data, type Validated } from "@/core/validation/validation.utils";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
+import { agentUiCommandHookToken } from "./agent-ui-command";
 import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { wakeAgentUiCommand } from "./agent-run-wake";
+import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 
 export const RespondToUiCommandSchema = z.object({
   conversationId: z.uuid(),
@@ -30,6 +31,7 @@ export class RespondToUiCommandInteractor extends AuthenticatedInteractor<Respon
   constructor(
     private repo: PrismaAgentChatRepo,
     private entitlements: EntitlementService,
+    private backgroundTaskService: BackgroundTaskService,
   ) {
     super();
   }
@@ -43,7 +45,9 @@ export class RespondToUiCommandInteractor extends AuthenticatedInteractor<Respon
     if (!conversation) return createInteractorFailure(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
     await this.repo.recordUiCommandResult(data);
-    await wakeAgentUiCommand(data.conversationId, data.commandId);
+    await this.backgroundTaskService.resume(agentUiCommandHookToken(data.conversationId), {
+      commandId: data.commandId,
+    });
 
     return { ok: true as const, data: { resolved: true } };
   }
