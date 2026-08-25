@@ -1,9 +1,11 @@
-import type { AgentModelEntry } from "./model-catalog";
+import type { AgentModelEntry, AgentModelProviderOptions } from "./model-catalog";
 
 import {
   AGENT_CONTEXT_BYTES_PER_TOKEN,
   AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS,
+  applyAgentModelSpeed,
   isAgentModelWithinBudgetEnvelope,
+  resolveAgentModelSpeed,
 } from "./model-catalog";
 import { resolveModelPricing } from "./model-pricing";
 
@@ -26,6 +28,8 @@ export type AgentTurnBudget = {
   maxContextTokens: number;
   maxContextBytes: number;
   maxToolResultChars: number;
+  speedKey: string | null;
+  providerOptions: AgentModelProviderOptions;
 };
 
 export function agentContextBytesToTokens(bytes: number) {
@@ -64,8 +68,10 @@ export function resolveAgentTurnBudget(args: {
   model: AgentModelEntry;
   availableCredits: number;
   requiredContextBytes?: number;
+  speedKey?: string | null;
 }): AgentTurnBudget | null {
-  const entry = args.model;
+  const speed = resolveAgentModelSpeed(args.model, args.speedKey);
+  const entry = applyAgentModelSpeed(args.model, speed);
   if (!Number.isSafeInteger(args.availableCredits) || args.availableCredits < 1) return null;
   if (!isAgentModelWithinBudgetEnvelope(entry)) return null;
 
@@ -86,6 +92,8 @@ export function resolveAgentTurnBudget(args: {
     maxContextTokens: entry.maxContextTokens,
     maxContextBytes: agentContextTokensToBytes(entry.maxContextTokens),
     maxToolResultChars: Math.min(entry.maxToolResultChars, AGENT_MAX_TOOL_RESULT_CHARS),
+    speedKey: speed?.key ?? null,
+    providerOptions: speed?.providerOptions ?? {},
   };
 }
 

@@ -8,10 +8,13 @@ const SNAPSHOT_PATH = join(process.cwd(), "ee/agent-chat/model-pricing.snapshot.
 const PINNED = [
   { modelId: "openai/gpt-5.6-luna", providerNativeModelId: "gpt-5.6-luna", provider: "openai" },
   { modelId: "openai/gpt-5-nano", providerNativeModelId: "gpt-5-nano", provider: "openai" },
+  { modelId: "anthropic/claude-opus-5", providerNativeModelId: "claude-opus-5", provider: "anthropic" },
 ];
 
 type CatalogTier = { cost: string; min?: number; max?: number };
 type CatalogPricing = Record<string, string | CatalogTier[] | unknown>;
+
+const UNBILLED_WHEN_ABSENT = new Set(["input_cache_write"]);
 
 function tiers(pricing: CatalogPricing, baseKey: string, tierKey: string) {
   const tiered = pricing[tierKey];
@@ -24,9 +27,10 @@ function tiers(pricing: CatalogPricing, baseKey: string, tierKey: string) {
     }));
 
   const base = pricing[baseKey];
-  if (typeof base !== "string") throw new Error(`Model is unpriceable: missing ${baseKey}`);
+  if (typeof base === "string") return [{ costUsdPerToken: base }];
+  if (UNBILLED_WHEN_ABSENT.has(baseKey)) return [{ costUsdPerToken: "0" }];
 
-  return [{ costUsdPerToken: base }];
+  throw new Error(`Model is unpriceable: missing ${baseKey}`);
 }
 
 async function main() {

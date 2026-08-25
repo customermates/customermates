@@ -108,6 +108,9 @@ export class AgentChatStore extends BaseStore {
   isExpanded = false;
   enabled: boolean | null = null;
   usage: AgentUsageSummary | null = null;
+  models: { key: string; costBand: number; isDefault: boolean; speeds: string[]; defaultSpeed: string | null }[] = [];
+  selectedModelKey: string | null = null;
+  selectedSpeedKey: string | null = null;
   counts: AgentDataCounts | null = null;
   conversationId: string | null = null;
   conversations: AgentConversationSummary[] = [];
@@ -153,6 +156,14 @@ export class AgentChatStore extends BaseStore {
       isExpanded: observable,
       enabled: observable,
       usage: observable.ref,
+      models: observable,
+      selectedModelKey: observable,
+      selectedSpeedKey: observable,
+      isModelSelectable: computed,
+      availableSpeedKeys: computed,
+      activeSpeedKey: computed,
+      selectModel: action,
+      selectSpeed: action,
       counts: observable.ref,
       conversationId: observable,
       conversations: observable,
@@ -515,6 +526,34 @@ export class AgentChatStore extends BaseStore {
     }
   }
 
+  selectModel = (key: string) => {
+    this.selectedModelKey = key;
+    if (!this.availableSpeedKeys.includes(this.selectedSpeedKey ?? "")) this.selectedSpeedKey = null;
+  };
+
+  selectSpeed = (key: string) => {
+    this.selectedSpeedKey = key;
+  };
+
+  get isModelSelectable() {
+    return this.models.length > 1 && this.conversationId === null;
+  }
+
+  get availableSpeedKeys() {
+    return this.activeModel?.speeds ?? [];
+  }
+
+  get activeSpeedKey() {
+    const speeds = this.availableSpeedKeys;
+    if (speeds.includes(this.selectedSpeedKey ?? "")) return this.selectedSpeedKey;
+    return this.activeModel?.defaultSpeed ?? speeds[0] ?? null;
+  }
+
+  private get activeModel() {
+    const active = this.selectedModelKey ?? this.models.find((model) => model.isDefault)?.key;
+    return this.models.find((model) => model.key === active) ?? null;
+  }
+
   interrupt = () => {
     const activeController = this.abortController;
     const conversationId = this.conversationId;
@@ -597,6 +636,9 @@ export class AgentChatStore extends BaseStore {
         }));
         this.enabled = true;
         this.usage = config.usage;
+        this.models = config.models ?? [];
+        if (this.selectedModelKey === null)
+          this.selectedModelKey = this.models.find((model) => model.isDefault)?.key ?? null;
         this.counts = config.counts;
         if (preserveExactHistory) {
           const activeById = new Map(conversations.map((conversation) => [conversation.id, conversation]));
@@ -870,6 +912,8 @@ export class AgentChatStore extends BaseStore {
           text: trimmed,
           pageContext: { route: pageRoute },
           locale: appLocaleOrDefault(this.rootStore.localeStore.locale),
+          modelKey: conversationId ? undefined : (this.selectedModelKey ?? undefined),
+          speedKey: this.selectedSpeedKey ?? undefined,
           retry: Boolean(options.retry),
         }),
         signal: controller.signal,

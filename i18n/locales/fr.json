@@ -311,7 +311,6 @@
       "remaining": "{remaining, number} crédits restants sur {limit, number}",
       "resetShort": "Réinitialisation le {resetAt}",
       "usage": "{pct} % des crédits IA hébergés mensuels utilisés",
-      "usedPercent": "{pct} % utilisés",
       "viewPlans": "Voir les formules"
     },
     "demoUnavailable": "L’assistant n’est pas disponible dans la démo.",
@@ -326,6 +325,24 @@
       "subtitle": "Posez-moi toutes vos questions sur votre espace de travail, ou dites-moi quoi faire et je m'en occupe.",
       "support": "Si quelque chose ne fonctionne pas, je peux envoyer la conversation récente à notre équipe par e-mail, qui vous répondra par e-mail."
     },
+    "modelPicker": {
+      "costBand": "{band}x crédits",
+      "label": "Modèle"
+    },
+    "models": {
+      "balanced": {
+        "description": "Gère le travail en plusieurs étapes et les tâches longues. Par défaut.",
+        "name": "Équilibré"
+      },
+      "expert": {
+        "description": "Le raisonnement le plus poussé, pour le travail difficile. Le plus coûteux.",
+        "name": "Expert"
+      },
+      "fast": {
+        "description": "Réponses courtes aux questions simples, pour le moins de crédits.",
+        "name": "Rapide"
+      }
+    },
     "placeholder": "Interrogez votre CRM…",
     "runner": {
       "cancelled": "Cette réponse a été arrêtée.",
@@ -336,6 +353,14 @@
       "turnError": "Je n'ai pas pu traiter cette demande. Veuillez réessayer."
     },
     "send": "Envoyer",
+    "speedPicker": {
+      "label": "Vitesse"
+    },
+    "speeds": {
+      "high": "Élevée",
+      "low": "Faible",
+      "standard": "Standard"
+    },
     "stop": "Arrêter",
     "suggestions": {
       "pages": {

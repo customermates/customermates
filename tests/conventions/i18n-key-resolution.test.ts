@@ -297,6 +297,11 @@ const LEGAL_DOCUMENT_KEYS = ALL_LEGAL_DOCUMENTS.map(
 const AGENT_APPROVAL_RESOLUTION_KEYS = ["approve", "reject", "timeout"].map(
   (resolution) => `AgentChat.approval.${resolution}`,
 );
+const AGENT_MODEL_KEYS = ["balanced", "expert", "fast"] as const;
+const AGENT_MODEL_NAME_KEYS = AGENT_MODEL_KEYS.map((key) => `AgentChat.models.${key}.name`);
+const AGENT_MODEL_DESCRIPTION_KEYS = AGENT_MODEL_KEYS.map((key) => `AgentChat.models.${key}.description`);
+const AGENT_SPEED_LABEL_KEYS = ["high", "low", "standard"].map((key) => `AgentChat.speeds.${key}`);
+
 const AGENT_ACTIVITY_RESOURCE_KEYS = [
   "AgentChat.activity.resource.contacts",
   "AgentChat.activity.resource.deals",
@@ -399,6 +404,9 @@ const AGENT_CREDIT_BLOCKED_KEYS = [
 
 
 const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
+  ["AgentChat.models.${*}.description", AGENT_MODEL_DESCRIPTION_KEYS],
+  ["AgentChat.models.${*}.name", AGENT_MODEL_NAME_KEYS],
+  ["AgentChat.speeds.${*}", AGENT_SPEED_LABEL_KEYS],
   ["AuditLogModal.fields.${*}", AUDIT_FIELD_KEYS],
   ["AuthSocialErrors.${*}", AUTH_SOCIAL_ERROR_KEYS],
   ["Common.colors.${*}", COLOR_KEYS],
@@ -556,6 +564,11 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.${card.titleKey}.tag",
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.${card.titleKey}.title",
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.compare.${key}",
+  "app/components/agent-chat/agent-chat.tsx :: t :: AgentChat.models.${activeModelKey}.name",
+  "app/components/agent-chat/agent-chat.tsx :: t :: AgentChat.models.${model.key}.description",
+  "app/components/agent-chat/agent-chat.tsx :: t :: AgentChat.models.${model.key}.name",
+  "app/components/agent-chat/agent-chat.tsx :: t :: AgentChat.speeds.${activeSpeedKey}",
+  "app/components/agent-chat/agent-chat.tsx :: t :: AgentChat.speeds.${speed}",
   "app/components/agent-chat/agent-chat.tsx :: t :: AgentChat.approval.${item.resolution}",
   "app/components/agent-chat/agent-chat.tsx :: t :: AgentChat.credits.blocked.${reason}",
   "app/components/agent-chat/agent-chat.tsx :: t :: Subscription.planNames.${usage.plan}",

@@ -1,6 +1,6 @@
 export const MODEL_PRICING_SNAPSHOT = {
   source: "https://ai-gateway.vercel.sh/v1/models/{model}/endpoints",
-  fetchedAt: "2026-08-23T17:11:30Z",
+  fetchedAt: "2026-08-25T08:01:08Z",
   endpoints: [
     {
       modelId: "openai/gpt-5.6-luna",
@@ -80,6 +80,35 @@ export const MODEL_PRICING_SNAPSHOT = {
       inputCacheWrite: [
         {
           costUsdPerToken: "0",
+        },
+      ],
+    },
+    {
+      modelId: "anthropic/claude-opus-5",
+      providerNativeModelId: "claude-opus-5",
+      provider: "anthropic",
+      contextLength: 1000000,
+      maxCompletionTokens: 128000,
+      requestUsd: "0",
+      webSearchUsdPerThousandCalls: "0",
+      prompt: [
+        {
+          costUsdPerToken: "0.000005",
+        },
+      ],
+      completion: [
+        {
+          costUsdPerToken: "0.000025",
+        },
+      ],
+      inputCacheRead: [
+        {
+          costUsdPerToken: "0.0000005",
+        },
+      ],
+      inputCacheWrite: [
+        {
+          costUsdPerToken: "0.00000625",
         },
       ],
     },

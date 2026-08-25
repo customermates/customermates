@@ -182,7 +182,7 @@ export class AgentUsageService {
   async prepareTurn(
     userId: string,
     now: Date,
-    options: { model: AgentModelEntry; requiredContextBytes?: number },
+    options: { model: AgentModelEntry; requiredContextBytes?: number; speedKey?: string | null },
   ): Promise<{
     summary: AgentUsageSummary;
     reservation: AgentTurnCreditReservation | null;
@@ -203,6 +203,7 @@ export class AgentUsageService {
       model: options.model,
       availableCredits: state.summary.creditsRemaining,
       requiredContextBytes: options.requiredContextBytes,
+      speedKey: options.speedKey,
     });
     if (!budget) {
       return {

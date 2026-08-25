@@ -1,9 +1,19 @@
+import type { JSONValue } from "@ai-sdk/provider";
+
 import { env } from "@/env";
 
 import { lowestModelPromptTierBoundary, resolveModelPricing } from "./model-pricing";
 
 export const AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS = 2_500;
 export const AGENT_CONTEXT_BYTES_PER_TOKEN = 3;
+
+export type AgentModelProviderOptions = Record<string, Record<string, JSONValue>>;
+
+export type AgentModelSpeed = {
+  key: string;
+  maxOutputTokens: number;
+  providerOptions: AgentModelProviderOptions;
+};
 
 export type AgentModelEntry = {
   modelId: string;
@@ -12,6 +22,7 @@ export type AgentModelEntry = {
   maxOutputTokens: number;
   maxContextTokens: number;
   maxToolResultChars: number;
+  speeds?: readonly AgentModelSpeed[];
 };
 
 export const MODEL_CATALOG = {
@@ -22,12 +33,30 @@ export const MODEL_CATALOG = {
     maxOutputTokens: 8192,
     maxContextTokens: 66_000,
     maxToolResultChars: 6000,
+    speeds: [
+      { key: "low", maxOutputTokens: 4096, providerOptions: { openai: { reasoningEffort: "minimal" } } },
+      { key: "standard", maxOutputTokens: 8192, providerOptions: {} },
+      { key: "high", maxOutputTokens: 16_384, providerOptions: { openai: { reasoningEffort: "high" } } },
+    ],
   },
   balanced: {
     modelId: "openai/gpt-5.6-luna",
     servingProvider: "openai",
     maxSteps: 20,
     maxOutputTokens: 2048,
+    maxContextTokens: 66_000,
+    maxToolResultChars: 6000,
+    speeds: [
+      { key: "low", maxOutputTokens: 2048, providerOptions: { openai: { reasoningEffort: "none" } } },
+      { key: "standard", maxOutputTokens: 2048, providerOptions: {} },
+      { key: "high", maxOutputTokens: 16_384, providerOptions: { openai: { reasoningEffort: "high" } } },
+    ],
+  },
+  expert: {
+    modelId: "anthropic/claude-opus-5",
+    servingProvider: "anthropic",
+    maxSteps: 20,
+    maxOutputTokens: 4096,
     maxContextTokens: 66_000,
     maxToolResultChars: 6000,
   },
@@ -106,6 +135,56 @@ export function resolveAgentModel(key?: string | null): AgentModelEntry {
   return MODEL_CATALOG[key];
 }
 
+export const AGENT_SPEED_KEYS = ["low", "standard", "high"] as const;
+
+export type AgentSpeedKey = (typeof AGENT_SPEED_KEYS)[number];
+
+export const DEFAULT_AGENT_SPEED_KEY: AgentSpeedKey = "standard";
+
+export function agentModelSpeedKeys(entry: AgentModelEntry): AgentSpeedKey[] {
+  return (entry.speeds ?? []).map((speed) => speed.key as AgentSpeedKey);
+}
+
+export function resolveAgentModelSpeed(entry: AgentModelEntry, key?: string | null): AgentModelSpeed | null {
+  const speeds = entry.speeds ?? [];
+  if (speeds.length === 0) return null;
+
+  return (
+    speeds.find((speed) => speed.key === key) ??
+    speeds.find((speed) => speed.key === DEFAULT_AGENT_SPEED_KEY) ??
+    speeds[0]
+  );
+}
+
+export function applyAgentModelSpeed(entry: AgentModelEntry, speed: AgentModelSpeed | null): AgentModelEntry {
+  if (!speed) return entry;
+
+  return { ...entry, maxOutputTokens: speed.maxOutputTokens };
+}
+
 export function agentModelKeyOfSpec(modelSpec: string): AgentModelKey | null {
   return CATALOG_KEYS.find((key) => MODEL_CATALOG[key].modelId === modelSpec) ?? null;
+}
+
+export type AgentModelOption = {
+  key: AgentModelKey;
+  costBand: number;
+  isDefault: boolean;
+  speeds: AgentSpeedKey[];
+  defaultSpeed: AgentSpeedKey | null;
+};
+
+export function agentModelOptions(costOf: (entry: AgentModelEntry) => number): AgentModelOption[] {
+  const keys = agentModelKeys();
+  const costs = keys.map((key) => costOf(MODEL_CATALOG[key]));
+  const cheapest = Math.min(...costs);
+  const fallback = defaultAgentModelKey();
+
+  return keys.map((key, index) => ({
+    key,
+    costBand: Math.max(1, Math.round(costs[index] / cheapest)),
+    isDefault: key === fallback,
+    speeds: agentModelSpeedKeys(MODEL_CATALOG[key]),
+    defaultSpeed: (resolveAgentModelSpeed(MODEL_CATALOG[key], DEFAULT_AGENT_SPEED_KEY)?.key as AgentSpeedKey) ?? null,
+  }));
 }

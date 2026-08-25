@@ -12,9 +12,19 @@ import { AgentUsageSummarySchema } from "./agent-usage.service";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 
 import { AgentConversationSummarySchema, AgentDataCountsSchema } from "./agent-chat.schema";
-import { resolveAgentModel } from "./model-catalog";
+import { agentModelOptions, resolveAgentModel } from "./model-catalog";
+import { agentRoundWorstCaseCredits } from "./agent-budget-policy";
+
+const AgentModelOptionSchema = z.object({
+  key: z.string(),
+  costBand: z.number().int().positive(),
+  isDefault: z.boolean(),
+  speeds: z.array(z.string()),
+  defaultSpeed: z.string().nullable(),
+});
 
 const OutputSchema = z.object({
+  models: z.array(AgentModelOptionSchema),
   usage: AgentUsageSummarySchema,
   counts: AgentDataCountsSchema,
   conversationId: z.string().nullable(),
@@ -60,6 +70,7 @@ export class GetAgentConfigInteractor extends AuthenticatedInteractor<void, Agen
       data: {
         usage,
         counts,
+        models: agentModelOptions(agentRoundWorstCaseCredits),
         conversationId: conversation?.id ?? null,
         conversations: conversationPage.conversations,
         archivedConversations: archivedConversationPage.conversations,
