@@ -4,7 +4,7 @@ import type { GlobalSearchResultItem } from "@/features/search/global-search.int
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { Briefcase, Building2, CornerDownLeft, Loader2, Package, Users } from "lucide-react";
+import { Briefcase, Building2, CornerDownLeft, Loader2, Package, Search, Users } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo } from "react";
@@ -127,13 +127,25 @@ export const GlobalSearchModal = observer(() => {
         {showNoResults && <CommandEmpty>{t("GlobalSearch.noResults")}</CommandEmpty>}
 
         {!hasQuery && recentItems.length === 0 && (
-          <CommandEmpty>
-            {t("GlobalSearch.emptyPrompt", {
-              contacts: plural(EntityType.contact),
-              deals: plural(EntityType.deal),
-              organizations: plural(EntityType.organization),
-              services: plural(EntityType.service),
-            })}
+          <CommandEmpty className="px-8 py-12">
+            <div className="mx-auto flex max-w-sm flex-col items-center gap-4 text-center">
+              <div className="flex size-12 items-center justify-center rounded-xl border border-border bg-muted text-muted-foreground">
+                <Search aria-hidden className="size-5" />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <p className="text-sm font-medium text-foreground">{t("GlobalSearch.emptyTitle")}</p>
+
+                <p className="text-sm leading-6 text-muted-foreground">
+                  {t("GlobalSearch.emptyDescription", {
+                    contacts: plural(EntityType.contact),
+                    deals: plural(EntityType.deal),
+                    organizations: plural(EntityType.organization),
+                    services: plural(EntityType.service),
+                  })}
+                </p>
+              </div>
+            </div>
           </CommandEmpty>
         )}
 

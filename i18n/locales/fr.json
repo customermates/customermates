@@ -1259,7 +1259,8 @@
   },
   "GlobalSearch": {
     "clearRecent": "Effacer",
-    "emptyPrompt": "Commencez à saisir pour rechercher dans : {contacts}, {organizations}, {deals} et {services}.",
+    "emptyDescription": "Recherchez {contacts}, {organizations}, {deals} et {services} au même endroit.",
+    "emptyTitle": "Trouvez tout dans votre espace de travail",
     "groupRecent": "Ouverts récemment",
     "hintNavigate": "Naviguer",
     "hintOpen": "Ouvrir",
