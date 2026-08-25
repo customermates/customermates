@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 const REPO_ROOT = process.cwd();
 
 describe("public navigation preferences", () => {
-  it("renders language and theme controls in desktop and mobile navigation, but not the footer", () => {
+  it("keeps the dropdown selector in the navbar and a crawlable locale link in the footer", () => {
     const navbar = readFileSync(join(REPO_ROOT, "app/components/public-navbar.tsx"), "utf8");
     const footer = readFileSync(join(REPO_ROOT, "app/components/footer-content.tsx"), "utf8");
 
@@ -18,8 +18,17 @@ describe("public navigation preferences", () => {
     expect(navbar).toContain('className="my-1 py-3"');
     expect(navbar).not.toContain("border-y");
     expect(navbar).not.toContain("github.com/customermates/customermates");
-    expect(footer).not.toContain("LanguageSelector");
-    expect(footer).not.toContain("ThemeSwitcher");
+    // CUS-202 moved these controls into the navbar and stripped the footer duplicates. The footer
+    // then carried no anchor between the locale trees at all, and /de sat at "Crawled - currently
+    // not indexed". LanguageSelector is a Radix dropdown whose content is portalled, so it renders
+    // zero anchors server-side: reusing it here would look correct and silently restore that bug.
+    // The footer therefore gets a plain link per locale, and the navbar keeps the dropdown.
+    expect(footer, "the portalled dropdown renders no crawlable anchor").not.toContain("LanguageSelector");
+    expect(footer, "the theme control is shared with the navbar").toContain("ThemeSwitcher");
+    expect(footer, "each locale needs a real anchor, not a button").toContain("hrefLang={locale}");
+    expect(footer, "the anchor must resolve to this page in the other locale").toContain(
+      "buildLocalePath(locale, pathname)",
+    );
   });
 
   it("shows the locale code with navbar typography and reuses the complete profile country option", () => {
