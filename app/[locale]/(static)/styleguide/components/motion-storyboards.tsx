@@ -15,6 +15,8 @@ import {
   type AuthoredStoryboardBox,
 } from "@/components/marketing/visuals/story-visual-layout";
 import { UNIFIED_INBOX_KEYFRAME_STATES, UnifiedInboxArtwork } from "@/components/marketing/visuals/unified-inbox-film";
+import type { ContentLocale } from "@/i18n/locale-registry";
+import { MOTION_STORYBOARD_PRESENTATION_COPY } from "./motion-storyboards.copy";
 import {
   MOTION_CONTRACT,
   MOTION_STORYBOARD_APPROVALS,
@@ -29,12 +31,6 @@ import {
 
 import { MarketingSection } from "@/components/marketing/marketing-section";
 import { cn } from "@/core/utils/cn";
-
-const FRAME_LABELS: Record<MotionFramePhase, string> = {
-  focal: "Focal",
-  opening: "Opening",
-  resolved: "Resolved",
-};
 
 const MOTION_PRINCIPLES = [
   {
@@ -59,27 +55,35 @@ const STATUS_TOKEN_CLASSES: Record<DashboardStatus, string> = {
   "deal-won": "bg-success ring-success/15",
 };
 
-const DASHBOARD_CURRENCY_FORMATTER = new Intl.NumberFormat("en-US", {
-  currency: "EUR",
-  maximumFractionDigits: 0,
-  style: "currency",
-});
+const DASHBOARD_CURRENCY_FORMATTERS: Record<ContentLocale, Intl.NumberFormat> = {
+  de: new Intl.NumberFormat("de-DE", {
+    currency: "EUR",
+    maximumFractionDigits: 0,
+    style: "currency",
+  }),
+  en: new Intl.NumberFormat("en-US", {
+    currency: "EUR",
+    maximumFractionDigits: 0,
+    style: "currency",
+  }),
+};
 
 type StoryboardFrameProps = {
   artworkClassName?: string;
   children: ReactNode;
   index: number;
+  locale: ContentLocale;
   phase: MotionFramePhase;
   state: string;
 };
 
-function StoryboardFrame({ artworkClassName, children, index, phase, state }: StoryboardFrameProps) {
+function StoryboardFrame({ artworkClassName, children, index, locale, phase, state }: StoryboardFrameProps) {
   return (
     <div className="min-w-0">
       <div className="mb-3 flex items-baseline justify-between gap-4 border-t border-border-strong pt-3">
         <code className="font-mono text-xs text-primary">{String(index + 1).padStart(2, "0")}</code>
 
-        <span className="text-meta">{FRAME_LABELS[phase]}</span>
+        <span className="text-meta">{MOTION_STORYBOARD_PRESENTATION_COPY[locale].frameLabels[phase]}</span>
       </div>
 
       <div
@@ -111,17 +115,39 @@ function authoredBoxStyle(box: AuthoredStoryboardBox): CSSProperties {
   };
 }
 
-function InboxFrame({ phase, storyboard }: { phase: MotionFramePhase; storyboard: InboxStoryboard }) {
+function InboxFrame({
+  locale,
+  phase,
+  storyboard,
+}: {
+  locale: ContentLocale;
+  phase: MotionFramePhase;
+  storyboard: InboxStoryboard;
+}) {
   const state = UNIFIED_INBOX_KEYFRAME_STATES[phase];
 
   return (
     <div className="@container/inbox size-full">
       <div className="size-full @sm/inbox:hidden">
-        <UnifiedInboxArtwork brief={storyboard} phase={phase} placement="narrow" scale="preview" state={state} />
+        <UnifiedInboxArtwork
+          brief={storyboard}
+          locale={locale}
+          phase={phase}
+          placement="narrow"
+          scale="preview"
+          state={state}
+        />
       </div>
 
       <div className="hidden size-full @sm/inbox:block">
-        <UnifiedInboxArtwork brief={storyboard} phase={phase} placement="wide" scale="preview" state={state} />
+        <UnifiedInboxArtwork
+          brief={storyboard}
+          locale={locale}
+          phase={phase}
+          placement="wide"
+          scale="preview"
+          state={state}
+        />
       </div>
     </div>
   );
@@ -182,15 +208,18 @@ function PipelineConnector({ phase, placement }: { phase: MotionFramePhase; plac
 }
 
 function PipelineInstruction({
+  locale,
   phase,
   placement,
   storyboard,
 }: {
+  locale: ContentLocale;
   phase: MotionFramePhase;
   placement: PipelinePlacement;
   storyboard: PipelineStoryboard;
 }) {
   const activity = phase === "opening" ? "thinking" : phase === "focal" ? "updating" : "resolved";
+  const copy = MOTION_STORYBOARD_PRESENTATION_COPY[locale].pipeline;
 
   return (
     <div
@@ -207,12 +236,10 @@ function PipelineInstruction({
         provider={storyboard.agentProvider}
       />
 
-      <span className="min-w-0 flex-1 truncate text-[10px] leading-tight font-medium text-foreground">
-        {storyboard.instruction}
-      </span>
+      <span className="min-w-0 flex-1 text-[10px] leading-tight font-medium text-foreground">{copy.instruction}</span>
 
       <span
-        aria-label={activity}
+        aria-label={copy.activity[activity]}
         className={cn(
           "flex h-5 min-w-5 shrink-0 items-center justify-center gap-0.5 rounded-full",
           phase === "focal" ? "bg-primary/12 text-primary" : "bg-foreground/5 text-muted-foreground",
@@ -268,10 +295,12 @@ function PipelineStatusStop({
 }
 
 function PipelineRecord({
+  locale,
   phase,
   placement,
   storyboard,
 }: {
+  locale: ContentLocale;
   phase: MotionFramePhase;
   placement: PipelinePlacement;
   storyboard: PipelineStoryboard;
@@ -309,7 +338,7 @@ function PipelineRecord({
       {placement === "wide" ? (
         <div className="mt-auto min-w-0 border-t border-border pt-1.5">
           <span className="mb-1 block text-[8px] leading-none tracking-wide text-muted-foreground uppercase">
-            Assigned user
+            {MOTION_STORYBOARD_PRESENTATION_COPY[locale].pipeline.assignedUser}
           </span>
 
           <PersonIdentity person={storyboard.assignedUser} size={20} />
@@ -320,10 +349,12 @@ function PipelineRecord({
 }
 
 function PipelineComposition({
+  locale,
   phase,
   placement,
   storyboard,
 }: {
+  locale: ContentLocale;
   phase: MotionFramePhase;
   placement: PipelinePlacement;
   storyboard: PipelineStoryboard;
@@ -340,39 +371,56 @@ function PipelineComposition({
 
       <PipelineConnector phase={phase} placement={placement} />
 
-      <PipelineInstruction phase={phase} placement={placement} storyboard={storyboard} />
+      <PipelineInstruction locale={locale} phase={phase} placement={placement} storyboard={storyboard} />
 
       <PipelineStatusStop phase={phase} placement={placement} status={storyboard.statusChange.from} stop="origin" />
 
       <PipelineStatusStop phase={phase} placement={placement} status={storyboard.statusChange.to} stop="destination" />
 
-      <PipelineRecord phase={phase} placement={placement} storyboard={storyboard} />
+      <PipelineRecord locale={locale} phase={phase} placement={placement} storyboard={storyboard} />
     </div>
   );
 }
 
-function PipelineFrame({ phase, storyboard }: { phase: MotionFramePhase; storyboard: PipelineStoryboard }) {
+function PipelineFrame({
+  locale,
+  phase,
+  storyboard,
+}: {
+  locale: ContentLocale;
+  phase: MotionFramePhase;
+  storyboard: PipelineStoryboard;
+}) {
   return (
     <div className="@container/pipeline size-full">
       <div className="size-full @sm/pipeline:hidden">
-        <PipelineComposition phase={phase} placement="narrow" storyboard={storyboard} />
+        <PipelineComposition locale={locale} phase={phase} placement="narrow" storyboard={storyboard} />
       </div>
 
       <div className="hidden size-full @sm/pipeline:block">
-        <PipelineComposition phase={phase} placement="wide" storyboard={storyboard} />
+        <PipelineComposition locale={locale} phase={phase} placement="wide" storyboard={storyboard} />
       </div>
     </div>
   );
 }
 
-function DashboardCard({ phase, storyboard }: { phase: MotionFramePhase; storyboard: DashboardStoryboard }) {
+function DashboardCard({
+  locale,
+  phase,
+  storyboard,
+}: {
+  locale: ContentLocale;
+  phase: MotionFramePhase;
+  storyboard: DashboardStoryboard;
+}) {
   const hasSelection = phase !== "opening";
   const selectedSegment = storyboard.segments.find(({ status }) => status === storyboard.selectedSegment);
 
   if (!selectedSegment) throw new Error("Dashboard insight requires its selected fixture-backed Status group");
 
-  const selectedTotalValue = DASHBOARD_CURRENCY_FORMATTER.format(selectedSegment.totalValue);
-  const selectionLabel = `${selectedSegment.count} deals · ${selectedTotalValue} total value`;
+  const copy = MOTION_STORYBOARD_PRESENTATION_COPY[locale].dashboard;
+  const selectedTotalValue = DASHBOARD_CURRENCY_FORMATTERS[locale].format(selectedSegment.totalValue);
+  const selectionLabel = `${selectedSegment.count} ${copy.deals} · ${selectedTotalValue} ${copy.totalValue}`;
 
   return (
     <div
@@ -383,9 +431,9 @@ function DashboardCard({ phase, storyboard }: { phase: MotionFramePhase; storybo
       data-dashboard-value-disclosure={storyboard.valueDisclosure}
     >
       <div className="flex items-center justify-between gap-3">
-        <span className="text-xs font-medium">{storyboard.widget}</span>
+        <span className="text-xs font-medium">{copy.widget}</span>
 
-        <span className="text-xs tracking-wide text-muted-foreground uppercase">Status</span>
+        <span className="text-xs tracking-wide text-muted-foreground uppercase">{copy.status}</span>
       </div>
 
       <div className="mt-4 space-y-2.5">
@@ -446,9 +494,9 @@ function DashboardCard({ phase, storyboard }: { phase: MotionFramePhase; storybo
             data-dashboard-callout={selectionLabel}
             data-dashboard-total-value={selectedSegment.totalValue}
           >
-            <span className="text-muted-foreground">{selectedSegment.count} deals</span>
+            <span className="text-muted-foreground">{`${selectedSegment.count} ${copy.deals}`}</span>
 
-            <span className="font-medium">{selectedTotalValue} total</span>
+            <span className="font-medium">{`${selectedTotalValue} ${copy.total}`}</span>
           </div>
         ) : (
           <span aria-hidden="true" className="block h-4" />
@@ -458,23 +506,40 @@ function DashboardCard({ phase, storyboard }: { phase: MotionFramePhase; storybo
   );
 }
 
-function DashboardFrame({ phase, storyboard }: { phase: MotionFramePhase; storyboard: DashboardStoryboard }) {
+function DashboardFrame({
+  locale,
+  phase,
+  storyboard,
+}: {
+  locale: ContentLocale;
+  phase: MotionFramePhase;
+  storyboard: DashboardStoryboard;
+}) {
   return (
     <div className="mx-auto w-full max-w-md px-1">
-      <DashboardCard phase={phase} storyboard={storyboard} />
+      <DashboardCard locale={locale} phase={phase} storyboard={storyboard} />
     </div>
   );
 }
 
-function FrameArtwork({ phase, storyboard }: { phase: MotionFramePhase; storyboard: MotionStoryboard }) {
-  if (storyboard.kind === "inbox") return <InboxFrame phase={phase} storyboard={storyboard} />;
-  if (storyboard.kind === "pipeline") return <PipelineFrame phase={phase} storyboard={storyboard} />;
-  return <DashboardFrame phase={phase} storyboard={storyboard} />;
+function FrameArtwork({
+  locale,
+  phase,
+  storyboard,
+}: {
+  locale: ContentLocale;
+  phase: MotionFramePhase;
+  storyboard: MotionStoryboard;
+}) {
+  if (storyboard.kind === "inbox") return <InboxFrame locale={locale} phase={phase} storyboard={storyboard} />;
+  if (storyboard.kind === "pipeline") return <PipelineFrame locale={locale} phase={phase} storyboard={storyboard} />;
+  return <DashboardFrame locale={locale} phase={phase} storyboard={storyboard} />;
 }
 
-function StoryboardSection({ storyboard }: { storyboard: MotionStoryboard }) {
+function StoryboardSection({ locale, storyboard }: { locale: ContentLocale; storyboard: MotionStoryboard }) {
   const journey = storyboard.journeys[0];
   const approval = MOTION_STORYBOARD_APPROVALS[storyboard.id];
+  const localizedStates = MOTION_STORYBOARD_PRESENTATION_COPY[locale].frameStates[storyboard.id];
 
   return (
     <MarketingSection description={storyboard.description} id={storyboard.id} title={storyboard.title}>
@@ -502,10 +567,11 @@ function StoryboardSection({ storyboard }: { storyboard: MotionStoryboard }) {
               storyboard.kind === "dashboard" ? "sm:aspect-video lg:aspect-[4/3]" : "aspect-[3/4] p-0 sm:aspect-[4/3]"
             }
             index={index}
+            locale={locale}
             phase={frame.phase}
-            state={frame.state}
+            state={localizedStates?.[frame.phase] ?? frame.state}
           >
-            <FrameArtwork phase={frame.phase} storyboard={storyboard} />
+            <FrameArtwork locale={locale} phase={frame.phase} storyboard={storyboard} />
           </StoryboardFrame>
         ))}
       </div>
@@ -560,7 +626,7 @@ function StoryboardSection({ storyboard }: { storyboard: MotionStoryboard }) {
   );
 }
 
-export function MotionStoryboards() {
+export function MotionStoryboards({ locale = "en" }: { locale?: ContentLocale }) {
   return (
     <>
       <MarketingSection
@@ -581,11 +647,11 @@ export function MotionStoryboards() {
         </div>
       </MarketingSection>
 
-      <StoryboardSection storyboard={MOTION_STORYBOARDS[0]} />
+      <StoryboardSection locale={locale} storyboard={MOTION_STORYBOARDS[0]} />
 
-      <StoryboardSection storyboard={MOTION_STORYBOARDS[1]} />
+      <StoryboardSection locale={locale} storyboard={MOTION_STORYBOARDS[1]} />
 
-      <StoryboardSection storyboard={MOTION_STORYBOARDS[2]} />
+      <StoryboardSection locale={locale} storyboard={MOTION_STORYBOARDS[2]} />
 
       <MarketingSection
         description="These constraints belong to every future film. Unified inbox now exercises the active transition-window gate; the other retained films remain untouched until they are rebuilt."

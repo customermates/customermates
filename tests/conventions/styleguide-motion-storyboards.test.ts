@@ -84,6 +84,24 @@ describe("style guide motion storyboards", () => {
     }
   });
 
+  it("derives German visual labels and keyframe states without English fallback", () => {
+    const markup = renderToStaticMarkup(
+      createElement(MotionStoryboards, { locale: "de" }),
+    );
+
+    expect(markup).toContain("Programmmanagerin bei Roche");
+    expect(markup).toContain("Nächste Schritte für den Roche-Rollout");
+    expect(markup).toContain("Status auf Won setzen");
+    expect(markup).toContain("Zugewiesene Person");
+    expect(markup).toContain("Deal-Übersicht");
+    expect(markup).toContain("545.500");
+    expect(markup).toContain("Annas offene Gmail-Unterhaltung");
+    expect(markup).not.toContain("Program Manager at Roche");
+    expect(markup).not.toContain("Next steps for the Roche rollout");
+    expect(markup).not.toContain(">Set Status to Won<");
+    expect(markup).not.toContain(">Assigned user<");
+  });
+
   it("uses a cursor only for the dashboard's single causal human action", () => {
     const inbox = storyboard("inbox");
     const pipeline = storyboard("pipeline");
