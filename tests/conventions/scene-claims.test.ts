@@ -8,9 +8,7 @@ import { REPO_ROOT } from "./walk";
 
 const SCENES_DIR = join(REPO_ROOT, "components", "marketing", "scenes");
 
-const STYLEGUIDE_DIR = join(REPO_ROOT, "app", "[locale]", "(static)", "styleguide", "components");
-
-const STYLEGUIDE_FILES = ["visual-standards.tsx", "image-classes.tsx"];
+const VISUALS_DIR = join(REPO_ROOT, "components", "marketing", "visuals");
 
 const MIN_WORDS = 3;
 
@@ -37,7 +35,10 @@ function sourceFiles(): string[] {
   const scenes = readdirSync(SCENES_DIR)
     .filter((file) => file.endsWith(".tsx"))
     .map((file) => join(SCENES_DIR, file));
-  return [...scenes, ...STYLEGUIDE_FILES.map((file) => join(STYLEGUIDE_DIR, file))];
+  const visuals = readdirSync(VISUALS_DIR)
+    .filter((file) => /\.tsx?$/u.test(file))
+    .map((file) => join(VISUALS_DIR, file));
+  return [...scenes, ...visuals];
 }
 
 // A scene carries its copy as plain string literals in JSX rather than as markdown, so the

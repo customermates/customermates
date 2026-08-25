@@ -16,9 +16,14 @@
 import { createHash } from "node:crypto";
 import { spawn } from "node:child_process";
 import { mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 
 import { launchChrome } from "./lib/cdp.mjs";
+import {
+  SCENE_CAPTURE_CONTRACTS,
+  captureContractViolations,
+  transitionGateViolations,
+} from "./lib/scene-transition-gate.mjs";
 
 const args = process.argv.slice(2);
 const flag = (name, fallback) => {
@@ -26,31 +31,75 @@ const flag = (name, fallback) => {
   return index === -1 ? fallback : args[index + 1];
 };
 
-const FPS = Number.parseInt(flag("fps", "24"), 10);
-const SECONDS = Number.parseFloat(flag("seconds", "12"));
-const BASE = flag("url", "http://localhost:4000/en/styleguide/frame");
 const SCENE = flag("scene", "chat-draft");
+const CONTRACT = SCENE_CAPTURE_CONTRACTS[SCENE];
+const FPS = Number.parseInt(
+  flag("fps", String(CONTRACT?.allowedFps[0] ?? 24)),
+  10,
+);
+const SECONDS = Number.parseFloat(
+  flag("seconds", String(CONTRACT?.duration.preferred ?? 12)),
+);
+const POSTER_TIME = Number.parseFloat(
+  flag("poster-t", String(CONTRACT?.posterTime ?? 0)),
+);
+const BASE = flag("url", "http://localhost:4000/en/styleguide/frame");
 const THEME = flag("theme", "dark");
 const OUT = flag("out", `public/scenes/${THEME}/${SCENE}.mp4`);
+const VERIFY = args.includes("--verify") || Boolean(CONTRACT);
 const MAX_BYTES = 1_048_576;
 const MIN_LOOP_SSIM = 0.97;
 
-// Loop closure only ever compared the two ends, so a hard cut in the middle of a film sailed
-// through both gates. One was shipped: a sent message reverted to a draft in a single frame and
-// jumped across the window, scoring 0.9418 between two adjacent frames. Text reflowing by a line
-// is the noisiest legitimate step and measures about 0.962, so the floor sits between the two.
-const MIN_STEP_SSIM = 0.95;
 const WIDTH = 1280;
 const HEIGHT = 920;
 const FRAMES = Math.round(FPS * SECONDS);
 const WORK = join("/tmp", `scene-capture-${process.pid}`);
 
+if (CONTRACT && !args.includes("--out"))
+  throw new Error(
+    `${SCENE} is a local-review film and requires an explicit non-public --out path`,
+  );
+
+const outputPath = resolve(OUT);
+const publicPath = resolve("public");
+if (
+  CONTRACT &&
+  (outputPath === publicPath || outputPath.startsWith(`${publicPath}/`))
+)
+  throw new Error(
+    `${SCENE} cannot write a contracted review film under public/`,
+  );
+
+const contractFailures = captureContractViolations({
+  contract: CONTRACT,
+  fps: FPS,
+  posterTime: POSTER_TIME,
+  seconds: SECONDS,
+});
+if (contractFailures.length > 0) throw new Error(contractFailures.join("; "));
+
 // Structural similarity between two frames, read back out of ffmpeg's own filter.
 async function ssim(a, b) {
   return new Promise((resolve, reject) => {
-    const child = spawn("ffmpeg", ["-v", "info", "-i", a, "-i", b, "-filter_complex", "ssim", "-f", "null", "-"], {
-      stdio: ["ignore", "ignore", "pipe"],
-    });
+    const child = spawn(
+      "ffmpeg",
+      [
+        "-v",
+        "info",
+        "-i",
+        a,
+        "-i",
+        b,
+        "-filter_complex",
+        "ssim",
+        "-f",
+        "null",
+        "-",
+      ],
+      {
+        stdio: ["ignore", "ignore", "pipe"],
+      },
+    );
     let text = "";
     child.stderr.on("data", (chunk) => (text += chunk.toString()));
     child.on("error", reject);
@@ -66,18 +115,33 @@ async function ssim(a, b) {
 async function stepSimilarity(dir) {
   const statsPath = join(dir, "steps.txt");
   await run("ffmpeg", [
-    "-y", "-v", "error",
-    "-start_number", "0", "-i", join(dir, "frame-%05d.png"),
-    "-start_number", "1", "-i", join(dir, "frame-%05d.png"),
-    "-filter_complex", `ssim=stats_file=${statsPath}`,
-    "-f", "null", "-",
+    "-y",
+    "-v",
+    "error",
+    "-start_number",
+    "0",
+    "-i",
+    join(dir, "frame-%05d.png"),
+    "-start_number",
+    "1",
+    "-i",
+    join(dir, "frame-%05d.png"),
+    "-filter_complex",
+    `ssim=stats_file=${statsPath}`,
+    "-f",
+    "null",
+    "-",
   ]);
 
   const stats = await readFile(statsPath, "utf8");
   const steps = [];
   for (const line of stats.split("\n")) {
     const match = line.match(/n:(\d+).*All:([0-9.]+)/u);
-    if (match) steps.push({ frame: Number.parseInt(match[1], 10) - 1, value: Number.parseFloat(match[2]) });
+    if (match)
+      steps.push({
+        frame: Number.parseInt(match[1], 10) - 1,
+        value: Number.parseFloat(match[2]),
+      });
   }
 
   return steps.sort((a, b) => a.value - b.value);
@@ -87,8 +151,41 @@ function run(command, commandArgs) {
   return new Promise((resolve, reject) => {
     const child = spawn(command, commandArgs, { stdio: "inherit" });
     child.on("error", reject);
-    child.on("exit", (code) => (code === 0 ? resolve() : reject(new Error(`${command} exited ${code}`))));
+    child.on("exit", (code) =>
+      code === 0 ? resolve() : reject(new Error(`${command} exited ${code}`)),
+    );
   });
+}
+
+function runText(command, commandArgs) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, commandArgs, {
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    let stdout = "";
+    let stderr = "";
+    child.stdout.on("data", (chunk) => (stdout += chunk.toString()));
+    child.stderr.on("data", (chunk) => (stderr += chunk.toString()));
+    child.on("error", reject);
+    child.on("exit", (code) =>
+      code === 0
+        ? resolve(stdout)
+        : reject(new Error(`${command} exited ${code}: ${stderr.trim()}`)),
+    );
+  });
+}
+
+async function probeMedia(file) {
+  const output = await runText("ffprobe", [
+    "-v",
+    "error",
+    "-show_entries",
+    "stream=codec_name,codec_type,pix_fmt",
+    "-of",
+    "json",
+    file,
+  ]);
+  return JSON.parse(output).streams ?? [];
 }
 
 // A screenshot is only trustworthy once two consecutive captures agree. Waiting a fixed
@@ -97,12 +194,18 @@ function run(command, commandArgs) {
 // this settle loop produced four differing frames out of twenty-four across two passes,
 // which is exactly the non-determinism the --verify flag exists to catch.
 async function settledScreenshot(browser, clip, attempts = 8) {
-  await browser.eval("new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => r(true))))");
+  await browser.eval(
+    "new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => r(true))))",
+  );
+  await browser.eval(`(() => { ${DROP_DEV_OVERLAY} return true; })()`);
   let previous = await browser.screenshot(clip);
   let previousHash = createHash("sha1").update(previous).digest("hex");
 
   for (let attempt = 0; attempt < attempts; attempt += 1) {
-    await browser.eval("new Promise((r) => requestAnimationFrame(() => r(true)))");
+    await browser.eval(
+      "new Promise((r) => requestAnimationFrame(() => r(true)))",
+    );
+    await browser.eval(`(() => { ${DROP_DEV_OVERLAY} return true; })()`);
     const next = await browser.screenshot(clip);
     const nextHash = createHash("sha1").update(next).digest("hex");
     if (nextHash === previousHash) return next;
@@ -116,28 +219,60 @@ async function settledScreenshot(browser, clip, attempts = 8) {
 async function capturePass(browser, dir, clip) {
   await mkdir(dir, { recursive: true });
   const hashes = [];
+  const samples = [];
 
   for (let frame = 0; frame < FRAMES; frame += 1) {
     const t = frame / FRAMES;
-    await browser.eval(`(() => { ${DROP_DEV_OVERLAY} window.setSceneFrame(${t}); return true; })()`);
+    await browser.eval(
+      `(() => { ${DROP_DEV_OVERLAY} window.setSceneFrame(${t}); return true; })()`,
+    );
     const png = await settledScreenshot(browser, clip);
+    const motion = await browser.eval(`(() => {
+      const root = document.querySelector('[data-scene-film]');
+      const connector = document.querySelector('[data-film-connector] path');
+      const point = (value) => String(value ?? '').split(',').map(Number);
+      const drawTarget = point(connector?.dataset.connectorDrawTarget);
+      const target = point(connector?.dataset.connectorTarget);
+      const connectorDistance = drawTarget.length === 2 && target.length === 2
+        ? Math.hypot(drawTarget[0] - target[0], drawTarget[1] - target[1])
+        : null;
+      return {
+        arrivalProgress: Number(root?.dataset.filmArrivalProgress),
+        compositionOpacity: Number(root?.dataset.filmCompositionOpacity),
+        connectorDistance,
+        openingState: Number(root?.dataset.filmOpeningState),
+        resetProgress: Number(root?.dataset.filmResetProgress),
+        resolvedProgress: Number(root?.dataset.filmResolvedProgress),
+        threadProgress: Number(root?.dataset.filmThreadProgress),
+      };
+    })()`);
     hashes.push(createHash("sha1").update(png).digest("hex"));
-    await writeFile(join(dir, `frame-${String(frame).padStart(5, "0")}.png`), png);
+    samples.push({ frame, ...motion });
+    await writeFile(
+      join(dir, `frame-${String(frame).padStart(5, "0")}.png`),
+      png,
+    );
   }
 
-  return hashes;
+  return { hashes, samples };
 }
 
 // The dev server paints its own indicator into the corner of every page, and it lands inside
 // the clip. It is not part of the product, it re-mounts on its own, and a frame that carries it
 // is a frame we would have to retouch, so it is removed again before every single screenshot.
-const DROP_DEV_OVERLAY = 'for (const node of document.querySelectorAll("nextjs-portal")) node.remove();';
+const DROP_DEV_OVERLAY =
+  'for (const node of document.querySelectorAll("nextjs-portal")) node.remove();';
 
 // The viewport is deliberately taller than the frame we clip to. Chrome paints a clipped
 // screenshot only where it has painted the page, and a clip that reaches the very bottom of an
 // exactly-viewport-sized window came back with the last 43 rows blank: enough to slice the day
 // labels off the dashboard chart in every single frame.
-const browser = await launchChrome({ width: WIDTH, height: HEIGHT + 160, scale: 1 });
+const browser = await launchChrome({
+  width: WIDTH,
+  height: HEIGHT + 160,
+  scale: 1,
+  softwareRendering: true,
+});
 
 try {
   await browser.goto(`${BASE}?scene=${SCENE}&t=0`);
@@ -178,15 +313,26 @@ try {
     const r = el.getBoundingClientRect();
     return { x: r.x + window.scrollX, y: r.y + window.scrollY, width: Math.round(r.width), height: Math.round(r.height) };
   })()`);
-  console.log(`capturing ${FRAMES} frames, clipped to ${clip.width}x${clip.height}`);
+  console.log(
+    `capturing ${FRAMES} frames, clipped to ${clip.width}x${clip.height}`,
+  );
   const first = await capturePass(browser, join(WORK, "pass-1"), clip);
+  let deterministicDrift = 0;
 
-  if (args.includes("--verify")) {
+  if (VERIFY) {
     console.log("second pass for determinism");
     const second = await capturePass(browser, join(WORK, "pass-2"), clip);
-    const drift = first.filter((hash, index) => hash !== second[index]).length;
-    console.log(drift === 0 ? "deterministic: both passes identical" : `NOT deterministic: ${drift} frames differ`);
-    if (drift !== 0) process.exitCode = 1;
+    deterministicDrift = first.hashes.filter(
+      (hash, index) => hash !== second.hashes[index],
+    ).length;
+    const driftFrames = first.hashes.flatMap((hash, index) =>
+      hash === second.hashes[index] ? [] : [index],
+    );
+    console.log(
+      deterministicDrift === 0
+        ? "deterministic: both passes identical"
+        : `NOT deterministic: ${deterministicDrift} frames differ (${driftFrames.join(", ")})`,
+    );
   }
 
   // Nothing reaches public/ until every gate below has passed. A film that fails the loop or
@@ -195,20 +341,56 @@ try {
   const staged = join(WORK, "staged.mp4");
   await run("ffmpeg", [
     "-y",
-    "-framerate", String(FPS),
-    "-i", join(WORK, "pass-1", "frame-%05d.png"),
-    "-c:v", "libx264",
-    "-pix_fmt", "yuv420p",
-    "-preset", "slow",
-    "-crf", "23",
-    "-movflags", "+faststart",
+    "-framerate",
+    String(FPS),
+    "-i",
+    join(WORK, "pass-1", "frame-%05d.png"),
+    "-c:v",
+    "libx264",
+    "-pix_fmt",
+    "yuv420p",
+    "-preset",
+    "slow",
+    "-crf",
+    "23",
+    "-movflags",
+    "+faststart",
     "-an",
     staged,
   ]);
 
+  let decodeFailure = null;
+  try {
+    await run("ffmpeg", [
+      "-v",
+      "error",
+      "-xerror",
+      "-i",
+      staged,
+      "-map",
+      "0:v:0",
+      "-f",
+      "null",
+      "-",
+    ]);
+  } catch (error) {
+    decodeFailure = error instanceof Error ? error.message : String(error);
+  }
+
+  let streams = [];
+  let probeFailure = null;
+  try {
+    streams = await probeMedia(staged);
+  } catch (error) {
+    probeFailure = error instanceof Error ? error.message : String(error);
+  }
+
   // A film has to arrive back where it started or the loop visibly jumps. The reference films
   // measure 0.87 to 0.9999 first-vs-last frame; anything below 0.97 reads as a cut.
-  const closure = await ssim(join(WORK, "pass-1", "frame-00000.png"), join(WORK, "pass-1", `frame-${String(FRAMES - 1).padStart(5, "0")}.png`));
+  const closure = await ssim(
+    join(WORK, "pass-1", "frame-00000.png"),
+    join(WORK, "pass-1", `frame-${String(FRAMES - 1).padStart(5, "0")}.png`),
+  );
   console.log(`loop closure SSIM ${closure.toFixed(4)}`);
 
   const steps = await stepSimilarity(join(WORK, "pass-1"));
@@ -222,13 +404,46 @@ try {
   console.log(`${(size / 1024).toFixed(0)} KB`);
 
   const failures = [];
-  if (closure < MIN_LOOP_SSIM) failures.push(`NOT a clean loop: ${closure.toFixed(4)} is below ${MIN_LOOP_SSIM}`);
-  for (const step of steps.filter((entry) => entry.value < MIN_STEP_SSIM)) {
+  if (deterministicDrift > 0)
+    failures.push(`NOT deterministic: ${deterministicDrift} frames differ`);
+  if (decodeFailure) failures.push(`decode failed: ${decodeFailure}`);
+  if (probeFailure) failures.push(`media probe failed: ${probeFailure}`);
+  const videoStreams = streams.filter(
+    ({ codec_type: type }) => type === "video",
+  );
+  const audioStreams = streams.filter(
+    ({ codec_type: type }) => type === "audio",
+  );
+  if (!probeFailure && videoStreams.length !== 1)
+    failures.push(`expected one video stream, found ${videoStreams.length}`);
+  if (
+    !probeFailure &&
+    videoStreams.some(({ codec_name: codec }) => codec !== "h264")
+  )
+    failures.push("video codec must be H.264");
+  if (
+    !probeFailure &&
+    videoStreams.some(({ pix_fmt: pixelFormat }) => pixelFormat !== "yuv420p")
+  )
+    failures.push("video pixel format must be yuv420p");
+  if (!probeFailure && audioStreams.length > 0)
+    failures.push("film must be silent");
+  if (closure < MIN_LOOP_SSIM)
     failures.push(
-      `cuts mid-film: frames ${step.frame} to ${step.frame + 1} (t ${(step.frame / FRAMES).toFixed(4)}) score ${step.value.toFixed(4)}, below ${MIN_STEP_SSIM}`,
+      `NOT a clean loop: ${closure.toFixed(4)} is below ${MIN_LOOP_SSIM}`,
     );
-  }
-  if (size > MAX_BYTES) failures.push(`too heavy: ${(size / 1024).toFixed(0)} KB exceeds ${MAX_BYTES / 1024} KB`);
+  failures.push(
+    ...transitionGateViolations({
+      contract: CONTRACT,
+      frameCount: FRAMES,
+      samples: first.samples,
+      steps,
+    }),
+  );
+  if (size > MAX_BYTES)
+    failures.push(
+      `too heavy: ${(size / 1024).toFixed(0)} KB exceeds ${MAX_BYTES / 1024} KB`,
+    );
 
   if (failures.length) {
     for (const failure of failures) console.log(failure);
@@ -238,9 +453,20 @@ try {
     await mkdir(dirname(OUT), { recursive: true });
     await writeFile(OUT, await readFile(staged));
 
-    // The poster is the film's own opening frame, so a video that has not loaded yet shows the
-    // state it will return to rather than an empty box.
-    await writeFile(OUT.replace(/\.mp4$/u, ".png"), await readFile(join(WORK, "pass-1", "frame-00000.png")));
+    const posterFrame = Math.min(
+      FRAMES - 1,
+      Math.max(0, Math.round(POSTER_TIME * FRAMES)),
+    );
+    await writeFile(
+      OUT.replace(/\.mp4$/u, ".png"),
+      await readFile(
+        join(
+          WORK,
+          "pass-1",
+          `frame-${String(posterFrame).padStart(5, "0")}.png`,
+        ),
+      ),
+    );
     console.log(`wrote ${OUT}`);
   }
 } finally {

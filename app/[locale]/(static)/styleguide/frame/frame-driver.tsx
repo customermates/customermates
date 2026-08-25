@@ -7,6 +7,9 @@ import type { SceneName } from "./scene-names";
 import { ChatDraftScene } from "@/components/marketing/scenes/chat-draft-scene";
 import { DashboardScene } from "@/components/marketing/scenes/dashboard-scene";
 import { PipelineScene } from "@/components/marketing/scenes/pipeline-scene";
+import { UnifiedInboxFilm } from "@/components/marketing/visuals/unified-inbox-film";
+import type { ContentLocale } from "@/i18n/locale-registry";
+import { MOTION_STORYBOARDS } from "../components/motion-storyboards.data";
 
 const SCENES = {
   "chat-draft": ChatDraftScene,
@@ -21,9 +24,8 @@ declare global {
   }
 }
 
-export function FrameDriver({ initial, scene }: { initial: number; scene: SceneName }) {
+export function FrameDriver({ initial, locale, scene }: { initial: number; locale: ContentLocale; scene: SceneName }) {
   const [t, setT] = useState(initial);
-  const Scene = SCENES[scene] ?? ChatDraftScene;
 
   useEffect(() => {
     window.setSceneFrame = (next: number) => setT(next);
@@ -34,5 +36,8 @@ export function FrameDriver({ initial, scene }: { initial: number; scene: SceneN
     };
   }, []);
 
+  if (scene === "unified-inbox") return <UnifiedInboxFilm brief={MOTION_STORYBOARDS[0]} locale={locale} t={t} />;
+
+  const Scene = SCENES[scene] ?? ChatDraftScene;
   return <Scene film t={t} />;
 }

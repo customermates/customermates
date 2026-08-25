@@ -28,7 +28,13 @@ async function waitForJson(url, attempts = 60) {
 
 const CALL_TIMEOUT_MS = 30_000;
 
-export async function launchChrome({ port = 9333, width = 1440, height = 900, scale = 1 } = {}) {
+export async function launchChrome({
+  port = 9333,
+  width = 1440,
+  height = 900,
+  scale = 1,
+  softwareRendering = false,
+} = {}) {
   const profile = await mkdtemp(join(tmpdir(), "cdp-profile-"));
   const child = spawn(
     CHROME,
@@ -45,6 +51,7 @@ export async function launchChrome({ port = 9333, width = 1440, height = 900, sc
       "--disable-background-timer-throttling",
       "--disable-renderer-backgrounding",
       "--disable-backgrounding-occluded-windows",
+      ...(softwareRendering ? ["--disable-gpu"] : []),
       "about:blank",
     ],
     { stdio: "ignore" },

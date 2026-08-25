@@ -1,4 +1,4 @@
-export const SCENE_NAMES = ["chat-draft", "dashboard", "pipeline"] as const;
+export const SCENE_NAMES = ["chat-draft", "dashboard", "pipeline", "unified-inbox"] as const;
 
 export type SceneName = (typeof SCENE_NAMES)[number];
 
