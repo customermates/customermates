@@ -5,11 +5,12 @@ import { describe, expect, it } from "vitest";
 
 const REPO_ROOT = process.cwd();
 
-const SHELLS = {
+const HEADER_SHELLS = {
   navbar: "app/components/public-navbar.tsx",
   docsTopBar: "app/[locale]/(static)/docs/components/docs-topbar.tsx",
-  footer: "app/components/footer-content.tsx",
 } as const;
+
+const FOOTER = "app/components/footer-content.tsx";
 
 function read(file: string): string {
   return readFileSync(join(REPO_ROOT, file), "utf8");
@@ -38,7 +39,7 @@ function sourceFiles(): string[] {
 
 describe("public navigation preferences", () => {
   it("offers both preference controls in every public shell", () => {
-    const navbar = read(SHELLS.navbar);
+    const navbar = read(HEADER_SHELLS.navbar);
 
     expect(navbar.match(/<LocaleMenu/g)).toHaveLength(1);
     expect(navbar.match(/<ThemeSwitcher/g)).toHaveLength(1);
@@ -50,12 +51,20 @@ describe("public navigation preferences", () => {
     expect(navbar).not.toContain("github.com/customermates/customermates");
 
     // The docs tree renders its own header rather than the public navbar, so without this it is the
-    // one public surface with no way to change language or theme at all.
-    for (const [name, file] of Object.entries(SHELLS)) {
+    // one public surface with no way to change language or theme at all. Between them the two header
+    // shells cover every URL in the sitemap.
+    for (const [name, file] of Object.entries(HEADER_SHELLS)) {
       const source = read(file);
       expect(source, `${name} is missing the locale menu`).toContain("<LocaleMenu");
       expect(source, `${name} is missing the theme switcher`).toContain("<ThemeSwitcher");
     }
+
+    // CUS-202 stripped the footer duplicates. They came back only while the navbar dropdown was
+    // portalled and shipped no crawlable anchor; the native disclosure emits one on every page, so
+    // the footer copy earns nothing and the original decision stands.
+    const footer = read(FOOTER);
+    expect(footer, "the header menu already links every locale").not.toContain("<LocaleMenu");
+    expect(footer, "the theme switcher belongs to the header shells").not.toContain("<ThemeSwitcher");
   });
 
   it("keeps the locale menu renderable without JavaScript", () => {

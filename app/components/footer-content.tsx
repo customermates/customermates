@@ -7,8 +7,6 @@ import { FooterBadges } from "./footer-badges";
 
 import { AppLink } from "@/components/shared/app-link";
 import { AppImage } from "@/components/shared/app-image";
-import { LocaleMenu } from "@/components/shared/locale-menu";
-import { ThemeSwitcher } from "@/components/shared/theme-switcher";
 
 type LinkItem = {
   slug: string;
@@ -36,7 +34,7 @@ export function FooterContent({ blogPosts = [], competitors = [], featureLinks =
               <span className="sr-only">{`${t("Common.imageAlt.logo")} ${t("UserAvatar.home")}`}</span>
             </AppLink>
 
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <div className="flex gap-4">
               <a
                 className="text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors inline-flex items-center gap-1.5"
                 href="https://github.com/customermates/customermates"
@@ -75,12 +73,6 @@ export function FooterContent({ blogPosts = [], competitors = [], featureLinks =
 
                 <span className="sr-only">X (Twitter)</span>
               </a>
-
-              <div className="flex items-center gap-1">
-                <LocaleMenu />
-
-                <ThemeSwitcher />
-              </div>
             </div>
           </div>
 
