@@ -10,6 +10,7 @@ import { createApiKeyAction } from "../actions";
 
 import { AiConnectionStore } from "@/components/ai-connection/ai-connection.store";
 import { BaseModalStore } from "@/core/base/base-modal.store";
+import { getApiKeyExpirationSeconds } from "@/features/api-key/api-key-expiration";
 
 type ApiKeyModalMode = "create" | "view";
 type ApiKeyCreationPath = "wizard" | "plain";
@@ -80,9 +81,7 @@ export class ApiKeyModalStore extends BaseModalStore<CreateApiKeyData> {
 
   setExpiresAt = (date: Date | null) => {
     this.expiresAt = date;
-    let expiresIn = date ? Math.ceil((date.getTime() - Date.now()) / 1000) : undefined;
-    if (expiresIn !== undefined && expiresIn <= 1) expiresIn = undefined;
-    this.onChange("expiresIn", expiresIn);
+    this.onChange("expiresIn", getApiKeyExpirationSeconds(date));
   };
 
   view = (key: ApiKey) => {
@@ -98,6 +97,7 @@ export class ApiKeyModalStore extends BaseModalStore<CreateApiKeyData> {
     this.setIsLoading(true);
 
     try {
+      this.onChange("expiresIn", getApiKeyExpirationSeconds(this.expiresAt));
       const res = await createApiKeyAction(toJS(this.form));
 
       if (res.ok) {

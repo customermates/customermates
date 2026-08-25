@@ -5,6 +5,7 @@ import type { McpTool } from "@/features/docs/mcp-install-snippet";
 import { makeAutoObservable, runInAction } from "mobx";
 
 import { createApiKeyAction } from "@/app/[locale]/(protected)/profile/actions";
+import { API_KEY_MAX_EXPIRATION_SECONDS } from "@/features/api-key/api-key-expiration";
 
 export const AI_CONNECTION_PROVIDERS = ["claude", "openai", "cursor", "gemini"] as const;
 
@@ -172,7 +173,7 @@ export class AiConnectionStore {
     try {
       const res = await createApiKeyAction({
         name: TOOL_LABELS[tool],
-        expiresIn: 365 * 24 * 60 * 60,
+        expiresIn: API_KEY_MAX_EXPIRATION_SECONDS,
       });
 
       if (!res.ok) {

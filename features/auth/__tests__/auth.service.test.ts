@@ -1,8 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { APIError } from "better-auth";
+import { API_KEY_ERROR_CODES } from "@better-auth/api-key";
 
 const mocks = vi.hoisted(() => ({
   locale: "en",
   send: vi.fn(),
+  createApiKey: vi.fn(),
   signInEmail: vi.fn(),
   signInSocial: vi.fn(),
 }));
@@ -24,6 +27,7 @@ vi.mock("@/core/auth/better-auth", () => ({
     api: {
       signInEmail: mocks.signInEmail,
       signInSocial: mocks.signInSocial,
+      createApiKey: mocks.createApiKey,
     },
   },
 }));
@@ -41,8 +45,9 @@ vi.mock("@/env", () => ({
 import { AuthService } from "@/features/auth/auth.service";
 import { DEFAULT_EMAIL_LAYOUT_COPY } from "@/components/emails/base/email-layout-copy";
 import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
-describe("AuthService callback URLs", () => {
+describe("AuthService", () => {
   const service = new AuthService({ send: mocks.send } as never);
 
   beforeEach(() => {
@@ -60,6 +65,7 @@ describe("AuthService callback URLs", () => {
       redirect: true,
       url: "https://accounts.example.com",
     });
+    mocks.createApiKey.mockResolvedValue({ id: "key-id", key: "one-time-secret" });
   });
 
   it("lets Better Auth infer the current request origin when email sign-in has no callback", async () => {
@@ -174,5 +180,36 @@ describe("AuthService callback URLs", () => {
       locale: DEFAULT_LOCALE,
       layoutCopy: DEFAULT_EMAIL_LAYOUT_COPY,
     });
+  });
+
+  it("forwards an absent expiration without inventing one", async () => {
+    const result = await service.createApiKey({ name: "Synthetic integration", expiresIn: undefined });
+
+    expect(result).toEqual({ ok: true, data: { id: "key-id", key: "one-time-secret" } });
+    expect(mocks.createApiKey).toHaveBeenCalledWith({
+      headers: expect.any(Headers),
+      body: { name: "Synthetic integration", expiresIn: undefined },
+    });
+  });
+
+  it.each([
+    [API_KEY_ERROR_CODES.EXPIRES_IN_IS_TOO_SMALL, CustomErrorCode.apiKeyMinExpiration],
+    [API_KEY_ERROR_CODES.EXPIRES_IN_IS_TOO_LARGE, CustomErrorCode.apiKeyMaxExpiration],
+  ])("maps Better Auth expiration boundaries to %s", async (providerError, error) => {
+    mocks.createApiKey.mockRejectedValueOnce(APIError.from("BAD_REQUEST", providerError));
+
+    await expect(service.createApiKey({ name: "Synthetic integration", expiresIn: 24 * 60 * 60 })).resolves.toEqual({
+      ok: false,
+      error,
+    });
+  });
+
+  it.each([
+    APIError.from("BAD_REQUEST", API_KEY_ERROR_CODES.INVALID_NAME_LENGTH),
+    new Error("unexpected auth failure"),
+  ])("rethrows an unrelated API-key creation failure", async (error) => {
+    mocks.createApiKey.mockRejectedValueOnce(error);
+
+    await expect(service.createApiKey({ name: "Synthetic integration" })).rejects.toBe(error);
   });
 });

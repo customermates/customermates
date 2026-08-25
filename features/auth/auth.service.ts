@@ -3,6 +3,7 @@ import type { Redirect } from "./auth-outcome";
 
 import React from "react";
 import { APIError } from "better-auth";
+import { API_KEY_ERROR_CODES } from "@better-auth/api-key";
 import { nanoid } from "nanoid";
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
@@ -31,6 +32,9 @@ type AuthResult = { ok: true; user: AuthUser } | { ok: false; error: CustomError
 
 type Session = NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>;
 type SessionOrRedirect = { session: Session } | Redirect;
+type ApiKeyExpirationError = CustomErrorCode.apiKeyMinExpiration | CustomErrorCode.apiKeyMaxExpiration;
+type CreatedApiKey = Awaited<ReturnType<typeof auth.api.createApiKey>>;
+type CreateApiKeyResult = { ok: true; data: CreatedApiKey } | { ok: false; error: ApiKeyExpirationError };
 
 type McpConsentValue = {
   clientId: string;
@@ -226,11 +230,22 @@ export class AuthService {
     });
   }
 
-  async createApiKey(args: { name: string; expiresIn?: number }) {
-    return await auth.api.createApiKey({
-      body: args,
-      headers: await headers(),
-    });
+  async createApiKey(args: { name: string; expiresIn?: number }): Promise<CreateApiKeyResult> {
+    try {
+      const data = await auth.api.createApiKey({
+        body: args,
+        headers: await headers(),
+      });
+
+      return { ok: true, data };
+    } catch (error) {
+      if (error instanceof APIError && error.body?.code === API_KEY_ERROR_CODES.EXPIRES_IN_IS_TOO_SMALL.code)
+        return { ok: false, error: CustomErrorCode.apiKeyMinExpiration };
+      if (error instanceof APIError && error.body?.code === API_KEY_ERROR_CODES.EXPIRES_IN_IS_TOO_LARGE.code)
+        return { ok: false, error: CustomErrorCode.apiKeyMaxExpiration };
+
+      throw error;
+    }
   }
 
   async deleteApiKey(keyId: string): Promise<void> {
