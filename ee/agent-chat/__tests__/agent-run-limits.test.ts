@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  AGENT_DURABLE_MAX_ERRORS,
-  AGENT_DURABLE_MAX_REPEATED_ACTIVITY_CALLS,
-  agentDurableContinuationLimits,
+  AGENT_MAX_ERRORS,
+  AGENT_MAX_REPEATED_ACTIVITY_CALLS,
+  agentContinuationLimits,
   toAgentContinuationStep,
-} from "../agent-durable-limits";
+} from "../agent-run-limits";
 import { decideAgentContinuationLoop, summarizeAgentContinuationStep } from "../agent-continuation";
 
-const limits = agentDurableContinuationLimits(200);
+const limits = agentContinuationLimits(200);
 
 function round(toolName: string, input: unknown, output: unknown) {
   return toAgentContinuationStep(
@@ -59,14 +59,14 @@ describe("durable continuation limits", () => {
 
   it("stops a model that keeps failing the same way", () => {
     const failing = () => round("create_contacts", { name: "x" }, { ok: false, result: "not allowed" });
-    const steps = Array.from({ length: AGENT_DURABLE_MAX_ERRORS }, failing);
+    const steps = Array.from({ length: AGENT_MAX_ERRORS }, failing);
 
     expect(decide(steps)).toMatchObject({ action: "error", reason: "error_limit" });
   });
 
   it("stops a model that keeps making the same call", () => {
     const repeat = () => round("list_records", { entity: "contact" }, { ok: true, result: "items" });
-    const steps = Array.from({ length: AGENT_DURABLE_MAX_REPEATED_ACTIVITY_CALLS }, repeat);
+    const steps = Array.from({ length: AGENT_MAX_REPEATED_ACTIVITY_CALLS }, repeat);
 
     expect(decide(steps)).toMatchObject({ action: "error", reason: "repeated_activity" });
   });

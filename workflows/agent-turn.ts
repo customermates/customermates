@@ -35,10 +35,10 @@ import { createAgentSupportTicket } from "@/ee/agent-chat/agent-support-ticket";
 import { describeAgentTool } from "@/ee/agent-chat/agent-activity";
 import { agentToolOutcomeStatus, AGENT_TRANSCRIPT_FORWARDED_EVENTS } from "@/ee/agent-chat/agent-durable-stream";
 import {
-  agentDurableContinuationLimits,
+  agentContinuationLimits,
   toAgentContinuationStep,
-  type AgentDurableToolOutcome,
-} from "@/ee/agent-chat/agent-durable-limits";
+  type AgentToolOutcome,
+} from "@/ee/agent-chat/agent-run-limits";
 import {
   compactAgentContinuationContext,
   decideAgentContinuationLoop,
@@ -58,8 +58,8 @@ import { reportFailure, toWorkflowFailure, type WorkflowFailure } from "./captur
 
 const WORKFLOW_NAME = "agent-turn";
 
-export const AGENT_DURABLE_APPROVAL_WINDOW_MS = 30 * 60 * 1000;
-export const AGENT_DURABLE_UI_COMMAND_WINDOW_MS = 30 * 1000;
+export const AGENT_APPROVAL_WINDOW_MS = 30 * 60 * 1000;
+export const AGENT_UI_COMMAND_WINDOW_MS = 30 * 1000;
 export const AGENT_SEGMENT_ROUNDS = 32;
 
 export type AgentTurnWorkflowPayload = {
@@ -540,8 +540,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const completedTools: ({ toolCallId: string; toolName: string } & ({ output: unknown } | { threw: true }))[] = [];
 
     const continuationSteps: AgentContinuationStep[] = [];
-    let deferredRound: { step: AgentRoundResult; outcomes: AgentDurableToolOutcome[] } | null = null;
-    const continuationLimits = agentDurableContinuationLimits(Number.MAX_SAFE_INTEGER);
+    let deferredRound: { step: AgentRoundResult; outcomes: AgentToolOutcome[] } | null = null;
+    const continuationLimits = agentContinuationLimits(Number.MAX_SAFE_INTEGER);
     let safetyStop: string | null = null;
     let budgetStop = false;
     let abandoned = false;
@@ -549,7 +549,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     let roundFailure: WorkflowFailure | null = null;
     const settledToolCallIds = new Set<string>();
 
-    const recordContinuationRound = (step: AgentRoundResult, outcomes: AgentDurableToolOutcome[]) => {
+    const recordContinuationRound = (step: AgentRoundResult, outcomes: AgentToolOutcome[]) => {
       continuationSteps.push(toAgentContinuationStep(step, outcomes));
       const loop = decideAgentContinuationLoop(
         { startedAtMs: 0, steps: continuationSteps, observedAtMs: 0 },
@@ -558,7 +558,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       if (loop.action === "error" && loop.reason !== "step_limit") safetyStop = loop.reason;
     };
 
-    const resolveDeferredRound = (resumed: readonly AgentDurableToolOutcome[]) => {
+    const resolveDeferredRound = (resumed: readonly AgentToolOutcome[]) => {
       if (!deferredRound) return;
       const pending = deferredRound;
       deferredRound = null;
@@ -590,7 +590,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         }
         transcript.finishTextSegment();
 
-        const outcomes: AgentDurableToolOutcome[] = completedTools.splice(0);
+        const outcomes: AgentToolOutcome[] = completedTools.splice(0);
         for (const completed of outcomes) {
           if ("threw" in completed) {
             settledToolCallIds.add(completed.toolCallId);
@@ -756,7 +756,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           name: call.toolName,
           input: toAgentUiCommandInput(call.toolName, call.input) ?? {},
         }));
-        const uiWindowMs = AGENT_DURABLE_UI_COMMAND_WINDOW_MS;
+        const uiWindowMs = AGENT_UI_COMMAND_WINDOW_MS;
         const uiHook = createHook<{ commandId: string }>({
           token: agentUiCommandHookToken(payload.conversationId),
         });
@@ -786,7 +786,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         input: call.input,
       }));
 
-      const approvalWindowMs = AGENT_DURABLE_APPROVAL_WINDOW_MS;
+      const approvalWindowMs = AGENT_APPROVAL_WINDOW_MS;
       const hook = createHook<{ requestId: string }>({ token: agentApprovalHookToken(payload.conversationId) });
       await openApprovalRequests(payload, requests, approvalWindowMs);
       for (const request of requests) {
