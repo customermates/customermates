@@ -250,6 +250,7 @@
       "activityScopeTooManyIds": "Un ámbito de actividad no puede seleccionar más de 50 registros de un mismo tipo.",
       "activitySourcesUnavailable": "No tienes acceso a ninguna fuente de la cronología de actividad.",
       "apiKeyMaxExpiration": "La caducidad de una clave de API no puede superar los 365 días.",
+      "apiKeyMinExpiration": "La caducidad de una clave de API debe ser de al menos 1 día.",
       "assigneeRequired": "Debes asignarte este elemento. Ten en cuenta que solo podrás ver los elementos asignados a ti.",
       "calendarEventNotFound": "ID de evento de calendario no encontrado o no accesible.",
       "channelAlreadyLinked": "Este canal ya está vinculado a otro contacto.",

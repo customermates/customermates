@@ -1,7 +1,7 @@
 import type { RootStore } from "@/core/stores/root.store";
 
 import { runInAction } from "mobx";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const profileActions = vi.hoisted(() => ({
   createApiKeyAction: vi.fn(),
@@ -29,6 +29,8 @@ function makeStore() {
 beforeEach(() => {
   vi.clearAllMocks();
 });
+
+afterEach(() => vi.useRealTimers());
 
 describe("ApiKeyModalStore add wizard", () => {
   it("opens on the combined options screen and clears an earlier quick-connection secret", () => {
@@ -78,6 +80,30 @@ describe("ApiKeyModalStore add wizard", () => {
     });
     expect(store.createdKey).toBe("one-time-secret");
     expect(refresh).toHaveBeenCalledTimes(1);
+  });
+
+  it("sends exact calendar-day seconds and recomputes them when submitting", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 7, 25, 15, 30));
+    profileActions.createApiKeyAction.mockResolvedValue({
+      ok: true,
+      data: { id: "key-id", key: "one-time-secret" },
+    });
+    const store = makeStore();
+    store.add();
+    store.choosePlain();
+    store.onChange("name", "Synthetic integration");
+
+    store.setExpiresAt(new Date(2026, 7, 27));
+    expect(store.form.expiresIn).toBe(2 * 24 * 60 * 60);
+
+    vi.setSystemTime(new Date(2026, 7, 26, 0, 1));
+    await store.onSubmit();
+
+    expect(profileActions.createApiKeyAction).toHaveBeenCalledWith({
+      name: "Synthetic integration",
+      expiresIn: 24 * 60 * 60,
+    });
   });
 
   it("creates a quick connection, refreshes its sanitized row exactly once, and keeps the secret in the wizard", async () => {
