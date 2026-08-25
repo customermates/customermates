@@ -86,11 +86,41 @@ const UpsertCustomColumnToolSchema = z.object({
           "Legacy singleSelect shape. Prefer top-level selectOptions. REPLACES the full option list. A label is enough for a new option; value, color, isDefault and index are filled in when omitted. Keep an existing option's value to preserve its records.",
         ),
     })
+    .nullable()
     .optional()
     .describe(
-      "Type-specific config. plain: omit. date*: {displayFormat?}. currency: {currency}. link/email/phone: {color, allowMultiple}. Legacy singleSelect clients may use {options:[...]}; new calls should use top-level selectOptions.",
+      "Type-specific config, or omit it. plain: omit. date*: {displayFormat?}. currency: {currency}. link/email/phone: {color, allowMultiple}. An empty or null config is treated as omitted. Legacy singleSelect clients may use {options:[...]}; new calls should use top-level selectOptions.",
     ),
 });
+
+const OPTION_KEYS_BY_TYPE: Record<string, readonly string[]> = {
+  [CustomColumnType.date]: ["displayFormat"],
+  [CustomColumnType.dateTime]: ["displayFormat"],
+  [CustomColumnType.dateRange]: ["displayFormat"],
+  [CustomColumnType.dateTimeRange]: ["displayFormat"],
+  [CustomColumnType.currency]: ["currency"],
+  [CustomColumnType.link]: ["color", "allowMultiple"],
+  [CustomColumnType.email]: ["color", "allowMultiple"],
+  [CustomColumnType.phone]: ["color", "allowMultiple"],
+  [CustomColumnType.singleSelect]: ["options"],
+  [CustomColumnType.plain]: [],
+};
+
+function optionsForType<T extends Record<string, unknown>>(type: CustomColumnType, options: T | null | undefined) {
+  if (!options) return options;
+
+  const allowed = OPTION_KEYS_BY_TYPE[type] ?? [];
+
+  return Object.fromEntries(Object.entries(options).filter(([key]) => allowed.includes(key))) as T;
+}
+
+function compactToolOptions<T extends Record<string, unknown>>(options: T | null | undefined): T | undefined {
+  if (!options) return undefined;
+
+  const present = Object.entries(options).filter(([, value]) => value !== undefined && value !== null);
+
+  return present.length > 0 ? (Object.fromEntries(present) as T) : undefined;
+}
 
 const DeleteCustomColumnSchema = z.object({
   id: z.uuid().describe("Custom column id to delete"),
@@ -226,23 +256,20 @@ export const manageCustomColumnsTool = {
           ["selectOptions"],
         );
       }
-      const selectOptions = parsed.data.selectOptions ?? parsed.data.options?.options;
-      if (parsed.data.type === CustomColumnType.singleSelect && !selectOptions) {
+      const isSingleSelect = parsed.data.type === CustomColumnType.singleSelect;
+      const selectOptions = isSingleSelect ? (parsed.data.selectOptions ?? parsed.data.options?.options) : undefined;
+      if (isSingleSelect && !selectOptions) {
         return mcpMessageFailure(
           "singleSelect requires a non-empty top-level selectOptions list (legacy options.options is also accepted).",
           ["selectOptions"],
-        );
-      }
-      if (parsed.data.type !== CustomColumnType.singleSelect && selectOptions) {
-        return mcpMessageFailure(
-          "Single-select choices are available only when type=singleSelect.",
-          parsed.data.selectOptions ? ["selectOptions"] : ["options", "options"],
         );
       }
       const columnParams = { ...parsed.data };
       delete columnParams.intent;
       delete columnParams.selectOptions;
       if (columnParams.id === undefined) delete columnParams.id;
+      columnParams.options = compactToolOptions(optionsForType(parsed.data.type, columnParams.options));
+      if (columnParams.options === undefined) delete columnParams.options;
       let data = selectOptions
         ? {
             ...columnParams,

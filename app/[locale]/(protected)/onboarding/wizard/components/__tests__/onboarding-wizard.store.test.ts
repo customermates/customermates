@@ -3,6 +3,7 @@ import type { RootStore } from "@/core/stores/root.store";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const actions = vi.hoisted(() => ({ completeOnboardingWizardAction: vi.fn() }));
+const assign = vi.hoisted(() => vi.fn());
 
 vi.mock("../../actions", () => actions);
 
@@ -14,8 +15,9 @@ beforeEach(() => {
   vi.clearAllMocks();
   actions.completeOnboardingWizardAction.mockResolvedValue({
     ok: true,
-    data: undefined,
+    data: { redirectTo: "/dashboard" },
   });
+  vi.stubGlobal("location", { assign });
 });
 
 describe("OnboardingWizardStore", () => {
@@ -56,6 +58,24 @@ describe("OnboardingWizardStore", () => {
     await store.complete();
 
     expect(actions.completeOnboardingWizardAction).toHaveBeenCalledOnce();
+    expect(store.isSubmitting).toBe(false);
+  });
+
+  it("leaves the wizard with a document load, so the shell re-reads the account state", async () => {
+    const store = new OnboardingWizardStore(rootStore);
+
+    await store.complete();
+
+    expect(assign).toHaveBeenCalledWith("/dashboard");
+  });
+
+  it("stays put when completion failed", async () => {
+    actions.completeOnboardingWizardAction.mockResolvedValue({ ok: false, error: { issues: [] } });
+    const store = new OnboardingWizardStore(rootStore);
+
+    await store.complete();
+
+    expect(assign).not.toHaveBeenCalled();
     expect(store.isSubmitting).toBe(false);
   });
 });

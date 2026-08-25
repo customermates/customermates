@@ -231,23 +231,25 @@ describe("manage_custom_columns option defaults", () => {
     expect(spies.remove).not.toHaveBeenCalled();
   });
 
-  it.each([
-    [{ selectOptions: [{ label: "Wrong shape" }] }, ["selectOptions"]],
-    [{ options: { options: [{ label: "Wrong legacy shape" }] } }, ["options", "options"]],
-  ])("rejects select choices for a non-select column", async (config, path) => {
-    const result = await manageCustomColumnsTool.execute({
-      action: "upsert",
-      intent: "create",
-      entityType: "deal",
-      type: "plain",
-      label: "Roof note",
-      ...config,
-    } as never);
+  it.each([{ selectOptions: [{ label: "Wrong shape" }] }, { options: { options: [{ label: "Wrong legacy shape" }] } }])(
+    "ignores select choices for a non-select column rather than refusing the write",
+    async (config) => {
+      await manageCustomColumnsTool.execute({
+        action: "upsert",
+        intent: "create",
+        entityType: "deal",
+        type: "plain",
+        label: "Roof note",
+        ...config,
+      } as never);
 
-    expect(mcpToolResultText(result)).toContain("only when type=singleSelect");
-    expect(result).toMatchObject({ failure: { kind: "validation", issues: [{ path }] } });
-    expect(spies.upsert).not.toHaveBeenCalled();
-  });
+      expect(spies.upsert).toHaveBeenCalledTimes(1);
+      const sent = spies.upsert.mock.calls[0][0];
+      expect(sent.type).toBe("plain");
+      expect(sent).not.toHaveProperty("selectOptions");
+      expect(sent.options?.options).toBeUndefined();
+    },
+  );
 
   it("preserves an existing option value so its stored records survive an edit", async () => {
     await manageCustomColumnsTool.execute(
@@ -439,5 +441,46 @@ describe("manage_custom_columns option defaults", () => {
       type: "plain",
       label: "Roof note",
     });
+  });
+
+  it("treats an empty type config as no config, because the tool advertises every field as optional", async () => {
+    await manageCustomColumnsTool.execute({
+      action: "upsert",
+      intent: "create",
+      type: "date",
+      entityType: "deal",
+      label: "Target Close Date",
+      options: {},
+    } as never);
+
+    expect(spies.upsert).toHaveBeenCalledTimes(1);
+    expect(spies.upsert.mock.calls[0][0]).not.toHaveProperty("options");
+  });
+
+  it("treats a null type config as no config", async () => {
+    await manageCustomColumnsTool.execute({
+      action: "upsert",
+      intent: "create",
+      type: "date",
+      entityType: "deal",
+      label: "Kickoff Date",
+      options: null,
+    } as never);
+
+    expect(spies.upsert).toHaveBeenCalledTimes(1);
+    expect(spies.upsert.mock.calls[0][0]).not.toHaveProperty("options");
+  });
+
+  it("keeps a type config that carries a real value", async () => {
+    await manageCustomColumnsTool.execute({
+      action: "upsert",
+      intent: "create",
+      type: "date",
+      entityType: "deal",
+      label: "Renewal Date",
+      options: { displayFormat: "numericalShort" },
+    } as never);
+
+    expect(spies.upsert.mock.calls[0][0].options).toEqual({ displayFormat: "numericalShort" });
   });
 });
