@@ -44,6 +44,7 @@ import { MessageDateSeparator, isSameDay } from "@/app/[locale]/(protected)/inbo
 import { MessagesScrollContainer } from "@/components/scroll/messages-scroll-container";
 
 import { useActivityGroupState } from "./use-activity-group-state";
+import { useSteadyLabel } from "./use-steady-label";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
@@ -1154,7 +1155,7 @@ const AgentChatItemView = observer(function AgentChatItemView({
     return (
       <article aria-label={t("Inbox.senderYou")} className="group/message flex justify-end">
         <div className="flex max-w-[85%] flex-col items-end gap-1">
-          <div className="w-fit max-w-[85%] rounded-xl rounded-br-md bg-muted px-3.5 py-2 text-sm whitespace-pre-wrap shadow-xs dark:bg-accent/60">
+          <div className="w-fit min-w-16 rounded-xl rounded-br-md bg-muted px-3.5 py-2 text-sm whitespace-pre-wrap shadow-xs dark:bg-accent/60">
             {item.text}
           </div>
 
@@ -1324,12 +1325,11 @@ const AgentActivity = observer(function AgentActivity({
         );
   const runningItem = items.find((item) => item.status === "running");
   const runningLabel = runningItem ? agentActivityCopy(runningItem.activity, t, terminology).running : uiCopy.thinking;
-  const summary =
-    hasRunning || isPending
-      ? runningLabel
-      : !hasError && !hasCancelled && elapsedSeconds !== null
-        ? uiCopy.stepsTook(items.length, elapsedSeconds)
-        : settledSummary;
+  const liveSummary =
+    !hasError && !hasCancelled && elapsedSeconds !== null
+      ? uiCopy.stepsTook(items.length, elapsedSeconds)
+      : settledSummary;
+  const summary = useSteadyLabel(hasRunning || isPending ? runningLabel : liveSummary);
 
   return (
     <details
