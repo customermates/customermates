@@ -7,7 +7,6 @@ import { FooterBadges } from "./footer-badges";
 
 import { AppLink } from "@/components/shared/app-link";
 import { AppImage } from "@/components/shared/app-image";
-import { ThemeSwitcher } from "@/components/shared/theme-switcher";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
 import { CONTENT_LOCALES, buildLocalePath, contentLocaleOrDefault } from "@/i18n/locale-registry";
@@ -236,33 +235,29 @@ export function FooterContent({ blogPosts = [], competitors = [], featureLinks =
           </div>
         </div>
 
-        <div className="flex items-center justify-center gap-1 pt-8">
-          <nav aria-label={t("Common.language")} className="flex items-center gap-1">
-            {CONTENT_LOCALES.map((locale) => (
-              <Button
-                key={locale}
-                asChild
-                className={cn(
-                  "size-8 rounded-md p-0 text-subdued hover:text-foreground",
-                  locale === activeLocale && "text-foreground",
-                )}
-                size="icon-sm"
-                variant="ghost"
+        <nav aria-label={t("Common.language")} className="flex flex-wrap items-center justify-center gap-1 pt-8">
+          {CONTENT_LOCALES.map((locale) => (
+            <Button
+              key={locale}
+              asChild
+              className={cn(
+                "size-8 rounded-md p-0 text-subdued hover:text-foreground",
+                locale === activeLocale && "text-foreground",
+              )}
+              size="icon-sm"
+              variant="ghost"
+            >
+              <a
+                aria-current={locale === activeLocale ? "true" : undefined}
+                aria-label={t(`Common.locales.${locale}`)}
+                href={buildLocalePath(locale, pathname)}
+                hrefLang={locale}
               >
-                <a
-                  aria-current={locale === activeLocale ? "true" : undefined}
-                  aria-label={t(`Common.locales.${locale}`)}
-                  href={buildLocalePath(locale, pathname)}
-                  hrefLang={locale}
-                >
-                  <span aria-hidden>{locale.toUpperCase()}</span>
-                </a>
-              </Button>
-            ))}
-          </nav>
-
-          <ThemeSwitcher />
-        </div>
+                <span aria-hidden>{locale.toUpperCase()}</span>
+              </a>
+            </Button>
+          ))}
+        </nav>
 
         <FooterBadges />
 
