@@ -15,11 +15,25 @@ export function ActivityTimelineSkeleton({ animated = true, rows = 6 }: Props) {
     >
       {items.map((row) => (
         <div key={row} className="relative flex items-start gap-3 p-2" data-skeleton-group={row % 4}>
-          {row < items.length - 1 && (
-            <span aria-hidden className="absolute left-[23.5px] top-[26px] bottom-0 w-px bg-border" />
+          {row > 0 && (
+            <span
+              aria-hidden
+              className="absolute left-[23.5px] top-0 h-[26px] w-px bg-border"
+              data-skeleton-connector="before"
+            />
           )}
 
-          <Shape animated={animated} breathe={row === 0} className="mt-0.5 size-8 shrink-0 rounded-full" />
+          {row < items.length - 1 && (
+            <span
+              aria-hidden
+              className="absolute left-[23.5px] top-[26px] bottom-0 w-px bg-border"
+              data-skeleton-connector="after"
+            />
+          )}
+
+          <span data-skeleton-node className="bg-background relative z-10 mt-0.5 size-8 shrink-0 rounded-full">
+            <Shape animated={animated} breathe={row === 0} className="size-full rounded-full" />
+          </span>
 
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">

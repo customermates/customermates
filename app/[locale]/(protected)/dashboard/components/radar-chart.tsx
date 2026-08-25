@@ -24,7 +24,7 @@ export const RadarChartComponent = observer(({ aggregationType, chartData, color
       <RadarChart data={chartData}>
         <ChartTooltip aggregationType={aggregationType} />
 
-        <PolarAngleAxis dataKey="label" tick={{ fill: textColor, fontSize: 12, fontFamily: "Inter" }} />
+        <PolarAngleAxis dataKey="label" tick={{ fill: textColor, fontSize: 12 }} />
 
         <PolarGrid opacity={0.2} stroke={textColor} />
 

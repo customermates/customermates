@@ -57,7 +57,6 @@ export const VerticalBarChartWithLabels = observer(
                   <text
                     dominantBaseline="middle"
                     fill={entry.labelColor}
-                    fontFamily="Inter"
                     fontSize={12}
                     textAnchor="middle"
                     x={Number(x) + Number(width) / 2}
@@ -79,7 +78,7 @@ export const VerticalBarChartWithLabels = observer(
                   : intlStore.formatNumber(numValue);
               }}
               position="top"
-              style={{ fill: textColor, fontSize: 12, fontFamily: "Inter" }}
+              style={{ fill: textColor, fontSize: 12 }}
             />
           </Bar>
         </BarChart>

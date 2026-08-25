@@ -1,6 +1,7 @@
 import type { $ZodRawIssue } from "zod/v4/core";
 
 export enum CustomErrorCode {
+  apiKeyMinExpiration = "apiKeyMinExpiration",
   apiKeyMaxExpiration = "apiKeyMaxExpiration",
   assigneeRequired = "assigneeRequired",
   emailMismatch = "emailMismatch",

@@ -77,7 +77,6 @@ export const HorizontalBarChartWithLabels = observer(
                   <text
                     dominantBaseline="middle"
                     fill={entry.labelColor}
-                    fontFamily="Inter"
                     fontSize={12}
                     textAnchor="start"
                     x={Number(x) + LABEL_PADDING_LEFT}
@@ -102,7 +101,6 @@ export const HorizontalBarChartWithLabels = observer(
               style={{
                 fill: textColor,
                 fontSize: 12,
-                fontFamily: "Inter",
               }}
             />
           </Bar>
