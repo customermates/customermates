@@ -297,6 +297,7 @@
       "title": "L’assistente vuole eseguire:"
     },
     "askAi": "Chiedi all'IA",
+    "askAiWorking": "Mate sta lavorando",
     "credits": {
       "blocked": {
         "configuration_unavailable": "L’Assistente ospitato non è al momento disponibile. La cronologia resta accessibile.",

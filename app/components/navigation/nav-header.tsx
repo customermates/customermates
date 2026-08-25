@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 
-import { Plus, Search, Sparkles } from "lucide-react";
+import { Loader2, Plus, Search, Sparkles } from "lucide-react";
 
 import { AppImage } from "@/components/shared/app-image";
 import { AppLink } from "@/components/shared/app-link";
@@ -17,6 +17,8 @@ type Props = {
   logoAlt: string;
   assistantLabel?: string;
   assistantShortcut?: string;
+  assistantBusy?: boolean;
+  assistantBusyLabel?: string;
   searchLabel: string;
   addLabel: string;
   onAssistant?: (invoker: HTMLElement) => void;
@@ -31,6 +33,8 @@ export function NavHeader({
   logoAlt,
   assistantLabel,
   assistantShortcut,
+  assistantBusy,
+  assistantBusyLabel,
   searchLabel,
   addLabel,
   onAssistant,
@@ -83,14 +87,18 @@ export function NavHeader({
           <SidebarMenuItem>
             <SidebarMenuButton
               id="nav-assistant"
-              tooltip={assistantLabel}
+              tooltip={assistantBusy ? (assistantBusyLabel ?? assistantLabel) : assistantLabel}
               onClick={(event) => onAssistant(event.currentTarget)}
             >
-              <Sparkles />
+              {assistantBusy ? (
+                <Loader2 aria-label={assistantBusyLabel} className="animate-spin text-primary" />
+              ) : (
+                <Sparkles />
+              )}
 
               <span>{assistantLabel}</span>
 
-              {assistantShortcut && (
+              {assistantShortcut && !assistantBusy && (
                 <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-0.5 rounded border border-sidebar-border bg-sidebar-accent/60 px-1.5 font-sans text-[11px] text-sidebar-foreground/70">
                   {assistantShortcut}
                 </kbd>

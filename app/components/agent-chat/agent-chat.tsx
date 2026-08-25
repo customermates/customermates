@@ -307,17 +307,17 @@ const AgentChatPanel = observer(function AgentChatPanel() {
       {store.isHistoryOpen ? (
         <ConversationHistory />
       ) : store.items.length === 0 ? (
-        <div className={cn(OVERLAY_SCROLL_REGION, "flex flex-col justify-end gap-3 p-4 text-center")}>
+        <div className={cn(OVERLAY_SCROLL_REGION, "flex flex-col justify-end gap-6 px-6 py-8 text-center")}>
           <article
             aria-label={t("AgentChat.title")}
-            className="animate-page-empty-in flex flex-col items-center gap-3 motion-reduce:animate-none"
+            className="animate-page-empty-in flex flex-col items-center gap-5 motion-reduce:animate-none"
           >
             <IconContainer icon={Sparkles} size="md" />
 
-            <div className="flex flex-col gap-1">
-              <p className="text-sm font-medium text-foreground">{t("AgentChat.greeting.headline")}</p>
+            <div className="flex max-w-sm flex-col gap-2">
+              <p className="text-base font-medium text-foreground">{t("AgentChat.greeting.headline")}</p>
 
-              <p className="text-sm text-muted-foreground">{t("AgentChat.greeting.subtitle")}</p>
+              <p className="text-sm leading-relaxed text-muted-foreground">{t("AgentChat.greeting.subtitle")}</p>
             </div>
           </article>
 
@@ -628,6 +628,13 @@ const ConversationHistory = observer(function ConversationHistory() {
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-2">
                     <span className="truncate text-sm font-medium">{conversation.title || copy.untitled}</span>
+
+                    <time
+                      suppressHydrationWarning
+                      className="ml-auto shrink-0 text-xs font-normal whitespace-nowrap text-muted-foreground"
+                    >
+                      {intlStore.formatRelativeTime(conversation.updatedAt)}
+                    </time>
                   </span>
 
                   {conversation.preview && (
@@ -635,10 +642,6 @@ const ConversationHistory = observer(function ConversationHistory() {
                       {conversation.preview}
                     </span>
                   )}
-
-                  <time className="mt-1 block text-[11px] font-normal text-muted-foreground">
-                    {intlStore.formatDayMonth(conversation.updatedAt)}
-                  </time>
                 </span>
               </Button>
 

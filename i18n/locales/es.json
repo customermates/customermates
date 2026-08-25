@@ -297,6 +297,7 @@
       "title": "El asistente quiere ejecutar:"
     },
     "askAi": "Preguntar a la IA",
+    "askAiWorking": "Mate está trabajando",
     "credits": {
       "blocked": {
         "configuration_unavailable": "El Asistente alojado no está disponible temporalmente. El historial sigue estando accesible.",

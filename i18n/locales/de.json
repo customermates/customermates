@@ -297,6 +297,7 @@
       "title": "Der Assistent möchte ausführen:"
     },
     "askAi": "KI fragen",
+    "askAiWorking": "Mate arbeitet",
     "credits": {
       "blocked": {
         "configuration_unavailable": "Der gehostete Assistent ist vorübergehend nicht verfügbar. Dein Verlauf bleibt zugänglich.",

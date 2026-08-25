@@ -297,6 +297,7 @@
       "title": "The assistant wants to run:"
     },
     "askAi": "Ask AI",
+    "askAiWorking": "Mate is working",
     "credits": {
       "blocked": {
         "configuration_unavailable": "The hosted Assistant is temporarily unavailable. Your history remains accessible.",
