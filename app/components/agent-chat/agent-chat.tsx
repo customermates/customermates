@@ -51,7 +51,6 @@ import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { AppCard } from "@/components/card/app-card";
@@ -299,8 +298,6 @@ const AgentChatPanel = observer(function AgentChatPanel() {
         </ActionTooltip>
       </div>
 
-      {!store.isHistoryOpen && <AgentToolbar />}
-
       {!store.isHistoryOpen && store.lastArchivedConversation && (
         <div className="px-3 pt-2">
           <ArchiveUndo />
@@ -405,6 +402,8 @@ const AgentChatPanel = observer(function AgentChatPanel() {
                     }
                   }}
                 />
+
+                <UsageRing />
 
                 {store.isWorking ? (
                   <ActionTooltip label={t("AgentChat.stop")}>
@@ -998,6 +997,7 @@ const UsageRing = observer(function UsageRing() {
   const { agentChatStore: store } = useRootStore();
   const intlStore = useHydratedIntlStore();
   const t = useTranslations();
+  const [open, setOpen] = useState(false);
   if (!store.usage) return null;
   const usage = store.usage;
   if (usage.creditsLimit <= 0) return null;
@@ -1006,14 +1006,15 @@ const UsageRing = observer(function UsageRing() {
   const circumference = 2 * Math.PI * 7;
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         aria-label={t("AgentChat.credits.usage", { pct })}
-        className="flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
         data-testid="agent-usage"
         id="agent-usage"
+        onMouseEnter={() => setOpen(true)}
       >
-        <svg className="-rotate-90 size-4" viewBox="0 0 18 18">
+        <svg className="-rotate-90 size-5" viewBox="0 0 18 18">
           <circle className="stroke-muted" cx="9" cy="9" fill="none" r="7" strokeWidth="3" />
 
           <circle
@@ -1029,7 +1030,12 @@ const UsageRing = observer(function UsageRing() {
         </svg>
       </PopoverTrigger>
 
-      <PopoverContent align="end" className="w-64 space-y-1 p-3 text-xs text-muted-foreground" side="bottom">
+      <PopoverContent
+        align="end"
+        className="w-64 space-y-1 p-3 text-xs text-muted-foreground"
+        side="top"
+        onMouseLeave={() => setOpen(false)}
+      >
         <p className="font-medium text-foreground tabular-nums">
           {t("AgentChat.credits.remaining", {
             remaining: usage.creditsRemaining,
@@ -1051,78 +1057,6 @@ const UsageRing = observer(function UsageRing() {
         )}
       </PopoverContent>
     </Popover>
-  );
-});
-
-const AgentToolbar = observer(function AgentToolbar() {
-  const { agentChatStore: store } = useRootStore();
-  const t = useTranslations();
-  const activeModelKey = store.selectedModelKey ?? store.models.find((model) => model.isDefault)?.key;
-  const speeds = store.availableSpeedKeys;
-  const activeSpeedKey = store.activeSpeedKey;
-
-  return (
-    <div className="flex items-center gap-1 border-b px-3 py-1.5" data-testid="agent-toolbar">
-      {activeModelKey && (
-        <Select
-          disabled={!store.isModelSelectable}
-          value={activeModelKey}
-          onValueChange={(next) => runUserAction(() => store.selectModel(next))}
-        >
-          <SelectTrigger
-            aria-label={t("AgentChat.modelPicker.label")}
-            className="h-6 w-auto gap-1 border-transparent bg-transparent px-1.5 text-xs shadow-none"
-            id="agent-model-picker"
-          >
-            <span className="truncate">{t(`AgentChat.models.${activeModelKey}.name`)}</span>
-          </SelectTrigger>
-
-          <SelectContent>
-            {store.models.map((model) => (
-              <SelectItem key={model.key} textValue={t(`AgentChat.models.${model.key}.name`)} value={model.key}>
-                <span className="flex flex-col gap-0.5">
-                  <span className="flex items-center gap-2 text-xs">
-                    {t(`AgentChat.models.${model.key}.name`)}
-
-                    <span className="text-muted-foreground tabular-nums">
-                      {t("AgentChat.modelPicker.costBand", { band: model.costBand })}
-                    </span>
-                  </span>
-
-                  <span className="text-muted-foreground text-xs">
-                    {t(`AgentChat.models.${model.key}.description`)}
-                  </span>
-                </span>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
-
-      {speeds.length > 0 && activeSpeedKey && (
-        <Select value={activeSpeedKey} onValueChange={(next) => runUserAction(() => store.selectSpeed(next))}>
-          <SelectTrigger
-            aria-label={t("AgentChat.speedPicker.label")}
-            className="h-6 w-auto gap-1 border-transparent bg-transparent px-1.5 text-xs text-muted-foreground shadow-none"
-            id="agent-speed-picker"
-          >
-            <span className="truncate">{t(`AgentChat.speeds.${activeSpeedKey}`)}</span>
-          </SelectTrigger>
-
-          <SelectContent>
-            {speeds.map((speed) => (
-              <SelectItem key={speed} textValue={t(`AgentChat.speeds.${speed}`)} value={speed}>
-                {t(`AgentChat.speeds.${speed}`)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
-
-      <div className="ml-auto flex items-center">
-        <UsageRing />
-      </div>
-    </div>
   );
 });
 

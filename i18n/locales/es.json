@@ -325,24 +325,6 @@
       "subtitle": "Pregúnteme lo que quiera sobre su espacio de trabajo o dígame qué hacer y me encargo.",
       "support": "Si algo no sale bien, puedo enviar por correo electrónico a nuestro equipo la conversación reciente, y le responderán por correo electrónico."
     },
-    "modelPicker": {
-      "costBand": "{band}x créditos",
-      "label": "Modelo"
-    },
-    "models": {
-      "balanced": {
-        "description": "Gestiona trabajo de varios pasos y tareas largas. El predeterminado.",
-        "name": "Equilibrado"
-      },
-      "expert": {
-        "description": "El razonamiento más potente, para trabajo difícil. Es el más caro.",
-        "name": "Experto"
-      },
-      "fast": {
-        "description": "Respuestas breves a preguntas sencillas, con los mínimos créditos.",
-        "name": "Rápido"
-      }
-    },
     "placeholder": "Pregunte a su CRM…",
     "runner": {
       "cancelled": "Esta respuesta se ha detenido.",
@@ -353,14 +335,6 @@
       "turnError": "No he podido completar esa solicitud. Inténtalo de nuevo."
     },
     "send": "Enviar",
-    "speedPicker": {
-      "label": "Velocidad"
-    },
-    "speeds": {
-      "high": "Alta",
-      "low": "Baja",
-      "standard": "Estándar"
-    },
     "stop": "Detener",
     "suggestions": {
       "pages": {

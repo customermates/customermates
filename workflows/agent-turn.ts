@@ -1,7 +1,6 @@
 import type { Prisma } from "@/generated/prisma";
 import type { AgentToolDeps } from "@/ee/agent-chat/agent-tools";
 import type { AgentTurnBudget } from "@/ee/agent-chat/agent-budget-policy";
-import type { AgentModelProviderOptions } from "@/ee/agent-chat/model-catalog";
 import type { AgentActivityResource } from "@/ee/agent-chat/agent-activity";
 import type { AgentTranscriptEvent } from "@/ee/agent-chat/agent-turn-transcript";
 import type { AgentTurnTerminalEvent } from "@/ee/agent-chat/agent-durable-stream";
@@ -433,17 +432,6 @@ async function readApprovalDecisions(
   });
 }
 
-function mergeProviderOptions(
-  base: AgentModelProviderOptions,
-  extra: AgentModelProviderOptions,
-): AgentModelProviderOptions {
-  const merged: AgentModelProviderOptions = { ...base };
-
-  for (const [namespace, options] of Object.entries(extra)) merged[namespace] = { ...merged[namespace], ...options };
-
-  return merged;
-}
-
 async function closeTurnStream(): Promise<void> {
   "use step";
   await getWritable().close();
@@ -702,13 +690,10 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           ]),
         ),
         maxOutputTokens: payload.turnBudget.maxOutputTokens,
-        providerOptions: mergeProviderOptions(
-          {
-            gateway: { only: [payload.turnBudget.servingProvider] },
-            openai: { parallelToolCalls: false },
-          },
-          payload.turnBudget.providerOptions ?? {},
-        ),
+        providerOptions: {
+          gateway: { only: [payload.turnBudget.servingProvider] },
+          openai: { parallelToolCalls: false },
+        },
         stopWhen: [
           isStepCount(AGENT_SEGMENT_ROUNDS),
           () => abandoned || cancelled || budgetStop || safetyStop !== null || roundFailure !== null,

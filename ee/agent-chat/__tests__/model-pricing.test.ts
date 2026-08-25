@@ -20,7 +20,7 @@ describe("pinned pricing snapshot", () => {
       pinnedModelEndpoints()
         .map((endpoint) => endpoint.modelId)
         .toSorted(),
-    ).toEqual(["anthropic/claude-opus-5", "openai/gpt-5-nano", "openai/gpt-5.6-luna"]);
+    ).toEqual(["openai/gpt-5-nano", "openai/gpt-5.6-luna"]);
   });
 
   it("resolves by gateway id and by provider-native id alike", () => {

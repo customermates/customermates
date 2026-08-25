@@ -325,24 +325,6 @@
       "subtitle": "Frag mich alles zu deinem Workspace, oder sag mir, was ich für dich erledigen soll.",
       "support": "Wenn etwas nicht klappt, kann ich unserem Team den letzten Gesprächsverlauf per E-Mail senden. Es antwortet dir per E-Mail."
     },
-    "modelPicker": {
-      "costBand": "{band}x Credits",
-      "label": "Modell"
-    },
-    "models": {
-      "balanced": {
-        "description": "Bewältigt mehrstufige Arbeit und längere Aufgaben. Der Standard.",
-        "name": "Ausgewogen"
-      },
-      "expert": {
-        "description": "Die stärkste Analyse für schwierige Arbeit. Kostet am meisten.",
-        "name": "Experte"
-      },
-      "fast": {
-        "description": "Kurze Antworten auf einfache Fragen, für die wenigsten Credits.",
-        "name": "Schnell"
-      }
-    },
     "placeholder": "Frag dein CRM…",
     "runner": {
       "cancelled": "Diese Antwort wurde gestoppt.",
@@ -353,14 +335,6 @@
       "turnError": "Ich konnte diese Anfrage nicht abschließen. Bitte versuche es erneut."
     },
     "send": "Senden",
-    "speedPicker": {
-      "label": "Tempo"
-    },
-    "speeds": {
-      "high": "Hoch",
-      "low": "Niedrig",
-      "standard": "Standard"
-    },
     "stop": "Stopp",
     "suggestions": {
       "pages": {

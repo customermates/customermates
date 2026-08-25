@@ -325,24 +325,6 @@
       "subtitle": "Ask me anything about your workspace, or tell me what to do and I'll take care of it.",
       "support": "If something doesn't work out, I can email our team with the recent conversation, and they reply by email."
     },
-    "modelPicker": {
-      "costBand": "{band}x credits",
-      "label": "Model"
-    },
-    "models": {
-      "balanced": {
-        "description": "Handles multi-step work and longer tasks. The default.",
-        "name": "Balanced"
-      },
-      "expert": {
-        "description": "The strongest reasoning, for difficult work. Costs the most.",
-        "name": "Expert"
-      },
-      "fast": {
-        "description": "Quick answers to simple questions, for the fewest credits.",
-        "name": "Fast"
-      }
-    },
     "placeholder": "Ask your CRM…",
     "runner": {
       "cancelled": "This response was stopped.",
@@ -353,14 +335,6 @@
       "turnError": "I couldn't complete that request. Please try again."
     },
     "send": "Send",
-    "speedPicker": {
-      "label": "Speed"
-    },
-    "speeds": {
-      "high": "High",
-      "low": "Low",
-      "standard": "Standard"
-    },
     "stop": "Stop",
     "suggestions": {
       "pages": {

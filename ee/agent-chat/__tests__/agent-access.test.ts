@@ -346,7 +346,6 @@ describe("agent access", () => {
     expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), {
       model: MODEL_CATALOG.balanced,
       requiredContextBytes: expect.any(Number),
-      speedKey: null,
     });
   });
 

@@ -325,24 +325,6 @@
       "subtitle": "Chiedimi qualsiasi cosa sul tuo workspace, oppure dimmi cosa fare e me ne occupo io.",
       "support": "Se qualcosa non va, posso inviare al nostro team via e-mail la conversazione recente e il team ti risponderà via e-mail."
     },
-    "modelPicker": {
-      "costBand": "{band}x crediti",
-      "label": "Modello"
-    },
-    "models": {
-      "balanced": {
-        "description": "Gestisce lavori in più passaggi e attività lunghe. Il predefinito.",
-        "name": "Bilanciato"
-      },
-      "expert": {
-        "description": "Il ragionamento più forte, per lavori difficili. Costa di più.",
-        "name": "Esperto"
-      },
-      "fast": {
-        "description": "Risposte brevi a domande semplici, con il minimo di crediti.",
-        "name": "Veloce"
-      }
-    },
     "placeholder": "Chiedi al tuo CRM…",
     "runner": {
       "cancelled": "Questa risposta è stata interrotta.",
@@ -353,14 +335,6 @@
       "turnError": "Non sono riuscito a completare la richiesta. Riprova."
     },
     "send": "Invia",
-    "speedPicker": {
-      "label": "Velocità"
-    },
-    "speeds": {
-      "high": "Alta",
-      "low": "Bassa",
-      "standard": "Standard"
-    },
     "stop": "Interrompi",
     "suggestions": {
       "pages": {

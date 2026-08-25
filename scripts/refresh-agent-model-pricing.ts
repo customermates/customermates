@@ -8,7 +8,6 @@ const SNAPSHOT_PATH = join(process.cwd(), "ee/agent-chat/model-pricing.snapshot.
 const PINNED = [
   { modelId: "openai/gpt-5.6-luna", providerNativeModelId: "gpt-5.6-luna", provider: "openai" },
   { modelId: "openai/gpt-5-nano", providerNativeModelId: "gpt-5-nano", provider: "openai" },
-  { modelId: "anthropic/claude-opus-5", providerNativeModelId: "claude-opus-5", provider: "anthropic" },
 ];
 
 type CatalogTier = { cost: string; min?: number; max?: number };
