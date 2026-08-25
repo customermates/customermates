@@ -147,7 +147,8 @@ export class SendLegalDocumentNoticesInteractor {
     const formattingTag = resolveUserFormattingTag(plan.recipient, locale);
     const email = await this.buildEmail(plan, locale, formattingTag);
 
-    await this.emailService.send(email, { throwOnProviderError: true });
+    const accepted = await this.emailService.send(email);
+    if (!accepted) return;
 
     await this.eventService.publish(
       DomainEvent.LEGAL_NOTICE_SENT,
