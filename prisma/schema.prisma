@@ -1638,24 +1638,24 @@ model AgentMessage {
 }
 
 model AgentUsageEvent {
-  id                         String             @id @default(uuid())
+  id                         String               @id @default(uuid())
   companyId                  String
-  company                    Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company                    Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
   userId                     String
   sessionId                  String?
   turnRequestId              String?
-  turnRequest                AgentTurnRequest?  @relation(fields: [turnRequestId], references: [id], onDelete: SetNull)
-  state                      AgentUsageState    @default(reserved)
-  model                      String             @default("")
-  inputTokens                Int                @default(0)
-  outputTokens               Int                @default(0)
-  cacheReadTokens            Int                @default(0)
-  cacheWriteTokens           Int                @default(0)
-  costMicrocents             BigInt             @default(0)
+  turnRequest                AgentTurnRequest?    @relation(fields: [turnRequestId], references: [id], onDelete: SetNull)
+  state                      AgentUsageState      @default(reserved)
+  model                      String               @default("")
+  inputTokens                Int                  @default(0)
+  outputTokens               Int                  @default(0)
+  cacheReadTokens            Int                  @default(0)
+  cacheWriteTokens           Int                  @default(0)
+  costMicrocents             BigInt               @default(0)
   costSource                 AgentUsageCostSource @default(estimated)
-  reservedCredits            Int                @default(0)
-  chargedCredits             Int                @default(0)
-  policyBreach               Boolean            @default(false)
+  reservedCredits            Int                  @default(0)
+  chargedCredits             Int                  @default(0)
+  policyBreach               Boolean              @default(false)
   planSnapshot               SubscriptionPlan
   subscriptionStatusSnapshot SubscriptionStatus
   allowanceCreditsSnapshot   Int
@@ -1663,7 +1663,7 @@ model AgentUsageEvent {
   periodEnd                  DateTime
   providerStartedAt          DateTime?
   settledAt                  DateTime?
-  createdAt                  DateTime           @default(now())
+  createdAt                  DateTime             @default(now())
 
   @@index([userId, createdAt])
   @@index([companyId, createdAt])
@@ -1693,12 +1693,8 @@ model AgentTurnRequest {
   text                    String
   pageRoute               String?
   status                  AgentTurnStatus
-  origin                  AgentTurnOrigin        @default(interactive)
   runId                   String
   externalRunId           String?
-  segmentIndex            Int                    @default(0)
-  lastRoundIndex          Int                    @default(0)
-  accruedCredits          Int                    @default(0)
   modelSpec               String?
   servingProvider         String?
   heartbeatAt             DateTime?
@@ -1726,18 +1722,11 @@ model AgentTurnRequest {
 
 enum AgentTurnStatus {
   running
-  awaitingApproval
   waitingBudget
   needsAttention
   completed
   failed
   uncertain
-}
-
-enum AgentTurnOrigin {
-  interactive
-  schedule
-  webhook
 }
 
 enum AgentTurnTerminalCode {

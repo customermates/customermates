@@ -9,8 +9,6 @@ import { resolveAgentCreditEntitlement, AgentCreditEntitlementBlockedReasonSchem
 import { resolveAgentTurnBudget, type AgentTurnBudget } from "./agent-budget-policy";
 import type { AgentModelEntry } from "./model-catalog";
 
-export type AgentUsageLedgerState = "reserved" | "settled" | "retained" | "released";
-
 export abstract class AgentUsageRepo {
   abstract getUserCreditUsageUnscoped(
     companyId: string,
@@ -58,8 +56,6 @@ export const AgentUsageBlockedReasonSchema = z.enum([
   "credits_exhausted",
   "configuration_unavailable",
 ]);
-
-export type AgentUsageBlockedReason = Data<typeof AgentUsageBlockedReasonSchema>;
 
 export const AgentUsageSummarySchema = z.object({
   creditsUsed: z.number(),

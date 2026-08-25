@@ -5,10 +5,9 @@ CREATE TYPE "AgentUsageState" AS ENUM ('reserved', 'settled', 'retained', 'relea
 CREATE TYPE "AgentUsageCostSource" AS ENUM ('measured', 'estimated');
 
 -- CreateEnum
-CREATE TYPE "AgentTurnStatus" AS ENUM ('running', 'awaitingApproval', 'waitingBudget', 'needsAttention', 'completed', 'failed', 'uncertain');
+CREATE TYPE "AgentTurnStatus" AS ENUM ('running', 'waitingBudget', 'needsAttention', 'completed', 'failed', 'uncertain');
 
 -- CreateEnum
-CREATE TYPE "AgentTurnOrigin" AS ENUM ('interactive', 'schedule', 'webhook');
 
 -- CreateEnum
 CREATE TYPE "AgentToolReceiptState" AS ENUM ('claimed', 'settled', 'abandoned');
@@ -105,12 +104,8 @@ CREATE TABLE "AgentTurnRequest" (
     "text" TEXT NOT NULL,
     "pageRoute" TEXT,
     "status" "AgentTurnStatus" NOT NULL,
-    "origin" "AgentTurnOrigin" NOT NULL DEFAULT 'interactive',
     "runId" TEXT NOT NULL,
     "externalRunId" TEXT,
-    "segmentIndex" INTEGER NOT NULL DEFAULT 0,
-    "lastRoundIndex" INTEGER NOT NULL DEFAULT 0,
-    "accruedCredits" INTEGER NOT NULL DEFAULT 0,
     "modelSpec" TEXT,
     "servingProvider" TEXT,
     "heartbeatAt" TIMESTAMP(3),

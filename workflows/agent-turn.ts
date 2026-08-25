@@ -73,8 +73,6 @@ export type AgentTurnWorkflowPayload = {
   appBaseUrl: string;
   messages: ReplayMessage[];
   turnBudget: AgentTurnBudget;
-  approvalWindowMs?: number;
-  uiCommandWindowMs?: number;
   tenant: WorkflowTenant;
 };
 
@@ -758,7 +756,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           name: call.toolName,
           input: toAgentUiCommandInput(call.toolName, call.input) ?? {},
         }));
-        const uiWindowMs = payload.uiCommandWindowMs ?? AGENT_DURABLE_UI_COMMAND_WINDOW_MS;
+        const uiWindowMs = AGENT_DURABLE_UI_COMMAND_WINDOW_MS;
         const uiHook = createHook<{ commandId: string }>({
           token: agentUiCommandHookToken(payload.conversationId),
         });
@@ -788,7 +786,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         input: call.input,
       }));
 
-      const approvalWindowMs = payload.approvalWindowMs ?? AGENT_DURABLE_APPROVAL_WINDOW_MS;
+      const approvalWindowMs = AGENT_DURABLE_APPROVAL_WINDOW_MS;
       const hook = createHook<{ requestId: string }>({ token: agentApprovalHookToken(payload.conversationId) });
       await openApprovalRequests(payload, requests, approvalWindowMs);
       for (const request of requests) {

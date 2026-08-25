@@ -117,51 +117,6 @@ export function hasRenderableAgentMessageParts(parts: readonly AgentMessagePart[
   return parts.some((part) => part.type !== "text" || part.text.trim().length > 0);
 }
 
-const TOOL_INPUT_DETAIL_MAX_CHARS = 4000;
-const TOOL_INPUT_STRING_MAX_CHARS = 1000;
-const TOOL_INPUT_MAX_DEPTH = 4;
-const TOOL_INPUT_MAX_ITEMS = 30;
-const SENSITIVE_TOOL_INPUT_KEY = /(?:password|passcode|secret|token|authorization|cookie|credential|api[_-]?key)/i;
-
-function sanitizeToolInputValue(value: unknown, depth: number): unknown {
-  if (value == null || typeof value === "number" || typeof value === "boolean") return value;
-  if (typeof value === "string")
-    return value.length > TOOL_INPUT_STRING_MAX_CHARS ? `${value.slice(0, TOOL_INPUT_STRING_MAX_CHARS)}…` : value;
-
-  if (depth >= TOOL_INPUT_MAX_DEPTH) return "[truncated]";
-  if (Array.isArray(value)) {
-    const items = value.slice(0, TOOL_INPUT_MAX_ITEMS).map((item) => sanitizeToolInputValue(item, depth + 1));
-    if (value.length > TOOL_INPUT_MAX_ITEMS) items.push(`[${value.length - TOOL_INPUT_MAX_ITEMS} more items]`);
-    return items;
-  }
-  if (typeof value === "object") {
-    const entries = Object.entries(value as Record<string, unknown>);
-    const sanitized = Object.fromEntries(
-      entries
-        .slice(0, TOOL_INPUT_MAX_ITEMS)
-        .map(([key, item]) => [
-          key,
-          SENSITIVE_TOOL_INPUT_KEY.test(key) ? "[redacted]" : sanitizeToolInputValue(item, depth + 1),
-        ]),
-    );
-    if (entries.length > TOOL_INPUT_MAX_ITEMS)
-      sanitized._truncated = `${entries.length - TOOL_INPUT_MAX_ITEMS} more fields`;
-    return sanitized;
-  }
-  return String(value);
-}
-
-export function sanitizeAgentToolInput(value: unknown): unknown {
-  const sanitized = sanitizeToolInputValue(value, 0);
-  const serialized = JSON.stringify(sanitized);
-  if (serialized.length <= TOOL_INPUT_DETAIL_MAX_CHARS) return sanitized;
-
-  return {
-    preview: `${serialized.slice(0, TOOL_INPUT_DETAIL_MAX_CHARS)}…`,
-    truncated: true,
-  };
-}
-
 export const AgentDataCountsSchema = z.object({
   contacts: z.boolean(),
   organizations: z.boolean(),

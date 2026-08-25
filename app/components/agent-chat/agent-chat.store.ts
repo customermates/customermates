@@ -108,7 +108,6 @@ export class AgentChatStore extends BaseStore {
   isExpanded = false;
   enabled: boolean | null = null;
   usage: AgentUsageSummary | null = null;
-  models: { key: string; costBand: number; isDefault: boolean; speeds: string[]; defaultSpeed: string | null }[] = [];
   counts: AgentDataCounts | null = null;
   conversationId: string | null = null;
   conversations: AgentConversationSummary[] = [];

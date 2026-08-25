@@ -105,7 +105,3 @@ export function resolveAgentModel(key?: string | null): AgentModelEntry {
 
   return MODEL_CATALOG[key];
 }
-
-export function agentModelKeyOfSpec(modelSpec: string): AgentModelKey | null {
-  return CATALOG_KEYS.find((key) => MODEL_CATALOG[key].modelId === modelSpec) ?? null;
-}

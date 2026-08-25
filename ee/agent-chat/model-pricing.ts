@@ -51,7 +51,6 @@ export type TokenCounts = {
 type Tier = z.infer<typeof TierSchema>;
 type Endpoint = z.infer<typeof EndpointSchema>;
 
-const MICROCENTS_PER_USD = 100_000_000;
 const RATE_SCALE_DECIMALS = 12;
 const RATE_SCALE_PER_MICROCENT = 10_000;
 const RATE_SCALE_PER_MILLION_TOKENS = 1_000_000;
@@ -157,12 +156,4 @@ export function computeCostMicrocents(model: string, tokens: TokenCounts, provid
     tokens.cacheWriteTokens * rate(endpoint.inputCacheWrite);
 
   return Math.round(scaled / RATE_SCALE_PER_MICROCENT);
-}
-
-export function usdToMicrocents(usd: number) {
-  return Math.round(usd * MICROCENTS_PER_USD);
-}
-
-export function microcentsToUsd(microcents: number) {
-  return microcents / MICROCENTS_PER_USD;
 }
