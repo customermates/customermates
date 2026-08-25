@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-export const relatedSchema = z.array(z.string()).default([]);
-
 export const metaSchema = z.object({
   description: z.string(),
   title: z.string(),

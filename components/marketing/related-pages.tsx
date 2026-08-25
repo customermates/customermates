@@ -1,132 +1,78 @@
-import type { ContentLocale } from "@/i18n/locale-registry";
+import type { ReactNode } from "react";
 
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { comparePagesSource, featurePagesSource, forPagesSource } from "@/core/fumadocs/source";
-import { contentLocaleOrDefault } from "@/i18n/locale-registry";
 import { compareDisplayTitle } from "@/core/seo/compare-title";
-import { planRelatedLinks } from "@/core/seo/related-selection";
+import { contentLocaleOrDefault } from "@/i18n/locale-registry";
 
-import { HubPostCard, type HubPostCardProps } from "./hub-post-card";
+import { HubPostCard } from "./hub-post-card";
 
-export type RelatedPageItem = Omit<HubPostCardProps, "locale">;
+type ResolvedTarget = { description: string; imageSrc: string; title: string };
 
-type RelatedCandidate = {
-  description: string;
-  related: readonly string[];
-  title: string;
-  url?: string;
-};
-
-export type RelatedCollection = "compare-pages" | "feature-pages" | "for-pages";
-
-type AlternativeTitle = (competitor: string) => string;
-
-const RELATED_COLLECTIONS: Record<
-  RelatedCollection,
-  { hrefBase: string; pages: (locale: string, alternativeTitle: AlternativeTitle) => RelatedCandidate[] }
-> = {
-  "compare-pages": {
-    hrefBase: "/compare",
-    pages: (locale, alternativeTitle) =>
-      comparePagesSource.getPages(locale).map((page) => ({
-        description: page.data.description,
-        related: page.data.related,
-        title: compareDisplayTitle(
-          page.url?.split("/").pop() ?? "",
-          page.data.competitorName,
-          page.data.comparison?.competitor2Name,
-          alternativeTitle,
-        ),
-        url: page.url,
-      })),
-  },
-  "feature-pages": {
-    hrefBase: "/features",
-    pages: (locale) =>
-      featurePagesSource.getPages(locale).map((page) => ({
-        description: page.data.description,
-        related: page.data.related,
-        title: page.data.featureName,
-        url: page.url,
-      })),
-  },
-  "for-pages": {
-    hrefBase: "/for",
-    pages: (locale) =>
-      forPagesSource.getPages(locale).map((page) => ({
-        description: page.data.description,
-        related: page.data.related,
-        title: page.data.industryName,
-        url: page.url,
-      })),
-  },
-};
-
-export function relatedPageItems(
-  collection: RelatedCollection,
+type Resolver = (
   slug: string,
   locale: string,
-  alternativeTitle: AlternativeTitle,
-): RelatedPageItem[] {
-  const config = RELATED_COLLECTIONS[collection];
-  const candidates = config
-    .pages(locale, alternativeTitle)
-    .map((candidate) => ({ ...candidate, slug: candidate.url?.split("/").pop() ?? "" }))
-    .filter((candidate) => candidate.slug.length > 0);
-  const bySlug = new Map(candidates.map((candidate) => [candidate.slug, candidate]));
-  const plan = planRelatedLinks(
-    candidates.map(({ related, slug: entrySlug }) => ({ curated: related, slug: entrySlug })),
-  );
+  alternativeTitle: (competitor: string) => string,
+) => ResolvedTarget | null;
 
-  return (plan.get(slug) ?? []).flatMap((related) => {
-    const target = bySlug.get(related);
-    if (!target) return [];
+const RELATED_SEGMENTS: Record<string, Resolver> = {
+  compare: (slug, locale, alternativeTitle) => {
+    const page = comparePagesSource.getPage([slug], locale);
+    if (!page) return null;
 
-    return [
-      {
-        description: target.description,
-        href: `${config.hrefBase}/${related}`,
-        imageSrc: `${related}.png`,
-        title: target.title,
-      },
-    ];
-  });
-}
+    return {
+      description: page.data.description,
+      imageSrc: `${slug}.png`,
+      title: compareDisplayTitle(
+        slug,
+        page.data.competitorName,
+        page.data.comparison?.competitor2Name,
+        alternativeTitle,
+      ),
+    };
+  },
+  features: (slug, locale) => {
+    const page = featurePagesSource.getPage([slug], locale);
+    if (!page) return null;
 
-export function relatedPagesSlot(collection: RelatedCollection, slug: string) {
-  return async function RelatedPagesSlot() {
-    const locale = await getLocale();
-    const t = await getTranslations();
-    const items = relatedPageItems(collection, slug, locale, (competitor) =>
-      t("ComparePage.alternativeTitle", { competitor }),
-    );
+    return { description: page.data.description, imageSrc: `${slug}.png`, title: page.data.featureName };
+  },
+  for: (slug, locale) => {
+    const page = forPagesSource.getPage([slug], locale);
+    if (!page) return null;
 
-    return <RelatedPages items={items} locale={contentLocaleOrDefault(locale)} />;
-  };
-}
-
-type Props = {
-  items: RelatedPageItem[];
-  locale: ContentLocale;
+    return { description: page.data.description, imageSrc: `${slug}.png`, title: page.data.industryName };
+  },
 };
 
-export async function RelatedPages({ items, locale }: Props) {
-  if (items.length === 0) return null;
-
+export async function RelatedPages({ children }: { children: ReactNode }) {
   const t = await getTranslations();
 
   return (
     <section>
       <h2 className="text-x-2xl">{t("Common.relatedPages")}</h2>
 
-      <div className="not-prose mt-6 grid auto-rows-fr grid-cols-1 gap-6 sm:grid-cols-2">
-        {items.map((item) => (
-          <div key={item.href} className="min-w-0">
-            <HubPostCard {...item} locale={locale} />
-          </div>
-        ))}
-      </div>
+      <div className="not-prose mt-6 grid auto-rows-fr grid-cols-1 gap-6 sm:grid-cols-2">{children}</div>
     </section>
+  );
+}
+
+export async function RelatedPage({ href }: { href: string }) {
+  const locale = await getLocale();
+  const t = await getTranslations();
+  const [, segment, slug] = href.split("/");
+  const resolve = RELATED_SEGMENTS[segment ?? ""];
+
+  if (!resolve || !slug) throw new Error(`RelatedPage href "${href}" is not a related-page route`);
+
+  const target = resolve(slug, locale, (competitor) => t("ComparePage.alternativeTitle", { competitor }));
+
+  if (!target) throw new Error(`RelatedPage href "${href}" resolves to no published page in ${locale}`);
+
+  return (
+    <div className="min-w-0">
+      <HubPostCard {...target} href={href} locale={contentLocaleOrDefault(locale)} />
+    </div>
   );
 }

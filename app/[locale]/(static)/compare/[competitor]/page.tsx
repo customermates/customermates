@@ -15,7 +15,6 @@ import { getMDXComponents } from "@/core/fumadocs/mdx-components";
 import { CTASection } from "@/components/marketing/cta-section";
 import { Toc } from "@/components/shared/toc";
 import { breadcrumbListSchema } from "@/core/seo/schemas";
-import { relatedPagesSlot } from "@/components/marketing/related-pages";
 
 interface Props {
   params: Promise<{
@@ -43,7 +42,7 @@ export default async function CompetitorComparePage({ params }: Props) {
   if (!page) notFound();
 
   const MDX = page.data.body;
-  const components = getMDXComponents({ RelatedPages: relatedPagesSlot("compare-pages", competitor) });
+  const components = getMDXComponents();
 
   return (
     <div className="flex flex-col items-center justify-center pt-16 md:pt-24">

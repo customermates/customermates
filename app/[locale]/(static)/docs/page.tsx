@@ -14,6 +14,8 @@ import { docNavI18nKey } from "@/features/docs/docs-nav";
 import { PageContainer } from "@/components/shared/page-container";
 import { Toc } from "@/components/shared/toc";
 import { Footer } from "@/app/components/footer";
+import { JsonLd } from "@/components/seo/json-ld";
+import { breadcrumbListSchema } from "@/core/seo/schemas";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -37,6 +39,13 @@ export default async function DocsOverviewPage() {
 
   return (
     <>
+      <JsonLd
+        schema={breadcrumbListSchema([
+          { name: t("StructuredData.breadcrumb.home"), path: `/${locale}` },
+          { name: t("StructuredData.breadcrumb.docs"), path: `/${locale}/docs` },
+        ])}
+      />
+
       <PageContainer>
         <DocsPageHeader
           description={page.data.description}

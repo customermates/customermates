@@ -1,7 +1,7 @@
 import { frontmatterSchema } from "fumadocs-mdx/config";
 import { z } from "zod";
 
-import { ctaSchema, heroSchema, relatedSchema } from "./common";
+import { ctaSchema, heroSchema } from "./common";
 
 export const comparisonFeatureSchema = z.object({
   name: z.string(),
@@ -30,6 +30,5 @@ export const compareSchema = frontmatterSchema.extend({
   description: z.string(),
   hero: heroSchema,
   competitorName: z.string(),
-  related: relatedSchema,
   title: z.string(),
 });

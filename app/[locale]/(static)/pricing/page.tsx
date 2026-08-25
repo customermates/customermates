@@ -13,6 +13,8 @@ import { CTASection } from "@/components/marketing/cta-section";
 import { WaveDecoration } from "@/components/marketing/wave-decoration";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { pricingSource } from "@/core/fumadocs/source";
+import { JsonLd } from "@/components/seo/json-ld";
+import { softwareApplicationSchema } from "@/core/seo/schemas";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -27,6 +29,8 @@ export default async function PricingPage() {
 
   return (
     <div className="flex flex-col items-center justify-center">
+      <JsonLd schema={softwareApplicationSchema({ description: page.data.description, locale })} />
+
       <section className="relative isolate pt-16 md:pt-24 pb-8 md:pb-12 w-full">
         <WaveDecoration
           className="-top-10 -left-40 w-[min(1000px,90vw)] md:-top-24 md:-left-56"
