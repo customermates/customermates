@@ -155,7 +155,9 @@ const ListUiTargetsSchema = z.object({
     .min(1)
     .max(100)
     .optional()
-    .describe("Optional page name, route, target prefix, or exact target id used to narrow the catalog."),
+    .describe(
+      "Optional page names, routes, target prefixes, or exact target ids. Any word may match, so one query can cover several pages.",
+    ),
   cursor: z.number().int().min(0).max(10_000).optional().describe("Continue a previous result page."),
 });
 
@@ -165,16 +167,23 @@ function compactUiTarget(target: AgentUiTarget) {
   return `${target.id}|${target.route}|${actions}${prerequisite}`;
 }
 
+function uiTargetQueryTokens(query: string | undefined) {
+  return query?.toLocaleLowerCase().match(/[\p{L}\p{N}/-]{2,}/gu) ?? [];
+}
+
+function matchesUiTargetQuery(target: AgentUiTarget, tokens: string[]) {
+  const haystack = `${target.id} ${target.route} ${target.description}`.toLocaleLowerCase();
+  return tokens.some((token) => haystack.includes(token));
+}
+
 function listUiTargets(input: z.infer<typeof ListUiTargetsSchema>, resultMaxChars: number) {
-  const query = input.query?.toLocaleLowerCase();
-  const targets = query
-    ? AGENT_UI_TARGETS.filter((target) =>
-        `${target.id} ${target.route} ${target.description}`.toLocaleLowerCase().includes(query),
-      )
+  const tokens = uiTargetQueryTokens(input.query);
+  const matched = tokens.length
+    ? AGENT_UI_TARGETS.filter((target) => matchesUiTargetQuery(target, tokens))
     : AGENT_UI_TARGETS;
+  const targets = matched.length > 0 ? matched : AGENT_UI_TARGETS;
   const cursor = Math.min(input.cursor ?? 0, targets.length);
   const header = "actions n=navigate,h=highlight,c=click; >target is a prerequisite\n";
-  if (targets.length === 0) return `No interface targets match ${input.query}.`.slice(0, resultMaxChars);
 
   const lines: string[] = [];
   let nextCursor = cursor;

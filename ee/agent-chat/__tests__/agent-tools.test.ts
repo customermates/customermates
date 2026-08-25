@@ -336,6 +336,24 @@ describe("agent tools", () => {
     expect(new Set(seen).size).toBe(seen.length);
   });
 
+  it("answers one query that spans several pages, because the prompt asks for a single focused query", async () => {
+    const tools = getAgentAiTools(deps({ resultMaxChars: 4096 }));
+    const result = String(await execute(tools.list_ui_targets, { query: "contacts, deals, and the dashboard" }));
+
+    expect(result).toContain("nav-contacts");
+    expect(result).toContain("nav-deals");
+    expect(result).toContain("nav-dashboard");
+    expect(result).not.toContain("nav-company-webhooks");
+  });
+
+  it("falls back to the whole catalog rather than stranding the model on an unmatched query", async () => {
+    const tools = getAgentAiTools(deps({ resultMaxChars: 4096 }));
+    const result = String(await execute(tools.list_ui_targets, { query: "zzzz" }));
+
+    expect(result).toContain(AGENT_UI_TARGETS[0].id);
+    expect(result).not.toContain("No interface targets match");
+  });
+
   it("discovers the connected-account destination and walkthrough control together", async () => {
     const tools = getAgentAiTools(deps({ resultMaxChars: 512 }));
     const workflow = String(await execute(tools.list_ui_targets, { query: "connected accounts" }));
