@@ -27,7 +27,7 @@ const GUARD_EXEMPT_MODELS = new Set([
 ]);
 
 const REACHED_ONLY_FROM_BYPASSED_CALLERS = new Set([
-  "core/auth/better-auth.ts:100",
+  "core/auth/better-auth.ts:103",
   "features/user/prisma-user.repository.ts:590",
   "features/user/prisma-user.repository.ts:600",
   "features/user/prisma-user.repository.ts:610",

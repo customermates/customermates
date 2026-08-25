@@ -14,7 +14,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { createZodError, type Validated } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { API_KEY_MAX_EXPIRATION_SECONDS, API_KEY_MIN_EXPIRATION_SECONDS } from "./api-key-expiration";
+import { API_KEY_MIN_EXPIRATION_SECONDS, API_KEY_TECHNICAL_MAX_EXPIRATION_SECONDS } from "./api-key-expiration";
 
 const OutputSchema = ApiKeyDtoSchema.extend({
   key: z.string(),
@@ -34,7 +34,7 @@ export const CreateApiKeySchema = z
       });
     }
 
-    if (data.expiresIn !== undefined && data.expiresIn > API_KEY_MAX_EXPIRATION_SECONDS) {
+    if (data.expiresIn !== undefined && data.expiresIn > API_KEY_TECHNICAL_MAX_EXPIRATION_SECONDS) {
       ctx.addIssue({
         code: "custom",
         params: { error: CustomErrorCode.apiKeyMaxExpiration },

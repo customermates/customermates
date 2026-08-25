@@ -21,7 +21,7 @@ vi.mock("next-intl/server", () => ({
 }));
 
 import { CreateApiKeyInteractor } from "../create-api-key.interactor";
-import { API_KEY_MAX_EXPIRATION_SECONDS, API_KEY_MIN_EXPIRATION_SECONDS } from "../api-key-expiration";
+import { API_KEY_MIN_EXPIRATION_SECONDS, API_KEY_TECHNICAL_MAX_EXPIRATION_SECONDS } from "../api-key-expiration";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const createdApiKey = {
@@ -43,21 +43,23 @@ function makeInteractor() {
 beforeEach(() => vi.clearAllMocks());
 
 describe("CreateApiKeyInteractor expiration contract", () => {
-  it.each([undefined, API_KEY_MIN_EXPIRATION_SECONDS, API_KEY_MAX_EXPIRATION_SECONDS])(
-    "accepts an exact supported expiration of %s",
-    async (expiresIn) => {
-      const { createApiKey, interactor } = makeInteractor();
+  it.each([
+    undefined,
+    API_KEY_MIN_EXPIRATION_SECONDS,
+    2 * 365 * 24 * 60 * 60,
+    API_KEY_TECHNICAL_MAX_EXPIRATION_SECONDS,
+  ])("accepts an exact supported expiration of %s", async (expiresIn) => {
+    const { createApiKey, interactor } = makeInteractor();
 
-      const result = await interactor.invoke({ name: "Synthetic integration", expiresIn });
+    const result = await interactor.invoke({ name: "Synthetic integration", expiresIn });
 
-      expect(result).toMatchObject({ ok: true });
-      expect(createApiKey).toHaveBeenCalledExactlyOnceWith({ name: "Synthetic integration", expiresIn });
-    },
-  );
+    expect(result).toMatchObject({ ok: true });
+    expect(createApiKey).toHaveBeenCalledExactlyOnceWith({ name: "Synthetic integration", expiresIn });
+  });
 
   it.each([
     [API_KEY_MIN_EXPIRATION_SECONDS - 1, CustomErrorCode.apiKeyMinExpiration],
-    [API_KEY_MAX_EXPIRATION_SECONDS + 1, CustomErrorCode.apiKeyMaxExpiration],
+    [API_KEY_TECHNICAL_MAX_EXPIRATION_SECONDS + 1, CustomErrorCode.apiKeyMaxExpiration],
   ])("rejects an out-of-range expiration of %s", async (expiresIn, error) => {
     const { createApiKey, interactor } = makeInteractor();
 

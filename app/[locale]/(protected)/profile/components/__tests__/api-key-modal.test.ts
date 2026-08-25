@@ -155,6 +155,7 @@ describe("ApiKeyModal add wizard", () => {
     expect(html).not.toContain("Common.actions.cancel");
     expect(html).toContain('id="name"');
     expect(html).toContain('id="expiresIn"');
+    expect(html).toContain("ApiKeyModal.expiresInPlaceholder");
     expect(html).toContain('id="api-key-save"');
   });
 
