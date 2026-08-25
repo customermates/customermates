@@ -1171,8 +1171,6 @@ const AgentChatItemView = observer(function AgentChatItemView({
         <div className="flex min-w-0 flex-col items-start gap-1.5">
           <div className="w-full text-sm leading-relaxed [&_pre]:overflow-x-auto">
             <MessageResponse>{item.text}</MessageResponse>
-
-            {item.streaming && <Loader2 className="mt-1 size-3 animate-spin text-muted-foreground" />}
           </div>
 
           {!item.streaming && item.text.trim() && (
@@ -1189,7 +1187,7 @@ const AgentChatItemView = observer(function AgentChatItemView({
             </ActionTooltip>
           )}
 
-          <ItemTime at={item.at} />
+          {!item.streaming && <ItemTime at={item.at} />}
         </div>
       </article>
     );
