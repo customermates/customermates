@@ -667,8 +667,8 @@
       "responseComplete": "Antwort abgeschlossen",
       "restore": "Wiederherstellen",
       "retryTurn": "Erneut versuchen",
+      "stepsTook": "{steps, plural, one {# Schritt} other {# Schritte}} · {seconds}s",
       "thinking": "Denkt nach",
-      "thoughtFor": "{seconds}s nachgedacht",
       "turnFailed": "Diese Antwort konnte nicht abgeschlossen werden.",
       "undo": "Rückgängig",
       "untitled": "Neuer Chat"

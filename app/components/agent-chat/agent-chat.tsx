@@ -351,7 +351,11 @@ const AgentChatPanel = observer(function AgentChatPanel() {
 
                   {item.kind === "activity" ? (
                     prev?.kind === "activity" ? null : (
-                      <AgentActivity isWorking={store.isWorking} items={consecutiveActivityItems(store.items, index)} />
+                      <AgentActivity
+                        isTrailing={index + consecutiveActivityItems(store.items, index).length === store.items.length}
+                        isWorking={store.isWorking}
+                        items={consecutiveActivityItems(store.items, index)}
+                      />
                     )
                   ) : (
                     <AgentChatItemView item={item} />
@@ -360,15 +364,9 @@ const AgentChatPanel = observer(function AgentChatPanel() {
               );
             })}
 
-            {store.isWorking && store.items[store.items.length - 1]?.kind !== "assistant" && (
+            {store.isWorking && store.items.length === 0 && (
               <div aria-label={copy.assistantWorking} className="flex items-center gap-1 py-1" role="status">
-                {[0, 1, 2].map((dot) => (
-                  <span
-                    key={dot}
-                    className="size-1.5 rounded-full bg-muted-foreground/60 animate-typing-dot motion-reduce:animate-none"
-                    style={{ animationDelay: `${dot * 160}ms` }}
-                  />
-                ))}
+                <TypingDots />
               </div>
             )}
           </div>
@@ -923,7 +921,7 @@ function chatUiCopy(t: ChatTranslator) {
     undo: t("AgentChat.ui.undo"),
     untitled: t("AgentChat.ui.untitled"),
     thinking: t("AgentChat.ui.thinking"),
-    thoughtFor: (seconds: number) => t("AgentChat.ui.thoughtFor", { seconds }),
+    stepsTook: (steps: number, seconds: number) => t("AgentChat.ui.stepsTook", { steps, seconds }),
   };
 }
 
@@ -1275,22 +1273,39 @@ function consecutiveActivityItems(items: AgentChatItem[], start: number) {
   return activities;
 }
 
+function TypingDots() {
+  return (
+    <span className="flex items-center gap-1">
+      {[0, 1, 2].map((dot) => (
+        <span
+          key={dot}
+          className="size-1.5 rounded-full bg-muted-foreground/60 animate-typing-dot motion-reduce:animate-none"
+          style={{ animationDelay: `${dot * 160}ms` }}
+        />
+      ))}
+    </span>
+  );
+}
+
 const AgentActivity = observer(function AgentActivity({
   isWorking,
+  isTrailing,
   items,
 }: {
   isWorking: boolean;
+  isTrailing: boolean;
   items: Extract<AgentChatItem, { kind: "activity" }>[];
 }) {
   const t = useTranslations();
   const uiCopy = chatUiCopy(t);
   const terminology = useAgentActivityTerminology();
   const hasRunning = items.some((item) => item.status === "running");
+  const isPending = isWorking && isTrailing;
   const hasError = items.some((item) => item.status === "error");
   const hasCancelled = items.some((item) => item.status === "cancelled");
   const { open, setOpen, elapsedSeconds } = useActivityGroupState({
     hasError,
-    hasRunning,
+    hasRunning: hasRunning || isPending,
     isWorking,
     startedAt: items[0]?.at,
   });
@@ -1307,11 +1322,14 @@ const AgentActivity = observer(function AgentActivity({
           items.map((item) => item.status),
           t,
         );
-  const summary = hasRunning
-    ? uiCopy.thinking
-    : !hasError && !hasCancelled && elapsedSeconds !== null
-      ? uiCopy.thoughtFor(elapsedSeconds)
-      : settledSummary;
+  const runningItem = items.find((item) => item.status === "running");
+  const runningLabel = runningItem ? agentActivityCopy(runningItem.activity, t, terminology).running : uiCopy.thinking;
+  const summary =
+    hasRunning || isPending
+      ? runningLabel
+      : !hasError && !hasCancelled && elapsedSeconds !== null
+        ? uiCopy.stepsTook(items.length, elapsedSeconds)
+        : settledSummary;
 
   return (
     <details
@@ -1322,7 +1340,7 @@ const AgentActivity = observer(function AgentActivity({
       onToggle={(event) => setOpen(event.currentTarget.open)}
     >
       <summary className="flex cursor-pointer list-none items-center gap-2 text-xs text-muted-foreground transition-colors select-none hover:text-foreground [&::-webkit-details-marker]:hidden">
-        {hasRunning ? (
+        {hasRunning || isPending ? (
           <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />
         ) : hasError ? (
           <X aria-hidden="true" className="size-3.5 text-destructive" />
@@ -1355,6 +1373,7 @@ const AgentActivity = observer(function AgentActivity({
               className={cn(
                 "relative flex gap-2 text-xs",
                 "before:absolute before:top-0 before:-left-4 before:h-[calc(100%+0.75rem)] before:w-px before:bg-border",
+                "before:origin-top before:animate-timeline-grow before:motion-reduce:animate-none",
                 "last:before:h-full",
                 item.status === "error" && "text-destructive",
               )}
@@ -1373,6 +1392,22 @@ const AgentActivity = observer(function AgentActivity({
             </div>
           );
         })}
+
+        {isPending && !hasRunning && (
+          <div
+            aria-label={uiCopy.thinking}
+            className={cn(
+              "relative flex gap-2 text-xs",
+              "before:absolute before:top-0 before:-left-4 before:h-full before:w-px before:bg-border",
+              "before:origin-top before:animate-timeline-grow before:motion-reduce:animate-none",
+            )}
+            role="status"
+          >
+            <span className="mt-1 flex size-3.5 shrink-0 items-center justify-center">
+              <TypingDots />
+            </span>
+          </div>
+        )}
       </div>
     </details>
   );

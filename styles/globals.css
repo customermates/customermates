@@ -65,9 +65,19 @@
   --animate-accordion-up: collapsible-up 200ms ease-out;
   --animate-fade-in: fade-in 300ms ease-out;
   --animate-typing-dot: typing-dot 1.2s ease-in-out infinite;
+  --animate-timeline-grow: timeline-grow 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-page-empty-in: page-empty-in 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-page-result-in: page-result-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-page-loading-in: page-loading-in 160ms ease-out 180ms both;
+}
+
+@keyframes timeline-grow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
 }
 
 @keyframes typing-dot {
