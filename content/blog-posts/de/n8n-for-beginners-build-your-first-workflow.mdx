@@ -484,42 +484,44 @@ Der [n8n-YouTube-Kanal](https://www.youtube.com/@n8n-io) und das [Community-Foru
 
 ## Häufig gestellte Fragen
 
-### Ist n8n wirklich kostenlos?
-
+<Faq>
+<FaqItem question="Ist n8n wirklich kostenlos?">
 Selbst gehostetes n8n ist kostenlos nutzbar mit unbegrenzten Workflow-Ausführungen. Der Quellcode ist offen und auf GitHub verfügbar. n8n Cloud ist ein kostenpflichtiger Managed Service ab 20 EUR/Monat. Die meisten Einsteiger beginnen mit dem Cloud-Plan und wechseln zum Self-Hosting, wenn die Nutzung wächst.
+</FaqItem>
 
-### Brauche ich Programmierkenntnisse, um n8n zu nutzen?
-
+<FaqItem question="Brauche ich Programmierkenntnisse, um n8n zu nutzen?">
 Nein. Der visuelle Workflow-Editor deckt die meisten Automatisierungs-Anwendungsfälle ohne Code ab. Für fortgeschrittene Transformationen bietet n8n Code-Nodes, in denen Sie JavaScript oder Python schreiben können, diese sind aber optional. Wenn Sie Ihre Automatisierung als "Wenn X passiert, mache Y" beschreiben können, können Sie sie in n8n bauen.
+</FaqItem>
 
-### Wie schneidet n8n im Vergleich zu Zapier bei CRM-Automatisierung ab?
-
+<FaqItem question="Wie schneidet n8n im Vergleich zu Zapier bei CRM-Automatisierung ab?">
 n8n ist flexibler und bei wachsendem Volumen deutlich günstiger. Zapier punktet mit der breitesten Auswahl an vorgefertigten Integrationen (6.000+ vs. 400+), aber n8n bietet unbegrenzte Ausführungen beim Self-Hosting, native KI/LLM-Unterstützung, Custom Code und volle Datenkontrolle. Speziell für CRM-Automatisierung machen die tieferen Integrationsmöglichkeiten und KI-Nodes von n8n es zur stärkeren Plattform.
+</FaqItem>
 
-### Kann n8n sich mit jedem CRM verbinden?
-
+<FaqItem question="Kann n8n sich mit jedem CRM verbinden?">
 n8n hat dedizierte Nodes für verbreitete CRMs, darunter Customermates, HubSpot, Pipedrive, Salesforce und Zoho. Für CRMs ohne dedizierten Node ermöglicht der HTTP-Request-Node die Anbindung an jedes CRM mit REST-API. Community Nodes erweitern die Möglichkeiten noch weiter. In der Praxis deckt das praktisch jedes moderne CRM-System ab.
+</FaqItem>
 
-### Ist n8n für den Produktiveinsatz geeignet?
-
+<FaqItem question="Ist n8n für den Produktiveinsatz geeignet?">
 Ja. Tausende Unternehmen betreiben n8n in Produktion. Für Zuverlässigkeit hosten Sie auf einem VPS mit Docker, konfigurieren persistenten Speicher und automatisierte Backups und richten Monitoring ein. Die n8n-Cloud-Option übernimmt all das für Sie. Für geschäftskritische Workflows fügen Sie Fehlerbehandlung und Benachrichtigungen hinzu, damit Sie sofort erfahren, wenn etwas fehlschlägt.
+</FaqItem>
 
-### Wie geht n8n mit DSGVO und Datenschutz um?
-
+<FaqItem question="Wie geht n8n mit DSGVO und Datenschutz um?">
 Selbst gehostetes n8n gibt Ihnen die vollständige Kontrolle, Daten verlassen nie Ihre Server. Bei n8n Cloud werden Daten in der EU verarbeitet. In beiden Fällen greift n8n selbst nicht auf Ihre Workflow-Daten zu und speichert sie nicht über die Ausführung hinaus. In Kombination mit einem DSGVO-konformen CRM wie Customermates (EU-gehostet, ab [[commercial.price.starter.monthly]]/Nutzer/Monat) lassen sich vollständig konforme Automatisierungs-Pipelines aufbauen.
+</FaqItem>
 
-### Was ist der einfachste erste Workflow?
-
+<FaqItem question="Was ist der einfachste erste Workflow?">
 Beginnen Sie mit einem Webhook-zu-Benachrichtigung-Workflow: Daten per Webhook empfangen, Slack- oder E-Mail-Benachrichtigung senden. Das vermittelt die Kernkonzepte (Trigger, Node, Datenfluss, Test, Aktivierung) in unter 10 Minuten. Sobald das läuft, fügen Sie einen CRM-Node zum Speichern der Daten hinzu, und Sie haben eine praktische Lead-Erfassungs-Automatisierung.
+</FaqItem>
 
-### Wie behandle ich Fehler in n8n-Workflows?
-
+<FaqItem question="Wie behandle ich Fehler in n8n-Workflows?">
 Erstellen Sie einen globalen Error-Trigger-Workflow, der Sie benachrichtigt, wenn ein Workflow fehlschlägt. Auf Node-Ebene nutzen Sie Retry-on-Failure für API-Aufrufe, Continue-on-Error für unkritische Schritte und If-Nodes für Datenvalidierung. Die Ausführungshistorie in n8n protokolliert jeden Durchlauf mit vollständigen Ein-/Ausgabedaten und macht Debugging unkompliziert.
+</FaqItem>
 
-### Kann ich Community Nodes auf n8n Cloud nutzen?
-
+<FaqItem question="Kann ich Community Nodes auf n8n Cloud nutzen?">
 Ja. n8n Cloud unterstützt die Installation von Community Nodes über das Einstellungsmenü. Bei selbst gehosteten Instanzen installieren Sie diese via npm. Testen Sie Community Nodes immer in einer Entwicklungsumgebung, bevor Sie sie in Produktions-Workflows einsetzen.
+</FaqItem>
 
-### Was umfasst der n8n Level One Course?
-
+<FaqItem question="Was umfasst der n8n Level One Course?">
 Der offizielle n8n Level One Course umfasst sieben Kapitel: Editor-UI-Navigation, Mini-Workflow bauen, reale Automatisierungs-Anwendungsfälle, Workflow-Design-Prinzipien, mehrteiligen Workflow mit Datenquellen, Filterung, Berechnungen, Benachrichtigungen und Zeitplanung bauen, Export und Import von Workflows sowie ein Abschluss-Quiz. Er ist kostenlos und in der [n8n-Dokumentation](https://docs.n8n.io/courses/level-one/) verfügbar.
+</FaqItem>
+</Faq>

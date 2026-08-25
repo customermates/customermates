@@ -397,34 +397,36 @@ For teams that want maximum automation at minimum cost, Customermates plus n8n p
 
 ## Frequently Asked Questions
 
-### Can ChatGPT really replace a human SDR for lead qualification?
-
+<Faq>
+<FaqItem question="Can ChatGPT really replace a human SDR for lead qualification?">
 Not entirely. ChatGPT excels at the initial scoring pass, applying frameworks consistently and at scale. But it cannot replace the judgment, relationship intelligence, and intuition of an experienced SDR. The best approach is hybrid: AI scores and routes, humans review and engage.
+</FaqItem>
 
-### Which framework should I start with?
-
+<FaqItem question="Which framework should I start with?">
 Start with BANT if your average deal size is under EUR 9,000 and your sales cycle is under 30 days. Use ANUM if your outbound team needs to prioritize authority validation. Try FAINT if you are selling into companies that have not budgeted for your solution category yet. Move to MEDDIC when you consistently sell to buying committees with multi-month timelines. You can always upgrade your prompt later without rebuilding the workflow.
+</FaqItem>
 
-### How accurate is ChatGPT at scoring leads?
-
+<FaqItem question="How accurate is ChatGPT at scoring leads?">
 Accuracy depends on input quality. With detailed form submissions or email threads, ChatGPT achieves scoring consistency comparable to a trained SDR. With sparse data (just a name and email), accuracy drops significantly. The system is most valuable when leads provide substantive information about their needs.
+</FaqItem>
 
-### Does the n8n workflow work with GPT-4o and GPT-3.5?
-
+<FaqItem question="Does the n8n workflow work with GPT-4o and GPT-3.5?">
 Yes. Both models work with the scoring prompts. GPT-4o produces more nuanced scoring and better handles ambiguous signals. GPT-3.5 is faster and cheaper but may miss subtle buying signals. For most teams, GPT-4o is worth the small cost difference.
+</FaqItem>
 
-### How do I handle leads that ChatGPT scores incorrectly?
-
+<FaqItem question="How do I handle leads that ChatGPT scores incorrectly?">
 Build a feedback loop. When a sales rep disagrees with an AI score, they update the classification manually in the CRM. Periodically review these overrides to refine your prompt. Common adjustments include adding industry-specific signal definitions or adjusting score thresholds for your market.
+</FaqItem>
 
-### Is it GDPR-compliant to send lead data to ChatGPT?
-
+<FaqItem question="Is it GDPR-compliant to send lead data to ChatGPT?">
 When using the OpenAI API with a business agreement and DPA, data is processed but not used for training. For maximum compliance, minimize the PII sent (use company name and message content, not personal email addresses), and consider a self-hosted LLM via Ollama for sensitive data. On the CRM side, Customermates uses an EU region for the managed database and publishes a DPA and SCCs, but holds no compliance certification.
+</FaqItem>
 
-### What if I only get 20 leads per month, is automation worth it?
-
+<FaqItem question="What if I only get 20 leads per month, is automation worth it?">
 Even at low volume, the consistency benefit matters. Manual scoring at 20 leads per month takes less time, but the inconsistency problem persists. If your team has more than one person scoring leads, automation ensures everyone uses the same criteria. The setup time (2-3 hours) pays for itself within the first month through reduced scoring disagreements and faster response times.
+</FaqItem>
 
-### How do I handle leads from referrals that have little written data?
-
+<FaqItem question="How do I handle leads from referrals that have little written data?">
 For referral leads with minimal text data, create a specialized prompt that weights the referral source heavily. Add context like "This lead was referred by [Partner Name], a trusted partner" and instruct ChatGPT to score Authority and Trust higher for verified referrals. Supplement with a brief qualification call and feed the call notes back into the scoring prompt for a revised score.
+</FaqItem>
+</Faq>

@@ -80,23 +80,31 @@ Die Gegenrichtung läuft über die REST API oder MCP, wieder gesteuert von Ihrem
 
 ## Häufig gestellte Fragen
 
-**Hat Customermates eine native Slack-Integration?**
+<Faq>
+<FaqItem question="Hat Customermates eine native Slack-Integration?">
 Nein. Es gibt keine Slack-App, keinen Slack-Kanal im zentralen Posteingang und keinen Slack-Bildschirm im Produkt. Alles auf dieser Seite wird mit einem externen Automatisierungstool gegen die Webhook- und REST-Oberflächen gebaut.
+</FaqItem>
 
-**Ist n8n bei Customermates enthalten?**
+<FaqItem question="Ist n8n bei Customermates enthalten?">
 Nein. n8n ist ein eigenes Open-Source-Produkt. Sie hosten es selbst oder abonnieren n8ns Cloud. Customermates veröffentlicht dafür eine [Community-Node](https://github.com/customermates/n8n-nodes-crm) und dokumentiert die [Integrationsmuster](/docs/n8n), und damit endet die Beziehung.
+</FaqItem>
 
-**Kann ich stattdessen Zapier oder Make nutzen?**
+<FaqItem question="Kann ich stattdessen Zapier oder Make nutzen?">
 Ja. Nichts an der Webhook- oder REST-Oberfläche ist n8n-spezifisch. Jedes Tool, das ein HTTP-POST empfangen und eine HTTP-API aufrufen kann, funktioniert.
+</FaqItem>
 
-**Welche Events kann ich abonnieren?**
+<FaqItem question="Welche Events kann ich abonnieren?">
 [[derived.webhooks.events.total]] Events über Datensätze und Messaging. Die vollständige Liste steht unter [Webhooks](/docs/webhooks).
+</FaqItem>
 
-**Kann ich CRM-Daten ohne Code nach Slack posten?**
+<FaqItem question="Kann ich CRM-Daten ohne Code nach Slack posten?">
 Ja, in dem Sinne, dass n8n, Make und Zapier visuelle Builder sind. Den Workflow entwerfen Sie trotzdem selbst; eine vorkonfigurierte Customermates-zu-Slack-Vorlage von uns gibt es nicht.
+</FaqItem>
 
-**Wird es jemals eine native Slack-Integration geben?**
+<FaqItem question="Wird es jemals eine native Slack-Integration geben?">
 Sie steht nicht als zugesagter Punkt auf der Roadmap, und wir führen sie hier nicht auf, bevor es sie gibt.
+</FaqItem>
+</Faq>
 
 ## Loslegen
 

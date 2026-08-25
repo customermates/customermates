@@ -288,38 +288,52 @@ Deutsche B2B-Unternehmen haben spezifische Anforderungen, die die CRM-KI-Auswahl
 
 ## Häufige Fragen
 
-**Was ist ein KI-natives CRM?**
+<Faq>
+<FaqItem question="Was ist ein KI-natives CRM?">
 Ein KI-natives CRM ist von Grund auf für KI-Agenten entworfen, die Daten lesen und schreiben können. Es unterscheidet sich von Legacy-CRMs mit nachgerüsteten KI-Funktionen, weil die Architektur den Agentenzugang als erstklassige Fähigkeit behandelt, nicht als nachträglichen Gedanken.
+</FaqItem>
 
-**Was ist der Unterschied zwischen KI-nativem und KI-first-CRM?**
+<FaqItem question="Was ist der Unterschied zwischen KI-nativem und KI-first-CRM?">
 Die Begriffe sind austauschbar. Beide bezeichnen CRMs, in denen KI der primäre Mechanismus für Dateneingabe und Prozessautomatisierung ist, keine sekundäre Funktion.
+</FaqItem>
 
-**Kann ein CRM gleichzeitig Open Source und KI-nativ sein?**
+<FaqItem question="Kann ein CRM gleichzeitig Open Source und KI-nativ sein?">
 Ja. Customermates ist ein Beispiel: Es ist Open Source (AGPL), selbst hostbar und stellt eine vollständige MCP-API bereit, damit jeder KI-Assistent es nativ bedienen kann.
+</FaqItem>
 
-**Wie unterscheidet sich ein generatives KI-CRM von einem KI-nativen?**
+<FaqItem question="Wie unterscheidet sich ein generatives KI-CRM von einem KI-nativen?">
 Ein generatives KI-CRM nutzt KI, um Inhalte wie E-Mails oder Gesprächszusammenfassungen zu erstellen. Ein KI-natives CRM tut dies ebenfalls, erlaubt KI-Agenten aber zusätzlich, Aktionen im System auszuführen (Datensätze anlegen, Deals voranbringen, Aufgaben zuweisen), ohne menschlichen Input.
+</FaqItem>
 
-**Welches CRM mit KI eignet sich für kleine Teams?**
+<FaqItem question="Welches CRM mit KI eignet sich für kleine Teams?">
 Für Teams bis zehn Personen sind folk und Customermates gute Optionen, da die Preisgestaltung pauschal pro Nutzer ohne Funktionsstaffeln ist. Customermates bietet zusätzlich die Möglichkeit des Self-Hostings und ist vollständig Open Source.
+</FaqItem>
 
-**Wie lange dauert die Einführung eines KI-nativen CRMs?**
+<FaqItem question="Wie lange dauert die Einführung eines KI-nativen CRMs?">
 Die technische Migration für ein Team von fünf bis zehn Personen dauert wenige Stunden. Die Workflow-Anpassung (lernen, dass die KI Datensätze aktualisiert statt der Mitarbeiter selbst) dauert typischerweise ein bis zwei Wochen.
+</FaqItem>
 
-**Ist Customermates kostenlos?**
+<FaqItem question="Ist Customermates kostenlos?">
 Es gibt eine [[commercial.trial.days]]-tägige kostenlose Testversion mit vollem Pro-Zugang, ohne Kreditkarte. Self-Hosting ist kostenlos. Die Cloud-Version beginnt bei [[commercial.price.starter.monthly]] pro Nutzer und Monat (Starter-Stufe). Mehr auf der [Preisseite](/pricing).
+</FaqItem>
 
-**Was sind die Grenzen von KI im CRM?**
+<FaqItem question="Was sind die Grenzen von KI im CRM?">
 KI im CRM ist so gut wie die Daten, die sie verarbeitet. Schlechte Ausgangsdaten führen zu schlechten KI-Ergebnissen. Außerdem braucht KI bei sensiblen Entscheidungen (z.B. ob ein Deal verloren ist) menschliche Kontrolle. Vollständige Autonomie ist in den meisten Vertriebsszenarien 2026 noch nicht sinnvoll.
+</FaqItem>
 
-**Welches KI-CRM eignet sich für SaaS-Unternehmen?**
+<FaqItem question="Welches KI-CRM eignet sich für SaaS-Unternehmen?">
 SaaS-Unternehmen mit product-led-growth-Modellen profitieren besonders von KI-CRMs, die Produktnutzungsdaten (aus Webhooks) mit Kontakt- und Deal-Daten verbinden. Customermates unterstützt [[derived.webhooks.events.total]] Webhook-Ereignisse ([[derived.webhooks.events.records]] Datensatz + [[derived.webhooks.events.messaging]] Messaging) und erlaubt es, externe Produktdaten per Agent zu pushen. Damit lässt sich ein Lead-Scoring aufbauen, das auf echtem Produktverhalten basiert, nicht nur auf demografischen Daten.
+</FaqItem>
 
-**Kann ich mein bestehendes CRM KI-nativer machen?**
+<FaqItem question="Kann ich mein bestehendes CRM KI-nativer machen?">
 In Grenzen ja. Tools wie Clay, n8n oder Make können externe KI-Funktionen an bestehende CRMs anschließen. Aber: Die strukturellen Einschränkungen der Basis-Architektur bleiben. Wenn Ihr CRM keine vollständige Schreib-API hat, können externe Agenten nicht direkt Datensätze aktualisieren. Ein schrittweiser Ansatz ist sinnvoll: erst externe KI-Tools anschließen, und wenn der Nutzen klar ist, auf ein nativ KI-freundliches System migrieren.
+</FaqItem>
 
-**Wie viele KI-Tools brauche ich für ein funktionierendes KI-CRM-Setup?**
+<FaqItem question="Wie viele KI-Tools brauche ich für ein funktionierendes KI-CRM-Setup?">
 Idealerweise so wenige wie möglich. Ein Stack aus drei Tools ist wartbarer als zehn: das CRM als Datenbasis, ein KI-Agent (Claude, GPT-4o oder ein eigenes Modell) als Verarbeitungsschicht, und ein Automations-Tool (n8n, Make) für Trigger-basierte Workflows. Mehr Tools bedeuten mehr Integrationsaufwand und mehr Ausfallpunkte.
+</FaqItem>
 
-**Ist KI-CRM für das B2C-Vertrieb geeignet?**
+<FaqItem question="Ist KI-CRM für das B2C-Vertrieb geeignet?">
 Weniger. KI-natives CRM ist primär für B2B-Vertriebszyklen mit mehreren Touchpoints, Deal-Tracking und Langzeitbeziehungen optimiert. Im B2C-Bereich mit Millionen von Kunden und transaktionalen Käufen sind Marketing-Automation-Plattformen wie Klaviyo, Braze oder Salesforce Marketing Cloud besser geeignet. Die Grenze verschwimmt bei Enterprise-B2C (Versicherungen, Finanzdienstleister), wo B2B-ähnliche Beziehungen entstehen.
+</FaqItem>
+</Faq>

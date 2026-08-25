@@ -286,34 +286,36 @@ Für Teams, die KI-Zusammenfassung mit CRM-Automatisierung zu niedrigen Gesamtko
 
 ## Häufig gestellte Fragen
 
-### Kann ChatGPT technische Gesprächsnotizen korrekt zusammenfassen?
-
+<Faq>
+<FaqItem question="Kann ChatGPT technische Gesprächsnotizen korrekt zusammenfassen?">
 Ja. ChatGPT verarbeitet technische Inhalte zuverlässig, einschließlich Produkt-Spezifikationen, Software-Anforderungen und Integrationsgespräche. Fügen Sie bei hochspezialisierten Themen eine kurze Kontextzeile in den Prompt ein (z. B. "Dies ist ein B2B-SaaS-Vertriebsgespräch über CRM-Software"), um die Genauigkeit zu verbessern.
+</FaqItem>
 
-### Ist es sicher, Kunden-Gesprächsnotizen in ChatGPT einzufügen?
-
+<FaqItem question="Ist es sicher, Kunden-Gesprächsnotizen in ChatGPT einzufügen?">
 Bei Nutzung der ChatGPT-API mit einem Business-Account verwendet OpenAI Ihre Daten nicht für Training. Die Consumer-Oberfläche von ChatGPT hat andere Bedingungen. Für maximale Sicherheit nutzen Sie die API über n8n und erwägen Sie ein lokales LLM für sensible Branchen wie Gesundheitswesen oder Finanzen.
+</FaqItem>
 
-### Wie lang dürfen die Gesprächsnotizen als Input sein?
-
+<FaqItem question="Wie lang dürfen die Gesprächsnotizen als Input sein?">
 GPT-4o unterstützt bis zu 128.000 Token Input, was rund 96.000 Wörtern entspricht. Selbst ein zweistündiges Meeting-Transkript passt problemlos. Die Zusammenfassungsqualität bleibt auch bei sehr langen Transkripten hoch, da das Modell den gesamten Kontext verarbeitet.
+</FaqItem>
 
-### Funktioniert dieser Workflow mit Meeting-Aufnahme-Tools wie Fireflies, Otter oder Fathom?
-
+<FaqItem question="Funktioniert dieser Workflow mit Meeting-Aufnahme-Tools wie Fireflies, Otter oder Fathom?">
 Ja. Fireflies sendet Transkripte direkt an eine Webhook-URL, was der einfachste Weg für die n8n-Automatisierung ist. Otter.ai und Fathom bieten API-Exporte, die von n8n abgefragt oder getriggert werden können. Richten Sie den Webhook-Trigger in n8n ein, konfigurieren Sie die Verbindung in den Integrationseinstellungen Ihres Meeting-Tools, und die Automatisierung läuft bei jedem Meeting-Ende.
+</FaqItem>
 
-### Was passiert, wenn ChatGPT in der Zusammenfassung etwas falsch erfasst?
-
+<FaqItem question="Was passiert, wenn ChatGPT in der Zusammenfassung etwas falsch erfasst?">
 KI-Zusammenfassungen sollten immer geprüft werden, bevor sie zum offiziellen CRM-Eintrag werden. Bauen Sie einen Prüfschritt in Ihren Workflow ein, entweder eine manuelle Kontrolle oder einen n8n-Node, der die Zusammenfassung dem Deal-Verantwortlichen zur Freigabe sendet, bevor sie ins CRM geschrieben wird.
+</FaqItem>
 
-### Wie unterscheidet sich ChatGPT von der eingebauten Meeting-KI in Tools wie Fathom oder Fireflies?
-
+<FaqItem question="Wie unterscheidet sich ChatGPT von der eingebauten Meeting-KI in Tools wie Fathom oder Fireflies?">
 Die eingebaute Meeting-KI produziert generische Zusammenfassungen, die für das Format des jeweiligen Tools optimiert sind. ChatGPT mit einem individuellen Prompt erzeugt Output, der auf Ihre spezifischen CRM-Felder und Team-Konventionen zugeschnitten ist. Beide ergänzen sich: Nutzen Sie das Meeting-Tool für Echtzeit-Transkription und ChatGPT für CRM-optimierte Zusammenfassungen.
+</FaqItem>
 
-### Funktioniert das auch mit anderen CRM-Systemen außer Customermates?
-
+<FaqItem question="Funktioniert das auch mit anderen CRM-Systemen außer Customermates?">
 Ja. Der n8n-Workflow funktioniert mit jedem CRM, das eine API oder n8n-Integration bietet. HubSpot, Pipedrive, Salesforce, Zoho und viele weitere werden unterstützt. Der ChatGPT-Zusammenfassungsschritt ist CRM-unabhängig, nur der abschließende "Ins CRM schreiben"-Node ändert sich je nach System.
+</FaqItem>
 
-### Kann ich Gesprächsnotizen auf Deutsch oder in anderen Sprachen zusammenfassen?
-
+<FaqItem question="Kann ich Gesprächsnotizen auf Deutsch oder in anderen Sprachen zusammenfassen?">
 Ja. ChatGPT verarbeitet mehrsprachige Ein- und Ausgaben. Sie können deutsche Gesprächsnotizen einreichen und eine deutsche Zusammenfassung erhalten, oder ChatGPT anweisen, deutsche Notizen auf Englisch zusammenzufassen (oder umgekehrt). Fügen Sie eine Sprach-Anweisung in Ihren Prompt ein: "Fasse auf Deutsch zusammen" oder "Summarize in English."
+</FaqItem>
+</Faq>

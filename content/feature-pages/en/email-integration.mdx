@@ -84,33 +84,35 @@ The community self-hosted build does not include the Enterprise Edition unified 
 
 ## Frequently Asked Questions
 
-### Which email accounts can I connect?
-
+<Faq>
+<FaqItem question="Which email accounts can I connect?">
 Hosted connection flows support Gmail, Microsoft Outlook, and IMAP inboxes. A connected account belongs to one user unless it is explicitly shared with the workspace.
+</FaqItem>
 
-### Can I track opens and clicks?
-
+<FaqItem question="Can I track opens and clicks?">
 No. The current product ignores provider open- and click-tracking events and does not expose engagement dashboards.
+</FaqItem>
 
-### Can I schedule or bulk-send email?
-
+<FaqItem question="Can I schedule or bulk-send email?">
 No. Customermates sends email immediately. Scheduled sends, bulk campaigns, reusable templates, and sequences require a separately operated system.
+</FaqItem>
 
-### Can an AI agent draft without sending?
-
+<FaqItem question="Can an AI agent draft without sending?">
 Yes, on an existing thread. An authorized MCP client can save or replace one local reply draft for human review. There is no draft object for a brand-new outbound email, and sending tools deliver immediately.
+</FaqItem>
 
-### Can I send email sequences through an external provider?
-
+<FaqItem question="Can I send email sequences through an external provider?">
 Yes, through separate services. A customer-run n8n workflow can react to documented CRM events, while an external delivery provider owns delays, conditions, branching, sending, limits, logs, and costs. Customermates itself has no sequence engine.
+</FaqItem>
 
-### Is the calendar two-way?
-
+<FaqItem question="Is the calendar two-way?">
 No. Connected Google or Microsoft calendar events appear in a read-only CRM view. Customermates does not create, edit, or schedule provider-calendar events.
+</FaqItem>
 
-### Is my email data stored in the EU?
-
+<FaqItem question="Is my email data stored in the EU?">
 The managed Customermates database runs in an EU region. Application hosting, messaging services, and connected providers may process data elsewhere, including through US providers; this is not a compliance certification. Self-hosting excludes the cloud email integration.
+</FaqItem>
+</Faq>
 
 ## Get Started
 

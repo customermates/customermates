@@ -283,29 +283,40 @@ Test two or three options for four weeks with real data before committing. Licen
 
 ## Frequently asked questions
 
-**What is the difference between a client database and a CRM?**
+<Faq>
+<FaqItem question="What is the difference between a client database and a CRM?">
 A client database stores contact, organization, and relationship data in a structured way. A CRM extends that with sales process management (pipelines, lead tracking, forecasting) and usually marketing functions. In practice, all modern client database tools are also CRM-capable. The difference is more about UX emphasis than a hard category line.
+</FaqItem>
 
-**Can I use Excel as a client database?**
+<FaqItem question="Can I use Excel as a client database?">
 Up to about 50 to 100 active contacts, Excel works. Above that, hygiene gets brittle: duplicates appear, items fall through, multiple people work on different versions in parallel. Switching to a real client database takes a day and resolves these issues structurally.
+</FaqItem>
 
-**What is the best free client database software for small business?**
+<FaqItem question="What is the best free client database software for small business?">
 HubSpot CRM Free is the strongest free tier on the market (up to one million contacts, no time limit). Customermates Community Edition is free for self-hosting under AGPL-3.0 and includes everything (no paywalled features). Notion has a free tier that works for very small teams. Airtable's free tier is limited but functional for small datasets.
+</FaqItem>
 
-**Is open-source client database software safe for production?**
+<FaqItem question="Is open-source client database software safe for production?">
 Yes, when the project is mature, actively maintained, and properly secured. Customermates, EspoCRM, and SuiteCRM all run in production at thousands of organizations. The advantage of open source is auditability: every security professional can review the actual code instead of trusting vendor claims. The downside is that you take on operational responsibility for self-hosting (patching, backups, monitoring).
+</FaqItem>
 
-**Can an AI agent read and update my client database?**
+<FaqItem question="Can an AI agent read and update my client database?">
 With most CRMs, only through the REST API and only if your CRM is on a paid plan that includes API access. With Customermates, the answer is yes natively: the MCP server lets Claude, Codex, or ChatGPT operate the CRM directly with [[derived.mcp.tools.total]] tools covering every operation, including the unified inbox. The CRM updates itself when you forward an email or chat to the agent.
+</FaqItem>
 
-**How do I migrate from a spreadsheet to a real client database?**
+<FaqItem question="How do I migrate from a spreadsheet to a real client database?">
 The route depends on the destination. First clean and normalize the source data. Products with a CSV importer may then offer a field-mapping screen. Customermates has no CSV importer; create supported records through the REST API or an authorized AI agent over MCP. Time and effort depend on data quality, mapping, volume, and the client you use.
+</FaqItem>
 
-**Which client database software has the best free tier?**
+<FaqItem question="Which client database software has the best free tier?">
 HubSpot CRM Free is the most generous free tier on the market: up to one million contacts, five pipelines, basic email tracking, no time limit. Customermates Community Edition is fully free under AGPL-3.0 for self-hosting, with no feature paywall, making it the technically most flexible "free tier" available. Notion Free works for solo users with small datasets. The more important question is usually not the free tier itself, but how fast and expensive the upgrade path becomes once you outgrow it.
+</FaqItem>
 
-**Can I run multiple CRMs in parallel?**
+<FaqItem question="Can I run multiple CRMs in parallel?">
 Technically yes, practically rarely a good idea. Two CRMs in parallel almost always lead to data drift: contacts get updated in one system but not the other, and after three months no one knows which is the truth. A limited transition period of 2 to 4 weeks during a migration is fine, a permanent parallel setup isn't. If you want to cover different use cases (for example marketing in HubSpot, sales in Customermates), pick one as the system of record and sync unidirectionally via n8n or webhooks.
+</FaqItem>
 
-**How long does it take to migrate a database with 10,000 contacts?**
+<FaqItem question="How long does it take to migrate a database with 10,000 contacts?">
 Loading a cleaned OpenRefine export by hand, one API call at a time, is about 1.5 to 2 workdays: half a day cleanup, half a day mapping and test import, half a day full import and verification. With an AI agent like Claude via the Customermates MCP server, the time drops to one morning, because Claude runs cleanup, mapping, import, and anomaly detection in parallel. Consultancies typically quote 2 to 3 days at $1,200 to $1,800 per day, while an AI agent setup costs the cloud license and a few hours of your time.
+</FaqItem>
+</Faq>

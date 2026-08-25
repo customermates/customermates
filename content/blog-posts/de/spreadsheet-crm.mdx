@@ -216,23 +216,32 @@ Mein Vorschlag: testen Sie zwei moderne Self-Serve-CRMs (Pipedrive, HubSpot Free
 
 ## Häufig gestellte Fragen
 
-**Kann ich Excel als CRM nutzen?**
+<Faq>
+<FaqItem question="Kann ich Excel als CRM nutzen?">
 Ja, bis etwa 50 bis 100 aktive Kontakte und 1 bis 3 Vertriebsmitarbeiter funktioniert das gut. Mit drei Tabellenblättern (Kontakte, Deals, Aktivitäten) und einem Pivot-Dashboard haben Sie ein tragfähiges Setup. Über dieser Schwelle stoßen Sie an Multi-User-, Erinnerungs- und Skalierungsgrenzen.
+</FaqItem>
 
-**Wann sollte ich von Excel auf ein CRM umsteigen?**
+<FaqItem question="Wann sollte ich von Excel auf ein CRM umsteigen?">
 Wenn drei oder mehr dieser Punkte zutreffen: mehr als 5 Personen arbeiten parallel, mehr als 500 aktive Kontakte, Sie verpassen Follow-ups, Sie brauchen automatische Erinnerungen oder E-Mail-Integration, Reporting wird komplex, Sie arbeiten viel mobil. Der Wechsel kostet einen Tag, das System bringt das in zwei bis vier Wochen wieder rein.
+</FaqItem>
 
-**Welche Spalten gehören in eine CRM-Vorlage?**
+<FaqItem question="Welche Spalten gehören in eine CRM-Vorlage?">
 Im Kontakte-Blatt: ID, Vorname, Nachname, E-Mail, Telefon, Firma, Position, Lead-Quelle, Status, Verantwortlich, Letzter Kontakt, Notizen. Im Deals-Blatt: Deal-ID, Deal-Name, Kontakt-ID, Firma, Phase, Wert, Wahrscheinlichkeit, Voraussichtlicher Abschluss, Verantwortlich, Nächster Schritt. Im Aktivitäten-Blatt: Datum, Kontakt-ID, Typ, Ergebnis, Nächster Schritt.
+</FaqItem>
 
-**Ist Google Sheets besser als Excel für ein CRM?**
+<FaqItem question="Ist Google Sheets besser als Excel für ein CRM?">
 Für Multi-User-Setups ja, weil Google Sheets von Haus aus für gleichzeitige Bearbeitung gebaut ist. Excel ist mächtiger bei Pivot-Tabellen, Makros und Performance bei großen Datenmengen. Für Solo-Founder ohne Multi-User-Bedarf sind beide etwa gleichwertig. Für 2 bis 5 Personen empfehle ich Google Sheets.
+</FaqItem>
 
-**Gibt es ein kostenloses Open-Source-CRM?**
+<FaqItem question="Gibt es ein kostenloses Open-Source-CRM?">
 Ja. Customermates ist unter AGPL-3.0 lizenziert und kostenlos selbst hostbar via `docker compose up -d`. Drei Container laufen, in 30 Minuten ist das System einsatzbereit. Andere Optionen: EspoCRM, SuiteCRM, Krayin. Die Cloud-Variante von Customermates startet bei [[commercial.price.starter.monthly]] pro Nutzer pro Monat (Starter) und ist in der EU-Region gehostet.
+</FaqItem>
 
-**Brauche ich Apps Script für ein Excel-CRM?**
+<FaqItem question="Brauche ich Apps Script für ein Excel-CRM?">
 Nein, nicht zwingend. Die Vorlage funktioniert ohne jede Skripterweiterung für 1 bis 3 Personen. Sinnvoll wird Apps Script erst, wenn Sie regelmäßig Follow-ups verpassen oder eine automatische E-Mail-Übersicht überfälliger Aktionen wollen. Wer mit dem Code nicht hantieren will, sollte stattdessen direkt zu einem CRM-System wechseln, das Erinnerungen nativ mitbringt.
+</FaqItem>
 
-**Was ist der günstigste Weg von Excel zu einem echten CRM?**
+<FaqItem question="Was ist der günstigste Weg von Excel zu einem echten CRM?">
 Self-Hosting eines Open-Source-CRMs. Customermates läuft auf einem 5-Euro-VPS via `docker compose up -d`, kostenlos unter AGPL-3.0, einzige Kosten sind der Server. EspoCRM, SuiteCRM und Krayin funktionieren genauso. Wer keinen Server pflegen möchte, findet die günstigste Cloud-Option in HubSpot Free (für bis zu 1.000 Kontakte tatsächlich kostenlos) oder Customermates Cloud ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat (Starter). Pipedrive startet bei 14 Euro, Salesforce bei 25 Euro.
+</FaqItem>
+</Faq>

@@ -453,37 +453,39 @@ Für Teams, die Open Source und Self-Hosting schätzen, ist Cal.com + Customerma
 
 ## FAQ
 
-### Integriert sich Calendly mit CRM-Systemen?
-
+<Faq>
+<FaqItem question="Integriert sich Calendly mit CRM-Systemen?">
 Ja. Calendly integriert nativ mit HubSpot und Salesforce. Für andere CRMs wie Pipedrive, Zoho, Freshsales oder Customermates können Sie über Zapier, Make oder n8n eine Verbindung herstellen, indem Sie Calendly's Webhook- und API-System nutzen. Der Webhook-Ansatz ist tatsächlich flexibler als native Integrationen, weil Sie die Logik vollständig kontrollieren.
+</FaqItem>
 
-### Was ist der beste Weg, Calendly mit einem CRM zu verbinden?
-
+<FaqItem question="Was ist der beste Weg, Calendly mit einem CRM zu verbinden?">
 Für HubSpot und Salesforce starten Sie mit der nativen Integration für grundlegende Anforderungen. Für jedes andere CRM oder für fortgeschrittene Workflows (bedingte Deal-Erstellung, Lead-Scoring, Stornierungsbehandlung) bietet n8n die größte Flexibilität ohne Pro-Aufgaben-Kosten und volle DSGVO-Konformität. Zapier ist eine gute Alternative, wenn Sie einen visuellen No-Code-Builder bevorzugen und kein Self-Hosting benötigen.
+</FaqItem>
 
-### Kann Calendly automatisch Deals in meinem CRM erstellen?
-
+<FaqItem question="Kann Calendly automatisch Deals in meinem CRM erstellen?">
 Ja. Ob über eine native Integration (HubSpot, Salesforce) oder ein Automatisierungstool (n8n, Zapier), jede Calendly-Buchung kann automatische Deal-Erstellung, Kontakterstellung, Aufgabenzuweisung, Benachrichtigungen und Follow-up-Sequenzen auslösen.
+</FaqItem>
 
-### Ist die Calendly API kostenlos nutzbar?
-
+<FaqItem question="Ist die Calendly API kostenlos nutzbar?">
 Calendly's API und Webhook-System sind bei allen bezahlten Plänen (Standard ab $10/Benutzer/Monat und höher) verfügbar. Sie können Events wie `invitee.created` und `invitee.canceled` ohne zusätzliche Kosten abonnieren. Der kostenlose Calendly-Plan unterstützt weder Webhooks noch API-Zugang.
+</FaqItem>
 
-### Wie vermeide ich doppelte Kontakte beim Sync von Calendly mit meinem CRM?
-
+<FaqItem question="Wie vermeide ich doppelte Kontakte beim Sync von Calendly mit meinem CRM?">
 Fügen Sie in Ihrem Automatisierungs-Workflow einen Suchschritt hinzu, der bestehende Kontakte per E-Mail-Adresse sucht, bevor ein neuer erstellt wird. Falls eine Übereinstimmung gefunden wird, aktualisieren Sie den bestehenden Datensatz, anstatt ein Duplikat zu erstellen. Behandeln Sie Groß-/Kleinschreibung (E-Mails auf Kleinbuchstaben normalisieren) und prüfen Sie auf existierende Deals, um doppelte Deals für dasselbe Meeting zu vermeiden.
+</FaqItem>
 
-### Welches ist das günstigste CRM für eine Calendly Integration?
-
+<FaqItem question="Welches ist das günstigste CRM für eine Calendly Integration?">
 Customermates ab [[commercial.price.starter.monthly]] pro Nutzer/Monat ist eines der erschwinglichsten CRMs mit einer vollen REST-API für die Calendly Integration. In Kombination mit dem Ihrem eigenen n8n (kostenlos, keine Pro-Aufgaben-Gebühren) betragen die Gesamtkosten einer vollständigen Calendly CRM Integration nur [[commercial.price.starter.monthly]]/Nutzer/Monat. Vergleichen Sie dies mit HubSpot Professional ($100+/Benutzer/Monat für native Calendly-Integration) oder Salesforce Enterprise ($175+/Benutzer/Monat).
+</FaqItem>
 
-### Kann ich Calendly-Stornierungen automatisch in meinem CRM verarbeiten?
-
+<FaqItem question="Kann ich Calendly-Stornierungen automatisch in meinem CRM verarbeiten?">
 Ja. Abonnieren Sie das Webhook-Event `invitee.canceled` in Ihrem Automatisierungstool (n8n oder Zapier). Bei einer Stornierung aktualisieren Sie die Deal-Stufe in Ihrem CRM, erstellen eine Re-Engagement-Aufgabe für den zuständigen Vertriebler und lösen optional eine Umbuchungs-E-Mail-Sequenz aus.
+</FaqItem>
 
-### Funktioniert Calendly mit selbst gehosteten CRMs?
-
+<FaqItem question="Funktioniert Calendly mit selbst gehosteten CRMs?">
 Ja. Calendly's Webhook-System sendet Daten an jede öffentlich erreichbare URL. Wenn Ihr CRM selbst gehostet ist (wie Customermates mit n8n), müssen Sie nur den Webhook-Endpunkt freigeben. Nutzen Sie einen Reverse Proxy mit HTTPS für die Sicherheit.
+</FaqItem>
+</Faq>
 
 ## Fazit
 

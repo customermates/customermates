@@ -1,13 +1,15 @@
 import type { ReactElement, ReactNode } from "react";
 
-import { Children, isValidElement } from "react";
+import { Children, cloneElement, isValidElement } from "react";
+import { ChevronDown } from "lucide-react";
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { JsonLd } from "@/components/seo/json-ld";
+import { cn } from "@/core/utils/cn";
 import { faqPageSchema } from "@/core/seo/schemas";
 
 type FaqItemProps = {
   children: ReactNode;
+  defaultOpen?: boolean;
   question: string;
 };
 
@@ -19,23 +21,30 @@ function plainText(node: ReactNode): string {
   return "";
 }
 
-function faqItemsOf(children: ReactNode): FaqItemProps[] {
-  return Children.toArray(children)
-    .filter((child): child is ReactElement<FaqItemProps> => isValidElement(child) && "question" in (child.props ?? {}))
-    .map((child) => child.props);
+function faqItemsOf(children: ReactNode): ReactElement<FaqItemProps>[] {
+  return Children.toArray(children).filter(
+    (child): child is ReactElement<FaqItemProps> => isValidElement(child) && "question" in (child.props ?? {}),
+  );
 }
 
-export function FaqItem({ children, question }: FaqItemProps) {
+export function FaqItem({ children, defaultOpen = false, question }: FaqItemProps) {
   return (
-    <AccordionItem className="rounded-xl border border-border bg-card px-2 last:border-b" value={question}>
-      <AccordionTrigger className="p-4 text-left text-sm">{question}</AccordionTrigger>
+    <details className="group rounded-xl border border-border bg-card" open={defaultOpen}>
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-4 text-left text-sm font-medium [&::-webkit-details-marker]:hidden">
+        {question}
 
-      <AccordionContent className="px-4 pb-4">
-        <div className="prose prose-sm prose-neutral max-w-none dark:prose-invert [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
-          {children}
-        </div>
-      </AccordionContent>
-    </AccordionItem>
+        <ChevronDown className="size-4 shrink-0 text-subdued transition-transform group-open:rotate-180" />
+      </summary>
+
+      <div
+        className={cn(
+          "prose prose-sm prose-neutral max-w-none px-4 pb-4 dark:prose-invert",
+          "[&>*:first-child]:mt-0 [&>*:last-child]:mb-0",
+        )}
+      >
+        {children}
+      </div>
+    </details>
   );
 }
 
@@ -48,13 +57,16 @@ export function Faq({ children }: { children: ReactNode }) {
     <>
       <JsonLd
         schema={faqPageSchema(
-          items.map((item) => ({ answer: plainText(item.children).trim(), question: item.question })),
+          items.map((item) => ({
+            answer: plainText(item.props.children).trim(),
+            question: item.props.question,
+          })),
         )}
       />
 
-      <Accordion collapsible className="not-prose flex flex-col gap-3" defaultValue={items[0].question} type="single">
-        {children}
-      </Accordion>
+      <div className="not-prose flex flex-col gap-3">
+        {items.map((item, index) => cloneElement(item, { defaultOpen: index === 0, key: item.props.question }))}
+      </div>
     </>
   );
 }

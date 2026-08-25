@@ -80,23 +80,31 @@ The reverse direction runs through the REST API or MCP, again driven by your aut
 
 ## Frequently Asked Questions
 
-**Does Customermates have a native Slack integration?**
+<Faq>
+<FaqItem question="Does Customermates have a native Slack integration?">
 No. There is no Slack app, no Slack channel in the unified inbox, and no Slack screen in the product. Everything on this page is built with an external automation tool against the webhook and REST surfaces.
+</FaqItem>
 
-**Is n8n included with Customermates?**
+<FaqItem question="Is n8n included with Customermates?">
 No. n8n is a separate open-source product. You self-host it or subscribe to n8n's cloud. Customermates publishes a [community node](https://github.com/customermates/n8n-nodes-crm) for it and documents the [integration patterns](/docs/n8n), and that is the extent of the relationship.
+</FaqItem>
 
-**Can I use Zapier or Make instead?**
+<FaqItem question="Can I use Zapier or Make instead?">
 Yes. Nothing in the webhook or REST surface is n8n-specific. Any tool that can receive an HTTP POST and call an HTTP API will work.
+</FaqItem>
 
-**Which events can I subscribe to?**
+<FaqItem question="Which events can I subscribe to?">
 [[derived.webhooks.events.total]] events across records and messaging. The full list is at [Webhooks](/docs/webhooks).
+</FaqItem>
 
-**Can I post CRM data into Slack without writing code?**
+<FaqItem question="Can I post CRM data into Slack without writing code?">
 Yes, in the sense that n8n, Make, and Zapier are visual builders. You still design the workflow yourself; there is no preconfigured Customermates-to-Slack template shipped by us.
+</FaqItem>
 
-**Will there ever be a native Slack integration?**
+<FaqItem question="Will there ever be a native Slack integration?">
 It is not on the roadmap as a committed item, and we will not list it here until it exists.
+</FaqItem>
+</Faq>
 
 ## Get Started
 

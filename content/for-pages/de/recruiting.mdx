@@ -177,38 +177,40 @@ Im Vergleich: Enterprise-Recruiting-Plattformen liegen bei 100 € bis 300 € p
 
 ## Häufig gestellte Fragen
 
-**Ist Customermates ein CRM oder ein ATS?**
-
+<Faq>
+<FaqItem question="Ist Customermates ein CRM oder ein ATS?">
 Es ist ein Recruiting CRM, ausgelegt auf Beziehungspflege, Kandidaten-Pipelines und Kundenverwaltung. Es enthält weder natives Multiposting in Jobbörsen noch ein Hochvolumen-Bewerbungsformular. Wer ATS-Funktionen braucht, koppelt ein dediziertes ATS über die [API](/features/api) und betreibt beide Systeme parallel.
+</FaqItem>
 
-**Kann eine Personalagentur Customermates wirklich statt Bullhorn oder Crelate nutzen?**
-
+<FaqItem question="Kann eine Personalagentur Customermates wirklich statt Bullhorn oder Crelate nutzen?">
 Ja, für die meiste beziehungsorientierte Suche. Agenturen nutzen Customermates für Executive Search, Contracting, retainerbasierte Mandate und kleine bis mittelgroße Agenturarbeit. Wenn Ihre Firma stark auf Multiposting, integrierte Honorarabrechnung oder branchenspezifisches Compliance-Reporting angewiesen ist, kann ein recruiting-spezifisches ATS-CRM-Hybrid wie Bullhorn oder Personio besser passen. Eine [[commercial.trial.days]]-Tage-Testphase liefert die ehrliche Antwort.
+</FaqItem>
 
-**Übernimmt Customermates CV-Parsing?**
-
+<FaqItem question="Übernimmt Customermates CV-Parsing?">
 Natives CV-Parsing steht auf der Roadmap, ist aber heute nicht im Produkt. Das Agent-native Design erlaubt es, einen CV-Parsing-Dienst über die API anzubinden oder Claude über MCP eine PDF lesen zu lassen, der dann strukturierte Felder in den Kandidatendatensatz schreibt. Self-Hosting-Agenturen lösen das so.
+</FaqItem>
 
-**Was bedeutet „Agent-nativ" für ein Recruiting CRM?**
-
+<FaqItem question={"Was bedeutet „Agent-nativ\" für ein Recruiting CRM?"}>
 Es bedeutet, dass Claude, Codex, ChatGPT oder ein anderer MCP-fähiger KI-Agent direkt in Ihr Recruiting CRM lesen und schreiben kann. Der Agent erledigt die Datenpflege: Er liest Ihren Posteingang nach einem Screening-Call, aktualisiert den Kandidatendatensatz, entwirft eine personalisierte Nachfass-Mail auf Basis des Gesprächs, setzt die nächste Erinnerung und schiebt den Kandidaten in die nächste Pipeline-Stufe. Der Recruiter konzentriert sich auf das Gespräch. Das CRM aktualisiert sich selbst.
+</FaqItem>
 
-**Ist Customermates DSGVO-konform für europäisches Recruiting?**
-
+<FaqItem question="Ist Customermates DSGVO-konform für europäisches Recruiting?">
 Ja. Das EU-Hosting läuft auf europäischer Infrastruktur mit verbindlicher EU-Datenresidenz. Self-Hosting gibt Ihnen volle Kontrolle über die Jurisdiktion. In beiden Fällen behalten Sie das Eigentum an den Kandidatendaten, und die Open-Source-Lizenz schließt einen Anbieter-Lock-in aus.
+</FaqItem>
 
-**Wie lange dauert die Migration von einem anderen Recruiting CRM?**
-
+<FaqItem question="Wie lange dauert die Migration von einem anderen Recruiting CRM?">
 Customermates hat keinen CSV-Uploader und keine eingebaute Migrationsmaske. Bereiten und ordnen Sie Kandidaten- und Kundendaten außerhalb des Produkts zu, erstellen Sie unterstützte Datensätze über die [REST API](/features/api) oder einen externen KI-Client per MCP und prüfen Sie das Ergebnis im CRM. Umfang, Dauer, Validierung und Duplikatbehandlung liegen bei Ihrer Integration.
+</FaqItem>
 
-**Kann das Recruiting CRM Wechsel von Zeitarbeit zur Festanstellung tracken?**
-
+<FaqItem question="Kann das Recruiting CRM Wechsel von Zeitarbeit zur Festanstellung tracken?">
 Ja. Richten Sie die Kandidaten-Pipeline mit einer Stufe „Im Einsatz" ein und nutzen Sie eigene Felder für Einsatz-Startdatum und erwartetes Endedatum. Eine Workflow-Regel feuert 30 Tage vor dem Endedatum und erstellt eine Wiedervorlage-Aufgabe: „Verlängerung oder neue Rolle mit dem Kandidaten besprechen." Dieses Gespräch wird zur Quelle für Festanstellungen, Wiederholungs-Platzierungen oder neue Leads aus dem Netzwerk des Kandidaten. Personaldienstleister, die das systematisch tun, wandeln 15 bis 30 Prozent der Vertragsrollen in längerfristige Platzierungen um, statt jedes Engagement kalt enden zu lassen.
+</FaqItem>
 
-**Wie behandelt Customermates Off-Limits- und vertrauliche Kandidaten?**
-
+<FaqItem question="Wie behandelt Customermates Off-Limits- und vertrauliche Kandidaten?">
 Off-Limits-Status lässt sich mit einem eigenen Checkbox-Feld am Kontaktdatensatz sowie Freitext für Grund und Ablaufdatum abbilden. Berechtigungen gelten je Ressource und Aktion mit eigenem oder gesamtem Umfang; private Mandate oder Kandidatenlisten bietet Customermates nicht. Für vollständig vertrauliche Mandate gestalten Sie den Prozess um diese Grenzen und prüfen Self-Hosting sowie jeden verbundenen Anbieter separat.
+</FaqItem>
 
-**Lohnt es sich, ein eigenes Recruiting CRM selbst zu bauen?**
-
+<FaqItem question="Lohnt es sich, ein eigenes Recruiting CRM selbst zu bauen?">
 Manche Agenturen tun das. Wir haben dazu einen separaten Leitfaden mit drei ehrlichen Wegen verfasst: [CRM selbst erstellen](/blog/build-your-own-crm), inklusive realistischer Kosten und Zeiträume. Für die meisten Agenturen ergibt die Rechnung: Open-Source-CRM nehmen, das schon existiert, anpassen, was nötig ist, nächste Woche live gehen. Genau dafür ist Customermates da.
+</FaqItem>
+</Faq>

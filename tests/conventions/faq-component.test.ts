@@ -20,6 +20,22 @@ describe("faq component", () => {
     expect(registry).toContain("FaqItem,");
   });
 
+  it("renders every answer without JavaScript, open or closed", () => {
+    // Radix AccordionContent renders a closed item as <div hidden></div> with no children, so an
+    // answer that is not the default-open one never reaches the server HTML. That was live before
+    // this component existed: 6 of 7 answers on /en/pricing and 4 of 5 on the homepage were absent.
+    // A native disclosure keeps its contents in the DOM in both states, which is the whole reason
+    // this is details/summary rather than the shared Accordion.
+    const component = readFileSync(join(REPO_ROOT, "components/marketing/faq.tsx"), "utf8");
+    expect(component, "a closed Radix accordion item ships no answer").not.toContain("Accordion");
+    expect(component, "the disclosure has to be native to render closed").toContain("<details");
+    expect(component, "the trigger has to be native to render closed").toContain("<summary");
+
+    const section = readFileSync(join(REPO_ROOT, "components/marketing/faq-section.tsx"), "utf8");
+    expect(section, "the frontmatter FAQ must use the same primitive").toContain("FaqItem");
+    expect(section, "it had the same defect and must not keep it").not.toContain("Accordion");
+  });
+
   it("emits FAQPage structured data from the same items it renders", () => {
     // Deriving the schema from anything other than the rendered children is how structured data
     // drifts from the page and starts describing questions that are not there.
@@ -52,10 +68,31 @@ describe("faq component", () => {
     expect(problems).toEqual([]);
   });
 
-  it("converts a locale pair together or not at all", () => {
-    // i18n parity is asserted elsewhere for file existence, not for structure. A converted English
-    // page beside an unconverted German one is a visible inconsistency that nothing else catches.
-    const byPair = new Map<string, Set<string>>();
+  it("keeps markdown out of the question, since an attribute cannot render it", () => {
+    // A question is a JSX attribute, so a link or emphasis written there ships as literal
+    // "[CRM system](/blog/crm-system)" in the accordion trigger. Six questions carried a link
+    // before conversion; each was flattened and the link moved onto the same term in the answer,
+    // so nothing was lost. A link in a disclosure trigger is a competing click target anyway.
+    const problems: string[] = [];
+
+    for (const file of contentFiles()) {
+      const source = readFileSync(file, "utf8");
+      for (const match of source.matchAll(/<FaqItem question=(?:"([^"]*)"|\{"((?:[^"\\]|\\.)*)"\})>/gu)) {
+        const question = match[1] ?? match[2] ?? "";
+        if (!/\[[^\]]+\]\([^)]*\)|\*\*|`/u.test(question)) continue;
+
+        problems.push(`${file.replace(REPO_ROOT + "/", "")}: ${question}`);
+      }
+    }
+
+    expect(problems, "markdown in a question renders as literal source").toEqual([]);
+  });
+
+  it("never leaves a locale pair half converted", () => {
+    // Parity here is about the transform, not the content. Some pages genuinely have an FAQ in one
+    // locale and not the other, which predates this and is not something to fail on. What must
+    // never happen is one locale rendering an accordion while its twin still renders raw prose.
+    const state = new Map<string, Map<string, { converted: boolean; hasFaqHeading: boolean }>>();
 
     for (const file of contentFiles()) {
       const relative = file.replace(REPO_ROOT + "/", "");
@@ -63,13 +100,28 @@ describe("faq component", () => {
       if (!match) continue;
 
       const [, collection, locale, slug] = match;
-      if (!usesFaq(readFileSync(file, "utf8"))) continue;
-
+      const source = readFileSync(file, "utf8");
       const key = `${collection}/${slug}`;
-      byPair.set(key, (byPair.get(key) ?? new Set()).add(locale));
+      const byLocale = state.get(key) ?? new Map();
+
+      byLocale.set(locale, {
+        converted: usesFaq(source),
+        hasFaqHeading: /^## .*(?:Fragen|[Qq]uestions|FAQ)/mu.test(source),
+      });
+      state.set(key, byLocale);
     }
 
-    const lonely = [...byPair.entries()].filter(([, locales]) => locales.size < 2).map(([key]) => key);
-    expect(lonely, "these pages use Faq in one locale only").toEqual([]);
+    const halfDone: string[] = [];
+
+    for (const [key, byLocale] of state) {
+      const entries = [...byLocale.entries()];
+      if (!entries.some(([, value]) => value.converted)) continue;
+
+      for (const [locale, value] of entries) {
+        if (!value.converted && value.hasFaqHeading) halfDone.push(`${key} (${locale} still prose)`);
+      }
+    }
+
+    expect(halfDone, "one locale renders an accordion while its twin renders prose").toEqual([]);
   });
 });

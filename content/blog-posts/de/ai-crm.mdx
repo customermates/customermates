@@ -131,17 +131,24 @@ Wenn Sie das End-to-End ausprobieren wollen, [Customermates](/pricing) liefert M
 
 ## Häufig gestellte Fragen
 
-**Was ist KI im CRM?**
+<Faq>
+<FaqItem question="Was ist KI im CRM?">
 KI im CRM ist der Einsatz von Machine Learning, Large Language Models und KI-Agenten, um die Dateneingabe-, Analyse-, Entwurfs- und Follow-up-Arbeit zu automatisieren, die in einem CRM lebt. Die wertvollste Anwendung ist, den Rep-Tippschritt komplett zu eliminieren: Ein Agent liest die E-Mail oder das Anruf-Transkript und schreibt den strukturierten Datensatz ins CRM zurück.
+</FaqItem>
 
-**Wie verbessert KI das Kundenbeziehungsmanagement?**
+<FaqItem question="Wie verbessert KI das Kundenbeziehungsmanagement?">
 Drei konkrete Wege: (1) Datenaktualität steigt, weil die KI Interaktionen loggt statt auf einen Menschen zu warten, (2) Follow-ups werden schneller und konsistenter entworfen, (3) Reps verbringen ihre Zeit mit Gesprächen und Urteilen statt mit Tippen. Die klassische Adoption-Decke bei CRM-Rollouts ist, dass Reps keine Daten eingeben, und KI-Agenten, die ins CRM schreiben können, eliminieren diese Reibung.
+</FaqItem>
 
-**Welches ist das beste KI-CRM 2026?**
+<FaqItem question="Welches ist das beste KI-CRM 2026?">
 Hängt vom Stack ab. Für Microsoft-Enterprises ist Dynamics 365 mit Copilot for Sales natürlich. Für marketing-getriebene Teams HubSpot mit Breeze. Für vertriebsorientierte KMU Pipedrives KI-Vertriebsassistent. Für Teams, die Claude oder ChatGPT bereits täglich nutzen und wollen, dass der Agent das CRM direkt bedient, ist [Customermates](/pricing) ab [[commercial.price.starter.monthly]] pro User pro Monat mit nativem MCP-Server, n8n-Node und [[derived.webhooks.events.total]] Webhook-Events ([[derived.webhooks.events.records]] Datensatz + [[derived.webhooks.events.messaging]] Messaging) die günstigste Agent-native Option.
+</FaqItem>
 
-**Ist KI im CRM sicher für meine Daten?**
+<FaqItem question="Ist KI im CRM sicher für meine Daten?">
 Kann sie sein, mit dem richtigen Setup. Risiken: halluzinierte Bearbeitungen, Prompt Injection, Leaking von Daten an einen Drittanbieter-KI-Vendor. Gegenmaßnahmen: Wählen Sie ein CRM mit Audit-Logs und Webhook-Events bei jedem Schreibvorgang, bevorzugen Sie Agenten, die Read-Back-Tools aufrufen, um ihre Änderungen zu verifizieren, hosten Sie das CRM in einer Region, die Ihren Datensouveränitäts-Anforderungen entspricht (EU für DSGVO-Kontakte). Open-Source-Self-Hosting (Customermates, [SuiteCRM](https://suitecrm.com)) eliminiert die vendor-seitige Datenexposition komplett.
+</FaqItem>
 
-**Können ChatGPT oder Claude mein CRM direkt bedienen?**
+<FaqItem question="Können ChatGPT oder Claude mein CRM direkt bedienen?">
 Ja, wenn das CRM einen Model-Context-Protocol-Server (MCP) oder eine vollständige REST-API offenlegt. Customermates liefert einen MCP-Server mit [[derived.mcp.tools.total]] Tools, die jede CRM-Operation abdecken, sodass Claude Desktop, Codex oder jeder MCP-kompatible Agent das CRM mit einem JSON-Konfigurationsblock lesen und schreiben kann. Salesforce, HubSpot und Pipedrive bieten partielle MCP-Abdeckung über Community-Server. Für andere CRMs können Sie die Integration über deren REST-API plus einen n8n- oder Zapier-Flow bauen.
+</FaqItem>
+</Faq>
