@@ -47,9 +47,13 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
         globalSearchModalStore.open();
       }
 
-      if (event.key === "j" && rootStore.agentChatEnabled && rootStore.agentChatStore.enabled === true) {
+      if (event.key === "j" && rootStore.agentChatEnabled) {
+        const agentChat = rootStore.agentChatStore;
+        if (agentChat.enabled !== true) return;
+
         event.preventDefault();
-        rootStore.agentChatStore.open();
+        if (agentChat.isOpen) agentChat.close();
+        else agentChat.open();
       }
     }
 

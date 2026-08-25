@@ -90,15 +90,11 @@ export function NavHeader({
               tooltip={assistantBusy ? (assistantBusyLabel ?? assistantLabel) : assistantLabel}
               onClick={(event) => onAssistant(event.currentTarget)}
             >
-              {assistantBusy ? (
-                <Loader2 aria-label={assistantBusyLabel} className="animate-spin text-primary" />
-              ) : (
-                <Sparkles />
-              )}
+              {assistantBusy ? <Loader2 aria-label={assistantBusyLabel} className="animate-spin" /> : <Sparkles />}
 
               <span>{assistantLabel}</span>
 
-              {assistantShortcut && !assistantBusy && (
+              {assistantShortcut && (
                 <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-0.5 rounded border border-sidebar-border bg-sidebar-accent/60 px-1.5 font-sans text-[11px] text-sidebar-foreground/70">
                   {assistantShortcut}
                 </kbd>

@@ -11,6 +11,8 @@ const state = vi.hoisted(() => ({
   getAgentChatStore: vi.fn(),
   openGlobalSearch: vi.fn(),
   openAgentChat: vi.fn(),
+  closeAgentChat: vi.fn(),
+  agentChatOpen: false,
 }));
 
 vi.mock("next/navigation", () => ({ usePathname: () => "/legal-update" }));
@@ -24,7 +26,12 @@ vi.mock("@/core/stores/root-store.provider", () => ({
     },
     get agentChatStore() {
       state.getAgentChatStore();
-      return { enabled: state.agentConfigEnabled, open: state.openAgentChat };
+      return {
+        enabled: state.agentConfigEnabled,
+        isOpen: state.agentChatOpen,
+        open: state.openAgentChat,
+        close: state.closeAgentChat,
+      };
     },
   }),
 }));
@@ -105,6 +112,8 @@ beforeEach(() => {
   state.getAgentChatStore.mockClear();
   state.openGlobalSearch.mockClear();
   state.openAgentChat.mockClear();
+  state.closeAgentChat.mockClear();
+  state.agentChatOpen = false;
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
@@ -180,7 +189,20 @@ describe("ProtectedLayout account-state boundary", () => {
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "j", metaKey: true, bubbles: true }));
 
     expect(container.textContent).toContain("agent-chat");
-    expect(state.getAgentChatStore).toHaveBeenCalledTimes(2);
+    expect(state.getAgentChatStore).toHaveBeenCalledOnce();
     expect(state.openAgentChat).toHaveBeenCalledOnce();
+    expect(state.closeAgentChat).not.toHaveBeenCalled();
+  });
+
+  it("closes the assistant when Cmd+J is pressed again", () => {
+    state.protectedEnhancementsAllowed = true;
+    state.agentChatEnabled = true;
+    state.agentConfigEnabled = true;
+    state.agentChatOpen = true;
+    renderLayout();
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "j", metaKey: true, bubbles: true }));
+
+    expect(state.closeAgentChat).toHaveBeenCalledOnce();
+    expect(state.openAgentChat).not.toHaveBeenCalled();
   });
 });
