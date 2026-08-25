@@ -37,7 +37,6 @@ export const HorizontalBarChart = observer(
             tick={{
               fill: textColor,
               fontSize: 12,
-              fontFamily: "Inter",
             }}
             tickFormatter={(value) =>
               isCurrencyAggregation(aggregationType) ? intlStore.formatCurrency(value) : intlStore.formatNumber(value)
@@ -52,7 +51,6 @@ export const HorizontalBarChart = observer(
             tick={{
               fill: textColor,
               fontSize: 12,
-              fontFamily: "Inter",
             }}
             type="category"
             width="auto"
