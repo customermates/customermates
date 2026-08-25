@@ -20,7 +20,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
-  return generateMetadataFromMeta({ locale, noindex: true, route: "/docs/openapi/:slug", params: { slug } });
+  return generateMetadataFromMeta({ locale, route: "/docs/openapi/:slug", params: { slug } });
 }
 
 export default async function OpenApiDocPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -91,9 +91,9 @@ export default async function OpenApiDocPage({ params }: { params: Promise<{ slu
             </div>
           </div>
         </div>
-      </PageContainer>
 
-      <Footer />
+        <Footer className="-mx-4 -mb-4 w-auto md:-mx-6 md:-mb-6" />
+      </PageContainer>
     </>
   );
 }

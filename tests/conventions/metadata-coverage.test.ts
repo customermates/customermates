@@ -3,7 +3,6 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
-  SITEMAP_CODE_ROUTES,
   SITEMAP_CONTENT_ROUTES,
   SITEMAP_EXTRA_CONTENT_ROUTES,
   PUBLIC_ROUTES_SEO,
@@ -31,7 +30,7 @@ function toSegmentDirectory(segment: string): string {
 // rendered, returned 200, and silently self-competed. This asserts the declaration exists for every
 // URL the sitemap submits.
 describe("metadata coverage", () => {
-  const submittedRoutes = [...SITEMAP_CONTENT_ROUTES, ...SITEMAP_EXTRA_CONTENT_ROUTES, ...SITEMAP_CODE_ROUTES];
+  const submittedRoutes = [...SITEMAP_CONTENT_ROUTES, ...SITEMAP_EXTRA_CONTENT_ROUTES];
 
   it("submits at least the routes this repository publishes", () => {
     expect(submittedRoutes.length, "the submitted set should not be empty").toBeGreaterThan(20);

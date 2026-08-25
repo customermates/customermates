@@ -53,9 +53,9 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
             <MDX components={components} />
           </div>
         </Toc>
-      </PageContainer>
 
-      <Footer />
+        <Footer className="-mx-4 -mb-4 w-auto md:-mx-6 md:-mb-6" />
+      </PageContainer>
     </>
   );
 }

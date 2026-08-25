@@ -42,7 +42,7 @@ export const PUBLIC_ROUTES_SEO = [
 
 export type PublicSeoRoute = (typeof PUBLIC_ROUTES_SEO)[number];
 
-const NOINDEX_ROUTE_SET: ReadonlySet<string> = new Set(NOINDEX_PUBLIC_ROUTES);
+const NOINDEX_ROUTE_SET: ReadonlySet<string> = new Set<string>([...NOINDEX_PUBLIC_ROUTES, "/docs/openapi/:slug"]);
 
 export function isNoindexPublicRoute(route: string): boolean {
   return NOINDEX_ROUTE_SET.has(route);
@@ -52,9 +52,7 @@ export const SITEMAP_CONTENT_ROUTES: readonly PublicSeoRoute[] = PUBLIC_ROUTES_S
   (route): route is PublicSeoRoute => !NOINDEX_ROUTE_SET.has(route),
 );
 
-export const SITEMAP_EXTRA_CONTENT_ROUTES = ["/docs/openapi"] as const;
-
-export const SITEMAP_CODE_ROUTES = ["/contact"] as const;
+export const SITEMAP_EXTRA_CONTENT_ROUTES = ["/contact", "/docs/openapi"] as const;
 
 export const PUBLIC_ROUTES = [
   ...PUBLIC_ROUTES_SEO,

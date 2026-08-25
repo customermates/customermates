@@ -5,33 +5,13 @@ import { getTranslations } from "next-intl/server";
 
 import { ContactForm } from "./contact-form";
 
-import { env } from "@/env";
-import { buildAlternateLanguages } from "@/core/seo/alternates";
 import { WaveDecoration } from "@/components/marketing/wave-decoration";
+import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { Footer } from "@/app/components/footer";
-import { CONTENT_LOCALES, buildLocalePath } from "@/i18n/locale-registry";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale });
-  const title = t("ContactPage.metaTitle");
-  const description = t("ContactPage.metaDescription");
-  const canonical = `${env.BASE_URL}${buildLocalePath(locale, "/contact")}`;
-  const languages = buildAlternateLanguages("/contact", CONTENT_LOCALES, env.BASE_URL);
-  const image = {
-    alt: title,
-    height: 630,
-    url: `/og/image.png?${new URLSearchParams({ title, description }).toString()}`,
-    width: 1200,
-  };
-
-  return {
-    alternates: languages ? { canonical, languages } : { canonical },
-    description,
-    openGraph: { description, images: [image], title, type: "website" },
-    title,
-    twitter: { card: "summary_large_image", description, images: [image], title },
-  };
+  return generateMetadataFromMeta({ locale, route: "/contact" });
 }
 
 export default async function ContactPage() {

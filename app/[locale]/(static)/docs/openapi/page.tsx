@@ -118,9 +118,9 @@ export default async function OpenApiOverviewPage() {
             </AppLink>
           ))}
         </div>
-      </PageContainer>
 
-      <Footer />
+        <Footer className="-mx-4 -mb-4 w-auto md:-mx-6 md:-mb-6" />
+      </PageContainer>
     </>
   );
 }

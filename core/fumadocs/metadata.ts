@@ -12,7 +12,6 @@ import { isNoindexPublicRoute } from "@/i18n/routing";
 type GenerateMetadataParams = {
   canonicalPath?: string;
   locale: string;
-  noindex?: boolean;
   route: keyof typeof ROUTE_SOURCE_MAP;
   params?: Record<string, string>;
   titleSuffix?: string;
@@ -21,7 +20,6 @@ type GenerateMetadataParams = {
 export function generateMetadataFromMeta({
   canonicalPath,
   locale,
-  noindex: noindexOverride,
   route,
   params = {},
   titleSuffix,
@@ -39,7 +37,7 @@ export function generateMetadataFromMeta({
 
   const baseTitle = page.data.metaTitle?.trim() || page.data.title?.trim() || "";
   const title = titleSuffix ? `${baseTitle} - ${titleSuffix}` : baseTitle;
-  const description = page.data.metaDescription?.trim() || page.data.description?.trim() || "";
+  const description = page.data.description?.trim() || "";
 
   if (!baseTitle) throw new Error(`The content page backing ${route} in locale ${locale} has no title`);
 
@@ -60,7 +58,7 @@ export function generateMetadataFromMeta({
     width: 1200,
   };
 
-  const noindex = noindexOverride ?? isNoindexPublicRoute(route);
+  const noindex = isNoindexPublicRoute(route);
 
   const metadata: Metadata = {
     alternates: alternates && !noindex ? { canonical, languages: alternates } : { canonical },
