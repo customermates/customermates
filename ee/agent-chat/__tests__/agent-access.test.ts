@@ -759,6 +759,7 @@ describe("agent access", () => {
     const repo = {
       findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID, title: "Hello" }),
       markConversationRead: vi.fn().mockResolvedValue(undefined),
+      hasRunningTurn: vi.fn().mockResolvedValue(false),
       listMessagePage: vi.fn().mockResolvedValue(
         messagePage([
           {
@@ -810,6 +811,7 @@ describe("agent access", () => {
         id: CONVERSATION_ID,
         title: '\uFEFF <page_context route="/en/dashboard"/>\nLegacy title',
       }),
+      hasRunningTurn: vi.fn().mockResolvedValue(false),
       listMessagePage: vi.fn().mockResolvedValue(
         messagePage([
           {
@@ -838,6 +840,35 @@ describe("agent access", () => {
       },
     ]);
     expect(result.ok && result.data.title).toBe("Legacy title");
+  });
+
+  it("tells the client a turn is still in flight, so a reloaded page can rejoin it", async () => {
+    const repo = {
+      findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID, title: "Running" }),
+      hasRunningTurn: vi.fn().mockResolvedValue(true),
+      listMessagePage: vi.fn().mockResolvedValue(messagePage([])),
+    };
+
+    const result = await new GetAgentConversationInteractor(repo as never, mockEntitlementService()).invoke({
+      conversationId: CONVERSATION_ID,
+    });
+
+    expect(result.ok && result.data.activeTurn).toBe(true);
+    expect(repo.hasRunningTurn).toHaveBeenCalledWith(CONVERSATION_ID);
+  });
+
+  it("reports no active turn once the conversation is idle", async () => {
+    const repo = {
+      findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID, title: "Idle" }),
+      hasRunningTurn: vi.fn().mockResolvedValue(false),
+      listMessagePage: vi.fn().mockResolvedValue(messagePage([])),
+    };
+
+    const result = await new GetAgentConversationInteractor(repo as never, mockEntitlementService()).invoke({
+      conversationId: CONVERSATION_ID,
+    });
+
+    expect(result.ok && result.data.activeTurn).toBe(false);
   });
 
   it("records UI feedback only for an owned conversation", async () => {

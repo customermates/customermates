@@ -369,6 +369,8 @@ export class AgentChatStore extends BaseStore {
         this.olderMessagesCursor = data.nextCursor;
         this.appendMessages(data.messages);
       });
+
+      if (data.activeTurn) void this.reattachStream(id, loadVersion);
     } catch {
       if (loadVersion !== this.conversationLoadVersion) return;
       runInAction(() => {
@@ -1053,6 +1055,35 @@ export class AgentChatStore extends BaseStore {
           }
         }, AGENT_TURN_POLL_DELAY_MS);
       } else if (runningConversationId) void this.loadConversation(runningConversationId);
+    }
+  };
+
+  private reattachStream = async (conversationId: string, loadVersion: number) => {
+    if (this.abortController) return;
+
+    const controller = new AbortController();
+    runInAction(() => {
+      this.abortController = controller;
+      this.isWorking = true;
+    });
+
+    try {
+      const response = await fetch(`/api/agent/conversations/${conversationId}/stream`, {
+        signal: controller.signal,
+      });
+      if (!response.ok || !response.body) throw new Error("The assistant run could not be rejoined.");
+      if (loadVersion !== this.conversationLoadVersion) return;
+
+      await this.readStream(response.body);
+    } catch {
+      if (loadVersion !== this.conversationLoadVersion) return;
+    } finally {
+      if (this.abortController === controller) {
+        runInAction(() => {
+          this.abortController = null;
+          this.isWorking = false;
+        });
+      }
     }
   };
 

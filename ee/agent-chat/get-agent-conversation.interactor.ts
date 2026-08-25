@@ -31,6 +31,7 @@ const OutputSchema = z.object({
     }),
   ),
   nextCursor: z.string().nullable(),
+  activeTurn: z.boolean(),
 });
 
 type AgentConversationDetail = Data<typeof OutputSchema>;
@@ -57,7 +58,10 @@ export class GetAgentConversationInteractor extends AuthenticatedInteractor<
     const conversation = await this.repo.findConversation(data.conversationId);
     if (!conversation) return createInteractorFailure(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
-    const page = await this.repo.listMessagePage(conversation.id, data.before);
+    const [page, activeTurn] = await Promise.all([
+      this.repo.listMessagePage(conversation.id, data.before),
+      this.repo.hasRunningTurn(conversation.id),
+    ]);
     const messages = page.messages;
     const safeMessages = messages.map((message) => ({
       id: message.id,
@@ -75,6 +79,7 @@ export class GetAgentConversationInteractor extends AuthenticatedInteractor<
         title: sanitizeAgentConversationTitle(conversation.title),
         messages: safeMessages,
         nextCursor: page.nextCursor,
+        activeTurn,
       },
     };
   }

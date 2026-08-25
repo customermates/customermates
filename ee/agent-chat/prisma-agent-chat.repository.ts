@@ -178,6 +178,20 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     });
   }
 
+  async hasRunningTurn(conversationId: string): Promise<boolean> {
+    const turn = await this.prisma.agentTurnRequest.findFirst({
+      where: {
+        conversationId,
+        companyId: this.companyId,
+        userId: this.userId,
+        status: "running",
+      },
+      select: { id: true },
+    });
+
+    return turn !== null;
+  }
+
   async listConversationPage(args: {
     archived: boolean;
     cursor?: string | null;
