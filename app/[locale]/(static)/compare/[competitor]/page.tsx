@@ -15,9 +15,7 @@ import { getMDXComponents } from "@/core/fumadocs/mdx-components";
 import { CTASection } from "@/components/marketing/cta-section";
 import { Toc } from "@/components/shared/toc";
 import { breadcrumbListSchema } from "@/core/seo/schemas";
-import { RelatedPages, type RelatedPageItem } from "@/components/marketing/related-pages";
-import { ringOrder, selectRelatedSlugs } from "@/core/seo/related-selection";
-import { contentLocaleOrDefault } from "@/i18n/locale-registry";
+import { relatedPagesSlot } from "@/components/marketing/related-pages";
 
 interface Props {
   params: Promise<{
@@ -45,31 +43,7 @@ export default async function CompetitorComparePage({ params }: Props) {
   if (!page) notFound();
 
   const MDX = page.data.body;
-  const components = getMDXComponents();
-
-  const relatedEntries = comparePagesSource
-    .getPages(locale)
-    .map((entry) => ({ entry, slug: entry.url?.split("/").pop() ?? "" }))
-    .filter((candidate) => candidate.slug.length > 0);
-  const relatedBySlug = new Map(relatedEntries.map((candidate) => [candidate.slug, candidate.entry]));
-  const relatedRing = ringOrder(
-    relatedEntries,
-    () => "",
-    (candidate) => candidate.slug,
-  ).map((candidate) => candidate.slug);
-  const relatedItems: RelatedPageItem[] = selectRelatedSlugs(competitor, relatedRing).flatMap((related) => {
-    const target = relatedBySlug.get(related);
-    if (!target) return [];
-
-    return [
-      {
-        description: target.data.description,
-        href: `/compare/${related}`,
-        imageSrc: `${related}.png`,
-        title: target.data.competitorName,
-      },
-    ];
-  });
+  const components = getMDXComponents({ RelatedPages: relatedPagesSlot("compare-pages", competitor) });
 
   return (
     <div className="flex flex-col items-center justify-center pt-16 md:pt-24">
@@ -119,8 +93,6 @@ export default async function CompetitorComparePage({ params }: Props) {
           </div>
         </Toc>
       </section>
-
-      <RelatedPages items={relatedItems} locale={contentLocaleOrDefault(locale)} />
 
       <CTASection {...page.data.cta} />
 

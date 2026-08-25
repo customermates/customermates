@@ -18,6 +18,7 @@ import {
   paginateLocalizedHubPages,
   resolveHubPage,
 } from "@/core/seo/hub-pagination";
+import { compareDisplayTitle } from "@/core/seo/compare-title";
 import { breadcrumbListSchema } from "@/core/seo/schemas";
 import { DEFAULT_LOCALE, buildLocalePath, contentLocaleOrDefault, formattingTagFor } from "@/i18n/locale-registry";
 
@@ -74,14 +75,9 @@ export default async function CompareHubPage({ searchParams }: Props) {
   );
   const items: HubPostGridItem[] = paginated.items
     .map(({ page: p, slug }): HubPostGridItem => {
-      const competitor2 = p.data.comparison?.competitor2Name;
-      let title = p.data.competitorName;
-      if (slug.includes("-vs-") && competitor2) title = `${p.data.competitorName} vs ${competitor2}`;
-      else if (slug.endsWith("-alternative")) {
-        title = t("ComparePage.alternativeTitle", {
-          competitor: p.data.competitorName,
-        });
-      }
+      const title = compareDisplayTitle(slug, p.data.competitorName, p.data.comparison?.competitor2Name, (competitor) =>
+        t("ComparePage.alternativeTitle", { competitor }),
+      );
 
       return {
         description: p.data.description,

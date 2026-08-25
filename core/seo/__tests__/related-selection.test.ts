@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { RELATED_LINK_COUNT, ringOrder, selectRelatedSlugs } from "@/core/seo/related-selection";
+import {
+  RELATED_LINK_COUNT,
+  RELATED_PAGE_LINK_COUNT,
+  planRelatedLinks,
+  ringOrder,
+  selectRelatedSlugs,
+} from "@/core/seo/related-selection";
 
 function slugs(count: number): string[] {
   return Array.from({ length: count }, (_, index) => `post-${String(index + 1).padStart(3, "0")}`);
@@ -84,5 +90,71 @@ describe("related selection", () => {
         (item) => item.slug,
       ).map((item) => item.slug),
     ).toEqual(["a-ai", "b-ai", "a-sales", "z-sales"]);
+  });
+});
+
+describe("planRelatedLinks", () => {
+  function plannedInbound(plan: Map<string, string[]>, pool: string[]): Map<string, number> {
+    const counts = new Map(pool.map((slug) => [slug, 0]));
+    for (const links of plan.values()) for (const slug of links) counts.set(slug, (counts.get(slug) ?? 0) + 1);
+    return counts;
+  }
+
+  it("keeps every curated link, in the order it was written", () => {
+    const pool = slugs(10);
+    const plan = planRelatedLinks(pool.map((slug) => ({ curated: [], slug })));
+    const curated = ["post-007", "post-003"];
+    const withCuration = planRelatedLinks(pool.map((slug) => ({ curated: slug === "post-001" ? curated : [], slug })));
+
+    expect(withCuration.get("post-001")?.slice(0, 2)).toEqual(curated);
+    expect(plan.get("post-001")).not.toEqual(withCuration.get("post-001"));
+  });
+
+  it("drops a curated slug that names no published page, or the page itself", () => {
+    const pool = slugs(8);
+    const plan = planRelatedLinks(
+      pool.map((slug) => ({ curated: slug === "post-001" ? ["post-001", "ghost", "post-004"] : [], slug })),
+    );
+
+    expect(plan.get("post-001")).toContain("post-004");
+    expect(plan.get("post-001")).not.toContain("post-001");
+    expect(plan.get("post-001")).not.toContain("ghost");
+  });
+
+  it("gives every page a full, duplicate-free set of links", () => {
+    const pool = slugs(12);
+    const plan = planRelatedLinks(pool.map((slug) => ({ curated: [], slug })));
+
+    for (const slug of pool) {
+      const links = plan.get(slug) ?? [];
+      expect(links, `${slug} outbound`).toHaveLength(RELATED_PAGE_LINK_COUNT);
+      expect(new Set(links).size, `${slug} repeats a link`).toBe(links.length);
+      expect(links, `${slug} links to itself`).not.toContain(slug);
+    }
+  });
+
+  it("leaves no page without an inbound link, however lopsided the curation", () => {
+    const pool = slugs(20);
+    const hoarded = ["post-001", "post-002", "post-003"];
+    const plan = planRelatedLinks(pool.map((slug) => ({ curated: hoarded.filter((s) => s !== slug), slug })));
+    const inbound = plannedInbound(plan, pool);
+
+    expect([...inbound].filter(([, count]) => count === 0).map(([slug]) => slug)).toEqual([]);
+  });
+
+  it("returns the same plan for the same input", () => {
+    const entries = slugs(9).map((slug) => ({ curated: slug === "post-002" ? ["post-005"] : [], slug }));
+
+    expect([...planRelatedLinks(entries)]).toEqual([...planRelatedLinks([...entries].reverse())]);
+  });
+
+  it("stops short rather than padding when the collection is tiny", () => {
+    const plan = planRelatedLinks([
+      { curated: [], slug: "a" },
+      { curated: [], slug: "b" },
+    ]);
+
+    expect(plan.get("a")).toEqual(["b"]);
+    expect(plan.get("b")).toEqual(["a"]);
   });
 });
