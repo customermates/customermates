@@ -33,7 +33,7 @@ export const VerticalBarChart = observer(
             dataKey="label"
             reversed={Boolean(reverseXAxis)}
             stroke={gridColor}
-            tick={{ fill: textColor, fontSize: 12, fontFamily: "Inter" }}
+            tick={{ fill: textColor, fontSize: 12 }}
             type="category"
           />
 
@@ -42,7 +42,7 @@ export const VerticalBarChart = observer(
             padding={{ top: 1, bottom: 1 }}
             reversed={Boolean(reverseYAxis)}
             stroke={gridColor}
-            tick={{ fill: textColor, fontSize: 12, fontFamily: "Inter" }}
+            tick={{ fill: textColor, fontSize: 12 }}
             tickFormatter={(value) =>
               isCurrencyAggregation(aggregationType) ? intlStore.formatCurrency(value) : intlStore.formatNumber(value)
             }

@@ -1261,7 +1261,8 @@
   },
   "GlobalSearch": {
     "clearRecent": "Leeren",
-    "emptyPrompt": "Tippe los und durchsuche: {contacts}, {organizations}, {deals} und {services}.",
+    "emptyDescription": "Durchsuche {contacts}, {organizations}, {deals} und {services} an einem Ort.",
+    "emptyTitle": "Finde alles in deinem Workspace",
     "groupRecent": "Zuletzt geöffnet",
     "hintNavigate": "Navigieren",
     "hintOpen": "Öffnen",
