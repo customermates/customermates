@@ -35,7 +35,7 @@ export function generateMetadataFromMeta({
     throw new Error(`No content page backs ${route} in locale ${locale}; it would ship with no canonical`);
   }
 
-  const baseTitle = page.data.metaTitle?.trim() || page.data.title?.trim() || "";
+  const baseTitle = page.data.title?.trim() || "";
   const title = titleSuffix ? `${baseTitle} - ${titleSuffix}` : baseTitle;
   const description = page.data.description?.trim() || "";
 

@@ -1,8 +1,6 @@
 import { frontmatterSchema } from "fumadocs-mdx/config";
 import { z } from "zod";
 
-import { seoOverrideFields } from "./common";
-
 const heroSchema = z.object({
   buttonLeftHref: z.string(),
   buttonLeftText: z.string(),
@@ -14,7 +12,6 @@ const heroSchema = z.object({
 });
 
 export const blogSchema = frontmatterSchema.extend({
-  ...seoOverrideFields,
   description: z.string(),
   hero: heroSchema,
   title: z.string(),

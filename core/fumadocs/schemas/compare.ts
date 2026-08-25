@@ -1,7 +1,7 @@
 import { frontmatterSchema } from "fumadocs-mdx/config";
 import { z } from "zod";
 
-import { ctaSchema, heroSchema, seoOverrideFields } from "./common";
+import { ctaSchema, heroSchema } from "./common";
 
 export const comparisonFeatureSchema = z.object({
   name: z.string(),
@@ -25,7 +25,6 @@ export const comparisonTableSchema = z.object({
 export type ComparisonTable = z.infer<typeof comparisonTableSchema>;
 
 export const compareSchema = frontmatterSchema.extend({
-  ...seoOverrideFields,
   comparison: comparisonTableSchema,
   cta: ctaSchema,
   description: z.string(),

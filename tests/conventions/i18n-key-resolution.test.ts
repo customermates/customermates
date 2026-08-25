@@ -678,6 +678,9 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     "app/[locale]/(protected)/tasks/components/use-task-columns.tsx :: t :: nameKey",
     1,
   ],
+  ["app/[locale]/(static)/docs/[slug]/page.tsx :: t :: navKey", 1],
+  ["app/[locale]/(static)/docs/openapi/page.tsx :: t :: navKey", 1],
+  ["app/[locale]/(static)/docs/page.tsx :: t :: navKey", 1],
   [
     "app/[locale]/(static)/docs/components/docs-sidebar.tsx :: t :: group.i18nKey",
     1,

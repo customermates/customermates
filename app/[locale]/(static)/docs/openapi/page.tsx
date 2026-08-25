@@ -7,6 +7,7 @@ import { DocsPageHeader } from "../components/docs-page-header";
 import { getDocMethod, getDocMethodColor } from "../docs.utils";
 import { env } from "@/env";
 import { apiDocsSource, apiOverviewSource } from "@/core/fumadocs/source";
+import { docNavI18nKey } from "@/features/docs/docs-nav";
 import { PageContainer } from "@/components/shared/page-container";
 import { Alert } from "@/components/shared/alert";
 import { AppLink } from "@/components/shared/app-link";
@@ -50,6 +51,9 @@ export default async function OpenApiOverviewPage() {
 
   if (!page) notFound();
 
+  const navKey = docNavI18nKey("openapi");
+  const headline = navKey ? t(navKey) : page.data.title;
+
   const docs = apiDocsSource.getPages(locale);
   const groupedDocs = docs.reduce<
     Record<string, Array<{ description: string; method?: string; title: string; url: string }>>
@@ -72,11 +76,7 @@ export default async function OpenApiOverviewPage() {
   return (
     <>
       <PageContainer>
-        <DocsPageHeader
-          description={page.data.description}
-          mcpUrl={`${env.BASE_URL}/api/v1/mcp`}
-          title={page.data.title}
-        />
+        <DocsPageHeader description={page.data.description} mcpUrl={`${env.BASE_URL}/api/v1/mcp`} title={headline} />
 
         <Alert color="warning">
           <p className="text-x-sm">{t("DocsPage.liveDataAlert")}</p>

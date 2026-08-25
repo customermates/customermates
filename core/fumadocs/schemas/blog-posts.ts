@@ -1,8 +1,6 @@
 import { frontmatterSchema } from "fumadocs-mdx/config";
 import { z } from "zod";
 
-import { seoOverrideFields } from "./common";
-
 export const blogPostSchema = z.object({
   author: z.string(),
   backToBlog: z.string(),
@@ -19,7 +17,6 @@ const heroSchema = z.object({
 export type Hero = z.infer<typeof heroSchema>;
 
 export const blogPostsSchema = frontmatterSchema.extend({
-  ...seoOverrideFields,
   blogPost: blogPostSchema,
   description: z.string(),
   hero: heroSchema,

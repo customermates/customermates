@@ -1,7 +1,7 @@
 import { frontmatterSchema } from "fumadocs-mdx/config";
 import { z } from "zod";
 
-import { ctaSchema, faqSchema, featuresSchema, seoOverrideFields } from "./common";
+import { ctaSchema, faqSchema, featuresSchema } from "./common";
 
 const benefitItemSchema = z.object({
   description: z.string(),
@@ -33,7 +33,6 @@ export const pricingTitleSchema = z.object({
 export type PricingTitle = z.infer<typeof pricingTitleSchema>;
 
 export const automationSchema = frontmatterSchema.extend({
-  ...seoOverrideFields,
   benefits: benefitsSchema,
   cta: ctaSchema,
   description: z.string(),

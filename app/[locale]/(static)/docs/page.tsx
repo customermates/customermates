@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { notFound } from "next/navigation";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { DocsPageHeader } from "./components/docs-page-header";
 
@@ -10,6 +10,7 @@ import { DocsDemo } from "@/core/fumadocs/docs-demo";
 import { docsSource } from "@/core/fumadocs/source";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
+import { docNavI18nKey } from "@/features/docs/docs-nav";
 import { PageContainer } from "@/components/shared/page-container";
 import { Toc } from "@/components/shared/toc";
 import { Footer } from "@/app/components/footer";
@@ -25,6 +26,10 @@ export default async function DocsOverviewPage() {
 
   if (!page) notFound();
 
+  const t = await getTranslations();
+  const navKey = docNavI18nKey("");
+  const headline = navKey ? t(navKey) : page.data.title;
+
   const MDX = page.data.body;
   const components = getMDXComponents();
   const markdownUrl = `/${locale}/raw/docs/intro-page.md`;
@@ -37,7 +42,7 @@ export default async function DocsOverviewPage() {
           description={page.data.description}
           markdownUrl={markdownUrl}
           mcpUrl={mcpUrl}
-          title={page.data.title}
+          title={headline}
         />
 
         {page.data.demo && <DocsDemo src={page.data.demo.src} title={page.data.demo.title} />}

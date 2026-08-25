@@ -1,11 +1,5 @@
 import { z } from "zod";
 
-export const SEO_TITLE_MAX = 60;
-
-export const seoOverrideFields = {
-  metaTitle: z.string().trim().min(15).max(SEO_TITLE_MAX).optional(),
-};
-
 export const metaSchema = z.object({
   description: z.string(),
   title: z.string(),
