@@ -326,21 +326,6 @@
       "subtitle": "Chiedimi qualsiasi cosa sul tuo workspace, oppure dimmi cosa fare e me ne occupo io.",
       "support": "Se qualcosa non va, posso inviare al nostro team via e-mail la conversazione recente e il team ti risponderà via e-mail."
     },
-    "modelPicker": {
-      "costBand": "{band}x crediti",
-      "label": "Modello",
-      "newConversationsOnly": "Il modello si sceglie all'avvio di una chat."
-    },
-    "models": {
-      "balanced": {
-        "description": "Gestisce lavori in più passaggi e attività più lunghe. La scelta predefinita.",
-        "name": "Bilanciato"
-      },
-      "fast": {
-        "description": "Risposte rapide a domande semplici, con il minor consumo di crediti.",
-        "name": "Veloce"
-      }
-    },
     "placeholder": "Chiedi al tuo CRM…",
     "runner": {
       "cancelled": "Questa risposta è stata interrotta.",

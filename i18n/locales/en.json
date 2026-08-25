@@ -326,21 +326,6 @@
       "subtitle": "Ask me anything about your workspace, or tell me what to do and I'll take care of it.",
       "support": "If something doesn't work out, I can email our team with the recent conversation, and they reply by email."
     },
-    "modelPicker": {
-      "costBand": "{band}x credits",
-      "label": "Model",
-      "newConversationsOnly": "The model is chosen when a chat starts."
-    },
-    "models": {
-      "balanced": {
-        "description": "Handles multi-step work and longer tasks. The default.",
-        "name": "Balanced"
-      },
-      "fast": {
-        "description": "Quick answers to simple questions, for the fewest credits.",
-        "name": "Fast"
-      }
-    },
     "placeholder": "Ask your CRM…",
     "runner": {
       "cancelled": "This response was stopped.",

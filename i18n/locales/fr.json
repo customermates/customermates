@@ -326,21 +326,6 @@
       "subtitle": "Posez-moi toutes vos questions sur votre espace de travail, ou dites-moi quoi faire et je m'en occupe.",
       "support": "Si quelque chose ne fonctionne pas, je peux envoyer la conversation récente à notre équipe par e-mail, qui vous répondra par e-mail."
     },
-    "modelPicker": {
-      "costBand": "{band}x crédits",
-      "label": "Modèle",
-      "newConversationsOnly": "Le modèle se choisit au démarrage d'une conversation."
-    },
-    "models": {
-      "balanced": {
-        "description": "Gère le travail en plusieurs étapes et les tâches plus longues. Le choix par défaut.",
-        "name": "Équilibré"
-      },
-      "fast": {
-        "description": "Des réponses rapides aux questions simples, pour le moins de crédits.",
-        "name": "Rapide"
-      }
-    },
     "placeholder": "Interrogez votre CRM…",
     "runner": {
       "cancelled": "Cette réponse a été arrêtée.",

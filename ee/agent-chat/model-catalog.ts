@@ -109,22 +109,3 @@ export function resolveAgentModel(key?: string | null): AgentModelEntry {
 export function agentModelKeyOfSpec(modelSpec: string): AgentModelKey | null {
   return CATALOG_KEYS.find((key) => MODEL_CATALOG[key].modelId === modelSpec) ?? null;
 }
-
-export type AgentModelOption = {
-  key: AgentModelKey;
-  costBand: number;
-  isDefault: boolean;
-};
-
-export function agentModelOptions(costOf: (entry: AgentModelEntry) => number): AgentModelOption[] {
-  const keys = agentModelKeys();
-  const costs = keys.map((key) => costOf(MODEL_CATALOG[key]));
-  const cheapest = Math.min(...costs);
-  const fallback = defaultAgentModelKey();
-
-  return keys.map((key, index) => ({
-    key,
-    costBand: cheapest > 0 ? Math.max(1, Math.round(costs[index] / cheapest)) : 1,
-    isDefault: key === fallback,
-  }));
-}

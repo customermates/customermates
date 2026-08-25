@@ -51,7 +51,7 @@ import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -381,8 +381,6 @@ const AgentChatPanel = observer(function AgentChatPanel() {
         <div className="px-3 pt-2 pb-3">
           <div className="rounded-xl border border-input bg-card p-2 shadow-xs transition-[color,box-shadow] focus-within:ring-[3px] focus-within:ring-ring/50 focus-within:ring-inset">
             <UsageFooter />
-
-            <ModelPicker />
 
             {store.queuedPrompt && <QueuedPrompt />}
 
@@ -995,50 +993,6 @@ const QueuedPrompt = observer(function QueuedPrompt() {
   );
 });
 
-const ModelPicker = observer(function ModelPicker() {
-  const { agentChatStore: store } = useRootStore();
-  const t = useTranslations();
-  if (!store.isModelSelectable) return null;
-  const activeKey = store.selectedModelKey ?? store.models[0]?.key;
-
-  return (
-    <div className="flex items-center gap-2 px-1 pb-2">
-      <Select
-        value={store.selectedModelKey ?? undefined}
-        onValueChange={(next) => runUserAction(() => store.selectModel(next))}
-      >
-        <SelectTrigger
-          aria-label={t("AgentChat.modelPicker.label")}
-          className="h-7 w-auto gap-1.5 border-transparent bg-transparent px-2 text-xs shadow-none"
-          id="agent-model-picker"
-        >
-          <span className="truncate">{t(`AgentChat.models.${activeKey}.name`)}</span>
-        </SelectTrigger>
-
-        <SelectContent>
-          {store.models.map((model) => (
-            <SelectItem key={model.key} textValue={t(`AgentChat.models.${model.key}.name`)} value={model.key}>
-              <span className="flex flex-col gap-0.5">
-                <span className="flex items-center gap-2 text-xs">
-                  {t(`AgentChat.models.${model.key}.name`)}
-
-                  <span className="text-muted-foreground tabular-nums">
-                    {t("AgentChat.modelPicker.costBand", { band: model.costBand })}
-                  </span>
-                </span>
-
-                <span className="text-muted-foreground text-xs">{t(`AgentChat.models.${model.key}.description`)}</span>
-              </span>
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      <span className="text-muted-foreground text-xs">{t("AgentChat.modelPicker.newConversationsOnly")}</span>
-    </div>
-  );
-});
-
 const UsageFooter = observer(function UsageFooter() {
   const { agentChatStore: store } = useRootStore();
   const intlStore = useHydratedIntlStore();
@@ -1050,62 +1004,58 @@ const UsageFooter = observer(function UsageFooter() {
   const resetAt = intlStore.formatDayMonth(new Date(usage.resetAt));
 
   return (
-    <details
-      className="group w-full px-1 pb-2 text-xs text-muted-foreground"
-      data-testid="agent-usage"
-      id="agent-usage"
-    >
-      <summary className="cursor-pointer list-none rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring">
-        <div className="flex items-center justify-between gap-2">
-          <span>{t("AgentChat.credits.resetShort", { resetAt })}</span>
-
-          <span className="flex items-center gap-1 tabular-nums">
+    <div className="w-full px-1 pb-2 text-xs text-muted-foreground" data-testid="agent-usage" id="agent-usage">
+      <div className="flex items-center justify-end">
+        <Popover>
+          <PopoverTrigger
+            aria-label={t("AgentChat.credits.usage", { pct })}
+            className="flex cursor-pointer items-center gap-1 rounded-md tabular-nums outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
             {t("AgentChat.credits.usedPercent", { pct })}
 
-            <ChevronDown className="size-3 transition-transform group-open:rotate-180" />
-          </span>
-        </div>
+            <ChevronDown className="size-3" />
+          </PopoverTrigger>
 
-        {pct >= 75 && (
-          <div
-            aria-label={t("AgentChat.credits.usage", { pct })}
-            aria-valuemax={100}
-            aria-valuemin={0}
-            aria-valuenow={pct}
-            className="h-1 w-full overflow-hidden rounded-full bg-muted"
-            role="progressbar"
-          >
-            <div className="h-full rounded-full bg-primary transition-[width]" style={{ width: `${pct}%` }} />
-          </div>
-        )}
-      </summary>
+          <PopoverContent align="end" className="w-64 space-y-1 p-3 text-xs text-muted-foreground" side="top">
+            <p className="font-medium text-foreground tabular-nums">
+              {t("AgentChat.credits.remaining", {
+                remaining: usage.creditsRemaining,
+                limit: usage.creditsLimit,
+              })}
+            </p>
 
-      <div className="mt-2 space-y-1 rounded-lg bg-muted/40 px-2.5 py-2">
-        <p className="font-medium text-foreground tabular-nums">
-          {t("AgentChat.credits.remaining", {
-            remaining: usage.creditsRemaining,
-            limit: usage.creditsLimit,
-          })}
-        </p>
+            <p>
+              {usage.plan
+                ? t("AgentChat.credits.planAndReset", {
+                    plan: t(`Subscription.planNames.${usage.plan}`),
+                    resetAt,
+                  })
+                : t("AgentChat.credits.resetShort", { resetAt })}
+            </p>
 
-        <p>
-          {usage.plan
-            ? t("AgentChat.credits.planAndReset", {
-                plan: t(`Subscription.planNames.${usage.plan}`),
-                resetAt,
-              })
-            : t("AgentChat.credits.resetShort", { resetAt })}
-        </p>
-
-        {usage.recentTurnCredits !== null && (
-          <p>
-            {t("AgentChat.credits.recentTurn", {
-              credits: usage.recentTurnCredits,
-            })}
-          </p>
-        )}
+            {usage.recentTurnCredits !== null && (
+              <p>
+                {t("AgentChat.credits.recentTurn", {
+                  credits: usage.recentTurnCredits,
+                })}
+              </p>
+            )}
+          </PopoverContent>
+        </Popover>
       </div>
-    </details>
+
+      {pct >= 75 && (
+        <div
+          aria-valuemax={100}
+          aria-valuemin={0}
+          aria-valuenow={pct}
+          className="mt-1 h-1 w-full overflow-hidden rounded-full bg-muted"
+          role="progressbar"
+        >
+          <div className="h-full rounded-full bg-primary transition-[width]" style={{ width: `${pct}%` }} />
+        </div>
+      )}
+    </div>
   );
 });
 

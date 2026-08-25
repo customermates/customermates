@@ -326,21 +326,6 @@
       "subtitle": "Frag mich alles zu deinem Workspace, oder sag mir, was ich für dich erledigen soll.",
       "support": "Wenn etwas nicht klappt, kann ich unserem Team den letzten Gesprächsverlauf per E-Mail senden. Es antwortet dir per E-Mail."
     },
-    "modelPicker": {
-      "costBand": "{band}x Credits",
-      "label": "Modell",
-      "newConversationsOnly": "Das Modell wird beim Start eines Chats gewählt."
-    },
-    "models": {
-      "balanced": {
-        "description": "Bewältigt mehrstufige Arbeit und längere Aufgaben. Die Standardauswahl.",
-        "name": "Ausgewogen"
-      },
-      "fast": {
-        "description": "Schnelle Antworten auf einfache Fragen, mit den wenigsten Credits.",
-        "name": "Schnell"
-      }
-    },
     "placeholder": "Frag dein CRM…",
     "runner": {
       "cancelled": "Diese Antwort wurde gestoppt.",

@@ -397,9 +397,6 @@ const AGENT_CREDIT_BLOCKED_KEYS = [
   "subscription_unavailable",
 ].map((reason) => `AgentChat.credits.blocked.${reason}`);
 
-const AGENT_MODEL_KEYS = ["balanced", "fast"] as const;
-const AGENT_MODEL_NAME_KEYS = AGENT_MODEL_KEYS.map((key) => `AgentChat.models.${key}.name`);
-const AGENT_MODEL_DESCRIPTION_KEYS = AGENT_MODEL_KEYS.map((key) => `AgentChat.models.${key}.description`);
 
 const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["AuditLogModal.fields.${*}", AUDIT_FIELD_KEYS],
@@ -409,8 +406,6 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["Common.datePresets.${*}", DATE_PRESET_KEYS],
   ["Common.defaultData.${*}.columnLabel", DEFAULT_DATA_COLUMN_KEYS],
   ["Common.defaultData.${*}.options.${*}", DEFAULT_DATA_OPTION_KEYS],
-  ["AgentChat.models.${*}.description", AGENT_MODEL_DESCRIPTION_KEYS],
-  ["AgentChat.models.${*}.name", AGENT_MODEL_NAME_KEYS],
   ["Common.errors.${*}", CUSTOM_ERROR_CODE_KEYS],
   ["Common.events.${*}", DOMAIN_EVENT_KEYS],
   ["Common.filters.operators.${*}", FILTER_OPERATOR_KEYS],
@@ -505,9 +500,6 @@ const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
 const ENFORCED = true;
 
 export const DYNAMIC_KEY_SITES = [
-  "app/components/agent-chat/agent-chat.tsx :: t :: AgentChat.models.${activeKey}.name",
-  "app/components/agent-chat/agent-chat.tsx :: t :: AgentChat.models.${model.key}.description",
-  "app/components/agent-chat/agent-chat.tsx :: t :: AgentChat.models.${model.key}.name",
   "app/[locale]/(protected)/company/components/audit-log/audit-log-modal.tsx :: t :: Common.events.${auditLog.event}",
   "app/[locale]/(protected)/company/components/audit-log/use-audit-log-columns.tsx :: t :: Common.events.${row.original.event}",
   "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.description",
