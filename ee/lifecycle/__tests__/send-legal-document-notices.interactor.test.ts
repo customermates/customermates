@@ -184,7 +184,7 @@ describe("SendLegalDocumentNoticesInteractor", () => {
         Promise.resolve(records.filter((record) => record.companyId === companyId)),
       ),
     };
-    emailService = { send: vi.fn(() => Promise.resolve()) };
+    emailService = { send: vi.fn(() => Promise.resolve(true)) };
     eventService = {
       publish: vi.fn((event, data, options) => {
         records.push(
@@ -274,14 +274,14 @@ describe("SendLegalDocumentNoticesInteractor", () => {
 
   it("preserves a separate supplier deadline for a combined notice retried on the next run", async () => {
     recipients = [recipient("admin-1", true), recipient("admin-2", true)];
-    emailService.send.mockResolvedValueOnce(undefined).mockRejectedValueOnce(new Error("recipient rejected"));
+    emailService.send.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
     const supplierDeadline = "2026-08-12T10:00:00.000Z";
     mockSupplierDeadline.value = supplierDeadline;
 
-    await expect(invoke()).rejects.toThrow("recipient rejected");
+    await invoke();
     expect(records).toHaveLength(1);
 
-    emailService.send.mockReset().mockResolvedValue(undefined);
+    emailService.send.mockReset().mockResolvedValue(true);
     mockLegalDocumentNotice.mockClear();
     mockLegalDocumentNoticeInformation.mockClear();
     await invoke();
@@ -301,9 +301,7 @@ describe("SendLegalDocumentNoticesInteractor", () => {
     await invoke();
 
     expect(emailService.send).toHaveBeenCalledTimes(3);
-    expect(emailService.send).toHaveBeenCalledWith(expect.anything(), {
-      throwOnProviderError: true,
-    });
+    expect(emailService.send.mock.calls.every((call) => call.length === 1)).toBe(true);
     expect(documentNames(emailService.send.mock.calls[0][0])).toEqual([
       "Terms and Conditions",
       "Data Processing Agreement",
@@ -553,44 +551,78 @@ describe("SendLegalDocumentNoticesInteractor", () => {
     ]);
   });
 
-  it("processes administrators before members even when repository order is member-first", async () => {
-    recipients = [recipient("member-1", false), recipient("admin-1", true)];
-    emailService.send.mockRejectedValueOnce(new Error("provider unavailable"));
+  it("continues with later companies after one company's recipient delivery fails", async () => {
+    recipients = [recipient("admin-1", true), recipient("admin-2", true, { companyId: "company-2" })];
+    emailService.send.mockResolvedValueOnce(false).mockResolvedValueOnce(true);
 
-    await expect(invoke()).rejects.toThrow("provider unavailable");
+    await invoke();
 
-    expect(emailService.send).toHaveBeenCalledOnce();
-    expect(emailService.send.mock.calls[0][0].to).toBe("admin-1@example.com");
-    expect(eventService.publish).not.toHaveBeenCalled();
+    expect(auditRepo.findLegalEventsUnscoped.mock.calls).toEqual([["company-1"], ["company-2"]]);
+    expect(emailService.send.mock.calls.map(([email]) => email.to)).toEqual([
+      "admin-1@example.com",
+      "admin-2@example.com",
+    ]);
+    expect(eventService.publish).toHaveBeenCalledOnce();
+    expect(eventService.publish.mock.calls[0][1].entityId).toBe("admin-2");
+    expect(eventService.publish.mock.calls[0][2]).toEqual({
+      systemCompanyId: "company-2",
+      systemUserId: "admin-2",
+    });
   });
 
-  it("fails fast, preserves earlier success, and retries only missing recipients", async () => {
-    emailService.send.mockResolvedValueOnce(undefined).mockRejectedValueOnce(new Error("invalid recipient"));
+  it("processes administrators before members and continues after an administrator delivery fails", async () => {
+    recipients = [recipient("member-1", false), recipient("admin-1", true)];
+    emailService.send.mockResolvedValueOnce(false).mockResolvedValueOnce(true);
 
-    await expect(invoke()).rejects.toThrow("invalid recipient");
-    expect(emailService.send).toHaveBeenCalledTimes(2);
+    await invoke();
+
+    expect(emailService.send.mock.calls.map(([email]) => email.to)).toEqual([
+      "admin-1@example.com",
+      "member-1@example.com",
+    ]);
     expect(eventService.publish).toHaveBeenCalledOnce();
-    expect(eventService.publish.mock.calls[0][1].entityId).toBe("admin-1");
+    expect(eventService.publish.mock.calls[0][1].entityId).toBe("member-1");
+  });
+
+  it("preserves surrounding successes and retries only the failed recipient", async () => {
+    emailService.send.mockResolvedValueOnce(true).mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+
+    await invoke();
+    expect(emailService.send).toHaveBeenCalledTimes(3);
+    expect(eventService.publish).toHaveBeenCalledTimes(2);
+    expect(eventService.publish.mock.calls.map(([, data]) => data.entityId)).toEqual(["admin-1", "member-1"]);
 
     emailService.send.mockClear();
     eventService.publish.mockClear();
-    emailService.send.mockResolvedValue(undefined);
+    emailService.send.mockResolvedValue(true);
     await invoke(new Date("2026-08-08T09:00:00.000Z"));
 
-    expect(emailService.send).toHaveBeenCalledTimes(2);
-    expect(emailService.send.mock.calls.map(([email]) => email.to)).toEqual([
-      "admin-2@example.com",
-      "member-1@example.com",
-    ]);
-    expect(eventService.publish).toHaveBeenCalledTimes(2);
+    expect(emailService.send).toHaveBeenCalledOnce();
+    expect(emailService.send.mock.calls[0][0].to).toBe("admin-2@example.com");
+    expect(eventService.publish).toHaveBeenCalledOnce();
+    expect(eventService.publish.mock.calls[0][1].entityId).toBe("admin-2");
   });
 
-  it("stops on the first recipient error before recording any success", async () => {
-    emailService.send.mockRejectedValue(new Error("provider unavailable"));
+  it("propagates unexpected email failures unchanged without attempting later recipients", async () => {
+    const deliveryFailure = new TypeError("email rendering failed");
+    emailService.send.mockRejectedValueOnce(deliveryFailure);
 
-    await expect(invoke()).rejects.toThrow("provider unavailable");
+    const error = await invoke().catch((cause: unknown) => cause);
+
+    expect(error).toBe(deliveryFailure);
     expect(emailService.send).toHaveBeenCalledOnce();
     expect(eventService.publish).not.toHaveBeenCalled();
+  });
+
+  it("fails immediately when audit publication fails after a successful delivery", async () => {
+    const auditFailure = new Error("audit persistence unavailable");
+    eventService.publish.mockRejectedValueOnce(auditFailure);
+
+    const error = await invoke().catch((cause: unknown) => cause);
+
+    expect(error).toBe(auditFailure);
+    expect(emailService.send).toHaveBeenCalledOnce();
+    expect(eventService.publish).toHaveBeenCalledOnce();
   });
 
   it("is a no-op outside managed cloud mode", async () => {

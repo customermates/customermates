@@ -36,10 +36,10 @@ describe("EmailService", () => {
     mockEnv.RESEND_API_KEY = "test-key";
   });
 
-  it("resolves without exposing provider metadata", async () => {
+  it("returns true when the provider accepts the email without exposing provider metadata", async () => {
     resendSend.mockResolvedValue({ data: { id: "message-123" }, error: null });
 
-    await expect(new EmailService().send(email)).resolves.toBeUndefined();
+    await expect(new EmailService().send(email)).resolves.toBe(true);
     expect(resendConstructor).toHaveBeenCalledWith("test-key");
     expect(resendSend).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -51,37 +51,26 @@ describe("EmailService", () => {
     );
   });
 
-  it("throws when strict provider-error handling is requested", async () => {
+  it("returns false when the provider rejects the email", async () => {
     resendSend.mockResolvedValue({
       data: null,
       error: { message: "provider rejected request" },
     });
 
-    await expect(new EmailService().send(email, { throwOnProviderError: true })).rejects.toThrow(
-      "Resend rejected the email: provider rejected request",
-    );
-  });
-
-  it("preserves best-effort delivery for existing callers", async () => {
-    resendSend.mockResolvedValue({
-      data: null,
-      error: { message: "provider rejected request" },
-    });
-
-    await expect(new EmailService().send(email)).resolves.toBeUndefined();
+    await expect(new EmailService().send(email)).resolves.toBe(false);
   });
 
   it("does not require a provider message ID", async () => {
     resendSend.mockResolvedValue({ data: {}, error: null });
 
-    await expect(new EmailService().send(email)).resolves.toBeUndefined();
+    await expect(new EmailService().send(email)).resolves.toBe(true);
   });
 
-  it("resolves locally without calling Resend", async () => {
+  it("returns simulated acceptance locally without calling Resend", async () => {
     mockEnv.NODE_ENV = "test";
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
-    await expect(new EmailService().send(email)).resolves.toBeUndefined();
+    await expect(new EmailService().send(email)).resolves.toBe(true);
     expect(resendSend).not.toHaveBeenCalled();
     consoleSpy.mockRestore();
   });
@@ -91,5 +80,12 @@ describe("EmailService", () => {
 
     await expect(new EmailService().send(email)).rejects.toThrow("RESEND_API_KEY is not configured");
     expect(resendSend).not.toHaveBeenCalled();
+  });
+
+  it("preserves unexpected provider exceptions", async () => {
+    const failure = new TypeError("email rendering failed");
+    resendSend.mockRejectedValue(failure);
+
+    await expect(new EmailService().send(email)).rejects.toBe(failure);
   });
 });
