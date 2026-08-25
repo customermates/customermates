@@ -1,17 +1,21 @@
 import type { ContentLocale } from "@/i18n/locale-registry";
 
+import { getTranslations } from "next-intl/server";
+
 import { HubPostCard, type HubPostCardProps } from "./hub-post-card";
 
 export type RelatedPageItem = Omit<HubPostCardProps, "locale">;
 
 type Props = {
-  heading: string;
   items: RelatedPageItem[];
   locale: ContentLocale;
 };
 
-export function RelatedPages({ heading, items, locale }: Props) {
+export async function RelatedPages({ items, locale }: Props) {
   if (items.length === 0) return null;
+
+  const t = await getTranslations();
+  const heading = t("Common.relatedPages");
 
   return (
     <section className="pb-16 md:pb-24 w-full">

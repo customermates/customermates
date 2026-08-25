@@ -104,7 +104,7 @@ export default async function FeaturePage({ params }: Props) {
         </Toc>
       </section>
 
-      <RelatedPages heading={t("Common.relatedPages")} items={relatedItems} locale={contentLocaleOrDefault(locale)} />
+      <RelatedPages items={relatedItems} locale={contentLocaleOrDefault(locale)} />
 
       <CTASection {...page.data.cta} />
 

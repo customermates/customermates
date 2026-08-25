@@ -28,10 +28,12 @@ function faqItemsOf(children: ReactNode): FaqItemProps[] {
 export function FaqItem({ children, question }: FaqItemProps) {
   return (
     <AccordionItem className="rounded-xl border border-border bg-card px-2 last:border-b" value={question}>
-      <AccordionTrigger className="text-x-lg px-4 py-5 text-left">{question}</AccordionTrigger>
+      <AccordionTrigger className="p-4 text-left text-sm">{question}</AccordionTrigger>
 
-      <AccordionContent className="text-x-lg px-4 pb-5 [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
-        {children}
+      <AccordionContent className="px-4 pb-4">
+        <div className="prose prose-sm prose-neutral max-w-none dark:prose-invert [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+          {children}
+        </div>
       </AccordionContent>
     </AccordionItem>
   );
