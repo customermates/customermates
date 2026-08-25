@@ -148,13 +148,7 @@ export class SendLegalDocumentNoticesInteractor {
     const email = await this.buildEmail(plan, locale, formattingTag);
 
     const accepted = await this.emailService.send(email);
-    if (!accepted) {
-      console.warn("[SendLegalDocumentNoticesInteractor] Email provider rejected legal notice", {
-        companyId: plan.companyId,
-        recipientId: plan.recipient.id,
-      });
-      return;
-    }
+    if (!accepted) return;
 
     await this.eventService.publish(
       DomainEvent.LEGAL_NOTICE_SENT,

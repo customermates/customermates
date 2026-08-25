@@ -167,7 +167,6 @@ describe("SendLegalDocumentNoticesInteractor", () => {
   let auditRepo: { findLegalEventsUnscoped: ReturnType<typeof vi.fn> };
   let emailService: { send: ReturnType<typeof vi.fn> };
   let eventService: { publish: ReturnType<typeof vi.fn> };
-  let warningSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     vi.useFakeTimers();
@@ -186,7 +185,6 @@ describe("SendLegalDocumentNoticesInteractor", () => {
       ),
     };
     emailService = { send: vi.fn(() => Promise.resolve(true)) };
-    warningSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     eventService = {
       publish: vi.fn((event, data, options) => {
         records.push(
@@ -205,7 +203,6 @@ describe("SendLegalDocumentNoticesInteractor", () => {
   });
 
   afterEach(() => {
-    warningSpy.mockRestore();
     vi.useRealTimers();
   });
 
@@ -571,10 +568,6 @@ describe("SendLegalDocumentNoticesInteractor", () => {
       systemCompanyId: "company-2",
       systemUserId: "admin-2",
     });
-    expect(warningSpy).toHaveBeenCalledWith(
-      "[SendLegalDocumentNoticesInteractor] Email provider rejected legal notice",
-      { companyId: "company-1", recipientId: "admin-1" },
-    );
   });
 
   it("processes administrators before members and continues after an administrator delivery fails", async () => {
