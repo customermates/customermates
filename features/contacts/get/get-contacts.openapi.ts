@@ -14,6 +14,7 @@ export const getContactsOperation: ZodOpenApiOperationObject = {
   tags: ["contacts"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {
+    required: true,
     content: {
       "application/json": {
         schema: GetQueryParamsApiSchema,

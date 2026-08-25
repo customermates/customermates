@@ -14,6 +14,7 @@ export const getOrganizationsOperation: ZodOpenApiOperationObject = {
   tags: ["organizations"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {
+    required: true,
     content: {
       "application/json": {
         schema: GetQueryParamsApiSchema,

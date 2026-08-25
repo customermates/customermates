@@ -32,6 +32,12 @@ export class ForbiddenError extends AppError {
   }
 }
 
+export class InvalidJsonBodyError extends AppError {
+  constructor() {
+    super("Invalid JSON body", 400);
+  }
+}
+
 export const DEMO_MODE_MESSAGE = "This action is not available in demo mode. Please sign in to access all features.";
 
 export class DemoModeError extends AppError {

@@ -13,6 +13,7 @@ export const updateManyTasksOperation: ZodOpenApiOperationObject = {
   tags: ["tasks"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {
+    required: true,
     content: {
       "application/json": {
         schema: UpdateManyTasksSchema,

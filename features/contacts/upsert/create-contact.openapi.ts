@@ -13,6 +13,7 @@ export const createContactOperation: ZodOpenApiOperationObject = {
   tags: ["contacts"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {
+    required: true,
     content: {
       "application/json": {
         schema: CreateContactSchema,

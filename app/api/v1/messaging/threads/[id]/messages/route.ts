@@ -5,11 +5,12 @@ import { z } from "zod";
 
 import { getSendChatMessageInteractor } from "@/core/di";
 import { handleError } from "@/core/api/interactor-handler";
+import { mapRequestJsonError } from "@/core/api/request-json-error";
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const data = await request.json();
+    const data = await request.json().catch(mapRequestJsonError);
     const result = await getSendChatMessageInteractor().invoke({ ...data, threadId: id });
 
     if (!result.ok) return NextResponse.json(z.prettifyError(result.error), { status: 400 });

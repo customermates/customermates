@@ -14,6 +14,7 @@ export const createManyContactsOperation: ZodOpenApiOperationObject = {
   tags: ["contacts"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {
+    required: true,
     content: {
       "application/json": {
         schema: CreateManyContactsSchema,

@@ -11,7 +11,7 @@ vi.mock("next/server", () => ({
 
 import { handleError } from "../interactor-handler";
 
-import { AuthError, ForbiddenError, DemoModeError } from "@/core/errors/app-errors";
+import { AuthError, DemoModeError, ForbiddenError, InvalidJsonBodyError } from "@/core/errors/app-errors";
 
 describe("handleError", () => {
   it("returns 401 for AuthError", () => {
@@ -29,6 +29,12 @@ describe("handleError", () => {
   it("returns 403 for DemoModeError", () => {
     const result = handleError(new DemoModeError()) as any;
     expect(result.status).toBe(403);
+  });
+
+  it("returns 400 for InvalidJsonBodyError", () => {
+    const result = handleError(new InvalidJsonBodyError()) as any;
+    expect(result.body).toBe("Invalid JSON body");
+    expect(result.status).toBe(400);
   });
 
   it("maps Prisma P2025 (record not found) to 404", () => {

@@ -17,6 +17,7 @@ export const saveDraftOperation: ZodOpenApiOperationObject = {
     path: z.object({ id: z.uuid().describe("The thread id the draft belongs to") }),
   },
   requestBody: {
+    required: true,
     content: {
       "application/json": {
         schema: SaveDraftSchema.omit({ threadId: true }),

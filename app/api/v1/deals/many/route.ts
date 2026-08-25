@@ -5,12 +5,13 @@ import { z } from "zod";
 
 import { getCreateManyDealsInteractor, getUpdateManyDealsInteractor, getDeleteManyDealsInteractor } from "@/core/di";
 import { handleError } from "@/core/api/interactor-handler";
+import { mapRequestJsonError } from "@/core/api/request-json-error";
 
 export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
   try {
-    const data = await request.json();
+    const data = await request.json().catch(mapRequestJsonError);
     const result = await getCreateManyDealsInteractor().invoke(data);
 
     if (!result.ok) return NextResponse.json(z.prettifyError(result.error), { status: 400 });
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const data = await request.json();
+    const data = await request.json().catch(mapRequestJsonError);
     const result = await getUpdateManyDealsInteractor().invoke(data);
 
     if (!result.ok) return NextResponse.json(z.prettifyError(result.error), { status: 400 });
@@ -36,7 +37,7 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const data = await request.json();
+    const data = await request.json().catch(mapRequestJsonError);
     const result = await getDeleteManyDealsInteractor().invoke(data);
 
     if (!result.ok) return NextResponse.json(z.prettifyError(result.error), { status: 400 });
