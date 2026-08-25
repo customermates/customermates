@@ -66,6 +66,7 @@ vi.mock("@/core/fumadocs/source", async () => {
     blogSource: source("blog", ""),
     comparePagesSource: source("compare-pages", "/compare"),
     compareSource: source("compare", ""),
+    contactSource: source("contact", ""),
     docsSource: source("docs", "/docs"),
     featurePagesSource: source("feature-pages", "/features"),
     featuresAllSource: source("features-all", "/features"),
@@ -81,7 +82,6 @@ vi.mock("@/core/fumadocs/source", async () => {
 
 const CONTENT_ROOT = join(REPO_ROOT, "content");
 const CODE_BACKED_ROUTE_FILES = {
-  "/contact": "app/[locale]/(public)/contact/page.tsx",
   "/auth/pending": "app/[locale]/(public)/auth/pending/page.tsx",
   "/auth/error": "app/[locale]/(public)/auth/error/page.tsx",
   "/auth/verify-email": "app/[locale]/(public)/auth/verify-email/page.tsx",
