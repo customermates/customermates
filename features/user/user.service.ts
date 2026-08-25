@@ -85,13 +85,9 @@ export class UserService {
   }
 
   async hasPermission(resource: Resource, action: Action): Promise<boolean> {
-    const user = await this.getActiveUserOrThrow();
+    const user = await this.getActiveTenantUserOrThrow();
 
-    if (!user.role) return false;
-
-    if (user.role?.isSystemRole) return true;
-
-    return user.role?.permissions.some((p) => p.resource === resource && p.action === action) ?? false;
+    return this.hasPermissionForUser(user, resource, action);
   }
 
   async hasPermissionOrThrow(resource: Resource, action: Action): Promise<void> {

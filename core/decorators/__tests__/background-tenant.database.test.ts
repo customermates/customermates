@@ -10,6 +10,7 @@ import { getTenantUser } from "@/core/decorators/tenant-context";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
+import { getUserService } from "@/core/di";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -98,6 +99,26 @@ describeDatabase("background tenant context on PostgreSQL", () => {
     await expect(runAsBackgroundTenant(powerlessUserId, () => new GuardedProbe().invoke())).rejects.toThrow(
       /Access denied/,
     );
+  });
+
+  it("checks a permission from a background step, where there is no session to read", async () => {
+    const capable = await runAsBackgroundTenant(activeUserId, () =>
+      getUserService().hasPermission(Resource.users, Action.readAll),
+    );
+    const powerless = await runAsBackgroundTenant(powerlessUserId, () =>
+      getUserService().hasPermission(Resource.users, Action.readAll),
+    );
+
+    expect(capable).toBe(true);
+    expect(powerless).toBe(false);
+  });
+
+  it("throws the permission error rather than an auth error when a background user lacks the right", async () => {
+    await expect(
+      runAsBackgroundTenant(powerlessUserId, () =>
+        getUserService().hasPermissionOrThrow(Resource.users, Action.readAll),
+      ),
+    ).rejects.toThrow(/insufficient permissions/);
   });
 
   it("refuses to assume an inactive user", async () => {
