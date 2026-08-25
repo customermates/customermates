@@ -409,7 +409,7 @@ const AgentChatPanel = observer(function AgentChatPanel() {
                   <ActionTooltip label={t("AgentChat.stop")}>
                     <Button
                       aria-label={t("AgentChat.stop")}
-                      className="size-9 shrink-0 rounded-full"
+                      className="size-9 shrink-0 rounded-full border-destructive/60 text-destructive hover:bg-destructive/10 hover:text-destructive"
                       size="icon"
                       variant="secondary"
                       onClick={() => runUserAction(() => store.interrupt())}
@@ -1129,7 +1129,7 @@ const ItemTime = observer(function ItemTime({ at }: { at?: Date }) {
   if (!at) return null;
 
   return (
-    <time suppressHydrationWarning className="text-[11px] text-muted-foreground opacity-60">
+    <time suppressHydrationWarning className="text-[11px] whitespace-nowrap text-muted-foreground">
       {intlStore.formatTime(at)}
     </time>
   );
