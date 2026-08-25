@@ -1,16 +1,46 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { extname, join, resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
 const REPO_ROOT = process.cwd();
 
-describe("public navigation preferences", () => {
-  it("keeps preferences in the navbar and only the crawlable locale links in the footer", () => {
-    const navbar = readFileSync(join(REPO_ROOT, "app/components/public-navbar.tsx"), "utf8");
-    const footer = readFileSync(join(REPO_ROOT, "app/components/footer-content.tsx"), "utf8");
+const SHELLS = {
+  navbar: "app/components/public-navbar.tsx",
+  docsTopBar: "app/[locale]/(static)/docs/components/docs-topbar.tsx",
+  footer: "app/components/footer-content.tsx",
+} as const;
 
-    expect(navbar.match(/<LanguageSelector/g)).toHaveLength(1);
+function read(file: string): string {
+  return readFileSync(join(REPO_ROOT, file), "utf8");
+}
+
+function sourceFiles(): string[] {
+  const found: string[] = [];
+  const skip = new Set(["node_modules", ".next", ".git", "generated"]);
+
+  function walk(directory: string) {
+    for (const entry of readdirSync(directory)) {
+      if (skip.has(entry)) continue;
+      const full = join(directory, entry);
+      if (statSync(full).isDirectory()) walk(full);
+      else if ([".ts", ".tsx"].includes(extname(entry))) found.push(full);
+    }
+  }
+
+  for (const top of ["app", "components", "core", "features", "ee"]) {
+    const directory = resolve(REPO_ROOT, top);
+    if (existsSync(directory)) walk(directory);
+  }
+
+  return found;
+}
+
+describe("public navigation preferences", () => {
+  it("offers both preference controls in every public shell", () => {
+    const navbar = read(SHELLS.navbar);
+
+    expect(navbar.match(/<LocaleMenu/g)).toHaveLength(1);
     expect(navbar.match(/<ThemeSwitcher/g)).toHaveLength(1);
     expect(navbar.match(/\{renderPreferenceButtons\(\)\}/g)).toHaveLength(2);
     expect(navbar).toContain('className="hidden items-center gap-2 md:flex"');
@@ -18,49 +48,50 @@ describe("public navigation preferences", () => {
     expect(navbar).toContain('className="my-1 py-3"');
     expect(navbar).not.toContain("border-y");
     expect(navbar).not.toContain("github.com/customermates/customermates");
-    // Split deliberately. CUS-202 moved both controls into the navbar; the theme switcher stays
-    // there, so only the locale links come back. They have to, and they have to be plain anchors:
-    // LanguageSelector is a Radix dropdown whose content is portalled, and React never renders a
-    // portal during SSR, so reusing it here would ship zero anchors and leave hreflang as the only
-    // tie between the locale trees. Slack and Notion resolve it the same way, with a footer locale
-    // menu of real anchors; Stripe, Shopify and Figma ship none at all, which their authority can
-    // carry and 52 referring domains cannot.
-    expect(footer, "the theme switcher belongs to the navbar alone").not.toContain("ThemeSwitcher");
-    expect(footer, "the portalled dropdown renders no crawlable anchor").not.toContain("LanguageSelector");
-    expect(footer, "each locale needs a real anchor, not a button").toContain("hrefLang={locale}");
-    expect(footer, "the anchor must resolve to this page in the other locale").toContain(
-      "buildLocalePath(locale, pathname)",
-    );
-    expect(footer, "the row has to survive a third and fourth content locale").toContain("flex-wrap");
+
+    // The docs tree renders its own header rather than the public navbar, so without this it is the
+    // one public surface with no way to change language or theme at all.
+    for (const [name, file] of Object.entries(SHELLS)) {
+      const source = read(file);
+      expect(source, `${name} is missing the locale menu`).toContain("<LocaleMenu");
+      expect(source, `${name} is missing the theme switcher`).toContain("<ThemeSwitcher");
+    }
   });
 
-  it("shows the locale code with navbar typography and reuses the complete profile country option", () => {
-    const languageSelector = readFileSync(join(REPO_ROOT, "components/shared/language-selector.tsx"), "utf8");
-    const countrySelector = readFileSync(join(REPO_ROOT, "components/forms/form-autocomplete-country.tsx"), "utf8");
-    const countryItem = readFileSync(
-      join(REPO_ROOT, "components/forms/form-autocomplete-country-item.tsx"),
-      "utf8",
-    );
+  it("keeps the locale menu renderable without JavaScript", () => {
+    const menu = read("components/shared/locale-menu.tsx");
 
-    expect(languageSelector).toContain("currentLocale.toUpperCase()");
-    expect(languageSelector).toContain('className={cn("size-8 rounded-md p-0 text-subdued", className)}');
-    expect(languageSelector).not.toContain("text-[11px]");
-    expect(languageSelector).toContain("FormAutocompleteItem({");
-    expect(countrySelector).toContain("FormAutocompleteItem({");
-    expect(languageSelector).toContain("textValue: label");
-    expect(languageSelector).toContain('<FormAutocompleteCountryItem countryKey={flagCodeFor(locale)} label={label} />');
-    expect(languageSelector).toContain('className={cn(isSelected && "bg-accent")}');
-    expect(languageSelector).toContain("data-selected={isSelected}");
-    expect(languageSelector).not.toContain("AvatarImage");
-    expect(languageSelector).not.toContain("Check");
-    expect(countryItem).toContain('<Avatar className={size === "sm" ? "size-3" : "size-5"}>');
-    expect(countryItem).toContain('className="rounded-[inherit] object-cover"');
-    expect(countryItem).toContain("flagcdn.com");
-    expect(languageSelector).toContain('<DropdownMenuContent align="start"');
+    // This is the whole reason the component is purpose-built rather than assembled from the shared
+    // DropdownMenu. Radix portals its content, React never renders a portal during SSR, and the
+    // rendered-but-closed workaround makes Radix aria-hide the rest of the page and swallow the
+    // trigger's own pointerdown. A native disclosure ships every anchor in the server HTML instead,
+    // which is what lets /de be discovered by a crawler that never opens the menu.
+    expect(menu, "a portalled menu ships no anchors to a crawler").not.toContain("DropdownMenu");
+    expect(menu, "the disclosure has to be native to render closed").toContain("<details");
+    expect(menu, "the trigger has to be native to render closed").toContain("<summary");
+    expect(menu, "each locale needs a real anchor, not a button").toContain("hrefLang={locale}");
+    expect(menu, "the anchor must resolve to this page in the other locale").toContain(
+      "buildLocalePath(locale, pathname)",
+    );
+    expect(menu, "a modified click must still open a new tab").toContain("event.metaKey");
+    expect(menu, "the unsaved-changes guard still owns same-tab navigation").toContain(
+      "navigationGuard.tryNavigate",
+    );
+    expect(menu, "the trigger shows the locale it is currently on").toContain("currentLocale.toUpperCase()");
+    expect(menu, "the option matches the profile country selector").toContain(
+      "<FormAutocompleteCountryItem countryKey={flagCodeFor(locale)} label={label} />",
+    );
+  });
+
+  it("leaves no import of the retired dropdown-based selector", () => {
+    expect(existsSync(join(REPO_ROOT, "components/shared/language-selector.tsx"))).toBe(false);
+
+    const stragglers = sourceFiles().filter((file) => readFileSync(file, "utf8").includes("language-selector"));
+    expect(stragglers.map((file) => file.replace(REPO_ROOT + "/", ""))).toEqual([]);
   });
 
   it("toggles directly between the resolved light and dark themes", () => {
-    const themeSwitcher = readFileSync(join(REPO_ROOT, "components/shared/theme-switcher.tsx"), "utf8");
+    const themeSwitcher = read("components/shared/theme-switcher.tsx");
 
     expect(themeSwitcher).toContain("resolvedTheme === Theme.dark ? Theme.dark : Theme.light");
     expect(themeSwitcher).toContain("selectedTheme === Theme.dark ? Theme.light : Theme.dark");

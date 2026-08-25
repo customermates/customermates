@@ -1,16 +1,14 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 
 import { CompetitorLinks } from "./competitor-links";
 import { FooterBadges } from "./footer-badges";
 
 import { AppLink } from "@/components/shared/app-link";
 import { AppImage } from "@/components/shared/app-image";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/core/utils/cn";
-import { CONTENT_LOCALES, buildLocalePath, contentLocaleOrDefault } from "@/i18n/locale-registry";
-import { usePathname } from "@/i18n/navigation";
+import { LocaleMenu } from "@/components/shared/locale-menu";
+import { ThemeSwitcher } from "@/components/shared/theme-switcher";
 
 type LinkItem = {
   slug: string;
@@ -26,8 +24,6 @@ type FooterProps = {
 
 export function FooterContent({ blogPosts = [], competitors = [], featureLinks = [], industries = [] }: FooterProps) {
   const t = useTranslations();
-  const pathname = usePathname();
-  const activeLocale = contentLocaleOrDefault(useLocale());
 
   return (
     <footer className="bg-muted mt-auto w-full text-x-sm">
@@ -235,29 +231,11 @@ export function FooterContent({ blogPosts = [], competitors = [], featureLinks =
           </div>
         </div>
 
-        <nav aria-label={t("Common.language")} className="flex flex-wrap items-center justify-center gap-1 pt-8">
-          {CONTENT_LOCALES.map((locale) => (
-            <Button
-              key={locale}
-              asChild
-              className={cn(
-                "size-8 rounded-md p-0 text-subdued hover:text-foreground",
-                locale === activeLocale && "text-foreground",
-              )}
-              size="icon-sm"
-              variant="ghost"
-            >
-              <a
-                aria-current={locale === activeLocale ? "true" : undefined}
-                aria-label={t(`Common.locales.${locale}`)}
-                href={buildLocalePath(locale, pathname)}
-                hrefLang={locale}
-              >
-                <span aria-hidden>{locale.toUpperCase()}</span>
-              </a>
-            </Button>
-          ))}
-        </nav>
+        <div className="flex items-center justify-center gap-1 pt-8">
+          <LocaleMenu side="top" />
+
+          <ThemeSwitcher />
+        </div>
 
         <FooterBadges />
 
