@@ -9,7 +9,7 @@ import { FeedbackCreator } from "../feedback.creator";
 
 describe("FeedbackCreator", () => {
   it("uses the shared operator email and requires provider acceptance", async () => {
-    const emailService = { send: vi.fn().mockResolvedValue(undefined) };
+    const emailService = { send: vi.fn().mockResolvedValue(true) };
     const user = createMockUser({
       firstName: "Ada",
       lastName: "Lovelace",
@@ -35,8 +35,20 @@ describe("FeedbackCreator", () => {
           }),
         }),
       }),
-      { throwOnProviderError: true },
     );
+  });
+
+  it("reports a delivery the provider refused, so support requests never fail silently", async () => {
+    const emailService = { send: vi.fn().mockResolvedValue(false) };
+    const user = createMockUser({ firstName: "Ada", lastName: "Lovelace", email: "ada@example.com" });
+
+    await expect(
+      new FeedbackCreator(emailService as never).create({
+        details: "Please help.",
+        subject: "Support request",
+        user,
+      }),
+    ).rejects.toThrow(/could not be delivered/);
   });
 
   it("propagates a rejected email so callers cannot report success", async () => {

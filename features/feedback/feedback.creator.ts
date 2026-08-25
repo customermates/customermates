@@ -22,20 +22,19 @@ export class FeedbackCreator {
   async create(data: FeedbackCreatorData): Promise<void> {
     const userName = `${data.user.firstName} ${data.user.lastName}`;
 
-    await this.emailService.send(
-      {
-        to: env.RESEND_OPERATOR_EMAIL,
-        subject: `${data.subject} from ${userName}`,
-        react: React.createElement(Feedback, {
-          feedback: data.details,
-          layoutCopy: DEFAULT_EMAIL_LAYOUT_COPY,
-          locale: DEFAULT_LOCALE,
-          userEmail: data.user.email,
-          userName,
-          subject: data.subject,
-        }),
-      },
-      { throwOnProviderError: true },
-    );
+    const sent = await this.emailService.send({
+      to: env.RESEND_OPERATOR_EMAIL,
+      subject: `${data.subject} from ${userName}`,
+      react: React.createElement(Feedback, {
+        feedback: data.details,
+        layoutCopy: DEFAULT_EMAIL_LAYOUT_COPY,
+        locale: DEFAULT_LOCALE,
+        userEmail: data.user.email,
+        userName,
+        subject: data.subject,
+      }),
+    });
+
+    if (!sent) throw new Error("The feedback email could not be delivered.");
   }
 }
