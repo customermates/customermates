@@ -1949,7 +1949,8 @@
   },
   "GlobalSearch": {
     "clearRecent": "Borrar",
-    "emptyPrompt": "Empieza a escribir para buscar entre: {contacts}, {organizations}, {deals} y {services}.",
+    "emptyDescription": "Busca {contacts}, {organizations}, {deals} y {services} en un solo lugar.",
+    "emptyTitle": "Encuentra todo en tu espacio de trabajo",
     "groupRecent": "Abiertos recientemente",
     "hintNavigate": "Navegar",
     "hintOpen": "Abrir",

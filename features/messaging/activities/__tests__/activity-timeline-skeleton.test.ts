@@ -36,6 +36,15 @@ describe("ActivityTimelineSkeleton", () => {
     );
   });
 
+  it("connects adjacent rows behind opaque circle backings", () => {
+    const html = renderToStaticMarkup(createElement(ActivityTimelineSkeleton, { rows: 3 }));
+
+    expect(html.match(/data-skeleton-connector="before"/g)).toHaveLength(2);
+    expect(html.match(/data-skeleton-connector="after"/g)).toHaveLength(2);
+    expect(html.match(/data-skeleton-node="true"/g)).toHaveLength(3);
+    expect(html).toContain("bg-background relative z-10");
+  });
+
   it("hides itself from assistive technology", () => {
     expect(renderToStaticMarkup(createElement(ActivityTimelineSkeleton))).toContain('aria-hidden="true"');
   });
