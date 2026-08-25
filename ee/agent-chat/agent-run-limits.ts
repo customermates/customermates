@@ -1,8 +1,8 @@
-export const AGENT_MAX_CONCURRENT_RUNS_PER_USER = 3;
-
 import type { ModelMessage } from "ai";
 
 import type { AgentContinuationLimits, AgentContinuationStep } from "./agent-continuation";
+
+export const AGENT_MAX_CONCURRENT_RUNS_PER_USER = 3;
 
 const ASSISTANT_CONTENT_TYPES = new Set(["text", "reasoning", "tool-call", "file"]);
 

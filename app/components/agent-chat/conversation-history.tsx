@@ -232,7 +232,7 @@ export const ArchiveUndo = observer(function ArchiveUndo() {
 
       <Button
         className="h-7 shrink-0 px-2"
-        disabled={store.isWorking || Boolean(store.conversationLoadPendingId) || Boolean(store.historyMutationPending)}
+        disabled={historyLocked(store)}
         size="sm"
         variant="ghost"
         onClick={() => runUserAction(() => store.restoreLastArchivedConversation())}

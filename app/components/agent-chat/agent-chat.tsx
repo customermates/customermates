@@ -142,7 +142,7 @@ export const AgentChat = observer(function AgentChat() {
 const AgentChatPanel = observer(function AgentChatPanel() {
   const { agentChatStore: store, agentUiControlStore } = useRootStore();
   const t = useTranslations();
-  const copy = chatUiCopy(useTranslations());
+  const copy = chatUiCopy(t);
 
   const usage = store.usage;
   const blocked = usage?.blockedReason ?? null;

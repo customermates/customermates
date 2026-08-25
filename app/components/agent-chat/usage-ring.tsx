@@ -3,7 +3,6 @@
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import {} from "lucide-react";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";

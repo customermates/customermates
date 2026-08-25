@@ -19,7 +19,7 @@ function assertNoDevServerContention() {
         if (command.includes("next")) devServerHoldsAppPort = true;
       }
     } catch {
-      devServerHoldsAppPort = false;
+      devServerHoldsAppPort = devServerHoldsAppPort === true;
     }
   }
 

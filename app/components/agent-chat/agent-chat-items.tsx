@@ -132,32 +132,30 @@ export const AgentChatItemView = observer(function AgentChatItemView({
       {item.resolution ? (
         <p className="mt-3 text-xs text-muted-foreground">{t(`AgentChat.approval.${item.resolution}`)}</p>
       ) : (
-        <>
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <Button
-              aria-busy={item.pendingDecision === "approve"}
-              disabled={Boolean(item.pendingDecision)}
-              size="sm"
-              onClick={() => runUserAction(() => decideApproval(item, "approve"))}
-            >
-              {item.pendingDecision === "approve" && <Loader2 className="size-3.5 animate-spin" />}
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <Button
+            aria-busy={item.pendingDecision === "approve"}
+            disabled={Boolean(item.pendingDecision)}
+            size="sm"
+            onClick={() => runUserAction(() => decideApproval(item, "approve"))}
+          >
+            {item.pendingDecision === "approve" && <Loader2 className="size-3.5 animate-spin" />}
 
-              {t("AgentChat.approval.approveOnceAction")}
-            </Button>
+            {t("AgentChat.approval.approveOnceAction")}
+          </Button>
 
-            <Button
-              aria-busy={item.pendingDecision === "reject"}
-              disabled={Boolean(item.pendingDecision)}
-              size="sm"
-              variant="ghost"
-              onClick={() => runUserAction(() => decideApproval(item, "reject"))}
-            >
-              {item.pendingDecision === "reject" && <Loader2 className="size-3.5 animate-spin" />}
+          <Button
+            aria-busy={item.pendingDecision === "reject"}
+            disabled={Boolean(item.pendingDecision)}
+            size="sm"
+            variant="ghost"
+            onClick={() => runUserAction(() => decideApproval(item, "reject"))}
+          >
+            {item.pendingDecision === "reject" && <Loader2 className="size-3.5 animate-spin" />}
 
-              {t("AgentChat.approval.rejectAction")}
-            </Button>
-          </div>
-        </>
+            {t("AgentChat.approval.rejectAction")}
+          </Button>
+        </div>
       )}
     </div>
   );

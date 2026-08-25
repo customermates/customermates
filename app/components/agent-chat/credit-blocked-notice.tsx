@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import {} from "lucide-react";
 
 import type { AgentUsageSummary } from "@/ee/agent-chat/agent-usage.service";
 

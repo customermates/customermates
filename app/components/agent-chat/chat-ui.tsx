@@ -2,7 +2,6 @@
 
 import { observer } from "mobx-react-lite";
 import type { useTranslations } from "next-intl";
-import {} from "lucide-react";
 
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";

@@ -2,7 +2,6 @@
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import {} from "lucide-react";
 
 import type { AgentChatItem } from "./agent-chat.store";
 
