@@ -249,7 +249,7 @@
       "activityPageOutOfRange": "La cronologia delle attività non può risalire così indietro. Restringi invece i filtri.",
       "activityScopeTooManyIds": "Un ambito attività non può selezionare più di 50 record dello stesso tipo.",
       "activitySourcesUnavailable": "Non hai accesso a nessuna fonte della cronologia attività.",
-      "apiKeyMaxExpiration": "La data di scadenza della chiave API non rientra nell’intervallo di date supportato.",
+      "apiKeyMaxExpiration": "La scadenza di una chiave API non può superare i 365 giorni.",
       "apiKeyMinExpiration": "La scadenza di una chiave API deve essere di almeno 1 giorno.",
       "assigneeRequired": "Devi assegnare questo elemento a te stesso. Nota che potrai vedere solo gli elementi assegnati a te.",
       "calendarEventNotFound": "ID evento del calendario non trovato o non accessibile.",

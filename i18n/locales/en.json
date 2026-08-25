@@ -249,7 +249,7 @@
       "activityPageOutOfRange": "The activity feed cannot page that far back. Narrow the filters instead.",
       "activityScopeTooManyIds": "An activity scope cannot select more than 50 records of one type.",
       "activitySourcesUnavailable": "You do not have access to any activity timeline source.",
-      "apiKeyMaxExpiration": "API key expiration is outside the supported date range.",
+      "apiKeyMaxExpiration": "API key expiration cannot exceed 365 days.",
       "apiKeyMinExpiration": "API key expiration must be at least 1 day.",
       "assigneeRequired": "You must assign yourself to this item. Please note that you will only be able to view items assigned to you.",
       "calendarEventNotFound": "Calendar event ID not found or not accessible.",

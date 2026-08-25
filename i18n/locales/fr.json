@@ -249,7 +249,7 @@
       "activityPageOutOfRange": "La chronologie des activités ne peut pas remonter aussi loin. Affinez plutôt les filtres.",
       "activityScopeTooManyIds": "Un périmètre d'activité ne peut pas sélectionner plus de 50 enregistrements d'un même type.",
       "activitySourcesUnavailable": "Vous n'avez accès à aucune source de la chronologie des activités.",
-      "apiKeyMaxExpiration": "La date d’expiration de la clé API se situe en dehors de la plage de dates prise en charge.",
+      "apiKeyMaxExpiration": "L'expiration d'une clé API ne peut pas dépasser 365 jours.",
       "apiKeyMinExpiration": "L'expiration d'une clé API doit être d'au moins 1 jour.",
       "assigneeRequired": "Vous devez vous assigner cet élément. Notez que vous ne pourrez consulter que les éléments qui vous sont assignés.",
       "calendarEventNotFound": "ID d'évènement d'agenda introuvable ou inaccessible.",

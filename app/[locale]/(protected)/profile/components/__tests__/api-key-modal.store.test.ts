@@ -15,7 +15,7 @@ vi.mock("@/i18n/navigation", () => ({
 
 import { ApiKeyModalStore } from "../api-key-modal.store";
 import { executeAiConnectionKeyCreation } from "@/components/ai-connection/ai-connection-key-creation";
-import { API_KEY_QUICK_CONNECTION_EXPIRATION_SECONDS } from "@/features/api-key/api-key-expiration";
+import { API_KEY_MAX_EXPIRATION_SECONDS } from "@/features/api-key/api-key-expiration";
 
 const refresh = vi.fn();
 const rootStore = {
@@ -108,11 +108,13 @@ describe("ApiKeyModalStore add wizard", () => {
   });
 
   it("restores a non-expiring key when the selected date is cleared", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 7, 25, 12));
     const store = makeStore();
     store.add();
     store.choosePlain();
 
-    store.setExpiresAt(new Date(2030, 0, 1));
+    store.setExpiresAt(new Date(2027, 7, 25));
     store.setExpiresAt(null);
 
     expect(store.expiresAt).toBeNull();
@@ -136,7 +138,7 @@ describe("ApiKeyModalStore add wizard", () => {
 
     expect(profileActions.createApiKeyAction).toHaveBeenCalledWith({
       name: "Gemini",
-      expiresIn: API_KEY_QUICK_CONNECTION_EXPIRATION_SECONDS,
+      expiresIn: API_KEY_MAX_EXPIRATION_SECONDS,
     });
     expect(store.aiConnectionStore.apiKey).toBe("one-time-gemini-secret");
     expect(refresh).toHaveBeenCalledTimes(1);

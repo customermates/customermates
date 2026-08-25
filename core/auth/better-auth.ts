@@ -8,10 +8,7 @@ import * as Sentry from "@sentry/nextjs";
 import { prisma } from "@/prisma/db";
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
 import { env } from "@/env";
-import {
-  API_KEY_MIN_EXPIRATION_DAYS,
-  API_KEY_TECHNICAL_MAX_EXPIRATION_DAYS,
-} from "@/features/api-key/api-key-expiration";
+import { API_KEY_MAX_EXPIRATION_DAYS, API_KEY_MIN_EXPIRATION_DAYS } from "@/features/api-key/api-key-expiration";
 
 const socialProviders = {
   ...(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
@@ -174,7 +171,7 @@ export const auth = betterAuth({
       enableSessionForAPIKeys: true,
       keyExpiration: {
         minExpiresIn: API_KEY_MIN_EXPIRATION_DAYS,
-        maxExpiresIn: API_KEY_TECHNICAL_MAX_EXPIRATION_DAYS,
+        maxExpiresIn: API_KEY_MAX_EXPIRATION_DAYS,
       },
     }),
     mcp({
