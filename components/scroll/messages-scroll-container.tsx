@@ -185,6 +185,7 @@ export function MessagesScrollContainer({
 
       {jumpToLatestLabel && (
         <ScrollReturnButton
+          className="right-5"
           direction="bottom"
           isAway={isAwayFromLatest}
           label={jumpToLatestLabel}
