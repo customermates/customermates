@@ -13,6 +13,7 @@ export const createTaskOperation: ZodOpenApiOperationObject = {
   tags: ["tasks"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {
+    required: true,
     content: {
       "application/json": {
         schema: CreateTaskSchema,

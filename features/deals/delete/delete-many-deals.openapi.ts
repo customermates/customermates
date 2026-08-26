@@ -11,6 +11,7 @@ export const deleteManyDealsOperation: ZodOpenApiOperationObject = {
   tags: ["deals"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {
+    required: true,
     content: {
       "application/json": {
         schema: DeleteManyDealsSchema,

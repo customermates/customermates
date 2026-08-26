@@ -13,6 +13,7 @@ export const deleteManyContactsOperation: ZodOpenApiOperationObject = {
   tags: ["contacts"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {
+    required: true,
     content: {
       "application/json": {
         schema: DeleteManyContactsSchema,

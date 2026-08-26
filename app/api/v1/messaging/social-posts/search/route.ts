@@ -5,10 +5,11 @@ import { z } from "zod";
 
 import { getListSocialPostsInteractor, getGetSocialPostInteractor } from "@/core/di";
 import { handleError } from "@/core/api/interactor-handler";
+import { mapRequestJsonError } from "@/core/api/request-json-error";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = await request.json().catch(mapRequestJsonError);
     const result = body?.postId
       ? await getGetSocialPostInteractor().invoke(body)
       : await getListSocialPostsInteractor().invoke(body);

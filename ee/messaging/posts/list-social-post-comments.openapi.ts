@@ -24,6 +24,7 @@ export const getSocialPostEngagementOperation: ZodOpenApiOperationObject = {
   tags: ["messaging"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {
+    required: true,
     content: {
       "application/json": {
         schema: SocialPostEngagementBodySchema,

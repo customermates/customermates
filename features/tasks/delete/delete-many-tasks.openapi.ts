@@ -11,6 +11,7 @@ export const deleteManyTasksOperation: ZodOpenApiOperationObject = {
   tags: ["tasks"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {
+    required: true,
     content: {
       "application/json": {
         schema: DeleteManyTasksSchema,
