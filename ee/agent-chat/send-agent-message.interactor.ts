@@ -228,7 +228,18 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         });
         return true;
       });
-      if (!claimed) return failConflict(CustomErrorCode.agentTurnAlreadyRunning);
+      if (!claimed) {
+        if (conversationIsNew) return failConflict(CustomErrorCode.agentTurnAlreadyRunning);
+        return {
+          ok: true as const,
+          data: {
+            disposition: "running",
+            clientRequestId: data.clientRequestId,
+            conversationId,
+            retryAllowed: false,
+          },
+        };
+      }
 
       const turnRequestId = decision.disposition === "retry" ? decision.turn.id : randomUUID();
       const userMessageId = decision.disposition === "retry" ? decision.turn.userMessageId : randomUUID();
