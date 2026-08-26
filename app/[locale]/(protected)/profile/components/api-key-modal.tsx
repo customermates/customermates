@@ -24,6 +24,7 @@ import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confi
 import { Alert } from "@/components/shared/alert";
 import { CopyableCode } from "@/components/shared/copyable-code";
 import { InfoRow } from "@/components/shared/info-row";
+import { getApiKeyMaximumExpirationDate, isApiKeyExpirationDateAllowed } from "@/features/api-key/api-key-expiration";
 
 const ExpiresInPicker = observer(() => {
   const t = useTranslations();
@@ -32,8 +33,8 @@ const ExpiresInPicker = observer(() => {
   const { expiresAt } = apiKeyModalStore;
 
   const today = new Date();
-  const max = new Date();
-  max.setDate(max.getDate() + 364);
+  const firstMonth = new Date(today.getFullYear(), today.getMonth());
+  const lastMonth = getApiKeyMaximumExpirationDate(today);
 
   return (
     <div className="space-y-1.5">
@@ -61,11 +62,27 @@ const ExpiresInPicker = observer(() => {
         <PopoverContent align="start" className="w-auto p-0">
           <Calendar
             autoFocus
-            disabled={(date) => date < today || date > max}
+            captionLayout="dropdown"
+            disabled={(date) => !isApiKeyExpirationDateAllowed(date, today)}
+            endMonth={lastMonth}
             mode="single"
             selected={expiresAt ?? undefined}
+            startMonth={firstMonth}
             onSelect={(next) => apiKeyModalStore.setExpiresAt(next ?? null)}
           />
+
+          <div className="border-t border-border p-2">
+            <Button
+              className="w-full"
+              disabled={expiresAt === null}
+              size="sm"
+              type="button"
+              variant="ghost"
+              onClick={() => apiKeyModalStore.setExpiresAt(null)}
+            >
+              {t("ApiKeyModal.expiresInPlaceholder")}
+            </Button>
+          </div>
         </PopoverContent>
       </Popover>
     </div>

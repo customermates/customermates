@@ -11,14 +11,10 @@ type SendArgs = {
   from?: string;
 };
 
-type SendOptions = {
-  throwOnProviderError?: boolean;
-};
-
 const defaultSender = `Customermates <${env.RESEND_OPERATOR_EMAIL}>`;
 
 export class EmailService {
-  async send(args: SendArgs, options: SendOptions = {}): Promise<void> {
+  async send(args: SendArgs): Promise<boolean> {
     if (env.NODE_ENV !== "production") {
       console.log("[EmailService] EMAIL (local only)", {
         from: args.from ?? defaultSender,
@@ -27,7 +23,7 @@ export class EmailService {
         props: args.react.props,
       });
 
-      return;
+      return true;
     }
 
     if (!env.RESEND_API_KEY) throw new Error("RESEND_API_KEY is not configured");
@@ -41,6 +37,6 @@ export class EmailService {
       react: args.react,
     });
 
-    if (options.throwOnProviderError && error) throw new Error(`Resend rejected the email: ${error.message}`);
+    return error === null;
   }
 }
