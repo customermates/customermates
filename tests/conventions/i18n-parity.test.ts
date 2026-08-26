@@ -93,7 +93,6 @@ const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
   "fr:DocsSidebar.introduction",
   "fr:DocsSidebar.openapi",
   "fr:NavigationBar.docs",
-  "fr:StructuredData.breadcrumb.docs",
   "fr:OnboardingWizard.ai.choices.claudeDesktop",
   "fr:OnboardingWizard.ai.choices.openai",
   "fr:Subscription.planStatusLabel",

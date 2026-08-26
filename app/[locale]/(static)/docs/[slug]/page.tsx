@@ -48,7 +48,7 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
       <JsonLd
         schema={breadcrumbListSchema([
           { name: t("StructuredData.breadcrumb.home"), path: `/${locale}` },
-          { name: t("StructuredData.breadcrumb.docs"), path: `/${locale}/docs` },
+          { name: t("DocsSidebar.introduction"), path: `/${locale}/docs` },
           { name: headline, path: `/${locale}/docs/${slug}` },
         ])}
       />
