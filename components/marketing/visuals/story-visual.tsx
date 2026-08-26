@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import { ArrowRight, Check, Send } from "lucide-react";
+import { Send } from "lucide-react";
 
 import { cn } from "@/core/utils/cn";
 
@@ -21,34 +21,28 @@ import {
   PersonIdentity,
   ProviderMark,
 } from "./native-visual-primitives";
+import { type GoldenVisualBrief, validateGoldenVisualBrief } from "./goldens";
+import type { VisualPlacement } from "./visual-contract";
 import {
-  type BrandIllustrationBrief,
-  type VisualPlacement,
-  type VisualVariant,
-  validateVisualBrief,
-} from "./visual-contract";
-import {
-  STORY_VISUAL_EDGE_LAYOUT,
+  GOLDEN_LAYOUT,
   authoredConnectorPath,
   connectorDrawProgress,
   focalAccentProgress,
   focalSurfaceProgress,
   sourceRevealProgress,
-  storyBeatProgress,
   trimAuthoredConnector,
   type AuthoredConnector,
   type NormalizedBox,
   type NormalizedPoint,
 } from "./story-visual-layout";
 
-export type StoryVisualTheme = "light" | "dark";
+export type GoldenStoryVisualTheme = "light" | "dark";
 
-type StoryVisualProps = {
-  brief: BrandIllustrationBrief;
+type GoldenStoryVisualProps = {
+  brief: GoldenVisualBrief;
   placement: VisualPlacement;
   t?: number;
-  theme: StoryVisualTheme;
-  variant: VisualVariant;
+  theme: GoldenStoryVisualTheme;
 };
 
 const ARTBOARD_ASPECT: Record<VisualPlacement, string> = {
@@ -63,46 +57,16 @@ const DETAIL_DENSITY: Record<VisualPlacement, "context" | "essential" | "full"> 
   wide: "full",
 };
 
-const FOCAL_POSITION: Record<VisualPlacement, Record<VisualVariant, string>> = {
-  narrow: {
-    edge: "-right-[12%] bottom-[8%] w-[88%]",
-    overlap: "right-[7%] bottom-[10%] w-[84%]",
-    stage: "right-[8%] bottom-[12%] w-[84%]",
-  },
-  split: {
-    edge: "-right-[10%] bottom-[7%] w-[86%]",
-    overlap: "right-[8%] bottom-[11%] w-[82%]",
-    stage: "right-[9%] bottom-[13%] w-[82%]",
-  },
-  wide: {
-    edge: "-right-[4%] top-[17%] w-[49%]",
-    overlap: "right-[7%] top-[20%] w-[48%]",
-    stage: "right-[26%] top-[19%] w-[48%]",
-  },
-};
-
-const CONTAINED_FOCAL_POSITION: Record<VisualPlacement, Record<VisualVariant, string>> = {
-  narrow: {
-    edge: "right-[2%] bottom-[8%] w-[88%]",
-    overlap: FOCAL_POSITION.narrow.overlap,
-    stage: FOCAL_POSITION.narrow.stage,
-  },
-  split: {
-    edge: "right-[3%] bottom-[7%] w-[86%]",
-    overlap: FOCAL_POSITION.split.overlap,
-    stage: FOCAL_POSITION.split.stage,
-  },
-  wide: {
-    edge: "right-[3%] top-[17%] w-[49%]",
-    overlap: FOCAL_POSITION.wide.overlap,
-    stage: FOCAL_POSITION.wide.stage,
-  },
+const FOCUS_FOCAL_POSITION: Record<VisualPlacement, string> = {
+  narrow: "right-[2%] bottom-[8%] w-[88%]",
+  split: "right-[3%] bottom-[7%] w-[86%]",
+  wide: "right-[3%] top-[17%] w-[49%]",
 };
 
 function normalizedTime(t: number | undefined) {
   const time = t ?? 1;
   if (!Number.isFinite(time) || time < 0 || time > 1)
-    throw new Error("StoryVisual time must be normalized between zero and one");
+    throw new Error("GoldenStoryVisual time must be normalized between zero and one");
 
   return time;
 }
@@ -149,15 +113,13 @@ function DepthPlane({
   );
 }
 
-function AmbientField({ placement, variant }: { placement: VisualPlacement; variant: VisualVariant }) {
+function AmbientField({ placement }: { placement: VisualPlacement }) {
   return (
     <DepthPlane className="pointer-events-none absolute inset-0" depth={1}>
       <div
         className={cn(
           "absolute rounded-full bg-primary/15 blur-3xl",
           placement === "wide" ? "right-[8%] top-[8%] size-[54%]" : "-right-[18%] bottom-[4%] size-[82%]",
-          variant === "stage" &&
-            (placement === "wide" ? "right-[28%] top-[10%] size-[46%]" : "right-[8%] bottom-[9%] size-[72%]"),
         )}
       />
     </DepthPlane>
@@ -197,7 +159,7 @@ function SourceMark({
   active: boolean;
   placement: VisualPlacement;
   progress: number;
-  subject: BrandIllustrationBrief["supportingSubjects"][number];
+  subject: GoldenVisualBrief["supportingSubjects"][number];
 }) {
   const provider = subject.fixtures?.provider;
   if (!provider) throw new Error(`${subject.id} needs a provider fixture`);
@@ -246,12 +208,10 @@ function SourceMark({
 
 function ConnectorLayer({
   connectors,
-  hidden = false,
   subjectPrefix,
   time,
 }: {
   connectors: readonly AuthoredConnector[];
-  hidden?: boolean;
   subjectPrefix: string;
   time: number;
 }) {
@@ -279,7 +239,7 @@ function ConnectorLayer({
             pathLength="1"
             stroke="currentColor"
             strokeLinecap="butt"
-            strokeOpacity={hidden ? 0 : index === 0 ? 0.72 : 0.32}
+            strokeOpacity={index === 0 ? 0.72 : 0.32}
             strokeWidth={index === 0 ? 1.25 : 1}
             vectorEffect="non-scaling-stroke"
           />
@@ -289,8 +249,8 @@ function ConnectorLayer({
   );
 }
 
-function convergeEdgeConnectors(placement: VisualPlacement, count: number) {
-  const connectors = STORY_VISUAL_EDGE_LAYOUT.converge[placement].connectors;
+function convergeGoldenConnectors(placement: VisualPlacement, count: number) {
+  const connectors = GOLDEN_LAYOUT.converge[placement].connectors;
   if (count === 2) return connectors[2];
   if (count === 3) return connectors[3];
   throw new Error("Converge connector geometry supports two or three sources");
@@ -300,38 +260,23 @@ function ConvergeSupports({
   placement,
   subjects,
   time,
-  variant,
 }: {
   placement: VisualPlacement;
-  subjects: BrandIllustrationBrief["supportingSubjects"];
+  subjects: GoldenVisualBrief["supportingSubjects"];
   time: number;
-  variant: VisualVariant;
 }) {
-  const iconClasses =
-    subjects.length === 2
-      ? placement === "wide"
-        ? ["left-[10%] top-[27%]", "left-[12%] top-[63%]"]
-        : ["left-[19%] top-[11%]", "right-[19%] top-[11%]"]
-      : placement === "wide"
-        ? ["left-[11%] top-[15%]", "left-[7%] top-[42%]", "left-[13%] top-[72%]"]
-        : ["left-[11%] top-[11%]", "left-[42%] top-[7%]", "right-[11%] top-[13%]"];
-
-  const edgeConnectors = convergeEdgeConnectors(placement, subjects.length);
+  const connectors = convergeGoldenConnectors(placement, subjects.length);
 
   return (
     <DepthPlane className="absolute inset-0" depth={2}>
-      <ConnectorLayer connectors={edgeConnectors} hidden={variant !== "edge"} subjectPrefix="connector" time={time} />
+      <ConnectorLayer connectors={connectors} subjectPrefix="connector" time={time} />
 
       {subjects.map((subject, index) => {
-        const connector = edgeConnectors[index];
+        const connector = connectors[index];
         if (!connector) throw new Error(`${subject.id} is missing authored connector geometry`);
 
         return (
-          <div
-            key={subject.id}
-            className={cn("absolute", variant !== "edge" && iconClasses[index])}
-            style={variant === "edge" ? normalizedCenterStyle(connector.source) : undefined}
-          >
+          <div key={subject.id} className="absolute" style={normalizedCenterStyle(connector.source)}>
             <SourceMark
               active={Boolean(subject.fixtures?.person)}
               placement={placement}
@@ -347,14 +292,12 @@ function ConvergeSupports({
 
 function RecordAnchor({
   label,
-  overlap,
   person,
   placement,
   progress,
   provider,
 }: {
   label?: string;
-  overlap: boolean;
   person: VisualPersonFixtureId;
   placement: VisualPlacement;
   progress: number;
@@ -397,31 +340,14 @@ function RecordAnchor({
           {placement === "wide" ? <div className="mt-[6%] h-2 w-[42%] rounded-full bg-muted" /> : null}
         </div>
       </div>
-
-      {overlap ? (
-        <div
-          className="absolute -left-[11%] bottom-[16%] flex items-center gap-[10%] rounded-full border border-border-strong bg-card px-[5%] py-[3.5%] text-primary shadow-lg"
-          data-overlap-object="true"
-        >
-          <ProviderMark provider={provider} size={18} />
-
-          <ArrowRight aria-hidden="true" className="size-3.5" strokeWidth={1.7} />
-        </div>
-      ) : null}
     </div>
   );
 }
 
-function ConvergeVisual({
-  brief,
-  placement,
-  t,
-  variant,
-}: Pick<StoryVisualProps, "brief" | "placement" | "t" | "variant">) {
+function ConvergeVisual({ brief, placement, t }: Pick<GoldenStoryVisualProps, "brief" | "placement" | "t">) {
   const time = normalizedTime(t);
-  const isSelectedEdge = variant === "edge";
-  const focalProgress = isSelectedEdge ? focalSurfaceProgress(time) : storyBeatProgress(time, 0.48, 0.86);
-  const accentProgress = isSelectedEdge ? focalAccentProgress(time) : focalProgress;
+  const focalProgress = focalSurfaceProgress(time);
+  const accentProgress = focalAccentProgress(time);
   const person = brief.focalSubject.fixtures?.person;
   const activeSource = brief.supportingSubjects.find((subject) => subject.fixtures?.person);
   const provider = activeSource?.fixtures?.provider;
@@ -429,20 +355,19 @@ function ConvergeVisual({
 
   return (
     <>
-      <AmbientField placement={placement} variant={variant} />
+      <AmbientField placement={placement} />
 
-      <ConvergeSupports placement={placement} subjects={brief.supportingSubjects} time={time} variant={variant} />
+      <ConvergeSupports placement={placement} subjects={brief.supportingSubjects} time={time} />
 
       <FocalPlane
-        anchorGeometry={isSelectedEdge}
-        className={isSelectedEdge ? "" : FOCAL_POSITION[placement][variant]}
+        anchorGeometry
+        className=""
         initialOpacity={0.14}
-        style={isSelectedEdge ? normalizedBoxStyle(STORY_VISUAL_EDGE_LAYOUT.converge[placement].focal) : undefined}
+        style={normalizedBoxStyle(GOLDEN_LAYOUT.converge[placement].focal)}
         t={focalProgress}
       >
         <RecordAnchor
           label={brief.focalLabel?.text}
-          overlap={variant === "overlap"}
           person={person}
           placement={placement}
           progress={accentProgress}
@@ -457,25 +382,22 @@ function AgentCue({
   placement,
   provider,
   subjectId,
-  variant,
 }: {
   placement: VisualPlacement;
   provider: VisualAgentProviderFixtureId;
   subjectId: string;
-  variant: VisualVariant;
 }) {
-  const cue = STORY_VISUAL_EDGE_LAYOUT.handoff[placement].cue;
+  const cue = GOLDEN_LAYOUT.handoff[placement].cue;
 
   return (
     <NativeAgentProviderIdentity
       className={cn(
         "absolute z-10 rounded-full border border-border-strong bg-card px-2 py-1.5 text-[9px] text-foreground shadow-sm",
-        variant !== "edge" && (placement === "wide" ? "left-[11%] top-[27%]" : "left-[12%] top-[14%]"),
       )}
       iconSize={placement === "wide" ? 18 : 16}
       motionSubject={subjectId}
       provider={provider}
-      style={variant === "edge" ? normalizedCenterStyle(cue) : undefined}
+      style={normalizedCenterStyle(cue)}
     />
   );
 }
@@ -532,19 +454,17 @@ function HumanAction({
   label,
   person,
   placement,
-  variant,
 }: {
   label?: string;
   person: VisualPersonFixtureId;
   placement: VisualPlacement;
-  variant: VisualVariant;
 }) {
   return (
     <div
       className={cn(
         "absolute z-10 flex items-center gap-2 rounded-xl border border-border-strong bg-card p-1.5 shadow-lg",
         "bottom-[4%]",
-        variant === "edge" ? "right-[18%]" : variant === "overlap" ? "right-[8%]" : "right-[3%]",
+        "right-[18%]",
       )}
       data-detail-density={DETAIL_DENSITY[placement]}
       data-overlap-object="true"
@@ -560,15 +480,9 @@ function HumanAction({
   );
 }
 
-function HandoffVisual({
-  brief,
-  placement,
-  t,
-  variant,
-}: Pick<StoryVisualProps, "brief" | "placement" | "t" | "variant">) {
+function HandoffVisual({ brief, placement, t }: Pick<GoldenStoryVisualProps, "brief" | "placement" | "t">) {
   const time = normalizedTime(t);
-  const isSelectedEdge = variant === "edge";
-  const edgeLayout = STORY_VISUAL_EDGE_LAYOUT.handoff[placement];
+  const layout = GOLDEN_LAYOUT.handoff[placement];
   const sendLabel = brief.semanticLabels[0]?.text;
   const person = brief.focalSubject.fixtures?.person;
   const provider = brief.focalSubject.fixtures?.provider;
@@ -579,33 +493,26 @@ function HandoffVisual({
 
   return (
     <>
-      <AmbientField placement={placement} variant={variant} />
+      <AmbientField placement={placement} />
 
       <DepthPlane className="absolute inset-0" depth={2}>
-        {isSelectedEdge ? (
-          <ConnectorLayer connectors={[edgeLayout.connector]} subjectPrefix="handoff-connector" time={time} />
-        ) : null}
+        <ConnectorLayer connectors={[layout.connector]} subjectPrefix="handoff-connector" time={time} />
 
-        <AgentCue placement={placement} provider={agent.agentProvider} subjectId={agent.id} variant={variant} />
+        <AgentCue placement={placement} provider={agent.agentProvider} subjectId={agent.id} />
       </DepthPlane>
 
-      <FocalPlane
-        anchorGeometry={isSelectedEdge}
-        className={isSelectedEdge ? "" : CONTAINED_FOCAL_POSITION[placement][variant]}
-        style={isSelectedEdge ? normalizedBoxStyle(edgeLayout.focal) : undefined}
-        t={isSelectedEdge ? focalSurfaceProgress(time) : time}
-      >
+      <FocalPlane anchorGeometry className="" style={normalizedBoxStyle(layout.focal)} t={focalSurfaceProgress(time)}>
         <div className="relative">
           <DraftArtifact label={brief.focalLabel?.text} person={person} placement={placement} provider={provider} />
 
-          <HumanAction label={sendLabel} person={human} placement={placement} variant={variant} />
+          <HumanAction label={sendLabel} person={human} placement={placement} />
         </div>
       </FocalPlane>
     </>
   );
 }
 
-function recordFixtures(subject: BrandIllustrationBrief["supportingSubjects"][number]) {
+function recordFixtures(subject: GoldenVisualBrief["supportingSubjects"][number]) {
   const { record, status } = subject.fixtures ?? {};
   if (!record || !status) throw new Error(`${subject.id} needs a record and Status fixture`);
   return { record, status };
@@ -618,7 +525,7 @@ function QuietRecordCard({
 }: {
   placement: VisualPlacement;
   showFixture: boolean;
-  subject: BrandIllustrationBrief["supportingSubjects"][number];
+  subject: GoldenVisualBrief["supportingSubjects"][number];
 }) {
   const fixtures = subject.fixtures;
   if (!showFixture || !fixtures?.record || !fixtures.status) {
@@ -658,7 +565,7 @@ function ContextPlane({
   subjects,
 }: {
   placement: VisualPlacement;
-  subjects: BrandIllustrationBrief["supportingSubjects"];
+  subjects: GoldenVisualBrief["supportingSubjects"];
 }) {
   const positions =
     placement === "wide"
@@ -682,13 +589,11 @@ function ContextPlane({
 
 function SignalArtifact({
   label,
-  overlap,
   placement,
   record,
   status,
 }: {
   label?: string;
-  overlap: boolean;
   placement: VisualPlacement;
   record?: VisualRecordFixtureId;
   status?: VisualStatusFixtureId;
@@ -716,15 +621,6 @@ function SignalArtifact({
           <div className="h-2 w-[62%] rounded-full bg-muted" />
         </div>
       )}
-
-      {overlap ? (
-        <div
-          className="absolute -right-[7%] top-[18%] flex size-[18%] items-center justify-center rounded-full border border-primary bg-card text-primary shadow-lg"
-          data-overlap-object="true"
-        >
-          <Check aria-hidden="true" className="size-[42%]" strokeWidth={2} />
-        </div>
-      ) : null}
     </div>
   );
 }
@@ -757,45 +653,33 @@ function InspectorCue({
   );
 }
 
-function FocusVisual({
-  brief,
-  placement,
-  t,
-  variant,
-}: Pick<StoryVisualProps, "brief" | "placement" | "t" | "variant">) {
+function FocusVisual({ brief, placement, t }: Pick<GoldenStoryVisualProps, "brief" | "placement" | "t">) {
   const { person, record, status } = brief.focalSubject.fixtures ?? {};
   const inspectorLabel = brief.semanticLabels[0]?.text;
   if (person && !inspectorLabel) throw new Error("Focus person fixtures require a localized inspector label");
 
   return (
     <>
-      <AmbientField placement={placement} variant={variant} />
+      <AmbientField placement={placement} />
 
       <ContextPlane placement={placement} subjects={brief.supportingSubjects} />
 
-      <FocalPlane className={CONTAINED_FOCAL_POSITION[placement][variant]} t={t}>
+      <FocalPlane className={FOCUS_FOCAL_POSITION[placement]} t={t}>
         <div className="relative">
           {person && inspectorLabel ? (
             <InspectorCue label={inspectorLabel} person={person} placement={placement} />
           ) : null}
 
-          <SignalArtifact
-            label={brief.focalLabel?.text}
-            overlap={variant === "overlap"}
-            placement={placement}
-            record={record}
-            status={status}
-          />
+          <SignalArtifact label={brief.focalLabel?.text} placement={placement} record={record} status={status} />
         </div>
       </FocalPlane>
     </>
   );
 }
 
-export function StoryVisual({ brief, placement, t, theme, variant }: StoryVisualProps) {
-  const validated = validateVisualBrief(brief);
+export function GoldenStoryVisual({ brief, placement, t, theme }: GoldenStoryVisualProps) {
+  const validated = validateGoldenVisualBrief(brief);
   const time = normalizedTime(t);
-  if (validated.kind !== "brand-illustration") throw new Error("StoryVisual renders brand illustrations only");
 
   if (!validated.placements.includes(placement))
     throw new Error(`${validated.id} does not request the ${placement} placement`);
@@ -808,24 +692,18 @@ export function StoryVisual({ brief, placement, t, theme, variant }: StoryVisual
         ARTBOARD_ASPECT[placement],
         theme === "dark" ? "dark" : "light",
       )}
-      data-composition={`${placement}:${variant}`}
       data-detail-density={DETAIL_DENSITY[placement]}
-      data-story-template={validated.template}
+      data-golden-placement={placement}
+      data-story-pathway={validated.pathway}
       data-story-theme={theme}
       data-story-visual={validated.id}
       role="img"
     >
-      {validated.template === "converge" ? (
-        <ConvergeVisual brief={validated} placement={placement} t={time} variant={variant} />
-      ) : null}
+      {validated.pathway === "converge" ? <ConvergeVisual brief={validated} placement={placement} t={time} /> : null}
 
-      {validated.template === "handoff" ? (
-        <HandoffVisual brief={validated} placement={placement} t={time} variant={variant} />
-      ) : null}
+      {validated.pathway === "handoff" ? <HandoffVisual brief={validated} placement={placement} t={time} /> : null}
 
-      {validated.template === "focus" ? (
-        <FocusVisual brief={validated} placement={placement} t={time} variant={variant} />
-      ) : null}
+      {validated.pathway === "focus" ? <FocusVisual brief={validated} placement={placement} t={time} /> : null}
     </div>
   );
 }

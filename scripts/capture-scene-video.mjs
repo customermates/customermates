@@ -33,16 +33,9 @@ const flag = (name, fallback) => {
 
 const SCENE = flag("scene", "chat-draft");
 const CONTRACT = SCENE_CAPTURE_CONTRACTS[SCENE];
-const FPS = Number.parseInt(
-  flag("fps", String(CONTRACT?.allowedFps[0] ?? 24)),
-  10,
-);
-const SECONDS = Number.parseFloat(
-  flag("seconds", String(CONTRACT?.duration.preferred ?? 12)),
-);
-const POSTER_TIME = Number.parseFloat(
-  flag("poster-t", String(CONTRACT?.posterTime ?? 0)),
-);
+const FPS = Number.parseInt(flag("fps", String(CONTRACT?.allowedFps[0] ?? 24)), 10);
+const SECONDS = Number.parseFloat(flag("seconds", String(CONTRACT?.duration.preferred ?? 12)));
+const POSTER_TIME = Number.parseFloat(flag("poster-t", String(CONTRACT?.posterTime ?? 0)));
 const BASE = flag("url", "http://localhost:4000/en/styleguide/frame");
 const THEME = flag("theme", "dark");
 const OUT = flag("out", `public/scenes/${THEME}/${SCENE}.mp4`);
@@ -56,19 +49,12 @@ const FRAMES = Math.round(FPS * SECONDS);
 const WORK = join("/tmp", `scene-capture-${process.pid}`);
 
 if (CONTRACT && !args.includes("--out"))
-  throw new Error(
-    `${SCENE} is a local-review film and requires an explicit non-public --out path`,
-  );
+  throw new Error(`${SCENE} is a local-review film and requires an explicit non-public --out path`);
 
 const outputPath = resolve(OUT);
 const publicPath = resolve("public");
-if (
-  CONTRACT &&
-  (outputPath === publicPath || outputPath.startsWith(`${publicPath}/`))
-)
-  throw new Error(
-    `${SCENE} cannot write a contracted review film under public/`,
-  );
+if (CONTRACT && (outputPath === publicPath || outputPath.startsWith(`${publicPath}/`)))
+  throw new Error(`${SCENE} cannot write a contracted review film under public/`);
 
 const contractFailures = captureContractViolations({
   contract: CONTRACT,
@@ -81,25 +67,9 @@ if (contractFailures.length > 0) throw new Error(contractFailures.join("; "));
 // Structural similarity between two frames, read back out of ffmpeg's own filter.
 async function ssim(a, b) {
   return new Promise((resolve, reject) => {
-    const child = spawn(
-      "ffmpeg",
-      [
-        "-v",
-        "info",
-        "-i",
-        a,
-        "-i",
-        b,
-        "-filter_complex",
-        "ssim",
-        "-f",
-        "null",
-        "-",
-      ],
-      {
-        stdio: ["ignore", "ignore", "pipe"],
-      },
-    );
+    const child = spawn("ffmpeg", ["-v", "info", "-i", a, "-i", b, "-filter_complex", "ssim", "-f", "null", "-"], {
+      stdio: ["ignore", "ignore", "pipe"],
+    });
     let text = "";
     child.stderr.on("data", (chunk) => (text += chunk.toString()));
     child.on("error", reject);
@@ -151,9 +121,7 @@ function run(command, commandArgs) {
   return new Promise((resolve, reject) => {
     const child = spawn(command, commandArgs, { stdio: "inherit" });
     child.on("error", reject);
-    child.on("exit", (code) =>
-      code === 0 ? resolve() : reject(new Error(`${command} exited ${code}`)),
-    );
+    child.on("exit", (code) => (code === 0 ? resolve() : reject(new Error(`${command} exited ${code}`))));
   });
 }
 
@@ -168,9 +136,7 @@ function runText(command, commandArgs) {
     child.stderr.on("data", (chunk) => (stderr += chunk.toString()));
     child.on("error", reject);
     child.on("exit", (code) =>
-      code === 0
-        ? resolve(stdout)
-        : reject(new Error(`${command} exited ${code}: ${stderr.trim()}`)),
+      code === 0 ? resolve(stdout) : reject(new Error(`${command} exited ${code}: ${stderr.trim()}`)),
     );
   });
 }
@@ -194,17 +160,13 @@ async function probeMedia(file) {
 // this settle loop produced four differing frames out of twenty-four across two passes,
 // which is exactly the non-determinism the --verify flag exists to catch.
 async function settledScreenshot(browser, clip, attempts = 8) {
-  await browser.eval(
-    "new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => r(true))))",
-  );
+  await browser.eval("new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => r(true))))");
   await browser.eval(`(() => { ${DROP_DEV_OVERLAY} return true; })()`);
   let previous = await browser.screenshot(clip);
   let previousHash = createHash("sha1").update(previous).digest("hex");
 
   for (let attempt = 0; attempt < attempts; attempt += 1) {
-    await browser.eval(
-      "new Promise((r) => requestAnimationFrame(() => r(true)))",
-    );
+    await browser.eval("new Promise((r) => requestAnimationFrame(() => r(true)))");
     await browser.eval(`(() => { ${DROP_DEV_OVERLAY} return true; })()`);
     const next = await browser.screenshot(clip);
     const nextHash = createHash("sha1").update(next).digest("hex");
@@ -223,9 +185,7 @@ async function capturePass(browser, dir, clip) {
 
   for (let frame = 0; frame < FRAMES; frame += 1) {
     const t = frame / FRAMES;
-    await browser.eval(
-      `(() => { ${DROP_DEV_OVERLAY} window.setSceneFrame(${t}); return true; })()`,
-    );
+    await browser.eval(`(() => { ${DROP_DEV_OVERLAY} window.setSceneFrame(${t}); return true; })()`);
     const png = await settledScreenshot(browser, clip);
     const motion = await browser.eval(`(() => {
       const root = document.querySelector('[data-scene-film]');
@@ -236,22 +196,18 @@ async function capturePass(browser, dir, clip) {
       const connectorDistance = drawTarget.length === 2 && target.length === 2
         ? Math.hypot(drawTarget[0] - target[0], drawTarget[1] - target[1])
         : null;
-      return {
-        arrivalProgress: Number(root?.dataset.filmArrivalProgress),
-        compositionOpacity: Number(root?.dataset.filmCompositionOpacity),
-        connectorDistance,
-        openingState: Number(root?.dataset.filmOpeningState),
-        resetProgress: Number(root?.dataset.filmResetProgress),
-        resolvedProgress: Number(root?.dataset.filmResolvedProgress),
-        threadProgress: Number(root?.dataset.filmThreadProgress),
-      };
+      const values = {};
+      for (const [key, value] of Object.entries(root?.dataset ?? {})) {
+        if (!key.startsWith('film')) continue;
+        const field = key.slice(4);
+        const normalized = field.charAt(0).toLowerCase() + field.slice(1);
+        values[normalized] = Number(value);
+      }
+      return { ...values, connectorDistance };
     })()`);
     hashes.push(createHash("sha1").update(png).digest("hex"));
     samples.push({ frame, ...motion });
-    await writeFile(
-      join(dir, `frame-${String(frame).padStart(5, "0")}.png`),
-      png,
-    );
+    await writeFile(join(dir, `frame-${String(frame).padStart(5, "0")}.png`), png);
   }
 
   return { hashes, samples };
@@ -260,8 +216,7 @@ async function capturePass(browser, dir, clip) {
 // The dev server paints its own indicator into the corner of every page, and it lands inside
 // the clip. It is not part of the product, it re-mounts on its own, and a frame that carries it
 // is a frame we would have to retouch, so it is removed again before every single screenshot.
-const DROP_DEV_OVERLAY =
-  'for (const node of document.querySelectorAll("nextjs-portal")) node.remove();';
+const DROP_DEV_OVERLAY = 'for (const node of document.querySelectorAll("nextjs-portal")) node.remove();';
 
 // The viewport is deliberately taller than the frame we clip to. Chrome paints a clipped
 // screenshot only where it has painted the page, and a clip that reaches the very bottom of an
@@ -288,6 +243,12 @@ try {
 
   await browser.eval("document.fonts.ready.then(() => true)");
 
+  const renderedScene = await browser.eval(
+    "document.querySelector('[data-scene-film]')?.getAttribute('data-scene-film') ?? null",
+  );
+  if (CONTRACT && renderedScene !== SCENE)
+    throw new Error(`capture route rendered ${renderedScene ?? "no contracted film"}; expected ${SCENE}`);
+
   // Radix paints an avatar only once its image has loaded, so a film whose first frames were
   // captured before the photos decoded showed initials and then swapped to a face mid-loop.
   await browser.eval(`(async () => {
@@ -313,21 +274,15 @@ try {
     const r = el.getBoundingClientRect();
     return { x: r.x + window.scrollX, y: r.y + window.scrollY, width: Math.round(r.width), height: Math.round(r.height) };
   })()`);
-  console.log(
-    `capturing ${FRAMES} frames, clipped to ${clip.width}x${clip.height}`,
-  );
+  console.log(`capturing ${FRAMES} frames, clipped to ${clip.width}x${clip.height}`);
   const first = await capturePass(browser, join(WORK, "pass-1"), clip);
   let deterministicDrift = 0;
 
   if (VERIFY) {
     console.log("second pass for determinism");
     const second = await capturePass(browser, join(WORK, "pass-2"), clip);
-    deterministicDrift = first.hashes.filter(
-      (hash, index) => hash !== second.hashes[index],
-    ).length;
-    const driftFrames = first.hashes.flatMap((hash, index) =>
-      hash === second.hashes[index] ? [] : [index],
-    );
+    deterministicDrift = first.hashes.filter((hash, index) => hash !== second.hashes[index]).length;
+    const driftFrames = first.hashes.flatMap((hash, index) => (hash === second.hashes[index] ? [] : [index]));
     console.log(
       deterministicDrift === 0
         ? "deterministic: both passes identical"
@@ -361,18 +316,7 @@ try {
 
   let decodeFailure = null;
   try {
-    await run("ffmpeg", [
-      "-v",
-      "error",
-      "-xerror",
-      "-i",
-      staged,
-      "-map",
-      "0:v:0",
-      "-f",
-      "null",
-      "-",
-    ]);
+    await run("ffmpeg", ["-v", "error", "-xerror", "-i", staged, "-map", "0:v:0", "-f", "null", "-"]);
   } catch (error) {
     decodeFailure = error instanceof Error ? error.message : String(error);
   }
@@ -404,34 +348,19 @@ try {
   console.log(`${(size / 1024).toFixed(0)} KB`);
 
   const failures = [];
-  if (deterministicDrift > 0)
-    failures.push(`NOT deterministic: ${deterministicDrift} frames differ`);
+  if (deterministicDrift > 0) failures.push(`NOT deterministic: ${deterministicDrift} frames differ`);
   if (decodeFailure) failures.push(`decode failed: ${decodeFailure}`);
   if (probeFailure) failures.push(`media probe failed: ${probeFailure}`);
-  const videoStreams = streams.filter(
-    ({ codec_type: type }) => type === "video",
-  );
-  const audioStreams = streams.filter(
-    ({ codec_type: type }) => type === "audio",
-  );
+  const videoStreams = streams.filter(({ codec_type: type }) => type === "video");
+  const audioStreams = streams.filter(({ codec_type: type }) => type === "audio");
   if (!probeFailure && videoStreams.length !== 1)
     failures.push(`expected one video stream, found ${videoStreams.length}`);
-  if (
-    !probeFailure &&
-    videoStreams.some(({ codec_name: codec }) => codec !== "h264")
-  )
+  if (!probeFailure && videoStreams.some(({ codec_name: codec }) => codec !== "h264"))
     failures.push("video codec must be H.264");
-  if (
-    !probeFailure &&
-    videoStreams.some(({ pix_fmt: pixelFormat }) => pixelFormat !== "yuv420p")
-  )
+  if (!probeFailure && videoStreams.some(({ pix_fmt: pixelFormat }) => pixelFormat !== "yuv420p"))
     failures.push("video pixel format must be yuv420p");
-  if (!probeFailure && audioStreams.length > 0)
-    failures.push("film must be silent");
-  if (closure < MIN_LOOP_SSIM)
-    failures.push(
-      `NOT a clean loop: ${closure.toFixed(4)} is below ${MIN_LOOP_SSIM}`,
-    );
+  if (!probeFailure && audioStreams.length > 0) failures.push("film must be silent");
+  if (closure < MIN_LOOP_SSIM) failures.push(`NOT a clean loop: ${closure.toFixed(4)} is below ${MIN_LOOP_SSIM}`);
   failures.push(
     ...transitionGateViolations({
       contract: CONTRACT,
@@ -440,10 +369,7 @@ try {
       steps,
     }),
   );
-  if (size > MAX_BYTES)
-    failures.push(
-      `too heavy: ${(size / 1024).toFixed(0)} KB exceeds ${MAX_BYTES / 1024} KB`,
-    );
+  if (size > MAX_BYTES) failures.push(`too heavy: ${(size / 1024).toFixed(0)} KB exceeds ${MAX_BYTES / 1024} KB`);
 
   if (failures.length) {
     for (const failure of failures) console.log(failure);
@@ -453,19 +379,10 @@ try {
     await mkdir(dirname(OUT), { recursive: true });
     await writeFile(OUT, await readFile(staged));
 
-    const posterFrame = Math.min(
-      FRAMES - 1,
-      Math.max(0, Math.round(POSTER_TIME * FRAMES)),
-    );
+    const posterFrame = Math.min(FRAMES - 1, Math.max(0, Math.round(POSTER_TIME * FRAMES)));
     await writeFile(
       OUT.replace(/\.mp4$/u, ".png"),
-      await readFile(
-        join(
-          WORK,
-          "pass-1",
-          `frame-${String(posterFrame).padStart(5, "0")}.png`,
-        ),
-      ),
+      await readFile(join(WORK, "pass-1", `frame-${String(posterFrame).padStart(5, "0")}.png`)),
     );
     console.log(`wrote ${OUT}`);
   }

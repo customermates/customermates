@@ -1,4 +1,4 @@
-import type { VisualPlacement, VisualTemplate, VisualVariant } from "./visual-contract";
+import type { VisualPathway, VisualPlacement } from "./visual-contract";
 
 export type NormalizedPoint = {
   x: number;
@@ -17,7 +17,7 @@ export type AuthoredConnector = {
   target: NormalizedPoint;
 };
 
-type ConvergeEdgeLayout = {
+type ConvergeGoldenLayout = {
   connectors: {
     2: readonly [AuthoredConnector, AuthoredConnector];
     3: readonly [AuthoredConnector, AuthoredConnector, AuthoredConnector];
@@ -25,7 +25,7 @@ type ConvergeEdgeLayout = {
   focal: NormalizedBox;
 };
 
-type HandoffEdgeLayout = {
+type HandoffGoldenLayout = {
   connector: AuthoredConnector;
   cue: NormalizedPoint & { size: number };
   focal: NormalizedBox;
@@ -47,7 +47,6 @@ type UnifiedInboxStoryboardLayout = {
 
 type AgentPipelineStoryboardLayout = {
   connector: AuthoredConnector;
-  destination: AuthoredStoryboardBox;
   instruction: AuthoredStoryboardBox;
   origin: AuthoredStoryboardBox;
   record: AuthoredStoryboardBox & {
@@ -94,7 +93,6 @@ export const AGENT_PIPELINE_STORYBOARD_LAYOUT = {
       source: { x: 65, y: 34 },
       target: { x: 65, y: 67 },
     },
-    destination: { height: 11, width: 24, x: 5, y: 61.5 },
     instruction: { height: 14, width: 88, x: 6, y: 7 },
     origin: { height: 11, width: 24, x: 53, y: 23 },
     record: { follows: "y", height: 27, width: 62, x: 34, y: 34 },
@@ -106,14 +104,13 @@ export const AGENT_PIPELINE_STORYBOARD_LAYOUT = {
       source: { x: 20, y: 54 },
       target: { x: 62, y: 54 },
     },
-    destination: { height: 11, width: 16, x: 54, y: 80 },
     instruction: { height: 15, width: 52, x: 5, y: 9 },
     origin: { height: 11, width: 17, x: 3, y: 48.5 },
     record: { follows: "x", height: 40, width: 38, x: 20, y: 34 },
   },
 } as const satisfies Record<"narrow" | "wide", AgentPipelineStoryboardLayout>;
 
-export const STORY_VISUAL_EDGE_LAYOUT = {
+export const GOLDEN_LAYOUT = {
   converge: {
     narrow: {
       connectors: {
@@ -232,7 +229,7 @@ export const STORY_VISUAL_EDGE_LAYOUT = {
       },
       focal: { width: 49, x: 55, y: 17 },
     },
-  } satisfies Record<VisualPlacement, ConvergeEdgeLayout>,
+  } satisfies Record<VisualPlacement, ConvergeGoldenLayout>,
   handoff: {
     narrow: {
       connector: {
@@ -264,7 +261,7 @@ export const STORY_VISUAL_EDGE_LAYOUT = {
       cue: { size: 11, x: 16.5, y: 36.8 },
       focal: { width: 49, x: 48, y: 17 },
     },
-  } satisfies Record<VisualPlacement, HandoffEdgeLayout>,
+  } satisfies Record<VisualPlacement, HandoffGoldenLayout>,
 } as const;
 
 export const STORY_VISUAL_MOTION = {
@@ -353,12 +350,8 @@ export function authoredConnectorPath(connector: AuthoredConnector, progress = 1
   return `M${formatCoordinate(source.x)} ${formatCoordinate(source.y)} C${formatCoordinate(control1.x)} ${formatCoordinate(control1.y)} ${formatCoordinate(control2.x)} ${formatCoordinate(control2.y)} ${formatCoordinate(target.x)} ${formatCoordinate(target.y)}`;
 }
 
-export function visibleConnectorCount(
-  template: VisualTemplate,
-  variant: VisualVariant,
-  supportingSubjectCount: number,
-) {
-  if (variant !== "edge" || template === "focus") return 0;
-  if (template === "handoff") return 1;
+export function goldenConnectorCount(pathway: VisualPathway, supportingSubjectCount: number) {
+  if (pathway === "focus") return 0;
+  if (pathway === "handoff") return 1;
   return supportingSubjectCount === 2 || supportingSubjectCount === 3 ? supportingSubjectCount : 0;
 }

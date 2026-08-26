@@ -1,8 +1,9 @@
 import type { AiConnectionProvider } from "./ai-connection.store";
+import type { AuthorableAiClientIdentityId } from "./ai-client-identities";
 
 import { cn } from "@/core/utils/cn";
 
-export type AiClientLogoProvider = AiConnectionProvider | "chatgpt" | "codex";
+export type AiClientLogoProvider = AiConnectionProvider | AuthorableAiClientIdentityId | "codex";
 
 type Props = {
   className?: string;

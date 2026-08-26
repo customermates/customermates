@@ -188,6 +188,7 @@
     "i18n:audit": "tsx scripts/audit-i18n.ts",
     "lint": "eslint . --ext .ts,.tsx,.json,.jsonc,.json5 -c .eslintrc.json --max-warnings 0",
     "lint:check": "yarn lint",
+    "marketing:visual-catalog": "tsx scripts/list-marketing-visual-fixtures.ts",
     "marketing:visual-review": "tsx scripts/render-marketing-visual-review.ts",
     "openapi:generate": "tsx scripts/generate-openapi.ts",
     "postinstall": "prisma generate",

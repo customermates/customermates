@@ -1,12 +1,8 @@
-import type { BrandIllustrationBrief, VisualPlacement, VisualVariant } from "./visual-contract";
-import { VISUAL_PLACEMENTS, VISUAL_VARIANTS } from "./visual-contract";
-import { StoryVisual, type StoryVisualTheme } from "./story-visual";
+import type { BrandIllustrationBrief, VisualLocale, VisualPlacement } from "./visual-contract";
 
-export const VISUAL_CANDIDATES = [
-  { id: "A", variant: "edge" },
-  { id: "B", variant: "overlap" },
-  { id: "C", variant: "stage" },
-] as const satisfies readonly { id: string; variant: VisualVariant }[];
+import { getGoldenVisualBrief, type GoldenVisualBrief } from "./goldens";
+import { GoldenStoryVisual, type GoldenStoryVisualTheme } from "./story-visual";
+import { VISUAL_PLACEMENTS } from "./visual-contract";
 
 const REVIEW_PLACEMENT_LAYOUTS: Record<VisualPlacement, string> = {
   wide: "grid gap-4",
@@ -14,82 +10,110 @@ const REVIEW_PLACEMENT_LAYOUTS: Record<VisualPlacement, string> = {
   narrow: "grid max-w-[50rem] gap-4 sm:grid-cols-2",
 };
 
-function candidateTitle(index: number, variant: VisualVariant, selected = false) {
-  return `${VISUAL_CANDIDATES[index].id} · ${variant}${selected ? " · selected" : ""}`;
+const REVIEW_COPY = {
+  de: {
+    briefNote:
+      "Diese Beschreibung kann ihre eigene Komposition erhalten. Der registrierte Golden-Benchmark des Pfads unten definiert die Qualitätsgrenze, nicht die Geometrie der neuen Visualisierung.",
+    goldenBenchmark: "Registrierter Golden-Benchmark",
+    goldenNote:
+      "Dieser Golden-Benchmark kalibriert Hierarchie, Dichte und responsives Verhalten. Er ist eine Qualitätsreferenz und keine Kompositionsvorlage für neue Visualisierungen.",
+    pathway: "Visualpfad",
+    pathwayGuidance:
+      "Vergleiche visuelle Hierarchie, native Details, Claim-Disziplin und responsive Rekomposition. Übernimm die Geometrie des Benchmarks nur, wenn die neue Geschichte sie eigenständig rechtfertigt.",
+    pathwayHeading: "Pfad-Benchmark",
+  },
+  en: {
+    briefNote:
+      "This brief is free to author its own composition. The registered pathway golden below defines the quality floor, not the geometry of the new visual.",
+    goldenBenchmark: "registered golden benchmark",
+    goldenNote:
+      "This golden benchmark calibrates hierarchy, density and responsive behavior. It is a quality reference, not a composition template for new visuals.",
+    pathway: "pathway",
+    pathwayGuidance:
+      "Compare focal hierarchy, native detail, claim discipline and responsive recomposition. Do not copy the benchmark geometry unless the new story independently earns it.",
+    pathwayHeading: "Pathway benchmark",
+  },
+} as const satisfies Record<
+  VisualLocale,
+  {
+    briefNote: string;
+    goldenBenchmark: string;
+    goldenNote: string;
+    pathway: string;
+    pathwayGuidance: string;
+    pathwayHeading: string;
+  }
+>;
+
+function ReviewHeader({ brief, eyebrow, note }: { brief: BrandIllustrationBrief; eyebrow: string; note: string }) {
+  const provenance = `${brief.source.checksum} · ${brief.referenceSystemVersion}`;
+
+  return (
+    <header className="mb-12 max-w-3xl">
+      <p className="font-mono text-sm text-primary">{eyebrow}</p>
+
+      <h1 className="mt-4 text-4xl font-semibold tracking-tight">{brief.takeaway}</h1>
+
+      <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{note}</p>
+
+      <p className="mt-4 text-sm text-muted-foreground">{provenance}</p>
+    </header>
+  );
 }
 
-export function GoldenCandidateTriptych({
+function GoldenThemePair({
   brief,
-  placement = "wide",
+  placement,
   themes = ["light", "dark"],
 }: {
-  brief: BrandIllustrationBrief;
-  placement?: VisualPlacement;
-  themes?: StoryVisualTheme[];
+  brief: GoldenVisualBrief;
+  placement: VisualPlacement;
+  themes?: GoldenStoryVisualTheme[];
 }) {
   return (
-    <div className="grid gap-4 lg:grid-cols-3">
-      {VISUAL_CANDIDATES.map((candidate) => (
-        <figure
-          key={candidate.id}
-          className="m-0 min-w-0"
-          data-selected-candidate={candidate.variant === brief.selectedVariant ? "true" : undefined}
-        >
-          <figcaption className="flex items-baseline justify-between gap-3 pb-3">
-            <span className="font-mono text-sm text-primary">{candidate.id}</span>
-
-            <span className="text-meta capitalize">
-              {`${candidate.variant}${candidate.variant === brief.selectedVariant ? " · selected" : ""}`}
-            </span>
-          </figcaption>
-
-          <div className="space-y-2">
-            {themes.map((theme) => (
-              <StoryVisual key={theme} brief={brief} placement={placement} theme={theme} variant={candidate.variant} />
-            ))}
-          </div>
-        </figure>
+    <div className={REVIEW_PLACEMENT_LAYOUTS[placement]} data-review-placement={placement}>
+      {themes.map((theme) => (
+        <GoldenStoryVisual key={theme} brief={brief} placement={placement} theme={theme} />
       ))}
     </div>
   );
 }
 
-export function VisualReviewSheet({ brief }: { brief: BrandIllustrationBrief }) {
-  const provenance = `${brief.source.checksum} · ${brief.referenceSystemVersion}`;
+export function GoldenBenchmarkReviewSheet({ brief }: { brief: GoldenVisualBrief }) {
+  const copy = REVIEW_COPY[brief.locale];
 
   return (
     <main className="mx-auto max-w-marketing bg-background p-8 text-foreground">
-      <header className="mb-12 max-w-3xl">
-        <p className="font-mono text-sm text-primary">{brief.id}</p>
-
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight">{brief.takeaway}</h1>
-
-        <p className="mt-4 text-sm text-muted-foreground">{provenance}</p>
-      </header>
+      <ReviewHeader brief={brief} eyebrow={`${brief.id} · ${copy.goldenBenchmark}`} note={copy.goldenNote} />
 
       <div className="space-y-16">
         {VISUAL_PLACEMENTS.map((placement) => (
           <section key={placement}>
             <h2 className="mb-5 text-xl font-medium capitalize">{placement}</h2>
 
-            <div className="space-y-10">
-              {VISUAL_VARIANTS.map((variant, index) => (
-                <article key={variant}>
-                  <h3 className="mb-3 font-mono text-sm text-muted-foreground">
-                    {candidateTitle(index, variant, variant === brief.selectedVariant)}
-                  </h3>
-
-                  <div className={REVIEW_PLACEMENT_LAYOUTS[placement]} data-review-placement={placement}>
-                    <StoryVisual brief={brief} placement={placement} theme="light" variant={variant} />
-
-                    <StoryVisual brief={brief} placement={placement} theme="dark" variant={variant} />
-                  </div>
-                </article>
-              ))}
-            </div>
+            <GoldenThemePair brief={brief} placement={placement} />
           </section>
         ))}
       </div>
+    </main>
+  );
+}
+
+export function VisualBriefReferenceSheet({ brief }: { brief: BrandIllustrationBrief }) {
+  const benchmark = getGoldenVisualBrief(brief.pathway, brief.locale);
+  const copy = REVIEW_COPY[brief.locale];
+
+  return (
+    <main className="mx-auto max-w-marketing bg-background p-8 text-foreground">
+      <ReviewHeader brief={brief} eyebrow={`${brief.id} · ${brief.pathway} ${copy.pathway}`} note={copy.briefNote} />
+
+      <section>
+        <h2 className="mb-3 text-xl font-medium">{copy.pathwayHeading}</h2>
+
+        <p className="mb-6 max-w-3xl text-sm leading-relaxed text-muted-foreground">{copy.pathwayGuidance}</p>
+
+        <GoldenThemePair brief={benchmark} placement="wide" />
+      </section>
     </main>
   );
 }

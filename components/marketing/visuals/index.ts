@@ -1,4 +1,5 @@
-export { GOLDEN_VISUAL_BRIEFS, getGoldenVisualBrief } from "./goldens";
+export { GOLDEN_VISUAL_BRIEFS, getGoldenVisualBrief, validateGoldenVisualBrief } from "./goldens";
+export type { GoldenVisualBrief } from "./goldens";
 export {
   APPROVED_NATIVE_VISUAL_ASSETS,
   NATIVE_VISUAL_FIXTURE_SOURCES,
@@ -6,12 +7,18 @@ export {
   VISUAL_PERSON_FIXTURES,
   VISUAL_PROVIDER_FIXTURES,
   VISUAL_PROVIDER_PERSON_PAIRINGS,
+  VISUAL_RECORD_ASSIGNEE_FIXTURES,
   VISUAL_RECORD_FIXTURES,
   VISUAL_STATUS_FIXTURES,
+  getNativeVisualFixtureCatalog,
+  listVisualAgentProviders,
+  listVisualPeople,
+  listVisualRecords,
 } from "./native-fixtures";
 export type {
   VisualAgentProviderFixtureId,
   VisualPersonFixtureId,
+  VisualPersonRole,
   VisualProviderFixtureId,
   VisualRecordFixtureId,
   VisualStatusFixtureId,
@@ -24,17 +31,15 @@ export {
   PersonIdentity,
   ProviderMark,
 } from "./native-visual-primitives";
-export { StoryVisual } from "./story-visual";
-export type { StoryVisualTheme } from "./story-visual";
+export { GoldenStoryVisual } from "./story-visual";
+export type { GoldenStoryVisualTheme } from "./story-visual";
 export {
-  DEFAULT_VISUAL_VARIANT,
   SUPPORTED_VISUAL_FACTS,
   VISUAL_KINDS,
   VISUAL_LOCALES,
+  VISUAL_PATHWAYS,
   VISUAL_PLACEMENTS,
   VISUAL_REFERENCE_SYSTEM_VERSION,
-  VISUAL_TEMPLATES,
-  VISUAL_VARIANTS,
   VisualBriefSchema,
   inferVisualKind,
   validateVisualBrief,
@@ -47,8 +52,7 @@ export type {
   VisualBrief,
   VisualKind,
   VisualLocale,
+  VisualPathway,
   VisualPlacement,
-  VisualTemplate,
-  VisualVariant,
 } from "./visual-contract";
-export { GoldenCandidateTriptych, VISUAL_CANDIDATES, VisualReviewSheet } from "./visual-review-sheet";
+export { GoldenBenchmarkReviewSheet, VisualBriefReferenceSheet } from "./visual-review-sheet";

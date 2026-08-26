@@ -1,19 +1,14 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 
-import { Check, MousePointer2 } from "lucide-react";
-
-import { VISUAL_RECORD_FIXTURES, type VisualStatusFixtureId } from "@/components/marketing/visuals/native-fixtures";
 import {
-  NativeAgentProviderIdentity,
-  NativeStatusBadge,
-  PersonIdentity,
-} from "@/components/marketing/visuals/native-visual-primitives";
+  AGENT_PIPELINE_KEYFRAME_STATES,
+  AgentPipelineArtwork,
+} from "@/components/marketing/visuals/agent-pipeline-film";
 import {
-  AGENT_PIPELINE_STORYBOARD_LAYOUT,
-  authoredConnectorPath,
-  trimAuthoredConnector,
-  type AuthoredStoryboardBox,
-} from "@/components/marketing/visuals/story-visual-layout";
+  DASHBOARD_INSIGHT_KEYFRAME_STATES,
+  DashboardInsightArtwork,
+} from "@/components/marketing/visuals/dashboard-insight-film";
+import { NativeAgentProviderIdentity } from "@/components/marketing/visuals/native-visual-primitives";
 import { UNIFIED_INBOX_KEYFRAME_STATES, UnifiedInboxArtwork } from "@/components/marketing/visuals/unified-inbox-film";
 import type { ContentLocale } from "@/i18n/locale-registry";
 import { MOTION_STORYBOARD_PRESENTATION_COPY } from "./motion-storyboards.copy";
@@ -46,27 +41,6 @@ const MOTION_PRINCIPLES = [
     text: "The resolved frame is useful as a poster and holds long enough to be understood before a semantic reset.",
   },
 ] as const;
-
-type DashboardStatus = DashboardStoryboard["segments"][number]["status"];
-
-const STATUS_TOKEN_CLASSES: Record<DashboardStatus, string> = {
-  "deal-lost": "bg-destructive ring-destructive/15",
-  "deal-open": "bg-warning ring-warning/15",
-  "deal-won": "bg-success ring-success/15",
-};
-
-const DASHBOARD_CURRENCY_FORMATTERS: Record<ContentLocale, Intl.NumberFormat> = {
-  de: new Intl.NumberFormat("de-DE", {
-    currency: "EUR",
-    maximumFractionDigits: 0,
-    style: "currency",
-  }),
-  en: new Intl.NumberFormat("en-US", {
-    currency: "EUR",
-    maximumFractionDigits: 0,
-    style: "currency",
-  }),
-};
 
 type StoryboardFrameProps = {
   artworkClassName?: string;
@@ -104,15 +78,6 @@ function StoryboardFrame({ artworkClassName, children, index, locale, phase, sta
       <p className="text-meta mt-3 leading-relaxed">{state}</p>
     </div>
   );
-}
-
-function authoredBoxStyle(box: AuthoredStoryboardBox): CSSProperties {
-  return {
-    height: `${box.height}%`,
-    left: `${box.x}%`,
-    top: `${box.y}%`,
-    width: `${box.width}%`,
-  };
 }
 
 function InboxFrame({
@@ -153,235 +118,6 @@ function InboxFrame({
   );
 }
 
-type PipelinePlacement = keyof typeof AGENT_PIPELINE_STORYBOARD_LAYOUT;
-
-const PIPELINE_CONNECTOR_PROGRESS: Record<MotionFramePhase, number> = {
-  focal: 0.52,
-  opening: 0,
-  resolved: 1,
-};
-
-function pipelineRecordBox(phase: MotionFramePhase, placement: PipelinePlacement): AuthoredStoryboardBox {
-  const layout = AGENT_PIPELINE_STORYBOARD_LAYOUT[placement];
-  const drawTarget = trimAuthoredConnector(layout.connector, PIPELINE_CONNECTOR_PROGRESS[phase]).target;
-
-  return {
-    height: layout.record.height,
-    width: layout.record.width,
-    x: layout.record.follows === "x" ? drawTarget.x : layout.record.x,
-    y: layout.record.follows === "y" ? drawTarget.y : layout.record.y,
-  };
-}
-
-function PipelineConnector({ phase, placement }: { phase: MotionFramePhase; placement: PipelinePlacement }) {
-  const connector = AGENT_PIPELINE_STORYBOARD_LAYOUT[placement].connector;
-  const progress = PIPELINE_CONNECTOR_PROGRESS[phase];
-  const visibleConnector = trimAuthoredConnector(connector, progress);
-
-  return (
-    <svg
-      aria-hidden="true"
-      className="absolute inset-0 z-10 size-full text-primary"
-      data-pipeline-connector="status-transit"
-      data-pipeline-phase={phase}
-      data-pipeline-placement={placement}
-      fill="none"
-      preserveAspectRatio="none"
-      viewBox="0 0 100 100"
-    >
-      <path
-        d={authoredConnectorPath(connector, progress)}
-        data-connector-draw-target={`${visibleConnector.target.x},${visibleConnector.target.y}`}
-        data-connector-source={`${connector.source.x},${connector.source.y}`}
-        data-connector-target={`${connector.target.x},${connector.target.y}`}
-        data-motion-behavior="solid-prefix-draw"
-        data-motion-progress={progress.toFixed(3)}
-        pathLength="1"
-        stroke="currentColor"
-        strokeLinecap="butt"
-        strokeOpacity={phase === "opening" ? 0 : phase === "focal" ? 0.9 : 0.5}
-        strokeWidth={1.25}
-        vectorEffect="non-scaling-stroke"
-      />
-    </svg>
-  );
-}
-
-function PipelineInstruction({
-  locale,
-  phase,
-  placement,
-  storyboard,
-}: {
-  locale: ContentLocale;
-  phase: MotionFramePhase;
-  placement: PipelinePlacement;
-  storyboard: PipelineStoryboard;
-}) {
-  const activity = phase === "opening" ? "thinking" : phase === "focal" ? "updating" : "resolved";
-  const copy = MOTION_STORYBOARD_PRESENTATION_COPY[locale].pipeline;
-
-  return (
-    <div
-      className={cn(
-        "absolute z-30 flex min-w-0 items-center gap-2 rounded-xl border bg-card px-2.5 shadow-sm",
-        phase === "resolved" ? "border-border text-muted-foreground opacity-70" : "border-primary/65",
-      )}
-      data-pipeline-instruction={storyboard.instruction}
-      style={authoredBoxStyle(AGENT_PIPELINE_STORYBOARD_LAYOUT[placement].instruction)}
-    >
-      <NativeAgentProviderIdentity
-        className="shrink-0 text-[8px] leading-none"
-        iconSize={18}
-        provider={storyboard.agentProvider}
-      />
-
-      <span className="min-w-0 flex-1 text-[10px] leading-tight font-medium text-foreground">{copy.instruction}</span>
-
-      <span
-        aria-label={copy.activity[activity]}
-        className={cn(
-          "flex h-5 min-w-5 shrink-0 items-center justify-center gap-0.5 rounded-full",
-          phase === "focal" ? "bg-primary/12 text-primary" : "bg-foreground/5 text-muted-foreground",
-        )}
-        data-agent-activity={activity}
-      >
-        {phase === "resolved" ? (
-          <Check aria-hidden="true" className="size-3" strokeWidth={2} />
-        ) : (
-          [0, 1, 2].map((dot) => (
-            <span
-              key={dot}
-              className={cn("size-1 rounded-full bg-current", phase === "opening" && dot > 0 && "opacity-35")}
-            />
-          ))
-        )}
-      </span>
-    </div>
-  );
-}
-
-function PipelineStatusStop({
-  phase,
-  placement,
-  status,
-  stop,
-}: {
-  phase: MotionFramePhase;
-  placement: PipelinePlacement;
-  status: VisualStatusFixtureId;
-  stop: "destination" | "origin";
-}) {
-  const active = (stop === "origin" && phase === "opening") || (stop === "destination" && phase === "resolved");
-
-  return (
-    <div
-      className={cn(
-        "absolute z-20 flex",
-        stop === "origin" && placement === "wide"
-          ? "items-center justify-end"
-          : stop === "origin"
-            ? "items-end justify-center"
-            : "items-center justify-center",
-        active ? "opacity-100" : phase === "focal" ? "opacity-75" : "opacity-45",
-      )}
-      data-pipeline-stop={stop}
-      data-pipeline-stop-port={stop === "origin" ? (placement === "wide" ? "right" : "bottom") : "none"}
-      style={authoredBoxStyle(AGENT_PIPELINE_STORYBOARD_LAYOUT[placement][stop])}
-    >
-      <NativeStatusBadge className={cn(active && "ring-1 ring-current/20")} status={status} />
-    </div>
-  );
-}
-
-function PipelineRecord({
-  locale,
-  phase,
-  placement,
-  storyboard,
-}: {
-  locale: ContentLocale;
-  phase: MotionFramePhase;
-  placement: PipelinePlacement;
-  storyboard: PipelineStoryboard;
-}) {
-  const progress = PIPELINE_CONNECTOR_PROGRESS[phase];
-  const drawTarget = trimAuthoredConnector(AGENT_PIPELINE_STORYBOARD_LAYOUT[placement].connector, progress).target;
-  const recordBox = pipelineRecordBox(phase, placement);
-  const status = phase === "resolved" ? storyboard.statusChange.to : storyboard.statusChange.from;
-  const record = VISUAL_RECORD_FIXTURES[storyboard.record];
-
-  return (
-    <div
-      className={cn(
-        "absolute z-30 flex min-w-0 flex-col overflow-hidden rounded-card border bg-card p-2.5 shadow-lg shadow-primary/10",
-        phase === "opening" ? "border-border-strong" : "border-primary/70",
-      )}
-      data-pipeline-record={storyboard.record}
-      data-pipeline-record-entry={`${drawTarget.x},${drawTarget.y}`}
-      data-pipeline-record-phase={phase}
-      data-pipeline-record-placement={placement}
-      data-pipeline-record-position={`${recordBox.x},${recordBox.y}`}
-      data-pipeline-record-status={status}
-      style={authoredBoxStyle(recordBox)}
-    >
-      <div className="flex min-w-0 items-center justify-between gap-2">
-        <span className="truncate text-[8px] leading-tight tracking-wide text-muted-foreground uppercase">
-          {record.kind}
-        </span>
-
-        <NativeStatusBadge status={status} />
-      </div>
-
-      <p className="mt-1.5 line-clamp-2 text-[10px] leading-tight font-medium sm:text-xs">{record.name}</p>
-
-      {placement === "wide" ? (
-        <div className="mt-auto min-w-0 border-t border-border pt-1.5">
-          <span className="mb-1 block text-[8px] leading-none tracking-wide text-muted-foreground uppercase">
-            {MOTION_STORYBOARD_PRESENTATION_COPY[locale].pipeline.assignedUser}
-          </span>
-
-          <PersonIdentity person={storyboard.assignedUser} size={20} />
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
-function PipelineComposition({
-  locale,
-  phase,
-  placement,
-  storyboard,
-}: {
-  locale: ContentLocale;
-  phase: MotionFramePhase;
-  placement: PipelinePlacement;
-  storyboard: PipelineStoryboard;
-}) {
-  return (
-    <div className="relative size-full" data-pipeline-phase={phase} data-pipeline-placement={placement}>
-      <div
-        aria-hidden="true"
-        className={cn(
-          "absolute rounded-full bg-primary/12 blur-3xl",
-          placement === "wide" ? "right-[-4%] bottom-[6%] size-[66%]" : "right-[-28%] bottom-[8%] size-[78%]",
-        )}
-      />
-
-      <PipelineConnector phase={phase} placement={placement} />
-
-      <PipelineInstruction locale={locale} phase={phase} placement={placement} storyboard={storyboard} />
-
-      <PipelineStatusStop phase={phase} placement={placement} status={storyboard.statusChange.from} stop="origin" />
-
-      <PipelineStatusStop phase={phase} placement={placement} status={storyboard.statusChange.to} stop="destination" />
-
-      <PipelineRecord locale={locale} phase={phase} placement={placement} storyboard={storyboard} />
-    </div>
-  );
-}
-
 function PipelineFrame({
   locale,
   phase,
@@ -391,116 +127,30 @@ function PipelineFrame({
   phase: MotionFramePhase;
   storyboard: PipelineStoryboard;
 }) {
+  const state = AGENT_PIPELINE_KEYFRAME_STATES[phase];
+
   return (
     <div className="@container/pipeline size-full">
       <div className="size-full @sm/pipeline:hidden">
-        <PipelineComposition locale={locale} phase={phase} placement="narrow" storyboard={storyboard} />
+        <AgentPipelineArtwork
+          brief={storyboard}
+          locale={locale}
+          phase={phase}
+          placement="narrow"
+          scale="preview"
+          state={state}
+        />
       </div>
 
       <div className="hidden size-full @sm/pipeline:block">
-        <PipelineComposition locale={locale} phase={phase} placement="wide" storyboard={storyboard} />
-      </div>
-    </div>
-  );
-}
-
-function DashboardCard({
-  locale,
-  phase,
-  storyboard,
-}: {
-  locale: ContentLocale;
-  phase: MotionFramePhase;
-  storyboard: DashboardStoryboard;
-}) {
-  const hasSelection = phase !== "opening";
-  const selectedSegment = storyboard.segments.find(({ status }) => status === storyboard.selectedSegment);
-
-  if (!selectedSegment) throw new Error("Dashboard insight requires its selected fixture-backed Status group");
-
-  const copy = MOTION_STORYBOARD_PRESENTATION_COPY[locale].dashboard;
-  const selectedTotalValue = DASHBOARD_CURRENCY_FORMATTERS[locale].format(selectedSegment.totalValue);
-  const selectionLabel = `${selectedSegment.count} ${copy.deals} · ${selectedTotalValue} ${copy.totalValue}`;
-
-  return (
-    <div
-      className="relative w-full rounded-xl border border-border bg-card p-3"
-      data-dashboard-distribution="discrete-status-groups"
-      data-dashboard-phase={phase}
-      data-dashboard-quantity-encoding={storyboard.quantityEncoding}
-      data-dashboard-value-disclosure={storyboard.valueDisclosure}
-    >
-      <div className="flex items-center justify-between gap-3">
-        <span className="text-xs font-medium">{copy.widget}</span>
-
-        <span className="text-xs tracking-wide text-muted-foreground uppercase">{copy.status}</span>
-      </div>
-
-      <div className="mt-4 space-y-2.5">
-        {storyboard.segments.map((segment) => {
-          const isSelected = hasSelection && segment.status === storyboard.selectedSegment;
-
-          return (
-            <div
-              key={segment.status}
-              className={cn(
-                "relative grid min-h-10 grid-cols-[5rem_minmax(0,1fr)_1.25rem] items-center gap-2 rounded-lg border p-2",
-                isSelected
-                  ? "-translate-y-0.5 border-border-strong bg-background shadow-sm"
-                  : "border-transparent bg-background/45",
-                hasSelection && !isSelected && "opacity-50",
-              )}
-              data-dashboard-selected={isSelected ? "true" : "false"}
-              data-dashboard-status-group={segment.status}
-              data-dashboard-token-count={segment.count}
-            >
-              <NativeStatusBadge status={segment.status} />
-
-              <div className="flex min-w-0 flex-wrap items-center gap-1" data-dashboard-token-group={segment.status}>
-                {Array.from({ length: segment.count }, (_, index) => (
-                  <span
-                    key={`${segment.status}-${index}`}
-                    aria-hidden="true"
-                    className={cn(
-                      "size-2.5 shrink-0 rounded-full ring-2",
-                      STATUS_TOKEN_CLASSES[segment.status],
-                      !isSelected && hasSelection && "opacity-55",
-                    )}
-                    data-dashboard-deal-token={segment.status}
-                    data-dashboard-token-index={index + 1}
-                  />
-                ))}
-              </div>
-
-              <span className="text-right font-mono text-xs tabular-nums text-muted-foreground">{segment.count}</span>
-
-              {phase === "focal" && isSelected ? (
-                <MousePointer2
-                  className="absolute -right-1 -bottom-2 size-5 text-primary drop-shadow-sm"
-                  data-dashboard-cursor="causal-human"
-                  fill="currentColor"
-                  strokeWidth={1.5}
-                />
-              ) : null}
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="mt-3 min-h-7 border-t border-border pt-2">
-        {hasSelection ? (
-          <div
-            className="flex items-center justify-between gap-2 text-xs"
-            data-dashboard-callout={selectionLabel}
-            data-dashboard-total-value={selectedSegment.totalValue}
-          >
-            <span className="text-muted-foreground">{`${selectedSegment.count} ${copy.deals}`}</span>
-
-            <span className="font-medium">{`${selectedTotalValue} ${copy.total}`}</span>
-          </div>
-        ) : (
-          <span aria-hidden="true" className="block h-4" />
-        )}
+        <AgentPipelineArtwork
+          brief={storyboard}
+          locale={locale}
+          phase={phase}
+          placement="wide"
+          scale="preview"
+          state={state}
+        />
       </div>
     </div>
   );
@@ -517,7 +167,13 @@ function DashboardFrame({
 }) {
   return (
     <div className="mx-auto w-full max-w-md px-1">
-      <DashboardCard locale={locale} phase={phase} storyboard={storyboard} />
+      <DashboardInsightArtwork
+        brief={storyboard}
+        locale={locale}
+        phase={phase}
+        scale="preview"
+        state={DASHBOARD_INSIGHT_KEYFRAME_STATES[phase]}
+      />
     </div>
   );
 }
@@ -654,9 +310,9 @@ export function MotionStoryboards({ locale = "en" }: { locale?: ContentLocale })
       <StoryboardSection locale={locale} storyboard={MOTION_STORYBOARDS[2]} />
 
       <MarketingSection
-        description="These constraints belong to every future film. Unified inbox now exercises the active transition-window gate; the other retained films remain untouched until they are rebuilt."
+        description="These constraints belong to every benchmark film. All three approved storyboards now share their keyframes with deterministic normalized-time sources and declared transition windows."
         id="future-gates"
-        title="Motion contract and active capture gate"
+        title="Motion contract and benchmark capture gates"
       >
         <ol className="mt-14 grid gap-3 md:grid-cols-2 lg:mt-16">
           {MOTION_CONTRACT.map((rule, index) => (

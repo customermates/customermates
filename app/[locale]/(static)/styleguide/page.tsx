@@ -19,7 +19,7 @@ const DECISIONS = [
   },
   {
     answer: "Brand illustration",
-    body: "Use the deterministic illustration system for a relationship, handoff or signal that needs one editorial focal object.",
+    body: "Choose the closest relationship, handoff or focus pathway, then author the composition that best explains this particular story.",
     question: "Is the point conceptual?",
   },
   {
@@ -61,10 +61,11 @@ export default function StyleguidePage() {
           <div className="col-span-12 rounded-card border border-border bg-card p-6 md:col-span-4">
             <code className="font-mono text-sm text-primary">03</code>
 
-            <h3 className="mt-4 font-medium">Review one decision</h3>
+            <h3 className="mt-4 font-medium">Calibrate, then compose</h3>
 
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Compare the three deterministic compositions and record one selected variant with the source checksum.
+              Use the registered pathway golden to learn the quality floor. It is a benchmark, not a required layout
+              choice for the next visual.
             </p>
           </div>
         </div>

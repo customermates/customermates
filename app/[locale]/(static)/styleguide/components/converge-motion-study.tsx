@@ -1,11 +1,12 @@
 "use client";
 
-import type { BrandIllustrationBrief, VisualLocale } from "@/components/marketing/visuals/visual-contract";
+import type { GoldenVisualBrief } from "@/components/marketing/visuals/goldens";
+import type { VisualLocale } from "@/components/marketing/visuals/visual-contract";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Play, RotateCcw } from "lucide-react";
 
-import { StoryVisual } from "@/components/marketing/visuals/story-visual";
+import { GoldenStoryVisual } from "@/components/marketing/visuals/story-visual";
 import { cn } from "@/core/utils/cn";
 
 const MOTION_DURATION_MS = 4_800;
@@ -25,7 +26,7 @@ const LABELS = {
       transition: "Übergang",
     },
     replay: "Bewegung wiederholen",
-    study: "Bewegungsstudie · A Kante",
+    study: "Goldener Bewegungsbenchmark",
   },
   en: {
     frames: {
@@ -34,11 +35,11 @@ const LABELS = {
       transition: "Transition",
     },
     replay: "Replay motion",
-    study: "Motion study · A edge",
+    study: "Golden motion benchmark",
   },
 } as const satisfies Record<VisualLocale, unknown>;
 
-export function ConvergeMotionStudy({ brief, locale }: { brief: BrandIllustrationBrief; locale: VisualLocale }) {
+export function ConvergeMotionStudy({ brief, locale }: { brief: GoldenVisualBrief; locale: VisualLocale }) {
   const [time, setTime] = useState(1);
   const [playing, setPlaying] = useState(false);
   const animationFrame = useRef<number | null>(null);
@@ -170,7 +171,7 @@ export function ConvergeMotionStudy({ brief, locale }: { brief: BrandIllustratio
         </div>
       </div>
 
-      <StoryVisual brief={brief} placement="wide" t={time} theme="dark" variant="edge" />
+      <GoldenStoryVisual brief={brief} placement="wide" t={time} theme="dark" />
     </div>
   );
 }

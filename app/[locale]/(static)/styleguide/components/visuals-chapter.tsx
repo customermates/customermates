@@ -1,7 +1,7 @@
 import { MarketingSection } from "@/components/marketing/marketing-section";
 
-import { getGoldenVisualBrief } from "@/components/marketing/visuals/goldens";
-import { StoryVisual } from "@/components/marketing/visuals/story-visual";
+import { getGoldenVisualBrief, type GoldenVisualBrief } from "@/components/marketing/visuals/goldens";
+import { GoldenStoryVisual } from "@/components/marketing/visuals/story-visual";
 import { VISUAL_AGENT_PROVIDER_FIXTURES, VISUAL_STATUS_FIXTURES } from "@/components/marketing/visuals/native-fixtures";
 import {
   NativeAgentProviderIdentity,
@@ -9,16 +9,11 @@ import {
   PersonIdentity,
   ProviderMark,
 } from "@/components/marketing/visuals/native-visual-primitives";
-import type {
-  BrandIllustrationBrief,
-  VisualLocale,
-  VisualPlacement,
-  VisualTemplate,
-} from "@/components/marketing/visuals/visual-contract";
+import type { VisualLocale, VisualPathway, VisualPlacement } from "@/components/marketing/visuals/visual-contract";
 
 import { ConvergeMotionStudy } from "./converge-motion-study";
 
-const GOLDEN_ORDER: VisualTemplate[] = ["converge", "handoff", "focus"];
+const GOLDEN_ORDER: VisualPathway[] = ["converge", "handoff", "focus"];
 
 const FAMILY_COPY = [
   {
@@ -28,7 +23,7 @@ const FAMILY_COPY = [
   {
     kind: "product-proof",
     summary:
-      "An explicit capture of reachable local state. It cannot be inferred from prose or rendered by StoryVisual.",
+      "An explicit capture of reachable local state. It cannot be inferred from prose or rendered by the golden benchmark renderer.",
   },
   {
     kind: "none",
@@ -42,10 +37,13 @@ const CONTRACT_ROWS = [
   ["Meaning", "relationship, change or result, with approved fact references for claims"],
   [
     "Fixtures",
-    "an explicit ChatGPT, Claude or Gemini identity for every agent cue, plus subject-bound channel, person, record and Status IDs",
+    "an explicit ChatGPT, Claude, Cursor or Gemini identity for every agent cue, plus subject-bound channel, person, record and Status IDs",
   ],
   ["Copy", "one focal label and up to two short semantic labels in the brief locale"],
-  ["Output", "requested placements, pending or selected variant and reference-system version"],
+  [
+    "Output",
+    "requested placements, semantic pathway and reference-system version; production geometry remains an authoring decision outside the golden renderer",
+  ],
 ];
 
 const NATIVE_CONVERSATION_EXAMPLES = [
@@ -84,36 +82,33 @@ const FAILURES = [
   ["Generic agent", "An agent cue without one explicitly selected native provider stops validation."],
 ];
 
-function SelectedThemePair({ brief, placement }: { brief: BrandIllustrationBrief; placement: VisualPlacement }) {
-  const selectedVariant = brief.selectedVariant;
-  if (!selectedVariant) throw new Error(`${brief.id} needs a selected composition variant`);
-
+function BenchmarkThemePair({ brief, placement }: { brief: GoldenVisualBrief; placement: VisualPlacement }) {
   return (
     <div className="grid gap-x-4 gap-y-6 md:grid-cols-2">
       {(["light", "dark"] as const).map((theme) => (
         <figure key={theme} className="m-0 min-w-0">
           <figcaption className="text-meta mb-3 capitalize">{theme}</figcaption>
 
-          <StoryVisual brief={brief} placement={placement} theme={theme} variant={selectedVariant} />
+          <GoldenStoryVisual brief={brief} placement={placement} theme={theme} />
         </figure>
       ))}
     </div>
   );
 }
 
-function ResponsiveSelectedGolden({ brief }: { brief: BrandIllustrationBrief }) {
+function ResponsiveGoldenBenchmark({ brief }: { brief: GoldenVisualBrief }) {
   return (
     <>
       <div className="md:hidden">
-        <SelectedThemePair brief={brief} placement="narrow" />
+        <BenchmarkThemePair brief={brief} placement="narrow" />
       </div>
 
       <div className="hidden md:block lg:hidden">
-        <SelectedThemePair brief={brief} placement="split" />
+        <BenchmarkThemePair brief={brief} placement="split" />
       </div>
 
       <div className="hidden lg:block">
-        <SelectedThemePair brief={brief} placement="wide" />
+        <BenchmarkThemePair brief={brief} placement="wide" />
       </div>
     </>
   );
@@ -144,7 +139,7 @@ export function VisualsChapter({ locale }: { locale: VisualLocale }) {
       </MarketingSection>
 
       <MarketingSection
-        description="The renderer receives a reduced, validated brief. Source prose remains attached for traceability and checksum drift, but never enters the artboard."
+        description="Every visual starts from a reduced, validated brief. Source prose remains attached for traceability and checksum drift, but never enters the artboard."
         id="machine-contract"
         title="A brief an agent can trust"
       >
@@ -194,7 +189,9 @@ export function VisualsChapter({ locale }: { locale: VisualLocale }) {
             <div className="flex flex-col gap-2 md:flex-row md:items-baseline md:justify-between md:gap-8">
               <h3 className="text-lg font-medium">Named AI providers</h3>
 
-              <p className="text-meta">Selected in the brief · never inferred from prose or rotated by variant</p>
+              <p className="text-meta">
+                Chosen explicitly from the approved catalogue · source wording need not dictate it
+              </p>
             </div>
 
             <div className="mt-4 flex flex-wrap gap-3">
@@ -230,34 +227,43 @@ export function VisualsChapter({ locale }: { locale: VisualLocale }) {
               ))}
             </div>
           </div>
+
+          <div className="mt-6 rounded-card border border-border bg-card p-5">
+            <code className="font-mono text-sm">yarn marketing:visual-catalog</code>
+
+            <p className="text-meta mt-3">
+              Lists the approved AI and channel providers, role-safe synthetic people, seeded conversation pairings,
+              records and statuses from the committed demo catalogue. It never queries a runtime database.
+            </p>
+          </div>
         </div>
       </MarketingSection>
 
       <MarketingSection
-        description="A is selected for all three calibrated briefs. The guide now renders the chosen edge composition at its real responsive placements and both themes."
+        description="Each semantic pathway has one registered golden. It establishes the quality floor without becoming a composition template for future visuals."
         headingClassName="!hyphens-none !break-normal"
         id="goldens"
-        title="Three selected goldens"
+        title="Three calibrated goldens"
       >
         <div className="mt-14 space-y-20">
-          {GOLDEN_ORDER.map((template) => {
-            const brief = getGoldenVisualBrief(template, locale);
+          {GOLDEN_ORDER.map((pathway) => {
+            const brief = getGoldenVisualBrief(pathway, locale);
 
             return (
-              <article key={template}>
+              <article key={pathway}>
                 <div className="mb-6 flex flex-col gap-2 border-t border-border-strong pt-5 md:flex-row md:items-baseline md:justify-between md:gap-8">
                   <div>
-                    <p className="font-mono text-sm text-primary">{template}</p>
+                    <p className="font-mono text-sm text-primary">{pathway}</p>
 
                     <h3 className="mt-2 text-xl font-medium">{brief.takeaway}</h3>
                   </div>
 
-                  <p className="text-meta">Selected A · edge</p>
+                  <p className="text-meta">Registered golden benchmark</p>
                 </div>
 
-                <ResponsiveSelectedGolden brief={brief} />
+                <ResponsiveGoldenBenchmark brief={brief} />
 
-                {template === "converge" ? <ConvergeMotionStudy brief={brief} locale={locale} /> : null}
+                {pathway === "converge" ? <ConvergeMotionStudy brief={brief} locale={locale} /> : null}
               </article>
             );
           })}
@@ -265,42 +271,27 @@ export function VisualsChapter({ locale }: { locale: VisualLocale }) {
       </MarketingSection>
 
       <MarketingSection
-        description="Placement is a composition input, not a crop preset. Subjects change position and proportion while the semantic hierarchy stays fixed."
-        id="candidates"
-        title="One source, three responsive compositions"
+        description="The Converge golden demonstrates responsive recomposition rather than cropping. Future visuals may author different geometry while preserving the same hierarchy and placement discipline."
+        id="responsive-benchmark"
+        title="One benchmark, three responsive placements"
       >
         <div className="mt-14 grid items-end gap-4 lg:grid-cols-12">
           <div className="lg:col-span-7">
             <p className="text-meta mb-3">wide</p>
 
-            <StoryVisual
-              brief={getGoldenVisualBrief("converge", locale)}
-              placement="wide"
-              theme="dark"
-              variant="edge"
-            />
+            <GoldenStoryVisual brief={getGoldenVisualBrief("converge", locale)} placement="wide" theme="dark" />
           </div>
 
           <div className="lg:col-span-3">
             <p className="text-meta mb-3">split</p>
 
-            <StoryVisual
-              brief={getGoldenVisualBrief("converge", locale)}
-              placement="split"
-              theme="dark"
-              variant="edge"
-            />
+            <GoldenStoryVisual brief={getGoldenVisualBrief("converge", locale)} placement="split" theme="dark" />
           </div>
 
           <div className="lg:col-span-2">
             <p className="text-meta mb-3">narrow</p>
 
-            <StoryVisual
-              brief={getGoldenVisualBrief("converge", locale)}
-              placement="narrow"
-              theme="dark"
-              variant="edge"
-            />
+            <GoldenStoryVisual brief={getGoldenVisualBrief("converge", locale)} placement="narrow" theme="dark" />
           </div>
         </div>
 
@@ -308,8 +299,8 @@ export function VisualsChapter({ locale }: { locale: VisualLocale }) {
           <code className="font-mono text-sm">yarn marketing:visual-review --golden converge --locale en</code>
 
           <p className="text-meta mt-3">
-            The authoring command validates the source checksum and produces an exhaustive temporary sheet outside the
-            public application.
+            The golden command renders the one registered benchmark across themes and placements. A custom --input brief
+            receives its pathway golden as a reference and remains free to author its own composition.
           </p>
         </div>
       </MarketingSection>

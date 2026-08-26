@@ -292,7 +292,7 @@ export const MOTION_CONTRACT = [
 
 export const TRANSITION_CAPTURE_GATE = {
   adoption:
-    "The Unified inbox replacement film is the first active implementation. Retained legacy scene files stay unchanged until their own replacements are approved.",
+    "Unified inbox, Agent pipeline, and Dashboard insight each use a normalized-time benchmark source. Retained legacy scene files stay unchanged and the review exports remain outside public routes.",
   inside:
     "Inside a declared transition window, apply a template-specific progression check instead of rejecting intentional large movement.",
   outside: "Outside declared transition windows, keep the adjacent-frame SSIM floor at 0.95.",

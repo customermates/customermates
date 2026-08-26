@@ -1,12 +1,16 @@
 import {
   type BrandIllustrationBrief,
   type VisualLocale,
-  type VisualTemplate,
-  DEFAULT_VISUAL_VARIANT,
+  type VisualPathway,
   VISUAL_REFERENCE_SYSTEM_VERSION,
   validateVisualBrief,
   visualSourceChecksum,
 } from "./visual-contract";
+
+export type GoldenVisualBrief = BrandIllustrationBrief & {
+  id: `golden.${VisualPathway}`;
+  pathway: VisualPathway;
+};
 
 type GoldenCopy = {
   body: string;
@@ -26,12 +30,12 @@ type GoldenDefinition = {
     | "product:human-send-boundary"
     | "product:record-activity-context";
   focalSubject: BrandIllustrationBrief["focalSubject"];
-  id: string;
+  id: `golden.${VisualPathway}`;
+  pathway: VisualPathway;
   supportingSubjects: BrandIllustrationBrief["supportingSubjects"];
-  template: VisualTemplate;
 };
 
-const GOLDEN_DEFINITIONS: Record<VisualTemplate, GoldenDefinition> = {
+const GOLDEN_DEFINITIONS: Record<VisualPathway, GoldenDefinition> = {
   converge: {
     accentTarget: "customer-record",
     copy: {
@@ -58,6 +62,7 @@ const GOLDEN_DEFINITIONS: Record<VisualTemplate, GoldenDefinition> = {
       id: "customer-record",
     },
     id: "golden.converge",
+    pathway: "converge",
     supportingSubjects: [
       {
         fixtures: { person: "anna-mueller", provider: "gmail" },
@@ -75,7 +80,6 @@ const GOLDEN_DEFINITIONS: Record<VisualTemplate, GoldenDefinition> = {
         id: "chat-source",
       },
     ],
-    template: "converge",
   },
   focus: {
     accentTarget: "quiet-signal",
@@ -107,6 +111,7 @@ const GOLDEN_DEFINITIONS: Record<VisualTemplate, GoldenDefinition> = {
       id: "quiet-signal",
     },
     id: "golden.focus",
+    pathway: "focus",
     supportingSubjects: [
       {
         fixtures: {
@@ -125,7 +130,6 @@ const GOLDEN_DEFINITIONS: Record<VisualTemplate, GoldenDefinition> = {
         id: "lost-context",
       },
     ],
-    template: "focus",
   },
   handoff: {
     accentTarget: "human-action",
@@ -153,6 +157,7 @@ const GOLDEN_DEFINITIONS: Record<VisualTemplate, GoldenDefinition> = {
       id: "message-draft",
     },
     id: "golden.handoff",
+    pathway: "handoff",
     supportingSubjects: [
       { agentProvider: "chatgpt", form: "agent-cue", id: "agent-cue" },
       {
@@ -161,11 +166,10 @@ const GOLDEN_DEFINITIONS: Record<VisualTemplate, GoldenDefinition> = {
         id: "human-action",
       },
     ],
-    template: "handoff",
   },
 };
 
-function buildGolden(definition: GoldenDefinition, locale: VisualLocale): BrandIllustrationBrief {
+function buildGolden(definition: GoldenDefinition, locale: VisualLocale): GoldenVisualBrief {
   const copy = definition.copy[locale];
   const brief = validateVisualBrief({
     accentTarget: definition.accentTarget,
@@ -180,9 +184,9 @@ function buildGolden(definition: GoldenDefinition, locale: VisualLocale): BrandI
     id: definition.id,
     kind: "brand-illustration",
     locale,
+    pathway: definition.pathway,
     placements: ["wide", "split", "narrow"],
     referenceSystemVersion: VISUAL_REFERENCE_SYSTEM_VERSION,
-    selectedVariant: DEFAULT_VISUAL_VARIANT,
     selection: "automatic",
     semanticLabels: copy.semanticLabels.map((text) => ({ locale, text })),
     source: {
@@ -192,22 +196,35 @@ function buildGolden(definition: GoldenDefinition, locale: VisualLocale): BrandI
     },
     supportingSubjects: definition.supportingSubjects,
     takeaway: copy.takeaway,
-    template: definition.template,
   });
   if (brief.kind !== "brand-illustration") throw new Error(`${definition.id} did not produce a brand illustration`);
-  return brief;
+  if (brief.id !== definition.id || brief.pathway !== definition.pathway)
+    throw new Error(`${definition.id} did not preserve its golden pathway identity`);
+
+  return brief as GoldenVisualBrief;
 }
 
 export const GOLDEN_VISUAL_BRIEFS = Object.fromEntries(
-  Object.entries(GOLDEN_DEFINITIONS).map(([template, definition]) => [
-    template,
+  Object.entries(GOLDEN_DEFINITIONS).map(([pathway, definition]) => [
+    pathway,
     {
       de: buildGolden(definition, "de"),
       en: buildGolden(definition, "en"),
     },
   ]),
-) as Record<VisualTemplate, Record<VisualLocale, BrandIllustrationBrief>>;
+) as Record<VisualPathway, Record<VisualLocale, GoldenVisualBrief>>;
 
-export function getGoldenVisualBrief(template: VisualTemplate, locale: VisualLocale) {
-  return GOLDEN_VISUAL_BRIEFS[template][locale];
+export function getGoldenVisualBrief(pathway: VisualPathway, locale: VisualLocale) {
+  return GOLDEN_VISUAL_BRIEFS[pathway][locale];
+}
+
+export function validateGoldenVisualBrief(value: unknown): GoldenVisualBrief {
+  const brief = validateVisualBrief(value);
+  if (brief.kind !== "brand-illustration") throw new Error("Golden visuals must be brand illustrations");
+
+  const golden = GOLDEN_VISUAL_BRIEFS[brief.pathway][brief.locale];
+  if (JSON.stringify(brief) !== JSON.stringify(golden))
+    throw new Error(`${brief.id} does not exactly match the registered golden benchmark`);
+
+  return brief as GoldenVisualBrief;
 }

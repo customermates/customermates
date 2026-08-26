@@ -67,7 +67,7 @@ export const STYLEGUIDE_CHAPTERS = [
   },
   {
     description:
-      "The authenticity families, validated brief contract, deterministic compositions and calibrated goldens.",
+      "The authenticity families, validated brief contract, semantic pathways and calibrated golden benchmarks.",
     href: "/styleguide/visuals",
     id: "visuals",
     label: "Visuals",
@@ -75,13 +75,14 @@ export const STYLEGUIDE_CHAPTERS = [
       { id: "families", label: "Authenticity families" },
       { id: "machine-contract", label: "Machine contract" },
       { id: "goldens", label: "Semantic goldens" },
-      { id: "candidates", label: "Candidate compositions" },
+      { id: "responsive-benchmark", label: "Responsive benchmark" },
       { id: "failures", label: "Failure examples" },
     ],
     title: "Visuals",
   },
   {
-    description: "The shared motion grammar and opening, focal and resolved keyframes for the three future films.",
+    description:
+      "The shared motion grammar, approved keyframes and deterministic sources for the three benchmark films.",
     href: "/styleguide/motion",
     id: "motion",
     label: "Motion",

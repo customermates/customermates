@@ -11,12 +11,10 @@ import {
   VISUAL_STATUS_FIXTURES,
 } from "./native-fixtures";
 
-export const VISUAL_REFERENCE_SYSTEM_VERSION = "customermates-marketing-visuals@4";
+export const VISUAL_REFERENCE_SYSTEM_VERSION = "customermates-marketing-visuals@5";
 
 export const VISUAL_KINDS = ["brand-illustration", "product-proof", "none"] as const;
-export const VISUAL_TEMPLATES = ["converge", "handoff", "focus"] as const;
-export const VISUAL_VARIANTS = ["edge", "overlap", "stage"] as const;
-export const DEFAULT_VISUAL_VARIANT = "edge";
+export const VISUAL_PATHWAYS = ["converge", "handoff", "focus"] as const;
 export const VISUAL_PLACEMENTS = ["wide", "split", "narrow"] as const;
 export const VISUAL_LOCALES = CONTENT_LOCALES;
 
@@ -28,8 +26,7 @@ export const SUPPORTED_VISUAL_FACTS = [
 ] as const;
 
 export type VisualKind = (typeof VISUAL_KINDS)[number];
-export type VisualTemplate = (typeof VISUAL_TEMPLATES)[number];
-export type VisualVariant = (typeof VISUAL_VARIANTS)[number];
+export type VisualPathway = (typeof VISUAL_PATHWAYS)[number];
 export type VisualPlacement = (typeof VISUAL_PLACEMENTS)[number];
 export type VisualLocale = ContentLocale;
 
@@ -37,8 +34,7 @@ const VisualLocaleSchema = z.custom<ContentLocale>(isContentLocale, {
   message: "locale must publish content",
 });
 const VisualPlacementSchema = z.enum(VISUAL_PLACEMENTS);
-const VisualVariantSchema = z.enum(VISUAL_VARIANTS);
-const VisualTemplateSchema = z.enum(VISUAL_TEMPLATES);
+const VisualPathwaySchema = z.enum(VISUAL_PATHWAYS);
 const FactReferenceSchema = z.enum(SUPPORTED_VISUAL_FACTS);
 const enumKeys = <T extends Record<string, unknown>>(value: T) =>
   Object.keys(value) as [keyof T & string, ...(keyof T & string)[]];
@@ -47,11 +43,6 @@ const AgentProviderFixtureSchema = z.enum(enumKeys(VISUAL_AGENT_PROVIDER_FIXTURE
 const ProviderFixtureSchema = z.enum(enumKeys(VISUAL_PROVIDER_FIXTURES));
 const RecordFixtureSchema = z.enum(enumKeys(VISUAL_RECORD_FIXTURES));
 const StatusFixtureSchema = z.enum(enumKeys(VISUAL_STATUS_FIXTURES));
-
-const HANDOFF_LABELS: Record<ContentLocale, { focal: string; semantic: string }> = {
-  de: { focal: "Entwurf", semantic: "Senden" },
-  en: { focal: "Draft", semantic: "Send" },
-};
 
 const identifier = z.string().regex(/^[a-z0-9]+(?:[.-][a-z0-9]+)*$/u);
 const shortStatement = z
@@ -120,13 +111,12 @@ const BrandIllustrationBriefSchema = CommonBriefSchema.extend({
   focalLabel: LocalizedLabelSchema.optional(),
   focalSubject: SubjectSchema,
   kind: z.literal("brand-illustration"),
+  pathway: VisualPathwaySchema,
   placements: z.array(VisualPlacementSchema).min(1).max(VISUAL_PLACEMENTS.length),
-  selectedVariant: VisualVariantSchema.nullable(),
   selection: z.literal("automatic"),
   semanticLabels: z.array(LocalizedLabelSchema).max(2),
   supportingSubjects: z.array(SubjectSchema).max(3),
   takeaway: shortStatement,
-  template: VisualTemplateSchema,
 });
 
 const ProductProofBriefSchema = CommonBriefSchema.extend({
@@ -192,21 +182,10 @@ export const VisualBriefSchema = BaseVisualBriefSchema.superRefine((brief, conte
   if ((brief.depiction.productBehavior || assertionCopy.some(hasNumber)) && brief.factReferences.length === 0)
     addIssue(context, ["factReferences"], "product behavior and numbers require an approved fact reference");
 
-  const source = `${brief.source.headline} ${brief.source.body}`.toLocaleLowerCase("en");
   const subjects = [brief.focalSubject, ...brief.supportingSubjects];
   for (const [index, subject] of subjects.entries()) {
     const subjectPath: PropertyKey[] = index === 0 ? ["focalSubject"] : ["supportingSubjects", index - 1];
-    if (subject.form === "agent-cue") {
-      const provider = VISUAL_AGENT_PROVIDER_FIXTURES[subject.agentProvider];
-      if (!source.includes(provider.name.toLocaleLowerCase("en"))) {
-        addIssue(
-          context,
-          [...subjectPath, "agentProvider"],
-          "the source copy must explicitly name every agent provider",
-        );
-      }
-      continue;
-    }
+    if (subject.form === "agent-cue") continue;
 
     const fixtures = subject.fixtures;
     if (!fixtures) {
@@ -229,26 +208,6 @@ export const VisualBriefSchema = BaseVisualBriefSchema.superRefine((brief, conte
           "provider fixtures belong to channel marks or drafts",
         );
       }
-
-      const provider = VISUAL_PROVIDER_FIXTURES[fixtures.provider];
-      if (!source.includes(provider.name.toLocaleLowerCase("en"))) {
-        addIssue(
-          context,
-          [...subjectPath, "fixtures", "provider"],
-          "the source copy must explicitly name every provider mark",
-        );
-      }
-    }
-
-    if (fixtures.person) {
-      const person = VISUAL_PERSON_FIXTURES[fixtures.person];
-      if (!source.includes(person.name.toLocaleLowerCase("en"))) {
-        addIssue(
-          context,
-          [...subjectPath, "fixtures", "person"],
-          "the source copy must explicitly name every person identity",
-        );
-      }
     }
 
     if (fixtures.person && fixtures.provider) {
@@ -258,6 +217,24 @@ export const VisualBriefSchema = BaseVisualBriefSchema.superRefine((brief, conte
           context,
           [...subjectPath, "fixtures"],
           "the provider and person must match a seeded conversation pairing",
+        );
+      }
+    }
+
+    if (fixtures.person) {
+      const roles = VISUAL_PERSON_FIXTURES[fixtures.person].roles as readonly string[];
+      if (subject.form === "human-action" && !roles.includes("member")) {
+        addIssue(
+          context,
+          [...subjectPath, "fixtures", "person"],
+          "human actions require a seeded person with the member role",
+        );
+      }
+      if ((subject.form === "draft" || subject.form === "record") && !roles.includes("contact")) {
+        addIssue(
+          context,
+          [...subjectPath, "fixtures", "person"],
+          `${subject.form} identities require a seeded person with the contact role`,
         );
       }
     }
@@ -280,82 +257,18 @@ export const VisualBriefSchema = BaseVisualBriefSchema.superRefine((brief, conte
       }
 
       const record = VISUAL_RECORD_FIXTURES[fixtures.record];
-      if (!source.includes(record.name.toLocaleLowerCase("en"))) {
-        addIssue(
-          context,
-          [...subjectPath, "fixtures", "record"],
-          "the source copy must explicitly name every record fixture",
-        );
-      }
       if (fixtures.status !== record.status)
         addIssue(context, [...subjectPath, "fixtures"], "record fixtures require their seeded status binding");
     }
   }
 
-  if (brief.template === "converge") {
-    const providers = brief.supportingSubjects.flatMap((subject) =>
-      subject.fixtures?.provider ? [subject.fixtures.provider] : [],
-    );
-    const activeSources = brief.supportingSubjects.filter((subject) => subject.fixtures?.person);
-    const supportsFit =
-      brief.focalSubject.form === "record" &&
-      brief.supportingSubjects.length >= 2 &&
-      brief.supportingSubjects.every((subject) => subject.form === "channel-mark");
-    if (!supportsFit) addIssue(context, ["template"], "converge needs one record and two or three channel marks");
-    if (new Set(providers).size !== providers.length)
-      addIssue(context, ["supportingSubjects"], "converge provider fixtures must be unique");
-    if (
-      activeSources.length !== 1 ||
-      !brief.focalSubject.fixtures?.person ||
-      activeSources[0]?.fixtures?.person !== brief.focalSubject.fixtures.person
-    ) {
-      addIssue(
-        context,
-        ["supportingSubjects"],
-        "converge needs one active seeded conversation matching the focal person",
-      );
-    }
-  }
-
-  if (brief.template === "handoff") {
-    const forms = new Set(brief.supportingSubjects.map((subject) => subject.form));
-    const human = brief.supportingSubjects.find((subject) => subject.form === "human-action");
-    const supportsFit =
-      brief.focalSubject.form === "draft" &&
-      brief.supportingSubjects.length === 2 &&
-      forms.has("agent-cue") &&
-      Boolean(human);
-    if (!supportsFit) addIssue(context, ["template"], "handoff needs one draft, one agent cue, and one human action");
-    if (human && brief.accentTarget !== human.id)
-      addIssue(context, ["accentTarget"], "handoff reserves the accent for the human action");
-    if (
-      !brief.focalSubject.fixtures?.person ||
-      !brief.focalSubject.fixtures.provider ||
-      !human?.fixtures?.person ||
-      brief.focalSubject.fixtures.person === human.fixtures.person
-    ) {
-      addIssue(
-        context,
-        ["focalSubject", "fixtures"],
-        "handoff needs a seeded recipient/provider and a different seeded human actor",
-      );
-    }
-
-    const expectedLabels = HANDOFF_LABELS[brief.locale];
-    const labelsFit =
-      brief.focalLabel?.text === expectedLabels.focal &&
-      brief.semanticLabels.length === 1 &&
-      brief.semanticLabels[0]?.text === expectedLabels.semantic;
-    if (!labelsFit) addIssue(context, ["semanticLabels"], "handoff requires only the localized Draft and Send labels");
-  }
-
-  if (brief.template === "focus") {
-    const supportsFit =
-      brief.focalSubject.form === "signal" &&
-      brief.supportingSubjects.length >= 1 &&
-      brief.supportingSubjects.every((subject) => subject.form === "context-card" || subject.form === "trace");
-    if (!supportsFit) addIssue(context, ["template"], "focus needs one signal over quiet context or a trace");
-  }
+  const expectedDepiction = {
+    converge: "relationship",
+    focus: "result",
+    handoff: "change",
+  } as const satisfies Record<VisualPathway, "relationship" | "change" | "result">;
+  if (brief.depiction.kind !== expectedDepiction[brief.pathway])
+    addIssue(context, ["depiction", "kind"], `${brief.pathway} needs a ${expectedDepiction[brief.pathway]} depiction`);
 });
 
 export type VisualBrief = z.infer<typeof VisualBriefSchema>;
