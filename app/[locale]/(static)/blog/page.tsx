@@ -20,6 +20,8 @@ import {
   resolveHubPage,
 } from "@/core/seo/hub-pagination";
 import { DEFAULT_LOCALE, buildLocalePath, contentLocaleOrDefault, formattingTagFor } from "@/i18n/locale-registry";
+import { JsonLd } from "@/components/seo/json-ld";
+import { breadcrumbListSchema } from "@/core/seo/schemas";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -33,10 +35,14 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
   if (resolution.kind === "not-found") notFound();
 
+  const t = await getTranslations({ locale });
+
   return generateMetadataFromMeta({
     canonicalPath: hubPageHref("/blog", resolution.page),
     locale,
     route: "/blog",
+    descriptionSuffix: resolution.page > 1 ? t("Common.pageNumber", { page: resolution.page }) : undefined,
+    titleSuffix: resolution.page > 1 ? t("Common.pageNumber", { page: resolution.page }) : undefined,
   });
 }
 
@@ -66,9 +72,17 @@ export default async function BlogPage({ searchParams }: Props) {
     },
   );
   const t = await getTranslations("Common.table");
+  const breadcrumb = await getTranslations("StructuredData.breadcrumb");
 
   return (
     <div className="flex flex-col items-center justify-center">
+      <JsonLd
+        schema={breadcrumbListSchema([
+          { name: breadcrumb("home"), path: `/${locale}` },
+          { name: breadcrumb("blog"), path: `/${locale}/blog` },
+        ])}
+      />
+
       <PostGridShell hero={page.data.hero}>
         {paginated.items.map(({ page: post, slug }) => (
           <div key={post.url} className="min-w-0">

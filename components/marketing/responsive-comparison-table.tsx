@@ -59,7 +59,7 @@ export function ResponsiveComparisonTable({ header, columns, sections }: Respons
     return () => observer.disconnect();
   }, []);
 
-  const stickyHeaderEdge = pinned ? "border-b border-border shadow-[0_10px_20px_-12px_rgb(0_0_0_/_0.55)]" : "";
+  const stickyHeaderEdge = pinned ? "border-b border-border" : "";
   const totalColumns = columns.length + 1;
 
   return (

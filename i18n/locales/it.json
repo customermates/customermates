@@ -964,6 +964,7 @@
       "invalidFilterField": "Campo del filtro non trovato o non accessibile. Campi disponibili: {validValues}.",
       "invalidFilterOperator": "L'operatore '{operator}' non è consentito sul campo '{field}'. Operatori consentiti: {validValues}.",
       "invalidFilterValue": "Valore del filtro non valido. Il valore deve corrispondere al tipo del campo e all'operatore (ad esempio un numero per gt/lt, una data ISO per i campi data, o un id per in/notIn).",
+      "invalidJsonBody": "Il corpo della richiesta non è un JSON valido.",
       "invalidSortField": "Campo di ordinamento non trovato o non accessibile. Campi disponibili: {validValues}.",
       "invalidUrl": "Inserisci un URL valido.",
       "legalNoticeNotDelivered": "L’aggiornamento legale corrente non è ancora stato consegnato a questo spazio di lavoro.",
@@ -1240,6 +1241,7 @@
       "unexpectedError": "Si è verificato un errore. Riprova.",
       "updated": "Aggiornato"
     },
+    "pageNumber": "Pagina {page}",
     "probability": "Probabilità",
     "providers": {
       "google": "Gmail",
@@ -1250,6 +1252,7 @@
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
+    "relatedPages": "Pagine correlate",
     "scroll": {
       "backToTop": "Back to top"
     },

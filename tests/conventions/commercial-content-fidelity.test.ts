@@ -11,6 +11,11 @@ import {
 
 import { REPO_ROOT, walkFiles } from "./walk";
 
+// A "### question" heading and a "<FaqItem question=...>" opening are the same section
+// boundary. The FAQ accordion replaced the former with the latter, and a scanner that only
+// resets on markdown headings silently carries state across every answer on the page.
+const SECTION_BOUNDARY = /^#{1,6}\s|^<FaqItem\b/u;
+
 const CONTENT_ROOT = join(REPO_ROOT, "content");
 const CONTENT_FILES = walkFiles(CONTENT_ROOT, (path) => path.endsWith(".mdx"));
 const README_PATH = join(REPO_ROOT, "README.md");
@@ -77,7 +82,7 @@ function tableContextIsHistorical(
     const context = sourceLines[index].trim();
     if (!context) continue;
     if (!HISTORICAL_CONTEXT.test(context)) return false;
-    return /^#{1,6}\s/u.test(context) || /\bCustomermates\b/i.test(context);
+    return SECTION_BOUNDARY.test(context) || /\bCustomermates\b/i.test(context);
   }
   return false;
 }
@@ -370,7 +375,7 @@ describe("commercial content follows the product catalog", () => {
       let inCatalogScenario = false;
 
       sourceLines.forEach((line, index) => {
-        if (/^#{1,6}\s/u.test(line)) {
+        if (SECTION_BOUNDARY.test(line)) {
           inCatalogScenario =
             /\bCustomermates\b/i.test(line) && TOKENISH.test(line);
         }
@@ -405,7 +410,7 @@ describe("commercial content follows the product catalog", () => {
       const file = relative(REPO_ROOT, path);
       let catalogScenario = false;
       lines(path).forEach((line, index) => {
-        if (/^#{1,6}\s/u.test(line)) catalogScenario = false;
+        if (SECTION_BOUNDARY.test(line)) catalogScenario = false;
         const followsCatalogInput = catalogScenario;
         const lastTokenEnd = line.lastIndexOf("]]");
         const tokenTail = lastTokenEnd >= 0 ? line.slice(lastTokenEnd + 2) : "";

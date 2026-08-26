@@ -6,15 +6,17 @@ export enum AppErrorCode {
   inactiveUser = "inactiveUser",
   permissionDenied = "permissionDenied",
   demoMode = "demoMode",
+  invalidJsonBody = "invalidJsonBody",
 }
 
 type ForbiddenAppErrorCode = AppErrorCode.inactiveUser | AppErrorCode.permissionDenied;
 
-const APP_ERROR_STATUS: Record<AppErrorCode, 401 | 403> = {
+const APP_ERROR_STATUS: Record<AppErrorCode, 400 | 401 | 403> = {
   [AppErrorCode.unauthenticated]: 401,
   [AppErrorCode.inactiveUser]: 403,
   [AppErrorCode.permissionDenied]: 403,
   [AppErrorCode.demoMode]: 403,
+  [AppErrorCode.invalidJsonBody]: 400,
 };
 
 function hasBrand(value: unknown, brand: symbol): boolean {
@@ -55,6 +57,12 @@ export class ForbiddenError extends AppError {
   static [Symbol.hasInstance](value: unknown): value is ForbiddenError {
     const code = appErrorDetails(value)?.code;
     return code === AppErrorCode.inactiveUser || code === AppErrorCode.permissionDenied;
+  }
+}
+
+export class InvalidJsonBodyError extends AppError {
+  constructor() {
+    super("Invalid JSON body", 400, AppErrorCode.invalidJsonBody);
   }
 }
 

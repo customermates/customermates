@@ -17,6 +17,7 @@ export const updateContactOperation: ZodOpenApiOperationObject = {
   security: [{ apiKeyAuth: [] }],
   requestParams: { path: z.object({ id: ContactKeySchema }) },
   requestBody: {
+    required: true,
     content: {
       "application/json": {
         schema: BaseUpdateContactSchema.omit({ id: true }),

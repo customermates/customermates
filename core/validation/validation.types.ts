@@ -23,6 +23,7 @@ export enum CustomErrorCode {
   invalidCallbackUrl = "invalidCallbackUrl",
   emailAlreadyExists = "emailAlreadyExists",
   invalidEmail = "invalidEmail",
+  invalidJsonBody = "invalidJsonBody",
   invalidUrl = "invalidUrl",
   legalNoticeNotDelivered = "legalNoticeNotDelivered",
   termsNotAgreed = "termsNotAgreed",

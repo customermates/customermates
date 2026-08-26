@@ -453,37 +453,39 @@ For teams that value open-source and self-hosting, Cal.com + Customermates + n8n
 
 ## FAQ
 
-### Does Calendly integrate with CRM systems?
-
+<Faq>
+<FaqItem question="Does Calendly integrate with CRM systems?">
 Yes. Calendly integrates natively with HubSpot and Salesforce. For other CRMs like Pipedrive, Zoho, Freshsales, or Customermates, you can connect via Zapier, Make, or n8n using Calendly's webhook and API system. The webhook approach is actually more flexible than native integrations because you control the logic entirely.
+</FaqItem>
 
-### What is the best way to connect Calendly to a CRM?
-
+<FaqItem question="What is the best way to connect Calendly to a CRM?">
 For HubSpot and Salesforce, start with the native integration for basic needs. For any other CRM, or for advanced workflows (conditional deal creation, lead scoring, cancellation handling), n8n gives you the most flexibility with zero per-task costs and full GDPR compliance. Zapier is a good alternative if you prefer a no-code visual builder and do not need self-hosting.
+</FaqItem>
 
-### Can Calendly automatically create deals in my CRM?
-
+<FaqItem question="Can Calendly automatically create deals in my CRM?">
 Yes. Whether through a native integration (HubSpot, Salesforce) or an automation tool (n8n, Zapier), every Calendly booking can trigger automatic deal creation, contact creation, task assignment, notifications, and follow-up sequences.
+</FaqItem>
 
-### Is the Calendly API free to use?
-
+<FaqItem question="Is the Calendly API free to use?">
 Calendly's API and webhook system is available on all paid plans (Standard at $10/user/month and above). You can subscribe to events like `invitee.created` and `invitee.canceled` at no extra cost. The free Calendly plan does not support webhooks or API access.
+</FaqItem>
 
-### How do I avoid duplicate contacts when syncing Calendly with my CRM?
-
+<FaqItem question="How do I avoid duplicate contacts when syncing Calendly with my CRM?">
 Add a lookup step in your automation workflow that searches for existing contacts by email address before creating a new one. If a match is found, update the existing record instead of creating a duplicate. Handle case-sensitivity (normalize emails to lowercase) and check for existing deals to avoid duplicate deals for the same meeting.
+</FaqItem>
 
-### What is the cheapest CRM for a Calendly integration?
-
+<FaqItem question="What is the cheapest CRM for a Calendly integration?">
 Customermates from [[commercial.price.starter.monthly]] per user/month is one of the most affordable CRMs with a full REST API for Calendly integration. Combined with its n8n (free, no per-task fees), the total cost of a complete Calendly CRM integration is just [[commercial.price.starter.monthly]]/user/month. Compare this to HubSpot Professional ($100+/user/month for native Calendly integration) or Salesforce Enterprise ($175+/user/month).
+</FaqItem>
 
-### Can I handle Calendly cancellations in my CRM automatically?
-
+<FaqItem question="Can I handle Calendly cancellations in my CRM automatically?">
 Yes. Subscribe to the `invitee.canceled` webhook event in your automation tool (n8n or Zapier). When a cancellation occurs, update the deal stage in your CRM, create a re-engagement task for the assigned rep, and optionally trigger a rescheduling email sequence.
+</FaqItem>
 
-### Does Calendly work with self-hosted CRMs?
-
+<FaqItem question="Does Calendly work with self-hosted CRMs?">
 Yes. Calendly's webhook system sends data to any publicly accessible URL. If your CRM is self-hosted (like Customermates with n8n), you just need to expose the webhook endpoint. Use a reverse proxy with HTTPS for security.
+</FaqItem>
+</Faq>
 
 ## Conclusion
 

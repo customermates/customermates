@@ -27,7 +27,7 @@ function selectPages<T extends SourcePage>(
   });
 }
 
-export async function Footer() {
+export async function Footer({ className }: { className?: string }) {
   const locale = contentLocaleOrDefault(await getLocale());
   const t = await getTranslations("ComparePage");
 
@@ -61,6 +61,7 @@ export async function Footer() {
   return (
     <FooterContent
       blogPosts={blogPosts}
+      className={className}
       competitors={competitors}
       featureLinks={featureLinks}
       industries={industries}

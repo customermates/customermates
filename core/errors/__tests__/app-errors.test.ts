@@ -6,6 +6,7 @@ import {
   ForbiddenError,
   DemoModeError,
   DEMO_MODE_MESSAGE,
+  InvalidJsonBodyError,
   WebhookExternalFailure,
   WebhookNonRetryableFailure,
   isExpectedError,
@@ -64,6 +65,15 @@ describe("ForbiddenError", () => {
   });
 });
 
+describe("InvalidJsonBodyError", () => {
+  it("uses the public REST bad-request contract", () => {
+    const err = new InvalidJsonBodyError();
+    expect(err.statusCode).toBe(400);
+    expect(err.message).toBe("Invalid JSON body");
+    expect(err.name).toBe("InvalidJsonBodyError");
+  });
+});
+
 describe("DemoModeError", () => {
   it("defaults to 403 with demo mode message", () => {
     const err = new DemoModeError();
@@ -88,6 +98,7 @@ describe("isExpectedError", () => {
   it("recognizes expected error instances", () => {
     expect(isExpectedError(new AuthError())).toBe(true);
     expect(isExpectedError(new ForbiddenError())).toBe(true);
+    expect(isExpectedError(new InvalidJsonBodyError())).toBe(true);
     expect(isExpectedError(new DemoModeError())).toBe(true);
     expect(isExpectedError(new WebhookExternalFailure(503, "down"))).toBe(true);
     expect(isExpectedError(new WebhookNonRetryableFailure(405, "Method Not Allowed"))).toBe(true);

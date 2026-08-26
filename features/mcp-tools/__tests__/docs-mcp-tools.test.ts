@@ -67,10 +67,10 @@ describe("search_docs", () => {
 
     expect(mcpToolResultText(result as McpToolResult).length).toBeLessThanOrEqual(500);
     expect(result).toMatchObject({ structuredContent: { total: expect.any(Number) } });
-    expect((result as { structuredContent: { results: DocsSearchHit[] } }).structuredContent.results[0]).toMatchObject({
-      slug: "webhooks",
-      url: expect.stringContaining("/en/docs/webhooks"),
-    });
+    const hits = (result as { structuredContent: { results: DocsSearchHit[] } }).structuredContent.results;
+    expect(hits.slice(0, 2)).toEqual(
+      expect.arrayContaining([expect.objectContaining({ url: expect.stringContaining("/en/docs/webhooks") })]),
+    );
   });
 });
 

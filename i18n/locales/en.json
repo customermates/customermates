@@ -964,6 +964,7 @@
       "invalidFilterField": "Filter field not found or not accessible. Available fields: {validValues}.",
       "invalidFilterOperator": "The operator '{operator}' is not allowed on the field '{field}'. Allowed operators: {validValues}.",
       "invalidFilterValue": "Invalid filter value. The value must match the field's type and operator (e.g. a number for gt/lt, an ISO date for date fields, or an id for in/notIn).",
+      "invalidJsonBody": "The request body is not valid JSON.",
       "invalidSortField": "Sort field not found or not accessible. Available fields: {validValues}.",
       "invalidUrl": "Enter a valid URL.",
       "legalNoticeNotDelivered": "The current legal update has not been delivered to this workspace yet.",
@@ -1240,6 +1241,7 @@
       "unexpectedError": "Something went wrong. Please try again.",
       "updated": "Updated"
     },
+    "pageNumber": "Page {page}",
     "probability": "Probability",
     "providers": {
       "google": "Gmail",
@@ -1250,6 +1252,7 @@
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
+    "relatedPages": "Related pages",
     "scroll": {
       "backToTop": "Back to top"
     },

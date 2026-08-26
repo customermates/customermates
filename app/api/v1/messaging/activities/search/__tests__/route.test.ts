@@ -15,7 +15,15 @@ vi.mock("@/core/di", () => ({
 import { POST } from "../route";
 
 function request(payload: unknown): NextRequest {
-  return { json: () => Promise.resolve(payload) } as unknown as NextRequest;
+  return rawRequest(JSON.stringify(payload));
+}
+
+function rawRequest(body: string): NextRequest {
+  return new Request("http://localhost/api/v1/messaging/activities/search", {
+    method: "POST",
+    body,
+    headers: { "content-type": "application/json" },
+  }) as unknown as NextRequest;
 }
 
 describe("activity search route", () => {
@@ -64,5 +72,22 @@ describe("activity search route", () => {
 
     expect(response.status).toBe(400);
     expect(invoke).toHaveBeenCalledExactlyOnceWith({});
+  });
+
+  it.each(["", " \n\t", '{"pagination":', "{not-json}"])(
+    "returns a 400 for absent or malformed JSON without invoking",
+    async (body) => {
+      const response = await POST(rawRequest(body));
+
+      expect(response.status).toBe(400);
+      expect(await response.json()).toBe("Invalid JSON body");
+      expect(invoke).not.toHaveBeenCalled();
+    },
+  );
+
+  it("keeps application syntax errors unexpected", async () => {
+    invoke.mockRejectedValueOnce(new SyntaxError("interactor syntax error"));
+
+    await expect(POST(request({}))).rejects.toThrow("interactor syntax error");
   });
 });

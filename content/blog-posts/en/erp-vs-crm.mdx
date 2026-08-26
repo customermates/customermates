@@ -260,49 +260,51 @@ The mistake to avoid is buying both at once and trying to run two huge implement
 
 ## Frequently Asked Questions
 
-### What is the main difference between ERP and CRM?
-
+<Faq>
+<FaqItem question="What is the main difference between ERP and CRM?">
 The main ERP vs CRM difference is which side of the business each system runs. A CRM manages your customer-facing operations: contacts, deals, pipeline, marketing, and customer service. An ERP manages your back-office operations: inventory, accounting, manufacturing, supply chain, and HR. CRM is for winning and keeping customers. ERP is for running the business efficiently. Both store some customer data, but they store different aspects of it for different purposes.
+</FaqItem>
 
-### Is Salesforce a CRM or an ERP?
-
+<FaqItem question="Is Salesforce a CRM or an ERP?">
 Salesforce is a CRM. Specifically, Salesforce Sales Cloud is the dominant operational CRM in the enterprise market. Salesforce sells related products (Service Cloud, Marketing Cloud, Tableau) but it does not ship a true ERP. Companies running Salesforce typically pair it with an ERP like NetSuite, SAP, or Microsoft Dynamics 365 Business Central.
+</FaqItem>
 
-### Is SAP a CRM or an ERP?
-
+<FaqItem question="Is SAP a CRM or an ERP?">
 SAP is primarily an ERP vendor. SAP S/4HANA and SAP Business One are ERPs. SAP also sells CRM products (Sales Cloud, Service Cloud, formerly C4C) but the company's center of gravity is back-office ERP. When people say "we run SAP," they almost always mean the ERP side.
+</FaqItem>
 
-### Do I need an ERP if I have a CRM?
-
+<FaqItem question="Do I need an ERP if I have a CRM?">
 Not necessarily. If your business does not manage inventory, manufacturing, or complex accounting, you may never need an ERP. Many service businesses, agencies, and SaaS companies run fine with a CRM plus accounting software. You only need an ERP when back-office operations get complex enough that point solutions stop scaling.
+</FaqItem>
 
-### Do I need a CRM if I have an ERP?
-
+<FaqItem question="Do I need a CRM if I have an ERP?">
 If you have an active sales motion, almost always yes. ERPs handle orders and customers as financial entities, but they are not built for managing pre-sale conversations, pipeline, or marketing. Sales teams using only an ERP end up keeping their pipeline in spreadsheets and inboxes, which is exactly the problem a CRM solves.
+</FaqItem>
 
-### Can a CRM replace an ERP?
-
+<FaqItem question="Can a CRM replace an ERP?">
 No. A CRM does not handle inventory in real time, run accounting, manage manufacturing, or process payroll. Some CRMs include lightweight billing or quoting features, but those are not a substitute for a real general ledger. If you need ERP functions, you need an ERP.
+</FaqItem>
 
-### Can an ERP replace a CRM?
-
+<FaqItem question="Can an ERP replace a CRM?">
 Most ERPs include a CRM module, but they are usually weaker than dedicated CRM products. For very simple sales motions in single-vendor environments, an ERP-bundled CRM can be enough. For real B2B sales with pipeline management, marketing automation, and rep productivity, a dedicated CRM is almost always better.
+</FaqItem>
 
-### How do you integrate a CRM and ERP?
-
+<FaqItem question="How do you integrate a CRM and ERP?">
 The most common approach is iPaaS (integration platform as a service) like n8n, Zapier, or Make. You define triggers in one system (deal closed, invoice paid) and actions in the other (create sales order, update CRM payment status). For most small and mid-sized teams, this beats custom API development on cost and time. Customermates ships with an n8n community node so the integration is built-in. The [CRM ERP integration guide](/blog/crm-erp-integration) covers the mechanics in detail.
+</FaqItem>
 
-### What does ERP and CRM integration cost?
-
+<FaqItem question="What does ERP and CRM integration cost?">
 Using iPaaS like n8n self-hosted, total first-year cost (platform + setup labor) is typically EUR 2,000 to 8,000 for a small team. Cloud iPaaS (Zapier, Make) is EUR 3,600 to 12,000 per year. Custom API development is EUR 10,000 to 60,000 plus ongoing maintenance. Enterprise middleware (MuleSoft, Dell Boomi) is EUR 9,000 to 120,000 per year. Native vendor integrations are included in the license but lock you into a single vendor.
+</FaqItem>
 
-### What is the best CRM and ERP combination for small businesses?
-
+<FaqItem question="What is the best CRM and ERP combination for small businesses?">
 There is no single best combination. The honest answer depends on your stack. For DACH small businesses, weclapp or lexoffice on the ERP side plus a flexible CRM works well. For global SMBs, Odoo (which has both modules) or NetSuite plus a best-of-breed CRM are common. For agent-native operations, Customermates as the CRM plus any ERP with a REST API integrated via n8n works well. The Customermates [pricing page](/pricing) shows the cloud and self-hosted options.
+</FaqItem>
 
-### Should I buy CRM and ERP from the same vendor?
-
+<FaqItem question="Should I buy CRM and ERP from the same vendor?">
 Usually no, unless you specifically value single-vendor procurement and are comfortable with the trade-offs. Best-of-breed CRMs and ERPs each tend to be stronger in their domain than bundled suite modules. Integration is solvable with iPaaS for a fraction of the cost of suite licensing. The exceptions are heavily regulated industries and very small teams that want one bill.
+</FaqItem>
+</Faq>
 
 ## Conclusion
 

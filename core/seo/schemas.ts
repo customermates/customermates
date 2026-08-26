@@ -113,3 +113,18 @@ export function breadcrumbListSchema(crumbs: { name: string; path: string }[]) {
     })),
   };
 }
+
+export function faqPageSchema(entries: { question: string; answer: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: entries.map((entry) => ({
+      "@type": "Question",
+      name: entry.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: entry.answer,
+      },
+    })),
+  };
+}

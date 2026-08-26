@@ -546,45 +546,47 @@ Dieser gesamte Workflow wird visuell konfiguriert. Kein Code erforderlich. Er ka
 
 ## Häufig gestellte Fragen
 
-### Was ist CRM-ERP-Integration?
-
+<Faq>
+<FaqItem question="Was ist CRM-ERP-Integration?">
 CRM-ERP-Integration ist der technische Prozess, Ihr Customer-Relationship-Management-System mit Ihrem Enterprise-Resource-Planning-System zu verbinden, sodass Daten automatisch zwischen beiden fließen. Sie eliminiert manuelle Dateneingabe, stellt sicher, dass beide Systeme mit denselben Informationen arbeiten, und ermöglicht automatisierte Workflows wie Deal-zu-Auftrag-Konvertierung, Zahlungsstatus-Synchronisation und Echtzeit-Lagerverfügbarkeit.
+</FaqItem>
 
-### Welche Methode ist die beste für CRM-ERP-Integration?
-
+<FaqItem question="Welche Methode ist die beste für CRM-ERP-Integration?">
 Für die meisten kleinen und mittleren Unternehmen ist iPaaS (Integration Platform as a Service) wie n8n die beste Methode. Sie bietet visuelle Workflow-Builder, vorgefertigte Konnektoren, Fehlerbehandlung und Logging ohne individuelle Entwicklung. Customermates arbeitet mit n8n bereits eingebaut, sodass keine separate Plattform benötigt wird. Individuelle API-Integration ist nur dann besser, wenn Sie hochspezialisierte Anforderungen haben, die visuelle Workflow-Tools nicht abdecken können.
+</FaqItem>
 
-### Wie lange dauert eine CRM-ERP-Integration?
-
+<FaqItem question="Wie lange dauert eine CRM-ERP-Integration?">
 Mit dem iPaaS-Ansatz kann eine Basisintegration (Kundensync plus Rechnungsstatus) innerhalb von 4-6 Wochen inklusive Datenbereinigung und Tests live gehen. Eine vollständige Integration mit bidirektionalem Sync, Auftragsautomatisierung und Echtzeit-Lagerbestand benötigt typischerweise 6-8 Wochen. Individuelle API-Entwicklung erfordert 3-6 Monate für vergleichbare Funktionalität.
+</FaqItem>
 
-### Was kostet eine CRM-ERP-Integration?
-
+<FaqItem question="Was kostet eine CRM-ERP-Integration?">
 Die Kosten variieren je nach Methode. iPaaS-Integration kostet im ersten Jahr 0-8.000 EUR (Plattformgebühren plus 20-80 Stunden Einrichtungsarbeit). Individuelle API-Integration kostet typischerweise 10.000-60.000+ EUR für die Erstentwicklung plus 5.000-15.000 EUR/Jahr für Wartung. Mit Customermates und dem Ihrem eigenen n8n betragen die CRM-Kosten ab [[commercial.price.starter.monthly]] pro Nutzer und Monat inklusive Integrationsfunktionen ohne Aufpreis.
+</FaqItem>
 
-### Welche Daten sollte ich zwischen CRM und ERP synchronisieren?
-
+<FaqItem question="Welche Daten sollte ich zwischen CRM und ERP synchronisieren?">
 Starten Sie mit den Daten mit dem höchsten Nutzen: Kunden- und Kontodatensätze (CRM zu ERP), Rechnungs- und Zahlungsstatus (ERP zu CRM) sowie Produktkatalog mit Preisen (ERP zu CRM). In Phase zwei fügen Sie Deal-zu-Auftrag-Konvertierung und bidirektionale Kundenaktualisierungen hinzu. Lagerverfügbarkeit synchronisieren Sie zuletzt, da sie typischerweise Echtzeit-API-Aufrufe statt periodischer Synchronisation erfordert.
+</FaqItem>
 
-### Wie gehe ich mit Synchronisationskonflikten zwischen CRM und ERP um?
-
+<FaqItem question="Wie gehe ich mit Synchronisationskonflikten zwischen CRM und ERP um?">
 Verwenden Sie Feld-basiertes Mastering: Weisen Sie jedem Feld ein Master-System zu. Das CRM ist Master für Kontaktdaten, Kommunikationshistorie und Deal-Daten. Das ERP ist Master für Finanzdaten, Preise, Lagerbestand und Auftragsstatus. Wenn jedes Feld genau eine autoritative Quelle hat, können keine Konflikte auftreten. Für die seltenen Felder, die tatsächlich bidirektionale Aktualisierungen benötigen, verwenden Sie Last-Write-Wins mit Zeitstempelvergleich oder leiten Sie Konflikte in eine manuelle Prüfwarteschlange.
+</FaqItem>
 
-### Kann ich CRM und ERP ohne Programmierung integrieren?
-
+<FaqItem question="Kann ich CRM und ERP ohne Programmierung integrieren?">
 Ja. iPaaS-Plattformen wie n8n bieten visuelle Workflow-Builder mit Drag-and-Drop-Oberflächen. Sie konfigurieren Integrationslogik, indem Sie vorgefertigte Nodes verbinden, statt Code zu schreiben. Customermates arbeitet mit n8n bereits eingebaut und ermöglicht damit CRM-ERP-Integration ohne Code direkt aus der Box. Komplexe Datentransformationen erfordern gelegentlich einfache JavaScript-Ausdrücke innerhalb von n8n, aber kein Softwareentwicklungsprojekt ist nötig.
+</FaqItem>
 
-### Lohnt sich CRM-ERP-Integration für kleine Unternehmen?
-
+<FaqItem question="Lohnt sich CRM-ERP-Integration für kleine Unternehmen?">
 Ja, wenn Sie mehr als 20-30 Aufträge pro Monat bearbeiten und mindestens 5 Nutzer in Vertrieb und Betrieb haben. Die allein durch weniger manuelle Dateneingabe eingesparte Zeit rechtfertigt die Investition typischerweise innerhalb von 3-6 Monaten. Über die Zeitersparnis hinaus gewinnen Sie Datengenauigkeit, schnellere Auftragsbearbeitung und Echtzeit-Sichtbarkeit, die das Kundenerlebnis verbessert.
+</FaqItem>
 
-### Was sind die größten Risiken einer CRM-ERP-Integration?
-
+<FaqItem question="Was sind die größten Risiken einer CRM-ERP-Integration?">
 Die drei größten Risiken sind: (1) schlechte Datenqualität vor der Integration, die bestehende Probleme verstärkt; (2) Scope Creep, bei dem Teams versuchen, alles auf einmal zu synchronisieren statt klein anzufangen; und (3) fehlendes Monitoring, bei dem Integrationsfehler unbemerkt bleiben. Alle drei sind durch angemessene Planung vermeidbar.
+</FaqItem>
 
-### Wie entscheide ich zwischen n8n und Zapier für CRM-ERP-Integration?
-
+<FaqItem question="Wie entscheide ich zwischen n8n und Zapier für CRM-ERP-Integration?">
 Wählen Sie n8n, wenn Sie DSGVO-Konformität benötigen (Self-Hosting hält Daten auf Ihren Servern), keine Pro-Ausführungs-Gebühren wollen oder komplexe Datentransformationen mit JavaScript benötigen. Wählen Sie Zapier, wenn Sie das schnellstmögliche Setup brauchen und einfache Integrationsanforderungen mit geringem Volumen haben. Für Customermates-Nutzer ist n8n bereits ohne Aufpreis enthalten.
+</FaqItem>
+</Faq>
 
 ## Fazit
 

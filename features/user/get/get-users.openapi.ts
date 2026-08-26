@@ -14,6 +14,7 @@ export const getUsersOperation: ZodOpenApiOperationObject = {
   tags: ["users"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {
+    required: true,
     content: {
       "application/json": {
         schema: GetQueryParamsApiSchema,

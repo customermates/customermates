@@ -147,30 +147,39 @@ Die Dokumentation deckt alles ab, von der einfachen Einzelserver-Einrichtung bis
 
 ## Häufig gestellte Fragen
 
-### Kann ich zwischen Cloud und Self-Hosted wechseln?
-
+<Faq>
+<FaqItem question="Kann ich zwischen Cloud und Self-Hosted wechseln?">
 Ja, doch Berechtigungen und Migrationsweg unterscheiden sich. Sie können die [Cloud-Version](/features/cloud-crm) evaluieren und danach den Wechsel planen. Customermates hat keinen dedizierten Import-/Export-Workflow für CRM-Datensätze; die Migration benötigt ein separat entworfenes und validiertes API- oder Datenbankverfahren.
+</FaqItem>
 
-### Welche Infrastruktur brauche ich für Self-Hosting?
-
+<FaqItem question="Welche Infrastruktur brauche ich für Self-Hosting?">
 Ein Linux-Server mit installiertem Docker genügt. Die Mindestanforderungen sind 4 GB RAM und 2 CPU-Kerne für Teams bis 50 Nutzer. Customermates verwendet PostgreSQL als Datenbank und wird als Docker-Container ausgeliefert, sodass jede Docker-fähige Umgebung funktioniert, einschließlich VPS-Anbieter, On-Premise-Server und Private-Cloud-Plattformen.
+</FaqItem>
 
-### Ist Self-Hosting kostenlos oder kostet es extra?
-
+<FaqItem question="Ist Self-Hosting kostenlos oder kostet es extra?">
 Der AGPL-Kern kann ohne Customermates-Abonnement selbst gehostet werden. Self-Hosted-Nutzer verwalten Infrastruktur und Updates; das Produkt ist auf Starter-Berechtigungen festgelegt: Kern-CRM, API, Webhooks und MCP. Gemeinsames [Postfach](/features/email-integration) und Kalender-Leseansicht sind Cloud-Funktionen ab Pro. n8n bleibt separat, White-Label ist ein verhandelter, nicht implementierter Enterprise-Punkt.
+</FaqItem>
 
-### Wie funktionieren Updates beim Self-Hosting?
-
+<FaqItem question="Wie funktionieren Updates beim Self-Hosting?">
 Updates werden als neue Docker-Images bereitgestellt. Laden Sie das neueste Image herunter, starten Sie Ihre Container neu, und die Anwendung führt Datenbankmigrationen automatisch durch. Sie kontrollieren, wann Sie aktualisieren, und haben Zeit, neue Versionen in einer Staging-Umgebung zu testen, bevor Sie sie in die Produktion überführen.
+</FaqItem>
 
-### Ist die Self-Hosted-Version sicher?
-
+<FaqItem question="Ist die Self-Hosted-Version sicher?">
 Self-Hosting lässt Sie TLS, Netzwerkregeln, Backups und Zugriff rund um die Anwendung konfigurieren. Ohne konfigurierte Sentry-DSN sendet die Installation keine Sentry-Daten; daraus folgt keine pauschale Telemetrie-Garantie. Prüfen Sie Code und konfigurierte Anbieter; Postfach und Kalender-Leseansicht bleiben cloud-only.
+</FaqItem>
 
-### Kann ich Self-Hosted Customermates mit anderen Tools integrieren?
-
+<FaqItem question="Kann ich Self-Hosted Customermates mit anderen Tools integrieren?">
 Ja. Self-Hosted Customermates enthält die dokumentierte [API](/features/api), Webhooks, MCP und den Community-Node. Für visuelle Workflows verbinden Sie eine separate n8n-Instanz; Laufzeit, Anbieter, Zugangsdaten, Limits, Logs und Kosten bleiben separat. [Postfach](/features/integrations) und Kalender-Leseansicht sind cloud-only.
+</FaqItem>
+</Faq>
 
 ## Starten Sie heute mit Self-Hosting
 
 Deployen Sie Customermates auf kontrollierter Infrastruktur oder [starten Sie mit der Cloud-Version](/auth/signup) [[commercial.trial.days]] Tage kostenlos auf Pro. Kern-Datensatzverwaltung, [Sales-Tracking](/features/sales-tracking), API, Webhooks und MCP sind self-hosted verfügbar; [Workflow-Automatisierung](/features/workflow-automation) benötigt eine separate Engine, das Postfach bleibt Cloud-Pro vorbehalten.
+
+<RelatedPages>
+  <RelatedPage href="/features/crm-integration" />
+  <RelatedPage href="/features/customer-service" />
+  <RelatedPage href="/features/email-integration" />
+  <RelatedPage href="/features/follow-up" />
+</RelatedPages>

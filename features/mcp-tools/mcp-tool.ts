@@ -91,6 +91,7 @@ const APP_ERROR_CUSTOM_CODES: Record<AppErrorCode, CustomErrorCode> = {
   [AppErrorCode.inactiveUser]: CustomErrorCode.userInactive,
   [AppErrorCode.permissionDenied]: CustomErrorCode.permissionDenied,
   [AppErrorCode.demoMode]: CustomErrorCode.demoMode,
+  [AppErrorCode.invalidJsonBody]: CustomErrorCode.invalidJsonBody,
 };
 
 const APP_ERROR_KINDS: Record<AppErrorCode, InteractorFailureKind> = {
@@ -98,6 +99,7 @@ const APP_ERROR_KINDS: Record<AppErrorCode, InteractorFailureKind> = {
   [AppErrorCode.inactiveUser]: "authorization",
   [AppErrorCode.permissionDenied]: "authorization",
   [AppErrorCode.demoMode]: "authorization",
+  [AppErrorCode.invalidJsonBody]: "validation",
 };
 
 export async function expectedMcpToolFailure(error: unknown): Promise<McpToolExecutionResult | null> {

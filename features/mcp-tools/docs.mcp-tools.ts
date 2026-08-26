@@ -128,7 +128,7 @@ function scoreEntry(entry: IndexEntry, tokens: string[], phrase: string): number
     if (entry.lowerTitle.includes(token)) score += 10;
     if (entry.lowerDescription.includes(token)) score += 5;
     if (entry.lowerHeadings.some((h) => h.includes(token))) score += 4;
-    score += countOccurrences(entry.lowerBody, token);
+    score += Math.min(8, countOccurrences(entry.lowerBody, token));
   }
   if (tokens.length > 1) {
     if (entry.lowerTitle.includes(phrase)) score += 15;
@@ -198,7 +198,10 @@ function relevantDocsExcerpt(markdown: string, query: string): string {
   if (terms.length === 0) return markdown.slice(0, 1_200).trim();
 
   const lowerMarkdown = markdown.toLocaleLowerCase();
-  const anchors = terms.flatMap((term) => {
+  const rarestFirst = [...terms].sort(
+    (left, right) => countOccurrences(lowerMarkdown, left) - countOccurrences(lowerMarkdown, right),
+  );
+  const anchors = rarestFirst.flatMap((term) => {
     const positions: number[] = [];
     let position = lowerMarkdown.indexOf(term);
     while (position !== -1 && positions.length < 20) {
@@ -209,12 +212,16 @@ function relevantDocsExcerpt(markdown: string, query: string): string {
   });
   if (anchors.length === 0) return markdown.slice(0, 1_200).trim();
 
+  const termWeights = new Map(terms.map((term) => [term, countOccurrences(lowerMarkdown, term) <= 3 ? 3 : 1] as const));
   const bestAnchor = anchors.reduce(
     (best, anchor) => {
       const start = Math.max(0, anchor - 300);
       const end = Math.min(lowerMarkdown.length, anchor + 500);
       const window = lowerMarkdown.slice(start, end);
-      const score = terms.reduce((sum, term) => sum + Math.min(3, countOccurrences(window, term)), 0);
+      const score = terms.reduce(
+        (sum, term) => sum + Math.min(3, countOccurrences(window, term)) * (termWeights.get(term) ?? 1),
+        0,
+      );
       return score > best.score ? { anchor, score } : best;
     },
     { anchor: anchors[0], score: -1 },
@@ -222,7 +229,13 @@ function relevantDocsExcerpt(markdown: string, query: string): string {
 
   const roughStart = bestAnchor;
   const precedingBreak = markdown.lastIndexOf("\n", roughStart);
-  const start = precedingBreak === -1 ? roughStart : precedingBreak + 1;
+  let start = precedingBreak === -1 ? roughStart : precedingBreak + 1;
+  for (let contextLines = 0; contextLines < 2 && start > 0; contextLines += 1) {
+    const previousBreak = markdown.lastIndexOf("\n", start - 2);
+    const candidate = previousBreak === -1 ? 0 : previousBreak + 1;
+    if (roughStart - candidate > 300) break;
+    start = candidate;
+  }
   const roughEnd = Math.min(markdown.length, start + 1_000);
   const followingBreak = markdown.indexOf("\n", roughEnd);
   const end = followingBreak === -1 ? roughEnd : followingBreak;

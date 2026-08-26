@@ -13,6 +13,7 @@ export const createWebhookOperation: ZodOpenApiOperationObject = {
   tags: ["webhooks"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {
+    required: true,
     content: {
       "application/json": {
         schema: UpsertWebhookSchema,

@@ -4,6 +4,8 @@ import defaultMdxComponents from "fumadocs-ui/mdx";
 
 import { APIPage } from "./api-page";
 import { ComparisonTable } from "./comparison-table";
+import { Faq, FaqItem } from "@/components/marketing/faq";
+import { RelatedPage, RelatedPages } from "@/components/marketing/related-pages";
 import { MarkdownImage } from "./markdown-image";
 import { markdownBaseComponents } from "./markdown-base-components";
 import { McpInstallSnippet } from "./mcp-install-snippet";
@@ -17,9 +19,13 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     ...markdownBaseComponents,
     APIPage,
     ComparisonTable,
+    Faq,
+    FaqItem,
     MarkdownImage,
     McpInstallSnippet,
     Mermaid,
+    RelatedPage,
+    RelatedPages,
     StatusAvailable,
     StatusPartial,
     StatusUnavailable,

@@ -98,3 +98,9 @@ export const DOC_NAV_GROUPS: DocNavGroup[] = [
     ],
   },
 ];
+
+export function docNavI18nKey(slug: string): string | null {
+  for (const group of DOC_NAV_GROUPS) for (const item of group.items) if (item.slug === slug) return item.i18nKey;
+
+  return null;
+}

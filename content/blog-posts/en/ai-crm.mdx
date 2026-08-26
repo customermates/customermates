@@ -131,17 +131,24 @@ If you want to try this end-to-end, [Customermates](/pricing) ships the MCP serv
 
 ## Frequently asked questions
 
-**What is AI in CRM?**
+<Faq>
+<FaqItem question="What is AI in CRM?">
 AI in CRM is the use of machine learning, large language models, and AI agents to automate the data entry, analysis, drafting, and follow-up work that lives inside a CRM. The most valuable application is removing the rep typing step entirely: an agent reads the email or call transcript and writes the structured record back to the CRM.
+</FaqItem>
 
-**How does AI improve customer relationship management?**
+<FaqItem question="How does AI improve customer relationship management?">
 Three concrete ways: (1) data freshness goes up because the AI logs interactions instead of waiting for a human, (2) follow-ups get drafted faster and more consistently, (3) reps spend their time on conversations and judgment instead of typing. The classic adoption ceiling on CRM rollouts is reps not entering data, and AI agents that can write to the CRM remove that friction.
+</FaqItem>
 
-**What is the best AI CRM in 2026?**
+<FaqItem question="What is the best AI CRM in 2026?">
 Depends on your stack. For Microsoft enterprises, Dynamics 365 with Copilot for Sales is natural. For marketing-led teams, HubSpot with Breeze. For sales-first SMBs, Pipedrive's AI Sales Assistant. For teams already using Claude or ChatGPT daily who want the agent to operate the CRM directly, [Customermates](/pricing) from [[commercial.price.starter.monthly]] per user per month with native MCP server, n8n node, and [[derived.webhooks.events.total]] webhook events is the cheapest agent-native option.
+</FaqItem>
 
-**Is AI in CRM safe for my data?**
+<FaqItem question="Is AI in CRM safe for my data?">
 It can be, with the right setup. Risks: hallucinated edits, prompt injection, leaking data to a third-party AI vendor. Mitigations: choose a CRM with audit logs and webhook events on every write, prefer agents that call read-back tools to verify their changes, host the CRM in a region that matches your data sovereignty needs (EU for GDPR contacts). Open-source self-hosting (Customermates, [SuiteCRM](https://suitecrm.com)) removes the vendor-side data exposure entirely.
+</FaqItem>
 
-**Can ChatGPT or Claude operate my CRM directly?**
+<FaqItem question="Can ChatGPT or Claude operate my CRM directly?">
 Yes if the CRM exposes a Model Context Protocol (MCP) server or a complete REST API. Customermates ships an MCP server with [[derived.mcp.tools.total]] tools that map to every CRM operation, so Claude Desktop, Codex, or any MCP-compatible agent can read and write the CRM with one JSON config block. Salesforce, HubSpot, and Pipedrive offer partial MCP coverage through community servers. For other CRMs you can build the integration through their REST API plus an n8n or Zapier flow.
+</FaqItem>
+</Faq>

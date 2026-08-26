@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
@@ -5,13 +7,21 @@ import { DocsPageHeader } from "../components/docs-page-header";
 import { getDocMethod, getDocMethodColor } from "../docs.utils";
 import { env } from "@/env";
 import { apiDocsSource, apiOverviewSource } from "@/core/fumadocs/source";
+import { docNavI18nKey } from "@/features/docs/docs-nav";
 import { PageContainer } from "@/components/shared/page-container";
 import { Alert } from "@/components/shared/alert";
 import { AppLink } from "@/components/shared/app-link";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppChip } from "@/components/chip/app-chip";
+import { Footer } from "@/app/components/footer";
+import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { DEFAULT_LOCALE, stripLocalePrefix } from "@/i18n/locale-registry";
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  return generateMetadataFromMeta({ locale, route: "/docs/openapi" });
+}
 
 const GROUPS_ORDER = ["contact", "organization", "deal", "service", "task", "user"] as const;
 
@@ -41,6 +51,9 @@ export default async function OpenApiOverviewPage() {
 
   if (!page) notFound();
 
+  const navKey = docNavI18nKey("openapi");
+  const headline = navKey ? t(navKey) : page.data.title;
+
   const docs = apiDocsSource.getPages(locale);
   const groupedDocs = docs.reduce<
     Record<string, Array<{ description: string; method?: string; title: string; url: string }>>
@@ -61,49 +74,53 @@ export default async function OpenApiOverviewPage() {
   const docsOverviewItems = sortDocGroupEntries(Object.entries(groupedDocs)).flatMap(([, items]) => items);
 
   return (
-    <PageContainer>
-      <DocsPageHeader
-        description={page.data.description}
-        mcpUrl={`${env.BASE_URL}/api/v1/mcp`}
-        title={page.data.title}
-      />
+    <>
+      <PageContainer>
+        <DocsPageHeader description={page.data.description} mcpUrl={`${env.BASE_URL}/api/v1/mcp`} title={headline} />
 
-      <Alert color="warning">
-        <p className="text-x-sm">{t("DocsPage.liveDataAlert")}</p>
-      </Alert>
-
-      {locale !== DEFAULT_LOCALE && (
-        <Alert color="primary">
-          <p className="text-x-sm">{t("DocsPage.englishOnlyAlert")}</p>
+        <Alert color="warning">
+          <p className="text-x-sm">{t("DocsPage.liveDataAlert")}</p>
         </Alert>
-      )}
 
-      <div
-        className="grid gap-5"
-        style={{
-          gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 400px), 1fr))",
-        }}
-      >
-        {docsOverviewItems.map((doc) => (
-          <AppLink key={doc.url} className="interactive-surface block min-w-0 size-full text-foreground" href={doc.url}>
-            <AppCard className="size-full min-w-0">
-              <AppCardBody>
-                <div className="flex items-center justify-between gap-2 min-w-0">
-                  <h2 className="text-x-md text-left grow min-w-0 truncate">{doc.title}</h2>
+        {locale !== DEFAULT_LOCALE && (
+          <Alert color="primary">
+            <p className="text-x-sm">{t("DocsPage.englishOnlyAlert")}</p>
+          </Alert>
+        )}
 
-                  {doc.method && (
-                    <AppChip className="uppercase shrink-0" variant={getDocMethodColor(doc.method)}>
-                      {doc.method}
-                    </AppChip>
-                  )}
-                </div>
+        <div
+          className="grid gap-5"
+          style={{
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 400px), 1fr))",
+          }}
+        >
+          {docsOverviewItems.map((doc) => (
+            <AppLink
+              key={doc.url}
+              className="interactive-surface block min-w-0 size-full text-foreground"
+              href={doc.url}
+            >
+              <AppCard className="size-full min-w-0">
+                <AppCardBody>
+                  <div className="flex items-center justify-between gap-2 min-w-0">
+                    <h2 className="text-x-md text-left grow min-w-0 truncate">{doc.title}</h2>
 
-                <p className="text-x-sm text-subdued my-auto wrap-break-word">{doc.description}</p>
-              </AppCardBody>
-            </AppCard>
-          </AppLink>
-        ))}
-      </div>
-    </PageContainer>
+                    {doc.method && (
+                      <AppChip className="uppercase shrink-0" variant={getDocMethodColor(doc.method)}>
+                        {doc.method}
+                      </AppChip>
+                    )}
+                  </div>
+
+                  <p className="text-x-sm text-subdued my-auto wrap-break-word">{doc.description}</p>
+                </AppCardBody>
+              </AppCard>
+            </AppLink>
+          ))}
+        </div>
+
+        <Footer className="-mx-4 -mb-4 w-auto md:-mx-6 md:-mb-6" />
+      </PageContainer>
+    </>
   );
 }

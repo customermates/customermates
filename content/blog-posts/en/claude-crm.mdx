@@ -1,5 +1,5 @@
 ---
-title: "Claude CRM: Build It, Connect It, or Use One Built for Claude"
+title: "Claude CRM: Build It, Connect It, or Use an MCP-Native One"
 description: "Three paths to a Claude CRM in 2026: build it with Claude Code, connect Claude to an existing CRM, or use one where Claude is a first-class MCP operator."
 
 hero:
@@ -178,32 +178,44 @@ A flowchart for the decision.
 
 ## Frequently asked questions
 
-**What is a Claude CRM?**
+<Faq>
+<FaqItem question="What is a Claude CRM?">
 A CRM operated through Claude. The term covers three patterns: building a custom CRM with Claude Code, connecting Claude to an existing CRM via a connector, or using a CRM that exposes its data model to Claude through an open protocol like MCP.
+</FaqItem>
 
-**Can Claude build a CRM?**
+<FaqItem question="Can Claude build a CRM?">
 Yes. Claude Code can scaffold a working CRM in hours and a production-grade one in months. The maintenance cost is real and indefinite; the build is right for personal projects and unusual data needs, less right for "I just want a CRM."
+</FaqItem>
 
-**Can I make a CRM with Claude?**
+<FaqItem question="Can I make a CRM with Claude?">
 Same answer. Build it with Claude Code, or use Claude on top of an existing CRM. The "use Claude on top of an existing CRM" path is faster and more reliable.
+</FaqItem>
 
-**What is MCP?**
+<FaqItem question="What is MCP?">
 The Model Context Protocol, an open standard from Anthropic that lets AI assistants read and write structured data through a typed tool interface. It is the default integration pattern for AI agents and CRMs in 2026.
+</FaqItem>
 
-**Does HubSpot have a Claude integration?**
+<FaqItem question="Does HubSpot have a Claude integration?">
 Yes. HubSpot publishes an official Claude connector that creates and updates CRM records, logs activities, and analyzes engagement. It works only on HubSpot Pro/Enterprise tiers.
+</FaqItem>
 
-**What is the cheapest way to use Claude with a CRM?**
+<FaqItem question="What is the cheapest way to use Claude with a CRM?">
 [Customermates](/) is from [[commercial.price.starter.monthly]] per user per month on EU cloud or free to self-host via Docker, with native Claude support through [[derived.mcp.tools.total]] MCP tools. The core record and workspace tools are in every tier from Starter; there is no separate AI tier or connector charge.
+</FaqItem>
 
-**Can ChatGPT make a CRM?**
+<FaqItem question="Can ChatGPT make a CRM?">
 ChatGPT can scaffold a basic CRM in conversation. Claude Code is the better tool for the actual build because of file-system access, longer context, and stronger code generation. Either way, "make a CRM" is rarely the right question; "operate an existing CRM" usually is.
+</FaqItem>
 
-**What are the top 5 CRMs that work with Claude?**
+<FaqItem question="What are the top 5 CRMs that work with Claude?">
 Customermates (native MCP), HubSpot (official connector), Salesforce (Agentforce + community MCP), Close (built-in Claude integration), and Pipedrive (community MCP servers). The depth varies; native MCP is consistently the best Claude experience.
+</FaqItem>
 
-**Is there an open-source Claude CRM?**
+<FaqItem question="Is there an open-source Claude CRM?">
 Yes. [Customermates](/) is an open-source CRM under AGPL-3.0 with native Claude support through MCP. It is one of the few that does not require a connector or a separate AI license to access AI features.
+</FaqItem>
 
-**Does Claude work with Salesforce?**
+<FaqItem question="Does Claude work with Salesforce?">
 Yes, through community MCP servers and Salesforce's own Agentforce platform. The depth is enterprise-grade; the cost is enterprise-grade. Most small teams overpay for the level of integration they actually use.
+</FaqItem>
+</Faq>

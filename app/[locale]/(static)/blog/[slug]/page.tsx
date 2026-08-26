@@ -15,6 +15,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
+import { ringOrder, selectRelatedSlugs } from "@/core/seo/related-selection";
 import { Toc } from "@/components/shared/toc";
 import { AppImage } from "@/components/shared/app-image";
 import { articleSchema, breadcrumbListSchema } from "@/core/seo/schemas";
@@ -48,15 +49,19 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const { backToBlog, date, by, tags } = blogPost;
   const components = getMDXComponents();
 
-  const allPosts = blogPostsSource.getPages(locale);
-  const sortedPosts = [...allPosts]
-    .sort((a, b) => {
-      const dateA = new Date(a.data.blogPost.date).getTime();
-      const dateB = new Date(b.data.blogPost.date).getTime();
-      return dateB - dateA;
-    })
-    .filter((post) => post.url !== page.url)
-    .slice(0, 3);
+  const postEntries = blogPostsSource
+    .getPages(locale)
+    .map((post) => ({ post, slug: post.url?.split("/").pop() ?? "" }))
+    .filter((entry) => entry.slug.length > 0);
+  const postsBySlug = new Map(postEntries.map((entry) => [entry.slug, entry.post]));
+  const ringSlugs = ringOrder(
+    postEntries,
+    (entry) => entry.post.data.blogPost.tags?.[0] ?? "",
+    (entry) => entry.slug,
+  ).map((entry) => entry.slug);
+  const sortedPosts = selectRelatedSlugs(slug, ringSlugs)
+    .map((related) => postsBySlug.get(related))
+    .filter((post) => post !== undefined);
 
   return (
     <div className="relative flex flex-col items-center justify-center">

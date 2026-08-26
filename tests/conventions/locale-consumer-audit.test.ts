@@ -33,7 +33,7 @@ const DOMAIN_EXPECTATIONS: Array<{ file: string; imports: string }> = [
   { file: "app/sitemap.ts", imports: "CONTENT_LOCALES" },
   { file: "core/fumadocs/i18n.ts", imports: "CONTENT_LOCALES" },
   { file: "core/fumadocs/metadata.ts", imports: "CONTENT_LOCALES" },
-  { file: "components/shared/language-selector.tsx", imports: "CONTENT_LOCALES" },
+  { file: "components/shared/locale-menu.tsx", imports: "CONTENT_LOCALES" },
   { file: "scripts/generate-raw-docs-manifest.ts", imports: "CONTENT_LOCALES" },
   { file: "app/[locale]/(protected)/profile/components/profile-settings-form.tsx", imports: "DISPLAY_LANGUAGE_VALUES" },
   { file: "app/[locale]/(protected)/profile/components/profile-settings-form.tsx", imports: "FORMATTING_LOCALE_VALUES" },

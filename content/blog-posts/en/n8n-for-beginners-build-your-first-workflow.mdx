@@ -484,42 +484,44 @@ The [n8n YouTube channel](https://www.youtube.com/@n8n-io) and [community forum]
 
 ## Frequently Asked Questions
 
-### Is n8n really free?
-
+<Faq>
+<FaqItem question="Is n8n really free?">
 Self-hosted n8n is free to use with unlimited workflow executions. The source code is open and available on GitHub. n8n Cloud is a paid managed service starting at EUR 20/month. Most beginners start with the cloud plan for convenience and move to self-hosting as their usage grows.
+</FaqItem>
 
-### Do I need coding skills to use n8n?
-
+<FaqItem question="Do I need coding skills to use n8n?">
 No. The visual workflow editor covers most automation use cases without any code. For advanced transformations, n8n offers Code nodes where you can write JavaScript or Python, but these are optional. If you can describe your automation as "when X happens, do Y," you can build it in n8n.
+</FaqItem>
 
-### How does n8n compare to Zapier for CRM automation?
-
+<FaqItem question="How does n8n compare to Zapier for CRM automation?">
 n8n is more flexible and significantly cheaper at scale. Zapier excels in the breadth of pre-built integrations (6,000+ vs. 400+), but n8n offers unlimited executions on self-hosted, native AI/LLM support, custom code, and full data control. For CRM automation specifically, n8n's deeper integration capabilities and AI nodes make it the stronger platform.
+</FaqItem>
 
-### Can n8n connect to any CRM?
-
+<FaqItem question="Can n8n connect to any CRM?">
 n8n has dedicated nodes for popular CRMs including Customermates, HubSpot, Pipedrive, Salesforce, and Zoho. For CRMs without a dedicated node, the HTTP Request node lets you connect to any CRM with a REST API. Community nodes extend this further. In practice, this covers virtually every modern CRM system.
+</FaqItem>
 
-### Is n8n suitable for production use?
-
+<FaqItem question="Is n8n suitable for production use?">
 Yes. Thousands of companies run n8n in production. For reliability, self-host on a VPS with Docker, configure persistent storage and automated backups, and set up monitoring. The n8n Cloud option handles all of this for you. For mission-critical workflows, add error handling and notifications so you know immediately if something fails.
+</FaqItem>
 
-### How does n8n handle GDPR and data privacy?
-
+<FaqItem question="How does n8n handle GDPR and data privacy?">
 Self-hosted n8n gives you complete control, data never leaves your servers. For n8n Cloud, data is processed in the EU. In both cases, n8n itself does not access or store your workflow data beyond execution. Combined with a CRM with a DPA and SCCs like Customermates (EU-hosted, from [[commercial.price.starter.monthly]]/user/month), you can build fully compliant automation pipelines.
+</FaqItem>
 
-### What is the easiest first workflow to build?
-
+<FaqItem question="What is the easiest first workflow to build?">
 Start with a webhook-to-notification workflow: receive data via webhook, send a Slack or email notification. This teaches the core concepts (trigger, node, data flow, testing, activation) in under 10 minutes. Once that works, add a CRM node to save the data, and you have a practical lead capture automation.
+</FaqItem>
 
-### How do I handle errors in n8n workflows?
-
+<FaqItem question="How do I handle errors in n8n workflows?">
 Create a global Error Trigger workflow that notifies you when any workflow fails. At the node level, use retry-on-failure for API calls, continue-on-error for non-critical steps, and If nodes for data validation. The execution history in n8n logs every run with full input/output data, making debugging straightforward.
+</FaqItem>
 
-### Can I use community nodes on n8n Cloud?
-
+<FaqItem question="Can I use community nodes on n8n Cloud?">
 Yes. n8n Cloud supports community node installation through the Settings menu. On self-hosted instances, install them via npm. Always test community nodes in a development environment before using them in production workflows.
+</FaqItem>
 
-### What does the n8n Level One Course cover?
-
+<FaqItem question="What does the n8n Level One Course cover?">
 The official n8n Level One Course covers seven chapters: editor UI navigation, building a mini-workflow, real-world automation use cases, workflow design principles, building a multi-part workflow with data sources, filtering, calculations, notifications, and scheduling, exporting and importing workflows, and a final assessment quiz. It is free and available in the [n8n documentation](https://docs.n8n.io/courses/level-one/).
+</FaqItem>
+</Faq>

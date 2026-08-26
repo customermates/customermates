@@ -135,11 +135,22 @@ describe("page-state ownership", () => {
   });
 
   it("keeps the neutral public and protected catch-all loaders generic", () => {
-    for (const path of ["app/[locale]/loading.tsx", "app/[locale]/(protected)/loading.tsx"]) {
+    for (const path of ["app/[locale]/(public)/loading.tsx", "app/[locale]/(protected)/loading.tsx"]) {
       const source = read(path);
       expect(source, path).toContain("GenericPageLoading");
       expect(source, path).not.toMatch(/PageState|PageSkeleton|RouteLoading|<main|\bfixed\b/);
     }
+  });
+
+  it("keeps every loading boundary below the locale segment so published pages keep their status code", () => {
+    // A loader at app/[locale]/ or inside (static) puts a Suspense boundary above the marketing and
+    // docs routes. React then commits 200 with the shell before the page body runs, so notFound()
+    // renders a 404 card inside a 200 and permanentRedirect() degrades to a meta refresh. Crawlers
+    // read both as a live page. The (public) and (protected) groups keep their loaders because a
+    // skeleton is correct there and neither surface is indexed.
+    expect(existsSync(resolve(root, "app/[locale]/loading.tsx")), "app/[locale]/loading.tsx").toBe(false);
+    const staticLoaders = filesUnder("app/[locale]/(static)").filter((path) => path.endsWith("loading.tsx"));
+    expect(staticLoaders, "loading.tsx under (static)").toEqual([]);
   });
 
   it("keeps loading motion shape-only and disabled for reduced motion", () => {
