@@ -138,14 +138,49 @@ Messaging-basierte Tools sind im Cloud-Modus ab dem Pro-Tarif verfügbar. `get_a
 
 | Tool | Read | Destructive | Zweck |
 |---|---|---|---|
-| `get_social_posts` | ✓ | | Posts auf LinkedIn oder Instagram, gelesen über ein verbundenes Konto. Listet die Posts beliebiger Nutzer über authorIdentifier (ein Public Identifier oder eine Provider-Member-ID, z. B. aus dem LinkedIn-Kanal eines Kontakts; Standard ist `me`, der Kontoinhaber) oder holt einen einzelnen Post per postId. |
-| `get_social_post_engagement` | ✓ | | Engagement zu einem Post: kind=comments (Standard) listet Kommentare, kind=reactions wer reagiert hat; mit commentId die Reaktionen auf diesen Kommentar. |
-| `get_social_profile` | ✓ | | Ein LinkedIn- oder Instagram-Profil einer Person oder eines Unternehmens per identifier (der `/in/<slug>`- oder `/company/<slug>`-Teil der Profil-URL, eine Provider-ID oder `me`); liefert Name, Headline, Ort, Zähler und Netzwerkdistanz, soweit verfügbar, plus einen Typ, der Person und Organisation unterscheidet. |
-| `manage_social_relations` | | | Kontaktanfragen: Einladungen listen (standardmäßig erhaltene, oder Ihre eigenen gesendeten/ausgehenden über direction), invite (sendet eine echte Anfrage), accept oder cancel per invitationId. |
-| `linkedin_search_sales_leads` | ✓ | | Findet Personen über LinkedIn Sales Navigator: entweder aus einer eingefügten Such-URL oder als strukturierte Suche mit Filtern (Keywords, Standort, Branche, Unternehmen, Jobtitel, Seniorität und mehr). Lead-Zeilen enthalten die aktuellen Positionen (Unternehmen, Rolle und Unternehmens-ID, nutzbar mit `get_social_profile`). Braucht ein Sales-Navigator-Abo. |
-| `linkedin_search_sales_companies` | ✓ | | Findet Unternehmen über LinkedIn Sales Navigator: entweder aus einer eingefügten Unternehmens-Such-URL oder als strukturierte Suche mit Filtern (Keywords, Standort, Branche, Mitarbeiterzahl, Jahresumsatz und mehr). Braucht ein Sales-Navigator-Abo. |
-| `linkedin_get_sales_search_parameters` | ✓ | | Löst die IDs hinter den LinkedIn-Sales-Navigator-Sucheingaben nach Typ auf (Standorte, Branchen, Jobtitel, Funktionen, Unternehmen, Schulen, Gruppen und mehr) plus Ihre Lead-/Account-Listen und gespeicherten/letzten Suchen; Keyword ist optional, ein reiner Typ zählt also die ganze Familie auf. |
-| `linkedin_manage_sales_lists` | | | LinkedIn-Sales-Navigator-Lead- und -Account-Listen: Listen aufzählen, die Mitglieder einer Liste lesen oder einen Lead bzw. ein Unternehmen in eine bestehende Liste speichern. Neue Listen entstehen in Sales Navigator selbst. |
+| `get_social_posts` | ✓ |  | Posts auf LinkedIn oder Instagram, gelesen über ein verbundenes Konto. Für den Kontoinhaber `authorIdentifier=me` verwenden. Für eine andere Person `get_social_profile.id`, `get_social_posts.items[].author.id` (Listenmodus), `get_social_posts.author.id` (Einzel-Post-Modus), `get_social_post_engagement.items[].author.id` (Kommentare), `get_social_post_engagement.items[].sender.id` (Reaktionen) oder `manage_social_relations.items[].user.id` verwenden. `get_messaging_threads.items[].participants[].identifier` (Listenmodus) oder `get_messaging_threads.thread.participants[].identifier` (Detailmodus) zuerst mit `get_social_profile` auflösen; eine Thread-Teilnehmer-Kennung nicht direkt übergeben. `get_social_posts.items[].id` als `postId` übergeben, um einen einzelnen Post abzurufen. Bei einer Fortsetzung dasselbe Konto, denselben Autor und dasselbe Limit zusammen mit next_cursor verwenden. |
+| `get_social_post_engagement` | ✓ |  | Engagement zu einem Post: kind=comments (Standard) listet Kommentare, kind=reactions wer reagiert hat; mit commentId die Reaktionen auf diesen Kommentar. |
+| `get_social_profile` | ✓ |  | Ein Personen- oder Unternehmensprofil. Für Personen `profileType=person` mit `me`, `get_messaging_threads.items[].participants[].identifier`, `get_messaging_threads.thread.participants[].identifier`, `get_social_posts.items[].author.id`, `get_social_posts.author.id`, `get_social_post_engagement.items[].author.id`, `get_social_post_engagement.items[].sender.id`, `manage_social_relations.items[].user.id`, einem öffentlichen LinkedIn-Classic-Profil-Slug oder einem Instagram-Nutzernamen verwenden. Für LinkedIn-Unternehmen `profileType=company` mit `linkedin_search_sales_companies.items[].id`, `linkedin_search_sales_leads.items[].current_positions[].company_id`, `linkedin_manage_sales_lists.items[].current_positions[].company_id` oder `get_social_profile.current_positions[].company_id` verwenden. `get_social_profile.id` mit demselben `profileType` wiederverwenden. |
+| `manage_social_relations` |  |  | Kontaktanfragen: Einladungen listen (standardmäßig erhaltene, oder Ihre eigenen gesendeten/ausgehenden über direction), mit `get_social_profile.id` einladen (sendet eine echte Anfrage), per invitationId annehmen oder abbrechen. |
+| `linkedin_search_sales_leads` | ✓ |  | Findet Personen über LinkedIn Sales Navigator: entweder aus einer eingefügten Such-URL oder als strukturierte Suche mit Filtern (Keywords, Standort, Branche, Unternehmen, Jobtitel, Seniorität und mehr). `linkedin_search_sales_leads.items[].current_positions[].company_id` mit `get_social_profile` und `profileType=company` auflösen. Braucht ein Sales-Navigator-Abo. |
+| `linkedin_search_sales_companies` | ✓ |  | Findet Unternehmen über LinkedIn Sales Navigator: entweder aus einer eingefügten Unternehmens-Such-URL oder als strukturierte Suche mit Filtern (Keywords, Standort, Branche, Mitarbeiterzahl, Jahresumsatz und mehr). `linkedin_search_sales_companies.items[].id` mit `profileType=company` an `get_social_profile` übergeben. Braucht ein Sales-Navigator-Abo. |
+| `linkedin_get_sales_search_parameters` | ✓ |  | Löst die IDs hinter den LinkedIn-Sales-Navigator-Sucheingaben nach Typ auf (Standorte, Branchen, Jobtitel, Funktionen, Unternehmen, Schulen, Gruppen und mehr) plus Ihre Lead-/Account-Listen und gespeicherten/letzten Suchen; Keyword ist optional, ein reiner Typ zählt also die ganze Familie auf. |
+| `linkedin_manage_sales_lists` |  |  | LinkedIn-Sales-Navigator-Lead- und -Account-Listen: Listen aufzählen, die Mitglieder einer Liste lesen oder einen Lead über `linkedin_search_sales_leads.items[].id` beziehungsweise `get_social_profile.id` oder ein Unternehmen über `linkedin_search_sales_companies.items[].id` beziehungsweise einen oben dokumentierten `items[].current_positions[].company_id`-Pfad speichern. Neue Listen entstehen in Sales Navigator selbst. |
+
+#### Typischer Social-Read-Ablauf
+
+Wählen Sie aus `get_workspace_context.connectedAccounts` einen LinkedIn- oder Instagram-Eintrag mit `status=ok` und verwenden Sie dessen `id` als `connectedAccountId`. Wenn die Person aus einem Inbox-Thread stammt, lösen Sie zuerst `get_messaging_threads.items[].participants[].identifier` aus dem Listenmodus oder `get_messaging_threads.thread.participants[].identifier` aus dem Detailmodus auf:
+
+```json
+{
+  "connectedAccountId": "00000000-0000-4000-8000-000000000001",
+  "identifier": "<get_messaging_threads.items[].participants[].identifier>",
+  "profileType": "person"
+}
+```
+
+Rufen Sie `get_social_profile` mit dieser Anfrage auf und übergeben Sie anschließend `get_social_profile.id` als `get_social_posts.authorIdentifier` für die erste Seite:
+
+```json
+{
+  "connectedAccountId": "00000000-0000-4000-8000-000000000001",
+  "authorIdentifier": "<get_social_profile.id>",
+  "limit": 10
+}
+```
+
+Wenn next_cursor nicht null ist, wiederholen Sie dieselben Werte für `connectedAccountId`, `authorIdentifier` und `limit`, setzen Sie `cursor` auf diesen Wert und lassen Sie `offset` weg:
+
+```json
+{
+  "connectedAccountId": "00000000-0000-4000-8000-000000000001",
+  "authorIdentifier": "<same get_social_profile.id>",
+  "cursor": "<next_cursor>",
+  "limit": 10
+}
+```
+
+Für ein Unternehmen rufen Sie `get_social_profile` mit `profileType=company` und einem `identifier` aus `linkedin_search_sales_companies.items[].id`, `linkedin_search_sales_leads.items[].current_positions[].company_id`, `linkedin_manage_sales_lists.items[].current_positions[].company_id` oder `get_social_profile.current_positions[].company_id` auf.
 
 ### Dokumentation und Deep Research
 

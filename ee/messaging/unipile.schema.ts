@@ -10,7 +10,7 @@ const UnipileUserSpecificsSchema = z.looseObject({
 });
 
 export const UnipileUserSchema = z.looseObject({
-  id: z.string(),
+  id: z.string().describe("Provider user ID"),
   object: z.enum(["User", "UserProfile"]).nullish(),
   type: z.enum(["individual", "organization", "other"]).nullish(),
   public_identifier: z.string().nullish(),
