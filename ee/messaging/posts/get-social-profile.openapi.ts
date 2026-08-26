@@ -8,7 +8,7 @@ export const getSocialProfileOperation: ZodOpenApiOperationObject = {
   operationId: "getSocialProfile",
   summary: "Get a social profile",
   description:
-    "Reads a LinkedIn or Instagram profile by identifier from a connected account. On LinkedIn the identifier is the public identifier or a provider member id (use 'me' for the account owner); on Instagram it is the username. Requires a connected LinkedIn or Instagram account.",
+    "Reads a person or company profile from a connected account. For a person, keep profileType=person and pass 'me', a top-level provider profile id, a LinkedIn Classic public_identifier, or an Instagram username; specifics.member_id is not a valid identifier. For a LinkedIn company, set profileType=company and pass its company id. Company lookup is LinkedIn-only.",
   tags: ["messaging"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {

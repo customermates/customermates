@@ -5,6 +5,7 @@ import { z } from "zod";
 import { encodeToToon, formatDatesInResponse, runInteractor, validationError } from "./utils";
 
 import { ListSocialPostsSchema } from "@/ee/messaging/posts/list-social-posts.interactor";
+import { GetSocialProfileSchema } from "@/ee/messaging/posts/get-social-profile.interactor";
 import { GetSocialPostSchema } from "@/ee/messaging/posts/get-social-post.interactor";
 import { ListSocialPostCommentsSchema } from "@/ee/messaging/posts/list-social-post-comments.interactor";
 import { ListSocialCommentReactionsSchema } from "@/ee/messaging/posts/list-social-comment-reactions.interactor";
@@ -30,10 +31,14 @@ const GetSocialPostsToolSchema = ListSocialPostsSchema.extend({
     .optional()
     .describe("Provider post id. When set, fetches that single post and the list params are ignored"),
   authorIdentifier: ListSocialPostsSchema.shape.authorIdentifier.describe(
-    "Whose posts to list: 'me' (default, the account owner) or a provider member id, e.g. from a contact's linkedin channel",
+    "Whose posts to list: 'me' (default) or a top-level id from a profile or participant. Never use public_identifier or member_id",
   ),
-  cursor: ListSocialPostsSchema.shape.cursor.describe("Pagination cursor from the previous page's next_cursor"),
-  offset: ListSocialPostsSchema.shape.offset.describe("Pagination offset; use only when no cursor is available"),
+  cursor: ListSocialPostsSchema.shape.cursor.describe(
+    "Cursor from the previous page's next_cursor. Omit cursor and offset on the first request",
+  ),
+  offset: ListSocialPostsSchema.shape.offset.describe(
+    "Offset for providers that support it. Omit cursor and offset on the first request; LinkedIn user posts use cursor",
+  ),
   limit: ListSocialPostsSchema.shape.limit.describe("Posts per page (1-100, default 10)"),
 });
 
@@ -59,16 +64,16 @@ const GetSocialPostEngagementToolSchema = z.object({
   limit: ListSocialPostCommentsSchema.shape.limit.describe("Items per page (1-100, default 10)"),
 });
 
-const GetSocialProfileToolSchema = z.object({
-  connectedAccountId: z
-    .uuid()
-    .describe("Connected account id of a LinkedIn or Instagram account (from get_workspace_context)"),
-  identifier: z
-    .string()
-    .min(1)
-    .describe(
-      "Who or what to look up. LinkedIn person: the public identifier (the /in/<slug> part) or a provider member id, e.g. the id on a thread participant, reaction sender or comment author. LinkedIn company: the public identifier (the /company/<slug> part) or a provider company id, e.g. a current_positions company_id from linkedin_search_sales_leads. Instagram: the username. Use 'me' for the account owner.",
-    ),
+const GetSocialProfileToolSchema = GetSocialProfileSchema.extend({
+  connectedAccountId: GetSocialProfileSchema.shape.connectedAccountId.describe(
+    "Connected account id of a LinkedIn or Instagram account (from get_workspace_context)",
+  ),
+  identifier: GetSocialProfileSchema.shape.identifier.describe(
+    "Person: 'me', the top-level id from a profile or participant, a LinkedIn Classic public_identifier (/in/<slug>), or an Instagram username; never member_id. LinkedIn company: a company id with profileType=company",
+  ),
+  profileType: GetSocialProfileSchema.shape.profileType.describe(
+    "What to retrieve: person (default) or company. Company lookup requires a LinkedIn account",
+  ),
 });
 
 const ManageSocialRelationsToolSchema = z.object({
@@ -179,7 +184,6 @@ function formatProfile(profile: SocialProfile) {
     profile_url: profile.profile_url,
     picture_url: profile.public_picture_url,
     description: profile.description,
-    member_id: profile.specifics?.member_id,
     headline: profile.specifics?.headline ?? profile.specifics?.occupation,
     location: profile.specifics?.location,
     industry: profile.specifics?.industry,
@@ -224,10 +228,10 @@ export const getSocialPostsTool = {
   title: "Get social posts",
   description:
     "Use this when the user wants to see social posts from a connected LinkedIn or Instagram account, their own or someone else's. " +
-    "Lists posts authored by authorIdentifier: 'me' (default, the account owner) or a provider member id, for example the id stored on a contact's linkedin channel. " +
+    "Lists posts authored by authorIdentifier: 'me' (default) or a top-level profile/participant id; never use public_identifier or member_id. " +
     "Pass postId to fetch a single post instead. " +
     "Returns id, share_url, created_at, title, text, and reaction, comment and repost counters. " +
-    "Paginate with cursor (from next_cursor) or offset, plus limit. " +
+    "For the first page omit cursor and offset. Continue with next_cursor when returned; use offset only for providers that support it. LinkedIn user posts use cursors. " +
     "A nonexistent post id can surface as a generic provider error rather than a not-found message.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
   inputSchema: GetSocialPostsToolSchema,
@@ -352,10 +356,10 @@ export const getSocialProfileTool = {
   title: "Get person or company profile",
   description:
     "Use this when the user wants details about a person or company on a connected LinkedIn or Instagram account. " +
-    "Pass connectedAccountId and identifier. On LinkedIn the identifier is the public identifier (the /in/<slug> part for a person, the /company/<slug> part for a company) or a provider id, " +
-    "for example the id on a thread participant, a reaction sender, a comment author or a current_positions company_id on a Sales Navigator lead; use 'me' for the account owner. On Instagram it is the username. " +
+    "For a person, keep profileType=person and pass 'me', a top-level id from a profile or participant, a LinkedIn Classic public_identifier (/in/<slug>), or an Instagram username. Never pass member_id. " +
+    "For a LinkedIn company, set profileType=company and pass its company id, for example current_positions.company_id from a lead. " +
     "Returns id, name, headline, location, profile and picture urls, follower and relation counts, network distance and current_positions (company, role, company_id) where the provider exposes them, plus type (individual vs organization) telling you which kind of profile you got. " +
-    "A nonexistent identifier can surface as a generic provider error rather than a not-found message.",
+    "An invalid identifier returns a validation error without retrying the same value.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
   inputSchema: GetSocialProfileToolSchema,
   execute: (params: z.infer<typeof GetSocialProfileToolSchema>) =>

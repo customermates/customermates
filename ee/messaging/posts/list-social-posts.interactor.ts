@@ -20,11 +20,28 @@ import { formatRetryAfter } from "../retry-after";
 import { SocialPostListSchema } from "./social-posts.schema";
 
 export const ListSocialPostsSchema = z.object({
-  connectedAccountId: z.uuid(),
-  authorIdentifier: z.string().min(1).default("me"),
-  cursor: z.string().min(1).optional(),
-  offset: z.number().int().min(0).optional(),
-  limit: z.number().int().min(1).max(100).default(10),
+  connectedAccountId: z.uuid().describe("Connected LinkedIn or Instagram account ID"),
+  authorIdentifier: z
+    .string()
+    .min(1)
+    .default("me")
+    .describe(
+      "Person whose posts to list: 'me' or a top-level profile/participant id. Do not use LinkedIn public_identifier or specifics.member_id",
+    ),
+  cursor: z
+    .string()
+    .min(1)
+    .optional()
+    .describe("Cursor returned as next_cursor by the previous page. Omit cursor and offset on the first request"),
+  offset: z
+    .number()
+    .int()
+    .min(0)
+    .optional()
+    .describe(
+      "Offset for providers that support offset pagination. Omit cursor and offset on the first request; LinkedIn user posts use cursor pagination",
+    ),
+  limit: z.number().int().min(1).max(100).default(10).describe("Maximum posts to return (1-100, default 10)"),
 });
 type ListSocialPostsData = Data<typeof ListSocialPostsSchema>;
 

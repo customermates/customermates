@@ -6,6 +6,8 @@ import { MOCK_ENV_MODULE, createMockDiModule, MOCK_ZOD_MODULE } from "@/tests/he
 const mockUser = createMockUser();
 
 const spies = vi.hoisted(() => ({
+  listSocialPosts: vi.fn(),
+  getSocialPost: vi.fn(),
   listPostComments: vi.fn(),
   listCommentReactions: vi.fn(),
   listPostReactions: vi.fn(),
@@ -20,8 +22,8 @@ vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/core/di", () => ({
   ...createMockDiModule(() => mockUser),
-  getListSocialPostsInteractor: () => ({ invoke: vi.fn() }),
-  getGetSocialPostInteractor: () => ({ invoke: vi.fn() }),
+  getListSocialPostsInteractor: () => ({ invoke: spies.listSocialPosts }),
+  getGetSocialPostInteractor: () => ({ invoke: spies.getSocialPost }),
   getListSocialPostCommentsInteractor: () => ({ invoke: spies.listPostComments }),
   getListSocialCommentReactionsInteractor: () => ({ invoke: spies.listCommentReactions }),
   getListSocialPostReactionsInteractor: () => ({ invoke: spies.listPostReactions }),
@@ -33,6 +35,7 @@ vi.mock("@/core/di", () => ({
 }));
 
 import {
+  getSocialPostsTool,
   getSocialPostEngagementTool,
   getSocialProfileTool,
   manageSocialRelationsTool,
@@ -40,6 +43,10 @@ import {
 
 const ACCOUNT_ID = "00000000-0000-4000-8000-000000000001";
 const emptyList = { ok: true as const, data: { data: [], total_count: 0, next_cursor: null } };
+
+function runPosts(args: Record<string, unknown>) {
+  return getSocialPostsTool.execute(getSocialPostsTool.inputSchema.parse(args));
+}
 
 function runEngagement(args: Record<string, unknown>) {
   return getSocialPostEngagementTool.execute(getSocialPostEngagementTool.inputSchema.parse(args));
@@ -56,6 +63,44 @@ function runProfile(args: Record<string, unknown>) {
 beforeEach(() => {
   vi.clearAllMocks();
   for (const spy of Object.values(spies)) spy.mockResolvedValue(emptyList);
+});
+
+describe("get_social_posts routing", () => {
+  it("omits pagination inputs on the initial call and returns next_cursor", async () => {
+    spies.listSocialPosts.mockResolvedValue({
+      ok: true as const,
+      data: { data: [{ id: "post-1", text: "Hello" }], total_count: 1, next_cursor: "cursor-2" },
+    });
+
+    const result = await runPosts({ connectedAccountId: ACCOUNT_ID, authorIdentifier: "ACoAAProviderId" });
+
+    expect(spies.listSocialPosts).toHaveBeenCalledWith({
+      connectedAccountId: ACCOUNT_ID,
+      authorIdentifier: "ACoAAProviderId",
+      cursor: undefined,
+      offset: undefined,
+      limit: 10,
+    });
+    expect(result).toContain("post-1");
+    expect(result).toContain("cursor-2");
+  });
+
+  it("forwards only the continuation cursor selected by the caller", async () => {
+    await runPosts({ connectedAccountId: ACCOUNT_ID, cursor: "cursor-2", limit: 5 });
+
+    expect(spies.listSocialPosts).toHaveBeenCalledWith({
+      connectedAccountId: ACCOUNT_ID,
+      authorIdentifier: "me",
+      cursor: "cursor-2",
+      offset: undefined,
+      limit: 5,
+    });
+  });
+
+  it("documents that the initial request has no pagination selector", () => {
+    expect(getSocialPostsTool.inputSchema.shape.offset.description).toContain("Omit cursor and offset");
+    expect(getSocialPostsTool.inputSchema.shape.cursor.description).toContain("Omit cursor and offset");
+  });
 });
 
 describe("get_social_post_engagement routing", () => {
@@ -94,7 +139,7 @@ describe("get_social_profile", () => {
         display_name: "Ada Lovelace",
         public_identifier: "ada",
         profile_url: "https://linkedin.com/in/ada",
-        specifics: { headline: "Engineer", location: "London", followers_count: 42 },
+        specifics: { member_id: "123456", headline: "Engineer", location: "London", followers_count: 42 },
       },
     });
     const result = await runProfile({ connectedAccountId: ACCOUNT_ID, identifier: "ada" });
@@ -102,6 +147,8 @@ describe("get_social_profile", () => {
     expect(result).toContain("Ada Lovelace");
     expect(result).toContain("Engineer");
     expect(result).toContain("London");
+    expect(result).not.toContain("member_id");
+    expect(result).not.toContain("123456");
   });
 
   it("carries the type discriminator for company profiles", async () => {
@@ -109,9 +156,31 @@ describe("get_social_profile", () => {
       ok: true as const,
       data: { id: "c1", type: "organization", display_name: "Acme GmbH", public_identifier: "acme" },
     });
-    const result = await runProfile({ connectedAccountId: ACCOUNT_ID, identifier: "acme" });
+    const result = await runProfile({
+      connectedAccountId: ACCOUNT_ID,
+      identifier: "company-123",
+      profileType: "company",
+    });
+    expect(spies.getSocialProfile).toHaveBeenCalledWith({
+      connectedAccountId: ACCOUNT_ID,
+      identifier: "company-123",
+      profileType: "company",
+    });
     expect(result).toContain("organization");
     expect(result).toContain("Acme GmbH");
+  });
+
+  it("defaults to a person profile and documents the reusable identifiers", async () => {
+    spies.getSocialProfile.mockResolvedValue({ ok: true as const, data: { id: "ACoAAProviderId" } });
+
+    await runProfile({ connectedAccountId: ACCOUNT_ID, identifier: "ada" });
+
+    expect(spies.getSocialProfile).toHaveBeenCalledWith({
+      connectedAccountId: ACCOUNT_ID,
+      identifier: "ada",
+      profileType: "person",
+    });
+    expect(getSocialProfileTool.inputSchema.shape.identifier.description).toContain("never member_id");
   });
 
   it("maps ongoing experience entries into current_positions", async () => {

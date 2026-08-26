@@ -14,7 +14,7 @@ export const getSocialPostsOperation: ZodOpenApiOperationObject = {
   operationId: "getSocialPosts",
   summary: "List or fetch social posts",
   description:
-    "Reads LinkedIn or Instagram posts from a connected account. Omit postId to list an author's posts (authorIdentifier defaults to the account holder); set postId to fetch one post. Requires a connected LinkedIn or Instagram account.",
+    "Reads LinkedIn or Instagram posts from a connected account. Omit postId to list a person's posts (authorIdentifier defaults to the account holder); set postId to fetch one post. For the first list request, omit cursor and offset. Continue with next_cursor when returned; use offset only for providers that support it. LinkedIn user posts use cursor pagination.",
   tags: ["messaging"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {

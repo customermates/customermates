@@ -64,7 +64,10 @@ export const SocialReactionListSchema = z.looseObject({
 export type SocialReactionList = z.infer<typeof SocialReactionListSchema>;
 
 const SocialProfileSpecificsSchema = z.looseObject({
-  member_id: z.string().nullish(),
+  member_id: z
+    .string()
+    .nullish()
+    .describe("LinkedIn-internal member metadata. Do not use this as a profile identifier"),
   network_distance: z.string().nullish(),
   can_send_inmail: z.boolean().nullish(),
   relation_request: z.looseObject({ object: z.string().nullish() }).nullish(),
@@ -99,11 +102,40 @@ const SocialProfileSpecificsSchema = z.looseObject({
     .nullish(),
 });
 
-export const SocialProfileSchema = z.looseObject({
-  object: z.enum(["User", "UserProfile"]).nullish(),
+export const LinkedinCompanyProfileSchema = z.looseObject({
+  object: z.literal("CompanyProfile").nullish(),
   id: z.string(),
-  type: z.enum(["individual", "organization", "other"]).nullish(),
+  name: z.string(),
   public_identifier: z.string().nullish(),
+  profile_url: z.string().nullish(),
+  public_picture_url: z.string().nullish(),
+  description: z.string().nullish(),
+  tagline: z.string().nullish(),
+  followers_count: z.number().nullish(),
+  locations: z
+    .array(
+      z.looseObject({
+        is_headquarter: z.boolean().nullish(),
+        country_code: z.string().nullish(),
+        city: z.string().nullish(),
+        area: z.string().nullish(),
+        description: z.string().nullish(),
+      }),
+    )
+    .nullish(),
+  industry: z.array(z.string()).nullish(),
+  website: z.string().nullish(),
+});
+export type LinkedinCompanyProfile = z.infer<typeof LinkedinCompanyProfileSchema>;
+
+export const SocialProfileSchema = z.looseObject({
+  object: z.enum(["User", "UserProfile", "CompanyProfile"]).nullish(),
+  id: z.string().describe("Provider profile ID accepted as the identifier for follow-up profile operations"),
+  type: z.enum(["individual", "organization", "other"]).nullish(),
+  public_identifier: z
+    .string()
+    .nullish()
+    .describe("Public profile slug, accepted as an identifier for LinkedIn Classic person lookups"),
   display_name: z.string().nullish(),
   first_name: z.string().nullish(),
   last_name: z.string().nullish(),

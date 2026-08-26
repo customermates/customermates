@@ -42,6 +42,11 @@ beforeEach(() => {
 });
 
 describe("linkedin_search_sales_leads lead rows", () => {
+  it("documents the explicit company-profile handoff", () => {
+    expect(searchSalesLeadsTool.description).toContain("get_social_profile and profileType=company");
+    expect(manageSalesListsTool.description).toContain("get_social_profile with profileType=company");
+  });
+
   it("includes current_positions with company, role and company identifiers", async () => {
     spies.searchSalesNavigator.mockResolvedValue(
       leadResult({
@@ -116,7 +121,8 @@ describe("linkedin_manage_sales_lists browse rows", () => {
     expect(output).toContain("Globex");
     expect(output).toContain("globex-9");
     expect(output).toContain("CTO");
-    expect(output).toContain("member_id");
+    expect(output).not.toContain("member_id");
+    expect(output).not.toContain("326109300");
     expect(output).not.toContain("OldCorp");
   });
 });

@@ -34,6 +34,11 @@ function stubFetch(body: unknown, status = 200) {
   );
 }
 
+function firstRequestUrl(): URL {
+  const input = vi.mocked(fetch).mock.calls[0][0];
+  return new URL(input instanceof Request ? input.url : String(input));
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
   vi.unstubAllGlobals();
@@ -69,6 +74,149 @@ describe("MessagingService boundary validation", () => {
     });
 
     await expect(call).rejects.toBeInstanceOf(z.ZodError);
+  });
+});
+
+describe("social profile identifier routing", () => {
+  it.each(["me", "ada-lovelace", "ACoAAExampleProviderId"])(
+    "passes the documented person identifier %s to the user-profile route",
+    async (identifier) => {
+      stubFetch({ object: "UserProfile", id: "ACoAAResult", display_name: "Ada Lovelace" });
+
+      const result = await new MessagingService().getSocialProfile({ accountId: "acc_1", identifier });
+
+      expect(result).toMatchObject({ ok: true, data: { id: "ACoAAResult", display_name: "Ada Lovelace" } });
+      expect(firstRequestUrl().pathname).toBe(`/v2/acc_1/users/${identifier}`);
+    },
+  );
+
+  it("uses the dedicated LinkedIn company route and normalizes its response", async () => {
+    stubFetch({
+      object: "CompanyProfile",
+      id: "1035",
+      name: "Example Company",
+      public_identifier: "example-company",
+      tagline: "Useful software",
+      followers_count: 42,
+      locations: [{ is_headquarter: true, city: "Berlin", country_code: "DE" }],
+      industry: ["Software Development", "CRM"],
+      website: "https://example.com",
+    });
+
+    const result = await new MessagingService().getSocialProfile({
+      accountId: "acc_1",
+      identifier: "1035",
+      profileType: "company",
+    });
+
+    expect(firstRequestUrl().pathname).toBe("/v2/acc_1/linkedin/company/1035");
+    expect(result).toEqual({
+      ok: true,
+      data: expect.objectContaining({
+        object: "CompanyProfile",
+        id: "1035",
+        type: "organization",
+        display_name: "Example Company",
+        specifics: expect.objectContaining({
+          headline: "Useful software",
+          location: "Berlin, DE",
+          industry: "Software Development, CRM",
+          followers_count: 42,
+          website_url: "https://example.com",
+        }),
+      }),
+    });
+  });
+
+  it.each(["getSocialProfile", "getProviderProfile"] as const)(
+    "maps an invalid user id from %s to a normal invalid request without Sentry noise",
+    async (method) => {
+      stubFetch({ type: "api/invalid_parameters", detail: "Invalid User ID." }, 400);
+      const service = new MessagingService();
+
+      const result = await service[method]({ accountId: "acc_1", identifier: "not-a-provider-id" });
+
+      expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileInvalidRequest });
+      expect(Sentry.captureException).not.toHaveBeenCalled();
+    },
+  );
+
+  it("keeps unrelated api/invalid_parameters failures visible in Sentry", async () => {
+    stubFetch({ type: "api/invalid_parameters", detail: "with_sections has an invalid value." }, 400);
+
+    const result = await new MessagingService().getSocialProfile({
+      accountId: "acc_1",
+      identifier: "ACoAAExampleProviderId",
+    });
+
+    expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileUnknown });
+    expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(Error));
+  });
+});
+
+describe("social post pagination", () => {
+  const page = { data: [], total_count: 0, next_cursor: null };
+
+  it("maps an invalid author id to a normal invalid request without Sentry noise", async () => {
+    stubFetch({ type: "api/invalid_parameters", detail: "Invalid User ID." }, 400);
+
+    const result = await new MessagingService().listUserPosts({
+      accountId: "acc_1",
+      userId: "not-a-provider-id",
+    });
+
+    expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileInvalidRequest });
+    expect(Sentry.captureException).not.toHaveBeenCalled();
+  });
+
+  it("omits offset=0 so the provider can select its pagination mode", async () => {
+    stubFetch(page);
+
+    await new MessagingService().listUserPosts({ accountId: "acc_1", userId: "me", offset: 0, limit: 20 });
+
+    expect(firstRequestUrl().searchParams.has("offset")).toBe(false);
+    expect(firstRequestUrl().searchParams.get("limit")).toBe("20");
+  });
+
+  it("keeps a positive offset for providers that support offset pagination", async () => {
+    stubFetch(page);
+
+    await new MessagingService().listUserPosts({ accountId: "acc_1", userId: "me", offset: 20, limit: 20 });
+
+    expect(firstRequestUrl().searchParams.get("offset")).toBe("20");
+  });
+
+  it("sends a continuation cursor without an offset", async () => {
+    stubFetch(page);
+
+    await new MessagingService().listUserPosts({
+      accountId: "acc_1",
+      userId: "me",
+      cursor: "next-page",
+      offset: 20,
+      limit: 20,
+    });
+
+    expect(firstRequestUrl().searchParams.get("cursor")).toBe("next-page");
+    expect(firstRequestUrl().searchParams.has("offset")).toBe(false);
+  });
+
+  it("maps a cursor-required response for an explicit offset without capturing it", async () => {
+    stubFetch({ type: "api/invalid_parameters", detail: "This feature uses cursor for pagination." }, 400);
+
+    const result = await new MessagingService().listUserPosts({ accountId: "acc_1", userId: "me", offset: 20 });
+
+    expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileInvalidRequest });
+    expect(Sentry.captureException).not.toHaveBeenCalled();
+  });
+
+  it("captures the same provider response when no offset selected the wrong mode", async () => {
+    stubFetch({ type: "api/invalid_parameters", detail: "This feature uses cursor for pagination." }, 400);
+
+    const result = await new MessagingService().listUserPosts({ accountId: "acc_1", userId: "me" });
+
+    expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileUnknown });
+    expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(Error));
   });
 });
 

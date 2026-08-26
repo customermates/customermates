@@ -35233,7 +35233,7 @@
       "post": {
         "operationId": "getSocialPosts",
         "summary": "List or fetch social posts",
-        "description": "Reads LinkedIn or Instagram posts from a connected account. Omit postId to list an author's posts (authorIdentifier defaults to the account holder); set postId to fetch one post. Requires a connected LinkedIn or Instagram account.",
+        "description": "Reads LinkedIn or Instagram posts from a connected account. Omit postId to list a person's posts (authorIdentifier defaults to the account holder); set postId to fetch one post. For the first list request, omit cursor and offset. Continue with next_cursor when returned; use offset only for providers that support it. LinkedIn user posts use cursor pagination.",
         "tags": [
           "messaging"
         ],
@@ -35252,24 +35252,29 @@
                   "connectedAccountId": {
                     "type": "string",
                     "format": "uuid",
-                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                    "description": "Connected LinkedIn or Instagram account ID"
                   },
                   "authorIdentifier": {
                     "default": "me",
+                    "description": "Person whose posts to list: 'me' or a top-level profile/participant id. Do not use LinkedIn public_identifier or specifics.member_id",
                     "type": "string",
                     "minLength": 1
                   },
                   "cursor": {
+                    "description": "Cursor returned as next_cursor by the previous page. Omit cursor and offset on the first request",
                     "type": "string",
                     "minLength": 1
                   },
                   "offset": {
+                    "description": "Offset for providers that support offset pagination. Omit cursor and offset on the first request; LinkedIn user posts use cursor pagination",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 9007199254740991
                   },
                   "limit": {
                     "default": 10,
+                    "description": "Maximum posts to return (1-100, default 10)",
                     "type": "integer",
                     "minimum": 1,
                     "maximum": 100
@@ -36821,7 +36826,7 @@
       "post": {
         "operationId": "getSocialProfile",
         "summary": "Get a social profile",
-        "description": "Reads a LinkedIn or Instagram profile by identifier from a connected account. On LinkedIn the identifier is the public identifier or a provider member id (use 'me' for the account owner); on Instagram it is the username. Requires a connected LinkedIn or Instagram account.",
+        "description": "Reads a person or company profile from a connected account. For a person, keep profileType=person and pass 'me', a top-level provider profile id, a LinkedIn Classic public_identifier, or an Instagram username; specifics.member_id is not a valid identifier. For a LinkedIn company, set profileType=company and pass its company id. Company lookup is LinkedIn-only.",
         "tags": [
           "messaging"
         ],
@@ -36840,11 +36845,22 @@
                   "connectedAccountId": {
                     "type": "string",
                     "format": "uuid",
-                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                    "description": "Connected LinkedIn or Instagram account ID"
                   },
                   "identifier": {
                     "type": "string",
-                    "minLength": 1
+                    "minLength": 1,
+                    "description": "Person: 'me', a top-level profile/participant id, or a LinkedIn Classic public_identifier; never specifics.member_id. LinkedIn company: a company id with profileType=company"
+                  },
+                  "profileType": {
+                    "default": "person",
+                    "description": "Profile kind. Use company only with a connected LinkedIn account",
+                    "type": "string",
+                    "enum": [
+                      "person",
+                      "company"
+                    ]
                   }
                 },
                 "required": [
@@ -36869,7 +36885,8 @@
                           "type": "string",
                           "enum": [
                             "User",
-                            "UserProfile"
+                            "UserProfile",
+                            "CompanyProfile"
                           ]
                         },
                         {
@@ -36878,7 +36895,8 @@
                       ]
                     },
                     "id": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "Provider profile ID accepted as the identifier for follow-up profile operations"
                     },
                     "type": {
                       "anyOf": [
@@ -36896,6 +36914,7 @@
                       ]
                     },
                     "public_identifier": {
+                      "description": "Public profile slug, accepted as an identifier for LinkedIn Classic person lookups",
                       "anyOf": [
                         {
                           "type": "string"
@@ -36971,6 +36990,7 @@
                           "type": "object",
                           "properties": {
                             "member_id": {
+                              "description": "LinkedIn-internal member metadata. Do not use this as a profile identifier",
                               "anyOf": [
                                 {
                                   "type": "string"
