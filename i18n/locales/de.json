@@ -557,6 +557,7 @@
       "unexpectedError": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
       "updated": "Aktualisiert"
     },
+    "pageNumber": "Seite {page}",
     "probability": "Wahrscheinlichkeit",
     "providers": {
       "google": "Gmail",
@@ -567,6 +568,7 @@
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
+    "relatedPages": "Verwandte Seiten",
     "setAsDefault": "Als Standard festlegen",
     "sidebar": {
       "description": "Zeigt die mobile Seitenleiste an.",

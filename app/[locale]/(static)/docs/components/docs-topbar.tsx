@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/breadcrumb";
 
 import { ShellHeader } from "@/app/components/shell-header";
+import { LocaleMenu } from "@/components/shared/locale-menu";
+import { ThemeSwitcher } from "@/components/shared/theme-switcher";
 
 import { isDocItemActive, normalizeDocsPath, useDocGroups } from "./docs-sidebar";
 
@@ -35,7 +37,15 @@ export function DocsTopBar() {
   const rootLabel = t("DocsSidebar.introduction");
 
   return (
-    <ShellHeader>
+    <ShellHeader
+      actions={
+        <div className="flex items-center gap-1">
+          <LocaleMenu align="end" />
+
+          <ThemeSwitcher />
+        </div>
+      }
+    >
       <Breadcrumb aria-label={t("Common.ariaLabels.breadcrumb")} className="min-w-0">
         <BreadcrumbList className="flex-nowrap">
           <BreadcrumbItem className="shrink-0">

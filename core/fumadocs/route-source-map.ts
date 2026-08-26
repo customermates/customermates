@@ -10,6 +10,7 @@ import {
   blogSource,
   comparePagesSource,
   compareSource,
+  contactSource,
   docsSource,
   featurePagesSource,
   featuresAllSource,
@@ -123,6 +124,10 @@ export const ROUTE_SOURCE_MAP = {
     source: docsSource,
     path: [":slug"],
   },
+  "/contact": {
+    source: contactSource,
+    path: ["contact"],
+  },
   "/docs/openapi": {
     source: apiOverviewSource,
     path: ["openapi"],
@@ -132,6 +137,6 @@ export const ROUTE_SOURCE_MAP = {
     path: [":slug"],
   },
 } satisfies Record<
-  (typeof PUBLIC_ROUTES_SEO)[number] | "/docs/openapi" | "/docs/openapi/:slug",
+  (typeof PUBLIC_ROUTES_SEO)[number] | "/contact" | "/docs/openapi" | "/docs/openapi/:slug",
   { source: unknown; path: string[] }
 >;

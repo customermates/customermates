@@ -89,7 +89,7 @@
     },
     {
       "files": [
-        "components/shared/language-selector.tsx",
+        "components/shared/locale-menu.tsx",
         "**/profile-settings-form.tsx",
         "**/subscription-expired-view.tsx",
         "**/mcp-consent-card.tsx"
@@ -189,7 +189,7 @@
         "selector": "CallExpression[callee.name='useTranslations'][arguments.length>0]"
       },
       {
-        "message": "Avoid 'window.location.href = ...' \u2014 it bypasses the unsaved-changes guard. Either use the router from '@/i18n/navigation' or wrap the assignment in 'navigationGuard.tryNavigate(...)' (see components/shared/language-selector.tsx for an example).",
+        "message": "Avoid 'window.location.href = ...' \u2014 it bypasses the unsaved-changes guard. Either use the router from '@/i18n/navigation' or wrap the assignment in 'navigationGuard.tryNavigate(...)' (see components/shared/locale-menu.tsx for an example).",
         "selector": "AssignmentExpression[left.object.object.name='window'][left.object.property.name='location'][left.property.name='href']"
       }
     ],

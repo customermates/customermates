@@ -557,6 +557,7 @@
       "unexpectedError": "Une erreur est survenue. Veuillez réessayer.",
       "updated": "Mis à jour"
     },
+    "pageNumber": "Page {page}",
     "probability": "Probabilité",
     "providers": {
       "google": "Gmail",
@@ -567,6 +568,7 @@
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
+    "relatedPages": "Pages associées",
     "setAsDefault": "Définir par défaut",
     "sidebar": {
       "description": "Affiche la barre latérale mobile.",

@@ -400,34 +400,36 @@ Für Teams, die maximale Automatisierung bei minimalen Kosten wollen, liefert Cu
 
 ## Häufig gestellte Fragen
 
-### Kann ChatGPT wirklich einen menschlichen SDR bei der Lead-Qualifizierung ersetzen?
-
+<Faq>
+<FaqItem question="Kann ChatGPT wirklich einen menschlichen SDR bei der Lead-Qualifizierung ersetzen?">
 Nicht vollständig. ChatGPT glänzt beim initialen Scoring-Durchlauf, Frameworks konsistent und skalierbar anwenden. Aber es kann das Urteilsvermögen, die Beziehungsintelligenz und die Intuition eines erfahrenen SDR nicht ersetzen. Der beste Ansatz ist hybrid: KI bewertet und routet, Menschen prüfen und handeln.
+</FaqItem>
 
-### Mit welchem Framework sollte man starten?
-
+<FaqItem question="Mit welchem Framework sollte man starten?">
 Starten Sie mit BANT, wenn Ihre durchschnittliche Deal-Größe unter 10.000 EUR liegt und Ihr Vertriebszyklus kürzer als 30 Tage ist. Nutzen Sie ANUM, wenn Ihr Outbound-Team die Entscheidungsbefugnis schnell validieren muss. Probieren Sie FAINT, wenn Sie an Unternehmen verkaufen, die noch kein Budget für Ihre Lösungskategorie eingeplant haben. Wechseln Sie zu MEDDIC, wenn Sie regelmäßig an Buying-Committees mit mehrmonatigen Zeitrahmen verkaufen. Sie können den Prompt jederzeit erweitern, ohne den Workflow neu aufbauen zu müssen.
+</FaqItem>
 
-### Wie genau ist ChatGPT beim Lead-Scoring?
-
+<FaqItem question="Wie genau ist ChatGPT beim Lead-Scoring?">
 Die Genauigkeit hängt von der Eingabequalität ab. Bei detaillierten Formular-Eingaben oder E-Mail-Verläufen erreicht ChatGPT eine Scoring-Konsistenz, die mit einem trainierten SDR vergleichbar ist. Bei spärlichen Daten (nur Name und E-Mail) sinkt die Genauigkeit erheblich. Das System ist am wertvollsten, wenn Leads substantielle Informationen über ihre Bedürfnisse liefern.
+</FaqItem>
 
-### Funktioniert der n8n-Workflow mit GPT-4o und GPT-3.5?
-
+<FaqItem question="Funktioniert der n8n-Workflow mit GPT-4o und GPT-3.5?">
 Ja. Beide Modelle funktionieren mit den Scoring-Prompts. GPT-4o liefert differenzierteres Scoring und kommt besser mit uneindeutigen Signalen zurecht. GPT-3.5 ist schneller und günstiger, übersieht aber möglicherweise subtile Kaufsignale. Für die meisten Teams lohnt sich der geringe Kostenunterschied zugunsten von GPT-4o.
+</FaqItem>
 
-### Wie gehe ich mit Leads um, die ChatGPT falsch bewertet?
-
+<FaqItem question="Wie gehe ich mit Leads um, die ChatGPT falsch bewertet?">
 Bauen Sie eine Feedback-Schleife ein. Wenn ein Vertriebsmitarbeiter mit einem KI-Score nicht einverstanden ist, aktualisiert er die Klassifizierung manuell im CRM. Überprüfen Sie diese Korrekturen regelmäßig, um Ihren Prompt zu verfeinern. Häufige Anpassungen umfassen das Hinzufügen branchenspezifischer Signal-Definitionen oder die Justierung der Score-Schwellenwerte für Ihren Markt.
+</FaqItem>
 
-### Ist es DSGVO-konform, Lead-Daten an ChatGPT zu senden?
-
+<FaqItem question="Ist es DSGVO-konform, Lead-Daten an ChatGPT zu senden?">
 Bei Nutzung der OpenAI-API mit Business-Vereinbarung und AVV werden Daten verarbeitet, aber nicht für Training verwendet. Für maximale Compliance minimieren Sie die gesendeten personenbezogenen Daten (Firmenname und Nachrichteninhalt statt persönlicher E-Mail-Adressen) und erwägen Sie ein selbst gehostetes LLM über Ollama für sensible Daten. Auf CRM-Seite speichert Customermates Daten standardmäßig in der EU und stellt AVV und SCCs bereit, besitzt aber keine Compliance-Zertifizierung.
+</FaqItem>
 
-### Lohnt sich Automatisierung auch bei nur 20 Leads pro Monat?
-
+<FaqItem question="Lohnt sich Automatisierung auch bei nur 20 Leads pro Monat?">
 Selbst bei geringem Volumen ist der Konsistenz-Vorteil relevant. Manuelles Scoring bei 20 Leads pro Monat dauert zwar weniger lang, aber das Inkonsistenz-Problem bleibt bestehen. Wenn mehr als eine Person in Ihrem Team Leads bewertet, stellt Automatisierung sicher, dass alle dieselben Kriterien verwenden. Die Einrichtungszeit (2-3 Stunden) amortisiert sich innerhalb des ersten Monats durch weniger Scoring-Diskrepanzen und schnellere Reaktionszeiten.
+</FaqItem>
 
-### Wie gehe ich mit Referral-Leads um, die kaum schriftliche Daten haben?
-
+<FaqItem question="Wie gehe ich mit Referral-Leads um, die kaum schriftliche Daten haben?">
 Für Referral-Leads mit minimalen Textdaten erstellen Sie einen spezialisierten Prompt, der die Empfehlungsquelle stark gewichtet. Fügen Sie Kontext hinzu wie "Dieser Lead wurde von [Partnername] empfohlen, einem vertrauenswürdigen Partner" und weisen Sie ChatGPT an, Authority und Vertrauen bei verifizierten Empfehlungen höher zu bewerten. Ergänzen Sie mit einem kurzen Qualifizierungsgespräch und füttern Sie die Gesprächsnotizen erneut in den Scoring-Prompt für eine aktualisierte Bewertung.
+</FaqItem>
+</Faq>

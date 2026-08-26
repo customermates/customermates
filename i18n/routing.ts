@@ -5,6 +5,13 @@ import { defineRouting } from "next-intl/routing";
 import { APP_LOCALES, CONTENT_LOCALES, DEFAULT_LOCALE, ROUTING_LOCALES } from "./locale-registry";
 import { CONTENT_LOCALE_COOKIE_NAME, LOCALE_COOKIE_MAX_AGE } from "./locale-preference";
 
+export const NOINDEX_PUBLIC_ROUTES = [
+  "/auth/signin",
+  "/auth/signup",
+  "/auth/forgot-password",
+  "/auth/reset-password",
+] as const;
+
 export const PUBLIC_ROUTES_SEO = [
   "/",
   "/auth/signin",
@@ -32,6 +39,20 @@ export const PUBLIC_ROUTES_SEO = [
   "/docs",
   "/docs/:slug",
 ] as const;
+
+export type PublicSeoRoute = (typeof PUBLIC_ROUTES_SEO)[number];
+
+const NOINDEX_ROUTE_SET: ReadonlySet<string> = new Set<string>([...NOINDEX_PUBLIC_ROUTES, "/docs/openapi/:slug"]);
+
+export function isNoindexPublicRoute(route: string): boolean {
+  return NOINDEX_ROUTE_SET.has(route);
+}
+
+export const SITEMAP_CONTENT_ROUTES: readonly PublicSeoRoute[] = PUBLIC_ROUTES_SEO.filter(
+  (route): route is PublicSeoRoute => !NOINDEX_ROUTE_SET.has(route),
+);
+
+export const SITEMAP_EXTRA_CONTENT_ROUTES = ["/contact", "/docs/openapi"] as const;
 
 export const PUBLIC_ROUTES = [
   ...PUBLIC_ROUTES_SEO,

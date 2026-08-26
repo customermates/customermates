@@ -159,40 +159,42 @@ Das richtige Framing: Agentforce funktioniert für Salesforce-Häuser, die ihre 
 
 ## Häufig gestellte Fragen
 
-**Ist Agentforce nur ein Chatbot?**
-
+<Faq>
+<FaqItem question="Ist Agentforce nur ein Chatbot?">
 Nein. Die Orchestrierungsschicht (Atlas Reasoning Engine) plant mehrstufige Aktionen: einen Interessenten recherchieren, eine personalisierte E-Mail entwerfen, sie senden, die Aktivität protokollieren, das Follow-up planen. Chatbots reagieren auf Nachrichten; Agentforce-Agenten handeln über Systeme hinweg.
+</FaqItem>
 
-**Funktioniert Agentforce ohne Salesforce?**
-
+<FaqItem question="Funktioniert Agentforce ohne Salesforce?">
 Nicht wirklich. Agentforce sitzt auf der Salesforce-Datenschicht. Ohne Sales Cloud, Service Cloud oder Data Cloud als Host können Sie Agentforce nicht ausrollen. Salesforce kündigt gelegentlich eigenständige Funktionen an, aber die Kernarchitektur setzt eine Salesforce-Plattform darunter voraus.
+</FaqItem>
 
-**Wie unterscheidet sich Agentforce von Einstein?**
-
+<FaqItem question="Wie unterscheidet sich Agentforce von Einstein?">
 Einstein ist Salesforces ältere KI-Suite: prädiktive Funktionen, Scoring, GPT-artige Inhaltserzeugung in Sales Cloud und Service Cloud. Agentforce ist die neuere, autonomere Kategorie: Agenten, die mehrstufige Aktionen ausführen, nicht nur Vorhersagen oder generierte Inhalte. Einstein existiert weiter; Agentforce ist die strategische Priorität auf Salesforces KI-Roadmap.
+</FaqItem>
 
-**Kann ich Claude oder GPT mit Agentforce nutzen?**
-
+<FaqItem question="Kann ich Claude oder GPT mit Agentforce nutzen?">
 Über BYOM (bring your own model) ja, aber nicht standardmäßig. Salesforce hostet einen eigenen LLM-Stack und routet die meisten Anfragen darüber. BYOM bringt Konfigurationsaufwand und Kosten mit.
+</FaqItem>
 
-**Was ist die beste Agentforce-Alternative für kleine Teams?**
-
+<FaqItem question="Was ist die beste Agentforce-Alternative für kleine Teams?">
 Für Teams unter 50 Nutzern ohne bestehendes Salesforce ist die kosteneffizienteste Alternative ein Open-Source-CRM mit MCP-Unterstützung plus Ihr bevorzugtes LLM. [Customermates](/blog/open-source-crm) plus Claude oder ChatGPT liefert einen großen Teil der relevanten Agent-Erfahrung zu deutlich niedrigeren Softwarekosten. Der Trade-off ist das kleinere Integrations-Ökosystem; für viele kleine Teams ist das nicht die bindende Begrenzung.
+</FaqItem>
 
-**Was kostet Agentforce für kleine Teams?**
-
+<FaqItem question="Was kostet Agentforce für kleine Teams?">
 Die realistischen Mindestkosten für Agentforce sind die Salesforce-Plattform-Lizenz plus die Agentforce-Nutzung. Für ein 10-Personen-Team sind das grob 2.000 bis 5.000 US-Dollar pro Monat für Sales Cloud Enterprise plus Agentforce, vor Implementierung. Die meisten kleinen Teams können das nicht rechtfertigen. Zum Vergleich kostet das Customermates-Starter-Abo für dasselbe Team [[commercial.price.starter.monthly.seats.10]] pro Monat vor der gemessenen Claude-API-Nutzung beim gewählten Anbieter.
+</FaqItem>
 
-**Wie migriere ich später von Agentforce, falls nötig?**
-
+<FaqItem question="Wie migriere ich später von Agentforce, falls nötig?">
 Migration weg von Agentforce bedeutet Migration weg von Salesforce, was ein Mehr-Quartals-Projekt ist. Der Datenexport ist unkompliziert (Salesforce unterstützt ihn gut), aber das Neuaufbauen von Agenten, Integrationen und Workflows auf einer neuen Plattform ist der langsame Teil. Planen Sie 3 bis 9 Monate für eine mittelgroße Migration mit Partner.
+</FaqItem>
 
-**Ist Agentforce DSGVO-konform?**
-
+<FaqItem question="Ist Agentforce DSGVO-konform?">
 Salesforce hat detaillierte AVVs und EU-Datenresidenz-Optionen für Agentforce. Der Einstein Trust Layer ergänzt spezifische Schutzfunktionen (PII-Maskierung, Audit-Logging), die die Compliance-Lage vereinfachen. Für die meisten Anwendungsfälle ist Agentforce DSGVO-tauglich; für regulierte Sektoren mit strikten Datensouveränitäts-Anforderungen bleibt Self-Hosting auf EU-Infrastruktur der sauberste Weg.
+</FaqItem>
 
-**Wohin entwickelt sich Agentforce?**
-
+<FaqItem question="Wohin entwickelt sich Agentforce?">
 Salesforces erklärte Roadmap setzt Agentforce als strategische Priorität: mehr vorgefertigte Agenten (Sales Coach, Personal Shopper, IT Service Agent), tiefere Slack- und Tableau-Integration, Marktplatz für Drittanbieter-Agenten. Das Tempo neuer Funktionen ist hoch. Die Kostenentwicklung ist die offene Frage; das Pricing wurde in 18 Monaten zweimal geändert und wird sich vermutlich weiter ändern.
 
 Die ehrliche Einordnung: Wer ohnehin Salesforce nutzt, sollte Agentforce als die natürliche Agenten-Schicht für die bestehende Investition prüfen. Wer Salesforce nicht nutzt, sollte es gegen Open-Source-Alternativen abwägen, die 80 bis 90 Prozent des Werts zu deutlich geringeren Kosten liefern.
+</FaqItem>
+</Faq>

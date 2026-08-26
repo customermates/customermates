@@ -283,34 +283,36 @@ For teams that want to combine AI summarization with CRM automation at a low tot
 
 ## Frequently Asked Questions
 
-### Can ChatGPT accurately summarize technical meeting notes?
-
+<Faq>
+<FaqItem question="Can ChatGPT accurately summarize technical meeting notes?">
 Yes. ChatGPT handles technical content well, including product specifications, software requirements, and integration discussions. For highly specialized domains, include a brief context line in your prompt (e.g., "This is a B2B SaaS sales call about CRM software") to improve accuracy.
+</FaqItem>
 
-### Is it safe to paste customer meeting notes into ChatGPT?
-
+<FaqItem question="Is it safe to paste customer meeting notes into ChatGPT?">
 If you use the ChatGPT API with a business account, OpenAI does not use your data for training. The consumer ChatGPT interface has different terms. For maximum safety, use the API through n8n and consider a local LLM for sensitive industries like healthcare or finance.
+</FaqItem>
 
-### How long can the input meeting notes be?
-
+<FaqItem question="How long can the input meeting notes be?">
 GPT-4o supports up to 128,000 tokens of input, which is roughly 96,000 words. Even a two-hour meeting transcript fits comfortably. For very long transcripts, the summary quality remains high because the model processes the full context.
+</FaqItem>
 
-### Can I use this workflow with meeting recording tools like Fireflies, Otter, or Fathom?
-
+<FaqItem question="Can I use this workflow with meeting recording tools like Fireflies, Otter, or Fathom?">
 Yes. Fireflies sends transcripts to a webhook URL directly, which is the easiest path for n8n automation. Otter.ai and Fathom offer API exports that can be polled or triggered from n8n. Set up the webhook trigger in n8n, configure the connection in your meeting tool's integration settings, and the automation runs every time a meeting ends.
+</FaqItem>
 
-### What if ChatGPT gets something wrong in the summary?
-
+<FaqItem question="What if ChatGPT gets something wrong in the summary?">
 AI summaries should always be reviewed before they become the official CRM record. Build a review step into your workflow, either a manual check or an n8n node that sends the summary to the deal owner for approval before writing it to the CRM. Errors are rare but they happen, especially with ambiguous phrasing or multiple speakers.
+</FaqItem>
 
-### How does this compare to built-in meeting AI in tools like Fathom or Fireflies?
-
+<FaqItem question="How does this compare to built-in meeting AI in tools like Fathom or Fireflies?">
 Built-in meeting AI produces generic summaries optimized for that tool's format. ChatGPT with a custom prompt produces output structured for your specific CRM fields and team conventions. The two complement each other: use the meeting tool for real-time transcription and ChatGPT for CRM-optimized summaries.
+</FaqItem>
 
-### Does this work with CRM systems other than Customermates?
-
+<FaqItem question="Does this work with CRM systems other than Customermates?">
 Yes. The n8n workflow works with any CRM that has an API or n8n integration. HubSpot, Pipedrive, Salesforce, Zoho, and many others are supported. The ChatGPT summarization step is CRM-agnostic, only the final "write to CRM" node changes depending on your system.
+</FaqItem>
 
-### Can I summarize meeting notes in German or other languages?
-
+<FaqItem question="Can I summarize meeting notes in German or other languages?">
 Yes. ChatGPT handles multilingual input and output. You can submit German meeting notes and receive a German summary, or even instruct ChatGPT to summarize German notes in English (or vice versa). Add a language instruction to your prompt: "Summarize in German" or "Fasse auf Deutsch zusammen."
+</FaqItem>
+</Faq>

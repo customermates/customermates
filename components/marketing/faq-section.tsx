@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Faq, FaqItem } from "./faq";
 import { AppLink } from "@/components/shared/app-link";
 
 type FAQItem = {
@@ -56,19 +56,13 @@ export async function FAQSection({ faqs, title }: Props) {
         </div>
       </div>
 
-      <Accordion collapsible className="flex flex-col gap-3" defaultValue={faqs[0].id} type="single">
+      <Faq>
         {faqs.map((faq) => (
-          <AccordionItem
-            key={faq.id}
-            className="rounded-xl border border-border bg-card px-2 last:border-b"
-            value={faq.id}
-          >
-            <AccordionTrigger className="text-x-lg px-4 py-5">{faq.title}</AccordionTrigger>
-
-            <AccordionContent className="text-x-lg px-4 pb-5">{faq.content}</AccordionContent>
-          </AccordionItem>
+          <FaqItem key={faq.id} question={faq.title}>
+            {faq.content}
+          </FaqItem>
         ))}
-      </Accordion>
+      </Faq>
     </section>
   );
 }

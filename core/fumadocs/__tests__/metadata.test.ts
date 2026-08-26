@@ -15,6 +15,7 @@ vi.mock("../route-source-map", () => {
   return {
     ROUTE_SOURCE_MAP: {
       "/blog/:slug": { path: [":slug"], source },
+      "/imprint": { path: ["imprint"], source },
       "/pricing": { path: ["pricing"], source },
     },
   };
@@ -99,34 +100,50 @@ describe("generateMetadataFromMeta", () => {
     expect(metadata.description).toBeUndefined();
   });
 
-  it("returns empty metadata when the localized page is missing", () => {
-    expect(
+  it("sends a slug with no page to the 404, never to a canonical-less 200", () => {
+    expect(() =>
       generateMetadataFromMeta({
         locale: "de",
         params: { slug: "best-crm" },
         route: "/blog/:slug",
       }),
-    ).toEqual({});
-    expect(
+    ).toThrow(/NEXT_HTTP_ERROR_FALLBACK;404/);
+    expect(() =>
       generateMetadataFromMeta({
         locale: "en",
         params: { slug: "nope" },
         route: "/blog/:slug",
       }),
-    ).toEqual({});
+    ).toThrow(/NEXT_HTTP_ERROR_FALLBACK;404/);
   });
 
-  it("returns empty metadata for a dynamic route invoked without its params", () => {
-    expect(generateMetadataFromMeta({ locale: "en", route: "/blog/:slug" })).toEqual({});
+  it("sends a dynamic route invoked without its params to the 404", () => {
+    expect(() => generateMetadataFromMeta({ locale: "en", route: "/blog/:slug" })).toThrow(
+      /NEXT_HTTP_ERROR_FALLBACK;404/,
+    );
   });
 
-  it("returns empty metadata when the page title is blank", () => {
+  it("refuses to build metadata for a static route no content page backs", () => {
     expect(
+      () => generateMetadataFromMeta({ locale: "en", route: "/imprint" }),
+      "a mapped route with no page is a build-time bug; returning {} shipped 206 canonical-less URLs",
+    ).toThrow(/No content page backs \/imprint in locale en/);
+  });
+
+  it("sends a locale that publishes no content to the 404 rather than failing the build", () => {
+    expect(
+      () => generateMetadataFromMeta({ locale: "fr", route: "/pricing" }),
+      "fr is a routing-only locale, so a request for it is a bad URL and not a build bug",
+    ).toThrow(/NEXT_HTTP_ERROR_FALLBACK;404/);
+  });
+
+  it("refuses a page whose title is blank", () => {
+    expect(() =>
       generateMetadataFromMeta({
         locale: "en",
         params: { slug: "untitled" },
         route: "/blog/:slug",
       }),
-    ).toEqual({});
+    ).toThrow(/has no title/);
   });
 });

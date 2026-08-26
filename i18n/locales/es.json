@@ -557,6 +557,7 @@
       "unexpectedError": "Algo ha fallado. Inténtalo de nuevo.",
       "updated": "Actualizado"
     },
+    "pageNumber": "Página {page}",
     "probability": "Probabilidad",
     "providers": {
       "google": "Gmail",
@@ -567,6 +568,7 @@
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
+    "relatedPages": "Páginas relacionadas",
     "setAsDefault": "Establecer como predeterminado",
     "sidebar": {
       "description": "Muestra la barra lateral móvil.",

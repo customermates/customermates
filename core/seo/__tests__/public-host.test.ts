@@ -13,6 +13,9 @@ describe("public host classification", () => {
   it.each([
     ["customermates.com", false],
     ["customermates.com:443", false],
+    ["www.customermates.com", false],
+    ["www.customermates.com:443", false],
+    ["www.preview.customermates.com", true],
     ["app.customermates.com", true],
     ["fix-page-shipping-contracts.customermates.com", true],
     ["customermates-git-main-customermates.vercel.app", true],

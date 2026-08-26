@@ -5,42 +5,71 @@ import { env } from "@/env";
 import { assembleSitemap } from "@/core/seo/sitemap";
 import { hubPageCountForSource, hubPageHref } from "@/core/seo/hub-pagination";
 import { LANDING_HUBS } from "@/core/seo/landing-hubs";
+import { isRetiredRoutePath } from "@/core/seo/route-aliases";
 import { CONTENT_LOCALES, stripLocalePrefix } from "@/i18n/locale-registry";
-import { PUBLIC_ROUTES_SEO } from "@/i18n/routing";
+import { SITEMAP_CONTENT_ROUTES, SITEMAP_EXTRA_CONTENT_ROUTES } from "@/i18n/routing";
 import { ROUTE_SOURCE_MAP } from "@/core/fumadocs/route-source-map";
 
-function getLastModified(lastModified: Date | number | undefined) {
-  if (!lastModified) return undefined;
-  const date = lastModified instanceof Date ? lastModified : new Date(lastModified);
+type DatedPage = { blogPost?: { date?: string } };
+
+function declaredLastModified(data: object): Date | undefined {
+  const declared = (data as DatedPage).blogPost?.date;
+  if (!declared) return undefined;
+
+  const date = new Date(declared);
   return isNaN(date.getTime()) ? undefined : date;
 }
 
 function collectLocalizedRoutes(): LocalizedRoute[] {
   const localizedRoutes: LocalizedRoute[] = [];
+  const emitted = new Set<string>();
+
+  const push = (route: LocalizedRoute) => {
+    const key = `${route.locale}:${route.routePath}`;
+    if (emitted.has(key)) return;
+    emitted.add(key);
+    localizedRoutes.push(route);
+  };
 
   for (const locale of CONTENT_LOCALES) {
-    for (const route of PUBLIC_ROUTES_SEO) {
+    for (const route of SITEMAP_CONTENT_ROUTES) {
       const routeMapping = ROUTE_SOURCE_MAP[route];
 
       if (route.includes(":")) {
         for (const page of routeMapping.source.getPages(locale)) {
           if (!page.url) continue;
-          localizedRoutes.push({
+          const routePath = stripLocalePrefix(page.url);
+          if (isRetiredRoutePath(routePath)) continue;
+          push({
             locale,
-            routePath: stripLocalePrefix(page.url),
-            lastModified: getLastModified(page.data.lastModified),
+            routePath,
+            lastModified: declaredLastModified(page.data),
           });
         }
         continue;
       }
 
+      if (isRetiredRoutePath(route)) continue;
+
       const page = routeMapping.source.getPage(routeMapping.path, locale);
       if (!page) continue;
 
-      localizedRoutes.push({
+      push({
         locale,
         routePath: route,
-        lastModified: getLastModified(page.data.lastModified),
+        lastModified: declaredLastModified(page.data),
+      });
+    }
+
+    for (const route of SITEMAP_EXTRA_CONTENT_ROUTES) {
+      const routeMapping = ROUTE_SOURCE_MAP[route];
+      const page = routeMapping.source.getPage(routeMapping.path, locale);
+      if (!page) continue;
+
+      push({
+        locale,
+        routePath: route,
+        lastModified: declaredLastModified(page.data),
       });
     }
 
@@ -49,7 +78,7 @@ function collectLocalizedRoutes(): LocalizedRoute[] {
       const pageCount = hubPageCountForSource(source);
 
       for (let page = 2; page <= pageCount; page++) {
-        localizedRoutes.push({
+        push({
           locale,
           routePath: hubPageHref(hub.hubPath, page),
         });
@@ -61,5 +90,5 @@ function collectLocalizedRoutes(): LocalizedRoute[] {
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return assembleSitemap(collectLocalizedRoutes(), env.BASE_URL, new Date());
+  return assembleSitemap(collectLocalizedRoutes(), env.BASE_URL);
 }

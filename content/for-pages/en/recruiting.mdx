@@ -177,38 +177,47 @@ Compare this to enterprise recruiting platforms that price per seat at €100 to
 
 ## Frequently asked questions
 
-**Is Customermates a CRM or an ATS?**
-
+<Faq>
+<FaqItem question="Is Customermates a CRM or an ATS?">
 It is a recruiting CRM, designed for relationship management, candidate pipelines, and client tracking. It does not include native job-board syndication or a high-volume inbound application form. If you need ATS functionality, connect a dedicated ATS through the [API](/features/api) and run them side by side.
+</FaqItem>
 
-**Can a recruiting agency really use Customermates instead of Bullhorn or Crelate?**
-
+<FaqItem question="Can a recruiting agency really use Customermates instead of Bullhorn or Crelate?">
 Yes, for most relationship-led search work. Agencies use Customermates for executive search, contract recruiting, retained mandates, and small-to-mid agency work. If your firm depends on heavy job-board posting, on-platform invoicing automation, or specific staffing-industry compliance reports, a recruiting-specific ATS-CRM hybrid like Bullhorn may still fit better. Run a [[commercial.trial.days]]-day trial and see.
+</FaqItem>
 
-**Does Customermates handle CV parsing?**
-
+<FaqItem question="Does Customermates handle CV parsing?">
 Native CV parsing is on the roadmap, not in the product today. The agent-native design means you can connect a CV parsing service through the API or use Claude through MCP to read a PDF and write structured fields back to the candidate record. Most agencies who self-host already do this.
+</FaqItem>
 
-**What does "agent-native" mean for a recruiting CRM?**
-
+<FaqItem question={"What does \"agent-native\" mean for a recruiting CRM?"}>
 It means Claude, Codex, ChatGPT, or any MCP-compatible AI agent can read and write to your recruiting CRM directly. The agent handles the data entry: read your inbox after a screening call and update the candidate record, draft a personalized follow-up based on the conversation, set the next reminder, and move the candidate to the next pipeline stage. The recruiter focuses on the conversation. The CRM updates itself.
+</FaqItem>
 
-**Is Customermates GDPR-compliant for European recruiting?**
-
+<FaqItem question="Is Customermates GDPR-compliant for European recruiting?">
 Yes. EU-hosted cloud runs on European infrastructure with a EU-only data residency commitment. Self-hosted gives you full control over jurisdiction. Either way, you keep ownership of candidate data, and the open source license means there is no vendor lock-in.
+</FaqItem>
 
-**How long does it take to migrate from another recruiting CRM?**
-
+<FaqItem question="How long does it take to migrate from another recruiting CRM?">
 Customermates has no CSV uploader, bulk-import workflow, or field-mapping screen. Prepare and map source data outside the product, create supported records through the [REST API](/features/api) or an external AI client over MCP, and verify the results in the CRM. Migration time depends on the source data and workflow.
+</FaqItem>
 
-**Can the recruiting CRM track contractor-to-permanent conversions?**
-
+<FaqItem question="Can the recruiting CRM track contractor-to-permanent conversions?">
 Yes. Set up the candidate pipeline with a stage called "On Assignment" and use custom fields for assignment start date and expected end date. A workflow rule fires 30 days before the end date and creates a follow-up task: "Discuss extension or new role with the candidate." That conversation becomes the source of permanent conversions, repeat placements, or fresh leads from the candidate's network. Staffing agencies that do this systematically convert 15% to 30% of contract roles into longer-term placements, instead of letting each engagement end cold.
+</FaqItem>
 
-**How does Customermates handle off-limits and confidential candidates?**
-
+<FaqItem question="How does Customermates handle off-limits and confidential candidates?">
 Off-limits status can be represented with a custom checkbox field on the contact record, plus a free-text reason and an expiry date. Permissions apply by resource and action with own-versus-all scope; Customermates has no private mandate or candidate-slate access model. For fully confidential mandates, design the process around those boundaries and assess self-hosting plus every connected provider separately.
+</FaqItem>
 
-**Can I build my own custom recruiting CRM instead?**
-
+<FaqItem question="Can I build my own custom recruiting CRM instead?">
 Some agencies do. We wrote a separate guide on the three honest paths to [build your own CRM](/blog/build-your-own-crm), with realistic costs and timelines. For most agencies, the math says: take an open-source CRM that already exists, customize what you need, and ship next week. That is what Customermates is for.
+</FaqItem>
+</Faq>
+
+<RelatedPages>
+  <RelatedPage href="/for/cleaning-companies" />
+  <RelatedPage href="/for/ecommerce" />
+  <RelatedPage href="/for/healthcare" />
+  <RelatedPage href="/for/restaurants" />
+</RelatedPages>

@@ -187,34 +187,36 @@ The mistake most teams make: jumping to week 4 in week 1. The data foundation is
 
 ## Frequently asked questions
 
-**What does "automated CRM" actually mean?**
-
+<Faq>
+<FaqItem question={"What does \"automated CRM\" actually mean?"}>
 A CRM where the system updates itself instead of waiting for the rep to type. Pipeline moves, follow-up tasks appear, contact notes get written, all without the rep clicking through forms. The agent-native version uses AI agents (Claude, ChatGPT, Gemini) connected via MCP or API to operate the CRM directly.
+</FaqItem>
 
-**Can I automate an existing CRM, or do I need a new one?**
-
+<FaqItem question="Can I automate an existing CRM, or do I need a new one?">
 Existing CRMs (HubSpot, Salesforce, Pipedrive) all have workflow rules and basic sequences; you can use n8n, Make, or Zapier to connect them to AI tools. The limitation is the depth of integration: most legacy CRMs were not built with agent operation in mind, so the agent has to work through API edges. Agent-native CRMs like Customermates expose richer interfaces ([[derived.mcp.tools.total]] MCP tools) that let the agent operate everything natively.
+</FaqItem>
 
-**What is the easiest first automation to set up?**
-
+<FaqItem question="What is the easiest first automation to set up?">
 Two-way email sync. Every email with a customer gets attached to their CRM record automatically. Cost: 30 minutes to configure. Value: the entire team's CRM hygiene improves overnight, without any change in rep behavior.
+</FaqItem>
 
-**Will an automated CRM replace my sales team?**
-
+<FaqItem question="Will an automated CRM replace my sales team?">
 No. It removes the data-entry tax from the team. The conversations, judgment calls, and relationship work stay human. The reps who use an automated CRM well close more deals than reps who type into the CRM manually.
+</FaqItem>
 
-**How much does an automated CRM cost?**
-
+<FaqItem question="How much does an automated CRM cost?">
 Managed Customermates starts at [[commercial.price.starter.monthly]] per user per month; HubSpot, Salesforce, and Pipedrive vary by tier. External automation platforms and AI APIs are separate, usage-dependent costs. Calculate the complete stack from the current CRM subscription, the automation service you choose, and measured model usage rather than relying on a fixed all-in range.
+</FaqItem>
 
-**Is open-source automated CRM worth it?**
-
+<FaqItem question="Is open-source automated CRM worth it?">
 Yes if you have basic technical skills or budget for managed hosting. The cost is server rent ($10-$30/month for a small team) instead of per-user pricing. The upside: no upgrade tax, no vendor lock-in, and the source code as your durable exit option. Customermates self-hosted is the same product as the cloud version, free under AGPL-3.0.
+</FaqItem>
 
-**How does CRM automation work with GDPR?**
-
+<FaqItem question="How does CRM automation work with GDPR?">
 Workflow rules and webhooks process personal data, so the CRM is a data processor and you need a Data Processing Agreement. AI agents that read CRM data create a second processor relationship with the LLM provider (Anthropic, OpenAI). Self-hosted CRM plus EU-hosted models eliminates Schrems II concerns; cloud CRM plus US LLM means signing two DPAs and accepting the residual risk.
+</FaqItem>
 
-**What is the relationship between CRM automation and AI agents?**
-
+<FaqItem question="What is the relationship between CRM automation and AI agents?">
 AI agents are the new automation layer. Workflow rules ("if X then Y") and sequences (multi-step messages) still matter, but the agent is what makes the CRM feel self-updating. The agent reads inputs the rules cannot (call transcripts, free-text emails) and writes outputs that rules cannot generate (contextual notes, drafted replies). For most teams in 2026, an agent over MCP is a bigger leverage point than ten more workflow rules.
+</FaqItem>
+</Faq>
