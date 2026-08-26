@@ -10,6 +10,7 @@ import { Prisma } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { normalizeFilters } from "@/core/base/filter-compat";
+import { EntityDetailOptionsSchema, type EntityDetailOptions } from "./p13n.schema";
 
 export type SavedFilterPreset = {
   id: string;
@@ -29,6 +30,7 @@ export interface P13nEntry {
   hiddenColumns?: string[];
   viewMode?: ViewMode;
   groupingColumnId?: string;
+  detailOptions?: EntityDetailOptions;
 }
 
 function normalizeStoredFilters(value: unknown): Filter[] | undefined {
@@ -41,8 +43,16 @@ function normalizeStoredFilterPresets(value: unknown): SavedFilterPreset[] | und
   return (value as unknown as SavedFilterPreset[]).map((preset) => {
     if (!preset || typeof preset !== "object") return preset;
 
-    return { ...preset, filters: normalizeStoredFilters(preset.filters) ?? preset.filters };
+    return {
+      ...preset,
+      filters: normalizeStoredFilters(preset.filters) ?? preset.filters,
+    };
   });
+}
+
+function normalizeDetailOptions(value: unknown): EntityDetailOptions | undefined {
+  const parsed = EntityDetailOptionsSchema.safeParse(value);
+  return parsed.success ? parsed.data : undefined;
 }
 
 export class PrismaP13nRepo
@@ -53,7 +63,10 @@ export class PrismaP13nRepo
     const { companyId, id: userId } = this.user;
 
     const res = await this.prisma.p13n.findUnique({
-      where: { companyId_userId_p13nId: { companyId, userId, p13nId }, companyId },
+      where: {
+        companyId_userId_p13nId: { companyId, userId, p13nId },
+        companyId,
+      },
     });
 
     if (!res) return undefined;
@@ -69,6 +82,7 @@ export class PrismaP13nRepo
       hiddenColumns,
       viewMode,
       groupingColumnId,
+      detailOptions,
     } = res;
 
     return {
@@ -83,6 +97,7 @@ export class PrismaP13nRepo
       hiddenColumns,
       viewMode: (viewMode as ViewMode | null) ?? undefined,
       groupingColumnId: groupingColumnId ?? undefined,
+      detailOptions: normalizeDetailOptions(detailOptions),
     };
   }
 
@@ -103,6 +118,7 @@ export class PrismaP13nRepo
       hiddenColumns: data.hiddenColumns ?? [],
       viewMode: data.viewMode ?? null,
       groupingColumnId: data.groupingColumnId ?? null,
+      detailOptions: data.detailOptions ?? Prisma.JsonNull,
     };
 
     const updateData = {
@@ -122,9 +138,13 @@ export class PrismaP13nRepo
     if (data.hiddenColumns !== undefined) updateData.hiddenColumns = data.hiddenColumns ?? [];
     if (data.viewMode !== undefined) updateData.viewMode = data.viewMode ?? null;
     if (data.groupingColumnId !== undefined) updateData.groupingColumnId = data.groupingColumnId ?? null;
+    if (data.detailOptions !== undefined) updateData.detailOptions = data.detailOptions ?? Prisma.JsonNull;
 
     const row = await this.prisma.p13n.upsert({
-      where: { companyId_userId_p13nId: { companyId, userId, p13nId }, companyId },
+      where: {
+        companyId_userId_p13nId: { companyId, userId, p13nId },
+        companyId,
+      },
       create: createData,
       update: updateData,
     });
@@ -141,6 +161,7 @@ export class PrismaP13nRepo
       hiddenColumns: row.hiddenColumns,
       viewMode: (row.viewMode as ViewMode | null) ?? undefined,
       groupingColumnId: row.groupingColumnId ?? undefined,
+      detailOptions: normalizeDetailOptions(row.detailOptions),
     };
   }
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 import { Fragment } from "react";
 import { observer } from "mobx-react-lite";
 import { Plus, Trash2 } from "lucide-react";
@@ -23,7 +25,12 @@ import { useColumnLabel } from "@/components/entity-terminology/use-column-label
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { terminologyLabelForSentence } from "@/features/entity-terminology/entity-terminology-label.utils";
 
-export const DealServicesSelection = observer(() => {
+type Props = {
+  labelEndAddon?: ReactNode;
+  showTotals?: boolean;
+};
+
+export const DealServicesSelection = observer(({ labelEndAddon, showTotals = true }: Props) => {
   const { dealDetailStore, userStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
   const {
@@ -49,7 +56,11 @@ export const DealServicesSelection = observer(() => {
     <div className="flex w-full flex-col space-y-2 items-start">
       <div className="w-full grid grid-cols-[minmax(40px,1fr)_minmax(70px,112px)_40px] gap-2 gap-y-3 items-center">
         <div className="flex items-center w-full min-w-0 gap-2">
-          <FormLabel className="block flex-1 truncate min-w-0">{plural(EntityType.service)}</FormLabel>
+          <div className="flex min-w-0 flex-1 items-center gap-1.5">
+            <FormLabel className="block truncate min-w-0">{plural(EntityType.service)}</FormLabel>
+
+            {labelEndAddon}
+          </div>
 
           <FormLabel className="block w-[4.5rem] shrink-0 text-right truncate">
             {t("DealModal.quantityLabel")}
@@ -181,7 +192,7 @@ export const DealServicesSelection = observer(() => {
         )}
       </div>
 
-      {(form.services || []).length > 0 && (
+      {showTotals && (form.services || []).length > 0 && (
         <div className="mt-3 flex w-full flex-col gap-1.5 pr-12">
           <InfoRow label={columnLabel("totalValue")}>
             <span className="text-x-md font-mono tabular-nums">{intlStore.formatCurrency(totalValue)}</span>

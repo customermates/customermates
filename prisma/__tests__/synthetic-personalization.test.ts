@@ -10,6 +10,7 @@ import {
   SortDescriptorSchema,
 } from "@/core/base/base-get.schema";
 import { ViewMode } from "@/core/base/base-query-builder";
+import { EntityDetailOptionsSchema } from "@/features/p13n/p13n.schema";
 
 import { SEED_IDS } from "../seeds/context";
 import { SYNTHETIC_CUSTOM_COLUMN_IDS, SYNTHETIC_CUSTOM_OPTION_IDS } from "../seeds/custom-fields";
@@ -29,11 +30,11 @@ const customFields = {
 };
 
 describe("synthetic personalization fixtures", () => {
-  it("maps all ten legacy views to deterministic current column, option, and user IDs", () => {
+  it("maps all legacy and entity-detail views to deterministic current column, option, and user IDs", () => {
     const fixtures = buildSyntheticP13nFixtures({ ids: SEED_IDS }, customFields);
     const byP13nId = new Map(fixtures.map((fixture) => [fixture.p13nId, fixture]));
 
-    expect(fixtures).toHaveLength(10);
+    expect(fixtures).toHaveLength(15);
     expect(fixtures.map(({ p13nId }) => p13nId)).toEqual([
       "contacts-card-store",
       "users-card-store",
@@ -45,18 +46,30 @@ describe("synthetic personalization fixtures", () => {
       "audit-logs-card-store",
       "webhook-deliveries-card-store",
       "organizations-card-store",
+      "contact-detail",
+      "organization-detail",
+      "deal-detail",
+      "service-detail",
+      "task-detail",
     ]);
     expect(new Set(fixtures.map(({ id }) => id))).toEqual(new Set(Object.values(SYNTHETIC_P13N_IDS)));
     expect(fixtures.every(({ companyId, userId }) => companyId === SEED_IDS.company && userId === SEED_IDS.user)).toBe(
       true,
     );
     for (const fixture of fixtures) {
-      expect(z.array(FilterSchema).safeParse(fixture.filters).success).toBe(true);
-      expect(z.array(SavedFilterPresetSchema).safeParse(fixture.savedFilterPresets).success).toBe(true);
-      expect(SortDescriptorSchema.safeParse(fixture.sortDescriptor).success).toBe(true);
-      expect(PaginationRequestSchema.safeParse(fixture.pagination).success).toBe(true);
-      if (fixture.viewMode !== null) expect(z.enum(ViewMode).safeParse(fixture.viewMode).success).toBe(true);
-      if (fixture.groupingColumnId !== null) expect(z.uuid().safeParse(fixture.groupingColumnId).success).toBe(true);
+      if (fixture.filters !== undefined) expect(z.array(FilterSchema).safeParse(fixture.filters).success).toBe(true);
+      if (fixture.savedFilterPresets !== undefined)
+        expect(z.array(SavedFilterPresetSchema).safeParse(fixture.savedFilterPresets).success).toBe(true);
+      if (fixture.sortDescriptor !== undefined)
+        expect(SortDescriptorSchema.safeParse(fixture.sortDescriptor).success).toBe(true);
+      if (fixture.pagination !== undefined)
+        expect(PaginationRequestSchema.safeParse(fixture.pagination).success).toBe(true);
+      if (fixture.viewMode !== undefined && fixture.viewMode !== null)
+        expect(z.enum(ViewMode).safeParse(fixture.viewMode).success).toBe(true);
+      if (fixture.groupingColumnId !== undefined && fixture.groupingColumnId !== null)
+        expect(z.uuid().safeParse(fixture.groupingColumnId).success).toBe(true);
+      if (fixture.detailOptions !== undefined)
+        expect(EntityDetailOptionsSchema.safeParse(fixture.detailOptions).success).toBe(true);
     }
 
     expect(byP13nId.get("contacts-card-store")).toMatchObject({
@@ -206,6 +219,82 @@ describe("synthetic personalization fixtures", () => {
       sortDescriptor: { direction: "desc", field: "createdAt" },
       viewMode: null,
     });
+
+    expect(byP13nId.get("contact-detail")).toMatchObject({
+      columnOrder: [SYNTHETIC_CUSTOM_COLUMN_IDS.contactSalesPipeline, SYNTHETIC_CUSTOM_COLUMN_IDS.contactPhone],
+      detailOptions: {
+        starredFieldIds: [
+          "identifiers",
+          "organizationIds",
+          "userIds",
+          SYNTHETIC_CUSTOM_COLUMN_IDS.contactSalesPipeline,
+          SYNTHETIC_CUSTOM_COLUMN_IDS.contactPhone,
+        ],
+        collapsedSectionIds: [],
+      },
+      hiddenColumns: [],
+      viewMode: null,
+    });
+    expect(byP13nId.get("organization-detail")).toMatchObject({
+      columnOrder: [SYNTHETIC_CUSTOM_COLUMN_IDS.organizationType, SYNTHETIC_CUSTOM_COLUMN_IDS.organizationWebsite],
+      detailOptions: {
+        starredFieldIds: [
+          "contactIds",
+          "dealIds",
+          "userIds",
+          SYNTHETIC_CUSTOM_COLUMN_IDS.organizationType,
+          SYNTHETIC_CUSTOM_COLUMN_IDS.organizationWebsite,
+        ],
+        collapsedSectionIds: [],
+      },
+      hiddenColumns: [],
+      viewMode: null,
+    });
+    expect(byP13nId.get("deal-detail")).toMatchObject({
+      columnOrder: [SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus, SYNTHETIC_CUSTOM_COLUMN_IDS.dealProjectPeriod],
+      detailOptions: {
+        starredFieldIds: [
+          "totalValue",
+          "totalQuantity",
+          "organizationIds",
+          SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus,
+          SYNTHETIC_CUSTOM_COLUMN_IDS.dealProjectPeriod,
+        ],
+        collapsedSectionIds: [],
+      },
+      hiddenColumns: [],
+      viewMode: null,
+    });
+    expect(byP13nId.get("service-detail")).toMatchObject({
+      columnOrder: [SYNTHETIC_CUSTOM_COLUMN_IDS.serviceType, SYNTHETIC_CUSTOM_COLUMN_IDS.servicePricing],
+      detailOptions: {
+        starredFieldIds: [
+          "amount",
+          "dealIds",
+          "userIds",
+          SYNTHETIC_CUSTOM_COLUMN_IDS.serviceType,
+          SYNTHETIC_CUSTOM_COLUMN_IDS.servicePricing,
+        ],
+        collapsedSectionIds: [],
+      },
+      hiddenColumns: [],
+      viewMode: null,
+    });
+    expect(byP13nId.get("task-detail")).toMatchObject({
+      columnOrder: [SYNTHETIC_CUSTOM_COLUMN_IDS.taskPriority, SYNTHETIC_CUSTOM_COLUMN_IDS.taskStatus],
+      detailOptions: {
+        starredFieldIds: [
+          "contactIds",
+          "userIds",
+          "updatedAt",
+          SYNTHETIC_CUSTOM_COLUMN_IDS.taskPriority,
+          SYNTHETIC_CUSTOM_COLUMN_IDS.taskStatus,
+        ],
+        collapsedSectionIds: [],
+      },
+      hiddenColumns: [],
+      viewMode: null,
+    });
   });
 
   it("upserts by the tenant-user-view key and removes only stale deterministic rows", async () => {
@@ -286,12 +375,12 @@ describe("synthetic personalization fixtures", () => {
     await persistSyntheticP13nFixtures(prisma, SEED_IDS.company, SEED_IDS.user, fixtures);
     await persistSyntheticP13nFixtures(prisma, SEED_IDS.company, SEED_IDS.user, fixtures);
 
-    expect(rows).toHaveLength(11);
+    expect(rows).toHaveLength(16);
     expect(rows.has("unrelated-p13n-row")).toBe(true);
     expect(rows.has(fixtureId(SYNTHETIC_P13N_ID_PREFIX, 999))).toBe(false);
 
     await persistSyntheticP13nFixtures(prisma, SEED_IDS.company, SEED_IDS.user, fixtures.slice(0, -1));
-    expect(rows).toHaveLength(10);
+    expect(rows).toHaveLength(15);
     expect(rows.has(fixtures.at(-1)?.id ?? "")).toBe(false);
     expect(rows.has("unrelated-p13n-row")).toBe(true);
   });

@@ -1757,6 +1757,26 @@
     "tooltipUnverified": "This profile hasn't been confirmed yet. It's checked automatically when you send your first message.",
     "unverified": "Unverified"
   },
+  "EntityDetail": {
+    "collapseSection": "Collapse {section}",
+    "donePersonalizing": "Done",
+    "expandSection": "Expand {section}",
+    "fields": {
+      "createdAt": "Created at",
+      "updatedAt": "Updated at"
+    },
+    "moveFieldDown": "Move {field} down",
+    "moveFieldUp": "Move {field} up",
+    "personalize": "Customize",
+    "sections": {
+      "base": "Base data",
+      "customFields": "Custom fields",
+      "notes": "Notes",
+      "relations": "Relations"
+    },
+    "starField": "Show {field} in the overview",
+    "unstarField": "Remove {field} from the overview"
+  },
   "EntityTerminology": {
     "presets": {
       "contact": {

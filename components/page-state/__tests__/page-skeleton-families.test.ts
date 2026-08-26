@@ -51,6 +51,22 @@ describe("page skeleton families", () => {
     expect(empty).toContain('data-page-skeleton-empty="true"');
   });
 
+  it("matches the responsive entity-detail panel and section geometry", () => {
+    const detail = renderToStaticMarkup(
+      createElement(EntityDetailPageSkeleton, { showActivityPanel: true, showSummary: true }),
+    );
+
+    expect(detail).toContain("@container/detail size-full min-h-0");
+    expect(detail).toContain("data-entity-detail-skeleton-shell");
+    expect(detail).toContain("data-entity-detail-skeleton-summary");
+    expect(detail).toContain("overflow-y-auto @6xl/detail:overflow-y-visible");
+    expect(detail).toContain("data-entity-detail-skeleton-tabs");
+    expect(detail).toContain("h-13 shrink-0 border-b border-border bg-background @6xl/detail:hidden");
+    expect(detail).toContain("grid size-full grid-flow-col auto-cols-fr");
+    expect(count(detail, "data-entity-detail-skeleton-section")).toBe(3);
+    expect(detail).toContain("@6xl/detail:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_360px]");
+  });
+
   it("matches profile, company, and subscription settings geometry without fabricated branches", () => {
     const profile = renderToStaticMarkup(createElement(ProfileSettingsPageSkeleton));
     const company = renderToStaticMarkup(createElement(CompanySettingsPageSkeleton));

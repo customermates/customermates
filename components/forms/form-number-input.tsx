@@ -25,6 +25,7 @@ type Props = Omit<
   className?: string;
   containerClassName?: string;
   endContent?: ReactNode;
+  labelEndAddon?: ReactNode;
 };
 
 export const FormNumberInput = observer(
@@ -39,6 +40,7 @@ export const FormNumberInput = observer(
     onBlur,
     onFocus,
     endContent,
+    labelEndAddon,
     ...props
   }: Props) => {
     const isReq = required;
@@ -70,11 +72,15 @@ export const FormNumberInput = observer(
     return (
       <div className={cn("space-y-1.5", containerClassName)}>
         {resolvedLabel && (
-          <FormLabel htmlFor={id}>
-            {resolvedLabel}
+          <div className="flex items-center gap-1.5">
+            <FormLabel htmlFor={id}>
+              {resolvedLabel}
 
-            {isReq ? <span className="text-destructive"> *</span> : null}
-          </FormLabel>
+              {isReq ? <span className="text-destructive"> *</span> : null}
+            </FormLabel>
+
+            {labelEndAddon}
+          </div>
         )}
 
         <div className="relative">

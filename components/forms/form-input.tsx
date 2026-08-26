@@ -21,6 +21,7 @@ type Props = Omit<ComponentProps<"input">, "value" | "onChange" | "id"> & {
   disabled?: boolean;
   readOnly?: boolean;
   endContent?: ReactNode;
+  labelEndAddon?: ReactNode;
 };
 
 export const FormInput = observer(
@@ -34,6 +35,7 @@ export const FormInput = observer(
     disabled,
     readOnly,
     endContent,
+    labelEndAddon,
     ...props
   }: Props) => {
     const store = useAppForm();
@@ -46,11 +48,15 @@ export const FormInput = observer(
     return (
       <div className={cn("space-y-1.5", containerClassName)}>
         {resolvedLabel && (
-          <FormLabel htmlFor={id}>
-            {resolvedLabel}
+          <div className="flex items-center gap-1.5">
+            <FormLabel htmlFor={id}>
+              {resolvedLabel}
 
-            {required ? <span className="text-destructive"> *</span> : null}
-          </FormLabel>
+              {required ? <span className="text-destructive"> *</span> : null}
+            </FormLabel>
+
+            {labelEndAddon}
+          </div>
         )}
 
         <div className="relative">

@@ -9,17 +9,15 @@ import type {
 } from "@/core/base/base-custom-column-entity-modal.store";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
-import { Pencil, Plus, Trash2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
-import { Action, CustomColumnType, EntityType, Resource } from "@/generated/prisma";
+import { Action, EntityType, Resource } from "@/generated/prisma";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { AppForm } from "@/components/forms/form-context";
 import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/shared/icon";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { useRouter } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -32,6 +30,7 @@ import { EntityNotesPanel } from "./entity-notes-panel";
 import { EntityDetailPageSkeleton } from "./entity-detail-page-skeleton";
 import { resolveEntityDetailPageState } from "./entity-detail-page-state";
 import { ENTITY_URL_SEGMENT } from "./entity-relations";
+import { useEntityDetailPersonalization } from "./entity-detail-personalization";
 
 type IdentityProps = {
   name: string;
@@ -46,14 +45,18 @@ export type EntityDetailInitial = {
 type Props<Form extends FormEntityDto, Dto extends EntityDto> = {
   entityId: string;
   entityType: EntityType;
-  entityInitial?: EntityDetailInitial | null;
   store: BaseCustomColumnEntityModalStore<Form, Dto>;
   masterData: ReactNode;
   identity: IdentityProps;
   fallbackTitle: string;
   canDelete?: boolean;
   historyPanel: ReactNode;
+  summary?: ReactNode;
+  showNotesPanel?: boolean;
+  serverSnapshotApplied?: boolean;
 };
+
+type DetailPanel = "details" | "notes" | "activities";
 
 export const EntityDetailLayout = observer(function EntityDetailLayout<
   Form extends FormEntityDto,
@@ -61,44 +64,31 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
 >({
   entityId,
   entityType,
-  entityInitial,
   store,
   masterData,
   identity,
   fallbackTitle,
   canDelete = true,
   historyPanel,
+  summary,
+  showNotesPanel = true,
+  serverSnapshotApplied = true,
 }: Props<Form, Dto>) {
   const t = useTranslations();
   const router = useRouter();
-  const { layoutStore, customColumnModalStore, userStore } = useRootStore();
+  const { layoutStore, userStore } = useRootStore();
   const { stack: entityDrawerStack } = useEntityDrawerStack();
   const { showDeleteConfirmation } = useDeleteConfirmation();
+  const {
+    enabled: canPersonalize,
+    isPersonalizing,
+    setIsPersonalizing,
+    starredFieldIds,
+  } = useEntityDetailPersonalization();
   const [hasMounted, setHasMounted] = useState(false);
+  const [activePanel, setActivePanel] = useState<DetailPanel>("details");
   const formId = useId();
   const drawerWasOpenRef = useRef(entityDrawerStack.length > 0);
-  const seededEntityId = useRef<string | null>(null);
-
-  const canSeed = entityInitial?.entity.id === entityId && seededEntityId.current !== entityId;
-
-  if (canSeed && seededEntityId.current === null) {
-    seededEntityId.current = entityId;
-    store.hydrate(entityInitial.entity as Dto, entityInitial.customColumns);
-  }
-
-  useEffect(() => {
-    if (seededEntityId.current === entityId) return;
-
-    if (entityInitial?.entity.id === entityId) {
-      seededEntityId.current = entityId;
-      store.hydrate(entityInitial.entity as Dto, entityInitial.customColumns);
-
-      return;
-    }
-
-    void store.loadById(entityId).catch(reportApplicationError);
-  }, [entityId, store, entityInitial]);
-
   useEffect(() => {
     const drawerIsOpen = entityDrawerStack.length > 0;
     const drawerWasOpen = drawerWasOpenRef.current;
@@ -115,10 +105,14 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
   const { canManage, isLoading, isEditingCustomField, toggleEditingCustomField, form } = store;
   const hasId = form && typeof form === "object" && "id" in form && Boolean(form.id);
   const canSeeHistory = userStore.can(Resource.auditLog, Action.readAll);
+  const selectedPanel =
+    (activePanel === "notes" && !showNotesPanel) || (activePanel === "activities" && !canSeeHistory)
+      ? "details"
+      : activePanel;
   const showDeleteAction = canManage && hasId && canDelete && !isEditingCustomField;
   const saveDisabled = isLoading || !store.hasUnsavedChanges || store.isDisabled;
-  const hasCurrentEntity = store.fetchedEntity?.id === entityId;
-  const requestMatches = store.requestedEntityId === entityId;
+  const hasCurrentEntity = serverSnapshotApplied && store.fetchedEntity?.id === entityId;
+  const requestMatches = serverSnapshotApplied && store.requestedEntityId === entityId;
   const pageState = resolveEntityDetailPageState({
     hasCurrentEntity,
     requestMatches,
@@ -126,8 +120,10 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
   });
   const showLoadError = pageState === "error" || pageState === "not-found";
   const showLoading = pageState === "loading";
-  const showEditFieldsAction = canManage && !isEditingCustomField;
+  const isCustomizing = canPersonalize && (isPersonalizing || (canManage && isEditingCustomField));
+  const showEditFieldsAction = !canPersonalize && canManage && !isEditingCustomField;
   const showEditFieldsActiveActions = canManage && isEditingCustomField;
+  const hasSummary = Boolean(summary) && (!canPersonalize || starredFieldIds.length > 0);
 
   useEffect(() => {
     const key = `${ENTITY_URL_SEGMENT[entityType]}:${entityId}`;
@@ -172,94 +168,84 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
       return ok;
     });
   }, [store, router, entityType]);
-  const onAddCustomField = useCallback(() => {
-    customColumnModalStore.initialize(CustomColumnType.plain, entityType);
-    customColumnModalStore.open();
-  }, [customColumnModalStore, entityType]);
+  const onToggleCustomization = useCallback(() => {
+    const next = !isCustomizing;
+    setIsPersonalizing(next);
+    if (canManage && isEditingCustomField !== next) toggleEditingCustomField();
+  }, [canManage, isCustomizing, isEditingCustomField, setIsPersonalizing, toggleEditingCustomField]);
 
   const topBarActions = useMemo(
     () =>
       showLoading || showLoadError ? null : (
-        <TooltipProvider>
-          <div className="flex items-center gap-1">
-            {showDeleteAction && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    aria-label={t("Common.actions.delete")}
-                    className="size-8"
-                    disabled={isLoading}
-                    id="entity-delete"
-                    size="icon"
-                    type="button"
-                    variant="secondary"
-                    onClick={onDelete}
-                  >
-                    <Icon className="text-destructive" icon={Trash2} />
-                  </Button>
-                </TooltipTrigger>
+        <div className="flex items-center gap-1">
+          {canPersonalize && (
+            <Button
+              data-entity-customize
+              aria-label={isCustomizing ? t("EntityDetail.donePersonalizing") : t("EntityDetail.personalize")}
+              aria-pressed={isCustomizing}
+              className="h-8"
+              size="sm"
+              type="button"
+              variant={isCustomizing ? "default" : "secondary"}
+              onClick={onToggleCustomization}
+            >
+              {isCustomizing ? t("EntityDetail.donePersonalizing") : t("EntityDetail.personalize")}
+            </Button>
+          )}
 
-                <TooltipContent>{t("Common.actions.delete")}</TooltipContent>
-              </Tooltip>
-            )}
+          {showDeleteAction && (
+            <Button
+              className="h-8 text-destructive hover:text-destructive"
+              disabled={isLoading}
+              id="entity-delete"
+              size="sm"
+              type="button"
+              variant="secondary"
+              onClick={onDelete}
+            >
+              {t("Common.actions.delete")}
+            </Button>
+          )}
 
-            {showEditFieldsAction && (
-              <Button
-                className="h-8"
-                id="entity-edit-fields"
-                size="sm"
-                type="button"
-                variant="secondary"
-                onClick={toggleEditingCustomField}
-              >
-                <Icon icon={Pencil} />
+          {showEditFieldsAction && (
+            <Button
+              className="h-8"
+              id="entity-edit-fields"
+              size="sm"
+              type="button"
+              variant="secondary"
+              onClick={toggleEditingCustomField}
+            >
+              {t("Common.actions.editCustomFields")}
+            </Button>
+          )}
 
-                <span className="hidden sm:inline">{t("Common.actions.editCustomFields")}</span>
-              </Button>
-            )}
+          {showEditFieldsActiveActions && !canPersonalize && (
+            <Button className="h-8" size="sm" type="button" variant="secondary" onClick={toggleEditingCustomField}>
+              {t("Common.actions.cancel")}
+            </Button>
+          )}
 
-            {showEditFieldsActiveActions && (
-              <>
-                <Button className="h-8" size="sm" type="button" variant="secondary" onClick={toggleEditingCustomField}>
-                  {t("Common.actions.cancel")}
-                </Button>
+          {canManage && store.hasUnsavedChanges && (
+            <Button
+              className="h-8"
+              disabled={isLoading}
+              id="entity-reset"
+              size="sm"
+              type="button"
+              variant="secondary"
+              onClick={() => store.resetForm()}
+            >
+              {t("Common.actions.reset")}
+            </Button>
+          )}
 
-                <Button
-                  className="h-8"
-                  id="entity-add-custom-field"
-                  size="sm"
-                  type="button"
-                  variant="secondary"
-                  onClick={onAddCustomField}
-                >
-                  <Icon icon={Plus} />
-
-                  <span className="hidden sm:inline">{t("Common.actions.addCustomField")}</span>
-                </Button>
-              </>
-            )}
-
-            {canManage && store.hasUnsavedChanges && (
-              <Button
-                className="h-8"
-                disabled={isLoading}
-                id="entity-reset"
-                size="sm"
-                type="button"
-                variant="secondary"
-                onClick={() => store.resetForm()}
-              >
-                {t("Common.actions.reset")}
-              </Button>
-            )}
-
-            {canManage && (
-              <Button className="h-8" disabled={saveDisabled} form={formId} id="entity-save" size="sm" type="submit">
-                {t("Common.actions.save")}
-              </Button>
-            )}
-          </div>
-        </TooltipProvider>
+          {canManage && (
+            <Button className="h-8" disabled={saveDisabled} form={formId} id="entity-save" size="sm" type="submit">
+              {t("Common.actions.save")}
+            </Button>
+          )}
+        </div>
       ),
     [
       showLoading,
@@ -273,10 +259,12 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
       showEditFieldsAction,
       showEditFieldsActiveActions,
       toggleEditingCustomField,
-      onAddCustomField,
       formId,
       store,
       store.hasUnsavedChanges,
+      canPersonalize,
+      isCustomizing,
+      onToggleCustomization,
     ],
   );
 
@@ -284,7 +272,20 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
 
   switch (pageState) {
     case "loading":
-      return <PageState background={<EntityDetailPageSkeleton />} label={t("PageState.loading")} state="loading" />;
+      return (
+        <PageState
+          background={
+            <EntityDetailPageSkeleton
+              showActivityPanel={canSeeHistory}
+              showNotesPanel={showNotesPanel}
+              showSummary={hasSummary}
+              summaryItemCount={Math.max(1, Math.min(starredFieldIds.length, 5))}
+            />
+          }
+          label={t("PageState.loading")}
+          state="loading"
+        />
+      );
     case "not-found":
       return (
         <PageState
@@ -316,45 +317,112 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
 
   return (
     <AppForm id={formId} store={store as unknown as BaseFormStore}>
-      <div className="@container/detail animate-page-result-in flex min-h-0 w-full flex-1 flex-col overflow-y-auto motion-reduce:animate-none @4xl/detail:overflow-y-visible">
-        <div
-          className={cn(
-            "grid grid-cols-1 gap-px bg-border contain-[layout]",
-            "@4xl/detail:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] @4xl/detail:flex-1 @4xl/detail:min-h-0",
-            canSeeHistory && "@6xl/detail:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_360px]",
-          )}
-        >
-          <div className="flex flex-col bg-background @4xl/detail:min-h-0 @4xl/detail:overflow-auto">
-            <div className="p-4 @4xl/detail:flex-1 @4xl/detail:min-h-0">
-              {masterData}
+      <div className="@container/detail flex min-h-0 w-full flex-1 flex-col">
+        <div className="animate-page-result-in flex min-h-0 w-full flex-1 flex-col overflow-y-auto motion-reduce:animate-none @6xl/detail:overflow-y-visible">
+          {hasSummary ? summary : null}
 
-              {isEditingCustomField && canManage && (
-                <Button className="w-full mt-4" size="sm" type="button" variant="default" onClick={onAddCustomField}>
-                  <Icon icon={Plus} />
+          {(showNotesPanel || canSeeHistory) && (
+            <div
+              data-detail-panel-switcher
+              className="sticky top-0 z-10 border-b border-border bg-background @6xl/detail:hidden"
+            >
+              <Tabs value={selectedPanel} onValueChange={(value) => setActivePanel(value as DetailPanel)}>
+                <TabsList
+                  aria-label={t("Common.details")}
+                  className="h-13 w-full justify-stretch gap-0 rounded-none p-0 group-data-[orientation=horizontal]/tabs:h-13"
+                  variant="line"
+                >
+                  <TabsTrigger
+                    aria-controls={`${formId}-details-panel`}
+                    className="h-full rounded-none px-4 after:-bottom-px after:z-10"
+                    id={`${formId}-details-tab`}
+                    value="details"
+                  >
+                    {t("Common.details")}
+                  </TabsTrigger>
 
-                  {t("Common.actions.addCustomField")}
-                </Button>
-              )}
+                  {showNotesPanel && (
+                    <TabsTrigger
+                      aria-controls={`${formId}-notes-panel`}
+                      className="h-full rounded-none px-4 after:-bottom-px after:z-10"
+                      id={`${formId}-notes-tab`}
+                      value="notes"
+                    >
+                      {t("EntityDetail.sections.notes")}
+                    </TabsTrigger>
+                  )}
+
+                  {canSeeHistory && (
+                    <TabsTrigger
+                      aria-controls={`${formId}-activities-panel`}
+                      className="h-full rounded-none px-4 after:-bottom-px after:z-10"
+                      id={`${formId}-activities-tab`}
+                      value="activities"
+                    >
+                      {t("EntityTimeline.types.activities")}
+                    </TabsTrigger>
+                  )}
+                </TabsList>
+              </Tabs>
             </div>
-          </div>
+          )}
 
-          {canSeeHistory ? (
-            <div className="flex flex-col gap-px bg-border @4xl/detail:min-h-0 @6xl/detail:contents">
-              <div className="flex flex-col bg-background @4xl/detail:flex-2 @4xl/detail:min-h-0 @4xl/detail:overflow-hidden">
+          <div
+            data-detail-grid
+            className={cn(
+              "grid grid-cols-1 gap-px bg-border contain-[layout]",
+              "@6xl/detail:flex-1 @6xl/detail:min-h-0",
+              showNotesPanel && canSeeHistory && "@6xl/detail:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_360px]",
+              showNotesPanel && !canSeeHistory && "@6xl/detail:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]",
+              !showNotesPanel && canSeeHistory && "@6xl/detail:grid-cols-[minmax(0,1fr)_360px]",
+            )}
+          >
+            <div
+              aria-labelledby={`${formId}-details-tab`}
+              className={cn(
+                "flex flex-col bg-background",
+                selectedPanel !== "details" && "hidden",
+                "@6xl/detail:flex @6xl/detail:min-h-0 @6xl/detail:overflow-x-hidden @6xl/detail:overflow-y-auto",
+              )}
+              data-detail-panel="details"
+              id={`${formId}-details-panel`}
+              role="tabpanel"
+            >
+              <div className="p-4 @6xl/detail:flex-1 @6xl/detail:min-h-0">{masterData}</div>
+            </div>
+
+            {showNotesPanel && (
+              <div
+                aria-labelledby={`${formId}-notes-tab`}
+                className={cn(
+                  "min-h-[28rem] flex-col bg-background",
+                  selectedPanel === "notes" ? "flex" : "hidden",
+                  "@6xl/detail:flex @6xl/detail:min-h-0 @6xl/detail:overflow-hidden",
+                )}
+                data-detail-panel="notes"
+                id={`${formId}-notes-panel`}
+                role="tabpanel"
+              >
                 <EntityNotesPanel key={entityId} store={store} />
               </div>
+            )}
 
-              {hasMounted && (
-                <div className="flex flex-col bg-background @4xl/detail:flex-1 @4xl/detail:min-h-0 @4xl/detail:overflow-hidden">
-                  {historyPanel}
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="flex flex-col bg-background @4xl/detail:min-h-0 @4xl/detail:overflow-hidden">
-              <EntityNotesPanel key={entityId} store={store} />
-            </div>
-          )}
+            {hasMounted && canSeeHistory && (
+              <div
+                aria-labelledby={`${formId}-activities-tab`}
+                className={cn(
+                  "min-h-[28rem] flex-col bg-background",
+                  selectedPanel === "activities" ? "flex" : "hidden",
+                  "@6xl/detail:flex @6xl/detail:min-h-0 @6xl/detail:overflow-hidden",
+                )}
+                data-detail-panel="activities"
+                id={`${formId}-activities-panel`}
+                role="tabpanel"
+              >
+                {historyPanel}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </AppForm>

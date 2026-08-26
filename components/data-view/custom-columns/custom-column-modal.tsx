@@ -6,20 +6,7 @@ import type { CustomColumnOption } from "@/features/custom-column/custom-column.
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
-import {
-  Calendar,
-  CalendarRange,
-  FileText,
-  DollarSign,
-  List,
-  Plus,
-  Trash2,
-  Globe,
-  Mail,
-  Phone,
-  Clock,
-  AlignJustify,
-} from "lucide-react";
+import { Plus, Trash2, AlignJustify } from "lucide-react";
 import { DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -58,6 +45,7 @@ import { CHIP_COLORS, type ChipColor } from "@/constants/chip-colors";
 import { DATE_DISPLAY_FORMATS } from "@/constants/date-format";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { cn } from "@/core/utils/cn";
+import { CUSTOM_COLUMN_TYPE_ITEMS } from "./custom-column-type-icon";
 
 const COLOR_DOT_CLASSES: Record<ChipColor, string> = {
   default: "bg-primary",
@@ -67,19 +55,6 @@ const COLOR_DOT_CLASSES: Record<ChipColor, string> = {
   warning: "bg-warning",
   info: "bg-info",
 };
-
-const COLUMN_TYPES = [
-  { value: CustomColumnType.plain, icon: FileText },
-  { value: CustomColumnType.date, icon: Calendar },
-  { value: CustomColumnType.dateTime, icon: Clock },
-  { value: CustomColumnType.dateRange, icon: CalendarRange },
-  { value: CustomColumnType.dateTimeRange, icon: CalendarRange },
-  { value: CustomColumnType.currency, icon: DollarSign },
-  { value: CustomColumnType.link, icon: Globe },
-  { value: CustomColumnType.email, icon: Mail },
-  { value: CustomColumnType.phone, icon: Phone },
-  { value: CustomColumnType.singleSelect, icon: List },
-] as const;
 
 type SortableOptionItemProps = {
   option: CustomColumnOption;
@@ -310,7 +285,7 @@ export const CustomColumnModal = observer(() => {
             <FormSelect
               required
               id="type"
-              items={COLUMN_TYPES.map((item) => ({
+              items={CUSTOM_COLUMN_TYPE_ITEMS.map((item) => ({
                 value: item.value,
                 label: t(`Common.customColumnTypes.${item.value}`),
               }))}

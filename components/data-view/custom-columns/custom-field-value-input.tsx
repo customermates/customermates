@@ -1,4 +1,5 @@
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { ReactNode } from "react";
 
 import { Pencil } from "lucide-react";
 import { observer } from "mobx-react-lite";
@@ -16,9 +17,11 @@ type Props = {
   isEditing: boolean;
   column: CustomColumnDto;
   index: number;
+  labelStartAddon?: ReactNode;
+  labelEndAddon?: ReactNode;
 };
 
-export const CustomFieldValueInput = observer(({ isEditing, column, index }: Props) => {
+export const CustomFieldValueInput = observer(({ isEditing, column, index, labelStartAddon, labelEndAddon }: Props) => {
   const t = useTranslations();
   const store = useAppForm();
   const { customColumnModalStore } = useRootStore();
@@ -27,21 +30,38 @@ export const CustomFieldValueInput = observer(({ isEditing, column, index }: Pro
   const id = `customFieldValues[${index}].value`;
   const value = store?.getValue(id) as string | undefined;
 
+  const fieldLabel = label && (
+    <div className="flex items-center gap-1.5">
+      <FormLabel className="flex items-center gap-1.5" htmlFor={id}>
+        {labelStartAddon}
+
+        {label}
+      </FormLabel>
+
+      {labelEndAddon}
+    </div>
+  );
+
   if (!isEditing) {
     return (
-      <CustomFieldEditor
-        column={column}
-        id={id}
-        label={label}
-        value={value}
-        onChange={(nextValue) => store?.onChange(id, nextValue)}
-      />
+      <div className="space-y-1.5">
+        {fieldLabel}
+
+        <CustomFieldEditor
+          hideLabel
+          column={column}
+          id={id}
+          label={label}
+          value={value}
+          onChange={(nextValue) => store?.onChange(id, nextValue)}
+        />
+      </div>
     );
   }
 
   return (
     <div className="space-y-1.5">
-      {label && <FormLabel htmlFor={id}>{label}</FormLabel>}
+      {fieldLabel}
 
       <div className="flex items-end gap-1.5">
         <div className="flex-1 min-w-0 [&_.space-y-1\.5>*]:mb-0!">

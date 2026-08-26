@@ -3,7 +3,7 @@
 import type { ReactElement, ReactNode } from "react";
 import type { GetResult } from "@/core/base/base-get.interactor";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { ChevronsUpDownIcon, XIcon } from "lucide-react";
@@ -47,6 +47,7 @@ type Props<T extends Identifiable> = {
   containerClassName?: string;
   popoverFitContent?: boolean;
   chipHref?: (key: string) => string | undefined;
+  onSelectionDataChange?: (items: Array<{ key: string; data?: T }>) => void;
 };
 
 function keyOf<T extends Identifiable>(item: T): string {
@@ -87,6 +88,7 @@ export const FormAutocomplete = observer(
     containerClassName,
     popoverFitContent = false,
     chipHref,
+    onSelectionDataChange,
   }: Props<T>) => {
     const store = useAppForm();
     const navigateToHref = useNavigateToHref();
@@ -179,6 +181,19 @@ export const FormAutocomplete = observer(
         });
     }, [allItems, filterFunction, input, children]);
 
+    const selectedItems = useMemo(() => {
+      const index = new Map(allItems.map((item) => [keyOf(item), item]));
+      const entries = selectedKeys.map((key) => ({ key, data: index.get(key) }));
+      return selectionMode === "multiple" ? entries : entries.slice(0, 1);
+    }, [allItems, selectedKeys, selectionMode]);
+    const selectedItemsRef = useRef(selectedItems);
+    selectedItemsRef.current = selectedItems;
+    const selectedItemKeys = selectedItems.map((item) => item.key).join("|");
+
+    useEffect(() => {
+      onSelectionDataChange?.(selectedItemsRef.current);
+    }, [onSelectionDataChange, selectedItemKeys]);
+
     function commit(next: string[] | string | undefined) {
       if (store) store.onChange(id, next);
       setInput("");
@@ -231,14 +246,11 @@ export const FormAutocomplete = observer(
     }
 
     const renderedSelection = useMemo(() => {
-      if (selectedKeys.length === 0) return null;
-      const index = new Map(allItems.map((it) => [keyOf(it), it]));
-      const list = selectedKeys.map((k) => ({ key: k, data: index.get(k) }));
-      const toRender = selectionMode === "multiple" ? list : list.slice(0, 1);
-      const rendered = renderValue(toRender);
+      if (selectedItems.length === 0) return null;
+      const rendered = renderValue(selectedItems);
       const isMulti = selectionMode === "multiple";
       const renderedItems = Array.isArray(rendered) ? rendered : [rendered];
-      return toRender.map((entry, index) => {
+      return selectedItems.map((entry, index) => {
         const el = entry.data ? (
           renderedItems[index]
         ) : (
@@ -331,7 +343,7 @@ export const FormAutocomplete = observer(
           </span>
         );
       });
-    }, [selectedKeys, allItems, selectionMode, renderValue, onChipClick, isReadOnly, isOptionsLoading, t]);
+    }, [selectedItems, selectionMode, renderValue, onChipClick, isReadOnly, isOptionsLoading, t]);
 
     const showCreate =
       Boolean(onCreate) &&

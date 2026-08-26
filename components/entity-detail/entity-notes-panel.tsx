@@ -5,7 +5,6 @@ import type {
   EntityDto,
   FormEntityDto,
 } from "@/core/base/base-custom-column-entity-modal.store";
-
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useRef } from "react";
@@ -51,7 +50,7 @@ export const EntityNotesPanel = observer(function EntityNotesPanel<Form extends 
   return (
     <div className="h-full flex flex-col">
       <div className="flex items-center gap-1.5 px-4 pt-4 pb-1.5 shrink-0">
-        <span className="text-xs font-normal text-muted-foreground">{t("Common.actions.labelNotes")}</span>
+        <span className="text-xs font-normal text-muted-foreground">{t("EntityDetail.sections.notes")}</span>
       </div>
 
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- forwards clicks in the empty padding to the already-interactive ProseMirror editor inside */}
