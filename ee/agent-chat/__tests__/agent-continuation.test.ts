@@ -12,7 +12,6 @@ import {
   type AgentContinuationLimits,
   type AgentContinuationStep,
 } from "../agent-continuation";
-import { AGENT_CONTEXT_ACCUMULATION_STEPS } from "../agent-budget-policy";
 
 type ToolAttempt = {
   name: string;
@@ -149,7 +148,6 @@ describe("agent continuation context compaction", () => {
       ],
     });
     expect(compacted.retainedResponseSteps).toBe(AGENT_CONTINUATION_RETAINED_RESPONSE_STEPS);
-    expect(AGENT_CONTEXT_ACCUMULATION_STEPS).toBe(AGENT_CONTINUATION_RETAINED_RESPONSE_STEPS + 1);
   });
 
   it("fits a maximum-counter empty progress ledger inside the minimum accepted checkpoint envelope", () => {

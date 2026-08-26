@@ -83,14 +83,6 @@ describe("agent turn transcript", () => {
     expect(transcript.replyParts.map((part) => "id" in part && part.id)).toEqual(["deal", "contact"]);
   });
 
-  it("reports an invalid tool call once, so it is not captured twice", () => {
-    const { transcript } = transcriptWithLog();
-
-    transcript.beginToolCall({ toolCallId: "bad", toolName: "create_contacts", activity: activity(), invalid: true });
-    expect(transcript.failToolCall("bad")).toEqual({ wasInvalidToolCall: true });
-    expect(transcript.failToolCall("bad")).toEqual({ wasInvalidToolCall: false });
-  });
-
   it("settles every still-running tool when the turn ends early", () => {
     const { events, transcript } = transcriptWithLog();
 
@@ -120,9 +112,5 @@ describe("agent turn transcript", () => {
       type: "approval_resolved",
       payload: { requestId: "req-1", decision: "approve" },
     });
-
-    transcript.setApprovalStatus("req-1", "cancelled");
-    expect(transcript.replyParts[0]).toMatchObject({ status: "cancelled" });
-    expect(events.at(-1)?.type).toBe("approval_resolved");
   });
 });

@@ -66,7 +66,6 @@ function usageService() {
         periodEnd: summary.resetAt,
         budget: {
           reservedCredits: 44,
-          maxSteps: 8,
           maxOutputTokens: 2048,
           maxContextBytes: 200_000,
           maxToolResultChars: 6_000,

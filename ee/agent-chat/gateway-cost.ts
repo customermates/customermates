@@ -78,10 +78,3 @@ export function readAgentProviderCharge(metadata: unknown, expectedProvider: str
     },
   };
 }
-
-export function readAgentProviderChargeFromError(error: unknown, expectedProvider: string): AgentProviderChargeReading {
-  const metadata = record(record(record(error)?.data)?.providerMetadata);
-  if (!metadata) return { outcome: "unreadable", reason: "the failed provider call reported no gateway metadata" };
-
-  return readAgentProviderCharge(metadata, expectedProvider);
-}

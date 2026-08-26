@@ -1280,7 +1280,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           userId: args.userId,
           periodStart: entitlement.start,
           periodEnd: entitlement.resetAt,
-          state: { in: ["reserved", "settled", "retained"] },
+          state: { in: ["reserved", "settled"] },
         },
         select: { state: true, reservedCredits: true, chargedCredits: true },
       });
@@ -1361,7 +1361,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         !Number.isSafeInteger(settlement.chargedCredits) ||
         settlement.chargedCredits < 0 ||
         settlement.chargedCredits > settlement.reservedCredits ||
-        (settlement.state !== "settled" && settlement.state !== "retained") ||
+        settlement.state !== "settled" ||
         !settlement.model ||
         typeof settlement.policyBreach !== "boolean")
     )
@@ -1526,7 +1526,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         where: { id: args.reservationId, companyId: args.companyId, userId: args.userId },
         select: { state: true, providerStartedAt: true },
       });
-      if (usage && (usage.state === "settled" || usage.state === "retained" || usage.providerStartedAt !== null))
+      if (usage && (usage.state === "settled" || usage.providerStartedAt !== null))
         throw new Error("Agent usage has provider-start evidence and cannot be released.");
 
       if (usage?.state === "reserved") {
@@ -1591,12 +1591,12 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           userId,
           periodStart,
           periodEnd,
-          state: { in: ["reserved", "settled", "retained"] },
+          state: { in: ["reserved", "settled"] },
         },
         select: { state: true, reservedCredits: true, chargedCredits: true },
       }),
       this.prisma.agentUsageEvent.findFirst({
-        where: { companyId, userId, periodStart, periodEnd, state: { in: ["settled", "retained"] } },
+        where: { companyId, userId, periodStart, periodEnd, state: { in: ["settled"] } },
         orderBy: [{ settledAt: "desc" }, { id: "desc" }],
         select: { chargedCredits: true },
       }),
@@ -1689,7 +1689,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           userId: event.userId,
           periodStart: entitlement.start,
           periodEnd: entitlement.resetAt,
-          state: { in: ["reserved", "settled", "retained"] },
+          state: { in: ["reserved", "settled"] },
         },
         select: { state: true, reservedCredits: true, chargedCredits: true },
       });
@@ -1751,7 +1751,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           userId: args.userId,
           periodStart: reservation.periodStart,
           periodEnd: reservation.periodEnd,
-          state: { in: ["reserved", "settled", "retained"] },
+          state: { in: ["reserved", "settled"] },
           id: { not: reservation.id },
         },
         select: { state: true, reservedCredits: true, chargedCredits: true },

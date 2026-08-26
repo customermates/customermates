@@ -5,7 +5,6 @@ import {
   AGENT_RESERVATION_ROUNDS_AHEAD,
   agentContextTokensToBytes,
   agentRoundWorstCaseCredits,
-  agentTurnWorstCaseUsd,
   isAgentContextWithinBudget,
   resolveAgentTurnBudget,
   serializedAgentContextBytes,
@@ -25,7 +24,6 @@ describe("agent turn credit budget", () => {
         expect.objectContaining({
           modelSpec: model.modelId,
           servingProvider: model.servingProvider,
-          maxSteps: model.maxSteps,
           maxOutputTokens: model.maxOutputTokens,
           maxContextTokens: model.maxContextTokens,
           maxContextBytes: agentContextTokensToBytes(model.maxContextTokens),
@@ -40,7 +38,6 @@ describe("agent turn credit budget", () => {
 
     expect(budget?.roundReserveCredits).toBe(perRound);
     expect(budget?.reservedCredits).toBe(perRound * AGENT_RESERVATION_ROUNDS_AHEAD);
-    expect(budget?.reservedCredits).toBeLessThan(Math.ceil(agentTurnWorstCaseUsd(BALANCED) / 0.01));
   });
 
   it("reserves strictly less for the cheaper model at the same envelope", () => {
@@ -54,7 +51,6 @@ describe("agent turn credit budget", () => {
     const budget = resolveAgentTurnBudget({ model: BALANCED, availableCredits: 1 });
 
     expect(budget?.reservedCredits).toBe(1);
-    expect(budget?.maxSteps).toBe(BALANCED.maxSteps);
   });
 
   it("admits a user with a single credit left, who tops up as the turn proceeds", () => {

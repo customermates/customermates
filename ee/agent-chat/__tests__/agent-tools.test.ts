@@ -206,7 +206,7 @@ describe("agent tools", () => {
     const result = await generateText({
       model: provider("gpt-5.6-luna"),
       prompt: "Run eighteen independent checks, then summarize them.",
-      stopWhen: stepCountIs(MODEL_CATALOG.balanced.maxSteps),
+      stopWhen: stepCountIs(20),
       tools: {
         lookup: tool({
           description: "Run one check.",
@@ -247,7 +247,6 @@ describe("agent tools", () => {
       availableCredits: 1,
       requiredContextBytes: requiredContextBytes ?? 0,
     });
-    expect(funded?.maxSteps).toBe(model.maxSteps);
     expect(funded?.maxContextBytes).toBeGreaterThanOrEqual(requiredContextBytes ?? Number.POSITIVE_INFINITY);
     expect(funded?.maxOutputTokens).toBe(model.maxOutputTokens);
   });

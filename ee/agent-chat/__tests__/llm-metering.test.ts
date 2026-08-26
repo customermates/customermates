@@ -8,7 +8,7 @@ vi.mock("@/env", () => ({
   env: { ...MOCK_ENV_MODULE.env, APP_MODE: "cloud" as const },
 }));
 
-import { usageToTokenCounts } from "../llm.service";
+import { usageToTokenCounts } from "../agent-usage-settlement";
 import { MODEL_CATALOG } from "../model-catalog";
 import { resolveModelPricing } from "../model-pricing";
 

@@ -28,7 +28,7 @@ import {
 import { agentUiCommandHookToken, isAgentPanelTool, toAgentUiCommandInput } from "@/ee/agent-chat/agent-ui-command";
 import { buildAgentProviderContext } from "@/ee/agent-chat/agent-provider-context";
 import { buildAgentSystemPrompt } from "@/ee/agent-chat/system-prompt";
-import { buildTurnUsageSettlement, usageToTokenCounts } from "@/ee/agent-chat/llm.service";
+import { buildAgentUsageSettlement, usageToTokenCounts } from "@/ee/agent-chat/agent-usage-settlement";
 import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
 import { agentCreditsForStartedProviderCost } from "@/ee/agent-chat/agent-credit-policy";
 import { createAgentSupportTicket } from "@/ee/agent-chat/agent-support-ticket";
@@ -470,7 +470,9 @@ async function finalizeTurn(
       parts: outcome.parts as Prisma.InputJsonValue,
       terminalCode: outcome.terminalCode,
       affectedResources: outcome.affectedResources,
-      usageSettlement: buildTurnUsageSettlement(payload.turnBudget.modelSpec, outcome.tokens, {
+      usageSettlement: buildAgentUsageSettlement({
+        model: payload.turnBudget.modelSpec,
+        tokens: outcome.tokens,
         provider: payload.turnBudget.servingProvider,
         reservedCredits: outcome.reservedCredits,
         providerCharge: {
@@ -756,7 +758,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           name: call.toolName,
           input: toAgentUiCommandInput(call.toolName, call.input) ?? {},
         }));
-        const uiWindowMs = AGENT_UI_COMMAND_WINDOW_MS;
         const uiHook = createHook<{ commandId: string }>({
           token: agentUiCommandHookToken(payload.conversationId),
         });
@@ -765,7 +766,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           (async () => {
             await uiHook;
           })(),
-          sleep(uiWindowMs),
+          sleep(AGENT_UI_COMMAND_WINDOW_MS),
         ]);
         uiHook.dispose();
 
@@ -786,9 +787,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         input: call.input,
       }));
 
-      const approvalWindowMs = AGENT_APPROVAL_WINDOW_MS;
       const hook = createHook<{ requestId: string }>({ token: agentApprovalHookToken(payload.conversationId) });
-      await openApprovalRequests(payload, requests, approvalWindowMs);
+      await openApprovalRequests(payload, requests, AGENT_APPROVAL_WINDOW_MS);
       for (const request of requests) {
         transcript.beginApproval(
           request.requestId,
@@ -801,7 +801,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         (async () => {
           await hook;
         })(),
-        sleep(approvalWindowMs),
+        sleep(AGENT_APPROVAL_WINDOW_MS),
       ]);
       hook.dispose();
 

@@ -1,3 +1,5 @@
+import type { LanguageModelUsage } from "ai";
+
 import { agentCreditsForStartedProviderCost } from "./agent-credit-policy";
 import { computeCostMicrocents, type TokenCounts } from "./model-pricing";
 
@@ -17,7 +19,7 @@ export type AgentUsageSettlement = TokenCounts & {
   reservedCredits: number;
   chargedCredits: number;
   policyBreach: boolean;
-  state: "settled" | "retained";
+  state: "settled";
 };
 
 function estimateCostMicrocents(args: {
@@ -38,7 +40,6 @@ export function buildAgentUsageSettlement(args: {
   tokens: TokenCounts;
   reservedCredits: number;
   providerCharge: AgentProviderChargeEvidence;
-  retainReservation: boolean;
 }): AgentUsageSettlement {
   if (!Number.isSafeInteger(args.reservedCredits) || args.reservedCredits < 1)
     throw new Error("Agent usage reservation credits are invalid.");
@@ -65,8 +66,32 @@ export function buildAgentUsageSettlement(args: {
     ...base,
     costMicrocents,
     costSource,
-    chargedCredits: args.retainReservation ? args.reservedCredits : Math.min(meteredCredits, args.reservedCredits),
+    chargedCredits: Math.min(meteredCredits, args.reservedCredits),
     policyBreach: meteredCredits > args.reservedCredits,
-    state: args.retainReservation ? "retained" : "settled",
+    state: "settled",
+  };
+}
+
+export function usageToTokenCounts(usage: LanguageModelUsage): TokenCounts {
+  const tokenCount = (name: string, value: number | undefined) => {
+    const resolved = value ?? 0;
+    if (!Number.isSafeInteger(resolved) || resolved < 0)
+      throw new Error(`Invalid ${name} reported by the AI provider.`);
+    return resolved;
+  };
+  const details = usage.inputTokenDetails;
+  const cacheReadTokens = tokenCount("cacheReadTokens", details?.cacheReadTokens);
+  const cacheWriteTokens = tokenCount("cacheWriteTokens", details?.cacheWriteTokens);
+  const totalInputTokens = tokenCount("inputTokens", usage.inputTokens);
+  const inputTokens =
+    details?.noCacheTokens == null
+      ? Math.max(0, totalInputTokens - cacheReadTokens - cacheWriteTokens)
+      : tokenCount("noCacheTokens", details.noCacheTokens);
+
+  return {
+    inputTokens,
+    outputTokens: tokenCount("outputTokens", usage.outputTokens),
+    cacheReadTokens,
+    cacheWriteTokens,
   };
 }

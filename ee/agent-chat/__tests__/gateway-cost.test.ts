@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { readAgentProviderCharge, readAgentProviderChargeFromError } from "../gateway-cost";
+import { readAgentProviderCharge } from "../gateway-cost";
 
 function billedMetadata(overrides: Record<string, unknown> = {}, routingOverrides: Record<string, unknown> = {}) {
   return {
@@ -108,12 +108,6 @@ describe("gateway provider charge", () => {
 
   it("reports a rate-limited call as not billed so its reservation can be released", () => {
     expect(readAgentProviderCharge(rateLimitedMetadata, "openai")).toEqual({ outcome: "notBilled" });
-    expect(
-      readAgentProviderChargeFromError(
-        { data: { error: { type: "rate_limit_exceeded" }, providerMetadata: rateLimitedMetadata } },
-        "openai",
-      ),
-    ).toEqual({ outcome: "notBilled" });
   });
 
   it.each([

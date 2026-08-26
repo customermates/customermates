@@ -8,7 +8,6 @@ export const AGENT_CONTEXT_BYTES_PER_TOKEN = 3;
 export type AgentModelEntry = {
   modelId: string;
   servingProvider: string;
-  maxSteps: number;
   maxOutputTokens: number;
   maxContextTokens: number;
   maxToolResultChars: number;
@@ -18,7 +17,6 @@ export const MODEL_CATALOG = {
   fast: {
     modelId: "openai/gpt-5-nano",
     servingProvider: "openai",
-    maxSteps: 20,
     maxOutputTokens: 8192,
     maxContextTokens: 66_000,
     maxToolResultChars: 6000,
@@ -26,7 +24,6 @@ export const MODEL_CATALOG = {
   balanced: {
     modelId: "openai/gpt-5.6-luna",
     servingProvider: "openai",
-    maxSteps: 20,
     maxOutputTokens: 2048,
     maxContextTokens: 66_000,
     maxToolResultChars: 6000,

@@ -10,7 +10,6 @@ import { resolveModelPricing } from "./model-pricing";
 export const AGENT_RESERVATION_ROUNDS_AHEAD = 4;
 export const AGENT_MAX_TOOL_RESULT_CHARS = 6000;
 export const AGENT_MIN_CONTEXT_TOKENS_PER_STEP = 8_000;
-export const AGENT_CONTEXT_ACCUMULATION_STEPS = 3;
 
 const USD_PER_AGENT_CREDIT = 0.01;
 
@@ -19,7 +18,6 @@ export type AgentTurnBudget = {
   servingProvider: string;
   reservedCredits: number;
   roundReserveCredits: number;
-  maxSteps: number;
   maxOutputTokens: number;
   maxContextTokens: number;
   maxContextBytes: number;
@@ -40,17 +38,6 @@ function stepWorstCaseUsd(entry: AgentModelEntry, contextTokens: number, outputT
   const maxInputRate = Math.max(pricing.inputPerMTok, pricing.cacheReadPerMTok, pricing.cacheWritePerMTok);
 
   return (promptTokens * maxInputRate) / 1_000_000 + (outputTokens * pricing.outputPerMTok) / 1_000_000;
-}
-
-export function agentTurnWorstCaseUsd(
-  entry: AgentModelEntry,
-  budget: Pick<AgentTurnBudget, "maxSteps" | "maxOutputTokens" | "maxContextTokens"> = {
-    maxSteps: entry.maxSteps,
-    maxOutputTokens: entry.maxOutputTokens,
-    maxContextTokens: entry.maxContextTokens,
-  },
-) {
-  return budget.maxSteps * stepWorstCaseUsd(entry, budget.maxContextTokens, budget.maxOutputTokens);
 }
 
 export function agentRoundWorstCaseCredits(entry: AgentModelEntry) {
@@ -79,7 +66,6 @@ export function resolveAgentTurnBudget(args: {
     servingProvider: entry.servingProvider,
     reservedCredits: Math.min(args.availableCredits, roundReserveCredits * AGENT_RESERVATION_ROUNDS_AHEAD),
     roundReserveCredits,
-    maxSteps: entry.maxSteps,
     maxOutputTokens: entry.maxOutputTokens,
     maxContextTokens: entry.maxContextTokens,
     maxContextBytes: agentContextTokensToBytes(entry.maxContextTokens),

@@ -199,7 +199,6 @@ describe("AgentUsageService admission and ledger", () => {
 
     expect(admission.summary.creditsRemaining).toBe(1);
     expect(admission.reservation?.reservedCredits).toBe(1);
-    expect(admission.reservation?.budget.maxSteps).toBeGreaterThanOrEqual(1);
   });
 
   it("does not reserve when the allowance is exhausted", async () => {
@@ -250,7 +249,6 @@ describe("AgentUsageService admission and ledger", () => {
       },
       reservedCredits: 2,
       providerCharge: { billed: true, measuredCostMicrocents: null, stepTokens: [], unreadableReason: "test" },
-      retainReservation: false,
     });
 
     expect(settlement.policyBreach).toBe(true);
@@ -264,7 +262,6 @@ describe("AgentUsageService admission and ledger", () => {
       tokens: { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 },
       reservedCredits: 14,
       providerCharge: { billed: false, measuredCostMicrocents: null, stepTokens: [], unreadableReason: null },
-      retainReservation: false,
     });
 
     expect(settlement).toMatchObject({
@@ -283,7 +280,6 @@ describe("AgentUsageService admission and ledger", () => {
       tokens: { inputTokens: 35_329, outputTokens: 2_945, cacheReadTokens: 73_728, cacheWriteTokens: 0 },
       reservedCredits: 14,
       providerCharge: { billed: true, measuredCostMicrocents: 2_000_001, stepTokens: [], unreadableReason: null },
-      retainReservation: false,
     });
 
     expect(settlement).toMatchObject({
@@ -306,7 +302,6 @@ describe("AgentUsageService admission and ledger", () => {
         stepTokens: [],
         unreadableReason: "no usable cost figure",
       },
-      retainReservation: false,
     });
 
     expect(settlement).toMatchObject({ costMicrocents: 331_309, costSource: "estimated", state: "settled" });
@@ -328,7 +323,6 @@ describe("AgentUsageService admission and ledger", () => {
       tokens: aggregate,
       reservedCredits: 40,
       providerCharge: { billed: true, measuredCostMicrocents: null, stepTokens: steps, unreadableReason: "test" },
-      retainReservation: false,
     });
 
     expect(settlement.costMicrocents).toBe(1_568_524);
@@ -347,7 +341,6 @@ describe("AgentUsageService admission and ledger", () => {
       },
       reservedCredits: 44,
       providerCharge: { billed: true, measuredCostMicrocents: null, stepTokens: [], unreadableReason: "test" },
-      retainReservation: false,
     });
 
     expect(settlement.costMicrocents).toBe(1_000_025);

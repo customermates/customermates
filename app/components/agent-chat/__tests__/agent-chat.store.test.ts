@@ -186,23 +186,6 @@ describe("AgentChatStore", () => {
     fetchMock.mockRestore();
   });
 
-  it("continues reconciliation for an admitted turn after the visible allowance becomes blocked", async () => {
-    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response('data: {"seq":1,"type":"turn_done"}\n\n', {
-        headers: { "content-type": "text/event-stream" },
-      }),
-    );
-    const store = new AgentChatStore(root() as never);
-    store.usage = { ...CONFIG.usage, blockedReason: "credits_exhausted" };
-    store.isWorking = true;
-
-    await store.sendMessage("Reconcile this turn", { appendUser: false, reconcile: true });
-
-    expect(fetchMock).toHaveBeenCalledOnce();
-    expect(store.items).toEqual([]);
-    fetchMock.mockRestore();
-  });
-
   it("ignores a stale conversation response after the user selects another chat", async () => {
     const firstId = "00000000-0000-4000-8000-000000000001";
     const secondId = "00000000-0000-4000-8000-000000000002";
@@ -1239,8 +1222,7 @@ describe("AgentChatStore", () => {
     vi.unstubAllGlobals();
   });
 
-  it("polls the same idempotency key until a running turn becomes replayable", async () => {
-    vi.useFakeTimers();
+  it("rejoins a busy conversation and re-sends the same idempotency key when it frees up", async () => {
     const conversationId = "00000000-0000-4000-8000-000000000015";
     const clientRequestId = "00000000-0000-4000-8000-000000000016";
     const fetchMock = vi
@@ -1291,6 +1273,27 @@ describe("AgentChatStore", () => {
             },
           },
         ),
+      )
+      .mockImplementation(async () =>
+        Promise.resolve(
+          new Response(
+            `data: ${JSON.stringify({
+              seq: 1,
+              type: "turn_done",
+              isError: false,
+              terminalCode: "completed",
+              assistantMessageId: "assistant-later",
+              affectedResources: [],
+              errorMessage: null,
+            })}\n\n`,
+            {
+              headers: {
+                "content-type": "text/event-stream",
+                "x-conversation-id": conversationId,
+              },
+            },
+          ),
+        ),
       );
     const store = new AgentChatStore(root() as never);
 
@@ -1302,17 +1305,16 @@ describe("AgentChatStore", () => {
     store.setComposerDraft("Queue this while the first turn reconciles");
     store.submitDraft();
     expect(store.queuedPrompt).toBe("Queue this while the first turn reconciles");
-    expect(fetchMock).toHaveBeenCalledOnce();
-    await vi.advanceTimersByTimeAsync(1500);
-    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(4));
 
-    expect(JSON.parse(String(fetchMock.mock.calls[1]?.[1]?.body))).toMatchObject({
+    expect(String(fetchMock.mock.calls[1]?.[0])).toContain(`/api/agent/conversations/${conversationId}/stream`);
+    expect(JSON.parse(String(fetchMock.mock.calls[2]?.[1]?.body))).toMatchObject({
       conversationId,
       clientRequestId,
       text: "Long request",
       retry: false,
     });
-    expect(JSON.parse(String(fetchMock.mock.calls[2]?.[1]?.body))).toMatchObject({
+    expect(JSON.parse(String(fetchMock.mock.calls[3]?.[1]?.body))).toMatchObject({
       conversationId,
       text: "Queue this while the first turn reconciles",
     });
@@ -1324,7 +1326,6 @@ describe("AgentChatStore", () => {
       }),
     );
     fetchMock.mockRestore();
-    vi.useRealTimers();
   });
 
   it("drops a superseded retry chip and keeps the surviving attempt", () => {

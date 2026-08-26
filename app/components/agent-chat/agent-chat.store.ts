@@ -71,8 +71,6 @@ export type AgentChatItem =
 let itemSeq = 0;
 const nextItemId = () => `item-${++itemSeq}`;
 const UI_COMMAND_NAMES = ["navigate", "highlight_element", "start_tour", "click_ui_target", "open_record"] as const;
-const AGENT_TURN_POLL_MAX_ATTEMPTS = 100;
-const AGENT_TURN_POLL_DELAY_MS = 1500;
 const AGENT_CONFIG_LOAD_TIMEOUT_MS = 15000;
 type UiCommandName = (typeof UI_COMMAND_NAMES)[number];
 export type AgentConfigLoadStatus = "ready" | "disabled" | "retry";
@@ -831,13 +829,11 @@ export class AgentChatStore extends BaseStore {
       messageId?: string;
       pageRoute?: string;
       retry?: boolean;
-      pollAttempt?: number;
-      reconcile?: boolean;
     } = {},
   ) => {
     const trimmed = text.trim();
-    if (!trimmed || (this.isWorking && !options.reconcile)) return;
-    if (this.usage?.blockedReason && !options.reconcile) return;
+    if (!trimmed || this.isWorking) return;
+    if (this.usage?.blockedReason) return;
     const messageId = options.messageId ?? globalThis.crypto.randomUUID();
     const pageRoute = options.pageRoute ?? (typeof window === "undefined" ? "/" : window.location.pathname);
     const conversationId = options.conversationId === undefined ? this.conversationId : options.conversationId;
@@ -976,12 +972,10 @@ export class AgentChatStore extends BaseStore {
           !this.activeTurnFailed &&
           !this.usage?.blockedReason,
       );
-      const pollAttempt = options.pollAttempt ?? 0;
       const runningConversationId = this.activeTurnDisposition === "running" ? this.conversationId : null;
-      const shouldContinuePolling = Boolean(runningConversationId && pollAttempt < AGENT_TURN_POLL_MAX_ATTEMPTS);
       runInAction(() => {
         this.abortController = null;
-        this.isWorking = shouldContinuePolling;
+        this.isWorking = false;
         if (shouldSendQueued) {
           this.queuedPrompt = null;
           this.queuedPromptMessageId = null;
@@ -996,22 +990,26 @@ export class AgentChatStore extends BaseStore {
           pageRoute: queuedPageRoute,
         });
       }
-      if (runningConversationId && shouldContinuePolling) {
-        globalThis.setTimeout(() => {
-          if (this.isWorking && !this.abortController && this.conversationId === runningConversationId) {
-            void this.sendMessage(trimmed, {
-              appendUser: false,
-              conversationId: runningConversationId,
-              messageId,
-              pageRoute,
-              retry: false,
-              pollAttempt: pollAttempt + 1,
-              reconcile: true,
-            });
-          }
-        }, AGENT_TURN_POLL_DELAY_MS);
-      } else if (runningConversationId) void this.loadConversation(runningConversationId);
+      if (runningConversationId)
+        void this.rejoinBusyConversation(runningConversationId, { text: trimmed, messageId, pageRoute });
     }
+  };
+
+  private rejoinBusyConversation = async (
+    conversationId: string,
+    resend: { text: string; messageId: string; pageRoute: string },
+  ) => {
+    const loadVersion = this.conversationLoadVersion;
+    await this.reattachStream(conversationId, loadVersion);
+    if (loadVersion !== this.conversationLoadVersion || this.conversationId !== conversationId) return;
+    if (this.abortController || this.isWorking) return;
+    void this.sendMessage(resend.text, {
+      appendUser: false,
+      conversationId,
+      messageId: resend.messageId,
+      pageRoute: resend.pageRoute,
+      retry: false,
+    });
   };
 
   private reattachStream = async (conversationId: string, loadVersion: number) => {

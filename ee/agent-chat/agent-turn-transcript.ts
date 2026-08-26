@@ -20,12 +20,10 @@ export class AgentTurnTranscript {
   private readonly parts: AgentMessagePart[] = [];
   private readonly toolParts = new Map<string, Extract<AgentMessagePart, { type: "activity" }>>();
   private readonly approvalParts = new Map<string, Extract<AgentMessagePart, { type: "approval" }>>();
-  private readonly invalidToolCallIds = new Set<string>();
   private readonly retryableFailureByTool = new Map<string, string>();
   private readonly affected = new Set<AgentActivityResource>();
   private sanitizer = new AgentVisibleTextStreamSanitizer();
   private text = "";
-  private removedProtocol = false;
 
   constructor(private readonly emit: AgentTranscriptEmit) {}
 
@@ -41,10 +39,6 @@ export class AgentTurnTranscript {
     return Array.from(this.affected);
   }
 
-  get removedToolProtocol() {
-    return this.removedProtocol;
-  }
-
   appendText(text: string) {
     if (!text) return;
     this.text += text;
@@ -56,17 +50,14 @@ export class AgentTurnTranscript {
 
   pushTextDelta(delta: string) {
     this.appendText(this.sanitizer.push(delta));
-    this.removedProtocol ||= this.sanitizer.removedToolProtocol;
   }
 
   finishTextSegment() {
     this.appendText(this.sanitizer.finish());
-    this.removedProtocol ||= this.sanitizer.removedToolProtocol;
     this.sanitizer = new AgentVisibleTextStreamSanitizer();
   }
 
-  beginToolCall(call: { toolCallId: string; toolName: string; activity: AgentActivityDescriptor; invalid?: boolean }) {
-    if (call.invalid) this.invalidToolCallIds.add(call.toolCallId);
+  beginToolCall(call: { toolCallId: string; toolName: string; activity: AgentActivityDescriptor }) {
     this.finishTextSegment();
 
     const supersededId = this.retryableFailureByTool.get(call.toolName);
@@ -100,10 +91,8 @@ export class AgentTurnTranscript {
   }
 
   failToolCall(toolCallId: string) {
-    const wasInvalidToolCall = this.invalidToolCallIds.delete(toolCallId);
     this.settleTool(toolCallId, "error");
     this.emit({ type: "activity_result", payload: { id: toolCallId, isError: true } });
-    return { wasInvalidToolCall };
   }
 
   failUnfinishedTools(status: Extract<AgentActivityStatus, "error" | "cancelled">, shouldEmit: boolean) {
@@ -124,11 +113,6 @@ export class AgentTurnTranscript {
     this.approvalParts.set(requestId, approvalPart);
     this.parts.push(approvalPart);
     this.emit({ type: "approval_request", payload: { requestId, activity } });
-  }
-
-  setApprovalStatus(requestId: string, status: AgentApprovalStatus) {
-    const approvalPart = this.approvalParts.get(requestId);
-    if (approvalPart) approvalPart.status = status;
   }
 
   resolveApproval(requestId: string, status: AgentApprovalStatus, decision: string) {

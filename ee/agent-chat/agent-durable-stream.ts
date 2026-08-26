@@ -32,8 +32,6 @@ function unwrapToolOutput(output: unknown) {
 }
 
 export class AgentDurableStreamReader {
-  private readonly toolInputs = new Map<string, unknown>();
-
   read(chunk: unknown): AgentClientEvent | null {
     if (!chunk || typeof chunk !== "object") return null;
     const part = chunk as {
@@ -52,7 +50,6 @@ export class AgentDurableStreamReader {
     if (part.type === "text-delta" && part.text) return { type: "delta", payload: { text: part.text } };
 
     if (part.type === "tool-call" && part.toolCallId && part.toolName) {
-      this.toolInputs.set(part.toolCallId, part.input);
       return {
         type: "activity",
         payload: {
