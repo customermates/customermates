@@ -302,7 +302,6 @@
       "blocked": {
         "configuration_unavailable": "The hosted Assistant is temporarily unavailable. Your history remains accessible.",
         "credits_exhausted": "You have used this month's hosted AI credits. New requests resume on {resetAt}; your history remains accessible.",
-        "enterprise_allowance_missing": "Your Enterprise hosted AI allowance has not been configured yet. Contact Customermates to enable new requests.",
         "self_hosted": "The hosted Assistant is cloud-only. Self-hosted workspaces can continue to use external MCP clients with their own AI provider.",
         "subscription_unavailable": "A current cloud subscription is required for new hosted Assistant requests. Your history remains accessible."
       },

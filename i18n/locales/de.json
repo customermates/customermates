@@ -302,7 +302,6 @@
       "blocked": {
         "configuration_unavailable": "Der gehostete Assistent ist vorübergehend nicht verfügbar. Dein Verlauf bleibt zugänglich.",
         "credits_exhausted": "Du hast die gehosteten KI-Credits dieses Monats verbraucht. Neue Anfragen sind ab {resetAt} wieder möglich; dein Verlauf bleibt zugänglich.",
-        "enterprise_allowance_missing": "Das gehostete KI-Kontingent deines Enterprise-Tarifs ist noch nicht konfiguriert. Kontaktiere Customermates, um neue Anfragen zu aktivieren.",
         "self_hosted": "Der gehostete Assistent ist nur in der Cloud verfügbar. Self-Hosted-Workspaces können externe MCP-Clients mit dem eigenen KI-Anbieter verwenden.",
         "subscription_unavailable": "Für neue Anfragen an den gehosteten Assistenten ist ein aktives Cloud-Abonnement erforderlich. Dein Verlauf bleibt zugänglich."
       },

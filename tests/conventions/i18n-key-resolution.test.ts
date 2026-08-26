@@ -386,7 +386,6 @@ const AGENT_SUGGESTION_KEYS = [
 const AGENT_CREDIT_BLOCKED_KEYS = [
   "configuration_unavailable",
   "credits_exhausted",
-  "enterprise_allowance_missing",
   "self_hosted",
   "subscription_unavailable",
 ].map((reason) => `AgentChat.credits.blocked.${reason}`);

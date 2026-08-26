@@ -11,6 +11,15 @@ export type EntitlementFeature = "agentChat" | "messaging" | "sharedAccounts";
 
 export const TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER = 500;
 
+export function lowestPlanHostedAiCreditsPerActiveUser(): number {
+  const allowances = Object.values(PLAN_CATALOG)
+    .map((plan) => plan.entitlements.hostedAiCreditsPerActiveUser)
+    .flatMap((allowance) => (typeof allowance === "number" && allowance > 0 ? [allowance] : []));
+  if (allowances.length === 0) throw new Error("No plan defines a hosted AI credit allowance.");
+
+  return Math.min(...allowances);
+}
+
 export function getEntitlements(plan: SubscriptionPlan): PlanEntitlements {
   return PLAN_CATALOG[plan].entitlements;
 }

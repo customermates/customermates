@@ -302,7 +302,6 @@
       "blocked": {
         "configuration_unavailable": "L’Assistente ospitato non è al momento disponibile. La cronologia resta accessibile.",
         "credits_exhausted": "I crediti AI in hosting di questo mese sono esauriti. Le nuove richieste riprenderanno il {resetAt}; la cronologia resta accessibile.",
-        "enterprise_allowance_missing": "Il contingente AI in hosting del piano Enterprise non è ancora stato configurato. Contattare Customermates per abilitare nuove richieste.",
         "self_hosted": "L’Assistente ospitato è disponibile solo nel cloud. Le aree di lavoro self-hosted possono continuare a usare client MCP esterni con il proprio provider di IA.",
         "subscription_unavailable": "Per nuove richieste all’Assistente in hosting è necessario un abbonamento cloud attivo. La cronologia resta accessibile."
       },

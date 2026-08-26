@@ -14,7 +14,7 @@ export function CreditBlockedNotice({ usage }: { usage: AgentUsageSummary }) {
   const router = useRouter();
   const reason = usage.blockedReason ?? "credits_exhausted";
   const resetAt = intlStore.formatDescriptiveShortDate(new Date(usage.resetAt));
-  const contact = reason === "enterprise_allowance_missing" || reason === "configuration_unavailable";
+  const contact = reason === "configuration_unavailable";
 
   return (
     <div className="flex items-start justify-between gap-3 px-1 py-2" role="status">

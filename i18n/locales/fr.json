@@ -302,7 +302,6 @@
       "blocked": {
         "configuration_unavailable": "L’Assistant hébergé est temporairement indisponible. Votre historique reste accessible.",
         "credits_exhausted": "Vous avez utilisé les crédits IA hébergés de ce mois. Les nouvelles demandes reprendront le {resetAt} ; votre historique reste accessible.",
-        "enterprise_allowance_missing": "Votre quota d’IA hébergée Enterprise n’est pas encore configuré. Contactez Customermates pour activer de nouvelles requêtes.",
         "self_hosted": "L’Assistant hébergé est disponible uniquement dans le cloud. Les espaces de travail auto-hébergés peuvent continuer à utiliser des clients MCP externes avec leur propre fournisseur d’IA.",
         "subscription_unavailable": "Un abonnement cloud actif est nécessaire pour envoyer de nouvelles demandes à l’Assistant hébergé. Votre historique reste accessible."
       },

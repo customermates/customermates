@@ -302,7 +302,6 @@
       "blocked": {
         "configuration_unavailable": "El Asistente alojado no está disponible temporalmente. El historial sigue estando accesible.",
         "credits_exhausted": "Ha agotado los créditos de IA alojada de este mes. Las nuevas solicitudes se reanudarán el {resetAt}; su historial sigue disponible.",
-        "enterprise_allowance_missing": "Su cuota de IA alojada del plan Enterprise aún no está configurada. Póngase en contacto con Customermates para habilitar nuevas solicitudes.",
         "self_hosted": "El Asistente alojado solo está disponible en la nube. Los espacios de trabajo autoalojados pueden seguir utilizando clientes MCP externos con su propio proveedor de IA.",
         "subscription_unavailable": "Para realizar nuevas solicitudes al Asistente alojado se necesita una suscripción cloud vigente. Su historial sigue disponible."
       },

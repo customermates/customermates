@@ -132,9 +132,9 @@ describe("AgentUsageService summary", () => {
 
     const summary = await service.getUsageSummary("user-1", NOW);
 
-    expect(summary.creditsLimit).toBe(0);
+    expect(summary.creditsLimit).toBe(200);
     expect(summary.usedPct).toBe(0);
-    expect(summary.blockedReason).toBe("enterprise_allowance_missing");
+    expect(summary.blockedReason).toBeNull();
   });
 
   it("does not grant a hosted allowance to an inactive user", async () => {

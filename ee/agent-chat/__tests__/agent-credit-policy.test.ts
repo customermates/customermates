@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
-import { TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER } from "@/ee/subscription/entitlements";
+import {
+  TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER,
+  lowestPlanHostedAiCreditsPerActiveUser,
+} from "@/ee/subscription/entitlements";
 
 import {
   agentCreditPeriodForAnchor,
@@ -80,11 +83,12 @@ describe("agent credit entitlements", () => {
     expect(result.blockedReason).toBeNull();
   });
 
-  it("fails closed when Enterprise has no finite internal allowance", () => {
+  it("falls back to the lowest plan allowance when Enterprise has no contracted figure", () => {
     const result = entitlement({ plan: SubscriptionPlan.enterprise });
 
-    expect(result.limit).toBe(0);
-    expect(result.blockedReason).toBe("enterprise_allowance_missing");
+    expect(result.limit).toBe(lowestPlanHostedAiCreditsPerActiveUser());
+    expect(result.limit).toBeGreaterThan(0);
+    expect(result.blockedReason).toBeNull();
   });
 
   it("uses the finite Enterprise allowance", () => {

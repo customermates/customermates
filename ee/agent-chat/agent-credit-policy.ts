@@ -5,15 +5,15 @@ import { SubscriptionStatus, type SubscriptionPlan } from "@/generated/prisma";
 import type { Data } from "@/core/validation/validation.utils";
 import { assertValidDate } from "@/core/utils/date";
 
-import { getEntitlements, TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER } from "@/ee/subscription/entitlements";
+import {
+  getEntitlements,
+  lowestPlanHostedAiCreditsPerActiveUser,
+  TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER,
+} from "@/ee/subscription/entitlements";
 
 export const AGENT_CREDIT_MICROCENTS = 1_000_000;
 
-export const AgentCreditEntitlementBlockedReasonSchema = z.enum([
-  "self_hosted",
-  "subscription_unavailable",
-  "enterprise_allowance_missing",
-]);
+export const AgentCreditEntitlementBlockedReasonSchema = z.enum(["self_hosted", "subscription_unavailable"]);
 
 export type AgentCreditEntitlementBlockedReason = Data<typeof AgentCreditEntitlementBlockedReasonSchema>;
 
@@ -97,18 +97,16 @@ export function prorateAgentCreditsForSeat(
   return result;
 }
 
-function paidPlanAllowance(plan: SubscriptionPlan, enterpriseCreditsPerUser: number | null) {
+function paidPlanAllowance(plan: SubscriptionPlan, enterpriseCreditsPerUser: number | null): number {
   const configured = getEntitlements(plan).hostedAiCreditsPerActiveUser;
-  if (typeof configured === "number") return { allowance: configured, missingEnterpriseAllowance: false };
+  if (typeof configured === "number") return configured;
 
-  const validEnterpriseAllowance =
+  const contracted =
     Number.isSafeInteger(enterpriseCreditsPerUser) && (enterpriseCreditsPerUser ?? -1) > 0
       ? enterpriseCreditsPerUser
       : null;
-  return {
-    allowance: validEnterpriseAllowance ?? 0,
-    missingEnterpriseAllowance: validEnterpriseAllowance === null,
-  };
+
+  return contracted ?? lowestPlanHostedAiCreditsPerActiveUser();
 }
 
 export function resolveAgentCreditEntitlement(input: AgentCreditEntitlementInput): AgentCreditEntitlement {
@@ -145,15 +143,7 @@ export function resolveAgentCreditEntitlement(input: AgentCreditEntitlementInput
     };
   }
 
-  const paid = paidPlanAllowance(input.plan, input.enterpriseCreditsPerUser);
-  if (paid.missingEnterpriseAllowance) {
-    return {
-      ...period,
-      plan: input.plan,
-      limit: 0,
-      blockedReason: "enterprise_allowance_missing",
-    };
-  }
+  const allowance = paidPlanAllowance(input.plan, input.enterpriseCreditsPerUser);
 
   if (
     input.activeSeatAt === null ||
@@ -172,7 +162,7 @@ export function resolveAgentCreditEntitlement(input: AgentCreditEntitlementInput
   return {
     ...period,
     plan: input.plan,
-    limit: prorateAgentCreditsForSeat(paid.allowance, input.activeSeatAt, period),
+    limit: prorateAgentCreditsForSeat(allowance, input.activeSeatAt, period),
     blockedReason: null,
   };
 }
