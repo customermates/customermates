@@ -1,7 +1,17 @@
 import { SkeletonShape as Shape } from "@/components/page-state/skeleton-shape";
 import { cn } from "@/core/utils/cn";
+import {
+  getEntityDetailSummaryGeometry,
+  getSummaryCellGridColumn,
+  getSummarySeparatorColumns,
+  isSummaryGroupStart,
+} from "./entity-detail-summary-geometry";
 
-type Props = { animated?: boolean; showSummary?: boolean; summaryItemCount?: number };
+type Props = {
+  animated?: boolean;
+  showSummary?: boolean;
+  summaryItemCount?: number;
+};
 
 const FORM_ROWS = Array.from({ length: 4 }, (_, index) => index);
 const TIMELINE_ROWS = Array.from({ length: 6 }, (_, index) => index);
@@ -53,6 +63,50 @@ export function EntityDetailPageSkeleton({
   showActivityPanel = false,
 }: Props & { showNotesPanel?: boolean; showActivityPanel?: boolean }) {
   const panelCount = 1 + Number(showNotesPanel) + Number(showActivityPanel);
+  const summaryGeometry = getEntityDetailSummaryGeometry({
+    showActivityPanel,
+    showNotesPanel,
+  });
+  const hasWideSummaryGrid = Boolean(summaryGeometry.gridTemplateColumns);
+  const summarySeparatorColumns = getSummarySeparatorColumns(summaryGeometry.groupSizes);
+  const wideSummaryCapacity = summaryGeometry.groupSizes.reduce((total, groupSize) => total + groupSize, 0);
+  const alignedSummaryItemCount = hasWideSummaryGrid
+    ? Math.min(summaryItemCount, wideSummaryCapacity)
+    : summaryItemCount;
+
+  const renderSummaryItem = (index: number, isAligned: boolean) => (
+    <div
+      key={index}
+      className={cn(
+        "flex w-32 shrink-0 flex-col justify-center border-border p-3",
+        index === 0 && cn("pl-0", hasWideSummaryGrid && "@6xl/detail:pl-4"),
+        index > 0 && "border-l",
+        index === summaryItemCount - 1 && cn("pr-0", hasWideSummaryGrid && "@6xl/detail:pr-4"),
+        hasWideSummaryGrid && isAligned && "@6xl/detail:w-auto @6xl/detail:min-w-0",
+        hasWideSummaryGrid &&
+          isAligned &&
+          isSummaryGroupStart(index, summaryGeometry.groupSizes) &&
+          "@6xl/detail:border-l-0",
+      )}
+      data-summary-overflow={hasWideSummaryGrid && !isAligned ? "true" : undefined}
+      style={
+        hasWideSummaryGrid && isAligned
+          ? {
+              gridColumn: getSummaryCellGridColumn(index, summaryGeometry.groupSizes),
+              gridRow: 1,
+            }
+          : undefined
+      }
+    >
+      <Shape
+        animated={animated}
+        className="h-2.5 w-16"
+        motionPhase={MOTION_PHASES[index % MOTION_PHASES.length] ?? 0}
+      />
+
+      <Shape animated={animated} breathe={index === 0} className="mt-2 h-4 w-20" motionPhase={1} />
+    </div>
+  );
 
   return (
     <div
@@ -72,18 +126,39 @@ export function EntityDetailPageSkeleton({
             data-entity-detail-skeleton-summary
             className="h-[68px] shrink-0 overflow-hidden border-b border-border px-4"
           >
-            <div className="flex h-full w-max min-w-full items-stretch divide-x divide-border">
-              {Array.from({ length: summaryItemCount }, (_, index) => (
-                <div key={index} className="flex w-32 shrink-0 flex-col justify-center p-3 first:pl-0 last:pr-0">
-                  <Shape
-                    animated={animated}
-                    className="h-2.5 w-16"
-                    motionPhase={MOTION_PHASES[index % MOTION_PHASES.length] ?? 0}
-                  />
+            <div className={cn("-mx-4 h-full overflow-hidden px-4", hasWideSummaryGrid && "@6xl/detail:px-0")}>
+              <div
+                data-summary-rail
+                className={cn("flex h-full w-max min-w-full items-stretch", hasWideSummaryGrid && "@6xl/detail:w-full")}
+                data-summary-geometry={summaryGeometry.id}
+              >
+                <div
+                  data-summary-aligned-grid
+                  className={cn(
+                    "contents",
+                    hasWideSummaryGrid && "@6xl/detail:grid @6xl/detail:w-full @6xl/detail:flex-none",
+                  )}
+                  style={hasWideSummaryGrid ? { gridTemplateColumns: summaryGeometry.gridTemplateColumns } : undefined}
+                >
+                  {Array.from({ length: alignedSummaryItemCount }, (_, index) => renderSummaryItem(index, true))}
 
-                  <Shape animated={animated} breathe={index === 0} className="mt-2 h-4 w-20" motionPhase={1} />
+                  {hasWideSummaryGrid
+                    ? summarySeparatorColumns.map((column) => (
+                        <div
+                          key={column}
+                          aria-hidden
+                          data-summary-panel-divider
+                          className="hidden bg-border @6xl/detail:block"
+                          style={{ gridColumn: column, gridRow: 1 }}
+                        />
+                      ))
+                    : null}
                 </div>
-              ))}
+
+                {Array.from({ length: summaryItemCount - alignedSummaryItemCount }, (_, overflowIndex) =>
+                  renderSummaryItem(alignedSummaryItemCount + overflowIndex, false),
+                )}
+              </div>
             </div>
           </div>
         ) : null}

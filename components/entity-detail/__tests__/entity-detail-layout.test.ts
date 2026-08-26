@@ -76,12 +76,25 @@ vi.mock("@/components/page-state/page-state", async (importOriginal) => {
 });
 
 import { EntityDetailLayout } from "../entity-detail-layout";
+import { useEntityDetailSummaryGeometry } from "../entity-detail-summary-geometry-context";
 
 type DetailState = "loading" | "not-found" | "error" | "content";
 
 function renderState(
   state: DetailState,
-  { canManage = false, isEditingCustomField = false, serverSnapshotApplied = true } = {},
+  {
+    canManage = false,
+    isEditingCustomField = false,
+    serverSnapshotApplied = true,
+    showNotesPanel = true,
+    summary,
+  }: {
+    canManage?: boolean;
+    isEditingCustomField?: boolean;
+    serverSnapshotApplied?: boolean;
+    showNotesPanel?: boolean;
+    summary?: ReactNode;
+  } = {},
 ) {
   const entityId = "contact-1";
   const store: Record<string, any> = {
@@ -115,11 +128,18 @@ function renderState(
       identity: { name: "Ada Lovelace" },
       masterData: createElement("div", { "data-master-data": true }),
       serverSnapshotApplied,
+      showNotesPanel,
       store: store as never,
+      summary,
     }),
   );
 
   return { html, store };
+}
+
+function SummaryGeometryProbe() {
+  const geometry = useEntityDetailSummaryGeometry();
+  return createElement("div", { "data-summary-geometry-probe": geometry.id });
 }
 
 function findElementByProp(node: ReactNode, property: string, value: unknown): ReactElement | undefined {
@@ -168,7 +188,9 @@ describe("EntityDetailLayout", () => {
   });
 
   it("does not expose a retained entity before the authoritative server snapshot is applied", () => {
-    const { html, store } = renderState("content", { serverSnapshotApplied: false });
+    const { html, store } = renderState("content", {
+      serverSnapshotApplied: false,
+    });
 
     expect(store.hydrate).not.toHaveBeenCalled();
     expect(html).toContain('data-page-state="loading"');
@@ -198,6 +220,25 @@ describe("EntityDetailLayout", () => {
     expect(html).toContain("EntityTimeline.types.activities");
     expect(html).toContain("@6xl/detail:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_360px]");
   });
+
+  it.each([
+    [true, true, "details-notes-activities"],
+    [true, false, "details-notes"],
+    [false, true, "details-activities"],
+    [false, false, "details"],
+  ] as const)(
+    "shares the notes=%s activities=%s wide geometry with the favorite summary",
+    (showNotesPanel, canReadHistory, expectedGeometry) => {
+      harness.canReadHistory = canReadHistory;
+
+      const { html } = renderState("content", {
+        showNotesPanel,
+        summary: createElement(SummaryGeometryProbe),
+      });
+
+      expect(html).toContain(`data-summary-geometry-probe="${expectedGeometry}"`);
+    },
+  );
 
   it("uses one Customize control to enter personalization and field editing together", () => {
     harness.personalizationEnabled = true;

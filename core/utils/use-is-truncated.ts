@@ -14,10 +14,29 @@ export function useIsTruncated(ref: RefObject<HTMLElement | null>, dependency?: 
     const update = () => setIsTruncated(el.scrollWidth > el.clientWidth + 1);
     update();
 
-    if (typeof ResizeObserver === "undefined") return;
+    const frame = typeof requestAnimationFrame === "undefined" ? undefined : requestAnimationFrame(update);
+    const fallbackTimer = frame === undefined && typeof setTimeout !== "undefined" ? setTimeout(update, 0) : undefined;
+
+    const cleanupScheduledUpdate = () => {
+      if (frame !== undefined) cancelAnimationFrame(frame);
+      if (fallbackTimer !== undefined) clearTimeout(fallbackTimer);
+    };
+
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", update);
+
+      return () => {
+        cleanupScheduledUpdate();
+        window.removeEventListener("resize", update);
+      };
+    }
+
     const observer = new ResizeObserver(update);
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => {
+      cleanupScheduledUpdate();
+      observer.disconnect();
+    };
   }, [ref, dependency]);
 
   return isTruncated;

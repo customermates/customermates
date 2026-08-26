@@ -31,6 +31,7 @@ import { EntityDetailPageSkeleton } from "./entity-detail-page-skeleton";
 import { resolveEntityDetailPageState } from "./entity-detail-page-state";
 import { ENTITY_URL_SEGMENT } from "./entity-relations";
 import { useEntityDetailPersonalization } from "./entity-detail-personalization";
+import { EntityDetailSummaryGeometryProvider } from "./entity-detail-summary-geometry-context";
 
 type IdentityProps = {
   name: string;
@@ -319,7 +320,11 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
     <AppForm id={formId} store={store as unknown as BaseFormStore}>
       <div className="@container/detail flex min-h-0 w-full flex-1 flex-col">
         <div className="animate-page-result-in flex min-h-0 w-full flex-1 flex-col overflow-y-auto motion-reduce:animate-none @6xl/detail:overflow-y-visible">
-          {hasSummary ? summary : null}
+          {hasSummary ? (
+            <EntityDetailSummaryGeometryProvider showActivityPanel={canSeeHistory} showNotesPanel={showNotesPanel}>
+              {summary}
+            </EntityDetailSummaryGeometryProvider>
+          ) : null}
 
           {(showNotesPanel || canSeeHistory) && (
             <div

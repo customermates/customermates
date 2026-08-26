@@ -53,12 +53,24 @@ describe("page skeleton families", () => {
 
   it("matches the responsive entity-detail panel and section geometry", () => {
     const detail = renderToStaticMarkup(
-      createElement(EntityDetailPageSkeleton, { showActivityPanel: true, showSummary: true }),
+      createElement(EntityDetailPageSkeleton, {
+        showActivityPanel: true,
+        showSummary: true,
+        summaryItemCount: 12,
+      }),
     );
 
     expect(detail).toContain("@container/detail size-full min-h-0");
     expect(detail).toContain("data-entity-detail-skeleton-shell");
     expect(detail).toContain("data-entity-detail-skeleton-summary");
+    expect(detail).toContain('data-summary-geometry="details-notes-activities"');
+    expect(detail).toContain("-mx-4 h-full overflow-hidden px-4 @6xl/detail:px-0");
+    expect(detail).toContain("flex h-full w-max min-w-full items-stretch @6xl/detail:w-full");
+    expect(detail).toContain("data-summary-aligned-grid");
+    expect(detail).toContain("@6xl/detail:grid @6xl/detail:w-full @6xl/detail:flex-none");
+    expect(detail).toContain("repeat(4, minmax(0, 9fr))");
+    expect(count(detail, "data-summary-panel-divider")).toBe(2);
+    expect(count(detail, 'data-summary-overflow="true"')).toBe(2);
     expect(detail).toContain("overflow-y-auto @6xl/detail:overflow-y-visible");
     expect(detail).toContain("data-entity-detail-skeleton-tabs");
     expect(detail).toContain("h-13 shrink-0 border-b border-border bg-background @6xl/detail:hidden");
