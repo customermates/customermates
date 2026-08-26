@@ -14,6 +14,7 @@ type GenerateMetadataParams = {
   locale: string;
   route: keyof typeof ROUTE_SOURCE_MAP;
   params?: Record<string, string>;
+  descriptionSuffix?: string;
   titleSuffix?: string;
   type?: "article" | "website";
 };
@@ -22,6 +23,7 @@ export function generateMetadataFromMeta({
   locale,
   route,
   params = {},
+  descriptionSuffix,
   titleSuffix,
   type = "website",
 }: GenerateMetadataParams): Metadata {
@@ -37,7 +39,9 @@ export function generateMetadataFromMeta({
 
   const baseTitle = page.data.title?.trim() || "";
   const title = titleSuffix ? `${baseTitle} - ${titleSuffix}` : baseTitle;
-  const description = page.data.description?.trim() || "";
+  const baseDescription = page.data.description?.trim() || "";
+  const description =
+    descriptionSuffix && baseDescription ? `${baseDescription} - ${descriptionSuffix}` : baseDescription;
 
   if (!baseTitle) throw new Error(`The content page backing ${route} in locale ${locale} has no title`);
 

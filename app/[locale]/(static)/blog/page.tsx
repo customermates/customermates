@@ -41,6 +41,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     canonicalPath: hubPageHref("/blog", resolution.page),
     locale,
     route: "/blog",
+    descriptionSuffix: resolution.page > 1 ? t("Common.pageNumber", { page: resolution.page }) : undefined,
     titleSuffix: resolution.page > 1 ? t("Common.pageNumber", { page: resolution.page }) : undefined,
   });
 }

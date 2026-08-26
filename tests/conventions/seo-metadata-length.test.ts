@@ -15,8 +15,9 @@ import { REPO_ROOT, walkFiles } from "./walk";
 const TITLE_LIMIT = 60;
 const DESCRIPTION_LIMIT = 160;
 
-// A paginated hub appends " - Page 2" to its own title, so its base has to leave room or the
-// page-2 URL is over the limit while the page-1 URL looks fine.
+// A paginated hub appends " - Page 2" to its own title AND description, so both bases have to
+// leave room or the page-2 URL is over the limit while the page-1 URL looks fine. Without the
+// description suffix a hub and its ?page=N variants all shipped one identical description.
 const PAGE_SUFFIX_ALLOWANCE = 9;
 const PAGINATED_HUB_COLLECTIONS = new Set(["blog", "compare", "features-all", "for"]);
 
@@ -75,6 +76,10 @@ function limitFor(collection: string): number {
   return PAGINATED_HUB_COLLECTIONS.has(collection) ? TITLE_LIMIT - PAGE_SUFFIX_ALLOWANCE : TITLE_LIMIT;
 }
 
+function descriptionLimitFor(collection: string): number {
+  return PAGINATED_HUB_COLLECTIONS.has(collection) ? DESCRIPTION_LIMIT - PAGE_SUFFIX_ALLOWANCE : DESCRIPTION_LIMIT;
+}
+
 describe("seo metadata length", () => {
   it("reads a meaningful number of pages", () => {
     expect(META.length, "the scan found almost nothing, so the assertions below prove nothing").toBeGreaterThan(350);
@@ -93,8 +98,9 @@ describe("seo metadata length", () => {
   });
 
   it("keeps every description within what a search result renders", () => {
-    const over = META.filter((page) => page.description.length > DESCRIPTION_LIMIT).map(
-      (page) => `${relative(REPO_ROOT, page.path)}: description is ${page.description.length}, limit ${DESCRIPTION_LIMIT}`,
+    const over = META.filter((page) => page.description.length > descriptionLimitFor(page.collection)).map(
+      (page) =>
+        `${relative(REPO_ROOT, page.path)}: description is ${page.description.length}, limit ${descriptionLimitFor(page.collection)}`,
     );
 
     expect(over, over.join("\n")).toEqual([]);

@@ -40,6 +40,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     canonicalPath: hubPageHref("/compare", resolution.page),
     locale,
     route: "/compare",
+    descriptionSuffix: resolution.page > 1 ? t("Common.pageNumber", { page: resolution.page }) : undefined,
     titleSuffix: resolution.page > 1 ? t("Common.pageNumber", { page: resolution.page }) : undefined,
   });
 }
