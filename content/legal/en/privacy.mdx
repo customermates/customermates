@@ -5,7 +5,7 @@ description: Learn how Customermates processes and protects personal data and wh
 
 # Privacy Policy
 
-_Version 2026-08-08, last updated 8 August 2026_
+_Version 2026-08-26, last updated 26 August 2026_
 
 ## Scope of This Policy
 
@@ -35,7 +35,7 @@ Some of the data is collected to ensure the website is provided without errors. 
 
 What rights do you have regarding your data?
 
-You have the right to receive information about the origin, recipient, and purpose of your stored personal data at any time, free of charge. You also have the right to request the correction or deletion of this data. If you have given consent to data processing, you can revoke this consent at any time for the future. Furthermore, you have the right to request the restriction of the processing of your personal data under certain circumstances. You also have the right to lodge a complaint with the competent supervisory authority. You can contact us at any time regarding this and other questions about data protection. Analysis and third-party tools: website use is measured in aggregated form, and the affiliate tracking described in section 5 processes pseudonymous browser and attribution data. Details are set out below.
+You have the right to receive information about the origin, recipient, and purpose of your stored personal data at any time, free of charge. You also have the right to request the correction or deletion of this data. If you have given consent to data processing, you can revoke this consent at any time for the future. Furthermore, you have the right to request the restriction of the processing of your personal data under certain circumstances. You also have the right to lodge a complaint with the competent supervisory authority. You can contact us at any time regarding this and other questions about data protection. Analysis and third-party tools: website use is measured in aggregated form only after analytics consent. Affiliate tracking and advertising attribution are disabled. Details are set out below.
 
 ## 2. Hosting and Infrastructure Providers
 
@@ -185,7 +185,7 @@ The use of contact data published within the framework of the imprint obligation
 
 Our Internet pages use so-called "cookies". Cookies are small data packets and do not cause any damage to your device. They are stored either temporarily for the duration of a session (session cookies) or permanently (permanent cookies) on your device. Session cookies are automatically deleted after your visit. Permanent cookies remain stored on your device until you delete them yourself or an automatic deletion is carried out by your web browser. Cookies can originate from us (first-party cookies) or from third-party companies (so-called third-party cookies). Third-party cookies enable the integration of certain services of third-party companies within websites (e.g., cookies for handling payment services). Cookies have various functions. Numerous cookies are technically necessary, as certain website functions would not work without them (e.g., the shopping cart function or the display of videos). Other cookies can be used to evaluate user behavior or for advertising purposes.
 
-Cookies or comparable technologies that are strictly necessary to transmit a communication or provide a digital service expressly requested by you are stored or accessed under § 25 para. 2 TDDDG. Any subsequent processing of personal data is based on Art. 6 para. 1 lit. b GDPR where necessary to provide the requested contractual function and otherwise on Art. 6 para. 1 lit. f GDPR unless our legitimate interest in secure operation is overridden by the interests or fundamental rights and freedoms of data subjects. Non-essential storage or access requires consent under § 25 para. 1 TDDDG; related personal-data processing is based on Art. 6 para. 1 lit. a GDPR. Consent may be withdrawn at any time. The affiliate technology described in Section 5 is non-essential, and the managed service does not currently implement the consent mechanism required before its device access.
+Cookies or comparable technologies that are strictly necessary to transmit a communication or provide a digital service expressly requested by you are stored or accessed under § 25 para. 2 TDDDG. Any subsequent processing of personal data is based on Art. 6 para. 1 lit. b GDPR where necessary to provide the requested contractual function and otherwise on Art. 6 para. 1 lit. f GDPR unless our legitimate interest in secure operation is overridden by the interests or fundamental rights and freedoms of data subjects. Non-essential storage or access requires consent under § 25 para. 1 TDDDG; related personal-data processing is based on Art. 6 para. 1 lit. a GDPR. Consent may be withdrawn at any time. The managed cloud service presents a privacy choice before loading optional analytics. Affiliate tracking and advertising-attribution tags remain disabled.
 
 You can set your browser so that you are informed about the setting of cookies and only allow cookies in individual cases, exclude the acceptance of cookies for certain cases or in general, and activate the automatic deletion of cookies when closing the browser. If cookies are deactivated, the functionality of this website may be limited. Which cookies and services are used on this website can be found in this privacy policy.
 
@@ -210,11 +210,11 @@ We initiate these requests on the basis of Art. 6 para. 1 lit. f GDPR, based on 
 
 ### Vercel Web Analytics
 
-We use Vercel Web Analytics, a usage measurement service of Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, USA (hereinafter "Vercel"). Vercel Web Analytics is active on all pages of our website and of the web application, including the pages available after login.
+We use Vercel Web Analytics, a usage measurement service of Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, USA (hereinafter "Vercel"). On the managed cloud service, the analytics component loads on website and application pages, including pages available after login, only after the analytics category is accepted. It is not loaded by the upstream application in self-hosted mode.
 
 Vercel Web Analytics records page views and the associated usage measurement data, in particular the page called up, the referrer, and technical information derived from the request such as the browser and device type and an approximate geographic origin, and makes this available to us in aggregated form. We use this data to understand how our offering is used and to improve it.
 
-The use of Vercel Web Analytics is based on our legitimate interest in the needs-based design and improvement of our offering (Art. 6 para. 1 lit. f GDPR). According to Vercel, this analytics service does not use cookies or store data on or access data from your device for analytics purposes.
+The use of Vercel Web Analytics is based on your consent (Art. 6 para. 1 lit. a GDPR). You may withdraw it at any time through the privacy choices control; withdrawal prevents future loading after the page reloads. According to Vercel, this analytics service does not use cookies or store data on or access data from your device for analytics purposes.
 
 The transfer of personal data to the USA is based on the standard contractual clauses of the EU Commission of 2021 pursuant to Art. 46 GDPR, as set out in Vercel's data processing addendum. Further details can be found in Vercel's privacy policy: https://vercel.com/legal/privacy-policy.
 
@@ -292,16 +292,10 @@ As Lemon Squeezy is based in the USA, personal data may be transferred to a thir
 
 ### Affiliate Tracking (Lemon Squeezy)
 
-As part of our affiliate program, we use a tracking system provided by the payment and affiliate service provider **Sold through Link, LLC** (formerly Lemon Squeezy LLC),<br />
+Our payment provider **Sold through Link, LLC** (formerly Lemon Squeezy LLC) also offers an affiliate tracking system,<br />
 222 South Main Street, Suite 500, Salt Lake City, UT 84101, USA.
 
-Affiliate tracking is used for the **attribution of concluded contracts to referring partners** and the settlement of affiliate commissions. The affiliate script is scheduled by the root layout on managed Customermates routes. When the browser fetches it as part of a full document load, the request discloses ordinary request metadata, including the browser's IP address, to Lemon Squeezy. When its affiliate tracker initialises, it reads `document.cookie` to look for an existing `ls_aff_ref` cookie. The current root layout does not suppress the script solely because `APP_MODE=self-hosted` is set. An independent self-host operator controls its own deployment and is responsible for its own disclosures and consent choices.
-
-If neither an existing `ls_aff_ref` cookie nor an `aff` parameter in the page URL is found, the script exits without executing its bundled fingerprinting routine or sending an affiliate tracking POST. Otherwise it executes that routine and reads browser and device signals including canvas, audio, fonts, plugins, storage availability, screen, platform, and hardware characteristics; where the trigger is an `aff` parameter, it can set the `ls_aff_ref` cookie. The cookie duration is controlled by the affiliate-program setting and has not yet been verified for our store.
-
-When affiliate identification is triggered, the script sends the page URL, referrer, affiliate or click reference, and a **pseudonymous visitor identifier** to Lemon Squeezy's affiliate endpoint. For the ordinary request metadata disclosed by the unconditional script load and for subsequent personal-data processing for affiliate attribution, we currently rely on Art. 6(1)(f) GDPR (legitimate interest in administering the affiliate program and settling commissions). Storage of device information or access to it requires a separate basis under § 25 TDDDG; Art. 6 GDPR does not replace it. Affiliate attribution is not strictly necessary to provide the digital service requested by the visitor, so consent under § 25(1) TDDDG and a corresponding technical mechanism are required before the non-essential device access. That consent mechanism is not currently implemented.
-
-As Lemon Squeezy is based in the USA, personal data may be transferred to a third country. Lemon Squeezy's contractual role and the applicable transfer mechanism for affiliate tracking have not yet been established for our account; both issues remain unresolved for the current processing.
+The managed Customermates service does not currently load or initialise that affiliate script, and the upstream application does not load it in self-hosted mode. Customermates therefore does not use the script to read an `ls_aff_ref` cookie, create a browser fingerprint, set an affiliate cookie, or send affiliate-attribution data. The integration remains disabled because Lemon Squeezy's contractual role, the applicable transfer mechanism, and the store-specific cookie duration have not yet been verified for our account. It may be enabled only after those questions and the required consent design have been reviewed. An independent self-host operator controls its own deployment and is responsible for any integration it adds.
 
 Further information on data processing by Lemon Squeezy can be found in their privacy policy:
 

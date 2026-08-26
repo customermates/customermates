@@ -57,6 +57,10 @@ function legal(locale: string, slug: string): string {
   return readFileSync(join(REPO_ROOT, "content", "legal", locale, `${slug}.mdx`), "utf8");
 }
 
+function affiliate(locale: ContentLocale): string {
+  return readFileSync(join(REPO_ROOT, "content", "affiliate", locale, "affiliate.mdx"), "utf8");
+}
+
 function locale(name: string): Record<string, Record<string, string>> {
   return JSON.parse(readFileSync(join(REPO_ROOT, "i18n", "locales", `${name}.json`), "utf8"));
 }
@@ -91,7 +95,6 @@ describe("legal Unipile disclosure parity", () => {
     expect(legal(name, "dpa")).toMatch(/Art\.?\s?28|Article\s?28|Auftragsverarbeitung/);
   });
 });
-
 describe("legal documents describe only what the product does", () => {
   it.each(CONTENT_LOCALES)("privacy and subprocessors (%s) drop retired subjects", (name) => {
     const text = `${legal(name, "privacy")}\n${legal(name, "subprocessors")}`.toLowerCase();
@@ -229,21 +232,33 @@ describe("managed service and independent self-hosting stay separated", () => {
     );
   });
 
-  it.each(CONTENT_LOCALES)(
-    "affiliate disclosure (%s) records the consent and current self-host behavior",
-    (name) => {
-    const text = `${legal(name, "privacy")}\n${legal(name, "subprocessors")}`;
+  it.each(CONTENT_LOCALES)("affiliate disclosure (%s) records the disabled integration gate", (name) => {
+    const text = `${legal(name, "privacy")}\n${legal(name, "subprocessors")}\n${affiliate(name)}`;
 
     expect(text).toMatch(
       name === "en"
-        ? /does not suppress the script solely because `APP_MODE=self-hosted` is set/
-        : /unterdrückt das Skript nicht allein deshalb, weil `APP_MODE=self-hosted` gesetzt ist/,
+        ? /affiliate tracker is disabled|does not currently load or initialise that affiliate script/i
+        : /Affiliate-Tracker ist.*deaktiviert|lädt oder initialisiert dieses Affiliate-Skript derzeit nicht/i,
     );
     expect(text).toMatch(
       name === "en"
-        ? /consent mechanism is not currently implemented/
-        : /Einwilligungsmechanismus ist derzeit nicht implementiert/,
+        ? /must remain disabled until|may be enabled only after/i
+        : /muss deaktiviert bleiben|darf erst aktiviert werden/i,
     );
+    expect(affiliate(name)).toMatch(
+      name === "en"
+        ? /does not currently load the Lemon Squeezy affiliate script/i
+        : /lädt das Lemon-Squeezy-Affiliate-Skript derzeit nicht/i,
+    );
+    expect(affiliate(name)).not.toMatch(name === "en" ? /30 days/i : /30 Tage/i);
+  });
+
+  it("does not load the unresolved Lemon Squeezy affiliate tracker", () => {
+    const layout = readFileSync(join(REPO_ROOT, "app/layout.tsx"), "utf8");
+    const consentManager = readFileSync(join(REPO_ROOT, "components/privacy/consent-manager.tsx"), "utf8");
+
+    expect(`${layout}\n${consentManager}`).not.toContain("lmsqueezy.com/affiliate.js");
+    expect(`${layout}\n${consentManager}`).not.toContain("lemonSqueezyAffiliateConfig");
   });
 });
 

@@ -4,8 +4,6 @@ import type { Metadata, Viewport } from "next";
 
 import { getLocale, getMessages } from "next-intl/server";
 import { cookies } from "next/headers";
-import Script from "next/script";
-import { Analytics } from "@vercel/analytics/next";
 
 import { latin, mono, serif } from "./fonts";
 import { Providers } from "./providers";
@@ -26,6 +24,8 @@ import { GLOBAL_METADATA } from "@/core/seo/homepage-metadata";
 import { resolveRequestAccountState } from "@/features/auth/next/resolve-account-state";
 import { isAgentChatAvailable } from "@/ee/agent-chat/agent-availability";
 import { DEFAULT_LOCALE, isRoutingLocale } from "@/i18n/locale-registry";
+import { ConsentManager } from "@/components/privacy/consent-manager";
+import { CONSENT_COOKIE_NAME, parseConsentState } from "@/core/privacy/consent";
 
 export const metadata: Metadata = GLOBAL_METADATA;
 
@@ -70,6 +70,7 @@ export default async function RootLayout({ children }: Props) {
 
   const themeCookie = cookiesStore.get("theme")?.value;
   const sidebarCloseCookie = cookiesStore.get("sidebar-close")?.value;
+  const initialConsent = parseConsentState(cookiesStore.get(CONSENT_COOKIE_NAME)?.value);
   const initialSidebarOpen = sidebarCloseCookie !== undefined ? sidebarCloseCookie !== "true" : undefined;
   const accountAllowed = account.state === "allowed";
   const appUser = accountAllowed ? account.user : null;
@@ -114,15 +115,9 @@ export default async function RootLayout({ children }: Props) {
           >
             {children}
           </NavigationSwitch>
+
+          <ConsentManager appMode={env.APP_MODE} initialConsent={initialConsent} />
         </Providers>
-
-        <Analytics />
-
-        <Script id="lemon-squeezy-affiliate-config" strategy="afterInteractive">
-          {`window.lemonSqueezyAffiliateConfig = { store: "customermates" };`}
-        </Script>
-
-        <Script defer src="https://lmsqueezy.com/affiliate.js" strategy="lazyOnload" />
       </body>
     </html>
   );

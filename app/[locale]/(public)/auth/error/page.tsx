@@ -9,6 +9,9 @@ import { resolveRequestAccountState } from "@/features/auth/next/resolve-account
 import { buildLocalePath } from "@/i18n/locale-registry";
 
 import type { ErrorPageKey } from "./error-page-content";
+import { NOINDEX_METADATA } from "@/core/seo/noindex-metadata";
+
+export const metadata = NOINDEX_METADATA;
 
 const ERROR_KEYS = new Set<ErrorPageKey>(["invalidInviteLink", "inviteLinkExpired"]);
 

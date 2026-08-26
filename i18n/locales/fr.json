@@ -1470,6 +1470,16 @@
     "visibilityShared": "Partagé",
     "visibilityUpdateFailed": "Impossible de mettre à jour la visibilité. Réessayez."
   },
+  "ConsentManager": {
+    "accept": "Accepter l’analyse",
+    "analyticsDescription": "Charge une mesure d’usage sans cookies pour comprendre et améliorer le produit.",
+    "analyticsTitle": "Analyse",
+    "description": "L’analyse facultative reste désactivée jusqu’à votre choix. Le suivi d’affiliation et l’attribution publicitaire restent désactivés. Vous pouvez modifier votre choix à tout moment. Consultez notre <privacyLink>politique de confidentialité</privacyLink>.",
+    "manage": "Choix de confidentialité",
+    "reject": "Refuser l’analyse",
+    "save": "Enregistrer",
+    "title": "Vos choix de confidentialité"
+  },
   "ContactHistory": {
     "ariaOpenInInbox": "Ouvrir dans la boîte de réception",
     "calendarAllDay": "Toute la journée",

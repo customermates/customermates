@@ -1470,6 +1470,16 @@
     "visibilityShared": "Shared",
     "visibilityUpdateFailed": "Couldn't update visibility. Try again."
   },
+  "ConsentManager": {
+    "accept": "Accept analytics",
+    "analyticsDescription": "Loads cookieless usage analytics so we can understand and improve the product.",
+    "analyticsTitle": "Analytics",
+    "description": "Optional analytics stays off until you choose. Affiliate tracking and advertising attribution remain disabled. You can change your choice at any time. Read our <privacyLink>privacy policy</privacyLink>.",
+    "manage": "Privacy choices",
+    "reject": "Reject analytics",
+    "save": "Save choice",
+    "title": "Your privacy choices"
+  },
   "ContactHistory": {
     "ariaOpenInInbox": "Open in inbox",
     "calendarAllDay": "All day",

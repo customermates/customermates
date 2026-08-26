@@ -63,11 +63,11 @@ const CATALOGS = {
 } as const;
 
 const LEGAL_DOCUMENT_DATES = {
-  de: "7. August 2026",
-  en: "August 7, 2026",
-  es: "7 de agosto de 2026",
-  fr: "7 août 2026",
-  it: "7 agosto 2026",
+  de: "26. August 2026",
+  en: "August 26, 2026",
+  es: "26 de agosto de 2026",
+  fr: "26 août 2026",
+  it: "26 agosto 2026",
 } satisfies Record<AppLocale, string>;
 
 function catalog(locale: AppLocale): typeof enMessages {

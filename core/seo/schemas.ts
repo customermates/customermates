@@ -2,7 +2,7 @@ import { env } from "@/env";
 import { COMMERCIAL_OFFERS } from "@/core/commercial/plan-catalog";
 
 const ORGANIZATION_NAME = "Customermates";
-const ORGANIZATION_LOGO = `${env.BASE_URL}/customermates.svg`;
+const ORGANIZATION_LOGO = `${env.BASE_URL}/images/light/customermates-square.svg`;
 const ORGANIZATION_SAME_AS = [
   "https://github.com/customermates/customermates",
   "https://www.linkedin.com/company/customermates/",
