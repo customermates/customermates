@@ -10,7 +10,7 @@ import type { SocialProfile } from "./social-posts.schema";
 import { z } from "zod";
 import { getLocale } from "next-intl/server";
 
-import { Resource, Action } from "@/generated/prisma";
+import { MessagingProvider, Resource, Action } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
@@ -20,10 +20,21 @@ import { isSocialProvider } from "../provider";
 import { formatRetryAfter } from "../retry-after";
 import { SocialProfileSchema } from "./social-posts.schema";
 
-export const GetSocialProfileSchema = z.object({
-  connectedAccountId: z.uuid(),
-  identifier: z.string().min(1),
-});
+export const GetSocialProfileSchema = z
+  .object({
+    connectedAccountId: z.uuid().describe("Connected-account ID for the LinkedIn or Instagram account to use"),
+    identifier: z
+      .string()
+      .min(1)
+      .describe(
+        "Person lookup identifier: 'me', provider person ID, LinkedIn Classic public profile slug, or Instagram username. Company lookup identifier: provider company ID",
+      ),
+    profileType: z
+      .enum(["person", "company"])
+      .default("person")
+      .describe("Lookup route to use. Company lookup requires a connected LinkedIn account"),
+  })
+  .strict();
 type GetSocialProfileData = Data<typeof GetSocialProfileSchema>;
 
 @TenantInteractor({
@@ -53,9 +64,13 @@ export class GetSocialProfileInteractor extends AuthenticatedInteractor<GetSocia
     if (!isSocialProvider(account.provider))
       return fail(CustomErrorCode.socialActionRequiresSocialAccount, [], { provider: account.provider });
 
+    if (data.profileType === "company" && account.provider !== MessagingProvider.linkedin)
+      return fail(CustomErrorCode.linkedinProductRequiresLinkedin);
+
     const res = await this.messagingService.getSocialProfile({
       accountId: account.unipileAccountId,
       identifier: data.identifier,
+      profileType: data.profileType,
     });
     if (!res.ok) return fail(res.error, [], { retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds) });
 

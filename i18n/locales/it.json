@@ -1002,7 +1002,7 @@
       "termsNotAgreed": "Devi accettare i termini e le condizioni.",
       "threadNotFound": "ID conversazione non trovato o non accessibile.",
       "unipileDisconnectedAccount": "Il canale è scollegato. Ricollegalo e riprova.",
-      "unipileInvalidRequest": "Il provider ha rifiutato la richiesta come non valida. Controlla gli identificativi del destinatario e i parametri del messaggio.",
+      "unipileInvalidRequest": "Il provider ha rifiutato la richiesta come non valida. Controlla gli identificativi e i parametri.",
       "unipileProviderError": "Il provider sta riscontrando problemi in questo momento. Riprova tra poco.",
       "unipileRateLimit": "Questo canale ha raggiunto il suo limite per ora. Puoi riprovare {retryAfter}. Maggiori informazioni su https://customermates.com/docs/messaging-rate-limits.",
       "unipileRequestTimeout": "La richiesta è scaduta. L'azione potrebbe essere comunque andata a buon fine, verifica prima di riprovare.",

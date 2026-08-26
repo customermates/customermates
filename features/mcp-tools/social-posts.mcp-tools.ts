@@ -5,6 +5,7 @@ import { z } from "zod";
 import { encodeToToon, formatDatesInResponse, mcpValidationFailure, runInteractor } from "./utils";
 
 import { ListSocialPostsSchema } from "@/ee/messaging/posts/list-social-posts.interactor";
+import { GetSocialProfileSchema } from "@/ee/messaging/posts/get-social-profile.interactor";
 import { GetSocialPostSchema } from "@/ee/messaging/posts/get-social-post.interactor";
 import { ListSocialPostCommentsSchema } from "@/ee/messaging/posts/list-social-post-comments.interactor";
 import { ListSocialCommentReactionsSchema } from "@/ee/messaging/posts/list-social-comment-reactions.interactor";
@@ -22,26 +23,47 @@ import {
   getCancelRelationRequestInteractor,
 } from "@/core/di";
 
-const GetSocialPostsToolSchema = ListSocialPostsSchema.extend({
-  connectedAccountId: ListSocialPostsSchema.shape.connectedAccountId.describe(
-    "Connected account id of a LinkedIn or Instagram account (from get_workspace_context)",
-  ),
-  postId: GetSocialPostSchema.shape.postId
-    .optional()
-    .describe("Provider post id. When set, fetches that single post and the list params are ignored"),
-  authorIdentifier: ListSocialPostsSchema.shape.authorIdentifier.describe(
-    "Whose posts to list: 'me' (default, the account owner) or a provider member id, e.g. from a contact's linkedin channel",
-  ),
-  cursor: ListSocialPostsSchema.shape.cursor.describe("Pagination cursor from the previous page's next_cursor"),
-  offset: ListSocialPostsSchema.shape.offset.describe("Pagination offset; use only when no cursor is available"),
-  limit: ListSocialPostsSchema.shape.limit.describe("Posts per page (1-100, default 10)"),
-});
+const ConnectedSocialAccountDescription =
+  "get_workspace_context.connectedAccounts[].id for a LinkedIn or Instagram account with get_workspace_context.connectedAccounts[].status='ok'";
+
+const GetSocialPostsToolSchema = z
+  .object({
+    connectedAccountId: z.uuid().describe(ConnectedSocialAccountDescription),
+    postId: GetSocialPostSchema.shape.postId
+      .optional()
+      .describe("get_social_posts.items[].id. When set, omit every list parameter"),
+    authorIdentifier: z
+      .string()
+      .min(1)
+      .optional()
+      .describe(
+        "Person whose posts to list: 'me', get_social_profile.id, get_social_posts.items[].author.id from list mode, get_social_posts.author.id from single-post mode, get_social_post_engagement.items[].author.id for comments, get_social_post_engagement.items[].sender.id for reactions, or manage_social_relations.items[].user.id from action=list. For get_messaging_threads.items[].participants[].identifier or get_messaging_threads.thread.participants[].identifier, call get_social_profile first and use get_social_profile.id. Required with cursor or a positive offset",
+      ),
+    cursor: z
+      .string()
+      .min(1)
+      .optional()
+      .describe("Previous response's next_cursor, passed unchanged. Requires authorIdentifier and limit"),
+    offset: z
+      .number()
+      .int()
+      .positive()
+      .optional()
+      .describe("Positive cumulative number of posts already returned. Requires authorIdentifier and limit"),
+    limit: z
+      .number()
+      .int()
+      .min(1)
+      .max(100)
+      .optional()
+      .describe("Posts per page (1-100; defaults to 10 on the first page)"),
+  })
+  .strict()
+  .describe("Fetch one post by postId, or list an author's posts with the first-page or continuation contract");
 
 const GetSocialPostEngagementToolSchema = z.object({
-  connectedAccountId: ListSocialPostCommentsSchema.shape.connectedAccountId.describe(
-    "Connected account id of a LinkedIn or Instagram account (from get_workspace_context)",
-  ),
-  postId: ListSocialPostCommentsSchema.shape.postId.describe("Provider post id (from get_social_posts)"),
+  connectedAccountId: ListSocialPostCommentsSchema.shape.connectedAccountId.describe(ConnectedSocialAccountDescription),
+  postId: ListSocialPostCommentsSchema.shape.postId.describe("get_social_posts.items[].id"),
   kind: z
     .enum(["reactions", "comments"])
     .default("comments")
@@ -50,7 +72,9 @@ const GetSocialPostEngagementToolSchema = z.object({
     ),
   commentId: ListSocialCommentReactionsSchema.shape.commentId
     .optional()
-    .describe("Comment id from the comments listing. When set, lists reactions on that comment and kind is ignored"),
+    .describe(
+      "get_social_post_engagement.items[].id from kind=comments. When set, lists reactions on that comment and kind is ignored",
+    ),
   sortBy: ListSocialPostCommentsSchema.shape.sortBy.describe(
     "Comment ordering: MOST_RECENT or MOST_RELEVANT (comments listing only)",
   ),
@@ -59,16 +83,14 @@ const GetSocialPostEngagementToolSchema = z.object({
   limit: ListSocialPostCommentsSchema.shape.limit.describe("Items per page (1-100, default 10)"),
 });
 
-const GetSocialProfileToolSchema = z.object({
-  connectedAccountId: z
-    .uuid()
-    .describe("Connected account id of a LinkedIn or Instagram account (from get_workspace_context)"),
-  identifier: z
-    .string()
-    .min(1)
-    .describe(
-      "Who or what to look up. LinkedIn person: the public identifier (the /in/<slug> part) or a provider member id, e.g. the id on a thread participant, reaction sender or comment author. LinkedIn company: the public identifier (the /company/<slug> part) or a provider company id, e.g. a current_positions company_id from linkedin_search_sales_leads. Instagram: the username. Use 'me' for the account owner.",
-    ),
+const GetSocialProfileToolSchema = GetSocialProfileSchema.extend({
+  connectedAccountId: GetSocialProfileSchema.shape.connectedAccountId.describe(ConnectedSocialAccountDescription),
+  identifier: GetSocialProfileSchema.shape.identifier.describe(
+    "Person: 'me'; get_messaging_threads.items[].participants[].identifier or get_messaging_threads.thread.participants[].identifier; get_social_posts.items[].author.id from list mode or get_social_posts.author.id from single-post mode; get_social_post_engagement.items[].author.id or get_social_post_engagement.items[].sender.id; manage_social_relations.items[].user.id from action=list; a LinkedIn Classic public profile slug; or an Instagram username. Company: linkedin_search_sales_companies.items[].id, linkedin_search_sales_leads.items[].current_positions[].company_id, linkedin_manage_sales_lists.items[].current_positions[].company_id from action=browse, or get_social_profile.current_positions[].company_id, with profileType=company",
+  ),
+  profileType: GetSocialProfileSchema.shape.profileType.describe(
+    "What to retrieve: person (default) or company. Company lookup requires a LinkedIn account",
+  ),
 });
 
 const ManageSocialRelationsToolSchema = z
@@ -78,15 +100,13 @@ const ManageSocialRelationsToolSchema = z
       .describe(
         "Relation-request operation: list (received or sent invitations, see direction), invite, accept, or cancel",
       ),
-    connectedAccountId: z
-      .uuid()
-      .describe("Connected account id of a LinkedIn or Instagram account (from get_workspace_context)"),
+    connectedAccountId: z.uuid().describe(ConnectedSocialAccountDescription),
     identifier: z
       .string()
       .min(1)
       .optional()
       .describe(
-        "Required for invite: the provider user id to send the connection request to (e.g. from get_social_profile or a thread participant)",
+        "Required for invite: get_social_profile.id. For get_messaging_threads.items[].participants[].identifier or get_messaging_threads.thread.participants[].identifier, call get_social_profile first and use get_social_profile.id",
       ),
     message: z
       .string()
@@ -97,15 +117,15 @@ const ManageSocialRelationsToolSchema = z
       .string()
       .min(1)
       .optional()
-      .describe("Required for accept and cancel: the relation-request id from action list"),
+      .describe("Required for accept and cancel: manage_social_relations.items[].invitationId from action=list"),
     direction: ListRelationRequestsSchema.shape.direction.describe(
-      "list: received (default) lists invitations sent TO you; sent lists invitations YOU sent. Hosted Assistant accept/cancel calls repeat the direction of the page containing invitationId so approval can verify the person.",
+      "list only: received (default) lists invitations sent TO you; sent lists invitations YOU sent (use manage_social_relations.items[].invitationId to cancel)",
     ),
     cursor: ListRelationRequestsSchema.shape.cursor.describe(
-      "list: pagination cursor from the previous page's next_cursor. Hosted Assistant accept/cancel calls repeat the cursor used for the page containing invitationId.",
+      "list only: pagination cursor from the previous page's next_cursor",
     ),
     offset: ListRelationRequestsSchema.shape.offset.describe(
-      "list: pagination offset; use only when no cursor is available. Hosted Assistant accept/cancel calls repeat the offset used for the page containing invitationId.",
+      "list only: pagination offset; use only when no cursor is available",
     ),
     limit: ListRelationRequestsSchema.shape.limit.describe("list only: items per page (1-100, default 10)"),
   })
@@ -171,7 +191,7 @@ function formatReaction(reaction: {
   };
 }
 
-function formatProfile(profile: SocialProfile) {
+function formatProfile(profile: SocialProfile, profileType: "person" | "company") {
   const currentPositions = (profile.specifics?.experience ?? [])
     .filter((entry) => entry.ended_on == null)
     .map((entry) => ({
@@ -183,6 +203,7 @@ function formatProfile(profile: SocialProfile) {
     .filter((position) => Object.values(position).some((value) => value != null));
   const fields = {
     id: profile.id,
+    profile_type: profileType,
     type: profile.type,
     public_identifier: profile.public_identifier,
     display_name: profile.display_name,
@@ -191,7 +212,6 @@ function formatProfile(profile: SocialProfile) {
     profile_url: profile.profile_url,
     picture_url: profile.public_picture_url,
     description: profile.description,
-    member_id: profile.specifics?.member_id,
     headline: profile.specifics?.headline ?? profile.specifics?.occupation,
     location: profile.specifics?.location,
     industry: profile.specifics?.industry,
@@ -236,36 +256,36 @@ export const getSocialPostsTool = {
   title: "Get social posts",
   description:
     "Use this when the user wants to see social posts from a connected LinkedIn or Instagram account, their own or someone else's. " +
-    "Lists posts authored by authorIdentifier: 'me' (default, the account owner) or a provider member id, for example the id stored on a contact's linkedin channel. " +
-    "Pass postId to fetch a single post instead. " +
+    "For the account owner's posts, use authorIdentifier='me'. For another person, use get_social_profile.id, get_social_posts.items[].author.id from list mode, get_social_posts.author.id from single-post mode, get_social_post_engagement.items[].author.id for comments, get_social_post_engagement.items[].sender.id for reactions, or manage_social_relations.items[].user.id from action=list. For get_messaging_threads.items[].participants[].identifier or get_messaging_threads.thread.participants[].identifier, call get_social_profile first and use get_social_profile.id. " +
+    "Pass get_social_posts.items[].id as postId to fetch a single post instead. " +
     "Returns id, share_url, created_at, title, text, and reaction, comment and repost counters. " +
-    "Paginate with cursor (from next_cursor) or offset, plus limit. " +
+    "For the first page omit cursor and offset. When next_cursor is returned, repeat the same connectedAccountId, authorIdentifier and limit, pass next_cursor unchanged as cursor, and omit offset. Stop when next_cursor is null. Use a positive cumulative offset only for providers that return offset-based pages. LinkedIn user posts use cursors. " +
     "A nonexistent post id can surface as a generic provider error rather than a not-found message.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
   inputSchema: GetSocialPostsToolSchema,
-  execute: (params: z.infer<typeof GetSocialPostsToolSchema>) =>
-    params.postId
-      ? runInteractor(
-          getGetSocialPostInteractor().invoke({ connectedAccountId: params.connectedAccountId, postId: params.postId }),
-          (data) => encodeToToon(formatDatesInResponse(formatPost(data))),
-        )
-      : runInteractor(
-          getListSocialPostsInteractor().invoke({
-            connectedAccountId: params.connectedAccountId,
-            authorIdentifier: params.authorIdentifier,
-            cursor: params.cursor,
-            offset: params.offset,
-            limit: params.limit,
-          }),
-          (data) =>
-            encodeToToon(
-              formatDatesInResponse({
-                items: data.data.map(formatPost),
-                total: data.total_count ?? data.data.length,
-                next_cursor: data.next_cursor ?? null,
-              }),
-            ),
-        ),
+  execute: (params: z.infer<typeof GetSocialPostsToolSchema>) => {
+    if (params.postId !== undefined) {
+      const parsed = GetSocialPostSchema.safeParse(params);
+      if (!parsed.success) return mcpValidationFailure(parsed.error);
+
+      return runInteractor(getGetSocialPostInteractor().invoke(parsed.data), (data) =>
+        encodeToToon(formatDatesInResponse(formatPost(data))),
+      );
+    }
+
+    const parsed = ListSocialPostsSchema.safeParse(params);
+    if (!parsed.success) return mcpValidationFailure(parsed.error);
+
+    return runInteractor(getListSocialPostsInteractor().invoke(parsed.data), (data) =>
+      encodeToToon(
+        formatDatesInResponse({
+          items: data.data.map(formatPost),
+          total: data.total_count ?? data.data.length,
+          next_cursor: data.next_cursor ?? null,
+        }),
+      ),
+    );
+  },
 };
 
 export const getSocialPostEngagementTool = {
@@ -273,9 +293,9 @@ export const getSocialPostEngagementTool = {
   title: "Get social post engagement",
   description:
     "Use this when the user wants to know who engaged with a social post on a connected LinkedIn or Instagram account. " +
-    "Requires postId (from get_social_posts). " +
-    "kind=comments (default) lists the post's comments with author, text and reaction counters, sorted by sortBy (MOST_RECENT or MOST_RELEVANT). " +
-    "kind=reactions lists who reacted to the post, each row with the reaction value and the reactor's name and profile. " +
+    "Requires postId from get_social_posts.items[].id. " +
+    "kind=comments (default) lists the post's comments with author, text and reaction counters, sorted by sortBy (MOST_RECENT or MOST_RELEVANT); get_social_post_engagement.items[].author.id can identify that person in get_social_profile. " +
+    "kind=reactions lists who reacted to the post, each row with the reaction value and the reactor's name and profile; get_social_post_engagement.items[].sender.id can identify that person in get_social_profile. " +
     "Set commentId to list the reactions on that specific comment instead (kind is ignored then). " +
     "Paginate with cursor (from next_cursor) or offset, plus limit. " +
     "A nonexistent post or comment id can surface as a generic provider error rather than a not-found message.",
@@ -364,15 +384,15 @@ export const getSocialProfileTool = {
   title: "Get person or company profile",
   description:
     "Use this when the user wants details about a person or company on a connected LinkedIn or Instagram account. " +
-    "Pass connectedAccountId and identifier. On LinkedIn the identifier is the public identifier (the /in/<slug> part for a person, the /company/<slug> part for a company) or a provider id, " +
-    "for example the id on a thread participant, a reaction sender, a comment author or a current_positions company_id on a Sales Navigator lead; use 'me' for the account owner. On Instagram it is the username. " +
-    "Returns id, name, headline, location, profile and picture urls, follower and relation counts, network distance and current_positions (company, role, company_id) where the provider exposes them, plus type (individual vs organization) telling you which kind of profile you got. " +
-    "A nonexistent identifier can surface as a generic provider error rather than a not-found message.",
+    "For a person, keep profileType=person and pass 'me'; get_messaging_threads.items[].participants[].identifier or get_messaging_threads.thread.participants[].identifier; get_social_posts.items[].author.id from list mode or get_social_posts.author.id from single-post mode; get_social_post_engagement.items[].author.id or get_social_post_engagement.items[].sender.id; manage_social_relations.items[].user.id from action=list; a LinkedIn Classic public profile slug; or an Instagram username. " +
+    "For a LinkedIn company, set profileType=company and pass linkedin_search_sales_companies.items[].id, linkedin_search_sales_leads.items[].current_positions[].company_id, linkedin_manage_sales_lists.items[].current_positions[].company_id from action=browse, or get_social_profile.current_positions[].company_id. " +
+    "Returns id, profile_type (the lookup route used), provider-reported type, display_name, headline, location, profile and picture urls, follower and relation counts, network distance and current_positions (company, role, company_id) where available. Reuse get_social_profile.id with the same profileType; a person get_social_profile.id is also a get_social_posts.authorIdentifier. " +
+    "An invalid identifier returns a validation error without retrying the same value.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
   inputSchema: GetSocialProfileToolSchema,
   execute: (params: z.infer<typeof GetSocialProfileToolSchema>) =>
     runInteractor(getGetSocialProfileInteractor().invoke(params), (data) =>
-      encodeToToon(formatDatesInResponse(formatProfile(data))),
+      encodeToToon(formatDatesInResponse(formatProfile(data, params.profileType))),
     ),
 };
 
@@ -381,12 +401,11 @@ export const manageSocialRelationsTool = {
   title: "Manage social relations",
   description:
     "Use this to manage connection / relation requests on a connected LinkedIn or Instagram account. " +
-    "action list returns invitations, each with an invitationId, sender and any message: direction=received (default) lists requests sent TO the account owner; direction=sent lists the owner's own outgoing/pending requests (use it to find the invitationId to cancel). " +
-    "action invite SENDS A REAL connection request to identifier (a provider user id from get_social_profile or a thread participant), with an optional short message; confirm with the user before sending. " +
-    "The hosted Assistant verifies the person from the provider immediately before asking for approval. For accept or cancel, repeat the direction and cursor or offset used to list the page containing invitationId. " +
-    "action accept confirms a received request by invitationId (from action list). " +
-    "action cancel withdraws or refuses a request by invitationId. " +
-    "Get connectedAccountId from get_workspace_context. Paginate list with cursor or offset plus limit.",
+    "action list returns invitations as items with invitationId, user and any message: direction=received (default) lists requests sent TO the account owner; direction=sent lists the owner's own outgoing/pending requests (use it to find the invitationId for cancel). manage_social_relations.items[].user.id can identify that person in get_social_profile. " +
+    "action invite SENDS A REAL connection request to identifier=get_social_profile.id. For get_messaging_threads.items[].participants[].identifier or get_messaging_threads.thread.participants[].identifier, call get_social_profile first and use get_social_profile.id. The optional message is delivered with the request; confirm with the user before sending. The hosted Assistant verifies the person from the provider immediately before asking for approval. " +
+    "action accept confirms a received request by invitationId from manage_social_relations.items[].invitationId returned by action=list. " +
+    "action cancel withdraws or refuses a request by that invitationId. " +
+    "Use get_workspace_context.connectedAccounts[].id as connectedAccountId. Paginate list with cursor or offset plus limit.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
   inputSchema: ManageSocialRelationsToolSchema,
   execute: (params: z.infer<typeof ManageSocialRelationsToolSchema>) => {

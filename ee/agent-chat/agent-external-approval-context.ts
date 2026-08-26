@@ -43,10 +43,11 @@ function personLabel(
   return fullName || requiredString(value.public_identifier);
 }
 
-async function resolveProfileLabel(connectedAccountId: string, identifier: string) {
+async function resolveProfileLabel(connectedAccountId: string, identifier: string, profileType: "person" | "company") {
   const result = await getGetSocialProfileInteractor().invoke({
     connectedAccountId,
     identifier,
+    profileType,
   });
   return result.ok ? personLabel(result.data) : null;
 }
@@ -166,7 +167,7 @@ export async function resolveAgentApprovalContext(
     if (action === "invite") {
       const identifier = requiredString(details.identifier);
       if (!identifier) return { ok: false, result: VERIFICATION_FAILED };
-      targetLabel = await resolveProfileLabel(connectedAccountId, identifier);
+      targetLabel = await resolveProfileLabel(connectedAccountId, identifier, "person");
     } else if (action === "accept" || action === "cancel") {
       const invitationId = requiredString(details.invitationId);
       const preferredDirection = action === "accept" ? "received" : details.direction === "sent" ? "sent" : "received";
@@ -191,7 +192,7 @@ export async function resolveAgentApprovalContext(
   if (!providerId || !listId || !kind) return { ok: false, result: VERIFICATION_FAILED };
   const offset = nonNegativeInteger(details.offset);
   const [targetLabel, listLabel] = await Promise.all([
-    resolveProfileLabel(connectedAccountId, providerId),
+    resolveProfileLabel(connectedAccountId, providerId, kind === "accounts" ? "company" : "person"),
     resolveSalesListLabel({ connectedAccountId, kind, listId, offset }),
   ]);
 

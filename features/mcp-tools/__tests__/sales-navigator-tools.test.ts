@@ -24,7 +24,7 @@ vi.mock("@/core/di", () => ({
   getLinkedinSaveToSalesListInteractor: () => ({ invoke: vi.fn() }),
 }));
 
-import { manageSalesListsTool, searchSalesLeadsTool } from "../sales-navigator.mcp-tools";
+import { manageSalesListsTool, searchSalesCompaniesTool, searchSalesLeadsTool } from "../sales-navigator.mcp-tools";
 
 const ACCOUNT_ID = "00000000-0000-4000-8000-000000000001";
 const SEARCH_URL = "https://www.linkedin.com/sales/search/people?query=test";
@@ -42,6 +42,22 @@ beforeEach(() => {
 });
 
 describe("linkedin_search_sales_leads lead rows", () => {
+  it("documents the explicit company-profile handoff", () => {
+    expect(searchSalesLeadsTool.description).toContain("get_social_profile and profileType=company");
+    expect(searchSalesLeadsTool.description).toContain(
+      "linkedin_search_sales_leads.items[].current_positions[].company_id",
+    );
+    expect(searchSalesCompaniesTool.description).toContain("get_social_profile and profileType=company");
+    expect(searchSalesCompaniesTool.description).toContain("items[].id");
+    expect(manageSalesListsTool.description).toContain("get_social_profile with profileType=company");
+    expect(manageSalesListsTool.description).toContain(
+      "linkedin_search_sales_leads.items[].id or get_social_profile.id",
+    );
+    expect(manageSalesListsTool.description).toContain("linkedin_search_sales_companies.items[].id");
+    expect(manageSalesListsTool.description).toContain("get_messaging_threads.items[].participants[].identifier");
+    expect(manageSalesListsTool.description).toContain("get_messaging_threads.thread.participants[].identifier");
+  });
+
   it("includes current_positions with company, role and company identifiers", async () => {
     spies.searchSalesNavigator.mockResolvedValue(
       leadResult({
@@ -140,7 +156,8 @@ describe("linkedin_manage_sales_lists browse rows", () => {
     expect(output).toContain("Globex");
     expect(output).toContain("globex-9");
     expect(output).toContain("CTO");
-    expect(output).toContain("member_id");
+    expect(output).not.toContain("member_id");
+    expect(output).not.toContain("326109300");
     expect(output).not.toContain("OldCorp");
   });
 });

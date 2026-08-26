@@ -56,6 +56,7 @@ describe("external approval context", () => {
     expect(spies.getSocialProfile).toHaveBeenCalledWith({
       connectedAccountId: CONNECTED_ACCOUNT_ID,
       identifier: "provider-ada",
+      profileType: "person",
     });
   });
 
@@ -182,6 +183,7 @@ describe("external approval context", () => {
     expect(spies.getSocialProfile).toHaveBeenCalledWith({
       connectedAccountId: CONNECTED_ACCOUNT_ID,
       identifier: "lead-1",
+      profileType: "person",
     });
     expect(spies.listSalesLists).toHaveBeenCalledWith({
       connectedAccountId: CONNECTED_ACCOUNT_ID,

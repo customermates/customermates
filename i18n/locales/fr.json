@@ -1002,7 +1002,7 @@
       "termsNotAgreed": "Vous devez accepter les conditions générales.",
       "threadNotFound": "ID de conversation introuvable ou inaccessible.",
       "unipileDisconnectedAccount": "Le canal est déconnecté. Reconnectez-le et réessayez.",
-      "unipileInvalidRequest": "Le fournisseur a rejeté la requête comme invalide. Vérifiez les identifiants du destinataire et les paramètres du message.",
+      "unipileInvalidRequest": "Le fournisseur a rejeté la requête comme invalide. Vérifiez les identifiants et les paramètres.",
       "unipileProviderError": "Le fournisseur rencontre actuellement des problèmes. Réessayez dans un instant.",
       "unipileRateLimit": "Ce canal a atteint sa limite pour le moment. Vous pouvez réessayer {retryAfter}. Plus d'informations sur https://customermates.com/docs/messaging-rate-limits.",
       "unipileRequestTimeout": "La requête a expiré. L'action a peut-être tout de même abouti, vérifiez avant de réessayer.",
