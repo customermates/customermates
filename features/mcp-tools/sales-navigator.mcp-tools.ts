@@ -86,7 +86,7 @@ const ManageSalesListsToolSchema = z.object({
   providerId: LinkedinSaveToSalesListSchema.shape.providerId
     .optional()
     .describe(
-      "Required for save: the LinkedIn user id (kind leads, e.g. from linkedin_search_sales_leads or get_social_profile) or company id (kind accounts) to save",
+      "Required for save: linkedin_search_sales_leads result id or get_social_profile.id for kind leads; linkedin_search_sales_companies result id or current_positions[].company_id for kind accounts",
     ),
   offset: LinkedinListSalesListsSchema.shape.offset.describe("list and browse: pagination offset"),
   limit: LinkedinListSalesListsSchema.shape.limit.describe("list and browse: items per page (1-100, default 10)"),
@@ -212,7 +212,7 @@ export const searchSalesCompaniesTool = {
     "Use this when the user wants to find companies (accounts) via LinkedIn Sales Navigator, for example to import them as organizations. " +
     "Two modes: pass a Sales Navigator company search URL the user copied from their browser, or build a structured search with filters " +
     "(keywords plus location, industry, headcount, annual revenue, spotlights and more; resolve parameter ids via linkedin_get_sales_search_parameters first). " +
-    "Returns company rows with id (use as providerId for linkedin_manage_sales_lists save with kind accounts), name, industry, location, headcount, website, specialties, founded year plus hiring and saved flags. " +
+    "Returns company rows with id (use with get_social_profile and profileType=company, or as providerId for linkedin_manage_sales_lists save with kind accounts), name, industry, location, headcount, website, specialties, founded year plus hiring and saved flags. " +
     "Paginate with offset plus limit; LinkedIn caps a single company search at 1000 results. " +
     "Requires a connected LinkedIn account with an active Sales Navigator subscription; without one the provider rejects the call.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
@@ -288,7 +288,7 @@ export const manageSalesListsTool = {
     "Use this to work with the Sales Navigator lead and account lists of a connected LinkedIn account. " +
     "action list enumerates the existing lists (kind leads for people, accounts for companies) with id, name and item count. " +
     "action browse returns the members of one list by listId; lead rows include current_positions (company, role, company_id, company_url), and a company_id resolves via get_social_profile with profileType=company. " +
-    "action save ADDS a person or company to an existing list: pass listId plus providerId (a LinkedIn user id from linkedin_search_sales_leads, get_social_profile or a thread participant; a company id for kind accounts). " +
+    "action save ADDS a person or company to an existing list: for kind leads, pass providerId from linkedin_search_sales_leads.id or get_social_profile.id; when starting from a messaging thread participant, resolve participants[].identifier through get_social_profile first. For kind accounts, pass linkedin_search_sales_companies.id or current_positions[].company_id. " +
     "New lists cannot be created via the API; the user creates them in Sales Navigator first. " +
     "Requires a connected LinkedIn account with an active Sales Navigator subscription.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },

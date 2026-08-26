@@ -2,19 +2,18 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 
 import { z } from "zod";
 
-import { ListSocialPostsSchema } from "@/ee/messaging/posts/list-social-posts.interactor";
+import { SocialPostsBodySchema } from "@/ee/messaging/posts/social-post-request.schema";
 import { SocialPostSchema, SocialPostListSchema } from "@/ee/messaging/posts/social-posts.schema";
 import { CommonApiResponses } from "@/core/api/interactor-handler";
 
-const SocialPostsBodySchema = ListSocialPostsSchema.extend({
-  postId: z.string().optional().describe("If set, fetch this single post instead of listing an author's posts"),
-});
+const EXAMPLE_CONNECTED_ACCOUNT_ID = "00000000-0000-4000-8000-000000000001";
+const EXAMPLE_PERSON_ID = "ACoAAExampleProviderProfileId";
 
 export const getSocialPostsOperation: ZodOpenApiOperationObject = {
   operationId: "getSocialPosts",
   summary: "List or fetch social posts",
   description:
-    "Reads LinkedIn or Instagram posts from a connected account. Omit postId to list a person's posts (authorIdentifier defaults to the account holder); set postId to fetch one post. For the first list request, omit cursor and offset. Continue with next_cursor when returned; use offset only for providers that support it. LinkedIn user posts use cursor pagination.",
+    "Reads LinkedIn or Instagram posts through a connected account. Use authorIdentifier='me' for the account owner, or a top-level person id returned by a social profile, post or engagement response. When starting from a messaging thread participant, resolve participants[].identifier through the social-profile endpoint first. For the first page, omit cursor and offset. For a cursor continuation, repeat the same connectedAccountId, authorIdentifier and limit, pass next_cursor unchanged as cursor, and omit offset. Stop when next_cursor is null. Offset-based continuations use a positive cumulative offset. Set postId instead to fetch one returned post.",
   tags: ["messaging"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {
@@ -22,6 +21,46 @@ export const getSocialPostsOperation: ZodOpenApiOperationObject = {
     content: {
       "application/json": {
         schema: SocialPostsBodySchema,
+        examples: {
+          accountOwnerFirstPage: {
+            summary: "First page of the account owner's posts",
+            description:
+              "Replace connectedAccountId with an ok LinkedIn or Instagram account id returned by GET /v1/messaging/connected-accounts.",
+            value: {
+              connectedAccountId: EXAMPLE_CONNECTED_ACCOUNT_ID,
+              authorIdentifier: "me",
+              limit: 10,
+            },
+          },
+          personFirstPage: {
+            summary: "First page for a resolved person",
+            description: "Use the top-level id returned by the social-profile endpoint as authorIdentifier.",
+            value: {
+              connectedAccountId: EXAMPLE_CONNECTED_ACCOUNT_ID,
+              authorIdentifier: EXAMPLE_PERSON_ID,
+              limit: 10,
+            },
+          },
+          cursorContinuation: {
+            summary: "Continue the same person's result",
+            description:
+              "Repeat connectedAccountId, authorIdentifier and limit from the previous request, and copy next_cursor into cursor.",
+            value: {
+              connectedAccountId: EXAMPLE_CONNECTED_ACCOUNT_ID,
+              authorIdentifier: EXAMPLE_PERSON_ID,
+              cursor: "AQEFAExampleNextCursor",
+              limit: 10,
+            },
+          },
+          singlePost: {
+            summary: "Fetch one returned post",
+            description: "Use an id returned by a post-list response as postId.",
+            value: {
+              connectedAccountId: EXAMPLE_CONNECTED_ACCOUNT_ID,
+              postId: "urn:li:activity:example-post-id",
+            },
+          },
+        },
       },
     },
   },

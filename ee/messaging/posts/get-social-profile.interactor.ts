@@ -20,17 +20,19 @@ import { formatRetryAfter } from "../retry-after";
 import { SocialProfileSchema } from "./social-posts.schema";
 
 export const GetSocialProfileSchema = z.object({
-  connectedAccountId: z.uuid().describe("Connected LinkedIn or Instagram account ID"),
+  connectedAccountId: z
+    .uuid()
+    .describe("LinkedIn or Instagram connected-account ID returned by GET /v1/messaging/connected-accounts"),
   identifier: z
     .string()
     .min(1)
     .describe(
-      "Person: 'me', a top-level profile/participant id, or a LinkedIn Classic public_identifier; never specifics.member_id. LinkedIn company: a company id with profileType=company",
+      "Person: 'me', participants[].identifier from a messaging-thread response, a top-level person id returned by a social response, a LinkedIn Classic public profile slug, or an Instagram username. Company: an id returned by Sales Navigator company search or current_positions[].company_id, with profileType=company",
     ),
   profileType: z
     .enum(["person", "company"])
     .default("person")
-    .describe("Profile kind. Use company only with a connected LinkedIn account"),
+    .describe("Lookup route to use. Company lookup requires a connected LinkedIn account"),
 });
 type GetSocialProfileData = Data<typeof GetSocialProfileSchema>;
 

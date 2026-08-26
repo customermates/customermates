@@ -35233,7 +35233,7 @@
       "post": {
         "operationId": "getSocialPosts",
         "summary": "List or fetch social posts",
-        "description": "Reads LinkedIn or Instagram posts from a connected account. Omit postId to list a person's posts (authorIdentifier defaults to the account holder); set postId to fetch one post. For the first list request, omit cursor and offset. Continue with next_cursor when returned; use offset only for providers that support it. LinkedIn user posts use cursor pagination.",
+        "description": "Reads LinkedIn or Instagram posts through a connected account. Use authorIdentifier='me' for the account owner, or a top-level person id returned by a social profile, post or engagement response. When starting from a messaging thread participant, resolve participants[].identifier through the social-profile endpoint first. For the first page, omit cursor and offset. For a cursor continuation, repeat the same connectedAccountId, authorIdentifier and limit, pass next_cursor unchanged as cursor, and omit offset. Stop when next_cursor is null. Offset-based continuations use a positive cumulative offset. Set postId instead to fetch one returned post.",
         "tags": [
           "messaging"
         ],
@@ -35247,46 +35247,191 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "connectedAccountId": {
-                    "type": "string",
-                    "format": "uuid",
-                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                    "description": "Connected LinkedIn or Instagram account ID"
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "connectedAccountId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                        "description": "LinkedIn or Instagram connected-account ID returned by GET /v1/messaging/connected-accounts"
+                      },
+                      "postId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Provider post ID returned by this endpoint"
+                      }
+                    },
+                    "required": [
+                      "connectedAccountId",
+                      "postId"
+                    ],
+                    "additionalProperties": false,
+                    "title": "Single post"
                   },
-                  "authorIdentifier": {
-                    "default": "me",
-                    "description": "Person whose posts to list: 'me' or a top-level profile/participant id. Do not use LinkedIn public_identifier or specifics.member_id",
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "cursor": {
-                    "description": "Cursor returned as next_cursor by the previous page. Omit cursor and offset on the first request",
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "offset": {
-                    "description": "Offset for providers that support offset pagination. Omit cursor and offset on the first request; LinkedIn user posts use cursor pagination",
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 9007199254740991
-                  },
-                  "limit": {
-                    "default": 10,
-                    "description": "Maximum posts to return (1-100, default 10)",
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 100
-                  },
-                  "postId": {
-                    "description": "If set, fetch this single post instead of listing an author's posts",
-                    "type": "string"
+                  {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "connectedAccountId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                            "description": "LinkedIn or Instagram connected-account ID returned by GET /v1/messaging/connected-accounts"
+                          },
+                          "authorIdentifier": {
+                            "default": "me",
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Person whose posts to list: 'me', or a top-level id returned by a social profile, post or engagement response. Resolve a messaging thread participant's identifier through the social-profile endpoint first"
+                          },
+                          "cursor": {
+                            "description": "Omit on the first page",
+                            "not": {}
+                          },
+                          "offset": {
+                            "description": "Omit on the first page; zero is treated as omitted",
+                            "type": "number",
+                            "const": 0
+                          },
+                          "limit": {
+                            "default": 10,
+                            "description": "Maximum posts to return (1-100, default 10)",
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100
+                          }
+                        },
+                        "required": [
+                          "connectedAccountId"
+                        ],
+                        "additionalProperties": false,
+                        "title": "First page"
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "connectedAccountId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                            "description": "LinkedIn or Instagram connected-account ID returned by GET /v1/messaging/connected-accounts"
+                          },
+                          "authorIdentifier": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Person whose posts to list: 'me', or a top-level id returned by a social profile, post or engagement response. Resolve a messaging thread participant's identifier through the social-profile endpoint first. Repeat the exact value from the previous page"
+                          },
+                          "cursor": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Pass the previous response's next_cursor unchanged"
+                          },
+                          "offset": {
+                            "description": "Omit when cursor is present",
+                            "not": {}
+                          },
+                          "limit": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100,
+                            "description": "Repeat the exact limit from the previous page (1-100)"
+                          }
+                        },
+                        "required": [
+                          "connectedAccountId",
+                          "authorIdentifier",
+                          "cursor",
+                          "limit"
+                        ],
+                        "additionalProperties": false,
+                        "title": "Cursor continuation"
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "connectedAccountId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                            "description": "LinkedIn or Instagram connected-account ID returned by GET /v1/messaging/connected-accounts"
+                          },
+                          "authorIdentifier": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Person whose posts to list: 'me', or a top-level id returned by a social profile, post or engagement response. Resolve a messaging thread participant's identifier through the social-profile endpoint first. Repeat the exact value from the previous page"
+                          },
+                          "cursor": {
+                            "description": "Omit when offset is present",
+                            "not": {}
+                          },
+                          "offset": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 9007199254740991,
+                            "description": "Cumulative number of posts already returned"
+                          },
+                          "limit": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100,
+                            "description": "Repeat the exact limit from the previous page (1-100)"
+                          }
+                        },
+                        "required": [
+                          "connectedAccountId",
+                          "authorIdentifier",
+                          "offset",
+                          "limit"
+                        ],
+                        "additionalProperties": false,
+                        "title": "Offset continuation"
+                      }
+                    ],
+                    "description": "First page: omit cursor and offset. Continuation: repeat connectedAccountId, authorIdentifier and limit, then pass either next_cursor as cursor or a positive cumulative offset"
+                  }
+                ],
+                "description": "List an author's posts, continue that list, or fetch one returned post by id"
+              },
+              "examples": {
+                "accountOwnerFirstPage": {
+                  "summary": "First page of the account owner's posts",
+                  "description": "Replace connectedAccountId with an ok LinkedIn or Instagram account id returned by GET /v1/messaging/connected-accounts.",
+                  "value": {
+                    "connectedAccountId": "00000000-0000-4000-8000-000000000001",
+                    "authorIdentifier": "me",
+                    "limit": 10
                   }
                 },
-                "required": [
-                  "connectedAccountId"
-                ]
+                "personFirstPage": {
+                  "summary": "First page for a resolved person",
+                  "description": "Use the top-level id returned by the social-profile endpoint as authorIdentifier.",
+                  "value": {
+                    "connectedAccountId": "00000000-0000-4000-8000-000000000001",
+                    "authorIdentifier": "ACoAAExampleProviderProfileId",
+                    "limit": 10
+                  }
+                },
+                "cursorContinuation": {
+                  "summary": "Continue the same person's result",
+                  "description": "Repeat connectedAccountId, authorIdentifier and limit from the previous request, and copy next_cursor into cursor.",
+                  "value": {
+                    "connectedAccountId": "00000000-0000-4000-8000-000000000001",
+                    "authorIdentifier": "ACoAAExampleProviderProfileId",
+                    "cursor": "AQEFAExampleNextCursor",
+                    "limit": 10
+                  }
+                },
+                "singlePost": {
+                  "summary": "Fetch one returned post",
+                  "description": "Use an id returned by a post-list response as postId.",
+                  "value": {
+                    "connectedAccountId": "00000000-0000-4000-8000-000000000001",
+                    "postId": "urn:li:activity:example-post-id"
+                  }
+                }
               }
             }
           }
@@ -35318,7 +35463,8 @@
                                 ]
                               },
                               "id": {
-                                "type": "string"
+                                "type": "string",
+                                "description": "Provider post ID. Pass it as postId to fetch this post or its engagement"
                               },
                               "share_url": {
                                 "anyOf": [
@@ -35449,7 +35595,8 @@
                                     "type": "object",
                                     "properties": {
                                       "id": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "description": "Provider user ID. Social tools accept it as a person identifier or post authorIdentifier"
                                       },
                                       "object": {
                                         "anyOf": [
@@ -35662,6 +35809,7 @@
                           ]
                         },
                         "next_cursor": {
+                          "description": "Pass unchanged as cursor for the next page while repeating connectedAccountId, authorIdentifier and limit; null means no cursor continuation",
                           "anyOf": [
                             {
                               "type": "string"
@@ -35692,7 +35840,8 @@
                           ]
                         },
                         "id": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Provider post ID. Pass it as postId to fetch this post or its engagement"
                         },
                         "share_url": {
                           "anyOf": [
@@ -35823,7 +35972,8 @@
                               "type": "object",
                               "properties": {
                                 "id": {
-                                  "type": "string"
+                                  "type": "string",
+                                  "description": "Provider user ID. Social tools accept it as a person identifier or post authorIdentifier"
                                 },
                                 "object": {
                                   "anyOf": [
@@ -36276,7 +36426,8 @@
                                     "type": "object",
                                     "properties": {
                                       "id": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "description": "Provider user ID. Social tools accept it as a person identifier or post authorIdentifier"
                                       },
                                       "object": {
                                         "anyOf": [
@@ -36489,6 +36640,7 @@
                           ]
                         },
                         "next_cursor": {
+                          "description": "Pass unchanged as cursor for the next page; null means no cursor continuation",
                           "anyOf": [
                             {
                               "type": "string"
@@ -36549,7 +36701,8 @@
                                     "type": "object",
                                     "properties": {
                                       "id": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "description": "Provider user ID. Social tools accept it as a person identifier or post authorIdentifier"
                                       },
                                       "object": {
                                         "anyOf": [
@@ -36759,6 +36912,7 @@
                           ]
                         },
                         "next_cursor": {
+                          "description": "Pass unchanged as cursor for the next page; null means no cursor continuation",
                           "anyOf": [
                             {
                               "type": "string"
@@ -36826,7 +36980,7 @@
       "post": {
         "operationId": "getSocialProfile",
         "summary": "Get a social profile",
-        "description": "Reads a person or company profile from a connected account. For a person, keep profileType=person and pass 'me', a top-level provider profile id, a LinkedIn Classic public_identifier, or an Instagram username; specifics.member_id is not a valid identifier. For a LinkedIn company, set profileType=company and pass its company id. Company lookup is LinkedIn-only.",
+        "description": "Reads a person or company profile through a connected account. For a person, use profileType=person with 'me', participants[].identifier from a messaging-thread response, a top-level person id returned by a social response, a LinkedIn Classic public profile slug, or an Instagram username. Reuse the returned top-level id with profileType=person or as a social-post authorIdentifier. For a LinkedIn company, use profileType=company with an id returned by Sales Navigator company search or current_positions[].company_id, and reuse the returned id with profileType=company. Company lookup is LinkedIn-only.",
         "tags": [
           "messaging"
         ],
@@ -36846,16 +37000,16 @@
                     "type": "string",
                     "format": "uuid",
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                    "description": "Connected LinkedIn or Instagram account ID"
+                    "description": "LinkedIn or Instagram connected-account ID returned by GET /v1/messaging/connected-accounts"
                   },
                   "identifier": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "Person: 'me', a top-level profile/participant id, or a LinkedIn Classic public_identifier; never specifics.member_id. LinkedIn company: a company id with profileType=company"
+                    "description": "Person: 'me', participants[].identifier from a messaging-thread response, a top-level person id returned by a social response, a LinkedIn Classic public profile slug, or an Instagram username. Company: an id returned by Sales Navigator company search or current_positions[].company_id, with profileType=company"
                   },
                   "profileType": {
                     "default": "person",
-                    "description": "Profile kind. Use company only with a connected LinkedIn account",
+                    "description": "Lookup route to use. Company lookup requires a connected LinkedIn account",
                     "type": "string",
                     "enum": [
                       "person",
@@ -36867,6 +37021,35 @@
                   "connectedAccountId",
                   "identifier"
                 ]
+              },
+              "examples": {
+                "accountOwner": {
+                  "summary": "Connected-account owner",
+                  "description": "Replace connectedAccountId with an ok LinkedIn or Instagram account id returned by GET /v1/messaging/connected-accounts.",
+                  "value": {
+                    "connectedAccountId": "00000000-0000-4000-8000-000000000001",
+                    "identifier": "me",
+                    "profileType": "person"
+                  }
+                },
+                "linkedInPerson": {
+                  "summary": "LinkedIn person",
+                  "description": "identifier may be participants[].identifier from a messaging-thread response or a LinkedIn Classic public profile slug.",
+                  "value": {
+                    "connectedAccountId": "00000000-0000-4000-8000-000000000001",
+                    "identifier": "example-person",
+                    "profileType": "person"
+                  }
+                },
+                "linkedInCompany": {
+                  "summary": "LinkedIn company",
+                  "description": "Use a company id returned by Sales Navigator company search or current_positions[].company_id.",
+                  "value": {
+                    "connectedAccountId": "00000000-0000-4000-8000-000000000001",
+                    "identifier": "1035",
+                    "profileType": "company"
+                  }
+                }
               }
             }
           }
@@ -36896,9 +37079,10 @@
                     },
                     "id": {
                       "type": "string",
-                      "description": "Provider profile ID accepted as the identifier for follow-up profile operations"
+                      "description": "Provider profile ID. Reuse it with the same profileType; person IDs can also be used as authorIdentifier"
                     },
                     "type": {
+                      "description": "Provider-reported profile type; this is not the person/company lookup route",
                       "anyOf": [
                         {
                           "type": "string",
@@ -36914,7 +37098,7 @@
                       ]
                     },
                     "public_identifier": {
-                      "description": "Public profile slug, accepted as an identifier for LinkedIn Classic person lookups",
+                      "description": "Public profile slug supplied by the provider",
                       "anyOf": [
                         {
                           "type": "string"
@@ -36990,7 +37174,7 @@
                           "type": "object",
                           "properties": {
                             "member_id": {
-                              "description": "LinkedIn-internal member metadata. Do not use this as a profile identifier",
+                              "description": "Provider-specific LinkedIn member metadata; follow-up requests use the profile's top-level id",
                               "anyOf": [
                                 {
                                   "type": "string"
@@ -40457,7 +40641,8 @@
                                 "type": "object",
                                 "properties": {
                                   "id": {
-                                    "type": "string"
+                                    "type": "string",
+                                    "description": "Provider user ID. Social tools accept it as a person identifier or post authorIdentifier"
                                   },
                                   "object": {
                                     "anyOf": [
@@ -40670,6 +40855,7 @@
                       ]
                     },
                     "next_cursor": {
+                      "description": "Pass unchanged as cursor for the next page; null means no cursor continuation",
                       "anyOf": [
                         {
                           "type": "string"

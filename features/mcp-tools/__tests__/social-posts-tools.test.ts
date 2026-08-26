@@ -1,4 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { MOCK_ENV_MODULE, createMockDiModule, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
@@ -66,6 +69,55 @@ beforeEach(() => {
 });
 
 describe("get_social_posts routing", () => {
+  it("publishes its real input fields through MCP tools/list", async () => {
+    const server = new McpServer({ name: "social-posts-schema-test", version: "1.0.0" });
+    server.registerTool(
+      getSocialPostsTool.name,
+      {
+        title: getSocialPostsTool.title,
+        description: getSocialPostsTool.description,
+        inputSchema: getSocialPostsTool.inputSchema,
+        annotations: getSocialPostsTool.annotations,
+      },
+      () => ({ content: [] }),
+    );
+    const client = new Client({ name: "social-posts-schema-client", version: "1.0.0" });
+    const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
+
+    try {
+      await Promise.all([server.connect(serverTransport), client.connect(clientTransport)]);
+      const tool = (await client.listTools()).tools.find(({ name }) => name === getSocialPostsTool.name);
+      expect(tool?.inputSchema.properties).toEqual(
+        expect.objectContaining({
+          connectedAccountId: expect.any(Object),
+          postId: expect.any(Object),
+          authorIdentifier: expect.any(Object),
+          cursor: expect.any(Object),
+          offset: expect.any(Object),
+          limit: expect.any(Object),
+        }),
+      );
+    } finally {
+      await Promise.all([client.close(), server.close()]);
+    }
+  });
+
+  it("routes an unambiguous postId request to the single-post interactor", async () => {
+    spies.getSocialPost.mockResolvedValue({ ok: true as const, data: { id: "post-1" } });
+
+    await runPosts({ connectedAccountId: ACCOUNT_ID, postId: "post-1" });
+
+    expect(spies.getSocialPost).toHaveBeenCalledWith({ connectedAccountId: ACCOUNT_ID, postId: "post-1" });
+    expect(spies.listSocialPosts).not.toHaveBeenCalled();
+    expect(
+      getSocialPostsTool.inputSchema.safeParse({
+        connectedAccountId: ACCOUNT_ID,
+        postId: "post-1",
+        authorIdentifier: "me",
+      }).success,
+    ).toBe(false);
+  });
+
   it("omits pagination inputs on the initial call and returns next_cursor", async () => {
     spies.listSocialPosts.mockResolvedValue({
       ok: true as const,
@@ -85,21 +137,54 @@ describe("get_social_posts routing", () => {
     expect(result).toContain("cursor-2");
   });
 
-  it("forwards only the continuation cursor selected by the caller", async () => {
-    await runPosts({ connectedAccountId: ACCOUNT_ID, cursor: "cursor-2", limit: 5 });
+  it("continues with the same explicit author and limit", async () => {
+    await runPosts({
+      connectedAccountId: ACCOUNT_ID,
+      authorIdentifier: "ACoAAProviderId",
+      cursor: "cursor-2",
+      limit: 5,
+    });
 
     expect(spies.listSocialPosts).toHaveBeenCalledWith({
       connectedAccountId: ACCOUNT_ID,
-      authorIdentifier: "me",
+      authorIdentifier: "ACoAAProviderId",
       cursor: "cursor-2",
       offset: undefined,
       limit: 5,
     });
   });
 
-  it("documents that the initial request has no pagination selector", () => {
-    expect(getSocialPostsTool.inputSchema.shape.offset.description).toContain("Omit cursor and offset");
-    expect(getSocialPostsTool.inputSchema.shape.cursor.description).toContain("Omit cursor and offset");
+  it("rejects pagination that could silently fall back to the account owner", () => {
+    expect(
+      getSocialPostsTool.inputSchema.safeParse({
+        connectedAccountId: ACCOUNT_ID,
+        cursor: "cursor-2",
+        limit: 5,
+      }).success,
+    ).toBe(false);
+    expect(
+      getSocialPostsTool.inputSchema.safeParse({
+        connectedAccountId: ACCOUNT_ID,
+        authorIdentifier: "ACoAAProviderId",
+        cursor: "cursor-2",
+        offset: 5,
+        limit: 5,
+      }).success,
+    ).toBe(false);
+  });
+
+  it("defaults to the account owner only on an initial request", async () => {
+    await runPosts({ connectedAccountId: ACCOUNT_ID });
+
+    expect(spies.listSocialPosts).toHaveBeenCalledWith({
+      connectedAccountId: ACCOUNT_ID,
+      authorIdentifier: "me",
+      cursor: undefined,
+      offset: undefined,
+      limit: 10,
+    });
+    expect(getSocialPostsTool.description).toContain("repeat the same connectedAccountId, authorIdentifier and limit");
+    expect(getSocialPostsTool.description).not.toContain("member_id");
   });
 });
 
@@ -151,7 +236,7 @@ describe("get_social_profile", () => {
     expect(result).not.toContain("123456");
   });
 
-  it("carries the type discriminator for company profiles", async () => {
+  it("returns the explicit lookup route separately from the provider-reported type", async () => {
     spies.getSocialProfile.mockResolvedValue({
       ok: true as const,
       data: { id: "c1", type: "organization", display_name: "Acme GmbH", public_identifier: "acme" },
@@ -166,21 +251,32 @@ describe("get_social_profile", () => {
       identifier: "company-123",
       profileType: "company",
     });
+    expect(result).toContain("profile_type: company");
     expect(result).toContain("organization");
     expect(result).toContain("Acme GmbH");
   });
 
-  it("defaults to a person profile and documents the reusable identifiers", async () => {
-    spies.getSocialProfile.mockResolvedValue({ ok: true as const, data: { id: "ACoAAProviderId" } });
+  it("defaults to a person route even when the provider reports organization", async () => {
+    spies.getSocialProfile.mockResolvedValue({
+      ok: true as const,
+      data: { id: "ACoAAProviderId", type: "organization" },
+    });
 
-    await runProfile({ connectedAccountId: ACCOUNT_ID, identifier: "ada" });
+    const result = await runProfile({ connectedAccountId: ACCOUNT_ID, identifier: "ada" });
 
     expect(spies.getSocialProfile).toHaveBeenCalledWith({
       connectedAccountId: ACCOUNT_ID,
       identifier: "ada",
       profileType: "person",
     });
-    expect(getSocialProfileTool.inputSchema.shape.identifier.description).toContain("never member_id");
+    expect(result).toContain("profile_type: person");
+    expect(result).toContain("type: organization");
+    expect(getSocialProfileTool.inputSchema.shape.identifier.description).toContain(
+      "get_messaging_threads.participants[].identifier",
+    );
+    expect(getSocialProfileTool.inputSchema.shape.identifier.description).toContain("returned social-user id");
+    expect(getSocialProfileTool.inputSchema.shape.identifier.description).not.toContain("member_id");
+    expect(getSocialProfileTool.description).not.toContain("member_id");
   });
 
   it("maps ongoing experience entries into current_positions", async () => {
@@ -206,6 +302,12 @@ describe("get_social_profile", () => {
 });
 
 describe("manage_social_relations routing", () => {
+  it("documents profile resolution instead of a nonexistent participant id", () => {
+    expect(manageSocialRelationsTool.description).toContain(
+      "resolve participants[].identifier through get_social_profile first",
+    );
+  });
+
   it("lists received requests for action=list", async () => {
     await runRelations({ action: "list", connectedAccountId: ACCOUNT_ID });
     expect(spies.listRelationRequests).toHaveBeenCalledOnce();

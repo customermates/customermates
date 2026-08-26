@@ -68,6 +68,14 @@ function catalogText(locale: string): string {
   return readFileSync(join(REPO_ROOT, catalogPath(locale)), "utf8");
 }
 
+function socialPostsSection(locale: string): string {
+  const text = catalogText(locale);
+  const start = text.indexOf("### Social");
+  if (start === -1) return "";
+  const end = text.indexOf("\n### ", start + 1);
+  return text.slice(start, end === -1 ? undefined : end);
+}
+
 describe("MCP tool catalog fidelity", () => {
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
     "extracts one name and title per exported tool",
@@ -155,6 +163,35 @@ describe("MCP tool catalog fidelity", () => {
             stale.push(`${file.slice(REPO_ROOT.length + 1)}: ${name}`);
       }
       expect(stale, stale.join("\n")).toEqual([]);
+    },
+  );
+
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
+    "documents the safe social-profile-to-post handoff in every catalog",
+    () => {
+      const requiredTokens = [
+        "get_workspace_context.connectedAccounts",
+        "get_messaging_threads.participants[].identifier",
+        "get_social_profile",
+        "get_social_profile.id",
+        "get_social_posts.authorIdentifier",
+        "connectedAccountId",
+        "authorIdentifier",
+        "next_cursor",
+        "cursor",
+        "limit",
+      ];
+
+      for (const locale of CATALOG_LOCALES) {
+        const section = socialPostsSection(locale);
+        expect(section, `${catalogPath(locale)} must contain a Social section`).not.toBe("");
+        for (const token of requiredTokens) {
+          expect(section, `${catalogPath(locale)} must document ${token}`).toContain(token);
+        }
+        expect(section, `${catalogPath(locale)} must only name MCP-visible identifier fields`).not.toContain(
+          "member_id",
+        );
+      }
     },
   );
 });
