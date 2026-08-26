@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { type Data, type Validated } from "@/core/validation/validation.utils";
@@ -13,13 +12,13 @@ import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-export const CreateChatSupportTicketSchema = z.object({
+const Schema = z.object({
   conversationId: z.uuid(),
   subject: z.string().min(1).max(200),
   body: z.string().min(1).max(10000),
 });
 
-export type CreateChatSupportTicketData = Data<typeof CreateChatSupportTicketSchema>;
+export type CreateChatSupportTicketData = Data<typeof Schema>;
 
 const OutputSchema = z.object({
   sent: z.literal(true),
@@ -27,7 +26,6 @@ const OutputSchema = z.object({
 
 type SupportRequestResult = Data<typeof OutputSchema>;
 
-@AllowInDemoMode
 @TenantInteractor()
 export class CreateChatSupportTicketInteractor extends AuthenticatedInteractor<
   CreateChatSupportTicketData,
@@ -41,7 +39,7 @@ export class CreateChatSupportTicketInteractor extends AuthenticatedInteractor<
   }
 
   @Write({
-    input: CreateChatSupportTicketSchema,
+    input: Schema,
     output: OutputSchema,
     tx: false,
   })

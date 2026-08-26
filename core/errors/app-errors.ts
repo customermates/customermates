@@ -148,10 +148,6 @@ function findInErrorCauseChain<T>(error: unknown, find: (candidate: unknown) => 
   return null;
 }
 
-export function isExpectedErrorInCauseChain(error: unknown): boolean {
-  return findInErrorCauseChain(error, (candidate) => (isExpectedError(candidate) ? true : null)) === true;
-}
-
 function legacyAppErrorCode(err: { name?: unknown; message?: unknown; statusCode?: unknown }): AppErrorCode | null {
   if (err.name === "AuthError" || err.statusCode === 401) return AppErrorCode.unauthenticated;
   if (err.name === "DemoModeError" || err.message === DEMO_MODE_MESSAGE) return AppErrorCode.demoMode;

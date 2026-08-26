@@ -5,7 +5,6 @@ import { Resource, Action, SubscriptionPlan } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { assertInvariant } from "@/core/errors/assert-invariant";
 
 export abstract class RefreshSubscriptionRepo {
   abstract getSubscriptionOrThrow(): Promise<{ lemonSqueezyId: string | null; plan: SubscriptionPlan }>;
@@ -25,7 +24,7 @@ export class RefreshSubscriptionInteractor extends AuthenticatedInteractor<void,
     const subscription = await this.repo.getSubscriptionOrThrow();
 
     if (subscription.plan === SubscriptionPlan.enterprise) return { ok: true as const, data: null };
-    assertInvariant(subscription.lemonSqueezyId, "Subscription does not have a LemonSqueezy ID");
+    if (!subscription.lemonSqueezyId) throw new Error("Subscription does not have a LemonSqueezy ID");
 
     const { companyId, changedPlan } = await this.subscriptionService.updateSubscriptionOrThrow(
       subscription.lemonSqueezyId,

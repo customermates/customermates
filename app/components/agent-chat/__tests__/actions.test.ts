@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { z } from "zod";
 
 const di = vi.hoisted(() => ({
   getArchiveAgentConversationInteractor: vi.fn(),
@@ -36,15 +35,13 @@ function useInteractor(getter: ReturnType<typeof vi.fn>, result: unknown) {
 describe("agent server actions", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("preserves the configuration denial code returned by the interactor", async () => {
-    const error = new z.ZodError([{ code: "custom", path: [], message: "The Assistant is unavailable." }]);
+  it("passes a disabled configuration through as data", async () => {
     const invoke = useInteractor(di.getGetAgentConfigInteractor, {
-      ok: false,
-      error,
-      code: "agentChatDisabled",
+      ok: true,
+      data: { enabled: false },
     });
 
-    await expect(getAgentConfigAction()).resolves.toMatchObject({ ok: false, code: "agentChatDisabled" });
+    await expect(getAgentConfigAction()).resolves.toEqual({ ok: true, data: { enabled: false } });
     expect(invoke).toHaveBeenCalledOnce();
   });
 

@@ -9,7 +9,6 @@ import {
   WebhookExternalFailure,
   WebhookNonRetryableFailure,
   isExpectedError,
-  isExpectedErrorInCauseChain,
   appErrorResponse,
   appErrorDetails,
   appErrorDetailsInCauseChain,
@@ -163,13 +162,11 @@ describe("isExpectedError", () => {
     const cycle = new Error("cycle") as Error & { cause?: unknown };
     cycle.cause = cycle;
 
-    expect(isExpectedErrorInCauseChain(wrapped)).toBe(true);
     expect(appErrorDetailsInCauseChain(wrapped)).toEqual({
       code: AppErrorCode.inactiveUser,
       message: "Inactive",
       statusCode: 403,
     });
-    expect(isExpectedErrorInCauseChain(cycle)).toBe(false);
     expect(appErrorDetailsInCauseChain(cycle)).toBeNull();
   });
 });

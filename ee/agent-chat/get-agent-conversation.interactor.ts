@@ -15,7 +15,7 @@ import { AgentMessagePageSchema, type AgentMessagePageData } from "./agent-histo
 import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-export const GetAgentConversationSchema = AgentMessagePageSchema;
+const Schema = AgentMessagePageSchema;
 
 export type GetAgentConversationData = AgentMessagePageData;
 
@@ -49,7 +49,7 @@ export class GetAgentConversationInteractor extends AuthenticatedInteractor<
     super();
   }
 
-  @Validate(GetAgentConversationSchema)
+  @Validate(Schema)
   @ValidateOutput(OutputSchema)
   async invoke(data: GetAgentConversationData): Validated<AgentConversationDetail> {
     const denied = await this.entitlements.require("agentChat");

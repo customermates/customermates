@@ -41,7 +41,6 @@ export class EntitlementService {
 
     if (feature === "agentChat" && env.AGENT_CHAT_DISABLED) return this.denial(t, "agentChatDisabled");
     if (env.APP_MODE === "self-hosted") return this.denial(t, FEATURE_DENIALS[feature].cloud);
-    if (env.APP_MODE === "demo" && feature === "agentChat") return this.denial(t, FEATURE_DENIALS[feature].cloud);
 
     const subscription = await this.repo.getSubscriptionOrThrow();
 

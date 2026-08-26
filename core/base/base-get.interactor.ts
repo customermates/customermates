@@ -24,7 +24,6 @@ import { env } from "@/env";
 import { KANBAN_EMPTY_GROUP_KEY, KANBAN_PER_GROUP_DEFAULT } from "./base-get.schema";
 import { FilterOperatorKey, ViewMode } from "./base-query-builder";
 import { runPrecheck } from "../validation/run-precheck";
-import { assertInvariant } from "../errors/assert-invariant";
 
 export interface GetResult<T> {
   p13nId?: string;
@@ -151,7 +150,7 @@ export abstract class BaseGetInteractor<T> {
 
     if (this.mode === "api") {
       const precheck = this.queryParamsPrecheck;
-      assertInvariant(precheck, "api mode requires a queryParamsPrecheck");
+      if (!precheck) throw new Error("api mode requires a queryParamsPrecheck");
 
       const checked = await runPrecheck({ filters, sortDescriptor }, (data, ctx) =>
         precheck.invoke(

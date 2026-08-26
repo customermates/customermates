@@ -9,6 +9,7 @@ import { seedContacts } from "./contacts";
 import { seedCustomFields } from "./custom-fields";
 import { seedDeals } from "./deals";
 import { seedIdentity } from "./identity";
+import { seedAgentConversations } from "./agent-chat";
 import { seedDemoMessagingFixtures } from "./messaging/seed";
 import { seedSyntheticAuditLogs } from "./audit-logs";
 import { seedOrganizations } from "./organizations";
@@ -49,6 +50,7 @@ export async function runSyntheticSeed(context: SeedContext): Promise<SyntheticS
     userId: context.ids.user,
   });
   await seedSyntheticAuditLogs(context, entities);
+  await seedAgentConversations(context);
 
   return entities;
 }

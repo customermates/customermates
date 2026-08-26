@@ -1,5 +1,3 @@
-import { env } from "@/env";
-
 import { lowestModelPromptTierBoundary, resolveModelPricing } from "./model-pricing";
 
 export const AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS = 2_500;
@@ -61,44 +59,9 @@ function assertServable(key: AgentModelKey) {
 
 for (const key of CATALOG_KEYS) assertServable(key);
 
-function configuredKeys(name: string, value: string | undefined): AgentModelKey[] | null {
-  const raw = value?.trim();
-  if (!raw) return null;
-
-  const keys = raw
-    .split(",")
-    .map((key) => key.trim())
-    .filter(Boolean);
-  for (const key of keys) if (!isAgentModelKey(key)) throw new Error(`${name} names an unknown agent model "${key}".`);
-  if (keys.length === 0) throw new Error(`${name} is set but names no agent model.`);
-
-  return [...new Set(keys as AgentModelKey[])];
-}
-
-export function agentModelKeys(): AgentModelKey[] {
-  return configuredKeys("AGENT_MODEL_KEYS", env.AGENT_MODEL_KEYS) ?? CATALOG_KEYS;
-}
-
-export function defaultAgentModelKey(): AgentModelKey {
-  const enabled = agentModelKeys();
-  const configured = configuredKeys("AGENT_MODEL_DEFAULT", env.AGENT_MODEL_DEFAULT);
-  if (!configured) return enabled.includes(SHIPPED_AGENT_MODEL_KEY) ? SHIPPED_AGENT_MODEL_KEY : enabled[0];
-
-  const [preferred] = configured;
-  if (!enabled.includes(preferred))
-    throw new Error(`AGENT_MODEL_DEFAULT names "${preferred}", which AGENT_MODEL_KEYS does not enable.`);
-
-  return preferred;
-}
-
-export function isEnabledAgentModelKey(value: string): value is AgentModelKey {
-  return isAgentModelKey(value) && agentModelKeys().includes(value);
-}
-
 export function resolveAgentModel(key?: string | null): AgentModelEntry {
-  if (key == null) return MODEL_CATALOG[defaultAgentModelKey()];
+  if (key == null) return MODEL_CATALOG[SHIPPED_AGENT_MODEL_KEY];
   if (!isAgentModelKey(key)) throw new Error(`Unknown agent model "${key}".`);
-  if (!agentModelKeys().includes(key)) throw new Error(`Agent model "${key}" is not enabled in this environment.`);
 
   return MODEL_CATALOG[key];
 }

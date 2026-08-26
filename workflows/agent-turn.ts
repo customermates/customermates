@@ -308,8 +308,9 @@ type AgentRunnerMessageKind = "safetyLimit" | "creditLimit" | "outputLimit" | "t
 
 async function resolveRunnerMessage(locale: string, kind: AgentRunnerMessageKind): Promise<string> {
   "use step";
-  const { agentTranslator } = await import("@/ee/agent-chat/agent-translator");
-  const t = agentTranslator(locale);
+  const { getTranslator } = await import("@/i18n/get-translator");
+  const { appLocaleOrDefault } = await import("@/i18n/locale-registry");
+  const t = await getTranslator(appLocaleOrDefault(locale));
 
   if (kind === "creditLimit") return t("AgentChat.runner.creditLimit");
   if (kind === "outputLimit") return t("AgentChat.runner.outputLimit");

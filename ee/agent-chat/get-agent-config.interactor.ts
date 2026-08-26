@@ -4,8 +4,8 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { type Data } from "@/core/validation/validation.utils";
-import type { EntitlementDenialCode, EntitlementService } from "@/ee/subscription/entitlement.service";
+import { type Data, type Validated } from "@/core/validation/validation.utils";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import type { AgentUsageService } from "./agent-usage.service";
 import { AgentUsageSummarySchema } from "./agent-usage.service";
@@ -14,20 +14,21 @@ import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { AgentConversationSummarySchema, AgentDataCountsSchema } from "./agent-chat.schema";
 import { resolveAgentModel } from "./model-catalog";
 
-const OutputSchema = z.object({
-  usage: AgentUsageSummarySchema,
-  counts: AgentDataCountsSchema,
-  conversationId: z.string().nullable(),
-  conversations: z.array(AgentConversationSummarySchema),
-  archivedConversations: z.array(AgentConversationSummarySchema),
-  conversationNextCursor: z.string().nullable(),
-  archivedConversationNextCursor: z.string().nullable(),
-});
+const OutputSchema = z.discriminatedUnion("enabled", [
+  z.object({ enabled: z.literal(false) }),
+  z.object({
+    enabled: z.literal(true),
+    usage: AgentUsageSummarySchema,
+    counts: AgentDataCountsSchema,
+    conversationId: z.string().nullable(),
+    conversations: z.array(AgentConversationSummarySchema),
+    archivedConversations: z.array(AgentConversationSummarySchema),
+    conversationNextCursor: z.string().nullable(),
+    archivedConversationNextCursor: z.string().nullable(),
+  }),
+]);
 
-type AgentConfig = Data<typeof OutputSchema>;
-export type GetAgentConfigInvocationResult =
-  | { ok: true; data: AgentConfig }
-  | { ok: false; error: z.ZodError; code?: EntitlementDenialCode };
+export type AgentConfig = Data<typeof OutputSchema>;
 
 @AllowInDemoMode
 @TenantInteractor()
@@ -41,9 +42,9 @@ export class GetAgentConfigInteractor extends AuthenticatedInteractor<void, Agen
   }
 
   @ValidateOutput(OutputSchema)
-  async invoke(): Promise<GetAgentConfigInvocationResult> {
+  async invoke(): Validated<AgentConfig> {
     const denied = await this.entitlements.require("agentChat");
-    if (denied) return denied;
+    if (denied) return { ok: true as const, data: { enabled: false as const } };
 
     await this.repo.normalizeExpiredAgentRunLease(new Date(), resolveAgentModel().modelId);
 
@@ -58,6 +59,7 @@ export class GetAgentConfigInteractor extends AuthenticatedInteractor<void, Agen
     return {
       ok: true as const,
       data: {
+        enabled: true as const,
         usage,
         counts,
         conversationId: conversation?.id ?? null,

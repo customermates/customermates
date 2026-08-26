@@ -5,7 +5,8 @@ import type { AgentToolIdentity } from "./tool-identity";
 import { internalToolIdentity, isInternalToolIdentity } from "./tool-identity";
 
 import { sanitizeAgentVisibleText } from "./agent-output-safety";
-import type { AgentTranslator } from "./agent-translator";
+
+export type AgentTranslator = (key: string, values?: Record<string, string | number>) => string;
 
 export const AGENT_ACTIVITY_KINDS = [
   "workspace.read",

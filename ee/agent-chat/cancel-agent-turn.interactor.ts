@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { type Data, type Validated } from "@/core/validation/validation.utils";
@@ -14,13 +13,12 @@ import { agentApprovalHookToken } from "./agent-approval-resume";
 import { agentUiCommandHookToken } from "./agent-ui-command";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 
-export const CancelAgentTurnSchema = z.object({ conversationId: z.uuid() }).strict();
+const Schema = z.object({ conversationId: z.uuid() }).strict();
 
-export type CancelAgentTurnData = Data<typeof CancelAgentTurnSchema>;
+export type CancelAgentTurnData = Data<typeof Schema>;
 
 const OutputSchema = z.object({ cancelling: z.boolean() });
 
-@AllowInDemoMode
 @TenantInteractor()
 export class CancelAgentTurnInteractor extends AuthenticatedInteractor<CancelAgentTurnData, { cancelling: boolean }> {
   constructor(
@@ -31,7 +29,7 @@ export class CancelAgentTurnInteractor extends AuthenticatedInteractor<CancelAge
     super();
   }
 
-  @Write({ input: CancelAgentTurnSchema, output: OutputSchema, tx: false })
+  @Write({ input: Schema, output: OutputSchema, tx: false })
   async invoke(data: CancelAgentTurnData): Validated<{ cancelling: boolean }> {
     const denied = await this.entitlements.require("agentChat");
     if (denied) return denied;

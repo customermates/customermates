@@ -3,7 +3,6 @@ import { z } from "zod";
 import { AgentApprovalDecision } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { type Data, type Validated } from "@/core/validation/validation.utils";
@@ -15,7 +14,7 @@ import { createInteractorFailure } from "@/core/validation/interactor-failure-se
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 
-export const RespondToApprovalSchema = z
+const Schema = z
   .object({
     conversationId: z.uuid(),
     requestId: z.string().min(1),
@@ -23,11 +22,10 @@ export const RespondToApprovalSchema = z
   })
   .strict();
 
-export type RespondToApprovalData = Data<typeof RespondToApprovalSchema>;
+export type RespondToApprovalData = Data<typeof Schema>;
 
 const OutputSchema = z.object({ resolved: z.literal(true) });
 
-@AllowInDemoMode
 @TenantInteractor()
 export class RespondToApprovalInteractor extends AuthenticatedInteractor<RespondToApprovalData, { resolved: true }> {
   constructor(
@@ -38,7 +36,7 @@ export class RespondToApprovalInteractor extends AuthenticatedInteractor<Respond
     super();
   }
 
-  @Write({ input: RespondToApprovalSchema, output: OutputSchema })
+  @Write({ input: Schema, output: OutputSchema })
   async invoke(data: RespondToApprovalData): Validated<{ resolved: true }> {
     const denied = await this.entitlements.require("agentChat");
     if (denied) return denied;

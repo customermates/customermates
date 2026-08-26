@@ -60,6 +60,14 @@ function hasDecorator(
   );
 }
 
+function isPlainInvariantThrow(node: ts.ThrowStatement) {
+  return (
+    ts.isNewExpression(node.expression) &&
+    ts.isIdentifier(node.expression.expression) &&
+    node.expression.expression.text === "Error"
+  );
+}
+
 function isCatchRethrow(node: ts.ThrowStatement) {
   if (!ts.isIdentifier(node.expression)) return false;
   let parent: ts.Node | undefined = node.parent;
@@ -117,7 +125,7 @@ describe("interactor error contract", () => {
           hasDecorator(node, "TenantInteractor")
         ) {
           const scanClass = (child: ts.Node) => {
-            if (ts.isThrowStatement(child) && !isCatchRethrow(child)) {
+            if (ts.isThrowStatement(child) && !isCatchRethrow(child) && !isPlainInvariantThrow(child)) {
               const line =
                 file.getLineAndCharacterOfPosition(child.getStart(file)).line +
                 1;

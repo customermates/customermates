@@ -2,7 +2,6 @@ import { randomUUID } from "node:crypto";
 import type { z } from "zod";
 import * as Sentry from "@sentry/nextjs";
 
-import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -32,9 +31,8 @@ import {
   AGENT_REPLAY_MAX_CHARS,
   conservativeAgentInitialContextBytes,
 } from "./agent-provider-context";
-import { isEnabledAgentModelKey, resolveAgentModel } from "./model-catalog";
+import { isAgentModelKey, resolveAgentModel } from "./model-catalog";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
-import { assertInvariant } from "@/core/errors/assert-invariant";
 import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
@@ -63,7 +61,6 @@ export type SendAgentMessageResult =
       retryAllowed: boolean;
     };
 
-@AllowInDemoMode
 @TenantInteractor()
 export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgentMessageData, SendAgentMessageResult> {
   constructor(
@@ -173,7 +170,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       return createInteractorFailure(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
     const requestedModelKey = conversation?.modelKey ?? data.modelKey ?? null;
-    if (requestedModelKey !== null && !isEnabledAgentModelKey(requestedModelKey))
+    if (requestedModelKey !== null && !isAgentModelKey(requestedModelKey))
       return createInteractorFailure(CustomErrorCode.agentModelUnavailable, ["modelKey"]);
     const turnModel = resolveAgentModel(requestedModelKey);
 
@@ -189,7 +186,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       pageRoute,
       toolDefinitions: getAgentAiToolDefinitions(),
     });
-    assertInvariant(requiredContextBytes !== null, "The Assistant request context could not be measured safely.");
+    if (requiredContextBytes === null) throw new Error("The Assistant request context could not be measured safely.");
 
     const creditAdmission = await this.usageService.prepareTurn(user.id, now, {
       model: turnModel,

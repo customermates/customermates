@@ -25,7 +25,6 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { createZodError } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { assertInvariant } from "@/core/errors/assert-invariant";
 import { formatRetryAfter } from "../retry-after";
 import { isUnipileResourceNotFound, isUnipileTimeout } from "../messaging.service";
 import { MessagingMessageDtoSchema, toMessagingMessageDto } from "../inbox/inbox.schema";
@@ -141,10 +140,11 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
       account = await this.accountRepo.findUsableAccountByIdOrThrow(thread.connectedAccountId);
       inReplyTo = (await this.repo.findLatestEmailReplyReferenceForThread(thread.id)) ?? undefined;
     } else {
-      assertInvariant(
-        data.connectedAccountId,
-        "send-email reached with neither threadId nor connectedAccountId; schema validation should prevent this",
-      );
+      if (!data.connectedAccountId) {
+        throw new Error(
+          "send-email reached with neither threadId nor connectedAccountId; schema validation should prevent this",
+        );
+      }
       account = await this.accountRepo.findUsableAccountByIdOrThrow(data.connectedAccountId);
     }
 

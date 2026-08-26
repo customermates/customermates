@@ -12,9 +12,9 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 
-export const GetAgentRunStreamSchema = z.object({ conversationId: z.uuid() }).strict();
+const Schema = z.object({ conversationId: z.uuid() }).strict();
 
-export type GetAgentRunStreamData = Data<typeof GetAgentRunStreamSchema>;
+export type GetAgentRunStreamData = Data<typeof Schema>;
 
 const OutputSchema = z.object({ externalRunId: z.string() });
 
@@ -30,7 +30,7 @@ export class GetAgentRunStreamInteractor extends AuthenticatedInteractor<GetAgen
     super();
   }
 
-  @Validate(GetAgentRunStreamSchema)
+  @Validate(Schema)
   @ValidateOutput(OutputSchema)
   async invoke(data: GetAgentRunStreamData): Validated<AgentRunStream> {
     const denied = await this.entitlements.require("agentChat");

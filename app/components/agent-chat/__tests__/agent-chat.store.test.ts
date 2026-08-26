@@ -25,6 +25,7 @@ import { AgentChatStore } from "../agent-chat.store";
 import { AgentUiControlStore } from "../ui-control.store";
 
 const CONFIG = {
+  enabled: true as const,
   usage: {
     creditsUsed: 10,
     creditsRemaining: 490,
@@ -99,7 +100,7 @@ describe("AgentChatStore", () => {
       .mockRejectedValueOnce(new Error("temporary"))
       .mockResolvedValueOnce({ ok: false, error: {} })
       .mockResolvedValueOnce({ ok: true, data: CONFIG })
-      .mockResolvedValueOnce({ ok: false, error: {}, code: "agentChatRequiresCloud" });
+      .mockResolvedValueOnce({ ok: true, data: { enabled: false } });
     const store = new AgentChatStore(root() as never);
 
     await expect(store.loadConfig()).resolves.toBe("retry");

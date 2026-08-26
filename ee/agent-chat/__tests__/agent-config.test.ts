@@ -118,7 +118,7 @@ describe("GetAgentConfigInteractor", () => {
       entitlements as never,
     ).invoke();
 
-    expect(result).toBe(denial);
+    expect(result).toEqual({ ok: true, data: { enabled: false } });
     expect(entitlements.require).toHaveBeenCalledWith("agentChat");
     expect(repo.normalizeExpiredAgentRunLease).not.toHaveBeenCalled();
     expect(usageService.getUsageSummary).not.toHaveBeenCalled();

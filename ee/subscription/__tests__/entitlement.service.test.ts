@@ -143,7 +143,7 @@ describe("EntitlementService self-hosted", () => {
 describe("EntitlementService demo", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("denies agent chat before any subscription lookup", async () => {
+  it("allows agent chat in demo mode through the ordinary plan gate", async () => {
     vi.resetModules();
     vi.doMock("@/env", () => ({
       env: { ...MOCK_ENV_MODULE.env, APP_MODE: "demo" },
@@ -154,12 +154,12 @@ describe("EntitlementService demo", () => {
     }));
 
     const { EntitlementService: Demo } = await import("../entitlement.service");
-    const getSubscriptionOrThrow = vi.fn();
+    const getSubscriptionOrThrow = vi.fn().mockResolvedValue({ plan: "pro", status: "active", trialEndDate: null });
     const service = new Demo({ getSubscriptionOrThrow } as never);
 
     const denied = await service.require("agentChat");
-    expect(denialCode(denied)).toBe("agentChatRequiresCloud");
-    expect(getSubscriptionOrThrow).not.toHaveBeenCalled();
+    expect(denied).toBeNull();
+    expect(getSubscriptionOrThrow).toHaveBeenCalledOnce();
 
     getSubscriptionOrThrow.mockResolvedValue({
       status: "active",
@@ -167,7 +167,7 @@ describe("EntitlementService demo", () => {
       plan: "pro",
     });
     expect(await service.require("messaging")).toBeNull();
-    expect(getSubscriptionOrThrow).toHaveBeenCalledOnce();
+    expect(getSubscriptionOrThrow).toHaveBeenCalledTimes(2);
   });
 });
 

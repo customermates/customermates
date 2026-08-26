@@ -1,7 +1,5 @@
 "use server";
 
-import { z } from "zod";
-
 import {
   getArchiveAgentConversationInteractor,
   getCancelAgentTurnInteractor,
@@ -23,9 +21,7 @@ import type { ListAgentConversationsData } from "@/ee/agent-chat/agent-history";
 import type { DeleteAgentConversationData } from "@/ee/agent-chat/delete-agent-conversation.interactor";
 
 export async function getAgentConfigAction() {
-  const result = await getGetAgentConfigInteractor().invoke();
-  if (result.ok) return result;
-  return { ok: false as const, error: z.treeifyError(result.error), code: result.code };
+  return serializeResult(getGetAgentConfigInteractor().invoke());
 }
 
 export async function getAgentConversationAction(conversationId: string, before?: string | null) {

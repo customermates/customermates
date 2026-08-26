@@ -1,7 +1,7 @@
 import { appLocaleOrDefault, type AppLocale } from "@/i18n/locale-registry";
 
 import type { AgentDataCounts, SuggestionPageId } from "./agent-chat.schema";
-import type { AgentTranslator } from "./agent-translator";
+import type { AgentTranslator } from "./agent-activity";
 
 export type AgentPageAction = {
   id: string;

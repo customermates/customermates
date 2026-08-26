@@ -1,4 +1,3 @@
-import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -24,7 +23,6 @@ const RestoreAgentConversationResultSchema = z.object({
 
 type RestoreAgentConversationResult = Data<typeof RestoreAgentConversationResultSchema>;
 
-@AllowInDemoMode
 @TenantInteractor()
 export class RestoreAgentConversationInteractor extends AuthenticatedInteractor<
   ArchiveAgentConversationData,

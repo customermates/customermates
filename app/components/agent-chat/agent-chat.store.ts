@@ -14,6 +14,8 @@ import {
 } from "@/ee/agent-chat/agent-activity";
 import { agentPageState, agentActionPageFromPathname } from "@/ee/agent-chat/agent-page-actions";
 
+import { isDemoEnvironment, reportApplicationError } from "@/core/errors/report-application-error";
+
 import { BaseStore } from "@/core/base/base.store";
 
 import {
@@ -143,6 +145,7 @@ export class AgentChatStore extends BaseStore {
   private activeStreamKey = "stream-0";
   private streamSequence = 0;
   private uiCommandQueue: Promise<void> = Promise.resolve();
+  private demoAutoOpened = false;
 
   constructor(rootStore: RootStore) {
     super(rootStore);
@@ -573,14 +576,12 @@ export class AgentChatStore extends BaseStore {
   private loadConfigOnce = async (): Promise<AgentConfigLoadStatus> => {
     try {
       const response = await withDeadline(getAgentConfigAction(), AGENT_CONFIG_LOAD_TIMEOUT_MS);
-      if (!response.ok) {
-        if (response.code) {
-          runInAction(() => {
-            this.enabled = false;
-          });
-          return "disabled";
-        }
-        return "retry";
+      if (!response.ok) return "retry";
+      if (!response.data.enabled) {
+        runInAction(() => {
+          this.enabled = false;
+        });
+        return "disabled";
       }
       const config = response.data;
 
@@ -620,6 +621,12 @@ export class AgentChatStore extends BaseStore {
       });
       if (!this.conversationId && !this.isDraftConversationSelected && config.conversationId)
         await this.loadConversation(config.conversationId);
+      if (isDemoEnvironment() && !this.isOpen && !this.demoAutoOpened) {
+        this.demoAutoOpened = true;
+        runInAction(() => {
+          this.isOpen = true;
+        });
+      }
       return "ready";
     } catch {
       return "retry";
@@ -884,6 +891,15 @@ export class AgentChatStore extends BaseStore {
       }
 
       if (!response.ok || !response.body) {
+        if (response.status === 403 && isDemoEnvironment()) {
+          runInAction(() => {
+            if (options.appendUser !== false)
+              this.items = this.items.filter((item) => !(item.kind === "user" && item.messageId === messageId));
+            if (!this.composerDraft) this.composerDraft = trimmed;
+          });
+          reportApplicationError(new Error("The assistant cannot send messages in demo mode."));
+          return;
+        }
         const message = await response.json().catch(() => null);
         const bodyConversationId =
           message &&
