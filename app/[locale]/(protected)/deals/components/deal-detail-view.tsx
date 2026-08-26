@@ -120,7 +120,10 @@ export const DealDetailView = observer(({ layout = "drawer" }: Props) => {
             currentEntityId={fetchedEntity?.id}
             currentEntityType="deal"
             items={fetchedEntity?.contacts}
-            personalization={{ fieldId: DEAL_DETAIL_FIELD.contactIds, label: plural(EntityType.contact) }}
+            personalization={{
+              fieldId: DEAL_DETAIL_FIELD.contactIds,
+              label: plural(EntityType.contact),
+            }}
             target="contact"
           />
 
@@ -128,7 +131,10 @@ export const DealDetailView = observer(({ layout = "drawer" }: Props) => {
             currentEntityId={fetchedEntity?.id}
             currentEntityType="deal"
             items={fetchedEntity?.organizations}
-            personalization={{ fieldId: DEAL_DETAIL_FIELD.organizationIds, label: plural(EntityType.organization) }}
+            personalization={{
+              fieldId: DEAL_DETAIL_FIELD.organizationIds,
+              label: plural(EntityType.organization),
+            }}
             target="organization"
           />
 
@@ -136,14 +142,18 @@ export const DealDetailView = observer(({ layout = "drawer" }: Props) => {
             currentEntityId={fetchedEntity?.id}
             currentEntityType="deal"
             items={fetchedEntity?.tasks}
-            personalization={{ fieldId: DEAL_DETAIL_FIELD.taskIds, label: plural(EntityType.task) }}
+            personalization={{
+              fieldId: DEAL_DETAIL_FIELD.taskIds,
+              label: plural(EntityType.task),
+            }}
             target="task"
           />
 
           <DealServicesSelection
-            labelEndAddon={
-              <EntityDetailStarButton fieldId={DEAL_DETAIL_FIELD.serviceIds} label={plural(EntityType.service)} />
-            }
+            personalization={{
+              fieldId: DEAL_DETAIL_FIELD.serviceIds,
+              label: plural(EntityType.service),
+            }}
             showTotals={false}
           />
         </EntityDetailSection>

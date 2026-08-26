@@ -3,8 +3,7 @@
 import { Star } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { IconButton } from "@/components/ui/icon-button";
 import { cn } from "@/core/utils/cn";
 
 import { useEntityDetailPersonalization } from "./entity-detail-personalization";
@@ -27,22 +26,14 @@ export function EntityDetailStarButton({ fieldId, label, className }: Props) {
     : t("EntityDetail.starField", { field: label });
 
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          aria-label={actionLabel}
-          aria-pressed={starred}
-          className={cn("size-5 text-muted-foreground hover:text-foreground", className)}
-          size="icon"
-          type="button"
-          variant="ghost"
-          onClick={() => toggleStarredField(fieldId)}
-        >
-          <Star className={cn("size-3.5", starred && "fill-current text-primary")} />
-        </Button>
-      </TooltipTrigger>
-
-      <TooltipContent>{actionLabel}</TooltipContent>
-    </Tooltip>
+    <IconButton
+      fieldAction
+      className={className}
+      icon={Star}
+      iconClassName={cn(starred && "fill-current text-primary")}
+      label={actionLabel}
+      pressed={starred}
+      onClick={() => toggleStarredField(fieldId)}
+    />
   );
 }

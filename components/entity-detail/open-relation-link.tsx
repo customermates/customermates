@@ -21,5 +21,5 @@ export function OpenRelationLink({ targetEntityType, currentEntityType, currentE
   const segment = ENTITY_URL_SEGMENT[targetEntityType as EntityType];
   const field = RELATION_FILTER_FIELD[currentEntityType];
   const href = `/${segment}?filters=${encodeURIComponent(`${field}:in:${currentEntityId}`)}`;
-  return <IconButton href={href} icon={ExternalLink} label={t("Common.actions.openList")} />;
+  return <IconButton fieldAction href={href} icon={ExternalLink} label={t("Common.actions.openList")} />;
 }

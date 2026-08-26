@@ -23,8 +23,11 @@ export function EntityDetailStaticField({ fieldId, label, value }: Props) {
         <EntityDetailStarButton fieldId={fieldId} label={label} />
       </div>
 
-      <div className="flex min-h-9 w-full items-center rounded-md border border-input bg-input-background px-3 text-sm text-foreground shadow-xs">
-        <span suppressHydrationWarning className="truncate">
+      <div
+        className="flex min-h-9 w-full items-center rounded-md border border-input bg-muted px-3 text-sm text-foreground shadow-xs"
+        data-read-only="true"
+      >
+        <span suppressHydrationWarning className="select-text truncate">
           {displayValue}
         </span>
       </div>

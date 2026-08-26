@@ -23,7 +23,10 @@ import { getTasksAction, createTaskByNameAction } from "@/app/[locale]/(protecte
 import { getUsersAction } from "@/app/[locale]/(protected)/company/actions";
 import { getSystemTaskNameTranslationKey } from "@/app/[locale]/(protected)/tasks/components/system-task.config";
 
-import { OpenRelationLink } from "@/components/entity-detail/open-relation-link";
+import {
+  EntityRelationActions,
+  type EntityDetailFieldPersonalization,
+} from "@/components/entity-detail/entity-relation-actions";
 import { EntityDetailStarButton } from "@/components/entity-detail/entity-detail-star-button";
 import { AppChip } from "@/components/chip/app-chip";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
@@ -31,7 +34,6 @@ import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-ava
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { useEntityHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { useEntityDetailPersonalization } from "@/components/entity-detail/entity-detail-personalization";
-import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
 
@@ -102,11 +104,6 @@ type RelationFieldProps = {
   personalization?: EntityDetailFieldPersonalization;
 };
 
-export type EntityDetailFieldPersonalization = {
-  fieldId: string;
-  label?: string;
-};
-
 export const EntityRelationField = observer(
   ({
     target,
@@ -120,11 +117,9 @@ export const EntityRelationField = observer(
     const { userStore } = useRootStore();
     const entityHref = useEntityHref();
     const { setPreviewFieldValue } = useEntityDetailPersonalization();
-    const { plural } = useEntityTerminology();
     const t = useTranslations();
     const config = RELATION[target];
     const effectivePreviewFieldId = personalization?.fieldId ?? previewFieldId;
-    const fieldLabel = personalization?.label ?? plural(config.entityType);
     const publishSelection = useCallback(
       (selection: EntityDetailPreviewItem[]) => {
         if (effectivePreviewFieldId) setPreviewFieldValue(effectivePreviewFieldId, selection);
@@ -144,26 +139,16 @@ export const EntityRelationField = observer(
       getItems: config.getItems,
       id: config.field,
       items: items ?? [],
-      labelEndAddon:
-        personalization || labelEndAddon ? (
-          <span className="flex items-center gap-1">
-            {personalization && <EntityDetailStarButton fieldId={personalization.fieldId} label={fieldLabel} />}
-
-            {labelEndAddon}
-
-            <OpenRelationLink
-              currentEntityId={currentEntityId}
-              currentEntityType={currentEntityType}
-              targetEntityType={target}
-            />
-          </span>
-        ) : (
-          <OpenRelationLink
-            currentEntityId={currentEntityId}
-            currentEntityType={currentEntityType}
-            targetEntityType={target}
-          />
-        ),
+      labelEndAddon: (
+        <EntityRelationActions
+          currentEntityId={currentEntityId}
+          currentEntityType={currentEntityType}
+          personalization={personalization}
+          targetEntityType={target}
+        >
+          {labelEndAddon}
+        </EntityRelationActions>
+      ),
       onSelectionDataChange: effectivePreviewFieldId ? publishSelection : undefined,
       selectionMode: "multiple" as const,
       onCreate: (name: string) => config.onCreate(name, userStore.user?.id),

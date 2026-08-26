@@ -18,6 +18,10 @@ import { Icon } from "@/components/shared/icon";
 import { InfoRow } from "@/components/shared/info-row";
 import { TruncatedText } from "@/components/shared/truncated-text";
 import { useEntityHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
+import {
+  EntityRelationActions,
+  type EntityDetailFieldPersonalization,
+} from "@/components/entity-detail/entity-relation-actions";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { AppChip } from "@/components/chip/app-chip";
@@ -27,10 +31,11 @@ import { terminologyLabelForSentence } from "@/features/entity-terminology/entit
 
 type Props = {
   labelEndAddon?: ReactNode;
+  personalization?: EntityDetailFieldPersonalization;
   showTotals?: boolean;
 };
 
-export const DealServicesSelection = observer(({ labelEndAddon, showTotals = true }: Props) => {
+export const DealServicesSelection = observer(({ labelEndAddon, personalization, showTotals = true }: Props) => {
   const { dealDetailStore, userStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
   const {
@@ -59,7 +64,14 @@ export const DealServicesSelection = observer(({ labelEndAddon, showTotals = tru
           <div className="flex min-w-0 flex-1 items-center gap-1.5">
             <FormLabel className="block truncate min-w-0">{plural(EntityType.service)}</FormLabel>
 
-            {labelEndAddon}
+            <EntityRelationActions
+              currentEntityId={fetchedEntity?.id}
+              currentEntityType="deal"
+              personalization={personalization}
+              targetEntityType="service"
+            >
+              {labelEndAddon}
+            </EntityRelationActions>
           </div>
 
           <FormLabel className="block w-[4.5rem] shrink-0 text-right truncate">

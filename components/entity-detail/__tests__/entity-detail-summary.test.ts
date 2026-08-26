@@ -122,7 +122,7 @@ describe("EntityDetailSummary", () => {
 });
 
 describe("EntityDetailStaticField", () => {
-  it("keeps the read-only field treatment and exposes its inline favorite control", () => {
+  it("uses the shared muted read-only field treatment and exposes its inline favorite control", () => {
     const container = mount(
       createElement(EntityDetailStaticField, {
         fieldId: "createdAt",
@@ -133,6 +133,12 @@ describe("EntityDetailStaticField", () => {
 
     expect(container.querySelector('[data-star="createdAt"]')).not.toBeNull();
     expect(container.textContent).toContain("—");
-    expect(container.querySelector(".border-input")).not.toBeNull();
+    const value = container.querySelector<HTMLElement>('[data-read-only="true"]');
+    expect(value).not.toBeNull();
+    expect(value?.classList.contains("border-input")).toBe(true);
+    expect(value?.classList.contains("bg-muted")).toBe(true);
+    expect(value?.classList.contains("bg-input-background")).toBe(false);
+    expect(value?.querySelector(".select-text")).not.toBeNull();
+    expect(value?.querySelector("input")).toBeNull();
   });
 });
