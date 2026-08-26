@@ -1,3 +1,4 @@
+import { fail } from "@/core/validation/interactor-failure-server";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import type { ConnectedAccount } from "@/generated/prisma";
@@ -7,7 +8,7 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getLocale } from "next-intl/server";
 import * as Sentry from "@sentry/node";
 
 import {
@@ -21,7 +22,6 @@ import {
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { createZodError } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { normalizeChannelValue } from "@/features/contacts/channel-value";
 import { LINKEDIN_PRODUCTS, LINKEDIN_PRODUCT_PRIMARY_INBOX, isHandleProvider, type LinkedinProduct } from "../provider";
@@ -105,7 +105,7 @@ export abstract class StartChatThreadRepo {
 
 type ResolvedAttendees =
   | { ok: true; ids: string[]; attendees: MessagingAttendee[] }
-  | { ok: false; error: string; retryAfterSeconds?: number };
+  | { ok: false; error: CustomErrorCode; retryAfterSeconds?: number };
 
 const PRODUCT_LABEL: Record<LinkedinProduct, string> = {
   classic: "Classic",
@@ -141,29 +141,16 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
       : this.plainAttendees(data.attendeeIdentifiers);
 
     if (!attendees.ok) {
-      const t = await getTranslations();
-      return {
-        ok: false,
-        error: createZodError<StartChatResult>(
-          t(`Common.errors.${attendees.error}`, {
-            retryAfter: formatRetryAfter(await getLocale(), attendees.retryAfterSeconds),
-          }),
-        ),
-      };
+      return fail(attendees.error, [], {
+        retryAfter: formatRetryAfter(await getLocale(), attendees.retryAfterSeconds),
+      });
     }
 
     const product = data.linkedinProduct ?? "classic";
     const inboxId = await this.resolveInboxId(account, product);
 
-    if (account.provider === MessagingProvider.linkedin && product !== "classic" && !inboxId) {
-      const t = await getTranslations();
-      return {
-        ok: false,
-        error: createZodError<StartChatResult>(
-          t("Common.errors.linkedinInboxUnavailable", { product: PRODUCT_LABEL[product] }),
-        ),
-      };
-    }
+    if (account.provider === MessagingProvider.linkedin && product !== "classic" && !inboxId)
+      return fail(CustomErrorCode.linkedinInboxUnavailable, [], { product: PRODUCT_LABEL[product] });
 
     const res = await this.messagingService.startChat({
       accountId: account.unipileAccountId,
@@ -175,15 +162,7 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
       specifics: this.buildSpecifics(data),
     });
 
-    if (!res.ok) {
-      const t = await getTranslations();
-      return {
-        ok: false,
-        error: createZodError<StartChatResult>(
-          t(`Common.errors.${res.error}`, { retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds) }),
-        ),
-      };
-    }
+    if (!res.ok) return fail(res.error, [], { retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds) });
 
     if (!res.data.chatId) return { ok: true as const, data: { threadId: null } };
 

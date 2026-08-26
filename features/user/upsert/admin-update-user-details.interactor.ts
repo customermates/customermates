@@ -17,7 +17,7 @@ import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { checkIds } from "@/core/validation/validators/check-ids";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
+import { failAuthorization } from "@/core/validation/interactor-failure-server";
 
 export const AdminUpdateUserDetailsSchema = z.object({
   email: z.email(),
@@ -72,8 +72,7 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
     const targetUser = await this.userRepo.findOrThrowCompanyWide(data.email);
     const targetUserId = targetUser.id;
 
-    if (targetUserId === this.userId)
-      return createInteractorFailure(CustomErrorCode.userSelfAdminUpdateForbidden, ["email"]);
+    if (targetUserId === this.userId) return failAuthorization(CustomErrorCode.userSelfAdminUpdateForbidden, ["email"]);
 
     const targetIsSystem = targetUser.roleId ? await this.roleRepo.isSystemRoleOrThrow(targetUser.roleId) : false;
     const newRoleIsSystemAndActive =

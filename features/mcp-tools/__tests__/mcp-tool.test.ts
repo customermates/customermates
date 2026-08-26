@@ -174,6 +174,7 @@ describe("MCP tool execution contract", () => {
   it("serializes only safe issue fields and classifies stable custom codes", () => {
     const error = createZodError("Conversation missing", ["conversationId"], {
       error: CustomErrorCode.agentConversationNotFound,
+      kind: "not_found",
       secret: "do-not-serialize",
     });
 
@@ -208,15 +209,30 @@ describe("MCP tool execution contract", () => {
 
   it.each([
     [CustomErrorCode.notAuthenticated, "authentication", 401],
-    [CustomErrorCode.userSelfAdminUpdateForbidden, "authorization", 403],
     [CustomErrorCode.roleSystemImmutable, "conflict", 409],
-    [CustomErrorCode.agentLimitReached, "rate_limit", 429],
-    [CustomErrorCode.legalNoticeNotDelivered, "unavailable", 422],
-  ])("classifies %s consistently as %s", (customCode, kind, status) => {
+  ])("classifies refinement-born %s by its registered kind %s", (customCode, kind, status) => {
     const error = createZodError("Expected failure", [], { error: customCode });
 
     expect(interactorFailureKind(error)).toBe(kind);
     expect(interactorFailureStatus(error)).toBe(status);
     expect(serializeInteractorFailure(error)).toMatchObject({ kind, issues: [{ customCode }] });
+  });
+
+  it.each([
+    [CustomErrorCode.userSelfAdminUpdateForbidden, "authorization", 403],
+    [CustomErrorCode.agentLimitReached, "rate_limit", 429],
+    [CustomErrorCode.legalNoticeNotDelivered, "unavailable", 422],
+  ])("classifies constructor-born %s by its stamped kind %s", (customCode, kind, status) => {
+    const error = createZodError("Expected failure", [], { error: customCode, kind });
+
+    expect(interactorFailureKind(error)).toBe(kind);
+    expect(interactorFailureStatus(error)).toBe(status);
+    expect(serializeInteractorFailure(error)).toMatchObject({ kind, issues: [{ customCode }] });
+  });
+
+  it("ignores a stamped kind that is not a known failure kind", () => {
+    const error = createZodError("Expected failure", [], { error: CustomErrorCode.roleSystemImmutable, kind: "bogus" });
+
+    expect(interactorFailureKind(error)).toBe("conflict");
   });
 });

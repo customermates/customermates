@@ -33,7 +33,7 @@ import {
 } from "./agent-provider-context";
 import { isAgentModelKey, resolveAgentModel } from "./model-catalog";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
-import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
+import { fail, failConflict, failNotFound, failRateLimit } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 type AdmittedAgentRun = { disposition: "run"; externalRunId: string } & Omit<AgentRunContext, "appBaseUrl">;
@@ -167,11 +167,11 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           ? await this.repo.findConversation(data.conversationId)
           : null;
     if ((decision.disposition === "retry" || data.conversationId) && !conversation)
-      return createInteractorFailure(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+      return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
     const requestedModelKey = conversation?.modelKey ?? data.modelKey ?? null;
     if (requestedModelKey !== null && !isAgentModelKey(requestedModelKey))
-      return createInteractorFailure(CustomErrorCode.agentModelUnavailable, ["modelKey"]);
+      return fail(CustomErrorCode.agentModelUnavailable, ["modelKey"]);
     const turnModel = resolveAgentModel(requestedModelKey);
 
     const userName = `${user.firstName} ${user.lastName}`.trim();
@@ -193,7 +193,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       requiredContextBytes,
     });
     const reservation = creditAdmission.reservation;
-    if (!reservation) return createInteractorFailure(CustomErrorCode.agentLimitReached);
+    if (!reservation) return failRateLimit(CustomErrorCode.agentLimitReached);
 
     const runId = randomUUID();
     const reservationId = randomUUID();
@@ -228,7 +228,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         });
         return true;
       });
-      if (!claimed) return createInteractorFailure(CustomErrorCode.agentTurnAlreadyRunning);
+      if (!claimed) return failConflict(CustomErrorCode.agentTurnAlreadyRunning);
 
       const turnRequestId = decision.disposition === "retry" ? decision.turn.id : randomUUID();
       const userMessageId = decision.disposition === "retry" ? decision.turn.userMessageId : randomUUID();

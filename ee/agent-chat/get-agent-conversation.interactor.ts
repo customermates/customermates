@@ -12,7 +12,7 @@ import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { clientSafeAgentMessageParts } from "./agent-chat.schema";
 import { sanitizeAgentConversationTitle } from "./agent-output-safety";
 import { AgentMessagePageSchema, type AgentMessagePageData } from "./agent-history";
-import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
+import { failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const Schema = AgentMessagePageSchema;
@@ -56,7 +56,7 @@ export class GetAgentConversationInteractor extends AuthenticatedInteractor<
     if (denied) return denied;
 
     const conversation = await this.repo.findConversation(data.conversationId);
-    if (!conversation) return createInteractorFailure(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+    if (!conversation) return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
     const [page, activeTurn] = await Promise.all([
       this.repo.listMessagePage(conversation.id, data.before),

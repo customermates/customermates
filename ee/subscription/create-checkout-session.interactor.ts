@@ -16,7 +16,7 @@ import { resolveRequestOrigin } from "@/core/config/environment";
 import { redirectTo } from "@/features/auth/auth-outcome";
 import { env } from "@/env";
 import { getCommercialOfferOrThrow } from "@/core/commercial/plan-catalog";
-import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
+import { failUnavailable } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const Schema = z.object({
@@ -44,7 +44,7 @@ export class CreateCheckoutSessionInteractor extends UserAccessor {
     const subscription = await this.repo.getSubscriptionOrThrow();
 
     if (subscription.plan === SubscriptionPlan.enterprise)
-      return createInteractorFailure(CustomErrorCode.enterpriseCheckoutUnavailable, ["plan"]);
+      return failUnavailable(CustomErrorCode.enterpriseCheckoutUnavailable, ["plan"]);
 
     const offer = getCommercialOfferOrThrow(data.plan, data.cadence);
     const activeUsersCount = await this.userRepo.countActiveUsers();

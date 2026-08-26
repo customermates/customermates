@@ -9,7 +9,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { P13nEntrySchema } from "./p13n.schema";
-import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
+import { failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const Schema = z.object({
@@ -38,7 +38,7 @@ export class DeleteFilterPresetInteractor extends AuthenticatedInteractor<Delete
     const existingPresets = p13nData?.savedFilterPresets ?? [];
 
     if (existingPresets.findIndex((p) => p.id === data.presetId) < 0)
-      return createInteractorFailure(CustomErrorCode.presetNotFound, ["presetId"]);
+      return failNotFound(CustomErrorCode.presetNotFound, ["presetId"]);
 
     const updatedPresets = existingPresets.filter((p) => p.id !== data.presetId);
 

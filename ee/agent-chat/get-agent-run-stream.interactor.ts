@@ -6,7 +6,7 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { type Data, type Validated } from "@/core/validation/validation.utils";
-import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
+import { failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
@@ -37,10 +37,10 @@ export class GetAgentRunStreamInteractor extends AuthenticatedInteractor<GetAgen
     if (denied) return denied;
 
     const conversation = await this.repo.findConversation(data.conversationId);
-    if (!conversation) return createInteractorFailure(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+    if (!conversation) return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
     const externalRunId = await this.repo.findAgentTurnExternalRun(data.conversationId);
-    if (!externalRunId) return createInteractorFailure(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+    if (!externalRunId) return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
     return { ok: true as const, data: { externalRunId } };
   }

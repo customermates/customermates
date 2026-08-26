@@ -13,7 +13,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { P13nEntrySchema } from "./p13n.schema";
-import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
+import { failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const Schema = z.object({
@@ -48,7 +48,7 @@ export class UpsertFilterPresetInteractor extends AuthenticatedInteractor<Upsert
     if (data.presetId) {
       const presetIndex = existingPresets.findIndex((p) => p.id === data.presetId);
 
-      if (presetIndex < 0) return createInteractorFailure(CustomErrorCode.presetNotFound, ["presetId"]);
+      if (presetIndex < 0) return failNotFound(CustomErrorCode.presetNotFound, ["presetId"]);
 
       updatedPresets = [...existingPresets];
       updatedPresets[presetIndex] = {

@@ -4,7 +4,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { type Data, type Validated } from "@/core/validation/validation.utils";
-import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
+import { failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
@@ -35,7 +35,7 @@ export class CancelAgentTurnInteractor extends AuthenticatedInteractor<CancelAge
     if (denied) return denied;
 
     const conversation = await this.repo.findConversation(data.conversationId);
-    if (!conversation) return createInteractorFailure(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+    if (!conversation) return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
     const cancelling = await this.repo.requestAgentTurnCancellation({ conversationId: data.conversationId });
     if (cancelling) await this.wakeSuspendedRun(data.conversationId);

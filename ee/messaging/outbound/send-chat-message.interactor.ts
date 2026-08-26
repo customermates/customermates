@@ -1,3 +1,4 @@
+import { fail, failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
 import type { ValidateThreadIdsInteractor } from "@/core/validation/validators/validate-thread-ids.interactor";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
@@ -15,14 +16,13 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getLocale } from "next-intl/server";
 
 import { Resource, Action, MessagingMessageDirection, MessagingMessageOrigin } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { createZodError } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { formatRetryAfter } from "../retry-after";
 import { toMessagingMessageDto } from "../inbox/inbox.schema";
@@ -101,10 +101,8 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
 
     const account = await this.accountRepo.findUsableAccountByIdOrThrow(thread.connectedAccountId);
 
-    if (data.draftMessageId && !(await this.repo.findDraftById({ messageId: data.draftMessageId }))) {
-      const t = await getTranslations();
-      return { ok: false, error: createZodError<MessagingMessageDto>(t("Common.errors.draftMessageNotFound")) };
-    }
+    if (data.draftMessageId && !(await this.repo.findDraftById({ messageId: data.draftMessageId })))
+      return failNotFound(CustomErrorCode.draftMessageNotFound);
 
     if (
       data.text.trim() &&
@@ -113,10 +111,8 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
         bodyText: data.text,
         windowMs: DUPLICATE_OUTBOUND_WINDOW_MS,
       }))
-    ) {
-      const t = await getTranslations();
-      return { ok: false, error: createZodError<MessagingMessageDto>(t("Common.errors.duplicateOutboundSuppressed")) };
-    }
+    )
+      return failConflict(CustomErrorCode.duplicateOutboundSuppressed);
 
     const res = await this.messagingService.sendChatMessage({
       accountId: account.unipileAccountId,
@@ -125,15 +121,7 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
       attachments: data.attachments,
     });
 
-    if (!res.ok) {
-      const t = await getTranslations();
-      return {
-        ok: false,
-        error: createZodError<MessagingMessageDto>(
-          t(`Common.errors.${res.error}`, { retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds) }),
-        ),
-      };
-    }
+    if (!res.ok) return fail(res.error, [], { retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds) });
 
     const sentAt = new Date();
     const sender = (await this.repo.findSelfAttendeeForThread(thread.id)) ?? { ...EMPTY_ATTENDEE, isSelf: true };

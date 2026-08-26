@@ -10,7 +10,7 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { agentApprovalHookToken } from "./agent-approval-resume";
-import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
+import { failNotFound, failUnavailable } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 
@@ -42,14 +42,14 @@ export class RespondToApprovalInteractor extends AuthenticatedInteractor<Respond
     if (denied) return denied;
 
     const conversation = await this.repo.findConversation(data.conversationId);
-    if (!conversation) return createInteractorFailure(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+    if (!conversation) return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
     const resolved = await this.repo.resolvePendingApprovalRequest({
       conversationId: data.conversationId,
       requestId: data.requestId,
       decision: data.decision === "reject" ? AgentApprovalDecision.reject : AgentApprovalDecision.approve,
     });
-    if (!resolved) return createInteractorFailure(CustomErrorCode.agentApprovalUnavailable, ["requestId"]);
+    if (!resolved) return failUnavailable(CustomErrorCode.agentApprovalUnavailable, ["requestId"]);
 
     await this.backgroundTaskService.resume(agentApprovalHookToken(data.conversationId), { requestId: data.requestId });
 

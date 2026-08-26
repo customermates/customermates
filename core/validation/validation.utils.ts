@@ -56,39 +56,24 @@ const AUTHORIZATION_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.permissionDenied,
   CustomErrorCode.demoMode,
   CustomErrorCode.roleSelfEditForbidden,
-  CustomErrorCode.userSelfAdminUpdateForbidden,
 ]);
 const NOT_FOUND_FAILURE_CODES = new Set<CustomErrorCode>([
-  CustomErrorCode.agentConversationNotFound,
   CustomErrorCode.calendarEventNotFound,
   CustomErrorCode.connectedAccountNotFound,
   CustomErrorCode.contactNotFound,
   CustomErrorCode.customColumnNotFound,
   CustomErrorCode.customColumnIdNotFound,
   CustomErrorCode.dealNotFound,
-  CustomErrorCode.draftMessageNotFound,
   CustomErrorCode.organizationNotFound,
-  CustomErrorCode.presetNotFound,
   CustomErrorCode.roleNotFound,
   CustomErrorCode.serviceNotFound,
   CustomErrorCode.taskNotFound,
-  CustomErrorCode.threadNotFound,
   CustomErrorCode.userNotFound,
   CustomErrorCode.webhookDeliveryNotFound,
   CustomErrorCode.webhookNotFound,
   CustomErrorCode.widgetNotFound,
 ]);
-const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([
-  CustomErrorCode.agentTurnAlreadyRunning,
-  CustomErrorCode.roleAssignedCannotDelete,
-  CustomErrorCode.roleSystemImmutable,
-]);
-const RATE_LIMIT_FAILURE_CODES = new Set<CustomErrorCode>([CustomErrorCode.agentLimitReached]);
-const UNAVAILABLE_FAILURE_CODES = new Set<CustomErrorCode>([
-  CustomErrorCode.agentApprovalUnavailable,
-  CustomErrorCode.enterpriseCheckoutUnavailable,
-  CustomErrorCode.legalNoticeNotDelivered,
-]);
+const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([CustomErrorCode.roleSystemImmutable]);
 
 function issueCustomCode(issue: $ZodIssue): CustomErrorCode | null {
   const candidate = issue.code === "custom" ? issue.params?.error : undefined;
@@ -97,14 +82,23 @@ function issueCustomCode(issue: $ZodIssue): CustomErrorCode | null {
     : null;
 }
 
+function issueStampedKind(issue: $ZodIssue): InteractorFailureKind | null {
+  const candidate = issue.code === "custom" ? issue.params?.kind : undefined;
+  const parsed = InteractorFailureKindSchema.safeParse(candidate);
+  return parsed.success ? parsed.data : null;
+}
+
 export function interactorFailureKind(error: z.ZodError): InteractorFailureKind {
+  for (const issue of error.issues) {
+    const stamped = issueStampedKind(issue);
+    if (stamped) return stamped;
+  }
+
   const codes = error.issues.map(issueCustomCode).filter((code): code is CustomErrorCode => Boolean(code));
   if (codes.some((code) => AUTHENTICATION_FAILURE_CODES.has(code))) return "authentication";
   if (codes.some((code) => AUTHORIZATION_FAILURE_CODES.has(code))) return "authorization";
   if (codes.some((code) => NOT_FOUND_FAILURE_CODES.has(code))) return "not_found";
   if (codes.some((code) => CONFLICT_FAILURE_CODES.has(code))) return "conflict";
-  if (codes.some((code) => RATE_LIMIT_FAILURE_CODES.has(code))) return "rate_limit";
-  if (codes.some((code) => UNAVAILABLE_FAILURE_CODES.has(code))) return "unavailable";
   return "validation";
 }
 

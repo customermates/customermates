@@ -1,3 +1,5 @@
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { fail, failUnavailable } from "@/core/validation/interactor-failure-server";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import type { MessagingService } from "../messaging.service";
@@ -6,14 +8,13 @@ import type { LinkedinSaveToSalesListResult } from "./sales-navigator.schema";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getLocale } from "next-intl/server";
 
 import { Resource, Action, MessagingProvider } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { createZodError } from "@/core/validation/validation.utils";
 import { formatRetryAfter } from "../retry-after";
 import { SalesListKindSchema, LinkedinSaveToSalesListResultSchema } from "./sales-navigator.schema";
 
@@ -45,23 +46,11 @@ export class LinkedinSaveToSalesListInteractor extends AuthenticatedInteractor<
 
     const account = await this.accountRepo.findUsableAccountByIdOrThrow(data.connectedAccountId);
 
-    if (account.provider !== MessagingProvider.linkedin) {
-      const t = await getTranslations();
-      return {
-        ok: false,
-        error: createZodError<LinkedinSaveToSalesListResult>(
-          t("Common.errors.salesNavigatorRequiresLinkedin", { provider: account.provider }),
-        ),
-      };
-    }
+    if (account.provider !== MessagingProvider.linkedin)
+      return fail(CustomErrorCode.salesNavigatorRequiresLinkedin, [], { provider: account.provider });
 
-    if (account.linkedinProducts.length > 0 && !account.linkedinProducts.includes("sales_navigator")) {
-      const t = await getTranslations();
-      return {
-        ok: false,
-        error: createZodError<LinkedinSaveToSalesListResult>(t("Common.errors.salesNavigatorNotAvailable")),
-      };
-    }
+    if (account.linkedinProducts.length > 0 && !account.linkedinProducts.includes("sales_navigator"))
+      return failUnavailable(CustomErrorCode.salesNavigatorNotAvailable);
 
     const res = await this.messagingService.saveToSalesList({
       accountId: account.unipileAccountId,
@@ -69,15 +58,7 @@ export class LinkedinSaveToSalesListInteractor extends AuthenticatedInteractor<
       listId: data.listId,
       providerId: data.providerId,
     });
-    if (!res.ok) {
-      const t = await getTranslations();
-      return {
-        ok: false,
-        error: createZodError<LinkedinSaveToSalesListResult>(
-          t(`Common.errors.${res.error}`, { retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds) }),
-        ),
-      };
-    }
+    if (!res.ok) return fail(res.error, [], { retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds) });
 
     return { ok: true as const, data: res.data };
   }

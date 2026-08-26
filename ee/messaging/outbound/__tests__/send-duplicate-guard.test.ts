@@ -17,7 +17,10 @@ vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 vi.mock("next-intl/server", () => ({
-  getTranslations: () => Promise.resolve((key: string) => key),
+  getTranslations: (namespace?: string) => {
+    const t = (key: string) => (namespace ? `${namespace}.${key}` : key);
+    return Promise.resolve(Object.assign(t, { raw: t }));
+  },
   getLocale: () => Promise.resolve("en"),
 }));
 vi.mock("../../inbox/inbox.schema", async (importActual) => ({

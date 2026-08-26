@@ -1,17 +1,17 @@
+import { fail } from "@/core/validation/interactor-failure-server";
 import type { ApiKey } from "./get-api-keys.interactor";
 import type { Data } from "@/core/validation/validation.utils";
 import type { AuthService } from "@/features/auth/auth.service";
 
 import { z } from "zod";
 import { Resource, Action } from "@/generated/prisma";
-import { getTranslations } from "next-intl/server";
 
 import { ApiKeyDtoSchema } from "./get-api-keys.interactor";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { createZodError, type Validated } from "@/core/validation/validation.utils";
+import { type Validated } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { API_KEY_MAX_EXPIRATION_SECONDS, API_KEY_MIN_EXPIRATION_SECONDS } from "./api-key-expiration";
@@ -61,18 +61,7 @@ export class CreateApiKeyInteractor extends AuthenticatedInteractor<CreateApiKey
       expiresIn: data.expiresIn,
     });
 
-    if (!result.ok) {
-      const t = await getTranslations();
-      const message =
-        result.error === CustomErrorCode.apiKeyMinExpiration
-          ? t("Common.errors.apiKeyMinExpiration")
-          : t("Common.errors.apiKeyMaxExpiration");
-
-      return {
-        ok: false,
-        error: createZodError(message, ["expiresIn"], { error: result.error }),
-      };
-    }
+    if (!result.ok) return fail(result.error, ["expiresIn"]);
 
     const created = result.data;
 

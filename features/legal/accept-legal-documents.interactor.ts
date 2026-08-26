@@ -15,7 +15,7 @@ import {
   hasCurrentLegalDocumentVersions,
 } from "@/constants/legal-documents";
 import { env } from "@/env";
-import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
+import { failAuthorization, failUnavailable } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const Schema = z.object({
@@ -38,7 +38,7 @@ export class AcceptLegalDocumentsInteractor extends AuthenticatedInteractor<
   @Write({ input: Schema, output: Schema })
   async invoke(data: AcceptLegalDocumentsData): Validated<AcceptLegalDocumentsData> {
     if (env.APP_MODE !== "cloud" || !this.user.role?.isSystemRole)
-      return createInteractorFailure(CustomErrorCode.permissionDenied);
+      return failAuthorization(CustomErrorCode.permissionDenied);
 
     const records = await this.auditRepo.findLegalEventsUnscoped(this.companyId);
     const existing = records.find(
@@ -58,7 +58,7 @@ export class AcceptLegalDocumentsInteractor extends AuthenticatedInteractor<
           CONTRACT_LEGAL_DOCUMENTS.some((contractDocument) => contractDocument === document),
         ) === true,
     );
-    if (!currentNotice) return createInteractorFailure(CustomErrorCode.legalNoticeNotDelivered);
+    if (!currentNotice) return failUnavailable(CustomErrorCode.legalNoticeNotDelivered);
 
     await this.eventService.publish(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, {
       entityId: this.companyId,

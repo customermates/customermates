@@ -8,7 +8,7 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { agentUiCommandHookToken } from "./agent-ui-command";
-import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
+import { failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 
@@ -40,7 +40,7 @@ export class RespondToUiCommandInteractor extends AuthenticatedInteractor<Respon
     if (denied) return denied;
 
     const conversation = await this.repo.findConversation(data.conversationId);
-    if (!conversation) return createInteractorFailure(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+    if (!conversation) return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
     await this.repo.recordUiCommandResult(data);
     await this.backgroundTaskService.resume(agentUiCommandHookToken(data.conversationId), {

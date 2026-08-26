@@ -1,3 +1,4 @@
+import { fail, failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import type {
@@ -14,7 +15,7 @@ import type { FindUsableAccountRepo } from "../persistence/find-usable-account.r
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getLocale } from "next-intl/server";
 import * as Sentry from "@sentry/node";
 
 import { Resource, Action, MessagingMessageDirection, MessagingMessageOrigin } from "@/generated/prisma";
@@ -23,7 +24,6 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { createZodError } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { formatRetryAfter } from "../retry-after";
 import { isUnipileResourceNotFound, isUnipileTimeout } from "../messaging.service";
@@ -148,10 +148,8 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
       account = await this.accountRepo.findUsableAccountByIdOrThrow(data.connectedAccountId);
     }
 
-    if (data.draftMessageId && !(await this.repo.findDraftById({ messageId: data.draftMessageId }))) {
-      const t = await getTranslations();
-      return { ok: false, error: createZodError<MessagingMessageDto | null>(t("Common.errors.draftMessageNotFound")) };
-    }
+    if (data.draftMessageId && !(await this.repo.findDraftById({ messageId: data.draftMessageId })))
+      return failNotFound(CustomErrorCode.draftMessageNotFound);
 
     if (
       thread &&
@@ -161,13 +159,8 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
         bodyText: data.body,
         windowMs: DUPLICATE_OUTBOUND_WINDOW_MS,
       }))
-    ) {
-      const t = await getTranslations();
-      return {
-        ok: false,
-        error: createZodError<MessagingMessageDto | null>(t("Common.errors.duplicateOutboundSuppressed")),
-      };
-    }
+    )
+      return failConflict(CustomErrorCode.duplicateOutboundSuppressed);
 
     const res = await this.messagingService.sendEmail({
       accountId: account.unipileAccountId,
@@ -183,15 +176,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
       attachments: data.attachments,
     });
 
-    if (!res.ok) {
-      const t = await getTranslations();
-      return {
-        ok: false,
-        error: createZodError<MessagingMessageDto | null>(
-          t(`Common.errors.${res.error}`, { retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds) }),
-        ),
-      };
-    }
+    if (!res.ok) return fail(res.error, [], { retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds) });
 
     if (!thread) return this.adoptSentEmail(account, res.data.id);
 

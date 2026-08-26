@@ -46,6 +46,7 @@ describe("agent message admission route", () => {
       ok: false,
       error: createZodError("Not enough AI credits remain to start another request.", [], {
         error: CustomErrorCode.agentLimitReached,
+        kind: "rate_limit",
       }),
     });
 
@@ -61,6 +62,7 @@ describe("agent message admission route", () => {
       ok: false,
       error: createZodError("Another Assistant turn is already running.", [], {
         error: CustomErrorCode.agentTurnAlreadyRunning,
+        kind: "conflict",
       }),
     });
 

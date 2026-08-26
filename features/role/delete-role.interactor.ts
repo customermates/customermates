@@ -11,7 +11,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { createInteractorFailure } from "@/core/validation/interactor-failure-server";
+import { failConflict } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const Schema = z.object({
@@ -38,10 +38,9 @@ export class DeleteRoleInteractor extends AuthenticatedInteractor<DeleteRoleData
   @Transaction
   @ValidateOutput(z.string())
   async invoke(data: DeleteRoleData): Validated<string> {
-    if (await this.repo.isSystemRoleOrThrow(data.id))
-      return createInteractorFailure(CustomErrorCode.roleSystemImmutable, ["id"]);
+    if (await this.repo.isSystemRoleOrThrow(data.id)) return failConflict(CustomErrorCode.roleSystemImmutable, ["id"]);
     if (await this.repo.hasUsersAssigned(data.id))
-      return createInteractorFailure(CustomErrorCode.roleAssignedCannotDelete, ["id"]);
+      return failConflict(CustomErrorCode.roleAssignedCannotDelete, ["id"]);
 
     const role = await this.repo.deleteRoleOrThrow(data.id);
 
