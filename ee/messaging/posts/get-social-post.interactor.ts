@@ -19,10 +19,12 @@ import { isSocialProvider } from "../provider";
 import { formatRetryAfter } from "../retry-after";
 import { SocialPostSchema } from "./social-posts.schema";
 
-export const GetSocialPostSchema = z.object({
-  connectedAccountId: z.uuid(),
-  postId: z.string().min(1),
-});
+export const GetSocialPostSchema = z
+  .object({
+    connectedAccountId: z.uuid().describe("Connected-account ID for the LinkedIn or Instagram account to use"),
+    postId: z.string().min(1).describe("Provider post ID to fetch"),
+  })
+  .strict();
 type GetSocialPostData = Data<typeof GetSocialPostSchema>;
 
 @TenantInteractor({

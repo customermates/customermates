@@ -10,7 +10,7 @@ export const getSocialProfileOperation: ZodOpenApiOperationObject = {
   operationId: "getSocialProfile",
   summary: "Get a social profile",
   description:
-    "Reads a person or company profile through a connected account. For a person, use profileType=person with 'me', participants[].identifier from a messaging-thread response, a top-level person id returned by a social response, a LinkedIn Classic public profile slug, or an Instagram username. Reuse the returned top-level id with profileType=person or as a social-post authorIdentifier. For a LinkedIn company, use profileType=company with an id returned by Sales Navigator company search or current_positions[].company_id, and reuse the returned id with profileType=company. Company lookup is LinkedIn-only.",
+    "Reads a person or company profile through a connected account. Use [].id from GET /v1/messaging/connected-accounts as connectedAccountId. For a person, use profileType=person with 'me', items[].participants[].identifier from POST /v1/messaging/threads/search, id returned by this endpoint, data[].author.id from a social-post or comment list, author.id from a single-post response, data[].sender.id from a reaction list, a LinkedIn Classic public profile slug, or an Instagram username. Reuse this endpoint's id with profileType=person or as a social-post authorIdentifier. For a LinkedIn company, use profileType=company with data[].id from POST /v1/messaging/sales-navigator/search/companies or data[].current_positions[].company_id from POST /v1/messaging/sales-navigator/search/people. Company lookup is LinkedIn-only.",
   tags: ["messaging"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {
@@ -21,8 +21,7 @@ export const getSocialProfileOperation: ZodOpenApiOperationObject = {
         examples: {
           accountOwner: {
             summary: "Connected-account owner",
-            description:
-              "Replace connectedAccountId with an ok LinkedIn or Instagram account id returned by GET /v1/messaging/connected-accounts.",
+            description: "Use [].id from GET /v1/messaging/connected-accounts as connectedAccountId.",
             value: {
               connectedAccountId: EXAMPLE_CONNECTED_ACCOUNT_ID,
               identifier: "me",
@@ -32,7 +31,7 @@ export const getSocialProfileOperation: ZodOpenApiOperationObject = {
           linkedInPerson: {
             summary: "LinkedIn person",
             description:
-              "identifier may be participants[].identifier from a messaging-thread response or a LinkedIn Classic public profile slug.",
+              "identifier may be items[].participants[].identifier from POST /v1/messaging/threads/search or a LinkedIn Classic public profile slug.",
             value: {
               connectedAccountId: EXAMPLE_CONNECTED_ACCOUNT_ID,
               identifier: "example-person",
@@ -42,7 +41,7 @@ export const getSocialProfileOperation: ZodOpenApiOperationObject = {
           linkedInCompany: {
             summary: "LinkedIn company",
             description:
-              "Use a company id returned by Sales Navigator company search or current_positions[].company_id.",
+              "Use data[].id from POST /v1/messaging/sales-navigator/search/companies or data[].current_positions[].company_id from POST /v1/messaging/sales-navigator/search/people.",
             value: {
               connectedAccountId: EXAMPLE_CONNECTED_ACCOUNT_ID,
               identifier: "1035",

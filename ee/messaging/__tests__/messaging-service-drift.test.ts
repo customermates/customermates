@@ -141,6 +141,19 @@ describe("social profile identifier routing", () => {
     },
   );
 
+  it("maps an invalid company id to a normal invalid request without Sentry noise", async () => {
+    stubFetch({ type: "api/invalid_parameters", detail: "Invalid Company ID." }, 400);
+
+    const result = await new MessagingService().getSocialProfile({
+      accountId: "acc_1",
+      identifier: "not-a-provider-id",
+      profileType: "company",
+    });
+
+    expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileInvalidRequest });
+    expect(Sentry.captureException).not.toHaveBeenCalled();
+  });
+
   it("keeps unrelated api/invalid_parameters failures visible in Sentry", async () => {
     stubFetch({ type: "api/invalid_parameters", detail: "with_sections has an invalid value." }, 400);
 
@@ -169,36 +182,12 @@ describe("social post pagination", () => {
     expect(Sentry.captureException).not.toHaveBeenCalled();
   });
 
-  it("omits offset=0 so the provider can select its pagination mode", async () => {
-    stubFetch(page);
-
-    await new MessagingService().listUserPosts({ accountId: "acc_1", userId: "me", offset: 0, limit: 20 });
-
-    expect(firstRequestUrl().searchParams.has("offset")).toBe(false);
-    expect(firstRequestUrl().searchParams.get("limit")).toBe("20");
-  });
-
   it("keeps a positive offset for providers that support offset pagination", async () => {
     stubFetch(page);
 
     await new MessagingService().listUserPosts({ accountId: "acc_1", userId: "me", offset: 20, limit: 20 });
 
     expect(firstRequestUrl().searchParams.get("offset")).toBe("20");
-  });
-
-  it("sends a continuation cursor without an offset", async () => {
-    stubFetch(page);
-
-    await new MessagingService().listUserPosts({
-      accountId: "acc_1",
-      userId: "me",
-      cursor: "next-page",
-      offset: 20,
-      limit: 20,
-    });
-
-    expect(firstRequestUrl().searchParams.get("cursor")).toBe("next-page");
-    expect(firstRequestUrl().searchParams.has("offset")).toBe(false);
   });
 
   it("maps a cursor-required response for an explicit offset without capturing it", async () => {

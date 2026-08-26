@@ -44,12 +44,18 @@ beforeEach(() => {
 describe("linkedin_search_sales_leads lead rows", () => {
   it("documents the explicit company-profile handoff", () => {
     expect(searchSalesLeadsTool.description).toContain("get_social_profile and profileType=company");
-    expect(searchSalesCompaniesTool.description).toContain("get_social_profile and profileType=company");
-    expect(manageSalesListsTool.description).toContain("get_social_profile with profileType=company");
-    expect(manageSalesListsTool.description).toContain("linkedin_search_sales_leads.id or get_social_profile.id");
-    expect(manageSalesListsTool.description).toContain(
-      "resolve participants[].identifier through get_social_profile first",
+    expect(searchSalesLeadsTool.description).toContain(
+      "linkedin_search_sales_leads.items[].current_positions[].company_id",
     );
+    expect(searchSalesCompaniesTool.description).toContain("get_social_profile and profileType=company");
+    expect(searchSalesCompaniesTool.description).toContain("items[].id");
+    expect(manageSalesListsTool.description).toContain("get_social_profile with profileType=company");
+    expect(manageSalesListsTool.description).toContain(
+      "linkedin_search_sales_leads.items[].id or get_social_profile.id",
+    );
+    expect(manageSalesListsTool.description).toContain("linkedin_search_sales_companies.items[].id");
+    expect(manageSalesListsTool.description).toContain("get_messaging_threads.items[].participants[].identifier");
+    expect(manageSalesListsTool.description).toContain("get_messaging_threads.thread.participants[].identifier");
   });
 
   it("includes current_positions with company, role and company identifiers", async () => {

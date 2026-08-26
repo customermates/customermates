@@ -70,4 +70,17 @@ describe("company social profile provider guard", () => {
       profileType: "company",
     });
   });
+
+  it("rejects a misspelled profileType instead of defaulting to a person lookup", async () => {
+    const { interactor, messagingService } = make("linkedin");
+
+    const result = await interactor.invoke({
+      connectedAccountId: INPUT.connectedAccountId,
+      identifier: INPUT.identifier,
+      profiletype: "company",
+    } as never);
+
+    expect(result.ok).toBe(false);
+    expect(messagingService.getSocialProfile).not.toHaveBeenCalled();
+  });
 });

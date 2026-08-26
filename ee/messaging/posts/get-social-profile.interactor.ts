@@ -19,21 +19,21 @@ import { isSocialProvider } from "../provider";
 import { formatRetryAfter } from "../retry-after";
 import { SocialProfileSchema } from "./social-posts.schema";
 
-export const GetSocialProfileSchema = z.object({
-  connectedAccountId: z
-    .uuid()
-    .describe("LinkedIn or Instagram connected-account ID returned by GET /v1/messaging/connected-accounts"),
-  identifier: z
-    .string()
-    .min(1)
-    .describe(
-      "Person: 'me', participants[].identifier from a messaging-thread response, a top-level person id returned by a social response, a LinkedIn Classic public profile slug, or an Instagram username. Company: an id returned by Sales Navigator company search or current_positions[].company_id, with profileType=company",
-    ),
-  profileType: z
-    .enum(["person", "company"])
-    .default("person")
-    .describe("Lookup route to use. Company lookup requires a connected LinkedIn account"),
-});
+export const GetSocialProfileSchema = z
+  .object({
+    connectedAccountId: z.uuid().describe("Connected-account ID for the LinkedIn or Instagram account to use"),
+    identifier: z
+      .string()
+      .min(1)
+      .describe(
+        "Person lookup identifier: 'me', provider person ID, LinkedIn Classic public profile slug, or Instagram username. Company lookup identifier: provider company ID",
+      ),
+    profileType: z
+      .enum(["person", "company"])
+      .default("person")
+      .describe("Lookup route to use. Company lookup requires a connected LinkedIn account"),
+  })
+  .strict();
 type GetSocialProfileData = Data<typeof GetSocialProfileSchema>;
 
 @TenantInteractor({

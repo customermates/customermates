@@ -81,34 +81,51 @@ describe("social-post list pagination contract", () => {
     });
   });
 
-  it("preserves legacy continuation defaults for REST compatibility", async () => {
-    const { interactor, messagingService } = make();
-
-    const result = await interactor.invoke({
-      connectedAccountId: ACCOUNT_ID,
-      cursor: "cursor-2",
-    } as never);
-
-    expect(result.ok).toBe(true);
-    expect(messagingService.listUserPosts).toHaveBeenCalledWith({
-      accountId: "acc_1",
-      userId: "me",
-      cursor: "cursor-2",
-      offset: undefined,
-      limit: 10,
-    });
-  });
-
-  it("rejects cursor and offset together", async () => {
+  it("continues an offset page with the explicitly repeated author and limit", async () => {
     const { interactor, messagingService } = make();
 
     const result = await interactor.invoke({
       connectedAccountId: ACCOUNT_ID,
       authorIdentifier: "ACoAAProviderId",
-      cursor: "cursor-2",
       offset: 5,
       limit: 5,
-    } as never);
+    });
+
+    expect(result.ok).toBe(true);
+    expect(messagingService.listUserPosts).toHaveBeenCalledWith({
+      accountId: "acc_1",
+      userId: "ACoAAProviderId",
+      cursor: undefined,
+      offset: 5,
+      limit: 5,
+    });
+  });
+
+  it.each([
+    [
+      "a cursor continuation without authorIdentifier",
+      { connectedAccountId: ACCOUNT_ID, cursor: "cursor-2", limit: 5 },
+    ],
+    [
+      "a cursor continuation without limit",
+      { connectedAccountId: ACCOUNT_ID, authorIdentifier: "ACoAAProviderId", cursor: "cursor-2" },
+    ],
+    ["offset zero", { connectedAccountId: ACCOUNT_ID, authorIdentifier: "ACoAAProviderId", offset: 0, limit: 5 }],
+    [
+      "cursor and offset together",
+      {
+        connectedAccountId: ACCOUNT_ID,
+        authorIdentifier: "ACoAAProviderId",
+        cursor: "cursor-2",
+        offset: 5,
+        limit: 5,
+      },
+    ],
+    ["an unknown field", { connectedAccountId: ACCOUNT_ID, authorIdentifier: "me", limit: 10, unexpected: true }],
+  ])("rejects %s", async (_description, data) => {
+    const { interactor, messagingService } = make();
+
+    const result = await interactor.invoke(data as never);
 
     expect(result.ok).toBe(false);
     expect(messagingService.listUserPosts).not.toHaveBeenCalled();

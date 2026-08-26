@@ -901,7 +901,7 @@ export class MessagingService {
           query:
             input.cursor != null
               ? { cursor: input.cursor, limit: input.limit }
-              : { offset: input.offset === 0 ? undefined : input.offset, limit: input.limit },
+              : { offset: input.offset, limit: input.limit },
         }),
       );
 

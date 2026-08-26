@@ -97,25 +97,31 @@ describe("get_social_posts routing", () => {
           limit: expect.any(Object),
         }),
       );
+      expect(tool?.inputSchema.additionalProperties).toBe(false);
     } finally {
       await Promise.all([client.close(), server.close()]);
     }
   });
 
-  it("routes an unambiguous postId request to the single-post interactor", async () => {
+  it("routes a canonical postId request to the single-post interactor", async () => {
     spies.getSocialPost.mockResolvedValue({ ok: true as const, data: { id: "post-1" } });
 
     await runPosts({ connectedAccountId: ACCOUNT_ID, postId: "post-1" });
 
     expect(spies.getSocialPost).toHaveBeenCalledWith({ connectedAccountId: ACCOUNT_ID, postId: "post-1" });
     expect(spies.listSocialPosts).not.toHaveBeenCalled();
-    expect(
-      getSocialPostsTool.inputSchema.safeParse({
-        connectedAccountId: ACCOUNT_ID,
-        postId: "post-1",
-        authorIdentifier: "me",
-      }).success,
-    ).toBe(false);
+  });
+
+  it("returns the canonical post validation error for mixed single-post and list fields", async () => {
+    const result = await runPosts({
+      connectedAccountId: ACCOUNT_ID,
+      postId: "post-1",
+      authorIdentifier: "me",
+    });
+
+    expect(result).toContain("Validation error:");
+    expect(spies.getSocialPost).not.toHaveBeenCalled();
+    expect(spies.listSocialPosts).not.toHaveBeenCalled();
   });
 
   it("omits pagination inputs on the initial call and returns next_cursor", async () => {
@@ -129,8 +135,6 @@ describe("get_social_posts routing", () => {
     expect(spies.listSocialPosts).toHaveBeenCalledWith({
       connectedAccountId: ACCOUNT_ID,
       authorIdentifier: "ACoAAProviderId",
-      cursor: undefined,
-      offset: undefined,
       limit: 10,
     });
     expect(result).toContain("post-1");
@@ -149,28 +153,42 @@ describe("get_social_posts routing", () => {
       connectedAccountId: ACCOUNT_ID,
       authorIdentifier: "ACoAAProviderId",
       cursor: "cursor-2",
-      offset: undefined,
       limit: 5,
     });
   });
 
-  it("rejects pagination that could silently fall back to the account owner", () => {
-    expect(
-      getSocialPostsTool.inputSchema.safeParse({
-        connectedAccountId: ACCOUNT_ID,
-        cursor: "cursor-2",
-        limit: 5,
-      }).success,
-    ).toBe(false);
+  it("returns canonical validation errors for incomplete or conflicting continuation inputs", async () => {
+    const missingAuthor = await runPosts({
+      connectedAccountId: ACCOUNT_ID,
+      cursor: "cursor-2",
+      limit: 5,
+    });
+    const conflictingPagination = await runPosts({
+      connectedAccountId: ACCOUNT_ID,
+      authorIdentifier: "ACoAAProviderId",
+      cursor: "cursor-2",
+      offset: 5,
+      limit: 5,
+    });
+    const zeroOffset = await getSocialPostsTool.execute({
+      connectedAccountId: ACCOUNT_ID,
+      authorIdentifier: "ACoAAProviderId",
+      offset: 0,
+      limit: 5,
+    });
+
+    expect(missingAuthor).toContain("Validation error:");
+    expect(conflictingPagination).toContain("Validation error:");
+    expect(zeroOffset).toContain("Validation error:");
     expect(
       getSocialPostsTool.inputSchema.safeParse({
         connectedAccountId: ACCOUNT_ID,
         authorIdentifier: "ACoAAProviderId",
-        cursor: "cursor-2",
-        offset: 5,
+        offset: 0,
         limit: 5,
       }).success,
     ).toBe(false);
+    expect(spies.listSocialPosts).not.toHaveBeenCalled();
   });
 
   it("defaults to the account owner only on an initial request", async () => {
@@ -179,11 +197,14 @@ describe("get_social_posts routing", () => {
     expect(spies.listSocialPosts).toHaveBeenCalledWith({
       connectedAccountId: ACCOUNT_ID,
       authorIdentifier: "me",
-      cursor: undefined,
-      offset: undefined,
       limit: 10,
     });
     expect(getSocialPostsTool.description).toContain("repeat the same connectedAccountId, authorIdentifier and limit");
+    expect(getSocialPostsTool.description).toContain("get_social_posts.items[].author.id");
+    expect(getSocialPostsTool.description).toContain("get_social_posts.author.id");
+    expect(getSocialPostsTool.description).toContain("get_social_post_engagement.items[].author.id");
+    expect(getSocialPostsTool.description).toContain("get_social_post_engagement.items[].sender.id");
+    expect(getSocialPostsTool.description).toContain("manage_social_relations.items[].user.id");
     expect(getSocialPostsTool.description).not.toContain("member_id");
   });
 });
@@ -272,9 +293,15 @@ describe("get_social_profile", () => {
     expect(result).toContain("profile_type: person");
     expect(result).toContain("type: organization");
     expect(getSocialProfileTool.inputSchema.shape.identifier.description).toContain(
-      "get_messaging_threads.participants[].identifier",
+      "get_messaging_threads.items[].participants[].identifier",
     );
-    expect(getSocialProfileTool.inputSchema.shape.identifier.description).toContain("returned social-user id");
+    expect(getSocialProfileTool.inputSchema.shape.identifier.description).toContain(
+      "get_messaging_threads.thread.participants[].identifier",
+    );
+    expect(getSocialProfileTool.inputSchema.shape.identifier.description).toContain(
+      "get_social_posts.items[].author.id",
+    );
+    expect(getSocialProfileTool.inputSchema.shape.identifier.description).toContain("get_social_posts.author.id");
     expect(getSocialProfileTool.inputSchema.shape.identifier.description).not.toContain("member_id");
     expect(getSocialProfileTool.description).not.toContain("member_id");
   });
@@ -303,9 +330,9 @@ describe("get_social_profile", () => {
 
 describe("manage_social_relations routing", () => {
   it("documents profile resolution instead of a nonexistent participant id", () => {
-    expect(manageSocialRelationsTool.description).toContain(
-      "resolve participants[].identifier through get_social_profile first",
-    );
+    expect(manageSocialRelationsTool.description).toContain("get_messaging_threads.items[].participants[].identifier");
+    expect(manageSocialRelationsTool.description).toContain("get_messaging_threads.thread.participants[].identifier");
+    expect(manageSocialRelationsTool.description).toContain("manage_social_relations.items[].user.id");
   });
 
   it("lists received requests for action=list", async () => {
