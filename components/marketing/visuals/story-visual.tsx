@@ -26,11 +26,6 @@ import type { VisualPlacement } from "./visual-contract";
 import {
   GOLDEN_LAYOUT,
   authoredConnectorPath,
-  connectorDrawProgress,
-  focalAccentProgress,
-  focalSurfaceProgress,
-  sourceRevealProgress,
-  trimAuthoredConnector,
   type AuthoredConnector,
   type NormalizedBox,
   type NormalizedPoint,
@@ -41,7 +36,6 @@ export type GoldenStoryVisualTheme = "light" | "dark";
 type GoldenStoryVisualProps = {
   brief: GoldenVisualBrief;
   placement: VisualPlacement;
-  t?: number;
   theme: GoldenStoryVisualTheme;
 };
 
@@ -62,21 +56,6 @@ const FOCUS_FOCAL_POSITION: Record<VisualPlacement, string> = {
   split: "right-[3%] bottom-[7%] w-[86%]",
   wide: "right-[3%] top-[17%] w-[49%]",
 };
-
-function normalizedTime(t: number | undefined) {
-  const time = t ?? 1;
-  if (!Number.isFinite(time) || time < 0 || time > 1)
-    throw new Error("GoldenStoryVisual time must be normalized between zero and one");
-
-  return time;
-}
-
-function progressStyle(progress: number, initialOpacity = 0.65, anchorGeometry = false) {
-  return {
-    opacity: initialOpacity + progress * (1 - initialOpacity),
-    transform: anchorGeometry ? undefined : `translateY(${(1 - progress) * 8}px) scale(${0.98 + progress * 0.02})`,
-  };
-}
 
 function normalizedBoxStyle(box: NormalizedBox): CSSProperties {
   return {
@@ -126,26 +105,10 @@ function AmbientField({ placement }: { placement: VisualPlacement }) {
   );
 }
 
-function FocalPlane({
-  anchorGeometry = false,
-  children,
-  className,
-  initialOpacity,
-  style,
-  t,
-}: {
-  anchorGeometry?: boolean;
-  children: ReactNode;
-  className: string;
-  initialOpacity?: number;
-  style?: CSSProperties;
-  t?: number;
-}) {
+function FocalPlane({ children, className, style }: { children: ReactNode; className: string; style?: CSSProperties }) {
   return (
     <DepthPlane className={cn("absolute", className)} depth={3} style={style}>
-      <div data-focal-object="true" style={progressStyle(normalizedTime(t), initialOpacity, anchorGeometry)}>
-        {children}
-      </div>
+      <div data-focal-object="true">{children}</div>
     </DepthPlane>
   );
 }
@@ -153,12 +116,10 @@ function FocalPlane({
 function SourceMark({
   active,
   placement,
-  progress,
   subject,
 }: {
   active: boolean;
   placement: VisualPlacement;
-  progress: number;
   subject: GoldenVisualBrief["supportingSubjects"][number];
 }) {
   const provider = subject.fixtures?.provider;
@@ -178,12 +139,7 @@ function SourceMark({
           : "size-10 border-border opacity-75",
       )}
       data-active-source={active ? "true" : undefined}
-      data-motion-progress={progress.toFixed(3)}
-      data-motion-subject={subject.id}
-      style={{
-        opacity: (active ? 0.42 : 0.22) + progress * (active ? 0.58 : 0.6),
-        transform: `translateY(${(1 - progress) * 10}px) scale(${0.94 + progress * 0.06})`,
-      }}
+      data-visual-subject={subject.id}
     >
       <span className="grid size-8 shrink-0 place-items-center rounded-full border border-border bg-background">
         <ProviderMark provider={provider} size={active ? 21 : 19} />
@@ -209,11 +165,9 @@ function SourceMark({
 function ConnectorLayer({
   connectors,
   subjectPrefix,
-  time,
 }: {
   connectors: readonly AuthoredConnector[];
   subjectPrefix: string;
-  time: number;
 }) {
   return (
     <svg
@@ -223,28 +177,21 @@ function ConnectorLayer({
       preserveAspectRatio="none"
       viewBox="0 0 100 100"
     >
-      {connectors.map((connector, index) => {
-        const progress = connectorDrawProgress(time, index);
-        const visibleConnector = trimAuthoredConnector(connector, progress);
-
-        return (
-          <path
-            key={`${connector.source.x}:${connector.source.y}:${connector.target.x}:${connector.target.y}`}
-            d={authoredConnectorPath(connector, progress)}
-            data-connector-draw-target={`${visibleConnector.target.x},${visibleConnector.target.y}`}
-            data-connector-source={`${connector.source.x},${connector.source.y}`}
-            data-connector-target={`${connector.target.x},${connector.target.y}`}
-            data-motion-progress={progress.toFixed(3)}
-            data-motion-subject={`${subjectPrefix}-${index + 1}`}
-            pathLength="1"
-            stroke="currentColor"
-            strokeLinecap="butt"
-            strokeOpacity={index === 0 ? 0.72 : 0.32}
-            strokeWidth={index === 0 ? 1.25 : 1}
-            vectorEffect="non-scaling-stroke"
-          />
-        );
-      })}
+      {connectors.map((connector, index) => (
+        <path
+          key={`${connector.source.x}:${connector.source.y}:${connector.target.x}:${connector.target.y}`}
+          d={authoredConnectorPath(connector)}
+          data-connector-source={`${connector.source.x},${connector.source.y}`}
+          data-connector-target={`${connector.target.x},${connector.target.y}`}
+          data-visual-subject={`${subjectPrefix}-${index + 1}`}
+          pathLength="1"
+          stroke="currentColor"
+          strokeLinecap="butt"
+          strokeOpacity={index === 0 ? 0.72 : 0.32}
+          strokeWidth={index === 0 ? 1.25 : 1}
+          vectorEffect="non-scaling-stroke"
+        />
+      ))}
     </svg>
   );
 }
@@ -259,17 +206,15 @@ function convergeGoldenConnectors(placement: VisualPlacement, count: number) {
 function ConvergeSupports({
   placement,
   subjects,
-  time,
 }: {
   placement: VisualPlacement;
   subjects: GoldenVisualBrief["supportingSubjects"];
-  time: number;
 }) {
   const connectors = convergeGoldenConnectors(placement, subjects.length);
 
   return (
     <DepthPlane className="absolute inset-0" depth={2}>
-      <ConnectorLayer connectors={connectors} subjectPrefix="connector" time={time} />
+      <ConnectorLayer connectors={connectors} subjectPrefix="connector" />
 
       {subjects.map((subject, index) => {
         const connector = connectors[index];
@@ -277,12 +222,7 @@ function ConvergeSupports({
 
         return (
           <div key={subject.id} className="absolute" style={normalizedCenterStyle(connector.source)}>
-            <SourceMark
-              active={Boolean(subject.fixtures?.person)}
-              placement={placement}
-              progress={sourceRevealProgress(time, index)}
-              subject={subject}
-            />
+            <SourceMark active={Boolean(subject.fixtures?.person)} placement={placement} subject={subject} />
           </div>
         );
       })}
@@ -294,13 +234,11 @@ function RecordAnchor({
   label,
   person,
   placement,
-  progress,
   provider,
 }: {
   label?: string;
   person: VisualPersonFixtureId;
   placement: VisualPlacement;
-  progress: number;
   provider: VisualProviderFixtureId;
 }) {
   const personFixture = VISUAL_PERSON_FIXTURES[person];
@@ -310,7 +248,6 @@ function RecordAnchor({
       className="relative rounded-card border border-border-strong bg-card p-[8%] shadow-xl shadow-primary/10"
       data-accent-target="customer-record"
       data-detail-density={DETAIL_DENSITY[placement]}
-      data-motion-progress={progress.toFixed(3)}
     >
       <div className="flex items-start gap-[7%]">
         <PersonAvatar fluid className="size-[22%]" person={person} size={52} />
@@ -344,10 +281,7 @@ function RecordAnchor({
   );
 }
 
-function ConvergeVisual({ brief, placement, t }: Pick<GoldenStoryVisualProps, "brief" | "placement" | "t">) {
-  const time = normalizedTime(t);
-  const focalProgress = focalSurfaceProgress(time);
-  const accentProgress = focalAccentProgress(time);
+function ConvergeVisual({ brief, placement }: Pick<GoldenStoryVisualProps, "brief" | "placement">) {
   const person = brief.focalSubject.fixtures?.person;
   const activeSource = brief.supportingSubjects.find((subject) => subject.fixtures?.person);
   const provider = activeSource?.fixtures?.provider;
@@ -357,22 +291,10 @@ function ConvergeVisual({ brief, placement, t }: Pick<GoldenStoryVisualProps, "b
     <>
       <AmbientField placement={placement} />
 
-      <ConvergeSupports placement={placement} subjects={brief.supportingSubjects} time={time} />
+      <ConvergeSupports placement={placement} subjects={brief.supportingSubjects} />
 
-      <FocalPlane
-        anchorGeometry
-        className=""
-        initialOpacity={0.14}
-        style={normalizedBoxStyle(GOLDEN_LAYOUT.converge[placement].focal)}
-        t={focalProgress}
-      >
-        <RecordAnchor
-          label={brief.focalLabel?.text}
-          person={person}
-          placement={placement}
-          progress={accentProgress}
-          provider={provider}
-        />
+      <FocalPlane className="" style={normalizedBoxStyle(GOLDEN_LAYOUT.converge[placement].focal)}>
+        <RecordAnchor label={brief.focalLabel?.text} person={person} placement={placement} provider={provider} />
       </FocalPlane>
     </>
   );
@@ -395,9 +317,9 @@ function AgentCue({
         "absolute z-10 rounded-full border border-border-strong bg-card px-2 py-1.5 text-[9px] text-foreground shadow-sm",
       )}
       iconSize={placement === "wide" ? 18 : 16}
-      motionSubject={subjectId}
       provider={provider}
       style={normalizedCenterStyle(cue)}
+      visualSubject={subjectId}
     />
   );
 }
@@ -480,8 +402,7 @@ function HumanAction({
   );
 }
 
-function HandoffVisual({ brief, placement, t }: Pick<GoldenStoryVisualProps, "brief" | "placement" | "t">) {
-  const time = normalizedTime(t);
+function HandoffVisual({ brief, placement }: Pick<GoldenStoryVisualProps, "brief" | "placement">) {
   const layout = GOLDEN_LAYOUT.handoff[placement];
   const sendLabel = brief.semanticLabels[0]?.text;
   const person = brief.focalSubject.fixtures?.person;
@@ -496,12 +417,12 @@ function HandoffVisual({ brief, placement, t }: Pick<GoldenStoryVisualProps, "br
       <AmbientField placement={placement} />
 
       <DepthPlane className="absolute inset-0" depth={2}>
-        <ConnectorLayer connectors={[layout.connector]} subjectPrefix="handoff-connector" time={time} />
+        <ConnectorLayer connectors={[layout.connector]} subjectPrefix="handoff-connector" />
 
         <AgentCue placement={placement} provider={agent.agentProvider} subjectId={agent.id} />
       </DepthPlane>
 
-      <FocalPlane anchorGeometry className="" style={normalizedBoxStyle(layout.focal)} t={focalSurfaceProgress(time)}>
+      <FocalPlane className="" style={normalizedBoxStyle(layout.focal)}>
         <div className="relative">
           <DraftArtifact label={brief.focalLabel?.text} person={person} placement={placement} provider={provider} />
 
@@ -533,7 +454,7 @@ function QuietRecordCard({
       <div
         className="rounded-card border border-border bg-card/65 p-3"
         data-detail-density={DETAIL_DENSITY[placement]}
-        data-motion-subject={subject.id}
+        data-visual-subject={subject.id}
       >
         <div className="h-1.5 w-2/5 rounded-full bg-placeholder" />
 
@@ -550,8 +471,8 @@ function QuietRecordCard({
       aria-label={`${recordFixture.name}, ${VISUAL_STATUS_FIXTURES[status].label}`}
       className="flex flex-col items-start gap-2 rounded-xl border border-border bg-card/75 p-2.5"
       data-detail-density={DETAIL_DENSITY[placement]}
-      data-motion-subject={subject.id}
       data-native-record={record}
+      data-visual-subject={subject.id}
     >
       <span className="text-[9px] leading-snug font-medium text-foreground/75">{recordFixture.name}</span>
 
@@ -653,7 +574,7 @@ function InspectorCue({
   );
 }
 
-function FocusVisual({ brief, placement, t }: Pick<GoldenStoryVisualProps, "brief" | "placement" | "t">) {
+function FocusVisual({ brief, placement }: Pick<GoldenStoryVisualProps, "brief" | "placement">) {
   const { person, record, status } = brief.focalSubject.fixtures ?? {};
   const inspectorLabel = brief.semanticLabels[0]?.text;
   if (person && !inspectorLabel) throw new Error("Focus person fixtures require a localized inspector label");
@@ -664,7 +585,7 @@ function FocusVisual({ brief, placement, t }: Pick<GoldenStoryVisualProps, "brie
 
       <ContextPlane placement={placement} subjects={brief.supportingSubjects} />
 
-      <FocalPlane className={FOCUS_FOCAL_POSITION[placement]} t={t}>
+      <FocalPlane className={FOCUS_FOCAL_POSITION[placement]}>
         <div className="relative">
           {person && inspectorLabel ? (
             <InspectorCue label={inspectorLabel} person={person} placement={placement} />
@@ -677,9 +598,8 @@ function FocusVisual({ brief, placement, t }: Pick<GoldenStoryVisualProps, "brie
   );
 }
 
-export function GoldenStoryVisual({ brief, placement, t, theme }: GoldenStoryVisualProps) {
+export function GoldenStoryVisual({ brief, placement, theme }: GoldenStoryVisualProps) {
   const validated = validateGoldenVisualBrief(brief);
-  const time = normalizedTime(t);
 
   if (!validated.placements.includes(placement))
     throw new Error(`${validated.id} does not request the ${placement} placement`);
@@ -699,11 +619,11 @@ export function GoldenStoryVisual({ brief, placement, t, theme }: GoldenStoryVis
       data-story-visual={validated.id}
       role="img"
     >
-      {validated.pathway === "converge" ? <ConvergeVisual brief={validated} placement={placement} t={time} /> : null}
+      {validated.pathway === "converge" ? <ConvergeVisual brief={validated} placement={placement} /> : null}
 
-      {validated.pathway === "handoff" ? <HandoffVisual brief={validated} placement={placement} t={time} /> : null}
+      {validated.pathway === "handoff" ? <HandoffVisual brief={validated} placement={placement} /> : null}
 
-      {validated.pathway === "focus" ? <FocusVisual brief={validated} placement={placement} t={time} /> : null}
+      {validated.pathway === "focus" ? <FocusVisual brief={validated} placement={placement} /> : null}
     </div>
   );
 }

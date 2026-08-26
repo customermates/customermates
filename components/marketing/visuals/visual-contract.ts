@@ -11,7 +11,7 @@ import {
   VISUAL_STATUS_FIXTURES,
 } from "./native-fixtures";
 
-export const VISUAL_REFERENCE_SYSTEM_VERSION = "customermates-marketing-visuals@5";
+export const VISUAL_REFERENCE_SYSTEM_VERSION = "customermates-marketing-visuals@6";
 
 export const VISUAL_KINDS = ["brand-illustration", "product-proof", "none"] as const;
 export const VISUAL_PATHWAYS = ["converge", "handoff", "focus"] as const;

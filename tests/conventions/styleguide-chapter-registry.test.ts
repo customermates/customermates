@@ -17,10 +17,6 @@ const STYLEGUIDE_ROOT = join(
 );
 const CHAPTER_ANCHOR_SOURCES = {
   foundations: [join(STYLEGUIDE_ROOT, "foundations", "page.tsx")],
-  motion: [
-    join(STYLEGUIDE_ROOT, "components", "motion-storyboards.tsx"),
-    join(STYLEGUIDE_ROOT, "components", "motion-storyboards.data.ts"),
-  ],
   overview: [join(STYLEGUIDE_ROOT, "page.tsx")],
   patterns: [join(STYLEGUIDE_ROOT, "components", "section-patterns.tsx")],
   visuals: [join(STYLEGUIDE_ROOT, "components", "visuals-chapter.tsx")],
@@ -32,14 +28,27 @@ function routeFile(href: string): string {
 }
 
 describe("style guide chapter registry", () => {
-  it("authors the five chapters in their intended order", () => {
+  it("authors the four static chapters in their intended order", () => {
     expect(STYLEGUIDE_CHAPTERS.map((chapter) => chapter.id)).toEqual([
       "overview",
       "foundations",
       "patterns",
       "visuals",
-      "motion",
     ]);
+  });
+
+  it("keeps removed motion and capture routes out of the guide and public route registry", () => {
+    const publicRoutes = PUBLIC_ROUTES as readonly string[];
+
+    expect(
+      STYLEGUIDE_CHAPTERS.some(
+        (chapter) => String(chapter.href) === "/styleguide/motion",
+      ),
+    ).toBe(false);
+    expect(publicRoutes).not.toContain("/styleguide/motion");
+    expect(publicRoutes).not.toContain("/styleguide/frame");
+    expect(existsSync(join(STYLEGUIDE_ROOT, "motion", "page.tsx"))).toBe(false);
+    expect(existsSync(join(STYLEGUIDE_ROOT, "frame", "page.tsx"))).toBe(false);
   });
 
   it("maps every chapter to one public route", () => {
@@ -84,10 +93,7 @@ describe("style guide chapter registry", () => {
         const escapedId = section.id.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
         const matches =
           source.match(
-            new RegExp(
-              `(?:id="${escapedId}"|id:\\s*"${escapedId}",)`,
-              "gu",
-            ),
+            new RegExp(`(?:id="${escapedId}"|id:\\s*"${escapedId}",)`, "gu"),
           ) ?? [];
 
         expect(

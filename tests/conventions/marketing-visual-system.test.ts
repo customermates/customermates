@@ -1,11 +1,11 @@
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import { REPO_ROOT } from "./walk";
+import { REPO_ROOT, walkFiles } from "./walk";
 
 import {
   GOLDEN_VISUAL_BRIEFS,
@@ -36,17 +36,18 @@ import {
 } from "@/components/marketing/visuals/visual-contract";
 import {
   GOLDEN_LAYOUT,
-  STORY_VISUAL_MOTION,
   authoredConnectorPath,
-  connectorDrawProgress,
   goldenConnectorCount,
-  trimAuthoredConnector,
-  type AuthoredConnector,
   type NormalizedBox,
   type NormalizedPoint,
 } from "@/components/marketing/visuals/story-visual-layout";
 import { GoldenBenchmarkReviewSheet } from "@/components/marketing/visuals/visual-review-sheet";
 import { inlineApprovedVisualAssets, inlineReviewFonts } from "@/scripts/lib/inline-marketing-visual-assets";
+
+type GoldenStoryVisualProps = Parameters<typeof GoldenStoryVisual>[0];
+type GoldenStoryVisualAcceptsTime = "t" extends keyof GoldenStoryVisualProps ? true : false;
+
+const GOLDEN_STORY_VISUAL_ACCEPTS_TIME: GoldenStoryVisualAcceptsTime = false;
 
 function clone(brief: BrandIllustrationBrief): Record<string, unknown> {
   return JSON.parse(JSON.stringify(brief)) as Record<string, unknown>;
@@ -86,6 +87,51 @@ function productProofRendererViolations(source: string) {
     : [];
 }
 
+const STATIC_VISUAL_SOURCE_RULES = [
+  ["normalized-time input", /\bt\??\s*:\s*number\b/u],
+  [
+    "progress helper",
+    /\b(?:normalizedTime|STORY_VISUAL_MOTION|connectorDrawProgress|sourceRevealProgress|focalSurfaceProgress|focalAccentProgress|trimAuthoredConnector|useSceneClock)\b/u,
+  ],
+  ["runtime animation", /(?:\b(?:requestAnimationFrame|setInterval|setTimeout)\s*\(|\.\s*animate\s*\()/u],
+  ["time source", /\b(?:Date\.now|performance\.now)\s*\(/u],
+  ["motion library", /(?:from\s+|import\s*)["'](?:framer-motion|motion\/react)["']/u],
+  ["declarative animation class", /\banimate-(?!none\b)[a-z0-9_[\]-]+/iu],
+  [
+    "declarative animation style",
+    /\banimation(?:Delay|Direction|Duration|FillMode|IterationCount|Name|PlayState|TimingFunction)?\s*:/u,
+  ],
+  ["motion metadata", /data-(?:motion|progress)-/u],
+  ["animated SVG", /<animate(?:Motion|Transform)?\b/u],
+] as const;
+
+function staticVisualSourceViolations(source: string) {
+  return STATIC_VISUAL_SOURCE_RULES.flatMap(([label, pattern]) => (pattern.test(source) ? [label] : []));
+}
+
+function staticStyleguideSourceViolations(source: string) {
+  const forbidden = [
+    ["retired motion study", /ConvergeMotionStudy/u],
+    ["retired storyboards", /MotionStoryboards|MOTION_STORYBOARDS/u],
+    ["embedded moving media", /AppVideo|<(?:video|iframe|embed|object)\b/u],
+    ["moving media asset", /\.(?:apng|gif|lottie|m4v|mov|mp4|webm)\b/iu],
+    ["retired film source", /marketing\/visuals\/[^"']*-film/u],
+    ["motion metadata", /data-motion-/u],
+  ] as const;
+  return forbidden.flatMap(([label, pattern]) => (pattern.test(source) ? [label] : []));
+}
+
+function staticVisualStylesheetViolations(source: string) {
+  const forbidden = [
+    [
+      "visual animation selector",
+      /\[data-(?:accent|connector|depth|focal|golden|native|review|story|visual)[^\]]*\][^{]*\{[^}]*\banimation(?:-name)?\s*:/isu,
+    ],
+    ["visual keyframes", /@keyframes\s+(?:connector|focal|golden|illustration|story|visual)[\w-]*/iu],
+  ] as const;
+  return forbidden.flatMap(([label, pattern]) => (pattern.test(source) ? [label] : []));
+}
+
 function connectorTargetViolations(
   placement: VisualPlacement,
   focal: NormalizedBox,
@@ -101,26 +147,6 @@ function connectorTargetViolations(
 
 function connectorPathTags(markup: string) {
   return [...markup.matchAll(/<path\b[^>]*data-connector-target="[^"]+"[^>]*>/gu)].map((match) => match[0]);
-}
-
-function connectorPrefixViolations(
-  connector: AuthoredConnector,
-  samples: readonly { progress: number; target: NormalizedPoint }[],
-) {
-  const violations: string[] = [];
-  let previousDistance = -1;
-
-  for (const sample of samples) {
-    const distance = Math.hypot(sample.target.x - connector.source.x, sample.target.y - connector.source.y);
-    if (distance < previousDistance) violations.push("connector prefix target retreats");
-    previousDistance = distance;
-  }
-
-  const resolved = samples.at(-1)?.target;
-  if (!resolved || resolved.x !== connector.target.x || resolved.y !== connector.target.y)
-    violations.push("resolved prefix misses authored target");
-
-  return violations;
 }
 
 describe("marketing visual brief", () => {
@@ -278,7 +304,7 @@ describe("marketing visual brief", () => {
       kind: "product-proof",
       locale: "en",
       placements: ["wide"],
-      referenceSystemVersion: "customermates-marketing-visuals@5",
+      referenceSystemVersion: "customermates-marketing-visuals@6",
       selection: "automatic",
       source: {
         ...source,
@@ -473,9 +499,9 @@ describe("GoldenStoryVisual benchmark renderer", () => {
     expect(markup).toContain("Anna Müller");
     expect(markup).not.toMatch(/lucide-(?:mail|message-circle|share2|users)/u);
     expect(markup.match(/data-active-source="true"/gu)).toHaveLength(1);
-    expect(markup).toContain('data-motion-subject="mail-source"');
-    expect(markup).toContain('data-motion-subject="chat-source"');
-    expect(markup).toContain('data-motion-subject="network-source"');
+    expect(markup).toContain('data-visual-subject="mail-source"');
+    expect(markup).toContain('data-visual-subject="chat-source"');
+    expect(markup).toContain('data-visual-subject="network-source"');
   });
 
   it("uses seeded recipient, sender, record and Status fixtures in the other goldens", () => {
@@ -535,33 +561,16 @@ describe("GoldenStoryVisual benchmark renderer", () => {
     expect(focus.wide).toContain('data-native-record="deal-process-automation"');
   });
 
-  it("renders deterministic Converge opening, transition and resolved states while defaulting to the poster", () => {
+  it("exposes a static-only prop contract and renders deterministically", () => {
     const brief = getGoldenVisualBrief("converge", "en");
-    const opening = renderToStaticMarkup(
+    const first = renderToStaticMarkup(
       createElement(GoldenStoryVisual, {
         brief,
         placement: "wide",
-        t: 0,
         theme: "dark",
       }),
     );
-    const transition = renderToStaticMarkup(
-      createElement(GoldenStoryVisual, {
-        brief,
-        placement: "wide",
-        t: 0.5,
-        theme: "dark",
-      }),
-    );
-    const resolved = renderToStaticMarkup(
-      createElement(GoldenStoryVisual, {
-        brief,
-        placement: "wide",
-        t: 1,
-        theme: "dark",
-      }),
-    );
-    const poster = renderToStaticMarkup(
+    const second = renderToStaticMarkup(
       createElement(GoldenStoryVisual, {
         brief,
         placement: "wide",
@@ -569,21 +578,9 @@ describe("GoldenStoryVisual benchmark renderer", () => {
       }),
     );
 
-    expect(opening).toContain('data-motion-progress="0.000"');
-    expect(transition).not.toBe(opening);
-    expect(transition).not.toBe(resolved);
-    expect(transition).toBe(
-      renderToStaticMarkup(
-        createElement(GoldenStoryVisual, {
-          brief,
-          placement: "wide",
-          t: 0.5,
-          theme: "dark",
-        }),
-      ),
-    );
-    expect(resolved).toContain('data-motion-progress="1.000"');
-    expect(poster).toBe(resolved);
+    expect(GOLDEN_STORY_VISUAL_ACCEPTS_TIME).toBe(false);
+    expect(first).toBe(second);
+    expect(first).not.toMatch(/data-motion|data-progress/u);
   });
 
   it("rejects generic content disguised with a golden ID and source checksum", () => {
@@ -594,7 +591,7 @@ describe("GoldenStoryVisual benchmark renderer", () => {
     expect(() => render(brief)).toThrow(/exactly match the registered golden benchmark/u);
   });
 
-  it("rejects product proof and out-of-range normalized time", () => {
+  it("rejects product proof", () => {
     const source = {
       body: "A reachable local capture.",
       headline: "Local product proof",
@@ -608,15 +605,13 @@ describe("GoldenStoryVisual benchmark renderer", () => {
       kind: "product-proof",
       locale: "en",
       placements: ["wide"],
-      referenceSystemVersion: "customermates-marketing-visuals@5",
+      referenceSystemVersion: "customermates-marketing-visuals@6",
       selection: "explicit",
       source: {
         ...source,
         checksum: visualSourceChecksum(source.headline, source.body),
       },
     }) as ProductProofBrief;
-    const brief = getGoldenVisualBrief("focus", "en");
-
     expect(() =>
       renderToStaticMarkup(
         createElement(GoldenStoryVisual, {
@@ -626,22 +621,10 @@ describe("GoldenStoryVisual benchmark renderer", () => {
         }),
       ),
     ).toThrow(/Golden visuals must be brand illustrations/u);
-    for (const invalidTime of [-0.1, 1.1, Number.NaN, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY]) {
-      expect(() =>
-        renderToStaticMarkup(
-          createElement(GoldenStoryVisual, {
-            brief,
-            placement: "wide",
-            t: invalidTime,
-            theme: "light",
-          }),
-        ),
-      ).toThrow(/normalized/u);
-    }
   });
 });
 
-describe("golden benchmark connector geometry and motion", () => {
+describe("golden benchmark connector geometry", () => {
   it("authors exact Converge and Handoff ports on each focal border", () => {
     const expectedConverge = {
       narrow: {
@@ -708,71 +691,16 @@ describe("golden benchmark connector geometry and motion", () => {
     ]);
   });
 
-  it("trims solid connector prefixes monotonically and resolves on the authored target", () => {
-    const samples = [0, 0.1, 0.22, 0.34, 0.5, 0.56, 0.62, STORY_VISUAL_MOTION.resolvedStart, 1];
+  it("renders every connector as the exact full path to its authored target", () => {
+    const paths = connectorPathTags(render(getGoldenVisualBrief("converge", "en"), "wide"));
 
-    for (const index of [0, 1, 2]) {
-      const progress = samples.map((time) => connectorDrawProgress(time, index));
-
-      expect(progress[0]).toBe(0);
-      expect(progress.at(-1)).toBe(1);
-      expect(progress.every((value, sampleIndex) => sampleIndex === 0 || value >= progress[sampleIndex - 1]!)).toBe(
-        true,
-      );
-      expect(connectorDrawProgress(STORY_VISUAL_MOTION.resolvedStart, index)).toBe(1);
-
-      const connector = GOLDEN_LAYOUT.converge.wide.connectors[3][index];
-      if (!connector) throw new Error(`missing connector ${index + 1}`);
-      const prefixes = progress.map((value) => ({
-        progress: value,
-        target: trimAuthoredConnector(connector, value).target,
-      }));
-      expect(connectorPrefixViolations(connector, prefixes)).toEqual([]);
-    }
-
-    const brief = getGoldenVisualBrief("converge", "en");
-    const renderAt = (t: number) =>
-      renderToStaticMarkup(
-        createElement(GoldenStoryVisual, {
-          brief,
-          placement: "wide",
-          t,
-          theme: "dark",
-        }),
-      );
-    const openingPaths = connectorPathTags(renderAt(0));
-    const transitionPaths = connectorPathTags(renderAt(0.4));
-    const resolvedPaths = connectorPathTags(renderAt(STORY_VISUAL_MOTION.resolvedStart));
-
-    expect(openingPaths).toHaveLength(3);
+    expect(paths).toHaveLength(3);
     GOLDEN_LAYOUT.converge.wide.connectors[3].forEach((connector, index) => {
-      expect(openingPaths[index]).toContain(`d="${authoredConnectorPath(connector, 0)}"`);
-      expect(openingPaths[index]).toContain(`data-connector-draw-target="${connector.source.x},${connector.source.y}"`);
-
-      const transition = trimAuthoredConnector(connector, connectorDrawProgress(0.4, index));
-      expect(transition.target.x).toBeLessThan(connector.target.x);
-      expect(transitionPaths[index]).toContain(
-        `data-connector-draw-target="${transition.target.x},${transition.target.y}"`,
-      );
-
-      expect(resolvedPaths[index]).toContain(`d="${authoredConnectorPath(connector)}"`);
-      expect(resolvedPaths[index]).toContain(
-        `data-connector-draw-target="${connector.target.x},${connector.target.y}"`,
-      );
+      expect(paths[index]).toContain(`d="${authoredConnectorPath(connector)}"`);
+      expect(paths[index]).toContain(`data-connector-source="${connector.source.x},${connector.source.y}"`);
+      expect(paths[index]).toContain(`data-connector-target="${connector.target.x},${connector.target.y}"`);
+      expect(paths[index]).not.toContain("data-connector-draw-target");
     });
-  });
-
-  it("detects planted retreating and incomplete connector prefixes", () => {
-    const connector = GOLDEN_LAYOUT.converge.wide.connectors[3][0];
-    const planted = [0, 0.7, 0.35, 0.9].map((progress) => ({
-      progress,
-      target: trimAuthoredConnector(connector, progress).target,
-    }));
-
-    expect(connectorPrefixViolations(connector, planted)).toEqual([
-      "connector prefix target retreats",
-      "resolved prefix misses authored target",
-    ]);
   });
 
   it("renders only the connectors authored for each golden and keeps Focus connector-free", () => {
@@ -785,7 +713,7 @@ describe("golden benchmark connector geometry and motion", () => {
     }
   });
 
-  it("uses one solid butt-capped SVG prefix per connector without dash or ghost paths", () => {
+  it("uses one solid butt-capped SVG connector without dash or ghost paths", () => {
     const markup = render(getGoldenVisualBrief("converge", "en"), "wide");
     const paths = connectorPathTags(markup);
 
@@ -797,7 +725,7 @@ describe("golden benchmark connector geometry and motion", () => {
       expect(path).not.toMatch(/stroke-dash(?:array|offset)/u);
     }
     expect(markup).not.toMatch(/stroke-dash(?:array|offset)/u);
-    expect(markup.match(/data-motion-subject="connector-/gu)).toHaveLength(3);
+    expect(markup.match(/data-visual-subject="connector-/gu)).toHaveLength(3);
   });
 
   it("keeps connector geometry deterministic and free of DOM measurement", () => {
@@ -819,13 +747,75 @@ describe("marketing visual boundaries", () => {
     ]);
 
     const directory = join(REPO_ROOT, "components", "marketing", "visuals");
-    const files = readdirSync(directory).filter((file) => /\.tsx?$/u.test(file));
-    const sources = files.map((file) => readFileSync(join(directory, file), "utf8"));
+    const files = walkFiles(directory, (file) => /\.[cm]?[jt]sx?$/u.test(file));
+    const relativeFiles = files.map((file) => file.slice(directory.length + 1));
+    const sources = files.map((file) => readFileSync(file, "utf8"));
     expect(sources.flatMap(rendererBoundaryViolations)).toEqual([]);
     expect(
-      files.filter((file, index) => sources[index]?.includes("@/components/ai-connection/ai-client-logo")),
+      relativeFiles.filter((file, index) => sources[index]?.includes("@/components/ai-connection/ai-client-logo")),
     ).toEqual(["native-visual-primitives.tsx"]);
     expect(sources.join("\n")).not.toMatch(/requestAnimationFrame|setInterval|<animate/u);
+  });
+
+  it("plants and enforces the static-only visual source boundary", () => {
+    expect(
+      staticVisualSourceViolations(
+        "type Props = { t?: number }; const frame = normalizedTime(0.5); requestAnimationFrame(() => frame);",
+      ),
+    ).toEqual(["normalized-time input", "progress helper", "runtime animation"]);
+    expect(
+      staticVisualSourceViolations(
+        'setTimeout(render, 100); const started = performance.now(); return <g className="animate-pulse" style={{ animationName: "pulse" }}><animateTransform /></g>;',
+      ),
+    ).toEqual([
+      "runtime animation",
+      "time source",
+      "declarative animation class",
+      "declarative animation style",
+      "animated SVG",
+    ]);
+    expect(
+      staticVisualSourceViolations('import { motion } from "motion/react"; node.animate([], {}); useSceneClock();'),
+    ).toEqual(["progress helper", "runtime animation", "motion library"]);
+
+    const directory = join(REPO_ROOT, "components", "marketing", "visuals");
+    const files = walkFiles(directory, (file) => /\.[cm]?[jt]sx?$/u.test(file));
+    const sources = files.map((file) => readFileSync(file, "utf8"));
+
+    expect(files.filter((file) => /(?:film|motion|storyboard|video)/iu.test(file))).toEqual([]);
+    expect(sources.flatMap(staticVisualSourceViolations)).toEqual([]);
+  });
+
+  it("keeps the authored style guide static without banning generic reduced-motion UI behavior", () => {
+    const root = join(REPO_ROOT, "app", "[locale]", "(static)", "styleguide");
+    const files = walkFiles(root, (file) => /\.[cm]?[jt]sx?$/u.test(file));
+    const relativePaths = files.map((file) => file.slice(root.length));
+    const source = files.map((file) => readFileSync(file, "utf8")).join("\n");
+
+    expect(relativePaths.filter((file) => /\/(?:motion|frame)\//u.test(file))).toEqual([]);
+    expect(relativePaths.filter((file) => /(?:motion-study|motion-storyboard)/u.test(file))).toEqual([]);
+    expect(staticStyleguideSourceViolations('<video src="benchmark.webm" />')).toEqual([
+      "embedded moving media",
+      "moving media asset",
+    ]);
+    expect(staticStyleguideSourceViolations('<picture><source srcSet="benchmark.avif" /></picture>')).toEqual([]);
+    expect(staticStyleguideSourceViolations(source)).toEqual([]);
+    expect(staticVisualSourceViolations(source)).toEqual([]);
+    expect(source).toContain("motion-reduce:transition-none");
+  });
+
+  it("removes the retired illustration entrance CSS without touching legacy scene CSS", () => {
+    const stylesheet = readFileSync(join(REPO_ROOT, "styles", "globals.css"), "utf8");
+
+    expect(
+      staticVisualStylesheetViolations(
+        "@keyframes story-enter { to { opacity: 1; } } [data-story-visual] { animation: story-enter 1s; }",
+      ),
+    ).toEqual(["visual animation selector", "visual keyframes"]);
+    expect(staticVisualStylesheetViolations(stylesheet)).toEqual([]);
+    expect(stylesheet).not.toMatch(/illustration-(?:body|detail|edge|accent|mark)-(?:in|draw|pop)/u);
+    expect(stylesheet).not.toContain("data-illustration-play");
+    expect(stylesheet).toContain(".scene-frame-film");
   });
 
   it("detects planted proof rendering and keeps proof outside GoldenStoryVisual", () => {
@@ -834,9 +824,9 @@ describe("marketing visual boundaries", () => {
     ]);
 
     const directory = join(REPO_ROOT, "components", "marketing", "visuals");
-    const violations = readdirSync(directory)
+    const violations = walkFiles(directory, (file) => /\.[cm]?[jt]sx?$/u.test(file))
       .filter((file) => file.includes("product-proof"))
-      .flatMap((file) => productProofRendererViolations(readFileSync(join(directory, file), "utf8")));
+      .flatMap((file) => productProofRendererViolations(readFileSync(file, "utf8")));
     expect(violations).toEqual([]);
   });
 

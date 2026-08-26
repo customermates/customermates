@@ -87,8 +87,6 @@ const CODE_BACKED_ROUTE_FILES = {
     "app/[locale]/(static)/styleguide/foundations/page.tsx",
   "/styleguide/patterns": "app/[locale]/(static)/styleguide/patterns/page.tsx",
   "/styleguide/visuals": "app/[locale]/(static)/styleguide/visuals/page.tsx",
-  "/styleguide/motion": "app/[locale]/(static)/styleguide/motion/page.tsx",
-  "/styleguide/frame": "app/[locale]/(static)/styleguide/frame/page.tsx",
   "/auth/pending": "app/[locale]/(public)/auth/pending/page.tsx",
   "/auth/error": "app/[locale]/(public)/auth/error/page.tsx",
   "/auth/verify-email": "app/[locale]/(public)/auth/verify-email/page.tsx",

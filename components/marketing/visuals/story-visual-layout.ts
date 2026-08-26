@@ -31,85 +31,6 @@ type HandoffGoldenLayout = {
   focal: NormalizedBox;
 };
 
-export type AuthoredStoryboardBox = NormalizedBox & {
-  height: number;
-};
-
-type UnifiedInboxStoryboardLayout = {
-  connector: AuthoredConnector;
-  contact: AuthoredStoryboardBox;
-  sources: {
-    gmail: AuthoredStoryboardBox;
-    linkedin: AuthoredStoryboardBox;
-    whatsapp: AuthoredStoryboardBox;
-  };
-};
-
-type AgentPipelineStoryboardLayout = {
-  connector: AuthoredConnector;
-  instruction: AuthoredStoryboardBox;
-  origin: AuthoredStoryboardBox;
-  record: AuthoredStoryboardBox & {
-    follows: "x" | "y";
-  };
-};
-
-export const UNIFIED_INBOX_STORYBOARD_LAYOUT = {
-  narrow: {
-    connector: {
-      control1: { x: 19, y: 34 },
-      control2: { x: 31, y: 37 },
-      source: { x: 19, y: 28 },
-      target: { x: 38, y: 43 },
-    },
-    contact: { height: 53, width: 95, x: 9, y: 43 },
-    sources: {
-      gmail: { height: 20, width: 30, x: 4, y: 8 },
-      linkedin: { height: 20, width: 30, x: 35, y: 8 },
-      whatsapp: { height: 20, width: 30, x: 66, y: 8 },
-    },
-  },
-  wide: {
-    connector: {
-      control1: { x: 44, y: 23 },
-      control2: { x: 48, y: 31 },
-      source: { x: 38, y: 23 },
-      target: { x: 54, y: 31 },
-    },
-    contact: { height: 84, width: 50, x: 54, y: 8 },
-    sources: {
-      gmail: { height: 22, width: 34, x: 4, y: 12 },
-      linkedin: { height: 18, width: 34, x: 2, y: 41 },
-      whatsapp: { height: 18, width: 34, x: 7, y: 70 },
-    },
-  },
-} as const satisfies Record<"narrow" | "wide", UnifiedInboxStoryboardLayout>;
-
-export const AGENT_PIPELINE_STORYBOARD_LAYOUT = {
-  narrow: {
-    connector: {
-      control1: { x: 65, y: 45 },
-      control2: { x: 65, y: 56 },
-      source: { x: 65, y: 34 },
-      target: { x: 65, y: 67 },
-    },
-    instruction: { height: 14, width: 88, x: 6, y: 7 },
-    origin: { height: 11, width: 24, x: 53, y: 23 },
-    record: { follows: "y", height: 27, width: 62, x: 34, y: 34 },
-  },
-  wide: {
-    connector: {
-      control1: { x: 34, y: 54 },
-      control2: { x: 48, y: 54 },
-      source: { x: 20, y: 54 },
-      target: { x: 62, y: 54 },
-    },
-    instruction: { height: 15, width: 52, x: 5, y: 9 },
-    origin: { height: 11, width: 17, x: 3, y: 48.5 },
-    record: { follows: "x", height: 40, width: 38, x: 20, y: 34 },
-  },
-} as const satisfies Record<"narrow" | "wide", AgentPipelineStoryboardLayout>;
-
 export const GOLDEN_LAYOUT = {
   converge: {
     narrow: {
@@ -264,89 +185,13 @@ export const GOLDEN_LAYOUT = {
   } satisfies Record<VisualPlacement, HandoffGoldenLayout>,
 } as const;
 
-export const STORY_VISUAL_MOTION = {
-  connector: {
-    end: 0.5,
-    stagger: 0.06,
-    start: 0.22,
-  },
-  focalAccent: { end: 0.68, start: 0.56 },
-  focalSurface: { end: 0.28, start: 0.12 },
-  resolvedStart: 0.68,
-  source: {
-    end: 0.16,
-    stagger: 0.04,
-    start: 0,
-  },
-} as const;
-
-export function storyBeatProgress(time: number, start: number, end: number) {
-  const linear = Math.min(1, Math.max(0, (time - start) / (end - start)));
-  return 1 - (1 - linear) ** 3;
-}
-
-export function connectorDrawProgress(time: number, index = 0) {
-  const { end, stagger, start } = STORY_VISUAL_MOTION.connector;
-  return storyBeatProgress(time, start + index * stagger, end + index * stagger);
-}
-
-export function sourceRevealProgress(time: number, index = 0) {
-  const { end, stagger, start } = STORY_VISUAL_MOTION.source;
-  return storyBeatProgress(time, start + index * stagger, end + index * stagger);
-}
-
-export function focalSurfaceProgress(time: number) {
-  const { end, start } = STORY_VISUAL_MOTION.focalSurface;
-  return storyBeatProgress(time, start, end);
-}
-
-export function focalAccentProgress(time: number) {
-  const { end, start } = STORY_VISUAL_MOTION.focalAccent;
-  return storyBeatProgress(time, start, end);
-}
-
-function interpolatePoint(from: NormalizedPoint, to: NormalizedPoint, progress: number): NormalizedPoint {
-  return {
-    x: from.x + (to.x - from.x) * progress,
-    y: from.y + (to.y - from.y) * progress,
-  };
-}
-
-export function trimAuthoredConnector(connector: AuthoredConnector, progress: number): AuthoredConnector {
-  if (!Number.isFinite(progress) || progress < 0 || progress > 1)
-    throw new Error("Connector trim progress must be normalized between zero and one");
-
-  if (progress === 1) return connector;
-  if (progress === 0) {
-    return {
-      control1: connector.source,
-      control2: connector.source,
-      source: connector.source,
-      target: connector.source,
-    };
-  }
-
-  const sourceControl = interpolatePoint(connector.source, connector.control1, progress);
-  const middleControl = interpolatePoint(connector.control1, connector.control2, progress);
-  const targetControl = interpolatePoint(connector.control2, connector.target, progress);
-  const prefixControl = interpolatePoint(sourceControl, middleControl, progress);
-  const suffixControl = interpolatePoint(middleControl, targetControl, progress);
-
-  return {
-    control1: sourceControl,
-    control2: prefixControl,
-    source: connector.source,
-    target: interpolatePoint(prefixControl, suffixControl, progress),
-  };
-}
-
 function formatCoordinate(value: number) {
   const rounded = Math.round(value * 100_000) / 100_000;
   return String(Object.is(rounded, -0) ? 0 : rounded);
 }
 
-export function authoredConnectorPath(connector: AuthoredConnector, progress = 1) {
-  const { control1, control2, source, target } = trimAuthoredConnector(connector, progress);
+export function authoredConnectorPath(connector: AuthoredConnector) {
+  const { control1, control2, source, target } = connector;
   return `M${formatCoordinate(source.x)} ${formatCoordinate(source.y)} C${formatCoordinate(control1.x)} ${formatCoordinate(control1.y)} ${formatCoordinate(control2.x)} ${formatCoordinate(control2.y)} ${formatCoordinate(target.x)} ${formatCoordinate(target.y)}`;
 }
 

@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 // The scene components are pure functions of `t`, which is what lets one composition serve
 // three jobs: omit `t` and the scene renders its resolved final state as a still image;
 // feed it this hook and it animates; drive `t` from outside in fixed steps and it can be
-// captured frame-exactly for video (see scripts/capture-scene-video.mjs). No accumulated
+// captured frame-exactly by legacy scene tooling. No accumulated
 // state exists anywhere in a scene, so the same `t` always produces the same DOM.
 //
 // It fixes the three defects in the older homepage-clip-terminal clock, which this

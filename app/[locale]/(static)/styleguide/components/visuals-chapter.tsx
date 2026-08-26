@@ -11,8 +11,6 @@ import {
 } from "@/components/marketing/visuals/native-visual-primitives";
 import type { VisualLocale, VisualPathway, VisualPlacement } from "@/components/marketing/visuals/visual-contract";
 
-import { ConvergeMotionStudy } from "./converge-motion-study";
-
 const GOLDEN_ORDER: VisualPathway[] = ["converge", "handoff", "focus"];
 
 const FAMILY_COPY = [
@@ -262,8 +260,6 @@ export function VisualsChapter({ locale }: { locale: VisualLocale }) {
                 </div>
 
                 <ResponsiveGoldenBenchmark brief={brief} />
-
-                {pathway === "converge" ? <ConvergeMotionStudy brief={brief} locale={locale} /> : null}
               </article>
             );
           })}

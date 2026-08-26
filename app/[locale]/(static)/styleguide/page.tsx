@@ -102,8 +102,8 @@ export default function StyleguidePage() {
             <h2 className="text-display-sm m-0">Chapter map</h2>
 
             <p className="text-lede mx-auto mt-5">
-              Foundations constrain every chapter. Patterns arrange the page. Visuals and motion explain one idea
-              without pretending to be the application.
+              Foundations constrain every chapter. Patterns arrange the page. Visuals explain one idea without
+              pretending to be the application.
             </p>
           </div>
 
@@ -111,7 +111,7 @@ export default function StyleguidePage() {
             {STYLEGUIDE_CHAPTERS.filter((chapter) => chapter.id !== "overview").map((chapter) => (
               <IntlLink
                 key={chapter.id}
-                className="marketing-transition col-span-12 rounded-card border border-border bg-card p-6 hover:border-border-strong sm:col-span-6"
+                className="marketing-transition col-span-12 rounded-card border border-border bg-card p-6 hover:border-border-strong md:col-span-4"
                 href={chapter.href}
               >
                 <span className="font-medium">{chapter.label}</span>

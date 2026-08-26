@@ -1,4 +1,4 @@
-export type StyleguideChapterId = "overview" | "foundations" | "patterns" | "visuals" | "motion";
+export type StyleguideChapterId = "overview" | "foundations" | "patterns" | "visuals";
 
 export type StyleguideSection = {
   id: string;
@@ -79,21 +79,6 @@ export const STYLEGUIDE_CHAPTERS = [
       { id: "failures", label: "Failure examples" },
     ],
     title: "Visuals",
-  },
-  {
-    description:
-      "The shared motion grammar, approved keyframes and deterministic sources for the three benchmark films.",
-    href: "/styleguide/motion",
-    id: "motion",
-    label: "Motion",
-    sections: [
-      { id: "motion-grammar", label: "Motion grammar" },
-      { id: "unified-inbox", label: "Unified inbox" },
-      { id: "agent-pipeline", label: "Claude updates Status" },
-      { id: "dashboard-insight", label: "Dashboard insight" },
-      { id: "future-gates", label: "Future capture gates" },
-    ],
-    title: "Motion",
   },
 ] as const satisfies readonly StyleguideChapter[];
 

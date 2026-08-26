@@ -28,23 +28,23 @@ const STATUS_CLASSES: Record<VisualStatusFixtureId, string> = {
 export function NativeAgentProviderIdentity({
   className,
   iconSize = 20,
-  motionSubject,
   provider,
   style,
+  visualSubject,
 }: {
   className?: string;
   iconSize?: number;
-  motionSubject?: string;
   provider: VisualAgentProviderFixtureId;
   style?: CSSProperties;
+  visualSubject?: string;
 }) {
   const fixture = VISUAL_AGENT_PROVIDER_FIXTURES[provider];
 
   return (
     <span
       className={cn("inline-flex min-w-0 items-center gap-1.5", className)}
-      data-motion-subject={motionSubject}
       data-native-agent-provider={provider}
+      data-visual-subject={visualSubject}
       style={style}
     >
       <span className="grid shrink-0 place-items-center" style={{ height: iconSize, width: iconSize }}>

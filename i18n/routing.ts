@@ -40,8 +40,6 @@ export const PUBLIC_ROUTES = [
   "/styleguide/foundations",
   "/styleguide/patterns",
   "/styleguide/visuals",
-  "/styleguide/motion",
-  "/styleguide/frame",
   "/auth/pending",
   "/auth/error",
   "/auth/verify-email",
