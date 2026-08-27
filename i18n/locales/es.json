@@ -2460,7 +2460,7 @@
     "manageWithLemonSqueezy": "Gestionar con Lemon Squeezy",
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# cuenta conectada por usuario} other {# cuentas conectadas por usuario}}",
-      "creditNote": "Los créditos de IA alojada se renuevan cada mes, incluso con la facturación anual. Los clientes MCP externos utilizan tu propio proveedor de IA y no consumen estos créditos.",
+      "creditNote": "Los créditos de IA alojada se renuevan cada mes; los créditos no utilizados no se acumulan. Los clientes MCP externos utilizan tu propio proveedor de IA y no consumen estos créditos.",
       "features": {
         "business": ["Todo lo de Pro", "Cuentas compartidas y soporte prioritario"],
         "pro": ["Todo lo de Starter", "Bandeja de entrada unificada"],

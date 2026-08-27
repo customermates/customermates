@@ -1,10 +1,37 @@
 import { describe, expect, it } from "vitest";
 
+import { STYLEGUIDE_CHAPTERS } from "@/app/[locale]/(static)/styleguide/components/styleguide-chapters";
 import { ACCOUNT_STATES } from "@/features/auth/account-state";
 
 import { resolveNavigationShell } from "../navigation-shell";
 
 describe("resolveNavigationShell", () => {
+  it.each(
+    STYLEGUIDE_CHAPTERS.flatMap(({ href }) =>
+      ACCOUNT_STATES.flatMap((accountState) =>
+        [false, true].map((isRegistered) => ({ accountState, href, isRegistered })),
+      ),
+    ),
+  )("keeps $href on the public shell for $accountState when registered=$isRegistered", (testCase) => {
+    expect(
+      resolveNavigationShell({
+        accountState: testCase.accountState,
+        pathname: testCase.href,
+        isRegistered: testCase.isRegistered,
+      }),
+    ).toBe("public");
+  });
+
+  it("does not change the existing shell policy for other public routes", () => {
+    expect(
+      resolveNavigationShell({
+        accountState: "allowed",
+        pathname: "/pricing",
+        isRegistered: true,
+      }),
+    ).toBe("app");
+  });
+
   it.each(
     ACCOUNT_STATES.filter(
       (state) => !["overdueVerification", "inactive", "pending", "onboarding", "legal", "subscription"].includes(state),

@@ -13,6 +13,7 @@ export function resolveNavigationShell({
   pathname: string;
   isRegistered: boolean;
 }): NavigationShell {
+  if (pathname === "/styleguide" || pathname.startsWith("/styleguide/")) return "public";
   if (isRegistered && isRestrictedAccountState(accountState)) return "restricted";
   if (pathname === "/docs" || pathname.startsWith("/docs/")) return "docs";
   if (!isRegistered) return "public";

@@ -2460,7 +2460,7 @@
     "manageWithLemonSqueezy": "Gérer avec Lemon Squeezy",
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# compte connecté par utilisateur} other {# comptes connectés par utilisateur}}",
-      "creditNote": "Les crédits IA hébergés sont renouvelés chaque mois, même en facturation annuelle. Les clients MCP externes utilisent votre propre fournisseur d'IA et ne consomment pas ces crédits.",
+      "creditNote": "Les crédits IA hébergés sont renouvelés chaque mois ; les crédits non utilisés ne sont pas reportés. Les clients MCP externes utilisent votre propre fournisseur d'IA et ne consomment pas ces crédits.",
       "features": {
         "business": ["Tout ce qui est inclus dans Pro", "Comptes partagés et assistance prioritaire"],
         "pro": ["Tout ce qui est inclus dans Starter", "Boîte de réception unifiée"],

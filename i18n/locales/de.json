@@ -2460,7 +2460,7 @@
     "manageWithLemonSqueezy": "Verwalten mit Lemon Squeezy",
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# verbundenes Konto pro Nutzer} other {# verbundene Konten pro Nutzer}}",
-      "creditNote": "Credits für den gehosteten KI-Assistenten werden monatlich erneuert, auch bei jährlicher Abrechnung. Externe MCP-Clients nutzen Ihren eigenen KI-Anbieter und verbrauchen diese Credits nicht.",
+      "creditNote": "Credits für den gehosteten KI-Assistenten werden monatlich erneuert; nicht genutzte Credits werden nicht übertragen. Externe MCP-Clients nutzen Ihren eigenen KI-Anbieter und verbrauchen diese Credits nicht.",
       "features": {
         "business": ["Alles aus Pro", "Geteilte Konten und priorisierter Support"],
         "pro": ["Alles aus Starter", "Zentraler Posteingang"],

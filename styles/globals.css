@@ -3,11 +3,16 @@
 @plugin '@tailwindcss/typography';
 @source "../node_modules/streamdown/dist/index.js";
 
-@custom-variant dark (&:is(.dark *));
-
 @import 'fumadocs-ui/css/preset.css';
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-openapi/css/preset.css';
+
+/* The noindex guide can invert one local specimen without changing the public page theme. */
+@custom-variant dark (
+  &:is(.dark *):not(:is([data-marketing-tone="inverse"], [data-marketing-tone="inverse"] *)),
+  &:is(:root:not(.dark) [data-marketing-tone="inverse"], :root:not(.dark) [data-marketing-tone="inverse"] *),
+  &:is(.light [data-marketing-tone="inverse"], .light [data-marketing-tone="inverse"] *)
+);
 
 @theme inline {
   --color-background: var(--background);
@@ -49,6 +54,13 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --radius-card: calc(var(--radius) + 12px);
+  --radius-panel: calc(var(--radius) + 16px);
+  --breakpoint-nav: 56rem;
+  --container-marketing: 80rem;
+  --aspect-hero: 16 / 9;
+  --aspect-social: 1200 / 630;
+  --ease-marketing: var(--marketing-ease);
   --font-family-sans: var(--font-sans), 'Inter', ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-family-mono: var(--font-mono), 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   --color-sidebar-ring: var(--sidebar-ring);
@@ -258,16 +270,15 @@
      canvas  --sidebar     the app shell behind everything, including the 8px gutter
      panel   --background  the floating page body
      raised  --card        card, popover, menu, dialog
-   Light steps are +2.40 and +2.63 OKLCH L; dark steps are +4.76 and +4.42, a 1.80x
-   ratio. Equal lightness steps would NOT mirror: matching a light step of 2.5 L needs
-   3.62 L in dark. The quantity that carries across themes is the contrast ratio, not
-   the lightness step, which is why moving one token or shifting the ladder by a fixed
-   amount cannot work. Every rung is within 0.4 L of Linear's shipped app shell.
+   Light fills retain visible opaque steps. Dark fills are deliberately compressed to
+   about 1.03:1 from canvas to page and 1.07:1 from page to card; borders carry the exact
+   edge while fill carries only coarse hierarchy. This keeps a long dark page from reading
+   as alternating stripes and makes the overall field quieter and darker.
 
    BORDER — alpha, not opaque, so one value per tier is correct on all three rungs.
-     --border         ~1.18:1  container rims and rules: panel, card, table, separators
-     --input          ~1.35:1  a control edge at rest
-     --border-strong  ~1.70:1  control hover, selected, floating-surface rim
+     --border         ~1.18–1.22:1  container rims and rules: panel, card, table, separators
+     --input          ~1.32–1.37:1  a control edge at rest
+     --border-strong  ~1.68–1.74:1  control hover, selected, floating-surface rim
    Two jobs only: delineation (where a container ends) and affordance (what you can
    click into). Never hierarchy — that is primary, neutral, destructive, ghost. The
    soft weight matches what shadcn, Linear and Primer ship and is short of WCAG 1.4.11
@@ -283,7 +294,7 @@
                          the ladder does, and never inverts out of its own theme
      (--secondary is NOT a wash: see the note below)
      --placeholder       skeleton fill
-   Alphas differ per theme by the same 1.8x reasoning as the rungs.
+   Alphas remain theme-specific so state stays legible on the compressed dark ladder.
 
    --muted is a wash, not a rung. "Subdued" is inherently relative to the host, and a
    host can be two rungs away: pinned to the canvas rung it read as a gentle stripe on a
@@ -306,8 +317,15 @@
    a selection must raise contrast against whatever it sits on, so it darkens in light and
    lightens in dark. The distinction is resting elevation versus state, not light versus
    dark. --accent and --selected are washes; --secondary is not. */
-:root {
+:root,
+.light,
+.dark [data-marketing-tone="inverse"] {
   --radius: 0.5rem;
+  --marketing-gutter: 1.25rem;
+  --marketing-gutter-lg: 2rem;
+  --marketing-column-gap: 0.5rem;
+  --marketing-duration: 200ms;
+  --marketing-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --background: #f6f6f8;
   --foreground: #000000;
   --card: #ffffff;
@@ -370,10 +388,12 @@
   --sidebar-ring: #5e4ae3;
 }
 
-.dark {
-  --background: #121215;
+.dark,
+:root:not(.dark) [data-marketing-tone="inverse"],
+.light [data-marketing-tone="inverse"] {
+  --background: #0d0d10;
   --foreground: #fafafa;
-  --card: #1c1c1f;
+  --card: #151518;
   --card-foreground: #fafafa;
   --popover: var(--card);
   --popover-foreground: #fafafa;
@@ -396,7 +416,7 @@
   --warning-foreground: #451a03;
   --info: #60a5fa;
   --info-foreground: #082f49;
-  --border: rgb(255 255 255 / 6.8%);
+  --border: rgb(255 255 255 / 7.5%);
   --border-strong: rgb(255 255 255 / 18.1%);
   --input: rgb(255 255 255 / 11.2%);
   --input-background: var(--card);
@@ -426,6 +446,15 @@
   --sidebar-accent-foreground: #fafafa;
   --sidebar-border: var(--border);
   --sidebar-ring: #7c6df2;
+}
+
+.dark [data-marketing-tone="inverse"] {
+  color-scheme: light;
+}
+
+:root:not(.dark) [data-marketing-tone="inverse"],
+.light [data-marketing-tone="inverse"] {
+  color-scheme: dark;
 }
 
 @layer base {
@@ -594,6 +623,86 @@ path:focus {
 
   .text-subdued {
     @apply relative text-muted-foreground;
+  }
+
+  .marketing-container {
+    @apply mx-auto w-full max-w-marketing;
+    padding-inline: var(--marketing-gutter);
+  }
+
+  @media (width >= 40rem) {
+    .marketing-container {
+      padding-inline: var(--marketing-gutter-lg);
+    }
+  }
+
+  .marketing-section {
+    @apply w-full border-b border-border py-20 sm:py-24 lg:py-32;
+  }
+
+  .marketing-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--marketing-column-gap);
+  }
+
+  @media (width >= 40rem) {
+    .marketing-grid {
+      --marketing-column-gap: 1rem;
+    }
+  }
+
+  @media (width >= 64rem) {
+    .marketing-grid {
+      --marketing-column-gap: 1.5rem;
+    }
+  }
+
+  .marketing-section-flush {
+    @apply w-full py-20 sm:py-24 lg:py-32;
+  }
+
+  .marketing-transition {
+    transition-property: color, background-color, border-color, opacity, transform;
+    transition-duration: var(--marketing-duration);
+    transition-timing-function: var(--marketing-ease);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marketing-transition {
+      transition: none;
+    }
+  }
+
+  .text-display {
+    @apply font-bold text-balance;
+    font-size: clamp(2.5rem, 1.7325rem + 3.275vw, 5.25rem);
+    line-height: 0.98;
+    letter-spacing: -0.045em;
+    hyphens: auto;
+    overflow-wrap: break-word;
+  }
+
+  .text-display-sm {
+    @apply font-medium text-balance;
+    font-size: clamp(2rem, 1.648rem + 1.502vw, 3rem);
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    hyphens: auto;
+    overflow-wrap: break-word;
+  }
+
+  .text-lede {
+    @apply text-base leading-relaxed text-muted-foreground sm:text-lg;
+    max-width: 44rem;
+  }
+
+  .text-eyebrow {
+    @apply text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase;
+  }
+
+  .text-meta {
+    @apply text-xs leading-relaxed text-muted-foreground;
   }
 
   .interactive-surface {
