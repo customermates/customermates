@@ -19,10 +19,20 @@ Self-hosting? Swap in your instance URL.
 
 ## Claude
 
-1. **Claude → Settings → Connectors → Add custom connector.**
-2. Paste the URL and leave authentication on the default (OAuth). No header, no key.
-3. A Customermates window opens. Sign in, then click **Approve** on the Authorize access screen.
-4. Back in Claude, Customermates appears with its tools listed.
+<Steps>
+<Step title="Open the connector form">
+**Claude → Settings → Connectors → Add custom connector.**
+</Step>
+<Step title="Paste the URL">
+Leave authentication on the default (OAuth). No header, no key.
+</Step>
+<Step title="Sign in and approve">
+A Customermates window opens. Sign in, then click **Approve** on the Authorize access screen.
+</Step>
+<Step title="Confirm the tools arrived">
+Back in Claude, Customermates appears with its tools listed.
+</Step>
+</Steps>
 
 Add it once and it syncs to Claude on web, desktop, and mobile. The connection is tied to your Claude account, not one device, and refreshes in the background.
 
@@ -42,8 +52,14 @@ Save. ChatGPT opens a Customermates window. Sign in, then click **Approve** on t
 
 Prefer a static key? Add the connector the same way, but authenticate with a header:
 
-1. Create a key: **Profile → API Keys → New key**. Copy the 64-character string immediately. It is shown once.
-2. In the connector form set **Authentication: Header**, **Header name: `x-api-key`**, **Header value:** your key.
+<Steps>
+<Step title="Create a key">
+**Profile → API Keys → New key**. Copy the 64-character string immediately. It is shown once.
+</Step>
+<Step title="Authenticate with a header">
+In the connector form set **Authentication: Header**, **Header name: `x-api-key`**, **Header value:** your key.
+</Step>
+</Steps>
 
 Save. ChatGPT reaches the server and lists every tool.
 
@@ -51,9 +67,17 @@ Save. ChatGPT reaches the server and lists every tool.
 
 The connector opens a Customermates window:
 
-1. Sign in (or you are already signed in).
-2. An **Authorize access** screen names the app that is connecting and the destination it will send access to.
-3. Click **Approve**.
+<Steps>
+<Step title="Sign in">
+Or you are already signed in.
+</Step>
+<Step title="Read what is being authorized">
+An **Authorize access** screen names the app that is connecting and the destination it will send access to.
+</Step>
+<Step title="Approve">
+Click **Approve**.
+</Step>
+</Steps>
 
 You return to your AI, connected, with all [[derived.mcp.tools.total]] tools listed.
 
