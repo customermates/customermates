@@ -9,6 +9,39 @@ permissions:
   contents: read
 
 jobs:
+  self-hosted-postgres-16:
+    name: self-hosted-postgres-16
+    runs-on: ubuntu-latest
+    env:
+      APP_MODE: self-hosted
+      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/customermates_test"
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: customermates_test
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d customermates_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+      - name: Verify the self-hosted PostgreSQL 16 schema
+        run: |
+          npx --no-install prisma migrate deploy
+          npx --no-install prisma db seed
+          npx --no-install prisma db seed
+
   ci:
     name: ci
     runs-on: ubuntu-latest
@@ -18,7 +51,7 @@ jobs:
       RUN_DATABASE_TESTS: "true"
     services:
       postgres:
-        image: postgres:16-alpine
+        image: postgres:17-alpine
         env:
           POSTGRES_DB: customermates_test
           POSTGRES_PASSWORD: postgres

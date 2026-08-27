@@ -123,9 +123,17 @@ describe("environment configuration", () => {
     expect(useLiveData).not.toContain("DATABASE_URL_PROD");
     expect(useLiveData).not.toContain("DATABASE_DIRECT_URL_PROD");
     expect(useLiveData).toContain('read -r -s -p "Paste the Production direct database URL (input hidden): "');
+    expect(useLiveData).toContain("SHOW server_version_num");
+    expect(useLiveData).toContain("PostgreSQL client preflight failed");
     expect(useLiveData).toContain("PGOPTIONS='-c default_transaction_read_only=on' pg_dump \"$production_url\"");
     expect(useLiveData).toContain('pg_restore --list "$archive"');
     expect(useLiveData).toContain("dropdb --if-exists --force");
+    expect(useLiveData.indexOf("SHOW server_version_num")).toBeLessThan(
+      useLiveData.indexOf("PGOPTIONS='-c default_transaction_read_only=on' pg_dump"),
+    );
+    expect(useLiveData.indexOf("PostgreSQL client preflight failed")).toBeLessThan(
+      useLiveData.indexOf("dropdb --if-exists --force"),
+    );
     expect(useLiveData.indexOf('pg_restore --list "$archive"')).toBeLessThan(
       useLiveData.indexOf("dropdb --if-exists --force"),
     );

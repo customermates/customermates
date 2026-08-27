@@ -122,12 +122,22 @@ More docs:
 
 ## 🛠️ Development
 
-Run Customermates locally:
+Create an isolated worktree and run Customermates locally:
 
 ```bash
-yarn install
+git fetch origin main
+git worktree add ../customermates-my-change -b feat/my-change origin/main
+cd ../customermates-my-change
+nvm use
+yarn db:provision
+cp .env.cloud.template .env
+# Paste the printed DATABASE_URL and DIRECT_URL into .env.
+yarn install --frozen-lockfile
+yarn db:reset
 yarn dev
 ```
+
+`yarn db:provision` creates a PostgreSQL 17 container and named volume owned by the current worktree. Re-running it is idempotent. `yarn db:reset` applies the migrations, seeds the database, and prepares the workflow schemas. Replacing the database volume is destructive and only happens with `yarn db:provision --recreate`; use `yarn db:provision --destroy` to remove the worktree's owned database when the worktree is retired.
 
 Useful scripts:
 
@@ -135,6 +145,7 @@ Useful scripts:
 - `yarn build`
 - `yarn lint`
 - `yarn openapi:generate`
+- `yarn db:provision`
 - `yarn db:reset`
 
 ## 📚 Documentation
