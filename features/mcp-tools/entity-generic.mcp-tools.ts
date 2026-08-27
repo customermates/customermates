@@ -163,7 +163,7 @@ const DeleteRecordsSchema = z.object({
 });
 
 const RecordSchemaOutputSchema = z
-  .looseObject({ filterSyntax: z.string(), sortSyntax: z.string() })
+  .looseObject({ filterSyntax: z.looseObject({}), sortSyntax: z.looseObject({}) })
   .describe(
     "With entity set: that entity's configuration plus syntax help. Without: one configuration per entity type keyed by its name.",
   );

@@ -131,14 +131,15 @@ function conformingStructuredContent(
 ): Record<string, unknown> | undefined {
   if (!structuredContent || !tool.outputSchema) return structuredContent;
   const parsed = tool.outputSchema.safeParse(structuredContent);
-  if (parsed.success) return structuredContent;
-  Sentry.captureException(
-    new Error(`The ${tool.name} structured content does not match its declared output schema.`, {
-      cause: parsed.error,
-    }),
-    { tags: { kind: "mcp-output-schema-mismatch", tool: tool.name } },
-  );
-  return undefined;
+  if (!parsed.success) {
+    Sentry.captureException(
+      new Error(`The ${tool.name} structured content does not match its declared output schema.`, {
+        cause: parsed.error,
+      }),
+      { tags: { kind: "mcp-output-schema-mismatch", tool: tool.name } },
+    );
+  }
+  return structuredContent;
 }
 
 export async function executeMcpTool(tool: McpTool, args: unknown[]): Promise<McpToolExecutionResult> {
