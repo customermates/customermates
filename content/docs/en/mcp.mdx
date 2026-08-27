@@ -267,6 +267,34 @@ https://customermates.com/api/v1/mcp?toolsets=records,messaging
 
 Keys: records, workspace, messaging, social, docs, custom-columns, widgets, webhooks, admin, support. No parameter means everything; unknown keys are ignored. `search` and `fetch` are always on so deep-research connectors keep working on any narrowed surface.
 
+### When a call is refused
+
+A refusal is data, not a crash. The result carries `isError: true`, a human-readable message in `content`, and a machine-readable envelope in `_meta.failure` with a `kind` and the offending `issues`, each naming the field `path` it belongs to:
+
+```json
+{
+  "isError": true,
+  "content": [{ "type": "text", "text": "Webhook ID not found or not accessible." }],
+  "_meta": {
+    "failure": {
+      "kind": "not_found",
+      "issues": [{ "code": "custom", "path": [], "message": "Webhook ID not found or not accessible.", "customCode": "webhookNotFound" }]
+    }
+  }
+}
+```
+
+`kind` is one of `validation`, `authentication`, `authorization`, `not_found`, `conflict`, `rate_limit`, or `unavailable`. Branch on it instead of matching message text:
+
+- **validation**: the arguments were wrong. Read `issues[].path`, fix that field, and call again. `get_record_schema` resolves most of these.
+- **authorization**: the caller's role does not permit it. Retrying never helps; say what was refused and which permission it needs. Roles are workspace-defined, so read `get_workspace_context.roles` rather than assuming a fixed set.
+- **not_found**: the id does not exist, or belongs to another workspace. Every call is tenant-scoped, so an id from elsewhere reads as missing rather than forbidden.
+- **conflict**: something already holds the resource. Read current state before retrying.
+- **rate_limit** and **unavailable**: transient or capacity-bound. Back off, and surface `unavailable` as a provider problem rather than a user mistake.
+- **authentication**: the key is missing, expired, or revoked. The user must issue a new one.
+
+Entitlements refuse the same way. Messaging-backed tools need the Pro tier, Sales Navigator tools need that LinkedIn subscription, and connecting an account stops when the plan's channel limit is reached. Permission and entitlement are independent: a caller can have Inbox permission and still be refused for the plan, and the reverse.
+
 ### Safety rules baked in
 
 - **Confirm before destructive actions.** The server instructions tell the model to confirm with the user before `delete_records` and before any send tool.

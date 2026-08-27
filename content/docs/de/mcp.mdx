@@ -267,6 +267,34 @@ https://customermates.com/api/v1/mcp?toolsets=records,messaging
 
 Keys: records, workspace, messaging, social, docs, custom-columns, widgets, webhooks, admin, support. Kein Parameter heißt alles; unbekannte Keys werden ignoriert. `search` und `fetch` sind immer an, damit Deep-Research-Connectors auch auf einer eingegrenzten Oberfläche funktionieren.
 
+### Wenn ein Aufruf abgelehnt wird
+
+Eine Ablehnung ist Datum, kein Absturz. Das Ergebnis trägt `isError: true`, eine menschenlesbare Nachricht in `content` und einen maschinenlesbaren Umschlag in `_meta.failure` mit `kind` und den betroffenen `issues`, die jeweils den Feld-`path` benennen:
+
+```json
+{
+  "isError": true,
+  "content": [{ "type": "text", "text": "Webhook ID not found or not accessible." }],
+  "_meta": {
+    "failure": {
+      "kind": "not_found",
+      "issues": [{ "code": "custom", "path": [], "message": "Webhook ID not found or not accessible.", "customCode": "webhookNotFound" }]
+    }
+  }
+}
+```
+
+`kind` ist eines von `validation`, `authentication`, `authorization`, `not_found`, `conflict`, `rate_limit` oder `unavailable`. Darauf verzweigen statt Nachrichtentexte zu matchen:
+
+- **validation**: die Argumente waren falsch. `issues[].path` lesen, das Feld korrigieren, erneut aufrufen. `get_record_schema` klärt die meisten dieser Fälle.
+- **authorization**: die Rolle des Aufrufers erlaubt es nicht. Wiederholen hilft nie; benennen, was abgelehnt wurde und welche Berechtigung es braucht. Rollen sind workspace-definiert, also `get_workspace_context.roles` lesen statt einen festen Satz anzunehmen.
+- **not_found**: die Id existiert nicht oder gehört zu einem anderen Workspace. Jeder Aufruf ist mandantengebunden, eine fremde Id liest sich daher als fehlend, nicht als verboten.
+- **conflict**: etwas belegt die Ressource bereits. Vor dem Wiederholen den aktuellen Stand lesen.
+- **rate_limit** und **unavailable**: vorübergehend oder kapazitätsbedingt. Zurückhalten, und `unavailable` als Provider-Problem darstellen, nicht als Fehler des Users.
+- **authentication**: der Key fehlt, ist abgelaufen oder widerrufen. Der User muss einen neuen ausstellen.
+
+Entitlements lehnen auf demselben Weg ab. Messaging-gestützte Tools brauchen die Pro-Stufe, Sales-Navigator-Tools das entsprechende LinkedIn-Abo, und das Verbinden eines Accounts endet am Kanal-Limit des Plans. Berechtigung und Entitlement sind unabhängig: ein Aufrufer kann Inbox-Berechtigung haben und trotzdem am Plan scheitern, und umgekehrt.
+
 ### Eingebaute Sicherheitsregeln
 
 - **Bestätigen vor destruktiven Aktionen.** Die Server-Instructions weisen das Modell an, sich vor `delete_records` und vor jedem Send-Tool beim User rückzuversichern.
