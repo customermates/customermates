@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -70,7 +70,11 @@ function catalogText(locale: string): string {
 
 
 describe("MCP tool description quality", () => {
-  const loadRegistry = async () => (await import("@/features/mcp-tools/tool-registry")).ALL_MCP_TOOLS;
+  let registry: typeof import("@/features/mcp-tools/tool-registry").ALL_MCP_TOOLS;
+  beforeAll(async () => {
+    registry = (await import("@/features/mcp-tools/tool-registry")).ALL_MCP_TOOLS;
+  }, 120_000);
+  const loadRegistry = async () => registry;
   const CONNECTOR_MINIMUM_TOOLS = new Set(["search", "fetch"]);
   const REAL_SEND_TOOLS = new Set(["send_email", "send_chat_message", "manage_social_relations", "manage_team", "request_support"]);
   const PAGINATION_ARGS = new Set(["page", "cursor", "offset"]);
@@ -79,6 +83,11 @@ describe("MCP tool description quality", () => {
     const candidate = schema as { shape?: Record<string, unknown> };
     return candidate?.shape ?? {};
   };
+
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("declares an output schema on every tool", async () => {
+    const missing = (await loadRegistry()).filter((tool) => !tool.outputSchema).map((tool) => tool.name);
+    expect(missing).toEqual([]);
+  });
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps every description above the floor and every connector stub pointing at the real tool", async () => {
     const violations: string[] = [];

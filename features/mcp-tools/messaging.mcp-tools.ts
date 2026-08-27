@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import {
-  encodeToToon,
+  toonResult,
   runInteractor,
   customMcpFailure,
   formatDatesInResponse,
@@ -72,6 +72,47 @@ const GetMessagingThreadsSchema = z.object({
 
 const LIST_PARTICIPANT_LIMIT = 50;
 
+const linkedParticipantOutput = z.looseObject({
+  displayName: z.string().nullable().optional(),
+  identifier: z.string().nullable().optional(),
+  isSelf: z.boolean(),
+  isLinked: z.boolean(),
+  contact: z.object({ id: z.string(), name: z.string().nullable() }).nullable(),
+});
+
+const GetMessagingThreadsOutputSchema = z.union([
+  z.looseObject({
+    thread: z.looseObject({ id: z.string(), participants: z.array(linkedParticipantOutput) }),
+    messages: z.array(z.looseObject({ id: z.string(), isDraft: z.boolean().optional() })),
+  }),
+  z.looseObject({
+    items: z.array(z.looseObject({ id: z.string(), participants: z.array(linkedParticipantOutput) })),
+  }),
+]);
+
+const GetActivitiesOutputSchema = z.looseObject({
+  availableSources: z.unknown(),
+  items: z.array(z.looseObject({})),
+  pageLimitReached: z.unknown(),
+  scopeTruncated: z.unknown(),
+  total: z.number(),
+  page: z.number(),
+});
+
+const GetCalendarsOutputSchema = z.union([
+  z.looseObject({ items: z.array(z.looseObject({})), total: z.number(), page: z.number() }),
+  z.looseObject({ id: z.string() }).describe("Event detail when eventId is set"),
+]);
+
+const SendChatMessageOutputSchema = z.object({ sent: z.literal(true), threadId: z.string().nullable() });
+const SendEmailOutputSchema = z.object({ sent: z.literal(true), threadId: z.string().nullable() });
+const SaveDraftOutputSchema = z.object({ draftMessageId: z.string(), threadId: z.string() });
+const DiscardDraftOutputSchema = z.object({ discarded: z.boolean(), threadId: z.string().nullable() });
+const UpdateMessagingThreadOutputSchema = z.object({ threadId: z.string(), state: z.string() });
+const ConnectMessagingAccountOutputSchema = z.object({
+  url: z.string().describe("Single-use hosted auth link, expires in 30 minutes"),
+});
+
 export const getMessagingThreadsTool = {
   name: "get_messaging_threads",
   title: "Get messaging threads",
@@ -87,11 +128,12 @@ export const getMessagingThreadsTool = {
     openWorldHint: false,
   },
   inputSchema: GetMessagingThreadsSchema,
+  outputSchema: GetMessagingThreadsOutputSchema,
   execute: (params: z.infer<typeof GetMessagingThreadsSchema>) => {
     const { threadId, page, pageSize, searchTerm, filters, sortDescriptor } = params;
     if (threadId) {
       return runInteractor(getGetMessagingThreadInteractor().invoke({ threadId, page, pageSize }), (data) =>
-        encodeToToon(
+        toonResult(
           formatDatesInResponse({
             thread: {
               id: data.thread.id,
@@ -151,7 +193,7 @@ export const getMessagingThreadsTool = {
         }),
       ),
       (data) =>
-        encodeToToon(
+        toonResult(
           formatDatesInResponse({
             items: data.items.map((thread) => ({
               id: thread.id,
@@ -219,6 +261,7 @@ export const getActivitiesTool = {
     openWorldHint: false,
   },
   inputSchema: GetActivitiesSchema,
+  outputSchema: GetActivitiesOutputSchema,
   execute: ({ page, pageSize, scope, filters, sortDescriptor }: z.infer<typeof GetActivitiesSchema>) =>
     runInteractor(
       getGetActivitiesApiInteractor().invoke(
@@ -230,7 +273,7 @@ export const getActivitiesTool = {
         }),
       ),
       (data) =>
-        encodeToToon(
+        toonResult(
           formatDatesInResponse({
             availableSources: data.availableSources,
             items: data.items,
@@ -281,6 +324,7 @@ export const getCalendarsTool = {
     openWorldHint: false,
   },
   inputSchema: GetCalendarsToolSchema,
+  outputSchema: GetCalendarsOutputSchema,
   execute: async ({
     list,
     eventId,
@@ -297,7 +341,7 @@ export const getCalendarsTool = {
       if (!result.ok) return mcpInteractorFailure(result.error);
       if (!result.data) return customMcpFailure(CustomErrorCode.calendarEventNotFound);
 
-      return encodeToToon(formatDatesInResponse(result.data));
+      return toonResult({ ...formatDatesInResponse(result.data) });
     }
 
     const params = GetQueryParamsSchema.parse({
@@ -309,7 +353,7 @@ export const getCalendarsTool = {
 
     if (list === "events") {
       return runInteractor(getGetCalendarEventsApiInteractor().invoke(params), (data) =>
-        encodeToToon(
+        toonResult(
           formatDatesInResponse({
             items: data.items,
             total: data.pagination?.total ?? data.items.length,
@@ -320,7 +364,7 @@ export const getCalendarsTool = {
     }
 
     return runInteractor(getGetCalendarsApiInteractor().invoke(params), (data) =>
-      encodeToToon(
+      toonResult(
         formatDatesInResponse({
           items: data.items,
           total: data.pagination?.total ?? data.items.length,
@@ -362,18 +406,22 @@ export const sendChatMessageTool = {
     openWorldHint: true,
   },
   inputSchema: SendChatMessageToolSchema,
+  outputSchema: SendChatMessageOutputSchema,
   execute: async (params: z.infer<typeof SendChatMessageToolSchema>) => {
     const { threadId } = params;
     if (threadId) {
       return runInteractor(
         getSendChatMessageInteractor().invoke({ ...params, threadId }),
         () => `Message sent in thread ${threadId}`,
+        () => ({ sent: true, threadId }),
       );
     }
     const startChat = StartChatInputSchema.safeParse(params);
     if (!startChat.success) return mcpValidationFailure(startChat.error);
-    return runInteractor(getStartChatInteractor().invoke(startChat.data), (data) =>
-      data.threadId ? `Chat started, thread ${data.threadId}` : "Chat started",
+    return runInteractor(
+      getStartChatInteractor().invoke(startChat.data),
+      (data) => (data.threadId ? `Chat started, thread ${data.threadId}` : "Chat started"),
+      (data) => ({ sent: true, threadId: data.threadId ?? null }),
     );
   },
 };
@@ -394,11 +442,16 @@ export const sendEmailTool = {
     openWorldHint: true,
   },
   inputSchema: SendEmailSchema,
+  outputSchema: SendEmailOutputSchema,
   execute: (params: z.infer<typeof SendEmailSchema>) =>
-    runInteractor(getSendEmailInteractor().invoke(params), (data) => {
-      if (params.threadId) return `Reply sent in thread ${params.threadId}`;
-      return data?.messagingThreadId ? `Email sent, thread ${data.messagingThreadId}` : "Email sent";
-    }),
+    runInteractor(
+      getSendEmailInteractor().invoke(params),
+      (data) => {
+        if (params.threadId) return `Reply sent in thread ${params.threadId}`;
+        return data?.messagingThreadId ? `Email sent, thread ${data.messagingThreadId}` : "Email sent";
+      },
+      (data) => ({ sent: true, threadId: params.threadId ?? data?.messagingThreadId ?? null }),
+    ),
 };
 
 export const saveMessageDraftTool = {
@@ -417,9 +470,10 @@ export const saveMessageDraftTool = {
     openWorldHint: false,
   },
   inputSchema: SaveDraftSchema,
+  outputSchema: SaveDraftOutputSchema,
   execute: (params: z.infer<typeof SaveDraftSchema>) =>
     runInteractor(getSaveDraftInteractor().invoke(params), (data) =>
-      encodeToToon({
+      toonResult({
         draftMessageId: data.id,
         threadId: data.messagingThreadId,
       }),
@@ -441,9 +495,12 @@ export const discardMessageDraftTool = {
     openWorldHint: false,
   },
   inputSchema: DiscardDraftSchema,
+  outputSchema: DiscardDraftOutputSchema,
   execute: (params: z.infer<typeof DiscardDraftSchema>) =>
-    runInteractor(getDiscardDraftInteractor().invoke(params), (data) =>
-      data.threadId ? `Draft discarded from thread ${data.threadId}` : "No draft found for that message id",
+    runInteractor(
+      getDiscardDraftInteractor().invoke(params),
+      (data) => (data.threadId ? `Draft discarded from thread ${data.threadId}` : "No draft found for that message id"),
+      (data) => ({ discarded: Boolean(data.threadId), threadId: data.threadId ?? null }),
     ),
 };
 
@@ -468,8 +525,13 @@ export const updateMessagingThreadTool = {
     openWorldHint: false,
   },
   inputSchema: UpdateMessagingThreadSchema,
+  outputSchema: UpdateMessagingThreadOutputSchema,
   execute: (params: z.infer<typeof UpdateMessagingThreadSchema>) =>
-    runInteractor(getUpdateThreadInteractor().invoke(params), () => `Thread ${params.threadId} set to ${params.state}`),
+    runInteractor(
+      getUpdateThreadInteractor().invoke(params),
+      () => `Thread ${params.threadId} set to ${params.state}`,
+      () => ({ threadId: params.threadId, state: params.state }),
+    ),
 };
 
 const ConnectMessagingAccountSchema = z.object({
@@ -498,8 +560,9 @@ export const connectMessagingAccountTool = {
     openWorldHint: true,
   },
   inputSchema: ConnectMessagingAccountSchema,
+  outputSchema: ConnectMessagingAccountOutputSchema,
   execute: async (params: z.infer<typeof ConnectMessagingAccountSchema>) => {
     const result = await getCreateAuthLinkInteractor().invoke(params);
-    return isRedirect(result) ? encodeToToon({ url: result.redirect }) : mcpInteractorFailure(result.error);
+    return isRedirect(result) ? toonResult({ url: result.redirect }) : mcpInteractorFailure(result.error);
   },
 };

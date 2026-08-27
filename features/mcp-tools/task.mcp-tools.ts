@@ -1,13 +1,15 @@
 import { z } from "zod";
 
 import {
-  encodeToToon,
-  forbidNullFields,
-  runInteractor,
   CUSTOM_COLUMN_PREREQ,
   CUSTOM_FIELDS_MERGE_NOTE,
+  CreatedRecordsOutputSchema,
+  toonResult,
   IDEMPOTENT_NOTE,
+  UpdatedRecordsOutputSchema,
+  forbidNullFields,
   relationsViaLinkNote,
+  runInteractor,
 } from "./utils";
 
 import { getCreateManyTasksInteractor, getUpdateManyTasksInteractor } from "@/core/di";
@@ -48,9 +50,10 @@ export const createTasksTool = {
     " Returns the list of created task ids and names.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
   inputSchema: CreateTasksSchema,
+  outputSchema: CreatedRecordsOutputSchema,
   execute: (params: z.infer<typeof CreateTasksSchema>) =>
     runInteractor(getCreateManyTasksInteractor().invoke(params), (data) =>
-      encodeToToon({ items: data.map((item) => ({ id: item.id, name: item.name })) }),
+      toonResult({ items: data.map((item) => ({ id: item.id, name: item.name })) }),
     ),
 };
 
@@ -68,6 +71,11 @@ export const updateTasksTool = {
     IDEMPOTENT_NOTE,
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: UpdateTasksSchema,
+  outputSchema: UpdatedRecordsOutputSchema,
   execute: (params: z.infer<typeof UpdateTasksSchema>) =>
-    runInteractor(getUpdateManyTasksInteractor().invoke(params), (data) => `Updated ${data.length} task(s)`),
+    runInteractor(
+      getUpdateManyTasksInteractor().invoke(params),
+      (data) => `Updated ${data.length} task(s)`,
+      (data) => ({ updated: data.length }),
+    ),
 };

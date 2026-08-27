@@ -12,6 +12,7 @@ import {
   mcpValidationFailure,
   nestedCustomErrorText,
   nestedValidationErrorText,
+  toonResult,
 } from "./utils";
 
 import {
@@ -191,6 +192,12 @@ const ManageWidgetsSchema = z.object({
     .describe("activityTimeline create/update only. Show the activity count and active filters below the title."),
 });
 
+const ManageWidgetsOutputSchema = z.union([
+  z.object({ items: z.array(z.looseObject({ id: z.string() })) }),
+  z.looseObject({ id: z.string(), kind: z.string(), name: z.string() }),
+  z.object({ deleted: z.literal(true), id: z.string() }),
+]);
+
 export const manageWidgetsTool = {
   name: "manage_widgets",
   title: "Manage widgets",
@@ -211,13 +218,14 @@ export const manageWidgetsTool = {
     openWorldHint: false,
   },
   inputSchema: ManageWidgetsSchema,
+  outputSchema: ManageWidgetsOutputSchema,
   execute: async (params: z.infer<typeof ManageWidgetsSchema>) => {
     if (params.action === "list") {
       const parsed = ListWidgetsSchema.safeParse(params);
       if (!parsed.success) return mcpValidationFailure(parsed.error);
       const result = await getGetWidgetsInteractor().invoke();
       const widgets = result.data;
-      return encodeToToon({
+      return toonResult({
         items: widgets.map((widget) => ({
           id: widget.id,
           name: widget.name,
@@ -242,7 +250,8 @@ export const manageWidgetsTool = {
           return widget;
         }),
       );
-      return encodeToToon(formatDatesInResponse(results));
+      const detail = formatDatesInResponse(results);
+      return { text: encodeToToon(detail), structuredContent: { items: detail } };
     }
     if (params.action === "create") {
       const kind = params.kind ?? WidgetKind.chart;
@@ -278,7 +287,7 @@ export const manageWidgetsTool = {
               isTemplate: false,
             } satisfies UpsertChartWidgetData);
       return runInteractor(getUpsertWidgetInteractor().invoke(payload), (data) =>
-        encodeToToon({
+        toonResult({
           id: data.id,
           kind: data.kind,
           name: data.name,
@@ -317,7 +326,7 @@ export const manageWidgetsTool = {
         });
         if (!result.ok) return mcpInteractorFailure(result.error);
 
-        return encodeToToon({
+        return toonResult({
           id: result.data.id,
           kind: result.data.kind,
           name: result.data.name,
@@ -370,7 +379,7 @@ export const manageWidgetsTool = {
 
       if (!result.ok) return mcpInteractorFailure(result.error);
 
-      return encodeToToon({
+      return toonResult({
         id: result.data.id,
         kind: result.data.kind,
         name: result.data.name,
@@ -388,6 +397,9 @@ export const manageWidgetsTool = {
       id: parsed.data.id,
     });
     if (!result.ok) return mcpInteractorFailure(result.error);
-    return `Deleted widget ${parsed.data.id}`;
+    return {
+      text: `Deleted widget ${parsed.data.id}`,
+      structuredContent: { deleted: true, id: parsed.data.id },
+    };
   },
 };

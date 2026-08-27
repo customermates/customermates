@@ -6,11 +6,11 @@ import { EntityType, CustomColumnType, Currency } from "@/generated/prisma";
 
 import {
   customMcpFailure,
-  encodeToToon,
   enumHint,
   mcpInteractorFailure,
   mcpMessageFailure,
   mcpValidationFailure,
+  toonResult,
 } from "./utils";
 import type { McpToolFailureResult } from "./mcp-tool";
 
@@ -200,6 +200,12 @@ async function loadColumnOrError(
   return { ok: true, column: existing };
 }
 
+const ManageCustomColumnsOutputSchema = z.union([
+  z.object({ items: z.array(z.looseObject({ id: z.string(), label: z.string() })) }),
+  z.object({ id: z.string(), label: z.string(), message: z.string() }),
+  z.object({ deleted: z.literal(true), id: z.string() }),
+]);
+
 export const manageCustomColumnsTool = {
   name: "manage_custom_columns",
   title: "Manage custom columns",
@@ -216,6 +222,7 @@ export const manageCustomColumnsTool = {
     openWorldHint: false,
   },
   inputSchema: ManageCustomColumnsSchema,
+  outputSchema: ManageCustomColumnsOutputSchema,
   execute: async (params: z.infer<typeof ManageCustomColumnsSchema>) => {
     if (params.action === "list") {
       if (params.entityType) {
@@ -223,10 +230,10 @@ export const manageCustomColumnsTool = {
           entityType: params.entityType,
         });
         if (!byEntity.ok) return mcpInteractorFailure(byEntity.error);
-        return encodeToToon({ items: byEntity.data });
+        return toonResult({ items: byEntity.data });
       }
       const all = await getGetCustomColumnsInteractor().invoke();
-      return encodeToToon({ items: all.data });
+      return toonResult({ items: all.data });
     }
     if (params.action === "upsert") {
       const normalizedParams = params.intent === "create" && params.id === null ? { ...params, id: undefined } : params;
@@ -298,7 +305,7 @@ export const manageCustomColumnsTool = {
       }
       const result = await getUpsertCustomColumnInteractor().invoke(data as UpsertCustomColumnData);
       if (!result.ok) return mcpInteractorFailure(result.error);
-      return encodeToToon({
+      return toonResult({
         id: result.data.id,
         label: result.data.label,
         message: `Custom field "${result.data.label}" ${parsed.data.id ? "updated" : "created"} successfully`,
@@ -312,6 +319,9 @@ export const manageCustomColumnsTool = {
       id: parsed.data.id,
     });
     if (!result.ok) return mcpInteractorFailure(result.error);
-    return `Deleted custom column ${result.data}`;
+    return {
+      text: `Deleted custom column ${result.data}`,
+      structuredContent: { deleted: true, id: parsed.data.id },
+    };
   },
 };

@@ -2,7 +2,7 @@ import type { SocialPost, RelationRequest, SocialProfile } from "@/ee/messaging/
 
 import { z } from "zod";
 
-import { encodeToToon, formatDatesInResponse, mcpValidationFailure, runInteractor } from "./utils";
+import { formatDatesInResponse, mcpValidationFailure, runInteractor, toonResult } from "./utils";
 
 import { ListSocialPostsSchema } from "@/ee/messaging/posts/list-social-posts.interactor";
 import { GetSocialProfileSchema } from "@/ee/messaging/posts/get-social-profile.interactor";
@@ -251,6 +251,20 @@ function formatRelationRequest(request: RelationRequest) {
   };
 }
 
+const socialPageOutput = z.looseObject({
+  items: z.array(z.looseObject({})),
+  total: z.number(),
+  next_cursor: z.string().nullable(),
+});
+
+const GetSocialPostsOutputSchema = z.union([z.looseObject({ id: z.string() }), socialPageOutput]);
+const GetSocialPostEngagementOutputSchema = socialPageOutput;
+const GetSocialProfileOutputSchema = z.looseObject({ id: z.string().nullable().optional() });
+const ManageSocialRelationsOutputSchema = z.union([
+  socialPageOutput,
+  z.object({ invitationId: z.string().nullable(), status: z.string() }),
+]);
+
 export const getSocialPostsTool = {
   name: "get_social_posts",
   title: "Get social posts",
@@ -263,13 +277,14 @@ export const getSocialPostsTool = {
     "A nonexistent post id can surface as a generic provider error rather than a not-found message.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
   inputSchema: GetSocialPostsToolSchema,
+  outputSchema: GetSocialPostsOutputSchema,
   execute: (params: z.infer<typeof GetSocialPostsToolSchema>) => {
     if (params.postId !== undefined) {
       const parsed = GetSocialPostSchema.safeParse(params);
       if (!parsed.success) return mcpValidationFailure(parsed.error);
 
       return runInteractor(getGetSocialPostInteractor().invoke(parsed.data), (data) =>
-        encodeToToon(formatDatesInResponse(formatPost(data))),
+        toonResult({ ...formatDatesInResponse(formatPost(data)) }),
       );
     }
 
@@ -277,7 +292,7 @@ export const getSocialPostsTool = {
     if (!parsed.success) return mcpValidationFailure(parsed.error);
 
     return runInteractor(getListSocialPostsInteractor().invoke(parsed.data), (data) =>
-      encodeToToon(
+      toonResult(
         formatDatesInResponse({
           items: data.data.map(formatPost),
           total: data.total_count ?? data.data.length,
@@ -301,6 +316,7 @@ export const getSocialPostEngagementTool = {
     "A nonexistent post or comment id can surface as a generic provider error rather than a not-found message.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
   inputSchema: GetSocialPostEngagementToolSchema,
+  outputSchema: GetSocialPostEngagementOutputSchema,
   execute: (params: z.infer<typeof GetSocialPostEngagementToolSchema>) => {
     if (params.commentId) {
       return runInteractor(
@@ -313,7 +329,7 @@ export const getSocialPostEngagementTool = {
           limit: params.limit,
         }),
         (data) =>
-          encodeToToon(
+          toonResult(
             formatDatesInResponse({
               items: data.data.map(formatReaction),
               total: data.total_count ?? data.data.length,
@@ -332,7 +348,7 @@ export const getSocialPostEngagementTool = {
           limit: params.limit,
         }),
         (data) =>
-          encodeToToon(
+          toonResult(
             formatDatesInResponse({
               items: data.data.map(formatReaction),
               total: data.total_count ?? data.data.length,
@@ -351,7 +367,7 @@ export const getSocialPostEngagementTool = {
         limit: params.limit,
       }),
       (data) =>
-        encodeToToon(
+        toonResult(
           formatDatesInResponse({
             items: data.data.map((comment) => ({
               id: comment.id,
@@ -390,9 +406,10 @@ export const getSocialProfileTool = {
     "An invalid identifier returns a validation error without retrying the same value.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
   inputSchema: GetSocialProfileToolSchema,
+  outputSchema: GetSocialProfileOutputSchema,
   execute: (params: z.infer<typeof GetSocialProfileToolSchema>) =>
     runInteractor(getGetSocialProfileInteractor().invoke(params), (data) =>
-      encodeToToon(formatDatesInResponse(formatProfile(data, params.profileType))),
+      toonResult({ ...formatDatesInResponse(formatProfile(data, params.profileType)) }),
     ),
 };
 
@@ -408,6 +425,7 @@ export const manageSocialRelationsTool = {
     "Use get_workspace_context.connectedAccounts[].id as connectedAccountId. Paginate list with cursor or offset plus limit.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
   inputSchema: ManageSocialRelationsToolSchema,
+  outputSchema: ManageSocialRelationsOutputSchema,
   execute: (params: z.infer<typeof ManageSocialRelationsToolSchema>) => {
     if (params.action === "list") {
       return runInteractor(
@@ -419,7 +437,7 @@ export const manageSocialRelationsTool = {
           limit: params.limit,
         }),
         (data) =>
-          encodeToToon(
+          toonResult(
             formatDatesInResponse({
               items: data.data.map(formatRelationRequest),
               total: data.total_count ?? data.data.length,
@@ -437,7 +455,7 @@ export const manageSocialRelationsTool = {
           identifier: parsed.data.identifier,
           message: parsed.data.message,
         }),
-        (data) => encodeToToon({ invitationId: data.id ?? null, status: data.object ?? "sent" }),
+        (data) => toonResult({ invitationId: data.id ?? null, status: data.object ?? "sent" }),
       );
     }
     const parsed = RelationByInvitationSchema.safeParse(params);
@@ -448,7 +466,7 @@ export const manageSocialRelationsTool = {
           connectedAccountId: parsed.data.connectedAccountId,
           invitationId: parsed.data.invitationId,
         }),
-        (data) => encodeToToon({ invitationId: parsed.data.invitationId, status: data.object ?? "accepted" }),
+        (data) => toonResult({ invitationId: parsed.data.invitationId, status: data.object ?? "accepted" }),
       );
     }
     return runInteractor(
@@ -456,7 +474,7 @@ export const manageSocialRelationsTool = {
         connectedAccountId: parsed.data.connectedAccountId,
         invitationId: parsed.data.invitationId,
       }),
-      (data) => encodeToToon({ invitationId: parsed.data.invitationId, status: data.object ?? "canceled" }),
+      (data) => toonResult({ invitationId: parsed.data.invitationId, status: data.object ?? "canceled" }),
     );
   },
 };

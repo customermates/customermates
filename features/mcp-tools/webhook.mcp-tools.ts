@@ -12,6 +12,7 @@ import {
   customMcpFailure,
   filtersDescription,
   sortDescription,
+  toonResult,
 } from "./utils";
 
 import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
@@ -146,6 +147,17 @@ const ManageWebhooksSchema = z.object({
     .describe("Results per page: 5, 10, 25, or 100. Default 100 for list, 25 for list_deliveries."),
 });
 
+const ManageWebhooksOutputSchema = z.union([
+  z.object({
+    items: z.array(z.looseObject({ id: z.string() })),
+    total: z.number().optional(),
+    page: z.number().optional(),
+  }),
+  z.looseObject({ id: z.string(), url: z.string(), events: z.array(z.string()) }),
+  z.object({ deleted: z.literal(true), id: z.string() }),
+  z.object({ resentDeliveryId: z.string(), newDeliveryId: z.string() }),
+]);
+
 export const manageWebhooksTool = {
   name: "manage_webhooks",
   title: "Manage webhooks",
@@ -160,6 +172,7 @@ export const manageWebhooksTool = {
     "action resend_delivery re-sends a past delivery as a NEW delivery record; pass the delivery id from list_deliveries.",
   annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
   inputSchema: ManageWebhooksSchema,
+  outputSchema: ManageWebhooksOutputSchema,
   execute: async (params: z.infer<typeof ManageWebhooksSchema>) => {
     if (params.action === "list") {
       const parsed = ListWebhooksSchema.safeParse(params);
@@ -171,27 +184,27 @@ export const manageWebhooksTool = {
           sortDescriptor: parsed.data.sortDescriptor,
           pagination: { page: parsed.data.page, pageSize: parsed.data.pageSize },
         }),
-        (data) =>
-          encodeToToon(
-            formatDatesInResponse(
-              data.items.map((webhook) => ({
-                id: webhook.id,
-                url: webhook.url,
-                description: webhook.description,
-                events: webhook.events,
-                enabled: webhook.enabled,
-                createdAt: webhook.createdAt,
-                updatedAt: webhook.updatedAt,
-              })),
-            ),
-          ),
+        (data) => {
+          const items = formatDatesInResponse(
+            data.items.map((webhook) => ({
+              id: webhook.id,
+              url: webhook.url,
+              description: webhook.description,
+              events: webhook.events,
+              enabled: webhook.enabled,
+              createdAt: webhook.createdAt,
+              updatedAt: webhook.updatedAt,
+            })),
+          );
+          return { text: encodeToToon(items), structuredContent: { items } };
+        },
       );
     }
     if (params.action === "create") {
       const parsed = CreateWebhookSchema.safeParse(params);
       if (!parsed.success) return mcpValidationFailure(parsed.error);
       return runInteractor(getUpsertWebhookInteractor().invoke(parsed.data), (data) =>
-        encodeToToon({ id: data.id, url: data.url, description: data.description, events: data.events }),
+        toonResult({ id: data.id, url: data.url, description: data.description, events: data.events }),
       );
     }
     if (params.action === "update") {
@@ -207,7 +220,7 @@ export const manageWebhooksTool = {
           enabled: parsed.data.enabled,
         }),
         (data) =>
-          encodeToToon({
+          toonResult({
             id: data.id,
             url: data.url,
             description: data.description,
@@ -223,7 +236,7 @@ export const manageWebhooksTool = {
       if (!result.ok) return mcpInteractorFailure(result.error);
       const webhook = result.data;
       if (!webhook) return customMcpFailure(CustomErrorCode.webhookNotFound);
-      return encodeToToon(
+      return toonResult(
         formatDatesInResponse({
           id: webhook.id,
           url: webhook.url,
@@ -239,7 +252,11 @@ export const manageWebhooksTool = {
     if (params.action === "delete") {
       const parsed = DeleteWebhookSchema.safeParse(params);
       if (!parsed.success) return mcpValidationFailure(parsed.error);
-      return runInteractor(getDeleteWebhookInteractor().invoke(parsed.data), (data) => `Deleted webhook ${data}`);
+      return runInteractor(
+        getDeleteWebhookInteractor().invoke(parsed.data),
+        (data) => `Deleted webhook ${data}`,
+        () => ({ deleted: true, id: parsed.data.id }),
+      );
     }
     if (params.action === "list_deliveries") {
       const parsed = ListWebhookDeliveriesSchema.safeParse(params);
@@ -263,7 +280,7 @@ export const manageWebhooksTool = {
           pagination: { page: parsed.data.page, pageSize: parsed.data.pageSize },
         }),
         (data) =>
-          encodeToToon({
+          toonResult({
             items: formatDatesInResponse(data.items),
             total: data.pagination?.total ?? data.items.length,
             page: parsed.data.page,
@@ -275,6 +292,7 @@ export const manageWebhooksTool = {
     return runInteractor(
       getResendWebhookDeliveryInteractor().invoke({ id: parsed.data.id }),
       (data) => `Re-sent webhook delivery ${parsed.data.id} as new delivery ${data}`,
+      (data) => ({ resentDeliveryId: parsed.data.id, newDeliveryId: String(data) }),
     );
   },
 };

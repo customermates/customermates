@@ -309,6 +309,13 @@ export const searchDocsTool = {
   },
 };
 
+const GetDocsPageOutputSchema = z.object({
+  title: z.string(),
+  url: z.string(),
+  markdown: z.string().describe("The focused excerpt when query was passed, otherwise the full page"),
+  excerpt: z.boolean().describe("True when markdown is a query-focused excerpt rather than the full page"),
+});
+
 export const getDocsPageTool = {
   name: "get_docs_page",
   title: "Get documentation page",
@@ -318,6 +325,7 @@ export const getDocsPageTool = {
     "Pass query with the exact detail you need to put a bounded relevant excerpt first and avoid repeated page reads; omit query only when you need the full page. " +
     "Unknown slugs return the full list of valid slugs. Use search_docs first when you don't know the slug.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
+  outputSchema: GetDocsPageOutputSchema,
   inputSchema: z.object({
     slug: z.string().min(1).describe("Docs page slug, e.g. 'quickstart' or 'mcp-tool-catalog'"),
     query: z
@@ -348,10 +356,19 @@ export const getDocsPageTool = {
       return mcpMessageFailure(`Unknown ${source} page "${slug}" for locale "${locale}". Valid slugs: ${validSlugs}`);
     }
 
-    if (query) return [`# ${page.title}`, `URL: ${page.url}`, relevantDocsExcerpt(page.markdown, query)].join("\n");
+    if (query) {
+      const excerpt = relevantDocsExcerpt(page.markdown, query);
+      return {
+        text: [`# ${page.title}`, `URL: ${page.url}`, excerpt].join("\n"),
+        structuredContent: { title: page.title, url: page.url, markdown: excerpt, excerpt: true },
+      };
+    }
 
-    return [`# ${page.title}`, "", `> ${page.description}`, "", `Canonical URL: ${page.url}`, "", page.markdown].join(
-      "\n",
-    );
+    return {
+      text: [`# ${page.title}`, "", `> ${page.description}`, "", `Canonical URL: ${page.url}`, "", page.markdown].join(
+        "\n",
+      ),
+      structuredContent: { title: page.title, url: page.url, markdown: page.markdown, excerpt: false },
+    };
   },
 };

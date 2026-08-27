@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { mcpToolResultText } from "../mcp-tool";
 
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { MOCK_ENV_MODULE, createMockDiModule, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
@@ -42,7 +43,7 @@ describe("MCP notes round-trip for tables and images (regression for CUSTOMERMAT
       }),
     );
 
-    expect(typeof writeResult).toBe("string");
+    expect(typeof mcpToolResultText(writeResult)).toBe("string");
     expect(spies.updateManyContacts).toHaveBeenCalledTimes(1);
 
     const capturedJson = JSON.stringify(capturedNotes);
@@ -55,9 +56,9 @@ describe("MCP notes round-trip for tables and images (regression for CUSTOMERMAT
       getRecordsTool.inputSchema.parse({ items: [{ entity: "contact", id: CONTACT_ID, include: "withNotes" }] }),
     );
 
-    expect(typeof readResult).toBe("string");
-    expect(readResult).toContain("| Name | Role |");
-    expect(readResult).toContain("**CTO**");
-    expect(readResult).toContain("![logo](https://example.com/y.png)");
+    expect(typeof mcpToolResultText(readResult)).toBe("string");
+    expect(mcpToolResultText(readResult)).toContain("| Name | Role |");
+    expect(mcpToolResultText(readResult)).toContain("**CTO**");
+    expect(mcpToolResultText(readResult)).toContain("![logo](https://example.com/y.png)");
   });
 });

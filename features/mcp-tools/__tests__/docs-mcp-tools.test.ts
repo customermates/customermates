@@ -65,7 +65,7 @@ describe("search_docs", () => {
   it("keeps full ranked hits in structured content while bounding model-facing text", () => {
     const result = searchDocsTool.execute({ query: "webhook", locale: "en", source: "docs" });
 
-    expect(mcpToolResultText(result as McpToolResult).length).toBeLessThanOrEqual(500);
+    expect(mcpToolResultText(result).length).toBeLessThanOrEqual(500);
     expect(result).toMatchObject({ structuredContent: { total: expect.any(Number) } });
     const hits = (result as { structuredContent: { results: DocsSearchHit[] } }).structuredContent.results;
     expect(hits.slice(0, 2)).toEqual(
@@ -96,7 +96,7 @@ describe("get_docs_page", () => {
 
   it("lists valid slugs for an unknown slug", () => {
     const raw = getDocsPageTool.execute({ locale: "en", source: "docs", slug: "does-not-exist" });
-    const result = mcpToolResultText(raw as McpToolResult);
+    const result = mcpToolResultText(raw);
     expect(result.startsWith("Validation error:")).toBe(true);
     expect(result).toContain("quickstart");
     expect(raw).toMatchObject({ failure: { kind: "validation" } });

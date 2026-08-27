@@ -52,10 +52,10 @@ describe("update_workspace_settings", () => {
       country: "de",
       avatarUrl: "https://example.com/ada.png",
     });
-    expect(result).toContain("country: de");
-    expect(result).toContain("https://example.com/ada.png");
-    expect(result).not.toContain("firstName");
-    expect(result).not.toContain("lastName");
+    expect(mcpToolResultText(result)).toContain("country: de");
+    expect(mcpToolResultText(result)).toContain("https://example.com/ada.png");
+    expect(mcpToolResultText(result)).not.toContain("firstName");
+    expect(mcpToolResultText(result)).not.toContain("lastName");
   });
 
   it("reports only the profile name field that changed", async () => {
@@ -75,10 +75,10 @@ describe("update_workspace_settings", () => {
 
     const result = await updateWorkspaceSettingsTool.execute(input);
 
-    expect(result).toContain("firstName: Grace");
-    expect(result).not.toContain("lastName");
-    expect(result).not.toContain("country");
-    expect(result).not.toContain("avatarUrl");
+    expect(mcpToolResultText(result)).toContain("firstName: Grace");
+    expect(mcpToolResultText(result)).not.toContain("lastName");
+    expect(mcpToolResultText(result)).not.toContain("country");
+    expect(mcpToolResultText(result)).not.toContain("avatarUrl");
   });
 
   it("exposes the existing company terminology operation for onboarding", async () => {
@@ -98,10 +98,10 @@ describe("update_workspace_settings", () => {
     const result = await updateWorkspaceSettingsTool.execute(input);
 
     expect(spies.updateCompanySettings).toHaveBeenCalledWith({ terminology });
-    expect(result).toContain("Company settings updated");
-    expect(result).toContain("client");
-    expect(result).toContain("project");
-    expect(result).not.toContain("currency");
+    expect(mcpToolResultText(result)).toContain("Company settings updated");
+    expect(mcpToolResultText(result)).toContain("client");
+    expect(mcpToolResultText(result)).toContain("project");
+    expect(mcpToolResultText(result)).not.toContain("currency");
   });
 
   it("reports only a changed currency when terminology was omitted", async () => {
@@ -119,8 +119,8 @@ describe("update_workspace_settings", () => {
     expect(spies.updateCompanySettings).toHaveBeenCalledWith({
       currency: "eur",
     });
-    expect(result).toContain("currency: eur");
-    expect(result).not.toContain("terminology");
+    expect(mcpToolResultText(result)).toContain("currency: eur");
+    expect(mcpToolResultText(result)).not.toContain("terminology");
   });
 
   it("rejects an empty company update instead of reporting a no-op as success", async () => {

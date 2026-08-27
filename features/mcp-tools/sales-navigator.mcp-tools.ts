@@ -2,7 +2,7 @@ import type { SalesCompany, SalesList, SalesListItem } from "@/ee/messaging/sale
 
 import { z } from "zod";
 
-import { encodeToToon, formatDatesInResponse, mcpValidationFailure, runInteractor } from "./utils";
+import { formatDatesInResponse, mcpValidationFailure, runInteractor, toonResult } from "./utils";
 
 import { SalesCompanySchema } from "@/ee/messaging/sales-navigator/sales-navigator.schema";
 import { LinkedinListSalesListsSchema } from "@/ee/messaging/sales-navigator/linkedin-list-sales-lists.interactor";
@@ -166,6 +166,20 @@ function formatSalesCompany(company: SalesCompany) {
   return Object.fromEntries(Object.entries(fields).filter(([, value]) => value != null));
 }
 
+const salesPageOutput = z.looseObject({
+  items: z.array(z.looseObject({})),
+  total: z.number(),
+  next_offset: z.number().nullable(),
+});
+
+const SearchSalesLeadsOutputSchema = salesPageOutput;
+const SearchSalesCompaniesOutputSchema = salesPageOutput;
+const SalesSearchParametersOutputSchema = salesPageOutput;
+const ManageSalesListsOutputSchema = z.union([
+  salesPageOutput,
+  z.object({ listId: z.string(), providerId: z.string(), status: z.string() }),
+]);
+
 export const searchSalesLeadsTool = {
   name: "linkedin_search_sales_leads",
   title: "Search Sales Navigator leads",
@@ -179,9 +193,10 @@ export const searchSalesLeadsTool = {
     "Requires a connected LinkedIn account with an active Sales Navigator subscription; without one the provider rejects the call.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
   inputSchema: SearchSalesLeadsToolSchema,
+  outputSchema: SearchSalesLeadsOutputSchema,
   execute: (params: z.infer<typeof SearchSalesLeadsToolSchema>) => {
     const format = (data: { data: SalesListItem[]; total_count?: number | null }) =>
-      encodeToToon(
+      toonResult(
         formatDatesInResponse({
           items: data.data.map(formatSalesListItem),
           total: data.total_count ?? data.data.length,
@@ -224,9 +239,10 @@ export const searchSalesCompaniesTool = {
     "Requires a connected LinkedIn account with an active Sales Navigator subscription; without one the provider rejects the call.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
   inputSchema: SearchSalesCompaniesToolSchema,
+  outputSchema: SearchSalesCompaniesOutputSchema,
   execute: (params: z.infer<typeof SearchSalesCompaniesToolSchema>) => {
     const format = (data: { data: unknown[]; total_count?: number | null }) =>
-      encodeToToon(
+      toonResult(
         formatDatesInResponse({
           items: data.data.map((item) => formatSalesCompany(SalesCompanySchema.parse(item))),
           total: data.total_count ?? data.data.length,
@@ -269,6 +285,7 @@ export const getSalesSearchParametersTool = {
     "Requires a connected LinkedIn account with an active Sales Navigator subscription.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
   inputSchema: GetSalesSearchParametersToolSchema,
+  outputSchema: SalesSearchParametersOutputSchema,
   execute: (params: z.infer<typeof GetSalesSearchParametersToolSchema>) =>
     runInteractor(
       getLinkedinListSalesSearchParametersInteractor().invoke({
@@ -279,7 +296,7 @@ export const getSalesSearchParametersTool = {
         limit: params.limit,
       }),
       (data) =>
-        encodeToToon(
+        toonResult(
           formatDatesInResponse({
             items: data.data.map((parameter) => ({ id: parameter.id, name: parameter.name })),
             total: data.total_count ?? data.data.length,
@@ -302,6 +319,7 @@ export const manageSalesListsTool = {
     "Requires a connected LinkedIn account with an active Sales Navigator subscription.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
   inputSchema: ManageSalesListsToolSchema,
+  outputSchema: ManageSalesListsOutputSchema,
   execute: (params: z.infer<typeof ManageSalesListsToolSchema>) => {
     if (params.action === "list") {
       return runInteractor(
@@ -312,7 +330,7 @@ export const manageSalesListsTool = {
           limit: params.limit,
         }),
         (data) =>
-          encodeToToon(
+          toonResult(
             formatDatesInResponse({
               items: data.data.map(formatSalesList),
               total: data.total_count ?? data.data.length,
@@ -325,7 +343,7 @@ export const manageSalesListsTool = {
       const parsed = LinkedinBrowseSalesListSchema.safeParse(params);
       if (!parsed.success) return mcpValidationFailure(parsed.error);
       return runInteractor(getLinkedinBrowseSalesListInteractor().invoke(parsed.data), (data) =>
-        encodeToToon(
+        toonResult(
           formatDatesInResponse({
             items: data.data.map(formatSalesListItem),
             total: data.total_count ?? data.data.length,
@@ -337,7 +355,7 @@ export const manageSalesListsTool = {
     const parsed = LinkedinSaveToSalesListSchema.safeParse(params);
     if (!parsed.success) return mcpValidationFailure(parsed.error);
     return runInteractor(getLinkedinSaveToSalesListInteractor().invoke(parsed.data), (data) =>
-      encodeToToon({ listId: parsed.data.listId, providerId: parsed.data.providerId, status: data.object ?? "saved" }),
+      toonResult({ listId: parsed.data.listId, providerId: parsed.data.providerId, status: data.object ?? "saved" }),
     );
   },
 };

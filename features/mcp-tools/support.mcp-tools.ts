@@ -9,6 +9,8 @@ export const RequestSupportSchema = z.object({
   body: z.string().min(1).max(10000).describe("The full question or problem description, including relevant context."),
 });
 
+const RequestSupportOutputSchema = z.object({ accepted: z.literal(true) });
+
 export const requestSupportTool = {
   name: "request_support",
   title: "Request support",
@@ -24,10 +26,12 @@ export const requestSupportTool = {
     openWorldHint: true,
   },
   inputSchema: RequestSupportSchema,
+  outputSchema: RequestSupportOutputSchema,
   execute: (params: z.infer<typeof RequestSupportSchema>) =>
     runInteractor(
       getCreateSupportTicketInteractor().invoke(params),
       () =>
         "Support request email accepted for delivery. The Customermates team will reply to the email address on your account.",
+      () => ({ accepted: true }),
     ),
 };

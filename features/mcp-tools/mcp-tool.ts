@@ -1,4 +1,5 @@
 import { z } from "zod";
+import * as Sentry from "@sentry/nextjs";
 import { getTranslations } from "next-intl/server";
 
 import { AppErrorCode, appErrorDetailsInCauseChain } from "@/core/errors/app-errors";
@@ -124,6 +125,22 @@ export async function expectedMcpToolFailure(error: unknown): Promise<McpToolExe
   return { ok: false, result: failure.text, failure: failure.failure };
 }
 
+function conformingStructuredContent(
+  tool: McpTool,
+  structuredContent: Record<string, unknown> | undefined,
+): Record<string, unknown> | undefined {
+  if (!structuredContent || !tool.outputSchema) return structuredContent;
+  const parsed = tool.outputSchema.safeParse(structuredContent);
+  if (parsed.success) return structuredContent;
+  Sentry.captureException(
+    new Error(`The ${tool.name} structured content does not match its declared output schema.`, {
+      cause: parsed.error,
+    }),
+    { tags: { kind: "mcp-output-schema-mismatch", tool: tool.name } },
+  );
+  return undefined;
+}
+
 export async function executeMcpTool(tool: McpTool, args: unknown[]): Promise<McpToolExecutionResult> {
   try {
     const raw = await (tool.execute as (...values: unknown[]) => Promise<McpToolResult> | McpToolResult)(...args);
@@ -134,7 +151,7 @@ export async function executeMcpTool(tool: McpTool, args: unknown[]): Promise<Mc
     return {
       ok: true,
       result: raw.text,
-      structuredContent: raw.structuredContent,
+      structuredContent: conformingStructuredContent(tool, raw.structuredContent),
     };
   } catch (error) {
     const expected = await expectedMcpToolFailure(error);
