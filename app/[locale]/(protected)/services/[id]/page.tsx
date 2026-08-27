@@ -3,9 +3,10 @@ import { EntityType, Resource } from "@/generated/prisma";
 
 import { EntityDetailPageView } from "@/components/entity-detail/entity-detail-page-view";
 
-import { getGetActivitiesInteractor, getGetP13nInteractor, getGetServiceByIdInteractor } from "@/core/di";
+import { getGetActivitiesInteractor, getGetServiceByIdInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
 import { ACTIVITIES_P13N_ID } from "@/features/messaging/activities/activities.store";
+import { getOptionalP13n } from "@/features/p13n/next/get-optional-p13n";
 import { SERVICE_DETAIL_P13N_ID } from "../components/service-detail-personalization";
 
 type Props = {
@@ -17,14 +18,14 @@ export default async function ServiceDetailPage({ params }: Props) {
 
   const { id } = await params;
 
-  const [entityResult, timelineResult, personalizationResult] = await Promise.all([
+  const [entityResult, timelineResult, personalizationInitial] = await Promise.all([
     getGetServiceByIdInteractor().invoke({ id }),
     getGetActivitiesInteractor().invoke({
       scope: activityScopeForRecord(EntityType.service, id),
       pagination: { page: 1, pageSize: 25 },
       p13nId: ACTIVITIES_P13N_ID,
     }),
-    getGetP13nInteractor().invoke({ p13nId: SERVICE_DETAIL_P13N_ID }),
+    getOptionalP13n(SERVICE_DETAIL_P13N_ID),
   ]);
   const entity = entityResult.ok ? entityResult.data.service : null;
 
@@ -33,7 +34,7 @@ export default async function ServiceDetailPage({ params }: Props) {
       entityInitial={entity && entityResult.ok ? { entity, customColumns: entityResult.data.customColumns } : null}
       entityType={EntityType.service}
       id={id}
-      personalizationInitial={personalizationResult.ok ? personalizationResult.data : null}
+      personalizationInitial={personalizationInitial}
       timelineInitial={
         timelineResult.ok
           ? timelineResult.data

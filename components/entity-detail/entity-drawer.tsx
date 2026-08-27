@@ -67,7 +67,10 @@ export const EntityDrawer = observer(() => {
     const personalizationLoad = p13nId
       ? getP13nAction({ p13nId })
           .then((result) => (result.ok ? (result.data ?? null) : null))
-          .catch(() => null)
+          .catch((error) => {
+            reportApplicationError(error);
+            return null;
+          })
       : Promise.resolve(null);
     let active = true;
     void Promise.allSettled([entityLoad, personalizationLoad])

@@ -313,7 +313,6 @@
       "usage": "{pct}% of monthly hosted AI credits used",
       "viewPlans": "View plans"
     },
-    "demoUnavailable": "The Assistant is unavailable in the demo.",
     "errors": {
       "approvalFailed": "The approval could not be delivered.",
       "limitReached": "Not enough AI credits remain to start another request.",
@@ -645,10 +644,12 @@
       "back": "Back to chat",
       "cancel": "Cancel",
       "chats": "Chats",
+      "copyTable": "Copy table",
       "deleteChat": "Delete chat",
       "deleteChatBody": "This permanently deletes the chat’s messages, approvals, and assistant actions. AI usage and billing records and CRM records created through the chat remain. Support emails already sent are not recalled.",
       "deleteChatTitle": "Permanently delete this chat?",
       "deletePermanently": "Delete permanently",
+      "downloadTable": "Download table",
       "editQueued": "Edit queued message",
       "history": "Chat history",
       "jumpToLatest": "Jump to latest",
@@ -667,6 +668,7 @@
       "restore": "Restore",
       "retryTurn": "Try again",
       "stepsTook": "{steps, plural, one {# step} other {# steps}} · {seconds}s",
+      "tableCopied": "Table copied",
       "thinking": "Thinking",
       "turnFailed": "This response couldn’t be completed.",
       "undo": "Undo",

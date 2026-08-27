@@ -313,7 +313,6 @@
       "usage": "{pct} % des crédits IA hébergés mensuels utilisés",
       "viewPlans": "Voir les formules"
     },
-    "demoUnavailable": "L’assistant n’est pas disponible dans la démo.",
     "errors": {
       "approvalFailed": "L’approbation n’a pas pu être transmise.",
       "limitReached": "Il ne reste pas assez de crédits IA pour lancer une autre demande.",
@@ -645,10 +644,12 @@
       "back": "Retour au chat",
       "cancel": "Annuler",
       "chats": "Discussions",
+      "copyTable": "Copier le tableau",
       "deleteChat": "Supprimer la discussion",
       "deleteChatBody": "Cette action supprime définitivement les messages, les approbations et les actions de l’assistant de cette discussion. Les données d’utilisation et de facturation de l’IA ainsi que les enregistrements CRM créés via la discussion sont conservés. Les e-mails d’assistance déjà envoyés ne sont pas rappelés.",
       "deleteChatTitle": "Supprimer définitivement ce chat ?",
       "deletePermanently": "Supprimer définitivement",
+      "downloadTable": "Télécharger le tableau",
       "editQueued": "Modifier le message en attente",
       "history": "Historique des chats",
       "jumpToLatest": "Aller aux derniers messages",
@@ -667,6 +668,7 @@
       "restore": "Restaurer",
       "retryTurn": "Réessayer",
       "stepsTook": "{steps, plural, one {# étape} other {# étapes}} · {seconds}s",
+      "tableCopied": "Tableau copié",
       "thinking": "Réflexion",
       "turnFailed": "Cette réponse n’a pas pu être terminée.",
       "undo": "Annuler",

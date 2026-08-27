@@ -29,6 +29,7 @@ const harness = vi.hoisted(() => {
     getP13nAction: vi.fn(),
     personalization: vi.fn(() => ({ p13nId: "contact-detail", defaultStarredFieldIds: [] })),
     popTop: vi.fn(),
+    reportApplicationError: vi.fn(),
     rootStore,
     store,
   };
@@ -108,7 +109,7 @@ vi.mock("@/components/ui/button", () => ({
   Button: ({ children }: { children?: ReactNode }) => createElement("button", null, children),
 }));
 vi.mock("@/core/errors/report-application-error", () => ({
-  reportApplicationError: vi.fn(),
+  reportApplicationError: harness.reportApplicationError,
   runUserAction: (action: () => unknown) => action(),
 }));
 
@@ -193,7 +194,8 @@ describe("EntityDrawer personalization", () => {
   });
 
   it("falls back to source order when the optional preference read fails", async () => {
-    harness.getP13nAction.mockRejectedValue(new Error("unavailable"));
+    const error = new Error("unavailable");
+    harness.getP13nAction.mockRejectedValue(error);
     const container = document.createElement("div");
     document.body.append(container);
     const root = createRoot(container);
@@ -209,6 +211,7 @@ describe("EntityDrawer personalization", () => {
 
     expect(provider?.dataset.initialOrder).toBeUndefined();
     expect(container.querySelector('[data-detail-view][data-layout="drawer"]')).not.toBeNull();
+    expect(harness.reportApplicationError).toHaveBeenCalledWith(error);
   });
 
   it("cannot apply a late preference response after the active user changes", async () => {

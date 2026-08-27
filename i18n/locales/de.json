@@ -313,7 +313,6 @@
       "usage": "{pct} % der monatlichen gehosteten KI-Credits verbraucht",
       "viewPlans": "Tarife ansehen"
     },
-    "demoUnavailable": "Der Assistent ist in der Demo nicht verfügbar.",
     "errors": {
       "approvalFailed": "Die Freigabe konnte nicht übermittelt werden.",
       "limitReached": "Es sind nicht genügend KI-Credits übrig, um eine weitere Anfrage zu starten.",
@@ -645,10 +644,12 @@
       "back": "Zurück zum Chat",
       "cancel": "Abbrechen",
       "chats": "Chats",
+      "copyTable": "Tabelle kopieren",
       "deleteChat": "Chat löschen",
       "deleteChatBody": "Nachrichten, Freigaben und Assistentenaktionen dieses Chats werden endgültig gelöscht. KI-Nutzungs- und Abrechnungsdaten sowie über den Chat erstellte CRM-Einträge bleiben erhalten. Bereits gesendete Support-E-Mails werden nicht zurückgerufen.",
       "deleteChatTitle": "Chat endgültig löschen?",
       "deletePermanently": "Endgültig löschen",
+      "downloadTable": "Tabelle herunterladen",
       "editQueued": "Vorgemerkte Nachricht bearbeiten",
       "history": "Chatverlauf",
       "jumpToLatest": "Zu den neuesten Nachrichten",
@@ -667,6 +668,7 @@
       "restore": "Wiederherstellen",
       "retryTurn": "Erneut versuchen",
       "stepsTook": "{steps, plural, one {# Schritt} other {# Schritte}} · {seconds}s",
+      "tableCopied": "Tabelle kopiert",
       "thinking": "Denkt nach",
       "turnFailed": "Diese Antwort konnte nicht abgeschlossen werden.",
       "undo": "Rückgängig",
