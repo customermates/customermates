@@ -89,6 +89,14 @@ describe("MCP tool description quality", () => {
     expect(missing).toEqual([]);
   });
 
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps every output schema an object so the MCP wire can carry it", async () => {
+    const { z } = await import("zod");
+    const nonObject = (await loadRegistry())
+      .filter((tool) => tool.outputSchema && !(tool.outputSchema instanceof z.ZodObject))
+      .map((tool) => tool.name);
+    expect(nonObject, "tools/list silently drops a non-object outputSchema (unions cannot be registered)").toEqual([]);
+  });
+
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps every description above the floor and every connector stub pointing at the real tool", async () => {
     const violations: string[] = [];
     for (const tool of await loadRegistry()) {

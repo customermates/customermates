@@ -257,13 +257,23 @@ const socialPageOutput = z.looseObject({
   next_cursor: z.string().nullable(),
 });
 
-const GetSocialPostsOutputSchema = z.union([z.looseObject({ id: z.string() }), socialPageOutput]);
+const GetSocialPostsOutputSchema = z.looseObject({
+  id: z.string().optional().describe("Present on single-post mode"),
+  items: z.array(z.looseObject({})).optional(),
+  total: z.number().optional(),
+  next_cursor: z.string().nullable().optional(),
+});
 const GetSocialPostEngagementOutputSchema = socialPageOutput;
 const GetSocialProfileOutputSchema = z.looseObject({ id: z.string().nullable().optional() });
-const ManageSocialRelationsOutputSchema = z.union([
-  socialPageOutput,
-  z.object({ invitationId: z.string().nullable(), status: z.string() }),
-]);
+const ManageSocialRelationsOutputSchema = z
+  .looseObject({
+    items: z.array(z.looseObject({})).optional(),
+    total: z.number().optional(),
+    next_cursor: z.string().nullable().optional(),
+    invitationId: z.string().nullable().optional(),
+    status: z.string().optional(),
+  })
+  .describe("action list returns the page fields; invite, accept and cancel return invitationId and status.");
 
 export const getSocialPostsTool = {
   name: "get_social_posts",

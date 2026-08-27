@@ -192,11 +192,17 @@ const ManageWidgetsSchema = z.object({
     .describe("activityTimeline create/update only. Show the activity count and active filters below the title."),
 });
 
-const ManageWidgetsOutputSchema = z.union([
-  z.object({ items: z.array(z.looseObject({ id: z.string() })) }),
-  z.looseObject({ id: z.string(), kind: z.string(), name: z.string() }),
-  z.object({ deleted: z.literal(true), id: z.string() }),
-]);
+const ManageWidgetsOutputSchema = z
+  .looseObject({
+    items: z.array(z.looseObject({ id: z.string() })).optional(),
+    id: z.string().optional(),
+    kind: z.string().optional(),
+    name: z.string().optional(),
+    deleted: z.literal(true).optional(),
+  })
+  .describe(
+    "action list and get return items or the widget fields; create and update return id, kind and name; delete returns deleted and id.",
+  );
 
 export const manageWidgetsTool = {
   name: "manage_widgets",

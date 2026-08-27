@@ -175,10 +175,16 @@ const salesPageOutput = z.looseObject({
 const SearchSalesLeadsOutputSchema = salesPageOutput;
 const SearchSalesCompaniesOutputSchema = salesPageOutput;
 const SalesSearchParametersOutputSchema = salesPageOutput;
-const ManageSalesListsOutputSchema = z.union([
-  salesPageOutput,
-  z.object({ listId: z.string(), providerId: z.string(), status: z.string() }),
-]);
+const ManageSalesListsOutputSchema = z
+  .looseObject({
+    items: z.array(z.looseObject({})).optional(),
+    total: z.number().optional(),
+    next_offset: z.number().nullable().optional(),
+    listId: z.string().optional(),
+    providerId: z.string().optional(),
+    status: z.string().optional(),
+  })
+  .describe("list and browse return the page fields; save returns listId, providerId and status.");
 
 export const searchSalesLeadsTool = {
   name: "linkedin_search_sales_leads",

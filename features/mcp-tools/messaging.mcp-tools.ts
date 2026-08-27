@@ -80,15 +80,13 @@ const linkedParticipantOutput = z.looseObject({
   contact: z.object({ id: z.string(), name: z.string().nullable() }).nullable(),
 });
 
-const GetMessagingThreadsOutputSchema = z.union([
-  z.looseObject({
-    thread: z.looseObject({ id: z.string(), participants: z.array(linkedParticipantOutput) }),
-    messages: z.array(z.looseObject({ id: z.string(), isDraft: z.boolean().optional() })),
-  }),
-  z.looseObject({
-    items: z.array(z.looseObject({ id: z.string(), participants: z.array(linkedParticipantOutput) })),
-  }),
-]);
+const GetMessagingThreadsOutputSchema = z
+  .looseObject({
+    thread: z.looseObject({ id: z.string(), participants: z.array(linkedParticipantOutput) }).optional(),
+    messages: z.array(z.looseObject({ id: z.string(), isDraft: z.boolean().optional() })).optional(),
+    items: z.array(z.looseObject({ id: z.string(), participants: z.array(linkedParticipantOutput) })).optional(),
+  })
+  .describe("Detail mode returns thread plus messages; list mode returns items.");
 
 const GetActivitiesOutputSchema = z.looseObject({
   availableSources: z.unknown(),
@@ -99,10 +97,14 @@ const GetActivitiesOutputSchema = z.looseObject({
   page: z.number(),
 });
 
-const GetCalendarsOutputSchema = z.union([
-  z.looseObject({ items: z.array(z.looseObject({})), total: z.number(), page: z.number() }),
-  z.looseObject({ id: z.string() }).describe("Event detail when eventId is set"),
-]);
+const GetCalendarsOutputSchema = z
+  .looseObject({
+    items: z.array(z.looseObject({})).optional(),
+    total: z.number().optional(),
+    page: z.number().optional(),
+    id: z.string().optional().describe("Present on event detail when eventId is set"),
+  })
+  .describe("List modes return items with total and page; eventId returns the event fields at the top level.");
 
 const SendChatMessageOutputSchema = z.object({ sent: z.literal(true), threadId: z.string().nullable() });
 const SendEmailOutputSchema = z.object({ sent: z.literal(true), threadId: z.string().nullable() });

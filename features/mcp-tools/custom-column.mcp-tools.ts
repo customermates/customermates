@@ -200,11 +200,15 @@ async function loadColumnOrError(
   return { ok: true, column: existing };
 }
 
-const ManageCustomColumnsOutputSchema = z.union([
-  z.object({ items: z.array(z.looseObject({ id: z.string(), label: z.string() })) }),
-  z.object({ id: z.string(), label: z.string(), message: z.string() }),
-  z.object({ deleted: z.literal(true), id: z.string() }),
-]);
+const ManageCustomColumnsOutputSchema = z
+  .looseObject({
+    items: z.array(z.looseObject({ id: z.string(), label: z.string() })).optional(),
+    id: z.string().optional(),
+    label: z.string().optional(),
+    message: z.string().optional(),
+    deleted: z.literal(true).optional(),
+  })
+  .describe("action list returns items; upsert returns id, label and message; delete returns deleted and id.");
 
 export const manageCustomColumnsTool = {
   name: "manage_custom_columns",
