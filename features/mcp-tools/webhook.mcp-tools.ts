@@ -147,16 +147,21 @@ const ManageWebhooksSchema = z.object({
     .describe("Results per page: 5, 10, 25, or 100. Default 100 for list, 25 for list_deliveries."),
 });
 
-const ManageWebhooksOutputSchema = z.union([
-  z.object({
-    items: z.array(z.looseObject({ id: z.string() })),
+const ManageWebhooksOutputSchema = z
+  .looseObject({
+    items: z.array(z.looseObject({ id: z.string() })).optional(),
     total: z.number().optional(),
     page: z.number().optional(),
-  }),
-  z.looseObject({ id: z.string(), url: z.string(), events: z.array(z.string()) }),
-  z.object({ deleted: z.literal(true), id: z.string() }),
-  z.object({ resentDeliveryId: z.string(), newDeliveryId: z.string() }),
-]);
+    id: z.string().optional(),
+    url: z.string().optional(),
+    events: z.array(z.string()).optional(),
+    deleted: z.literal(true).optional(),
+    resentDeliveryId: z.string().optional(),
+    newDeliveryId: z.string().optional(),
+  })
+  .describe(
+    "list and list_deliveries return items; get, create and update return the webhook fields; delete returns deleted and id; resend_delivery returns the delivery ids.",
+  );
 
 export const manageWebhooksTool = {
   name: "manage_webhooks",

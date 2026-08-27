@@ -72,10 +72,15 @@ const ProfileWorkspaceSettingsSchema = UpdateUserDetailsSchema.pick({
 );
 
 const UpdateWorkspaceSettingsOutputSchema = z.looseObject({ message: z.string() });
-const ManageTeamOutputSchema = z.union([
-  z.object({ sent: z.number(), message: z.string() }),
-  z.looseObject({ email: z.string(), roleId: z.string().nullable(), status: z.string(), message: z.string() }),
-]);
+const ManageTeamOutputSchema = z
+  .looseObject({
+    sent: z.number().optional(),
+    email: z.string().optional(),
+    roleId: z.string().nullable().optional(),
+    status: z.string().optional(),
+    message: z.string(),
+  })
+  .describe("action invite returns sent and message; update_member returns email, roleId, status and message.");
 
 export const updateWorkspaceSettingsTool = {
   name: "update_workspace_settings",
