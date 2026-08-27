@@ -1,7 +1,6 @@
 import "@/styles/globals.css";
 
 import type { Metadata, Viewport } from "next";
-import Script from "next/script";
 
 import { getLocale, getMessages } from "next-intl/server";
 import { cookies } from "next/headers";
@@ -114,16 +113,6 @@ export default async function RootLayout({ children }: Props) {
             {children}
           </NavigationSwitch>
         </Providers>
-
-        {env.APP_MODE === "cloud" ? (
-          <>
-            <Script id="lemon-squeezy-affiliate-config" strategy="beforeInteractive">
-              {`window.lemonSqueezyAffiliateConfig = { store: "customermates" };`}
-            </Script>
-
-            <Script defer src="https://lmsqueezy.com/affiliate.js" strategy="beforeInteractive" />
-          </>
-        ) : null}
       </body>
     </html>
   );

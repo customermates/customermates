@@ -237,16 +237,23 @@ describe("managed service and independent self-hosting stay separated", () => {
 
     expect(text).toMatch(
       name === "en"
-        ? /standard affiliate (?:tracking )?script.*managed cloud service/i
-        : /Standard-Affiliate-(?:Tracking-)?Skript.*verwalteten Cloud-Dienst/i,
+        ? /standard affiliate (?:tracking )?script.*managed-cloud public content pages/i
+        : /verwalteten öffentlichen Cloud-Inhaltsseiten.*standardmäßige Affiliate-Tracking-Skript/i,
     );
     expect(text).toContain("ls_aff_ref");
     expect(text).toMatch(name === "en" ? /browser-derived visitor identifier/i : /Browsermerkmalen abgeleitete Besucherkennung/i);
-    expect(text).toMatch(name === "en" ? /upstream self-hosted application does not load/i : /vorgelagerte Self-Hosted-Anwendung lädt.*nicht/i);
+    expect(text).toMatch(name === "en" ? /upstream self-hosted routes do not load/i : /vorgelagerte Self-Hosted-Routen laden.*nicht/i);
+    expect(affiliate(name)).toMatch(
+      name === "en" ? /name: Tracking on customermates\.com\s+source: Enabled/i : /name: Tracking auf customermates\.com\s+source: Aktiv/i,
+    );
+    expect(affiliate(name)).not.toMatch(name === "en" ? /source: Disabled/i : /source: Deaktiviert/i);
     expect(affiliate(name)).toMatch(
       name === "en" ? /registration link opens Lemon Squeezy's hosted website/i : /Partnerregistrierung öffnet.*Lemon Squeezy/i,
     );
     expect(affiliate(name)).not.toMatch(name === "en" ? /30 days/i : /30 Tage/i);
+    expect(affiliate(name)).not.toMatch(
+      name === "en" ? /monthly payouts from €9|source: Monthly|Every month automatically/i : /monatliche Auszahlung|source: Monatlich|Jeden Monat automatisch/i,
+    );
   });
 
   it("loads the standard affiliate integration and only cookieless analytics on managed static content", () => {
@@ -269,10 +276,13 @@ describe("managed service and independent self-hosting stay separated", () => {
     const rootLayout = readFileSync(join(REPO_ROOT, "app/layout.tsx"), "utf8");
     const staticLayout = readFileSync(join(REPO_ROOT, "app/[locale]/(static)/layout.tsx"), "utf8");
 
-    expect(affiliateFiles).toEqual(["app/layout.tsx"]);
-    expect(rootLayout).toContain('env.APP_MODE === "cloud"');
-    expect(rootLayout).toContain('window.lemonSqueezyAffiliateConfig = { store: "customermates" };');
-    expect(rootLayout).toContain('src="https://lmsqueezy.com/affiliate.js"');
+    expect(affiliateFiles).toEqual(["app/[locale]/(static)/layout.tsx"]);
+    expect(rootLayout).not.toContain("lemonSqueezyAffiliateConfig");
+    expect(rootLayout).not.toContain("lmsqueezy.com/affiliate.js");
+    expect(staticLayout).toContain('env.APP_MODE === "cloud"');
+    expect(staticLayout).toContain('window.lemonSqueezyAffiliateConfig = { store: "customermates" };');
+    expect(staticLayout).toContain('src="https://lmsqueezy.com/affiliate.js"');
+    expect(staticLayout.match(/strategy="beforeInteractive"/g)).toHaveLength(2);
     expect(runtime.match(/lmsqueezy\.com\/affiliate\.js/g)).toHaveLength(1);
     expect(runtime.match(/lemonSqueezyAffiliateConfig/g)).toHaveLength(1);
     expect(runtime).not.toContain("ls_aff_ref");
@@ -282,7 +292,7 @@ describe("managed service and independent self-hosting stay separated", () => {
     expect(runtime).not.toContain("@next/third-parties/google");
     expect(runtime).not.toMatch(/\b(?:GoogleAnalytics|GoogleTagManager|sendGAEvent|gtag)\b/);
     expect(analyticsFiles).toEqual(["app/[locale]/(static)/layout.tsx"]);
-    expect(staticLayout).toContain('env.APP_MODE === "cloud" ? <Analytics /> : null');
+    expect(staticLayout).toContain("<Analytics />");
   });
 });
 
