@@ -44,6 +44,18 @@ type AvatarItem = {
   email?: string | null;
 };
 
+type AvatarSummaryValueProps =
+  | {
+      entityType: EntityType;
+      items: readonly AvatarItem[];
+      onItemClick?: never;
+    }
+  | {
+      entityType?: never;
+      items: readonly AvatarItem[];
+      onItemClick: (item: AvatarItem) => void;
+    };
+
 export function previewItems<T extends { id: string }>(
   preview: EntityDetailPreviewItem[] | undefined,
   fallback: readonly T[],
@@ -65,13 +77,7 @@ export function EntityDetailChipSummaryValue({ entityType, items }: { entityType
   return <AppChipStack chipHref={(item) => entityHref(entityType, item.id)} items={items} />;
 }
 
-export function EntityDetailAvatarSummaryValue({
-  items,
-  entityType,
-}: {
-  items: readonly AvatarItem[];
-  entityType?: EntityType;
-}) {
+export function EntityDetailAvatarSummaryValue({ items, entityType, onItemClick }: AvatarSummaryValueProps) {
   const entityHref = useEntityHref();
 
   return items.length > 0 ? (
@@ -79,6 +85,7 @@ export function EntityDetailAvatarSummaryValue({
       avatarHref={entityType ? (item) => entityHref(entityType, item.id) : undefined}
       items={[...items]}
       size="default"
+      onAvatarClick={onItemClick}
     />
   ) : (
     "—"

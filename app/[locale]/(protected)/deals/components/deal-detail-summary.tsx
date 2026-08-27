@@ -16,6 +16,7 @@ import { useColumnLabel } from "@/components/entity-terminology/use-column-label
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 import { DEAL_DETAIL_FIELD } from "./deal-detail-personalization";
 
@@ -25,7 +26,7 @@ export const DealDetailSummary = observer(function DealDetailSummary() {
   const columnLabel = useColumnLabel();
   const intlStore = useHydratedIntlStore();
   const { previewFieldValues } = useEntityDetailPersonalization();
-  const { dealDetailStore } = useRootStore();
+  const { dealDetailStore, userModalStore } = useRootStore();
   const { fetchedEntity, form, customColumns, selectedServices, totalQuantity, totalValue, weightedValueBreakdown } =
     dealDetailStore;
   if (!fetchedEntity) return null;
@@ -69,7 +70,10 @@ export const DealDetailSummary = observer(function DealDetailSummary() {
       value: (
         <EntityDetailChipSummaryValue
           entityType={EntityType.organization}
-          items={organizations.map((item) => ({ id: item.id, label: item.name }))}
+          items={organizations.map((item) => ({
+            id: item.id,
+            label: item.name,
+          }))}
         />
       ),
     },
@@ -95,24 +99,32 @@ export const DealDetailSummary = observer(function DealDetailSummary() {
       value: (
         <EntityDetailChipSummaryValue
           entityType={EntityType.service}
-          items={selectedServices.map((service) => ({ id: service.id, label: service.name }))}
+          items={selectedServices.map((service) => ({
+            id: service.id,
+            label: service.name,
+          }))}
         />
       ),
     },
     {
       id: DEAL_DETAIL_FIELD.userIds,
       label: t("Common.inputs.userIds"),
-      value: <EntityDetailAvatarSummaryValue items={users} />,
+      value: (
+        <EntityDetailAvatarSummaryValue
+          items={users}
+          onItemClick={(item) => runUserAction(() => userModalStore.loadById(item.id))}
+        />
+      ),
     },
     {
       id: DEAL_DETAIL_FIELD.createdAt,
       label: t("EntityDetail.fields.createdAt"),
-      value: intlStore.formatNumericalShortDateTime(fetchedEntity.createdAt),
+      value: intlStore.formatRelativeTime(fetchedEntity.createdAt),
     },
     {
       id: DEAL_DETAIL_FIELD.updatedAt,
       label: t("EntityDetail.fields.updatedAt"),
-      value: intlStore.formatNumericalShortDateTime(fetchedEntity.updatedAt),
+      value: intlStore.formatRelativeTime(fetchedEntity.updatedAt),
     },
   ];
 

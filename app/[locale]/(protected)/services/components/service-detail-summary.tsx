@@ -13,6 +13,7 @@ import { useEntityDetailPersonalization } from "@/components/entity-detail/entit
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 import { SERVICE_DETAIL_FIELD } from "./service-detail-personalization";
 
@@ -20,7 +21,7 @@ export const ServiceDetailSummary = observer(function ServiceDetailSummary() {
   const t = useTranslations();
   const { plural } = useEntityTerminology();
   const intlStore = useHydratedIntlStore();
-  const { serviceDetailStore } = useRootStore();
+  const { serviceDetailStore, userModalStore } = useRootStore();
   const { previewFieldValues } = useEntityDetailPersonalization();
   const { fetchedEntity, form, customColumns } = serviceDetailStore;
 
@@ -76,17 +77,22 @@ export const ServiceDetailSummary = observer(function ServiceDetailSummary() {
         {
           id: SERVICE_DETAIL_FIELD.userIds,
           label: t("Common.inputs.userIds"),
-          value: <EntityDetailAvatarSummaryValue items={users} />,
+          value: (
+            <EntityDetailAvatarSummaryValue
+              items={users}
+              onItemClick={(item) => runUserAction(() => userModalStore.loadById(item.id))}
+            />
+          ),
         },
         {
           id: SERVICE_DETAIL_FIELD.createdAt,
           label: t("EntityDetail.fields.createdAt"),
-          value: intlStore.formatNumericalShortDateTime(fetchedEntity.createdAt),
+          value: intlStore.formatRelativeTime(fetchedEntity.createdAt),
         },
         {
           id: SERVICE_DETAIL_FIELD.updatedAt,
           label: t("EntityDetail.fields.updatedAt"),
-          value: intlStore.formatNumericalShortDateTime(fetchedEntity.updatedAt),
+          value: intlStore.formatRelativeTime(fetchedEntity.updatedAt),
         },
       ]}
     />

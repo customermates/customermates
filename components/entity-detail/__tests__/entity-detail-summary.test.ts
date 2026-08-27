@@ -9,6 +9,7 @@ import { CustomColumnType, EntityType } from "@/generated/prisma";
 
 const harness = vi.hoisted(() => ({
   isTruncated: false,
+  onAvatarClick: vi.fn(),
   starredFieldIds: [] as string[],
 }));
 
@@ -33,7 +34,18 @@ vi.mock("@/components/chip/app-chip-stack", () => ({
   AppChipStack: () => createElement("span"),
 }));
 vi.mock("@/components/shared/avatar-stack", () => ({
-  AvatarStack: () => createElement("span"),
+  AvatarStack: ({
+    items,
+    onAvatarClick,
+  }: {
+    items: Array<{ id: string }>;
+    onAvatarClick?: (item: { id: string }) => void;
+  }) =>
+    createElement("button", {
+      "data-avatar-stack": true,
+      onClick: () => onAvatarClick?.(items[0]),
+      type: "button",
+    }),
 }));
 vi.mock("@/components/forms/form-label", () => ({
   FormLabel: ({ children }: { children?: ReactNode }) => createElement("label", null, children),
@@ -62,7 +74,7 @@ vi.mock("@/core/utils/use-is-truncated", () => ({
   useIsTruncated: () => harness.isTruncated,
 }));
 
-import { EntityDetailSummary, previewItems } from "../entity-detail-summary";
+import { EntityDetailAvatarSummaryValue, EntityDetailSummary, previewItems } from "../entity-detail-summary";
 import { EntityDetailStaticField } from "../entity-detail-static-field";
 
 const roots = new Set<Root>();
@@ -90,6 +102,7 @@ function mount(node: ReactNode) {
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   harness.isTruncated = false;
+  harness.onAvatarClick.mockReset();
   harness.starredFieldIds = [];
 });
 
@@ -104,6 +117,33 @@ describe("EntityDetailSummary", () => {
     const fallback = [{ id: "organization-1", name: "Acme" }];
 
     expect(previewItems([{ key: "organization-1" }], fallback)).toEqual(fallback);
+  });
+
+  it("preserves the item action on a pinned avatar stack", () => {
+    const container = mount(
+      createElement(EntityDetailAvatarSummaryValue, {
+        items: [
+          {
+            id: "user-1",
+            firstName: "Max",
+            lastName: "Bergmann",
+          },
+        ],
+        onItemClick: harness.onAvatarClick,
+      }),
+    );
+
+    const avatarStack = container.querySelector<HTMLButtonElement>("[data-avatar-stack]");
+    if (!avatarStack) throw new Error("Expected an assignee avatar stack");
+
+    act(() => avatarStack.click());
+
+    expect(harness.onAvatarClick).toHaveBeenCalledOnce();
+    expect(harness.onAvatarClick).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: "user-1",
+      }),
+    );
   });
 
   it("uses the saved pin order across built-in and custom fields and ignores stale fields", () => {
@@ -189,8 +229,14 @@ describe("EntityDetailSummary", () => {
     expect(scrollRegion.getAttribute("role")).toBeNull();
     expect(scrollRegion.getAttribute("aria-label")).toBeNull();
 
-    Object.defineProperty(scrollRegion, "clientWidth", { configurable: true, value: 240 });
-    Object.defineProperty(scrollRegion, "scrollWidth", { configurable: true, value: 480 });
+    Object.defineProperty(scrollRegion, "clientWidth", {
+      configurable: true,
+      value: 240,
+    });
+    Object.defineProperty(scrollRegion, "scrollWidth", {
+      configurable: true,
+      value: 480,
+    });
     act(() => {
       window.dispatchEvent(new Event("resize"));
     });
@@ -202,7 +248,10 @@ describe("EntityDetailSummary", () => {
     expect(scrollRegion.className).toContain("focus-visible:ring-[3px]");
     expect(scrollRegion.className).toContain("focus-visible:ring-inset");
 
-    Object.defineProperty(scrollRegion, "scrollWidth", { configurable: true, value: 240 });
+    Object.defineProperty(scrollRegion, "scrollWidth", {
+      configurable: true,
+      value: 240,
+    });
     act(() => {
       window.dispatchEvent(new Event("resize"));
     });

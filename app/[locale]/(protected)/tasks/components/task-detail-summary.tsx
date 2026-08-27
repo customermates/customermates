@@ -14,6 +14,7 @@ import { useEntityDetailPersonalization } from "@/components/entity-detail/entit
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 import { TASK_DETAIL_FIELD } from "./task-detail-personalization";
 
@@ -21,7 +22,7 @@ export const TaskDetailSummary = observer(function TaskDetailSummary() {
   const t = useTranslations();
   const { plural } = useEntityTerminology();
   const intlStore = useHydratedIntlStore();
-  const { taskDetailStore } = useRootStore();
+  const { taskDetailStore, userModalStore } = useRootStore();
   const { previewFieldValues } = useEntityDetailPersonalization();
   const { fetchedEntity, form, customColumns, isCustomTask, systemTaskDisplayName } = taskDetailStore;
 
@@ -59,7 +60,10 @@ export const TaskDetailSummary = observer(function TaskDetailSummary() {
           value: (
             <EntityDetailChipSummaryValue
               entityType={EntityType.organization}
-              items={organizations.map((organization) => ({ id: organization.id, label: organization.name }))}
+              items={organizations.map((organization) => ({
+                id: organization.id,
+                label: organization.name,
+              }))}
             />
           ),
         },
@@ -79,24 +83,32 @@ export const TaskDetailSummary = observer(function TaskDetailSummary() {
           value: (
             <EntityDetailChipSummaryValue
               entityType={EntityType.service}
-              items={services.map((service) => ({ id: service.id, label: service.name }))}
+              items={services.map((service) => ({
+                id: service.id,
+                label: service.name,
+              }))}
             />
           ),
         },
         {
           id: TASK_DETAIL_FIELD.userIds,
           label: t("Common.inputs.userIds"),
-          value: <EntityDetailAvatarSummaryValue items={users} />,
+          value: (
+            <EntityDetailAvatarSummaryValue
+              items={users}
+              onItemClick={(item) => runUserAction(() => userModalStore.loadById(item.id))}
+            />
+          ),
         },
         {
           id: TASK_DETAIL_FIELD.createdAt,
           label: t("EntityDetail.fields.createdAt"),
-          value: intlStore.formatNumericalShortDateTime(fetchedEntity.createdAt),
+          value: intlStore.formatRelativeTime(fetchedEntity.createdAt),
         },
         {
           id: TASK_DETAIL_FIELD.updatedAt,
           label: t("EntityDetail.fields.updatedAt"),
-          value: intlStore.formatNumericalShortDateTime(fetchedEntity.updatedAt),
+          value: intlStore.formatRelativeTime(fetchedEntity.updatedAt),
         },
       ]}
     />

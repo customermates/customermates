@@ -17,6 +17,9 @@ import { useEntityDetailPersonalization } from "@/components/entity-detail/entit
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
+import { runUserAction } from "@/core/errors/report-application-error";
+import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 
 import { ChannelIconStack } from "./channel-icon-stack";
 import { CONTACT_DETAIL_FIELD } from "./contact-detail-personalization";
@@ -25,7 +28,8 @@ export const ContactDetailSummary = observer(function ContactDetailSummary() {
   const t = useTranslations();
   const { plural } = useEntityTerminology();
   const intlStore = useHydratedIntlStore();
-  const { contactDetailStore } = useRootStore();
+  const copy = useCopyToClipboard();
+  const { contactDetailStore, userModalStore } = useRootStore();
   const { previewFieldValues } = useEntityDetailPersonalization();
   const { fetchedEntity, form, customColumns } = contactDetailStore;
   if (!fetchedEntity) return null;
@@ -59,7 +63,19 @@ export const ContactDetailSummary = observer(function ContactDetailSummary() {
     {
       id: CONTACT_DETAIL_FIELD.identifiers,
       label: t("EntityChannels.heading"),
-      value: channels.length > 0 ? <ChannelIconStack identifiers={channels} /> : "—",
+      value:
+        channels.length > 0 ? (
+          <ChannelIconStack
+            identifiers={channels}
+            onItemClick={(item) =>
+              runUserAction(() =>
+                copy(channelDisplayLabel(item.provider, item.value, item.profileUrl) || item.displayName || item.value),
+              )
+            }
+          />
+        ) : (
+          "—"
+        ),
     },
     {
       id: CONTACT_DETAIL_FIELD.organizationIds,
@@ -103,17 +119,22 @@ export const ContactDetailSummary = observer(function ContactDetailSummary() {
     {
       id: CONTACT_DETAIL_FIELD.userIds,
       label: t("Common.inputs.userIds"),
-      value: <EntityDetailAvatarSummaryValue items={users} />,
+      value: (
+        <EntityDetailAvatarSummaryValue
+          items={users}
+          onItemClick={(item) => runUserAction(() => userModalStore.loadById(item.id))}
+        />
+      ),
     },
     {
       id: CONTACT_DETAIL_FIELD.createdAt,
       label: t("EntityDetail.fields.createdAt"),
-      value: intlStore.formatNumericalShortDateTime(fetchedEntity.createdAt),
+      value: intlStore.formatRelativeTime(fetchedEntity.createdAt),
     },
     {
       id: CONTACT_DETAIL_FIELD.updatedAt,
       label: t("EntityDetail.fields.updatedAt"),
-      value: intlStore.formatNumericalShortDateTime(fetchedEntity.updatedAt),
+      value: intlStore.formatRelativeTime(fetchedEntity.updatedAt),
     },
   ];
 

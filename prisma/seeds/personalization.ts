@@ -297,24 +297,19 @@ export function buildSyntheticP13nFixtures(
       CONTACT_DETAIL_P13N_ID,
       [customColumnIds.contactSalesPipeline, customColumnIds.contactPhone],
       [
-        CONTACT_DETAIL_FIELD.identifiers,
-        CONTACT_DETAIL_FIELD.organizationIds,
-        CONTACT_DETAIL_FIELD.userIds,
+        CONTACT_DETAIL_FIELD.firstName,
+        CONTACT_DETAIL_FIELD.lastName,
         customColumnIds.contactSalesPipeline,
         customColumnIds.contactPhone,
+        CONTACT_DETAIL_FIELD.userIds,
+        CONTACT_DETAIL_FIELD.updatedAt,
       ],
     ),
     detailFixture(
       SYNTHETIC_P13N_IDS.organizationDetail,
       ORGANIZATION_DETAIL_P13N_ID,
       [customColumnIds.organizationType, customColumnIds.organizationWebsite],
-      [
-        ORGANIZATION_DETAIL_FIELD.contactIds,
-        ORGANIZATION_DETAIL_FIELD.dealIds,
-        ORGANIZATION_DETAIL_FIELD.userIds,
-        customColumnIds.organizationType,
-        customColumnIds.organizationWebsite,
-      ],
+      [ORGANIZATION_DETAIL_FIELD.contactIds, ORGANIZATION_DETAIL_FIELD.userIds, ORGANIZATION_DETAIL_FIELD.updatedAt],
     ),
     detailFixture(
       SYNTHETIC_P13N_IDS.dealDetail,
@@ -334,23 +329,16 @@ export function buildSyntheticP13nFixtures(
       [customColumnIds.serviceType, customColumnIds.servicePricing],
       [
         SERVICE_DETAIL_FIELD.amount,
-        SERVICE_DETAIL_FIELD.dealIds,
-        SERVICE_DETAIL_FIELD.userIds,
         customColumnIds.serviceType,
         customColumnIds.servicePricing,
+        SERVICE_DETAIL_FIELD.userIds,
       ],
     ),
     detailFixture(
       SYNTHETIC_P13N_IDS.taskDetail,
       TASK_DETAIL_P13N_ID,
       [customColumnIds.taskPriority, customColumnIds.taskStatus],
-      [
-        TASK_DETAIL_FIELD.contactIds,
-        TASK_DETAIL_FIELD.userIds,
-        TASK_DETAIL_FIELD.updatedAt,
-        customColumnIds.taskPriority,
-        customColumnIds.taskStatus,
-      ],
+      [customColumnIds.taskPriority, customColumnIds.taskStatus, TASK_DETAIL_FIELD.updatedAt],
     ),
   ];
 }

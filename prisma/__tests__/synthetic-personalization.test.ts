@@ -224,11 +224,12 @@ describe("synthetic personalization fixtures", () => {
       columnOrder: [SYNTHETIC_CUSTOM_COLUMN_IDS.contactSalesPipeline, SYNTHETIC_CUSTOM_COLUMN_IDS.contactPhone],
       detailOptions: {
         starredFieldIds: [
-          "identifiers",
-          "organizationIds",
-          "userIds",
+          "firstName",
+          "lastName",
           SYNTHETIC_CUSTOM_COLUMN_IDS.contactSalesPipeline,
           SYNTHETIC_CUSTOM_COLUMN_IDS.contactPhone,
+          "userIds",
+          "updatedAt",
         ],
         collapsedSectionIds: [],
       },
@@ -238,13 +239,7 @@ describe("synthetic personalization fixtures", () => {
     expect(byP13nId.get("organization-detail")).toMatchObject({
       columnOrder: [SYNTHETIC_CUSTOM_COLUMN_IDS.organizationType, SYNTHETIC_CUSTOM_COLUMN_IDS.organizationWebsite],
       detailOptions: {
-        starredFieldIds: [
-          "contactIds",
-          "dealIds",
-          "userIds",
-          SYNTHETIC_CUSTOM_COLUMN_IDS.organizationType,
-          SYNTHETIC_CUSTOM_COLUMN_IDS.organizationWebsite,
-        ],
+        starredFieldIds: ["contactIds", "userIds", "updatedAt"],
         collapsedSectionIds: [],
       },
       hiddenColumns: [],
@@ -270,10 +265,9 @@ describe("synthetic personalization fixtures", () => {
       detailOptions: {
         starredFieldIds: [
           "amount",
-          "dealIds",
-          "userIds",
           SYNTHETIC_CUSTOM_COLUMN_IDS.serviceType,
           SYNTHETIC_CUSTOM_COLUMN_IDS.servicePricing,
+          "userIds",
         ],
         collapsedSectionIds: [],
       },
@@ -284,11 +278,9 @@ describe("synthetic personalization fixtures", () => {
       columnOrder: [SYNTHETIC_CUSTOM_COLUMN_IDS.taskPriority, SYNTHETIC_CUSTOM_COLUMN_IDS.taskStatus],
       detailOptions: {
         starredFieldIds: [
-          "contactIds",
-          "userIds",
-          "updatedAt",
           SYNTHETIC_CUSTOM_COLUMN_IDS.taskPriority,
           SYNTHETIC_CUSTOM_COLUMN_IDS.taskStatus,
+          "updatedAt",
         ],
         collapsedSectionIds: [],
       },

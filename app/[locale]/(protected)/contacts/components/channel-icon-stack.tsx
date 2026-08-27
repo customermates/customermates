@@ -13,9 +13,9 @@ import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 
 type Props = {
   identifiers: ContactIdentifierDto[];
+  onItemClick: (identifier: ContactIdentifierDto) => void;
   maxVisible?: number;
   className?: string;
-  onItemClick?: (identifier: ContactIdentifierDto) => void;
 };
 
 export function ChannelIconStack({ identifiers, maxVisible = 3, className, onItemClick }: Props) {
@@ -54,7 +54,7 @@ export function ChannelIconStack({ identifiers, maxVisible = 3, className, onIte
         const primaryLabel =
           channelDisplayLabel(id.provider, id.value, id.profileUrl) || id.displayName || providerLabel;
         return (
-          <StackDropdownItem close={close} onActivate={() => onItemClick?.(id)}>
+          <StackDropdownItem close={close} onActivate={() => onItemClick(id)}>
             <Icon className="size-6" />
 
             <div className="flex w-full min-w-0 flex-col items-start space-y-0">
