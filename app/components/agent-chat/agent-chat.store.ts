@@ -177,6 +177,7 @@ export class AgentChatStore extends BaseStore {
       conversationTitle: computed,
       open: action,
       close: action,
+      toggle: action,
       toggleExpanded: action,
       setComposerDraft: action,
       submitDraft: action,
@@ -202,6 +203,11 @@ export class AgentChatStore extends BaseStore {
 
   close = () => {
     this.isOpen = false;
+  };
+
+  toggle = () => {
+    if (this.isOpen) this.close();
+    else this.open();
   };
 
   toggleExpanded = () => {

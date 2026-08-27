@@ -10,7 +10,9 @@ const testContext = vi.hoisted(() => ({
   filterLoadError: false,
   filterLoading: false,
   filterMaxSelectedValues: undefined as number | undefined,
-  formValue: undefined as string[] | undefined,
+  formIsLoading: false,
+  formIsReadOnly: false,
+  formValue: undefined as string | string[] | undefined,
   onChange: vi.fn(),
 }));
 
@@ -35,10 +37,11 @@ vi.mock("next-intl", () => ({
 
 vi.mock("@/components/forms/form-context", () => ({
   useAppForm: () => ({
+    getError: () => undefined,
     getValue: () => testContext.formValue,
     isDisabled: false,
-    isLoading: false,
-    isReadOnly: false,
+    isLoading: testContext.formIsLoading,
+    isReadOnly: testContext.formIsReadOnly,
     onChange: testContext.onChange,
   }),
 }));
@@ -91,6 +94,9 @@ import { FormAutocomplete } from "../form-autocomplete";
 import { FormAutocompleteAvatar } from "../form-autocomplete-avatar";
 import { FormAutocompleteCountry } from "../form-autocomplete-country";
 import { FormAutocompleteCurrency } from "../form-autocomplete-currency";
+import { FormInputChips } from "../form-input-chips";
+import { FormSelect } from "../form-select";
+import { FormSelectChip } from "../form-select-chip";
 
 const roots: Root[] = [];
 const containers: HTMLElement[] = [];
@@ -170,7 +176,7 @@ function filterSelect(maxSelectedValues?: number) {
     filter: {
       field: FilterFieldKey.contactIds,
       operator: FilterOperatorKey.in,
-      value: testContext.formValue ?? [],
+      value: Array.isArray(testContext.formValue) ? testContext.formValue : [],
     },
     id: "filters[0].value",
     isValidFilter: true,
@@ -182,6 +188,8 @@ beforeEach(() => {
   testContext.filterLoadError = false;
   testContext.filterMaxSelectedValues = undefined;
   testContext.filterLoading = false;
+  testContext.formIsLoading = false;
+  testContext.formIsReadOnly = false;
   testContext.formValue = undefined;
   testContext.onChange.mockReset();
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -310,16 +318,201 @@ describe("FormAutocomplete command behavior", () => {
     expect(document.querySelector("[cmdk-input]")).toBeNull();
   });
 
-  it("keeps read-only controls focusable without opening the listbox", async () => {
-    const container = mount(autocomplete({ readOnly: true }));
+  it("keeps permission-read-only relation chips actionable outside a nested button", async () => {
+    testContext.formIsReadOnly = true;
+    const onChipClick = vi.fn();
+    const container = mount(
+      autocomplete({
+        items: [option("alpha", "Alpha")],
+        label: "People",
+        onChipClick,
+        readOnly: false,
+        selectionMode: "multiple",
+        value: ["alpha"],
+      }),
+    );
+    const field = requiredElement(container.querySelector<HTMLElement>("#people"));
+
+    expect(field.getAttribute("role")).toBe("group");
+    expect(field.getAttribute("aria-labelledby")).not.toBeNull();
+    expect(field.getAttribute("data-field-state")).toBe("read-only");
+    expect(field.getAttribute("tabindex")).toBeNull();
+    expect(field.closest("button")).toBeNull();
+    expect(field.querySelector("svg")).toBeNull();
+    expect(container.querySelector('[aria-label="Remove"]')).toBeNull();
+
+    const relationChip = requiredElement(container.querySelector<HTMLElement>('[role="button"]'));
+    relationChip.focus();
+    expect(document.activeElement).toBe(relationChip);
+    expect(relationChip.className).toContain("focus-visible:ring-[2px]");
+    await click(relationChip);
+    expect(onChipClick).toHaveBeenCalledExactlyOnceWith("alpha");
+    await press(relationChip, " ");
+    expect(onChipClick).toHaveBeenCalledTimes(2);
+    expect(onChipClick).toHaveBeenLastCalledWith("alpha");
+    expect(testContext.onChange).not.toHaveBeenCalled();
+
+    await click(field);
+    expect(document.querySelector("[cmdk-input]")).toBeNull();
+  });
+
+  it("keeps loading controls truly disabled even when disabled is explicitly false", async () => {
+    testContext.formIsLoading = true;
+    testContext.formIsReadOnly = true;
+    const container = mount(autocomplete({ disabled: false, readOnly: true }));
     const trigger = requiredElement(container.querySelector<HTMLButtonElement>("#people"));
+
+    expect(trigger.disabled).toBe(true);
+    expect(trigger.getAttribute("aria-readonly")).toBeNull();
+    expect(trigger.getAttribute("aria-expanded")).toBe("false");
+    await click(trigger);
+    expect(document.querySelector("[cmdk-input]")).toBeNull();
+  });
+});
+
+describe("selection field state semantics", () => {
+  it("keeps contextual help beside the visible FormSelect label", () => {
+    testContext.formValue = "plain";
+    const container = mount(
+      createElement(FormSelect, {
+        id: "type-with-help",
+        items: [{ label: "Text", value: "plain" }],
+        label: "Type",
+        labelEndAddon: createElement("button", { "aria-label": "About Type", type: "button" }),
+        readOnly: true,
+      }),
+    );
+
+    const label = requiredElement(container.querySelector<HTMLLabelElement>('label[for="type-with-help"]'));
+    const help = requiredElement(container.querySelector<HTMLButtonElement>('[aria-label="About Type"]'));
+
+    expect(label.textContent).toBe("Type");
+    expect(label.parentElement).toBe(help.parentElement);
+  });
+
+  it("keeps FormSelect permission-read-only and lets explicit disabled win", () => {
+    testContext.formIsReadOnly = true;
+    testContext.formValue = "active";
+    const readOnlyContainer = mount(
+      createElement(FormSelect, {
+        disabled: false,
+        id: "status-read-only",
+        items: [{ label: "Active", value: "active" }],
+        readOnly: false,
+      }),
+    );
+    const readOnlyTrigger = requiredElement(readOnlyContainer.querySelector<HTMLButtonElement>("#status-read-only"));
+
+    expect(readOnlyTrigger.disabled).toBe(false);
+    expect(readOnlyTrigger.getAttribute("aria-readonly")).toBe("true");
+    expect(readOnlyTrigger.className).toContain("[&>svg:last-child]:hidden");
+    readOnlyTrigger.focus();
+    expect(document.activeElement).toBe(readOnlyTrigger);
+
+    const disabledContainer = mount(
+      createElement(FormSelect, {
+        disabled: true,
+        id: "status-disabled",
+        items: [{ label: "Active", value: "active" }],
+        readOnly: true,
+      }),
+    );
+    const disabledTrigger = requiredElement(disabledContainer.querySelector<HTMLButtonElement>("#status-disabled"));
+
+    expect(disabledTrigger.disabled).toBe(true);
+    expect(disabledTrigger.getAttribute("aria-readonly")).toBeNull();
+  });
+
+  it("applies the same read-only contract to FormSelectChip", () => {
+    testContext.formValue = "active";
+    const container = mount(
+      createElement(FormSelectChip, {
+        id: "chip-status",
+        items: [{ key: "active" }],
+        readOnly: true,
+        translateFn: (key) => key,
+      }),
+    );
+    const trigger = requiredElement(container.querySelector<HTMLButtonElement>("#chip-status"));
 
     expect(trigger.disabled).toBe(false);
     expect(trigger.getAttribute("aria-readonly")).toBe("true");
+    expect(trigger.className).toContain("[&>svg:last-child]:hidden");
     trigger.focus();
     expect(document.activeElement).toBe(trigger);
-    await click(trigger);
-    expect(document.querySelector("[cmdk-input]")).toBeNull();
+  });
+
+  it("renders interactive read-only chip inputs as labelled recessed groups without a nested wrapper tab stop", async () => {
+    testContext.formIsReadOnly = true;
+    testContext.formValue = "alpha,beta";
+    const onChipClick = vi.fn();
+    const container = mount(
+      createElement(
+        "div",
+        null,
+        createElement("span", { id: "external-tags-label" }, "Tags"),
+        createElement(FormInputChips, {
+          ariaLabelledBy: "external-tags-label",
+          id: "tags-read-only",
+          label: null,
+          onChipClick,
+          readOnly: false,
+        }),
+      ),
+    );
+    const field = requiredElement(container.querySelector<HTMLElement>('[role="group"]'));
+
+    expect(field.id).toBe("tags-read-only");
+    expect(field.getAttribute("tabindex")).toBeNull();
+    expect(field.getAttribute("aria-labelledby")).toBe("external-tags-label");
+    expect(field.getAttribute("aria-readonly")).toBeNull();
+    expect(field.getAttribute("aria-disabled")).toBeNull();
+    expect(field.className).toContain("border-border");
+    expect(field.className).toContain("bg-background");
+    expect(field.className).toContain("text-foreground");
+    expect(field.className).toContain("shadow-none");
+    expect(field.className).not.toContain("opacity-50");
+    expect(container.querySelector("input")).toBeNull();
+    expect(container.querySelector('[aria-label="Remove"]')).toBeNull();
+
+    const chipActions = container.querySelectorAll<HTMLElement>('[role="button"]');
+    expect(chipActions).toHaveLength(2);
+    chipActions[0]?.focus();
+    expect(document.activeElement).toBe(chipActions[0]);
+    expect(chipActions[0]?.className).toContain("focus-visible:ring-[2px]");
+    await click(chipActions[0]);
+    expect(onChipClick).toHaveBeenCalledExactlyOnceWith("alpha");
+    await press(chipActions[0], " ");
+    expect(onChipClick).toHaveBeenCalledTimes(2);
+    expect(onChipClick).toHaveBeenLastCalledWith("alpha");
+    expect(testContext.onChange).not.toHaveBeenCalled();
+  });
+
+  it("renders explicitly disabled chip inputs as muted native-disabled fields", () => {
+    testContext.formIsReadOnly = true;
+    testContext.formValue = "alpha";
+    const container = mount(
+      createElement(FormInputChips, {
+        disabled: true,
+        id: "tags-disabled",
+        onChipClick: vi.fn(),
+        readOnly: true,
+      }),
+    );
+    const input = requiredElement(container.querySelector<HTMLInputElement>("#tags-disabled"));
+    const field = requiredElement(input.parentElement);
+
+    expect(input.disabled).toBe(true);
+    expect(field.getAttribute("aria-disabled")).toBe("true");
+    expect(field.getAttribute("aria-readonly")).toBeNull();
+    expect(field.className).toContain("cursor-not-allowed");
+    expect(field.className).toContain("border-border");
+    expect(field.className).toContain("bg-background");
+    expect(field.className).toContain("text-muted-foreground");
+    expect(field.className).toContain("shadow-none");
+    expect(field.className).not.toContain("opacity-50");
+    expect(container.querySelector('[aria-label="Remove"]')).toBeNull();
+    expect(container.querySelector('[role="button"]')).toBeNull();
   });
 });
 

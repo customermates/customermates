@@ -264,6 +264,7 @@ import { GlobalSearchInteractor } from "@/features/search/global-search.interact
 import { UpsertP13nInteractor } from "@/features/p13n/upsert-p13n.interactor";
 import { UpsertFilterPresetInteractor } from "@/features/p13n/upsert-filter-preset.interactor";
 import { DeleteFilterPresetInteractor } from "@/features/p13n/delete-filter-preset.interactor";
+import { GetP13nInteractor } from "@/features/p13n/get-p13n.interactor";
 // Feedback interactor
 import { SendFeedbackInteractor } from "@/features/feedback/send-feedback.interactor";
 import { SendContactInquiryInteractor } from "@/features/contact/send-contact-inquiry.interactor";
@@ -1384,6 +1385,8 @@ export const getGlobalSearchInteractor = () => new GlobalSearchInteractor();
 // --- P13n ---
 
 export const getUpsertP13nInteractor = () => new UpsertP13nInteractor(getP13nRepo());
+
+export const getGetP13nInteractor = () => new GetP13nInteractor(getP13nRepo());
 
 export const getUpsertFilterPresetInteractor = () => new UpsertFilterPresetInteractor(getP13nRepo());
 

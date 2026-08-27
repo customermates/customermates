@@ -1,5 +1,12 @@
 import { z } from "zod";
 
+export const EntityDetailOptionsSchema = z.object({
+  starredFieldIds: z.array(z.string().min(1)),
+  collapsedSectionIds: z.array(z.string().min(1)),
+});
+
+export type EntityDetailOptions = z.infer<typeof EntityDetailOptionsSchema>;
+
 export const P13nEntrySchema = z.object({
   p13nId: z.string(),
   filters: z.array(z.any()).optional(),
@@ -12,4 +19,5 @@ export const P13nEntrySchema = z.object({
   hiddenColumns: z.array(z.string()).optional(),
   viewMode: z.string().optional(),
   groupingColumnId: z.string().optional(),
+  detailOptions: EntityDetailOptionsSchema.optional(),
 });

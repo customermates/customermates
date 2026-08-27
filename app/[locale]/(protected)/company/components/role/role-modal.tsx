@@ -17,6 +17,7 @@ import { AppCardHeader } from "@/components/card/app-card-header";
 import { FormActions } from "@/components/card/form-actions";
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
+import { FormLabel } from "@/components/forms/form-label";
 import { FormTextarea } from "@/components/forms/form-textarea";
 import { FormRadioGroup, type FormRadioGroupOption } from "@/components/forms/form-radio-group";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
@@ -38,17 +39,30 @@ export const RoleModal = observer(({ store }: Props) => {
     const hasCanManage = "canManage" in permission;
 
     const canManageOptions: FormRadioGroupOption[] = [
-      { value: "yes", label: t("RoleModal.yes"), disabled: isDisabledOrSystemRole },
-      { value: "no", label: t("RoleModal.no"), disabled: isDisabledOrSystemRole },
+      { value: "yes", label: t("RoleModal.yes") },
+      { value: "no", label: t("RoleModal.no") },
     ];
 
     const readAccessOptions: FormRadioGroupOption[] = [
-      { value: "all", label: t("RoleModal.readAll"), disabled: isDisabledOrSystemRole },
+      {
+        value: "all",
+        label: t("RoleModal.readAll"),
+      },
       ...(resource !== Resource.api && resource !== Resource.auditLog && resource !== Resource.inboxMessages
-        ? [{ value: "own", label: t("RoleModal.readOwn"), disabled: isDisabledOrSystemRole }]
+        ? [
+            {
+              value: "own",
+              label: t("RoleModal.readOwn"),
+            },
+          ]
         : []),
       ...(resource !== Resource.users && resource !== Resource.company
-        ? [{ value: "none", label: t("RoleModal.readNone"), disabled: isDisabledOrSystemRole }]
+        ? [
+            {
+              value: "none",
+              label: t("RoleModal.readNone"),
+            },
+          ]
         : []),
     ];
 
@@ -58,7 +72,11 @@ export const RoleModal = observer(({ store }: Props) => {
 
         <div>
           {hasCanManage ? (
-            <FormRadioGroup id={`permissions.${resource}.canManage`} options={canManageOptions} />
+            <FormRadioGroup
+              ariaLabel={`${t(`RoleModal.resources.${resource}`)} — ${t("RoleModal.manageAccess")}`}
+              id={`permissions.${resource}.canManage`}
+              options={canManageOptions}
+            />
           ) : (
             <span className="text-muted-foreground text-sm">—</span>
           )}
@@ -66,7 +84,11 @@ export const RoleModal = observer(({ store }: Props) => {
 
         <div>
           {hasReadAccess ? (
-            <FormRadioGroup id={`permissions.${resource}.readAccess`} options={readAccessOptions} />
+            <FormRadioGroup
+              ariaLabel={`${t(`RoleModal.resources.${resource}`)} — ${t("RoleModal.readAccess")}`}
+              id={`permissions.${resource}.readAccess`}
+              options={readAccessOptions}
+            />
           ) : (
             <span className="text-muted-foreground text-sm">—</span>
           )}
@@ -109,13 +131,21 @@ export const RoleModal = observer(({ store }: Props) => {
             )}
 
             {isSystemRole ? (
-              <Input disabled readOnly id="name" value={t("RoleModal.systemName")} />
+              <div className="space-y-1.5">
+                <FormLabel htmlFor="name">{t("Common.inputs.name")}</FormLabel>
+
+                <Input readOnly id="name" value={t("RoleModal.systemName")} />
+              </div>
             ) : (
               <FormInput required id="name" />
             )}
 
             {isSystemRole ? (
-              <Textarea disabled readOnly id="description" value={t("RoleModal.systemDescription")} />
+              <div className="space-y-1.5">
+                <FormLabel htmlFor="description">{t("Common.inputs.description")}</FormLabel>
+
+                <Textarea readOnly id="description" value={t("RoleModal.systemDescription")} />
+              </div>
             ) : (
               <FormTextarea required id="description" />
             )}

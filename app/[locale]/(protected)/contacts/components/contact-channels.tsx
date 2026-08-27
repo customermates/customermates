@@ -1,6 +1,7 @@
 "use client";
 
 import type { IdentifierInput } from "@/features/contacts/contact.schema";
+import type { ReactNode } from "react";
 
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
@@ -28,9 +29,11 @@ import { ContactComposePopover } from "./contact-compose-popover";
 type Props = {
   contactId?: string;
   emptyHint?: string;
+  headingEndAddon?: ReactNode;
+  hideHeading?: boolean;
 };
 
-export const ContactChannels = observer(({ contactId, emptyHint }: Props) => {
+export const ContactChannels = observer(({ contactId, emptyHint, headingEndAddon, hideHeading = false }: Props) => {
   const t = useTranslations();
   const rootStore = useRootStore();
   const { userStore, contactDetailStore, threadComposeStore, connectedAccountsStore } = rootStore;
@@ -39,6 +42,7 @@ export const ContactChannels = observer(({ contactId, emptyHint }: Props) => {
   const canEditChannels = userStore.can(Resource.contacts, contactId ? Action.update : Action.create);
   const canStartThread = userStore.can(Resource.inboxMessages, Action.create) && rootStore.appMode !== "self-hosted";
   const identifiers = contactDetailStore.channels;
+  const canOpenInbox = Boolean(contactId && identifiers.length > 0 && rootStore.appMode !== "self-hosted");
 
   useEffect(() => {
     if (canStartThread) void connectedAccountsStore.ensureLoaded().catch(reportApplicationError);
@@ -59,17 +63,23 @@ export const ContactChannels = observer(({ contactId, emptyHint }: Props) => {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-1.5">
-        <span className="text-muted-foreground text-xs font-normal">{t("EntityChannels.heading")}</span>
+      {(!hideHeading || headingEndAddon || canOpenInbox) && (
+        <div className={cn("flex items-center gap-1.5", hideHeading && "justify-end")}>
+          {!hideHeading && (
+            <span className="text-muted-foreground text-xs font-normal">{t("EntityChannels.heading")}</span>
+          )}
 
-        {contactId && identifiers.length > 0 && rootStore.appMode !== "self-hosted" && (
-          <IconButton
-            href={`/inbox?filters=${encodeURIComponent(`participantContactId:in:${contactId}`)}`}
-            icon={ExternalLink}
-            label={t("EntityChannels.tooltipOpenInbox")}
-          />
-        )}
-      </div>
+          {headingEndAddon}
+
+          {canOpenInbox && contactId && (
+            <IconButton
+              href={`/inbox?filters=${encodeURIComponent(`participantContactId:in:${contactId}`)}`}
+              icon={ExternalLink}
+              label={t("EntityChannels.tooltipOpenInbox")}
+            />
+          )}
+        </div>
+      )}
 
       {contactId && identifiers.length === 0 && !canEditChannels && (
         <p className="text-muted-foreground text-xs italic">{emptyHint ?? t("EntityChannels.emptyHint")}</p>

@@ -185,10 +185,10 @@ export function NavigationSwitch({
 
         <SidebarInset className="min-w-0 overflow-x-clip">
           <TopBarActionsProvider>
-            <AppTopBar />
+            <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-clip overflow-y-auto [--table-sticky-top:4rem]">
+              <AppTopBar />
 
-            <div className="flex flex-1 flex-col min-w-0 overflow-y-auto overflow-x-clip [--table-sticky-top:0px]">
-              {children}
+              <div className="flex min-h-0 min-w-0 flex-1 flex-col">{children}</div>
             </div>
           </TopBarActionsProvider>
         </SidebarInset>

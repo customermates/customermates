@@ -75,13 +75,26 @@ describe("RoleModalStore delete availability", () => {
   it("never offers Delete for a system role", () => {
     const store = makeStore(makeRole({ isSystemRole: true }));
 
+    expect(store.isReadOnly).toBe(true);
+    expect(store.isDisabledOrSystemRole).toBe(true);
     expect(store.canDeleteRole).toBe(false);
+  });
+
+  it("never submits a system role", async () => {
+    const store = makeStore(makeRole({ isSystemRole: true }));
+
+    await store.onSubmit();
+
+    expect(companyActions.upsertRoleAction).not.toHaveBeenCalled();
   });
 
   it("preserves the assignment guard after saving an assigned role", async () => {
     const role = makeRole({ hasUsersAssigned: true });
     const savedRole = RoleDtoSchema.parse(role);
-    companyActions.upsertRoleAction.mockResolvedValue({ ok: true, data: savedRole });
+    companyActions.upsertRoleAction.mockResolvedValue({
+      ok: true,
+      data: savedRole,
+    });
     const store = makeStore(role);
 
     await store.onSubmit();
@@ -123,7 +136,10 @@ describe("RoleModalStore own-role guard", () => {
 
   it("still submits a role the signed-in user does not hold", async () => {
     const role = makeRole();
-    companyActions.upsertRoleAction.mockResolvedValue({ ok: true, data: RoleDtoSchema.parse(role) });
+    companyActions.upsertRoleAction.mockResolvedValue({
+      ok: true,
+      data: RoleDtoSchema.parse(role),
+    });
     const store = makeStore(role, UNHELD_ROLE_ID);
 
     await store.onSubmit();

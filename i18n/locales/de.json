@@ -313,7 +313,6 @@
       "usage": "{pct} % der monatlichen gehosteten KI-Credits verbraucht",
       "viewPlans": "Tarife ansehen"
     },
-    "demoUnavailable": "Der Assistent ist in der Demo nicht verfügbar.",
     "errors": {
       "approvalFailed": "Die Freigabe konnte nicht übermittelt werden.",
       "limitReached": "Es sind nicht genügend KI-Credits übrig, um eine weitere Anfrage zu starten.",
@@ -645,10 +644,12 @@
       "back": "Zurück zum Chat",
       "cancel": "Abbrechen",
       "chats": "Chats",
+      "copyTable": "Tabelle kopieren",
       "deleteChat": "Chat löschen",
       "deleteChatBody": "Nachrichten, Freigaben und Assistentenaktionen dieses Chats werden endgültig gelöscht. KI-Nutzungs- und Abrechnungsdaten sowie über den Chat erstellte CRM-Einträge bleiben erhalten. Bereits gesendete Support-E-Mails werden nicht zurückgerufen.",
       "deleteChatTitle": "Chat endgültig löschen?",
       "deletePermanently": "Endgültig löschen",
+      "downloadTable": "Tabelle herunterladen",
       "editQueued": "Vorgemerkte Nachricht bearbeiten",
       "history": "Chatverlauf",
       "jumpToLatest": "Zu den neuesten Nachrichten",
@@ -667,6 +668,7 @@
       "restore": "Wiederherstellen",
       "retryTurn": "Erneut versuchen",
       "stepsTook": "{steps, plural, one {# Schritt} other {# Schritte}} · {seconds}s",
+      "tableCopied": "Tabelle kopiert",
       "thinking": "Denkt nach",
       "turnFailed": "Diese Antwort konnte nicht abgeschlossen werden.",
       "undo": "Rückgängig",
@@ -808,6 +810,7 @@
     "ariaLabels": {
       "breadcrumb": "Brotkrümelnavigation",
       "collapseSearch": "Suche einklappen",
+      "explainField": "Informationen zu {field}",
       "hidePassword": "Passwort ausblenden",
       "selectOption": "Option auswählen",
       "showPassword": "Passwort anzeigen",
@@ -841,6 +844,10 @@
       "phone": "Telefon",
       "plain": "Text",
       "singleSelect": "Einzelauswahl"
+    },
+    "customFieldHelp": {
+      "immutableType": "Der Feldtyp ist nach dem Erstellen festgelegt. Erstelle ein neues benutzerdefiniertes Feld, um einen anderen Typ zu verwenden.",
+      "probabilityPermission": "Phasenwahrscheinlichkeiten werden unter „{company}“ verwaltet. Bitte einen Administrator um die Berechtigung, sie zu ändern."
     },
     "datePresets": {
       "endTime": "Endzeit",
@@ -1366,11 +1373,14 @@
       "columnLabel": "{deal}-Phasenfeld",
       "columnPlaceholder": "Feld auswählen",
       "currentTotal": "Gewichtete Pipeline",
+      "currentTotalHelp": "Summe aus Wert × Phasenwahrscheinlichkeit für jeden Eintrag mit Phase. Änderungen ergeben sich aus „{services}“, Mengen oder Phasen in „{deals}“; Wahrscheinlichkeiten werden oben verwaltet.",
       "description": "Gewichte jede {deal}-Phase mit ihrer Abschlusswahrscheinlichkeit, um einen abgezinsten Pipeline-Wert zu sehen.",
       "noColumn": "Nicht konfiguriert",
       "totalPipeline": "Gesamtpipeline",
+      "totalPipelineHelp": "Summe aller Werte in „{deals}“. Änderungen ergeben sich aus „{services}“ oder Mengen in diesen Einträgen.",
       "weightsTitle": "Phasenwahrscheinlichkeiten",
-      "withoutStage": "Nicht gewichtet · kein {column}"
+      "withoutStage": "Nicht gewichtet · kein {column}",
+      "withoutStageHelp": "Wert der Einträge in „{deals}“ ohne Auswahl in „{column}“. Mit einer Phase fließen sie in die gewichtete Pipeline ein."
     }
   },
   "CompanyUserModal": {
@@ -1758,6 +1768,33 @@
     "tooltipUnlinkChannel": "Kanal entfernen",
     "tooltipUnverified": "Dieses Profil wurde noch nicht bestätigt. Es wird automatisch geprüft, sobald du die erste Nachricht sendest.",
     "unverified": "Unbestätigt"
+  },
+  "EntityDetail": {
+    "collapseSection": "{section} einklappen",
+    "computedFieldHelp": {
+      "dealValue": "Summe aus Einzelpreis × Menge für jeden verknüpften Eintrag in „{services}“. Ändere dort verknüpfte Einträge oder Mengen, um den Wert zu aktualisieren.",
+      "serviceLineValue": "Preis von „{service}“ × Menge. Ändere hier den Eintrag oder die Menge; bearbeite den verknüpften Eintrag, um seinen Preis zu ändern.",
+      "serviceQuantity": "Summe der Mengen aller verknüpften Einträge in „{services}“. Ändere dort die Mengen, um den Wert zu aktualisieren.",
+      "weightedValue": "{dealValue} × {percent} % Abschlusswahrscheinlichkeit der aktuellen Phase ({stage}). Ändere „{services}“, Mengen oder die Phase; bearbeite Phasenwahrscheinlichkeiten unter „{company}“.",
+      "weightedValueUnconfigured": "{dealValue} × Abschlusswahrscheinlichkeit der ausgewählten Phase. Richte unter „{company}“ Phasenwahrscheinlichkeiten ein und wähle eine Phase; ändere „{services}“ oder Mengen."
+    },
+    "donePersonalizing": "Fertig",
+    "expandSection": "{section} ausklappen",
+    "fields": {
+      "createdAt": "Erstellt am",
+      "updatedAt": "Aktualisiert am"
+    },
+    "moveFieldDown": "{field} nach unten verschieben",
+    "moveFieldUp": "{field} nach oben verschieben",
+    "personalize": "Anpassen",
+    "pinField": "{field} an die Übersicht anheften",
+    "sections": {
+      "base": "Basisdaten",
+      "customFields": "Benutzerdefinierte Felder",
+      "notes": "Notizen",
+      "relations": "Beziehungen"
+    },
+    "unpinField": "{field} von der Übersicht lösen"
   },
   "EntityTerminology": {
     "presets": {
@@ -2458,6 +2495,20 @@
   },
   "Subscription": {
     "currentPeriodEnd": "Ende des aktuellen Abrechnungszeitraums",
+    "fieldHelp": {
+      "currentPeriodEndManage": "Wird durch den aktuellen Abrechnungszeitraum festgelegt. Verwende „{billing}“ für Änderungen am Abonnement.",
+      "currentPeriodEndReadOnly": "Wird durch den aktuellen Abrechnungszeitraum festgelegt. Bitte eine Workspace-Administration um Änderungen.",
+      "currentPeriodEndUnavailable": "Wird durch den aktuellen Abrechnungszeitraum festgelegt. Wende dich für Änderungen an den Support.",
+      "planManage": "Wird mit der Abrechnung synchronisiert. Verwende „{billing}“ für Änderungen.",
+      "planPicker": "Wähle unten einen Tarif, um das Abonnement zu starten oder zu ändern.",
+      "planReadOnly": "Wird mit der Abrechnung synchronisiert. Bitte eine Workspace-Administration um Änderungen.",
+      "planUnavailable": "Wird mit der Abrechnung synchronisiert. Wende dich für Änderungen an den Support.",
+      "quantity": "Wird mit der Anzahl aktiver Workspace-Mitglieder synchronisiert. Eine Workspace-Administration kann Mitglieder unter „{company}“ aktivieren oder deaktivieren.",
+      "trialEndsManage": "Wird durch den Testzeitraum festgelegt. Verwalte das Abonnement über „{billing}“.",
+      "trialEndsPicker": "Wird durch den Testzeitraum festgelegt. Wähle vor diesem Datum einen Tarif, um Unterbrechungen zu vermeiden.",
+      "trialEndsReadOnly": "Wird durch den Testzeitraum festgelegt. Bitte eine Workspace-Administration, das Abonnement zu verwalten.",
+      "trialEndsUnavailable": "Wird durch den Testzeitraum festgelegt. Wende dich zur Verwaltung des Abonnements an den Support."
+    },
     "managedExternallyNote": "Dieser Workspace nutzt einen Enterprise-Tarif mit Rechnungsstellung. Wende dich an deinen Ansprechpartner, um Änderungen vorzunehmen.",
     "manageWithLemonSqueezy": "Verwalten mit Lemon Squeezy",
     "picker": {

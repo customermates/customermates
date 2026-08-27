@@ -6,20 +6,7 @@ import type { CustomColumnOption } from "@/features/custom-column/custom-column.
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
-import {
-  Calendar,
-  CalendarRange,
-  FileText,
-  DollarSign,
-  List,
-  Plus,
-  Trash2,
-  Globe,
-  Mail,
-  Phone,
-  Clock,
-  AlignJustify,
-} from "lucide-react";
+import { Plus, Trash2, AlignJustify } from "lucide-react";
 import { DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -38,6 +25,7 @@ import { AppCardFooter } from "@/components/card/app-card-footer";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppForm } from "@/components/forms/form-context";
 import { FormAutocompleteCurrency } from "@/components/forms/form-autocomplete-currency";
+import { FormFieldHelp } from "@/components/forms/form-field-help";
 import { FormInput } from "@/components/forms/form-input";
 import { FormNumberInput } from "@/components/forms/form-number-input";
 import { FormSelect } from "@/components/forms/form-select";
@@ -58,6 +46,7 @@ import { CHIP_COLORS, type ChipColor } from "@/constants/chip-colors";
 import { DATE_DISPLAY_FORMATS } from "@/constants/date-format";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { cn } from "@/core/utils/cn";
+import { CUSTOM_COLUMN_TYPE_ITEMS } from "./custom-column-type-icon";
 
 const COLOR_DOT_CLASSES: Record<ChipColor, string> = {
   default: "bg-primary",
@@ -67,19 +56,6 @@ const COLOR_DOT_CLASSES: Record<ChipColor, string> = {
   warning: "bg-warning",
   info: "bg-info",
 };
-
-const COLUMN_TYPES = [
-  { value: CustomColumnType.plain, icon: FileText },
-  { value: CustomColumnType.date, icon: Calendar },
-  { value: CustomColumnType.dateTime, icon: Clock },
-  { value: CustomColumnType.dateRange, icon: CalendarRange },
-  { value: CustomColumnType.dateTimeRange, icon: CalendarRange },
-  { value: CustomColumnType.currency, icon: DollarSign },
-  { value: CustomColumnType.link, icon: Globe },
-  { value: CustomColumnType.email, icon: Mail },
-  { value: CustomColumnType.phone, icon: Phone },
-  { value: CustomColumnType.singleSelect, icon: List },
-] as const;
 
 type SortableOptionItemProps = {
   option: CustomColumnOption;
@@ -310,11 +286,18 @@ export const CustomColumnModal = observer(() => {
             <FormSelect
               required
               id="type"
-              items={COLUMN_TYPES.map((item) => ({
+              items={CUSTOM_COLUMN_TYPE_ITEMS.map((item) => ({
                 value: item.value,
                 label: t(`Common.customColumnTypes.${item.value}`),
               }))}
               label={t("Common.inputs.type")}
+              labelEndAddon={
+                form.id ? (
+                  <FormFieldHelp label={t("Common.ariaLabels.explainField", { field: t("Common.inputs.type") })}>
+                    {t("Common.customFieldHelp.immutableType")}
+                  </FormFieldHelp>
+                ) : undefined
+              }
               readOnly={Boolean(form.id)}
               onValueChange={(next) => store.changeType(next as CustomColumnType)}
             />
@@ -401,7 +384,15 @@ export const CustomColumnModal = observer(() => {
                   <span className="flex-1">{t("Common.table.columns.name")}</span>
 
                   {store.isDealWeightingColumn && (
-                    <span className="w-24 shrink-0 text-right whitespace-nowrap">{t("Common.probability")}</span>
+                    <span className="flex w-24 shrink-0 items-center justify-end gap-1 whitespace-nowrap">
+                      <span className="min-w-0 truncate">{t("Common.probability")}</span>
+
+                      {store.isOptionWeightReadOnly && !store.isDisabled ? (
+                        <FormFieldHelp label={t("Common.ariaLabels.explainField", { field: t("Common.probability") })}>
+                          {t("Common.customFieldHelp.probabilityPermission", { company: t("UserAvatar.company") })}
+                        </FormFieldHelp>
+                      ) : null}
+                    </span>
                   )}
 
                   <span className="w-14 shrink-0 text-center">{t("Common.default")}</span>

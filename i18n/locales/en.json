@@ -313,7 +313,6 @@
       "usage": "{pct}% of monthly hosted AI credits used",
       "viewPlans": "View plans"
     },
-    "demoUnavailable": "The Assistant is unavailable in the demo.",
     "errors": {
       "approvalFailed": "The approval could not be delivered.",
       "limitReached": "Not enough AI credits remain to start another request.",
@@ -645,10 +644,12 @@
       "back": "Back to chat",
       "cancel": "Cancel",
       "chats": "Chats",
+      "copyTable": "Copy table",
       "deleteChat": "Delete chat",
       "deleteChatBody": "This permanently deletes the chat’s messages, approvals, and assistant actions. AI usage and billing records and CRM records created through the chat remain. Support emails already sent are not recalled.",
       "deleteChatTitle": "Permanently delete this chat?",
       "deletePermanently": "Delete permanently",
+      "downloadTable": "Download table",
       "editQueued": "Edit queued message",
       "history": "Chat history",
       "jumpToLatest": "Jump to latest",
@@ -667,6 +668,7 @@
       "restore": "Restore",
       "retryTurn": "Try again",
       "stepsTook": "{steps, plural, one {# step} other {# steps}} · {seconds}s",
+      "tableCopied": "Table copied",
       "thinking": "Thinking",
       "turnFailed": "This response couldn’t be completed.",
       "undo": "Undo",
@@ -808,6 +810,7 @@
     "ariaLabels": {
       "breadcrumb": "Breadcrumb",
       "collapseSearch": "Collapse search",
+      "explainField": "About {field}",
       "hidePassword": "Hide password",
       "selectOption": "Select an option",
       "showPassword": "Show password",
@@ -841,6 +844,10 @@
       "phone": "Phone",
       "plain": "Text",
       "singleSelect": "Single Select"
+    },
+    "customFieldHelp": {
+      "immutableType": "Field type is fixed after creation. Create a new custom field to use another type.",
+      "probabilityPermission": "Stage probabilities are managed in {company}. Ask a workspace administrator for permission to update them."
     },
     "datePresets": {
       "endTime": "End time",
@@ -1366,11 +1373,14 @@
       "columnLabel": "{deal} stage field",
       "columnPlaceholder": "Select a field",
       "currentTotal": "Weighted pipeline",
+      "currentTotalHelp": "Sum of value × stage probability for every staged record. Changes come from {services}, quantities, or stages in {deals}; probabilities are managed above.",
       "description": "Weight each {deal} stage by its win probability to see a discounted pipeline value.",
       "noColumn": "Not configured",
       "totalPipeline": "Total pipeline",
+      "totalPipelineHelp": "Sum of all values in {deals}. Changes come from {services} or quantities on those records.",
       "weightsTitle": "Stage probabilities",
-      "withoutStage": "Not weighted · no {column}"
+      "withoutStage": "Not weighted · no {column}",
+      "withoutStageHelp": "Value of records in {deals} without a selection in {column}. Selecting a stage moves them into the weighted pipeline."
     }
   },
   "CompanyUserModal": {
@@ -1758,6 +1768,33 @@
     "tooltipUnlinkChannel": "Unlink channel",
     "tooltipUnverified": "This profile hasn't been confirmed yet. It's checked automatically when you send your first message.",
     "unverified": "Unverified"
+  },
+  "EntityDetail": {
+    "collapseSection": "Collapse {section}",
+    "computedFieldHelp": {
+      "dealValue": "Sum of unit price × quantity for every linked record in {services}. Change linked records or quantities there to update it.",
+      "serviceLineValue": "{service} price × quantity. Change the record or quantity here; edit the linked record to change its price.",
+      "serviceQuantity": "Sum of quantities across all linked records in {services}. Change the quantities there to update it.",
+      "weightedValue": "{dealValue} × the {percent}% win probability for the current stage ({stage}). Change {services}, quantities, or the stage; manage stage probabilities in {company}.",
+      "weightedValueUnconfigured": "{dealValue} × the selected stage’s win probability. Configure stage probabilities in {company} and select a stage; change {services} or quantities to update it."
+    },
+    "donePersonalizing": "Done",
+    "expandSection": "Expand {section}",
+    "fields": {
+      "createdAt": "Created at",
+      "updatedAt": "Updated at"
+    },
+    "moveFieldDown": "Move {field} down",
+    "moveFieldUp": "Move {field} up",
+    "personalize": "Customize",
+    "pinField": "Pin {field} to the overview",
+    "sections": {
+      "base": "Base data",
+      "customFields": "Custom fields",
+      "notes": "Notes",
+      "relations": "Relations"
+    },
+    "unpinField": "Unpin {field} from the overview"
   },
   "EntityTerminology": {
     "presets": {
@@ -2458,6 +2495,20 @@
   },
   "Subscription": {
     "currentPeriodEnd": "Current period ends",
+    "fieldHelp": {
+      "currentPeriodEndManage": "Set by the current billing cycle. Use {billing} to make subscription changes.",
+      "currentPeriodEndReadOnly": "Set by the current billing cycle. Ask a workspace administrator to make changes.",
+      "currentPeriodEndUnavailable": "Set by the current billing cycle. Contact support to make changes.",
+      "planManage": "Synced from billing. Use {billing} to make changes.",
+      "planPicker": "Choose a plan below to start or change the subscription.",
+      "planReadOnly": "Synced from billing. Ask a workspace administrator to make changes.",
+      "planUnavailable": "Synced from billing. Contact support to make changes.",
+      "quantity": "Synced to the number of active workspace members. Workspace administrators can activate or deactivate members in {company}.",
+      "trialEndsManage": "Set by the trial period. Use {billing} to manage the subscription.",
+      "trialEndsPicker": "Set by the trial period. Choose a plan before this date to continue without interruption.",
+      "trialEndsReadOnly": "Set by the trial period. Ask a workspace administrator to manage the subscription.",
+      "trialEndsUnavailable": "Set by the trial period. Contact support to manage the subscription."
+    },
     "managedExternallyNote": "This workspace is on an Enterprise plan billed by invoice. Contact your account manager to make changes.",
     "manageWithLemonSqueezy": "Manage with Lemon Squeezy",
     "picker": {

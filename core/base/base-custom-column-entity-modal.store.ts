@@ -64,6 +64,7 @@ export abstract class BaseCustomColumnEntityModalStore<
 
       add: action,
       delete: action,
+      hydrateServerSnapshot: action,
       loadById: action,
       hydrate: action,
       recordRecentItem: action,
@@ -189,6 +190,13 @@ export abstract class BaseCustomColumnEntityModalStore<
     } finally {
       if (isCurrentRequest()) this.setIsLoading(false);
     }
+  };
+
+  hydrateServerSnapshot = (entity: TDto, customColumns: CustomColumnDto[]) => {
+    this.entityLoadGeneration++;
+    this.requestedEntityId = entity.id;
+    this.setIsLoading(false);
+    this.hydrate(entity, customColumns);
   };
 
   hydrate = (entity: TDto, customColumns: CustomColumnDto[]) => {

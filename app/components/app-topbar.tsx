@@ -40,7 +40,7 @@ export const AppTopBar = observer(() => {
   const inboxThreadId = searchParams.get("threadId");
   const rootStore = useRootStore();
   const { layoutStore, userStore, terminologyStore } = rootStore;
-  const { actions, override } = useTopBarActions();
+  const { actions, joinedContentBelow, override } = useTopBarActions();
   const { plural } = useEntityTerminology();
 
   const entityLabels: Record<string, string> = {
@@ -73,10 +73,10 @@ export const AppTopBar = observer(() => {
     ],
   );
 
-  if (crumbs.length === 0) return <ShellHeader actions={override ?? actions} />;
+  if (crumbs.length === 0) return <ShellHeader actions={override ?? actions} joinedContentBelow={joinedContentBelow} />;
 
   return (
-    <ShellHeader actions={override ?? actions}>
+    <ShellHeader actions={override ?? actions} joinedContentBelow={joinedContentBelow}>
       <Breadcrumb aria-label={t("Common.ariaLabels.breadcrumb")} className="min-w-0">
         <BreadcrumbList className="flex-nowrap">
           {crumbs.map((c, i) => {

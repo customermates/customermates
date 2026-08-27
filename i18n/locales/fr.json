@@ -313,7 +313,6 @@
       "usage": "{pct} % des crédits IA hébergés mensuels utilisés",
       "viewPlans": "Voir les formules"
     },
-    "demoUnavailable": "L’assistant n’est pas disponible dans la démo.",
     "errors": {
       "approvalFailed": "L’approbation n’a pas pu être transmise.",
       "limitReached": "Il ne reste pas assez de crédits IA pour lancer une autre demande.",
@@ -645,10 +644,12 @@
       "back": "Retour au chat",
       "cancel": "Annuler",
       "chats": "Discussions",
+      "copyTable": "Copier le tableau",
       "deleteChat": "Supprimer la discussion",
       "deleteChatBody": "Cette action supprime définitivement les messages, les approbations et les actions de l’assistant de cette discussion. Les données d’utilisation et de facturation de l’IA ainsi que les enregistrements CRM créés via la discussion sont conservés. Les e-mails d’assistance déjà envoyés ne sont pas rappelés.",
       "deleteChatTitle": "Supprimer définitivement ce chat ?",
       "deletePermanently": "Supprimer définitivement",
+      "downloadTable": "Télécharger le tableau",
       "editQueued": "Modifier le message en attente",
       "history": "Historique des chats",
       "jumpToLatest": "Aller aux derniers messages",
@@ -667,6 +668,7 @@
       "restore": "Restaurer",
       "retryTurn": "Réessayer",
       "stepsTook": "{steps, plural, one {# étape} other {# étapes}} · {seconds}s",
+      "tableCopied": "Tableau copié",
       "thinking": "Réflexion",
       "turnFailed": "Cette réponse n’a pas pu être terminée.",
       "undo": "Annuler",
@@ -808,6 +810,7 @@
     "ariaLabels": {
       "breadcrumb": "Fil d’Ariane",
       "collapseSearch": "Réduire la recherche",
+      "explainField": "À propos de {field}",
       "hidePassword": "Masquer le mot de passe",
       "selectOption": "Sélectionner une option",
       "showPassword": "Afficher le mot de passe",
@@ -841,6 +844,10 @@
       "phone": "Téléphone",
       "plain": "Texte",
       "singleSelect": "Choix unique"
+    },
+    "customFieldHelp": {
+      "immutableType": "Le type du champ est définitif après sa création. Créez un nouveau champ personnalisé pour utiliser un autre type.",
+      "probabilityPermission": "Les probabilités d’étape sont gérées dans « {company} ». Demandez à un administrateur l’autorisation de les modifier."
     },
     "datePresets": {
       "endTime": "Heure de fin",
@@ -1366,11 +1373,14 @@
       "columnLabel": "Champ d'étape de {deal}",
       "columnPlaceholder": "Sélectionnez un champ",
       "currentTotal": "Pipeline pondéré",
+      "currentTotalHelp": "Somme de la valeur × la probabilité d’étape pour chaque élément avec une étape. Les changements proviennent de « {services} », des quantités ou des étapes dans « {deals} » ; les probabilités sont gérées ci-dessus.",
       "description": "Pondérez chaque étape de {deal} par sa probabilité de conclusion pour obtenir une valeur de pipeline actualisée.",
       "noColumn": "Non configuré",
       "totalPipeline": "Pipeline total",
+      "totalPipelineHelp": "Somme de toutes les valeurs dans « {deals} ». Les changements proviennent de « {services} » ou des quantités de ces éléments.",
       "weightsTitle": "Probabilités par étape",
-      "withoutStage": "Non pondéré · sans {column}"
+      "withoutStage": "Non pondéré · sans {column}",
+      "withoutStageHelp": "Valeur des éléments dans « {deals} » sans sélection dans « {column} ». La sélection d’une étape les intègre au pipeline pondéré."
     }
   },
   "CompanyUserModal": {
@@ -1758,6 +1768,33 @@
     "tooltipUnlinkChannel": "Dissocier le canal",
     "tooltipUnverified": "Ce profil n'a pas encore été confirmé. Il est vérifié automatiquement lors de l'envoi de votre premier message.",
     "unverified": "Non vérifié"
+  },
+  "EntityDetail": {
+    "collapseSection": "Réduire {section}",
+    "computedFieldHelp": {
+      "dealValue": "Somme du prix unitaire × la quantité pour chaque élément lié dans « {services} ». Modifiez-y les éléments liés ou les quantités pour l’actualiser.",
+      "serviceLineValue": "Prix de « {service} » × quantité. Modifiez ici l’élément ou la quantité ; modifiez l’élément lié pour changer son prix.",
+      "serviceQuantity": "Somme des quantités de tous les éléments liés dans « {services} ». Modifiez-y les quantités pour actualiser la valeur.",
+      "weightedValue": "{dealValue} × probabilité de conclusion de {percent} % pour l’étape actuelle ({stage}). Modifiez « {services} », les quantités ou l’étape ; gérez les probabilités dans « {company} ».",
+      "weightedValueUnconfigured": "{dealValue} × probabilité de conclusion de l’étape sélectionnée. Configurez les probabilités dans « {company} » et sélectionnez une étape ; modifiez « {services} » ou les quantités."
+    },
+    "donePersonalizing": "Terminé",
+    "expandSection": "Développer {section}",
+    "fields": {
+      "createdAt": "Créé le",
+      "updatedAt": "Mis à jour le"
+    },
+    "moveFieldDown": "Déplacer {field} vers le bas",
+    "moveFieldUp": "Déplacer {field} vers le haut",
+    "personalize": "Personnaliser",
+    "pinField": "Épingler {field} dans l’aperçu",
+    "sections": {
+      "base": "Données de base",
+      "customFields": "Champs personnalisés",
+      "notes": "Notes",
+      "relations": "Relations"
+    },
+    "unpinField": "Désépingler {field} de l’aperçu"
   },
   "EntityTerminology": {
     "presets": {
@@ -2458,6 +2495,20 @@
   },
   "Subscription": {
     "currentPeriodEnd": "Fin de la période en cours",
+    "fieldHelp": {
+      "currentPeriodEndManage": "Définie par le cycle de facturation actuel. Utilisez « {billing} » pour modifier l’abonnement.",
+      "currentPeriodEndReadOnly": "Définie par le cycle de facturation actuel. Demandez les modifications à un administrateur de l’espace de travail.",
+      "currentPeriodEndUnavailable": "Définie par le cycle de facturation actuel. Contactez l’assistance pour la modifier.",
+      "planManage": "Synchronisé avec la facturation. Utilisez « {billing} » pour le modifier.",
+      "planPicker": "Choisissez une offre ci-dessous pour démarrer ou modifier l’abonnement.",
+      "planReadOnly": "Synchronisé avec la facturation. Demandez les modifications à un administrateur de l’espace de travail.",
+      "planUnavailable": "Synchronisé avec la facturation. Contactez l’assistance pour le modifier.",
+      "quantity": "Synchronisé avec le nombre de membres actifs de l’espace de travail. Les administrateurs peuvent activer ou désactiver des membres dans « {company} ».",
+      "trialEndsManage": "Définie par la période d’essai. Utilisez « {billing} » pour gérer l’abonnement.",
+      "trialEndsPicker": "Définie par la période d’essai. Choisissez une offre avant cette date pour continuer sans interruption.",
+      "trialEndsReadOnly": "Définie par la période d’essai. Demandez à un administrateur de l’espace de travail de gérer l’abonnement.",
+      "trialEndsUnavailable": "Définie par la période d’essai. Contactez l’assistance pour gérer l’abonnement."
+    },
     "managedExternallyNote": "Cet espace de travail utilise une formule Enterprise réglée sur facture. Contactez votre gestionnaire de compte pour toute modification.",
     "manageWithLemonSqueezy": "Gérer avec Lemon Squeezy",
     "picker": {

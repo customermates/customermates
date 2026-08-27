@@ -30,7 +30,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
 }));
 
 vi.mock("@/app/components/app-sidebar", () => ({ AppSidebar: () => null }));
-vi.mock("@/app/components/app-topbar", () => ({ AppTopBar: () => null }));
+vi.mock("@/app/components/app-topbar", () => ({ AppTopBar: () => jsx("div", { "data-app-topbar": true }) }));
 vi.mock("@/app/components/public-navbar", () => ({ PublicNavbar: () => null }));
 vi.mock("@/app/components/shell-header", () => ({ ShellHeader: () => null }));
 vi.mock("@/app/[locale]/(static)/docs/components/docs-sidebar", () => ({
@@ -57,6 +57,30 @@ import { NavigationSwitch } from "../navigation-switch";
 
 type NavigationSwitchProps = Parameters<typeof NavigationSwitch>[0];
 
+function allowedProps(): Omit<NavigationSwitchProps, "children"> {
+  return {
+    accountState: "allowed",
+    appUser: null,
+    channelsNeedingActionCount: 0,
+    company: null,
+    emailVerified: true,
+    legalStatus: null,
+    sidebarUser: {
+      avatarUrl: null,
+      email: "test@example.com",
+      firstName: "Test",
+      lastName: "User",
+      role: { isSystemRole: true, permissions: [] },
+    },
+    subscription: null,
+    systemTaskCount: 0,
+    terminology: [],
+    trialDaysLeft: null,
+    unreadThreadCount: 0,
+    userDisplayLanguage: "en",
+  };
+}
+
 let container: HTMLDivElement;
 let root: Root;
 
@@ -77,21 +101,7 @@ afterEach(() => {
 describe("NavigationSwitch account-state refresh", () => {
   it("refreshes when a background tab becomes visible and removes its listener on unmount", () => {
     const visibility = vi.spyOn(document, "visibilityState", "get");
-    const props: Omit<NavigationSwitchProps, "children"> = {
-      accountState: "allowed",
-      appUser: null,
-      channelsNeedingActionCount: 0,
-      company: null,
-      emailVerified: true,
-      legalStatus: null,
-      sidebarUser: null,
-      subscription: null,
-      systemTaskCount: 0,
-      terminology: [],
-      trialDaysLeft: null,
-      unreadThreadCount: 0,
-      userDisplayLanguage: "en",
-    };
+    const props = allowedProps();
 
     act(() => {
       root.render(jsx(NavigationSwitch, { ...props, children: "page" }));
@@ -108,5 +118,24 @@ describe("NavigationSwitch account-state refresh", () => {
     act(() => root.render(jsx("div", {})));
     document.dispatchEvent(new Event("visibilitychange"));
     expect(state.refresh).toHaveBeenCalledOnce();
+  });
+
+  it("keeps the top bar and page content in the same vertical scrollport", () => {
+    act(() => {
+      root.render(
+        jsx(NavigationSwitch, {
+          ...allowedProps(),
+          children: jsx("div", { "data-page-content": true }),
+        }),
+      );
+    });
+
+    const topbar = container.querySelector<HTMLElement>("[data-app-topbar]");
+    const page = container.querySelector<HTMLElement>("[data-page-content]");
+    const scrollport = topbar?.parentElement;
+
+    expect(scrollport).toBe(page?.parentElement?.parentElement);
+    expect(scrollport?.className).toContain("overflow-y-auto");
+    expect(scrollport?.className).toContain("[--table-sticky-top:4rem]");
   });
 });

@@ -1,0 +1,1 @@
+ALTER TABLE "P13n" ADD COLUMN "detailOptions" JSONB;

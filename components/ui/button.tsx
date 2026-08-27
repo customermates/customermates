@@ -13,7 +13,8 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
         secondary: "border border-border bg-secondary text-secondary-foreground shadow-xs hover:bg-accent",
-        field: "border border-input bg-input-background shadow-xs hover:bg-accent hover:text-accent-foreground",
+        field:
+          "border border-input bg-input-background shadow-xs hover:bg-accent hover:text-accent-foreground aria-[readonly=true]:cursor-default aria-[readonly=true]:border-border aria-[readonly=true]:bg-background aria-[readonly=true]:text-foreground aria-[readonly=true]:shadow-none aria-[readonly=true]:hover:bg-background aria-[readonly=true]:hover:text-foreground aria-[readonly=true]:active:scale-100 data-[field-state=read-only]:cursor-default data-[field-state=read-only]:border-border data-[field-state=read-only]:bg-background data-[field-state=read-only]:text-foreground data-[field-state=read-only]:shadow-none data-[field-state=read-only]:hover:bg-background data-[field-state=read-only]:hover:text-foreground data-[field-state=read-only]:active:scale-100 disabled:border-border disabled:bg-background disabled:text-muted-foreground disabled:shadow-none disabled:opacity-100 disabled:active:scale-100",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         softPrimary: "bg-primary/20 text-primary hover:bg-primary/35",

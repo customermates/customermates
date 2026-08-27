@@ -27,6 +27,7 @@ type Props = {
   id?: string;
   label?: string | null;
   hideLabel?: boolean;
+  ariaLabelledBy?: string;
 };
 
 function formStringToNumber(value: string | undefined): number | undefined {
@@ -35,169 +36,174 @@ function formStringToNumber(value: string | undefined): number | undefined {
   return Number.isFinite(n) ? n : undefined;
 }
 
-export const CustomFieldEditor = observer(({ column, value, onChange, id, label, hideLabel = false }: Props) => {
-  const copy = useCopyToClipboard();
-  const intlStore = useHydratedIntlStore();
+export const CustomFieldEditor = observer(
+  ({ column, value, onChange, id, label, hideLabel = false, ariaLabelledBy }: Props) => {
+    const copy = useCopyToClipboard();
+    const intlStore = useHydratedIntlStore();
 
-  const inputId = `custom-field-editor-${column.id}`;
-  const resolvedLabel = label === undefined ? column.label : label;
-  const formLabel = hideLabel ? null : resolvedLabel;
+    const inputId = `custom-field-editor-${column.id}`;
+    const resolvedLabel = label === undefined ? column.label : label;
+    const formLabel = hideLabel ? null : resolvedLabel;
 
-  switch (column.type) {
-    case CustomColumnType.singleSelect:
-      return (
-        <FormSelect
-          id={id ?? inputId}
-          items={(column.options?.options ?? []).map((opt) => ({
-            value: opt.value,
-            label: opt.label,
-            color: opt.color,
-          }))}
-          label={formLabel}
-        />
-      );
+    switch (column.type) {
+      case CustomColumnType.singleSelect:
+        return (
+          <FormSelect
+            id={id ?? inputId}
+            items={(column.options?.options ?? []).map((opt) => ({
+              value: opt.value,
+              label: opt.label,
+              color: opt.color,
+            }))}
+            label={formLabel}
+          />
+        );
 
-    case CustomColumnType.link:
-      return (
-        <FormInputChips
-          allowMultiple={column.options?.allowMultiple}
-          chipColor={column.options?.color}
-          id={id ?? inputId}
-          label={formLabel}
-          renderChip={(url, endContent) => {
-            let startContent: React.ReactNode;
-            let displayLabel: string;
+      case CustomColumnType.link:
+        return (
+          <FormInputChips
+            allowMultiple={column.options?.allowMultiple}
+            ariaLabelledBy={ariaLabelledBy}
+            chipColor={column.options?.color}
+            id={id ?? inputId}
+            label={formLabel}
+            renderChip={(url, endContent) => {
+              let startContent: React.ReactNode;
+              let displayLabel: string;
 
-            try {
-              const parsedUrl = new URL(url);
-              if (parsedUrl.protocol === "mailto:") {
-                displayLabel = parsedUrl.pathname;
-                startContent = (
-                  <span className="flex size-4 shrink-0 items-center justify-center text-muted-foreground">
-                    <Icon icon={Mail} size="md" />
-                  </span>
-                );
-              } else if (parsedUrl.protocol === "tel:") {
-                displayLabel = parsedUrl.pathname;
-                startContent = (
-                  <span className="flex size-4 shrink-0 items-center justify-center text-muted-foreground">
-                    <Icon icon={Phone} size="md" />
-                  </span>
-                );
-              } else {
-                displayLabel = parsedUrl.hostname;
+              try {
+                const parsedUrl = new URL(url);
+                if (parsedUrl.protocol === "mailto:") {
+                  displayLabel = parsedUrl.pathname;
+                  startContent = (
+                    <span className="flex size-4 shrink-0 items-center justify-center text-muted-foreground">
+                      <Icon icon={Mail} size="md" />
+                    </span>
+                  );
+                } else if (parsedUrl.protocol === "tel:") {
+                  displayLabel = parsedUrl.pathname;
+                  startContent = (
+                    <span className="flex size-4 shrink-0 items-center justify-center text-muted-foreground">
+                      <Icon icon={Phone} size="md" />
+                    </span>
+                  );
+                } else {
+                  displayLabel = parsedUrl.hostname;
+                  startContent = <Favicon className="rounded-full" size={16} value={url} />;
+                }
+              } catch {
+                displayLabel = url;
                 startContent = <Favicon className="rounded-full" size={16} value={url} />;
               }
-            } catch {
-              displayLabel = url;
-              startContent = <Favicon className="rounded-full" size={16} value={url} />;
+
+              return (
+                <AppChip
+                  endContent={endContent}
+                  startContent={startContent}
+                  variant={column.options?.color ? column.options.color : "secondary"}
+                >
+                  {displayLabel}
+                </AppChip>
+              );
+            }}
+            value={value}
+            onChipClick={(url) => {
+              const target = openableLinkTarget(url);
+              if (target) window.open(target, "_blank", "noreferrer");
+            }}
+            onValueChange={onChange}
+          />
+        );
+
+      case CustomColumnType.currency:
+        return (
+          <FormNumberInput
+            endContent={
+              column.options?.currency && (
+                <span className="mr-1.5">
+                  {intlStore.formatCurrency(0, column.options?.currency?.toString()).replace(/[\d\s,.-]/g, "")}
+                </span>
+              )
             }
+            id={id ?? inputId}
+            label={formLabel}
+            value={formStringToNumber(value)}
+            onValueChange={(n) => onChange(n === undefined ? undefined : String(n))}
+          />
+        );
 
-            return (
-              <AppChip
-                endContent={endContent}
-                startContent={startContent}
-                variant={column.options?.color ? column.options.color : "secondary"}
-              >
-                {displayLabel}
-              </AppChip>
-            );
-          }}
-          value={value}
-          onChipClick={(url) => {
-            const target = openableLinkTarget(url);
-            if (target) window.open(target, "_blank", "noreferrer");
-          }}
-          onValueChange={onChange}
-        />
-      );
+      case CustomColumnType.plain:
+        return <FormInput id={id ?? inputId} label={formLabel} />;
 
-    case CustomColumnType.currency:
-      return (
-        <FormNumberInput
-          endContent={
-            column.options?.currency && (
-              <span className="mr-1.5">
-                {intlStore.formatCurrency(0, column.options?.currency?.toString()).replace(/[\d\s,.-]/g, "")}
-              </span>
-            )
-          }
-          id={id ?? inputId}
-          label={formLabel}
-          value={formStringToNumber(value)}
-          onValueChange={(n) => onChange(n === undefined ? undefined : String(n))}
-        />
-      );
+      case CustomColumnType.date:
+        return (
+          <FormIsoDatePicker
+            dateOnly
+            displayFormat={column.options?.displayFormat ?? undefined}
+            id={id ?? inputId}
+            label={formLabel}
+          />
+        );
 
-    case CustomColumnType.plain:
-      return <FormInput id={id ?? inputId} label={formLabel} />;
+      case CustomColumnType.dateTime:
+        return (
+          <FormIsoDatePicker
+            dateOnly={false}
+            displayFormat={column.options?.displayFormat ?? undefined}
+            id={id ?? inputId}
+            label={formLabel}
+          />
+        );
 
-    case CustomColumnType.date:
-      return (
-        <FormIsoDatePicker
-          dateOnly
-          displayFormat={column.options?.displayFormat ?? undefined}
-          id={id ?? inputId}
-          label={formLabel}
-        />
-      );
+      case CustomColumnType.dateRange:
+        return (
+          <FormIsoDateRangePicker
+            dateOnly
+            displayFormat={column.options?.displayFormat ?? undefined}
+            id={id ?? inputId}
+            label={formLabel}
+          />
+        );
 
-    case CustomColumnType.dateTime:
-      return (
-        <FormIsoDatePicker
-          dateOnly={false}
-          displayFormat={column.options?.displayFormat ?? undefined}
-          id={id ?? inputId}
-          label={formLabel}
-        />
-      );
+      case CustomColumnType.dateTimeRange:
+        return (
+          <FormIsoDateRangePicker
+            dateOnly={false}
+            displayFormat={column.options?.displayFormat ?? undefined}
+            id={id ?? inputId}
+            label={formLabel}
+          />
+        );
 
-    case CustomColumnType.dateRange:
-      return (
-        <FormIsoDateRangePicker
-          dateOnly
-          displayFormat={column.options?.displayFormat ?? undefined}
-          id={id ?? inputId}
-          label={formLabel}
-        />
-      );
+      case CustomColumnType.email:
+        return (
+          <FormInputChips
+            allowMultiple={column.options?.allowMultiple}
+            ariaLabelledBy={ariaLabelledBy}
+            chipColor={column.options?.color}
+            id={id ?? inputId}
+            label={formLabel}
+            value={value}
+            onChipClick={(val) => runUserAction(() => copy(val))}
+            onValueChange={onChange}
+          />
+        );
 
-    case CustomColumnType.dateTimeRange:
-      return (
-        <FormIsoDateRangePicker
-          dateOnly={false}
-          displayFormat={column.options?.displayFormat ?? undefined}
-          id={id ?? inputId}
-          label={formLabel}
-        />
-      );
+      case CustomColumnType.phone:
+        return (
+          <FormInputChips
+            allowMultiple={column.options?.allowMultiple}
+            ariaLabelledBy={ariaLabelledBy}
+            chipColor={column.options?.color}
+            id={id ?? inputId}
+            label={formLabel}
+            value={value}
+            onChipClick={(val) => runUserAction(() => copy(val))}
+            onValueChange={onChange}
+          />
+        );
+    }
 
-    case CustomColumnType.email:
-      return (
-        <FormInputChips
-          allowMultiple={column.options?.allowMultiple}
-          chipColor={column.options?.color}
-          id={id ?? inputId}
-          label={formLabel}
-          value={value}
-          onChipClick={(val) => runUserAction(() => copy(val))}
-          onValueChange={onChange}
-        />
-      );
-
-    case CustomColumnType.phone:
-      return (
-        <FormInputChips
-          allowMultiple={column.options?.allowMultiple}
-          chipColor={column.options?.color}
-          id={id ?? inputId}
-          label={formLabel}
-          value={value}
-          onChipClick={(val) => runUserAction(() => copy(val))}
-          onValueChange={onChange}
-        />
-      );
-  }
-
-  return null;
-});
+    return null;
+  },
+);
