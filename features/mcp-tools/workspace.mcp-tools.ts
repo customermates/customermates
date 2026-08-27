@@ -82,7 +82,7 @@ export const listUsersTool = {
   description:
     "Use this when you need the workspace members: returns { id, firstName, lastName, email, roleId, status } per user. " +
     "Optional: searchTerm (matches firstName/lastName), filters, sortDescriptor, page, pageSize. " +
-    "Use the id as userId for manage_team update_member and for userIds in record tools; resolve roleId via get_workspace_context.",
+    "Use list_users.items[].id as userId for manage_team update_member and for userIds in record tools; match roleId against get_workspace_context.roles[].id for the role name and permissions.",
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: ListUsersSchema,
   execute: (params: z.infer<typeof ListUsersSchema>) =>
