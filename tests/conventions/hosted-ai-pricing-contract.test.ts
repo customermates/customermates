@@ -3,6 +3,8 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { REGISTERED_LOCALES } from "@/i18n/locale-registry";
+
 const ROOT = process.cwd();
 
 function read(path: string) {
@@ -21,7 +23,16 @@ describe("hosted AI pricing contract", () => {
   const pricingDe = read("content/pricing/de/pricing.mdx");
   const assistantEn = read("content/docs/en/app-assistant.mdx");
   const assistantDe = read("content/docs/de/app-assistant.mdx");
-  const locales = `${read("i18n/locales/en.json")}\n${read("i18n/locales/de.json")}`;
+  const localeFiles = Object.fromEntries(
+    REGISTERED_LOCALES.map((locale) => [locale, read(`i18n/locales/${locale}.json`)]),
+  );
+  const locales = Object.values(localeFiles).join("\n");
+  const subscriptionCreditNotes = Object.fromEntries(
+    Object.entries(localeFiles).map(([locale, source]) => [
+      locale,
+      (JSON.parse(source) as { Subscription: { picker: { creditNote: string } } }).Subscription.picker.creditNote,
+    ]),
+  );
 
   it("publishes exact per-active-user allowances in English and German", () => {
     for (const pricing of [pricingEn, pricingDe]) {
@@ -44,8 +55,18 @@ describe("hosted AI pricing contract", () => {
     expect(assistantDe).toContain(
       "bezahlte Kontingente werden monatlich zurückgesetzt und nicht genutzte Credits werden nicht übertragen.",
     );
+    expect(subscriptionCreditNotes).toEqual({
+      en: "Hosted AI credits refresh monthly; unused credits do not roll over. External MCP clients use your own AI provider and do not consume these credits.",
+      de: "Credits für den gehosteten KI-Assistenten werden monatlich erneuert; nicht genutzte Credits werden nicht übertragen. Externe MCP-Clients nutzen Ihren eigenen KI-Anbieter und verbrauchen diese Credits nicht.",
+      es: "Los créditos de IA alojada se renuevan cada mes; los créditos no utilizados no se acumulan. Los clientes MCP externos utilizan tu propio proveedor de IA y no consumen estos créditos.",
+      fr: "Les crédits IA hébergés sont renouvelés chaque mois ; les crédits non utilisés ne sont pas reportés. Les clients MCP externes utilisent votre propre fournisseur d'IA et ne consomment pas ces crédits.",
+      it: "I crediti IA in hosting si rinnovano ogni mese; i crediti non utilizzati non vengono trasferiti al mese successivo. I client MCP esterni utilizzano il tuo provider di IA e non consumano questi crediti.",
+    });
     expect(`${pricingEn}\n${assistantEn}`).not.toMatch(/annual(?:ly)? billing|billed annually/i);
     expect(`${pricingDe}\n${assistantDe}`).not.toMatch(/jährliche(?:n|r)? Abrechnung/i);
+    expect(Object.values(subscriptionCreditNotes).join("\n")).not.toMatch(
+      /annual(?:ly)? billing|billed annually|jährliche(?:n|r)? Abrechnung|facturación anual|facturation annuelle|fatturazione annuale/i,
+    );
     expect(`${pricingEn}\n${assistantEn}`).not.toMatch(/billing[- ]anniversary/i);
     expect(`${pricingDe}\n${assistantDe}`).not.toMatch(/Abrechnungs(?:stichtag|jubiläum)/i);
     expect(pricingEn).toMatch(/External MCP clients use your own AI provider/i);

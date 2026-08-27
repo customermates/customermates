@@ -2459,7 +2459,7 @@
     "manageWithLemonSqueezy": "Gestisci con Lemon Squeezy",
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# account collegato per utente} other {# account collegati per utente}}",
-      "creditNote": "I crediti IA in hosting si rinnovano ogni mese, anche con la fatturazione annuale. I client MCP esterni utilizzano il tuo provider di IA e non consumano questi crediti.",
+      "creditNote": "I crediti IA in hosting si rinnovano ogni mese; i crediti non utilizzati non vengono trasferiti al mese successivo. I client MCP esterni utilizzano il tuo provider di IA e non consumano questi crediti.",
       "features": {
         "business": ["Tutto ciò che c'è in Pro", "Account condivisi e assistenza prioritaria"],
         "pro": ["Tutto ciò che c'è in Starter", "Posta in arrivo unificata"],
