@@ -3,6 +3,8 @@ import { useCallback, useSyncExternalStore } from "react";
 export const BREAKPOINT_QUERY = {
   sm: "(min-width: 40rem)",
   md: "(min-width: 48rem)",
+  nav: "(min-width: 56rem)",
+  lg: "(min-width: 64rem)",
 } as const;
 
 export type BreakpointName = keyof typeof BREAKPOINT_QUERY;
