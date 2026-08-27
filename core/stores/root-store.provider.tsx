@@ -15,6 +15,7 @@ import type { AppMode } from "@/core/config/environment";
 const RootStoreContext = createContext<RootStore | null>(null);
 
 type Props = {
+  agentChatEnabled: boolean;
   appMode: AppMode;
   children: ReactNode;
   initialState: RootStoreInitialState;
@@ -28,8 +29,8 @@ export type RootStoreInitialState = {
   subscription: SubscriptionDto | null;
 };
 
-function createRootStore(appMode: AppMode, initialState: RootStoreInitialState): RootStore {
-  const rootStore = new RootStore(appMode);
+function createRootStore(agentChatEnabled: boolean, appMode: AppMode, initialState: RootStoreInitialState): RootStore {
+  const rootStore = new RootStore(appMode, agentChatEnabled);
   rootStore.localeStore.setLocale(initialState.locale);
   rootStore.userStore.setUser(initialState.user);
   rootStore.companyStore.setCompany(initialState.company);
@@ -38,8 +39,8 @@ function createRootStore(appMode: AppMode, initialState: RootStoreInitialState):
   return rootStore;
 }
 
-export function RootStoreProvider({ appMode, children, initialState }: Props) {
-  const [rootStore] = useState(() => createRootStore(appMode, initialState));
+export function RootStoreProvider({ agentChatEnabled, appMode, children, initialState }: Props) {
+  const [rootStore] = useState(() => createRootStore(agentChatEnabled, appMode, initialState));
 
   useEffect(() => {
     rootStore.intlStore.markClientHydrated();

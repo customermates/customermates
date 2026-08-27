@@ -152,6 +152,15 @@ export class IntlStore {
     }).format(date);
   }
 
+  formatDayMonth(date: Date | undefined): string {
+    if (date === undefined) return "";
+
+    return new Intl.DateTimeFormat(this.formattingLocale, {
+      month: "short" as const,
+      day: "numeric" as const,
+    }).format(date);
+  }
+
   formatDescriptiveLongDate(date: Date | undefined): string {
     if (date === undefined) return "";
     if (!this.clientHydrated) return "";

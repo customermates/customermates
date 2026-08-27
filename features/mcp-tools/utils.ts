@@ -3,6 +3,18 @@ import { encode } from "@toon-format/toon";
 import { getTranslations } from "next-intl/server";
 
 import type { CustomErrorCode } from "@/core/validation/validation.types";
+import { createZodError, type InteractorResult } from "@/core/validation/validation.utils";
+
+import {
+  mcpInteractorFailure,
+  mcpValidationFailure,
+  validationError,
+  VALIDATION_ERROR_PREFIX,
+  type McpToolFailureResult,
+  type McpToolResult,
+} from "./mcp-tool";
+
+export { mcpInteractorFailure, mcpValidationFailure, VALIDATION_ERROR_PREFIX } from "./mcp-tool";
 
 export function encodeToToon(data: unknown): string {
   try {
@@ -27,15 +39,35 @@ export const mcpPage = (maximum?: number) => {
   return bounded.default(1).describe("1-indexed page number");
 };
 
-export const VALIDATION_ERROR_PREFIX = "Validation error:";
-
-export const validationError = (error: z.ZodError): string => `${VALIDATION_ERROR_PREFIX} ${z.prettifyError(error)}`;
-
-export async function customErrorMessage(code: CustomErrorCode, values?: Record<string, string>): Promise<string> {
+async function customErrorText(code: CustomErrorCode, values?: Record<string, string>): Promise<string> {
   const t = await getTranslations("Common.errors");
   let message = t.raw(code) as string;
   if (values) for (const [key, value] of Object.entries(values)) message = message.replaceAll(`{${key}}`, value);
   return `${VALIDATION_ERROR_PREFIX} ${message}`;
+}
+
+export function nestedValidationErrorText(error: z.ZodError): string {
+  return validationError(error);
+}
+
+export function nestedCustomErrorText(code: CustomErrorCode, values?: Record<string, string>): Promise<string> {
+  return customErrorText(code, values);
+}
+
+export async function customMcpFailure(
+  code: CustomErrorCode,
+  values?: Record<string, string>,
+  path: Array<string | number> = [],
+): Promise<McpToolFailureResult> {
+  const text = await customErrorText(code, values);
+  const message = text.slice(VALIDATION_ERROR_PREFIX.length).trim();
+  const failure = mcpInteractorFailure(createZodError(message, path, { ...values, error: code }));
+  return { ...failure, text };
+}
+
+export function mcpMessageFailure(message: string, path: Array<string | number> = []): McpToolFailureResult {
+  const failure = mcpValidationFailure(createZodError(message, path));
+  return { ...failure, text: `${VALIDATION_ERROR_PREFIX} ${message}` };
 }
 
 function formatDatesRecursively(value: unknown): unknown {
@@ -155,11 +187,11 @@ export const NO_NULL_WIPE_WARNING =
   "or use manage_record_links to remove specific ids.";
 
 export async function runInteractor<T>(
-  result: Promise<{ ok: true; data: T } | { ok: false; error: Parameters<typeof validationError>[0] }>,
+  result: InteractorResult<T>,
   format: (data: T) => string,
-): Promise<string> {
+): Promise<McpToolResult> {
   const outcome = await result;
-  return outcome.ok ? format(outcome.data) : validationError(outcome.error);
+  return outcome.ok ? format(outcome.data) : mcpInteractorFailure(outcome.error);
 }
 
 export const CUSTOM_COLUMN_PREREQ = "Prereq: call get_record_schema for custom-column ids.";

@@ -18,7 +18,6 @@ import LegalDocumentNoticeInformation from "../legal-document-notice-information
 import NewUserNotification from "../new-user-notification";
 import ResetPassword from "../reset-password";
 import SubscriptionInactivationNotice from "../subscription-inactivation-notice";
-import SupportEscalation from "../support-escalation";
 import TrialExpiredOffer from "../trial-expired-offer";
 import TrialInactivationNotice from "../trial-inactivation-notice";
 import TrialInactivationReminder from "../trial-inactivation-reminder";
@@ -226,7 +225,7 @@ const EMAIL_PREVIEW_CASES = [
     key: "feedback",
     sendSite: "feedback",
     audience: "operator-english",
-    sourcePath: "features/feedback/send-feedback.interactor.ts",
+    sourcePath: "features/feedback/feedback.creator.ts",
     templatePath: "components/emails/feedback.tsx",
     template: Feedback,
     expectedText: () => "General Feedback",
@@ -237,24 +236,6 @@ const EMAIL_PREVIEW_CASES = [
         userEmail: "sofia@example.test",
         userName: "Sofia Example",
         subject: "General Feedback",
-      }),
-  },
-  {
-    key: "support-escalation",
-    sendSite: "support-escalation",
-    audience: "operator-english",
-    sourcePath: "features/support/create-support-ticket.interactor.ts",
-    templatePath: "components/emails/support-escalation.tsx",
-    template: SupportEscalation,
-    expectedText: () => "Support request",
-    render: (locale) =>
-      createElement(SupportEscalation, {
-        ...previewLayoutProps(locale),
-        userName: "Sofia Example",
-        userEmail: "sofia@example.test",
-        companyName: "Example Studio",
-        conversationTitle: "#179: Synthetic support preview",
-        lastMessages: "user: Please help me verify the account recovery flow.\nassistant: A teammate will follow up.",
       }),
   },
   {
@@ -452,11 +433,11 @@ function localesFor(definition: PreviewDefinition): readonly AppLocale[] {
 }
 
 describe("transactional email preview inventory", () => {
-  it("maps all 14 production send sites onto 15 production templates", () => {
-    expect(EMAIL_PREVIEW_CASES).toHaveLength(15);
-    expect(new Set(EMAIL_PREVIEW_CASES.map(({ key }) => key)).size).toBe(15);
-    expect(new Set(EMAIL_PREVIEW_CASES.map(({ sendSite }) => sendSite)).size).toBe(14);
-    expect(new Set(EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath)).size).toBe(15);
+  it("maps all 13 production send sites onto 14 production templates", () => {
+    expect(EMAIL_PREVIEW_CASES).toHaveLength(14);
+    expect(new Set(EMAIL_PREVIEW_CASES.map(({ key }) => key)).size).toBe(14);
+    expect(new Set(EMAIL_PREVIEW_CASES.map(({ sendSite }) => sendSite)).size).toBe(13);
+    expect(new Set(EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath)).size).toBe(14);
     expect(EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath).sort()).toEqual(topLevelTemplates());
   });
 
@@ -486,10 +467,10 @@ describe("transactional email preview inventory", () => {
 
   it("keeps recipient localization and internal English explicit", () => {
     expect(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "recipient-localized")).toHaveLength(11);
-    expect(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "operator-english")).toHaveLength(4);
+    expect(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "operator-english")).toHaveLength(3);
   });
 
-  it("discovers all 15 top-level production templates", () => {
+  it("discovers all 14 top-level production templates", () => {
     expect(discoveredPreviewEntries()).toEqual(
       EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath.replace("components/emails/", "")).sort(),
     );
@@ -540,7 +521,7 @@ describe("transactional email preview rendering", () => {
       }
     }
 
-    expect(renderCount).toBe(59);
+    expect(renderCount).toBe(58);
   }, 15_000);
 
   it.each(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "operator-english"))(

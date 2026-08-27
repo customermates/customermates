@@ -105,7 +105,7 @@ vi.mock("../thread-topbar", () => ({
   ThreadTopBar: () => createElement("div", { "data-thread-topbar": true }),
 }));
 
-vi.mock("../messages-scroll-container", () => ({
+vi.mock("@/components/scroll/messages-scroll-container", () => ({
   MessagesScrollContainer: ({ children, scrollKey }: { children?: ReactNode; scrollKey: string }) =>
     createElement("div", { "data-message-scroll": scrollKey }, children),
 }));

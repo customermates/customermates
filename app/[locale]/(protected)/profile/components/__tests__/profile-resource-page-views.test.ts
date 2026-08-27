@@ -217,6 +217,10 @@ describe("profile resource page views", () => {
     expect(locked).not.toContain("profile-connected-accounts-connect");
     expect(latestTopBar()).toBeNull();
 
+    const loading = renderConnected("uninitialized");
+    expect(loading).not.toContain('id="profile-connected-accounts-connect"');
+    expect(latestTopBar()).toBeNull();
+
     harness.refreshAccounts.mockRejectedValue(new Error("failed"));
     const error = renderConnected("refresh-error");
     const errorProps = harness.pageStateProps.mock.calls.find(([props]) => props.state === "error")?.[0];
@@ -224,10 +228,13 @@ describe("profile resource page views", () => {
     expect(error).toContain('data-page-state="error"');
     retry.props.onClick();
     expect(harness.refreshAccounts).toHaveBeenCalledTimes(1);
+    expect(latestTopBar()).toBeNull();
 
     const empty = renderConnected("ready");
     expect(empty).toContain('data-page-state="empty"');
     expect(empty).toContain('data-variant="secondary"');
+    expect(empty).toContain("profile-connected-accounts-connect-empty");
+    expect(renderToStaticMarkup(latestTopBar())).toContain('id="profile-connected-accounts-connect"');
     expect(renderToStaticMarkup(latestTopBar())).toContain('data-variant="default"');
 
     const readOnly = renderConnected("ready", { canConnect: false });
@@ -238,5 +245,6 @@ describe("profile resource page views", () => {
     expect(content).toContain("Inbox");
     expect(content).toContain("animate-page-result-in");
     expect(content).not.toContain("data-page-state");
+    expect(renderToStaticMarkup(latestTopBar())).toContain('id="profile-connected-accounts-connect"');
   });
 });

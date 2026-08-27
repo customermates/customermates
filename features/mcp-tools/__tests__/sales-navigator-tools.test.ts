@@ -104,6 +104,30 @@ describe("linkedin_search_sales_leads lead rows", () => {
 });
 
 describe("linkedin_manage_sales_lists browse rows", () => {
+  it("keeps the established public MCP save input backwards compatible", () => {
+    expect(
+      manageSalesListsTool.inputSchema.parse({
+        action: "save",
+        connectedAccountId: ACCOUNT_ID,
+        listId: "list-1",
+        providerId: "lead-1",
+      }),
+    ).toMatchObject({ action: "save", listId: "list-1", providerId: "lead-1" });
+  });
+
+  it("rejects browse and save calls missing their operational ids before execution", () => {
+    expect(() => manageSalesListsTool.inputSchema.parse({ action: "browse", connectedAccountId: ACCOUNT_ID })).toThrow(
+      /listId/,
+    );
+    expect(() =>
+      manageSalesListsTool.inputSchema.parse({
+        action: "save",
+        connectedAccountId: ACCOUNT_ID,
+        listId: "list-1",
+      }),
+    ).toThrow(/providerId/);
+  });
+
   it("maps the browse wire shape work_experience into current_positions", async () => {
     spies.browseSalesList.mockResolvedValue(
       leadResult({

@@ -4,6 +4,13 @@ import { getTransactionClient, transactionStorage } from "./transaction-context"
 import { tenantStorage } from "./tenant-context";
 
 import { prisma, type AppPrismaClient } from "@/prisma/db";
+import { isInteractorFailure, type InteractorOutcome } from "@/core/validation/validation.utils";
+
+class InteractorFailureRollback extends Error {
+  constructor(public readonly failure: Extract<InteractorOutcome<never>, { ok: false }>) {
+    super("Rolling back an expected interactor failure.");
+  }
+}
 
 export async function runInTransaction<T>(
   fn: () => Promise<T>,
@@ -17,34 +24,41 @@ export async function runInTransaction<T>(
   const transactionOptions =
     options?.timeout || options?.maxWait ? { timeout: options.timeout, maxWait: options.maxWait } : undefined;
 
-  const result = await client.$transaction(async (tx: any) => {
-    const store = tenantStorage.getStore();
-    const companyId = options?.companyId ?? (store?.bypass || !store?.user ? undefined : store.user.companyId);
-    if (companyId) await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${companyId}, 0))`;
+  let result: T;
+  try {
+    result = await client.$transaction(async (tx: any) => {
+      const store = tenantStorage.getStore();
+      const companyId = options?.companyId ?? (store?.bypass || !store?.user ? undefined : store.user.companyId);
+      if (companyId) await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${companyId}, 0))`;
 
-    return await transactionStorage.run(
-      {
-        client: tx,
-        auditLogBatch: [],
-        webhookDeliveryBatch: [],
-        afterCommit: [],
-        enabledWebhooks: null,
-      },
-      async () => {
-        const callResult = await fn();
+      return await transactionStorage.run(
+        {
+          client: tx,
+          auditLogBatch: [],
+          webhookDeliveryBatch: [],
+          afterCommit: [],
+          enabledWebhooks: null,
+        },
+        async () => {
+          const callResult = await fn();
+          if (isInteractorFailure(callResult)) throw new InteractorFailureRollback(callResult);
 
-        const inner = transactionStorage.getStore();
-        txStore.value = inner;
+          const inner = transactionStorage.getStore();
+          txStore.value = inner;
 
-        const { auditLogBatch, webhookDeliveryBatch } = inner ?? {};
+          const { auditLogBatch, webhookDeliveryBatch } = inner ?? {};
 
-        if (auditLogBatch?.length) await tx.auditLog.createMany({ data: auditLogBatch });
-        if (webhookDeliveryBatch?.length) await tx.webhookDelivery.createMany({ data: webhookDeliveryBatch });
+          if (auditLogBatch?.length) await tx.auditLog.createMany({ data: auditLogBatch });
+          if (webhookDeliveryBatch?.length) await tx.webhookDelivery.createMany({ data: webhookDeliveryBatch });
 
-        return callResult;
-      },
-    );
-  }, transactionOptions);
+          return callResult;
+        },
+      );
+    }, transactionOptions);
+  } catch (error) {
+    if (error instanceof InteractorFailureRollback) return error.failure as T;
+    throw error;
+  }
 
   const afterCommit = txStore.value?.afterCommit;
   if (afterCommit?.length) {

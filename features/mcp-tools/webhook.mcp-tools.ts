@@ -2,13 +2,14 @@ import { z } from "zod";
 
 import {
   encodeToToon,
-  validationError,
+  mcpInteractorFailure,
+  mcpValidationFailure,
   runInteractor,
   enumHint,
   formatDatesInResponse,
   mcpPage,
   mcpPageSize,
-  customErrorMessage,
+  customMcpFailure,
   filtersDescription,
   sortDescription,
 } from "./utils";
@@ -162,7 +163,7 @@ export const manageWebhooksTool = {
   execute: async (params: z.infer<typeof ManageWebhooksSchema>) => {
     if (params.action === "list") {
       const parsed = ListWebhooksSchema.safeParse(params);
-      if (!parsed.success) return validationError(parsed.error);
+      if (!parsed.success) return mcpValidationFailure(parsed.error);
       return runInteractor(
         getGetWebhooksApiInteractor().invoke({
           searchTerm: parsed.data.searchTerm,
@@ -188,14 +189,14 @@ export const manageWebhooksTool = {
     }
     if (params.action === "create") {
       const parsed = CreateWebhookSchema.safeParse(params);
-      if (!parsed.success) return validationError(parsed.error);
+      if (!parsed.success) return mcpValidationFailure(parsed.error);
       return runInteractor(getUpsertWebhookInteractor().invoke(parsed.data), (data) =>
         encodeToToon({ id: data.id, url: data.url, description: data.description, events: data.events }),
       );
     }
     if (params.action === "update") {
       const parsed = UpdateWebhookSchema.safeParse(params);
-      if (!parsed.success) return validationError(parsed.error);
+      if (!parsed.success) return mcpValidationFailure(parsed.error);
       return runInteractor(
         getUpsertWebhookInteractor().invoke({
           id: parsed.data.id,
@@ -217,11 +218,11 @@ export const manageWebhooksTool = {
     }
     if (params.action === "get") {
       const parsed = GetWebhookSchema.safeParse(params);
-      if (!parsed.success) return validationError(parsed.error);
+      if (!parsed.success) return mcpValidationFailure(parsed.error);
       const result = await getGetWebhookByIdInteractor().invoke({ id: parsed.data.id });
-      if (!result.ok) return validationError(result.error);
+      if (!result.ok) return mcpInteractorFailure(result.error);
       const webhook = result.data;
-      if (!webhook) return await customErrorMessage(CustomErrorCode.webhookNotFound);
+      if (!webhook) return customMcpFailure(CustomErrorCode.webhookNotFound);
       return encodeToToon(
         formatDatesInResponse({
           id: webhook.id,
@@ -237,18 +238,18 @@ export const manageWebhooksTool = {
     }
     if (params.action === "delete") {
       const parsed = DeleteWebhookSchema.safeParse(params);
-      if (!parsed.success) return validationError(parsed.error);
+      if (!parsed.success) return mcpValidationFailure(parsed.error);
       return runInteractor(getDeleteWebhookInteractor().invoke(parsed.data), (data) => `Deleted webhook ${data}`);
     }
     if (params.action === "list_deliveries") {
       const parsed = ListWebhookDeliveriesSchema.safeParse(params);
-      if (!parsed.success) return validationError(parsed.error);
+      if (!parsed.success) return mcpValidationFailure(parsed.error);
       let filters = parsed.data.filters;
       if (params.id) {
         const webhookResult = await getGetWebhookByIdInteractor().invoke({ id: params.id });
-        if (!webhookResult.ok) return validationError(webhookResult.error);
+        if (!webhookResult.ok) return mcpInteractorFailure(webhookResult.error);
         const webhook = webhookResult.data;
-        if (!webhook) return await customErrorMessage(CustomErrorCode.webhookNotFound);
+        if (!webhook) return customMcpFailure(CustomErrorCode.webhookNotFound);
         filters = [
           { field: FilterFieldKey.url, operator: FilterOperatorKey.equals, value: webhook.url },
           ...(filters ?? []),
@@ -270,7 +271,7 @@ export const manageWebhooksTool = {
       );
     }
     const parsed = ResendWebhookDeliverySchema.safeParse(params);
-    if (!parsed.success) return validationError(parsed.error);
+    if (!parsed.success) return mcpValidationFailure(parsed.error);
     return runInteractor(
       getResendWebhookDeliveryInteractor().invoke({ id: parsed.data.id }),
       (data) => `Re-sent webhook delivery ${parsed.data.id} as new delivery ${data}`,

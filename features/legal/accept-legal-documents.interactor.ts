@@ -5,7 +5,6 @@ import type { LegalAuditRepo } from "./legal-audit.repo";
 import { z } from "zod";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { ForbiddenError } from "@/core/errors/app-errors";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { DomainEvent } from "@/features/event/domain-events";
@@ -16,6 +15,8 @@ import {
   hasCurrentLegalDocumentVersions,
 } from "@/constants/legal-documents";
 import { env } from "@/env";
+import { failAuthorization, failUnavailable } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const Schema = z.object({
   agreeToLegalDocuments: z.literal(true),
@@ -37,7 +38,7 @@ export class AcceptLegalDocumentsInteractor extends AuthenticatedInteractor<
   @Write({ input: Schema, output: Schema })
   async invoke(data: AcceptLegalDocumentsData): Validated<AcceptLegalDocumentsData> {
     if (env.APP_MODE !== "cloud" || !this.user.role?.isSystemRole)
-      throw new ForbiddenError("Only a managed-cloud system administrator may accept legal documents");
+      return failAuthorization(CustomErrorCode.permissionDenied);
 
     const records = await this.auditRepo.findLegalEventsUnscoped(this.companyId);
     const existing = records.find(
@@ -57,7 +58,7 @@ export class AcceptLegalDocumentsInteractor extends AuthenticatedInteractor<
           CONTRACT_LEGAL_DOCUMENTS.some((contractDocument) => contractDocument === document),
         ) === true,
     );
-    if (!currentNotice) throw new ForbiddenError("The current legal update has not been delivered to the company");
+    if (!currentNotice) return failUnavailable(CustomErrorCode.legalNoticeNotDelivered);
 
     await this.eventService.publish(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, {
       entityId: this.companyId,

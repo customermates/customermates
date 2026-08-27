@@ -50,13 +50,18 @@ describe("commercial plan catalog", () => {
       providerTrialDays: 0,
     });
     expect(getPlanDefinition("starter").entitlements).toEqual({
+      agentChat: true,
       messaging: false,
       includedAccountsPerUser: 0,
       sharedAccounts: false,
+      hostedAiCreditsPerActiveUser: 200,
     });
     expect(getPlanDefinition("pro").entitlements.includedAccountsPerUser).toBe(1);
     expect(getPlanDefinition("business").entitlements.includedAccountsPerUser).toBe(3);
     expect(getPlanDefinition("enterprise").entitlements.includedAccountsPerUser).toBe("unlimited");
+    expect(getPlanDefinition("pro").entitlements.hostedAiCreditsPerActiveUser).toBe(500);
+    expect(getPlanDefinition("business").entitlements.hostedAiCreditsPerActiveUser).toBe(1_200);
+    expect(getPlanDefinition("enterprise").entitlements.hostedAiCreditsPerActiveUser).toBe("contract");
   });
 
   it("formats and totals integer minor-unit amounts at the presentation boundary", () => {

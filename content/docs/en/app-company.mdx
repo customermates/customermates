@@ -37,6 +37,14 @@ All app routes are locale-prefixed (example: https://customermates.com/en/compan
 | Audit logs tab | Sidebar sub-item | `#nav-company-audit-logs` | Who changed what, when |
 | Audit list controls | Audit toolbar | `#company-audit-logs-search` / `#company-audit-logs-filter` / `#company-audit-logs-display-options` | List controls |
 
+The display-options popovers expose these stable layout controls:
+
+- Members: `#company-members-layout-table`, `#company-members-layout-cards`, `#company-members-layout-kanban`
+- Roles: `#company-roles-layout-table`, `#company-roles-layout-cards`, `#company-roles-layout-kanban`
+- Webhooks: `#company-webhooks-layout-table`, `#company-webhooks-layout-cards`, `#company-webhooks-layout-kanban`
+- Deliveries: `#company-webhook-deliveries-layout-table`, `#company-webhook-deliveries-layout-cards`, `#company-webhook-deliveries-layout-kanban`
+- Audit logs: `#company-audit-logs-layout-table`, `#company-audit-logs-layout-cards`, `#company-audit-logs-layout-kanban`
+
 ## Tips for agents
 
 - Locate controls via the stable ids above, not by visible text. Text changes with the locale, ids do not. Example CSS selector: `#company-webhooks-add`.

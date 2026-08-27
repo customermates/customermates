@@ -2,7 +2,7 @@ import type { Resource, Action } from "@/generated/prisma";
 
 import { isAllowedInDemoMode } from "./allow-in-demo-mode.decorator";
 
-import { runWithTenant } from "@/core/decorators/tenant-context";
+import { runWithTenant, tenantStorage } from "@/core/decorators/tenant-context";
 import { env } from "@/env";
 import { DemoModeError, ForbiddenError } from "@/core/errors/app-errors";
 
@@ -36,8 +36,14 @@ export function TenantInteractor<T extends { new (...args: any[]): object }>(
     constructor.prototype.invoke = async function (...args: any[]) {
       if (env.APP_MODE === "demo" && !isAllowedInDemoMode(constructor)) throw new DemoModeError();
 
-      const { getUserService } = await import("@/core/di");
-      const user = await getUserService().getActiveUserOrThrow();
+      const ambientUser = tenantStorage.getStore()?.user;
+      let user = ambientUser;
+
+      if (!user) {
+        const { getUserService } = await import("@/core/di");
+
+        user = await getUserService().getActiveUserOrThrow();
+      }
 
       if (normalizedRequirement) {
         if (user.role?.isSystemRole) return runWithTenant(user, () => originalInvoke.apply(this, args));

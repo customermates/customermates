@@ -1,0 +1,76 @@
+---
+title: Assistant
+description: Mate, the hosted in-app assistant, what it can do on its own, what always asks first, credits, tours, and support escalation.
+---
+
+Customermates Cloud ships with **Mate**, the hosted in-app assistant. This page documents the assistant panel for humans and for AI agents that drive the UI. Mate is cloud-only; self-hosted deployments keep full MCP access for external AI clients with your own provider instead.
+
+## Purpose
+
+Mate lives in the sidebar as **Ask AI**, and opens with Cmd/Ctrl+J from anywhere in the app. Ask it questions about your workspace or the product, tell it to change data, have it operate the interface, or let it walk you through the app. It answers in your interface language.
+
+## What runs immediately and what asks first
+
+Ordinary CRM work runs as soon as you ask: creating and updating records, notes, record links, message drafts, inbox triage, workspace settings, custom fields, widget and webhook setup, team member role or status changes, and generating secure account-connection links. Mate says what it is about to change and reports exactly what changed. To connect a provider account, you open the generated link and complete its QR code or sign-in flow yourself; creating the link does not mean the account is connected yet.
+
+Mate makes the complete MCP tool inventory discoverable on every turn: all five record types and their create/update paths, workspace setup, custom fields, widgets, webhooks, team administration, messaging, connected social profiles and posts, Sales Navigator searches and lists, documentation, and the connector-compatible search and fetch tools. It loads only the definitions needed for the current task to keep token use and cost down. The current page and the wording of an earlier message never remove a capability. Discovery does not grant access: every call still enforces your current workspace role, tenant, plan entitlements, connected-account prerequisites, and the approvals below. The hosted assistant keeps the same `request_support` capability but routes it through its transcript-aware confirmation and email flow.
+
+Only actions that cannot be taken back or that leave your workspace stop for your approval, every single time:
+
+| Always asks                                        | Why                                          |
+| -------------------------------------------------- | -------------------------------------------- |
+| Deleting records                                   | Hard delete, cannot be undone                |
+| Deleting a custom field, widget, or webhook        | Destroys configuration and stored values     |
+| Discarding a message draft                         | Removes written content                      |
+| Sending an email or chat message                   | Reaches a real person outside the workspace  |
+| Sending a team invitation                          | Sends a real invitation email                |
+| Resending a webhook delivery                       | Sends a new external webhook request         |
+| Changing a social relation or Sales Navigator list | Changes data on a connected external account |
+| Sending a support request                          | Emails the Customermates team                |
+
+An approval card names the action and its consequence. Decline it or let it time out and nothing has changed. There is no standing permission: each of these actions asks again next time.
+
+## Operating the interface
+
+Mate navigates by stable interface ids and activates a narrow allowlist of reversible display controls in the DOM. It can open display options and switch a list between table, cards, and kanban, with success reported only after the selected or expanded DOM state is visible. It can highlight the stable search and filter controls, or open display options for sorting and grouping, but it does not type into them or bind directly to page stores. Kanban needs a single-select field to group by; if the layout control is disabled, Mate explains that prerequisite.
+
+When you ask Mate to change data, it uses the matching MCP-backed tool directly and tells you what changed. When you would rather enter or refine something in the interface, it opens the right control and points at what you need, and **you** type, select, and save. Mate never sends arbitrary selectors or clicks save, send, or delete controls, so your own unsaved edits are never overwritten.
+
+## Guided tours
+
+Ask for a tour of anything: a single page, a workflow, or the whole app. Mate composes each tour for you on the spot from what you asked, navigates between pages as the tour progresses, and explains each stop in your language. Close the overlay and the tour ends.
+
+## Getting started on an empty workspace
+
+Ask Mate to set up your workspace and it uses the same complete tool catalog it has for any other request: terminology, settings, custom fields, linked records, team access, connected-account links, webhooks, and dashboard widgets. It asks only for decisions that materially change the result; otherwise it can proceed from the goal and constraints you already gave. It lists what it made, so you can adjust anything or ask it to delete records again, which asks for your approval like every delete.
+
+Longer requests continue automatically through a bounded sequence of steps. Mate keeps the original request, carries forward a compact record of completed work, retains the latest exact tool results, and re-reads workspace state when it needs details that were compacted. This makes longer setup and audit tasks finish without a manual “continue” in the normal case while retaining hard cost, context, output, error, and runtime limits. If a hard limit is reached, completed changes remain in place, the activity list shows what actually ran, and the next request re-reads the workspace before continuing.
+
+## Credits
+
+Hosted AI processing uses credits from your plan's monthly allowance per active user. The meter above the composer shows the share used and when it resets; the reset day follows your billing anniversary, also on annual billing. A successful simple request often settles at one credit and multi-step work costs more. Before a request starts, Mate must be able to reserve a conservative multi-step safety envelope; if too few credits remain for that envelope, new requests pause even though the meter can still show a small remainder. Unused reserved credits are released after complete provider usage is measured. External MCP clients use your own AI provider and never consume these credits.
+
+## Chat history
+
+Chats are titled automatically. The history view lists active and archived chats. Archiving is reversible; deleting a chat permanently removes its messages and approvals while CRM records and billing entries remain.
+
+## Support
+
+Tell Mate when something does not work out and it offers to email a support request. After your confirmation, the recent conversation is included in an email to the Customermates team. Mate confirms only after the email provider accepts the message. The team replies to the email address on your account, not in the chat. If sending fails, Mate does not claim that the team was notified.
+
+## Key actions
+
+| Action             | Where              | Anchor id                                               | What happens                             |
+| ------------------ | ------------------ | ------------------------------------------------------- | ---------------------------------------- |
+| Open the assistant | Sidebar, above Add | `#nav-assistant`                                        | Opens the panel, same as Cmd/Ctrl+J      |
+| The panel itself   | Floating card      | `#agent-panel-dialog`                                   | Non-modal dialog over the page           |
+| Write to Mate      | Panel footer       | `#agent-composer`                                       | Enter sends, Shift+Enter breaks the line |
+| Credit meter       | Above the composer | `#agent-usage`                                          | Shows usage and the reset date           |
+| Suggested prompts  | Fresh chat         | `#agent-suggestions`                                    | Prefills the composer, does not send     |
+| Back from history  | History view       | `#agent-history-back`                                   | Returns to the current chat              |
+| Archived chats     | History view       | `#agent-archive-summary`                                | Expands the archived list                |
+| Load more chats    | History view       | `#agent-load-more-active` / `#agent-load-more-archived` | Next page of chats                       |
+
+## Availability
+
+Cloud-only, on every plan, in every interface language (English, German, Spanish, French, Italian). Self-hosted deployments do not include the hosted assistant; they connect external AI clients through the [MCP server](/docs/mcp) instead.

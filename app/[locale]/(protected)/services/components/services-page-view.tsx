@@ -29,13 +29,13 @@ type Props = { services: GetResult<ServiceDto> };
 
 export const ServicesPageView = observer(function ServicesPageView({ services }: Props) {
   const { dealsStore, servicesStore } = useRootStore();
+
+  useDataViewSync(servicesStore, services, [dealsStore]);
   const openEntity = useOpenEntity();
   const entityHref = useEntityHref();
   const columns = useServiceColumns();
   const { singular } = useEntityTerminology();
   const t = useTranslations();
-
-  useDataViewSync(servicesStore, services, [dealsStore]);
 
   const view = resolveDataViewView(servicesStore.viewMode, servicesStore.groupingColumnId);
   const pageState = resolveDataViewPageState({

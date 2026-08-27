@@ -44,7 +44,7 @@ import {
   searchSalesLeadsTool,
 } from "@/features/mcp-tools/sales-navigator.mcp-tools";
 
-import type { McpTool } from "@/app/api/v1/mcp/mcp-route-utils";
+import type { McpTool } from "@/features/mcp-tools/mcp-tool";
 
 export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
   records: [
@@ -98,7 +98,7 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
 
 export const MCP_ALWAYS_ON_TOOLS: McpTool[] = [searchTool, fetchTool];
 
-const ALL_MCP_TOOLS = [...Object.values(MCP_TOOL_GROUPS).flat(), ...MCP_ALWAYS_ON_TOOLS];
+export const ALL_MCP_TOOLS = [...Object.values(MCP_TOOL_GROUPS).flat(), ...MCP_ALWAYS_ON_TOOLS];
 
 export function countMcpTools(tools: readonly Pick<McpTool, "name">[] = ALL_MCP_TOOLS): number {
   const names = tools.map((tool) => tool.name);

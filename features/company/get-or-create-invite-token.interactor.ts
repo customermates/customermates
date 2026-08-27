@@ -32,8 +32,8 @@ export class GetOrCreateInviteTokenInteractor extends AuthenticatedInteractor<
     super();
   }
 
-  @ValidateOutput(OutputSchema)
   @Transaction
+  @ValidateOutput(OutputSchema)
   async invoke(): Promise<{ ok: true; data: { token: string; expiresAt: Date } }> {
     const existingToken = await this.repo.findUnexpiredToken();
 

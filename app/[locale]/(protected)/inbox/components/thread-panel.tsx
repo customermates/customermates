@@ -15,7 +15,7 @@ import { PageState } from "@/components/page-state/page-state";
 import { InboxPageSkeleton } from "./inbox-page-skeleton";
 import { MessageItem } from "./message-item";
 import { MessageDateSeparator, isSameDay } from "./message-date-separator";
-import { MessagesScrollContainer } from "./messages-scroll-container";
+import { MessagesScrollContainer } from "@/components/scroll/messages-scroll-container";
 import { ThreadAutoMarkRead } from "./thread-auto-mark-read";
 import { ThreadTopBar } from "./thread-topbar";
 import { ThreadReplyComposer } from "./thread-reply-composer";

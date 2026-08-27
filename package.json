@@ -1,9 +1,10 @@
 {
   "dependencies": {
     "@/generated/prisma": "link:./generated/prisma",
-    "@ai-sdk/mcp": "^1.0.18",
-    "@ai-sdk/openai": "^3.0.25",
-    "@ai-sdk/react": "^3.0.70",
+    "@ai-sdk/mcp": "2.0.36",
+    "@ai-sdk/openai": "4.0.46",
+    "@ai-sdk/react": "4.0.80",
+    "@ai-sdk/workflow": "2.0.7",
     "@better-auth/api-key": "1.6.23",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
@@ -60,8 +61,8 @@
     "@unipile/sdk": "2.32.0",
     "@vercel/analytics": "^1.5.0",
     "@vercel/kv": "3.0.0",
-    "@workflow/world-postgres": "4.1.5",
-    "ai": "^6.0.68",
+    "@workflow/world-postgres": "5.0.0-beta.36",
+    "ai": "7.0.77",
     "better-auth": "1.6.23",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -103,11 +104,12 @@
     "shallowequal": "1.1.0",
     "shiki": "^4.0.2",
     "sonner": "^2.0.7",
+    "streamdown": "^2.5.0",
     "tailwind-merge": "^3.5.0",
     "timeago.js": "^4.0.2",
     "tiptap-markdown": "^0.9.0",
     "vaul": "^1.1.2",
-    "workflow": "4.4.0",
+    "workflow": "5.0.0-beta.44",
     "zod": "4.3.6",
     "zod-openapi": "^5.4.5"
   },
@@ -166,6 +168,7 @@
   "resolutions": {
     "@modelcontextprotocol/sdk/zod": "4.3.6",
     "@types/react-dom/@types/react": "18.3.3",
+    "ai": "7.0.77",
     "import-in-the-middle": "3.0.1",
     "pg": "8.20.0",
     "pg-cloudflare": "1.4.0",
@@ -174,6 +177,7 @@
     "pg-protocol": "1.14.0"
   },
   "scripts": {
+    "agent:eval": "RUN_AGENT_EVAL=true RUN_DATABASE_TESTS=true vitest run --config scripts/agent-eval.config.ts",
     "billing:verify-catalog": "tsx scripts/verify-billing-catalog.ts",
     "build": "prisma generate && yarn openapi:generate && yarn raw-docs:generate && next build",
     "clean": "rm -rf node_modules .next tsconfig.tsbuildinfo generated && yarn install && prisma generate",
@@ -197,7 +201,7 @@
     "test:watch": "vitest",
     "typecheck": "fumadocs-mdx core/fumadocs/source.config.ts && tsc --noEmit",
     "vercel-build": "bash scripts/vercel-build.sh",
-    "workflow:setup": "workflow-postgres-setup"
+    "workflow:setup": "bootstrap"
   },
   "type": "module",
   "version": "1.1.0"

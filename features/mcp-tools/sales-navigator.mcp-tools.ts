@@ -2,7 +2,7 @@ import type { SalesCompany, SalesList, SalesListItem } from "@/ee/messaging/sale
 
 import { z } from "zod";
 
-import { encodeToToon, formatDatesInResponse, runInteractor, validationError } from "./utils";
+import { encodeToToon, formatDatesInResponse, mcpValidationFailure, runInteractor } from "./utils";
 
 import { SalesCompanySchema } from "@/ee/messaging/sales-navigator/sales-navigator.schema";
 import { LinkedinListSalesListsSchema } from "@/ee/messaging/sales-navigator/linkedin-list-sales-lists.interactor";
@@ -68,29 +68,36 @@ const GetSalesSearchParametersToolSchema = z.object({
   limit: LinkedinListSalesSearchParametersSchema.shape.limit.describe("Results per page (1-100, default 10)"),
 });
 
-const ManageSalesListsToolSchema = z.object({
-  action: z
-    .enum(["list", "browse", "save"])
-    .describe(
-      "List-list operation: list (enumerate the account's Sales Navigator lists), browse (read the members of one list), or save (add a lead or account to an existing list)",
+const ManageSalesListsToolSchema = z
+  .object({
+    action: z
+      .enum(["list", "browse", "save"])
+      .describe(
+        "List-list operation: list (enumerate the account's Sales Navigator lists), browse (read the members of one list), or save (add a lead or account to an existing list)",
+      ),
+    connectedAccountId: LinkedinListSalesListsSchema.shape.connectedAccountId.describe(
+      "get_workspace_context.connectedAccounts[].id for a LinkedIn account with a Sales Navigator subscription",
     ),
-  connectedAccountId: LinkedinListSalesListsSchema.shape.connectedAccountId.describe(
-    "get_workspace_context.connectedAccounts[].id for a LinkedIn account with a Sales Navigator subscription",
-  ),
-  kind: LinkedinListSalesListsSchema.shape.kind.describe(
-    "Which list family: leads (people, default) or accounts (companies)",
-  ),
-  listId: LinkedinBrowseSalesListSchema.shape.listId
-    .optional()
-    .describe("Required for browse and save: linkedin_manage_sales_lists.items[].id from action=list"),
-  providerId: LinkedinSaveToSalesListSchema.shape.providerId
-    .optional()
-    .describe(
-      "Required for save: linkedin_search_sales_leads.items[].id or get_social_profile.id for kind leads; linkedin_search_sales_companies.items[].id, linkedin_search_sales_leads.items[].current_positions[].company_id, linkedin_manage_sales_lists.items[].current_positions[].company_id from action=browse, or get_social_profile.current_positions[].company_id for kind accounts",
+    kind: LinkedinListSalesListsSchema.shape.kind.describe(
+      "Which list family: leads (people, default) or accounts (companies)",
     ),
-  offset: LinkedinListSalesListsSchema.shape.offset.describe("list and browse: pagination offset"),
-  limit: LinkedinListSalesListsSchema.shape.limit.describe("list and browse: items per page (1-100, default 10)"),
-});
+    listId: LinkedinBrowseSalesListSchema.shape.listId
+      .optional()
+      .describe("Required for browse and save: linkedin_manage_sales_lists.items[].id from action=list"),
+    providerId: LinkedinSaveToSalesListSchema.shape.providerId
+      .optional()
+      .describe(
+        "Required for save: linkedin_search_sales_leads.items[].id or get_social_profile.id for kind leads; linkedin_search_sales_companies.items[].id, linkedin_search_sales_leads.items[].current_positions[].company_id, linkedin_manage_sales_lists.items[].current_positions[].company_id from action=browse, or get_social_profile.current_positions[].company_id for kind accounts",
+      ),
+    offset: LinkedinListSalesListsSchema.shape.offset.describe("list and browse: pagination offset"),
+    limit: LinkedinListSalesListsSchema.shape.limit.describe("list and browse: items per page (1-100, default 10)"),
+  })
+  .superRefine((data, ctx) => {
+    if ((data.action === "browse" || data.action === "save") && !data.listId)
+      ctx.addIssue({ code: "custom", path: ["listId"], message: "listId is required for browse and save." });
+    if (data.action === "save" && !data.providerId)
+      ctx.addIssue({ code: "custom", path: ["providerId"], message: "providerId is required for save." });
+  });
 
 function formatSalesList(list: SalesList) {
   return {
@@ -288,7 +295,7 @@ export const manageSalesListsTool = {
     "Use this to work with the Sales Navigator lead and account lists of a connected LinkedIn account. " +
     "action list enumerates the existing lists (kind leads for people, accounts for companies) with linkedin_manage_sales_lists.items[].id, name and item count. " +
     "action browse returns the members of one list using listId from linkedin_manage_sales_lists.items[].id; lead rows include items[].current_positions[] (company, role, company_id, company_url), and linkedin_manage_sales_lists.items[].current_positions[].company_id resolves via get_social_profile with profileType=company. " +
-    "action save ADDS a person or company to an existing list: for kind leads, pass providerId from linkedin_search_sales_leads.items[].id or get_social_profile.id. For get_messaging_threads.items[].participants[].identifier or get_messaging_threads.thread.participants[].identifier, call get_social_profile first and use get_social_profile.id. For kind accounts, pass linkedin_search_sales_companies.items[].id, linkedin_search_sales_leads.items[].current_positions[].company_id, linkedin_manage_sales_lists.items[].current_positions[].company_id from action=browse, or get_social_profile.current_positions[].company_id. " +
+    "action save ADDS a person or company to an existing list: for kind leads, pass providerId from linkedin_search_sales_leads.items[].id or get_social_profile.id. For get_messaging_threads.items[].participants[].identifier or get_messaging_threads.thread.participants[].identifier, call get_social_profile first and use get_social_profile.id. For kind accounts, pass linkedin_search_sales_companies.items[].id, linkedin_search_sales_leads.items[].current_positions[].company_id, linkedin_manage_sales_lists.items[].current_positions[].company_id from action=browse, or get_social_profile.current_positions[].company_id. The hosted Assistant verifies the person or company and the list from LinkedIn immediately before asking for approval. " +
     "New lists cannot be created via the API; the user creates them in Sales Navigator first. " +
     "Requires a connected LinkedIn account with an active Sales Navigator subscription.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
@@ -314,7 +321,7 @@ export const manageSalesListsTool = {
     }
     if (params.action === "browse") {
       const parsed = LinkedinBrowseSalesListSchema.safeParse(params);
-      if (!parsed.success) return validationError(parsed.error);
+      if (!parsed.success) return mcpValidationFailure(parsed.error);
       return runInteractor(getLinkedinBrowseSalesListInteractor().invoke(parsed.data), (data) =>
         encodeToToon(
           formatDatesInResponse({
@@ -326,7 +333,7 @@ export const manageSalesListsTool = {
       );
     }
     const parsed = LinkedinSaveToSalesListSchema.safeParse(params);
-    if (!parsed.success) return validationError(parsed.error);
+    if (!parsed.success) return mcpValidationFailure(parsed.error);
     return runInteractor(getLinkedinSaveToSalesListInteractor().invoke(parsed.data), (data) =>
       encodeToToon({ listId: parsed.data.listId, providerId: parsed.data.providerId, status: data.object ?? "saved" }),
     );

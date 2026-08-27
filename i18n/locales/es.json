@@ -7,6 +7,672 @@
     "subject": "Se han eliminado algunas de tus cuentas conectadas",
     "title": "Cuentas conectadas eliminadas"
   },
+  "AgentChat": {
+    "activity": {
+      "cancelled": "Detenido",
+      "consequence": {
+        "accountConnect": "Conectar un canal de mensajería",
+        "accountConnectTarget": "Conectar {target}",
+        "chatSend": "Enviar a la conversación seleccionada",
+        "draftDiscard": "Descartar de forma permanente el borrador guardado seleccionado",
+        "draftSave": "Guardar un borrador en la conversación seleccionada",
+        "emailSend": "Enviar un correo a los destinatarios seleccionados",
+        "externalManage": "Cambiar datos en la cuenta externa conectada",
+        "recordsDelete": "Esta acción no se puede deshacer.",
+        "recordsLink": "Vincular registros",
+        "recordsUnlink": "Eliminar vínculos",
+        "salesListSave": "Añadir el prospecto seleccionado a una lista de Sales Navigator",
+        "salesListSaveTarget": "Añadir {target} a la lista {list} de Sales Navigator",
+        "socialAccept": "Aceptar la solicitud de conexión seleccionada",
+        "socialAcceptTarget": "Aceptar la solicitud de conexión de {target}",
+        "socialCancel": "Retirar o rechazar la solicitud de conexión seleccionada",
+        "socialCancelTarget": "Retirar o rechazar la solicitud de conexión relacionada con {target}",
+        "socialInvite": "Enviar una solicitud de conexión desde la cuenta conectada",
+        "socialInviteTarget": "Enviar una solicitud de conexión a {target}",
+        "teamInvite": "Enviar correos de invitación a las personas seleccionadas",
+        "teamInviteTarget": "Enviar {count} correo(s) de invitación a: {target}",
+        "teamUpdate": "Cambiar el rol o el estado del miembro del equipo seleccionado",
+        "threadUpdate": "Cambiar el estado de la conversación seleccionada",
+        "threadUpdateState": "Establecer el estado de la conversación en «{state}»",
+        "webhookCreate": "Crear un webhook",
+        "webhookDelete": "Eliminar de forma permanente el webhook seleccionado",
+        "webhookEvents": "{count} eventos",
+        "webhookInspect": "Consultar información o entregas de webhooks",
+        "webhookResend": "Reenviar la entrega de webhook seleccionada",
+        "webhookUpdate": "Modificar el webhook seleccionado"
+      },
+      "countedRecordInResource": "1 registro en {resource}",
+      "countedResource": "{count} {resource}",
+      "countedSingular": "1 {resource}",
+      "defaultRecords": "registros",
+      "label": {
+        "preview": "Vista previa",
+        "subject": "Asunto",
+        "to": "Para"
+      },
+      "resource": {
+        "contacts": "contactos",
+        "deals": "oportunidades",
+        "messages": "conversaciones",
+        "organizations": "organizaciones",
+        "services": "servicios",
+        "tasks": "tareas",
+        "terminology": "terminología del espacio de trabajo",
+        "widgets": "widgets del Dashboard"
+      },
+      "resourceSingular": {
+        "contacts": "contacto",
+        "deals": "oportunidad",
+        "messages": "conversación",
+        "organizations": "organización",
+        "services": "servicio",
+        "tasks": "tarea",
+        "terminology": "término del espacio de trabajo",
+        "widgets": "widget del dashboard"
+      },
+      "state": {
+        "accounts": {
+          "connect": {
+            "done": "Enlace de conexión preparado",
+            "error": "No se pudo preparar el enlace de conexión",
+            "running": "Preparando un enlace de conexión seguro"
+          }
+        },
+        "customFields": {
+          "configure": {
+            "done": "Campos personalizados configurados",
+            "error": "No se pudieron configurar los campos personalizados",
+            "running": "Configurando campos personalizados"
+          },
+          "create": {
+            "done": "Campo personalizado creado",
+            "error": "No se pudo crear el campo personalizado",
+            "running": "Creando un campo personalizado"
+          },
+          "delete": {
+            "done": "Campo personalizado eliminado",
+            "error": "No se pudo eliminar el campo personalizado",
+            "running": "Eliminando un campo personalizado"
+          },
+          "read": {
+            "done": "Campos personalizados revisados",
+            "error": "No se pudieron revisar los campos personalizados",
+            "running": "Revisando campos personalizados"
+          },
+          "update": {
+            "done": "Campo personalizado actualizado",
+            "error": "No se pudo actualizar el campo personalizado",
+            "running": "Actualizando un campo personalizado"
+          }
+        },
+        "docs": {
+          "read": {
+            "done": "Guía correspondiente consultada",
+            "error": "No se pudo consultar la guía correspondiente",
+            "running": "Consultando la guía correspondiente"
+          },
+          "search": {
+            "done": "Documentación consultada",
+            "error": "No se pudo consultar la documentación",
+            "running": "Consultando la documentación"
+          }
+        },
+        "generic": {
+          "done": "Paso completado",
+          "error": "Este paso requiere atención",
+          "running": "Procesando la solicitud"
+        },
+        "interface": {
+          "inspect": {
+            "done": "Controles disponibles revisados",
+            "error": "No se pudieron revisar los controles disponibles",
+            "running": "Revisando los controles disponibles"
+          },
+          "interact": {
+            "done": "Control activado",
+            "error": "No se pudo activar el control",
+            "running": "Activando el control"
+          },
+          "navigate": {
+            "done": "Vista correspondiente abierta",
+            "error": "No se pudo abrir esa vista",
+            "running": "Abriendo la vista correspondiente"
+          },
+          "tour": {
+            "done": "Tour iniciado",
+            "error": "No se pudo iniciar el tour",
+            "running": "Preparando la visita guiada"
+          }
+        },
+        "messages": {
+          "discard": {
+            "done": "Borrador descartado",
+            "error": "No se pudo descartar el borrador",
+            "running": "Listo para descartar el borrador"
+          },
+          "draft": {
+            "done": "Borrador guardado",
+            "error": "No se pudo guardar el borrador",
+            "running": "Listo para guardar un borrador"
+          },
+          "read": {
+            "done": "Conversaciones revisadas",
+            "error": "No se pudieron revisar las conversaciones",
+            "running": "Revisando las conversaciones"
+          },
+          "send": {
+            "done": "Mensaje enviado",
+            "error": "No se pudo enviar el mensaje",
+            "running": "Listo para enviar un mensaje real"
+          },
+          "triage": {
+            "done": "Estado de la conversación cambiado",
+            "error": "No se pudo cambiar el estado de la conversación",
+            "running": "Listo para cambiar el estado de la conversación"
+          }
+        },
+        "profile": {
+          "configure": {
+            "done": "Perfil actualizado",
+            "error": "No se pudo actualizar el perfil",
+            "running": "Actualizando el perfil"
+          }
+        },
+        "records": {
+          "create": {
+            "done": "{count, plural, one {Creación de {target} completada} other {Creación de {target} completada}}",
+            "error": "{count, plural, one {Error al crear {target}} other {Error al crear {target}}}",
+            "running": "{count, plural, one {Creando {target}} other {Creando {target}}}"
+          },
+          "delete": {
+            "done": "{count, plural, one {Eliminación de {target} completada} other {Eliminación de {target} completada}}",
+            "error": "{count, plural, one {Error al eliminar {target}} other {Error al eliminar {target}}}",
+            "running": "{count, plural, one {Eliminando {target}} other {Eliminando {target}}}"
+          },
+          "link": {
+            "done": "Registros relacionados vinculados",
+            "error": "No se pudieron vincular los registros",
+            "running": "Vinculando registros relacionados"
+          },
+          "note": {
+            "done": "Notas actualizadas",
+            "error": "No se pudieron actualizar las notas",
+            "running": "Actualizando las notas"
+          },
+          "read": {
+            "done": "Revisión de {resource} completada",
+            "error": "Error al revisar {resource}",
+            "running": "Consultando {resource}"
+          },
+          "update": {
+            "done": "{count, plural, one {Actualización de {target} completada} other {Actualización de {target} completada}}",
+            "error": "{count, plural, one {Error al actualizar {target}} other {Error al actualizar {target}}}",
+            "running": "{count, plural, one {Actualizando {target}} other {Actualizando {target}}}"
+          }
+        },
+        "support": {
+          "escalate": {
+            "done": "Correo de soporte aceptado para su envío",
+            "error": "No se pudo enviar el correo de soporte",
+            "running": "Enviando correo de soporte"
+          }
+        },
+        "team": {
+          "manage": {
+            "done": "Acceso del equipo modificado",
+            "error": "No se pudo cambiar el acceso del equipo",
+            "running": "Listo para cambiar el acceso del equipo"
+          }
+        },
+        "webhooks": {
+          "manage": {
+            "done": "Acción de webhook completada",
+            "error": "No se pudo completar la acción de webhook",
+            "running": "Listo para cambiar la entrega del webhook"
+          }
+        },
+        "widgets": {
+          "configure": {
+            "done": "Widgets del panel configurados",
+            "error": "No se pudieron configurar los widgets del panel",
+            "running": "Configurando los widgets del panel"
+          },
+          "create": {
+            "done": "Widget del panel creado",
+            "error": "No se pudo crear el widget del panel",
+            "running": "Creando un widget del panel"
+          },
+          "delete": {
+            "done": "Widget del panel eliminado",
+            "error": "No se pudo eliminar el widget del panel",
+            "running": "Eliminando el widget del panel"
+          },
+          "read": {
+            "done": "Widgets del panel revisados",
+            "error": "No se pudieron revisar los widgets del panel",
+            "running": "Revisando los widgets del panel"
+          },
+          "update": {
+            "done": "Widget del panel actualizado",
+            "error": "No se pudo actualizar el widget del panel",
+            "running": "Actualizando el widget del panel"
+          }
+        },
+        "workspace": {
+          "configure": {
+            "done": "Espacio de trabajo actualizado",
+            "error": "No se pudo actualizar su espacio de trabajo",
+            "running": "Actualizando el espacio de trabajo"
+          },
+          "inspect": {
+            "done": "Detalles del espacio de trabajo revisados",
+            "error": "No se pudieron revisar los detalles del espacio de trabajo",
+            "running": "Revisando los detalles del espacio de trabajo"
+          },
+          "read": {
+            "done": "Espacio de trabajo revisado",
+            "error": "No se pudo comprobar su espacio de trabajo",
+            "running": "Revisando el espacio de trabajo"
+          },
+          "settings": {
+            "done": "Configuración del espacio de trabajo actualizada",
+            "error": "No se pudo actualizar la configuración del espacio de trabajo",
+            "running": "Actualizando la configuración del espacio de trabajo"
+          },
+          "terminology": {
+            "done": "Terminología del espacio de trabajo actualizada",
+            "error": "No se pudo actualizar la terminología del espacio de trabajo",
+            "running": "Actualizando la terminología del espacio de trabajo"
+          }
+        }
+      },
+      "yourRecords": "sus registros"
+    },
+    "approval": {
+      "approve": "Aprobado",
+      "approveOnceAction": "Aprobar una vez",
+      "reject": "Rechazado",
+      "rejectAction": "Cancelar",
+      "timeout": "Tiempo agotado sin respuesta",
+      "title": "El asistente quiere ejecutar:"
+    },
+    "askAi": "Preguntar a la IA",
+    "askAiWorking": "Mate está trabajando",
+    "credits": {
+      "blocked": {
+        "configuration_unavailable": "El Asistente alojado no está disponible temporalmente. El historial sigue estando accesible.",
+        "credits_exhausted": "Ha agotado los créditos de IA alojada de este mes. Las nuevas solicitudes se reanudarán el {resetAt}; su historial sigue disponible.",
+        "self_hosted": "El Asistente alojado solo está disponible en la nube. Los espacios de trabajo autoalojados pueden seguir utilizando clientes MCP externos con su propio proveedor de IA.",
+        "subscription_unavailable": "Para realizar nuevas solicitudes al Asistente alojado se necesita una suscripción cloud vigente. Su historial sigue disponible."
+      },
+      "contact": "Contactar con nosotros",
+      "planAndReset": "Plan {plan} · se restablece {resetAt}",
+      "recentTurn": "{credits, plural, one {Última consulta: # crédito} other {Última consulta: # créditos}}",
+      "remaining": "Quedan {remaining, number} de {limit, number} créditos",
+      "resetShort": "Se restablece {resetAt}",
+      "usage": "{pct} % de los créditos mensuales de IA alojada consumidos",
+      "viewPlans": "Ver planes"
+    },
+    "demoUnavailable": "El asistente no está disponible en la demostración.",
+    "errors": {
+      "approvalFailed": "No se pudo enviar la aprobación.",
+      "limitReached": "No quedan suficientes créditos de IA para iniciar otra solicitud.",
+      "sendFailed": "El asistente no ha podido procesar su mensaje.",
+      "turnFailed": "Se ha producido un error en el asistente."
+    },
+    "greeting": {
+      "headline": "Hola, soy Mate",
+      "subtitle": "Pregúnteme lo que quiera sobre su espacio de trabajo o dígame qué hacer y me encargo.",
+      "support": "Si algo no sale bien, puedo enviar por correo electrónico a nuestro equipo la conversación reciente, y le responderán por correo electrónico."
+    },
+    "placeholder": "Pregunte a su CRM…",
+    "runner": {
+      "cancelled": "Esta respuesta se ha detenido.",
+      "creditLimit": "He completado parte de esta solicitud, pero me he detenido porque se han agotado tus créditos del Asistente. El trabajo completado se mantiene; los créditos se restablecen al inicio de tu siguiente periodo.",
+      "emptyReply": "No he podido generar una respuesta. Inténtalo de nuevo.",
+      "outputLimit": "He completado parte de esta respuesta, pero he alcanzado el límite de salida de este turno. Pídeme que continúe y terminaré a partir del trabajo ya completado.",
+      "safetyLimit": "He completado parte de esta solicitud, pero me he detenido porque los últimos pasos se repetían, fallaban o alcanzaron un límite de seguridad. El trabajo completado se conserva; revisa los pasos anteriores antes de pedirme que siga.",
+      "turnError": "No he podido completar esa solicitud. Inténtalo de nuevo."
+    },
+    "send": "Enviar",
+    "stop": "Detener",
+    "suggestions": {
+      "pages": {
+        "connected-accounts": {
+          "data": {
+            "accounts-add-channel": {
+              "label": "Añadir otro canal",
+              "prompt": "Guíame para añadir otro canal de mensajería a Customermates."
+            },
+            "accounts-list": {
+              "label": "¿Qué cuentas están conectadas?",
+              "prompt": "Dime qué cuentas de mensajería están conectadas y qué cubre cada una actualmente."
+            },
+            "accounts-sync": {
+              "label": "¿Cómo funciona la sincronización?",
+              "prompt": "Explícame cómo sincroniza Customermates las cuentas conectadas y qué hace con los mensajes que importa."
+            }
+          },
+          "empty": {
+            "accounts-connect-email": {
+              "label": "Conectar mi correo",
+              "prompt": "Guíame para conectar mi cuenta de correo a Customermates."
+            },
+            "accounts-connect-linkedin": {
+              "label": "Conectar LinkedIn",
+              "prompt": "Guíame para conectar LinkedIn a Customermates."
+            },
+            "accounts-connect-whatsapp": {
+              "label": "Conectar WhatsApp",
+              "prompt": "Guíame para conectar WhatsApp a Customermates."
+            }
+          }
+        },
+        "contacts": {
+          "data": {
+            "contacts-cleanup": {
+              "label": "Detectar huecos de datos",
+              "prompt": "Revisa mis contactos en busca de información incompleta o inconsistente y sugiere qué corregir."
+            },
+            "contacts-summary": {
+              "label": "Resumir contactos",
+              "prompt": "Resume mis contactos y señala patrones útiles o información que falte."
+            },
+            "create-contact": {
+              "label": "Crear un contacto",
+              "prompt": "Ayúdame a crear un contacto. Pregunta solo por los datos imprescindibles."
+            }
+          },
+          "empty": {
+            "contacts-tour": {
+              "label": "Descubrir cómo funcionan los contactos",
+              "prompt": "Enséñame la página de contactos y explícame cómo se conectan los contactos con el resto del CRM."
+            },
+            "first-contact": {
+              "label": "Crear mi primer contacto",
+              "prompt": "Ayúdame a crear mi primer contacto. Pregunta solo por los datos que necesites."
+            },
+            "setup-contacts": {
+              "label": "Configurar los contactos",
+              "prompt": "Ayúdame a diseñar y crear una configuración mínima de contactos para mi negocio. Pregunta primero por mi caso de uso."
+            }
+          }
+        },
+        "dashboard": {
+          "data": {
+            "dashboard-tour": {
+              "label": "Explicar este dashboard",
+              "prompt": "Recorre conmigo este dashboard y explícame qué me dice cada área."
+            },
+            "next-actions": {
+              "label": "Recomendar próximas acciones",
+              "prompt": "Revisa mi CRM y recomiéndame las tres próximas acciones de mayor valor."
+            },
+            "summary": {
+              "label": "Resumir mi espacio de trabajo",
+              "prompt": "Dame un resumen breve de mi espacio de trabajo, listo para tomar decisiones."
+            }
+          },
+          "empty": {
+            "capabilities": {
+              "label": "¿Qué puedo automatizar?",
+              "prompt": "A partir de esta página, explícame el trabajo más útil que puedes automatizar para mí en Customermates."
+            },
+            "setup": {
+              "label": "Configurar mi espacio de trabajo",
+              "prompt": "Ayúdame a configurar Customermates para mi negocio. Hazme unas pocas preguntas concretas antes de proponer cambios."
+            },
+            "tour": {
+              "label": "Enséñame la aplicación",
+              "prompt": "Dame una visita guiada a fondo de Customermates y explícame cómo encajan entre sí las áreas principales."
+            }
+          }
+        },
+        "deals": {
+          "data": {
+            "create-deal": {
+              "label": "Crear una oportunidad",
+              "prompt": "Ayúdame a crear una oportunidad y a conectar todos los registros relevantes."
+            },
+            "pipeline-gaps": {
+              "label": "Detectar huecos en el pipeline",
+              "prompt": "Revisa mis oportunidades en busca de relaciones, importes o próximos pasos que falten."
+            },
+            "pipeline-summary": {
+              "label": "Resumir mi pipeline",
+              "prompt": "Resume mi pipeline de oportunidades, sus riesgos y las próximas acciones más útiles."
+            }
+          },
+          "empty": {
+            "deals-tour": {
+              "label": "Descubrir cómo funcionan las oportunidades",
+              "prompt": "Enséñame las oportunidades y explícame cómo gestionar un pipeline en Customermates."
+            },
+            "first-deal": {
+              "label": "Crear mi primera oportunidad",
+              "prompt": "Ayúdame a crear mi primera oportunidad y a vincular la organización, los contactos y los servicios adecuados."
+            },
+            "setup-pipeline": {
+              "label": "Configurar mi pipeline",
+              "prompt": "Ayúdame a diseñar un pipeline de ventas mínimo para mi negocio y propón después los campos y las oportunidades de ejemplo que crear."
+            }
+          }
+        },
+        "default": {
+          "data": {
+            "default-contact-count": {
+              "label": "¿Cuántos contactos tenemos?",
+              "prompt": "Dime cuántos contactos tenemos y cómo ha evolucionado esa cifra."
+            },
+            "default-open-deals": {
+              "label": "¿Qué oportunidades están abiertas?",
+              "prompt": "Resume las oportunidades abiertas ahora mismo y en qué punto está cada una."
+            },
+            "default-tour": {
+              "label": "Enséñame la aplicación",
+              "prompt": "Dame una visita guiada a fondo de Customermates y explícame cómo encajan entre sí las áreas principales."
+            }
+          },
+          "empty": {
+            "default-capabilities": {
+              "label": "¿Qué puedes hacer?",
+              "prompt": "Explícame qué puedes hacer por mí en Customermates y en qué eres más útil."
+            },
+            "default-import": {
+              "label": "¿Cómo importo mis contactos?",
+              "prompt": "Guíame para importar a Customermates los contactos que ya tengo."
+            },
+            "default-setup": {
+              "label": "Ayúdame a configurar mi CRM",
+              "prompt": "Ayúdame a configurar Customermates para mi negocio. Hazme unas pocas preguntas concretas antes de proponer cambios."
+            }
+          }
+        },
+        "inbox": {
+          "data": {
+            "inbox-add-channel": {
+              "label": "Conectar otro canal",
+              "prompt": "Guíame para conectar otro canal de mensajería a Customermates."
+            },
+            "inbox-explain-data": {
+              "label": "Enséñame cómo funciona la bandeja de entrada",
+              "prompt": "Explícame cómo funciona la bandeja de entrada de Customermates y qué relación tiene con los registros de mi CRM."
+            },
+            "inbox-needs-reply": {
+              "label": "¿Qué conversaciones necesitan respuesta?",
+              "prompt": "Revisa mi bandeja de entrada y dime qué conversaciones siguen sin respuesta, empezando por las más urgentes."
+            }
+          },
+          "empty": {
+            "inbox-connect-email": {
+              "label": "Conectar mi correo",
+              "prompt": "Guíame para conectar mi cuenta de correo a la bandeja de entrada de Customermates."
+            },
+            "inbox-connect-whatsapp": {
+              "label": "Conectar WhatsApp",
+              "prompt": "Guíame para conectar WhatsApp a la bandeja de entrada de Customermates."
+            },
+            "inbox-explain": {
+              "label": "Enséñame cómo funciona la bandeja de entrada",
+              "prompt": "Explícame cómo funciona la bandeja de entrada de Customermates y qué relación tiene con los registros de mi CRM."
+            }
+          }
+        },
+        "organizations": {
+          "data": {
+            "create-organization": {
+              "label": "Crear una organización",
+              "prompt": "Ayúdame a crear una organización y a vincular los registros relevantes."
+            },
+            "organization-gaps": {
+              "label": "Detectar huecos en las relaciones",
+              "prompt": "Busca organizaciones a las que les falten relaciones útiles con contactos, oportunidades o tareas."
+            },
+            "organizations-summary": {
+              "label": "Resumir organizaciones",
+              "prompt": "Resume mis organizaciones y destaca las relaciones que merecen atención."
+            }
+          },
+          "empty": {
+            "first-organization": {
+              "label": "Crear mi primera organización",
+              "prompt": "Ayúdame a crear mi primera organización y a conectar las personas u oportunidades adecuadas."
+            },
+            "organizations-tour": {
+              "label": "Descubrir cómo funcionan las organizaciones",
+              "prompt": "Enséñame las organizaciones y explícame cómo conectan contactos, oportunidades y tareas."
+            },
+            "setup-organizations": {
+              "label": "Configurar las organizaciones",
+              "prompt": "Ayúdame a diseñar y crear una configuración mínima de organizaciones para mi negocio. Pregunta primero por mi caso de uso."
+            }
+          }
+        },
+        "services": {
+          "data": {
+            "create-service": {
+              "label": "Crear una oferta",
+              "prompt": "Ayúdame a crear un servicio o producto con los datos comerciales adecuados."
+            },
+            "service-gaps": {
+              "label": "Detectar huecos en el catálogo",
+              "prompt": "Revisa mis servicios o productos en busca de precios que falten, relaciones ausentes u ofertas duplicadas."
+            },
+            "services-summary": {
+              "label": "Resumir las ofertas",
+              "prompt": "Resume mis servicios o productos y cómo se usan en las oportunidades."
+            }
+          },
+          "empty": {
+            "first-service": {
+              "label": "Crear mi primera oferta",
+              "prompt": "Ayúdame a crear mi primer servicio o producto con el nombre y el precio adecuados."
+            },
+            "services-tour": {
+              "label": "Descubrir cómo funcionan las ofertas",
+              "prompt": "Enséñame los servicios y explícame cómo se conectan las ofertas con las oportunidades y las tareas."
+            },
+            "setup-services": {
+              "label": "Configurar mis ofertas",
+              "prompt": "Ayúdame a definir un conjunto mínimo de servicios o productos para mi negocio y créalos tras revisarlos."
+            }
+          }
+        },
+        "tasks": {
+          "data": {
+            "create-task": {
+              "label": "Crear una tarea",
+              "prompt": "Ayúdame a crear una tarea y a conectarla con los registros adecuados."
+            },
+            "task-gaps": {
+              "label": "Detectar seguimientos pendientes",
+              "prompt": "Busca registros importantes que parezcan no tener una tarea de seguimiento clara."
+            },
+            "task-priorities": {
+              "label": "Planificar mis próximas acciones",
+              "prompt": "Revisa mis tareas y los datos del CRM relacionados y recomiéndame qué hacer a continuación."
+            }
+          },
+          "empty": {
+            "first-task": {
+              "label": "Crear mi primera tarea",
+              "prompt": "Ayúdame a crear mi primera tarea y a conectarla con los registros adecuados."
+            },
+            "setup-tasks": {
+              "label": "Configurar mi flujo de trabajo",
+              "prompt": "Ayúdame a diseñar un flujo de tareas mínimo para mi negocio y propón los campos y las primeras tareas que crear."
+            },
+            "tasks-tour": {
+              "label": "Descubrir cómo funcionan las tareas",
+              "prompt": "Enséñame las tareas y explícame cómo se conectan con contactos, organizaciones, oportunidades y servicios."
+            }
+          }
+        }
+      },
+      "readOnly": {
+        "explain": {
+          "label": "Explicar esta página",
+          "prompt": "Explícame esta página, la información más importante y cómo aprovecharla bien. No hagas ningún cambio."
+        },
+        "relationships": {
+          "label": "Mostrar cómo se conecta",
+          "prompt": "Explícame cómo se conecta esta página con las demás áreas de Customermates. No hagas ningún cambio."
+        },
+        "tour": {
+          "label": "Hacer una visita guiada",
+          "prompt": "Dame una visita guiada a fondo de esta página sin modificar ningún dato."
+        }
+      }
+    },
+    "title": "Mate",
+    "tour": {
+      "done": "Finalizar",
+      "next": "Siguiente",
+      "skip": "Omitir"
+    },
+    "tourUi": {
+      "back": "Atrás",
+      "title": "Visita guiada"
+    },
+    "ui": {
+      "activityCancelled": "{count} {count, plural, one {paso detenido} other {pasos detenidos}}",
+      "activityComplete": "{count} {count, plural, one {paso completado} other {pasos completados}}",
+      "activityError": "{count} {count, plural, one {paso requiere} other {pasos requieren}} atención",
+      "archive": "Archivar el chat",
+      "archived": "Archivado",
+      "archivedChats": "Chats archivados",
+      "assistantWorking": "El asistente está respondiendo",
+      "back": "Volver al chat",
+      "cancel": "Cancelar",
+      "chats": "Chats",
+      "deleteChat": "Eliminar chat",
+      "deleteChatBody": "Esto elimina de forma permanente los mensajes, las aprobaciones y las acciones del asistente de este chat. Se conservan los datos de uso de IA y de facturación, así como los registros del CRM creados a través del chat. Los correos de soporte ya enviados no se retiran.",
+      "deleteChatTitle": "¿Eliminar este chat definitivamente?",
+      "deletePermanently": "Eliminar definitivamente",
+      "editQueued": "Editar el mensaje en cola",
+      "history": "Historial de chats",
+      "jumpToLatest": "Ir a lo más reciente",
+      "loadChatFailed": "No se pudo cargar el chat. Vuelva a seleccionarlo para reintentar.",
+      "loadingChat": "Cargando el chat…",
+      "loadingOlderMessages": "Cargando mensajes anteriores",
+      "loadMoreChats": "Cargar más chats",
+      "loadOlderMessages": "Cargar mensajes anteriores",
+      "newChat": "Nuevo chat",
+      "noChats": "Aún no hay chats",
+      "noChatsBody": "Inicie un chat para volver más tarde a sus preguntas y al trabajo completado.",
+      "queued": "A continuación",
+      "refreshHistoryFailed": "No se ha podido actualizar el historial de chats. Sus chats existentes siguen visibles.",
+      "removeQueued": "Quitar el mensaje en cola",
+      "responseComplete": "Respuesta completada",
+      "restore": "Restaurar",
+      "retryTurn": "Reintentar",
+      "stepsTook": "{steps, plural, one {# paso} other {# pasos}} · {seconds}s",
+      "thinking": "Pensando",
+      "turnFailed": "No se ha podido completar esta respuesta.",
+      "undo": "Deshacer",
+      "untitled": "Nuevo chat"
+    }
+  },
   "AgplGithubBadge": {
     "label": "AGPL · Código abierto"
   },
@@ -118,6 +784,7 @@
       "cancel": "Cancelar",
       "clear": "Borrar",
       "close": "Cerrar",
+      "collapse": "Contraer",
       "contact": "Contactar",
       "continueSetup": "Continuar con la configuración",
       "copy": "Copiar al portapapeles",
@@ -125,6 +792,7 @@
       "deleteCustomFields": "Eliminar campo",
       "discard": "Descartar",
       "editCustomFields": "Editar campo",
+      "expand": "Ampliar",
       "labelHistory": "Historial",
       "labelNotes": "Notas",
       "loadMore": "Cargar más",
@@ -249,6 +917,11 @@
       "activityPageOutOfRange": "La cronología de actividad no puede retroceder tanto. Acota los filtros en su lugar.",
       "activityScopeTooManyIds": "Un ámbito de actividad no puede seleccionar más de 50 registros de un mismo tipo.",
       "activitySourcesUnavailable": "No tienes acceso a ninguna fuente de la cronología de actividad.",
+      "agentApprovalUnavailable": "Esta solicitud de aprobación no está disponible o ha caducado.",
+      "agentConversationNotFound": "No se encontró esta conversación o ya no es accesible.",
+      "agentLimitReached": "No quedan suficientes créditos de IA para iniciar otra solicitud.",
+      "agentModelUnavailable": "Ese modelo del Asistente no está disponible.",
+      "agentTurnAlreadyRunning": "Ya se está ejecutando otra solicitud del asistente.",
       "apiKeyMaxExpiration": "La caducidad de una clave de API no puede superar los 365 días.",
       "apiKeyMinExpiration": "La caducidad de una clave de API debe ser de al menos 1 día.",
       "assigneeRequired": "Debes asignarte este elemento. Ten en cuenta que solo podrás ver los elementos asignados a ti.",
@@ -270,6 +943,7 @@
       "customFieldInvalidSingleSelect": "El valor de selección única no es válido. Debe ser una de las opciones permitidas: {validValues}.",
       "customFieldInvalidUrl": "La URL no es válida. Debe respetar el formato de una URL (por ejemplo https://example.com). Para varias URL, sepáralas con una coma (por ejemplo https://example.com, https://example.org).",
       "dealNotFound": "ID de oportunidad no encontrado o no accesible.",
+      "demoMode": "Esta acción no está disponible en el modo de demostración. Inicia sesión para acceder a todas las funciones.",
       "draftMessageNotFound": "No se ha encontrado ese borrador. Puede que ya se haya enviado o descartado.",
       "duplicateChannel": "Este canal aparece más de una vez. Añade cada dirección de correo, número de teléfono o identificador una sola vez.",
       "duplicateOutboundSuppressed": "Hace un momento se envió un mensaje idéntico a esta conversación. Cambia el texto o espera un minuto antes de reintentar.",
@@ -277,6 +951,7 @@
       "emailAlreadyExists": "Ya existe una cuenta con este correo.",
       "emailMismatch": "Las direcciones de correo deben coincidir.",
       "emailNotVerified": "Correo no verificado.",
+      "enterpriseCheckoutUnavailable": "Los espacios de trabajo Enterprise se facturan manualmente y no pueden iniciar el pago de autoservicio.",
       "filterBetweenInvalidArrayLength": "El operador 'between' requiere un array con exactamente 2 elementos.",
       "generic": "Se ha producido un error.",
       "inmailSignatureRequired": "Añade una firma para el InMail de Recruiter.",
@@ -288,20 +963,26 @@
       "invalidFilterField": "Campo de filtro no encontrado o no accesible. Campos disponibles: {validValues}.",
       "invalidFilterOperator": "El operador '{operator}' no está permitido en el campo '{field}'. Operadores permitidos: {validValues}.",
       "invalidFilterValue": "Valor de filtro no válido. El valor debe corresponder al tipo del campo y al operador (por ejemplo un número para gt/lt, una fecha ISO para los campos de fecha, o un id para in/notIn).",
+      "invalidJsonBody": "El cuerpo de la solicitud no es JSON válido.",
       "invalidSortField": "Campo de ordenación no encontrado o no accesible. Campos disponibles: {validValues}.",
       "invalidUrl": "Introduce una URL válida.",
+      "legalNoticeNotDelivered": "La actualización legal actual aún no se ha entregado a este espacio de trabajo.",
       "linkedinInboxUnavailable": "Esta cuenta de LinkedIn no tiene bandeja de entrada {product}. Conecta la cuenta con {product} asociado para usarla.",
       "linkedinProductRequiresLinkedin": "Las opciones de InMail y producto de LinkedIn requieren una cuenta de LinkedIn.",
       "linkedinProductUnavailable": "Esta cuenta de LinkedIn no tiene ese producto conectado.",
       "messageContentRequired": "Añade un mensaje o un archivo adjunto.",
       "mustNotBeBlank": "No debe estar vacío.",
       "mustNotContainNullChars": "No debe contener caracteres nulos.",
+      "notAuthenticated": "Inicia sesión para usar esta acción.",
       "notesExceedsMaxLength": "El contenido de las notas supera la longitud máxima.",
       "notesInvalidFormat": "Formato de notas no válido. Debe ser JSON de Tiptap válido o texto markdown.",
       "organizationNotFound": "ID de organización no encontrado o no accesible.",
       "passwordInvalid": "La contraseña debe tener al menos 8 caracteres e incluir al menos una mayúscula, una minúscula, un número y un carácter especial.",
       "passwordMismatch": "Las contraseñas deben coincidir.",
+      "permissionDenied": "Esta acción no está disponible con tus permisos actuales.",
+      "presetNotFound": "No se encontró este filtro guardado.",
       "relationNotAllowed": "La relación '{relation}' no está permitida en {entity}. Relaciones permitidas: {allowed}.",
+      "roleAssignedCannotDelete": "No se puede eliminar un rol asignado a usuarios.",
       "roleNotFound": "ID de rol no encontrado o no accesible.",
       "roleSelfEditForbidden": "No puedes cambiar los permisos del rol que tienes asignado.",
       "roleSystemImmutable": "Los roles del sistema no se pueden editar.",
@@ -327,7 +1008,9 @@
       "unipileResourceNotFound": "No se ha encontrado el destinatario o la conversación en este canal.",
       "unipileServiceUnavailable": "El servicio de mensajería no está disponible temporalmente. Inténtalo de nuevo en breve.",
       "unipileUnknown": "El proveedor rechazó este mensaje. Inténtalo de nuevo o contacta con soporte.",
+      "userInactive": "Tu cuenta de usuario está inactiva. Contacta con un administrador del espacio de trabajo.",
       "userNotFound": "ID de usuario no encontrado o no accesible.",
+      "userSelfAdminUpdateForbidden": "No puedes actualizar tu propia cuenta desde la administración del equipo.",
       "webhookDeliveryNotFound": "ID de entrega de webhook no encontrado o no accesible.",
       "webhookEventsRequired": "Selecciona al menos un evento.",
       "webhookNotFound": "ID de webhook no encontrado o no accesible.",
@@ -569,6 +1252,9 @@
       "whatsapp": "WhatsApp"
     },
     "relatedPages": "Páginas relacionadas",
+    "scroll": {
+      "backToTop": "Back to top"
+    },
     "setAsDefault": "Establecer como predeterminado",
     "sidebar": {
       "description": "Muestra la barra lateral móvil.",
@@ -701,6 +1387,9 @@
   },
   "ConnectedAccountsCard": {
     "accountLimitReached": "Has alcanzado el límite de cuentas conectadas de este plan. Contáctanos sobre el plan Enterprise para tener cuentas ilimitadas.",
+    "agentChatDisabled": "El asistente no está disponible temporalmente.",
+    "agentChatRequiresCloud": "El asistente está disponible en Customermates Cloud.",
+    "agentChatRequiresPlan": "El asistente no está disponible con su plan actual.",
     "alreadyExistsToastDescription": "Esta cuenta ya está conectada por un miembro de tu espacio de trabajo. Pídele que la comparta con el espacio de trabajo para evitar mensajes duplicados en la bandeja de entrada.",
     "alreadyExistsToastTitle": "Cuenta ya conectada",
     "channels": {
@@ -978,6 +1667,7 @@
   },
   "DocsSidebar": {
     "apiKeys": "Claves de API",
+    "appAssistant": "Asistente",
     "appCompany": "Empresa",
     "appDashboard": "Panel",
     "appGuide": "Guía de la aplicación",
@@ -1770,6 +2460,7 @@
     "manageWithLemonSqueezy": "Gestionar con Lemon Squeezy",
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# cuenta conectada por usuario} other {# cuentas conectadas por usuario}}",
+      "creditNote": "Los créditos de IA alojada se renuevan cada mes, incluso con la facturación anual. Los clientes MCP externos utilizan tu propio proveedor de IA y no consumen estos créditos.",
       "features": {
         "business": ["Todo lo de Pro", "Cuentas compartidas y soporte prioritario"],
         "pro": ["Todo lo de Starter", "Bandeja de entrada unificada"],
@@ -1780,6 +2471,7 @@
           "Acceso al servidor MCP"
         ]
       },
+      "hostedAiCredits": "{credits, number} créditos de IA alojada por usuario activo / mes",
       "mostPopular": "El más popular",
       "perUserMonth": "por usuario / mes"
     },

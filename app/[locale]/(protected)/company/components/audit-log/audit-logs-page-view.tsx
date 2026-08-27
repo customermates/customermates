@@ -26,9 +26,10 @@ type Props = { initialAuditLogs: GetResult<AuditLogDto> };
 
 export const AuditLogsPageView = observer(function AuditLogsPageView({ initialAuditLogs }: Props) {
   const { auditLogModalStore, auditLogsStore } = useRootStore();
+
+  useDataViewSync(auditLogsStore, initialAuditLogs);
   const columns = useAuditLogColumns();
   const t = useTranslations();
-  useDataViewSync(auditLogsStore, initialAuditLogs);
   const view = resolveDataViewView(auditLogsStore.viewMode, auditLogsStore.groupingColumnId);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,

@@ -5,13 +5,15 @@ import { Status } from "@/generated/prisma";
 
 import type { Action, Resource } from "@/generated/prisma";
 
-import { AuthError, ForbiddenError } from "@/core/errors/app-errors";
+import { AppErrorCode, AuthError, ForbiddenError } from "@/core/errors/app-errors";
+import { tenantStorage } from "@/core/decorators/tenant-context";
 
 export type { TenantUser } from "./user.schema";
 
 export abstract class FindUserRepo {
   abstract findCurrentUserUnscoped(email: string): Promise<TenantUser | null>;
   abstract findCurrentUserOrThrowUnscoped(email: string): Promise<TenantUser>;
+  abstract findUserByIdOrThrowUnscoped(userId: string): Promise<TenantUser>;
 }
 
 export class UserService {
@@ -43,7 +45,31 @@ export class UserService {
   async getActiveUserOrThrow() {
     const user = await this.getUserOrThrow();
 
-    if (user.status !== Status.active) throw new ForbiddenError("User is not active");
+    if (user.status !== Status.active) throw new ForbiddenError("User is not active", AppErrorCode.inactiveUser);
+
+    return user;
+  }
+
+  async getActiveTenantUserOrThrow(): Promise<TenantUser> {
+    const ambient = tenantStorage.getStore()?.user;
+    if (!ambient) return this.getActiveUserOrThrow();
+
+    if (ambient.status !== Status.active) throw new ForbiddenError("User is not active", AppErrorCode.inactiveUser);
+
+    return ambient;
+  }
+
+  hasPermissionForUser(user: TenantUser, resource: Resource, action: Action): boolean {
+    if (!user.role) return false;
+    if (user.role.isSystemRole) return true;
+
+    return user.role.permissions.some((p) => p.resource === resource && p.action === action);
+  }
+
+  async getActiveUserByIdOrThrow(userId: string) {
+    const user = await this.repo.findUserByIdOrThrowUnscoped(userId);
+
+    if (user.status !== Status.active) throw new ForbiddenError("User is not active", AppErrorCode.inactiveUser);
 
     return user;
   }
@@ -59,18 +85,14 @@ export class UserService {
   }
 
   async hasPermission(resource: Resource, action: Action): Promise<boolean> {
-    const user = await this.getActiveUserOrThrow();
+    const user = await this.getActiveTenantUserOrThrow();
 
-    if (!user.role) return false;
-
-    if (user.role?.isSystemRole) return true;
-
-    return user.role?.permissions.some((p) => p.resource === resource && p.action === action) ?? false;
+    return this.hasPermissionForUser(user, resource, action);
   }
 
   async hasPermissionOrThrow(resource: Resource, action: Action): Promise<void> {
     const hasPermission = await this.hasPermission(resource, action);
 
-    if (!hasPermission) throw new ForbiddenError("User has insufficient permissions");
+    if (!hasPermission) throw new ForbiddenError("User has insufficient permissions", AppErrorCode.permissionDenied);
   }
 }

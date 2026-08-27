@@ -7,6 +7,672 @@
     "subject": "Some of your connected accounts were removed",
     "title": "Connected accounts removed"
   },
+  "AgentChat": {
+    "activity": {
+      "cancelled": "Stopped",
+      "consequence": {
+        "accountConnect": "Connect a messaging channel",
+        "accountConnectTarget": "Connect {target}",
+        "chatSend": "Send to the selected conversation",
+        "draftDiscard": "Permanently discard the selected saved draft",
+        "draftSave": "Save a draft in the selected conversation",
+        "emailSend": "Send an email to the selected recipients",
+        "externalManage": "Change data in the connected external account",
+        "recordsDelete": "This cannot be undone.",
+        "recordsLink": "Link records",
+        "recordsUnlink": "Remove relationships",
+        "salesListSave": "Add the selected prospect to a Sales Navigator list",
+        "salesListSaveTarget": "Add {target} to Sales Navigator list {list}",
+        "socialAccept": "Accept the selected connection request",
+        "socialAcceptTarget": "Accept the connection request from {target}",
+        "socialCancel": "Withdraw or decline the selected connection request",
+        "socialCancelTarget": "Withdraw or decline the connection request involving {target}",
+        "socialInvite": "Send a connection request from the connected account",
+        "socialInviteTarget": "Send a connection request to {target}",
+        "teamInvite": "Send invitation emails to the selected people",
+        "teamInviteTarget": "Send {count} invitation email(s) to: {target}",
+        "teamUpdate": "Change the selected team member’s role or status",
+        "threadUpdate": "Change the selected conversation state",
+        "threadUpdateState": "Set conversation state to “{state}”",
+        "webhookCreate": "Create a webhook",
+        "webhookDelete": "Permanently delete the selected webhook",
+        "webhookEvents": "{count} events",
+        "webhookInspect": "Inspect webhook information or deliveries",
+        "webhookResend": "Resend the selected webhook delivery",
+        "webhookUpdate": "Change the selected webhook"
+      },
+      "countedRecordInResource": "1 record in {resource}",
+      "countedResource": "{count} {resource}",
+      "countedSingular": "1 {resource}",
+      "defaultRecords": "records",
+      "label": {
+        "preview": "Preview",
+        "subject": "Subject",
+        "to": "To"
+      },
+      "resource": {
+        "contacts": "contacts",
+        "deals": "deals",
+        "messages": "conversations",
+        "organizations": "organizations",
+        "services": "services",
+        "tasks": "tasks",
+        "terminology": "workspace terminology",
+        "widgets": "dashboard widgets"
+      },
+      "resourceSingular": {
+        "contacts": "contact",
+        "deals": "deal",
+        "messages": "conversation",
+        "organizations": "organization",
+        "services": "service",
+        "tasks": "task",
+        "terminology": "workspace term",
+        "widgets": "dashboard widget"
+      },
+      "state": {
+        "accounts": {
+          "connect": {
+            "done": "Prepared the connection link",
+            "error": "Couldn’t prepare the connection link",
+            "running": "Preparing a secure connection link"
+          }
+        },
+        "customFields": {
+          "configure": {
+            "done": "Configured custom fields",
+            "error": "Couldn’t configure custom fields",
+            "running": "Configuring custom fields"
+          },
+          "create": {
+            "done": "Created a custom field",
+            "error": "Couldn’t create the custom field",
+            "running": "Creating a custom field"
+          },
+          "delete": {
+            "done": "Removed a custom field",
+            "error": "Couldn’t remove the custom field",
+            "running": "Removing a custom field"
+          },
+          "read": {
+            "done": "Reviewed custom fields",
+            "error": "Couldn’t review custom fields",
+            "running": "Reviewing custom fields"
+          },
+          "update": {
+            "done": "Updated a custom field",
+            "error": "Couldn’t update the custom field",
+            "running": "Updating a custom field"
+          }
+        },
+        "docs": {
+          "read": {
+            "done": "Read the relevant guide",
+            "error": "Couldn’t read the relevant guide",
+            "running": "Reading the relevant guide"
+          },
+          "search": {
+            "done": "Searched the documentation",
+            "error": "Couldn’t search the documentation",
+            "running": "Searching the documentation"
+          }
+        },
+        "generic": {
+          "done": "Finished this step",
+          "error": "This step needs attention",
+          "running": "Working on your request"
+        },
+        "interface": {
+          "inspect": {
+            "done": "Checked available controls",
+            "error": "Couldn’t check available controls",
+            "running": "Checking available controls"
+          },
+          "interact": {
+            "done": "Activated the control",
+            "error": "Couldn’t activate that control",
+            "running": "Activating the control"
+          },
+          "navigate": {
+            "done": "Opened the right place",
+            "error": "Couldn’t open that view",
+            "running": "Opening the right place"
+          },
+          "tour": {
+            "done": "Started your tour",
+            "error": "Couldn’t start the tour",
+            "running": "Preparing your tour"
+          }
+        },
+        "messages": {
+          "discard": {
+            "done": "Discarded the draft",
+            "error": "Couldn’t discard the draft",
+            "running": "Ready to discard the draft"
+          },
+          "draft": {
+            "done": "Saved the draft",
+            "error": "Couldn’t save the draft",
+            "running": "Ready to save a draft"
+          },
+          "read": {
+            "done": "Checked conversations",
+            "error": "Couldn’t check conversations",
+            "running": "Checking conversations"
+          },
+          "send": {
+            "done": "Sent the message",
+            "error": "Couldn’t send the message",
+            "running": "Ready to send a real message"
+          },
+          "triage": {
+            "done": "Changed the conversation state",
+            "error": "Couldn’t change the conversation state",
+            "running": "Ready to change the conversation state"
+          }
+        },
+        "profile": {
+          "configure": {
+            "done": "Updated your profile",
+            "error": "Couldn’t update your profile",
+            "running": "Updating your profile"
+          }
+        },
+        "records": {
+          "create": {
+            "done": "{count, plural, one {Created {target}} other {Created {target}}}",
+            "error": "{count, plural, one {Couldn’t create {target}} other {Couldn’t create {target}}}",
+            "running": "{count, plural, one {Creating {target}} other {Creating {target}}}"
+          },
+          "delete": {
+            "done": "{count, plural, one {Removed {target}} other {Removed {target}}}",
+            "error": "{count, plural, one {Couldn’t remove {target}} other {Couldn’t remove {target}}}",
+            "running": "{count, plural, one {Removing {target}} other {Removing {target}}}"
+          },
+          "link": {
+            "done": "Connected related records",
+            "error": "Couldn’t connect the records",
+            "running": "Connecting related records"
+          },
+          "note": {
+            "done": "Updated notes",
+            "error": "Couldn’t update the notes",
+            "running": "Updating notes"
+          },
+          "read": {
+            "done": "Reviewed {resource}",
+            "error": "Couldn’t review {resource}",
+            "running": "Looking through {resource}"
+          },
+          "update": {
+            "done": "{count, plural, one {Updated {target}} other {Updated {target}}}",
+            "error": "{count, plural, one {Couldn’t update {target}} other {Couldn’t update {target}}}",
+            "running": "{count, plural, one {Updating {target}} other {Updating {target}}}"
+          }
+        },
+        "support": {
+          "escalate": {
+            "done": "Support email accepted for delivery",
+            "error": "Couldn’t send support email",
+            "running": "Sending support request email"
+          }
+        },
+        "team": {
+          "manage": {
+            "done": "Changed team access",
+            "error": "Couldn’t change team access",
+            "running": "Ready to change team access"
+          }
+        },
+        "webhooks": {
+          "manage": {
+            "done": "Completed the webhook action",
+            "error": "Couldn’t complete the webhook action",
+            "running": "Ready to change webhook delivery"
+          }
+        },
+        "widgets": {
+          "configure": {
+            "done": "Configured dashboard widgets",
+            "error": "Couldn’t configure dashboard widgets",
+            "running": "Configuring dashboard widgets"
+          },
+          "create": {
+            "done": "Created a dashboard widget",
+            "error": "Couldn’t create the dashboard widget",
+            "running": "Creating a dashboard widget"
+          },
+          "delete": {
+            "done": "Removed a dashboard widget",
+            "error": "Couldn’t remove the dashboard widget",
+            "running": "Removing a dashboard widget"
+          },
+          "read": {
+            "done": "Reviewed dashboard widgets",
+            "error": "Couldn’t review dashboard widgets",
+            "running": "Reviewing dashboard widgets"
+          },
+          "update": {
+            "done": "Updated a dashboard widget",
+            "error": "Couldn’t update the dashboard widget",
+            "running": "Updating a dashboard widget"
+          }
+        },
+        "workspace": {
+          "configure": {
+            "done": "Updated your workspace",
+            "error": "Couldn’t update your workspace",
+            "running": "Updating your workspace"
+          },
+          "inspect": {
+            "done": "Checked workspace details",
+            "error": "Couldn’t check workspace details",
+            "running": "Checking workspace details"
+          },
+          "read": {
+            "done": "Checked your workspace",
+            "error": "Couldn’t check your workspace",
+            "running": "Checking your workspace"
+          },
+          "settings": {
+            "done": "Updated workspace settings",
+            "error": "Couldn’t update workspace settings",
+            "running": "Updating workspace settings"
+          },
+          "terminology": {
+            "done": "Updated workspace terminology",
+            "error": "Couldn’t update workspace terminology",
+            "running": "Updating workspace terminology"
+          }
+        }
+      },
+      "yourRecords": "your records"
+    },
+    "approval": {
+      "approve": "Approved",
+      "approveOnceAction": "Approve once",
+      "reject": "Rejected",
+      "rejectAction": "Cancel",
+      "timeout": "Timed out without a response",
+      "title": "The assistant wants to run:"
+    },
+    "askAi": "Ask AI",
+    "askAiWorking": "Mate is working",
+    "credits": {
+      "blocked": {
+        "configuration_unavailable": "The hosted Assistant is temporarily unavailable. Your history remains accessible.",
+        "credits_exhausted": "You have used this month's hosted AI credits. New requests resume on {resetAt}; your history remains accessible.",
+        "self_hosted": "The hosted Assistant is cloud-only. Self-hosted workspaces can continue to use external MCP clients with their own AI provider.",
+        "subscription_unavailable": "A current cloud subscription is required for new hosted Assistant requests. Your history remains accessible."
+      },
+      "contact": "Contact us",
+      "planAndReset": "{plan} plan · resets {resetAt}",
+      "recentTurn": "{credits, plural, one {Last turn used # credit} other {Last turn used # credits}}",
+      "remaining": "{remaining, number} of {limit, number} credits remaining",
+      "resetShort": "Resets {resetAt}",
+      "usage": "{pct}% of monthly hosted AI credits used",
+      "viewPlans": "View plans"
+    },
+    "demoUnavailable": "The Assistant is unavailable in the demo.",
+    "errors": {
+      "approvalFailed": "The approval could not be delivered.",
+      "limitReached": "Not enough AI credits remain to start another request.",
+      "sendFailed": "The assistant could not process your message.",
+      "turnFailed": "The assistant ran into an error."
+    },
+    "greeting": {
+      "headline": "Hey, I'm Mate",
+      "subtitle": "Ask me anything about your workspace, or tell me what to do and I'll take care of it.",
+      "support": "If something doesn't work out, I can email our team with the recent conversation, and they reply by email."
+    },
+    "placeholder": "Ask your CRM…",
+    "runner": {
+      "cancelled": "This response was stopped.",
+      "creditLimit": "I completed part of this request, but stopped because your Assistant credits ran out. Completed work remains in place; credits reset at the start of your next period.",
+      "emptyReply": "I couldn't produce a response. Please try again.",
+      "outputLimit": "I completed part of this response, but reached this turn's output limit. Ask me to continue and I'll finish from the completed work.",
+      "safetyLimit": "I completed part of this request, but stopped because the latest steps were repeating, failing, or reached a safety limit. Completed work remains in place; review the steps above before asking me to proceed.",
+      "turnError": "I couldn't complete that request. Please try again."
+    },
+    "send": "Send",
+    "stop": "Stop",
+    "suggestions": {
+      "pages": {
+        "connected-accounts": {
+          "data": {
+            "accounts-add-channel": {
+              "label": "Add another channel",
+              "prompt": "Walk me through adding another messaging channel to Customermates."
+            },
+            "accounts-list": {
+              "label": "Which accounts are connected?",
+              "prompt": "Tell me which messaging accounts are connected and what each one currently covers."
+            },
+            "accounts-sync": {
+              "label": "How does syncing work?",
+              "prompt": "Explain how Customermates syncs connected accounts and what it does with the messages it imports."
+            }
+          },
+          "empty": {
+            "accounts-connect-email": {
+              "label": "Connect my email",
+              "prompt": "Walk me through connecting my email account to Customermates."
+            },
+            "accounts-connect-linkedin": {
+              "label": "Connect LinkedIn",
+              "prompt": "Walk me through connecting LinkedIn to Customermates."
+            },
+            "accounts-connect-whatsapp": {
+              "label": "Connect WhatsApp",
+              "prompt": "Walk me through connecting WhatsApp to Customermates."
+            }
+          }
+        },
+        "contacts": {
+          "data": {
+            "contacts-cleanup": {
+              "label": "Find data gaps",
+              "prompt": "Review my contacts for missing or inconsistent information and suggest what to fix."
+            },
+            "contacts-summary": {
+              "label": "Summarize contacts",
+              "prompt": "Summarize my contacts and point out useful patterns or missing information."
+            },
+            "create-contact": {
+              "label": "Create a contact",
+              "prompt": "Help me create a contact. Ask for only the required details."
+            }
+          },
+          "empty": {
+            "contacts-tour": {
+              "label": "Learn how contacts work",
+              "prompt": "Show me around the contacts page and explain how contacts connect to the rest of the CRM."
+            },
+            "first-contact": {
+              "label": "Create my first contact",
+              "prompt": "Help me create my first contact. Ask for only the details you need."
+            },
+            "setup-contacts": {
+              "label": "Set up contacts",
+              "prompt": "Help me design and create a minimal contact setup for my business. Ask about my use case first."
+            }
+          }
+        },
+        "dashboard": {
+          "data": {
+            "dashboard-tour": {
+              "label": "Explain this dashboard",
+              "prompt": "Walk me through this dashboard and explain what each area tells me."
+            },
+            "next-actions": {
+              "label": "Recommend next actions",
+              "prompt": "Review my CRM and recommend the three highest-value next actions."
+            },
+            "summary": {
+              "label": "Summarize my workspace",
+              "prompt": "Give me a concise, decision-ready summary of my workspace."
+            }
+          },
+          "empty": {
+            "capabilities": {
+              "label": "What can I automate?",
+              "prompt": "Based on this page, explain the most useful work you can automate for me in Customermates."
+            },
+            "setup": {
+              "label": "Set up my workspace",
+              "prompt": "Help me set up Customermates for my business. Ask me a few focused questions before proposing any changes."
+            },
+            "tour": {
+              "label": "Show me around",
+              "prompt": "Give me an in-depth guided tour of Customermates and explain how the core areas work together."
+            }
+          }
+        },
+        "deals": {
+          "data": {
+            "create-deal": {
+              "label": "Create a deal",
+              "prompt": "Help me create a deal and connect all relevant records."
+            },
+            "pipeline-gaps": {
+              "label": "Find pipeline gaps",
+              "prompt": "Review my deals for missing relationships, values, or next steps."
+            },
+            "pipeline-summary": {
+              "label": "Summarize my pipeline",
+              "prompt": "Summarize my deal pipeline, risks, and most useful next actions."
+            }
+          },
+          "empty": {
+            "deals-tour": {
+              "label": "Learn how deals work",
+              "prompt": "Show me around deals and explain how to manage a pipeline in Customermates."
+            },
+            "first-deal": {
+              "label": "Create my first deal",
+              "prompt": "Help me create my first deal and link the right organization, contacts, and services."
+            },
+            "setup-pipeline": {
+              "label": "Set up my pipeline",
+              "prompt": "Help me design a minimal sales pipeline for my business, then propose the fields and example deals to create."
+            }
+          }
+        },
+        "default": {
+          "data": {
+            "default-contact-count": {
+              "label": "How many contacts do we have?",
+              "prompt": "Tell me how many contacts we have and how that has been trending."
+            },
+            "default-open-deals": {
+              "label": "What deals are open?",
+              "prompt": "Summarize the deals that are currently open and where each one stands."
+            },
+            "default-tour": {
+              "label": "Show me around the app",
+              "prompt": "Give me an in-depth guided tour of Customermates and explain how the core areas work together."
+            }
+          },
+          "empty": {
+            "default-capabilities": {
+              "label": "What can you do?",
+              "prompt": "Explain what you can do for me in Customermates and where you are most useful."
+            },
+            "default-import": {
+              "label": "How do I import my contacts?",
+              "prompt": "Walk me through importing my existing contacts into Customermates."
+            },
+            "default-setup": {
+              "label": "Help me set up my CRM",
+              "prompt": "Help me set up Customermates for my business. Ask me a few focused questions before proposing any changes."
+            }
+          }
+        },
+        "inbox": {
+          "data": {
+            "inbox-add-channel": {
+              "label": "Connect another channel",
+              "prompt": "Walk me through connecting another messaging channel to Customermates."
+            },
+            "inbox-explain-data": {
+              "label": "Show me how the inbox works",
+              "prompt": "Explain how the Customermates inbox works and how it relates to my CRM records."
+            },
+            "inbox-needs-reply": {
+              "label": "Which conversations need a reply?",
+              "prompt": "Review my inbox and tell me which conversations still need a reply, most urgent first."
+            }
+          },
+          "empty": {
+            "inbox-connect-email": {
+              "label": "Connect my email",
+              "prompt": "Walk me through connecting my email account to the Customermates inbox."
+            },
+            "inbox-connect-whatsapp": {
+              "label": "Connect WhatsApp",
+              "prompt": "Walk me through connecting WhatsApp to the Customermates inbox."
+            },
+            "inbox-explain": {
+              "label": "Show me how the inbox works",
+              "prompt": "Explain how the Customermates inbox works and how it relates to my CRM records."
+            }
+          }
+        },
+        "organizations": {
+          "data": {
+            "create-organization": {
+              "label": "Create an organization",
+              "prompt": "Help me create an organization and link the relevant records."
+            },
+            "organization-gaps": {
+              "label": "Find relationship gaps",
+              "prompt": "Find organizations missing useful contact, deal, or task relationships."
+            },
+            "organizations-summary": {
+              "label": "Summarize organizations",
+              "prompt": "Summarize my organizations and highlight the relationships that deserve attention."
+            }
+          },
+          "empty": {
+            "first-organization": {
+              "label": "Create my first organization",
+              "prompt": "Help me create my first organization and connect the right people or deals."
+            },
+            "organizations-tour": {
+              "label": "Learn how organizations work",
+              "prompt": "Show me around organizations and explain how they connect contacts, deals, and tasks."
+            },
+            "setup-organizations": {
+              "label": "Set up organizations",
+              "prompt": "Help me design and create a minimal organization setup for my business. Ask about my use case first."
+            }
+          }
+        },
+        "services": {
+          "data": {
+            "create-service": {
+              "label": "Create an offering",
+              "prompt": "Help me create a service or product with the right commercial details."
+            },
+            "service-gaps": {
+              "label": "Find catalog gaps",
+              "prompt": "Review my services or products for missing prices, relationships, or duplicated offerings."
+            },
+            "services-summary": {
+              "label": "Summarize offerings",
+              "prompt": "Summarize my services or products and how they are used in deals."
+            }
+          },
+          "empty": {
+            "first-service": {
+              "label": "Create my first offering",
+              "prompt": "Help me create my first service or product with the right name and price."
+            },
+            "services-tour": {
+              "label": "Learn how offerings work",
+              "prompt": "Show me around services and explain how offerings connect to deals and tasks."
+            },
+            "setup-services": {
+              "label": "Set up my offerings",
+              "prompt": "Help me define a minimal set of services or products for my business and create them after review."
+            }
+          }
+        },
+        "tasks": {
+          "data": {
+            "create-task": {
+              "label": "Create a task",
+              "prompt": "Help me create a task and connect it to the right records."
+            },
+            "task-gaps": {
+              "label": "Find follow-up gaps",
+              "prompt": "Find important records that appear to be missing a clear follow-up task."
+            },
+            "task-priorities": {
+              "label": "Plan my next actions",
+              "prompt": "Review my tasks and related CRM data, then recommend what I should do next."
+            }
+          },
+          "empty": {
+            "first-task": {
+              "label": "Create my first task",
+              "prompt": "Help me create my first task and connect it to the right records."
+            },
+            "setup-tasks": {
+              "label": "Set up my workflow",
+              "prompt": "Help me design a minimal task workflow for my business and propose the fields and first tasks to create."
+            },
+            "tasks-tour": {
+              "label": "Learn how tasks work",
+              "prompt": "Show me around tasks and explain how they connect to contacts, organizations, deals, and services."
+            }
+          }
+        }
+      },
+      "readOnly": {
+        "explain": {
+          "label": "Explain this page",
+          "prompt": "Explain this page, its most important information, and how to use it well. Do not make any changes."
+        },
+        "relationships": {
+          "label": "Show how it connects",
+          "prompt": "Explain how this page connects to the other areas of Customermates. Do not make any changes."
+        },
+        "tour": {
+          "label": "Take a guided tour",
+          "prompt": "Give me an in-depth guided tour of this page without changing any data."
+        }
+      }
+    },
+    "title": "Mate",
+    "tour": {
+      "done": "Done",
+      "next": "Next",
+      "skip": "Skip"
+    },
+    "tourUi": {
+      "back": "Back",
+      "title": "Guided tour"
+    },
+    "ui": {
+      "activityCancelled": "{count} {count, plural, one {step} other {steps}} stopped",
+      "activityComplete": "{count} {count, plural, one {step} other {steps}} completed",
+      "activityError": "{count} {count, plural, one {step needs} other {steps need}} attention",
+      "archive": "Archive chat",
+      "archived": "Archived",
+      "archivedChats": "Archived chats",
+      "assistantWorking": "Assistant is responding",
+      "back": "Back to chat",
+      "cancel": "Cancel",
+      "chats": "Chats",
+      "deleteChat": "Delete chat",
+      "deleteChatBody": "This permanently deletes the chat’s messages, approvals, and assistant actions. AI usage and billing records and CRM records created through the chat remain. Support emails already sent are not recalled.",
+      "deleteChatTitle": "Permanently delete this chat?",
+      "deletePermanently": "Delete permanently",
+      "editQueued": "Edit queued message",
+      "history": "Chat history",
+      "jumpToLatest": "Jump to latest",
+      "loadChatFailed": "The chat couldn’t be loaded. Select it again to retry.",
+      "loadingChat": "Loading chat…",
+      "loadingOlderMessages": "Loading older messages",
+      "loadMoreChats": "Load more chats",
+      "loadOlderMessages": "Load earlier messages",
+      "newChat": "New chat",
+      "noChats": "No chats yet",
+      "noChatsBody": "Start a chat to return to your questions and completed work later.",
+      "queued": "Up next",
+      "refreshHistoryFailed": "Chat history couldn’t be refreshed. Your existing chats remain visible.",
+      "removeQueued": "Remove queued message",
+      "responseComplete": "Response complete",
+      "restore": "Restore",
+      "retryTurn": "Try again",
+      "stepsTook": "{steps, plural, one {# step} other {# steps}} · {seconds}s",
+      "thinking": "Thinking",
+      "turnFailed": "This response couldn’t be completed.",
+      "undo": "Undo",
+      "untitled": "New chat"
+    }
+  },
   "AgplGithubBadge": {
     "label": "AGPL · Open source"
   },
@@ -118,6 +784,7 @@
       "cancel": "Cancel",
       "clear": "Clear",
       "close": "Close",
+      "collapse": "Collapse",
       "contact": "Contact",
       "continueSetup": "Continue setup",
       "copy": "Copy to clipboard",
@@ -125,6 +792,7 @@
       "deleteCustomFields": "Delete Field",
       "discard": "Discard",
       "editCustomFields": "Edit Field",
+      "expand": "Expand",
       "labelHistory": "History",
       "labelNotes": "Notes",
       "loadMore": "Load more",
@@ -249,6 +917,11 @@
       "activityPageOutOfRange": "The activity feed cannot page that far back. Narrow the filters instead.",
       "activityScopeTooManyIds": "An activity scope cannot select more than 50 records of one type.",
       "activitySourcesUnavailable": "You do not have access to any activity timeline source.",
+      "agentApprovalUnavailable": "This approval request is unavailable or has expired.",
+      "agentConversationNotFound": "This conversation was not found or is no longer accessible.",
+      "agentLimitReached": "Not enough AI credits remain to start another request.",
+      "agentModelUnavailable": "That Assistant model is not available.",
+      "agentTurnAlreadyRunning": "Another Assistant turn is already running.",
       "apiKeyMaxExpiration": "API key expiration cannot exceed 365 days.",
       "apiKeyMinExpiration": "API key expiration must be at least 1 day.",
       "assigneeRequired": "You must assign yourself to this item. Please note that you will only be able to view items assigned to you.",
@@ -270,6 +943,7 @@
       "customFieldInvalidSingleSelect": "The single select value is invalid. Must be one of the allowed options: {validValues}.",
       "customFieldInvalidUrl": "The URL value is invalid. Must be a valid URL format (e.g., https://example.com). For multiple URLs, separate by comma (e.g., https://example.com, https://example.org).",
       "dealNotFound": "Deal ID not found or not accessible.",
+      "demoMode": "This action is not available in demo mode. Sign in to access all features.",
       "draftMessageNotFound": "That draft could not be found. It may have already been sent or discarded.",
       "duplicateChannel": "This channel is listed more than once. Add each email address, phone number, or handle only once.",
       "duplicateOutboundSuppressed": "An identical message was sent to this thread moments ago. Change the text or wait a minute before retrying.",
@@ -277,6 +951,7 @@
       "emailAlreadyExists": "An account with this email already exists.",
       "emailMismatch": "Email addresses must match.",
       "emailNotVerified": "Email not verified.",
+      "enterpriseCheckoutUnavailable": "Enterprise workspaces are billed manually and cannot start self-service checkout.",
       "filterBetweenInvalidArrayLength": "The 'between' operator requires an array with exactly 2 elements.",
       "generic": "An error occurred.",
       "inmailSignatureRequired": "Add a signature for the Recruiter InMail.",
@@ -288,20 +963,26 @@
       "invalidFilterField": "Filter field not found or not accessible. Available fields: {validValues}.",
       "invalidFilterOperator": "The operator '{operator}' is not allowed on the field '{field}'. Allowed operators: {validValues}.",
       "invalidFilterValue": "Invalid filter value. The value must match the field's type and operator (e.g. a number for gt/lt, an ISO date for date fields, or an id for in/notIn).",
+      "invalidJsonBody": "The request body is not valid JSON.",
       "invalidSortField": "Sort field not found or not accessible. Available fields: {validValues}.",
       "invalidUrl": "Enter a valid URL.",
+      "legalNoticeNotDelivered": "The current legal update has not been delivered to this workspace yet.",
       "linkedinInboxUnavailable": "This LinkedIn account has no {product} inbox. Connect the account with {product} linked to use it.",
       "linkedinProductRequiresLinkedin": "InMail and LinkedIn product options require a LinkedIn account.",
       "linkedinProductUnavailable": "This LinkedIn account does not have that product connected.",
       "messageContentRequired": "Add a message or an attachment.",
       "mustNotBeBlank": "Must not be blank.",
       "mustNotContainNullChars": "Must not contain null characters.",
+      "notAuthenticated": "Sign in to use this action.",
       "notesExceedsMaxLength": "Notes content exceeds maximum length.",
       "notesInvalidFormat": "Invalid notes format. Must be valid Tiptap JSON or markdown text.",
       "organizationNotFound": "Organization ID not found or not accessible.",
       "passwordInvalid": "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
       "passwordMismatch": "Passwords must match.",
+      "permissionDenied": "This action is not available with your current permissions.",
+      "presetNotFound": "This saved filter preset was not found.",
       "relationNotAllowed": "Relation '{relation}' is not allowed on {entity}. Allowed relations: {allowed}.",
+      "roleAssignedCannotDelete": "A role assigned to users cannot be deleted.",
       "roleNotFound": "Role ID not found or not accessible.",
       "roleSelfEditForbidden": "You cannot change the permissions of the role assigned to you.",
       "roleSystemImmutable": "System roles cannot be edited.",
@@ -327,7 +1008,9 @@
       "unipileResourceNotFound": "The recipient or thread couldn't be found on this channel.",
       "unipileServiceUnavailable": "The messaging service is temporarily unavailable. Please try again shortly.",
       "unipileUnknown": "The provider rejected this message. Please try again or contact support.",
+      "userInactive": "Your user account is inactive. Contact a workspace administrator.",
       "userNotFound": "User ID not found or not accessible.",
+      "userSelfAdminUpdateForbidden": "You cannot update your own account through team administration.",
       "webhookDeliveryNotFound": "Webhook delivery ID not found or not accessible.",
       "webhookEventsRequired": "Select at least one event.",
       "webhookNotFound": "Webhook ID not found or not accessible.",
@@ -569,6 +1252,9 @@
       "whatsapp": "WhatsApp"
     },
     "relatedPages": "Related pages",
+    "scroll": {
+      "backToTop": "Back to top"
+    },
     "setAsDefault": "Set as default",
     "sidebar": {
       "description": "Displays the mobile sidebar.",
@@ -701,6 +1387,9 @@
   },
   "ConnectedAccountsCard": {
     "accountLimitReached": "You reached the connected-account limit for this plan. Contact us about Enterprise for unlimited accounts.",
+    "agentChatDisabled": "The Assistant is temporarily unavailable.",
+    "agentChatRequiresCloud": "The Assistant is available on Customermates Cloud.",
+    "agentChatRequiresPlan": "The Assistant is not available on your current plan.",
     "alreadyExistsToastDescription": "This account is already connected by a member of your workspace. Ask them to share it with the workspace so the inbox does not show duplicate messages.",
     "alreadyExistsToastTitle": "Account already connected",
     "channels": {
@@ -978,6 +1667,7 @@
   },
   "DocsSidebar": {
     "apiKeys": "API Keys",
+    "appAssistant": "Assistant",
     "appCompany": "Company",
     "appDashboard": "Dashboard",
     "appGuide": "App guide",
@@ -1770,6 +2460,7 @@
     "manageWithLemonSqueezy": "Manage with Lemon Squeezy",
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# connected account per user} other {# connected accounts per user}}",
+      "creditNote": "Hosted AI credits refresh monthly, even on annual billing. External MCP clients use your own AI provider and do not consume these credits.",
       "features": {
         "business": ["Everything in Pro", "Shared accounts and priority support"],
         "pro": ["Everything in Starter", "Unified inbox"],
@@ -1780,6 +2471,7 @@
           "MCP server access"
         ]
       },
+      "hostedAiCredits": "{credits, number} hosted AI credits per active user / month",
       "mostPopular": "Most popular",
       "perUserMonth": "per user / month"
     },

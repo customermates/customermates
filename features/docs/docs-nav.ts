@@ -10,6 +10,7 @@ import {
   Inbox,
   Key,
   LayoutGrid,
+  Sparkles,
   LibraryBig,
   ListFilter,
   PlugZap,
@@ -86,6 +87,7 @@ export const DOC_NAV_GROUPS: DocNavGroup[] = [
     labelEn: "App guide",
     i18nKey: "DocsSidebar.appGuide",
     items: [
+      { slug: "app-assistant", i18nKey: "DocsSidebar.appAssistant", icon: Sparkles },
       { slug: "app-dashboard", i18nKey: "DocsSidebar.appDashboard", icon: LayoutGrid },
       { slug: "app-inbox", i18nKey: "DocsSidebar.appInbox", icon: Inbox },
       { slug: "app-records", i18nKey: "DocsSidebar.appRecords", icon: Database },

@@ -17,6 +17,7 @@ import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { checkIds } from "@/core/validation/validators/check-ids";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { failAuthorization } from "@/core/validation/interactor-failure-server";
 
 export const AdminUpdateUserDetailsSchema = z.object({
   email: z.email(),
@@ -32,7 +33,9 @@ export type AdminUpdateUserDetailsData = Data<typeof AdminUpdateUserDetailsSchem
 export abstract class AdminUpdateUserDetailsRepo {
   abstract findExistingEmailsCompanyWide(emails: Set<string>): Promise<Set<string>>;
   abstract findOrThrowCompanyWide(email: string): Promise<TenantUser>;
-  abstract adminUpdateDetails(args: { userId: string } & AdminUpdateUserDetailsData): Promise<void>;
+  abstract adminUpdateDetailsOrThrow(args: { userId: string } & AdminUpdateUserDetailsData): Promise<void>;
+  abstract markAgentCreditActivatedOrThrow(userId: string): Promise<void>;
+  abstract clearAgentCreditActivatedOrThrow(userId: string): Promise<void>;
 }
 
 export abstract class UpdateUserRoleRepo {
@@ -69,7 +72,7 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
     const targetUser = await this.userRepo.findOrThrowCompanyWide(data.email);
     const targetUserId = targetUser.id;
 
-    if (targetUserId === this.userId) throw new Error("Cannot update own details.");
+    if (targetUserId === this.userId) return failAuthorization(CustomErrorCode.userSelfAdminUpdateForbidden, ["email"]);
 
     const targetIsSystem = targetUser.roleId ? await this.roleRepo.isSystemRoleOrThrow(targetUser.roleId) : false;
     const newRoleIsSystemAndActive =
@@ -89,14 +92,19 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
       }
     }
 
-    await this.userRepo.adminUpdateDetails({
+    await this.userRepo.adminUpdateDetailsOrThrow({
       userId: targetUserId,
       ...data,
     });
 
     const statusChanged = targetUser.status !== data.status;
 
-    if (statusChanged) await this.handleSubscriptionQuantityUpdate();
+    if (statusChanged) {
+      if (data.status === Status.active) await this.userRepo.markAgentCreditActivatedOrThrow(targetUserId);
+      else await this.userRepo.clearAgentCreditActivatedOrThrow(targetUserId);
+
+      await this.handleSubscriptionQuantityUpdate();
+    }
 
     await this.eventService.publish(DomainEvent.USER_UPDATED, {
       entityId: targetUserId,

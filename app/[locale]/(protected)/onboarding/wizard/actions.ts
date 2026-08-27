@@ -22,9 +22,6 @@ export async function registerProfileAction(data: RegisterUserData) {
 
 export async function completeOnboardingWizardAction() {
   const result = await serializeResult(getCompleteOnboardingWizardInteractor().invoke());
-  if (result.ok) {
-    refresh();
-    redirect(result.data.redirectTo);
-  }
+  if (result.ok) refresh();
   return result;
 }

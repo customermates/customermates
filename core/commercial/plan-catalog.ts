@@ -13,9 +13,11 @@ export type AvailableBillingCadence = (typeof AVAILABLE_BILLING_CADENCES)[number
 export type OfferId = `${PurchasablePlanId}:${AvailableBillingCadence}`;
 
 export type PlanEntitlements = {
+  agentChat: boolean;
   messaging: boolean;
   includedAccountsPerUser: number | "unlimited";
   sharedAccounts: boolean;
+  hostedAiCreditsPerActiveUser: number | "contract" | null;
 };
 
 export type CommercialOffer = {
@@ -62,9 +64,11 @@ export const PLAN_CATALOG = {
     plan: "starter",
     availability: "self-serve",
     entitlements: {
+      agentChat: true,
       messaging: false,
       includedAccountsPerUser: 0,
       sharedAccounts: false,
+      hostedAiCreditsPerActiveUser: 200,
     },
     offers: {
       monthly: {
@@ -83,9 +87,11 @@ export const PLAN_CATALOG = {
     plan: "pro",
     availability: "self-serve",
     entitlements: {
+      agentChat: true,
       messaging: true,
       includedAccountsPerUser: 1,
       sharedAccounts: false,
+      hostedAiCreditsPerActiveUser: 500,
     },
     offers: {
       monthly: {
@@ -104,9 +110,11 @@ export const PLAN_CATALOG = {
     plan: "business",
     availability: "self-serve",
     entitlements: {
+      agentChat: true,
       messaging: true,
       includedAccountsPerUser: 3,
       sharedAccounts: true,
+      hostedAiCreditsPerActiveUser: 1_200,
     },
     offers: {
       monthly: {
@@ -125,9 +133,11 @@ export const PLAN_CATALOG = {
     plan: "enterprise",
     availability: "sales-led",
     entitlements: {
+      agentChat: true,
       messaging: true,
       includedAccountsPerUser: "unlimited",
       sharedAccounts: true,
+      hostedAiCreditsPerActiveUser: "contract",
     },
     offers: {},
   },

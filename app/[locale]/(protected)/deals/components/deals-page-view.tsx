@@ -29,13 +29,13 @@ type Props = { deals: GetResult<DealDto> };
 
 export const DealsPageView = observer(function DealsPageView({ deals }: Props) {
   const { contactsStore, dealsStore, organizationsStore, servicesStore } = useRootStore();
+
+  useDataViewSync(dealsStore, deals, [organizationsStore, contactsStore, servicesStore]);
   const openEntity = useOpenEntity();
   const entityHref = useEntityHref();
   const columns = useDealColumns();
   const { singular } = useEntityTerminology();
   const t = useTranslations();
-
-  useDataViewSync(dealsStore, deals, [organizationsStore, contactsStore, servicesStore]);
 
   const view = resolveDataViewView(dealsStore.viewMode, dealsStore.groupingColumnId);
   const pageState = resolveDataViewPageState({

@@ -13,6 +13,7 @@ const harness = vi.hoisted(() => ({
 }));
 
 vi.mock("mobx-react-lite", () => ({ observer: <T>(component: T) => component }));
+vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/components/entity-terminology/use-column-label", () => ({
   useColumnLabel: () => (id: string) => id,
 }));
@@ -33,6 +34,7 @@ type Item = { id: string; name: string };
 
 function store(): BaseDataViewStore<Item> {
   return {
+    items: [],
     orderedColumns: [{ uid: "name" }],
     sortableColumnIds: new Set(["name"]),
   } as unknown as BaseDataViewStore<Item>;

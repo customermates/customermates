@@ -8,11 +8,12 @@ import {
   formatDatesInResponse,
   mcpPage,
   mcpPageSize,
-  validationError,
+  mcpInteractorFailure,
   runInteractor,
-  customErrorMessage,
+  customMcpFailure,
   CONTACT_KEY_FIELD_NOTE,
 } from "./utils";
+import type { McpToolFailureResult } from "./mcp-tool";
 
 import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -218,12 +219,12 @@ const entityNotFoundCode: Record<Entity, CustomErrorCode> = {
 async function loadEntityOrError(
   entity: Entity,
   id: string,
-): Promise<{ ok: true; entity: any } | { ok: false; error: string }> {
+): Promise<{ ok: true; entity: any } | { ok: false; error: McpToolFailureResult }> {
   const result = await detailsExecutors[entity](id);
-  if (!result.ok) return { ok: false, error: validationError(result.error) };
+  if (!result.ok) return { ok: false, error: mcpInteractorFailure(result.error) };
   const key = singularLabels[entity];
   const row = result.data?.[key];
-  if (!row) return { ok: false, error: await customErrorMessage(entityNotFoundCode[entity]) };
+  if (!row) return { ok: false, error: await customMcpFailure(entityNotFoundCode[entity]) };
   return { ok: true, entity: row };
 }
 
@@ -289,7 +290,7 @@ export const listRecordsTool = {
       sortDescriptor,
       pagination: { page, pageSize },
     });
-    if (!result.ok) return validationError(result.error);
+    if (!result.ok) return mcpInteractorFailure(result.error);
 
     return encodeToToon({
       items: result.data.items.map((item: any) => ({
@@ -363,7 +364,7 @@ export const getRecordsTool = {
     const results = await Promise.all(
       items.map(async ({ entity, id, include }) => {
         const loaded = await loadEntityOrError(entity, id);
-        if (!loaded.ok) return { error: loaded.error };
+        if (!loaded.ok) return { error: loaded.error.text };
 
         const key = singularLabels[entity];
         const { notes, ...masterData } = loaded.entity as Record<string, unknown> & { notes?: unknown };
@@ -421,7 +422,7 @@ export const updateRecordNotesTool = {
       .map((r) => r.payload);
 
     const result = await updateManyEntities(entity, merged);
-    if (!result.ok) return validationError(result.error);
+    if (!result.ok) return mcpInteractorFailure(result.error);
     return `Appended notes on ${merged.length} ${singularLabels[entity]}(s)`;
   },
 };

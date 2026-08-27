@@ -1,11 +1,12 @@
 import { describe, it, expect, afterAll, vi } from "vitest";
+
+import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import type { LegalNoticeAuditPayload } from "@/features/legal/legal-audit.schema";
 import type { TenantUser } from "@/features/user/user.schema";
 
 import { createTranslator } from "next-intl";
 
 import messages from "@/i18n/locales/en.json";
-import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
 const activeTenantUser = vi.hoisted(() => ({
   value: null as TenantUser | null,
@@ -157,7 +158,7 @@ describeDatabase("registration against a real database", () => {
         createUnscoped: vi.fn().mockResolvedValue([]),
       },
       new PrismaAuditLogRepo(),
-      { dispatch: vi.fn().mockResolvedValue(undefined) },
+      { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
     );
     const interactor = new RegisterUserInteractor(
       authService as never,
@@ -303,7 +304,7 @@ describeDatabase("registration against a real database", () => {
         createUnscoped: vi.fn().mockResolvedValue([]),
       },
       new PrismaAuditLogRepo(),
-      { dispatch: vi.fn().mockResolvedValue(undefined) },
+      { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
     );
     const interactor = new RegisterUserInteractor(
       {
@@ -384,7 +385,7 @@ describeDatabase("registration against a real database", () => {
         createUnscoped: vi.fn().mockResolvedValue([]),
       },
       auditRepo,
-      { dispatch: vi.fn().mockResolvedValue(undefined) },
+      { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
     );
     const versions = currentLegalDocumentVersions();
     await runWithoutTenant(async () => {
@@ -482,7 +483,7 @@ describeDatabase("registration against a real database", () => {
         createUnscoped: vi.fn().mockResolvedValue([]),
       },
       new PrismaAuditLogRepo(),
-      { dispatch: vi.fn().mockResolvedValue(undefined) },
+      { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
     );
     const interactor = new RegisterUserInteractor(
       {

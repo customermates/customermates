@@ -272,7 +272,7 @@ export class PrismaUserRepo
   }
 
   @Transaction
-  async adminUpdateDetails(args: RepoArgs<AdminUpdateUserDetailsRepo, "adminUpdateDetails">) {
+  async adminUpdateDetailsOrThrow(args: RepoArgs<AdminUpdateUserDetailsRepo, "adminUpdateDetailsOrThrow">) {
     const { companyId } = this.user;
 
     await this.prisma.user.update({
@@ -349,11 +349,13 @@ export class PrismaUserRepo
               status: SubscriptionStatus.trial,
               plan: CLOUD_TRIAL.plan,
               trialEndDate,
+              agentCreditAnchorAt: new Date(),
             }
           : {
               companyId: company.id,
               status: SubscriptionStatus.active,
               trialEndDate: null,
+              agentCreditAnchorAt: new Date(),
             },
     });
 
@@ -369,6 +371,7 @@ export class PrismaUserRepo
         companyId: company.id,
         roleId: adminRole.id,
         lastActiveAt: new Date(),
+        agentCreditActivatedAt: new Date(),
       },
     });
 
@@ -625,10 +628,37 @@ export class PrismaUserRepo
     return result.count > 0;
   }
 
-  async deactivateUser(userId: string) {
+  @Transaction
+  async markAgentCreditActivatedOrThrow(userId: string) {
+    const { companyId } = this.user;
+
     await this.prisma.user.update({
+      where: { id: userId, companyId },
+      data: { agentCreditActivatedAt: new Date() },
+    });
+  }
+
+  @Transaction
+  async clearAgentCreditActivatedOrThrow(userId: string) {
+    const { companyId } = this.user;
+
+    await this.prisma.user.update({
+      where: { id: userId, companyId },
+      data: { agentCreditActivatedAt: null },
+    });
+  }
+
+  async deactivateUserOrThrow(userId: string) {
+    const { companyId } = await this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
-      data: { status: Status.inactive },
+      select: { companyId: true },
+    });
+
+    await this.withCompanyTransaction(companyId, async () => {
+      await this.prisma.user.update({
+        where: { id: userId, companyId },
+        data: { status: Status.inactive, agentCreditActivatedAt: null },
+      });
     });
   }
 }

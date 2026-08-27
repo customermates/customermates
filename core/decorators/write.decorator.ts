@@ -21,8 +21,8 @@ interface WriteOptions<I, O> {
 
 export function Write<I, O>(opts: WriteOptions<I, O>) {
   return function (target: any, key: string, descriptor: PropertyDescriptor) {
-    if (opts.tx !== false) Transaction(opts.tx)(target, key, descriptor);
     if (opts.output) ValidateOutput(opts.output)(target, key, descriptor);
+    if (opts.tx !== false) Transaction(opts.tx)(target, key, descriptor);
     if (opts.precheck) Precheck(opts.precheck)(target, key, descriptor);
     Validate(opts.input)(target, key, descriptor);
   };
