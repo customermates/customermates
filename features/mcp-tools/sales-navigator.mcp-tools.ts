@@ -265,6 +265,7 @@ export const getSalesSearchParametersTool = {
     "Pass a type (LOCATION, INDUSTRY, JOB_TITLE, JOB_FUNCTION, COMPANY, SCHOOL, GROUP, RELATION, PERSONA, PROFILE_LANGUAGE, POSTAL_CODE, " +
     "LEAD_LIST, ACCOUNT_LIST, SAVED_PEOPLE_SEARCH, SAVED_COMPANY_SEARCH, RECENT_SEARCH) plus keywords and get back matching ids with display names. " +
     "LEAD_LIST and ACCOUNT_LIST also find existing Sales Navigator lists by name; use linkedin_get_sales_search_parameters.items[].id as linkedin_manage_sales_lists.listId. " +
+    "Paginate with offset plus limit when a type has more matches than one page. " +
     "Requires a connected LinkedIn account with an active Sales Navigator subscription.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
   inputSchema: GetSalesSearchParametersToolSchema,
@@ -296,6 +297,7 @@ export const manageSalesListsTool = {
     "action list enumerates the existing lists (kind leads for people, accounts for companies) with linkedin_manage_sales_lists.items[].id, name and item count. " +
     "action browse returns the members of one list using listId from linkedin_manage_sales_lists.items[].id; lead rows include items[].current_positions[] (company, role, company_id, company_url), and linkedin_manage_sales_lists.items[].current_positions[].company_id resolves via get_social_profile with profileType=company. " +
     "action save ADDS a person or company to an existing list: for kind leads, pass providerId from linkedin_search_sales_leads.items[].id or get_social_profile.id. For get_messaging_threads.items[].participants[].identifier or get_messaging_threads.thread.participants[].identifier, call get_social_profile first and use get_social_profile.id. For kind accounts, pass linkedin_search_sales_companies.items[].id, linkedin_search_sales_leads.items[].current_positions[].company_id, linkedin_manage_sales_lists.items[].current_positions[].company_id from action=browse, or get_social_profile.current_positions[].company_id. The hosted Assistant verifies the person or company and the list from LinkedIn immediately before asking for approval. " +
+    "Paginate list and browse with offset plus limit, repeating the same kind and listId while increasing offset. " +
     "New lists cannot be created via the API; the user creates them in Sales Navigator first. " +
     "Requires a connected LinkedIn account with an active Sales Navigator subscription.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },

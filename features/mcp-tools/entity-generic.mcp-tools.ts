@@ -459,7 +459,7 @@ export const deleteRecordsTool = {
     "Use this when records must be permanently deleted. IRREVERSIBLE. " +
     "Deletes up to 100 records by id for a single entity type. " +
     "Required: entity, ids (for contacts, each id may be a UUID or an email/phone/'provider:handle' channel key). " +
-    "This cannot be undone. Consider exporting first. Idempotent on repeat (missing ids are reported as errors).",
+    "This cannot be undone. Consider exporting first. Repeating a delete leaves state unchanged, but ids that no longer exist come back as per-id errors.",
   annotations: { readOnlyHint: false, idempotentHint: true, destructiveHint: true, openWorldHint: false },
   inputSchema: DeleteRecordsSchema,
   execute: ({ entity, ids }: z.infer<typeof DeleteRecordsSchema>) =>

@@ -348,7 +348,7 @@ export const sendChatMessageTool = {
   description:
     "Use this when sending a real chat message (LinkedIn, WhatsApp, and other connected chat accounts). SIDE EFFECT: delivers a real message. " +
     "Exactly one mode: pass threadId to send text into that existing thread (optional draftMessageId converts a saved draft on send), " +
-    "or omit threadId to start a new chat, which requires connectedAccountId (see get_workspace_context) and attendeeIdentifiers " +
+    "or omit threadId to start a new chat, which requires connectedAccountId from get_workspace_context.connectedAccounts[].id (check its status is ok) and attendeeIdentifiers " +
     "(the recipients' provider handles, i.e. the value of a contact's messaging channel) plus optional chatName to name the group. " +
     "New LinkedIn chats default to the Classic product; set linkedinProduct to sales_navigator or recruiter to send an InMail from that product's inbox " +
     "(requires inmailSubject; recruiter also inmailSignature), or set inmail true on classic to InMail someone outside the network. " +
@@ -386,7 +386,7 @@ export const sendEmailTool = {
     "Required: to, subject, body, and at least one of threadId (reply; takes precedence if both given) or connectedAccountId (new email). " +
     "Optional: cc, bcc. cc/bcc are plain email strings (not the {identifier} object form used by to). " +
     "When replying into a thread, an identical body sent to that thread within about a minute is rejected as a duplicate. " +
-    "Get account ids from get_workspace_context and thread ids from get_messaging_threads.",
+    "connectedAccountId is get_workspace_context.connectedAccounts[].id (check its status is ok first); threadId is get_messaging_threads.items[].id.",
   annotations: {
     readOnlyHint: false,
     destructiveHint: false,
@@ -431,8 +431,8 @@ export const discardMessageDraftTool = {
   title: "Discard message draft",
   description:
     "Use this when a prepared draft is no longer wanted: permanently deletes it. " +
-    "messageId is a DRAFT message id, taken from save_message_draft's response or from the thread detail of " +
-    "get_messaging_threads (messages flagged isDraft). Only drafts can be discarded; sent and received messages are never affected. " +
+    "messageId is a DRAFT message id: save_message_draft.draftMessageId, or the id of a message flagged isDraft in " +
+    "get_messaging_threads thread detail. Only drafts can be discarded; sent and received messages are never affected. " +
     "Discarding an id that is not a draft is a safe no-op that reports no draft found.",
   annotations: {
     readOnlyHint: false,
@@ -456,8 +456,11 @@ export const updateMessagingThreadTool = {
   name: "update_messaging_thread",
   title: "Update messaging thread",
   description:
-    "Use this when triaging the inbox: sets a thread's state. state is one of unread, open, closed, or spam. " +
-    "threadId comes from get_messaging_threads. Setting the state a thread already has is a harmless no-op.",
+    "Use this when triaging the inbox: sets a thread's state inside the Customermates inbox only, never at the provider. " +
+    "Required: threadId from get_messaging_threads.items[].id, state. " +
+    "state is one of unread, open, closed, or spam; the state shows as a badge on the thread and is filterable in the inbox, it never hides or deletes anything. " +
+    "Setting the state a thread already has is a harmless no-op, so triage in bulk without reading each state first. " +
+    "The provider mailbox, the messages themselves, and any linked CRM records stay untouched.",
   annotations: {
     readOnlyHint: false,
     idempotentHint: true,
