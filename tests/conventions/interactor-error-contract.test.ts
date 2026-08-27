@@ -172,6 +172,25 @@ describe("interactor error contract", () => {
     expect(violations).toEqual([]);
   });
 
+  it("classifies every id validator's not-found code as not_found", async () => {
+    const { interactorFailureKind, interactorFailureStatus, createZodError } = await import(
+      "@/core/validation/validation.utils"
+    );
+    const violations: string[] = [];
+    for (const path of walkFiles(
+      `${REPO_ROOT}/core/validation/validators`,
+      (file) => file.endsWith(".interactor.ts") && !file.includes("/__tests__/"),
+    )) {
+      const source = readFileSync(path, "utf8");
+      for (const [, code] of source.matchAll(/CustomErrorCode\.(\w+)\s*\)/g)) {
+        const error = createZodError("missing", ["ids"], { error: code });
+        if (interactorFailureKind(error) !== "not_found" || interactorFailureStatus(error) !== 404)
+          violations.push(`${relative(REPO_ROOT, path)} produces ${code}, which classifies as ${interactorFailureKind(error)}`);
+      }
+    }
+    expect(violations).toEqual([]);
+  });
+
   it("keeps terminal MCP failures structured", () => {
     const violations: string[] = [];
     for (const path of sourceFiles().filter((file) => file.endsWith(".mcp-tools.ts"))) {
