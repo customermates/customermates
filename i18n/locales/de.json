@@ -1985,6 +1985,7 @@
       "noLimits": "Transparente Tarife",
       "openSource": "Open Core"
     },
+    "eyebrow": "Preise",
     "selfHosted": {
       "ctaText": "Download",
       "featureApi": "Dokumentierte API-, MCP- und Webhook-Schnittstellen",

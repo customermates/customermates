@@ -15,7 +15,7 @@ export function MarkdownImage({ alt, src = "docs-placeholder.png" }: Props) {
 
   return (
     <div className="not-prose my-8">
-      <ShowcaseFrame className="mb-0">
+      <ShowcaseFrame className="mb-0" withGlow={false}>
         <AppImage
           alt={alt}
           className="w-full h-auto rounded-none"

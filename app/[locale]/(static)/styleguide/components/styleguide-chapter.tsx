@@ -28,7 +28,7 @@ function ChapterSwitcher({ currentChapter }: { currentChapter: StyleguideChapter
   const current = getStyleguideChapter(currentChapter);
 
   return (
-    <div className="sticky top-14 z-20 w-full border-b border-border bg-background/95 backdrop-blur sm:top-16">
+    <div className="sticky top-16 z-20 w-full border-b border-border bg-background/95 backdrop-blur">
       <MarketingContainer className="py-2.5">
         <nav aria-label="Style guide chapters" className="hidden items-center gap-1 nav:flex">
           <span className="text-meta mr-3 font-mono">Style guide</span>

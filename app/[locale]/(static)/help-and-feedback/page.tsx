@@ -5,7 +5,6 @@ import { getLocale } from "next-intl/server";
 
 import { Footer } from "@/app/components/footer";
 import { FAQSection } from "@/components/marketing/faq-section";
-import { MarketingContainer } from "@/components/marketing/marketing-container";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { helpAndFeedbackSource } from "@/core/fumadocs/source";
 
@@ -22,17 +21,17 @@ export default async function HelpAndSettingsPage() {
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <section className="w-full pt-12 md:pt-16">
-        <MarketingContainer>
-          <div className="flex flex-col items-center text-center">
-            <h1 className="text-display m-0 max-w-5xl">{page.data.title}</h1>
+      <section className="pt-12 md:pt-16 pb-16 md:pb-24 w-full">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="mb-12 flex flex-col items-center">
+            <h1 className="text-x-4xl px-4 max-w-4xl text-center">{page.data.title}</h1>
 
-            <p className="text-lede mt-6">{page.data.description}</p>
+            <p className="text-x-lg pt-4 md:pt-6 px-4 max-w-4xl text-center text-subdued">{page.data.description}</p>
           </div>
-        </MarketingContainer>
-      </section>
 
-      <FAQSection {...page.data.faq} />
+          <FAQSection {...page.data.faq} />
+        </div>
+      </section>
 
       <Footer />
     </div>

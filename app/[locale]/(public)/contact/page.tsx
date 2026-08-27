@@ -5,9 +5,9 @@ import { getTranslations } from "next-intl/server";
 
 import { ContactForm } from "./contact-form";
 
-import { Footer } from "@/app/components/footer";
-import { MarketingContainer } from "@/components/marketing/marketing-container";
+import { WaveDecoration } from "@/components/marketing/wave-decoration";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
+import { Footer } from "@/app/components/footer";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -38,13 +38,30 @@ export default async function ContactPage() {
   return (
     <>
       <div className="flex flex-1 flex-col items-center">
-        <section className="flex w-full flex-1 items-center">
-          <MarketingContainer className="py-12 md:py-20">
+        <section className="relative isolate flex w-full flex-1 items-center">
+          <WaveDecoration
+            className="-top-24 -left-40 w-[min(1080px,90vw)] md:-top-40 md:-left-60"
+            opacity={0.5}
+            variant="wave-1"
+          />
+
+          <WaveDecoration
+            className="-top-16 right-0 hidden w-[min(720px,60vw)] md:block md:-top-8 md:-right-24"
+            opacity={0.35}
+            variant="wave-2"
+          />
+
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 -top-16 z-[5] h-[760px] bg-[radial-gradient(ellipse_70%_75%_at_50%_50%,var(--background)_0%,color-mix(in_oklab,var(--background)_85%,transparent)_25%,color-mix(in_oklab,var(--background)_55%,transparent)_50%,color-mix(in_oklab,var(--background)_20%,transparent)_75%,transparent_100%)]"
+          />
+
+          <div className="relative z-10 mx-auto max-w-6xl px-4 py-12 md:py-20">
             <div className="grid gap-10 md:grid-cols-5 md:gap-12 lg:gap-16">
               <div className="flex flex-col gap-6 md:col-span-2">
-                <h1 className="text-display-sm m-0">{t("ContactPage.title")}</h1>
+                <h1 className="text-x-4xl">{t("ContactPage.title")}</h1>
 
-                <p className="text-lede">{t("ContactPage.description")}</p>
+                <p className="text-x-lg text-subdued">{t("ContactPage.description")}</p>
 
                 <ul className="flex flex-col gap-4 pt-2">
                   {highlights.map(({ icon: Icon, title, body }) => (
@@ -56,7 +73,7 @@ export default async function ContactPage() {
                       <div>
                         <p className="font-medium">{title}</p>
 
-                        <p className="text-meta">{body}</p>
+                        <p className="text-x-sm text-subdued">{body}</p>
                       </div>
                     </li>
                   ))}
@@ -67,7 +84,7 @@ export default async function ContactPage() {
                 <ContactForm />
               </div>
             </div>
-          </MarketingContainer>
+          </div>
         </section>
       </div>
 

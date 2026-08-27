@@ -32,25 +32,19 @@ export function FooterContent({
   const t = useTranslations();
 
   return (
-    <footer className={cn("mt-auto w-full border-t border-border bg-sidebar text-sm", className)}>
-      <div className="marketing-container py-12">
+    <footer className={cn("bg-muted mt-auto w-full text-x-sm", className)}>
+      <div className="max-w-[1300px] mx-auto px-6 py-12">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-8 mb-12">
           <div className="col-span-2 sm:col-span-3 lg:col-span-1 flex flex-col items-start gap-4">
             <AppLink aria-label={`${t("Common.imageAlt.logo")} ${t("UserAvatar.home")}`} href="/">
-              <AppImage
-                alt={t("Common.imageAlt.logo")}
-                className="h-auto w-[156px]"
-                height={23}
-                src="customermates.svg"
-                width={229}
-              />
+              <AppImage alt={t("Common.imageAlt.logo")} height={27} src="customermates.svg" width={156} />
 
               <span className="sr-only">{`${t("Common.imageAlt.logo")} ${t("UserAvatar.home")}`}</span>
             </AppLink>
 
             <div className="flex gap-4">
               <a
-                className="marketing-transition inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+                className="text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors inline-flex items-center gap-1.5"
                 href="https://github.com/customermates/customermates"
                 rel="noopener noreferrer"
                 target="_blank"
@@ -63,7 +57,7 @@ export function FooterContent({
               </a>
 
               <a
-                className="marketing-transition inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+                className="text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors inline-flex items-center gap-1.5"
                 href="https://www.linkedin.com/company/customermates/"
                 rel="noopener noreferrer"
                 target="_blank"
@@ -76,7 +70,7 @@ export function FooterContent({
               </a>
 
               <a
-                className="marketing-transition inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+                className="text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors inline-flex items-center gap-1.5"
                 href="https://x.com/benjiwagn"
                 rel="noopener noreferrer"
                 target="_blank"

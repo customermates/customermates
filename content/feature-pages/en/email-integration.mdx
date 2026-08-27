@@ -5,21 +5,12 @@ featureName: Email Integration
 
 hero:
   title: Email Integration That Connects Every Conversation to Your CRM
-  description: Connect supported Gmail, Outlook, and IMAP accounts with Customermates. Matching conversations appear in the unified inbox alongside LinkedIn, WhatsApp, Instagram, and Telegram. Supported external AI clients can read context, draft, and send through MCP; sequences require separate n8n and delivery providers.
+  description: Connect supported Gmail and Outlook accounts with Customermates. Matching conversations appear in the unified inbox alongside LinkedIn, WhatsApp, Instagram, and Telegram. Supported external AI clients can read context, draft, and send through MCP; sequences require separate n8n and delivery providers.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
-
-visualSection:
-  title: Supported channels meet in one customer context
-  description: Seven supported channels surround Anna Müller's record. One Gmail thread is highlighted while the other providers stay quiet.
-  labels:
-    focal: Customer record
-    semantic:
-      - Conversation
-      - Associated
 
 cta:
   action: Ready to connect your inbox?
@@ -37,36 +28,12 @@ Customermates imports email threads from a connected Gmail, Microsoft Outlook, o
 
 This is an operational inbox, not an email-marketing suite. You can read synchronized threads, reply on the original channel, save or replace one local draft on an existing thread, change a thread's state, and link thread participants to CRM contacts. New outbound email can be sent immediately from a contact or through the API and MCP tools.
 
-### Inspect the Unified Inbox
-
-The public demo is inspection-only. Open a seeded conversation to see channel identity, thread context, and linked customer information in the actual product.
-
-<ProductDemo
-  id="email-unified-inbox-demo"
-  selection="sophie-wagner"
-  surface="inbox"
-  title="Live Customermates unified inbox demo with Sophie Wagner selected"
-/>
-
 ## How to Connect Email
 
-<Steps>
-  <Step id="email-connect-open" title="Open connected accounts">
-    Go to **Profile → Connected accounts**.
-  </Step>
-  <Step id="email-connect-provider" title="Choose the provider">
-    Select **Connect an account** and complete the provider's hosted
-    authentication flow.
-  </Step>
-  <Step id="email-connect-folders" title="Choose what to import">
-    Select the folders to import when the connected account supports folder
-    selection.
-  </Step>
-  <Step id="email-connect-inbox" title="Check the unified inbox">
-    Open the [Inbox](/docs/app-inbox) to read and reply to the synchronized
-    threads.
-  </Step>
-</Steps>
+1. Open **Profile → Connected accounts**.
+2. Choose **Connect an account** and complete the provider's hosted authentication flow.
+3. Select the folders to import when the account supports folder selection.
+4. Open the [Inbox](/docs/app-inbox) to read and reply to synchronized threads.
 
 Authentication happens in the provider connection flow. Customermates does not ask you to paste a Gmail or Microsoft password into the CRM.
 

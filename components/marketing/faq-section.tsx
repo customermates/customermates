@@ -1,7 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
 import { Faq, FaqItem } from "./faq";
-import { MarketingSection } from "@/components/marketing/marketing-section";
 import { AppLink } from "@/components/shared/app-link";
 
 type FAQItem = {
@@ -21,25 +20,49 @@ export async function FAQSection({ faqs, title }: Props) {
   const t = await getTranslations();
 
   return (
-    <MarketingSection id="faq" title={title ?? t("FAQSection.label")}>
-      <div className="mx-auto mt-10 max-w-3xl lg:mt-12">
-        <Faq>
-          {faqs.map((faq) => (
-            <FaqItem key={faq.id} question={faq.title}>
-              {faq.content}
-            </FaqItem>
-          ))}
-        </Faq>
+    <section className="relative isolate mx-auto w-full max-w-[860px] overflow-visible px-4 py-20">
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute -left-14 top-10 size-[260px] rounded-full bg-[rgba(18,148,144,0.10)] blur-[70px]" />
+
+        <div className="absolute -right-10 bottom-16 size-[220px] rounded-full bg-[rgba(94,74,227,0.12)] blur-[70px]" />
+      </div>
+
+      <div className="relative mb-9 text-center">
+        <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-[#129490]/12 px-3 py-1 font-mono text-[12px] font-medium uppercase tracking-[0.05em] text-[#0e726f]">
+          <span className="size-[5px] rounded-full bg-[#129490]" />
+
+          {t("FAQSection.label")}
+        </span>
+
+        {title ? <h2 className="m-0 mt-3 text-x-3xl">{title}</h2> : null}
 
         {/* eslint-disable react/jsx-newline */}
-        <p className="text-meta mt-6">
+        <p className="mx-auto mt-3 max-w-[480px] text-sm text-muted-foreground">
           {t("FAQSection.contactIntro")}{" "}
           <AppLink appearance="inline" className="font-medium" href="/contact">
             {t("FAQSection.contactCta")}
           </AppLink>
         </p>
         {/* eslint-enable react/jsx-newline */}
+
+        <div className="mt-6 flex items-center justify-center gap-3.5">
+          <span className="h-px w-[60px] bg-linear-to-r from-transparent via-border to-transparent" />
+
+          <svg aria-hidden className="text-primary opacity-60" height="10" viewBox="0 0 10 10" width="10">
+            <path d="M5 0 L10 5 L5 10 L0 5 Z" fill="currentColor" />
+          </svg>
+
+          <span className="h-px w-[60px] bg-linear-to-r from-transparent via-border to-transparent" />
+        </div>
       </div>
-    </MarketingSection>
+
+      <Faq>
+        {faqs.map((faq) => (
+          <FaqItem key={faq.id} question={faq.title}>
+            {faq.content}
+          </FaqItem>
+        ))}
+      </Faq>
+    </section>
   );
 }

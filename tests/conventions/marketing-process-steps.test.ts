@@ -6,21 +6,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import { Step, Steps } from "@/components/marketing/process-steps";
-import { CONTENT_LOCALES } from "@/i18n/locale-registry";
-
 import { REPO_ROOT } from "./walk";
 
-const PILOT_STEP_COUNTS = {
-  "email-integration.mdx": 4,
-  "pipeline.mdx": 3,
-} as const;
-
 describe("marketing process steps", () => {
-  it("registers one semantic ordered-list primitive for authored MDX", () => {
-    const registry = readFileSync(
-      join(REPO_ROOT, "core", "fumadocs", "mdx-components.tsx"),
-      "utf8",
-    );
+  it("renders one semantic ordered-list primitive for the noindex guide", () => {
     const markup = renderToStaticMarkup(
       createElement(
         Steps,
@@ -38,10 +27,6 @@ describe("marketing process steps", () => {
       ),
     );
 
-    expect(registry).toContain(
-      'import { Step, Steps } from "@/components/marketing/process-steps";',
-    );
-    expect(registry).toMatch(/\n\s+Step,\n\s+Steps,/u);
     expect(markup).toContain("<ol");
     expect(markup.match(/<li\b/gu)).toHaveLength(2);
     expect(markup).toContain("fd-steps");
@@ -53,24 +38,6 @@ describe("marketing process steps", () => {
     expect(markup).not.toMatch(/class="[^"]*\bp-0\b/u);
     expect(markup).toContain('data-process-steps="true"');
     expect(markup.match(/data-process-step="true"/gu)).toHaveLength(2);
-  });
-
-  it("uses the rail only for genuine ordered workflows on both localized pilot pages", () => {
-    for (const locale of CONTENT_LOCALES) {
-      for (const [filename, expectedSteps] of Object.entries(
-        PILOT_STEP_COUNTS,
-      )) {
-        const source = readFileSync(
-          join(REPO_ROOT, "content", "feature-pages", locale, filename),
-          "utf8",
-        );
-
-        expect(source.match(/<Steps>/gu)).toHaveLength(1);
-        expect(source.match(/<Step\s/gu)).toHaveLength(expectedSteps);
-        expect(source.match(/<\/Step>/gu)).toHaveLength(expectedSteps);
-        expect(source.match(/<\/Steps>/gu)).toHaveLength(1);
-      }
-    }
   });
 
   it("documents S-08 as the same one-column vertical rail at every width", () => {

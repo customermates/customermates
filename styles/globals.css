@@ -7,8 +7,7 @@
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-openapi/css/preset.css';
 
-/* Fumadocs declares its own dark variant inside preset.css. Keep this declaration after all
-   vendor imports so local inverse sections, rather than only the root theme, own dark: utilities. */
+/* The noindex guide can invert one local specimen without changing the public page theme. */
 @custom-variant dark (
   &:is(.dark *):not(:is([data-marketing-tone="inverse"], [data-marketing-tone="inverse"] *)),
   &:is(:root:not(.dark) [data-marketing-tone="inverse"], :root:not(.dark) [data-marketing-tone="inverse"] *),
@@ -51,18 +50,14 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  /* Ratios, not offsets. At --radius 8px these resolve to 4, 6, 8, 12, 20 and 24, which is
-     exactly what the offsets they replaced produced, so nothing in the application moves. The
-     difference only shows where --radius is rescaled: an offset keeps its pixel constant, while
-     a ratio keeps illustration artboards and inverse sections on the same geometric ladder. */
-  --radius-sm: calc(var(--radius) * 0.5);
-  --radius-md: calc(var(--radius) * 0.75);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.5);
-  --radius-card: calc(var(--radius) * 2.5);
-  --radius-panel: calc(var(--radius) * 3);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-card: calc(var(--radius) + 12px);
+  --radius-panel: calc(var(--radius) + 16px);
   --breakpoint-nav: 56rem;
-  --container-marketing: 90rem;
+  --container-marketing: 80rem;
   --aspect-hero: 16 / 9;
   --aspect-social: 1200 / 630;
   --ease-marketing: var(--marketing-ease);
@@ -275,23 +270,15 @@
      canvas  --sidebar     the app shell behind everything, including the 8px gutter
      panel   --background  the floating page body
      raised  --card        card, popover, menu, dialog
-   Light steps are +2.40 and +2.63 OKLCH L; dark steps are +3.25 and +3.12, a 1.27x
-   ratio. Equal lightness steps would NOT mirror, because matching a light step of 2.5 L
-   needs about 3.6 L in dark, so the quantity that carries across themes is the contrast
-   ratio rather than the lightness step: moving one token, or shifting the ladder by a
-   fixed amount, cannot work.
-
-   The dark ladder was deliberately compressed from the 1.82x that pure contrast-matching
-   gives. Borders are load-bearing here: every rung in this system carries one, and once a
-   rim delineates a surface the fill no longer has to shout the same thing twice. The cost
-   is that a surface with no border reads as less raised in dark than in light, which is
-   the trade being made on purpose rather than a drift. The page rung is the anchor and
-   does not move; only canvas and raised close in on it.
+   Light fills retain visible opaque steps. Dark fills are deliberately compressed to
+   about 1.03:1 from canvas to page and 1.07:1 from page to card; borders carry the exact
+   edge while fill carries only coarse hierarchy. This keeps a long dark page from reading
+   as alternating stripes and makes the overall field quieter and darker.
 
    BORDER — alpha, not opaque, so one value per tier is correct on all three rungs.
-     --border         ~1.18:1  container rims and rules: panel, card, table, separators
-     --input          ~1.35:1  a control edge at rest
-     --border-strong  ~1.70:1  control hover, selected, floating-surface rim
+     --border         ~1.18–1.22:1  container rims and rules: panel, card, table, separators
+     --input          ~1.32–1.37:1  a control edge at rest
+     --border-strong  ~1.68–1.74:1  control hover, selected, floating-surface rim
    Two jobs only: delineation (where a container ends) and affordance (what you can
    click into). Never hierarchy — that is primary, neutral, destructive, ghost. The
    soft weight matches what shadcn, Linear and Primer ship and is short of WCAG 1.4.11
@@ -307,7 +294,7 @@
                          the ladder does, and never inverts out of its own theme
      (--secondary is NOT a wash: see the note below)
      --placeholder       skeleton fill
-   Alphas differ per theme by the same 1.8x reasoning as the rungs.
+   Alphas remain theme-specific so state stays legible on the compressed dark ladder.
 
    --muted is a wash, not a rung. "Subdued" is inherently relative to the host, and a
    host can be two rungs away: pinned to the canvas rung it read as a gentle stripe on a
@@ -330,79 +317,9 @@
    a selection must raise contrast against whatever it sits on, so it darkens in light and
    lightens in dark. The distinction is resting elevation versus state, not light versus
    dark. --accent and --selected are washes; --secondary is not. */
-
-/* Marketing layout system (CUS-267).
-   The public pages share the colour system above without exception: canvas is --sidebar,
-   page is --background, raised is --card, rules are --border, control edges --input,
-   floating rims --border-strong. A marketing page introduces no colour of its own, so
-   the tokens below carry only geometry, rhythm, type scale and motion.
-
-   CONTRAST page mode establishes continuity. A semantic inverse section may apply the
-   complete opposite token block once at a high-salience pivot; it stays full bleed and
-   is never nested or placed adjacent to another inverse section. Cards inside it restart
-   the local page-to-raised ladder. Explicit .light and .dark review artboards continue to
-   set their own palette because their token declarations land directly on the artboard.
-
-   The homepage prototype that set this direction expressed all four inline, and drifted
-   inside a single three-file diff: three card radii (20/24/28px), two display clamps
-   (5.2vw and 5.3vw), two container widths (1440 and 1600px) and three divider alphas.
-   Every value therefore lands here once, and the marketing components read it.
-
-   RADIUS derives from --radius like the rest of the scale, so a change to the one radius
-   token still moves everything together. Two values only: --radius-card for a media or
-   content card, --radius-panel for a full-width band such as the closing call to action.
-
-   BREAKPOINT --breakpoint-nav is the one place the public navigation's desktop boundary
-   is stated, and it must stay a literal length because Tailwind expands it into a media
-   query, which cannot hold a var(). BREAKPOINT_QUERY.nav in hooks/use-media-query.ts
-   mirrors it for the matchMedia the navbar listens to, and a convention test fails when
-   the two disagree, so the query and the classes cannot drift apart.
-
-   TYPE the display sizes are viewport-clamped rather than stepped, because an editorial
-   headline should fill its measure at every width. German compound nouns set the lower
-   bound: the minimum is the size at which the longest shipped German headline still sets
-   without a mid-word break at 375px.
-
-   One family, no serif. The two references this direction was set against carry no serif
-   and no italic in their markup at all, so contrast comes from size, weight and tracking.
-   The weights are split the way those references split them and are not interchangeable:
-   .text-display is 700, the weight measured on the ChatGPT overview hero, and carries the
-   page's one big statement. .text-display-sm is 500 at up to 3rem, the weight and size
-   measured on openai.com section headings, and carries every heading below the hero. Using
-   700 on a section heading makes a page of competing statements; using 500 on the hero
-   makes it recede.
-
-   TYPE both display clamps are straight lines through measured points, not round
-   numbers. .text-display passes 40px at 375 and 74.88px at 1440; .text-display-sm passes
-   32px at 375, 37.9px at 768 and 48px at 1440. A bare vw coefficient with no fixed term
-   pins the minimum for hundreds of pixels -- 5.2vw held .text-display at its 40px floor
-   from 375 all the way to 769 -- so the headline stopped responding across every phone
-   and small tablet. The fixed term is what keeps the line moving inside that range.
-
-   WRAPPING both display roles set hyphens:auto and overflow-wrap:break-word because German
-   compounds are single unbreakable words at display size. "Versicherungsunternehmens" is
-   651px at the 660px-viewport display size, inside a 516px closing panel, so without a break
-   opportunity it leaves the panel on both sides. hyphens:auto resolves against the lang
-   attribute the layout already sets, so each locale hyphenates by its own rules, and
-   break-word is the fallback for a word no dictionary can split.
-
-   GRID .marketing-grid is twelve columns at every width, with the gutter stepping
-   0.5rem, 1rem, 1.5rem. Twelve divides by two, three, four and six, so a two-up, three-up
-   or four-up row is a span change rather than a new grid, and a row can stay optically
-   aligned with the row above it. The gutter grows with the viewport because a fixed gutter
-   reads as cramped on a wide screen and as wasted width on a narrow one.
-
-   SOCIAL --aspect-social is 1200x630 because that is the card size Open Graph and
-   X both crop from. It is a ratio, not a size, so a preview and the rendered card
-   cannot drift apart.
-
-   MEDIA --aspect-hero is 16/9 because every hero asset under public/images is exactly
-   1920x1080 and tests/conventions/hero-asset-coverage.test.ts enforces it. Changing this
-   ratio means regenerating 672 files, so presentation crops and frames the asset instead. */
 :root,
 .light,
 .dark [data-marketing-tone="inverse"] {
-  color-scheme: light;
   --radius: 0.5rem;
   --marketing-gutter: 1.25rem;
   --marketing-gutter-lg: 2rem;
@@ -474,10 +391,9 @@
 .dark,
 :root:not(.dark) [data-marketing-tone="inverse"],
 .light [data-marketing-tone="inverse"] {
-  color-scheme: dark;
-  --background: #121215;
+  --background: #0d0d10;
   --foreground: #fafafa;
-  --card: #19191c;
+  --card: #151518;
   --card-foreground: #fafafa;
   --popover: var(--card);
   --popover-foreground: #fafafa;
@@ -500,7 +416,7 @@
   --warning-foreground: #451a03;
   --info: #60a5fa;
   --info-foreground: #082f49;
-  --border: rgb(255 255 255 / 6.8%);
+  --border: rgb(255 255 255 / 7.5%);
   --border-strong: rgb(255 255 255 / 18.1%);
   --input: rgb(255 255 255 / 11.2%);
   --input-background: var(--card);
@@ -522,7 +438,7 @@
   --color-fd-accent: color-mix(in srgb, #26262a 30%, transparent);
   --color-fd-accent-foreground: #ffffff;
   --color-fd-ring: #65656b;
-  --sidebar: #0b0b0e;
+  --sidebar: #08080b;
   --sidebar-foreground: #e4e4e7;
   --sidebar-primary: #7c6df2;
   --sidebar-primary-foreground: #ffffff;
@@ -530,6 +446,15 @@
   --sidebar-accent-foreground: #fafafa;
   --sidebar-border: var(--border);
   --sidebar-ring: #7c6df2;
+}
+
+.dark [data-marketing-tone="inverse"] {
+  color-scheme: light;
+}
+
+:root:not(.dark) [data-marketing-tone="inverse"],
+.light [data-marketing-tone="inverse"] {
+  color-scheme: dark;
 }
 
 @layer base {

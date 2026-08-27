@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 
 import { ResponsiveContract } from "../components/responsive-contract";
 import { StyleguideChapter } from "../components/styleguide-chapter";
 import { TokenTable, TypeTable } from "../components/style-readout";
 
 import { MarketingSection } from "@/components/marketing/marketing-section";
-import { AppImage } from "@/components/shared/app-image";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
@@ -77,8 +77,8 @@ const TYPE_ROLES = [
 const GEOMETRY = [
   {
     label: "--container-marketing",
-    role: "the one content width every public page shares",
-    value: "90rem",
+    role: "the current max-w-7xl public shell width, reused by every guide chapter",
+    value: "80rem",
   },
   {
     label: "--marketing-gutter",
@@ -92,7 +92,7 @@ const GEOMETRY = [
   },
   {
     label: "--breakpoint-nav",
-    role: "where the public navigation becomes a drawer",
+    role: "the target marketing boundary used by this guide switcher",
     value: "56rem",
   },
   {
@@ -191,11 +191,20 @@ export default function FoundationsPage() {
 
           <div className="col-span-12 lg:col-start-8 lg:col-end-13">
             <div className="rounded-card border border-border bg-card p-7">
-              <AppImage
+              <Image
                 alt="Customermates"
-                className="h-auto w-[190px]"
+                className="h-auto w-[190px] dark:hidden"
                 height={23}
-                src="customermates.svg"
+                src="/images/light/customermates.svg"
+                width={229}
+              />
+
+              <Image
+                alt=""
+                aria-hidden="true"
+                className="hidden h-auto w-[190px] dark:block"
+                height={23}
+                src="/images/dark/customermates.svg"
                 width={229}
               />
 

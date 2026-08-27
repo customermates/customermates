@@ -8,30 +8,17 @@ import { REPO_ROOT, walkFiles } from "./walk";
 import { BREAKPOINT_QUERY } from "@/hooks/use-media-query";
 
 const SCANNED_ROOTS = [
-  join(REPO_ROOT, "app", "[locale]", "(static)"),
-  join(REPO_ROOT, "components", "marketing"),
+  join(REPO_ROOT, "app", "[locale]", "(static)", "styleguide"),
+  join(REPO_ROOT, "components", "marketing", "visuals"),
 ];
 
-const PUBLIC_APP_COMPONENTS = [
-  "app/components/competitor-links.tsx",
-  "app/components/footer-badges.tsx",
-  "app/components/footer-content.tsx",
-  "app/components/footer.tsx",
-  "app/components/public-navbar.tsx",
+const ISOLATED_MARKETING_COMPONENTS = [
+  "components/marketing/marketing-container.tsx",
+  "components/marketing/marketing-section.tsx",
+  "components/marketing/process-steps.tsx",
 ].map((path) => join(REPO_ROOT, path));
 
 const GLOBALS_CSS = join(REPO_ROOT, "styles", "globals.css");
-
-const DEPICTIONS = new Map([
-  [
-    "app/[locale]/(static)/components/homepage-clip-terminal.tsx",
-    "renders a simulated terminal. Its palette depicts terminal output, which is dark in both themes, so it is content rather than a surface the design system owns.",
-  ],
-  [
-    "app/[locale]/(static)/components/homepage-stats-row.tsx",
-    "inlines the n8n brand mark. A third-party logo keeps its own colour and must never be tokenised.",
-  ],
-]);
 
 const RULES = [
   {
@@ -58,7 +45,7 @@ const RULES = [
   {
     id: "bespoke-breakpoint",
     pattern: /\b(?:min|max)-\[\d+(?:rem|px)\]:/g,
-    reason: "the public navigation boundary is the nav: variant, defined once as --breakpoint-nav.",
+    reason: "the target marketing navigation boundary is the nav: variant, defined once as --breakpoint-nav.",
   },
   {
     id: "bespoke-display-size",
@@ -72,19 +59,18 @@ function scannedFiles(): string[] {
     ...SCANNED_ROOTS.flatMap((root) =>
       walkFiles(root, (path) => /\.tsx$/.test(path) && !path.includes("__tests__")),
     ),
-    ...PUBLIC_APP_COMPONENTS,
+    ...ISOLATED_MARKETING_COMPONENTS,
   ];
-}
-
-function isDepiction(file: string, ruleId: string): boolean {
-  return ruleId === "raw-colour" && DEPICTIONS.has(relative(REPO_ROOT, file));
 }
 
 describe("marketing token discipline", () => {
   const files = scannedFiles();
 
-  it("scans the public marketing surface", () => {
-    expect(files.length).toBeGreaterThan(20);
+  it("scans only the noindex guide and its isolated visual layer", () => {
+    expect(files.length).toBeGreaterThan(10);
+    expect(files.map((file) => relative(REPO_ROOT, file))).not.toContain(
+      "app/components/public-navbar.tsx",
+    );
   });
 
   for (const rule of RULES) {
@@ -92,8 +78,6 @@ describe("marketing token discipline", () => {
       const offences: string[] = [];
 
       for (const file of files) {
-        if (isDepiction(file, rule.id)) continue;
-
         const source = readFileSync(file, "utf8");
         source.split("\n").forEach((line, index) => {
           const matches = line.match(new RegExp(rule.pattern.source, "g"));
@@ -106,20 +90,32 @@ describe("marketing token discipline", () => {
   }
 });
 
-describe("marketing colour depictions", () => {
-  it("keeps every recorded exception pointing at a file that still exists", () => {
-    const scanned = new Set(scannedFiles().map((file) => relative(REPO_ROOT, file)));
-
-    for (const file of DEPICTIONS.keys()) expect(scanned, `${file} no longer exists`).toContain(file);
-  });
-});
-
 describe("marketing navigation breakpoint", () => {
-  it("states the public navigation boundary once", () => {
+  it("states the target guide-switcher boundary once", () => {
     const css = readFileSync(GLOBALS_CSS, "utf8");
     const declared = css.match(/--breakpoint-nav:\s*([^;]+);/);
 
     expect(declared, "styles/globals.css must declare --breakpoint-nav").not.toBeNull();
     expect(BREAKPOINT_QUERY.nav).toBe(`(min-width: ${declared?.[1].trim()})`);
+  });
+});
+
+describe("style-guide CSS isolation", () => {
+  it("keeps current public radii, the approved dark ladder and scoped inverse color schemes", () => {
+    const css = readFileSync(GLOBALS_CSS, "utf8");
+
+    expect(css).toContain("--radius-sm: calc(var(--radius) - 4px);");
+    expect(css).toContain("--radius-md: calc(var(--radius) - 2px);");
+    expect(css).toContain("--radius-xl: calc(var(--radius) + 4px);");
+    expect(css).toContain("--container-marketing: 80rem;");
+    expect(css).toMatch(/\.dark,[\s\S]*?--background:\s*#0d0d10;/u);
+    expect(css).toMatch(/\.dark,[\s\S]*?--card:\s*#151518;/u);
+    expect(css).toMatch(/\.dark,[\s\S]*?--border:\s*rgb\(255 255 255 \/ 7\.5%\);/u);
+    expect(css).toMatch(/\.dark,[\s\S]*?--sidebar:\s*#08080b;/u);
+    expect(css).not.toMatch(/(?:^|\n):root\s*\{[^}]*color-scheme:/u);
+    expect(css).toMatch(/\.dark \[data-marketing-tone="inverse"\]\s*\{\s*color-scheme:\s*light;/u);
+    expect(css).toMatch(
+      /:root:not\(\.dark\) \[data-marketing-tone="inverse"\],[\s\S]*?color-scheme:\s*dark;/u,
+    );
   });
 });

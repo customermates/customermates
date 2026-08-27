@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 
 import { AiClientLogo } from "@/components/ai-connection/ai-client-logo";
-import { MarketingContainer } from "@/components/marketing/marketing-container";
 
 type Logo = { name: string; mark: ReactNode };
 
@@ -34,11 +33,16 @@ export async function HomepageStatsRow() {
   const t = await getTranslations();
 
   return (
-    <section className="marketing-section-flush border-b border-border py-10 sm:py-12 lg:py-14">
-      <MarketingContainer>
-        <div>
+    <div className="mx-auto -mt-5 w-full max-w-[1100px] px-4">
+      <div className="relative overflow-hidden rounded-2xl px-6 py-7 text-center">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.35] [background:radial-gradient(ellipse_at_15%_50%,rgba(94,74,227,0.10),transparent_55%),radial-gradient(ellipse_at_85%_50%,rgba(18,148,144,0.08),transparent_55%)]"
+        />
+
+        <div className="relative">
           {/* eslint-disable react/jsx-newline */}
-          <p className="text-meta mb-4 text-center">
+          <p className="mb-4 text-xs tracking-wide text-muted-foreground">
             {t("HomepageStatsRow.taglinePre")}{" "}
             <span className="font-medium text-foreground">{t("HomepageStatsRow.taglineMcp")}</span>
             {t("HomepageStatsRow.taglinePost")}
@@ -47,15 +51,15 @@ export async function HomepageStatsRow() {
 
           <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
             {LOGOS.map((logo) => (
-              <div key={logo.name} className="flex items-center gap-2">
+              <div key={logo.name} className="flex items-center gap-2 text-foreground/80">
                 {logo.mark}
 
-                <span className="text-sm font-medium tracking-tight">{logo.name}</span>
+                <span className="text-[15px] font-semibold tracking-tight">{logo.name}</span>
               </div>
             ))}
           </div>
         </div>
-      </MarketingContainer>
-    </section>
+      </div>
+    </div>
   );
 }

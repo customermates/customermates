@@ -3,15 +3,11 @@
 import type { ComponentProps } from "react";
 
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { useLocale } from "next-intl";
 import { useTheme } from "next-themes";
 
 import { useServerTheme } from "@/components/server-theme-provider";
-import {
-  resolveMarketingImageTheme,
-  useMarketingSectionTone,
-  type MarketingImageTheme,
-} from "@/components/marketing/marketing-tone-context";
 
 type Props = ComponentProps<typeof Image> & {
   isLocalized?: boolean;
@@ -20,13 +16,14 @@ type Props = ComponentProps<typeof Image> & {
 export function AppImage({ isLocalized = false, src, ...props }: Props) {
   const resolvedLocale = useLocale();
   const serverTheme = useServerTheme();
-  const marketingTone = useMarketingSectionTone();
   const { resolvedTheme, systemTheme } = useTheme();
-  const serverThemePath: MarketingImageTheme = serverTheme === "dark" ? "dark" : "light";
-  const resolvedClientTheme = resolvedTheme === "system" ? systemTheme : resolvedTheme;
-  const globalThemePath: MarketingImageTheme =
-    resolvedClientTheme === "dark" ? "dark" : resolvedClientTheme === "light" ? "light" : serverThemePath;
-  const themePath = resolveMarketingImageTheme(globalThemePath, marketingTone);
+  const [themePath, setThemePath] = useState<"light" | "dark">(serverTheme === "dark" ? "dark" : "light");
+
+  useEffect(() => {
+    const theme = resolvedTheme === "system" ? systemTheme : resolvedTheme;
+    const newThemePath = theme === "light" ? "light" : "dark";
+    setThemePath(newThemePath);
+  }, [resolvedTheme, systemTheme]);
 
   const imageSrc = `/images/${themePath}/${isLocalized ? `${resolvedLocale}/` : ""}${src as string}`;
 

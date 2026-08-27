@@ -1985,6 +1985,7 @@
       "noLimits": "Piani trasparenti",
       "openSource": "Open core"
     },
+    "eyebrow": "Prezzi",
     "selfHosted": {
       "ctaText": "Scarica",
       "featureApi": "Interfacce API, MCP e webhook documentate",

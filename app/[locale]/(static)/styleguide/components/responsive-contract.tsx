@@ -136,8 +136,8 @@ export function ResponsiveContract() {
         </div>
 
         <p className="text-meta mx-auto mt-8 max-w-3xl text-center">
-          The navigation boundary is 56rem rather than a Tailwind default because the public menu runs out of room
-          before md does. It is declared once as --breakpoint-nav and a convention test fails if a page hard-codes it.
+          The target marketing boundary is 56rem and drives this guide switcher. The existing public navbar remains on
+          its current 48rem boundary until a future rollout explicitly adopts the target contract.
         </p>
       </MarketingSection>
 

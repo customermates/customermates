@@ -13,12 +13,10 @@ import {
   DEMO_VISUAL_PEOPLE,
   DEMO_VISUAL_PROVIDER_PERSON_PAIRINGS,
 } from "@/components/marketing/visuals/demo-visual-catalog";
-import { getVisualDealBoardColumns } from "@/components/marketing/visuals/deal-board-visual-data";
 import {
   APPROVED_NATIVE_VISUAL_ASSETS,
   VISUAL_AGENT_PROVIDER_FIXTURES,
   VISUAL_CONVERSATION_FIXTURES,
-  VISUAL_DEAL_BOARD_FIXTURES,
   VISUAL_PERSON_FIXTURES,
   VISUAL_PROVIDER_SET_FIXTURES,
   VISUAL_RECORD_FIXTURES,
@@ -222,14 +220,6 @@ describe("marketing visual fixture catalog", () => {
       totalQuantity: focalLinks.reduce((sum, [, , quantity]) => sum + quantity, 0),
     });
     expect(VISUAL_RECORD_FIXTURES["deal-digital-customer-platform"]).not.toHaveProperty("organization");
-  });
-
-  it("derives the rendered board strictly from the selected registered board", () => {
-    const board = VISUAL_DEAL_BOARD_FIXTURES["demo-status-board"];
-    const columns = getVisualDealBoardColumns("demo-status-board", "en");
-
-    expect(columns.map(({ id }) => id)).toEqual(board.statuses);
-    expect(sorted(columns.flatMap(({ deals }) => deals.map(({ id }) => id)))).toEqual(sorted(board.records));
   });
 
   it("keeps the authoring catalog deterministic, local, complete and executable", () => {

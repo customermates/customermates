@@ -33,7 +33,7 @@ export default async function FeaturesPage() {
       <FeaturesHero {...hero} />
 
       {features.map((section, index) => (
-        <BaseFeaturesSection key={index} {...section} />
+        <BaseFeaturesSection key={index} index={index} {...section} />
       ))}
 
       <WhyFeaturesSection {...why} />

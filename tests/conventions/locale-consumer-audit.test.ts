@@ -397,14 +397,6 @@ const ALLOWED_LOCALE_BRANCHING = new Map([
 const ALLOWED_LOCALE_KEYED_TABLES = new Map([
   ["scripts/audit-i18n.ts", "The translation glossary is reference data for auditing catalogs, never rendered copy."],
   [
-    "components/marketing/feature-visual-pilots.ts",
-    "Locale-keyed source checksums are drift guards, not rendered copy.",
-  ],
-  [
-    "components/marketing/visuals/deal-board-visual-data.ts",
-    "The deterministic illustration fixture keeps reviewed status labels beside the seeded Status IDs it validates.",
-  ],
-  [
     "components/marketing/visuals/demo-visual-catalog.ts",
     "The agent-readable illustration fixture keeps its reviewed localized semantic subject beside the provider/person binding.",
   ],

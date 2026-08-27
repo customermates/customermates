@@ -5,21 +5,12 @@ featureName: E-Mail-Integration
 
 hero:
   title: E-Mail-Integration, die jede Konversation mit Ihrem CRM verbindet
-  description: Verbinden Sie unterstützte Gmail-, Outlook- und IMAP-Konten mit Customermates. Passende Konversationen stehen im gemeinsamen Postfach neben LinkedIn, WhatsApp, Instagram und Telegram bereit. Unterstützte externe KI-Clients können über MCP Kontext lesen, entwerfen und senden; Kampagnen und Sequenzen laufen in einem separaten Anbieter oder einer eigenen n8n-Instanz.
+  description: Verbinden Sie unterstützte Gmail- und Outlook-Konten mit Customermates. Passende Konversationen stehen im gemeinsamen Postfach neben LinkedIn, WhatsApp, Instagram und Telegram bereit. Unterstützte externe KI-Clients können über MCP Kontext lesen, entwerfen und senden; Kampagnen und Sequenzen laufen in einem separaten Anbieter oder einer eigenen n8n-Instanz.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
-
-visualSection:
-  title: Unterstützte Kanäle treffen in einem Kundenkontext zusammen
-  description: Sieben unterstützte Kanäle umgeben Anna Müllers Datensatz. Ein Gmail-Thread ist hervorgehoben; die übrigen Anbieter bleiben ruhig.
-  labels:
-    focal: Kundendatensatz
-    semantic:
-      - Konversation
-      - Zugeordnet
 
 cta:
   action: Bereit, Ihr Postfach zu verbinden?
@@ -37,36 +28,12 @@ Customermates importiert E-Mail-Threads aus einem verbundenen Gmail-, Microsoft-
 
 Das ist ein operatives Postfach, keine E-Mail-Marketing-Suite. Sie können synchronisierte Threads lesen, auf dem ursprünglichen Kanal antworten, einen lokalen Entwurf in einem bestehenden Thread speichern oder ersetzen, den Thread-Status ändern und Teilnehmer mit CRM-Kontakten verknüpfen. Neue E-Mails lassen sich über einen Kontakt oder über API und MCP sofort senden.
 
-### Gemeinsames Postfach ansehen
-
-Die öffentliche Demo dient zum Ansehen. Öffnen Sie eine vorbereitete Konversation, um Kanalidentität, Thread-Kontext und verknüpfte Kundeninformationen im tatsächlichen Produkt zu sehen.
-
-<ProductDemo
-  id="email-unified-inbox-demo"
-  selection="sophie-wagner"
-  surface="inbox"
-  title="Live-Demo des gemeinsamen Customermates Postfachs mit ausgewählter Sophie Wagner"
-/>
-
 ## So verbinden Sie E-Mail
 
-<Steps>
-  <Step id="email-connect-open" title="Verbundene Konten öffnen">
-    Öffnen Sie **Profil → Verbundene Konten**.
-  </Step>
-  <Step id="email-connect-provider" title="Anbieter auswählen">
-    Wählen Sie **Konto verbinden** und schließen Sie den gehosteten
-    Authentifizierungsablauf des Anbieters ab.
-  </Step>
-  <Step id="email-connect-folders" title="Import festlegen">
-    Wählen Sie die zu importierenden Ordner, wenn das verbundene Konto eine
-    Ordnerauswahl unterstützt.
-  </Step>
-  <Step id="email-connect-inbox" title="Gemeinsames Postfach prüfen">
-    Öffnen Sie das [Postfach](/docs/app-inbox), um die synchronisierten Threads
-    zu lesen und zu beantworten.
-  </Step>
-</Steps>
+1. Öffnen Sie **Profil → Verbundene Konten**.
+2. Wählen Sie **Konto verbinden** und schließen Sie den gehosteten Authentifizierungsablauf des Anbieters ab.
+3. Wählen Sie die zu importierenden Ordner, wenn das Konto eine Ordnerauswahl unterstützt.
+4. Öffnen Sie das [Postfach](/docs/app-inbox), um synchronisierte Threads zu lesen und zu beantworten.
 
 Die Authentifizierung findet im Verbindungsablauf des Anbieters statt. Customermates fordert Sie nicht auf, ein Gmail- oder Microsoft-Passwort in das CRM einzufügen.
 

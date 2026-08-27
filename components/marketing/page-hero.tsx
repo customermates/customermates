@@ -1,9 +1,9 @@
-import { MarketingContainer } from "@/components/marketing/marketing-container";
 import { AppChip } from "@/components/chip/app-chip";
 import { Button } from "@/components/ui/button";
 import { IntlLink } from "@/i18n/navigation";
 
 import { AgplGithubBadge } from "./agpl-github-badge";
+import { WaveDecoration } from "./wave-decoration";
 
 type Props = {
   badge?: string;
@@ -29,40 +29,62 @@ export function PageHero({
   hint,
 }: Props) {
   return (
-    <div className="w-full pb-12 sm:pb-16">
-      <MarketingContainer>
-        <div className="flex flex-col items-center text-center">
-          <AgplGithubBadge />
+    <div className="relative isolate w-full">
+      <WaveDecoration
+        className="-top-24 -left-40 w-[min(1080px,90vw)] md:-top-40 md:-left-60"
+        opacity={0.5}
+        variant="wave-1"
+      />
 
-          {badge ? (
-            <div className="mb-4 flex justify-center">
-              <AppChip variant="secondary">{badge}</AppChip>
-            </div>
-          ) : null}
+      <WaveDecoration
+        className="-top-16 right-0 hidden w-[min(720px,60vw)] md:block md:-top-8 md:-right-24"
+        opacity={0.35}
+        variant="wave-2"
+      />
 
-          {/* eslint-disable react/jsx-newline */}
-          <h1 className="text-display m-0 max-w-5xl">
-            {title} {titleAccent ? <span className="text-muted-foreground">{titleAccent}</span> : null}
-          </h1>
-          {/* eslint-enable react/jsx-newline */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 -top-16 z-[5] h-[760px] bg-[radial-gradient(ellipse_70%_75%_at_50%_50%,var(--background)_0%,color-mix(in_oklab,var(--background)_85%,transparent)_25%,color-mix(in_oklab,var(--background)_55%,transparent)_50%,color-mix(in_oklab,var(--background)_20%,transparent)_75%,transparent_100%)]"
+      />
 
-          <p className="text-lede mt-6">{description}</p>
+      <div className="relative z-10 flex flex-col items-center">
+        <AgplGithubBadge />
 
-          <div className="mt-9 flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row sm:items-center">
-            <Button asChild size="lg" variant="default">
+        {badge ? (
+          <div className="mb-4 flex justify-center">
+            <AppChip variant="secondary">{badge}</AppChip>
+          </div>
+        ) : null}
+
+        <h1 className="text-x-4xl mx-auto max-w-4xl px-4 text-center">{title}</h1>
+
+        {titleAccent ? (
+          <div
+            className="mx-auto mt-1.5 px-4 text-center text-[26px] italic text-primary sm:text-[32px] md:text-[36px] tracking-[-0.02em]"
+            style={{ fontFamily: "var(--font-serif)" }}
+          >
+            {titleAccent}
+          </div>
+        ) : null}
+
+        <h2 className="text-x-lg mx-auto max-w-4xl px-4 pt-4 text-center text-subdued md:pt-6">{description}</h2>
+
+        <div className="my-8 flex flex-col items-center px-4 md:my-10">
+          <div className="flex w-full flex-col items-center justify-center gap-4 sm:w-auto sm:flex-row md:gap-6">
+            <Button asChild className="w-full sm:w-auto" size="lg" variant="default">
               <IntlLink href={buttonLeftHref}>{buttonLeftText}</IntlLink>
             </Button>
 
-            <Button asChild size="lg" variant="secondary">
+            <Button asChild className="w-full sm:w-auto" size="lg" variant="secondary">
               <IntlLink href={buttonRightHref} target="_blank">
                 {buttonRightText}
               </IntlLink>
             </Button>
           </div>
 
-          <p className="text-meta mt-6">{hint}</p>
+          <p className="text-x-sm mt-6 flex items-center justify-center gap-2 text-center text-subdued">{hint}</p>
         </div>
-      </MarketingContainer>
+      </div>
     </div>
   );
 }

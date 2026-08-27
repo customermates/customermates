@@ -85,7 +85,7 @@ function Equalizer({ t, count = 14 }: { t: number; count?: number }) {
         const h = 3 + Math.abs(Math.sin(phase * Math.PI * 2)) * 11;
         const opacity = 0.3 + 0.65 * Math.abs(Math.sin(phase * Math.PI));
         return (
-          <span key={i} className="inline-block rounded-xs bg-primary" style={{ width: 2.5, height: h, opacity }} />
+          <span key={i} className="inline-block rounded-[2px] bg-primary" style={{ width: 2.5, height: h, opacity }} />
         );
       })}
     </span>

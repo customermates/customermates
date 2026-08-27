@@ -1985,6 +1985,7 @@
       "noLimits": "Formules transparentes",
       "openSource": "Open core"
     },
+    "eyebrow": "Tarifs",
     "selfHosted": {
       "ctaText": "Télécharger",
       "featureApi": "Interfaces API, MCP et webhooks documentées",

@@ -3,7 +3,8 @@ import type { ElementType, ReactNode } from "react";
 import { cn } from "@/core/utils/cn";
 
 import { MarketingContainer } from "./marketing-container";
-import { MarketingToneProvider, type MarketingSectionTone } from "./marketing-tone-context";
+
+type MarketingSectionTone = "page" | "canvas" | "inverse";
 
 type Props = {
   children?: ReactNode;
@@ -57,7 +58,7 @@ export function MarketingSection({
       data-marketing-tone={tone}
       id={id}
     >
-      {tone === "inverse" ? <MarketingToneProvider tone={tone}>{content}</MarketingToneProvider> : content}
+      {content}
     </section>
   );
 }
