@@ -1,16 +1,21 @@
 import type { Metadata } from "next";
 
+import { notFound } from "next/navigation";
+
 import { ROUTE_SOURCE_MAP } from "./route-source-map";
 
 import { env } from "@/env";
 import { buildAlternateLanguages } from "@/core/seo/alternates";
-import { CONTENT_LOCALES, buildLocalePath } from "@/i18n/locale-registry";
+import { CONTENT_LOCALES, buildLocalePath, isContentLocale } from "@/i18n/locale-registry";
+import { isNoindexPublicRoute } from "@/i18n/routing";
 
 type GenerateMetadataParams = {
   canonicalPath?: string;
   locale: string;
   route: keyof typeof ROUTE_SOURCE_MAP;
   params?: Record<string, string>;
+  descriptionSuffix?: string;
+  titleSuffix?: string;
   type?: "article" | "website";
 };
 export function generateMetadataFromMeta({
@@ -18,18 +23,27 @@ export function generateMetadataFromMeta({
   locale,
   route,
   params = {},
+  descriptionSuffix,
+  titleSuffix,
   type = "website",
 }: GenerateMetadataParams): Metadata {
   const { source, path: mappedPath } = ROUTE_SOURCE_MAP[route];
   const path = mappedPath.map((part) => (part.startsWith(":") ? (params[part.slice(1)] ?? part) : part));
   const page = source.getPage(path, locale);
+  const isSlugRoute = mappedPath.some((part) => part.startsWith(":"));
 
-  if (!page) return {};
+  if (!page) {
+    if (isSlugRoute || !isContentLocale(locale)) notFound();
+    throw new Error(`No content page backs ${route} in locale ${locale}; it would ship with no canonical`);
+  }
 
-  const title = page.data.title?.trim() || "";
-  const description = page.data.description?.trim() || "";
+  const baseTitle = page.data.title?.trim() || "";
+  const title = titleSuffix ? `${baseTitle} - ${titleSuffix}` : baseTitle;
+  const baseDescription = page.data.description?.trim() || "";
+  const description =
+    descriptionSuffix && baseDescription ? `${baseDescription} - ${descriptionSuffix}` : baseDescription;
 
-  if (!title) return {};
+  if (!baseTitle) throw new Error(`The content page backing ${route} in locale ${locale} has no title`);
 
   const routePath = buildRoutePath(route, params);
   const publicPath = canonicalPath ?? routePath;
@@ -48,8 +62,11 @@ export function generateMetadataFromMeta({
     width: 1200,
   };
 
+  const noindex = isNoindexPublicRoute(route);
+
   const metadata: Metadata = {
-    alternates: alternates ? { canonical, languages: alternates } : { canonical },
+    alternates: alternates && !noindex ? { canonical, languages: alternates } : { canonical },
+    ...(noindex ? { robots: { follow: true, index: false } } : {}),
     openGraph: {
       description,
       images: [image],

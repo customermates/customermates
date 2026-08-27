@@ -16,7 +16,7 @@ import { getMDXComponents } from "@/core/fumadocs/mdx-components";
 import { CTASection } from "@/components/marketing/cta-section";
 import { FAQSection } from "@/components/marketing/faq-section";
 import { Toc } from "@/components/shared/toc";
-import { breadcrumbListSchema, faqPageSchema, softwareApplicationSchema } from "@/core/seo/schemas";
+import { breadcrumbListSchema, softwareApplicationSchema } from "@/core/seo/schemas";
 
 interface Props {
   params: Promise<{
@@ -43,7 +43,6 @@ export default async function CompetitorComparePage({ params }: Props) {
 
   if (!page) notFound();
 
-  const faqPage = page.data.faq ? faqPageSchema({ faqs: page.data.faq.faqs }) : undefined;
   const MDX = page.data.body;
   const components = getMDXComponents();
 
@@ -58,8 +57,6 @@ export default async function CompetitorComparePage({ params }: Props) {
       />
 
       <JsonLd schema={softwareApplicationSchema({ description: page.data.description, locale })} />
-
-      {faqPage ? <JsonLd schema={faqPage} /> : null}
 
       <PageHero {...page.data.hero} />
 

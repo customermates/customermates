@@ -7,6 +7,672 @@
     "subject": "Einige deiner verbundenen Konten wurden entfernt",
     "title": "Verbundene Konten entfernt"
   },
+  "AgentChat": {
+    "activity": {
+      "cancelled": "Gestoppt",
+      "consequence": {
+        "accountConnect": "Einen Nachrichtenkanal verbinden",
+        "accountConnectTarget": "{target} verbinden",
+        "chatSend": "Nachricht in der ausgewählten Unterhaltung senden",
+        "draftDiscard": "Den ausgewählten gespeicherten Entwurf dauerhaft verwerfen",
+        "draftSave": "Entwurf in der ausgewählten Unterhaltung speichern",
+        "emailSend": "E-Mail an die ausgewählten Empfänger senden",
+        "externalManage": "Daten im verbundenen externen Konto ändern",
+        "recordsDelete": "Das kann nicht rückgängig gemacht werden.",
+        "recordsLink": "Datensätze verknüpfen",
+        "recordsUnlink": "Verknüpfungen entfernen",
+        "salesListSave": "Den ausgewählten Interessenten zu einer Sales-Navigator-Liste hinzufügen",
+        "salesListSaveTarget": "{target} zur Sales-Navigator-Liste {list} hinzufügen",
+        "socialAccept": "Die ausgewählte Kontaktanfrage annehmen",
+        "socialAcceptTarget": "Kontaktanfrage von {target} annehmen",
+        "socialCancel": "Die ausgewählte Kontaktanfrage zurückziehen oder ablehnen",
+        "socialCancelTarget": "Kontaktanfrage mit {target} zurückziehen oder ablehnen",
+        "socialInvite": "Eine Kontaktanfrage über das verbundene Konto senden",
+        "socialInviteTarget": "Kontaktanfrage an {target} senden",
+        "teamInvite": "Einladungs-E-Mails an die ausgewählten Personen senden",
+        "teamInviteTarget": "{count} Einladung(en) per E-Mail senden an: {target}",
+        "teamUpdate": "Rolle oder Status des ausgewählten Teammitglieds ändern",
+        "threadUpdate": "Status der ausgewählten Unterhaltung ändern",
+        "threadUpdateState": "Unterhaltungsstatus auf „{state}“ setzen",
+        "webhookCreate": "Webhook erstellen",
+        "webhookDelete": "Den ausgewählten Webhook dauerhaft löschen",
+        "webhookEvents": "{count} Ereignisse",
+        "webhookInspect": "Webhook-Informationen oder Zustellungen abrufen",
+        "webhookResend": "Die ausgewählte Webhook-Zustellung erneut senden",
+        "webhookUpdate": "Ausgewählten Webhook ändern"
+      },
+      "countedRecordInResource": "1 Datensatz für {resource}",
+      "countedResource": "{count} {resource}",
+      "countedSingular": "1 {resource}",
+      "defaultRecords": "Datensätze",
+      "label": {
+        "preview": "Vorschau",
+        "subject": "Betreff",
+        "to": "An"
+      },
+      "resource": {
+        "contacts": "Kontakte",
+        "deals": "Deals",
+        "messages": "Unterhaltungen",
+        "organizations": "Organisationen",
+        "services": "Leistungen",
+        "tasks": "Aufgaben",
+        "terminology": "Workspace-Begriffe",
+        "widgets": "Dashboard-Widgets"
+      },
+      "resourceSingular": {
+        "contacts": "Kontakt",
+        "deals": "Deal",
+        "messages": "Unterhaltung",
+        "organizations": "Organisation",
+        "services": "Leistung",
+        "tasks": "Aufgabe",
+        "terminology": "Workspace-Begriff",
+        "widgets": "Dashboard-Widget"
+      },
+      "state": {
+        "accounts": {
+          "connect": {
+            "done": "Verbindungslink wurde vorbereitet",
+            "error": "Verbindungslink konnte nicht vorbereitet werden",
+            "running": "Sicherer Verbindungslink wird vorbereitet"
+          }
+        },
+        "customFields": {
+          "configure": {
+            "done": "Benutzerdefinierte Felder wurden konfiguriert",
+            "error": "Benutzerdefinierte Felder konnten nicht konfiguriert werden",
+            "running": "Benutzerdefinierte Felder werden konfiguriert"
+          },
+          "create": {
+            "done": "Benutzerdefiniertes Feld wurde erstellt",
+            "error": "Benutzerdefiniertes Feld konnte nicht erstellt werden",
+            "running": "Benutzerdefiniertes Feld wird erstellt"
+          },
+          "delete": {
+            "done": "Benutzerdefiniertes Feld wurde entfernt",
+            "error": "Benutzerdefiniertes Feld konnte nicht entfernt werden",
+            "running": "Benutzerdefiniertes Feld wird entfernt"
+          },
+          "read": {
+            "done": "Benutzerdefinierte Felder wurden geprüft",
+            "error": "Benutzerdefinierte Felder konnten nicht geprüft werden",
+            "running": "Benutzerdefinierte Felder werden geprüft"
+          },
+          "update": {
+            "done": "Benutzerdefiniertes Feld wurde aktualisiert",
+            "error": "Benutzerdefiniertes Feld konnte nicht aktualisiert werden",
+            "running": "Benutzerdefiniertes Feld wird aktualisiert"
+          }
+        },
+        "docs": {
+          "read": {
+            "done": "Passende Anleitung wurde gelesen",
+            "error": "Passende Anleitung konnte nicht gelesen werden",
+            "running": "Passende Anleitung wird gelesen"
+          },
+          "search": {
+            "done": "Dokumentation wurde durchsucht",
+            "error": "Dokumentation konnte nicht durchsucht werden",
+            "running": "Dokumentation wird durchsucht"
+          }
+        },
+        "generic": {
+          "done": "Schritt abgeschlossen",
+          "error": "Dieser Schritt benötigt Aufmerksamkeit",
+          "running": "Anfrage wird bearbeitet"
+        },
+        "interface": {
+          "inspect": {
+            "done": "Verfügbare Steuerelemente wurden geprüft",
+            "error": "Verfügbare Steuerelemente konnten nicht geprüft werden",
+            "running": "Verfügbare Steuerelemente werden geprüft"
+          },
+          "interact": {
+            "done": "Steuerelement aktiviert",
+            "error": "Steuerelement konnte nicht aktiviert werden",
+            "running": "Steuerelement wird aktiviert"
+          },
+          "navigate": {
+            "done": "Passende Ansicht wurde geöffnet",
+            "error": "Ansicht konnte nicht geöffnet werden",
+            "running": "Die passende Ansicht wird geöffnet"
+          },
+          "tour": {
+            "done": "Tour wurde gestartet",
+            "error": "Tour konnte nicht gestartet werden",
+            "running": "Tour wird vorbereitet"
+          }
+        },
+        "messages": {
+          "discard": {
+            "done": "Entwurf wurde verworfen",
+            "error": "Entwurf konnte nicht verworfen werden",
+            "running": "Entwurf ist zum Verwerfen bereit"
+          },
+          "draft": {
+            "done": "Entwurf wurde gespeichert",
+            "error": "Entwurf konnte nicht gespeichert werden",
+            "running": "Entwurf ist zum Speichern bereit"
+          },
+          "read": {
+            "done": "Unterhaltungen wurden geprüft",
+            "error": "Unterhaltungen konnten nicht geprüft werden",
+            "running": "Unterhaltungen werden geprüft"
+          },
+          "send": {
+            "done": "Nachricht wurde gesendet",
+            "error": "Nachricht konnte nicht gesendet werden",
+            "running": "Eine echte Nachricht ist zum Senden bereit"
+          },
+          "triage": {
+            "done": "Unterhaltungsstatus wurde geändert",
+            "error": "Unterhaltungsstatus konnte nicht geändert werden",
+            "running": "Unterhaltungsstatus ist zum Ändern bereit"
+          }
+        },
+        "profile": {
+          "configure": {
+            "done": "Profil wurde aktualisiert",
+            "error": "Profil konnte nicht aktualisiert werden",
+            "running": "Profil wird aktualisiert"
+          }
+        },
+        "records": {
+          "create": {
+            "done": "{count, plural, one {{target} wurde erstellt} other {{target} wurden erstellt}}",
+            "error": "{count, plural, one {{target} konnte nicht erstellt werden} other {{target} konnten nicht erstellt werden}}",
+            "running": "{count, plural, one {{target} wird erstellt} other {{target} werden erstellt}}"
+          },
+          "delete": {
+            "done": "{count, plural, one {{target} wurde entfernt} other {{target} wurden entfernt}}",
+            "error": "{count, plural, one {{target} konnte nicht entfernt werden} other {{target} konnten nicht entfernt werden}}",
+            "running": "{count, plural, one {{target} wird entfernt} other {{target} werden entfernt}}"
+          },
+          "link": {
+            "done": "Datensätze wurden verknüpft",
+            "error": "Datensätze konnten nicht verknüpft werden",
+            "running": "Datensätze werden verknüpft"
+          },
+          "note": {
+            "done": "Notizen wurden aktualisiert",
+            "error": "Notizen konnten nicht aktualisiert werden",
+            "running": "Notizen werden aktualisiert"
+          },
+          "read": {
+            "done": "{resource} wurden geprüft",
+            "error": "{resource} konnten nicht geprüft werden",
+            "running": "{resource} werden durchsucht"
+          },
+          "update": {
+            "done": "{count, plural, one {{target} wurde aktualisiert} other {{target} wurden aktualisiert}}",
+            "error": "{count, plural, one {{target} konnte nicht aktualisiert werden} other {{target} konnten nicht aktualisiert werden}}",
+            "running": "{count, plural, one {{target} wird aktualisiert} other {{target} werden aktualisiert}}"
+          }
+        },
+        "support": {
+          "escalate": {
+            "done": "Support-E-Mail wurde zum Versand angenommen",
+            "error": "Support-E-Mail konnte nicht gesendet werden",
+            "running": "Support-E-Mail wird gesendet"
+          }
+        },
+        "team": {
+          "manage": {
+            "done": "Teamzugriff wurde geändert",
+            "error": "Teamzugriff konnte nicht geändert werden",
+            "running": "Teamzugriff ist zum Ändern bereit"
+          }
+        },
+        "webhooks": {
+          "manage": {
+            "done": "Webhook-Aktion abgeschlossen",
+            "error": "Webhook-Aktion fehlgeschlagen",
+            "running": "Webhook-Aktion ist bereit"
+          }
+        },
+        "widgets": {
+          "configure": {
+            "done": "Dashboard-Widgets wurden konfiguriert",
+            "error": "Dashboard-Widgets konnten nicht konfiguriert werden",
+            "running": "Dashboard-Widgets werden konfiguriert"
+          },
+          "create": {
+            "done": "Dashboard-Widget wurde erstellt",
+            "error": "Dashboard-Widget konnte nicht erstellt werden",
+            "running": "Dashboard-Widget wird erstellt"
+          },
+          "delete": {
+            "done": "Dashboard-Widget wurde entfernt",
+            "error": "Dashboard-Widget konnte nicht entfernt werden",
+            "running": "Dashboard-Widget wird entfernt"
+          },
+          "read": {
+            "done": "Dashboard-Widgets wurden geprüft",
+            "error": "Dashboard-Widgets konnten nicht geprüft werden",
+            "running": "Dashboard-Widgets werden geprüft"
+          },
+          "update": {
+            "done": "Dashboard-Widget wurde aktualisiert",
+            "error": "Dashboard-Widget konnte nicht aktualisiert werden",
+            "running": "Dashboard-Widget wird aktualisiert"
+          }
+        },
+        "workspace": {
+          "configure": {
+            "done": "Workspace wurde aktualisiert",
+            "error": "Workspace konnte nicht aktualisiert werden",
+            "running": "Workspace wird aktualisiert"
+          },
+          "inspect": {
+            "done": "Workspace-Details wurden geprüft",
+            "error": "Workspace-Details konnten nicht geprüft werden",
+            "running": "Workspace-Details werden geprüft"
+          },
+          "read": {
+            "done": "Workspace wurde geprüft",
+            "error": "Workspace konnte nicht geprüft werden",
+            "running": "Workspace wird geprüft"
+          },
+          "settings": {
+            "done": "Workspace-Einstellungen wurden aktualisiert",
+            "error": "Workspace-Einstellungen konnten nicht aktualisiert werden",
+            "running": "Workspace-Einstellungen werden aktualisiert"
+          },
+          "terminology": {
+            "done": "Workspace-Bezeichnungen wurden aktualisiert",
+            "error": "Workspace-Bezeichnungen konnten nicht aktualisiert werden",
+            "running": "Workspace-Bezeichnungen werden aktualisiert"
+          }
+        }
+      },
+      "yourRecords": "Datensätze"
+    },
+    "approval": {
+      "approve": "Freigegeben",
+      "approveOnceAction": "Einmal freigeben",
+      "reject": "Abgelehnt",
+      "rejectAction": "Abbrechen",
+      "timeout": "Zeit abgelaufen, keine Antwort",
+      "title": "Der Assistent möchte ausführen:"
+    },
+    "askAi": "KI fragen",
+    "askAiWorking": "Mate arbeitet",
+    "credits": {
+      "blocked": {
+        "configuration_unavailable": "Der gehostete Assistent ist vorübergehend nicht verfügbar. Dein Verlauf bleibt zugänglich.",
+        "credits_exhausted": "Du hast die gehosteten KI-Credits dieses Monats verbraucht. Neue Anfragen sind ab {resetAt} wieder möglich; dein Verlauf bleibt zugänglich.",
+        "self_hosted": "Der gehostete Assistent ist nur in der Cloud verfügbar. Self-Hosted-Workspaces können externe MCP-Clients mit dem eigenen KI-Anbieter verwenden.",
+        "subscription_unavailable": "Für neue Anfragen an den gehosteten Assistenten ist ein aktives Cloud-Abonnement erforderlich. Dein Verlauf bleibt zugänglich."
+      },
+      "contact": "Kontakt aufnehmen",
+      "planAndReset": "{plan}-Tarif · Zurücksetzung am {resetAt}",
+      "recentTurn": "{credits, plural, one {Letzte Anfrage: # Credit} other {Letzte Anfrage: # Credits}}",
+      "remaining": "{remaining, number} von {limit, number} Credits verbleibend",
+      "resetShort": "Zurücksetzung am {resetAt}",
+      "usage": "{pct} % der monatlichen gehosteten KI-Credits verbraucht",
+      "viewPlans": "Tarife ansehen"
+    },
+    "demoUnavailable": "Der Assistent ist in der Demo nicht verfügbar.",
+    "errors": {
+      "approvalFailed": "Die Freigabe konnte nicht übermittelt werden.",
+      "limitReached": "Es sind nicht genügend KI-Credits übrig, um eine weitere Anfrage zu starten.",
+      "sendFailed": "Der Assistent konnte deine Nachricht nicht verarbeiten.",
+      "turnFailed": "Beim Assistenten ist ein Fehler aufgetreten."
+    },
+    "greeting": {
+      "headline": "Hey, ich bin Mate",
+      "subtitle": "Frag mich alles zu deinem Workspace, oder sag mir, was ich für dich erledigen soll.",
+      "support": "Wenn etwas nicht klappt, kann ich unserem Team den letzten Gesprächsverlauf per E-Mail senden. Es antwortet dir per E-Mail."
+    },
+    "placeholder": "Frag dein CRM…",
+    "runner": {
+      "cancelled": "Diese Antwort wurde gestoppt.",
+      "creditLimit": "Ich habe einen Teil dieser Anfrage erledigt, dann aber gestoppt, weil deine Assistant-Credits aufgebraucht sind. Erledigte Arbeit bleibt bestehen; die Credits werden zu Beginn deiner nächsten Periode zurückgesetzt.",
+      "emptyReply": "Ich konnte keine Antwort erstellen. Bitte versuche es erneut.",
+      "outputLimit": "Ich habe einen Teil dieser Antwort erstellt, aber die Ausgabegrenze für diesen Durchlauf erreicht. Bitte mich, weiterzumachen; ich setze bei der bereits erledigten Arbeit fort.",
+      "safetyLimit": "Ich habe einen Teil dieser Anfrage erledigt, aber gestoppt, weil sich die letzten Schritte wiederholt haben, fehlgeschlagen sind oder eine Sicherheitsgrenze erreicht wurde. Die erledigte Arbeit bleibt bestehen; prüfe die Schritte oben, bevor du mich bittest fortzufahren.",
+      "turnError": "Ich konnte diese Anfrage nicht abschließen. Bitte versuche es erneut."
+    },
+    "send": "Senden",
+    "stop": "Stopp",
+    "suggestions": {
+      "pages": {
+        "connected-accounts": {
+          "data": {
+            "accounts-add-channel": {
+              "label": "Weiteren Kanal hinzufügen",
+              "prompt": "Führe mich durch das Hinzufügen eines weiteren Nachrichtenkanals zu Customermates."
+            },
+            "accounts-list": {
+              "label": "Welche Konten sind verbunden?",
+              "prompt": "Nenne mir die verbundenen Nachrichtenkonten und was jedes davon aktuell abdeckt."
+            },
+            "accounts-sync": {
+              "label": "Wie funktioniert die Synchronisierung?",
+              "prompt": "Erkläre, wie Customermates verbundene Konten synchronisiert und was mit importierten Nachrichten passiert."
+            }
+          },
+          "empty": {
+            "accounts-connect-email": {
+              "label": "E-Mail verbinden",
+              "prompt": "Führe mich durch das Verbinden meines E-Mail-Kontos mit Customermates."
+            },
+            "accounts-connect-linkedin": {
+              "label": "LinkedIn verbinden",
+              "prompt": "Führe mich durch das Verbinden von LinkedIn mit Customermates."
+            },
+            "accounts-connect-whatsapp": {
+              "label": "WhatsApp verbinden",
+              "prompt": "Führe mich durch das Verbinden von WhatsApp mit Customermates."
+            }
+          }
+        },
+        "contacts": {
+          "data": {
+            "contacts-cleanup": {
+              "label": "Datenlücken finden",
+              "prompt": "Prüfe meine Kontakte auf fehlende oder uneinheitliche Angaben und schlage Verbesserungen vor."
+            },
+            "contacts-summary": {
+              "label": "Kontakte zusammenfassen",
+              "prompt": "Fasse meine Kontakte zusammen und zeige nützliche Muster oder fehlende Informationen."
+            },
+            "create-contact": {
+              "label": "Kontakt erstellen",
+              "prompt": "Hilf mir, einen Kontakt zu erstellen. Frage nur die nötigen Angaben ab."
+            }
+          },
+          "empty": {
+            "contacts-tour": {
+              "label": "Kontakte kennenlernen",
+              "prompt": "Zeige mir die Kontaktseite und erkläre, wie Kontakte mit dem restlichen CRM verbunden sind."
+            },
+            "first-contact": {
+              "label": "Ersten Kontakt erstellen",
+              "prompt": "Hilf mir, meinen ersten Kontakt zu erstellen. Frage nur die nötigen Angaben ab."
+            },
+            "setup-contacts": {
+              "label": "Kontakte einrichten",
+              "prompt": "Hilf mir, eine minimale Kontaktstruktur für mein Unternehmen zu planen und anzulegen. Frage zuerst nach meinem Anwendungsfall."
+            }
+          }
+        },
+        "dashboard": {
+          "data": {
+            "dashboard-tour": {
+              "label": "Dashboard erklären",
+              "prompt": "Führe mich durch dieses Dashboard und erkläre, was mir die einzelnen Bereiche zeigen."
+            },
+            "next-actions": {
+              "label": "Nächste Schritte empfehlen",
+              "prompt": "Prüfe mein CRM und empfehle die drei wertvollsten nächsten Schritte."
+            },
+            "summary": {
+              "label": "Workspace zusammenfassen",
+              "prompt": "Gib mir eine kurze, entscheidungsorientierte Zusammenfassung meines Workspaces."
+            }
+          },
+          "empty": {
+            "capabilities": {
+              "label": "Was kann ich automatisieren?",
+              "prompt": "Erkläre mir passend zu dieser Seite, welche Aufgaben du in Customermates am sinnvollsten automatisieren kannst."
+            },
+            "setup": {
+              "label": "Workspace einrichten",
+              "prompt": "Hilf mir, Customermates für mein Unternehmen einzurichten. Stelle zuerst wenige gezielte Fragen, bevor du Änderungen vorschlägst."
+            },
+            "tour": {
+              "label": "Plattform kennenlernen",
+              "prompt": "Gib mir eine ausführliche Tour durch Customermates und erkläre, wie die Kernbereiche zusammenspielen."
+            }
+          }
+        },
+        "deals": {
+          "data": {
+            "create-deal": {
+              "label": "Deal erstellen",
+              "prompt": "Hilf mir, einen Deal zu erstellen und alle relevanten Datensätze zu verknüpfen."
+            },
+            "pipeline-gaps": {
+              "label": "Pipeline-Lücken finden",
+              "prompt": "Prüfe meine Deals auf fehlende Beziehungen, Werte oder nächste Schritte."
+            },
+            "pipeline-summary": {
+              "label": "Pipeline zusammenfassen",
+              "prompt": "Fasse meine Deal-Pipeline, Risiken und die sinnvollsten nächsten Schritte zusammen."
+            }
+          },
+          "empty": {
+            "deals-tour": {
+              "label": "Deals kennenlernen",
+              "prompt": "Zeige mir Deals und erkläre, wie eine Pipeline in Customermates verwaltet wird."
+            },
+            "first-deal": {
+              "label": "Ersten Deal erstellen",
+              "prompt": "Hilf mir, meinen ersten Deal zu erstellen und passende Organisationen, Kontakte und Leistungen zu verknüpfen."
+            },
+            "setup-pipeline": {
+              "label": "Pipeline einrichten",
+              "prompt": "Hilf mir, eine minimale Vertriebspipeline zu planen, und schlage danach passende Felder und Beispiel-Deals vor."
+            }
+          }
+        },
+        "default": {
+          "data": {
+            "default-contact-count": {
+              "label": "Wie viele Kontakte haben wir?",
+              "prompt": "Nenne mir die Anzahl unserer Kontakte und wie sich diese zuletzt entwickelt hat."
+            },
+            "default-open-deals": {
+              "label": "Welche Deals sind offen?",
+              "prompt": "Fasse zusammen, welche Deals aktuell offen sind und wo jeder davon steht."
+            },
+            "default-tour": {
+              "label": "Zeig mir die App",
+              "prompt": "Gib mir eine ausführliche geführte Tour durch Customermates und erkläre, wie die Bereiche zusammenspielen."
+            }
+          },
+          "empty": {
+            "default-capabilities": {
+              "label": "Was kannst du?",
+              "prompt": "Erkläre, was du in Customermates für mich tun kannst und wo du am nützlichsten bist."
+            },
+            "default-import": {
+              "label": "Wie importiere ich meine Kontakte?",
+              "prompt": "Führe mich durch den Import meiner bestehenden Kontakte in Customermates."
+            },
+            "default-setup": {
+              "label": "Hilf mir bei der Einrichtung",
+              "prompt": "Hilf mir, Customermates für mein Unternehmen einzurichten. Stelle mir zuerst ein paar gezielte Fragen, bevor du Änderungen vorschlägst."
+            }
+          }
+        },
+        "inbox": {
+          "data": {
+            "inbox-add-channel": {
+              "label": "Weiteren Kanal verbinden",
+              "prompt": "Führe mich durch das Verbinden eines weiteren Nachrichtenkanals mit Customermates."
+            },
+            "inbox-explain-data": {
+              "label": "Zeig mir, wie der Posteingang funktioniert",
+              "prompt": "Erkläre, wie der Customermates-Posteingang funktioniert und wie er mit meinen CRM-Daten zusammenhängt."
+            },
+            "inbox-needs-reply": {
+              "label": "Welche Unterhaltungen brauchen eine Antwort?",
+              "prompt": "Sieh meinen Posteingang durch und nenne mir die Unterhaltungen, die noch eine Antwort brauchen."
+            }
+          },
+          "empty": {
+            "inbox-connect-email": {
+              "label": "E-Mail verbinden",
+              "prompt": "Führe mich durch das Verbinden meines E-Mail-Kontos mit dem Customermates-Posteingang."
+            },
+            "inbox-connect-whatsapp": {
+              "label": "WhatsApp verbinden",
+              "prompt": "Führe mich durch das Verbinden von WhatsApp mit dem Customermates-Posteingang."
+            },
+            "inbox-explain": {
+              "label": "Zeig mir, wie der Posteingang funktioniert",
+              "prompt": "Erkläre, wie der Customermates-Posteingang funktioniert und wie er mit meinen CRM-Daten zusammenhängt."
+            }
+          }
+        },
+        "organizations": {
+          "data": {
+            "create-organization": {
+              "label": "Organisation erstellen",
+              "prompt": "Hilf mir, eine Organisation zu erstellen und die passenden Datensätze zu verknüpfen."
+            },
+            "organization-gaps": {
+              "label": "Beziehungslücken finden",
+              "prompt": "Finde Organisationen, denen sinnvolle Kontakte, Deals oder Aufgaben fehlen."
+            },
+            "organizations-summary": {
+              "label": "Organisationen zusammenfassen",
+              "prompt": "Fasse meine Organisationen zusammen und hebe wichtige Beziehungen hervor."
+            }
+          },
+          "empty": {
+            "first-organization": {
+              "label": "Erste Organisation erstellen",
+              "prompt": "Hilf mir, meine erste Organisation zu erstellen und passende Personen oder Deals zu verknüpfen."
+            },
+            "organizations-tour": {
+              "label": "Organisationen kennenlernen",
+              "prompt": "Zeige mir Organisationen und erkläre ihre Verbindung zu Kontakten, Deals und Aufgaben."
+            },
+            "setup-organizations": {
+              "label": "Organisationen einrichten",
+              "prompt": "Hilf mir, eine minimale Organisationsstruktur für mein Unternehmen zu planen und anzulegen. Frage zuerst nach meinem Anwendungsfall."
+            }
+          }
+        },
+        "services": {
+          "data": {
+            "create-service": {
+              "label": "Angebot erstellen",
+              "prompt": "Hilf mir, eine Leistung oder ein Produkt mit den passenden kaufmännischen Angaben zu erstellen."
+            },
+            "service-gaps": {
+              "label": "Kataloglücken finden",
+              "prompt": "Prüfe meine Leistungen oder Produkte auf fehlende Preise, Beziehungen oder Dubletten."
+            },
+            "services-summary": {
+              "label": "Angebote zusammenfassen",
+              "prompt": "Fasse meine Leistungen oder Produkte und ihre Verwendung in Deals zusammen."
+            }
+          },
+          "empty": {
+            "first-service": {
+              "label": "Erstes Angebot erstellen",
+              "prompt": "Hilf mir, meine erste Leistung oder mein erstes Produkt mit passendem Namen und Preis zu erstellen."
+            },
+            "services-tour": {
+              "label": "Angebote kennenlernen",
+              "prompt": "Zeige mir Leistungen und erkläre, wie Angebote mit Deals und Aufgaben verbunden sind."
+            },
+            "setup-services": {
+              "label": "Angebot einrichten",
+              "prompt": "Hilf mir, eine minimale Auswahl an Leistungen oder Produkten für mein Unternehmen zu definieren und nach meiner Prüfung anzulegen."
+            }
+          }
+        },
+        "tasks": {
+          "data": {
+            "create-task": {
+              "label": "Aufgabe erstellen",
+              "prompt": "Hilf mir, eine Aufgabe zu erstellen und mit den passenden Datensätzen zu verknüpfen."
+            },
+            "task-gaps": {
+              "label": "Follow-up-Lücken finden",
+              "prompt": "Finde wichtige Datensätze, denen eine klare Follow-up-Aufgabe fehlt."
+            },
+            "task-priorities": {
+              "label": "Nächste Schritte planen",
+              "prompt": "Prüfe meine Aufgaben und verknüpften CRM-Daten und empfehle, was ich als Nächstes tun sollte."
+            }
+          },
+          "empty": {
+            "first-task": {
+              "label": "Erste Aufgabe erstellen",
+              "prompt": "Hilf mir, meine erste Aufgabe zu erstellen und mit den passenden Datensätzen zu verknüpfen."
+            },
+            "setup-tasks": {
+              "label": "Workflow einrichten",
+              "prompt": "Hilf mir, einen minimalen Aufgaben-Workflow zu planen, und schlage passende Felder und erste Aufgaben vor."
+            },
+            "tasks-tour": {
+              "label": "Aufgaben kennenlernen",
+              "prompt": "Zeige mir Aufgaben und erkläre ihre Verbindung zu Kontakten, Organisationen, Deals und Leistungen."
+            }
+          }
+        }
+      },
+      "readOnly": {
+        "explain": {
+          "label": "Diese Seite erklären",
+          "prompt": "Erkläre mir diese Seite, ihre wichtigsten Informationen und wie ich sie sinnvoll nutze. Nimm keine Änderungen vor."
+        },
+        "relationships": {
+          "label": "Zusammenhänge zeigen",
+          "prompt": "Erkläre, wie diese Seite mit den anderen Bereichen von Customermates zusammenspielt. Nimm keine Änderungen vor."
+        },
+        "tour": {
+          "label": "Geführte Tour starten",
+          "prompt": "Führe mich ausführlich durch diese Seite, ohne Daten zu verändern."
+        }
+      }
+    },
+    "title": "Mate",
+    "tour": {
+      "done": "Fertig",
+      "next": "Weiter",
+      "skip": "Überspringen"
+    },
+    "tourUi": {
+      "back": "Zurück",
+      "title": "Geführte Tour"
+    },
+    "ui": {
+      "activityCancelled": "{count} {count, plural, one {Arbeitsschritt} other {Arbeitsschritte}} gestoppt",
+      "activityComplete": "{count} {count, plural, one {Arbeitsschritt} other {Arbeitsschritte}} abgeschlossen",
+      "activityError": "{count} {count, plural, one {Arbeitsschritt benötigt} other {Arbeitsschritte benötigen}} Aufmerksamkeit",
+      "archive": "Chat archivieren",
+      "archived": "Archiviert",
+      "archivedChats": "Archivierte Chats",
+      "assistantWorking": "Der Assistent antwortet",
+      "back": "Zurück zum Chat",
+      "cancel": "Abbrechen",
+      "chats": "Chats",
+      "deleteChat": "Chat löschen",
+      "deleteChatBody": "Nachrichten, Freigaben und Assistentenaktionen dieses Chats werden endgültig gelöscht. KI-Nutzungs- und Abrechnungsdaten sowie über den Chat erstellte CRM-Einträge bleiben erhalten. Bereits gesendete Support-E-Mails werden nicht zurückgerufen.",
+      "deleteChatTitle": "Chat endgültig löschen?",
+      "deletePermanently": "Endgültig löschen",
+      "editQueued": "Vorgemerkte Nachricht bearbeiten",
+      "history": "Chatverlauf",
+      "jumpToLatest": "Zu den neuesten Nachrichten",
+      "loadChatFailed": "Der Chat konnte nicht geladen werden. Wähle ihn erneut, um es noch einmal zu versuchen.",
+      "loadingChat": "Chat wird geladen …",
+      "loadingOlderMessages": "Ältere Nachrichten werden geladen",
+      "loadMoreChats": "Weitere Chats laden",
+      "loadOlderMessages": "Frühere Nachrichten laden",
+      "newChat": "Neuer Chat",
+      "noChats": "Noch keine Chats",
+      "noChatsBody": "Starte einen Chat, um Fragen und Arbeitsschritte später wiederzufinden.",
+      "queued": "Als Nächstes",
+      "refreshHistoryFailed": "Der Chatverlauf konnte nicht aktualisiert werden. Deine vorhandenen Chats bleiben sichtbar.",
+      "removeQueued": "Vorgemerkte Nachricht entfernen",
+      "responseComplete": "Antwort abgeschlossen",
+      "restore": "Wiederherstellen",
+      "retryTurn": "Erneut versuchen",
+      "stepsTook": "{steps, plural, one {# Schritt} other {# Schritte}} · {seconds}s",
+      "thinking": "Denkt nach",
+      "turnFailed": "Diese Antwort konnte nicht abgeschlossen werden.",
+      "undo": "Rückgängig",
+      "untitled": "Neuer Chat"
+    }
+  },
   "AgplGithubBadge": {
     "label": "AGPL · Open Source"
   },
@@ -118,6 +784,7 @@
       "cancel": "Abbrechen",
       "clear": "Leeren",
       "close": "Schließen",
+      "collapse": "Einklappen",
       "contact": "Kontakt",
       "continueSetup": "Einrichtung fortsetzen",
       "copy": "In die Zwischenablage kopieren",
@@ -125,6 +792,7 @@
       "deleteCustomFields": "Feld löschen",
       "discard": "Verwerfen",
       "editCustomFields": "Feld bearbeiten",
+      "expand": "Aufklappen",
       "labelHistory": "Verlauf",
       "labelNotes": "Notizen",
       "loadMore": "Mehr laden",
@@ -249,6 +917,11 @@
       "activityPageOutOfRange": "Der Aktivitätsverlauf kann nicht so weit zurückblättern. Grenzen Sie stattdessen die Filter ein.",
       "activityScopeTooManyIds": "Ein Aktivitätsbereich darf nicht mehr als 50 Datensätze eines Typs auswählen.",
       "activitySourcesUnavailable": "Sie haben keinen Zugriff auf eine Quelle des Aktivitätsverlaufs.",
+      "agentApprovalUnavailable": "Diese Freigabeanfrage ist nicht verfügbar oder abgelaufen.",
+      "agentConversationNotFound": "Diese Unterhaltung wurde nicht gefunden oder ist nicht mehr zugänglich.",
+      "agentLimitReached": "Es sind nicht genügend KI-Credits übrig, um eine weitere Anfrage zu starten.",
+      "agentModelUnavailable": "Dieses Assistant-Modell ist nicht verfügbar.",
+      "agentTurnAlreadyRunning": "Eine andere Assistenten-Anfrage wird bereits ausgeführt.",
       "apiKeyMaxExpiration": "Die Ablaufzeit des API-Schlüssels darf 365 Tage nicht überschreiten.",
       "apiKeyMinExpiration": "Die Ablaufzeit des API-Schlüssels muss mindestens 1 Tag betragen.",
       "assigneeRequired": "Du musst dich diesem Element zuweisen. Beachte, dass du nur Elemente sehen kannst, die dir zugewiesen sind.",
@@ -270,6 +943,7 @@
       "customFieldInvalidSingleSelect": "Der Single-Select-Wert ist ungültig. Muss eine der erlaubten Optionen sein: {validValues}.",
       "customFieldInvalidUrl": "Der URL-Wert ist ungültig. Muss ein gültiges URL-Format haben (z.B. https://example.com). Bei mehreren URLs durch Komma trennen (z.B. https://example.com, https://example.org).",
       "dealNotFound": "Deal-ID nicht gefunden oder nicht zugänglich.",
+      "demoMode": "Diese Aktion ist im Demo-Modus nicht verfügbar. Melde dich an, um alle Funktionen zu nutzen.",
       "draftMessageNotFound": "Dieser Entwurf wurde nicht gefunden. Möglicherweise wurde er bereits gesendet oder verworfen.",
       "duplicateChannel": "Dieser Kanal ist mehrfach vorhanden. Füge jede E-Mail-Adresse, Telefonnummer und jeden Benutzernamen nur einmal hinzu.",
       "duplicateOutboundSuppressed": "Eine identische Nachricht wurde gerade eben in dieser Konversation gesendet. Ändere den Text oder warte eine Minute, bevor du es erneut versuchst.",
@@ -277,6 +951,7 @@
       "emailAlreadyExists": "Ein Konto mit dieser E-Mail-Adresse existiert bereits.",
       "emailMismatch": "E-Mail-Adressen müssen übereinstimmen.",
       "emailNotVerified": "E-Mail nicht verifiziert.",
+      "enterpriseCheckoutUnavailable": "Enterprise-Workspaces werden manuell abgerechnet und können keinen Self-Service-Checkout starten.",
       "filterBetweenInvalidArrayLength": "Der 'between'-Operator erfordert ein Array mit genau 2 Elementen.",
       "generic": "Ein Fehler ist aufgetreten.",
       "inmailSignatureRequired": "Füge eine Signatur für die Recruiter-InMail hinzu.",
@@ -288,20 +963,26 @@
       "invalidFilterField": "Filterfeld nicht gefunden oder nicht zugänglich. Verfügbare Felder: {validValues}.",
       "invalidFilterOperator": "Der Operator '{operator}' ist für das Feld '{field}' nicht erlaubt. Erlaubte Operatoren: {validValues}.",
       "invalidFilterValue": "Ungültiger Filterwert. Der Wert muss zum Typ und Operator des Felds passen (z. B. eine Zahl für gt/lt, ein ISO-Datum für Datumsfelder oder eine ID für in/notIn).",
+      "invalidJsonBody": "Der Request-Body ist kein gültiges JSON.",
       "invalidSortField": "Sortierfeld nicht gefunden oder nicht zugänglich. Verfügbare Felder: {validValues}.",
       "invalidUrl": "Gib eine gültige URL ein.",
+      "legalNoticeNotDelivered": "Die aktuelle rechtliche Änderung wurde diesem Workspace noch nicht zugestellt.",
       "linkedinInboxUnavailable": "Dieses LinkedIn-Konto hat keinen {product}-Posteingang. Verbinde das Konto mit {product}, um ihn zu nutzen.",
       "linkedinProductRequiresLinkedin": "InMail- und LinkedIn-Produktoptionen brauchen ein LinkedIn-Konto.",
       "linkedinProductUnavailable": "Dieses LinkedIn-Konto hat dieses Produkt nicht verbunden.",
       "messageContentRequired": "Bitte eine Nachricht oder einen Anhang hinzufügen.",
       "mustNotBeBlank": "Darf nicht leer sein.",
       "mustNotContainNullChars": "Darf keine Null-Zeichen enthalten.",
+      "notAuthenticated": "Melde dich an, um diese Aktion zu verwenden.",
       "notesExceedsMaxLength": "Notizinhalt überschreitet die maximale Länge.",
       "notesInvalidFormat": "Ungültiges Notizformat. Muss gültiges Tiptap JSON oder Markdown-Text sein.",
       "organizationNotFound": "Organisations-ID nicht gefunden oder nicht zugänglich.",
       "passwordInvalid": "Das Passwort muss mindestens 8 Zeichen lang sein und mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Zahl und ein Sonderzeichen enthalten.",
       "passwordMismatch": "Passwörter müssen übereinstimmen.",
+      "permissionDenied": "Diese Aktion ist mit deinen aktuellen Berechtigungen nicht verfügbar.",
+      "presetNotFound": "Diese gespeicherte Filtervoreinstellung wurde nicht gefunden.",
       "relationNotAllowed": "Die Beziehung '{relation}' ist für {entity} nicht erlaubt. Erlaubte Beziehungen: {allowed}.",
+      "roleAssignedCannotDelete": "Eine Nutzern zugewiesene Rolle kann nicht gelöscht werden.",
       "roleNotFound": "Rollen-ID nicht gefunden oder nicht zugänglich.",
       "roleSelfEditForbidden": "Du kannst die Berechtigungen deiner eigenen Rolle nicht ändern.",
       "roleSystemImmutable": "Systemrollen können nicht bearbeitet werden.",
@@ -320,14 +1001,16 @@
       "termsNotAgreed": "Du musst den Allgemeinen Geschäftsbedingungen zustimmen.",
       "threadNotFound": "Konversations-ID nicht gefunden oder nicht zugänglich.",
       "unipileDisconnectedAccount": "Der Kanal ist nicht verbunden. Verbinde ihn erneut und versuche es noch einmal.",
-      "unipileInvalidRequest": "Der Anbieter hat die Anfrage als ungültig abgelehnt. Bitte Empfänger-Kennungen und Nachrichtenparameter prüfen.",
+      "unipileInvalidRequest": "Der Anbieter hat die Anfrage als ungültig abgelehnt. Bitte Kennungen und Parameter prüfen.",
       "unipileProviderError": "Der Anbieter hat aktuell Probleme. Bitte später erneut versuchen.",
       "unipileRateLimit": "Dieser Kanal hat sein Limit vorerst erreicht. Bitte {retryAfter} erneut versuchen. Mehr unter https://customermates.com/docs/messaging-rate-limits.",
       "unipileRequestTimeout": "Die Anfrage hat das Zeitlimit überschritten. Die Aktion wurde möglicherweise trotzdem ausgeführt, bitte prüfe das Ergebnis vor einem erneuten Versuch.",
       "unipileResourceNotFound": "Empfänger oder Konversation auf diesem Kanal nicht gefunden.",
       "unipileServiceUnavailable": "Der Messaging-Dienst ist vorübergehend nicht verfügbar. Bitte später erneut versuchen.",
       "unipileUnknown": "Der Anbieter hat diese Nachricht abgelehnt. Bitte erneut versuchen oder Support kontaktieren.",
+      "userInactive": "Dein Benutzerkonto ist inaktiv. Wende dich an einen Workspace-Administrator.",
       "userNotFound": "Benutzer-ID nicht gefunden oder nicht zugänglich.",
+      "userSelfAdminUpdateForbidden": "Du kannst dein eigenes Konto nicht über die Teamverwaltung aktualisieren.",
       "webhookDeliveryNotFound": "Webhook-Zustellungs-ID nicht gefunden oder nicht zugänglich.",
       "webhookEventsRequired": "Wähle mindestens ein Ereignis aus.",
       "webhookNotFound": "Webhook-ID nicht gefunden oder nicht zugänglich.",
@@ -557,6 +1240,7 @@
       "unexpectedError": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
       "updated": "Aktualisiert"
     },
+    "pageNumber": "Seite {page}",
     "probability": "Wahrscheinlichkeit",
     "providers": {
       "google": "Gmail",
@@ -566,6 +1250,10 @@
       "outlook": "Outlook",
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
+    },
+    "relatedPages": "Verwandte Seiten",
+    "scroll": {
+      "backToTop": "Nach oben"
     },
     "setAsDefault": "Als Standard festlegen",
     "sidebar": {
@@ -699,6 +1387,9 @@
   },
   "ConnectedAccountsCard": {
     "accountLimitReached": "Du hast das Limit für verbundene Konten in diesem Tarif erreicht. Kontaktiere uns für unbegrenzte Konten im Enterprise-Tarif.",
+    "agentChatDisabled": "Der Assistent ist vorübergehend nicht verfügbar.",
+    "agentChatRequiresCloud": "Der Assistent ist in Customermates Cloud verfügbar.",
+    "agentChatRequiresPlan": "Der Assistent ist in deinem aktuellen Tarif nicht verfügbar.",
     "alreadyExistsToastDescription": "Dieses Konto wurde bereits von einem Mitglied deines Workspace verbunden. Bitte sie oder ihn, es mit dem Workspace zu teilen, damit im Posteingang keine doppelten Nachrichten erscheinen.",
     "alreadyExistsToastTitle": "Konto bereits verbunden",
     "channels": {
@@ -976,6 +1667,7 @@
   },
   "DocsSidebar": {
     "apiKeys": "API-Keys",
+    "appAssistant": "Assistent",
     "appCompany": "Unternehmen",
     "appDashboard": "Dashboard",
     "appGuide": "App-Leitfaden",
@@ -1767,6 +2459,7 @@
     "manageWithLemonSqueezy": "Verwalten mit Lemon Squeezy",
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# verbundenes Konto pro Nutzer} other {# verbundene Konten pro Nutzer}}",
+      "creditNote": "Credits für den gehosteten KI-Assistenten werden monatlich erneuert, auch bei jährlicher Abrechnung. Externe MCP-Clients nutzen Ihren eigenen KI-Anbieter und verbrauchen diese Credits nicht.",
       "features": {
         "business": ["Alles aus Pro", "Geteilte Konten und priorisierter Support"],
         "pro": ["Alles aus Starter", "Zentraler Posteingang"],
@@ -1777,6 +2470,7 @@
           "MCP-Server-Zugriff"
         ]
       },
+      "hostedAiCredits": "{credits, number} Credits für den gehosteten KI-Assistenten pro aktivem Nutzer / Monat",
       "mostPopular": "Am beliebtesten",
       "perUserMonth": "pro Nutzer / Monat"
     },

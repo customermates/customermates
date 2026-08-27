@@ -1,8 +1,8 @@
+import { failConflict } from "@/core/validation/interactor-failure-server";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { ContactIdentifierOwnersRepo } from "../contact-identifier-owners.repo";
 
 import { z } from "zod";
-import { getTranslations } from "next-intl/server";
 
 import { Resource, Action } from "@/generated/prisma";
 
@@ -11,7 +11,6 @@ import { IdentifierInputSchema } from "../contact.schema";
 import { channelStrings, identifierKey } from "./validate-identifiers";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { createZodError } from "@/core/validation/validation.utils";
 import { normalizeChannelValue } from "@/features/contacts/channel-value";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
@@ -57,10 +56,7 @@ export class CheckChannelConflictInteractor extends AuthenticatedInteractor<Chec
       return owner !== undefined && owner !== data.contactId;
     });
 
-    if (conflict) {
-      const t = await getTranslations();
-      return { ok: false, error: createZodError<boolean>(t("Common.errors.channelAlreadyLinked"), ["value"]) };
-    }
+    if (conflict) return failConflict(CustomErrorCode.channelAlreadyLinked, ["value"]);
 
     return { ok: true as const, data: true };
   }

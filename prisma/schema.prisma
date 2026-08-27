@@ -156,40 +156,43 @@ model OauthConsent {
 }
 
 model User {
-  id                              String             @id @default(uuid())
-  email                           String             @unique
+  id                              String              @id @default(uuid())
+  email                           String              @unique
   firstName                       String
   lastName                        String
   companyId                       String
   roleId                          String?
-  role                            UserRole?          @relation(fields: [roleId], references: [id])
-  status                          Status             @default(pendingAuthorization)
-  displayLanguage                 Locale             @default(system)
-  formattingLocale                Locale             @default(system)
+  role                            UserRole?           @relation(fields: [roleId], references: [id])
+  status                          Status              @default(pendingAuthorization)
+  displayLanguage                 Locale              @default(system)
+  formattingLocale                Locale              @default(system)
   auditLogs                       AuditLog[]
-  theme                           Theme              @default(system)
-  country                         CountryCode        @default(de)
+  theme                           Theme               @default(system)
+  country                         CountryCode         @default(de)
   avatarUrl                       String?
-  agreeToTerms                    Boolean            @default(false)
+  agreeToTerms                    Boolean             @default(false)
   lastActiveAt                    DateTime?
   welcomeEmailSentAt              DateTime?
   trialExpiredOfferSentAt         DateTime?
   trialInactivationReminderSentAt DateTime?
   trialInactivationNoticeSentAt   DateTime?
   onboardingWizardCompletedAt     DateTime?
-  createdAt                       DateTime           @default(now())
-  updatedAt                       DateTime           @updatedAt
-  company                         Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  createdTokens                   InviteToken[]      @relation("TokenCreator")
+  agentCreditActivatedAt          DateTime?
+  createdAt                       DateTime            @default(now())
+  updatedAt                       DateTime            @updatedAt
+  company                         Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdTokens                   InviteToken[]       @relation("TokenCreator")
   deals                           DealUser[]
   contacts                        ContactUser[]
   organizations                   OrganizationUser[]
   services                        ServiceUser[]
   tasks                           TaskUser[]
-  relatedTasks                    Task[]             @relation("TaskRelatedUser")
+  relatedTasks                    Task[]              @relation("TaskRelatedUser")
   widgets                         Widget[]
   p13n                            P13n[]
   connectedAccounts               ConnectedAccount[]
+  agentConversations              AgentConversation[]
+  agentRunLeases                  AgentRunLease[]
 
   @@index([companyId])
   @@index([companyId, status])
@@ -242,6 +245,15 @@ model Company {
   calendarEvents              CalendarEvent[]
   subscription                Subscription?
   entityTerminology           EntityTerminology[]
+  agentConversations          AgentConversation[]
+  agentRunLeases              AgentRunLease[]
+  agentRunRounds              AgentRunRound[]
+  agentToolReceipts           AgentToolReceipt[]
+  agentMessages               AgentMessage[]
+  agentUsageEvents            AgentUsageEvent[]
+  agentTurnRequests           AgentTurnRequest[]
+  agentApprovals              AgentApproval[]
+  agentUiCommandResults       AgentUiCommandResult[]
 }
 
 model EntityTerminology {
@@ -804,18 +816,20 @@ model WebhookDelivery {
 }
 
 model Subscription {
-  id                    String             @id @default(uuid())
-  companyId             String             @unique
-  company               Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  lemonSqueezyId        String?            @unique
-  lemonSqueezyVariantId String?
-  status                SubscriptionStatus @default(trial)
-  plan                  SubscriptionPlan   @default(pro)
-  quantity              Int?
-  trialEndDate          DateTime?
-  currentPeriodEnd      DateTime?
-  createdAt             DateTime           @default(now())
-  updatedAt             DateTime           @updatedAt
+  id                            String             @id @default(uuid())
+  companyId                     String             @unique
+  company                       Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  lemonSqueezyId                String?            @unique
+  lemonSqueezyVariantId         String?
+  status                        SubscriptionStatus @default(trial)
+  plan                          SubscriptionPlan   @default(pro)
+  quantity                      Int?
+  trialEndDate                  DateTime?
+  currentPeriodEnd              DateTime?
+  agentCreditAnchorAt           DateTime?
+  enterpriseAgentCreditsPerUser Int?
+  createdAt                     DateTime           @default(now())
+  updatedAt                     DateTime           @updatedAt
 
   @@index([companyId])
   @@index([lemonSqueezyId])
@@ -1583,28 +1597,246 @@ enum UnipileWebhookSource {
   users
 }
 
-model SupportTicket {
-  id         String              @id @default(uuid())
-  number     Int                 @unique @default(autoincrement())
-  companyId  String
-  userId     String
-  subject    String
-  body       String
-  status     SupportTicketStatus @default(open)
-  source     SupportTicketSource
-  createdAt  DateTime            @default(now())
-  resolvedAt DateTime?
+model AgentConversation {
+  id               String                 @id @default(uuid())
+  companyId        String
+  userId           String
+  title            String?
+  modelKey         String?
+  archivedAt       DateTime?
+  selectedAt       DateTime?
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  company          Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user             User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages         AgentMessage[]
+  approvals        AgentApproval[]
+  uiCommandResults AgentUiCommandResult[]
+  turnRequests     AgentTurnRequest[]
+  runLease         AgentRunLease?
 
-  @@index([companyId, status])
-  @@index([status, createdAt])
+  @@index([companyId, userId, archivedAt, updatedAt])
+  @@index([companyId, userId, archivedAt, selectedAt])
 }
 
-enum SupportTicketStatus {
-  open
-  resolved
+model AgentMessage {
+  id             String            @id @default(uuid())
+  conversationId String
+  companyId      String
+  company        Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  turnRequestId  String?
+  role           AgentMessageRole
+  parts          Json
+  sequence       BigInt            @default(autoincrement())
+  createdAt      DateTime          @default(now())
+  conversation   AgentConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  turnRequest    AgentTurnRequest? @relation(fields: [turnRequestId], references: [id], onDelete: SetNull)
+
+  @@unique([conversationId, sequence])
+  @@index([conversationId, role, sequence])
+  @@index([companyId])
 }
 
-enum SupportTicketSource {
-  chat
-  mcp
+model AgentUsageEvent {
+  id                         String               @id @default(uuid())
+  companyId                  String
+  company                    Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  userId                     String
+  sessionId                  String?
+  turnRequestId              String?
+  turnRequest                AgentTurnRequest?    @relation(fields: [turnRequestId], references: [id], onDelete: SetNull)
+  state                      AgentUsageState      @default(reserved)
+  model                      String               @default("")
+  inputTokens                Int                  @default(0)
+  outputTokens               Int                  @default(0)
+  cacheReadTokens            Int                  @default(0)
+  cacheWriteTokens           Int                  @default(0)
+  costMicrocents             BigInt               @default(0)
+  costSource                 AgentUsageCostSource @default(estimated)
+  reservedCredits            Int                  @default(0)
+  chargedCredits             Int                  @default(0)
+  policyBreach               Boolean              @default(false)
+  planSnapshot               SubscriptionPlan
+  subscriptionStatusSnapshot SubscriptionStatus
+  allowanceCreditsSnapshot   Int
+  periodStart                DateTime
+  periodEnd                  DateTime
+  providerStartedAt          DateTime?
+  settledAt                  DateTime?
+  createdAt                  DateTime             @default(now())
+
+  @@index([userId, createdAt])
+  @@index([companyId, createdAt])
+  @@index([companyId, userId, periodStart, periodEnd, state])
+  @@index([turnRequestId])
+}
+
+enum AgentUsageCostSource {
+  measured
+  estimated
+}
+
+enum AgentUsageState {
+  reserved
+  settled
+  retained
+  released
+}
+
+model AgentTurnRequest {
+  id                      String                 @id @default(uuid())
+  companyId               String
+  company                 Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  userId                  String
+  conversationId          String
+  clientRequestId         String
+  text                    String
+  pageRoute               String?
+  status                  AgentTurnStatus
+  runId                   String
+  externalRunId           String?
+  modelSpec               String?
+  servingProvider         String?
+  heartbeatAt             DateTime?
+  cancellationRequestedAt DateTime?
+  attemptCount            Int                    @default(1)
+  providerStartedAt       DateTime?
+  userMessageId           String
+  assistantMessageId      String?
+  terminalCode            AgentTurnTerminalCode?
+  affectedResources       Json                   @default("[]")
+  terminalAt              DateTime?
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+  conversation            AgentConversation      @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  messages                AgentMessage[]
+  rounds                  AgentRunRound[]
+  toolReceipts            AgentToolReceipt[]
+  usageEvents             AgentUsageEvent[]
+
+  @@unique([companyId, userId, clientRequestId])
+  @@index([companyId, userId, runId, status])
+  @@index([conversationId, companyId, userId, status])
+  @@index([companyId, status, updatedAt])
+}
+
+enum AgentTurnStatus {
+  running
+  waitingBudget
+  needsAttention
+  completed
+  failed
+  uncertain
+}
+
+enum AgentTurnTerminalCode {
+  completed
+  partial
+  error
+  cancelled
+  policyBreach
+}
+
+enum AgentMessageRole {
+  user
+  assistant
+}
+
+model AgentApproval {
+  id             String                @id @default(uuid())
+  conversationId String
+  companyId      String
+  company        Company               @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  requestId      String
+  toolName       String
+  decision       AgentApprovalDecision
+  createdAt      DateTime              @default(now())
+  conversation   AgentConversation     @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, requestId])
+  @@index([companyId])
+}
+
+model AgentUiCommandResult {
+  id             String            @id @default(uuid())
+  conversationId String
+  companyId      String
+  company        Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  commandId      String
+  name           String
+  ok             Boolean
+  result         String
+  createdAt      DateTime          @default(now())
+  conversation   AgentConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, conversationId, commandId])
+  @@index([companyId])
+}
+
+model AgentRunRound {
+  id               String           @id @default(uuid())
+  turnRequestId    String
+  companyId        String
+  runId            String
+  roundIndex       Int
+  parts            Json
+  finishReason     String
+  inputTokens      Int              @default(0)
+  outputTokens     Int              @default(0)
+  cacheReadTokens  Int              @default(0)
+  cacheWriteTokens Int              @default(0)
+  reasoningTokens  Int              @default(0)
+  costMicrocents   BigInt           @default(0)
+  modelSpec        String
+  servingProvider  String?
+  createdAt        DateTime         @default(now())
+  turnRequest      AgentTurnRequest @relation(fields: [turnRequestId], references: [id], onDelete: Cascade)
+  company          Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([turnRequestId, roundIndex])
+  @@index([companyId, createdAt])
+}
+
+model AgentToolReceipt {
+  id            String                @id @default(uuid())
+  turnRequestId String
+  companyId     String
+  toolCallId    String
+  toolName      String
+  state         AgentToolReceiptState @default(claimed)
+  resultJson    Json?
+  claimedAt     DateTime              @default(now())
+  settledAt     DateTime?
+  turnRequest   AgentTurnRequest      @relation(fields: [turnRequestId], references: [id], onDelete: Cascade)
+  company       Company               @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([turnRequestId, toolCallId])
+  @@index([companyId, state])
+}
+
+enum AgentToolReceiptState {
+  claimed
+  settled
+  abandoned
+}
+
+model AgentRunLease {
+  conversationId String            @id
+  companyId      String
+  userId         String
+  runId          String
+  expiresAt      DateTime
+  createdAt      DateTime          @default(now())
+  conversation   AgentConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company        Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([expiresAt])
+  @@index([companyId, userId, expiresAt])
+}
+
+enum AgentApprovalDecision {
+  approve
+  reject
 }

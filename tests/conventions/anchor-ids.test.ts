@@ -3,6 +3,14 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
+import {
+  FORM_SCOPES,
+  NAV_KEYS,
+  TOOLBAR_SCOPES_WITH_ADD,
+  TOOLBAR_SCOPES_WITHOUT_ADD,
+} from "@/ee/agent-chat/ui-anchors";
+import { AGENT_UI_TARGETS } from "@/ee/agent-chat/ui-targets";
+
 import { REPO_ROOT, walkFiles } from "./walk";
 
 import { CONTENT_LOCALES } from "@/i18n/locale-registry";
@@ -14,47 +22,6 @@ const LITERAL_ID_PATTERN = /\b(?:id|inputId)=["']([a-z][a-z0-9]*(?:-[a-z0-9]+)+)
 const ANCHOR_SCOPE_PATTERN = /anchorScope=["']([a-z0-9-]+)["']/g;
 const DOCS_LOCALES = CONTENT_LOCALES;
 
-const TOOLBAR_SCOPES_WITH_ADD = [
-  "contacts",
-  "organizations",
-  "deals",
-  "services",
-  "tasks",
-  "company-members",
-  "company-webhooks",
-  "company-roles",
-];
-const TOOLBAR_SCOPES_WITHOUT_ADD = ["company-audit-logs", "company-webhook-deliveries"];
-const FORM_SCOPES = [
-  "profile-settings",
-  "company-settings",
-  "member-modal",
-  "webhook-modal",
-  "widget-modal",
-];
-const NAV_KEYS = [
-  "dashboard",
-  "inbox",
-  "tasks",
-  "contacts",
-  "organizations",
-  "deals",
-  "services",
-  "profile",
-  "profile-settings",
-  "profile-api-keys",
-  "profile-connected-accounts",
-  "company",
-  "company-subscription",
-  "company-settings",
-  "company-members",
-  "company-roles",
-  "company-audit-logs",
-  "company-webhooks",
-  "company-webhook-deliveries",
-  "documentation",
-  "feedback",
-];
 const RESERVED_LITERAL_PREFIXES = [
   "nav-",
   "entity-",
@@ -100,6 +67,9 @@ function codeIds(): Set<string> {
         ids.add(`${scope}-search`);
         ids.add(`${scope}-filter`);
         ids.add(`${scope}-display-options`);
+        ids.add(`${scope}-layout-table`);
+        ids.add(`${scope}-layout-cards`);
+        ids.add(`${scope}-layout-kanban`);
         if (TOOLBAR_SCOPES_WITH_ADD.includes(scope)) ids.add(`${scope}-add`);
       }
       if (FORM_SCOPES.includes(scope)) {
@@ -115,9 +85,26 @@ function codeIds(): Set<string> {
 function expectedDocumentedIds(): Set<string> {
   const ids = new Set<string>();
   for (const scope of TOOLBAR_SCOPES_WITH_ADD)
-    for (const suffix of ["-add", "-search", "-filter", "-display-options"]) ids.add(`${scope}${suffix}`);
+    for (const suffix of [
+      "-add",
+      "-search",
+      "-filter",
+      "-display-options",
+      "-layout-table",
+      "-layout-cards",
+      "-layout-kanban",
+    ])
+      ids.add(`${scope}${suffix}`);
   for (const scope of TOOLBAR_SCOPES_WITHOUT_ADD)
-    for (const suffix of ["-search", "-filter", "-display-options"]) ids.add(`${scope}${suffix}`);
+    for (const suffix of [
+      "-search",
+      "-filter",
+      "-display-options",
+      "-layout-table",
+      "-layout-cards",
+      "-layout-kanban",
+    ])
+      ids.add(`${scope}${suffix}`);
   for (const scope of FORM_SCOPES) for (const suffix of ["-save", "-reset"]) ids.add(`${scope}${suffix}`);
   for (const key of NAV_KEYS) ids.add(`nav-${key}`);
   for (const file of sourceFiles()) {
@@ -175,5 +162,13 @@ describe("app-guide anchor id fidelity", () => {
       const undocumented = [...expected].filter((id) => !documented.has(id)).sort();
       expect(undocumented, `${locale} app-guide pages missing ids`).toEqual([]);
     }
+  });
+
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("offers the agent only targets that exist in code", () => {
+    const inCode = codeIds();
+    const unknown = AGENT_UI_TARGETS.map((target) => target.id)
+      .filter((id) => !inCode.has(id))
+      .sort();
+    expect(unknown, "AGENT_UI_TARGETS references ids that no component renders").toEqual([]);
   });
 });

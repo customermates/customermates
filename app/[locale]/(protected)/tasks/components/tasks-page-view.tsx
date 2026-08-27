@@ -29,13 +29,13 @@ type Props = { tasks: GetResult<TaskDto> };
 
 export const TasksPageView = observer(function TasksPageView({ tasks }: Props) {
   const { tasksStore } = useRootStore();
+
+  useDataViewSync(tasksStore, tasks);
   const openEntity = useOpenEntity();
   const entityHref = useEntityHref();
   const columns = useTaskColumns();
   const { singular } = useEntityTerminology();
   const t = useTranslations();
-
-  useDataViewSync(tasksStore, tasks);
 
   const view = resolveDataViewView(tasksStore.viewMode, tasksStore.groupingColumnId);
   const pageState = resolveDataViewPageState({

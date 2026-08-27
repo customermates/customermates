@@ -3,9 +3,10 @@ import { z } from "zod";
 import {
   encodeToToon,
   runInteractor,
-  validationError,
-  customErrorMessage,
+  customMcpFailure,
   formatDatesInResponse,
+  mcpInteractorFailure,
+  mcpValidationFailure,
   mcpPage,
   mcpPageSize,
   filtersDescription,
@@ -14,7 +15,7 @@ import {
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-import { GetQueryParamsSchema, FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
+import { GetQueryParamsSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
 import { filterFieldsHint } from "@/core/types/filter-field-value-kind";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { isRedirect } from "@/features/auth/auth-outcome";
@@ -53,23 +54,19 @@ const GetMessagingThreadsSchema = z.object({
     25,
     "Results per page: 5, 10, 25, or 100 (default 25). With threadId set this pages the thread's messages",
   ),
-  searchTerm: z
-    .string()
-    .optional()
-    .describe("Free-text search against thread name, subject, and participants (list mode only)"),
-  filters: z
-    .array(FilterSchema)
-    .optional()
-    .describe(
-      filtersDescription(
-        filterFieldsHint([
-          FilterFieldKey.state,
-          FilterFieldKey.provider,
-          FilterFieldKey.participantContactId,
-          FilterFieldKey.participants,
-        ]),
-      ),
+  searchTerm: GetQueryParamsSchema.shape.searchTerm.describe(
+    "Free-text search against thread name, subject, and participants (list mode only)",
+  ),
+  filters: GetQueryParamsSchema.shape.filters.describe(
+    filtersDescription(
+      filterFieldsHint([
+        FilterFieldKey.state,
+        FilterFieldKey.provider,
+        FilterFieldKey.participantContactId,
+        FilterFieldKey.participants,
+      ]),
     ),
+  ),
   sortDescriptor: SortDescriptorSchema.optional().describe(sortDescription("lastMessageAt")),
 });
 
@@ -83,7 +80,12 @@ export const getMessagingThreadsTool = {
     "List rows carry id, name/subject/preview, state, lastMessageAt, and participants (displayName, identifier, provider, isSelf, isLinked, linked CRM contact) capped at 50; message bodies appear only in detail mode. " +
     "List mode omits threads that have no messages yet (unless they hold a draft); detail by threadId returns any thread. " +
     "A participant with isLinked=false is NOT yet a CRM contact; filter `participants` with the `hasUnset` operator to find threads that have such people.",
-  annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
+  annotations: {
+    readOnlyHint: true,
+    idempotentHint: true,
+    destructiveHint: false,
+    openWorldHint: false,
+  },
   inputSchema: GetMessagingThreadsSchema,
   execute: (params: z.infer<typeof GetMessagingThreadsSchema>) => {
     const { threadId, page, pageSize, searchTerm, filters, sortDescriptor } = params;
@@ -109,7 +111,10 @@ export const getMessagingThreadsTool = {
                 isSelf: p.isSelf ?? false,
                 isLinked: p.contact != null,
                 contact: p.contact
-                  ? { id: p.contact.id, name: `${p.contact.firstName} ${p.contact.lastName}`.trim() || null }
+                  ? {
+                      id: p.contact.id,
+                      name: `${p.contact.firstName} ${p.contact.lastName}`.trim() || null,
+                    }
                   : null,
               })),
               sharedToCrm: data.thread.sharedToCrm,
@@ -138,7 +143,12 @@ export const getMessagingThreadsTool = {
     }
     return runInteractor(
       getGetMessagingThreadsApiInteractor().invoke(
-        GetQueryParamsSchema.parse({ searchTerm, filters, sortDescriptor, pagination: { page, pageSize } }),
+        GetQueryParamsSchema.parse({
+          searchTerm,
+          filters,
+          sortDescriptor,
+          pagination: { page, pageSize },
+        }),
       ),
       (data) =>
         encodeToToon(
@@ -161,7 +171,10 @@ export const getMessagingThreadsTool = {
                 isSelf: p.isSelf ?? false,
                 isLinked: p.contact != null,
                 contact: p.contact
-                  ? { id: p.contact.id, name: `${p.contact.firstName} ${p.contact.lastName}`.trim() || null }
+                  ? {
+                      id: p.contact.id,
+                      name: `${p.contact.firstName} ${p.contact.lastName}`.trim() || null,
+                    }
                   : null,
               })),
               sharedToCrm: thread.sharedToCrm,
@@ -241,15 +254,14 @@ const GetCalendarsToolSchema = z.object({
     .describe(
       "Calendar event id (the entityId of a messaging.calendar.event.changed webhook event). When set, returns that event's detail",
     ),
-  searchTerm: z.string().optional().describe("Free-text search against the calendar name or event title"),
-  filters: z
-    .array(FilterSchema)
-    .optional()
-    .describe(
-      filtersDescription(
-        `for calendars ${filterFieldsHint([FilterFieldKey.connectedAccountId])}; for events ${filterFieldsHint([FilterFieldKey.calendarId, FilterFieldKey.connectedAccountId, FilterFieldKey.startsAt])}`,
-      ),
+  searchTerm: GetQueryParamsSchema.shape.searchTerm.describe(
+    "Free-text search against the calendar name or event title",
+  ),
+  filters: GetQueryParamsSchema.shape.filters.describe(
+    filtersDescription(
+      `for calendars ${filterFieldsHint([FilterFieldKey.connectedAccountId])}; for events ${filterFieldsHint([FilterFieldKey.calendarId, FilterFieldKey.connectedAccountId, FilterFieldKey.startsAt])}`,
     ),
+  ),
   sortDescriptor: SortDescriptorSchema.optional().describe(sortDescription("name (calendars) or startsAt (events)")),
   page: mcpPage(),
   pageSize: mcpPageSize(25, "Results per page: 5, 10, 25, or 100 (default 25)"),
@@ -262,7 +274,12 @@ export const getCalendarsTool = {
     'Reads synced calendars of connected accounts. list: "calendars" returns the accessible calendars (ids match the entityId of messaging.calendar.changed webhook events); list: "events" returns calendar events ordered by start time (filter by calendarId or a startsAt range for agenda windows). ' +
     "With eventId set, returns that event's detail including organizer and attendees (ids match the entityId of messaging.calendar.event.changed webhook events). " +
     "Optional: searchTerm, filters, sortDescriptor, page, pageSize.",
-  annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
+  annotations: {
+    readOnlyHint: true,
+    idempotentHint: true,
+    destructiveHint: false,
+    openWorldHint: false,
+  },
   inputSchema: GetCalendarsToolSchema,
   execute: async ({
     list,
@@ -274,14 +291,21 @@ export const getCalendarsTool = {
     pageSize,
   }: z.infer<typeof GetCalendarsToolSchema>) => {
     if (eventId) {
-      const result = await getGetCalendarEventByIdInteractor().invoke({ id: eventId });
-      if (!result.ok) return validationError(result.error);
-      if (!result.data) return customErrorMessage(CustomErrorCode.calendarEventNotFound);
+      const result = await getGetCalendarEventByIdInteractor().invoke({
+        id: eventId,
+      });
+      if (!result.ok) return mcpInteractorFailure(result.error);
+      if (!result.data) return customMcpFailure(CustomErrorCode.calendarEventNotFound);
 
       return encodeToToon(formatDatesInResponse(result.data));
     }
 
-    const params = GetQueryParamsSchema.parse({ searchTerm, filters, sortDescriptor, pagination: { page, pageSize } });
+    const params = GetQueryParamsSchema.parse({
+      searchTerm,
+      filters,
+      sortDescriptor,
+      pagination: { page, pageSize },
+    });
 
     if (list === "events") {
       return runInteractor(getGetCalendarEventsApiInteractor().invoke(params), (data) =>
@@ -307,7 +331,9 @@ export const getCalendarsTool = {
   },
 };
 
-const SendChatMessageToolSchema = BaseSendChatMessageSchema.omit({ attachments: true })
+const SendChatMessageToolSchema = BaseSendChatMessageSchema.omit({
+  attachments: true,
+})
   .partial({ threadId: true })
   .extend(
     BaseStartChatInputSchema.omit({ text: true, attachments: true }).partial({
@@ -329,7 +355,12 @@ export const sendChatMessageTool = {
     "Only use a linkedinProduct listed in the account's linkedinProducts from get_workspace_context; an unavailable product is rejected. " +
     "An identical text sent into the same thread within about a minute is rejected as a duplicate. " +
     "For email use send_email.",
-  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: false,
+    idempotentHint: false,
+    openWorldHint: true,
+  },
   inputSchema: SendChatMessageToolSchema,
   execute: async (params: z.infer<typeof SendChatMessageToolSchema>) => {
     const { threadId } = params;
@@ -340,7 +371,7 @@ export const sendChatMessageTool = {
       );
     }
     const startChat = StartChatInputSchema.safeParse(params);
-    if (!startChat.success) return validationError(startChat.error);
+    if (!startChat.success) return mcpValidationFailure(startChat.error);
     return runInteractor(getStartChatInteractor().invoke(startChat.data), (data) =>
       data.threadId ? `Chat started, thread ${data.threadId}` : "Chat started",
     );
@@ -356,7 +387,12 @@ export const sendEmailTool = {
     "Optional: cc, bcc. cc/bcc are plain email strings (not the {identifier} object form used by to). " +
     "When replying into a thread, an identical body sent to that thread within about a minute is rejected as a duplicate. " +
     "Get account ids from get_workspace_context and thread ids from get_messaging_threads.",
-  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: false,
+    idempotentHint: false,
+    openWorldHint: true,
+  },
   inputSchema: SendEmailSchema,
   execute: (params: z.infer<typeof SendEmailSchema>) =>
     runInteractor(getSendEmailInteractor().invoke(params), (data) => {
@@ -374,11 +410,19 @@ export const saveMessageDraftTool = {
     "send_email and send_chat_message deliver immediately, never use them when asked to draft. " +
     "A thread has at most one draft, saving again replaces it. subject, cc, and bcc apply to email threads only. " +
     "Returns the draft message id and its thread id.",
-  annotations: { readOnlyHint: false, idempotentHint: true, destructiveHint: false, openWorldHint: false },
+  annotations: {
+    readOnlyHint: false,
+    idempotentHint: true,
+    destructiveHint: false,
+    openWorldHint: false,
+  },
   inputSchema: SaveDraftSchema,
   execute: (params: z.infer<typeof SaveDraftSchema>) =>
     runInteractor(getSaveDraftInteractor().invoke(params), (data) =>
-      encodeToToon({ draftMessageId: data.id, threadId: data.messagingThreadId }),
+      encodeToToon({
+        draftMessageId: data.id,
+        threadId: data.messagingThreadId,
+      }),
     ),
 };
 
@@ -390,7 +434,12 @@ export const discardMessageDraftTool = {
     "messageId is a DRAFT message id, taken from save_message_draft's response or from the thread detail of " +
     "get_messaging_threads (messages flagged isDraft). Only drafts can be discarded; sent and received messages are never affected. " +
     "Discarding an id that is not a draft is a safe no-op that reports no draft found.",
-  annotations: { readOnlyHint: false, idempotentHint: true, destructiveHint: true, openWorldHint: false },
+  annotations: {
+    readOnlyHint: false,
+    idempotentHint: true,
+    destructiveHint: true,
+    openWorldHint: false,
+  },
   inputSchema: DiscardDraftSchema,
   execute: (params: z.infer<typeof DiscardDraftSchema>) =>
     runInteractor(getDiscardDraftInteractor().invoke(params), (data) =>
@@ -398,7 +447,10 @@ export const discardMessageDraftTool = {
     ),
 };
 
-const UpdateMessagingThreadSchema = UpdateThreadSchema.pick({ threadId: true, state: true }).required({ state: true });
+const UpdateMessagingThreadSchema = UpdateThreadSchema.pick({
+  threadId: true,
+  state: true,
+}).required({ state: true });
 
 export const updateMessagingThreadTool = {
   name: "update_messaging_thread",
@@ -406,7 +458,12 @@ export const updateMessagingThreadTool = {
   description:
     "Use this when triaging the inbox: sets a thread's state. state is one of unread, open, closed, or spam. " +
     "threadId comes from get_messaging_threads. Setting the state a thread already has is a harmless no-op.",
-  annotations: { readOnlyHint: false, idempotentHint: true, destructiveHint: false, openWorldHint: false },
+  annotations: {
+    readOnlyHint: false,
+    idempotentHint: true,
+    destructiveHint: false,
+    openWorldHint: false,
+  },
   inputSchema: UpdateMessagingThreadSchema,
   execute: (params: z.infer<typeof UpdateMessagingThreadSchema>) =>
     runInteractor(getUpdateThreadInteractor().invoke(params), () => `Thread ${params.threadId} set to ${params.state}`),
@@ -431,10 +488,15 @@ export const connectMessagingAccountTool = {
     "channel is one of google (Gmail), outlook, imap, whatsapp, linkedin, linkedin_sales_navigator, linkedin_recruiter, instagram, telegram. " +
     "Requires a paid subscription and fewer than 5 connected channels. " +
     "Call get_workspace_context first to see which accounts are already connected. Returns the connect url.",
-  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: false,
+    idempotentHint: false,
+    openWorldHint: true,
+  },
   inputSchema: ConnectMessagingAccountSchema,
   execute: async (params: z.infer<typeof ConnectMessagingAccountSchema>) => {
     const result = await getCreateAuthLinkInteractor().invoke(params);
-    return isRedirect(result) ? encodeToToon({ url: result.redirect }) : validationError(result.error);
+    return isRedirect(result) ? encodeToToon({ url: result.redirect }) : mcpInteractorFailure(result.error);
   },
 };

@@ -1,11 +1,10 @@
+import { failNotFound } from "@/core/validation/interactor-failure-server";
 import type { MessagingMessage, MessagingThread } from "../messaging.schema";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
-import { getTranslations } from "next-intl/server";
 
-import { createZodError } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { Resource, Action } from "@/generated/prisma";
@@ -80,13 +79,7 @@ export class GetMessagingThreadInteractor extends AuthenticatedInteractor<
     if (denied) return denied;
 
     const thread = await this.repo.findThreadById(data.threadId);
-    if (!thread) {
-      const t = await getTranslations();
-      return {
-        ok: false as const,
-        error: createZodError(t("Common.errors.threadNotFound"), [], { error: CustomErrorCode.threadNotFound }),
-      };
-    }
+    if (!thread) return failNotFound(CustomErrorCode.threadNotFound, ["threadId"]);
 
     const { messages: rawMessages, total } = await this.repo.listMessagesForThread(thread.id, {
       page: data.page,

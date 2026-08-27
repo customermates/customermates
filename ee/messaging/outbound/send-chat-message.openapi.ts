@@ -15,6 +15,7 @@ export const sendChatMessageOperation: ZodOpenApiOperationObject = {
   security: [{ apiKeyAuth: [] }],
   requestParams: { path: z.object({ id: z.uuid() }) },
   requestBody: {
+    required: true,
     content: {
       "application/json": {
         schema: BaseSendChatMessageSchema.omit({ threadId: true }),

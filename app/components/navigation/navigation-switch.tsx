@@ -86,6 +86,14 @@ export function NavigationSwitch({
   const { userStore, companyStore, subscriptionStore, terminologyStore } = rootStore;
   const accountAllowed = currentAccountState === "allowed";
   const protectedEnhancementsAllowed = accountAllowed && shellMode === "app";
+  const identifiedUser = accountAllowed ? appUser : null;
+
+  if (userStore.user?.id !== identifiedUser?.id) {
+    userStore.setUser(identifiedUser);
+    companyStore.setCompany(accountAllowed ? company : null);
+    terminologyStore.setOverrides(accountAllowed ? terminology : []);
+    subscriptionStore.setSubscription(accountAllowed ? subscription : null);
+  }
 
   useEffect(() => {
     if (currentAccountState !== accountState) router.refresh();
@@ -101,8 +109,6 @@ export function NavigationSwitch({
   }, [router]);
 
   useLayoutEffect(() => {
-    const identifiedUser = accountAllowed ? appUser : null;
-
     Sentry.setUser(identifiedUser ? { id: identifiedUser.id } : null);
     Sentry.setTag("companyId", identifiedUser?.companyId);
 
@@ -112,7 +118,16 @@ export function NavigationSwitch({
     subscriptionStore.setSubscription(accountAllowed ? subscription : null);
 
     if (!protectedEnhancementsAllowed) rootStore.closeAllModals();
-  }, [accountAllowed, appUser, company, protectedEnhancementsAllowed, rootStore, subscription, terminology]);
+  }, [
+    accountAllowed,
+    appUser,
+    company,
+    identifiedUser,
+    protectedEnhancementsAllowed,
+    rootStore,
+    subscription,
+    terminology,
+  ]);
 
   let shell: React.ReactNode;
   if (shellMode === "docs") {

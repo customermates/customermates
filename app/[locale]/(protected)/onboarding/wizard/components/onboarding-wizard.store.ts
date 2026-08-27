@@ -52,11 +52,20 @@ export class OnboardingWizardStore {
     this.setIsSubmitting(true);
     try {
       const res = await completeOnboardingWizardAction();
-      if (!res.ok) toastZodErrorTree(res.error);
+      if (!res.ok) {
+        toastZodErrorTree(res.error);
+        return;
+      }
+
+      this.leaveWizard(res.data.redirectTo);
     } finally {
       this.setIsSubmitting(false);
     }
   };
+
+  private leaveWizard(redirectTo: string) {
+    globalThis.location.assign(redirectTo);
+  }
 
   setIsSubmitting = (isSubmitting: boolean) => {
     this.isSubmitting = isSubmitting;

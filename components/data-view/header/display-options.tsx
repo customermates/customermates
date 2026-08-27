@@ -32,6 +32,7 @@ type DataViewMode = "table" | "grid" | "kanban";
 type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
   id?: string;
+  anchorScope?: string;
 };
 
 type FieldRowProps = {
@@ -92,6 +93,7 @@ function FieldRow({ uid, label, isVisible, isPinned, onToggle }: FieldRowProps) 
 export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E extends HasId>({
   store,
   id,
+  anchorScope,
 }: Props<E>) {
   const t = useTranslations();
   const [isOpen, setIsOpen] = useState(false);
@@ -225,6 +227,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
                         <TabsTrigger
                           aria-label={t("Common.ariaLabels.switchToTableView")}
                           className="w-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground"
+                          id={anchorScope ? `${anchorScope}-layout-table` : undefined}
                           value="table"
                         >
                           <Table className="size-3.5" />
@@ -241,6 +244,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
                         <TabsTrigger
                           aria-label={t("Common.ariaLabels.switchToCardView")}
                           className="w-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground"
+                          id={anchorScope ? `${anchorScope}-layout-cards` : undefined}
                           value="grid"
                         >
                           <LayoutGrid className="size-3.5" />
@@ -258,6 +262,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
                           aria-label={t("Common.ariaLabels.switchToKanbanView")}
                           className="w-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground"
                           disabled={!canUseKanban}
+                          id={anchorScope ? `${anchorScope}-layout-kanban` : undefined}
                           value="kanban"
                         >
                           <LayoutList className="size-3.5" />

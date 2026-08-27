@@ -8,7 +8,7 @@ export const ErrorResponseSchema = z.string();
 
 export const CommonApiResponses = {
   "400": {
-    description: "Bad Request - Validation error",
+    description: "Bad Request",
     content: {
       "application/json": {
         schema: ErrorResponseSchema,

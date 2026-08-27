@@ -17,7 +17,7 @@ import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { featurePagesSource } from "@/core/fumadocs/source";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
 import { Toc } from "@/components/shared/toc";
-import { breadcrumbListSchema, faqPageSchema, softwareApplicationSchema } from "@/core/seo/schemas";
+import { breadcrumbListSchema, softwareApplicationSchema } from "@/core/seo/schemas";
 
 interface Props {
   params: Promise<{
@@ -44,7 +44,6 @@ export default async function FeaturePage({ params }: Props) {
 
   if (!page) notFound();
 
-  const faqPage = page.data.faq ? faqPageSchema({ faqs: page.data.faq.faqs }) : undefined;
   const MDX = page.data.body;
   const components = getMDXComponents();
   const visualPilot = getFeatureVisualPilot(slug, locale, {
@@ -69,8 +68,6 @@ export default async function FeaturePage({ params }: Props) {
           locale,
         })}
       />
-
-      {faqPage ? <JsonLd schema={faqPage} /> : null}
 
       <PageHero {...page.data.hero} />
 

@@ -13,6 +13,7 @@ import {
   blogPosts,
   compare,
   comparePages,
+  contact,
   docs,
   featurePages,
   features,
@@ -53,6 +54,12 @@ export const apiDocsSource = loader({
   baseUrl: "/docs/openapi",
   i18n,
   source: toFumadocsSource(apiDocs, []),
+});
+
+export const contactSource = loader({
+  baseUrl: "/contact",
+  i18n,
+  source: toFumadocsSource(contact, []),
 });
 
 export const apiOverviewSource = loader({

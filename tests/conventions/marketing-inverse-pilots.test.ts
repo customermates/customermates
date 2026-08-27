@@ -354,8 +354,9 @@ describe("feature-page visual pilots", () => {
     ])
       expect(email).toContain(`data-native-provider="${provider}"`);
     expect(email).toContain('data-native-person="anna-mueller"');
-    expect(email).toContain('data-native-conversation="gmail-roche-rollout"');
-    expect(email).toContain("Next steps for the Roche rollout");
+    expect(email).toContain('data-native-conversation="gmail-rollout-next-steps"');
+    expect(email).toContain("Next steps for the rollout");
+    expect(email).not.toContain("Roche");
     expect(email.match(/data-native-provider-identity=/gu)).toHaveLength(1);
     expect(email.match(/data-active-source="true"/gu)).toHaveLength(1);
     expect(email.match(/data-connector-provider=/gu)).toHaveLength(7);
@@ -409,8 +410,8 @@ describe("feature-page visual pilots", () => {
 
     expect(localizedEmail).toContain("Kundendatensatz");
     expect(localizedEmail).toContain("Zugeordnet");
-    expect(localizedEmail).toContain("Nächste Schritte für den Roche-Rollout");
-    expect(localizedEmail).not.toContain("Next steps for the Roche rollout");
+    expect(localizedEmail).toContain("Nächste Schritte für den Rollout");
+    expect(localizedEmail).not.toContain("Next steps for the rollout");
     expect(localizedPipeline).toContain("Dealwert");
     expect(localizedPipeline).toContain("Gewichteter Wert");
     expect(localizedPipeline).toContain("Offen");

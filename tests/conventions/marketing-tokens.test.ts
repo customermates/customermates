@@ -9,9 +9,16 @@ import { BREAKPOINT_QUERY } from "@/hooks/use-media-query";
 
 const SCANNED_ROOTS = [
   join(REPO_ROOT, "app", "[locale]", "(static)"),
-  join(REPO_ROOT, "app", "components"),
   join(REPO_ROOT, "components", "marketing"),
 ];
+
+const PUBLIC_APP_COMPONENTS = [
+  "app/components/competitor-links.tsx",
+  "app/components/footer-badges.tsx",
+  "app/components/footer-content.tsx",
+  "app/components/footer.tsx",
+  "app/components/public-navbar.tsx",
+].map((path) => join(REPO_ROOT, path));
 
 const GLOBALS_CSS = join(REPO_ROOT, "styles", "globals.css");
 
@@ -61,9 +68,12 @@ const RULES = [
 ];
 
 function scannedFiles(): string[] {
-  return SCANNED_ROOTS.flatMap((root) =>
-    walkFiles(root, (path) => /\.tsx$/.test(path) && !path.includes("__tests__")),
-  );
+  return [
+    ...SCANNED_ROOTS.flatMap((root) =>
+      walkFiles(root, (path) => /\.tsx$/.test(path) && !path.includes("__tests__")),
+    ),
+    ...PUBLIC_APP_COMPONENTS,
+  ];
 }
 
 function isDepiction(file: string, ruleId: string): boolean {

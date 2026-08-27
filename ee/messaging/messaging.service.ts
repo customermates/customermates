@@ -48,6 +48,7 @@ import {
   SocialCommentListSchema,
   SocialReactionListSchema,
   SocialProfileSchema,
+  LinkedinCompanyProfileSchema,
   RelationRequestListSchema,
   RelationRequestResultSchema,
 } from "./posts/social-posts.schema";
@@ -175,6 +176,40 @@ export function isUnipileCursorPaginationRequired(err: unknown): boolean {
   if (!(err.errorType ?? "").endsWith("/invalid_parameters")) return false;
 
   return /cursor for pagination/i.test(err.bodyText);
+}
+
+function isUnipileInvalidSocialIdentifier(err: unknown): boolean {
+  if (!(err instanceof UnipileRequestError) || err.status !== 400) return false;
+  if (!(err.errorType ?? "").endsWith("/invalid_parameters")) return false;
+
+  return /invalid (?:user|company) id/i.test(err.bodyText);
+}
+
+function normalizeLinkedinCompanyProfile(raw: unknown): SocialProfile {
+  const company = LinkedinCompanyProfileSchema.parse(raw);
+  const location = company.locations?.find((entry) => entry.is_headquarter) ?? company.locations?.[0];
+  const locationLabel =
+    location?.description?.trim() ||
+    [location?.city, location?.area, location?.country_code].filter(Boolean).join(", ") ||
+    undefined;
+
+  return SocialProfileSchema.parse({
+    object: "CompanyProfile",
+    id: company.id,
+    type: "organization",
+    public_identifier: company.public_identifier,
+    display_name: company.name,
+    profile_url: company.profile_url,
+    public_picture_url: company.public_picture_url,
+    description: company.description,
+    specifics: {
+      headline: company.tagline,
+      location: locationLabel,
+      industry: company.industry?.join(", ") || undefined,
+      followers_count: company.followers_count,
+      website_url: company.website,
+    },
+  });
 }
 
 export function isUnipileDisconnectedAccount(err: unknown): err is UnipileRequestError {
@@ -574,6 +609,8 @@ export class MessagingService {
         },
       };
     } catch (err) {
+      if (isUnipileInvalidSocialIdentifier(err)) return { ok: false, error: CustomErrorCode.unipileInvalidRequest };
+
       return this.mapError(err);
     }
   }
@@ -870,6 +907,11 @@ export class MessagingService {
 
       return { ok: true, data: SocialPostListSchema.parse(raw) };
     } catch (err) {
+      if (isUnipileInvalidSocialIdentifier(err)) return { ok: false, error: CustomErrorCode.unipileInvalidRequest };
+
+      if (input.cursor == null && input.offset != null && isUnipileCursorPaginationRequired(err))
+        return { ok: false, error: CustomErrorCode.unipileInvalidRequest };
+
       return this.mapError(err);
     }
   }
@@ -963,14 +1005,28 @@ export class MessagingService {
   async getSocialProfile(input: {
     accountId: string;
     identifier: string;
+    profileType?: "person" | "company";
   }): Promise<MessagingSendResult<SocialProfile>> {
     try {
-      const raw = await requestData(
-        this.sdk.users.getUserProfile({ path: { account_id: input.accountId, user_id: input.identifier } }),
-      );
+      const data =
+        input.profileType === "company"
+          ? normalizeLinkedinCompanyProfile(
+              await requestData(
+                this.sdk.linkedin.getClassicCompanyProfile({
+                  path: { account_id: input.accountId, company_id: input.identifier },
+                }),
+              ),
+            )
+          : SocialProfileSchema.parse(
+              await requestData(
+                this.sdk.users.getUserProfile({ path: { account_id: input.accountId, user_id: input.identifier } }),
+              ),
+            );
 
-      return { ok: true, data: SocialProfileSchema.parse(raw) };
+      return { ok: true, data };
     } catch (err) {
+      if (isUnipileInvalidSocialIdentifier(err)) return { ok: false, error: CustomErrorCode.unipileInvalidRequest };
+
       return this.mapError(err);
     }
   }

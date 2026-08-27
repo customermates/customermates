@@ -9,7 +9,7 @@ import {
 } from "@/core/config/synthetic-seed-user";
 
 import { SEED_IDS, type SeedContext } from "../seeds/context";
-import { seedIdentity, SYNTHETIC_AUTH_IDENTITY_DEFINITIONS } from "../seeds/identity";
+import { seedIdentity, SYNTHETIC_AUTH_IDENTITY_DEFINITIONS, SYNTHETIC_SUBSCRIPTION } from "../seeds/identity";
 import { SYNTHETIC_ROLE_DEFINITIONS } from "../seeds/roles";
 import { SYNTHETIC_SEED_TIMELINE } from "../seeds/timeline";
 
@@ -199,11 +199,21 @@ describe("synthetic Better Auth identities", () => {
     for (const [index, member] of companyMembers.entries()) {
       expect(member).toMatchObject(SYNTHETIC_SEED_TIMELINE.user(index));
       const timeline = SYNTHETIC_SEED_TIMELINE.user(index);
+      expect(member.agentCreditActivatedAt).toEqual(timeline.createdAt);
       expect(member.onboardingWizardCompletedAt).toEqual(new Date(timeline.updatedAt.getTime() + 5 * 60_000));
       expect((member.onboardingWizardCompletedAt as Date).getTime()).toBeGreaterThan(timeline.createdAt.getTime());
     }
 
     expect(calls.companyUpsert.mock.calls[0]?.[0].create).toMatchObject(SYNTHETIC_SEED_TIMELINE.company);
+    expect(calls.subscriptionUpsert).toHaveBeenCalledWith({
+      where: { companyId: SEED_IDS.company },
+      update: SYNTHETIC_SUBSCRIPTION,
+      create: {
+        id: SEED_IDS.subscription,
+        companyId: SEED_IDS.company,
+        ...SYNTHETIC_SUBSCRIPTION,
+      },
+    });
     for (const [index, [{ create }]] of calls.roleUpsert.mock.calls.entries()) {
       expect(create).toMatchObject(
         index === 0 ? SYNTHETIC_SEED_TIMELINE.systemRole : SYNTHETIC_SEED_TIMELINE.customRole(index - 1),

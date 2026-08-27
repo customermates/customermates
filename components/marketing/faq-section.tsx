@@ -1,9 +1,8 @@
 import { getTranslations } from "next-intl/server";
 
+import { Faq, FaqItem } from "./faq";
 import { MarketingSection } from "@/components/marketing/marketing-section";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { AppLink } from "@/components/shared/app-link";
-import { FAQAnswer } from "@/components/marketing/faq-answer";
 
 type FAQItem = {
   content: string;
@@ -24,21 +23,13 @@ export async function FAQSection({ faqs, title }: Props) {
   return (
     <MarketingSection id="faq" title={title ?? t("FAQSection.label")}>
       <div className="mx-auto mt-10 max-w-3xl lg:mt-12">
-        <Accordion collapsible className="flex flex-col gap-3" defaultValue={faqs[0].id} type="single">
+        <Faq>
           {faqs.map((faq) => (
-            <AccordionItem
-              key={faq.id}
-              className="rounded-card border border-border bg-card px-2 last:border-b"
-              value={faq.id}
-            >
-              <AccordionTrigger className="px-4 py-5 text-base font-medium">{faq.title}</AccordionTrigger>
-
-              <AccordionContent forceMount className="px-4 pb-5 text-sm leading-relaxed text-muted-foreground">
-                <FAQAnswer content={faq.content} />
-              </AccordionContent>
-            </AccordionItem>
+            <FaqItem key={faq.id} question={faq.title}>
+              {faq.content}
+            </FaqItem>
           ))}
-        </Accordion>
+        </Faq>
 
         {/* eslint-disable react/jsx-newline */}
         <p className="text-meta mt-6">

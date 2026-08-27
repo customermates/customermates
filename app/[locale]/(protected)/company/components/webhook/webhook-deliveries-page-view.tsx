@@ -26,9 +26,10 @@ type Props = { initialDeliveries: GetResult<WebhookDeliveryDto> };
 
 export const WebhookDeliveriesPageView = observer(function WebhookDeliveriesPageView({ initialDeliveries }: Props) {
   const { webhookDeliveriesStore, webhookDeliveryModalStore } = useRootStore();
+
+  useDataViewSync(webhookDeliveriesStore, initialDeliveries);
   const columns = useWebhookDeliveryColumns();
   const t = useTranslations();
-  useDataViewSync(webhookDeliveriesStore, initialDeliveries);
   const view = resolveDataViewView(webhookDeliveriesStore.viewMode, webhookDeliveriesStore.groupingColumnId);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,

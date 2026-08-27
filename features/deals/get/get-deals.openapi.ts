@@ -14,6 +14,7 @@ export const getDealsOperation: ZodOpenApiOperationObject = {
   tags: ["deals"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {
+    required: true,
     content: {
       "application/json": {
         schema: GetQueryParamsApiSchema,

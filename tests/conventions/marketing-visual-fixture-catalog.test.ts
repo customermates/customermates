@@ -33,14 +33,12 @@ import { SYNTHETIC_CONTACT_AVATAR_URLS } from "@/prisma/seeds/avatars";
 import { SYNTHETIC_CONTACT_NAMES } from "@/prisma/seeds/contacts";
 import {
   SYNTHETIC_DEAL_NAMES,
-  SYNTHETIC_DEAL_ORGANIZATION_LINKS,
   SYNTHETIC_DEAL_STATUS_INDEXES,
   SYNTHETIC_DEAL_STATUS_WEIGHTS,
   SYNTHETIC_SERVICE_DEAL_LINKS,
 } from "@/prisma/seeds/deals";
 import { SYNTHETIC_COMPANY_MEMBER_DEFINITIONS } from "@/prisma/seeds/members";
 import { people, threads } from "@/prisma/seeds/messaging/fixtures";
-import { SYNTHETIC_ORGANIZATION_NAMES } from "@/prisma/seeds/organizations";
 import { SYNTHETIC_SERVICE_AMOUNTS } from "@/prisma/seeds/services";
 
 function localAsset(url: string) {
@@ -173,15 +171,15 @@ describe("marketing visual fixture catalog", () => {
       sorted([...supportedProviders]),
     );
     expect(annaThread).toBeDefined();
-    expect(VISUAL_CONVERSATION_FIXTURES["gmail-roche-rollout"]).toMatchObject({
+    expect(VISUAL_CONVERSATION_FIXTURES["gmail-rollout-next-steps"]).toMatchObject({
       person: "anna-mueller",
       provider: "gmail",
       state: annaThread?.state,
-      subject: annaThread?.subject,
+      subject: "Next steps for the rollout",
     });
-    expect(VISUAL_CONVERSATION_FIXTURES["gmail-roche-rollout"].localizedSubject).toEqual({
-      de: "Nächste Schritte für den Roche-Rollout",
-      en: annaThread?.subject,
+    expect(VISUAL_CONVERSATION_FIXTURES["gmail-rollout-next-steps"].localizedSubject).toEqual({
+      de: "Nächste Schritte für den Rollout",
+      en: "Next steps for the rollout",
     });
   });
 
@@ -219,12 +217,11 @@ describe("marketing visual fixture catalog", () => {
 
     const focalIndex = SYNTHETIC_DEAL_NAMES.indexOf("Digital Customer Platform");
     const focalLinks = SYNTHETIC_SERVICE_DEAL_LINKS.filter(([dealIndex]) => dealIndex === focalIndex);
-    const focalOrganizationIndex = SYNTHETIC_DEAL_ORGANIZATION_LINKS[focalIndex][1];
     expect(VISUAL_RECORD_FIXTURES["deal-digital-customer-platform"]).toMatchObject({
-      organization: SYNTHETIC_ORGANIZATION_NAMES[focalOrganizationIndex],
       projectPeriod: ["2026-06-01", "2026-08-28"],
       totalQuantity: focalLinks.reduce((sum, [, , quantity]) => sum + quantity, 0),
     });
+    expect(VISUAL_RECORD_FIXTURES["deal-digital-customer-platform"]).not.toHaveProperty("organization");
   });
 
   it("derives the rendered board strictly from the selected registered board", () => {

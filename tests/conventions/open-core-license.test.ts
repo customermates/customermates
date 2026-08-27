@@ -35,6 +35,7 @@ describe("open-core licence boundary", () => {
     );
     expect(commercialLicense).toContain("Inert compiled routes, schemas, interface declarations");
     expect(enterpriseReadme).toContain("First-party files in `ee/` are Commercial Software");
+    expect(enterpriseReadme).toContain("The hosted in-app Assistant is a Cloud-only Enterprise Feature.");
   });
 
   it("defines the image and revision-specific licence terms deterministically", () => {

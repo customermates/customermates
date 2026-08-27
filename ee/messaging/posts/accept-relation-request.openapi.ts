@@ -12,6 +12,7 @@ export const acceptRelationRequestOperation: ZodOpenApiOperationObject = {
   tags: ["messaging"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {
+    required: true,
     content: {
       "application/json": {
         schema: AcceptRelationRequestSchema,

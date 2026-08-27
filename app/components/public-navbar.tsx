@@ -13,7 +13,7 @@ import { AppLink } from "@/components/shared/app-link";
 import { AppImage } from "@/components/shared/app-image";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/shared/icon";
-import { LanguageSelector } from "@/components/shared/language-selector";
+import { LocaleMenu } from "@/components/shared/locale-menu";
 import {
   Sheet,
   SheetBody,
@@ -144,7 +144,7 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
   function renderPreferenceButtons() {
     return (
       <div className="flex items-center gap-1">
-        <LanguageSelector />
+        <LocaleMenu />
 
         <ThemeSwitcher />
       </div>

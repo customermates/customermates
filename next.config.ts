@@ -6,6 +6,7 @@ import { withSentryConfig } from "@sentry/nextjs";
 import { withWorkflow } from "workflow/next";
 
 import { env } from "@/env";
+import { permanentAliasRedirects } from "@/core/seo/route-aliases";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
@@ -21,7 +22,7 @@ const nextConfig: NextConfig = {
   htmlLimitedBots: /.*/,
 
   devIndicators: {
-    position: "bottom-right",
+    position: "top-left",
   },
 
   compress: true,
@@ -41,6 +42,13 @@ const nextConfig: NextConfig = {
       "fumadocs-ui",
       "lodash",
     ],
+  },
+
+  // Next runs config redirects before the proxy middleware, so a retired URL answers with a single
+  // clean 308 rather than chaining through locale negotiation. Every entry comes from
+  // PERMANENT_ROUTE_ALIASES, which the sitemap and its test read from the same declaration.
+  redirects() {
+    return Promise.resolve(permanentAliasRedirects());
   },
 
   headers() {

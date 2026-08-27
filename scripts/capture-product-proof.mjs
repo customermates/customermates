@@ -1,8 +1,8 @@
 // Captures real product screenshots ("product proof") deterministically.
 //
-// The style guide says a capture is evidence and a scene is a drawing. Evidence has to come
-// from the running product, so this drives a seeded local instance rather than compositing
-// anything. Determinism matters because a capture that differs run to run cannot be reviewed:
+// Product proof is evidence from reachable local state, not an illustration. This drives a
+// seeded local instance rather than compositing anything. Determinism matters because a capture
+// that differs run to run cannot be reviewed:
 // you never know whether a diff is a product change or the clock moving.
 //
 // Three things would otherwise make two passes disagree, and each is handled here:
@@ -26,6 +26,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import { launchChrome } from "./lib/cdp.mjs";
+import { assertLocalCaptureUrl } from "./lib/local-capture-url.mjs";
 
 const args = process.argv.slice(2);
 const flag = (name, fallback) => {
@@ -33,12 +34,12 @@ const flag = (name, fallback) => {
   return index === -1 ? fallback : args[index + 1];
 };
 
-const BASE = flag("url", "http://localhost:4000");
+const BASE = assertLocalCaptureUrl(flag("url", "http://localhost:4000"));
 const LOCALE = flag("locale", "en");
 const ONLY = flag("only", null);
 const WIDTH = 1920;
 const HEIGHT = 1080;
-const OUT_DIR = "public/captures";
+const OUT_DIR = ".review/product-proof";
 const AVATAR_ORIGIN = "https://customermates.com/demo/";
 
 // Each target names a route and, when the view it needs is not reachable by URL, the clicks

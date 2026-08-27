@@ -7,6 +7,7 @@ import { FooterBadges } from "./footer-badges";
 
 import { AppLink } from "@/components/shared/app-link";
 import { AppImage } from "@/components/shared/app-image";
+import { cn } from "@/core/utils/cn";
 
 type LinkItem = {
   slug: string;
@@ -15,16 +16,23 @@ type LinkItem = {
 
 type FooterProps = {
   blogPosts?: LinkItem[];
+  className?: string;
   competitors?: LinkItem[];
   featureLinks?: LinkItem[];
   industries?: LinkItem[];
 };
 
-export function FooterContent({ blogPosts = [], competitors = [], featureLinks = [], industries = [] }: FooterProps) {
+export function FooterContent({
+  blogPosts = [],
+  className,
+  competitors = [],
+  featureLinks = [],
+  industries = [],
+}: FooterProps) {
   const t = useTranslations();
 
   return (
-    <footer className="mt-auto w-full border-t border-border bg-sidebar text-sm">
+    <footer className={cn("mt-auto w-full border-t border-border bg-sidebar text-sm", className)}>
       <div className="marketing-container py-12">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-8 mb-12">
           <div className="col-span-2 sm:col-span-3 lg:col-span-1 flex flex-col items-start gap-4">

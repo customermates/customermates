@@ -1,6 +1,6 @@
 ---
-title: Company
-description: Der Company-Screen, workspace-weite Administration mit Abonnement, Team-Mitgliedern, Rollen, Webhooks, Deliveries und Audit-Trail, für Menschen und UI-steuernde Agents.
+title: "Unternehmen: Rollen, Mitglieder und Audit-Log"
+description: "Auf dem Company-Screen verwalten Sie den ganzen Workspace: Abonnement, Mitglieder, Rollen, Webhooks, Deliveries und Audit-Trail, mit stabilen Anchor-ids."
 ---
 
 Customermates ist ein Open-Source-CRM mit integriertem MCP-Server. Diese Seite dokumentiert den **Company**-Screen der Web-App, für Menschen und für KI-Agents, die die UI steuern.
@@ -36,6 +36,14 @@ Alle App-Routen sind locale-präfixiert (Beispiel: https://customermates.com/en/
 | Deliveries-Listen-Controls | Deliveries-Toolbar | `#company-webhook-deliveries-search` / `#company-webhook-deliveries-filter` / `#company-webhook-deliveries-display-options` | Listen-Controls |
 | Audit-Logs-Tab | Sidebar-Unterpunkt | `#nav-company-audit-logs` | Wer hat was wann geändert |
 | Audit-Listen-Controls | Audit-Toolbar | `#company-audit-logs-search` / `#company-audit-logs-filter` / `#company-audit-logs-display-options` | Listen-Controls |
+
+Die Display-options-Popovers enthalten diese stabilen Layout-Steuerelemente:
+
+- Members: `#company-members-layout-table`, `#company-members-layout-cards`, `#company-members-layout-kanban`
+- Roles: `#company-roles-layout-table`, `#company-roles-layout-cards`, `#company-roles-layout-kanban`
+- Webhooks: `#company-webhooks-layout-table`, `#company-webhooks-layout-cards`, `#company-webhooks-layout-kanban`
+- Deliveries: `#company-webhook-deliveries-layout-table`, `#company-webhook-deliveries-layout-cards`, `#company-webhook-deliveries-layout-kanban`
+- Audit-Logs: `#company-audit-logs-layout-table`, `#company-audit-logs-layout-cards`, `#company-audit-logs-layout-kanban`
 
 ## Tipps für Agents
 

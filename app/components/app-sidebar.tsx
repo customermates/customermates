@@ -13,6 +13,7 @@ import { usePathname as useIntlPathname, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import { useTheme } from "next-themes";
+import { toast } from "sonner";
 import {
   Building,
   Building2,
@@ -360,6 +361,14 @@ const FullAppSidebar = observer(
         <Sidebar collapsible="icon" side="left" variant="inset">
           <NavHeader
             addLabel={t("Common.actions.add")}
+            assistantBusy={rootStore.agentChatStore.isWorking}
+            assistantBusyLabel={t("AgentChat.askAiWorking")}
+            assistantLabel={
+              rootStore.appMode === "demo" || (rootStore.agentChatEnabled && rootStore.agentChatStore.enabled === true)
+                ? t("AgentChat.askAi")
+                : undefined
+            }
+            assistantShortcut={rootStore.appMode === "demo" ? undefined : "⌘J"}
             brandName="Customermates"
             brandSubtitle={planSubtitle}
             homeHref={
@@ -378,6 +387,18 @@ const FullAppSidebar = observer(
                 addPickerFallbackRef.current = document.getElementById("sidebar-trigger");
                 setIsAddPickerOpen(true);
               });
+            }}
+            onAssistant={() => {
+              if (restricted) {
+                closeMobileSidebar(recheckAccountState);
+                return;
+              }
+              if (rootStore.appMode === "demo") {
+                closeMobileSidebar(() => toast.info(t("AgentChat.demoUnavailable")));
+                return;
+              }
+
+              closeMobileSidebar(() => rootStore.agentChatStore.open());
             }}
             onSearch={(invoker) => {
               if (restricted) {

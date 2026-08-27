@@ -1,17 +1,23 @@
 import { readdirSync } from "node:fs";
-import { join } from "node:path";
+import { join, relative, sep } from "node:path";
 
 const SKIPPED_DIRECTORIES = new Set(["node_modules", ".next", "generated", ".git", "coverage"]);
+
+const GENERATED_DIRECTORIES = [join("app", ".well-known", "workflow")];
 
 export function walkFiles(root: string, matches: (path: string) => boolean): string[] {
   const found: string[] = [];
   const visit = (dir: string) => {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const path = join(dir, entry.name);
       if (entry.isDirectory()) {
-        if (!SKIPPED_DIRECTORIES.has(entry.name)) visit(join(dir, entry.name));
+        const repoPath = relative(root, path);
+        if (SKIPPED_DIRECTORIES.has(entry.name)) continue;
+        if (GENERATED_DIRECTORIES.some((generated) => repoPath === generated || repoPath.startsWith(generated + sep)))
+          continue;
+        visit(path);
         continue;
       }
-      const path = join(dir, entry.name);
       if (matches(path)) found.push(path);
     }
   };

@@ -15,6 +15,7 @@ import { ConnectUpsellModal } from "./profile/components/connect-upsell-modal";
 
 import { Toaster } from "@/components/ui/sonner";
 import { GlobalSearchModal } from "@/app/components/global-search-modal";
+import { AgentChat } from "@/app/components/agent-chat/agent-chat";
 import { EntityDrawer } from "@/components/entity-detail/entity-drawer";
 import { LoadingOverlay } from "@/components/shared/loading-overlay";
 import { DeleteConfirmationModal } from "@/components/modal/delete-confirmation-modal";
@@ -39,9 +40,20 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
     const { globalSearchModalStore } = rootStore;
 
     function handleKeyDown(event: KeyboardEvent) {
-      if ((event.metaKey || event.ctrlKey) && event.key === "k") {
+      if (!event.metaKey && !event.ctrlKey) return;
+
+      if (event.key === "k") {
         event.preventDefault();
         globalSearchModalStore.open();
+      }
+
+      if (event.key === "j" && rootStore.agentChatEnabled) {
+        const agentChat = rootStore.agentChatStore;
+        if (agentChat.enabled !== true) return;
+
+        event.preventDefault();
+        if (agentChat.isOpen) agentChat.close();
+        else agentChat.open();
       }
     }
 
@@ -95,6 +107,8 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
           <WebhookDeliveryModal />
 
           <WebhookModal />
+
+          {rootStore.agentChatEnabled && <AgentChat />}
         </>
       ) : null}
     </>

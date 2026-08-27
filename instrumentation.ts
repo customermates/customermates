@@ -25,7 +25,7 @@ export async function register() {
   if (env.NEXT_RUNTIME === "nodejs" && env.WORKFLOW_TARGET_WORLD) {
     try {
       const { getWorld } = await import("workflow/runtime");
-      const world = getWorld();
+      const world = await getWorld();
       await world.start?.();
     } catch (error) {
       console.error(

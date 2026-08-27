@@ -1,6 +1,6 @@
 ---
-title: "Kundendatenbank Software 2026: Die 7 besten Lösungen im Vergleich"
-description: "Kundendatenbank Software im Vergleich 2026: HubSpot, Pipedrive, Folk, Airtable, Notion, Salesforce und Customermates. Mit Open-Source-Option und DSGVO-Hinweisen."
+title: "Kundendatenbank Software: 7 Lösungen im Vergleich 2026"
+description: "Kundendatenbank Software im Vergleich: HubSpot, Pipedrive, Folk, Airtable, Notion, Salesforce und Customermates, mit DSGVO und Open-Source-Optionen."
 
 hero:
   title: "Kundendatenbank Software 2026: Vergleich, Auswahlkriterien und Empfehlungen"
@@ -281,29 +281,40 @@ Probieren Sie zwei oder drei Optionen vier Wochen lang mit echten Daten. Lizenzk
 
 ## Häufig gestellte Fragen
 
-**Was ist der Unterschied zwischen einer Kundendatenbank und einem CRM?**
+<Faq>
+<FaqItem question="Was ist der Unterschied zwischen einer Kundendatenbank und einem CRM?">
 Eine Kundendatenbank speichert Kontakt-, Unternehmens- und Beziehungsdaten strukturiert. Ein CRM erweitert das um Vertriebsprozess-Management (Pipelines, Lead-Tracking, Forecasting) und meist Marketing-Funktionen. In der Praxis sind alle modernen Kundendatenbank-Tools auch CRM-fähig, der Unterschied liegt in der UX-Ausrichtung.
+</FaqItem>
 
-**Kann ich Excel als Kundendatenbank verwenden?**
+<FaqItem question="Kann ich Excel als Kundendatenbank verwenden?">
 Bis etwa 50 bis 100 aktive Kontakte funktioniert Excel. Darüber wird die Pflege fehleranfällig: Duplikate entstehen, Vorgänge gehen verloren, mehrere Personen arbeiten parallel an verschiedenen Versionen. Der Wechsel zu einer richtigen Kundendatenbank kostet einen Tag und löst diese Probleme strukturell.
+</FaqItem>
 
-**Welche Kundendatenbank-Software ist DSGVO-konform?**
+<FaqItem question="Welche Kundendatenbank-Software ist DSGVO-konform?">
 Alle ernsthaften Anbieter bieten DSGVO-konforme Auftragsverarbeitungsverträge. Die Frage ist eher: wo werden die Daten gehostet, und wer hat darauf Zugriff. EU-Datenresidenz bei HubSpot, Salesforce und Pipedrive optional verfügbar. Vollständige Datenhoheit ohne Drittlandstransfers nur bei Self-Hosting (Customermates, EspoCRM, SuiteCRM).
+</FaqItem>
 
-**Kann ich eine Kundendatenbank selbst hosten?**
+<FaqItem question="Kann ich eine Kundendatenbank selbst hosten?">
 Ja, mit Open-Source-Lösungen wie Customermates (AGPL-3.0), EspoCRM oder SuiteCRM. Customermates startet mit `docker compose up -d` auf einem eigenen Server, in 30 Minuten ist das System einsatzbereit. Die Daten bleiben Ihre, das Schema ist offen, die Migration zu einem anderen System bleibt jederzeit möglich.
+</FaqItem>
 
-**Welche Kundendatenbank ist die beste für kleine Unternehmen?**
+<FaqItem question="Welche Kundendatenbank ist die beste für kleine Unternehmen?">
 Für deutsche Mittelständler unter 20 Nutzern empfehle ich HubSpot CRM Free (wenn Marketing-Anbindung gewünscht), Pipedrive (wenn Outbound-Vertrieb dominiert) oder Customermates (wenn DSGVO/Datenhoheit Priorität hat oder Sie bereits mit KI-Agenten arbeiten). Alle drei sind in einer halben Stunde aufgesetzt und ohne externe Beratung nutzbar.
+</FaqItem>
 
-**Wie übertrage ich meine Kundendaten von Excel in eine richtige Kundendatenbank?**
+<FaqItem question="Wie übertrage ich meine Kundendaten von Excel in eine richtige Kundendatenbank?">
 Der Weg hängt vom Zielsystem ab. Bereinigen und normalisieren Sie zunächst die Quelldaten. Systeme mit einem CSV-Importer können anschließend eine Feldzuordnung anbieten. Customermates hat keinen CSV-Importer; legen Sie unterstützte Datensätze über die REST API oder einen autorisierten KI-Agenten per MCP an. Dauer und Aufwand hängen von Datenqualität, Mapping, Volumen und dem verwendeten Client ab.
+</FaqItem>
 
-**Welche Kundendatenbank-Software hat das beste Free-Tier?**
+<FaqItem question="Welche Kundendatenbank-Software hat das beste Free-Tier?">
 HubSpot CRM Free ist das großzügigste Free-Tier am Markt: bis zu 1 Million Kontakte, fünf Pipelines, einfaches E-Mail-Tracking, keine Zeitbegrenzung. Customermates Community Edition ist unter AGPL-3.0 vollständig kostenlos selbst hostbar, ohne Funktions-Paywall, und damit das technisch flexibelste „Free-Tier" überhaupt. Notion Free funktioniert für Solo-Nutzer mit kleinen Datenbeständen. Die wichtigere Frage ist meist nicht das Free-Tier, sondern wie schnell und teuer der Upgrade-Pfad ist, wenn Sie aus dem Free-Tier herauswachsen.
+</FaqItem>
 
-**Kann ich mehrere CRMs parallel betreiben?**
+<FaqItem question="Kann ich mehrere CRMs parallel betreiben?">
 Technisch ja, praktisch selten sinnvoll. Zwei CRMs parallel führen fast immer zu Datendrift: Kontakte werden in einem System aktualisiert, im anderen nicht, und nach drei Monaten hat keiner mehr den Überblick, was die Wahrheit ist. Eine begrenzte Übergangsphase von 2 bis 4 Wochen während einer Migration ist okay, ein dauerhaftes Parallelbetreiben nicht. Wenn Sie unterschiedliche Anwendungsfälle abdecken möchten (zum Beispiel Marketing in HubSpot, Vertrieb in Customermates), arbeiten Sie mit einem klar führenden System und synchronisieren über n8n oder Webhooks unidirektional.
+</FaqItem>
 
-**Wie lange dauert die Migration einer Datenbank mit 10.000 Kontakten?**
+<FaqItem question="Wie lange dauert die Migration einer Datenbank mit 10.000 Kontakten?">
 Einen bereinigten OpenRefine-Export von Hand zu laden, Aufruf für Aufruf, dauert etwa 1,5 bis 2 Arbeitstage: ein halber Tag Bereinigung, ein halber Tag Mapping und Test-Import, ein halber Tag Vollimport und Verifikation. Mit einem KI-Agenten wie Claude über den Customermates MCP-Server reduziert sich das auf einen Vormittag, weil Claude die Bereinigung, das Mapping, den Import und die Anomalie-Erkennung parallel ausführt. Beratungsdienstleister kalkulieren typisch 2 bis 3 Tage à 1.200 bis 1.500 Euro, ein KI-Agent-Setup kostet die Cloud-Lizenz und ein paar Stunden Ihrer Zeit.
+</FaqItem>
+</Faq>

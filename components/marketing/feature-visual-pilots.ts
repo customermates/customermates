@@ -62,7 +62,7 @@ export const FEATURE_VISUAL_PILOT_REGISTRY: Record<FeatureVisualPilotSlug, Pilot
     depictionKind: "relationship",
     factReferences: ["product:conversation-record-association", "product:unified-inbox-channel-set"],
     focalSubject: {
-      fixtures: { conversation: "gmail-roche-rollout", person: "anna-mueller" },
+      fixtures: { conversation: "gmail-rollout-next-steps", person: "anna-mueller" },
       form: "record",
       id: "customer-record",
     },

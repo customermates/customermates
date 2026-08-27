@@ -1,6 +1,6 @@
 ---
-title: Records
-description: Contacts, organizations, deals, services, and tasks share one layout in the Customermates web app (list, drawer, detail), with stable anchor ids for AI agents driving the UI.
+title: "CRM Records: Contacts, Deals and Custom Columns"
+description: "Contacts, organizations, deals, services, and tasks share one Customermates layout: list, drawer, detail, plus custom columns and stable anchor ids."
 ---
 
 Customermates has five record types: Contacts, Organizations, Deals, Services, and Tasks. They all use the same screen layout, so this page documents them together for people and for AI agents that drive the UI.
@@ -27,6 +27,14 @@ Each record type has its own route and its own toolbar ids, prefixed with the ty
 | Services | `/services` | `service` | `#nav-services` | `#services-add`, `#services-search`, `#services-filter`, `#services-display-options` |
 | Tasks | `/tasks` | `task` | `#nav-tasks` | `#tasks-add`, `#tasks-search`, `#tasks-filter`, `#tasks-display-options` |
 
+Inside each display-options popover, the stable layout controls are:
+
+- Contacts: `#contacts-layout-table`, `#contacts-layout-cards`, `#contacts-layout-kanban`
+- Organizations: `#organizations-layout-table`, `#organizations-layout-cards`, `#organizations-layout-kanban`
+- Deals: `#deals-layout-table`, `#deals-layout-cards`, `#deals-layout-kanban`
+- Services: `#services-layout-table`, `#services-layout-cards`, `#services-layout-kanban`
+- Tasks: `#tasks-layout-table`, `#tasks-layout-cards`, `#tasks-layout-kanban`
+
 ## Drawer and detail actions
 
 These ids are shared by every record type.
@@ -42,6 +50,16 @@ These ids are shared by every record type.
 | Bulk delete | Selection bar after checkbox-select | `#mass-delete` | Deletes every selected row |
 
 Notes are a labeled field inside the form. Edit them there, then save.
+
+## Each record type in brief
+
+**Contacts** are people, with channel identifiers (email address, LinkedIn, WhatsApp, Instagram, Telegram) that connect them to Inbox threads and power the send icons on their detail page. **Organizations** group contacts and carry the company-level relations that deals and services hang off. **Deals** track opportunities and carry linked services with per-deal quantities; the deal's value follows from them. **Services** are what you sell, linkable to deals and organizations. **Tasks** carry due dates and link to any of the other types.
+
+All five share the same machinery: the same list views, the same drawer and detail page, the same custom columns, the same filters, and the same relation editing. Anything this page says about one type holds for the others.
+
+## Switching views
+
+Every list offers a table, a card grid, and a board. `#{type}-display-options` opens the switcher; the board additionally needs a `singleSelect` column to group by, and the group-by picker lists exactly those. Sorting, search, and filters live in the same toolbar (`#{type}-search`, `#{type}-filter`). View choices persist per user and survive reloads. Mate can open the display options and activate the stable table, cards, or kanban target. Dynamic grouping, sorting, search, and filter values remain under the user's direct control; Mate can highlight search and filter, or open display options for sorting and grouping.
 
 ## Custom columns and the board view
 

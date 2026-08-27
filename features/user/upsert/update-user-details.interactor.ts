@@ -60,8 +60,8 @@ export class UpdateUserDetailsInteractor extends AuthenticatedInteractor<UpdateU
   }
 
   @Validate(UpdateUserDetailsSchema)
-  @ValidateOutput(OutputSchema)
   @Transaction
+  @ValidateOutput(OutputSchema)
   async invoke(data: UpdateUserDetailsData): Validated<UserProfileData> {
     const storedProfile = await this.repo.updateDetails(data);
     const profile = {

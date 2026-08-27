@@ -23,6 +23,7 @@ import { cn } from "@/core/utils/cn";
 import { AppLink } from "@/components/shared/app-link";
 
 import { NavLinkPendingIndicator } from "./nav-link-pending-indicator";
+import { NavLinkPendingIcon } from "./nav-link-pending-icon";
 
 type NavItem = {
   key: string;
@@ -156,13 +157,11 @@ export const NavMain = observer(({ groups, selectedKey, pathname, onNavigate }: 
       <SidebarMenuItem key={item.key}>
         <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
           <AppLink appearance="unstyled" href={item.href} id={`nav-${item.key}`} onClick={() => onNavigate(item.key)}>
-            <Icon icon={item.icon} />
+            <NavLinkPendingIcon icon={item.icon} />
 
             <span className="min-w-0 truncate">{item.title}</span>
 
             <NavBadge count={item.badge ?? 0} />
-
-            <NavLinkPendingIndicator className={item.badge ? "ml-0" : undefined} />
           </AppLink>
         </SidebarMenuButton>
       </SidebarMenuItem>

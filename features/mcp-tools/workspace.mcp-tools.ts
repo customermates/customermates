@@ -4,7 +4,7 @@ import {
   encodeToToon,
   formatDatesInResponse,
   runInteractor,
-  validationError,
+  mcpInteractorFailure,
   mcpPage,
   mcpPageSize,
   filtersDescription,
@@ -43,8 +43,8 @@ export const getWorkspaceContextTool = {
       getGetRolesApiInteractor().invoke({ pagination: { page: 1, pageSize: 100 } }),
       getGetMyConnectedAccountsInteractor().invoke(),
     ]);
-    if (!rolesResult.ok) return validationError(rolesResult.error);
-    if (!accountsResult.ok) return validationError(accountsResult.error);
+    if (!rolesResult.ok) return mcpInteractorFailure(rolesResult.error);
+    if (!accountsResult.ok) return mcpInteractorFailure(accountsResult.error);
     const company = companyResult.data;
     return encodeToToon(
       formatDatesInResponse({

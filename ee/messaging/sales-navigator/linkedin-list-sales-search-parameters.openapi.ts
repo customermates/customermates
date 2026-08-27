@@ -12,6 +12,7 @@ export const linkedinListSalesSearchParametersOperation: ZodOpenApiOperationObje
   tags: ["messaging"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {
+    required: true,
     content: {
       "application/json": {
         schema: LinkedinListSalesSearchParametersSchema,

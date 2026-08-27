@@ -79,8 +79,8 @@ export class RegisterUserInteractor {
   }
 
   @Validate(RegistrationSchema)
-  @ValidateOutput(OutputSchema)
   @Transaction
+  @ValidateOutput(OutputSchema)
   private async register(data: RegistrationData): Promise<Awaited<Validated<RegisterUserResult>>> {
     const { sessionUserId, ...registrationData } = data;
 

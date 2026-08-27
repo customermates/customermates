@@ -28,6 +28,7 @@ export abstract class SubscriptionRepo {
     quantity?: number;
     trialEndDate?: Date;
     currentPeriodEnd?: Date;
+    agentCreditAnchorAt?: Date;
   }): Promise<void>;
 
   abstract findCompanyIdBySubscriptionIdOrThrowUnscoped(subscriptionId: string): Promise<string>;

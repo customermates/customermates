@@ -9,7 +9,6 @@ import { assembleSitemap } from "../sitemap";
 import { CONTENT_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
 const BASE_URL = "https://example.test";
-const GENERATED_AT = new Date("2026-01-01T00:00:00.000Z");
 
 const PARTIALLY_TRANSLATED_CONTENT_LOCALE = "yy" as ContentLocale;
 const APPLICATION_ONLY_LOCALE = "zz" as ContentLocale;
@@ -27,7 +26,6 @@ describe("sitemap assembly", () => {
     const entries = assembleSitemap(
       [route("en", "/pricing"), route("de", "/pricing"), route("en", "/blog/only-english")],
       BASE_URL,
-      GENERATED_AT,
     );
 
     expect(urls(entries)).toEqual([
@@ -38,7 +36,7 @@ describe("sitemap assembly", () => {
   });
 
   it("never emits a locale that has no page", () => {
-    const entries = assembleSitemap([route("en", "/pricing"), route("de", "/pricing")], BASE_URL, GENERATED_AT);
+    const entries = assembleSitemap([route("en", "/pricing"), route("de", "/pricing")], BASE_URL);
 
     expect(urls(entries).some((url) => url.includes(`/${APPLICATION_ONLY_LOCALE}/`))).toBe(false);
     expect(JSON.stringify(entries)).not.toContain(APPLICATION_ONLY_LOCALE);
@@ -53,7 +51,6 @@ describe("sitemap assembly", () => {
         route("en", "/blog/only-english"),
       ],
       BASE_URL,
-      GENERATED_AT,
     );
 
     const pricing = entries.find((entry) => entry.url === `${BASE_URL}/en/pricing`);
@@ -69,7 +66,6 @@ describe("sitemap assembly", () => {
     const entries = assembleSitemap(
       [route("en", "/pricing"), route("de", "/pricing"), route("en", "/blog/only-english")],
       BASE_URL,
-      GENERATED_AT,
     );
 
     const emitted = new Set(urls(entries));
@@ -85,7 +81,7 @@ describe("sitemap assembly", () => {
   });
 
   it("makes the alternate sets reciprocal", () => {
-    const entries = assembleSitemap([route("en", "/pricing"), route("de", "/pricing")], BASE_URL, GENERATED_AT);
+    const entries = assembleSitemap([route("en", "/pricing"), route("de", "/pricing")], BASE_URL);
 
     const byUrl = new Map(entries.map((entry) => [entry.url, entry]));
 
@@ -100,16 +96,18 @@ describe("sitemap assembly", () => {
     }
   });
 
-  it("falls back to the generation timestamp only when the page has none", () => {
+  it("omits lastmod entirely when the page declares no date", () => {
     const modified = new Date("2025-05-05T05:05:05.000Z");
     const entries = assembleSitemap(
       [{ locale: "en", routePath: "/pricing", lastModified: modified }, route("de", "/pricing")],
       BASE_URL,
-      GENERATED_AT,
     );
 
     expect(entries[0].lastModified).toBe(modified);
-    expect(entries[1].lastModified).toBe(GENERATED_AT);
+    expect(
+      "lastModified" in entries[1],
+      "a stamped-at-build lastmod tells Google every page changed at deploy time, which teaches it to ignore the field",
+    ).toBe(false);
   });
 });
 

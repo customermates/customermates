@@ -7,6 +7,8 @@ const LOCALES = ["en", "de"];
 const FAQ_HEADING = /^##\s+(Frequently\s+asked\s+questions.*|Frequently\s+Asked\s+Questions.*|FAQ|Häufig\s+gestellte\s+Fragen.*)\s*$/u;
 const QUESTION = /^###\s+(.+?)\s*$/u;
 const BOLD_QUESTION = /^\*\*(.+?)\*\*\s*$/u;
+const JSX_FAQ = /<Faq>\s*([\s\S]*?)\s*<\/Faq>/u;
+const JSX_ITEM = /<FaqItem\s+question=(?:"([^"]*)"|\{"((?:[^"\\]|\\.)*)"\})>\s*([\s\S]*?)\s*<\/FaqItem>/gu;
 const APPLY = process.argv.includes("--write");
 
 function splitFrontmatter(source) {
@@ -22,7 +24,73 @@ function blockScalar(value, indent) {
   return `|-\n${lines.join("\n")}`;
 }
 
-function extractFaq(body, slug) {
+function removeFaqFrontmatter(frontmatter) {
+  const lines = frontmatter.split("\n");
+  const start = lines.findIndex((line) => /^faq:\s*$/u.test(line));
+  if (start < 0) return frontmatter;
+
+  let end = start + 1;
+  while (end < lines.length && (!lines[end].trim() || /^\s/u.test(lines[end]))) end += 1;
+
+  const next = [...lines.slice(0, start), ...lines.slice(end)].join("\n");
+  return next.endsWith("\n") ? next : `${next}\n`;
+}
+
+function normalizeBodyWithoutFaq(body, start, end) {
+  const before = body.slice(0, start).replace(/\s+$/u, "");
+  const after = body.slice(end).replace(/^\s+/u, "");
+  if (!before) return after ? `${after.replace(/\s+$/u, "")}\n` : "";
+  if (!after) return `${before}\n`;
+  return `${before}\n\n${after.replace(/\s+$/u, "")}\n`;
+}
+
+function decodeQuestion(quoted, expression) {
+  if (expression !== undefined) return JSON.parse(`"${expression}"`);
+  return quoted.replaceAll("&quot;", '"').replaceAll("&amp;", "&");
+}
+
+function extractJsxFaq(body, slug) {
+  const block = JSX_FAQ.exec(body);
+  if (!block) return null;
+  if (JSX_FAQ.test(body.slice(block.index + block[0].length))) {
+    return { unsupported: "more than one <Faq> block" };
+  }
+
+  const before = body.slice(0, block.index);
+  const heading = /(^|\n)(##[^\n]+)\n(?:[ \t]*\n)*$/u.exec(before);
+  if (!heading || !FAQ_HEADING.test(heading[2])) {
+    return { unsupported: "<Faq> is not immediately preceded by an FAQ heading" };
+  }
+
+  const items = [];
+  let cursor = 0;
+  for (const match of block[1].matchAll(JSX_ITEM)) {
+    if (block[1].slice(cursor, match.index).trim()) {
+      return { unsupported: "unsupported content between <FaqItem> blocks" };
+    }
+
+    const content = match[3].trim();
+    if (!content) return { unsupported: "an empty answer" };
+    items.push({
+      id: `${slug}-faq-${items.length + 1}`,
+      title: decodeQuestion(match[1], match[2]),
+      content,
+    });
+    cursor = match.index + match[0].length;
+  }
+
+  if (block[1].slice(cursor).trim()) return { unsupported: "unsupported content after the final <FaqItem>" };
+  if (!items.length) return { unsupported: "no <FaqItem> entries in <Faq>" };
+
+  const headingStart = heading.index + (heading[1] ? 1 : 0);
+  return {
+    heading: FAQ_HEADING.exec(heading[2])[1].trim(),
+    items,
+    body: normalizeBodyWithoutFaq(body, headingStart, block.index + block[0].length),
+  };
+}
+
+function extractMarkdownFaq(body, slug) {
   const lines = body.split("\n");
   const start = lines.findIndex((line) => FAQ_HEADING.test(line));
   if (start < 0) return null;
@@ -63,6 +131,10 @@ function extractFaq(body, slug) {
   return { heading, items, body: `${remaining.join("\n")}\n` };
 }
 
+function extractFaq(body, slug) {
+  return extractJsxFaq(body, slug) ?? extractMarkdownFaq(body, slug);
+}
+
 function renderFaqYaml(heading, items) {
   const lines = ["faq:", `  title: ${JSON.stringify(heading)}`, "  faqs:"];
   for (const item of items) {
@@ -83,11 +155,6 @@ for (const collection of COLLECTIONS) {
       const slug = file.replace(/\.mdx$/u, "");
       const source = readFileSync(path, "utf8");
 
-      if (/^faq:/mu.test(source)) {
-        summary.skipped.push(`${path}: already carries faq frontmatter`);
-        continue;
-      }
-
       const { frontmatter, body } = splitFrontmatter(source);
       const extracted = extractFaq(body, slug);
       if (!extracted) continue;
@@ -96,7 +163,7 @@ for (const collection of COLLECTIONS) {
         continue;
       }
 
-      const next = `---\n${frontmatter}${renderFaqYaml(extracted.heading, extracted.items)}---\n${extracted.body}`;
+      const next = `---\n${removeFaqFrontmatter(frontmatter)}${renderFaqYaml(extracted.heading, extracted.items)}---\n${extracted.body}`;
       if (APPLY) writeFileSync(path, next);
       summary.migrated += 1;
       summary.questions += extracted.items.length;

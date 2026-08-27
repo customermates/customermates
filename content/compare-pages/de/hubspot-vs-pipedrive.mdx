@@ -120,6 +120,33 @@ cta:
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
   hint: ✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos
+faq:
+  title: "Häufig gestellte Fragen"
+  faqs:
+  - id: hubspot-vs-pipedrive-faq-1
+    title: "Ist Pipedrive einfacher zu bedienen als HubSpot?"
+    content: |-
+        Ja, für reines Vertriebspipeline-Management. Pipedrives fokussierte Oberfläche hat eine kürzere Lernkurve. HubSpots Breite, Marketing, Vertrieb und Service, erzeugt inhärent Komplexität. Customermates kombiniert Pipeline-Einfachheit mit breiteren CRM-Funktionen und der niedrigsten Lernkurve aller drei.
+  - id: hubspot-vs-pipedrive-faq-2
+    title: "Ist HubSpots kostenloses CRM wirklich kostenlos?"
+    content: |-
+        Das CRM ist kostenlos, aber mit erheblichen Einschränkungen: 5 E-Mail-Vorlagen, keine Automatisierung, begrenztes Reporting, 2 Deal-Pipelines. Die meisten Teams entwachsen dem Free-Tier schnell und stehen vor dem steilen Sprung zu Starter (20$/Monat) oder Professional (100$/Monat plus 1.500$ Onboarding).
+  - id: hubspot-vs-pipedrive-faq-3
+    title: "Wie vergleicht sich die Automatisierung über alle drei?"
+    content: |-
+        Pipedrive deckelt aktive Automatisierungen je Tarif (50 bis 250). HubSpot erfordert Professional (100$/Monat) für sinnvolle Automatisierung. Customermates umfasst unbegrenzte n8n-Automatisierung ab [[commercial.price.starter.monthly]]/Monat ohne Limits oder Einschränkungen.
+  - id: hubspot-vs-pipedrive-faq-4
+    title: "Welches CRM bietet die passendste DSGVO-Unterstützung?"
+    content: |-
+        Customermates stellt AVV und SCCs bereit, besitzt aber keine Compliance-Zertifizierung. Die verwaltete Datenbank nutzt eine EU-Region; Application-Hosting und weitere Anbieter können Daten andernorts verarbeiten. Auch Pipedrive und HubSpot beziehen Anbieter mit Datenverarbeitung in den USA ein, weshalb Teams die jeweiligen Verträge und Unterauftragsverarbeiter prüfen sollten.
+  - id: hubspot-vs-pipedrive-faq-5
+    title: "Kann ich von Pipedrive oder HubSpot zu Customermates migrieren?"
+    content: |-
+        Ja. Customermates importiert Daten über die REST API oder einen externen KI-Client per MCP. Die meisten Teams schließen die Migration in unter einer Stunde ab.
+  - id: hubspot-vs-pipedrive-faq-6
+    title: "Ist Customermates Open-Source?"
+    content: |-
+        Ja. Customermates ist vollständig Open-Source. Sie können den Code einsehen, selbst hosten und nach Ihren Bedürfnissen anpassen.
 ---
 
 > HubSpot und Pipedrive gehören zu den beliebtesten CRM-Plattformen für kleine und mittelständische Teams, dienen jedoch grundlegend unterschiedlichen Bedürfnissen. HubSpot ist die All-in-one Go-to-Market-Plattform, Marketing-Automatisierung, CRM und Kundenservice unter einem Dach vereint, die kostenlos startet, aber schnell teuer wird. Pipedrive ist das laserfokussierte Vertriebs-CRM für Deal-Geschwindigkeit, mit einer Kanban-Pipeline, die innerhalb einer Stunde einsatzbereit ist, aber Funktionen hinter Tarifstufen sperrt. Customermates bietet eine dritte Option rund um zwei Features: KI-Agenten (Claude, ChatGPT oder Gemini) bedienen das CRM direkt über eine native MCP-Integration ([[derived.mcp.tools.total]] Tools), sodass es sich selbst aktuell hält, und ein nativer Unified Inbox bringt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram an einem Ort zusammen, bedienbar durch dieselben Agenten. Jede CRM-Kernfunktion ist ab [[commercial.price.starter.monthly]]/User/Monat dabei, EU-gehostet, Open-Source und in zwei Minuten einsatzbereit.
@@ -170,7 +197,7 @@ Pipedrive ist preislich berechenbarer als HubSpot, doch Schlüsselfunktionen sin
 - Pro ([[commercial.price.pro.monthly]]/User/Monat): ergänzt den Unified Inbox (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram), [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto/User, Kalendersync, Sales Navigator
 - Business ([[commercial.price.business.monthly]]/User/Monat): [[commercial.entitlement.business.includedAccountsPerUser]] verbundene Konten/User, geteilte Konten, priorisierter Support
 - Enterprise: individuell, SSO, White-Label, [[commercial.entitlement.enterprise.includedAccountsPerUser]] verbundene Konten (Fair Use)
-- Keine CRM-Kernfunktion ist je hinter einer höheren Stufe gesperrt, nur die Nachrichtenkapazität skaliert
+- Keine CRM-Kernfunktion ist je hinter einer höheren Stufe gesperrt, Nachrichtenkapazität und das monatliche Kontingent für die gehostete KI skalieren
 
 ## Welches CRM ist besser als HubSpot?
 
@@ -194,7 +221,7 @@ Customermates liefert, was die meisten CRM-Teams täglich brauchen, ohne Komprom
 
 **Pipedrive AI Sales Assistant** liefert Deal-Empfehlungen, Performance-Insights und E-Mail-Vorschläge. Verfügbar ab dem Premium-Tarif ($49/User/Monat). Niedrigere Tarife haben eingeschränkten oder keinen KI-Zugang.
 
-**Customermates** setzt in jeder Stufe auf KI-Agenten (über MCP, [[derived.mcp.tools.total]] Tools), ab [[commercial.price.starter.monthly]]/User/Monat. Notizen zusammenfassen, Kontakte anreichern, Follow-ups automatisieren, ohne Tarifbeschränkungen bei den KI-Funktionen selbst.
+**Customermates** setzt in jeder Stufe auf KI-Agenten (über MCP, [[derived.mcp.tools.total]] Tools), ab [[commercial.price.starter.monthly]]/User/Monat. Notizen zusammenfassen, Kontakte anreichern, Follow-ups automatisieren, MCP-Zugriff für externe KI-Clients ist in jeder Stufe enthalten, und das monatliche Kontingent für die gehostete KI skaliert mit der Stufe.
 
 ## Was sind die Nachteile von HubSpot?
 
@@ -228,13 +255,15 @@ Customermates bringt n8n-Automatisierung von Haus aus mit und verbindet sich mit
 
 Pipedrive ist für kleine Teams kosteneffektiver, wird aber mit wachsendem Unternehmen weniger attraktiv, der Ultimate-Tarif bietet keine neue Funktionalität, nur höhere Limits und Support. HubSpot skaliert horizontal (zusätzliche Hubs für Marketing, Service, Operations, Content) und vertikal (Tarifstufen-Upgrades bringen signifikante Funktionalität), doch dieses vorintegriete Ökosystem bringt eskalierende Kosten mit sich.
 
-Customermates skaliert anders. Fügen Sie User zum gleichen Tarifpreis hinzu, ohne Einschränkungen bei CRM-Kernfunktionen; nur die Nachrichtenkapazität ändert sich beim Wechsel zu Pro oder Business. Für Teams, die über die gehostete Version hinauswachsen, bietet Self-Hosting unbegrenzte Kontrolle. Sie lösen das Skalierbarkeitsargument ohne Preiseskalation oder Ökosystem-Lock-in.
+Customermates skaliert anders. Fügen Sie User zum gleichen Tarifpreis hinzu, ohne Einschränkungen bei CRM-Kernfunktionen; Nachrichtenkapazität und das monatliche Kontingent für die gehostete KI ändern sich beim Wechsel zu Pro oder Business. Für Teams, die über die gehostete Version hinauswachsen, bietet Self-Hosting unbegrenzte Kontrolle. Sie lösen das Skalierbarkeitsargument ohne Preiseskalation oder Ökosystem-Lock-in.
 
 ## Fazit
 
 HubSpot und Pipedrive erzwingen beide Kompromisse. HubSpot bietet Breite auf Kosten von Komplexität und eskalierenden Preisen. Pipedrive bietet Einfachheit auf Kosten von Tiefe und Funktionssperrung. Customermates bietet eine moderne Alternative: vollständige CRM-Kernfunktionalität ab [[commercial.price.starter.monthly]]/User/Monat, EU-gehostet, Open-Source und in Minuten einsatzbereit. Für Teams, die effektives CRM ohne Marketing-Ballast oder Pipeline-only-Einschränkungen wollen, ist es die klare Wahl.
 
-### Verwandte Vergleiche
-
-- [Beste HubSpot Alternative](/compare/hubspot-alternative) · [Beste Pipedrive Alternative](/compare/pipedrive-alternative)
-- [HubSpot vs Salesforce](/compare/hubspot-vs-salesforce) · [Pipedrive vs Salesforce](/compare/pipedrive-vs-salesforce)
+<RelatedPages>
+  <RelatedPage href="/compare/hubspot-alternative" />
+  <RelatedPage href="/compare/pipedrive-alternative" />
+  <RelatedPage href="/compare/hubspot-vs-salesforce" />
+  <RelatedPage href="/compare/pipedrive-vs-salesforce" />
+</RelatedPages>

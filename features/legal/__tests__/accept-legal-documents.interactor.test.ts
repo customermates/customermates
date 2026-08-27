@@ -16,11 +16,13 @@ let mockUser = createMockUser({
 vi.mock("@/env", () => ({ env: mockEnv }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
+vi.mock("next-intl/server", () => ({
+  getTranslations: () => Promise.resolve({ raw: (key: string) => key }),
+}));
 vi.mock("@/core/decorators/transaction-runner", () => ({ runInTransaction }));
 
 import { currentLegalDocumentVersions } from "@/constants/legal-documents";
 import { DomainEvent } from "@/features/event/domain-events";
-import { ForbiddenError } from "@/core/errors/app-errors";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 import { AcceptLegalDocumentsInteractor, type AcceptLegalDocumentsData } from "../accept-legal-documents.interactor";
 import type { LegalAcceptanceAuditPayload, LegalAuditRecord, LegalNoticeAuditPayload } from "../legal-audit.schema";
@@ -126,34 +128,43 @@ describe("AcceptLegalDocumentsInteractor", () => {
 
   it("requires a current notice that actually includes Terms or DPA", async () => {
     records = [noticeRecord({ changedDocuments: ["privacy", "subprocessors"] })];
-    await expect(interactor().invoke({ agreeToLegalDocuments: true })).rejects.toThrow(
-      "The current legal update has not been delivered to the company",
-    );
+    await expect(interactor().invoke({ agreeToLegalDocuments: true })).resolves.toMatchObject({
+      ok: false,
+      error: { issues: [{ params: { error: "legalNoticeNotDelivered" } }] },
+    });
 
     records = [noticeRecord({ effectiveAt: null })];
-    await expect(interactor().invoke({ agreeToLegalDocuments: true })).rejects.toThrow(
-      "The current legal update has not been delivered to the company",
-    );
+    await expect(interactor().invoke({ agreeToLegalDocuments: true })).resolves.toMatchObject({
+      ok: false,
+      error: { issues: [{ params: { error: "legalNoticeNotDelivered" } }] },
+    });
 
     records = [
       noticeRecord({
         versions: { ...currentLegalDocumentVersions(), dpa: "2026-08-06" },
       }),
     ];
-    await expect(interactor().invoke({ agreeToLegalDocuments: true })).rejects.toThrow(
-      "The current legal update has not been delivered to the company",
-    );
+    await expect(interactor().invoke({ agreeToLegalDocuments: true })).resolves.toMatchObject({
+      ok: false,
+      error: { issues: [{ params: { error: "legalNoticeNotDelivered" } }] },
+    });
     expect(eventService.publish).not.toHaveBeenCalled();
   });
 
   it("rejects non-administrators and self-hosted installations", async () => {
     if (!user.role) throw new Error("Expected the fixture user to have a role");
     mockUser = createMockUser({ role: { ...user.role, isSystemRole: false } });
-    await expect(interactor().invoke({ agreeToLegalDocuments: true })).rejects.toBeInstanceOf(ForbiddenError);
+    await expect(interactor().invoke({ agreeToLegalDocuments: true })).resolves.toMatchObject({
+      ok: false,
+      error: { issues: [{ params: { error: "permissionDenied" } }] },
+    });
 
     mockUser = user;
     mockEnv.APP_MODE = "self-hosted";
-    await expect(interactor().invoke({ agreeToLegalDocuments: true })).rejects.toBeInstanceOf(ForbiddenError);
+    await expect(interactor().invoke({ agreeToLegalDocuments: true })).resolves.toMatchObject({
+      ok: false,
+      error: { issues: [{ params: { error: "permissionDenied" } }] },
+    });
     expect(eventService.publish).not.toHaveBeenCalled();
   });
 

@@ -207,34 +207,36 @@ Der Fehler, den die meisten Teams machen: in Woche 1 direkt zu Woche 4 springen.
 
 ## Häufig gestellte Fragen
 
-**Was bedeutet „automatisiertes CRM" eigentlich?**
-
+<Faq>
+<FaqItem question={"Was bedeutet „automatisiertes CRM\" eigentlich?"}>
 Ein CRM, das sich selbst pflegt, statt darauf zu warten, dass der Vertriebler tippt. Pipeline-Stufen wandern, Wiedervorlagen entstehen, Kontaktnotizen werden geschrieben, alles ohne dass der Vertriebler durch Formulare klickt. Die agent-native Variante nutzt KI-Agenten (Claude, ChatGPT, Gemini), die über MCP oder API verbunden sind und das CRM direkt bedienen.
+</FaqItem>
 
-**Kann ich ein bestehendes CRM automatisieren oder brauche ich ein neues?**
-
+<FaqItem question="Kann ich ein bestehendes CRM automatisieren oder brauche ich ein neues?">
 Bestehende CRMs (HubSpot, Salesforce, Pipedrive) haben alle Workflow-Regeln und Basis-Sequenzen; Sie können n8n, Make oder Zapier nutzen, um sie mit KI-Tools zu verbinden. Die Begrenzung ist die Tiefe der Integration: Die meisten Legacy-CRMs wurden nicht für Agenten-Bedienung gebaut, der Agent muss also durch API-Kanten arbeiten. Agent-native CRMs wie Customermates stellen reichere Schnittstellen ([[derived.mcp.tools.total]] MCP-Tools) bereit, sodass der Agent alles nativ bedienen kann.
+</FaqItem>
 
-**Was ist die einfachste erste Automation?**
-
+<FaqItem question="Was ist die einfachste erste Automation?">
 Bidirektionale E-Mail-Synchronisation. Jede E-Mail mit einem Kunden wird automatisch dem CRM-Datensatz zugeordnet. Aufwand: 30 Minuten Konfiguration. Wert: Die CRM-Hygiene des gesamten Teams verbessert sich über Nacht, ohne Verhaltensänderung des Vertrieblers.
+</FaqItem>
 
-**Wird ein automatisiertes CRM mein Vertriebsteam ersetzen?**
-
+<FaqItem question="Wird ein automatisiertes CRM mein Vertriebsteam ersetzen?">
 Nein. Es entfernt die Daten-Eingabe-Steuer aus dem Team. Gespräche, Ermessensentscheidungen und Beziehungsarbeit bleiben menschlich. Vertriebler, die ein automatisiertes CRM gut nutzen, schließen mehr Deals ab als Vertriebler, die manuell ins CRM tippen.
+</FaqItem>
 
-**Was kostet ein automatisiertes CRM?**
-
+<FaqItem question="Was kostet ein automatisiertes CRM?">
 Managed Customermates startet bei [[commercial.price.starter.monthly]] pro Nutzer und Monat; HubSpot, Salesforce und Pipedrive variieren je nach Tarif. Externe Automatisierungsplattformen und KI-APIs sind separate, nutzungsabhängige Kosten. Berechnen Sie den vollständigen Stack aus dem aktuellen CRM-Abo, dem gewählten Automatisierungsdienst und der gemessenen Modellnutzung, statt sich auf eine feste All-in-Spanne zu verlassen.
+</FaqItem>
 
-**Lohnt sich ein Open-Source-automatisiertes-CRM?**
-
+<FaqItem question="Lohnt sich ein Open-Source-automatisiertes-CRM?">
 Ja, wenn Sie technische Grundkenntnisse oder Budget für Managed Hosting haben. Die Kosten sind Servermiete (10 bis 30 € pro Monat für ein kleines Team) statt Pro-Nutzer-Preise. Der Vorteil: keine Upgrade-Steuer, kein Vendor-Lock-in und der Quellcode als langfristige Exit-Option. Customermates Self-Hosted ist dasselbe Produkt wie die Cloud-Version, kostenlos unter AGPL-3.0.
+</FaqItem>
 
-**Wie funktioniert CRM-Automatisierung mit DSGVO?**
-
+<FaqItem question="Wie funktioniert CRM-Automatisierung mit DSGVO?">
 Workflow-Regeln und Webhooks verarbeiten personenbezogene Daten, das CRM ist Auftragsverarbeiter und Sie brauchen einen AVV. KI-Agenten, die CRM-Daten lesen, schaffen ein zweites Auftragsverarbeitungs-Verhältnis mit dem LLM-Anbieter. Self-Hosted CRM plus EU-gehostete Modelle eliminieren Schrems-II-Bedenken; Cloud-CRM plus US-LLM heißt zwei AVVs unterschreiben und das Restrisiko akzeptieren.
+</FaqItem>
 
-**Wie verhält sich CRM-Automatisierung zu KI-Agenten?**
-
+<FaqItem question="Wie verhält sich CRM-Automatisierung zu KI-Agenten?">
 KI-Agenten sind die neue Automatisierungs-Schicht. Workflow-Regeln („wenn X dann Y") und Sequenzen (mehrstufige Nachrichten) zählen weiter, aber der Agent ist das, was das CRM sich selbst aktualisierend anfühlen lässt. Der Agent liest Eingaben, die Regeln nicht erkennen können (Anrufprotokolle, freie E-Mail-Texte) und schreibt Ausgaben, die Regeln nicht erzeugen können (kontextbezogene Notizen, entworfene Antworten). Für die meisten Teams 2026 ist ein Agent über MCP ein größerer Hebel als zehn weitere Workflow-Regeln.
+</FaqItem>
+</Faq>

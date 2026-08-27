@@ -41,16 +41,15 @@ export const PlanPicker = observer(function PlanPicker({ isLoading, onSelect }: 
         const offer = PLAN_CATALOG[plan].offers.monthly;
         const selection: SelectableOffer = { plan, cadence: offer.cadence };
         const accountAllowance = PLAN_CATALOG[plan].entitlements.includedAccountsPerUser;
+        const credits = PLAN_CATALOG[plan].entitlements.hostedAiCreditsPerActiveUser;
         const features = t.raw(`Subscription.picker.features.${plan}`) as string[];
-        const renderedFeatures =
-          accountAllowance === 0
-            ? features
-            : [
-                ...features,
-                t("Subscription.picker.connectedAccountsPerUser", {
-                  accounts: accountAllowance,
-                }),
-              ];
+        const renderedFeatures = [
+          ...features,
+          ...(accountAllowance === 0
+            ? []
+            : [t("Subscription.picker.connectedAccountsPerUser", { accounts: accountAllowance })]),
+          ...(typeof credits === "number" ? [t("Subscription.picker.hostedAiCredits", { credits })] : []),
+        ];
 
         return (
           <button
@@ -89,6 +88,8 @@ export const PlanPicker = observer(function PlanPicker({ isLoading, onSelect }: 
           </button>
         );
       })}
+
+      <p className="text-muted-foreground text-xs sm:col-span-3">{t("Subscription.picker.creditNote")}</p>
     </div>
   );
 });

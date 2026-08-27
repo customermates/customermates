@@ -1,6 +1,6 @@
 ---
 title: "CRM E-Mail-Integration: Gmail & Outlook Sync"
-description: "CRM-E-Mail-Integration für unterstützte Gmail- und Outlook-Konten, einzelne Entwürfe und Nachrichten sowie den Nachrichtenverlauf. Kampagnen und Sequenzen bleiben in separaten Tools; die gehostete Datenbank nutzt eine EU-Region."
+description: "CRM E-Mail-Integration: Gmail-, Outlook- und IMAP-Threads im gemeinsamen Postfach lesen, beantworten und mit Kontakten verknüpfen. Kampagnen bleiben extern."
 featureName: E-Mail-Integration
 
 hero:
@@ -32,33 +32,33 @@ cta:
 faq:
   title: "Häufig gestellte Fragen"
   faqs:
-    - id: email-integration-faq-1
-      title: "Welche E-Mail-Konten kann ich verbinden?"
-      content: |-
+  - id: email-integration-faq-1
+    title: "Welche E-Mail-Konten kann ich verbinden?"
+    content: |-
         Die gehosteten Verbindungsabläufe unterstützen Gmail-, Microsoft-Outlook- und IMAP-Postfächer. Ein verbundenes Konto gehört einem Nutzer, solange es nicht ausdrücklich mit dem Workspace geteilt wird.
-    - id: email-integration-faq-2
-      title: "Kann ich Öffnungen und Klicks tracken?"
-      content: |-
+  - id: email-integration-faq-2
+    title: "Kann ich Öffnungen und Klicks tracken?"
+    content: |-
         Nein. Das aktuelle Produkt ignoriert Öffnungs- und Klick-Tracking-Ereignisse des Anbieters und zeigt keine Engagement-Dashboards.
-    - id: email-integration-faq-3
-      title: "Kann ich E-Mails planen oder als Massenversand senden?"
-      content: |-
+  - id: email-integration-faq-3
+    title: "Kann ich E-Mails planen oder als Massenversand senden?"
+    content: |-
         Nein. Customermates sendet E-Mails sofort. Zeitgesteuerter Versand, Massenkampagnen, wiederverwendbare Vorlagen und Sequenzen erfordern ein getrennt betriebenes System.
-    - id: email-integration-faq-4
-      title: "Kann ein KI-Agent nur entwerfen, ohne zu senden?"
-      content: |-
+  - id: email-integration-faq-4
+    title: "Kann ein KI-Agent nur entwerfen, ohne zu senden?"
+    content: |-
         Ja, in einem bestehenden Thread. Ein autorisierter MCP-Client kann einen lokalen Antwortentwurf zur menschlichen Prüfung speichern oder ersetzen. Für eine neue ausgehende E-Mail gibt es kein Entwurfsobjekt; Versand-Tools senden sofort.
-    - id: email-integration-faq-5
-      title: "Kann ich E-Mail-Sequenzen in einem externen Anbieter senden?"
-      content: |-
+  - id: email-integration-faq-5
+    title: "Kann ich E-Mail-Sequenzen in einem externen Anbieter senden?"
+    content: |-
         Ja, über separate Dienste. Ein von Ihnen betriebener n8n-Workflow kann auf dokumentierte CRM-Ereignisse reagieren; ein externer Versandanbieter verantwortet Verzögerungen, Bedingungen, Verzweigungen, Zustellung, Limits, Logs und Kosten. Customermates besitzt keine Sequenz-Engine.
-    - id: email-integration-faq-6
-      title: "Ist der Kalender bidirektional?"
-      content: |-
+  - id: email-integration-faq-6
+    title: "Ist der Kalender bidirektional?"
+    content: |-
         Nein. Verbundene Google- oder Microsoft-Kalendertermine erscheinen in einer schreibgeschützten CRM-Ansicht. Customermates erstellt, bearbeitet oder plant keine Termine im Anbieter-Kalender.
-    - id: email-integration-faq-7
-      title: "Werden meine E-Mail-Daten in der EU gespeichert?"
-      content: |-
+  - id: email-integration-faq-7
+    title: "Werden meine E-Mail-Daten in der EU gespeichert?"
+    content: |-
         Die verwaltete Customermates-Datenbank läuft in einer EU-Region. Anwendungshosting, Messaging-Dienste und verbundene Anbieter können Daten andernorts verarbeiten, auch über US-Anbieter; dies ist keine Compliance-Zertifizierung. Self-Hosting enthält die Cloud-E-Mail-Integration nicht.
 ---
 
@@ -143,3 +143,10 @@ Der selbst gehostete Community-Build enthält das gemeinsame Postfach der Enterp
 ## Loslegen
 
 Verbinden Sie ein Konto unter **Profil → Verbundene Konten** und öffnen Sie danach das [Postfach](/docs/app-inbox). Lesen Sie einen synchronisierten Thread, verknüpfen Sie den Teilnehmer mit dem richtigen Kontakt und antworten Sie entweder sofort oder speichern Sie einen Entwurf zur Prüfung.
+
+<RelatedPages>
+  <RelatedPage href="/features/account-management" />
+  <RelatedPage href="/features/api" />
+  <RelatedPage href="/features/cloud-crm" />
+  <RelatedPage href="/features/contact-management" />
+</RelatedPages>

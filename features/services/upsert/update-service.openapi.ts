@@ -16,6 +16,7 @@ export const updateServiceOperation: ZodOpenApiOperationObject = {
   security: [{ apiKeyAuth: [] }],
   requestParams: { path: z.object({ id: z.uuid() }) },
   requestBody: {
+    required: true,
     content: {
       "application/json": {
         schema: BaseUpdateServiceSchema.omit({ id: true }),

@@ -34,7 +34,7 @@ export const MessageDateSeparator = observer(({ date }: { date: Date }) => {
   return (
     <div className="sticky top-0 z-10 flex justify-center py-1">
       <span className="bg-background rounded-full">
-        <span className="bg-muted text-muted-foreground border-border block w-28 rounded-full border py-0.5 text-center text-xs font-medium">
+        <span className="text-muted-foreground bg-background/95 block w-28 rounded-full border py-0.5 text-center text-xs font-medium shadow-md backdrop-blur">
           {label}
         </span>
       </span>

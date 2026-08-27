@@ -11,10 +11,14 @@ const ORGANIZATION_SAME_AS = [
 const FOUNDER_NAME = "Benjamin Wagner";
 const FOUNDER_URL = "https://www.linkedin.com/in/wagner-benjamin/";
 
-function plainText(markdown: string): string {
+export function markdownToPlainText(markdown: string): string {
   return markdown
     .replace(/\[([^\]]+)\]\([^)]*\)/gu, "$1")
     .replace(/\*\*([^*]+)\*\*/gu, "$1")
+    .replace(/~~([^~]+)~~/gu, "$1")
+    .replace(/`([^`]+)`/gu, "$1")
+    .replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/gmu, "$1$2")
+    .replace(/(^|[^_])_([^_\n]+)_(?!_)/gmu, "$1$2")
     .replace(/^\s*[-*]\s+/gmu, "")
     .replace(/^\s*\d+\.\s+/gmu, "")
     .replace(/\s+/gu, " ")
@@ -63,23 +67,6 @@ export function softwareApplicationSchema(params: { description: string; locale:
       name: ORGANIZATION_NAME,
       url: env.BASE_URL,
     },
-  };
-}
-
-export function faqPageSchema(params: { faqs: { content: string; title: string }[] }) {
-  if (params.faqs.length === 0) return undefined;
-
-  return {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: params.faqs.map((faq) => ({
-      "@type": "Question",
-      name: faq.title,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: plainText(faq.content),
-      },
-    })),
   };
 }
 
@@ -137,6 +124,21 @@ export function breadcrumbListSchema(crumbs: { name: string; path: string }[]) {
       position: index + 1,
       name: crumb.name,
       item: `${env.BASE_URL}${crumb.path}`,
+    })),
+  };
+}
+
+export function faqPageSchema(entries: { question: string; answer: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: entries.map((entry) => ({
+      "@type": "Question",
+      name: entry.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: entry.answer,
+      },
     })),
   };
 }

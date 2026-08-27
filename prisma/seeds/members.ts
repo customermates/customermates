@@ -78,6 +78,7 @@ export async function seedCompanyMembers(context: SeedContext): Promise<void> {
     const timeline = SYNTHETIC_SEED_TIMELINE.user(index);
     const user = {
       ...definition,
+      agentCreditActivatedAt: timeline.createdAt,
       avatarUrl: avatarPath,
       companyId: context.ids.company,
       onboardingWizardCompletedAt: new Date(timeline.updatedAt.getTime() + 5 * 60_000),

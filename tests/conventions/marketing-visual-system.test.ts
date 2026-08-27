@@ -424,7 +424,7 @@ describe("marketing visual brief", () => {
       "instagram",
       "imap",
     ]);
-    expect(VISUAL_CONVERSATION_FIXTURES["gmail-roche-rollout"]).toMatchObject({
+    expect(VISUAL_CONVERSATION_FIXTURES["gmail-rollout-next-steps"]).toMatchObject({
       person: "anna-mueller",
       provider: "gmail",
     });
@@ -437,7 +437,7 @@ describe("marketing visual brief", () => {
 
     const providerSet = clone(getGoldenVisualBrief("converge", "en"));
     providerSet.focalSubject = {
-      fixtures: { conversation: "gmail-roche-rollout", person: "anna-mueller" },
+      fixtures: { conversation: "gmail-rollout-next-steps", person: "anna-mueller" },
       form: "record",
       id: "customer-record",
     };
@@ -468,7 +468,7 @@ describe("marketing visual brief", () => {
       unknown
     >;
     wrongConversationFocal.fixtures = {
-      conversation: "gmail-roche-rollout",
+      conversation: "gmail-rollout-next-steps",
       person: "leon-becker",
     };
     expect(invalid(wrongConversation)).toThrow(/seeded participant binding/u);

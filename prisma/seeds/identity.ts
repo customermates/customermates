@@ -11,6 +11,7 @@ import { seedRoles } from "./roles";
 import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
 
 export const SYNTHETIC_SUBSCRIPTION = {
+  agentCreditAnchorAt: SYNTHETIC_SEED_TIMELINE.company.createdAt,
   plan: "pro",
   quantity: null,
   status: "active",

@@ -1,6 +1,6 @@
 ---
 title: "CRM Email Integration: Gmail & Outlook Sync"
-description: "CRM email integration for supported Gmail and Outlook accounts, individual drafts and sends, and message history. Campaigns and sequences stay in separate tools; the hosted database uses an EU region."
+description: "CRM email integration for connected Gmail, Outlook, and IMAP accounts. Threads sync into the unified inbox from Pro; campaigns and sequences stay separate."
 featureName: Email Integration
 
 hero:
@@ -32,33 +32,33 @@ cta:
 faq:
   title: "Frequently Asked Questions"
   faqs:
-    - id: email-integration-faq-1
-      title: "Which email accounts can I connect?"
-      content: |-
+  - id: email-integration-faq-1
+    title: "Which email accounts can I connect?"
+    content: |-
         Hosted connection flows support Gmail, Microsoft Outlook, and IMAP inboxes. A connected account belongs to one user unless it is explicitly shared with the workspace.
-    - id: email-integration-faq-2
-      title: "Can I track opens and clicks?"
-      content: |-
+  - id: email-integration-faq-2
+    title: "Can I track opens and clicks?"
+    content: |-
         No. The current product ignores provider open- and click-tracking events and does not expose engagement dashboards.
-    - id: email-integration-faq-3
-      title: "Can I schedule or bulk-send email?"
-      content: |-
+  - id: email-integration-faq-3
+    title: "Can I schedule or bulk-send email?"
+    content: |-
         No. Customermates sends email immediately. Scheduled sends, bulk campaigns, reusable templates, and sequences require a separately operated system.
-    - id: email-integration-faq-4
-      title: "Can an AI agent draft without sending?"
-      content: |-
+  - id: email-integration-faq-4
+    title: "Can an AI agent draft without sending?"
+    content: |-
         Yes, on an existing thread. An authorized MCP client can save or replace one local reply draft for human review. There is no draft object for a brand-new outbound email, and sending tools deliver immediately.
-    - id: email-integration-faq-5
-      title: "Can I send email sequences through an external provider?"
-      content: |-
+  - id: email-integration-faq-5
+    title: "Can I send email sequences through an external provider?"
+    content: |-
         Yes, through separate services. A customer-run n8n workflow can react to documented CRM events, while an external delivery provider owns delays, conditions, branching, sending, limits, logs, and costs. Customermates itself has no sequence engine.
-    - id: email-integration-faq-6
-      title: "Is the calendar two-way?"
-      content: |-
+  - id: email-integration-faq-6
+    title: "Is the calendar two-way?"
+    content: |-
         No. Connected Google or Microsoft calendar events appear in a read-only CRM view. Customermates does not create, edit, or schedule provider-calendar events.
-    - id: email-integration-faq-7
-      title: "Is my email data stored in the EU?"
-      content: |-
+  - id: email-integration-faq-7
+    title: "Is my email data stored in the EU?"
+    content: |-
         The managed Customermates database runs in an EU region. Application hosting, messaging services, and connected providers may process data elsewhere, including through US providers; this is not a compliance certification. Self-hosting excludes the cloud email integration.
 ---
 
@@ -149,3 +149,10 @@ The community self-hosted build does not include the Enterprise Edition unified 
 ## Get Started
 
 Connect an account from **Profile → Connected accounts**, then open the [Inbox](/docs/app-inbox). Read a synchronized thread, link its participant to the right contact, and either reply immediately or save a draft for review.
+
+<RelatedPages>
+  <RelatedPage href="/features/account-management" />
+  <RelatedPage href="/features/api" />
+  <RelatedPage href="/features/cloud-crm" />
+  <RelatedPage href="/features/contact-management" />
+</RelatedPages>

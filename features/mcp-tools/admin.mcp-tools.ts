@@ -2,12 +2,13 @@ import { z } from "zod";
 import { CountryCode, Currency } from "@/generated/prisma";
 
 import {
-  customErrorMessage,
+  customMcpFailure,
   encodeToToon,
   enumHint,
+  mcpInteractorFailure,
+  mcpMessageFailure,
+  mcpValidationFailure,
   runInteractor,
-  validationError,
-  VALIDATION_ERROR_PREFIX,
 } from "./utils";
 
 import {
@@ -23,6 +24,7 @@ import { AdminUpdateUserDetailsSchema } from "@/features/user/upsert/admin-updat
 import { GetUserByIdSchema } from "@/features/user/get/get-user-by-id.interactor";
 import { UpdateCompanySettingsSchema } from "@/features/company/update-company-settings.interactor";
 import { InviteUsersByEmailSchema } from "@/features/company/invite-users-by-email.interactor";
+import { ENTITY_TERMINOLOGY_PRESETS } from "@/features/entity-terminology/entity-terminology.constants";
 
 const countryValues = Object.values(CountryCode);
 const currencyValues = Object.values(Currency);
@@ -42,8 +44,32 @@ const UpdateWorkspaceSettingsSchema = z.object({
   ),
   currency: UpdateCompanySettingsSchema.shape.currency
     .optional()
-    .describe(`company target: required ${enumHint(currencyValues)}`),
+    .describe(`company target: ${enumHint(currencyValues)}. Omit to keep existing.`),
+  terminology: UpdateCompanySettingsSchema.shape.terminology.describe(
+    `company target: optional entity label presets ${JSON.stringify(ENTITY_TERMINOLOGY_PRESETS)}. Pass only the entities to change.`,
+  ),
 });
+
+const CompanyWorkspaceSettingsSchema = UpdateCompanySettingsSchema.pick({
+  currency: true,
+  terminology: true,
+}).refine((data) => data.currency !== undefined || Boolean(data.terminology?.length), {
+  message: "Company settings need currency or at least one terminology entry.",
+});
+
+const ProfileWorkspaceSettingsSchema = UpdateUserDetailsSchema.pick({
+  firstName: true,
+  lastName: true,
+  country: true,
+  avatarUrl: true,
+}).refine(
+  (data) =>
+    data.firstName !== undefined ||
+    data.lastName !== undefined ||
+    data.country !== undefined ||
+    data.avatarUrl !== undefined,
+  { message: "Profile settings need at least one changed field." },
+);
 
 export const updateWorkspaceSettingsTool = {
   name: "update_workspace_settings",
@@ -51,21 +77,36 @@ export const updateWorkspaceSettingsTool = {
   description:
     "Use this when updating the current user's profile or the company profile. " +
     "target profile is a partial update of firstName, lastName, country, avatarUrl; omitted fields keep their current values. " +
-    "target company needs currency plus admin rights.",
-  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    "target company updates currency and/or the preset names used for contacts, organizations, deals, services, and tasks; admin rights are required.",
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: false,
+    idempotentHint: true,
+    openWorldHint: false,
+  },
   inputSchema: UpdateWorkspaceSettingsSchema,
   execute: async (params: z.infer<typeof UpdateWorkspaceSettingsSchema>) => {
     if (params.target === "profile") {
-      const parsed = UpdateUserDetailsSchema.safeParse(params);
-      if (!parsed.success) return validationError(parsed.error);
+      const parsed = ProfileWorkspaceSettingsSchema.safeParse(params);
+      if (!parsed.success) return mcpValidationFailure(parsed.error);
       return runInteractor(getUpdateUserDetailsInteractor().invoke(parsed.data), (data) =>
-        encodeToToon({ firstName: data.firstName, lastName: data.lastName, message: "Profile updated" }),
+        encodeToToon({
+          ...(parsed.data.firstName !== undefined ? { firstName: data.firstName } : {}),
+          ...(parsed.data.lastName !== undefined ? { lastName: data.lastName } : {}),
+          ...(parsed.data.country !== undefined ? { country: data.country } : {}),
+          ...(parsed.data.avatarUrl !== undefined ? { avatarUrl: data.avatarUrl } : {}),
+          message: "Profile updated",
+        }),
       );
     }
-    const parsed = UpdateCompanySettingsSchema.required({ currency: true }).safeParse(params);
-    if (!parsed.success) return validationError(parsed.error);
+    const parsed = CompanyWorkspaceSettingsSchema.safeParse(params);
+    if (!parsed.success) return mcpValidationFailure(parsed.error);
     return runInteractor(getUpdateCompanySettingsInteractor().invoke(parsed.data), (data) =>
-      encodeToToon({ currency: data.currency, message: "Company settings updated" }),
+      encodeToToon({
+        ...(data.currency !== undefined ? { currency: data.currency } : {}),
+        ...(data.terminology !== undefined ? { terminology: data.terminology } : {}),
+        message: "Company settings updated",
+      }),
     );
   },
 };
@@ -102,24 +143,31 @@ export const manageTeamTool = {
     "a member who has no role assigned yet (e.g. a still pending invite) has no role to keep, so you must pass roleId together with the change or the call is rejected. " +
     "last-admin protection is enforced server-side, the workspace can never lose its last active admin. " +
     "Needs users admin rights.",
-  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: false,
+    idempotentHint: false,
+    openWorldHint: true,
+  },
   inputSchema: ManageTeamSchema,
   execute: async (params: z.infer<typeof ManageTeamSchema>) => {
     if (params.action === "invite") {
       const parsed = InviteUsersByEmailSchema.safeParse(params);
-      if (!parsed.success) return validationError(parsed.error);
+      if (!parsed.success) return mcpValidationFailure(parsed.error);
       return runInteractor(getInviteUsersByEmailInteractor().invoke(parsed.data), (data) =>
         encodeToToon({ sent: data.sent, message: "Invitation emails sent" }),
       );
     }
     const parsed = UpdateMemberSchema.safeParse(params);
-    if (!parsed.success) return validationError(parsed.error);
-    const loaded = await getGetUserByIdInteractor().invoke({ id: parsed.data.userId });
-    if (!loaded.ok) return validationError(loaded.error);
+    if (!parsed.success) return mcpValidationFailure(parsed.error);
+    const loaded = await getGetUserByIdInteractor().invoke({
+      id: parsed.data.userId,
+    });
+    if (!loaded.ok) return mcpInteractorFailure(loaded.error);
     const member = loaded.data.user;
-    if (!member) return customErrorMessage(CustomErrorCode.userNotFound);
+    if (!member) return customMcpFailure(CustomErrorCode.userNotFound);
     if (member.roleId == null && parsed.data.roleId == null)
-      return `${VALIDATION_ERROR_PREFIX} This member has no role assigned yet, so pass roleId together with the change.`;
+      return mcpMessageFailure("This member has no role assigned yet, so pass roleId together with the change.");
 
     const candidate = AdminUpdateUserDetailsSchema.safeParse({
       email: member.email,
@@ -130,9 +178,14 @@ export const manageTeamTool = {
       roleId: parsed.data.roleId ?? member.roleId,
       status: parsed.data.status ?? member.status,
     });
-    if (!candidate.success) return validationError(candidate.error);
+    if (!candidate.success) return mcpValidationFailure(candidate.error);
     return runInteractor(getAdminUpdateUserDetailsInteractor().invoke(candidate.data), (data) =>
-      encodeToToon({ email: data.email, roleId: data.roleId, status: data.status, message: "Member updated" }),
+      encodeToToon({
+        email: data.email,
+        roleId: data.roleId,
+        status: data.status,
+        message: "Member updated",
+      }),
     );
   },
 };

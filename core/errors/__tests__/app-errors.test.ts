@@ -2,13 +2,17 @@ import { describe, it, expect } from "vitest";
 
 import {
   AuthError,
+  AppErrorCode,
   ForbiddenError,
   DemoModeError,
   DEMO_MODE_MESSAGE,
+  InvalidJsonBodyError,
   WebhookExternalFailure,
   WebhookNonRetryableFailure,
   isExpectedError,
   appErrorResponse,
+  appErrorDetails,
+  appErrorDetailsInCauseChain,
 } from "../app-errors";
 
 describe("AuthError", () => {
@@ -27,6 +31,13 @@ describe("AuthError", () => {
 
   it("is an instance of Error", () => {
     expect(new AuthError()).toBeInstanceOf(Error);
+  });
+
+  it("has a stable access code and cannot be mistaken for another AppError subtype", () => {
+    const error = new AuthError();
+    expect(error.code).toBe(AppErrorCode.unauthenticated);
+    expect(error).not.toBeInstanceOf(ForbiddenError);
+    expect(error).not.toBeInstanceOf(DemoModeError);
   });
 });
 
@@ -47,6 +58,20 @@ describe("ForbiddenError", () => {
   it("is an instance of Error", () => {
     expect(new ForbiddenError()).toBeInstanceOf(Error);
   });
+
+  it("has a stable access code", () => {
+    expect(new ForbiddenError().code).toBe(AppErrorCode.permissionDenied);
+    expect(new ForbiddenError("Inactive", AppErrorCode.inactiveUser).code).toBe(AppErrorCode.inactiveUser);
+  });
+});
+
+describe("InvalidJsonBodyError", () => {
+  it("uses the public REST bad-request contract", () => {
+    const err = new InvalidJsonBodyError();
+    expect(err.statusCode).toBe(400);
+    expect(err.message).toBe("Invalid JSON body");
+    expect(err.name).toBe("InvalidJsonBodyError");
+  });
 });
 
 describe("DemoModeError", () => {
@@ -60,12 +85,20 @@ describe("DemoModeError", () => {
   it("is an instance of Error", () => {
     expect(new DemoModeError()).toBeInstanceOf(Error);
   });
+
+  it("cannot be mistaken for another AppError subtype", () => {
+    const error = new DemoModeError();
+    expect(error.code).toBe(AppErrorCode.demoMode);
+    expect(error).not.toBeInstanceOf(AuthError);
+    expect(error).not.toBeInstanceOf(ForbiddenError);
+  });
 });
 
 describe("isExpectedError", () => {
   it("recognizes expected error instances", () => {
     expect(isExpectedError(new AuthError())).toBe(true);
     expect(isExpectedError(new ForbiddenError())).toBe(true);
+    expect(isExpectedError(new InvalidJsonBodyError())).toBe(true);
     expect(isExpectedError(new DemoModeError())).toBe(true);
     expect(isExpectedError(new WebhookExternalFailure(503, "down"))).toBe(true);
     expect(isExpectedError(new WebhookNonRetryableFailure(405, "Method Not Allowed"))).toBe(true);
@@ -105,6 +138,23 @@ describe("isExpectedError", () => {
     expect(isExpectedError(foreignAuth)).toBe(true);
   });
 
+  it("does not suppress malformed values that merely copy the global brand", () => {
+    const brand = Symbol.for("customermates.appError");
+    const missingDetails = { [brand]: true };
+    const invalidStatus = {
+      [brand]: true,
+      name: "ForbiddenError",
+      code: AppErrorCode.permissionDenied,
+      statusCode: 200,
+      message: "not really forbidden",
+    };
+
+    expect(appErrorDetails(missingDetails)).toBeNull();
+    expect(appErrorDetails(invalidStatus)).toBeNull();
+    expect(isExpectedError(missingDetails)).toBe(false);
+    expect(isExpectedError(invalidStatus)).toBe(false);
+  });
+
   it("does NOT suppress a genuine bug flattened to FatalError on workflow replay", () => {
     expect(isExpectedError({ name: "FatalError", message: "Test workflow error from background job" })).toBe(false);
     expect(isExpectedError({ name: "FatalError", message: "Cannot read properties of undefined" })).toBe(false);
@@ -115,6 +165,20 @@ describe("isExpectedError", () => {
     expect(isExpectedError({ name: "TypeError", message: "x is not a function" })).toBe(false);
     expect(isExpectedError(null)).toBe(false);
     expect(isExpectedError("just a string")).toBe(false);
+  });
+
+  it("recognizes expected errors through a bounded, cycle-safe cause chain", () => {
+    const accessError = new ForbiddenError("Inactive", AppErrorCode.inactiveUser);
+    const wrapped = new Error("adapter", { cause: new Error("framework", { cause: accessError }) });
+    const cycle = new Error("cycle") as Error & { cause?: unknown };
+    cycle.cause = cycle;
+
+    expect(appErrorDetailsInCauseChain(wrapped)).toEqual({
+      code: AppErrorCode.inactiveUser,
+      message: "Inactive",
+      statusCode: 403,
+    });
+    expect(appErrorDetailsInCauseChain(cycle)).toBeNull();
   });
 });
 

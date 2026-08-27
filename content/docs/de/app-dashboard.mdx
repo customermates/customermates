@@ -1,5 +1,5 @@
 ---
-title: Dashboard
+title: "Dashboard-Widgets und Aktivitätsverlauf"
 description: Der Startbildschirm nach dem Login, konfigurierbare Widgets über Ihren CRM-Daten, mit stabilen Anchor ids für KI-Agents in der UI.
 ---
 
@@ -50,6 +50,14 @@ Route: `/dashboard`. Alle App-Routen haben ein Locale-Präfix, zum Beispiel `htt
 | Alles durchsuchen | Such-Modal | `#global-search-input` | Springen Sie zu jedem Contact, jeder Organization, jedem Deal, Service oder Task |
 | Dokumentation öffnen | Sidebar-Footer | `#nav-documentation` | Öffnet `/docs` |
 | Feedback senden | Sidebar-Footer | `#nav-feedback` | Öffnet den Feedback-Dialog |
+
+## Der Widget-Editor
+
+Das Widget-Modal ist in drei Tabs organisiert: `#widget-tab-data` wählt Quelle (Datensatztyp oder Aktivitäts-Timeline) und Aggregation, `#widget-tab-filters` grenzt ein, was zählt (`#widget-entity-filters-heading` markiert den Datensatzfilter-Block), und `#widget-tab-appearance` bestimmt Darstellungstyp, Achsen und Farben. Eine Live-Vorschau unter `#widget-preview-heading` spiegelt jede Änderung vor dem Speichern, und `#widget-template-heading` bietet fertige Startpunkte. Speichern oder verwerfen mit `#widget-modal-save` / `#widget-modal-reset`.
+
+## Globale Suche
+
+`#nav-search` (oder Cmd/Ctrl+K überall) öffnet das Suchmodal; `#global-search-input` nimmt die Anfrage entgegen. Sie findet Kontakte, Organisationen, Deals, Services und Aufgaben über ihre Namen und springt direkt zum gewählten Datensatz. Sie durchsucht Datensätze, keine Nachrichten; die Inbox hat ihre eigene Suche.
 
 ## Erster Start
 

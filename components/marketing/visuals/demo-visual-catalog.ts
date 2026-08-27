@@ -261,7 +261,6 @@ export const DEMO_VISUAL_DEALS = {
     currency: "EUR",
     kind: "deal",
     name: "Digital Customer Platform",
-    organization: "BMW",
     projectPeriod: ["2026-06-01", "2026-08-28"],
     status: "deal-open",
     totalQuantity: 162,
@@ -311,7 +310,6 @@ export const DEMO_VISUAL_DEALS = {
     currency: "EUR";
     kind: "deal";
     name: string;
-    organization?: string;
     projectPeriod?: readonly [string, string];
     status: keyof typeof DEMO_VISUAL_DEAL_STATUSES;
     totalQuantity?: number;
@@ -321,15 +319,15 @@ export const DEMO_VISUAL_DEALS = {
 >;
 
 export const DEMO_VISUAL_CONVERSATIONS = {
-  "gmail-roche-rollout": {
+  "gmail-rollout-next-steps": {
     localizedSubject: {
-      de: "Nächste Schritte für den Roche-Rollout",
-      en: "Next steps for the Roche rollout",
+      de: "Nächste Schritte für den Rollout",
+      en: "Next steps for the rollout",
     },
     person: "anna-mueller",
     provider: "gmail",
     state: "open",
-    subject: "Next steps for the Roche rollout",
+    subject: "Next steps for the rollout",
   },
 } as const satisfies Record<
   string,

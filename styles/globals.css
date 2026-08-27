@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @plugin '@tailwindcss/typography';
+@source "../node_modules/streamdown/dist/index.js";
 
 @import 'fumadocs-ui/css/preset.css';
 @import 'fumadocs-ui/css/neutral.css';
@@ -52,9 +53,8 @@
   --color-chart-5: var(--chart-5);
   /* Ratios, not offsets. At --radius 8px these resolve to 4, 6, 8, 12, 20 and 24, which is
      exactly what the offsets they replaced produced, so nothing in the application moves. The
-     difference only shows where --radius is rescaled: an offset keeps its pixel constant, so
-     rounded-md landed at 14px inside .scene-platform instead of the 12px a doubled 6px wants,
-     and rounded-sm at 12px instead of 8px. A ratio scales. */
+     difference only shows where --radius is rescaled: an offset keeps its pixel constant, while
+     a ratio keeps illustration artboards and inverse sections on the same geometric ladder. */
   --radius-sm: calc(var(--radius) * 0.5);
   --radius-md: calc(var(--radius) * 0.75);
   --radius-lg: var(--radius);
@@ -81,9 +81,31 @@
   --animate-accordion-down: collapsible-down 200ms ease-out;
   --animate-accordion-up: collapsible-up 200ms ease-out;
   --animate-fade-in: fade-in 300ms ease-out;
+  --animate-typing-dot: typing-dot 1.2s ease-in-out infinite;
+  --animate-timeline-grow: timeline-grow 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-page-empty-in: page-empty-in 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-page-result-in: page-result-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-page-loading-in: page-loading-in 160ms ease-out 180ms both;
+}
+
+@keyframes timeline-grow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes typing-dot {
+  0%,
+  60%,
+  100% {
+    opacity: 0.25;
+  }
+  30% {
+    opacity: 1;
+  }
 }
 
 @keyframes fade-in {

@@ -11,10 +11,9 @@ export type AssigneeEntry = { userIds: Parameters<typeof validateAssigneeGuard>[
 export class ValidateAssigneeGuardInteractor {
   constructor(private userService: UserService) {}
   async invoke(entries: AssigneeEntry[], resource: Resource, ctx: z.RefinementCtx) {
-    const [user, canReadAll] = await Promise.all([
-      this.userService.getActiveUserOrThrow(),
-      this.userService.hasPermission(resource, Action.readAll),
-    ]);
+    const user = await this.userService.getActiveTenantUserOrThrow();
+    const canReadAll = this.userService.hasPermissionForUser(user, resource, Action.readAll);
+
     for (const { userIds, path } of entries) validateAssigneeGuard(userIds, user.id, canReadAll, ctx, path);
   }
 }

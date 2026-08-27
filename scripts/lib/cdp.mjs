@@ -3,7 +3,7 @@
 //
 // It exists because the visual standards on /styleguide can only be verified in a real
 // engine: reduced motion is a media query, IntersectionObserver needs a visible page, and
-// deterministic video capture needs frame-exact control of the clock. The in-app browser
+// deterministic product-proof capture needs exact control of the clock. The in-app browser
 // pane runs with document.hidden true, so observers never fire there.
 
 import { spawn } from "node:child_process";

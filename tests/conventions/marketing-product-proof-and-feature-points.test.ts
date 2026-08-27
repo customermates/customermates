@@ -21,6 +21,14 @@ import { threads } from "@/prisma/seeds/messaging/fixtures";
 import { REPO_ROOT } from "./walk";
 
 describe("feature-page product proof", () => {
+  it("keeps generated review captures local and off public routes", () => {
+    const captureScript = readFileSync(join(REPO_ROOT, "scripts", "capture-product-proof.mjs"), "utf8");
+
+    expect(captureScript).toContain('const OUT_DIR = ".review/product-proof"');
+    expect(captureScript).toContain("assertLocalCaptureUrl");
+    expect(captureScript).not.toContain('const OUT_DIR = "public/');
+  });
+
   it("allowlists one localized demo surface instead of accepting arbitrary iframe URLs", () => {
     expect(PRODUCT_DEMO_ROUTES).toEqual({ deals: "/deals", inbox: "/inbox" });
     expect(resolveProductDemoUrl("en", "inbox")).toBe(

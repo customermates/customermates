@@ -1,7 +1,5 @@
 import type { FeedbackType } from "./send-feedback.schema";
-import type { EmailService } from "@/features/email/email.service";
-
-import React from "react";
+import type { FeedbackCreator } from "./feedback.creator";
 
 import { SendFeedbackSchema, type SendFeedbackData } from "./send-feedback.schema";
 
@@ -10,10 +8,6 @@ import { type Validated } from "@/core/validation/validation.utils";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import Feedback from "@/components/emails/feedback";
-import { DEFAULT_EMAIL_LAYOUT_COPY } from "@/components/emails/base/email-layout-copy";
-import { env } from "@/env";
-import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
 const SUBJECT_MAP: Record<FeedbackType, string> = {
   general: "General Feedback",
@@ -21,29 +15,18 @@ const SUBJECT_MAP: Record<FeedbackType, string> = {
 
 @TenantInteractor()
 export class SendFeedbackInteractor extends AuthenticatedInteractor<SendFeedbackData, SendFeedbackData> {
-  constructor(private emailService: EmailService) {
+  constructor(private feedbackCreator: FeedbackCreator) {
     super();
   }
 
   @Validate(SendFeedbackSchema)
   @ValidateOutput(SendFeedbackSchema)
   async invoke(data: SendFeedbackData): Validated<SendFeedbackData> {
-    const { email, firstName, lastName } = this.user;
-    const userName = `${firstName} ${lastName}`;
-
     const subject = SUBJECT_MAP[data.type];
-
-    await this.emailService.send({
-      to: env.RESEND_OPERATOR_EMAIL,
-      subject: `${subject} from ${userName}`,
-      react: React.createElement(Feedback, {
-        feedback: data.feedback,
-        layoutCopy: DEFAULT_EMAIL_LAYOUT_COPY,
-        locale: DEFAULT_LOCALE,
-        userEmail: email,
-        userName: userName,
-        subject: subject,
-      }),
+    await this.feedbackCreator.create({
+      details: data.feedback,
+      subject,
+      user: this.user,
     });
 
     return { ok: true as const, data };

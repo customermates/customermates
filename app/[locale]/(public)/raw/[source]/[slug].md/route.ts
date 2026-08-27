@@ -28,7 +28,10 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<R
   if (!page) return new Response("Not Found", { status: 404 });
 
   return new Response(page.content, {
-    headers: { "Content-Type": "text/markdown; charset=utf-8" },
+    headers: {
+      "Content-Type": "text/markdown; charset=utf-8",
+      "X-Robots-Tag": "noindex, follow",
+    },
     status: 200,
   });
 }

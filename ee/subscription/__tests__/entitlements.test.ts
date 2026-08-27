@@ -1,11 +1,32 @@
 import { describe, expect, it } from "vitest";
 
-import { SubscriptionStatus } from "@/generated/prisma";
+import { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
-import { isSubscriptionExpired, isSubscriptionUsable } from "../entitlements";
+import {
+  getEffectiveEntitlements,
+  getEntitlements,
+  isSubscriptionExpired,
+  isSubscriptionUsable,
+} from "../entitlements";
 
 const PAST = new Date(Date.now() - 24 * 60 * 60 * 1000);
 const FUTURE = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+describe("hosted AI plan entitlements", () => {
+  it("defines the monthly per-user allowance for every paid plan", () => {
+    expect(getEntitlements(SubscriptionPlan.starter).hostedAiCreditsPerActiveUser).toBe(200);
+    expect(getEntitlements(SubscriptionPlan.pro).hostedAiCreditsPerActiveUser).toBe(500);
+    expect(getEntitlements(SubscriptionPlan.business).hostedAiCreditsPerActiveUser).toBe(1200);
+    expect(getEntitlements(SubscriptionPlan.enterprise).hostedAiCreditsPerActiveUser).toBe("contract");
+  });
+
+  it("does not grant hosted processing to self-hosted installations", () => {
+    expect(
+      getEffectiveEntitlements({ appMode: "self-hosted", plan: SubscriptionPlan.business })
+        .hostedAiCreditsPerActiveUser,
+    ).toBeNull();
+  });
+});
 
 describe("isSubscriptionExpired", () => {
   it("treats unpaid and expired statuses as expired regardless of trial date", () => {

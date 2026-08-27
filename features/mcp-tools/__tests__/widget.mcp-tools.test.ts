@@ -28,6 +28,7 @@ import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { ChartColor, DisplayType, type ActivityWidgetDto, type ChartWidgetDto } from "@/features/widget/widget.schema";
 
 import { manageWidgetsTool } from "../widget.mcp-tools";
+import { mcpToolResultText } from "../mcp-tool";
 import { formatDatesInResponse } from "../utils";
 
 const WIDGET_ID = "16000000-0000-4000-8000-000000000001";
@@ -83,8 +84,8 @@ function activityWidget(overrides: Partial<ActivityWidgetDto> = {}): ActivityWid
   };
 }
 
-function run(args: Record<string, unknown>) {
-  return manageWidgetsTool.execute(manageWidgetsTool.inputSchema.parse(args));
+async function run(args: Record<string, unknown>) {
+  return mcpToolResultText(await manageWidgetsTool.execute(manageWidgetsTool.inputSchema.parse(args)));
 }
 
 const chartCreate = {

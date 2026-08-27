@@ -291,8 +291,22 @@ import { AcceptLegalDocumentsInteractor } from "@/features/legal/accept-legal-do
 import { DeliverWebhookInteractor } from "@/features/webhook/deliver-webhook.interactor";
 // Audit log interactors
 import { GetAuditLogsInteractor } from "@/features/audit-log/get/get-audit-logs.interactor";
-import { PrismaSupportRepo } from "@/features/support/prisma-support.repository";
 import { CreateSupportTicketInteractor } from "@/features/support/create-support-ticket.interactor";
+import { FeedbackCreator } from "@/features/feedback/feedback.creator";
+import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
+import { AgentUsageService } from "@/ee/agent-chat/agent-usage.service";
+import { SendAgentMessageInteractor } from "@/ee/agent-chat/send-agent-message.interactor";
+import { GetAgentConfigInteractor } from "@/ee/agent-chat/get-agent-config.interactor";
+import { RespondToApprovalInteractor } from "@/ee/agent-chat/respond-to-approval.interactor";
+import { RespondToUiCommandInteractor } from "@/ee/agent-chat/respond-to-ui-command.interactor";
+import { CancelAgentTurnInteractor } from "@/ee/agent-chat/cancel-agent-turn.interactor";
+import { GetAgentRunStreamInteractor } from "@/ee/agent-chat/get-agent-run-stream.interactor";
+import { GetAgentConversationInteractor } from "@/ee/agent-chat/get-agent-conversation.interactor";
+import { CreateChatSupportTicketInteractor } from "@/ee/agent-chat/create-chat-support-ticket.interactor";
+import { ListAgentConversationsInteractor } from "@/ee/agent-chat/list-agent-conversations.interactor";
+import { DeleteAgentConversationInteractor } from "@/ee/agent-chat/delete-agent-conversation.interactor";
+import { ArchiveAgentConversationInteractor } from "@/ee/agent-chat/archive-agent-conversation.interactor";
+import { RestoreAgentConversationInteractor } from "@/ee/agent-chat/restore-agent-conversation.interactor";
 // Validators
 
 // ─── Section 2: Repos ───────────────────────────────────────────────────────
@@ -319,7 +333,7 @@ export const getConnectedAccountRepo = () => new PrismaConnectedAccountRepo();
 export const getUnipileWebhookRepo = () => new PrismaUnipileWebhookRepo();
 export const getCalendarRepo = () => new PrismaCalendarRepo();
 export const getCalendarEventsRepo = () => new PrismaCalendarEventsRepo();
-export const getSupportRepo = () => new PrismaSupportRepo();
+export const getAgentChatRepo = () => new PrismaAgentChatRepo();
 
 // ─── Section 3: Services ────────────────────────────────────────────────────
 
@@ -1377,7 +1391,9 @@ export const getDeleteFilterPresetInteractor = () => new DeleteFilterPresetInter
 
 // --- Feedback ---
 
-export const getSendFeedbackInteractor = () => new SendFeedbackInteractor(getEmailService());
+export const getFeedbackCreator = () => new FeedbackCreator(getEmailService());
+
+export const getSendFeedbackInteractor = () => new SendFeedbackInteractor(getFeedbackCreator());
 
 // --- Contact ---
 
@@ -1449,5 +1465,47 @@ export const getAcceptLegalDocumentsInteractor = () =>
 export const getDeliverWebhookInteractor = () =>
   new DeliverWebhookInteractor(getWebhookDeliveryRepo(), getWebhookRepo());
 
-export const getCreateSupportTicketInteractor = () =>
-  new CreateSupportTicketInteractor(getSupportRepo(), getEmailService());
+export const getCreateSupportTicketInteractor = () => new CreateSupportTicketInteractor(getFeedbackCreator());
+
+export const getAgentUsageService = () => new AgentUsageService(getAgentChatRepo());
+
+export const getSendAgentMessageInteractor = () =>
+  new SendAgentMessageInteractor(
+    getAgentChatRepo(),
+    getAgentUsageService(),
+    getEntitlementService(),
+    getBackgroundTaskService(),
+  );
+
+export const getGetAgentConfigInteractor = () =>
+  new GetAgentConfigInteractor(getAgentChatRepo(), getAgentUsageService(), getEntitlementService());
+
+export const getRespondToApprovalInteractor = () =>
+  new RespondToApprovalInteractor(getAgentChatRepo(), getEntitlementService(), getBackgroundTaskService());
+
+export const getRespondToUiCommandInteractor = () =>
+  new RespondToUiCommandInteractor(getAgentChatRepo(), getEntitlementService(), getBackgroundTaskService());
+
+export const getCancelAgentTurnInteractor = () =>
+  new CancelAgentTurnInteractor(getAgentChatRepo(), getEntitlementService(), getBackgroundTaskService());
+
+export const getGetAgentRunStreamInteractor = () =>
+  new GetAgentRunStreamInteractor(getAgentChatRepo(), getEntitlementService());
+
+export const getGetAgentConversationInteractor = () =>
+  new GetAgentConversationInteractor(getAgentChatRepo(), getEntitlementService());
+
+export const getListAgentConversationsInteractor = () =>
+  new ListAgentConversationsInteractor(getAgentChatRepo(), getEntitlementService());
+
+export const getDeleteAgentConversationInteractor = () =>
+  new DeleteAgentConversationInteractor(getAgentChatRepo(), getEntitlementService());
+
+export const getArchiveAgentConversationInteractor = () =>
+  new ArchiveAgentConversationInteractor(getAgentChatRepo(), getEntitlementService());
+
+export const getRestoreAgentConversationInteractor = () =>
+  new RestoreAgentConversationInteractor(getAgentChatRepo(), getEntitlementService());
+
+export const getCreateChatSupportTicketInteractor = () =>
+  new CreateChatSupportTicketInteractor(getAgentChatRepo(), getFeedbackCreator());

@@ -5,7 +5,7 @@ export function hostnameFromHost(host: string): string {
 }
 
 export function isSubdomainHost(host: string): boolean {
-  const hostname = hostnameFromHost(host);
+  const hostname = hostnameFromHost(host).replace(/^www\./u, "");
 
   if (hostname.includes("localhost")) return false;
   if (IPV4_LITERAL.test(hostname)) return false;
