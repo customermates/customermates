@@ -416,8 +416,8 @@ describe("SendLegalDocumentNoticesInteractor", () => {
     expect(props.documents.map((document) => document.version)).toEqual([
       "7. August 2026",
       "7. August 2026",
-      "26. August 2026",
-      "26. August 2026",
+      "27. August 2026",
+      "27. August 2026",
     ]);
   });
 
@@ -521,10 +521,10 @@ describe("SendLegalDocumentNoticesInteractor", () => {
   it("suppresses historical information for later users but sends conservatively on the release day", async () => {
     recipients = [
       recipient("later-member", false, {
-        createdAt: new Date("2026-08-27T00:00:00.000Z"),
+        createdAt: new Date("2026-08-28T00:00:00.000Z"),
       }),
       recipient("same-day-member", false, {
-        createdAt: new Date("2026-08-26T23:59:59.000Z"),
+        createdAt: new Date("2026-08-27T23:59:59.000Z"),
       }),
     ];
 

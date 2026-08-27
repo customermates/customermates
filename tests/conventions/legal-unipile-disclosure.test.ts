@@ -242,6 +242,11 @@ describe("managed service and independent self-hosting stay separated", () => {
     );
     expect(text).toContain("ls_aff_ref");
     expect(text).toMatch(name === "en" ? /browser-derived visitor identifier/i : /Browsermerkmalen abgeleitete Besucherkennung/i);
+    expect(text).toMatch(
+      name === "en"
+        ? /not gated by a separate Customermates consent mechanism/i
+        : /nicht durch einen gesonderten Einwilligungsmechanismus von Customermates gesteuert/i,
+    );
     expect(text).toMatch(name === "en" ? /upstream self-hosted routes do not load/i : /vorgelagerte Self-Hosted-Routen laden.*nicht/i);
     expect(affiliate(name)).toMatch(
       name === "en" ? /name: Tracking on customermates\.com\s+source: Enabled/i : /name: Tracking auf customermates\.com\s+source: Aktiv/i,
@@ -280,9 +285,15 @@ describe("managed service and independent self-hosting stay separated", () => {
     expect(rootLayout).not.toContain("lemonSqueezyAffiliateConfig");
     expect(rootLayout).not.toContain("lmsqueezy.com/affiliate.js");
     expect(staticLayout).toContain('env.APP_MODE === "cloud"');
-    expect(staticLayout).toContain('window.lemonSqueezyAffiliateConfig = { store: "customermates" };');
+    expect(staticLayout).toContain('window.lemonSqueezyAffiliateConfig = { store: "customermates" }');
     expect(staticLayout).toContain('src="https://lmsqueezy.com/affiliate.js"');
-    expect(staticLayout.match(/strategy="beforeInteractive"/g)).toHaveLength(2);
+    expect(staticLayout).not.toContain('from "next/script"');
+    expect(staticLayout).not.toContain('strategy="');
+    expect(staticLayout.match(/<script\b/g)).toHaveLength(2);
+    expect(staticLayout).toMatch(/<script defer src="https:\/\/lmsqueezy\.com\/affiliate\.js" \/>/);
+    expect(staticLayout.indexOf("lemonSqueezyAffiliateConfig")).toBeLessThan(
+      staticLayout.indexOf('src="https://lmsqueezy.com/affiliate.js"'),
+    );
     expect(runtime.match(/lmsqueezy\.com\/affiliate\.js/g)).toHaveLength(1);
     expect(runtime.match(/lemonSqueezyAffiliateConfig/g)).toHaveLength(1);
     expect(runtime).not.toContain("ls_aff_ref");
