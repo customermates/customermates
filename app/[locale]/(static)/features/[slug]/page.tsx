@@ -6,7 +6,6 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Footer } from "@/app/components/footer";
 import { PageHero } from "@/components/marketing/page-hero";
 import { CTASection } from "@/components/marketing/cta-section";
-import { FAQSection } from "@/components/marketing/faq-section";
 import { FeatureVisualPilot } from "@/components/marketing/feature-visual-pilot";
 import { getFeatureVisualPilot } from "@/components/marketing/feature-visual-pilots";
 import { MarketingContainer } from "@/components/marketing/marketing-container";
@@ -98,8 +97,6 @@ export default async function FeaturePage({ params }: Props) {
           </Toc>
         </MarketingContainer>
       </section>
-
-      {page.data.faq ? <FAQSection {...page.data.faq} /> : null}
 
       <CTASection {...page.data.cta} />
 

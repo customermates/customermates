@@ -20,29 +20,6 @@ cta:
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
-faq:
-  title: "Häufig gestellte Fragen"
-  faqs:
-  - id: integrations-faq-1
-    title: "Wie viele Integrationen unterstützt Customermates?"
-    content: |-
-        Customermates liefert REST, [[derived.webhooks.events.total]] Webhook-Ereigniswerte, [[derived.mcp.tools.total]] MCP-Tools für unterstützte externe KI-Clients und einen Community-Node für eine separate n8n-Instanz. Der Katalog mit 400+ Konnektoren gehört n8n; das native gemeinsame Postfach verbindet unterstützte E-Mail- und Social-Kanäle ab Pro.
-  - id: integrations-faq-2
-    title: "Muss ich für Integrationen extra bezahlen?"
-    content: |-
-        REST, Webhooks und MCP-Zugriff starten mit der Starter-Stufe für [[commercial.price.starter.monthly]] pro Nutzer und Monat. n8n-Workflows, Konnektoren, Hosting, Ausführungen, Protokolle, Zustellanbieter, Limits und Kosten sind separat und hängen von den gewählten Diensten ab.
-  - id: integrations-faq-3
-    title: "Kann ich Zapier durch Customermates ersetzen?"
-    content: |-
-        Nicht allein. Eine separate n8n-Instanz kann einige CRM-bezogene Zapier- oder Make-Workflows ersetzen, wenn Konnektoren, Tarif, Limits und Betrieb passen. Customermates verbindet sie über REST, Webhooks, MCP und Community-Node, enthält aber kein Automatisierungsabonnement.
-  - id: integrations-faq-4
-    title: "Ist die REST API in jedem Plan enthalten?"
-    content: |-
-        Dokumentierter API-Zugang steht in den veröffentlichten Tarifen bereit. Folgen Sie dem aktuellen OpenAPI-Dokument und den Antworten für Operationen, Paginierung, Durchsatz und Wiederholungen; Customermates veröffentlicht kein allgemeines Unbegrenzt-Versprechen und keinen Rate-Limit-Header-Vertrag.
-  - id: integrations-faq-5
-    title: "Kann ich Integrationen mit Tools erstellen, die nicht in n8n gelistet sind?"
-    content: |-
-        Im separaten n8n-Dienst kann der HTTP-Request-Knoten APIs aufrufen, und Sie können eigene n8n-Knoten für interne Systeme entwickeln. Konnektorunterstützung, Authentifizierung, Hosting, Wartung, Limits und Kosten werden von n8n und den jeweiligen Anbietern bestimmt.
 ---
 
 ## Warum CRM-Integrationen wichtig sind
@@ -143,6 +120,30 @@ Während HubSpot mehr Marketplace-Apps bietet und Zapier mehr Dienste verbindet,
 **EU-Datenbankregion mit dokumentierten Anbietern.** Die gehostete Customermates-Datenbank läuft in einer EU-Region. Anwendungshosting, n8n und verbundene Anbieter, darunter US-Anbieter, können Daten andernorts verarbeiten; das ist eine Bereitstellungsangabe, keine DSGVO- oder andere Compliance-Zertifizierung.
 
 **Self-hostbare Anwendung und Datenbank.** Betreiben Sie Customermates-Anwendung und PostgreSQL-Datenbank auf Ihrer Infrastruktur. Externe KI-, Workflow-, Messaging- und Geschäftsanbieter erhalten weiterhin die Daten Ihrer Konfiguration und führen eigene Zugangsdaten und Protokolle.
+
+## Häufig gestellte Fragen
+
+<Faq>
+<FaqItem question="Wie viele Integrationen unterstützt Customermates?">
+Customermates liefert REST, [[derived.webhooks.events.total]] Webhook-Ereigniswerte, [[derived.mcp.tools.total]] MCP-Tools für unterstützte externe KI-Clients und einen Community-Node für eine separate n8n-Instanz. Der Katalog mit 400+ Konnektoren gehört n8n; das native gemeinsame Postfach verbindet unterstützte E-Mail- und Social-Kanäle ab Pro.
+</FaqItem>
+
+<FaqItem question="Muss ich für Integrationen extra bezahlen?">
+REST, Webhooks und MCP-Zugriff starten mit der Starter-Stufe für [[commercial.price.starter.monthly]] pro Nutzer und Monat. n8n-Workflows, Konnektoren, Hosting, Ausführungen, Protokolle, Zustellanbieter, Limits und Kosten sind separat und hängen von den gewählten Diensten ab.
+</FaqItem>
+
+<FaqItem question="Kann ich Zapier durch Customermates ersetzen?">
+Nicht allein. Eine separate n8n-Instanz kann einige CRM-bezogene Zapier- oder Make-Workflows ersetzen, wenn Konnektoren, Tarif, Limits und Betrieb passen. Customermates verbindet sie über REST, Webhooks, MCP und Community-Node, enthält aber kein Automatisierungsabonnement.
+</FaqItem>
+
+<FaqItem question="Ist die REST API in jedem Plan enthalten?">
+Dokumentierter API-Zugang steht in den veröffentlichten Tarifen bereit. Folgen Sie dem aktuellen OpenAPI-Dokument und den Antworten für Operationen, Paginierung, Durchsatz und Wiederholungen; Customermates veröffentlicht kein allgemeines Unbegrenzt-Versprechen und keinen Rate-Limit-Header-Vertrag.
+</FaqItem>
+
+<FaqItem question="Kann ich Integrationen mit Tools erstellen, die nicht in n8n gelistet sind?">
+Im separaten n8n-Dienst kann der HTTP-Request-Knoten APIs aufrufen, und Sie können eigene n8n-Knoten für interne Systeme entwickeln. Konnektorunterstützung, Authentifizierung, Hosting, Wartung, Limits und Kosten werden von n8n und den jeweiligen Anbietern bestimmt.
+</FaqItem>
+</Faq>
 
 ## Starten Sie heute mit CRM-Integrationen
 

@@ -6,7 +6,6 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Footer } from "@/app/components/footer";
 import { PageHero } from "@/components/marketing/page-hero";
 import { CTASection } from "@/components/marketing/cta-section";
-import { FAQSection } from "@/components/marketing/faq-section";
 import { MarketingContainer } from "@/components/marketing/marketing-container";
 import { ShowcaseFrame } from "@/components/marketing/showcase-frame";
 import { AppImage } from "@/components/shared/app-image";
@@ -82,8 +81,6 @@ export default async function ForIndustryPage({ params }: Props) {
           </Toc>
         </MarketingContainer>
       </section>
-
-      {page.data.faq ? <FAQSection {...page.data.faq} /> : null}
 
       <CTASection {...page.data.cta} />
 

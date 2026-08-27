@@ -20,29 +20,6 @@ cta:
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
-faq:
-  title: "Häufig gestellte Fragen"
-  faqs:
-  - id: cloud-crm-faq-1
-    title: "Was sind Cloud-basierte CRM-Systeme?"
-    content: |-
-        Cloud-basierte CRM-Systeme sind Kundenmanagement-Plattformen, die auf externen Servern gehostet und über das Internet genutzt werden. Anders als On-Premise-Lösungen auf firmeneigener Hardware werden Updates, Sicherheit und Backups vom Anbieter übernommen. Beispiele: Salesforce, HubSpot, Zoho CRM und Customermates.
-  - id: cloud-crm-faq-2
-    title: "Ist eine Cloud-CRM-Lösung sicher?"
-    content: |-
-        Ja, seriöse Cloud-CRM-Anbieter bieten in der Regel stärkere Sicherheit als die meisten Unternehmen mit On-Premise-Lösungen erreichen. Achten Sie auf verschlüsselte Verbindungen (TLS), Datenverschlüsselung, rollenbasierte Zugriffskontrolle, regelmäßige Sicherheitsaudits und Compliance-Zertifizierungen (DSGVO, SOC 2). Customermates bietet zusätzlich Open-Source-Transparenz, der Code ist öffentlich prüfbar.
-  - id: cloud-crm-faq-3
-    title: "Was kostet ein CRM aus der Cloud?"
-    content: |-
-        Cloud-CRM-Preise reichen von kostenlos (mit deutlichen Einschränkungen) bis 300+ $/Nutzer/Monat für Enterprise-Pläne. Die meisten kleinen Unternehmen zahlen 10 bis 30 €/Nutzer/Monat. Customermates startet bei [[commercial.price.starter.monthly]]/Nutzer/Monat für das Kern-CRM (Starter), [[commercial.price.pro.monthly]]/Nutzer/Monat, sobald das gemeinsame Postfach dazukommt (Pro), und [[commercial.price.business.monthly]]/Nutzer/Monat für Teams mit geteilten Postfächern und mehreren verbundenen Konten (Business), darüber eine individuelle Enterprise-Stufe. Siehe unseren [kostenlosen CRM-Vergleich](/blog/free-crm) für eine detaillierte Übersicht.
-  - id: cloud-crm-faq-4
-    title: "Kann ich von On-Premise auf eine Cloud-Lösung wechseln?"
-    content: |-
-        Ja, der Weg unterscheidet sich je nach Produkt. Customermates hat keinen CSV-Importer: Bereiten Sie Quelldaten außerhalb des Produkts auf, ordnen und validieren Sie sie und entfernen Sie Duplikate. Erstellen Sie unterstützte Datensätze danach über eine kundenseitige REST-Integration oder einen separat konfigurierten externen KI-Client per MCP. Der Aufwand hängt von Datenqualität, Zuordnung, Validierung und Volumen ab.
-  - id: cloud-crm-faq-5
-    title: "Was ist der Unterschied zwischen Cloud CRM und SaaS CRM?"
-    content: |-
-        Im Grunde dasselbe. SaaS (Software as a Service) ist das Bereitstellungsmodell, Cloud CRM ist die Produktkategorie. Beides bedeutet: Software, die von einem Anbieter gehostet und über das Internet per Abo genutzt wird.
 ---
 
 ## Was ist ein Cloud CRM?
@@ -156,6 +133,30 @@ Customermates verbindet die Bequemlichkeit von Cloud-Hosting mit der Transparenz
 **Externe KI-Clients und ein natives Postfach.** Unterstützte Clients wie Claude, ChatGPT oder Gemini können [[derived.mcp.tools.total]] MCP-Tools für zulässige CRM- und Messaging-Aktionen nutzen; Customermates enthält weder Client noch Modell. Das gemeinsame Postfach bringt unterstützte E-Mail- und Social-Kanäle ab Pro in den verwalteten Dienst; Client-Abos und Anbieter-Verarbeitung bleiben separat.
 
 **Klare, faire Stufen.** [Kontaktverwaltung](/features/contact-management), [Pipeline-Management](/features/pipeline), Custom Fields, API-Zugang, Webhooks, Team-Berechtigungen und MCP-Zugriff für unterstützte externe KI-Clients ([[derived.mcp.tools.total]] Tools) starten mit Starter für [[commercial.price.starter.monthly]]/Nutzer/Monat. [E-Mail, LinkedIn, WhatsApp und weitere Kanäle im gemeinsamen Postfach](/features/email-integration) starten mit Pro für [[commercial.price.pro.monthly]]/Nutzer/Monat, zusammen mit schreibgeschütztem Kalenderzugriff und Sales Navigator. Geteilte Konten und mehrere verbundene Konten kommen mit Business für [[commercial.price.business.monthly]]/Nutzer/Monat. [Preise ansehen →](/pricing)
+
+## Häufig gestellte Fragen
+
+<Faq>
+<FaqItem question="Was sind Cloud-basierte CRM-Systeme?">
+Cloud-basierte CRM-Systeme sind Kundenmanagement-Plattformen, die auf externen Servern gehostet und über das Internet genutzt werden. Anders als On-Premise-Lösungen auf firmeneigener Hardware werden Updates, Sicherheit und Backups vom Anbieter übernommen. Beispiele: Salesforce, HubSpot, Zoho CRM und Customermates.
+</FaqItem>
+
+<FaqItem question="Ist eine Cloud-CRM-Lösung sicher?">
+Ja, seriöse Cloud-CRM-Anbieter bieten in der Regel stärkere Sicherheit als die meisten Unternehmen mit On-Premise-Lösungen erreichen. Achten Sie auf verschlüsselte Verbindungen (TLS), Datenverschlüsselung, rollenbasierte Zugriffskontrolle, regelmäßige Sicherheitsaudits und Compliance-Zertifizierungen (DSGVO, SOC 2). Customermates bietet zusätzlich Open-Source-Transparenz, der Code ist öffentlich prüfbar.
+</FaqItem>
+
+<FaqItem question="Was kostet ein CRM aus der Cloud?">
+Cloud-CRM-Preise reichen von kostenlos (mit deutlichen Einschränkungen) bis 300+ $/Nutzer/Monat für Enterprise-Pläne. Die meisten kleinen Unternehmen zahlen 10 bis 30 €/Nutzer/Monat. Customermates startet bei [[commercial.price.starter.monthly]]/Nutzer/Monat für das Kern-CRM (Starter), [[commercial.price.pro.monthly]]/Nutzer/Monat, sobald das gemeinsame Postfach dazukommt (Pro), und [[commercial.price.business.monthly]]/Nutzer/Monat für Teams mit geteilten Postfächern und mehreren verbundenen Konten (Business), darüber eine individuelle Enterprise-Stufe. Siehe unseren [kostenlosen CRM-Vergleich](/blog/free-crm) für eine detaillierte Übersicht.
+</FaqItem>
+
+<FaqItem question="Kann ich von On-Premise auf eine Cloud-Lösung wechseln?">
+Ja, der Weg unterscheidet sich je nach Produkt. Customermates hat keinen CSV-Importer: Bereiten Sie Quelldaten außerhalb des Produkts auf, ordnen und validieren Sie sie und entfernen Sie Duplikate. Erstellen Sie unterstützte Datensätze danach über eine kundenseitige REST-Integration oder einen separat konfigurierten externen KI-Client per MCP. Der Aufwand hängt von Datenqualität, Zuordnung, Validierung und Volumen ab.
+</FaqItem>
+
+<FaqItem question="Was ist der Unterschied zwischen Cloud CRM und SaaS CRM?">
+Im Grunde dasselbe. SaaS (Software as a Service) ist das Bereitstellungsmodell, Cloud CRM ist die Produktkategorie. Beides bedeutet: Software, die von einem Anbieter gehostet und über das Internet per Abo genutzt wird.
+</FaqItem>
+</Faq>
 
 ## Jetzt mit Cloud CRM starten
 

@@ -14,7 +14,6 @@ import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { comparePagesSource } from "@/core/fumadocs/source";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
 import { CTASection } from "@/components/marketing/cta-section";
-import { FAQSection } from "@/components/marketing/faq-section";
 import { Toc } from "@/components/shared/toc";
 import { breadcrumbListSchema, softwareApplicationSchema } from "@/core/seo/schemas";
 
@@ -98,8 +97,6 @@ export default async function CompetitorComparePage({ params }: Props) {
           </Toc>
         </MarketingContainer>
       </section>
-
-      {page.data.faq ? <FAQSection {...page.data.faq} /> : null}
 
       <CTASection {...page.data.cta} />
 

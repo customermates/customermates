@@ -20,33 +20,6 @@ cta:
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
-faq:
-  title: "Häufig gestellte Fragen"
-  faqs:
-  - id: slack-integration-faq-1
-    title: "Hat Customermates eine native Slack-Integration?"
-    content: |-
-        Nein. Es gibt keine Slack-App, keinen Slack-Kanal im zentralen Posteingang und keinen Slack-Bildschirm im Produkt. Alles auf dieser Seite wird mit einem externen Automatisierungstool gegen die Webhook- und REST-Oberflächen gebaut.
-  - id: slack-integration-faq-2
-    title: "Ist n8n bei Customermates enthalten?"
-    content: |-
-        Nein. n8n ist ein eigenes Open-Source-Produkt. Sie hosten es selbst oder abonnieren n8ns Cloud. Customermates veröffentlicht dafür eine [Community-Node](https://github.com/customermates/n8n-nodes-crm) und dokumentiert die [Integrationsmuster](/docs/n8n), und damit endet die Beziehung.
-  - id: slack-integration-faq-3
-    title: "Kann ich stattdessen Zapier oder Make nutzen?"
-    content: |-
-        Ja. Nichts an der Webhook- oder REST-Oberfläche ist n8n-spezifisch. Jedes Tool, das ein HTTP-POST empfangen und eine HTTP-API aufrufen kann, funktioniert.
-  - id: slack-integration-faq-4
-    title: "Welche Events kann ich abonnieren?"
-    content: |-
-        [[derived.webhooks.events.total]] Events über Datensätze und Messaging. Die vollständige Liste steht unter [Webhooks](/docs/webhooks).
-  - id: slack-integration-faq-5
-    title: "Kann ich CRM-Daten ohne Code nach Slack posten?"
-    content: |-
-        Ja, in dem Sinne, dass n8n, Make und Zapier visuelle Builder sind. Den Workflow entwerfen Sie trotzdem selbst; eine vorkonfigurierte Customermates-zu-Slack-Vorlage von uns gibt es nicht.
-  - id: slack-integration-faq-6
-    title: "Wird es jemals eine native Slack-Integration geben?"
-    content: |-
-        Sie steht nicht als zugesagter Punkt auf der Roadmap, und wir führen sie hier nicht auf, bevor es sie gibt.
 ---
 
 ## Was diese Seite behauptet und was nicht
@@ -104,6 +77,34 @@ Die Gegenrichtung läuft über die REST API oder MCP, wieder gesteuert von Ihrem
 **Sie steuern das Signal.** Welche Events feuern, welche Kanäle sie empfangen und was in jeder Nachricht steht, sind Entscheidungen in Ihrem Workflow und keine Schalter, die wir für Sie geraten haben.
 
 **Der Kern ist einsehbar.** AGPL-Kern-CRM, Webhook-Payloads, REST-Vertrag und MCP-Tool-Definitionen liegen im Repository. Self-Hosting betreibt Kernanwendung und PostgreSQL unter Starter-Berechtigungen; Slack und n8n bleiben extern.
+
+## Häufig gestellte Fragen
+
+<Faq>
+<FaqItem question="Hat Customermates eine native Slack-Integration?">
+Nein. Es gibt keine Slack-App, keinen Slack-Kanal im zentralen Posteingang und keinen Slack-Bildschirm im Produkt. Alles auf dieser Seite wird mit einem externen Automatisierungstool gegen die Webhook- und REST-Oberflächen gebaut.
+</FaqItem>
+
+<FaqItem question="Ist n8n bei Customermates enthalten?">
+Nein. n8n ist ein eigenes Open-Source-Produkt. Sie hosten es selbst oder abonnieren n8ns Cloud. Customermates veröffentlicht dafür eine [Community-Node](https://github.com/customermates/n8n-nodes-crm) und dokumentiert die [Integrationsmuster](/docs/n8n), und damit endet die Beziehung.
+</FaqItem>
+
+<FaqItem question="Kann ich stattdessen Zapier oder Make nutzen?">
+Ja. Nichts an der Webhook- oder REST-Oberfläche ist n8n-spezifisch. Jedes Tool, das ein HTTP-POST empfangen und eine HTTP-API aufrufen kann, funktioniert.
+</FaqItem>
+
+<FaqItem question="Welche Events kann ich abonnieren?">
+[[derived.webhooks.events.total]] Events über Datensätze und Messaging. Die vollständige Liste steht unter [Webhooks](/docs/webhooks).
+</FaqItem>
+
+<FaqItem question="Kann ich CRM-Daten ohne Code nach Slack posten?">
+Ja, in dem Sinne, dass n8n, Make und Zapier visuelle Builder sind. Den Workflow entwerfen Sie trotzdem selbst; eine vorkonfigurierte Customermates-zu-Slack-Vorlage von uns gibt es nicht.
+</FaqItem>
+
+<FaqItem question="Wird es jemals eine native Slack-Integration geben?">
+Sie steht nicht als zugesagter Punkt auf der Roadmap, und wir führen sie hier nicht auf, bevor es sie gibt.
+</FaqItem>
+</Faq>
 
 ## Loslegen
 

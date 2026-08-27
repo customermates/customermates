@@ -20,37 +20,6 @@ cta:
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
-faq:
-  title: "Frequently asked questions"
-  faqs:
-  - id: plumbers-faq-1
-    title: "What is a CRM for plumbers?"
-    content: |-
-        A CRM (Customer Relationship Management) for plumbers is software that helps plumbing businesses manage customer information, track jobs from inquiry to invoice, schedule technicians, follow up on estimates, and automate recurring tasks like maintenance reminders. Instead of relying on memory, spreadsheets, or a whiteboard, a plumbing CRM keeps everything in one searchable system.
-  - id: plumbers-faq-2
-    title: "Can Customermates replace my current scheduling and dispatch system?"
-    content: |-
-        Yes. Customermates provides pipeline management with a Kanban board where you can track every job from first contact to completion. You can assign jobs to technicians, set priorities, and use automations to trigger notifications. For businesses that need deep GPS routing or real-time fleet tracking, you can connect specialized tools through n8n integrations.
-  - id: plumbers-faq-3
-    title: "Is Customermates suitable for a solo plumber or only for teams?"
-    content: |-
-        Both. A solo plumber benefits from automated estimate follow-ups, customer history, and maintenance reminders, the features that prevent revenue from slipping through the cracks. Teams benefit from shared customer records, technician assignment, and workload visibility. Pricing starts at [[commercial.price.starter.monthly]]/month for a single user. This requires a scheduler in your own n8n instance or another external service through the API; Customermates does not run scheduled follow-ups or reminders itself.
-  - id: plumbers-faq-4
-    title: "How does Customermates handle emergency vs. planned work?"
-    content: |-
-        You can use separate pipelines, tags, or custom fields to distinguish emergency call-outs from planned jobs. This lets you track emergency response times separately, prioritize urgent work in your queue, and measure conversion rates on planned estimates, all within the same system.
-  - id: plumbers-faq-5
-    title: "Is my customer data secure and GDPR-compliant?"
-    content: |-
-        Customermates is hosted in the EU region and is GDPR-compliant by design. You can also self-host the software on your own infrastructure for complete data sovereignty. The codebase is open source, so you can verify exactly how your data is handled.
-  - id: plumbers-faq-6
-    title: "Can I connect Customermates to my accounting software?"
-    content: |-
-        Yes. Through n8n automation, you can connect Customermates to QuickBooks, Xero, lexoffice, and many other accounting and invoicing tools. Completed jobs can automatically trigger invoice creation, keeping your books in sync without double entry.
-  - id: plumbers-faq-7
-    title: "How long does it take to set up?"
-    content: |-
-        Creating an account and adding records manually is separate from migrating an existing dataset. Customermates has no CSV uploader; prepare and map source data outside the product, create supported records through REST or MCP, and verify the results before relying on them.
 ---
 
 ## Why plumbers need a CRM
@@ -161,6 +130,38 @@ A solo plumber pays [[commercial.price.starter.monthly]]/month on Starter. A tea
 5. **Set up automations**, create rules for estimate follow-ups, maintenance reminders, and customer notifications.
 
 Already using another CRM or field service tool? Customermates makes migration straightforward with an open API and an AI agent that can do the loading for you.
+
+## Frequently asked questions
+
+<Faq>
+<FaqItem question="What is a CRM for plumbers?">
+A CRM (Customer Relationship Management) for plumbers is software that helps plumbing businesses manage customer information, track jobs from inquiry to invoice, schedule technicians, follow up on estimates, and automate recurring tasks like maintenance reminders. Instead of relying on memory, spreadsheets, or a whiteboard, a plumbing CRM keeps everything in one searchable system.
+</FaqItem>
+
+<FaqItem question="Can Customermates replace my current scheduling and dispatch system?">
+Yes. Customermates provides pipeline management with a Kanban board where you can track every job from first contact to completion. You can assign jobs to technicians, set priorities, and use automations to trigger notifications. For businesses that need deep GPS routing or real-time fleet tracking, you can connect specialized tools through n8n integrations.
+</FaqItem>
+
+<FaqItem question="Is Customermates suitable for a solo plumber or only for teams?">
+Both. A solo plumber benefits from automated estimate follow-ups, customer history, and maintenance reminders, the features that prevent revenue from slipping through the cracks. Teams benefit from shared customer records, technician assignment, and workload visibility. Pricing starts at [[commercial.price.starter.monthly]]/month for a single user. This requires a scheduler in your own n8n instance or another external service through the API; Customermates does not run scheduled follow-ups or reminders itself.
+</FaqItem>
+
+<FaqItem question="How does Customermates handle emergency vs. planned work?">
+You can use separate pipelines, tags, or custom fields to distinguish emergency call-outs from planned jobs. This lets you track emergency response times separately, prioritize urgent work in your queue, and measure conversion rates on planned estimates, all within the same system.
+</FaqItem>
+
+<FaqItem question="Is my customer data secure and GDPR-compliant?">
+Customermates is hosted in the EU region and is GDPR-compliant by design. You can also self-host the software on your own infrastructure for complete data sovereignty. The codebase is open source, so you can verify exactly how your data is handled.
+</FaqItem>
+
+<FaqItem question="Can I connect Customermates to my accounting software?">
+Yes. Through n8n automation, you can connect Customermates to QuickBooks, Xero, lexoffice, and many other accounting and invoicing tools. Completed jobs can automatically trigger invoice creation, keeping your books in sync without double entry.
+</FaqItem>
+
+<FaqItem question="How long does it take to set up?">
+Creating an account and adding records manually is separate from migrating an existing dataset. Customermates has no CSV uploader; prepare and map source data outside the product, create supported records through REST or MCP, and verify the results before relying on them.
+</FaqItem>
+</Faq>
 
 ---
 

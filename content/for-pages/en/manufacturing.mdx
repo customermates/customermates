@@ -20,37 +20,6 @@ cta:
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
-faq:
-  title: "Frequently asked questions"
-  faqs:
-  - id: manufacturing-faq-1
-    title: "Can Customermates integrate with our ERP system?"
-    content: |-
-        Yes. Customermates provides a full REST [API](/features/api) and webhooks for real-time data exchange. Using the n8n [workflow automation](/features/workflow-automation) engine, you can connect to SAP, Microsoft Dynamics, or any ERP system with an API, syncing order data, customer records, and deal information without custom development. Read our detailed guide on [CRM and ERP integration](/blog/crm-and-erp).
-  - id: manufacturing-faq-2
-    title: "How does Customermates handle complex account structures?"
-    content: |-
-        Customermates uses organizations with multi-contact support and custom fields to model complex account hierarchies. You can link contacts to organizations at any level, add custom fields for plant locations, regional assignments, and reporting structures, and track the full interaction history across every stakeholder, from plant-level procurement to corporate decision-makers. See our [contact management](/features/contact-management) features.
-  - id: manufacturing-faq-3
-    title: "Is Customermates suitable for both direct sales and distributor-based sales models?"
-    content: |-
-        Absolutely. You can run separate [pipelines](/features/pipeline) for direct sales and distributor-managed deals, with custom fields and stages tailored to each model. Distributor organizations get their own contact records, performance tracking fields, and communication history, giving you full visibility across both sales channels.
-  - id: manufacturing-faq-4
-    title: "What makes Customermates different from Salesforce or HubSpot for manufacturing?"
-    content: |-
-        Three things: transparency, cost, and control. Customermates is fully open source, so you can inspect, modify, and self-host the code. It also pairs two features few CRMs combine: AI agents that read and write the CRM through [[derived.mcp.tools.total]] MCP tools, and a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram). Starting at [[commercial.price.starter.monthly]]/user/month, with the unified inbox on Pro at [[commercial.price.pro.monthly]]/user/month, it costs a fraction of [Salesforce](/compare/salesforce-alternative) or [HubSpot](/compare/hubspot-alternative) at scale. And with EU hosting plus optional self-hosting, your sensitive manufacturing data stays where you need it. Compare all options in our [CRM comparison](/blog/crm-comparison).
-  - id: manufacturing-faq-5
-    title: "How do I get started with Customermates for manufacturing?"
-    content: |-
-        Getting started takes minutes. Read our [CRM implementation guide](/blog/crm-implementation) for a step-by-step walkthrough, or jump straight in:
-
-        1. **[Create your free account](/auth/signup)**, no credit card required, [[commercial.trial.days]] days to explore every feature.
-        2. **Migrate supported records**, use the REST API, or hand a prepared source export to an AI agent connected over MCP. Customermates has no CSV uploader.
-        3. **Set up your pipeline**, define stages that match your quoting, approval, and order process. Add custom fields for technical and commercial data.
-        4. **Invite your team**, add sales reps, account managers, and support staff with appropriate roles and permissions.
-        5. **Activate automations**, use n8n to automate reorder reminders, follow-up tasks, quote follow-ups, and ERP integrations.
-
-        Customermates is open source, no vendor lock-in, full transparency, and a growing community shaping the product for real-world manufacturing use. Explore our [open-source CRM](/blog/open-source-crm) philosophy.
 ---
 
 ## Why manufacturing companies need a CRM
@@ -166,6 +135,38 @@ Manufacturing margins are tight enough without overpaying for software. Customer
 - **Self-hostable**, keep sensitive customer and pricing data on your own infrastructure, free forever
 
 Since customer and distributor communication runs through email, most manufacturing sales teams land on Pro. For a sales team of 8, that is [[commercial.price.pro.monthly.seats.8]] per month for a complete CRM for manufacturing. For 20 users across sales, account management, and support, it is [[commercial.price.pro.monthly.seats.20]]/month. No escalating costs as your data grows. Compare on our [pricing page](/pricing) or see how we compare to [Salesforce](/compare/salesforce-alternative), [HubSpot](/compare/hubspot-alternative), or [Pipedrive](/compare/pipedrive-alternative). For more on CRM costs across providers, see our [CRM cost guide](/blog/crm-cost).
+
+## Frequently asked questions
+
+<Faq>
+<FaqItem question="Can Customermates integrate with our ERP system?">
+Yes. Customermates provides a full REST [API](/features/api) and webhooks for real-time data exchange. Using the n8n [workflow automation](/features/workflow-automation) engine, you can connect to SAP, Microsoft Dynamics, or any ERP system with an API, syncing order data, customer records, and deal information without custom development. Read our detailed guide on [CRM and ERP integration](/blog/crm-and-erp).
+</FaqItem>
+
+<FaqItem question="How does Customermates handle complex account structures?">
+Customermates uses organizations with multi-contact support and custom fields to model complex account hierarchies. You can link contacts to organizations at any level, add custom fields for plant locations, regional assignments, and reporting structures, and track the full interaction history across every stakeholder, from plant-level procurement to corporate decision-makers. See our [contact management](/features/contact-management) features.
+</FaqItem>
+
+<FaqItem question="Is Customermates suitable for both direct sales and distributor-based sales models?">
+Absolutely. You can run separate [pipelines](/features/pipeline) for direct sales and distributor-managed deals, with custom fields and stages tailored to each model. Distributor organizations get their own contact records, performance tracking fields, and communication history, giving you full visibility across both sales channels.
+</FaqItem>
+
+<FaqItem question="What makes Customermates different from Salesforce or HubSpot for manufacturing?">
+Three things: transparency, cost, and control. Customermates is fully open source, so you can inspect, modify, and self-host the code. It also pairs two features few CRMs combine: AI agents that read and write the CRM through [[derived.mcp.tools.total]] MCP tools, and a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram). Starting at [[commercial.price.starter.monthly]]/user/month, with the unified inbox on Pro at [[commercial.price.pro.monthly]]/user/month, it costs a fraction of [Salesforce](/compare/salesforce-alternative) or [HubSpot](/compare/hubspot-alternative) at scale. And with EU hosting plus optional self-hosting, your sensitive manufacturing data stays where you need it. Compare all options in our [CRM comparison](/blog/crm-comparison).
+</FaqItem>
+
+<FaqItem question="How do I get started with Customermates for manufacturing?">
+Getting started takes minutes. Read our [CRM implementation guide](/blog/crm-implementation) for a step-by-step walkthrough, or jump straight in:
+
+1. **[Create your free account](/auth/signup)**, no credit card required, [[commercial.trial.days]] days to explore every feature.
+2. **Migrate supported records**, use the REST API, or hand a prepared source export to an AI agent connected over MCP. Customermates has no CSV uploader.
+3. **Set up your pipeline**, define stages that match your quoting, approval, and order process. Add custom fields for technical and commercial data.
+4. **Invite your team**, add sales reps, account managers, and support staff with appropriate roles and permissions.
+5. **Activate automations**, use n8n to automate reorder reminders, follow-up tasks, quote follow-ups, and ERP integrations.
+
+Customermates is open source, no vendor lock-in, full transparency, and a growing community shaping the product for real-world manufacturing use. Explore our [open-source CRM](/blog/open-source-crm) philosophy.
+</FaqItem>
+</Faq>
 
 <RelatedPages>
   <RelatedPage href="/for/logistics" />

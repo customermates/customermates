@@ -11,20 +11,6 @@ const ORGANIZATION_SAME_AS = [
 const FOUNDER_NAME = "Benjamin Wagner";
 const FOUNDER_URL = "https://www.linkedin.com/in/wagner-benjamin/";
 
-export function markdownToPlainText(markdown: string): string {
-  return markdown
-    .replace(/\[([^\]]+)\]\([^)]*\)/gu, "$1")
-    .replace(/\*\*([^*]+)\*\*/gu, "$1")
-    .replace(/~~([^~]+)~~/gu, "$1")
-    .replace(/`([^`]+)`/gu, "$1")
-    .replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/gmu, "$1$2")
-    .replace(/(^|[^_])_([^_\n]+)_(?!_)/gmu, "$1$2")
-    .replace(/^\s*[-*]\s+/gmu, "")
-    .replace(/^\s*\d+\.\s+/gmu, "")
-    .replace(/\s+/gu, " ")
-    .trim();
-}
-
 export function organizationSchema() {
   return {
     "@context": "https://schema.org",

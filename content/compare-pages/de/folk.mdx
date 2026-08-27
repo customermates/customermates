@@ -102,29 +102,6 @@ cta:
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
   hint: ✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos
-faq:
-  title: "Häufig gestellte Fragen"
-  faqs:
-  - id: folk-faq-1
-    title: "Ist Folk CRM gut?"
-    content: |-
-        Folk ist ein solide gebautes CRM für Solo-Founder und kleine Teams, die über LinkedIn sourcen. Die UI ist sauber, die Chrome-Extension macht den Kontakt-Import schmerzfrei, und die KI-Assistenten für Entwürfe und Anreicherung sind ausgereift. Eine starke Wahl, wenn Beziehungsmanagement der Kern-Workflow ist. Hauptnachteil: Pro-Mitglied-Preise, die mit der Teamgröße schnell steigen, keine Self-Hosting-Option, und KI, die vorschlägt statt das CRM direkt zu bedienen.
-  - id: folk-faq-2
-    title: "Ist Folk CRM kostenlos?"
-    content: |-
-        Nein. Folk hat einen 14-tägigen kostenlosen Test des Premium-Tarifs bei Anmeldung. Danach kostet Standard $24 pro Mitglied pro Monat im Jahresplan oder $30 monatlich, Premium $48 jährlich oder $60 monatlich. Customermates bietet einen [[commercial.trial.days]]-tägigen Pro-Test ohne Kreditkarte und ist als Open Source unter AGPL-3.0 kostenlos selbst hostbar.
-  - id: folk-faq-3
-    title: "Wem gehört Folk CRM?"
-    content: |-
-        Folk wird von einem Pariser Startup gebaut, gegründet von Simo Lemhandez und Team. Es ist ein Closed-Source-SaaS-Unternehmen, das auf Drittanbieter-Infrastruktur gehostet ist, mit optionaler EU-Residenz für europäische Kunden.
-  - id: folk-faq-4
-    title: "Integriert Folk LinkedIn?"
-    content: |-
-        Ja, über eine native Chrome-Extension, die Profile mit einem Klick ins CRM erfasst. Das ist einer der stärksten LinkedIn-first-CRM-Flows am Markt. Customermates hat keine native LinkedIn-Extension, deckt denselben Workflow aber programmatisch über MCP-Server, REST-API und n8n- / Apify-Scraper ab.
-  - id: folk-faq-5
-    title: "Was ist die beste Alternative zu Folk CRM?"
-    content: |-
-        Hängt vom Anwendungsfall ab. Für LinkedIn-first-Beziehungs-CRM mit eingebauten KI-Assistenten sind [Attio](https://attio.com) und [Dex](https://getdex.com) direkte Konkurrenten. Für ein Open-Source-, Agent-natives CRM, das günstiger pro User ist und volle API + MCP + Webhooks auf der Basis-Stufe liefert, ist Customermates der nächste Treffer. Für breitere CRM-Alternativen siehe die [Pipedrive-Alternative](/compare/pipedrive-alternative) und [HubSpot-Alternative](/compare/hubspot-alternative) Seiten.
 ---
 
 > Folk CRM ist ein schlankes, beziehungsorientiertes CRM, das kleine Teams wählen, sobald Tabellen, Notion oder Airtable nicht mehr reichen. Customermates ist ein Open-Source-CRM mit derselben modernen UX und zwei Features, die Folk nicht vollständig abdeckt: KI-Agenten, die das CRM direkt über [[derived.mcp.tools.total]] [MCP](/features/api)-Tools bedienen (plus einen [n8n](/features/workflow-automation)-Community-Node und [[derived.webhooks.events.total]] Webhook-Events, [[derived.webhooks.events.records]] Datensatz und [[derived.webhooks.events.messaging]] Messaging), und ein nativer Unified Inbox, der E-Mail, LinkedIn, WhatsApp, Instagram und Telegram an einem Ort zusammenbringt, wobei dieselbe KI über alle Kanäle lesen, schreiben und senden kann. Diese Seite stellt beide gegenüber, damit Sie das richtige Tool für Ihre Situation finden.
@@ -190,6 +167,30 @@ Wenn Sie Claude, ChatGPT oder Codex bereits nutzen und wollen, dass ein KI-Agent
 ## Fazit
 
 Folk CRM ist ein poliertes beziehungsorientiertes CRM mit starker LinkedIn-Ergonomie und hilfreichen KI-Assistenten. Customermates ist ein Open-Source-CRM mit derselben modernen UX, aber von Grund auf so gebaut, dass KI-Agenten es direkt über [[derived.mcp.tools.total]] MCP-Tools, n8n und Webhooks bedienen, plus einen nativen Unified Inbox über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram. Beide funktionieren für kleine Teams. Wählen Sie Folk, wenn LinkedIn Ihr Kanal ist und Sie ein Closed-Source-SaaS wollen, das Ihnen hilft, weniger zu tippen. Wählen Sie Customermates, wenn die KI für Sie tippen soll und Open Source, EU-Hosting und Self-Hosting Teil von „fertig" sind.
+
+## Häufig gestellte Fragen
+
+<Faq>
+<FaqItem question="Ist Folk CRM gut?">
+Folk ist ein solide gebautes CRM für Solo-Founder und kleine Teams, die über LinkedIn sourcen. Die UI ist sauber, die Chrome-Extension macht den Kontakt-Import schmerzfrei, und die KI-Assistenten für Entwürfe und Anreicherung sind ausgereift. Eine starke Wahl, wenn Beziehungsmanagement der Kern-Workflow ist. Hauptnachteil: Pro-Mitglied-Preise, die mit der Teamgröße schnell steigen, keine Self-Hosting-Option, und KI, die vorschlägt statt das CRM direkt zu bedienen.
+</FaqItem>
+
+<FaqItem question="Ist Folk CRM kostenlos?">
+Nein. Folk hat einen 14-tägigen kostenlosen Test des Premium-Tarifs bei Anmeldung. Danach kostet Standard $24 pro Mitglied pro Monat im Jahresplan oder $30 monatlich, Premium $48 jährlich oder $60 monatlich. Customermates bietet einen [[commercial.trial.days]]-tägigen Pro-Test ohne Kreditkarte und ist als Open Source unter AGPL-3.0 kostenlos selbst hostbar.
+</FaqItem>
+
+<FaqItem question="Wem gehört Folk CRM?">
+Folk wird von einem Pariser Startup gebaut, gegründet von Simo Lemhandez und Team. Es ist ein Closed-Source-SaaS-Unternehmen, das auf Drittanbieter-Infrastruktur gehostet ist, mit optionaler EU-Residenz für europäische Kunden.
+</FaqItem>
+
+<FaqItem question="Integriert Folk LinkedIn?">
+Ja, über eine native Chrome-Extension, die Profile mit einem Klick ins CRM erfasst. Das ist einer der stärksten LinkedIn-first-CRM-Flows am Markt. Customermates hat keine native LinkedIn-Extension, deckt denselben Workflow aber programmatisch über MCP-Server, REST-API und n8n- / Apify-Scraper ab.
+</FaqItem>
+
+<FaqItem question="Was ist die beste Alternative zu Folk CRM?">
+Hängt vom Anwendungsfall ab. Für LinkedIn-first-Beziehungs-CRM mit eingebauten KI-Assistenten sind [Attio](https://attio.com) und [Dex](https://getdex.com) direkte Konkurrenten. Für ein Open-Source-, Agent-natives CRM, das günstiger pro User ist und volle API + MCP + Webhooks auf der Basis-Stufe liefert, ist Customermates der nächste Treffer. Für breitere CRM-Alternativen siehe die [Pipedrive-Alternative](/compare/pipedrive-alternative) und [HubSpot-Alternative](/compare/hubspot-alternative) Seiten.
+</FaqItem>
+</Faq>
 
 <RelatedPages>
   <RelatedPage href="/compare/cobra-alternative" />

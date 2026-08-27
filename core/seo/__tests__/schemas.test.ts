@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { aggregateOfferSchema, markdownToPlainText } from "../schemas";
+import { aggregateOfferSchema } from "../schemas";
 
 import { CONTENT_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
@@ -24,15 +24,5 @@ describe("aggregateOfferSchema", () => {
       expect(offer?.lowPrice, `lowPrice for ${locale}`).toBe("12");
       expect(offer?.highPrice, `highPrice for ${locale}`).toBe("69");
     }
-  });
-});
-
-describe("markdownToPlainText", () => {
-  it("removes inline Markdown syntax from FAQ schema answers", () => {
-    expect(
-      markdownToPlainText(
-        "Use [the inbox](/docs/app-inbox), **review** the _draft_, run `send_email`, and ~~discard~~ revise it.",
-      ),
-    ).toBe("Use the inbox, review the draft, run send_email, and discard revise it.");
   });
 });

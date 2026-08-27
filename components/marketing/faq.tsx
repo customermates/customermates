@@ -4,9 +4,8 @@ import { Children, cloneElement, isValidElement } from "react";
 import { ChevronDown } from "lucide-react";
 
 import { JsonLd } from "@/components/seo/json-ld";
-import { FAQAnswer } from "@/components/marketing/faq-answer";
 import { cn } from "@/core/utils/cn";
-import { faqPageSchema, markdownToPlainText } from "@/core/seo/schemas";
+import { faqPageSchema } from "@/core/seo/schemas";
 
 type FaqItemProps = {
   children: ReactNode;
@@ -16,8 +15,7 @@ type FaqItemProps = {
 
 function plainText(node: ReactNode): string {
   if (node === null || node === undefined || typeof node === "boolean") return "";
-  if (typeof node === "string") return markdownToPlainText(node);
-  if (typeof node === "number") return String(node);
+  if (typeof node === "string" || typeof node === "number") return String(node);
   if (Array.isArray(node)) return node.map(plainText).join("");
   if (isValidElement(node)) return plainText((node.props as { children?: ReactNode }).children);
   return "";
@@ -44,7 +42,7 @@ export function FaqItem({ children, defaultOpen = false, question }: FaqItemProp
           "[&>*:first-child]:mt-0 [&>*:last-child]:mb-0",
         )}
       >
-        {typeof children === "string" ? <FAQAnswer content={children} /> : children}
+        {children}
       </div>
     </details>
   );

@@ -9,12 +9,6 @@ function contentFiles(): string[] {
   return walkFiles(join(REPO_ROOT, "content"), (path) => path.endsWith(".mdx"));
 }
 
-function landingFiles(): string[] {
-  return ["feature-pages", "for-pages", "compare-pages"].flatMap((collection) =>
-    walkFiles(join(REPO_ROOT, "content", collection), (path) => path.endsWith(".mdx")),
-  );
-}
-
 function usesFaq(source: string): boolean {
   return source.includes("<Faq>");
 }
@@ -48,14 +42,6 @@ describe("faq component", () => {
     const component = readFileSync(join(REPO_ROOT, "components/marketing/faq.tsx"), "utf8");
     expect(component).toContain("faqPageSchema");
     expect(component, "the schema must come from the items, not a second source").toContain("items.map(");
-  });
-
-  it("keeps landing-page FAQs in frontmatter instead of rendering a duplicate MDX block", () => {
-    const duplicateAuthorities = landingFiles()
-      .filter((file) => readFileSync(file, "utf8").includes("<Faq>"))
-      .map((file) => file.replace(REPO_ROOT + "/", ""));
-
-    expect(duplicateAuthorities, "a landing page would render two FAQ sections and two FAQPage schemas").toEqual([]);
   });
 
   it("keeps every question inside a Faq block and every block closed", () => {

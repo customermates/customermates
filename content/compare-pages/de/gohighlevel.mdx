@@ -122,29 +122,6 @@ cta:
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
   hint: ✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos
-faq:
-  title: "Häufig gestellte Fragen"
-  faqs:
-  - id: gohighlevel-faq-1
-    title: "Was ist GoHighLevel?"
-    content: |-
-        GoHighLevel (auch HighLevel) ist eine All-in-One-Marketing- und Vertriebsplattform, die primär für Agenturen gebaut wurde. Sie bündelt ein CRM mit Funnels, SMS-Marketing, E-Mail-Automatisierung, Terminbuchung, Reputation Management und einem White-Label-SaaS-Reseller-Modus. Das CRM-Modul ist solide, aber sekundär zu den Marketing-Tools.
-  - id: gohighlevel-faq-2
-    title: "Wie viel kostet GoHighLevel?"
-    content: |-
-        Der Starter-Plan kostet $97/Monat (3 Sub-Accounts), Unlimited $297/Monat (unbegrenzte Sub-Accounts), Agency Pro $497/Monat (SaaS-Modus). Alle Pläne sind pauschal pro Agentur, nicht pro User. Es gibt einen 14-tägigen Test mit Kreditkarte.
-  - id: gohighlevel-faq-3
-    title: "Für wen ist GoHighLevel geeignet?"
-    content: |-
-        Marketing-Agenturen, die Marketing-Services an Kleinunternehmens-Kunden weiterverkaufen und einen einzigen Anbieter für Funnels, SMS, Kalender, E-Mail und CRM wollen. Für kleine Teams ohne Sub-Accounts oder Marketing-Stack ist die Plattform überdimensioniert.
-  - id: gohighlevel-faq-4
-    title: "Ist GoHighLevel kostenlos?"
-    content: |-
-        Nein. Der günstigste Plan startet bei $97/Monat. Es gibt einen 14-tägigen kostenlosen Test, aber eine Kreditkarte ist nötig. Customermates bietet einen [[commercial.trial.days]]-tägigen Pro-Test ohne Kreditkarte und ist als Open Source unter AGPL-3.0 kostenlos selbst hostbar.
-  - id: gohighlevel-faq-5
-    title: "Kann ich Claude oder ChatGPT nutzen, um GoHighLevel zu bedienen?"
-    content: |-
-        Nicht direkt. GoHighLevel hat KI-Features als kostenpflichtige Add-ons, aber keinen MCP-Server, also können externe Agenten wie Claude oder Codex das CRM nicht strukturiert lesen oder schreiben. Customermates legt [[derived.mcp.tools.total]] MCP-Tools offen, die jede CRM-Operation abdecken, sodass jeder MCP-kompatible Agent das CRM direkt bedienen kann.
 ---
 
 > GoHighLevel (auch HighLevel genannt) ist eine All-in-One-Plattform für Vertrieb und Marketing, die primär für Agenturen gebaut wurde. Sie bündelt ein CRM mit Funnels, SMS-Marketing, E-Mail-Automatisierung, Terminbuchung und einem White-Label-Reseller-Modus. Customermates ist ein fokussiertes Open-Source-CRM mit zwei prägenden Features: KI-Agenten bedienen das CRM direkt über [[derived.mcp.tools.total]] [MCP](/features/api)-Tools (plus einen [n8n](/features/workflow-automation)-Community-Node und [[derived.webhooks.events.total]] Webhook-Events, [[derived.webhooks.events.records]] Datensatz und [[derived.webhooks.events.messaging]] Messaging), und ein nativer Unified Inbox bringt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram an einem Ort zusammen, bedienbar durch dieselben Agenten. Diese Seite stellt beide gegenüber, damit Sie entscheiden können, welches Tool zu Ihrem Bedarf passt.
@@ -216,6 +193,30 @@ Es ist auch die richtige Wahl, wenn Datensouveränität wichtig ist: Open Source
 ## Fazit
 
 GoHighLevel ist eine Marketing-Plattform mit eingebautem CRM. Sie verdient ihre $97 bis $497 im Monat, wenn eine Agentur die Funnels, SMS, Kalender und den SaaS-Modus tatsächlich nutzt. Für ein kleines Team, das einfach nur ein CRM will, ist sie überdimensioniert und teuer. Customermates liefert fokussiertes, quelloffenes CRM ab [[commercial.price.starter.monthly]] pro User pro Monat, mit echter KI-Agent-Integration über [[derived.mcp.tools.total]] MCP-Tools, einem nativen Unified Inbox über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram, einem n8n-Community-Node, EU-Hosting und Self-Hosting via Docker. Wenn Ihr Hebel „Das CRM aktualisiert sich selbst, weil ich Claude bereits nutze" ist, dann ist Customermates dafür gebaut.
+
+## Häufig gestellte Fragen
+
+<Faq>
+<FaqItem question="Was ist GoHighLevel?">
+GoHighLevel (auch HighLevel) ist eine All-in-One-Marketing- und Vertriebsplattform, die primär für Agenturen gebaut wurde. Sie bündelt ein CRM mit Funnels, SMS-Marketing, E-Mail-Automatisierung, Terminbuchung, Reputation Management und einem White-Label-SaaS-Reseller-Modus. Das CRM-Modul ist solide, aber sekundär zu den Marketing-Tools.
+</FaqItem>
+
+<FaqItem question="Wie viel kostet GoHighLevel?">
+Der Starter-Plan kostet $97/Monat (3 Sub-Accounts), Unlimited $297/Monat (unbegrenzte Sub-Accounts), Agency Pro $497/Monat (SaaS-Modus). Alle Pläne sind pauschal pro Agentur, nicht pro User. Es gibt einen 14-tägigen Test mit Kreditkarte.
+</FaqItem>
+
+<FaqItem question="Für wen ist GoHighLevel geeignet?">
+Marketing-Agenturen, die Marketing-Services an Kleinunternehmens-Kunden weiterverkaufen und einen einzigen Anbieter für Funnels, SMS, Kalender, E-Mail und CRM wollen. Für kleine Teams ohne Sub-Accounts oder Marketing-Stack ist die Plattform überdimensioniert.
+</FaqItem>
+
+<FaqItem question="Ist GoHighLevel kostenlos?">
+Nein. Der günstigste Plan startet bei $97/Monat. Es gibt einen 14-tägigen kostenlosen Test, aber eine Kreditkarte ist nötig. Customermates bietet einen [[commercial.trial.days]]-tägigen Pro-Test ohne Kreditkarte und ist als Open Source unter AGPL-3.0 kostenlos selbst hostbar.
+</FaqItem>
+
+<FaqItem question="Kann ich Claude oder ChatGPT nutzen, um GoHighLevel zu bedienen?">
+Nicht direkt. GoHighLevel hat KI-Features als kostenpflichtige Add-ons, aber keinen MCP-Server, also können externe Agenten wie Claude oder Codex das CRM nicht strukturiert lesen oder schreiben. Customermates legt [[derived.mcp.tools.total]] MCP-Tools offen, die jede CRM-Operation abdecken, sodass jeder MCP-kompatible Agent das CRM direkt bedienen kann.
+</FaqItem>
+</Faq>
 
 <RelatedPages>
   <RelatedPage href="/compare/cobra-alternative" />
