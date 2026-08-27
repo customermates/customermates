@@ -1,8 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { extname, resolve } from "node:path";
 
-import sharp from "sharp";
-
 import { APPROVED_NATIVE_VISUAL_ASSETS } from "../../components/marketing/visuals/native-fixtures";
 
 const REVIEW_FONTS = [
@@ -28,16 +26,9 @@ async function reviewDataUri(asset: string) {
   const path = resolve("public", asset.slice(1));
   const extension = extname(asset);
   const source = await readFile(path);
-  const body =
-    extension === ".png"
-      ? await sharp(source)
-          .resize(96, 96, { fit: "cover" })
-          .png({ compressionLevel: 9 })
-          .toBuffer()
-      : source;
   const mimeType = extension === ".svg" ? "image/svg+xml" : "image/png";
 
-  return `data:${mimeType};base64,${body.toString("base64")}`;
+  return `data:${mimeType};base64,${source.toString("base64")}`;
 }
 
 export async function inlineApprovedVisualAssets(markup: string) {
