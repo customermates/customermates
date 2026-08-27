@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import {
-  encodeToToon,
+  toonResult,
   runInteractor,
   customMcpFailure,
   formatDatesInResponse,
@@ -72,6 +72,49 @@ const GetMessagingThreadsSchema = z.object({
 
 const LIST_PARTICIPANT_LIMIT = 50;
 
+const linkedParticipantOutput = z.looseObject({
+  displayName: z.string().nullable().optional(),
+  identifier: z.string().nullable().optional(),
+  isSelf: z.boolean(),
+  isLinked: z.boolean(),
+  contact: z.object({ id: z.string(), name: z.string().nullable() }).nullable(),
+});
+
+const GetMessagingThreadsOutputSchema = z
+  .looseObject({
+    thread: z.looseObject({ id: z.string(), participants: z.array(linkedParticipantOutput) }).optional(),
+    messages: z.array(z.looseObject({ id: z.string(), isDraft: z.boolean().optional() })).optional(),
+    items: z.array(z.looseObject({ id: z.string(), participants: z.array(linkedParticipantOutput) })).optional(),
+  })
+  .describe("Detail mode returns thread plus messages; list mode returns items.");
+
+const GetActivitiesOutputSchema = z.looseObject({
+  availableSources: z.unknown(),
+  items: z.array(z.looseObject({})),
+  pageLimitReached: z.unknown(),
+  scopeTruncated: z.unknown(),
+  total: z.number(),
+  page: z.number(),
+});
+
+const GetCalendarsOutputSchema = z
+  .looseObject({
+    items: z.array(z.looseObject({})).optional(),
+    total: z.number().optional(),
+    page: z.number().optional(),
+    id: z.string().optional().describe("Present on event detail when eventId is set"),
+  })
+  .describe("List modes return items with total and page; eventId returns the event fields at the top level.");
+
+const SendChatMessageOutputSchema = z.object({ sent: z.literal(true), threadId: z.string().nullable() });
+const SendEmailOutputSchema = z.object({ sent: z.literal(true), threadId: z.string().nullable() });
+const SaveDraftOutputSchema = z.object({ draftMessageId: z.string(), threadId: z.string() });
+const DiscardDraftOutputSchema = z.object({ discarded: z.boolean(), threadId: z.string().nullable() });
+const UpdateMessagingThreadOutputSchema = z.object({ threadId: z.string(), state: z.string() });
+const ConnectMessagingAccountOutputSchema = z.object({
+  url: z.string().describe("Single-use hosted auth link, expires in 30 minutes"),
+});
+
 export const getMessagingThreadsTool = {
   name: "get_messaging_threads",
   title: "Get messaging threads",
@@ -87,11 +130,12 @@ export const getMessagingThreadsTool = {
     openWorldHint: false,
   },
   inputSchema: GetMessagingThreadsSchema,
+  outputSchema: GetMessagingThreadsOutputSchema,
   execute: (params: z.infer<typeof GetMessagingThreadsSchema>) => {
     const { threadId, page, pageSize, searchTerm, filters, sortDescriptor } = params;
     if (threadId) {
       return runInteractor(getGetMessagingThreadInteractor().invoke({ threadId, page, pageSize }), (data) =>
-        encodeToToon(
+        toonResult(
           formatDatesInResponse({
             thread: {
               id: data.thread.id,
@@ -151,7 +195,7 @@ export const getMessagingThreadsTool = {
         }),
       ),
       (data) =>
-        encodeToToon(
+        toonResult(
           formatDatesInResponse({
             items: data.items.map((thread) => ({
               id: thread.id,
@@ -219,6 +263,7 @@ export const getActivitiesTool = {
     openWorldHint: false,
   },
   inputSchema: GetActivitiesSchema,
+  outputSchema: GetActivitiesOutputSchema,
   execute: ({ page, pageSize, scope, filters, sortDescriptor }: z.infer<typeof GetActivitiesSchema>) =>
     runInteractor(
       getGetActivitiesApiInteractor().invoke(
@@ -230,7 +275,7 @@ export const getActivitiesTool = {
         }),
       ),
       (data) =>
-        encodeToToon(
+        toonResult(
           formatDatesInResponse({
             availableSources: data.availableSources,
             items: data.items,
@@ -281,6 +326,7 @@ export const getCalendarsTool = {
     openWorldHint: false,
   },
   inputSchema: GetCalendarsToolSchema,
+  outputSchema: GetCalendarsOutputSchema,
   execute: async ({
     list,
     eventId,
@@ -297,7 +343,7 @@ export const getCalendarsTool = {
       if (!result.ok) return mcpInteractorFailure(result.error);
       if (!result.data) return customMcpFailure(CustomErrorCode.calendarEventNotFound);
 
-      return encodeToToon(formatDatesInResponse(result.data));
+      return toonResult({ ...formatDatesInResponse(result.data) });
     }
 
     const params = GetQueryParamsSchema.parse({
@@ -309,7 +355,7 @@ export const getCalendarsTool = {
 
     if (list === "events") {
       return runInteractor(getGetCalendarEventsApiInteractor().invoke(params), (data) =>
-        encodeToToon(
+        toonResult(
           formatDatesInResponse({
             items: data.items,
             total: data.pagination?.total ?? data.items.length,
@@ -320,7 +366,7 @@ export const getCalendarsTool = {
     }
 
     return runInteractor(getGetCalendarsApiInteractor().invoke(params), (data) =>
-      encodeToToon(
+      toonResult(
         formatDatesInResponse({
           items: data.items,
           total: data.pagination?.total ?? data.items.length,
@@ -348,7 +394,7 @@ export const sendChatMessageTool = {
   description:
     "Use this when sending a real chat message (LinkedIn, WhatsApp, and other connected chat accounts). SIDE EFFECT: delivers a real message. " +
     "Exactly one mode: pass threadId to send text into that existing thread (optional draftMessageId converts a saved draft on send), " +
-    "or omit threadId to start a new chat, which requires connectedAccountId (see get_workspace_context) and attendeeIdentifiers " +
+    "or omit threadId to start a new chat, which requires connectedAccountId from get_workspace_context.connectedAccounts[].id (check its status is ok) and attendeeIdentifiers " +
     "(the recipients' provider handles, i.e. the value of a contact's messaging channel) plus optional chatName to name the group. " +
     "New LinkedIn chats default to the Classic product; set linkedinProduct to sales_navigator or recruiter to send an InMail from that product's inbox " +
     "(requires inmailSubject; recruiter also inmailSignature), or set inmail true on classic to InMail someone outside the network. " +
@@ -362,18 +408,22 @@ export const sendChatMessageTool = {
     openWorldHint: true,
   },
   inputSchema: SendChatMessageToolSchema,
+  outputSchema: SendChatMessageOutputSchema,
   execute: async (params: z.infer<typeof SendChatMessageToolSchema>) => {
     const { threadId } = params;
     if (threadId) {
       return runInteractor(
         getSendChatMessageInteractor().invoke({ ...params, threadId }),
         () => `Message sent in thread ${threadId}`,
+        () => ({ sent: true, threadId }),
       );
     }
     const startChat = StartChatInputSchema.safeParse(params);
     if (!startChat.success) return mcpValidationFailure(startChat.error);
-    return runInteractor(getStartChatInteractor().invoke(startChat.data), (data) =>
-      data.threadId ? `Chat started, thread ${data.threadId}` : "Chat started",
+    return runInteractor(
+      getStartChatInteractor().invoke(startChat.data),
+      (data) => (data.threadId ? `Chat started, thread ${data.threadId}` : "Chat started"),
+      (data) => ({ sent: true, threadId: data.threadId ?? null }),
     );
   },
 };
@@ -386,7 +436,7 @@ export const sendEmailTool = {
     "Required: to, subject, body, and at least one of threadId (reply; takes precedence if both given) or connectedAccountId (new email). " +
     "Optional: cc, bcc. cc/bcc are plain email strings (not the {identifier} object form used by to). " +
     "When replying into a thread, an identical body sent to that thread within about a minute is rejected as a duplicate. " +
-    "Get account ids from get_workspace_context and thread ids from get_messaging_threads.",
+    "connectedAccountId is get_workspace_context.connectedAccounts[].id (check its status is ok first); threadId is get_messaging_threads.items[].id.",
   annotations: {
     readOnlyHint: false,
     destructiveHint: false,
@@ -394,11 +444,16 @@ export const sendEmailTool = {
     openWorldHint: true,
   },
   inputSchema: SendEmailSchema,
+  outputSchema: SendEmailOutputSchema,
   execute: (params: z.infer<typeof SendEmailSchema>) =>
-    runInteractor(getSendEmailInteractor().invoke(params), (data) => {
-      if (params.threadId) return `Reply sent in thread ${params.threadId}`;
-      return data?.messagingThreadId ? `Email sent, thread ${data.messagingThreadId}` : "Email sent";
-    }),
+    runInteractor(
+      getSendEmailInteractor().invoke(params),
+      (data) => {
+        if (params.threadId) return `Reply sent in thread ${params.threadId}`;
+        return data?.messagingThreadId ? `Email sent, thread ${data.messagingThreadId}` : "Email sent";
+      },
+      (data) => ({ sent: true, threadId: params.threadId ?? data?.messagingThreadId ?? null }),
+    ),
 };
 
 export const saveMessageDraftTool = {
@@ -417,9 +472,10 @@ export const saveMessageDraftTool = {
     openWorldHint: false,
   },
   inputSchema: SaveDraftSchema,
+  outputSchema: SaveDraftOutputSchema,
   execute: (params: z.infer<typeof SaveDraftSchema>) =>
     runInteractor(getSaveDraftInteractor().invoke(params), (data) =>
-      encodeToToon({
+      toonResult({
         draftMessageId: data.id,
         threadId: data.messagingThreadId,
       }),
@@ -431,8 +487,8 @@ export const discardMessageDraftTool = {
   title: "Discard message draft",
   description:
     "Use this when a prepared draft is no longer wanted: permanently deletes it. " +
-    "messageId is a DRAFT message id, taken from save_message_draft's response or from the thread detail of " +
-    "get_messaging_threads (messages flagged isDraft). Only drafts can be discarded; sent and received messages are never affected. " +
+    "messageId is a DRAFT message id: save_message_draft.draftMessageId, or the id of a message flagged isDraft in " +
+    "get_messaging_threads thread detail. Only drafts can be discarded; sent and received messages are never affected. " +
     "Discarding an id that is not a draft is a safe no-op that reports no draft found.",
   annotations: {
     readOnlyHint: false,
@@ -441,9 +497,12 @@ export const discardMessageDraftTool = {
     openWorldHint: false,
   },
   inputSchema: DiscardDraftSchema,
+  outputSchema: DiscardDraftOutputSchema,
   execute: (params: z.infer<typeof DiscardDraftSchema>) =>
-    runInteractor(getDiscardDraftInteractor().invoke(params), (data) =>
-      data.threadId ? `Draft discarded from thread ${data.threadId}` : "No draft found for that message id",
+    runInteractor(
+      getDiscardDraftInteractor().invoke(params),
+      (data) => (data.threadId ? `Draft discarded from thread ${data.threadId}` : "No draft found for that message id"),
+      (data) => ({ discarded: Boolean(data.threadId), threadId: data.threadId ?? null }),
     ),
 };
 
@@ -456,8 +515,11 @@ export const updateMessagingThreadTool = {
   name: "update_messaging_thread",
   title: "Update messaging thread",
   description:
-    "Use this when triaging the inbox: sets a thread's state. state is one of unread, open, closed, or spam. " +
-    "threadId comes from get_messaging_threads. Setting the state a thread already has is a harmless no-op.",
+    "Use this when triaging the inbox: sets a thread's state inside the Customermates inbox only, never at the provider. " +
+    "Required: threadId from get_messaging_threads.items[].id, state. " +
+    "state is one of unread, open, closed, or spam; the state shows as a badge on the thread and is filterable in the inbox, it never hides or deletes anything. " +
+    "Setting the state a thread already has is a harmless no-op, so triage in bulk without reading each state first. " +
+    "The provider mailbox, the messages themselves, and any linked CRM records stay untouched.",
   annotations: {
     readOnlyHint: false,
     idempotentHint: true,
@@ -465,8 +527,13 @@ export const updateMessagingThreadTool = {
     openWorldHint: false,
   },
   inputSchema: UpdateMessagingThreadSchema,
+  outputSchema: UpdateMessagingThreadOutputSchema,
   execute: (params: z.infer<typeof UpdateMessagingThreadSchema>) =>
-    runInteractor(getUpdateThreadInteractor().invoke(params), () => `Thread ${params.threadId} set to ${params.state}`),
+    runInteractor(
+      getUpdateThreadInteractor().invoke(params),
+      () => `Thread ${params.threadId} set to ${params.state}`,
+      () => ({ threadId: params.threadId, state: params.state }),
+    ),
 };
 
 const ConnectMessagingAccountSchema = z.object({
@@ -495,8 +562,9 @@ export const connectMessagingAccountTool = {
     openWorldHint: true,
   },
   inputSchema: ConnectMessagingAccountSchema,
+  outputSchema: ConnectMessagingAccountOutputSchema,
   execute: async (params: z.infer<typeof ConnectMessagingAccountSchema>) => {
     const result = await getCreateAuthLinkInteractor().invoke(params);
-    return isRedirect(result) ? encodeToToon({ url: result.redirect }) : mcpInteractorFailure(result.error);
+    return isRedirect(result) ? toonResult({ url: result.redirect }) : mcpInteractorFailure(result.error);
   },
 };

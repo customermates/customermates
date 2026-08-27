@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -67,6 +67,69 @@ function catalogPath(locale: string): string {
 function catalogText(locale: string): string {
   return readFileSync(join(REPO_ROOT, catalogPath(locale)), "utf8");
 }
+
+
+describe("MCP tool description quality", () => {
+  let registry: typeof import("@/features/mcp-tools/tool-registry").ALL_MCP_TOOLS;
+  beforeAll(async () => {
+    registry = (await import("@/features/mcp-tools/tool-registry")).ALL_MCP_TOOLS;
+  }, 120_000);
+  const loadRegistry = async () => registry;
+  const CONNECTOR_MINIMUM_TOOLS = new Set(["search", "fetch"]);
+  const REAL_SEND_TOOLS = new Set(["send_email", "send_chat_message", "manage_social_relations", "manage_team", "request_support"]);
+  const PAGINATION_ARGS = new Set(["page", "cursor", "offset"]);
+  const PAGINATION_WORDS = /pagin|cursor|offset|page/i;
+  const shapeOf = (schema: unknown): Record<string, unknown> => {
+    const candidate = schema as { shape?: Record<string, unknown> };
+    return candidate?.shape ?? {};
+  };
+
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("declares an output schema on every tool", async () => {
+    const missing = (await loadRegistry()).filter((tool) => !tool.outputSchema).map((tool) => tool.name);
+    expect(missing).toEqual([]);
+  });
+
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps every output schema an object so the MCP wire can carry it", async () => {
+    const { z } = await import("zod");
+    const nonObject = (await loadRegistry())
+      .filter((tool) => tool.outputSchema && !(tool.outputSchema instanceof z.ZodObject))
+      .map((tool) => tool.name);
+    expect(nonObject, "tools/list silently drops a non-object outputSchema (unions cannot be registered)").toEqual([]);
+  });
+
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps every description above the floor and every connector stub pointing at the real tool", async () => {
+    const violations: string[] = [];
+    for (const tool of await loadRegistry()) {
+      if (CONNECTOR_MINIMUM_TOOLS.has(tool.name)) {
+        if (!/prefer [a-z_]+/.test(tool.description)) violations.push(`${tool.name}: connector stub must point interactive agents at the preferred tool`);
+        continue;
+      }
+      if (tool.description.length < 200) violations.push(`${tool.name}: description is ${tool.description.length} chars; the floor is 200`);
+    }
+    expect(violations).toEqual([]);
+  });
+
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("explains continuation on every paginated tool", async () => {
+    const violations: string[] = [];
+    for (const tool of await loadRegistry()) {
+      const argNames = Object.keys(shapeOf(tool.inputSchema));
+      if (!argNames.some((name) => PAGINATION_ARGS.has(name))) continue;
+      if (!PAGINATION_WORDS.test(tool.description)) violations.push(`${tool.name}: has ${argNames.filter((name) => PAGINATION_ARGS.has(name)).join("/")} but the description never mentions pagination`);
+    }
+    expect(violations).toEqual([]);
+  });
+
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("marks destructive and real-send behavior in the description itself", async () => {
+    const violations: string[] = [];
+    for (const tool of await loadRegistry()) {
+      if (tool.annotations?.destructiveHint && !/IRREVERSIBLE|permanently/.test(tool.description))
+        violations.push(`${tool.name}: destructiveHint without IRREVERSIBLE/permanently in the description`);
+      if (REAL_SEND_TOOLS.has(tool.name) && !/SIDE EFFECT|SENDS? (A )?REAL/.test(tool.description))
+        violations.push(`${tool.name}: sends something real but the description carries no SIDE EFFECT marker`);
+    }
+    expect(violations).toEqual([]);
+  });
+});
 
 describe("MCP tool catalog fidelity", () => {
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(

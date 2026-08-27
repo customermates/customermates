@@ -44,7 +44,7 @@ describe("connect_messaging_account", () => {
     });
     const result = await run({ channel: "whatsapp" });
     expect(spies.createAuthLink).toHaveBeenCalledWith({ channel: "whatsapp" });
-    expect(result).toContain("https://auth.example.com/link-abc");
+    expect(mcpToolResultText(result)).toContain("https://auth.example.com/link-abc");
   });
 
   it("surfaces an interactor gate failure as a clean validation error", async () => {

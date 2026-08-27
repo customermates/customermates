@@ -57,6 +57,10 @@ export const SITEMAP_EXTRA_CONTENT_ROUTES = ["/contact", "/docs/openapi"] as con
 export const PUBLIC_ROUTES = [
   ...PUBLIC_ROUTES_SEO,
   "/contact",
+  "/styleguide",
+  "/styleguide/foundations",
+  "/styleguide/patterns",
+  "/styleguide/visuals",
   "/auth/pending",
   "/auth/error",
   "/auth/verify-email",

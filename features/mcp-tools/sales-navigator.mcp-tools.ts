@@ -2,7 +2,7 @@ import type { SalesCompany, SalesList, SalesListItem } from "@/ee/messaging/sale
 
 import { z } from "zod";
 
-import { encodeToToon, formatDatesInResponse, mcpValidationFailure, runInteractor } from "./utils";
+import { formatDatesInResponse, mcpValidationFailure, runInteractor, toonResult } from "./utils";
 
 import { SalesCompanySchema } from "@/ee/messaging/sales-navigator/sales-navigator.schema";
 import { LinkedinListSalesListsSchema } from "@/ee/messaging/sales-navigator/linkedin-list-sales-lists.interactor";
@@ -166,6 +166,26 @@ function formatSalesCompany(company: SalesCompany) {
   return Object.fromEntries(Object.entries(fields).filter(([, value]) => value != null));
 }
 
+const salesPageOutput = z.looseObject({
+  items: z.array(z.looseObject({})),
+  total: z.number(),
+  next_offset: z.number().nullable(),
+});
+
+const SearchSalesLeadsOutputSchema = salesPageOutput;
+const SearchSalesCompaniesOutputSchema = salesPageOutput;
+const SalesSearchParametersOutputSchema = salesPageOutput;
+const ManageSalesListsOutputSchema = z
+  .looseObject({
+    items: z.array(z.looseObject({})).optional(),
+    total: z.number().optional(),
+    next_offset: z.number().nullable().optional(),
+    listId: z.string().optional(),
+    providerId: z.string().optional(),
+    status: z.string().optional(),
+  })
+  .describe("list and browse return the page fields; save returns listId, providerId and status.");
+
 export const searchSalesLeadsTool = {
   name: "linkedin_search_sales_leads",
   title: "Search Sales Navigator leads",
@@ -179,9 +199,10 @@ export const searchSalesLeadsTool = {
     "Requires a connected LinkedIn account with an active Sales Navigator subscription; without one the provider rejects the call.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
   inputSchema: SearchSalesLeadsToolSchema,
+  outputSchema: SearchSalesLeadsOutputSchema,
   execute: (params: z.infer<typeof SearchSalesLeadsToolSchema>) => {
     const format = (data: { data: SalesListItem[]; total_count?: number | null }) =>
-      encodeToToon(
+      toonResult(
         formatDatesInResponse({
           items: data.data.map(formatSalesListItem),
           total: data.total_count ?? data.data.length,
@@ -224,9 +245,10 @@ export const searchSalesCompaniesTool = {
     "Requires a connected LinkedIn account with an active Sales Navigator subscription; without one the provider rejects the call.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
   inputSchema: SearchSalesCompaniesToolSchema,
+  outputSchema: SearchSalesCompaniesOutputSchema,
   execute: (params: z.infer<typeof SearchSalesCompaniesToolSchema>) => {
     const format = (data: { data: unknown[]; total_count?: number | null }) =>
-      encodeToToon(
+      toonResult(
         formatDatesInResponse({
           items: data.data.map((item) => formatSalesCompany(SalesCompanySchema.parse(item))),
           total: data.total_count ?? data.data.length,
@@ -265,9 +287,11 @@ export const getSalesSearchParametersTool = {
     "Pass a type (LOCATION, INDUSTRY, JOB_TITLE, JOB_FUNCTION, COMPANY, SCHOOL, GROUP, RELATION, PERSONA, PROFILE_LANGUAGE, POSTAL_CODE, " +
     "LEAD_LIST, ACCOUNT_LIST, SAVED_PEOPLE_SEARCH, SAVED_COMPANY_SEARCH, RECENT_SEARCH) plus keywords and get back matching ids with display names. " +
     "LEAD_LIST and ACCOUNT_LIST also find existing Sales Navigator lists by name; use linkedin_get_sales_search_parameters.items[].id as linkedin_manage_sales_lists.listId. " +
+    "Paginate with offset plus limit when a type has more matches than one page. " +
     "Requires a connected LinkedIn account with an active Sales Navigator subscription.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
   inputSchema: GetSalesSearchParametersToolSchema,
+  outputSchema: SalesSearchParametersOutputSchema,
   execute: (params: z.infer<typeof GetSalesSearchParametersToolSchema>) =>
     runInteractor(
       getLinkedinListSalesSearchParametersInteractor().invoke({
@@ -278,7 +302,7 @@ export const getSalesSearchParametersTool = {
         limit: params.limit,
       }),
       (data) =>
-        encodeToToon(
+        toonResult(
           formatDatesInResponse({
             items: data.data.map((parameter) => ({ id: parameter.id, name: parameter.name })),
             total: data.total_count ?? data.data.length,
@@ -296,10 +320,12 @@ export const manageSalesListsTool = {
     "action list enumerates the existing lists (kind leads for people, accounts for companies) with linkedin_manage_sales_lists.items[].id, name and item count. " +
     "action browse returns the members of one list using listId from linkedin_manage_sales_lists.items[].id; lead rows include items[].current_positions[] (company, role, company_id, company_url), and linkedin_manage_sales_lists.items[].current_positions[].company_id resolves via get_social_profile with profileType=company. " +
     "action save ADDS a person or company to an existing list: for kind leads, pass providerId from linkedin_search_sales_leads.items[].id or get_social_profile.id. For get_messaging_threads.items[].participants[].identifier or get_messaging_threads.thread.participants[].identifier, call get_social_profile first and use get_social_profile.id. For kind accounts, pass linkedin_search_sales_companies.items[].id, linkedin_search_sales_leads.items[].current_positions[].company_id, linkedin_manage_sales_lists.items[].current_positions[].company_id from action=browse, or get_social_profile.current_positions[].company_id. The hosted Assistant verifies the person or company and the list from LinkedIn immediately before asking for approval. " +
+    "Paginate list and browse with offset plus limit, repeating the same kind and listId while increasing offset. " +
     "New lists cannot be created via the API; the user creates them in Sales Navigator first. " +
     "Requires a connected LinkedIn account with an active Sales Navigator subscription.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
   inputSchema: ManageSalesListsToolSchema,
+  outputSchema: ManageSalesListsOutputSchema,
   execute: (params: z.infer<typeof ManageSalesListsToolSchema>) => {
     if (params.action === "list") {
       return runInteractor(
@@ -310,7 +336,7 @@ export const manageSalesListsTool = {
           limit: params.limit,
         }),
         (data) =>
-          encodeToToon(
+          toonResult(
             formatDatesInResponse({
               items: data.data.map(formatSalesList),
               total: data.total_count ?? data.data.length,
@@ -323,7 +349,7 @@ export const manageSalesListsTool = {
       const parsed = LinkedinBrowseSalesListSchema.safeParse(params);
       if (!parsed.success) return mcpValidationFailure(parsed.error);
       return runInteractor(getLinkedinBrowseSalesListInteractor().invoke(parsed.data), (data) =>
-        encodeToToon(
+        toonResult(
           formatDatesInResponse({
             items: data.data.map(formatSalesListItem),
             total: data.total_count ?? data.data.length,
@@ -335,7 +361,7 @@ export const manageSalesListsTool = {
     const parsed = LinkedinSaveToSalesListSchema.safeParse(params);
     if (!parsed.success) return mcpValidationFailure(parsed.error);
     return runInteractor(getLinkedinSaveToSalesListInteractor().invoke(parsed.data), (data) =>
-      encodeToToon({ listId: parsed.data.listId, providerId: parsed.data.providerId, status: data.object ?? "saved" }),
+      toonResult({ listId: parsed.data.listId, providerId: parsed.data.providerId, status: data.object ?? "saved" }),
     );
   },
 };

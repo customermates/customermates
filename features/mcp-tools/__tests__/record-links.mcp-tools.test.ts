@@ -75,7 +75,7 @@ describe("manage_record_links", () => {
       mode: "add",
       ids: [orgOne, orgTwo],
     });
-    expect(result).toBe(`Linked 2 organizations to contact ${sourceId} (was 1, now 3)`);
+    expect(mcpToolResultText(result)).toBe(`Linked 2 organizations to contact ${sourceId} (was 1, now 3)`);
     for (const spy of otherSpies()) expect(spy).not.toHaveBeenCalled();
   });
 
@@ -98,7 +98,7 @@ describe("manage_record_links", () => {
       mode: "remove",
       ids: [orgOne],
     });
-    expect(result).toBe(`Unlinked 1 organizations from contact ${sourceId} (was 3, now 2)`);
+    expect(mcpToolResultText(result)).toBe(`Unlinked 1 organizations from contact ${sourceId} (was 3, now 2)`);
     for (const spy of otherSpies()) expect(spy).not.toHaveBeenCalled();
   });
 

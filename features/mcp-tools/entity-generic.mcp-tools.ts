@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import {
   encodeToToon,
+  toonResult,
   FILTER_FIELD_DESCRIPTION,
   FILTER_SYNTAX,
   SORT_SYNTAX,
@@ -161,6 +162,63 @@ const DeleteRecordsSchema = z.object({
     .describe("The records' ids. " + CONTACT_KEY_FIELD_NOTE),
 });
 
+const RecordSchemaOutputSchema = z
+  .looseObject({ filterSyntax: z.looseObject({}), sortSyntax: z.looseObject({}) })
+  .describe(
+    "With entity set: that entity's configuration plus syntax help. Without: one configuration per entity type keyed by its name.",
+  );
+
+const ListRecordsOutputSchema = z.object({
+  items: z.array(
+    z
+      .looseObject({ id: z.string(), name: z.string().nullable() })
+      .describe("Deal items add totalValue, totalQuantity, weightedValue; service items add amount."),
+  ),
+  total: z.number().describe("Matching records across all pages"),
+  sums: z
+    .record(z.string(), z.number())
+    .optional()
+    .describe("Per numeric column: total across every matching record, not just this page"),
+  page: z.number(),
+  filters: z.array(z.unknown()).optional(),
+});
+
+const SearchRecordsOutputSchema = z.object({
+  searchTerm: z.string(),
+  results: z.array(
+    z.object({
+      entity: EntitySchema,
+      items: z.array(z.object({ id: z.string(), name: z.string().nullable() })),
+      total: z.number().optional(),
+      error: z.string().optional(),
+    }),
+  ),
+});
+
+const GetRecordsOutputSchema = z.object({
+  items: z
+    .array(z.looseObject({}))
+    .describe(
+      "One entry per requested item, in order: the record keyed by its entity name (plus notes when requested), or { error } when that id failed.",
+    ),
+});
+
+const UpdateRecordNotesOutputSchema = z.object({
+  entity: EntitySchema,
+  mode: z.enum(["replace", "append"]),
+  updated: z.number(),
+});
+
+const ManageRecordLinksOutputSchema = z.object({
+  action: z.enum(["add", "remove"]),
+  relation: RelationSchema,
+  requested: z.number(),
+  before: z.number().describe("Linked ids in the relationship before the call"),
+  after: z.number().describe("Linked ids in the relationship after the call"),
+});
+
+const DeleteRecordsOutputSchema = z.object({ entity: EntitySchema, deleted: z.number() });
+
 type Entity = z.infer<typeof EntitySchema>;
 
 const allEntities: Entity[] = ["contact", "organization", "deal", "service", "task"];
@@ -238,10 +296,11 @@ export const getRecordSchemaTool = {
     "Call this BEFORE any create / update / filter / sort call so you use valid field names and custom-column ids.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: RecordSchemaInputSchema,
+  outputSchema: RecordSchemaOutputSchema,
   execute: async ({ entity }: z.infer<typeof RecordSchemaInputSchema>) => {
     if (entity) {
       const result = await configurationExecutors[entity]();
-      return encodeToToon({
+      return toonResult({
         ...(result.data as Record<string, unknown>),
         filterSyntax: FILTER_SYNTAX,
         sortSyntax: SORT_SYNTAX,
@@ -251,7 +310,7 @@ export const getRecordSchemaTool = {
     const configurations = await Promise.all(
       allEntities.map(async (name) => [name, (await configurationExecutors[name]()).data] as const),
     );
-    return encodeToToon({
+    return toonResult({
       ...Object.fromEntries(configurations),
       filterSyntax: FILTER_SYNTAX,
       sortSyntax: SORT_SYNTAX,
@@ -276,6 +335,7 @@ export const listRecordsTool = {
     "Use get_records (batched, pass many ids in one call) to fetch full field/custom-column values.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: ListRecordsSchema,
+  outputSchema: ListRecordsOutputSchema,
   execute: async ({
     entity,
     searchTerm,
@@ -292,7 +352,7 @@ export const listRecordsTool = {
     });
     if (!result.ok) return mcpInteractorFailure(result.error);
 
-    return encodeToToon({
+    return toonResult({
       items: result.data.items.map((item: any) => ({
         id: item.id,
         name: entityNameExtractors[entity](item),
@@ -322,6 +382,7 @@ export const searchRecordsTool = {
     "For filtered/paginated results, use list_records.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: SearchRecordsSchema,
+  outputSchema: SearchRecordsOutputSchema,
   execute: async ({ searchTerm, entities, limitPerEntity }: z.infer<typeof SearchRecordsSchema>) => {
     const targets: Entity[] = entities ?? allEntities;
     const pageSize: 5 | 10 | 25 | 100 =
@@ -345,7 +406,7 @@ export const searchRecordsTool = {
       }),
     );
 
-    return encodeToToon({ searchTerm, results });
+    return toonResult({ searchTerm, results });
   },
 };
 
@@ -360,6 +421,7 @@ export const getRecordsTool = {
     "Use this before update_* or manage_record_links when you need the current state.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: GetRecordsSchema,
+  outputSchema: GetRecordsOutputSchema,
   execute: async ({ items }: z.infer<typeof GetRecordsSchema>) => {
     const results = await Promise.all(
       items.map(async ({ entity, id, include }) => {
@@ -377,7 +439,7 @@ export const getRecordsTool = {
       }),
     );
 
-    return encodeToToon(results);
+    return { text: encodeToToon(results), structuredContent: { items: results } };
   },
 };
 
@@ -394,6 +456,7 @@ export const updateRecordNotesTool = {
     "A validation error may reference the underlying entity array name (e.g. contacts[0].id) whose index matches your items index.",
   annotations: { readOnlyHint: false, idempotentHint: false, destructiveHint: false, openWorldHint: false },
   inputSchema: UpdateRecordNotesSchema,
+  outputSchema: UpdateRecordNotesOutputSchema,
   execute: async ({ entity, mode, items }: z.infer<typeof UpdateRecordNotesSchema>) => {
     if (mode === "replace") {
       const normalized = items.map(({ id, notes }) => ({
@@ -403,6 +466,7 @@ export const updateRecordNotesTool = {
       return runInteractor(
         updateManyEntities(entity, normalized),
         () => `Updated notes for ${normalized.length} ${singularLabels[entity]}(s)`,
+        () => ({ entity, mode, updated: normalized.length }),
       );
     }
 
@@ -423,7 +487,10 @@ export const updateRecordNotesTool = {
 
     const result = await updateManyEntities(entity, merged);
     if (!result.ok) return mcpInteractorFailure(result.error);
-    return `Appended notes on ${merged.length} ${singularLabels[entity]}(s)`;
+    return {
+      text: `Appended notes on ${merged.length} ${singularLabels[entity]}(s)`,
+      structuredContent: { entity, mode, updated: merged.length },
+    };
   },
 };
 
@@ -442,6 +509,7 @@ export const manageRecordLinksTool = {
     "If an error message mentions the field `mode`, it refers to this tool's `action` argument.",
   annotations: { readOnlyHint: false, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: ManageRecordLinksSchema,
+  outputSchema: ManageRecordLinksOutputSchema,
   execute: ({ action, entity, sourceId, relation, ids }: z.infer<typeof ManageRecordLinksSchema>) =>
     runInteractor(
       getModifyEntityRelationInteractor().invoke({ entity, sourceId, relation, mode: action, ids }),
@@ -449,6 +517,7 @@ export const manageRecordLinksTool = {
         action === "add"
           ? `Linked ${requested} ${relation} to ${entity} ${sourceId} (was ${before}, now ${after})`
           : `Unlinked ${requested} ${relation} from ${entity} ${sourceId} (was ${before}, now ${after})`,
+      ({ requested, before, after }) => ({ action, relation, requested, before, after }),
     ),
 };
 
@@ -459,9 +528,14 @@ export const deleteRecordsTool = {
     "Use this when records must be permanently deleted. IRREVERSIBLE. " +
     "Deletes up to 100 records by id for a single entity type. " +
     "Required: entity, ids (for contacts, each id may be a UUID or an email/phone/'provider:handle' channel key). " +
-    "This cannot be undone. Consider exporting first. Idempotent on repeat (missing ids are reported as errors).",
+    "This cannot be undone. Consider exporting first. Repeating a delete leaves state unchanged, but ids that no longer exist come back as per-id errors.",
   annotations: { readOnlyHint: false, idempotentHint: true, destructiveHint: true, openWorldHint: false },
   inputSchema: DeleteRecordsSchema,
+  outputSchema: DeleteRecordsOutputSchema,
   execute: ({ entity, ids }: z.infer<typeof DeleteRecordsSchema>) =>
-    runInteractor(deleteExecutors[entity](ids), (data: any) => `Deleted ${data.length} ${singularLabels[entity]}(s)`),
+    runInteractor(
+      deleteExecutors[entity](ids),
+      (data: any) => `Deleted ${data.length} ${singularLabels[entity]}(s)`,
+      (data: any) => ({ entity, deleted: data.length }),
+    ),
 };

@@ -3,12 +3,12 @@ import { CountryCode, Currency } from "@/generated/prisma";
 
 import {
   customMcpFailure,
-  encodeToToon,
   enumHint,
   mcpInteractorFailure,
   mcpMessageFailure,
   mcpValidationFailure,
   runInteractor,
+  toonResult,
 } from "./utils";
 
 import {
@@ -71,6 +71,17 @@ const ProfileWorkspaceSettingsSchema = UpdateUserDetailsSchema.pick({
   { message: "Profile settings need at least one changed field." },
 );
 
+const UpdateWorkspaceSettingsOutputSchema = z.looseObject({ message: z.string() });
+const ManageTeamOutputSchema = z
+  .looseObject({
+    sent: z.number().optional(),
+    email: z.string().optional(),
+    roleId: z.string().nullable().optional(),
+    status: z.string().optional(),
+    message: z.string(),
+  })
+  .describe("action invite returns sent and message; update_member returns email, roleId, status and message.");
+
 export const updateWorkspaceSettingsTool = {
   name: "update_workspace_settings",
   title: "Update workspace settings",
@@ -85,12 +96,13 @@ export const updateWorkspaceSettingsTool = {
     openWorldHint: false,
   },
   inputSchema: UpdateWorkspaceSettingsSchema,
+  outputSchema: UpdateWorkspaceSettingsOutputSchema,
   execute: async (params: z.infer<typeof UpdateWorkspaceSettingsSchema>) => {
     if (params.target === "profile") {
       const parsed = ProfileWorkspaceSettingsSchema.safeParse(params);
       if (!parsed.success) return mcpValidationFailure(parsed.error);
       return runInteractor(getUpdateUserDetailsInteractor().invoke(parsed.data), (data) =>
-        encodeToToon({
+        toonResult({
           ...(parsed.data.firstName !== undefined ? { firstName: data.firstName } : {}),
           ...(parsed.data.lastName !== undefined ? { lastName: data.lastName } : {}),
           ...(parsed.data.country !== undefined ? { country: data.country } : {}),
@@ -102,7 +114,7 @@ export const updateWorkspaceSettingsTool = {
     const parsed = CompanyWorkspaceSettingsSchema.safeParse(params);
     if (!parsed.success) return mcpValidationFailure(parsed.error);
     return runInteractor(getUpdateCompanySettingsInteractor().invoke(parsed.data), (data) =>
-      encodeToToon({
+      toonResult({
         ...(data.currency !== undefined ? { currency: data.currency } : {}),
         ...(data.terminology !== undefined ? { terminology: data.terminology } : {}),
         message: "Company settings updated",
@@ -139,7 +151,7 @@ export const manageTeamTool = {
   description:
     "Use this when administering team members. " +
     "action invite SENDS REAL INVITATION EMAILS to the given addresses (up to 20 per call). " +
-    "action update_member changes an existing member's role or status: pass userId from list_users plus roleId and/or status, omitted fields keep their current values; " +
+    "action update_member changes an existing member's role or status: pass userId from list_users.items[].id plus roleId from get_workspace_context.roles[].id and/or status, omitted fields keep their current values; " +
     "a member who has no role assigned yet (e.g. a still pending invite) has no role to keep, so you must pass roleId together with the change or the call is rejected. " +
     "last-admin protection is enforced server-side, the workspace can never lose its last active admin. " +
     "Needs users admin rights.",
@@ -150,12 +162,13 @@ export const manageTeamTool = {
     openWorldHint: true,
   },
   inputSchema: ManageTeamSchema,
+  outputSchema: ManageTeamOutputSchema,
   execute: async (params: z.infer<typeof ManageTeamSchema>) => {
     if (params.action === "invite") {
       const parsed = InviteUsersByEmailSchema.safeParse(params);
       if (!parsed.success) return mcpValidationFailure(parsed.error);
       return runInteractor(getInviteUsersByEmailInteractor().invoke(parsed.data), (data) =>
-        encodeToToon({ sent: data.sent, message: "Invitation emails sent" }),
+        toonResult({ sent: data.sent, message: "Invitation emails sent" }),
       );
     }
     const parsed = UpdateMemberSchema.safeParse(params);
@@ -180,7 +193,7 @@ export const manageTeamTool = {
     });
     if (!candidate.success) return mcpValidationFailure(candidate.error);
     return runInteractor(getAdminUpdateUserDetailsInteractor().invoke(candidate.data), (data) =>
-      encodeToToon({
+      toonResult({
         email: data.email,
         roleId: data.roleId,
         status: data.status,

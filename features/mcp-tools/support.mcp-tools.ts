@@ -9,11 +9,13 @@ export const RequestSupportSchema = z.object({
   body: z.string().min(1).max(10000).describe("The full question or problem description, including relevant context."),
 });
 
+const RequestSupportOutputSchema = z.object({ accepted: z.literal(true) });
+
 export const requestSupportTool = {
   name: "request_support",
   title: "Request support",
   description:
-    "Email a support request to the Customermates team. " +
+    "Email a support request to the Customermates team. SIDE EFFECT: sends a real email. " +
     "Use when the user has a question, bug report, or request that needs a human. " +
     "Include all relevant context in the description. The Customermates team replies to the email address " +
     "on the user's account. Returns confirmation only after the email provider accepts the request.",
@@ -24,10 +26,12 @@ export const requestSupportTool = {
     openWorldHint: true,
   },
   inputSchema: RequestSupportSchema,
+  outputSchema: RequestSupportOutputSchema,
   execute: (params: z.infer<typeof RequestSupportSchema>) =>
     runInteractor(
       getCreateSupportTicketInteractor().invoke(params),
       () =>
         "Support request email accepted for delivery. The Customermates team will reply to the email address on your account.",
+      () => ({ accepted: true }),
     ),
 };

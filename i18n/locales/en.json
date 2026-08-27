@@ -2460,7 +2460,7 @@
     "manageWithLemonSqueezy": "Manage with Lemon Squeezy",
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# connected account per user} other {# connected accounts per user}}",
-      "creditNote": "Hosted AI credits refresh monthly, even on annual billing. External MCP clients use your own AI provider and do not consume these credits.",
+      "creditNote": "Hosted AI credits refresh monthly; unused credits do not roll over. External MCP clients use your own AI provider and do not consume these credits.",
       "features": {
         "business": ["Everything in Pro", "Shared accounts and priority support"],
         "pro": ["Everything in Starter", "Unified inbox"],
