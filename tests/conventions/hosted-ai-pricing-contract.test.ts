@@ -19,6 +19,8 @@ function markdownFiles(directory: string): string[] {
 describe("hosted AI pricing contract", () => {
   const pricingEn = read("content/pricing/en/pricing.mdx");
   const pricingDe = read("content/pricing/de/pricing.mdx");
+  const assistantEn = read("content/docs/en/app-assistant.mdx");
+  const assistantDe = read("content/docs/de/app-assistant.mdx");
   const locales = `${read("i18n/locales/en.json")}\n${read("i18n/locales/de.json")}`;
 
   it("publishes exact per-active-user allowances in English and German", () => {
@@ -31,13 +33,21 @@ describe("hosted AI pricing contract", () => {
     expect(locales).toContain("{credits, number}");
   });
 
-  it("explains trial, annual reset, no rollover, and external MCP separation", () => {
+  it("explains trial, monthly reset, no rollover, and external MCP separation", () => {
     expect(pricingEn).toMatch(/active trial user receives 500 credits/i);
     expect(pricingDe).toMatch(/aktive Nutzer in der Testphase erhält 500 Credits/i);
-    expect(pricingEn).toMatch(/monthly billing-anniversary day, even when billed annually/i);
-    expect(pricingDe).toMatch(/monatlichen Abrechnungsstichtag.*jährlicher Abrechnung/i);
-    expect(pricingEn).toMatch(/do not roll over/i);
-    expect(pricingDe).toMatch(/nicht übertragen/i);
+    expect(pricingEn).toContain("Paid allowances reset monthly; unused credits do not roll over.");
+    expect(pricingDe).toContain(
+      "Bezahlte Kontingente werden monatlich zurückgesetzt; nicht genutzte Credits werden nicht übertragen.",
+    );
+    expect(assistantEn).toContain("paid allowances reset monthly, and unused credits do not roll over.");
+    expect(assistantDe).toContain(
+      "bezahlte Kontingente werden monatlich zurückgesetzt und nicht genutzte Credits werden nicht übertragen.",
+    );
+    expect(`${pricingEn}\n${assistantEn}`).not.toMatch(/annual(?:ly)? billing|billed annually/i);
+    expect(`${pricingDe}\n${assistantDe}`).not.toMatch(/jährliche(?:n|r)? Abrechnung/i);
+    expect(`${pricingEn}\n${assistantEn}`).not.toMatch(/billing[- ]anniversary/i);
+    expect(`${pricingDe}\n${assistantDe}`).not.toMatch(/Abrechnungs(?:stichtag|jubiläum)/i);
     expect(pricingEn).toMatch(/External MCP clients use your own AI provider/i);
     expect(pricingDe).toMatch(/Externe MCP-Clients nutzen Ihren eigenen KI-Anbieter/i);
   });
