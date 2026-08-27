@@ -1,0 +1,35 @@
+---
+title: "Global Search"
+description: "The Cmd/Ctrl+K search modal: what it searches, its stable ids, and how results open, for people and for AI agents that drive the UI."
+---
+
+Global search is a modal, not a page: it opens from anywhere in the app with **Cmd/Ctrl+K** or by activating `#nav-search` in the sidebar. This page documents it for people and for AI agents that drive the UI.
+
+## What it searches
+
+The modal searches **contacts, organizations, deals, and services** by name and related fields, and shows a **Recently opened** group before you type. Tasks are not part of global search: find them on `/tasks` with its list search and filters, or with the `list_records` MCP tool.
+
+Selecting a result opens the record's drawer over the current page, so the context you were in stays underneath. The deep-link equivalent is the `?open={entityType}:{id}` pattern documented in [CRM Records](/docs/app-records).
+
+## Stable ids
+
+| Control | Id |
+|---|---|
+| Sidebar trigger | `#nav-search` |
+| Search input inside the modal | `#global-search-input` |
+
+For an agent, typing happens in `#global-search-input` after opening the modal; results are regular options selected by their visible name. For filtered, sorted, or counted lookups prefer the list pages or `list_records`, which return totals.
+
+## Frequently asked questions
+
+<Faq>
+<FaqItem question="Why does a task not show up in global search?">
+Tasks are not part of global search. Find them on the tasks list with its search and filters, or through the `list_records` MCP tool.
+</FaqItem>
+<FaqItem question="What is the keyboard shortcut?">
+Cmd+K on macOS, Ctrl+K elsewhere, from anywhere in the app. The sidebar trigger `#nav-search` opens the same modal.
+</FaqItem>
+<FaqItem question="Where do results open?">
+In the record's drawer over the current page, so your context stays underneath. The same drawer is reachable directly via the `?open={entityType}:{id}` deep link documented in [CRM Records](/docs/app-records).
+</FaqItem>
+</Faq>

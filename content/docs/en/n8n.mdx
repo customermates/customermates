@@ -15,9 +15,17 @@ If you want an AI to drive the CRM in conversation, use [MCP](/docs/mcp) instead
 
 ## Pattern 1: trigger n8n from CRM changes
 
-1. In n8n, add a **Webhook** node and copy the URL it generates.
-2. In Customermates, go to **Company → Webhooks → New**, paste the URL, and select the events you want.
-3. Add steps after the Webhook node to transform and forward the payload.
+<Steps>
+<Step title="Add a Webhook node in n8n">
+Copy the URL it generates.
+</Step>
+<Step title="Subscribe in Customermates">
+Go to **Company → Webhooks → New**, paste the URL, and select the events you want.
+</Step>
+<Step title="Handle the payload">
+Add steps after the Webhook node to transform and forward it.
+</Step>
+</Steps>
 
 The payload shape is documented at [Webhooks](/docs/webhooks). Common next steps:
 

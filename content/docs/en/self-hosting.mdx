@@ -47,8 +47,8 @@ You can migrate between them: export from one, import to the other. The data mod
 - A domain name if you want TLS (optional for local).
 - ~2 GB RAM and a couple of GB of disk per thousand records.
 
-### 1. Create a directory and fetch the two config files
-
+<Steps>
+<Step title="Create a directory and fetch the two config files">
 ```bash
 mkdir customermates && cd customermates
 curl -fsSL https://raw.githubusercontent.com/customermates/customermates/main/docker-compose.yml -o docker-compose.yml
@@ -61,9 +61,8 @@ Then edit `.env` with real values:
 - `POSTGRES_PASSWORD`: change the default.
 - `BASE_URL`: your public URL (e.g. `https://crm.example.com`). Defaults to `http://localhost:4000` for local.
 - `RESEND_API_KEY` and `RESEND_OPERATOR_EMAIL`: a free [Resend](https://resend.com) project. Required for signup verification, password reset, and invitation emails.
-
-### 2. Start
-
+</Step>
+<Step title="Start">
 ```bash
 docker compose up -d
 ```
@@ -75,13 +74,11 @@ docker compose logs -f app
 ```
 
 When the app is ready, open `http://localhost:4000` (or your custom `APP_PORT`).
-
-### 3. First account
-
+</Step>
+<Step title="First account">
 Open the URL. Sign up with your email, click the verification link from the inbox, then choose a workspace name. Manage roles for additional users from Company → Users and Company → Roles.
-
-### 4. Reverse proxy and TLS
-
+</Step>
+<Step title="Reverse proxy and TLS">
 Point your reverse proxy (Caddy, nginx, Traefik) at the app port (4000 by default, or your custom `APP_PORT`). Caddy example:
 
 ```text
@@ -91,10 +88,11 @@ crm.example.com {
 ```
 
 Customermates sets secure cookies when `BASE_URL` uses `https://`. Make sure the proxy forwards `X-Forwarded-Proto` correctly.
-
-### 5. Create an API key
-
+</Step>
+<Step title="Create an API key">
 Profile → API Keys → New key. Same flow as cloud. See [API keys](/docs/api-keys).
+</Step>
+</Steps>
 
 ## Day-to-day operations
 

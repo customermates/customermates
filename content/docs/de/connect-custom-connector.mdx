@@ -19,10 +19,20 @@ Self-Host? Setzen Sie Ihre Instanz-URL ein.
 
 ## Claude
 
-1. **Claude → Settings → Connectors → Add custom connector.**
-2. URL einfügen und Authentifizierung auf der Voreinstellung (OAuth) lassen. Kein Header, kein Key.
-3. Ein Customermates-Fenster öffnet sich. Anmelden, dann im **Zugriff autorisieren**-Screen auf **Zulassen** klicken.
-4. Zurück in Claude erscheint Customermates mit seinen Tools.
+<Steps>
+<Step title="Connector-Formular öffnen">
+**Claude → Settings → Connectors → Add custom connector.**
+</Step>
+<Step title="URL einfügen">
+Authentifizierung auf der Voreinstellung (OAuth) lassen. Kein Header, kein Key.
+</Step>
+<Step title="Anmelden und zulassen">
+Ein Customermates-Fenster öffnet sich. Anmelden, dann im **Zugriff autorisieren**-Screen auf **Zulassen** klicken.
+</Step>
+<Step title="Tools prüfen">
+Zurück in Claude erscheint Customermates mit seinen Tools.
+</Step>
+</Steps>
 
 Einmal hinzufügen, und es synchronisiert zu Claude auf Web, Desktop und Mobile. Die Verbindung hängt an Ihrem Claude-Konto, nicht an einem Gerät, und erneuert sich im Hintergrund.
 
@@ -42,8 +52,14 @@ Speichern. ChatGPT öffnet ein Customermates-Fenster. Anmelden, dann im **Zugrif
 
 Lieber einen statischen Key? Fügen Sie den Connector genauso hinzu, aber authentifizieren Sie sich per Header:
 
-1. Key anlegen: **Profil → API Keys → Neuer Key**. Der 64-Zeichen-Key wird **einmal** angezeigt, also sofort kopieren.
-2. Im Connector-Formular **Authentication: Header**, **Header name: `x-api-key`**, **Header value:** Ihr Key.
+<Steps>
+<Step title="Key anlegen">
+**Profil → API Keys → Neuer Key**. Der 64-Zeichen-Key wird **einmal** angezeigt, also sofort kopieren.
+</Step>
+<Step title="Per Header authentifizieren">
+Im Connector-Formular **Authentication: Header**, **Header name: `x-api-key`**, **Header value:** Ihr Key.
+</Step>
+</Steps>
 
 Speichern. ChatGPT erreicht den Server und listet jedes Tool.
 
@@ -51,9 +67,17 @@ Speichern. ChatGPT erreicht den Server und listet jedes Tool.
 
 Der Connector öffnet ein Customermates-Fenster:
 
-1. Anmelden (oder Sie sind schon angemeldet).
-2. Ein **Zugriff autorisieren**-Screen nennt die App, die sich verbindet, und das Ziel, an das der Zugriff geht.
-3. Klicken Sie auf **Zulassen**.
+<Steps>
+<Step title="Anmelden">
+Oder Sie sind schon angemeldet.
+</Step>
+<Step title="Lesen, was autorisiert wird">
+Ein **Zugriff autorisieren**-Screen nennt die App, die sich verbindet, und das Ziel, an das der Zugriff geht.
+</Step>
+<Step title="Zulassen">
+Klicken Sie auf **Zulassen**.
+</Step>
+</Steps>
 
 Sie landen zurück in Ihrer KI, verbunden, mit allen [[derived.mcp.tools.total]] Tools in der Liste.
 

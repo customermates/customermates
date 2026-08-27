@@ -11,7 +11,7 @@ Every record type has the same three surfaces:
 
 - **List** at `/{type}` (for example `/contacts`), locale-prefixed like `https://customermates.com/en/contacts`. Search, filter, sort, and bulk actions live here.
 - **Drawer**: append `?open={entityType}:{id}` to the list URL (for example `/contacts?open=contact:{id}`) to edit a record over the list.
-- **Detail page** at `/{type}/{id}` (for example `/contacts/42`) for the full record, custom fields, and delete.
+- **Detail page** at `/{type}/{id}` (for example `/contacts/42`) for the full record, custom fields, and delete. It opens with an overview of the fields that matter most, and every field carries a pin control that adds it to or removes it from that overview. Pinning is per person, so two colleagues can read the same record through different summaries.
 
 Rows never carry a DOM id. Open a record by its URL or the drawer deep-link, never by clicking a row you located by id.
 
@@ -43,7 +43,7 @@ These ids are shared by every record type.
 |---|---|---|---|
 | Save (drawer) | Drawer footer | `#drawer-save` | Persists edits made in the drawer |
 | Save / Reset (detail) | Detail topbar | `#entity-save` / `#entity-reset` | Persists or discards edits |
-| Edit fields | Detail topbar | `#entity-edit-fields` | Toggles field editing |
+| Edit custom fields | Detail topbar | `#entity-edit-fields` | Toggles editing of the custom fields, not the built-in ones |
 | Add custom field | Detail topbar | `#entity-add-custom-field` | Creates a custom column |
 | Delete | Detail topbar | `#entity-delete` | Opens the confirmation modal |
 | Confirm / cancel delete | Confirmation modal | `#confirm-delete` / `#confirm-delete-cancel` | Irreversible delete or abort |

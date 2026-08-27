@@ -1,0 +1,35 @@
+---
+title: "Globale Suche"
+description: "Das Cmd/Ctrl+K-Suchmodal: was es durchsucht, seine stabilen Ids und wie Ergebnisse öffnen, für Menschen und für AI-Agents, die die UI steuern."
+---
+
+Die globale Suche ist ein Modal, keine Seite: Sie öffnet überall in der App mit **Cmd/Ctrl+K** oder über `#nav-search` in der Sidebar. Diese Seite dokumentiert sie für Menschen und für AI-Agents, die die UI steuern.
+
+## Was durchsucht wird
+
+Das Modal durchsucht **Contacts, Organizations, Deals und Services** nach Name und verwandten Feldern und zeigt vor der Eingabe eine Gruppe **Zuletzt geöffnet**. Tasks sind nicht Teil der globalen Suche: Sie finden sich auf `/tasks` über die Listensuche und Filter oder über das MCP-Tool `list_records`.
+
+Die Auswahl eines Ergebnisses öffnet den Drawer des Records über der aktuellen Seite, der Kontext darunter bleibt erhalten. Das Deep-Link-Äquivalent ist das Muster `?open={entityType}:{id}` aus [CRM Records](/docs/app-records).
+
+## Stabile Ids
+
+| Control | Id |
+|---|---|
+| Sidebar-Trigger | `#nav-search` |
+| Suchfeld im Modal | `#global-search-input` |
+
+Für einen Agent passiert die Eingabe in `#global-search-input` nach dem Öffnen des Modals; Ergebnisse sind normale Optionen, ausgewählt über ihren sichtbaren Namen. Für gefilterte, sortierte oder gezählte Abfragen sind die Listenseiten oder `list_records` besser, denn sie liefern Totale.
+
+## Häufige Fragen
+
+<Faq>
+<FaqItem question="Warum taucht ein Task nicht in der globalen Suche auf?">
+Tasks sind nicht Teil der globalen Suche. Sie finden sich in der Task-Liste über deren Suche und Filter oder über das MCP-Tool `list_records`.
+</FaqItem>
+<FaqItem question="Was ist das Tastenkürzel?">
+Cmd+K auf macOS, sonst Ctrl+K, überall in der App. Der Sidebar-Trigger `#nav-search` öffnet dasselbe Modal.
+</FaqItem>
+<FaqItem question="Wo öffnen sich Ergebnisse?">
+Im Drawer des Records über der aktuellen Seite, der Kontext darunter bleibt erhalten. Derselbe Drawer ist direkt über den Deep-Link `?open={entityType}:{id}` aus [CRM Records](/docs/app-records) erreichbar.
+</FaqItem>
+</Faq>

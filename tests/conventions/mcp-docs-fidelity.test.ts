@@ -68,6 +68,43 @@ function catalogText(locale: string): string {
   return readFileSync(join(REPO_ROOT, catalogPath(locale)), "utf8");
 }
 
+/**
+ * Only the generated catalog tables name tools. Prose elsewhere on the page legitimately
+ * backticks other snake_case tokens, such as the failure kinds a refused call can carry.
+ */
+function catalogTableText(locale: string): string {
+  return [...catalogText(locale).matchAll(/\{\/\* mcp-catalog:[a-z-]+ \*\/\}([\s\S]*?)\{\/\* \/mcp-catalog \*\/\}/g)]
+    .map((match) => match[1])
+    .join("\n");
+}
+
+
+describe("MCP catalog generation", () => {
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps every checked-in catalog table a fixed point of the generator", async () => {
+    const { applyCatalogTables } = await import("@/scripts/generate-mcp-catalog");
+    for (const locale of CATALOG_LOCALES) {
+      const summaries = JSON.parse(
+        readFileSync(join(REPO_ROOT, "content", "docs", locale, "mcp-catalog-summaries.json"), "utf8"),
+      ) as Record<string, string>;
+      const path = join(REPO_ROOT, "content", "docs", locale, "mcp.mdx");
+      const source = readFileSync(path, "utf8");
+      expect(applyCatalogTables(source, locale, summaries), `${path} tables drifted; run yarn docs:generate-catalog`).toBe(source);
+    }
+  }, 120_000);
+
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("has a summary in every locale for every registered tool", async () => {
+    const { CATALOG_SECTIONS } = await import("@/scripts/generate-mcp-catalog");
+    const missing: string[] = [];
+    for (const locale of CATALOG_LOCALES) {
+      const summaries = JSON.parse(
+        readFileSync(join(REPO_ROOT, "content", "docs", locale, "mcp-catalog-summaries.json"), "utf8"),
+      ) as Record<string, string>;
+      for (const tools of Object.values(CATALOG_SECTIONS))
+        for (const tool of tools) if (!summaries[tool.name]) missing.push(`${tool.name} (${locale})`);
+    }
+    expect(missing).toEqual([]);
+  }, 120_000);
+});
 
 describe("MCP tool description quality", () => {
   let registry: typeof import("@/features/mcp-tools/tool-registry").ALL_MCP_TOOLS;
@@ -191,7 +228,7 @@ describe("MCP tool catalog fidelity", () => {
       const registered = registeredToolNames();
       const stale: string[] = [];
       for (const locale of CATALOG_LOCALES) {
-        for (const match of catalogText(locale).matchAll(
+        for (const match of catalogTableText(locale).matchAll(
           CATALOG_TOOL_PATTERN,
         )) {
           if (!registered.has(match[1]))

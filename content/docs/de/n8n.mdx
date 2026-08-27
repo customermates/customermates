@@ -15,9 +15,17 @@ Wenn eine KI das CRM im Gespräch steuern soll, nutzen Sie [MCP](/docs/mcp) stat
 
 ## Pattern 1: n8n aus CRM-Änderungen triggern
 
-1. Fügen Sie in n8n einen **Webhook**-Node hinzu und kopieren Sie die generierte URL.
-2. Gehen Sie in Customermates zu **Unternehmen → Webhooks → Neu**, fügen Sie die URL ein und wählen Sie die gewünschten Events.
-3. Ergänzen Sie nach dem Webhook-Node Schritte zum Transformieren und Weiterleiten des Payloads.
+<Steps>
+<Step title="Webhook-Node in n8n anlegen">
+Kopieren Sie die generierte URL.
+</Step>
+<Step title="In Customermates abonnieren">
+Gehen Sie zu **Unternehmen → Webhooks → Neu**, fügen Sie die URL ein und wählen Sie die gewünschten Events.
+</Step>
+<Step title="Payload verarbeiten">
+Ergänzen Sie nach dem Webhook-Node Schritte zum Transformieren und Weiterleiten.
+</Step>
+</Steps>
 
 Die Payload-Struktur ist unter [Webhooks](/docs/webhooks) dokumentiert. Typische nächste Schritte:
 

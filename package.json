@@ -189,6 +189,7 @@
     "db:use-live-data": "bash scripts/use-live-data.sh",
     "dev": "prisma generate && yarn workflow:setup && yarn openapi:generate && yarn raw-docs:generate && next dev --turbopack -p 4000",
     "dev:become": "tsx scripts/mint-local-session.ts",
+    "docs:generate-catalog": "tsx scripts/generate-mcp-catalog.ts",
     "email:dev": "APP_MODE=cloud email dev --dir components/emails",
     "i18n:audit": "tsx scripts/audit-i18n.ts",
     "lint": "eslint . --ext .ts,.tsx,.json,.jsonc,.json5 -c .eslintrc.json --max-warnings 0",

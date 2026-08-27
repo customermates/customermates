@@ -1,0 +1,42 @@
+---
+title: "Onboarding Wizard"
+description: "The three-step setup a fresh workspace walks through after sign-up: profile, team invites, and connecting an AI client, with the stable ids agents drive."
+---
+
+A fresh workspace opens the onboarding wizard at `/onboarding/wizard` right after sign-up. It runs once; finishing it lands on the dashboard, where the assistant panel opens on its own. This page documents the wizard for people and for AI agents that drive the UI.
+
+## The three steps
+
+<Steps>
+<Step title="Profile">
+Your name and country. The fields are ordinary form inputs addressed by their visible labels.
+</Step>
+<Step title="Invite">
+Invite teammates by email, or copy the shareable link of the form `/invitation/{token}`. Anyone who registers through that link joins the workspace as **Waiting for Approval** until an admin assigns a role and activates them on the [Company page](/docs/app-company). This step can be skipped and repeated later from the Company page.
+</Step>
+<Step title="AI">
+Connect an external AI client (Claude, OpenAI, Cursor, or Gemini) to the workspace's [MCP endpoint](/docs/mcp). The flow creates an API key for the chosen client. This step can be skipped; the same flow stays available from the [Profile page](/docs/app-profile), and the in-app [Assistant](/docs/app-assistant) works without it.
+</Step>
+</Steps>
+
+## Stable ids
+
+| Control | Id |
+|---|---|
+| Primary action (next step, or finish on the last step) | `#onboarding-back` and `#onboarding-next` |
+
+`#onboarding-next` advances and, on the last step, completes the wizard; `#onboarding-back` returns to the previous step. Everything inside a step is a regular form: drive it by label, then activate `#onboarding-next`.
+
+## Frequently asked questions
+
+<Faq>
+<FaqItem question="Can I skip steps?">
+The invite and AI steps are skippable. Invitations can be sent later from the [Company page](/docs/app-company), and the AI-client flow stays available on the [Profile page](/docs/app-profile). The profile step is required.
+</FaqItem>
+<FaqItem question="What happens to people who register through the invitation link?">
+They join the workspace as Waiting for Approval. An admin assigns a role and activates them on the Company page; until then they cannot work in the workspace.
+</FaqItem>
+<FaqItem question="Do I need to connect an AI client to use the assistant?">
+No. The built-in [Assistant](/docs/app-assistant) works without any external client. The AI step connects external tools such as Claude or Cursor to your workspace through [MCP](/docs/mcp).
+</FaqItem>
+</Faq>

@@ -47,8 +47,8 @@ Sie können zwischen beiden wechseln: Export von einem, Import ins andere. Das D
 - Domain-Name, falls Sie TLS wollen (lokal nicht nötig).
 - ~2 GB RAM und ein paar GB Disk pro tausend Records.
 
-### 1. Verzeichnis anlegen und beide Config-Dateien holen
-
+<Steps>
+<Step title="Verzeichnis anlegen und beide Config-Dateien holen">
 ```bash
 mkdir customermates && cd customermates
 curl -fsSL https://raw.githubusercontent.com/customermates/customermates/main/docker-compose.yml -o docker-compose.yml
@@ -61,9 +61,8 @@ Anschließend `.env` mit echten Werten editieren:
 - `POSTGRES_PASSWORD`: default ändern.
 - `BASE_URL`: Ihre Public-URL (z.B. `https://crm.example.com`). Lokal default `http://localhost:4000`.
 - `RESEND_API_KEY` und `RESEND_OPERATOR_EMAIL`: ein kostenloses [Resend](https://resend.com)-Projekt. Nötig für Signup-Verifizierung, Passwort-Reset und Einladungs-Mails.
-
-### 2. Starten
-
+</Step>
+<Step title="Starten">
 ```bash
 docker compose up -d
 ```
@@ -75,13 +74,11 @@ docker compose logs -f app
 ```
 
 Wenn die App ready ist, `http://localhost:4000` öffnen (oder Ihr eigenes `APP_PORT`).
-
-### 3. Erster Account
-
+</Step>
+<Step title="Erster Account">
 URL öffnen. Mit E-Mail registrieren, Verifizierungs-Link aus dem Postfach klicken, dann Workspace-Namen wählen. Weitere User und Rollen verwalten über Unternehmen → Benutzer und Unternehmen → Rollen.
-
-### 4. Reverse-Proxy und TLS
-
+</Step>
+<Step title="Reverse-Proxy und TLS">
 Reverse-Proxy (Caddy, nginx, Traefik) auf den App-Port zeigen (4000 by default, oder Ihr eigenes `APP_PORT`). Caddy:
 
 ```text
@@ -91,10 +88,11 @@ crm.example.com {
 ```
 
 Customermates setzt Secure-Cookies, wenn `BASE_URL` mit `https://` startet. Der Proxy muss `X-Forwarded-Proto` korrekt weiterreichen.
-
-### 5. API-Key anlegen
-
+</Step>
+<Step title="API-Key anlegen">
 Profil → API Keys → Neuer Key. Genau wie in der Cloud. Siehe [API-Keys](/docs/api-keys).
+</Step>
+</Steps>
 
 ## Tagesbetrieb
 

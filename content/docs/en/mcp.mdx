@@ -35,6 +35,21 @@ The `x-api-key` header is the API-key method. The key is 64 characters, base62 (
 
 ## Connect a client
 
+Getting an AI client onto your workspace is the same three moves every time:
+
+<Steps>
+<Step title="Create an API key">
+**Profile → API Keys → New key**. Choose the guided setup for Claude, ChatGPT, Cursor, or Gemini, or a standard key for your own integration. The key is shown once, so copy it before closing the dialog.
+</Step>
+<Step title="Point the client at the endpoint">
+Give the client `POST https://customermates.com/api/v1/mcp` with the `x-api-key` header from the step above, or connect through OAuth where the client supports it. The per-client guides in the table below carry the exact configuration.
+</Step>
+<Step title="Confirm the tools arrived">
+Ask the client to list its tools. All [[derived.mcp.tools.total]] should appear, and `get_workspace_context` is the natural first call: it returns your user, company, roles, and connected accounts in one go.
+</Step>
+</Steps>
+
+
 | Client | Method | Guide |
 |---|---|---|
 | Claude web & mobile | Custom connector (OAuth) | [Connect with a custom connector](/docs/connect-custom-connector) |
@@ -89,53 +104,60 @@ Full JSON Schema for every tool is available live at `POST /api/v1/mcp` with `me
 
 Seventeen tools work against the five record types (contact, organization, deal, service, task). Records carry custom columns defined per workspace, so `get_record_schema` is the anchor: it returns the custom-column ids and option values that writes need. Fields such as a deal or task status are configurable singleSelect custom columns, not fixed native fields; `get_record_schema` returns whatever columns the workspace actually has.
 
+{/* mcp-catalog:records */}
 | Tool | Read | Destructive | Purpose |
 |---|---|---|---|
-| `get_record_schema` | ✓ | | Schema and custom-column metadata, never record data. One entity type, or all five when `entity` is omitted. Call before any create or update. |
-| `list_records` | ✓ | | Search, filter, sort, paginate one entity type. Always returns the total. Deals include totalValue and totalQuantity, services include amount. |
-| `search_records` | ✓ | | Free-text search across one or more entity types in one call. |
-| `get_records` | ✓ | | Full record data by id, up to 100, mixed entity types allowed; contacts also by email, phone, or provider:handle. Always returns fields; add markdown notes per item with include=withNotes. |
-| `create_contacts` | | | Create up to 100 contacts, custom-column values and relation ids inline. |
-| `create_organizations` | | | Create up to 100 organizations, custom-column values and contact/user/deal/task ids inline. |
-| `create_deals` | | | Create up to 100 deals, services as an inline array. |
-| `create_services` | | | Create up to 100 services, custom-column values and user/deal/task ids inline. |
-| `create_tasks` | | | Create up to 100 tasks, custom-column values and relation ids inline. |
-| `update_contacts` | | | Partial update by contact key (id, email, phone, or provider:value); org/deal/user/task relations untouched, but a provided `identifiers` array REPLACES the contact's messaging channels (unlisted ones are unlinked). |
-| `update_organizations` | | | Partial update by id. Never touches relations. |
-| `update_deals` | | | Partial update by id, including singleSelect custom-column values and `services` (an inline `{serviceId, quantity}` array that REPLACES the deal's full service set); org/user/contact/task relations untouched (use manage_record_links). |
-| `update_services` | | | Partial update by id. |
-| `update_tasks` | | | Partial update by id, including singleSelect custom-column values. Never touches relations. |
-| `update_record_notes` | | | Replace or append markdown notes on 1 to 100 records, selected by `mode`. |
-| `manage_record_links` | | | Add or remove ids on one relation (`action` add or remove). The only way to change relations. |
-| `delete_records` | | ✓ | IRREVERSIBLE hard-delete of 1 to 100 records by id (contacts also by email, phone, or provider:value). |
+| `get_record_schema` | ✓ |  | Schema and custom-column metadata, never record data. One entity type, or all five when `entity` is omitted. Call before any create or update. |
+| `list_records` | ✓ |  | Search, filter, sort, paginate one entity type. Always returns the total. Deals include totalValue and totalQuantity, services include amount. |
+| `search_records` | ✓ |  | Free-text search across one or more entity types in one call. |
+| `get_records` | ✓ |  | Full record data by id, up to 100, mixed entity types allowed; contacts also by email, phone, or provider:handle. Always returns fields; add markdown notes per item with include=withNotes. |
+| `create_contacts` |  |  | Create up to 100 contacts, custom-column values and relation ids inline. |
+| `create_organizations` |  |  | Create up to 100 organizations, custom-column values and contact/user/deal/task ids inline. |
+| `create_deals` |  |  | Create up to 100 deals, services as an inline array. |
+| `create_services` |  |  | Create up to 100 services, custom-column values and user/deal/task ids inline. |
+| `create_tasks` |  |  | Create up to 100 tasks, custom-column values and relation ids inline. |
+| `update_contacts` |  |  | Partial update by contact key (id, email, phone, or provider:value); org/deal/user/task relations untouched, but a provided `identifiers` array REPLACES the contact's messaging channels (unlisted ones are unlinked). |
+| `update_organizations` |  |  | Partial update by id. Never touches relations. |
+| `update_deals` |  |  | Partial update by id, including singleSelect custom-column values and `services` (an inline `{serviceId, quantity}` array that REPLACES the deal's full service set); org/user/contact/task relations untouched (use manage_record_links). |
+| `update_services` |  |  | Partial update by id. |
+| `update_tasks` |  |  | Partial update by id, including singleSelect custom-column values. Never touches relations. |
+| `update_record_notes` |  |  | Replace or append markdown notes on 1 to 100 records, selected by `mode`. |
+| `manage_record_links` |  |  | Add or remove ids on one relation (`action` add or remove). The only way to change relations. |
+| `delete_records` |  | ✓ | IRREVERSIBLE hard-delete of 1 to 100 records by id (contacts also by email, phone, or provider:value). |
+{/* /mcp-catalog */}
 
 All create and update tools take custom-column values via customFieldValues; call `get_record_schema` first for the column ids.
 
 ### Workspace
 
+{/* mcp-catalog:workspace */}
 | Tool | Read | Destructive | Purpose |
 |---|---|---|---|
-| `get_workspace_context` | ✓ | | Your user, the company profile, all roles including permissions, and your connected messaging accounts (your own plus any shared with the workspace) in one call. The natural first call of a session. |
-| `list_users` | ✓ | | Team members with id, name, email, roleId, and status. |
+| `get_workspace_context` | ✓ |  | Your user, the company profile, all roles including permissions, and your connected messaging accounts (your own plus any shared with the workspace) in one call. The natural first call of a session. |
+| `list_users` | ✓ |  | Team members with id, name, email, roleId, and status. |
+{/* /mcp-catalog */}
 
 ### Messaging
 
 Messaging-backed tools are available from the Pro tier in cloud mode. `get_activities` can still return audit-log changes without the messaging entitlement when the caller has Audit Log permission. Its messaging, connected-account, and calendar sources require Inbox permission plus the messaging entitlement.
 
+{/* mcp-catalog:messaging */}
 | Tool | Read | Destructive | Purpose |
 |---|---|---|---|
-| `get_messaging_threads` | ✓ | | Two modes: without threadId lists inbox threads with filters and sorting (threads with no message yet are hidden unless they hold a draft); with threadId returns one thread plus a page of its messages (default 25, newest first, drafts included). |
+| `get_messaging_threads` | ✓ |  | Two modes: without threadId lists inbox threads with filters and sorting (threads with no message yet are hidden unless they hold a draft); with threadId returns one thread plus a page of its messages (default 25, newest first, drafts included). |
 | `get_activities` | ✓ |  | Activity timeline with an optional low-level entity scope plus AND-combined filters. Filters support category/raw kind, conversation, provider, connected account, and related contact, organization, deal, service, or task. Each activity filter field may appear once; alternatives belong in the value array of one membership rule. Relationship fields accept `in`, `notIn`, `hasSome`, and `hasNone`; membership takes 1–50 UUIDs. Relationship UUIDs must resolve to records you can read; unresolvable ids are rejected. The result includes `availableSources`, `scopeTruncated`, `pageLimitReached`, total, and page. Pages are capped at 40. |
-| `get_calendars` | ✓ | | Three modes: list: "calendars" (default) lists the calendars of accessible connected accounts; list: "events" lists calendar events ordered by start time, filterable by calendarId or a startsAt date range; with eventId it returns one event's detail including organizer and attendees. Ids match the entityId of calendar webhook events. |
-| `send_chat_message` | | | Delivers immediately. With threadId replies in an existing chat; with connectedAccountId plus attendeeIdentifiers starts a new one (optional chatName names a group). New LinkedIn chats default to Classic; set linkedinProduct to sales_navigator or recruiter to send an InMail (needs inmailSubject), or inmail:true to InMail someone outside your network on Classic. |
-| `send_email` | | | Delivers immediately. Send or reply from a connected email account; can send a saved draft via draftMessageId. |
-| `save_message_draft` | | | Prepare a reply for review: the draft shows up in the inbox compose box and the user sends it. Drafts are thread-bound, one per thread, saving again updates it. |
-| `discard_message_draft` | | ✓ | Delete a draft by its draft message id. |
-| `update_messaging_thread` | | | Set the thread state: unread, open, closed, or spam. |
-| `connect_messaging_account` | | | Generate a link the user opens in a browser to connect a channel (WhatsApp, LinkedIn, email, Instagram, Telegram). You return the link; the user finishes auth there. Expires in 30 minutes. |
+| `get_calendars` | ✓ |  | Three modes: list: "calendars" (default) lists the calendars of accessible connected accounts; list: "events" lists calendar events ordered by start time, filterable by calendarId or a startsAt date range; with eventId it returns one event's detail including organizer and attendees. Ids match the entityId of calendar webhook events. |
+| `send_chat_message` |  |  | Delivers immediately. With threadId replies in an existing chat; with connectedAccountId plus attendeeIdentifiers starts a new one (optional chatName names a group). New LinkedIn chats default to Classic; set linkedinProduct to sales_navigator or recruiter to send an InMail (needs inmailSubject), or inmail:true to InMail someone outside your network on Classic. |
+| `send_email` |  |  | Delivers immediately. Send or reply from a connected email account; can send a saved draft via draftMessageId. |
+| `save_message_draft` |  |  | Prepare a reply for review: the draft shows up in the inbox compose box and the user sends it. Drafts are thread-bound, one per thread, saving again updates it. |
+| `discard_message_draft` |  | ✓ | Delete a draft by its draft message id. |
+| `update_messaging_thread` |  |  | Set the thread state: unread, open, closed, or spam. |
+| `connect_messaging_account` |  |  | Generate a link the user opens in a browser to connect a channel (WhatsApp, LinkedIn, email, Instagram, Telegram). You return the link; the user finishes auth there. Expires in 30 minutes. |
+{/* /mcp-catalog */}
 
 ### Social posts
 
+{/* mcp-catalog:social */}
 | Tool | Read | Destructive | Purpose |
 |---|---|---|---|
 | `get_social_posts` | ✓ |  | Posts on LinkedIn or Instagram, read through a connected account. Use `authorIdentifier=me` for the account owner. For another person, use `get_social_profile.id`, `get_social_posts.items[].author.id` (list mode), `get_social_posts.author.id` (single-post mode), `get_social_post_engagement.items[].author.id` (comments), `get_social_post_engagement.items[].sender.id` (reactions), or `manage_social_relations.items[].user.id`. Resolve `get_messaging_threads.items[].participants[].identifier` (list mode) or `get_messaging_threads.thread.participants[].identifier` (detail mode) through `get_social_profile` first; do not pass a thread participant identifier directly. Pass `get_social_posts.items[].id` as `postId` to fetch one post. On continuation, repeat the same account, author, and limit with next_cursor. |
@@ -146,6 +168,7 @@ Messaging-backed tools are available from the Pro tier in cloud mode. `get_activ
 | `linkedin_search_sales_companies` | ✓ |  | Finds companies via LinkedIn Sales Navigator: either from a pasted company search URL or as a structured search with filters (keywords, location, industry, headcount, annual revenue and more). Pass `linkedin_search_sales_companies.items[].id` to `get_social_profile` with `profileType=company`. Requires a Sales Navigator subscription. |
 | `linkedin_get_sales_search_parameters` | ✓ |  | Resolves the ids behind LinkedIn Sales Navigator search inputs by type (locations, industries, job titles, functions, companies, schools, groups and more) plus your lead/account lists and saved/recent searches; keyword is optional, so a bare type enumerates the whole family. |
 | `linkedin_manage_sales_lists` |  |  | LinkedIn Sales Navigator lead and account lists: list them, browse the members of one, or save a lead using `linkedin_search_sales_leads.items[].id` or `get_social_profile.id`, or a company using `linkedin_search_sales_companies.items[].id` or an `items[].current_positions[].company_id` path documented above. New lists are created in Sales Navigator itself. |
+{/* /mcp-catalog */}
 
 #### Typical social read flow
 
@@ -184,43 +207,55 @@ For a company, call `get_social_profile` with `profileType=company` and an `iden
 
 ### Documentation and deep research
 
+{/* mcp-catalog:docs */}
 | Tool | Read | Destructive | Purpose |
 |---|---|---|---|
-| `search_docs` | ✓ | | Full-text search over the docs; defaults to the product guides (source=docs); pass source=api or all to include the REST API reference. Returns slug, source, title, url, snippet. |
-| `get_docs_page` | ✓ | | One documentation page as markdown with its canonical URL. Lists valid slugs on a miss. |
-| `search` | ✓ | | Required by ChatGPT deep research connectors; federates CRM records and docs. Interactive agents should prefer `search_records` or `search_docs`. |
-| `fetch` | ✓ | | Deep-research companion to `search`: fetches one result by its id. |
+| `search_docs` | ✓ |  | Full-text search over the docs; defaults to the product guides (source=docs); pass source=api or all to include the REST API reference. Returns slug, source, title, url, snippet. |
+| `get_docs_page` | ✓ |  | One documentation page as markdown with its canonical URL. Lists valid slugs on a miss. |
+| `search` | ✓ |  | Required by ChatGPT deep research connectors; federates CRM records and docs. Interactive agents should prefer `search_records` or `search_docs`. |
+| `fetch` | ✓ |  | Deep-research companion to `search`: fetches one result by its id. |
+{/* /mcp-catalog */}
 
 ### Custom columns
 
+{/* mcp-catalog:custom-columns */}
 | Tool | Read | Destructive | Purpose |
 |---|---|---|---|
-| `manage_custom_columns` | | ✓ | One tool with an `action` switch: list, upsert (create or update), delete. Covers all ten column types; type and entityType are immutable on update. Delete is IRREVERSIBLE and removes every stored value. |
+| `manage_custom_columns` |  | ✓ | One tool with an `action` switch: list, upsert (create or update), delete. Covers all ten column types; type and entityType are immutable on update. Delete is IRREVERSIBLE and removes every stored value. |
+{/* /mcp-catalog */}
 
 ### Widgets
 
+{/* mcp-catalog:widgets */}
 | Tool | Read | Destructive | Purpose |
 |---|---|---|---|
 | `manage_widgets` |  | ✓ | One tool with an `action` switch: list, get, create, update, delete. Omitted create `kind` remains `chart`. Activity creation accepts `name`, optional `timelineFilters`, and optional `showFilters`; each activity filter field may appear once. Update infers the immutable stored kind, preserves omitted fields, and clears filters with `timelineFilters: []`. Create rejects newly inaccessible relationship UUIDs. Update may retain or remove an unavailable relationship UUID only when that UUID is already stored on the widget; adding another inaccessible UUID is rejected. list/get/create/update all return `kind`; get also returns chart data for charts and reusable `timelineFilters` for activity widgets. Chart-only and activity-only fields cannot be mixed. |
+{/* /mcp-catalog */}
 
 ### Webhooks
 
+{/* mcp-catalog:webhooks */}
 | Tool | Read | Destructive | Purpose |
 |---|---|---|---|
-| `manage_webhooks` | | ✓ | One tool with an `action` switch: list, get, create, update, delete, plus the delivery log (action list_deliveries, scoped to one webhook's current url when you pass its `id`) and re-delivery (action resend_delivery). |
+| `manage_webhooks` |  | ✓ | One tool with an `action` switch: list, get, create, update, delete, plus the delivery log (action list_deliveries, scoped to one webhook's current url when you pass its `id`) and re-delivery (action resend_delivery). |
+{/* /mcp-catalog */}
 
 ### Admin and team
 
+{/* mcp-catalog:admin */}
 | Tool | Read | Destructive | Purpose |
 |---|---|---|---|
-| `update_workspace_settings` | | | `target` profile updates your own name, country, and avatar; `target` company updates the workspace currency (admin only). |
-| `manage_team` | | | Invite members by email (action invite, up to 20, sends real invitation emails) or change a member's role and status (action update_member). |
+| `update_workspace_settings` |  |  | `target` profile updates your own name, country, and avatar; `target` company updates the workspace currency (admin only). |
+| `manage_team` |  |  | Invite members by email (action invite, up to 20, sends real invitation emails) or change a member's role and status (action update_member). |
+{/* /mcp-catalog */}
 
 ### Support
 
+{/* mcp-catalog:support */}
 | Tool | Read | Destructive | Purpose |
 |---|---|---|---|
-| `request_support` | | | Open a support ticket with the Customermates team (subject plus description). The team follows up by email and in the in-app chat. Returns the ticket number. |
+| `request_support` |  |  | Open a support ticket with the Customermates team (subject plus description). The team follows up by email and in the in-app chat. Returns the ticket number. |
+{/* /mcp-catalog */}
 
 ### Narrowing with ?toolsets=
 
@@ -232,6 +267,34 @@ https://customermates.com/api/v1/mcp?toolsets=records,messaging
 
 Keys: records, workspace, messaging, social, docs, custom-columns, widgets, webhooks, admin, support. No parameter means everything; unknown keys are ignored. `search` and `fetch` are always on so deep-research connectors keep working on any narrowed surface.
 
+### When a call is refused
+
+A refusal is data, not a crash. The result carries `isError: true`, a human-readable message in `content`, and a machine-readable envelope in `_meta.failure` with a `kind` and the offending `issues`, each naming the field `path` it belongs to:
+
+```json
+{
+  "isError": true,
+  "content": [{ "type": "text", "text": "Webhook ID not found or not accessible." }],
+  "_meta": {
+    "failure": {
+      "kind": "not_found",
+      "issues": [{ "code": "custom", "path": [], "message": "Webhook ID not found or not accessible.", "customCode": "webhookNotFound" }]
+    }
+  }
+}
+```
+
+`kind` is one of `validation`, `authentication`, `authorization`, `not_found`, `conflict`, `rate_limit`, or `unavailable`. Branch on it instead of matching message text:
+
+- **validation**: the arguments were wrong. Read `issues[].path`, fix that field, and call again. `get_record_schema` resolves most of these.
+- **authorization**: the caller's role does not permit it. Retrying never helps; say what was refused and which permission it needs. Roles are workspace-defined, so read `get_workspace_context.roles` rather than assuming a fixed set.
+- **not_found**: the id does not exist, or belongs to another workspace. Every call is tenant-scoped, so an id from elsewhere reads as missing rather than forbidden.
+- **conflict**: something already holds the resource. Read current state before retrying.
+- **rate_limit** and **unavailable**: transient or capacity-bound. Back off, and surface `unavailable` as a provider problem rather than a user mistake.
+- **authentication**: the key is missing, expired, or revoked. The user must issue a new one.
+
+Entitlements refuse the same way. Messaging-backed tools need the Pro tier, Sales Navigator tools need that LinkedIn subscription, and connecting an account stops when the plan's channel limit is reached. Permission and entitlement are independent: a caller can have Inbox permission and still be refused for the plan, and the reverse.
+
 ### Safety rules baked in
 
 - **Confirm before destructive actions.** The server instructions tell the model to confirm with the user before `delete_records` and before any send tool.
@@ -239,6 +302,29 @@ Keys: records, workspace, messaging, social, docs, custom-columns, widgets, webh
 - **Draft, then send.** `send_email` and `send_chat_message` deliver immediately. When asked to prepare a message, the agent uses `save_message_draft` and the user sends from the inbox. Drafts are thread-bound; a brand-new outbound message cannot be drafted.
 - **Destructive flags everywhere.** Every destructive tool or action has `destructiveHint: true` and an `IRREVERSIBLE` description prefix.
 - **Every enum field** lists its valid values inline in the description, and **every `filters` field** includes a concrete JSON example.
+
+## Frequently asked questions
+
+<Faq>
+<FaqItem question="How do I authenticate against the MCP endpoint?">
+Send your 64-character API key in the `x-api-key` header, or connect through OAuth where the client supports it. Create keys at **Profile → API Keys → New key**. Every key carries your own permissions, so a client can never do more than you can.
+</FaqItem>
+<FaqItem question="Which AI clients can connect?">
+Claude on web, mobile and desktop, ChatGPT, Claude Code, Codex and Cursor are documented above with a guide per client. Anything that speaks MCP over streamable HTTP works with the same endpoint.
+</FaqItem>
+<FaqItem question="Can I reduce the number of tools a client sees?">
+Yes. Append `?toolsets=` with a comma-separated list of the groups above to the endpoint URL and only those tools are advertised. The two connector tools `search` and `fetch` stay always on.
+</FaqItem>
+<FaqItem question="How do I recognize dangerous tools?">
+Every destructive tool is flagged in the catalog above and starts its description with `IRREVERSIBLE`. Clients that honor MCP annotations also receive `destructiveHint` and can ask for confirmation before calling.
+</FaqItem>
+<FaqItem question="Do tools return machine-readable results?">
+Yes. Every tool declares an output schema, visible live via `tools/list`, and returns `structuredContent` conforming to it next to the compact text form, so a client can chain results without parsing text.
+</FaqItem>
+<FaqItem question="Should I use MCP or the REST API?">
+Both exist side by side: MCP is for AI clients that discover and call tools on their own, the OpenAPI-documented REST API is for your own code and integrations. They share the same permissions and data.
+</FaqItem>
+</Faq>
 
 ## Next
 

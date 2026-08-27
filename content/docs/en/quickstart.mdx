@@ -5,12 +5,11 @@ description: From signup to your first agent-updated record in a few minutes.
 
 Create a Customermates account, connect an AI client, and start issuing prompts. Customermates is an open-source, AI-native CRM. Claude and ChatGPT connect with a custom connector and need no API key. CLI clients and editors connect with an API key.
 
-## 1. Create your account
-
+<Steps>
+<Step title="Create your account">
 Sign up at [customermates.com/auth/signup](https://customermates.com/auth/signup). No credit card is required. The first [[commercial.trial.days]] days are free, after which you pick a plan.
-
-## 2. Connect your AI
-
+</Step>
+<Step title="Connect your AI">
 **Using Claude (web, desktop, mobile) or ChatGPT?** Add a custom connector, no API key needed. In your AI client: **Settings → Connectors → Add custom connector**, paste `https://customermates.com/api/v1/mcp`, sign in, and approve. Full steps: [Connect with a custom connector](/docs/connect-custom-connector).
 
 **Using a CLI or editor?** First create an API key (**Profile → API Keys → New key**) and copy the 64-character string, which is shown once. Then follow your client's page:
@@ -21,17 +20,15 @@ Sign up at [customermates.com/auth/signup](https://customermates.com/auth/signup
 - [Gemini](/docs/connect-cli#gemini-cli): one settings block
 
 The server sends its instructions to the client on connect, so the AI knows the tool surface and workspace conventions from the start. In clients that support MCP prompts, such as Claude, you can also run the built-in `get-started` prompt for a personalized start: your name, your role, and a first summary of your workspace.
-
-## 3. Try a real prompt
-
+</Step>
+<Step title="Try a real prompt">
 - *"Set the status of the Acme deal to Won and add a note that the contract was signed today."*
 - *"Pull the last ten contacts I created. Any without an email address?"*
 - *"Create a contact for Jane Doe at Initech, link it to the Initech organization, and start a deal for 12 hours of consulting."*
 
 The agent reports which tools it called and what changed. Field names such as a deal's status are workspace-configurable custom columns, not fixed product fields. Call `get_record_schema` to see the columns that exist in your workspace.
-
-## 4. Optional: subscribe to a webhook
-
+</Step>
+<Step title="Optional: subscribe to a webhook">
 To notify other tools when the CRM changes:
 
 Go to **Company → Webhooks → New**. Set the URL to a throwaway endpoint from [webhook.site](https://webhook.site). Under events, select `contact.created` and `deal.updated`, then save.
@@ -39,6 +36,8 @@ Go to **Company → Webhooks → New**. Set the URL to a throwaway endpoint from
 Edit a contact. Within a few seconds the delivery appears at webhook.site with the full payload.
 
 Full webhook docs: [Webhooks](/docs/webhooks).
+</Step>
+</Steps>
 
 ## Next
 
