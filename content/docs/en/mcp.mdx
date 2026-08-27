@@ -260,6 +260,29 @@ Keys: records, workspace, messaging, social, docs, custom-columns, widgets, webh
 - **Destructive flags everywhere.** Every destructive tool or action has `destructiveHint: true` and an `IRREVERSIBLE` description prefix.
 - **Every enum field** lists its valid values inline in the description, and **every `filters` field** includes a concrete JSON example.
 
+## Frequently asked questions
+
+<Faq>
+<FaqItem question="How do I authenticate against the MCP endpoint?">
+Send your 64-character API key in the `x-api-key` header, or connect through OAuth where the client supports it. Keys are created in the app under Profile, in API & Connectors, and every key is scoped to your user and workspace permissions.
+</FaqItem>
+<FaqItem question="Which AI clients can connect?">
+Claude on web, mobile and desktop, ChatGPT, Claude Code, Codex and Cursor are documented above with a guide per client. Anything that speaks MCP over streamable HTTP works with the same endpoint.
+</FaqItem>
+<FaqItem question="Can I reduce the number of tools a client sees?">
+Yes. Append `?toolsets=` with a comma-separated list of the groups above to the endpoint URL and only those tools are advertised. The two connector tools `search` and `fetch` stay always on.
+</FaqItem>
+<FaqItem question="How do I recognize dangerous tools?">
+Every destructive tool is flagged in the catalog above and starts its description with `IRREVERSIBLE`. Clients that honor MCP annotations also receive `destructiveHint` and can ask for confirmation before calling.
+</FaqItem>
+<FaqItem question="Do tools return machine-readable results?">
+Yes. Every tool declares an output schema, visible live via `tools/list`, and returns `structuredContent` conforming to it next to the compact text form, so a client can chain results without parsing text.
+</FaqItem>
+<FaqItem question="Should I use MCP or the REST API?">
+Both exist side by side: MCP is for AI clients that discover and call tools on their own, the OpenAPI-documented REST API is for your own code and integrations. They share the same permissions and data.
+</FaqItem>
+</Faq>
+
 ## Next
 
 - [Custom connector](/docs/connect-custom-connector): end-to-end setup on one page.

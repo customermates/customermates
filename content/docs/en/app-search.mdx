@@ -19,3 +19,17 @@ Selecting a result opens the record's drawer over the current page, so the conte
 | Search input inside the modal | `#global-search-input` |
 
 For an agent, typing happens in `#global-search-input` after opening the modal; results are regular options selected by their visible name. For filtered, sorted, or counted lookups prefer the list pages or `list_records`, which return totals.
+
+## Frequently asked questions
+
+<Faq>
+<FaqItem question="Why does a task not show up in global search?">
+Tasks are not part of global search. Find them on the tasks list with its search and filters, or through the `list_records` MCP tool.
+</FaqItem>
+<FaqItem question="What is the keyboard shortcut?">
+Cmd+K on macOS, Ctrl+K elsewhere, from anywhere in the app. The sidebar trigger `#nav-search` opens the same modal.
+</FaqItem>
+<FaqItem question="Where do results open?">
+In the record's drawer over the current page, so your context stays underneath. The same drawer is reachable directly via the `?open={entityType}:{id}` deep link documented in [CRM Records](/docs/app-records).
+</FaqItem>
+</Faq>

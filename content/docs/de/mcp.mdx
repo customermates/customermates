@@ -260,6 +260,29 @@ Keys: records, workspace, messaging, social, docs, custom-columns, widgets, webh
 - **Destructive-Flags überall.** Jedes destruktive Tool und jede destruktive Action hat `destructiveHint: true` und den Präfix `IRREVERSIBLE` in der Beschreibung.
 - **Jedes Enum-Feld** listet gültige Werte inline in der Beschreibung, und **jedes `filters`-Feld** enthält ein konkretes JSON-Beispiel.
 
+## Häufige Fragen
+
+<Faq>
+<FaqItem question="Wie authentifiziere ich mich am MCP-Endpoint?">
+Den 64-stelligen API-Key im Header `x-api-key` senden, oder per OAuth verbinden, wo der Client das unterstützt. Keys entstehen in der App unter Profil, API & Connectors, und jeder Key ist auf die Rechte des eigenen Users und Workspace beschränkt.
+</FaqItem>
+<FaqItem question="Welche AI-Clients können sich verbinden?">
+Claude im Web, mobil und als Desktop-App, ChatGPT, Claude Code, Codex und Cursor sind oben mit je einem Guide dokumentiert. Alles, was MCP über streamable HTTP spricht, funktioniert mit demselben Endpoint.
+</FaqItem>
+<FaqItem question="Kann ich die Zahl der Tools reduzieren, die ein Client sieht?">
+Ja. `?toolsets=` mit einer kommagetrennten Liste der Gruppen oben an die Endpoint-URL anhängen, dann werden nur diese Tools angeboten. Die beiden Connector-Tools `search` und `fetch` bleiben immer aktiv.
+</FaqItem>
+<FaqItem question="Woran erkenne ich gefährliche Tools?">
+Jedes destruktive Tool ist im Katalog oben markiert und beginnt seine Beschreibung mit `IRREVERSIBLE`. Clients, die MCP-Annotations auswerten, erhalten zusätzlich `destructiveHint` und können vor dem Aufruf nachfragen.
+</FaqItem>
+<FaqItem question="Liefern Tools maschinenlesbare Ergebnisse?">
+Ja. Jedes Tool deklariert ein Output-Schema, live sichtbar über `tools/list`, und liefert dazu passendes `structuredContent` neben der kompakten Textform, sodass ein Client Ergebnisse verketten kann, ohne Text zu parsen.
+</FaqItem>
+<FaqItem question="Sollte ich MCP oder die REST-API verwenden?">
+Beides existiert nebeneinander: MCP ist für AI-Clients, die Tools selbst entdecken und aufrufen, die per OpenAPI dokumentierte REST-API für eigenen Code und Integrationen. Beide teilen dieselben Berechtigungen und Daten.
+</FaqItem>
+</Faq>
+
 ## Weiter
 
 - [Custom Connector](/docs/connect-custom-connector): End-to-End-Setup auf einer Seite.

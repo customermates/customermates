@@ -18,3 +18,17 @@ Ein frischer Workspace öffnet direkt nach der Registrierung den Onboarding-Wiza
 | Primäraktion (nächster Schritt, im letzten Schritt Abschluss) | `#onboarding-back` und `#onboarding-next` |
 
 `#onboarding-next` geht weiter und schließt im letzten Schritt den Wizard ab; `#onboarding-back` führt zum vorherigen Schritt zurück. Alles innerhalb eines Schritts ist ein normales Formular: per Label ausfüllen, dann `#onboarding-next` aktivieren.
+
+## Häufige Fragen
+
+<Faq>
+<FaqItem question="Kann ich Schritte überspringen?">
+Der Einladungs- und der AI-Schritt sind überspringbar. Einladungen lassen sich später auf der [Company-Seite](/docs/app-company) verschicken, und der AI-Client-Flow bleibt auf der [Profil-Seite](/docs/app-profile) verfügbar. Der Profil-Schritt ist erforderlich.
+</FaqItem>
+<FaqItem question="Was passiert mit Personen, die sich über den Einladungslink registrieren?">
+Sie treten dem Workspace als Waiting for Approval bei. Ein Admin weist auf der Company-Seite eine Rolle zu und aktiviert sie; bis dahin können sie nicht im Workspace arbeiten.
+</FaqItem>
+<FaqItem question="Brauche ich einen verbundenen AI-Client, um den Assistant zu nutzen?">
+Nein. Der eingebaute [Assistant](/docs/app-assistant) funktioniert ohne externen Client. Der AI-Schritt verbindet externe Tools wie Claude oder Cursor über [MCP](/docs/mcp) mit dem Workspace.
+</FaqItem>
+</Faq>
