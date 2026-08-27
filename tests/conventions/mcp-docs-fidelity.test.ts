@@ -68,6 +68,16 @@ function catalogText(locale: string): string {
   return readFileSync(join(REPO_ROOT, catalogPath(locale)), "utf8");
 }
 
+/**
+ * Only the generated catalog tables name tools. Prose elsewhere on the page legitimately
+ * backticks other snake_case tokens, such as the failure kinds a refused call can carry.
+ */
+function catalogTableText(locale: string): string {
+  return [...catalogText(locale).matchAll(/\{\/\* mcp-catalog:[a-z-]+ \*\/\}([\s\S]*?)\{\/\* \/mcp-catalog \*\/\}/g)]
+    .map((match) => match[1])
+    .join("\n");
+}
+
 
 describe("MCP catalog generation", () => {
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps every checked-in catalog table a fixed point of the generator", async () => {
@@ -218,7 +228,7 @@ describe("MCP tool catalog fidelity", () => {
       const registered = registeredToolNames();
       const stale: string[] = [];
       for (const locale of CATALOG_LOCALES) {
-        for (const match of catalogText(locale).matchAll(
+        for (const match of catalogTableText(locale).matchAll(
           CATALOG_TOOL_PATTERN,
         )) {
           if (!registered.has(match[1]))
