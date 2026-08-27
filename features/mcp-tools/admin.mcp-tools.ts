@@ -139,7 +139,7 @@ export const manageTeamTool = {
   description:
     "Use this when administering team members. " +
     "action invite SENDS REAL INVITATION EMAILS to the given addresses (up to 20 per call). " +
-    "action update_member changes an existing member's role or status: pass userId from list_users plus roleId and/or status, omitted fields keep their current values; " +
+    "action update_member changes an existing member's role or status: pass userId from list_users.items[].id plus roleId from get_workspace_context.roles[].id and/or status, omitted fields keep their current values; " +
     "a member who has no role assigned yet (e.g. a still pending invite) has no role to keep, so you must pass roleId together with the change or the call is rejected. " +
     "last-admin protection is enforced server-side, the workspace can never lose its last active admin. " +
     "Needs users admin rights.",
