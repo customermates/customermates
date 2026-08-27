@@ -1,13 +1,15 @@
 import { z } from "zod";
 
 import {
-  encodeToToon,
-  forbidNullFields,
-  runInteractor,
   CUSTOM_COLUMN_PREREQ,
   CUSTOM_FIELDS_MERGE_NOTE,
+  CreatedRecordsOutputSchema,
+  toonResult,
   IDEMPOTENT_NOTE,
+  UpdatedRecordsOutputSchema,
+  forbidNullFields,
   relationsViaLinkNote,
+  runInteractor,
 } from "./utils";
 
 import { getCreateManyContactsInteractor, getUpdateManyContactsInteractor } from "@/core/di";
@@ -48,9 +50,10 @@ export const createContactsTool = {
     openWorldHint: false,
   },
   inputSchema: CreateContactsSchema,
+  outputSchema: CreatedRecordsOutputSchema,
   execute: (params: z.infer<typeof CreateContactsSchema>) =>
     runInteractor(getCreateManyContactsInteractor().invoke(params), (data) =>
-      encodeToToon({
+      toonResult({
         items: data.map((item) => ({
           id: item.id,
           name: `${item.firstName ?? ""} ${item.lastName ?? ""}`.trim(),
@@ -78,6 +81,11 @@ export const updateContactsTool = {
     openWorldHint: false,
   },
   inputSchema: UpdateContactsSchema,
+  outputSchema: UpdatedRecordsOutputSchema,
   execute: (params: z.infer<typeof UpdateContactsSchema>) =>
-    runInteractor(getUpdateManyContactsInteractor().invoke(params), (data) => `Updated ${data.length} contact(s)`),
+    runInteractor(
+      getUpdateManyContactsInteractor().invoke(params),
+      (data) => `Updated ${data.length} contact(s)`,
+      (data) => ({ updated: data.length }),
+    ),
 };

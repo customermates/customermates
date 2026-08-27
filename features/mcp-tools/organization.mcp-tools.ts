@@ -1,13 +1,15 @@
 import { z } from "zod";
 
 import {
-  encodeToToon,
-  forbidNullFields,
-  runInteractor,
   CUSTOM_COLUMN_PREREQ,
   CUSTOM_FIELDS_MERGE_NOTE,
+  CreatedRecordsOutputSchema,
+  toonResult,
   IDEMPOTENT_NOTE,
+  UpdatedRecordsOutputSchema,
+  forbidNullFields,
   relationsViaLinkNote,
+  runInteractor,
 } from "./utils";
 
 import { getCreateManyOrganizationsInteractor, getUpdateManyOrganizationsInteractor } from "@/core/di";
@@ -42,9 +44,10 @@ export const createOrganizationsTool = {
     " Returns the list of created organization ids and names.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
   inputSchema: CreateOrganizationsSchema,
+  outputSchema: CreatedRecordsOutputSchema,
   execute: (params: z.infer<typeof CreateOrganizationsSchema>) =>
     runInteractor(getCreateManyOrganizationsInteractor().invoke(params), (data) =>
-      encodeToToon({ items: data.map((item) => ({ id: item.id, name: item.name })) }),
+      toonResult({ items: data.map((item) => ({ id: item.id, name: item.name })) }),
     ),
 };
 
@@ -62,9 +65,11 @@ export const updateOrganizationsTool = {
     IDEMPOTENT_NOTE,
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: UpdateOrganizationsSchema,
+  outputSchema: UpdatedRecordsOutputSchema,
   execute: (params: z.infer<typeof UpdateOrganizationsSchema>) =>
     runInteractor(
       getUpdateManyOrganizationsInteractor().invoke(params),
       (data) => `Updated ${data.length} organization(s)`,
+      (data) => ({ updated: data.length }),
     ),
 };
