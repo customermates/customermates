@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, relative } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
@@ -237,28 +237,44 @@ describe("managed service and independent self-hosting stay separated", () => {
 
     expect(text).toMatch(
       name === "en"
-        ? /affiliate tracker is disabled|does not currently load or initialise that affiliate script/i
-        : /Affiliate-Tracker ist.*deaktiviert|lädt oder initialisiert dieses Affiliate-Skript derzeit nicht/i,
-    );
-    expect(text).toMatch(
-      name === "en"
-        ? /must remain disabled until|may be enabled only after/i
-        : /muss deaktiviert bleiben|darf erst aktiviert werden/i,
+        ? /optional affiliate tracker is not loaded|does not currently load or initialise the optional affiliate script/i
+        : /optionaler Affiliate-Tracker wird weder.*geladen|lädt oder initialisiert das optionale Affiliate-Skript derzeit weder/i,
     );
     expect(affiliate(name)).toMatch(
       name === "en"
-        ? /does not currently load the Lemon Squeezy affiliate script/i
-        : /lädt das Lemon-Squeezy-Affiliate-Skript derzeit nicht/i,
+        ? /does not currently load Lemon Squeezy's affiliate tracking script/i
+        : /lädt das Affiliate-Tracking-Skript von Lemon Squeezy derzeit nicht/i,
+    );
+    expect(affiliate(name)).toMatch(
+      name === "en" ? /registration link opens Lemon Squeezy's hosted website/i : /Partnerregistrierung öffnet.*Lemon Squeezy/i,
     );
     expect(affiliate(name)).not.toMatch(name === "en" ? /30 days/i : /30 Tage/i);
   });
 
-  it("does not load the unresolved Lemon Squeezy affiliate tracker", () => {
-    const layout = readFileSync(join(REPO_ROOT, "app/layout.tsx"), "utf8");
-    const consentManager = readFileSync(join(REPO_ROOT, "components/privacy/consent-manager.tsx"), "utf8");
+  it("loads only cookieless analytics on managed static content", () => {
+    const runtimeFiles = walkFiles(
+      REPO_ROOT,
+      (path) =>
+        /\.(?:ts|tsx)$/.test(path) &&
+        !path.includes("/__tests__/") &&
+        !path.includes("/tests/") &&
+        !path.includes("/scripts/") &&
+        !path.endsWith("vitest.config.ts"),
+    );
+    const runtime = runtimeFiles.map((path) => readFileSync(path, "utf8")).join("\n");
+    const analyticsFiles = runtimeFiles
+      .filter((path) => readFileSync(path, "utf8").includes("@vercel/analytics"))
+      .map((path) => relative(REPO_ROOT, path));
+    const staticLayout = readFileSync(join(REPO_ROOT, "app/[locale]/(static)/layout.tsx"), "utf8");
 
-    expect(`${layout}\n${consentManager}`).not.toContain("lmsqueezy.com/affiliate.js");
-    expect(`${layout}\n${consentManager}`).not.toContain("lemonSqueezyAffiliateConfig");
+    expect(runtime).not.toContain("lmsqueezy.com/affiliate.js");
+    expect(runtime).not.toContain("lemonSqueezyAffiliateConfig");
+    expect(runtime).not.toContain("googletagmanager.com");
+    expect(runtime).not.toContain("google-analytics.com");
+    expect(runtime).not.toContain("@next/third-parties/google");
+    expect(runtime).not.toMatch(/\b(?:GoogleAnalytics|GoogleTagManager|sendGAEvent|gtag)\b/);
+    expect(analyticsFiles).toEqual(["app/[locale]/(static)/layout.tsx"]);
+    expect(staticLayout).toContain('env.APP_MODE === "cloud" ? <Analytics /> : null');
   });
 });
 
