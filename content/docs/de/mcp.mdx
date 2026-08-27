@@ -39,7 +39,7 @@ Einen AI-Client mit dem Workspace zu verbinden sind immer dieselben drei Schritt
 
 <Steps>
 <Step title="API-Key erstellen">
-In der App **Profil** öffnen, dann **API & Connectors**, und einen Key hinzufügen. Entweder das geführte Setup für Claude, ChatGPT, Cursor oder Gemini wählen, oder einen Standard-Key für die eigene Integration erstellen. Der Key wird nur einmal angezeigt, also vor dem Schließen des Dialogs kopieren.
+**Profil → API Keys → Neuer Key**. Entweder das geführte Setup für Claude, ChatGPT, Cursor oder Gemini wählen, oder einen Standard-Key für die eigene Integration. Der Key wird nur einmal angezeigt, also vor dem Schließen des Dialogs kopieren.
 </Step>
 <Step title="Client auf den Endpoint zeigen lassen">
 Dem Client `POST https://customermates.com/api/v1/mcp` mit dem `x-api-key`-Header aus dem vorherigen Schritt geben, oder per OAuth verbinden, wo der Client das unterstützt. Die Guides pro Client in der Tabelle unten enthalten die genaue Konfiguration.
@@ -307,7 +307,7 @@ Entitlements lehnen auf demselben Weg ab. Messaging-gestützte Tools brauchen di
 
 <Faq>
 <FaqItem question="Wie authentifiziere ich mich am MCP-Endpoint?">
-Den 64-stelligen API-Key im Header `x-api-key` senden, oder per OAuth verbinden, wo der Client das unterstützt. Keys entstehen in der App unter Profil, API & Connectors, und jeder Key ist auf die Rechte des eigenen Users und Workspace beschränkt.
+Den 64-stelligen API-Key im Header `x-api-key` senden, oder per OAuth verbinden, wo der Client das unterstützt. Keys entstehen unter **Profil → API Keys → Neuer Key**. Jeder Key trägt die eigenen Rechte, ein Client kann also nie mehr als man selbst.
 </FaqItem>
 <FaqItem question="Welche AI-Clients können sich verbinden?">
 Claude im Web, mobil und als Desktop-App, ChatGPT, Claude Code, Codex und Cursor sind oben mit je einem Guide dokumentiert. Alles, was MCP über streamable HTTP spricht, funktioniert mit demselben Endpoint.

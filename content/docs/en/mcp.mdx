@@ -39,7 +39,7 @@ Getting an AI client onto your workspace is the same three moves every time:
 
 <Steps>
 <Step title="Create an API key">
-In the app, open **Profile**, then **API & Connectors**, and add a key. Choose the guided setup for Claude, ChatGPT, Cursor, or Gemini, or create a standard key for your own integration. The key is shown once, so copy it before closing the dialog.
+**Profile → API Keys → New key**. Choose the guided setup for Claude, ChatGPT, Cursor, or Gemini, or a standard key for your own integration. The key is shown once, so copy it before closing the dialog.
 </Step>
 <Step title="Point the client at the endpoint">
 Give the client `POST https://customermates.com/api/v1/mcp` with the `x-api-key` header from the step above, or connect through OAuth where the client supports it. The per-client guides in the table below carry the exact configuration.
@@ -307,7 +307,7 @@ Entitlements refuse the same way. Messaging-backed tools need the Pro tier, Sale
 
 <Faq>
 <FaqItem question="How do I authenticate against the MCP endpoint?">
-Send your 64-character API key in the `x-api-key` header, or connect through OAuth where the client supports it. Keys are created in the app under Profile, in API & Connectors, and every key is scoped to your user and workspace permissions.
+Send your 64-character API key in the `x-api-key` header, or connect through OAuth where the client supports it. Create keys at **Profile → API Keys → New key**. Every key carries your own permissions, so a client can never do more than you can.
 </FaqItem>
 <FaqItem question="Which AI clients can connect?">
 Claude on web, mobile and desktop, ChatGPT, Claude Code, Codex and Cursor are documented above with a guide per client. Anything that speaks MCP over streamable HTTP works with the same endpoint.

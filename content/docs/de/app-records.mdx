@@ -11,7 +11,7 @@ Jeder Datensatztyp hat dieselben drei Oberflächen:
 
 - **Liste** unter `/{type}` (zum Beispiel `/contacts`), locale-präfixiert wie `https://customermates.com/en/contacts`. Suche, Filter, Sortierung und Massenaktionen leben hier.
 - **Drawer**: Hängen Sie `?open={entityType}:{id}` an die Listen-URL an (zum Beispiel `/contacts?open=contact:{id}`), um einen Datensatz über der Liste zu bearbeiten.
-- **Detailseite** unter `/{type}/{id}` (zum Beispiel `/contacts/42`) für den vollen Datensatz, Custom Fields und das Löschen.
+- **Detailseite** unter `/{type}/{id}` (zum Beispiel `/contacts/42`) für den vollen Datensatz, Custom Fields und das Löschen. Sie öffnet mit einer Übersicht der wichtigsten Felder, und jedes Feld trägt einen Pin-Button, der es dieser Übersicht hinzufügt oder daraus entfernt. Das Anpinnen gilt pro Person, zwei Kolleginnen können denselben Datensatz also durch unterschiedliche Übersichten lesen.
 
 Zeilen tragen nie eine DOM-Id. Öffnen Sie einen Datensatz über seine URL oder den Drawer-Deep-Link, nie durch Klick auf eine per Id gesuchte Zeile.
 
@@ -43,7 +43,7 @@ Diese Ids teilen sich alle Datensatztypen.
 |---|---|---|---|
 | Speichern (Drawer) | Drawer-Footer | `#drawer-save` | Speichert Änderungen im Drawer |
 | Speichern / Zurücksetzen (Detail) | Detail-Topbar | `#entity-save` / `#entity-reset` | Speichert oder verwirft Änderungen |
-| Felder bearbeiten | Detail-Topbar | `#entity-edit-fields` | Schaltet die Feldbearbeitung um |
+| Custom Fields bearbeiten | Detail-Topbar | `#entity-edit-fields` | Schaltet das Bearbeiten der Custom Fields um, nicht der eingebauten Felder |
 | Custom Field hinzufügen | Detail-Topbar | `#entity-add-custom-field` | Legt eine Custom Column an |
 | Löschen | Detail-Topbar | `#entity-delete` | Öffnet das Bestätigungs-Modal |
 | Löschen bestätigen / abbrechen | Bestätigungs-Modal | `#confirm-delete` / `#confirm-delete-cancel` | Unwiderrufliches Löschen oder Abbruch |
