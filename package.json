@@ -184,6 +184,7 @@
     "conventions:check": "vitest run tests/conventions",
     "db:clean-local": "bash ee/scripts/clean-local-db.sh",
     "db:get-user-stats": "yarn db:use-live-data && tsx ee/scripts/get-user-stats.ts",
+    "db:provision": "node scripts/provision-dev-database.mjs",
     "db:reset": "bash ee/scripts/reset-db.sh",
     "db:use-live-data": "bash scripts/use-live-data.sh",
     "dev": "prisma generate && yarn workflow:setup && yarn openapi:generate && yarn raw-docs:generate && next dev --turbopack -p 4000",
