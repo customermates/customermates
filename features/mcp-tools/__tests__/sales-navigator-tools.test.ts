@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { mcpToolResultText } from "../mcp-tool";
 
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { MOCK_ENV_MODULE, createMockDiModule, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
@@ -76,12 +77,12 @@ describe("linkedin_search_sales_leads lead rows", () => {
 
     const output = await runLeadSearch({ connectedAccountId: ACCOUNT_ID, url: SEARCH_URL });
 
-    expect(output).toContain("current_positions");
-    expect(output).toContain("Acme");
-    expect(output).toContain("CEO");
-    expect(output).toContain("acme-123");
-    expect(output).toContain("linkedin.com/company/acme");
-    expect(output).toContain("has_been_saved");
+    expect(mcpToolResultText(output)).toContain("current_positions");
+    expect(mcpToolResultText(output)).toContain("Acme");
+    expect(mcpToolResultText(output)).toContain("CEO");
+    expect(mcpToolResultText(output)).toContain("acme-123");
+    expect(mcpToolResultText(output)).toContain("linkedin.com/company/acme");
+    expect(mcpToolResultText(output)).toContain("has_been_saved");
   });
 
   it("omits current_positions when the provider sends none", async () => {
@@ -89,7 +90,7 @@ describe("linkedin_search_sales_leads lead rows", () => {
 
     const output = await runLeadSearch({ connectedAccountId: ACCOUNT_ID, url: SEARCH_URL });
 
-    expect(output).not.toContain("current_positions");
+    expect(mcpToolResultText(output)).not.toContain("current_positions");
   });
 
   it("omits current_positions when every entry is empty", async () => {
@@ -99,7 +100,7 @@ describe("linkedin_search_sales_leads lead rows", () => {
 
     const output = await runLeadSearch({ connectedAccountId: ACCOUNT_ID, url: SEARCH_URL });
 
-    expect(output).not.toContain("current_positions");
+    expect(mcpToolResultText(output)).not.toContain("current_positions");
   });
 });
 
@@ -152,12 +153,12 @@ describe("linkedin_manage_sales_lists browse rows", () => {
       manageSalesListsTool.inputSchema.parse({ action: "browse", connectedAccountId: ACCOUNT_ID, listId: "list-1" }),
     );
 
-    expect(output).toContain("current_positions");
-    expect(output).toContain("Globex");
-    expect(output).toContain("globex-9");
-    expect(output).toContain("CTO");
-    expect(output).not.toContain("member_id");
-    expect(output).not.toContain("326109300");
-    expect(output).not.toContain("OldCorp");
+    expect(mcpToolResultText(output)).toContain("current_positions");
+    expect(mcpToolResultText(output)).toContain("Globex");
+    expect(mcpToolResultText(output)).toContain("globex-9");
+    expect(mcpToolResultText(output)).toContain("CTO");
+    expect(mcpToolResultText(output)).not.toContain("member_id");
+    expect(mcpToolResultText(output)).not.toContain("326109300");
+    expect(mcpToolResultText(output)).not.toContain("OldCorp");
   });
 });

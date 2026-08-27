@@ -1,14 +1,16 @@
 import { z } from "zod";
 
 import {
-  encodeToToon,
-  forbidNullFields,
-  NO_NULL_WIPE_WARNING,
-  runInteractor,
   CUSTOM_COLUMN_PREREQ,
   CUSTOM_FIELDS_MERGE_NOTE,
+  CreatedRecordsOutputSchema,
+  toonResult,
   IDEMPOTENT_NOTE,
+  NO_NULL_WIPE_WARNING,
+  UpdatedRecordsOutputSchema,
+  forbidNullFields,
   relationsViaLinkNote,
+  runInteractor,
 } from "./utils";
 
 import { getCreateManyDealsInteractor, getUpdateManyDealsInteractor } from "@/core/di";
@@ -43,9 +45,10 @@ export const createDealsTool = {
     " Returns the list of created deal ids and names.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
   inputSchema: CreateDealsSchema,
+  outputSchema: CreatedRecordsOutputSchema,
   execute: (params: z.infer<typeof CreateDealsSchema>) =>
     runInteractor(getCreateManyDealsInteractor().invoke(params), (data) =>
-      encodeToToon({ items: data.map((item) => ({ id: item.id, name: item.name })) }),
+      toonResult({ items: data.map((item) => ({ id: item.id, name: item.name })) }),
     ),
 };
 
@@ -65,6 +68,11 @@ export const updateDealsTool = {
     IDEMPOTENT_NOTE,
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: UpdateDealsSchema,
+  outputSchema: UpdatedRecordsOutputSchema,
   execute: (params: z.infer<typeof UpdateDealsSchema>) =>
-    runInteractor(getUpdateManyDealsInteractor().invoke(params), (data) => `Updated ${data.length} deal(s)`),
+    runInteractor(
+      getUpdateManyDealsInteractor().invoke(params),
+      (data) => `Updated ${data.length} deal(s)`,
+      (data) => ({ updated: data.length }),
+    ),
 };

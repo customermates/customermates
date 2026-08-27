@@ -84,7 +84,7 @@ describe("manage_custom_columns option defaults", () => {
       expect(option.color).toBe("secondary");
     }
     expect(new Set(sent.options.options.map((option: { value: string }) => option.value)).size).toBe(4);
-    expect(String(result)).toContain("created successfully");
+    expect(mcpToolResultText(result)).toContain("created successfully");
   });
 
   it("accepts the preferred flat selectOptions shape and a null id for an explicit create", async () => {
@@ -123,7 +123,7 @@ describe("manage_custom_columns option defaults", () => {
     const parsed = manageCustomColumnsTool.inputSchema.parse(params);
     const result = await manageCustomColumnsTool.execute(parsed);
 
-    expect(String(result)).toContain("created successfully");
+    expect(mcpToolResultText(result)).toContain("created successfully");
     expect(spies.upsert).toHaveBeenCalledWith({
       entityType: "contact",
       type: "singleSelect",
@@ -326,7 +326,7 @@ describe("manage_custom_columns option defaults", () => {
       type: "plain",
       label: "Roof note",
     });
-    expect(String(result)).toContain("updated successfully");
+    expect(mcpToolResultText(result)).toContain("updated successfully");
   });
 
   it("refuses to repurpose an existing column by changing its label", async () => {

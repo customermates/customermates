@@ -138,8 +138,8 @@ describe("get_social_posts routing", () => {
       authorIdentifier: "ACoAAProviderId",
       limit: 10,
     });
-    expect(result).toContain("post-1");
-    expect(result).toContain("cursor-2");
+    expect(mcpToolResultText(result)).toContain("post-1");
+    expect(mcpToolResultText(result)).toContain("cursor-2");
   });
 
   it("continues with the same explicit author and limit", async () => {
@@ -251,11 +251,11 @@ describe("get_social_profile", () => {
     });
     const result = await runProfile({ connectedAccountId: ACCOUNT_ID, identifier: "ada" });
     expect(spies.getSocialProfile).toHaveBeenCalledOnce();
-    expect(result).toContain("Ada Lovelace");
-    expect(result).toContain("Engineer");
-    expect(result).toContain("London");
-    expect(result).not.toContain("member_id");
-    expect(result).not.toContain("123456");
+    expect(mcpToolResultText(result)).toContain("Ada Lovelace");
+    expect(mcpToolResultText(result)).toContain("Engineer");
+    expect(mcpToolResultText(result)).toContain("London");
+    expect(mcpToolResultText(result)).not.toContain("member_id");
+    expect(mcpToolResultText(result)).not.toContain("123456");
   });
 
   it("returns the explicit lookup route separately from the provider-reported type", async () => {
@@ -273,9 +273,9 @@ describe("get_social_profile", () => {
       identifier: "company-123",
       profileType: "company",
     });
-    expect(result).toContain("profile_type: company");
-    expect(result).toContain("organization");
-    expect(result).toContain("Acme GmbH");
+    expect(mcpToolResultText(result)).toContain("profile_type: company");
+    expect(mcpToolResultText(result)).toContain("organization");
+    expect(mcpToolResultText(result)).toContain("Acme GmbH");
   });
 
   it("defaults to a person route even when the provider reports organization", async () => {
@@ -291,8 +291,8 @@ describe("get_social_profile", () => {
       identifier: "ada",
       profileType: "person",
     });
-    expect(result).toContain("profile_type: person");
-    expect(result).toContain("type: organization");
+    expect(mcpToolResultText(result)).toContain("profile_type: person");
+    expect(mcpToolResultText(result)).toContain("type: organization");
     expect(getSocialProfileTool.inputSchema.shape.identifier.description).toContain(
       "get_messaging_threads.items[].participants[].identifier",
     );
@@ -322,10 +322,10 @@ describe("get_social_profile", () => {
       },
     });
     const result = await runProfile({ connectedAccountId: ACCOUNT_ID, identifier: "grace" });
-    expect(result).toContain("current_positions");
-    expect(result).toContain("Navy Labs");
-    expect(result).toContain("navy-1");
-    expect(result).not.toContain("Past Inc");
+    expect(mcpToolResultText(result)).toContain("current_positions");
+    expect(mcpToolResultText(result)).toContain("Navy Labs");
+    expect(mcpToolResultText(result)).toContain("navy-1");
+    expect(mcpToolResultText(result)).not.toContain("Past Inc");
   });
 });
 

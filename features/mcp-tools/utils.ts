@@ -188,11 +188,26 @@ export const NO_NULL_WIPE_WARNING =
 
 export async function runInteractor<T>(
   result: InteractorResult<T>,
-  format: (data: T) => string,
+  format: (data: T) => string | McpToolResult,
+  structured?: (data: T) => Record<string, unknown>,
 ): Promise<McpToolResult> {
   const outcome = await result;
-  return outcome.ok ? format(outcome.data) : mcpInteractorFailure(outcome.error);
+  if (!outcome.ok) return mcpInteractorFailure(outcome.error);
+  const formatted = format(outcome.data);
+  if (typeof formatted !== "string") return formatted;
+  if (!structured) return formatted;
+  return { text: formatted, structuredContent: structured(outcome.data) };
 }
+
+export function toonResult(payload: Record<string, unknown>): McpToolResult {
+  return { text: encodeToToon(payload), structuredContent: payload };
+}
+
+export const CreatedRecordsOutputSchema = z.object({
+  items: z.array(z.object({ id: z.string(), name: z.string() })).describe("The created records, in input order"),
+});
+
+export const UpdatedRecordsOutputSchema = z.object({ updated: z.number() });
 
 export const CUSTOM_COLUMN_PREREQ = "Prereq: call get_record_schema for custom-column ids.";
 

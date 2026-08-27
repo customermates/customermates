@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 import {
-  encodeToToon,
   formatDatesInResponse,
   runInteractor,
   mcpInteractorFailure,
@@ -9,6 +8,7 @@ import {
   mcpPageSize,
   filtersDescription,
   sortDescription,
+  toonResult,
 } from "./utils";
 
 import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
@@ -21,6 +21,27 @@ import {
   getGetUserDetailsInteractor,
   getGetUsersApiInteractor,
 } from "@/core/di";
+
+const WorkspaceContextOutputSchema = z.looseObject({
+  user: z.looseObject({}),
+  company: z.looseObject({ id: z.string(), currency: z.string().nullable().optional() }),
+  roles: z.array(z.looseObject({ id: z.string() })),
+  connectedAccounts: z.array(z.looseObject({ id: z.string() })),
+});
+
+const ListUsersOutputSchema = z.object({
+  items: z.array(
+    z.object({
+      id: z.string(),
+      firstName: z.string().nullable(),
+      lastName: z.string().nullable(),
+      email: z.string(),
+      roleId: z.string().nullable(),
+      status: z.string(),
+    }),
+  ),
+  total: z.number(),
+});
 
 export const getWorkspaceContextTool = {
   name: "get_workspace_context",
@@ -36,6 +57,7 @@ export const getWorkspaceContextTool = {
     "For LinkedIn, linkedinProducts lists which products the account can send from (classic, sales_navigator, recruiter); only pass a linkedinProduct that appears there.",
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: z.object({}),
+  outputSchema: WorkspaceContextOutputSchema,
   execute: async () => {
     const [userResult, companyResult, rolesResult, accountsResult] = await Promise.all([
       getGetUserDetailsInteractor().invoke(),
@@ -46,7 +68,7 @@ export const getWorkspaceContextTool = {
     if (!rolesResult.ok) return mcpInteractorFailure(rolesResult.error);
     if (!accountsResult.ok) return mcpInteractorFailure(accountsResult.error);
     const company = companyResult.data;
-    return encodeToToon(
+    return toonResult(
       formatDatesInResponse({
         user: userResult.data,
         company: {
@@ -85,6 +107,7 @@ export const listUsersTool = {
     "Use list_users.items[].id as userId for manage_team update_member and for userIds in record tools; match roleId against get_workspace_context.roles[].id for the role name and permissions.",
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: ListUsersSchema,
+  outputSchema: ListUsersOutputSchema,
   execute: (params: z.infer<typeof ListUsersSchema>) =>
     runInteractor(
       getGetUsersApiInteractor().invoke({
@@ -94,7 +117,7 @@ export const listUsersTool = {
         pagination: { page: params.page, pageSize: params.pageSize },
       }),
       (data) =>
-        encodeToToon({
+        toonResult({
           items: data.items.map((item) => ({
             id: item.id,
             firstName: item.firstName,
