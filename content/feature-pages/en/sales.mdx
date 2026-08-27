@@ -62,9 +62,9 @@ Customermates combines core contact, deal, pipeline, task, dashboard, and messag
 
 **Workflow automation with separate n8n.** Connect an n8n instance you run or subscribe to through REST, webhooks, MCP, or the community node. Its visual builder, schedules, 400+ connectors, runtime, credentials, logs, limits, delivery providers, and costs remain external.
 
-**External AI clients operate allowed CRM data.** Supported clients such as Claude, ChatGPT, or Gemini can use [[derived.mcp.tools.total]] MCP tools to move deal stages, draft an individual message, summarize allowed notes, and update supported fields. Customermates includes no AI client, model, subscription, lead scoring, enrichment, or autonomous outcome. MCP access starts with Starter.
+**External AI clients operate allowed CRM data.** Supported clients such as Claude, ChatGPT, or Gemini can use [[derived.mcp.tools.total]] MCP tools to move deal stages, draft an individual message, summarize allowed notes, and update supported fields. External MCP clients bring their own client, model, and subscription and do not consume hosted Mate credits. Customermates adds no lead scoring, enrichment, or autonomous outcome to this MCP flow. MCP access starts with Starter.
 
-**Reporting and analytics.** Configure dashboard widgets over stored pipeline values, counts, and supported fields. Customermates has no dedicated record or report exporter and does not calculate forecasts; use REST or MCP for external analysis and delivery.
+**Reporting and analytics.** Configure dashboard widgets over stored pipeline values, stage-weighted deal values, counts, and supported fields. Customermates has no dedicated record or report exporter and does not calculate predictive forecasts; use REST or MCP for external analysis and delivery.
 
 **Permissions and recorded activity.** Resource/action permissions control access at whole-resource scope, not per field or record. Supported activity history provides context where recorded; do not treat it as a complete compliance audit trail.
 
@@ -82,13 +82,13 @@ Good sales software does not force a methodology on your team. It adapts to the 
 
 ## Key Benefits
 
-**Core sales context in one platform.** Bring contacts, deals, linked tasks, supported messaging, and configurable dashboard widgets into one CRM. Campaigns, scoring, forecasts, and automation runtimes remain separate tools.
+**Core sales context in one platform.** Bring contacts, deals, linked tasks, supported messaging, stage-weighted pipeline values, and configurable dashboard widgets into one CRM. Campaigns, scoring, predictive forecasting, and automation runtimes remain separate tools.
 
 **Adaptable to your sales process.** Custom fields and configurable pipeline stages let you model your sales methodology. Connect separately operated automation when needed; no workflow runtime is bundled.
 
 **External automation that scales with you.** A separately operated workflow can react to documented events and supported fields as deal volume grows. Its scale, execution limits, delivery, reliability, and costs depend on that provider.
 
-**External AI-assisted selling.** A supported external client can draft individual email, summarize allowed context, and update permitted fields through MCP. Customermates contains no AI model, lead-scoring, forecasting, or enrichment service.
+**External AI-assisted selling.** A supported external client can draft individual email, summarize allowed context, and update permitted fields through MCP. This flow uses the external client's model and has no lead-scoring, predictive-forecasting, or enrichment service; Customermates' stage-weighted pipeline calculation is deterministic.
 
 **Open source with no vendor lock-in.** Your sales data lives in a platform you can inspect, extend, and migrate from at any time. No proprietary lock-in, no hidden features, and no forced upgrades.
 
