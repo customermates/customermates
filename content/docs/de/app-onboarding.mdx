@@ -1,0 +1,20 @@
+---
+title: "Onboarding-Wizard"
+description: "Das dreistufige Setup eines frischen Workspace: Profil, Team-Einladungen und AI-Client-Verbindung, mit den stabilen Ids für Agents."
+---
+
+Ein frischer Workspace öffnet direkt nach der Registrierung den Onboarding-Wizard unter `/onboarding/wizard`. Er läuft genau einmal; nach dem Abschluss landet man auf dem Dashboard, wo sich das Assistant-Panel von selbst öffnet. Diese Seite dokumentiert den Wizard für Menschen und für AI-Agents, die die UI steuern.
+
+## Die drei Schritte
+
+1. **Profil**: Name und Land. Die Felder sind gewöhnliche Formulareingaben, adressierbar über ihre sichtbaren Labels.
+2. **Einladen**: Teammitglieder per E-Mail einladen oder den teilbaren Link der Form `/invitation/{token}` kopieren. Wer sich über diesen Link registriert, tritt dem Workspace als **Waiting for Approval** bei, bis ein Admin auf der [Company-Seite](/docs/app-company) eine Rolle zuweist und aktiviert. Dieser Schritt ist überspringbar und später auf der Company-Seite wiederholbar.
+3. **AI**: einen externen AI-Client (Claude, OpenAI, Cursor oder Gemini) mit dem [MCP-Endpoint](/docs/mcp) des Workspace verbinden. Der Flow erstellt einen API-Key für den gewählten Client. Auch dieser Schritt ist überspringbar; derselbe Flow bleibt über die [Profil-Seite](/docs/app-profile) verfügbar, und der eingebaute [Assistant](/docs/app-assistant) funktioniert ohne ihn.
+
+## Stabile Ids
+
+| Control | Id |
+|---|---|
+| Primäraktion (nächster Schritt, im letzten Schritt Abschluss) | `#onboarding-back` und `#onboarding-next` |
+
+`#onboarding-next` geht weiter und schließt im letzten Schritt den Wizard ab; `#onboarding-back` führt zum vorherigen Schritt zurück. Alles innerhalb eines Schritts ist ein normales Formular: per Label ausfüllen, dann `#onboarding-next` aktivieren.

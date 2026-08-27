@@ -89,53 +89,60 @@ Das volle JSON-Schema jedes Tools liegt live an `POST /api/v1/mcp` mit `method: 
 
 Siebzehn Tools arbeiten gegen die fünf Record-Typen (contact, organization, deal, service, task). Records tragen pro Workspace definierte Custom Columns, deshalb ist `get_record_schema` der Anker: Es liefert die Custom-Column-IDs und Optionswerte, die Schreibzugriffe brauchen. Felder wie ein Deal- oder Task-Status sind konfigurierbare singleSelect Custom Columns, keine festen nativen Felder; `get_record_schema` liefert genau die Spalten, die der Workspace tatsächlich hat.
 
+{/* mcp-catalog:records */}
 | Tool | Read | Destructive | Zweck |
 |---|---|---|---|
-| `get_record_schema` | ✓ | | Schema und Custom-Column-Metadaten, nie Record-Daten. Ein Entity-Typ, oder alle fünf, wenn `entity` fehlt. Vor jedem Create oder Update aufrufen. |
-| `list_records` | ✓ | | Suchen, filtern, sortieren, paginieren für einen Entity-Typ. Liefert immer das Total. Deals enthalten totalValue und totalQuantity, Services amount. |
-| `search_records` | ✓ | | Freitextsuche über einen oder mehrere Entity-Typen in einem Call. |
-| `get_records` | ✓ | | Volle Record-Daten per ID, bis 100, Typen mischbar; Contacts auch per E-Mail, Telefon oder provider:handle. Liefert immer die Felder; Markdown-Notes je Eintrag mit include=withNotes. |
-| `create_contacts` | | | Bis 100 Contacts anlegen, Custom-Column-Werte und Relations-IDs inline. |
-| `create_organizations` | | | Bis 100 Organizations anlegen, Custom-Column-Werte und Contact-/User-/Deal-/Task-IDs inline. |
-| `create_deals` | | | Bis 100 Deals anlegen, Services als Inline-Array. |
-| `create_services` | | | Bis 100 Services anlegen, Custom-Column-Werte und User-/Deal-/Task-IDs inline. |
-| `create_tasks` | | | Bis 100 Tasks anlegen, Custom-Column-Werte und Relations-IDs inline. |
-| `update_contacts` | | | Partial-Update per Contact-Key (ID, E-Mail, Telefon oder provider:value); Org-/Deal-/User-/Task-Beziehungen bleiben unberührt, aber ein übergebenes `identifiers`-Array ERSETZT die Messaging-Kanäle des Contacts (nicht gelistete werden entkoppelt). |
-| `update_organizations` | | | Partial-Update per ID. Fasst Beziehungen nie an. |
-| `update_deals` | | | Partial-Update per ID, inklusive singleSelect-Custom-Column-Werten und `services` (Inline-Array aus `{serviceId, quantity}`, das die komplette Service-Menge des Deals ERSETZT); Org-/User-/Contact-/Task-Beziehungen bleiben unberührt (nutzen Sie manage_record_links). |
-| `update_services` | | | Partial-Update per ID. |
-| `update_tasks` | | | Partial-Update per ID, inklusive singleSelect-Custom-Column-Werten. Fasst Beziehungen nie an. |
-| `update_record_notes` | | | Markdown-Notes auf 1 bis 100 Records ersetzen oder anhängen, gewählt über `mode`. |
-| `manage_record_links` | | | IDs auf einer Beziehung hinzufügen oder entfernen (`action` add oder remove). Der einzige Weg, Beziehungen zu ändern. |
-| `delete_records` | | ✓ | IRREVERSIBLES Hard-Delete von 1 bis 100 Records per ID (Contacts auch per E-Mail, Telefon oder provider:value). |
+| `get_record_schema` | ✓ |  | Schema und Custom-Column-Metadaten, nie Record-Daten. Ein Entity-Typ, oder alle fünf, wenn `entity` fehlt. Vor jedem Create oder Update aufrufen. |
+| `list_records` | ✓ |  | Suchen, filtern, sortieren, paginieren für einen Entity-Typ. Liefert immer das Total. Deals enthalten totalValue und totalQuantity, Services amount. |
+| `search_records` | ✓ |  | Freitextsuche über einen oder mehrere Entity-Typen in einem Call. |
+| `get_records` | ✓ |  | Volle Record-Daten per ID, bis 100, Typen mischbar; Contacts auch per E-Mail, Telefon oder provider:handle. Liefert immer die Felder; Markdown-Notes je Eintrag mit include=withNotes. |
+| `create_contacts` |  |  | Bis 100 Contacts anlegen, Custom-Column-Werte und Relations-IDs inline. |
+| `create_organizations` |  |  | Bis 100 Organizations anlegen, Custom-Column-Werte und Contact-/User-/Deal-/Task-IDs inline. |
+| `create_deals` |  |  | Bis 100 Deals anlegen, Services als Inline-Array. |
+| `create_services` |  |  | Bis 100 Services anlegen, Custom-Column-Werte und User-/Deal-/Task-IDs inline. |
+| `create_tasks` |  |  | Bis 100 Tasks anlegen, Custom-Column-Werte und Relations-IDs inline. |
+| `update_contacts` |  |  | Partial-Update per Contact-Key (ID, E-Mail, Telefon oder provider:value); Org-/Deal-/User-/Task-Beziehungen bleiben unberührt, aber ein übergebenes `identifiers`-Array ERSETZT die Messaging-Kanäle des Contacts (nicht gelistete werden entkoppelt). |
+| `update_organizations` |  |  | Partial-Update per ID. Fasst Beziehungen nie an. |
+| `update_deals` |  |  | Partial-Update per ID, inklusive singleSelect-Custom-Column-Werten und `services` (Inline-Array aus `{serviceId, quantity}`, das die komplette Service-Menge des Deals ERSETZT); Org-/User-/Contact-/Task-Beziehungen bleiben unberührt (nutzen Sie manage_record_links). |
+| `update_services` |  |  | Partial-Update per ID. |
+| `update_tasks` |  |  | Partial-Update per ID, inklusive singleSelect-Custom-Column-Werten. Fasst Beziehungen nie an. |
+| `update_record_notes` |  |  | Markdown-Notes auf 1 bis 100 Records ersetzen oder anhängen, gewählt über `mode`. |
+| `manage_record_links` |  |  | IDs auf einer Beziehung hinzufügen oder entfernen (`action` add oder remove). Der einzige Weg, Beziehungen zu ändern. |
+| `delete_records` |  | ✓ | IRREVERSIBLES Hard-Delete von 1 bis 100 Records per ID (Contacts auch per E-Mail, Telefon oder provider:value). |
+{/* /mcp-catalog */}
 
 Alle Create- und Update-Tools nehmen Custom-Column-Werte über customFieldValues; rufen Sie zuerst `get_record_schema` für die Column-IDs auf.
 
 ### Workspace
 
+{/* mcp-catalog:workspace */}
 | Tool | Read | Destructive | Zweck |
 |---|---|---|---|
-| `get_workspace_context` | ✓ | | Ihr User, das Company-Profil, alle Rollen inklusive Rechte und Ihre verbundenen Messaging-Konten (Ihre eigenen plus die mit dem Workspace geteilten) in einem Call. Der natürliche erste Call einer Session. |
-| `list_users` | ✓ | | Teammitglieder mit ID, Name, E-Mail, roleId und Status. |
+| `get_workspace_context` | ✓ |  | Ihr User, das Company-Profil, alle Rollen inklusive Rechte und Ihre verbundenen Messaging-Konten (Ihre eigenen plus die mit dem Workspace geteilten) in einem Call. Der natürliche erste Call einer Session. |
+| `list_users` | ✓ |  | Teammitglieder mit ID, Name, E-Mail, roleId und Status. |
+{/* /mcp-catalog */}
 
 ### Messaging
 
 Messaging-basierte Tools sind im Cloud-Modus ab dem Pro-Tarif verfügbar. `get_activities` kann ohne Messaging-Berechtigung weiterhin Änderungen aus dem Audit-Log liefern, wenn der aufrufende User die Audit-Log-Berechtigung hat. Nachrichten, Aktivitäten verbundener Accounts und Kalenderquellen erfordern zusätzlich die Berechtigung für den Posteingang und Messaging.
 
+{/* mcp-catalog:messaging */}
 | Tool | Read | Destructive | Zweck |
 |---|---|---|---|
-| `get_messaging_threads` | ✓ | | Zwei Modi: ohne threadId listet es Inbox-Threads mit Filtern und Sortierung (Threads ohne Nachricht werden ausgeblendet, außer sie enthalten einen Draft); mit threadId liefert es einen Thread plus eine Seite seiner Nachrichten (Standard 25, neueste zuerst, Drafts inklusive). |
+| `get_messaging_threads` | ✓ |  | Zwei Modi: ohne threadId listet es Inbox-Threads mit Filtern und Sortierung (Threads ohne Nachricht werden ausgeblendet, außer sie enthalten einen Draft); mit threadId liefert es einen Thread plus eine Seite seiner Nachrichten (Standard 25, neueste zuerst, Drafts inklusive). |
 | `get_activities` | ✓ |  | Aktivitäts-Timeline mit optionalem technischem Entitätsumfang und UND-verknüpften Filtern. Filter unterstützen Kategorie/Roh-Typ, Unterhaltung, Anbieter, verbundenen Account sowie verknüpfte Kontakte, Organisationen, Deals, Services und Aufgaben. Jedes Aktivitätsfilterfeld darf einmal vorkommen; Alternativen gehören in das Werte-Array einer einzigen Mitgliedschaftsregel. Beziehungsfelder akzeptieren `in`, `notIn`, `hasSome` und `hasNone`; Mitgliedschaft benötigt 1–50 UUIDs. Beziehungs-UUIDs müssen auf Datensätze verweisen, die Sie lesen dürfen; nicht auflösbare Ids werden abgelehnt. Das Ergebnis enthält `availableSources`, `scopeTruncated`, `pageLimitReached`, Gesamtzahl und Seite. Die Seitennummer ist auf 40 begrenzt. |
-| `get_calendars` | ✓ | | Drei Modi: list: "calendars" (Standard) listet die Kalender der zugänglichen verbundenen Konten; list: "events" listet Kalenderereignisse sortiert nach Startzeit, filterbar nach calendarId oder einem startsAt-Zeitraum; mit eventId liefert es die Details eines Ereignisses inklusive Organisator und Teilnehmern. Die Ids entsprechen der entityId der Kalender-Webhook-Events. |
-| `send_chat_message` | | | Stellt sofort zu. Mit threadId antwortet es in einem bestehenden Chat; mit connectedAccountId plus attendeeIdentifiers startet es einen neuen (optionales chatName benennt eine Gruppe). Neue LinkedIn-Chats sind standardmäßig Classic; setzen Sie linkedinProduct auf sales_navigator oder recruiter für ein InMail (braucht inmailSubject), oder inmail:true, um auf Classic jemanden außerhalb Ihres Netzwerks per InMail anzuschreiben. |
-| `send_email` | | | Stellt sofort zu. Senden oder antworten von einem verbundenen E-Mail-Konto; kann einen gespeicherten Draft über draftMessageId senden. |
-| `save_message_draft` | | | Antwort zur Durchsicht vorbereiten: Der Draft erscheint in der Inbox-Compose-Box, und Sie senden ihn selbst. Drafts hängen am Thread, einer pro Thread, erneutes Speichern aktualisiert ihn. |
-| `discard_message_draft` | | ✓ | Draft per Draft-Message-ID löschen. |
-| `update_messaging_thread` | | | Thread-State setzen: unread, open, closed oder spam. |
-| `connect_messaging_account` | | | Erzeugt einen Link, den der User im Browser öffnet, um einen Kanal zu verbinden (WhatsApp, LinkedIn, E-Mail, Instagram, Telegram). Sie geben den Link zurück; der User schließt die Auth dort ab. Läuft nach 30 Minuten ab. |
+| `get_calendars` | ✓ |  | Drei Modi: list: "calendars" (Standard) listet die Kalender der zugänglichen verbundenen Konten; list: "events" listet Kalenderereignisse sortiert nach Startzeit, filterbar nach calendarId oder einem startsAt-Zeitraum; mit eventId liefert es die Details eines Ereignisses inklusive Organisator und Teilnehmern. Die Ids entsprechen der entityId der Kalender-Webhook-Events. |
+| `send_chat_message` |  |  | Stellt sofort zu. Mit threadId antwortet es in einem bestehenden Chat; mit connectedAccountId plus attendeeIdentifiers startet es einen neuen (optionales chatName benennt eine Gruppe). Neue LinkedIn-Chats sind standardmäßig Classic; setzen Sie linkedinProduct auf sales_navigator oder recruiter für ein InMail (braucht inmailSubject), oder inmail:true, um auf Classic jemanden außerhalb Ihres Netzwerks per InMail anzuschreiben. |
+| `send_email` |  |  | Stellt sofort zu. Senden oder antworten von einem verbundenen E-Mail-Konto; kann einen gespeicherten Draft über draftMessageId senden. |
+| `save_message_draft` |  |  | Antwort zur Durchsicht vorbereiten: Der Draft erscheint in der Inbox-Compose-Box, und Sie senden ihn selbst. Drafts hängen am Thread, einer pro Thread, erneutes Speichern aktualisiert ihn. |
+| `discard_message_draft` |  | ✓ | Draft per Draft-Message-ID löschen. |
+| `update_messaging_thread` |  |  | Thread-State setzen: unread, open, closed oder spam. |
+| `connect_messaging_account` |  |  | Erzeugt einen Link, den der User im Browser öffnet, um einen Kanal zu verbinden (WhatsApp, LinkedIn, E-Mail, Instagram, Telegram). Sie geben den Link zurück; der User schließt die Auth dort ab. Läuft nach 30 Minuten ab. |
+{/* /mcp-catalog */}
 
 ### Social Posts
 
+{/* mcp-catalog:social */}
 | Tool | Read | Destructive | Zweck |
 |---|---|---|---|
 | `get_social_posts` | ✓ |  | Posts auf LinkedIn oder Instagram, gelesen über ein verbundenes Konto. Für den Kontoinhaber `authorIdentifier=me` verwenden. Für eine andere Person `get_social_profile.id`, `get_social_posts.items[].author.id` (Listenmodus), `get_social_posts.author.id` (Einzel-Post-Modus), `get_social_post_engagement.items[].author.id` (Kommentare), `get_social_post_engagement.items[].sender.id` (Reaktionen) oder `manage_social_relations.items[].user.id` verwenden. `get_messaging_threads.items[].participants[].identifier` (Listenmodus) oder `get_messaging_threads.thread.participants[].identifier` (Detailmodus) zuerst mit `get_social_profile` auflösen; eine Thread-Teilnehmer-Kennung nicht direkt übergeben. `get_social_posts.items[].id` als `postId` übergeben, um einen einzelnen Post abzurufen. Bei einer Fortsetzung dasselbe Konto, denselben Autor und dasselbe Limit zusammen mit next_cursor verwenden. |
@@ -146,6 +153,7 @@ Messaging-basierte Tools sind im Cloud-Modus ab dem Pro-Tarif verfügbar. `get_a
 | `linkedin_search_sales_companies` | ✓ |  | Findet Unternehmen über LinkedIn Sales Navigator: entweder aus einer eingefügten Unternehmens-Such-URL oder als strukturierte Suche mit Filtern (Keywords, Standort, Branche, Mitarbeiterzahl, Jahresumsatz und mehr). `linkedin_search_sales_companies.items[].id` mit `profileType=company` an `get_social_profile` übergeben. Braucht ein Sales-Navigator-Abo. |
 | `linkedin_get_sales_search_parameters` | ✓ |  | Löst die IDs hinter den LinkedIn-Sales-Navigator-Sucheingaben nach Typ auf (Standorte, Branchen, Jobtitel, Funktionen, Unternehmen, Schulen, Gruppen und mehr) plus Ihre Lead-/Account-Listen und gespeicherten/letzten Suchen; Keyword ist optional, ein reiner Typ zählt also die ganze Familie auf. |
 | `linkedin_manage_sales_lists` |  |  | LinkedIn-Sales-Navigator-Lead- und -Account-Listen: Listen aufzählen, die Mitglieder einer Liste lesen oder einen Lead über `linkedin_search_sales_leads.items[].id` beziehungsweise `get_social_profile.id` oder ein Unternehmen über `linkedin_search_sales_companies.items[].id` beziehungsweise einen oben dokumentierten `items[].current_positions[].company_id`-Pfad speichern. Neue Listen entstehen in Sales Navigator selbst. |
+{/* /mcp-catalog */}
 
 #### Typischer Social-Read-Ablauf
 
@@ -184,43 +192,55 @@ Für ein Unternehmen rufen Sie `get_social_profile` mit `profileType=company` un
 
 ### Dokumentation und Deep Research
 
+{/* mcp-catalog:docs */}
 | Tool | Read | Destructive | Zweck |
 |---|---|---|---|
-| `search_docs` | ✓ | | Volltextsuche über die Docs; standardmäßig nur die Produkt-Guides (source=docs); mit source=api oder all auch die REST-API-Referenz. Liefert Slug, Source, Titel, URL, Snippet. |
-| `get_docs_page` | ✓ | | Eine Doku-Seite als Markdown inklusive kanonischer URL. Listet bei einem Miss alle gültigen Slugs. |
-| `search` | ✓ | | Von ChatGPT-Deep-Research-Connectors verlangt; föderiert CRM-Records und Docs. Interaktive Agents nehmen besser `search_records` oder `search_docs`. |
-| `fetch` | ✓ | | Deep-Research-Gegenstück zu `search`: holt ein Ergebnis per ID. |
+| `search_docs` | ✓ |  | Volltextsuche über die Docs; standardmäßig nur die Produkt-Guides (source=docs); mit source=api oder all auch die REST-API-Referenz. Liefert Slug, Source, Titel, URL, Snippet. |
+| `get_docs_page` | ✓ |  | Eine Doku-Seite als Markdown inklusive kanonischer URL. Listet bei einem Miss alle gültigen Slugs. |
+| `search` | ✓ |  | Von ChatGPT-Deep-Research-Connectors verlangt; föderiert CRM-Records und Docs. Interaktive Agents nehmen besser `search_records` oder `search_docs`. |
+| `fetch` | ✓ |  | Deep-Research-Gegenstück zu `search`: holt ein Ergebnis per ID. |
+{/* /mcp-catalog */}
 
 ### Custom Columns
 
+{/* mcp-catalog:custom-columns */}
 | Tool | Read | Destructive | Zweck |
 |---|---|---|---|
-| `manage_custom_columns` | | ✓ | Ein Tool mit `action`-Schalter: list, upsert (anlegen oder aktualisieren), delete. Deckt alle zehn Spaltentypen ab; type und entityType sind beim Update unveränderlich. Delete ist IRREVERSIBLE und löscht alle gespeicherten Werte. |
+| `manage_custom_columns` |  | ✓ | Ein Tool mit `action`-Schalter: list, upsert (anlegen oder aktualisieren), delete. Deckt alle zehn Spaltentypen ab; type und entityType sind beim Update unveränderlich. Delete ist IRREVERSIBLE und löscht alle gespeicherten Werte. |
+{/* /mcp-catalog */}
 
 ### Widgets
 
+{/* mcp-catalog:widgets */}
 | Tool | Read | Destructive | Zweck |
 |---|---|---|---|
 | `manage_widgets` |  | ✓ | Ein Tool mit `action`-Schalter: list, get, create, update, delete. Ohne `kind` bleibt create abwärtskompatibel ein `chart`. Ein Aktivitätsverlauf akzeptiert beim Erstellen `name`, optionale `timelineFilters` und optional `showFilters`; jedes Aktivitätsfilterfeld darf nur einmal vorkommen. Update leitet den unveränderlichen gespeicherten Typ ab, erhält ausgelassene Felder und leert Filter mit `timelineFilters: []`. Create weist neue, unzugängliche Beziehungs-UUIDs zurück. Update darf eine nicht verfügbare Beziehungs-UUID nur beibehalten oder entfernen, wenn genau diese UUID bereits im Widget gespeichert ist; weitere unzugängliche UUIDs werden abgelehnt. list/get/create/update liefern jeweils `kind`; get liefert zusätzlich Diagrammdaten für Charts und direkt wiederverwendbare `timelineFilters` für Aktivitätsverläufe. Chart- und Aktivitätsfelder dürfen nicht gemischt werden. |
+{/* /mcp-catalog */}
 
 ### Webhooks
 
+{/* mcp-catalog:webhooks */}
 | Tool | Read | Destructive | Zweck |
 |---|---|---|---|
-| `manage_webhooks` | | ✓ | Ein Tool mit `action`-Schalter: list, get, create, update, delete, dazu das Delivery-Log (Action list_deliveries, auf die aktuelle url eines Webhooks beschränkt, wenn Sie dessen `id` übergeben) und die erneute Zustellung (Action resend_delivery). |
+| `manage_webhooks` |  | ✓ | Ein Tool mit `action`-Schalter: list, get, create, update, delete, dazu das Delivery-Log (Action list_deliveries, auf die aktuelle url eines Webhooks beschränkt, wenn Sie dessen `id` übergeben) und die erneute Zustellung (Action resend_delivery). |
+{/* /mcp-catalog */}
 
 ### Admin und Team
 
+{/* mcp-catalog:admin */}
 | Tool | Read | Destructive | Zweck |
 |---|---|---|---|
-| `update_workspace_settings` | | | `target` profile aktualisiert Ihren Namen, Ihr Land und Ihren Avatar; `target` company aktualisiert die Workspace-Währung (nur Admins). |
-| `manage_team` | | | Mitglieder per E-Mail einladen (Action invite, bis 20, verschickt echte Einladungs-E-Mails) oder Rolle und Status eines Mitglieds ändern (Action update_member). |
+| `update_workspace_settings` |  |  | `target` profile aktualisiert Ihren Namen, Ihr Land und Ihren Avatar; `target` company aktualisiert die Workspace-Währung (nur Admins). |
+| `manage_team` |  |  | Mitglieder per E-Mail einladen (Action invite, bis 20, verschickt echte Einladungs-E-Mails) oder Rolle und Status eines Mitglieds ändern (Action update_member). |
+{/* /mcp-catalog */}
 
 ### Support
 
+{/* mcp-catalog:support */}
 | Tool | Read | Destructive | Zweck |
 |---|---|---|---|
-| `request_support` | | | Öffnet ein Support-Ticket beim Customermates-Team (Betreff plus Beschreibung). Das Team meldet sich per E-Mail und im In-App-Chat. Gibt die Ticketnummer zurück. |
+| `request_support` |  |  | Öffnet ein Support-Ticket beim Customermates-Team (Betreff plus Beschreibung). Das Team meldet sich per E-Mail und im In-App-Chat. Gibt die Ticketnummer zurück. |
+{/* /mcp-catalog */}
 
 ### Eingrenzen mit ?toolsets=
 

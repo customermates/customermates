@@ -1,0 +1,20 @@
+---
+title: "Onboarding Wizard"
+description: "The three-step setup a fresh workspace walks through after sign-up: profile, team invites, and connecting an AI client, with the stable ids agents drive."
+---
+
+A fresh workspace opens the onboarding wizard at `/onboarding/wizard` right after sign-up. It runs once; finishing it lands on the dashboard, where the assistant panel opens on its own. This page documents the wizard for people and for AI agents that drive the UI.
+
+## The three steps
+
+1. **Profile**: your name and country. The fields are ordinary form inputs addressed by their visible labels.
+2. **Invite**: invite teammates by email, or copy the shareable link of the form `/invitation/{token}`. Anyone who registers through that link joins the workspace as **Waiting for Approval** until an admin assigns a role and activates them on the [Company page](/docs/app-company). This step can be skipped and repeated later from the Company page.
+3. **AI**: connect an external AI client (Claude, OpenAI, Cursor, or Gemini) to the workspace's [MCP endpoint](/docs/mcp). The flow creates an API key for the chosen client. This step can be skipped; the same flow stays available from the [Profile page](/docs/app-profile), and the in-app [Assistant](/docs/app-assistant) works without it.
+
+## Stable ids
+
+| Control | Id |
+|---|---|
+| Primary action (next step, or finish on the last step) | `#onboarding-back` and `#onboarding-next` |
+
+`#onboarding-next` advances and, on the last step, completes the wizard; `#onboarding-back` returns to the previous step. Everything inside a step is a regular form: drive it by label, then activate `#onboarding-next`.
