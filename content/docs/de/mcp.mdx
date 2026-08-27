@@ -35,6 +35,21 @@ Der `x-api-key`-Header ist die API-Key-Methode. Der Key ist 64 Zeichen lang, bas
 
 ## Client verbinden
 
+Einen AI-Client mit dem Workspace zu verbinden sind immer dieselben drei Schritte:
+
+<Steps>
+<Step title="API-Key erstellen">
+In der App **Profil** öffnen, dann **API & Connectors**, und einen Key hinzufügen. Entweder das geführte Setup für Claude, ChatGPT, Cursor oder Gemini wählen, oder einen Standard-Key für die eigene Integration erstellen. Der Key wird nur einmal angezeigt, also vor dem Schließen des Dialogs kopieren.
+</Step>
+<Step title="Client auf den Endpoint zeigen lassen">
+Dem Client `POST https://customermates.com/api/v1/mcp` mit dem `x-api-key`-Header aus dem vorherigen Schritt geben, oder per OAuth verbinden, wo der Client das unterstützt. Die Guides pro Client in der Tabelle unten enthalten die genaue Konfiguration.
+</Step>
+<Step title="Prüfen, ob die Tools ankommen">
+Den Client nach seinen Tools fragen. Alle [[derived.mcp.tools.total]] sollten erscheinen, und `get_workspace_context` ist der natürliche erste Aufruf: er liefert User, Company, Rollen und verbundene Accounts auf einmal.
+</Step>
+</Steps>
+
+
 | Client | Methode | Guide |
 |---|---|---|
 | Claude Web & Mobile | Custom Connector (OAuth) | [Mit einem Custom Connector verbinden](/docs/connect-custom-connector) |

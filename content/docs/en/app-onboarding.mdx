@@ -7,9 +7,17 @@ A fresh workspace opens the onboarding wizard at `/onboarding/wizard` right afte
 
 ## The three steps
 
-1. **Profile**: your name and country. The fields are ordinary form inputs addressed by their visible labels.
-2. **Invite**: invite teammates by email, or copy the shareable link of the form `/invitation/{token}`. Anyone who registers through that link joins the workspace as **Waiting for Approval** until an admin assigns a role and activates them on the [Company page](/docs/app-company). This step can be skipped and repeated later from the Company page.
-3. **AI**: connect an external AI client (Claude, OpenAI, Cursor, or Gemini) to the workspace's [MCP endpoint](/docs/mcp). The flow creates an API key for the chosen client. This step can be skipped; the same flow stays available from the [Profile page](/docs/app-profile), and the in-app [Assistant](/docs/app-assistant) works without it.
+<Steps>
+<Step title="Profile">
+Your name and country. The fields are ordinary form inputs addressed by their visible labels.
+</Step>
+<Step title="Invite">
+Invite teammates by email, or copy the shareable link of the form `/invitation/{token}`. Anyone who registers through that link joins the workspace as **Waiting for Approval** until an admin assigns a role and activates them on the [Company page](/docs/app-company). This step can be skipped and repeated later from the Company page.
+</Step>
+<Step title="AI">
+Connect an external AI client (Claude, OpenAI, Cursor, or Gemini) to the workspace's [MCP endpoint](/docs/mcp). The flow creates an API key for the chosen client. This step can be skipped; the same flow stays available from the [Profile page](/docs/app-profile), and the in-app [Assistant](/docs/app-assistant) works without it.
+</Step>
+</Steps>
 
 ## Stable ids
 

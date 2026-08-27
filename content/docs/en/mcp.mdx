@@ -35,6 +35,21 @@ The `x-api-key` header is the API-key method. The key is 64 characters, base62 (
 
 ## Connect a client
 
+Getting an AI client onto your workspace is the same three moves every time:
+
+<Steps>
+<Step title="Create an API key">
+In the app, open **Profile**, then **API & Connectors**, and add a key. Choose the guided setup for Claude, ChatGPT, Cursor, or Gemini, or create a standard key for your own integration. The key is shown once, so copy it before closing the dialog.
+</Step>
+<Step title="Point the client at the endpoint">
+Give the client `POST https://customermates.com/api/v1/mcp` with the `x-api-key` header from the step above, or connect through OAuth where the client supports it. The per-client guides in the table below carry the exact configuration.
+</Step>
+<Step title="Confirm the tools arrived">
+Ask the client to list its tools. All [[derived.mcp.tools.total]] should appear, and `get_workspace_context` is the natural first call: it returns your user, company, roles, and connected accounts in one go.
+</Step>
+</Steps>
+
+
 | Client | Method | Guide |
 |---|---|---|
 | Claude web & mobile | Custom connector (OAuth) | [Connect with a custom connector](/docs/connect-custom-connector) |
