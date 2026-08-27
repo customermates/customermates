@@ -8,7 +8,7 @@ import { EntityDetailBody } from "@/components/entity-detail/entity-detail-body"
 import { EntityDetailCustomFieldsSection } from "@/components/entity-detail/entity-detail-custom-fields-section";
 import { EntityDetailSection, EntityDetailSectionGroup } from "@/components/entity-detail/entity-detail-section";
 import { EntityDetailStaticField } from "@/components/entity-detail/entity-detail-static-field";
-import { EntityDetailStarButton } from "@/components/entity-detail/entity-detail-star-button";
+import { EntityDetailPinButton } from "@/components/entity-detail/entity-detail-pin-button";
 import { EntityRelationField, AssignedUsersField } from "@/components/entity-detail/relation-fields";
 import { CustomFieldInputs } from "@/components/data-view/custom-columns/custom-field-inputs";
 import { FormInput } from "@/components/forms/form-input";
@@ -72,21 +72,21 @@ export const ContactDetailView = observer(({ layout = "drawer" }: Props) => {
             required
             id="firstName"
             labelEndAddon={
-              <EntityDetailStarButton fieldId={CONTACT_DETAIL_FIELD.firstName} label={t("Common.inputs.firstName")} />
+              <EntityDetailPinButton fieldId={CONTACT_DETAIL_FIELD.firstName} label={t("Common.inputs.firstName")} />
             }
           />
 
           <FormInput
             id="lastName"
             labelEndAddon={
-              <EntityDetailStarButton fieldId={CONTACT_DETAIL_FIELD.lastName} label={t("Common.inputs.lastName")} />
+              <EntityDetailPinButton fieldId={CONTACT_DETAIL_FIELD.lastName} label={t("Common.inputs.lastName")} />
             }
           />
 
           <ContactChannels
             contactId={fetchedEntity?.id}
             headingEndAddon={
-              <EntityDetailStarButton fieldId={CONTACT_DETAIL_FIELD.identifiers} label={t("EntityChannels.heading")} />
+              <EntityDetailPinButton fieldId={CONTACT_DETAIL_FIELD.identifiers} label={t("EntityChannels.heading")} />
             }
           />
 

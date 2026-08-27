@@ -8,7 +8,7 @@ export function SubscriptionPageSkeleton({ animated = true }: { animated?: boole
         <div data-settings-field data-subscription-plan-field className="space-y-1.5">
           <Shape breathe animated={animated} className="h-3 w-20" />
 
-          <div className="flex h-9 w-full items-center rounded-md border border-input bg-muted px-3 py-1.5 shadow-xs">
+          <div className="flex h-9 w-full items-center rounded-md border border-border bg-background px-3 py-1.5 shadow-none">
             <div className="flex w-full items-center justify-between gap-2">
               <Shape animated={animated} className="h-3 w-24" motionPhase={1} />
 

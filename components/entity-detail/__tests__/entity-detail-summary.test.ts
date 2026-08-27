@@ -17,8 +17,11 @@ vi.mock("../entity-detail-personalization", () => ({
     starredFieldIds: harness.starredFieldIds,
   }),
 }));
-vi.mock("../entity-detail-star-button", () => ({
-  EntityDetailStarButton: ({ fieldId }: { fieldId: string }) => createElement("button", { "data-star": fieldId }),
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string) => (key === "NavigationBar.overview" ? "Overview" : key),
+}));
+vi.mock("../entity-detail-pin-button", () => ({
+  EntityDetailPinButton: ({ fieldId }: { fieldId: string }) => createElement("button", { "data-pin": fieldId }),
 }));
 vi.mock("../hooks/use-entity-drawer-stack", () => ({
   useEntityHref: () => vi.fn(),
@@ -61,7 +64,6 @@ vi.mock("@/core/utils/use-is-truncated", () => ({
 
 import { EntityDetailSummary, previewItems } from "../entity-detail-summary";
 import { EntityDetailStaticField } from "../entity-detail-static-field";
-import { EntityDetailSummaryGeometryProvider } from "../entity-detail-summary-geometry-context";
 
 const roots = new Set<Root>();
 const Summary = EntityDetailSummary as ComponentType<{
@@ -104,7 +106,7 @@ describe("EntityDetailSummary", () => {
     expect(previewItems([{ key: "organization-1" }], fallback)).toEqual(fallback);
   });
 
-  it("uses the saved favorite order across built-in and custom fields and ignores stale fields", () => {
+  it("uses the saved pin order across built-in and custom fields and ignores stale fields", () => {
     harness.starredFieldIds = ["updatedAt", "custom-1", "deleted", "name"];
     const container = mount(
       createElement(Summary, {
@@ -134,57 +136,80 @@ describe("EntityDetailSummary", () => {
     );
   });
 
-  it("aligns wide favorite slots and dividers to the three panel tracks", () => {
+  it("renders the selected D pattern as quiet content-sized cards joined by one lower boundary", () => {
     const ids = Array.from({ length: 12 }, (_, index) => `field-${index}`);
     harness.starredFieldIds = ids;
     const container = mount(
-      createElement(
-        EntityDetailSummaryGeometryProvider,
-        {
-          showActivityPanel: true,
-          showNotesPanel: true,
-        },
-        createElement(Summary, {
-          customColumns: [],
-          customFieldValues: [],
-          entityId: "deal-1",
-          fields: ids.map((id) => ({ id, label: id, value: id })),
-        }),
-      ),
+      createElement(Summary, {
+        customColumns: [],
+        customFieldValues: [],
+        entityId: "deal-1",
+        fields: ids.map((id) => ({ id, label: id, value: id })),
+      }),
     );
 
+    const summary = container.querySelector<HTMLElement>("[data-entity-detail-summary]");
     const rail = container.querySelector<HTMLElement>("[data-summary-rail]");
-    const alignedGrid = container.querySelector<HTMLElement>("[data-summary-aligned-grid]");
     const cells = [...container.querySelectorAll<HTMLElement>("[data-summary-cell]")];
-    const dividers = [...container.querySelectorAll<HTMLElement>("[data-summary-panel-divider]")];
-    const overflowCells = [...container.querySelectorAll<HTMLElement>('[data-summary-overflow="true"]')];
 
-    expect(rail?.dataset.summaryGeometry).toBe("details-notes-activities");
-    expect(rail?.classList.contains("@6xl/detail:w-full")).toBe(true);
-    expect(rail?.parentElement?.classList.contains("@6xl/detail:px-0")).toBe(true);
-    expect(alignedGrid?.classList.contains("@6xl/detail:flex-none")).toBe(true);
-    expect(alignedGrid?.classList.contains("@6xl/detail:w-full")).toBe(true);
-    expect(alignedGrid?.style.gridTemplateColumns).toContain("repeat(4, minmax(0, 9fr))");
-    expect(cells.map((cell) => cell.style.gridColumn)).toEqual([
-      "1",
-      "2",
-      "3",
-      "4",
-      "6",
-      "7",
-      "8",
-      "10",
-      "11",
-      "12",
-      "",
-      "",
-    ]);
-    expect(dividers.map((divider) => divider.style.gridColumn)).toEqual(["5", "9"]);
-    expect(cells[4]?.classList.contains("@6xl/detail:border-l-0")).toBe(true);
-    expect(cells[7]?.classList.contains("@6xl/detail:border-l-0")).toBe(true);
-    expect(alignedGrid?.querySelectorAll("[data-summary-cell]")).toHaveLength(10);
-    expect(overflowCells).toEqual(cells.slice(10));
-    expect(overflowCells.every((cell) => !cell.classList.contains("@6xl/detail:w-auto"))).toBe(true);
+    expect(summary?.dataset.summaryVariant).toBe("pinned-mini-cards");
+    expect(summary?.classList.contains("border-b")).toBe(true);
+    expect(summary?.className).not.toContain("sticky");
+    expect(rail?.dataset.summaryGeometry).toBe("cards");
+    expect(rail?.classList.contains("gap-2")).toBe(true);
+    expect(rail?.classList.contains("pt-0")).toBe(true);
+    expect(rail?.classList.contains("pb-4")).toBe(true);
+    expect(cells).toHaveLength(12);
+    expect(cells.every((cell) => cell.classList.contains("w-fit"))).toBe(true);
+    expect(cells.every((cell) => cell.classList.contains("min-w-0"))).toBe(true);
+    expect(cells.every((cell) => !cell.classList.contains("min-w-28"))).toBe(true);
+    expect(cells.every((cell) => cell.classList.contains("max-w-56"))).toBe(true);
+    expect(cells.every((cell) => cell.classList.contains("border-border/60"))).toBe(true);
+    expect(container.querySelector("[data-summary-comparison]")).toBeNull();
+    expect(container.querySelector("[data-summary-panel-divider]")).toBeNull();
+  });
+
+  it("makes the horizontal rail a labelled keyboard region only while it overflows", () => {
+    harness.starredFieldIds = ["name", "updatedAt"];
+    const container = mount(
+      createElement(Summary, {
+        customColumns: [],
+        customFieldValues: [],
+        entityId: "deal-1",
+        fields: [
+          { id: "name", label: "Name", value: "Process Automation Program" },
+          { id: "updatedAt", label: "Updated at", value: "Today" },
+        ],
+      }),
+    );
+    const scrollRegion = container.querySelector<HTMLElement>("[data-summary-scroll-region]");
+    if (!scrollRegion) throw new Error("Expected the summary scroll region");
+
+    expect(scrollRegion.getAttribute("tabindex")).toBeNull();
+    expect(scrollRegion.getAttribute("role")).toBeNull();
+    expect(scrollRegion.getAttribute("aria-label")).toBeNull();
+
+    Object.defineProperty(scrollRegion, "clientWidth", { configurable: true, value: 240 });
+    Object.defineProperty(scrollRegion, "scrollWidth", { configurable: true, value: 480 });
+    act(() => {
+      window.dispatchEvent(new Event("resize"));
+    });
+
+    expect(scrollRegion.dataset.summaryOverflow).toBe("true");
+    expect(scrollRegion.getAttribute("tabindex")).toBe("0");
+    expect(scrollRegion.getAttribute("role")).toBe("region");
+    expect(scrollRegion.getAttribute("aria-label")).toBe("Overview");
+    expect(scrollRegion.className).toContain("focus-visible:ring-[3px]");
+    expect(scrollRegion.className).toContain("focus-visible:ring-inset");
+
+    Object.defineProperty(scrollRegion, "scrollWidth", { configurable: true, value: 240 });
+    act(() => {
+      window.dispatchEvent(new Event("resize"));
+    });
+
+    expect(scrollRegion.getAttribute("tabindex")).toBeNull();
+    expect(scrollRegion.getAttribute("role")).toBeNull();
+    expect(scrollRegion.getAttribute("aria-label")).toBeNull();
   });
 
   it("discloses truncated labels and primitive values without wrapping rich controls", () => {
@@ -228,7 +253,7 @@ describe("EntityDetailSummary", () => {
     expect(relationValue?.querySelector('[data-rich-summary-value="true"]')).not.toBeNull();
   });
 
-  it("keeps short favorite text out of the keyboard order without a redundant tooltip", () => {
+  it("keeps short pinned text out of the keyboard order without a redundant tooltip", () => {
     harness.starredFieldIds = ["name"];
     const container = mount(
       createElement(Summary, {
@@ -246,7 +271,7 @@ describe("EntityDetailSummary", () => {
     expect(nameCell?.querySelector('[tabindex="0"]')).toBeNull();
   });
 
-  it("does not render an empty favorites row", () => {
+  it("does not render an empty pinned-fields row", () => {
     const container = mount(
       createElement(Summary, {
         customColumns: [],
@@ -261,7 +286,7 @@ describe("EntityDetailSummary", () => {
 });
 
 describe("EntityDetailStaticField", () => {
-  it("uses the shared muted read-only field treatment and exposes its inline favorite control", () => {
+  it("uses the shared muted read-only field treatment and exposes its inline pin control", () => {
     const container = mount(
       createElement(EntityDetailStaticField, {
         fieldId: "createdAt",
@@ -270,12 +295,13 @@ describe("EntityDetailStaticField", () => {
       }),
     );
 
-    expect(container.querySelector('[data-star="createdAt"]')).not.toBeNull();
+    expect(container.querySelector('[data-pin="createdAt"]')).not.toBeNull();
     expect(container.textContent).toContain("—");
-    const value = container.querySelector<HTMLElement>('[data-read-only="true"]');
+    const value = container.querySelector<HTMLElement>('[data-field-state="read-only"]');
     expect(value).not.toBeNull();
-    expect(value?.classList.contains("border-input")).toBe(true);
-    expect(value?.classList.contains("bg-muted")).toBe(true);
+    expect(value?.getAttribute("aria-readonly")).toBe("true");
+    expect(value?.classList.contains("border-border")).toBe(true);
+    expect(value?.classList.contains("bg-background")).toBe(true);
     expect(value?.classList.contains("bg-input-background")).toBe(false);
     expect(value?.querySelector(".select-text")).not.toBeNull();
     expect(value?.querySelector("input")).toBeNull();

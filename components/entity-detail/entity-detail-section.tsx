@@ -21,7 +21,7 @@ type GroupProps = Pick<Props, "children" | "className">;
 
 export function EntityDetailSectionGroup({ children, className }: GroupProps) {
   return (
-    <div data-detail-section-group className={cn("-mx-4 -mt-4 flex w-auto flex-col @6xl/detail:mt-0", className)}>
+    <div data-detail-section-group className={cn("-mx-4 -mt-4 flex w-auto flex-col", className)}>
       {children}
     </div>
   );

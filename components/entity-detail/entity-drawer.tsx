@@ -1,5 +1,7 @@
 "use client";
 
+import type { P13nEntry } from "@/features/p13n/prisma-p13n.repository";
+
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState, type ReactNode } from "react";
@@ -21,6 +23,8 @@ import { EntityDetailDrawerSkeleton } from "@/components/entity-detail/entity-de
 import { Button } from "@/components/ui/button";
 import { EntityDrawerLoadGate } from "@/components/entity-detail/entity-drawer-load-gate";
 import { resolveEntityDrawerPageState } from "@/components/entity-detail/entity-detail-page-state";
+import { EntityDetailPersonalizationProvider } from "@/components/entity-detail/entity-detail-personalization";
+import { getP13nAction } from "@/app/actions";
 
 export const EntityDrawer = observer(() => {
   const t = useTranslations();
@@ -30,41 +34,66 @@ export const EntityDrawer = observer(() => {
   const lastLoadedRef = useRef<string | null>(null);
   const [loadGate] = useState(() => new EntityDrawerLoadGate());
   const [preparedKey, setPreparedKey] = useState<string | null>(null);
+  const [personalizationState, setPersonalizationState] = useState<{
+    key: string;
+    initial: P13nEntry | null;
+  } | null>(null);
   const [isConfirmingClose, setIsConfirmingClose] = useState(false);
   const focusReturn = useOverlayFocusReturn(Boolean(top));
   const topEntityType = top?.entityType ?? null;
   const topId = top?.id ?? null;
   const activeKey = topEntityType && topId ? `${topEntityType}:${topId}` : null;
+  const p13nId = topEntityType ? ENTITY_DETAIL[topEntityType].personalization?.(undefined)?.p13nId : undefined;
+  const personalizationScope = rootStore.userStore.user?.id ?? "anonymous";
+  const requestKey = activeKey ? `${personalizationScope}:${p13nId ?? "disabled"}:${activeKey}` : null;
 
   useEffect(() => {
-    if (!activeKey || !topEntityType || !topId) {
+    if (!activeKey || !requestKey || !topEntityType || !topId) {
       loadGate.cancel();
       lastLoadedRef.current = null;
       setPreparedKey(null);
+      setPersonalizationState(null);
       return;
     }
-    if (lastLoadedRef.current === activeKey) return;
-    lastLoadedRef.current = activeKey;
+    if (lastLoadedRef.current === requestKey) return;
+    lastLoadedRef.current = requestKey;
     setPreparedKey(null);
-    const attempt = loadGate.begin(activeKey);
+    setPersonalizationState(null);
+    const attempt = loadGate.begin(requestKey);
 
-    const store = ENTITY_DETAIL[topEntityType].store(rootStore);
+    const config = ENTITY_DETAIL[topEntityType];
+    const store = config.store(rootStore);
+    const entityLoad = topId === "new" ? store.add() : store.loadById(topId);
+    const personalizationLoad = p13nId
+      ? getP13nAction({ p13nId })
+          .then((result) => (result.ok ? (result.data ?? null) : null))
+          .catch(() => null)
+      : Promise.resolve(null);
     let active = true;
-    void (topId === "new" ? store.add() : store.loadById(topId))
-      .finally(() => {
-        if (active && loadGate.isCurrent(attempt, activeKey)) setPreparedKey(activeKey);
+    void Promise.allSettled([entityLoad, personalizationLoad])
+      .then(([entityResult, personalizationResult]) => {
+        if (!active || !loadGate.isCurrent(attempt, requestKey)) return;
+
+        setPersonalizationState({
+          key: requestKey,
+          initial: personalizationResult.status === "fulfilled" ? personalizationResult.value : null,
+        });
+        setPreparedKey(requestKey);
+        if (entityResult.status === "rejected") reportApplicationError(entityResult.reason);
       })
       .catch(reportApplicationError);
 
     return () => {
       active = false;
+      if (lastLoadedRef.current === requestKey) lastLoadedRef.current = null;
     };
-  }, [activeKey, topEntityType, topId, rootStore, loadGate]);
+  }, [activeKey, loadGate, p13nId, requestKey, rootStore, topEntityType, topId]);
 
   function closeTop() {
     if (!top) return;
     loadGate.cancel();
     lastLoadedRef.current = null;
+    setPersonalizationState(null);
     ENTITY_DETAIL[top.entityType].store(rootStore).close();
     popTop();
   }
@@ -99,7 +128,11 @@ export const EntityDrawer = observer(() => {
   const detailConfig = top ? ENTITY_DETAIL[top.entityType] : null;
   const detailStore = top ? detailConfig?.store(rootStore) : null;
   const DetailView = detailConfig?.DetailView ?? null;
-  const isPrepared = activeKey !== null && preparedKey === activeKey;
+  const personalization = detailConfig?.personalization?.(detailStore?.customColumns, (resource) =>
+    rootStore.userStore.canAccess(resource),
+  );
+  const personalizationInitial = personalizationState?.key === requestKey ? personalizationState.initial : null;
+  const isPrepared = requestKey !== null && preparedKey === requestKey;
   const drawerState = resolveEntityDrawerPageState({
     hasActiveEntity: Boolean(top),
     isNew: top?.id === "new",
@@ -108,12 +141,12 @@ export const EntityDrawer = observer(() => {
   });
 
   function retry() {
-    if (!top || !detailStore || !activeKey) return;
+    if (!top || !detailStore || !requestKey) return;
     setPreparedKey(null);
-    const attempt = loadGate.begin(activeKey);
+    const attempt = loadGate.begin(requestKey);
     runUserAction(() =>
       (top.id === "new" ? detailStore.add() : detailStore.loadById(top.id)).finally(() => {
-        if (loadGate.isCurrent(attempt, activeKey)) setPreparedKey(activeKey);
+        if (loadGate.isCurrent(attempt, requestKey)) setPreparedKey(requestKey);
       }),
     );
   }
@@ -150,7 +183,17 @@ export const EntityDrawer = observer(() => {
       );
       break;
     case "content":
-      drawerBody = DetailView ? <DetailView layout="drawer" /> : null;
+      drawerBody = DetailView ? (
+        <EntityDetailPersonalizationProvider
+          key={`${personalizationScope}:${personalization?.p13nId ?? "disabled"}:${activeKey}`}
+          config={personalization}
+          customColumnIds={detailStore?.customColumns.map((column) => column.id)}
+          initial={personalizationInitial}
+          persistenceScope={personalizationScope}
+        >
+          <DetailView layout="drawer" />
+        </EntityDetailPersonalizationProvider>
+      ) : null;
       break;
     default: {
       const exhaustive: never = drawerState;

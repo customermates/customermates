@@ -23,18 +23,21 @@ export const FormCheckbox = observer(({ id, label, required, className, containe
   const store = useAppForm();
   const checked = Boolean(store?.getValue(id));
   const { hasError } = useFormFieldErrors(id);
+  const isLoading = store?.isLoading ?? false;
+  const isReadOnly = !isLoading && (store?.isReadOnly ?? false);
 
   return (
     <div className={cn("space-y-1.5", containerClassName)}>
       <div className="flex items-center gap-2">
         <Checkbox
           aria-invalid={hasError}
+          aria-readonly={isReadOnly || undefined}
           aria-required={required}
           checked={checked}
           className={className}
-          disabled={store?.isDisabled}
+          disabled={isLoading}
           id={id}
-          onCheckedChange={(next) => store?.onChange(id, next === true)}
+          onCheckedChange={isReadOnly ? undefined : (next) => store?.onChange(id, next === true)}
         />
 
         {label && (

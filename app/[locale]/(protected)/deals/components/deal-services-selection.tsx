@@ -14,6 +14,7 @@ import { FormNumberInput } from "@/components/forms/form-number-input";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { FormLabel } from "@/components/forms/form-label";
+import { FormFieldHelp } from "@/components/forms/form-field-help";
 import { Icon } from "@/components/shared/icon";
 import { InfoRow } from "@/components/shared/info-row";
 import { TruncatedText } from "@/components/shared/truncated-text";
@@ -28,6 +29,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { terminologyLabelForSentence } from "@/features/entity-terminology/entity-terminology-label.utils";
+import { useDealComputedFieldHelp } from "./use-deal-computed-field-help";
 
 type Props = {
   labelEndAddon?: ReactNode;
@@ -54,6 +56,7 @@ export const DealServicesSelection = observer(({ labelEndAddon, personalization,
   const t = useTranslations();
   const { plural } = useEntityTerminology();
   const columnLabel = useColumnLabel();
+  const computedFieldHelp = useDealComputedFieldHelp(weightedValueBreakdown);
 
   if (!userStore.canAccess(Resource.services)) return null;
 
@@ -79,7 +82,13 @@ export const DealServicesSelection = observer(({ labelEndAddon, personalization,
           </FormLabel>
         </div>
 
-        <FormLabel className="block text-right truncate min-w-0">{t("DealModal.valueLabel")}</FormLabel>
+        <span className="flex min-w-0 items-center justify-end gap-1.5">
+          <FormLabel className="block truncate">{t("DealModal.valueLabel")}</FormLabel>
+
+          <FormFieldHelp label={t("Common.ariaLabels.explainField", { field: t("DealModal.valueLabel") })}>
+            {computedFieldHelp.serviceLineValue}
+          </FormFieldHelp>
+        </span>
 
         <span />
 
@@ -206,13 +215,25 @@ export const DealServicesSelection = observer(({ labelEndAddon, personalization,
 
       {showTotals && (form.services || []).length > 0 && (
         <div className="mt-3 flex w-full flex-col gap-1.5 pr-12">
-          <InfoRow label={columnLabel("totalValue")}>
+          <InfoRow
+            label={columnLabel("totalValue")}
+            labelEndAddon={
+              <FormFieldHelp label={t("Common.ariaLabels.explainField", { field: columnLabel("totalValue") })}>
+                {computedFieldHelp.dealValue}
+              </FormFieldHelp>
+            }
+          >
             <span className="text-x-md font-mono tabular-nums">{intlStore.formatCurrency(totalValue)}</span>
           </InfoRow>
 
           {weightedValueBreakdown && (
             <InfoRow
               label={`${columnLabel("weightedValue")} · ${weightedValueBreakdown.stage} ${weightedValueBreakdown.percent}%`}
+              labelEndAddon={
+                <FormFieldHelp label={t("Common.ariaLabels.explainField", { field: columnLabel("weightedValue") })}>
+                  {computedFieldHelp.weightedValue}
+                </FormFieldHelp>
+              }
             >
               <span className="text-x-md font-mono tabular-nums">
                 {intlStore.formatCurrency(weightedValueBreakdown.weightedValue)}
@@ -220,7 +241,14 @@ export const DealServicesSelection = observer(({ labelEndAddon, personalization,
             </InfoRow>
           )}
 
-          <InfoRow label={columnLabel("totalQuantity")}>
+          <InfoRow
+            label={columnLabel("totalQuantity")}
+            labelEndAddon={
+              <FormFieldHelp label={t("Common.ariaLabels.explainField", { field: columnLabel("totalQuantity") })}>
+                {computedFieldHelp.serviceQuantity}
+              </FormFieldHelp>
+            }
+          >
             <span className="text-x-md font-mono tabular-nums">{intlStore.formatNumber(totalQuantity)}</span>
           </InfoRow>
         </div>

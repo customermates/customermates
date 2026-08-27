@@ -8,7 +8,7 @@ import { CustomFieldInputs } from "@/components/data-view/custom-columns/custom-
 import { EntityDetailBody } from "@/components/entity-detail/entity-detail-body";
 import { EntityDetailCustomFieldsSection } from "@/components/entity-detail/entity-detail-custom-fields-section";
 import { EntityDetailSection, EntityDetailSectionGroup } from "@/components/entity-detail/entity-detail-section";
-import { EntityDetailStarButton } from "@/components/entity-detail/entity-detail-star-button";
+import { EntityDetailPinButton } from "@/components/entity-detail/entity-detail-pin-button";
 import { EntityDetailStaticField } from "@/components/entity-detail/entity-detail-static-field";
 import { EntityRelationField, AssignedUsersField } from "@/components/entity-detail/relation-fields";
 import { FormInput } from "@/components/forms/form-input";
@@ -67,7 +67,7 @@ export const OrganizationDetailView = observer(({ layout = "drawer" }: Props) =>
             required
             id="name"
             labelEndAddon={
-              <EntityDetailStarButton fieldId={ORGANIZATION_DETAIL_FIELD.name} label={t("Common.inputs.name")} />
+              <EntityDetailPinButton fieldId={ORGANIZATION_DETAIL_FIELD.name} label={t("Common.inputs.name")} />
             }
           />
 

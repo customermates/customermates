@@ -89,7 +89,7 @@ export const CustomFieldValue = observer(
 
           if (!store) {
             return (
-              <AppChip size="sm" variant={selectedVariant}>
+              <AppChip focusableTooltip size="sm" variant={selectedVariant}>
                 {selectedOption.label}
               </AppChip>
             );

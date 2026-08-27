@@ -287,7 +287,7 @@ describe("entity detail preference persistence", () => {
     });
   });
 
-  it("stores collapsed sections in the same P13N record as favorites and field order", async () => {
+  it("stores collapsed sections in the same P13N record as pinned fields and field order", async () => {
     const { container, root } = mountNode(sectionView());
     const trigger = container.querySelector<HTMLButtonElement>('[data-detail-section-trigger="base"]');
 
@@ -334,7 +334,7 @@ describe("entity detail section", () => {
     expect(trigger?.className).not.toContain("bg-muted/30");
     expect(group?.className).toContain("-mx-4");
     expect(group?.className).toContain("-mt-4");
-    expect(group?.className).toContain("@6xl/detail:mt-0");
+    expect(group?.className).not.toContain("@6xl/detail:mt-0");
     expect(group?.className).not.toContain("divide-y");
     expect(group?.className).not.toContain("border-b");
     expect(group?.className).not.toContain("border-t");

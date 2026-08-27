@@ -13,7 +13,11 @@ const dealDetailStore = vi.hoisted(() => ({
   serviceAmountById: new Map<string, number>(),
   totalQuantity: 0,
   totalValue: 0,
-  weightedValueBreakdown: null,
+  weightedValueBreakdown: null as {
+    percent: number;
+    stage: string;
+    weightedValue: number;
+  } | null,
   searchServiceOptions: vi.fn(),
   createServiceOption: vi.fn(),
 }));
@@ -24,7 +28,7 @@ vi.mock("mobx-react-lite", () => ({
 
 vi.mock("next-intl", () => ({
   useLocale: () => "en",
-  useTranslations: () => (key: string, values?: { entity?: string }) =>
+  useTranslations: () => (key: string, values?: { entity?: string; field?: string }) =>
     ({
       "Common.actions.delete": "Delete",
       "Common.actions.openList": "Open list",
@@ -32,12 +36,14 @@ vi.mock("next-intl", () => ({
       "DealModal.noServicesAdded": `No ${values?.entity ?? "services"} added`,
       "DealModal.quantityLabel": "Quantity",
       "DealModal.valueLabel": "Value",
-      "EntityDetail.starField": `Show ${values?.entity ?? "Services"} in the overview`,
-      "EntityDetail.unstarField": `Remove ${values?.entity ?? "Services"} from the overview`,
+      "Common.ariaLabels.explainField": `About ${values?.field ?? "field"}`,
+      "EntityDetail.pinField": `Pin ${values?.field ?? "Services"} to the overview`,
+      "EntityDetail.unpinField": `Unpin ${values?.field ?? "Services"} from the overview`,
     })[key] ?? key,
 }));
 
 vi.mock("@/components/ui/tooltip", () => ({
+  TooltipProvider: ({ children }: { children: ReactNode }) => createElement("div", null, children),
   Tooltip: ({ children }: { children: ReactNode }) => createElement("div", null, children),
   TooltipTrigger: ({ children }: { children: ReactNode }) => createElement("span", null, children),
   TooltipContent: ({ children }: { children: ReactNode }) => createElement("span", null, children),
@@ -57,6 +63,7 @@ vi.mock("@/components/entity-detail/entity-detail-personalization", () => ({
 
 vi.mock("@/components/entity-detail/hooks/use-entity-drawer-stack", () => ({
   useEntityHref: () => vi.fn(),
+  useNavigateToHref: () => vi.fn(),
 }));
 
 vi.mock("@/components/entity-terminology/use-column-label", () => ({
@@ -66,6 +73,7 @@ vi.mock("@/components/entity-terminology/use-column-label", () => ({
 vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
   useEntityTerminology: () => ({
     plural: (entityType: string) => `${entityType[0].toUpperCase()}${entityType.slice(1)}s`,
+    singular: (entityType: string) => `${entityType[0].toUpperCase()}${entityType.slice(1)}`,
   }),
 }));
 
@@ -86,7 +94,7 @@ vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
 import { DealServicesSelection } from "../deal-services-selection";
 
 describe("DealServicesSelection relation actions", () => {
-  it("renders favorite and go-to actions together on the page detail row", () => {
+  it("renders pin and go-to actions together on the page detail row", () => {
     const markup = renderToStaticMarkup(
       createElement(DealServicesSelection, {
         personalization: { fieldId: "serviceIds", label: "Services" },
@@ -94,7 +102,7 @@ describe("DealServicesSelection relation actions", () => {
       }),
     );
 
-    expect(markup).toContain('aria-label="Show Services in the overview"');
+    expect(markup).toContain('aria-label="Pin Services to the overview"');
     expect(markup).toContain('aria-label="Open list"');
     expect(markup).toContain('href="/services?filters=dealIds%3Ain%3Adeal-1"');
   });
@@ -104,5 +112,33 @@ describe("DealServicesSelection relation actions", () => {
 
     expect(markup).not.toContain("overview");
     expect(markup).toContain('aria-label="Open list"');
+    expect(markup).toContain('aria-label="About Value"');
+  });
+
+  it("explains line values and every computed total in the drawer", () => {
+    dealDetailStore.form.services = [{ quantity: 2, serviceId: "service-1" }];
+    dealDetailStore.totalQuantity = 2;
+    dealDetailStore.totalValue = 400;
+    dealDetailStore.weightedValueBreakdown = {
+      percent: 50,
+      stage: "Qualified",
+      weightedValue: 200,
+    };
+
+    const markup = renderToStaticMarkup(createElement(DealServicesSelection));
+
+    expect(markup).toContain('aria-label="About Value"');
+    expect(markup).toContain('aria-label="About totalValue"');
+    expect(markup).toContain('aria-label="About weightedValue"');
+    expect(markup).toContain('aria-label="About totalQuantity"');
+    expect(markup).toContain("EntityDetail.computedFieldHelp.serviceLineValue");
+    expect(markup).toContain("EntityDetail.computedFieldHelp.dealValue");
+    expect(markup).toContain("EntityDetail.computedFieldHelp.weightedValue");
+    expect(markup).toContain("EntityDetail.computedFieldHelp.serviceQuantity");
+
+    dealDetailStore.form.services = [];
+    dealDetailStore.totalQuantity = 0;
+    dealDetailStore.totalValue = 0;
+    dealDetailStore.weightedValueBreakdown = null;
   });
 });

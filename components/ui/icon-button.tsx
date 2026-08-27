@@ -5,14 +5,12 @@ import type { LucideIcon } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { IntlLink } from "@/i18n/navigation";
 import { cn } from "@/core/utils/cn";
-
-export const iconButtonClass =
-  "inline-flex shrink-0 items-center justify-center rounded-sm text-muted-foreground outline-none transition-[color,transform] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.97] motion-reduce:transition-none";
-
-export const iconButtonIconClass = "size-3 shrink-0";
-export const fieldActionButtonClass =
-  "size-5 rounded-md hover:bg-accent hover:text-accent-foreground focus-visible:ring-inset";
-export const fieldActionIconClass = "size-3.5";
+import {
+  fieldActionButtonClass,
+  fieldActionIconClass,
+  iconButtonClass,
+  iconButtonIconClass,
+} from "./icon-button-styles";
 
 type BaseProps = {
   icon: LucideIcon;
@@ -69,3 +67,5 @@ export function IconButton({
     </Tooltip>
   );
 }
+
+export { fieldActionButtonClass, fieldActionIconClass, iconButtonClass, iconButtonIconClass };

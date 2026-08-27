@@ -113,11 +113,14 @@ export const FormAutocomplete = observer(
     const selectedKeys = (raw === undefined ? [] : Array.isArray(raw) ? raw : [raw]).filter(Boolean);
 
     const { hasError } = useFormFieldErrors(id);
-    const isReadOnly = readOnly ?? store?.isReadOnly ?? false;
-    const isDisabled = (disabled ?? store?.isLoading) || false;
+    const isDisabled = Boolean(disabled) || Boolean(store?.isLoading);
+    const isReadOnly = !isDisabled && (Boolean(readOnly) || Boolean(store?.isReadOnly));
+    const canEdit = !isReadOnly && !isDisabled;
+    const labelId = `${id}-label`;
 
     const itemsArray: T[] = useMemo(() => Array.from(items ?? []), [items]);
-    const optionRequestKey = open && getItems ? JSON.stringify([debouncedInput, optionAttempt]) : null;
+    const popoverOpen = canEdit && open;
+    const optionRequestKey = popoverOpen && getItems ? JSON.stringify([debouncedInput, optionAttempt]) : null;
     const isOptionsLoading =
       optionRequestKey !== null &&
       (input !== debouncedInput || optionResult?.key !== optionRequestKey || optionResult.resolver !== getItems);
@@ -183,7 +186,10 @@ export const FormAutocomplete = observer(
 
     const selectedItems = useMemo(() => {
       const index = new Map(allItems.map((item) => [keyOf(item), item]));
-      const entries = selectedKeys.map((key) => ({ key, data: index.get(key) }));
+      const entries = selectedKeys.map((key) => ({
+        key,
+        data: index.get(key),
+      }));
       return selectionMode === "multiple" ? entries : entries.slice(0, 1);
     }, [allItems, selectedKeys, selectionMode]);
     const selectedItemsRef = useRef(selectedItems);
@@ -195,6 +201,7 @@ export const FormAutocomplete = observer(
     }, [onSelectionDataChange, selectedItemKeys]);
 
     function commit(next: string[] | string | undefined) {
+      if (!canEdit) return;
       if (store) store.onChange(id, next);
       setInput("");
     }
@@ -263,7 +270,7 @@ export const FormAutocomplete = observer(
         const itemKey = entry.key;
 
         const withClose =
-          isMulti && !isReadOnly
+          isMulti && canEdit
             ? React.cloneElement(el as React.ReactElement<{ endContent?: React.ReactNode }>, {
                 endContent: (
                   <span
@@ -293,7 +300,7 @@ export const FormAutocomplete = observer(
 
         const href = chipHref?.(itemKey);
 
-        if (!onChipClick && !href) {
+        if (isDisabled || (!onChipClick && !href)) {
           return (
             <span key={itemKey} className="inline-flex min-w-0 max-w-full">
               {withClose}
@@ -327,7 +334,7 @@ export const FormAutocomplete = observer(
         return (
           <span
             key={itemKey}
-            className="relative inline-flex min-w-0 max-w-full cursor-pointer"
+            className="relative inline-flex min-w-0 max-w-full cursor-pointer rounded-md outline-none focus-visible:ring-[2px] focus-visible:ring-ring/70 focus-visible:ring-offset-1 focus-visible:ring-offset-background"
             role="button"
             tabIndex={0}
             onClick={(e) => {
@@ -336,14 +343,30 @@ export const FormAutocomplete = observer(
               onChipClick?.(itemKey);
             }}
             onKeyDown={(e) => {
-              if (e.key === "Enter") onChipClick?.(itemKey);
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onChipClick?.(itemKey);
+              }
             }}
           >
             {withClose}
           </span>
         );
       });
-    }, [selectedItems, selectionMode, renderValue, onChipClick, isReadOnly, isOptionsLoading, t]);
+    }, [selectedItems, selectionMode, renderValue, onChipClick, canEdit, isDisabled, isOptionsLoading, t]);
+
+    const fieldClassName = cn(
+      "w-full justify-between font-normal h-auto min-h-9 px-3 py-1.5",
+      !selectedKeys.length && "text-muted-foreground",
+      hasError && "border-destructive ring-destructive/20",
+      className,
+    );
+    const selectionContent = (
+      <span className="flex flex-wrap items-center gap-1 text-left flex-1 min-w-0">
+        {selectedKeys.length ? renderedSelection : resolvedPlaceholder}
+      </span>
+    );
+    const hasReadOnlyChipActions = isReadOnly && selectedKeys.length > 0 && (Boolean(onChipClick) || Boolean(chipHref));
 
     const showCreate =
       Boolean(onCreate) &&
@@ -351,13 +374,14 @@ export const FormAutocomplete = observer(
       filteredItems.length === 0 &&
       !isOptionsLoading &&
       !isCreating &&
-      !optionError;
+      !optionError &&
+      canEdit;
 
     return (
       <div className={cn("space-y-1.5", containerClassName)}>
         {resolvedLabel && (
           <div className="flex items-center gap-1.5">
-            <FormLabel htmlFor={id}>
+            <FormLabel htmlFor={isReadOnly ? undefined : id} id={labelId}>
               {resolvedLabel}
 
               {required ? <span className="text-destructive"> *</span> : null}
@@ -367,111 +391,120 @@ export const FormAutocomplete = observer(
           </div>
         )}
 
-        <Popover modal open={isReadOnly ? false : open} onOpenChange={isReadOnly ? undefined : setOpen}>
-          <PopoverTrigger asChild>
-            <Button
+        {isReadOnly ? (
+          <Button asChild className={fieldClassName} variant="field">
+            <div
               aria-busy={isOptionsLoading || undefined}
-              aria-expanded={open}
-              aria-invalid={hasError}
-              aria-readonly={isReadOnly || undefined}
-              className={cn(
-                "w-full justify-between font-normal h-auto min-h-9 px-3 py-1.5",
-                !selectedKeys.length && "text-muted-foreground",
-                isReadOnly && "cursor-default hover:bg-input-background hover:text-foreground",
-                className,
-              )}
-              disabled={isDisabled}
+              aria-label={!resolvedLabel ? resolvedPlaceholder : undefined}
+              aria-labelledby={resolvedLabel ? labelId : undefined}
+              data-field-state="read-only"
+              data-invalid={hasError || undefined}
               id={id}
-              role="combobox"
-              type="button"
-              variant="field"
+              role="group"
+              tabIndex={hasReadOnlyChipActions ? undefined : 0}
             >
-              <span className="flex flex-wrap items-center gap-1 text-left flex-1 min-w-0">
-                {selectedKeys.length ? renderedSelection : resolvedPlaceholder}
-              </span>
+              {selectionContent}
+            </div>
+          </Button>
+        ) : (
+          <Popover modal open={popoverOpen} onOpenChange={canEdit ? setOpen : undefined}>
+            <PopoverTrigger asChild>
+              <Button
+                aria-busy={isOptionsLoading || undefined}
+                aria-expanded={popoverOpen}
+                aria-invalid={hasError}
+                className={fieldClassName}
+                disabled={isDisabled}
+                id={id}
+                role="combobox"
+                type="button"
+                variant="field"
+              >
+                {selectionContent}
 
-              {!isReadOnly && <ChevronsUpDownIcon className="ml-2 size-4 shrink-0 opacity-50" />}
-            </Button>
-          </PopoverTrigger>
+                <ChevronsUpDownIcon className="ml-2 size-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
 
-          <PopoverContent
-            align="start"
-            className={cn(
-              "p-0",
-              popoverFitContent
-                ? "min-w-(--radix-popover-trigger-width) max-w-(--radix-popover-content-available-width) w-max"
-                : "w-(--radix-popover-trigger-width)",
-            )}
-          >
-            <Command shouldFilter={false}>
-              <CommandInput
-                autoFocus
-                disabled={isCreating}
-                placeholder={t("Common.table.search")}
-                value={input}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && showCreate) {
-                    e.preventDefault();
-                    runUserAction(handleCreate);
-                  }
-                }}
-                onValueChange={setInput}
-              />
+            <PopoverContent
+              align="start"
+              className={cn(
+                "p-0",
+                popoverFitContent
+                  ? "min-w-(--radix-popover-trigger-width) max-w-(--radix-popover-content-available-width) w-max"
+                  : "w-(--radix-popover-trigger-width)",
+              )}
+            >
+              <Command shouldFilter={false}>
+                <CommandInput
+                  autoFocus
+                  disabled={isCreating}
+                  placeholder={t("Common.table.search")}
+                  value={input}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && showCreate) {
+                      e.preventDefault();
+                      runUserAction(handleCreate);
+                    }
+                  }}
+                  onValueChange={setInput}
+                />
 
-              <CommandList aria-busy={isOptionsLoading || isCreating || undefined}>
-                {(isOptionsLoading || isCreating) && <SelectionOptionsSkeleton label={t("Loading.text")} />}
+                <CommandList aria-busy={isOptionsLoading || isCreating || undefined}>
+                  {(isOptionsLoading || isCreating) && <SelectionOptionsSkeleton label={t("Loading.text")} />}
 
-                {!isOptionsLoading && !isCreating && optionError && (
-                  <div className="flex flex-col items-center gap-2 px-3 py-4 text-center text-sm" role="alert">
-                    <span className="text-muted-foreground">{t("Common.notifications.unexpectedError")}</span>
+                  {!isOptionsLoading && !isCreating && optionError && (
+                    <div className="flex flex-col items-center gap-2 px-3 py-4 text-center text-sm" role="alert">
+                      <span className="text-muted-foreground">{t("Common.notifications.unexpectedError")}</span>
 
-                    <Button
-                      size="sm"
-                      type="button"
-                      variant="secondary"
-                      onClick={() => setOptionAttempt((value) => value + 1)}
-                    >
-                      {t("ErrorCard.retry")}
-                    </Button>
-                  </div>
-                )}
+                      <Button
+                        size="sm"
+                        type="button"
+                        variant="secondary"
+                        onClick={() => setOptionAttempt((value) => value + 1)}
+                      >
+                        {t("ErrorCard.retry")}
+                      </Button>
+                    </div>
+                  )}
 
-                {!isOptionsLoading && !isCreating && !optionError && filteredItems.length === 0 && !showCreate && (
-                  <CommandEmpty>{resolvedEmptyContent}</CommandEmpty>
-                )}
+                  {!isOptionsLoading && !isCreating && !optionError && filteredItems.length === 0 && !showCreate && (
+                    <CommandEmpty>{resolvedEmptyContent}</CommandEmpty>
+                  )}
 
-                {showCreate && (
-                  <CommandGroup>
-                    <CommandItem value={`__create__${input}`} onSelect={() => runUserAction(handleCreate)}>
-                      {t("Common.inputs.addOption", { value: input.trim() })}
-                    </CommandItem>
-                  </CommandGroup>
-                )}
+                  {showCreate && (
+                    <CommandGroup>
+                      <CommandItem value={`__create__${input}`} onSelect={() => runUserAction(handleCreate)}>
+                        {t("Common.inputs.addOption", { value: input.trim() })}
+                      </CommandItem>
+                    </CommandGroup>
+                  )}
 
-                {!isOptionsLoading && !optionError && filteredItems.length > 0 && (
-                  <CommandGroup>
-                    {filteredItems.map((item) => {
-                      const k = keyOf(item);
-                      const rendered = children(item);
-                      const selected = selectedKeys.includes(k);
-                      return (
-                        <CommandItem
-                          key={k}
-                          className={cn(selected && "bg-accent")}
-                          data-selected={selected}
-                          value={k}
-                          onSelect={() => toggleKey(k)}
-                        >
-                          {rendered}
-                        </CommandItem>
-                      );
-                    })}
-                  </CommandGroup>
-                )}
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
+                  {!isOptionsLoading && !optionError && filteredItems.length > 0 && (
+                    <CommandGroup>
+                      {filteredItems.map((item) => {
+                        const k = keyOf(item);
+                        const rendered = children(item);
+                        const selected = selectedKeys.includes(k);
+                        return (
+                          <CommandItem
+                            key={k}
+                            className={cn(selected && "bg-accent")}
+                            data-selected={selected}
+                            value={k}
+                            onSelect={() => toggleKey(k)}
+                          >
+                            {rendered}
+                          </CommandItem>
+                        );
+                      })}
+                    </CommandGroup>
+                  )}
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        )}
       </div>
     );
   },

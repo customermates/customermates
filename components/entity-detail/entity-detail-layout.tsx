@@ -10,11 +10,12 @@ import type {
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
 import { observer } from "mobx-react-lite";
+import { Check, Pencil, RotateCcw, Save, Settings2, Trash2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { Action, EntityType, Resource } from "@/generated/prisma";
 
-import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
+import { useSetTopBarActions, useSetTopBarJoinedContent } from "@/app/components/topbar-actions-context";
 import { AppForm } from "@/components/forms/form-context";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -31,7 +32,6 @@ import { EntityDetailPageSkeleton } from "./entity-detail-page-skeleton";
 import { resolveEntityDetailPageState } from "./entity-detail-page-state";
 import { ENTITY_URL_SEGMENT } from "./entity-relations";
 import { useEntityDetailPersonalization } from "./entity-detail-personalization";
-import { EntityDetailSummaryGeometryProvider } from "./entity-detail-summary-geometry-context";
 
 type IdentityProps = {
   name: string;
@@ -125,6 +125,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
   const showEditFieldsAction = !canPersonalize && canManage && !isEditingCustomField;
   const showEditFieldsActiveActions = canManage && isEditingCustomField;
   const hasSummary = Boolean(summary) && (!canPersonalize || starredFieldIds.length > 0);
+  const joinsTopBar = hasSummary && (pageState === "loading" || pageState === "content");
 
   useEffect(() => {
     const key = `${ENTITY_URL_SEGMENT[entityType]}:${entityId}`;
@@ -190,12 +191,21 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
               variant={isCustomizing ? "default" : "secondary"}
               onClick={onToggleCustomization}
             >
-              {isCustomizing ? t("EntityDetail.donePersonalizing") : t("EntityDetail.personalize")}
+              {isCustomizing ? (
+                <Check aria-hidden="true" className="size-4 sm:hidden" />
+              ) : (
+                <Settings2 aria-hidden="true" className="size-4 sm:hidden" />
+              )}
+
+              <span className="hidden sm:inline">
+                {isCustomizing ? t("EntityDetail.donePersonalizing") : t("EntityDetail.personalize")}
+              </span>
             </Button>
           )}
 
           {showDeleteAction && (
             <Button
+              aria-label={t("Common.actions.delete")}
               className="h-8 text-destructive hover:text-destructive"
               disabled={isLoading}
               id="entity-delete"
@@ -204,12 +214,15 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
               variant="secondary"
               onClick={onDelete}
             >
-              {t("Common.actions.delete")}
+              <Trash2 aria-hidden="true" className="size-4 sm:hidden" />
+
+              <span className="hidden sm:inline">{t("Common.actions.delete")}</span>
             </Button>
           )}
 
           {showEditFieldsAction && (
             <Button
+              aria-label={t("Common.actions.editCustomFields")}
               className="h-8"
               id="entity-edit-fields"
               size="sm"
@@ -217,18 +230,30 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
               variant="secondary"
               onClick={toggleEditingCustomField}
             >
-              {t("Common.actions.editCustomFields")}
+              <Pencil aria-hidden="true" className="size-4 sm:hidden" />
+
+              <span className="hidden sm:inline">{t("Common.actions.editCustomFields")}</span>
             </Button>
           )}
 
           {showEditFieldsActiveActions && !canPersonalize && (
-            <Button className="h-8" size="sm" type="button" variant="secondary" onClick={toggleEditingCustomField}>
-              {t("Common.actions.cancel")}
+            <Button
+              aria-label={t("Common.actions.cancel")}
+              className="h-8"
+              size="sm"
+              type="button"
+              variant="secondary"
+              onClick={toggleEditingCustomField}
+            >
+              <X aria-hidden="true" className="size-4 sm:hidden" />
+
+              <span className="hidden sm:inline">{t("Common.actions.cancel")}</span>
             </Button>
           )}
 
           {canManage && store.hasUnsavedChanges && (
             <Button
+              aria-label={t("Common.actions.reset")}
               className="h-8"
               disabled={isLoading}
               id="entity-reset"
@@ -237,13 +262,25 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
               variant="secondary"
               onClick={() => store.resetForm()}
             >
-              {t("Common.actions.reset")}
+              <RotateCcw aria-hidden="true" className="size-4 sm:hidden" />
+
+              <span className="hidden sm:inline">{t("Common.actions.reset")}</span>
             </Button>
           )}
 
           {canManage && (
-            <Button className="h-8" disabled={saveDisabled} form={formId} id="entity-save" size="sm" type="submit">
-              {t("Common.actions.save")}
+            <Button
+              aria-label={t("Common.actions.save")}
+              className="h-8"
+              disabled={saveDisabled}
+              form={formId}
+              id="entity-save"
+              size="sm"
+              type="submit"
+            >
+              <Save aria-hidden="true" className="size-4 sm:hidden" />
+
+              <span className="hidden sm:inline">{t("Common.actions.save")}</span>
             </Button>
           )}
         </div>
@@ -270,6 +307,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
   );
 
   useSetTopBarActions(topBarActions);
+  useSetTopBarJoinedContent(joinsTopBar);
 
   switch (pageState) {
     case "loading":
@@ -320,11 +358,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
     <AppForm id={formId} store={store as unknown as BaseFormStore}>
       <div className="@container/detail flex min-h-0 w-full flex-1 flex-col">
         <div className="animate-page-result-in flex min-h-0 w-full flex-1 flex-col overflow-y-auto motion-reduce:animate-none @6xl/detail:overflow-y-visible">
-          {hasSummary ? (
-            <EntityDetailSummaryGeometryProvider showActivityPanel={canSeeHistory} showNotesPanel={showNotesPanel}>
-              {summary}
-            </EntityDetailSummaryGeometryProvider>
-          ) : null}
+          {hasSummary ? summary : null}
 
           {(showNotesPanel || canSeeHistory) && (
             <div

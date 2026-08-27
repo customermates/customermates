@@ -25,6 +25,7 @@ import { AppCardFooter } from "@/components/card/app-card-footer";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppForm } from "@/components/forms/form-context";
 import { FormAutocompleteCurrency } from "@/components/forms/form-autocomplete-currency";
+import { FormFieldHelp } from "@/components/forms/form-field-help";
 import { FormInput } from "@/components/forms/form-input";
 import { FormNumberInput } from "@/components/forms/form-number-input";
 import { FormSelect } from "@/components/forms/form-select";
@@ -290,6 +291,13 @@ export const CustomColumnModal = observer(() => {
                 label: t(`Common.customColumnTypes.${item.value}`),
               }))}
               label={t("Common.inputs.type")}
+              labelEndAddon={
+                form.id ? (
+                  <FormFieldHelp label={t("Common.ariaLabels.explainField", { field: t("Common.inputs.type") })}>
+                    {t("Common.customFieldHelp.immutableType")}
+                  </FormFieldHelp>
+                ) : undefined
+              }
               readOnly={Boolean(form.id)}
               onValueChange={(next) => store.changeType(next as CustomColumnType)}
             />
@@ -376,7 +384,15 @@ export const CustomColumnModal = observer(() => {
                   <span className="flex-1">{t("Common.table.columns.name")}</span>
 
                   {store.isDealWeightingColumn && (
-                    <span className="w-24 shrink-0 text-right whitespace-nowrap">{t("Common.probability")}</span>
+                    <span className="flex w-24 shrink-0 items-center justify-end gap-1 whitespace-nowrap">
+                      <span className="min-w-0 truncate">{t("Common.probability")}</span>
+
+                      {store.isOptionWeightReadOnly && !store.isDisabled ? (
+                        <FormFieldHelp label={t("Common.ariaLabels.explainField", { field: t("Common.probability") })}>
+                          {t("Common.customFieldHelp.probabilityPermission", { company: t("UserAvatar.company") })}
+                        </FormFieldHelp>
+                      ) : null}
+                    </span>
                   )}
 
                   <span className="w-14 shrink-0 text-center">{t("Common.default")}</span>

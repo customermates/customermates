@@ -4,7 +4,7 @@ import { ArrowDown, ArrowUp } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { CustomFieldValueInput } from "@/components/data-view/custom-columns/custom-field-value-input";
-import { EntityDetailStarButton } from "@/components/entity-detail/entity-detail-star-button";
+import { EntityDetailPinButton } from "@/components/entity-detail/entity-detail-pin-button";
 import { IconButton } from "@/components/ui/icon-button";
 import { useEntityDetailPersonalization } from "@/components/entity-detail/entity-detail-personalization";
 import { resolveOrderedCustomColumns } from "@/components/entity-detail/entity-detail-personalization.utils";
@@ -17,8 +17,8 @@ type Props = {
 
 export function CustomFieldInputs({ columns, isEditing, personalizable = false }: Props) {
   const t = useTranslations();
-  const { columnOrder, isPersonalizing, moveColumn } = useEntityDetailPersonalization();
-  const orderedColumns = personalizable
+  const { columnOrder, enabled, isPersonalizing, moveColumn } = useEntityDetailPersonalization();
+  const orderedColumns = enabled
     ? resolveOrderedCustomColumns(columns, columnOrder)
     : columns.map((column, formIndex) => ({ column, formIndex }));
 
@@ -33,7 +33,7 @@ export function CustomFieldInputs({ columns, isEditing, personalizable = false }
           labelEndAddon={
             personalizable ? (
               <span className="flex items-center gap-0.5">
-                <EntityDetailStarButton fieldId={column.id} label={column.label} />
+                <EntityDetailPinButton fieldId={column.id} label={column.label} />
 
                 {isPersonalizing && (
                   <>

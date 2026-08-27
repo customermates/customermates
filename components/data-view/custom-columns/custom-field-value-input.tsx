@@ -28,11 +28,12 @@ export const CustomFieldValueInput = observer(({ isEditing, column, index, label
 
   const { label } = column;
   const id = `customFieldValues[${index}].value`;
+  const labelId = `${id}-label`;
   const value = store?.getValue(id) as string | undefined;
 
   const fieldLabel = label && (
     <div className="flex items-center gap-1.5">
-      <FormLabel className="flex items-center gap-1.5" htmlFor={id}>
+      <FormLabel className="flex items-center gap-1.5" htmlFor={id} id={labelId}>
         {labelStartAddon}
 
         {label}
@@ -49,6 +50,7 @@ export const CustomFieldValueInput = observer(({ isEditing, column, index, label
 
         <CustomFieldEditor
           hideLabel
+          ariaLabelledBy={label ? labelId : undefined}
           column={column}
           id={id}
           label={label}
@@ -67,6 +69,7 @@ export const CustomFieldValueInput = observer(({ isEditing, column, index, label
         <div className="flex-1 min-w-0 [&_.space-y-1\.5>*]:mb-0!">
           <CustomFieldEditor
             hideLabel
+            ariaLabelledBy={label ? labelId : undefined}
             column={column}
             id={id}
             label={label}

@@ -12,8 +12,8 @@ const harness = vi.hoisted(() => ({
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: { field?: string }) => {
     if (key === "Common.actions.openList") return "Open list";
-    if (key === "EntityDetail.starField") return `Show ${values?.field} in the overview`;
-    if (key === "EntityDetail.unstarField") return `Remove ${values?.field} from the overview`;
+    if (key === "EntityDetail.pinField") return `Pin ${values?.field} to the overview`;
+    if (key === "EntityDetail.unpinField") return `Unpin ${values?.field} from the overview`;
     return key;
   },
 }));
@@ -52,7 +52,7 @@ beforeEach(() => {
 });
 
 describe("EntityRelationActions", () => {
-  it("renders matching favorite and go-to actions for a persisted service relation", () => {
+  it("renders matching pin and go-to actions for a persisted service relation", () => {
     harness.starredFieldIds = ["serviceIds"];
     const markup = renderToStaticMarkup(
       createElement(EntityRelationActions, {
@@ -63,12 +63,16 @@ describe("EntityRelationActions", () => {
       }),
     );
 
-    expect(markup).toContain('aria-label="Remove Services from the overview"');
+    expect(markup).toContain('aria-label="Unpin Services from the overview"');
     expect(markup).toContain('aria-label="Open list"');
     expect(markup).toContain('href="/services?filters=dealIds%3Ain%3Adeal-1"');
     expect(markup.match(/size-5/g)).toHaveLength(2);
     expect(markup.match(/size-3\.5/g)).toHaveLength(2);
-    expect(markup.indexOf("Remove Services from the overview")).toBeLessThan(markup.indexOf("Open list"));
+    expect(markup).toContain("lucide-pin");
+    expect(markup).not.toContain("lucide-star");
+    expect(markup).toContain('aria-pressed="true"');
+    expect(markup).toContain("fill-current text-primary");
+    expect(markup.indexOf("Unpin Services from the overview")).toBeLessThan(markup.indexOf("Open list"));
   });
 
   it("keeps the go-to action without personalization and omits it until the record exists", () => {

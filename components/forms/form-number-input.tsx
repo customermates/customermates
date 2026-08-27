@@ -15,7 +15,7 @@ import { useFormFieldErrors, useResolvedFieldLabel } from "./use-form-field";
 
 type Props = Omit<
   ComponentProps<"input">,
-  "value" | "defaultValue" | "onChange" | "type" | "id" | "disabled" | "size"
+  "value" | "defaultValue" | "onChange" | "type" | "id" | "disabled" | "readOnly" | "size"
 > & {
   id: string;
   label?: string | null;
@@ -26,6 +26,8 @@ type Props = Omit<
   containerClassName?: string;
   endContent?: ReactNode;
   labelEndAddon?: ReactNode;
+  disabled?: boolean;
+  readOnly?: boolean;
 };
 
 export const FormNumberInput = observer(
@@ -41,6 +43,8 @@ export const FormNumberInput = observer(
     onFocus,
     endContent,
     labelEndAddon,
+    disabled,
+    readOnly,
     ...props
   }: Props) => {
     const isReq = required;
@@ -50,8 +54,8 @@ export const FormNumberInput = observer(
     const controlled = onValueChange !== undefined;
 
     const { hasError } = useFormFieldErrors(id);
-    const isDisabled = store?.isLoading;
-    const isReadOnly = store?.isReadOnly;
+    const isDisabled = Boolean(disabled || store?.isLoading);
+    const isReadOnly = !isDisabled && Boolean(readOnly || store?.isReadOnly);
 
     const storeNumber = store?.getValue(id) as number | undefined;
     const activeNumber = controlled ? controlledValue : storeNumber;
@@ -97,6 +101,11 @@ export const FormNumberInput = observer(
             {...props}
             onBlur={(e) => {
               setFocused(false);
+              if (isReadOnly) {
+                setText(formattedValue);
+                onBlur?.(e);
+                return;
+              }
               const parsed = intlStore.parseNumber(text);
               setText(parsed == null ? "" : intlStore.formatNumber(parsed));
               commit(parsed);
@@ -108,8 +117,10 @@ export const FormNumberInput = observer(
               commit(intlStore.parseNumber(next));
             }}
             onFocus={(e) => {
-              setText(intlStore.formatNumberForEditing(activeNumber));
-              setFocused(true);
+              if (!isReadOnly) {
+                setText(intlStore.formatNumberForEditing(activeNumber));
+                setFocused(true);
+              }
               onFocus?.(e);
             }}
           />

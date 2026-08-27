@@ -8,7 +8,7 @@ import { CustomFieldInputs } from "@/components/data-view/custom-columns/custom-
 import { EntityDetailBody } from "@/components/entity-detail/entity-detail-body";
 import { EntityDetailCustomFieldsSection } from "@/components/entity-detail/entity-detail-custom-fields-section";
 import { EntityDetailSection, EntityDetailSectionGroup } from "@/components/entity-detail/entity-detail-section";
-import { EntityDetailStarButton } from "@/components/entity-detail/entity-detail-star-button";
+import { EntityDetailPinButton } from "@/components/entity-detail/entity-detail-pin-button";
 import { EntityDetailStaticField } from "@/components/entity-detail/entity-detail-static-field";
 import { EntityRelationField, AssignedUsersField } from "@/components/entity-detail/relation-fields";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
@@ -38,7 +38,6 @@ export const TaskDetailView = observer(({ layout = "drawer" }: Props) => {
     customColumns,
     isEditingCustomField,
     isCustomTask,
-    isDisabled,
     systemTaskAlertConfig,
     systemTaskDisplayName,
   } = taskDetailStore;
@@ -62,10 +61,10 @@ export const TaskDetailView = observer(({ layout = "drawer" }: Props) => {
       <div className="space-y-1.5">
         <FormLabel htmlFor="name">{t("Common.inputs.name")}</FormLabel>
 
-        <Input disabled readOnly id="name" value={systemTaskDisplayName} />
+        <Input readOnly id="name" value={systemTaskDisplayName} />
       </div>
     ) : (
-      <FormInput required disabled={isDisabled} id="name" />
+      <FormInput required id="name" />
     );
 
   const pageNameField =
@@ -74,17 +73,16 @@ export const TaskDetailView = observer(({ layout = "drawer" }: Props) => {
         <div className="flex items-center gap-1.5">
           <FormLabel htmlFor="name">{t("Common.inputs.name")}</FormLabel>
 
-          <EntityDetailStarButton fieldId={TASK_DETAIL_FIELD.name} label={t("Common.inputs.name")} />
+          <EntityDetailPinButton fieldId={TASK_DETAIL_FIELD.name} label={t("Common.inputs.name")} />
         </div>
 
-        <Input disabled readOnly id="name" value={systemTaskDisplayName} />
+        <Input readOnly id="name" value={systemTaskDisplayName} />
       </div>
     ) : (
       <FormInput
         required
-        disabled={isDisabled}
         id="name"
-        labelEndAddon={<EntityDetailStarButton fieldId={TASK_DETAIL_FIELD.name} label={t("Common.inputs.name")} />}
+        labelEndAddon={<EntityDetailPinButton fieldId={TASK_DETAIL_FIELD.name} label={t("Common.inputs.name")} />}
       />
     );
 

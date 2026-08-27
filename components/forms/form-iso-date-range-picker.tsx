@@ -56,6 +56,8 @@ export const FormIsoDateRangePicker = observer(
     const csvValue = typeof raw === "string" ? raw : undefined;
     const parsedRange = parseRange(csvValue);
     const { hasError } = useFormFieldErrors(id);
+    const isLoading = store?.isLoading ?? false;
+    const isReadOnly = !isLoading && (store?.isReadOnly ?? false);
 
     const resolvedLabel = label ?? undefined;
 
@@ -69,6 +71,8 @@ export const FormIsoDateRangePicker = observer(
     }, [parsedRange?.from?.getTime()]);
 
     function commit(range: DateRange | undefined) {
+      if (isReadOnly || isLoading) return;
+
       if (!range || !range.from || !range.to) {
         store?.onChange(id, undefined);
         return;
@@ -143,16 +147,18 @@ export const FormIsoDateRangePicker = observer(
           </FormLabel>
         )}
 
-        <Popover>
+        <Popover open={isReadOnly || isLoading ? false : undefined}>
           <PopoverTrigger asChild>
             <Button
+              aria-disabled={isReadOnly || undefined}
               aria-invalid={hasError}
               className={cn(
                 "w-full justify-start text-left font-normal",
                 !parsedRange && "text-muted-foreground",
                 className,
               )}
-              disabled={store?.isDisabled}
+              data-field-state={isReadOnly ? "read-only" : undefined}
+              disabled={isLoading}
               id={id}
               type="button"
               variant="field"
@@ -161,7 +167,7 @@ export const FormIsoDateRangePicker = observer(
 
               <span className="truncate flex-1">{triggerLabel}</span>
 
-              {parsedRange && !store?.isDisabled ? <InputClearButton onClear={() => commit(undefined)} /> : null}
+              {parsedRange && !isReadOnly && !isLoading ? <InputClearButton onClear={() => commit(undefined)} /> : null}
             </Button>
           </PopoverTrigger>
 
@@ -171,13 +177,13 @@ export const FormIsoDateRangePicker = observer(
           >
             <Calendar
               autoFocus
-              disabled={store?.isDisabled}
+              disabled={isLoading}
               mode="range"
               month={currentMonth}
               numberOfMonths={isWide ? 2 : 1}
               selected={calendarSelected}
               onMonthChange={setCurrentMonth}
-              onSelect={handleSelect}
+              onSelect={isReadOnly ? undefined : handleSelect}
             />
 
             {!dateOnly && (
@@ -191,7 +197,7 @@ export const FormIsoDateRangePicker = observer(
                     </FormLabel>
 
                     <TimeInput
-                      disabled={store?.isDisabled || !parsedRange}
+                      disabled={isLoading || !parsedRange}
                       id={`${id}-time-from`}
                       use12Hour={intlStore.use12Hour}
                       value={fromTimeValue}
@@ -205,7 +211,7 @@ export const FormIsoDateRangePicker = observer(
                     </FormLabel>
 
                     <TimeInput
-                      disabled={store?.isDisabled || !parsedRange}
+                      disabled={isLoading || !parsedRange}
                       id={`${id}-time-to`}
                       use12Hour={intlStore.use12Hour}
                       value={toTimeValue}
@@ -222,11 +228,11 @@ export const FormIsoDateRangePicker = observer(
               {RANGE_PRESET_KEYS.map((key) => (
                 <Button
                   key={key}
-                  disabled={store?.isDisabled}
+                  disabled={isLoading}
                   size="sm"
                   type="button"
                   variant="secondary"
-                  onClick={() => handlePreset(key)}
+                  onClick={isReadOnly ? undefined : () => handlePreset(key)}
                 >
                   {t(`Common.datePresets.${key}`)}
                 </Button>

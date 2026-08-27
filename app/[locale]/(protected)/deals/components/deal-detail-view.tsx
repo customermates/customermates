@@ -8,7 +8,7 @@ import { CustomFieldInputs } from "@/components/data-view/custom-columns/custom-
 import { EntityDetailBody } from "@/components/entity-detail/entity-detail-body";
 import { EntityDetailCustomFieldsSection } from "@/components/entity-detail/entity-detail-custom-fields-section";
 import { EntityDetailSection, EntityDetailSectionGroup } from "@/components/entity-detail/entity-detail-section";
-import { EntityDetailStarButton } from "@/components/entity-detail/entity-detail-star-button";
+import { EntityDetailPinButton } from "@/components/entity-detail/entity-detail-pin-button";
 import { EntityDetailStaticField } from "@/components/entity-detail/entity-detail-static-field";
 import { AssignedUsersField, EntityRelationField } from "@/components/entity-detail/relation-fields";
 import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
@@ -19,6 +19,7 @@ import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
 import { DEAL_DETAIL_FIELD, DEAL_DETAIL_SECTION } from "./deal-detail-personalization";
 import { DealServicesSelection } from "./deal-services-selection";
+import { useDealComputedFieldHelp } from "./use-deal-computed-field-help";
 
 type Props = {
   layout?: "drawer" | "page";
@@ -39,6 +40,7 @@ export const DealDetailView = observer(({ layout = "drawer" }: Props) => {
     totalValue,
     weightedValueBreakdown,
   } = dealDetailStore;
+  const computedFieldHelp = useDealComputedFieldHelp(weightedValueBreakdown);
 
   const content =
     layout === "drawer" ? (
@@ -79,25 +81,28 @@ export const DealDetailView = observer(({ layout = "drawer" }: Props) => {
             autoFocus
             required
             id="name"
-            labelEndAddon={<EntityDetailStarButton fieldId={DEAL_DETAIL_FIELD.name} label={t("Common.inputs.name")} />}
+            labelEndAddon={<EntityDetailPinButton fieldId={DEAL_DETAIL_FIELD.name} label={t("Common.inputs.name")} />}
           />
 
           <AssignedUsersField items={fetchedEntity?.users} personalization={{ fieldId: DEAL_DETAIL_FIELD.userIds }} />
 
           <EntityDetailStaticField
             fieldId={DEAL_DETAIL_FIELD.totalValue}
+            help={computedFieldHelp.dealValue}
             label={columnLabel("totalValue")}
             value={intlStore.formatCurrency(totalValue)}
           />
 
           <EntityDetailStaticField
             fieldId={DEAL_DETAIL_FIELD.totalQuantity}
+            help={computedFieldHelp.serviceQuantity}
             label={columnLabel("totalQuantity")}
             value={intlStore.formatNumber(totalQuantity)}
           />
 
           <EntityDetailStaticField
             fieldId={DEAL_DETAIL_FIELD.weightedValue}
+            help={computedFieldHelp.weightedValue}
             label={columnLabel("weightedValue")}
             value={weightedValueBreakdown ? intlStore.formatCurrency(weightedValueBreakdown.weightedValue) : undefined}
           />

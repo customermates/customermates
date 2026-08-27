@@ -808,6 +808,7 @@
     "ariaLabels": {
       "breadcrumb": "Percorso di navigazione",
       "collapseSearch": "Comprimi la ricerca",
+      "explainField": "Informazioni su {field}",
       "hidePassword": "Nascondi password",
       "selectOption": "Seleziona un'opzione",
       "showPassword": "Mostra password",
@@ -841,6 +842,10 @@
       "phone": "Telefono",
       "plain": "Testo",
       "singleSelect": "Scelta singola"
+    },
+    "customFieldHelp": {
+      "immutableType": "Il tipo di campo è fisso dopo la creazione. Crea un nuovo campo personalizzato per usare un altro tipo.",
+      "probabilityPermission": "Le probabilità di fase sono gestite in «{company}». Chiedi a un amministratore l’autorizzazione per modificarle."
     },
     "datePresets": {
       "endTime": "Ora di fine",
@@ -1366,11 +1371,14 @@
       "columnLabel": "Campo della fase di {deal}",
       "columnPlaceholder": "Seleziona un campo",
       "currentTotal": "Pipeline ponderata",
+      "currentTotalHelp": "Somma del valore × la probabilità di fase per ogni elemento con una fase. Le modifiche derivano da «{services}», quantità o fasi in «{deals}»; le probabilità vengono gestite qui sopra.",
       "description": "Pondera ogni fase di {deal} con la sua probabilità di chiusura per vedere un valore di pipeline scontato.",
       "noColumn": "Non configurato",
       "totalPipeline": "Pipeline totale",
+      "totalPipelineHelp": "Somma di tutti i valori in «{deals}». Le modifiche derivano da «{services}» o quantità in tali elementi.",
       "weightsTitle": "Probabilità per fase",
-      "withoutStage": "Non ponderato · senza {column}"
+      "withoutStage": "Non ponderato · senza {column}",
+      "withoutStageHelp": "Valore degli elementi in «{deals}» senza selezione in «{column}». Selezionando una fase, vengono inclusi nella pipeline ponderata."
     }
   },
   "CompanyUserModal": {
@@ -1759,6 +1767,13 @@
   },
   "EntityDetail": {
     "collapseSection": "Comprimi {section}",
+    "computedFieldHelp": {
+      "dealValue": "Somma di prezzo unitario × quantità per ogni elemento collegato in «{services}». Modifica lì gli elementi collegati o le quantità per aggiornarlo.",
+      "serviceLineValue": "Prezzo di «{service}» × quantità. Modifica qui l’elemento o la quantità; modifica l’elemento collegato per cambiarne il prezzo.",
+      "serviceQuantity": "Somma delle quantità di tutti gli elementi collegati in «{services}». Modifica lì le quantità per aggiornare il valore.",
+      "weightedValue": "{dealValue} × probabilità di chiusura del {percent}% per la fase corrente ({stage}). Modifica «{services}», quantità o fase; gestisci le probabilità in «{company}».",
+      "weightedValueUnconfigured": "{dealValue} × probabilità di chiusura della fase selezionata. Configura le probabilità in «{company}» e seleziona una fase; modifica «{services}» o quantità."
+    },
     "donePersonalizing": "Fine",
     "expandSection": "Espandi {section}",
     "fields": {
@@ -1768,14 +1783,14 @@
     "moveFieldDown": "Sposta {field} in basso",
     "moveFieldUp": "Sposta {field} in alto",
     "personalize": "Personalizza",
+    "pinField": "Fissa {field} nella panoramica",
     "sections": {
       "base": "Dati di base",
       "customFields": "Campi personalizzati",
       "notes": "Note",
       "relations": "Relazioni"
     },
-    "starField": "Mostra {field} nella panoramica",
-    "unstarField": "Rimuovi {field} dalla panoramica"
+    "unpinField": "Togli {field} dalla panoramica"
   },
   "EntityTerminology": {
     "presets": {
@@ -2476,6 +2491,20 @@
   },
   "Subscription": {
     "currentPeriodEnd": "Il periodo attuale termina il",
+    "fieldHelp": {
+      "currentPeriodEndManage": "Definita dal ciclo di fatturazione attuale. Usa «{billing}» per modificare l’abbonamento.",
+      "currentPeriodEndReadOnly": "Definita dal ciclo di fatturazione attuale. Chiedi le modifiche a un amministratore dell’area di lavoro.",
+      "currentPeriodEndUnavailable": "Definita dal ciclo di fatturazione attuale. Contatta l’assistenza per apportare modifiche.",
+      "planManage": "Sincronizzato con la fatturazione. Usa «{billing}» per apportare modifiche.",
+      "planPicker": "Scegli un piano qui sotto per avviare o modificare l’abbonamento.",
+      "planReadOnly": "Sincronizzato con la fatturazione. Chiedi le modifiche a un amministratore dell’area di lavoro.",
+      "planUnavailable": "Sincronizzato con la fatturazione. Contatta l’assistenza per apportare modifiche.",
+      "quantity": "Sincronizzato con il numero di membri attivi dell’area di lavoro. Gli amministratori possono attivare o disattivare i membri in «{company}».",
+      "trialEndsManage": "Definita dal periodo di prova. Usa «{billing}» per gestire l’abbonamento.",
+      "trialEndsPicker": "Definita dal periodo di prova. Scegli un piano prima di questa data per continuare senza interruzioni.",
+      "trialEndsReadOnly": "Definita dal periodo di prova. Chiedi a un amministratore dell’area di lavoro di gestire l’abbonamento.",
+      "trialEndsUnavailable": "Definita dal periodo di prova. Contatta l’assistenza per gestire l’abbonamento."
+    },
     "managedExternallyNote": "Questa area di lavoro usa un piano Enterprise con pagamento tramite fattura. Contatta il tuo account manager per apportare modifiche.",
     "manageWithLemonSqueezy": "Gestisci con Lemon Squeezy",
     "picker": {

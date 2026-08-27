@@ -1,6 +1,6 @@
 "use client";
 
-import { Star } from "lucide-react";
+import { Pin } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { IconButton } from "@/components/ui/icon-button";
@@ -14,25 +14,25 @@ type Props = {
   className?: string;
 };
 
-export function EntityDetailStarButton({ fieldId, label, className }: Props) {
+export function EntityDetailPinButton({ fieldId, label, className }: Props) {
   const t = useTranslations();
   const { enabled, starredFieldIds, toggleStarredField } = useEntityDetailPersonalization();
-  const starred = starredFieldIds.includes(fieldId);
+  const pinned = starredFieldIds.includes(fieldId);
 
   if (!enabled) return null;
 
-  const actionLabel = starred
-    ? t("EntityDetail.unstarField", { field: label })
-    : t("EntityDetail.starField", { field: label });
+  const actionLabel = pinned
+    ? t("EntityDetail.unpinField", { field: label })
+    : t("EntityDetail.pinField", { field: label });
 
   return (
     <IconButton
       fieldAction
       className={className}
-      icon={Star}
-      iconClassName={cn(starred && "fill-current text-primary")}
+      icon={Pin}
+      iconClassName={cn(pinned && "fill-current text-primary")}
       label={actionLabel}
-      pressed={starred}
+      pressed={pinned}
       onClick={() => toggleStarredField(fieldId)}
     />
   );

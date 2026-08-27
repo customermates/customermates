@@ -29,6 +29,7 @@ type Props = {
   description?: ReactNode;
   placeholder?: string;
   required?: boolean;
+  disabled?: boolean;
   readOnly?: boolean;
   items?: FormSelectItem[];
   children?: ReactNode;
@@ -36,6 +37,7 @@ type Props = {
   containerClassName?: string;
   optionsLoading?: boolean;
   onValueChange?: (value: string) => void;
+  labelEndAddon?: ReactNode;
 };
 
 export const FormSelect = observer(
@@ -45,6 +47,7 @@ export const FormSelect = observer(
     description,
     placeholder,
     required,
+    disabled,
     readOnly,
     items,
     children,
@@ -52,6 +55,7 @@ export const FormSelect = observer(
     containerClassName,
     optionsLoading = false,
     onValueChange,
+    labelEndAddon,
   }: Props) => {
     const t = useTranslations();
     const store = useAppForm();
@@ -60,22 +64,26 @@ export const FormSelect = observer(
     const value = raw == null ? "" : String(raw);
     const { hasError } = useFormFieldErrors(id);
     const selectedItem = items?.find((it) => it.value === value);
-    const isReadOnly = (store?.isReadOnly ?? false) || Boolean(readOnly);
-    const isLoading = store?.isLoading ?? false;
+    const isDisabled = Boolean(disabled) || Boolean(store?.isLoading);
+    const isReadOnly = !isDisabled && ((store?.isReadOnly ?? false) || Boolean(readOnly));
     const hasUnresolvedValue = value !== "" && selectedItem === undefined;
 
     return (
       <div className={cn("flex flex-col gap-1.5", containerClassName)}>
         {resolvedLabel && (
-          <FormLabel htmlFor={id}>
-            {resolvedLabel}
+          <div className="flex items-center gap-1.5">
+            <FormLabel htmlFor={id}>
+              {resolvedLabel}
 
-            {required ? <span className="text-destructive"> *</span> : null}
-          </FormLabel>
+              {required ? <span className="text-destructive"> *</span> : null}
+            </FormLabel>
+
+            {labelEndAddon}
+          </div>
         )}
 
         <Select
-          disabled={isLoading}
+          disabled={isDisabled}
           open={isReadOnly ? false : undefined}
           value={value}
           onValueChange={
@@ -86,11 +94,7 @@ export const FormSelect = observer(
             aria-busy={optionsLoading || undefined}
             aria-invalid={hasError}
             aria-readonly={isReadOnly || undefined}
-            className={cn(
-              "w-full",
-              isReadOnly && "cursor-default hover:bg-input-background hover:text-foreground [&>svg:last-child]:hidden",
-              className,
-            )}
+            className={cn("w-full", className, isReadOnly && "[&>svg:last-child]:hidden")}
             id={id}
           >
             <SelectValue placeholder={placeholder ?? " "}>

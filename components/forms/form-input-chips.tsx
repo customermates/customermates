@@ -26,6 +26,9 @@ type Props = {
   value?: string;
   onValueChange?: (value: string | undefined) => void;
   onChipClick?: (value: string) => void;
+  disabled?: boolean;
+  readOnly?: boolean;
+  ariaLabelledBy?: string;
   className?: string;
   containerClassName?: string;
 };
@@ -43,6 +46,9 @@ export const FormInputChips = observer(
     value: controlledValue,
     onValueChange,
     onChipClick,
+    disabled,
+    readOnly,
+    ariaLabelledBy,
     className,
     containerClassName,
   }: Props) => {
@@ -57,8 +63,10 @@ export const FormInputChips = observer(
       const e = store?.getError(path);
       return Array.isArray(e) ? e.length > 0 : Boolean(e);
     };
-    const isReadOnly = store?.isReadOnly ?? false;
-    const isDisabled = store?.isLoading ?? false;
+    const isDisabled = Boolean(disabled) || Boolean(store?.isLoading);
+    const isReadOnly = !isDisabled && (Boolean(readOnly) || Boolean(store?.isReadOnly));
+    const labelId = `${id}-label`;
+    const hasInteractiveChips = isReadOnly && Boolean(onChipClick) && !isDisabled;
 
     let chipValues: string[] = [];
     if (arrayMode) {
@@ -70,6 +78,7 @@ export const FormInputChips = observer(
     const hasError = hasErrorAt(id) || chipErrors.some(Boolean);
 
     function commit(next: string[]) {
+      if (isReadOnly || isDisabled) return;
       if (arrayMode) {
         if (onValueChange) onValueChange(next as unknown as string);
         else store?.onChange(id, next);
@@ -126,7 +135,7 @@ export const FormInputChips = observer(
     return (
       <div className={cn("space-y-1.5", containerClassName)}>
         {resolvedLabel && (
-          <FormLabel htmlFor={id}>
+          <FormLabel htmlFor={isReadOnly ? undefined : id} id={labelId}>
             {resolvedLabel}
 
             {required ? <span className="text-destructive"> *</span> : null}
@@ -134,46 +143,55 @@ export const FormInputChips = observer(
         )}
 
         <div
+          aria-disabled={isDisabled || undefined}
+          aria-invalid={hasError}
+          aria-label={isReadOnly && !resolvedLabel && !ariaLabelledBy ? (placeholder ?? id) : undefined}
+          aria-labelledby={isReadOnly ? (ariaLabelledBy ?? (resolvedLabel ? labelId : undefined)) : undefined}
+          aria-readonly={isReadOnly && !hasInteractiveChips ? true : undefined}
           className={cn(
             "flex min-h-9 w-full flex-wrap items-center gap-1 rounded-md border border-input bg-input-background px-2 py-1 text-sm shadow-xs",
             "focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50",
+            className,
+            isReadOnly && "cursor-default border-border bg-background text-foreground shadow-none",
+            isDisabled && "cursor-not-allowed border-border bg-background text-muted-foreground shadow-none",
             hasError &&
               "border-destructive focus-within:border-destructive ring-destructive/20 focus-within:ring-destructive/20",
-            isDisabled && "pointer-events-none opacity-50",
-            isReadOnly && "cursor-default",
-            className,
           )}
+          id={isReadOnly ? id : undefined}
+          role={isReadOnly ? (hasInteractiveChips ? "group" : "textbox") : undefined}
+          tabIndex={isReadOnly && !hasInteractiveChips ? 0 : undefined}
         >
           {chipValues.map((item, index) => {
             const chipHasError = chipErrors[index] ?? false;
-            const removeButton = isReadOnly ? undefined : (
-              <button
-                aria-label={t("Common.actions.remove")}
-                className="text-muted-foreground transition-[color,background-color,transform] hover:bg-muted hover:text-foreground active:scale-[0.97] motion-reduce:transition-none"
-                tabIndex={-1}
-                type="button"
-                onClick={() => handleRemove(item)}
-              >
-                <XIcon className="size-3" />
-              </button>
-            );
+            const removeButton =
+              isReadOnly || isDisabled ? undefined : (
+                <button
+                  aria-label={t("Common.actions.remove")}
+                  className="text-muted-foreground transition-[color,background-color,transform] hover:bg-muted hover:text-foreground active:scale-[0.97] motion-reduce:transition-none"
+                  tabIndex={-1}
+                  type="button"
+                  onClick={() => handleRemove(item)}
+                >
+                  <XIcon className="size-3" />
+                </button>
+              );
             const chip = renderChip ? (
               renderChip(item, removeButton)
             ) : (
               <AppChip
                 endContent={removeButton}
-                interactive={Boolean(onChipClick)}
+                interactive={Boolean(onChipClick) && !isDisabled}
                 variant={chipHasError ? "destructive" : (chipColor ?? "secondary")}
               >
                 {item}
               </AppChip>
             );
 
-            if (onChipClick) {
+            if (onChipClick && !isDisabled) {
               return (
                 <span
                   key={`${item}-${index}`}
-                  className="cursor-pointer"
+                  className="cursor-pointer rounded-md outline-none focus-visible:ring-[2px] focus-visible:ring-ring/70 focus-visible:ring-offset-1 focus-visible:ring-offset-background"
                   role="button"
                   tabIndex={0}
                   onClick={(e) => {
@@ -181,7 +199,10 @@ export const FormInputChips = observer(
                     onChipClick(item);
                   }}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") onChipClick(item);
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onChipClick(item);
+                    }
                   }}
                 >
                   {chip}

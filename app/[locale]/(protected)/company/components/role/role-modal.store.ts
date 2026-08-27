@@ -58,7 +58,7 @@ export class RoleModalStore extends BaseModalStore<UpsertRoleData> {
   }
 
   get isReadOnly(): boolean {
-    return this.isOwnRole || super.isReadOnly;
+    return this.isSystemRole || this.isOwnRole || super.isReadOnly;
   }
 
   get isSystemRole() {
@@ -70,11 +70,7 @@ export class RoleModalStore extends BaseModalStore<UpsertRoleData> {
   }
 
   get isDisabledOrSystemRole() {
-    if (this.isDisabled) return true;
-    if (!this.form.id) return false;
-    const role = this.rootStore.rolesStore.items.find((r) => r.id === this.form.id);
-
-    return Boolean(role?.isSystemRole);
+    return this.isDisabled;
   }
 
   get hasUsersAssigned() {

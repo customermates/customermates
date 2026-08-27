@@ -9,10 +9,12 @@ const harness = vi.hoisted(() => ({
   loadById: vi.fn(),
   pageStateProps: vi.fn(),
   setTopBarActions: vi.fn(),
+  setTopBarJoinedContent: vi.fn(),
   canReadHistory: false,
   personalizationEnabled: false,
   isPersonalizing: false,
   setIsPersonalizing: vi.fn(),
+  starredFieldIds: [] as string[],
 }));
 
 vi.mock("next-intl", () => ({
@@ -21,6 +23,7 @@ vi.mock("next-intl", () => ({
 
 vi.mock("@/app/components/topbar-actions-context", () => ({
   useSetTopBarActions: harness.setTopBarActions,
+  useSetTopBarJoinedContent: harness.setTopBarJoinedContent,
 }));
 
 vi.mock("@/components/forms/form-context", () => ({
@@ -39,7 +42,7 @@ vi.mock("../entity-detail-personalization", () => ({
   useEntityDetailPersonalization: () => ({
     enabled: harness.personalizationEnabled,
     isPersonalizing: harness.isPersonalizing,
-    starredFieldIds: [],
+    starredFieldIds: harness.starredFieldIds,
     setIsPersonalizing: harness.setIsPersonalizing,
   }),
 }));
@@ -76,7 +79,6 @@ vi.mock("@/components/page-state/page-state", async (importOriginal) => {
 });
 
 import { EntityDetailLayout } from "../entity-detail-layout";
-import { useEntityDetailSummaryGeometry } from "../entity-detail-summary-geometry-context";
 
 type DetailState = "loading" | "not-found" | "error" | "content";
 
@@ -137,11 +139,6 @@ function renderState(
   return { html, store };
 }
 
-function SummaryGeometryProbe() {
-  const geometry = useEntityDetailSummaryGeometry();
-  return createElement("div", { "data-summary-geometry-probe": geometry.id });
-}
-
 function findElementByProp(node: ReactNode, property: string, value: unknown): ReactElement | undefined {
   if (!isValidElement(node)) return undefined;
   if ((node.props as Record<string, unknown>)[property] === value) return node;
@@ -161,6 +158,7 @@ describe("EntityDetailLayout", () => {
     harness.canReadHistory = false;
     harness.personalizationEnabled = false;
     harness.isPersonalizing = false;
+    harness.starredFieldIds = [];
   });
 
   it.each([
@@ -222,23 +220,30 @@ describe("EntityDetailLayout", () => {
   });
 
   it.each([
-    [true, true, "details-notes-activities"],
-    [true, false, "details-notes"],
-    [false, true, "details-activities"],
-    [false, false, "details"],
-  ] as const)(
-    "shares the notes=%s activities=%s wide geometry with the favorite summary",
-    (showNotesPanel, canReadHistory, expectedGeometry) => {
-      harness.canReadHistory = canReadHistory;
+    ["loading", true],
+    ["content", true],
+    ["not-found", false],
+    ["error", false],
+  ] as const)("joins a visible pinned-field row to the top bar in the %s state", (state, expected) => {
+    harness.personalizationEnabled = true;
+    harness.starredFieldIds = ["name"];
 
-      const { html } = renderState("content", {
-        showNotesPanel,
-        summary: createElement(SummaryGeometryProbe),
-      });
+    renderState(state, {
+      summary: createElement("div", { "data-summary": true }),
+    });
 
-      expect(html).toContain(`data-summary-geometry-probe="${expectedGeometry}"`);
-    },
-  );
+    expect(harness.setTopBarJoinedContent).toHaveBeenLastCalledWith(expected);
+  });
+
+  it("keeps the ordinary top-bar boundary when no pinned fields are visible", () => {
+    harness.personalizationEnabled = true;
+
+    renderState("content", {
+      summary: createElement("div", { "data-summary": true }),
+    });
+
+    expect(harness.setTopBarJoinedContent).toHaveBeenLastCalledWith(false);
+  });
 
   it("uses one Customize control to enter personalization and field editing together", () => {
     harness.personalizationEnabled = true;
@@ -256,18 +261,30 @@ describe("EntityDetailLayout", () => {
     expect(store.toggleEditingCustomField).toHaveBeenCalledOnce();
   });
 
-  it("renders Delete as an aligned text action instead of an icon-only control", () => {
+  it("keeps text actions from sm upward and exposes compact labelled controls on phones", () => {
     renderState("content", { canManage: true });
     const actions = harness.setTopBarActions.mock.calls.at(-1)?.[0] as ReactNode;
     const deleteAction = findElementByProp(actions, "id", "entity-delete");
+    const saveAction = findElementByProp(actions, "id", "entity-save");
 
     expect(deleteAction).toBeDefined();
     expect(deleteAction?.props).toMatchObject({
-      children: "Common.actions.delete",
+      "aria-label": "Common.actions.delete",
       className: "h-8 text-destructive hover:text-destructive",
       size: "sm",
       variant: "secondary",
     });
+    expect(saveAction?.props).toMatchObject({
+      "aria-label": "Common.actions.save",
+      className: "h-8",
+      size: "sm",
+    });
+
+    const actionMarkup = renderToStaticMarkup(createElement("div", null, deleteAction, saveAction));
+    expect(actionMarkup).toContain("sm:hidden");
+    expect(actionMarkup).toContain("hidden sm:inline");
+    expect(actionMarkup).toContain("Common.actions.delete");
+    expect(actionMarkup).toContain("Common.actions.save");
   });
 
   it("uses the same control to leave both customization modes", () => {

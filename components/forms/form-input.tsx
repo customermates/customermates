@@ -42,8 +42,8 @@ export const FormInput = observer(
     const resolvedLabel = useResolvedFieldLabel(id, label);
     const value = (store?.getValue(id) as string | number | undefined) ?? "";
     const { hasError } = useFormFieldErrors(id);
-    const isDisabled = disabled ?? store?.isLoading;
-    const isReadOnly = readOnly ?? store?.isReadOnly;
+    const isDisabled = Boolean(disabled || store?.isLoading);
+    const isReadOnly = !isDisabled && Boolean(readOnly || store?.isReadOnly);
 
     return (
       <div className={cn("space-y-1.5", containerClassName)}>

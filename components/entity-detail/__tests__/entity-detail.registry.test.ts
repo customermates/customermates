@@ -82,7 +82,7 @@ describe("entity detail personalization registry", () => {
     }
   });
 
-  it("removes inaccessible relation fields from defaults and stored-favorite reconciliation", () => {
+  it("removes inaccessible relation fields from defaults and stored-pin reconciliation", () => {
     const contact = ENTITY_DETAIL[EntityType.contact].personalization?.(
       [],
       (resource) => resource !== Resource.organizations && resource !== Resource.users,

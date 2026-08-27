@@ -27,7 +27,7 @@ import {
   EntityRelationActions,
   type EntityDetailFieldPersonalization,
 } from "@/components/entity-detail/entity-relation-actions";
-import { EntityDetailStarButton } from "@/components/entity-detail/entity-detail-star-button";
+import { EntityDetailPinButton } from "@/components/entity-detail/entity-detail-pin-button";
 import { AppChip } from "@/components/chip/app-chip";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-avatar";
@@ -207,7 +207,7 @@ export const AssignedUsersField = observer(
         labelEndAddon={
           personalization || labelEndAddon ? (
             <span className="flex items-center gap-1">
-              {personalization && <EntityDetailStarButton fieldId={personalization.fieldId} label={fieldLabel} />}
+              {personalization && <EntityDetailPinButton fieldId={personalization.fieldId} label={fieldLabel} />}
 
               {labelEndAddon}
             </span>
