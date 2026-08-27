@@ -43,6 +43,10 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
   override get isDisabled(): boolean {
     if (this.isLoading) return true;
 
+    return this.isReadOnly;
+  }
+
+  override get isReadOnly(): boolean {
     if (!this.rootStore) return false;
 
     const entityTypeToResource: Record<EntityType, Resource> = {
@@ -164,7 +168,9 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
     const currentOptions = this.form.options.options;
     const newOption = {
       value: crypto.randomUUID(),
-      label: this.t("Common.inputs.defaultOption", { number: currentOptions.length + 1 }),
+      label: this.t("Common.inputs.defaultOption", {
+        number: currentOptions.length + 1,
+      }),
       color: "secondary" as const,
       isDefault: currentOptions.length === 0,
       index: currentOptions.length,

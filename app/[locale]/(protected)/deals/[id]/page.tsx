@@ -6,6 +6,8 @@ import { EntityDetailPageView } from "@/components/entity-detail/entity-detail-p
 import { getGetActivitiesInteractor, getGetDealByIdInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
 import { ACTIVITIES_P13N_ID } from "@/features/messaging/activities/activities.store";
+import { getOptionalP13n } from "@/features/p13n/next/get-optional-p13n";
+import { DEAL_DETAIL_P13N_ID } from "../components/deal-detail-personalization";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -16,20 +18,23 @@ export default async function DealDetailPage({ params }: Props) {
 
   const { id } = await params;
 
-  const entityResult = await getGetDealByIdInteractor().invoke({ id });
+  const [entityResult, timelineResult, personalizationInitial] = await Promise.all([
+    getGetDealByIdInteractor().invoke({ id }),
+    getGetActivitiesInteractor().invoke({
+      scope: activityScopeForRecord(EntityType.deal, id),
+      pagination: { page: 1, pageSize: 25 },
+      p13nId: ACTIVITIES_P13N_ID,
+    }),
+    getOptionalP13n(DEAL_DETAIL_P13N_ID),
+  ]);
   const entity = entityResult.ok ? entityResult.data.deal : null;
-
-  const timelineResult = await getGetActivitiesInteractor().invoke({
-    scope: activityScopeForRecord(EntityType.deal, id),
-    pagination: { page: 1, pageSize: 25 },
-    p13nId: ACTIVITIES_P13N_ID,
-  });
 
   return (
     <EntityDetailPageView
       entityInitial={entity && entityResult.ok ? { entity, customColumns: entityResult.data.customColumns } : null}
       entityType={EntityType.deal}
       id={id}
+      personalizationInitial={personalizationInitial}
       timelineInitial={
         timelineResult.ok
           ? timelineResult.data

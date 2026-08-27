@@ -1,20 +1,18 @@
 "use client";
 
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
-import type { ReactNode } from "react";
 import type { ChipColor } from "@/constants/chip-colors";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useLayoutEffect } from "react";
-import { SubscriptionStatus, SubscriptionPlan } from "@/generated/prisma";
+import { Resource, SubscriptionStatus, SubscriptionPlan } from "@/generated/prisma";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import { FormLabel } from "@/components/forms/form-label";
+import { FormOutputField } from "@/components/forms/form-output-field";
 import { AppChip } from "@/components/chip/app-chip";
 import { Alert } from "@/components/shared/alert";
-import { cn } from "@/core/utils/cn";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 import { PlanPicker } from "./plan-picker";
@@ -32,33 +30,9 @@ const STATUS_COLOR_MAP: Record<SubscriptionStatus, ChipColor> = {
   [SubscriptionStatus.cancelled]: "secondary",
 };
 
-function ReadOnlyField({
-  label,
-  description,
-  children,
-  className,
-}: {
-  label: string;
-  description?: ReactNode;
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={cn("space-y-1.5", className)}>
-      <FormLabel>{label}</FormLabel>
-
-      <div className="flex h-9 w-full items-center rounded-md border border-input bg-muted px-3 py-1.5 text-sm shadow-xs">
-        {children}
-      </div>
-
-      {description && <p className="text-xs text-muted-foreground">{description}</p>}
-    </div>
-  );
-}
-
 export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
   const t = useTranslations();
-  const { subscriptionStore, loadingOverlayStore } = useRootStore();
+  const { subscriptionStore, loadingOverlayStore, userStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
 
   useLayoutEffect(() => subscriptionStore.setSubscription(initialSubscription), [initialSubscription]);
@@ -67,12 +41,37 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
   const isManaged = subscription?.plan === SubscriptionPlan.enterprise;
   const seats = subscription?.quantity ?? subscription?.activeUsers ?? 0;
   const hasActiveSubscription = subscription?.hasActiveSubscription ?? false;
+  const canManageCompany = userStore.canManage(Resource.company);
+  const hasBillingPortal = Boolean(subscription?.customerPortalUrl);
+  const planHelp = !hasActiveSubscription
+    ? canManageCompany
+      ? t("Subscription.fieldHelp.planPicker")
+      : t("Subscription.fieldHelp.planReadOnly")
+    : !canManageCompany
+      ? t("Subscription.fieldHelp.planReadOnly")
+      : hasBillingPortal
+        ? t("Subscription.fieldHelp.planManage", { billing: t("Subscription.manageWithLemonSqueezy") })
+        : t("Subscription.fieldHelp.planUnavailable");
+  const currentPeriodEndHelp = !canManageCompany
+    ? t("Subscription.fieldHelp.currentPeriodEndReadOnly")
+    : hasBillingPortal
+      ? t("Subscription.fieldHelp.currentPeriodEndManage", { billing: t("Subscription.manageWithLemonSqueezy") })
+      : t("Subscription.fieldHelp.currentPeriodEndUnavailable");
+  const trialEndHelp = !hasActiveSubscription
+    ? canManageCompany
+      ? t("Subscription.fieldHelp.trialEndsPicker")
+      : t("Subscription.fieldHelp.trialEndsReadOnly")
+    : !canManageCompany
+      ? t("Subscription.fieldHelp.trialEndsReadOnly")
+      : hasBillingPortal
+        ? t("Subscription.fieldHelp.trialEndsManage", { billing: t("Subscription.manageWithLemonSqueezy") })
+        : t("Subscription.fieldHelp.trialEndsUnavailable");
 
   return (
     <section className="flex w-full flex-col gap-4">
       {isManaged && <Alert color="primary" description={t("Subscription.managedExternallyNote")} />}
 
-      <ReadOnlyField label={t("Subscription.plan")}>
+      <FormOutputField help={isManaged ? undefined : planHelp} label={t("Subscription.plan")}>
         <span className="flex w-full items-center justify-between gap-2">
           <span>{t(`Subscription.planNames.${subscription?.plan ?? SubscriptionPlan.pro}`)}</span>
 
@@ -84,29 +83,33 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
             {t(`Subscription.status.${subscription?.status ?? SubscriptionStatus.trial}`)}
           </AppChip>
         </span>
-      </ReadOnlyField>
+      </FormOutputField>
 
       {!isManaged && (
         <>
           <div className="grid w-full grid-cols-1 gap-3">
             {subscription?.trialEndDate && subscription.status === SubscriptionStatus.trial && (
-              <ReadOnlyField label={t("Subscription.trialEnds")}>
+              <FormOutputField help={trialEndHelp} label={t("Subscription.trialEnds")}>
                 {intlStore.formatDescriptiveLongDate(subscription.trialEndDate)}
-              </ReadOnlyField>
+              </FormOutputField>
             )}
 
             {subscription?.currentPeriodEnd && (
-              <ReadOnlyField label={t("Subscription.currentPeriodEnd")}>
+              <FormOutputField help={currentPeriodEndHelp} label={t("Subscription.currentPeriodEnd")}>
                 {intlStore.formatDescriptiveLongDate(subscription.currentPeriodEnd)}
-              </ReadOnlyField>
+              </FormOutputField>
             )}
 
-            <ReadOnlyField description={t("Subscription.seatBillingNote")} label={t("Subscription.quantity")}>
+            <FormOutputField
+              description={t("Subscription.seatBillingNote")}
+              help={t("Subscription.fieldHelp.quantity", { company: t("UserAvatar.company") })}
+              label={t("Subscription.quantity")}
+            >
               {seats.toString()}
-            </ReadOnlyField>
+            </FormOutputField>
           </div>
 
-          {!hasActiveSubscription && (
+          {!hasActiveSubscription && canManageCompany && (
             <PlanPicker
               isLoading={loadingOverlayStore.isLoading}
               onSelect={(plan) => runUserAction(() => subscriptionStore.handleSubscribe(plan))}

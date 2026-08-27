@@ -26,6 +26,7 @@ type Props = {
   translateFn: (key: string) => string;
   disabledKeys?: Set<string> | Iterable<string>;
   disabled?: boolean;
+  readOnly?: boolean;
   className?: string;
   containerClassName?: string;
 };
@@ -40,6 +41,7 @@ export const FormSelectChip = observer(
     translateFn,
     disabledKeys,
     disabled,
+    readOnly,
     className,
     containerClassName,
   }: Props) => {
@@ -52,8 +54,8 @@ export const FormSelectChip = observer(
     const itemsArray = items ? Array.from(items) : [];
     const disabledSet = disabledKeys ? new Set(disabledKeys) : undefined;
     const selected = itemsArray.find((i) => i.key === value);
-    const isReadOnly = !disabled && (store?.isReadOnly ?? false);
-    const isDisabled = disabled || (store?.isLoading ?? false);
+    const isDisabled = Boolean(disabled) || Boolean(store?.isLoading);
+    const isReadOnly = !isDisabled && (Boolean(readOnly) || Boolean(store?.isReadOnly));
 
     return (
       <div className={cn("space-y-1.5", containerClassName)}>
@@ -74,11 +76,7 @@ export const FormSelectChip = observer(
           <SelectTrigger
             aria-invalid={hasError}
             aria-readonly={isReadOnly || undefined}
-            className={cn(
-              "w-full",
-              isReadOnly && "cursor-default hover:bg-input-background hover:text-foreground [&>svg:last-child]:hidden",
-              className,
-            )}
+            className={cn("w-full", className, isReadOnly && "[&>svg:last-child]:hidden")}
             id={id}
           >
             <SelectValue placeholder={placeholder ?? " "}>

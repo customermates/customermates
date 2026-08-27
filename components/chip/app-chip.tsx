@@ -28,6 +28,7 @@ type Props = Omit<ComponentProps<typeof Badge>, "children"> & {
   startContent?: ReactNode;
   endContent?: ReactNode;
   tooltip?: ReactNode;
+  focusableTooltip?: boolean;
 } & VariantProps<typeof chipVariants>;
 
 export function AppChip({
@@ -38,14 +39,22 @@ export function AppChip({
   startContent,
   endContent,
   tooltip,
+  focusableTooltip = false,
+  interactive,
+  tabIndex,
   ...props
 }: Props) {
   const labelRef = useRef<HTMLSpanElement | null>(null);
   const isTruncated = useIsTruncated(labelRef, children);
+  const showTooltip = tooltip != null || (isTruncated && typeof children === "string");
+  const keyboardTooltipTabIndex = focusableTooltip && !interactive && isTruncated && showTooltip ? 0 : undefined;
 
   const chip = (
     <Badge
       className={cn("rounded-md shrink min-w-0 w-auto max-w-full", chipVariants({ size }), className)}
+      interactive={interactive}
+      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- a truncated, noninteractive chip needs a keyboard focus target for its tooltip
+      tabIndex={tabIndex ?? keyboardTooltipTabIndex}
       variant={variant}
       {...props}
     >
@@ -58,8 +67,6 @@ export function AppChip({
       {endContent}
     </Badge>
   );
-
-  const showTooltip = tooltip != null || (isTruncated && typeof children === "string");
 
   return (
     <TooltipProvider>

@@ -95,6 +95,16 @@ describe("AgentChatStore", () => {
     });
   });
 
+  it("uses one toggle action for opening and closing the assistant", () => {
+    const store = new AgentChatStore(root() as never);
+
+    store.toggle();
+    expect(store.isOpen).toBe(true);
+
+    store.toggle();
+    expect(store.isOpen).toBe(false);
+  });
+
   it("retries transient and validation failures but latches off for an explicit denial code", async () => {
     actionsMock.getAgentConfigAction
       .mockRejectedValueOnce(new Error("temporary"))

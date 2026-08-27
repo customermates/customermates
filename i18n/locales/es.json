@@ -313,7 +313,6 @@
       "usage": "{pct} % de los créditos mensuales de IA alojada consumidos",
       "viewPlans": "Ver planes"
     },
-    "demoUnavailable": "El asistente no está disponible en la demostración.",
     "errors": {
       "approvalFailed": "No se pudo enviar la aprobación.",
       "limitReached": "No quedan suficientes créditos de IA para iniciar otra solicitud.",
@@ -645,10 +644,12 @@
       "back": "Volver al chat",
       "cancel": "Cancelar",
       "chats": "Chats",
+      "copyTable": "Copiar tabla",
       "deleteChat": "Eliminar chat",
       "deleteChatBody": "Esto elimina de forma permanente los mensajes, las aprobaciones y las acciones del asistente de este chat. Se conservan los datos de uso de IA y de facturación, así como los registros del CRM creados a través del chat. Los correos de soporte ya enviados no se retiran.",
       "deleteChatTitle": "¿Eliminar este chat definitivamente?",
       "deletePermanently": "Eliminar definitivamente",
+      "downloadTable": "Descargar tabla",
       "editQueued": "Editar el mensaje en cola",
       "history": "Historial de chats",
       "jumpToLatest": "Ir a lo más reciente",
@@ -667,6 +668,7 @@
       "restore": "Restaurar",
       "retryTurn": "Reintentar",
       "stepsTook": "{steps, plural, one {# paso} other {# pasos}} · {seconds}s",
+      "tableCopied": "Tabla copiada",
       "thinking": "Pensando",
       "turnFailed": "No se ha podido completar esta respuesta.",
       "undo": "Deshacer",
@@ -808,6 +810,7 @@
     "ariaLabels": {
       "breadcrumb": "Ruta de navegación",
       "collapseSearch": "Contraer la búsqueda",
+      "explainField": "Acerca de {field}",
       "hidePassword": "Ocultar contraseña",
       "selectOption": "Selecciona una opción",
       "showPassword": "Mostrar contraseña",
@@ -841,6 +844,10 @@
       "phone": "Teléfono",
       "plain": "Texto",
       "singleSelect": "Selección única"
+    },
+    "customFieldHelp": {
+      "immutableType": "El tipo de campo queda fijo después de crearlo. Crea un nuevo campo personalizado para usar otro tipo.",
+      "probabilityPermission": "Las probabilidades de etapa se gestionan en «{company}». Solicita a un administrador permiso para actualizarlas."
     },
     "datePresets": {
       "endTime": "Hora de fin",
@@ -1366,11 +1373,14 @@
       "columnLabel": "Campo de etapa de {deal}",
       "columnPlaceholder": "Selecciona un campo",
       "currentTotal": "Cartera ponderada",
+      "currentTotalHelp": "Suma del valor × la probabilidad de etapa de cada registro con etapa. Los cambios proceden de «{services}», cantidades o etapas en «{deals}»; las probabilidades se gestionan arriba.",
       "description": "Pondera cada etapa de {deal} por su probabilidad de cierre para ver un valor de cartera descontado.",
       "noColumn": "Sin configurar",
       "totalPipeline": "Pipeline total",
+      "totalPipelineHelp": "Suma de todos los valores en «{deals}». Los cambios proceden de «{services}» o cantidades en esos registros.",
       "weightsTitle": "Probabilidades por etapa",
-      "withoutStage": "Sin ponderar · sin {column}"
+      "withoutStage": "Sin ponderar · sin {column}",
+      "withoutStageHelp": "Valor de los registros en «{deals}» sin selección en «{column}». Al seleccionar una etapa, pasan a la cartera ponderada."
     }
   },
   "CompanyUserModal": {
@@ -1756,6 +1766,33 @@
     "tooltipUnlinkChannel": "Desvincular el canal",
     "tooltipUnverified": "Este perfil aún no se ha confirmado. Se comprueba automáticamente cuando envías tu primer mensaje.",
     "unverified": "Sin verificar"
+  },
+  "EntityDetail": {
+    "collapseSection": "Contraer {section}",
+    "computedFieldHelp": {
+      "dealValue": "Suma del precio unitario × la cantidad de cada registro vinculado en «{services}». Edita allí los registros vinculados o las cantidades para actualizarlo.",
+      "serviceLineValue": "Precio de «{service}» × cantidad. Cambia aquí el registro o la cantidad; edita el registro vinculado para cambiar su precio.",
+      "serviceQuantity": "Suma de las cantidades de todos los registros vinculados en «{services}». Edita allí las cantidades para actualizar el valor.",
+      "weightedValue": "{dealValue} × {percent} % de probabilidad de cierre de la etapa actual ({stage}). Edita «{services}», las cantidades o la etapa; gestiona las probabilidades en «{company}».",
+      "weightedValueUnconfigured": "{dealValue} × probabilidad de cierre de la etapa seleccionada. Configura las probabilidades en «{company}» y selecciona una etapa; edita «{services}» o las cantidades."
+    },
+    "donePersonalizing": "Listo",
+    "expandSection": "Expandir {section}",
+    "fields": {
+      "createdAt": "Creado el",
+      "updatedAt": "Actualizado el"
+    },
+    "moveFieldDown": "Mover {field} hacia abajo",
+    "moveFieldUp": "Mover {field} hacia arriba",
+    "personalize": "Personalizar",
+    "pinField": "Fijar {field} en el resumen",
+    "sections": {
+      "base": "Datos básicos",
+      "customFields": "Campos personalizados",
+      "notes": "Notas",
+      "relations": "Relaciones"
+    },
+    "unpinField": "Desfijar {field} del resumen"
   },
   "EntityTerminology": {
     "presets": {
@@ -2456,6 +2493,20 @@
   },
   "Subscription": {
     "currentPeriodEnd": "El periodo actual termina el",
+    "fieldHelp": {
+      "currentPeriodEndManage": "Lo determina el ciclo de facturación actual. Usa «{billing}» para cambiar la suscripción.",
+      "currentPeriodEndReadOnly": "Lo determina el ciclo de facturación actual. Pide los cambios a un administrador del espacio de trabajo.",
+      "currentPeriodEndUnavailable": "Lo determina el ciclo de facturación actual. Contacta con soporte para hacer cambios.",
+      "planManage": "Se sincroniza con la facturación. Usa «{billing}» para hacer cambios.",
+      "planPicker": "Elige un plan abajo para iniciar o cambiar la suscripción.",
+      "planReadOnly": "Se sincroniza con la facturación. Pide los cambios a un administrador del espacio de trabajo.",
+      "planUnavailable": "Se sincroniza con la facturación. Contacta con soporte para hacer cambios.",
+      "quantity": "Se sincroniza con el número de miembros activos del espacio de trabajo. Los administradores pueden activar o desactivar miembros en «{company}».",
+      "trialEndsManage": "Lo determina el periodo de prueba. Usa «{billing}» para gestionar la suscripción.",
+      "trialEndsPicker": "Lo determina el periodo de prueba. Elige un plan antes de esta fecha para continuar sin interrupciones.",
+      "trialEndsReadOnly": "Lo determina el periodo de prueba. Pide a un administrador del espacio de trabajo que gestione la suscripción.",
+      "trialEndsUnavailable": "Lo determina el periodo de prueba. Contacta con soporte para gestionar la suscripción."
+    },
     "managedExternallyNote": "El plan Enterprise de este espacio de trabajo se abona mediante factura. Contacta con tu gestor de cuenta para hacer cambios.",
     "manageWithLemonSqueezy": "Gestionar con Lemon Squeezy",
     "picker": {

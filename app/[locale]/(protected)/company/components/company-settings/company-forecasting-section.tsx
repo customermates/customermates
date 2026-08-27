@@ -3,29 +3,33 @@
 import type { ReactNode } from "react";
 
 import { observer } from "mobx-react-lite";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { EntityType } from "@/generated/prisma";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { FormNumberInput } from "@/components/forms/form-number-input";
+import { FormOutputField } from "@/components/forms/form-output-field";
 import { FormSelect } from "@/components/forms/form-select";
-import { InfoRow } from "@/components/shared/info-row";
 import { PageState } from "@/components/page-state/page-state";
 import { SettingsFieldSkeleton, SettingsFormSkeleton } from "@/components/forms/settings-form-skeleton";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { terminologyLabelForSentence } from "@/features/entity-terminology/entity-terminology-label.utils";
 
 import { resolveForecastingState } from "./company-forecasting-state";
 
 const NO_COLUMN_VALUE = "__none__";
 
 export const CompanyForecastingSection = observer(() => {
+  const locale = useLocale();
   const t = useTranslations();
   const { companySettingsStore: store } = useRootStore();
   const intlStore = useHydratedIntlStore();
-  const { singular } = useEntityTerminology();
+  const { plural, singular } = useEntityTerminology();
+  const deals = terminologyLabelForSentence(plural(EntityType.deal), locale);
+  const services = terminologyLabelForSentence(plural(EntityType.service), locale);
 
   const state = resolveForecastingState({
     status: store.forecastingRequest,
@@ -126,27 +130,37 @@ export const CompanyForecastingSection = observer(() => {
       {body}
 
       {state === "content" && (
-        <div className="flex flex-col gap-1.5">
-          <InfoRow label={t("CompanySettings.forecasting.totalPipeline")}>
+        <div className="flex flex-col gap-3">
+          <FormOutputField
+            help={t("CompanySettings.forecasting.totalPipelineHelp", { deals, services })}
+            label={t("CompanySettings.forecasting.totalPipeline")}
+          >
             <span className="text-x-md font-mono tabular-nums">
               {intlStore.formatCurrency(store.pipelineTotal, store.form.currency)}
             </span>
-          </InfoRow>
+          </FormOutputField>
 
-          <InfoRow label={t("CompanySettings.forecasting.currentTotal")}>
+          <FormOutputField
+            help={t("CompanySettings.forecasting.currentTotalHelp", { deals, services })}
+            label={t("CompanySettings.forecasting.currentTotal")}
+          >
             <span className="text-x-md font-mono tabular-nums">
               {intlStore.formatCurrency(store.weightedPipelineTotal, store.form.currency)}
             </span>
-          </InfoRow>
+          </FormOutputField>
 
           {store.unweightedPipelineTotal > 0 && (
-            <InfoRow
+            <FormOutputField
+              help={t("CompanySettings.forecasting.withoutStageHelp", {
+                column: store.selectedStageColumn?.label ?? "",
+                deals,
+              })}
               label={t("CompanySettings.forecasting.withoutStage", { column: store.selectedStageColumn?.label ?? "" })}
             >
               <span className="text-x-md text-subdued font-mono tabular-nums">
                 {intlStore.formatCurrency(store.unweightedPipelineTotal, store.form.currency)}
               </span>
-            </InfoRow>
+            </FormOutputField>
           )}
         </div>
       )}

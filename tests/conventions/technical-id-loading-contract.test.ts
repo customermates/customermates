@@ -36,8 +36,8 @@ describe("technical-id loading contract", () => {
     expect(drawer).toContain("resolveEntityDrawerPageState");
     expect(drawer).toContain("background={<EntityDetailDrawerSkeleton");
     expect(drawer).toContain('t("ErrorCard.retry")');
-    expect(drawer).toContain("loadGate.isCurrent(attempt, activeKey)");
-    expect(drawer).toContain("[activeKey, topEntityType, topId, rootStore, loadGate]");
+    expect(drawer).toContain("loadGate.isCurrent(attempt, requestKey)");
+    expect(drawer).toContain("[activeKey, loadGate, p13nId, requestKey, rootStore, topEntityType, topId]");
     expect(drawer).not.toContain("}, [top, rootStore, loadGate]);");
     expect(detail).toContain("drawerWasOpen && !drawerIsOpen");
   });
@@ -53,7 +53,8 @@ describe("technical-id loading contract", () => {
       expect(source).toContain("SelectionOptionsSkeleton");
       expect(source).toContain("Common.inputs.unavailableSelection");
     }
-    expect(autocomplete).toContain("open && getItems");
+    expect(autocomplete).toContain("const popoverOpen = canEdit && open");
+    expect(autocomplete).toContain("popoverOpen && getItems");
     expect(filterSelect).toContain("!getItems || optionRequestKey === null");
     expect(filterSelect).not.toMatch(/textValue\s*\?\?\s*k/);
     expect(filterChip).toContain("requiresResolvedLabel");

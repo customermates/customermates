@@ -6,6 +6,8 @@ import { EntityDetailPageView } from "@/components/entity-detail/entity-detail-p
 import { getGetActivitiesInteractor, getGetTaskByIdInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
 import { ACTIVITIES_P13N_ID } from "@/features/messaging/activities/activities.store";
+import { getOptionalP13n } from "@/features/p13n/next/get-optional-p13n";
+import { TASK_DETAIL_P13N_ID } from "../components/task-detail-personalization";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -16,20 +18,23 @@ export default async function TaskDetailPage({ params }: Props) {
 
   const { id } = await params;
 
-  const entityResult = await getGetTaskByIdInteractor().invoke({ id });
+  const [entityResult, timelineResult, personalizationInitial] = await Promise.all([
+    getGetTaskByIdInteractor().invoke({ id }),
+    getGetActivitiesInteractor().invoke({
+      scope: activityScopeForRecord(EntityType.task, id),
+      pagination: { page: 1, pageSize: 25 },
+      p13nId: ACTIVITIES_P13N_ID,
+    }),
+    getOptionalP13n(TASK_DETAIL_P13N_ID),
+  ]);
   const entity = entityResult.ok ? entityResult.data.task : null;
-
-  const timelineResult = await getGetActivitiesInteractor().invoke({
-    scope: activityScopeForRecord(EntityType.task, id),
-    pagination: { page: 1, pageSize: 25 },
-    p13nId: ACTIVITIES_P13N_ID,
-  });
 
   return (
     <EntityDetailPageView
       entityInitial={entity && entityResult.ok ? { entity, customColumns: entityResult.data.customColumns } : null}
       entityType={EntityType.task}
       id={id}
+      personalizationInitial={personalizationInitial}
       timelineInitial={
         timelineResult.ok
           ? timelineResult.data

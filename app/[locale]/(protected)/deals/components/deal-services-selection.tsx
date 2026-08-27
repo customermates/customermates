@@ -1,5 +1,7 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 import { Fragment } from "react";
 import { observer } from "mobx-react-lite";
 import { Plus, Trash2 } from "lucide-react";
@@ -12,18 +14,30 @@ import { FormNumberInput } from "@/components/forms/form-number-input";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { FormLabel } from "@/components/forms/form-label";
+import { FormFieldHelp } from "@/components/forms/form-field-help";
 import { Icon } from "@/components/shared/icon";
 import { InfoRow } from "@/components/shared/info-row";
 import { TruncatedText } from "@/components/shared/truncated-text";
 import { useEntityHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
+import {
+  EntityRelationActions,
+  type EntityDetailFieldPersonalization,
+} from "@/components/entity-detail/entity-relation-actions";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { AppChip } from "@/components/chip/app-chip";
 import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { terminologyLabelForSentence } from "@/features/entity-terminology/entity-terminology-label.utils";
+import { useDealComputedFieldHelp } from "./use-deal-computed-field-help";
 
-export const DealServicesSelection = observer(() => {
+type Props = {
+  labelEndAddon?: ReactNode;
+  personalization?: EntityDetailFieldPersonalization;
+  showTotals?: boolean;
+};
+
+export const DealServicesSelection = observer(({ labelEndAddon, personalization, showTotals = true }: Props) => {
   const { dealDetailStore, userStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
   const {
@@ -42,6 +56,7 @@ export const DealServicesSelection = observer(() => {
   const t = useTranslations();
   const { plural } = useEntityTerminology();
   const columnLabel = useColumnLabel();
+  const computedFieldHelp = useDealComputedFieldHelp(weightedValueBreakdown);
 
   if (!userStore.canAccess(Resource.services)) return null;
 
@@ -49,14 +64,31 @@ export const DealServicesSelection = observer(() => {
     <div className="flex w-full flex-col space-y-2 items-start">
       <div className="w-full grid grid-cols-[minmax(40px,1fr)_minmax(70px,112px)_40px] gap-2 gap-y-3 items-center">
         <div className="flex items-center w-full min-w-0 gap-2">
-          <FormLabel className="block flex-1 truncate min-w-0">{plural(EntityType.service)}</FormLabel>
+          <div className="flex min-w-0 flex-1 items-center gap-1.5">
+            <FormLabel className="block truncate min-w-0">{plural(EntityType.service)}</FormLabel>
+
+            <EntityRelationActions
+              currentEntityId={fetchedEntity?.id}
+              currentEntityType="deal"
+              personalization={personalization}
+              targetEntityType="service"
+            >
+              {labelEndAddon}
+            </EntityRelationActions>
+          </div>
 
           <FormLabel className="block w-[4.5rem] shrink-0 text-right truncate">
             {t("DealModal.quantityLabel")}
           </FormLabel>
         </div>
 
-        <FormLabel className="block text-right truncate min-w-0">{t("DealModal.valueLabel")}</FormLabel>
+        <span className="flex min-w-0 items-center justify-end gap-1.5">
+          <FormLabel className="block truncate">{t("DealModal.valueLabel")}</FormLabel>
+
+          <FormFieldHelp label={t("Common.ariaLabels.explainField", { field: t("DealModal.valueLabel") })}>
+            {computedFieldHelp.serviceLineValue}
+          </FormFieldHelp>
+        </span>
 
         <span />
 
@@ -181,15 +213,27 @@ export const DealServicesSelection = observer(() => {
         )}
       </div>
 
-      {(form.services || []).length > 0 && (
+      {showTotals && (form.services || []).length > 0 && (
         <div className="mt-3 flex w-full flex-col gap-1.5 pr-12">
-          <InfoRow label={columnLabel("totalValue")}>
+          <InfoRow
+            label={columnLabel("totalValue")}
+            labelEndAddon={
+              <FormFieldHelp label={t("Common.ariaLabels.explainField", { field: columnLabel("totalValue") })}>
+                {computedFieldHelp.dealValue}
+              </FormFieldHelp>
+            }
+          >
             <span className="text-x-md font-mono tabular-nums">{intlStore.formatCurrency(totalValue)}</span>
           </InfoRow>
 
           {weightedValueBreakdown && (
             <InfoRow
               label={`${columnLabel("weightedValue")} · ${weightedValueBreakdown.stage} ${weightedValueBreakdown.percent}%`}
+              labelEndAddon={
+                <FormFieldHelp label={t("Common.ariaLabels.explainField", { field: columnLabel("weightedValue") })}>
+                  {computedFieldHelp.weightedValue}
+                </FormFieldHelp>
+              }
             >
               <span className="text-x-md font-mono tabular-nums">
                 {intlStore.formatCurrency(weightedValueBreakdown.weightedValue)}
@@ -197,7 +241,14 @@ export const DealServicesSelection = observer(() => {
             </InfoRow>
           )}
 
-          <InfoRow label={columnLabel("totalQuantity")}>
+          <InfoRow
+            label={columnLabel("totalQuantity")}
+            labelEndAddon={
+              <FormFieldHelp label={t("Common.ariaLabels.explainField", { field: columnLabel("totalQuantity") })}>
+                {computedFieldHelp.serviceQuantity}
+              </FormFieldHelp>
+            }
+          >
             <span className="text-x-md font-mono tabular-nums">{intlStore.formatNumber(totalQuantity)}</span>
           </InfoRow>
         </div>

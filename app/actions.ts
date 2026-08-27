@@ -3,6 +3,7 @@
 import type { CustomFieldValueDto } from "@/core/base/base-entity.schema";
 import type { UpsertCustomColumnData } from "@/features/custom-column/upsert-custom-column.interactor";
 import type { GetCustomColumnsByEntityTypeData } from "@/features/custom-column/get-custom-columns-by-entity-type.interactor";
+import type { GetP13nData } from "@/features/p13n/get-p13n.interactor";
 import type { UpsertP13nData } from "@/features/p13n/upsert-p13n.interactor";
 import type { UpsertFilterPresetData } from "@/features/p13n/upsert-filter-preset.interactor";
 import type { DeleteFilterPresetData } from "@/features/p13n/delete-filter-preset.interactor";
@@ -28,6 +29,7 @@ import {
   getUpdateTaskInteractor,
   getUpdateManyTasksInteractor,
   getDeleteManyTasksInteractor,
+  getGetP13nInteractor,
   getUpsertP13nInteractor,
   getUpsertFilterPresetInteractor,
   getDeleteFilterPresetInteractor,
@@ -54,6 +56,10 @@ export async function getCustomColumnsByEntityTypeAction(data: GetCustomColumnsB
 
 export async function upsertP13nAction(data: UpsertP13nData) {
   return serializeResult(getUpsertP13nInteractor().invoke(data));
+}
+
+export async function getP13nAction(data: GetP13nData) {
+  return serializeResult(getGetP13nInteractor().invoke(data));
 }
 
 export async function upsertFilterPresetAction(data: UpsertFilterPresetData) {

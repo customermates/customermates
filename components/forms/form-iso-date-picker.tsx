@@ -53,6 +53,8 @@ export const FormIsoDatePicker = observer(
     const isoValue = typeof raw === "string" ? raw : undefined;
     const parsed = parseIsoDate(isoValue);
     const { hasError } = useFormFieldErrors(id);
+    const isLoading = store?.isLoading ?? false;
+    const isReadOnly = !isLoading && (store?.isReadOnly ?? false);
 
     const resolvedLabel = label ?? undefined;
 
@@ -65,6 +67,8 @@ export const FormIsoDatePicker = observer(
     }, [parsed?.getTime()]);
 
     function commit(date: Date | undefined) {
+      if (isReadOnly || isLoading) return;
+
       if (!date) {
         store?.onChange(id, undefined);
         return;
@@ -114,16 +118,18 @@ export const FormIsoDatePicker = observer(
           </FormLabel>
         )}
 
-        <Popover>
+        <Popover open={isReadOnly || isLoading ? false : undefined}>
           <PopoverTrigger asChild>
             <Button
+              aria-disabled={isReadOnly || undefined}
               aria-invalid={hasError}
               className={cn(
                 "w-full justify-start text-left font-normal",
                 !parsed && "text-muted-foreground",
                 className,
               )}
-              disabled={store?.isDisabled}
+              data-field-state={isReadOnly ? "read-only" : undefined}
+              disabled={isLoading}
               id={id}
               type="button"
               variant="field"
@@ -132,7 +138,7 @@ export const FormIsoDatePicker = observer(
 
               <span className="truncate flex-1">{parsed ? formatter(parsed) : resolvedPlaceholder}</span>
 
-              {parsed && !store?.isDisabled ? <InputClearButton onClear={() => commit(undefined)} /> : null}
+              {parsed && !isReadOnly && !isLoading ? <InputClearButton onClear={() => commit(undefined)} /> : null}
             </Button>
           </PopoverTrigger>
 
@@ -142,12 +148,12 @@ export const FormIsoDatePicker = observer(
           >
             <Calendar
               autoFocus
-              disabled={store?.isDisabled}
+              disabled={isLoading}
               mode="single"
               month={currentMonth}
               selected={parsed}
               onMonthChange={setCurrentMonth}
-              onSelect={handleSelect}
+              onSelect={isReadOnly ? undefined : handleSelect}
             />
 
             {!dateOnly && (
@@ -160,7 +166,7 @@ export const FormIsoDatePicker = observer(
                   </FormLabel>
 
                   <TimeInput
-                    disabled={store?.isDisabled}
+                    disabled={isLoading}
                     id={`${id}-time`}
                     use12Hour={intlStore.use12Hour}
                     value={timeValue}
@@ -176,11 +182,11 @@ export const FormIsoDatePicker = observer(
               {DATE_PRESETS.map((preset) => (
                 <Button
                   key={preset.key}
-                  disabled={store?.isDisabled}
+                  disabled={isLoading}
                   size="sm"
                   type="button"
                   variant="secondary"
-                  onClick={() => handlePreset(preset.compute)}
+                  onClick={isReadOnly ? undefined : () => handlePreset(preset.compute)}
                 >
                   {t(`Common.datePresets.${preset.key}`)}
                 </Button>

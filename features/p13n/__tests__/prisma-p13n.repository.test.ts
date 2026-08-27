@@ -9,8 +9,9 @@ import {
 } from "@/tests/helpers/interactor-test-setup";
 
 const mockUser = createMockUser();
-const { p13nFindUnique } = vi.hoisted(() => ({
+const { p13nFindUnique, p13nUpsert } = vi.hoisted(() => ({
   p13nFindUnique: vi.fn(),
+  p13nUpsert: vi.fn(),
 }));
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
@@ -22,6 +23,7 @@ vi.mock("@/prisma/db", () => ({
     ...MOCK_PRISMA_DB_MODULE.prisma,
     p13n: {
       findUnique: p13nFindUnique,
+      upsert: p13nUpsert,
     },
   },
 }));
@@ -110,5 +112,84 @@ describe("PrismaP13nRepo legacy filter normalization", () => {
 
     expect(result?.savedFilterPresets).toHaveLength(2);
     expect(result?.savedFilterPresets?.[1].id).toBe("p1");
+  });
+
+  it("reads valid entity detail options and ignores malformed options", async () => {
+    const baseRow = {
+      companyId: mockUser.companyId,
+      userId: mockUser.id,
+      p13nId: "contact-detail",
+      filters: null,
+      savedFilterPresets: null,
+      searchTerm: null,
+      sortDescriptor: null,
+      pagination: null,
+      columnOrder: [],
+      columnWidths: null,
+      hiddenColumns: [],
+      viewMode: null,
+      groupingColumnId: null,
+    };
+    p13nFindUnique.mockResolvedValueOnce({
+      ...baseRow,
+      detailOptions: {
+        starredFieldIds: ["identifiers", "custom-column"],
+        collapsedSectionIds: ["notes"],
+      },
+    });
+
+    const valid = await runWithTenant(mockUser, () => new PrismaP13nRepo().getP13n("contact-detail"));
+
+    expect(valid?.detailOptions).toEqual({
+      starredFieldIds: ["identifiers", "custom-column"],
+      collapsedSectionIds: ["notes"],
+    });
+
+    p13nFindUnique.mockResolvedValueOnce({ ...baseRow, detailOptions: { starredFieldIds: "identifiers" } });
+
+    const malformed = await runWithTenant(mockUser, () => new PrismaP13nRepo().getP13n("contact-detail"));
+
+    expect(malformed?.detailOptions).toBeUndefined();
+  });
+
+  it("persists entity detail options without replacing unrelated values on partial updates", async () => {
+    const detailOptions = {
+      starredFieldIds: ["identifiers"],
+      collapsedSectionIds: ["notes"],
+    };
+    p13nUpsert.mockResolvedValue({
+      filters: null,
+      savedFilterPresets: null,
+      searchTerm: "existing",
+      sortDescriptor: null,
+      pagination: null,
+      columnOrder: ["custom-column"],
+      columnWidths: null,
+      hiddenColumns: [],
+      viewMode: null,
+      groupingColumnId: null,
+      detailOptions,
+    });
+
+    const result = await runWithTenant(mockUser, () =>
+      new PrismaP13nRepo().upsertP13n({
+        p13nId: "contact-detail",
+        columnOrder: ["custom-column"],
+        detailOptions,
+      }),
+    );
+
+    expect(p13nUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        update: {
+          companyId: mockUser.companyId,
+          userId: mockUser.id,
+          p13nId: "contact-detail",
+          columnOrder: ["custom-column"],
+          detailOptions,
+        },
+      }),
+    );
+    expect(result.detailOptions).toEqual(detailOptions);
   });
 });

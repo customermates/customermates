@@ -71,7 +71,9 @@ export const AgentChatItemView = observer(function AgentChatItemView({
       <article aria-label={t("AgentChat.title")} className="group/message flex flex-col gap-1.5">
         <div className="flex min-w-0 flex-col items-start gap-1.5">
           <div className="w-full text-sm leading-relaxed [&_pre]:overflow-x-auto">
-            <MessageResponse>{item.text}</MessageResponse>
+            <MessageResponse mode={item.streaming ? "streaming" : "static"} showTableActions={!item.streaming}>
+              {item.text}
+            </MessageResponse>
           </div>
 
           {!item.streaming && item.text.trim() && (

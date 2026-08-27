@@ -14,7 +14,7 @@ import {
   PaginationRequestSchema,
 } from "@/core/base/base-get.schema";
 import { ViewMode } from "@/core/base/base-query-builder";
-import { P13nEntrySchema } from "./p13n.schema";
+import { EntityDetailOptionsSchema, P13nEntrySchema } from "./p13n.schema";
 
 const Schema = z.object({
   p13nId: z.string().min(1),
@@ -28,6 +28,7 @@ const Schema = z.object({
   hiddenColumns: z.array(z.string()).optional(),
   viewMode: z.enum(ViewMode).nullish(),
   groupingColumnId: z.uuid().nullish(),
+  detailOptions: EntityDetailOptionsSchema.nullish(),
 });
 export type UpsertP13nData = Data<typeof Schema>;
 

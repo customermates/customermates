@@ -4,15 +4,22 @@ import type { ReactNode } from "react";
 
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { cn } from "@/core/utils/cn";
 
 type Props = {
   children?: ReactNode;
   actions?: ReactNode;
+  joinedContentBelow?: boolean;
 };
 
-export function ShellHeader({ children, actions }: Props) {
+export function ShellHeader({ children, actions, joinedContentBelow = false }: Props) {
   return (
-    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-2 border-b border-border bg-background md:rounded-t-xl">
+    <header
+      className={cn(
+        "sticky top-0 z-30 flex h-16 shrink-0 items-center gap-2 border-border bg-background md:rounded-t-xl",
+        !joinedContentBelow && "border-b",
+      )}
+    >
       <div className="flex flex-1 min-w-0 items-center gap-2 px-4 ps-[calc(1rem+var(--safe-left,0px))]">
         <SidebarTrigger className="-ml-1" id="sidebar-trigger" />
 

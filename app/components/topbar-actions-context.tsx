@@ -1,10 +1,12 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useLayoutEffect, useState, type ReactNode } from "react";
 
 type TopBarActionsContextValue = {
   actions: ReactNode;
   setActions: (node: ReactNode) => void;
+  joinedContentBelow: boolean;
+  setJoinedContentBelow: (joined: boolean) => void;
   override: ReactNode;
   setOverride: (node: ReactNode) => void;
 };
@@ -13,10 +15,13 @@ const TopBarActionsContext = createContext<TopBarActionsContextValue | null>(nul
 
 export function TopBarActionsProvider({ children }: { children: ReactNode }) {
   const [actions, setActions] = useState<ReactNode>(null);
+  const [joinedContentBelow, setJoinedContentBelow] = useState(false);
   const [override, setOverride] = useState<ReactNode>(null);
 
   return (
-    <TopBarActionsContext.Provider value={{ actions, setActions, override, setOverride }}>
+    <TopBarActionsContext.Provider
+      value={{ actions, joinedContentBelow, override, setActions, setJoinedContentBelow, setOverride }}
+    >
       {children}
     </TopBarActionsContext.Provider>
   );
@@ -36,6 +41,16 @@ export function useSetTopBarActions(node: ReactNode): void {
     setActions(node);
     return () => setActions(null);
   }, [node, setActions]);
+}
+
+export function useSetTopBarJoinedContent(joined: boolean): void {
+  const setJoinedContentBelow = useContext(TopBarActionsContext)?.setJoinedContentBelow;
+
+  useLayoutEffect(() => {
+    if (!setJoinedContentBelow) return;
+    setJoinedContentBelow(joined);
+    return () => setJoinedContentBelow(false);
+  }, [joined, setJoinedContentBelow]);
 }
 
 export function useSetTopBarActionsOverride(node: ReactNode): void {

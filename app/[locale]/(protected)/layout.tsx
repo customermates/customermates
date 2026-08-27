@@ -52,8 +52,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
         if (agentChat.enabled !== true) return;
 
         event.preventDefault();
-        if (agentChat.isOpen) agentChat.close();
-        else agentChat.open();
+        agentChat.toggle();
       }
     }
 

@@ -28,8 +28,8 @@ export const FormTextarea = observer(
     const resolvedLabel = useResolvedFieldLabel(id, label);
     const value = (store?.getValue(id) as string | undefined) ?? "";
     const { hasError } = useFormFieldErrors(id);
-    const isDisabled = disabled ?? store?.isLoading;
-    const isReadOnly = readOnly ?? store?.isReadOnly;
+    const isDisabled = Boolean(disabled || store?.isLoading);
+    const isReadOnly = !isDisabled && Boolean(readOnly || store?.isReadOnly);
     const domId = inputId ?? id;
 
     return (

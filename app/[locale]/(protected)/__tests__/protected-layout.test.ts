@@ -10,9 +10,7 @@ const state = vi.hoisted(() => ({
   getGlobalSearchStore: vi.fn(),
   getAgentChatStore: vi.fn(),
   openGlobalSearch: vi.fn(),
-  openAgentChat: vi.fn(),
-  closeAgentChat: vi.fn(),
-  agentChatOpen: false,
+  toggleAgentChat: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({ usePathname: () => "/legal-update" }));
@@ -28,9 +26,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
       state.getAgentChatStore();
       return {
         enabled: state.agentConfigEnabled,
-        isOpen: state.agentChatOpen,
-        open: state.openAgentChat,
-        close: state.closeAgentChat,
+        toggle: state.toggleAgentChat,
       };
     },
   }),
@@ -111,9 +107,7 @@ beforeEach(() => {
   state.getGlobalSearchStore.mockClear();
   state.getAgentChatStore.mockClear();
   state.openGlobalSearch.mockClear();
-  state.openAgentChat.mockClear();
-  state.closeAgentChat.mockClear();
-  state.agentChatOpen = false;
+  state.toggleAgentChat.mockClear();
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
@@ -151,7 +145,7 @@ describe("ProtectedLayout account-state boundary", () => {
     expect(state.getGlobalSearchStore).not.toHaveBeenCalled();
     expect(state.getAgentChatStore).not.toHaveBeenCalled();
     expect(state.openGlobalSearch).not.toHaveBeenCalled();
-    expect(state.openAgentChat).not.toHaveBeenCalled();
+    expect(state.toggleAgentChat).not.toHaveBeenCalled();
   });
 
   it("mounts tenant enhancements but not the assistant when its process gate is off", () => {
@@ -167,7 +161,7 @@ describe("ProtectedLayout account-state boundary", () => {
     expect(state.getGlobalSearchStore).toHaveBeenCalledOnce();
     expect(state.getAgentChatStore).not.toHaveBeenCalled();
     expect(state.openGlobalSearch).toHaveBeenCalledOnce();
-    expect(state.openAgentChat).not.toHaveBeenCalled();
+    expect(state.toggleAgentChat).not.toHaveBeenCalled();
   });
 
   it("mounts the assistant but ignores Cmd+J while its config is unresolved", () => {
@@ -178,10 +172,10 @@ describe("ProtectedLayout account-state boundary", () => {
 
     expect(container.textContent).toContain("agent-chat");
     expect(state.getAgentChatStore).toHaveBeenCalledOnce();
-    expect(state.openAgentChat).not.toHaveBeenCalled();
+    expect(state.toggleAgentChat).not.toHaveBeenCalled();
   });
 
-  it("opens the available assistant with Cmd+J", () => {
+  it("toggles the available assistant with Cmd+J", () => {
     state.protectedEnhancementsAllowed = true;
     state.agentChatEnabled = true;
     state.agentConfigEnabled = true;
@@ -190,19 +184,6 @@ describe("ProtectedLayout account-state boundary", () => {
 
     expect(container.textContent).toContain("agent-chat");
     expect(state.getAgentChatStore).toHaveBeenCalledOnce();
-    expect(state.openAgentChat).toHaveBeenCalledOnce();
-    expect(state.closeAgentChat).not.toHaveBeenCalled();
-  });
-
-  it("closes the assistant when Cmd+J is pressed again", () => {
-    state.protectedEnhancementsAllowed = true;
-    state.agentChatEnabled = true;
-    state.agentConfigEnabled = true;
-    state.agentChatOpen = true;
-    renderLayout();
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "j", metaKey: true, bubbles: true }));
-
-    expect(state.closeAgentChat).toHaveBeenCalledOnce();
-    expect(state.openAgentChat).not.toHaveBeenCalled();
+    expect(state.toggleAgentChat).toHaveBeenCalledOnce();
   });
 });

@@ -25,18 +25,21 @@ export const FormSwitch = observer(
     const store = useAppForm();
     const checked = Boolean(store?.getValue(id));
     const { hasError } = useFormFieldErrors(id);
+    const isLoading = store?.isLoading ?? false;
+    const isReadOnly = !isLoading && (store?.isReadOnly ?? false);
 
     return (
       <div className={cn("space-y-1.5", containerClassName)}>
         <div className="flex items-center gap-2">
           <Switch
             aria-invalid={hasError}
+            aria-readonly={isReadOnly || undefined}
             checked={checked}
             className={className}
-            disabled={store?.isDisabled}
+            disabled={isLoading}
             id={id}
             size={size}
-            onCheckedChange={(next) => store?.onChange(id, next)}
+            onCheckedChange={isReadOnly ? undefined : (next) => store?.onChange(id, next)}
           />
 
           {label && (

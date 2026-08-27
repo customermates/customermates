@@ -13,7 +13,6 @@ import { usePathname as useIntlPathname, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import { useTheme } from "next-themes";
-import { toast } from "sonner";
 import {
   Building,
   Building2,
@@ -364,11 +363,9 @@ const FullAppSidebar = observer(
             assistantBusy={rootStore.agentChatStore.isWorking}
             assistantBusyLabel={t("AgentChat.askAiWorking")}
             assistantLabel={
-              rootStore.appMode === "demo" || (rootStore.agentChatEnabled && rootStore.agentChatStore.enabled === true)
-                ? t("AgentChat.askAi")
-                : undefined
+              rootStore.agentChatEnabled && rootStore.agentChatStore.enabled === true ? t("AgentChat.askAi") : undefined
             }
-            assistantShortcut={rootStore.appMode === "demo" ? undefined : "⌘J"}
+            assistantShortcut="⌘J"
             brandName="Customermates"
             brandSubtitle={planSubtitle}
             homeHref={
@@ -393,12 +390,7 @@ const FullAppSidebar = observer(
                 closeMobileSidebar(recheckAccountState);
                 return;
               }
-              if (rootStore.appMode === "demo") {
-                closeMobileSidebar(() => toast.info(t("AgentChat.demoUnavailable")));
-                return;
-              }
-
-              closeMobileSidebar(() => rootStore.agentChatStore.open());
+              closeMobileSidebar(() => rootStore.agentChatStore.toggle());
             }}
             onSearch={(invoker) => {
               if (restricted) {

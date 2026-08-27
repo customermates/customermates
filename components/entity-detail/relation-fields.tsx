@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import type { EntityDetailPreviewItem } from "@/components/entity-detail/entity-detail-personalization";
 
 import type { RelationEntityType } from "@/components/entity-detail/entity-relations";
 
@@ -8,6 +9,7 @@ import { RELATION_FILTER_FIELD } from "@/components/entity-detail/entity-relatio
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
+import { useCallback } from "react";
 import { EntityType, Resource } from "@/generated/prisma";
 
 import { getContactsAction, createContactByNameAction } from "@/app/[locale]/(protected)/contacts/actions";
@@ -21,12 +23,17 @@ import { getTasksAction, createTaskByNameAction } from "@/app/[locale]/(protecte
 import { getUsersAction } from "@/app/[locale]/(protected)/company/actions";
 import { getSystemTaskNameTranslationKey } from "@/app/[locale]/(protected)/tasks/components/system-task.config";
 
-import { OpenRelationLink } from "@/components/entity-detail/open-relation-link";
+import {
+  EntityRelationActions,
+  type EntityDetailFieldPersonalization,
+} from "@/components/entity-detail/entity-relation-actions";
+import { EntityDetailPinButton } from "@/components/entity-detail/entity-detail-pin-button";
 import { AppChip } from "@/components/chip/app-chip";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-avatar";
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { useEntityHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
+import { useEntityDetailPersonalization } from "@/components/entity-detail/entity-detail-personalization";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
 
@@ -92,14 +99,33 @@ type RelationFieldProps = {
   currentEntityType: RelationEntityType;
   currentEntityId: string | undefined;
   items: readonly any[] | undefined;
+  labelEndAddon?: ReactNode;
+  previewFieldId?: string;
+  personalization?: EntityDetailFieldPersonalization;
 };
 
 export const EntityRelationField = observer(
-  ({ target, currentEntityType, currentEntityId, items }: RelationFieldProps) => {
+  ({
+    target,
+    currentEntityType,
+    currentEntityId,
+    items,
+    labelEndAddon,
+    previewFieldId,
+    personalization,
+  }: RelationFieldProps) => {
     const { userStore } = useRootStore();
     const entityHref = useEntityHref();
+    const { setPreviewFieldValue } = useEntityDetailPersonalization();
     const t = useTranslations();
     const config = RELATION[target];
+    const effectivePreviewFieldId = personalization?.fieldId ?? previewFieldId;
+    const publishSelection = useCallback(
+      (selection: EntityDetailPreviewItem[]) => {
+        if (effectivePreviewFieldId) setPreviewFieldValue(effectivePreviewFieldId, selection);
+      },
+      [effectivePreviewFieldId, setPreviewFieldValue],
+    );
 
     if (!userStore.canAccess(config.resource)) return null;
 
@@ -114,12 +140,16 @@ export const EntityRelationField = observer(
       id: config.field,
       items: items ?? [],
       labelEndAddon: (
-        <OpenRelationLink
+        <EntityRelationActions
           currentEntityId={currentEntityId}
           currentEntityType={currentEntityType}
+          personalization={personalization}
           targetEntityType={target}
-        />
+        >
+          {labelEndAddon}
+        </EntityRelationActions>
       ),
+      onSelectionDataChange: effectivePreviewFieldId ? publishSelection : undefined,
       selectionMode: "multiple" as const,
       onCreate: (name: string) => config.onCreate(name, userStore.user?.id),
     };
@@ -143,18 +173,50 @@ export const EntityRelationField = observer(
   },
 );
 
-export const AssignedUsersField = observer(({ items }: { items: readonly any[] | undefined }) => {
-  const { userModalStore, userStore } = useRootStore();
+export const AssignedUsersField = observer(
+  ({
+    items,
+    labelEndAddon,
+    previewFieldId,
+    personalization,
+  }: {
+    items: readonly any[] | undefined;
+    labelEndAddon?: ReactNode;
+    previewFieldId?: string;
+    personalization?: EntityDetailFieldPersonalization;
+  }) => {
+    const { userModalStore, userStore } = useRootStore();
+    const { setPreviewFieldValue } = useEntityDetailPersonalization();
+    const t = useTranslations();
+    const effectivePreviewFieldId = personalization?.fieldId ?? previewFieldId;
+    const fieldLabel = personalization?.label ?? t("Common.inputs.userIds");
+    const publishSelection = useCallback(
+      (selection: EntityDetailPreviewItem[]) => {
+        if (effectivePreviewFieldId) setPreviewFieldValue(effectivePreviewFieldId, selection);
+      },
+      [effectivePreviewFieldId, setPreviewFieldValue],
+    );
 
-  if (!userStore.canAccess(Resource.users)) return null;
+    if (!userStore.canAccess(Resource.users)) return null;
 
-  return (
-    <FormAutocompleteAvatar
-      getItems={getUsersAction}
-      id="userIds"
-      items={items ?? []}
-      selectionMode="multiple"
-      onChipClick={(id) => runUserAction(() => userModalStore.loadById(id))}
-    />
-  );
-});
+    return (
+      <FormAutocompleteAvatar
+        getItems={getUsersAction}
+        id="userIds"
+        items={items ?? []}
+        labelEndAddon={
+          personalization || labelEndAddon ? (
+            <span className="flex items-center gap-1">
+              {personalization && <EntityDetailPinButton fieldId={personalization.fieldId} label={fieldLabel} />}
+
+              {labelEndAddon}
+            </span>
+          ) : undefined
+        }
+        selectionMode="multiple"
+        onChipClick={(id) => runUserAction(() => userModalStore.loadById(id))}
+        onSelectionDataChange={effectivePreviewFieldId ? publishSelection : undefined}
+      />
+    );
+  },
+);

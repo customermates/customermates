@@ -19,6 +19,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { ClickableChip } from "@/components/chip/clickable-chip";
 import { Favicon } from "@/components/shared/favicon";
+import { TruncatedText } from "@/components/shared/truncated-text";
 import { openableLinkTarget } from "@/core/validation/openable-link-target";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { Icon } from "@/components/shared/icon";
@@ -28,11 +29,37 @@ import { runUserAction } from "@/core/errors/report-application-error";
 type Props<E extends HasId & { customFieldValues: CustomFieldValueDto[] }> = {
   column: CustomColumnDto;
   item: E;
+  showOverflowTooltip?: boolean;
   store?: BaseDataViewStore<E>;
 };
 
+function CustomFieldTextValue({
+  children,
+  showOverflowTooltip,
+  suppressHydrationWarning = false,
+}: {
+  children: string;
+  showOverflowTooltip: boolean;
+  suppressHydrationWarning?: boolean;
+}) {
+  return showOverflowTooltip ? (
+    <TruncatedText className="w-full" suppressHydrationWarning={suppressHydrationWarning}>
+      {children}
+    </TruncatedText>
+  ) : (
+    <span className="block truncate" suppressHydrationWarning={suppressHydrationWarning}>
+      {children}
+    </span>
+  );
+}
+
 export const CustomFieldValue = observer(
-  <E extends HasId & { customFieldValues: CustomFieldValueDto[] }>({ column, item, store }: Props<E>) => {
+  <E extends HasId & { customFieldValues: CustomFieldValueDto[] }>({
+    column,
+    item,
+    showOverflowTooltip = false,
+    store,
+  }: Props<E>) => {
     const copy = useCopyToClipboard();
     const intlStore = useHydratedIntlStore();
 
@@ -62,7 +89,7 @@ export const CustomFieldValue = observer(
 
           if (!store) {
             return (
-              <AppChip size="sm" variant={selectedVariant}>
+              <AppChip focusableTooltip size="sm" variant={selectedVariant}>
                 {selectedOption.label}
               </AppChip>
             );
@@ -137,9 +164,9 @@ export const CustomFieldValue = observer(
 
         case CustomColumnType.currency:
           return (
-            <span className="block truncate">
+            <CustomFieldTextValue showOverflowTooltip={showOverflowTooltip}>
               {intlStore.formatCurrency(isNaN(Number(value)) ? 0 : Number(value), column.options?.currency)}
-            </span>
+            </CustomFieldTextValue>
           );
 
         case CustomColumnType.date: {
@@ -154,9 +181,9 @@ export const CustomFieldValue = observer(
           const formattedDate = formatFn(parsedDate);
 
           return (
-            <span suppressHydrationWarning className="block truncate">
+            <CustomFieldTextValue suppressHydrationWarning showOverflowTooltip={showOverflowTooltip}>
               {formattedDate}
-            </span>
+            </CustomFieldTextValue>
           );
         }
 
@@ -172,9 +199,9 @@ export const CustomFieldValue = observer(
           const formattedDateTime = formatFn(parsedDate);
 
           return (
-            <span suppressHydrationWarning className="block truncate">
+            <CustomFieldTextValue suppressHydrationWarning showOverflowTooltip={showOverflowTooltip}>
               {formattedDateTime}
-            </span>
+            </CustomFieldTextValue>
           );
         }
 
@@ -190,7 +217,9 @@ export const CustomFieldValue = observer(
           const displayFormat = column.options?.displayFormat ?? "descriptiveLong";
           const formatFn = intlStore.dateFormatMap[displayFormat];
           return (
-            <span suppressHydrationWarning className="block truncate">{`${formatFn(start)} – ${formatFn(end)}`}</span>
+            <CustomFieldTextValue suppressHydrationWarning showOverflowTooltip={showOverflowTooltip}>
+              {`${formatFn(start)} – ${formatFn(end)}`}
+            </CustomFieldTextValue>
           );
         }
 
@@ -206,12 +235,14 @@ export const CustomFieldValue = observer(
           const displayFormat = column.options?.displayFormat ?? "descriptiveLong";
           const formatFn = intlStore.dateTimeFormatMap[displayFormat];
           return (
-            <span suppressHydrationWarning className="block truncate">{`${formatFn(start)} – ${formatFn(end)}`}</span>
+            <CustomFieldTextValue suppressHydrationWarning showOverflowTooltip={showOverflowTooltip}>
+              {`${formatFn(start)} – ${formatFn(end)}`}
+            </CustomFieldTextValue>
           );
         }
 
         case CustomColumnType.plain:
-          return <span className="block truncate">{value}</span>;
+          return <CustomFieldTextValue showOverflowTooltip={showOverflowTooltip}>{value}</CustomFieldTextValue>;
 
         case CustomColumnType.email:
         case CustomColumnType.phone:
@@ -228,7 +259,7 @@ export const CustomFieldValue = observer(
             <span />
           );
       }
-    }, [column, item, value, isDropdownOpen, handleSelectOption, copy]);
+    }, [column, item, value, isDropdownOpen, handleSelectOption, copy, showOverflowTooltip]);
 
     return renderValue();
   },

@@ -271,6 +271,27 @@ describe("ContactDetailStore.loadById", () => {
     expect(store.isLoading).toBe(false);
   });
 
+  it("does not let a pending request overwrite a newer authoritative server snapshot", async () => {
+    const pending = deferred<{
+      entity: ContactDto | null;
+      customColumns: [];
+    }>();
+    contactActions.getContactByIdAction.mockReturnValue(pending.promise);
+    const store = makeStore();
+    const load = store.loadById(CONTACT_ID);
+    const authoritative = contact(SECOND_CONTACT_ID, "Authoritative");
+
+    store.hydrateServerSnapshot(authoritative, []);
+    pending.resolve({ entity: contact(CONTACT_ID, "Stale"), customColumns: [] });
+    await load;
+
+    expect(store.fetchedEntity).toMatchObject(authoritative);
+    expect(store.requestedEntityId).toBe(SECOND_CONTACT_ID);
+    expect(store.form.firstName).toBe("Authoritative");
+    expect(store.entityLoadState).toBe("ready");
+    expect(store.isLoading).toBe(false);
+  });
+
   it("does not let an older add preparation overwrite a newer entity load", async () => {
     const customColumnsRefresh = deferred<undefined>();
     const root = stubRoot();
