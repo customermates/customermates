@@ -21,10 +21,6 @@ const DEPICTIONS = new Map([
     "renders a simulated terminal. Its palette depicts terminal output, which is dark in both themes, so it is content rather than a surface the design system owns.",
   ],
   [
-    "components/marketing/scenes/scene-cursor.tsx",
-    "depicts the operating system's own pointer. A native cursor is white with a dark outline in both themes, which is what makes it read as a cursor rather than as our UI; tokenising it would make it follow the theme and stop being recognisable.",
-  ],
-  [
     "app/[locale]/(static)/components/homepage-stats-row.tsx",
     "inlines the n8n brand mark. A third-party logo keeps its own colour and must never be tokenised.",
   ],
@@ -50,16 +46,7 @@ const RULES = [
   {
     id: "bespoke-radius",
     pattern: /\brounded-\[[^\]]+\]/g,
-    reason:
-      "radius comes from the --radius scale. Marketing chrome takes rounded-card and rounded-panel; a depicted product surface takes the platform's own step and is rescaled by .scene-platform.",
-  },
-  {
-    id: "marketing-radius-in-a-depiction",
-    pattern: /\brounded-(card|panel)\b/g,
-    reason:
-      "rounded-card and rounded-panel have no counterpart anywhere in app/[locale]/(protected) or components/ui. A depicted product surface takes the radius the application gives it.",
-    scope: (file: string) =>
-      file.startsWith("components/marketing/scenes/") && !file.endsWith("scene-grammar.tsx"),
+    reason: "radius comes from the --radius scale. Marketing chrome takes rounded-card and rounded-panel.",
   },
   {
     id: "bespoke-breakpoint",
@@ -96,7 +83,6 @@ describe("marketing token discipline", () => {
 
       for (const file of files) {
         if (isDepiction(file, rule.id)) continue;
-        if (rule.scope && !rule.scope(relative(REPO_ROOT, file))) continue;
 
         const source = readFileSync(file, "utf8");
         source.split("\n").forEach((line, index) => {

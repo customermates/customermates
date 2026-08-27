@@ -30,7 +30,15 @@ export function CTASection({
     <MarketingSection flush>
       <div className="flex flex-col items-center rounded-panel border border-border bg-sidebar px-6 py-16 text-center sm:px-10 sm:py-20">
         <div className="mb-8">
-          {image ?? <AppImage alt="Customermates" className="h-auto" height={27} src="customermates.svg" width={240} />}
+          {image ?? (
+            <AppImage
+              alt="Customermates"
+              className="h-auto w-[240px]"
+              height={23}
+              src="customermates.svg"
+              width={229}
+            />
+          )}
         </div>
 
         <h2 className="text-display m-0">{action}</h2>

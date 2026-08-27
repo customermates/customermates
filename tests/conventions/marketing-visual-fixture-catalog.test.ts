@@ -13,10 +13,14 @@ import {
   DEMO_VISUAL_PEOPLE,
   DEMO_VISUAL_PROVIDER_PERSON_PAIRINGS,
 } from "@/components/marketing/visuals/demo-visual-catalog";
+import { getVisualDealBoardColumns } from "@/components/marketing/visuals/deal-board-visual-data";
 import {
   APPROVED_NATIVE_VISUAL_ASSETS,
   VISUAL_AGENT_PROVIDER_FIXTURES,
+  VISUAL_CONVERSATION_FIXTURES,
+  VISUAL_DEAL_BOARD_FIXTURES,
   VISUAL_PERSON_FIXTURES,
+  VISUAL_PROVIDER_SET_FIXTURES,
   VISUAL_RECORD_FIXTURES,
   VISUAL_STATUS_FIXTURES,
   getNativeVisualFixtureCatalog,
@@ -24,16 +28,19 @@ import {
   listVisualRecords,
 } from "@/components/marketing/visuals/native-fixtures";
 import { NativeAgentProviderIdentity } from "@/components/marketing/visuals/native-visual-primitives";
+import { CONNECT_CHANNELS } from "@/ee/messaging/connect/connect-channels";
 import { SYNTHETIC_CONTACT_AVATAR_URLS } from "@/prisma/seeds/avatars";
 import { SYNTHETIC_CONTACT_NAMES } from "@/prisma/seeds/contacts";
 import {
   SYNTHETIC_DEAL_NAMES,
+  SYNTHETIC_DEAL_ORGANIZATION_LINKS,
   SYNTHETIC_DEAL_STATUS_INDEXES,
   SYNTHETIC_DEAL_STATUS_WEIGHTS,
   SYNTHETIC_SERVICE_DEAL_LINKS,
 } from "@/prisma/seeds/deals";
 import { SYNTHETIC_COMPANY_MEMBER_DEFINITIONS } from "@/prisma/seeds/members";
 import { people, threads } from "@/prisma/seeds/messaging/fixtures";
+import { SYNTHETIC_ORGANIZATION_NAMES } from "@/prisma/seeds/organizations";
 import { SYNTHETIC_SERVICE_AMOUNTS } from "@/prisma/seeds/services";
 
 function localAsset(url: string) {
@@ -152,6 +159,32 @@ describe("marketing visual fixture catalog", () => {
     expect(listVisualPeople({ provider: "outlook" })).toEqual([]);
   });
 
+  it("keeps the unified-inbox provider set and highlighted conversation tied to product authorities", () => {
+    const supportedProviders = new Set(
+      Object.values(CONNECT_CHANNELS).flatMap(({ providers }) =>
+        providers.map((provider) => (provider === "google" ? "gmail" : provider)),
+      ),
+    );
+    const annaThread = threads.find(
+      (thread) => thread.account === "google" && thread.participants.length === 1 && thread.participants[0] === "anna",
+    );
+
+    expect(sorted(VISUAL_PROVIDER_SET_FIXTURES["unified-inbox"].providers)).toEqual(
+      sorted([...supportedProviders]),
+    );
+    expect(annaThread).toBeDefined();
+    expect(VISUAL_CONVERSATION_FIXTURES["gmail-roche-rollout"]).toMatchObject({
+      person: "anna-mueller",
+      provider: "gmail",
+      state: annaThread?.state,
+      subject: annaThread?.subject,
+    });
+    expect(VISUAL_CONVERSATION_FIXTURES["gmail-roche-rollout"].localizedSubject).toEqual({
+      de: "Nächste Schritte für den Roche-Rollout",
+      en: annaThread?.subject,
+    });
+  });
+
   it("projects every deal with its seeded Status, Max assignment and exact value facts", () => {
     const statusIds = ["deal-open", "deal-won", "deal-lost", "deal-abandoned"] as const;
     const recordsByName = new Map(Object.values(VISUAL_RECORD_FIXTURES).map((record) => [record.name, record]));
@@ -172,7 +205,7 @@ describe("marketing visual fixture catalog", () => {
         totalValue,
         weightedValue: (totalValue * SYNTHETIC_DEAL_STATUS_WEIGHTS[statusIndex]) / 100,
       };
-      expect(recordsByName.get(name)).toEqual(expected);
+      expect(recordsByName.get(name)).toMatchObject(expected);
     }
 
     expect(Object.values(VISUAL_STATUS_FIXTURES).map(({ label, weight }) => [label, weight])).toEqual([
@@ -183,6 +216,23 @@ describe("marketing visual fixture catalog", () => {
     ]);
     expect(listVisualRecords({ status: "deal-won" })).toHaveLength(4);
     expect(listVisualRecords({ assignee: "sofia-rossi" })).toEqual([]);
+
+    const focalIndex = SYNTHETIC_DEAL_NAMES.indexOf("Digital Customer Platform");
+    const focalLinks = SYNTHETIC_SERVICE_DEAL_LINKS.filter(([dealIndex]) => dealIndex === focalIndex);
+    const focalOrganizationIndex = SYNTHETIC_DEAL_ORGANIZATION_LINKS[focalIndex][1];
+    expect(VISUAL_RECORD_FIXTURES["deal-digital-customer-platform"]).toMatchObject({
+      organization: SYNTHETIC_ORGANIZATION_NAMES[focalOrganizationIndex],
+      projectPeriod: ["2026-06-01", "2026-08-28"],
+      totalQuantity: focalLinks.reduce((sum, [, , quantity]) => sum + quantity, 0),
+    });
+  });
+
+  it("derives the rendered board strictly from the selected registered board", () => {
+    const board = VISUAL_DEAL_BOARD_FIXTURES["demo-status-board"];
+    const columns = getVisualDealBoardColumns("demo-status-board", "en");
+
+    expect(columns.map(({ id }) => id)).toEqual(board.statuses);
+    expect(sorted(columns.flatMap(({ deals }) => deals.map(({ id }) => id)))).toEqual(sorted(board.records));
   });
 
   it("keeps the authoring catalog deterministic, local, complete and executable", () => {

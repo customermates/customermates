@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, relative, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 
 import tailwindcss from "@tailwindcss/postcss";
@@ -20,6 +20,7 @@ import {
   validateVisualBrief,
 } from "../components/marketing/visuals/visual-contract";
 import { inlineApprovedVisualAssets, inlineReviewFonts } from "./lib/inline-marketing-visual-assets";
+import { isPathInside } from "./lib/path-boundary";
 
 const { values } = parseArgs({
   options: {
@@ -58,7 +59,7 @@ function outputPathFor(brief: BrandIllustrationBrief) {
   const fallback = join(tmpdir(), "customermates-visual-review", `${brief.id}-${brief.source.checksum}.html`);
   const target = resolve(values.output ?? fallback);
   const forbiddenRoots = [resolve("app"), resolve("public")];
-  if (forbiddenRoots.some((root) => relative(root, target) === "" || !relative(root, target).startsWith(".."))) {
+  if (forbiddenRoots.some((root) => isPathInside(root, target))) {
     throw new Error("Review sheets cannot be written inside app or public");
   }
   return target;

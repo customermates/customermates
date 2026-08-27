@@ -5,12 +5,21 @@ featureName: Email Integration
 
 hero:
   title: Email Integration That Connects Every Conversation to Your CRM
-  description: Connect supported Gmail and Outlook accounts with Customermates. Matching conversations appear in the unified inbox alongside LinkedIn, WhatsApp, Instagram, and Telegram. Supported external AI clients can read context, draft, and send through MCP; sequences require separate n8n and delivery providers.
+  description: Connect supported Gmail, Outlook, and IMAP accounts with Customermates. Matching conversations appear in the unified inbox alongside LinkedIn, WhatsApp, Instagram, and Telegram. Supported external AI clients can read context, draft, and send through MCP; sequences require separate n8n and delivery providers.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
+
+visualSection:
+  title: Supported channels meet in one customer context
+  description: Seven supported channels surround Anna Müller's record. One Gmail thread is highlighted while the other providers stay quiet.
+  labels:
+    focal: Customer record
+    semantic:
+      - Conversation
+      - Associated
 
 cta:
   action: Ready to connect your inbox?
@@ -23,33 +32,33 @@ cta:
 faq:
   title: "Frequently Asked Questions"
   faqs:
-  - id: email-integration-faq-1
-    title: "Which email accounts can I connect?"
-    content: |-
+    - id: email-integration-faq-1
+      title: "Which email accounts can I connect?"
+      content: |-
         Hosted connection flows support Gmail, Microsoft Outlook, and IMAP inboxes. A connected account belongs to one user unless it is explicitly shared with the workspace.
-  - id: email-integration-faq-2
-    title: "Can I track opens and clicks?"
-    content: |-
+    - id: email-integration-faq-2
+      title: "Can I track opens and clicks?"
+      content: |-
         No. The current product ignores provider open- and click-tracking events and does not expose engagement dashboards.
-  - id: email-integration-faq-3
-    title: "Can I schedule or bulk-send email?"
-    content: |-
+    - id: email-integration-faq-3
+      title: "Can I schedule or bulk-send email?"
+      content: |-
         No. Customermates sends email immediately. Scheduled sends, bulk campaigns, reusable templates, and sequences require a separately operated system.
-  - id: email-integration-faq-4
-    title: "Can an AI agent draft without sending?"
-    content: |-
+    - id: email-integration-faq-4
+      title: "Can an AI agent draft without sending?"
+      content: |-
         Yes, on an existing thread. An authorized MCP client can save or replace one local reply draft for human review. There is no draft object for a brand-new outbound email, and sending tools deliver immediately.
-  - id: email-integration-faq-5
-    title: "Can I send email sequences through an external provider?"
-    content: |-
+    - id: email-integration-faq-5
+      title: "Can I send email sequences through an external provider?"
+      content: |-
         Yes, through separate services. A customer-run n8n workflow can react to documented CRM events, while an external delivery provider owns delays, conditions, branching, sending, limits, logs, and costs. Customermates itself has no sequence engine.
-  - id: email-integration-faq-6
-    title: "Is the calendar two-way?"
-    content: |-
+    - id: email-integration-faq-6
+      title: "Is the calendar two-way?"
+      content: |-
         No. Connected Google or Microsoft calendar events appear in a read-only CRM view. Customermates does not create, edit, or schedule provider-calendar events.
-  - id: email-integration-faq-7
-    title: "Is my email data stored in the EU?"
-    content: |-
+    - id: email-integration-faq-7
+      title: "Is my email data stored in the EU?"
+      content: |-
         The managed Customermates database runs in an EU region. Application hosting, messaging services, and connected providers may process data elsewhere, including through US providers; this is not a compliance certification. Self-hosting excludes the cloud email integration.
 ---
 
@@ -59,12 +68,36 @@ Customermates imports email threads from a connected Gmail, Microsoft Outlook, o
 
 This is an operational inbox, not an email-marketing suite. You can read synchronized threads, reply on the original channel, save or replace one local draft on an existing thread, change a thread's state, and link thread participants to CRM contacts. New outbound email can be sent immediately from a contact or through the API and MCP tools.
 
+### Inspect the Unified Inbox
+
+The public demo is inspection-only. Open a seeded conversation to see channel identity, thread context, and linked customer information in the actual product.
+
+<ProductDemo
+  id="email-unified-inbox-demo"
+  selection="sophie-wagner"
+  surface="inbox"
+  title="Live Customermates unified inbox demo with Sophie Wagner selected"
+/>
+
 ## How to Connect Email
 
-1. Open **Profile → Connected accounts**.
-2. Choose **Connect an account** and complete the provider's hosted authentication flow.
-3. Select the folders to import when the account supports folder selection.
-4. Open the [Inbox](/docs/app-inbox) to read and reply to synchronized threads.
+<Steps>
+  <Step id="email-connect-open" title="Open connected accounts">
+    Go to **Profile → Connected accounts**.
+  </Step>
+  <Step id="email-connect-provider" title="Choose the provider">
+    Select **Connect an account** and complete the provider's hosted
+    authentication flow.
+  </Step>
+  <Step id="email-connect-folders" title="Choose what to import">
+    Select the folders to import when the connected account supports folder
+    selection.
+  </Step>
+  <Step id="email-connect-inbox" title="Check the unified inbox">
+    Open the [Inbox](/docs/app-inbox) to read and reply to the synchronized
+    threads.
+  </Step>
+</Steps>
 
 Authentication happens in the provider connection flow. Customermates does not ask you to paste a Gmail or Microsoft password into the CRM.
 

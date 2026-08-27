@@ -30,9 +30,9 @@ export function ComparisonTable({ competitor2Name, competitorName, sections, tit
         <AppImage
           alt="Customermates"
           className="mx-auto h-auto w-full max-w-[130px]"
-          height={27}
+          height={23}
           src="customermates.svg"
-          width={150}
+          width={229}
         />
       ),
     },

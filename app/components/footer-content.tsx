@@ -29,7 +29,13 @@ export function FooterContent({ blogPosts = [], competitors = [], featureLinks =
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-8 mb-12">
           <div className="col-span-2 sm:col-span-3 lg:col-span-1 flex flex-col items-start gap-4">
             <AppLink aria-label={`${t("Common.imageAlt.logo")} ${t("UserAvatar.home")}`} href="/">
-              <AppImage alt={t("Common.imageAlt.logo")} height={27} src="customermates.svg" width={156} />
+              <AppImage
+                alt={t("Common.imageAlt.logo")}
+                className="h-auto w-[156px]"
+                height={23}
+                src="customermates.svg"
+                width={229}
+              />
 
               <span className="sr-only">{`${t("Common.imageAlt.logo")} ${t("UserAvatar.home")}`}</span>
             </AppLink>

@@ -2,6 +2,7 @@ import { AUTHORABLE_AI_CLIENT_IDENTITIES } from "@/components/ai-connection/ai-c
 import { DEFAULT_LOCALE, formattingTagFor } from "@/i18n/locale-registry";
 
 import {
+  DEMO_VISUAL_CONVERSATIONS,
   DEMO_VISUAL_DEALS,
   DEMO_VISUAL_DEAL_STATUSES,
   DEMO_VISUAL_PEOPLE,
@@ -40,13 +41,34 @@ export const VISUAL_PROVIDER_FIXTURES = {
   },
 } as const;
 
+export const VISUAL_PROVIDER_SET_FIXTURES = {
+  "unified-inbox": {
+    providers: ["gmail", "outlook", "linkedin", "whatsapp", "telegram", "instagram", "imap"],
+  },
+} as const satisfies Record<string, { providers: readonly (keyof typeof VISUAL_PROVIDER_FIXTURES)[] }>;
+
 export const VISUAL_AGENT_PROVIDER_FIXTURES = AUTHORABLE_AI_CLIENT_IDENTITIES;
 
 export const VISUAL_PERSON_FIXTURES = DEMO_VISUAL_PEOPLE;
 
+export const VISUAL_CONVERSATION_FIXTURES = DEMO_VISUAL_CONVERSATIONS;
+
 export const VISUAL_STATUS_FIXTURES = DEMO_VISUAL_DEAL_STATUSES;
 
 export const VISUAL_RECORD_FIXTURES = DEMO_VISUAL_DEALS;
+
+export const VISUAL_DEAL_BOARD_FIXTURES = {
+  "demo-status-board": {
+    records: Object.keys(VISUAL_RECORD_FIXTURES) as (keyof typeof VISUAL_RECORD_FIXTURES)[],
+    statuses: ["deal-open", "deal-won", "deal-lost", "deal-abandoned"],
+  },
+} as const satisfies Record<
+  string,
+  {
+    records: readonly (keyof typeof VISUAL_RECORD_FIXTURES)[];
+    statuses: readonly (keyof typeof VISUAL_STATUS_FIXTURES)[];
+  }
+>;
 
 export const VISUAL_RECORD_ASSIGNEE_FIXTURES = Object.fromEntries(
   Object.entries(VISUAL_RECORD_FIXTURES).map(([record, { assignee }]) => [record, assignee]),
@@ -61,10 +83,13 @@ export const VISUAL_PROVIDER_PERSON_PAIRINGS: Partial<
 };
 
 export type VisualProviderFixtureId = keyof typeof VISUAL_PROVIDER_FIXTURES;
+export type VisualProviderSetFixtureId = keyof typeof VISUAL_PROVIDER_SET_FIXTURES;
 export type VisualAgentProviderFixtureId = keyof typeof VISUAL_AGENT_PROVIDER_FIXTURES;
 export type VisualPersonFixtureId = keyof typeof VISUAL_PERSON_FIXTURES;
+export type VisualConversationFixtureId = keyof typeof VISUAL_CONVERSATION_FIXTURES;
 export type VisualStatusFixtureId = keyof typeof VISUAL_STATUS_FIXTURES;
 export type VisualRecordFixtureId = keyof typeof VISUAL_RECORD_FIXTURES;
+export type VisualDealBoardFixtureId = keyof typeof VISUAL_DEAL_BOARD_FIXTURES;
 export type VisualPersonRole = DemoVisualPersonRole;
 
 type FixtureEntry<T extends Record<string, object>> = {
@@ -123,7 +148,10 @@ export function getNativeVisualFixtureCatalog() {
   return {
     agentProviders: listVisualAgentProviders(),
     channelProviders: fixtureEntries(VISUAL_PROVIDER_FIXTURES),
+    conversations: fixtureEntries(VISUAL_CONVERSATION_FIXTURES),
+    dealBoards: fixtureEntries(VISUAL_DEAL_BOARD_FIXTURES),
     people: listVisualPeople(),
+    providerSets: fixtureEntries(VISUAL_PROVIDER_SET_FIXTURES),
     providerPersonPairings,
     records: listVisualRecords(),
     statuses: fixtureEntries(VISUAL_STATUS_FIXTURES),
@@ -145,10 +173,13 @@ export const NATIVE_VISUAL_FIXTURE_SOURCES = [
   "components/marketing/visuals/demo-visual-catalog.ts",
   "components/ui/avatar.tsx",
   "components/ui/badge.tsx",
+  "ee/messaging/connect/connect-channels.ts",
   "prisma/seeds/avatars.ts",
   "prisma/seeds/custom-fields.ts",
   "prisma/seeds/deals.ts",
   "prisma/seeds/members.ts",
   "prisma/seeds/messaging/fixtures.ts",
+  "prisma/seeds/organizations.ts",
   "prisma/seeds/relationships.ts",
+  "prisma/seeds/services.ts",
 ] as const;

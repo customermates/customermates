@@ -71,11 +71,11 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
       <AppLink ref={ref} aria-label={`${logoAlt} ${homeLabel}`} href="/" onClick={closeMenu}>
         <AppImage
           alt={logoAlt}
-          className="h-auto object-contain select-none"
-          height={24}
+          className="h-auto w-[156px] object-contain select-none"
+          height={23}
           loading="eager"
           src="customermates.svg"
-          width={156}
+          width={229}
         />
 
         <span className="sr-only">{`${logoAlt} ${homeLabel}`}</span>

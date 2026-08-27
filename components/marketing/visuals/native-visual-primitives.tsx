@@ -4,6 +4,7 @@ import type { CSSProperties } from "react";
 
 import { AiClientLogo } from "@/components/ai-connection/ai-client-logo";
 import { cn } from "@/core/utils/cn";
+import type { ContentLocale } from "@/i18n/locale-registry";
 
 import {
   VISUAL_AGENT_PROVIDER_FIXTURES,
@@ -23,6 +24,21 @@ const STATUS_CLASSES: Record<VisualStatusFixtureId, string> = {
   "deal-lost": "bg-destructive/20 text-destructive",
   "deal-open": "bg-warning/20 text-warning",
   "deal-won": "bg-success/20 text-success",
+};
+
+const STATUS_LABELS: Record<ContentLocale, Record<VisualStatusFixtureId, string>> = {
+  de: {
+    "deal-abandoned": "Aufgegeben",
+    "deal-lost": "Verloren",
+    "deal-open": "Offen",
+    "deal-won": "Gewonnen",
+  },
+  en: {
+    "deal-abandoned": "Abandoned",
+    "deal-lost": "Lost",
+    "deal-open": "Open",
+    "deal-won": "Won",
+  },
 };
 
 export function NativeAgentProviderIdentity({
@@ -58,10 +74,12 @@ export function NativeAgentProviderIdentity({
 
 export function ProviderMark({
   className,
+  decorative = false,
   provider,
   size = 22,
 }: {
   className?: string;
+  decorative?: boolean;
   provider: VisualProviderFixtureId;
   size?: number;
 }) {
@@ -69,7 +87,7 @@ export function ProviderMark({
 
   return (
     <img
-      alt={fixture.name}
+      alt={decorative ? "" : fixture.name}
       className={className}
       data-native-provider={provider}
       decoding="async"
@@ -81,13 +99,38 @@ export function ProviderMark({
   );
 }
 
+export function ProviderIdentity({
+  className,
+  iconSize = 18,
+  provider,
+}: {
+  className?: string;
+  iconSize?: number;
+  provider: VisualProviderFixtureId;
+}) {
+  const fixture = VISUAL_PROVIDER_FIXTURES[provider];
+
+  return (
+    <span
+      className={cn("inline-flex shrink-0 items-center gap-1.5", className)}
+      data-native-provider-identity={provider}
+    >
+      <ProviderMark decorative provider={provider} size={iconSize} />
+
+      <span className="whitespace-nowrap font-medium">{fixture.name}</span>
+    </span>
+  );
+}
+
 export function PersonAvatar({
   className,
+  decorative = false,
   fluid = false,
   person,
   size = 32,
 }: {
   className?: string;
+  decorative?: boolean;
   fluid?: boolean;
   person: VisualPersonFixtureId;
   size?: number;
@@ -101,7 +144,7 @@ export function PersonAvatar({
       style={fluid ? undefined : { height: size, width: size }}
     >
       <img
-        alt={fixture.name}
+        alt={decorative ? "" : fixture.name}
         className="size-full object-cover"
         decoding="async"
         draggable={false}
@@ -126,14 +169,22 @@ export function PersonIdentity({
 
   return (
     <span className={cn("flex min-w-0 items-center gap-2", className)}>
-      <PersonAvatar person={person} size={size} />
+      <PersonAvatar decorative person={person} size={size} />
 
       <span className="min-w-0 text-xs leading-tight font-medium">{fixture.name}</span>
     </span>
   );
 }
 
-export function NativeStatusBadge({ className, status }: { className?: string; status: VisualStatusFixtureId }) {
+export function NativeStatusBadge({
+  className,
+  locale = "en",
+  status,
+}: {
+  className?: string;
+  locale?: ContentLocale;
+  status: VisualStatusFixtureId;
+}) {
   const fixture = VISUAL_STATUS_FIXTURES[status];
 
   return (
@@ -146,19 +197,31 @@ export function NativeStatusBadge({ className, status }: { className?: string; s
       data-native-status={status}
       data-variant={fixture.variant}
     >
-      {fixture.label}
+      {STATUS_LABELS[locale][status]}
     </span>
   );
 }
 
-export function NativeRecordIdentity({ record }: { record: VisualRecordFixtureId }) {
+export function NativeRecordIdentity({
+  locale = "en",
+  record,
+  statusLabel,
+}: {
+  locale?: ContentLocale;
+  record: VisualRecordFixtureId;
+  statusLabel?: string;
+}) {
   const fixture = VISUAL_RECORD_FIXTURES[record];
 
   return (
     <span className="flex min-w-0 flex-col items-start gap-2" data-native-record={record}>
       <span className="text-xs leading-snug font-medium">{fixture.name}</span>
 
-      <NativeStatusBadge status={fixture.status} />
+      <span className="flex flex-wrap items-center gap-2">
+        {statusLabel ? <span className="text-[10px] text-muted-foreground">{statusLabel}</span> : null}
+
+        <NativeStatusBadge locale={locale} status={fixture.status} />
+      </span>
     </span>
   );
 }

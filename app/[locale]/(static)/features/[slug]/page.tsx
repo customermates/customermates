@@ -7,6 +7,8 @@ import { Footer } from "@/app/components/footer";
 import { PageHero } from "@/components/marketing/page-hero";
 import { CTASection } from "@/components/marketing/cta-section";
 import { FAQSection } from "@/components/marketing/faq-section";
+import { FeatureVisualPilot } from "@/components/marketing/feature-visual-pilot";
+import { getFeatureVisualPilot } from "@/components/marketing/feature-visual-pilots";
 import { MarketingContainer } from "@/components/marketing/marketing-container";
 import { ShowcaseFrame } from "@/components/marketing/showcase-frame";
 import { AppImage } from "@/components/shared/app-image";
@@ -45,6 +47,11 @@ export default async function FeaturePage({ params }: Props) {
   const faqPage = page.data.faq ? faqPageSchema({ faqs: page.data.faq.faqs }) : undefined;
   const MDX = page.data.body;
   const components = getMDXComponents();
+  const visualPilot = getFeatureVisualPilot(slug, locale, {
+    featureName: page.data.featureName,
+    hero: page.data.hero,
+    visualSection: page.data.visualSection,
+  });
 
   return (
     <div className="relative flex flex-col items-center justify-center pt-16 md:pt-24">
@@ -56,25 +63,34 @@ export default async function FeaturePage({ params }: Props) {
         ])}
       />
 
-      <JsonLd schema={softwareApplicationSchema({ description: page.data.description, locale })} />
+      <JsonLd
+        schema={softwareApplicationSchema({
+          description: page.data.description,
+          locale,
+        })}
+      />
 
       {faqPage ? <JsonLd schema={faqPage} /> : null}
 
       <PageHero {...page.data.hero} />
 
-      <MarketingContainer className="mb-8">
-        <ShowcaseFrame className="mb-0" withHorizontalPadding={false}>
-          <AppImage
-            isLocalized
-            alt={page.data.hero.title}
-            className="w-full h-auto rounded-none"
-            height={1080}
-            loading="eager"
-            src={`${slug}.png`}
-            width={1920}
-          />
-        </ShowcaseFrame>
-      </MarketingContainer>
+      {visualPilot ? (
+        <FeatureVisualPilot pilot={visualPilot} />
+      ) : (
+        <MarketingContainer className="mb-8">
+          <ShowcaseFrame className="mb-0" withHorizontalPadding={false}>
+            <AppImage
+              isLocalized
+              alt={page.data.hero.title}
+              className="w-full h-auto rounded-none"
+              height={1080}
+              loading="eager"
+              src={`${slug}.png`}
+              width={1920}
+            />
+          </ShowcaseFrame>
+        </MarketingContainer>
+      )}
 
       <section className="w-full py-12 md:py-16">
         <MarketingContainer>

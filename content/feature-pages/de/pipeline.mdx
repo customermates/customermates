@@ -12,6 +12,15 @@ hero:
   buttonRightHref: https://demo.customermates.com
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 
+visualSection:
+  title: Einen Deal verschieben, ohne die Werte zu verlieren
+  description: Max Bergmann zieht Digital Customer Platform von Offen in Richtung Gewonnen, während Dealwert und gewichteter Wert sichtbar bleiben.
+  labels:
+    focal: Deal
+    semantic:
+      - Dealwert
+      - Gewichteter Wert
+
 cta:
   action: Bereit, Ihre Pipeline in den Griff zu bekommen?
   description: Richten Sie Ihre Vertriebspipeline in Customermates in Minuten ein. Definieren Sie Ihre Phasen, erstellen Sie Ihre ersten Deals und verwalten Sie visuell.
@@ -54,15 +63,38 @@ Customermates bietet eine visuelle Pipeline mit Kanban-Boards, anpassbaren Phase
 
 **Externe KI-Clients können die Pipeline aktualisieren.** Über [[derived.mcp.tools.total]] MCP-Tools können unterstützte Clients wie Claude, ChatGPT oder Gemini zulässige Deals zwischen Phasen verschieben, Felder aktualisieren und ein einzelnes Follow-up entwerfen. Customermates enthält weder Client noch KI-Modell; Abo, Nutzung und Anbieter-Verarbeitung bleiben extern.
 
-**Visuelles Kanban-Board.** Ihre Pipeline wird als Drag-and-Drop Kanban-Board dargestellt, bei dem jede Spalte eine Deal-Phase repräsentiert. Deals erscheinen als Karten mit den wichtigsten Informationen auf einen Blick: Deal-Name, Wert, Kontakt und erwartetes Abschlussdatum. Einen Deal in die nächste Phase zu bewegen ist so einfach wie das Ziehen der Karte in die nächste Spalte.
+**Visuelles Kanban-Board.** Ihre Pipeline wird als Drag-and-Drop-Kanban dargestellt, bei dem jede Spalte eine Deal-Phase repräsentiert. Karten zeigen die für diese Ansicht konfigurierten Felder; die vorbereitete Demo enthält Deal-Name, Status, Gesamt- und gewichteten Wert, Menge, Projektzeitraum, Organisation, Services und Besitzer. Einen Deal in die nächste Phase zu bewegen ist so einfach wie das Ziehen der Karte in die nächste Spalte.
 
 **Anpassbare Deal-Phasen.** Definieren Sie die Phasen, die zu Ihrem tatsächlichen Vertriebsprozess passen. Ob Ihre Pipeline vier oder zwölf Phasen hat, Customermates passt sich Ihrem Workflow an. Benennen Sie Phasen um, ordnen Sie sie neu, fügen Sie neue hinzu oder entfernen Sie nicht zutreffende.
 
 **Board- und Tabellenansichten.** Wechseln Sie jede Deal-Liste zwischen einer Board-Ansicht (gruppiert nach einer Single-Select-Phasenspalte) und einer Tabellenansicht. Um Neugeschäft, Verlängerungen oder separate Produktlinien getrennt zu halten, gruppieren Sie nach einer anderen Single-Select-Spalte oder filtern Sie die Liste. Sie formen das Board danach, wie Ihr Team tatsächlich verkauft.
 
-**Deal-Karten mit Kontext.** Jede Deal-Karte auf dem Kanban-Board zeigt die Informationen, die Sie für schnelle Entscheidungen brauchen. Sehen Sie Deal-Wert, zugewiesenen Besitzer, erwartetes Abschlussdatum und verknüpfte Organisation, ohne den vollständigen Datensatz öffnen zu müssen.
+**Deal-Karten mit Kontext.** Wählen Sie, welche Felder auf jeder Deal-Karte erscheinen, damit das Board schnelle Entscheidungen unterstützt, ohne für jeden Workspace dasselbe Schema zu behaupten. Die vorbereitete Demo zeigt Status, Gesamt- und gewichteten Wert, Menge, Projektzeitraum, verknüpfte Organisation, Services und Besitzer; öffnen Sie den Datensatz für das vollständige Bild.
 
 **Dashboard-Diagramme über Ihre Pipeline.** Jeder Nutzer baut ein persönliches Dashboard aus Diagramm-Widgets (Balken-, Doughnut- oder Radardiagramme) über die Deal-Daten: Pipeline-Wert nach Phase, Deal-Anzahl nach Besitzer, gewonnen versus verloren nach Quelle. Widgets filtern nach jedem Standard- oder benutzerdefinierten Feld und aktualisieren sich, wenn sich Deals ändern, sodass Sie sehen, wo Wert steckt und wo Deals stagnieren, ohne in eine Tabelle zu exportieren.
+
+### Deal-Board ansehen
+
+Die öffentliche Demo dient zum Ansehen. Die vorbereitete Deal-Ansicht öffnet sich als nach Status gruppiertes Kanban, damit Sie echte Karten, Dealwerte, gewichtete Werte und Spaltensummen prüfen können, ohne einen Demo-Drag als gespeicherte Änderung zu verstehen.
+
+<ProductDemo id="pipeline-deal-board-demo" surface="deals" title="Live-Demo des Customermates Deal-Boards" />
+
+## Richten Sie Ihre Pipeline in drei Schritten ein
+
+<Steps>
+  <Step id="pipeline-setup-status" title="Statusoptionen definieren">
+    Verwenden Sie eine Einfachauswahl-Spalte für den Status, deren Optionen zu
+    Ihrem tatsächlichen Vertriebsprozess passen.
+  </Step>
+  <Step id="pipeline-setup-deals" title="Relevante Deals anlegen">
+    Geben Sie jedem Deal einen eindeutigen Namen, den aktuellen Wert, einen
+    Besitzer und einen Status, damit das Board sofort nützlichen Kontext zeigt.
+  </Step>
+  <Step id="pipeline-setup-board" title="Im Board arbeiten">
+    Wechseln Sie die Deal-Liste in die Board-Ansicht, gruppieren Sie nach Status
+    und prüfen oder verschieben Sie eine Karte, sobald sich ihr Zustand ändert.
+  </Step>
+</Steps>
 
 ## Pipeline-Performance messen
 
@@ -102,15 +134,37 @@ Eine Pipeline ist keine statische Struktur. Regelmäßige Optimierung hält Ihre
 
 ## Warum Customermates für Ihr Pipeline-Management?
 
-**Open-Source-Kern.** Kern-CRM-Anwendung und Pipeline-Code unter AGPL sind einsehbar. Pipeline-Phasen bleiben kundendefinierte Felder; Customermates enthält keinen versteckten Prognose- oder Scoring-Algorithmus, während Managed-Cloud-Funktionen und Anbieter separat bleiben.
-
-**EU-Datenbankregion mit dokumentierten Anbietern.** Die verwaltete Datenbank läuft in einer EU-Region. Anwendungshosting und weitere Anbieter, darunter US-Anbieter, können Daten andernorts verarbeiten; diese Bereitstellungsangabe ist keine DSGVO- oder andere Compliance-Zertifizierung.
-
-**Einfache, faire Preisgestaltung.** Pipeline-Management ist ab [[commercial.price.starter.monthly]] pro Nutzer und Monat (Starter-Stufe) enthalten. Board- und Tabellenansichten, individuelle Phasen, Deal-Karten, Dashboard-Diagramme und MCP-Zugang für externe KI-Clients sind in jeder Stufe enthalten. Keine Premium-Stufe für erweiterte Pipeline-Funktionen erforderlich.
-
-**Separates n8n für Pipeline-Workflows.** Verbinden Sie eine selbst betriebene oder abonnierte n8n-Instanz über REST, Webhooks, MCP oder den Community-Node. Scheduler, Katalog mit über 400 Konnektoren, Laufzeit, Tarife, Limits, Logs, Anbieterzustellung und Kosten bleiben extern.
-
-**Self-hostbare Anwendung und Datenbank.** Betreiben Sie die Customermates-Anwendung und PostgreSQL-Datenbank auf eigener Infrastruktur. Externe KI- und Workflow-Anbieter erhalten weiterhin alle von Ihrer Konfiguration gesendeten Daten; Self-Hosting ist keine Datenresidenz- oder Compliance-Garantie.
+<FeaturePoints>
+  <FeaturePoint id="pipeline-open-source" icon="Code2" title="Open-Source-Kern">
+    Kern-CRM-Anwendung und Pipeline-Code unter AGPL sind einsehbar.
+    Pipeline-Phasen bleiben kundendefinierte Felder; Customermates enthält keinen
+    versteckten Prognose- oder Scoring-Algorithmus, während Managed-Cloud-Funktionen
+    und Anbieter separat bleiben.
+  </FeaturePoint>
+  <FeaturePoint id="pipeline-eu-region" icon="ShieldCheck" title="Dokumentierte Hosting-Grenzen">
+    Die verwaltete Datenbank läuft in einer EU-Region. Anwendungshosting und
+    weitere Anbieter, darunter US-Anbieter, können Daten andernorts verarbeiten;
+    diese Bereitstellungsangabe ist keine DSGVO- oder andere
+    Compliance-Zertifizierung.
+  </FeaturePoint>
+  <FeaturePoint id="pipeline-pricing" icon="DollarSign" title="Einfache, faire Preisgestaltung">
+    Pipeline-Management ist ab [[commercial.price.starter.monthly]] pro Nutzer
+    und Monat enthalten. Board- und Tabellenansichten, individuelle Phasen,
+    Deal-Karten, Dashboard-Diagramme und MCP-Zugang für externe KI-Clients sind
+    in jeder Stufe enthalten.
+  </FeaturePoint>
+  <FeaturePoint id="pipeline-workflows" icon="Zap" title="Separate n8n-Workflows">
+    Verbinden Sie eine selbst betriebene oder abonnierte n8n-Instanz über REST,
+    Webhooks, MCP oder den Community-Node. Scheduler, Konnektorkatalog, Laufzeit,
+    Tarife, Limits, Logs, Anbieterzustellung und Kosten bleiben extern.
+  </FeaturePoint>
+  <FeaturePoint id="pipeline-self-hosting" icon="Server" title="Self-hostbare Anwendung und Datenbank">
+    Betreiben Sie die Customermates Anwendung und PostgreSQL-Datenbank auf eigener
+    Infrastruktur. Externe KI- und Workflow-Anbieter erhalten weiterhin alle von
+    Ihrer Konfiguration gesendeten Daten; Self-Hosting ist keine Datenresidenz-
+    oder Compliance-Garantie.
+  </FeaturePoint>
+</FeaturePoints>
 
 ## Starten Sie heute mit Ihrer Vertriebspipeline
 

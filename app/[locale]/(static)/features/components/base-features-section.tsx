@@ -16,7 +16,7 @@ export function BaseFeaturesSection({ features, hasSecondaryBackground = false, 
   const HeroIcon = heroFeature ? ICONS[heroFeature.icon] : null;
 
   return (
-    <MarketingSection className={cn(hasSecondaryBackground && "bg-sidebar")} description={subtitle} title={title}>
+    <MarketingSection description={subtitle} title={title} tone={hasSecondaryBackground ? "canvas" : "page"}>
       <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-16 lg:auto-rows-fr lg:grid-cols-4">
         {heroFeature && HeroIcon ? (
           <article

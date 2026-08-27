@@ -5,12 +5,21 @@ featureName: E-Mail-Integration
 
 hero:
   title: E-Mail-Integration, die jede Konversation mit Ihrem CRM verbindet
-  description: Verbinden Sie unterstützte Gmail- und Outlook-Konten mit Customermates. Passende Konversationen stehen im gemeinsamen Postfach neben LinkedIn, WhatsApp, Instagram und Telegram bereit. Unterstützte externe KI-Clients können über MCP Kontext lesen, entwerfen und senden; Kampagnen und Sequenzen laufen in einem separaten Anbieter oder einer eigenen n8n-Instanz.
+  description: Verbinden Sie unterstützte Gmail-, Outlook- und IMAP-Konten mit Customermates. Passende Konversationen stehen im gemeinsamen Postfach neben LinkedIn, WhatsApp, Instagram und Telegram bereit. Unterstützte externe KI-Clients können über MCP Kontext lesen, entwerfen und senden; Kampagnen und Sequenzen laufen in einem separaten Anbieter oder einer eigenen n8n-Instanz.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
+
+visualSection:
+  title: Unterstützte Kanäle treffen in einem Kundenkontext zusammen
+  description: Sieben unterstützte Kanäle umgeben Anna Müllers Datensatz. Ein Gmail-Thread ist hervorgehoben; die übrigen Anbieter bleiben ruhig.
+  labels:
+    focal: Kundendatensatz
+    semantic:
+      - Konversation
+      - Zugeordnet
 
 cta:
   action: Bereit, Ihr Postfach zu verbinden?
@@ -23,33 +32,33 @@ cta:
 faq:
   title: "Häufig gestellte Fragen"
   faqs:
-  - id: email-integration-faq-1
-    title: "Welche E-Mail-Konten kann ich verbinden?"
-    content: |-
+    - id: email-integration-faq-1
+      title: "Welche E-Mail-Konten kann ich verbinden?"
+      content: |-
         Die gehosteten Verbindungsabläufe unterstützen Gmail-, Microsoft-Outlook- und IMAP-Postfächer. Ein verbundenes Konto gehört einem Nutzer, solange es nicht ausdrücklich mit dem Workspace geteilt wird.
-  - id: email-integration-faq-2
-    title: "Kann ich Öffnungen und Klicks tracken?"
-    content: |-
+    - id: email-integration-faq-2
+      title: "Kann ich Öffnungen und Klicks tracken?"
+      content: |-
         Nein. Das aktuelle Produkt ignoriert Öffnungs- und Klick-Tracking-Ereignisse des Anbieters und zeigt keine Engagement-Dashboards.
-  - id: email-integration-faq-3
-    title: "Kann ich E-Mails planen oder als Massenversand senden?"
-    content: |-
+    - id: email-integration-faq-3
+      title: "Kann ich E-Mails planen oder als Massenversand senden?"
+      content: |-
         Nein. Customermates sendet E-Mails sofort. Zeitgesteuerter Versand, Massenkampagnen, wiederverwendbare Vorlagen und Sequenzen erfordern ein getrennt betriebenes System.
-  - id: email-integration-faq-4
-    title: "Kann ein KI-Agent nur entwerfen, ohne zu senden?"
-    content: |-
+    - id: email-integration-faq-4
+      title: "Kann ein KI-Agent nur entwerfen, ohne zu senden?"
+      content: |-
         Ja, in einem bestehenden Thread. Ein autorisierter MCP-Client kann einen lokalen Antwortentwurf zur menschlichen Prüfung speichern oder ersetzen. Für eine neue ausgehende E-Mail gibt es kein Entwurfsobjekt; Versand-Tools senden sofort.
-  - id: email-integration-faq-5
-    title: "Kann ich E-Mail-Sequenzen in einem externen Anbieter senden?"
-    content: |-
+    - id: email-integration-faq-5
+      title: "Kann ich E-Mail-Sequenzen in einem externen Anbieter senden?"
+      content: |-
         Ja, über separate Dienste. Ein von Ihnen betriebener n8n-Workflow kann auf dokumentierte CRM-Ereignisse reagieren; ein externer Versandanbieter verantwortet Verzögerungen, Bedingungen, Verzweigungen, Zustellung, Limits, Logs und Kosten. Customermates besitzt keine Sequenz-Engine.
-  - id: email-integration-faq-6
-    title: "Ist der Kalender bidirektional?"
-    content: |-
+    - id: email-integration-faq-6
+      title: "Ist der Kalender bidirektional?"
+      content: |-
         Nein. Verbundene Google- oder Microsoft-Kalendertermine erscheinen in einer schreibgeschützten CRM-Ansicht. Customermates erstellt, bearbeitet oder plant keine Termine im Anbieter-Kalender.
-  - id: email-integration-faq-7
-    title: "Werden meine E-Mail-Daten in der EU gespeichert?"
-    content: |-
+    - id: email-integration-faq-7
+      title: "Werden meine E-Mail-Daten in der EU gespeichert?"
+      content: |-
         Die verwaltete Customermates-Datenbank läuft in einer EU-Region. Anwendungshosting, Messaging-Dienste und verbundene Anbieter können Daten andernorts verarbeiten, auch über US-Anbieter; dies ist keine Compliance-Zertifizierung. Self-Hosting enthält die Cloud-E-Mail-Integration nicht.
 ---
 
@@ -59,12 +68,36 @@ Customermates importiert E-Mail-Threads aus einem verbundenen Gmail-, Microsoft-
 
 Das ist ein operatives Postfach, keine E-Mail-Marketing-Suite. Sie können synchronisierte Threads lesen, auf dem ursprünglichen Kanal antworten, einen lokalen Entwurf in einem bestehenden Thread speichern oder ersetzen, den Thread-Status ändern und Teilnehmer mit CRM-Kontakten verknüpfen. Neue E-Mails lassen sich über einen Kontakt oder über API und MCP sofort senden.
 
+### Gemeinsames Postfach ansehen
+
+Die öffentliche Demo dient zum Ansehen. Öffnen Sie eine vorbereitete Konversation, um Kanalidentität, Thread-Kontext und verknüpfte Kundeninformationen im tatsächlichen Produkt zu sehen.
+
+<ProductDemo
+  id="email-unified-inbox-demo"
+  selection="sophie-wagner"
+  surface="inbox"
+  title="Live-Demo des gemeinsamen Customermates Postfachs mit ausgewählter Sophie Wagner"
+/>
+
 ## So verbinden Sie E-Mail
 
-1. Öffnen Sie **Profil → Verbundene Konten**.
-2. Wählen Sie **Konto verbinden** und schließen Sie den gehosteten Authentifizierungsablauf des Anbieters ab.
-3. Wählen Sie die zu importierenden Ordner, wenn das Konto eine Ordnerauswahl unterstützt.
-4. Öffnen Sie das [Postfach](/docs/app-inbox), um synchronisierte Threads zu lesen und zu beantworten.
+<Steps>
+  <Step id="email-connect-open" title="Verbundene Konten öffnen">
+    Öffnen Sie **Profil → Verbundene Konten**.
+  </Step>
+  <Step id="email-connect-provider" title="Anbieter auswählen">
+    Wählen Sie **Konto verbinden** und schließen Sie den gehosteten
+    Authentifizierungsablauf des Anbieters ab.
+  </Step>
+  <Step id="email-connect-folders" title="Import festlegen">
+    Wählen Sie die zu importierenden Ordner, wenn das verbundene Konto eine
+    Ordnerauswahl unterstützt.
+  </Step>
+  <Step id="email-connect-inbox" title="Gemeinsames Postfach prüfen">
+    Öffnen Sie das [Postfach](/docs/app-inbox), um die synchronisierten Threads
+    zu lesen und zu beantworten.
+  </Step>
+</Steps>
 
 Die Authentifizierung findet im Verbindungsablauf des Anbieters statt. Customermates fordert Sie nicht auf, ein Gmail- oder Microsoft-Passwort in das CRM einzufügen.
 

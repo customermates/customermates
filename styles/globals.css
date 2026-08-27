@@ -2,11 +2,17 @@
 @import "tw-animate-css";
 @plugin '@tailwindcss/typography';
 
-@custom-variant dark (&:is(.dark *));
-
 @import 'fumadocs-ui/css/preset.css';
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-openapi/css/preset.css';
+
+/* Fumadocs declares its own dark variant inside preset.css. Keep this declaration after all
+   vendor imports so local inverse sections, rather than only the root theme, own dark: utilities. */
+@custom-variant dark (
+  &:is(.dark *):not(:is([data-marketing-tone="inverse"], [data-marketing-tone="inverse"] *)),
+  &:is(:root:not(.dark) [data-marketing-tone="inverse"], :root:not(.dark) [data-marketing-tone="inverse"] *),
+  &:is(.light [data-marketing-tone="inverse"], .light [data-marketing-tone="inverse"] *)
+);
 
 @theme inline {
   --color-background: var(--background);
@@ -309,6 +315,12 @@
    floating rims --border-strong. A marketing page introduces no colour of its own, so
    the tokens below carry only geometry, rhythm, type scale and motion.
 
+   CONTRAST page mode establishes continuity. A semantic inverse section may apply the
+   complete opposite token block once at a high-salience pivot; it stays full bleed and
+   is never nested or placed adjacent to another inverse section. Cards inside it restart
+   the local page-to-raised ladder. Explicit .light and .dark review artboards continue to
+   set their own palette because their token declarations land directly on the artboard.
+
    The homepage prototype that set this direction expressed all four inline, and drifted
    inside a single three-file diff: three card radii (20/24/28px), two display clamps
    (5.2vw and 5.3vw), two container widths (1440 and 1600px) and three divider alphas.
@@ -366,7 +378,9 @@
    1920x1080 and tests/conventions/hero-asset-coverage.test.ts enforces it. Changing this
    ratio means regenerating 672 files, so presentation crops and frames the asset instead. */
 :root,
-.light {
+.light,
+.dark [data-marketing-tone="inverse"] {
+  color-scheme: light;
   --radius: 0.5rem;
   --marketing-gutter: 1.25rem;
   --marketing-gutter-lg: 2rem;
@@ -435,7 +449,10 @@
   --sidebar-ring: #5e4ae3;
 }
 
-.dark {
+.dark,
+:root:not(.dark) [data-marketing-tone="inverse"],
+.light [data-marketing-tone="inverse"] {
+  color-scheme: dark;
   --background: #121215;
   --foreground: #fafafa;
   --card: #19191c;
@@ -674,181 +691,6 @@ path:focus {
 
   .marketing-section {
     @apply w-full border-b border-border py-20 sm:py-24 lg:py-32;
-  }
-
-  /* Scene ground.
-     The ONE sanctioned gradient in the system. Every other surface is a flat rung,
-     because a gradient on a resting surface reads as decoration and competes with the
-     accent. Here it is the subject's atmosphere rather than a surface: a product window
-     floating on ambient accent light, which is what the reference posters do and what a
-     flat card cannot express.
-
-     The glow is --primary mixed toward transparent, so it inherits the theme's accent and
-     needs no literal colour. It sits on --sidebar, the canvas rung, so the window on
-     --card still reads as raised above it in both themes. */
-  /* Scene type.
-     Sized against the container, not the viewport, because a scene is embedded at widths the
-     viewport does not predict: full bleed on a page, half width in a two-up comparison, and
-     1920 for capture. A viewport query jumps discontinuously at 1024px, where a two-up column
-     halves the container while the viewport grows.
-
-     The scale is CONTINUOUS -- a fixed part plus a proportional part -- rather than two
-     regimes with a threshold. A pure cqw value is unreadable when the container is small: at
-     a 375px viewport the container is 335px and 2cqw lands at 6.7px. But a stepped container
-     query only relocates that cliff, dropping 18.7px to 9.6px either side of the threshold.
-     A line through both ends keeps the picture proportional at every width while never
-     falling below reading size: roughly 13px of body text at 293px and 28px at 1376px.
-
-     Deliberately far larger than the running application uses, because a scene shows only
-     the interface its point needs, at a size a reader takes in at a glance. */
-  /* Scene ink.
-     A scene is a poster, and a poster has one subject. The reference posters keep the window
-     solid but render its interior subdued: fills barely there, secondary text mid-grey,
-     structure hinted rather than stated. Only the thing that changed is at full strength, so
-     the eye lands on it without being told to.
-
-     These live in CSS rather than as Tailwind alpha utilities for two reasons. The marketing
-     convention test bans bg-muted/N in TSX, because a wash carries state and pinning one to a
-     surface inverts between themes. And expressing the ghost once here means a new scene
-     inherits it instead of choosing an opacity, which is the same reason the grammar exists.
-
-     The ghost lives in the TEXT, not the fills. Our surface washes are already alpha values
-     around 5%, so fading them further only makes them vanish while the words stay at full
-     strength -- measured at 2.4% alpha and SSIM 0.995 against the original, a change nobody
-     could see. The reference posters read quiet because their copy is mid-grey against a
-     visible fill, so the fills stay as they were and the ink comes down instead.
-
-     Built with color-mix toward transparent rather than an opacity property, so a ghosted
-     surface does not also fade the text sitting on it. */
-  .scene-ink-surface {
-    background-color: var(--muted);
-  }
-
-  .scene-ink-quiet {
-    color: color-mix(in oklab, var(--muted-foreground) 55%, transparent);
-  }
-
-  .scene-ink-body {
-    color: color-mix(in oklab, var(--foreground) 58%, transparent);
-  }
-
-  /* Un-typing.
-     sceneUnstream in the scene grammar is sceneStream run backwards, one character at a time.
-     A film has to arrive back at the frame it opened on or the loop visibly jumps, and the
-     cheapest honest way to un-say a sentence is to un-type it. The reference films all do this:
-     the chat retracts its answer, the terminal scrolls its banner back, the drag returns. */
-
-  /* Film canvas. A film is a still that moves: the same ambient ground, the same inset and the
-     same crop, differing only in aspect ratio. An earlier note here claimed the reference films
-     were all window-shaped and edge to edge; both halves were wrong. Five of the six inset their
-     window by 45 to 155px and let it bleed past one edge, and their native aspect ratios run from
-     1.22:1 to 1.93:1. The three that measured exactly 1280x920 turned out to be re-encodes of the
-     other three, so the canvas size was never a measurement at all. */
-  .scene-lift {
-    /* The one shadow in the grammar, and it is not elevation: it is the cast shadow of an object
-       a cursor has picked up. A cast shadow is dark in both themes because that is what light
-       does, so this stays a fixed black rather than following the foreground token, which would
-       turn it into a white glow in dark mode. Nothing at rest may use it. */
-    filter: drop-shadow(0 0.4cqw 0.9cqw rgb(0 0 0 / 28%));
-  }
-
-  /* The product, enlarged. Everything inside this scope is drawn by the real application
-     components, so a depiction cannot drift from the thing it depicts.
-
-     Tailwind v4 emits every size as calc(var(--spacing) * N), var(--text-*) and
-     calc(var(--radius) +- N), and those three are ordinary inherited custom properties.
-     Redeclaring them here rescales every utility in the subtree, including utilities inside
-     components/ui, without editing one line of those files.
-
-     The whole platform scale is a rational multiple of one 4px unit: spacing 4, radius 8 (x2),
-     text-xs 12 (x3), sm 14 (x3.5), base 16 (x4), lg 18 (x4.5), xl 20 (x5), 2xl 24 (x6),
-     3xl 30 (x7.5). One variable therefore reproduces the entire scale exactly, and Tailwind's
-     line heights are unitless ratios, so they follow the font size for free.
-
-     Why one factor and not two. Before this, scene boxes ran about 1.25x the app's while scene
-     type ran about 1.9x. Two rates mean no scene can ever be proportionally identical to the
-     product however carefully it is drawn, which is how a 20px radius came to stand in for a
-     12px one. The floor is the app's own 4px, so a scene never renders smaller than the product;
-     at the 1280 capture width the factor is 2.0, which is to say the scene is always 160 spacing
-     units wide where the app at that viewport is 320. Half as much content, twice the size: the
-     abstraction, stated as a number. The ceiling engages just above capture width so a
-     full-container embed matches the film rather than outgrowing it. */
-  .scene-platform {
-    --scene-unit: clamp(4px, 2.58px + 0.4233cqw, 8px);
-
-    --spacing: var(--scene-unit);
-    --radius: calc(var(--scene-unit) * 2);
-    --text-xs: calc(var(--scene-unit) * 3);
-    --text-sm: calc(var(--scene-unit) * 3.5);
-    --text-base: calc(var(--scene-unit) * 4);
-    --text-lg: calc(var(--scene-unit) * 4.5);
-    --text-xl: calc(var(--scene-unit) * 5);
-    --text-2xl: calc(var(--scene-unit) * 6);
-    --text-3xl: calc(var(--scene-unit) * 7.5);
-    --text-4xl: calc(var(--scene-unit) * 9);
-    --text-5xl: calc(var(--scene-unit) * 12);
-    --text-6xl: calc(var(--scene-unit) * 15);
-    --text-7xl: calc(var(--scene-unit) * 18);
-    --text-8xl: calc(var(--scene-unit) * 24);
-    --text-9xl: calc(var(--scene-unit) * 32);
-  }
-
-  /* Arbitrary-value utilities compile to literal pixels and so do not follow --spacing. These
-     four are the only ones that show at rest anywhere in the components a scene may use; the
-     others are focus rings and an unlinked-participant outline, which a scene never renders.
-     Correcting them here rather than in components/ui keeps those files untouched.
-
-     Two literals are left alone on purpose: a 1px border and shadow-xs. A hairline reads as
-     crisper when the surface around it grows, and doubling it would turn a card into a
-     wireframe. */
-  .scene-platform [class~="text-[11px]"] {
-    font-size: calc(var(--scene-unit) * 2.75);
-  }
-
-  .scene-platform [class~="h-[22px]"] {
-    height: calc(var(--scene-unit) * 5.5);
-  }
-
-  .scene-platform [class~="h-[26px]"] {
-    height: calc(var(--scene-unit) * 6.5);
-  }
-
-  .scene-platform [class~="h-[30px]"] {
-    height: calc(var(--scene-unit) * 7.5);
-  }
-
-  .scene-frame-film {
-    /* Also the query container. Every cqw in the grammar resolves against the frame, and film
-       mode drops .scene-ground, which is what normally establishes it: without this line the
-       type silently sizes against some ancestor instead. */
-    container-type: inline-size;
-    aspect-ratio: 1280 / 920;
-  }
-
-  .scene-frame {
-    aspect-ratio: var(--aspect-hero);
-  }
-
-  @media (width < 40rem) {
-    .scene-frame {
-      aspect-ratio: 4 / 5;
-    }
-  }
-
-  .scene-meta {
-    font-size: clamp(9px, 7.4px + 1.062cqw, 24px);
-    line-height: 1.4;
-  }
-
-  .scene-ground {
-    container-type: inline-size;
-    background-color: var(--sidebar);
-    background-image: radial-gradient(
-      120% 95% at 22% -15%,
-      color-mix(in oklab, var(--primary) 55%, transparent) 0%,
-      color-mix(in oklab, var(--primary) 18%, transparent) 38%,
-      transparent 68%
-    );
   }
 
   .marketing-grid {

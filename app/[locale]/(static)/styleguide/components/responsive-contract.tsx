@@ -4,10 +4,34 @@ import { MarketingSection } from "@/components/marketing/marketing-section";
 
 const BREAKPOINTS = [
   { gap: "0.5rem", gutter: "1.25rem", min: "0", name: "base", nav: "drawer" },
-  { gap: "1rem", gutter: "2rem", min: "40rem · 640px", name: "sm", nav: "drawer" },
-  { gap: "1rem", gutter: "2rem", min: "48rem · 768px", name: "md", nav: "drawer" },
-  { gap: "1rem", gutter: "2rem", min: "56rem · 896px", name: "nav", nav: "bar" },
-  { gap: "1.5rem", gutter: "2rem", min: "64rem · 1024px", name: "lg", nav: "bar" },
+  {
+    gap: "1rem",
+    gutter: "2rem",
+    min: "40rem · 640px",
+    name: "sm",
+    nav: "drawer",
+  },
+  {
+    gap: "1rem",
+    gutter: "2rem",
+    min: "48rem · 768px",
+    name: "md",
+    nav: "drawer",
+  },
+  {
+    gap: "1rem",
+    gutter: "2rem",
+    min: "56rem · 896px",
+    name: "nav",
+    nav: "bar",
+  },
+  {
+    gap: "1.5rem",
+    gutter: "2rem",
+    min: "64rem · 1024px",
+    name: "lg",
+    nav: "bar",
+  },
 ];
 
 const TYPE_LADDER = [
@@ -18,15 +42,43 @@ const TYPE_LADDER = [
 
 const COLLAPSE = [
   { at: "md · 768px", pattern: "S-01 Feature pair", rule: "12 → 6 / 6" },
-  { at: "sm · 640px, then lg · 1024px", pattern: "S-02 Capability grid", rule: "12 → 6 → 3" },
-  { at: "lg · 1024px", pattern: "S-03 / S-04 Split", rule: "12 → 5 + 5, media placed by row-start" },
+  {
+    at: "sm · 640px, then lg · 1024px",
+    pattern: "S-02 Capability grid",
+    rule: "12 → 6 → 3",
+  },
+  {
+    at: "lg · 1024px",
+    pattern: "S-03 / S-04 Split",
+    rule: "12 → 5 + 5, media placed by row-start",
+  },
   { at: "md · 768px", pattern: "S-05 Metric row", rule: "6 → 3" },
   { at: "md · 768px", pattern: "S-06 Two-column verdict", rule: "12 → 6 / 6" },
-  { at: "md · 768px", pattern: "S-08 Numbered sequence", rule: "12 → 4 / 4 / 4" },
-  { at: "never", pattern: "S-09 Pull quote", rule: "one column at every width" },
-  { at: "never", pattern: "S-07 Channel strip", rule: "wraps, centred at every width" },
-  { at: "never", pattern: "S-10 Product proof", rule: "full container width at every width" },
-  { at: "never", pattern: "S-11 Closing panel", rule: "stacked at every width" },
+  {
+    at: "never",
+    pattern: "S-08 Numbered sequence",
+    rule: "one vertical rail at every width",
+  },
+  {
+    at: "never",
+    pattern: "S-09 Pull quote",
+    rule: "one column at every width",
+  },
+  {
+    at: "never",
+    pattern: "S-07 Channel strip",
+    rule: "wraps, centred at every width",
+  },
+  {
+    at: "never",
+    pattern: "S-10 Product proof",
+    rule: "full container width at every width",
+  },
+  {
+    at: "never",
+    pattern: "S-11 Closing panel",
+    rule: "stacked at every width",
+  },
 ];
 
 export function ResponsiveContract() {

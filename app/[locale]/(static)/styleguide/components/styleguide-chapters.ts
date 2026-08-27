@@ -35,6 +35,7 @@ export const STYLEGUIDE_CHAPTERS = [
     label: "Foundations",
     sections: [
       { id: "surfaces", label: "Surfaces" },
+      { id: "contrast", label: "Contrast and inversion" },
       { id: "edges-washes", label: "Edges and washes" },
       { id: "signals", label: "Accent and signal" },
       { id: "typography", label: "Typography" },

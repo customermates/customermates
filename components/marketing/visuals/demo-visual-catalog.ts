@@ -261,7 +261,10 @@ export const DEMO_VISUAL_DEALS = {
     currency: "EUR",
     kind: "deal",
     name: "Digital Customer Platform",
+    organization: "BMW",
+    projectPeriod: ["2026-06-01", "2026-08-28"],
     status: "deal-open",
+    totalQuantity: 162,
     totalValue: 198_500,
     weightedValue: 59_550,
   },
@@ -308,9 +311,34 @@ export const DEMO_VISUAL_DEALS = {
     currency: "EUR";
     kind: "deal";
     name: string;
+    organization?: string;
+    projectPeriod?: readonly [string, string];
     status: keyof typeof DEMO_VISUAL_DEAL_STATUSES;
+    totalQuantity?: number;
     totalValue: number;
     weightedValue: number;
+  }
+>;
+
+export const DEMO_VISUAL_CONVERSATIONS = {
+  "gmail-roche-rollout": {
+    localizedSubject: {
+      de: "Nächste Schritte für den Roche-Rollout",
+      en: "Next steps for the Roche rollout",
+    },
+    person: "anna-mueller",
+    provider: "gmail",
+    state: "open",
+    subject: "Next steps for the Roche rollout",
+  },
+} as const satisfies Record<
+  string,
+  {
+    localizedSubject: Readonly<Record<string, string>>;
+    person: keyof typeof DEMO_VISUAL_PEOPLE;
+    provider: "gmail" | "linkedin" | "whatsapp";
+    state: "open" | "unread";
+    subject: string;
   }
 >;
 

@@ -35,7 +35,11 @@ const CONTRACT_ROWS = [
   ["Meaning", "relationship, change or result, with approved fact references for claims"],
   [
     "Fixtures",
-    "an explicit ChatGPT, Claude, Cursor or Gemini identity for every agent cue, plus subject-bound channel, person, record and Status IDs",
+    "an explicit ChatGPT, Claude, Cursor or Gemini identity for every agent cue, plus subject-bound channel, person, conversation, record and Status IDs",
+  ],
+  [
+    "Composites",
+    "a registered provider-set or Kanban-board fixture counts as one supporting subject; arbitrary provider arrays and invented board data are rejected",
   ],
   ["Copy", "one focal label and up to two short semantic labels in the brief locale"],
   [
@@ -63,7 +67,7 @@ const DETAIL_BUDGET = [
   {
     budget: "3 units",
     placement: "split",
-    rule: "Focal identity, one context unit and one native state or action.",
+    rule: "Focal identity, one composite context and one native state or action. Repeated fixture rows stay subordinate.",
   },
   {
     budget: "4 units",
@@ -230,8 +234,9 @@ export function VisualsChapter({ locale }: { locale: VisualLocale }) {
             <code className="font-mono text-sm">yarn marketing:visual-catalog</code>
 
             <p className="text-meta mt-3">
-              Lists the approved AI and channel providers, role-safe synthetic people, seeded conversation pairings,
-              records and statuses from the committed demo catalogue. It never queries a runtime database.
+              Lists the approved AI and channel providers, role-safe synthetic people, seeded conversations and
+              pairings, registered provider sets, deal boards, records and statuses from the committed demo catalogue.
+              It never queries a runtime database.
             </p>
           </div>
         </div>

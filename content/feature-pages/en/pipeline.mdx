@@ -12,6 +12,15 @@ hero:
   buttonRightHref: https://demo.customermates.com
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
+visualSection:
+  title: Move one deal without losing the numbers
+  description: Max Bergmann drags Digital Customer Platform from Open toward Won while the current deal and weighted values stay visible.
+  labels:
+    focal: Deal
+    semantic:
+      - Deal value
+      - Weighted value
+
 cta:
   action: Ready to take control of your pipeline?
   description: Set up your sales pipeline in Customermates in minutes. Define your stages, create your first deals, and start managing visually.
@@ -54,15 +63,38 @@ Customermates provides a visual pipeline with kanban boards, customizable stages
 
 **External AI clients can update the pipeline.** Through [[derived.mcp.tools.total]] MCP tools, supported clients such as Claude, ChatGPT, or Gemini can move permitted deals between stages, update fields, and draft an individual follow-up. Customermates includes neither the client nor an AI model; subscription, usage, and provider handling remain external.
 
-**Visual kanban board.** Your pipeline is displayed as a drag-and-drop kanban board where each column represents a deal stage. Deals appear as cards showing key information at a glance: deal name, value, contact, and expected close date. Moving a deal to the next stage is as simple as dragging the card to the next column.
+**Visual kanban board.** Your pipeline is displayed as a drag-and-drop kanban board where each column represents a deal stage. Cards show the fields configured for that view; the seeded demo includes deal name, Status, total and weighted value, quantity, project period, organization, services, and owner. Moving a deal to the next stage is as simple as dragging the card to the next column.
 
 **Customizable deal stages.** Define the stages that match your actual sales process. Whether your pipeline has four stages or twelve, Customermates adapts to your workflow. Rename stages, reorder them, add new ones, or remove stages that do not apply. Your pipeline reflects how your team actually sells.
 
 **Board and table views.** Switch each deal list between a board view (grouped by a single-select stage column) and a table view. To keep new business, renewals, or separate product lines apart, group by a different single-select column or filter the list. You shape the board around how your team actually sells.
 
-**Deal cards with context.** Each deal card on the kanban board displays the information you need for quick decisions. See the deal value, assigned owner, expected close date, and linked organization without opening the full record. Click through to the detailed deal view when you need the complete picture.
+**Deal cards with context.** Choose which fields appear on each deal card so the board supports quick decisions without pretending every workspace uses the same schema. The seeded demo exposes Status, total and weighted value, quantity, project period, linked organization, services, and assigned owner; open the record for the complete picture.
 
 **Dashboard charts over your pipeline.** Each user builds a personal dashboard of chart widgets (bar, doughnut, or radar) over the deal data: pipeline value by stage, deal count by owner, won versus lost by source. Widgets filter by any standard or custom field and update as deals change, so you can see where value sits and where deals stall without exporting to a spreadsheet.
+
+### Inspect the Deal Board
+
+The public demo is inspection-only. Its seeded deal view opens as a Status-grouped Kanban so you can inspect real cards, deal values, weighted values, and column summaries without treating a demo drag as a saved change.
+
+<ProductDemo id="pipeline-deal-board-demo" surface="deals" title="Live Customermates deal-board demo" />
+
+## Set Up Your Pipeline in Three Steps
+
+<Steps>
+  <Step id="pipeline-setup-status" title="Define the Status options">
+    Use a single-select Status column whose options match the way your team
+    actually sells.
+  </Step>
+  <Step id="pipeline-setup-deals" title="Add the deals that matter">
+    Give each deal a clear name, current value, owner, and Status so the board
+    has useful context from the start.
+  </Step>
+  <Step id="pipeline-setup-board" title="Work from the board">
+    Switch the deal list to board view, group by Status, and inspect or move a
+    card when its state changes.
+  </Step>
+</Steps>
 
 ## Measuring Pipeline Performance
 
@@ -102,15 +134,36 @@ A pipeline is not a static structure. Regular optimization keeps your sales proc
 
 ## Why Choose Customermates for Pipeline Management
 
-**Open-source core.** The AGPL core CRM application and pipeline code are inspectable. Pipeline stages remain customer-defined fields; Customermates includes no hidden forecast or scoring algorithm, while managed-cloud features and connected providers remain separate.
-
-**EU database region with documented providers.** The managed database runs in an EU region. Application hosting and other providers, including US providers, may process data elsewhere; this deployment fact is not a GDPR or other compliance certification.
-
-**Simple, fair pricing.** Pipeline management is included from [[commercial.price.starter.monthly]] per user per month (Starter tier). Board and table views, custom stages, deal cards, dashboard charts, and MCP access for external AI clients are included at every tier. No premium tier required for advanced pipeline capabilities.
-
-**Separate n8n for pipeline workflows.** Connect an n8n instance you run or subscribe to through REST, webhooks, MCP, or the community node. Its scheduler, 400+ connector catalog, runtime, plans, limits, logs, provider delivery, and costs remain external.
-
-**Self-hostable application and database.** Deploy the Customermates application and PostgreSQL database on your infrastructure. External AI and workflow providers still receive any data your configuration sends; self-hosting is not a data-residency or compliance guarantee.
+<FeaturePoints>
+  <FeaturePoint id="pipeline-open-source" icon="Code2" title="Open-source core">
+    The AGPL core CRM application and pipeline code are inspectable. Pipeline
+    stages remain customer-defined fields; Customermates includes no hidden
+    forecast or scoring algorithm, while managed-cloud features and connected
+    providers remain separate.
+  </FeaturePoint>
+  <FeaturePoint id="pipeline-eu-region" icon="ShieldCheck" title="Documented hosting boundaries">
+    The managed database runs in an EU region. Application hosting and other
+    providers, including US providers, may process data elsewhere; this
+    deployment fact is not a GDPR or other compliance certification.
+  </FeaturePoint>
+  <FeaturePoint id="pipeline-pricing" icon="DollarSign" title="Simple, fair pricing">
+    Pipeline management is included from [[commercial.price.starter.monthly]]
+    per user per month. Board and table views, custom stages, deal cards,
+    dashboard charts, and MCP access for external AI clients are included at
+    every tier.
+  </FeaturePoint>
+  <FeaturePoint id="pipeline-workflows" icon="Zap" title="Separate n8n workflows">
+    Connect an n8n instance you run or subscribe to through REST, webhooks, MCP,
+    or the community node. Its scheduler, connector catalog, runtime, plans,
+    limits, logs, provider delivery, and costs remain external.
+  </FeaturePoint>
+  <FeaturePoint id="pipeline-self-hosting" icon="Server" title="Self-hostable application and database">
+    Deploy the Customermates application and PostgreSQL database on your
+    infrastructure. External AI and workflow providers still receive any data
+    your configuration sends; self-hosting is not a data-residency or compliance
+    guarantee.
+  </FeaturePoint>
+</FeaturePoints>
 
 ## Get Started with Your Sales Pipeline Today
 

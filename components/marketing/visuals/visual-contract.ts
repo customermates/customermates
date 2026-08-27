@@ -4,14 +4,17 @@ import { CONTENT_LOCALES, isContentLocale, type ContentLocale } from "@/i18n/loc
 
 import {
   VISUAL_AGENT_PROVIDER_FIXTURES,
+  VISUAL_CONVERSATION_FIXTURES,
+  VISUAL_DEAL_BOARD_FIXTURES,
   VISUAL_PERSON_FIXTURES,
   VISUAL_PROVIDER_FIXTURES,
   VISUAL_PROVIDER_PERSON_PAIRINGS,
+  VISUAL_PROVIDER_SET_FIXTURES,
   VISUAL_RECORD_FIXTURES,
   VISUAL_STATUS_FIXTURES,
 } from "./native-fixtures";
 
-export const VISUAL_REFERENCE_SYSTEM_VERSION = "customermates-marketing-visuals@6";
+export const VISUAL_REFERENCE_SYSTEM_VERSION = "customermates-marketing-visuals@7";
 
 export const VISUAL_KINDS = ["brand-illustration", "product-proof", "none"] as const;
 export const VISUAL_PATHWAYS = ["converge", "handoff", "focus"] as const;
@@ -20,9 +23,12 @@ export const VISUAL_LOCALES = CONTENT_LOCALES;
 
 export const SUPPORTED_VISUAL_FACTS = [
   "product:conversation-record-association",
+  "product:deal-kanban-movement",
   "product:deal-status-field",
+  "product:deal-weighted-values",
   "product:human-send-boundary",
   "product:record-activity-context",
+  "product:unified-inbox-channel-set",
 ] as const;
 
 export type VisualKind = (typeof VISUAL_KINDS)[number];
@@ -40,7 +46,10 @@ const enumKeys = <T extends Record<string, unknown>>(value: T) =>
   Object.keys(value) as [keyof T & string, ...(keyof T & string)[]];
 const PersonFixtureSchema = z.enum(enumKeys(VISUAL_PERSON_FIXTURES));
 const AgentProviderFixtureSchema = z.enum(enumKeys(VISUAL_AGENT_PROVIDER_FIXTURES));
+const ConversationFixtureSchema = z.enum(enumKeys(VISUAL_CONVERSATION_FIXTURES));
+const DealBoardFixtureSchema = z.enum(enumKeys(VISUAL_DEAL_BOARD_FIXTURES));
 const ProviderFixtureSchema = z.enum(enumKeys(VISUAL_PROVIDER_FIXTURES));
+const ProviderSetFixtureSchema = z.enum(enumKeys(VISUAL_PROVIDER_SET_FIXTURES));
 const RecordFixtureSchema = z.enum(enumKeys(VISUAL_RECORD_FIXTURES));
 const StatusFixtureSchema = z.enum(enumKeys(VISUAL_STATUS_FIXTURES));
 
@@ -70,8 +79,11 @@ const SourceCopySchema = z.strictObject({
 });
 
 const SubjectFixtureSchema = z.strictObject({
+  conversation: ConversationFixtureSchema.optional(),
+  dealBoard: DealBoardFixtureSchema.optional(),
   person: PersonFixtureSchema.optional(),
   provider: ProviderFixtureSchema.optional(),
+  providerSet: ProviderSetFixtureSchema.optional(),
   record: RecordFixtureSchema.optional(),
   status: StatusFixtureSchema.optional(),
 });
@@ -85,7 +97,17 @@ const AgentCueSubjectSchema = z.strictObject({
 
 const FixtureSubjectSchema = z.strictObject({
   fixtures: SubjectFixtureSchema.optional(),
-  form: z.enum(["record", "draft", "signal", "channel-mark", "human-action", "context-card", "trace"]),
+  form: z.enum([
+    "record",
+    "draft",
+    "signal",
+    "channel-mark",
+    "provider-set",
+    "kanban-board",
+    "human-action",
+    "context-card",
+    "trace",
+  ]),
   id: identifier,
 });
 
@@ -191,6 +213,10 @@ export const VisualBriefSchema = BaseVisualBriefSchema.superRefine((brief, conte
     if (!fixtures) {
       if (subject.form === "channel-mark")
         addIssue(context, [...subjectPath, "fixtures"], "channel marks require an approved provider fixture");
+      if (subject.form === "provider-set")
+        addIssue(context, [...subjectPath, "fixtures"], "provider sets require an approved provider-set fixture");
+      if (subject.form === "kanban-board")
+        addIssue(context, [...subjectPath, "fixtures"], "Kanban boards require an approved board fixture");
       continue;
     }
 
@@ -199,6 +225,29 @@ export const VisualBriefSchema = BaseVisualBriefSchema.superRefine((brief, conte
 
     if (subject.form === "channel-mark" && !fixtures.provider)
       addIssue(context, [...subjectPath, "fixtures", "provider"], "channel marks require an approved provider fixture");
+
+    if (subject.form === "provider-set" && !fixtures.providerSet) {
+      addIssue(
+        context,
+        [...subjectPath, "fixtures", "providerSet"],
+        "provider sets require an approved provider-set fixture",
+      );
+    }
+
+    if (subject.form === "kanban-board" && !fixtures.dealBoard)
+      addIssue(context, [...subjectPath, "fixtures", "dealBoard"], "Kanban boards require an approved board fixture");
+
+    if (fixtures.providerSet && subject.form !== "provider-set")
+      addIssue(context, [...subjectPath, "fixtures", "providerSet"], "provider-set fixtures belong to provider sets");
+
+    if (fixtures.dealBoard && subject.form !== "kanban-board")
+      addIssue(context, [...subjectPath, "fixtures", "dealBoard"], "board fixtures belong to Kanban boards");
+
+    if (subject.form === "provider-set" && Object.keys(fixtures).some((key) => key !== "providerSet"))
+      addIssue(context, [...subjectPath, "fixtures"], "provider sets cannot carry unrelated fixtures");
+
+    if (subject.form === "kanban-board" && Object.keys(fixtures).some((key) => key !== "dealBoard"))
+      addIssue(context, [...subjectPath, "fixtures"], "Kanban boards cannot carry unrelated fixtures");
 
     if (fixtures.provider) {
       if (subject.form !== "channel-mark" && subject.form !== "draft") {
@@ -217,6 +266,20 @@ export const VisualBriefSchema = BaseVisualBriefSchema.superRefine((brief, conte
           context,
           [...subjectPath, "fixtures"],
           "the provider and person must match a seeded conversation pairing",
+        );
+      }
+    }
+
+    if (fixtures.conversation) {
+      if (subject.form !== "record")
+        addIssue(context, [...subjectPath, "fixtures", "conversation"], "conversation fixtures belong to records");
+
+      const conversation = VISUAL_CONVERSATION_FIXTURES[fixtures.conversation];
+      if (fixtures.person !== conversation.person) {
+        addIssue(
+          context,
+          [...subjectPath, "fixtures"],
+          "conversation fixtures require their seeded participant binding",
         );
       }
     }

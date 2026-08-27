@@ -5,6 +5,7 @@ import { Bot, Code2, Database, Inbox, PenLine } from "lucide-react";
 import { PatternHeader, type PatternSpec } from "./pattern-header";
 
 import { MarketingSection } from "@/components/marketing/marketing-section";
+import { Step, Steps } from "@/components/marketing/process-steps";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
 
@@ -392,27 +393,19 @@ export function SectionPatterns() {
       </PatternBlock>
 
       <PatternBlock
-        columns="1 → 4 each at md, numbered"
+        columns="One vertical rail at every width"
         id="S-08"
         name="Numbered sequence"
         when="Steps that only make sense in order"
       >
         <MarketingSection description="Three steps, once." title="How the connection is set up">
-          <div className="marketing-grid mt-14 gap-y-10 lg:mt-16">
+          <Steps className="mt-14 mb-0 max-w-3xl lg:mt-16">
             {STEPS.map((step, index) => (
-              <div key={step.title} className="col-span-12 md:col-span-4">
-                <div className="flex items-baseline gap-4 border-t border-border-strong pt-5">
-                  <code className="font-mono text-sm text-primary">{String(index + 1).padStart(2, "0")}</code>
-
-                  <div>
-                    <h3 className="m-0 font-medium leading-snug">{step.title}</h3>
-
-                    <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">{step.body}</p>
-                  </div>
-                </div>
-              </div>
+              <Step key={step.title} id={`S-08-step-${index + 1}`} title={step.title}>
+                <p>{step.body}</p>
+              </Step>
             ))}
-          </div>
+          </Steps>
         </MarketingSection>
       </PatternBlock>
 

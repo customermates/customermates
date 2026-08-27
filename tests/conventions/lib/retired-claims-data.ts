@@ -1,9 +1,5 @@
-// The retired-claim table, extracted so more than one guard can enforce it.
-//
-// retired-claims.test.ts scans content/**/*.mdx and the locale JSON. Scene copy lives in
-// components/marketing/scenes/*.tsx and was invisible to every claim guard until
-// scene-claims.test.ts started reading this same table. Keeping one table means a claim
-// retired for marketing prose cannot quietly come back as a drawn product window.
+// The retired-claim table is shared by every content guard so a claim cannot pass through
+// one authored surface after another guard has rejected it.
 
 export type UnitKind =
   | "frontmatter"
