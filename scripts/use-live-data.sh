@@ -2,6 +2,7 @@
 
 set -euo pipefail
 
+expected_postgres_major=17
 apply_migrations=false
 if [[ $# -eq 1 && "$1" == "--apply-migrations" ]]; then
   apply_migrations=true
@@ -9,6 +10,88 @@ elif [[ $# -ne 0 ]]; then
   echo "Usage: yarn db:use-live-data [--apply-migrations]" >&2
   exit 1
 fi
+
+production_url=""
+temporary_directory=""
+cleanup() {
+  unset production_url
+  if [[ -n "$temporary_directory" ]]; then
+    rm -rf "$temporary_directory"
+  fi
+}
+trap cleanup EXIT
+
+retry_argument=""
+if [[ "$apply_migrations" == "true" ]]; then
+  retry_argument=" --apply-migrations"
+fi
+
+postgres_client_fix() {
+  local postgres_bin=""
+  local detected_prefix
+  local homebrew_prefix
+
+  if command -v brew >/dev/null 2>&1; then
+    detected_prefix="$(brew --prefix postgresql@17 2>/dev/null || true)"
+    if [[ -z "$detected_prefix" ]]; then
+      homebrew_prefix="$(brew --prefix 2>/dev/null || true)"
+      detected_prefix="$homebrew_prefix/opt/postgresql@17"
+    fi
+    postgres_bin="$detected_prefix/bin"
+    echo "Install/use the PostgreSQL 17 clients, then retry:" >&2
+    echo "  brew install postgresql@17" >&2
+    printf '  PATH="%s:$PATH" yarn db:use-live-data%s\n' "$postgres_bin" "$retry_argument" >&2
+  elif [[ -d /usr/lib/postgresql/17/bin ]]; then
+    echo "Use the installed PostgreSQL 17 clients, then retry:" >&2
+    printf '  PATH="/usr/lib/postgresql/17/bin:$PATH" yarn db:use-live-data%s\n' "$retry_argument" >&2
+  else
+    echo "Install PostgreSQL 17 client tools with the system package manager, put pg_dump and pg_restore 17 or newer on PATH, then retry:" >&2
+    printf '  yarn db:use-live-data%s\n' "$retry_argument" >&2
+  fi
+}
+
+for required_command in psql pg_dump pg_restore dropdb createdb; do
+  if ! command -v "$required_command" >/dev/null 2>&1; then
+    echo "PostgreSQL client preflight failed: $required_command is not installed. No export was taken and the local database was not changed." >&2
+    postgres_client_fix
+    exit 1
+  fi
+done
+
+database_major() {
+  local label="$1"
+  local url="$2"
+  local read_only="$3"
+  local version_number
+
+  if [[ "$read_only" == "true" ]]; then
+    if ! version_number="$(PGOPTIONS='-c default_transaction_read_only=on' psql "$url" --no-psqlrc --quiet --tuples-only --no-align --set=ON_ERROR_STOP=1 -c 'SHOW server_version_num;')"; then
+      echo "Could not read the $label PostgreSQL version. No export was taken and the local database was not changed." >&2
+      return 1
+    fi
+  elif ! version_number="$(psql "$url" --no-psqlrc --quiet --tuples-only --no-align --set=ON_ERROR_STOP=1 -c 'SHOW server_version_num;')"; then
+    echo "Could not read the $label PostgreSQL version. No export was taken and the local database was not changed." >&2
+    return 1
+  fi
+
+  version_number="$(printf '%s' "$version_number" | tr -d '[:space:]')"
+  if [[ ! "$version_number" =~ ^[0-9]+$ ]]; then
+    echo "Could not parse the $label PostgreSQL server_version_num. No export was taken and the local database was not changed." >&2
+    return 1
+  fi
+  printf '%s\n' "$((10#$version_number / 10000))"
+}
+
+client_major() {
+  local command="$1"
+  local version_output
+
+  if ! version_output="$("$command" --version)" || [[ ! "$version_output" =~ ([0-9]+)(\.[0-9]+)? ]]; then
+    echo "Could not parse $command --version. No export was taken and the local database was not changed." >&2
+    return 1
+  fi
+  printf '%s\n' "${BASH_REMATCH[1]}"
+}
 
 if [[ -z "${DATABASE_URL:-}" && -f .env ]]; then
   set -a
@@ -48,6 +131,18 @@ if [[ -z "$destination_url" ]]; then
   exit 1
 fi
 
+if [[ "$destination_url" == *"?"* || "$destination_url" == *"#"* ]]; then
+  echo "Refusing a local destination URL with query parameters or a fragment because libpq connection options can override its host. Use the exact URL printed by yarn db:provision." >&2
+  exit 1
+fi
+
+for routing_variable in PGHOST PGHOSTADDR PGPORT PGDATABASE PGSERVICE PGSERVICEFILE; do
+  if [[ -n "${!routing_variable:-}" ]]; then
+    echo "Refusing to replace a local destination while $routing_variable is set because libpq environment options can redirect the connection. Unset it and use the exact URL printed by yarn db:provision." >&2
+    exit 1
+  fi
+done
+
 parse_destination "$destination_url"
 
 case "$destination_host" in
@@ -74,8 +169,34 @@ if [[ "$production_url" == *-pooler.* ]]; then
   exit 1
 fi
 
+production_major="$(database_major "Production" "$production_url" true)"
+destination_major="$(database_major "destination" "$destination_url" false)"
+dump_major="$(client_major pg_dump)"
+restore_major="$(client_major pg_restore)"
+
+if [[ "$production_major" != "$expected_postgres_major" ]]; then
+  unset production_url
+  echo "Production version contract drift: expected PostgreSQL $expected_postgres_major but found $production_major. No export was taken and the local database was not changed." >&2
+  exit 1
+fi
+
+if [[ "$destination_major" != "$production_major" ]]; then
+  unset production_url
+  echo "PostgreSQL version mismatch: Production is $production_major but the local destination is $destination_major. Run yarn db:provision --recreate, update .env with its printed URL, and retry. No export was taken and the local database was not changed." >&2
+  exit 1
+fi
+
+if (( dump_major < production_major || restore_major < production_major || restore_major < dump_major )); then
+  unset production_url
+  echo "PostgreSQL client preflight failed: Production is PostgreSQL $production_major, but pg_dump is $dump_major and pg_restore is $restore_major." >&2
+  echo "Both tools must be at least PostgreSQL $production_major, and pg_restore must not be older than pg_dump. No export was taken and the local database was not changed." >&2
+  postgres_client_fix
+  exit 1
+fi
+
+echo "Preflight: Production and destination are PostgreSQL $production_major; pg_dump $dump_major and pg_restore $restore_major are compatible."
+
 temporary_directory="$(mktemp -d "${TMPDIR:-/tmp}/customermates-live-data.XXXXXX")"
-trap 'rm -rf "$temporary_directory"' EXIT
 archive="$temporary_directory/snapshot.dump"
 
 echo "[1/6] Exporting Production over a read-only session. Nothing is written to Production."
