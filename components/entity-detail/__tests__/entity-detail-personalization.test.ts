@@ -308,6 +308,14 @@ describe("entity detail preference persistence", () => {
 });
 
 describe("entity detail section", () => {
+  it("clips fields throughout the collapse animation", () => {
+    const { container } = mountNode(sectionView());
+    const content = container.querySelector<HTMLElement>('[data-slot="collapsible-content"]');
+
+    expect(content?.className).toContain("overflow-hidden");
+    expect(content?.className).toContain("data-[state=closed]:animate-collapsible-up");
+  });
+
   it("uses the complete header row as its accessible collapse trigger", () => {
     const { container } = mountNode(
       createElement(
