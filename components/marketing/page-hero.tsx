@@ -13,6 +13,7 @@ type Props = {
   buttonRightText: string;
   description: string;
   hint: string;
+  showOpenSourceBadge?: boolean;
   title: string;
   titleAccent?: string;
 };
@@ -27,6 +28,7 @@ export function PageHero({
   buttonRightHref,
   buttonRightText,
   hint,
+  showOpenSourceBadge = true,
 }: Props) {
   return (
     <div className="relative isolate w-full">
@@ -47,8 +49,8 @@ export function PageHero({
         className="pointer-events-none absolute inset-x-0 -top-16 z-[5] h-[760px] bg-[radial-gradient(ellipse_70%_75%_at_50%_50%,var(--background)_0%,color-mix(in_oklab,var(--background)_85%,transparent)_25%,color-mix(in_oklab,var(--background)_55%,transparent)_50%,color-mix(in_oklab,var(--background)_20%,transparent)_75%,transparent_100%)]"
       />
 
-      <div className="relative z-10 flex flex-col items-center">
-        <AgplGithubBadge />
+      <div className="relative z-10 flex w-full min-w-0 flex-col items-center">
+        {showOpenSourceBadge ? <AgplGithubBadge /> : null}
 
         {badge ? (
           <div className="mb-4 flex justify-center">
@@ -56,20 +58,20 @@ export function PageHero({
           </div>
         ) : null}
 
-        <h1 className="text-x-4xl mx-auto max-w-4xl px-4 text-center">{title}</h1>
+        <h1 className="text-x-4xl mx-auto w-full max-w-4xl px-4 text-center">{title}</h1>
 
         {titleAccent ? (
           <div
-            className="mx-auto mt-1.5 px-4 text-center text-[26px] italic text-primary sm:text-[32px] md:text-[36px] tracking-[-0.02em]"
+            className="mx-auto mt-1.5 w-full px-4 text-center text-[26px] italic text-primary sm:text-[32px] md:text-[36px] tracking-[-0.02em]"
             style={{ fontFamily: "var(--font-serif)" }}
           >
             {titleAccent}
           </div>
         ) : null}
 
-        <h2 className="text-x-lg mx-auto max-w-4xl px-4 pt-4 text-center text-subdued md:pt-6">{description}</h2>
+        <h2 className="text-x-lg mx-auto w-full max-w-4xl px-4 pt-4 text-center text-subdued md:pt-6">{description}</h2>
 
-        <div className="my-8 flex flex-col items-center px-4 md:my-10">
+        <div className="my-8 flex w-full flex-col items-center px-4 md:my-10">
           <div className="flex w-full flex-col items-center justify-center gap-4 sm:w-auto sm:flex-row md:gap-6">
             <Button asChild className="w-full sm:w-auto" size="lg" variant="default">
               <IntlLink href={buttonLeftHref}>{buttonLeftText}</IntlLink>

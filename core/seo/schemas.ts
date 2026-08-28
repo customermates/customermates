@@ -63,6 +63,7 @@ export function articleSchema(params: {
   dateModified?: string;
   description: string;
   headline: string;
+  includeHeroImage?: boolean;
   locale: string;
   slug: string;
 }) {
@@ -73,12 +74,13 @@ export function articleSchema(params: {
     description: params.description,
   });
   const ogImage = `${env.BASE_URL}/og/image.png?${ogImageParams.toString()}`;
+  const images = params.includeHeroImage === false ? [ogImage] : [heroImage, ogImage];
   return {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: params.headline,
     description: params.description,
-    image: [heroImage, ogImage],
+    image: images,
     datePublished: params.datePublished,
     dateModified: params.dateModified ?? params.datePublished,
     author: {

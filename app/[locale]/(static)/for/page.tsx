@@ -74,7 +74,7 @@ export default async function ForHubPage({ searchParams }: Props) {
       return {
         description: p.data.description,
         href: `/for/${slug}`,
-        imageSrc: `${slug}.png`,
+        imageSrc: p.data.acquisition?.visual.kind === "none" ? undefined : `${slug}.png`,
         tag: tagLabel,
         title: p.data.industryName,
       };

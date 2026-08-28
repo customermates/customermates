@@ -1,9 +1,96 @@
 import { z } from "zod";
 
+import { VisualBriefSchema } from "@/components/marketing/visuals/visual-contract";
+import { CONTENT_LOCALES } from "@/i18n/locale-registry";
+
 export const metaSchema = z.object({
   description: z.string(),
   title: z.string(),
 });
+
+const acquisitionFactReferenceSchema = z.enum([
+  "product:agpl-community-core",
+  "product:cloud-only-unified-inbox",
+  "product:core-crm-records",
+  "product:custom-fields-and-views",
+  "product:deal-pipelines",
+  "product:docker-postgresql-deployment",
+  "product:hosted-mate-capability",
+  "product:hosted-mate-release-hold",
+  "product:mcp-tools",
+  "product:rest-and-webhooks",
+  "product:self-hosted-starter-entitlements",
+  "product:services-and-tasks",
+  "product:unified-inbox-channels",
+  "product:unified-inbox-entitlements",
+  "product:weighted-deal-values",
+]);
+
+export const ACQUISITION_FACT_SOURCES = {
+  "product:agpl-community-core": ["LICENSE", "ee/LICENSE.md"],
+  "product:cloud-only-unified-inbox": ["ee/subscription/entitlements.ts"],
+  "product:core-crm-records": ["features/mcp-tools/server-instructions.ts"],
+  "product:custom-fields-and-views": [
+    "features/custom-column/custom-column.schema.ts",
+    "components/data-view/data-view-content.tsx",
+  ],
+  "product:deal-pipelines": [
+    "features/deals/deal.schema.ts",
+    "features/mcp-tools/server-instructions.ts",
+    "components/data-view/data-kanban-view.tsx",
+  ],
+  "product:docker-postgresql-deployment": ["docker-compose.yml"],
+  "product:hosted-mate-capability": [
+    "ee/agent-chat/agent-availability.ts",
+    "ee/agent-chat/gated-tools.ts",
+    "core/commercial/plan-catalog.ts",
+    "ee/subscription/entitlements.ts",
+  ],
+  "product:hosted-mate-release-hold": ["ee/agent-chat/agent-availability.ts", "content/legal/en/privacy.mdx"],
+  "product:mcp-tools": ["features/mcp-tools/tool-registry.ts", "features/mcp-tools/server-instructions.ts"],
+  "product:rest-and-webhooks": ["app/api/v1/openapi/route.ts", "features/webhook/webhook.schema.ts"],
+  "product:self-hosted-starter-entitlements": ["ee/subscription/entitlements.ts"],
+  "product:services-and-tasks": ["features/services/service.schema.ts", "features/tasks/task.schema.ts"],
+  "product:unified-inbox-channels": ["ee/messaging/provider.ts", "ee/messaging/connect/connect-channels.ts"],
+  "product:unified-inbox-entitlements": ["core/commercial/plan-catalog.ts", "ee/subscription/entitlements.ts"],
+  "product:weighted-deal-values": ["features/deals/deal-weighting.ts"],
+} as const satisfies Record<z.infer<typeof acquisitionFactReferenceSchema>, readonly string[]>;
+
+const acquisitionExcludedClaimSchema = z.enum([
+  "claim:no-delivery-management",
+  "claim:no-hosted-ai-self-hosted",
+  "claim:no-import-export",
+  "claim:no-invoicing",
+  "claim:no-live-mate-availability",
+  "claim:no-proposal-automation",
+  "claim:no-psa",
+  "claim:no-self-hosted-inbox",
+  "claim:no-time-tracking",
+  "claim:no-unsupported-channels",
+]);
+
+export const acquisitionPageSchema = z.strictObject({
+  clusterId: z.enum(["ai-agentic-mcp", "open-source-self-hosted", "professional-services", "unified-inbox"]),
+  cta: z.strictObject({
+    primaryHref: z.string().min(1),
+    secondaryHref: z.string().min(1),
+  }),
+  locale: z.enum(CONTENT_LOCALES),
+  metadata: metaSchema,
+  primaryIntent: z.string().trim().min(8).max(120),
+  proof: z.strictObject({
+    excludedClaims: z.array(acquisitionExcludedClaimSchema).min(1),
+    factReferences: z.array(acquisitionFactReferenceSchema).min(1),
+  }),
+  role: z.enum(["hub", "support"]),
+  slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u),
+  structuredData: z.strictObject({
+    faqFromRenderedContent: z.literal(true),
+    types: z.array(z.enum(["Article", "BreadcrumbList", "FAQPage", "SoftwareApplication"])).min(2),
+  }),
+  visual: VisualBriefSchema,
+});
+export type AcquisitionPage = z.infer<typeof acquisitionPageSchema>;
 
 export const heroSchema = z.object({
   buttonLeftHref: z.string(),
@@ -12,6 +99,7 @@ export const heroSchema = z.object({
   buttonRightText: z.string(),
   description: z.string(),
   hint: z.string(),
+  showOpenSourceBadge: z.boolean().optional(),
   title: z.string(),
   titleAccent: z.string().optional(),
 });

@@ -55,19 +55,21 @@ export default async function ForIndustryPage({ params }: Props) {
 
       <PageHero {...page.data.hero} />
 
-      <div className="relative w-full max-w-6xl mx-auto px-4 mb-8">
-        <ShowcaseFrame className="mb-0">
-          <AppImage
-            isLocalized
-            alt={page.data.hero.title}
-            className="w-full h-auto rounded-none"
-            height={1080}
-            loading="eager"
-            src={`${industry}.png`}
-            width={1920}
-          />
-        </ShowcaseFrame>
-      </div>
+      {page.data.acquisition?.visual.kind !== "none" ? (
+        <div className="relative w-full max-w-6xl mx-auto px-4 mb-8">
+          <ShowcaseFrame className="mb-0">
+            <AppImage
+              isLocalized
+              alt={page.data.hero.title}
+              className="w-full h-auto rounded-none"
+              height={1080}
+              loading="eager"
+              src={`${industry}.png`}
+              width={1920}
+            />
+          </ShowcaseFrame>
+        </div>
+      ) : null}
 
       <section className="relative py-12 md:py-16 w-full max-w-6xl mx-auto px-4">
         <Toc items={page.data.toc}>

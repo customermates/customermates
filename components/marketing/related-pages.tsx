@@ -8,7 +8,7 @@ import { contentLocaleOrDefault } from "@/i18n/locale-registry";
 
 import { HubPostCard } from "./hub-post-card";
 
-type ResolvedTarget = { description: string; imageSrc: string; title: string };
+type ResolvedTarget = { description: string; imageSrc?: string; title: string };
 
 type Resolver = (
   slug: string,
@@ -36,13 +36,21 @@ const RELATED_SEGMENTS: Record<string, Resolver> = {
     const page = featurePagesSource.getPage([slug], locale);
     if (!page) return null;
 
-    return { description: page.data.description, imageSrc: `${slug}.png`, title: page.data.featureName };
+    return {
+      description: page.data.description,
+      imageSrc: page.data.acquisition?.visual.kind === "none" ? undefined : `${slug}.png`,
+      title: page.data.featureName,
+    };
   },
   for: (slug, locale) => {
     const page = forPagesSource.getPage([slug], locale);
     if (!page) return null;
 
-    return { description: page.data.description, imageSrc: `${slug}.png`, title: page.data.industryName };
+    return {
+      description: page.data.description,
+      imageSrc: page.data.acquisition?.visual.kind === "none" ? undefined : `${slug}.png`,
+      title: page.data.industryName,
+    };
   },
 };
 

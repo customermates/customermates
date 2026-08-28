@@ -43,3 +43,26 @@ describe("publisher logo", () => {
     ).toBe(expected);
   });
 });
+
+describe("article images", () => {
+  const params = {
+    datePublished: "2026-08-26",
+    description: "A sourced article",
+    headline: "Agentic CRM",
+    locale: "en",
+    slug: "agentic-crm",
+  };
+
+  it("keeps the localized hero and generated social image by default", () => {
+    expect(articleSchema(params).image).toHaveLength(2);
+    expect(articleSchema(params).image[0]).toContain("/images/light/en/agentic-crm.png");
+  });
+
+  it("omits a suppressed hero from structured data", () => {
+    const schema = articleSchema({ ...params, includeHeroImage: false });
+
+    expect(schema.image).toHaveLength(1);
+    expect(schema.image[0]).toContain("/og/image.png?");
+    expect(schema.image[0]).not.toContain("/images/light/en/agentic-crm.png");
+  });
+});

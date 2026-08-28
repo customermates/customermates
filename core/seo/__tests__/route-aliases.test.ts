@@ -16,6 +16,7 @@ import { PUBLIC_ROUTES } from "@/i18n/routing";
 const REPO_ROOT = resolve(__dirname, "../../..");
 
 const COLLECTION_BY_PREFIX: Record<string, string> = {
+  "/blog/": "blog-posts",
   "/compare/": "compare-pages",
   "/docs/": "docs",
 };

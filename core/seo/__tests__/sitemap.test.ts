@@ -4,7 +4,7 @@ import type { LocalizedRoute } from "../sitemap";
 import { describe, expect, it } from "vitest";
 
 import { buildAlternateLanguages } from "../alternates";
-import { assembleSitemap } from "../sitemap";
+import { assembleSitemap, resolvePageLastModified } from "../sitemap";
 
 import { CONTENT_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
@@ -108,6 +108,26 @@ describe("sitemap assembly", () => {
       "lastModified" in entries[1],
       "a stamped-at-build lastmod tells Google every page changed at deploy time, which teaches it to ignore the field",
     ).toBe(false);
+  });
+});
+
+describe("sitemap page dates", () => {
+  it("prefers the Git-derived modification time over the original publication date", () => {
+    const modified = new Date("2026-08-28T10:00:00.000Z");
+
+    expect(
+      resolvePageLastModified({
+        blogPost: { date: "2026-03-01" },
+        lastModified: modified,
+      }),
+    ).toBe(modified);
+  });
+
+  it("uses a valid publication date only when no derived modification time exists", () => {
+    expect(resolvePageLastModified({ blogPost: { date: "2026-03-01" } })?.toISOString()).toBe(
+      "2026-03-01T00:00:00.000Z",
+    );
+    expect(resolvePageLastModified({ blogPost: { date: "not-a-date" } })).toBeUndefined();
   });
 });
 

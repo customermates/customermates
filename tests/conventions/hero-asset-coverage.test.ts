@@ -2,12 +2,14 @@ import {
   closeSync,
   existsSync,
   openSync,
+  readFileSync,
   readSync,
   readdirSync,
 } from "node:fs";
 import { extname, join } from "node:path";
 
 import { describe, expect, it } from "vitest";
+import { parse } from "yaml";
 
 import { REPO_ROOT } from "./walk";
 
@@ -74,6 +76,16 @@ function imageSlugs(theme: string, locale: string): string[] {
     .sort();
 }
 
+function pageUsesHeroAsset(collection: string, locale: string, slug: string): boolean {
+  const path = join(REPO_ROOT, "content", collection, locale, `${slug}.mdx`);
+  const source = readFileSync(path, "utf8");
+  const frontmatter = /^---\n(.*?)\n---\n?/su.exec(source);
+  if (!frontmatter) return true;
+
+  const data = parse(frontmatter[1]) as { acquisition?: { visual?: { kind?: string } } };
+  return data.acquisition?.visual?.kind !== "none";
+}
+
 describe("hero asset coverage", () => {
   const slugsByCollection = new Map(
     LANDING_HUBS.map(({ collection }) => [
@@ -108,18 +120,21 @@ describe("hero asset coverage", () => {
   it("gives every landing slug every localized theme asset", () => {
     const problems: string[] = [];
 
-    for (const slug of [...expectedSlugs].sort()) {
-      for (const theme of IMAGE_THEMES) {
-        for (const locale of CONTENT_LOCALES) {
-          const relativePath = join(
-            "public",
-            "images",
-            theme,
-            locale,
-            `${slug}.png`,
-          );
-          if (!existsSync(join(REPO_ROOT, relativePath)))
-            problems.push(`${relativePath} is missing`);
+    for (const [collection, slugs] of slugsByCollection) {
+      for (const slug of slugs) {
+        for (const theme of IMAGE_THEMES) {
+          for (const locale of CONTENT_LOCALES) {
+            if (!pageUsesHeroAsset(collection, locale, slug)) continue;
+            const relativePath = join(
+              "public",
+              "images",
+              theme,
+              locale,
+              `${slug}.png`,
+            );
+            if (!existsSync(join(REPO_ROOT, relativePath)))
+              problems.push(`${relativePath} is missing`);
+          }
         }
       }
     }

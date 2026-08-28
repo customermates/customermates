@@ -72,6 +72,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           dateModified: new Date(page.data.lastModified ?? blogPost.date).toISOString(),
           description: page.data.description,
           headline: page.data.title,
+          includeHeroImage: page.data.acquisition?.visual.kind !== "none",
           locale,
           slug,
         })}
@@ -94,17 +95,19 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           </IntlLink>
 
           <header>
-            <ShowcaseFrame className="mb-8">
-              <AppImage
-                isLocalized
-                alt={hero.title}
-                className="w-full h-auto rounded-none"
-                height={1080}
-                loading="eager"
-                src={`${slug}.png`}
-                width={1920}
-              />
-            </ShowcaseFrame>
+            {page.data.acquisition?.visual.kind !== "none" ? (
+              <ShowcaseFrame className="mb-8">
+                <AppImage
+                  isLocalized
+                  alt={hero.title}
+                  className="w-full h-auto rounded-none"
+                  height={1080}
+                  loading="eager"
+                  src={`${slug}.png`}
+                  width={1920}
+                />
+              </ShowcaseFrame>
+            ) : null}
 
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 text-sm text-subdued pb-6">
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
@@ -172,6 +175,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     <BlogPostCard
                       {...post.data.blogPost}
                       locale={locale}
+                      showImage={post.data.acquisition?.visual.kind !== "none"}
                       title={post.data.title}
                       url={`/blog/${postSlug}`}
                     />

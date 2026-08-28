@@ -1,6 +1,8 @@
 import { frontmatterSchema } from "fumadocs-mdx/config";
 import { z } from "zod";
 
+import { acquisitionPageSchema } from "./common";
+
 export const blogPostSchema = z.object({
   author: z.string(),
   backToBlog: z.string(),
@@ -17,6 +19,7 @@ const heroSchema = z.object({
 export type Hero = z.infer<typeof heroSchema>;
 
 export const blogPostsSchema = frontmatterSchema.extend({
+  acquisition: acquisitionPageSchema.optional(),
   blogPost: blogPostSchema,
   description: z.string(),
   hero: heroSchema,

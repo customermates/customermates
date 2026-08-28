@@ -11,6 +11,7 @@ import { AppImage } from "@/components/shared/app-image";
 type Props = BlogPost & {
   description?: string;
   locale: ContentLocale;
+  showImage?: boolean;
   title: string;
   url: string;
 };
@@ -21,8 +22,8 @@ function getImagePath(url: string): string {
   return `${slug}.png`;
 }
 
-export function BlogPostCard({ author, date, description, locale, tags, title, url }: Props) {
-  const imagePath = getImagePath(url);
+export function BlogPostCard({ author, date, description, locale, showImage = true, tags, title, url }: Props) {
+  const imagePath = showImage ? getImagePath(url) : undefined;
 
   return (
     <PostCard
@@ -30,6 +31,7 @@ export function BlogPostCard({ author, date, description, locale, tags, title, u
       description={description}
       href={url}
       imageSrc={imagePath}
+      placeholderLabel={imagePath ? undefined : title}
       title={title}
       topLeft={
         <span className="flex min-w-0 shrink items-center gap-2">
