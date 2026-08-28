@@ -315,7 +315,7 @@ const AgentChatPanel = observer(function AgentChatPanel() {
               );
             })}
 
-            {store.isWorking && store.items.length === 0 && (
+            {store.isAwaitingAssistantResponse && (
               <div aria-label={copy.assistantWorking} className="flex items-center gap-1 py-1" role="status">
                 <TypingDots />
               </div>
