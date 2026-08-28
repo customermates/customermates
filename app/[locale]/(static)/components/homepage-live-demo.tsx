@@ -9,7 +9,7 @@ import { HeroDemoIframe } from "./hero-demo-iframe";
 
 export function HomepageLiveDemo({ locale, proof }: { locale: ContentLocale; proof: HomepageProductProof }) {
   const localBaseUrl = process.env.BASE_URL?.replace(/\/$/u, "");
-  const demoPath = `/${locale}/dashboard`;
+  const demoPath = `/${locale}/dashboard?agentChat=open`;
   const demoSrc =
     process.env.NODE_ENV === "development" && localBaseUrl
       ? `${localBaseUrl}${demoPath}`

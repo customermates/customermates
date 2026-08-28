@@ -441,7 +441,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
 
   async getSuggestionSignals() {
     const select = { id: true };
-    const [contact, organization, deal, service, task, connectedAccount] = await Promise.all([
+    const [contact, organization, deal, service, task, widget, connectedAccount] = await Promise.all([
       this.prisma.contact.findFirst({
         where: this.accessWhere("contact"),
         select,
@@ -462,6 +462,13 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         where: this.accessWhere("task"),
         select,
       }),
+      this.prisma.widget.findFirst({
+        where: {
+          companyId: this.companyId,
+          userId: this.userId,
+        },
+        select,
+      }),
       this.prisma.connectedAccount.findFirst({
         where: this.canAccess(Resource.inboxMessages)
           ? {
@@ -479,6 +486,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       deals: Boolean(deal),
       services: Boolean(service),
       tasks: Boolean(task),
+      widgets: Boolean(widget),
       connectedAccounts: Boolean(connectedAccount),
     };
   }

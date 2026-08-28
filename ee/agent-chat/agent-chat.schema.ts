@@ -123,6 +123,7 @@ export const AgentDataCountsSchema = z.object({
   deals: z.boolean(),
   services: z.boolean(),
   tasks: z.boolean(),
+  widgets: z.boolean(),
   connectedAccounts: z.boolean(),
 });
 
@@ -171,6 +172,8 @@ export function suggestionVariant(pageId: SuggestionPageId, counts: AgentDataCou
       return counts.services ? "data" : "empty";
     case "tasks":
       return counts.tasks ? "data" : "empty";
+    case "dashboard":
+      return counts.widgets ? "data" : "empty";
     case "inbox":
     case "connected-accounts":
       return counts.connectedAccounts ? "data" : "empty";

@@ -29,6 +29,7 @@ const COUNTS = {
   deals: true,
   services: false,
   tasks: true,
+  widgets: false,
   connectedAccounts: false,
 };
 
