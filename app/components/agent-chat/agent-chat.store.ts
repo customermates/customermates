@@ -95,6 +95,15 @@ function readAgentChatOpenPreference(storageKey: string | null): boolean | null 
   }
 }
 
+function readAgentChatOpenOverride(): boolean | null {
+  if (typeof window === "undefined") return null;
+  const values = new URLSearchParams(window.location.search).getAll("agentChat");
+  if (values.length !== 1) return null;
+  if (values[0] === "open") return true;
+  if (values[0] === "closed") return false;
+  return null;
+}
+
 function writeAgentChatOpenPreference(storageKey: string | null, isOpen: boolean) {
   if (!storageKey || typeof window === "undefined") return;
   try {
@@ -171,14 +180,16 @@ export class AgentChatStore extends BaseStore {
   private streamSequence = 0;
   private uiCommandQueue: Promise<void> = Promise.resolve();
   private demoAutoOpened = false;
+  private readonly openOverride: boolean | null;
   private openStorageKey: string | null;
   private openPreference: boolean | null;
 
   constructor(rootStore: RootStore) {
     super(rootStore);
+    this.openOverride = readAgentChatOpenOverride();
     this.openStorageKey = agentChatOpenStorageKey(rootStore);
     this.openPreference = readAgentChatOpenPreference(this.openStorageKey);
-    this.isOpen = this.openPreference === true;
+    this.isOpen = this.openOverride ?? this.openPreference === true;
     makeObservable(this, {
       isOpen: observable,
       isExpanded: observable,
@@ -274,6 +285,7 @@ export class AgentChatStore extends BaseStore {
   private setOpenState(isOpen: boolean) {
     this.syncOpenPreferenceScope();
     this.isOpen = isOpen;
+    if (this.openOverride !== null) return;
     this.openPreference = isOpen;
     writeAgentChatOpenPreference(this.openStorageKey, isOpen);
   }
@@ -283,14 +295,21 @@ export class AgentChatStore extends BaseStore {
     if (storageKey === this.openStorageKey) return;
     this.openStorageKey = storageKey;
     this.openPreference = readAgentChatOpenPreference(storageKey);
-    this.isOpen = this.openPreference === true;
+    this.isOpen = this.openOverride ?? this.openPreference === true;
     this.autoOpenedPages.clear();
     this.demoAutoOpened = false;
   }
 
   openForEmptyPage = (pathname: string) => {
     this.syncOpenPreferenceScope();
-    if (!this.enabled || this.isOpen || this.openPreference === false || this.autoOpenedPages.has(pathname)) return;
+    if (
+      this.openOverride !== null ||
+      !this.enabled ||
+      this.isOpen ||
+      this.openPreference === false ||
+      this.autoOpenedPages.has(pathname)
+    )
+      return;
     if (!this.counts) return;
 
     const page = agentActionPageFromPathname(pathname);
@@ -685,7 +704,13 @@ export class AgentChatStore extends BaseStore {
       if (typeof window !== "undefined") this.openForEmptyPage(window.location.pathname);
       if (!this.conversationId && !this.isDraftConversationSelected && config.conversationId)
         await this.loadConversation(config.conversationId);
-      if (isDemoEnvironment() && !this.isOpen && this.openPreference !== false && !this.demoAutoOpened) {
+      if (
+        this.openOverride === null &&
+        isDemoEnvironment() &&
+        !this.isOpen &&
+        this.openPreference !== false &&
+        !this.demoAutoOpened
+      ) {
         this.demoAutoOpened = true;
         runInAction(() => {
           this.setOpenState(true);

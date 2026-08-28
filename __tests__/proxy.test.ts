@@ -93,7 +93,7 @@ describe("automatic demo authentication proxy", () => {
 
   it("round-trips an unauthenticated visitor through a same-URL redirect carrying every auth cookie", async () => {
     mocks.signInEmail.mockResolvedValue(responseWithCookies(200, [SESSION_TOKEN_COOKIE, SESSION_DATA_COOKIE]));
-    const incomingRequest = request("/en/dashboard?view=demo");
+    const incomingRequest = request("/en/dashboard?agentChat=closed");
 
     const response = await proxy(incomingRequest);
 
@@ -108,7 +108,7 @@ describe("automatic demo authentication proxy", () => {
       asResponse: true,
     });
     expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe("http://localhost:4000/en/dashboard?view=demo");
+    expect(response.headers.get("location")).toBe("http://localhost:4000/en/dashboard?agentChat=closed");
     expect(setCookieHeaders(response)).toEqual([SESSION_TOKEN_COOKIE, SESSION_DATA_COOKIE]);
     expect(mocks.intlMiddleware).not.toHaveBeenCalled();
     expect(mocks.isPublicPage).not.toHaveBeenCalled();
@@ -132,6 +132,18 @@ describe("automatic demo authentication proxy", () => {
     expect(mocks.intlMiddleware).toHaveBeenCalledWith(incomingRequest);
     expect(response.headers.get("x-middleware-next")).toBe("1");
     expect(response.headers.get("location")).toBeNull();
+  });
+
+  it("preserves the agent chat override when the localized demo root redirects to the dashboard", async () => {
+    mocks.getSession.mockResolvedValue({
+      session: { expiresAt: new Date(Date.now() + 60_000) },
+      user: { email: SYNTHETIC_SEED_USER.email },
+    });
+
+    const response = await proxy(request("/en?agentChat=closed", "app.session_token=existing-synthetic-token"));
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe("http://localhost:4000/dashboard?agentChat=closed");
   });
 
   it("replaces a non-demo session and forwards both the sign-out and sign-in cookies", async () => {

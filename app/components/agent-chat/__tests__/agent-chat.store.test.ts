@@ -81,10 +81,16 @@ function root(
   };
 }
 
-function stubBrowser(pathname = "/") {
-  const values = new Map<string, string>();
+function stubBrowser(
+  pathname = "/",
+  {
+    hostname = "localhost",
+    search = "",
+    values = new Map<string, string>(),
+  }: { hostname?: string; search?: string; values?: Map<string, string> } = {},
+) {
   vi.stubGlobal("window", {
-    location: { pathname },
+    location: { hostname, pathname, search },
     localStorage: {
       getItem: (key: string) => values.get(key) ?? null,
       setItem: (key: string, value: string) => values.set(key, value),
@@ -215,6 +221,59 @@ describe("AgentChatStore", () => {
 
     expect(reloaded.isOpen).toBe(false);
   });
+
+  it("uses an open URL override without changing the saved closed preference", async () => {
+    const storageKey = "customermates:agentChat:open:v1:company-1:user-1";
+    const values = new Map([[storageKey, "false"]]);
+    stubBrowser("/en/dashboard", { search: "?agentChat=open", values });
+    const store = new AgentChatStore(root() as never);
+
+    expect(store.isOpen).toBe(true);
+    store.close();
+    await store.loadConfig();
+    expect(store.isOpen).toBe(false);
+    expect(values.get(storageKey)).toBe("false");
+
+    expect(new AgentChatStore(root() as never).isOpen).toBe(true);
+    stubBrowser("/en/dashboard", { values });
+    expect(new AgentChatStore(root() as never).isOpen).toBe(false);
+  });
+
+  it("uses a closed URL override without changing the saved open preference or auto-opening", async () => {
+    const storageKey = "customermates:agentChat:open:v1:company-1:user-1";
+    const values = new Map([[storageKey, "true"]]);
+    stubBrowser("/en/dashboard", {
+      hostname: "demo.customermates.test",
+      search: "?agentChat=closed",
+      values,
+    });
+    const store = new AgentChatStore(root() as never);
+
+    expect(store.isOpen).toBe(false);
+    await store.loadConfig();
+    expect(store.isOpen).toBe(false);
+
+    store.open();
+    expect(store.isOpen).toBe(true);
+    expect(values.get(storageKey)).toBe("true");
+    expect(new AgentChatStore(root() as never).isOpen).toBe(false);
+
+    stubBrowser("/en/dashboard", { hostname: "demo.customermates.test", values });
+    expect(new AgentChatStore(root() as never).isOpen).toBe(true);
+  });
+
+  it.each(["?agentChat=", "?agentChat=OPEN", "?agentChat=open&agentChat=closed"])(
+    "ignores the invalid URL override %s",
+    async (search) => {
+      const values = stubBrowser("/en/profile", { hostname: "demo.customermates.test", search });
+      const store = new AgentChatStore(root() as never);
+
+      await store.loadConfig();
+
+      expect(store.isOpen).toBe(true);
+      expect([...values.values()]).toEqual(["true"]);
+    },
+  );
 
   it("retries transient and validation failures but latches off for an explicit denial code", async () => {
     actionsMock.getAgentConfigAction
