@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 
-import { EntityDetailPinButton } from "@/components/entity-detail/entity-detail-pin-button";
+import { EntityDetailFieldActions } from "@/components/entity-detail/entity-detail-field-actions";
 import type { RelationEntityType } from "@/components/entity-detail/entity-relations";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 
@@ -36,7 +36,7 @@ export function EntityRelationActions({
 
   return (
     <span className="flex items-center gap-1">
-      {personalization && <EntityDetailPinButton fieldId={personalization.fieldId} label={fieldLabel} />}
+      {personalization && <EntityDetailFieldActions fieldId={personalization.fieldId} label={fieldLabel} />}
 
       {children}
 

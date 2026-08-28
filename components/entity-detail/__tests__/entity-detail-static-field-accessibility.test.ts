@@ -9,9 +9,13 @@ vi.mock("next-intl", () => ({
     key === "Common.ariaLabels.explainField" ? `About ${values?.field ?? "field"}` : key,
 }));
 
-vi.mock("../entity-detail-pin-button", () => ({
-  EntityDetailPinButton: ({ fieldId, label }: { fieldId: string; label: string }) =>
-    createElement("button", { "aria-label": `Pin ${label}`, "data-pin-field": fieldId, type: "button" }),
+vi.mock("../entity-detail-field-actions", () => ({
+  EntityDetailFieldActions: ({ fieldId, label }: { fieldId: string; label: string }) =>
+    createElement("button", {
+      "aria-label": `Pin ${label}`,
+      "data-pin-field": fieldId,
+      type: "button",
+    }),
 }));
 
 vi.mock("@/components/ui/tooltip", () => ({

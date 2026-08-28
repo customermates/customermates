@@ -27,7 +27,8 @@ import {
   EntityRelationActions,
   type EntityDetailFieldPersonalization,
 } from "@/components/entity-detail/entity-relation-actions";
-import { EntityDetailPinButton } from "@/components/entity-detail/entity-detail-pin-button";
+import { EntityDetailField } from "@/components/entity-detail/entity-detail-field";
+import { EntityDetailFieldActions } from "@/components/entity-detail/entity-detail-field-actions";
 import { AppChip } from "@/components/chip/app-chip";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-avatar";
@@ -102,6 +103,7 @@ type RelationFieldProps = {
   labelEndAddon?: ReactNode;
   previewFieldId?: string;
   personalization?: EntityDetailFieldPersonalization;
+  visibilityFieldId?: string;
 };
 
 export const EntityRelationField = observer(
@@ -113,6 +115,7 @@ export const EntityRelationField = observer(
     labelEndAddon,
     previewFieldId,
     personalization,
+    visibilityFieldId,
   }: RelationFieldProps) => {
     const { userStore } = useRootStore();
     const entityHref = useEntityHref();
@@ -154,21 +157,31 @@ export const EntityRelationField = observer(
       onCreate: (name: string) => config.onCreate(name, userStore.user?.id),
     };
 
-    if (config.variant === "avatar") return <FormAutocompleteAvatar {...common} />;
+    const fieldId = personalization?.fieldId ?? visibilityFieldId;
+
+    if (config.variant === "avatar") {
+      return (
+        <EntityDetailField fieldId={fieldId}>
+          <FormAutocompleteAvatar {...common} />
+        </EntityDetailField>
+      );
+    }
 
     return (
-      <FormAutocomplete
-        {...common}
-        renderValue={(values) => values.map((v) => <AppChip key={v.key}>{resolveLabel(v.data)}</AppChip>)}
-      >
-        {(item) => {
-          const label = resolveLabel(item);
-          return FormAutocompleteItem({
-            children: label,
-            textValue: typeof label === "string" ? label : item.name,
-          });
-        }}
-      </FormAutocomplete>
+      <EntityDetailField fieldId={fieldId}>
+        <FormAutocomplete
+          {...common}
+          renderValue={(values) => values.map((v) => <AppChip key={v.key}>{resolveLabel(v.data)}</AppChip>)}
+        >
+          {(item) => {
+            const label = resolveLabel(item);
+            return FormAutocompleteItem({
+              children: label,
+              textValue: typeof label === "string" ? label : item.name,
+            });
+          }}
+        </FormAutocomplete>
+      </EntityDetailField>
     );
   },
 );
@@ -179,11 +192,13 @@ export const AssignedUsersField = observer(
     labelEndAddon,
     previewFieldId,
     personalization,
+    visibilityFieldId,
   }: {
     items: readonly any[] | undefined;
     labelEndAddon?: ReactNode;
     previewFieldId?: string;
     personalization?: EntityDetailFieldPersonalization;
+    visibilityFieldId?: string;
   }) => {
     const { userModalStore, userStore } = useRootStore();
     const { setPreviewFieldValue } = useEntityDetailPersonalization();
@@ -200,23 +215,25 @@ export const AssignedUsersField = observer(
     if (!userStore.canAccess(Resource.users)) return null;
 
     return (
-      <FormAutocompleteAvatar
-        getItems={getUsersAction}
-        id="userIds"
-        items={items ?? []}
-        labelEndAddon={
-          personalization || labelEndAddon ? (
-            <span className="flex items-center gap-1">
-              {personalization && <EntityDetailPinButton fieldId={personalization.fieldId} label={fieldLabel} />}
+      <EntityDetailField fieldId={personalization?.fieldId ?? visibilityFieldId}>
+        <FormAutocompleteAvatar
+          getItems={getUsersAction}
+          id="userIds"
+          items={items ?? []}
+          labelEndAddon={
+            personalization || labelEndAddon ? (
+              <span className="flex items-center gap-1">
+                {personalization && <EntityDetailFieldActions fieldId={personalization.fieldId} label={fieldLabel} />}
 
-              {labelEndAddon}
-            </span>
-          ) : undefined
-        }
-        selectionMode="multiple"
-        onChipClick={(id) => runUserAction(() => userModalStore.loadById(id))}
-        onSelectionDataChange={effectivePreviewFieldId ? publishSelection : undefined}
-      />
+                {labelEndAddon}
+              </span>
+            ) : undefined
+          }
+          selectionMode="multiple"
+          onChipClick={(id) => runUserAction(() => userModalStore.loadById(id))}
+          onSelectionDataChange={effectivePreviewFieldId ? publishSelection : undefined}
+        />
+      </EntityDetailField>
     );
   },
 );
