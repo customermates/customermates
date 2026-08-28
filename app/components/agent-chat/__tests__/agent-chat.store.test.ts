@@ -1,5 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createTranslator } from "next-intl";
+import { observable, runInAction } from "mobx";
 
 import en from "@/i18n/locales/en.json";
 
@@ -43,6 +44,7 @@ const CONFIG = {
     deals: false,
     services: false,
     tasks: false,
+    widgets: false,
     connectedAccounts: false,
   },
   conversationId: null,
@@ -52,11 +54,15 @@ const CONFIG = {
   archivedConversationNextCursor: null,
 };
 
-function root(uiOverrides: Record<string, unknown> = {}) {
+function root(
+  uiOverrides: Record<string, unknown> = {},
+  user: { id: string; companyId: string } = { id: "user-1", companyId: "company-1" },
+) {
   const refreshStore = () => ({
     refresh: vi.fn().mockResolvedValue(undefined),
   });
   return {
+    userStore: { user },
     localeStore: { locale: "en", translation: null, getTranslation: englishTranslator },
     contactsStore: refreshStore(),
     organizationsStore: refreshStore(),
@@ -73,6 +79,18 @@ function root(uiOverrides: Record<string, unknown> = {}) {
       ...uiOverrides,
     },
   };
+}
+
+function stubBrowser(pathname = "/") {
+  const values = new Map<string, string>();
+  vi.stubGlobal("window", {
+    location: { pathname },
+    localStorage: {
+      getItem: (key: string) => values.get(key) ?? null,
+      setItem: (key: string, value: string) => values.set(key, value),
+    },
+  });
+  return values;
 }
 
 describe("AgentChatStore", () => {
@@ -95,6 +113,10 @@ describe("AgentChatStore", () => {
     });
   });
 
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it("uses one toggle action for opening and closing the assistant", () => {
     const store = new AgentChatStore(root() as never);
 
@@ -103,6 +125,95 @@ describe("AgentChatStore", () => {
 
     store.toggle();
     expect(store.isOpen).toBe(false);
+  });
+
+  it("restores the user's explicit open and closed state across reloads", async () => {
+    const stored = stubBrowser("/en/deals");
+    const first = new AgentChatStore(root() as never);
+
+    first.open();
+    expect(new AgentChatStore(root() as never).isOpen).toBe(true);
+    expect([...stored.values()]).toEqual(["true"]);
+
+    first.close();
+    await first.loadConfig();
+
+    expect(new AgentChatStore(root() as never).isOpen).toBe(false);
+    expect([...stored.values()]).toEqual(["false"]);
+  });
+
+  it("scopes the open preference to the current company and user", () => {
+    stubBrowser();
+    new AgentChatStore(root() as never).open();
+
+    expect(new AgentChatStore(root() as never).isOpen).toBe(true);
+    expect(new AgentChatStore(root({}, { id: "user-2", companyId: "company-1" }) as never).isOpen).toBe(false);
+    expect(new AgentChatStore(root({}, { id: "user-1", companyId: "company-2" }) as never).isOpen).toBe(false);
+  });
+
+  it("re-hydrates the preference when the active identity changes", () => {
+    stubBrowser();
+    const firstUser = { id: "user-1", companyId: "company-1" };
+    const secondUser = { id: "user-2", companyId: "company-1" };
+    new AgentChatStore(root({}, secondUser) as never).open();
+    const userStore = observable({ user: firstUser });
+    const store = new AgentChatStore({ ...root(), userStore } as never);
+
+    expect(store.isOpen).toBe(false);
+    runInAction(() => {
+      userStore.user = secondUser;
+    });
+    expect(store.isOpen).toBe(true);
+
+    store.close();
+    runInAction(() => {
+      userStore.user = firstUser;
+    });
+    expect(store.isOpen).toBe(false);
+  });
+
+  it("auto-opens after onboarding on a widget-empty dashboard and persists that default", async () => {
+    const stored = stubBrowser("/en/dashboard");
+    actionsMock.getAgentConfigAction.mockResolvedValue({
+      ok: true,
+      data: {
+        ...CONFIG,
+        counts: { ...CONFIG.counts, contacts: true, organizations: true, tasks: true, widgets: false },
+      },
+    });
+    const store = new AgentChatStore(root() as never);
+
+    await store.loadConfig();
+
+    expect(store.isOpen).toBe(true);
+    expect([...stored.values()]).toEqual(["true"]);
+  });
+
+  it("does not auto-open a dashboard that already has a widget", async () => {
+    const stored = stubBrowser("/en/dashboard");
+    actionsMock.getAgentConfigAction.mockResolvedValue({
+      ok: true,
+      data: { ...CONFIG, counts: { ...CONFIG.counts, widgets: true } },
+    });
+    const store = new AgentChatStore(root() as never);
+
+    await store.loadConfig();
+
+    expect(store.isOpen).toBe(false);
+    expect(stored.size).toBe(0);
+  });
+
+  it("keeps an explicitly closed Assistant closed on an empty page", async () => {
+    stubBrowser("/en/dashboard");
+    const first = new AgentChatStore(root() as never);
+    first.open();
+    first.close();
+    await first.loadConfig();
+
+    const reloaded = new AgentChatStore(root() as never);
+    await reloaded.loadConfig();
+
+    expect(reloaded.isOpen).toBe(false);
   });
 
   it("retries transient and validation failures but latches off for an explicit denial code", async () => {

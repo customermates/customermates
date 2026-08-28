@@ -1,4 +1,4 @@
-import { makeObservable, observable, action, computed, runInAction } from "mobx";
+import { makeObservable, observable, action, computed, reaction, runInAction } from "mobx";
 
 import type { RootStore } from "@/core/stores/root.store";
 import type { AgentUsageSummary } from "@/ee/agent-chat/agent-usage.service";
@@ -74,8 +74,33 @@ let itemSeq = 0;
 const nextItemId = () => `item-${++itemSeq}`;
 const UI_COMMAND_NAMES = ["navigate", "highlight_element", "start_tour", "click_ui_target", "open_record"] as const;
 const AGENT_CONFIG_LOAD_TIMEOUT_MS = 15000;
+const AGENT_CHAT_OPEN_STORAGE_PREFIX = "customermates:agentChat:open:v1";
 type UiCommandName = (typeof UI_COMMAND_NAMES)[number];
 export type AgentConfigLoadStatus = "ready" | "disabled" | "retry";
+
+function agentChatOpenStorageKey(rootStore: RootStore): string | null {
+  const user = rootStore.userStore.user;
+  return user ? `${AGENT_CHAT_OPEN_STORAGE_PREFIX}:${user.companyId}:${user.id}` : null;
+}
+
+function readAgentChatOpenPreference(storageKey: string | null): boolean | null {
+  if (!storageKey || typeof window === "undefined") return null;
+  try {
+    const stored = window.localStorage.getItem(storageKey);
+    if (stored === null) return null;
+    const parsed = JSON.parse(stored);
+    return typeof parsed === "boolean" ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeAgentChatOpenPreference(storageKey: string | null, isOpen: boolean) {
+  if (!storageKey || typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(storageKey, JSON.stringify(isOpen));
+  } catch {}
+}
 
 async function withDeadline<T>(work: Promise<T>, timeoutMs: number): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -146,9 +171,14 @@ export class AgentChatStore extends BaseStore {
   private streamSequence = 0;
   private uiCommandQueue: Promise<void> = Promise.resolve();
   private demoAutoOpened = false;
+  private openStorageKey: string | null;
+  private openPreference: boolean | null;
 
   constructor(rootStore: RootStore) {
     super(rootStore);
+    this.openStorageKey = agentChatOpenStorageKey(rootStore);
+    this.openPreference = readAgentChatOpenPreference(this.openStorageKey);
+    this.isOpen = this.openPreference === true;
     makeObservable(this, {
       isOpen: observable,
       isExpanded: observable,
@@ -189,10 +219,14 @@ export class AgentChatStore extends BaseStore {
       newConversation: action,
       toggleHistory: action,
     });
+    reaction(
+      () => agentChatOpenStorageKey(rootStore),
+      () => this.syncOpenPreferenceScope(),
+    );
   }
 
   open = () => {
-    this.isOpen = true;
+    this.setOpenState(true);
     void this.loadConfig();
   };
 
@@ -207,7 +241,7 @@ export class AgentChatStore extends BaseStore {
   }
 
   close = () => {
-    this.isOpen = false;
+    this.setOpenState(false);
   };
 
   toggle = () => {
@@ -237,15 +271,33 @@ export class AgentChatStore extends BaseStore {
     this.isHistoryOpen = false;
   }
 
+  private setOpenState(isOpen: boolean) {
+    this.syncOpenPreferenceScope();
+    this.isOpen = isOpen;
+    this.openPreference = isOpen;
+    writeAgentChatOpenPreference(this.openStorageKey, isOpen);
+  }
+
+  private syncOpenPreferenceScope() {
+    const storageKey = agentChatOpenStorageKey(this.rootStore);
+    if (storageKey === this.openStorageKey) return;
+    this.openStorageKey = storageKey;
+    this.openPreference = readAgentChatOpenPreference(storageKey);
+    this.isOpen = this.openPreference === true;
+    this.autoOpenedPages.clear();
+    this.demoAutoOpened = false;
+  }
+
   openForEmptyPage = (pathname: string) => {
-    if (!this.enabled || this.isOpen || this.autoOpenedPages.has(pathname)) return;
+    this.syncOpenPreferenceScope();
+    if (!this.enabled || this.isOpen || this.openPreference === false || this.autoOpenedPages.has(pathname)) return;
     if (!this.counts) return;
 
     const page = agentActionPageFromPathname(pathname);
     if (!page || agentPageState(page, this.counts) !== "empty") return;
 
     this.autoOpenedPages.add(pathname);
-    this.isOpen = true;
+    this.setOpenState(true);
   };
 
   setComposerDraft = (value: string) => {
@@ -264,7 +316,7 @@ export class AgentChatStore extends BaseStore {
       this.composerDraft = "";
       return;
     }
-    this.isOpen = true;
+    this.setOpenState(true);
     this.composerDraft = "";
     void this.sendMessage(text);
   };
@@ -630,12 +682,13 @@ export class AgentChatStore extends BaseStore {
           this.historyRefreshError = false;
         }
       });
+      if (typeof window !== "undefined") this.openForEmptyPage(window.location.pathname);
       if (!this.conversationId && !this.isDraftConversationSelected && config.conversationId)
         await this.loadConversation(config.conversationId);
-      if (isDemoEnvironment() && !this.isOpen && !this.demoAutoOpened) {
+      if (isDemoEnvironment() && !this.isOpen && this.openPreference !== false && !this.demoAutoOpened) {
         this.demoAutoOpened = true;
         runInAction(() => {
-          this.isOpen = true;
+          this.setOpenState(true);
         });
       }
       return "ready";

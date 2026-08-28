@@ -19,6 +19,7 @@ const prismaMock = vi.hoisted(() => ({
   deal: { findFirst: vi.fn() },
   service: { findFirst: vi.fn() },
   task: { findFirst: vi.fn() },
+  widget: { findFirst: vi.fn() },
   connectedAccount: { findFirst: vi.fn() },
   user: { findUnique: vi.fn() },
   agentApproval: {
@@ -498,8 +499,10 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     });
   });
 
-  it("permission-scopes empty-state signals instead of leaking company-wide existence", async () => {
-    await runWithTenant(user, () => new PrismaAgentChatRepo().getSuggestionSignals());
+  it("permission-scopes entity signals and reads only the current user's dashboard widgets", async () => {
+    prismaMock.widget.findFirst.mockResolvedValue({ id: "widget-1" });
+
+    const signals = await runWithTenant(user, () => new PrismaAgentChatRepo().getSuggestionSignals());
 
     expect(prismaMock.contact.findFirst).toHaveBeenCalledWith({
       where: { id: { in: [] }, companyId: user.companyId },
@@ -509,6 +512,11 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       where: { companyId: user.companyId, id: { in: [] } },
       select: { id: true },
     });
+    expect(prismaMock.widget.findFirst).toHaveBeenCalledWith({
+      where: { companyId: user.companyId, userId: user.id },
+      select: { id: true },
+    });
+    expect(signals.widgets).toBe(true);
   });
 
   it("persists an assistant reply only after atomically claiming an active conversation", async () => {
