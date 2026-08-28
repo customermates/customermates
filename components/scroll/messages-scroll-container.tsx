@@ -59,7 +59,6 @@ export function MessagesScrollContainer({
     const el = ref.current;
     if (!el || latestItemKey === undefined || !stickToBottom.current) return;
 
-    // Item insertion is semantic; do not rely on ResizeObserver timing for its initial reveal.
     el.scrollTop = el.scrollHeight;
   }, [latestItemKey]);
 
