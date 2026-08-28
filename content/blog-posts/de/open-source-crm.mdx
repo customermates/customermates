@@ -25,8 +25,18 @@ acquisition:
       - claim:no-self-hosted-inbox
       - claim:no-hosted-ai-self-hosted
   cta:
-    primaryHref: /features/self-hosted
-    secondaryHref: https://github.com/customermates/customermates
+    action: Customermates als Open-Source-CRM prüfen
+    description: Prüfen Sie Lizenz, Betriebsverantwortung und Editionsgrenzen, bevor Sie sich für Self-Hosting entscheiden.
+    buttonLeftText: Self-Hosting prüfen
+    buttonLeftHref: /features/self-hosted
+    buttonRightText: Quellcode ansehen
+    buttonRightHref: https://github.com/customermates/customermates
+    hint: "Der Betreiber ist für Infrastruktur, Updates, Backups und eingebundene Drittanbieter verantwortlich."
+  relatedHrefs:
+    - /features/self-hosted
+    - /docs/self-hosting
+    - /docs/mcp
+    - /blog/agentic-crm
   visual:
     id: acquisition.open-source-crm.de
     locale: de
@@ -97,10 +107,22 @@ Das beste **Open Source CRM** ist das System, dessen Lizenz, Self-Hosting-Weg, B
 Dieser Leitfaden nutzt deshalb ein dauerhaftes Bewertungsmodell, statt Projekte anhand wechselnder Preise, Sternzahlen oder unbelegter Funktionsangaben zu ranken. Offenlegung: Customermates veröffentlicht diesen Vergleich und ist eines der hier genannten Produkte.
 
 <ArticleSummary title="Auf einen Blick">
-  <SummaryItem label="Beginnen mit">Lizenz und Editionsgrenze des Codes, den Sie tatsächlich betreiben möchten, nicht mit dem Etikett des Repositories.</SummaryItem>
-  <SummaryItem label="Dann prüfen">Gepflegter Deployment-Weg, CRM-Modell, Schnittstellen, Migration und der Betriebsaufwand Ihres Teams.</SummaryItem>
-  <SummaryItem label="Als unbekannt behandeln">Jede Funktion, die weder aktuell offiziell dokumentiert noch in einem eigenen Test nachgewiesen ist.</SummaryItem>
-  <SummaryItem label="Offenlegung">Customermates veröffentlicht diesen Leitfaden. Eigene Produktangaben bleiben von der Quellenübersicht für andere Projekte getrennt.</SummaryItem>
+  <SummaryItem label="Beginnen mit">
+    Lizenz und Editionsgrenze des Codes, den Sie tatsächlich betreiben möchten,
+    nicht mit dem Etikett des Repositories.
+  </SummaryItem>
+  <SummaryItem label="Dann prüfen">
+    Gepflegter Deployment-Weg, CRM-Modell, Schnittstellen, Migration und der
+    Betriebsaufwand Ihres Teams.
+  </SummaryItem>
+  <SummaryItem label="Als unbekannt behandeln">
+    Jede Funktion, die weder aktuell offiziell dokumentiert noch in einem
+    eigenen Test nachgewiesen ist.
+  </SummaryItem>
+  <SummaryItem label="Offenlegung">
+    Customermates veröffentlicht diesen Leitfaden. Eigene Produktangaben bleiben
+    von der Quellenübersicht für andere Projekte getrennt.
+  </SummaryItem>
 </ArticleSummary>
 
 <ProofRail label="Kriterien für den Open-Source-CRM-Vergleich">
@@ -108,7 +130,9 @@ Dieser Leitfaden nutzt deshalb ein dauerhaftes Bewertungsmodell, statt Projekte 
   <ProofItem label="Edition">Open-Source- und kommerzielle Grenze</ProofItem>
   <ProofItem label="Deployment">Gepflegter lauffähiger Weg</ProofItem>
   <ProofItem label="Betrieb">Backups, Updates und Wiederherstellung</ProofItem>
-  <ProofItem label="Produkt-Fit">Datensätze, Abläufe und Schnittstellen</ProofItem>
+  <ProofItem label="Produkt-Fit">
+    Datensätze, Abläufe und Schnittstellen
+  </ProofItem>
 </ProofRail>
 
 ## Beginnen Sie mit der Lizenz, nicht mit der Homepage
@@ -145,17 +169,23 @@ Die Produkte unterscheiden sich in Funktionsumfang und Zielgruppe. Einige Projek
 
 ### Offizielle Quellen, geprüft am 28. August 2026
 
-| Projekt | Aktuelle offizielle Nachweise | Was die Quelle belegt |
-| --- | --- | --- |
-| Customermates | [AGPL-Kernlizenz](https://github.com/customermates/customermates/blob/main/LICENSE), [kommerzielle und AGPL-Client-Material-Grenze](https://github.com/customermates/customermates/blob/main/ee/LICENSE.md) und [Compose-Deployment](https://github.com/customermates/customermates/blob/main/docker-compose.yml) | Exakte Repository-Lizenzen sowie das versionierte Deployment aus Anwendung und PostgreSQL |
-| SuiteCRM | [AGPL-Lizenzierung](https://docs.suitecrm.com/admin/licensing/) und [Installationsanleitung](https://docs.suitecrm.com/admin/installation-guide/downloading-installing/) | Die Dokumentation nennt AGPLv3 und bietet einen gepflegten Installationsweg für Administratoren |
-| EspoCRM | [Repository und Lizenz](https://github.com/espocrm/espocrm) und [Docker-Installation](https://docs.espocrm.com/administration/docker/installation/) | Eine öffentliche Quelllizenz und einen offiziellen Docker-Deployment-Weg |
-| Twenty | [Lizenz](https://github.com/twentyhq/twenty/blob/main/LICENSE) und [Docker-Compose-Anleitung](https://docs.twenty.com/developers/self-host/capabilities/docker-compose) | Eine öffentliche Quelllizenz und einen offiziellen Self-Hosting-Weg mit Docker Compose |
+| Projekt       | Aktuelle offizielle Nachweise                                                                                                                                                                                                                                                                                     | Was die Quelle belegt                                                                           |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Customermates | [AGPL-Kernlizenz](https://github.com/customermates/customermates/blob/main/LICENSE), [kommerzielle und AGPL-Client-Material-Grenze](https://github.com/customermates/customermates/blob/main/ee/LICENSE.md) und [Compose-Deployment](https://github.com/customermates/customermates/blob/main/docker-compose.yml) | Exakte Repository-Lizenzen sowie das versionierte Deployment aus Anwendung und PostgreSQL       |
+| SuiteCRM      | [AGPL-Lizenzierung](https://docs.suitecrm.com/admin/licensing/) und [Installationsanleitung](https://docs.suitecrm.com/admin/installation-guide/downloading-installing/)                                                                                                                                          | Die Dokumentation nennt AGPLv3 und bietet einen gepflegten Installationsweg für Administratoren |
+| EspoCRM       | [Repository und Lizenz](https://github.com/espocrm/espocrm) und [Docker-Installation](https://docs.espocrm.com/administration/docker/installation/)                                                                                                                                                               | Eine öffentliche Quelllizenz und einen offiziellen Docker-Deployment-Weg                        |
+| Twenty        | [Lizenz](https://github.com/twentyhq/twenty/blob/main/LICENSE) und [Docker-Compose-Anleitung](https://docs.twenty.com/developers/self-host/capabilities/docker-compose)                                                                                                                                           | Eine öffentliche Quelllizenz und einen offiziellen Self-Hosting-Weg mit Docker Compose          |
 
 Diese Tabelle ist eine Quellenübersicht, keine Rangliste und keine Behauptung, dass die Editionen gleichwertig sind. Öffnen Sie für die geprüfte Version jeweils die Lizenz- und Deployment-Quelle.
 
-<AcquisitionCallout title="Ein öffentliches Repository ist ein Nachweis, aber nicht die ganze Antwort" variant="boundary">
-  Prüfen Sie die Lizenz für jedes benötigte Verzeichnis, die tatsächlich lauffähige Edition und ihre Betriebsabhängigkeiten. Der Quellzugriff allein belegt weder, dass jede Datei Open Source ist, noch dass jede Cloud-Funktion selbst gehostet werden kann.
+<AcquisitionCallout
+  title="Ein öffentliches Repository ist ein Nachweis, aber nicht die ganze Antwort"
+  variant="boundary"
+>
+  Prüfen Sie die Lizenz für jedes benötigte Verzeichnis, die tatsächlich
+  lauffähige Edition und ihre Betriebsabhängigkeiten. Der Quellzugriff allein
+  belegt weder, dass jede Datei Open Source ist, noch dass jede Cloud-Funktion
+  selbst gehostet werden kann.
 </AcquisitionCallout>
 
 ## Wo Customermates passt
@@ -203,12 +233,29 @@ Bei Customermates ist die Trennung ausdrücklich: Kern-CRM, REST, Webhooks und M
 ## Praktische Prüfliste
 
 <Steps>
-  <Step title="Aufgabe definieren">Schreiben Sie die benötigten Datensätze, Ansichten, Integrationen und Deployment-Bedingungen auf.</Step>
-  <Step title="Rechtliche Grenze prüfen">Lesen Sie Lizenz und Editionsgrenze für jeden Finalisten und jede geprüfte Version.</Step>
-  <Step title="Offiziellen Weg ausführen">Folgen Sie der gepflegten Deployment-Anleitung in einer isolierten Umgebung.</Step>
-  <Step title="Betrieb testen">Prüfen Sie Authentifizierung, Berechtigungen, Backups, Wiederherstellung und Updates, statt sie aus Marketingtexten abzuleiten.</Step>
-  <Step title="Gesamtsystem kalkulieren">Bewerten Sie Infrastruktur, externe Dienste und laufenden Betriebsaufwand gemeinsam.</Step>
-  <Step title="Migration separat planen">Entwerfen und prüfen Sie ein Migrationsverfahren, wenn kein eigener Import- oder Export-Workflow vorhanden ist.</Step>
+  <Step title="Aufgabe definieren">
+    Schreiben Sie die benötigten Datensätze, Ansichten, Integrationen und
+    Deployment-Bedingungen auf.
+  </Step>
+  <Step title="Rechtliche Grenze prüfen">
+    Lesen Sie Lizenz und Editionsgrenze für jeden Finalisten und jede geprüfte
+    Version.
+  </Step>
+  <Step title="Offiziellen Weg ausführen">
+    Folgen Sie der gepflegten Deployment-Anleitung in einer isolierten Umgebung.
+  </Step>
+  <Step title="Betrieb testen">
+    Prüfen Sie Authentifizierung, Berechtigungen, Backups, Wiederherstellung und
+    Updates, statt sie aus Marketingtexten abzuleiten.
+  </Step>
+  <Step title="Gesamtsystem kalkulieren">
+    Bewerten Sie Infrastruktur, externe Dienste und laufenden Betriebsaufwand
+    gemeinsam.
+  </Step>
+  <Step title="Migration separat planen">
+    Entwerfen und prüfen Sie ein Migrationsverfahren, wenn kein eigener Import-
+    oder Export-Workflow vorhanden ist.
+  </Step>
 </Steps>
 
 [Prüfen Sie die genaue Self-Hosted-Grenze von Customermates](/features/self-hosted) oder [sehen Sie sich das Repository an](https://github.com/customermates/customermates), bevor Sie das Produkt auf Ihre Shortlist setzen.
@@ -221,20 +268,23 @@ Der CRM-Code wird unter einer Open-Source-Lizenz angeboten, die definierte Recht
 </FaqItem>
 
 <FaqItem question="Ist jedes Open Source CRM kostenlos zu betreiben?">
-  Nein. Auch ohne Softwareabonnement verursachen Infrastruktur, Backups, Updates, Monitoring, Sicherheitsarbeit und
-  externe Anbieter Kosten und laufenden Betriebsaufwand.
+  Nein. Auch ohne Softwareabonnement verursachen Infrastruktur, Backups,
+  Updates, Monitoring, Sicherheitsarbeit und externe Anbieter Kosten und
+  laufenden Betriebsaufwand.
 </FaqItem>
 
 <FaqItem question="Garantiert Open Source Datenkontrolle oder DSGVO-Konformität?">
-  Nein. Self-Hosting kann Ihnen Kontrolle über den Standort von Anwendung und Datenbank geben. Compliance und
-  Datenflüsse hängen jedoch von Konfiguration, verbundenen Anbietern, Verträgen, Richtlinien und Betrieb ab.
+  Nein. Self-Hosting kann Ihnen Kontrolle über den Standort von Anwendung und
+  Datenbank geben. Compliance und Datenflüsse hängen jedoch von Konfiguration,
+  verbundenen Anbietern, Verträgen, Richtlinien und Betrieb ab.
 </FaqItem>
 
 <FaqItem question="Steht der gesamte Customermates-Code unter AGPL-3.0?">
-  Nein. Das Customermates-eigene Material außerhalb von `ee/` steht ausschließlich unter AGPL-3.0. Innerhalb von `ee/`
-  gilt AGPL-3.0 auch für das in Abschnitt 6 von `ee/LICENSE.md` definierte Client-Material; das übrige
-  Customermates-eigene Material unterliegt der kommerziellen Lizenz. Prüfen Sie beide Lizenzdateien für die genaue
-  Grenze.
+  Nein. Das Customermates-eigene Material außerhalb von `ee/` steht
+  ausschließlich unter AGPL-3.0. Innerhalb von `ee/` gilt AGPL-3.0 auch für das
+  in Abschnitt 6 von `ee/LICENSE.md` definierte Client-Material; das übrige
+  Customermates-eigene Material unterliegt der kommerziellen Lizenz. Prüfen Sie
+  beide Lizenzdateien für die genaue Grenze.
 </FaqItem>
 
 <FaqItem question="Kann ich CRM-Datensätze in Self-Hosted Customermates importieren oder exportieren?">

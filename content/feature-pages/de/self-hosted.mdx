@@ -26,8 +26,18 @@ acquisition:
       - claim:no-hosted-ai-self-hosted
       - claim:no-import-export
   cta:
-    primaryHref: /docs/self-hosting
-    secondaryHref: https://github.com/customermates/customermates
+    action: Möchten Sie Self-Hosting prüfen?
+    description: Prüfen Sie Deployment-Anforderungen und Produktgrenzen, bevor Sie das CRM auf Ihrer Infrastruktur betreiben.
+    buttonLeftText: Setup-Anleitung lesen
+    buttonLeftHref: /docs/self-hosting
+    buttonRightText: Quellcode ansehen
+    buttonRightHref: https://github.com/customermates/customermates
+    hint: "Der Betreiber ist für Infrastruktur, Updates, Backups und eingebundene Drittanbieter verantwortlich."
+  relatedHrefs:
+    - /docs/self-hosting
+    - /blog/open-source-crm
+    - /blog/agentic-crm
+    - /features/unified-inbox
   visual:
     id: acquisition.self-hosted.de
     locale: de
@@ -91,16 +101,28 @@ cta:
   buttonLeftHref: /docs/self-hosting
   buttonRightText: Quellcode ansehen
   buttonRightHref: https://github.com/customermates/customermates
-  hint: "Der Betreiber verantwortet Infrastruktur, Updates, Backups und verbundene Anbieter."
+  hint: "Der Betreiber ist für Infrastruktur, Updates, Backups und eingebundene Drittanbieter verantwortlich."
 ---
 
 Customermates ist ein **selbst gehostetes CRM**, das aus zwei Docker-Compose-Diensten besteht: der Anwendung und PostgreSQL 16. Es passt zu Teams, die ihre CRM-Infrastruktur selbst betreiben und einen quelloffenen Kern nutzen möchten. Es ist nicht die Self-Hosted-Ausgabe sämtlicher Customermates-Cloud-Funktionen.
 
 <ArticleSummary title="Auf einen Blick">
-  <SummaryItem label="Auf Ihrer Infrastruktur">Customermates-Anwendung und PostgreSQL 16 laufen als zwei Dienste im versionierten Docker-Compose-Deployment.</SummaryItem>
-  <SummaryItem label="Enthaltener Umfang">Kern-CRM, eigene Felder und Ansichten, REST, Webhooks und MCP mit Starter-Berechtigungen.</SummaryItem>
-  <SummaryItem label="Ihr Betrieb">Netzwerkzugriff, TLS, Updates, Backups, Wiederherstellungstests, Monitoring und konfigurierte externe Anbieter.</SummaryItem>
-  <SummaryItem label="Cloud-Grenze">Messaging, einheitlicher Posteingang, verbundener Kalender, gehostetes Mate und KI-Credits bleiben außerhalb des Self-Hostings.</SummaryItem>
+  <SummaryItem label="Auf Ihrer Infrastruktur">
+    Customermates-Anwendung und PostgreSQL 16 laufen als zwei Dienste im
+    versionierten Docker-Compose-Deployment.
+  </SummaryItem>
+  <SummaryItem label="Enthaltener Umfang">
+    Kern-CRM, eigene Felder und Ansichten, REST, Webhooks und MCP mit
+    Starter-Berechtigungen.
+  </SummaryItem>
+  <SummaryItem label="Ihr Betrieb">
+    Netzwerkzugriff, TLS, Updates, Backups, Wiederherstellungstests, Monitoring
+    und konfigurierte externe Anbieter.
+  </SummaryItem>
+  <SummaryItem label="Cloud-Grenze">
+    Messaging, einheitlicher Posteingang, verbundener Kalender, gehostetes Mate
+    und KI-Credits bleiben außerhalb des Self-Hostings.
+  </SummaryItem>
 </ArticleSummary>
 
 <ProofRail label="Verifizierte Fakten zum Self-Hosted CRM">
@@ -122,8 +144,14 @@ Das offizielle Deployment umfasst:
 
 Die Compose-Datei enthält weder n8n noch ein KI-Modell, einen E-Mail-Versanddienst oder einen separaten Worker. Authentifizierungs-E-Mails benötigen weiterhin den konfigurierten externen Versanddienst. Wenn Sie einen Anbieter verbinden, betreiben Sie diese Integration separat und sollten prüfen, welche Daten sie erhält.
 
-<AcquisitionCallout title="Die Deployment-Grenze ist kleiner als die gesamte Systemgrenze" variant="proof">
-  Anwendung und Datenbank können auf Ihrer Infrastruktur laufen. SMTP, OAuth, Monitoring, Workflow-Tools und externe KI bleiben bei entsprechender Konfiguration separate Dienste. Erfassen Sie diese Anbieter, bevor Sie sich für das Betriebsmodell entscheiden.
+<AcquisitionCallout
+  title="Die Deployment-Grenze ist kleiner als die gesamte Systemgrenze"
+  variant="proof"
+>
+  Anwendung und Datenbank können auf Ihrer Infrastruktur laufen. SMTP, OAuth,
+  Monitoring, Workflow-Tools und externe KI bleiben bei entsprechender
+  Konfiguration separate Dienste. Erfassen Sie diese Anbieter, bevor Sie sich
+  für das Betriebsmodell entscheiden.
 </AcquisitionCallout>
 
 ## Was ist enthalten und ausgeschlossen?
@@ -167,11 +195,26 @@ Es gibt keinen eigenen Import- oder Export-Workflow für CRM-Datensätze. Behand
 ## So prüfen Sie das Deployment
 
 <Steps>
-  <Step title="Deployment prüfen">Lesen Sie die [Self-Hosting-Anleitung](/docs/self-hosting) und prüfen Sie die aktuelle Compose-Datei im Repository.</Step>
-  <Step title="Editionsgrenze prüfen">Stellen Sie sicher, dass Starter-Berechtigungen die benötigten Datensätze, Ansichten und Schnittstellen abdecken.</Step>
-  <Step title="Externe Dienste erfassen">Listen Sie alle geplanten SMTP-, OAuth-, Monitoring-, Workflow- und KI-Anbieter sowie deren Datenzugriff auf.</Step>
-  <Step title="Betrieb entwerfen">Definieren Sie Backups, getestete Wiederherstellung, Updates, TLS, Monitoring und Zugriffskontrollen.</Step>
-  <Step title="Ohne Kundendaten testen">Prüfen Sie den vollständigen Ablauf in einer Nicht-Produktionsumgebung, bevor echte Datensätze verarbeitet werden.</Step>
+  <Step title="Deployment prüfen">
+    Lesen Sie die [Self-Hosting-Anleitung](/docs/self-hosting) und prüfen Sie
+    die aktuelle Compose-Datei im Repository.
+  </Step>
+  <Step title="Editionsgrenze prüfen">
+    Stellen Sie sicher, dass Starter-Berechtigungen die benötigten Datensätze,
+    Ansichten und Schnittstellen abdecken.
+  </Step>
+  <Step title="Externe Dienste erfassen">
+    Listen Sie alle geplanten SMTP-, OAuth-, Monitoring-, Workflow- und
+    KI-Anbieter sowie deren Datenzugriff auf.
+  </Step>
+  <Step title="Betrieb entwerfen">
+    Definieren Sie Backups, getestete Wiederherstellung, Updates, TLS,
+    Monitoring und Zugriffskontrollen.
+  </Step>
+  <Step title="Ohne Kundendaten testen">
+    Prüfen Sie den vollständigen Ablauf in einer Nicht-Produktionsumgebung,
+    bevor echte Datensätze verarbeitet werden.
+  </Step>
 </Steps>
 
 ## Häufig gestellte Fragen
@@ -182,29 +225,24 @@ Das Customermates-eigene Material außerhalb von `ee/` steht ausschließlich unt
 </FaqItem>
 
 <FaqItem question="Enthält Self-Hosting den einheitlichen Posteingang?">
-  Nein. Self-Hosted-Deployments verwenden die Starter-Berechtigungsbasis ohne Messaging-Konten, einheitlichen
-  Posteingang, geteilte Konten oder verbundene Kalenderansicht. Diese Funktionen gehören zu Managed-Cloud-Tarifen ab
-  Pro.
+  Nein. Self-Hosted-Deployments verwenden die Starter-Berechtigungsbasis ohne
+  Messaging-Konten, einheitlichen Posteingang, geteilte Konten oder verbundene
+  Kalenderansicht. Diese Funktionen gehören zu Managed-Cloud-Tarifen ab Pro.
 </FaqItem>
 
 <FaqItem question="Kann ich KI mit dem selbst gehosteten CRM nutzen?">
-  Ja, über [MCP](/docs/mcp) sowie einen externen KI-Client und Anbieter, den Sie auswählen und bezahlen. Der
-  cloudbasierte Mate-Assistent und gehostete KI-Credits gehören nicht zum Self-Hosting.
+  Ja, über [MCP](/docs/mcp) sowie einen externen KI-Client und Anbieter, den Sie
+  auswählen und bezahlen. Der cloudbasierte Mate-Assistent und gehostete
+  KI-Credits gehören nicht zum Self-Hosting.
 </FaqItem>
 
 <FaqItem question="Macht Self-Hosting das CRM automatisch DSGVO-konform?">
-  Nein. Self-Hosting lässt Sie den Standort von Anwendung und Datenbank wählen. Ihr Unternehmen bleibt jedoch für
-  Konfiguration, Anbieter, Verträge, Sicherheitskontrollen, Aufbewahrung und rechtliche Bewertung verantwortlich.
+  Nein. Self-Hosting lässt Sie den Standort von Anwendung und Datenbank wählen.
+  Ihr Unternehmen bleibt jedoch für Konfiguration, Anbieter, Verträge,
+  Sicherheitskontrollen, Aufbewahrung und rechtliche Bewertung verantwortlich.
 </FaqItem>
 
 <FaqItem question="Was enthält der offizielle Docker-Compose-Stack?">
 Er enthält die Customermates-Anwendung und PostgreSQL 16. n8n, KI-Modelle sowie SMTP-, Identitäts- und Monitoring-Dienste sind nicht enthalten und müssen bei Bedarf separat angebunden werden.
 </FaqItem>
 </Faq>
-
-<RelatedPages>
-  <RelatedPage href="/docs/self-hosting" />
-  <RelatedPage href="/blog/open-source-crm" />
-  <RelatedPage href="/blog/agentic-crm" />
-  <RelatedPage href="/features/unified-inbox" />
-</RelatedPages>

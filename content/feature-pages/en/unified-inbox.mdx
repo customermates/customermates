@@ -24,8 +24,18 @@ acquisition:
       - claim:no-unsupported-channels
       - claim:no-live-mate-availability
   cta:
-    primaryHref: /auth/signup
-    secondaryHref: /docs/app-inbox
+    action: Bring supported conversations into the CRM
+    description: Start a Pro trial, connect one supported account and evaluate the inbox with your own workflow.
+    buttonLeftText: Start the Pro trial
+    buttonLeftHref: /auth/signup
+    buttonRightText: Read the inbox guide
+    buttonRightHref: /docs/app-inbox
+    hint: "No unified inbox is included in Starter or self-hosted deployments."
+  relatedHrefs:
+    - /docs/app-inbox
+    - /docs/mcp
+    - /blog/agentic-crm
+    - /for/agencies
   visual:
     id: acquisition.unified-inbox.en
     locale: en
@@ -104,10 +114,22 @@ The **Customermates unified CRM inbox** brings supported email and social conver
 It is a managed-cloud feature from Pro upward. Starter and self-hosted Customermates do not include messaging accounts or the unified inbox.
 
 <ArticleSummary title="At a glance">
-  <SummaryItem label="Outcome">Work through supported customer conversations in one list while keeping the participant's CRM contact context close.</SummaryItem>
-  <SummaryItem label="Available on">Customermates Cloud from Pro, with account allowances and sharing capabilities that vary by plan.</SummaryItem>
-  <SummaryItem label="Core actions">Read and reply, triage thread state, keep a draft, work with supported attachments and associate participants with contacts.</SummaryItem>
-  <SummaryItem label="Important boundary">The contact relationship bridges conversation and pipeline context. Messages have no direct deal relation.</SummaryItem>
+  <SummaryItem label="Outcome">
+    Work through supported customer conversations in one list while keeping the
+    participant's CRM contact context close.
+  </SummaryItem>
+  <SummaryItem label="Available on">
+    Customermates Cloud from Pro, with account allowances and sharing
+    capabilities that vary by plan.
+  </SummaryItem>
+  <SummaryItem label="Core actions">
+    Read and reply, triage thread state, keep a draft, work with supported
+    attachments and associate participants with contacts.
+  </SummaryItem>
+  <SummaryItem label="Important boundary">
+    The contact relationship bridges conversation and pipeline context. Messages
+    have no direct deal relation.
+  </SummaryItem>
 </ArticleSummary>
 
 <ProofRail label="Verified unified CRM inbox capabilities">
@@ -123,10 +145,22 @@ It is a managed-cloud feature from Pro upward. Starter and self-hosted Customerm
 ## Follow one conversation into the CRM context
 
 <Steps>
-  <Step title="Open the incoming thread">Start from the combined conversation list instead of switching between provider tabs.</Step>
-  <Step title="Check the participant">Match the person in the thread to a CRM contact so the relationship context is available.</Step>
-  <Step title="Review and respond">Read the history, keep a persistent draft on the existing thread and send through the connected channel when ready.</Step>
-  <Step title="Triage the conversation">Mark the thread unread, open, closed or spam so the inbox reflects its current state.</Step>
+  <Step title="Open the incoming thread">
+    Start from the combined conversation list instead of switching between
+    provider tabs.
+  </Step>
+  <Step title="Check the participant">
+    Match the person in the thread to a CRM contact so the relationship context
+    is available.
+  </Step>
+  <Step title="Review and respond">
+    Read the history, keep a persistent draft on the existing thread and send
+    through the connected channel when ready.
+  </Step>
+  <Step title="Triage the conversation">
+    Mark the thread unread, open, closed or spam so the inbox reflects its
+    current state.
+  </Step>
 </Steps>
 
 ## Supported channels
@@ -161,8 +195,14 @@ Conversation context can surface through its contact relationship. Messages do n
 
 Pro users can share individual threads with CRM teammates. Sharing an entire connected account is available on Business and Enterprise. Permissions still govern which CRM resources and actions a user can access.
 
-<AcquisitionCallout title="Thread sharing and account sharing are different" variant="proof">
-  A Pro user can share an individual conversation with CRM teammates. Sharing the complete connected account is a Business or Enterprise capability. This distinction matters when evaluating personal inboxes versus team-owned addresses.
+<AcquisitionCallout
+  title="Thread sharing and account sharing are different"
+  variant="proof"
+>
+  A Pro user can share an individual conversation with CRM teammates. Sharing
+  the complete connected account is a Business or Enterprise capability. This
+  distinction matters when evaluating personal inboxes versus team-owned
+  addresses.
 </AcquisitionCallout>
 
 ## Inbox, MCP and approval boundaries
@@ -189,28 +229,23 @@ Pro, Business and Enterprise in Customermates Cloud. Pro includes one connected 
 </FaqItem>
 
 <FaqItem question="Does the inbox work when self-hosting?">
-  No. Self-hosted deployments use Starter entitlements, which include zero messaging accounts and no unified inbox. MCP
-  remains available for external AI clients working with the core CRM.
+  No. Self-hosted deployments use Starter entitlements, which include zero
+  messaging accounts and no unified inbox. MCP remains available for external AI
+  clients working with the core CRM.
 </FaqItem>
 
 <FaqItem question="Does Customermates support SMS or phone calls in this inbox?">
-  No. The supported set covers Gmail/Google, Outlook/Microsoft, IMAP email, LinkedIn variants, WhatsApp, Instagram and
-  Telegram, not SMS or telephony.
+  No. The supported set covers Gmail/Google, Outlook/Microsoft, IMAP email,
+  LinkedIn variants, WhatsApp, Instagram and Telegram, not SMS or telephony.
 </FaqItem>
 
 <FaqItem question="Are messages linked directly to deals?">
-  No. Participants can be associated with CRM contacts, and contact relationships provide the bridge to relevant CRM
-  context. There is no direct message-to-deal relation.
+  No. Participants can be associated with CRM contacts, and contact
+  relationships provide the bridge to relevant CRM context. There is no direct
+  message-to-deal relation.
 </FaqItem>
 
 <FaqItem question="Can an AI client send messages through the inbox?">
 Yes, on entitled cloud accounts. The MCP instructions tell compatible clients to request confirmation before sending, but the server executes a permitted send tool once the client calls it. Verify the client's confirmation behavior and user permissions before enabling messaging tools.
 </FaqItem>
 </Faq>
-
-<RelatedPages>
-  <RelatedPage href="/docs/app-inbox" />
-  <RelatedPage href="/docs/mcp" />
-  <RelatedPage href="/blog/agentic-crm" />
-  <RelatedPage href="/for/agencies" />
-</RelatedPages>

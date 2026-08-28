@@ -43,17 +43,13 @@ export function PostCard({
             className="w-full aspect-2/1 object-cover object-top-left rounded-none"
             height={1080}
             isLocalized={imageIsLocalized}
+            sizes="(min-width: 1280px) 384px, (min-width: 768px) calc(50vw - 3rem), calc(100vw - 2.5rem)"
             src={imageSrc}
             width={1920}
           />
         ) : placeholderLabel !== undefined ? (
-          <div
-            aria-hidden
-            className="relative w-full aspect-2/1 overflow-hidden bg-linear-to-br from-primary/25 via-primary/10 to-card"
-          >
-            <div className="pointer-events-none absolute -right-12 -top-12 size-56 rounded-full bg-primary/30 blur-3xl" />
-
-            <div className="pointer-events-none absolute -bottom-12 -left-12 size-48 rounded-full bg-primary/20 blur-3xl" />
+          <div aria-hidden className="relative w-full aspect-2/1 overflow-hidden bg-sidebar">
+            <div className="pointer-events-none absolute inset-0 opacity-40 [background-image:linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] [background-size:40px_40px] [mask-image:radial-gradient(ellipse_78%_80%_at_50%_50%,black,transparent_90%)]" />
 
             <div className="relative flex size-full items-center justify-center px-6">
               <span className="text-x-xl line-clamp-3 text-center font-semibold text-foreground">

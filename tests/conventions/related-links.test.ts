@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { basename, join } from "node:path";
 
 import { describe, expect, it } from "vitest";
+import { parse } from "yaml";
 
 import {
   RELATED_ROUTE_SEGMENTS,
@@ -27,7 +28,12 @@ const TARGET_COLLECTIONS = {
   docs: "/docs",
 } as const;
 
-type Entry = { hrefs: string[]; slug: string; source: string };
+type Entry = {
+  hrefs: string[];
+  isAcquisition: boolean;
+  slug: string;
+  source: string;
+};
 
 function entries(collection: string, locale: string): Entry[] {
   return walkFiles(join(REPO_ROOT, "content", collection, locale), (path) =>
@@ -35,13 +41,21 @@ function entries(collection: string, locale: string): Entry[] {
   ).map((path) => {
     const source = readFileSync(path, "utf8");
     const block = /<RelatedPages>([\s\S]*?)<\/RelatedPages>/u.exec(source);
+    const frontmatter = /^---\n(.*?)\n---\n?/su.exec(source);
+    const data = frontmatter
+      ? (parse(frontmatter[1]) as { acquisition?: { relatedHrefs?: string[] } })
+      : undefined;
+    const authoredHrefs = data?.acquisition?.relatedHrefs;
 
     return {
-      hrefs: block
-        ? [...block[1].matchAll(/<RelatedPage\s+href="([^"]+)"\s*\/>/gu)].map(
-            (match) => match[1],
-          )
-        : [],
+      hrefs:
+        authoredHrefs ??
+        (block
+          ? [...block[1].matchAll(/<RelatedPage\s+href="([^"]+)"\s*\/>/gu)].map(
+              (match) => match[1],
+            )
+          : []),
+      isAcquisition: Boolean(authoredHrefs),
       slug: basename(path, ".mdx"),
       source,
     };
@@ -161,6 +175,32 @@ describe("related links", () => {
 
         expect(problems, problems.join("\n")).toEqual([]);
       }
+    }
+  });
+
+  it("validates acquisition blog links against published non-self targets", () => {
+    for (const locale of CONTENT_LOCALES) {
+      const published = publishedRoutes(locale);
+      const problems: string[] = [];
+
+      for (const entry of entries("blog-posts", locale).filter(
+        ({ isAcquisition }) => isAcquisition,
+      )) {
+        const where = `blog-posts/${locale}/${entry.slug}`;
+        if (entry.hrefs.length !== OUTBOUND_PER_PAGE)
+          problems.push(
+            `${where}: ${entry.hrefs.length} links, expected ${OUTBOUND_PER_PAGE}`,
+          );
+
+        for (const href of entry.hrefs) {
+          if (!published.has(href))
+            problems.push(`${where}: ${href} names no published page`);
+          else if (href === `/blog/${entry.slug}`)
+            problems.push(`${where}: links to itself`);
+        }
+      }
+
+      expect(problems, problems.join("\n")).toEqual([]);
     }
   });
 

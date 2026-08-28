@@ -9,7 +9,9 @@ import { BlogPostCard } from "../blog-post-card";
 import { IntlLink } from "@/i18n/navigation";
 import { blogPostsSource } from "@/core/fumadocs/source";
 import { Footer } from "@/app/components/footer";
+import { AcquisitionPageEnding } from "@/components/marketing/acquisition-page-ending";
 import { AcquisitionStoryVisual } from "@/components/marketing/acquisition-story-visual";
+import { BlogHeroMedia } from "@/components/marketing/blog-hero-media";
 import { LandingArticle } from "@/components/marketing/landing-article";
 import { MarketingContainer } from "@/components/marketing/marketing-container";
 import { MarketingSection } from "@/components/marketing/marketing-section";
@@ -159,6 +161,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
               {visual ? <div className="col-span-12 min-w-0 lg:col-span-5">{visual}</div> : null}
             </div>
+
+            {!page.data.acquisition ? <BlogHeroMedia alt={hero.title} slug={slug} /> : null}
           </header>
         </MarketingContainer>
       </section>
@@ -167,7 +171,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         <MDX components={components} />
       </LandingArticle>
 
-      {sortedPosts.length > 0 ? (
+      {page.data.acquisition ? (
+        <AcquisitionPageEnding acquisition={page.data.acquisition} />
+      ) : sortedPosts.length > 0 ? (
         <MarketingSection className="py-14 sm:py-18 lg:py-20" tone="page">
           <h2 className="text-display-sm mb-8">{t("BlogPostPage.relatedArticles")}</h2>
 
@@ -181,7 +187,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                   <BlogPostCard
                     {...post.data.blogPost}
                     locale={locale}
-                    showImage={false}
+                    showImage={!post.data.acquisition}
                     title={post.data.title}
                     url={`/blog/${postSlug}`}
                   />

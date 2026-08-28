@@ -23,8 +23,18 @@ acquisition:
       - claim:no-hosted-ai-self-hosted
       - claim:no-unsupported-channels
   cta:
-    primaryHref: /docs/mcp
-    secondaryHref: /auth/signup
+    action: Evaluate agentic CRM with a bounded workflow
+    description: Review the current MCP integration and its control boundaries, then connect an external client or start the Pro trial without assuming Mate is available.
+    buttonLeftText: Read the MCP guide
+    buttonLeftHref: /docs/mcp
+    buttonRightText: Start the Pro trial
+    buttonRightHref: /auth/signup
+    hint: "External AI clients use their own model provider; Mate remains release-gated."
+  relatedHrefs:
+    - /docs/mcp
+    - /features/unified-inbox
+    - /features/self-hosted
+    - /blog/open-source-crm
   visual:
     id: acquisition.agentic-crm.en
     locale: en
@@ -98,10 +108,22 @@ An **AI-native CRM** exposes structured customer data and typed actions that AI 
 Customermates supports this model through external AI clients connected by MCP. The product also contains a cloud-only in-app assistant capability called Mate, but its production availability depends on hosted configuration and release conditions. This page therefore describes the capability without claiming that Mate is generally available.
 
 <ArticleSummary title="At a glance">
-  <SummaryItem label="AI-native architecture">Structured CRM records and typed actions give an authorized AI client something reliable to work with.</SummaryItem>
-  <SummaryItem label="Agentic behavior">The client can combine supported reads and actions into a workflow instead of only generating text.</SummaryItem>
-  <SummaryItem label="Current open path">External AI clients connect through MCP in cloud and self-hosted deployments. The customer selects and funds the client and model provider.</SummaryItem>
-  <SummaryItem label="Control boundary">Server permissions authorize the action. Confirmation behavior for external MCP sits in the chosen client; Mate uses a separate release-gated path.</SummaryItem>
+  <SummaryItem label="AI-native architecture">
+    Structured CRM records and typed actions give an authorized AI client
+    something reliable to work with.
+  </SummaryItem>
+  <SummaryItem label="Agentic behavior">
+    The client can combine supported reads and actions into a workflow instead
+    of only generating text.
+  </SummaryItem>
+  <SummaryItem label="Current open path">
+    External AI clients connect through MCP in cloud and self-hosted
+    deployments. The customer selects and funds the client and model provider.
+  </SummaryItem>
+  <SummaryItem label="Control boundary">
+    Server permissions authorize the action. Confirmation behavior for external
+    MCP sits in the chosen client; Mate uses a separate release-gated path.
+  </SummaryItem>
 </ArticleSummary>
 
 <ProofRail label="Verified agentic CRM building blocks">
@@ -127,8 +149,14 @@ That is different from a chatbot that only writes text. It is also different fro
 
 An external client can read the context for a contact, inspect related CRM records and prepare a draft or a record update with typed tools. The server still validates the request and applies the requesting user's permissions. Before enabling a destructive action or outbound send, the operator must verify how the exact client presents and confirms that side effect.
 
-<AcquisitionCallout title="Authorization is not the same as confirmation" variant="boundary">
-  CRM permissions decide whether the user may perform an action. The MCP instructions tell compatible clients to request confirmation for sends and deletes, but the server does not add a second approval after an authorized client calls the tool. Treat those as two separate controls during evaluation.
+<AcquisitionCallout
+  title="Authorization is not the same as confirmation"
+  variant="boundary"
+>
+  CRM permissions decide whether the user may perform an action. The MCP
+  instructions tell compatible clients to request confirmation for sends and
+  deletes, but the server does not add a second approval after an authorized
+  client calls the tool. Treat those as two separate controls during evaluation.
 </AcquisitionCallout>
 
 ## Two AI paths in Customermates
@@ -180,15 +208,31 @@ For buyers, the practical questions matter more than the label:
 ## How to start with MCP
 
 <Steps>
-  <Step title="Inspect the current tools">Review the [MCP connection and tool guide](/docs/mcp) instead of relying on a copied tool list.</Step>
-  <Step title="Choose the external providers">Select an AI client and model provider that fit your data policy and operating requirements.</Step>
-  <Step title="Limit permissions">Grant only the CRM permissions required by the first workflow.</Step>
-  <Step title="Start with reversible work">Begin with reads, summaries and drafts before enabling writes, deletes or outbound sends.</Step>
-  <Step title="Verify the client controls">Confirm how the exact client displays side effects and waits for approval before expanding access.</Step>
+  <Step title="Inspect the current tools">
+    Review the [MCP connection and tool guide](/docs/mcp) instead of relying on
+    a copied tool list.
+  </Step>
+  <Step title="Choose the external providers">
+    Select an AI client and model provider that fit your data policy and
+    operating requirements.
+  </Step>
+  <Step title="Limit permissions">
+    Grant only the CRM permissions required by the first workflow.
+  </Step>
+  <Step title="Start with reversible work">
+    Begin with reads, summaries and drafts before enabling writes, deletes or
+    outbound sends.
+  </Step>
+  <Step title="Verify the client controls">
+    Confirm how the exact client displays side effects and waits for approval
+    before expanding access.
+  </Step>
 </Steps>
 
 <AcquisitionCallout title="Evaluate the current integration" variant="fit">
-  [Read the MCP guide](/docs/mcp) for the current connection path. You can also [start a cloud trial](/auth/signup) to evaluate the managed CRM. Signup does not prove that the release-gated Mate capability is live.
+  [Read the MCP guide](/docs/mcp) for the current connection path. You can also
+  [start a cloud trial](/auth/signup) to evaluate the managed CRM. Signup does
+  not prove that the release-gated Mate capability is live.
 </AcquisitionCallout>
 
 ## Frequently asked questions
@@ -199,19 +243,22 @@ It is a CRM whose structured records and actions can be operated by an authorize
 </FaqItem>
 
 <FaqItem question="Is Mate generally available in Customermates Cloud?">
-  This page does not make that claim. Product code contains the cloud-only Mate capability and a global kill switch, but
-  the production configuration and release conditions are not proven here. External MCP clients remain the current
-  documented integration path.
+  This page does not make that claim. Product code contains the cloud-only Mate
+  capability and a global kill switch, but the production configuration and
+  release conditions are not proven here. External MCP clients remain the
+  current documented integration path.
 </FaqItem>
 
 <FaqItem question="Can I use an external AI client with self-hosted Customermates?">
-  Yes. MCP is available in self-hosted deployments. You choose and fund the external client and model provider; hosted
-  Mate and hosted AI credits are not included.
+  Yes. MCP is available in self-hosted deployments. You choose and fund the
+  external client and model provider; hosted Mate and hosted AI credits are not
+  included.
 </FaqItem>
 
 <FaqItem question="Where is confirmation enforced?">
-  MCP instructions tell compatible clients to request confirmation before sends and deletes, but the MCP server does not
-  add a second approval gate after the client calls a permitted tool. Mate uses separate enforced per-call approval
+  MCP instructions tell compatible clients to request confirmation before sends
+  and deletes, but the MCP server does not add a second approval gate after the
+  client calls a permitted tool. Mate uses separate enforced per-call approval
   gates. Verify the behavior of the exact client and path you enable.
 </FaqItem>
 

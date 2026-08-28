@@ -69,12 +69,19 @@ const acquisitionExcludedClaimSchema = z.enum([
   "claim:no-unsupported-channels",
 ]);
 
+export const ctaSchema = z.object({
+  action: z.string(),
+  buttonLeftHref: z.string(),
+  buttonLeftText: z.string(),
+  buttonRightHref: z.string(),
+  buttonRightText: z.string(),
+  description: z.string(),
+  hint: z.string(),
+});
+
 export const acquisitionPageSchema = z.strictObject({
   clusterId: z.enum(["ai-agentic-mcp", "open-source-self-hosted", "professional-services", "unified-inbox"]),
-  cta: z.strictObject({
-    primaryHref: z.string().min(1),
-    secondaryHref: z.string().min(1),
-  }),
+  cta: ctaSchema,
   locale: z.enum(CONTENT_LOCALES),
   metadata: metaSchema,
   primaryIntent: z.string().trim().min(8).max(120),
@@ -82,6 +89,10 @@ export const acquisitionPageSchema = z.strictObject({
     excludedClaims: z.array(acquisitionExcludedClaimSchema).min(1),
     factReferences: z.array(acquisitionFactReferenceSchema).min(1),
   }),
+  relatedHrefs: z
+    .array(z.string().regex(/^\/(?:blog|compare|docs|features|for)\/[a-z0-9]+(?:-[a-z0-9]+)*$/u))
+    .length(4)
+    .refine((items) => new Set(items).size === items.length, "Related page links must be unique"),
   role: z.enum(["hub", "support"]),
   slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u),
   structuredData: z.strictObject({
@@ -104,16 +115,6 @@ export const heroSchema = z.object({
   titleAccent: z.string().optional(),
 });
 export type Hero = z.infer<typeof heroSchema>;
-
-export const ctaSchema = z.object({
-  action: z.string(),
-  buttonLeftHref: z.string(),
-  buttonLeftText: z.string(),
-  buttonRightHref: z.string(),
-  buttonRightText: z.string(),
-  description: z.string(),
-  hint: z.string(),
-});
 
 export const faqItemSchema = z.object({
   id: z.string(),

@@ -23,8 +23,18 @@ acquisition:
       - claim:no-hosted-ai-self-hosted
       - claim:no-unsupported-channels
   cta:
-    primaryHref: /docs/mcp
-    secondaryHref: /auth/signup
+    action: Agentic CRM anhand eines klar begrenzten Workflows prüfen
+    description: Prüfen Sie die aktuelle MCP-Integration und ihre Kontrollgrenzen. Verbinden Sie anschließend einen externen Client oder starten Sie die Pro-Testphase, ohne von der produktiven Verfügbarkeit von Mate auszugehen.
+    buttonLeftText: MCP-Anleitung lesen
+    buttonLeftHref: /docs/mcp
+    buttonRightText: Pro-Test starten
+    buttonRightHref: /auth/signup
+    hint: "Externe KI-Clients verwenden ihren eigenen Modellanbieter; Mate bleibt weiterhin freigabegebunden."
+  relatedHrefs:
+    - /docs/mcp
+    - /features/unified-inbox
+    - /features/self-hosted
+    - /blog/open-source-crm
   visual:
     id: acquisition.agentic-crm.de
     locale: de
@@ -98,10 +108,23 @@ Ein **KI-natives CRM** stellt strukturierte Kundendaten und klar definierte Akti
 Customermates unterstützt dieses Modell über externe KI-Clients, die per MCP verbunden werden. Das Produkt enthält außerdem die cloudbasierte In-App-Assistentenfunktion Mate. Ob sie produktiv verfügbar ist, hängt jedoch von der Konfiguration der gehosteten Umgebung und den Freigabebedingungen ab. Diese Seite beschreibt deshalb die Funktion, ohne Mate als allgemein verfügbar darzustellen.
 
 <ArticleSummary title="Auf einen Blick">
-  <SummaryItem label="KI-native Architektur">Strukturierte CRM-Datensätze und typisierte Aktionen geben einem autorisierten KI-Client eine verlässliche Arbeitsgrundlage.</SummaryItem>
-  <SummaryItem label="Agentisches Verhalten">Der Client kann unterstützte Lese- und Schreibaktionen zu einem Ablauf verbinden, statt nur Text zu erzeugen.</SummaryItem>
-  <SummaryItem label="Aktueller offener Weg">Externe KI-Clients verbinden sich in Cloud und Self-Hosting über MCP. Auswahl und Kosten für Client und Modellanbieter liegen beim Kunden.</SummaryItem>
-  <SummaryItem label="Kontrollgrenze">Serverberechtigungen autorisieren die Aktion. Bei externem MCP liegt die Bestätigung im gewählten Client; Mate folgt einem separaten, freigabegebundenen Pfad.</SummaryItem>
+  <SummaryItem label="KI-native Architektur">
+    Strukturierte CRM-Datensätze und typisierte Aktionen geben einem
+    autorisierten KI-Client eine verlässliche Arbeitsgrundlage.
+  </SummaryItem>
+  <SummaryItem label="Agentisches Verhalten">
+    Der Client kann unterstützte Lese- und Schreibaktionen zu einem Ablauf
+    verbinden, statt nur Text zu erzeugen.
+  </SummaryItem>
+  <SummaryItem label="Aktueller offener Weg">
+    Externe KI-Clients verbinden sich in Cloud und Self-Hosting über MCP.
+    Auswahl und Kosten für Client und Modellanbieter liegen beim Kunden.
+  </SummaryItem>
+  <SummaryItem label="Kontrollgrenze">
+    Serverberechtigungen autorisieren die Aktion. Bei externem MCP liegt die
+    Bestätigung im gewählten Client; Mate folgt einem separaten,
+    freigabegebundenen Pfad.
+  </SummaryItem>
 </ArticleSummary>
 
 <ProofRail label="Verifizierte Bausteine eines agentischen CRM">
@@ -127,8 +150,15 @@ Das unterscheidet ein agentisches CRM von einem Chatbot, der nur Text erzeugt. E
 
 Ein externer Client kann den Kontext eines Kontakts lesen, verknüpfte CRM-Datensätze prüfen und mit typisierten Tools einen Entwurf oder eine Datensatzänderung vorbereiten. Der Server validiert die Anfrage und wendet die Berechtigungen des anfragenden Nutzers an. Bevor destruktive Aktionen oder externer Versand aktiviert werden, muss der Betreiber prüfen, wie der konkrete Client diese Wirkung anzeigt und bestätigen lässt.
 
-<AcquisitionCallout title="Autorisierung und Bestätigung sind nicht dasselbe" variant="boundary">
-  CRM-Berechtigungen entscheiden, ob ein Nutzer eine Aktion ausführen darf. Die MCP-Anweisungen fordern kompatible Clients auf, für Versand und Löschvorgänge eine Bestätigung einzuholen. Nach dem autorisierten Tool-Aufruf fügt der Server jedoch keine zweite Freigabe hinzu. Bewerten Sie beide Kontrollen getrennt.
+<AcquisitionCallout
+  title="Autorisierung und Bestätigung sind nicht dasselbe"
+  variant="boundary"
+>
+  CRM-Berechtigungen entscheiden, ob ein Nutzer eine Aktion ausführen darf. Die
+  MCP-Anweisungen fordern kompatible Clients auf, für Versand und Löschvorgänge
+  eine Bestätigung einzuholen. Nach dem autorisierten Tool-Aufruf fügt der
+  Server jedoch keine zweite Freigabe hinzu. Bewerten Sie beide Kontrollen
+  getrennt.
 </AcquisitionCallout>
 
 ## Zwei KI-Wege in Customermates
@@ -180,15 +210,32 @@ Für Käufer sind die praktischen Fragen wichtiger als das Etikett:
 ## Mit MCP starten
 
 <Steps>
-  <Step title="Aktuelle Tools prüfen">Lesen Sie die [MCP-Verbindungs- und Tool-Anleitung](/docs/mcp), statt sich auf eine kopierte Tool-Liste zu verlassen.</Step>
-  <Step title="Externe Anbieter wählen">Wählen Sie einen KI-Client und Modellanbieter, die zu Datenrichtlinie und Betriebsanforderungen passen.</Step>
-  <Step title="Berechtigungen begrenzen">Vergeben Sie nur die CRM-Rechte, die der erste Ablauf wirklich benötigt.</Step>
-  <Step title="Mit reversibler Arbeit beginnen">Starten Sie mit Lesevorgängen, Zusammenfassungen und Entwürfen, bevor Sie Schreiben, Löschen oder externen Versand erlauben.</Step>
-  <Step title="Client-Kontrollen prüfen">Stellen Sie fest, wie der konkrete Client Nebenwirkungen anzeigt und auf Bestätigung wartet, bevor Sie den Zugriff erweitern.</Step>
+  <Step title="Aktuelle Tools prüfen">
+    Lesen Sie die [MCP-Verbindungs- und Tool-Anleitung](/docs/mcp), statt sich
+    auf eine kopierte Tool-Liste zu verlassen.
+  </Step>
+  <Step title="Externe Anbieter wählen">
+    Wählen Sie einen KI-Client und Modellanbieter, die zu Datenrichtlinie und
+    Betriebsanforderungen passen.
+  </Step>
+  <Step title="Berechtigungen begrenzen">
+    Vergeben Sie nur die CRM-Rechte, die der erste Ablauf wirklich benötigt.
+  </Step>
+  <Step title="Mit reversibler Arbeit beginnen">
+    Starten Sie mit Lesevorgängen, Zusammenfassungen und Entwürfen, bevor Sie
+    Schreiben, Löschen oder externen Versand erlauben.
+  </Step>
+  <Step title="Client-Kontrollen prüfen">
+    Stellen Sie fest, wie der konkrete Client Nebenwirkungen anzeigt und auf
+    Bestätigung wartet, bevor Sie den Zugriff erweitern.
+  </Step>
 </Steps>
 
 <AcquisitionCallout title="Die aktuelle Integration bewerten" variant="fit">
-  [Lesen Sie die MCP-Anleitung](/docs/mcp) für den aktuellen Verbindungsweg. Zusätzlich können Sie [eine Cloud-Testphase starten](/auth/signup), um das verwaltete CRM zu prüfen. Eine Anmeldung belegt nicht, dass die freigabegebundene Mate-Funktion produktiv aktiv ist.
+  [Lesen Sie die MCP-Anleitung](/docs/mcp) für den aktuellen Verbindungsweg.
+  Zusätzlich können Sie [eine Cloud-Testphase starten](/auth/signup), um das
+  verwaltete CRM zu prüfen. Eine Anmeldung belegt nicht, dass die
+  freigabegebundene Mate-Funktion produktiv aktiv ist.
 </AcquisitionCallout>
 
 ## Häufig gestellte Fragen
@@ -199,21 +246,24 @@ Es ist ein CRM, dessen strukturierte Datensätze und Aktionen von einem autorisi
 </FaqItem>
 
 <FaqItem question="Ist Mate in Customermates Cloud allgemein verfügbar?">
-  Eine allgemeine Produktivverfügbarkeit ist derzeit nicht belegt. Der Produktcode enthält die cloudbasierte
-  Mate-Funktion und einen globalen Kill Switch; die produktive Konfiguration und die Freigabebedingungen sind hier
-  jedoch nicht belegt. Externe MCP-Clients bleiben der aktuell dokumentierte Integrationsweg.
+  Eine allgemeine Produktivverfügbarkeit ist derzeit nicht belegt. Der
+  Produktcode enthält die cloudbasierte Mate-Funktion und einen globalen Kill
+  Switch; die produktive Konfiguration und die Freigabebedingungen sind hier
+  jedoch nicht belegt. Externe MCP-Clients bleiben der aktuell dokumentierte
+  Integrationsweg.
 </FaqItem>
 
 <FaqItem question="Kann ich einen externen KI-Client mit Self-Hosted Customermates nutzen?">
-  Ja. MCP ist beim Self-Hosting verfügbar. Sie wählen und bezahlen Client und Modellanbieter; gehosteter Mate und
-  gehostete KI-Credits sind nicht enthalten.
+  Ja. MCP ist beim Self-Hosting verfügbar. Sie wählen und bezahlen Client und
+  Modellanbieter; gehosteter Mate und gehostete KI-Credits sind nicht enthalten.
 </FaqItem>
 
 <FaqItem question="Wo wird eine Bestätigung technisch erzwungen?">
-  Die MCP-Anweisungen fordern kompatible Clients auf, vor Versand und Löschvorgängen eine Bestätigung einzuholen. Der
-  MCP-Server fügt jedoch keine zweite Freigabe hinzu, nachdem der Client ein zulässiges Tool aufgerufen hat. Mate
-  besitzt separate, technisch erzwungene Freigaben pro Aufruf. Prüfen Sie daher den konkreten Client und Pfad, den Sie
-  aktivieren.
+  Die MCP-Anweisungen fordern kompatible Clients auf, vor Versand und
+  Löschvorgängen eine Bestätigung einzuholen. Der MCP-Server fügt jedoch keine
+  zweite Freigabe hinzu, nachdem der Client ein zulässiges Tool aufgerufen hat.
+  Mate besitzt separate, technisch erzwungene Freigaben pro Aufruf. Prüfen Sie
+  daher den konkreten Client und Pfad, den Sie aktivieren.
 </FaqItem>
 
 <FaqItem question="Enthält agentisches CRM prädiktives Lead-Scoring oder Forecasting?">

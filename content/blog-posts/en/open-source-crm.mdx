@@ -25,8 +25,18 @@ acquisition:
       - claim:no-self-hosted-inbox
       - claim:no-hosted-ai-self-hosted
   cta:
-    primaryHref: /features/self-hosted
-    secondaryHref: https://github.com/customermates/customermates
+    action: Evaluate Customermates as an open-source CRM
+    description: Review the license, deployment responsibilities and edition boundaries before choosing self-hosting.
+    buttonLeftText: Review self-hosting
+    buttonLeftHref: /features/self-hosted
+    buttonRightText: View the source
+    buttonRightHref: https://github.com/customermates/customermates
+    hint: "The operator owns infrastructure, updates, backups and connected providers."
+  relatedHrefs:
+    - /features/self-hosted
+    - /docs/self-hosting
+    - /docs/mcp
+    - /blog/agentic-crm
   visual:
     id: acquisition.open-source-crm.en
     locale: en
@@ -97,10 +107,22 @@ The best **open-source CRM** is the one whose license, self-hosting path, operat
 This guide uses a durable evaluation framework instead of ranking projects by changing prices, star counts or unsourced feature claims. Disclosure: Customermates publishes this comparison and is one of the products discussed below.
 
 <ArticleSummary title="At a glance">
-  <SummaryItem label="Start with">The license and edition boundary for the exact code you plan to run, not the repository label.</SummaryItem>
-  <SummaryItem label="Then verify">A maintained deployment path, the CRM model, interfaces, migration path and the operating work your team will own.</SummaryItem>
-  <SummaryItem label="Treat as unknown">Any capability that is absent from current official documentation or from a workflow you have tested yourself.</SummaryItem>
-  <SummaryItem label="Disclosure">Customermates publishes this guide. Its own claims are separated from the source map for other projects.</SummaryItem>
+  <SummaryItem label="Start with">
+    The license and edition boundary for the exact code you plan to run, not the
+    repository label.
+  </SummaryItem>
+  <SummaryItem label="Then verify">
+    A maintained deployment path, the CRM model, interfaces, migration path and
+    the operating work your team will own.
+  </SummaryItem>
+  <SummaryItem label="Treat as unknown">
+    Any capability that is absent from current official documentation or from a
+    workflow you have tested yourself.
+  </SummaryItem>
+  <SummaryItem label="Disclosure">
+    Customermates publishes this guide. Its own claims are separated from the
+    source map for other projects.
+  </SummaryItem>
 </ArticleSummary>
 
 <ProofRail label="Open-source CRM comparison dimensions">
@@ -145,17 +167,22 @@ Their intended breadth differs. Some focus on CRM, some sit inside a broader bus
 
 ### Official source map checked on 28 August 2026
 
-| Project | Current official evidence to inspect | What this source supports |
-| --- | --- | --- |
-| Customermates | [AGPL core license](https://github.com/customermates/customermates/blob/main/LICENSE), [commercial and AGPL client-material boundary](https://github.com/customermates/customermates/blob/main/ee/LICENSE.md), and [Compose deployment](https://github.com/customermates/customermates/blob/main/docker-compose.yml) | Exact repository licenses and the tracked application plus PostgreSQL deployment |
-| SuiteCRM | [AGPL licensing](https://docs.suitecrm.com/admin/licensing/) and [installation guide](https://docs.suitecrm.com/admin/installation-guide/downloading-installing/) | The documentation states AGPLv3 and exposes a maintained administrator installation path |
-| EspoCRM | [Repository and license](https://github.com/espocrm/espocrm) and [Docker installation](https://docs.espocrm.com/administration/docker/installation/) | A public source license and an official Docker deployment path |
-| Twenty | [License](https://github.com/twentyhq/twenty/blob/main/LICENSE) and [Docker Compose guide](https://docs.twenty.com/developers/self-host/capabilities/docker-compose) | A public source license and an official Docker Compose self-hosting path |
+| Project       | Current official evidence to inspect                                                                                                                                                                                                                                                                                 | What this source supports                                                                |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Customermates | [AGPL core license](https://github.com/customermates/customermates/blob/main/LICENSE), [commercial and AGPL client-material boundary](https://github.com/customermates/customermates/blob/main/ee/LICENSE.md), and [Compose deployment](https://github.com/customermates/customermates/blob/main/docker-compose.yml) | Exact repository licenses and the tracked application plus PostgreSQL deployment         |
+| SuiteCRM      | [AGPL licensing](https://docs.suitecrm.com/admin/licensing/) and [installation guide](https://docs.suitecrm.com/admin/installation-guide/downloading-installing/)                                                                                                                                                    | The documentation states AGPLv3 and exposes a maintained administrator installation path |
+| EspoCRM       | [Repository and license](https://github.com/espocrm/espocrm) and [Docker installation](https://docs.espocrm.com/administration/docker/installation/)                                                                                                                                                                 | A public source license and an official Docker deployment path                           |
+| Twenty        | [License](https://github.com/twentyhq/twenty/blob/main/LICENSE) and [Docker Compose guide](https://docs.twenty.com/developers/self-host/capabilities/docker-compose)                                                                                                                                                 | A public source license and an official Docker Compose self-hosting path                 |
 
 This table is a source map, not a product ranking or a claim that the projects have equivalent editions. Open each license and deployment source at the version you are evaluating.
 
-<AcquisitionCallout title="A public repository is evidence, not the whole answer" variant="boundary">
-  Confirm the license for every required directory, the exact runnable edition and the operating dependencies. Source access alone does not establish that every file is open source or that every cloud feature is self-hostable.
+<AcquisitionCallout
+  title="A public repository is evidence, not the whole answer"
+  variant="boundary"
+>
+  Confirm the license for every required directory, the exact runnable edition
+  and the operating dependencies. Source access alone does not establish that
+  every file is open source or that every cloud feature is self-hostable.
 </AcquisitionCallout>
 
 ## Where Customermates fits
@@ -203,12 +230,27 @@ For Customermates, the distinction is explicit: the core CRM, REST, webhooks and
 ## A practical evaluation checklist
 
 <Steps>
-  <Step title="Define the job">Write down the records, views, integrations and deployment constraints the CRM must support.</Step>
-  <Step title="Inspect the legal boundary">Read the exact license and edition boundary for every finalist and version.</Step>
-  <Step title="Run the official path">Follow the maintained deployment guide in an isolated environment.</Step>
-  <Step title="Test operations">Verify authentication, permissions, backups, restoration and upgrades instead of inferring them from marketing copy.</Step>
-  <Step title="Price the whole system">Estimate infrastructure, external services and operator time together.</Step>
-  <Step title="Plan migration separately">Design and validate a migration procedure if the product has no dedicated import or export workflow.</Step>
+  <Step title="Define the job">
+    Write down the records, views, integrations and deployment constraints the
+    CRM must support.
+  </Step>
+  <Step title="Inspect the legal boundary">
+    Read the exact license and edition boundary for every finalist and version.
+  </Step>
+  <Step title="Run the official path">
+    Follow the maintained deployment guide in an isolated environment.
+  </Step>
+  <Step title="Test operations">
+    Verify authentication, permissions, backups, restoration and upgrades
+    instead of inferring them from marketing copy.
+  </Step>
+  <Step title="Price the whole system">
+    Estimate infrastructure, external services and operator time together.
+  </Step>
+  <Step title="Plan migration separately">
+    Design and validate a migration procedure if the product has no dedicated
+    import or export workflow.
+  </Step>
 </Steps>
 
 [Review the exact Customermates self-hosting boundary](/features/self-hosted) or [inspect the repository](https://github.com/customermates/customermates) before adding it to your shortlist.
@@ -221,19 +263,22 @@ It means the CRM code is offered under an open-source license that grants define
 </FaqItem>
 
 <FaqItem question="Is every open-source CRM free to operate?">
-  No. A license may not charge a software subscription, but infrastructure, backups, upgrades, monitoring, security work
-  and external providers still cost money and operator time.
+  No. A license may not charge a software subscription, but infrastructure,
+  backups, upgrades, monitoring, security work and external providers still cost
+  money and operator time.
 </FaqItem>
 
 <FaqItem question="Does open source guarantee data control or GDPR compliance?">
-  No. Self-hosting can give you control over the application and database location, but compliance and data flows depend
-  on configuration, connected providers, contracts, policies and operations.
+  No. Self-hosting can give you control over the application and database
+  location, but compliance and data flows depend on configuration, connected
+  providers, contracts, policies and operations.
 </FaqItem>
 
 <FaqItem question="Is all Customermates code AGPL-3.0?">
-  No. First-party material outside `ee/` is AGPL-3.0-only. Inside `ee/`, the client material identified in Section 6 of
-  `ee/LICENSE.md` is also AGPL-3.0-only; the remaining first-party material uses the commercial license. Review both
-  license files for the exact boundary.
+  No. First-party material outside `ee/` is AGPL-3.0-only. Inside `ee/`, the
+  client material identified in Section 6 of `ee/LICENSE.md` is also
+  AGPL-3.0-only; the remaining first-party material uses the commercial license.
+  Review both license files for the exact boundary.
 </FaqItem>
 
 <FaqItem question="Can I import or export CRM records in self-hosted Customermates?">

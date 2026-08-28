@@ -204,6 +204,13 @@ describe("public acquisition UI contract", () => {
     expect(closing).toContain("rounded-card border border-border bg-sidebar");
     expect(closing).not.toContain("rgba(");
     expect(closing).not.toContain("blur-[80px]");
+    expect(closing).toContain('buttonRightHref.startsWith("https://")');
+    expect(closing).toContain(
+      'target={buttonRightIsExternal ? "_blank" : undefined}',
+    );
+    expect(closing).toContain(
+      'rel={buttonRightIsExternal ? "noopener noreferrer" : undefined}',
+    );
   });
 
   it("keeps long-form content readable and media explicit", () => {
@@ -241,6 +248,8 @@ describe("public acquisition UI contract", () => {
     expect(card).toContain('href="/contact"');
     expect(card).toContain('src="benjamin-wagner.png"');
     expect(card).toContain("highlights.personal.body");
+    expect(card).toContain('data-founder-contact-variant="note"');
+    expect(card).not.toContain("FounderContactCardVariant");
     expect(toc).toContain("asideFooter?: ReactNode");
     expect(toc).toContain("hasMobileFooter");
     expect(toc).toContain('hasMobileFooter && "hidden lg:block"');
@@ -259,6 +268,53 @@ describe("public acquisition UI contract", () => {
     expect(
       source("app/[locale]/(static)/compare/[competitor]/page.tsx"),
     ).not.toContain("founderContact");
+  });
+
+  it("uses one route-owned related-content and CTA ending across acquisition pages", () => {
+    const ending = source("components/marketing/acquisition-page-ending.tsx");
+    expect(ending).toContain("<RelatedPages>");
+    expect(ending).toContain("acquisition.relatedHrefs.map");
+    expect(ending.indexOf("<RelatedPages>")).toBeLessThan(
+      ending.indexOf("<CTASection"),
+    );
+
+    for (const route of [
+      "app/[locale]/(static)/features/[slug]/page.tsx",
+      "app/[locale]/(static)/for/[industry]/page.tsx",
+      "app/[locale]/(static)/blog/[slug]/page.tsx",
+    ]) {
+      const routeSource = source(route);
+      const article = routeSource.indexOf("<LandingArticle");
+      const endingUse = routeSource.indexOf("<AcquisitionPageEnding", article);
+      const footer = routeSource.indexOf("<Footer", endingUse);
+      expect(endingUse, route).toBeGreaterThan(article);
+      expect(footer, route).toBeGreaterThan(endingUse);
+    }
+  });
+
+  it("keeps article proof and callout icons on the homepage and product primitives", () => {
+    const blocks = source("components/marketing/article-blocks.tsx");
+    const alert = source("components/shared/alert.tsx");
+
+    expect(blocks).toContain(
+      'className="not-prose my-10 border-y border-border"',
+    );
+    expect(blocks).not.toContain("CircleCheckBig");
+    expect(blocks).not.toContain(
+      'className="not-prose my-10 border-y border-border bg-background"',
+    );
+    expect(blocks).toContain("icon: ALERT_ICONS.warning");
+    expect(blocks).toContain("icon: ALERT_ICONS.primary");
+    expect(blocks).toContain("icon: ALERT_ICONS.default");
+    expect(blocks).not.toContain("size-8 shrink-0 place-items-center");
+    expect(alert).toContain("export const ALERT_ICONS");
+
+    const postCard = source("components/marketing/post-card.tsx");
+    expect(postCard).toContain("aspect-2/1 overflow-hidden bg-sidebar");
+    expect(postCard).toContain(
+      "[background-image:linear-gradient(to_right,var(--border)_1px",
+    );
+    expect(postCard).not.toContain("from-primary/25 via-primary/10");
   });
 
   it("recomposes acquisition artboards across every approved placement without an outer frame", () => {
