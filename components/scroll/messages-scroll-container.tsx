@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
@@ -14,6 +14,7 @@ const AUTO_FOLLOW_SETTLE_MS = 1000;
 type Props = {
   className?: string;
   jumpToLatestLabel?: string;
+  latestItemKey?: string;
   loadOlderLabel?: string;
   scrollRegionLabel?: string;
   scrollKey: string;
@@ -24,6 +25,7 @@ type Props = {
 export function MessagesScrollContainer({
   className,
   jumpToLatestLabel,
+  latestItemKey,
   loadOlderLabel,
   scrollRegionLabel,
   scrollKey,
@@ -52,6 +54,13 @@ export function MessagesScrollContainer({
     setIsLoadingOlder(false);
     el.scrollTop = el.scrollHeight;
   }, [scrollKey]);
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el || latestItemKey === undefined || !stickToBottom.current) return;
+
+    el.scrollTop = el.scrollHeight;
+  }, [latestItemKey]);
 
   useEffect(() => {
     const el = ref.current;

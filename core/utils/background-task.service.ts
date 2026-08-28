@@ -1,4 +1,5 @@
-import { getHookByToken, resumeHook, start } from "workflow/api";
+import { resumeHook, start } from "workflow/api";
+import { HookNotFoundError } from "workflow/errors";
 
 import type { WorkflowId, WorkflowPayload } from "@/workflows/registry";
 import type { WorkflowTenant } from "@/workflows/workflow-tenant";
@@ -34,13 +35,11 @@ export class BackgroundTaskService {
 
   async resume(token: string, payload: Record<string, unknown>): Promise<boolean> {
     try {
-      const hook = await getHookByToken(token);
-      if (!hook) return false;
-
       await resumeHook(token, payload);
       return true;
-    } catch {
-      return false;
+    } catch (error) {
+      if (HookNotFoundError.is(error)) return false;
+      throw error;
     }
   }
 
