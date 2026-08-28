@@ -1,5 +1,7 @@
 import type { VisualPathway, VisualPlacement } from "./visual-contract";
 
+export const COMPOUND_CONNECTOR_STROKE = "color-mix(in oklab, var(--foreground) 24%, var(--sidebar))";
+
 export type NormalizedPoint = {
   x: number;
   y: number;
@@ -15,6 +17,12 @@ export type AuthoredConnector = {
   control2: NormalizedPoint;
   source: NormalizedPoint;
   target: NormalizedPoint;
+};
+
+export type JoinedConnectorPaint = {
+  branchCount: number;
+  pathCount: number;
+  strokeOpacity: number;
 };
 
 type ConvergeGoldenLayout = {
@@ -199,4 +207,14 @@ export function goldenConnectorCount(pathway: VisualPathway, supportingSubjectCo
   if (pathway === "focus") return 0;
   if (pathway === "handoff") return 1;
   return supportingSubjectCount === 2 || supportingSubjectCount === 3 ? supportingSubjectCount : 0;
+}
+
+export function joinedConnectorPaintViolations({ branchCount, pathCount, strokeOpacity }: JoinedConnectorPaint) {
+  if (branchCount < 2) return [];
+
+  const violations: string[] = [];
+  if (pathCount !== 1) violations.push("joined branches must share one compound path");
+  if (strokeOpacity !== 1) violations.push("joined branches must use one opaque token-derived stroke");
+
+  return violations;
 }

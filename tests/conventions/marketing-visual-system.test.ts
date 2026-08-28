@@ -17,6 +17,7 @@ import {
   APPROVED_NATIVE_VISUAL_ASSETS,
   NATIVE_VISUAL_FIXTURE_SOURCES,
   VISUAL_AGENT_PROVIDER_FIXTURES,
+  VISUAL_AUTOMATION_PROVIDER_FIXTURES,
   VISUAL_CONVERSATION_FIXTURES,
   VISUAL_DEAL_BOARD_FIXTURES,
   VISUAL_PERSON_FIXTURES,
@@ -25,7 +26,10 @@ import {
   VISUAL_RECORD_FIXTURES,
   VISUAL_STATUS_FIXTURES,
 } from "@/components/marketing/visuals/native-fixtures";
-import { NativeAgentProviderIdentity } from "@/components/marketing/visuals/native-visual-primitives";
+import {
+  NativeAgentProviderIdentity,
+  NativeAutomationProviderIdentity,
+} from "@/components/marketing/visuals/native-visual-primitives";
 import {
   type BrandIllustrationBrief,
   type ProductProofBrief,
@@ -39,8 +43,10 @@ import {
 } from "@/components/marketing/visuals/visual-contract";
 import {
   GOLDEN_LAYOUT,
+  COMPOUND_CONNECTOR_STROKE,
   authoredConnectorPath,
   goldenConnectorCount,
+  joinedConnectorPaintViolations,
   type NormalizedBox,
   type NormalizedPoint,
 } from "@/components/marketing/visuals/story-visual-layout";
@@ -348,7 +354,7 @@ describe("marketing visual brief", () => {
       kind: "product-proof",
       locale: "en",
       placements: ["wide"],
-      referenceSystemVersion: "customermates-marketing-visuals@7",
+      referenceSystemVersion: "customermates-marketing-visuals@8",
       selection: "automatic",
       source: {
         ...source,
@@ -424,7 +430,9 @@ describe("marketing visual brief", () => {
       "instagram",
       "imap",
     ]);
-    expect(VISUAL_CONVERSATION_FIXTURES["gmail-rollout-next-steps"]).toMatchObject({
+    expect(
+      VISUAL_CONVERSATION_FIXTURES["gmail-rollout-next-steps"],
+    ).toMatchObject({
       person: "anna-mueller",
       provider: "gmail",
     });
@@ -437,7 +445,10 @@ describe("marketing visual brief", () => {
 
     const providerSet = clone(getGoldenVisualBrief("converge", "en"));
     providerSet.focalSubject = {
-      fixtures: { conversation: "gmail-rollout-next-steps", person: "anna-mueller" },
+      fixtures: {
+        conversation: "gmail-rollout-next-steps",
+        person: "anna-mueller",
+      },
       form: "record",
       id: "customer-record",
     };
@@ -570,6 +581,57 @@ describe("marketing visual brief", () => {
     }
   });
 
+  it("keeps automation cues distinct from named AI-agent cues", () => {
+    const base = clone(getGoldenVisualBrief("handoff", "en"));
+    const automation = structuredClone(base);
+    const automationSubjects = automation.supportingSubjects as Array<
+      Record<string, unknown>
+    >;
+    automationSubjects[0] = {
+      automationProvider: "n8n",
+      form: "automation-cue",
+      id: "external-automation",
+    };
+
+    const validatedAutomation = validateVisualBrief(automation);
+    expect(validatedAutomation.kind).toBe("brand-illustration");
+    if (validatedAutomation.kind !== "brand-illustration")
+      throw new Error("expected brand illustration");
+    expect(validatedAutomation.supportingSubjects[0]).toMatchObject({
+      automationProvider: "n8n",
+      form: "automation-cue",
+    });
+
+    const n8nAsAgent = structuredClone(base);
+    const n8nAsAgentSubjects = n8nAsAgent.supportingSubjects as Array<
+      Record<string, unknown>
+    >;
+    n8nAsAgentSubjects[0].agentProvider = "n8n";
+    expect(invalid(n8nAsAgent)).toThrow();
+
+    const aiAsAutomation = structuredClone(automation);
+    const aiAsAutomationSubjects = aiAsAutomation.supportingSubjects as Array<
+      Record<string, unknown>
+    >;
+    aiAsAutomationSubjects[0].automationProvider = "chatgpt";
+    expect(invalid(aiAsAutomation)).toThrow();
+
+    for (const automationProvider of Object.keys(
+      VISUAL_AUTOMATION_PROVIDER_FIXTURES,
+    )) {
+      const markup = renderToStaticMarkup(
+        createElement(NativeAutomationProviderIdentity, {
+          descriptor: "Automation",
+          provider:
+            automationProvider as keyof typeof VISUAL_AUTOMATION_PROVIDER_FIXTURES,
+        }),
+      );
+      expect(markup).toContain(
+        `data-native-automation-provider="${automationProvider}"`,
+      );
+    }
+  });
+
   it("requires role-compatible people for authored human actions, drafts and records", () => {
     const wrongHumanAction = clone(getGoldenVisualBrief("handoff", "en"));
     const wrongHumanSubjects = wrongHumanAction.supportingSubjects as Array<
@@ -618,6 +680,19 @@ describe("GoldenStoryVisual benchmark renderer", () => {
         }
       }
     }
+  });
+
+  it("uses one frameless rounded artboard with optional token-grid atmosphere", () => {
+    const markup = render(getGoldenVisualBrief("converge", "en"), "wide");
+    const root = markup.match(
+      /<div\b[^>]*data-story-visual="[^"]+"[^>]*>/u,
+    )?.[0];
+
+    expect(root).toBeDefined();
+    expect(root ?? "").toContain("rounded-xl");
+    expect(root ?? "").not.toMatch(/\bborder(?:-|\s)/u);
+    expect(markup).toContain("background-size:56px_56px");
+    expect(markup).toContain("mask-image:radial-gradient");
   });
 
   it("keeps source paragraphs out of artwork and uses localized German labels without fallback", () => {
@@ -775,7 +850,7 @@ describe("GoldenStoryVisual benchmark renderer", () => {
       kind: "product-proof",
       locale: "en",
       placements: ["wide"],
-      referenceSystemVersion: "customermates-marketing-visuals@7",
+      referenceSystemVersion: "customermates-marketing-visuals@8",
       selection: "explicit",
       source: {
         ...source,
@@ -869,6 +944,28 @@ describe("golden benchmark connector geometry", () => {
     expect(
       connectorTargetViolations("wide", focal, [misalignedTarget]),
     ).toEqual(["connector 1 misses wide focal border"]);
+  });
+
+  it("rejects alpha-stacked joined paths and accepts one opaque compound path", () => {
+    expect(
+      joinedConnectorPaintViolations({
+        branchCount: 4,
+        pathCount: 4,
+        strokeOpacity: 0.36,
+      }),
+    ).toEqual([
+      "joined branches must share one compound path",
+      "joined branches must use one opaque token-derived stroke",
+    ]);
+    expect(
+      joinedConnectorPaintViolations({
+        branchCount: 4,
+        pathCount: 1,
+        strokeOpacity: 1,
+      }),
+    ).toEqual([]);
+    expect(COMPOUND_CONNECTOR_STROKE).toContain("var(--foreground)");
+    expect(COMPOUND_CONNECTOR_STROKE).toContain("var(--sidebar)");
   });
 
   it("renders every connector as the exact full path to its authored target", () => {

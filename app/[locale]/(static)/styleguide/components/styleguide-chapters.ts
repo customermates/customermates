@@ -56,7 +56,7 @@ export const STYLEGUIDE_CHAPTERS = [
       { id: "S-02", label: "S-02 Capability grid" },
       { id: "S-03", label: "S-03 Split, media trailing" },
       { id: "S-04", label: "S-04 Split, media leading" },
-      { id: "S-05", label: "S-05 Metric row" },
+      { id: "S-05", label: "S-05 Proof rail" },
       { id: "S-06", label: "S-06 Two-column verdict" },
       { id: "S-07", label: "S-07 Channel strip" },
       { id: "S-08", label: "S-08 Numbered sequence" },
@@ -75,6 +75,7 @@ export const STYLEGUIDE_CHAPTERS = [
     sections: [
       { id: "families", label: "Authenticity families" },
       { id: "machine-contract", label: "Machine contract" },
+      { id: "connection-geometry", label: "Connection geometry" },
       { id: "goldens", label: "Semantic goldens" },
       { id: "responsive-benchmark", label: "Responsive benchmark" },
       { id: "failures", label: "Failure examples" },

@@ -2,13 +2,20 @@ import { MarketingSection } from "@/components/marketing/marketing-section";
 
 import { getGoldenVisualBrief, type GoldenVisualBrief } from "@/components/marketing/visuals/goldens";
 import { GoldenStoryVisual } from "@/components/marketing/visuals/story-visual";
-import { VISUAL_AGENT_PROVIDER_FIXTURES, VISUAL_STATUS_FIXTURES } from "@/components/marketing/visuals/native-fixtures";
+import {
+  VISUAL_AGENT_PROVIDER_FIXTURES,
+  VISUAL_AUTOMATION_PROVIDER_FIXTURES,
+  VISUAL_STATUS_FIXTURES,
+} from "@/components/marketing/visuals/native-fixtures";
 import {
   NativeAgentProviderIdentity,
+  NativeAutomationProviderIdentity,
   NativeStatusBadge,
   PersonIdentity,
   ProviderMark,
 } from "@/components/marketing/visuals/native-visual-primitives";
+import { COMPOUND_CONNECTOR_STROKE } from "@/components/marketing/visuals/story-visual-layout";
+import { VisualArtboard } from "@/components/marketing/visuals/visual-artboard";
 import type { VisualLocale, VisualPathway, VisualPlacement } from "@/components/marketing/visuals/visual-contract";
 
 const GOLDEN_ORDER: VisualPathway[] = ["converge", "handoff", "focus"];
@@ -35,7 +42,7 @@ const CONTRACT_ROWS = [
   ["Meaning", "relationship, change or result, with approved fact references for claims"],
   [
     "Fixtures",
-    "an explicit ChatGPT, Claude, Cursor or Gemini identity for every agent cue, plus subject-bound channel, person, conversation, record and Status IDs",
+    "an explicit ChatGPT, Claude, Cursor or Gemini identity for every agent cue; n8n is a separate automation cue; channel, person, conversation, record and Status IDs remain subject-bound",
   ],
   [
     "Composites",
@@ -56,6 +63,10 @@ const NATIVE_CONVERSATION_EXAMPLES = [
 
 const NATIVE_AGENT_PROVIDER_EXAMPLES = Object.keys(VISUAL_AGENT_PROVIDER_FIXTURES) as Array<
   keyof typeof VISUAL_AGENT_PROVIDER_FIXTURES
+>;
+
+const NATIVE_AUTOMATION_PROVIDER_EXAMPLES = Object.keys(VISUAL_AUTOMATION_PROVIDER_FIXTURES) as Array<
+  keyof typeof VISUAL_AUTOMATION_PROVIDER_FIXTURES
 >;
 
 const DETAIL_BUDGET = [
@@ -82,6 +93,7 @@ const FAILURES = [
   ["Unsupported metric", "A score, KPI or number without an approved fact reference stops validation."],
   ["Automatic proof", "Only a human can explicitly select a reachable local capture as product-proof."],
   ["Generic agent", "An agent cue without one explicitly selected native provider stops validation."],
+  ["Identity crossover", "An AI client cannot masquerade as automation, and n8n cannot masquerade as an AI agent."],
 ];
 
 function BenchmarkThemePair({ brief, placement }: { brief: GoldenVisualBrief; placement: VisualPlacement }) {
@@ -210,6 +222,25 @@ export function VisualsChapter({ locale }: { locale: VisualLocale }) {
 
           <div className="mt-6 border-t border-border pt-6">
             <div className="flex flex-col gap-2 md:flex-row md:items-baseline md:justify-between md:gap-8">
+              <h3 className="text-lg font-medium">Automation providers</h3>
+
+              <p className="text-meta">A separate automation cue, never an AI-agent identity</p>
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-3">
+              {NATIVE_AUTOMATION_PROVIDER_EXAMPLES.map((provider) => (
+                <NativeAutomationProviderIdentity
+                  key={provider}
+                  className="rounded-xl border border-border bg-card px-3 py-2 text-sm"
+                  descriptor="Automation"
+                  provider={provider}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-6 border-t border-border pt-6">
+            <div className="flex flex-col gap-2 md:flex-row md:items-baseline md:justify-between md:gap-8">
               <h3 className="text-lg font-medium">Responsive detail budget</h3>
 
               <p className="text-meta">One support node still earns one readable fact at most</p>
@@ -238,6 +269,62 @@ export function VisualsChapter({ locale }: { locale: VisualLocale }) {
               pairings, registered provider sets, deal boards, records and statuses from the committed demo catalogue.
               It never queries a runtime database.
             </p>
+          </div>
+        </div>
+      </MarketingSection>
+
+      <MarketingSection
+        description="Lines are authored as geometry, not decoration. They finish exactly at opaque surfaces and remain visually stable when several branches become one."
+        id="connection-geometry"
+        title="Connections meet cleanly"
+      >
+        <div className="marketing-grid mt-12 items-center gap-y-8">
+          <div className="col-span-12 lg:col-span-7">
+            <VisualArtboard aria-label="Three sources merge into one focal record" className="aspect-[8/5]">
+              <svg aria-hidden className="absolute inset-0 size-full" preserveAspectRatio="none" viewBox="0 0 800 500">
+                <path
+                  d="M116 130 C230 130 245 250 360 250 M116 250 C230 250 245 250 360 250 M116 370 C230 370 245 250 360 250 M360 250 H474"
+                  fill="none"
+                  stroke={COMPOUND_CONNECTOR_STROKE}
+                  strokeLinecap="butt"
+                  strokeWidth="2"
+                />
+              </svg>
+
+              {["ChatGPT", "Claude", "Gemini"].map((provider, index) => (
+                <div
+                  key={provider}
+                  className="absolute left-[8%] flex h-10 w-[22%] items-center rounded-full border border-border bg-card px-4 text-xs font-medium"
+                  style={{ top: `${20 + index * 24}%` }}
+                >
+                  {provider}
+                </div>
+              ))}
+
+              <div className="absolute top-[34%] left-[59.25%] w-[31%] rounded-card border border-border-strong bg-card p-5">
+                <p className="text-meta">Focal record</p>
+
+                <p className="mt-3 font-medium">One connected result</p>
+              </div>
+            </VisualArtboard>
+          </div>
+
+          <div className="col-span-12 lg:col-start-9 lg:col-end-13">
+            <ul className="divide-y divide-border border-y border-border text-sm leading-relaxed text-muted-foreground">
+              <li className="py-3">Terminate at the exact node or card border; never leave a gap or overrun.</li>
+
+              <li className="py-3">Keep every connector behind the opaque surfaces it touches.</li>
+
+              <li className="py-3">
+                Author joined branches as one compound path with one opaque token-derived stroke.
+              </li>
+
+              <li className="py-3">Use butt caps and separately authored ports for wide, split and narrow layouts.</li>
+
+              <li className="py-3">
+                A provider orbit is one semantic supporting subject, not an unbounded subject list.
+              </li>
+            </ul>
           </div>
         </div>
       </MarketingSection>

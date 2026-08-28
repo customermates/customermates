@@ -110,7 +110,7 @@ function ChapterIntro({ chapterId }: { chapterId: StyleguideChapterId }) {
 
 export function StyleguideChapter({ chapter, children }: { chapter: StyleguideChapterId; children: React.ReactNode }) {
   return (
-    <div className="flex w-full flex-col items-center">
+    <div className="flex w-full flex-col items-center" data-marketing-flow="continuous">
       <ChapterSwitcher currentChapter={chapter} />
 
       <ChapterIntro chapterId={chapter} />

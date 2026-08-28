@@ -35,6 +35,7 @@ const BREAKPOINTS = [
 ];
 
 const TYPE_LADDER = [
+  { at1440: "93.6px", at375: "48px", at768: "49.9px", role: ".text-hero" },
   { at1440: "74.9px", at375: "40px", at768: "52.9px", role: ".text-display" },
   { at1440: "48px", at375: "32px", at768: "37.9px", role: ".text-display-sm" },
   { at1440: "18px", at375: "16px", at768: "18px", role: ".text-lede" },
@@ -52,7 +53,11 @@ const COLLAPSE = [
     pattern: "S-03 / S-04 Split",
     rule: "12 → 5 + 5, media placed by row-start",
   },
-  { at: "md · 768px", pattern: "S-05 Metric row", rule: "6 → 3" },
+  {
+    at: "lg · 1024px",
+    pattern: "S-05 Proof rail",
+    rule: "2 → 5; fifth spans the narrow row",
+  },
   { at: "md · 768px", pattern: "S-06 Two-column verdict", rule: "12 → 6 / 6" },
   {
     at: "never",

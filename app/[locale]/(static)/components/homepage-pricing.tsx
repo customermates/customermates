@@ -1,39 +1,36 @@
 import { Check } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 
+import { MarketingSection } from "@/components/marketing/marketing-section";
 import { Button } from "@/components/ui/button";
 import { AppLink } from "@/components/shared/app-link";
-import { WaveDecoration } from "@/components/marketing/wave-decoration";
 import { formatCommercialAmount, PLAN_CATALOG } from "@/core/commercial/plan-catalog";
 
 type CardConfig = {
-  href: string;
   badgeKey?: string;
-  periodKey?: string;
-  titleKey: "selfHosted" | "cloud";
-  variant: "secondary" | "default";
-  featureKeys: string[];
   compareHref?: string;
   compareTextKey?: string;
+  featureKeys: string[];
+  href: string;
+  periodKey?: string;
+  titleKey: "cloud" | "selfHosted";
 };
 
 const CARDS: CardConfig[] = [
   {
-    titleKey: "selfHosted",
+    featureKeys: ["featureUsers", "featureRecords", "featureApi", "featureN8n", "featureCommunity"],
     href: "https://github.com/customermates/customermates",
     periodKey: "period",
-    variant: "secondary",
-    featureKeys: ["featureUsers", "featureRecords", "featureApi", "featureN8n", "featureCommunity"],
+    titleKey: "selfHosted",
   },
   {
-    titleKey: "cloud",
-    href: "/auth/signup",
     badgeKey: "badge",
-    periodKey: "period",
-    variant: "default",
-    featureKeys: ["featureStarter", "featurePro", "featureBusiness"],
     compareHref: "/pricing",
     compareTextKey: "compareText",
+    featureKeys: ["featureStarter", "featurePro", "featureBusiness"],
+    href: "/auth/signup",
+    periodKey: "period",
+    titleKey: "cloud",
   },
 ];
 
@@ -43,80 +40,47 @@ export async function HomepagePricing() {
   const [t, locale] = await Promise.all([getTranslations(), getLocale()]);
 
   return (
-    <section className="relative isolate w-full overflow-hidden py-20 md:py-28" id="pricing">
-      <WaveDecoration className="-top-10 -left-32 w-[min(560px,70%)] -scale-x-100" opacity={0.4} variant="wave-1" />
+    <MarketingSection id="pricing">
+      <div className="marketing-grid gap-y-10">
+        <div className="col-span-12 lg:col-span-4">
+          <p className="text-eyebrow">{t("HomepagePricing.eyebrow")}</p>
 
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute left-[10%] top-[20%] size-[360px] rounded-full bg-[rgba(94,74,227,0.18)] blur-[80px]" />
+          <h2 className="text-display-sm mt-5">{t("HomepagePricing.title")}</h2>
 
-        <div className="absolute right-[8%] bottom-[10%] size-[320px] rounded-full bg-[rgba(18,148,144,0.15)] blur-[80px]" />
+          <p className="text-lede mt-5">{t("HomepagePricing.subtitle")}</p>
 
-        <div
-          className="absolute inset-0 opacity-[0.35] bg-[radial-gradient(circle_at_1px_1px,rgba(94,74,227,0.12)_1px,transparent_0)] bg-size-[24px_24px]"
-          style={{
-            maskImage: "radial-gradient(ellipse 70% 60% at 50% 50%, #000 30%, transparent 85%)",
-            WebkitMaskImage: "radial-gradient(ellipse 70% 60% at 50% 50%, #000 30%, transparent 85%)",
-          }}
-        />
-      </div>
+          <div className="mt-8 flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground">
+            {COMPARE_KEYS.map((key) => (
+              <span key={key} className="inline-flex items-center gap-1.5">
+                <Check aria-hidden className="size-3.5 text-success" strokeWidth={2.25} />
 
-      <div className="relative mx-auto max-w-[820px] px-4">
-        <div className="relative mb-10 text-center">
-          <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 font-mono text-[12px] font-medium uppercase tracking-[0.05em] text-primary">
-            <span className="size-[5px] rounded-full bg-primary" style={{ boxShadow: "0 0 8px var(--primary)" }} />
-
-            {t("HomepagePricing.eyebrow")}
-          </span>
-
-          <h2 className="text-x-3xl pb-4">{t("HomepagePricing.title")}</h2>
-
-          <p className="mx-auto max-w-[560px] text-x-lg text-subdued">{t("HomepagePricing.subtitle")}</p>
-
-          <svg
-            aria-hidden
-            className="absolute -top-2 left-[calc(50%-220px)] size-4 text-primary opacity-45"
-            fill="none"
-            viewBox="0 0 16 16"
-          >
-            <path d="M8 0v16M0 8h16" stroke="currentColor" strokeWidth="1" />
-          </svg>
-
-          <svg
-            aria-hidden
-            className="absolute -top-2 right-[calc(50%-220px)] size-4 text-primary opacity-45"
-            fill="none"
-            viewBox="0 0 16 16"
-          >
-            <path d="M8 0v16M0 8h16" stroke="currentColor" strokeWidth="1" />
-          </svg>
+                {t(`HomepagePricing.compare.${key}`)}
+              </span>
+            ))}
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="col-span-12 grid gap-4 md:grid-cols-2 lg:col-start-6 lg:col-end-13">
           {CARDS.map((card) => {
-            const featured = card.variant === "default";
+            const featured = card.titleKey === "cloud";
             return (
-              <div
-                key={card.titleKey}
-                className={`relative flex flex-col rounded-xl border border-border bg-card p-6 shadow-xs ${
-                  featured ? "border-2 border-primary" : ""
-                }`}
-              >
-                <div className="mb-1 flex items-center justify-between">
-                  <h3 className="m-0 text-[19px] font-semibold">{t(`HomepagePricing.${card.titleKey}.title`)}</h3>
+              <article key={card.titleKey} className="flex flex-col rounded-card border border-border bg-card p-6">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-lg font-medium">{t(`HomepagePricing.${card.titleKey}.title`)}</h3>
 
-                  {card.badgeKey && (
-                    <span className="rounded-full bg-primary/15 px-2.5 py-0.5 text-[11px] font-medium text-primary">
+                  {card.badgeKey ? (
+                    <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-medium text-primary">
                       {t(`HomepagePricing.${card.titleKey}.${card.badgeKey}`)}
                     </span>
-                  )}
+                  ) : null}
                 </div>
 
-                <p className="m-0 min-h-[40px] text-[13px] leading-[1.55] text-muted-foreground">
+                <p className="mt-2 min-h-12 text-xs leading-relaxed text-muted-foreground">
                   {t(`HomepagePricing.${card.titleKey}.tag`)}
                 </p>
 
-                <div className="my-4">
-                  <span className="text-[34px] font-bold tracking-[-0.02em]">
+                <p className="mt-5">
+                  <span className="text-3xl font-medium tracking-tight tabular-nums">
                     {card.titleKey === "cloud"
                       ? t("HomepagePricing.cloud.price", {
                           price: formatCommercialAmount(
@@ -128,29 +92,32 @@ export async function HomepagePricing() {
                       : t("HomepagePricing.selfHosted.price")}
                   </span>
 
-                  {card.periodKey && (
-                    <span className="ml-1.5 text-[13px] text-muted-foreground">
+                  {card.periodKey ? (
+                    <span className="ml-1.5 text-xs text-muted-foreground">
                       {t(`HomepagePricing.${card.titleKey}.${card.periodKey}`)}
                     </span>
-                  )}
-                </div>
+                  ) : null}
+                </p>
 
-                <Button asChild className="w-full" variant={featured ? "default" : "secondary"}>
+                <Button asChild className="mt-5 w-full" variant={featured ? "default" : "secondary"}>
                   <AppLink external={card.href.startsWith("http")} href={card.href}>
                     {t(`HomepagePricing.${card.titleKey}.ctaText`)}
                   </AppLink>
                 </Button>
 
-                {card.compareHref && card.compareTextKey && (
-                  <AppLink className="mt-3 text-center text-[12px] text-muted-foreground" href={card.compareHref}>
+                {card.compareHref && card.compareTextKey ? (
+                  <AppLink className="mt-3 text-center text-xs text-muted-foreground" href={card.compareHref}>
                     {t(`HomepagePricing.${card.titleKey}.${card.compareTextKey}`)}
                   </AppLink>
-                )}
+                ) : null}
 
-                <ul className="m-0 mt-4 flex flex-col gap-2 p-0">
+                <ul
+                  className="-mx-6 mt-5 divide-y divide-border border-t border-border"
+                  data-homepage-rules="full-bleed"
+                >
                   {card.featureKeys.map((featureKey) => (
-                    <li key={featureKey} className="flex items-start gap-2 text-[13px] text-foreground">
-                      <Check aria-hidden className="mt-0.5 size-3.5 shrink-0 text-primary" strokeWidth={2.5} />
+                    <li key={featureKey} className="flex items-start gap-2 px-6 py-3 text-xs leading-relaxed">
+                      <Check aria-hidden className="mt-0.5 size-3.5 shrink-0 text-primary" strokeWidth={2.25} />
 
                       <span>
                         {t(`HomepagePricing.${card.titleKey}.${featureKey}`, {
@@ -163,25 +130,11 @@ export async function HomepagePricing() {
                     </li>
                   ))}
                 </ul>
-              </div>
+              </article>
             );
           })}
         </div>
-
-        <div className="mx-auto mt-8 flex max-w-[820px] flex-wrap items-center justify-center gap-x-5 gap-y-2 font-mono text-[11px] uppercase tracking-[0.04em] text-muted-foreground">
-          {COMPARE_KEYS.map((key, i) => (
-            <span key={key} className="inline-flex items-center gap-1.5">
-              {i > 0 && <span className="opacity-30">|</span>}
-
-              <span className="inline-flex items-center gap-1.5">
-                <span className="text-[#34c759]">✓</span>
-
-                {t(`HomepagePricing.compare.${key}`)}
-              </span>
-            </span>
-          ))}
-        </div>
       </div>
-    </section>
+    </MarketingSection>
   );
 }

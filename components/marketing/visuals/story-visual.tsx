@@ -30,6 +30,7 @@ import {
   type NormalizedBox,
   type NormalizedPoint,
 } from "./story-visual-layout";
+import { VisualArtboard } from "./visual-artboard";
 
 export type GoldenStoryVisualTheme = "light" | "dark";
 
@@ -605,25 +606,25 @@ export function GoldenStoryVisual({ brief, placement, theme }: GoldenStoryVisual
     throw new Error(`${validated.id} does not request the ${placement} placement`);
 
   return (
-    <div
+    <VisualArtboard
       aria-label={validated.takeaway}
-      className={cn(
-        "relative isolate w-full overflow-hidden bg-sidebar text-foreground",
-        ARTBOARD_ASPECT[placement],
-        theme === "dark" ? "dark" : "light",
-      )}
+      className={cn(ARTBOARD_ASPECT[placement], theme === "dark" ? "dark" : "light")}
       data-detail-density={DETAIL_DENSITY[placement]}
       data-golden-placement={placement}
       data-story-pathway={validated.pathway}
       data-story-theme={theme}
       data-story-visual={validated.id}
-      role="img"
     >
+      <div
+        aria-hidden
+        className="absolute inset-0 opacity-35 [background-image:linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] [background-size:56px_56px] [mask-image:radial-gradient(ellipse_76%_72%_at_50%_50%,black,transparent_86%)]"
+      />
+
       {validated.pathway === "converge" ? <ConvergeVisual brief={validated} placement={placement} /> : null}
 
       {validated.pathway === "handoff" ? <HandoffVisual brief={validated} placement={placement} /> : null}
 
       {validated.pathway === "focus" ? <FocusVisual brief={validated} placement={placement} /> : null}
-    </div>
+    </VisualArtboard>
   );
 }

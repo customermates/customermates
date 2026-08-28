@@ -11,14 +11,15 @@ import { HomepageWalkthrough } from "./components/homepage-walkthrough";
 import { HomepageHowItWorks } from "./components/homepage-how-it-works";
 import { HomepageBenefits } from "./components/homepage-benefits";
 import { HomepagePricing } from "./components/homepage-pricing";
-import { CTASection } from "@/components/marketing/cta-section";
-import { FAQSection } from "@/components/marketing/faq-section";
-import { FeatureSection } from "@/components/marketing/feature-section";
+import { HomepagePipeline } from "./components/homepage-pipeline";
+import { HomepageClosing, HomepageFaq } from "./components/homepage-closing";
+import { HomepageLiveDemo } from "./components/homepage-live-demo";
+import { HomepageProductProof } from "./components/homepage-product-proof";
 import { JsonLd } from "@/components/seo/json-ld";
 import { homepageSource } from "@/core/fumadocs/source";
 import { buildHomepageMetadata } from "@/core/seo/homepage-metadata";
 import { organizationSchema, softwareApplicationSchema } from "@/core/seo/schemas";
-import { CONTENT_LOCALES, isContentLocale } from "@/i18n/locale-registry";
+import { CONTENT_LOCALES, contentLocaleOrDefault, isContentLocale } from "@/i18n/locale-registry";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -50,10 +51,26 @@ export default async function HomePage() {
 
   if (!homepagePage) notFound();
 
-  const { hero, howItWorks, walkthrough, benefits, features, faq, cta } = homepagePage.data;
+  const contentLocale = contentLocaleOrDefault(locale);
+  const {
+    benefits,
+    closingEyebrow,
+    cta,
+    faq,
+    hero,
+    howItWorks,
+    pipelineStory,
+    productProof,
+    visualLabels,
+    walkthrough,
+  } = homepagePage.data;
 
   return (
-    <div className="flex flex-col items-center">
+    <div
+      className="flex w-full flex-col items-center overflow-x-clip bg-background text-foreground"
+      data-homepage="marketing"
+      data-marketing-flow="continuous"
+    >
       <JsonLd schema={organizationSchema()} />
 
       <JsonLd
@@ -65,28 +82,36 @@ export default async function HomePage() {
 
       <HomepageHero heroSection={hero} />
 
+      <HomepageLiveDemo locale={contentLocale} proof={productProof} />
+
+      <HomepageProductProof proof={productProof} />
+
       <HomepageStatsRow />
 
-      {walkthrough && <HomepageWalkthrough walkthrough={walkthrough} />}
+      {walkthrough ? (
+        <HomepageWalkthrough locale={contentLocale} visualLabels={visualLabels} walkthrough={walkthrough} />
+      ) : null}
 
-      {howItWorks && (
+      {howItWorks ? (
         <HomepageHowItWorks
-          clipTerminal={howItWorks.clipTerminal}
           eyebrow={howItWorks.eyebrow}
+          handoff={howItWorks.handoff}
+          locale={contentLocale}
           steps={howItWorks.steps}
           title={howItWorks.title}
+          visualLabels={visualLabels}
         />
-      )}
+      ) : null}
+
+      <HomepagePipeline locale={contentLocale} story={pipelineStory} visualLabels={visualLabels} />
 
       <HomepageBenefits benefitsSection={benefits} />
 
-      <FeatureSection {...features} />
-
       <HomepagePricing />
 
-      <FAQSection {...faq} />
+      <HomepageFaq {...faq} />
 
-      <CTASection {...cta} />
+      <HomepageClosing {...cta} eyebrow={closingEyebrow} />
 
       <Footer />
     </div>

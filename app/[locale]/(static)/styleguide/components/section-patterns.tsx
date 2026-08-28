@@ -33,10 +33,11 @@ const CAPABILITIES = [
 ];
 
 const METRICS = [
-  { figure: "5", label: "channels in one inbox" },
-  { figure: "5", label: "interface languages" },
-  { figure: "AGPL-3.0", label: "community core licence" },
-  { figure: "EU", label: "managed database region" },
+  { figure: "01", label: "verified fact per cell" },
+  { figure: "05", label: "cells across the wide rail" },
+  { figure: "02", label: "columns before the large breakpoint" },
+  { figure: "1px", label: "rules owned by the rail" },
+  { figure: "100%", label: "full-width outer divider" },
 ];
 
 const DECIDED = [
@@ -297,15 +298,24 @@ export function SectionPatterns() {
       </PatternBlock>
 
       <PatternBlock
-        columns="2 → 4 at md, ruled not carded"
+        columns="2 → 5 at lg, unpaired fifth spans the mobile row"
         id="S-05"
-        name="Metric row"
-        when="Figures that are true without a sentence around them"
+        name="Proof rail"
+        when="A small set of independently verified facts"
       >
-        <MarketingSection flush>
-          <div className="marketing-grid gap-y-10 border-y border-border py-14">
-            {METRICS.map((metric) => (
-              <div key={metric.label} className="col-span-6 md:col-span-3">
+        <MarketingSection divider flush className="border-y border-border py-0">
+          <div className="grid grid-cols-2 lg:grid-cols-5">
+            {METRICS.map((metric, index) => (
+              <div
+                key={metric.label}
+                className={cn(
+                  "px-5 py-10 sm:px-6 lg:px-7 lg:py-12",
+                  index > 1 && "border-t border-border lg:border-t-0",
+                  index % 2 === 1 && "border-l border-border",
+                  index > 0 && "lg:border-l lg:border-border",
+                  index === METRICS.length - 1 && "col-span-2 lg:col-span-1",
+                )}
+              >
                 <p className="m-0 text-4xl font-medium tracking-tight lg:text-5xl">{metric.figure}</p>
 
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{metric.label}</p>

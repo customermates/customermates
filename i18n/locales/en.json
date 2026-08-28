@@ -2001,10 +2001,6 @@
     "placeholder": "Search...",
     "staleItem": "This item no longer exists and was removed from your recent items."
   },
-  "HomepageHowItWorks": {
-    "loopCaption": "▶ silent · loops · 10s",
-    "tailCaption": "one snippet · your AI"
-  },
   "HomepagePricing": {
     "cloud": {
       "badge": "Popular",
@@ -2041,9 +2037,10 @@
     "title": "Simple, honest, European"
   },
   "HomepageStatsRow": {
+    "automationLabel": "Automations",
     "taglineMcp": "MCP",
-    "taglinePost": ", so it works with whichever model you already pay for",
-    "taglinePre": "Bring your own AI. Customermates speaks"
+    "taglinePost": ". Automations through REST, webhooks, and your n8n instance.",
+    "taglinePre": "External AI through"
   },
   "Inbox": {
     "attachmentCount": "{count, plural, one {# attachment:} other {# attachments:}}",

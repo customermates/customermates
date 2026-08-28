@@ -22,7 +22,10 @@ const SURFACES = [
 ];
 
 const EDGES = [
-  { name: "--border", role: "container rims, section rules, table rules" },
+  {
+    name: "--border",
+    role: "rims and rules owned by a rail, list, table or card",
+  },
   { name: "--input", role: "a control edge at rest" },
   { name: "--border-strong", role: "control hover, floating-surface rim" },
 ];
@@ -52,8 +55,12 @@ const CONTRAST_RULES = [
 
 const TYPE_ROLES = [
   {
+    className: "text-hero",
+    sample: "One clear promise with one dominant idea.",
+  },
+  {
     className: "text-display",
-    sample: "The agentic CRM that keeps itself current",
+    sample: "Editorial display for a singular campaign statement",
   },
   {
     className: "text-display-sm",
@@ -99,6 +106,16 @@ const GEOMETRY = [
     label: "--radius-card",
     role: "a media or content card",
     value: "--radius + 12px",
+  },
+  {
+    label: "--radius-xl",
+    role: "a frameless brand-illustration artboard; focal cards keep --radius-card",
+    value: "--radius + 4px",
+  },
+  {
+    label: "masked token grid",
+    role: "optional low-contrast atmosphere inside an artboard, never a required page background",
+    value: "optional",
   },
   {
     label: "--radius-panel",
@@ -225,7 +242,7 @@ export default function FoundationsPage() {
       </MarketingSection>
 
       <MarketingSection
-        description="Borders and washes are alpha, so one value per tier reads correctly on every rung and at any depth."
+        description="Borders and washes are alpha, so one value per tier reads correctly on every rung and at any depth. Continuous page flow has no routine section rules; a rail, list, table or card owns every visible divider and runs it edge to edge."
         id="edges-washes"
         title="Edges and washes"
       >
@@ -251,7 +268,7 @@ export default function FoundationsPage() {
       </MarketingSection>
 
       <MarketingSection
-        description="One family. Contrast comes from size, weight and tracking — the hero at 700, every heading below it at 500."
+        description="One family. Contrast comes from size, neutral 500 weight and tracking; accent colour stays with signals and actions rather than display text."
         id="typography"
         title="Typography"
       >
@@ -292,6 +309,14 @@ export default function FoundationsPage() {
             <p className="text-meta mb-3">aspect-hero</p>
 
             <div className="aspect-hero w-full rounded-card border border-border bg-placeholder" />
+          </div>
+
+          <div>
+            <p className="text-meta mb-3">frameless artboard</p>
+
+            <div className="relative size-28 overflow-hidden rounded-xl bg-sidebar">
+              <div className="absolute inset-0 opacity-45 [background-image:linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] [background-size:28px_28px] [mask-image:radial-gradient(circle_at_center,black,transparent_88%)]" />
+            </div>
           </div>
         </div>
 

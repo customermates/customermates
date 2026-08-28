@@ -4,6 +4,7 @@ export {
   APPROVED_NATIVE_VISUAL_ASSETS,
   NATIVE_VISUAL_FIXTURE_SOURCES,
   VISUAL_AGENT_PROVIDER_FIXTURES,
+  VISUAL_AUTOMATION_PROVIDER_FIXTURES,
   VISUAL_PERSON_FIXTURES,
   VISUAL_PROVIDER_FIXTURES,
   VISUAL_PROVIDER_PERSON_PAIRINGS,
@@ -17,6 +18,7 @@ export {
 } from "./native-fixtures";
 export type {
   VisualAgentProviderFixtureId,
+  VisualAutomationProviderFixtureId,
   VisualPersonFixtureId,
   VisualPersonRole,
   VisualProviderFixtureId,
@@ -25,6 +27,7 @@ export type {
 } from "./native-fixtures";
 export {
   NativeAgentProviderIdentity,
+  NativeAutomationProviderIdentity,
   NativeRecordIdentity,
   NativeStatusBadge,
   PersonAvatar,
@@ -33,6 +36,7 @@ export {
 } from "./native-visual-primitives";
 export { GoldenStoryVisual } from "./story-visual";
 export type { GoldenStoryVisualTheme } from "./story-visual";
+export { VisualArtboard } from "./visual-artboard";
 export {
   SUPPORTED_VISUAL_FACTS,
   VISUAL_KINDS,
