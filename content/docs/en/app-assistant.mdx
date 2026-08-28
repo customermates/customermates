@@ -9,6 +9,8 @@ Customermates Cloud contains the cloud-only **Mate** in-app assistant capability
 
 When Mate is enabled, it appears in the sidebar as **Ask AI** and opens with Cmd/Ctrl+J from anywhere in the app. Ask it questions about your workspace or the product, tell it to change data, have it operate the interface, or let it walk you through the app. It answers in your interface language.
 
+Mate remembers whether each user left the panel open or closed and restores that choice after a refresh. On a completely empty page, it opens automatically until the user explicitly closes it. Demo embeds can choose their initial presentation independently by adding the exact query parameter `agentChat=open` or `agentChat=closed` to the iframe URL. That parameter applies only to the current embedded page and does not overwrite the user's saved choice.
+
 ## What runs immediately and what asks first
 
 Ordinary CRM work runs as soon as you ask: creating and updating records, notes, record links, message drafts, inbox triage, workspace settings, custom fields, widget and webhook setup, team member role or status changes, and generating secure account-connection links. Mate says what it is about to change and reports exactly what changed. To connect a provider account, you open the generated link and complete its QR code or sign-in flow yourself; creating the link does not mean the account is connected yet.

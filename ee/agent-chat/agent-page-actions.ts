@@ -134,9 +134,7 @@ const TERM_RULES: Partial<Record<AppLocale, LocaleTermRules>> = {
 export function agentPageState(page: SupportedPage, counts: AgentDataCounts): PageState {
   switch (page) {
     case "dashboard":
-      return counts.contacts || counts.organizations || counts.deals || counts.services || counts.tasks
-        ? "data"
-        : "empty";
+      return counts.widgets ? "data" : "empty";
     case "inbox":
     case "connected-accounts":
       return counts.connectedAccounts ? "data" : "empty";

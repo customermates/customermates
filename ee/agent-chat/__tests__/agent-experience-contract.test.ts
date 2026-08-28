@@ -39,6 +39,7 @@ const EMPTY_COUNTS = {
   deals: false,
   services: false,
   tasks: false,
+  widgets: false,
   connectedAccounts: false,
 };
 
