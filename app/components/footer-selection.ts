@@ -2,12 +2,12 @@ export const FOOTER_COLUMN_SIZE = 6;
 
 export const FOOTER_PREFERRED_SLUGS = {
   "blog-posts": [
-    "customer-interaction-management",
-    "customer-retention-management",
-    "crm-examples",
+    "agentic-crm",
+    "open-source-crm",
     "customer-communication-management",
     "crm-software",
-    "agentic-ai",
+    "crm-examples",
+    "customer-retention-management",
   ],
   "compare-pages": [
     "gohighlevel",
@@ -18,14 +18,14 @@ export const FOOTER_PREFERRED_SLUGS = {
     "cobra-alternative",
   ],
   "feature-pages": [
+    "self-hosted",
+    "unified-inbox",
     "cloud-crm",
     "sales-tracking",
-    "lead-management",
-    "sales-automation",
     "contact-management",
-    "reporting",
+    "sales-automation",
   ],
-  "for-pages": ["healthcare", "ecommerce", "recruiting", "construction", "manufacturing", "property-management"],
+  "for-pages": ["professional-services", "agencies", "recruiting", "healthcare", "ecommerce", "property-management"],
 } as const;
 
 export type FooterCollection = keyof typeof FOOTER_PREFERRED_SLUGS;
