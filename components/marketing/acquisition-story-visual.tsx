@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import { ArrowRight, Boxes, Code2, Database, MousePointer2, Send, Server } from "lucide-react";
 
-import type { BrandIllustrationBrief } from "@/components/marketing/visuals/visual-contract";
+import { VISUAL_PLACEMENTS, type BrandIllustrationBrief } from "@/components/marketing/visuals/visual-contract";
 import type { ContentLocale } from "@/i18n/locale-registry";
 
 import {
@@ -28,12 +28,19 @@ type Props = {
 };
 
 function Artboard({ brief, children }: Pick<Props, "brief"> & { children: ReactNode }) {
+  const missingPlacements = VISUAL_PLACEMENTS.filter((placement) => !brief.placements.includes(placement));
+
+  if (missingPlacements.length > 0)
+    throw new Error(`${brief.id} does not support ${missingPlacements.join(", ")} acquisition placement(s)`);
+
   return (
     <VisualArtboard
       aria-label={brief.takeaway}
-      className="aspect-[5/4] min-h-[25rem] border border-border bg-sidebar shadow-[0_28px_80px_-56px_rgba(0,0,0,0.75)] sm:min-h-0"
+      className="aspect-[3/4] min-h-[32rem] sm:aspect-hero sm:min-h-0 lg:aspect-[4/5]"
+      data-acquisition-responsive-placements="narrow:base wide:sm split:lg"
       data-acquisition-visual={brief.id}
       data-story-pathway={brief.pathway}
+      data-supported-placements={brief.placements.join(" ")}
     >
       <div
         aria-hidden

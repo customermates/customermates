@@ -44,6 +44,20 @@ describe("public acquisition UI contract", () => {
     }
   });
 
+  it("recomposes acquisition artboards across every approved placement without an outer frame", () => {
+    const visual = source("components/marketing/acquisition-story-visual.tsx");
+    const artboardOpening = visual.match(/<VisualArtboard[\s\S]*?>/u)?.[0];
+
+    expect(visual).toContain("VISUAL_PLACEMENTS.filter");
+    expect(visual).toContain('data-acquisition-responsive-placements="narrow:base wide:sm split:lg"');
+    expect(visual).toContain('data-supported-placements={brief.placements.join(" ")}');
+    expect(visual).toContain("aspect-[3/4]");
+    expect(visual).toContain("sm:aspect-hero");
+    expect(visual).toContain("lg:aspect-[4/5]");
+    expect(artboardOpening).toBeDefined();
+    expect(artboardOpening).not.toMatch(/\bborder(?:-|\b)|\bshadow(?:-|\b)/u);
+  });
+
   it("puts the blog title and metadata before its authored visual", () => {
     const blog = source("app/[locale]/(static)/blog/[slug]/page.tsx");
     const heading = blog.indexOf('<h1 className="text-display m-0">');
