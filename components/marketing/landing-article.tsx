@@ -18,7 +18,7 @@ export function LandingArticle({ children, items }: Props) {
       tone="canvas"
     >
       <Toc items={items} layout="article">
-        <div className="prose prose-sm prose-neutral mx-auto max-w-[80ch] dark:prose-invert prose-headings:text-balance prose-headings:tracking-tight prose-a:font-medium prose-a:decoration-primary/40 prose-a:underline-offset-4 prose-img:rounded-card lg:mx-0 lg:max-w-none">
+        <div className="prose prose-sm prose-neutral mx-auto max-w-[88ch] dark:prose-invert prose-headings:text-balance prose-headings:tracking-tight prose-a:font-medium prose-a:decoration-primary/40 prose-a:underline-offset-4 prose-img:rounded-card lg:mx-0 lg:max-w-none">
           {children}
         </div>
       </Toc>

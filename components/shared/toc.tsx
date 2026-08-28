@@ -20,7 +20,7 @@ export function Toc({ items, children, actions, layout = "default" }: Props) {
       <div
         className={
           layout === "article"
-            ? "text-sm lg:grid lg:grid-cols-[minmax(0,80ch)_14rem] lg:justify-center lg:gap-8"
+            ? "text-sm lg:grid lg:grid-cols-[minmax(0,88ch)_14rem] lg:justify-center lg:gap-8"
             : "flex gap-6"
         }
       >

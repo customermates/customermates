@@ -29,7 +29,7 @@ describe("public acquisition UI contract", () => {
   it("keeps long-form content readable and media explicit", () => {
     const article = source("components/marketing/landing-article.tsx");
     expect(article).toContain('tone="canvas"');
-    expect(article).toContain("mx-auto max-w-[80ch]");
+    expect(article).toContain("mx-auto max-w-[88ch]");
     expect(article).toContain("lg:mx-0 lg:max-w-none");
     expect(article).toContain('<Toc items={items} layout="article">');
     expect(article).not.toContain("rounded-panel");
