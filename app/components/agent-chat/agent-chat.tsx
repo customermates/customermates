@@ -289,6 +289,7 @@ const AgentChatPanel = observer(function AgentChatPanel() {
         <MessagesScrollContainer
           className="px-3"
           jumpToLatestLabel={copy.jumpToLatest}
+          latestItemKey={store.items.at(-1)?.id}
           loadOlderLabel={copy.loadOlderMessages}
           scrollKey={store.conversationId ?? "new"}
           scrollRegionLabel={t("AgentChat.title")}
