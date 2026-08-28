@@ -31,14 +31,45 @@ acquisition:
   visual:
     id: acquisition.agencies.de
     locale: de
-    referenceSystemVersion: customermates-marketing-visuals@7
+    referenceSystemVersion: customermates-marketing-visuals@8
     source:
       headline: "Ein Agentur-CRM für Neugeschäft und Kundenbeziehungen"
       body: "Verwalten Sie Interessenten, Kundenkontext, Deal-Phasen, Leistungswerte und Aufgaben an einem Ort. Projektabwicklung, Angebote, Rechnungen und Zeiterfassung bleiben in Ihren Fachtools."
       checksum: fnv1a-79ffd6bc
-    kind: none
-    reason: "The answer-first copy is clearer without an unverified illustration."
-    selection: explicit
+    kind: brand-illustration
+    pathway: focus
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "Kundenkontext und gewichtete Deal-Werte machen die Neugeschäfts-Pipeline der Agentur leichter lesbar."
+    depiction:
+      kind: result
+      productBehavior: true
+      statement: "Deal-Phasen und gewichtete Werte halten die Neugeschäfts-Pipeline der Agentur übersichtlich."
+    factReferences:
+      - product:deal-status-field
+      - product:deal-weighted-values
+    focalLabel:
+      locale: de
+      text: Deal-Pipeline
+    semanticLabels:
+      - locale: de
+        text: Kundenkontext
+      - locale: de
+        text: Gewichteter Wert
+    focalSubject:
+      id: deal-pipeline
+      form: kanban-board
+      fixtures:
+        dealBoard: demo-status-board
+    supportingSubjects:
+      - id: client-context
+        form: context-card
+      - id: service-value
+        form: context-card
+    accentTarget: deal-pipeline
   structuredData:
     types:
       - BreadcrumbList
@@ -68,14 +99,14 @@ Customermates ist ein **CRM für Agenturen**, das Interessenten, Kundenunternehm
 
 ## Was eine Agentur verwalten kann
 
-| Agentur-Workflow | Customermates-Funktion | Produktgrenze |
-| --- | --- | --- |
-| Interessenten und Kunden-Stakeholder | Verknüpfte Kontakte und Unternehmen | Keine automatische Anreicherung |
-| Neugeschäfts-Pipeline | Deals, anpassbare Phasen und Kanban-Ansichten | Eine Phase „Angebot“ ist kein Angebotsdokument |
-| Besprochener Leistungsumfang | Mit Deals verknüpfte Leistungen, Mengen und Beträge | Kein SOW- oder Projektabwicklungsmodell |
-| Pipeline-Wert | Phasenwahrscheinlichkeiten und gewichtete Deal-Summen | Keine prädiktive Abschlussprognose |
-| Nächste Schritte | Mit Datensätzen und verantwortlichen Nutzern verknüpfte Aufgaben | Keine native Sequenz oder Zeitplanung |
-| Kundenkommunikation | Cloud-Posteingang ab Pro für unterstützte Kanäle | Kein Self-Hosted-Posteingang und keine direkte Nachricht-zu-Deal-Beziehung |
+| Agentur-Workflow                     | Customermates-Funktion                                           | Produktgrenze                                                              |
+| ------------------------------------ | ---------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Interessenten und Kunden-Stakeholder | Verknüpfte Kontakte und Unternehmen                              | Keine automatische Anreicherung                                            |
+| Neugeschäfts-Pipeline                | Deals, anpassbare Phasen und Kanban-Ansichten                    | Eine Phase „Angebot“ ist kein Angebotsdokument                             |
+| Besprochener Leistungsumfang         | Mit Deals verknüpfte Leistungen, Mengen und Beträge              | Kein SOW- oder Projektabwicklungsmodell                                    |
+| Pipeline-Wert                        | Phasenwahrscheinlichkeiten und gewichtete Deal-Summen            | Keine prädiktive Abschlussprognose                                         |
+| Nächste Schritte                     | Mit Datensätzen und verantwortlichen Nutzern verknüpfte Aufgaben | Keine native Sequenz oder Zeitplanung                                      |
+| Kundenkommunikation                  | Cloud-Posteingang ab Pro für unterstützte Kanäle                 | Kein Self-Hosted-Posteingang und keine direkte Nachricht-zu-Deal-Beziehung |
 
 ## Ein praktischer Neugeschäfts-Workflow
 
@@ -116,15 +147,19 @@ Nein. Es verwaltet Beziehungs- und Neugeschäftskontext. Projektpläne, Meilenst
 </FaqItem>
 
 <FaqItem question="Kann es Angebote, Verträge oder Rechnungen erstellen?">
-Nein. Customermates kann den Deal und die besprochenen Leistungen abbilden, besitzt aber keinen nativen Dokumenten-Workflow für Angebote, SOWs, Verträge, Quotes oder Rechnungen.
+  Nein. Customermates kann den Deal und die besprochenen Leistungen abbilden, besitzt aber keinen nativen
+  Dokumenten-Workflow für Angebote, SOWs, Verträge, Quotes oder Rechnungen.
 </FaqItem>
 
 <FaqItem question="Kann eine Agentur Follow-ups verfolgen?">
-Aufgaben lassen sich mit Kontakten, Unternehmen, Deals, Leistungen und Nutzern verknüpfen. Customermates enthält keine integrierten zeitgesteuerten Sequenzen oder Terminplanung; für zeitgesteuerte Automatisierungen benötigen Sie ein externes Workflow-System.
+  Aufgaben lassen sich mit Kontakten, Unternehmen, Deals, Leistungen und Nutzern verknüpfen. Customermates enthält keine
+  integrierten zeitgesteuerten Sequenzen oder Terminplanung; für zeitgesteuerte Automatisierungen benötigen Sie ein
+  externes Workflow-System.
 </FaqItem>
 
 <FaqItem question="Welche Kanäle enthält der einheitliche Posteingang?">
-Unterstützt werden Gmail/Google-, Outlook/Microsoft- und IMAP-E-Mail, LinkedIn-Varianten, WhatsApp, Instagram und Telegram. Der Posteingang ist eine Managed-Cloud-Berechtigung ab Pro.
+  Unterstützt werden Gmail/Google-, Outlook/Microsoft- und IMAP-E-Mail, LinkedIn-Varianten, WhatsApp, Instagram und
+  Telegram. Der Posteingang ist eine Managed-Cloud-Berechtigung ab Pro.
 </FaqItem>
 
 <FaqItem question="Kann eine Agentur mit Self-Hosting KI-Clients nutzen?">

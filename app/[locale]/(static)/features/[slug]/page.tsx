@@ -4,16 +4,16 @@ import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { Footer } from "@/app/components/footer";
+import { AcquisitionStoryVisual } from "@/components/marketing/acquisition-story-visual";
+import { LandingArticle } from "@/components/marketing/landing-article";
 import { PageHero } from "@/components/marketing/page-hero";
 import { CTASection } from "@/components/marketing/cta-section";
-import { ShowcaseFrame } from "@/components/marketing/showcase-frame";
-import { AppImage } from "@/components/shared/app-image";
 import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { featurePagesSource } from "@/core/fumadocs/source";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
-import { Toc } from "@/components/shared/toc";
 import { breadcrumbListSchema } from "@/core/seo/schemas";
+import { contentLocaleOrDefault } from "@/i18n/locale-registry";
 
 interface Props {
   params: Promise<{
@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function FeaturePage({ params }: Props) {
-  const locale = await getLocale();
+  const locale = contentLocaleOrDefault(await getLocale());
   const t = await getTranslations("StructuredData.breadcrumb");
   const { slug } = await params;
   const page = featurePagesSource.getPage([slug], locale);
@@ -42,9 +42,13 @@ export default async function FeaturePage({ params }: Props) {
 
   const MDX = page.data.body;
   const components = getMDXComponents();
+  const visual =
+    page.data.acquisition?.visual.kind === "brand-illustration" ? (
+      <AcquisitionStoryVisual brief={page.data.acquisition.visual} locale={locale} />
+    ) : undefined;
 
   return (
-    <div className="relative flex flex-col items-center justify-center pt-16 md:pt-24">
+    <div className="relative flex flex-col items-center justify-center" data-marketing-flow="continuous">
       <JsonLd
         schema={breadcrumbListSchema([
           { name: t("home"), path: `/${locale}` },
@@ -53,31 +57,11 @@ export default async function FeaturePage({ params }: Props) {
         ])}
       />
 
-      <PageHero {...page.data.hero} />
+      <PageHero {...page.data.hero} visual={visual} />
 
-      {page.data.acquisition?.visual.kind !== "none" ? (
-        <div className="relative w-full max-w-6xl mx-auto px-4 mb-8">
-          <ShowcaseFrame className="mb-0">
-            <AppImage
-              isLocalized
-              alt={page.data.hero.title}
-              className="w-full h-auto rounded-none"
-              height={1080}
-              loading="eager"
-              src={`${slug}.png`}
-              width={1920}
-            />
-          </ShowcaseFrame>
-        </div>
-      ) : null}
-
-      <section className="relative py-12 md:py-16 w-full max-w-6xl mx-auto px-4">
-        <Toc items={page.data.toc}>
-          <div className="prose prose-sm prose-neutral dark:prose-invert max-w-none">
-            <MDX components={components} />
-          </div>
-        </Toc>
-      </section>
+      <LandingArticle items={page.data.toc}>
+        <MDX components={components} />
+      </LandingArticle>
 
       <CTASection {...page.data.cta} />
 

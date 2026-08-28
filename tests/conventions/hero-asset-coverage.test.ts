@@ -82,8 +82,8 @@ function pageUsesHeroAsset(collection: string, locale: string, slug: string): bo
   const frontmatter = /^---\n(.*?)\n---\n?/su.exec(source);
   if (!frontmatter) return true;
 
-  const data = parse(frontmatter[1]) as { acquisition?: { visual?: { kind?: string } } };
-  return data.acquisition?.visual?.kind !== "none";
+  const data = parse(frontmatter[1]) as { acquisition?: unknown };
+  return data.acquisition === undefined;
 }
 
 describe("hero asset coverage", () => {

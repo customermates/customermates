@@ -38,7 +38,7 @@ const RELATED_SEGMENTS: Record<string, Resolver> = {
 
     return {
       description: page.data.description,
-      imageSrc: page.data.acquisition?.visual.kind === "none" ? undefined : `${slug}.png`,
+      imageSrc: page.data.acquisition ? undefined : `${slug}.png`,
       title: page.data.featureName,
     };
   },
@@ -48,7 +48,7 @@ const RELATED_SEGMENTS: Record<string, Resolver> = {
 
     return {
       description: page.data.description,
-      imageSrc: page.data.acquisition?.visual.kind === "none" ? undefined : `${slug}.png`,
+      imageSrc: page.data.acquisition ? undefined : `${slug}.png`,
       title: page.data.industryName,
     };
   },

@@ -29,14 +29,44 @@ acquisition:
   visual:
     id: acquisition.unified-inbox.de
     locale: de
-    referenceSystemVersion: customermates-marketing-visuals@7
+    referenceSystemVersion: customermates-marketing-visuals@8
     source:
       headline: "Ein CRM-Posteingang für E-Mail, Social Media und Messenger"
       body: "Bearbeiten Sie Gmail-, Outlook-, IMAP-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Threads in einer Liste und verbinden Sie Teilnehmer mit CRM-Kontakten. Cloud ab Pro."
       checksum: fnv1a-38fdd13a
-    kind: none
-    reason: "The answer-first copy is clearer without an unverified illustration."
-    selection: explicit
+    kind: brand-illustration
+    pathway: converge
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "Unterstützte E-Mail-, Social- und Messenger-Kanäle laufen in einem CRM-Posteingang zusammen."
+    depiction:
+      kind: relationship
+      productBehavior: true
+      statement: "Unterstützte E-Mail-, Social- und Messenger-Kanäle laufen in einem CRM-Posteingang zusammen."
+    factReferences:
+      - product:unified-inbox-channel-set
+    focalLabel:
+      locale: de
+      text: Kanäle
+    semanticLabels:
+      - locale: de
+        text: Ein Posteingang
+      - locale: de
+        text: CRM-Kontext
+    focalSubject:
+      id: inbox-providers
+      form: provider-set
+      fixtures:
+        providerSet: unified-inbox
+    supportingSubjects:
+      - id: conversation-list
+        form: context-card
+      - id: contact-context
+        form: context-card
+    accentTarget: inbox-providers
   structuredData:
     types:
       - BreadcrumbList
@@ -67,13 +97,15 @@ Der **einheitliche CRM-Posteingang von Customermates** bündelt unterstützte E-
 
 Die Funktion gehört zur Managed Cloud ab Pro. Starter und Self-Hosted Customermates enthalten weder Messaging-Konten noch den einheitlichen Posteingang.
 
+<ProductDemo path="/inbox" />
+
 ## Unterstützte Kanäle
 
-| Kanalfamilie | Unterstützte Verbindungen |
-| --- | --- |
-| E-Mail | Gmail/Google, Outlook/Microsoft und IMAP |
+| Kanalfamilie         | Unterstützte Verbindungen                                       |
+| -------------------- | --------------------------------------------------------------- |
+| E-Mail               | Gmail/Google, Outlook/Microsoft und IMAP                        |
 | Berufliche Netzwerke | LinkedIn Classic sowie Sales-Navigator- und Recruiter-Varianten |
-| Messaging und Social | WhatsApp, Instagram und Telegram |
+| Messaging und Social | WhatsApp, Instagram und Telegram                                |
 
 SMS und Telefonie gehören nicht zum unterstützten Set. Das Verhalten der Anbieter und die Unterstützung von Anhängen können je nach Verbindungstyp variieren.
 
@@ -90,12 +122,12 @@ Nachrichten sind nicht direkt mit Deals verknüpft. Die Zuordnung zu einem Konta
 
 ## Persönlicher und geteilter Kontozugriff
 
-| Cloud-Tarif | Enthaltene verbundene Konten | Geteilte Konten |
-| --- | --- | --- |
-| Starter | 0 | Nein |
-| Pro | 1 pro Nutzer | Nein |
-| Business | 3 pro Nutzer | Ja |
-| Enterprise | Unbegrenzt im Rahmen der Fair-Use-Regelung | Ja |
+| Cloud-Tarif | Enthaltene verbundene Konten               | Geteilte Konten |
+| ----------- | ------------------------------------------ | --------------- |
+| Starter     | 0                                          | Nein            |
+| Pro         | 1 pro Nutzer                               | Nein            |
+| Business    | 3 pro Nutzer                               | Ja              |
+| Enterprise  | Unbegrenzt im Rahmen der Fair-Use-Regelung | Ja              |
 
 Auch mit Pro lassen sich einzelne Threads mit dem CRM-Team teilen. Ein vollständig verbundenes Konto kann ab Business geteilt werden. Berechtigungen steuern weiterhin, auf welche CRM-Ressourcen und Aktionen ein Nutzer zugreifen darf.
 
@@ -123,15 +155,18 @@ Pro, Business und Enterprise in Customermates Cloud. Pro enthält ein verbundene
 </FaqItem>
 
 <FaqItem question="Funktioniert der Posteingang beim Self-Hosting?">
-Nein. Self-Hosted-Deployments verwenden Starter-Berechtigungen mit null Messaging-Konten und ohne einheitlichen Posteingang. MCP bleibt für externe KI-Clients verfügbar, die mit dem Kern-CRM arbeiten.
+  Nein. Self-Hosted-Deployments verwenden Starter-Berechtigungen mit null Messaging-Konten und ohne einheitlichen
+  Posteingang. MCP bleibt für externe KI-Clients verfügbar, die mit dem Kern-CRM arbeiten.
 </FaqItem>
 
 <FaqItem question="Unterstützt Customermates SMS oder Telefonate in diesem Posteingang?">
-Nein. Unterstützt werden Gmail/Google-, Outlook/Microsoft- und IMAP-E-Mail, LinkedIn-Varianten, WhatsApp, Instagram und Telegram – nicht SMS oder Telefonie.
+  Nein. Unterstützt werden Gmail/Google-, Outlook/Microsoft- und IMAP-E-Mail, LinkedIn-Varianten, WhatsApp, Instagram
+  und Telegram – nicht SMS oder Telefonie.
 </FaqItem>
 
 <FaqItem question="Sind Nachrichten direkt mit Deals verknüpft?">
-Nein. Teilnehmer lassen sich CRM-Kontakten zuordnen, deren Beziehungen den relevanten CRM-Kontext erschließen. Eine direkte Nachricht-zu-Deal-Beziehung gibt es nicht.
+  Nein. Teilnehmer lassen sich CRM-Kontakten zuordnen, deren Beziehungen den relevanten CRM-Kontext erschließen. Eine
+  direkte Nachricht-zu-Deal-Beziehung gibt es nicht.
 </FaqItem>
 
 <FaqItem question="Kann ein KI-Client Nachrichten über den Posteingang senden?">

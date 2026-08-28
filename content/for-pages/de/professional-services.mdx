@@ -30,14 +30,45 @@ acquisition:
   visual:
     id: acquisition.professional-services.de
     locale: de
-    referenceSystemVersion: customermates-marketing-visuals@7
+    referenceSystemVersion: customermates-marketing-visuals@8
     source:
       headline: "Ein Beziehungs- und Pipeline-CRM für Dienstleister"
       body: "Bündeln Sie Kundenkontext, Verkaufschancen, Leistungen und Aufgaben. Customermates unterstützt die Geschäftsentwicklung – nicht Projektabwicklung, Angebote, Rechnungen oder Zeiterfassung."
       checksum: fnv1a-0f25186b
-    kind: none
-    reason: "The answer-first copy is clearer without an unverified illustration."
-    selection: explicit
+    kind: brand-illustration
+    pathway: focus
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "Kundenkontext und gewichtete Deal-Werte machen die Geschäftsentwicklungs-Pipeline leichter lesbar."
+    depiction:
+      kind: result
+      productBehavior: true
+      statement: "Deal-Phasen und gewichtete Werte halten die Geschäftsentwicklungs-Pipeline übersichtlich."
+    factReferences:
+      - product:deal-status-field
+      - product:deal-weighted-values
+    focalLabel:
+      locale: de
+      text: Deal-Pipeline
+    semanticLabels:
+      - locale: de
+        text: Kundenkontext
+      - locale: de
+        text: Gewichteter Wert
+    focalSubject:
+      id: deal-pipeline
+      form: kanban-board
+      fixtures:
+        dealBoard: demo-status-board
+    supportingSubjects:
+      - id: client-context
+        form: context-card
+      - id: service-value
+        form: context-card
+    accentTarget: deal-pipeline
   structuredData:
     types:
       - BreadcrumbList
@@ -67,14 +98,16 @@ Customermates ist ein **CRM für Dienstleister**, das Kundenbeziehungen mit der 
 
 ## Was dieses CRM abdeckt
 
-| Bedarf in der Geschäftsentwicklung | Unterstützung in Customermates | Grenze |
-| --- | --- | --- |
-| Kunden- und Stakeholder-Kontext | Kontakte und Unternehmen mit Beziehungen, Notizen und Aktivitätshistorie | Kein Dokumentenmanagement |
-| Opportunity-Pipeline | Deals, anpassbare Phasen und Kanban-Ansichten | Keine Angebots- oder SOW-Erstellung |
-| Pipeline-Wert | Phasenwahrscheinlichkeiten, gewichtete Deal-Werte und Summen | Keine prädiktive Umsatzprognose |
-| Leistungen in einem Deal | Mit Deals verknüpfte Leistungen, Mengen und Beträge | Keine Projektabwicklung oder Ressourcenplanung |
-| Follow-up-Arbeit | Mit Kontakten, Unternehmen, Deals, Leistungen und Nutzern verknüpfte Aufgaben | Keine native Termin- oder Zeiterfassung |
-| Erweiterungen | REST, Webhooks, MCP und eine separate n8n-Integrationsoption | Betrieb und Datenverarbeitung externer Systeme liegen außerhalb von Customermates |
+| Bedarf in der Geschäftsentwicklung | Unterstützung in Customermates                                                | Grenze                                                                            |
+| ---------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Kunden- und Stakeholder-Kontext    | Kontakte und Unternehmen mit Beziehungen, Notizen und Aktivitätshistorie      | Kein Dokumentenmanagement                                                         |
+| Opportunity-Pipeline               | Deals, anpassbare Phasen und Kanban-Ansichten                                 | Keine Angebots- oder SOW-Erstellung                                               |
+| Pipeline-Wert                      | Phasenwahrscheinlichkeiten, gewichtete Deal-Werte und Summen                  | Keine prädiktive Umsatzprognose                                                   |
+| Leistungen in einem Deal           | Mit Deals verknüpfte Leistungen, Mengen und Beträge                           | Keine Projektabwicklung oder Ressourcenplanung                                    |
+| Follow-up-Arbeit                   | Mit Kontakten, Unternehmen, Deals, Leistungen und Nutzern verknüpfte Aufgaben | Keine native Termin- oder Zeiterfassung                                           |
+| Erweiterungen                      | REST, Webhooks, MCP und eine separate n8n-Integrationsoption                  | Betrieb und Datenverarbeitung externer Systeme liegen außerhalb von Customermates |
+
+<ProductDemo path="/deals" />
 
 ## Ein praktischer Workflow für Dienstleister
 
@@ -113,15 +146,19 @@ Nein. Es ist ein Beziehungs- und Pipeline-CRM. Native Projektabwicklung, Kapazit
 </FaqItem>
 
 <FaqItem question="Kann Customermates Angebote oder Rechnungen erstellen?">
-Nein. Customermates hat keinen Dokumenten-Workflow für Angebote, SOWs, Quotes oder Rechnungen. Verkaufschance, Stakeholder, Leistungen und Follow-up-Kontext können im CRM bleiben; ein Fachsystem lässt sich über REST, Webhooks oder einen externen Workflow anbinden.
+  Nein. Customermates hat keinen Dokumenten-Workflow für Angebote, SOWs, Quotes oder Rechnungen. Verkaufschance,
+  Stakeholder, Leistungen und Follow-up-Kontext können im CRM bleiben; ein Fachsystem lässt sich über REST, Webhooks
+  oder einen externen Workflow anbinden.
 </FaqItem>
 
 <FaqItem question="Wie werden Leistungswerte abgebildet?">
-Leistungen lassen sich mit Mengen und Beträgen an einen Deal hängen. Deal-Phasen können Wahrscheinlichkeiten tragen, aus denen Customermates deterministische gewichtete Deal-Werte und Pipeline-Summen berechnet.
+  Leistungen lassen sich mit Mengen und Beträgen an einen Deal hängen. Deal-Phasen können Wahrscheinlichkeiten tragen,
+  aus denen Customermates deterministische gewichtete Deal-Werte und Pipeline-Summen berechnet.
 </FaqItem>
 
 <FaqItem question="Können Aufgaben Projektmanagement oder Zeiterfassung ersetzen?">
-Nein. Aufgaben können mit CRM-Datensätzen und Nutzern verknüpft werden, sind aber kein System für Projektabwicklung, Terminplanung oder Zeiteinträge.
+  Nein. Aufgaben können mit CRM-Datensätzen und Nutzern verknüpft werden, sind aber kein System für Projektabwicklung,
+  Terminplanung oder Zeiteinträge.
 </FaqItem>
 
 <FaqItem question="Ist der einheitliche Posteingang beim Self-Hosting verfügbar?">

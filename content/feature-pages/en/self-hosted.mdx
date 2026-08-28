@@ -31,14 +31,43 @@ acquisition:
   visual:
     id: acquisition.self-hosted.en
     locale: en
-    referenceSystemVersion: customermates-marketing-visuals@7
+    referenceSystemVersion: customermates-marketing-visuals@8
     source:
       headline: "Self-Hosted CRM with Docker and PostgreSQL"
       body: "Run the Customermates application and PostgreSQL on infrastructure you control. The self-hosted edition includes the core CRM and MCP, but not the hosted inbox or Mate."
       checksum: fnv1a-5c3e0b4d
-    kind: none
-    reason: "The answer-first copy is clearer without an unverified illustration."
-    selection: explicit
+    kind: brand-illustration
+    pathway: converge
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "The application and PostgreSQL run together on infrastructure you control."
+    depiction:
+      kind: relationship
+      productBehavior: true
+      statement: "The application and PostgreSQL run together on infrastructure you control."
+    factReferences:
+      - product:self-hosted-deployment
+    focalLabel:
+      locale: en
+      text: Application
+    semanticLabels:
+      - locale: en
+        text: PostgreSQL
+      - locale: en
+        text: MCP client
+    focalSubject:
+      id: self-hosted-app
+      form: context-card
+    supportingSubjects:
+      - id: postgresql
+        form: context-card
+      - id: mcp-client
+        form: agent-cue
+        agentProvider: claude
+    accentTarget: self-hosted-app
   structuredData:
     types:
       - BreadcrumbList
@@ -79,16 +108,16 @@ The Compose file does not bundle n8n, an AI model, an email-delivery provider or
 
 ## What is included—and what is not?
 
-| Capability | Self-hosted Customermates |
-| --- | --- |
-| Contacts, organizations, deals, services and tasks | Included |
-| Custom fields, table, card and kanban views | Included |
-| REST API, webhooks and MCP | Included |
-| Entitlement baseline | Starter |
-| Hosted Mate assistant and hosted AI credits | Not included |
-| Unified inbox and connected messaging accounts | Not included |
-| Read-only connected calendar view | Not included |
-| Shared connected accounts | Not included |
+| Capability                                         | Self-hosted Customermates |
+| -------------------------------------------------- | ------------------------- |
+| Contacts, organizations, deals, services and tasks | Included                  |
+| Custom fields, table, card and kanban views        | Included                  |
+| REST API, webhooks and MCP                         | Included                  |
+| Entitlement baseline                               | Starter                   |
+| Hosted Mate assistant and hosted AI credits        | Not included              |
+| Unified inbox and connected messaging accounts     | Not included              |
+| Read-only connected calendar view                  | Not included              |
+| Shared connected accounts                          | Not included              |
 
 The [unified CRM inbox](/features/unified-inbox) is a managed-cloud feature from Pro upward. Self-hosting remains focused on the open-source CRM and external MCP clients.
 
@@ -106,12 +135,12 @@ Connected services remain separate processing boundaries. OAuth providers, SMTP,
 
 ## Self-hosted or managed cloud?
 
-| Choose self-hosting when… | Choose managed cloud when… |
-| --- | --- |
-| your team can operate Docker and PostgreSQL | you want Customermates to operate the application and database |
-| the Starter feature boundary fits | you need the unified inbox or connected calendar view |
-| you want external AI clients to use MCP | you want cloud plan entitlements and managed connected accounts |
-| you will own updates, backups and recovery | you prefer a subscription with managed operations |
+| Choose self-hosting when…                   | Choose managed cloud when…                                      |
+| ------------------------------------------- | --------------------------------------------------------------- |
+| your team can operate Docker and PostgreSQL | you want Customermates to operate the application and database  |
+| the Starter feature boundary fits           | you need the unified inbox or connected calendar view           |
+| you want external AI clients to use MCP     | you want cloud plan entitlements and managed connected accounts |
+| you will own updates, backups and recovery  | you prefer a subscription with managed operations               |
 
 There is no dedicated CRM-record import or export workflow. Treat any move between systems as a separate migration project using documented interfaces and a procedure you validate.
 
@@ -131,15 +160,19 @@ First-party material outside `ee/` is AGPL-3.0-only. Inside `ee/`, the client ma
 </FaqItem>
 
 <FaqItem question="Does self-hosting include the unified inbox?">
-No. Self-hosted deployments use the Starter entitlement baseline, which has no messaging accounts, unified inbox, shared accounts or connected calendar view. Those capabilities belong to managed-cloud plans from Pro upward.
+  No. Self-hosted deployments use the Starter entitlement baseline, which has no messaging accounts, unified inbox,
+  shared accounts or connected calendar view. Those capabilities belong to managed-cloud plans from Pro upward.
 </FaqItem>
 
 <FaqItem question="Can I use AI with the self-hosted CRM?">
-Yes, through [MCP](/docs/mcp) and an external AI client and provider that you select and fund. The cloud-only Mate assistant and hosted AI credits are not part of self-hosting.
+  Yes, through [MCP](/docs/mcp) and an external AI client and provider that you select and fund. The cloud-only Mate
+  assistant and hosted AI credits are not part of self-hosting.
 </FaqItem>
 
 <FaqItem question="Does self-hosting make the CRM GDPR compliant?">
-No deployment model creates compliance by itself. Self-hosting lets you choose the application and database location, but your organization remains responsible for configuration, providers, contracts, security controls, retention and legal assessment.
+  No deployment model creates compliance by itself. Self-hosting lets you choose the application and database location,
+  but your organization remains responsible for configuration, providers, contracts, security controls, retention and
+  legal assessment.
 </FaqItem>
 
 <FaqItem question="What does the official Docker Compose stack contain?">

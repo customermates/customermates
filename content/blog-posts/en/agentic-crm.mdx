@@ -28,14 +28,46 @@ acquisition:
   visual:
     id: acquisition.agentic-crm.en
     locale: en
-    referenceSystemVersion: customermates-marketing-visuals@7
+    referenceSystemVersion: customermates-marketing-visuals@8
     source:
       headline: "Agentic & AI-Native CRM: MCP, Mate and Safe Actions"
       body: "See how AI-native CRM architecture differs from agentic behavior, where external MCP clients act under user permissions, and where client-side or Mate approval controls apply."
       checksum: fnv1a-c7827430
-    kind: none
-    reason: "The answer-first copy is clearer without an unverified illustration."
-    selection: explicit
+    kind: brand-illustration
+    pathway: handoff
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "An external AI client prepares the draft; a person keeps the final action."
+    depiction:
+      kind: change
+      productBehavior: true
+      statement: "An external AI client prepares the draft; a person keeps the final action."
+    factReferences:
+      - product:human-send-boundary
+    focalLabel:
+      locale: en
+      text: Draft
+    semanticLabels:
+      - locale: en
+        text: Review and send
+    focalSubject:
+      id: reviewable-draft
+      form: draft
+      fixtures:
+        person: leon-becker
+        provider: linkedin
+    supportingSubjects:
+      - id: external-ai-client
+        form: agent-cue
+        agentProvider: claude
+      - id: human-action
+        form: human-action
+        fixtures:
+          person: max-bergmann
+    accentTarget: human-action
   structuredData:
     types:
       - Article
@@ -78,10 +110,10 @@ That is different from a chatbot that only writes text. It is also different fro
 
 ## Two AI paths in Customermates
 
-| Path | Where it runs | Model and credits | Availability boundary |
-| --- | --- | --- | --- |
-| External AI client through MCP | Cloud or self-hosted | The customer selects and funds the external provider | MCP is the current open integration surface |
-| Mate in-app assistant capability | Customermates Cloud only | Hosted plan allowances apply to the capability | Live production state remains release-gated |
+| Path                             | Where it runs            | Model and credits                                    | Availability boundary                       |
+| -------------------------------- | ------------------------ | ---------------------------------------------------- | ------------------------------------------- |
+| External AI client through MCP   | Cloud or self-hosted     | The customer selects and funds the external provider | MCP is the current open integration surface |
+| Mate in-app assistant capability | Customermates Cloud only | Hosted plan allowances apply to the capability       | Live production state remains release-gated |
 
 The [MCP documentation](/docs/mcp) is the source for setup and the changing tool catalog. Customermates currently registers [[derived.mcp.tools.total]] MCP tools; this page does not duplicate their names because the catalog evolves.
 
@@ -99,13 +131,13 @@ The Mate capability has separate, enforced per-call approval gates for destructi
 
 ## Cloud and self-hosted boundaries
 
-| Capability | Customermates Cloud | Self-hosted Customermates |
-| --- | --- | --- |
-| Core CRM | Yes | Yes |
-| MCP for external AI clients | Yes | Yes |
-| Unified inbox | Pro and above | No |
-| Hosted Mate capability | Cloud only, release-gated | No |
-| Hosted AI credits | Plan-based capability | No |
+| Capability                  | Customermates Cloud       | Self-hosted Customermates |
+| --------------------------- | ------------------------- | ------------------------- |
+| Core CRM                    | Yes                       | Yes                       |
+| MCP for external AI clients | Yes                       | Yes                       |
+| Unified inbox               | Pro and above             | No                        |
+| Hosted Mate capability      | Cloud only, release-gated | No                        |
+| Hosted AI credits           | Plan-based capability     | No                        |
 
 Self-hosting uses Starter entitlements. It remains a strong option for teams that want an [open-source, self-hosted CRM](/features/self-hosted) and prefer to connect their own AI client and provider through MCP.
 
@@ -140,15 +172,20 @@ It is a CRM whose structured records and actions can be operated by an authorize
 </FaqItem>
 
 <FaqItem question="Is Mate generally available in Customermates Cloud?">
-This page does not make that claim. Product code contains the cloud-only Mate capability and a global kill switch, but the production configuration and release conditions are not proven here. External MCP clients remain the current documented integration path.
+  This page does not make that claim. Product code contains the cloud-only Mate capability and a global kill switch, but
+  the production configuration and release conditions are not proven here. External MCP clients remain the current
+  documented integration path.
 </FaqItem>
 
 <FaqItem question="Can I use an external AI client with self-hosted Customermates?">
-Yes. MCP is available in self-hosted deployments. You choose and fund the external client and model provider; hosted Mate and hosted AI credits are not included.
+  Yes. MCP is available in self-hosted deployments. You choose and fund the external client and model provider; hosted
+  Mate and hosted AI credits are not included.
 </FaqItem>
 
 <FaqItem question="Where is confirmation enforced?">
-MCP instructions tell compatible clients to request confirmation before sends and deletes, but the MCP server does not add a second approval gate after the client calls a permitted tool. Mate uses separate enforced per-call approval gates. Verify the behavior of the exact client and path you enable.
+  MCP instructions tell compatible clients to request confirmation before sends and deletes, but the MCP server does not
+  add a second approval gate after the client calls a permitted tool. Mate uses separate enforced per-call approval
+  gates. Verify the behavior of the exact client and path you enable.
 </FaqItem>
 
 <FaqItem question="Does agentic CRM include predictive lead scoring or forecasting?">

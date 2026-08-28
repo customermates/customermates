@@ -74,7 +74,7 @@ export default async function FeaturesAllHubPage({ searchParams }: Props) {
       return {
         description: p.data.description,
         href: `/features/${slug}`,
-        imageSrc: p.data.acquisition?.visual.kind === "none" ? undefined : `${slug}.png`,
+        imageSrc: p.data.acquisition ? undefined : `${slug}.png`,
         tag: tagLabel,
         title: p.data.featureName,
       };

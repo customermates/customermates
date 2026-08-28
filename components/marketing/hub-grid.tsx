@@ -4,6 +4,7 @@ import type { Hero } from "@/core/fumadocs/schemas/common";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHero } from "@/components/marketing/page-hero";
+import { MarketingSection } from "@/components/marketing/marketing-section";
 import { IntlLink } from "@/i18n/navigation";
 
 export type HubGridItem = {
@@ -19,12 +20,10 @@ type Props = {
 
 export function HubGrid({ hero, items }: Props) {
   return (
-    <div className="flex w-full flex-col items-center">
-      <div className="relative w-full overflow-hidden py-16 md:py-24">
-        <PageHero {...hero} />
-      </div>
+    <div className="flex w-full flex-col items-center" data-marketing-flow="continuous">
+      <PageHero {...hero} />
 
-      <section className="relative z-10 w-full max-w-7xl px-4 pb-16 md:pb-24">
+      <MarketingSection className="py-14 sm:py-18 lg:py-20" tone="canvas">
         <ul className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4 lg:grid-cols-3">
           {items.map((item) => (
             <li key={item.href}>
@@ -44,7 +43,7 @@ export function HubGrid({ hero, items }: Props) {
             </li>
           ))}
         </ul>
-      </section>
+      </MarketingSection>
     </div>
   );
 }

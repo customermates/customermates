@@ -31,14 +31,43 @@ acquisition:
   visual:
     id: acquisition.self-hosted.de
     locale: de
-    referenceSystemVersion: customermates-marketing-visuals@7
+    referenceSystemVersion: customermates-marketing-visuals@8
     source:
       headline: "Self-Hosted CRM mit Docker und PostgreSQL"
       body: "Betreiben Sie die Customermates-Anwendung und PostgreSQL auf Ihrer Infrastruktur. Die Self-Hosted-Edition enthält das Kern-CRM und MCP, aber nicht den gehosteten Posteingang oder Mate."
       checksum: fnv1a-bd5d4e92
-    kind: none
-    reason: "The answer-first copy is clearer without an unverified illustration."
-    selection: explicit
+    kind: brand-illustration
+    pathway: converge
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "Anwendung und PostgreSQL laufen gemeinsam auf Ihrer kontrollierten Infrastruktur."
+    depiction:
+      kind: relationship
+      productBehavior: true
+      statement: "Anwendung und PostgreSQL laufen gemeinsam auf Ihrer kontrollierten Infrastruktur."
+    factReferences:
+      - product:self-hosted-deployment
+    focalLabel:
+      locale: de
+      text: Anwendung
+    semanticLabels:
+      - locale: de
+        text: PostgreSQL
+      - locale: de
+        text: MCP-Client
+    focalSubject:
+      id: self-hosted-app
+      form: context-card
+    supportingSubjects:
+      - id: postgresql
+        form: context-card
+      - id: mcp-client
+        form: agent-cue
+        agentProvider: claude
+    accentTarget: self-hosted-app
   structuredData:
     types:
       - BreadcrumbList
@@ -79,16 +108,16 @@ Die Compose-Datei enthält weder n8n noch ein KI-Modell, einen E-Mail-Versanddie
 
 ## Was ist enthalten – und was nicht?
 
-| Funktion | Self-Hosted Customermates |
-| --- | --- |
-| Kontakte, Unternehmen, Deals, Leistungen und Aufgaben | Enthalten |
-| Custom Fields sowie Tabellen-, Karten- und Kanban-Ansichten | Enthalten |
-| REST-API, Webhooks und MCP | Enthalten |
-| Berechtigungsbasis | Starter |
-| Gehosteter Mate-Assistent und gehostete KI-Credits | Nicht enthalten |
-| Einheitlicher Posteingang und verbundene Messaging-Konten | Nicht enthalten |
-| Schreibgeschützte verbundene Kalenderansicht | Nicht enthalten |
-| Geteilte verbundene Konten | Nicht enthalten |
+| Funktion                                                    | Self-Hosted Customermates |
+| ----------------------------------------------------------- | ------------------------- |
+| Kontakte, Unternehmen, Deals, Leistungen und Aufgaben       | Enthalten                 |
+| Custom Fields sowie Tabellen-, Karten- und Kanban-Ansichten | Enthalten                 |
+| REST-API, Webhooks und MCP                                  | Enthalten                 |
+| Berechtigungsbasis                                          | Starter                   |
+| Gehosteter Mate-Assistent und gehostete KI-Credits          | Nicht enthalten           |
+| Einheitlicher Posteingang und verbundene Messaging-Konten   | Nicht enthalten           |
+| Schreibgeschützte verbundene Kalenderansicht                | Nicht enthalten           |
+| Geteilte verbundene Konten                                  | Nicht enthalten           |
 
 Der [einheitliche CRM-Posteingang](/features/unified-inbox) ist eine Managed-Cloud-Funktion ab Pro. Beim Self-Hosting stehen das quelloffene CRM und externe MCP-Clients im Mittelpunkt.
 
@@ -106,12 +135,12 @@ Jeder angebundene Dienst bildet weiterhin eine eigene Grenze der Datenverarbeitu
 
 ## Self-Hosted oder Managed Cloud?
 
-| Self-Hosting passt, wenn … | Managed Cloud passt, wenn … |
-| --- | --- |
-| Ihr Team Docker und PostgreSQL betreiben kann | Customermates die Anwendung und Datenbank betreiben soll |
-| die Starter-Funktionsgrenze ausreicht | Sie den einheitlichen Posteingang oder die verbundene Kalenderansicht benötigen |
-| externe KI-Clients MCP verwenden sollen | Sie Cloud-Tarife und verwaltete verbundene Konten benötigen |
-| Sie Updates, Backups und Wiederherstellung verantworten | Sie einen verwalteten Betrieb bevorzugen |
+| Self-Hosting passt, wenn …                              | Managed Cloud passt, wenn …                                                     |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Ihr Team Docker und PostgreSQL betreiben kann           | Customermates die Anwendung und Datenbank betreiben soll                        |
+| die Starter-Funktionsgrenze ausreicht                   | Sie den einheitlichen Posteingang oder die verbundene Kalenderansicht benötigen |
+| externe KI-Clients MCP verwenden sollen                 | Sie Cloud-Tarife und verwaltete verbundene Konten benötigen                     |
+| Sie Updates, Backups und Wiederherstellung verantworten | Sie einen verwalteten Betrieb bevorzugen                                        |
 
 Es gibt keinen eigenen Import- oder Export-Workflow für CRM-Datensätze. Behandeln Sie jeden Systemwechsel als separates Migrationsprojekt mit dokumentierten Schnittstellen und einem von Ihnen geprüften Verfahren.
 
@@ -131,15 +160,19 @@ Das Customermates-eigene Material außerhalb von `ee/` steht ausschließlich unt
 </FaqItem>
 
 <FaqItem question="Enthält Self-Hosting den einheitlichen Posteingang?">
-Nein. Self-Hosted-Deployments verwenden die Starter-Berechtigungsbasis ohne Messaging-Konten, einheitlichen Posteingang, geteilte Konten oder verbundene Kalenderansicht. Diese Funktionen gehören zu Managed-Cloud-Tarifen ab Pro.
+  Nein. Self-Hosted-Deployments verwenden die Starter-Berechtigungsbasis ohne Messaging-Konten, einheitlichen
+  Posteingang, geteilte Konten oder verbundene Kalenderansicht. Diese Funktionen gehören zu Managed-Cloud-Tarifen ab
+  Pro.
 </FaqItem>
 
 <FaqItem question="Kann ich KI mit dem selbst gehosteten CRM nutzen?">
-Ja, über [MCP](/docs/mcp) sowie einen externen KI-Client und Anbieter, den Sie auswählen und bezahlen. Der cloudbasierte Mate-Assistent und gehostete KI-Credits gehören nicht zum Self-Hosting.
+  Ja, über [MCP](/docs/mcp) sowie einen externen KI-Client und Anbieter, den Sie auswählen und bezahlen. Der
+  cloudbasierte Mate-Assistent und gehostete KI-Credits gehören nicht zum Self-Hosting.
 </FaqItem>
 
 <FaqItem question="Macht Self-Hosting das CRM automatisch DSGVO-konform?">
-Nein. Self-Hosting lässt Sie den Standort von Anwendung und Datenbank wählen. Ihr Unternehmen bleibt jedoch für Konfiguration, Anbieter, Verträge, Sicherheitskontrollen, Aufbewahrung und rechtliche Bewertung verantwortlich.
+  Nein. Self-Hosting lässt Sie den Standort von Anwendung und Datenbank wählen. Ihr Unternehmen bleibt jedoch für
+  Konfiguration, Anbieter, Verträge, Sicherheitskontrollen, Aufbewahrung und rechtliche Bewertung verantwortlich.
 </FaqItem>
 
 <FaqItem question="Was enthält der offizielle Docker-Compose-Stack?">

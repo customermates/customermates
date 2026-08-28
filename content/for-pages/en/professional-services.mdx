@@ -30,14 +30,45 @@ acquisition:
   visual:
     id: acquisition.professional-services.en
     locale: en
-    referenceSystemVersion: customermates-marketing-visuals@7
+    referenceSystemVersion: customermates-marketing-visuals@8
     source:
       headline: "A Relationship and Pipeline CRM for Professional Services"
       body: "Keep client context, opportunities, services and follow-up tasks connected. Customermates supports business development—not project delivery, proposals, invoicing or time tracking."
       checksum: fnv1a-a5024b64
-    kind: none
-    reason: "The answer-first copy is clearer without an unverified illustration."
-    selection: explicit
+    kind: brand-illustration
+    pathway: focus
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "Client context and weighted deal values make the business-development pipeline easier to read."
+    depiction:
+      kind: result
+      productBehavior: true
+      statement: "Deal stages and weighted values keep the business-development pipeline legible."
+    factReferences:
+      - product:deal-status-field
+      - product:deal-weighted-values
+    focalLabel:
+      locale: en
+      text: Deal pipeline
+    semanticLabels:
+      - locale: en
+        text: Client context
+      - locale: en
+        text: Weighted value
+    focalSubject:
+      id: deal-pipeline
+      form: kanban-board
+      fixtures:
+        dealBoard: demo-status-board
+    supportingSubjects:
+      - id: client-context
+        form: context-card
+      - id: service-value
+        form: context-card
+    accentTarget: deal-pipeline
   structuredData:
     types:
       - BreadcrumbList
@@ -67,14 +98,16 @@ Customermates is a **CRM for professional services** teams that need to connect 
 
 ## What this CRM covers
 
-| Business-development need | How Customermates supports it | Boundary |
-| --- | --- | --- |
-| Client and stakeholder context | Contacts and organizations with relations, notes and activity history | Not a document-management system |
-| Opportunity pipeline | Deals, configurable stages and kanban views | Not proposal or SOW creation |
-| Pipeline value | Stage probabilities, weighted deal values and weighted totals | Not predictive revenue forecasting |
-| Services in a deal | Services with quantities and amounts linked to deals | Not project delivery or resource planning |
-| Follow-up work | Tasks linked to contacts, organizations, deals, services and users | Not native scheduling or time tracking |
-| Extensions | REST, webhooks, MCP and a separate n8n integration option | External systems keep their own runtime and data boundary |
+| Business-development need      | How Customermates supports it                                         | Boundary                                                  |
+| ------------------------------ | --------------------------------------------------------------------- | --------------------------------------------------------- |
+| Client and stakeholder context | Contacts and organizations with relations, notes and activity history | Not a document-management system                          |
+| Opportunity pipeline           | Deals, configurable stages and kanban views                           | Not proposal or SOW creation                              |
+| Pipeline value                 | Stage probabilities, weighted deal values and weighted totals         | Not predictive revenue forecasting                        |
+| Services in a deal             | Services with quantities and amounts linked to deals                  | Not project delivery or resource planning                 |
+| Follow-up work                 | Tasks linked to contacts, organizations, deals, services and users    | Not native scheduling or time tracking                    |
+| Extensions                     | REST, webhooks, MCP and a separate n8n integration option             | External systems keep their own runtime and data boundary |
+
+<ProductDemo path="/deals" />
 
 ## One practical professional-services workflow
 
@@ -113,15 +146,19 @@ No. It is a relationship and pipeline CRM. It does not provide native project de
 </FaqItem>
 
 <FaqItem question="Can it create proposals or invoices?">
-No. Customermates has no proposal, SOW, quote or invoice document workflow. You can keep the opportunity, stakeholders, services and follow-up context in the CRM and connect a specialist system through REST, webhooks or an external workflow.
+  No. Customermates has no proposal, SOW, quote or invoice document workflow. You can keep the opportunity,
+  stakeholders, services and follow-up context in the CRM and connect a specialist system through REST, webhooks or an
+  external workflow.
 </FaqItem>
 
 <FaqItem question="How are service values represented?">
-Services can be linked to a deal with quantities and amounts. Deal stages can carry probabilities, which Customermates uses to calculate deterministic weighted deal values and pipeline totals.
+  Services can be linked to a deal with quantities and amounts. Deal stages can carry probabilities, which Customermates
+  uses to calculate deterministic weighted deal values and pipeline totals.
 </FaqItem>
 
 <FaqItem question="Can tasks replace project management or time tracking?">
-No. Tasks can be linked to CRM records and users, but they are not a project-delivery, scheduling or time-entry system.
+  No. Tasks can be linked to CRM records and users, but they are not a project-delivery, scheduling or time-entry
+  system.
 </FaqItem>
 
 <FaqItem question="Is the unified inbox available when self-hosting?">

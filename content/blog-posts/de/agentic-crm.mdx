@@ -28,14 +28,46 @@ acquisition:
   visual:
     id: acquisition.agentic-crm.de
     locale: de
-    referenceSystemVersion: customermates-marketing-visuals@7
+    referenceSystemVersion: customermates-marketing-visuals@8
     source:
       headline: "Agentisches & KI-natives CRM: MCP, Mate und sichere Aktionen"
       body: "Erfahren Sie, wie sich KI-native CRM-Architektur und agentisches Verhalten unterscheiden, wie externe MCP-Clients mit Nutzerrechten arbeiten und wo Client oder Mate eine Freigabe einholen."
       checksum: fnv1a-fc27c98e
-    kind: none
-    reason: "The answer-first copy is clearer without an unverified illustration."
-    selection: explicit
+    kind: brand-illustration
+    pathway: handoff
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "Ein externer KI-Client bereitet den Entwurf vor; ein Mensch behält die letzte Aktion."
+    depiction:
+      kind: change
+      productBehavior: true
+      statement: "Ein externer KI-Client bereitet den Entwurf vor; ein Mensch behält die letzte Aktion."
+    factReferences:
+      - product:human-send-boundary
+    focalLabel:
+      locale: de
+      text: Entwurf
+    semanticLabels:
+      - locale: de
+        text: Prüfen und senden
+    focalSubject:
+      id: reviewable-draft
+      form: draft
+      fixtures:
+        person: leon-becker
+        provider: linkedin
+    supportingSubjects:
+      - id: external-ai-client
+        form: agent-cue
+        agentProvider: claude
+      - id: human-action
+        form: human-action
+        fixtures:
+          person: max-bergmann
+    accentTarget: human-action
   structuredData:
     types:
       - Article
@@ -78,9 +110,9 @@ Das unterscheidet ein agentisches CRM von einem Chatbot, der nur Text erzeugt. E
 
 ## Zwei KI-Wege in Customermates
 
-| Weg | Betriebsort | Modell und Credits | Verfügbarkeitsgrenze |
-| --- | --- | --- | --- |
-| Externer KI-Client über MCP | Cloud oder Self-Hosted | Der Kunde wählt und bezahlt den externen Anbieter | MCP ist die aktuelle offene Integrationsoberfläche |
+| Weg                             | Betriebsort             | Modell und Credits                                 | Verfügbarkeitsgrenze                               |
+| ------------------------------- | ----------------------- | -------------------------------------------------- | -------------------------------------------------- |
+| Externer KI-Client über MCP     | Cloud oder Self-Hosted  | Der Kunde wählt und bezahlt den externen Anbieter  | MCP ist die aktuelle offene Integrationsoberfläche |
 | In-App-Assistentenfunktion Mate | Nur Customermates Cloud | Für die Funktion gelten gehostete Tarifkontingente | Allgemeine Produktivverfügbarkeit ist nicht belegt |
 
 Die [MCP-Dokumentation](/docs/mcp) ist die Quelle für Einrichtung und den veränderlichen Tool-Katalog. Customermates registriert aktuell [[derived.mcp.tools.total]] MCP-Tools. Diese Seite kopiert ihre Namen nicht, damit der Katalog an einer Stelle aktuell bleibt.
@@ -99,13 +131,13 @@ Die Mate-Funktion erzwingt bei jedem Tool-Aufruf eine eigene Freigabe für destr
 
 ## Grenzen von Cloud und Self-Hosted
 
-| Funktion | Customermates Cloud | Self-Hosted Customermates |
-| --- | --- | --- |
-| Kern-CRM | Ja | Ja |
-| MCP für externe KI-Clients | Ja | Ja |
-| Einheitlicher Posteingang | Ab Pro | Nein |
-| Gehostete Mate-Funktion | Nur Cloud, freigabegebunden | Nein |
-| Gehostete KI-Credits | Tarifbasierte Funktion | Nein |
+| Funktion                   | Customermates Cloud         | Self-Hosted Customermates |
+| -------------------------- | --------------------------- | ------------------------- |
+| Kern-CRM                   | Ja                          | Ja                        |
+| MCP für externe KI-Clients | Ja                          | Ja                        |
+| Einheitlicher Posteingang  | Ab Pro                      | Nein                      |
+| Gehostete Mate-Funktion    | Nur Cloud, freigabegebunden | Nein                      |
+| Gehostete KI-Credits       | Tarifbasierte Funktion      | Nein                      |
 
 Self-Hosting nutzt Starter-Berechtigungen. Es eignet sich für Teams, die ein [quelloffenes, selbst gehostetes CRM](/features/self-hosted) betreiben und einen eigenen KI-Client und Modellanbieter über MCP verbinden möchten.
 
@@ -140,15 +172,21 @@ Es ist ein CRM, dessen strukturierte Datensätze und Aktionen von einem autorisi
 </FaqItem>
 
 <FaqItem question="Ist Mate in Customermates Cloud allgemein verfügbar?">
-Eine allgemeine Produktivverfügbarkeit ist derzeit nicht belegt. Der Produktcode enthält die cloudbasierte Mate-Funktion und einen globalen Kill Switch; die produktive Konfiguration und die Freigabebedingungen sind hier jedoch nicht belegt. Externe MCP-Clients bleiben der aktuell dokumentierte Integrationsweg.
+  Eine allgemeine Produktivverfügbarkeit ist derzeit nicht belegt. Der Produktcode enthält die cloudbasierte
+  Mate-Funktion und einen globalen Kill Switch; die produktive Konfiguration und die Freigabebedingungen sind hier
+  jedoch nicht belegt. Externe MCP-Clients bleiben der aktuell dokumentierte Integrationsweg.
 </FaqItem>
 
 <FaqItem question="Kann ich einen externen KI-Client mit Self-Hosted Customermates nutzen?">
-Ja. MCP ist beim Self-Hosting verfügbar. Sie wählen und bezahlen Client und Modellanbieter; gehosteter Mate und gehostete KI-Credits sind nicht enthalten.
+  Ja. MCP ist beim Self-Hosting verfügbar. Sie wählen und bezahlen Client und Modellanbieter; gehosteter Mate und
+  gehostete KI-Credits sind nicht enthalten.
 </FaqItem>
 
 <FaqItem question="Wo wird eine Bestätigung technisch erzwungen?">
-Die MCP-Anweisungen fordern kompatible Clients auf, vor Versand und Löschvorgängen eine Bestätigung einzuholen. Der MCP-Server fügt jedoch keine zweite Freigabe hinzu, nachdem der Client ein zulässiges Tool aufgerufen hat. Mate besitzt separate, technisch erzwungene Freigaben pro Aufruf. Prüfen Sie daher den konkreten Client und Pfad, den Sie aktivieren.
+  Die MCP-Anweisungen fordern kompatible Clients auf, vor Versand und Löschvorgängen eine Bestätigung einzuholen. Der
+  MCP-Server fügt jedoch keine zweite Freigabe hinzu, nachdem der Client ein zulässiges Tool aufgerufen hat. Mate
+  besitzt separate, technisch erzwungene Freigaben pro Aufruf. Prüfen Sie daher den konkreten Client und Pfad, den Sie
+  aktivieren.
 </FaqItem>
 
 <FaqItem question="Enthält agentisches CRM prädiktives Lead-Scoring oder Forecasting?">

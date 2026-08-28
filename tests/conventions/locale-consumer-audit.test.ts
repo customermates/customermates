@@ -75,6 +75,8 @@ const ALLOWED_VISIBLE_COPY_SITES = new Map<string, VisibleCopyException>([
     'app/components/footer-content.tsx :: jsx-text :: "Viesearch - The Human-curated Search Engine"',
     'components/emails/base/email-layout.tsx :: jsx-alt :: "Customermates"',
     'components/emails/base/email-layout.tsx :: jsx-text :: "Customermates ·"',
+    'components/marketing/acquisition-story-visual.tsx :: jsx-logical :: "Customermates"',
+    'components/marketing/acquisition-story-visual.tsx :: jsx-text :: "Docker Compose"',
     'components/marketing/comparison-table.tsx :: jsx-alt :: "Customermates"',
     'components/marketing/cta-section.tsx :: jsx-alt :: "Customermates"',
   ]),

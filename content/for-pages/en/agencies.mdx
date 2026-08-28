@@ -31,14 +31,45 @@ acquisition:
   visual:
     id: acquisition.agencies.en
     locale: en
-    referenceSystemVersion: customermates-marketing-visuals@7
+    referenceSystemVersion: customermates-marketing-visuals@8
     source:
       headline: "An Agency CRM for New Business and Client Relationships"
       body: "Track prospects, client context, deal stages, service value and follow-up tasks in one place. Keep project delivery, proposals, invoicing and time tracking in your specialist tools."
       checksum: fnv1a-a3a2d565
-    kind: none
-    reason: "The answer-first copy is clearer without an unverified illustration."
-    selection: explicit
+    kind: brand-illustration
+    pathway: focus
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "Client context and weighted deal values make the agency new-business pipeline easier to read."
+    depiction:
+      kind: result
+      productBehavior: true
+      statement: "Deal stages and weighted values keep the agency new-business pipeline legible."
+    factReferences:
+      - product:deal-status-field
+      - product:deal-weighted-values
+    focalLabel:
+      locale: en
+      text: Deal pipeline
+    semanticLabels:
+      - locale: en
+        text: Client context
+      - locale: en
+        text: Weighted value
+    focalSubject:
+      id: deal-pipeline
+      form: kanban-board
+      fixtures:
+        dealBoard: demo-status-board
+    supportingSubjects:
+      - id: client-context
+        form: context-card
+      - id: service-value
+        form: context-card
+    accentTarget: deal-pipeline
   structuredData:
     types:
       - BreadcrumbList
@@ -68,14 +99,14 @@ Customermates is a **CRM for agencies** that need one place for prospects, clien
 
 ## What an agency can manage
 
-| Agency workflow | Customermates capability | Product boundary |
-| --- | --- | --- |
-| Prospects and client stakeholders | Related contact and organization records | No automated enrichment |
-| New-business pipeline | Deals, configurable stages and kanban views | A stage named “Proposal” is not a proposal document |
-| Scope under discussion | Services, quantities and amounts linked to a deal | No SOW or project-delivery model |
-| Pipeline value | Stage probabilities and weighted deal totals | No predictive close forecast |
-| Next actions | Tasks linked to records and responsible users | No native sequence or scheduler |
-| Client conversations | Cloud Pro+ inbox for supported channels | No self-hosted inbox and no direct message-to-deal relation |
+| Agency workflow                   | Customermates capability                          | Product boundary                                            |
+| --------------------------------- | ------------------------------------------------- | ----------------------------------------------------------- |
+| Prospects and client stakeholders | Related contact and organization records          | No automated enrichment                                     |
+| New-business pipeline             | Deals, configurable stages and kanban views       | A stage named “Proposal” is not a proposal document         |
+| Scope under discussion            | Services, quantities and amounts linked to a deal | No SOW or project-delivery model                            |
+| Pipeline value                    | Stage probabilities and weighted deal totals      | No predictive close forecast                                |
+| Next actions                      | Tasks linked to records and responsible users     | No native sequence or scheduler                             |
+| Client conversations              | Cloud Pro+ inbox for supported channels           | No self-hosted inbox and no direct message-to-deal relation |
 
 ## A practical new-business workflow
 
@@ -116,15 +147,18 @@ No. It manages relationship and new-business context. Delivery plans, milestones
 </FaqItem>
 
 <FaqItem question="Can it create proposals, contracts or invoices?">
-No. Customermates can represent the deal and services being discussed, but it has no native proposal, SOW, contract, quote or invoice document workflow.
+  No. Customermates can represent the deal and services being discussed, but it has no native proposal, SOW, contract,
+  quote or invoice document workflow.
 </FaqItem>
 
 <FaqItem question="Can an agency track follow-ups?">
-Tasks can be linked to contacts, organizations, deals, services and users. Customermates does not include a native timed sequence or scheduler; use your chosen external workflow system if you need scheduled automation.
+  Tasks can be linked to contacts, organizations, deals, services and users. Customermates does not include a native
+  timed sequence or scheduler; use your chosen external workflow system if you need scheduled automation.
 </FaqItem>
 
 <FaqItem question="Which channels are in the unified inbox?">
-Supported connections cover Gmail/Google, Outlook/Microsoft and IMAP email, LinkedIn variants, WhatsApp, Instagram and Telegram. The inbox is a managed-cloud entitlement from Pro upward.
+  Supported connections cover Gmail/Google, Outlook/Microsoft and IMAP email, LinkedIn variants, WhatsApp, Instagram and
+  Telegram. The inbox is a managed-cloud entitlement from Pro upward.
 </FaqItem>
 
 <FaqItem question="Can a self-hosted agency use AI clients?">

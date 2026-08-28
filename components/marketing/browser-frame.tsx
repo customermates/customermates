@@ -8,7 +8,13 @@ import { useTranslations } from "next-intl";
 type Props = {
   src: string;
   title: string;
+  size?: "article" | "full";
 };
+
+const FRAME_HEIGHT_CLASS = {
+  article: "h-[420px] sm:h-[520px] lg:h-[600px]",
+  full: "h-[600px] md:h-[700px] lg:h-[750px]",
+} as const;
 
 function getHostname(src: string): string {
   try {
@@ -18,7 +24,7 @@ function getHostname(src: string): string {
   }
 }
 
-export function BrowserFrame({ src, title }: Props) {
+export function BrowserFrame({ size = "full", src, title }: Props) {
   const t = useTranslations();
   const [loaded, setLoaded] = useState(false);
   const [shouldMount, setShouldMount] = useState(false);
@@ -85,7 +91,7 @@ export function BrowserFrame({ src, title }: Props) {
           </a>
         </div>
 
-        <div className="relative h-[600px] md:h-[700px] lg:h-[750px]">
+        <div className={`relative ${FRAME_HEIGHT_CLASS[size]}`}>
           {!loaded && <div className="absolute inset-0 animate-pulse bg-placeholder motion-reduce:animate-none" />}
 
           {shouldMount && (

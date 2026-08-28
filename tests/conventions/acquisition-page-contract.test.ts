@@ -71,16 +71,15 @@ describe("approved acquisition page contract", () => {
         if (contract.locale !== locale) problems.push(`${path}: locale is ${contract.locale}`);
         if (contract.slug !== slug) problems.push(`${path}: slug is ${contract.slug}`);
         if (contract.metadata.title !== data.title) problems.push(`${path}: acquisition title drifted`);
-        if (contract.metadata.description !== data.description) problems.push(`${path}: acquisition description drifted`);
+        if (contract.metadata.description !== data.description)
+          problems.push(`${path}: acquisition description drifted`);
         if (contract.visual.locale !== locale) problems.push(`${path}: visual locale is ${contract.visual.locale}`);
         if (contract.visual.source.headline !== data.hero?.title) problems.push(`${path}: visual headline drifted`);
         if (contract.visual.source.body !== data.hero?.description) problems.push(`${path}: visual body drifted`);
         if (!body.includes("<Faq>")) problems.push(`${path}: FAQPage is declared without rendered FAQ content`);
 
         const expectedTypes =
-          collection === "blog-posts"
-            ? ["Article", "BreadcrumbList", "FAQPage"]
-            : ["BreadcrumbList", "FAQPage"];
+          collection === "blog-posts" ? ["Article", "BreadcrumbList", "FAQPage"] : ["BreadcrumbList", "FAQPage"];
         if (JSON.stringify(contract.structuredData.types) !== JSON.stringify(expectedTypes)) {
           problems.push(`${path}: structured-data declaration does not match its route`);
         }
@@ -92,12 +91,18 @@ describe("approved acquisition page contract", () => {
           if (contract.cta.secondaryHref !== secondary) problems.push(`${path}: secondary CTA drifted`);
         } else {
           if (!body.includes(`](${contract.cta.primaryHref})`)) problems.push(`${path}: primary CTA is not rendered`);
-          if (!body.includes(`](${contract.cta.secondaryHref})`)) problems.push(`${path}: secondary CTA is not rendered`);
+          if (!body.includes(`](${contract.cta.secondaryHref})`))
+            problems.push(`${path}: secondary CTA is not rendered`);
         }
 
-        for (const theme of ["light", "dark"] as const) {
-          const asset = join(REPO_ROOT, "public", "images", theme, locale, `${contract.slug}.png`);
-          if (contract.visual.kind !== "none" && !existsSync(asset)) problems.push(`${path}: ${asset} is missing`);
+        if (contract.visual.kind !== "brand-illustration")
+          problems.push(`${path}: visual is not an authored illustration`);
+        if (contract.visual.referenceSystemVersion !== "customermates-marketing-visuals@8")
+          problems.push(`${path}: visual system version drifted`);
+        if (contract.visual.kind === "brand-illustration") {
+          if (contract.visual.selection !== "automatic") problems.push(`${path}: visual selection is not automatic`);
+          if (JSON.stringify(contract.visual.placements) !== JSON.stringify(["wide", "split", "narrow"]))
+            problems.push(`${path}: visual placements drifted`);
         }
 
         for (const fact of contract.proof.factReferences) {
@@ -113,39 +118,40 @@ describe("approved acquisition page contract", () => {
     expect(problems).toEqual([]);
   });
 
-  it("makes the validated no-visual outcome executable in every dynamic page route", () => {
+  it("renders validated acquisition illustrations without legacy slug PNGs", () => {
     for (const route of [
       "app/[locale]/(static)/blog/[slug]/page.tsx",
       "app/[locale]/(static)/features/[slug]/page.tsx",
       "app/[locale]/(static)/for/[industry]/page.tsx",
     ]) {
       const source = readFileSync(join(REPO_ROOT, route), "utf8");
-      expect(source, route).toContain('page.data.acquisition?.visual.kind !== "none"');
+      expect(source, route).toContain('page.data.acquisition?.visual.kind === "brand-illustration"');
+      expect(source, route).toContain("<AcquisitionStoryVisual");
+      expect(source, route).not.toContain("<ShowcaseFrame");
+      expect(source, route).not.toMatch(/src=\{`\$\{(?:slug|industry)\}\.png`\}/u);
     }
+
+    const visual = readFileSync(join(REPO_ROOT, "components/marketing/acquisition-story-visual.tsx"), "utf8");
+    for (const focalForm of ["context-card", "provider-set", "kanban-board", "draft"])
+      expect(visual).toContain(`case "${focalForm}"`);
   });
 
-  it("keeps no-visual pages free of stale images on hubs and related cards", () => {
+  it("keeps acquisition cards free of stale hero art", () => {
     for (const route of [
       "app/[locale]/(static)/features/all/page.tsx",
       "app/[locale]/(static)/for/page.tsx",
       "components/marketing/related-pages.tsx",
     ]) {
       const source = readFileSync(join(REPO_ROOT, route), "utf8");
-      expect(source, route).toContain('data.acquisition?.visual.kind === "none"');
+      expect(source, route).toMatch(/data\.acquisition \? undefined : `\$\{slug\}\.png`/u);
     }
 
-    for (const route of [
-      "app/[locale]/(static)/blog/page.tsx",
-      "app/[locale]/(static)/blog/[slug]/page.tsx",
-    ]) {
+    for (const route of ["app/[locale]/(static)/blog/page.tsx", "app/[locale]/(static)/blog/[slug]/page.tsx"]) {
       const source = readFileSync(join(REPO_ROOT, route), "utf8");
-      expect(source, route).toContain('showImage={post.data.acquisition?.visual.kind !== "none"}');
+      expect(source, route).toContain("showImage={!post.data.acquisition}");
     }
 
-    const blogCard = readFileSync(
-      join(REPO_ROOT, "app/[locale]/(static)/blog/blog-post-card.tsx"),
-      "utf8",
-    );
+    const blogCard = readFileSync(join(REPO_ROOT, "app/[locale]/(static)/blog/blog-post-card.tsx"), "utf8");
     expect(blogCard).toContain("showImage = true");
     expect(blogCard).toContain("placeholderLabel={imagePath ? undefined : title}");
   });

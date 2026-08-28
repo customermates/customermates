@@ -29,6 +29,7 @@ export const SUPPORTED_VISUAL_FACTS = [
   "product:deal-weighted-values",
   "product:human-send-boundary",
   "product:record-activity-context",
+  "product:self-hosted-deployment",
   "product:unified-inbox-channel-set",
 ] as const;
 

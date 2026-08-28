@@ -5,6 +5,7 @@ import defaultMdxComponents from "fumadocs-ui/mdx";
 import { APIPage } from "./api-page";
 import { ComparisonTable } from "./comparison-table";
 import { Faq, FaqItem } from "@/components/marketing/faq";
+import { ProductDemo } from "@/components/marketing/product-demo";
 import { RelatedPage, RelatedPages } from "@/components/marketing/related-pages";
 import { Step, Steps } from "@/components/marketing/process-steps";
 import { MarkdownImage } from "./markdown-image";
@@ -25,6 +26,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     MarkdownImage,
     McpInstallSnippet,
     Mermaid,
+    ProductDemo,
     RelatedPage,
     RelatedPages,
     Step,

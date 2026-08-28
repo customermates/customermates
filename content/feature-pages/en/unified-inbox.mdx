@@ -29,14 +29,44 @@ acquisition:
   visual:
     id: acquisition.unified-inbox.en
     locale: en
-    referenceSystemVersion: customermates-marketing-visuals@7
+    referenceSystemVersion: customermates-marketing-visuals@8
     source:
       headline: "One CRM Inbox for Email and Social Conversations"
       body: "Work with Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram and Telegram threads in one list, then connect participants to CRM contact context. Cloud Pro and above."
       checksum: fnv1a-ab57b73d
-    kind: none
-    reason: "The answer-first copy is clearer without an unverified illustration."
-    selection: explicit
+    kind: brand-illustration
+    pathway: converge
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "Supported email, social and messenger channels converge in one CRM inbox."
+    depiction:
+      kind: relationship
+      productBehavior: true
+      statement: "Supported email, social and messenger channels converge in one CRM inbox."
+    factReferences:
+      - product:unified-inbox-channel-set
+    focalLabel:
+      locale: en
+      text: Channels
+    semanticLabels:
+      - locale: en
+        text: One inbox
+      - locale: en
+        text: CRM context
+    focalSubject:
+      id: inbox-providers
+      form: provider-set
+      fixtures:
+        providerSet: unified-inbox
+    supportingSubjects:
+      - id: conversation-list
+        form: context-card
+      - id: contact-context
+        form: context-card
+    accentTarget: inbox-providers
   structuredData:
     types:
       - BreadcrumbList
@@ -67,13 +97,15 @@ The **Customermates unified CRM inbox** brings supported email and social conver
 
 It is a managed-cloud feature from Pro upward. Starter and self-hosted Customermates do not include messaging accounts or the unified inbox.
 
+<ProductDemo path="/inbox" />
+
 ## Supported channels
 
-| Channel family | Supported connections |
-| --- | --- |
-| Email | Gmail/Google, Outlook/Microsoft and IMAP |
+| Channel family        | Supported connections                                    |
+| --------------------- | -------------------------------------------------------- |
+| Email                 | Gmail/Google, Outlook/Microsoft and IMAP                 |
 | Professional networks | LinkedIn Classic, Sales Navigator and Recruiter variants |
-| Messaging and social | WhatsApp, Instagram and Telegram |
+| Messaging and social  | WhatsApp, Instagram and Telegram                         |
 
 The supported set does not include SMS or telephony. Provider behavior and attachment support can differ by connection type.
 
@@ -90,12 +122,12 @@ Conversation context can surface through its contact relationship. Messages do n
 
 ## Personal and shared account access
 
-| Cloud plan | Included connected accounts | Shared accounts |
-| --- | --- | --- |
-| Starter | 0 | No |
-| Pro | 1 per user | No |
-| Business | 3 per user | Yes |
-| Enterprise | Unlimited under fair-use terms | Yes |
+| Cloud plan | Included connected accounts    | Shared accounts |
+| ---------- | ------------------------------ | --------------- |
+| Starter    | 0                              | No              |
+| Pro        | 1 per user                     | No              |
+| Business   | 3 per user                     | Yes             |
+| Enterprise | Unlimited under fair-use terms | Yes             |
 
 Pro users can share individual threads with CRM teammates. Sharing an entire connected account is available on Business and Enterprise. Permissions still govern which CRM resources and actions a user can access.
 
@@ -123,15 +155,18 @@ Pro, Business and Enterprise in Customermates Cloud. Pro includes one connected 
 </FaqItem>
 
 <FaqItem question="Does the inbox work when self-hosting?">
-No. Self-hosted deployments use Starter entitlements, which include zero messaging accounts and no unified inbox. MCP remains available for external AI clients working with the core CRM.
+  No. Self-hosted deployments use Starter entitlements, which include zero messaging accounts and no unified inbox. MCP
+  remains available for external AI clients working with the core CRM.
 </FaqItem>
 
 <FaqItem question="Does Customermates support SMS or phone calls in this inbox?">
-No. The supported set covers Gmail/Google, Outlook/Microsoft, IMAP email, LinkedIn variants, WhatsApp, Instagram and Telegram—not SMS or telephony.
+  No. The supported set covers Gmail/Google, Outlook/Microsoft, IMAP email, LinkedIn variants, WhatsApp, Instagram and
+  Telegram—not SMS or telephony.
 </FaqItem>
 
 <FaqItem question="Are messages linked directly to deals?">
-No. Participants can be associated with CRM contacts, and contact relationships provide the bridge to relevant CRM context. There is no direct message-to-deal relation.
+  No. Participants can be associated with CRM contacts, and contact relationships provide the bridge to relevant CRM
+  context. There is no direct message-to-deal relation.
 </FaqItem>
 
 <FaqItem question="Can an AI client send messages through the inbox?">

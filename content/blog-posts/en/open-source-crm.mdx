@@ -30,14 +30,42 @@ acquisition:
   visual:
     id: acquisition.open-source-crm.en
     locale: en
-    referenceSystemVersion: customermates-marketing-visuals@7
+    referenceSystemVersion: customermates-marketing-visuals@8
     source:
       headline: "Open Source CRM: Compare What You Can Actually Run"
       body: "A useful comparison starts with license, edition boundaries, deployment, operating effort and product scope—not a feature table copied from vendor pages."
       checksum: fnv1a-3d47f7d7
-    kind: none
-    reason: "The answer-first copy is clearer without an unverified illustration."
-    selection: explicit
+    kind: brand-illustration
+    pathway: converge
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "The self-hosted application and PostgreSQL form one deployment boundary you can operate."
+    depiction:
+      kind: relationship
+      productBehavior: true
+      statement: "The self-hosted application and PostgreSQL form one deployment boundary you can operate."
+    factReferences:
+      - product:self-hosted-deployment
+    focalLabel:
+      locale: en
+      text: Self-hosted app
+    semanticLabels:
+      - locale: en
+        text: AGPL core
+      - locale: en
+        text: PostgreSQL
+    focalSubject:
+      id: self-hosted-app
+      form: context-card
+    supportingSubjects:
+      - id: source-code
+        form: context-card
+      - id: postgresql
+        form: context-card
+    accentTarget: self-hosted-app
   structuredData:
     types:
       - Article
@@ -81,15 +109,15 @@ A public repository does not automatically grant open-source rights to every fil
 
 ## Seven criteria for comparing open-source CRM software
 
-| Criterion | What to verify |
-| --- | --- |
-| License boundary | Which code is open source, which is commercial, and which obligations apply? |
-| Deployment | Is there a maintained, documented path for the exact edition you need? |
-| Operations | Who owns upgrades, backups, restoration, monitoring, TLS and incident response? |
-| CRM model | Does it cover the contacts, organizations, opportunities, services and tasks you actually use? |
-| Interfaces | Are REST, webhooks or agent interfaces available for your workflow? |
-| Edition gap | Which cloud or enterprise capabilities disappear when self-hosting? |
-| Migration | Is there a real import/export path, or must you design one through APIs or the database? |
+| Criterion        | What to verify                                                                                 |
+| ---------------- | ---------------------------------------------------------------------------------------------- |
+| License boundary | Which code is open source, which is commercial, and which obligations apply?                   |
+| Deployment       | Is there a maintained, documented path for the exact edition you need?                         |
+| Operations       | Who owns upgrades, backups, restoration, monitoring, TLS and incident response?                |
+| CRM model        | Does it cover the contacts, organizations, opportunities, services and tasks you actually use? |
+| Interfaces       | Are REST, webhooks or agent interfaces available for your workflow?                            |
+| Edition gap      | Which cloud or enterprise capabilities disappear when self-hosting?                            |
+| Migration        | Is there a real import/export path, or must you design one through APIs or the database?       |
 
 Treat an unmeasured or undocumented capability as unknown—not as included.
 
@@ -105,18 +133,20 @@ Customermates is an open-source, relationship-and-pipeline CRM made in Germany. 
 
 The official [self-hosted CRM](/features/self-hosted) deployment contains the application and PostgreSQL 16. The self-hosted edition uses Starter entitlements.
 
-| Customermates self-hosted capability | Status |
-| --- | --- |
-| Contacts, organizations, deals, services and tasks | Included |
-| Custom fields, table, card and kanban views | Included |
-| REST, webhooks and MCP | Included |
-| External AI clients through MCP | Included; customer supplies the client and provider |
-| Unified inbox and messaging accounts | Not included |
-| Cloud-only Mate assistant and hosted credits | Not included |
-| Connected read-only calendar view | Not included |
-| Dedicated CRM-record import/export workflow | Not included |
+| Customermates self-hosted capability               | Status                                              |
+| -------------------------------------------------- | --------------------------------------------------- |
+| Contacts, organizations, deals, services and tasks | Included                                            |
+| Custom fields, table, card and kanban views        | Included                                            |
+| REST, webhooks and MCP                             | Included                                            |
+| External AI clients through MCP                    | Included; customer supplies the client and provider |
+| Unified inbox and messaging accounts               | Not included                                        |
+| Cloud-only Mate assistant and hosted credits       | Not included                                        |
+| Connected read-only calendar view                  | Not included                                        |
+| Dedicated CRM-record import/export workflow        | Not included                                        |
 
 This makes Customermates a fit when you want a focused CRM, Docker/PostgreSQL deployment and an open MCP surface. It is not a fit when self-hosting must include the managed-cloud inbox or when you need a turnkey migration, PSA, invoicing or time-tracking suite.
+
+<ProductDemo hostedBoundary path="/dashboard" />
 
 ## Self-hosting changes who operates the system
 
@@ -159,15 +189,19 @@ It means the CRM code is offered under an open-source license that grants define
 </FaqItem>
 
 <FaqItem question="Is every open-source CRM free to operate?">
-No. A license may not charge a software subscription, but infrastructure, backups, upgrades, monitoring, security work and external providers still cost money and operator time.
+  No. A license may not charge a software subscription, but infrastructure, backups, upgrades, monitoring, security work
+  and external providers still cost money and operator time.
 </FaqItem>
 
 <FaqItem question="Does open source guarantee data control or GDPR compliance?">
-No. Self-hosting can give you control over the application and database location, but compliance and data flows depend on configuration, connected providers, contracts, policies and operations.
+  No. Self-hosting can give you control over the application and database location, but compliance and data flows depend
+  on configuration, connected providers, contracts, policies and operations.
 </FaqItem>
 
 <FaqItem question="Is all Customermates code AGPL-3.0?">
-No. First-party material outside `ee/` is AGPL-3.0-only. Inside `ee/`, the client material identified in Section 6 of `ee/LICENSE.md` is also AGPL-3.0-only; the remaining first-party material uses the commercial license. Review both license files for the exact boundary.
+  No. First-party material outside `ee/` is AGPL-3.0-only. Inside `ee/`, the client material identified in Section 6 of
+  `ee/LICENSE.md` is also AGPL-3.0-only; the remaining first-party material uses the commercial license. Review both
+  license files for the exact boundary.
 </FaqItem>
 
 <FaqItem question="Can I import or export CRM records in self-hosted Customermates?">
