@@ -94,22 +94,7 @@ fi
 prefix="${BASH_REMATCH[1]}"
 branch_label="${BASH_REMATCH[2]}"
 
-if [[ "$branch_label" == xn--* ]]; then
-  echo "The branch has no managed Preview domain."
-  exit 0
-fi
-
 if [[ "$prefix" == "sandbox" ]]; then
-  case "$branch_label" in
-    admin|api|app|assets|auth|blog|cdn|customermates|demo|dev|development|docs|help|internal|login|mail|main|mcp|preview|prod|production|security|staging|static|status|support|test|www)
-      echo "The sandbox name is reserved."
-      exit 0
-      ;;
-  esac
-  if [[ "$branch_label" =~ ^(build|chore|ci|docs|feat|fix|perf|refactor|revert|sandbox|style|test)- ]]; then
-    echo "The sandbox name collides with an engineering branch."
-    exit 0
-  fi
   domain_label="$branch_label"
 else
   domain_label="${prefix}-${branch_label}"
