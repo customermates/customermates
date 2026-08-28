@@ -5,9 +5,10 @@ import type { BaseFormStore } from "@/core/base/base-form.store";
 
 import { NavigationGuardController } from "../navigation-guard.controller";
 
-function makeStore(opts: { dirty?: boolean; guardEnabled?: boolean } = {}): BaseFormStore {
+function makeStore(opts: { dirty?: boolean; guardEnabled?: boolean; loading?: boolean } = {}): BaseFormStore {
   return {
     hasUnsavedChanges: opts.dirty ?? false,
+    isLoading: opts.loading ?? false,
     withUnsavedChangesGuard: opts.guardEnabled ?? true,
   } as unknown as BaseFormStore;
 }
@@ -113,6 +114,18 @@ describe("NavigationGuardController", () => {
     expect(controller.isGuarding).toBe(false);
   });
 
+  it("keeps a store guarded until every registration is released", () => {
+    const store = makeStore({ dirty: true });
+    controller.register(store);
+    controller.register(store);
+
+    controller.unregister(store);
+    expect(controller.isGuarding).toBe(true);
+
+    controller.unregister(store);
+    expect(controller.isGuarding).toBe(false);
+  });
+
   it("runs a requested route refresh immediately when forms are clean", () => {
     const refresh = vi.fn();
 
@@ -122,7 +135,11 @@ describe("NavigationGuardController", () => {
   });
 
   it("defers a requested route refresh until the dirty form becomes clean", () => {
-    const store = observable({ hasUnsavedChanges: true, withUnsavedChangesGuard: true });
+    const store = observable({
+      hasUnsavedChanges: true,
+      isLoading: false,
+      withUnsavedChangesGuard: true,
+    });
     const refresh = vi.fn();
     controller.register(store as unknown as BaseFormStore);
 
@@ -136,8 +153,33 @@ describe("NavigationGuardController", () => {
     expect(refresh).toHaveBeenCalledOnce();
   });
 
+  it("defers a route refresh while a registered form is saving", () => {
+    const store = observable({
+      hasUnsavedChanges: false,
+      isLoading: true,
+      withUnsavedChangesGuard: true,
+    });
+    const refresh = vi.fn();
+    controller.register(store as unknown as BaseFormStore);
+
+    controller.requestRouteRefreshWhenSafe(refresh);
+    expect(refresh).not.toHaveBeenCalled();
+    expect(controller.isGuarding).toBe(false);
+    expect(controller.isRouteRefreshBlocked).toBe(true);
+
+    runInAction(() => {
+      store.isLoading = false;
+    });
+
+    expect(refresh).toHaveBeenCalledOnce();
+  });
+
   it("releases a deferred route refresh when the dirty form unregisters", () => {
-    const store = observable({ hasUnsavedChanges: true, withUnsavedChangesGuard: true });
+    const store = observable({
+      hasUnsavedChanges: true,
+      isLoading: false,
+      withUnsavedChangesGuard: true,
+    });
     const refresh = vi.fn();
     controller.register(store as unknown as BaseFormStore);
 
@@ -148,7 +190,11 @@ describe("NavigationGuardController", () => {
   });
 
   it("coalesces deferred route refreshes and runs the latest callback", () => {
-    const store = observable({ hasUnsavedChanges: true, withUnsavedChangesGuard: true });
+    const store = observable({
+      hasUnsavedChanges: true,
+      isLoading: false,
+      withUnsavedChangesGuard: true,
+    });
     const firstRefresh = vi.fn();
     const latestRefresh = vi.fn();
     controller.register(store as unknown as BaseFormStore);

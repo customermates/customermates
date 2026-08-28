@@ -6,6 +6,7 @@ import {
   agentApprovalHookToken,
   agentApprovalId,
   agentApprovalRequestId,
+  isRelevantAgentApprovalWake,
   pendingApprovalCalls,
   toolApprovalDecisionForGrant,
   withApprovalResponses,
@@ -36,6 +37,14 @@ function toolResults(...ids: string[]): ModelMessage {
 }
 
 describe("agent approval resume", () => {
+  it("ignores a stale retry while accepting the current request or cancellation", () => {
+    const current = new Set(["turn-2:tool-2"]);
+
+    expect(isRelevantAgentApprovalWake({ requestId: "turn-1:tool-1" }, current)).toBe(false);
+    expect(isRelevantAgentApprovalWake({ requestId: "turn-2:tool-2" }, current)).toBe(true);
+    expect(isRelevantAgentApprovalWake({ cancelled: true }, current)).toBe(true);
+  });
+
   it("treats only tool calls without a result as awaiting approval", () => {
     const messages = [
       { role: "system", content: "instructions" },
@@ -82,7 +91,9 @@ describe("agent approval resume", () => {
       [{ toolCallId: "wipe", decision: "approve" }],
     );
 
-    const assistant = resumed.at(-2) as { content: { type: string; approvalId?: string }[] };
+    const assistant = resumed.at(-2) as {
+      content: { type: string; approvalId?: string }[];
+    };
     const responses = resumed.at(-1) as {
       role: string;
       content: { type: string; approvalId: string; approved: boolean }[];
@@ -95,7 +106,11 @@ describe("agent approval resume", () => {
     });
     expect(responses.role).toBe("tool");
     expect(responses.content).toEqual([
-      { type: "tool-approval-response", approvalId: agentApprovalId("wipe"), approved: true },
+      {
+        type: "tool-approval-response",
+        approvalId: agentApprovalId("wipe"),
+        approved: true,
+      },
     ]);
   });
 
@@ -109,7 +124,10 @@ describe("agent approval resume", () => {
       [{ toolCallId: "wipe", decision: "reject" }],
     );
 
-    const last = resumed.at(-1) as { role: string; content: { type: string; approved?: boolean }[] };
+    const last = resumed.at(-1) as {
+      role: string;
+      content: { type: string; approved?: boolean }[];
+    };
     expect(resumed.filter((message) => message.role === "tool")).toHaveLength(1);
     expect(last.content.map((part) => part.type)).toEqual(["tool-result", "tool-approval-response"]);
     expect(last.content.at(-1)?.approved).toBe(false);

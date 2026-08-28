@@ -24,10 +24,16 @@ const Schema = z
 
 export type RespondToApprovalData = Data<typeof Schema>;
 
-const OutputSchema = z.object({ resolved: z.literal(true) });
+const OutputSchema = z.object({
+  resolved: z.literal(true),
+  resumed: z.boolean(),
+});
 
 @TenantInteractor()
-export class RespondToApprovalInteractor extends AuthenticatedInteractor<RespondToApprovalData, { resolved: true }> {
+export class RespondToApprovalInteractor extends AuthenticatedInteractor<
+  RespondToApprovalData,
+  { resolved: true; resumed: boolean }
+> {
   constructor(
     private repo: PrismaAgentChatRepo,
     private entitlements: EntitlementService,
@@ -36,8 +42,8 @@ export class RespondToApprovalInteractor extends AuthenticatedInteractor<Respond
     super();
   }
 
-  @Write({ input: Schema, output: OutputSchema })
-  async invoke(data: RespondToApprovalData): Validated<{ resolved: true }> {
+  @Write({ input: Schema, output: OutputSchema, tx: false })
+  async invoke(data: RespondToApprovalData): Validated<{ resolved: true; resumed: boolean }> {
     const denied = await this.entitlements.require("agentChat");
     if (denied) return denied;
 
@@ -51,8 +57,10 @@ export class RespondToApprovalInteractor extends AuthenticatedInteractor<Respond
     });
     if (!resolved) return failUnavailable(CustomErrorCode.agentApprovalUnavailable, ["requestId"]);
 
-    await this.backgroundTaskService.resume(agentApprovalHookToken(data.conversationId), { requestId: data.requestId });
+    const resumed = await this.backgroundTaskService.resume(agentApprovalHookToken(data.conversationId), {
+      requestId: data.requestId,
+    });
 
-    return { ok: true as const, data: { resolved: true } };
+    return { ok: true as const, data: { resolved: true, resumed } };
   }
 }

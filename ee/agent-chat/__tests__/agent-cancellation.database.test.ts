@@ -3,7 +3,7 @@ import type { TenantUser } from "@/features/user/user.schema";
 import { randomUUID } from "node:crypto";
 
 import { Client } from "pg";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
@@ -50,6 +50,10 @@ describeDatabase("agent turn cancellation against PostgreSQL", () => {
     );
   });
 
+  beforeEach(async () => {
+    await client.query('DELETE FROM "AgentTurnRequest" WHERE "companyId" = $1', [companyId]);
+  });
+
   afterAll(async () => {
     await client.query('DELETE FROM "AgentTurnRequest" WHERE "companyId" = $1', [companyId]);
     await client.query('DELETE FROM "AgentConversation" WHERE "companyId" = $1', [companyId]);
@@ -79,7 +83,7 @@ describeDatabase("agent turn cancellation against PostgreSQL", () => {
     const first = await client.query('SELECT "cancellationRequestedAt" FROM "AgentTurnRequest" WHERE "id" = $1', [
       turnRequestId,
     ]);
-    expect(await asTenant(() => repo().requestAgentTurnCancellation({ conversationId }))).toBe(false);
+    expect(await asTenant(() => repo().requestAgentTurnCancellation({ conversationId }))).toBe(true);
     const second = await client.query('SELECT "cancellationRequestedAt" FROM "AgentTurnRequest" WHERE "id" = $1', [
       turnRequestId,
     ]);

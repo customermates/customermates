@@ -117,6 +117,10 @@ export function hasRenderableAgentMessageParts(parts: readonly AgentMessagePart[
   return parts.some((part) => part.type !== "text" || part.text.trim().length > 0);
 }
 
+export function hasSuccessfulAgentMutation(parts: readonly AgentMessagePart[]) {
+  return parts.some((part) => part.type === "activity" && part.status === "done" && part.activity.risk !== "read");
+}
+
 export const AgentDataCountsSchema = z.object({
   contacts: z.boolean(),
   organizations: z.boolean(),

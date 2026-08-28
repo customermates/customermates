@@ -263,7 +263,9 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           runId: args.runId,
           expiresAt: { gt: admittedAt },
         },
-        data: { expiresAt: new Date(admittedAt.getTime() + AGENT_RUN_LEASE_MS) },
+        data: {
+          expiresAt: new Date(admittedAt.getTime() + AGENT_RUN_LEASE_MS),
+        },
       });
       if (renewedLease.count !== 1) throw new Error("Agent run lease expired before admission.");
 
@@ -527,7 +529,11 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       where: {
         conversationId,
         companyId: this.companyId,
-        conversation: { userId: this.userId, companyId: this.companyId, archivedAt: null },
+        conversation: {
+          userId: this.userId,
+          companyId: this.companyId,
+          archivedAt: null,
+        },
         ...(beforeSequence ? { sequence: { lt: beforeSequence } } : {}),
       },
       orderBy: { sequence: "desc" },
@@ -589,10 +595,14 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           archivedAt: null,
         },
       },
-      select: { id: true, toolName: true },
+      select: { id: true, toolName: true, decision: true },
     });
     const parsed = pending ? parsePendingAgentApprovalToolName(pending.toolName) : null;
-    if (!pending || !parsed) return null;
+    if (!pending) return null;
+    if (!parsed) {
+      if (isPendingAgentApprovalToolName(pending.toolName) || pending.decision !== args.decision) return null;
+      return { toolName: pending.toolName, resolved: true as const };
+    }
 
     if (parsed.expiresAt.getTime() <= Date.now()) {
       await this.prisma.agentApproval.deleteMany({
@@ -613,7 +623,30 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       },
       data: { decision: args.decision, toolName: parsed.toolName },
     });
-    return resolved.count === 1 ? { toolName: parsed.toolName, resolved: true as const } : null;
+    if (resolved.count === 1) return { toolName: parsed.toolName, resolved: true as const };
+
+    const concurrentlyResolved = await this.prisma.agentApproval.findFirst({
+      where: {
+        id: pending.id,
+        conversationId: args.conversationId,
+        requestId: args.requestId,
+        companyId: this.companyId,
+        conversation: {
+          companyId: this.companyId,
+          userId: this.userId,
+          archivedAt: null,
+        },
+      },
+      select: { toolName: true, decision: true },
+    });
+    if (
+      !concurrentlyResolved ||
+      isPendingAgentApprovalToolName(concurrentlyResolved.toolName) ||
+      concurrentlyResolved.decision !== args.decision
+    )
+      return null;
+
+    return { toolName: concurrentlyResolved.toolName, resolved: true as const };
   }
 
   @BypassTenantGuard
@@ -959,7 +992,11 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       : null;
     const assistantMessageIsRenderable =
       assistantMessage !== null &&
-      hasRenderableAgentMessageParts(clientSafeAgentMessageParts(assistantMessage.parts, { sanitizeText: true }));
+      hasRenderableAgentMessageParts(
+        clientSafeAgentMessageParts(assistantMessage.parts, {
+          sanitizeText: true,
+        }),
+      );
     const completedIsReplayable = assistantMessageIsRenderable && reconciledRow.terminalCode !== null;
     if (turnStatus(reconciledRow.status) === "completed" && !completedIsReplayable) {
       const repaired = await this.prisma.agentTurnRequest.updateMany({
@@ -1033,7 +1070,11 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
 
   async isAtAgentRunLimit(now: Date) {
     const active = await this.prisma.agentRunLease.count({
-      where: { companyId: this.companyId, userId: this.userId, expiresAt: { gt: now } },
+      where: {
+        companyId: this.companyId,
+        userId: this.userId,
+        expiresAt: { gt: now },
+      },
     });
     return active >= AGENT_MAX_CONCURRENT_RUNS_PER_USER;
   }
@@ -1064,7 +1105,12 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     toolName: string;
   }): Promise<{ state: "claimed" } | { state: "settled"; resultJson: unknown }> {
     const existing = await this.prisma.agentToolReceipt.findUnique({
-      where: { turnRequestId_toolCallId: { turnRequestId: args.turnRequestId, toolCallId: args.toolCallId } },
+      where: {
+        turnRequestId_toolCallId: {
+          turnRequestId: args.turnRequestId,
+          toolCallId: args.toolCallId,
+        },
+      },
       select: { state: true, resultJson: true },
     });
     if (existing?.state === "settled") return { state: "settled", resultJson: existing.resultJson };
@@ -1095,7 +1141,11 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         toolCallId: args.toolCallId,
         state: "claimed",
       },
-      data: { state: "settled", resultJson: args.resultJson, settledAt: new Date() },
+      data: {
+        state: "settled",
+        resultJson: args.resultJson,
+        settledAt: new Date(),
+      },
     });
     if (settled.count !== 1) throw new Error("Agent tool receipt could not be settled.");
   }
@@ -1145,8 +1195,17 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     };
 
     await this.prisma.agentRunRound.upsert({
-      where: { turnRequestId_roundIndex: { turnRequestId: args.turnRequestId, roundIndex: args.roundIndex } },
-      create: { ...record, turnRequestId: args.turnRequestId, roundIndex: args.roundIndex },
+      where: {
+        turnRequestId_roundIndex: {
+          turnRequestId: args.turnRequestId,
+          roundIndex: args.roundIndex,
+        },
+      },
+      create: {
+        ...record,
+        turnRequestId: args.turnRequestId,
+        roundIndex: args.roundIndex,
+      },
       update: record,
     });
   }
@@ -1162,7 +1221,19 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       },
       data: { cancellationRequestedAt: new Date() },
     });
-    return requested.count > 0;
+    if (requested.count > 0) return true;
+
+    const alreadyRequested = await this.prisma.agentTurnRequest.findFirst({
+      where: {
+        conversationId: args.conversationId,
+        companyId: this.companyId,
+        userId: this.userId,
+        status: "running",
+        cancellationRequestedAt: { not: null },
+      },
+      select: { id: true },
+    });
+    return Boolean(alreadyRequested);
   }
 
   @BypassTenantGuard
@@ -1176,7 +1247,11 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
 
   async recordAgentTurnExternalRun(turnRequestId: string, externalRunId: string): Promise<void> {
     await this.prisma.agentTurnRequest.updateMany({
-      where: { id: turnRequestId, companyId: this.companyId, userId: this.userId },
+      where: {
+        id: turnRequestId,
+        companyId: this.companyId,
+        userId: this.userId,
+      },
       data: { externalRunId },
     });
   }
@@ -1203,7 +1278,11 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     until: Date;
   }): Promise<boolean> {
     const held = await this.prisma.agentRunLease.updateMany({
-      where: { companyId: args.companyId, userId: args.userId, runId: args.runId },
+      where: {
+        companyId: args.companyId,
+        userId: args.userId,
+        runId: args.runId,
+      },
       data: { expiresAt: new Date(args.until.getTime() + AGENT_RUN_LEASE_MS) },
     });
     return held.count === 1;
@@ -1219,7 +1298,11 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
   }): Promise<boolean> {
     const beatAt = args.now ?? new Date();
     const renewed = await this.prisma.agentRunLease.updateMany({
-      where: { companyId: args.companyId, userId: args.userId, runId: args.runId },
+      where: {
+        companyId: args.companyId,
+        userId: args.userId,
+        runId: args.runId,
+      },
       data: { expiresAt: new Date(beatAt.getTime() + AGENT_RUN_LEASE_MS) },
     });
     if (renewed.count !== 1) return false;
@@ -1348,7 +1431,9 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
   }): Promise<FinalizedAgentTurn> {
     if (!isAgentTurnTerminalCode(args.terminalCode)) throw new Error("Agent turn terminal code is invalid.");
     if (!areAgentTurnAffectedResources(args.affectedResources)) throw new Error("Agent turn resources are invalid.");
-    const safeParts = clientSafeAgentMessageParts(args.parts, { sanitizeText: true });
+    const safeParts = clientSafeAgentMessageParts(args.parts, {
+      sanitizeText: true,
+    });
     if (!hasRenderableAgentMessageParts(safeParts)) throw new Error("Agent turn canonical reply is not renderable.");
 
     const settlement = args.usageSettlement;
@@ -1445,7 +1530,11 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
             userId: args.userId,
             state: "reserved",
           },
-          data: { state: "released", chargedCredits: 0, settledAt: committedAt },
+          data: {
+            state: "released",
+            chargedCredits: 0,
+            settledAt: committedAt,
+          },
         });
         if (released.count !== 1) throw new Error("Agent usage reservation could not be released.");
       }
@@ -1531,7 +1620,11 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       if (turn) return { disposition: "turn_exists" as const };
 
       const usage = await this.prisma.agentUsageEvent.findFirst({
-        where: { id: args.reservationId, companyId: args.companyId, userId: args.userId },
+        where: {
+          id: args.reservationId,
+          companyId: args.companyId,
+          userId: args.userId,
+        },
         select: { state: true, providerStartedAt: true },
       });
       if (usage && (usage.state === "settled" || usage.providerStartedAt !== null))
@@ -1552,7 +1645,11 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       }
 
       await this.prisma.agentRunLease.deleteMany({
-        where: { companyId: args.companyId, userId: args.userId, runId: args.runId },
+        where: {
+          companyId: args.companyId,
+          userId: args.userId,
+          runId: args.runId,
+        },
       });
       return { disposition: "released" as const };
     });
@@ -1604,7 +1701,13 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         select: { state: true, reservedCredits: true, chargedCredits: true },
       }),
       this.prisma.agentUsageEvent.findFirst({
-        where: { companyId, userId, periodStart, periodEnd, state: { in: ["settled"] } },
+        where: {
+          companyId,
+          userId,
+          periodStart,
+          periodEnd,
+          state: { in: ["settled"] },
+        },
         orderBy: [{ settledAt: "desc" }, { id: "desc" }],
         select: { chargedCredits: true },
       }),
@@ -1771,7 +1874,11 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       if (committedElsewhere + args.requiredCredits > reservation.allowanceCreditsSnapshot) return null;
 
       const extended = await this.prisma.agentUsageEvent.updateMany({
-        where: { id: reservation.id, companyId: args.companyId, state: "reserved" },
+        where: {
+          id: reservation.id,
+          companyId: args.companyId,
+          state: "reserved",
+        },
         data: { reservedCredits: args.requiredCredits },
       });
       return extended.count === 1 ? args.requiredCredits : null;

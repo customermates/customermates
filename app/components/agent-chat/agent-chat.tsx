@@ -22,15 +22,16 @@ import { cn } from "@/core/utils/cn";
 
 import { ActionTooltip, chatUiCopy, TypingDots } from "./chat-ui";
 import { AgentActivity, AgentChatItemView, consecutiveActivityItems } from "./agent-chat-items";
-import { AgentStatusAnnouncer } from "./agent-status-announcer";
+import { AgentProgressStatus, AgentStatusAnnouncer } from "./agent-status-announcer";
 import { ArchiveUndo, ConversationHistory } from "./conversation-history";
 import { CreditBlockedNotice } from "./credit-blocked-notice";
 import { QueuedPrompt } from "./queued-prompt";
 import { SuggestedQuestions } from "./suggested-questions";
 import { UsageRing } from "./usage-ring";
+import { AgentRouteReloadBridge } from "./agent-route-reload";
 
 export const AgentChat = observer(function AgentChat() {
-  const { agentChatStore: store, agentUiControlStore, navigationGuard } = useRootStore();
+  const { agentChatStore: store, agentUiControlStore } = useRootStore();
   const router = useRouter();
   const pathname = usePathname();
   const pathnameRef = useRef(pathname);
@@ -74,11 +75,6 @@ export const AgentChat = observer(function AgentChat() {
   useEffect(() => {
     store.openForEmptyPage(pathname);
   }, [pathname, store, store.counts, store.enabled]);
-
-  useEffect(() => {
-    if (!store.takeRouteRefreshRequest()) return;
-    navigationGuard.requestRouteRefreshWhenSafe(() => routerRef.current.refresh());
-  }, [navigationGuard, store, store.routeRefreshRevision]);
 
   useEffect(() => {
     agentUiControlStore.registerNavigate(async (path) => {
@@ -133,11 +129,15 @@ export const AgentChat = observer(function AgentChat() {
 
   return (
     <>
+      <AgentRouteReloadBridge />
+
       {store.isOpen && (
         <TooltipProvider>
           <AgentChatPanel />
         </TooltipProvider>
       )}
+
+      <AgentStatusAnnouncer />
 
       <AgentTourOverlay />
     </>
@@ -321,7 +321,7 @@ const AgentChatPanel = observer(function AgentChatPanel() {
             })}
 
             {store.isAwaitingAssistantResponse && (
-              <div aria-label={copy.assistantWorking} className="flex items-center gap-1 py-1" role="status">
+              <div aria-hidden="true" className="flex items-center gap-1 py-1">
                 <TypingDots />
               </div>
             )}
@@ -329,7 +329,7 @@ const AgentChatPanel = observer(function AgentChatPanel() {
         </MessagesScrollContainer>
       )}
 
-      <AgentStatusAnnouncer />
+      <AgentProgressStatus />
 
       {!store.isHistoryOpen && (
         <div className="px-3 pt-2 pb-3">
@@ -364,6 +364,7 @@ const AgentChatPanel = observer(function AgentChatPanel() {
                     <Button
                       aria-label={t("AgentChat.stop")}
                       className="size-9 shrink-0 rounded-full border-destructive/60 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                      disabled={!store.canInterrupt}
                       size="icon"
                       variant="secondary"
                       onClick={() => runUserAction(() => store.interrupt())}
