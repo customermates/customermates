@@ -1784,6 +1784,7 @@
       "createdAt": "Erstellt am",
       "updatedAt": "Aktualisiert am"
     },
+    "hideField": "{field} in den Details ausblenden",
     "moveFieldDown": "{field} nach unten verschieben",
     "moveFieldUp": "{field} nach oben verschieben",
     "personalize": "Anpassen",
@@ -1794,6 +1795,7 @@
       "notes": "Notizen",
       "relations": "Beziehungen"
     },
+    "showField": "{field} in den Details anzeigen",
     "unpinField": "{field} von der Übersicht lösen"
   },
   "EntityTerminology": {

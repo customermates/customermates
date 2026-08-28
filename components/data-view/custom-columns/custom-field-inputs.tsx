@@ -4,7 +4,8 @@ import { ArrowDown, ArrowUp } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { CustomFieldValueInput } from "@/components/data-view/custom-columns/custom-field-value-input";
-import { EntityDetailPinButton } from "@/components/entity-detail/entity-detail-pin-button";
+import { EntityDetailField } from "@/components/entity-detail/entity-detail-field";
+import { EntityDetailFieldActions } from "@/components/entity-detail/entity-detail-field-actions";
 import { IconButton } from "@/components/ui/icon-button";
 import { useEntityDetailPersonalization } from "@/components/entity-detail/entity-detail-personalization";
 import { resolveOrderedCustomColumns } from "@/components/entity-detail/entity-detail-personalization.utils";
@@ -25,43 +26,44 @@ export function CustomFieldInputs({ columns, isEditing, personalizable = false }
   return (
     <>
       {orderedColumns.map(({ column, formIndex }, visualIndex) => (
-        <CustomFieldValueInput
-          key={column.id}
-          column={column}
-          index={formIndex}
-          isEditing={isEditing}
-          labelEndAddon={
-            personalizable ? (
-              <span className="flex items-center gap-0.5">
-                <EntityDetailPinButton fieldId={column.id} label={column.label} />
+        <EntityDetailField key={column.id} fieldId={column.id}>
+          <CustomFieldValueInput
+            column={column}
+            index={formIndex}
+            isEditing={isEditing}
+            labelEndAddon={
+              personalizable ? (
+                <span className="flex items-center gap-0.5">
+                  <EntityDetailFieldActions fieldId={column.id} label={column.label} />
 
-                {isPersonalizing && (
-                  <>
-                    <IconButton
-                      className="size-5"
-                      disabled={visualIndex === 0}
-                      icon={ArrowUp}
-                      label={t("EntityDetail.moveFieldUp", {
-                        field: column.label,
-                      })}
-                      onClick={() => moveColumn(column.id, "up")}
-                    />
+                  {isPersonalizing && (
+                    <>
+                      <IconButton
+                        className="size-5"
+                        disabled={visualIndex === 0}
+                        icon={ArrowUp}
+                        label={t("EntityDetail.moveFieldUp", {
+                          field: column.label,
+                        })}
+                        onClick={() => moveColumn(column.id, "up")}
+                      />
 
-                    <IconButton
-                      className="size-5"
-                      disabled={visualIndex === orderedColumns.length - 1}
-                      icon={ArrowDown}
-                      label={t("EntityDetail.moveFieldDown", {
-                        field: column.label,
-                      })}
-                      onClick={() => moveColumn(column.id, "down")}
-                    />
-                  </>
-                )}
-              </span>
-            ) : undefined
-          }
-        />
+                      <IconButton
+                        className="size-5"
+                        disabled={visualIndex === orderedColumns.length - 1}
+                        icon={ArrowDown}
+                        label={t("EntityDetail.moveFieldDown", {
+                          field: column.label,
+                        })}
+                        onClick={() => moveColumn(column.id, "down")}
+                      />
+                    </>
+                  )}
+                </span>
+              ) : undefined
+            }
+          />
+        </EntityDetailField>
       ))}
     </>
   );

@@ -32,6 +32,7 @@ const harness = vi.hoisted(() => {
     reportApplicationError: vi.fn(),
     rootStore,
     store,
+    top: { entityType: "contact", id: "contact-1" } as { entityType: "contact"; id: string },
   };
 });
 
@@ -41,7 +42,7 @@ vi.mock("@/components/entity-detail/hooks/use-entity-drawer-stack", () => ({
   focusEntityDrawerInvoker: () => false,
   useEntityDrawerStack: () => ({
     popTop: harness.popTop,
-    top: { entityType: "contact", id: "contact-1" },
+    top: harness.top,
   }),
 }));
 vi.mock("@/components/entity-detail/entity-detail.registry", () => ({
@@ -56,12 +57,14 @@ vi.mock("@/components/entity-detail/entity-detail.registry", () => ({
 }));
 vi.mock("@/components/entity-detail/entity-detail-personalization", () => ({
   EntityDetailPersonalizationProvider: ({
+    applyFieldVisibility,
     children,
     config,
     customColumnIds,
     initial,
     persistenceScope,
   }: {
+    applyFieldVisibility?: boolean;
     children: ReactNode;
     config?: { p13nId: string };
     customColumnIds?: string[];
@@ -71,6 +74,7 @@ vi.mock("@/components/entity-detail/entity-detail-personalization", () => ({
     createElement(
       "div",
       {
+        "data-apply-field-visibility": applyFieldVisibility,
         "data-column-ids": customColumnIds?.join(","),
         "data-initial-order": initial?.columnOrder?.join(","),
         "data-p13n-id": config?.p13nId,
@@ -121,8 +125,10 @@ beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   vi.clearAllMocks();
   harness.store.entityLoadState = "ready";
+  harness.store.add.mockResolvedValue(undefined);
   harness.store.loadById.mockResolvedValue(undefined);
   harness.rootStore.userStore.user = observable({ id: "user-1" });
+  harness.top.id = "contact-1";
 });
 
 afterEach(() => {
@@ -166,10 +172,41 @@ describe("EntityDrawer personalization", () => {
     const provider = container.querySelector<HTMLElement>("[data-personalization-provider]");
 
     expect(provider?.dataset.p13nId).toBe("contact-detail");
+    expect(provider?.dataset.applyFieldVisibility).toBe("true");
     expect(provider?.dataset.persistenceScope).toBe("user-1");
     expect(provider?.dataset.columnIds).toBe("custom-1,custom-2");
     expect(provider?.dataset.initialOrder).toBe("custom-2,custom-1");
     expect(container.querySelector('[data-detail-view][data-layout="drawer"]')).not.toBeNull();
+  });
+
+  it("keeps all creation fields visible regardless of saved detail visibility", async () => {
+    harness.top.id = "new";
+    harness.getP13nAction.mockResolvedValue({
+      ok: true,
+      data: {
+        p13nId: "contact-detail",
+        detailOptions: {
+          starredFieldIds: [],
+          collapsedSectionIds: [],
+          hiddenFieldIds: ["firstName"],
+        },
+      },
+    });
+    const container = document.createElement("div");
+    document.body.append(container);
+    const root = createRoot(container);
+    roots.add(root);
+
+    await act(async () => {
+      root.render(createElement(EntityDrawer));
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(harness.store.add).toHaveBeenCalledOnce();
+    expect(container.querySelector<HTMLElement>("[data-personalization-provider]")?.dataset.applyFieldVisibility).toBe(
+      "false",
+    );
   });
 
   it("restarts the load after Strict Mode replays the mount effect", async () => {

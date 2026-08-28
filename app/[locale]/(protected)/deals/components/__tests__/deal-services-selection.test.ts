@@ -2,7 +2,16 @@ import type { ComponentType, ReactNode } from "react";
 
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const personalization = vi.hoisted(() => ({
+  applyFieldVisibility: true,
+  enabled: true,
+  hiddenFieldIds: [] as string[],
+  isPersonalizing: false,
+  starredFieldIds: [] as string[],
+  toggleStarredField: vi.fn(),
+}));
 
 const dealDetailStore = vi.hoisted(() => ({
   form: { services: [] as Array<{ quantity?: number; serviceId?: string }> },
@@ -54,11 +63,7 @@ vi.mock("@/i18n/navigation", () => ({
 }));
 
 vi.mock("@/components/entity-detail/entity-detail-personalization", () => ({
-  useEntityDetailPersonalization: () => ({
-    enabled: true,
-    starredFieldIds: [],
-    toggleStarredField: vi.fn(),
-  }),
+  useEntityDetailPersonalization: () => personalization,
 }));
 
 vi.mock("@/components/entity-detail/hooks/use-entity-drawer-stack", () => ({
@@ -94,6 +99,14 @@ vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
 import { DealServicesSelection } from "../deal-services-selection";
 
 describe("DealServicesSelection relation actions", () => {
+  beforeEach(() => {
+    dealDetailStore.form.services = [];
+    dealDetailStore.totalQuantity = 0;
+    dealDetailStore.totalValue = 0;
+    dealDetailStore.weightedValueBreakdown = null;
+    personalization.hiddenFieldIds = [];
+  });
+
   it("renders pin and go-to actions together on the page detail row", () => {
     const markup = renderToStaticMarkup(
       createElement(DealServicesSelection, {
@@ -135,10 +148,28 @@ describe("DealServicesSelection relation actions", () => {
     expect(markup).toContain("EntityDetail.computedFieldHelp.dealValue");
     expect(markup).toContain("EntityDetail.computedFieldHelp.weightedValue");
     expect(markup).toContain("EntityDetail.computedFieldHelp.serviceQuantity");
+  });
 
-    dealDetailStore.form.services = [];
-    dealDetailStore.totalQuantity = 0;
-    dealDetailStore.totalValue = 0;
-    dealDetailStore.weightedValueBreakdown = null;
+  it("applies drawer visibility independently to services and each computed total", () => {
+    dealDetailStore.form.services = [{ quantity: 2, serviceId: "service-1" }];
+    dealDetailStore.totalQuantity = 2;
+    dealDetailStore.totalValue = 400;
+    dealDetailStore.weightedValueBreakdown = {
+      percent: 50,
+      stage: "Qualified",
+      weightedValue: 200,
+    };
+
+    const fieldIds = ["serviceIds", "totalValue", "weightedValue", "totalQuantity"];
+
+    for (const hiddenFieldId of fieldIds) {
+      personalization.hiddenFieldIds = [hiddenFieldId];
+      const markup = renderToStaticMarkup(createElement(DealServicesSelection));
+
+      for (const fieldId of fieldIds) {
+        const fieldMarker = `data-entity-field="${fieldId}"`;
+        expect(markup.includes(fieldMarker)).toBe(fieldId !== hiddenFieldId);
+      }
+    }
   });
 });

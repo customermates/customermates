@@ -1784,6 +1784,7 @@
       "createdAt": "Creato il",
       "updatedAt": "Aggiornato il"
     },
+    "hideField": "Nascondi {field} dai dettagli",
     "moveFieldDown": "Sposta {field} in basso",
     "moveFieldUp": "Sposta {field} in alto",
     "personalize": "Personalizza",
@@ -1794,6 +1795,7 @@
       "notes": "Note",
       "relations": "Relazioni"
     },
+    "showField": "Mostra {field} nei dettagli",
     "unpinField": "Togli {field} dalla panoramica"
   },
   "EntityTerminology": {

@@ -8,7 +8,8 @@ import { CustomFieldInputs } from "@/components/data-view/custom-columns/custom-
 import { EntityDetailBody } from "@/components/entity-detail/entity-detail-body";
 import { EntityDetailCustomFieldsSection } from "@/components/entity-detail/entity-detail-custom-fields-section";
 import { EntityDetailSection, EntityDetailSectionGroup } from "@/components/entity-detail/entity-detail-section";
-import { EntityDetailPinButton } from "@/components/entity-detail/entity-detail-pin-button";
+import { EntityDetailField } from "@/components/entity-detail/entity-detail-field";
+import { EntityDetailFieldActions } from "@/components/entity-detail/entity-detail-field-actions";
 import { EntityDetailStaticField } from "@/components/entity-detail/entity-detail-static-field";
 import { EntityRelationField, AssignedUsersField } from "@/components/entity-detail/relation-fields";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
@@ -73,7 +74,7 @@ export const TaskDetailView = observer(({ layout = "drawer" }: Props) => {
         <div className="flex items-center gap-1.5">
           <FormLabel htmlFor="name">{t("Common.inputs.name")}</FormLabel>
 
-          <EntityDetailPinButton fieldId={TASK_DETAIL_FIELD.name} label={t("Common.inputs.name")} />
+          <EntityDetailFieldActions fieldId={TASK_DETAIL_FIELD.name} label={t("Common.inputs.name")} />
         </div>
 
         <Input readOnly id="name" value={systemTaskDisplayName} />
@@ -82,7 +83,7 @@ export const TaskDetailView = observer(({ layout = "drawer" }: Props) => {
       <FormInput
         required
         id="name"
-        labelEndAddon={<EntityDetailPinButton fieldId={TASK_DETAIL_FIELD.name} label={t("Common.inputs.name")} />}
+        labelEndAddon={<EntityDetailFieldActions fieldId={TASK_DETAIL_FIELD.name} label={t("Common.inputs.name")} />}
       />
     );
 
@@ -91,13 +92,14 @@ export const TaskDetailView = observer(({ layout = "drawer" }: Props) => {
       <>
         {systemTaskAlert}
 
-        {drawerNameField}
+        <EntityDetailField fieldId={TASK_DETAIL_FIELD.name}>{drawerNameField}</EntityDetailField>
 
         <EntityRelationField
           currentEntityId={fetchedEntity?.id}
           currentEntityType="task"
           items={fetchedEntity?.contacts}
           target="contact"
+          visibilityFieldId={TASK_DETAIL_FIELD.contactIds}
         />
 
         <EntityRelationField
@@ -105,6 +107,7 @@ export const TaskDetailView = observer(({ layout = "drawer" }: Props) => {
           currentEntityType="task"
           items={fetchedEntity?.organizations}
           target="organization"
+          visibilityFieldId={TASK_DETAIL_FIELD.organizationIds}
         />
 
         <EntityRelationField
@@ -112,6 +115,7 @@ export const TaskDetailView = observer(({ layout = "drawer" }: Props) => {
           currentEntityType="task"
           items={fetchedEntity?.deals}
           target="deal"
+          visibilityFieldId={TASK_DETAIL_FIELD.dealIds}
         />
 
         <EntityRelationField
@@ -119,18 +123,19 @@ export const TaskDetailView = observer(({ layout = "drawer" }: Props) => {
           currentEntityType="task"
           items={fetchedEntity?.services}
           target="service"
+          visibilityFieldId={TASK_DETAIL_FIELD.serviceIds}
         />
 
         <CustomFieldInputs columns={customColumns} isEditing={isEditingCustomField} />
 
-        <AssignedUsersField items={fetchedEntity?.users} />
+        <AssignedUsersField items={fetchedEntity?.users} visibilityFieldId={TASK_DETAIL_FIELD.userIds} />
       </>
     ) : (
       <EntityDetailSectionGroup>
         <EntityDetailSection label={t("EntityDetail.sections.base")} sectionId={TASK_DETAIL_SECTION.base}>
           {systemTaskAlert}
 
-          {pageNameField}
+          <EntityDetailField fieldId={TASK_DETAIL_FIELD.name}>{pageNameField}</EntityDetailField>
 
           <AssignedUsersField
             items={fetchedEntity?.users}

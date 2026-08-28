@@ -8,7 +8,8 @@ import { EntityDetailBody } from "@/components/entity-detail/entity-detail-body"
 import { EntityDetailCustomFieldsSection } from "@/components/entity-detail/entity-detail-custom-fields-section";
 import { EntityDetailSection, EntityDetailSectionGroup } from "@/components/entity-detail/entity-detail-section";
 import { EntityDetailStaticField } from "@/components/entity-detail/entity-detail-static-field";
-import { EntityDetailPinButton } from "@/components/entity-detail/entity-detail-pin-button";
+import { EntityDetailField } from "@/components/entity-detail/entity-detail-field";
+import { EntityDetailFieldActions } from "@/components/entity-detail/entity-detail-field-actions";
 import { EntityRelationField, AssignedUsersField } from "@/components/entity-detail/relation-fields";
 import { CustomFieldInputs } from "@/components/data-view/custom-columns/custom-field-inputs";
 import { FormInput } from "@/components/forms/form-input";
@@ -32,18 +33,25 @@ export const ContactDetailView = observer(({ layout = "drawer" }: Props) => {
     layout === "drawer" ? (
       <>
         <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
-          <FormInput autoFocus required id="firstName" />
+          <EntityDetailField fieldId={CONTACT_DETAIL_FIELD.firstName}>
+            <FormInput autoFocus required id="firstName" />
+          </EntityDetailField>
 
-          <FormInput id="lastName" />
+          <EntityDetailField fieldId={CONTACT_DETAIL_FIELD.lastName}>
+            <FormInput id="lastName" />
+          </EntityDetailField>
         </div>
 
-        <ContactChannels contactId={fetchedEntity?.id} />
+        <EntityDetailField fieldId={CONTACT_DETAIL_FIELD.identifiers}>
+          <ContactChannels contactId={fetchedEntity?.id} />
+        </EntityDetailField>
 
         <EntityRelationField
           currentEntityId={fetchedEntity?.id}
           currentEntityType="contact"
           items={fetchedEntity?.organizations}
           target="organization"
+          visibilityFieldId={CONTACT_DETAIL_FIELD.organizationIds}
         />
 
         <EntityRelationField
@@ -51,6 +59,7 @@ export const ContactDetailView = observer(({ layout = "drawer" }: Props) => {
           currentEntityType="contact"
           items={fetchedEntity?.deals}
           target="deal"
+          visibilityFieldId={CONTACT_DETAIL_FIELD.dealIds}
         />
 
         <EntityRelationField
@@ -58,37 +67,50 @@ export const ContactDetailView = observer(({ layout = "drawer" }: Props) => {
           currentEntityType="contact"
           items={fetchedEntity?.tasks}
           target="task"
+          visibilityFieldId={CONTACT_DETAIL_FIELD.taskIds}
         />
 
         <CustomFieldInputs columns={customColumns} isEditing={isEditingCustomField} />
 
-        <AssignedUsersField items={fetchedEntity?.users} />
+        <AssignedUsersField items={fetchedEntity?.users} visibilityFieldId={CONTACT_DETAIL_FIELD.userIds} />
       </>
     ) : (
       <EntityDetailSectionGroup>
         <EntityDetailSection label={t("EntityDetail.sections.base")} sectionId={CONTACT_DETAIL_SECTION.base}>
-          <FormInput
-            autoFocus
-            required
-            id="firstName"
-            labelEndAddon={
-              <EntityDetailPinButton fieldId={CONTACT_DETAIL_FIELD.firstName} label={t("Common.inputs.firstName")} />
-            }
-          />
+          <EntityDetailField fieldId={CONTACT_DETAIL_FIELD.firstName}>
+            <FormInput
+              autoFocus
+              required
+              id="firstName"
+              labelEndAddon={
+                <EntityDetailFieldActions
+                  fieldId={CONTACT_DETAIL_FIELD.firstName}
+                  label={t("Common.inputs.firstName")}
+                />
+              }
+            />
+          </EntityDetailField>
 
-          <FormInput
-            id="lastName"
-            labelEndAddon={
-              <EntityDetailPinButton fieldId={CONTACT_DETAIL_FIELD.lastName} label={t("Common.inputs.lastName")} />
-            }
-          />
+          <EntityDetailField fieldId={CONTACT_DETAIL_FIELD.lastName}>
+            <FormInput
+              id="lastName"
+              labelEndAddon={
+                <EntityDetailFieldActions fieldId={CONTACT_DETAIL_FIELD.lastName} label={t("Common.inputs.lastName")} />
+              }
+            />
+          </EntityDetailField>
 
-          <ContactChannels
-            contactId={fetchedEntity?.id}
-            headingEndAddon={
-              <EntityDetailPinButton fieldId={CONTACT_DETAIL_FIELD.identifiers} label={t("EntityChannels.heading")} />
-            }
-          />
+          <EntityDetailField fieldId={CONTACT_DETAIL_FIELD.identifiers}>
+            <ContactChannels
+              contactId={fetchedEntity?.id}
+              headingEndAddon={
+                <EntityDetailFieldActions
+                  fieldId={CONTACT_DETAIL_FIELD.identifiers}
+                  label={t("EntityChannels.heading")}
+                />
+              }
+            />
+          </EntityDetailField>
 
           <AssignedUsersField
             items={fetchedEntity?.users}

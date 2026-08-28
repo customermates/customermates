@@ -25,6 +25,7 @@ const domTestFiles = [
   "components/data-view/filter-modal/inputs/__tests__/filter-input-number.test.ts",
   "components/entity-detail/__tests__/entity-detail-personalization.test.ts",
   "components/entity-detail/__tests__/entity-detail-summary.test.ts",
+  "components/entity-detail/__tests__/entity-detail-visibility.test.tsx",
   "components/entity-detail/__tests__/entity-drawer-personalization.test.ts",
   "components/entity-detail/__tests__/use-entity-detail-server-snapshot.test.ts",
   "components/forms/__tests__/form-context.test.ts",

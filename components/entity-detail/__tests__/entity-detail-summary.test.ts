@@ -24,6 +24,9 @@ vi.mock("next-intl", () => ({
 vi.mock("../entity-detail-pin-button", () => ({
   EntityDetailPinButton: ({ fieldId }: { fieldId: string }) => createElement("button", { "data-pin": fieldId }),
 }));
+vi.mock("../entity-detail-field-actions", () => ({
+  EntityDetailFieldActions: ({ fieldId }: { fieldId: string }) => createElement("button", { "data-pin": fieldId }),
+}));
 vi.mock("../hooks/use-entity-drawer-stack", () => ({
   useEntityHref: () => vi.fn(),
 }));
