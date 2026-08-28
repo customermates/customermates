@@ -33,8 +33,8 @@ acquisition:
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
       headline: "A Relationship and Pipeline CRM for Professional Services"
-      body: "Keep client context, opportunities, services and follow-up tasks connected. Customermates supports business development—not project delivery, proposals, invoicing or time tracking."
-      checksum: fnv1a-a5024b64
+      body: "Keep client context, opportunities, services and follow-up tasks connected. Customermates supports business development while project delivery, proposals, invoicing and time tracking stay in specialist systems."
+      checksum: fnv1a-b2c3e91b
     kind: brand-illustration
     pathway: focus
     placements:
@@ -50,6 +50,7 @@ acquisition:
     factReferences:
       - product:deal-status-field
       - product:deal-weighted-values
+      - product:record-activity-context
     focalLabel:
       locale: en
       text: Deal pipeline
@@ -77,66 +78,89 @@ acquisition:
 
 hero:
   title: A Relationship and Pipeline CRM for Professional Services
-  description: Keep client context, opportunities, services and follow-up tasks connected. Customermates supports business development—not project delivery, proposals, invoicing or time tracking.
-  buttonLeftText: Start for free
+  description: Keep client context, opportunities, services and follow-up tasks connected. Customermates supports business development while project delivery, proposals, invoicing and time tracking stay in specialist systems.
+  buttonLeftText: Start the Pro trial
   buttonLeftHref: /auth/signup
-  buttonRightText: Watch the demo
+  buttonRightText: Explore the demo
   buttonRightHref: https://demo.customermates.com
   hint: "No credit card required • [[commercial.trial.days]]-day Pro trial"
+  showOpenSourceBadge: false
 
 cta:
   action: Put client relationships and pipeline in one place
   description: Start with contacts, organizations and deals, then shape the stages and fields around your business-development process.
-  buttonLeftText: Start for free
+  buttonLeftText: Start the Pro trial
   buttonLeftHref: /auth/signup
-  buttonRightText: Watch the demo
+  buttonRightText: Explore the demo
   buttonRightHref: https://demo.customermates.com
   hint: "Keep delivery, proposals, time and billing in the specialist systems you already use."
 ---
 
-Customermates is a **CRM for professional services** teams that need to connect client relationships with new-business pipeline. It keeps contacts, organizations, deals, services and tasks together without pretending to be a professional-services automation suite.
+Customermates is a **CRM for professional services** teams that sell expertise through relationships and staged opportunities. It connects the client organization, its stakeholders, the opportunity, the services under discussion, the weighted value and the next task in one business-development workspace.
 
-## What this CRM covers
+<ArticleSummary title="At a glance">
+  <SummaryItem label="Best for">Consultancies and other relationship-led firms that need a clear client and opportunity pipeline.</SummaryItem>
+  <SummaryItem label="Core job">Keep stakeholders, deals, services and next actions connected instead of splitting them across personal notes and spreadsheets.</SummaryItem>
+  <SummaryItem label="Strongest proof">Configurable deal stages, deterministic weighted values, linked services and record-linked tasks.</SummaryItem>
+  <SummaryItem label="System boundary">Customermates owns relationship and sales context. Delivery, proposals, time and billing stay in specialist systems.</SummaryItem>
+</ArticleSummary>
 
-| Business-development need      | How Customermates supports it                                         | Boundary                                                  |
-| ------------------------------ | --------------------------------------------------------------------- | --------------------------------------------------------- |
-| Client and stakeholder context | Contacts and organizations with relations, notes and activity history | Not a document-management system                          |
-| Opportunity pipeline           | Deals, configurable stages and kanban views                           | Not proposal or SOW creation                              |
-| Pipeline value                 | Stage probabilities, weighted deal values and weighted totals         | Not predictive revenue forecasting                        |
-| Services in a deal             | Services with quantities and amounts linked to deals                  | Not project delivery or resource planning                 |
-| Follow-up work                 | Tasks linked to contacts, organizations, deals, services and users    | Not native scheduling or time tracking                    |
-| Extensions                     | REST, webhooks, MCP and a separate n8n integration option             | External systems keep their own runtime and data boundary |
+<ProofRail label="Verified professional-services CRM capabilities">
+  <ProofItem label="Relationships">Contacts and organizations</ProofItem>
+  <ProofItem label="Pipeline">Configurable stages and kanban</ProofItem>
+  <ProofItem label="Value">Stage-based weighted totals</ProofItem>
+  <ProofItem label="Scope">Services and linked tasks</ProofItem>
+  <ProofItem label="Extensions">REST, webhooks and MCP</ProofItem>
+</ProofRail>
 
 <ProductDemo path="/deals" />
 
-## One practical professional-services workflow
+## Follow one opportunity from relationship to next action
 
-1. Create the client organization and its decision-makers.
-2. Open a deal and move it through the stages your team defines.
-3. Link the services, quantities and amounts being discussed.
-4. Add record-linked tasks so the next action stays with the client context.
-5. Review the board, dashboards and weighted pipeline totals.
+Imagine a consultancy speaking with a client organization about a multi-part engagement. The buying group includes an executive sponsor, a day-to-day contact and a procurement stakeholder. In Customermates, those people stay related to the same organization while the opportunity moves through the stages that match the firm's sales process.
 
-The proposal, contract, delivery plan, time entries and invoice remain in the specialist tools responsible for them. Use the [REST API and webhooks](/features/api), or connect a separate [n8n workflow](/features/workflow-automation), when those systems need CRM data.
+The team can attach the services, quantities and amounts currently under discussion, then keep the next follow-up as a task on the relevant record. Opening the deal reveals the commercial context without pretending that the CRM is also the delivery workspace.
 
-## Where it fits
+<Steps>
+  <Step title="Build the client context">Create the organization, add the people involved and preserve the relationships that matter to the opportunity.</Step>
+  <Step title="Shape the opportunity">Open a deal, assign an owner and move it through the stages your team defines.</Step>
+  <Step title="Represent the commercial scope">Link the relevant services, quantities and amounts to the deal.</Step>
+  <Step title="Keep the next action visible">Attach a task to the contact, organization, deal or service so the follow-up stays with its context.</Step>
+  <Step title="Hand off deliberately">When work is won, pass the signed scope to the project, time and finance systems responsible for delivery.</Step>
+</Steps>
 
-Customermates fits consultancies, agencies, accounting and legal teams that sell expertise through relationships and staged opportunities. The broad workflow is shared, while the language and fields can differ by practice:
+## What this CRM covers
 
-- [agencies](/for/agencies) can track new-business opportunities and client relationships;
-- [accountants](/for/accountants) and [law firms](/for/lawyers) can model their own relationship and pipeline fields.
+| Business-development need | Customermates owns | Specialist system owns |
+| --- | --- | --- |
+| Client and stakeholder context | Contacts, organizations, relations, notes and activity | Documents and matter files |
+| Opportunity pipeline | Deals, configurable stages and kanban views | Proposals, statements of work and contracts |
+| Commercial value | Service amounts, stage probabilities and weighted totals | Predictive forecasting and financial planning |
+| Follow-up | Tasks linked to CRM records and users | Scheduling, project plans, time and utilization |
 
-It is not a fit if you expect the CRM itself to allocate delivery capacity, generate proposals, record billable time, issue invoices or replace project management.
+<AcquisitionCallout title="A CRM boundary that prevents duplicate delivery data" variant="boundary">
+  Keep the relationship, opportunity and next action in Customermates. Keep project execution, capacity, time entries and invoices in the tools that already own those records. Connect them through the [REST API and webhooks](/features/api) or a separately operated [n8n workflow](/features/workflow-automation) when a validated handoff is useful.
+</AcquisitionCallout>
 
-## Cloud or self-hosted
+## How weighted pipeline values work
 
-The core relationship and pipeline records are available in managed cloud and [self-hosted Customermates](/features/self-hosted). Self-hosting uses the Starter entitlement baseline and supports external AI clients through MCP.
+Deal stages can carry probabilities. Customermates multiplies the deal value by the configured stage probability and adds those deterministic values into weighted pipeline totals. This makes assumptions visible and repeatable. It is not predictive revenue forecasting, enrichment or an automated close score.
 
-The [unified inbox](/features/unified-inbox) is cloud-only from Pro upward. It can bring supported email and social conversations into one list and associate conversations with contact context. It does not turn Customermates into a delivery or billing suite.
+Use weighted value as a review aid: inspect the underlying deal, confirm that the stage still reflects reality and update the record when the commercial situation changes.
 
-## AI-operable, with explicit boundaries
+## Where this professional-services CRM fits
 
-External AI clients can use [MCP](/docs/mcp) to work with supported CRM records under the user's permissions. MCP instructions tell clients to request confirmation before sends and deletes, but the server executes a permitted tool once the client calls it. Verify that operating control in the client you choose. The model provider and client remain external when you use MCP.
+The shared model works across consultancies, [agencies](/for/agencies), accounting practices and law firms, while each practice can choose its own stages, fields and language.
+
+<AcquisitionCallout title="Choose Customermates when" variant="fit">
+  Your firm needs a relationship and pipeline system of record, sells through a multi-step process and already has specialist delivery and finance tools. Choose a PSA or project platform instead when resource planning, utilization, billable time and invoicing must all live in the same product.
+</AcquisitionCallout>
+
+## Cloud, self-hosted and AI access
+
+Core relationship and pipeline records are available in managed cloud and [self-hosted Customermates](/features/self-hosted). Self-hosting uses the Starter entitlement baseline and can expose supported records to an external AI client through [MCP](/docs/mcp).
+
+The [unified inbox](/features/unified-inbox) is a managed-cloud feature from Pro upward. It can bring supported conversations into one list and associate participants with contact context. External MCP clients and model providers remain customer-selected services with their own data and control boundaries.
 
 ## Frequently asked questions
 
@@ -167,8 +191,8 @@ No. The unified inbox and connected calendar view are managed-cloud features fro
 </Faq>
 
 <RelatedPages>
-  <RelatedPage href="/for/lawyers" />
-  <RelatedPage href="/for/accountants" />
   <RelatedPage href="/for/agencies" />
-  <RelatedPage href="/for/b2b" />
+  <RelatedPage href="/features/unified-inbox" />
+  <RelatedPage href="/features/self-hosted" />
+  <RelatedPage href="/blog/agentic-crm" />
 </RelatedPages>

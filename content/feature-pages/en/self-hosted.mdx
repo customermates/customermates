@@ -50,6 +50,7 @@ acquisition:
       statement: "The application and PostgreSQL run together on infrastructure you control."
     factReferences:
       - product:self-hosted-deployment
+      - product:mcp-tools
     focalLabel:
       locale: en
       text: Application
@@ -95,6 +96,21 @@ cta:
 
 Customermates is a **self-hosted CRM** you can run as two Docker Compose services: the application and PostgreSQL 16. It is a good fit when your team wants to operate its CRM infrastructure and use an open-source core. It is not the self-hosted edition of every Customermates Cloud feature.
 
+<ArticleSummary title="At a glance">
+  <SummaryItem label="Runs on your infrastructure">The Customermates application and PostgreSQL 16 run as two services in the tracked Docker Compose deployment.</SummaryItem>
+  <SummaryItem label="Included product surface">Core CRM records, custom fields and views, REST, webhooks and MCP under Starter entitlements.</SummaryItem>
+  <SummaryItem label="You operate">Network access, TLS, updates, backups, restore tests, monitoring and every configured external provider.</SummaryItem>
+  <SummaryItem label="Cloud-only boundary">Connected messaging, the unified inbox, connected calendar, hosted Mate and hosted AI credits stay outside self-hosting.</SummaryItem>
+</ArticleSummary>
+
+<ProofRail label="Verified self-hosted CRM facts">
+  <ProofItem label="Deployment">Docker Compose</ProofItem>
+  <ProofItem label="Database">PostgreSQL 16</ProofItem>
+  <ProofItem label="CRM core">Five record families</ProofItem>
+  <ProofItem label="Interfaces">REST, webhooks and MCP</ProofItem>
+  <ProofItem label="Entitlements">Starter baseline</ProofItem>
+</ProofRail>
+
 ## What runs in your infrastructure?
 
 The tracked deployment contains:
@@ -106,7 +122,11 @@ The tracked deployment contains:
 
 The Compose file does not bundle n8n, an AI model, an email-delivery provider or a separate worker. Authentication emails still require the configured external delivery service. If you connect any provider, you operate that integration separately and should review the data it receives.
 
-## What is included—and what is not?
+<AcquisitionCallout title="The deployment boundary is smaller than the complete system boundary" variant="proof">
+  The application and database can run on your infrastructure while SMTP, OAuth, monitoring, workflow tools and external AI remain separate services whenever you configure them. Map those providers before choosing the deployment model.
+</AcquisitionCallout>
+
+## What is included and excluded?
 
 | Capability                                         | Self-hosted Customermates |
 | -------------------------------------------------- | ------------------------- |
@@ -119,7 +139,7 @@ The Compose file does not bundle n8n, an AI model, an email-delivery provider or
 | Read-only connected calendar view                  | Not included              |
 | Shared connected accounts                          | Not included              |
 
-The [unified CRM inbox](/features/unified-inbox) is a managed-cloud feature from Pro upward. Self-hosting remains focused on the open-source CRM and external MCP clients.
+The [unified CRM inbox](/features/unified-inbox) is a managed-cloud feature from Pro upward. Self-hosting remains focused on the CRM's open-source core and external MCP clients.
 
 ## Open-source and commercial code boundaries
 
@@ -146,11 +166,13 @@ There is no dedicated CRM-record import or export workflow. Treat any move betwe
 
 ## How to evaluate the deployment
 
-1. Read the [self-hosting guide](/docs/self-hosting) and inspect the current Compose file.
-2. Confirm that Starter entitlements cover the workflow you need.
-3. List every external provider you plan to configure.
-4. Define backups, restoration, upgrades, TLS, monitoring and access control for your environment.
-5. Test the complete workflow in a non-production environment before operating real customer data.
+<Steps>
+  <Step title="Inspect the exact deployment">Read the [self-hosting guide](/docs/self-hosting) and review the current Compose file in the repository.</Step>
+  <Step title="Check the edition boundary">Confirm that Starter entitlements cover the records, views and interfaces your workflow needs.</Step>
+  <Step title="Map external services">List every SMTP, OAuth, monitoring, workflow or AI provider you plan to configure and the data each one receives.</Step>
+  <Step title="Design operations">Define backups, tested restoration, upgrades, TLS, monitoring and access control for your environment.</Step>
+  <Step title="Test without customer data">Run the complete workflow in a non-production environment before the system handles real records.</Step>
+</Steps>
 
 ## Frequently asked questions
 
@@ -181,8 +203,8 @@ It contains the Customermates application and PostgreSQL 16. n8n, AI models, SMT
 </Faq>
 
 <RelatedPages>
-  <RelatedPage href="/features/crm-integration" />
-  <RelatedPage href="/features/customer-service" />
-  <RelatedPage href="/features/email-integration" />
-  <RelatedPage href="/features/follow-up" />
+  <RelatedPage href="/docs/self-hosting" />
+  <RelatedPage href="/blog/open-source-crm" />
+  <RelatedPage href="/blog/agentic-crm" />
+  <RelatedPage href="/features/unified-inbox" />
 </RelatedPages>

@@ -33,8 +33,8 @@ acquisition:
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
       headline: "Ein Beziehungs- und Pipeline-CRM für Dienstleister"
-      body: "Bündeln Sie Kundenkontext, Verkaufschancen, Leistungen und Aufgaben. Customermates unterstützt die Geschäftsentwicklung – nicht Projektabwicklung, Angebote, Rechnungen oder Zeiterfassung."
-      checksum: fnv1a-0f25186b
+      body: "Bündeln Sie Kundenkontext, Verkaufschancen, Leistungen und Aufgaben. Customermates unterstützt die Geschäftsentwicklung, während Projektabwicklung, Angebote, Rechnungen und Zeiterfassung in Fachsystemen bleiben."
+      checksum: fnv1a-c3a0214d
     kind: brand-illustration
     pathway: focus
     placements:
@@ -50,6 +50,7 @@ acquisition:
     factReferences:
       - product:deal-status-field
       - product:deal-weighted-values
+      - product:record-activity-context
     focalLabel:
       locale: de
       text: Deal-Pipeline
@@ -77,66 +78,89 @@ acquisition:
 
 hero:
   title: Ein Beziehungs- und Pipeline-CRM für Dienstleister
-  description: Bündeln Sie Kundenkontext, Verkaufschancen, Leistungen und Aufgaben. Customermates unterstützt die Geschäftsentwicklung – nicht Projektabwicklung, Angebote, Rechnungen oder Zeiterfassung.
-  buttonLeftText: Kostenlos starten
+  description: Bündeln Sie Kundenkontext, Verkaufschancen, Leistungen und Aufgaben. Customermates unterstützt die Geschäftsentwicklung, während Projektabwicklung, Angebote, Rechnungen und Zeiterfassung in Fachsystemen bleiben.
+  buttonLeftText: Pro-Test starten
   buttonLeftHref: /auth/signup
-  buttonRightText: Demo ansehen
+  buttonRightText: Demo erkunden
   buttonRightHref: https://demo.customermates.com
   hint: "Keine Kreditkarte • [[commercial.trial.days]] Tage Pro testen"
+  showOpenSourceBadge: false
 
 cta:
   action: Kundenbeziehungen und Pipeline zentral verwalten
   description: Starten Sie mit Kontakten, Unternehmen und Deals und passen Sie Phasen und Felder an Ihre Geschäftsentwicklung an.
-  buttonLeftText: Kostenlos starten
+  buttonLeftText: Pro-Test starten
   buttonLeftHref: /auth/signup
-  buttonRightText: Demo ansehen
+  buttonRightText: Demo erkunden
   buttonRightHref: https://demo.customermates.com
   hint: "Projektabwicklung, Angebote, Zeiten und Abrechnung bleiben in Ihren Fachsystemen."
 ---
 
-Customermates ist ein **CRM für Dienstleister**, das Kundenbeziehungen mit der Neugeschäfts-Pipeline verbindet. Kontakte, Unternehmen, Deals, Leistungen und Aufgaben bleiben zusammen, ohne den Anspruch zu erheben, eine PSA-Suite (Professional Services Automation) zu sein.
+Customermates ist ein **CRM für Dienstleister**, die Expertise über Beziehungen und mehrstufige Verkaufsprozesse vermarkten. Kundenunternehmen, Ansprechpartner, Verkaufschance, besprochene Leistungen, gewichteter Wert und nächste Aufgabe bleiben in einem gemeinsamen Arbeitsbereich für die Geschäftsentwicklung verbunden.
 
-## Was dieses CRM abdeckt
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Geeignet für">Beratungen und andere beziehungsorientierte Dienstleister, die Kunden und Verkaufschancen übersichtlich steuern möchten.</SummaryItem>
+  <SummaryItem label="Zentrale Aufgabe">Stakeholder, Deals, Leistungen und nächste Schritte verbinden, statt den Kontext auf persönliche Notizen und Tabellen zu verteilen.</SummaryItem>
+  <SummaryItem label="Stärkster Nachweis">Anpassbare Deal-Phasen, deterministische Gewichtung, verknüpfte Leistungen und datensatzbezogene Aufgaben.</SummaryItem>
+  <SummaryItem label="Systemgrenze">Customermates verwaltet Beziehung und Vertrieb. Projektabwicklung, Angebote, Zeiten und Rechnungen bleiben in Fachsystemen.</SummaryItem>
+</ArticleSummary>
 
-| Bedarf in der Geschäftsentwicklung | Unterstützung in Customermates                                                | Grenze                                                                            |
-| ---------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| Kunden- und Stakeholder-Kontext    | Kontakte und Unternehmen mit Beziehungen, Notizen und Aktivitätshistorie      | Kein Dokumentenmanagement                                                         |
-| Opportunity-Pipeline               | Deals, anpassbare Phasen und Kanban-Ansichten                                 | Keine Angebots- oder SOW-Erstellung                                               |
-| Pipeline-Wert                      | Phasenwahrscheinlichkeiten, gewichtete Deal-Werte und Summen                  | Keine prädiktive Umsatzprognose                                                   |
-| Leistungen in einem Deal           | Mit Deals verknüpfte Leistungen, Mengen und Beträge                           | Keine Projektabwicklung oder Ressourcenplanung                                    |
-| Follow-up-Arbeit                   | Mit Kontakten, Unternehmen, Deals, Leistungen und Nutzern verknüpfte Aufgaben | Keine native Termin- oder Zeiterfassung                                           |
-| Erweiterungen                      | REST, Webhooks, MCP und eine separate n8n-Integrationsoption                  | Betrieb und Datenverarbeitung externer Systeme liegen außerhalb von Customermates |
+<ProofRail label="Verifizierte CRM-Funktionen für Dienstleister">
+  <ProofItem label="Beziehungen">Kontakte und Unternehmen</ProofItem>
+  <ProofItem label="Pipeline">Anpassbare Phasen und Kanban</ProofItem>
+  <ProofItem label="Wert">Phasenbasierte Gewichtung</ProofItem>
+  <ProofItem label="Umfang">Leistungen und Aufgaben</ProofItem>
+  <ProofItem label="Schnittstellen">REST, Webhooks und MCP</ProofItem>
+</ProofRail>
 
 <ProductDemo path="/deals" />
 
-## Ein praktischer Workflow für Dienstleister
+## Eine Verkaufschance vom Erstkontakt bis zum nächsten Schritt
 
-1. Legen Sie das Kundenunternehmen und seine Entscheider an.
-2. Eröffnen Sie einen Deal und führen Sie ihn durch selbst definierte Phasen.
-3. Verknüpfen Sie die besprochenen Leistungen, Mengen und Beträge.
-4. Ergänzen Sie datensatzbezogene Aufgaben, damit der nächste Schritt im Kundenkontext bleibt.
-5. Prüfen Sie Board, Dashboards und gewichtete Pipeline-Summen.
+Nehmen wir eine Beratung, die mit einem Kundenunternehmen über ein mehrteiliges Mandat spricht. Zur Entscheidungsgruppe gehören ein Sponsor, ein fachlicher Ansprechpartner und der Einkauf. In Customermates bleiben diese Personen mit demselben Unternehmen verbunden, während die Verkaufschance die Phasen des eigenen Vertriebsprozesses durchläuft.
 
-Angebot, Vertrag, Projektplan, Zeiteinträge und Rechnung werden weiterhin in den dafür vorgesehenen Fachsystemen verwaltet. Nutzen Sie [REST-API und Webhooks](/features/api) oder verbinden Sie einen separaten [n8n-Workflow](/features/workflow-automation), wenn diese Systeme CRM-Daten benötigen.
+Das Team kann die besprochenen Leistungen, Mengen und Beträge am Deal festhalten und die nächste Aktivität als Aufgabe mit dem passenden Datensatz verknüpfen. Beim Öffnen des Deals ist der kaufmännische Kontext sichtbar, ohne die Projektabwicklung doppelt im CRM abzubilden.
 
-## Wo Customermates passt
+<Steps>
+  <Step title="Kundenkontext aufbauen">Legen Sie das Unternehmen und die beteiligten Personen an und bilden Sie die relevanten Beziehungen ab.</Step>
+  <Step title="Verkaufschance strukturieren">Erstellen Sie einen Deal, weisen Sie eine verantwortliche Person zu und führen Sie ihn durch Ihre eigenen Phasen.</Step>
+  <Step title="Leistungsumfang abbilden">Verknüpfen Sie die besprochenen Leistungen, Mengen und Beträge mit dem Deal.</Step>
+  <Step title="Nächsten Schritt sichtbar halten">Hängen Sie eine Aufgabe an Kontakt, Unternehmen, Deal oder Leistung, damit der Kontext erhalten bleibt.</Step>
+  <Step title="Bewusst übergeben">Nach dem Abschluss wechseln Leistungsbeschreibung, Projekt, Zeiten und Abrechnung in die dafür zuständigen Systeme.</Step>
+</Steps>
 
-Customermates passt zu Beratungen, Agenturen, Kanzleien und anderen Dienstleistern, die ihre Leistungen über persönliche Beziehungen und mehrstufige Verkaufsprozesse verkaufen. Der Grundablauf ist ähnlich, Sprache und Felder unterscheiden sich je Fachgebiet:
+## Was dieses CRM abdeckt
 
-- [Agenturen](/for/agencies) können Neugeschäft und Kundenbeziehungen verfolgen;
-- [Steuerberater und Buchhalter](/for/accountants) sowie [Anwaltskanzleien](/for/lawyers) können eigene Beziehungs- und Pipeline-Felder modellieren.
+| Bedarf in der Geschäftsentwicklung | Customermates verwaltet | Fachsystem verwaltet |
+| --- | --- | --- |
+| Kunden- und Stakeholder-Kontext | Kontakte, Unternehmen, Beziehungen, Notizen und Aktivitäten | Dokumente und Akten |
+| Opportunity-Pipeline | Deals, anpassbare Phasen und Kanban-Ansichten | Angebote, Leistungsbeschreibungen und Verträge |
+| Kaufmännischer Wert | Leistungsbeträge, Phasenwahrscheinlichkeiten und gewichtete Summen | Prädiktive Prognosen und Finanzplanung |
+| Nachverfolgung | Mit CRM-Datensätzen und Nutzern verknüpfte Aufgaben | Terminplanung, Projekte, Zeiten und Auslastung |
 
-Customermates passt nicht, wenn das CRM selbst Ressourcen für die Leistungserbringung planen, Angebote erzeugen, abrechenbare Zeit erfassen, Rechnungen ausstellen oder Projektmanagement ersetzen soll.
+<AcquisitionCallout title="Eine klare Grenze verhindert doppelte Projektdaten" variant="boundary">
+  Beziehung, Verkaufschance und nächste Aktivität bleiben in Customermates. Projektumsetzung, Kapazität, Zeiteinträge und Rechnungen bleiben in den Systemen, die diese Daten bereits verantworten. Für einen geprüften Übergabeprozess stehen [REST-API und Webhooks](/features/api) oder ein separat betriebener [n8n-Workflow](/features/workflow-automation) zur Verfügung.
+</AcquisitionCallout>
 
-## Cloud oder Self-Hosted
+## So funktionieren gewichtete Pipeline-Werte
 
-Die grundlegenden Beziehungs- und Pipeline-Datensätze gibt es in der Managed Cloud und bei [Self-Hosted Customermates](/features/self-hosted). Self-Hosting nutzt die Starter-Berechtigungsbasis und unterstützt externe KI-Clients über MCP.
+Deal-Phasen können Wahrscheinlichkeiten tragen. Customermates multipliziert den Deal-Wert mit der eingestellten Phasenwahrscheinlichkeit und bildet daraus deterministische gewichtete Pipeline-Summen. Die Annahme bleibt sichtbar und wiederholbar. Es handelt sich weder um eine prädiktive Umsatzprognose noch um automatisches Scoring.
 
-Der [einheitliche Posteingang](/features/unified-inbox) ist ausschließlich in der Cloud ab Pro verfügbar. Er kann unterstützte E-Mail- und Social-Unterhaltungen in einer Liste bündeln, CRM-Kontakten zuordnen und so mit dem Kundenkontext verknüpfen. Aus Customermates wird dadurch keine Projekt- oder Abrechnungssuite.
+Nutzen Sie den gewichteten Wert als Hilfe für die Vertriebsrunde: Öffnen Sie den zugrunde liegenden Deal, prüfen Sie die Phase und aktualisieren Sie den Datensatz, sobald sich die kaufmännische Situation ändert.
 
-## Per KI bedienbar – mit klaren Grenzen
+## Für welche Dienstleister das CRM passt
 
-Externe KI-Clients können über [MCP](/docs/mcp) mit unterstützten CRM-Datensätzen innerhalb der Nutzerberechtigungen arbeiten. Die MCP-Anweisungen fordern Clients auf, vor Versand und Löschvorgängen eine Bestätigung einzuholen. Ruft der Client ein zulässiges Tool auf, führt der Server die Aktion jedoch direkt aus. Prüfen Sie diesen Kontrollschritt deshalb im gewählten Client. Modellanbieter und Client bleiben bei MCP extern.
+Das gemeinsame Modell eignet sich für Beratungen, [Agenturen](/for/agencies), Steuer- und Buchhaltungspraxen sowie Anwaltskanzleien. Jede Fachrichtung kann Phasen, Felder und Begriffe an ihren Prozess anpassen.
+
+<AcquisitionCallout title="Customermates passt, wenn" variant="fit">
+  Ihr Unternehmen ein Beziehungs- und Pipeline-System braucht, über mehrere Schritte verkauft und bereits spezialisierte Systeme für Projekt und Finanzen nutzt. Wenn Ressourcenplanung, Auslastung, abrechenbare Zeit und Rechnungen zwingend in einem Produkt liegen müssen, ist eine PSA- oder Projektplattform die passendere Kategorie.
+</AcquisitionCallout>
+
+## Cloud, Self-Hosting und KI-Zugriff
+
+Die grundlegenden Beziehungs- und Pipeline-Datensätze gibt es in der Managed Cloud und bei [Self-Hosted Customermates](/features/self-hosted). Self-Hosting nutzt Starter-Berechtigungen und kann unterstützte Datensätze über [MCP](/docs/mcp) für einen externen KI-Client zugänglich machen.
+
+Der [einheitliche Posteingang](/features/unified-inbox) ist eine Managed-Cloud-Funktion ab Pro. Er bündelt unterstützte Unterhaltungen und ordnet Teilnehmer dem Kontaktkontext zu. Externe MCP-Clients und Modellanbieter bleiben vom Kunden ausgewählte Dienste mit eigenen Daten- und Kontrollgrenzen.
 
 ## Häufig gestellte Fragen
 
@@ -167,8 +191,8 @@ Nein. Einheitlicher Posteingang und verbundene Kalenderansicht sind Managed-Clou
 </Faq>
 
 <RelatedPages>
-  <RelatedPage href="/for/lawyers" />
-  <RelatedPage href="/for/accountants" />
   <RelatedPage href="/for/agencies" />
-  <RelatedPage href="/for/b2b" />
+  <RelatedPage href="/features/unified-inbox" />
+  <RelatedPage href="/features/self-hosted" />
+  <RelatedPage href="/blog/agentic-crm" />
 </RelatedPages>

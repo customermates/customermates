@@ -50,6 +50,7 @@ acquisition:
       statement: "Anwendung und PostgreSQL laufen gemeinsam auf Ihrer kontrollierten Infrastruktur."
     factReferences:
       - product:self-hosted-deployment
+      - product:mcp-tools
     focalLabel:
       locale: de
       text: Anwendung
@@ -95,6 +96,21 @@ cta:
 
 Customermates ist ein **selbst gehostetes CRM**, das aus zwei Docker-Compose-Diensten besteht: der Anwendung und PostgreSQL 16. Es passt zu Teams, die ihre CRM-Infrastruktur selbst betreiben und einen quelloffenen Kern nutzen möchten. Es ist nicht die Self-Hosted-Ausgabe sämtlicher Customermates-Cloud-Funktionen.
 
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Auf Ihrer Infrastruktur">Customermates-Anwendung und PostgreSQL 16 laufen als zwei Dienste im versionierten Docker-Compose-Deployment.</SummaryItem>
+  <SummaryItem label="Enthaltener Umfang">Kern-CRM, eigene Felder und Ansichten, REST, Webhooks und MCP mit Starter-Berechtigungen.</SummaryItem>
+  <SummaryItem label="Ihr Betrieb">Netzwerkzugriff, TLS, Updates, Backups, Wiederherstellungstests, Monitoring und konfigurierte externe Anbieter.</SummaryItem>
+  <SummaryItem label="Cloud-Grenze">Messaging, einheitlicher Posteingang, verbundener Kalender, gehostetes Mate und KI-Credits bleiben außerhalb des Self-Hostings.</SummaryItem>
+</ArticleSummary>
+
+<ProofRail label="Verifizierte Fakten zum Self-Hosted CRM">
+  <ProofItem label="Deployment">Docker Compose</ProofItem>
+  <ProofItem label="Datenbank">PostgreSQL 16</ProofItem>
+  <ProofItem label="CRM-Kern">Fünf Datensatztypen</ProofItem>
+  <ProofItem label="Schnittstellen">REST, Webhooks und MCP</ProofItem>
+  <ProofItem label="Berechtigung">Starter-Basis</ProofItem>
+</ProofRail>
+
 ## Was läuft auf Ihrer Infrastruktur?
 
 Das offizielle Deployment umfasst:
@@ -106,7 +122,11 @@ Das offizielle Deployment umfasst:
 
 Die Compose-Datei enthält weder n8n noch ein KI-Modell, einen E-Mail-Versanddienst oder einen separaten Worker. Authentifizierungs-E-Mails benötigen weiterhin den konfigurierten externen Versanddienst. Wenn Sie einen Anbieter verbinden, betreiben Sie diese Integration separat und sollten prüfen, welche Daten sie erhält.
 
-## Was ist enthalten – und was nicht?
+<AcquisitionCallout title="Die Deployment-Grenze ist kleiner als die gesamte Systemgrenze" variant="proof">
+  Anwendung und Datenbank können auf Ihrer Infrastruktur laufen. SMTP, OAuth, Monitoring, Workflow-Tools und externe KI bleiben bei entsprechender Konfiguration separate Dienste. Erfassen Sie diese Anbieter, bevor Sie sich für das Betriebsmodell entscheiden.
+</AcquisitionCallout>
+
+## Was ist enthalten und ausgeschlossen?
 
 | Funktion                                                    | Self-Hosted Customermates |
 | ----------------------------------------------------------- | ------------------------- |
@@ -119,7 +139,7 @@ Die Compose-Datei enthält weder n8n noch ein KI-Modell, einen E-Mail-Versanddie
 | Schreibgeschützte verbundene Kalenderansicht                | Nicht enthalten           |
 | Geteilte verbundene Konten                                  | Nicht enthalten           |
 
-Der [einheitliche CRM-Posteingang](/features/unified-inbox) ist eine Managed-Cloud-Funktion ab Pro. Beim Self-Hosting stehen das quelloffene CRM und externe MCP-Clients im Mittelpunkt.
+Der [einheitliche CRM-Posteingang](/features/unified-inbox) ist eine Managed-Cloud-Funktion ab Pro. Beim Self-Hosting stehen der quelloffene CRM-Kern und externe MCP-Clients im Mittelpunkt.
 
 ## Open-Source- und kommerzielle Code-Grenzen
 
@@ -146,11 +166,13 @@ Es gibt keinen eigenen Import- oder Export-Workflow für CRM-Datensätze. Behand
 
 ## So prüfen Sie das Deployment
 
-1. Lesen Sie die [Self-Hosting-Anleitung](/docs/self-hosting) und prüfen Sie die aktuelle Compose-Datei.
-2. Bestätigen Sie, dass die Starter-Berechtigungen Ihren Workflow abdecken.
-3. Listen Sie jeden externen Anbieter auf, den Sie konfigurieren möchten.
-4. Definieren Sie Backups, Wiederherstellung, Updates, TLS, Monitoring und Zugriffskontrollen.
-5. Testen Sie den vollständigen Ablauf ohne echte Kundendaten, bevor Sie produktiv gehen.
+<Steps>
+  <Step title="Deployment prüfen">Lesen Sie die [Self-Hosting-Anleitung](/docs/self-hosting) und prüfen Sie die aktuelle Compose-Datei im Repository.</Step>
+  <Step title="Editionsgrenze prüfen">Stellen Sie sicher, dass Starter-Berechtigungen die benötigten Datensätze, Ansichten und Schnittstellen abdecken.</Step>
+  <Step title="Externe Dienste erfassen">Listen Sie alle geplanten SMTP-, OAuth-, Monitoring-, Workflow- und KI-Anbieter sowie deren Datenzugriff auf.</Step>
+  <Step title="Betrieb entwerfen">Definieren Sie Backups, getestete Wiederherstellung, Updates, TLS, Monitoring und Zugriffskontrollen.</Step>
+  <Step title="Ohne Kundendaten testen">Prüfen Sie den vollständigen Ablauf in einer Nicht-Produktionsumgebung, bevor echte Datensätze verarbeitet werden.</Step>
+</Steps>
 
 ## Häufig gestellte Fragen
 
@@ -181,8 +203,8 @@ Er enthält die Customermates-Anwendung und PostgreSQL 16. n8n, KI-Modelle sowie
 </Faq>
 
 <RelatedPages>
-  <RelatedPage href="/features/crm-integration" />
-  <RelatedPage href="/features/customer-service" />
-  <RelatedPage href="/features/email-integration" />
-  <RelatedPage href="/features/follow-up" />
+  <RelatedPage href="/docs/self-hosting" />
+  <RelatedPage href="/blog/open-source-crm" />
+  <RelatedPage href="/blog/agentic-crm" />
+  <RelatedPage href="/features/unified-inbox" />
 </RelatedPages>

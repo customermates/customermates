@@ -33,8 +33,8 @@ acquisition:
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
       headline: "Open Source CRM: Vergleichen, was Sie wirklich betreiben können"
-      body: "Ein sinnvoller Vergleich beginnt bei Lizenz, Editionsgrenzen, Deployment, Betriebsaufwand und Produktumfang – nicht bei einer kopierten Feature-Tabelle."
-      checksum: fnv1a-40a92092
+      body: "Ein sinnvoller Vergleich beginnt bei Lizenz, Editionsgrenzen, Deployment, Betriebsaufwand und Produktumfang statt bei einer kopierten Feature-Tabelle."
+      checksum: fnv1a-28677355
     kind: brand-illustration
     pathway: converge
     placements:
@@ -49,6 +49,7 @@ acquisition:
       statement: "Self-Hosted-Anwendung und PostgreSQL bilden eine Deployment-Grenze, die Sie selbst betreiben können."
     factReferences:
       - product:self-hosted-deployment
+      - product:agpl-community-core
     focalLabel:
       locale: de
       text: Self-Hosted-App
@@ -75,7 +76,7 @@ acquisition:
 
 hero:
   title: "Open Source CRM: Vergleichen, was Sie wirklich betreiben können"
-  description: Ein sinnvoller Vergleich beginnt bei Lizenz, Editionsgrenzen, Deployment, Betriebsaufwand und Produktumfang – nicht bei einer kopierten Feature-Tabelle.
+  description: Ein sinnvoller Vergleich beginnt bei Lizenz, Editionsgrenzen, Deployment, Betriebsaufwand und Produktumfang statt bei einer kopierten Feature-Tabelle.
 
 blogPost:
   author: Benjamin Wagner
@@ -95,7 +96,22 @@ Das beste **Open Source CRM** ist das System, dessen Lizenz, Self-Hosting-Weg, B
 
 Dieser Leitfaden nutzt deshalb ein dauerhaftes Bewertungsmodell, statt Projekte anhand wechselnder Preise, Sternzahlen oder unbelegter Funktionsangaben zu ranken. Offenlegung: Customermates veröffentlicht diesen Vergleich und ist eines der hier genannten Produkte.
 
-## Beginnen Sie mit der Lizenz – nicht mit der Homepage
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Beginnen mit">Lizenz und Editionsgrenze des Codes, den Sie tatsächlich betreiben möchten, nicht mit dem Etikett des Repositories.</SummaryItem>
+  <SummaryItem label="Dann prüfen">Gepflegter Deployment-Weg, CRM-Modell, Schnittstellen, Migration und der Betriebsaufwand Ihres Teams.</SummaryItem>
+  <SummaryItem label="Als unbekannt behandeln">Jede Funktion, die weder aktuell offiziell dokumentiert noch in einem eigenen Test nachgewiesen ist.</SummaryItem>
+  <SummaryItem label="Offenlegung">Customermates veröffentlicht diesen Leitfaden. Eigene Produktangaben bleiben von der Quellenübersicht für andere Projekte getrennt.</SummaryItem>
+</ArticleSummary>
+
+<ProofRail label="Kriterien für den Open-Source-CRM-Vergleich">
+  <ProofItem label="Lizenz">Rechte und Pflichten</ProofItem>
+  <ProofItem label="Edition">Open-Source- und kommerzielle Grenze</ProofItem>
+  <ProofItem label="Deployment">Gepflegter lauffähiger Weg</ProofItem>
+  <ProofItem label="Betrieb">Backups, Updates und Wiederherstellung</ProofItem>
+  <ProofItem label="Produkt-Fit">Datensätze, Abläufe und Schnittstellen</ProofItem>
+</ProofRail>
+
+## Beginnen Sie mit der Lizenz, nicht mit der Homepage
 
 Klären Sie vor dem Funktionsvergleich:
 
@@ -119,17 +135,32 @@ Ein öffentliches Repository gewährt nicht automatisch Open-Source-Rechte an je
 | Editionslücke  | Welche Cloud- oder Enterprise-Funktionen fehlen beim Self-Hosting?                              |
 | Migration      | Gibt es einen echten Import/Export oder müssen Sie einen Weg über API oder Datenbank entwerfen? |
 
-Behandeln Sie einen nicht gemessenen oder nicht dokumentierten Punkt als unbekannt – nicht als enthalten.
+Behandeln Sie einen nicht gemessenen oder nicht dokumentierten Punkt als unbekannt, nicht als enthalten.
 
 ## Eine Shortlist ohne künstliches Ranking
 
-Bei der Suche nach Open Source CRM erscheinen häufig Projekte wie Customermates, SuiteCRM, Odoo Community, EspoCRM, Twenty und CiviCRM. Nutzen Sie diese Namen als Ausgangsliste und prüfen Sie vor einer Entscheidung für jedes Projekt die aktuelle offizielle Lizenz, Editionsgrenze, Deployment-Dokumentation sowie den Veröffentlichungs- und Wartungsstatus.
+Bei der Suche nach Open Source CRM erscheinen Projekte mit sehr unterschiedlichem Umfang. Customermates, SuiteCRM, EspoCRM und Twenty sind sinnvolle Ausgangspunkte für eine quellengestützte Shortlist. Odoo Community und CiviCRM können relevant sein, wenn eine breitere Business-Suite oder ein Mitgliederkontext zur Anforderung gehört. Prüfen Sie vor einer Entscheidung die aktuelle offizielle Lizenz, Editionsgrenze, Deployment-Dokumentation sowie den Wartungsstatus.
 
 Die Produkte unterscheiden sich in Funktionsumfang und Zielgruppe. Einige Projekte konzentrieren sich auf CRM, andere gehören zu einer umfassenderen Business-Suite, wieder andere sind auf Nonprofit- oder Mitglieder-Workflows ausgerichtet. Deshalb ist eine nach den eigenen Anforderungen bewertete Shortlist nützlicher als ein pauschaler Testsieger.
 
+### Offizielle Quellen, geprüft am 28. August 2026
+
+| Projekt | Aktuelle offizielle Nachweise | Was die Quelle belegt |
+| --- | --- | --- |
+| Customermates | [AGPL-Kernlizenz](https://github.com/customermates/customermates/blob/main/LICENSE), [kommerzielle und AGPL-Client-Material-Grenze](https://github.com/customermates/customermates/blob/main/ee/LICENSE.md) und [Compose-Deployment](https://github.com/customermates/customermates/blob/main/docker-compose.yml) | Exakte Repository-Lizenzen sowie das versionierte Deployment aus Anwendung und PostgreSQL |
+| SuiteCRM | [AGPL-Lizenzierung](https://docs.suitecrm.com/admin/licensing/) und [Installationsanleitung](https://docs.suitecrm.com/admin/installation-guide/downloading-installing/) | Die Dokumentation nennt AGPLv3 und bietet einen gepflegten Installationsweg für Administratoren |
+| EspoCRM | [Repository und Lizenz](https://github.com/espocrm/espocrm) und [Docker-Installation](https://docs.espocrm.com/administration/docker/installation/) | Eine öffentliche Quelllizenz und einen offiziellen Docker-Deployment-Weg |
+| Twenty | [Lizenz](https://github.com/twentyhq/twenty/blob/main/LICENSE) und [Docker-Compose-Anleitung](https://docs.twenty.com/developers/self-host/capabilities/docker-compose) | Eine öffentliche Quelllizenz und einen offiziellen Self-Hosting-Weg mit Docker Compose |
+
+Diese Tabelle ist eine Quellenübersicht, keine Rangliste und keine Behauptung, dass die Editionen gleichwertig sind. Öffnen Sie für die geprüfte Version jeweils die Lizenz- und Deployment-Quelle.
+
+<AcquisitionCallout title="Ein öffentliches Repository ist ein Nachweis, aber nicht die ganze Antwort" variant="boundary">
+  Prüfen Sie die Lizenz für jedes benötigte Verzeichnis, die tatsächlich lauffähige Edition und ihre Betriebsabhängigkeiten. Der Quellzugriff allein belegt weder, dass jede Datei Open Source ist, noch dass jede Cloud-Funktion selbst gehostet werden kann.
+</AcquisitionCallout>
+
 ## Wo Customermates passt
 
-Customermates ist ein quelloffenes Beziehungs- und Pipeline-CRM aus Deutschland. Das Customermates-eigene Material außerhalb von `ee/` steht ausschließlich unter AGPL-3.0. Innerhalb von `ee/` gilt grundsätzlich die kommerzielle Lizenz; das in Abschnitt 6 von `ee/LICENSE.md` definierte Client-Material steht jedoch ebenfalls unter AGPL-3.0.
+Customermates ist ein Open-Core-Beziehungs- und Pipeline-CRM aus Deutschland. Das Customermates-eigene Material außerhalb von `ee/` steht ausschließlich unter AGPL-3.0. Innerhalb von `ee/` gilt grundsätzlich die kommerzielle Lizenz; das in Abschnitt 6 von `ee/LICENSE.md` definierte Client-Material steht jedoch ebenfalls unter AGPL-3.0.
 
 Das offizielle [Self-Hosted CRM](/features/self-hosted) besteht aus der Anwendung und PostgreSQL 16. Die Self-Hosted-Edition nutzt Starter-Berechtigungen.
 
@@ -171,13 +202,14 @@ Bei Customermates ist die Trennung ausdrücklich: Kern-CRM, REST, Webhooks und M
 
 ## Praktische Prüfliste
 
-1. Schreiben Sie die benötigten Datensätze, Ansichten, Integrationen und Deployment-Bedingungen auf.
-2. Prüfen Sie Lizenz und Editionsgrenze jedes Finalisten.
-3. Folgen Sie der offiziellen Deployment-Anleitung in einer isolierten Umgebung.
-4. Testen Sie Authentifizierung, Berechtigungen, Backups und Wiederherstellung.
-5. Prüfen Sie zentrale Workflows, statt sie aus Marketingtexten abzuleiten.
-6. Kalkulieren Sie Infrastruktur und laufenden Betriebsaufwand gemeinsam.
-7. Planen Sie die Migration separat, wenn kein eigener Import-/Export-Workflow existiert.
+<Steps>
+  <Step title="Aufgabe definieren">Schreiben Sie die benötigten Datensätze, Ansichten, Integrationen und Deployment-Bedingungen auf.</Step>
+  <Step title="Rechtliche Grenze prüfen">Lesen Sie Lizenz und Editionsgrenze für jeden Finalisten und jede geprüfte Version.</Step>
+  <Step title="Offiziellen Weg ausführen">Folgen Sie der gepflegten Deployment-Anleitung in einer isolierten Umgebung.</Step>
+  <Step title="Betrieb testen">Prüfen Sie Authentifizierung, Berechtigungen, Backups, Wiederherstellung und Updates, statt sie aus Marketingtexten abzuleiten.</Step>
+  <Step title="Gesamtsystem kalkulieren">Bewerten Sie Infrastruktur, externe Dienste und laufenden Betriebsaufwand gemeinsam.</Step>
+  <Step title="Migration separat planen">Entwerfen und prüfen Sie ein Migrationsverfahren, wenn kein eigener Import- oder Export-Workflow vorhanden ist.</Step>
+</Steps>
 
 [Prüfen Sie die genaue Self-Hosted-Grenze von Customermates](/features/self-hosted) oder [sehen Sie sich das Repository an](https://github.com/customermates/customermates), bevor Sie das Produkt auf Ihre Shortlist setzen.
 

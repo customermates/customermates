@@ -33,9 +33,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function FeaturePage({ params }: Props) {
-  const locale = contentLocaleOrDefault(await getLocale());
-  const t = await getTranslations("StructuredData.breadcrumb");
-  const { slug } = await params;
+  const [rawLocale, t, { slug }] = await Promise.all([
+    getLocale(),
+    getTranslations("StructuredData.breadcrumb"),
+    params,
+  ]);
+  const locale = contentLocaleOrDefault(rawLocale);
   const page = featurePagesSource.getPage([slug], locale);
 
   if (!page) notFound();
@@ -59,7 +62,7 @@ export default async function FeaturePage({ params }: Props) {
 
       <PageHero {...page.data.hero} visual={visual} />
 
-      <LandingArticle items={page.data.toc}>
+      <LandingArticle founderContact={Boolean(page.data.acquisition)} items={page.data.toc}>
         <MDX components={components} />
       </LandingArticle>
 

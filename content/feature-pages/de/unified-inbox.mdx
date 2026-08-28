@@ -82,7 +82,7 @@ acquisition:
 hero:
   title: Ein CRM-Posteingang für E-Mail, Social Media und Messenger
   description: Bearbeiten Sie Gmail-, Outlook-, IMAP-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Threads in einer Liste und verbinden Sie Teilnehmer mit CRM-Kontakten. Cloud ab Pro.
-  buttonLeftText: Kostenlos starten
+  buttonLeftText: Pro-Test starten
   buttonLeftHref: /auth/signup
   buttonRightText: Anleitung zum Posteingang lesen
   buttonRightHref: /docs/app-inbox
@@ -92,7 +92,7 @@ hero:
 cta:
   action: Unterstützte Unterhaltungen ins CRM bringen
   description: Starten Sie eine Pro-Testphase, verbinden Sie ein unterstütztes Konto und testen Sie den Posteingang in Ihrem eigenen Arbeitsablauf.
-  buttonLeftText: Kostenlos starten
+  buttonLeftText: Pro-Test starten
   buttonLeftHref: /auth/signup
   buttonRightText: Anleitung zum Posteingang lesen
   buttonRightHref: /docs/app-inbox
@@ -103,7 +103,31 @@ Der **einheitliche CRM-Posteingang von Customermates** bündelt unterstützte E-
 
 Die Funktion gehört zur Managed Cloud ab Pro. Starter und Self-Hosted Customermates enthalten weder Messaging-Konten noch den einheitlichen Posteingang.
 
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Ergebnis">Unterstützte Kundenunterhaltungen in einer Liste bearbeiten und den CRM-Kontaktkontext der Teilnehmer direkt verfügbar halten.</SummaryItem>
+  <SummaryItem label="Verfügbarkeit">Customermates Cloud ab Pro. Kontingente und Möglichkeiten zur Freigabe unterscheiden sich je Tarif.</SummaryItem>
+  <SummaryItem label="Kernaktionen">Lesen, antworten, Status verwalten, Entwurf speichern, unterstützte Anhänge nutzen und Teilnehmer Kontakten zuordnen.</SummaryItem>
+  <SummaryItem label="Wichtige Grenze">Die Kontaktbeziehung verbindet Unterhaltung und Pipeline-Kontext. Nachrichten besitzen keine direkte Deal-Beziehung.</SummaryItem>
+</ArticleSummary>
+
+<ProofRail label="Verifizierte Funktionen des einheitlichen CRM-Posteingangs">
+  <ProofItem label="E-Mail">Gmail, Outlook und IMAP</ProofItem>
+  <ProofItem label="Beruflich">LinkedIn-Varianten</ProofItem>
+  <ProofItem label="Messenger">WhatsApp und Telegram</ProofItem>
+  <ProofItem label="Social Media">Instagram</ProofItem>
+  <ProofItem label="CRM-Kontext">Teilnehmer mit Kontakten abgleichen</ProofItem>
+</ProofRail>
+
 <ProductDemo path="/inbox" />
+
+## Eine Unterhaltung in den CRM-Kontext überführen
+
+<Steps>
+  <Step title="Eingehenden Thread öffnen">Beginnen Sie in der gemeinsamen Unterhaltungsliste, statt zwischen einzelnen Anbieter-Tabs zu wechseln.</Step>
+  <Step title="Teilnehmer prüfen">Ordnen Sie die Person im Thread einem CRM-Kontakt zu, damit der Beziehungskontext verfügbar ist.</Step>
+  <Step title="Prüfen und antworten">Lesen Sie den Verlauf, speichern Sie einen dauerhaften Entwurf im bestehenden Thread und senden Sie bei Bedarf über den verbundenen Kanal.</Step>
+  <Step title="Unterhaltung einordnen">Markieren Sie den Thread als ungelesen, offen, geschlossen oder Spam, damit der Posteingang den aktuellen Zustand zeigt.</Step>
+</Steps>
 
 ## Unterstützte Kanäle
 
@@ -137,6 +161,10 @@ Nachrichten sind nicht direkt mit Deals verknüpft. Die Zuordnung zu einem Konta
 
 Auch mit Pro lassen sich einzelne Threads mit dem CRM-Team teilen. Ein vollständig verbundenes Konto kann ab Business geteilt werden. Berechtigungen steuern weiterhin, auf welche CRM-Ressourcen und Aktionen ein Nutzer zugreifen darf.
 
+<AcquisitionCallout title="Thread-Freigabe und Kontofreigabe sind verschieden" variant="proof">
+  Ein Pro-Nutzer kann eine einzelne Unterhaltung mit CRM-Teammitgliedern teilen. Das vollständige verbundene Konto lässt sich erst mit Business oder Enterprise teilen. Diese Unterscheidung ist bei persönlichen Postfächern und teamweit genutzten Adressen entscheidend.
+</AcquisitionCallout>
+
 ## Posteingang, MCP und Freigabegrenzen
 
 Der [MCP-Server](/docs/mcp) von Customermates enthält Tools für unterstützte Messaging-Aufgaben: Threads und Aktivitäten lesen, Entwürfe verwalten, Unterhaltungen sortieren und Antworten senden. Seine Anweisungen fordern kompatible Clients auf, vor dem Versand eine ausdrückliche Bestätigung einzuholen. Ruft der Client das Tool auf, erzwingt der MCP-Endpunkt jedoch keine zweite Freigabe. Prüfen Sie deshalb den Bestätigungsschritt des Clients, bevor Sie Messaging-Zugriff gewähren.
@@ -167,7 +195,7 @@ Pro, Business und Enterprise in Customermates Cloud. Pro enthält ein verbundene
 
 <FaqItem question="Unterstützt Customermates SMS oder Telefonate in diesem Posteingang?">
   Nein. Unterstützt werden Gmail/Google-, Outlook/Microsoft- und IMAP-E-Mail, LinkedIn-Varianten, WhatsApp, Instagram
-  und Telegram – nicht SMS oder Telefonie.
+  und Telegram, nicht SMS oder Telefonie.
 </FaqItem>
 
 <FaqItem question="Sind Nachrichten direkt mit Deals verknüpft?">
@@ -181,8 +209,8 @@ Ja, für berechtigte Cloud-Konten. Die MCP-Anweisungen fordern kompatible Client
 </Faq>
 
 <RelatedPages>
-  <RelatedPage href="/features/email-integration" />
-  <RelatedPage href="/features/integrations" />
-  <RelatedPage href="/features/cloud-crm" />
-  <RelatedPage href="/features/api" />
+  <RelatedPage href="/docs/app-inbox" />
+  <RelatedPage href="/docs/mcp" />
+  <RelatedPage href="/blog/agentic-crm" />
+  <RelatedPage href="/for/agencies" />
 </RelatedPages>

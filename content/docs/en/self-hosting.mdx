@@ -7,37 +7,22 @@ Self-hosting requires two files (`docker-compose.yml` and `.env`) plus `docker c
 
 ## Self-host vs cloud
 
-Both run the same core application. The self-hosted build matches the Starter core CRM feature set, including audit logging, and supports external MCP clients using your own AI provider. The Customermates-hosted in-app Assistant and its plan credits are cloud-only. The unified inbox and calendar sync are Enterprise Edition features (the `ee/` components) and come with the Pro tier on the cloud. Enterprise SSO and white-labeling are not implemented in either build; they are contracted items negotiated in an Enterprise agreement, not switches we can turn on today. For a self-hosted deployment that includes the `ee/` components, contact us for an Enterprise Edition agreement. Google and Microsoft OAuth sign-in works in either deployment once you set the provider env vars; without them, self-hosted installs sign in with email.
+Self-hosting uses the Starter entitlement baseline. It includes the core CRM records, views, REST, webhooks and MCP for an external AI client that you select and fund. It does not include connected messaging accounts, the unified inbox, connected calendar view, hosted Mate or hosted AI credits. Paying for another cloud plan does not expand the self-hosted entitlement set.
 
-| If you… | Pick |
-|---|---|
-| Want to be using the CRM today | **Cloud** |
-| Have a team of < 20 and no strong data-residency requirement | **Cloud** |
-| Need the CRM on private infra for compliance | **Self-host** |
-| Want to avoid per-seat pricing long-term | **Self-host** |
-| Are an agency managing multiple tenants | **Self-host**, one instance per tenant |
-| Want to contribute to the project | **Self-host** locally, Cloud for real work |
+| Decision factor                      | Managed cloud                                                                   | Self-hosted                                                              |
+| ------------------------------------ | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Application and database operations  | Customermates operates them                                                     | You operate Docker, PostgreSQL, network access, TLS, updates and backups |
+| Core CRM records and views           | Included by plan                                                                | Starter baseline                                                         |
+| Unified inbox and connected calendar | Available on entitled cloud plans                                               | Not included                                                             |
+| AI access                            | External MCP; hosted Mate capability remains release-gated                      | External MCP with your own client and provider                           |
+| Connected providers                  | Configured within the managed product                                           | You configure and assess every external provider                         |
+| Pricing                              | Per-user cloud subscription from [[commercial.price.starter.monthly]] per month | Your infrastructure, providers and operator time                         |
 
-| | Cloud | Self-host |
-|---|---|---|
-| Setup time | 2 minutes | ~15 minutes |
-| Infra you manage | none | Docker, Postgres, proxy, TLS, backups |
-| Updates | automatic | `docker compose pull && docker compose up -d` |
-| EU-hosted | ✓ | wherever you put it |
-| Backups | automatic daily | you configure |
-| Support SLA | included on paid plans | community |
-| Unified inbox and calendar sync | from the Pro plan | not included (Cloud feature) |
-| Audit log | included on every plan | included |
-| AI access | Hosted Assistant credits plus external MCP | External MCP with your provider; no hosted Assistant |
-| Enterprise SSO, white-label (not implemented; contracted) | By agreement | By agreement |
-| Google/Microsoft OAuth sign-in | ✓ | ✓, set the provider env vars |
-| Pricing | per user, tiers from [[commercial.price.starter.monthly]]/month | free (core CRM); Enterprise features by agreement |
+Self-hosting lets you choose where the application and database run. It does not create a security, compliance, privacy or air-gap guarantee by itself. Your organization remains responsible for configuration, providers, contracts, retention and operating controls.
 
-**Data custody:** Cloud stores data in our EU region, GDPR-compliant, with the usual encryption-at-rest and in-transit. If your compliance posture requires data on your own infra, self-host.
+Compare total operating cost rather than assuming one model is cheaper. Include infrastructure, backups, restore testing, monitoring, updates, incident response and external providers as well as any subscription price.
 
-**Cost shape:** Cloud is priced per user across tiers, starting at [[commercial.price.starter.monthly]]/user/month; messaging capacity and hosted Assistant allowances grow with the plan. Self-host is free for the core application plus whatever you pay for infrastructure and your own AI provider. For a small team, cloud is often cheaper once you account for the time to run Postgres backups yourself. For a larger team, self-host is usually the lower cost.
-
-You can migrate between them: export from one, import to the other. The data model is identical.
+Customermates has no dedicated CRM-record import or export workflow. Treat any move between systems as a separately designed and validated migration project.
 
 ## Install
 
@@ -45,7 +30,6 @@ You can migrate between them: export from one, import to the other. The data mod
 
 - Docker and Docker Compose v2.
 - A domain name if you want TLS (optional for local).
-- ~2 GB RAM and a couple of GB of disk per thousand records.
 
 <Steps>
 <Step title="Create a directory and fetch the two config files">
@@ -60,9 +44,10 @@ Then edit `.env` with real values:
 - `BETTER_AUTH_SECRET`: a long random string (`openssl rand -hex 32`).
 - `POSTGRES_PASSWORD`: change the default.
 - `BASE_URL`: your public URL (e.g. `https://crm.example.com`). Defaults to `http://localhost:4000` for local.
-- `RESEND_API_KEY` and `RESEND_OPERATOR_EMAIL`: a free [Resend](https://resend.com) project. Required for signup verification, password reset, and invitation emails.
+- `RESEND_API_KEY` and `RESEND_OPERATOR_EMAIL`: a configured [Resend](https://resend.com) project. Required for signup verification, password reset, and invitation emails.
 </Step>
 <Step title="Start">
+
 ```bash
 docker compose up -d
 ```
@@ -74,6 +59,7 @@ docker compose logs -f app
 ```
 
 When the app is ready, open `http://localhost:4000` (or your custom `APP_PORT`).
+
 </Step>
 <Step title="First account">
 Open the URL. Sign up with your email, click the verification link from the inbox, then choose a workspace name. Manage roles for additional users from Company → Users and Company → Roles.
@@ -88,6 +74,7 @@ crm.example.com {
 ```
 
 Customermates sets secure cookies when `BASE_URL` uses `https://`. Make sure the proxy forwards `X-Forwarded-Proto` correctly.
+
 </Step>
 <Step title="Create an API key">
 Profile → API Keys → New key. Same flow as cloud. See [API keys](/docs/api-keys).
@@ -105,13 +92,13 @@ docker compose up -d
 
 Pulls the latest app image and restarts the affected services. Migrations run automatically on container boot. Verify with `docker compose ps`.
 
-### Restart
+### Apply configuration changes
 
 ```bash
-docker compose restart
+docker compose up -d
 ```
 
-Restarts the stack without pulling a new image. Use after `.env` changes.
+Reconciles the stack and recreates affected containers when configuration changed. Use it after `.env` changes. For a simple restart with unchanged configuration, `docker compose restart` is sufficient.
 
 ### Logs and troubleshooting
 
@@ -122,7 +109,7 @@ docker compose ps
 docker compose exec app sh
 ```
 
-Background jobs (webhook deliveries, inbox sync, and message backfill) run in-process via an embedded Postgres-backed worker that starts with the app. There is no external job service to configure. Inspect their progress in the app logs (`docker compose logs -f app`).
+Enabled background jobs run in-process through the Postgres-backed worker that starts with the application. There is no separate worker service in the Compose file. Inspect application logs with `docker compose logs -f app`.
 
 ### Reset all data
 
@@ -138,8 +125,9 @@ docker compose up -d
 Back up Postgres with `pg_dump` on a schedule. The app container is stateless.
 
 ```bash
-docker compose exec -T postgres pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB" \
-  | gzip > /var/backups/customermates-$(date +%Y%m%d).sql.gz
+mkdir -p backups
+docker compose exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' \
+  | gzip > backups/customermates-$(date +%Y%m%d).sql.gz
 ```
 
 For production:
@@ -148,9 +136,11 @@ For production:
 - Test restore procedures in a non-production environment.
 - Keep `.env` and secrets out of source control.
 
-## Enterprise features
+## Edition boundary
 
-The unified inbox and calendar sync are Enterprise Edition features (the `ee/` components) and come with the Pro tier on the cloud. Enterprise SSO and white-labeling have no implementation in the product; they are contracted items rather than shipped capabilities. The free community self-host build does not include the `ee/` components; audit logging is part of every deployment, self-hosted included. If you need them on your own infrastructure, contact us for an Enterprise Edition agreement. Google and Microsoft OAuth sign-in is part of the core and works self-hosted once you set the provider env vars.
+Every self-hosted deployment uses Starter entitlements. Connected messaging accounts, the unified inbox, connected calendar view, hosted Mate and hosted AI credits are cloud-only capabilities and are not unlocked in self-hosting by a paid cloud plan. External AI clients remain available through MCP. Review `LICENSE` and `ee/LICENSE.md` in the repository for the exact code-license boundary.
+
+The hosted in-app Assistant is cloud-only and remains release-gated. External MCP uses your own AI provider. Enterprise SSO and white-labeling are not implemented in either deployment model.
 
 ## Next
 

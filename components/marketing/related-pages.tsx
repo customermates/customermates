@@ -2,21 +2,30 @@ import type { ReactNode } from "react";
 
 import { getLocale, getTranslations } from "next-intl/server";
 
-import { comparePagesSource, featurePagesSource, forPagesSource } from "@/core/fumadocs/source";
+import {
+  blogPostsSource,
+  comparePagesSource,
+  docsSource,
+  featurePagesSource,
+  forPagesSource,
+} from "@/core/fumadocs/source";
 import { compareDisplayTitle } from "@/core/seo/compare-title";
 import { contentLocaleOrDefault } from "@/i18n/locale-registry";
 
 import { HubPostCard } from "./hub-post-card";
+import { type RelatedRouteSegment, type RelatedTargetResolver, resolveRelatedTarget } from "./related-target";
 
-type ResolvedTarget = { description: string; imageSrc?: string; title: string };
+const RELATED_SEGMENTS: Record<RelatedRouteSegment, RelatedTargetResolver> = {
+  blog: (slug, locale) => {
+    const page = blogPostsSource.getPage([slug], locale);
+    if (!page) return null;
 
-type Resolver = (
-  slug: string,
-  locale: string,
-  alternativeTitle: (competitor: string) => string,
-) => ResolvedTarget | null;
-
-const RELATED_SEGMENTS: Record<string, Resolver> = {
+    return {
+      description: page.data.description,
+      imageSrc: page.data.acquisition ? undefined : `${slug}.png`,
+      title: page.data.title,
+    };
+  },
   compare: (slug, locale, alternativeTitle) => {
     const page = comparePagesSource.getPage([slug], locale);
     if (!page) return null;
@@ -30,6 +39,15 @@ const RELATED_SEGMENTS: Record<string, Resolver> = {
         page.data.comparison?.competitor2Name,
         alternativeTitle,
       ),
+    };
+  },
+  docs: (slug, locale) => {
+    const page = docsSource.getPage([slug], locale);
+    if (!page) return null;
+
+    return {
+      description: page.data.description,
+      title: page.data.title,
     };
   },
   features: (slug, locale) => {
@@ -67,16 +85,13 @@ export async function RelatedPages({ children }: { children: ReactNode }) {
 }
 
 export async function RelatedPage({ href }: { href: string }) {
-  const locale = await getLocale();
-  const t = await getTranslations();
-  const [, segment, slug] = href.split("/");
-  const resolve = RELATED_SEGMENTS[segment ?? ""];
-
-  if (!resolve || !slug) throw new Error(`RelatedPage href "${href}" is not a related-page route`);
-
-  const target = resolve(slug, locale, (competitor) => t("ComparePage.alternativeTitle", { competitor }));
-
-  if (!target) throw new Error(`RelatedPage href "${href}" resolves to no published page in ${locale}`);
+  const [locale, t] = await Promise.all([getLocale(), getTranslations()]);
+  const target = resolveRelatedTarget(
+    href,
+    locale,
+    (competitor) => t("ComparePage.alternativeTitle", { competitor }),
+    RELATED_SEGMENTS,
+  );
 
   return (
     <div className="min-w-0">

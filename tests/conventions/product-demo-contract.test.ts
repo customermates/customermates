@@ -27,12 +27,12 @@ const PAGE_DEMOS: readonly PageDemo[] = [
   {
     file: "content/for-pages/en/professional-services.mdx",
     path: "/deals",
-    precedingCopy: "## What this CRM covers",
+    precedingCopy: "<ProofRail label=\"Verified professional-services CRM capabilities\">",
   },
   {
     file: "content/for-pages/de/professional-services.mdx",
     path: "/deals",
-    precedingCopy: "## Was dieses CRM abdeckt",
+    precedingCopy: "<ProofRail label=\"Verifizierte CRM-Funktionen für Dienstleister\">",
   },
   {
     file: "content/blog-posts/en/open-source-crm.mdx",
@@ -55,8 +55,12 @@ function read(relativePath: string): string {
 describe("seeded public product demo", () => {
   it("builds locale-aware URLs for only the three reviewed demo surfaces", () => {
     expect(PRODUCT_DEMO_PATHS).toStrictEqual(["/dashboard", "/inbox", "/deals"]);
-    expect(buildProductDemoUrl("en", "/inbox")).toBe("https://demo.customermates.com/en/inbox");
-    expect(buildProductDemoUrl("de", "/deals")).toBe("https://demo.customermates.com/de/deals");
+    expect(buildProductDemoUrl("en", "/inbox")).toBe(
+      "https://demo.customermates.com/en/inbox?agentChat=closed",
+    );
+    expect(buildProductDemoUrl("de", "/deals")).toBe(
+      "https://demo.customermates.com/de/deals?agentChat=closed",
+    );
     expect(() => buildProductDemoUrl("en", "/contacts")).toThrow("Unsupported product demo path: /contacts");
   });
 
@@ -86,6 +90,10 @@ describe("seeded public product demo", () => {
     expect(demo).toContain("Öffentliche, vorbefüllte Produktdemo");
     expect(demo).toContain("not a self-hosted deployment");
     expect(demo).toContain("kein Self-Hosted-Deployment");
+    expect(demo).toContain("Mate starts closed");
+    expect(demo).toContain("Mate startet geschlossen");
+    expect(demo).toContain("copy.guidedTasks[path].map");
+    expect(demo).toContain("fallbackMessage={copy.fallback}");
     expect(demo).toContain("title={copy.titles[path]}");
     expect(demo).toContain('size="article"');
 
@@ -94,6 +102,9 @@ describe("seeded public product demo", () => {
     expect(frame).toContain("IntersectionObserver");
     expect(frame).toContain('loading="lazy"');
     expect(frame).toContain('sandbox="allow-scripts allow-same-origin allow-popups allow-forms"');
+    expect(frame).toContain('referrerPolicy="strict-origin-when-cross-origin"');
+    expect(frame).toContain("12_000");
+    expect(frame).toContain("motion-reduce:animate-none");
     expect(frame).toContain('target="_blank"');
   });
 });

@@ -31,8 +31,8 @@ acquisition:
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
       headline: "Agentic & AI-Native CRM: MCP, Mate and Safe Actions"
-      body: "See how AI-native CRM architecture differs from agentic behavior, where external MCP clients act under user permissions, and where client-side or Mate approval controls apply."
-      checksum: fnv1a-c7827430
+      body: "Follow one bounded example: an external MCP client saves a draft on an existing inbox thread for a person to review and send; authorized send tools do not gain a second server approval."
+      checksum: fnv1a-eac67a4f
     kind: brand-illustration
     pathway: handoff
     placements:
@@ -40,11 +40,11 @@ acquisition:
       - split
       - narrow
     selection: automatic
-    takeaway: "An external AI client prepares the draft; a person keeps the final action."
+    takeaway: "On an existing inbox thread, an external AI client saves a draft for a person to review and send."
     depiction:
       kind: change
       productBehavior: true
-      statement: "An external AI client prepares the draft; a person keeps the final action."
+      statement: "On an existing inbox thread, an external AI client saves a draft for a person to review and send."
     factReferences:
       - product:human-send-boundary
     focalLabel:
@@ -77,7 +77,7 @@ acquisition:
 
 hero:
   title: "Agentic & AI-Native CRM: MCP, Mate and Safe Actions"
-  description: See how AI-native CRM architecture differs from agentic behavior, where external MCP clients act under user permissions, and where client-side or Mate approval controls apply.
+  description: "Follow one bounded example: an external MCP client saves a draft on an existing inbox thread for a person to review and send; authorized send tools do not gain a second server approval."
 
 blogPost:
   author: Benjamin Wagner
@@ -97,6 +97,21 @@ An **AI-native CRM** exposes structured customer data and typed actions that AI 
 
 Customermates supports this model through external AI clients connected by MCP. The product also contains a cloud-only in-app assistant capability called Mate, but its production availability depends on hosted configuration and release conditions. This page therefore describes the capability without claiming that Mate is generally available.
 
+<ArticleSummary title="At a glance">
+  <SummaryItem label="AI-native architecture">Structured CRM records and typed actions give an authorized AI client something reliable to work with.</SummaryItem>
+  <SummaryItem label="Agentic behavior">The client can combine supported reads and actions into a workflow instead of only generating text.</SummaryItem>
+  <SummaryItem label="Current open path">External AI clients connect through MCP in cloud and self-hosted deployments. The customer selects and funds the client and model provider.</SummaryItem>
+  <SummaryItem label="Control boundary">Server permissions authorize the action. Confirmation behavior for external MCP sits in the chosen client; Mate uses a separate release-gated path.</SummaryItem>
+</ArticleSummary>
+
+<ProofRail label="Verified agentic CRM building blocks">
+  <ProofItem label="Context">CRM records and relations</ProofItem>
+  <ProofItem label="Actions">Typed MCP tools</ProofItem>
+  <ProofItem label="Authorization">User permissions on the server</ProofItem>
+  <ProofItem label="Confirmation">Client-specific for external MCP</ProofItem>
+  <ProofItem label="Deployment">Cloud and self-hosted MCP</ProofItem>
+</ProofRail>
+
 ## What makes a CRM agentic?
 
 A useful agentic CRM needs four things:
@@ -107,6 +122,14 @@ A useful agentic CRM needs four things:
 4. **Control boundaries:** the chosen client, server permissions and any assistant-specific approval gates must be understood separately.
 
 That is different from a chatbot that only writes text. It is also different from promising autonomous lead scoring, enrichment, forecasting or outreach that the product does not provide.
+
+## A concrete, bounded agentic workflow
+
+An external client can read the context for a contact, inspect related CRM records and prepare a draft or a record update with typed tools. The server still validates the request and applies the requesting user's permissions. Before enabling a destructive action or outbound send, the operator must verify how the exact client presents and confirms that side effect.
+
+<AcquisitionCallout title="Authorization is not the same as confirmation" variant="boundary">
+  CRM permissions decide whether the user may perform an action. The MCP instructions tell compatible clients to request confirmation for sends and deletes, but the server does not add a second approval after an authorized client calls the tool. Treat those as two separate controls during evaluation.
+</AcquisitionCallout>
 
 ## Two AI paths in Customermates
 
@@ -121,7 +144,7 @@ The [MCP documentation](/docs/mcp) is the source for setup and the changing tool
 
 The MCP surface covers supported work across contacts, organizations, deals, services, tasks, custom fields, dashboards, webhooks and related CRM resources. An external client can combine those typed tools into a workflow while the CRM keeps record validation and permissions on the server.
 
-On entitled cloud accounts, MCP also exposes supported messaging work for the [unified inbox](/features/unified-inbox), such as reading threads, saving drafts, triaging conversations and sending replies. The inbox supports email, LinkedIn, WhatsApp, Instagram and Telegram connections—not SMS or telephony.
+On entitled cloud accounts, MCP also exposes supported messaging work for the [unified inbox](/features/unified-inbox), such as reading threads, saving drafts, triaging conversations and sending replies. The inbox supports email, LinkedIn, WhatsApp, Instagram and Telegram connections, not SMS or telephony.
 
 ## Approval boundaries differ between MCP and Mate
 
@@ -139,7 +162,7 @@ The Mate capability has separate, enforced per-call approval gates for destructi
 | Hosted Mate capability      | Cloud only, release-gated | No                        |
 | Hosted AI credits           | Plan-based capability     | No                        |
 
-Self-hosting uses Starter entitlements. It remains a strong option for teams that want an [open-source, self-hosted CRM](/features/self-hosted) and prefer to connect their own AI client and provider through MCP.
+Self-hosting uses Starter entitlements. It remains a strong option for teams that want a [self-hosted CRM with an open-source core](/features/self-hosted) and prefer to connect their own AI client and provider through MCP.
 
 ## Agentic CRM and AI-native CRM
 
@@ -156,13 +179,17 @@ For buyers, the practical questions matter more than the label:
 
 ## How to start with MCP
 
-1. Review the [MCP tool and connection guide](/docs/mcp).
-2. Choose an AI client and provider appropriate for your data policy.
-3. Grant only the CRM permissions needed for the workflow.
-4. Start with reversible read and draft tasks.
-5. Verify the client's confirmation behavior before enabling deletes or outbound sends.
+<Steps>
+  <Step title="Inspect the current tools">Review the [MCP connection and tool guide](/docs/mcp) instead of relying on a copied tool list.</Step>
+  <Step title="Choose the external providers">Select an AI client and model provider that fit your data policy and operating requirements.</Step>
+  <Step title="Limit permissions">Grant only the CRM permissions required by the first workflow.</Step>
+  <Step title="Start with reversible work">Begin with reads, summaries and drafts before enabling writes, deletes or outbound sends.</Step>
+  <Step title="Verify the client controls">Confirm how the exact client displays side effects and waits for approval before expanding access.</Step>
+</Steps>
 
-[Read the MCP guide](/docs/mcp) to evaluate the current integration. If you also want to evaluate the managed CRM, [start a cloud trial](/auth/signup) without treating signup as proof that the release-gated Mate capability is live.
+<AcquisitionCallout title="Evaluate the current integration" variant="fit">
+  [Read the MCP guide](/docs/mcp) for the current connection path. You can also [start a cloud trial](/auth/signup) to evaluate the managed CRM. Signup does not prove that the release-gated Mate capability is live.
+</AcquisitionCallout>
 
 ## Frequently asked questions
 

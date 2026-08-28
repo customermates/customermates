@@ -40,9 +40,8 @@ export async function generateMetadata({
 }
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
-  const locale = contentLocaleOrDefault(await getLocale());
-  const t = await getTranslations();
+  const [{ slug }, rawLocale, t] = await Promise.all([params, getLocale(), getTranslations()]);
+  const locale = contentLocaleOrDefault(rawLocale);
   const page = blogPostsSource.getPage([slug], locale);
 
   if (!page) notFound();
@@ -164,11 +163,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </MarketingContainer>
       </section>
 
-      <LandingArticle items={page.data.toc}>
+      <LandingArticle founderContact={Boolean(page.data.acquisition)} items={page.data.toc}>
         <MDX components={components} />
       </LandingArticle>
 
-      {sortedPosts.length > 0 && (
+      {sortedPosts.length > 0 ? (
         <MarketingSection className="py-14 sm:py-18 lg:py-20" tone="page">
           <h2 className="text-display-sm mb-8">{t("BlogPostPage.relatedArticles")}</h2>
 
@@ -191,7 +190,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             })}
           </div>
         </MarketingSection>
-      )}
+      ) : null}
 
       <Footer />
     </div>

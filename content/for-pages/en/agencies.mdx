@@ -51,6 +51,7 @@ acquisition:
     factReferences:
       - product:deal-status-field
       - product:deal-weighted-values
+      - product:record-activity-context
     focalLabel:
       locale: en
       text: Agency pipeline
@@ -79,65 +80,84 @@ acquisition:
 hero:
   title: An Agency CRM for New Business and Client Relationships
   description: Track prospects, client context, deal stages, service value and follow-up tasks in one place. Keep project delivery, proposals, invoicing and time tracking in your specialist tools.
-  buttonLeftText: Start for free
+  buttonLeftText: Start the Pro trial
   buttonLeftHref: /auth/signup
-  buttonRightText: Watch the demo
+  buttonRightText: Explore the demo
   buttonRightHref: https://demo.customermates.com
   hint: "No credit card required • [[commercial.trial.days]]-day Pro trial"
+  showOpenSourceBadge: false
 
 cta:
   action: Give agency relationships a reliable system of record
   description: See whether Customermates fits the way your agency qualifies opportunities and keeps client context.
-  buttonLeftText: Start for free
+  buttonLeftText: Start the Pro trial
   buttonLeftHref: /auth/signup
-  buttonRightText: Watch the demo
+  buttonRightText: Explore the demo
   buttonRightHref: https://demo.customermates.com
   hint: "Use your existing project, proposal, time and billing tools for delivery."
 ---
 
-Customermates is a **CRM for agencies** that need one place for prospects, client organizations, new-business deals, services and follow-up tasks. It supports the relationship and sales side of agency work; it does not replace proposal, project-delivery, time-tracking or invoicing software.
+Customermates is a **CRM for agencies** that turns referrals, inquiries and relationships into a visible new-business pipeline. Prospects, client organizations, opportunities, services, owners and next actions stay connected until the work is ready for an explicit handoff to delivery.
 
-## What an agency can manage
+<ArticleSummary title="At a glance">
+  <SummaryItem label="Best for">Agencies that manage new business through relationships, multiple stakeholders and a staged sales process.</SummaryItem>
+  <SummaryItem label="Core job">Give business development and account teams one reliable view of the prospect, opportunity and next action.</SummaryItem>
+  <SummaryItem label="Strongest proof">An agency-specific deal board, linked service values, weighted totals and record-linked tasks.</SummaryItem>
+  <SummaryItem label="System boundary">The CRM takes the opportunity to the handoff. Project delivery, proposals, time and invoicing stay in the agency stack.</SummaryItem>
+</ArticleSummary>
 
-| Agency workflow                   | Customermates capability                          | Product boundary                                            |
-| --------------------------------- | ------------------------------------------------- | ----------------------------------------------------------- |
-| Prospects and client stakeholders | Related contact and organization records          | No automated enrichment                                     |
-| New-business pipeline             | Deals, configurable stages and kanban views       | A stage named “Proposal” is not a proposal document         |
-| Scope under discussion            | Services, quantities and amounts linked to a deal | No SOW or project-delivery model                            |
-| Pipeline value                    | Stage probabilities and weighted deal totals      | No predictive close forecast                                |
-| Next actions                      | Tasks linked to records and responsible users     | No native sequence or scheduler                             |
-| Client conversations              | Cloud Pro+ inbox for supported channels           | No self-hosted inbox and no direct message-to-deal relation |
+<ProofRail label="Verified agency CRM capabilities">
+  <ProofItem label="Context">Contacts and client organizations</ProofItem>
+  <ProofItem label="New business">Configurable deal stages</ProofItem>
+  <ProofItem label="Commercial scope">Services, quantities and amounts</ProofItem>
+  <ProofItem label="Follow-up">Tasks linked to CRM records</ProofItem>
+  <ProofItem label="Conversation">Cloud inbox from Pro</ProofItem>
+</ProofRail>
 
-## A practical new-business workflow
+## From an inquiry to a clean delivery handoff
 
-1. Add the prospect and link them to the client organization.
-2. Create a deal and select the current stage.
-3. Attach the services, quantities and amounts being discussed.
-4. Assign a record-linked task for the next action.
-5. Use the board and weighted totals to review the pipeline.
-6. Hand the signed work to your existing project and finance systems.
+An agency opportunity rarely starts as a tidy deal. It may arrive through a referral, an existing client, email or a social conversation. The first useful step is to create the person and client organization, then open a deal when the opportunity is real enough to track.
 
-This gives business development and account teams shared context without forcing delivery work into the CRM.
+Custom fields can hold the qualification details your agency actually reviews. Services, quantities and amounts record the commercial scope currently being discussed. The owner and linked task make the next action visible without turning the CRM into a project plan.
 
-## Client communication in the hosted inbox
+<Steps>
+  <Step title="Capture the relationship">Add the prospect, connect the client organization and preserve the source or referral context in supported fields.</Step>
+  <Step title="Qualify the opportunity">Create a deal, assign an owner and move it through the new-business stages your agency uses.</Step>
+  <Step title="Represent the scope">Link services, quantities and amounts so the board carries more than a deal name.</Step>
+  <Step title="Keep momentum visible">Attach the next task to the relevant record and review weighted pipeline totals with the team.</Step>
+  <Step title="Hand off won work">Move the signed scope into the project and finance systems that own delivery, time and billing.</Step>
+</Steps>
 
-The [unified inbox](/features/unified-inbox) is available in the managed cloud from Pro upward. It brings supported email, LinkedIn, WhatsApp, Instagram and Telegram conversations into one list. Conversations can be matched to contact context; they are not directly attached to a deal.
+## What belongs in the CRM and what belongs in the agency stack
 
-Pro includes one connected account per user. Business includes three per user and supports shared accounts. Enterprise includes unlimited connected accounts under fair-use terms and supports shared accounts. The inbox is not available when self-hosting.
+| Agency moment | Customermates owns | Another system owns |
+| --- | --- | --- |
+| Prospecting and qualification | People, organizations, deal stages, owners and custom fields | Enrichment, scoring and outbound sequences |
+| Commercial discussion | Deal value, linked services and follow-up context | Proposal, statement of work and contract documents |
+| New-business review | Board, stage probabilities and weighted totals | Predictive forecasting and finance planning |
+| Delivery handoff | Final relationship and commercial context | Projects, capacity, time, invoicing and accounting |
+
+<AcquisitionCallout title="A stage called Proposal is still only a stage" variant="boundary">
+  The pipeline can show where an opportunity sits, but it does not generate a proposal, contract or invoice. Keeping that distinction explicit prevents a sales status from becoming a second, stale version of the signed scope.
+</AcquisitionCallout>
+
+## Bring supported conversations into the relationship context
+
+The [unified inbox](/features/unified-inbox) is available in managed cloud from Pro upward. It brings supported conversations into one list and lets participants be associated with CRM contacts. The contact relationship is the bridge to relevant client and pipeline context because messages do not have a direct deal relation.
+
+Use the dedicated inbox page for the complete channel set, account-sharing model and plan boundaries. Self-hosted Customermates does not include connected messaging accounts or the unified inbox.
 
 ## Connect the rest of the agency stack
 
-Customermates exposes [REST and webhooks](/features/api), and external AI clients can work with supported CRM records through [MCP](/docs/mcp). A separate [n8n integration](/features/workflow-automation) can coordinate systems when you design and operate the workflow.
+Customermates exposes [REST and webhooks](/features/api), while external AI clients can work with supported CRM records through [MCP](/docs/mcp). A separately operated [n8n integration](/features/workflow-automation) can coordinate a workflow you design and verify.
 
-Those interfaces are connection points, not a promise of turnkey synchronization. Your project-management, proposal, time-tracking and accounting systems remain responsible for their own records and automation.
-
-## Agency CRM or professional-services CRM?
-
-This page focuses on broad agency new-business intent. The [professional-services CRM](/for/professional-services) page explains the wider relationship-and-pipeline model for expertise-led businesses.
+<AcquisitionCallout title="Choose the right agency page" variant="fit">
+  This page covers the broad agency new-business workflow. [CRM for professional services](/for/professional-services) explains the umbrella relationship-and-pipeline model across expertise-led firms, while the [unified inbox](/features/unified-inbox) documents the exact supported conversation channels and plan boundary.
+</AcquisitionCallout>
 
 ## Cloud or self-hosted
 
-The core contacts, organizations, deals, services, tasks, REST, webhooks and MCP are available in the managed cloud and [self-hosted edition](/features/self-hosted). Self-hosting uses Starter entitlements and excludes the unified inbox, connected calendar view and hosted Mate capability.
+Core contacts, organizations, deals, services, tasks, REST, webhooks and MCP are available in managed cloud and the [self-hosted edition](/features/self-hosted). Self-hosting uses Starter entitlements and leaves the unified inbox, connected calendar view and hosted Mate capability out of the deployment.
 
 ## Frequently asked questions
 
@@ -167,8 +187,8 @@ Yes. Self-hosted Customermates supports external AI clients through MCP. It does
 </Faq>
 
 <RelatedPages>
-  <RelatedPage href="/for/b2b" />
-  <RelatedPage href="/for/mid-market" />
   <RelatedPage href="/for/professional-services" />
-  <RelatedPage href="/for/startups" />
+  <RelatedPage href="/features/unified-inbox" />
+  <RelatedPage href="/features/self-hosted" />
+  <RelatedPage href="/blog/agentic-crm" />
 </RelatedPages>

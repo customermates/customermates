@@ -31,8 +31,8 @@ acquisition:
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
       headline: "Agentisches & KI-natives CRM: MCP, Mate und sichere Aktionen"
-      body: "Erfahren Sie, wie sich KI-native CRM-Architektur und agentisches Verhalten unterscheiden, wie externe MCP-Clients mit Nutzerrechten arbeiten und wo Client oder Mate eine Freigabe einholen."
-      checksum: fnv1a-fc27c98e
+      body: "Ein klar begrenztes Beispiel: Ein externer MCP-Client speichert in einem bestehenden Inbox-Thread einen Entwurf, den ein Mensch prüft und sendet; autorisierte Versand-Tools erhalten keine zweite Serverfreigabe."
+      checksum: fnv1a-6be63092
     kind: brand-illustration
     pathway: handoff
     placements:
@@ -40,11 +40,11 @@ acquisition:
       - split
       - narrow
     selection: automatic
-    takeaway: "Ein externer KI-Client bereitet den Entwurf vor; ein Mensch behält die letzte Aktion."
+    takeaway: "In einem bestehenden Inbox-Thread speichert ein externer KI-Client einen Entwurf, den ein Mensch prüft und sendet."
     depiction:
       kind: change
       productBehavior: true
-      statement: "Ein externer KI-Client bereitet den Entwurf vor; ein Mensch behält die letzte Aktion."
+      statement: "In einem bestehenden Inbox-Thread speichert ein externer KI-Client einen Entwurf, den ein Mensch prüft und sendet."
     factReferences:
       - product:human-send-boundary
     focalLabel:
@@ -77,7 +77,7 @@ acquisition:
 
 hero:
   title: "Agentisches & KI-natives CRM: MCP, Mate und sichere Aktionen"
-  description: Erfahren Sie, wie sich KI-native CRM-Architektur und agentisches Verhalten unterscheiden, wie externe MCP-Clients mit Nutzerrechten arbeiten und wo Client oder Mate eine Freigabe einholen.
+  description: "Ein klar begrenztes Beispiel: Ein externer MCP-Client speichert in einem bestehenden Inbox-Thread einen Entwurf, den ein Mensch prüft und sendet; autorisierte Versand-Tools erhalten keine zweite Serverfreigabe."
 
 blogPost:
   author: Benjamin Wagner
@@ -93,9 +93,24 @@ blogPost:
 
 # Agentisches und KI-natives CRM: MCP, Mate und sichere Aktionen
 
-Ein **KI-natives CRM** stellt strukturierte Kundendaten und klar definierte Aktionen für KI bereit. Ein **agentisches CRM** lässt einen KI-Client oder Assistenten damit unterstützte Arbeit ausführen: Kontext lesen, Datensätze anlegen oder aktualisieren, einen Entwurf vorbereiten oder einen Ablauf abschließen. Die Begriffe überschneiden sich, beschreiben aber unterschiedliche Ebenen – Architektur und Verhalten.
+Ein **KI-natives CRM** stellt strukturierte Kundendaten und klar definierte Aktionen für KI bereit. Ein **agentisches CRM** lässt einen KI-Client oder Assistenten damit unterstützte Arbeit ausführen: Kontext lesen, Datensätze anlegen oder aktualisieren, einen Entwurf vorbereiten oder einen Ablauf abschließen. Die Begriffe überschneiden sich, beschreiben aber unterschiedliche Ebenen: Architektur und Verhalten.
 
 Customermates unterstützt dieses Modell über externe KI-Clients, die per MCP verbunden werden. Das Produkt enthält außerdem die cloudbasierte In-App-Assistentenfunktion Mate. Ob sie produktiv verfügbar ist, hängt jedoch von der Konfiguration der gehosteten Umgebung und den Freigabebedingungen ab. Diese Seite beschreibt deshalb die Funktion, ohne Mate als allgemein verfügbar darzustellen.
+
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="KI-native Architektur">Strukturierte CRM-Datensätze und typisierte Aktionen geben einem autorisierten KI-Client eine verlässliche Arbeitsgrundlage.</SummaryItem>
+  <SummaryItem label="Agentisches Verhalten">Der Client kann unterstützte Lese- und Schreibaktionen zu einem Ablauf verbinden, statt nur Text zu erzeugen.</SummaryItem>
+  <SummaryItem label="Aktueller offener Weg">Externe KI-Clients verbinden sich in Cloud und Self-Hosting über MCP. Auswahl und Kosten für Client und Modellanbieter liegen beim Kunden.</SummaryItem>
+  <SummaryItem label="Kontrollgrenze">Serverberechtigungen autorisieren die Aktion. Bei externem MCP liegt die Bestätigung im gewählten Client; Mate folgt einem separaten, freigabegebundenen Pfad.</SummaryItem>
+</ArticleSummary>
+
+<ProofRail label="Verifizierte Bausteine eines agentischen CRM">
+  <ProofItem label="Kontext">CRM-Datensätze und Beziehungen</ProofItem>
+  <ProofItem label="Aktionen">Typisierte MCP-Tools</ProofItem>
+  <ProofItem label="Autorisierung">Nutzerrechte auf dem Server</ProofItem>
+  <ProofItem label="Bestätigung">Clientabhängig bei externem MCP</ProofItem>
+  <ProofItem label="Betrieb">MCP in Cloud und Self-Hosting</ProofItem>
+</ProofRail>
 
 ## Was macht ein CRM agentisch?
 
@@ -106,7 +121,15 @@ Ein sinnvolles agentisches CRM braucht vier Bausteine:
 3. **Berechtigungen:** Jede Aktion bleibt durch die Rechte des anfragenden Nutzers begrenzt.
 4. **Kontrollgrenzen:** Client-Verhalten, Serverberechtigungen und assistentenspezifische Freigaben müssen getrennt bewertet werden.
 
-Das unterscheidet ein agentisches CRM von einem Chatbot, der nur Text erzeugt. Es verspricht ebenso wenig autonomes Lead-Scoring, Datenanreicherung, Prognosen oder Outreach – diese Funktionen bietet Customermates nicht.
+Das unterscheidet ein agentisches CRM von einem Chatbot, der nur Text erzeugt. Es verspricht ebenso wenig autonomes Lead-Scoring, Datenanreicherung, Prognosen oder Outreach. Diese Funktionen bietet Customermates nicht.
+
+## Ein konkreter, begrenzter agentischer Ablauf
+
+Ein externer Client kann den Kontext eines Kontakts lesen, verknüpfte CRM-Datensätze prüfen und mit typisierten Tools einen Entwurf oder eine Datensatzänderung vorbereiten. Der Server validiert die Anfrage und wendet die Berechtigungen des anfragenden Nutzers an. Bevor destruktive Aktionen oder externer Versand aktiviert werden, muss der Betreiber prüfen, wie der konkrete Client diese Wirkung anzeigt und bestätigen lässt.
+
+<AcquisitionCallout title="Autorisierung und Bestätigung sind nicht dasselbe" variant="boundary">
+  CRM-Berechtigungen entscheiden, ob ein Nutzer eine Aktion ausführen darf. Die MCP-Anweisungen fordern kompatible Clients auf, für Versand und Löschvorgänge eine Bestätigung einzuholen. Nach dem autorisierten Tool-Aufruf fügt der Server jedoch keine zweite Freigabe hinzu. Bewerten Sie beide Kontrollen getrennt.
+</AcquisitionCallout>
 
 ## Zwei KI-Wege in Customermates
 
@@ -121,7 +144,7 @@ Die [MCP-Dokumentation](/docs/mcp) ist die Quelle für Einrichtung und den verä
 
 Über MCP können unterstützte Aktionen an Kontakten, Unternehmen, Deals, Leistungen, Aufgaben, Custom Fields, Dashboards, Webhooks und weiteren CRM-Ressourcen ausgeführt werden. Ein externer Client kann typisierte Tools zu einem Ablauf verbinden; Validierung und Berechtigungen bleiben auf dem CRM-Server.
 
-Bei berechtigten Cloud-Konten umfasst MCP außerdem unterstützte Messaging-Aufgaben für den [einheitlichen Posteingang](/features/unified-inbox): Threads lesen, Entwürfe speichern, Unterhaltungen sortieren und Antworten senden. Der Posteingang unterstützt E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Verbindungen – nicht SMS oder Telefonie.
+Bei berechtigten Cloud-Konten umfasst MCP außerdem unterstützte Messaging-Aufgaben für den [einheitlichen Posteingang](/features/unified-inbox): Threads lesen, Entwürfe speichern, Unterhaltungen sortieren und Antworten senden. Der Posteingang unterstützt E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Verbindungen, nicht SMS oder Telefonie.
 
 ## Unterschiedliche Freigabegrenzen bei MCP und Mate
 
@@ -139,7 +162,7 @@ Die Mate-Funktion erzwingt bei jedem Tool-Aufruf eine eigene Freigabe für destr
 | Gehostete Mate-Funktion    | Nur Cloud, freigabegebunden | Nein                      |
 | Gehostete KI-Credits       | Tarifbasierte Funktion      | Nein                      |
 
-Self-Hosting nutzt Starter-Berechtigungen. Es eignet sich für Teams, die ein [quelloffenes, selbst gehostetes CRM](/features/self-hosted) betreiben und einen eigenen KI-Client und Modellanbieter über MCP verbinden möchten.
+Self-Hosting nutzt Starter-Berechtigungen. Es eignet sich für Teams, die ein [selbst gehostetes CRM mit quelloffenem Kern](/features/self-hosted) betreiben und einen eigenen KI-Client und Modellanbieter über MCP verbinden möchten.
 
 ## Agentisches CRM und KI-natives CRM
 
@@ -156,13 +179,17 @@ Für Käufer sind die praktischen Fragen wichtiger als das Etikett:
 
 ## Mit MCP starten
 
-1. Prüfen Sie die [MCP-Tool- und Verbindungsanleitung](/docs/mcp).
-2. Wählen Sie einen KI-Client und einen Anbieter, die zu Ihrer Datenrichtlinie passen.
-3. Vergeben Sie nur die CRM-Berechtigungen, die der Ablauf braucht.
-4. Beginnen Sie mit reversiblen Lese- und Entwurfsaufgaben.
-5. Prüfen Sie den Bestätigungsablauf des Clients, bevor Sie Löschvorgänge oder externen Versand zulassen.
+<Steps>
+  <Step title="Aktuelle Tools prüfen">Lesen Sie die [MCP-Verbindungs- und Tool-Anleitung](/docs/mcp), statt sich auf eine kopierte Tool-Liste zu verlassen.</Step>
+  <Step title="Externe Anbieter wählen">Wählen Sie einen KI-Client und Modellanbieter, die zu Datenrichtlinie und Betriebsanforderungen passen.</Step>
+  <Step title="Berechtigungen begrenzen">Vergeben Sie nur die CRM-Rechte, die der erste Ablauf wirklich benötigt.</Step>
+  <Step title="Mit reversibler Arbeit beginnen">Starten Sie mit Lesevorgängen, Zusammenfassungen und Entwürfen, bevor Sie Schreiben, Löschen oder externen Versand erlauben.</Step>
+  <Step title="Client-Kontrollen prüfen">Stellen Sie fest, wie der konkrete Client Nebenwirkungen anzeigt und auf Bestätigung wartet, bevor Sie den Zugriff erweitern.</Step>
+</Steps>
 
-[Lesen Sie die MCP-Anleitung](/docs/mcp), um die aktuelle Integration zu bewerten. Wenn Sie auch das verwaltete CRM testen möchten, können Sie [eine Cloud-Testphase starten](/auth/signup). Beachten Sie: Eine Anmeldung belegt nicht, dass Mate produktiv freigeschaltet ist.
+<AcquisitionCallout title="Die aktuelle Integration bewerten" variant="fit">
+  [Lesen Sie die MCP-Anleitung](/docs/mcp) für den aktuellen Verbindungsweg. Zusätzlich können Sie [eine Cloud-Testphase starten](/auth/signup), um das verwaltete CRM zu prüfen. Eine Anmeldung belegt nicht, dass die freigabegebundene Mate-Funktion produktiv aktiv ist.
+</AcquisitionCallout>
 
 ## Häufig gestellte Fragen
 

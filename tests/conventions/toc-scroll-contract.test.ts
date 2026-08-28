@@ -37,11 +37,11 @@ describe("shared table-of-contents scroll contract", () => {
     expect(tocSource).toContain('layout?: "article" | "default"');
     expect(tocSource).toContain('layout = "default"');
     expect(tocSource).toContain(
-      '"text-sm lg:grid lg:grid-cols-[minmax(0,88ch)_14rem] lg:justify-center lg:gap-8"',
+      '"text-sm lg:grid lg:grid-cols-[minmax(0,96ch)_15rem] lg:justify-center lg:gap-6"',
     );
-    expect(tocSource).toContain("lg:grid-cols-[minmax(0,88ch)_14rem]");
-    expect(tocSource).toContain("lg:gap-8");
-    expect(tocSource).toContain('layout === "article" ? "lg:w-56" : "max-w-68"');
+    expect(tocSource).toContain("lg:grid-cols-[minmax(0,96ch)_15rem]");
+    expect(tocSource).toContain("lg:gap-6");
+    expect(tocSource).toContain('layout === "article" ? "lg:w-60" : "max-w-68"');
     expect(tocSource).toContain('layout === "default" && "flex-1"');
   });
 });
