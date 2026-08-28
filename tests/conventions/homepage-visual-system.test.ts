@@ -104,10 +104,8 @@ describe("homepage visual-system adoption", () => {
 
     expect(hero).toContain('VISUAL_PROVIDER_SET_FIXTURES["unified-inbox"]');
     expect(hero).toContain("ProviderMark");
-    expect(hero).toContain("[background-size:56px_56px]");
-    expect(hero).toContain(
-      "[mask-image:linear-gradient(to_bottom,black_0%,black_38%,transparent_94%)]",
-    );
+    expect(hero).toContain("GridPattern");
+    expect(hero).toContain('fade="bottom"');
     expect(hero).not.toMatch(
       /HomepageAgentRecordVisual|GoogleCalendar|OutlookCalendar|Messenger|XTwitter/u,
     );

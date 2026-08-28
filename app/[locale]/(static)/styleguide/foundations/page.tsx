@@ -7,6 +7,7 @@ import { TokenTable, TypeTable } from "../components/style-readout";
 
 import { MarketingSection } from "@/components/marketing/marketing-section";
 import { Button } from "@/components/ui/button";
+import { GridPattern } from "@/components/shared/grid-pattern";
 
 export const metadata: Metadata = {
   title: "Marketing foundations",
@@ -114,7 +115,7 @@ const GEOMETRY = [
   },
   {
     label: "masked token grid",
-    role: "optional low-contrast atmosphere inside an artboard, never a required page background",
+    role: "low-contrast atmosphere for artboards and centered-card page shells; not a generic content backdrop",
     value: "optional",
   },
   {
@@ -315,7 +316,7 @@ export default function FoundationsPage() {
             <p className="text-meta mb-3">frameless artboard</p>
 
             <div className="relative size-28 overflow-hidden rounded-xl bg-sidebar">
-              <div className="absolute inset-0 opacity-45 [background-image:linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] [background-size:28px_28px] [mask-image:radial-gradient(circle_at_center,black,transparent_88%)]" />
+              <GridPattern className="opacity-45" density="compact" />
             </div>
           </div>
         </div>

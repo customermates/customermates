@@ -7,6 +7,7 @@ import { MarketingContainer } from "@/components/marketing/marketing-container";
 import { ProviderMark } from "@/components/marketing/visuals/native-visual-primitives";
 import { VISUAL_PROVIDER_SET_FIXTURES } from "@/components/marketing/visuals/native-fixtures";
 import { AppLink } from "@/components/shared/app-link";
+import { GridPattern } from "@/components/shared/grid-pattern";
 import { Button } from "@/components/ui/button";
 
 type Props = {
@@ -18,10 +19,7 @@ const SUPPORTED_INBOX_PROVIDERS = VISUAL_PROVIDER_SET_FIXTURES["unified-inbox"].
 export function HomepageHero({ heroSection }: Props) {
   return (
     <section className="relative isolate w-full overflow-hidden" data-homepage-section="hero">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-0 opacity-40 [background-image:linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] [background-size:56px_56px] [mask-image:linear-gradient(to_bottom,black_0%,black_38%,transparent_94%)]"
-      />
+      <GridPattern className="z-0" fade="bottom" />
 
       <MarketingContainer className="relative z-10">
         <div className="flex flex-col items-center py-16 text-center sm:py-20 lg:py-28">

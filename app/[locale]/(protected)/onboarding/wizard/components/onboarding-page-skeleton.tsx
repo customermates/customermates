@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 import { CenteredCardPageSkeleton } from "@/components/shared/centered-card-page-skeleton";
-import { DotPattern } from "@/components/shared/dot-pattern";
+import { GridPattern } from "@/components/shared/grid-pattern";
 import { SkeletonShape as Shape } from "@/components/page-state/skeleton-shape";
 
 export function OnboardingPageSkeleton({ animated = true }: { animated?: boolean }) {
@@ -54,7 +54,7 @@ export function OnboardingPageSkeleton({ animated = true }: { animated?: boolean
 function OnboardingSkeletonSurface({ animated, children }: { animated: boolean; children: ReactNode }) {
   return (
     <div className="relative size-full min-h-0 isolate">
-      <DotPattern />
+      <GridPattern />
 
       <div className="relative z-10 size-full min-h-0">
         <CenteredCardPageSkeleton animated={animated}>{children}</CenteredCardPageSkeleton>
