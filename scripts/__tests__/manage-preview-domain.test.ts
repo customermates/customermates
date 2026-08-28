@@ -228,8 +228,8 @@ printf '%s' "$status"
 }
 
 describe("Preview-domain management", () => {
-  it.each(["feature/contact-import", "sandbox/demo", "sandbox/feat-rewe", "feat/add/inbox", "feat/xn--preview"])(
-    "ignores an unmanaged or reserved deleted branch %s",
+  it.each(["feature/contact-import", "feat/add/inbox"])(
+    "ignores a syntactically unmanaged deleted branch %s",
     (branch) => {
       const result = runDomainScript({ action: "delete", branch });
 
@@ -398,11 +398,17 @@ describe("Preview-domain management", () => {
     ["ci/example", "ci-example.customermates.com"],
     ["docs/example", "docs-example.customermates.com"],
     ["feat/example", "feat-example.customermates.com"],
+    ["feat/xn--preview", "feat-xn--preview.customermates.com"],
     ["fix/example", "fix-example.customermates.com"],
     ["perf/example", "perf-example.customermates.com"],
     ["refactor/example", "refactor-example.customermates.com"],
     ["revert/example", "revert-example.customermates.com"],
+    ["sandbox/app", "app.customermates.com"],
+    ["sandbox/demo", "demo.customermates.com"],
+    ["sandbox/feat-rewe", "feat-rewe.customermates.com"],
     ["sandbox/rewe", "rewe.customermates.com"],
+    ["sandbox/test", "test.customermates.com"],
+    ["sandbox/xn--preview", "xn--preview.customermates.com"],
     ["style/example", "style-example.customermates.com"],
     ["test/example", "test-example.customermates.com"],
   ])("maps the conventional branch %s to %s", (branch, hostname) => {
