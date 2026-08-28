@@ -6,9 +6,20 @@ import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { MessageResponse } from "@/components/ai-elements/message";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverAnchor, PopoverContent, PopoverTitle } from "@/components/ui/popover";
 import { findAgentTargetElement } from "./ui-control.store";
+
+export function AgentTourNote({ note }: { note: string }) {
+  return (
+    <div aria-live="polite" className="mt-1 text-sm">
+      <MessageResponse controls={false} mode="static" showTableActions={false}>
+        {note}
+      </MessageResponse>
+    </div>
+  );
+}
 
 export const AgentTourOverlay = observer(function AgentTourOverlay() {
   const { agentUiControlStore: store } = useRootStore();
@@ -92,11 +103,7 @@ export const AgentTourOverlay = observer(function AgentTourOverlay() {
                 </Button>
               </div>
 
-              {active.note && (
-                <p aria-live="polite" className="mt-1 text-sm">
-                  {active.note}
-                </p>
-              )}
+              {active.note && <AgentTourNote note={active.note} />}
 
               <div className="mt-3 flex justify-end gap-2">
                 <Button disabled={active.stepIndex === 0} size="sm" variant="secondary" onClick={store.previousStep}>
