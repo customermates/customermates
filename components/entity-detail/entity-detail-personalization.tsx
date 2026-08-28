@@ -28,13 +28,16 @@ export type EntityDetailPreviewItem = {
 
 type EntityDetailPersonalizationValue = {
   enabled: boolean;
+  applyFieldVisibility: boolean;
   isPersonalizing: boolean;
   starredFieldIds: string[];
+  hiddenFieldIds: string[];
   collapsedSectionIds: string[];
   columnOrder: string[];
   previewFieldValues: Record<string, EntityDetailPreviewItem[]>;
   setIsPersonalizing: (value: boolean) => void;
   toggleStarredField: (fieldId: string) => void;
+  toggleFieldVisibility: (fieldId: string) => void;
   setSectionCollapsed: (sectionId: string, collapsed: boolean) => void;
   moveColumn: (columnId: string, direction: MoveDirection) => void;
   setPreviewFieldValue: (fieldId: string, items: EntityDetailPreviewItem[]) => void;
@@ -42,13 +45,16 @@ type EntityDetailPersonalizationValue = {
 
 const EMPTY_VALUE: EntityDetailPersonalizationValue = {
   enabled: false,
+  applyFieldVisibility: false,
   isPersonalizing: false,
   starredFieldIds: [],
+  hiddenFieldIds: [],
   collapsedSectionIds: [],
   columnOrder: [],
   previewFieldValues: {},
   setIsPersonalizing: () => undefined,
   toggleStarredField: () => undefined,
+  toggleFieldVisibility: () => undefined,
   setSectionCollapsed: () => undefined,
   moveColumn: () => undefined,
   setPreviewFieldValue: () => undefined,
@@ -62,6 +68,7 @@ type ProviderProps = {
   initial?: P13nEntry | null;
   customColumnIds?: string[];
   persistenceScope: string;
+  applyFieldVisibility?: boolean;
 };
 
 type PersonalizationSnapshot = {
@@ -125,17 +132,20 @@ export function EntityDetailPersonalizationProvider({
   initial,
   customColumnIds,
   persistenceScope,
+  applyFieldVisibility = true,
 }: ProviderProps) {
   const p13nId = config?.p13nId;
   const persistenceChannelKey = p13nId ? `${persistenceScope}:${p13nId}` : undefined;
   const latestSnapshot = persistenceChannelKey ? persistenceChannels.get(persistenceChannelKey)?.latest : undefined;
   const storedOptions = latestSnapshot?.detailOptions ?? initial?.detailOptions;
   const [isPersonalizing, setIsPersonalizing] = useState(false);
+  const initialHiddenFieldIds = reconcileAvailableIds(storedOptions?.hiddenFieldIds ?? [], config?.availableFieldIds);
+  const [hiddenFieldIds, setHiddenFieldIds] = useState(() => initialHiddenFieldIds);
   const [starredFieldIds, setStarredFieldIds] = useState(() =>
     reconcileAvailableIds(
       storedOptions?.starredFieldIds ?? config?.defaultStarredFieldIds ?? [],
       config?.availableFieldIds,
-    ),
+    ).filter((fieldId) => !initialHiddenFieldIds.includes(fieldId)),
   );
   const [collapsedSectionIds, setCollapsedSectionIds] = useState(() =>
     reconcileAvailableIds(
@@ -153,7 +163,11 @@ export function EntityDetailPersonalizationProvider({
   const lastPersistenceStamp = useRef(
     JSON.stringify({
       p13nId,
-      detailOptions: { starredFieldIds, collapsedSectionIds },
+      detailOptions: {
+        starredFieldIds,
+        collapsedSectionIds,
+        ...(hiddenFieldIds.length > 0 ? { hiddenFieldIds } : {}),
+      },
       columnOrder,
     }),
   );
@@ -175,6 +189,10 @@ export function EntityDetailPersonalizationProvider({
       const next = reconcileAvailableIds(current, availableFieldIds);
       return next.length === current.length && next.every((id, index) => id === current[index]) ? current : next;
     });
+    setHiddenFieldIds((current) => {
+      const next = reconcileAvailableIds(current, availableFieldIds);
+      return next.length === current.length && next.every((id, index) => id === current[index]) ? current : next;
+    });
   }, [availableFieldStamp]);
 
   useEffect(() => {
@@ -192,6 +210,7 @@ export function EntityDetailPersonalizationProvider({
       detailOptions: {
         starredFieldIds,
         collapsedSectionIds,
+        ...(hiddenFieldIds.length > 0 ? { hiddenFieldIds } : {}),
       },
       columnOrder,
     };
@@ -200,7 +219,7 @@ export function EntityDetailPersonalizationProvider({
 
     lastPersistenceStamp.current = stamp;
     schedulePersistence(persistenceChannelKey, snapshot);
-  }, [collapsedSectionIds, columnOrder, p13nId, persistenceChannelKey, starredFieldIds]);
+  }, [collapsedSectionIds, columnOrder, hiddenFieldIds, p13nId, persistenceChannelKey, starredFieldIds]);
 
   useEffect(
     () => () => {
@@ -214,6 +233,17 @@ export function EntityDetailPersonalizationProvider({
       current.includes(fieldId) ? current.filter((id) => id !== fieldId) : [...current, fieldId],
     );
   }, []);
+
+  const toggleFieldVisibility = useCallback(
+    (fieldId: string) => {
+      const hiding = !hiddenFieldIds.includes(fieldId);
+      setHiddenFieldIds((current) =>
+        current.includes(fieldId) ? current.filter((id) => id !== fieldId) : [...current, fieldId],
+      );
+      if (hiding) setStarredFieldIds((starred) => starred.filter((id) => id !== fieldId));
+    },
+    [hiddenFieldIds],
+  );
 
   const setSectionCollapsed = useCallback((sectionId: string, collapsed: boolean) => {
     setCollapsedSectionIds((current) => {
@@ -247,13 +277,16 @@ export function EntityDetailPersonalizationProvider({
   const value = useMemo<EntityDetailPersonalizationValue>(
     () => ({
       enabled: Boolean(config),
+      applyFieldVisibility,
       isPersonalizing,
       starredFieldIds,
+      hiddenFieldIds,
       collapsedSectionIds,
       columnOrder,
       previewFieldValues,
       setIsPersonalizing,
       toggleStarredField,
+      toggleFieldVisibility,
       setSectionCollapsed,
       moveColumn,
       setPreviewFieldValue,
@@ -262,12 +295,15 @@ export function EntityDetailPersonalizationProvider({
       collapsedSectionIds,
       columnOrder,
       config,
+      applyFieldVisibility,
+      hiddenFieldIds,
       isPersonalizing,
       moveColumn,
       previewFieldValues,
       setSectionCollapsed,
       setPreviewFieldValue,
       starredFieldIds,
+      toggleFieldVisibility,
       toggleStarredField,
     ],
   );

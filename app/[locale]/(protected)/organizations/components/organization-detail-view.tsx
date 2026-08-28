@@ -8,7 +8,8 @@ import { CustomFieldInputs } from "@/components/data-view/custom-columns/custom-
 import { EntityDetailBody } from "@/components/entity-detail/entity-detail-body";
 import { EntityDetailCustomFieldsSection } from "@/components/entity-detail/entity-detail-custom-fields-section";
 import { EntityDetailSection, EntityDetailSectionGroup } from "@/components/entity-detail/entity-detail-section";
-import { EntityDetailPinButton } from "@/components/entity-detail/entity-detail-pin-button";
+import { EntityDetailField } from "@/components/entity-detail/entity-detail-field";
+import { EntityDetailFieldActions } from "@/components/entity-detail/entity-detail-field-actions";
 import { EntityDetailStaticField } from "@/components/entity-detail/entity-detail-static-field";
 import { EntityRelationField, AssignedUsersField } from "@/components/entity-detail/relation-fields";
 import { FormInput } from "@/components/forms/form-input";
@@ -32,13 +33,16 @@ export const OrganizationDetailView = observer(({ layout = "drawer" }: Props) =>
   const content =
     layout === "drawer" ? (
       <>
-        <FormInput autoFocus required id="name" />
+        <EntityDetailField fieldId={ORGANIZATION_DETAIL_FIELD.name}>
+          <FormInput autoFocus required id="name" />
+        </EntityDetailField>
 
         <EntityRelationField
           currentEntityId={fetchedEntity?.id}
           currentEntityType="organization"
           items={fetchedEntity?.contacts}
           target="contact"
+          visibilityFieldId={ORGANIZATION_DETAIL_FIELD.contactIds}
         />
 
         <EntityRelationField
@@ -46,6 +50,7 @@ export const OrganizationDetailView = observer(({ layout = "drawer" }: Props) =>
           currentEntityType="organization"
           items={fetchedEntity?.deals}
           target="deal"
+          visibilityFieldId={ORGANIZATION_DETAIL_FIELD.dealIds}
         />
 
         <EntityRelationField
@@ -53,23 +58,26 @@ export const OrganizationDetailView = observer(({ layout = "drawer" }: Props) =>
           currentEntityType="organization"
           items={fetchedEntity?.tasks}
           target="task"
+          visibilityFieldId={ORGANIZATION_DETAIL_FIELD.taskIds}
         />
 
         <CustomFieldInputs columns={customColumns} isEditing={isEditingCustomField} />
 
-        <AssignedUsersField items={fetchedEntity?.users} />
+        <AssignedUsersField items={fetchedEntity?.users} visibilityFieldId={ORGANIZATION_DETAIL_FIELD.userIds} />
       </>
     ) : (
       <EntityDetailSectionGroup>
         <EntityDetailSection label={t("EntityDetail.sections.base")} sectionId={ORGANIZATION_DETAIL_SECTION.base}>
-          <FormInput
-            autoFocus
-            required
-            id="name"
-            labelEndAddon={
-              <EntityDetailPinButton fieldId={ORGANIZATION_DETAIL_FIELD.name} label={t("Common.inputs.name")} />
-            }
-          />
+          <EntityDetailField fieldId={ORGANIZATION_DETAIL_FIELD.name}>
+            <FormInput
+              autoFocus
+              required
+              id="name"
+              labelEndAddon={
+                <EntityDetailFieldActions fieldId={ORGANIZATION_DETAIL_FIELD.name} label={t("Common.inputs.name")} />
+              }
+            />
+          </EntityDetailField>
 
           <AssignedUsersField
             items={fetchedEntity?.users}

@@ -8,7 +8,8 @@ import { CustomFieldInputs } from "@/components/data-view/custom-columns/custom-
 import { EntityDetailBody } from "@/components/entity-detail/entity-detail-body";
 import { EntityDetailCustomFieldsSection } from "@/components/entity-detail/entity-detail-custom-fields-section";
 import { EntityDetailSection, EntityDetailSectionGroup } from "@/components/entity-detail/entity-detail-section";
-import { EntityDetailPinButton } from "@/components/entity-detail/entity-detail-pin-button";
+import { EntityDetailField } from "@/components/entity-detail/entity-detail-field";
+import { EntityDetailFieldActions } from "@/components/entity-detail/entity-detail-field-actions";
 import { EntityDetailStaticField } from "@/components/entity-detail/entity-detail-static-field";
 import { AssignedUsersField, EntityRelationField } from "@/components/entity-detail/relation-fields";
 import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
@@ -45,13 +46,16 @@ export const DealDetailView = observer(({ layout = "drawer" }: Props) => {
   const content =
     layout === "drawer" ? (
       <>
-        <FormInput autoFocus required id="name" />
+        <EntityDetailField fieldId={DEAL_DETAIL_FIELD.name}>
+          <FormInput autoFocus required id="name" />
+        </EntityDetailField>
 
         <EntityRelationField
           currentEntityId={fetchedEntity?.id}
           currentEntityType="deal"
           items={fetchedEntity?.contacts}
           target="contact"
+          visibilityFieldId={DEAL_DETAIL_FIELD.contactIds}
         />
 
         <EntityRelationField
@@ -59,6 +63,7 @@ export const DealDetailView = observer(({ layout = "drawer" }: Props) => {
           currentEntityType="deal"
           items={fetchedEntity?.organizations}
           target="organization"
+          visibilityFieldId={DEAL_DETAIL_FIELD.organizationIds}
         />
 
         <EntityRelationField
@@ -66,23 +71,28 @@ export const DealDetailView = observer(({ layout = "drawer" }: Props) => {
           currentEntityType="deal"
           items={fetchedEntity?.tasks}
           target="task"
+          visibilityFieldId={DEAL_DETAIL_FIELD.taskIds}
         />
 
         <CustomFieldInputs columns={customColumns} isEditing={isEditingCustomField} />
 
-        <AssignedUsersField items={fetchedEntity?.users} />
+        <AssignedUsersField items={fetchedEntity?.users} visibilityFieldId={DEAL_DETAIL_FIELD.userIds} />
 
         <DealServicesSelection />
       </>
     ) : (
       <EntityDetailSectionGroup>
         <EntityDetailSection label={t("EntityDetail.sections.base")} sectionId={DEAL_DETAIL_SECTION.base}>
-          <FormInput
-            autoFocus
-            required
-            id="name"
-            labelEndAddon={<EntityDetailPinButton fieldId={DEAL_DETAIL_FIELD.name} label={t("Common.inputs.name")} />}
-          />
+          <EntityDetailField fieldId={DEAL_DETAIL_FIELD.name}>
+            <FormInput
+              autoFocus
+              required
+              id="name"
+              labelEndAddon={
+                <EntityDetailFieldActions fieldId={DEAL_DETAIL_FIELD.name} label={t("Common.inputs.name")} />
+              }
+            />
+          </EntityDetailField>
 
           <AssignedUsersField items={fetchedEntity?.users} personalization={{ fieldId: DEAL_DETAIL_FIELD.userIds }} />
 

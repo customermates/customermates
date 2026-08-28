@@ -12,9 +12,10 @@ type Props = {
   fieldId: string;
   label: string;
   className?: string;
+  disabled?: boolean;
 };
 
-export function EntityDetailPinButton({ fieldId, label, className }: Props) {
+export function EntityDetailPinButton({ fieldId, label, className, disabled }: Props) {
   const t = useTranslations();
   const { enabled, starredFieldIds, toggleStarredField } = useEntityDetailPersonalization();
   const pinned = starredFieldIds.includes(fieldId);
@@ -29,6 +30,7 @@ export function EntityDetailPinButton({ fieldId, label, className }: Props) {
     <IconButton
       fieldAction
       className={className}
+      disabled={disabled}
       icon={Pin}
       iconClassName={cn(pinned && "fill-current text-primary")}
       label={actionLabel}

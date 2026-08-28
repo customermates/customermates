@@ -57,7 +57,7 @@ export function EntityDetailSection({ sectionId, label, children, className }: P
         />
       </CollapsibleTrigger>
 
-      <CollapsibleContent className="data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
+      <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
         <div className="flex flex-col gap-4 px-4 pb-4" data-detail-section-content={sectionId}>
           {children}
         </div>

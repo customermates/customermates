@@ -135,6 +135,7 @@ describe("PrismaP13nRepo legacy filter normalization", () => {
       detailOptions: {
         starredFieldIds: ["identifiers", "custom-column"],
         collapsedSectionIds: ["notes"],
+        hiddenFieldIds: ["createdAt"],
       },
     });
 
@@ -143,9 +144,13 @@ describe("PrismaP13nRepo legacy filter normalization", () => {
     expect(valid?.detailOptions).toEqual({
       starredFieldIds: ["identifiers", "custom-column"],
       collapsedSectionIds: ["notes"],
+      hiddenFieldIds: ["createdAt"],
     });
 
-    p13nFindUnique.mockResolvedValueOnce({ ...baseRow, detailOptions: { starredFieldIds: "identifiers" } });
+    p13nFindUnique.mockResolvedValueOnce({
+      ...baseRow,
+      detailOptions: { starredFieldIds: "identifiers" },
+    });
 
     const malformed = await runWithTenant(mockUser, () => new PrismaP13nRepo().getP13n("contact-detail"));
 
