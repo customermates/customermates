@@ -175,6 +175,7 @@ export class AgentChatStore extends BaseStore {
       queuedPrompt: observable,
       isWorking: observable,
       conversationTitle: computed,
+      isAwaitingAssistantResponse: computed,
       open: action,
       close: action,
       toggle: action,
@@ -199,6 +200,10 @@ export class AgentChatStore extends BaseStore {
     if (!this.conversationId) return null;
     const summary = this.conversations.find((conversation) => conversation.id === this.conversationId);
     return summary?.title ?? null;
+  }
+
+  get isAwaitingAssistantResponse() {
+    return this.isWorking && this.items.at(-1)?.kind === "user";
   }
 
   close = () => {

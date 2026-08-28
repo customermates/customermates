@@ -197,6 +197,40 @@ describe("AgentChatStore", () => {
     fetchMock.mockRestore();
   });
 
+  it("shows initial response progress until the assistant produces its first item", () => {
+    const store = new AgentChatStore(root() as never);
+    const userItem = {
+      kind: "user" as const,
+      id: "item-user",
+      messageId: "message-user",
+      text: "Summarize my open deals",
+    };
+    store.items = [userItem];
+    store.isWorking = true;
+
+    expect(store.isAwaitingAssistantResponse).toBe(true);
+
+    store.items.push({
+      kind: "activity",
+      id: "item-activity",
+      activity: {
+        kind: "records.read",
+        resource: "deals",
+        affectedResources: ["deals"],
+        risk: "read",
+      },
+      status: "running",
+    });
+    expect(store.isAwaitingAssistantResponse).toBe(false);
+
+    store.items = [userItem, { kind: "assistant", id: "item-assistant", text: "", streaming: true }];
+    expect(store.isAwaitingAssistantResponse).toBe(false);
+
+    store.items = [userItem];
+    store.isWorking = false;
+    expect(store.isAwaitingAssistantResponse).toBe(false);
+  });
+
   it("ignores a stale conversation response after the user selects another chat", async () => {
     const firstId = "00000000-0000-4000-8000-000000000001";
     const secondId = "00000000-0000-4000-8000-000000000002";
