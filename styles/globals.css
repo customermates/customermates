@@ -3,9 +3,9 @@
 @plugin '@tailwindcss/typography';
 @source "../node_modules/streamdown/dist/index.js";
 
-@import 'fumadocs-ui/css/preset.css';
-@import 'fumadocs-ui/css/neutral.css';
-@import 'fumadocs-openapi/css/preset.css';
+@import "fumadocs-ui/css/preset.css";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-openapi/css/preset.css";
 
 /* The noindex guide can invert one local specimen without changing the public page theme. */
 @custom-variant dark (
@@ -61,8 +61,12 @@
   --aspect-hero: 16 / 9;
   --aspect-social: 1200 / 630;
   --ease-marketing: var(--marketing-ease);
-  --font-family-sans: var(--font-sans), 'Inter', ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --font-family-mono: var(--font-mono), 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --font-family-sans:
+    var(--font-sans), "Inter", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-family-mono:
+    var(--font-mono), "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo,
+    Consolas, "Liberation Mono", monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -77,9 +81,12 @@
   --animate-accordion-up: collapsible-up 200ms ease-out;
   --animate-fade-in: fade-in 300ms ease-out;
   --animate-typing-dot: typing-dot 1.2s ease-in-out infinite;
-  --animate-timeline-grow: timeline-grow 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  --animate-page-empty-in: page-empty-in 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  --animate-page-result-in: page-result-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-timeline-grow: timeline-grow 300ms cubic-bezier(0.22, 1, 0.36, 1)
+    both;
+  --animate-page-empty-in: page-empty-in 300ms cubic-bezier(0.22, 1, 0.36, 1)
+    both;
+  --animate-page-result-in: page-result-in 220ms cubic-bezier(0.22, 1, 0.36, 1)
+    both;
   --animate-page-loading-in: page-loading-in 160ms ease-out 180ms both;
 }
 
@@ -104,8 +111,12 @@
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes page-empty-in {
@@ -194,7 +205,8 @@
   animation:
     page-skeleton-build 340ms cubic-bezier(0.22, 1, 0.36, 1)
       calc(var(--skeleton-group-delay) + var(--skeleton-shape-delay)) backwards,
-    page-skeleton-pulse 1.6s ease-in-out calc(900ms + var(--skeleton-group-delay) + var(--skeleton-shape-delay))
+    page-skeleton-pulse 1.6s ease-in-out
+      calc(900ms + var(--skeleton-group-delay) + var(--skeleton-shape-delay))
       infinite;
 }
 
@@ -211,13 +223,21 @@
 }
 
 @keyframes collapsible-down {
-  from { height: 0; }
-  to { height: var(--radix-collapsible-content-height); }
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-collapsible-content-height);
+  }
 }
 
 @keyframes collapsible-up {
-  from { height: var(--radix-collapsible-content-height); }
-  to { height: 0; }
+  from {
+    height: var(--radix-collapsible-content-height);
+  }
+  to {
+    height: 0;
+  }
 }
 
 /* Overlay contract (CUS-60).
@@ -243,13 +263,15 @@
 
   /* Centred overlays pay a gutter on both block edges. */
   --overlay-block-budget: calc(
-    var(--viewport-block) - var(--keyboard-inset) - var(--safe-top) - var(--safe-bottom) - 2 * var(--viewport-gutter)
+    var(--viewport-block) - var(--keyboard-inset) - var(--safe-top) -
+      var(--safe-bottom) - 2 * var(--viewport-gutter)
   );
 
   /* Edge-anchored overlays are flush against their near edge, so they pay a gutter on
      the far edge only and absorb the near safe inset as padding rather than budget. */
   --sheet-block-budget: calc(
-    var(--viewport-block) - var(--keyboard-inset) - var(--safe-top) - var(--viewport-gutter)
+    var(--viewport-block) - var(--keyboard-inset) - var(--safe-top) -
+      var(--viewport-gutter)
   );
 }
 
@@ -258,7 +280,6 @@
     --viewport-block: 100dvh;
   }
 }
-
 
 /* Surface system (CUS-246).
    Three mechanisms, because fill alone cannot express the whole interface. White is a
@@ -506,12 +527,18 @@
     font-family: var(--font-family-sans);
   }
 
-  .prose :where(h1, h2, h3, h4, h5, h6):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  .prose
+    :where(h1, h2, h3, h4, h5, h6):not(
+      :where([class~="not-prose"], [class~="not-prose"] *)
+    ) {
     font-family: var(--font-family-sans);
     font-weight: 700;
   }
 
-  .prose :where(strong, b):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  .prose
+    :where(strong, b):not(
+      :where([class~="not-prose"], [class~="not-prose"] *)
+    ) {
     font-weight: 700;
   }
 }
@@ -571,19 +598,26 @@ path:focus {
   .inline-link:focus-visible,
   .inline-links a:hover,
   .inline-links a:focus-visible,
-  .prose :where(a:hover, a:focus-visible):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  .prose
+    :where(a:hover, a:focus-visible):not(
+      :where([class~="not-prose"], [class~="not-prose"] *)
+    ) {
     text-decoration-thickness: 0.12em;
   }
 
   .inline-link:active,
   .inline-links a:active,
-  .prose :where(a:active):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  .prose
+    :where(a:active):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
     opacity: 0.7;
   }
 
   .inline-link:focus-visible,
   .inline-links a:focus-visible,
-  .prose :where(a:focus-visible):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  .prose
+    :where(a:focus-visible):not(
+      :where([class~="not-prose"], [class~="not-prose"] *)
+    ) {
     border-radius: 0.125rem;
     outline: 2px solid var(--ring);
     outline-offset: 2px;
@@ -640,6 +674,11 @@ path:focus {
     @apply w-full border-b border-border py-20 sm:py-24 lg:py-32;
   }
 
+  [data-marketing-flow="continuous"]
+    .marketing-section:not([data-marketing-divider="explicit"]) {
+    border-bottom-width: 0;
+  }
+
   .marketing-grid {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -663,7 +702,8 @@ path:focus {
   }
 
   .marketing-transition {
-    transition-property: color, background-color, border-color, opacity, transform;
+    transition-property:
+      color, background-color, border-color, opacity, transform;
     transition-duration: var(--marketing-duration);
     transition-timing-function: var(--marketing-ease);
   }
@@ -679,6 +719,15 @@ path:focus {
     font-size: clamp(2.5rem, 1.7325rem + 3.275vw, 5.25rem);
     line-height: 0.98;
     letter-spacing: -0.045em;
+    hyphens: auto;
+    overflow-wrap: break-word;
+  }
+
+  .text-hero {
+    @apply font-medium text-balance;
+    font-size: clamp(3rem, 6.5vw, 6rem);
+    line-height: 0.95;
+    letter-spacing: -0.055em;
     hyphens: auto;
     overflow-wrap: break-word;
   }
@@ -714,9 +763,11 @@ path:focus {
   }
 
   .prose
-    :where(thead th:first-child, tbody td:first-child, tfoot td:first-child):not(
-      :where([class~="not-prose"], [class~="not-prose"] *)
-    ) {
+    :where(
+      thead th:first-child,
+      tbody td:first-child,
+      tfoot td:first-child
+    ):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
     padding-inline-start: 1em !important;
   }
 
@@ -726,7 +777,6 @@ path:focus {
     ) {
     padding-inline-end: 1em !important;
   }
-
 }
 
 [data-rich-colors="true"][data-sonner-toast][data-type="error"] [data-button] {

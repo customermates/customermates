@@ -2001,10 +2001,6 @@
     "placeholder": "Rechercher...",
     "staleItem": "Cet élément n'existe plus et a été retiré de vos éléments récents."
   },
-  "HomepageHowItWorks": {
-    "loopCaption": "▶ silencieux · en boucle · 10 s",
-    "tailCaption": "un extrait · votre IA"
-  },
   "HomepagePricing": {
     "cloud": {
       "badge": "Populaire",
@@ -2041,9 +2037,10 @@
     "title": "Simple, honnête, européen"
   },
   "HomepageStatsRow": {
+    "automationLabel": "Automatisations",
     "taglineMcp": "MCP",
-    "taglinePost": ", il fonctionne donc avec le modèle que vous payez déjà",
-    "taglinePre": "Apportez votre propre IA. Customermates parle"
+    "taglinePost": ". Automatisations via REST, webhooks et votre instance n8n.",
+    "taglinePre": "IA externe via"
   },
   "Inbox": {
     "attachmentCount": "{count, plural, one {# pièce jointe :} other {# pièces jointes :}}",

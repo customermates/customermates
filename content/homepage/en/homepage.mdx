@@ -1,23 +1,44 @@
 ---
-title: "The Agentic Open-Source CRM"
+title: "The Open-Source CRM Built for AI Agents"
 description: "Customermates is the open-source CRM that external AI clients operate through MCP, with a unified inbox for email, LinkedIn, WhatsApp, Instagram, and Telegram. Made in Germany, with a managed database in an EU region, from [[commercial.price.starter.monthly]] per user per month."
 rootMetadata:
-  defaultTitle: "Customermates: Agentic Open-Source CRM with Unified Inbox"
+  defaultTitle: "Customermates: Open-Source CRM Built for AI Agents"
   defaultDescription: "The open-source CRM your own Claude, ChatGPT, or Gemini operates through MCP, with a unified inbox and an EU database region. From [[commercial.price.starter.monthly]] per user per month."
 
 hero:
-  title: Connect an external AI client to your CRM and every
-  titleAccent: conversation
-  subtitle: "A supported external AI client can use allowed CRM and inbox operations through MCP. You review its changes and drafts in Customermates. Client, model, subscription, and usage are separate."
+  title: The open-source CRM built for
+  titleAccent: AI agents.
+  subtitle: "Manage contacts and deals alongside one inbox for email, LinkedIn, WhatsApp, Instagram, and Telegram. Connect ChatGPT, Claude, Gemini, or Cursor through MCP—and review every draft and CRM update."
   buttonLeftText: Start a [[commercial.trial.days]]-day trial for 0€
   buttonLeftHref: /auth/signup
-  buttonRightText: 57 second walkthrough
-  buttonRightHref: "#walkthrough"
+  buttonRightText: Explore the live demo
+  buttonRightHref: "#live-demo"
   startFree: ✓ No credit card required ✓ Cancel anytime ✓ Made in Germany
+
+visualLabels:
+  agentActivity: Working with the record
+  connectedRecord: Connected record
+  customerRecord: Customer record
+  dealValue: Deal value
+  draft: Draft
+  humanDecision: Human review
+  latestActivity: Latest activity
+  lost: Lost
+  open: Open
+  pipeline: Deal pipeline
+  readyForReview: Ready for review
+  recipient: Recipient
+  reviewAndSend: Review & send
+  weightedValue: Weighted value
+  won: Won
 
 howItWorks:
   eyebrow: How it works
   title: Skip the CRM busywork. Paste a snippet. Done.
+  handoff:
+    eyebrow: Human control
+    title: The agent drafts. You decide what leaves.
+    description: ChatGPT prepares a LinkedIn draft for Leon Becker. Max Bergmann reviews it in Customermates and decides what gets sent.
   steps:
     - n: "01"
       title: Sign in with Google or email
@@ -31,87 +52,118 @@ howItWorks:
     - n: "04"
       title: Ask your external client about allowed CRM data
       description: "Use MCP operations exposed by Customermates and review every result in the CRM."
-  clipTerminal:
-    connected: connected · [[derived.mcp.tools.total]] tools · customermates@mcp
-    done: ✓ 3 drafts saved to your inbox · ready for review
-    followOk: yes, save them as drafts in my inbox
-    followQ: Draft 3 follow-up emails now?
-    prompt: "Which deals are stuck > 14 days? Draft follow-up emails for each. Also, who still owes me a reply?"
-    resultSummary: → 3 deals · €32,000 idle
-
 walkthrough:
-  badge: Walkthrough
-  title: A 57 second tour
-  titleAccent: no demo call required.
-  videoSrc: /customermates-promo.mp4
+  badge: Unified customer context
+  title: Every channel,
+  titleAccent: one customer story.
+  visualLabel: All supported inbox providers connect to Anna Müller
   bullets:
-    - title: CRM an external AI client can update
-      description: A supported external client can use allowed MCP operations to update records or prepare drafts. Review its output in Customermates.
-    - title: Every conversation in one inbox
-      description: Supported connected-account messages appear in one inbox. An external AI client may use allowed MCP operations; client and model are separate. On Pro and up.
-    - title: Ready in 2 minutes, no setup project
-      description: Sign in, paste one snippet, done. No onboarding consultant, no pipeline workshop, no admin training.
-    - title: Works with the AI you already pay for
-      description: Claude, ChatGPT, Gemini via MCP. No new subscription, no AI sidebar tier, no vendor lock-in.
-    - title: MCP access in every tier
-      description: Bring a supported external AI client and model to operate contacts, deals, and tasks through MCP. Plans start at [[commercial.price.starter.monthly]] per user per month; the AI service is separate.
+    - title: Every supported provider, one customer record
+      description: Email, LinkedIn, WhatsApp, Instagram, and Telegram conversations stay connected to the customer context they belong to. On Pro and up.
+    - title: Real people instead of anonymous threads
+      description: Customer identity, connected messages, and CRM context remain visible together.
+    - title: Context an external AI client can use
+      description: A supported external client may use allowed MCP operations while you review its changes and drafts in Customermates.
+
+pipelineStory:
+  eyebrow: Pipeline clarity
+  title: See the real value behind every move.
+  description: Keep deal value, weighted value, status, and ownership visible while work moves between columns.
+  points:
+    - Kanban, card, and list views
+    - Real deal and weighted values
+    - One visible human action
+
+productProof:
+  demoEyebrow: Live workspace
+  demoTitle: Explore Customermates yourself.
+  demoDescription: The embedded demo opens the real seeded dashboard, so you can inspect its configured widgets and CRM data instead of a fabricated product screen.
+  videoLabel: Guided walkthrough
+  videoHeading: See how the workflow fits together.
+  videoDescription: The 57-second overview connects the main product surfaces and explains the broader workflow at a glance.
+  videoTitle: Customermates 57-second product walkthrough
+  videoSrc: /customermates-promo.mp4
 
 benefits:
   badge: Why Customermates
   title: Everything you need
   subtitle: Powerful Open-Source CRM without the complexity. Privacy-friendly tools that just work.
+  groups:
+    - title: Customer context
+      description: Conversations and linked CRM records.
+    - title: Flexible workflows
+      description: Views and fields that adapt to the work.
+    - title: External AI
+      description: External AI clients work through allowed MCP operations.
+    - title: Reporting
+      description: CRM data as dashboards, widgets, and grouped views.
+    - title: Open interfaces
+      description: REST, webhooks, and your separately operated n8n.
+    - title: Control & deployment
+      description: Roles, managed cloud, or a self-hosted core.
+  metrics:
+    - figure: "5"
+      label: inbox channel families · Pro+
+    - figure: MCP
+      label: external AI clients operate allowed CRM actions
+    - figure: AGPL-3.0
+      label: open-source CRM core
+    - figure: EU
+      label: managed cloud database region
+    - figure: DE
+      label: Made in Germany
   benefits:
-  - icon: Sparkles
-    title: External AI Clients Operate the CRM
-    description: Supported external clients can use allowed CRM operations through MCP. Their models, subscriptions, usage, and provider data handling are separate.
-  - icon: Inbox
-    title: Unified Inbox
-    description: Supported messages from email, LinkedIn, WhatsApp, Instagram, and Telegram in one inbox. External AI access is separate. On Pro and up.
-  - icon: Users
-    title: Contacts & Organizations
-    description: Manage people, companies, and CRM context in one place.
-  - icon: Briefcase
-    title: Deals
-    description: Track opportunities from first contact to closing.
-  - icon: LayoutGrid
-    title: Pipeline Views
-    description: Work in list, card, and Kanban pipeline views.
-  - icon: Bell
-    title: Tasks & Custom Dates
-    description: Assign tasks and add your own date or status columns when the workflow needs them.
-  - icon: Filter
-    title: Filters & Segments
-    description: Each user can save personal filters and views over shared CRM records. There is no shared team-view object.
-  - icon: Table
-    title: Custom Columns
-    description: Add typed fields for filtering, grouping, and reporting.
-  - icon: BarChart3
-    title: Report & Statistics
-    description: Turn CRM data into dashboards, widgets, and grouped views.
-  - icon: Play
-    title: Webhooks & Events
-    description: Trigger downstream systems from CRM lifecycle events.
-  - icon: Code2
-    title: API Access
-    description: Build custom integrations on top of the CRM model.
-  - icon: Zap
-    title: Connect Your n8n Instance
-    description: Use REST, webhooks, or the published community node with n8n you run or subscribe to separately.
-  - icon: ShieldCheck
-    title: Permissions
-    description: Control workspace access with roles and permissions.
-  - icon: FileText
-    title: Linked CRM Records
-    description: Connect contacts, organizations, deals, services, and tasks through supported relations.
-  - icon: Server
-    title: Managed Cloud & EU Database Region
-    description: Use the managed cloud with its database in an EU region, or self-host the AGPL core CRM and PostgreSQL with Starter entitlements.
-  - icon: Terminal
-    title: Open Source Core & Self-Hosting
-    description: Self-host the AGPL core CRM and PostgreSQL; the unified inbox and calendar view remain managed-cloud features.
-  - icon: Download
-    title: REST API Access
-    description: Read and write CRM records through the API for migrations and external workflows.
+    - icon: Sparkles
+      title: External AI Clients Operate the CRM
+      description: Supported external clients can use allowed CRM operations through MCP. Their models, subscriptions, usage, and provider data handling are separate.
+    - icon: Inbox
+      title: Unified Inbox
+      description: Supported messages from email, LinkedIn, WhatsApp, Instagram, and Telegram in one inbox. External AI access is separate. On Pro and up.
+    - icon: Users
+      title: Contacts & Organizations
+      description: Manage people, companies, and CRM context in one place.
+    - icon: Briefcase
+      title: Deals
+      description: Track opportunities from first contact to closing.
+    - icon: LayoutGrid
+      title: Pipeline Views
+      description: Work in list, card, and Kanban pipeline views.
+    - icon: Bell
+      title: Tasks & Custom Dates
+      description: Assign tasks and add your own date or status columns when the workflow needs them.
+    - icon: Filter
+      title: Filters & Segments
+      description: Each user can save personal filters and views over shared CRM records. There is no shared team-view object.
+    - icon: Table
+      title: Custom Columns
+      description: Add typed fields for filtering, grouping, and reporting.
+    - icon: BarChart3
+      title: Report & Statistics
+      description: Turn CRM data into dashboards, widgets, and grouped views.
+    - icon: Play
+      title: Webhooks & Events
+      description: Trigger downstream systems from CRM lifecycle events.
+    - icon: Code2
+      title: API Access
+      description: Build custom integrations on top of the CRM model.
+    - icon: Zap
+      title: Connect Your n8n Instance
+      description: Use REST, webhooks, or the published community node with n8n you run or subscribe to separately.
+    - icon: ShieldCheck
+      title: Permissions
+      description: Control workspace access with roles and permissions.
+    - icon: FileText
+      title: Linked CRM Records
+      description: Connect contacts, organizations, deals, services, and tasks through supported relations.
+    - icon: Server
+      title: Managed Cloud & EU Database Region
+      description: Use the managed cloud with its database in an EU region, or self-host the AGPL core CRM and PostgreSQL with Starter entitlements.
+    - icon: Terminal
+      title: Open Source Core & Self-Hosting
+      description: Self-host the AGPL core CRM and PostgreSQL; the unified inbox and calendar view remain managed-cloud features.
+    - icon: Download
+      title: REST API Access
+      description: Read and write CRM records through the API for migrations and external workflows.
 
 automationExplanation: "Customermates provides REST, [[derived.webhooks.events.total]] webhook event types, MCP, and a published community node for external automation you operate. n8n, Zapier, Make, and other services remain separate products with their own plans, limits, credentials, data handling, and costs."
 
@@ -120,22 +172,22 @@ features:
   title: Features you actually need
   subtitle: Core CRM features in a clear interface, with open interfaces for separately operated integrations.
   features:
-  - icon: Users
-    title: Contacts and Organizations
-    description: Manage customers, leads, and business partners in one place.
-    image: homepage-service-contacts-organizations.png
-  - icon: Briefcase
-    title: Deals
-    description: Track sales from first contact to closing with flexible pipelines.
-    image: homepage-service-deals.png
-  - icon: Star
-    title: Services
-    description: Manage all services and link them with deals.
-    image: homepage-service-services.png
-  - icon: Zap
-    title: n8n Community Node
-    description: Connect an n8n instance you operate separately through REST, webhooks, or the published community node.
-    image: homepage-service-n8n.png
+    - icon: Users
+      title: Contacts and Organizations
+      description: Manage customers, leads, and business partners in one place.
+      image: homepage-service-contacts-organizations.png
+    - icon: Briefcase
+      title: Deals
+      description: Track sales from first contact to closing with flexible pipelines.
+      image: homepage-service-deals.png
+    - icon: Star
+      title: Services
+      description: Manage all services and link them with deals.
+      image: homepage-service-services.png
+    - icon: Zap
+      title: n8n Community Node
+      description: Connect an n8n instance you operate separately through REST, webhooks, or the published community node.
+      image: homepage-service-n8n.png
 
 pricingTitle:
   title: Transparent pricing for modern teams
@@ -144,21 +196,23 @@ pricingTitle:
 faq:
   title: Frequently asked questions
   faqs:
-  - id: faq-1
-    title: Why is your CRM better than others?
-    content: Customermates provides core CRM records, a unified inbox for supported connected accounts, MCP access for supported external AI clients, REST, webhooks, and a community node for your separate n8n instance. External clients, models, automation services, and provider costs remain separate.
-  - id: faq-2
-    title: How does the integration with n8n work?
-    content: Use the REST API and webhooks, or the published community node, to connect an n8n instance you operate or subscribe to. n8n is a separate product and is not bundled with Customermates.
-  - id: faq-3
-    title: How quickly can I get started?
-    content: You can create a workspace and first records quickly. Migration, external-client setup, and integration effort depend on your source data and systems.
-  - id: faq-4
-    title: Where is my data stored?
-    content: The managed database runs in an EU region, while application hosting and other providers are documented separately. You can self-host the AGPL core CRM application and PostgreSQL with Starter entitlements; the unified inbox and calendar view remain managed-cloud features, and connected providers remain separate.
-  - id: faq-5
-    title: Why is your CRM cheaper than others?
-    content: The pricing page states the included Customermates scope. External AI, automation, messaging, and other providers retain their own subscriptions and usage costs.
+    - id: faq-1
+      title: Why is your CRM better than others?
+      content: Customermates provides core CRM records, a unified inbox for supported connected accounts, MCP access for supported external AI clients, REST, webhooks, and a community node for your separate n8n instance. External clients, models, automation services, and provider costs remain separate.
+    - id: faq-2
+      title: How does the integration with n8n work?
+      content: Use the REST API and webhooks, or the published community node, to connect an n8n instance you operate or subscribe to. n8n is a separate product and is not bundled with Customermates.
+    - id: faq-3
+      title: How quickly can I get started?
+      content: You can create a workspace and first records quickly. Migration, external-client setup, and integration effort depend on your source data and systems.
+    - id: faq-4
+      title: Where is my data stored?
+      content: The managed database runs in an EU region, while application hosting and other providers are documented separately. You can self-host the AGPL core CRM application and PostgreSQL with Starter entitlements; the unified inbox and calendar view remain managed-cloud features, and connected providers remain separate.
+    - id: faq-5
+      title: Why is your CRM cheaper than others?
+      content: The pricing page states the included Customermates scope. External AI, automation, messaging, and other providers retain their own subscriptions and usage costs.
+
+closingEyebrow: Customermates
 
 cta:
   action: Ready to get started?

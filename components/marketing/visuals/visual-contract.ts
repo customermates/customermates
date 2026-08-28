@@ -4,6 +4,7 @@ import { CONTENT_LOCALES, isContentLocale, type ContentLocale } from "@/i18n/loc
 
 import {
   VISUAL_AGENT_PROVIDER_FIXTURES,
+  VISUAL_AUTOMATION_PROVIDER_FIXTURES,
   VISUAL_CONVERSATION_FIXTURES,
   VISUAL_DEAL_BOARD_FIXTURES,
   VISUAL_PERSON_FIXTURES,
@@ -14,7 +15,7 @@ import {
   VISUAL_STATUS_FIXTURES,
 } from "./native-fixtures";
 
-export const VISUAL_REFERENCE_SYSTEM_VERSION = "customermates-marketing-visuals@7";
+export const VISUAL_REFERENCE_SYSTEM_VERSION = "customermates-marketing-visuals@8";
 
 export const VISUAL_KINDS = ["brand-illustration", "product-proof", "none"] as const;
 export const VISUAL_PATHWAYS = ["converge", "handoff", "focus"] as const;
@@ -46,6 +47,7 @@ const enumKeys = <T extends Record<string, unknown>>(value: T) =>
   Object.keys(value) as [keyof T & string, ...(keyof T & string)[]];
 const PersonFixtureSchema = z.enum(enumKeys(VISUAL_PERSON_FIXTURES));
 const AgentProviderFixtureSchema = z.enum(enumKeys(VISUAL_AGENT_PROVIDER_FIXTURES));
+const AutomationProviderFixtureSchema = z.enum(enumKeys(VISUAL_AUTOMATION_PROVIDER_FIXTURES));
 const ConversationFixtureSchema = z.enum(enumKeys(VISUAL_CONVERSATION_FIXTURES));
 const DealBoardFixtureSchema = z.enum(enumKeys(VISUAL_DEAL_BOARD_FIXTURES));
 const ProviderFixtureSchema = z.enum(enumKeys(VISUAL_PROVIDER_FIXTURES));
@@ -95,6 +97,13 @@ const AgentCueSubjectSchema = z.strictObject({
   id: identifier,
 });
 
+const AutomationCueSubjectSchema = z.strictObject({
+  automationProvider: AutomationProviderFixtureSchema,
+  fixtures: z.never().optional(),
+  form: z.literal("automation-cue"),
+  id: identifier,
+});
+
 const FixtureSubjectSchema = z.strictObject({
   fixtures: SubjectFixtureSchema.optional(),
   form: z.enum([
@@ -111,7 +120,11 @@ const FixtureSubjectSchema = z.strictObject({
   id: identifier,
 });
 
-const SubjectSchema = z.discriminatedUnion("form", [AgentCueSubjectSchema, FixtureSubjectSchema]);
+const SubjectSchema = z.discriminatedUnion("form", [
+  AgentCueSubjectSchema,
+  AutomationCueSubjectSchema,
+  FixtureSubjectSchema,
+]);
 
 const DepictionSchema = z.strictObject({
   kind: z.enum(["relationship", "change", "result"]),
@@ -207,7 +220,7 @@ export const VisualBriefSchema = BaseVisualBriefSchema.superRefine((brief, conte
   const subjects = [brief.focalSubject, ...brief.supportingSubjects];
   for (const [index, subject] of subjects.entries()) {
     const subjectPath: PropertyKey[] = index === 0 ? ["focalSubject"] : ["supportingSubjects", index - 1];
-    if (subject.form === "agent-cue") continue;
+    if (subject.form === "agent-cue" || subject.form === "automation-cue") continue;
 
     const fixtures = subject.fixtures;
     if (!fixtures) {

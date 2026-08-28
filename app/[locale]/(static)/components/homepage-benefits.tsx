@@ -1,57 +1,97 @@
 import type { Benefits } from "@/core/fumadocs/schemas/homepage";
 
-import { AppCard } from "@/components/card/app-card";
-import { AppCardBody } from "@/components/card/app-card-body";
-import { Icon } from "@/components/shared/icon";
-import { ICONS } from "@/components/shared/icons";
-import { SectionBadge } from "@/components/marketing/section-badge";
+import { BarChart3, Bot, Database, Network, SlidersHorizontal, Users } from "lucide-react";
+
+import { MarketingContainer } from "@/components/marketing/marketing-container";
+import { MarketingSection } from "@/components/marketing/marketing-section";
+import { cn } from "@/core/utils/cn";
+
+type Benefit = Benefits["benefits"][number];
 
 type Props = {
   benefitsSection: Benefits;
 };
 
+const GROUP_ICONS = [Users, SlidersHorizontal, Bot, BarChart3, Network, Database] as const;
+const GROUP_BENEFIT_ICONS = [
+  ["Inbox", "Users", "Briefcase", "FileText"],
+  ["LayoutGrid", "Bell", "Filter", "Table"],
+  ["Sparkles"],
+  ["BarChart3"],
+  ["Play", "Code2", "Zap", "Download"],
+  ["ShieldCheck", "Server", "Terminal"],
+] as const;
+
+function benefitsForGroup(benefits: Benefit[], icons: readonly string[]) {
+  const iconSet = new Set(icons);
+  return benefits.filter((benefit) => iconSet.has(benefit.icon));
+}
+
 export function HomepageBenefits({ benefitsSection }: Props) {
   return (
-    <section className="relative py-14 md:py-20 w-full max-w-[1200px] px-4 mx-auto" id="benefits">
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(16,185,129,0.10)_1px,transparent_0)] bg-size-[28px_28px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_30%,black,transparent_75%)]" />
+    <>
+      <MarketingSection
+        description={benefitsSection.subtitle}
+        id="benefits"
+        title={benefitsSection.title}
+        tone="canvas"
+      >
+        <p className="text-eyebrow mx-auto mt-5 w-fit">{benefitsSection.badge}</p>
 
-        <div className="absolute -top-12 right-[8%] size-[300px] rounded-full bg-[rgba(18,148,144,0.16)] blur-[90px]" />
+        <div className="marketing-grid mt-14 gap-y-4 lg:mt-16">
+          {benefitsSection.groups.map((group, index) => {
+            const Icon = GROUP_ICONS[index];
+            const benefits = benefitsForGroup(benefitsSection.benefits, GROUP_BENEFIT_ICONS[index]);
 
-        <div className="absolute bottom-[8%] left-[6%] size-[320px] rounded-full bg-[rgba(16,185,129,0.13)] blur-[100px]" />
+            return (
+              <article
+                key={group.title}
+                className="col-span-12 flex min-h-64 flex-col rounded-card border border-border bg-card p-6 sm:col-span-6 lg:col-span-4 lg:p-7"
+              >
+                <span className="grid size-10 place-items-center rounded-lg bg-muted text-muted-foreground">
+                  <Icon aria-hidden className="size-[18px]" strokeWidth={1.75} />
+                </span>
 
-        <div className="absolute top-1/3 right-[18%] size-[200px] rounded-full bg-[rgba(245,158,11,0.10)] blur-[80px]" />
-      </div>
+                <h3 className="mt-7 text-lg font-medium">{group.title}</h3>
 
-      <div className="text-center mb-10 md:mb-16">
-        <SectionBadge className="mb-4">{benefitsSection.badge}</SectionBadge>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{group.description}</p>
 
-        <h2 className="text-x-3xl">{benefitsSection.title}</h2>
+                <ul
+                  className="-mx-6 mt-6 divide-y divide-border border-t border-border lg:-mx-7"
+                  data-homepage-rules="full-bleed"
+                >
+                  {benefits.map((benefit) => (
+                    <li key={benefit.title} className="px-6 py-2.5 text-xs leading-relaxed text-foreground/80 lg:px-7">
+                      {benefit.title}
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            );
+          })}
+        </div>
+      </MarketingSection>
 
-        <p className="mt-4 text-x-xl text-subdued max-w-2xl mx-auto">{benefitsSection.subtitle}</p>
-      </div>
+      <section className="relative w-full border-y border-border" id="facts">
+        <MarketingContainer>
+          <div className="grid auto-rows-fr grid-cols-2 lg:grid-cols-5">
+            {benefitsSection.metrics.map((metric, index) => (
+              <div
+                key={metric.figure}
+                className={cn(
+                  "min-w-0 px-4 py-9 sm:px-6 lg:col-span-1 lg:border-r lg:border-b-0 lg:py-12 lg:last:border-r-0",
+                  index === benefitsSection.metrics.length - 1 ? "col-span-2" : "border-b border-border",
+                  index % 2 === 0 && index < benefitsSection.metrics.length - 1 ? "border-r border-border" : null,
+                )}
+              >
+                <p className="text-2xl font-medium tracking-tight sm:text-3xl">{metric.figure}</p>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-        {benefitsSection.benefits.map((benefit, index) => {
-          const IconComponent = ICONS[benefit.icon];
-
-          return (
-            <AppCard key={index}>
-              <AppCardBody>
-                <h3 className="font-semibold flex items-center gap-2">
-                  <div className="text-subdued">
-                    <Icon icon={IconComponent} />
-                  </div>
-
-                  {benefit.title}
-                </h3>
-
-                <p className="text-x-sm text-subdued leading-relaxed">{benefit.description}</p>
-              </AppCardBody>
-            </AppCard>
-          );
-        })}
-      </div>
-    </section>
+                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{metric.label}</p>
+              </div>
+            ))}
+          </div>
+        </MarketingContainer>
+      </section>
+    </>
   );
 }

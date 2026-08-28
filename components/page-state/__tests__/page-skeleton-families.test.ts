@@ -117,7 +117,11 @@ describe("page skeleton families", () => {
   it("uses onboarding's profile-step geometry instead of the generic guarded card", () => {
     const onboarding = renderToStaticMarkup(createElement(OnboardingPageSkeleton));
 
-    expect(onboarding).toContain("radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)");
+    expect(onboarding).toContain(
+      "linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)",
+    );
+    expect(onboarding).toContain("[background-size:56px_56px]");
+    expect(onboarding).not.toContain("radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)");
     expect(onboarding).toContain("data-onboarding-profile-skeleton");
     expect(count(onboarding, "data-onboarding-field")).toBe(4);
     expect(onboarding).toContain("data-onboarding-checkbox");

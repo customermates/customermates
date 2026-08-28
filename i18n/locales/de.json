@@ -2001,10 +2001,6 @@
     "placeholder": "Suchen...",
     "staleItem": "Dieser Eintrag existiert nicht mehr und wurde aus den zuletzt geöffneten entfernt."
   },
-  "HomepageHowItWorks": {
-    "loopCaption": "▶ stumm · loopt · 10 s",
-    "tailCaption": "ein Snippet · deine KI"
-  },
   "HomepagePricing": {
     "cloud": {
       "badge": "Beliebt",
@@ -2041,9 +2037,10 @@
     "title": "Einfach, ehrlich, europäisch"
   },
   "HomepageStatsRow": {
+    "automationLabel": "Automatisierung",
     "taglineMcp": "MCP",
-    "taglinePost": ", also funktioniert es mit dem Modell, das du ohnehin schon bezahlst",
-    "taglinePre": "Bring deine eigene KI mit. Customermates spricht"
+    "taglinePost": ". Automatisierung über REST, Webhooks und deine n8n-Instanz.",
+    "taglinePre": "Externe KI über"
   },
   "Inbox": {
     "attachmentCount": "{count, plural, one {# Anhang:} other {# Anhänge:}}",

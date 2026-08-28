@@ -19,7 +19,9 @@ function read(file: string): string {
 }
 
 function indirectMediaImports(source: string) {
-  return source.includes("@/components/marketing/cta-section") ? ["media-bearing CTASection"] : [];
+  return source.includes("@/components/marketing/cta-section")
+    ? ["media-bearing CTASection"]
+    : [];
 }
 
 describe("style guide pattern coverage", () => {
@@ -59,9 +61,11 @@ describe("style guide pattern coverage", () => {
     expect(patterns).not.toMatch(
       /\.(?:avif|gif|jpe?g|mp4|png|svg|webm|webp)["']/iu,
     );
-    expect(indirectMediaImports('import { CTASection } from "@/components/marketing/cta-section";')).toEqual([
-      "media-bearing CTASection",
-    ]);
+    expect(
+      indirectMediaImports(
+        'import { CTASection } from "@/components/marketing/cta-section";',
+      ),
+    ).toEqual(["media-bearing CTASection"]);
     expect(indirectMediaImports(patterns)).toEqual([]);
   });
 
@@ -90,5 +94,14 @@ describe("style guide pattern coverage", () => {
       orphans,
       `responsive-contract.tsx documents a pattern that section-patterns.tsx no longer renders`,
     ).toEqual([]);
+  });
+
+  it("documents the five-cell proof rail and its owned edge-to-edge rules", () => {
+    expect(patterns).toContain('name="Proof rail"');
+    expect(patterns).toContain('className="border-y border-border py-0"');
+    expect(patterns).toContain('className="grid grid-cols-2 lg:grid-cols-5"');
+    expect(patterns).toContain('"col-span-2 lg:col-span-1"');
+    expect(contract).toContain('pattern: "S-05 Proof rail"');
+    expect(contract).toContain('rule: "2 → 5; fifth spans the narrow row"');
   });
 });

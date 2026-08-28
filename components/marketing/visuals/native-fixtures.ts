@@ -49,6 +49,13 @@ export const VISUAL_PROVIDER_SET_FIXTURES = {
 
 export const VISUAL_AGENT_PROVIDER_FIXTURES = AUTHORABLE_AI_CLIENT_IDENTITIES;
 
+export const VISUAL_AUTOMATION_PROVIDER_FIXTURES = {
+  n8n: {
+    asset: "/icons/integrations/n8n.svg",
+    name: "n8n",
+  },
+} as const;
+
 export const VISUAL_PERSON_FIXTURES = DEMO_VISUAL_PEOPLE;
 
 export const VISUAL_CONVERSATION_FIXTURES = DEMO_VISUAL_CONVERSATIONS;
@@ -85,6 +92,7 @@ export const VISUAL_PROVIDER_PERSON_PAIRINGS: Partial<
 export type VisualProviderFixtureId = keyof typeof VISUAL_PROVIDER_FIXTURES;
 export type VisualProviderSetFixtureId = keyof typeof VISUAL_PROVIDER_SET_FIXTURES;
 export type VisualAgentProviderFixtureId = keyof typeof VISUAL_AGENT_PROVIDER_FIXTURES;
+export type VisualAutomationProviderFixtureId = keyof typeof VISUAL_AUTOMATION_PROVIDER_FIXTURES;
 export type VisualPersonFixtureId = keyof typeof VISUAL_PERSON_FIXTURES;
 export type VisualConversationFixtureId = keyof typeof VISUAL_CONVERSATION_FIXTURES;
 export type VisualStatusFixtureId = keyof typeof VISUAL_STATUS_FIXTURES;
@@ -147,6 +155,7 @@ export function getNativeVisualFixtureCatalog() {
 
   return {
     agentProviders: listVisualAgentProviders(),
+    automationProviders: fixtureEntries(VISUAL_AUTOMATION_PROVIDER_FIXTURES),
     channelProviders: fixtureEntries(VISUAL_PROVIDER_FIXTURES),
     conversations: fixtureEntries(VISUAL_CONVERSATION_FIXTURES),
     dealBoards: fixtureEntries(VISUAL_DEAL_BOARD_FIXTURES),
@@ -161,6 +170,7 @@ export function getNativeVisualFixtureCatalog() {
 export const APPROVED_NATIVE_VISUAL_ASSETS = [
   ...Object.values(VISUAL_PROVIDER_FIXTURES).map(({ asset }) => asset),
   ...Object.values(VISUAL_PERSON_FIXTURES).map(({ asset }) => asset),
+  ...Object.values(VISUAL_AUTOMATION_PROVIDER_FIXTURES).map(({ asset }) => asset),
   "/images/brand/gemini-sparkle.svg",
 ] as const;
 
@@ -171,6 +181,7 @@ export const NATIVE_VISUAL_FIXTURE_SOURCES = [
   "components/ai-connection/ai-client-logo.tsx",
   "components/icons/channel-icon.tsx",
   "components/marketing/visuals/demo-visual-catalog.ts",
+  "public/icons/integrations/n8n.svg",
   "components/ui/avatar.tsx",
   "components/ui/badge.tsx",
   "ee/messaging/connect/connect-channels.ts",

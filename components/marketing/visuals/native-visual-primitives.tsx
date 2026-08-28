@@ -8,11 +8,13 @@ import type { ContentLocale } from "@/i18n/locale-registry";
 
 import {
   VISUAL_AGENT_PROVIDER_FIXTURES,
+  VISUAL_AUTOMATION_PROVIDER_FIXTURES,
   VISUAL_PERSON_FIXTURES,
   VISUAL_PROVIDER_FIXTURES,
   VISUAL_RECORD_FIXTURES,
   VISUAL_STATUS_FIXTURES,
   type VisualAgentProviderFixtureId,
+  type VisualAutomationProviderFixtureId,
   type VisualPersonFixtureId,
   type VisualProviderFixtureId,
   type VisualRecordFixtureId,
@@ -68,6 +70,41 @@ export function NativeAgentProviderIdentity({
       </span>
 
       <span className="min-w-0 font-medium">{fixture.name}</span>
+    </span>
+  );
+}
+
+export function NativeAutomationProviderIdentity({
+  className,
+  descriptor,
+  provider,
+}: {
+  className?: string;
+  descriptor: string;
+  provider: VisualAutomationProviderFixtureId;
+}) {
+  const fixture = VISUAL_AUTOMATION_PROVIDER_FIXTURES[provider];
+
+  return (
+    <span
+      className={cn("inline-flex min-w-0 items-center gap-2.5", className)}
+      data-native-automation-provider={provider}
+    >
+      <img
+        alt=""
+        className="h-auto w-8 shrink-0"
+        decoding="async"
+        draggable={false}
+        height={17}
+        src={fixture.asset}
+        width={32}
+      />
+
+      <span className="flex min-w-0 flex-col">
+        <span className="font-medium text-foreground">{fixture.name}</span>
+
+        <span className="text-[10px] leading-tight text-muted-foreground">{descriptor}</span>
+      </span>
     </span>
   );
 }

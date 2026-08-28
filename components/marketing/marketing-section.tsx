@@ -11,6 +11,7 @@ type Props = {
   className?: string;
   containerClassName?: string;
   description?: string;
+  divider?: boolean;
   flush?: boolean;
   headingAs?: ElementType;
   headingClassName?: string;
@@ -24,6 +25,7 @@ export function MarketingSection({
   className,
   containerClassName,
   description,
+  divider = false,
   flush = false,
   headingAs,
   headingClassName,
@@ -55,6 +57,7 @@ export function MarketingSection({
         "text-foreground",
         className,
       )}
+      data-marketing-divider={divider ? "explicit" : undefined}
       data-marketing-tone={tone}
       id={id}
     >
