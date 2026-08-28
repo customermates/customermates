@@ -277,18 +277,12 @@ const MCP_TOOL_KEYS = ["claudeCode", "claudeDesktop", "codex", "cursor", "gemini
 const ONBOARDING_INSTALL_KEYS = MCP_TOOL_KEYS.map((tool) => `OnboardingWizard.ai.install.instruction.${tool}`);
 const ONBOARDING_METHODS = ["account", "local"] as const;
 const onboardingMethodKeys = (field: string) =>
-  ONBOARDING_METHODS.map(
-    (method) => `OnboardingWizard.ai.methods.${method}.${field}`,
-  );
+  ONBOARDING_METHODS.map((method) => `OnboardingWizard.ai.methods.${method}.${field}`);
 const ONBOARDING_OPENAI_METHODS = ["chatgpt", "codex"] as const;
 const onboardingOpenAiMethodKeys = (field: string) =>
-  ONBOARDING_OPENAI_METHODS.map(
-    (method) => `OnboardingWizard.ai.openai.methods.${method}.${field}`,
-  );
-const LEGAL_DOCUMENT_KEYS = ALL_LEGAL_DOCUMENTS.map(
-  (document) => `LegalDocumentNotice.documents.${document}`,
-);
-const AGENT_APPROVAL_RESOLUTION_KEYS = ["approve", "reject", "timeout"].map(
+  ONBOARDING_OPENAI_METHODS.map((method) => `OnboardingWizard.ai.openai.methods.${method}.${field}`);
+const LEGAL_DOCUMENT_KEYS = ALL_LEGAL_DOCUMENTS.map((document) => `LegalDocumentNotice.documents.${document}`);
+const AGENT_APPROVAL_RESOLUTION_KEYS = ["approve", "cancelled", "reject", "timeout"].map(
   (resolution) => `AgentChat.approval.${resolution}`,
 );
 const AGENT_ACTIVITY_RESOURCE_KEYS = [
@@ -390,7 +384,6 @@ const AGENT_CREDIT_BLOCKED_KEYS = [
   "subscription_unavailable",
 ].map((reason) => `AgentChat.credits.blocked.${reason}`);
 
-
 const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["AuditLogModal.fields.${*}", AUDIT_FIELD_KEYS],
   ["AuthSocialErrors.${*}", AUTH_SOCIAL_ERROR_KEYS],
@@ -435,22 +428,10 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["OnboardingWizard.ai.methods.${*}.meta", onboardingMethodKeys("meta")],
   ["OnboardingWizard.ai.methods.${*}.note", onboardingMethodKeys("note")],
   ["OnboardingWizard.ai.methods.${*}.title", onboardingMethodKeys("title")],
-  [
-    "OnboardingWizard.ai.openai.methods.${*}.description",
-    onboardingOpenAiMethodKeys("description"),
-  ],
-  [
-    "OnboardingWizard.ai.openai.methods.${*}.meta",
-    onboardingOpenAiMethodKeys("meta"),
-  ],
-  [
-    "OnboardingWizard.ai.openai.methods.${*}.note",
-    onboardingOpenAiMethodKeys("note"),
-  ],
-  [
-    "OnboardingWizard.ai.openai.methods.${*}.title",
-    onboardingOpenAiMethodKeys("title"),
-  ],
+  ["OnboardingWizard.ai.openai.methods.${*}.description", onboardingOpenAiMethodKeys("description")],
+  ["OnboardingWizard.ai.openai.methods.${*}.meta", onboardingOpenAiMethodKeys("meta")],
+  ["OnboardingWizard.ai.openai.methods.${*}.note", onboardingOpenAiMethodKeys("note")],
+  ["OnboardingWizard.ai.openai.methods.${*}.title", onboardingOpenAiMethodKeys("title")],
   ["OnboardingWizard.steps.${*}.subtitle", ONBOARDING_STEP_SUBTITLE_KEYS],
   ["OnboardingWizard.steps.${*}.title", ONBOARDING_STEP_TITLE_KEYS],
   ["RoleModal.resources.${*}", ROLE_RESOURCE_KEYS],
@@ -651,25 +632,13 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     "app/[locale]/(protected)/tasks/components/task-detail-view.tsx :: t.rich :: systemTaskAlertConfig.translationKey",
     1,
   ],
-  [
-    "app/[locale]/(protected)/tasks/components/task-detail.store.ts :: this.t :: nameTranslationKey",
-    1,
-  ],
-  [
-    "app/[locale]/(protected)/tasks/components/use-task-columns.tsx :: t :: nameKey",
-    1,
-  ],
+  ["app/[locale]/(protected)/tasks/components/task-detail.store.ts :: this.t :: nameTranslationKey", 1],
+  ["app/[locale]/(protected)/tasks/components/use-task-columns.tsx :: t :: nameKey", 1],
   ["app/[locale]/(static)/docs/[slug]/page.tsx :: t :: navKey", 1],
   ["app/[locale]/(static)/docs/openapi/page.tsx :: t :: navKey", 1],
   ["app/[locale]/(static)/docs/page.tsx :: t :: navKey", 1],
-  [
-    "app/[locale]/(static)/docs/components/docs-sidebar.tsx :: t :: group.i18nKey",
-    1,
-  ],
-  [
-    "app/[locale]/(static)/docs/components/docs-sidebar.tsx :: t :: item.i18nKey",
-    1,
-  ],
+  ["app/[locale]/(static)/docs/components/docs-sidebar.tsx :: t :: group.i18nKey", 1],
+  ["app/[locale]/(static)/docs/components/docs-sidebar.tsx :: t :: item.i18nKey", 1],
   ["app/components/app-sidebar.tsx :: t :: subroute.labelKey", 2],
   ["app/components/app-topbar-crumbs.ts :: t :: leafKey", 1],
   ["app/components/app-topbar-crumbs.ts :: t :: route.labelKey", 1],
@@ -691,10 +660,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     1,
   ],
   ["features/messaging/activities/audit-detail.tsx :: t :: nameKey", 1],
-  [
-    "features/messaging/activities/audit-detail.tsx :: t :: systemTaskKey as never",
-    1,
-  ],
+  ["features/messaging/activities/audit-detail.tsx :: t :: systemTaskKey as never", 1],
 ]);
 
 const SOURCE_DIRECTORIES = ["app", "components", "constants", "core", "ee", "features", "hooks", "i18n", "workflows"];
@@ -1092,22 +1058,14 @@ function scanSources(): {
       if (!keys.includes(key)) indirectViolations.push(`${file} has stale source evidence for ${key}`);
   }
   for (const [site, keys] of DYNAMIC_SITE_CONSUMERS) {
-    if (!dynamicSites.has(site))
-      indirectViolations.push(`stale dynamic consumer override ${site}`);
+    if (!dynamicSites.has(site)) indirectViolations.push(`stale dynamic consumer override ${site}`);
     for (const key of keys)
-      if (!catalog.leafPaths.has(key))
-        indirectViolations.push(
-          `${site} references missing catalog key ${key}`,
-        );
+      if (!catalog.leafPaths.has(key)) indirectViolations.push(`${site} references missing catalog key ${key}`);
   }
   for (const [template, keys] of DYNAMIC_TEMPLATE_CONSUMERS) {
-    if (!dynamicTemplates.has(template))
-      indirectViolations.push(`stale dynamic consumer template ${template}`);
+    if (!dynamicTemplates.has(template)) indirectViolations.push(`stale dynamic consumer template ${template}`);
     for (const key of keys)
-      if (!catalog.leafPaths.has(key))
-        indirectViolations.push(
-          `${template} references missing catalog key ${key}`,
-        );
+      if (!catalog.leafPaths.has(key)) indirectViolations.push(`${template} references missing catalog key ${key}`);
   }
 
   return {

@@ -9,6 +9,7 @@ import { agentTurnSseStream } from "@/ee/agent-chat/agent-turn-stream";
 import { sse } from "@/ee/agent-chat/agent-stream-utils";
 import type { SendAgentMessageResult } from "@/ee/agent-chat/send-agent-message.interactor";
 import { isAgentTurnTerminalError } from "@/ee/agent-chat/agent-turn-request";
+import { clientSafeAgentMessageParts, hasSuccessfulAgentMutation } from "@/ee/agent-chat/agent-chat.schema";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -21,6 +22,7 @@ const SSE_HEADERS = {
 };
 
 function completedReplayStream(data: Extract<SendAgentMessageResult, { disposition: "completedReplay" }>) {
+  const replayParts = clientSafeAgentMessageParts(data.assistantMessage.parts);
   return new ReadableStream<Uint8Array>({
     start(controller) {
       controller.enqueue(
@@ -36,6 +38,7 @@ function completedReplayStream(data: Extract<SendAgentMessageResult, { dispositi
           terminalCode: data.terminalCode,
           assistantMessageId: data.assistantMessage.id,
           affectedResources: data.affectedResources,
+          hasSuccessfulMutation: hasSuccessfulAgentMutation(replayParts),
           creditsUsed: 0,
           numTurns: 0,
           errorMessage: null,

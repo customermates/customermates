@@ -119,7 +119,19 @@ describe("agent message admission route", () => {
         clientRequestId,
         assistantMessage: {
           id: "assistant-1",
-          parts: [{ type: "text", text: "Already done." }],
+          parts: [
+            { type: "text", text: "Already done." },
+            {
+              type: "activity",
+              id: "write-1",
+              activity: {
+                kind: "workspace.configure",
+                affectedResources: [],
+                risk: "write",
+              },
+              status: "done",
+            },
+          ],
           createdAt: new Date("2026-08-06T10:00:00.000Z"),
         },
         terminalCode: "partial",
@@ -137,6 +149,7 @@ describe("agent message admission route", () => {
     expect(body).toContain('"type":"turn_done"');
     expect(body).toContain('"terminalCode":"partial"');
     expect(body).toContain('"isError":true');
+    expect(body).toContain('"hasSuccessfulMutation":true');
   });
 
   it.each(["running", "failed", "uncertain"] as const)(

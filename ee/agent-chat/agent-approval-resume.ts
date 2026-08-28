@@ -3,9 +3,18 @@ import type { ModelMessage } from "ai";
 
 export type ToolApprovalGrant = "approve" | "not-required";
 
-export type AgentApprovalOutcome = { toolCallId: string; decision: "approve" | "reject" | "timeout" };
+export type AgentApprovalOutcome = {
+  toolCallId: string;
+  decision: "approve" | "reject" | "timeout";
+};
 
-export type PendingApprovalCall = { toolCallId: string; toolName: string; input: unknown };
+export type AgentApprovalWake = { requestId?: string; cancelled?: boolean };
+
+export type PendingApprovalCall = {
+  toolCallId: string;
+  toolName: string;
+  input: unknown;
+};
 
 export function agentApprovalHookToken(conversationId: string) {
   return `agent-approval:${conversationId}`;
@@ -17,6 +26,10 @@ export function agentApprovalId(toolCallId: string) {
 
 export function agentApprovalRequestId(turnRequestId: string, toolCallId: string) {
   return `${turnRequestId}:${toolCallId}`;
+}
+
+export function isRelevantAgentApprovalWake(wake: AgentApprovalWake, requestIds: ReadonlySet<string>) {
+  return wake.cancelled === true || (typeof wake.requestId === "string" && requestIds.has(wake.requestId));
 }
 
 export function toolApprovalDecisionForGrant(grant: ToolApprovalGrant): ApprovalDecision {
@@ -34,8 +47,13 @@ export function pendingApprovalCalls(messages: ModelMessage[]): PendingApprovalC
   for (const message of messages) {
     if (message.role !== "assistant" || typeof message.content === "string") continue;
     for (const part of message.content) {
-      if (part.type === "tool-call" && !settled.has(part.toolCallId))
-        pending.push({ toolCallId: part.toolCallId, toolName: part.toolName, input: part.input });
+      if (part.type === "tool-call" && !settled.has(part.toolCallId)) {
+        pending.push({
+          toolCallId: part.toolCallId,
+          toolName: part.toolName,
+          input: part.input,
+        });
+      }
     }
   }
 
@@ -75,14 +93,21 @@ export function withApprovalResponses(messages: ModelMessage[], outcomes: AgentA
   }));
 
   const last = next.at(-1);
-  if (last?.role === "tool" && typeof last.content !== "string")
-    next[next.length - 1] = { ...last, content: [...(last.content as object[]), ...responses] } as ModelMessage;
-  else next.push({ role: "tool", content: responses } as unknown as ModelMessage);
+  if (last?.role === "tool" && typeof last.content !== "string") {
+    next[next.length - 1] = {
+      ...last,
+      content: [...(last.content as object[]), ...responses],
+    } as ModelMessage;
+  } else next.push({ role: "tool", content: responses } as unknown as ModelMessage);
 
   return next;
 }
 
-export type AgentToolResumeResult = { toolCallId: string; toolName: string; output: unknown };
+export type AgentToolResumeResult = {
+  toolCallId: string;
+  toolName: string;
+  output: unknown;
+};
 
 export function withToolResults(messages: ModelMessage[], results: AgentToolResumeResult[]): ModelMessage[] {
   const next: ModelMessage[] = messages.filter((message) => message.role !== "system");
@@ -96,9 +121,12 @@ export function withToolResults(messages: ModelMessage[], results: AgentToolResu
   }));
 
   const last = next.at(-1);
-  if (last?.role === "tool" && typeof last.content !== "string")
-    next[next.length - 1] = { ...last, content: [...(last.content as object[]), ...parts] } as ModelMessage;
-  else next.push({ role: "tool", content: parts } as unknown as ModelMessage);
+  if (last?.role === "tool" && typeof last.content !== "string") {
+    next[next.length - 1] = {
+      ...last,
+      content: [...(last.content as object[]), ...parts],
+    } as ModelMessage;
+  } else next.push({ role: "tool", content: parts } as unknown as ModelMessage);
 
   return next;
 }

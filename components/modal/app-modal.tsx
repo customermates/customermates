@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import type { BaseModalStore } from "@/core/base/base-modal.store";
 import type { AppModalActionProps } from "./app-modal-action";
 
@@ -66,12 +66,19 @@ export const AppModal = observer((props: Props) => {
   const { title, actions = [], description, size = "md", children } = props;
   const store = hasStore(props) ? props.store : undefined;
   const isOpen = hasStore(props) ? props.store.isOpen : props.open;
+  const navigationGuard = store?.rootStore.navigationGuard;
   const isWide = useIsWiderThan("md");
   const actionCount = actions.length;
   const hasActions = actionCount > 0;
 
   if (actionCount > 2) throw new Error("AppModal supports at most two header actions");
   const focusReturn = useOverlayFocusReturn(isOpen, store?.focusReturnTarget, store?.focusReturnFallback);
+
+  useEffect(() => {
+    if (!store || !isOpen || !navigationGuard) return;
+    navigationGuard.register(store);
+    return () => navigationGuard.unregister(store);
+  }, [isOpen, navigationGuard, store]);
 
   function requestClose() {
     if (store?.withUnsavedChangesGuard && store?.hasUnsavedChanges) {
