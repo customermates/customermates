@@ -5,7 +5,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { SYNTHETIC_COMPANY_USERS } from "@/core/config/synthetic-seed-user";
 
 import { seedDemoMessagingFixtures } from "../seeds/messaging/seed";
-import { people, threads as threadFixtures } from "../seeds/messaging/fixtures";
+import {
+  accountActivityFixtures,
+  calendarFixture,
+  people,
+  threads as threadFixtures,
+} from "../seeds/messaging/fixtures";
 import { SYNTHETIC_CONTACT_EMAIL_ADDRESSES, SYNTHETIC_CONTACT_NAMES } from "../seeds/contacts";
 import { fixtureId } from "../seeds/helpers";
 import { SYNTHETIC_SEED_TIMELINE } from "../seeds/timeline";
@@ -165,13 +170,16 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
     const participants = createdRows(records.participants);
     const threads = createdRows(records.threads);
 
-    expect(accounts).toHaveLength(3);
-    expect(accountActivities).toHaveLength(1);
-    expect(calendarEvents).toHaveLength(1);
+    expect(accounts).toHaveLength(6);
+    expect(accountActivities).toHaveLength(2);
+    expect(calendarEvents).toHaveLength(5);
     expect(calendars).toHaveLength(1);
     expect(stringsByCount(accounts, "provider")).toEqual({
       google: 1,
+      instagram: 1,
       linkedin: 1,
+      outlook: 1,
+      telegram: 1,
       whatsapp: 1,
     });
     expect(accounts).toEqual(
@@ -196,11 +204,33 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
           hasMessaging: true,
           provider: "whatsapp",
         }),
+        expect.objectContaining({
+          displayName: "Max Bergmann · Instagram",
+          hasCalendar: false,
+          hasMessaging: true,
+          provider: "instagram",
+        }),
+        expect.objectContaining({
+          displayName: "Max Bergmann · Telegram",
+          hasCalendar: false,
+          hasMessaging: true,
+          provider: "telegram",
+        }),
+        expect.objectContaining({
+          displayName: "Max Bergmann · Outlook",
+          emailAddress: context.seedUserEmail,
+          hasCalendar: true,
+          hasMessaging: true,
+          provider: "outlook",
+        }),
       ]),
     );
     expectCanonicalUpdates(records.connectedAccounts, ["id", "unipileAccountId"]);
-    for (const call of records.connectedAccounts)
-      expect(call.where).toEqual({ unipileAccountId: call.create.unipileAccountId });
+    for (const call of records.connectedAccounts) {
+      expect(call.where).toEqual({
+        unipileAccountId: call.create.unipileAccountId,
+      });
+    }
     for (const call of records.contactIdentifiers) {
       expect(call.where).toEqual({
         companyId_channelClass_value: {
@@ -238,73 +268,104 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
     });
     expectCanonicalUpdates(records.calendars, ["id", "unipileCalendarId"]);
 
-    expect(calendarEvents[0]).toMatchObject({
-      allDay: false,
-      attendeeEmails: ["anna.mueller@roche.example", "amin.hassan@tui.example", context.seedUserEmail.toLowerCase()],
-      calendarId: calendars[0]?.id,
-      companyId: context.companyId,
-      conferenceUrl: null,
-      connectedAccountId: accounts[0]?.id,
-      status: "confirmed",
-      title: "Customer operations planning",
-      unipileEventId: "demo-fixture-calendar-event-1",
-    });
-    expect((calendarEvents[0]?.endsAt as Date).getTime() - (calendarEvents[0]?.startsAt as Date).getTime()).toBe(
-      45 * 60_000,
-    );
-    expect(calendarEvents[0]?.attendees).toEqual([
-      expect.objectContaining({
-        displayName: "Anna Müller",
-        responseStatus: "yes",
-      }),
-      expect.objectContaining({
-        displayName: "Amin Hassan",
-        responseStatus: "maybe",
-      }),
-    ]);
-    expect(calendarEvents[0]?.organizer).toEqual(
-      expect.objectContaining({
-        displayName: "Max Bergmann",
-        isOrganizer: true,
-      }),
-    );
-    expect(records.calendarEvents[0]?.where).toEqual({
-      connectedAccountId_unipileEventId: {
+    const calendarAnchor = new Date((accounts[0]?.lastSyncedAt as Date).getTime() + 5 * 60_000);
+    for (const [index, fixture] of calendarFixture.events.entries()) {
+      const event = calendarEvents[index];
+      expect(event).toMatchObject({
+        allDay: false,
+        attendeeEmails: [
+          ...fixture.attendees.map(({ person }) => people[person].email?.toLowerCase()),
+          context.seedUserEmail.toLowerCase(),
+        ],
+        calendarId: calendars[0]?.id,
+        companyId: context.companyId,
+        conferenceUrl: null,
         connectedAccountId: accounts[0]?.id,
-        unipileEventId: "demo-fixture-calendar-event-1",
-      },
-    });
+        status: "confirmed",
+        title: fixture.title,
+        unipileEventId: fixture.unipileEventId,
+      });
+      expect(event?.startsAt).toEqual(new Date(calendarAnchor.getTime() - fixture.startsMinutesAgo * 60_000));
+      expect((event?.endsAt as Date).getTime() - (event?.startsAt as Date).getTime()).toBe(
+        fixture.durationMinutes * 60_000,
+      );
+      expect(event?.attendees).toEqual(
+        fixture.attendees.map(({ person, responseStatus }) =>
+          expect.objectContaining({
+            displayName: people[person].displayName,
+            responseStatus,
+          }),
+        ),
+      );
+      expect(event?.organizer).toEqual(
+        expect.objectContaining({
+          displayName: "Max Bergmann",
+          email: context.seedUserEmail,
+          isOrganizer: true,
+        }),
+      );
+      expect(records.calendarEvents[index]?.where).toEqual({
+        connectedAccountId_unipileEventId: {
+          connectedAccountId: accounts[0]?.id,
+          unipileEventId: fixture.unipileEventId,
+        },
+      });
+    }
     expectCanonicalUpdates(records.calendarEvents, ["id", "unipileEventId"]);
 
-    expect(accountActivities[0]).toMatchObject({
-      companyId: context.companyId,
-      connectedAccountId: accounts[1]?.id,
-      identifier: "demo-linkedin-leon",
-      kind: "linkedin_connection_accepted",
-      payload: expect.objectContaining({ fullName: "Leon Becker" }),
-    });
-    expect(records.accountActivities[0]?.where).toEqual({
-      connectedAccountId_kind_identifier: {
+    for (const [index, fixture] of accountActivityFixtures.entries()) {
+      const activity = accountActivities[index];
+      expect(activity).toMatchObject({
+        companyId: context.companyId,
         connectedAccountId: accounts[1]?.id,
-        identifier: "demo-linkedin-leon",
-        kind: "linkedin_connection_accepted",
-      },
-    });
+        id: fixtureId("26000000", index + 1),
+        identifier: fixture.identifier,
+        kind: fixture.kind,
+        payload: expect.objectContaining({ fullName: people[fixture.person].displayName }),
+      });
+      expect(activity?.occurredAt).toEqual(new Date(calendarAnchor.getTime() - fixture.occurredMinutesAgo * 60_000));
+      expect(records.accountActivities[index]?.where).toEqual({
+        connectedAccountId_kind_identifier: {
+          connectedAccountId: accounts[1]?.id,
+          identifier: fixture.identifier,
+          kind: fixture.kind,
+        },
+      });
+    }
+    const newestEventRows = [
+      ...accountActivities.map((activity) => ({
+        at: activity.occurredAt as Date,
+        identifier: activity.identifier,
+        kind: "activity" as const,
+      })),
+      ...calendarEvents.map((event) => ({
+        at: event.startsAt as Date,
+        identifier: event.unipileEventId,
+        kind: "calendar" as const,
+      })),
+    ].toSorted((left, right) => right.at.getTime() - left.at.getTime());
+    expect(newestEventRows.slice(0, 3)).toEqual([
+      expect.objectContaining({ identifier: "demo-linkedin-leon", kind: "activity" }),
+      expect.objectContaining({ identifier: "demo-linkedin-rashid", kind: "activity" }),
+      expect.objectContaining({ identifier: "demo-fixture-calendar-event-1", kind: "calendar" }),
+    ]);
     expectCanonicalUpdates(records.accountActivities, ["id", "identifier", "kind"]);
 
-    expect(identifiers).toHaveLength(4);
+    expect(identifiers).toHaveLength(6);
     expect(identifiers).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           channelClass: "linkedin",
           contactId: "contact-0",
           displayName: "Leon Becker",
+          messagingId: "demo-linkedin-leon",
           provider: "linkedin",
         }),
         expect.objectContaining({
           channelClass: "linkedin",
           contactId: "contact-26",
           displayName: "Rashid Malik",
+          messagingId: "demo-linkedin-rashid",
           provider: "linkedin",
         }),
         expect.objectContaining({
@@ -319,10 +380,22 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
           displayName: "Jonas Weber",
           provider: "whatsapp",
         }),
+        expect.objectContaining({
+          channelClass: "instagram",
+          contactId: "contact-23",
+          displayName: "Yasmin Farouk",
+          provider: "instagram",
+        }),
+        expect.objectContaining({
+          channelClass: "telegram",
+          contactId: "contact-6",
+          displayName: "Jonas Weber",
+          provider: "telegram",
+        }),
       ]),
     );
 
-    expect(threads).toHaveLength(25);
+    expect(threads).toHaveLength(28);
     expectCanonicalUpdates(records.threads);
     for (const call of records.threads) {
       expect(call.where).toEqual({
@@ -334,14 +407,17 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
     }
     expect(stringsByCount(threads, "provider")).toEqual({
       google: 10,
+      instagram: 1,
       linkedin: 8,
+      outlook: 1,
+      telegram: 1,
       whatsapp: 7,
     });
     expect(stringsByCount(threads, "state")).toEqual({
-      open: 15,
-      unread: 10,
+      open: 17,
+      unread: 11,
     });
-    expect(stringsByCount(threads, "type")).toEqual({ group: 6, single: 19 });
+    expect(stringsByCount(threads, "type")).toEqual({ group: 6, single: 22 });
     expect(
       threads.map(({ name, provider, subject }) => ({
         name,
@@ -388,11 +464,18 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
           provider: "whatsapp",
           subject: null,
         },
+        { name: "Yasmin Farouk", provider: "instagram", subject: null },
+        { name: "Jonas Weber", provider: "telegram", subject: null },
+        {
+          name: null,
+          provider: "outlook",
+          subject: "TUI service journey baseline",
+        },
       ]),
     );
     expect(threads.every((thread) => thread.companyId === context.companyId && thread.sharedToCrm === true)).toBe(true);
 
-    expect(participants).toHaveLength(59);
+    expect(participants).toHaveLength(65);
     const participantsByThread = Map.groupBy(participants, (participant) => String(participant.messagingThreadId));
     for (const thread of threads) {
       const threadParticipants = participantsByThread.get(String(thread.id)) ?? [];
@@ -416,7 +499,7 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
       ]),
     );
     const counterpartNamesByProvider = Object.fromEntries(
-      ["google", "linkedin", "whatsapp"].map((provider) => [
+      ["google", "instagram", "linkedin", "outlook", "telegram", "whatsapp"].map((provider) => [
         provider,
         [
           ...new Set(
@@ -429,7 +512,10 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
     );
     expect(counterpartNamesByProvider).toEqual({
       google: ["Amin Hassan", "Anna Müller", "Clara Neumann", "Yasmin Farouk"],
+      instagram: ["Yasmin Farouk"],
       linkedin: ["Leon Becker", "Rashid Malik"],
+      outlook: ["Amin Hassan"],
+      telegram: ["Jonas Weber"],
       whatsapp: ["Jonas Weber", "Marco Silva", "Sophie Wagner"],
     });
 
@@ -478,9 +564,17 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
         if (contactIndex === null) return false;
         if (!syntheticContactAuditIds.has(fixtureId("60000000", contactIndex + 1))) return false;
 
-        if (fixture.account === "google") return person.email === SYNTHETIC_CONTACT_EMAIL_ADDRESSES[contactIndex];
+        if (fixture.account === "google" || fixture.account === "outlook")
+          return person.email === SYNTHETIC_CONTACT_EMAIL_ADDRESSES[contactIndex];
 
-        const expectedValue = fixture.account === "linkedin" ? person.linkedin : person.phone;
+        const expectedValue =
+          fixture.account === "linkedin"
+            ? person.linkedin
+            : fixture.account === "whatsapp"
+              ? person.phone
+              : fixture.account === "instagram"
+                ? person.instagram
+                : person.telegram;
         return identifiers.some(
           (identifier) =>
             identifier.contactId === context.contactIds[contactIndex] &&
@@ -523,12 +617,29 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
     }
     expectCanonicalUpdates(records.participants);
 
-    expect(messages).toHaveLength(126);
+    expect(messages).toHaveLength(141);
     expect(stringsByCount(messages, "provider")).toEqual({
       google: 51,
+      instagram: 5,
       linkedin: 40,
+      outlook: 5,
+      telegram: 5,
       whatsapp: 35,
     });
+    const newestMessages = messages
+      .toSorted((left, right) => (right.sentAt as Date).getTime() - (left.sentAt as Date).getTime())
+      .slice(0, 6);
+    expect(newestMessages.map(({ provider }) => provider)).toEqual([
+      "google",
+      "whatsapp",
+      "instagram",
+      "linkedin",
+      "telegram",
+      "outlook",
+    ]);
+    expect(
+      newestMessages.map(({ sentAt }) => (calendarAnchor.getTime() - (sentAt as Date).getTime()) / 60_000),
+    ).toEqual([7, 14, 21, 28, 35, 42]);
     expect(new Set(messages.map(({ direction }) => direction))).toEqual(new Set(["inbound", "outbound"]));
     expectCanonicalUpdates(records.messages);
     for (const call of records.messages) {
@@ -566,10 +677,11 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
         `https://customermates.com/demo/avatars/photos/${expectedAvatarByName[senderName]}`,
       );
 
-      if (message.provider === "google") {
+      if (message.provider === "google" || message.provider === "outlook") {
+        const folderPrefix = message.provider === "google" ? "google" : "outlook";
         expect(String(message.bodyHtml)).toContain("<p>");
         expect(message.folderIds).toEqual(
-          message.direction === "outbound" ? ["demo-google-sent"] : ["demo-google-inbox"],
+          message.direction === "outbound" ? [`demo-${folderPrefix}-sent`] : [`demo-${folderPrefix}-inbox`],
         );
       } else {
         expect(message.bodyHtml).toBeNull();
@@ -578,7 +690,7 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
     }
 
     const expectedMessageCounts = threadFixtures.map((thread) => thread.messages.length);
-    expect(expectedMessageCounts).toHaveLength(25);
+    expect(expectedMessageCounts).toHaveLength(28);
     expect(expectedMessageCounts.every((count) => count >= 5)).toBe(true);
     for (const [threadIndex, thread] of threads.entries()) {
       const threadMessages = messagesByThread.get(String(thread.id)) ?? [];
@@ -667,11 +779,11 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
     vi.setSystemTime(new Date("2026-07-18T12:47:00.000Z"));
     await seedDemoMessagingFixtures(prisma, context);
 
-    const secondAccounts = createdRows(records.connectedAccounts).slice(3);
-    const secondThreads = createdRows(records.threads).slice(25);
-    const secondMessages = createdRows(records.messages).slice(126);
-    const secondCalendarEvents = createdRows(records.calendarEvents).slice(1);
-    const secondAccountActivities = createdRows(records.accountActivities).slice(1);
+    const secondAccounts = createdRows(records.connectedAccounts).slice(6);
+    const secondThreads = createdRows(records.threads).slice(28);
+    const secondMessages = createdRows(records.messages).slice(141);
+    const secondCalendarEvents = createdRows(records.calendarEvents).slice(5);
+    const secondAccountActivities = createdRows(records.accountActivities).slice(2);
 
     expect(secondAccounts[0]?.createdAt).toEqual(firstAccountCreatedAt);
     expect(secondThreads.map(({ createdAt }) => createdAt)).toEqual(firstThreadCreatedAt);
@@ -686,7 +798,7 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
     ).toEqual(firstCalendarEventTimes);
     expect(secondAccountActivities.map(({ occurredAt }) => occurredAt)).toEqual(firstAccountActivityTimes);
     for (const [index, { create, update }] of records.connectedAccounts.entries()) {
-      expect(update).toMatchObject(SYNTHETIC_SEED_TIMELINE.connectedAccount(index % 3));
+      expect(update).toMatchObject(SYNTHETIC_SEED_TIMELINE.connectedAccount(index % 6));
       expect(update.lastSyncedAt).toEqual(create.lastSyncedAt);
     }
     for (const { create, update } of records.threads) {
@@ -746,7 +858,9 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
         ),
     ).toBe(true);
 
-    const accountCleanup = records.connectedAccountDeletes[0]?.where.id as { notIn: string[] };
+    const accountCleanup = records.connectedAccountDeletes[0]?.where.id as {
+      notIn: string[];
+    };
     expect(accountCleanup.notIn).toContain(existingAccountId);
     expect(accountCleanup.notIn).toContain(existingLinkedinAccountId);
     expect(accountCleanup.notIn).not.toContain(records.connectedAccounts[0]?.create.id);
@@ -892,8 +1006,8 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
 
     await expect(seedDemoMessagingFixtures(prisma, context)).resolves.toBeUndefined();
 
-    const secondSeedCreates = records.contactIdentifiers.slice(4).map(({ create }) => create);
-    expect(secondSeedCreates).toHaveLength(3);
+    const secondSeedCreates = records.contactIdentifiers.slice(6).map(({ create }) => create);
+    expect(secondSeedCreates).toHaveLength(5);
     expect(secondSeedCreates.some(({ value }) => value === "leon-becker.linkedin.example")).toBe(false);
     expect(records.contactIdentifierUpdates).toEqual([
       {

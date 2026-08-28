@@ -342,6 +342,9 @@ export const DEMO_VISUAL_CONVERSATIONS = {
 
 export const DEMO_VISUAL_PROVIDER_PERSON_PAIRINGS = {
   gmail: ["anna-mueller", "amin-hassan", "clara-neumann", "yasmin-farouk"],
+  instagram: ["yasmin-farouk"],
   linkedin: ["leon-becker", "rashid-malik"],
+  outlook: ["amin-hassan"],
+  telegram: ["jonas-weber"],
   whatsapp: ["sophie-wagner", "jonas-weber", "marco-silva"],
 } as const satisfies Record<string, readonly (keyof typeof DEMO_VISUAL_PEOPLE)[]>;
