@@ -17,13 +17,11 @@ export function LandingArticle({ children, items }: Props) {
       containerClassName="[--toc-anchor-offset:5.5rem]"
       tone="canvas"
     >
-      <div className="rounded-panel border border-border bg-background px-5 py-8 shadow-sm sm:px-8 sm:py-10 lg:px-12 lg:py-12">
-        <Toc items={items}>
-          <div className="prose prose-sm prose-neutral max-w-[72ch] dark:prose-invert prose-headings:text-balance prose-headings:tracking-tight prose-a:font-medium prose-a:decoration-primary/40 prose-a:underline-offset-4 prose-img:rounded-card">
-            {children}
-          </div>
-        </Toc>
-      </div>
+      <Toc items={items} layout="article">
+        <div className="prose prose-sm prose-neutral max-w-[72ch] dark:prose-invert prose-headings:text-balance prose-headings:tracking-tight prose-a:font-medium prose-a:decoration-primary/40 prose-a:underline-offset-4 prose-img:rounded-card">
+          {children}
+        </div>
+      </Toc>
     </MarketingSection>
   );
 }

@@ -32,4 +32,16 @@ describe("shared table-of-contents scroll contract", () => {
     expect(tocSource.match(/var\(--toc-sticky-top,0px\)/gu)).toHaveLength(2);
     expect(tocSource).toContain("var(--toc-anchor-offset,0px)");
   });
+
+  it("keeps the compact article rail opt-in while preserving the default flex layout", () => {
+    expect(tocSource).toContain('layout?: "article" | "default"');
+    expect(tocSource).toContain('layout = "default"');
+    expect(tocSource).toContain(
+      '"text-sm lg:grid lg:grid-cols-[minmax(0,72ch)_14rem] lg:justify-center lg:gap-10"',
+    );
+    expect(tocSource).toContain("lg:grid-cols-[minmax(0,72ch)_14rem]");
+    expect(tocSource).toContain("lg:gap-10");
+    expect(tocSource).toContain('layout === "article" ? "lg:w-56" : "max-w-68"');
+    expect(tocSource).toContain('layout === "default" && "flex-1"');
+  });
 });

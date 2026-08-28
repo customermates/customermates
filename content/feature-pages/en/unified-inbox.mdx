@@ -47,6 +47,7 @@ acquisition:
       productBehavior: true
       statement: "Supported email, social and messenger channels converge in one CRM inbox."
     factReferences:
+      - product:conversation-record-association
       - product:unified-inbox-channel-set
     focalLabel:
       locale: en
@@ -63,9 +64,14 @@ acquisition:
         providerSet: unified-inbox
     supportingSubjects:
       - id: conversation-list
-        form: context-card
+        form: record
+        fixtures:
+          conversation: gmail-rollout-next-steps
+          person: anna-mueller
       - id: contact-context
         form: context-card
+        fixtures:
+          person: anna-mueller
     accentTarget: inbox-providers
   structuredData:
     types:

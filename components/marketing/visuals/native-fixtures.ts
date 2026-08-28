@@ -65,9 +65,31 @@ export const VISUAL_STATUS_FIXTURES = DEMO_VISUAL_DEAL_STATUSES;
 export const VISUAL_RECORD_FIXTURES = DEMO_VISUAL_DEALS;
 
 export const VISUAL_DEAL_BOARD_FIXTURES = {
+  "agency-new-business-board": {
+    records: [
+      "deal-digital-customer-platform",
+      "deal-data-analytics",
+      "deal-cloud-infrastructure",
+      "deal-hr-systems",
+      "deal-data-center-refresh",
+      "deal-process-automation",
+    ],
+    statuses: ["deal-open", "deal-won", "deal-lost"],
+  },
   "demo-status-board": {
     records: Object.keys(VISUAL_RECORD_FIXTURES) as (keyof typeof VISUAL_RECORD_FIXTURES)[],
     statuses: ["deal-open", "deal-won", "deal-lost", "deal-abandoned"],
+  },
+  "professional-services-board": {
+    records: [
+      "deal-data-analytics",
+      "deal-workplace-hardware",
+      "deal-crm-rollout",
+      "deal-enterprise-integration",
+      "deal-process-automation",
+      "deal-data-center-refresh",
+    ],
+    statuses: ["deal-open", "deal-won", "deal-lost"],
   },
 } as const satisfies Record<
   string,

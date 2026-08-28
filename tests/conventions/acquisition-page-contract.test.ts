@@ -148,7 +148,8 @@ describe("approved acquisition page contract", () => {
 
     for (const route of ["app/[locale]/(static)/blog/page.tsx", "app/[locale]/(static)/blog/[slug]/page.tsx"]) {
       const source = readFileSync(join(REPO_ROOT, route), "utf8");
-      expect(source, route).toContain("showImage={!post.data.acquisition}");
+      expect(source, route).toContain("showImage={false}");
+      expect(source, route).not.toContain("showImage={!post.data.acquisition}");
     }
 
     const blogCard = readFileSync(join(REPO_ROOT, "app/[locale]/(static)/blog/blog-post-card.tsx"), "utf8");
@@ -165,6 +166,22 @@ describe("approved acquisition page contract", () => {
     const source = readFileSync(join(REPO_ROOT, "components/marketing/page-hero.tsx"), "utf8");
     expect(source).toContain("showOpenSourceBadge = true");
     expect(source).toContain("showOpenSourceBadge ? <AgplGithubBadge /> : null");
+  });
+
+  it("binds the unified-inbox conversation and contact identities in every locale", () => {
+    for (const locale of CONTENT_LOCALES) {
+      const { data } = readPage(contentFile("feature-pages", locale, "unified-inbox"));
+      const visual = acquisitionPageSchema.parse(data.acquisition).visual;
+      if (visual.kind !== "brand-illustration") throw new Error(`${locale}: expected a brand illustration`);
+
+      const conversation = visual.supportingSubjects.find((subject) => subject.id === "conversation-list");
+      const contact = visual.supportingSubjects.find((subject) => subject.id === "contact-context");
+      expect(conversation, locale).toMatchObject({
+        fixtures: { conversation: "gmail-rollout-next-steps", person: "anna-mueller" },
+        form: "record",
+      });
+      expect(contact, locale).toMatchObject({ fixtures: { person: "anna-mueller" } });
+    }
   });
 
   it("binds deal-pipeline proof to configurable stages and the rendered Kanban board", () => {

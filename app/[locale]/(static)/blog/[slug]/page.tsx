@@ -182,7 +182,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                   <BlogPostCard
                     {...post.data.blogPost}
                     locale={locale}
-                    showImage={!post.data.acquisition}
+                    showImage={false}
                     title={post.data.title}
                     url={`/blog/${postSlug}`}
                   />

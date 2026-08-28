@@ -30,7 +30,9 @@ describe("public acquisition UI contract", () => {
     const article = source("components/marketing/landing-article.tsx");
     expect(article).toContain('tone="canvas"');
     expect(article).toContain("max-w-[72ch]");
-    expect(article).toContain("<Toc items={items}>");
+    expect(article).toContain('<Toc items={items} layout="article">');
+    expect(article).not.toContain("rounded-panel");
+    expect(article).not.toContain("shadow-sm");
 
     for (const route of [
       "app/[locale]/(static)/features/[slug]/page.tsx",
@@ -50,12 +52,29 @@ describe("public acquisition UI contract", () => {
 
     expect(visual).toContain("VISUAL_PLACEMENTS.filter");
     expect(visual).toContain('data-acquisition-responsive-placements="narrow:base wide:sm split:lg"');
+    expect(visual).toContain('data-detail-budget="narrow:2 wide:4 split:3"');
     expect(visual).toContain('data-supported-placements={brief.placements.join(" ")}');
     expect(visual).toContain("aspect-[3/4]");
     expect(visual).toContain("sm:aspect-hero");
+    expect(visual).toContain("sm:min-h-[30rem]");
     expect(visual).toContain("lg:aspect-[4/5]");
+    expect(visual).toContain("lg:min-h-0");
     expect(artboardOpening).toBeDefined();
     expect(artboardOpening).not.toMatch(/\bborder(?:-|\b)|\bshadow(?:-|\b)/u);
+  });
+
+  it("binds dense acquisition scenes to declared fixture-backed subjects", () => {
+    const visual = source("components/marketing/acquisition-story-visual.tsx");
+    expect(visual).toContain("VISUAL_CONVERSATION_FIXTURES[conversationId]");
+    expect(visual).not.toContain('VISUAL_CONVERSATION_FIXTURES["gmail-rollout-next-steps"]');
+    expect(visual).toContain("data-visual-subject={conversationList.id}");
+    expect(visual).toContain("data-visual-subject={contactContext.id}");
+    expect(visual).toContain('formatDealValue(record, locale, "weighted")');
+    expect(visual).toContain("<NativeAgentProviderIdentity");
+    expect(visual).toContain('strokeLinecap="butt"');
+    expect(visual).toContain('vectorEffect="non-scaling-stroke"');
+    expect(visual).not.toMatch(/ArrowDown|ArrowRight/u);
+    expect(visual).not.toContain("{brief.takeaway}</p>");
   });
 
   it("puts the blog title and metadata before its authored visual", () => {

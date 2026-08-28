@@ -442,6 +442,26 @@ describe("marketing visual brief", () => {
       "deal-lost",
       "deal-abandoned",
     ]);
+    expect(
+      VISUAL_DEAL_BOARD_FIXTURES["professional-services-board"].records,
+    ).toEqual([
+      "deal-data-analytics",
+      "deal-workplace-hardware",
+      "deal-crm-rollout",
+      "deal-enterprise-integration",
+      "deal-process-automation",
+      "deal-data-center-refresh",
+    ]);
+    expect(
+      VISUAL_DEAL_BOARD_FIXTURES["agency-new-business-board"].records,
+    ).toEqual([
+      "deal-digital-customer-platform",
+      "deal-data-analytics",
+      "deal-cloud-infrastructure",
+      "deal-hr-systems",
+      "deal-data-center-refresh",
+      "deal-process-automation",
+    ]);
 
     const providerSet = clone(getGoldenVisualBrief("converge", "en"));
     providerSet.focalSubject = {

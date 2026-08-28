@@ -90,7 +90,7 @@ export default async function BlogPage({ searchParams }: Props) {
               {...post.data.blogPost}
               description={post.data.description}
               locale={locale}
-              showImage={!post.data.acquisition}
+              showImage={false}
               title={post.data.title}
               url={`/blog/${slug}`}
             />
