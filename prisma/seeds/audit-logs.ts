@@ -66,6 +66,7 @@ type ConnectedAccountSnapshot = {
   displayName: string | null;
   emailAddress: string | null;
   id: string;
+  lastSyncedAt: Date | null;
   provider: DomainEventMap[DomainEvent.CONNECTED_ACCOUNT_CREATED]["payload"]["provider"];
 };
 
@@ -151,6 +152,28 @@ export const SYNTHETIC_PREVIOUS_TASK_NAMES = new Map<number, string>([
   [13, "Review notes from the Roche demo"],
 ]);
 
+export const SYNTHETIC_RECENT_TASK_AUDIT_OFFSETS_MINUTES = {
+  created: new Map<number, number>([
+    [10, 156],
+    [11, 126],
+    [12, 66],
+    [13, 96],
+    [14, 12],
+  ]),
+  updated: new Map<number, number>([[13, 38]]),
+} as const;
+
+// Connected-account sync time is stable across reseeds, unlike Date.now(), and keeps these rows among recent messages.
+function recentTaskAuditTime(
+  messagingSyncAt: Date,
+  phase: keyof typeof SYNTHETIC_RECENT_TASK_AUDIT_OFFSETS_MINUTES,
+  taskIndex: number,
+  fallback: Date,
+): Date {
+  const offsetMinutes = SYNTHETIC_RECENT_TASK_AUDIT_OFFSETS_MINUTES[phase].get(taskIndex);
+  return offsetMinutes === undefined ? fallback : new Date(messagingSyncAt.getTime() - offsetMinutes * 60_000);
+}
+
 function auditFixture<E extends DomainEvent>(args: {
   companyId: string;
   createdAt: Date;
@@ -234,6 +257,19 @@ export function buildSyntheticAuditLogFixtures(args: {
 
   const primaryUser = snapshot.users.find(({ id }) => id === primaryUserId);
   if (!primaryUser) throw new Error(`Missing primary synthetic user ${primaryUserId}`);
+  const taskActorIds = [
+    primaryUserId,
+    ...snapshot.users
+      .filter(({ id }) => id !== primaryUserId)
+      .map(({ id }) => id)
+      .sort(),
+  ];
+  const messagingSyncTimes = snapshot.connectedAccounts.flatMap(({ lastSyncedAt }) =>
+    lastSyncedAt ? [lastSyncedAt.getTime()] : [],
+  );
+  if (messagingSyncTimes.length === 0) throw new Error("Missing synthetic messaging sync anchor for recent audit logs");
+  const messagingSyncAt = new Date(Math.max(...messagingSyncTimes));
+  const taskActorId = (taskIndex: number) => taskActorIds[taskIndex % taskActorIds.length];
 
   push(
     DomainEvent.USER_REGISTERED,
@@ -402,7 +438,13 @@ export function buildSyntheticAuditLogFixtures(args: {
   for (const [taskIndex, task] of snapshot.tasks.entries()) {
     if (task.type !== "custom") continue;
     const initialTask = creationState(task, { name: SYNTHETIC_PREVIOUS_TASK_NAMES.get(taskIndex) ?? task.name });
-    push(DomainEvent.TASK_CREATED, task.id, initialTask, initialTask.createdAt);
+    push(
+      DomainEvent.TASK_CREATED,
+      task.id,
+      initialTask,
+      recentTaskAuditTime(messagingSyncAt, "created", taskIndex, initialTask.createdAt),
+      taskActorId(taskIndex),
+    );
   }
 
   for (const taskIndex of SYNTHETIC_TASK_UPDATE_INDEXES) {
@@ -422,7 +464,8 @@ export function buildSyntheticAuditLogFixtures(args: {
           },
         },
       },
-      updatedTask.updatedAt,
+      recentTaskAuditTime(messagingSyncAt, "updated", taskIndex, updatedTask.updatedAt),
+      taskActorId(taskIndex),
     );
   }
 
@@ -679,6 +722,7 @@ async function loadSyntheticAuditSnapshot(
         displayName: true,
         emailAddress: true,
         createdAt: true,
+        lastSyncedAt: true,
       },
     }),
     prisma.webhook.findUniqueOrThrow({

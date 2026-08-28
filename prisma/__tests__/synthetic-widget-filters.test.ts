@@ -13,8 +13,11 @@ import { seedWidgets, SYNTHETIC_WIDGET_NAMES } from "../seeds/widgets";
 type SeedLayoutItem = { h: number; i: string; w: number; x: number; y: number };
 
 describe("synthetic widget filters", () => {
-  it("restores the three legacy option filters with deterministic current IDs", async () => {
-    const calls: Array<{ create: Record<string, unknown>; update: Record<string, unknown> }> = [];
+  it("restores the canonical seven-widget dashboard with deterministic IDs and layouts", async () => {
+    const calls: Array<{
+      create: Record<string, unknown>;
+      update: Record<string, unknown>;
+    }> = [];
     const deleteMany = vi.fn().mockResolvedValue({ count: 0 });
     const prisma = {
       widget: {
@@ -38,27 +41,27 @@ describe("synthetic widget filters", () => {
     });
 
     const widgets = calls.map(({ create }) => create);
+    const widgetIds = widgets.map(({ id }) => id);
     expect(widgets).toHaveLength(7);
     expect(widgets.map(({ name }) => name)).toEqual(SYNTHETIC_WIDGET_NAMES);
-    expect(deleteMany).toHaveBeenCalledOnce();
+    expect(widgetIds).toEqual([
+      "15000000-0000-4000-8000-000000000002",
+      "15000000-0000-4000-8000-000000000003",
+      "15000000-0000-4000-8000-000000000004",
+      "15000000-0000-4000-8000-000000000005",
+      "15000000-0000-4000-8000-000000000007",
+      "15000000-0000-4000-8000-000000000008",
+      "15000000-0000-4000-8000-000000000009",
+    ]);
+    expect(deleteMany).toHaveBeenCalledTimes(1);
     expect(calls.every(({ create, update }) => JSON.stringify(create) === JSON.stringify(update))).toBe(true);
     expect(deleteMany).toHaveBeenCalledWith({
       where: {
         companyId: SEED_IDS.company,
-        id: {
-          startsWith: "15000000-",
-          notIn: widgets.map(({ id }) => id),
-        },
+        id: { startsWith: "15000000-", notIn: widgetIds },
       },
     });
     expect(widgets.map(({ entityFilters }) => entityFilters)).toEqual([
-      [
-        {
-          field: SYNTHETIC_CUSTOM_COLUMN_IDS.serviceType,
-          operator: "in",
-          value: [SYNTHETIC_CUSTOM_OPTION_IDS.serviceType.hardware],
-        },
-      ],
       [],
       [],
       [
@@ -75,27 +78,258 @@ describe("synthetic widget filters", () => {
           value: [SYNTHETIC_CUSTOM_OPTION_IDS.dealStatus.abandoned],
         },
       ],
-      [],
+      Prisma.DbNull,
+      Prisma.DbNull,
       Prisma.DbNull,
     ]);
-    expect(widgets.map(({ timelineFilters }) => timelineFilters).slice(0, -1)).toEqual(
-      Array.from({ length: 6 }, () => Prisma.DbNull),
-    );
+    expect(widgets.map(({ timelineFilters }) => timelineFilters)).toEqual([
+      Prisma.DbNull,
+      Prisma.DbNull,
+      Prisma.DbNull,
+      Prisma.DbNull,
+      [{ field: "timelineKind", operator: "in", value: ["changes"] }],
+      [{ field: "timelineKind", operator: "in", value: ["messages"] }],
+      [{ field: "timelineKind", operator: "in", value: ["activities"] }],
+    ]);
     expect(widgets.map(({ kind }) => kind)).toEqual([
-      ...Array.from({ length: 6 }, () => WidgetKind.chart),
+      WidgetKind.chart,
+      WidgetKind.chart,
+      WidgetKind.chart,
+      WidgetKind.chart,
+      WidgetKind.activityTimeline,
+      WidgetKind.activityTimeline,
       WidgetKind.activityTimeline,
     ]);
-    expect(widgets.slice(-1).map(({ timelineFilters }) => timelineFilters)).toEqual([
-      [{ field: "timelineKind", operator: "in", value: ["changes", "messages"] }],
-    ]);
-    expect(widgets.slice(-1).map(({ id, layout }) => ({ id, layout }))).toEqual([
+    expect(widgets.map(({ id, layout }) => ({ id, layout }))).toEqual([
+      {
+        id: "15000000-0000-4000-8000-000000000002",
+        layout: {
+          lg: {
+            h: 2,
+            i: "15000000-0000-4000-8000-000000000002",
+            w: 3,
+            x: 0,
+            y: 0,
+          },
+          md: {
+            h: 2,
+            i: "15000000-0000-4000-8000-000000000002",
+            w: 2,
+            x: 0,
+            y: 0,
+          },
+          sm: {
+            h: 2,
+            i: "15000000-0000-4000-8000-000000000002",
+            w: 2,
+            x: 0,
+            y: 0,
+          },
+          xs: {
+            h: 2,
+            i: "15000000-0000-4000-8000-000000000002",
+            w: 1,
+            x: 0,
+            y: 0,
+          },
+        },
+      },
+      {
+        id: "15000000-0000-4000-8000-000000000003",
+        layout: {
+          lg: {
+            h: 2,
+            i: "15000000-0000-4000-8000-000000000003",
+            w: 3,
+            x: 3,
+            y: 0,
+          },
+          md: {
+            h: 2,
+            i: "15000000-0000-4000-8000-000000000003",
+            w: 2,
+            x: 2,
+            y: 0,
+          },
+          sm: {
+            h: 2,
+            i: "15000000-0000-4000-8000-000000000003",
+            w: 2,
+            x: 2,
+            y: 0,
+          },
+          xs: {
+            h: 2,
+            i: "15000000-0000-4000-8000-000000000003",
+            w: 1,
+            x: 1,
+            y: 0,
+          },
+        },
+      },
+      {
+        id: "15000000-0000-4000-8000-000000000004",
+        layout: {
+          lg: {
+            h: 2,
+            i: "15000000-0000-4000-8000-000000000004",
+            w: 3,
+            x: 9,
+            y: 0,
+          },
+          md: {
+            h: 2,
+            i: "15000000-0000-4000-8000-000000000004",
+            w: 2,
+            x: 6,
+            y: 0,
+          },
+          sm: {
+            h: 2,
+            i: "15000000-0000-4000-8000-000000000004",
+            w: 2,
+            x: 2,
+            y: 2,
+          },
+          xs: {
+            h: 2,
+            i: "15000000-0000-4000-8000-000000000004",
+            w: 1,
+            x: 1,
+            y: 2,
+          },
+        },
+      },
+      {
+        id: "15000000-0000-4000-8000-000000000005",
+        layout: {
+          lg: {
+            h: 2,
+            i: "15000000-0000-4000-8000-000000000005",
+            w: 3,
+            x: 6,
+            y: 0,
+          },
+          md: {
+            h: 2,
+            i: "15000000-0000-4000-8000-000000000005",
+            w: 2,
+            x: 4,
+            y: 0,
+          },
+          sm: {
+            h: 2,
+            i: "15000000-0000-4000-8000-000000000005",
+            w: 2,
+            x: 0,
+            y: 2,
+          },
+          xs: {
+            h: 2,
+            i: "15000000-0000-4000-8000-000000000005",
+            w: 1,
+            x: 0,
+            y: 2,
+          },
+        },
+      },
       {
         id: "15000000-0000-4000-8000-000000000007",
         layout: {
-          lg: { h: 3, i: "15000000-0000-4000-8000-000000000007", w: 4, x: 8, y: 2 },
-          md: { h: 4, i: "15000000-0000-4000-8000-000000000007", w: 4, x: 4, y: 3 },
-          sm: { h: 4, i: "15000000-0000-4000-8000-000000000007", w: 2, x: 2, y: 3 },
-          xs: { h: 4, i: "15000000-0000-4000-8000-000000000007", w: 2, x: 0, y: 9 },
+          lg: {
+            h: 3,
+            i: "15000000-0000-4000-8000-000000000007",
+            w: 4,
+            x: 0,
+            y: 2,
+          },
+          md: {
+            h: 3,
+            i: "15000000-0000-4000-8000-000000000007",
+            w: 4,
+            x: 0,
+            y: 2,
+          },
+          sm: {
+            h: 3,
+            i: "15000000-0000-4000-8000-000000000007",
+            w: 4,
+            x: 0,
+            y: 7,
+          },
+          xs: {
+            h: 3,
+            i: "15000000-0000-4000-8000-000000000007",
+            w: 2,
+            x: 0,
+            y: 4,
+          },
+        },
+      },
+      {
+        id: "15000000-0000-4000-8000-000000000008",
+        layout: {
+          lg: {
+            h: 3,
+            i: "15000000-0000-4000-8000-000000000008",
+            w: 4,
+            x: 4,
+            y: 2,
+          },
+          md: {
+            h: 3,
+            i: "15000000-0000-4000-8000-000000000008",
+            w: 4,
+            x: 4,
+            y: 2,
+          },
+          sm: {
+            h: 3,
+            i: "15000000-0000-4000-8000-000000000008",
+            w: 4,
+            x: 0,
+            y: 4,
+          },
+          xs: {
+            h: 3,
+            i: "15000000-0000-4000-8000-000000000008",
+            w: 2,
+            x: 0,
+            y: 7,
+          },
+        },
+      },
+      {
+        id: "15000000-0000-4000-8000-000000000009",
+        layout: {
+          lg: {
+            h: 3,
+            i: "15000000-0000-4000-8000-000000000009",
+            w: 4,
+            x: 8,
+            y: 2,
+          },
+          md: {
+            h: 3,
+            i: "15000000-0000-4000-8000-000000000009",
+            w: 8,
+            x: 0,
+            y: 5,
+          },
+          sm: {
+            h: 3,
+            i: "15000000-0000-4000-8000-000000000009",
+            w: 4,
+            x: 0,
+            y: 10,
+          },
+          xs: {
+            h: 3,
+            i: "15000000-0000-4000-8000-000000000009",
+            w: 2,
+            x: 0,
+            y: 10,
+          },
         },
       },
     ]);

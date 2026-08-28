@@ -13,6 +13,7 @@ import {
   SYNTHETIC_CONTACT_UPDATE_INDEXES,
   SYNTHETIC_DEAL_UPDATE_INDEXES,
   SYNTHETIC_ORGANIZATION_UPDATE_INDEXES,
+  SYNTHETIC_RECENT_TASK_AUDIT_OFFSETS_MINUTES,
   SYNTHETIC_TASK_UPDATE_INDEXES,
   type SyntheticAuditFixture,
   type SyntheticAuditSnapshot,
@@ -32,6 +33,7 @@ const primaryUserReference = {
   lastName: SYNTHETIC_COMPANY_USERS.maxBergmann.lastName,
   avatarUrl: "https://customermates.com/demo/avatars/photos/max-bergmann.png",
 };
+const messagingSyncAt = new Date("2026-08-06T00:00:00.000Z");
 
 function syntheticSnapshot(): SyntheticAuditSnapshot {
   const users = [
@@ -172,6 +174,7 @@ function syntheticSnapshot(): SyntheticAuditSnapshot {
       displayName: `Max Bergmann · ${provider}`,
       emailAddress: provider === "google" ? primaryUserReference.email : null,
       createdAt: SYNTHETIC_SEED_TIMELINE.connectedAccount(index).createdAt,
+      lastSyncedAt: messagingSyncAt,
     })),
     users,
     roles: SYNTHETIC_CUSTOM_ROLES.map(({ companyId: _companyId, permissions, ...role }, index) => ({
@@ -353,6 +356,84 @@ describe("synthetic audit-log fixtures", () => {
         roleId: SEED_IDS.customerSuccessRole,
       },
     );
+  });
+
+  it("rotates task actors across the existing team and keeps recent changes beside the messaging window", () => {
+    const snapshot = syntheticSnapshot();
+    const fixtures = buildFixtures(snapshot);
+    const taskActorIds = [SEED_IDS.user, SEED_IDS.sofiaRossiUser, SEED_IDS.elenaHoffmannUser];
+
+    for (const [taskIndex, task] of snapshot.tasks.entries()) {
+      if (task.type !== "custom") continue;
+
+      expect(fixtureForEntity(fixtures, DomainEvent.TASK_CREATED, task.id).userId).toBe(
+        taskActorIds[taskIndex % taskActorIds.length],
+      );
+    }
+
+    for (const taskIndex of SYNTHETIC_TASK_UPDATE_INDEXES) {
+      const task = snapshot.tasks[taskIndex];
+      expect(fixtureForEntity(fixtures, DomainEvent.TASK_UPDATED, task.id).userId).toBe(
+        taskActorIds[taskIndex % taskActorIds.length],
+      );
+    }
+
+    const recentTaskChanges = fixtures
+      .filter(
+        ({ createdAt, event }) =>
+          (event === DomainEvent.TASK_CREATED || event === DomainEvent.TASK_UPDATED) &&
+          createdAt.getTime() > messagingSyncAt.getTime() - 3 * 60 * 60_000,
+      )
+      .sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime());
+
+    expect(recentTaskChanges.map(({ event, entityId, userId }) => ({ event, entityId, userId }))).toEqual([
+      {
+        event: DomainEvent.TASK_CREATED,
+        entityId: snapshot.tasks[14].id,
+        userId: SEED_IDS.elenaHoffmannUser,
+      },
+      {
+        event: DomainEvent.TASK_UPDATED,
+        entityId: snapshot.tasks[13].id,
+        userId: SEED_IDS.sofiaRossiUser,
+      },
+      {
+        event: DomainEvent.TASK_CREATED,
+        entityId: snapshot.tasks[12].id,
+        userId: SEED_IDS.user,
+      },
+      {
+        event: DomainEvent.TASK_CREATED,
+        entityId: snapshot.tasks[13].id,
+        userId: SEED_IDS.sofiaRossiUser,
+      },
+      {
+        event: DomainEvent.TASK_CREATED,
+        entityId: snapshot.tasks[11].id,
+        userId: SEED_IDS.elenaHoffmannUser,
+      },
+      {
+        event: DomainEvent.TASK_CREATED,
+        entityId: snapshot.tasks[10].id,
+        userId: SEED_IDS.sofiaRossiUser,
+      },
+    ]);
+    expect(recentTaskChanges.slice(0, 3).map(({ userId }) => userId)).toEqual([
+      SEED_IDS.elenaHoffmannUser,
+      SEED_IDS.sofiaRossiUser,
+      SEED_IDS.user,
+    ]);
+
+    for (const [taskIndex, offsetMinutes] of SYNTHETIC_RECENT_TASK_AUDIT_OFFSETS_MINUTES.created) {
+      expect(fixtureForEntity(fixtures, DomainEvent.TASK_CREATED, snapshot.tasks[taskIndex].id).createdAt).toEqual(
+        new Date(messagingSyncAt.getTime() - offsetMinutes * 60_000),
+      );
+    }
+    for (const [taskIndex, offsetMinutes] of SYNTHETIC_RECENT_TASK_AUDIT_OFFSETS_MINUTES.updated) {
+      expect(fixtureForEntity(fixtures, DomainEvent.TASK_UPDATED, snapshot.tasks[taskIndex].id).createdAt).toEqual(
+        new Date(messagingSyncAt.getTime() - offsetMinutes * 60_000),
+      );
+    }
   });
 
   it("never references an entity before creation and keeps deal totals coherent", () => {

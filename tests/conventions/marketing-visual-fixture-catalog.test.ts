@@ -127,7 +127,10 @@ describe("marketing visual fixture catalog", () => {
   it("derives every safe channel-person pairing from seeded messaging participants", () => {
     const providerIds = {
       google: "gmail",
+      instagram: "instagram",
       linkedin: "linkedin",
+      outlook: "outlook",
+      telegram: "telegram",
       whatsapp: "whatsapp",
     } as const;
     const sourcePairings = new Set<string>();
@@ -152,7 +155,9 @@ describe("marketing visual fixture catalog", () => {
       "anna-mueller",
       "yasmin-farouk",
     ]);
-    expect(listVisualPeople({ provider: "outlook" })).toEqual([]);
+    expect(listVisualPeople({ provider: "instagram" }).map(({ id }) => id)).toEqual(["yasmin-farouk"]);
+    expect(listVisualPeople({ provider: "outlook" }).map(({ id }) => id)).toEqual(["amin-hassan"]);
+    expect(listVisualPeople({ provider: "telegram" }).map(({ id }) => id)).toEqual(["jonas-weber"]);
   });
 
   it("keeps the unified-inbox provider set and highlighted conversation tied to product authorities", () => {

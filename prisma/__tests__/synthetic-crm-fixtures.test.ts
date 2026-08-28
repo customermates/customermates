@@ -392,13 +392,13 @@ Loop in legal team
       "service:Pricing model:singleSelect:Fixed,Monthly,Daily",
     ]);
     expect(SYNTHETIC_WIDGET_NAMES).toEqual([
-      "Sold Hardware",
       "Deal Value By Organizations",
       "Sales Pipeline",
       "Total Deal Value",
       "Deal Overview",
-      "Organizations",
-      "Latest Activities",
+      "Recent Changes",
+      "Messages",
+      "Events",
     ]);
   });
 

@@ -11,7 +11,7 @@ export type MessageFixture = {
 };
 
 export type ThreadFixture = {
-  account: "google" | "linkedin" | "whatsapp";
+  account: "google" | "instagram" | "linkedin" | "outlook" | "telegram" | "whatsapp";
   latestMinutesAgo: number;
   messages: MessageFixture[];
   name: string | null;
@@ -29,10 +29,14 @@ export const people: Record<
     displayName: string;
     email?: string;
     headline?: string;
+    instagram?: string;
+    instagramProfileUrl?: string;
     linkedin?: string;
     occupation?: string;
     phone?: string;
     profileUrl?: string;
+    telegram?: string;
+    telegramProfileUrl?: string;
   }
 > = {
   anna: {
@@ -60,6 +64,7 @@ export const people: Record<
     avatarPath: SYNTHETIC_AVATAR_URLS.leonBecker,
     contactIndex: 0,
     displayName: "Leon Becker",
+    email: "leon.becker@bmw.example",
     headline: "Leading practical IT transformation",
     linkedin: "leon-becker.linkedin.example",
     occupation: "IT Transformation Lead at BMW",
@@ -69,6 +74,7 @@ export const people: Record<
     avatarPath: SYNTHETIC_AVATAR_URLS.sophieWagner,
     contactIndex: 19,
     displayName: "Sophie Wagner",
+    email: "sophie.wagner@bmw.example",
     occupation: "Sales Operations Manager at BMW",
     phone: "+12025550119",
   },
@@ -76,8 +82,11 @@ export const people: Record<
     avatarPath: SYNTHETIC_AVATAR_URLS.jonasWeber,
     contactIndex: 6,
     displayName: "Jonas Weber",
+    email: "jonas.weber@continental.example",
     occupation: "Product Lead at Continental",
     phone: "+12025550106",
+    telegram: "jonas_weber",
+    telegramProfileUrl: "https://telegram.example/jonas-weber",
   },
   marco: {
     avatarPath: SYNTHETIC_AVATAR_URLS.marcoSilva,
@@ -90,6 +99,7 @@ export const people: Record<
     avatarPath: SYNTHETIC_AVATAR_URLS.rashidMalik,
     contactIndex: 26,
     displayName: "Rashid Malik",
+    email: "rashid.malik@kpmg.example",
     headline: "Turning digital strategy into measurable change",
     linkedin: "rashid-malik.linkedin.example",
     occupation: "Digital Strategy Manager at KPMG",
@@ -100,29 +110,92 @@ export const people: Record<
     contactIndex: 23,
     displayName: "Yasmin Farouk",
     email: "yasmin.farouk@asml.example",
+    instagram: "yasmin.farouk",
+    instagramProfileUrl: "https://instagram.example/yasmin-farouk",
     occupation: "Partner Manager at ASML",
   },
 };
 
 export const calendarFixture = {
-  attendees: [
-    { person: "anna", responseStatus: "yes" },
-    { person: "amin", responseStatus: "maybe" },
-  ],
+  events: [
+    {
+      attendees: [
+        { person: "anna", responseStatus: "yes" },
+        { person: "amin", responseStatus: "maybe" },
+      ],
+      durationMinutes: 45,
+      startsMinutesAgo: 90,
+      title: "Customer operations planning",
+      unipileEventId: "demo-fixture-calendar-event-1",
+    },
+    {
+      attendees: [
+        { person: "leon", responseStatus: "yes" },
+        { person: "sophie", responseStatus: "yes" },
+      ],
+      durationMinutes: 60,
+      startsMinutesAgo: 6 * 60,
+      title: "BMW rollout checkpoint",
+      unipileEventId: "demo-fixture-calendar-event-2",
+    },
+    {
+      attendees: [
+        { person: "amin", responseStatus: "yes" },
+        { person: "jonas", responseStatus: "maybe" },
+      ],
+      durationMinutes: 45,
+      startsMinutesAgo: 24 * 60,
+      title: "Customer journey review",
+      unipileEventId: "demo-fixture-calendar-event-3",
+    },
+    {
+      attendees: [
+        { person: "yasmin", responseStatus: "yes" },
+        { person: "anna", responseStatus: "yes" },
+      ],
+      durationMinutes: 60,
+      startsMinutesAgo: 2 * 24 * 60,
+      title: "Partner enablement kickoff",
+      unipileEventId: "demo-fixture-calendar-event-4",
+    },
+    {
+      attendees: [
+        { person: "rashid", responseStatus: "yes" },
+        { person: "leon", responseStatus: "maybe" },
+      ],
+      durationMinutes: 45,
+      startsMinutesAgo: 3 * 24 * 60,
+      title: "Transformation steering review",
+      unipileEventId: "demo-fixture-calendar-event-5",
+    },
+  ] satisfies Array<{
+    attendees: Array<{ person: PersonKey; responseStatus: "maybe" | "yes" }>;
+    durationMinutes: number;
+    startsMinutesAgo: number;
+    title: string;
+    unipileEventId: string;
+  }>,
   name: "Customer meetings",
   timezone: "Europe/Berlin",
-  title: "Customer operations planning",
   unipileCalendarId: "demo-fixture-google-calendar",
-  unipileEventId: "demo-fixture-calendar-event-1",
 } as const;
 
-export const accountActivityFixture = {
-  identifier: "demo-linkedin-leon",
-  kind: "linkedin_connection_accepted",
-  person: "leon",
-} as const;
+export const accountActivityFixtures = [
+  {
+    identifier: "demo-linkedin-leon",
+    kind: "linkedin_connection_accepted",
+    occurredMinutesAgo: 30,
+    person: "leon",
+  },
+  {
+    identifier: "demo-linkedin-rashid",
+    kind: "linkedin_connection_accepted",
+    occurredMinutesAgo: 60,
+    person: "rashid",
+  },
+] as const;
 
-export const threads: ThreadFixture[] = [
+const threadFixtures: ThreadFixture[] = [
   {
     account: "google",
     latestMinutesAgo: 7,
@@ -156,7 +229,7 @@ export const threads: ThreadFixture[] = [
   },
   {
     account: "google",
-    latestMinutesAgo: 32,
+    latestMinutesAgo: 90,
     messages: [
       {
         sender: "self",
@@ -222,7 +295,7 @@ export const threads: ThreadFixture[] = [
   },
   {
     account: "linkedin",
-    latestMinutesAgo: 180,
+    latestMinutesAgo: 28,
     messages: [
       {
         sender: "leon",
@@ -285,7 +358,7 @@ export const threads: ThreadFixture[] = [
   },
   {
     account: "whatsapp",
-    latestMinutesAgo: 3 * 24 * 60,
+    latestMinutesAgo: 14,
     messages: [
       {
         sender: "sophie",
@@ -905,4 +978,99 @@ export const threads: ThreadFixture[] = [
     subject: null,
     type: "single",
   },
+  {
+    account: "instagram",
+    latestMinutesAgo: 21,
+    messages: [
+      {
+        sender: "yasmin",
+        text: "Hi Max, the customer operations checklist you shared is exactly the format our partner team needed.",
+      },
+      {
+        sender: "self",
+        text: "Glad it helps. I can tailor the examples to partner qualification, handoff, and the first quarterly review.",
+      },
+      {
+        sender: "yasmin",
+        text: "Those three moments cover the full journey. A short handoff example would make the post especially useful.",
+      },
+      {
+        sender: "self",
+        text: "Done. I added one practical handoff scenario and kept the full checklist linked for anyone who wants the detail.",
+      },
+      {
+        sender: "yasmin",
+        text: "Perfect, I have shared it with the partner leads and the first responses are already coming in.",
+      },
+    ],
+    name: "Yasmin Farouk",
+    participants: ["yasmin"],
+    state: "open",
+    subject: null,
+    type: "single",
+  },
+  {
+    account: "telegram",
+    latestMinutesAgo: 35,
+    messages: [
+      {
+        sender: "jonas",
+        text: "The test cohort finished onboarding and the only issue was one missing browser permission.",
+      },
+      {
+        sender: "self",
+        text: "That is a clean result. I will add the permission check before the next cohort starts.",
+      },
+      {
+        sender: "jonas",
+        text: "Great. The sample workflow itself was clear and everyone completed it faster than expected.",
+      },
+      {
+        sender: "self",
+        text: "Let us keep that workflow unchanged so the comparison with cohort two stays meaningful.",
+      },
+      {
+        sender: "jonas",
+        text: "Agreed. Cohort two is confirmed for Monday with the new permission step in place.",
+      },
+    ],
+    name: "Jonas Weber",
+    participants: ["jonas"],
+    state: "unread",
+    subject: null,
+    type: "single",
+  },
+  {
+    account: "outlook",
+    latestMinutesAgo: 42,
+    messages: [
+      {
+        sender: "amin",
+        text: "Hi Max, I reviewed the service journey baseline and the regional split is much more useful than the overall average.",
+      },
+      {
+        sender: "self",
+        text: "Agreed. I moved the regional comparison to the opening section and kept the overall figure as leadership context.",
+      },
+      {
+        sender: "amin",
+        text: "Could you also separate partner escalations? They are a small share of volume but drive most of the long tail.",
+      },
+      {
+        sender: "self",
+        text: "Yes. The revised view has a partner segment and shows exactly where ownership changes during escalation.",
+      },
+      {
+        sender: "amin",
+        text: "Excellent. That gives us a complete baseline for Friday's customer experience review.",
+      },
+    ],
+    name: null,
+    participants: ["amin"],
+    state: "open",
+    subject: "TUI service journey baseline",
+    type: "single",
+  },
 ];
+
+export const threads = threadFixtures.toSorted((left, right) => left.latestMinutesAgo - right.latestMinutesAgo);
