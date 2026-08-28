@@ -1543,6 +1543,294 @@ describe("AgentChatStore", () => {
     fetchMock.mockRestore();
   });
 
+  it("requests one route refresh after successful mutations even without mapped resources", () => {
+    const store = new AgentChatStore(root() as never);
+    const handleEvent = (
+      store as unknown as {
+        handleEvent: (event: Record<string, unknown>) => void;
+      }
+    ).handleEvent;
+
+    handleEvent({
+      seq: 1,
+      type: "activity",
+      id: "write-1",
+      activity: { kind: "workspace.configure", affectedResources: [], risk: "write" },
+    });
+    handleEvent({ seq: 2, type: "activity_result", id: "write-1", isError: false });
+    handleEvent({
+      seq: 3,
+      type: "activity",
+      id: "write-2",
+      activity: { kind: "team.manage", affectedResources: [], risk: "sensitive" },
+    });
+    handleEvent({ seq: 4, type: "activity_result", id: "write-2", isError: false });
+
+    expect(store.routeRefreshRevision).toBe(0);
+    handleEvent({
+      seq: 5,
+      type: "turn_done",
+      isError: true,
+      terminalCode: "partial",
+      assistantMessageId: "assistant-mutating",
+      affectedResources: [],
+    });
+    handleEvent({
+      seq: 6,
+      type: "turn_done",
+      isError: true,
+      terminalCode: "partial",
+      assistantMessageId: "assistant-mutating",
+      affectedResources: [],
+    });
+
+    expect(store.routeRefreshRevision).toBe(1);
+    expect(store.takeRouteRefreshRequest()).toBe(true);
+    expect(store.takeRouteRefreshRequest()).toBe(false);
+  });
+
+  it("does not request a route refresh for reads or unsuccessful mutations", () => {
+    const store = new AgentChatStore(root() as never);
+    const handleEvent = (
+      store as unknown as {
+        handleEvent: (event: Record<string, unknown>) => void;
+      }
+    ).handleEvent;
+
+    handleEvent({
+      seq: 1,
+      type: "activity",
+      id: "read-1",
+      activity: { kind: "records.read", resource: "contacts", affectedResources: [], risk: "read" },
+    });
+    handleEvent({ seq: 2, type: "activity_result", id: "read-1", isError: false });
+    handleEvent({
+      seq: 3,
+      type: "activity",
+      id: "write-error",
+      activity: { kind: "records.update", resource: "contacts", affectedResources: [], risk: "write" },
+    });
+    handleEvent({ seq: 4, type: "activity_result", id: "write-error", isError: true });
+    handleEvent({
+      seq: 5,
+      type: "activity",
+      id: "write-cancelled",
+      activity: { kind: "records.update", resource: "contacts", affectedResources: [], risk: "write" },
+    });
+    handleEvent({
+      seq: 6,
+      type: "activity_result",
+      id: "write-cancelled",
+      isError: false,
+      status: "cancelled",
+    });
+    handleEvent({ seq: 7, type: "turn_done", affectedResources: [] });
+
+    expect(store.routeRefreshRevision).toBe(0);
+    expect(store.takeRouteRefreshRequest()).toBe(false);
+  });
+
+  it("uses affected resources as a refresh fallback when activity events were missed", () => {
+    const store = new AgentChatStore(root() as never);
+    const handleEvent = (
+      store as unknown as {
+        handleEvent: (event: Record<string, unknown>) => void;
+      }
+    ).handleEvent;
+
+    handleEvent({
+      seq: 1,
+      type: "turn_done",
+      assistantMessageId: "assistant-fallback",
+      affectedResources: ["contacts"],
+    });
+
+    expect(store.routeRefreshRevision).toBe(1);
+  });
+
+  it("detects completed replay mutations and deduplicates the same logical turn", async () => {
+    const clientRequestId = "00000000-0000-4000-8000-000000000031";
+    const replay = [
+      `data: ${JSON.stringify({
+        seq: 1,
+        type: "message_replay",
+        messageId: "assistant-replayed-mutation",
+        parts: [
+          {
+            type: "activity",
+            id: "write-replayed",
+            activity: { kind: "workspace.configure", affectedResources: [], risk: "write" },
+            status: "done",
+          },
+        ],
+        createdAt: "2026-08-28T10:00:00.000Z",
+      })}`,
+      `data: ${JSON.stringify({
+        seq: 2,
+        type: "turn_done",
+        isError: false,
+        terminalCode: "completed",
+        assistantMessageId: "assistant-replayed-mutation",
+        affectedResources: [],
+      })}`,
+      "",
+    ].join("\n\n");
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(() =>
+      Promise.resolve(
+        new Response(replay, {
+          headers: { "content-type": "text/event-stream" },
+        }),
+      ),
+    );
+    const store = new AgentChatStore(root() as never);
+
+    await store.sendMessage("Apply the change", { messageId: clientRequestId });
+    expect(store.routeRefreshRevision).toBe(1);
+    expect(store.takeRouteRefreshRequest()).toBe(true);
+
+    await store.sendMessage("Apply the change", {
+      appendUser: false,
+      messageId: clientRequestId,
+    });
+
+    expect(store.routeRefreshRevision).toBe(1);
+    expect(store.takeRouteRefreshRequest()).toBe(false);
+    fetchMock.mockRestore();
+  });
+
+  it("requests a fallback route refresh when a stream ends after a successful mutation", async () => {
+    const stream = [
+      `data: ${JSON.stringify({
+        seq: 1,
+        type: "activity",
+        id: "write-before-eof",
+        activity: { kind: "records.update", resource: "contacts", affectedResources: [], risk: "write" },
+      })}`,
+      `data: ${JSON.stringify({
+        seq: 2,
+        type: "activity_result",
+        id: "write-before-eof",
+        isError: false,
+        status: "done",
+      })}`,
+      "",
+    ].join("\n\n");
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(stream, {
+        headers: { "content-type": "text/event-stream" },
+      }),
+    );
+    const store = new AgentChatStore(root() as never);
+
+    await store.sendMessage("Apply the change");
+
+    expect(store.routeRefreshRevision).toBe(1);
+    expect(store.takeRouteRefreshRequest()).toBe(true);
+    expect(store.takeRouteRefreshRequest()).toBe(false);
+    fetchMock.mockRestore();
+  });
+
+  it("requests a fallback route refresh when a successful mutation stream is stopped", async () => {
+    const encoder = new TextEncoder();
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation((_input, init) =>
+      Promise.resolve(
+        new Response(
+          new ReadableStream<Uint8Array>({
+            start(controller) {
+              controller.enqueue(
+                encoder.encode(
+                  [
+                    `data: ${JSON.stringify({
+                      seq: 1,
+                      type: "activity",
+                      id: "write-before-stop",
+                      activity: {
+                        kind: "records.update",
+                        resource: "contacts",
+                        affectedResources: [],
+                        risk: "write",
+                      },
+                    })}`,
+                    `data: ${JSON.stringify({
+                      seq: 2,
+                      type: "activity_result",
+                      id: "write-before-stop",
+                      isError: false,
+                      status: "done",
+                    })}`,
+                    "",
+                  ].join("\n\n"),
+                ),
+              );
+              init?.signal?.addEventListener(
+                "abort",
+                () => controller.error(new DOMException("Aborted", "AbortError")),
+                { once: true },
+              );
+            },
+          }),
+          { headers: { "content-type": "text/event-stream" } },
+        ),
+      ),
+    );
+    const store = new AgentChatStore(root() as never);
+
+    const sending = store.sendMessage("Apply then stop");
+    await vi.waitFor(() =>
+      expect(store.items).toContainEqual(
+        expect.objectContaining({ kind: "activity", providerCallId: "write-before-stop", status: "done" }),
+      ),
+    );
+    expect(store.routeRefreshRevision).toBe(0);
+
+    store.interrupt();
+    await sending;
+
+    expect(store.routeRefreshRevision).toBe(1);
+    expect(store.takeRouteRefreshRequest()).toBe(true);
+    fetchMock.mockRestore();
+  });
+
+  it("resets terminal tracking and refreshes after a reattached stream ends following a mutation", async () => {
+    const stream = [
+      `data: ${JSON.stringify({
+        seq: 1,
+        type: "activity",
+        id: "reattached-write",
+        activity: { kind: "records.create", resource: "tasks", affectedResources: [], risk: "write" },
+      })}`,
+      `data: ${JSON.stringify({
+        seq: 2,
+        type: "activity_result",
+        id: "reattached-write",
+        isError: false,
+        status: "done",
+      })}`,
+      "",
+    ].join("\n\n");
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(stream, {
+        headers: { "content-type": "text/event-stream" },
+      }),
+    );
+    const store = new AgentChatStore(root() as never);
+    const handleEvent = (
+      store as unknown as {
+        handleEvent: (event: Record<string, unknown>) => void;
+      }
+    ).handleEvent;
+    handleEvent({ seq: 0, type: "turn_done", affectedResources: [] });
+
+    await (
+      store as unknown as {
+        reattachStream: (conversationId: string, loadVersion: number) => Promise<void>;
+      }
+    ).reattachStream("00000000-0000-4000-8000-000000000041", 0);
+
+    expect(store.routeRefreshRevision).toBe(1);
+    fetchMock.mockRestore();
+  });
+
   it("drops a superseded retry chip and keeps the surviving attempt", () => {
     const store = new AgentChatStore(root() as never);
     const handleEvent = (
@@ -1679,6 +1967,7 @@ describe("AgentChatStore", () => {
       }),
     );
     expect(store.isWorking).toBe(false);
+    expect(store.routeRefreshRevision).toBe(0);
     fetchMock.mockRestore();
   });
 

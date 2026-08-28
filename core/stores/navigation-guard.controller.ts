@@ -1,10 +1,12 @@
-import { makeObservable, observable, computed, action } from "mobx";
+import { makeObservable, observable, computed, action, when, type IReactionDisposer } from "mobx";
 
 import type { BaseFormStore } from "../base/base-form.store";
 
 export class NavigationGuardController {
   pendingNavigation: (() => void) | null = null;
-  private stores = new Set<BaseFormStore>();
+  private stores = observable.set<BaseFormStore>([], { deep: false });
+  private pendingRouteRefresh: (() => void) | null = null;
+  private pendingRouteRefreshDisposer: IReactionDisposer | null = null;
   private bypass = false;
 
   constructor() {
@@ -12,9 +14,12 @@ export class NavigationGuardController {
       pendingNavigation: observable.ref,
       isGuarding: computed,
       isPending: computed,
+      register: action,
+      unregister: action,
       tryNavigate: action,
       confirm: action,
       cancel: action,
+      requestRouteRefreshWhenSafe: action,
     });
   }
 
@@ -62,4 +67,27 @@ export class NavigationGuardController {
   cancel = (): void => {
     this.pendingNavigation = null;
   };
+
+  requestRouteRefreshWhenSafe = (refresh: () => void): void => {
+    this.pendingRouteRefresh = refresh;
+    if (!this.isGuarding) {
+      this.flushPendingRouteRefresh();
+      return;
+    }
+    if (this.pendingRouteRefreshDisposer) return;
+
+    this.pendingRouteRefreshDisposer = when(
+      () => !this.isGuarding,
+      () => this.flushPendingRouteRefresh(),
+    );
+  };
+
+  private flushPendingRouteRefresh() {
+    const refresh = this.pendingRouteRefresh;
+    const dispose = this.pendingRouteRefreshDisposer;
+    this.pendingRouteRefresh = null;
+    this.pendingRouteRefreshDisposer = null;
+    dispose?.();
+    refresh?.();
+  }
 }

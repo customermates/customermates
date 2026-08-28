@@ -2,7 +2,12 @@ import { makeObservable, observable, action, computed, reaction, runInAction } f
 
 import type { RootStore } from "@/core/stores/root.store";
 import type { AgentUsageSummary } from "@/ee/agent-chat/agent-usage.service";
-import type { AgentConversationSummary, AgentDataCounts } from "@/ee/agent-chat/agent-chat.schema";
+import {
+  clientSafeAgentMessageParts,
+  type AgentConversationSummary,
+  type AgentDataCounts,
+  type AgentMessagePart,
+} from "@/ee/agent-chat/agent-chat.schema";
 import { AgentTourSchema } from "@/ee/agent-chat/agent-tours";
 import { OpenRecordSchema } from "@/ee/agent-chat/ui-operations";
 import {
@@ -10,7 +15,6 @@ import {
   AGENT_ACTIVITY_RESOURCES,
   describeAgentTool,
   type AgentActivityDescriptor,
-  type AgentActivityResource,
 } from "@/ee/agent-chat/agent-activity";
 import { agentPageState, agentActionPageFromPathname } from "@/ee/agent-chat/agent-page-actions";
 
@@ -161,6 +165,7 @@ export class AgentChatStore extends BaseStore {
   items: AgentChatItem[] = [];
   composerDraft = "";
   queuedPrompt: string | null = null;
+  routeRefreshRevision = 0;
   autoOpenedPages = new Set<string>();
   isWorking = false;
   private abortController: AbortController | null = null;
@@ -169,7 +174,11 @@ export class AgentChatStore extends BaseStore {
   private isDraftConversationSelected = false;
   private activeTurnFailed = false;
   private activeTurnCompleted = false;
+  private activeTurnHasSuccessfulMutation = false;
+  private activeTurnRefreshRequested = false;
   private activeTurnDisposition: "stream" | "running" | "failed" | "uncertain" | "conflict" | "transport" = "stream";
+  private consumedRouteRefreshRevision = 0;
+  private routeRefreshAssistantMessageIds = new Set<string>();
   private persistedAssistantMessageIds = new Set<string>();
   private loadedMessageIds = new Set<string>();
   private historyRefreshVersion = 0;
@@ -214,6 +223,7 @@ export class AgentChatStore extends BaseStore {
       items: observable,
       composerDraft: observable,
       queuedPrompt: observable,
+      routeRefreshRevision: observable,
       isWorking: observable,
       conversationTitle: computed,
       isAwaitingAssistantResponse: computed,
@@ -229,6 +239,7 @@ export class AgentChatStore extends BaseStore {
       retryFailedTurn: action,
       newConversation: action,
       toggleHistory: action,
+      takeRouteRefreshRequest: action,
     });
     reaction(
       () => agentChatOpenStorageKey(rootStore),
@@ -250,6 +261,12 @@ export class AgentChatStore extends BaseStore {
   get isAwaitingAssistantResponse() {
     return this.isWorking && this.items.at(-1)?.kind === "user";
   }
+
+  takeRouteRefreshRequest = () => {
+    if (this.consumedRouteRefreshRevision === this.routeRefreshRevision) return false;
+    this.consumedRouteRefreshRevision = this.routeRefreshRevision;
+    return true;
+  };
 
   close = () => {
     this.setOpenState(false);
@@ -950,9 +967,8 @@ export class AgentChatStore extends BaseStore {
     const controller = new AbortController();
     this.abortController = controller;
     this.activeTurnFailed = false;
-    this.activeTurnCompleted = false;
     this.activeTurnDisposition = "stream";
-    this.activeStreamKey = `stream-${++this.streamSequence}`;
+    this.beginActiveTurnMutationTracking();
 
     try {
       const response = await fetch("/api/agent/messages", {
@@ -1042,6 +1058,7 @@ export class AgentChatStore extends BaseStore {
       if (this.abortController !== controller) return;
 
       runInAction(() => {
+        if (!this.activeTurnCompleted) this.requestRouteRefreshForActiveTurn(null, false);
         this.clearStreaming();
         if (
           this.activeTurnFailed &&
@@ -1120,6 +1137,7 @@ export class AgentChatStore extends BaseStore {
   private reattachStream = async (conversationId: string, loadVersion: number) => {
     if (this.abortController) return;
 
+    this.beginActiveTurnMutationTracking();
     const controller = new AbortController();
     runInAction(() => {
       this.abortController = controller;
@@ -1139,6 +1157,7 @@ export class AgentChatStore extends BaseStore {
     } finally {
       if (this.abortController === controller) {
         runInAction(() => {
+          if (!this.activeTurnCompleted) this.requestRouteRefreshForActiveTurn(null, false);
           this.abortController = null;
           this.isWorking = false;
         });
@@ -1217,13 +1236,12 @@ export class AgentChatStore extends BaseStore {
         }
         case "message_replay": {
           const messageId = typeof event.messageId === "string" ? event.messageId : null;
-          if (!messageId || this.persistedAssistantMessageIds.has(messageId) || !Array.isArray(event.parts)) break;
+          const parts = clientSafeAgentMessageParts(event.parts);
+          this.recordReplayedMutations(parts);
+          if (!messageId || this.persistedAssistantMessageIds.has(messageId)) break;
           this.persistedAssistantMessageIds.add(messageId);
           const at = typeof event.createdAt === "string" ? new Date(event.createdAt) : new Date();
-          for (const part of event.parts) {
-            if (!part || typeof part !== "object" || Array.isArray(part)) continue;
-            this.appendPart("assistant", part as Parameters<AgentChatStore["appendPart"]>[1], at, messageId);
-          }
+          for (const part of parts) this.appendPart("assistant", part, at, messageId);
           break;
         }
         case "message_committed": {
@@ -1272,7 +1290,11 @@ export class AgentChatStore extends BaseStore {
               item.turnKey === this.activeStreamKey &&
               item.status === "running",
           );
-          if (activity) activity.status = event.status === "cancelled" ? "cancelled" : event.isError ? "error" : "done";
+          if (activity) {
+            activity.status = event.status === "cancelled" ? "cancelled" : event.isError ? "error" : "done";
+            if (activity.status === "done" && activity.activity.risk !== "read")
+              this.activeTurnHasSuccessfulMutation = true;
+          }
           break;
         }
         case "activity_superseded": {
@@ -1316,11 +1338,14 @@ export class AgentChatStore extends BaseStore {
           this.activeTurnFailed = Boolean(event.isError);
           this.clearStreaming();
           const resources = Array.isArray(event.affectedResources)
-            ? event.affectedResources.filter((resource): resource is AgentActivityResource =>
-                AGENT_ACTIVITY_RESOURCES.includes(resource as AgentActivityResource),
+            ? event.affectedResources.filter((resource) =>
+                AGENT_ACTIVITY_RESOURCES.includes(resource as (typeof AGENT_ACTIVITY_RESOURCES)[number]),
               )
             : [];
-          if (resources.length) void this.refreshAffectedResources(resources);
+          this.requestRouteRefreshForActiveTurn(
+            typeof event.assistantMessageId === "string" ? event.assistantMessageId : null,
+            resources.length > 0,
+          );
           if (event.isError && event.errorMessage && event.terminalCode !== "partial")
             this.toastError("AgentChat.errors.turnFailed");
           break;
@@ -1344,19 +1369,27 @@ export class AgentChatStore extends BaseStore {
     });
   };
 
-  private refreshAffectedResources = async (resources: AgentActivityResource[]) => {
-    const requested = new Set(resources);
-    const refreshes: Promise<unknown>[] = [];
-    if (requested.has("contacts")) refreshes.push(this.rootStore.contactsStore.refresh());
-    if (requested.has("organizations")) refreshes.push(this.rootStore.organizationsStore.refresh());
-    if (requested.has("deals")) refreshes.push(this.rootStore.dealsStore.refresh());
-    if (requested.has("services")) refreshes.push(this.rootStore.servicesStore.refresh());
-    if (requested.has("tasks")) refreshes.push(this.rootStore.tasksStore.refresh());
-    if (requested.has("widgets")) refreshes.push(this.rootStore.widgetsStore.refresh());
-    if (requested.has("terminology")) refreshes.push(this.rootStore.terminologyStore.refresh());
-    if (requested.has("messages")) refreshes.push(this.rootStore.messagingThreadsStore.refresh());
-    await Promise.allSettled(refreshes);
-  };
+  private beginActiveTurnMutationTracking() {
+    this.activeTurnCompleted = false;
+    this.activeTurnHasSuccessfulMutation = false;
+    this.activeTurnRefreshRequested = false;
+    this.activeStreamKey = `stream-${++this.streamSequence}`;
+  }
+
+  private recordReplayedMutations(parts: AgentMessagePart[]) {
+    if (parts.some((part) => part.type === "activity" && part.status === "done" && part.activity.risk !== "read"))
+      this.activeTurnHasSuccessfulMutation = true;
+  }
+
+  private requestRouteRefreshForActiveTurn(assistantMessageId: string | null, hasAffectedResources: boolean) {
+    if (this.activeTurnRefreshRequested) return;
+    if (!this.activeTurnHasSuccessfulMutation && !hasAffectedResources) return;
+    if (assistantMessageId && this.routeRefreshAssistantMessageIds.has(assistantMessageId)) return;
+
+    this.activeTurnRefreshRequested = true;
+    if (assistantMessageId) this.routeRefreshAssistantMessageIds.add(assistantMessageId);
+    this.routeRefreshRevision += 1;
+  }
 
   private enqueueUiCommand = (command: {
     commandId: string;

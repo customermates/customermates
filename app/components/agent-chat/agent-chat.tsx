@@ -30,7 +30,7 @@ import { SuggestedQuestions } from "./suggested-questions";
 import { UsageRing } from "./usage-ring";
 
 export const AgentChat = observer(function AgentChat() {
-  const { agentChatStore: store, agentUiControlStore } = useRootStore();
+  const { agentChatStore: store, agentUiControlStore, navigationGuard } = useRootStore();
   const router = useRouter();
   const pathname = usePathname();
   const pathnameRef = useRef(pathname);
@@ -74,6 +74,11 @@ export const AgentChat = observer(function AgentChat() {
   useEffect(() => {
     store.openForEmptyPage(pathname);
   }, [pathname, store, store.counts, store.enabled]);
+
+  useEffect(() => {
+    if (!store.takeRouteRefreshRequest()) return;
+    navigationGuard.requestRouteRefreshWhenSafe(() => routerRef.current.refresh());
+  }, [navigationGuard, store, store.routeRefreshRevision]);
 
   useEffect(() => {
     agentUiControlStore.registerNavigate(async (path) => {

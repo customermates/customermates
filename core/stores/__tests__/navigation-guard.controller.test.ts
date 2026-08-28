@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
+import { observable, runInAction } from "mobx";
 
 import type { BaseFormStore } from "@/core/base/base-form.store";
 
@@ -110,6 +111,56 @@ describe("NavigationGuardController", () => {
 
     controller.unregister(store);
     expect(controller.isGuarding).toBe(false);
+  });
+
+  it("runs a requested route refresh immediately when forms are clean", () => {
+    const refresh = vi.fn();
+
+    controller.requestRouteRefreshWhenSafe(refresh);
+
+    expect(refresh).toHaveBeenCalledOnce();
+  });
+
+  it("defers a requested route refresh until the dirty form becomes clean", () => {
+    const store = observable({ hasUnsavedChanges: true, withUnsavedChangesGuard: true });
+    const refresh = vi.fn();
+    controller.register(store as unknown as BaseFormStore);
+
+    controller.requestRouteRefreshWhenSafe(refresh);
+    expect(refresh).not.toHaveBeenCalled();
+
+    runInAction(() => {
+      store.hasUnsavedChanges = false;
+    });
+
+    expect(refresh).toHaveBeenCalledOnce();
+  });
+
+  it("releases a deferred route refresh when the dirty form unregisters", () => {
+    const store = observable({ hasUnsavedChanges: true, withUnsavedChangesGuard: true });
+    const refresh = vi.fn();
+    controller.register(store as unknown as BaseFormStore);
+
+    controller.requestRouteRefreshWhenSafe(refresh);
+    controller.unregister(store as unknown as BaseFormStore);
+
+    expect(refresh).toHaveBeenCalledOnce();
+  });
+
+  it("coalesces deferred route refreshes and runs the latest callback", () => {
+    const store = observable({ hasUnsavedChanges: true, withUnsavedChangesGuard: true });
+    const firstRefresh = vi.fn();
+    const latestRefresh = vi.fn();
+    controller.register(store as unknown as BaseFormStore);
+
+    controller.requestRouteRefreshWhenSafe(firstRefresh);
+    controller.requestRouteRefreshWhenSafe(latestRefresh);
+    runInAction(() => {
+      store.hasUnsavedChanges = false;
+    });
+
+    expect(firstRefresh).not.toHaveBeenCalled();
+    expect(latestRefresh).toHaveBeenCalledOnce();
   });
 
   it("confirm() is a no-op when nothing is pending", () => {
