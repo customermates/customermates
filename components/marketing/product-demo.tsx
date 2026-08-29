@@ -30,9 +30,9 @@ const COPY = {
       "/inbox": ["Open a seeded conversation", "Check its participant context", "Compare the connected channels"],
     },
     standardDisclosure:
-      "Public, seeded product demo. It uses synthetic sample data; no customer account or customer data is shown. Mate starts closed so the CRM workflow stays unobstructed.",
+      "Public, seeded product demo. It uses synthetic sample data; no customer account or customer data is shown. When Mate is enabled for this demo environment, it starts closed so the CRM workflow stays unobstructed.",
     hostedDisclosure:
-      "Public, seeded demo of hosted Customermates. It uses synthetic sample data; no customer account or customer data is shown. Mate starts closed. This illustrates the managed product UI, not a self-hosted deployment.",
+      "Public, seeded demo of hosted Customermates. It uses synthetic sample data; no customer account or customer data is shown. When Mate is enabled for this demo environment, it starts closed. This illustrates the managed product UI, not a self-hosted deployment.",
     titles: {
       "/dashboard": "Customermates dashboard with synthetic sample data",
       "/deals": "Customermates deal pipeline with synthetic sample data",
@@ -53,9 +53,9 @@ const COPY = {
       ],
     },
     standardDisclosure:
-      "Öffentliche, vorbefüllte Produktdemo mit synthetischen Beispieldaten. Es werden weder ein Kundenkonto noch Kundendaten angezeigt. Mate startet geschlossen, damit der CRM-Ablauf frei bleibt.",
+      "Öffentliche, vorbefüllte Produktdemo mit synthetischen Beispieldaten. Es werden weder ein Kundenkonto noch Kundendaten angezeigt. Wenn Mate für diese Demo-Umgebung aktiviert ist, startet es geschlossen, damit der CRM-Ablauf frei bleibt.",
     hostedDisclosure:
-      "Öffentliche, vorbefüllte Demo der gehosteten Customermates-Version mit synthetischen Beispieldaten. Es werden weder ein Kundenkonto noch Kundendaten angezeigt. Mate startet geschlossen. Die Demo zeigt die Managed-Cloud-Oberfläche, kein Self-Hosted-Deployment.",
+      "Öffentliche, vorbefüllte Demo der gehosteten Customermates-Version mit synthetischen Beispieldaten. Es werden weder ein Kundenkonto noch Kundendaten angezeigt. Wenn Mate für diese Demo-Umgebung aktiviert ist, startet es geschlossen. Die Demo zeigt die Managed-Cloud-Oberfläche, kein Self-Hosted-Deployment.",
     titles: {
       "/dashboard": "Customermates-Dashboard mit synthetischen Beispieldaten",
       "/deals": "Customermates-Deal-Pipeline mit synthetischen Beispieldaten",

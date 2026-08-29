@@ -4,6 +4,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const state = vi.hoisted(() => ({
+  appMode: "cloud" as "cloud" | "demo",
   refresh: vi.fn(),
   closeAllModals: vi.fn(),
   setCompany: vi.fn(),
@@ -21,6 +22,7 @@ vi.mock("@/i18n/navigation", () => ({
 }));
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
+    appMode: state.appMode,
     closeAllModals: state.closeAllModals,
     companyStore: { setCompany: state.setCompany },
     subscriptionStore: { setSubscription: state.setSubscription },
@@ -47,7 +49,7 @@ vi.mock("@/components/ui/sidebar", () => ({
   SidebarProvider: ({ children }: { children: ReactNode }) => children,
 }));
 vi.mock("@/components/shared/app-locale-preference-sync", () => ({
-  AppLocalePreferenceSync: () => null,
+  AppLocalePreferenceSync: () => jsx("span", { "data-locale-preference-sync": true }),
 }));
 vi.mock("../protected-enhancements-context", () => ({
   ProtectedEnhancementsProvider: ({ children }: { children: ReactNode }) => children,
@@ -86,6 +88,7 @@ let root: Root;
 
 beforeEach(() => {
   vi.clearAllMocks();
+  state.appMode = "cloud";
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
@@ -99,6 +102,19 @@ afterEach(() => {
 });
 
 describe("NavigationSwitch account-state refresh", () => {
+  it.each([
+    ["cloud", true],
+    ["demo", false],
+  ] as const)("renders stored locale reconciliation in %s mode: %s", (appMode, expected) => {
+    state.appMode = appMode;
+
+    act(() => {
+      root.render(jsx(NavigationSwitch, { ...allowedProps(), children: "page" }));
+    });
+
+    expect(container.querySelector("[data-locale-preference-sync]") !== null).toBe(expected);
+  });
+
   it("refreshes when a background tab becomes visible and removes its listener on unmount", () => {
     const visibility = vi.spyOn(document, "visibilityState", "get");
     const props = allowedProps();

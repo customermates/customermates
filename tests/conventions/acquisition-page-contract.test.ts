@@ -335,6 +335,65 @@ describe("approved acquisition page contract", () => {
     expect(salesSources).toContain("app/api/v1/messaging/sales-navigator/lists/save/route.ts");
   });
 
+  it("keeps LinkedIn enrichment claims scoped to the implemented composed workflows", () => {
+    const coreRecordSources = ACQUISITION_FACT_SOURCES["product:core-crm-records"];
+    expect(coreRecordSources).toEqual(
+      expect.arrayContaining([
+        "features/mcp-tools/contact.mcp-tools.ts",
+        "features/mcp-tools/organization.mcp-tools.ts",
+        "app/api/v1/contacts/route.ts",
+        "app/api/v1/contacts/[id]/route.ts",
+        "app/api/v1/organizations/route.ts",
+        "app/api/v1/organizations/[id]/route.ts",
+      ]),
+    );
+
+    const pages = CONTENT_LOCALES.map((locale) => ({
+      locale,
+      ...readPage(contentFile("feature-pages", locale, "linkedin-integration")),
+    }));
+    for (const page of pages) {
+      const acquisition = acquisitionPageSchema.parse(page.data.acquisition);
+      expect(acquisition.proof.factReferences, page.locale).toContain("product:core-crm-records");
+      expect(acquisition.proof.excludedClaims, page.locale).toContain(
+        "claim:no-native-linkedin-enrichment-monitoring",
+      );
+      expect(page.body, page.locale).not.toMatch(
+        /This is not CRM Sync, automatic enrichment|Automatic enrichment or job-change monitoring|Kein CRM Sync, keine automatische Anreicherung|Automatische Anreicherung oder Jobwechsel-Monitoring/u,
+      );
+    }
+
+    expect(pages[0]?.body).toContain("A customer-run workflow can also call an enrichment provider");
+    expect(pages[0]?.body).toContain("separate, permission-checked contact or organization create/update");
+    expect(pages[1]?.body).toContain("Ein kundenseitig betriebener Workflow kann außerdem");
+    expect(pages[1]?.body).toContain("separate, berechtigungsgeprüfte REST- oder MCP-Aktion");
+    expect(pages[0]?.body).toContain(
+      "https://www.linkedin.com/help/sales-navigator/answer/a105094/sales-navigator-application-platform-snap-overview?lang=en",
+    );
+    expect(pages[1]?.body).toContain(
+      "https://www.linkedin.com/help/sales-navigator/answer/a109945/sales-navigator-application-platform-snap-uberblick?lang=de",
+    );
+  });
+
+  it("binds the shared connected-account allowance to provider-agnostic enforcement", () => {
+    const sources = ACQUISITION_FACT_SOURCES["product:unified-inbox-entitlements"];
+    expect(sources).toContain("ee/messaging/connect/create-auth-link.interactor.ts");
+    expect(sources).toContain("ee/messaging/persistence/prisma-connected-account.repository.ts");
+
+    const allowance = readFileSync(join(REPO_ROOT, "ee/messaging/connect/create-auth-link.interactor.ts"), "utf8");
+    expect(allowance).toContain("getEntitlements(subscription.plan).includedAccountsPerUser");
+    expect(allowance).toContain("this.repo.countActiveAccountsForUser()");
+
+    const repository = readFileSync(
+      join(REPO_ROOT, "ee/messaging/persistence/prisma-connected-account.repository.ts"),
+      "utf8",
+    );
+    const counter = /async countActiveAccountsForUser\(\) \{(?<body>[\s\S]*?)\n  \}/u.exec(repository)?.groups?.body;
+    expect(counter).toContain("companyId: this.companyId");
+    expect(counter).toContain("userId: this.userId");
+    expect(counter).not.toContain("provider:");
+  });
+
   it("keeps each locale pair on one cluster, role, proof boundary, and schema shape", () => {
     const problems: string[] = [];
 

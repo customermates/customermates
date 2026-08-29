@@ -134,6 +134,24 @@ describe("automatic demo authentication proxy", () => {
     expect(response.headers.get("location")).toBeNull();
   });
 
+  it("keeps an explicit German demo route even when the shared seed session has an English locale cookie", async () => {
+    mocks.getSession.mockResolvedValue({
+      session: { expiresAt: new Date(Date.now() + 60_000) },
+      user: { email: SYNTHETIC_SEED_USER.email },
+    });
+    const incomingRequest = request(
+      "/de/dashboard?agentChat=closed",
+      "app.session_token=existing-synthetic-token; APP_LOCALE=en",
+    );
+
+    const response = await proxy(incomingRequest);
+
+    expect(mocks.intlMiddleware).toHaveBeenCalledOnce();
+    expect(mocks.intlMiddleware).toHaveBeenCalledWith(incomingRequest);
+    expect(response.headers.get("x-middleware-next")).toBe("1");
+    expect(response.headers.get("location")).toBeNull();
+  });
+
   it("preserves the agent chat override when the localized demo root redirects to the dashboard", async () => {
     mocks.getSession.mockResolvedValue({
       session: { expiresAt: new Date(Date.now() + 60_000) },

@@ -198,7 +198,7 @@ export function NavigationSwitch({
 
   return (
     <ProtectedEnhancementsProvider allowed={protectedEnhancementsAllowed}>
-      <AppLocalePreferenceSync displayLanguage={userDisplayLanguage} />
+      {rootStore.appMode === "demo" ? null : <AppLocalePreferenceSync displayLanguage={userDisplayLanguage} />}
 
       {shell}
     </ProtectedEnhancementsProvider>

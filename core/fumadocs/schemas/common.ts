@@ -33,7 +33,15 @@ const acquisitionFactReferenceSchema = z.enum([
 export const ACQUISITION_FACT_SOURCES = {
   "product:agpl-community-core": ["LICENSE", "ee/LICENSE.md"],
   "product:cloud-only-unified-inbox": ["ee/subscription/entitlements.ts"],
-  "product:core-crm-records": ["features/mcp-tools/server-instructions.ts"],
+  "product:core-crm-records": [
+    "features/mcp-tools/server-instructions.ts",
+    "features/mcp-tools/contact.mcp-tools.ts",
+    "features/mcp-tools/organization.mcp-tools.ts",
+    "app/api/v1/contacts/route.ts",
+    "app/api/v1/contacts/[id]/route.ts",
+    "app/api/v1/organizations/route.ts",
+    "app/api/v1/organizations/[id]/route.ts",
+  ],
   "product:custom-fields-and-views": [
     "features/custom-column/custom-column.schema.ts",
     "components/data-view/data-view-content.tsx",
@@ -85,7 +93,12 @@ export const ACQUISITION_FACT_SOURCES = {
   "product:services-and-tasks": ["features/services/service.schema.ts", "features/tasks/task.schema.ts"],
   "product:cloud-plan-catalog": ["core/commercial/plan-catalog.ts", "ee/subscription/entitlements.ts"],
   "product:unified-inbox-channels": ["ee/messaging/provider.ts", "ee/messaging/connect/connect-channels.ts"],
-  "product:unified-inbox-entitlements": ["core/commercial/plan-catalog.ts", "ee/subscription/entitlements.ts"],
+  "product:unified-inbox-entitlements": [
+    "core/commercial/plan-catalog.ts",
+    "ee/subscription/entitlements.ts",
+    "ee/messaging/connect/create-auth-link.interactor.ts",
+    "ee/messaging/persistence/prisma-connected-account.repository.ts",
+  ],
   "product:weighted-deal-values": ["features/deals/deal-weighting.ts"],
 } as const satisfies Record<z.infer<typeof acquisitionFactReferenceSchema>, readonly string[]>;
 
@@ -96,7 +109,7 @@ const acquisitionExcludedClaimSchema = z.enum([
   "claim:no-invoicing",
   "claim:no-linkedin-bulk-import",
   "claim:no-linkedin-crm-sync",
-  "claim:no-linkedin-automatic-enrichment-monitoring",
+  "claim:no-native-linkedin-enrichment-monitoring",
   "claim:no-predictive-sales-analytics",
   "claim:no-proposal-automation",
   "claim:no-psa",

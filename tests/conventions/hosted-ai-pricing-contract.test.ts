@@ -120,6 +120,12 @@ describe("hosted AI pricing contract", () => {
         /jeder (?:Managed-)?Cloud-Tarif enthält den gehosteten Mate-Assistenten|in jedem Cloud-Tarif enthalten/i,
       );
     }
+
+    const productDemo = read("components/marketing/product-demo.tsx");
+    expect(productDemo).toContain("When Mate is enabled for this demo environment, it starts closed");
+    expect(productDemo).toContain("Wenn Mate für diese Demo-Umgebung aktiviert ist, startet es geschlossen");
+    expect(productDemo).not.toMatch(/(?:^|[.!?]\s+)Mate starts closed/);
+    expect(productDemo).not.toMatch(/(?:^|[.!?]\s+)Mate startet geschlossen/);
   });
 
   it("keeps self-hosted MCP separate from the cloud-only hosted Assistant", () => {

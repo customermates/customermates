@@ -15,6 +15,7 @@ acquisition:
   proof:
     factReferences:
       - product:cloud-only-unified-inbox
+      - product:core-crm-records
       - product:linkedin-messaging
       - product:linkedin-social-workflows
       - product:sales-navigator-workflows
@@ -23,7 +24,7 @@ acquisition:
       - product:hosted-mate-capability
     excludedClaims:
       - claim:no-linkedin-crm-sync
-      - claim:no-linkedin-automatic-enrichment-monitoring
+      - claim:no-native-linkedin-enrichment-monitoring
       - claim:no-linkedin-bulk-import
   cta:
     action: LinkedIn-Workflow im echten CRM-Kontext testen
@@ -44,8 +45,8 @@ acquisition:
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
       headline: "LinkedIn-Nachrichten und Sales Navigator im CRM-Kontext"
-      body: "Bearbeiten Sie LinkedIn-Nachrichten im Cloud-Postfach, prüfen Sie Profile, Beiträge und Reaktionen bei Bedarf und nutzen Sie Sales Navigator per REST oder MCP. Kein CRM Sync, keine automatische Anreicherung und kein Bulk-Import."
-      checksum: fnv1a-610f3074
+      body: "Bearbeiten Sie LinkedIn-Nachrichten im Cloud-Postfach, prüfen Sie Profile, Beiträge und Reaktionen bei Bedarf und nutzen Sie Sales Navigator per REST oder MCP. Kein CRM Sync, keine integrierte laufende Anreicherung und kein Bulk-Import."
+      checksum: fnv1a-3352bf2d
     kind: none
     reason: "Die frühe Postfach-Demo liefert den konkreten Produktbeleg; ein zusätzliches Hero-Bild würde ihn nur wiederholen."
     selection: explicit
@@ -57,7 +58,7 @@ acquisition:
 
 hero:
   title: LinkedIn-Nachrichten und Sales Navigator im CRM-Kontext
-  description: Bearbeiten Sie LinkedIn-Nachrichten im Cloud-Postfach, prüfen Sie Profile, Beiträge und Reaktionen bei Bedarf und nutzen Sie Sales Navigator per REST oder MCP. Kein CRM Sync, keine automatische Anreicherung und kein Bulk-Import.
+  description: Bearbeiten Sie LinkedIn-Nachrichten im Cloud-Postfach, prüfen Sie Profile, Beiträge und Reaktionen bei Bedarf und nutzen Sie Sales Navigator per REST oder MCP. Kein CRM Sync, keine integrierte laufende Anreicherung und kein Bulk-Import.
   buttonLeftText: Pro-Test starten
   buttonLeftHref: /auth/signup
   buttonRightText: MCP-Tools ansehen
@@ -75,7 +76,7 @@ cta:
   hint: "LinkedIn-Messaging und Sales Navigator benötigen Cloud Pro oder höher sowie das passende LinkedIn-Abonnement."
 ---
 
-Eine **LinkedIn CRM-Integration** kann sehr unterschiedliche Funktionen bezeichnen. Customermates stellt drei klar begrenzte Oberflächen bereit: einzelne LinkedIn-Nachrichten und InMails im Managed-Cloud-Postfach, Profil-, Beitrags-, Reaktions- und Kontaktanfrage-Aktionen bei Bedarf sowie kundenseitig autorisierte Sales-Navigator-Suchen und Listenaktionen per REST oder MCP. Gemeint sind weder LinkedIn CRM Sync noch automatische Anreicherung, laufendes Matching oder Bulk-Import.
+Eine **LinkedIn CRM-Integration** kann sehr unterschiedliche Funktionen bezeichnen. Customermates stellt drei klar begrenzte Oberflächen bereit: einzelne LinkedIn-Nachrichten und InMails im Managed-Cloud-Postfach, Profil-, Beitrags-, Reaktions- und Kontaktanfrage-Aktionen bei Bedarf sowie kundenseitig autorisierte Sales-Navigator-Suchen und Listenaktionen per REST oder MCP. Gemeint sind weder LinkedIn CRM Sync noch eine integrierte laufende Anreicherung, automatisches Profil-Matching oder Bulk-Import.
 
 <ArticleSummary title="Auf einen Blick">
   <SummaryItem label="Ergebnis">
@@ -92,7 +93,8 @@ Eine **LinkedIn CRM-Integration** kann sehr unterschiedliche Funktionen bezeichn
   </SummaryItem>
   <SummaryItem label="Wichtige Grenze">
     Kein offizieller CRM Sync, kein eingebettetes LinkedIn-Profil, keine
-    automatische Anreicherung, laufende Überwachung oder Ein-Klick-Importfunktion.
+    integrierte laufende Anreicherung, kein automatisches Matching und keine
+    Ein-Klick-Importfunktion.
   </SummaryItem>
 </ArticleSummary>
 
@@ -135,12 +137,15 @@ Der Teilnehmer lässt sich einem Customermates-Kontakt zuordnen. Über diesen Ko
 
 Über ein verbundenes LinkedIn-Konto kann ein autorisierter REST- oder MCP-Client ein Personen- oder Firmenprofil abrufen, Beiträge lesen, Kommentare und Reaktionen prüfen sowie Kontaktanfragen auflisten, senden, annehmen oder zurückziehen. Das sind ausdrückliche, nutzerautorisierte Aktionen über das verbundene Anbieterkonto. Sie liefern aktuellen Kontext vor einem Gespräch oder einer CRM-Aktualisierung.
 
-Die zurückgegebenen Anbieterdaten sind kein Hintergrund-Feed zur Anreicherung. Customermates überwacht Profile nicht fortlaufend, gleicht LinkedIn-Identitäten nicht automatisch mit CRM-Datensätzen ab, schreibt Anbieterfelder nicht selbstständig in Kontakte und meldet keine Jobwechsel. Ausgewählte Informationen ins CRM zu übernehmen bleibt eine separate, berechtigungsgeprüfte Datensatzaktion mit einer vom Nutzer oder Workflow festgelegten Zuordnung und Duplikatbehandlung.
+Die zurückgegebenen Anbieterdaten sind kein integrierter Hintergrund-Feed zur Anreicherung. Customermates überwacht Profile nicht fortlaufend, gleicht LinkedIn-Identitäten nicht automatisch mit CRM-Datensätzen ab, schreibt Anbieterfelder nicht selbstständig in Kontakte und meldet keine Jobwechsel. Ein autorisierter Client kann ein bei Bedarf abgerufenes Profil anschließend über eine separate, berechtigungsgeprüfte REST- oder MCP-Aktion einem Kontakt oder einer Organisation zuordnen oder ausgewählte Felder schreiben. Zuordnung, Validierung und Duplikatbehandlung definiert der Nutzer oder Workflow.
 
-<AcquisitionCallout title="Kontext bei Bedarf ist keine automatische Anreicherung" variant="proof">
+Ein kundenseitig betriebener Workflow kann außerdem einen selbst gewählten Anreicherungsanbieter aufrufen und ausgewählte Felder über die Customermates REST API zurückschreiben. Anbieter und Workflow werden vom Kunden betrieben; Customermates enthält weder diesen Anbieter noch dessen Datenquelle, legt keine Zuordnung fest und betreibt keinen nativen laufenden Anreicherungsdienst.
+
+<AcquisitionCallout title="Kontext bei Bedarf ist kein integrierter Anreicherungs-Feed" variant="proof">
   Ein Profil oder Beitrag wird abgerufen, weil ein autorisierter Nutzer oder
-  Client ihn anfordert. Laufende Aktualisierung, automatische CRM-Rückschreibung
-  und Änderungsüberwachung gehören nicht zu dieser Integration.
+  Client ihn anfordert. Eine separate zugeordnete CRM-Aktion oder ein externer
+  Kunden-Workflow ist möglich; native laufende Aktualisierung, automatisches
+  Matching und Änderungsüberwachung sind es nicht.
 </AcquisitionCallout>
 
 ## Sales Navigator: Suche, Listen und Übergabe ins CRM
@@ -159,7 +164,8 @@ Ein Suchtreffer kann die Eingabe für eine **separate** Aktion zur Erstellung ei
 | Neue Sales-Navigator-Liste erstellen             | Nicht unterstützt; zuerst in Sales Navigator anlegen |
 | Bulk-Import oder laufende Synchronisierung       | Nicht unterstützt                                    |
 | Personen- oder Firmenprofil bei Bedarf abrufen       | Über das verbundene LinkedIn-Konto unterstützt   |
-| Automatische Anreicherung oder Jobwechsel-Monitoring | Nicht unterstützt                                |
+| Kundenseitige Anreicherung über externen Anbieter    | Separater Workflow mit expliziter REST-Rückschreibung |
+| Integrierte laufende Anreicherung oder Job-Monitoring | Nicht enthalten                                   |
 
 <AcquisitionCallout
   title="Eine zusammengesetzte Übergabe ist kein Sync"
@@ -181,9 +187,10 @@ Customermates verbindet stattdessen unterstützte Nachrichten und stellt kundens
   variant="proof"
 >
   Customermates bietet kein eingebettetes Sales-Navigator-Profil, kein
-  automatisches CRM-Matching oder Anreichern, keine Jobwechsel-Alarme, Lead Gen
-  Forms, Zielgruppen-Synchronisierung oder Hintergrund-Rückschreibung. Abrufe
-  einzelner Profile sind eine separate Aktion über das verbundene Konto.
+  automatisches CRM-Matching, keinen integrierten laufenden Anreicherungs-Feed,
+  keine Jobwechsel-Alarme, Lead Gen Forms, Zielgruppen-Synchronisierung oder
+  Hintergrund-Rückschreibung. Profilabruf und zugeordneter CRM-Schreibvorgang
+  bleiben getrennte Aktionen.
 </AcquisitionCallout>
 
 ## Tarife, Konten und externe Anbieter
@@ -207,7 +214,7 @@ Cloud-Tarife umfassen eine Mate-Berechtigung und ein Kontingent an gehosteten KI
 
 Der Ansatz passt zu Teams, die einzelne LinkedIn-Unterhaltungen im Arbeitskontext ihrer CRM-Datensätze bearbeiten oder eine kontrollierte Sales-Navigator-Suche und Listenverwaltung über typisierte Schnittstellen aufbauen möchten.
 
-Er passt nicht, wenn automatische Anreicherung, offizieller LinkedIn CRM Sync, Massenimport, Scraping, Jobwechsel-Monitoring, Outreach-Sequenzen, Lead Gen Forms, Zielgruppen-Sync oder Kampagnenanalyse verlangt werden. Das sind andere Produkte und Verarbeitungsbeziehungen.
+Er passt nicht, wenn ein integrierter laufender Anreicherungsdienst, offizieller LinkedIn CRM Sync, Massenimport, Scraping oder natives Jobwechsel-Monitoring verlangt werden. Er enthält keine Outreach-Sequenzen, Lead Gen Forms, Zielgruppen-Synchronisierung oder Kampagnenanalyse; das sind andere Produkte und Verarbeitungsbeziehungen.
 
 ## Häufige Fragen
 
@@ -232,10 +239,11 @@ Er passt nicht, wenn automatische Anreicherung, offizieller LinkedIn CRM Sync, M
 </FaqItem>
 
 <FaqItem question="Reichert Customermates Kontakte an oder überwacht Jobwechsel?">
-  Ein Personen- oder Firmenprofil kann bei Bedarf über ein verbundenes Konto
-  gelesen werden. Customermates reichert CRM-Datensätze nicht fortlaufend an,
-  gleicht Profile nicht automatisch ab, überwacht keine Jobwechsel und erzeugt
-  keine nativen Jobwechsel-Alarme.
+  Ein Personen- oder Firmenprofil kann bei Bedarf gelesen werden; eine separate
+  autorisierte Aktion kann zugeordnete Felder ins CRM schreiben. Ein
+  kundenseitiger Workflow kann außerdem einen externen Anreicherungsanbieter und
+  REST verwenden. Customermates enthält keine laufende Anreicherung, kein
+  automatisches Profil-Matching und kein natives Jobwechsel-Monitoring.
 </FaqItem>
 
 <FaqItem question="Kann ein KI-Client LinkedIn-Nachrichten entwerfen oder senden?">
