@@ -779,9 +779,6 @@
     "userCreationFailed": "Votre compte n'a pas pu être créé. Veuillez réessayer.",
     "userInfoIsMissing": "Le fournisseur n'a pas renvoyé votre profil. Veuillez réessayer."
   },
-  "BlogPostPage": {
-    "relatedArticles": "Articles associés"
-  },
   "BrowserFrame": {
     "live": "en direct",
     "liveDemoTitle": "Démo en direct de Customermates",
@@ -1345,10 +1342,6 @@
       "previousPage": "Page précédente",
       "search": "Rechercher..."
     },
-    "tags": {
-      "feature": "Fonctionnalité",
-      "industry": "Secteur"
-    },
     "themes": {
       "dark": "Sombre",
       "light": "Clair",
@@ -1397,12 +1390,7 @@
     "title": "Utilisateur"
   },
   "ComparePage": {
-    "alternativeTitle": "Alternative à {competitor}",
-    "tags": {
-      "alternative": "Alternative",
-      "comparison": "Comparatif",
-      "review": "Avis"
-    }
+    "alternativeTitle": "Alternative à {competitor}"
   },
   "ConnectedAccountsCard": {
     "accountLimitReached": "Vous avez atteint la limite de comptes connectés de cette formule. Contactez-nous au sujet de la formule Enterprise pour un nombre illimité de comptes.",
@@ -2257,6 +2245,42 @@
     "members": "Membres",
     "overview": "Aperçu",
     "pricing": "Tarifs",
+    "public": {
+      "agencies": "Agences",
+      "agenticCrm": "CRM agentique",
+      "allFeatures": "Toutes les fonctionnalités",
+      "allSolutions": "Toutes les solutions",
+      "api": "API et webhooks",
+      "blog": "Blog",
+      "compare": "Comparatifs",
+      "consultants": "Consultants",
+      "contactManagement": "Gestion des contacts",
+      "coreCrm": "CRM central",
+      "explore": "Explorer",
+      "growingBusinesses": "Entreprises en croissance",
+      "guides": "Guides",
+      "integrations": "Intégrations",
+      "linkedinIntegration": "Intégration LinkedIn",
+      "mcpGuide": "Guide MCP",
+      "n8n": "Automatisation n8n",
+      "openSourceCrm": "CRM open source",
+      "outlookIntegration": "Intégration Outlook",
+      "overview": "Aperçu",
+      "pipeline": "Pipeline commercial",
+      "platform": "Plateforme",
+      "primaryNavigation": "Navigation principale",
+      "product": "Produit",
+      "professionalServices": "Services professionnels",
+      "research": "Analyses",
+      "resources": "Ressources",
+      "selfHosted": "CRM auto-hébergé",
+      "selfHostingGuide": "Guide d’auto-hébergement",
+      "serviceTeams": "Équipes de services",
+      "slackIntegration": "Intégration Slack",
+      "smallBusinesses": "Petites entreprises",
+      "solutions": "Solutions",
+      "unifiedInbox": "Boîte de réception unifiée"
+    },
     "search": "Rechercher",
     "settings": "Paramètres",
     "subscription": "Abonnement",

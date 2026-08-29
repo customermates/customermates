@@ -63,24 +63,21 @@ export function articleSchema(params: {
   dateModified?: string;
   description: string;
   headline: string;
-  includeHeroImage?: boolean;
   locale: string;
   slug: string;
 }) {
   const url = `${env.BASE_URL}/${params.locale}/blog/${params.slug}`;
-  const heroImage = `${env.BASE_URL}/images/light/${params.locale}/${params.slug}.png`;
   const ogImageParams = new URLSearchParams({
     title: params.headline,
     description: params.description,
   });
   const ogImage = `${env.BASE_URL}/og/image.png?${ogImageParams.toString()}`;
-  const images = params.includeHeroImage === false ? [ogImage] : [heroImage, ogImage];
   return {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: params.headline,
     description: params.description,
-    image: images,
+    image: [ogImage],
     datePublished: params.datePublished,
     dateModified: params.dateModified ?? params.datePublished,
     author: {

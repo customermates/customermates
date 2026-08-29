@@ -29,6 +29,8 @@ import { signOutAction } from "@/app/[locale]/actions";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { resolvePublicNavbarActions } from "./navigation/public-navbar-model";
+import { PublicNavbarMenu, type PublicNavGroup } from "./navigation/public-navbar-menu";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 type Props = {
   accountState: AccountState;
@@ -50,10 +52,140 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
     return pathname === href || pathname.startsWith(`${href}/`);
   }
 
-  const publicNavItems = [
-    { href: "/pricing", title: t("NavigationBar.pricing") },
-    { href: "/features", title: t("NavigationBar.features") },
-    { href: "/docs", title: t("NavigationBar.docs") },
+  const publicNavGroups: PublicNavGroup[] = [
+    {
+      id: "product",
+      title: t("NavigationBar.public.product"),
+      columns: [
+        {
+          title: t("NavigationBar.public.overview"),
+          links: [
+            { href: "/features", title: t("NavigationBar.features") },
+            {
+              href: "/features/all",
+              title: t("NavigationBar.public.allFeatures"),
+            },
+          ],
+        },
+        {
+          title: t("NavigationBar.public.coreCrm"),
+          links: [
+            {
+              href: "/features/contact-management",
+              title: t("NavigationBar.public.contactManagement"),
+            },
+            {
+              href: "/features/pipeline",
+              title: t("NavigationBar.public.pipeline"),
+            },
+            {
+              href: "/features/unified-inbox",
+              title: t("NavigationBar.public.unifiedInbox"),
+            },
+          ],
+        },
+        {
+          title: t("NavigationBar.public.platform"),
+          links: [
+            {
+              href: "/features/self-hosted",
+              title: t("NavigationBar.public.selfHosted"),
+            },
+            { href: "/features/api", title: t("NavigationBar.public.api") },
+            {
+              href: "/features/integrations",
+              title: t("NavigationBar.public.integrations"),
+            },
+            {
+              href: "/features/linkedin-integration",
+              title: t("NavigationBar.public.linkedinIntegration"),
+            },
+            {
+              href: "/features/outlook-integration",
+              title: t("NavigationBar.public.outlookIntegration"),
+            },
+            {
+              href: "/features/slack-integration",
+              title: t("NavigationBar.public.slackIntegration"),
+            },
+            { href: "/n8n-crm", title: t("NavigationBar.public.n8n") },
+          ],
+        },
+      ],
+    },
+    {
+      id: "solutions",
+      title: t("NavigationBar.public.solutions"),
+      columns: [
+        {
+          title: t("NavigationBar.public.overview"),
+          links: [{ href: "/for", title: t("NavigationBar.public.allSolutions") }],
+        },
+        {
+          title: t("NavigationBar.public.serviceTeams"),
+          links: [
+            {
+              href: "/for/professional-services",
+              title: t("NavigationBar.public.professionalServices"),
+            },
+            {
+              href: "/for/agencies",
+              title: t("NavigationBar.public.agencies"),
+            },
+            {
+              href: "/for/consultants",
+              title: t("NavigationBar.public.consultants"),
+            },
+          ],
+        },
+        {
+          title: t("NavigationBar.public.growingBusinesses"),
+          links: [
+            {
+              href: "/for/smb",
+              title: t("NavigationBar.public.smallBusinesses"),
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "resources",
+      title: t("NavigationBar.public.resources"),
+      columns: [
+        {
+          title: t("NavigationBar.public.explore"),
+          links: [
+            { href: "/docs", title: t("NavigationBar.docs") },
+            { href: "/blog", title: t("NavigationBar.public.blog") },
+            { href: "/compare", title: t("NavigationBar.public.compare") },
+          ],
+        },
+        {
+          title: t("NavigationBar.public.guides"),
+          links: [
+            { href: "/docs/mcp", title: t("NavigationBar.public.mcpGuide") },
+            {
+              href: "/docs/self-hosting",
+              title: t("NavigationBar.public.selfHostingGuide"),
+            },
+          ],
+        },
+        {
+          title: t("NavigationBar.public.research"),
+          links: [
+            {
+              href: "/blog/agentic-crm",
+              title: t("NavigationBar.public.agenticCrm"),
+            },
+            {
+              href: "/blog/open-source-crm",
+              title: t("NavigationBar.public.openSourceCrm"),
+            },
+          ],
+        },
+      ],
+    },
   ];
 
   const logoAlt = t("Common.imageAlt.logo");
@@ -144,19 +276,19 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
   }
 
   return (
-    <div className="sticky top-0 z-40 bg-background/80 backdrop-blur">
+    <div className="bg-background/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
-        <div className="hidden items-center gap-3 md:flex">{renderHomeButton()}</div>
+        <div className="hidden items-center gap-3 lg:flex">{renderHomeButton()}</div>
 
-        <nav className="hidden items-center gap-3 md:flex">
-          {publicNavItems.map((item) => (
-            <AppLink key={item.href} className={cn(!isNavItemActive(item.href) && "text-subdued")} href={item.href}>
-              {item.title}
-            </AppLink>
-          ))}
-        </nav>
+        <PublicNavbarMenu
+          ariaLabel={t("NavigationBar.public.primaryNavigation")}
+          groups={publicNavGroups}
+          pathname={pathname}
+          pricingLabel={t("NavigationBar.pricing")}
+          onNavigate={closeMenu}
+        />
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-2 lg:flex">
           {renderPreferenceButtons()}
 
           {contactButton}
@@ -166,7 +298,7 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
           {signOutButton}
         </div>
 
-        <div className="flex w-full items-center justify-between md:hidden">
+        <div className="flex w-full items-center justify-between lg:hidden">
           {renderHomeButton()}
 
           <Sheet open={layoutStore.isMenuOpen} onOpenChange={layoutStore.setIsMenuOpen}>
@@ -184,16 +316,49 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
               </SheetHeader>
 
               <SheetBody className="flex flex-col gap-3 pb-6">
-                {publicNavItems.map((item) => (
-                  <AppLink
-                    key={item.href}
-                    className={cn(!isNavItemActive(item.href) && "text-subdued")}
-                    href={item.href}
-                    onClick={closeMenu}
-                  >
-                    {item.title}
-                  </AppLink>
-                ))}
+                <Accordion className="w-full" type="multiple">
+                  {publicNavGroups.map((group) => (
+                    <AccordionItem key={group.id} value={group.id}>
+                      <AccordionTrigger className="text-base no-underline hover:no-underline">
+                        {group.title}
+                      </AccordionTrigger>
+
+                      <AccordionContent className="space-y-5">
+                        {group.columns.map((column) => (
+                          <div key={column.title}>
+                            <p className="px-2 text-xs font-medium uppercase tracking-[0.14em] text-subdued">
+                              {column.title}
+                            </p>
+
+                            <div className="mt-2 flex flex-col">
+                              {column.links.map((link) => (
+                                <AppLink
+                                  key={link.href}
+                                  className={cn(
+                                    "rounded-md px-2 py-2.5 text-sm",
+                                    !isNavItemActive(link.href) && "text-subdued",
+                                  )}
+                                  href={link.href}
+                                  onClick={closeMenu}
+                                >
+                                  {link.title}
+                                </AppLink>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+
+                <AppLink
+                  className={cn("py-3 text-base", !isNavItemActive("/pricing") && "text-subdued")}
+                  href="/pricing"
+                  onClick={closeMenu}
+                >
+                  {t("NavigationBar.pricing")}
+                </AppLink>
 
                 <div className="my-1 py-3">{renderPreferenceButtons()}</div>
 

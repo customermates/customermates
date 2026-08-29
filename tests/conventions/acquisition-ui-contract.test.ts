@@ -38,32 +38,18 @@ const CALIBRATED_CONNECTOR_PATHS = {
   },
   "open-source-crm": {
     narrow: ["M300 184 C300 236 300 292 300 352"],
-    split: [
-      "M216 212 C216 300 310 320 400 360 M584 212 C584 300 490 320 400 360 M400 360 C400 400 400 430 400 458",
-    ],
-    wide: [
-      "M362 132 C410 132 418 228 450 280 M362 366 C410 366 418 326 450 280 M450 280 C464 280 476 280 488 280",
-    ],
+    split: ["M216 212 C216 300 310 320 400 360 M584 212 C584 300 490 320 400 360 M400 360 C400 400 400 430 400 458"],
+    wide: ["M362 132 C410 132 418 228 450 280 M362 366 C410 366 418 326 450 280 M450 280 C464 280 476 280 488 280"],
   },
   "self-hosted": {
     narrow: ["M300 176 C300 224 300 280 300 328"],
-    split: [
-      "M400 174 C400 240 400 300 400 358",
-      "M400 596 C400 680 400 790 400 858",
-    ],
-    wide: [
-      "M282 232 C306 232 324 232 348 232",
-      "M652 222 C676 222 694 222 718 222",
-    ],
+    split: ["M400 174 C400 240 400 300 400 358", "M400 596 C400 680 400 790 400 858"],
+    wide: ["M282 232 C306 232 324 232 348 232", "M652 222 C676 222 694 222 718 222"],
   },
   "unified-inbox": {
     narrow: ["M300 256 C300 310 300 370 300 432"],
-    split: [
-      "M400 250 C400 310 400 345 400 370 M400 370 C400 430 266 438 266 508 M400 370 C400 452 684 460 684 588",
-    ],
-    wide: [
-      "M532 245 C552 245 565 245 580 245 M580 245 C598 230 602 170 628 170 M580 245 C598 265 602 380 628 380",
-    ],
+    split: ["M400 250 C400 310 400 345 400 370 M400 370 C400 430 266 438 266 508 M400 370 C400 452 684 460 684 588"],
+    wide: ["M532 245 C552 245 565 245 580 245 M580 245 C598 230 602 170 628 170 M580 245 C598 265 602 380 628 380"],
   },
 } as const;
 
@@ -172,20 +158,12 @@ function source(path: string) {
   return readFileSync(join(REPO_ROOT, path), "utf8");
 }
 
-function acquisitionBrief(
-  collection: string,
-  locale: ContentLocale,
-  slug: string,
-) {
+function acquisitionBrief(collection: string, locale: ContentLocale, slug: string) {
   const input = source(`content/${collection}/${locale}/${slug}.mdx`);
   const frontmatter = /^---\n(.*?)\n---\n?/su.exec(input);
-  if (!frontmatter)
-    throw new Error(`${collection}/${locale}/${slug} has no frontmatter`);
-  const acquisition = acquisitionPageSchema.parse(
-    (parse(frontmatter[1]) as { acquisition: unknown }).acquisition,
-  );
-  if (acquisition.visual.kind !== "brand-illustration")
-    throw new Error(`${slug} is not an illustration brief`);
+  if (!frontmatter) throw new Error(`${collection}/${locale}/${slug} has no frontmatter`);
+  const acquisition = acquisitionPageSchema.parse((parse(frontmatter[1]) as { acquisition: unknown }).acquisition);
+  if (acquisition.visual.kind !== "brand-illustration") throw new Error(`${slug} is not an illustration brief`);
   return acquisition.visual;
 }
 
@@ -205,12 +183,8 @@ describe("public acquisition UI contract", () => {
     expect(closing).not.toContain("rgba(");
     expect(closing).not.toContain("blur-[80px]");
     expect(closing).toContain('buttonRightHref.startsWith("https://")');
-    expect(closing).toContain(
-      'target={buttonRightIsExternal ? "_blank" : undefined}',
-    );
-    expect(closing).toContain(
-      'rel={buttonRightIsExternal ? "noopener noreferrer" : undefined}',
-    );
+    expect(closing).toContain('target={buttonRightIsExternal ? "_blank" : undefined}');
+    expect(closing).toContain('rel={buttonRightIsExternal ? "noopener noreferrer" : undefined}');
   });
 
   it("keeps long-form content readable and media explicit", () => {
@@ -219,9 +193,7 @@ describe("public acquisition UI contract", () => {
     expect(article).toContain("mx-auto max-w-[96ch]");
     expect(article).toContain("[&>p]:max-w-[82ch]");
     expect(article).toContain("lg:mx-0 lg:max-w-none");
-    expect(article).toContain(
-      "asideFooter={founderContact ? <FounderContactCard /> : undefined}",
-    );
+    expect(article).toContain("asideFooter={founderContact ? <FounderContactCard /> : undefined}");
     expect(article).toContain("[--toc-sticky-top:5.5rem]");
     expect(article).not.toContain("rounded-panel");
     expect(article).not.toContain("shadow-sm");
@@ -238,7 +210,7 @@ describe("public acquisition UI contract", () => {
     }
   });
 
-  it("keeps the founder contact conversion scoped to acquisition pages", () => {
+  it("keeps the founder contact on acquisition landings and every blog article", () => {
     const article = source("components/marketing/landing-article.tsx");
     const card = source("components/marketing/founder-contact-card.tsx");
     const toc = source("components/shared/toc.tsx");
@@ -258,30 +230,26 @@ describe("public acquisition UI contract", () => {
     for (const route of [
       "app/[locale]/(static)/features/[slug]/page.tsx",
       "app/[locale]/(static)/for/[industry]/page.tsx",
-      "app/[locale]/(static)/blog/[slug]/page.tsx",
     ]) {
-      expect(source(route), route).toContain(
-        "founderContact={Boolean(page.data.acquisition)}",
-      );
+      expect(source(route), route).toContain("founderContact={Boolean(page.data.acquisition)}");
     }
 
-    expect(
-      source("app/[locale]/(static)/compare/[competitor]/page.tsx"),
-    ).not.toContain("founderContact");
+    expect(source("app/[locale]/(static)/blog/[slug]/page.tsx")).toContain(
+      "<LandingArticle founderContact items={page.data.toc}",
+    );
+
+    expect(source("app/[locale]/(static)/compare/[competitor]/page.tsx")).not.toContain("founderContact");
   });
 
-  it("uses one route-owned related-content and CTA ending across acquisition pages", () => {
-    const ending = source("components/marketing/acquisition-page-ending.tsx");
+  it("uses one route-owned related-content and CTA ending across acquisition and blog pages", () => {
+    const ending = source("components/marketing/page-ending.tsx");
     const related = source("components/marketing/related-pages.tsx");
     expect(ending).toContain("<RelatedPages>");
-    expect(ending).toContain("acquisition.relatedHrefs.map");
-    expect(ending).toContain('presentation="text"');
-    expect(ending.indexOf("<RelatedPages>")).toBeLessThan(
-      ending.indexOf("<CTASection"),
-    );
-    expect(related).toContain('presentation = "preview"');
-    expect(related).toContain('presentation?: "preview" | "text"');
-    expect(related).toContain('presentation === "text"');
+    expect(ending).toContain("relatedHrefs.map");
+    expect(ending.indexOf("<RelatedPages>")).toBeLessThan(ending.indexOf("<CTASection"));
+    expect(related).not.toContain("presentation");
+    expect(related).not.toContain("HubPostCard");
+    expect(related).not.toContain("imageSrc");
     expect(related).toContain("<ArrowUpRight");
     expect(related).toContain("target.description");
     expect(related).toContain("target.title");
@@ -294,7 +262,7 @@ describe("public acquisition UI contract", () => {
     ]) {
       const routeSource = source(route);
       const article = routeSource.indexOf("<LandingArticle");
-      const endingUse = routeSource.indexOf("<AcquisitionPageEnding", article);
+      const endingUse = routeSource.indexOf("<PageEnding", article);
       const footer = routeSource.indexOf("<Footer", endingUse);
       expect(endingUse, route).toBeGreaterThan(article);
       expect(footer, route).toBeGreaterThan(endingUse);
@@ -305,13 +273,9 @@ describe("public acquisition UI contract", () => {
     const blocks = source("components/marketing/article-blocks.tsx");
     const alert = source("components/shared/alert.tsx");
 
-    expect(blocks).toContain(
-      'className="not-prose my-10 border-y border-border"',
-    );
+    expect(blocks).toContain('className="not-prose my-10 border-y border-border"');
     expect(blocks).not.toContain("CircleCheckBig");
-    expect(blocks).not.toContain(
-      'className="not-prose my-10 border-y border-border bg-background"',
-    );
+    expect(blocks).not.toContain('className="not-prose my-10 border-y border-border bg-background"');
     expect(blocks).toContain("icon: ALERT_ICONS.warning");
     expect(blocks).toContain("icon: ALERT_ICONS.primary");
     expect(blocks).toContain("icon: ALERT_ICONS.default");
@@ -319,10 +283,9 @@ describe("public acquisition UI contract", () => {
     expect(alert).toContain("export const ALERT_ICONS");
 
     const postCard = source("components/marketing/post-card.tsx");
-    expect(postCard).toContain("aspect-2/1 overflow-hidden bg-sidebar");
-    expect(postCard).toContain(
-      "[background-image:linear-gradient(to_right,var(--border)_1px",
-    );
+    expect(postCard).toContain("border-t border-border");
+    expect(postCard).not.toContain("AppImage");
+    expect(postCard).not.toContain("placeholderLabel");
     expect(postCard).not.toContain("from-primary/25 via-primary/10");
   });
 
@@ -331,14 +294,10 @@ describe("public acquisition UI contract", () => {
     const artboardOpening = visual.match(/<VisualArtboard[\s\S]*?>/u)?.[0];
 
     expect(visual).toContain("VISUAL_PLACEMENTS.filter");
-    expect(visual).toContain(
-      'data-acquisition-responsive-placements="narrow:base wide:sm split:lg"',
-    );
+    expect(visual).toContain('data-acquisition-responsive-placements="narrow:base wide:sm split:lg"');
     expect(visual).toContain('data-detail-budget="narrow:2 wide:4 split:3"');
     expect(visual).toContain('data-detail-unit="semantic-object"');
-    expect(visual).toContain(
-      'data-supported-placements={brief.placements.join(" ")}',
-    );
+    expect(visual).toContain('data-supported-placements={brief.placements.join(" ")}');
     expect(visual).toContain("aspect-[3/4]");
     expect(visual).toContain("sm:aspect-hero");
     expect(visual).toContain("sm:min-h-[30rem]");
@@ -370,18 +329,16 @@ describe("public acquisition UI contract", () => {
     for (const [collection, slug] of ACQUISITION_PAGES) {
       for (const locale of CONTENT_LOCALES) {
         const brief = acquisitionBrief(collection, locale, slug);
-        const html = renderToStaticMarkup(
-          createElement(AcquisitionStoryVisual, { brief, locale }),
-        );
+        const html = renderToStaticMarkup(createElement(AcquisitionStoryVisual, { brief, locale }));
         const document = new JSDOM(html).window.document;
         const declaredSubjects = new Set([
           brief.focalSubject.id,
           ...brief.supportingSubjects.map((subject) => subject.id),
         ]);
         const renderedSubjects = new Set(
-          [
-            ...document.querySelectorAll<HTMLElement>("[data-visual-subject]"),
-          ].map((element) => element.dataset.visualSubject ?? ""),
+          [...document.querySelectorAll<HTMLElement>("[data-visual-subject]")].map(
+            (element) => element.dataset.visualSubject ?? "",
+          ),
         );
         const detailIds: Record<keyof typeof placementContract, Set<string>> = {
           narrow: new Set(),
@@ -391,117 +348,68 @@ describe("public acquisition UI contract", () => {
         const connectorSignatures: string[] = [];
         const layoutSignatures: string[] = [];
 
-        expect(renderedSubjects, `${locale}/${slug}: subject coverage`).toEqual(
-          declaredSubjects,
-        );
-        expect(
-          document.querySelectorAll("[data-focal-object=true]"),
-        ).toHaveLength(3);
+        expect(renderedSubjects, `${locale}/${slug}: subject coverage`).toEqual(declaredSubjects);
+        expect(document.querySelectorAll("[data-focal-object=true]")).toHaveLength(3);
 
         for (const [placement, contract] of Object.entries(placementContract)) {
           const placementKey = placement as keyof typeof placementContract;
-          const scene = document.querySelector<HTMLElement>(
-            `[data-visual-placement=${placement}]`,
-          );
-          expect(
-            scene,
-            `${locale}/${slug}: missing ${placement}`,
-          ).not.toBeNull();
+          const scene = document.querySelector<HTMLElement>(`[data-visual-placement=${placement}]`);
+          expect(scene, `${locale}/${slug}: missing ${placement}`).not.toBeNull();
           if (!scene) continue;
 
-          for (const className of contract.classNames)
-            expect(scene.classList.contains(className)).toBe(true);
+          for (const className of contract.classNames) expect(scene.classList.contains(className)).toBe(true);
           expect(scene.dataset.detailDensity).toBe(contract.density);
-          expect(
-            scene.querySelectorAll("[data-focal-object=true]"),
-          ).toHaveLength(1);
-          const focal = scene.querySelector<HTMLElement>(
-            "[data-focal-object=true]",
-          );
+          expect(scene.querySelectorAll("[data-focal-object=true]")).toHaveLength(1);
+          const focal = scene.querySelector<HTMLElement>("[data-focal-object=true]");
           expect(focal?.dataset.visualSubject).toBe(brief.focalSubject.id);
-          expect(
-            focal
-              ?.querySelector<HTMLElement>("[data-visual-label=focal]")
-              ?.textContent?.trim(),
-          ).toBe(brief.focalLabel?.text);
-
-          const sceneSubjects = [
-            ...scene.querySelectorAll<HTMLElement>("[data-visual-subject]"),
-          ];
-          const renderedSceneSubjects = new Set(
-            sceneSubjects.map((subject) => subject.dataset.visualSubject ?? ""),
+          expect(focal?.querySelector<HTMLElement>("[data-visual-label=focal]")?.textContent?.trim()).toBe(
+            brief.focalLabel?.text,
           );
+
+          const sceneSubjects = [...scene.querySelectorAll<HTMLElement>("[data-visual-subject]")];
+          const renderedSceneSubjects = new Set(sceneSubjects.map((subject) => subject.dataset.visualSubject ?? ""));
           for (const subject of sceneSubjects) {
             const detail = subject.closest<HTMLElement>("[data-detail-id]");
             expect(
               declaredSubjects.has(subject.dataset.visualSubject ?? ""),
               `${locale}/${slug}: ${placement} has undeclared subject`,
             ).toBe(true);
-            expect(
-              detail,
-              `${locale}/${slug}: ${placement} has unbudgeted semantic content`,
-            ).not.toBeNull();
+            expect(detail, `${locale}/${slug}: ${placement} has unbudgeted semantic content`).not.toBeNull();
             const ownedSubjects = new Set([
               detail?.dataset.detailId ?? "",
-              ...(detail?.dataset.detailComposite?.split(" ").filter(Boolean) ??
-                []),
+              ...(detail?.dataset.detailComposite?.split(" ").filter(Boolean) ?? []),
             ]);
             expect(
               ownedSubjects.has(subject.dataset.visualSubject ?? ""),
               `${locale}/${slug}: ${placement} has an implicit subject composite`,
             ).toBe(true);
           }
-          for (const label of scene.querySelectorAll<HTMLElement>(
-            "[data-visual-label]",
-          ))
+          for (const label of scene.querySelectorAll<HTMLElement>("[data-visual-label]"))
             expect(label.dataset.visualLabelSubject).toBe(
-              label.closest<HTMLElement>("[data-visual-subject]")?.dataset
-                .visualSubject,
+              label.closest<HTMLElement>("[data-visual-subject]")?.dataset.visualSubject,
             );
           layoutSignatures.push(
             sceneSubjects
-              .map(
-                (subject) =>
-                  `${subject.dataset.visualSubject}:${subject.getAttribute("style") ?? "nested"}`,
-              )
+              .map((subject) => `${subject.dataset.visualSubject}:${subject.getAttribute("style") ?? "nested"}`)
               .sort()
               .join("|"),
           );
 
-          const details = [
-            ...scene.querySelectorAll<HTMLElement>("[data-detail-id]"),
-          ];
-          expect(
-            details.length,
-            `${locale}/${slug}: ${placement} detail budget`,
-          ).toBeLessThanOrEqual(contract.maxDetails);
-          detailIds[placementKey] = new Set(
-            details.map((element) => element.dataset.detailId ?? ""),
+          const details = [...scene.querySelectorAll<HTMLElement>("[data-detail-id]")];
+          expect(details.length, `${locale}/${slug}: ${placement} detail budget`).toBeLessThanOrEqual(
+            contract.maxDetails,
           );
+          detailIds[placementKey] = new Set(details.map((element) => element.dataset.detailId ?? ""));
           expect(detailIds[placementKey].size).toBe(details.length);
           for (const detail of details) {
             expect(detail.dataset.detailId).toBe(detail.dataset.visualSubject);
-            expect(
-              Number(detail.dataset.detailPriority),
-            ).toBeGreaterThanOrEqual(1);
-            expect(Number(detail.dataset.detailPriority)).toBeLessThanOrEqual(
-              contract.maxDetails,
-            );
+            expect(Number(detail.dataset.detailPriority)).toBeGreaterThanOrEqual(1);
+            expect(Number(detail.dataset.detailPriority)).toBeLessThanOrEqual(contract.maxDetails);
           }
 
-          const connectors = [
-            ...scene.querySelectorAll<SVGPathElement>(
-              "path[data-connector-source]",
-            ),
-          ];
-          const calibrated =
-            CALIBRATED_CONNECTOR_PATHS[
-              slug as keyof typeof CALIBRATED_CONNECTOR_PATHS
-            ];
-          const calibratedLayout =
-            CALIBRATED_CONNECTOR_LAYOUTS[
-              slug as keyof typeof CALIBRATED_CONNECTOR_LAYOUTS
-            ];
+          const connectors = [...scene.querySelectorAll<SVGPathElement>("path[data-connector-source]")];
+          const calibrated = CALIBRATED_CONNECTOR_PATHS[slug as keyof typeof CALIBRATED_CONNECTOR_PATHS];
+          const calibratedLayout = CALIBRATED_CONNECTOR_LAYOUTS[slug as keyof typeof CALIBRATED_CONNECTOR_LAYOUTS];
           if (calibrated && calibratedLayout) {
             const expectedLayout = calibratedLayout[placementKey];
             expect(
@@ -514,37 +422,21 @@ describe("public acquisition UI contract", () => {
             ).toBe(expectedLayout.viewBox);
             expect(
               details
-                .map(
-                  (detail) =>
-                    [
-                      detail.dataset.detailId ?? "",
-                      detail.getAttribute("style") ?? "nested",
-                    ] as const,
-                )
+                .map((detail) => [detail.dataset.detailId ?? "", detail.getAttribute("style") ?? "nested"] as const)
                 .sort(([left], [right]) => left.localeCompare(right)),
               `${locale}/${slug}: ${placement} calibrated subject layout`,
             ).toEqual(expectedLayout.subjects);
           }
           if (brief.pathway === "focus") {
-            expect(
-              connectors,
-              `${locale}/${slug}: focus must be connector-free`,
-            ).toHaveLength(0);
+            expect(connectors, `${locale}/${slug}: focus must be connector-free`).toHaveLength(0);
           } else {
-            expect(
-              connectors.length,
-              `${locale}/${slug}: ${placement} needs a connector`,
-            ).toBeGreaterThan(0);
+            expect(connectors.length, `${locale}/${slug}: ${placement} needs a connector`).toBeGreaterThan(0);
             for (const connector of connectors) {
               expect(connector.getAttribute("stroke-linecap")).toBe("butt");
               expect(connector.hasAttribute("stroke-dasharray")).toBe(false);
               expect(connector.hasAttribute("marker-end")).toBe(false);
-              const sourceIds =
-                connector.dataset.connectorSource?.split(" ").filter(Boolean) ??
-                [];
-              const targetIds =
-                connector.dataset.connectorTarget?.split(" ").filter(Boolean) ??
-                [];
+              const sourceIds = connector.dataset.connectorSource?.split(" ").filter(Boolean) ?? [];
+              const targetIds = connector.dataset.connectorTarget?.split(" ").filter(Boolean) ?? [];
               expect(sourceIds.length).toBeGreaterThan(0);
               expect(targetIds.length).toBeGreaterThan(0);
               for (const endpoint of [...sourceIds, ...targetIds])
@@ -552,9 +444,7 @@ describe("public acquisition UI contract", () => {
                   renderedSceneSubjects.has(endpoint),
                   `${locale}/${slug}: ${placement} connector endpoint ${endpoint} is not rendered`,
                 ).toBe(true);
-              expect(
-                sourceIds.some((sourceId) => targetIds.includes(sourceId)),
-              ).toBe(false);
+              expect(sourceIds.some((sourceId) => targetIds.includes(sourceId))).toBe(false);
             }
             const svg = connectors[0]?.closest("svg");
             connectorSignatures.push(
@@ -563,46 +453,23 @@ describe("public acquisition UI contract", () => {
           }
         }
 
-        expect(
-          [...detailIds.narrow].every((id) => detailIds.split.has(id)),
-        ).toBe(true);
-        expect([...detailIds.split].every((id) => detailIds.wide.has(id))).toBe(
-          true,
-        );
+        expect([...detailIds.narrow].every((id) => detailIds.split.has(id))).toBe(true);
+        expect([...detailIds.split].every((id) => detailIds.wide.has(id))).toBe(true);
         expect(detailIds.narrow.size).toBeLessThanOrEqual(detailIds.wide.size);
         expect(new Set(layoutSignatures).size).toBe(3);
-        if (brief.pathway !== "focus")
-          expect(new Set(connectorSignatures).size).toBe(3);
+        if (brief.pathway !== "focus") expect(new Set(connectorSignatures).size).toBe(3);
 
-        const labels = [
-          ...document.querySelectorAll<HTMLElement>("[data-visual-label]"),
-        ];
-        const renderedLabels = new Set(
-          labels.map((label) => label.textContent?.trim()),
-        );
-        const declaredLabels = new Set([
-          brief.focalLabel?.text,
-          ...brief.semanticLabels.map(({ text }) => text),
-        ]);
-        expect(renderedLabels, `${locale}/${slug}: labels`).toEqual(
-          declaredLabels,
-        );
+        const labels = [...document.querySelectorAll<HTMLElement>("[data-visual-label]")];
+        const renderedLabels = new Set(labels.map((label) => label.textContent?.trim()));
+        const declaredLabels = new Set([brief.focalLabel?.text, ...brief.semanticLabels.map(({ text }) => text)]);
+        expect(renderedLabels, `${locale}/${slug}: labels`).toEqual(declaredLabels);
 
         for (const label of labels) {
-          const subject = label.closest<HTMLElement>("[data-visual-subject]")
-            ?.dataset.visualSubject;
-          expect(
-            subject,
-            `${locale}/${slug}: label without subject`,
-          ).toBeTruthy();
-          expect(
-            declaredSubjects.has(subject ?? ""),
-            `${locale}/${slug}: undeclared label subject`,
-          ).toBe(true);
+          const subject = label.closest<HTMLElement>("[data-visual-subject]")?.dataset.visualSubject;
+          expect(subject, `${locale}/${slug}: label without subject`).toBeTruthy();
+          expect(declaredSubjects.has(subject ?? ""), `${locale}/${slug}: undeclared label subject`).toBe(true);
           expect(label.dataset.visualLabelSubject).toBe(subject);
-          expect(label.className).toMatch(
-            /(?:text-xs|text-sm|text-base|text-meta|text-\[(?:1[1-9]|[2-9]\d)px\])/u,
-          );
+          expect(label.className).toMatch(/(?:text-xs|text-sm|text-base|text-meta|text-\[(?:1[1-9]|[2-9]\d)px\])/u);
           expect(label.className).not.toMatch(/text-\[(?:8|9|10)px\]/u);
         }
 
@@ -618,9 +485,7 @@ describe("public acquisition UI contract", () => {
   it("binds dense acquisition scenes to declared fixture-backed subjects", () => {
     const visual = source("components/marketing/acquisition-story-visual.tsx");
     expect(visual).toContain("VISUAL_CONVERSATION_FIXTURES[conversationId]");
-    expect(visual).not.toContain(
-      'VISUAL_CONVERSATION_FIXTURES["gmail-rollout-next-steps"]',
-    );
+    expect(visual).not.toContain('VISUAL_CONVERSATION_FIXTURES["gmail-rollout-next-steps"]');
     expect(visual).toContain("data-visual-subject={conversationList.id}");
     expect(visual).toContain("data-visual-subject={contactContext.id}");
     expect(visual).toContain('formatDealValue(featured, locale, "weighted")');
@@ -634,9 +499,7 @@ describe("public acquisition UI contract", () => {
     expect(visual).toContain("OpenSourceEvaluationVisual");
     expect(visual).toContain("AgencyVisual");
     expect(visual).toContain("data-visual-placement={placement}");
-    expect(visual).toContain(
-      "data-connector-source={endpointIds(connector.source)}",
-    );
+    expect(visual).toContain("data-connector-source={endpointIds(connector.source)}");
     expect(visual).toContain("data-detail-id={brief.focalSubject.id}");
     expect(visual).not.toContain("SCENE_COPY");
     expect(visual).not.toContain("copy.");
@@ -646,15 +509,16 @@ describe("public acquisition UI contract", () => {
     expect(articleBlocks).toContain("lg:last:col-span-1");
   });
 
-  it("puts the blog title and metadata before its authored visual", () => {
+  it("keeps the blog header text-led and delegates social imagery to the generated OG schema", () => {
     const blog = source("app/[locale]/(static)/blog/[slug]/page.tsx");
     const heading = blog.indexOf('<h1 className="text-display m-0">');
     const timestamp = blog.indexOf("<time", heading);
-    const visual = blog.indexOf("{visual ?", timestamp);
 
     expect(heading).toBeGreaterThan(-1);
     expect(timestamp).toBeGreaterThan(heading);
-    expect(visual).toBeGreaterThan(timestamp);
-    expect(blog).toContain("includeHeroImage: !page.data.acquisition");
+    expect(blog).not.toContain("AcquisitionStoryVisual");
+    expect(blog).not.toContain("BlogHeroMedia");
+    expect(blog).not.toContain("includeHeroImage");
+    expect(source("core/seo/schemas.ts")).toContain("image: [ogImage]");
   });
 });

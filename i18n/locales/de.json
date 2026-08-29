@@ -779,9 +779,6 @@
     "userCreationFailed": "Dein Konto konnte nicht erstellt werden. Bitte versuche es erneut.",
     "userInfoIsMissing": "Der Anbieter hat dein Profil nicht übermittelt. Bitte versuche es erneut."
   },
-  "BlogPostPage": {
-    "relatedArticles": "Verwandte Artikel"
-  },
   "BrowserFrame": {
     "live": "live",
     "liveDemoTitle": "Customermates-Live-Demo",
@@ -1345,10 +1342,6 @@
       "previousPage": "Vorherige Seite",
       "search": "Suchen..."
     },
-    "tags": {
-      "feature": "Funktion",
-      "industry": "Branche"
-    },
     "themes": {
       "dark": "Dunkel",
       "light": "Hell",
@@ -1397,12 +1390,7 @@
     "title": "Benutzer"
   },
   "ComparePage": {
-    "alternativeTitle": "Alternative zu {competitor}",
-    "tags": {
-      "alternative": "Alternative",
-      "comparison": "Vergleich",
-      "review": "Bewertung"
-    }
+    "alternativeTitle": "Alternative zu {competitor}"
   },
   "ConnectedAccountsCard": {
     "accountLimitReached": "Du hast das Limit für verbundene Konten in diesem Tarif erreicht. Kontaktiere uns für unbegrenzte Konten im Enterprise-Tarif.",
@@ -2257,6 +2245,42 @@
     "members": "Mitglieder",
     "overview": "Übersicht",
     "pricing": "Preise",
+    "public": {
+      "agencies": "Agenturen",
+      "agenticCrm": "Agentic CRM",
+      "allFeatures": "Alle Features",
+      "allSolutions": "Alle Lösungen",
+      "api": "API und Webhooks",
+      "blog": "Blog",
+      "compare": "Vergleiche",
+      "consultants": "Beratungen",
+      "contactManagement": "Kontaktverwaltung",
+      "coreCrm": "CRM-Kern",
+      "explore": "Entdecken",
+      "growingBusinesses": "Wachsende Unternehmen",
+      "guides": "Anleitungen",
+      "integrations": "Integrationen",
+      "linkedinIntegration": "LinkedIn-Integration",
+      "mcpGuide": "MCP-Anleitung",
+      "n8n": "n8n-Automatisierung",
+      "openSourceCrm": "Open-Source-CRM",
+      "outlookIntegration": "Outlook-Integration",
+      "overview": "Übersicht",
+      "pipeline": "Vertriebspipeline",
+      "platform": "Plattform",
+      "primaryNavigation": "Hauptnavigation",
+      "product": "Produkt",
+      "professionalServices": "Professionelle Dienstleistungen",
+      "research": "Einblicke",
+      "resources": "Ressourcen",
+      "selfHosted": "Selbst gehostetes CRM",
+      "selfHostingGuide": "Self-Hosting-Anleitung",
+      "serviceTeams": "Dienstleistungsteams",
+      "slackIntegration": "Slack-Integration",
+      "smallBusinesses": "Kleine Unternehmen",
+      "solutions": "Lösungen",
+      "unifiedInbox": "Zentraler Posteingang"
+    },
     "search": "Suchen",
     "settings": "Einstellungen",
     "subscription": "Abonnement",

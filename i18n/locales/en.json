@@ -779,9 +779,6 @@
     "userCreationFailed": "Your account could not be created. Please try again.",
     "userInfoIsMissing": "The provider did not return your profile. Please try again."
   },
-  "BlogPostPage": {
-    "relatedArticles": "Related Articles"
-  },
   "BrowserFrame": {
     "live": "live",
     "liveDemoTitle": "Customermates live demo",
@@ -1345,10 +1342,6 @@
       "previousPage": "Previous page",
       "search": "Search..."
     },
-    "tags": {
-      "feature": "Feature",
-      "industry": "Industry"
-    },
     "themes": {
       "dark": "Dark",
       "light": "Light",
@@ -1397,12 +1390,7 @@
     "title": "User"
   },
   "ComparePage": {
-    "alternativeTitle": "{competitor} alternative",
-    "tags": {
-      "alternative": "Alternative",
-      "comparison": "Comparison",
-      "review": "Review"
-    }
+    "alternativeTitle": "{competitor} alternative"
   },
   "ConnectedAccountsCard": {
     "accountLimitReached": "You reached the connected-account limit for this plan. Contact us about Enterprise for unlimited accounts.",
@@ -2257,6 +2245,42 @@
     "members": "Members",
     "overview": "Overview",
     "pricing": "Pricing",
+    "public": {
+      "agencies": "Agencies",
+      "agenticCrm": "Agentic CRM",
+      "allFeatures": "All features",
+      "allSolutions": "All solutions",
+      "api": "API and webhooks",
+      "blog": "Blog",
+      "compare": "Comparisons",
+      "consultants": "Consultants",
+      "contactManagement": "Contact management",
+      "coreCrm": "Core CRM",
+      "explore": "Explore",
+      "growingBusinesses": "Growing businesses",
+      "guides": "Guides",
+      "integrations": "Integrations",
+      "linkedinIntegration": "LinkedIn integration",
+      "mcpGuide": "MCP guide",
+      "n8n": "n8n automation",
+      "openSourceCrm": "Open-source CRM",
+      "outlookIntegration": "Outlook integration",
+      "overview": "Overview",
+      "pipeline": "Sales pipeline",
+      "platform": "Platform",
+      "primaryNavigation": "Primary navigation",
+      "product": "Product",
+      "professionalServices": "Professional services",
+      "research": "Research",
+      "resources": "Resources",
+      "selfHosted": "Self-hosted CRM",
+      "selfHostingGuide": "Self-hosting guide",
+      "serviceTeams": "Service teams",
+      "slackIntegration": "Slack integration",
+      "smallBusinesses": "Small businesses",
+      "solutions": "Solutions",
+      "unifiedInbox": "Unified inbox"
+    },
     "search": "Search",
     "settings": "Settings",
     "subscription": "Subscription",

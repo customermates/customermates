@@ -4,10 +4,10 @@ import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { Footer } from "@/app/components/footer";
-import { AcquisitionPageEnding } from "@/components/marketing/acquisition-page-ending";
 import { AcquisitionStoryVisual } from "@/components/marketing/acquisition-story-visual";
 import { LandingArticle } from "@/components/marketing/landing-article";
 import { PageHero } from "@/components/marketing/page-hero";
+import { PageEnding } from "@/components/marketing/page-ending";
 import { CTASection } from "@/components/marketing/cta-section";
 import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
@@ -68,7 +68,7 @@ export default async function ForIndustryPage({ params }: Props) {
       </LandingArticle>
 
       {page.data.acquisition ? (
-        <AcquisitionPageEnding acquisition={page.data.acquisition} />
+        <PageEnding cta={page.data.acquisition.cta} relatedHrefs={page.data.acquisition.relatedHrefs} />
       ) : (
         <CTASection {...page.data.cta} />
       )}

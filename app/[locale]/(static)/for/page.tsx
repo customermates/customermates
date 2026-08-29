@@ -5,7 +5,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 
 import { Footer } from "@/app/components/footer";
 import { HubPagination } from "@/components/marketing/hub-pagination";
-import { HubPostGrid, type HubPostGridItem } from "@/components/marketing/hub-post-grid";
+import { HubGrid, type HubGridItem } from "@/components/marketing/hub-grid";
 import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { forPagesSource, forSource } from "@/core/fumadocs/source";
@@ -51,7 +51,6 @@ export default async function ForHubPage({ searchParams }: Props) {
   if (!page) notFound();
 
   const t = await getTranslations();
-  const tagLabel = t("Common.tags.industry");
   const collator = new Intl.Collator(formattingTagFor(locale));
   const referenceCollator = new Intl.Collator(formattingTagFor(DEFAULT_LOCALE));
 
@@ -69,17 +68,15 @@ export default async function ForHubPage({ searchParams }: Props) {
     resolution.page,
     (a, b) => referenceCollator.compare(a.page.data.industryName, b.page.data.industryName),
   );
-  const items: HubPostGridItem[] = paginated.items
-    .map(({ page: p, slug }): HubPostGridItem => {
+  const items: HubGridItem[] = paginated.items
+    .map(({ page: p, slug }): HubGridItem => {
       return {
         description: p.data.description,
         href: `/for/${slug}`,
-        imageSrc: p.data.acquisition ? undefined : `${slug}.png`,
-        tag: tagLabel,
-        title: p.data.industryName,
+        name: p.data.industryName,
       };
     })
-    .sort((a, b) => collator.compare(a.title, b.title));
+    .sort((a, b) => collator.compare(a.name, b.name));
 
   return (
     <div className="flex flex-col items-center justify-center">
@@ -93,7 +90,7 @@ export default async function ForHubPage({ searchParams }: Props) {
         ])}
       />
 
-      <HubPostGrid hero={page.data.hero} items={items} locale={locale} />
+      <HubGrid hero={page.data.hero} items={items} />
 
       <HubPagination
         basePath="/for"

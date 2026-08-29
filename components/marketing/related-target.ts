@@ -4,7 +4,6 @@ export type RelatedRouteSegment = (typeof RELATED_ROUTE_SEGMENTS)[number];
 
 export type ResolvedRelatedTarget = {
   description: string;
-  imageSrc?: string;
   title: string;
 };
 

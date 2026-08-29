@@ -779,9 +779,6 @@
     "userCreationFailed": "No se pudo crear tu cuenta. Inténtalo de nuevo.",
     "userInfoIsMissing": "El proveedor no devolvió tu perfil. Inténtalo de nuevo."
   },
-  "BlogPostPage": {
-    "relatedArticles": "Artículos relacionados"
-  },
   "BrowserFrame": {
     "live": "en directo",
     "liveDemoTitle": "Demo en directo de Customermates",
@@ -1345,10 +1342,6 @@
       "previousPage": "Página anterior",
       "search": "Buscar..."
     },
-    "tags": {
-      "feature": "Función",
-      "industry": "Sector"
-    },
     "themes": {
       "dark": "Oscuro",
       "light": "Claro",
@@ -1397,12 +1390,7 @@
     "title": "Usuario"
   },
   "ComparePage": {
-    "alternativeTitle": "Alternativa a {competitor}",
-    "tags": {
-      "alternative": "Alternativa",
-      "comparison": "Comparativa",
-      "review": "Reseña"
-    }
+    "alternativeTitle": "Alternativa a {competitor}"
   },
   "ConnectedAccountsCard": {
     "accountLimitReached": "Has alcanzado el límite de cuentas conectadas de este plan. Contáctanos sobre el plan Enterprise para tener cuentas ilimitadas.",
@@ -2257,6 +2245,42 @@
     "members": "Miembros",
     "overview": "Resumen",
     "pricing": "Precios",
+    "public": {
+      "agencies": "Agencias",
+      "agenticCrm": "CRM agéntico",
+      "allFeatures": "Todas las funciones",
+      "allSolutions": "Todas las soluciones",
+      "api": "API y webhooks",
+      "blog": "Blog",
+      "compare": "Comparativas",
+      "consultants": "Consultores",
+      "contactManagement": "Gestión de contactos",
+      "coreCrm": "CRM principal",
+      "explore": "Explorar",
+      "growingBusinesses": "Empresas en crecimiento",
+      "guides": "Guías",
+      "integrations": "Integraciones",
+      "linkedinIntegration": "Integración con LinkedIn",
+      "mcpGuide": "Guía de MCP",
+      "n8n": "Automatización con n8n",
+      "openSourceCrm": "CRM de código abierto",
+      "outlookIntegration": "Integración con Outlook",
+      "overview": "Resumen",
+      "pipeline": "Pipeline de ventas",
+      "platform": "Plataforma",
+      "primaryNavigation": "Navegación principal",
+      "product": "Producto",
+      "professionalServices": "Servicios profesionales",
+      "research": "Análisis",
+      "resources": "Recursos",
+      "selfHosted": "CRM autohospedado",
+      "selfHostingGuide": "Guía de autohospedaje",
+      "serviceTeams": "Equipos de servicios",
+      "slackIntegration": "Integración con Slack",
+      "smallBusinesses": "Pequeñas empresas",
+      "solutions": "Soluciones",
+      "unifiedInbox": "Bandeja unificada"
+    },
     "search": "Buscar",
     "settings": "Ajustes",
     "subscription": "Suscripción",

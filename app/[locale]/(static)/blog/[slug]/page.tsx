@@ -4,17 +4,12 @@ import { notFound } from "next/navigation";
 import { Calendar, ChevronLeft } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 
-import { BlogPostCard } from "../blog-post-card";
-
 import { IntlLink } from "@/i18n/navigation";
-import { blogPostsSource } from "@/core/fumadocs/source";
+import { blogPostsSource, blogSource } from "@/core/fumadocs/source";
 import { Footer } from "@/app/components/footer";
-import { AcquisitionPageEnding } from "@/components/marketing/acquisition-page-ending";
-import { AcquisitionStoryVisual } from "@/components/marketing/acquisition-story-visual";
-import { BlogHeroMedia } from "@/components/marketing/blog-hero-media";
 import { LandingArticle } from "@/components/marketing/landing-article";
 import { MarketingContainer } from "@/components/marketing/marketing-container";
-import { MarketingSection } from "@/components/marketing/marketing-section";
+import { PageEnding } from "@/components/marketing/page-ending";
 import { Icon } from "@/components/shared/icon";
 import { GridPattern } from "@/components/shared/grid-pattern";
 import { AppChip } from "@/components/chip/app-chip";
@@ -45,8 +40,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const [{ slug }, rawLocale, t] = await Promise.all([params, getLocale(), getTranslations()]);
   const locale = contentLocaleOrDefault(rawLocale);
   const page = blogPostsSource.getPage([slug], locale);
+  const blog = blogSource.getPage(["blog"], locale);
 
-  if (!page) notFound();
+  if (!page || !blog) notFound();
 
   const MDX = page.data.body;
   const { hero, blogPost } = page.data;
@@ -58,24 +54,16 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       </span>
     ),
   });
-  const visual =
-    page.data.acquisition?.visual.kind === "brand-illustration" ? (
-      <AcquisitionStoryVisual brief={page.data.acquisition.visual} locale={locale} />
-    ) : undefined;
-
   const postEntries = blogPostsSource
     .getPages(locale)
     .map((post) => ({ post, slug: post.url?.split("/").pop() ?? "" }))
     .filter((entry) => entry.slug.length > 0);
-  const postsBySlug = new Map(postEntries.map((entry) => [entry.slug, entry.post]));
   const ringSlugs = ringOrder(
     postEntries,
     (entry) => entry.post.data.blogPost.tags?.[0] ?? "",
     (entry) => entry.slug,
   ).map((entry) => entry.slug);
-  const sortedPosts = selectRelatedSlugs(slug, ringSlugs)
-    .map((related) => postsBySlug.get(related))
-    .filter((post) => post !== undefined);
+  const relatedHrefs = selectRelatedSlugs(slug, ringSlugs).map((related) => `/blog/${related}`);
 
   return (
     <div className="relative flex flex-col items-center justify-center" data-marketing-flow="continuous">
@@ -86,7 +74,6 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           dateModified: new Date(page.data.lastModified ?? blogPost.date).toISOString(),
           description: page.data.description,
           headline: page.data.title,
-          includeHeroImage: !page.data.acquisition,
           locale,
           slug,
         })}
@@ -114,8 +101,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               {backToBlog}
             </IntlLink>
 
-            <div className={visual ? "marketing-grid mt-8 items-center gap-y-12" : "mt-8 max-w-5xl"}>
-              <div className={visual ? "col-span-12 min-w-0 lg:col-span-7 lg:pr-10" : undefined}>
+            <div className="mt-8 max-w-5xl">
+              <div>
                 <h1 className="text-display m-0">{hero.title}</h1>
 
                 <p className="text-lede mt-6">{hero.description}</p>
@@ -158,45 +145,19 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                   </div>
                 ) : null}
               </div>
-
-              {visual ? <div className="col-span-12 min-w-0 lg:col-span-5">{visual}</div> : null}
             </div>
-
-            {!page.data.acquisition ? <BlogHeroMedia alt={hero.title} slug={slug} /> : null}
           </header>
         </MarketingContainer>
       </section>
 
-      <LandingArticle founderContact={Boolean(page.data.acquisition)} items={page.data.toc}>
+      <LandingArticle founderContact items={page.data.toc}>
         <MDX components={components} />
       </LandingArticle>
 
-      {page.data.acquisition ? (
-        <AcquisitionPageEnding acquisition={page.data.acquisition} />
-      ) : sortedPosts.length > 0 ? (
-        <MarketingSection className="py-14 sm:py-18 lg:py-20" tone="page">
-          <h2 className="text-display-sm mb-8">{t("BlogPostPage.relatedArticles")}</h2>
-
-          <div className="grid auto-rows-fr grid-cols-1 gap-6 sm:grid-cols-2 md:gap-8 lg:grid-cols-3">
-            {sortedPosts.map((post) => {
-              const postSlug = post.url?.split("/").pop() ?? "";
-              if (!postSlug) return null;
-
-              return (
-                <div key={post.url} className="min-w-0">
-                  <BlogPostCard
-                    {...post.data.blogPost}
-                    locale={locale}
-                    showImage={!post.data.acquisition}
-                    title={post.data.title}
-                    url={`/blog/${postSlug}`}
-                  />
-                </div>
-              );
-            })}
-          </div>
-        </MarketingSection>
-      ) : null}
+      <PageEnding
+        cta={page.data.acquisition?.cta ?? blog.data.cta}
+        relatedHrefs={page.data.acquisition?.relatedHrefs ?? relatedHrefs}
+      />
 
       <Footer />
     </div>

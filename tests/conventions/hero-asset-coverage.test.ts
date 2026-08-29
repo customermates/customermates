@@ -1,11 +1,4 @@
-import {
-  closeSync,
-  existsSync,
-  openSync,
-  readFileSync,
-  readSync,
-  readdirSync,
-} from "node:fs";
+import { closeSync, existsSync, openSync, readFileSync, readSync, readdirSync } from "node:fs";
 import { extname, join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -25,11 +18,7 @@ const IHDR_SIGNATURE = [0x49, 0x48, 0x44, 0x52];
 
 type Dimensions = { height: number; width: number };
 
-function startsWith(
-  header: Uint8Array,
-  signature: number[],
-  offset: number,
-): boolean {
+function startsWith(header: Uint8Array, signature: number[], offset: number): boolean {
   return signature.every((byte, index) => header[offset + index] === byte);
 }
 
@@ -38,11 +27,7 @@ export function pngDimensions(header: Uint8Array): Dimensions | null {
   if (!startsWith(header, PNG_SIGNATURE, 0)) return null;
   if (!startsWith(header, IHDR_SIGNATURE, 12)) return null;
 
-  const view = new DataView(
-    header.buffer,
-    header.byteOffset,
-    header.byteLength,
-  );
+  const view = new DataView(header.buffer, header.byteOffset, header.byteLength);
   return { height: view.getUint32(20), width: view.getUint32(16) };
 }
 
@@ -77,6 +62,8 @@ function imageSlugs(theme: string, locale: string): string[] {
 }
 
 function pageUsesHeroAsset(collection: string, locale: string, slug: string): boolean {
+  if (collection === "blog-posts") return false;
+
   const path = join(REPO_ROOT, "content", collection, locale, `${slug}.mdx`);
   const source = readFileSync(path, "utf8");
   const frontmatter = /^---\n(.*?)\n---\n?/su.exec(source);
@@ -87,34 +74,22 @@ function pageUsesHeroAsset(collection: string, locale: string, slug: string): bo
 }
 
 describe("hero asset coverage", () => {
-  const slugsByCollection = new Map(
-    LANDING_HUBS.map(({ collection }) => [
-      collection,
-      collectionSlugs(collection),
-    ]),
-  );
+  const slugsByCollection = new Map(LANDING_HUBS.map(({ collection }) => [collection, collectionSlugs(collection)]));
   const expectedSlugs = new Set([...slugsByCollection.values()].flat());
 
   it("keeps every landing slug unique in the shared image namespace", () => {
     const owners = new Map<string, string[]>();
 
     for (const [collection, slugs] of slugsByCollection) {
-      expect(
-        slugs.length,
-        `content/${collection}/${DEFAULT_LOCALE} holds no page`,
-      ).toBeGreaterThan(0);
-      for (const slug of slugs)
-        owners.set(slug, [...(owners.get(slug) ?? []), collection]);
+      expect(slugs.length, `content/${collection}/${DEFAULT_LOCALE} holds no page`).toBeGreaterThan(0);
+      for (const slug of slugs) owners.set(slug, [...(owners.get(slug) ?? []), collection]);
     }
 
     const collisions = [...owners]
       .filter(([, collections]) => collections.length > 1)
       .map(([slug, collections]) => `${slug}: ${collections.join(", ")}`);
 
-    expect(
-      collisions,
-      `landing slugs sharing one hero filename:\n${collisions.join("\n")}`,
-    ).toEqual([]);
+    expect(collisions, `landing slugs sharing one hero filename:\n${collisions.join("\n")}`).toEqual([]);
   });
 
   it("gives every landing slug every localized theme asset", () => {
@@ -125,24 +100,14 @@ describe("hero asset coverage", () => {
         for (const theme of IMAGE_THEMES) {
           for (const locale of CONTENT_LOCALES) {
             if (!pageUsesHeroAsset(collection, locale, slug)) continue;
-            const relativePath = join(
-              "public",
-              "images",
-              theme,
-              locale,
-              `${slug}.png`,
-            );
-            if (!existsSync(join(REPO_ROOT, relativePath)))
-              problems.push(`${relativePath} is missing`);
+            const relativePath = join("public", "images", theme, locale, `${slug}.png`);
+            if (!existsSync(join(REPO_ROOT, relativePath))) problems.push(`${relativePath} is missing`);
           }
         }
       }
     }
 
-    expect(
-      problems,
-      `landing pages without a hero asset:\n${problems.join("\n")}`,
-    ).toEqual([]);
+    expect(problems, `landing pages without a hero asset:\n${problems.join("\n")}`).toEqual([]);
   });
 
   it("keeps every localized PNG bound to one landing page", () => {
@@ -152,18 +117,13 @@ describe("hero asset coverage", () => {
       for (const locale of CONTENT_LOCALES) {
         for (const slug of imageSlugs(theme, locale)) {
           if (!expectedSlugs.has(slug)) {
-            problems.push(
-              `${join("public", "images", theme, locale, `${slug}.png`)} has no landing page`,
-            );
+            problems.push(`${join("public", "images", theme, locale, `${slug}.png`)} has no landing page`);
           }
         }
       }
     }
 
-    expect(
-      problems,
-      `hero assets without a landing page:\n${problems.join("\n")}`,
-    ).toEqual([]);
+    expect(problems, `hero assets without a landing page:\n${problems.join("\n")}`).toEqual([]);
   });
 
   it(`keeps every hero PNG at ${HERO_WIDTH}x${HERO_HEIGHT}`, () => {
@@ -172,37 +132,18 @@ describe("hero asset coverage", () => {
     for (const theme of IMAGE_THEMES) {
       for (const locale of CONTENT_LOCALES) {
         for (const slug of imageSlugs(theme, locale)) {
-          const relativePath = join(
-            "public",
-            "images",
-            theme,
-            locale,
-            `${slug}.png`,
-          );
-          const dimensions = pngDimensions(
-            readPngHeader(join(REPO_ROOT, relativePath)),
-          );
+          const relativePath = join("public", "images", theme, locale, `${slug}.png`);
+          const dimensions = pngDimensions(readPngHeader(join(REPO_ROOT, relativePath)));
 
-          if (!dimensions)
-            problems.push(
-              `${relativePath} does not start with a PNG IHDR header`,
-            );
-          else if (
-            dimensions.width !== HERO_WIDTH ||
-            dimensions.height !== HERO_HEIGHT
-          ) {
-            problems.push(
-              `${relativePath} is ${dimensions.width}x${dimensions.height}`,
-            );
+          if (!dimensions) problems.push(`${relativePath} does not start with a PNG IHDR header`);
+          else if (dimensions.width !== HERO_WIDTH || dimensions.height !== HERO_HEIGHT) {
+            problems.push(`${relativePath} is ${dimensions.width}x${dimensions.height}`);
           }
         }
       }
     }
 
-    expect(
-      problems,
-      `hero assets off the required geometry:\n${problems.join("\n")}`,
-    ).toEqual([]);
+    expect(problems, `hero assets off the required geometry:\n${problems.join("\n")}`).toEqual([]);
   });
 
   it("reads and rejects synthetic PNG headers without decoding image bodies", () => {

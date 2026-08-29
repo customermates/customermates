@@ -44,8 +44,8 @@ describe("public navigation preferences", () => {
     expect(navbar.match(/<LocaleMenu/g)).toHaveLength(1);
     expect(navbar.match(/<ThemeSwitcher/g)).toHaveLength(1);
     expect(navbar.match(/\{renderPreferenceButtons\(\)\}/g)).toHaveLength(2);
-    expect(navbar).toContain('className="hidden items-center gap-2 md:flex"');
-    expect(navbar).toContain('className="flex w-full items-center justify-between md:hidden"');
+    expect(navbar).toContain('className="hidden items-center gap-2 lg:flex"');
+    expect(navbar).toContain('className="flex w-full items-center justify-between lg:hidden"');
     expect(navbar).toContain('className="my-1 py-3"');
     expect(navbar).not.toContain("border-y");
     expect(navbar).not.toContain("github.com/customermates/customermates");
@@ -59,12 +59,38 @@ describe("public navigation preferences", () => {
       expect(source, `${name} is missing the theme switcher`).toContain("<ThemeSwitcher");
     }
 
-    // CUS-202 stripped the footer duplicates. They came back only while the navbar dropdown was
-    // portalled and shipped no crawlable anchor; the native disclosure emits one on every page, so
-    // the footer copy earns nothing and the original decision stands.
+    // CUS-202 stripped duplicate preference controls from the footer. The two header shells still
+    // own those controls, while the footer remains free to carry curated marketing links.
     const footer = read(FOOTER);
     expect(footer, "the header menu already links every locale").not.toContain("<LocaleMenu");
     expect(footer, "the theme switcher belongs to the header shells").not.toContain("<ThemeSwitcher");
+  });
+
+  it("keeps the expanded marketing map restrained and shared with mobile", () => {
+    const navbar = read(HEADER_SHELLS.navbar);
+    const menu = read("app/components/navigation/public-navbar-menu.tsx");
+
+    for (const href of [
+      "/blog/agentic-crm",
+      "/blog/open-source-crm",
+      "/features/self-hosted",
+      "/features/unified-inbox",
+      "/for/agencies",
+      "/for/professional-services",
+    ]) {
+      expect(navbar, `${href} is missing from the sitewide navigation`).toContain(`href: "${href}"`);
+    }
+
+    expect(navbar.match(/publicNavGroups\.map/gu)).toHaveLength(1);
+    expect(navbar).toContain('<Accordion className="w-full" type="multiple">');
+    expect(menu).toContain("<Popover");
+    expect(menu).toContain("<PopoverContent");
+    expect(menu).toContain("<PopoverTrigger");
+    expect(menu).not.toContain('className="fixed');
+    expect(menu).not.toContain('className="absolute');
+    expect(menu).not.toContain("DropdownMenu");
+    expect(menu).not.toContain("NavigationMenu");
+    expect(menu).not.toMatch(/bg-(?:red|orange|amber|yellow|green|blue|violet|purple)-/u);
   });
 
   it("keeps the locale menu renderable without JavaScript", () => {
@@ -83,9 +109,7 @@ describe("public navigation preferences", () => {
       "buildLocalePath(locale, pathname)",
     );
     expect(menu, "a modified click must still open a new tab").toContain("event.metaKey");
-    expect(menu, "the unsaved-changes guard still owns same-tab navigation").toContain(
-      "navigationGuard.tryNavigate",
-    );
+    expect(menu, "the unsaved-changes guard still owns same-tab navigation").toContain("navigationGuard.tryNavigate");
     expect(menu, "the trigger shows the locale it is currently on").toContain("currentLocale.toUpperCase()");
     expect(menu, "the option matches the profile country selector").toContain(
       "<FormAutocompleteCountryItem countryKey={flagCodeFor(locale)} label={label} />",

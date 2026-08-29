@@ -6,6 +6,7 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { BlogPostCard } from "./blog-post-card";
 
 import { Footer } from "@/app/components/footer";
+import { CTASection } from "@/components/marketing/cta-section";
 import { HubPagination } from "@/components/marketing/hub-pagination";
 import { PostGridShell } from "@/components/marketing/post-grid-shell";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
@@ -84,18 +85,22 @@ export default async function BlogPage({ searchParams }: Props) {
       />
 
       <PostGridShell hero={page.data.hero}>
-        {paginated.items.map(({ page: post, slug }) => (
-          <div key={post.url} className="min-w-0">
-            <BlogPostCard
-              {...post.data.blogPost}
-              description={post.data.description}
-              locale={locale}
-              showImage={!post.data.acquisition}
-              title={post.data.title}
-              url={`/blog/${slug}`}
-            />
-          </div>
-        ))}
+        {paginated.items.map(({ page: post, slug }, index) => {
+          const featured = paginated.page === 1 && index === 0;
+
+          return (
+            <div key={post.url} className={featured ? "min-w-0 sm:col-span-2 lg:col-span-2" : "min-w-0"}>
+              <BlogPostCard
+                {...post.data.blogPost}
+                description={post.data.description}
+                featured={featured}
+                locale={locale}
+                title={post.data.title}
+                url={`/blog/${slug}`}
+              />
+            </div>
+          );
+        })}
       </PostGridShell>
 
       <HubPagination
@@ -106,6 +111,8 @@ export default async function BlogPage({ searchParams }: Props) {
         pageCount={paginated.pageCount}
         previousLabel={t("previousPage")}
       />
+
+      <CTASection {...page.data.cta} />
 
       <Footer />
     </div>
