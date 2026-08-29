@@ -272,11 +272,20 @@ describe("public acquisition UI contract", () => {
 
   it("uses one route-owned related-content and CTA ending across acquisition pages", () => {
     const ending = source("components/marketing/acquisition-page-ending.tsx");
+    const related = source("components/marketing/related-pages.tsx");
     expect(ending).toContain("<RelatedPages>");
     expect(ending).toContain("acquisition.relatedHrefs.map");
+    expect(ending).toContain('presentation="text"');
     expect(ending.indexOf("<RelatedPages>")).toBeLessThan(
       ending.indexOf("<CTASection"),
     );
+    expect(related).toContain('presentation = "preview"');
+    expect(related).toContain('presentation?: "preview" | "text"');
+    expect(related).toContain('presentation === "text"');
+    expect(related).toContain("<ArrowUpRight");
+    expect(related).toContain("target.description");
+    expect(related).toContain("target.title");
+    expect(related).toContain("border-t border-border");
 
     for (const route of [
       "app/[locale]/(static)/features/[slug]/page.tsx",

@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
 
+import { ArrowUpRight } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 
+import { AppLink } from "@/components/shared/app-link";
 import {
   blogPostsSource,
   comparePagesSource,
@@ -84,7 +86,13 @@ export async function RelatedPages({ children }: { children: ReactNode }) {
   );
 }
 
-export async function RelatedPage({ href }: { href: string }) {
+export async function RelatedPage({
+  href,
+  presentation = "preview",
+}: {
+  href: string;
+  presentation?: "preview" | "text";
+}) {
   const [locale, t] = await Promise.all([getLocale(), getTranslations()]);
   const target = resolveRelatedTarget(
     href,
@@ -92,6 +100,38 @@ export async function RelatedPage({ href }: { href: string }) {
     (competitor) => t("ComparePage.alternativeTitle", { competitor }),
     RELATED_SEGMENTS,
   );
+
+  if (presentation === "text") {
+    const segment = href.slice(1).split("/", 1)[0] as RelatedRouteSegment;
+    const category = {
+      blog: t("StructuredData.breadcrumb.blog"),
+      compare: t("StructuredData.breadcrumb.compare"),
+      docs: t("NavigationBar.docs"),
+      features: t("StructuredData.breadcrumb.features"),
+      for: t("StructuredData.breadcrumb.industries"),
+    }[segment];
+
+    return (
+      <AppLink
+        appearance="unstyled"
+        className="group flex min-h-40 min-w-0 flex-col border-t border-border py-5 text-foreground"
+        href={href}
+      >
+        <div className="flex items-center justify-between gap-3 text-xs font-medium uppercase tracking-wide text-subdued">
+          <span>{category}</span>
+
+          <ArrowUpRight
+            aria-hidden
+            className="size-4 shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+          />
+        </div>
+
+        <h3 className="mt-5 text-lg font-semibold leading-snug text-balance">{target.title}</h3>
+
+        <p className="mt-2 line-clamp-3 text-sm leading-6 text-subdued">{target.description}</p>
+      </AppLink>
+    );
+  }
 
   return (
     <div className="min-w-0">

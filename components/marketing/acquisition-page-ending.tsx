@@ -10,7 +10,7 @@ export function AcquisitionPageEnding({ acquisition }: { acquisition: Acquisitio
       <MarketingSection className="py-14 sm:py-18 lg:py-20" tone="page">
         <RelatedPages>
           {acquisition.relatedHrefs.map((href) => (
-            <RelatedPage key={href} href={href} />
+            <RelatedPage key={href} href={href} presentation="text" />
           ))}
         </RelatedPages>
       </MarketingSection>
