@@ -33,7 +33,7 @@ import { buildAppTopbarCrumbs } from "./app-topbar-crumbs";
 
 import { EntityType } from "@/generated/prisma";
 
-export const AppTopBar = observer(() => {
+export const AppTopBar = observer(({ operatorConsoleVisible }: { operatorConsoleVisible: boolean }) => {
   const t = useTranslations();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -61,6 +61,7 @@ export const AppTopBar = observer(() => {
         rootStore.appMode,
         userStore.canAccess,
         inboxThreadId,
+        operatorConsoleVisible,
       ),
     [
       pathname,
@@ -70,6 +71,7 @@ export const AppTopBar = observer(() => {
       rootStore.appMode,
       userStore.user,
       inboxThreadId,
+      operatorConsoleVisible,
     ],
   );
 
@@ -113,7 +115,9 @@ export const AppTopBar = observer(() => {
                     </DropdownMenu>
                   ) : c.href && !isLeaf ? (
                     <BreadcrumbLink asChild>
-                      <IntlLink href={c.href}>{c.label}</IntlLink>
+                      <IntlLink href={c.href} prefetch={c.prefetch}>
+                        {c.label}
+                      </IntlLink>
                     </BreadcrumbLink>
                   ) : (
                     <BreadcrumbPage

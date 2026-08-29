@@ -4,6 +4,10 @@ import { isRestrictedAccountState } from "@/features/auth/account-state";
 
 type NavigationShell = "docs" | "public" | "restricted" | "app";
 
+export function isOperatorPathname(pathname: string | null): boolean {
+  return pathname === "/operator" || Boolean(pathname?.startsWith("/operator/"));
+}
+
 export function resolveNavigationShell({
   accountState,
   pathname,

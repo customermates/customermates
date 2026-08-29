@@ -24,6 +24,7 @@ import {
   Package,
   Plus,
   LayoutGrid,
+  ShieldCheck,
   TrendingUp,
   UserCircle,
   Users,
@@ -43,6 +44,7 @@ import { FeedbackType } from "@/features/feedback/send-feedback.schema";
 import { EntityType } from "@/generated/prisma";
 
 import { NavHeader } from "./navigation/nav-header";
+import { resolveOperatorSidebarLink } from "./navigation/operator-sidebar-link";
 import { resolvePlanChip } from "./navigation/plan-subtitle";
 import { visibleSubroutes } from "./navigation/workspace-sections";
 import { NavMain } from "./navigation/nav-main";
@@ -62,6 +64,7 @@ type FullProps = {
   trialDaysLeft: number | null;
   emailVerified: boolean | null;
   legalStatus: LegalUpdateStatus | null;
+  operatorConsoleVisible: boolean;
 };
 
 type Props = ({ mode: "full" } & FullProps) | { mode: "restricted"; user: SidebarUser };
@@ -78,6 +81,7 @@ export function AppSidebar(props: Props) {
         channelsNeedingActionCount={0}
         emailVerified={null}
         legalStatus={null}
+        operatorConsoleVisible={false}
         subscription={null}
         systemTaskCount={0}
         trialDaysLeft={null}
@@ -92,6 +96,7 @@ export function AppSidebar(props: Props) {
       channelsNeedingActionCount={props.channelsNeedingActionCount}
       emailVerified={props.emailVerified}
       legalStatus={props.legalStatus}
+      operatorConsoleVisible={props.operatorConsoleVisible}
       restricted={false}
       subscription={props.subscription}
       systemTaskCount={props.systemTaskCount}
@@ -112,6 +117,7 @@ const FullAppSidebar = observer(
     trialDaysLeft,
     emailVerified,
     legalStatus,
+    operatorConsoleVisible,
     restricted,
   }: SidebarContentProps) => {
     const t = useTranslations();
@@ -272,7 +278,18 @@ const FullAppSidebar = observer(
       channelsNeedingActionCount,
     ]);
 
+    const operatorSidebarLink = resolveOperatorSidebarLink(operatorConsoleVisible, intlPathname);
     const secondaryItems: NavSecondaryItem[] = [
+      ...(operatorSidebarLink
+        ? [
+            {
+              key: "operator-users",
+              title: t("OperatorConsole.shell.console"),
+              icon: ShieldCheck,
+              ...operatorSidebarLink,
+            },
+          ]
+        : []),
       {
         key: "documentation",
         title: t("UserAvatar.documentation"),

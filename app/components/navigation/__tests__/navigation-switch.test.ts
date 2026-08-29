@@ -5,6 +5,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const state = vi.hoisted(() => ({
   refresh: vi.fn(),
+  pathname: "/dashboard",
+  currentUser: null as { id: string } | null,
+  navigationRenderActive: false,
+  renderPhaseUserWrites: [] as Array<{ id: string } | null>,
   closeAllModals: vi.fn(),
   setCompany: vi.fn(),
   setOverrides: vi.fn(),
@@ -12,11 +16,16 @@ const state = vi.hoisted(() => ({
   setUser: vi.fn(),
 }));
 
+state.setUser.mockImplementation((user: { id: string } | null) => {
+  if (state.navigationRenderActive) state.renderPhaseUserWrites.push(user);
+  state.currentUser = user;
+});
+
 vi.mock("next/navigation", () => ({
   useSearchParams: () => ({ getAll: () => [] }),
 }));
 vi.mock("@/i18n/navigation", () => ({
-  usePathname: () => "/dashboard",
+  usePathname: () => state.pathname,
   useRouter: () => ({ refresh: state.refresh }),
 }));
 vi.mock("@/core/stores/root-store.provider", () => ({
@@ -25,12 +34,29 @@ vi.mock("@/core/stores/root-store.provider", () => ({
     companyStore: { setCompany: state.setCompany },
     subscriptionStore: { setSubscription: state.setSubscription },
     terminologyStore: { setOverrides: state.setOverrides },
-    userStore: { setUser: state.setUser },
+    userStore: {
+      get user() {
+        return state.currentUser;
+      },
+      setUser: state.setUser,
+    },
   }),
 }));
 
-vi.mock("@/app/components/app-sidebar", () => ({ AppSidebar: () => null }));
-vi.mock("@/app/components/app-topbar", () => ({ AppTopBar: () => jsx("div", { "data-app-topbar": true }) }));
+vi.mock("@/app/components/app-sidebar", () => ({
+  AppSidebar: ({ operatorConsoleVisible }: { operatorConsoleVisible?: boolean }) =>
+    jsx("aside", {
+      "data-app-sidebar": true,
+      "data-operator-console-visible": operatorConsoleVisible,
+    }),
+}));
+vi.mock("@/app/components/app-topbar", () => ({
+  AppTopBar: ({ operatorConsoleVisible }: { operatorConsoleVisible: boolean }) =>
+    jsx("div", {
+      "data-app-topbar": true,
+      "data-operator-console-visible": operatorConsoleVisible,
+    }),
+}));
 vi.mock("@/app/components/public-navbar", () => ({ PublicNavbar: () => null }));
 vi.mock("@/app/components/shell-header", () => ({ ShellHeader: () => null }));
 vi.mock("@/app/[locale]/(static)/docs/components/docs-sidebar", () => ({
@@ -57,6 +83,47 @@ import { NavigationSwitch } from "../navigation-switch";
 
 type NavigationSwitchProps = Parameters<typeof NavigationSwitch>[0];
 
+const appUser = {
+  id: "00000000-0000-4000-8000-000000000001",
+  companyId: "company-1",
+  email: "test@example.com",
+  firstName: "Test",
+  lastName: "User",
+  roleId: null,
+  status: "active",
+  country: "de",
+  avatarUrl: null,
+  createdAt: new Date("2026-01-01T00:00:00.000Z"),
+  updatedAt: new Date("2026-01-01T00:00:00.000Z"),
+  displayLanguage: "en",
+  formattingLocale: "system",
+  theme: "system",
+  agreeToTerms: true,
+  lastActiveAt: null,
+  onboardingWizardCompletedAt: new Date("2026-01-01T00:00:00.000Z"),
+  role: null,
+} satisfies NonNullable<NavigationSwitchProps["appUser"]>;
+
+const replacementAppUser = {
+  ...appUser,
+  id: "00000000-0000-4000-8000-000000000002",
+  companyId: "company-2",
+  email: "replacement@example.com",
+} satisfies NonNullable<NavigationSwitchProps["appUser"]>;
+
+function NavigationRenderMarker({ active }: { active: boolean }) {
+  state.navigationRenderActive = active;
+  return null;
+}
+
+function renderWithinNavigationMarkers(props: NavigationSwitchProps) {
+  root.render([
+    jsx(NavigationRenderMarker, { key: "before", active: true }),
+    jsx(NavigationSwitch, { key: "switch", ...props }),
+    jsx(NavigationRenderMarker, { key: "after", active: false }),
+  ]);
+}
+
 function allowedProps(): Omit<NavigationSwitchProps, "children"> {
   return {
     accountState: "allowed",
@@ -65,6 +132,7 @@ function allowedProps(): Omit<NavigationSwitchProps, "children"> {
     company: null,
     emailVerified: true,
     legalStatus: null,
+    operatorConsoleVisible: false,
     sidebarUser: {
       avatarUrl: null,
       email: "test@example.com",
@@ -86,6 +154,10 @@ let root: Root;
 
 beforeEach(() => {
   vi.clearAllMocks();
+  state.pathname = "/dashboard";
+  state.currentUser = null;
+  state.navigationRenderActive = false;
+  state.renderPhaseUserWrites = [];
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
@@ -99,6 +171,66 @@ afterEach(() => {
 });
 
 describe("NavigationSwitch account-state refresh", () => {
+  it("synchronizes a signed-out account after render without mutating the store during render", () => {
+    const allowed = { ...allowedProps(), appUser };
+    state.currentUser = appUser;
+
+    act(() => {
+      renderWithinNavigationMarkers({ ...allowed, children: "page" });
+    });
+    state.renderPhaseUserWrites = [];
+
+    act(() => {
+      renderWithinNavigationMarkers({
+        ...allowed,
+        accountState: "unauthenticated",
+        appUser: null,
+        sidebarUser: null,
+        children: "signed out",
+      });
+    });
+
+    expect(state.renderPhaseUserWrites).toEqual([]);
+    expect(state.setUser).toHaveBeenLastCalledWith(null);
+    expect(state.currentUser).toBeNull();
+  });
+
+  it("synchronizes an account replacement after render without mutating the store during render", () => {
+    const allowed = { ...allowedProps(), appUser };
+    state.currentUser = appUser;
+
+    act(() => {
+      renderWithinNavigationMarkers({ ...allowed, children: "first account" });
+    });
+    state.renderPhaseUserWrites = [];
+
+    act(() => {
+      renderWithinNavigationMarkers({ ...allowed, appUser: replacementAppUser, children: "replacement account" });
+    });
+
+    expect(state.renderPhaseUserWrites).toEqual([]);
+    expect(state.setUser).toHaveBeenLastCalledWith(replacementAppUser);
+    expect(state.currentUser).toBe(replacementAppUser);
+  });
+
+  it("uses the normal app shell for an allowed operator route", () => {
+    state.pathname = "/operator/users";
+
+    act(() => {
+      root.render(
+        jsx(NavigationSwitch, {
+          ...allowedProps(),
+          operatorConsoleVisible: true,
+          children: jsx("div", { "data-operator-content": true }),
+        }),
+      );
+    });
+
+    expect(container.querySelector("[data-operator-content]")).not.toBeNull();
+    expect(container.querySelector("[data-app-sidebar]")?.getAttribute("data-operator-console-visible")).toBe("true");
+    expect(container.querySelector("[data-app-topbar]")?.getAttribute("data-operator-console-visible")).toBe("true");
+  });
+
   it("refreshes when a background tab becomes visible and removes its listener on unmount", () => {
     const visibility = vi.spyOn(document, "visibilityState", "get");
     const props = allowedProps();

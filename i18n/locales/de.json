@@ -329,6 +329,7 @@
       "cancelled": "Diese Antwort wurde gestoppt.",
       "creditLimit": "Ich habe einen Teil dieser Anfrage erledigt, dann aber gestoppt, weil deine Assistant-Credits aufgebraucht sind. Erledigte Arbeit bleibt bestehen; die Credits werden zu Beginn deiner nächsten Periode zurückgesetzt.",
       "emptyReply": "Ich konnte keine Antwort erstellen. Bitte versuche es erneut.",
+      "hostedAiUnavailable": "Die gehostete KI ist vorübergehend nicht verfügbar. Bitte versuche es später erneut.",
       "outputLimit": "Ich habe einen Teil dieser Antwort erstellt, aber die Ausgabegrenze für diesen Durchlauf erreicht. Bitte mich, weiterzumachen; ich setze bei der bereits erledigten Arbeit fort.",
       "safetyLimit": "Ich habe einen Teil dieser Anfrage erledigt, aber gestoppt, weil sich die letzten Schritte wiederholt haben, fehlgeschlagen sind oder eine Sicherheitsgrenze erreicht wurde. Die erledigte Arbeit bleibt bestehen; prüfe die Schritte oben, bevor du mich bittest fortzufahren.",
       "turnError": "Ich konnte diese Anfrage nicht abschließen. Bitte versuche es erneut."
@@ -2393,6 +2394,364 @@
         "subtitle": "Erzähle uns, wer du bist, damit wir deinen Workspace einrichten können.",
         "title": "Dein Profil"
       }
+    }
+  },
+  "OperatorConsole": {
+    "actions": {
+      "retry": "Erneut versuchen"
+    },
+    "adjustment": {
+      "deltaDescription": "Eine positive Zahl gewährt Credits, eine negative Zahl korrigiert sie.",
+      "deltaLabel": "Vorzeichenbehaftete Credit-Anpassung",
+      "deltaPlaceholder": "Zum Beispiel 500 oder -100",
+      "description": "Erfasse eine unveränderliche, periodengebundene Korrektur für diesen Benutzer.",
+      "period": "Gilt ausschließlich vom {start} bis zum {end}.",
+      "periodUnavailable": "Bevor eine Anpassung erfasst werden kann, muss eine aktuelle Credit-Periode vorliegen.",
+      "save": "Anpassung erfassen",
+      "success": "Die Credit-Anpassung wurde erfasst.",
+      "title": "Manuelle Credit-Anpassung"
+    },
+    "allowance": {
+      "creditsDescription": "Dieses Kontingent gilt pro aktivem Benutzer und Credit-Periode.",
+      "creditsLabel": "Credits pro Benutzer",
+      "description": "Lege das Basis-Kontingent für gehostete KI in einem Enterprise-Arbeitsbereich fest.",
+      "enterpriseOnlyDescription": "Ändere zuerst den Abonnementplan, bevor du ein individuelles Kontingent konfigurierst.",
+      "enterpriseOnlyTitle": "Enterprise-Plan erforderlich",
+      "save": "Kontingent aktualisieren",
+      "success": "Das Enterprise-Kontingent wurde aktualisiert.",
+      "title": "Enterprise-Kontingent"
+    },
+    "audit": {
+      "actions": {
+        "adjustmentCreate": "Credit-Anpassung",
+        "allowanceUpdate": "Kontingent aktualisiert",
+        "auditRead": "Audit-Bericht angesehen",
+        "bootstrap": "Operator eingerichtet",
+        "candidateRead": "E-Mail-Suche",
+        "companyRead": "Arbeitsbereich angesehen",
+        "creditBalanceReset": "Credit-Stand zurückgesetzt",
+        "globalControlUpdate": "Globale Steuerung aktualisiert",
+        "other": "Operator-Aktivität",
+        "overviewRead": "Übersicht angesehen",
+        "subscriptionSnapshotCorrect": "Abonnement-Snapshot korrigiert",
+        "userDetailRead": "Benutzerdatensatz angesehen",
+        "userListRead": "Benutzerverzeichnis angesehen",
+        "userStatusUpdate": "Kontostatus aktualisiert",
+        "userSummaryRead": "Verzeichnisübersicht angesehen"
+      },
+      "caption": "Unveränderliche Operator-Ereignisse, neueste zuerst.",
+      "columns": {
+        "action": "Aktion",
+        "actor": "Ausführender",
+        "operation": "Vorgang",
+        "reason": "Begründung",
+        "target": "Ziel",
+        "time": "Zeit (UTC)"
+      },
+      "description": "Jeder arbeitsbereichsübergreifende Lesezugriff und jede administrative Änderung wird hier erfasst.",
+      "emptyDescription": "Operator-Aktivitäten erscheinen nach der ersten protokollierten Aktion.",
+      "emptyTitle": "Noch keine Audit-Ereignisse",
+      "loadMore": "Ältere Ereignisse laden",
+      "title": "Operator-Audit-Bericht"
+    },
+    "candidate": {
+      "companyId": "Undurchsichtige Arbeitsbereichs-ID",
+      "description": "Sende eine vollständige Konto-E-Mail-Adresse. Ergebnisse erscheinen nie in der URL und werden nicht vorgeladen.",
+      "eligible": "Aktiv und bestätigt",
+      "emailDescription": "Die Suche ignoriert Groß- und Kleinschreibung und muss genau ein Konto treffen.",
+      "emailLabel": "Konto-E-Mail-Adresse",
+      "emailPlaceholder": "person@beispiel.de",
+      "emptyDescription": "Prüfe die Adresse und sende die vollständige Konto-E-Mail-Adresse erneut.",
+      "emptyTitle": "Kein exakter Kontotreffer",
+      "needsAttention": "Konto erfordert Aufmerksamkeit",
+      "search": "Konto finden",
+      "title": "Arbeitsbereich per E-Mail finden",
+      "userId": "Undurchsichtige Benutzer-ID"
+    },
+    "company": {
+      "activeSeats": "Aktive Plätze",
+      "description": "Verwaltung der gehosteten KI für den Arbeitsbereich von {email}.",
+      "monthlyCommitted": "Diesen Monat gebunden",
+      "plan": "Plan",
+      "subscriptionStatus": "Abonnement",
+      "title": "Arbeitsbereichssteuerung"
+    },
+    "controls": {
+      "capDescription": "Gib einen endlichen Betrag in US-Dollar ein. Ein leeres Feld sperrt sicherheitshalber neue gehostete KI.",
+      "capLabel": "Monatliches Ausgabenlimit",
+      "capPlaceholder": "Erforderlich für neue Arbeit",
+      "capProgress": "{percent} % des Monatslimits gebunden",
+      "description": "Pausiere neue gehostete Anbieterarbeit oder begrenze das gesamte monatlich gebundene Risiko.",
+      "disabledDescription": "Die Durchsetzung ist deaktiviert. Aktiviere sie in der Serverumgebung, bevor du diese Steuerung änderst.",
+      "disabledTitle": "Globale Durchsetzung ist deaktiviert",
+      "lastUpdated": "Aktualisiert am {date} · Version {version}",
+      "monthlyCap": "Aktuelles Monatslimit",
+      "pauseDescription": "Stoppt neue Segmente beim gehosteten Anbieter. Unterhaltungsverlauf und externe MCP-Verbindungen bleiben verfügbar.",
+      "pauseLabel": "Neue gehostete KI pausieren",
+      "save": "Globale Steuerung aktualisieren",
+      "success": "Die globale Steuerung wurde aktualisiert.",
+      "title": "Globale Sicherheitssteuerung"
+    },
+    "credits": {
+      "adjustments": "Anpassungen",
+      "base": "Basis-Kontingent",
+      "blocked": "Neue gehostete KI ist für dieses Konto derzeit nicht verfügbar.",
+      "effective": "Wirksames Kontingent",
+      "period": "Aktuelle Credit-Periode: {start} bis {end}",
+      "remaining": "Verbleibend",
+      "title": "Credit-Stand des Benutzers",
+      "unavailableDescription": "Konfiguriere die Berechtigung des Arbeitsbereichs und führe danach die exakte E-Mail-Suche erneut aus.",
+      "unavailableTitle": "Keine aktuelle Credit-Periode",
+      "used": "Verwendet und reserviert"
+    },
+    "description": "Prüfe das Risiko der gehosteten KI, löse Arbeitsbereiche über die exakte Konto-E-Mail auf und führe protokollierte administrative Änderungen durch.",
+    "errors": {
+      "accessDenied": "Dein Operator-Zugriff hat sich geändert. Aktualisiere die Seite und authentifiziere dich erneut.",
+      "conflict": "Der Datensatz wurde während deiner Bearbeitung geändert. Aktualisiere die Seite und prüfe vor dem erneuten Versuch die neuesten Werte.",
+      "invalidInput": "Prüfe die eingegebenen Werte. Begründungen benötigen mindestens 8 Zeichen und Zahlen müssen innerhalb ihrer Grenzen liegen.",
+      "notFound": "Das ausgewählte Konto oder der Arbeitsbereich existiert nicht mehr.",
+      "title": "Die Aktion konnte nicht abgeschlossen werden",
+      "unavailable": "Die Konfiguration der gehosteten KI ist nicht verfügbar. Behebe sie vor dem nächsten Versuch.",
+      "unexpected": "Ein unerwarteter Fehler ist aufgetreten. Eine erfolgreiche Änderung ist nicht bestätigt; versuche es mit derselben Vorgangs-ID erneut."
+    },
+    "forms": {
+      "reason": "Begründung",
+      "reasonDescription": "Für den unveränderlichen Audit-Eintrag erforderlich. Verwende mindestens 8 Zeichen.",
+      "reasonPlaceholder": "Erkläre, warum diese Änderung erforderlich ist"
+    },
+    "navigation": "Gehostete KI",
+    "overview": {
+      "activeUsers": "Aktive Benutzer",
+      "committed": "Monatlich gebundenes Risiko",
+      "committedDescription": "Abgerechnete Kosten plus vollständiger Wert aktiver Reservierungen.",
+      "companies": "Arbeitsbereiche",
+      "companiesDescription": "{active} mit Nutzung · {enterprise} Enterprise",
+      "generatedAt": "Momentaufnahme erstellt am {date}",
+      "heading": "Übersicht der gehosteten KI",
+      "reserved": "Reserviertes Risiko",
+      "reservedDescription": "Maximalwert, der noch durch laufende Anfragen gebunden ist.",
+      "usersDescription": "{total} Benutzer in allen Arbeitsbereichen"
+    },
+    "shell": {
+      "console": "Operator-Konsole",
+      "navigationLabel": "Operator-Navigation",
+      "users": "Benutzer"
+    },
+    "states": {
+      "errorDescription": "Die Operator-Daten konnten nicht geladen werden. Versuche es erneut; es wurde nichts geändert.",
+      "errorTitle": "Operator-Konsole nicht verfügbar",
+      "loading": "Operator-Konsole wird geladen",
+      "saving": "Wird gespeichert",
+      "searching": "Wird gesucht"
+    },
+    "status": {
+      "available": "Gehostete KI verfügbar",
+      "configurationUnavailable": "Neue Arbeit gesperrt: Limit nicht konfiguriert",
+      "enforcementDisabled": "Durchsetzung deaktiviert",
+      "paused": "Neue Arbeit pausiert"
+    },
+    "title": "Betrieb der gehosteten KI",
+    "values": {
+      "capNotConfigured": "Nicht konfiguriert · neue Arbeit gesperrt",
+      "plans": {
+        "business": "Business",
+        "enterprise": "Enterprise",
+        "pro": "Pro",
+        "starter": "Starter"
+      },
+      "subscription": {
+        "active": "Aktiv",
+        "cancelled": "Gekündigt",
+        "expired": "Abgelaufen",
+        "pastDue": "Überfällig",
+        "trial": "Testphase",
+        "unPaid": "Unbezahlt"
+      }
+    }
+  },
+  "OperatorUsers": {
+    "actions": {
+      "retry": "Erneut versuchen"
+    },
+    "adjustment": {
+      "deltaDescription": "Verwende eine positive ganze Zahl, um Credits zu gewähren, oder eine negative Zahl für eine Korrektur.",
+      "deltaLabel": "Vorzeichenbehaftete Credit-Korrektur",
+      "deltaPlaceholder": "Zum Beispiel 500 oder -100",
+      "description": "Füge dem aktuellen Credit-Zeitraum dieses Benutzers eine begrenzte Korrektur hinzu.",
+      "save": "Credit-Korrektur erfassen",
+      "success": "Die Credit-Korrektur wurde erfasst.",
+      "title": "Credit-Korrektur"
+    },
+    "badge": "Arbeitsbereichsübergreifende Verwaltung",
+    "credits": {
+      "adjustments": "Manuelle Korrekturen",
+      "base": "Grundkontingent",
+      "blocked": "Neue Aufgaben mit gehosteter KI sind für diesen Benutzer derzeit gesperrt.",
+      "charged": "Abgerechnete Nutzung",
+      "committed": "Verbraucht und reserviert",
+      "effective": "Wirksames Kontingent",
+      "immutableDescription": "Korrekturen und Zurücksetzungen fügen Einträge für den aktuellen Zeitraum hinzu. Sie löschen niemals abgerechnete Nutzung, aktive Reservierungen, Anbieterkosten oder den Prüfverlauf.",
+      "immutableTitle": "Nutzung bleibt unveränderlich",
+      "overage": "Überschreitung",
+      "period": "Aktueller Zeitraum: {start} bis {end}",
+      "periodUnavailable": "Es ist kein aktueller Credit-Zeitraum verfügbar.",
+      "remaining": "Verbleibend",
+      "reserved": "Reservierte Nutzung",
+      "title": "Aktueller Credit-Stand",
+      "unavailableDescription": "Der Arbeitsbereich benötigt eine gültige Berechtigung und einen Credit-Anker, bevor Credits korrigiert oder zurückgesetzt werden können.",
+      "unavailableTitle": "Credit-Steuerung nicht verfügbar"
+    },
+    "description": "Prüfe Benutzer in allen Arbeitsbereichen, filtere das Verzeichnis und nimm protokollierte Konto-, Abonnement- und Credit-Korrekturen vor.",
+    "detail": {
+      "close": "Benutzerdetails schließen",
+      "companyId": "Nicht ableitbare Arbeitsbereichs-ID",
+      "createdAt": "Erstellt",
+      "emptyDescription": "Öffne eine Zeile über die nicht ableitbare Benutzer-ID, um Konto- und Arbeitsbereichssteuerungen zu prüfen. Die Auswahl ändert nie die URL.",
+      "emptyTitle": "Benutzer auswählen",
+      "errorDescription": "Es ist kein bearbeitbarer Benutzer ausgewählt. Wiederhole die Suche über die nicht ableitbare ID.",
+      "errorTitle": "Benutzerdetails nicht verfügbar",
+      "lastActive": "Zuletzt aktiv",
+      "noRole": "Keine Rolle zugewiesen",
+      "panelLabel": "Steuerungen für den ausgewählten Benutzer",
+      "role": "Arbeitsbereichsrolle",
+      "systemRole": "Systemrolle",
+      "updatedAt": "Zuletzt aktualisiert",
+      "userId": "Nicht ableitbare Benutzer-ID"
+    },
+    "errors": {
+      "accessDenied": "Dein Operator-Zugriff hat sich geändert. Aktualisiere die Seite und authentifiziere dich erneut.",
+      "conflict": "Der Datensatz wurde während der Bearbeitung geändert. Die neuesten Details wurden geladen; prüfe sie, bevor du den Vorgang mit derselben Vorgangs-ID wiederholst.",
+      "invalidInput": "Prüfe alle Felder. Begründungen müssen mindestens 8 Zeichen lang sein und Zahlen innerhalb der Grenzwerte liegen.",
+      "notFound": "Der ausgewählte Benutzer, Arbeitsbereich, das Abonnement oder der Credit-Zeitraum existiert nicht mehr.",
+      "title": "Die Operator-Aktion konnte nicht abgeschlossen werden",
+      "unavailable": "Die gewünschte Korrektur ist für die aktuelle Kontokonfiguration nicht verfügbar.",
+      "unexpected": "Ein unerwarteter Fehler ist aufgetreten. Es wird keine erfolgreiche Änderung angenommen; wiederhole den Vorgang mit derselben Vorgangs-ID."
+    },
+    "filters": {
+      "accountStatus": "Kontostatus",
+      "allOperatorStates": "Alle Operator-Zustände",
+      "allPlans": "Alle Tarife",
+      "allStatuses": "Alle Kontostatus",
+      "allSubscriptionStatuses": "Alle Abonnementstatus",
+      "apply": "Filter anwenden",
+      "clear": "Filter zurücksetzen",
+      "operator": "Plattform-Operator",
+      "plan": "Tarif",
+      "searchDescription": "Sucht nach Anzeigename oder Konto-E-Mail. Der Wert wird per POST übermittelt und nie zur URL hinzugefügt.",
+      "searchLabel": "Benutzer suchen",
+      "searchPlaceholder": "Name oder Konto-E-Mail",
+      "sort": "Sortierung",
+      "sortEmailAsc": "E-Mail A–Z",
+      "sortEmailDesc": "E-Mail Z–A",
+      "sortNewest": "Neueste zuerst",
+      "sortOldest": "Älteste zuerst",
+      "subscriptionStatus": "Abonnementstatus"
+    },
+    "forms": {
+      "reason": "Begründung",
+      "reasonDescription": "Für den nur erweiterbaren Operator-Prüfverlauf erforderlich. Verwende mindestens 8 Zeichen.",
+      "reasonPlaceholder": "Erkläre, warum diese Korrektur erforderlich ist"
+    },
+    "pagination": {
+      "next": "Nächste Seite",
+      "page": "Seite {page} von {total}",
+      "previous": "Vorherige Seite",
+      "range": "{start}–{end} von {total} Benutzern"
+    },
+    "reset": {
+      "baseAllowance": "Manuelle Korrekturen auf das Grundkontingent zurückführen",
+      "description": "Füge eine berechnete Korrektur für den aktuellen Zeitraum dieses Benutzers hinzu.",
+      "disclosureDescription": "Grundkontingent hebt die manuelle Nettokorrektur auf. Nullsaldo setzt die verbleibenden Credits auf null. Beides erhält belastete und reservierte Nutzung, Anbieterkosten und Verlauf.",
+      "disclosureTitle": "Dies löscht keine Nutzung",
+      "modeDescription": "Wähle das berechnete Ziel. Der Server erfasst eine begrenzte Korrektur mit Vorzeichen.",
+      "modeLabel": "Ziel der Zurücksetzung",
+      "save": "Berechnete Zurücksetzung erfassen",
+      "success": "Die berechnete Credit-Zurücksetzung wurde erfasst.",
+      "title": "Credits zurücksetzen",
+      "zeroBalance": "Verbleibendes Guthaben auf null setzen"
+    },
+    "states": {
+      "loading": "Benutzer werden geladen",
+      "loadingDetail": "Benutzerdetails werden geladen",
+      "saving": "Wird gespeichert"
+    },
+    "status": {
+      "adminWarningDescription": "Der letzte aktive Administrator eines Arbeitsbereichs kann nicht deaktiviert werden. Weise zuerst einen anderen aktiven Administrator zu.",
+      "adminWarningTitle": "Die Arbeitsbereichsverwaltung muss verfügbar bleiben",
+      "currentOperatorDescription": "Eine Änderung deines eigenen Kontos kann diese Operator-Sitzung beenden. Prüfe den Zielstatus vor dem Speichern.",
+      "currentOperatorTitle": "Dies ist dein Konto",
+      "description": "Ändere den lokalen Zugriffsstatus dieses Kontos, ohne seine Arbeitsbereichsdaten zu verändern.",
+      "label": "Kontostatus",
+      "providerSyncRequiredDescription": "In diesem anbieterverwalteten Arbeitsbereich müssen Benutzerplätze oder Kontostatus über den regulären Mandanten- oder Abrechnungsablauf geändert werden. Operator-Statusänderungen sind gesperrt, damit lokaler Zugriff und Anbieterabrechnung nicht auseinanderlaufen.",
+      "providerSyncRequiredTitle": "Synchronisierung der Anbieterplätze erforderlich",
+      "save": "Kontostatus aktualisieren",
+      "success": "Der Kontostatus wurde aktualisiert.",
+      "title": "Kontozugriff"
+    },
+    "subscription": {
+      "description": "Korrigiere den lokalen Abonnementstand für den gesamten Arbeitsbereich des ausgewählten Benutzers.",
+      "localOnlyDescription": "Dies ändert die lokale Berechtigung für alle Benutzer im Arbeitsbereich. Ein Zahlungsanbieter wird weder aktualisiert, belastet, gekündigt noch kontaktiert.",
+      "localOnlyTitle": "Arbeitsbereichsweiter lokaler Stand",
+      "missingDescription": "Ein fehlendes Abonnement muss über den regulären Abonnementablauf erstellt werden; dieses Operator-Formular erstellt niemals stillschweigend eines.",
+      "missingTitle": "Kein lokales Abonnement zum Korrigieren",
+      "planLabel": "Arbeitsbereichstarif",
+      "providerManagedDescription": "Dieser Arbeitsbereich wird von einem Zahlungsanbieter verwaltet. Eine spätere Synchronisierung kann diese lokale Korrektur überschreiben.",
+      "providerManagedTitle": "Anbietersynchronisierung kann diese Änderung überschreiben",
+      "quantityDescription": "Optionale lokale Anzahl der Plätze für den gesamten Arbeitsbereich. Leer lassen, um sie nicht festzulegen.",
+      "quantityLabel": "Plätze im Arbeitsbereich",
+      "save": "Arbeitsbereichsabonnement korrigieren",
+      "statusLabel": "Abonnementstatus des Arbeitsbereichs",
+      "success": "Der Abonnementstand des Arbeitsbereichs wurde korrigiert.",
+      "title": "Lokales Arbeitsbereichsabonnement"
+    },
+    "summary": {
+      "active": "Aktive Benutzer",
+      "activeDescription": "{inactive} inaktive Konten",
+      "companies": "Unternehmen",
+      "companiesDescription": "Alle Arbeitsbereiche, auch solche ohne Benutzer",
+      "heading": "Zusammenfassung des Benutzerverzeichnisses",
+      "operators": "Plattform-Operatoren",
+      "operatorsDescription": "Konten mit Plattform-Operatorzugriff",
+      "subscriptionHealth": "Benutzer mit aktivem Abonnement",
+      "subscriptionHealthDescription": "Benutzer: {trial} in Testphase, {missing} ohne Abonnement, {enterprise} mit Enterprise",
+      "total": "Benutzer insgesamt",
+      "totalDescription": "{pending} warten auf Autorisierung",
+      "verified": "Verifizierte Auth-E-Mails",
+      "verifiedDescription": "{unverified} Konten sind nicht verifiziert"
+    },
+    "table": {
+      "caption": "Serverseitig paginiertes, arbeitsbereichsübergreifendes Benutzerverzeichnis.",
+      "columns": {
+        "account": "Konto",
+        "action": "Aktion",
+        "lastActive": "Zuletzt aktiv",
+        "operator": "Operator",
+        "plan": "Tarif",
+        "subscription": "Abonnement",
+        "user": "Benutzer"
+      },
+      "description": "Filter und Auswahl über eine nicht ableitbare ID werden an den autorisierten Server gesendet; kein ausgewähltes Konto erscheint in der URL.",
+      "emptyDescription": "Entferne einen oder mehrere Filter und versuche es erneut.",
+      "emptyTitle": "Keine Benutzer entsprechen diesen Filtern",
+      "open": "Öffnen",
+      "openUser": "Operator-Steuerungen für {email} öffnen",
+      "title": "Benutzer"
+    },
+    "title": "Benutzerverwaltung",
+    "values": {
+      "accountStatus": {
+        "active": "Aktiv",
+        "inactive": "Inaktiv",
+        "pendingAuthorization": "Wartet auf Autorisierung"
+      },
+      "never": "Nie",
+      "no": "Nein",
+      "noSubscription": "Kein Abonnement",
+      "notVerified": "Nicht verifiziert",
+      "operator": "Plattform-Operator",
+      "providerManaged": "Vom Anbieter verwaltetes Abonnement",
+      "verified": "Verifiziert",
+      "yes": "Ja"
     }
   },
   "OrganizationModal": {

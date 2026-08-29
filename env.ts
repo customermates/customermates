@@ -1,5 +1,14 @@
 import { normalizeBaseUrl, resolveAppMode, resolveAuthAllowedHosts, resolveBaseUrl } from "@/core/config/environment";
 
+export function resolveStrictBoolean(name: string, value: string | undefined): boolean {
+  const normalized = value?.trim();
+  if (!normalized) return false;
+  if (normalized === "true") return true;
+  if (normalized === "false") return false;
+
+  throw new Error(`${name} must be configured as \"true\" or \"false\"`);
+}
+
 const BASE_URL = resolveBaseUrl(process.env);
 const oauthProxyUrl = process.env.OAUTH_PROXY_URL?.trim();
 const oauthProxySecret = process.env.OAUTH_PROXY_SECRET?.trim() ? process.env.OAUTH_PROXY_SECRET : undefined;
@@ -22,6 +31,11 @@ export const env = {
   APP_MODE: resolveAppMode(process.env),
   AGENT_CHAT_DISABLED: Boolean(process.env.AGENT_CHAT_DISABLED),
   AI_GATEWAY_API_KEY: process.env.AI_GATEWAY_API_KEY,
+  OPERATOR_CONSOLE_ENABLED: resolveStrictBoolean("OPERATOR_CONSOLE_ENABLED", process.env.OPERATOR_CONSOLE_ENABLED),
+  HOSTED_AI_OPERATOR_CONTROLS_ENABLED: resolveStrictBoolean(
+    "HOSTED_AI_OPERATOR_CONTROLS_ENABLED",
+    process.env.HOSTED_AI_OPERATOR_CONTROLS_ENABLED,
+  ),
 
   RESEND_API_KEY: process.env.RESEND_API_KEY,
   RESEND_OPERATOR_EMAIL: process.env.RESEND_OPERATOR_EMAIL as string,

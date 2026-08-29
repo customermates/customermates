@@ -3,13 +3,53 @@ import { describe, expect, it } from "vitest";
 import { STYLEGUIDE_CHAPTERS } from "@/app/[locale]/(static)/styleguide/components/styleguide-chapters";
 import { ACCOUNT_STATES } from "@/features/auth/account-state";
 
-import { resolveNavigationShell } from "../navigation-shell";
+import { isOperatorPathname, resolveNavigationShell } from "../navigation-shell";
 
 describe("resolveNavigationShell", () => {
+  it("uses the normal app shell for an allowed registered operator", () => {
+    expect(
+      resolveNavigationShell({
+        accountState: "allowed",
+        pathname: "/operator/users",
+        isRegistered: true,
+      }),
+    ).toBe("app");
+  });
+
+  it.each(["overdueVerification", "inactive", "pending", "onboarding", "legal", "subscription"] as const)(
+    "keeps the restricted shell for a registered %s operator",
+    (accountState) => {
+      expect(
+        resolveNavigationShell({
+          accountState,
+          pathname: "/operator/users",
+          isRegistered: true,
+        }),
+      ).toBe("restricted");
+    },
+  );
+
+  it.each(["unauthenticated", "unregistered"] as const)(
+    "keeps the public shell for a pre-tenant %s operator request",
+    (accountState) => {
+      expect(
+        resolveNavigationShell({
+          accountState,
+          pathname: "/operator/users",
+          isRegistered: false,
+        }),
+      ).toBe("public");
+    },
+  );
+
   it.each(
     STYLEGUIDE_CHAPTERS.flatMap(({ href }) =>
       ACCOUNT_STATES.flatMap((accountState) =>
-        [false, true].map((isRegistered) => ({ accountState, href, isRegistered })),
+        [false, true].map((isRegistered) => ({
+          accountState,
+          href,
+          isRegistered,
+        })),
       ),
     ),
   )("keeps $href on the public shell for $accountState when registered=$isRegistered", (testCase) => {
@@ -155,4 +195,20 @@ describe("resolveNavigationShell", () => {
       }),
     ).toBe("app");
   });
+});
+
+describe("isOperatorPathname", () => {
+  it.each(["/operator", "/operator/users", "/operator/hosted-ai", "/operator/users/user-id"])(
+    "recognizes %s as an operator route",
+    (pathname) => {
+      expect(isOperatorPathname(pathname)).toBe(true);
+    },
+  );
+
+  it.each([null, "/", "/dashboard", "/operators", "/operator-tools"])(
+    "does not treat %s as an operator route",
+    (pathname) => {
+      expect(isOperatorPathname(pathname)).toBe(false);
+    },
+  );
 });

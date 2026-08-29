@@ -26,6 +26,7 @@ function makeRepo(
   overrides: {
     usedCredits?: number;
     recentTurnCredits?: number | null;
+    adjustmentCredits?: number;
     user?: Partial<NonNullable<Awaited<ReturnType<AgentUsageRepo["findUserForUsageUnscoped"]>>>>;
     subscription?: Partial<
       NonNullable<Awaited<ReturnType<AgentUsageRepo["findUserForUsageUnscoped"]>>>["subscription"]
@@ -48,6 +49,7 @@ function makeRepo(
         recentTurnCredits: overrides.recentTurnCredits ?? null,
       }),
     ),
+    getUserCreditAdjustmentUnscoped: vi.fn(() => Promise.resolve(overrides.adjustmentCredits ?? 0)),
     findUserForUsageUnscoped: vi.fn(() =>
       Promise.resolve({
         id: "user-1",
@@ -132,9 +134,40 @@ describe("AgentUsageService summary", () => {
 
     const summary = await service.getUsageSummary("user-1", NOW);
 
-    expect(summary.creditsLimit).toBe(200);
+    expect(summary.creditsLimit).toBe(0);
     expect(summary.usedPct).toBe(0);
-    expect(summary.blockedReason).toBeNull();
+    expect(summary.blockedReason).toBe("configuration_unavailable");
+  });
+
+  it("applies a signed current-period adjustment to a live trial seat", async () => {
+    const service = new AgentUsageService(
+      makeRepo({
+        adjustmentCredits: -25,
+        usedCredits: 100,
+        subscription: {
+          status: SubscriptionStatus.trial,
+          plan: SubscriptionPlan.starter,
+          trialEndDate: new Date("2026-08-13T12:00:00.000Z"),
+        },
+      }),
+    );
+
+    await expect(service.getUsageSummary("user-1", NOW)).resolves.toMatchObject({
+      creditsUsed: 100,
+      creditsLimit: 475,
+      creditsRemaining: 375,
+      blockedReason: null,
+    });
+  });
+
+  it("includes current-period manual adjustments without exposing their reasons", async () => {
+    const service = new AgentUsageService(makeRepo({ usedCredits: 100, adjustmentCredits: 75 }));
+
+    const summary = await service.getUsageSummary("user-1", NOW);
+
+    expect(summary).toMatchObject({ creditsUsed: 100, creditsLimit: 575, creditsRemaining: 475 });
+    expect(summary).not.toHaveProperty("adjustments");
+    expect(summary).not.toHaveProperty("reason");
   });
 
   it("does not grant a hosted allowance to an inactive user", async () => {

@@ -329,6 +329,7 @@
       "cancelled": "Esta respuesta se ha detenido.",
       "creditLimit": "He completado parte de esta solicitud, pero me he detenido porque se han agotado tus créditos del Asistente. El trabajo completado se mantiene; los créditos se restablecen al inicio de tu siguiente periodo.",
       "emptyReply": "No he podido generar una respuesta. Inténtalo de nuevo.",
+      "hostedAiUnavailable": "La IA alojada no está disponible temporalmente. Inténtalo de nuevo más tarde.",
       "outputLimit": "He completado parte de esta respuesta, pero he alcanzado el límite de salida de este turno. Pídeme que continúe y terminaré a partir del trabajo ya completado.",
       "safetyLimit": "He completado parte de esta solicitud, pero me he detenido porque los últimos pasos se repetían, fallaban o alcanzaron un límite de seguridad. El trabajo completado se conserva; revisa los pasos anteriores antes de pedirme que siga.",
       "turnError": "No he podido completar esa solicitud. Inténtalo de nuevo."
@@ -2393,6 +2394,364 @@
         "subtitle": "Cuéntanos quién eres para que podamos configurar tu espacio de trabajo.",
         "title": "Tu perfil"
       }
+    }
+  },
+  "OperatorConsole": {
+    "actions": {
+      "retry": "Inténtalo de nuevo"
+    },
+    "adjustment": {
+      "deltaDescription": "Usa un número positivo para conceder créditos o uno negativo para corregirlos.",
+      "deltaLabel": "Ajuste de créditos con signo",
+      "deltaPlaceholder": "Por ejemplo, 500 o -100",
+      "description": "Añade una corrección inmutable y limitada al periodo para este usuario.",
+      "period": "Se aplica únicamente desde el {start} hasta el {end}.",
+      "periodUnavailable": "Se necesita un periodo de créditos actual antes de registrar un ajuste.",
+      "save": "Registrar ajuste",
+      "success": "El ajuste de créditos se ha registrado.",
+      "title": "Ajuste manual de créditos"
+    },
+    "allowance": {
+      "creditsDescription": "Esta asignación se aplica por usuario activo durante cada periodo de créditos.",
+      "creditsLabel": "Créditos por usuario",
+      "description": "Establece la asignación base de IA alojada para un espacio Enterprise.",
+      "enterpriseOnlyDescription": "Cambia el plan de suscripción antes de configurar una asignación personalizada.",
+      "enterpriseOnlyTitle": "Se requiere el plan Enterprise",
+      "save": "Actualizar asignación",
+      "success": "La asignación Enterprise se ha actualizado.",
+      "title": "Asignación Enterprise"
+    },
+    "audit": {
+      "actions": {
+        "adjustmentCreate": "Ajuste de créditos",
+        "allowanceUpdate": "Asignación actualizada",
+        "auditRead": "Informe de auditoría consultado",
+        "bootstrap": "Inicialización del operador",
+        "candidateRead": "Búsqueda por correo",
+        "companyRead": "Espacio consultado",
+        "creditBalanceReset": "Saldo de créditos restablecido",
+        "globalControlUpdate": "Controles globales actualizados",
+        "other": "Actividad del operador",
+        "overviewRead": "Resumen consultado",
+        "subscriptionSnapshotCorrect": "Instantánea de suscripción corregida",
+        "userDetailRead": "Registro de usuario consultado",
+        "userListRead": "Directorio de usuarios consultado",
+        "userStatusUpdate": "Estado de la cuenta actualizado",
+        "userSummaryRead": "Resumen del directorio consultado"
+      },
+      "caption": "Eventos inmutables del operador, empezando por los más recientes.",
+      "columns": {
+        "action": "Acción",
+        "actor": "Autor",
+        "operation": "Operación",
+        "reason": "Motivo",
+        "target": "Destino",
+        "time": "Hora (UTC)"
+      },
+      "description": "Cada lectura entre espacios y cada cambio administrativo se registra aquí.",
+      "emptyDescription": "La actividad del operador aparecerá después de la primera acción auditada.",
+      "emptyTitle": "Aún no hay eventos de auditoría",
+      "loadMore": "Cargar eventos anteriores",
+      "title": "Informe de auditoría del operador"
+    },
+    "candidate": {
+      "companyId": "ID opaco del espacio",
+      "description": "Envía un correo exacto de la cuenta. Los resultados nunca se incluyen en la URL ni se precargan.",
+      "eligible": "Activo y verificado",
+      "emailDescription": "La búsqueda no distingue mayúsculas y debe coincidir exactamente con una cuenta.",
+      "emailLabel": "Correo de la cuenta",
+      "emailPlaceholder": "persona@ejemplo.es",
+      "emptyDescription": "Comprueba la dirección y vuelve a enviar el correo completo de la cuenta.",
+      "emptyTitle": "No hay ninguna coincidencia exacta",
+      "needsAttention": "La cuenta requiere atención",
+      "search": "Buscar cuenta",
+      "title": "Buscar un espacio por correo",
+      "userId": "ID opaco del usuario"
+    },
+    "company": {
+      "activeSeats": "Puestos activos",
+      "description": "Administración de IA alojada para el espacio que contiene {email}.",
+      "monthlyCommitted": "Comprometido este mes",
+      "plan": "Plan",
+      "subscriptionStatus": "Suscripción",
+      "title": "Controles del espacio"
+    },
+    "controls": {
+      "capDescription": "Introduce un importe finito en dólares estadounidenses. Si se deja vacío, el nuevo trabajo de IA alojada se bloquea de forma segura.",
+      "capLabel": "Límite de gasto mensual",
+      "capPlaceholder": "Obligatorio para permitir nuevo trabajo",
+      "capProgress": "{percent}% del límite mensual comprometido",
+      "description": "Pausa el nuevo trabajo del proveedor alojado o limita la exposición mensual total comprometida.",
+      "disabledDescription": "La aplicación de controles está desactivada. Actívala en el entorno del servidor antes de modificarlos.",
+      "disabledTitle": "La aplicación global está desactivada",
+      "lastUpdated": "Actualizado el {date} · versión {version}",
+      "monthlyCap": "Límite mensual actual",
+      "pauseDescription": "Detiene los nuevos segmentos del proveedor alojado. El historial de conversaciones y las conexiones MCP externas siguen disponibles.",
+      "pauseLabel": "Pausar el nuevo trabajo de IA alojada",
+      "save": "Actualizar controles globales",
+      "success": "Los controles globales se han actualizado.",
+      "title": "Controles de seguridad globales"
+    },
+    "credits": {
+      "adjustments": "Ajustes",
+      "base": "Asignación base",
+      "blocked": "El nuevo trabajo de IA alojada no está disponible actualmente para esta cuenta.",
+      "effective": "Asignación efectiva",
+      "period": "Periodo de créditos actual: del {start} al {end}",
+      "remaining": "Restantes",
+      "title": "Posición de créditos del usuario",
+      "unavailableDescription": "Configura el derecho del espacio y vuelve a ejecutar la búsqueda exacta por correo.",
+      "unavailableTitle": "No hay un periodo de créditos actual",
+      "used": "Usados y reservados"
+    },
+    "description": "Revisa la exposición de la IA alojada, encuentra espacios mediante el correo exacto de la cuenta y realiza cambios administrativos auditados.",
+    "errors": {
+      "accessDenied": "Tu acceso de operador ha cambiado. Actualiza la página y vuelve a autenticarte.",
+      "conflict": "El registro ha cambiado mientras lo editabas. Actualiza la página y revisa los valores más recientes antes de reintentarlo.",
+      "invalidInput": "Revisa los valores introducidos. Los motivos deben tener al menos 8 caracteres y los números deben respetar sus límites.",
+      "notFound": "La cuenta o el espacio seleccionado ya no existe.",
+      "title": "No se ha podido completar la acción",
+      "unavailable": "La configuración de IA alojada no está disponible. Resuélvela antes de volver a intentarlo.",
+      "unexpected": "Se ha producido un error inesperado. No se presupone ningún cambio correcto; reinténtalo con el mismo ID de operación."
+    },
+    "forms": {
+      "reason": "Motivo",
+      "reasonDescription": "Obligatorio para el registro de auditoría inmutable. Usa al menos 8 caracteres.",
+      "reasonPlaceholder": "Explica por qué se necesita este cambio"
+    },
+    "navigation": "IA alojada",
+    "overview": {
+      "activeUsers": "Usuarios activos",
+      "committed": "Exposición mensual comprometida",
+      "committedDescription": "Coste liquidado más el valor total de las reservas activas.",
+      "companies": "Espacios",
+      "companiesDescription": "{active} con uso · {enterprise} Enterprise",
+      "generatedAt": "Instantánea generada el {date}",
+      "heading": "Resumen del parque de IA alojada",
+      "reserved": "Exposición reservada",
+      "reservedDescription": "Valor máximo que aún retienen las solicitudes en curso.",
+      "usersDescription": "{total} usuarios en todos los espacios"
+    },
+    "shell": {
+      "console": "Consola del operador",
+      "navigationLabel": "Navegación del operador",
+      "users": "Usuarios"
+    },
+    "states": {
+      "errorDescription": "No se han podido cargar los datos del operador. Vuelve a intentarlo; no se ha realizado ningún cambio.",
+      "errorTitle": "La consola del operador no está disponible",
+      "loading": "Cargando la consola del operador",
+      "saving": "Guardando",
+      "searching": "Buscando"
+    },
+    "status": {
+      "available": "IA alojada disponible",
+      "configurationUnavailable": "Nuevo trabajo bloqueado: límite sin configurar",
+      "enforcementDisabled": "Aplicación desactivada",
+      "paused": "Nuevo trabajo pausado"
+    },
+    "title": "Operaciones de IA alojada",
+    "values": {
+      "capNotConfigured": "Sin configurar · nuevo trabajo bloqueado",
+      "plans": {
+        "business": "Business",
+        "enterprise": "Enterprise",
+        "pro": "Pro",
+        "starter": "Inicial"
+      },
+      "subscription": {
+        "active": "Activa",
+        "cancelled": "Cancelada",
+        "expired": "Caducada",
+        "pastDue": "Vencida",
+        "trial": "Prueba",
+        "unPaid": "Impagada"
+      }
+    }
+  },
+  "OperatorUsers": {
+    "actions": {
+      "retry": "Inténtalo de nuevo"
+    },
+    "adjustment": {
+      "deltaDescription": "Usa un número entero positivo para conceder créditos o uno negativo para aplicar una corrección.",
+      "deltaLabel": "Corrección de créditos con signo",
+      "deltaPlaceholder": "Por ejemplo, 500 o -100",
+      "description": "Añade una corrección limitada al periodo de créditos actual de este usuario.",
+      "save": "Registrar corrección de créditos",
+      "success": "La corrección de créditos se ha registrado.",
+      "title": "Corrección de créditos"
+    },
+    "badge": "Administración entre espacios de trabajo",
+    "credits": {
+      "adjustments": "Correcciones manuales",
+      "base": "Asignación base",
+      "blocked": "Las nuevas tareas de IA alojada están bloqueadas actualmente para este usuario.",
+      "charged": "Uso cargado",
+      "committed": "Usados y reservados",
+      "effective": "Asignación efectiva",
+      "immutableDescription": "Las correcciones y los restablecimientos añaden entradas para el periodo actual. Nunca eliminan el uso contabilizado, las reservas activas, los costes del proveedor ni el historial de auditoría.",
+      "immutableTitle": "El uso permanece inmutable",
+      "overage": "Exceso",
+      "period": "Periodo actual: del {start} al {end}",
+      "periodUnavailable": "No hay ningún periodo de créditos actual disponible.",
+      "remaining": "Restantes",
+      "reserved": "Uso reservado",
+      "title": "Posición de créditos actual",
+      "unavailableDescription": "El espacio de trabajo necesita una autorización válida y un punto de anclaje de créditos antes de poder corregirlos o restablecerlos.",
+      "unavailableTitle": "Controles de créditos no disponibles"
+    },
+    "description": "Revisa usuarios de todos los espacios de trabajo, filtra el directorio y realiza correcciones auditadas de cuentas, suscripciones y créditos.",
+    "detail": {
+      "close": "Cerrar detalles del usuario",
+      "companyId": "ID opaco del espacio de trabajo",
+      "createdAt": "Creado",
+      "emptyDescription": "Abre una fila mediante su ID de usuario opaco para revisar los controles de la cuenta y del espacio de trabajo. La selección nunca cambia la URL.",
+      "emptyTitle": "Selecciona un usuario",
+      "errorDescription": "No hay ningún usuario editable seleccionado. Reintenta la búsqueda mediante el ID opaco.",
+      "errorTitle": "Detalles del usuario no disponibles",
+      "lastActive": "Última actividad",
+      "noRole": "Sin rol asignado",
+      "panelLabel": "Controles del usuario seleccionado",
+      "role": "Rol del espacio de trabajo",
+      "systemRole": "Rol del sistema",
+      "updatedAt": "Última actualización",
+      "userId": "ID de usuario opaco"
+    },
+    "errors": {
+      "accessDenied": "Tu acceso de operador ha cambiado. Actualiza la página y vuelve a autenticarte.",
+      "conflict": "El registro cambió mientras lo editabas. Se han cargado los detalles más recientes; revísalos antes de reintentar con el mismo ID de operación.",
+      "invalidInput": "Revisa todos los campos. Los motivos deben tener al menos 8 caracteres y los valores numéricos deben respetar sus límites.",
+      "notFound": "El usuario, espacio de trabajo, suscripción o periodo de créditos seleccionado ya no existe.",
+      "title": "No se ha podido completar la acción de operador",
+      "unavailable": "La corrección solicitada no está disponible para la configuración actual de la cuenta.",
+      "unexpected": "Se ha producido un error inesperado. No se presupone ningún cambio correcto; reintenta con el mismo ID de operación."
+    },
+    "filters": {
+      "accountStatus": "Estado de la cuenta",
+      "allOperatorStates": "Todos los estados de operador",
+      "allPlans": "Todos los planes",
+      "allStatuses": "Todos los estados de cuenta",
+      "allSubscriptionStatuses": "Todos los estados de suscripción",
+      "apply": "Aplicar filtros",
+      "clear": "Borrar filtros",
+      "operator": "Operador de la plataforma",
+      "plan": "Plan",
+      "searchDescription": "Busca por nombre visible o correo de la cuenta. El valor se envía mediante POST y nunca se añade a la URL.",
+      "searchLabel": "Buscar usuarios",
+      "searchPlaceholder": "Nombre o correo de la cuenta",
+      "sort": "Orden",
+      "sortEmailAsc": "Correo A–Z",
+      "sortEmailDesc": "Correo Z–A",
+      "sortNewest": "Más recientes primero",
+      "sortOldest": "Más antiguos primero",
+      "subscriptionStatus": "Estado de la suscripción"
+    },
+    "forms": {
+      "reason": "Motivo",
+      "reasonDescription": "Obligatorio para el registro de auditoría de operador de solo anexado. Usa al menos 8 caracteres.",
+      "reasonPlaceholder": "Explica por qué se necesita esta corrección"
+    },
+    "pagination": {
+      "next": "Página siguiente",
+      "page": "Página {page} de {total}",
+      "previous": "Página anterior",
+      "range": "Mostrando {start}–{end} de {total} usuarios"
+    },
+    "reset": {
+      "baseAllowance": "Devolver las correcciones manuales a la asignación base",
+      "description": "Añade una corrección calculada para el periodo actual de este usuario.",
+      "disclosureDescription": "La asignación base elimina la corrección manual neta. El saldo cero pone a cero los créditos restantes. Ambas opciones conservan el uso cargado y reservado, los costes del proveedor y el historial.",
+      "disclosureTitle": "Esto no elimina el uso",
+      "modeDescription": "Elige el objetivo calculado. El servidor registra una corrección limitada con signo.",
+      "modeLabel": "Objetivo del restablecimiento",
+      "save": "Registrar restablecimiento calculado",
+      "success": "El restablecimiento calculado de créditos se ha registrado.",
+      "title": "Restablecimiento de créditos",
+      "zeroBalance": "Poner a cero el saldo restante"
+    },
+    "states": {
+      "loading": "Cargando usuarios",
+      "loadingDetail": "Cargando detalles del usuario",
+      "saving": "Guardando"
+    },
+    "status": {
+      "adminWarningDescription": "No se puede desactivar al último administrador activo de un espacio de trabajo. Asigna primero otro administrador activo.",
+      "adminWarningTitle": "La administración del espacio de trabajo debe seguir disponible",
+      "currentOperatorDescription": "Cambiar tu propia cuenta puede finalizar esta sesión de operador. Revisa el estado de destino antes de guardar.",
+      "currentOperatorTitle": "Esta es tu cuenta",
+      "description": "Cambia el estado de acceso local de esta cuenta sin alterar los datos de su espacio de trabajo.",
+      "label": "Estado de la cuenta",
+      "providerSyncRequiredDescription": "En este espacio de trabajo gestionado por un proveedor, los puestos de usuario o el estado de la cuenta deben cambiarse mediante el flujo normal del tenant o de facturación. Los cambios de estado de operador están desactivados para evitar divergencias entre el acceso local y la facturación del proveedor.",
+      "providerSyncRequiredTitle": "Se requiere sincronizar los puestos del proveedor",
+      "save": "Actualizar estado de la cuenta",
+      "success": "El estado de la cuenta se ha actualizado.",
+      "title": "Acceso a la cuenta"
+    },
+    "subscription": {
+      "description": "Corrige la instantánea local de la suscripción para todo el espacio de trabajo del usuario seleccionado.",
+      "localOnlyDescription": "Este cambio modifica la autorización local de todos los usuarios del espacio de trabajo. No actualiza, cobra, cancela ni contacta con un proveedor de pagos.",
+      "localOnlyTitle": "Instantánea local para todo el espacio de trabajo",
+      "missingDescription": "Una suscripción ausente debe crearse mediante el flujo normal de suscripción; este formulario de operador nunca crea una de forma implícita.",
+      "missingTitle": "No hay suscripción local que corregir",
+      "planLabel": "Plan del espacio de trabajo",
+      "providerManagedDescription": "Este espacio de trabajo está gestionado por un proveedor de pagos. Una sincronización posterior puede sobrescribir esta corrección local.",
+      "providerManagedTitle": "La sincronización del proveedor puede sobrescribir este cambio",
+      "quantityDescription": "Cantidad local opcional de puestos para todo el espacio de trabajo. Déjalo vacío para no especificarla.",
+      "quantityLabel": "Puestos del espacio de trabajo",
+      "save": "Corregir suscripción del espacio de trabajo",
+      "statusLabel": "Estado de suscripción del espacio de trabajo",
+      "success": "La instantánea de suscripción del espacio de trabajo se ha corregido.",
+      "title": "Suscripción local del espacio de trabajo"
+    },
+    "summary": {
+      "active": "Usuarios activos",
+      "activeDescription": "{inactive} cuentas inactivas",
+      "companies": "Empresas",
+      "companiesDescription": "Todos los espacios de trabajo, incluidos los que no tienen usuarios",
+      "heading": "Resumen del directorio de usuarios",
+      "operators": "Operadores de la plataforma",
+      "operatorsDescription": "Cuentas con acceso de operador a la plataforma",
+      "subscriptionHealth": "Usuarios con suscripción activa",
+      "subscriptionHealthDescription": "Usuarios: {trial} en prueba, {missing} sin suscripción, {enterprise} con Enterprise",
+      "total": "Usuarios totales",
+      "totalDescription": "{pending} pendientes de autorización",
+      "verified": "Correos de autenticación verificados",
+      "verifiedDescription": "{unverified} cuentas no están verificadas"
+    },
+    "table": {
+      "caption": "Directorio de usuarios entre espacios de trabajo con paginación del servidor.",
+      "columns": {
+        "account": "Cuenta",
+        "action": "Acción",
+        "lastActive": "Última actividad",
+        "operator": "Operador",
+        "plan": "Plan",
+        "subscription": "Suscripción",
+        "user": "Usuario"
+      },
+      "description": "Los filtros y la selección mediante ID opaco se envían al servidor autorizado; ninguna cuenta seleccionada se coloca en la URL.",
+      "emptyDescription": "Borra uno o varios filtros y vuelve a intentarlo.",
+      "emptyTitle": "Ningún usuario coincide con estos filtros",
+      "open": "Abrir",
+      "openUser": "Abrir los controles de operador para {email}",
+      "title": "Usuarios"
+    },
+    "title": "Operaciones de usuarios",
+    "values": {
+      "accountStatus": {
+        "active": "Activo",
+        "inactive": "Inactivo",
+        "pendingAuthorization": "Pendiente de autorización"
+      },
+      "never": "Nunca",
+      "no": "No",
+      "noSubscription": "Sin suscripción",
+      "notVerified": "No verificado",
+      "operator": "Operador de la plataforma",
+      "providerManaged": "Suscripción gestionada por el proveedor",
+      "verified": "Verificado",
+      "yes": "Sí"
     }
   },
   "OrganizationModal": {

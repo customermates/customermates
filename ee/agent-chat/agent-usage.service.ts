@@ -5,7 +5,7 @@ import { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma
 import { env } from "@/env";
 import type { Data } from "@/core/validation/validation.utils";
 
-import { resolveAgentCreditEntitlement, AgentCreditEntitlementBlockedReasonSchema } from "./agent-credit-policy";
+import { resolveAgentCreditEntitlement } from "./agent-credit-policy";
 import { resolveAgentTurnBudget, type AgentTurnBudget } from "./agent-budget-policy";
 import type { AgentModelEntry } from "./model-catalog";
 
@@ -16,6 +16,12 @@ export abstract class AgentUsageRepo {
     periodStart: Date,
     periodEnd: Date,
   ): Promise<{ usedCredits: number; recentTurnCredits: number | null }>;
+  abstract getUserCreditAdjustmentUnscoped(
+    companyId: string,
+    userId: string,
+    periodStart: Date,
+    periodEnd: Date,
+  ): Promise<number>;
   abstract findUserForUsageUnscoped(userId: string): Promise<{
     id: string;
     companyId: string;
@@ -52,7 +58,8 @@ export abstract class AgentUsageRepo {
 }
 
 export const AgentUsageBlockedReasonSchema = z.enum([
-  ...AgentCreditEntitlementBlockedReasonSchema.options,
+  "self_hosted",
+  "subscription_unavailable",
   "credits_exhausted",
   "configuration_unavailable",
 ]);
@@ -129,7 +136,7 @@ export class AgentUsageService {
         },
       };
     }
-    const entitlement = resolveAgentCreditEntitlement({
+    const entitlementInput = {
       appMode: env.APP_MODE,
       plan: subscription.plan,
       status: subscription.status,
@@ -138,21 +145,25 @@ export class AgentUsageService {
       enterpriseCreditsPerUser: subscription.enterpriseAgentCreditsPerUser,
       activeSeatAt: user.agentCreditActivatedAt,
       now,
-    });
-    const usage = await this.repo.getUserCreditUsageUnscoped(
-      user.companyId,
-      userId,
-      entitlement.start,
-      entitlement.resetAt,
-    );
+    } as const;
+    const baseEntitlement = resolveAgentCreditEntitlement(entitlementInput);
+    const [usage, adjustmentCredits] = await Promise.all([
+      this.repo.getUserCreditUsageUnscoped(user.companyId, userId, baseEntitlement.start, baseEntitlement.resetAt),
+      this.repo.getUserCreditAdjustmentUnscoped(user.companyId, userId, baseEntitlement.start, baseEntitlement.resetAt),
+    ]);
+    const entitlement = resolveAgentCreditEntitlement({ ...entitlementInput, adjustmentCredits });
     assertCreditCount(usage.usedCredits, "Stored AI credit usage");
     if (usage.recentTurnCredits !== null) assertCreditCount(usage.recentTurnCredits, "Recent AI turn credits");
 
     const activeSeat = user.status === Status.active;
     const creditsLimit = activeSeat ? entitlement.limit : 0;
     const creditsRemaining = Math.max(0, creditsLimit - usage.usedCredits);
+    const publicEntitlementBlock =
+      entitlement.blockedReason === "enterprise_allowance_missing"
+        ? ("configuration_unavailable" as const)
+        : entitlement.blockedReason;
     const blockedReason = activeSeat
-      ? (entitlement.blockedReason ?? (creditsRemaining === 0 ? ("credits_exhausted" as const) : null))
+      ? (publicEntitlementBlock ?? (creditsRemaining === 0 ? ("credits_exhausted" as const) : null))
       : ("subscription_unavailable" as const);
 
     return {

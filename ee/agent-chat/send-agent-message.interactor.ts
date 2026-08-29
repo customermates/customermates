@@ -35,6 +35,7 @@ import { isAgentModelKey, resolveAgentModel } from "./model-catalog";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import { fail, failConflict, failNotFound, failRateLimit } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { isHostedAiAdmissionBlockedError } from "./hosted-ai-admission";
 
 type AdmittedAgentRun = { disposition: "run"; externalRunId: string } & Omit<AgentRunContext, "appBaseUrl">;
 
@@ -328,6 +329,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           tags: { kind: "agent-admission-cleanup-failure" },
         });
       }
+      if (isHostedAiAdmissionBlockedError(error)) return failRateLimit(CustomErrorCode.agentLimitReached);
       throw error;
     }
   }

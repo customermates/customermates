@@ -672,6 +672,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ],
   ["app/components/app-sidebar.tsx :: t :: subroute.labelKey", 2],
   ["app/components/app-topbar-crumbs.ts :: t :: leafKey", 1],
+  ["app/components/app-topbar-crumbs.ts :: t :: operatorLeafKey", 1],
   ["app/components/app-topbar-crumbs.ts :: t :: route.labelKey", 1],
   ["app/components/app-topbar-crumbs.ts :: t :: subroute.labelKey", 1],
   ["components/card/form-actions.tsx :: t :: primaryButtonLabel", 1],

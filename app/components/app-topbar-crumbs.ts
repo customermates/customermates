@@ -9,6 +9,7 @@ type Sibling = { slug: string; label: string };
 export type AppTopbarCrumb = {
   label: string;
   href?: string;
+  prefetch?: boolean;
   siblings?: Sibling[];
   pictureUrl?: string | null;
   isEntity?: boolean;
@@ -27,6 +28,12 @@ const GROUP_MAP: Record<string, { group: "overview" | "crm" | "settings" | null;
   settings: { group: "settings", labelKey: "settings" },
   profile: { group: "settings", labelKey: "profile" },
   company: { group: "settings", labelKey: "company" },
+  operator: { group: null, labelKey: "OperatorConsole.shell.console" },
+};
+
+const OPERATOR_LEAF_KEYS: Record<string, string> = {
+  users: "OperatorConsole.shell.users",
+  "hosted-ai": "OperatorConsole.navigation",
 };
 
 function isWorkspaceSection(segment: string): segment is WorkspaceSection {
@@ -41,12 +48,15 @@ export function buildAppTopbarCrumbs(
   appMode: AppMode,
   canAccess: (resource: Resource) => boolean,
   inboxThreadId: string | null = null,
+  operatorConsoleVisible = false,
 ): { crumbs: AppTopbarCrumb[]; section: string | null } {
   const segments = pathname.split("/").filter(Boolean);
   if (segments.length <= 1) return { crumbs: [], section: null };
   const parts = segments.slice(1);
 
   const first = parts[0];
+  if (first === "operator" && !operatorConsoleVisible) return { crumbs: [], section: null };
+
   const entry = GROUP_MAP[first];
   if (!entry) return { crumbs: [], section: null };
 
@@ -54,9 +64,22 @@ export function buildAppTopbarCrumbs(
   const sectionSubroutes = workspaceSection ? visibleSubroutes(workspaceSection, appMode, canAccess) : [];
 
   const crumbs: AppTopbarCrumb[] = [];
-  const leafKey = entry.group === "settings" ? `UserAvatar.${entry.labelKey}` : `NavigationBar.${entry.labelKey}`;
-  const sectionHref = workspaceSection ? `/${first}/${sectionSubroutes[0]?.slug ?? "settings"}` : `/${first}`;
-  crumbs.push({ label: entityLabels[first] ?? t(leafKey), href: sectionHref });
+  const leafKey =
+    first === "operator"
+      ? entry.labelKey
+      : entry.group === "settings"
+        ? `UserAvatar.${entry.labelKey}`
+        : `NavigationBar.${entry.labelKey}`;
+  const sectionHref = workspaceSection
+    ? `/${first}/${sectionSubroutes[0]?.slug ?? "settings"}`
+    : first === "operator"
+      ? "/operator/users"
+      : `/${first}`;
+  crumbs.push({
+    label: entityLabels[first] ?? t(leafKey),
+    href: sectionHref,
+    ...(first === "operator" ? { prefetch: false } : {}),
+  });
 
   if (parts.length > 1) {
     const leaf = parts[1];
@@ -64,7 +87,10 @@ export function buildAppTopbarCrumbs(
       ? WORKSPACE_SECTIONS[workspaceSection].find((route) => route.slug === leaf)
       : null;
 
-    if (subroute) {
+    const operatorLeafKey = first === "operator" ? OPERATOR_LEAF_KEYS[leaf] : undefined;
+
+    if (operatorLeafKey) crumbs.push({ label: t(operatorLeafKey) });
+    else if (subroute) {
       const siblings: Sibling[] = sectionSubroutes.map((route) => ({
         slug: route.slug,
         label: t(route.labelKey),

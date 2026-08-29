@@ -329,6 +329,7 @@
       "cancelled": "This response was stopped.",
       "creditLimit": "I completed part of this request, but stopped because your Assistant credits ran out. Completed work remains in place; credits reset at the start of your next period.",
       "emptyReply": "I couldn't produce a response. Please try again.",
+      "hostedAiUnavailable": "Hosted AI is temporarily unavailable. Please try again later.",
       "outputLimit": "I completed part of this response, but reached this turn's output limit. Ask me to continue and I'll finish from the completed work.",
       "safetyLimit": "I completed part of this request, but stopped because the latest steps were repeating, failing, or reached a safety limit. Completed work remains in place; review the steps above before asking me to proceed.",
       "turnError": "I couldn't complete that request. Please try again."
@@ -2393,6 +2394,364 @@
         "subtitle": "Tell us who you are so we can set up your workspace.",
         "title": "Your profile"
       }
+    }
+  },
+  "OperatorConsole": {
+    "actions": {
+      "retry": "Try again"
+    },
+    "adjustment": {
+      "deltaDescription": "Use a positive number to grant credits or a negative number to correct them.",
+      "deltaLabel": "Signed credit adjustment",
+      "deltaPlaceholder": "For example, 500 or -100",
+      "description": "Add an immutable, period-bound correction for this user.",
+      "period": "Applies only from {start} through {end}.",
+      "periodUnavailable": "A current credit period is required before an adjustment can be recorded.",
+      "save": "Record adjustment",
+      "success": "The credit adjustment was recorded.",
+      "title": "Manual credit adjustment"
+    },
+    "allowance": {
+      "creditsDescription": "This allowance applies per active user during each credit period.",
+      "creditsLabel": "Credits per user",
+      "description": "Set the hosted-AI base allowance for an Enterprise workspace.",
+      "enterpriseOnlyDescription": "Change the subscription plan before configuring a custom allowance.",
+      "enterpriseOnlyTitle": "Enterprise plan required",
+      "save": "Update allowance",
+      "success": "The Enterprise allowance was updated.",
+      "title": "Enterprise allowance"
+    },
+    "audit": {
+      "actions": {
+        "adjustmentCreate": "Credit adjustment",
+        "allowanceUpdate": "Allowance update",
+        "auditRead": "Audit report viewed",
+        "bootstrap": "Operator bootstrap",
+        "candidateRead": "Email lookup",
+        "companyRead": "Workspace viewed",
+        "creditBalanceReset": "Credit balance reset",
+        "globalControlUpdate": "Global controls updated",
+        "other": "Operator activity",
+        "overviewRead": "Overview viewed",
+        "subscriptionSnapshotCorrect": "Subscription snapshot corrected",
+        "userDetailRead": "User record viewed",
+        "userListRead": "User directory viewed",
+        "userStatusUpdate": "Account status updated",
+        "userSummaryRead": "Directory summary viewed"
+      },
+      "caption": "Append-only operator events, newest first.",
+      "columns": {
+        "action": "Action",
+        "actor": "Actor",
+        "operation": "Operation",
+        "reason": "Reason",
+        "target": "Target",
+        "time": "Time (UTC)"
+      },
+      "description": "Every cross-workspace read and administrative change is recorded here.",
+      "emptyDescription": "Operator activity will appear after the first audited action.",
+      "emptyTitle": "No audit events yet",
+      "loadMore": "Load older events",
+      "title": "Operator audit report"
+    },
+    "candidate": {
+      "companyId": "Opaque workspace ID",
+      "description": "Submit one exact account email. Results are never placed in the URL or prefetched.",
+      "eligible": "Active and verified",
+      "emailDescription": "The lookup is case-insensitive and must match one account exactly.",
+      "emailLabel": "Account email",
+      "emailPlaceholder": "person@example.com",
+      "emptyDescription": "Check the address and submit the full account email again.",
+      "emptyTitle": "No exact account match",
+      "needsAttention": "Account needs attention",
+      "search": "Find account",
+      "title": "Find a workspace by email",
+      "userId": "Opaque user ID"
+    },
+    "company": {
+      "activeSeats": "Active seats",
+      "description": "Hosted-AI administration for the workspace containing {email}.",
+      "monthlyCommitted": "Committed this month",
+      "plan": "Plan",
+      "subscriptionStatus": "Subscription",
+      "title": "Workspace controls"
+    },
+    "controls": {
+      "capDescription": "Enter a finite amount in US dollars. Leaving it blank fails closed and blocks new hosted-AI work.",
+      "capLabel": "Monthly spend cap",
+      "capPlaceholder": "Required to allow new work",
+      "capProgress": "{percent}% of the monthly cap committed",
+      "description": "Pause new hosted provider work or cap total monthly committed exposure.",
+      "disabledDescription": "The enforcement switch is off. Enable it in the server environment before changing these controls.",
+      "disabledTitle": "Global enforcement is disabled",
+      "lastUpdated": "Updated {date} · version {version}",
+      "monthlyCap": "Current monthly cap",
+      "pauseDescription": "Stops new hosted provider segments. Conversation history and external MCP connections remain available.",
+      "pauseLabel": "Pause new hosted-AI work",
+      "save": "Update global controls",
+      "success": "The global controls were updated.",
+      "title": "Global safety controls"
+    },
+    "credits": {
+      "adjustments": "Adjustments",
+      "base": "Base allowance",
+      "blocked": "New hosted-AI work is currently unavailable for this account.",
+      "effective": "Effective allowance",
+      "period": "Current credit period: {start} to {end}",
+      "remaining": "Remaining",
+      "title": "User credit position",
+      "unavailableDescription": "Configure the workspace entitlement, then run the exact email lookup again.",
+      "unavailableTitle": "No current credit period",
+      "used": "Used and reserved"
+    },
+    "description": "Review hosted-AI exposure, resolve workspaces by exact account email, and make audited administrative changes.",
+    "errors": {
+      "accessDenied": "Your operator access changed. Refresh the page and authenticate again.",
+      "conflict": "The record changed while you were editing. Refresh and review the latest values before retrying.",
+      "invalidInput": "Review the entered values. Reasons need at least 8 characters and numeric values must stay within their limits.",
+      "notFound": "The selected account or workspace no longer exists.",
+      "title": "The action could not be completed",
+      "unavailable": "Hosted-AI configuration is unavailable. Resolve the configuration before retrying.",
+      "unexpected": "An unexpected error occurred. No successful change is implied; retry with the same operation ID."
+    },
+    "forms": {
+      "reason": "Reason",
+      "reasonDescription": "Required for the append-only audit record. Use at least 8 characters.",
+      "reasonPlaceholder": "Explain why this change is required"
+    },
+    "navigation": "Hosted AI",
+    "overview": {
+      "activeUsers": "Active users",
+      "committed": "Monthly committed exposure",
+      "committedDescription": "Settled cost plus the full value of active reservations.",
+      "companies": "Workspaces",
+      "companiesDescription": "{active} with usage · {enterprise} Enterprise",
+      "generatedAt": "Snapshot generated {date}",
+      "heading": "Hosted-AI fleet overview",
+      "reserved": "Reserved exposure",
+      "reservedDescription": "Worst-case value still held by in-flight turns.",
+      "usersDescription": "{total} users across all workspaces"
+    },
+    "shell": {
+      "console": "Operator console",
+      "navigationLabel": "Operator navigation",
+      "users": "Users"
+    },
+    "states": {
+      "errorDescription": "The operator data could not be loaded. Try again; no change was made.",
+      "errorTitle": "Operator console unavailable",
+      "loading": "Loading operator console",
+      "saving": "Saving",
+      "searching": "Searching"
+    },
+    "status": {
+      "available": "Hosted AI available",
+      "configurationUnavailable": "New work blocked: cap not configured",
+      "enforcementDisabled": "Enforcement disabled",
+      "paused": "New work paused"
+    },
+    "title": "Hosted-AI operations",
+    "values": {
+      "capNotConfigured": "Not configured · new work blocked",
+      "plans": {
+        "business": "Business",
+        "enterprise": "Enterprise",
+        "pro": "Pro",
+        "starter": "Starter"
+      },
+      "subscription": {
+        "active": "Active",
+        "cancelled": "Cancelled",
+        "expired": "Expired",
+        "pastDue": "Past due",
+        "trial": "Trial",
+        "unPaid": "Unpaid"
+      }
+    }
+  },
+  "OperatorUsers": {
+    "actions": {
+      "retry": "Try again"
+    },
+    "adjustment": {
+      "deltaDescription": "Use a positive whole number to grant credits or a negative one to apply a correction.",
+      "deltaLabel": "Signed credit correction",
+      "deltaPlaceholder": "For example, 500 or -100",
+      "description": "Append a finite correction to this user’s current credit period.",
+      "save": "Record credit correction",
+      "success": "The credit correction was recorded.",
+      "title": "Credit correction"
+    },
+    "badge": "Cross-workspace administration",
+    "credits": {
+      "adjustments": "Manual corrections",
+      "base": "Base allowance",
+      "blocked": "New hosted-AI work is currently blocked for this user.",
+      "charged": "Charged usage",
+      "committed": "Used and reserved",
+      "effective": "Effective allowance",
+      "immutableDescription": "Corrections and resets append entries for the current period. They never delete settled usage, active reservations, provider cost, or audit history.",
+      "immutableTitle": "Usage remains immutable",
+      "overage": "Overage",
+      "period": "Current period: {start} to {end}",
+      "periodUnavailable": "No current credit period is available.",
+      "remaining": "Remaining",
+      "reserved": "Reserved usage",
+      "title": "Current credit position",
+      "unavailableDescription": "The workspace needs a valid entitlement and credit anchor before credits can be corrected or reset.",
+      "unavailableTitle": "Credit controls unavailable"
+    },
+    "description": "Review users across every workspace, filter the directory, and make audited account, subscription, and credit corrections.",
+    "detail": {
+      "close": "Close user details",
+      "companyId": "Opaque workspace ID",
+      "createdAt": "Created",
+      "emptyDescription": "Open a row with its opaque user ID to review account and workspace controls. Selection never changes the URL.",
+      "emptyTitle": "Select a user",
+      "errorDescription": "No editable user is selected. Retry the opaque-ID lookup.",
+      "errorTitle": "User details unavailable",
+      "lastActive": "Last active",
+      "noRole": "No assigned role",
+      "panelLabel": "Selected user controls",
+      "role": "Workspace role",
+      "systemRole": "System role",
+      "updatedAt": "Last updated",
+      "userId": "Opaque user ID"
+    },
+    "errors": {
+      "accessDenied": "Your operator access changed. Refresh the page and authenticate again.",
+      "conflict": "The record changed while you were editing. The latest detail was loaded; review it before retrying with the retained operation ID.",
+      "invalidInput": "Review every field. Reasons need at least 8 characters and numeric values must stay within their limits.",
+      "notFound": "The selected user, workspace, subscription, or credit period no longer exists.",
+      "title": "The operator action could not be completed",
+      "unavailable": "The requested correction is not available for the current account configuration.",
+      "unexpected": "An unexpected error occurred. No successful change is implied; retry with the same operation ID."
+    },
+    "filters": {
+      "accountStatus": "Account status",
+      "allOperatorStates": "All operator states",
+      "allPlans": "All plans",
+      "allStatuses": "All account statuses",
+      "allSubscriptionStatuses": "All subscription statuses",
+      "apply": "Apply filters",
+      "clear": "Clear filters",
+      "operator": "Platform operator",
+      "plan": "Plan",
+      "searchDescription": "Matches display name or account email. The value is submitted by POST and never added to the URL.",
+      "searchLabel": "Search users",
+      "searchPlaceholder": "Name or account email",
+      "sort": "Sort",
+      "sortEmailAsc": "Email A–Z",
+      "sortEmailDesc": "Email Z–A",
+      "sortNewest": "Newest first",
+      "sortOldest": "Oldest first",
+      "subscriptionStatus": "Subscription status"
+    },
+    "forms": {
+      "reason": "Reason",
+      "reasonDescription": "Required for the append-only operator audit record. Use at least 8 characters.",
+      "reasonPlaceholder": "Explain why this correction is required"
+    },
+    "pagination": {
+      "next": "Next page",
+      "page": "Page {page} of {total}",
+      "previous": "Previous page",
+      "range": "Showing {start}–{end} of {total} users"
+    },
+    "reset": {
+      "baseAllowance": "Return manual corrections to base allowance",
+      "description": "Append a calculated correction for this user’s current period.",
+      "disclosureDescription": "Base allowance removes the net manual correction. Zero balance changes remaining credits to zero. Both retain charged and reserved usage, provider cost, and history.",
+      "disclosureTitle": "This is not usage deletion",
+      "modeDescription": "Choose the calculated target. The server records a finite signed correction.",
+      "modeLabel": "Reset target",
+      "save": "Record calculated reset",
+      "success": "The calculated credit reset was recorded.",
+      "title": "Credit reset",
+      "zeroBalance": "Set remaining balance to zero"
+    },
+    "states": {
+      "loading": "Loading users",
+      "loadingDetail": "Loading user details",
+      "saving": "Saving"
+    },
+    "status": {
+      "adminWarningDescription": "The last active administrator of a workspace cannot be deactivated. Assign another active administrator first.",
+      "adminWarningTitle": "Workspace administration must remain available",
+      "currentOperatorDescription": "Changing your own account can end this operator session. Review the target status before saving.",
+      "currentOperatorTitle": "This is your account",
+      "description": "Change this account’s local access state without altering its workspace data.",
+      "label": "Account status",
+      "providerSyncRequiredDescription": "This provider-managed workspace must change user seats or account status through the canonical tenant or billing flow. Operator status changes are disabled to prevent local access and provider billing from drifting.",
+      "providerSyncRequiredTitle": "Provider seat sync required",
+      "save": "Update account status",
+      "success": "The account status was updated.",
+      "title": "Account access"
+    },
+    "subscription": {
+      "description": "Correct the local subscription snapshot for the selected user’s entire workspace.",
+      "localOnlyDescription": "This changes local authorization for every user in the workspace. It does not update, charge, cancel, or contact a billing provider.",
+      "localOnlyTitle": "Workspace-wide local snapshot",
+      "missingDescription": "A missing subscription must be created through the normal subscription flow; this operator form never creates one implicitly.",
+      "missingTitle": "No local subscription to correct",
+      "planLabel": "Workspace plan",
+      "providerManagedDescription": "This workspace is managed by a billing provider. A later provider sync can overwrite this local correction.",
+      "providerManagedTitle": "Provider sync may overwrite this change",
+      "quantityDescription": "Optional local seat quantity for the whole workspace. Leave blank to keep it unspecified.",
+      "quantityLabel": "Workspace seat quantity",
+      "save": "Correct workspace subscription",
+      "statusLabel": "Workspace subscription status",
+      "success": "The workspace subscription snapshot was corrected.",
+      "title": "Local workspace subscription"
+    },
+    "summary": {
+      "active": "Active users",
+      "activeDescription": "{inactive} inactive accounts",
+      "companies": "Companies",
+      "companiesDescription": "All workspaces, including those without users",
+      "heading": "User directory summary",
+      "operators": "Platform operators",
+      "operatorsDescription": "Accounts with platform operator access",
+      "subscriptionHealth": "Users on active subscriptions",
+      "subscriptionHealthDescription": "Users: {trial} on trial, {missing} without subscription, {enterprise} on Enterprise",
+      "total": "Total users",
+      "totalDescription": "{pending} awaiting authorization",
+      "verified": "Verified auth emails",
+      "verifiedDescription": "{unverified} accounts are not verified"
+    },
+    "table": {
+      "caption": "Server-paginated cross-workspace user directory.",
+      "columns": {
+        "account": "Account",
+        "action": "Action",
+        "lastActive": "Last active",
+        "operator": "Operator",
+        "plan": "Plan",
+        "subscription": "Subscription",
+        "user": "User"
+      },
+      "description": "Filters and opaque-ID selection are submitted to the authorized server; no selected account is placed in the URL.",
+      "emptyDescription": "Clear one or more filters and try again.",
+      "emptyTitle": "No users match these filters",
+      "open": "Open",
+      "openUser": "Open operator controls for {email}",
+      "title": "Users"
+    },
+    "title": "User operations",
+    "values": {
+      "accountStatus": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "pendingAuthorization": "Awaiting authorization"
+      },
+      "never": "Never",
+      "no": "No",
+      "noSubscription": "No subscription",
+      "notVerified": "Not verified",
+      "operator": "Platform operator",
+      "providerManaged": "Provider-managed subscription",
+      "verified": "Verified",
+      "yes": "Yes"
     }
   },
   "OrganizationModal": {

@@ -156,21 +156,21 @@ model OauthConsent {
 }
 
 model User {
-  id                              String              @id @default(uuid())
-  email                           String              @unique
+  id                              String                  @id @default(uuid())
+  email                           String                  @unique
   firstName                       String
   lastName                        String
   companyId                       String
   roleId                          String?
-  role                            UserRole?           @relation(fields: [roleId], references: [id])
-  status                          Status              @default(pendingAuthorization)
-  displayLanguage                 Locale              @default(system)
-  formattingLocale                Locale              @default(system)
+  role                            UserRole?               @relation(fields: [roleId], references: [id])
+  status                          Status                  @default(pendingAuthorization)
+  displayLanguage                 Locale                  @default(system)
+  formattingLocale                Locale                  @default(system)
   auditLogs                       AuditLog[]
-  theme                           Theme               @default(system)
-  country                         CountryCode         @default(de)
+  theme                           Theme                   @default(system)
+  country                         CountryCode             @default(de)
   avatarUrl                       String?
-  agreeToTerms                    Boolean             @default(false)
+  agreeToTerms                    Boolean                 @default(false)
   lastActiveAt                    DateTime?
   welcomeEmailSentAt              DateTime?
   trialExpiredOfferSentAt         DateTime?
@@ -178,21 +178,23 @@ model User {
   trialInactivationNoticeSentAt   DateTime?
   onboardingWizardCompletedAt     DateTime?
   agentCreditActivatedAt          DateTime?
-  createdAt                       DateTime            @default(now())
-  updatedAt                       DateTime            @updatedAt
-  company                         Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  createdTokens                   InviteToken[]       @relation("TokenCreator")
+  isPlatformOperator              Boolean                 @default(false)
+  createdAt                       DateTime                @default(now())
+  updatedAt                       DateTime                @updatedAt
+  company                         Company                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdTokens                   InviteToken[]           @relation("TokenCreator")
   deals                           DealUser[]
   contacts                        ContactUser[]
   organizations                   OrganizationUser[]
   services                        ServiceUser[]
   tasks                           TaskUser[]
-  relatedTasks                    Task[]              @relation("TaskRelatedUser")
+  relatedTasks                    Task[]                  @relation("TaskRelatedUser")
   widgets                         Widget[]
   p13n                            P13n[]
   connectedAccounts               ConnectedAccount[]
   agentConversations              AgentConversation[]
   agentRunLeases                  AgentRunLease[]
+  agentCreditAdjustments          AgentCreditAdjustment[]
 
   @@index([companyId])
   @@index([companyId, status])
@@ -251,6 +253,7 @@ model Company {
   agentToolReceipts           AgentToolReceipt[]
   agentMessages               AgentMessage[]
   agentUsageEvents            AgentUsageEvent[]
+  agentCreditAdjustments      AgentCreditAdjustment[]
   agentTurnRequests           AgentTurnRequest[]
   agentApprovals              AgentApproval[]
   agentUiCommandResults       AgentUiCommandResult[]
@@ -834,6 +837,53 @@ model Subscription {
 
   @@index([companyId])
   @@index([lemonSqueezyId])
+}
+
+model AgentCreditAdjustment {
+  id                      String   @id @default(uuid())
+  companyId               String
+  company                 Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  userId                  String
+  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  creditDelta             Int
+  periodStart             DateTime
+  periodEnd               DateTime
+  reason                  String
+  operationId             String   @unique
+  createdByOperatorUserId String
+  createdAt               DateTime @default(now())
+
+  @@index([companyId, userId, periodStart, periodEnd], map: "AgentCreditAdjustment_period_lookup_idx")
+  @@index([companyId, createdAt])
+  @@index([createdByOperatorUserId, createdAt])
+}
+
+model HostedAiGlobalControl {
+  id                        String   @id
+  hostedProviderWorkPaused  Boolean  @default(true)
+  monthlySpendCapMicrocents BigInt?
+  reason                    String
+  version                   Int      @default(1)
+  updatedByOperatorUserId   String
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+}
+
+model OperatorAuditEvent {
+  id              String   @id @default(uuid())
+  actorUserId     String
+  action          String
+  targetCompanyId String?
+  targetUserId    String?
+  operationId     String   @unique
+  reason          String?
+  metadata        Json?
+  createdAt       DateTime @default(now())
+
+  @@index([actorUserId, createdAt])
+  @@index([action, createdAt])
+  @@index([targetCompanyId, createdAt])
+  @@index([targetUserId, createdAt])
 }
 
 enum Resource {
@@ -1669,6 +1719,7 @@ model AgentUsageEvent {
   @@index([userId, createdAt])
   @@index([companyId, createdAt])
   @@index([companyId, userId, periodStart, periodEnd, state])
+  @@index([state, settledAt, createdAt])
   @@index([turnRequestId])
 }
 

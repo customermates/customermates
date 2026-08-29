@@ -27,7 +27,9 @@ vi.mock("@/core/di", () => ({
     },
   }),
 }));
-vi.mock("@/core/validation/zod-error-map-server", () => ({ getZodParseContext: vi.fn().mockResolvedValue(undefined) }));
+vi.mock("@/core/validation/zod-error-map-server", () => ({
+  getZodParseContext: vi.fn().mockResolvedValue(undefined),
+}));
 
 const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.repository");
 const { AGENT_MAX_CONCURRENT_RUNS_PER_USER } = await import("@/ee/agent-chat/agent-run-limits");
@@ -126,7 +128,10 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     expect(rejected).toBe(2);
 
     const rows = await runWithoutTenant(() =>
-      prisma.agentUsageEvent.findMany({ where: { userId }, select: { reservedCredits: true, state: true } }),
+      prisma.agentUsageEvent.findMany({
+        where: { userId },
+        select: { reservedCredits: true, state: true },
+      }),
     );
     const reservedTotal = rows.reduce((total, row) => total + row.reservedCredits, 0);
 
@@ -154,7 +159,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
           periodEnd: anchor,
         }),
       ),
-    ).rejects.toThrow(/exceeds the current allowance/);
+    ).rejects.toThrow(/credits_exhausted/);
 
     const rows = await runWithoutTenant(() => prisma.agentUsageEvent.findMany({ where: { userId } }));
     expect(rows).toHaveLength(0);
@@ -182,7 +187,9 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     );
 
     const reserved = await runWithoutTenant(() =>
-      prisma.agentUsageEvent.findUniqueOrThrow({ where: { id: reservationId } }),
+      prisma.agentUsageEvent.findUniqueOrThrow({
+        where: { id: reservationId },
+      }),
     );
     const usage = await runWithoutTenant(() =>
       repo.getUserCreditUsageUnscoped(reserved.companyId, userId, reserved.periodStart, reserved.periodEnd),
@@ -194,7 +201,11 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
   it("binds the reservation to the turn, so it survives the run id changing under it", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
-    authState.user = createMockUser({ id: userId, companyId, email: `rekey-${userId}@example.com` });
+    authState.user = createMockUser({
+      id: userId,
+      companyId,
+      email: `rekey-${userId}@example.com`,
+    });
     const repo = new PrismaAgentChatRepo();
     const usage = new AgentUsageService(repo);
 
@@ -212,15 +223,23 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     const { turnRequestId, runId, conversationId } = admitted.data;
 
     const reservation = await runWithoutTenant(() =>
-      prisma.agentUsageEvent.findFirstOrThrow({ where: { userId, state: "reserved" } }),
+      prisma.agentUsageEvent.findFirstOrThrow({
+        where: { userId, state: "reserved" },
+      }),
     );
     expect(reservation.turnRequestId).toBe(turnRequestId);
     expect(reservation.id).not.toBe(runId);
 
     const movedRunId = randomUUID();
     await runWithoutTenant(async () => {
-      await prisma.agentTurnRequest.update({ where: { id: turnRequestId }, data: { runId: movedRunId } });
-      await prisma.agentRunLease.updateMany({ where: { userId }, data: { runId: movedRunId } });
+      await prisma.agentTurnRequest.update({
+        where: { id: turnRequestId },
+        data: { runId: movedRunId },
+      });
+      await prisma.agentRunLease.updateMany({
+        where: { userId },
+        data: { runId: movedRunId },
+      });
     });
 
     await runWithoutTenant(() =>
@@ -234,7 +253,9 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     );
 
     const started = await runWithoutTenant(() =>
-      prisma.agentUsageEvent.findUniqueOrThrow({ where: { id: reservation.id } }),
+      prisma.agentUsageEvent.findUniqueOrThrow({
+        where: { id: reservation.id },
+      }),
     );
     expect(started.providerStartedAt).not.toBeNull();
   });
@@ -242,7 +263,11 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
   it("keeps a heartbeating turn alive against the sweeper that would otherwise settle it", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
-    authState.user = createMockUser({ id: userId, companyId, email: `heartbeat-${userId}@example.com` });
+    authState.user = createMockUser({
+      id: userId,
+      companyId,
+      email: `heartbeat-${userId}@example.com`,
+    });
     const repo = new PrismaAgentChatRepo();
     const usage = new AgentUsageService(repo);
 
@@ -260,10 +285,20 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     const { turnRequestId, runId } = admitted.data;
 
     const staleAt = new Date(Date.now() - 60_000);
-    await runWithoutTenant(() => prisma.agentRunLease.updateMany({ where: { userId }, data: { expiresAt: staleAt } }));
+    await runWithoutTenant(() =>
+      prisma.agentRunLease.updateMany({
+        where: { userId },
+        data: { expiresAt: staleAt },
+      }),
+    );
 
     const alive = await runWithoutTenant(() =>
-      repo.heartbeatAgentRunUnscoped({ turnRequestId, companyId, userId, runId }),
+      repo.heartbeatAgentRunUnscoped({
+        turnRequestId,
+        companyId,
+        userId,
+        runId,
+      }),
     );
     expect(alive).toBe(true);
 
@@ -273,7 +308,9 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
 
     const [turn, lease, event] = await runWithoutTenant(() =>
       Promise.all([
-        prisma.agentTurnRequest.findUniqueOrThrow({ where: { id: turnRequestId } }),
+        prisma.agentTurnRequest.findUniqueOrThrow({
+          where: { id: turnRequestId },
+        }),
         prisma.agentRunLease.findFirst({ where: { userId } }),
         prisma.agentUsageEvent.findFirstOrThrow({ where: { turnRequestId } }),
       ]),
@@ -287,7 +324,11 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
   it("holds the lease for a whole approval window, so a sweep past the ordinary horizon leaves the turn alone", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
-    authState.user = createMockUser({ id: userId, companyId, email: `suspended-${userId}@example.com` });
+    authState.user = createMockUser({
+      id: userId,
+      companyId,
+      email: `suspended-${userId}@example.com`,
+    });
     const repo = new PrismaAgentChatRepo();
     const usage = new AgentUsageService(repo);
 
@@ -306,7 +347,12 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
 
     const approvalDeadline = new Date(Date.now() + 30 * 60_000);
     const held = await runWithoutTenant(() =>
-      repo.extendAgentRunLeaseForSuspensionUnscoped({ companyId, userId, runId, until: approvalDeadline }),
+      repo.extendAgentRunLeaseForSuspensionUnscoped({
+        companyId,
+        userId,
+        runId,
+        until: approvalDeadline,
+      }),
     );
     expect(held).toBe(true);
 
@@ -317,7 +363,9 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
 
     const [turn, lease, event] = await runWithoutTenant(() =>
       Promise.all([
-        prisma.agentTurnRequest.findUniqueOrThrow({ where: { id: turnRequestId } }),
+        prisma.agentTurnRequest.findUniqueOrThrow({
+          where: { id: turnRequestId },
+        }),
         prisma.agentRunLease.findFirst({ where: { userId } }),
         prisma.agentUsageEvent.findFirstOrThrow({ where: { turnRequestId } }),
       ]),
@@ -328,7 +376,12 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     expect(event.state).toBe("reserved");
 
     const beat = await runWithoutTenant(() =>
-      repo.heartbeatAgentRunUnscoped({ turnRequestId, companyId, userId, runId }),
+      repo.heartbeatAgentRunUnscoped({
+        turnRequestId,
+        companyId,
+        userId,
+        runId,
+      }),
     );
     expect(beat).toBe(true);
     const resumed = await runWithoutTenant(() => prisma.agentRunLease.findFirstOrThrow({ where: { userId } }));
@@ -338,7 +391,11 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
   it("settles a suspended turn once even its extended lease has genuinely expired", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
-    authState.user = createMockUser({ id: userId, companyId, email: `abandoned-${userId}@example.com` });
+    authState.user = createMockUser({
+      id: userId,
+      companyId,
+      email: `abandoned-${userId}@example.com`,
+    });
     const repo = new PrismaAgentChatRepo();
     const usage = new AgentUsageService(repo);
 
@@ -357,7 +414,12 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
 
     const lapsed = new Date(Date.now() - 60 * 60_000);
     await runWithoutTenant(() =>
-      repo.extendAgentRunLeaseForSuspensionUnscoped({ companyId, userId, runId, until: lapsed }),
+      repo.extendAgentRunLeaseForSuspensionUnscoped({
+        companyId,
+        userId,
+        runId,
+        until: lapsed,
+      }),
     );
 
     const sweeper = authState.user;
@@ -366,7 +428,9 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
 
     const [turn, lease] = await runWithoutTenant(() =>
       Promise.all([
-        prisma.agentTurnRequest.findUniqueOrThrow({ where: { id: turnRequestId } }),
+        prisma.agentTurnRequest.findUniqueOrThrow({
+          where: { id: turnRequestId },
+        }),
         prisma.agentRunLease.findFirst({ where: { userId } }),
       ]),
     );
@@ -375,10 +439,94 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     expect(lease).toBeNull();
   });
 
+  it("retains the full committed exposure when a provider-started turn expires without spend evidence", async () => {
+    const anchor = new Date(Date.UTC(2026, 0, 15));
+    const { companyId, userId } = await seedActiveSeat(anchor);
+    authState.user = createMockUser({
+      id: userId,
+      companyId,
+      email: `uncertain-${userId}@example.invalid`,
+    });
+    const repo = new PrismaAgentChatRepo();
+    const usage = new AgentUsageService(repo);
+
+    const admitted = await new SendAgentMessageInteractor(
+      repo,
+      usage,
+      entitlements as never,
+      backgroundTasks() as never,
+    ).invoke({
+      clientRequestId: randomUUID(),
+      text: "Start provider work and lose its receipt",
+      retry: false,
+    });
+    if (!admitted.ok || admitted.data.disposition !== "run") throw new Error("Expected an admitted turn.");
+    const { turnRequestId, conversationId, runId } = admitted.data;
+
+    await runWithoutTenant(() =>
+      repo.markAgentTurnProviderStartedUnscoped({
+        turnRequestId,
+        conversationId,
+        companyId,
+        userId,
+        runId,
+      }),
+    );
+    const reserved = await runWithoutTenant(() =>
+      prisma.agentUsageEvent.findFirstOrThrow({
+        where: { turnRequestId, state: "reserved" },
+      }),
+    );
+    await runWithoutTenant(() =>
+      prisma.agentRunLease.updateMany({
+        where: { companyId, userId, runId },
+        data: { expiresAt: new Date(Date.now() - 60_000) },
+      }),
+    );
+
+    const sweeper = authState.user;
+    if (!sweeper) throw new Error("Expected a tenant user.");
+    await runWithTenant(sweeper, () => repo.normalizeExpiredAgentRunLease(new Date(), "openai/gpt-5.6-luna"));
+
+    const [turn, lease, retained, committedUsage] = await runWithoutTenant(async () => {
+      const event = await prisma.agentUsageEvent.findUniqueOrThrow({
+        where: { id: reserved.id },
+      });
+      return Promise.all([
+        prisma.agentTurnRequest.findUniqueOrThrow({
+          where: { id: turnRequestId },
+        }),
+        prisma.agentRunLease.findFirst({
+          where: { companyId, userId, runId },
+        }),
+        Promise.resolve(event),
+        repo.getUserCreditUsageUnscoped(companyId, userId, event.periodStart, event.periodEnd),
+      ]);
+    });
+
+    expect(turn.status).toBe("uncertain");
+    expect(lease).toBeNull();
+    expect(retained).toMatchObject({
+      state: "retained",
+      costMicrocents: 0n,
+      costSource: "estimated",
+      reservedCredits: reserved.reservedCredits,
+      chargedCredits: reserved.reservedCredits,
+    });
+    expect(committedUsage).toEqual({
+      usedCredits: reserved.reservedCredits,
+      recentTurnCredits: reserved.reservedCredits,
+    });
+  });
+
   it("refuses to heartbeat a run whose lease another writer already reclaimed", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
-    authState.user = createMockUser({ id: userId, companyId, email: `reclaimed-${userId}@example.com` });
+    authState.user = createMockUser({
+      id: userId,
+      companyId,
+      email: `reclaimed-${userId}@example.com`,
+    });
     const repo = new PrismaAgentChatRepo();
     const usage = new AgentUsageService(repo);
 
@@ -398,14 +546,25 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     await runWithoutTenant(() => prisma.agentRunLease.deleteMany({ where: { userId } }));
 
     await expect(
-      runWithoutTenant(() => repo.heartbeatAgentRunUnscoped({ turnRequestId, companyId, userId, runId })),
+      runWithoutTenant(() =>
+        repo.heartbeatAgentRunUnscoped({
+          turnRequestId,
+          companyId,
+          userId,
+          runId,
+        }),
+      ),
     ).resolves.toBe(false);
   });
 
   it("keeps one row per round when the same round is recorded twice, as a replay would", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
-    authState.user = createMockUser({ id: userId, companyId, email: `rounds-${userId}@example.com` });
+    authState.user = createMockUser({
+      id: userId,
+      companyId,
+      email: `rounds-${userId}@example.com`,
+    });
     const repo = new PrismaAgentChatRepo();
     const usage = new AgentUsageService(repo);
 
@@ -438,16 +597,32 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       servingProvider: "openai",
     };
 
-    await runWithoutTenant(() => repo.recordAgentRunRoundUnscoped({ ...round, parts: [{ role: "assistant" }] }));
     await runWithoutTenant(() =>
-      repo.recordAgentRunRoundUnscoped({ ...round, costMicrocents: 5_500, parts: [{ role: "assistant" }] }),
+      repo.recordAgentRunRoundUnscoped({
+        ...round,
+        parts: [{ role: "assistant" }],
+      }),
     );
     await runWithoutTenant(() =>
-      repo.recordAgentRunRoundUnscoped({ ...round, roundIndex: 1, parts: [{ role: "assistant" }] }),
+      repo.recordAgentRunRoundUnscoped({
+        ...round,
+        costMicrocents: 5_500,
+        parts: [{ role: "assistant" }],
+      }),
+    );
+    await runWithoutTenant(() =>
+      repo.recordAgentRunRoundUnscoped({
+        ...round,
+        roundIndex: 1,
+        parts: [{ role: "assistant" }],
+      }),
     );
 
     const rounds = await runWithoutTenant(() =>
-      prisma.agentRunRound.findMany({ where: { turnRequestId }, orderBy: { roundIndex: "asc" } }),
+      prisma.agentRunRound.findMany({
+        where: { turnRequestId },
+        orderBy: { roundIndex: "asc" },
+      }),
     );
     expect(rounds).toHaveLength(2);
     expect(rounds[0].costMicrocents).toBe(5_500n);
@@ -458,7 +633,11 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
   it("takes a conversation's rounds with it on delete while its billing survives", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
-    authState.user = createMockUser({ id: userId, companyId, email: `cascade-${userId}@example.com` });
+    authState.user = createMockUser({
+      id: userId,
+      companyId,
+      email: `cascade-${userId}@example.com`,
+    });
     const repo = new PrismaAgentChatRepo();
     const usage = new AgentUsageService(repo);
 
@@ -509,7 +688,11 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
   it("commits one mutation and one receipt when the same tool call is executed twice", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
-    authState.user = createMockUser({ id: userId, companyId, email: `receipt-${userId}@example.com` });
+    authState.user = createMockUser({
+      id: userId,
+      companyId,
+      email: `receipt-${userId}@example.com`,
+    });
     const repo = new PrismaAgentChatRepo();
     const usage = new AgentUsageService(repo);
 
@@ -563,7 +746,9 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     expect(second).toEqual(first);
     const [created, receipts] = await runWithoutTenant(() =>
       Promise.all([
-        prisma.agentConversation.count({ where: { companyId, title: "created by tool" } }),
+        prisma.agentConversation.count({
+          where: { companyId, title: "created by tool" },
+        }),
         prisma.agentToolReceipt.findMany({ where: { turnRequestId } }),
       ]),
     );
@@ -575,7 +760,11 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
   it("leaves a receipt claimed and unsettled exactly when the mutation did not commit", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
-    authState.user = createMockUser({ id: userId, companyId, email: `rollback-${userId}@example.com` });
+    authState.user = createMockUser({
+      id: userId,
+      companyId,
+      email: `rollback-${userId}@example.com`,
+    });
     const repo = new PrismaAgentChatRepo();
     const usage = new AgentUsageService(repo);
 
@@ -594,7 +783,12 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     const toolCallId = randomUUID();
 
     await runWithoutTenant(() =>
-      repo.claimAgentToolReceiptUnscoped({ turnRequestId, companyId, toolCallId, toolName: "create_contacts" }),
+      repo.claimAgentToolReceiptUnscoped({
+        turnRequestId,
+        companyId,
+        toolCallId,
+        toolName: "create_contacts",
+      }),
     );
 
     await expect(
@@ -612,8 +806,12 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
 
     const [created, receipt] = await runWithoutTenant(() =>
       Promise.all([
-        prisma.agentConversation.count({ where: { companyId, title: "rolled back by tool" } }),
-        prisma.agentToolReceipt.findFirstOrThrow({ where: { turnRequestId, toolCallId } }),
+        prisma.agentConversation.count({
+          where: { companyId, title: "rolled back by tool" },
+        }),
+        prisma.agentToolReceipt.findFirstOrThrow({
+          where: { turnRequestId, toolCallId },
+        }),
       ]),
     );
     expect(created).toBe(0);
@@ -624,7 +822,11 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
   it("rolls back a lease when phase-one credit reservation fails", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
-    authState.user = createMockUser({ id: userId, companyId, email: `phase-one-${userId}@example.com` });
+    authState.user = createMockUser({
+      id: userId,
+      companyId,
+      email: `phase-one-${userId}@example.com`,
+    });
     const repo = new PrismaAgentChatRepo();
     const usage = new AgentUsageService(repo);
     const failure = new Error("forced reservation failure");
@@ -656,9 +858,17 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
   it("commits only one lease and reservation for concurrent admissions into one conversation", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
-    authState.user = createMockUser({ id: userId, companyId, email: `concurrent-${userId}@example.com` });
+    authState.user = createMockUser({
+      id: userId,
+      companyId,
+      email: `concurrent-${userId}@example.com`,
+    });
     const conversationId = randomUUID();
-    await runWithoutTenant(() => prisma.agentConversation.create({ data: { id: conversationId, companyId, userId } }));
+    await runWithoutTenant(() =>
+      prisma.agentConversation.create({
+        data: { id: conversationId, companyId, userId },
+      }),
+    );
 
     const invoke = (text: string) => {
       const repo = new PrismaAgentChatRepo();
@@ -697,7 +907,11 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
   it("lets one user hold a run in each of several conversations, which a suspended approval needs", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
-    authState.user = createMockUser({ id: userId, companyId, email: `parallel-${userId}@example.com` });
+    authState.user = createMockUser({
+      id: userId,
+      companyId,
+      email: `parallel-${userId}@example.com`,
+    });
 
     const invoke = () => {
       const repo = new PrismaAgentChatRepo();
@@ -729,7 +943,11 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
   it("stops one user from holding more concurrent runs than the engine allows", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
-    authState.user = createMockUser({ id: userId, companyId, email: `capped-${userId}@example.com` });
+    authState.user = createMockUser({
+      id: userId,
+      companyId,
+      email: `capped-${userId}@example.com`,
+    });
 
     const invoke = () => {
       const repo = new PrismaAgentChatRepo();
@@ -765,11 +983,20 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     const fixtureConversationId = randomUUID();
     const occupiedMessageId = randomUUID();
     const clientRequestId = randomUUID();
-    authState.user = createMockUser({ id: userId, companyId, email: `admission-${userId}@example.com` });
+    authState.user = createMockUser({
+      id: userId,
+      companyId,
+      email: `admission-${userId}@example.com`,
+    });
 
     await runWithoutTenant(async () => {
       await prisma.agentConversation.create({
-        data: { id: fixtureConversationId, companyId, userId, title: "Fixture" },
+        data: {
+          id: fixtureConversationId,
+          companyId,
+          userId,
+          title: "Fixture",
+        },
       });
       await prisma.agentMessage.create({
         data: {

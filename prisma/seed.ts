@@ -6,10 +6,11 @@ import { PrismaClient } from "@/generated/prisma";
 import { SYNTHETIC_SEED_USER } from "@/core/config/synthetic-seed-user";
 import { createSeedContext } from "./seeds/context";
 import { runSyntheticSeed } from "./seeds/run";
+import { databaseUrlFromEnvironment, shouldIncludeLocalOperatorAccess } from "@/scripts/local-database-safety";
 
 async function main(): Promise<void> {
-  const databaseUrl = process.env.DIRECT_URL?.trim() || process.env.DATABASE_URL?.trim();
-  if (!databaseUrl) throw new Error("DATABASE_URL must be configured");
+  const databaseUrl = databaseUrlFromEnvironment(process.env);
+  const includeLocalOperatorAccess = shouldIncludeLocalOperatorAccess(process.env);
 
   const adapter = new PrismaPg({ connectionString: databaseUrl });
   const prisma = new PrismaClient({ adapter });
@@ -20,7 +21,7 @@ async function main(): Promise<void> {
 
   try {
     console.log("Seeding deterministic synthetic fixtures...");
-    await runSyntheticSeed(context);
+    await runSyntheticSeed(context, { includeLocalOperatorAccess });
     console.log("Synthetic fixture seed complete");
   } finally {
     await prisma.$disconnect();
