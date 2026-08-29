@@ -17,11 +17,13 @@ import { isAgentTurnTerminalError } from "@/ee/agent-chat/agent-turn-request";
 import {
   agentApprovalHookToken,
   agentApprovalRequestId,
+  isRelevantAgentApprovalWake,
   pendingApprovalCalls,
   toolApprovalDecisionForGrant,
   withApprovalResponses,
   withToolResults,
   type AgentApprovalOutcome,
+  type AgentApprovalWake,
   type AgentToolResumeResult,
   type ToolApprovalGrant,
 } from "@/ee/agent-chat/agent-approval-resume";
@@ -85,19 +87,36 @@ type AgentToolShell = {
   gated: boolean;
 };
 
-type PendingApproval = { requestId: string; toolCallId: string; toolName: string; input: unknown };
+type PendingApproval = {
+  requestId: string;
+  toolCallId: string;
+  toolName: string;
+  input: unknown;
+};
 
 type AgentRoundResult = {
   content: unknown[];
   finishReason: string;
-  usage: Parameters<typeof usageToTokenCounts>[0] & { outputTokenDetails?: { reasoningTokens?: number } };
+  usage: Parameters<typeof usageToTokenCounts>[0] & {
+    outputTokenDetails?: { reasoningTokens?: number };
+  };
   providerMetadata: Parameters<typeof readAgentProviderCharge>[0];
 };
 
-type RoundLedgerEntry = { tokens: TokenCounts; costMicrocents: number; measured: boolean; unreadableReason?: string };
+type RoundLedgerEntry = {
+  tokens: TokenCounts;
+  costMicrocents: number;
+  measured: boolean;
+  unreadableReason?: string;
+};
 
 function emptyTokens(): TokenCounts {
-  return { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 };
+  return {
+    inputTokens: 0,
+    outputTokens: 0,
+    cacheReadTokens: 0,
+    cacheWriteTokens: 0,
+  };
 }
 
 function addTokens(left: TokenCounts, right: TokenCounts): TokenCounts {
@@ -118,7 +137,10 @@ function backgroundToolDeps(payload: AgentTurnWorkflowPayload, grant: ToolApprov
     resolveApprovalContext: resolveAgentApprovalContext,
     requestApproval: () => Promise.resolve(toolApprovalDecisionForGrant(grant)),
     runUiCommand: () =>
-      Promise.resolve({ ok: false, result: "Interface control is only available while the panel is open." }),
+      Promise.resolve({
+        ok: false,
+        result: "Interface control is only available while the panel is open.",
+      }),
     createSupportTicket: (_toolCallId, subject, body) =>
       createAgentSupportTicket(payload.conversationId, subject, body),
     runExactlyOnce: async (toolCallId, toolName, run) => {
@@ -202,7 +224,9 @@ async function executeAgentTool(
   const { getAgentAiTools } = await import("@/ee/agent-chat/agent-tools");
   const tools = getAgentAiTools(backgroundToolDeps(payload, grant)) as Record<
     string,
-    { execute?: (input: unknown, options: { toolCallId: string; messages: [] }) => Promise<unknown> }
+    {
+      execute?: (input: unknown, options: { toolCallId: string; messages: [] }) => Promise<unknown>;
+    }
   >;
   const execute = tools[toolName]?.execute;
   if (!execute) throw new Error(`Agent tool ${toolName} has no executable implementation.`);
@@ -300,7 +324,10 @@ openApprovalRequests.maxRetries = 0;
 
 async function publishAssistantText(text: string): Promise<void> {
   "use step";
-  const writer = getWritable<{ type: string; payload: Record<string, unknown> }>().getWriter();
+  const writer = getWritable<{
+    type: string;
+    payload: Record<string, unknown>;
+  }>().getWriter();
   try {
     await writer.write({ type: "delta", payload: { text } });
   } finally {
@@ -357,15 +384,26 @@ async function readCancellation(payload: AgentTurnWorkflowPayload): Promise<bool
 }
 
 async function publishUiCommands(
-  commands: { toolCallId: string; name: string; input: Record<string, unknown> }[],
+  commands: {
+    toolCallId: string;
+    name: string;
+    input: Record<string, unknown>;
+  }[],
 ): Promise<void> {
   "use step";
-  const writer = getWritable<{ type: string; payload: Record<string, unknown> }>().getWriter();
+  const writer = getWritable<{
+    type: string;
+    payload: Record<string, unknown>;
+  }>().getWriter();
   try {
     for (const command of commands) {
       await writer.write({
         type: "ui_command",
-        payload: { commandId: command.toolCallId, name: command.name, input: command.input },
+        payload: {
+          commandId: command.toolCallId,
+          name: command.name,
+          input: command.input,
+        },
       });
     }
   } finally {
@@ -397,17 +435,27 @@ async function readUiCommandResults(
         toolName: command.name,
         output: outcome
           ? { ok: outcome.ok, result: outcome.result.slice(0, maxChars) }
-          : { ok: false, result: "The interface did not respond, so nothing changed on screen." },
+          : {
+              ok: false,
+              result: "The interface did not respond, so nothing changed on screen.",
+            },
       });
     }
 
-    const writer = getWritable<{ type: string; payload: Record<string, unknown> }>().getWriter();
+    const writer = getWritable<{
+      type: string;
+      payload: Record<string, unknown>;
+    }>().getWriter();
     try {
       for (const entry of resumed) {
         const status = agentToolOutcomeStatus(entry.output);
         await writer.write({
           type: "activity_result",
-          payload: { id: entry.toolCallId, isError: status.failed, status: status.status },
+          payload: {
+            id: entry.toolCallId,
+            isError: status.failed,
+            status: status.status,
+          },
         });
       }
     } finally {
@@ -478,6 +526,7 @@ async function finalizeTurn(
     parts: unknown;
     terminalCode: "completed" | "partial" | "cancelled";
     affectedResources: AgentActivityResource[];
+    hasSuccessfulMutation: boolean;
     tokens: TokenCounts;
     ledger: RoundLedgerEntry[];
     reservedCredits: number;
@@ -532,6 +581,7 @@ async function finalizeTurn(
         terminalCode: committed.terminalCode,
         assistantMessageId: committed.assistantMessage.id,
         affectedResources: committed.affectedResources,
+        hasSuccessfulMutation: outcome.hasSuccessfulMutation,
         creditsUsed: committed.chargedCredits,
         numTurns: outcome.ledger.length,
         errorMessage: committed.terminalCode === "policyBreach" ? "policy_breach" : null,
@@ -557,6 +607,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         parts: transcript.replyParts,
         terminalCode: "partial",
         affectedResources: [],
+        hasSuccessfulMutation: false,
         tokens: emptyTokens(),
         ledger: [],
         reservedCredits: payload.turnBudget.reservedCredits,
@@ -590,7 +641,10 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const completedTools: ({ toolCallId: string; toolName: string } & ({ output: unknown } | { threw: true }))[] = [];
 
     const continuationSteps: AgentContinuationStep[] = [];
-    let deferredRound: { step: AgentRoundResult; outcomes: AgentToolOutcome[] } | null = null;
+    let deferredRound: {
+      step: AgentRoundResult;
+      outcomes: AgentToolOutcome[];
+    } | null = null;
     const continuationLimits = agentContinuationLimits(Number.MAX_SAFE_INTEGER);
     let safetyStop: string | null = null;
     let budgetStop = false;
@@ -621,7 +675,12 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       settledToolCallIds.add(toolCallId);
 
       const outcome = agentToolOutcomeStatus(output);
-      transcript.completeToolCall({ toolCallId, toolName, status: outcome.status, failed: outcome.failed });
+      transcript.completeToolCall({
+        toolCallId,
+        toolName,
+        status: outcome.status,
+        failed: outcome.failed,
+      });
     };
 
     const applyRound = async (step: AgentRoundResult) => {
@@ -629,7 +688,13 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
       try {
         for (const raw of step.content) {
-          const part = raw as { type?: string; text?: string; toolCallId?: string; toolName?: string; input?: unknown };
+          const part = raw as {
+            type?: string;
+            text?: string;
+            toolCallId?: string;
+            toolName?: string;
+            input?: unknown;
+          };
           if (part.type === "text" && part.text) transcript.pushTextDelta(part.text);
           else if (part.type === "tool-call" && part.toolCallId && part.toolName) {
             transcript.beginToolCall({
@@ -755,8 +820,16 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         onToolExecutionEnd: (event) => {
           completedTools.push(
             event.success
-              ? { toolCallId: event.toolCall.toolCallId, toolName: event.toolCall.toolName, output: event.output }
-              : { toolCallId: event.toolCall.toolCallId, toolName: event.toolCall.toolName, threw: true },
+              ? {
+                  toolCallId: event.toolCall.toolCallId,
+                  toolName: event.toolCall.toolName,
+                  output: event.output,
+                }
+              : {
+                  toolCallId: event.toolCall.toolCallId,
+                  toolName: event.toolCall.toolName,
+                  threw: true,
+                },
           );
         },
         onStepEnd: (step) => applyRound(step as unknown as AgentRoundResult),
@@ -850,7 +923,9 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         input: call.input,
       }));
 
-      const hook = createHook<{ requestId: string }>({ token: agentApprovalHookToken(payload.conversationId) });
+      const hook = createHook<AgentApprovalWake>({
+        token: agentApprovalHookToken(payload.conversationId),
+      });
       await openApprovalRequests(payload, requests, AGENT_APPROVAL_WINDOW_MS);
       for (const request of requests) {
         transcript.beginApproval(
@@ -860,9 +935,10 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       }
       await publishTranscriptEvents(queued.splice(0));
 
+      const requestIds = new Set(requests.map((request) => request.requestId));
       await Promise.race([
         (async () => {
-          await hook;
+          for await (const wake of hook) if (isRelevantAgentApprovalWake(wake, requestIds)) return;
         })(),
         sleep(AGENT_APPROVAL_WINDOW_MS),
       ]);
@@ -887,7 +963,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         );
         if (outcome.decision !== "approve") {
           settledToolCallIds.add(outcome.toolCallId);
-          transcript.completeToolCall({ toolCallId: outcome.toolCallId, status: "cancelled", failed: false });
+          transcript.completeToolCall({
+            toolCallId: outcome.toolCallId,
+            status: "cancelled",
+            failed: false,
+          });
         }
       }
       await publishTranscriptEvents(queued.splice(0));
@@ -896,7 +976,10 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         outcomes.map((outcome) => ({
           toolCallId: outcome.toolCallId,
           toolName: requests.find((request) => request.toolCallId === outcome.toolCallId)?.toolName ?? "",
-          output: { ok: outcome.decision === "approve", result: `Approval ${outcome.decision}.` },
+          output: {
+            ok: outcome.decision === "approve",
+            result: `Approval ${outcome.decision}.`,
+          },
         })),
       );
       messages = withApprovalResponses(result.messages, outcomes);
@@ -943,6 +1026,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           ? "partial"
           : "completed",
       affectedResources: transcript.affectedResources,
+      hasSuccessfulMutation: transcript.hasSuccessfulMutation,
       tokens,
       ledger,
       reservedCredits,

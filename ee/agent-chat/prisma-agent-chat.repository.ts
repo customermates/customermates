@@ -577,7 +577,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
 
   async getSuggestionSignals() {
     const select = { id: true };
-    const [contact, organization, deal, service, task, connectedAccount] = await Promise.all([
+    const [contact, organization, deal, service, task, widget, connectedAccount] = await Promise.all([
       this.prisma.contact.findFirst({
         where: this.accessWhere("contact"),
         select,
@@ -598,6 +598,13 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         where: this.accessWhere("task"),
         select,
       }),
+      this.prisma.widget.findFirst({
+        where: {
+          companyId: this.companyId,
+          userId: this.userId,
+        },
+        select,
+      }),
       this.prisma.connectedAccount.findFirst({
         where: this.canAccess(Resource.inboxMessages)
           ? {
@@ -615,6 +622,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       deals: Boolean(deal),
       services: Boolean(service),
       tasks: Boolean(task),
+      widgets: Boolean(widget),
       connectedAccounts: Boolean(connectedAccount),
     };
   }
@@ -721,10 +729,14 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           archivedAt: null,
         },
       },
-      select: { id: true, toolName: true },
+      select: { id: true, toolName: true, decision: true },
     });
     const parsed = pending ? parsePendingAgentApprovalToolName(pending.toolName) : null;
-    if (!pending || !parsed) return null;
+    if (!pending) return null;
+    if (!parsed) {
+      if (isPendingAgentApprovalToolName(pending.toolName) || pending.decision !== args.decision) return null;
+      return { toolName: pending.toolName, resolved: true as const };
+    }
 
     if (parsed.expiresAt.getTime() <= Date.now()) {
       await this.prisma.agentApproval.deleteMany({
@@ -745,7 +757,30 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       },
       data: { decision: args.decision, toolName: parsed.toolName },
     });
-    return resolved.count === 1 ? { toolName: parsed.toolName, resolved: true as const } : null;
+    if (resolved.count === 1) return { toolName: parsed.toolName, resolved: true as const };
+
+    const concurrentlyResolved = await this.prisma.agentApproval.findFirst({
+      where: {
+        id: pending.id,
+        conversationId: args.conversationId,
+        requestId: args.requestId,
+        companyId: this.companyId,
+        conversation: {
+          companyId: this.companyId,
+          userId: this.userId,
+          archivedAt: null,
+        },
+      },
+      select: { toolName: true, decision: true },
+    });
+    if (
+      !concurrentlyResolved ||
+      isPendingAgentApprovalToolName(concurrentlyResolved.toolName) ||
+      concurrentlyResolved.decision !== args.decision
+    )
+      return null;
+
+    return { toolName: concurrentlyResolved.toolName, resolved: true as const };
   }
 
   @BypassTenantGuard
@@ -1320,7 +1355,19 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       },
       data: { cancellationRequestedAt: new Date() },
     });
-    return requested.count > 0;
+    if (requested.count > 0) return true;
+
+    const alreadyRequested = await this.prisma.agentTurnRequest.findFirst({
+      where: {
+        conversationId: args.conversationId,
+        companyId: this.companyId,
+        userId: this.userId,
+        status: "running",
+        cancellationRequestedAt: { not: null },
+      },
+      select: { id: true },
+    });
+    return Boolean(alreadyRequested);
   }
 
   @BypassTenantGuard

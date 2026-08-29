@@ -291,8 +291,11 @@
     "approval": {
       "approve": "Approvato",
       "approveOnceAction": "Approva una volta",
+      "cancelled": "Annullato",
       "reject": "Rifiutato",
       "rejectAction": "Annulla",
+      "resuming": "Decisione salvata — Mate continua…",
+      "retryResume": "Mate non è ancora riuscito a riprendere. Riprova la stessa decisione.",
       "timeout": "Tempo scaduto senza risposta",
       "title": "L’assistente vuole eseguire:"
     },
@@ -317,6 +320,7 @@
       "approvalFailed": "Non è stato possibile inviare l’approvazione.",
       "limitReached": "Non restano abbastanza crediti IA per avviare un'altra richiesta.",
       "sendFailed": "L’assistente non è riuscito a elaborare il messaggio.",
+      "stopFailed": "Non è stato possibile fermare Mate. La connessione viene ripristinata per consentirti di riprovare.",
       "turnFailed": "L’assistente ha riscontrato un errore."
     },
     "greeting": {
@@ -652,6 +656,7 @@
       "deletePermanently": "Elimina definitivamente",
       "downloadTable": "Scarica tabella",
       "editQueued": "Modifica il messaggio in coda",
+      "finalizing": "Completamento e salvataggio delle modifiche…",
       "history": "Cronologia chat",
       "jumpToLatest": "Vai ai messaggi più recenti",
       "loadChatFailed": "Non è stato possibile caricare la chat. Selezionarla di nuovo per riprovare.",
@@ -663,12 +668,16 @@
       "noChats": "Ancora nessuna chat",
       "noChatsBody": "Avvia una chat per ritrovare in seguito le domande e il lavoro completato.",
       "queued": "In coda",
+      "reconnecting": "Riconnessione a Mate…",
       "refreshHistoryFailed": "Non è stato possibile aggiornare la cronologia delle chat. Le chat esistenti restano visibili.",
       "removeQueued": "Rimuovi il messaggio in coda",
       "responseComplete": "Risposta completata",
       "restore": "Ripristina",
       "retryTurn": "Riprova",
+      "routeSyncRefreshing": "Aggiornamento della pagina…",
+      "routeSyncWaiting": "L’aggiornamento della pagina attende il completamento delle modifiche…",
       "stepsTook": "{steps, plural, one {# passaggio} other {# passaggi}} · {seconds}s",
+      "stopping": "Arresto di Mate…",
       "tableCopied": "Tabella copiata",
       "thinking": "Sta pensando",
       "turnFailed": "Non è stato possibile completare questa risposta.",
@@ -1785,6 +1794,7 @@
       "createdAt": "Creato il",
       "updatedAt": "Aggiornato il"
     },
+    "hideField": "Nascondi {field} dai dettagli",
     "moveFieldDown": "Sposta {field} in basso",
     "moveFieldUp": "Sposta {field} in alto",
     "personalize": "Personalizza",
@@ -1795,6 +1805,7 @@
       "notes": "Note",
       "relations": "Relazioni"
     },
+    "showField": "Mostra {field} nei dettagli",
     "unpinField": "Togli {field} dalla panoramica"
   },
   "EntityTerminology": {

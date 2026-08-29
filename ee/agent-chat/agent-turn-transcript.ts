@@ -8,11 +8,23 @@ export type AgentApprovalStatus = "approved" | "rejected" | "timeout" | "cancell
 
 export type AgentTranscriptEvent =
   | { type: "delta"; payload: { text: string } }
-  | { type: "activity"; payload: { id: string; activity: AgentActivityDescriptor } }
+  | {
+      type: "activity";
+      payload: { id: string; activity: AgentActivityDescriptor };
+    }
   | { type: "activity_superseded"; payload: { id: string } }
-  | { type: "activity_result"; payload: { id: string; isError: boolean; status?: AgentActivityStatus } }
-  | { type: "approval_request"; payload: { requestId: string; activity: AgentActivityDescriptor } }
-  | { type: "approval_resolved"; payload: { requestId: string; decision: string } };
+  | {
+      type: "activity_result";
+      payload: { id: string; isError: boolean; status?: AgentActivityStatus };
+    }
+  | {
+      type: "approval_request";
+      payload: { requestId: string; activity: AgentActivityDescriptor };
+    }
+  | {
+      type: "approval_resolved";
+      payload: { requestId: string; decision: string };
+    };
 
 export type AgentTranscriptEmit = (event: AgentTranscriptEvent) => void;
 
@@ -37,6 +49,12 @@ export class AgentTurnTranscript {
 
   get affectedResources() {
     return Array.from(this.affected);
+  }
+
+  get hasSuccessfulMutation() {
+    return this.parts.some(
+      (part) => part.type === "activity" && part.status === "done" && part.activity.risk !== "read",
+    );
   }
 
   appendText(text: string) {
@@ -78,7 +96,10 @@ export class AgentTurnTranscript {
     };
     this.toolParts.set(call.toolCallId, toolPart);
     this.parts.push(toolPart);
-    this.emit({ type: "activity", payload: { id: call.toolCallId, activity: call.activity } });
+    this.emit({
+      type: "activity",
+      payload: { id: call.toolCallId, activity: call.activity },
+    });
   }
 
   completeToolCall(result: { toolCallId: string; toolName?: string; status: AgentActivityStatus; failed: boolean }) {
@@ -86,20 +107,27 @@ export class AgentTurnTranscript {
     this.settleTool(result.toolCallId, result.status);
     this.emit({
       type: "activity_result",
-      payload: { id: result.toolCallId, isError: result.failed, status: result.status },
+      payload: {
+        id: result.toolCallId,
+        isError: result.failed,
+        status: result.status,
+      },
     });
   }
 
   failToolCall(toolCallId: string) {
     this.settleTool(toolCallId, "error");
-    this.emit({ type: "activity_result", payload: { id: toolCallId, isError: true } });
+    this.emit({
+      type: "activity_result",
+      payload: { id: toolCallId, isError: true },
+    });
   }
 
   failUnfinishedTools(status: Extract<AgentActivityStatus, "error" | "cancelled">, shouldEmit: boolean) {
     for (const [id, toolPart] of this.toolParts) {
       if (toolPart.status !== "running") continue;
       this.settleTool(id, status);
-      if (shouldEmit) this.emit({ type: "activity_result", payload: { id, isError: true } });
+      if (shouldEmit) this.emit({ type: "activity_result", payload: { id, isError: true, status } });
     }
   }
 

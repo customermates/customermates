@@ -49,7 +49,7 @@ export const AgentChatItemView = observer(function AgentChatItemView({
     decision: "approve" | "reject",
   ) => {
     await store.respondToApproval(approval, decision);
-    if (approval.resolution) focusAgentComposer();
+    if (approval.submittedDecision || approval.resolution) focusAgentComposer();
   };
 
   if (item.kind === "user") {
@@ -133,30 +133,40 @@ export const AgentChatItemView = observer(function AgentChatItemView({
 
       {item.resolution ? (
         <p className="mt-3 text-xs text-muted-foreground">{t(`AgentChat.approval.${item.resolution}`)}</p>
+      ) : item.submittedDecision ? (
+        <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+          <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />
+
+          {t("AgentChat.approval.resuming")}
+        </p>
       ) : (
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <Button
-            aria-busy={item.pendingDecision === "approve"}
-            disabled={Boolean(item.pendingDecision)}
-            size="sm"
-            onClick={() => runUserAction(() => decideApproval(item, "approve"))}
-          >
-            {item.pendingDecision === "approve" && <Loader2 className="size-3.5 animate-spin" />}
+        <div className="mt-3 space-y-2">
+          {item.retryDecision && <p className="text-xs text-muted-foreground">{t("AgentChat.approval.retryResume")}</p>}
 
-            {t("AgentChat.approval.approveOnceAction")}
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              aria-busy={item.pendingDecision === "approve"}
+              disabled={Boolean(item.pendingDecision) || item.retryDecision === "reject"}
+              size="sm"
+              onClick={() => runUserAction(() => decideApproval(item, "approve"))}
+            >
+              {item.pendingDecision === "approve" && <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />}
 
-          <Button
-            aria-busy={item.pendingDecision === "reject"}
-            disabled={Boolean(item.pendingDecision)}
-            size="sm"
-            variant="ghost"
-            onClick={() => runUserAction(() => decideApproval(item, "reject"))}
-          >
-            {item.pendingDecision === "reject" && <Loader2 className="size-3.5 animate-spin" />}
+              {t("AgentChat.approval.approveOnceAction")}
+            </Button>
 
-            {t("AgentChat.approval.rejectAction")}
-          </Button>
+            <Button
+              aria-busy={item.pendingDecision === "reject"}
+              disabled={Boolean(item.pendingDecision) || item.retryDecision === "approve"}
+              size="sm"
+              variant="ghost"
+              onClick={() => runUserAction(() => decideApproval(item, "reject"))}
+            >
+              {item.pendingDecision === "reject" && <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />}
+
+              {t("AgentChat.approval.rejectAction")}
+            </Button>
+          </div>
         </div>
       )}
     </div>
@@ -280,13 +290,12 @@ export const AgentActivity = observer(function AgentActivity({
 
         {isPending && !hasRunning && (
           <div
-            aria-label={uiCopy.thinking}
+            aria-hidden="true"
             className={cn(
               "relative flex gap-2 text-xs",
               "before:absolute before:top-0 before:-left-4 before:h-full before:w-px before:bg-border",
               "before:origin-top before:animate-timeline-grow before:motion-reduce:animate-none",
             )}
-            role="status"
           >
             <span className="mt-1 flex size-3.5 shrink-0 items-center justify-center">
               <TypingDots />

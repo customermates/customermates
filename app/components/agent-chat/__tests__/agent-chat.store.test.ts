@@ -1,12 +1,17 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createTranslator } from "next-intl";
+import { observable, runInAction } from "mobx";
 
 import en from "@/i18n/locales/en.json";
 
-const englishTranslator = createTranslator({ locale: "en", messages: en }) as unknown as (key: string) => string;
+const englishTranslator = createTranslator({
+  locale: "en",
+  messages: en,
+}) as unknown as (key: string) => string;
 
 const actionsMock = vi.hoisted(() => ({
   archiveAgentConversationAction: vi.fn(),
+  cancelAgentTurnAction: vi.fn(),
   deleteAgentConversationAction: vi.fn(),
   getAgentConfigAction: vi.fn(),
   getAgentConversationAction: vi.fn(),
@@ -17,9 +22,15 @@ const actionsMock = vi.hoisted(() => ({
   respondToUiCommandAction: vi.fn(),
 }));
 const toastMock = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn() }));
+const reportApplicationErrorMock = vi.hoisted(() => vi.fn());
 
 vi.mock("../actions", () => actionsMock);
 vi.mock("sonner", () => ({ toast: toastMock }));
+vi.mock("@/core/errors/report-application-error", () => ({
+  isDemoEnvironment: () =>
+    typeof window !== "undefined" && window.location.hostname.toLocaleLowerCase().includes("demo"),
+  reportApplicationError: reportApplicationErrorMock,
+}));
 
 import { AgentChatStore } from "../agent-chat.store";
 import { AgentUiControlStore } from "../ui-control.store";
@@ -43,6 +54,7 @@ const CONFIG = {
     deals: false,
     services: false,
     tasks: false,
+    widgets: false,
     connectedAccounts: false,
   },
   conversationId: null,
@@ -52,12 +64,23 @@ const CONFIG = {
   archivedConversationNextCursor: null,
 };
 
-function root(uiOverrides: Record<string, unknown> = {}) {
+function root(
+  uiOverrides: Record<string, unknown> = {},
+  user: { id: string; companyId: string } = {
+    id: "user-1",
+    companyId: "company-1",
+  },
+) {
   const refreshStore = () => ({
     refresh: vi.fn().mockResolvedValue(undefined),
   });
   return {
-    localeStore: { locale: "en", translation: null, getTranslation: englishTranslator },
+    userStore: { user },
+    localeStore: {
+      locale: "en",
+      translation: null,
+      getTranslation: englishTranslator,
+    },
     contactsStore: refreshStore(),
     organizationsStore: refreshStore(),
     dealsStore: refreshStore(),
@@ -75,12 +98,43 @@ function root(uiOverrides: Record<string, unknown> = {}) {
   };
 }
 
+function stubBrowser(
+  pathname = "/",
+  {
+    hostname = "localhost",
+    search = "",
+    values = new Map<string, string>(),
+  }: { hostname?: string; search?: string; values?: Map<string, string> } = {},
+) {
+  vi.stubGlobal("window", {
+    location: { hostname, pathname, search },
+    localStorage: {
+      getItem: (key: string) => values.get(key) ?? null,
+      setItem: (key: string, value: string) => values.set(key, value),
+    },
+  });
+  return values;
+}
+
 describe("AgentChatStore", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     actionsMock.getAgentConfigAction.mockResolvedValue({
       ok: true,
       data: CONFIG,
+    });
+    actionsMock.cancelAgentTurnAction.mockResolvedValue({
+      ok: true,
+      data: { cancelling: true },
+    });
+    actionsMock.getAgentConversationAction.mockResolvedValue({
+      activeTurn: false,
+      messages: [],
+      nextCursor: null,
+    });
+    actionsMock.respondToApprovalAction.mockResolvedValue({
+      ok: true,
+      data: { resolved: true, resumed: true },
     });
     actionsMock.respondToUiCommandAction.mockResolvedValue({
       ok: true,
@@ -95,6 +149,10 @@ describe("AgentChatStore", () => {
     });
   });
 
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it("uses one toggle action for opening and closing the assistant", () => {
     const store = new AgentChatStore(root() as never);
 
@@ -104,6 +162,160 @@ describe("AgentChatStore", () => {
     store.toggle();
     expect(store.isOpen).toBe(false);
   });
+
+  it("restores the user's explicit open and closed state across reloads", async () => {
+    const stored = stubBrowser("/en/deals");
+    const first = new AgentChatStore(root() as never);
+
+    first.open();
+    expect(new AgentChatStore(root() as never).isOpen).toBe(true);
+    expect([...stored.values()]).toEqual(["true"]);
+
+    first.close();
+    await first.loadConfig();
+
+    expect(new AgentChatStore(root() as never).isOpen).toBe(false);
+    expect([...stored.values()]).toEqual(["false"]);
+  });
+
+  it("scopes the open preference to the current company and user", () => {
+    stubBrowser();
+    new AgentChatStore(root() as never).open();
+
+    expect(new AgentChatStore(root() as never).isOpen).toBe(true);
+    expect(new AgentChatStore(root({}, { id: "user-2", companyId: "company-1" }) as never).isOpen).toBe(false);
+    expect(new AgentChatStore(root({}, { id: "user-1", companyId: "company-2" }) as never).isOpen).toBe(false);
+  });
+
+  it("re-hydrates the preference when the active identity changes", () => {
+    stubBrowser();
+    const firstUser = { id: "user-1", companyId: "company-1" };
+    const secondUser = { id: "user-2", companyId: "company-1" };
+    new AgentChatStore(root({}, secondUser) as never).open();
+    const userStore = observable({ user: firstUser });
+    const store = new AgentChatStore({ ...root(), userStore } as never);
+
+    expect(store.isOpen).toBe(false);
+    runInAction(() => {
+      userStore.user = secondUser;
+    });
+    expect(store.isOpen).toBe(true);
+
+    store.close();
+    runInAction(() => {
+      userStore.user = firstUser;
+    });
+    expect(store.isOpen).toBe(false);
+  });
+
+  it("auto-opens after onboarding on a widget-empty dashboard and persists that default", async () => {
+    const stored = stubBrowser("/en/dashboard");
+    actionsMock.getAgentConfigAction.mockResolvedValue({
+      ok: true,
+      data: {
+        ...CONFIG,
+        counts: {
+          ...CONFIG.counts,
+          contacts: true,
+          organizations: true,
+          tasks: true,
+          widgets: false,
+        },
+      },
+    });
+    const store = new AgentChatStore(root() as never);
+
+    await store.loadConfig();
+
+    expect(store.isOpen).toBe(true);
+    expect([...stored.values()]).toEqual(["true"]);
+  });
+
+  it("does not auto-open a dashboard that already has a widget", async () => {
+    const stored = stubBrowser("/en/dashboard");
+    actionsMock.getAgentConfigAction.mockResolvedValue({
+      ok: true,
+      data: { ...CONFIG, counts: { ...CONFIG.counts, widgets: true } },
+    });
+    const store = new AgentChatStore(root() as never);
+
+    await store.loadConfig();
+
+    expect(store.isOpen).toBe(false);
+    expect(stored.size).toBe(0);
+  });
+
+  it("keeps an explicitly closed Assistant closed on an empty page", async () => {
+    stubBrowser("/en/dashboard");
+    const first = new AgentChatStore(root() as never);
+    first.open();
+    first.close();
+    await first.loadConfig();
+
+    const reloaded = new AgentChatStore(root() as never);
+    await reloaded.loadConfig();
+
+    expect(reloaded.isOpen).toBe(false);
+  });
+
+  it("uses an open URL override without changing the saved closed preference", async () => {
+    const storageKey = "customermates:agentChat:open:v1:company-1:user-1";
+    const values = new Map([[storageKey, "false"]]);
+    stubBrowser("/en/dashboard", { search: "?agentChat=open", values });
+    const store = new AgentChatStore(root() as never);
+
+    expect(store.isOpen).toBe(true);
+    store.close();
+    await store.loadConfig();
+    expect(store.isOpen).toBe(false);
+    expect(values.get(storageKey)).toBe("false");
+
+    expect(new AgentChatStore(root() as never).isOpen).toBe(true);
+    stubBrowser("/en/dashboard", { values });
+    expect(new AgentChatStore(root() as never).isOpen).toBe(false);
+  });
+
+  it("uses a closed URL override without changing the saved open preference or auto-opening", async () => {
+    const storageKey = "customermates:agentChat:open:v1:company-1:user-1";
+    const values = new Map([[storageKey, "true"]]);
+    stubBrowser("/en/dashboard", {
+      hostname: "demo.customermates.test",
+      search: "?agentChat=closed",
+      values,
+    });
+    const store = new AgentChatStore(root() as never);
+
+    expect(store.isOpen).toBe(false);
+    await store.loadConfig();
+    expect(store.isOpen).toBe(false);
+
+    store.open();
+    expect(store.isOpen).toBe(true);
+    expect(values.get(storageKey)).toBe("true");
+    expect(new AgentChatStore(root() as never).isOpen).toBe(false);
+
+    stubBrowser("/en/dashboard", {
+      hostname: "demo.customermates.test",
+      values,
+    });
+    expect(new AgentChatStore(root() as never).isOpen).toBe(true);
+  });
+
+  it.each(["?agentChat=", "?agentChat=OPEN", "?agentChat=open&agentChat=closed"])(
+    "ignores the invalid URL override %s",
+    async (search) => {
+      const values = stubBrowser("/en/profile", {
+        hostname: "demo.customermates.test",
+        search,
+      });
+      const store = new AgentChatStore(root() as never);
+
+      await store.loadConfig();
+
+      expect(store.isOpen).toBe(true);
+      expect([...values.values()]).toEqual(["true"]);
+    },
+  );
 
   it("retries transient and validation failures but latches off for an explicit denial code", async () => {
     actionsMock.getAgentConfigAction
@@ -229,6 +441,39 @@ describe("AgentChatStore", () => {
     store.items = [userItem];
     store.isWorking = false;
     expect(store.isAwaitingAssistantResponse).toBe(false);
+  });
+
+  it("shows explicit continuation progress after an approval is acknowledged", () => {
+    const store = new AgentChatStore(root() as never);
+    store.isWorking = true;
+    store.streamStatus = "working";
+    store.items = [
+      {
+        kind: "approval",
+        id: "approval-continuing",
+        requestId: "request-continuing",
+        activity: {
+          kind: "records.delete",
+          resource: "contacts",
+          affectedResources: ["contacts"],
+          risk: "sensitive",
+        },
+        pendingDecision: null,
+        submittedDecision: null,
+        retryDecision: null,
+        resolution: "approve",
+      },
+    ];
+
+    expect(store.isContinuingAfterApproval).toBe(true);
+
+    store.items.push({
+      kind: "assistant",
+      id: "assistant-continuing",
+      text: "Continuing now",
+      streaming: true,
+    });
+    expect(store.isContinuingAfterApproval).toBe(false);
   });
 
   it("ignores a stale conversation response after the user selects another chat", async () => {
@@ -957,7 +1202,7 @@ describe("AgentChatStore", () => {
   });
 
   it("prevents duplicate approval decisions while one is pending", async () => {
-    let resolve!: (value: { ok: true; data: { resolved: true } }) => void;
+    let resolve!: (value: { ok: true; data: { resolved: true; resumed: true } }) => void;
     actionsMock.respondToApprovalAction.mockImplementationOnce(
       () =>
         new Promise((done) => {
@@ -977,6 +1222,8 @@ describe("AgentChatStore", () => {
         affectedResources: ["contacts" as const],
       },
       pendingDecision: null,
+      submittedDecision: null,
+      retryDecision: null,
       resolution: null,
     };
 
@@ -986,10 +1233,113 @@ describe("AgentChatStore", () => {
     expect(item.pendingDecision).toBe("approve");
     expect(actionsMock.respondToApprovalAction).toHaveBeenCalledOnce();
     await second;
-    resolve({ ok: true, data: { resolved: true } });
+    resolve({ ok: true, data: { resolved: true, resumed: true } });
     await first;
     expect(item.pendingDecision).toBeNull();
-    expect(item.resolution).toBe("approve");
+    expect(item.submittedDecision).toBe("approve");
+    expect(item.resolution).toBeNull();
+  });
+
+  it("keeps an accepted approval visibly resuming until the workflow acknowledges it", async () => {
+    const store = new AgentChatStore(root() as never);
+    store.conversationId = "00000000-0000-4000-8000-000000000001";
+    store.isWorking = true;
+    const handleEvent = (
+      store as unknown as {
+        handleEvent: (event: Record<string, unknown>) => void;
+      }
+    ).handleEvent;
+    handleEvent({
+      seq: 0,
+      type: "approval_request",
+      requestId: "request-1",
+      activity: {
+        kind: "records.delete",
+        resource: "contacts",
+        risk: "sensitive",
+        affectedResources: ["contacts"],
+      },
+    });
+    const approval = store.items.find(
+      (item): item is Extract<(typeof store.items)[number], { kind: "approval" }> => item.kind === "approval",
+    );
+    if (!approval) throw new Error("expected approval");
+
+    await store.respondToApproval(approval, "approve");
+
+    expect(approval).toMatchObject({
+      pendingDecision: null,
+      submittedDecision: "approve",
+      resolution: null,
+    });
+    expect(store.streamStatus).toBe("resuming");
+    expect(store.isContinuingAfterApproval).toBe(false);
+
+    handleEvent({
+      seq: 1,
+      type: "approval_resolved",
+      requestId: "request-1",
+      decision: "approve",
+    });
+
+    expect(approval).toMatchObject({
+      pendingDecision: null,
+      submittedDecision: null,
+      resolution: "approve",
+    });
+    expect(store.streamStatus).toBe("working");
+    expect(store.isContinuingAfterApproval).toBe(true);
+  });
+
+  it("restores a same-decision retry after approval resume attempts are exhausted", async () => {
+    vi.useFakeTimers();
+    actionsMock.respondToApprovalAction.mockResolvedValue({
+      ok: true,
+      data: { resolved: true, resumed: false },
+    });
+    const store = new AgentChatStore(root() as never);
+    store.conversationId = "00000000-0000-4000-8000-000000000001";
+    const handleEvent = (
+      store as unknown as {
+        handleEvent: (event: Record<string, unknown>) => void;
+      }
+    ).handleEvent;
+    handleEvent({
+      seq: 0,
+      type: "approval_request",
+      requestId: "request-retry",
+      activity: {
+        kind: "records.delete",
+        resource: "contacts",
+        risk: "sensitive",
+        affectedResources: ["contacts"],
+      },
+    });
+    const approval = store.items.find(
+      (item): item is Extract<(typeof store.items)[number], { kind: "approval" }> => item.kind === "approval",
+    );
+    if (!approval) throw new Error("expected approval");
+
+    await store.respondToApproval(approval, "approve");
+    await vi.advanceTimersByTimeAsync(6000);
+
+    expect(actionsMock.respondToApprovalAction).toHaveBeenCalledTimes(4);
+    expect(approval).toMatchObject({
+      pendingDecision: null,
+      submittedDecision: null,
+      retryDecision: "approve",
+      resolution: null,
+    });
+    expect(store.streamStatus).toBe("awaitingApproval");
+
+    actionsMock.respondToApprovalAction.mockResolvedValueOnce({
+      ok: true,
+      data: { resolved: true, resumed: true },
+    });
+    await store.respondToApproval(approval, "approve");
+    expect(approval.submittedDecision).toBe("approve");
+    expect(approval.retryDecision).toBeNull();
+    vi.useRealTimers();
   });
 
   it("refreshes usage after a rejected send, including a 429 response", async () => {
@@ -1012,7 +1362,27 @@ describe("AgentChatStore", () => {
     fetchMock.mockRestore();
   });
 
-  it("keeps the active turn locked until housekeeping hands off its queued follow-up", async () => {
+  it("does not replay a prior conversation run when the new POST was never admitted", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockRejectedValue(new TypeError("offline"));
+    const store = new AgentChatStore(root() as never);
+    store.conversationId = "00000000-0000-4000-8000-000000000008";
+
+    await store.sendMessage("New prompt");
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect(actionsMock.getAgentConversationAction).not.toHaveBeenCalled();
+    expect(store.items).toContainEqual(
+      expect.objectContaining({
+        kind: "turn_error",
+        text: "New prompt",
+        retry: false,
+      }),
+    );
+    expect(store.routeRefreshRevision).toBe(0);
+    fetchMock.mockRestore();
+  });
+
+  it("makes a terminal mutation reloadable without waiting for housekeeping", async () => {
     let resolveConfig!: (value: { ok: true; data: typeof CONFIG }) => void;
     actionsMock.getAgentConfigAction.mockImplementationOnce(
       () =>
@@ -1020,46 +1390,30 @@ describe("AgentChatStore", () => {
           resolveConfig = resolve;
         }),
     );
-    vi.stubGlobal("window", { location: { pathname: "/en/dashboard" } });
-    const bodies: string[] = [];
-    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation((_input, init) => {
-      bodies.push(String(init?.body));
-      return Promise.resolve(
-        new Response('data: {"seq":1,"type":"turn_done"}\n\n', {
-          headers: {
-            "content-type": "text/event-stream",
-            "x-conversation-id": "00000000-0000-4000-8000-000000000008",
-          },
-        }),
-      );
-    });
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response('data: {"seq":1,"type":"turn_done","hasSuccessfulMutation":true}\n\n', {
+        headers: {
+          "content-type": "text/event-stream",
+          "x-conversation-id": "00000000-0000-4000-8000-000000000008",
+        },
+      }),
+    );
     const store = new AgentChatStore(root() as never);
 
-    const first = store.sendMessage("First turn");
+    const sending = store.sendMessage("First turn");
     await vi.waitFor(() => expect(actionsMock.getAgentConfigAction).toHaveBeenCalledOnce());
-    expect(store.isWorking).toBe(true);
-    store.setComposerDraft("Queued turn");
-    store.submitDraft();
-    window.location.pathname = "/en/contacts";
-    expect(store.queuedPrompt).toBe("Queued turn");
-    expect(bodies).toHaveLength(1);
+    await sending;
 
-    actionsMock.getAgentConfigAction.mockResolvedValue({
-      ok: true,
-      data: CONFIG,
-    });
+    expect(store.isWorking).toBe(false);
+    expect(store.hasPendingRouteReload).toBe(true);
+    expect(store.streamStatus).toBe("finalizing");
+    expect(actionsMock.listAgentConversationsAction).not.toHaveBeenCalled();
+    expect(store.canInterrupt).toBe(false);
+    store.interrupt();
+    expect(actionsMock.cancelAgentTurnAction).not.toHaveBeenCalled();
+
     resolveConfig({ ok: true, data: CONFIG });
-    await first;
-    await vi.waitFor(() => expect(bodies).toHaveLength(2));
-
-    expect(JSON.parse(bodies[1] ?? "{}")).toMatchObject({
-      conversationId: "00000000-0000-4000-8000-000000000008",
-      text: "Queued turn",
-      pageContext: { route: "/en/dashboard" },
-    });
-    expect(store.queuedPrompt).toBeNull();
     fetchMock.mockRestore();
-    vi.unstubAllGlobals();
   });
 
   it("retries a failed turn with the same id without duplicating its user bubble", () => {
@@ -1125,7 +1479,12 @@ describe("AgentChatStore", () => {
         text: "old request",
       },
       errorItem,
-      { kind: "assistant", id: "assistant-new", text: "A later reply.", streaming: false },
+      {
+        kind: "assistant",
+        id: "assistant-new",
+        text: "A later reply.",
+        streaming: false,
+      },
     ];
     const send = vi.spyOn(store, "sendMessage").mockResolvedValue(undefined);
 
@@ -1267,9 +1626,85 @@ describe("AgentChatStore", () => {
     vi.unstubAllGlobals();
   });
 
+  it.each(["edit", "remove"] as const)(
+    "does not send a queued prompt after the user chooses to %s it during config handoff",
+    async (action) => {
+      const conversationId = "00000000-0000-4000-8000-000000000020";
+      let resolveResponse!: (response: Response) => void;
+      let resolveConfig!: (value: { ok: true; data: typeof CONFIG }) => void;
+      actionsMock.getAgentConfigAction.mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveConfig = resolve;
+          }),
+      );
+      const fetchMock = vi
+        .spyOn(globalThis, "fetch")
+        .mockImplementationOnce(
+          () =>
+            new Promise((resolve) => {
+              resolveResponse = resolve;
+            }),
+        )
+        .mockResolvedValue(
+          new Response('data: {"seq":1,"type":"turn_done","isError":false,"affectedResources":[]}\n\n', {
+            headers: { "content-type": "text/event-stream", "x-conversation-id": conversationId },
+          }),
+        );
+      const store = new AgentChatStore(root() as never);
+
+      const sending = store.sendMessage("First turn");
+      await vi.waitFor(() => expect(store.isWorking).toBe(true));
+      store.setComposerDraft("Queued follow-up");
+      store.submitDraft();
+      resolveResponse(
+        new Response(
+          'data: {"seq":1,"type":"turn_done","isError":false,"hasSuccessfulMutation":true,"affectedResources":[]}\n\n',
+          {
+            headers: { "content-type": "text/event-stream", "x-conversation-id": conversationId },
+          },
+        ),
+      );
+      await vi.waitFor(() => expect(actionsMock.getAgentConfigAction).toHaveBeenCalledOnce());
+      expect(store.isWorking).toBe(false);
+
+      if (action === "edit") store.editQueuedPrompt();
+      else store.removeQueuedPrompt();
+      resolveConfig({ ok: true, data: CONFIG });
+      await sending;
+      await Promise.resolve();
+
+      expect(fetchMock).toHaveBeenCalledOnce();
+      expect(store.queuedPrompt).toBeNull();
+      expect(store.queuedPromptNeedsAttention).toBe(false);
+      expect(store.composerDraft).toBe(action === "edit" ? "Queued follow-up" : "");
+      fetchMock.mockRestore();
+    },
+  );
+
+  it("does not let Enter bypass a queued prompt that already owns the next turn", () => {
+    const store = new AgentChatStore(root() as never);
+    const send = vi.spyOn(store, "sendMessage").mockResolvedValue(undefined);
+    store.queuedPrompt = "Already queued";
+    store.setComposerDraft("Do not jump ahead");
+
+    store.submitDraft();
+
+    expect(send).not.toHaveBeenCalled();
+    expect(store.composerDraft).toBe("Do not jump ahead");
+    expect(store.queuedPrompt).toBe("Already queued");
+  });
+
   it("rejoins a busy conversation and re-sends the same idempotency key when it frees up", async () => {
     const conversationId = "00000000-0000-4000-8000-000000000015";
     const clientRequestId = "00000000-0000-4000-8000-000000000016";
+    let resolveConfig!: (value: { ok: true; data: typeof CONFIG }) => void;
+    actionsMock.getAgentConfigAction.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveConfig = resolve;
+        }),
+    );
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
       .mockResolvedValueOnce(
@@ -1342,14 +1777,19 @@ describe("AgentChatStore", () => {
       );
     const store = new AgentChatStore(root() as never);
 
-    await store.sendMessage("Long request", {
+    const sending = store.sendMessage("Long request", {
       messageId: clientRequestId,
       pageRoute: "/en/tasks",
     });
+    await vi.waitFor(() => expect(actionsMock.getAgentConfigAction).toHaveBeenCalledOnce());
     expect(store.isWorking).toBe(true);
     store.setComposerDraft("Queue this while the first turn reconciles");
     store.submitDraft();
     expect(store.queuedPrompt).toBe("Queue this while the first turn reconciles");
+    expect(fetchMock).toHaveBeenCalledOnce();
+
+    resolveConfig({ ok: true, data: CONFIG });
+    await sending;
     await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(4));
 
     expect(String(fetchMock.mock.calls[1]?.[0])).toContain(`/api/agent/conversations/${conversationId}/stream`);
@@ -1373,6 +1813,667 @@ describe("AgentChatStore", () => {
     fetchMock.mockRestore();
   });
 
+  it("keeps a proven running turn stoppable through a slow config handoff", async () => {
+    const conversationId = "00000000-0000-4000-8000-000000000025";
+    const clientRequestId = "00000000-0000-4000-8000-000000000026";
+    let resolveConfig!: (value: { ok: true; data: typeof CONFIG }) => void;
+    let resolveReattach!: (value: Response) => void;
+    actionsMock.getAgentConfigAction.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveConfig = resolve;
+        }),
+    );
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ disposition: "running", conversationId, clientRequestId }), {
+          status: 409,
+          headers: { "content-type": "application/json", "x-conversation-id": conversationId },
+        }),
+      )
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveReattach = resolve;
+          }),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          'data: {"seq":1,"type":"turn_done","isError":true,"terminalCode":"cancelled","affectedResources":[]}\n\n',
+          { headers: { "content-type": "text/event-stream", "x-conversation-id": conversationId } },
+        ),
+      );
+    const store = new AgentChatStore(root() as never);
+
+    const sending = store.sendMessage("Stop the recovered turn", {
+      messageId: clientRequestId,
+      pageRoute: "/en/tasks",
+    });
+    await vi.waitFor(() => expect(actionsMock.getAgentConfigAction).toHaveBeenCalledOnce());
+
+    expect(store.isWorking).toBe(true);
+    expect(store.canInterrupt).toBe(true);
+    store.interrupt();
+    await vi.waitFor(() => expect(actionsMock.cancelAgentTurnAction).toHaveBeenCalledOnce());
+    expect(store.streamStatus).toBe("stopping");
+    expect(store.canInterrupt).toBe(false);
+
+    resolveConfig({ ok: true, data: CONFIG });
+    await sending;
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    expect(store.streamStatus).toBe("stopping");
+    expect(store.canInterrupt).toBe(false);
+
+    resolveReattach(
+      new Response(
+        'data: {"seq":1,"type":"turn_done","isError":true,"terminalCode":"cancelled","affectedResources":[]}\n\n',
+        { headers: { "content-type": "text/event-stream", "x-conversation-id": conversationId } },
+      ),
+    );
+    await vi.waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(3);
+      expect(store.isWorking).toBe(false);
+    });
+    expect(store.items).toContainEqual(
+      expect.objectContaining({ kind: "assistant", text: "This response was stopped." }),
+    );
+    fetchMock.mockRestore();
+  });
+
+  it("reconciles the original busy-turn prompt even if refreshed usage becomes blocked", async () => {
+    const conversationId = "00000000-0000-4000-8000-000000000018";
+    const clientRequestId = "00000000-0000-4000-8000-000000000019";
+    const blockedConfig = {
+      ...CONFIG,
+      usage: { ...CONFIG.usage, blockedReason: "credits_exhausted" as const },
+    };
+    let resolveConfig!: (value: { ok: true; data: typeof blockedConfig }) => void;
+    actionsMock.getAgentConfigAction
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveConfig = resolve;
+          }),
+      )
+      .mockResolvedValue({ ok: true, data: blockedConfig });
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ disposition: "running", conversationId, clientRequestId }), {
+          status: 409,
+          headers: { "content-type": "application/json", "x-conversation-id": conversationId },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response('data: {"seq":1,"type":"turn_done","isError":false,"affectedResources":[]}\n\n', {
+          headers: { "content-type": "text/event-stream" },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify("limit"), {
+          status: 429,
+          headers: { "content-type": "application/json", "x-conversation-id": conversationId },
+        }),
+      );
+    const store = new AgentChatStore(root() as never);
+
+    const sending = store.sendMessage("Preserve this prompt", {
+      messageId: clientRequestId,
+      pageRoute: "/en/tasks",
+    });
+    await vi.waitFor(() => expect(actionsMock.getAgentConfigAction).toHaveBeenCalledOnce());
+    expect(store.isWorking).toBe(true);
+
+    resolveConfig({ ok: true, data: blockedConfig });
+    await sending;
+    await vi.waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(3);
+      expect(store.isWorking).toBe(false);
+    });
+
+    expect(JSON.parse(String(fetchMock.mock.calls[2]?.[1]?.body))).toMatchObject({
+      clientRequestId,
+      conversationId,
+      text: "Preserve this prompt",
+    });
+    expect(store.items).toContainEqual(
+      expect.objectContaining({
+        kind: "turn_error",
+        messageId: clientRequestId,
+        text: "Preserve this prompt",
+        retry: false,
+      }),
+    );
+    fetchMock.mockRestore();
+  });
+
+  it("requests one route refresh after successful mutations even without mapped resources", () => {
+    const store = new AgentChatStore(root() as never);
+    const handleEvent = (
+      store as unknown as {
+        handleEvent: (event: Record<string, unknown>) => void;
+      }
+    ).handleEvent;
+
+    handleEvent({
+      seq: 1,
+      type: "activity",
+      id: "write-1",
+      activity: {
+        kind: "workspace.configure",
+        affectedResources: [],
+        risk: "write",
+      },
+    });
+    handleEvent({
+      seq: 2,
+      type: "activity_result",
+      id: "write-1",
+      isError: false,
+    });
+    handleEvent({
+      seq: 3,
+      type: "activity",
+      id: "write-2",
+      activity: {
+        kind: "team.manage",
+        affectedResources: [],
+        risk: "sensitive",
+      },
+    });
+    handleEvent({
+      seq: 4,
+      type: "activity_result",
+      id: "write-2",
+      isError: false,
+    });
+
+    expect(store.routeRefreshRevision).toBe(0);
+    handleEvent({
+      seq: 5,
+      type: "turn_done",
+      isError: true,
+      terminalCode: "partial",
+      assistantMessageId: "assistant-mutating",
+      affectedResources: [],
+    });
+    handleEvent({
+      seq: 6,
+      type: "turn_done",
+      isError: true,
+      terminalCode: "partial",
+      assistantMessageId: "assistant-mutating",
+      affectedResources: [],
+    });
+
+    expect(store.routeRefreshRevision).toBe(1);
+    expect(store.takeRouteRefreshRequest()).toBe(true);
+    expect(store.takeRouteRefreshRequest()).toBe(false);
+  });
+
+  it("does not request a route refresh for reads or unsuccessful mutations", () => {
+    const store = new AgentChatStore(root() as never);
+    const handleEvent = (
+      store as unknown as {
+        handleEvent: (event: Record<string, unknown>) => void;
+      }
+    ).handleEvent;
+
+    handleEvent({
+      seq: 1,
+      type: "activity",
+      id: "read-1",
+      activity: {
+        kind: "records.read",
+        resource: "contacts",
+        affectedResources: [],
+        risk: "read",
+      },
+    });
+    handleEvent({
+      seq: 2,
+      type: "activity_result",
+      id: "read-1",
+      isError: false,
+    });
+    handleEvent({
+      seq: 3,
+      type: "activity",
+      id: "write-error",
+      activity: {
+        kind: "records.update",
+        resource: "contacts",
+        affectedResources: [],
+        risk: "write",
+      },
+    });
+    handleEvent({
+      seq: 4,
+      type: "activity_result",
+      id: "write-error",
+      isError: true,
+    });
+    handleEvent({
+      seq: 5,
+      type: "activity",
+      id: "write-cancelled",
+      activity: {
+        kind: "records.update",
+        resource: "contacts",
+        affectedResources: [],
+        risk: "write",
+      },
+    });
+    handleEvent({
+      seq: 6,
+      type: "activity_result",
+      id: "write-cancelled",
+      isError: false,
+      status: "cancelled",
+    });
+    handleEvent({ seq: 7, type: "turn_done", affectedResources: [] });
+
+    expect(store.routeRefreshRevision).toBe(0);
+    expect(store.takeRouteRefreshRequest()).toBe(false);
+  });
+
+  it("uses affected resources as a refresh fallback when activity events were missed", () => {
+    const store = new AgentChatStore(root() as never);
+    const handleEvent = (
+      store as unknown as {
+        handleEvent: (event: Record<string, unknown>) => void;
+      }
+    ).handleEvent;
+
+    handleEvent({
+      seq: 1,
+      type: "turn_done",
+      assistantMessageId: "assistant-fallback",
+      affectedResources: ["contacts"],
+    });
+
+    expect(store.routeRefreshRevision).toBe(1);
+  });
+
+  it("uses the authoritative terminal mutation flag when all activity events were missed", () => {
+    const store = new AgentChatStore(root() as never);
+    const handleEvent = (
+      store as unknown as {
+        handleEvent: (event: Record<string, unknown>) => void;
+      }
+    ).handleEvent;
+
+    handleEvent({
+      seq: 1,
+      type: "turn_done",
+      assistantMessageId: "assistant-authoritative",
+      affectedResources: [],
+      hasSuccessfulMutation: true,
+    });
+
+    expect(store.routeRefreshRevision).toBe(1);
+    expect(store.routeSyncStatus).toBe("queued");
+  });
+
+  it("reconnects an active durable stream from the next confirmed sequence", async () => {
+    const conversationId = "00000000-0000-4000-8000-000000000051";
+    actionsMock.getAgentConversationAction.mockResolvedValueOnce({
+      activeTurn: true,
+      messages: [],
+      nextCursor: null,
+    });
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(
+        new Response('data: {"seq":4,"type":"delta","text":"Working"}\n\n', {
+          headers: {
+            "content-type": "text/event-stream",
+            "x-conversation-id": conversationId,
+          },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          `data: ${JSON.stringify({
+            seq: 5,
+            type: "turn_done",
+            assistantMessageId: "assistant-reconnected",
+            affectedResources: [],
+            hasSuccessfulMutation: true,
+          })}\n\n`,
+          { headers: { "content-type": "text/event-stream" } },
+        ),
+      );
+    const store = new AgentChatStore(root() as never);
+
+    await store.sendMessage("Apply the change");
+
+    expect(String(fetchMock.mock.calls[1]?.[0])).toBe(`/api/agent/conversations/${conversationId}/stream?startIndex=5`);
+    expect(store.items).toContainEqual(expect.objectContaining({ kind: "assistant", text: "Working" }));
+    expect(store.routeRefreshRevision).toBe(1);
+    expect(store.streamStatus).toBe("finalizing");
+    fetchMock.mockRestore();
+  });
+
+  it("reports a reconnect outage once while retries continue", async () => {
+    vi.useFakeTimers();
+    const conversationId = "00000000-0000-4000-8000-000000000053";
+    actionsMock.getAgentConversationAction.mockResolvedValue({
+      activeTurn: true,
+      messages: [],
+      nextCursor: null,
+    });
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(
+        new Response('data: {"seq":1,"type":"delta","text":"Working"}\n\n', {
+          headers: {
+            "content-type": "text/event-stream",
+            "x-conversation-id": conversationId,
+          },
+        }),
+      )
+      .mockRejectedValueOnce(new TypeError("offline"))
+      .mockRejectedValueOnce(new TypeError("still offline"))
+      .mockResolvedValueOnce(
+        new Response('data: {"seq":2,"type":"turn_done","isError":false,"affectedResources":[]}\n\n', {
+          headers: { "content-type": "text/event-stream" },
+        }),
+      );
+    const store = new AgentChatStore(root() as never);
+
+    const sending = store.sendMessage("Keep reconnecting");
+    await vi.advanceTimersByTimeAsync(2000);
+    await sending;
+
+    expect(fetchMock).toHaveBeenCalledTimes(4);
+    expect(reportApplicationErrorMock).toHaveBeenCalledOnce();
+    vi.useRealTimers();
+    fetchMock.mockRestore();
+  });
+
+  it("ignores a duplicate durable event received after reconnecting", async () => {
+    const conversationId = "00000000-0000-4000-8000-000000000052";
+    const descriptor = {
+      kind: "records.update",
+      resource: "contacts",
+      affectedResources: [],
+      risk: "write",
+    };
+    actionsMock.getAgentConversationAction.mockResolvedValueOnce({
+      activeTurn: true,
+      messages: [],
+      nextCursor: null,
+    });
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(
+        new Response(`data: ${JSON.stringify({ seq: 0, type: "activity", id: "write-1", activity: descriptor })}\n\n`, {
+          headers: {
+            "content-type": "text/event-stream",
+            "x-conversation-id": conversationId,
+          },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          [
+            `data: ${JSON.stringify({ seq: 0, type: "activity", id: "write-1", activity: descriptor })}`,
+            `data: ${JSON.stringify({ seq: 1, type: "activity_result", id: "write-1", isError: false })}`,
+            `data: ${JSON.stringify({
+              seq: 2,
+              type: "turn_done",
+              assistantMessageId: "assistant-deduped",
+              affectedResources: [],
+              hasSuccessfulMutation: true,
+            })}`,
+            "",
+          ].join("\n\n"),
+          { headers: { "content-type": "text/event-stream" } },
+        ),
+      );
+    const store = new AgentChatStore(root() as never);
+
+    await store.sendMessage("Apply once");
+
+    expect(store.items.filter((item) => item.kind === "activity" && item.providerCallId === "write-1")).toHaveLength(1);
+    expect(String(fetchMock.mock.calls[1]?.[0])).toContain("startIndex=1");
+    expect(store.routeRefreshRevision).toBe(1);
+    fetchMock.mockRestore();
+  });
+
+  it("detects completed replay mutations and deduplicates the same logical turn", async () => {
+    const clientRequestId = "00000000-0000-4000-8000-000000000031";
+    const replay = [
+      `data: ${JSON.stringify({
+        seq: 1,
+        type: "message_replay",
+        messageId: "assistant-replayed-mutation",
+        parts: [
+          {
+            type: "activity",
+            id: "write-replayed",
+            activity: {
+              kind: "workspace.configure",
+              affectedResources: [],
+              risk: "write",
+            },
+            status: "done",
+          },
+        ],
+        createdAt: "2026-08-28T10:00:00.000Z",
+      })}`,
+      `data: ${JSON.stringify({
+        seq: 2,
+        type: "turn_done",
+        isError: false,
+        terminalCode: "completed",
+        assistantMessageId: "assistant-replayed-mutation",
+        affectedResources: [],
+      })}`,
+      "",
+    ].join("\n\n");
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(() =>
+      Promise.resolve(
+        new Response(replay, {
+          headers: { "content-type": "text/event-stream" },
+        }),
+      ),
+    );
+    const store = new AgentChatStore(root() as never);
+
+    await store.sendMessage("Apply the change", { messageId: clientRequestId });
+    expect(store.routeRefreshRevision).toBe(1);
+    expect(store.takeRouteRefreshRequest()).toBe(true);
+
+    await store.sendMessage("Apply the change", {
+      appendUser: false,
+      messageId: clientRequestId,
+    });
+
+    expect(store.routeRefreshRevision).toBe(1);
+    expect(store.takeRouteRefreshRequest()).toBe(false);
+    fetchMock.mockRestore();
+  });
+
+  it("requests a fallback route refresh when a stream ends after a successful mutation", async () => {
+    const stream = [
+      `data: ${JSON.stringify({
+        seq: 1,
+        type: "activity",
+        id: "write-before-eof",
+        activity: {
+          kind: "records.update",
+          resource: "contacts",
+          affectedResources: [],
+          risk: "write",
+        },
+      })}`,
+      `data: ${JSON.stringify({
+        seq: 2,
+        type: "activity_result",
+        id: "write-before-eof",
+        isError: false,
+        status: "done",
+      })}`,
+      "",
+    ].join("\n\n");
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(stream, {
+        headers: { "content-type": "text/event-stream" },
+      }),
+    );
+    const store = new AgentChatStore(root() as never);
+
+    await store.sendMessage("Apply the change");
+
+    expect(store.routeRefreshRevision).toBe(1);
+    expect(store.takeRouteRefreshRequest()).toBe(true);
+    expect(store.takeRouteRefreshRequest()).toBe(false);
+    fetchMock.mockRestore();
+  });
+
+  it("requests a fallback route refresh when a successful mutation stream is stopped", async () => {
+    const encoder = new TextEncoder();
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation((_input, init) =>
+      Promise.resolve(
+        new Response(
+          new ReadableStream<Uint8Array>({
+            start(controller) {
+              controller.enqueue(
+                encoder.encode(
+                  [
+                    `data: ${JSON.stringify({
+                      seq: 1,
+                      type: "activity",
+                      id: "write-before-stop",
+                      activity: {
+                        kind: "records.update",
+                        resource: "contacts",
+                        affectedResources: [],
+                        risk: "write",
+                      },
+                    })}`,
+                    `data: ${JSON.stringify({
+                      seq: 2,
+                      type: "activity_result",
+                      id: "write-before-stop",
+                      isError: false,
+                      status: "done",
+                    })}`,
+                    "",
+                  ].join("\n\n"),
+                ),
+              );
+              init?.signal?.addEventListener(
+                "abort",
+                () => controller.error(new DOMException("Aborted", "AbortError")),
+                { once: true },
+              );
+            },
+          }),
+          {
+            headers: {
+              "content-type": "text/event-stream",
+              "x-conversation-id": "00000000-0000-4000-8000-000000000081",
+            },
+          },
+        ),
+      ),
+    );
+    const store = new AgentChatStore(root() as never);
+
+    const sending = store.sendMessage("Apply then stop");
+    await vi.waitFor(() =>
+      expect(store.items).toContainEqual(
+        expect.objectContaining({
+          kind: "activity",
+          providerCallId: "write-before-stop",
+          status: "done",
+        }),
+      ),
+    );
+    expect(store.routeRefreshRevision).toBe(0);
+
+    store.interrupt();
+    await sending;
+
+    expect(store.routeRefreshRevision).toBe(1);
+    expect(store.takeRouteRefreshRequest()).toBe(true);
+    fetchMock.mockRestore();
+  });
+
+  it("resets terminal tracking and refreshes after a reattached stream ends following a mutation", async () => {
+    const stream = [
+      `data: ${JSON.stringify({
+        seq: 1,
+        type: "activity",
+        id: "reattached-write",
+        activity: {
+          kind: "records.create",
+          resource: "tasks",
+          affectedResources: [],
+          risk: "write",
+        },
+      })}`,
+      `data: ${JSON.stringify({
+        seq: 2,
+        type: "activity_result",
+        id: "reattached-write",
+        isError: false,
+        status: "done",
+      })}`,
+      `data: ${JSON.stringify({
+        seq: 3,
+        type: "turn_done",
+        isError: false,
+        hasSuccessfulMutation: true,
+        affectedResources: [],
+      })}`,
+      "",
+    ].join("\n\n");
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(stream, {
+        headers: { "content-type": "text/event-stream" },
+      }),
+    );
+    const store = new AgentChatStore(root() as never);
+
+    await (
+      store as unknown as {
+        reattachStream: (conversationId: string, loadVersion: number) => Promise<void>;
+      }
+    ).reattachStream("00000000-0000-4000-8000-000000000041", 0);
+
+    expect(store.routeRefreshRevision).toBe(1);
+    await vi.waitFor(() => expect(actionsMock.getAgentConfigAction).toHaveBeenCalledOnce());
+    expect(actionsMock.listAgentConversationsAction).not.toHaveBeenCalled();
+    fetchMock.mockRestore();
+  });
+
+  it("refreshes config and history after a read-only reattached turn", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response('data: {"seq":1,"type":"turn_done","isError":false,"affectedResources":[]}\n\n', {
+        headers: { "content-type": "text/event-stream" },
+      }),
+    );
+    const store = new AgentChatStore(root() as never);
+
+    await (
+      store as unknown as {
+        reattachStream: (conversationId: string, loadVersion: number) => Promise<void>;
+      }
+    ).reattachStream("00000000-0000-4000-8000-000000000042", 0);
+
+    expect(store.routeRefreshRevision).toBe(0);
+    await vi.waitFor(() => {
+      expect(actionsMock.getAgentConfigAction).toHaveBeenCalledOnce();
+      expect(actionsMock.listAgentConversationsAction).toHaveBeenCalledOnce();
+    });
+    fetchMock.mockRestore();
+  });
+
   it("drops a superseded retry chip and keeps the surviving attempt", () => {
     const store = new AgentChatStore(root() as never);
     const handleEvent = (
@@ -1380,7 +2481,12 @@ describe("AgentChatStore", () => {
         handleEvent: (event: Record<string, unknown>) => void;
       }
     ).handleEvent;
-    const descriptor = { kind: "records.create", resource: "contacts", affectedResources: [], risk: "write" };
+    const descriptor = {
+      kind: "records.create",
+      resource: "contacts",
+      affectedResources: [],
+      risk: "write",
+    };
 
     handleEvent({ seq: 1, type: "activity", id: "f1", activity: descriptor });
     handleEvent({ seq: 2, type: "activity_result", id: "f1", isError: true });
@@ -1509,10 +2615,51 @@ describe("AgentChatStore", () => {
       }),
     );
     expect(store.isWorking).toBe(false);
+    expect(store.routeRefreshRevision).toBe(0);
     fetchMock.mockRestore();
   });
 
-  it("marks in-flight activity as cancelled when the user stops a turn", () => {
+  it("does not auto-send a queued prompt after an inactive snapshot with no terminal event", async () => {
+    const encoder = new TextEncoder();
+    let closeStream!: () => void;
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(
+        new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(encoder.encode('data: {"seq":1,"type":"delta","text":"Working"}\n\n'));
+            closeStream = () => controller.close();
+          },
+        }),
+        {
+          headers: {
+            "content-type": "text/event-stream",
+            "x-conversation-id": "00000000-0000-4000-8000-000000000090",
+          },
+        },
+      ),
+    );
+    const store = new AgentChatStore(root() as never);
+
+    const sending = store.sendMessage("First prompt");
+    await vi.waitFor(() =>
+      expect(store.items).toContainEqual(expect.objectContaining({ kind: "assistant", text: "Working" })),
+    );
+    store.setComposerDraft("Queued prompt");
+    store.submitDraft();
+    closeStream();
+    await sending;
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect(store.queuedPrompt).toBe("Queued prompt");
+    expect(store.queuedPromptNeedsAttention).toBe(true);
+    expect(store.isWorking).toBe(false);
+    expect(store.routeRefreshRevision).toBe(1);
+    expect(store.routeSyncStatus).toBe("waiting");
+    expect(store.streamStatus).toBe("idle");
+    fetchMock.mockRestore();
+  });
+
+  it("marks in-flight activity as cancelled after the stop request is accepted", async () => {
     const store = new AgentChatStore(root() as never);
     store.items = [
       {
@@ -1528,32 +2675,231 @@ describe("AgentChatStore", () => {
         status: "running",
       },
     ];
+    store.conversationId = "00000000-0000-4000-8000-000000000091";
     store.isWorking = true;
+    (store as unknown as { activeTurnAdmissionConfirmed: boolean }).activeTurnAdmissionConfirmed = true;
 
     store.interrupt();
 
-    expect(store.items[0]).toMatchObject({
-      kind: "activity",
-      status: "cancelled",
-    });
-    expect(store.isWorking).toBe(false);
+    await vi.waitFor(() =>
+      expect(store.items[0]).toMatchObject({
+        kind: "activity",
+        status: "cancelled",
+      }),
+    );
+
+    expect(store.isWorking).toBe(true);
+    expect(store.streamStatus).toBe("stopping");
   });
 
-  it("returns the composer to idle after aborting an active response", async () => {
-    vi.stubGlobal("window", { location: { pathname: "/en/dashboard" } });
-    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(
-      (_input, init) =>
-        new Promise((_resolve, reject) => {
-          init?.signal?.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")), {
-            once: true,
-          });
+  it("accepts an authoritative done result after Stop optimistically cancelled an in-flight write", async () => {
+    const store = new AgentChatStore(root() as never);
+    store.items = [
+      {
+        kind: "activity",
+        id: "activity-stop-race",
+        providerCallId: "write-stop-race",
+        turnKey: "stream-0",
+        activity: {
+          kind: "records.update",
+          resource: "contacts",
+          affectedResources: [],
+          risk: "write",
+        },
+        status: "running",
+      },
+    ];
+    store.conversationId = "00000000-0000-4000-8000-000000000095";
+    store.isWorking = true;
+    (store as unknown as { activeTurnAdmissionConfirmed: boolean }).activeTurnAdmissionConfirmed = true;
+
+    store.interrupt();
+    await vi.waitFor(() => expect(store.items[0]).toMatchObject({ status: "cancelled" }));
+
+    const handleEvent = (
+      store as unknown as {
+        handleEvent: (event: Record<string, unknown>) => void;
+      }
+    ).handleEvent;
+    handleEvent({ seq: 1, type: "activity_result", id: "write-stop-race", isError: false, status: "done" });
+    handleEvent({ seq: 1, type: "activity_result", id: "write-stop-race", isError: false, status: "done" });
+    handleEvent({ seq: 2, type: "turn_done", isError: true, terminalCode: "cancelled", affectedResources: [] });
+
+    expect(store.items[0]).toMatchObject({ status: "done" });
+    expect(store.routeRefreshRevision).toBe(1);
+  });
+
+  it("does not rewrite an already-submitted approval when Stop is accepted", async () => {
+    const store = new AgentChatStore(root() as never);
+    store.items = [
+      {
+        kind: "approval",
+        id: "approval-stop-race",
+        requestId: "request-stop-race",
+        activity: {
+          kind: "records.delete",
+          resource: "contacts",
+          affectedResources: ["contacts"],
+          risk: "sensitive",
+        },
+        pendingDecision: null,
+        submittedDecision: "approve",
+        retryDecision: null,
+        resolution: null,
+      },
+    ];
+    store.conversationId = "00000000-0000-4000-8000-000000000094";
+    store.isWorking = true;
+    (store as unknown as { activeTurnAdmissionConfirmed: boolean }).activeTurnAdmissionConfirmed = true;
+
+    store.interrupt();
+    await vi.waitFor(() =>
+      expect(store.items).toContainEqual(
+        expect.objectContaining({ kind: "assistant", text: "This response was stopped." }),
+      ),
+    );
+
+    expect(store.items[0]).toMatchObject({
+      kind: "approval",
+      submittedDecision: "approve",
+      resolution: null,
+    });
+
+    (
+      store as unknown as {
+        handleEvent: (event: Record<string, unknown>) => void;
+      }
+    ).handleEvent({ seq: 1, type: "approval_resolved", requestId: "request-stop-race", decision: "approve" });
+    expect(store.items[0]).toMatchObject({
+      kind: "approval",
+      submittedDecision: null,
+      resolution: "approve",
+    });
+  });
+
+  it("returns to a retryable live state when cancellation delivery keeps failing", async () => {
+    vi.useFakeTimers();
+    actionsMock.cancelAgentTurnAction.mockRejectedValue(new Error("cancel unavailable"));
+    const store = new AgentChatStore(root() as never);
+    store.conversationId = "00000000-0000-4000-8000-000000000091";
+    store.isWorking = true;
+    (store as unknown as { activeTurnAdmissionConfirmed: boolean }).activeTurnAdmissionConfirmed = true;
+
+    store.interrupt();
+    await vi.advanceTimersByTimeAsync(6000);
+
+    expect(actionsMock.cancelAgentTurnAction).toHaveBeenCalledTimes(4);
+    expect(store.streamStatus).toBe("reconnecting");
+    expect(store.canInterrupt).toBe(true);
+    expect(store.items).not.toContainEqual(
+      expect.objectContaining({
+        kind: "assistant",
+        text: "This response was stopped.",
+      }),
+    );
+    expect(toastMock.error).toHaveBeenCalled();
+    vi.useRealTimers();
+  });
+
+  it("does not label a completed turn as cancelled when Stop finds no running turn", async () => {
+    actionsMock.cancelAgentTurnAction.mockResolvedValueOnce({
+      ok: true,
+      data: { cancelling: false },
+    });
+    const store = new AgentChatStore(root() as never);
+    store.conversationId = "00000000-0000-4000-8000-000000000091";
+    store.isWorking = true;
+    store.items = [
+      {
+        kind: "activity",
+        id: "activity-1",
+        providerCallId: "tool-1",
+        activity: {
+          kind: "records.read",
+          resource: "contacts",
+          affectedResources: [],
+          risk: "read",
+        },
+        status: "running",
+      },
+    ];
+    (store as unknown as { activeTurnAdmissionConfirmed: boolean }).activeTurnAdmissionConfirmed = true;
+
+    store.interrupt();
+    await vi.waitFor(() => expect(store.streamStatus).toBe("reconnecting"));
+
+    expect(store.items[0]).toMatchObject({ status: "running" });
+    expect(store.items).not.toContainEqual(
+      expect.objectContaining({
+        kind: "assistant",
+        text: "This response was stopped.",
+      }),
+    );
+    expect(store.canInterrupt).toBe(true);
+    expect(toastMock.error).not.toHaveBeenCalled();
+  });
+
+  it("does not offer Stop before a new turn has been durably admitted", async () => {
+    let resolveFetch!: (response: Response) => void;
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveFetch = resolve;
         }),
     );
     const store = new AgentChatStore(root() as never);
 
-    const sending = store.sendMessage("Stop this response");
+    const sending = store.sendMessage("Start safely");
     await vi.waitFor(() => expect(store.isWorking).toBe(true));
+    expect(store.canInterrupt).toBe(false);
     store.interrupt();
+    expect(actionsMock.cancelAgentTurnAction).not.toHaveBeenCalled();
+
+    resolveFetch(
+      new Response('data: {"seq":1,"type":"turn_done"}\n\n', {
+        headers: {
+          "content-type": "text/event-stream",
+          "x-conversation-id": "00000000-0000-4000-8000-000000000093",
+        },
+      }),
+    );
+    await sending;
+    expect(store.isWorking).toBe(false);
+    fetchMock.mockRestore();
+  });
+
+  it("returns the composer to idle after aborting an active response", async () => {
+    vi.stubGlobal("window", { location: { pathname: "/en/dashboard" } });
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation((_input, init) =>
+      Promise.resolve(
+        new Response(
+          new ReadableStream<Uint8Array>({
+            start(controller) {
+              init?.signal?.addEventListener(
+                "abort",
+                () => controller.error(new DOMException("Aborted", "AbortError")),
+                {
+                  once: true,
+                },
+              );
+            },
+          }),
+          {
+            headers: {
+              "content-type": "text/event-stream",
+              "x-conversation-id": "00000000-0000-4000-8000-000000000092",
+            },
+          },
+        ),
+      ),
+    );
+    const store = new AgentChatStore(root() as never);
+
+    const sending = store.sendMessage("Stop this response");
+    await vi.waitFor(() => expect(store.canInterrupt).toBe(true));
+    store.interrupt();
+    expect(store.isWorking).toBe(true);
+    expect(store.streamStatus).toBe("stopping");
     await sending;
 
     expect(store.isWorking).toBe(false);
@@ -1639,8 +2985,14 @@ describe("AgentUiControlStore", () => {
     try {
       await expect(
         store.startGuidedTour([
-          { targetId: "nav-profile-connected-accounts", note: "Open connected accounts." },
-          { targetId: "profile-connected-accounts-connect", note: "Choose WhatsApp here." },
+          {
+            targetId: "nav-profile-connected-accounts",
+            note: "Open connected accounts.",
+          },
+          {
+            targetId: "profile-connected-accounts-connect",
+            note: "Choose WhatsApp here.",
+          },
         ]),
       ).resolves.toMatchObject({ ok: true });
       expect(navigate).toHaveBeenCalledWith("/profile/connected-accounts");
@@ -1677,9 +3029,15 @@ describe("AgentUiControlStore", () => {
     try {
       await expect(
         store.startGuidedTour([
-          { targetId: "nav-contacts", note: "Contacts are the people you work with." },
+          {
+            targetId: "nav-contacts",
+            note: "Contacts are the people you work with.",
+          },
           { targetId: "contacts-add", note: "Add a contact from here." },
-          { targetId: "contacts-search", note: "Search narrows the current list." },
+          {
+            targetId: "contacts-search",
+            note: "Search narrows the current list.",
+          },
         ]),
       ).resolves.toMatchObject({ ok: true });
       expect(store.active?.stepIndex).toBe(0);
@@ -1715,8 +3073,14 @@ describe("AgentUiControlStore", () => {
     try {
       await expect(
         store.startGuidedTour([
-          { targetId: "nav-dashboard", note: "The dashboard summarises your business." },
-          { targetId: "dashboard-add-widget", note: "Add a widget for a new view." },
+          {
+            targetId: "nav-dashboard",
+            note: "The dashboard summarises your business.",
+          },
+          {
+            targetId: "dashboard-add-widget",
+            note: "Add a widget for a new view.",
+          },
         ]),
       ).resolves.toEqual({
         ok: false,
@@ -1749,8 +3113,14 @@ describe("AgentUiControlStore", () => {
     );
 
     const started = store.startGuidedTour([
-      { targetId: "nav-dashboard", note: "The dashboard summarises your business." },
-      { targetId: "dashboard-add-widget", note: "Add a widget for a new view." },
+      {
+        targetId: "nav-dashboard",
+        note: "The dashboard summarises your business.",
+      },
+      {
+        targetId: "dashboard-add-widget",
+        note: "Add a widget for a new view.",
+      },
     ]);
     store.end();
     resolveNavigation("navigated");

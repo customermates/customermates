@@ -27,6 +27,7 @@ const NO_DATA: AgentDataCounts = {
   deals: false,
   services: false,
   tasks: false,
+  widgets: false,
   connectedAccounts: false,
 };
 
@@ -67,8 +68,9 @@ describe("suggestionVariant", () => {
     expect(suggestionVariant("connected-accounts", { ...NO_DATA, connectedAccounts: true })).toBe("data");
   });
 
-  it("uses contacts or deals for dashboard and default", () => {
-    expect(suggestionVariant("dashboard", { ...NO_DATA, deals: true })).toBe("data");
+  it("uses widgets for dashboard and contacts or deals for default", () => {
+    expect(suggestionVariant("dashboard", { ...NO_DATA, widgets: true })).toBe("data");
+    expect(suggestionVariant("dashboard", { ...NO_DATA, contacts: true, deals: true })).toBe("empty");
     expect(suggestionVariant("default", { ...NO_DATA, contacts: true })).toBe("data");
     expect(suggestionVariant("default", NO_DATA)).toBe("empty");
   });

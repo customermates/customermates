@@ -189,6 +189,7 @@ export const EntityDrawer = observer(() => {
       drawerBody = DetailView ? (
         <EntityDetailPersonalizationProvider
           key={`${personalizationScope}:${personalization?.p13nId ?? "disabled"}:${activeKey}`}
+          applyFieldVisibility={top?.id !== "new"}
           config={personalization}
           customColumnIds={detailStore?.customColumns.map((column) => column.id)}
           initial={personalizationInitial}

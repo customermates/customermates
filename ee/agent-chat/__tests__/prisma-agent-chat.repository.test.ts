@@ -20,6 +20,7 @@ const prismaMock = vi.hoisted(() => ({
   deal: { findFirst: vi.fn() },
   service: { findFirst: vi.fn() },
   task: { findFirst: vi.fn() },
+  widget: { findFirst: vi.fn() },
   connectedAccount: { findFirst: vi.fn() },
   user: { findUnique: vi.fn() },
   agentApproval: {
@@ -545,8 +546,10 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     });
   });
 
-  it("permission-scopes empty-state signals instead of leaking company-wide existence", async () => {
-    await runWithTenant(user, () => new PrismaAgentChatRepo().getSuggestionSignals());
+  it("permission-scopes entity signals and reads only the current user's dashboard widgets", async () => {
+    prismaMock.widget.findFirst.mockResolvedValue({ id: "widget-1" });
+
+    const signals = await runWithTenant(user, () => new PrismaAgentChatRepo().getSuggestionSignals());
 
     expect(prismaMock.contact.findFirst).toHaveBeenCalledWith({
       where: { id: { in: [] }, companyId: user.companyId },
@@ -556,6 +559,11 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       where: { companyId: user.companyId, id: { in: [] } },
       select: { id: true },
     });
+    expect(prismaMock.widget.findFirst).toHaveBeenCalledWith({
+      where: { companyId: user.companyId, userId: user.id },
+      select: { id: true },
+    });
+    expect(signals.widgets).toBe(true);
   });
 
   it("persists an assistant reply only after atomically claiming an active conversation", async () => {
@@ -660,6 +668,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentApproval.findFirst.mockResolvedValue({
       id: "approval-1",
       toolName: pendingToolName,
+      decision: "reject",
     });
     prismaMock.agentApproval.updateMany.mockResolvedValue({ count: 1 });
 
@@ -687,6 +696,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentApproval.findFirst.mockResolvedValue({
       id: "approval-1",
       toolName: pendingToolName,
+      decision: "reject",
     });
 
     const result = await runWithTenant(user, () =>
@@ -706,6 +716,81 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         toolName: pendingToolName,
       },
     });
+  });
+
+  it("accepts an idempotent retry only when it repeats the stored decision", async () => {
+    prismaMock.agentApproval.findFirst.mockResolvedValue({
+      id: "approval-1",
+      toolName: "create_contacts",
+      decision: "approve",
+    });
+
+    const sameDecision = await runWithTenant(user, () =>
+      new PrismaAgentChatRepo().resolvePendingApprovalRequest({
+        conversationId: "conversation-1",
+        requestId: "request-1",
+        decision: "approve",
+      }),
+    );
+    const oppositeDecision = await runWithTenant(user, () =>
+      new PrismaAgentChatRepo().resolvePendingApprovalRequest({
+        conversationId: "conversation-1",
+        requestId: "request-1",
+        decision: "reject",
+      }),
+    );
+
+    expect(sameDecision).toEqual({
+      toolName: "create_contacts",
+      resolved: true,
+    });
+    expect(oppositeDecision).toBeNull();
+    expect(prismaMock.agentApproval.updateMany).not.toHaveBeenCalled();
+  });
+
+  it("re-reads a concurrent identical resolution after its conditional update loses the race", async () => {
+    const pendingToolName = pendingAgentApprovalToolName("create_contacts", new Date(Date.now() + 60_000));
+    prismaMock.agentApproval.findFirst
+      .mockResolvedValueOnce({
+        id: "approval-1",
+        toolName: pendingToolName,
+        decision: "reject",
+      })
+      .mockResolvedValueOnce({
+        toolName: "create_contacts",
+        decision: "approve",
+      });
+    prismaMock.agentApproval.updateMany.mockResolvedValue({ count: 0 });
+
+    const result = await runWithTenant(user, () =>
+      new PrismaAgentChatRepo().resolvePendingApprovalRequest({
+        conversationId: "conversation-1",
+        requestId: "request-1",
+        decision: "approve",
+      }),
+    );
+
+    expect(result).toEqual({ toolName: "create_contacts", resolved: true });
+    expect(prismaMock.agentApproval.findFirst).toHaveBeenCalledTimes(2);
+  });
+
+  it("fails closed for malformed pending sentinels", async () => {
+    prismaMock.agentApproval.findFirst.mockResolvedValue({
+      id: "approval-1",
+      toolName: "__agent_pending__:not-a-date:create_contacts",
+      decision: "approve",
+    });
+
+    const result = await runWithTenant(user, () =>
+      new PrismaAgentChatRepo().resolvePendingApprovalRequest({
+        conversationId: "conversation-1",
+        requestId: "request-1",
+        decision: "approve",
+      }),
+    );
+
+    expect(result).toBeNull();
+    expect(prismaMock.agentApproval.updateMany).not.toHaveBeenCalled();
   });
 
   it("scopes UI result consumption to the expected owner", async () => {
@@ -1673,6 +1758,29 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         state: "reserved",
       },
       data: { state: "released", chargedCredits: 0, settledAt: releasedAt },
+    });
+  });
+
+  it("treats an already-requested running cancellation as idempotently cancellable", async () => {
+    prismaMock.agentTurnRequest.updateMany.mockResolvedValue({ count: 0 });
+    prismaMock.agentTurnRequest.findFirst.mockResolvedValue({ id: "turn-1" });
+
+    const cancelling = await runWithTenant(user, () =>
+      new PrismaAgentChatRepo().requestAgentTurnCancellation({
+        conversationId: "conversation-1",
+      }),
+    );
+
+    expect(cancelling).toBe(true);
+    expect(prismaMock.agentTurnRequest.findFirst).toHaveBeenCalledWith({
+      where: {
+        conversationId: "conversation-1",
+        companyId: user.companyId,
+        userId: user.id,
+        status: "running",
+        cancellationRequestedAt: { not: null },
+      },
+      select: { id: true },
     });
   });
 });

@@ -117,12 +117,17 @@ export function hasRenderableAgentMessageParts(parts: readonly AgentMessagePart[
   return parts.some((part) => part.type !== "text" || part.text.trim().length > 0);
 }
 
+export function hasSuccessfulAgentMutation(parts: readonly AgentMessagePart[]) {
+  return parts.some((part) => part.type === "activity" && part.status === "done" && part.activity.risk !== "read");
+}
+
 export const AgentDataCountsSchema = z.object({
   contacts: z.boolean(),
   organizations: z.boolean(),
   deals: z.boolean(),
   services: z.boolean(),
   tasks: z.boolean(),
+  widgets: z.boolean(),
   connectedAccounts: z.boolean(),
 });
 
@@ -171,6 +176,8 @@ export function suggestionVariant(pageId: SuggestionPageId, counts: AgentDataCou
       return counts.services ? "data" : "empty";
     case "tasks":
       return counts.tasks ? "data" : "empty";
+    case "dashboard":
+      return counts.widgets ? "data" : "empty";
     case "inbox":
     case "connected-accounts":
       return counts.connectedAccounts ? "data" : "empty";

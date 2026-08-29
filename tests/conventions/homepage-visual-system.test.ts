@@ -62,7 +62,7 @@ describe("homepage visual-system adoption", () => {
     expect(page).toContain("HomepageLiveDemo");
     expect(page).toContain("HomepageProductProof");
     expect(liveDemo.match(/<HeroDemoIframe\b/gu)).toHaveLength(1);
-    expect(liveDemo).toContain("const demoPath = `/${locale}/dashboard`");
+    expect(liveDemo).toContain("const demoPath = `/${locale}/dashboard?agentChat=open`");
     expect(liveDemo).not.toMatch(/inbox|threadId|DEMO_INBOX_THREAD_ID/u);
     expect(hero).not.toMatch(/HeroDemoIframe|<iframe\b/u);
     expect(proof.match(/<HomepageViewportVideo\b/gu)).toHaveLength(1);

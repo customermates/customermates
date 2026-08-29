@@ -363,6 +363,15 @@ const FullAppSidebar = observer(
     if (isDocsRoute && !restricted) return null;
 
     const isCloudHosted = rootStore.appMode !== "self-hosted";
+    const assistantRouteSyncStatus = rootStore.agentChatStore.routeSyncStatus;
+    const assistantBusy = rootStore.agentChatStore.isWorking || assistantRouteSyncStatus !== "idle";
+    const assistantBusyLabel = rootStore.agentChatStore.isWorking
+      ? t("AgentChat.askAiWorking")
+      : assistantRouteSyncStatus === "waiting"
+        ? t("AgentChat.ui.routeSyncWaiting")
+        : assistantRouteSyncStatus === "refreshing"
+          ? t("AgentChat.ui.routeSyncRefreshing")
+          : t("AgentChat.ui.finalizing");
     const planSubtitle = buildPlanSubtitle(
       isCloudHosted ? subscriptionStatus : null,
       isCloudHosted ? subscriptionPlan : null,
@@ -377,8 +386,8 @@ const FullAppSidebar = observer(
         <Sidebar collapsible="icon" side="left" variant="inset">
           <NavHeader
             addLabel={t("Common.actions.add")}
-            assistantBusy={rootStore.agentChatStore.isWorking}
-            assistantBusyLabel={t("AgentChat.askAiWorking")}
+            assistantBusy={assistantBusy}
+            assistantBusyLabel={assistantBusyLabel}
             assistantLabel={
               rootStore.agentChatEnabled && rootStore.agentChatStore.enabled === true ? t("AgentChat.askAi") : undefined
             }

@@ -8,7 +8,8 @@ import { CustomFieldInputs } from "@/components/data-view/custom-columns/custom-
 import { EntityDetailBody } from "@/components/entity-detail/entity-detail-body";
 import { EntityDetailCustomFieldsSection } from "@/components/entity-detail/entity-detail-custom-fields-section";
 import { EntityDetailSection, EntityDetailSectionGroup } from "@/components/entity-detail/entity-detail-section";
-import { EntityDetailPinButton } from "@/components/entity-detail/entity-detail-pin-button";
+import { EntityDetailField } from "@/components/entity-detail/entity-detail-field";
+import { EntityDetailFieldActions } from "@/components/entity-detail/entity-detail-field-actions";
 import { EntityDetailStaticField } from "@/components/entity-detail/entity-detail-static-field";
 import { EntityRelationField, AssignedUsersField } from "@/components/entity-detail/relation-fields";
 import { FormInput } from "@/components/forms/form-input";
@@ -37,15 +38,20 @@ export const ServiceDetailView = observer(({ layout = "drawer" }: Props) => {
   const content =
     layout === "drawer" ? (
       <>
-        <FormInput autoFocus required id="name" />
+        <EntityDetailField fieldId={SERVICE_DETAIL_FIELD.name}>
+          <FormInput autoFocus required id="name" />
+        </EntityDetailField>
 
-        <FormNumberInput required endContent={amountEndContent} id="amount" />
+        <EntityDetailField fieldId={SERVICE_DETAIL_FIELD.amount}>
+          <FormNumberInput required endContent={amountEndContent} id="amount" />
+        </EntityDetailField>
 
         <EntityRelationField
           currentEntityId={fetchedEntity?.id}
           currentEntityType="service"
           items={fetchedEntity?.deals}
           target="deal"
+          visibilityFieldId={SERVICE_DETAIL_FIELD.dealIds}
         />
 
         <EntityRelationField
@@ -53,32 +59,37 @@ export const ServiceDetailView = observer(({ layout = "drawer" }: Props) => {
           currentEntityType="service"
           items={fetchedEntity?.tasks}
           target="task"
+          visibilityFieldId={SERVICE_DETAIL_FIELD.taskIds}
         />
 
         <CustomFieldInputs columns={customColumns} isEditing={isEditingCustomField} />
 
-        <AssignedUsersField items={fetchedEntity?.users} />
+        <AssignedUsersField items={fetchedEntity?.users} visibilityFieldId={SERVICE_DETAIL_FIELD.userIds} />
       </>
     ) : (
       <EntityDetailSectionGroup>
         <EntityDetailSection label={t("EntityDetail.sections.base")} sectionId={SERVICE_DETAIL_SECTION.base}>
-          <FormInput
-            autoFocus
-            required
-            id="name"
-            labelEndAddon={
-              <EntityDetailPinButton fieldId={SERVICE_DETAIL_FIELD.name} label={t("Common.inputs.name")} />
-            }
-          />
+          <EntityDetailField fieldId={SERVICE_DETAIL_FIELD.name}>
+            <FormInput
+              autoFocus
+              required
+              id="name"
+              labelEndAddon={
+                <EntityDetailFieldActions fieldId={SERVICE_DETAIL_FIELD.name} label={t("Common.inputs.name")} />
+              }
+            />
+          </EntityDetailField>
 
-          <FormNumberInput
-            required
-            endContent={amountEndContent}
-            id="amount"
-            labelEndAddon={
-              <EntityDetailPinButton fieldId={SERVICE_DETAIL_FIELD.amount} label={t("Common.inputs.amount")} />
-            }
-          />
+          <EntityDetailField fieldId={SERVICE_DETAIL_FIELD.amount}>
+            <FormNumberInput
+              required
+              endContent={amountEndContent}
+              id="amount"
+              labelEndAddon={
+                <EntityDetailFieldActions fieldId={SERVICE_DETAIL_FIELD.amount} label={t("Common.inputs.amount")} />
+              }
+            />
+          </EntityDetailField>
 
           <AssignedUsersField
             items={fetchedEntity?.users}

@@ -291,8 +291,11 @@
     "approval": {
       "approve": "Approved",
       "approveOnceAction": "Approve once",
+      "cancelled": "Cancelled",
       "reject": "Rejected",
       "rejectAction": "Cancel",
+      "resuming": "Decision saved — Mate is continuing…",
+      "retryResume": "Mate could not resume yet. Retry the same decision.",
       "timeout": "Timed out without a response",
       "title": "The assistant wants to run:"
     },
@@ -317,6 +320,7 @@
       "approvalFailed": "The approval could not be delivered.",
       "limitReached": "Not enough AI credits remain to start another request.",
       "sendFailed": "The assistant could not process your message.",
+      "stopFailed": "Mate could not be stopped. It is reconnecting so you can try again.",
       "turnFailed": "The assistant ran into an error."
     },
     "greeting": {
@@ -652,6 +656,7 @@
       "deletePermanently": "Delete permanently",
       "downloadTable": "Download table",
       "editQueued": "Edit queued message",
+      "finalizing": "Finishing and saving changes…",
       "history": "Chat history",
       "jumpToLatest": "Jump to latest",
       "loadChatFailed": "The chat couldn’t be loaded. Select it again to retry.",
@@ -663,12 +668,16 @@
       "noChats": "No chats yet",
       "noChatsBody": "Start a chat to return to your questions and completed work later.",
       "queued": "Up next",
+      "reconnecting": "Reconnecting to Mate…",
       "refreshHistoryFailed": "Chat history couldn’t be refreshed. Your existing chats remain visible.",
       "removeQueued": "Remove queued message",
       "responseComplete": "Response complete",
       "restore": "Restore",
       "retryTurn": "Try again",
+      "routeSyncRefreshing": "Refreshing the page…",
+      "routeSyncWaiting": "Page update waiting for your edits to finish…",
       "stepsTook": "{steps, plural, one {# step} other {# steps}} · {seconds}s",
+      "stopping": "Stopping Mate…",
       "tableCopied": "Table copied",
       "thinking": "Thinking",
       "turnFailed": "This response couldn’t be completed.",
@@ -1785,6 +1794,7 @@
       "createdAt": "Created at",
       "updatedAt": "Updated at"
     },
+    "hideField": "Hide {field} from details",
     "moveFieldDown": "Move {field} down",
     "moveFieldUp": "Move {field} up",
     "personalize": "Customize",
@@ -1795,6 +1805,7 @@
       "notes": "Notes",
       "relations": "Relations"
     },
+    "showField": "Show {field} in details",
     "unpinField": "Unpin {field} from the overview"
   },
   "EntityTerminology": {
