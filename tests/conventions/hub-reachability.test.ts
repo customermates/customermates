@@ -104,7 +104,9 @@ vi.mock("next/navigation", () => ({
   },
 }));
 vi.mock("@/app/components/footer", () => ({ Footer: () => null }));
-vi.mock("@/components/marketing/cta-section", () => ({ CTASection: () => null }));
+vi.mock("@/components/marketing/cta-section", () => ({
+  CTASection: () => null,
+}));
 vi.mock("@/components/marketing/page-hero", () => ({ PageHero: () => null }));
 vi.mock("@/components/seo/json-ld", () => ({ JsonLd: () => null }));
 vi.mock("@/components/marketing/hub-grid", async () => {
@@ -143,6 +145,15 @@ import { PUBLIC_ROUTES } from "@/i18n/routing";
 
 const CLICK_BOUND = 4;
 const E2E_BASE_URL = process.env.HUB_E2E_BASE_URL?.replace(/\/+$/u, "");
+const PRIORITY_NAV_PATHS = [
+  "/features/self-hosted",
+  "/features/unified-inbox",
+  "/for/professional-services",
+  "/for/agencies",
+  "/blog/agentic-crm",
+  "/blog/open-source-crm",
+] as const;
+const FOOTER_UTILITY_DETAIL_PATHS = ["/features/integrations"] as const;
 
 function collectionSlugs(collection: string, locale: string): string[] {
   const directory = join(REPO_ROOT, "content", collection, locale);
@@ -534,6 +545,16 @@ describe("hub pagination and rendered reachability", () => {
         const homeHtml = await home.text();
         maxHtmlBytes = Math.max(maxHtmlBytes, Buffer.byteLength(homeHtml));
         const homeDocument = new JSDOM(homeHtml).window.document;
+        const renderedHeaderLinks = new Set(
+          hrefsIn(homeDocument, "header a[href]")
+            .map((href) => sameOriginPath(href, E2E_BASE_URL as string))
+            .filter((href): href is string => Boolean(href)),
+        );
+        for (const path of PRIORITY_NAV_PATHS) {
+          expect(renderedHeaderLinks, `${locale} header is missing ${path} in server HTML`).toContain(
+            buildLocalePath(locale, path),
+          );
+        }
         const localizedHubs = new Set(LANDING_HUBS.map(({ hubPath }) => buildLocalePath(locale, hubPath)));
         graph.set(
           homePath,
@@ -543,7 +564,9 @@ describe("hub pagination and rendered reachability", () => {
         );
 
         const publishedFooterDetails = new Set<string>();
-        const expectedFooterDetails = new Set<string>();
+        const expectedFooterDetails = new Set<string>(
+          FOOTER_UTILITY_DETAIL_PATHS.map((path) => buildLocalePath(locale, path)),
+        );
         for (const { collection, detailPath } of LANDING_HUBS) {
           const slugs = collectionSlugs(collection, locale);
           for (const slug of slugs) {

@@ -2,7 +2,7 @@
 
 import type { AccountState } from "@/features/auth/account-state";
 
-import { LogOut, Menu, X } from "lucide-react";
+import { BookOpen, Boxes, LogOut, Menu, UsersRound, X } from "lucide-react";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
@@ -31,6 +31,7 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { resolvePublicNavbarActions } from "./navigation/public-navbar-model";
 import { PublicNavbarMenu, type PublicNavGroup } from "./navigation/public-navbar-menu";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { MarketingContainer } from "@/components/marketing/marketing-container";
 
 type Props = {
   accountState: AccountState;
@@ -48,25 +49,21 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
   }
 
   function isNavItemActive(href: string) {
-    if (href === "/") return pathname === "/";
-    return pathname === href || pathname.startsWith(`${href}/`);
+    return pathname === href;
   }
 
   const publicNavGroups: PublicNavGroup[] = [
     {
+      description: t("NavigationBar.public.productDescription"),
+      featured: { href: "/features", title: t("NavigationBar.features") },
+      icon: Boxes,
       id: "product",
+      secondary: {
+        href: "/features/all",
+        title: t("NavigationBar.public.allFeatures"),
+      },
       title: t("NavigationBar.public.product"),
-      columns: [
-        {
-          title: t("NavigationBar.public.overview"),
-          links: [
-            { href: "/features", title: t("NavigationBar.features") },
-            {
-              href: "/features/all",
-              title: t("NavigationBar.public.allFeatures"),
-            },
-          ],
-        },
+      sections: [
         {
           title: t("NavigationBar.public.coreCrm"),
           links: [
@@ -88,39 +85,29 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
           title: t("NavigationBar.public.platform"),
           links: [
             {
-              href: "/features/self-hosted",
-              title: t("NavigationBar.public.selfHosted"),
-            },
-            { href: "/features/api", title: t("NavigationBar.public.api") },
-            {
               href: "/features/integrations",
               title: t("NavigationBar.public.integrations"),
             },
-            {
-              href: "/features/linkedin-integration",
-              title: t("NavigationBar.public.linkedinIntegration"),
-            },
-            {
-              href: "/features/outlook-integration",
-              title: t("NavigationBar.public.outlookIntegration"),
-            },
-            {
-              href: "/features/slack-integration",
-              title: t("NavigationBar.public.slackIntegration"),
-            },
             { href: "/n8n-crm", title: t("NavigationBar.public.n8n") },
+            { href: "/features/api", title: t("NavigationBar.public.api") },
+            {
+              href: "/features/self-hosted",
+              title: t("NavigationBar.public.selfHosted"),
+            },
           ],
         },
       ],
     },
     {
+      description: t("NavigationBar.public.solutionsDescription"),
+      featured: {
+        href: "/for",
+        title: t("NavigationBar.public.allSolutions"),
+      },
+      icon: UsersRound,
       id: "solutions",
       title: t("NavigationBar.public.solutions"),
-      columns: [
-        {
-          title: t("NavigationBar.public.overview"),
-          links: [{ href: "/for", title: t("NavigationBar.public.allSolutions") }],
-        },
+      sections: [
         {
           title: t("NavigationBar.public.serviceTeams"),
           links: [
@@ -138,28 +125,19 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
             },
           ],
         },
-        {
-          title: t("NavigationBar.public.growingBusinesses"),
-          links: [
-            {
-              href: "/for/smb",
-              title: t("NavigationBar.public.smallBusinesses"),
-            },
-          ],
-        },
       ],
     },
     {
+      description: t("NavigationBar.public.resourcesDescription"),
+      featured: { href: "/blog", title: t("NavigationBar.public.blog") },
+      icon: BookOpen,
       id: "resources",
+      secondary: { href: "/docs", title: t("NavigationBar.docs") },
       title: t("NavigationBar.public.resources"),
-      columns: [
+      sections: [
         {
           title: t("NavigationBar.public.explore"),
-          links: [
-            { href: "/docs", title: t("NavigationBar.docs") },
-            { href: "/blog", title: t("NavigationBar.public.blog") },
-            { href: "/compare", title: t("NavigationBar.public.compare") },
-          ],
+          links: [{ href: "/compare", title: t("NavigationBar.public.compare") }],
         },
         {
           title: t("NavigationBar.public.guides"),
@@ -172,7 +150,7 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
           ],
         },
         {
-          title: t("NavigationBar.public.research"),
+          title: t("NavigationBar.public.featuredTopics"),
           links: [
             {
               href: "/blog/agentic-crm",
@@ -195,11 +173,11 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
       <AppLink aria-label={`${logoAlt} ${homeLabel}`} href="/" onClick={closeMenu}>
         <AppImage
           alt={logoAlt}
-          className="object-contain select-none"
-          height={24}
+          className="h-[18px] w-auto object-contain select-none"
+          height={23}
           loading="eager"
           src="customermates.svg"
-          width={156}
+          width={229}
         />
 
         <span className="sr-only">{`${logoAlt} ${homeLabel}`}</span>
@@ -221,14 +199,17 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
         : cta?.label === "continueSetup"
           ? t("Common.actions.continueSetup")
           : null;
-  const ctaButton =
-    cta && ctaLabel && pathname !== cta.href ? (
-      <Button asChild size="sm" variant="softPrimary" onClick={closeMenu}>
+  function renderCtaButton(className?: string) {
+    if (!cta || !ctaLabel || pathname === cta.href) return null;
+
+    return (
+      <Button asChild className={className} size="sm" variant="softPrimary" onClick={closeMenu}>
         <AppLink appearance="unstyled" href={cta.href}>
           {ctaLabel}
         </AppLink>
       </Button>
-    ) : null;
+    );
+  }
 
   async function handleSignOut() {
     if (isSigningOut) return;
@@ -245,9 +226,12 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
     }
   }
 
-  const signOutButton =
-    actions.signOut !== "hidden" ? (
+  function renderSignOutButton(className?: string) {
+    if (actions.signOut === "hidden") return null;
+
+    return (
       <Button
+        className={className}
         disabled={isSigningOut}
         size="sm"
         variant={actions.signOut === "setupEscape" ? "destructiveOutline" : "ghost"}
@@ -257,18 +241,23 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
 
         {t("UserAvatar.signOut")}
       </Button>
-    ) : null;
+    );
+  }
 
-  const contactButton = actions.showContact ? (
-    <Button asChild size="sm" variant="secondary" onClick={closeMenu}>
-      <IntlLink href="/contact">{t("Common.actions.contact")}</IntlLink>
-    </Button>
-  ) : null;
+  function renderContactButton(className?: string) {
+    if (!actions.showContact) return null;
+
+    return (
+      <Button asChild className={className} size="sm" variant="secondary" onClick={closeMenu}>
+        <IntlLink href="/contact">{t("Common.actions.contact")}</IntlLink>
+      </Button>
+    );
+  }
 
   function renderPreferenceButtons() {
     return (
-      <div className="flex items-center gap-1">
-        <LocaleMenu />
+      <div className="flex items-center gap-0.5">
+        <LocaleMenu className="[&_summary]:size-8" />
 
         <ThemeSwitcher />
       </div>
@@ -276,9 +265,9 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
   }
 
   return (
-    <div className="bg-background/80 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
-        <div className="hidden items-center gap-3 lg:flex">{renderHomeButton()}</div>
+    <div className="border-b border-border">
+      <MarketingContainer className="grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-6">
+        <div className="hidden justify-self-start xl:flex">{renderHomeButton()}</div>
 
         <PublicNavbarMenu
           ariaLabel={t("NavigationBar.public.primaryNavigation")}
@@ -288,17 +277,17 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
           onNavigate={closeMenu}
         />
 
-        <div className="hidden items-center gap-2 lg:flex">
+        <div className="hidden items-center gap-1.5 justify-self-end xl:flex">
           {renderPreferenceButtons()}
 
-          {contactButton}
+          {renderContactButton()}
 
-          {ctaButton}
+          {renderCtaButton()}
 
-          {signOutButton}
+          {renderSignOutButton()}
         </div>
 
-        <div className="flex w-full items-center justify-between lg:hidden">
+        <div className="col-span-3 flex w-full items-center justify-between xl:hidden">
           {renderHomeButton()}
 
           <Sheet open={layoutStore.isMenuOpen} onOpenChange={layoutStore.setIsMenuOpen}>
@@ -316,24 +305,48 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
               </SheetHeader>
 
               <SheetBody className="flex flex-col gap-3 pb-6">
-                <Accordion className="w-full" type="multiple">
+                <Accordion collapsible className="w-full" type="single">
                   {publicNavGroups.map((group) => (
                     <AccordionItem key={group.id} value={group.id}>
                       <AccordionTrigger className="text-base no-underline hover:no-underline">
-                        {group.title}
+                        <span className="flex items-center gap-2.5">
+                          <Icon aria-hidden icon={group.icon} size="md" />
+
+                          {group.title}
+                        </span>
                       </AccordionTrigger>
 
                       <AccordionContent className="space-y-5">
-                        {group.columns.map((column) => (
-                          <div key={column.title}>
+                        <p className="px-2 text-sm leading-6 text-subdued">{group.description}</p>
+
+                        <div className="flex flex-col">
+                          {[group.featured, ...(group.secondary ? [group.secondary] : [])].map((link) => (
+                            <AppLink
+                              key={link.href}
+                              aria-current={isNavItemActive(link.href) ? "page" : undefined}
+                              className={cn(
+                                "rounded-md px-2 py-2.5 text-sm font-medium",
+                                !isNavItemActive(link.href) && "text-subdued",
+                              )}
+                              href={link.href}
+                              onClick={closeMenu}
+                            >
+                              {link.title}
+                            </AppLink>
+                          ))}
+                        </div>
+
+                        {group.sections.map((section) => (
+                          <div key={section.title}>
                             <p className="px-2 text-xs font-medium uppercase tracking-[0.14em] text-subdued">
-                              {column.title}
+                              {section.title}
                             </p>
 
                             <div className="mt-2 flex flex-col">
-                              {column.links.map((link) => (
+                              {section.links.map((link) => (
                                 <AppLink
                                   key={link.href}
+                                  aria-current={isNavItemActive(link.href) ? "page" : undefined}
                                   className={cn(
                                     "rounded-md px-2 py-2.5 text-sm",
                                     !isNavItemActive(link.href) && "text-subdued",
@@ -353,6 +366,7 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
                 </Accordion>
 
                 <AppLink
+                  aria-current={isNavItemActive("/pricing") ? "page" : undefined}
                   className={cn("py-3 text-base", !isNavItemActive("/pricing") && "text-subdued")}
                   href="/pricing"
                   onClick={closeMenu}
@@ -362,16 +376,16 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
 
                 <div className="my-1 py-3">{renderPreferenceButtons()}</div>
 
-                {contactButton}
+                {renderContactButton("w-full")}
 
-                {ctaButton}
+                {renderCtaButton("w-full")}
 
-                {signOutButton}
+                {renderSignOutButton("w-full")}
               </SheetBody>
             </SheetContent>
           </Sheet>
         </div>
-      </div>
+      </MarketingContainer>
     </div>
   );
 });

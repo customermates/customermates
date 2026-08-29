@@ -4,6 +4,7 @@ import type { Root } from "react-dom/client";
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
+import { Boxes, UsersRound } from "lucide-react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/components/shared/app-link", () => ({
@@ -21,7 +22,10 @@ import { PublicNavbarMenu, type PublicNavGroup } from "../public-navbar-menu";
 
 const groups: PublicNavGroup[] = [
   {
-    columns: [
+    description: "Understand the product.",
+    featured: { href: "/features", title: "Features" },
+    icon: Boxes,
+    sections: [
       {
         links: [{ href: "/features/self-hosted", title: "Self-hosted" }],
         title: "Platform",
@@ -31,8 +35,11 @@ const groups: PublicNavGroup[] = [
     title: "Product",
   },
   {
-    columns: [{ links: [{ href: "/for/agencies", title: "Agencies" }], title: "Teams" }],
+    description: "Find a solution.",
+    featured: { href: "/for", title: "All solutions" },
     id: "solutions",
+    icon: UsersRound,
+    sections: [{ links: [{ href: "/for/agencies", title: "Agencies" }], title: "Teams" }],
     title: "Solutions",
   },
 ];
@@ -66,16 +73,20 @@ afterEach(() => {
 });
 
 describe("PublicNavbarMenu", () => {
-  it("ships the primary navigation and pricing destination in server markup", () => {
+  it("ships every curated destination in server markup", () => {
     const markup = renderToStaticMarkup(menu());
 
     expect(markup).toContain("Product");
     expect(markup).toContain("Solutions");
+    expect(markup).toContain('href="/features"');
+    expect(markup).toContain('href="/features/self-hosted"');
+    expect(markup).toContain('href="/for"');
+    expect(markup).toContain('href="/for/agencies"');
     expect(markup).toContain('href="/pricing"');
     expect(markup.match(/aria-expanded="false"/gu)).toHaveLength(groups.length);
   });
 
-  it("opens one panel at a time and supports focus, Escape, outside close, and link close", async () => {
+  it("opens one panel at a time, restores focus on Escape, and closes on navigation", async () => {
     const onNavigate = vi.fn();
     act(() => root?.render(menu(onNavigate)));
 
@@ -87,31 +98,64 @@ describe("PublicNavbarMenu", () => {
     expect(product.getAttribute("aria-expanded")).toBe("true");
     expect(solutions.getAttribute("aria-expanded")).toBe("false");
 
+    act(() => product.click());
+    expect(product.getAttribute("aria-expanded")).toBe("false");
+
+    act(() => product.click());
+
     act(() => solutions.click());
     expect(product.getAttribute("aria-expanded")).toBe("false");
     expect(solutions.getAttribute("aria-expanded")).toBe("true");
 
+    const link = document.querySelector<HTMLAnchorElement>('a[href="/for/agencies"]');
+    if (!link) throw new Error("navigation link did not render");
+    link.focus();
     await act(async () => {
-      document.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Escape" }));
+      link.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Escape" }));
       await Promise.resolve();
     });
     expect(solutions.getAttribute("aria-expanded")).toBe("false");
     expect(document.activeElement).toBe(solutions);
 
-    void act(() => product.dispatchEvent(new MouseEvent("pointerover", { bubbles: true })));
-    expect(product.getAttribute("aria-expanded")).toBe("true");
-
-    void act(() => document.body.dispatchEvent(new MouseEvent("pointerdown", { bubbles: true })));
-    expect(product.getAttribute("aria-expanded")).toBe("false");
-
     act(() => solutions.click());
-    const link = document.querySelector<HTMLAnchorElement>('a[href="/for/agencies"]');
-    if (!link) throw new Error("navigation link did not render");
     link.addEventListener("click", (event) => event.preventDefault(), {
       once: true,
     });
     act(() => link.click());
     expect(onNavigate).toHaveBeenCalledTimes(1);
     expect(solutions.getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("opens and closes the focused trigger with Enter and Space", () => {
+    act(() => root?.render(menu()));
+
+    const product = container?.querySelector<HTMLButtonElement>('[data-public-nav-trigger="product"]');
+    if (!product) throw new Error("product navigation trigger did not render");
+
+    act(() => {
+      product.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Enter" }));
+    });
+    expect(product.getAttribute("aria-expanded")).toBe("true");
+
+    act(() => {
+      product.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: " " }));
+    });
+    expect(product.getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("marks the active destination as the current page", () => {
+    const markup = renderToStaticMarkup(
+      createElement(PublicNavbarMenu, {
+        ariaLabel: "Primary navigation",
+        groups,
+        onNavigate: vi.fn(),
+        pathname: "/features/self-hosted",
+        pricingLabel: "Pricing",
+      }),
+    );
+
+    expect(markup).toMatch(/<a(?=[^>]*aria-current="page")(?=[^>]*href="\/features\/self-hosted")[^>]*>/u);
+    expect(markup).not.toMatch(/<a(?=[^>]*aria-current="page")(?=[^>]*href="\/features")[^>]*>/u);
+    expect(markup.match(/aria-current="page"/gu)).toHaveLength(1);
   });
 });

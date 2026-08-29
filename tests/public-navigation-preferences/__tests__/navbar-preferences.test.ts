@@ -44,8 +44,8 @@ describe("public navigation preferences", () => {
     expect(navbar.match(/<LocaleMenu/g)).toHaveLength(1);
     expect(navbar.match(/<ThemeSwitcher/g)).toHaveLength(1);
     expect(navbar.match(/\{renderPreferenceButtons\(\)\}/g)).toHaveLength(2);
-    expect(navbar).toContain('className="hidden items-center gap-2 lg:flex"');
-    expect(navbar).toContain('className="flex w-full items-center justify-between lg:hidden"');
+    expect(navbar).toContain('className="hidden items-center gap-1.5 justify-self-end xl:flex"');
+    expect(navbar).toContain('className="col-span-3 flex w-full items-center justify-between xl:hidden"');
     expect(navbar).toContain('className="my-1 py-3"');
     expect(navbar).not.toContain("border-y");
     expect(navbar).not.toContain("github.com/customermates/customermates");
@@ -64,6 +64,9 @@ describe("public navigation preferences", () => {
     const footer = read(FOOTER);
     expect(footer, "the header menu already links every locale").not.toContain("<LocaleMenu");
     expect(footer, "the theme switcher belongs to the header shells").not.toContain("<ThemeSwitcher");
+    expect(footer, "raw directory backlinks are not navigation").not.toContain("websitesdirectory");
+    expect(footer, "raw directory backlinks are not navigation").not.toContain("bestsitesindex");
+    expect(footer, "raw directory backlinks are not navigation").not.toContain("promotebusinessdirectory");
   });
 
   it("keeps the expanded marketing map restrained and shared with mobile", () => {
@@ -82,15 +85,23 @@ describe("public navigation preferences", () => {
     }
 
     expect(navbar.match(/publicNavGroups\.map/gu)).toHaveLength(1);
-    expect(navbar).toContain('<Accordion className="w-full" type="multiple">');
-    expect(menu).toContain("<Popover");
-    expect(menu).toContain("<PopoverContent");
-    expect(menu).toContain("<PopoverTrigger");
+    expect(navbar).toContain('<Accordion collapsible className="w-full" type="single">');
+    expect(navbar).toContain("<MarketingContainer");
+    expect(menu).toContain("<NavigationMenu.Root");
+    expect(menu).toContain("<NavigationMenu.Content");
+    expect(menu).toContain("forceMount");
+    expect(menu).not.toContain("Popover");
     expect(menu).not.toContain('className="fixed');
-    expect(menu).not.toContain('className="absolute');
     expect(menu).not.toContain("DropdownMenu");
-    expect(menu).not.toContain("NavigationMenu");
     expect(menu).not.toMatch(/bg-(?:red|orange|amber|yellow|green|blue|violet|purple)-/u);
+
+    for (const providerHref of [
+      "/features/linkedin-integration",
+      "/features/outlook-integration",
+      "/features/slack-integration",
+    ]) {
+      expect(navbar, `${providerHref} belongs under the integrations hub`).not.toContain(`href: "${providerHref}"`);
+    }
   });
 
   it("keeps the locale menu renderable without JavaScript", () => {
