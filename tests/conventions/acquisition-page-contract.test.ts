@@ -149,7 +149,7 @@ describe("approved acquisition page contract", () => {
       expect(visual).toContain(`case "${focalForm}"`);
   });
 
-  it("keeps overview, related, and blog surfaces text-only without deleting retained source assets", () => {
+  it("keeps overview, related, and blog surfaces text-only after retiring static hero assets", () => {
     for (const route of [
       "app/[locale]/(static)/features/all/page.tsx",
       "app/[locale]/(static)/for/page.tsx",

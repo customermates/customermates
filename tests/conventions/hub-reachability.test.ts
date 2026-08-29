@@ -392,6 +392,7 @@ describe("hub pagination and rendered reachability", () => {
     const hrefs = renderedPagerHrefs("/blog", 37, 94);
 
     expect(html).toContain('<nav aria-label="Blog"');
+    expect(html).toContain('class="w-full bg-sidebar pb-16 md:pb-24"');
     expect(html).toContain('aria-current="page"');
     expect(html).toContain('rel="prev"');
     expect(html).toContain('rel="next"');
