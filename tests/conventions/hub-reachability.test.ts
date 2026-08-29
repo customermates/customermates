@@ -128,7 +128,10 @@ vi.mock("@/app/[locale]/(static)/blog/blog-post-card", async () => {
 });
 
 import { HubPagination } from "@/components/marketing/hub-pagination";
-import { selectFooterSlugs } from "@/app/components/footer-selection";
+import {
+  FOOTER_RENDERED_COLLECTION_SIZE,
+  selectFooterSlugs,
+} from "@/app/components/footer-selection";
 import {
   HUB_PAGE_PARAM,
   hubPageCount,
@@ -153,7 +156,13 @@ const PRIORITY_NAV_PATHS = [
   "/blog/agentic-crm",
   "/blog/open-source-crm",
 ] as const;
-const FOOTER_UTILITY_DETAIL_PATHS = ["/features/integrations"] as const;
+const FOOTER_UTILITY_DETAIL_PATHS = [
+  "/features/integrations",
+  "/features/linkedin-integration",
+  "/features/outlook-integration",
+  "/features/email-integration",
+  "/features/slack-integration",
+] as const;
 
 function collectionSlugs(collection: string, locale: string): string[] {
   const directory = join(REPO_ROOT, "content", collection, locale);
@@ -572,7 +581,11 @@ describe("hub pagination and rendered reachability", () => {
           for (const slug of slugs) {
             publishedFooterDetails.add(buildLocalePath(locale, `${detailPath}/${slug}`));
           }
-          for (const slug of selectFooterSlugs(collection, slugs)) {
+          for (const slug of selectFooterSlugs(
+            collection,
+            slugs,
+            FOOTER_RENDERED_COLLECTION_SIZE[collection],
+          )) {
             expectedFooterDetails.add(buildLocalePath(locale, `${detailPath}/${slug}`));
           }
         }

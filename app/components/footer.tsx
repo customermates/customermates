@@ -1,7 +1,7 @@
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { FooterContent } from "./footer-content";
-import { type FooterCollection, selectFooterSlugs } from "./footer-selection";
+import { type FooterCollection, FOOTER_RENDERED_COLLECTION_SIZE, selectFooterSlugs } from "./footer-selection";
 
 import { blogPostsSource, comparePagesSource, featurePagesSource, forPagesSource } from "@/core/fumadocs/source";
 import { contentLocaleOrDefault } from "@/i18n/locale-registry";
@@ -21,10 +21,12 @@ function selectPages<T extends SourcePage>(
     if (slug) bySlug.set(slug, page);
   }
 
-  return selectFooterSlugs(collection, [...bySlug.keys()]).flatMap((slug) => {
-    const page = bySlug.get(slug);
-    return page ? [{ page, slug }] : [];
-  });
+  return selectFooterSlugs(collection, [...bySlug.keys()], FOOTER_RENDERED_COLLECTION_SIZE[collection]).flatMap(
+    (slug) => {
+      const page = bySlug.get(slug);
+      return page ? [{ page, slug }] : [];
+    },
+  );
 }
 
 export async function Footer({ className }: { className?: string }) {

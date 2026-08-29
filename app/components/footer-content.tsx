@@ -218,7 +218,7 @@ export function FooterContent({
                 </AppLink>
               </li>
 
-              {blogPosts.slice(0, 2).map(({ slug, displayName }) => (
+              {blogPosts.map(({ slug, displayName }) => (
                 <li key={slug}>
                   <AppLink
                     appearance="unstyled"
@@ -237,7 +237,7 @@ export function FooterContent({
                 </AppLink>
               </li>
 
-              <CompetitorLinks competitors={competitors.slice(0, 1)} />
+              <CompetitorLinks competitors={competitors} />
 
               <li>
                 <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href="/compare">
