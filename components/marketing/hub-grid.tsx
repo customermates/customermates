@@ -23,7 +23,7 @@ export function HubGrid({ hero, items }: Props) {
       <PageHero {...hero} />
 
       <MarketingSection className="py-14 sm:py-18 lg:py-20" tone="canvas">
-        <ul className="grid grid-cols-1 gap-x-8 md:grid-cols-2 lg:grid-cols-3">
+        <ul className="grid grid-cols-1 gap-x-8 md:grid-cols-2 lg:grid-cols-3" data-hub-results="">
           {items.map((item) => (
             <li key={item.href} className="border-t border-border">
               <IntlLink className="group flex h-full min-h-40 flex-col py-6 text-foreground" href={item.href}>
