@@ -17,14 +17,7 @@ export const FOOTER_PREFERRED_SLUGS = {
     "folk",
     "cobra-alternative",
   ],
-  "feature-pages": [
-    "self-hosted",
-    "unified-inbox",
-    "cloud-crm",
-    "sales-tracking",
-    "contact-management",
-    "sales-automation",
-  ],
+  "feature-pages": ["self-hosted", "unified-inbox", "cloud-crm", "contact-management", "sales-tracking", "pipeline"],
   "for-pages": ["professional-services", "agencies", "recruiting", "healthcare", "ecommerce", "property-management"],
 } as const;
 

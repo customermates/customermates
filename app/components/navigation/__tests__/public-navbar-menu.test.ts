@@ -18,7 +18,12 @@ vi.mock("@/components/shared/app-link", () => ({
   }) => createElement("a", props, children),
 }));
 
-import { PublicNavbarMenu, type PublicNavGroup } from "../public-navbar-menu";
+import {
+  isPrimaryPublicNavLink,
+  PublicNavbarMenu,
+  resolveActivePublicNavGroup,
+  type PublicNavGroup,
+} from "../public-navbar-menu";
 
 const groups: PublicNavGroup[] = [
   {
@@ -156,6 +161,72 @@ describe("PublicNavbarMenu", () => {
 
     expect(markup).toMatch(/<a(?=[^>]*aria-current="page")(?=[^>]*href="\/features\/self-hosted")[^>]*>/u);
     expect(markup).not.toMatch(/<a(?=[^>]*aria-current="page")(?=[^>]*href="\/features")[^>]*>/u);
+    expect(markup.match(/aria-current="page"/gu)).toHaveLength(1);
+  });
+
+  it("resolves overlapping routes to one active group and one current link", () => {
+    const productGroup = groups[0];
+    if (!productGroup) throw new Error("product navigation fixture did not render");
+
+    const unifiedInbox = {
+      href: "/features/unified-inbox",
+      title: "Unified inbox",
+    };
+    const whatsapp = { href: "/features/unified-inbox", title: "WhatsApp" };
+    const overlappingGroups: PublicNavGroup[] = [
+      productGroup,
+      {
+        description: "Connect channels.",
+        featured: { href: "/features/integrations", title: "All integrations" },
+        icon: Boxes,
+        id: "integrations",
+        sections: [
+          {
+            links: [
+              { href: "/features/linkedin-integration", title: "LinkedIn" },
+              unifiedInbox,
+              whatsapp,
+              { href: "/docs/mcp", title: "MCP guide" },
+            ],
+            title: "Channels",
+          },
+        ],
+        title: "Integrations",
+      },
+      {
+        description: "Read the guides.",
+        featured: { href: "/blog", title: "Articles" },
+        icon: UsersRound,
+        id: "resources",
+        sections: [
+          {
+            links: [
+              { href: "/docs", title: "Documentation" },
+              { href: "/docs/mcp", title: "MCP guide" },
+            ],
+            title: "Guides",
+          },
+        ],
+        title: "Resources",
+      },
+    ];
+
+    expect(resolveActivePublicNavGroup("/features/linkedin-integration", overlappingGroups)).toBe("integrations");
+    expect(resolveActivePublicNavGroup("/docs/mcp", overlappingGroups)).toBe("resources");
+    expect(isPrimaryPublicNavLink(overlappingGroups[1], unifiedInbox)).toBe(true);
+    expect(isPrimaryPublicNavLink(overlappingGroups[1], whatsapp)).toBe(false);
+
+    const markup = renderToStaticMarkup(
+      createElement(PublicNavbarMenu, {
+        ariaLabel: "Primary navigation",
+        groups: overlappingGroups,
+        onNavigate: vi.fn(),
+        pathname: "/features/unified-inbox",
+        pricingLabel: "Pricing",
+      }),
+    );
+
+    expect(markup).toMatch(/data-public-nav-active="true"[^>]*data-public-nav-trigger="integrations"/u);
     expect(markup.match(/aria-current="page"/gu)).toHaveLength(1);
   });
 });

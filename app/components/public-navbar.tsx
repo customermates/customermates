@@ -2,7 +2,7 @@
 
 import type { AccountState } from "@/features/auth/account-state";
 
-import { BookOpen, Boxes, LogOut, Menu, UsersRound, X } from "lucide-react";
+import { BookOpen, Boxes, LogOut, Menu, Plug, UsersRound, X } from "lucide-react";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
@@ -29,9 +29,10 @@ import { signOutAction } from "@/app/[locale]/actions";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { resolvePublicNavbarActions } from "./navigation/public-navbar-model";
-import { PublicNavbarMenu, type PublicNavGroup } from "./navigation/public-navbar-menu";
+import { isPrimaryPublicNavLink, PublicNavbarMenu, type PublicNavGroup } from "./navigation/public-navbar-menu";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { MarketingContainer } from "@/components/marketing/marketing-container";
+import { ProviderMark } from "@/components/marketing/visuals/native-visual-primitives";
 
 type Props = {
   accountState: AccountState;
@@ -55,13 +56,12 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
   const publicNavGroups: PublicNavGroup[] = [
     {
       description: t("NavigationBar.public.productDescription"),
-      featured: { href: "/features", title: t("NavigationBar.features") },
+      featured: {
+        href: "/features",
+        title: t("NavigationBar.public.productOverview"),
+      },
       icon: Boxes,
       id: "product",
-      secondary: {
-        href: "/features/all",
-        title: t("NavigationBar.public.allFeatures"),
-      },
       title: t("NavigationBar.public.product"),
       sections: [
         {
@@ -76,23 +76,29 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
               title: t("NavigationBar.public.pipeline"),
             },
             {
-              href: "/features/unified-inbox",
-              title: t("NavigationBar.public.unifiedInbox"),
+              href: "/features/sales-tracking",
+              title: t("NavigationBar.public.salesTracking"),
+            },
+            {
+              href: "/features/task-management",
+              title: t("NavigationBar.public.taskManagement"),
             },
           ],
         },
         {
-          title: t("NavigationBar.public.platform"),
+          title: t("NavigationBar.public.deployment"),
           links: [
             {
-              href: "/features/integrations",
-              title: t("NavigationBar.public.integrations"),
+              href: "/features/cloud-crm",
+              title: t("NavigationBar.public.cloudCrm"),
             },
-            { href: "/n8n-crm", title: t("NavigationBar.public.n8n") },
-            { href: "/features/api", title: t("NavigationBar.public.api") },
             {
               href: "/features/self-hosted",
               title: t("NavigationBar.public.selfHosted"),
+            },
+            {
+              href: "/features/all",
+              title: t("NavigationBar.public.allFeatures"),
             },
           ],
         },
@@ -125,19 +131,110 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
             },
           ],
         },
+        {
+          title: t("NavigationBar.public.industries"),
+          links: [
+            {
+              href: "/for/recruiting",
+              title: t("NavigationBar.public.recruiting"),
+            },
+            {
+              href: "/for/healthcare",
+              title: t("NavigationBar.public.healthcare"),
+            },
+            {
+              href: "/for/property-management",
+              title: t("NavigationBar.public.propertyManagement"),
+            },
+          ],
+        },
+      ],
+    },
+    {
+      description: t("NavigationBar.public.integrationsDescription"),
+      featured: {
+        href: "/features/integrations",
+        title: t("NavigationBar.public.allIntegrations"),
+      },
+      icon: Plug,
+      id: "integrations",
+      title: t("NavigationBar.public.integrations"),
+      sections: [
+        {
+          title: t("NavigationBar.public.communication"),
+          links: [
+            {
+              href: "/features/linkedin-integration",
+              provider: "linkedin",
+              title: t("NavigationBar.public.providerLinkedIn"),
+            },
+            {
+              href: "/features/outlook-integration",
+              provider: "outlook",
+              title: t("NavigationBar.public.providerOutlook"),
+            },
+            {
+              href: "/features/email-integration",
+              provider: "gmail",
+              title: t("NavigationBar.public.emailAndGmail"),
+            },
+            {
+              href: "/features/unified-inbox",
+              provider: "imap",
+              title: t("NavigationBar.public.unifiedInbox"),
+            },
+          ],
+        },
+        {
+          title: t("NavigationBar.public.moreChannels"),
+          links: [
+            {
+              href: "/features/unified-inbox",
+              provider: "whatsapp",
+              title: t("NavigationBar.public.providerWhatsApp"),
+            },
+            {
+              href: "/features/unified-inbox",
+              provider: "instagram",
+              title: t("NavigationBar.public.providerInstagram"),
+            },
+            {
+              href: "/features/unified-inbox",
+              provider: "telegram",
+              title: t("NavigationBar.public.providerTelegram"),
+            },
+          ],
+        },
+        {
+          title: t("NavigationBar.public.buildAndAutomate"),
+          links: [
+            {
+              href: "/features/slack-integration",
+              title: t("NavigationBar.public.providerSlack"),
+            },
+            { href: "/n8n-crm", title: t("NavigationBar.public.n8n") },
+            { href: "/features/api", title: t("NavigationBar.public.api") },
+            { href: "/docs/mcp", title: t("NavigationBar.public.mcpGuide") },
+          ],
+        },
       ],
     },
     {
       description: t("NavigationBar.public.resourcesDescription"),
-      featured: { href: "/blog", title: t("NavigationBar.public.blog") },
+      featured: {
+        href: "/blog",
+        title: t("NavigationBar.public.articlesAndGuides"),
+      },
       icon: BookOpen,
       id: "resources",
-      secondary: { href: "/docs", title: t("NavigationBar.docs") },
       title: t("NavigationBar.public.resources"),
       sections: [
         {
           title: t("NavigationBar.public.explore"),
-          links: [{ href: "/compare", title: t("NavigationBar.public.compare") }],
+          links: [
+            { href: "/docs", title: t("NavigationBar.docs") },
+            { href: "/compare", title: t("NavigationBar.public.compare") },
+          ],
         },
         {
           title: t("NavigationBar.public.guides"),
@@ -146,6 +243,10 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
             {
               href: "/docs/self-hosting",
               title: t("NavigationBar.public.selfHostingGuide"),
+            },
+            {
+              href: "/docs/app-inbox",
+              title: t("NavigationBar.public.inboxGuide"),
             },
           ],
         },
@@ -320,7 +421,7 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
                         <p className="px-2 text-sm leading-6 text-subdued">{group.description}</p>
 
                         <div className="flex flex-col">
-                          {[group.featured, ...(group.secondary ? [group.secondary] : [])].map((link) => (
+                          {[group.featured].map((link) => (
                             <AppLink
                               key={link.href}
                               aria-current={isNavItemActive(link.href) ? "page" : undefined}
@@ -345,8 +446,12 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
                             <div className="mt-2 flex flex-col">
                               {section.links.map((link) => (
                                 <AppLink
-                                  key={link.href}
-                                  aria-current={isNavItemActive(link.href) ? "page" : undefined}
+                                  key={`${link.href}-${link.title}`}
+                                  aria-current={
+                                    isNavItemActive(link.href) && isPrimaryPublicNavLink(group, link)
+                                      ? "page"
+                                      : undefined
+                                  }
                                   className={cn(
                                     "rounded-md px-2 py-2.5 text-sm",
                                     !isNavItemActive(link.href) && "text-subdued",
@@ -354,6 +459,12 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
                                   href={link.href}
                                   onClick={closeMenu}
                                 >
+                                  {link.provider ? (
+                                    <span className="mr-2 inline-flex align-middle">
+                                      <ProviderMark decorative provider={link.provider} size={17} />
+                                    </span>
+                                  ) : null}
+
                                   {link.title}
                                 </AppLink>
                               ))}

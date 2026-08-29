@@ -38,6 +38,8 @@ export function PageHero({
   showOpenSourceBadge = true,
   visual,
 }: Props) {
+  const buttonRightIsExternal = buttonRightHref.startsWith("https://") || buttonRightHref.startsWith("http://");
+
   return (
     <section className="relative isolate w-full overflow-hidden border-b border-border bg-background">
       <GridPattern className="z-0" fade="bottom" />
@@ -86,7 +88,11 @@ export function PageHero({
               </Button>
 
               <Button asChild className="w-full sm:w-auto" size="lg" variant="secondary">
-                <IntlLink href={buttonRightHref} target="_blank">
+                <IntlLink
+                  href={buttonRightHref}
+                  rel={buttonRightIsExternal ? "noopener noreferrer" : undefined}
+                  target={buttonRightIsExternal ? "_blank" : undefined}
+                >
                   {buttonRightText}
 
                   <ArrowUpRight aria-hidden className="size-4" />

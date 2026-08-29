@@ -19,10 +19,10 @@ acquisition:
       - product:unified-inbox-entitlements
       - product:core-crm-records
       - product:mcp-tools
+      - product:hosted-mate-capability
     excludedClaims:
       - claim:no-self-hosted-inbox
       - claim:no-unsupported-channels
-      - claim:no-live-mate-availability
   cta:
     action: Unterstützte Unterhaltungen ins CRM bringen
     description: Starten Sie eine Pro-Testphase, verbinden Sie ein unterstütztes Konto und testen Sie den Posteingang in Ihrem eigenen Arbeitsablauf.
@@ -209,7 +209,7 @@ Auch mit Pro lassen sich einzelne Threads mit dem CRM-Team teilen. Ein vollstän
 
 Der [MCP-Server](/docs/mcp) von Customermates enthält Tools für unterstützte Messaging-Aufgaben: Threads und Aktivitäten lesen, Entwürfe verwalten, Unterhaltungen sortieren und Antworten senden. Seine Anweisungen fordern kompatible Clients auf, vor dem Versand eine ausdrückliche Bestätigung einzuholen. Ruft der Client das Tool auf, erzwingt der MCP-Endpunkt jedoch keine zweite Freigabe. Prüfen Sie deshalb den Bestätigungsschritt des Clients, bevor Sie Messaging-Zugriff gewähren.
 
-Customermates enthält außerdem die cloudbasierte Mate-Assistentenfunktion. Ob Mate produktiv verfügbar ist, hängt von der Konfiguration der gehosteten Umgebung und den Freigabebedingungen ab. Deshalb stellt diese Seite Mate nicht als allgemein verfügbar dar; die Verfügbarkeit des Posteingangs ist davon unabhängig.
+Jeder Cloud-Tarif enthält den gehosteten Mate-Assistenten und ein monatliches Kontingent an gehosteten KI-Credits pro aktivem Nutzer. Mate kann berechtigte Postfach-Tools mit den Rechten des aktuellen Nutzers und eigenen Bestätigungsmechanismen verwenden. Externe MCP-Clients nutzen stattdessen den Modellanbieter des Kunden und verbrauchen das gehostete Kontingent nicht.
 
 ## Kalendergrenze
 

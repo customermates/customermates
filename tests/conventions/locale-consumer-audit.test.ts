@@ -73,7 +73,6 @@ const ALLOWED_VISIBLE_COPY_SITES = new Map<string, VisibleCopyException>([
     'components/emails/base/email-layout.tsx :: jsx-text :: "Customermates ·"',
     'components/marketing/founder-contact-card.tsx :: jsx-text :: "Benjamin Wagner"',
     'components/marketing/comparison-table.tsx :: jsx-alt :: "Customermates"',
-    'components/marketing/cta-section.tsx :: jsx-alt :: "Customermates"',
   ]),
   ...reviewedVisibleCopy("Terminal and keyboard tokens have invariant external meaning.", [
     'app/[locale]/(static)/components/homepage-clip-terminal.tsx :: jsx-text :: "~/agent"',
@@ -144,9 +143,8 @@ function formattingSitesInSource(source: string, repoPath: string): string[] {
       node.expression.expression.text === "Intl" &&
       INTL_CONSTRUCTORS.has(node.expression.name.text) &&
       isAmbientOrLiteralLocale(node.arguments?.[0])
-    ) {
+    )
       sites.push(`${repoPath} :: new Intl.${node.expression.name.text} :: ${argumentLabel(node.arguments?.[0])}`);
-    }
 
     if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)) {
       const method = node.expression.name.text;
@@ -300,9 +298,8 @@ function visibleCopySitesInSource(source: string, repoPath: string): string[] {
           ts.SyntaxKind.BarBarToken,
           ts.SyntaxKind.QuestionQuestionToken,
         ].includes(node.expression.operatorToken.kind)
-      ) {
+      )
         recordLiteralBranches("jsx-logical", node.expression);
-      }
     }
 
     if (ts.isPropertyAssignment(node)) {
@@ -363,9 +360,8 @@ function hardCodedLocaleComparisonsInSource(source: string, repoPath: string): s
       if (comparesEquality && literal && localeValues.has(literal.text)) record(node);
     }
 
-    if (ts.isCaseClause(node) && ts.isStringLiteralLike(node.expression) && localeValues.has(node.expression.text)) {
+    if (ts.isCaseClause(node) && ts.isStringLiteralLike(node.expression) && localeValues.has(node.expression.text))
       record(node);
-    }
 
     ts.forEachChild(node, visit);
   };
@@ -402,7 +398,7 @@ function localeBranchingInSource(source: string, repoPath: string): string[] {
   };
 
   const isLocaleLiteral = (node: ts.Node | undefined): boolean =>
-    Boolean(node) && ts.isStringLiteralLike(node!) && localeValues.has(node!.text.toLowerCase());
+    Boolean(node) && ts.isStringLiteralLike(node!) && localeValues.has(node.text.toLowerCase());
 
   const visit = (node: ts.Node): void => {
     if (
@@ -410,9 +406,8 @@ function localeBranchingInSource(source: string, repoPath: string): string[] {
       ts.isPropertyAccessExpression(node.expression) &&
       LOCALE_PREFIX_METHODS.has(node.expression.name.text) &&
       isLocaleLiteral(node.arguments[0])
-    ) {
+    )
       record(node);
-    }
 
     if (ts.isConditionalExpression(node) && isLocaleLiteral(node.whenTrue) && isLocaleLiteral(node.whenFalse))
       record(node);

@@ -119,14 +119,8 @@ export function FooterContent({
               </li>
 
               <li>
-                <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href="/features/integrations">
-                  {t("NavigationBar.public.integrations")}
-                </AppLink>
-              </li>
-
-              <li>
-                <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href="/n8n-crm">
-                  {t("NavigationBar.automation")}
+                <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href="/auth/signup">
+                  {t("HomepagePricing.cloud.ctaText")}
                 </AppLink>
               </li>
             </ul>
@@ -173,14 +167,42 @@ export function FooterContent({
           </div>
 
           <div className="space-y-4">
-            <h3 className="font-semibold text-foreground">{t("Footer.compare")}</h3>
+            <h3 className="font-semibold text-foreground">{t("NavigationBar.public.integrations")}</h3>
 
             <ul className="space-y-2.5">
-              <CompetitorLinks competitors={competitors} />
+              <li>
+                <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href="/features/integrations">
+                  {t("NavigationBar.public.allIntegrations")}
+                </AppLink>
+              </li>
 
               <li>
-                <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href="/compare">
-                  {t("Footer.compareViewAll")}
+                <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href="/features/linkedin-integration">
+                  {t("NavigationBar.public.providerLinkedIn")}
+                </AppLink>
+              </li>
+
+              <li>
+                <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href="/features/outlook-integration">
+                  {t("NavigationBar.public.providerOutlook")}
+                </AppLink>
+              </li>
+
+              <li>
+                <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href="/features/email-integration">
+                  {t("NavigationBar.public.emailAndGmail")}
+                </AppLink>
+              </li>
+
+              <li>
+                <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href="/features/slack-integration">
+                  {t("NavigationBar.public.providerSlack")}
+                </AppLink>
+              </li>
+
+              <li>
+                <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href="/n8n-crm">
+                  {t("NavigationBar.public.n8n")}
                 </AppLink>
               </li>
             </ul>
@@ -196,7 +218,7 @@ export function FooterContent({
                 </AppLink>
               </li>
 
-              {blogPosts.map(({ slug, displayName }) => (
+              {blogPosts.slice(0, 2).map(({ slug, displayName }) => (
                 <li key={slug}>
                   <AppLink
                     appearance="unstyled"
@@ -212,6 +234,14 @@ export function FooterContent({
               <li>
                 <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href="/blog">
                   {t("Footer.blogViewAll")}
+                </AppLink>
+              </li>
+
+              <CompetitorLinks competitors={competitors.slice(0, 1)} />
+
+              <li>
+                <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href="/compare">
+                  {t("Footer.compareViewAll")}
                 </AppLink>
               </li>
             </ul>

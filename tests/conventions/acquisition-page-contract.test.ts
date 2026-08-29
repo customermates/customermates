@@ -4,12 +4,17 @@ import { basename, join } from "node:path";
 import { parse } from "yaml";
 import { describe, expect, it } from "vitest";
 
-import { ACQUISITION_FACT_SOURCES, acquisitionPageSchema } from "@/core/fumadocs/schemas/common";
+import {
+  ACQUISITION_FACT_SOURCES,
+  acquisitionPageSchema,
+} from "@/core/fumadocs/schemas/common";
 import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 
 import { REPO_ROOT } from "./walk";
 
 const APPROVED_PAIRS = [
+  ["feature-pages", "cloud-crm"],
+  ["feature-pages", "linkedin-integration"],
   ["feature-pages", "self-hosted"],
   ["feature-pages", "unified-inbox"],
   ["for-pages", "agencies"],
@@ -17,6 +22,8 @@ const APPROVED_PAIRS = [
   ["blog-posts", "agentic-crm"],
   ["blog-posts", "open-source-crm"],
 ] as const;
+
+const PRODUCT_DEMO_PROOF_SLUGS = new Set(["cloud-crm", "linkedin-integration"]);
 
 type Frontmatter = {
   acquisition?: unknown;
@@ -55,7 +62,7 @@ function readPage(path: string): { body: string; data: Frontmatter } {
 }
 
 describe("approved acquisition page contract", () => {
-  it("binds all six approved bilingual page pairs to rendered page inputs", () => {
+  it("binds all eight approved bilingual page pairs to rendered page inputs", () => {
     const problems: string[] = [];
     let count = 0;
 
@@ -71,59 +78,106 @@ describe("approved acquisition page contract", () => {
         const { body, data } = readPage(path);
         const parsed = acquisitionPageSchema.safeParse(data.acquisition);
         if (!parsed.success) {
-          problems.push(`${path}: ${parsed.error.issues.map((issue) => issue.message).join(", ")}`);
+          problems.push(
+            `${path}: ${parsed.error.issues.map((issue) => issue.message).join(", ")}`,
+          );
           continue;
         }
 
         const contract = parsed.data;
-        if (contract.locale !== locale) problems.push(`${path}: locale is ${contract.locale}`);
-        if (contract.slug !== slug) problems.push(`${path}: slug is ${contract.slug}`);
-        if (contract.metadata.title !== data.title) problems.push(`${path}: acquisition title drifted`);
+        if (contract.locale !== locale)
+          problems.push(`${path}: locale is ${contract.locale}`);
+        if (contract.slug !== slug)
+          problems.push(`${path}: slug is ${contract.slug}`);
+        if (contract.metadata.title !== data.title)
+          problems.push(`${path}: acquisition title drifted`);
         if (contract.metadata.description !== data.description)
           problems.push(`${path}: acquisition description drifted`);
-        if (contract.visual.locale !== locale) problems.push(`${path}: visual locale is ${contract.visual.locale}`);
-        if (contract.visual.source.headline !== data.hero?.title) problems.push(`${path}: visual headline drifted`);
-        if (contract.visual.source.body !== data.hero?.description) problems.push(`${path}: visual body drifted`);
-        if (!body.includes("<Faq>")) problems.push(`${path}: FAQPage is declared without rendered FAQ content`);
+        if (contract.visual.locale !== locale)
+          problems.push(`${path}: visual locale is ${contract.visual.locale}`);
+        if (contract.visual.source.headline !== data.hero?.title)
+          problems.push(`${path}: visual headline drifted`);
+        if (contract.visual.source.body !== data.hero?.description)
+          problems.push(`${path}: visual body drifted`);
+        if (!body.includes("<Faq>"))
+          problems.push(
+            `${path}: FAQPage is declared without rendered FAQ content`,
+          );
 
         const expectedTypes =
-          collection === "blog-posts" ? ["Article", "BreadcrumbList", "FAQPage"] : ["BreadcrumbList", "FAQPage"];
-        if (JSON.stringify(contract.structuredData.types) !== JSON.stringify(expectedTypes)) {
-          problems.push(`${path}: structured-data declaration does not match its route`);
+          collection === "blog-posts"
+            ? ["Article", "BreadcrumbList", "FAQPage"]
+            : ["BreadcrumbList", "FAQPage"];
+        if (
+          JSON.stringify(contract.structuredData.types) !==
+          JSON.stringify(expectedTypes)
+        ) {
+          problems.push(
+            `${path}: structured-data declaration does not match its route`,
+          );
         }
 
-        if (data.hero?.buttonLeftHref && contract.cta.buttonLeftHref !== data.hero.buttonLeftHref)
+        if (
+          data.hero?.buttonLeftHref &&
+          contract.cta.buttonLeftHref !== data.hero.buttonLeftHref
+        )
           problems.push(`${path}: primary CTA drifted from the hero`);
-        if (data.hero?.buttonRightHref && contract.cta.buttonRightHref !== data.hero.buttonRightHref)
+        if (
+          data.hero?.buttonRightHref &&
+          contract.cta.buttonRightHref !== data.hero.buttonRightHref
+        )
           problems.push(`${path}: secondary CTA drifted from the hero`);
         if (
           collection !== "blog-posts" &&
-          Object.entries(contract.cta).some(([key, value]) => data.cta?.[key as keyof typeof data.cta] !== value)
+          Object.entries(contract.cta).some(
+            ([key, value]) =>
+              data.cta?.[key as keyof typeof data.cta] !== value,
+          )
         )
           problems.push(`${path}: acquisition CTA drifted from the route CTA`);
         if (body.includes("<RelatedPages>") || body.includes("<RelatedPage "))
-          problems.push(`${path}: related links must be owned by the route ending`);
+          problems.push(
+            `${path}: related links must be owned by the route ending`,
+          );
 
-        if (contract.visual.kind !== "brand-illustration")
+        const productDemoProof = PRODUCT_DEMO_PROOF_SLUGS.has(slug);
+        if (productDemoProof && contract.visual.kind !== "none")
+          problems.push(
+            `${path}: early product-demo proof must not add a hero illustration`,
+          );
+        if (!productDemoProof && contract.visual.kind !== "brand-illustration")
           problems.push(`${path}: visual is not an authored illustration`);
-        if (contract.visual.referenceSystemVersion !== "customermates-marketing-visuals@8")
+        if (
+          contract.visual.referenceSystemVersion !==
+          "customermates-marketing-visuals@8"
+        )
           problems.push(`${path}: visual system version drifted`);
         if (contract.visual.kind === "brand-illustration") {
-          if (contract.visual.selection !== "automatic") problems.push(`${path}: visual selection is not automatic`);
-          if (JSON.stringify(contract.visual.placements) !== JSON.stringify(["wide", "split", "narrow"]))
+          if (contract.visual.selection !== "automatic")
+            problems.push(`${path}: visual selection is not automatic`);
+          if (
+            JSON.stringify(contract.visual.placements) !==
+            JSON.stringify(["wide", "split", "narrow"])
+          )
             problems.push(`${path}: visual placements drifted`);
         }
+        if (
+          contract.visual.kind === "none" &&
+          contract.visual.selection !== "explicit"
+        )
+          problems.push(`${path}: no-visual decision must be explicit`);
 
         for (const fact of contract.proof.factReferences) {
           const sources = ACQUISITION_FACT_SOURCES[fact];
           for (const source of sources) {
-            if (!existsSync(join(REPO_ROOT, source))) problems.push(`${path}: ${fact} source ${source} is missing`);
+            if (!existsSync(join(REPO_ROOT, source)))
+              problems.push(`${path}: ${fact} source ${source} is missing`);
           }
         }
       }
     }
 
-    expect(count).toBe(12);
+    expect(count).toBe(16);
     expect(problems).toEqual([]);
   });
 
@@ -133,19 +187,34 @@ describe("approved acquisition page contract", () => {
       "app/[locale]/(static)/for/[industry]/page.tsx",
     ]) {
       const source = readFileSync(join(REPO_ROOT, route), "utf8");
-      expect(source, route).toContain('page.data.acquisition?.visual.kind === "brand-illustration"');
+      expect(source, route).toContain(
+        'page.data.acquisition?.visual.kind === "brand-illustration"',
+      );
       expect(source, route).toContain("<AcquisitionStoryVisual");
       expect(source, route).not.toContain("<ShowcaseFrame");
-      expect(source, route).not.toMatch(/src=\{`\$\{(?:slug|industry)\}\.png`\}/u);
+      expect(source, route).not.toMatch(
+        /src=\{`\$\{(?:slug|industry)\}\.png`\}/u,
+      );
     }
 
-    const blog = readFileSync(join(REPO_ROOT, "app/[locale]/(static)/blog/[slug]/page.tsx"), "utf8");
+    const blog = readFileSync(
+      join(REPO_ROOT, "app/[locale]/(static)/blog/[slug]/page.tsx"),
+      "utf8",
+    );
     expect(blog).not.toContain("AcquisitionStoryVisual");
     expect(blog).not.toContain("BlogHeroMedia");
     expect(blog).not.toContain(".png`");
 
-    const visual = readFileSync(join(REPO_ROOT, "components/marketing/acquisition-story-visual.tsx"), "utf8");
-    for (const focalForm of ["context-card", "provider-set", "kanban-board", "draft"])
+    const visual = readFileSync(
+      join(REPO_ROOT, "components/marketing/acquisition-story-visual.tsx"),
+      "utf8",
+    );
+    for (const focalForm of [
+      "context-card",
+      "provider-set",
+      "kanban-board",
+      "draft",
+    ])
       expect(visual).toContain(`case "${focalForm}"`);
   });
 
@@ -165,9 +234,15 @@ describe("approved acquisition page contract", () => {
       expect(source, route).not.toContain(".png`");
     }
 
-    expect(existsSync(join(REPO_ROOT, "components/marketing/blog-hero-media.tsx"))).toBe(false);
-    expect(existsSync(join(REPO_ROOT, "components/marketing/hub-post-card.tsx"))).toBe(false);
-    expect(existsSync(join(REPO_ROOT, "components/marketing/hub-post-grid.tsx"))).toBe(false);
+    expect(
+      existsSync(join(REPO_ROOT, "components/marketing/blog-hero-media.tsx")),
+    ).toBe(false);
+    expect(
+      existsSync(join(REPO_ROOT, "components/marketing/hub-post-card.tsx")),
+    ).toBe(false);
+    expect(
+      existsSync(join(REPO_ROOT, "components/marketing/hub-post-grid.tsx")),
+    ).toBe(false);
 
     const schema = readFileSync(join(REPO_ROOT, "core/seo/schemas.ts"), "utf8");
     expect(schema).toContain("image: [ogImage]");
@@ -176,23 +251,37 @@ describe("approved acquisition page contract", () => {
 
   it("does not label the cloud-only unified inbox as AGPL open source", () => {
     for (const locale of CONTENT_LOCALES) {
-      const { data } = readPage(contentFile("feature-pages", locale, "unified-inbox"));
+      const { data } = readPage(
+        contentFile("feature-pages", locale, "unified-inbox"),
+      );
       expect(data.hero?.showOpenSourceBadge, locale).toBe(false);
     }
 
-    const source = readFileSync(join(REPO_ROOT, "components/marketing/page-hero.tsx"), "utf8");
+    const source = readFileSync(
+      join(REPO_ROOT, "components/marketing/page-hero.tsx"),
+      "utf8",
+    );
     expect(source).toContain("showOpenSourceBadge = true");
-    expect(source).toContain("showOpenSourceBadge ? <AgplGithubBadge /> : null");
+    expect(source).toContain(
+      "showOpenSourceBadge ? <AgplGithubBadge /> : null",
+    );
   });
 
   it("binds the unified-inbox conversation and contact identities in every locale", () => {
     for (const locale of CONTENT_LOCALES) {
-      const { data } = readPage(contentFile("feature-pages", locale, "unified-inbox"));
+      const { data } = readPage(
+        contentFile("feature-pages", locale, "unified-inbox"),
+      );
       const visual = acquisitionPageSchema.parse(data.acquisition).visual;
-      if (visual.kind !== "brand-illustration") throw new Error(`${locale}: expected a brand illustration`);
+      if (visual.kind !== "brand-illustration")
+        throw new Error(`${locale}: expected a brand illustration`);
 
-      const conversation = visual.supportingSubjects.find((subject) => subject.id === "conversation-list");
-      const contact = visual.supportingSubjects.find((subject) => subject.id === "contact-context");
+      const conversation = visual.supportingSubjects.find(
+        (subject) => subject.id === "conversation-list",
+      );
+      const contact = visual.supportingSubjects.find(
+        (subject) => subject.id === "contact-context",
+      );
       expect(conversation, locale).toMatchObject({
         fixtures: {
           conversation: "gmail-rollout-next-steps",
@@ -211,12 +300,18 @@ describe("approved acquisition page contract", () => {
     expect(sources).toContain("features/mcp-tools/server-instructions.ts");
     expect(sources).toContain("components/data-view/data-kanban-view.tsx");
 
-    expect(readFileSync(join(REPO_ROOT, "features/mcp-tools/server-instructions.ts"), "utf8")).toContain(
-      "Deal stage and task status are singleSelect custom columns",
-    );
-    expect(readFileSync(join(REPO_ROOT, "components/data-view/data-kanban-view.tsx"), "utf8")).toContain(
-      'data-slot="kanban-root"',
-    );
+    expect(
+      readFileSync(
+        join(REPO_ROOT, "features/mcp-tools/server-instructions.ts"),
+        "utf8",
+      ),
+    ).toContain("Deal stage and task status are singleSelect custom columns");
+    expect(
+      readFileSync(
+        join(REPO_ROOT, "components/data-view/data-kanban-view.tsx"),
+        "utf8",
+      ),
+    ).toContain('data-slot="kanban-root"');
   });
 
   it("binds hosted Mate proof to availability, enforced approvals, and credit entitlements", () => {
@@ -225,6 +320,19 @@ describe("approved acquisition page contract", () => {
     expect(sources).toContain("ee/agent-chat/gated-tools.ts");
     expect(sources).toContain("core/commercial/plan-catalog.ts");
     expect(sources).toContain("ee/subscription/entitlements.ts");
+  });
+
+  it("binds LinkedIn social and Sales Navigator claims to MCP and REST authorities", () => {
+    const socialSources = ACQUISITION_FACT_SOURCES["product:linkedin-social-workflows"];
+    expect(socialSources).toContain("features/mcp-tools/social-posts.mcp-tools.ts");
+    expect(socialSources).toContain("app/api/v1/messaging/social-profiles/search/route.ts");
+    expect(socialSources).toContain("app/api/v1/messaging/social-posts/search/route.ts");
+    expect(socialSources).toContain("app/api/v1/messaging/social-relations/invite/route.ts");
+
+    const salesSources = ACQUISITION_FACT_SOURCES["product:sales-navigator-workflows"];
+    expect(salesSources).toContain("features/mcp-tools/sales-navigator.mcp-tools.ts");
+    expect(salesSources).toContain("app/api/v1/messaging/sales-navigator/search/people/route.ts");
+    expect(salesSources).toContain("app/api/v1/messaging/sales-navigator/lists/save/route.ts");
   });
 
   it("keeps each locale pair on one cluster, role, proof boundary, and schema shape", () => {
@@ -237,19 +345,35 @@ describe("approved acquisition page contract", () => {
       });
       const [en, de] = pages;
       for (const key of ["clusterId", "role"] as const) {
-        if (en[key] !== de[key]) problems.push(`${collection}/${basename(slug)}: ${key} differs by locale`);
+        if (en[key] !== de[key])
+          problems.push(
+            `${collection}/${basename(slug)}: ${key} differs by locale`,
+          );
       }
       if (JSON.stringify(en.proof) !== JSON.stringify(de.proof)) {
-        problems.push(`${collection}/${basename(slug)}: proof boundary differs by locale`);
+        problems.push(
+          `${collection}/${basename(slug)}: proof boundary differs by locale`,
+        );
       }
-      if (JSON.stringify(en.structuredData) !== JSON.stringify(de.structuredData)) {
-        problems.push(`${collection}/${basename(slug)}: structured data differs by locale`);
+      if (
+        JSON.stringify(en.structuredData) !== JSON.stringify(de.structuredData)
+      ) {
+        problems.push(
+          `${collection}/${basename(slug)}: structured data differs by locale`,
+        );
       }
       if (JSON.stringify(en.relatedHrefs) !== JSON.stringify(de.relatedHrefs)) {
-        problems.push(`${collection}/${basename(slug)}: related graph differs by locale`);
+        problems.push(
+          `${collection}/${basename(slug)}: related graph differs by locale`,
+        );
       }
-      if (en.cta.buttonLeftHref !== de.cta.buttonLeftHref || en.cta.buttonRightHref !== de.cta.buttonRightHref) {
-        problems.push(`${collection}/${basename(slug)}: CTA destinations differ by locale`);
+      if (
+        en.cta.buttonLeftHref !== de.cta.buttonLeftHref ||
+        en.cta.buttonRightHref !== de.cta.buttonRightHref
+      ) {
+        problems.push(
+          `${collection}/${basename(slug)}: CTA destinations differ by locale`,
+        );
       }
     }
 

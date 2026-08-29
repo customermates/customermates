@@ -2,6 +2,7 @@ import type { ComparisonTable } from "@/core/fumadocs/schemas/pricing";
 import type { ComparisonColumn, ComparisonSection } from "@/components/marketing/responsive-comparison-table";
 
 import { ResponsiveComparisonTable } from "@/components/marketing/responsive-comparison-table";
+import { MarketingSection } from "@/components/marketing/marketing-section";
 import { formatCommercialAmount, getCommercialOffer, PLAN_IDS, PLAN_CATALOG } from "@/core/commercial/plan-catalog";
 
 type Props = ComparisonTable & { locale: string };
@@ -64,10 +65,10 @@ export function PricingComparisonTable({ customValue, header, locale, plans, sec
   });
 
   return (
-    <section className="relative w-full pb-8">
-      <div className="mx-auto max-w-7xl px-4">
-        <ResponsiveComparisonTable header={header} {...presentation} />
-      </div>
-    </section>
+    <MarketingSection className="py-16 sm:py-20 lg:py-24">
+      <h2 className="text-display-sm mb-10">{header}</h2>
+
+      <ResponsiveComparisonTable header={<span className="sr-only">{header}</span>} {...presentation} />
+    </MarketingSection>
   );
 }

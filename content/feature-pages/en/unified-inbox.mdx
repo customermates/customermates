@@ -19,10 +19,10 @@ acquisition:
       - product:unified-inbox-entitlements
       - product:core-crm-records
       - product:mcp-tools
+      - product:hosted-mate-capability
     excludedClaims:
       - claim:no-self-hosted-inbox
       - claim:no-unsupported-channels
-      - claim:no-live-mate-availability
   cta:
     action: Bring supported conversations into the CRM
     description: Start a Pro trial, connect one supported account and evaluate the inbox with your own workflow.
@@ -209,7 +209,7 @@ Pro users can share individual threads with CRM teammates. Sharing an entire con
 
 The Customermates [MCP server](/docs/mcp) includes tools for supported messaging work, including reading threads and activities, managing drafts, triaging conversations and sending replies. Its instructions tell compatible clients to request explicit confirmation before a send, but the MCP endpoint does not add a second approval gate after the client calls the tool. Verify the client-side review step before granting messaging access.
 
-Customermates also contains a cloud-only Mate assistant capability. Its production availability depends on hosted configuration and release conditions, so this page does not present Mate as generally available. The inbox itself does not depend on that availability claim.
+Every cloud plan includes the hosted Mate assistant and a monthly hosted-AI credit allowance per active user. Mate can work with the eligible inbox tools under the current user's permissions and its own confirmation controls. External MCP clients instead use the customer's model provider and do not consume the hosted allowance.
 
 ## Calendar boundary
 

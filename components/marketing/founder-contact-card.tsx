@@ -34,12 +34,12 @@ export function FounderContactCard({ className }: Props) {
     <section
       data-founder-contact
       aria-label={subtitle}
-      className={cn("border-t border-border pt-4", className)}
+      className={cn("rounded-lg border border-border bg-background p-4", className)}
       data-founder-contact-variant="note"
     >
       <FounderIdentity subtitle={subtitle} />
 
-      <p className="mt-4 text-xs leading-5 text-muted-foreground">{t("ContactPage.highlights.personal.body")}</p>
+      <p className="mt-3 text-xs leading-5 text-muted-foreground">{t("ContactPage.highlights.personal.body")}</p>
 
       <Button asChild className="mt-2 h-auto justify-start px-0 py-1 text-xs" size="xs" variant="link">
         <IntlLink href="/contact">
