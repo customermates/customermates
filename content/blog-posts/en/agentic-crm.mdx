@@ -1,6 +1,6 @@
 ---
 title: "Agentic & AI-Native CRM: MCP, Mate and Safe Actions"
-description: "Learn how agentic and AI-native CRM differ. Customermates combines a hosted cloud Assistant with MCP for external AI clients and explicit controls."
+description: "Agentic and AI-native CRM explained: hosted Mate with environment-dependent availability, MCP for external AI clients, and explicit controls."
 
 acquisition:
   locale: en
@@ -10,7 +10,7 @@ acquisition:
   primaryIntent: Agentic and AI-native CRM through Mate and MCP
   metadata:
     title: "Agentic & AI-Native CRM: MCP, Mate and Safe Actions"
-    description: "Learn how agentic and AI-native CRM differ. Customermates combines a hosted cloud Assistant with MCP for external AI clients and explicit controls."
+    description: "Agentic and AI-native CRM explained: hosted Mate with environment-dependent availability, MCP for external AI clients, and explicit controls."
   proof:
     factReferences:
       - product:mcp-tools
@@ -24,12 +24,12 @@ acquisition:
       - claim:no-unsupported-channels
   cta:
     action: Evaluate agentic CRM with a bounded workflow
-    description: Compare the hosted Mate assistant with external MCP clients, review their control boundaries and test one bounded CRM workflow.
+    description: Compare the hosted Mate capability with external MCP clients, review their control boundaries and test one bounded CRM workflow.
     buttonLeftText: Read the MCP guide
     buttonLeftHref: /docs/mcp
     buttonRightText: Start the Pro trial
     buttonRightHref: /auth/signup
-    hint: "Mate uses hosted plan credits; external MCP clients use the customer's model provider."
+    hint: "When enabled, Mate uses hosted plan credits; external MCP clients use the customer's model provider."
   relatedHrefs:
     - /docs/mcp
     - /features/unified-inbox
@@ -105,7 +105,7 @@ blogPost:
 
 An **AI-native CRM** exposes structured customer data and typed actions that AI can use. An **agentic CRM** lets an AI client or assistant carry out supported work with those interfaces: reading context, creating or updating records, preparing a draft, or completing a workflow. The terms overlap, but one describes architecture while the other describes behavior.
 
-Customermates supports both operating models. Every cloud plan includes the in-app Mate assistant and a monthly hosted-AI credit allowance per active user. Cloud and self-hosted deployments can also connect external AI clients through MCP, with the customer selecting and funding that separate client and model provider.
+Customermates supports both operating models. Every cloud plan includes a Mate entitlement and a monthly hosted-AI credit allowance per active user; whether Mate is live in a hosted environment depends on that environment's current configuration. Cloud and self-hosted deployments can also connect external AI clients through MCP, with the customer selecting and funding that separate client and model provider.
 
 <ArticleSummary title="At a glance">
   <SummaryItem label="AI-native architecture">
@@ -117,8 +117,9 @@ Customermates supports both operating models. Every cloud plan includes the in-a
     of only generating text.
   </SummaryItem>
   <SummaryItem label="Two operating paths">
-    Cloud plans include hosted Mate. External AI clients connect through MCP in
-    cloud and self-hosted deployments with their own model provider.
+    Cloud plans define a hosted Mate entitlement. Live availability depends on
+    the hosted environment; external AI clients connect through MCP in cloud
+    and self-hosted deployments with their own model provider.
   </SummaryItem>
   <SummaryItem label="Control boundary">
     Server permissions authorize the action. Confirmation behavior for external
@@ -164,7 +165,7 @@ An external client can read the context for a contact, inspect related CRM recor
 | Path                           | Where it runs            | Model and credits                                    | Availability boundary          |
 | ------------------------------ | ------------------------ | ---------------------------------------------------- | ------------------------------ |
 | External AI client through MCP | Cloud or self-hosted     | The customer selects and funds the external provider | Open integration surface       |
-| Mate in-app assistant          | Customermates Cloud only | Hosted monthly plan allowance per active user        | Included with every cloud plan |
+| Mate in-app assistant          | Customermates Cloud only | Hosted monthly plan allowance per active user        | Entitled by plan; environment-configured |
 
 The [MCP documentation](/docs/mcp) is the source for setup and the changing tool catalog. Customermates currently registers [[derived.mcp.tools.total]] MCP tools; this page does not duplicate their names because the catalog evolves.
 
@@ -178,7 +179,7 @@ On entitled cloud accounts, MCP also exposes supported messaging work for the [u
 
 Agentic does not mean permissionless. The MCP server instructions tell clients to request explicit confirmation before every delete or outbound `send_*` action. That is client guidance, not a second server-side approval gate: once an authorized client calls the MCP tool, the server executes the permitted action. Verify that your chosen client shows the exact side effect and waits for approval.
 
-Mate has separate, enforced per-call approval gates for destructive actions, sends and resends, invitations, support escalation, and changes to external or social accounts. The hosted capability can be disabled operationally, but every cloud plan includes the entitlement and a monthly credit allowance.
+When enabled, Mate has separate, enforced per-call approval gates for destructive actions, sends and resends, invitations, support escalation, and changes to external or social accounts. Every cloud plan includes the entitlement and monthly credit allowance, while live availability depends on the hosted environment's current configuration.
 
 ## Cloud and self-hosted boundaries
 
@@ -187,8 +188,8 @@ Mate has separate, enforced per-call approval gates for destructive actions, sen
 | Core CRM                    | Yes                               | Yes                       |
 | MCP for external AI clients | Yes                               | Yes                       |
 | Unified inbox               | Pro and above                     | No                        |
-| Hosted Mate assistant       | Included with every cloud plan    | No                        |
-| Hosted AI credits           | Monthly allowance per active user | No                        |
+| Hosted Mate assistant       | Plan entitlement; environment-configured | No                  |
+| Hosted AI credits           | Plan allowance; usable when Mate is enabled | No               |
 
 Self-hosting uses Starter entitlements. It remains a strong option for teams that want a [self-hosted CRM with an open-source core](/features/self-hosted) and prefer to connect their own AI client and provider through MCP.
 
@@ -231,8 +232,9 @@ For buyers, the practical questions matter more than the label:
 
 <AcquisitionCallout title="Evaluate the current integration" variant="fit">
   [Read the MCP guide](/docs/mcp) for the current connection path. You can also
-  [start a cloud trial](/auth/signup) to evaluate Mate and the managed CRM with
-  a bounded workflow before granting broader permissions.
+  [start a cloud trial](/auth/signup) to evaluate the managed CRM and, when
+  Mate is enabled in that environment, one bounded assistant workflow before
+  granting broader permissions.
 </AcquisitionCallout>
 
 ## Frequently asked questions
@@ -242,10 +244,11 @@ For buyers, the practical questions matter more than the label:
 It is a CRM whose structured records and actions can be operated by an authorized AI client or assistant. A responsible implementation keeps server-side permissions and explicit approval boundaries for destructive or external actions.
 </FaqItem>
 
-<FaqItem question="Is Mate generally available in Customermates Cloud?">
-  Yes. Every cloud plan includes the hosted Mate assistant and a monthly
-  hosted-AI credit allowance per active user. The capability can be disabled
-  operationally. Self-hosted deployments use external AI clients through MCP.
+<FaqItem question="Is Mate available in every Customermates Cloud environment?">
+  Every cloud plan includes a Mate entitlement and monthly hosted-AI allowance
+  per active user. Live availability depends on the hosted
+  environment's current configuration, so it is not a universal availability
+  promise. Self-hosted deployments use external AI clients through MCP.
 </FaqItem>
 
 <FaqItem question="Can I use an external AI client with self-hosted Customermates?">

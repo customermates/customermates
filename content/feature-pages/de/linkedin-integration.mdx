@@ -201,7 +201,7 @@ Das Kontingent ist ein gemeinsamer Pool: Ein verbundenes Postfach sowie ein Link
 
 Ein externer KI-Client kann die erlaubten Messaging- und Sales-Navigator-Tools per MCP aufrufen. Die MCP-Anweisungen fordern kompatible Clients auf, vor dem Senden oder vor destruktiven Aktionen eine Bestätigung einzuholen. Der Server ergänzt jedoch keine zweite Bestätigungsstufe, nachdem ein autorisierter Client das Tool aufgerufen hat. Prüfen Sie deshalb das Bestätigungsverhalten des Clients, die Workspace-Berechtigungen und das verbundene Konto.
 
-Der gehostete Mate-Assistent ist in Cloud-Tarifen enthalten und nutzt das jeweilige Kontingent an gehosteten KI-Credits. Externe MCP-Clients verwenden ihren eigenen Modellanbieter und ihr eigenes Abonnement und verbrauchen diese Credits nicht. Beide Wege beachten weiterhin Workspace-Berechtigungen, Tarifansprüche und Voraussetzungen des verbundenen Kontos; ihre Bestätigungsmechanismen sind separat dokumentiert.
+Cloud-Tarife umfassen eine Mate-Berechtigung und ein Kontingent an gehosteten KI-Credits. Wenn Mate in der gehosteten Umgebung aktiviert ist, kann die Funktion berechtigte Tools mit den Rechten des Nutzers und dem Tarifkontingent verwenden. Externe MCP-Clients nutzen ihren eigenen Modellanbieter und ihr eigenes Abonnement und verbrauchen diese Credits nicht. Beide Wege beachten weiterhin Workspace-Berechtigungen, Tarifansprüche und Voraussetzungen des verbundenen Kontos; ihre Bestätigungsmechanismen sind separat dokumentiert.
 
 ## Für wen dieser Ansatz passt – und für wen nicht
 
@@ -241,8 +241,9 @@ Er passt nicht, wenn automatische Anreicherung, offizieller LinkedIn CRM Sync, M
 <FaqItem question="Kann ein KI-Client LinkedIn-Nachrichten entwerfen oder senden?">
   Ein externer MCP-Client kann erlaubte Messaging-Tools in einem berechtigten
   Cloud-Konto verwenden. Der MCP-Server führt ein autorisiert aufgerufenes Tool
-  aus; das Bestätigungsverhalten liegt beim Client. Der gehostete Mate-Assistent
-  ist in Cloud-Tarifen enthalten und nutzt die gehosteten KI-Credits des Tarifs.
+  aus; das Bestätigungsverhalten liegt beim Client. Wenn Mate in der gehosteten
+  Umgebung aktiviert ist, nutzt die Funktion das gehostete KI-Kontingent des
+  Tarifs.
 </FaqItem>
 
 <FaqItem question="Funktioniert die LinkedIn-Integration beim Self-Hosting?">

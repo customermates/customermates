@@ -1,6 +1,6 @@
 ---
 title: "Agentisches & KI-natives CRM: MCP, Mate und sichere Aktionen"
-description: "Agentisches und KI-natives CRM erklärt: Customermates verbindet einen gehosteten Cloud-Assistenten mit MCP für externe KI-Clients und klaren Kontrollen."
+description: "Agentisches und KI-natives CRM: gehostete Mate-Funktion mit umgebungsabhängiger Verfügbarkeit, MCP für externe KI-Clients und klare Kontrollen."
 
 acquisition:
   locale: de
@@ -10,7 +10,7 @@ acquisition:
   primaryIntent: Agentisches und KI-natives CRM über Mate und MCP
   metadata:
     title: "Agentisches & KI-natives CRM: MCP, Mate und sichere Aktionen"
-    description: "Agentisches und KI-natives CRM erklärt: Customermates verbindet einen gehosteten Cloud-Assistenten mit MCP für externe KI-Clients und klaren Kontrollen."
+    description: "Agentisches und KI-natives CRM: gehostete Mate-Funktion mit umgebungsabhängiger Verfügbarkeit, MCP für externe KI-Clients und klare Kontrollen."
   proof:
     factReferences:
       - product:mcp-tools
@@ -24,12 +24,12 @@ acquisition:
       - claim:no-unsupported-channels
   cta:
     action: Agentic CRM anhand eines klar begrenzten Workflows prüfen
-    description: Vergleichen Sie den gehosteten Mate-Assistenten mit externen MCP-Clients, prüfen Sie die Kontrollgrenzen und testen Sie einen begrenzten CRM-Ablauf.
+    description: Vergleichen Sie die gehostete Mate-Funktion mit externen MCP-Clients, prüfen Sie die Kontrollgrenzen und testen Sie einen begrenzten CRM-Ablauf.
     buttonLeftText: MCP-Anleitung lesen
     buttonLeftHref: /docs/mcp
     buttonRightText: Pro-Test starten
     buttonRightHref: /auth/signup
-    hint: "Mate nutzt gehostete Tarif-Credits; externe MCP-Clients verwenden den Modellanbieter des Kunden."
+    hint: "Wenn Mate aktiviert ist, nutzt die Funktion gehostete Tarif-Credits; externe MCP-Clients verwenden den Modellanbieter des Kunden."
   relatedHrefs:
     - /docs/mcp
     - /features/unified-inbox
@@ -105,7 +105,7 @@ blogPost:
 
 Ein **KI-natives CRM** stellt strukturierte Kundendaten und klar definierte Aktionen für KI bereit. Ein **agentisches CRM** lässt einen KI-Client oder Assistenten damit unterstützte Arbeit ausführen: Kontext lesen, Datensätze anlegen oder aktualisieren, einen Entwurf vorbereiten oder einen Ablauf abschließen. Die Begriffe überschneiden sich, beschreiben aber unterschiedliche Ebenen: Architektur und Verhalten.
 
-Customermates unterstützt beide Betriebsmodelle. Jeder Cloud-Tarif enthält den In-App-Assistenten Mate und ein monatliches Kontingent an gehosteten KI-Credits pro aktivem Nutzer. Cloud- und Self-Hosted-Installationen können zusätzlich externe KI-Clients über MCP verbinden; Auswahl und Kosten für diesen separaten Client und Modellanbieter liegen beim Kunden.
+Customermates unterstützt beide Betriebsmodelle. Alle Cloud-Tarife umfassen eine Mate-Berechtigung und ein monatliches Kontingent an gehosteten KI-Credits pro aktivem Nutzer. Ob Mate in einer gehosteten Umgebung live verfügbar ist, hängt von deren aktueller Konfiguration ab. Cloud- und Self-Hosted-Installationen können zusätzlich externe KI-Clients über MCP verbinden; Auswahl und Kosten für diesen separaten Client und Modellanbieter liegen beim Kunden.
 
 <ArticleSummary title="Auf einen Blick">
   <SummaryItem label="KI-native Architektur">
@@ -117,8 +117,9 @@ Customermates unterstützt beide Betriebsmodelle. Jeder Cloud-Tarif enthält den
     verbinden, statt nur Text zu erzeugen.
   </SummaryItem>
   <SummaryItem label="Zwei Betriebswege">
-    Cloud-Tarife enthalten gehosteten Mate. Externe KI-Clients verbinden sich in
-    Cloud und Self-Hosting über MCP mit ihrem eigenen Modellanbieter.
+    Cloud-Tarife definieren eine Berechtigung für gehosteten Mate. Die Live-
+    Verfügbarkeit hängt von der gehosteten Umgebung ab; externe KI-Clients
+    verbinden sich in Cloud und Self-Hosting über MCP mit ihrem Modellanbieter.
   </SummaryItem>
   <SummaryItem label="Kontrollgrenze">
     Serverberechtigungen autorisieren die Aktion. Bei externem MCP liegt die
@@ -166,7 +167,7 @@ Ein externer Client kann den Kontext eines Kontakts lesen, verknüpfte CRM-Daten
 | Weg                         | Betriebsort             | Modell und Credits                                | Verfügbarkeitsgrenze           |
 | --------------------------- | ----------------------- | ------------------------------------------------- | ------------------------------ |
 | Externer KI-Client über MCP | Cloud oder Self-Hosted  | Der Kunde wählt und bezahlt den externen Anbieter | Offene Integrationsoberfläche  |
-| In-App-Assistent Mate       | Nur Customermates Cloud | Monatliches Tarifkontingent pro aktivem Nutzer    | In jedem Cloud-Tarif enthalten |
+| In-App-Assistent Mate       | Nur Customermates Cloud | Monatliches Tarifkontingent pro aktivem Nutzer    | Tarifberechtigt; umgebungskonfiguriert |
 
 Die [MCP-Dokumentation](/docs/mcp) ist die Quelle für Einrichtung und den veränderlichen Tool-Katalog. Customermates registriert aktuell [[derived.mcp.tools.total]] MCP-Tools. Diese Seite kopiert ihre Namen nicht, damit der Katalog an einer Stelle aktuell bleibt.
 
@@ -180,7 +181,7 @@ Bei berechtigten Cloud-Konten umfasst MCP außerdem unterstützte Messaging-Aufg
 
 Agentisch bedeutet nicht grenzenlos. Die MCP-Serveranweisungen fordern Clients auf, vor jedem Löschen und jeder ausgehenden `send_*`-Aktion eine ausdrückliche Bestätigung einzuholen. Das ist eine Vorgabe für den Client, keine zweite serverseitige Freigabe: Ruft ein autorisierter Client das MCP-Tool auf, führt der Server die zulässige Aktion aus. Prüfen Sie deshalb, ob der gewählte Client die genaue Wirkung anzeigt und auf Freigabe wartet.
 
-Mate erzwingt bei jedem Tool-Aufruf eine eigene Freigabe für destruktive Aktionen, Versand und erneuten Versand, Einladungen, Support-Eskalation sowie Änderungen an externen oder Social-Media-Konten. Die gehostete Funktion kann betrieblich deaktiviert werden; jeder Cloud-Tarif enthält jedoch den Anspruch und ein monatliches Credit-Kontingent.
+Wenn Mate aktiviert ist, erzwingt die Funktion bei jedem Tool-Aufruf eine eigene Freigabe für destruktive Aktionen, Versand und erneuten Versand, Einladungen, Support-Eskalation sowie Änderungen an externen oder Social-Media-Konten. Alle Cloud-Tarife umfassen die Berechtigung und das monatliche Credit-Kontingent; die Live-Verfügbarkeit hängt von der aktuellen Konfiguration der gehosteten Umgebung ab.
 
 ## Grenzen von Cloud und Self-Hosted
 
@@ -189,8 +190,8 @@ Mate erzwingt bei jedem Tool-Aufruf eine eigene Freigabe für destruktive Aktion
 | Kern-CRM                   | Ja                                        | Ja                        |
 | MCP für externe KI-Clients | Ja                                        | Ja                        |
 | Einheitlicher Posteingang  | Ab Pro                                    | Nein                      |
-| Gehosteter Mate-Assistent  | In jedem Cloud-Tarif enthalten            | Nein                      |
-| Gehostete KI-Credits       | Monatliches Kontingent pro aktivem Nutzer | Nein                      |
+| Gehosteter Mate-Assistent  | Tarifberechtigt; umgebungskonfiguriert    | Nein                      |
+| Gehostete KI-Credits       | Tarifkontingent; bei aktiviertem Mate nutzbar | Nein                  |
 
 Self-Hosting nutzt Starter-Berechtigungen. Es eignet sich für Teams, die ein [selbst gehostetes CRM mit quelloffenem Kern](/features/self-hosted) betreiben und einen eigenen KI-Client und Modellanbieter über MCP verbinden möchten.
 
@@ -233,9 +234,10 @@ Für Käufer sind die praktischen Fragen wichtiger als das Etikett:
 
 <AcquisitionCallout title="Die aktuelle Integration bewerten" variant="fit">
   [Lesen Sie die MCP-Anleitung](/docs/mcp) für den aktuellen Verbindungsweg.
-  Zusätzlich können Sie [eine Cloud-Testphase starten](/auth/signup), um Mate
-  und das verwaltete CRM mit einem begrenzten Ablauf zu prüfen, bevor Sie
-  umfassendere Berechtigungen vergeben.
+  Zusätzlich können Sie [eine Cloud-Testphase starten](/auth/signup), um das
+  verwaltete CRM und, sofern Mate in dieser Umgebung aktiviert ist, einen
+  begrenzten Assistenten-Ablauf zu prüfen, bevor Sie umfassendere
+  Berechtigungen vergeben.
 </AcquisitionCallout>
 
 ## Häufig gestellte Fragen
@@ -245,10 +247,11 @@ Für Käufer sind die praktischen Fragen wichtiger als das Etikett:
 Es ist ein CRM, dessen strukturierte Datensätze und Aktionen von einem autorisierten KI-Client oder Assistenten bedient werden können. Bei einer verantwortungsvollen Umsetzung bleiben serverseitige Berechtigungen bestehen; für externe MCP-Clients muss das Bestätigungsverhalten gesondert geprüft werden.
 </FaqItem>
 
-<FaqItem question="Ist Mate in Customermates Cloud allgemein verfügbar?">
-  Ja. Jeder Cloud-Tarif enthält den gehosteten Mate-Assistenten und ein
-  monatliches Kontingent an gehosteten KI-Credits pro aktivem Nutzer. Die
-  Funktion kann betrieblich deaktiviert werden. Self-Hosted-Installationen
+<FaqItem question="Ist Mate in jeder Customermates-Cloud-Umgebung verfügbar?">
+  Alle Cloud-Tarife umfassen eine Mate-Berechtigung und ein monatliches
+  Kontingent an gehosteten KI-Credits pro aktivem Nutzer. Die Live-Verfügbarkeit
+  hängt von der aktuellen Konfiguration der gehosteten Umgebung ab und ist
+  deshalb keine allgemeine Verfügbarkeitszusage. Self-Hosted-Installationen
   verwenden externe KI-Clients über MCP.
 </FaqItem>
 

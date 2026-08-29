@@ -133,7 +133,7 @@ Customermates bietet einen verwalteten Dienst und einen separat betriebenen Open
 | Betrieb von Anwendung und Datenbank | Customermates                                          | Kunde oder gewählter Betreiber           |
 | CRM-Datensätze und Ansichten        | Gemäß Cloud-Tarif                                      | Starter-Berechtigungen                   |
 | Einheitliches Postfach und Kalender | In berechtigten Tarifen enthalten                      | Nicht enthalten                          |
-| KI-Zugriff                          | Gehosteter Mate und externes MCP                        | Nur externes MCP                         |
+| KI-Zugriff                          | Tarifberechtigte Mate-Funktion (wenn aktiviert) und externes MCP | Nur externes MCP              |
 | Verbundene Anbieter                 | Im Managed-Produkt konfiguriert                        | Vom Kunden gewählt und betrieben         |
 | Kostenmodell                        | Monatlich pro Nutzer                                   | Infrastruktur, Anbieter und Betriebszeit |
 
@@ -192,9 +192,9 @@ Die [Auftragsverarbeitungsvereinbarung](/dpa) dokumentiert unter anderem TLS bei
 
 ## KI und Automatisierung – ohne falsche Versprechen
 
-Jeder Managed-Cloud-Tarif enthält den gehosteten Mate-Assistenten und ein tarifabhängiges monatliches Kontingent an gehosteten KI-Credits pro aktivem Nutzer. Mate arbeitet innerhalb des CRM, nutzt die Berechtigungen des aktuellen Nutzers und verlangt für sensible Aktionen eigene Bestätigungen. Die gehostete Funktion kann betrieblich deaktiviert werden, ist aber kein unveröffentlichtes Produktversprechen mehr.
+Alle Managed-Cloud-Tarife umfassen eine Mate-Berechtigung und ein tarifabhängiges monatliches Kontingent an gehosteten KI-Credits pro aktivem Nutzer. Ob Mate live verfügbar ist, hängt von der aktuellen Konfiguration der gehosteten Umgebung ab. Wenn aktiviert, arbeitet Mate innerhalb des CRM, nutzt die Berechtigungen des aktuellen Nutzers und verlangt für sensible Aktionen eigene Bestätigungen.
 
-Externe KI-Clients können den [Customermates MCP-Server](/docs/mcp) mit einem vom Kunden gewählten Modellanbieter und Abonnement verwenden. Sie nutzen den Anbieter des Kunden statt der gehosteten Customermates-Credits. Gehosteter Mate und externes MCP teilen deshalb unterstützte CRM-Tools und Berechtigungsprüfungen, nicht aber Client, Abrechnung oder Bestätigungsweg.
+Externe KI-Clients können den [Customermates MCP-Server](/docs/mcp) mit einem vom Kunden gewählten Modellanbieter und Abonnement verwenden. Sie nutzen den Anbieter des Kunden statt der gehosteten Customermates-Credits. Wenn Mate aktiviert ist, teilen beide Wege unterstützte CRM-Tools und Berechtigungsprüfungen, nicht aber Client, Abrechnung oder Bestätigungsweg.
 
 Für Automatisierung können Teams REST aufrufen, Webhooks empfangen, MCP verwenden oder ein separat betriebenes Workflow-Werkzeug wie n8n verbinden. Customermates enthält weder die n8n-Laufzeit noch dessen Drittanbieter-Konnektoren oder Anbietervereinbarungen.
 
@@ -261,10 +261,11 @@ Es passt nicht, wenn ein vollständiges ERP, Buchhaltung, Lager, Rechnungsstellu
 </FaqItem>
 
 <FaqItem question="Enthält Customermates Cloud KI-Funktionen?">
-  Ja. Jeder Cloud-Tarif enthält den gehosteten Mate-Assistenten und ein
-  monatliches Kontingent an gehosteten KI-Credits pro aktivem Nutzer. Externe
-  KI-Clients können zusätzlich MCP mit ihrem eigenen Anbieter nutzen und
-  verbrauchen diese gehosteten Credits nicht.
+  Alle Cloud-Tarife umfassen eine Mate-Berechtigung und ein monatliches
+  Kontingent an gehosteten KI-Credits pro aktivem Nutzer. Die Live-Verfügbarkeit
+  von Mate hängt von der aktuellen Konfiguration der gehosteten Umgebung ab.
+  Externe KI-Clients können zusätzlich MCP mit ihrem eigenen Anbieter nutzen
+  und verbrauchen das gehostete Kontingent nicht.
 </FaqItem>
 
 <FaqItem question="Welcher Tarif enthält den einheitlichen Posteingang?">

@@ -45,8 +45,8 @@ describe("hosted AI pricing contract", () => {
   });
 
   it("explains trial, monthly reset, no rollover, and external MCP separation", () => {
-    expect(pricingEn).toMatch(/active trial user receives 500 credits/i);
-    expect(pricingDe).toMatch(/aktive Nutzer in der Testphase erhält 500 Credits/i);
+    expect(pricingEn).toMatch(/every active trial user has a 500-credit plan allowance/i);
+    expect(pricingDe).toMatch(/Jeder aktive Nutzer in der Testphase hat ein Tarifkontingent von 500 Credits/i);
     expect(pricingEn).toContain("Paid allowances reset monthly; unused credits do not roll over.");
     expect(pricingDe).toContain(
       "Bezahlte Kontingente werden monatlich zurückgesetzt; nicht genutzte Credits werden nicht übertragen.",
@@ -71,6 +71,55 @@ describe("hosted AI pricing contract", () => {
     expect(`${pricingDe}\n${assistantDe}`).not.toMatch(/Abrechnungs(?:stichtag|jubiläum)/i);
     expect(pricingEn).toMatch(/External MCP clients use your own AI provider/i);
     expect(pricingDe).toMatch(/Externe MCP-Clients nutzen Ihren eigenen KI-Anbieter/i);
+  });
+
+  it("distinguishes plan entitlement from live hosted availability", () => {
+    const availabilitySurfaces = [
+      { label: "pricing", en: pricingEn, de: pricingDe },
+      { label: "assistant docs", en: assistantEn, de: assistantDe },
+      {
+        label: "features overview",
+        en: read("content/features/en/features.mdx"),
+        de: read("content/features/de/features.mdx"),
+      },
+      {
+        label: "cloud CRM",
+        en: read("content/feature-pages/en/cloud-crm.mdx"),
+        de: read("content/feature-pages/de/cloud-crm.mdx"),
+      },
+      {
+        label: "LinkedIn integration",
+        en: read("content/feature-pages/en/linkedin-integration.mdx"),
+        de: read("content/feature-pages/de/linkedin-integration.mdx"),
+      },
+      {
+        label: "unified inbox",
+        en: read("content/feature-pages/en/unified-inbox.mdx"),
+        de: read("content/feature-pages/de/unified-inbox.mdx"),
+      },
+      {
+        label: "agentic CRM",
+        en: read("content/blog-posts/en/agentic-crm.mdx"),
+        de: read("content/blog-posts/de/agentic-crm.mdx"),
+      },
+    ];
+
+    for (const { label, en, de } of availabilitySurfaces) {
+      expect(en, `${label}: missing English Mate entitlement`).toMatch(/Mate entitlement/i);
+      expect(de, `${label}: missing German Mate entitlement`).toMatch(/Mate-Berechtigung|Berechtigung für Mate/i);
+      expect(en, `${label}: missing English live-availability boundary`).toMatch(
+        /live (?:Mate )?availability depends on the hosted environment|whether [^.\n]{0,160}live depends on the hosted environment|when Mate is enabled in (?:the|that) hosted environment/i,
+      );
+      expect(de, `${label}: missing German live-availability boundary`).toMatch(
+        /Live-Verfügbarkeit[^.\n]{0,120}hängt von der .*gehosteten Umgebung ab|Ob [^.\n]{0,180}live verfügbar ist, hängt|Wenn Mate in der gehosteten Umgebung aktiviert ist/i,
+      );
+      expect(en).not.toMatch(
+        /every (?:managed-)?cloud plan includes the hosted Mate assistant|included with every cloud plan/i,
+      );
+      expect(de).not.toMatch(
+        /jeder (?:Managed-)?Cloud-Tarif enthält den gehosteten Mate-Assistenten|in jedem Cloud-Tarif enthalten/i,
+      );
+    }
   });
 
   it("keeps self-hosted MCP separate from the cloud-only hosted Assistant", () => {

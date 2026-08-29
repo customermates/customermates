@@ -198,7 +198,7 @@ The allowance is one shared pool: a linked mailbox, LinkedIn, WhatsApp, Instagra
 
 An external AI client can call the permitted messaging and Sales Navigator tools through MCP. The MCP instructions tell compatible clients to request confirmation before a send or destructive action, but the server does not add a second confirmation after an authorized client calls the tool. Review the client's confirmation behavior, the user's workspace permissions and the connected account before enabling write access.
 
-The hosted Mate assistant is included with cloud plans and uses the plan's hosted-AI credit allowance. External MCP clients use their own model provider and subscription and do not consume those credits. Both paths still enforce the user's workspace permissions, plan entitlements and connected-account prerequisites; their confirmation controls are documented separately.
+Cloud plans include a Mate entitlement and hosted-AI credit allowance. When Mate is enabled in the hosted environment, it can use eligible tools under the user's permissions and the plan allowance. External MCP clients use their own model provider and subscription and do not consume those credits. Both paths still enforce the user's workspace permissions, plan entitlements and connected-account prerequisites; their confirmation controls are documented separately.
 
 ## Who this approach fits—and who it does not
 
@@ -237,8 +237,8 @@ It is not a fit when the buying requirement is automatic enrichment, LinkedIn CR
 <FaqItem question="Can an AI client draft or send LinkedIn messages?">
   An external MCP client can use permitted messaging tools on an entitled cloud
   account. The MCP server executes an authorized tool when called; confirmation
-  behavior belongs to that client. The hosted Mate assistant is included with
-  cloud plans and uses the plan's hosted-AI credits.
+  behavior belongs to that client. When Mate is enabled in the hosted
+  environment, it uses the plan's hosted-AI allowance.
 </FaqItem>
 
 <FaqItem question="Does this work in self-hosted Customermates?">
