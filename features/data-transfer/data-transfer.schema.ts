@@ -29,3 +29,16 @@ export type ExportRecordsPageData = Data<typeof ExportRecordsPageSchema>;
 
 export const ExportRequestSchema = ExportRecordsPageSchema.omit({ skip: true, take: true, entityType: true });
 export type ExportRequestData = Data<typeof ExportRequestSchema>;
+
+export const IMPORT_CHUNK_SIZE = 100;
+
+export const IMPORT_ROW_LIMIT = 10_000;
+
+export const ImportModeSchema = z.enum(["create", "update"]);
+export type ImportMode = Data<typeof ImportModeSchema>;
+
+export const DryRunImportSchema = z.object({
+  mode: ImportModeSchema,
+  rows: z.array(z.unknown()).min(1).max(IMPORT_CHUNK_SIZE),
+});
+export type DryRunImportData = Data<typeof DryRunImportSchema>;

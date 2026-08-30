@@ -1678,7 +1678,27 @@
       "truncated": "Seuls les {limit} premiers enregistrements ont été exportés."
     },
     "import": {
-      "action": "Ajouter depuis un fichier"
+      "action": "Ajouter depuis un fichier",
+      "batchProgress": "Lot {done} sur {total}",
+      "chooseFile": "Choisir un fichier",
+      "commit": "Ajouter les enregistrements",
+      "description": "Associe les colonnes du tableur aux champs, vérifie le résultat, puis ajoute les enregistrements.",
+      "fileHint": "Choisis un tableur. Les classeurs Excel sont pris en charge.",
+      "fileRejected": "Ce fichier n'a pas pu être lu.",
+      "ignoreColumn": "Ne pas ajouter",
+      "issueCount": "{count, plural, one {# problème détecté} other {# problèmes détectés}}",
+      "mappingHint": "{file}, {rows} lignes",
+      "noIssues": "Aucun problème détecté.",
+      "previewCounts": "{create} à ajouter, {update} à mettre à jour",
+      "progress": "Étape {current} sur {total}",
+      "progressLabel": "Progression",
+      "recordId": "Identifiant de l'enregistrement",
+      "resultCounts": "{created} ajoutés, {updated} mis à jour",
+      "row": "Ligne",
+      "stopped": "Arrêt à la ligne {row}. {remaining} lignes n'ont pas été traitées.",
+      "title": "Ajouter des enregistrements depuis un fichier",
+      "unnamedColumn": "Colonne sans nom",
+      "validate": "Vérifier le fichier"
     },
     "menu": "Importer et exporter"
   },

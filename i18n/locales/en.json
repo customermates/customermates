@@ -1678,7 +1678,27 @@
       "truncated": "Only the first {limit} records were exported."
     },
     "import": {
-      "action": "Add from file"
+      "action": "Add from file",
+      "batchProgress": "Batch {done} of {total}",
+      "chooseFile": "Choose file",
+      "commit": "Add records",
+      "description": "Match the spreadsheet columns to fields, check the result, then add the records.",
+      "fileHint": "Choose a spreadsheet. Excel workbooks are supported.",
+      "fileRejected": "That file could not be read.",
+      "ignoreColumn": "Do not add",
+      "issueCount": "{count, plural, one {# problem found} other {# problems found}}",
+      "mappingHint": "{file}, {rows} rows",
+      "noIssues": "No problems found.",
+      "previewCounts": "{create} to add, {update} to update",
+      "progress": "Step {current} of {total}",
+      "progressLabel": "Import progress",
+      "recordId": "Record ID",
+      "resultCounts": "{created} added, {updated} updated",
+      "row": "Row",
+      "stopped": "Stopped at row {row}. {remaining} rows were not processed.",
+      "title": "Add records from a file",
+      "unnamedColumn": "Unnamed column",
+      "validate": "Check the file"
     },
     "menu": "Import and export"
   },

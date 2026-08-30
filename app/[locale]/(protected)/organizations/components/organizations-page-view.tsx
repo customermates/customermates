@@ -31,7 +31,7 @@ type Props = {
 };
 
 export const OrganizationsPageView = observer(function OrganizationsPageView({ organizations }: Props) {
-  const { contactsStore, dealsStore, organizationsStore } = useRootStore();
+  const { contactsStore, dealsStore, importWizardStore, organizationsStore } = useRootStore();
 
   useDataViewSync(organizationsStore, organizations, [contactsStore, dealsStore]);
   const openEntity = useOpenEntity();
@@ -59,6 +59,10 @@ export const OrganizationsPageView = observer(function OrganizationsPageView({ o
     [entityHref],
   );
   const handleExport = useExportAction(organizationsStore);
+  const handleImport = useCallback(
+    () => importWizardStore.openForEntity(EntityType.organization, () => organizationsStore.refresh()),
+    [importWizardStore, organizationsStore],
+  );
   const topBarNode = useMemo(
     () => (
       <DataViewToolbar
@@ -67,9 +71,10 @@ export const OrganizationsPageView = observer(function OrganizationsPageView({ o
         store={organizationsStore}
         onAdd={handleAdd}
         onExport={handleExport}
+        onImport={handleImport}
       />
     ),
-    [emptyActionLabel, handleAdd, handleExport, organizationsStore, pageState],
+    [emptyActionLabel, handleAdd, handleExport, handleImport, organizationsStore, pageState],
   );
 
   useSetTopBarActions(topBarNode);

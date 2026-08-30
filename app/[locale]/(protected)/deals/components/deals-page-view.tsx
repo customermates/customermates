@@ -29,7 +29,7 @@ import { useDealColumns } from "./use-deal-columns";
 type Props = { deals: GetResult<DealDto> };
 
 export const DealsPageView = observer(function DealsPageView({ deals }: Props) {
-  const { contactsStore, dealsStore, organizationsStore, servicesStore } = useRootStore();
+  const { contactsStore, dealsStore, importWizardStore, organizationsStore, servicesStore } = useRootStore();
 
   useDataViewSync(dealsStore, deals, [organizationsStore, contactsStore, servicesStore]);
   const openEntity = useOpenEntity();
@@ -50,6 +50,10 @@ export const DealsPageView = observer(function DealsPageView({ deals }: Props) {
   const handleAdd = useCallback(() => openEntity(EntityType.deal, "new"), [openEntity]);
   const rowHref = useCallback((deal: DealDto) => entityHref(EntityType.deal, deal.id), [entityHref]);
   const handleExport = useExportAction(dealsStore);
+  const handleImport = useCallback(
+    () => importWizardStore.openForEntity(EntityType.deal, () => dealsStore.refresh()),
+    [importWizardStore, dealsStore],
+  );
   const topBarNode = useMemo(
     () => (
       <DataViewToolbar
@@ -58,9 +62,10 @@ export const DealsPageView = observer(function DealsPageView({ deals }: Props) {
         store={dealsStore}
         onAdd={handleAdd}
         onExport={handleExport}
+        onImport={handleImport}
       />
     ),
-    [dealsStore, emptyActionLabel, handleAdd, handleExport, pageState],
+    [dealsStore, emptyActionLabel, handleAdd, handleExport, handleImport, pageState],
   );
   useSetTopBarActions(topBarNode);
 

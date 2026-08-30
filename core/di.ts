@@ -64,6 +64,13 @@ import { DomainEvent } from "@/features/event/domain-events";
 // Contacts interactors
 import { GetContactsInteractor } from "@/features/contacts/get/get-contacts.interactor";
 import {
+  DryRunImportContactsInteractor,
+  DryRunImportDealsInteractor,
+  DryRunImportOrganizationsInteractor,
+  DryRunImportServicesInteractor,
+  DryRunImportTasksInteractor,
+} from "@/features/data-transfer/import/dry-run-import.interactor";
+import {
   ExportContactsPageInteractor,
   ExportDealsPageInteractor,
   ExportOrganizationsPageInteractor,
@@ -1627,3 +1634,14 @@ export const getExportDealsPageInteractor = () => new ExportDealsPageInteractor(
 export const getExportServicesPageInteractor = () => new ExportServicesPageInteractor(getServiceRepo());
 
 export const getExportTasksPageInteractor = () => new ExportTasksPageInteractor(getTaskRepo());
+
+export const getDryRunImportContactsInteractor = () => new DryRunImportContactsInteractor(getContactWritePrecheck());
+
+export const getDryRunImportOrganizationsInteractor = () =>
+  new DryRunImportOrganizationsInteractor(getOrganizationWritePrecheck());
+
+export const getDryRunImportDealsInteractor = () => new DryRunImportDealsInteractor(getDealWritePrecheck());
+
+export const getDryRunImportServicesInteractor = () => new DryRunImportServicesInteractor(getServiceWritePrecheck());
+
+export const getDryRunImportTasksInteractor = () => new DryRunImportTasksInteractor(getTaskWritePrecheck());

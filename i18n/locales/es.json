@@ -1678,7 +1678,27 @@
       "truncated": "Solo se exportaron los primeros {limit} registros."
     },
     "import": {
-      "action": "Añadir desde archivo"
+      "action": "Añadir desde archivo",
+      "batchProgress": "Lote {done} de {total}",
+      "chooseFile": "Elegir archivo",
+      "commit": "Añadir registros",
+      "description": "Asocia las columnas de la hoja a los campos, revisa el resultado y añade los registros.",
+      "fileHint": "Elige una hoja de cálculo. Se admiten libros de Excel.",
+      "fileRejected": "No se pudo leer ese archivo.",
+      "ignoreColumn": "No añadir",
+      "issueCount": "{count, plural, one {# problema encontrado} other {# problemas encontrados}}",
+      "mappingHint": "{file}, {rows} filas",
+      "noIssues": "No se encontraron problemas.",
+      "previewCounts": "{create} para añadir, {update} para actualizar",
+      "progress": "Paso {current} de {total}",
+      "progressLabel": "Progreso",
+      "recordId": "ID del registro",
+      "resultCounts": "{created} añadidos, {updated} actualizados",
+      "row": "Fila",
+      "stopped": "Detenido en la fila {row}. {remaining} filas no se procesaron.",
+      "title": "Añadir registros desde un archivo",
+      "unnamedColumn": "Columna sin nombre",
+      "validate": "Comprobar el archivo"
     },
     "menu": "Importar y exportar"
   },

@@ -29,7 +29,7 @@ import { useServiceColumns } from "./use-service-columns";
 type Props = { services: GetResult<ServiceDto> };
 
 export const ServicesPageView = observer(function ServicesPageView({ services }: Props) {
-  const { dealsStore, servicesStore } = useRootStore();
+  const { dealsStore, importWizardStore, servicesStore } = useRootStore();
 
   useDataViewSync(servicesStore, services, [dealsStore]);
   const openEntity = useOpenEntity();
@@ -50,6 +50,10 @@ export const ServicesPageView = observer(function ServicesPageView({ services }:
   const handleAdd = useCallback(() => openEntity(EntityType.service, "new"), [openEntity]);
   const rowHref = useCallback((service: ServiceDto) => entityHref(EntityType.service, service.id), [entityHref]);
   const handleExport = useExportAction(servicesStore);
+  const handleImport = useCallback(
+    () => importWizardStore.openForEntity(EntityType.service, () => servicesStore.refresh()),
+    [importWizardStore, servicesStore],
+  );
   const topBarNode = useMemo(
     () => (
       <DataViewToolbar
@@ -58,9 +62,10 @@ export const ServicesPageView = observer(function ServicesPageView({ services }:
         store={servicesStore}
         onAdd={handleAdd}
         onExport={handleExport}
+        onImport={handleImport}
       />
     ),
-    [emptyActionLabel, handleAdd, handleExport, pageState, servicesStore],
+    [emptyActionLabel, handleAdd, handleExport, handleImport, pageState, servicesStore],
   );
   useSetTopBarActions(topBarNode);
 

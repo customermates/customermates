@@ -1678,7 +1678,27 @@
       "truncated": "Es wurden nur die ersten {limit} Datensätze exportiert."
     },
     "import": {
-      "action": "Aus Datei hinzufügen"
+      "action": "Aus Datei hinzufügen",
+      "batchProgress": "Stapel {done} von {total}",
+      "chooseFile": "Datei wählen",
+      "commit": "Datensätze hinzufügen",
+      "description": "Tabellenspalten den Feldern zuordnen, Ergebnis prüfen und Datensätze hinzufügen.",
+      "fileHint": "Wähle eine Tabelle. Excel-Arbeitsmappen werden unterstützt.",
+      "fileRejected": "Diese Datei konnte nicht gelesen werden.",
+      "ignoreColumn": "Nicht hinzufügen",
+      "issueCount": "{count, plural, one {# Problem gefunden} other {# Probleme gefunden}}",
+      "mappingHint": "{file}, {rows} Zeilen",
+      "noIssues": "Keine Probleme gefunden.",
+      "previewCounts": "{create} hinzufügen, {update} aktualisieren",
+      "progress": "Schritt {current} von {total}",
+      "progressLabel": "Fortschritt",
+      "recordId": "Datensatz-ID",
+      "resultCounts": "{created} hinzugefügt, {updated} aktualisiert",
+      "row": "Zeile",
+      "stopped": "Bei Zeile {row} gestoppt. {remaining} Zeilen wurden nicht verarbeitet.",
+      "title": "Datensätze aus einer Datei hinzufügen",
+      "unnamedColumn": "Unbenannte Spalte",
+      "validate": "Datei prüfen"
     },
     "menu": "Import und Export"
   },

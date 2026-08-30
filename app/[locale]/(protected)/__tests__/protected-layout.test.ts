@@ -35,6 +35,7 @@ vi.mock("@/app/components/navigation/protected-enhancements-context", () => ({
   useProtectedEnhancementsAllowed: () => state.protectedEnhancementsAllowed,
 }));
 
+vi.mock("@/components/data-transfer/import-wizard", () => ({ ImportWizard: () => null }));
 vi.mock("../company/components/feedback/feedback-modal", () => ({
   FeedbackModal: () => "feedback-modal",
 }));

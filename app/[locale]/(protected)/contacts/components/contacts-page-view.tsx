@@ -31,7 +31,7 @@ type Props = {
 };
 
 export const ContactsPageView = observer(function ContactsPageView({ contacts }: Props) {
-  const { contactsStore, dealsStore, organizationsStore } = useRootStore();
+  const { contactsStore, dealsStore, importWizardStore, organizationsStore } = useRootStore();
 
   useDataViewSync(contactsStore, contacts, [dealsStore, organizationsStore]);
   const openEntity = useOpenEntity();
@@ -55,6 +55,10 @@ export const ContactsPageView = observer(function ContactsPageView({ contacts }:
   const handleAdd = useCallback(() => openEntity(EntityType.contact, "new"), [openEntity]);
   const rowHref = useCallback((contact: ContactDto) => entityHref(EntityType.contact, contact.id), [entityHref]);
   const handleExport = useExportAction(contactsStore);
+  const handleImport = useCallback(
+    () => importWizardStore.openForEntity(EntityType.contact, () => contactsStore.refresh()),
+    [importWizardStore, contactsStore],
+  );
   const topBarNode = useMemo(
     () => (
       <DataViewToolbar
@@ -63,9 +67,10 @@ export const ContactsPageView = observer(function ContactsPageView({ contacts }:
         store={contactsStore}
         onAdd={handleAdd}
         onExport={handleExport}
+        onImport={handleImport}
       />
     ),
-    [contactsStore, emptyActionLabel, handleAdd, handleExport, pageState],
+    [contactsStore, emptyActionLabel, handleAdd, handleExport, handleImport, pageState],
   );
 
   useSetTopBarActions(topBarNode);

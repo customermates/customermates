@@ -29,7 +29,7 @@ import { useTaskColumns } from "./use-task-columns";
 type Props = { tasks: GetResult<TaskDto> };
 
 export const TasksPageView = observer(function TasksPageView({ tasks }: Props) {
-  const { tasksStore } = useRootStore();
+  const { importWizardStore, tasksStore } = useRootStore();
 
   useDataViewSync(tasksStore, tasks);
   const openEntity = useOpenEntity();
@@ -50,6 +50,10 @@ export const TasksPageView = observer(function TasksPageView({ tasks }: Props) {
   const handleAdd = useCallback(() => openEntity(EntityType.task, "new"), [openEntity]);
   const rowHref = useCallback((task: TaskDto) => entityHref(EntityType.task, task.id), [entityHref]);
   const handleExport = useExportAction(tasksStore);
+  const handleImport = useCallback(
+    () => importWizardStore.openForEntity(EntityType.task, () => tasksStore.refresh()),
+    [importWizardStore, tasksStore],
+  );
   const topBarNode = useMemo(
     () => (
       <DataViewToolbar
@@ -58,9 +62,10 @@ export const TasksPageView = observer(function TasksPageView({ tasks }: Props) {
         store={tasksStore}
         onAdd={handleAdd}
         onExport={handleExport}
+        onImport={handleImport}
       />
     ),
-    [emptyActionLabel, handleAdd, handleExport, pageState, tasksStore],
+    [emptyActionLabel, handleAdd, handleExport, handleImport, pageState, tasksStore],
   );
   useSetTopBarActions(topBarNode);
 

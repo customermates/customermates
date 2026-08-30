@@ -1678,7 +1678,27 @@
       "truncated": "Sono stati esportati solo i primi {limit} record."
     },
     "import": {
-      "action": "Aggiungi da file"
+      "action": "Aggiungi da file",
+      "batchProgress": "Lotto {done} di {total}",
+      "chooseFile": "Scegli file",
+      "commit": "Aggiungi record",
+      "description": "Abbina le colonne del foglio ai campi, controlla il risultato e aggiungi i record.",
+      "fileHint": "Scegli un foglio di calcolo. Sono supportate le cartelle di lavoro Excel.",
+      "fileRejected": "Non è stato possibile leggere questo file.",
+      "ignoreColumn": "Non aggiungere",
+      "issueCount": "{count, plural, one {# problema rilevato} other {# problemi rilevati}}",
+      "mappingHint": "{file}, {rows} righe",
+      "noIssues": "Nessun problema rilevato.",
+      "previewCounts": "{create} da aggiungere, {update} da aggiornare",
+      "progress": "Passaggio {current} di {total}",
+      "progressLabel": "Avanzamento",
+      "recordId": "ID del record",
+      "resultCounts": "{created} aggiunti, {updated} aggiornati",
+      "row": "Riga",
+      "stopped": "Interrotto alla riga {row}. {remaining} righe non sono state elaborate.",
+      "title": "Aggiungi record da un file",
+      "unnamedColumn": "Colonna senza nome",
+      "validate": "Controlla il file"
     },
     "menu": "Importa ed esporta"
   },
