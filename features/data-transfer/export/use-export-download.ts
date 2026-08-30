@@ -5,7 +5,7 @@ import type { RequestedColumnInput } from "../data-transfer.schema";
 
 import { toJS } from "mobx";
 import { toast } from "sonner";
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
 
 import { EXPORT_ROW_LIMIT } from "../data-transfer.schema";
@@ -33,6 +33,8 @@ export type ExportOutcome = { rowCount: number; truncated: boolean };
 
 export function useExportDownload<E extends HasId>(store: BaseDataViewStore<E>) {
   const columnLabel = useColumnLabel();
+  const columnLabelRef = useRef(columnLabel);
+  columnLabelRef.current = columnLabel;
 
   return useCallback(async (): Promise<ExportOutcome> => {
     const entityType = store.entityType;
@@ -42,7 +44,7 @@ export function useExportDownload<E extends HasId>(store: BaseDataViewStore<E>) 
 
     const columns: RequestedColumnInput[] = store.visibleColumns.map((column) => ({
       key: column.uid,
-      header: customById.get(column.uid)?.label ?? columnLabel(column.uid),
+      header: customById.get(column.uid)?.label ?? columnLabelRef.current(column.uid),
     }));
 
     const response = await fetch(`/api/export/${entityType}`, {
@@ -66,7 +68,7 @@ export function useExportDownload<E extends HasId>(store: BaseDataViewStore<E>) 
       rowCount: Number(response.headers.get("x-export-row-count") ?? 0),
       truncated: response.headers.get("x-export-truncated") === "true",
     };
-  }, [columnLabel, store]);
+  }, [store]);
 }
 
 export function useExportAction<E extends HasId>(store: BaseDataViewStore<E>) {

@@ -78,6 +78,7 @@ export class ImportWizardStore extends BaseModalStore {
       descriptor: computed,
       hasBlockingIssues: computed,
 
+      openForEntity: action,
       reset: action,
       setStep: action,
       setTarget: action,

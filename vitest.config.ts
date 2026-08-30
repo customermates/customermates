@@ -22,6 +22,7 @@ const domTestFiles = [
   "app/components/navigation/__tests__/public-navbar-menu.test.ts",
   "core/base/__tests__/persist-view-options-rejection.test.ts",
   "core/utils/__tests__/clipboard.test.ts",
+  "features/data-transfer/__tests__/export-action-stability.test.ts",
   "core/utils/__tests__/use-is-truncated.test.ts",
   "components/data-view/__tests__/is-interactive-click.test.ts",
   "components/data-view/__tests__/data-view-url-sync.test.ts",
