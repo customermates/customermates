@@ -84,6 +84,10 @@ function standardCell(record: ExportableRecord, key: string): WorkbookCellValue 
       return record.id;
     case "name":
       return record.name ?? `${record.firstName ?? ""} ${record.lastName ?? ""}`.trim();
+    case "firstName":
+      return record.firstName ?? null;
+    case "lastName":
+      return record.lastName ?? null;
     case "notes":
       return notesToMarkdown(record.notes);
     case "createdAt":

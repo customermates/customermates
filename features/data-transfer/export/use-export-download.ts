@@ -4,6 +4,7 @@ import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store"
 import type { RequestedColumnInput } from "../data-transfer.schema";
 
 import { toJS } from "mobx";
+import { EntityType } from "@/generated/prisma";
 import { toast } from "sonner";
 import { useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
@@ -12,6 +13,10 @@ import { EXPORT_ROW_LIMIT } from "../data-transfer.schema";
 import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
 
 const FILENAME_PATTERN = /filename="([^"]+)"/;
+
+const COMPOSED_NAME_COLUMN = "name";
+
+const CONTACT_NAME_COLUMNS = ["firstName", "lastName"] as const;
 
 function fileNameFrom(header: string | null, fallback: string): string {
   const matched = header ? FILENAME_PATTERN.exec(header) : null;
@@ -42,10 +47,17 @@ export function useExportDownload<E extends HasId>(store: BaseDataViewStore<E>) 
 
     const customById = new Map(store.customColumns.map((column) => [column.id, column]));
 
-    const columns: RequestedColumnInput[] = store.visibleColumns.map((column) => ({
-      key: column.uid,
-      header: customById.get(column.uid)?.label ?? columnLabelRef.current(column.uid),
-    }));
+    const columns: RequestedColumnInput[] = store.visibleColumns.flatMap((column) => {
+      if (entityType === EntityType.contact && column.uid === COMPOSED_NAME_COLUMN)
+        return CONTACT_NAME_COLUMNS.map((key) => ({ key, header: columnLabelRef.current(key) }));
+
+      return [
+        {
+          key: column.uid,
+          header: customById.get(column.uid)?.label ?? columnLabelRef.current(column.uid),
+        },
+      ];
+    });
 
     const response = await fetch(`/api/export/${entityType}`, {
       method: "POST",
