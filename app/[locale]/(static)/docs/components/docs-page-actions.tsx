@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { useLocale, useTranslations } from "next-intl";
 
 import { Icon } from "@/components/shared/icon";
+import { copyToClipboard } from "@/core/utils/clipboard";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 const markdownCache = new Map<string, string>();
@@ -55,27 +56,36 @@ export function DocsPageActions({ markdownUrl, mcpUrl }: DocsPageActionsProps) {
   const mcpCommand = `claude mcp add --transport http customermates ${mcpUrl}`;
 
   async function handleCopyPage() {
-    try {
-      const cachedMarkdown = markdownCache.get(markdownUrl);
-      const markdown =
-        cachedMarkdown === undefined ? await fetch(markdownUrl).then((response) => response.text()) : cachedMarkdown;
-      markdownCache.set(markdownUrl, markdown);
-      await navigator.clipboard.writeText(markdown);
-      setIsCopied(true);
-      window.setTimeout(() => setIsCopied(false), 2000);
-      toast.success(t("DocsPage.markdownCopied"));
-    } catch {
+    const cached = markdownCache.get(markdownUrl);
+    const markdown =
+      cached ??
+      fetch(markdownUrl)
+        .then((response) => response.text())
+        .then((text) => {
+          markdownCache.set(markdownUrl, text);
+
+          return text;
+        });
+
+    if (!(await copyToClipboard(markdown))) {
       toast.error(t("DocsPage.copyFailed"));
+
+      return;
     }
+
+    setIsCopied(true);
+    window.setTimeout(() => setIsCopied(false), 2000);
+    toast.success(t("DocsPage.markdownCopied"));
   }
 
-  async function copyToClipboard(text: string, successMessage: string) {
-    try {
-      await navigator.clipboard.writeText(text);
-      toast.success(successMessage);
-    } catch {
+  async function copyText(text: string, successMessage: string) {
+    if (!(await copyToClipboard(text))) {
       toast.error(t("DocsPage.copyFailed"));
+
+      return;
     }
+
+    toast.success(successMessage);
   }
 
   const rowClassName =
@@ -153,7 +163,7 @@ export function DocsPageActions({ markdownUrl, mcpUrl }: DocsPageActionsProps) {
             <button
               className={rowClassName}
               type="button"
-              onClick={() => runUserAction(() => copyToClipboard(mcpConfig, t("DocsPage.mcpConfigCopied")))}
+              onClick={() => runUserAction(() => copyText(mcpConfig, t("DocsPage.mcpConfigCopied")))}
             >
               <Icon className="shrink-0 text-subdued" icon={Braces} size="sm" />
 
@@ -163,7 +173,7 @@ export function DocsPageActions({ markdownUrl, mcpUrl }: DocsPageActionsProps) {
             <button
               className={rowClassName}
               type="button"
-              onClick={() => runUserAction(() => copyToClipboard(mcpCommand, t("DocsPage.mcpCommandCopied")))}
+              onClick={() => runUserAction(() => copyText(mcpCommand, t("DocsPage.mcpCommandCopied")))}
             >
               <Icon className="shrink-0 text-subdued" icon={SquareTerminal} size="sm" />
 

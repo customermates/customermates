@@ -20,6 +20,7 @@ const domTestFiles = [
   "app/components/__tests__/shell-header.test.ts",
   "app/components/navigation/__tests__/navigation-switch.test.ts",
   "core/base/__tests__/persist-view-options-rejection.test.ts",
+  "core/utils/__tests__/clipboard.test.ts",
   "core/utils/__tests__/use-is-truncated.test.ts",
   "components/data-view/__tests__/data-view-url-sync.test.ts",
   "components/data-view/__tests__/use-data-view-sync.test.ts",
