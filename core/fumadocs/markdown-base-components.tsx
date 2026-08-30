@@ -1,11 +1,10 @@
 import type { MDXComponents } from "mdx/types";
 import type { ComponentProps } from "react";
 
-import defaultMdxComponents from "fumadocs-ui/mdx";
-
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AppLink } from "@/components/shared/app-link";
 import { MarketingTableFrame } from "@/components/marketing/marketing-table-frame";
+import { DocsCodeBlock } from "./docs-code-block";
 import { cn } from "@/core/utils/cn";
 
 export const markdownBaseComponents: Pick<
@@ -87,7 +86,7 @@ export const markdownBaseComponents: Pick<
       {children}
     </code>
   ),
-  pre: defaultMdxComponents.pre,
+  pre: DocsCodeBlock,
   table: ({ className, children, ...props }) => (
     <MarketingTableFrame className="not-prose my-6">
       <table className={cn("w-full border-separate border-spacing-0 text-sm", className)} {...props}>
