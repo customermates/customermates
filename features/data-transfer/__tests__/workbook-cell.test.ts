@@ -9,13 +9,19 @@ import {
 } from "../workbook-cell";
 
 describe("neutralizeFormula", () => {
-  it.each(["=1+1", "+A1", "-2+3", "@SUM(A1)", "\t=x", "\r=x"])("prefixes %j so a reader cannot evaluate it", (raw) => {
-    expect(neutralizeFormula(raw)).toBe(`'${raw}`);
-  });
+  it.each(["=1+1", '=HYPERLINK("http://evil.example")', "=cmd|'/c calc'!A1"])(
+    "prefixes %j so no converter can evaluate it",
+    (raw) => {
+      expect(neutralizeFormula(raw)).toBe(`'${raw}`);
+    },
+  );
 
-  it.each(["Acme GmbH", "max@example.com", "", "1+1", "a=b"])("leaves %j untouched", (raw) => {
-    expect(neutralizeFormula(raw)).toBe(raw);
-  });
+  it.each(["+4915112345678", "-250.5", "@ada_lovelace", "Acme GmbH", "max@example.com", "", "1+1", "a=b"])(
+    "leaves %j untouched, because it is ordinary CRM data and xlsx types the cell as text",
+    (raw) => {
+      expect(neutralizeFormula(raw)).toBe(raw);
+    },
+  );
 });
 
 describe("toWorkbookCell", () => {
@@ -41,12 +47,12 @@ describe("toWorkbookCell", () => {
 describe("denormalizeNeutralizedFormula", () => {
   it("restores a value this exporter neutralized so a round trip is lossless", () => {
     expect(denormalizeNeutralizedFormula("'=1+1")).toBe("=1+1");
-    expect(denormalizeNeutralizedFormula("'@SUM(A1)")).toBe("@SUM(A1)");
   });
 
   it("keeps an apostrophe that belongs to the data", () => {
     expect(denormalizeNeutralizedFormula("'tis a name")).toBe("'tis a name");
     expect(denormalizeNeutralizedFormula("O'Brien")).toBe("O'Brien");
+    expect(denormalizeNeutralizedFormula("'+4915112345678")).toBe("'+4915112345678");
   });
 });
 

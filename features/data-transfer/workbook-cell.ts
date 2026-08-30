@@ -1,6 +1,6 @@
 export type WorkbookCellValue = string | number | boolean | Date | null;
 
-const INJECTION_PREFIXES = ["=", "+", "-", "@", "\t", "\r"];
+const INJECTION_PREFIXES = ["="];
 
 const NEUTRALIZING_PREFIX = "'";
 
