@@ -10,7 +10,7 @@ type Props = {
 export function AutomationBenefits({ benefitsSection }: Props) {
   return (
     <MarketingSection id="benefits" tone="page">
-      <div className="grid border-y border-border sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid overflow-hidden rounded-card border border-border bg-card sm:grid-cols-2 lg:grid-cols-3">
         {benefitsSection.benefits.map((benefit) => {
           const Icon = ICONS[benefit.icon];
 

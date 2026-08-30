@@ -49,12 +49,19 @@ export function PricingSection({
 
   return (
     <>
-      <div className="marketing-grid items-center gap-y-7 border-y border-border py-6 sm:py-8">
+      <div className="marketing-grid items-center gap-y-7 rounded-card border border-border bg-card px-5 py-6 sm:px-6 sm:py-8">
         <div className="col-span-12 flex items-end justify-between gap-6 sm:justify-start lg:col-span-4">
           <div>
             <p className="text-eyebrow">{users}</p>
 
-            <p className="mt-2 text-4xl font-medium tracking-tight tabular-nums">{userCount}</p>
+            <output
+              aria-atomic="true"
+              aria-live="polite"
+              className="mt-2 block text-4xl font-medium tracking-tight tabular-nums"
+              htmlFor="pricing-user-count"
+            >
+              {userCount}
+            </output>
           </div>
         </div>
 
@@ -62,6 +69,7 @@ export function PricingSection({
           <Slider
             aria-label={ariaLabelSlider}
             className="mb-3 w-full"
+            id="pricing-user-count"
             max={MAX_USERS}
             min={1}
             step={1}

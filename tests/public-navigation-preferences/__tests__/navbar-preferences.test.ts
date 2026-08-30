@@ -86,6 +86,15 @@ describe("public navigation preferences", () => {
     expect(footer, "raw directory backlinks are not navigation").not.toContain(
       "promotebusinessdirectory",
     );
+    expect(footer, "comparison details belong behind the comparison hub").not.toContain("CompetitorLinks");
+    expect(footer, "the resource column should use concise directory labels").toContain(
+      't("NavigationBar.public.articlesAndGuides")',
+    );
+    expect(footer, "the resource column should expose one comparison directory link").toContain(
+      't("NavigationBar.public.compare")',
+    );
+    expect(footer).not.toContain('t("Footer.blogViewAll")');
+    expect(footer).not.toContain('t("Footer.compareViewAll")');
   });
 
   it("keeps the expanded marketing map restrained and shared with mobile", () => {
@@ -125,8 +134,11 @@ describe("public navigation preferences", () => {
 
     expect(navbar).toContain('id: "integrations"');
     expect(navbar).toContain('href: "/features/integrations"');
+    expect(navbar).not.toContain("featured:");
     expect(navbar).not.toContain("secondary:");
     expect(menu).toContain("<ProviderMark");
+    expect(menu).not.toContain("group.featured");
+    expect(menu).toContain('"-mx-2.5 flex min-h-9');
 
     for (const providerHref of [
       "/features/linkedin-integration",
@@ -140,7 +152,7 @@ describe("public navigation preferences", () => {
     }
   });
 
-  it("keeps the six Featured On destinations without third-party image requests", () => {
+  it("keeps the six official theme-aware Featured On badges and outbound destinations", () => {
     const badges = read("app/components/footer-badges.tsx");
 
     for (const href of [
@@ -157,10 +169,24 @@ describe("public navigation preferences", () => {
       ).toContain(href);
     }
 
-    expect(badges).not.toContain("<img");
-    expect(badges).not.toContain("badge_img");
-    expect(badges).not.toContain("POTW1");
-    expect(badges).not.toContain("MARQUEE");
+    for (const badgeAsset of [
+      "https://www.uneed.best/POTW1.png",
+      "https://www.uneed.best/POTW1A.png",
+      "https://b.sf-syn.com/badge_img/3954503/light-default?variant_id=sf",
+      "https://twelve.tools/badge2-light.svg",
+      "https://wired.business/badge1-dark.svg",
+      "https://startupfa.me/badges/featured/light.webp",
+      "https://open-launch.com/api/badge/e6753e76-e978-4100-b29f-a3048622b9a6/featured-dark.svg",
+    ]) {
+      expect(badges, `${badgeAsset} is missing from the official badge rail`).toContain(badgeAsset);
+    }
+
+    expect(badges).toContain("<img");
+    expect(badges).toContain("useServerTheme");
+    expect(badges).toContain("MARQUEE_COPIES");
+    expect(badges).toContain("prefers-reduced-motion");
+    expect(badges).toContain(".footer-badges-track:focus-within");
+    expect(badges).toContain("transform: translateX(0) !important");
   });
 
   it("keeps the locale menu renderable without JavaScript", () => {

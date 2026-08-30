@@ -1489,6 +1489,9 @@
   "ContactPage": {
     "description": "Have a question, want a walkthrough, or exploring a partnership? Drop me a note and I'll get back within a day.",
     "form": {
+      "founderName": "Benjamin Wagner",
+      "founderNote": "Your message comes directly to me. Tell me what you use today and where the workflow gets stuck.",
+      "founderRole": "Founder, Customermates",
       "messagePlaceholder": "What are you working on, and how can I help?",
       "submit": "Send message",
       "successBody": "I'll get back to you at the email you provided, usually within 24 hours.",
@@ -1960,9 +1963,7 @@
     "success": "Feedback received. You're officially part of the build crew."
   },
   "Footer": {
-    "blogViewAll": "View all articles",
     "company": "Company",
-    "compareViewAll": "View all comparisons",
     "copyrightText": "© {year} Customermates. All rights reserved.",
     "dpa": "DPA",
     "featuredOn": "Featured on",
@@ -2274,7 +2275,6 @@
       "primaryNavigation": "Primary navigation",
       "product": "Product",
       "productDescription": "Customer relationships, pipeline, conversations, and extensibility in one system.",
-      "productOverview": "Product overview",
       "professionalServices": "Professional services",
       "propertyManagement": "Property management",
       "providerInstagram": "Instagram",

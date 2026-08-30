@@ -55,11 +55,8 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
 
   const publicNavGroups: PublicNavGroup[] = [
     {
+      activeHref: "/features",
       description: t("NavigationBar.public.productDescription"),
-      featured: {
-        href: "/features",
-        title: t("NavigationBar.public.productOverview"),
-      },
       icon: Boxes,
       id: "product",
       title: t("NavigationBar.public.product"),
@@ -76,12 +73,12 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
               title: t("NavigationBar.public.pipeline"),
             },
             {
-              href: "/features/sales-tracking",
-              title: t("NavigationBar.public.salesTracking"),
-            },
-            {
               href: "/features/task-management",
               title: t("NavigationBar.public.taskManagement"),
+            },
+            {
+              href: "/features/sales-tracking",
+              title: t("NavigationBar.public.salesTracking"),
             },
           ],
         },
@@ -105,11 +102,8 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
       ],
     },
     {
+      activeHref: "/for",
       description: t("NavigationBar.public.solutionsDescription"),
-      featured: {
-        href: "/for",
-        title: t("NavigationBar.public.allSolutions"),
-      },
       icon: UsersRound,
       id: "solutions",
       title: t("NavigationBar.public.solutions"),
@@ -146,16 +140,17 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
               href: "/for/property-management",
               title: t("NavigationBar.public.propertyManagement"),
             },
+            {
+              href: "/for",
+              title: t("NavigationBar.public.allSolutions"),
+            },
           ],
         },
       ],
     },
     {
+      activeHref: "/features/integrations",
       description: t("NavigationBar.public.integrationsDescription"),
-      featured: {
-        href: "/features/integrations",
-        title: t("NavigationBar.public.allIntegrations"),
-      },
       icon: Plug,
       id: "integrations",
       title: t("NavigationBar.public.integrations"),
@@ -163,6 +158,11 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
         {
           title: t("NavigationBar.public.communication"),
           links: [
+            {
+              href: "/features/unified-inbox",
+              provider: "imap",
+              title: t("NavigationBar.public.unifiedInbox"),
+            },
             {
               href: "/features/linkedin-integration",
               provider: "linkedin",
@@ -177,11 +177,6 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
               href: "/features/email-integration",
               provider: "gmail",
               title: t("NavigationBar.public.emailAndGmail"),
-            },
-            {
-              href: "/features/unified-inbox",
-              provider: "imap",
-              title: t("NavigationBar.public.unifiedInbox"),
             },
           ],
         },
@@ -209,6 +204,10 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
           title: t("NavigationBar.public.buildAndAutomate"),
           links: [
             {
+              href: "/features/integrations",
+              title: t("NavigationBar.public.allIntegrations"),
+            },
+            {
               href: "/features/slack-integration",
               title: t("NavigationBar.public.providerSlack"),
             },
@@ -220,11 +219,8 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
       ],
     },
     {
+      activeHref: "/blog",
       description: t("NavigationBar.public.resourcesDescription"),
-      featured: {
-        href: "/blog",
-        title: t("NavigationBar.public.articlesAndGuides"),
-      },
       icon: BookOpen,
       id: "resources",
       title: t("NavigationBar.public.resources"),
@@ -233,6 +229,10 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
           title: t("NavigationBar.public.explore"),
           links: [
             { href: "/docs", title: t("NavigationBar.docs") },
+            {
+              href: "/blog",
+              title: t("NavigationBar.public.articlesAndGuides"),
+            },
             { href: "/compare", title: t("NavigationBar.public.compare") },
           ],
         },
@@ -421,23 +421,6 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
 
                       <AccordionContent className="space-y-5">
                         <p className="px-2 text-sm leading-6 text-subdued">{group.description}</p>
-
-                        <div className="flex flex-col">
-                          {[group.featured].map((link) => (
-                            <AppLink
-                              key={link.href}
-                              aria-current={isNavItemActive(link.href) ? "page" : undefined}
-                              className={cn(
-                                "rounded-md px-2 py-2.5 text-sm font-medium",
-                                !isNavItemActive(link.href) && "text-subdued",
-                              )}
-                              href={link.href}
-                              onNavigate={closeMenu}
-                            >
-                              {link.title}
-                            </AppLink>
-                          ))}
-                        </div>
 
                         {group.sections.map((section) => (
                           <div key={section.title}>

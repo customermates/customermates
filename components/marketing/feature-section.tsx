@@ -27,7 +27,7 @@ export function FeatureSection({ badge, features, subtitle, title }: Props) {
         <p className="text-lede mx-auto mt-5">{subtitle}</p>
       </div>
 
-      <div className="mt-10 grid border-y border-border md:grid-cols-2">
+      <div className="mt-10 grid overflow-hidden rounded-card border border-border bg-card md:grid-cols-2">
         {features.map((feature) => {
           const Icon = ICONS[feature.icon];
 

@@ -47,12 +47,15 @@ import {
 
 const groups: PublicNavGroup[] = [
   {
+    activeHref: "/features",
     description: "Understand the product.",
-    featured: { href: "/features", title: "Features" },
     icon: Boxes,
     sections: [
       {
-        links: [{ href: "/features/self-hosted", title: "Self-hosted" }],
+        links: [
+          { href: "/features/self-hosted", title: "Self-hosted" },
+          { href: "/features/all", title: "All features" },
+        ],
         title: "Platform",
       },
     ],
@@ -60,11 +63,19 @@ const groups: PublicNavGroup[] = [
     title: "Product",
   },
   {
+    activeHref: "/for",
     description: "Find a solution.",
-    featured: { href: "/for", title: "All solutions" },
     id: "solutions",
     icon: UsersRound,
-    sections: [{ links: [{ href: "/for/agencies", title: "Agencies" }], title: "Teams" }],
+    sections: [
+      {
+        links: [
+          { href: "/for/agencies", title: "Agencies" },
+          { href: "/for", title: "All solutions" },
+        ],
+        title: "Teams",
+      },
+    ],
     title: "Solutions",
   },
 ];
@@ -104,8 +115,9 @@ describe("PublicNavbarMenu", () => {
 
     expect(markup).toContain("Product");
     expect(markup).toContain("Solutions");
-    expect(markup).toContain('href="/features"');
     expect(markup).toContain('href="/features/self-hosted"');
+    expect(markup).toContain('href="/features/all"');
+    expect(markup).not.toMatch(/href="\/features"(?:\s|>)/u);
     expect(markup).toContain('href="/for"');
     expect(markup).toContain('href="/for/agencies"');
     expect(markup).toContain('href="/pricing"');
@@ -222,7 +234,7 @@ describe("PublicNavbarMenu", () => {
     act(() => {
       product.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Enter" }));
     });
-    const firstLink = container?.querySelector<HTMLAnchorElement>('a[href="/features"]');
+    const firstLink = container?.querySelector<HTMLAnchorElement>('a[href="/features/self-hosted"]');
     if (!firstLink) throw new Error("first product navigation link did not render");
     expect(product.getAttribute("aria-expanded")).toBe("true");
     expect(document.activeElement).toBe(product);
@@ -238,7 +250,7 @@ describe("PublicNavbarMenu", () => {
     });
     expect(document.activeElement).toBe(firstLink);
 
-    const secondLink = container?.querySelector<HTMLAnchorElement>('a[href="/features/self-hosted"]');
+    const secondLink = container?.querySelector<HTMLAnchorElement>('a[href="/features/all"]');
     if (!secondLink) throw new Error("second product navigation link did not render");
     act(() => {
       firstLink.dispatchEvent(
@@ -289,7 +301,7 @@ describe("PublicNavbarMenu", () => {
       product.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: " " }));
     });
 
-    const lastLink = container?.querySelector<HTMLAnchorElement>('a[href="/features/self-hosted"]');
+    const lastLink = container?.querySelector<HTMLAnchorElement>('a[href="/features/all"]');
     if (!lastLink) throw new Error("last product navigation link did not render");
     lastLink.focus();
     const tabEvent = new KeyboardEvent("keydown", {
@@ -320,7 +332,7 @@ describe("PublicNavbarMenu", () => {
     act(() => {
       product.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key: "Tab" }));
     });
-    const firstLink = container?.querySelector<HTMLAnchorElement>('a[href="/features"]');
+    const firstLink = container?.querySelector<HTMLAnchorElement>('a[href="/features/self-hosted"]');
     const content = container?.querySelector<HTMLElement>('[data-slot="popover-content"]');
     if (!firstLink || !content) throw new Error("open product navigation panel did not render");
     content.scrollTop = 72;
@@ -418,7 +430,7 @@ describe("PublicNavbarMenu", () => {
     act(() => {
       product.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key: "Tab" }));
     });
-    const firstLink = container?.querySelector<HTMLAnchorElement>('a[href="/features"]');
+    const firstLink = container?.querySelector<HTMLAnchorElement>('a[href="/features/self-hosted"]');
     const content = container?.querySelector<HTMLElement>('[data-slot="popover-content"]');
     if (!firstLink || !content) throw new Error("open product navigation panel did not render");
     expect(document.activeElement).toBe(firstLink);
@@ -510,8 +522,8 @@ describe("PublicNavbarMenu", () => {
     const overlappingGroups: PublicNavGroup[] = [
       productGroup,
       {
+        activeHref: "/features/integrations",
         description: "Connect channels.",
-        featured: { href: "/features/integrations", title: "All integrations" },
         icon: Boxes,
         id: "integrations",
         sections: [
@@ -528,8 +540,8 @@ describe("PublicNavbarMenu", () => {
         title: "Integrations",
       },
       {
+        activeHref: "/blog",
         description: "Read the guides.",
-        featured: { href: "/blog", title: "Articles" },
         icon: UsersRound,
         id: "resources",
         sections: [

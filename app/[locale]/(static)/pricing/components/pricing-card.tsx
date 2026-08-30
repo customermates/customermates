@@ -17,7 +17,7 @@ export function PricingCardComponent({ card, displayPrice, priceSubtext }: Props
 
   return (
     <article
-      className={`flex h-full flex-col border-b border-r border-border p-5 sm:p-6 ${featured ? "bg-sidebar" : "bg-background"}`}
+      className={`flex flex-col border-b border-r border-border p-5 sm:p-6 md:row-span-5 md:grid md:grid-rows-subgrid ${featured ? "bg-sidebar" : "bg-background"}`}
       data-pricing-featured={featured ? "true" : undefined}
       data-pricing-plan={card.plan}
     >
@@ -33,21 +33,19 @@ export function PricingCardComponent({ card, displayPrice, priceSubtext }: Props
 
       <p className="m-0 mt-2 min-h-10 text-[13px] leading-relaxed text-muted-foreground">{card.description}</p>
 
-      <div className="my-4">
-        <div>
-          <span className="text-[34px] font-medium tracking-[-0.03em] tabular-nums">{displayPrice}</span>
+      <div className="flex min-w-0 flex-wrap items-baseline gap-x-1.5 py-4">
+        <span className="text-[34px] font-medium tracking-[-0.03em] tabular-nums">{displayPrice}</span>
 
-          {priceSubtext && <span className="ml-1.5 text-[13px] text-muted-foreground">{priceSubtext}</span>}
-        </div>
+        {priceSubtext && <span className="text-[13px] text-muted-foreground">{priceSubtext}</span>}
       </div>
 
       <Button asChild className="w-full" variant={buttonVariant}>
         <AppLink href={card.buttonHref}>{card.buttonText}</AppLink>
       </Button>
 
-      <ul className="-mx-5 m-0 mt-5 divide-y divide-border border-t border-border p-0 sm:-mx-6">
+      <ul className="m-0 mt-5 grid content-start gap-3 p-0">
         {card.features.map((feature, index) => (
-          <li key={index} className="flex items-start gap-2 px-5 py-3 text-[13px] leading-5 text-foreground sm:px-6">
+          <li key={index} className="flex items-start gap-2 text-[13px] leading-5 text-foreground">
             <Check aria-hidden className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" strokeWidth={2.25} />
 
             <span>{feature}</span>

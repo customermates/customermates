@@ -2,7 +2,6 @@
 
 import { useTranslations } from "next-intl";
 
-import { CompetitorLinks } from "./competitor-links";
 import { FooterBadges } from "./footer-badges";
 
 import { MarketingContainer } from "@/components/marketing/marketing-container";
@@ -18,20 +17,13 @@ type LinkItem = {
 type FooterProps = {
   blogPosts?: LinkItem[];
   className?: string;
-  competitors?: LinkItem[];
   featureLinks?: LinkItem[];
   industries?: LinkItem[];
 };
 
 const FOOTER_LINK_CLASS = "text-subdued transition-colors hover:text-foreground focus-visible:text-foreground";
 
-export function FooterContent({
-  blogPosts = [],
-  className,
-  competitors = [],
-  featureLinks = [],
-  industries = [],
-}: FooterProps) {
+export function FooterContent({ blogPosts = [], className, featureLinks = [], industries = [] }: FooterProps) {
   const t = useTranslations();
 
   return (
@@ -218,30 +210,32 @@ export function FooterContent({
                 </AppLink>
               </li>
 
-              {blogPosts.map(({ slug, displayName }) => (
-                <li key={slug}>
-                  <AppLink
-                    appearance="unstyled"
-                    className={cn(FOOTER_LINK_CLASS, "line-clamp-2 leading-5")}
-                    href={`/blog/${slug}`}
-                    title={displayName}
-                  >
-                    {displayName}
-                  </AppLink>
-                </li>
-              ))}
+              {blogPosts.map(({ slug, displayName }) => {
+                const label =
+                  slug === "agentic-crm"
+                    ? t("NavigationBar.public.agenticCrm")
+                    : slug === "open-source-crm"
+                      ? t("NavigationBar.public.openSourceCrm")
+                      : displayName;
+
+                return (
+                  <li key={slug}>
+                    <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href={`/blog/${slug}`}>
+                      {label}
+                    </AppLink>
+                  </li>
+                );
+              })}
 
               <li>
                 <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href="/blog">
-                  {t("Footer.blogViewAll")}
+                  {t("NavigationBar.public.articlesAndGuides")}
                 </AppLink>
               </li>
 
-              <CompetitorLinks competitors={competitors} />
-
               <li>
                 <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href="/compare">
-                  {t("Footer.compareViewAll")}
+                  {t("NavigationBar.public.compare")}
                 </AppLink>
               </li>
             </ul>

@@ -32,8 +32,8 @@ export function CTASection({
   const buttonRightIsExternal = buttonRightHref.startsWith("https://") || buttonRightHref.startsWith("http://");
 
   return (
-    <MarketingSection className="border-b-0" tone="page">
-      <div className="marketing-grid items-end gap-y-10 border-y border-border py-12 sm:py-14 lg:py-16">
+    <MarketingSection className="border-b-0 py-16 sm:py-20 lg:py-24" tone="canvas">
+      <div className="marketing-grid items-end gap-y-10">
         <div className="col-span-12 lg:col-span-5">
           {image ? <div className="mb-6 max-w-32">{image}</div> : <p className="text-eyebrow">{ORGANIZATION_NAME}</p>}
 

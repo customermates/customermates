@@ -3,11 +3,13 @@
 import { useLocale } from "next-intl";
 
 import { BrowserFrame } from "./browser-frame";
+import { cn } from "@/core/utils/cn";
 import { type ContentLocale, contentLocaleOrDefault } from "@/i18n/locale-registry";
 
 export const PRODUCT_DEMO_PATHS = ["/dashboard", "/inbox", "/deals"] as const;
 
 export type ProductDemoPath = (typeof PRODUCT_DEMO_PATHS)[number];
+export type ProductDemoPresentation = "article" | "standalone";
 
 type DemoCopy = {
   eyebrow: string;
@@ -77,16 +79,22 @@ export function buildProductDemoUrl(locale: ContentLocale, path: string): string
 type Props = {
   hostedBoundary?: boolean;
   path: ProductDemoPath;
+  presentation?: ProductDemoPresentation;
 };
 
-export function ProductDemo({ hostedBoundary = false, path }: Props) {
+export function ProductDemo({ hostedBoundary = false, path, presentation = "article" }: Props) {
   const locale = contentLocaleOrDefault(useLocale());
   const copy = COPY[locale];
   const disclosure = hostedBoundary ? copy.hostedDisclosure : copy.standardDisclosure;
 
   return (
-    <figure className="not-prose my-12" data-product-demo={path}>
-      <figcaption className="mb-5 grid gap-5 border-y border-border py-5 sm:grid-cols-[minmax(0,1fr)_minmax(16rem,.75fr)] sm:items-start">
+    <figure className="not-prose my-12" data-product-demo={path} data-product-demo-presentation={presentation}>
+      <figcaption
+        className={cn(
+          "mb-5 grid gap-5 sm:grid-cols-[minmax(0,1fr)_minmax(16rem,.75fr)] sm:items-start",
+          presentation === "article" && "border-y border-border py-5",
+        )}
+      >
         <span className="block max-w-2xl">
           <span className="text-eyebrow block">{copy.eyebrow}</span>
 

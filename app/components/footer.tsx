@@ -1,9 +1,9 @@
-import { getLocale, getTranslations } from "next-intl/server";
+import { getLocale } from "next-intl/server";
 
 import { FooterContent } from "./footer-content";
 import { type FooterCollection, FOOTER_RENDERED_COLLECTION_SIZE, selectFooterSlugs } from "./footer-selection";
 
-import { blogPostsSource, comparePagesSource, featurePagesSource, forPagesSource } from "@/core/fumadocs/source";
+import { blogPostsSource, featurePagesSource, forPagesSource } from "@/core/fumadocs/source";
 import { contentLocaleOrDefault } from "@/i18n/locale-registry";
 
 type SourcePage = {
@@ -31,19 +31,6 @@ function selectPages<T extends SourcePage>(
 
 export async function Footer({ className }: { className?: string }) {
   const locale = contentLocaleOrDefault(await getLocale());
-  const t = await getTranslations("ComparePage");
-
-  const competitors = selectPages("compare-pages", comparePagesSource.getPages(locale)).map(({ page, slug }) => {
-    const competitor2 = page.data.comparison?.competitor2Name;
-    let displayName = page.data.competitorName;
-    if (slug.includes("-vs-") && competitor2) displayName = `${page.data.competitorName} vs ${competitor2}`;
-    else if (slug.endsWith("-alternative")) {
-      displayName = t("alternativeTitle", {
-        competitor: page.data.competitorName,
-      });
-    }
-    return { displayName, slug };
-  });
 
   const industries = selectPages("for-pages", forPagesSource.getPages(locale)).map(({ page, slug }) => ({
     displayName: page.data.industryName,
@@ -61,12 +48,6 @@ export async function Footer({ className }: { className?: string }) {
   }));
 
   return (
-    <FooterContent
-      blogPosts={blogPosts}
-      className={className}
-      competitors={competitors}
-      featureLinks={featureLinks}
-      industries={industries}
-    />
+    <FooterContent blogPosts={blogPosts} className={className} featureLinks={featureLinks} industries={industries} />
   );
 }

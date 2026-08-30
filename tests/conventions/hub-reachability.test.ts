@@ -581,10 +581,13 @@ describe("hub pagination and rendered reachability", () => {
           for (const slug of slugs) {
             publishedFooterDetails.add(buildLocalePath(locale, `${detailPath}/${slug}`));
           }
+          if (!(collection in FOOTER_RENDERED_COLLECTION_SIZE)) continue;
+
+          const footerCollection = collection as keyof typeof FOOTER_RENDERED_COLLECTION_SIZE;
           for (const slug of selectFooterSlugs(
-            collection,
+            footerCollection,
             slugs,
-            FOOTER_RENDERED_COLLECTION_SIZE[collection],
+            FOOTER_RENDERED_COLLECTION_SIZE[footerCollection],
           )) {
             expectedFooterDetails.add(buildLocalePath(locale, `${detailPath}/${slug}`));
           }

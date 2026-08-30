@@ -1489,6 +1489,9 @@
   "ContactPage": {
     "description": "Hai una domanda, vuoi una dimostrazione o stai valutando una collaborazione? Scrivimi e ti rispondo entro un giorno.",
     "form": {
+      "founderName": "Benjamin Wagner",
+      "founderNote": "Il tuo messaggio arriva direttamente a me. Dimmi cosa usi oggi e dove il flusso di lavoro si blocca.",
+      "founderRole": "Fondatore di Customermates",
       "messagePlaceholder": "A cosa stai lavorando e come posso aiutarti?",
       "submit": "Invia il messaggio",
       "successBody": "Ti rispondo all'indirizzo che hai indicato, di solito entro 24 ore.",
@@ -1960,9 +1963,7 @@
     "success": "Feedback ricevuto. Fai ufficialmente parte della squadra."
   },
   "Footer": {
-    "blogViewAll": "Vedi tutti gli articoli",
     "company": "Azienda",
-    "compareViewAll": "Vedi tutti i confronti",
     "copyrightText": "© {year} Customermates. Tutti i diritti riservati.",
     "dpa": "DPA",
     "featuredOn": "In evidenza su",
@@ -2274,7 +2275,6 @@
       "primaryNavigation": "Navigazione principale",
       "product": "Prodotto",
       "productDescription": "Relazioni con i clienti, pipeline, conversazioni ed estensibilità in un unico sistema.",
-      "productOverview": "Panoramica del prodotto",
       "professionalServices": "Servizi professionali",
       "propertyManagement": "Gestione immobiliare",
       "providerInstagram": "Instagram",

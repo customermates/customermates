@@ -11,6 +11,7 @@ import { AppForm } from "@/components/forms/form-context";
 import { Button } from "@/components/ui/button";
 import { FormInput } from "@/components/forms/form-input";
 import { FormTextarea } from "@/components/forms/form-textarea";
+import { AppImage } from "@/components/shared/app-image";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 export const ContactForm = observer(() => {
@@ -42,6 +43,25 @@ export const ContactForm = observer(() => {
     <AppForm store={contactStore}>
       <AppCard className="bg-card shadow-none">
         <AppCardBody>
+          <div className="flex items-center gap-4 pb-1">
+            <AppImage
+              alt=""
+              className="size-12 shrink-0 rounded-full object-cover"
+              height={800}
+              sizes="48px"
+              src="benjamin-wagner.png"
+              width={800}
+            />
+
+            <div className="min-w-0">
+              <p className="text-sm font-medium tracking-tight">{t("ContactPage.form.founderName")}</p>
+
+              <p className="mt-0.5 text-xs leading-5 text-muted-foreground">{t("ContactPage.form.founderRole")}</p>
+
+              <p className="mt-1 text-sm leading-5 text-muted-foreground">{t("ContactPage.form.founderNote")}</p>
+            </div>
+          </div>
+
           <div className="grid gap-4 sm:grid-cols-2">
             <FormInput required autoComplete="name" id="name" />
 

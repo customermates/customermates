@@ -9,14 +9,6 @@ export const FOOTER_PREFERRED_SLUGS = {
     "crm-examples",
     "customer-retention-management",
   ],
-  "compare-pages": [
-    "gohighlevel",
-    "notion-alternative",
-    "hubspot-vs-salesforce",
-    "vtiger-alternative",
-    "folk",
-    "cobra-alternative",
-  ],
   "feature-pages": ["self-hosted", "unified-inbox", "cloud-crm", "contact-management", "sales-tracking", "pipeline"],
   "for-pages": ["professional-services", "agencies", "recruiting", "healthcare", "ecommerce", "property-management"],
 } as const;
@@ -25,7 +17,6 @@ export type FooterCollection = keyof typeof FOOTER_PREFERRED_SLUGS;
 
 export const FOOTER_RENDERED_COLLECTION_SIZE: Record<FooterCollection, number> = {
   "blog-posts": 2,
-  "compare-pages": 1,
   "feature-pages": FOOTER_COLUMN_SIZE,
   "for-pages": FOOTER_COLUMN_SIZE,
 };

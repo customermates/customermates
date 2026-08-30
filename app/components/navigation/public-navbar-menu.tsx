@@ -4,7 +4,7 @@ import type { LucideIcon } from "lucide-react";
 import type { VisualProviderFixtureId } from "@/components/marketing/visuals/native-fixtures";
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 
-import { ArrowRight, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import { AppLink } from "@/components/shared/app-link";
@@ -19,8 +19,8 @@ export type PublicNavLink = {
 };
 
 export type PublicNavGroup = {
+  activeHref: string;
   description: string;
-  featured: PublicNavLink;
   icon: LucideIcon;
   id: string;
   sections: {
@@ -47,12 +47,15 @@ function isCurrentPage(pathname: string, href: string) {
 }
 
 function groupMatchScore(pathname: string, group: PublicNavGroup) {
-  return [group.featured, ...group.sections.flatMap((section) => section.links)].reduce((best, link) => {
-    if (!isPathActive(pathname, link.href)) return best;
+  return [group.activeHref, ...group.sections.flatMap((section) => section.links.map((link) => link.href))].reduce(
+    (best, href) => {
+      if (!isPathActive(pathname, href)) return best;
 
-    const exactMatchBonus = pathname === link.href ? 10_000 : 0;
-    return Math.max(best, exactMatchBonus + link.href.length);
-  }, -1);
+      const exactMatchBonus = pathname === href ? 10_000 : 0;
+      return Math.max(best, exactMatchBonus + href.length);
+    },
+    -1,
+  );
 }
 
 const subscribeToHydration = () => () => undefined;
@@ -76,11 +79,7 @@ export function resolveActivePublicNavGroup(pathname: string, groups: PublicNavG
 }
 
 export function isPrimaryPublicNavLink(group: PublicNavGroup, link: PublicNavLink) {
-  return (
-    [group.featured, ...group.sections.flatMap((section) => section.links)].find(
-      (candidate) => candidate.href === link.href,
-    ) === link
-  );
+  return group.sections.flatMap((section) => section.links).find((candidate) => candidate.href === link.href) === link;
 }
 
 export function PublicNavbarMenu({ ariaLabel, groups, onNavigate, pathname, pricingLabel }: Props) {
@@ -313,33 +312,9 @@ export function PublicNavbarMenu({ ariaLabel, groups, onNavigate, pathname, pric
                 >
                   <div className="overflow-hidden rounded-xl border border-border-strong bg-popover text-popover-foreground shadow-lg">
                     <div className="border-b border-border bg-sidebar/45 px-6 py-5">
-                      <div className="flex items-center justify-between gap-8">
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold text-foreground">{group.title}</p>
+                      <p className="text-sm font-semibold text-foreground">{group.title}</p>
 
-                          <p className="mt-1 max-w-2xl text-sm leading-6 text-subdued">{group.description}</p>
-                        </div>
-
-                        <AppLink
-                          appearance="unstyled"
-                          aria-current={isCurrentPage(pathname, group.featured.href) ? "page" : undefined}
-                          className={cn(
-                            "group/link flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent focus-visible:bg-accent",
-                            isCurrentPage(pathname, group.featured.href) && "bg-accent",
-                          )}
-                          href={group.featured.href}
-                          tabIndex={expanded ? undefined : -1}
-                          onKeyDown={(event) => handlePanelLinkKeyDown(event, group.id)}
-                          onNavigate={navigate}
-                        >
-                          {group.featured.title}
-
-                          <ArrowRight
-                            aria-hidden
-                            className="size-3.5 transition-transform group-hover/link:translate-x-0.5 motion-reduce:transition-none"
-                          />
-                        </AppLink>
-                      </div>
+                      <p className="mt-1 max-w-2xl text-sm leading-6 text-subdued">{group.description}</p>
                     </div>
 
                     <div
@@ -377,7 +352,7 @@ export function PublicNavbarMenu({ ariaLabel, groups, onNavigate, pathname, pric
                                     appearance="unstyled"
                                     aria-current={linkActive ? "page" : undefined}
                                     className={cn(
-                                      "flex min-h-9 items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent focus-visible:bg-accent",
+                                      "-mx-2.5 flex min-h-9 items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent focus-visible:bg-accent",
                                       linkActive && "bg-accent",
                                     )}
                                     href={link.href}

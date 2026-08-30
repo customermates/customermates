@@ -14,7 +14,7 @@ export function WhyFeaturesSection({ description, features, title }: Props) {
   return (
     <MarketingSection className="py-16 sm:py-20 lg:py-24" tone="canvas">
       <div className="marketing-grid gap-y-10">
-        <div className="col-span-12 lg:col-span-4">
+        <div className="col-span-12 lg:sticky lg:top-24 lg:col-span-4 lg:self-start">
           <h2 className="text-display-sm">{title}</h2>
 
           <p className="mt-5 max-w-sm text-sm leading-6 text-muted-foreground">{description}</p>

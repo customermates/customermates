@@ -36,7 +36,7 @@ export default async function FeaturesPage() {
 
       <section className="w-full border-b border-border bg-background">
         <MarketingContainer>
-          <ProductDemo hostedBoundary path="/dashboard" />
+          <ProductDemo hostedBoundary path="/dashboard" presentation="standalone" />
         </MarketingContainer>
       </section>
 

@@ -12,7 +12,7 @@ export function BaseFeaturesSection({ features, index, subtitle, title }: Props)
   return (
     <MarketingSection className="py-16 sm:py-20 lg:py-24">
       <div className="marketing-grid gap-y-10">
-        <div className="col-span-12 lg:col-span-4">
+        <div className="col-span-12 lg:sticky lg:top-24 lg:col-span-4 lg:self-start">
           {numberLabel ? <p className="text-eyebrow">{numberLabel}</p> : null}
 
           <h2 className="text-display-sm mt-4">{title}</h2>

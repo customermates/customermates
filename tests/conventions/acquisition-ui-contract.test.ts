@@ -208,7 +208,8 @@ describe("public acquisition UI contract", () => {
     const closing = source("components/marketing/cta-section.tsx");
     expect(closing).toContain("<MarketingSection");
     expect(closing).toContain("marketing-grid");
-    expect(closing).toContain("border-y border-border");
+    expect(closing).toContain('tone="canvas"');
+    expect(closing).not.toContain("border-y border-border");
     expect(closing).not.toContain("rounded-card");
     expect(closing).not.toContain("bg-sidebar");
     expect(closing).not.toContain("rgba(");
@@ -257,6 +258,57 @@ describe("public acquisition UI contract", () => {
     expect(comparison).toContain("text-display-sm");
     expect(tableFrame).not.toContain("rgba(");
     expect(tableFrame).not.toContain("shadow-");
+  });
+
+  it("keeps the contact form personal without adding another contact card", () => {
+    const form = source("app/[locale]/(public)/contact/contact-form.tsx");
+
+    expect(form).toContain("<AppImage");
+    expect(form).toContain('src="benjamin-wagner.png"');
+    expect(form).toContain('sizes="48px"');
+    expect(form).toContain("ContactPage.form.founderName");
+    expect(form).toContain("ContactPage.form.founderRole");
+    expect(form).toContain("ContactPage.form.founderNote");
+    expect(form).not.toContain(">Benjamin Wagner<");
+    expect(form).not.toContain("FounderContactCard");
+    expect(form).not.toContain("Common.actions.contact");
+  });
+
+  it("aligns pricing summaries without pretending that unequal benefits are table rows", () => {
+    const section = source("app/[locale]/(static)/pricing/components/pricing-section.tsx");
+    const card = source("app/[locale]/(static)/pricing/components/pricing-card.tsx");
+    const comparison = source("components/marketing/responsive-comparison-table.tsx");
+
+    expect(section).toContain("rounded-card border border-border bg-card");
+    expect(section).toContain("<output");
+    expect(section).toContain('htmlFor="pricing-user-count"');
+    expect(section).toContain('id="pricing-user-count"');
+    expect(card).toContain("md:row-span-5 md:grid md:grid-rows-subgrid");
+    expect(card).toContain("grid content-start gap-3");
+    expect(card).not.toContain("divide-y divide-border");
+    expect(card).not.toContain("border-t border-border");
+    expect(comparison).toContain("<thead");
+    expect(comparison).toContain("sticky! top-[var(--table-sticky-top,0px)]");
+  });
+
+  it("uses sticky overview labels and complete frames outside long-form articles", () => {
+    for (const route of [
+      "app/[locale]/(static)/features/components/base-features-section.tsx",
+      "app/[locale]/(static)/features/components/why-features-section.tsx",
+    ]) {
+      const section = source(route);
+      expect(section, route).toContain("lg:sticky lg:top-24");
+      expect(section, route).toContain("lg:self-start");
+    }
+
+    for (const route of [
+      "components/marketing/feature-section.tsx",
+      "app/[locale]/(static)/n8n-crm/components/automation-benefits.tsx",
+    ]) {
+      const section = source(route);
+      expect(section, route).toContain("rounded-card border border-border bg-card");
+      expect(section, route).not.toContain("grid border-y border-border");
+    }
   });
 
   it("keeps long-form content readable and media explicit", () => {

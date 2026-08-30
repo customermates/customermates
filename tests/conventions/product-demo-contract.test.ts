@@ -11,6 +11,7 @@ type PageDemo = {
   path: string;
   precedingCopy: string;
   hostedBoundary?: boolean;
+  presentation?: "standalone";
 };
 
 const PAGE_DEMOS: readonly PageDemo[] = [
@@ -19,6 +20,7 @@ const PAGE_DEMOS: readonly PageDemo[] = [
     path: "/dashboard",
     precedingCopy: "<FeaturesHero {...hero} />",
     hostedBoundary: true,
+    presentation: "standalone",
   },
   {
     file: "content/feature-pages/en/cloud-crm.mdx",
@@ -109,9 +111,11 @@ describe("seeded public product demo", () => {
   it("registers one disclosed, appropriately placed demo per reviewed source", () => {
     for (const page of PAGE_DEMOS) {
       const source = read(page.file);
-      const expectedTag = page.hostedBoundary
-        ? `<ProductDemo hostedBoundary path="${page.path}" />`
-        : `<ProductDemo path="${page.path}" />`;
+      const expectedTag = page.presentation
+        ? `<ProductDemo hostedBoundary path="${page.path}" presentation="${page.presentation}" />`
+        : page.hostedBoundary
+          ? `<ProductDemo hostedBoundary path="${page.path}" />`
+          : `<ProductDemo path="${page.path}" />`;
 
       expect(source.match(/<ProductDemo\b/gu)).toHaveLength(1);
       expect(source).toContain(expectedTag);
@@ -150,6 +154,9 @@ describe("seeded public product demo", () => {
     expect(demo).not.toMatch(/(?:^|[.!?]\s+)Mate starts closed/);
     expect(demo).not.toMatch(/(?:^|[.!?]\s+)Mate startet geschlossen/);
     expect(demo).toContain("copy.guidedTasks[path].map");
+    expect(demo).toContain('presentation = "article"');
+    expect(demo).toContain("data-product-demo-presentation={presentation}");
+    expect(demo).toContain('presentation === "article" && "border-y border-border py-5"');
     expect(demo).toContain("fallbackMessage={copy.fallback}");
     expect(demo).toContain("title={copy.titles[path]}");
     expect(demo).toContain('size="article"');
