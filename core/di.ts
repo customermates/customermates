@@ -63,6 +63,13 @@ import { UserPendingAuthorizationTaskListener } from "@/features/tasks/listener/
 import { DomainEvent } from "@/features/event/domain-events";
 // Contacts interactors
 import { GetContactsInteractor } from "@/features/contacts/get/get-contacts.interactor";
+import {
+  ExportContactsPageInteractor,
+  ExportDealsPageInteractor,
+  ExportOrganizationsPageInteractor,
+  ExportServicesPageInteractor,
+  ExportTasksPageInteractor,
+} from "@/features/data-transfer/export/export-records-page.interactor";
 import { GetContactsConfigurationInteractor } from "@/features/contacts/get/get-contacts-configuration.interactor";
 import { GetContactByIdInteractor } from "@/features/contacts/get/get-contact-by-id.interactor";
 import { CreateContactInteractor } from "@/features/contacts/upsert/create-contact.interactor";
@@ -1608,3 +1615,15 @@ export const getCorrectOperatorSubscriptionSnapshotInteractor = () =>
   new CorrectOperatorSubscriptionSnapshotInteractor(getOperatorRepo());
 
 export const getResetOperatorUserCreditsInteractor = () => new ResetOperatorUserCreditsInteractor(getOperatorRepo());
+
+// --- Data transfer ---
+
+export const getExportContactsPageInteractor = () => new ExportContactsPageInteractor(getContactRepo());
+
+export const getExportOrganizationsPageInteractor = () => new ExportOrganizationsPageInteractor(getOrganizationRepo());
+
+export const getExportDealsPageInteractor = () => new ExportDealsPageInteractor(getDealRepo());
+
+export const getExportServicesPageInteractor = () => new ExportServicesPageInteractor(getServiceRepo());
+
+export const getExportTasksPageInteractor = () => new ExportTasksPageInteractor(getTaskRepo());

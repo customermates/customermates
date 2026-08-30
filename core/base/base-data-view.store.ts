@@ -134,8 +134,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       isBulkMutating: observable,
 
       orderedColumns: computed,
+      visibleColumns: computed,
       sortableColumnIds: computed,
       canManage: computed,
+      canExport: computed,
       isDisabled: computed,
       hasSelection: computed,
       selectedCount: computed,
@@ -319,6 +321,12 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return this.rootStore.userStore.canManage(this.resource);
   }
 
+  get canExport(): boolean {
+    if (!this.resource) return true;
+
+    return this.rootStore.userStore.canAccess(this.resource);
+  }
+
   get isDisabled(): boolean {
     if (!this.resource) return false;
 
@@ -378,6 +386,11 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     res.push(...remainingColumns);
 
     return res;
+  }
+
+  get visibleColumns(): TableColumn[] {
+    const hidden = new Set(this.hiddenColumns);
+    return this.orderedColumns.filter((column) => !hidden.has(column.uid));
   }
 
   setItems(args: GetResult<Entity>): void {
