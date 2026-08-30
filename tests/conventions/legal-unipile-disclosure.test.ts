@@ -20,8 +20,8 @@ const LEGAL_COPY_MESSAGES = [
 
 const REMOVED_SUBJECTS = ["newsletter", "zoom", "google ads", "supabase"];
 
-const EXTERNAL_IMAGE_HOSTS = ["flagcdn.com"] as const;
-const RETIRED_BADGE_IMAGE_HOSTS = [
+const EXTERNAL_IMAGE_HOSTS = [
+  "flagcdn.com",
   "uneed.best",
   "b.sf-syn.com",
   "twelve.tools",
@@ -114,11 +114,6 @@ describe("legal documents describe only what the product does", () => {
     for (const host of EXTERNAL_IMAGE_HOSTS) {
       expect(privacy, `${name}/privacy is missing ${host}`).toContain(host);
       expect(subprocessors, `${name}/subprocessors is missing ${host}`).toContain(host);
-    }
-
-    for (const host of RETIRED_BADGE_IMAGE_HOSTS) {
-      expect(privacy, `${name}/privacy still describes the retired image host ${host}`).not.toContain(host);
-      expect(subprocessors, `${name}/subprocessors still describes the retired image host ${host}`).not.toContain(host);
     }
 
     expect(privacy).toMatch(name === "en" ? /IP address.*image URL.*browser.*referr/i : /IP-Adresse.*Bild-URL.*Browser.*verweis/i);
