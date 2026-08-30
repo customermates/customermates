@@ -1,6 +1,6 @@
 "use server";
 
-import type { HostedAiOperatorCompanyDto } from "@/ee/operator/operator.schema";
+import type { HostedAiOperatorCompanyDto, UpdateHostedAiEnterpriseAllowanceData } from "@/ee/operator/operator.schema";
 
 import { revalidatePath } from "next/cache";
 
@@ -28,11 +28,6 @@ export type OperatorWorkspacesActionState<T> =
 
 const OPERATOR_WORKSPACES_PATH = "/operator/workspaces";
 
-function formText(formData: FormData, name: string): string {
-  const value = formData.get(name);
-  return typeof value === "string" ? value : "";
-}
-
 function failure<T>(
   errorCode: OperatorWorkspacesActionErrorCode,
   operationId?: string,
@@ -50,16 +45,10 @@ function handledFailure<T>(error: unknown, operationId?: string): OperatorWorksp
 }
 
 export async function updateOperatorEnterpriseAllowanceAction(
-  _previous: OperatorWorkspacesActionState<HostedAiOperatorCompanyDto>,
-  formData: FormData,
+  data: UpdateHostedAiEnterpriseAllowanceData,
 ): Promise<OperatorWorkspacesActionState<HostedAiOperatorCompanyDto>> {
-  const operationId = formText(formData, "operationId") || undefined;
-  const input = UpdateHostedAiEnterpriseAllowanceSchema.safeParse({
-    companyId: formText(formData, "companyId"),
-    creditsPerUser: Number(formText(formData, "creditsPerUser")),
-    reason: formText(formData, "reason"),
-    operationId,
-  });
+  const operationId = data.operationId;
+  const input = UpdateHostedAiEnterpriseAllowanceSchema.safeParse(data);
   if (!input.success) return failure("invalidInput", operationId);
 
   try {

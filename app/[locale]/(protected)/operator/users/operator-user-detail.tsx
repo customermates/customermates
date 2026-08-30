@@ -1,747 +1,329 @@
 "use client";
 
-import type { FormEvent, ReactNode } from "react";
-import type {
-  OperatorUserCreditPeriodDto,
-  OperatorUserDetailDto,
-  ResetOperatorUserCreditsResultDto,
-} from "@/ee/operator/operator.schema";
-import type { OperatorUserCreditAdjustmentResult, OperatorUsersActionState } from "./actions";
+import type { OperatorUserCreditPeriodDto, OperatorUserDetailDto } from "@/ee/operator/operator.schema";
 
-import { AlertCircle, CircleDollarSign, RefreshCcw, Save, ShieldAlert, ShieldCheck, UserCog } from "lucide-react";
+import { observer } from "mobx-react-lite";
 import { useFormatter, useTranslations } from "next-intl";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { Status } from "@/generated/prisma";
 
-import {
-  createOperatorUserCreditAdjustmentAction,
-  getOperatorUserDetailAction,
-  resetOperatorUserCreditsAction,
-  updateOperatorUserPlatformAccessAction,
-  updateOperatorUserStatusAction,
-} from "./actions";
-import { AccountStatusLabel, FormField, IdCode, NativeSelect, OperatorUsersActionNotice } from "./operator-users-ui";
-
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AppChip } from "@/components/chip/app-chip";
+import { CopyableChip } from "@/components/chip/copyable-chip";
+import { AppForm } from "@/components/forms/form-context";
+import { FormNumberInput } from "@/components/forms/form-number-input";
+import { FormSelect } from "@/components/forms/form-select";
+import { Alert } from "@/components/shared/alert";
+import { InfoRow } from "@/components/shared/info-row";
+import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Spinner } from "@/components/ui/spinner";
-import { Textarea } from "@/components/ui/textarea";
+import { useRootStore } from "@/core/stores/root-store.provider";
 
-type MutationKey = "adjustment" | "platformAccess" | "reset" | "status";
+import { OperatorFormActions, OperatorFormSection, OperatorReasonField } from "../operator-form-parts";
+import { AccountStatusChip, OperatorChip } from "../operator-value-labels";
 
-type OperatorServerAction<T> = (
-  previous: OperatorUsersActionState<T>,
-  formData: FormData,
-) => Promise<OperatorUsersActionState<T>>;
-
-function freshOperationId(): string {
-  return globalThis.crypto.randomUUID();
-}
-
-function useOperatorMutation<T>(
-  action: OperatorServerAction<T>,
-  initialOperationId: string,
-  onSuccess: (data: T) => void,
-  onPendingChange: (pending: boolean) => void,
-  onConflict?: () => Promise<void> | void,
-) {
-  const [operationId, setOperationId] = useState(initialOperationId);
-  const [pending, startTransition] = useTransition();
-  const [state, setState] = useState<OperatorUsersActionState<T>>({ status: "idle" });
-  const latestState = useRef(state);
-  latestState.current = state;
-
-  function onSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (pending) return;
-
-    const form = event.currentTarget;
-    const formData = new FormData(form);
-    setState({ status: "idle" });
-    onPendingChange(true);
-
-    startTransition(async () => {
-      try {
-        const next = await action(latestState.current, formData);
-        latestState.current = next;
-        setState(next);
-        if (next.status === "error" && next.errorCode === "conflict") await onConflict?.();
-        if (next.status === "success") {
-          setOperationId(freshOperationId());
-          onSuccess(next.data);
-          form.reset();
-        }
-      } catch {
-        const next: OperatorUsersActionState<T> = {
-          status: "error",
-          errorCode: "unexpected",
-          operationId,
-        };
-        latestState.current = next;
-        setState(next);
-      } finally {
-        onPendingChange(false);
-      }
-    });
-  }
-
-  return { onSubmit, operationId, pending, state };
-}
-
-export function OperatorUserDetailPanel({
-  user,
-  onMutationPendingChange,
-  onUpdated,
-}: {
-  user: OperatorUserDetailDto;
-  onMutationPendingChange?: (pending: boolean) => void;
-  onUpdated: (user: OperatorUserDetailDto) => void;
-}) {
+const OperatorUserOverviewTab = observer(function OperatorUserOverviewTab({ user }: { user: OperatorUserDetailDto }) {
   const t = useTranslations();
   const format = useFormatter();
-  const detailHeadingRef = useRef<HTMLHeadingElement>(null);
-  const [activeMutation, setActiveMutation] = useState<MutationKey | null>(null);
-  const [operationIds] = useState(() => ({
-    adjustment: freshOperationId(),
-    platformAccess: freshOperationId(),
-    reset: freshOperationId(),
-    status: freshOperationId(),
-  }));
-  const busy = activeMutation !== null;
   const dateTime = (value: string | null) =>
     value
-      ? format.dateTime(new Date(value), {
-          dateStyle: "medium",
-          timeStyle: "short",
-          timeZone: "UTC",
-        })
+      ? format.dateTime(new Date(value), { dateStyle: "medium", timeStyle: "short" })
       : t("OperatorUsers.values.never");
-  const integer = (value: number) => format.number(value, { maximumFractionDigits: 0 });
-  const onPendingChange = (mutation: MutationKey) => (pending: boolean) => {
-    setActiveMutation((current) => (pending ? mutation : current === mutation ? null : current));
-    onMutationPendingChange?.(pending);
-  };
-  const refreshAfterConflict = async () => {
-    const result = await getOperatorUserDetailAction(user.userId);
-    if (result.status !== "success") throw new Error("Operator detail refresh failed");
-    onUpdated(result.data);
-  };
-
-  useEffect(() => detailHeadingRef.current?.focus(), [user.userId]);
 
   return (
-    <div className="space-y-4" data-testid="operator-user-detail">
-      <Card>
-        <CardHeader>
-          <div className="min-w-0">
-            <CardTitle>
-              <h2 ref={detailHeadingRef} className="truncate outline-none" tabIndex={-1}>
-                {user.displayName || user.email}
-              </h2>
-            </CardTitle>
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap gap-2">
+        <AccountStatusChip status={user.status} />
 
-            <CardDescription className="truncate">{user.email}</CardDescription>
-          </div>
-        </CardHeader>
+        {user.isPlatformOperator ? <OperatorChip isPlatformOperator /> : null}
+      </div>
 
-        <CardContent className="space-y-4">
-          <div className="flex flex-wrap gap-2">
-            <Badge
-              variant={user.status === "active" ? "success" : user.status === "inactive" ? "destructive" : "warning"}
-            >
-              <AccountStatusLabel status={user.status} />
-            </Badge>
+      <InfoRow label={t("OperatorUsers.detail.userId")}>
+        <CopyableChip size="sm" value={user.userId} variant="secondary">
+          {user.userId}
+        </CopyableChip>
+      </InfoRow>
 
-            {user.isPlatformOperator ? <Badge variant="info">{t("OperatorUsers.values.operator")}</Badge> : null}
+      <InfoRow label={t("OperatorUsers.detail.companyId")}>
+        <CopyableChip size="sm" value={user.companyId} variant="secondary">
+          {user.companyId}
+        </CopyableChip>
+      </InfoRow>
 
-            <Badge variant={user.authEmailVerified ? "success" : "warning"}>
-              {user.authEmailVerified ? t("OperatorUsers.values.verified") : t("OperatorUsers.values.notVerified")}
-            </Badge>
-          </div>
+      <InfoRow label={t("OperatorUsers.detail.role")}>
+        {user.role ? (
+          <span className="inline-flex items-center gap-2">
+            <span className="truncate">{user.role.name}</span>
 
-          <dl className="grid gap-4 text-xs sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
-            <DetailValue label={t("OperatorUsers.detail.userId")}>
-              <IdCode value={user.userId} />
-            </DetailValue>
+            {user.role.isSystemRole ? (
+              <AppChip size="sm" variant="secondary">
+                {t("OperatorUsers.detail.systemRole")}
+              </AppChip>
+            ) : null}
+          </span>
+        ) : (
+          t("OperatorUsers.detail.noRole")
+        )}
+      </InfoRow>
 
-            <DetailValue label={t("OperatorUsers.detail.companyId")}>
-              <IdCode value={user.companyId} />
-            </DetailValue>
+      <InfoRow label={t("Common.filters.fields.emailVerified")}>
+        {user.authEmailVerified ? t("OperatorUsers.values.verified") : t("OperatorUsers.values.notVerified")}
+      </InfoRow>
 
-            <DetailValue label={t("OperatorUsers.detail.role")}>
-              {user.role ? (
-                <span className="inline-flex flex-wrap items-center gap-2">
-                  <span>{user.role.name}</span>
+      <InfoRow label={t("OperatorUsers.detail.lastActive")}>{dateTime(user.lastActiveAt)}</InfoRow>
 
-                  {user.role.isSystemRole ? (
-                    <Badge variant="secondary">{t("OperatorUsers.detail.systemRole")}</Badge>
-                  ) : null}
-                </span>
-              ) : (
-                t("OperatorUsers.detail.noRole")
-              )}
-            </DetailValue>
+      <InfoRow label={t("OperatorUsers.detail.createdAt")}>{dateTime(user.createdAt)}</InfoRow>
 
-            <DetailValue label={t("OperatorUsers.detail.lastActive")}>{dateTime(user.lastActiveAt)}</DetailValue>
-
-            <DetailValue label={t("OperatorUsers.detail.createdAt")}>{dateTime(user.createdAt)}</DetailValue>
-
-            <DetailValue label={t("OperatorUsers.detail.updatedAt")}>{dateTime(user.updatedAt)}</DetailValue>
-          </dl>
-        </CardContent>
-      </Card>
-
-      <Tabs className="gap-4" defaultValue="access">
-        <TabsList variant="line">
-          <TabsTrigger value="access">{t("OperatorUsers.tabs.access")}</TabsTrigger>
-
-          <TabsTrigger value="credits">{t("OperatorUsers.tabs.credits")}</TabsTrigger>
-        </TabsList>
-
-        <TabsContent className="space-y-4" value="access">
-          <UserStatusForm
-            busy={busy}
-            initialOperationId={operationIds.status}
-            user={user}
-            onConflict={refreshAfterConflict}
-            onPendingChange={onPendingChange("status")}
-            onUpdated={onUpdated}
-          />
-
-          <PlatformAccessForm
-            busy={busy}
-            initialOperationId={operationIds.platformAccess}
-            user={user}
-            onConflict={refreshAfterConflict}
-            onPendingChange={onPendingChange("platformAccess")}
-            onUpdated={onUpdated}
-          />
-        </TabsContent>
-
-        <TabsContent className="space-y-4" value="credits">
-          <CreditPosition creditPeriod={user.creditPeriod} integer={integer} />
-
-          <Alert>
-            <ShieldAlert aria-hidden />
-
-            <AlertTitle>{t("OperatorUsers.credits.immutableTitle")}</AlertTitle>
-
-            <AlertDescription>{t("OperatorUsers.credits.immutableDescription")}</AlertDescription>
-          </Alert>
-
-          <CreditAdjustmentForm
-            busy={busy}
-            initialOperationId={operationIds.adjustment}
-            user={user}
-            onConflict={refreshAfterConflict}
-            onPendingChange={onPendingChange("adjustment")}
-            onUpdated={onUpdated}
-          />
-
-          <CreditResetForm
-            busy={busy}
-            initialOperationId={operationIds.reset}
-            user={user}
-            onConflict={refreshAfterConflict}
-            onPendingChange={onPendingChange("reset")}
-            onUpdated={onUpdated}
-          />
-        </TabsContent>
-      </Tabs>
+      <InfoRow label={t("OperatorUsers.detail.updatedAt")}>{dateTime(user.updatedAt)}</InfoRow>
     </div>
   );
-}
+});
 
-function UserStatusForm({
-  busy,
-  initialOperationId,
-  user,
-  onConflict,
-  onPendingChange,
-  onUpdated,
-}: {
-  busy: boolean;
-  initialOperationId: string;
-  user: OperatorUserDetailDto;
-  onConflict: () => Promise<void>;
-  onPendingChange: (pending: boolean) => void;
-  onUpdated: (user: OperatorUserDetailDto) => void;
-}) {
+const OperatorUserAccessTab = observer(function OperatorUserAccessTab({ user }: { user: OperatorUserDetailDto }) {
   const t = useTranslations();
-  const disabled = busy || !user.statusMutation.allowed;
-  const { onSubmit, operationId, pending, state } = useOperatorMutation(
-    updateOperatorUserStatusAction,
-    initialOperationId,
-    onUpdated,
-    onPendingChange,
-    onConflict,
-  );
+  const { operatorUserModalStore: store } = useRootStore();
+  const statusItems = [
+    { value: Status.active, label: t("OperatorUsers.values.accountStatus.active") },
+    { value: Status.inactive, label: t("OperatorUsers.values.accountStatus.inactive") },
+    { value: Status.pendingAuthorization, label: t("OperatorUsers.values.accountStatus.pendingAuthorization") },
+  ];
+  const accessItems = [
+    { value: "false", label: t("OperatorUsers.platformAccess.revoked") },
+    { value: "true", label: t("OperatorUsers.platformAccess.granted") },
+  ];
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center gap-2">
-          <UserCog aria-hidden className="size-5 text-primary" />
+    <div className="flex flex-col gap-6">
+      <OperatorFormSection description={t("OperatorUsers.status.description")} title={t("OperatorUsers.status.title")}>
+        <Alert
+          color="warning"
+          description={t("OperatorUsers.status.adminWarningDescription")}
+          title={t("OperatorUsers.status.adminWarningTitle")}
+        />
 
-          <CardTitle>{t("OperatorUsers.status.title")}</CardTitle>
-        </div>
+        {user.isCurrentOperator ? (
+          <Alert
+            color="warning"
+            description={t("OperatorUsers.status.currentOperatorDescription")}
+            title={t("OperatorUsers.status.currentOperatorTitle")}
+          />
+        ) : null}
 
-        <CardDescription>{t("OperatorUsers.status.description")}</CardDescription>
-      </CardHeader>
+        {!user.statusMutation.allowed ? (
+          <Alert
+            color="danger"
+            description={t("OperatorUsers.status.providerSyncRequiredDescription")}
+            title={t("OperatorUsers.status.providerSyncRequiredTitle")}
+          />
+        ) : null}
 
-      <CardContent>
-        <form aria-busy={pending} className="space-y-4" method="post" onSubmit={onSubmit}>
-          <input name="userId" type="hidden" value={user.userId} />
+        <AppForm store={store.statusForm}>
+          <FormSelect
+            required
+            disabled={store.statusForm.isBlocked}
+            id="status"
+            items={statusItems}
+            label={t("OperatorUsers.status.label")}
+          />
 
-          <input name="expectedUpdatedAt" type="hidden" value={user.updatedAt} />
+          <OperatorReasonField />
 
-          <input name="operationId" type="hidden" value={operationId} />
+          <OperatorFormActions store={store.statusForm} />
+        </AppForm>
+      </OperatorFormSection>
 
-          <Alert>
-            <AlertCircle aria-hidden />
+      <Separator />
 
-            <AlertTitle>{t("OperatorUsers.status.adminWarningTitle")}</AlertTitle>
+      <OperatorFormSection
+        description={t("OperatorUsers.platformAccess.description")}
+        title={t("OperatorUsers.platformAccess.title")}
+      >
+        <Alert
+          color="warning"
+          description={t("OperatorUsers.platformAccess.warningDescription")}
+          title={t("OperatorUsers.platformAccess.warningTitle")}
+        />
 
-            <AlertDescription>{t("OperatorUsers.status.adminWarningDescription")}</AlertDescription>
-          </Alert>
+        {user.isCurrentOperator ? (
+          <Alert
+            color="danger"
+            description={t("OperatorUsers.platformAccess.selfDescription")}
+            title={t("OperatorUsers.platformAccess.selfTitle")}
+          />
+        ) : null}
 
-          {user.isCurrentOperator ? (
-            <Alert>
-              <ShieldAlert aria-hidden />
+        <AppForm store={store.platformAccessForm}>
+          <FormSelect
+            required
+            disabled={store.platformAccessForm.isBlocked}
+            id="isPlatformOperator"
+            items={accessItems}
+            label={t("OperatorUsers.platformAccess.label")}
+          />
 
-              <AlertTitle>{t("OperatorUsers.status.currentOperatorTitle")}</AlertTitle>
+          <OperatorReasonField />
 
-              <AlertDescription>{t("OperatorUsers.status.currentOperatorDescription")}</AlertDescription>
-            </Alert>
-          ) : null}
-
-          {!user.statusMutation.allowed ? (
-            <Alert>
-              <RefreshCcw aria-hidden />
-
-              <AlertTitle>{t("OperatorUsers.status.providerSyncRequiredTitle")}</AlertTitle>
-
-              <AlertDescription>{t("OperatorUsers.status.providerSyncRequiredDescription")}</AlertDescription>
-            </Alert>
-          ) : null}
-
-          <FormField id="operatorUserStatus" label={t("OperatorUsers.status.label")}>
-            <NativeSelect
-              key={user.status}
-              required
-              defaultValue={user.status}
-              disabled={disabled}
-              id="operatorUserStatus"
-              name="status"
-            >
-              <option value="active">{t("OperatorUsers.values.accountStatus.active")}</option>
-
-              <option value="inactive">{t("OperatorUsers.values.accountStatus.inactive")}</option>
-
-              <option value="pendingAuthorization">
-                {t("OperatorUsers.values.accountStatus.pendingAuthorization")}
-              </option>
-            </NativeSelect>
-          </FormField>
-
-          <ReasonField disabled={disabled} id="operatorUserStatusReason" />
-
-          <OperatorUsersActionNotice state={state} success={t("OperatorUsers.status.success")} />
-
-          <Button disabled={disabled} type="submit">
-            {pending ? <Spinner aria-label={t("OperatorUsers.states.saving")} size="sm" /> : <Save aria-hidden />}
-
-            {pending ? t("OperatorUsers.states.saving") : t("OperatorUsers.status.save")}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+          <OperatorFormActions store={store.platformAccessForm} />
+        </AppForm>
+      </OperatorFormSection>
+    </div>
   );
-}
+});
 
-function PlatformAccessForm({
-  busy,
-  initialOperationId,
-  user,
-  onConflict,
-  onPendingChange,
-  onUpdated,
-}: {
-  busy: boolean;
-  initialOperationId: string;
-  user: OperatorUserDetailDto;
-  onConflict: () => Promise<void>;
-  onPendingChange: (pending: boolean) => void;
-  onUpdated: (user: OperatorUserDetailDto) => void;
-}) {
-  const t = useTranslations();
-  const disabled = busy || user.isCurrentOperator;
-  const { onSubmit, operationId, pending, state } = useOperatorMutation(
-    updateOperatorUserPlatformAccessAction,
-    initialOperationId,
-    onUpdated,
-    onPendingChange,
-    onConflict,
-  );
-
-  return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center gap-2">
-          <ShieldCheck aria-hidden className="size-5 text-primary" />
-
-          <CardTitle>{t("OperatorUsers.platformAccess.title")}</CardTitle>
-        </div>
-
-        <CardDescription>{t("OperatorUsers.platformAccess.description")}</CardDescription>
-      </CardHeader>
-
-      <CardContent>
-        <form aria-busy={pending} className="space-y-4" method="post" onSubmit={onSubmit}>
-          <input name="userId" type="hidden" value={user.userId} />
-
-          <input name="expectedUpdatedAt" type="hidden" value={user.updatedAt} />
-
-          <input name="operationId" type="hidden" value={operationId} />
-
-          <Alert>
-            <ShieldAlert aria-hidden />
-
-            <AlertTitle>{t("OperatorUsers.platformAccess.warningTitle")}</AlertTitle>
-
-            <AlertDescription>{t("OperatorUsers.platformAccess.warningDescription")}</AlertDescription>
-          </Alert>
-
-          {user.isCurrentOperator ? (
-            <Alert>
-              <AlertCircle aria-hidden />
-
-              <AlertTitle>{t("OperatorUsers.platformAccess.selfTitle")}</AlertTitle>
-
-              <AlertDescription>{t("OperatorUsers.platformAccess.selfDescription")}</AlertDescription>
-            </Alert>
-          ) : null}
-
-          <FormField id="operatorUserPlatformAccess" label={t("OperatorUsers.platformAccess.label")}>
-            <NativeSelect
-              key={String(user.isPlatformOperator)}
-              required
-              defaultValue={String(user.isPlatformOperator)}
-              disabled={disabled}
-              id="operatorUserPlatformAccess"
-              name="isPlatformOperator"
-            >
-              <option value="false">{t("OperatorUsers.platformAccess.revoked")}</option>
-
-              <option value="true">{t("OperatorUsers.platformAccess.granted")}</option>
-            </NativeSelect>
-          </FormField>
-
-          <ReasonField disabled={disabled} id="operatorUserPlatformAccessReason" />
-
-          <OperatorUsersActionNotice state={state} success={t("OperatorUsers.platformAccess.success")} />
-
-          <Button disabled={disabled} type="submit">
-            {pending ? <Spinner aria-label={t("OperatorUsers.states.saving")} size="sm" /> : <Save aria-hidden />}
-
-            {pending ? t("OperatorUsers.states.saving") : t("OperatorUsers.platformAccess.save")}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
-  );
-}
-
-function CreditPosition({
-  creditPeriod,
-  integer,
-}: {
-  creditPeriod: OperatorUserCreditPeriodDto | null;
-  integer: (value: number) => string;
-}) {
+function CreditPosition({ creditPeriod }: { creditPeriod: OperatorUserCreditPeriodDto | null }) {
   const t = useTranslations();
   const format = useFormatter();
+  const integer = (value: number) => format.number(value, { maximumFractionDigits: 0 });
 
-  return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center gap-2">
-          <CircleDollarSign aria-hidden className="size-5 text-primary" />
-
-          <CardTitle>{t("OperatorUsers.credits.title")}</CardTitle>
-        </div>
-
-        <CardDescription>
-          {creditPeriod
-            ? t("OperatorUsers.credits.period", {
-                start: format.dateTime(new Date(creditPeriod.periodStart), { dateStyle: "medium", timeZone: "UTC" }),
-                end: format.dateTime(new Date(creditPeriod.periodEnd), { dateStyle: "medium", timeZone: "UTC" }),
-              })
-            : t("OperatorUsers.credits.periodUnavailable")}
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent className="space-y-4">
-        {creditPeriod ? (
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
-            <CreditValue label={t("OperatorUsers.credits.base")} value={integer(creditPeriod.baseAllowanceCredits)} />
-
-            <CreditValue
-              label={t("OperatorUsers.credits.adjustments")}
-              value={integer(creditPeriod.adjustmentCredits)}
-            />
-
-            <CreditValue
-              label={t("OperatorUsers.credits.effective")}
-              value={integer(creditPeriod.effectiveAllowanceCredits)}
-            />
-
-            <CreditValue label={t("OperatorUsers.credits.charged")} value={integer(creditPeriod.chargedCredits)} />
-
-            <CreditValue label={t("OperatorUsers.credits.reserved")} value={integer(creditPeriod.reservedCredits)} />
-
-            <CreditValue label={t("OperatorUsers.credits.committed")} value={integer(creditPeriod.committedCredits)} />
-
-            <CreditValue label={t("OperatorUsers.credits.remaining")} value={integer(creditPeriod.remainingCredits)} />
-
-            <CreditValue label={t("OperatorUsers.credits.overage")} value={integer(creditPeriod.overageCredits)} />
-          </div>
-        ) : (
-          <Alert>
-            <AlertCircle aria-hidden />
-
-            <AlertTitle>{t("OperatorUsers.credits.unavailableTitle")}</AlertTitle>
-
-            <AlertDescription>{t("OperatorUsers.credits.unavailableDescription")}</AlertDescription>
-          </Alert>
-        )}
-
-        {creditPeriod?.blockedReason ? (
-          <p className="text-xs text-warning">{t("OperatorUsers.credits.blocked")}</p>
-        ) : null}
-      </CardContent>
-    </Card>
-  );
-}
-
-function CreditAdjustmentForm({
-  busy,
-  initialOperationId,
-  user,
-  onConflict,
-  onPendingChange,
-  onUpdated,
-}: {
-  busy: boolean;
-  initialOperationId: string;
-  user: OperatorUserDetailDto;
-  onConflict: () => Promise<void>;
-  onPendingChange: (pending: boolean) => void;
-  onUpdated: (user: OperatorUserDetailDto) => void;
-}) {
-  const t = useTranslations();
-  const period = user.creditPeriod;
-  const disabled = busy || user.status !== "active" || !period || Boolean(period.blockedReason);
-  const { onSubmit, operationId, pending, state } = useOperatorMutation<OperatorUserCreditAdjustmentResult>(
-    createOperatorUserCreditAdjustmentAction,
-    initialOperationId,
-    ({ user: refreshed }) => onUpdated(refreshed),
-    onPendingChange,
-    onConflict,
-  );
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("OperatorUsers.adjustment.title")}</CardTitle>
-
-        <CardDescription>{t("OperatorUsers.adjustment.description")}</CardDescription>
-      </CardHeader>
-
-      <CardContent>
-        <form aria-busy={pending} className="space-y-4" method="post" onSubmit={onSubmit}>
-          <input name="companyId" type="hidden" value={user.companyId} />
-
-          <input name="userId" type="hidden" value={user.userId} />
-
-          <input name="operationId" type="hidden" value={operationId} />
-
-          <input name="periodStart" type="hidden" value={period?.periodStart ?? ""} />
-
-          <input name="periodEnd" type="hidden" value={period?.periodEnd ?? ""} />
-
-          <FormField
-            description={t("OperatorUsers.adjustment.deltaDescription")}
-            id="operatorCreditDelta"
-            label={t("OperatorUsers.adjustment.deltaLabel")}
-          >
-            <Input
-              required
-              aria-describedby="operatorCreditDelta-description"
-              disabled={disabled}
-              id="operatorCreditDelta"
-              inputMode="numeric"
-              max={1_000_000}
-              min={-1_000_000}
-              name="creditDelta"
-              placeholder={t("OperatorUsers.adjustment.deltaPlaceholder")}
-              step={1}
-              type="number"
-            />
-          </FormField>
-
-          <ReasonField disabled={disabled} id="operatorCreditAdjustmentReason" />
-
-          <OperatorUsersActionNotice state={state} success={t("OperatorUsers.adjustment.success")} />
-
-          <Button disabled={disabled} type="submit">
-            {pending ? (
-              <Spinner aria-label={t("OperatorUsers.states.saving")} size="sm" />
-            ) : (
-              <CircleDollarSign aria-hidden />
-            )}
-
-            {pending ? t("OperatorUsers.states.saving") : t("OperatorUsers.adjustment.save")}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
-  );
-}
-
-function CreditResetForm({
-  busy,
-  initialOperationId,
-  user,
-  onConflict,
-  onPendingChange,
-  onUpdated,
-}: {
-  busy: boolean;
-  initialOperationId: string;
-  user: OperatorUserDetailDto;
-  onConflict: () => Promise<void>;
-  onPendingChange: (pending: boolean) => void;
-  onUpdated: (user: OperatorUserDetailDto) => void;
-}) {
-  const t = useTranslations();
-  const disabled = busy || user.status !== "active" || !user.creditPeriod;
-  const { onSubmit, operationId, pending, state } = useOperatorMutation<ResetOperatorUserCreditsResultDto>(
-    resetOperatorUserCreditsAction,
-    initialOperationId,
-    ({ user: refreshed }) => onUpdated(refreshed),
-    onPendingChange,
-    onConflict,
-  );
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("OperatorUsers.reset.title")}</CardTitle>
-
-        <CardDescription>{t("OperatorUsers.reset.description")}</CardDescription>
-      </CardHeader>
-
-      <CardContent>
-        <form aria-busy={pending} className="space-y-4" method="post" onSubmit={onSubmit}>
-          <input name="userId" type="hidden" value={user.userId} />
-
-          <input name="operationId" type="hidden" value={operationId} />
-
-          <input name="expectedPeriodStart" type="hidden" value={user.creditPeriod?.periodStart ?? ""} />
-
-          <input name="expectedPeriodEnd" type="hidden" value={user.creditPeriod?.periodEnd ?? ""} />
-
-          <input
-            name="expectedBaseAllowanceCredits"
-            type="hidden"
-            value={user.creditPeriod?.baseAllowanceCredits ?? ""}
-          />
-
-          <input name="expectedAdjustmentCredits" type="hidden" value={user.creditPeriod?.adjustmentCredits ?? ""} />
-
-          <input name="expectedCommittedCredits" type="hidden" value={user.creditPeriod?.committedCredits ?? ""} />
-
-          <FormField
-            description={t("OperatorUsers.reset.modeDescription")}
-            id="operatorCreditResetMode"
-            label={t("OperatorUsers.reset.modeLabel")}
-          >
-            <NativeSelect
-              required
-              aria-describedby="operatorCreditResetMode-description"
-              defaultValue="baseAllowance"
-              disabled={disabled}
-              id="operatorCreditResetMode"
-              name="mode"
-            >
-              <option value="baseAllowance">{t("OperatorUsers.reset.baseAllowance")}</option>
-
-              <option value="zeroBalance">{t("OperatorUsers.reset.zeroBalance")}</option>
-            </NativeSelect>
-          </FormField>
-
-          <Alert>
-            <ShieldAlert aria-hidden />
-
-            <AlertTitle>{t("OperatorUsers.reset.disclosureTitle")}</AlertTitle>
-
-            <AlertDescription>{t("OperatorUsers.reset.disclosureDescription")}</AlertDescription>
-          </Alert>
-
-          <ReasonField disabled={disabled} id="operatorCreditResetReason" />
-
-          <OperatorUsersActionNotice state={state} success={t("OperatorUsers.reset.success")} />
-
-          <Button disabled={disabled} type="submit" variant="destructiveOutline">
-            {pending ? <Spinner aria-label={t("OperatorUsers.states.saving")} size="sm" /> : <RefreshCcw aria-hidden />}
-
-            {pending ? t("OperatorUsers.states.saving") : t("OperatorUsers.reset.save")}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
-  );
-}
-
-function ReasonField({ disabled, id }: { disabled: boolean; id: string }) {
-  const t = useTranslations();
-  return (
-    <FormField description={t("OperatorUsers.forms.reasonDescription")} id={id} label={t("OperatorUsers.forms.reason")}>
-      <Textarea
-        required
-        aria-describedby={`${id}-description`}
-        disabled={disabled}
-        id={id}
-        maxLength={500}
-        minLength={8}
-        name="reason"
-        placeholder={t("OperatorUsers.forms.reasonPlaceholder")}
-        rows={3}
+  if (!creditPeriod) {
+    return (
+      <Alert
+        description={t("OperatorUsers.credits.unavailableDescription")}
+        title={t("OperatorUsers.credits.unavailableTitle")}
       />
-    </FormField>
-  );
-}
+    );
+  }
 
-function DetailValue({ children, label }: { children: ReactNode; label: string }) {
   return (
-    <div className="min-w-0">
-      <dt className="text-muted-foreground">{label}</dt>
+    <div className="flex flex-col gap-3">
+      <p className="text-xs text-muted-foreground">
+        {t("OperatorUsers.credits.period", {
+          start: format.dateTime(new Date(creditPeriod.periodStart), { dateStyle: "medium" }),
+          end: format.dateTime(new Date(creditPeriod.periodEnd), { dateStyle: "medium" }),
+        })}
+      </p>
 
-      <dd className="mt-1 break-words font-medium">{children}</dd>
+      <InfoRow label={t("OperatorUsers.credits.base")}>{integer(creditPeriod.baseAllowanceCredits)}</InfoRow>
+
+      <InfoRow label={t("OperatorUsers.credits.adjustments")}>{integer(creditPeriod.adjustmentCredits)}</InfoRow>
+
+      <InfoRow label={t("OperatorUsers.credits.effective")}>{integer(creditPeriod.effectiveAllowanceCredits)}</InfoRow>
+
+      <InfoRow label={t("OperatorUsers.credits.charged")}>{integer(creditPeriod.chargedCredits)}</InfoRow>
+
+      <InfoRow label={t("OperatorUsers.credits.reserved")}>{integer(creditPeriod.reservedCredits)}</InfoRow>
+
+      <InfoRow label={t("OperatorUsers.credits.committed")}>{integer(creditPeriod.committedCredits)}</InfoRow>
+
+      <InfoRow label={t("OperatorUsers.credits.remaining")}>{integer(creditPeriod.remainingCredits)}</InfoRow>
+
+      <InfoRow label={t("OperatorUsers.credits.overage")}>{integer(creditPeriod.overageCredits)}</InfoRow>
+
+      {creditPeriod.blockedReason ? <p className="text-xs text-warning">{t("OperatorUsers.credits.blocked")}</p> : null}
     </div>
   );
 }
 
-function CreditValue({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-lg border border-border bg-muted/30 p-3">
-      <p className="text-xs text-muted-foreground">{label}</p>
+const OperatorUserCreditsTab = observer(function OperatorUserCreditsTab({ user }: { user: OperatorUserDetailDto }) {
+  const t = useTranslations();
+  const { operatorUserModalStore: store } = useRootStore();
+  const modeItems = [
+    { value: "baseAllowance", label: t("OperatorUsers.reset.baseAllowance") },
+    { value: "zeroBalance", label: t("OperatorUsers.reset.zeroBalance") },
+  ];
 
-      <p className="mt-1 font-semibold tabular-nums">{value}</p>
+  return (
+    <div className="flex flex-col gap-6">
+      <section className="flex flex-col gap-3">
+        <h3 className="text-x-sm font-medium">{t("OperatorUsers.credits.title")}</h3>
+
+        <CreditPosition creditPeriod={user.creditPeriod} />
+      </section>
+
+      <Alert
+        color="warning"
+        description={t("OperatorUsers.credits.immutableDescription")}
+        title={t("OperatorUsers.credits.immutableTitle")}
+      />
+
+      <Separator />
+
+      <OperatorFormSection
+        description={t("OperatorUsers.adjustment.description")}
+        title={t("OperatorUsers.adjustment.title")}
+      >
+        <AppForm store={store.creditAdjustmentForm}>
+          <div className="space-y-1.5">
+            <FormNumberInput
+              required
+              disabled={store.creditAdjustmentForm.isBlocked}
+              id="creditDelta"
+              label={t("OperatorUsers.adjustment.deltaLabel")}
+              placeholder={t("OperatorUsers.adjustment.deltaPlaceholder")}
+            />
+
+            <p className="text-xs text-muted-foreground">{t("OperatorUsers.adjustment.deltaDescription")}</p>
+          </div>
+
+          <OperatorReasonField />
+
+          <OperatorFormActions store={store.creditAdjustmentForm} />
+        </AppForm>
+      </OperatorFormSection>
+
+      <Separator />
+
+      <OperatorFormSection description={t("OperatorUsers.reset.description")} title={t("OperatorUsers.reset.title")}>
+        <Alert
+          color="warning"
+          description={t("OperatorUsers.reset.disclosureDescription")}
+          title={t("OperatorUsers.reset.disclosureTitle")}
+        />
+
+        <AppForm store={store.creditResetForm}>
+          <div className="space-y-1.5">
+            <FormSelect
+              required
+              disabled={store.creditResetForm.isBlocked}
+              id="mode"
+              items={modeItems}
+              label={t("OperatorUsers.reset.modeLabel")}
+            />
+
+            <p className="text-xs text-muted-foreground">{t("OperatorUsers.reset.modeDescription")}</p>
+          </div>
+
+          <OperatorReasonField />
+
+          <OperatorFormActions store={store.creditResetForm} />
+        </AppForm>
+      </OperatorFormSection>
     </div>
   );
-}
+});
+
+export const OperatorUserDetailPanel = observer(function OperatorUserDetailPanel({
+  user,
+}: {
+  user: OperatorUserDetailDto;
+}) {
+  const t = useTranslations();
+  const { operatorUserModalStore: store } = useRootStore();
+
+  return (
+    <Tabs
+      className="gap-4"
+      data-testid="operator-user-detail"
+      value={store.activeTab}
+      onValueChange={store.setActiveTab}
+    >
+      <TabsList variant="line">
+        <TabsTrigger value="overview">{t("OperatorUsers.tabs.overview")}</TabsTrigger>
+
+        <TabsTrigger value="access">{t("OperatorUsers.tabs.access")}</TabsTrigger>
+
+        <TabsTrigger value="credits">{t("OperatorUsers.tabs.credits")}</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="overview">
+        <OperatorUserOverviewTab user={user} />
+      </TabsContent>
+
+      <TabsContent value="access">
+        <OperatorUserAccessTab user={user} />
+      </TabsContent>
+
+      <TabsContent value="credits">
+        <OperatorUserCreditsTab user={user} />
+      </TabsContent>
+    </Tabs>
+  );
+});

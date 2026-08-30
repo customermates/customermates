@@ -1,148 +1,178 @@
 "use client";
 
-import type { FormEvent } from "react";
-
 import { observer } from "mobx-react-lite";
-import { useTranslations } from "next-intl";
-import { useState, useTransition } from "react";
+import { useFormatter, useTranslations } from "next-intl";
+import { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
-import { AppModal } from "@/components/modal/app-modal";
 import { AppCard } from "@/components/card/app-card";
+import { CopyableChip } from "@/components/chip/copyable-chip";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
+import { AppForm } from "@/components/forms/form-context";
+import { FormNumberInput } from "@/components/forms/form-number-input";
+import { FormSelect } from "@/components/forms/form-select";
+import { AppModal } from "@/components/modal/app-modal";
+import { Alert } from "@/components/shared/alert";
 import { InfoRow } from "@/components/shared/info-row";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Spinner } from "@/components/ui/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
-import { FormField, OperatorUsersActionNotice } from "../users/operator-users-ui";
-import { updateOperatorEnterpriseAllowanceAction, type OperatorWorkspacesActionState } from "./actions";
-import { ReasonTextarea } from "./reason-textarea";
-import { WorkspaceSubscriptionForm } from "./workspace-subscription-form";
-
-import type { HostedAiOperatorCompanyDto } from "@/ee/operator/operator.schema";
+import { OperatorFormActions, OperatorFormSection, OperatorReasonField } from "../operator-form-parts";
+import { PlanChip, SubscriptionChip } from "../operator-value-labels";
 
 export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal() {
   const t = useTranslations();
-  const intlStore = useHydratedIntlStore();
-  const { operatorWorkspaceModalStore: store, operatorWorkspacesStore } = useRootStore();
+  const format = useFormatter();
+  const { operatorWorkspaceModalStore: store } = useRootStore();
   const workspace = store.form.workspace;
-  const [operationId, setOperationId] = useState(() => globalThis.crypto.randomUUID());
-  const [pending, startTransition] = useTransition();
-  const [state, setState] = useState<OperatorWorkspacesActionState<HostedAiOperatorCompanyDto>>({ status: "idle" });
-
-  function onSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (pending) return;
-
-    const form = event.currentTarget;
-    const formData = new FormData(form);
-    setState({ status: "idle" });
-
-    startTransition(async () => {
-      const next = await updateOperatorEnterpriseAllowanceAction(state, formData);
-      setState(next);
-      if (next.status === "success") {
-        setOperationId(globalThis.crypto.randomUUID());
-        form.reset();
-        operatorWorkspacesStore.setQueryOptions({ forceRefresh: true });
-      }
-    });
-  }
+  const owner = store.form.owner;
+  const planItems = [
+    { value: SubscriptionPlan.starter, label: t("OperatorConsole.values.plans.starter") },
+    { value: SubscriptionPlan.pro, label: t("OperatorConsole.values.plans.pro") },
+    { value: SubscriptionPlan.business, label: t("OperatorConsole.values.plans.business") },
+    { value: SubscriptionPlan.enterprise, label: t("OperatorConsole.values.plans.enterprise") },
+  ];
+  const subscriptionItems = [
+    { value: SubscriptionStatus.trial, label: t("OperatorConsole.values.subscription.trial") },
+    { value: SubscriptionStatus.active, label: t("OperatorConsole.values.subscription.active") },
+    { value: SubscriptionStatus.cancelled, label: t("OperatorConsole.values.subscription.cancelled") },
+    { value: SubscriptionStatus.expired, label: t("OperatorConsole.values.subscription.expired") },
+    { value: SubscriptionStatus.pastDue, label: t("OperatorConsole.values.subscription.pastDue") },
+    { value: SubscriptionStatus.unPaid, label: t("OperatorConsole.values.subscription.unPaid") },
+  ];
 
   return (
-    <AppModal size="xl" store={store} title={t("OperatorWorkspaces.detail.title")}>
-      {workspace ? (
-        <div className="space-y-4">
-          <AppCard>
-            <AppCardHeader>
-              <h2 className="text-x-lg grow">{workspace.workspaceLabel}</h2>
-            </AppCardHeader>
+    <AppModal size="3xl" store={store} title={t("OperatorWorkspaces.detail.title")}>
+      <AppCard>
+        <AppCardHeader>
+          <div className="min-w-0 grow space-y-1">
+            <h2 className="text-x-lg truncate">{workspace?.workspaceLabel ?? t("OperatorWorkspaces.detail.title")}</h2>
 
-            <AppCardBody>
-              <InfoRow label={t("OperatorWorkspaces.columns.owner")}>{workspace.ownerEmail ?? "-"}</InfoRow>
+            {workspace?.ownerEmail ? (
+              <p className="text-x-sm truncate text-muted-foreground">{workspace.ownerEmail}</p>
+            ) : null}
+          </div>
+        </AppCardHeader>
 
-              <InfoRow label={t("OperatorWorkspaces.detail.workspaceId")}>{workspace.id}</InfoRow>
+        <AppCardBody>
+          {workspace ? (
+            <Tabs className="gap-4" value={store.activeTab} onValueChange={store.setActiveTab}>
+              <TabsList variant="line">
+                <TabsTrigger value="overview">{t("OperatorUsers.tabs.overview")}</TabsTrigger>
 
-              <InfoRow label={t("OperatorWorkspaces.columns.members")}>
-                {t("OperatorWorkspaces.values.members", {
-                  active: workspace.activeUserCount,
-                  total: workspace.userCount,
-                })}
-              </InfoRow>
+                <TabsTrigger value="subscription">{t("OperatorWorkspaces.tabs.subscription")}</TabsTrigger>
 
-              <InfoRow label={t("OperatorWorkspaces.columns.createdAt")}>
-                {intlStore.formatNumericalShortDateTime(workspace.createdAt)}
-              </InfoRow>
-            </AppCardBody>
-          </AppCard>
+                <TabsTrigger value="allowance">{t("OperatorWorkspaces.tabs.allowance")}</TabsTrigger>
+              </TabsList>
 
-          <Tabs className="gap-4" defaultValue="subscription">
-            <TabsList variant="line">
-              <TabsTrigger value="subscription">{t("OperatorWorkspaces.tabs.subscription")}</TabsTrigger>
+              <TabsContent className="flex flex-col gap-3" value="overview">
+                {workspace.plan || workspace.subscriptionStatus ? (
+                  <div className="flex flex-wrap gap-2">
+                    <PlanChip plan={workspace.plan} />
 
-              <TabsTrigger value="allowance">{t("OperatorWorkspaces.tabs.allowance")}</TabsTrigger>
-            </TabsList>
+                    <SubscriptionChip status={workspace.subscriptionStatus} />
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">{t("OperatorUsers.values.noSubscription")}</p>
+                )}
 
-            <TabsContent value="subscription">
-              <WorkspaceSubscriptionForm
-                owner={store.form.owner}
-                onCorrected={() => operatorWorkspacesStore.setQueryOptions({ forceRefresh: true })}
-              />
-            </TabsContent>
+                <InfoRow label={t("OperatorWorkspaces.detail.workspaceId")}>
+                  <CopyableChip size="sm" value={workspace.id} variant="secondary">
+                    {workspace.id}
+                  </CopyableChip>
+                </InfoRow>
 
-            <TabsContent value="allowance">
-              <AppCard>
-                <AppCardHeader>
-                  <h2 className="text-x-lg grow">{t("OperatorWorkspaces.allowance.title")}</h2>
-                </AppCardHeader>
+                <InfoRow label={t("Common.table.columns.owner")}>{workspace.ownerEmail ?? "-"}</InfoRow>
 
-                <AppCardBody>
-                  <Alert>
-                    <AlertTitle>{t("OperatorWorkspaces.allowance.warningTitle")}</AlertTitle>
+                <InfoRow label={t("Common.table.columns.members")}>
+                  {t("OperatorWorkspaces.values.members", {
+                    active: workspace.activeUserCount,
+                    total: workspace.userCount,
+                  })}
+                </InfoRow>
 
-                    <AlertDescription>{t("OperatorWorkspaces.allowance.warningDescription")}</AlertDescription>
-                  </Alert>
+                <InfoRow label={t("OperatorWorkspaces.subscription.seatsLabel")}>
+                  {workspace.seats == null ? "-" : format.number(workspace.seats)}
+                </InfoRow>
 
-                  <form aria-busy={pending} className="space-y-4" method="post" onSubmit={onSubmit}>
-                    <input name="companyId" type="hidden" value={workspace.id} />
+                <InfoRow label={t("Common.table.columns.createdAt")}>
+                  {format.dateTime(new Date(workspace.createdAt), { dateStyle: "medium", timeStyle: "short" })}
+                </InfoRow>
+              </TabsContent>
 
-                    <input name="operationId" type="hidden" value={operationId} />
+              <TabsContent value="subscription">
+                <OperatorFormSection title={t("OperatorWorkspaces.subscription.title")}>
+                  <Alert
+                    color="warning"
+                    description={t("OperatorWorkspaces.subscription.warningDescription")}
+                    title={t("OperatorWorkspaces.subscription.warningTitle")}
+                  />
 
-                    <FormField id="operatorWorkspaceAllowance" label={t("OperatorWorkspaces.allowance.label")}>
-                      <Input
+                  {store.isLoading && !owner ? <Skeleton className="h-40 w-full" /> : null}
+
+                  {!store.isLoading && !owner?.subscription ? (
+                    <p className="text-sm text-muted-foreground">{t("OperatorWorkspaces.subscription.unavailable")}</p>
+                  ) : null}
+
+                  {owner?.subscription ? (
+                    <AppForm store={store.subscriptionForm}>
+                      <FormSelect required id="plan" items={planItems} label={t("Common.table.columns.plan")} />
+
+                      <FormSelect
                         required
-                        defaultValue={workspace.enterpriseCreditsPerUser ?? ""}
-                        disabled={pending}
-                        id="operatorWorkspaceAllowance"
-                        max={1000000}
-                        min={1}
-                        name="creditsPerUser"
-                        step={1}
-                        type="number"
+                        id="status"
+                        items={subscriptionItems}
+                        label={t("Common.table.columns.subscription")}
                       />
-                    </FormField>
 
-                    <ReasonTextarea disabled={pending} id="operatorWorkspaceAllowanceReason" />
+                      <div className="space-y-1.5">
+                        <FormNumberInput
+                          id="quantity"
+                          label={t("OperatorWorkspaces.subscription.seatsLabel")}
+                          min={1}
+                        />
 
-                    <OperatorUsersActionNotice state={state} success={t("OperatorWorkspaces.allowance.success")} />
+                        <p className="text-xs text-muted-foreground">
+                          {t("OperatorWorkspaces.subscription.seatsDescription")}
+                        </p>
+                      </div>
 
-                    <Button disabled={pending} type="submit">
-                      {pending ? <Spinner aria-label={t("OperatorUsers.states.saving")} size="sm" /> : null}
+                      <OperatorReasonField />
 
-                      {t("OperatorWorkspaces.allowance.save")}
-                    </Button>
-                  </form>
-                </AppCardBody>
-              </AppCard>
-            </TabsContent>
-          </Tabs>
-        </div>
-      ) : null}
+                      <OperatorFormActions store={store.subscriptionForm} />
+                    </AppForm>
+                  ) : null}
+                </OperatorFormSection>
+              </TabsContent>
+
+              <TabsContent value="allowance">
+                <OperatorFormSection title={t("OperatorWorkspaces.allowance.title")}>
+                  <Alert
+                    color="warning"
+                    description={t("OperatorWorkspaces.allowance.warningDescription")}
+                    title={t("OperatorWorkspaces.allowance.warningTitle")}
+                  />
+
+                  <AppForm store={store.allowanceForm}>
+                    <FormNumberInput
+                      required
+                      id="creditsPerUser"
+                      label={t("OperatorWorkspaces.allowance.label")}
+                      max={1000000}
+                      min={1}
+                    />
+
+                    <OperatorReasonField />
+
+                    <OperatorFormActions store={store.allowanceForm} />
+                  </AppForm>
+                </OperatorFormSection>
+              </TabsContent>
+            </Tabs>
+          ) : null}
+        </AppCardBody>
+      </AppCard>
     </AppModal>
   );
 });

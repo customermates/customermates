@@ -19,27 +19,27 @@ export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto
     () => [
       {
         id: "workspace",
-        header: t("OperatorWorkspaces.columns.workspace"),
+        header: t("Common.table.columns.workspace"),
         cell: ({ row }) => <span className="text-sm font-medium">{row.original.workspaceLabel}</span>,
       },
       {
         id: "owner",
-        header: t("OperatorWorkspaces.columns.owner"),
+        header: t("Common.table.columns.owner"),
         cell: ({ row }) => <span className="text-sm text-muted-foreground">{row.original.ownerEmail ?? "-"}</span>,
       },
       {
         id: "plan",
-        header: t("OperatorWorkspaces.columns.plan"),
+        header: t("Common.table.columns.plan"),
         cell: ({ row }) => <PlanChip plan={row.original.plan} />,
       },
       {
         id: "subscription",
-        header: t("OperatorWorkspaces.columns.subscription"),
+        header: t("Common.table.columns.subscription"),
         cell: ({ row }) => <SubscriptionChip status={row.original.subscriptionStatus} />,
       },
       {
         id: "members",
-        header: t("OperatorWorkspaces.columns.members"),
+        header: t("Common.table.columns.members"),
         cell: ({ row }) => (
           <span className="text-sm">
             {t("OperatorWorkspaces.values.members", {
@@ -51,7 +51,7 @@ export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto
       },
       {
         id: "allowance",
-        header: t("OperatorWorkspaces.columns.allowance"),
+        header: t("Common.table.columns.allowance"),
         cell: ({ row }) => (
           <span className="text-sm text-muted-foreground">{row.original.enterpriseCreditsPerUser ?? "-"}</span>
         ),
@@ -59,7 +59,7 @@ export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto
       {
         accessorKey: "createdAt",
         id: "createdAt",
-        header: t("OperatorWorkspaces.columns.createdAt"),
+        header: t("Common.table.columns.createdAt"),
         cell: ({ row }) => <span className="text-sm text-muted-foreground">{dateTime(row.original.createdAt)}</span>,
       },
     ],

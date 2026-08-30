@@ -2428,23 +2428,30 @@
     }
   },
   "OperatorAudit": {
-    "columns": {
-      "action": "Azione",
-      "actor": "Autore",
-      "createdAt": "Ora",
-      "reason": "Motivo",
-      "source": "Origine",
-      "target": "Destinazione",
-      "workspace": "Area di lavoro"
-    },
     "description": "Tutte le modifiche registrate in ogni area, da attività di prodotto e azioni dell’operatore.",
     "emptyBody": "Modifica la ricerca o i filtri per ampliare il registro.",
     "emptyTitle": "Nessun evento corrisponde a questi filtri",
-    "loading": "Caricamento del registro di audit",
     "navigation": "Registro di audit",
     "searchPlaceholder": "Cerca per azione",
     "title": "Registro di audit",
     "values": {
+      "action": {
+        "auditRead": "Audit operatore letto",
+        "candidateRead": "Candidato operatore letto",
+        "companyRead": "Spazio di lavoro letto",
+        "creditAdjustmentCreate": "Correzione di crediti registrata",
+        "creditBalanceReset": "Saldo crediti azzerato",
+        "enterpriseAllowanceUpdate": "Assegnazione Enterprise aggiornata",
+        "globalControlUpdate": "Controllo globale Hosted-AI aggiornato",
+        "operatorBootstrap": "Accesso operatore inizializzato",
+        "overviewRead": "Panoramica Hosted-AI letta",
+        "subscriptionSnapshotCorrect": "Abbonamento dello spazio di lavoro corretto",
+        "userDetailRead": "Dettaglio utente letto",
+        "userListRead": "Elenco utenti letto",
+        "userPlatformAccessUpdate": "Accesso alla piattaforma aggiornato",
+        "userStatusUpdate": "Stato account aggiornato",
+        "userSummaryRead": "Riepilogo utenti letto"
+      },
       "source": {
         "operator": "Operatore",
         "product": "Prodotto"
@@ -2455,13 +2462,25 @@
     "actions": {
       "retry": "Riprova"
     },
+    "errors": {
+      "accessDenied": "Il tuo accesso operatore è cambiato. Aggiorna la pagina ed esegui nuovamente l’autenticazione.",
+      "conflict": "Il record è cambiato durante la modifica. Sono stati caricati i dettagli più recenti; esaminali prima di riprovare con lo stesso ID operazione.",
+      "invalidInput": "Controlla tutti i campi. Le motivazioni devono avere almeno 8 caratteri e i valori numerici devono rispettare i limiti.",
+      "notFound": "L’utente, l’area di lavoro, l’abbonamento o il periodo crediti selezionato non esiste più.",
+      "unavailable": "La correzione richiesta non è disponibile per la configurazione corrente dell’account.",
+      "unexpected": "Si è verificato un errore imprevisto. Non viene considerata riuscita alcuna modifica; riprova con lo stesso ID operazione."
+    },
+    "forms": {
+      "reason": "Motivazione",
+      "reasonDescription": "Obbligatoria per il registro di audit operatore a sola aggiunta. Usa almeno 8 caratteri.",
+      "reasonPlaceholder": "Spiega perché questa correzione è necessaria"
+    },
     "shell": {
       "console": "Console operatore"
     },
     "states": {
       "errorDescription": "Non è stato possibile caricare i dati dell’operatore. Riprova; non è stata apportata alcuna modifica.",
-      "errorTitle": "Console operatore non disponibile",
-      "loading": "Caricamento della console operatore"
+      "errorTitle": "Console operatore non disponibile"
     },
     "values": {
       "plans": {
@@ -2490,7 +2509,6 @@
       "description": "Insieme a {workspaces} nuove aree",
       "label": "Nuovi utenti in 30 giorni"
     },
-    "loading": "Caricamento della panoramica operatore",
     "navigation": "Panoramica",
     "operators": {
       "description": "Account con accesso tra le aree",
@@ -2525,20 +2543,8 @@
       "deltaLabel": "Correzione crediti con segno",
       "deltaPlaceholder": "Ad esempio, 500 o -100",
       "description": "Aggiungi una correzione limitata al periodo crediti corrente di questo utente.",
-      "save": "Registra la correzione crediti",
       "success": "La correzione crediti è stata registrata.",
       "title": "Correzione crediti"
-    },
-    "columns": {
-      "createdAt": "Creato",
-      "email": "E-mail",
-      "lastActiveAt": "Ultima attività",
-      "name": "Nome",
-      "operator": "Operatore",
-      "plan": "Piano",
-      "status": "Account",
-      "subscription": "Abbonamento",
-      "workspace": "Area di lavoro"
     },
     "credits": {
       "adjustments": "Correzioni manuali",
@@ -2551,7 +2557,6 @@
       "immutableTitle": "L’utilizzo resta immutabile",
       "overage": "Eccedenza",
       "period": "Periodo corrente: dal {start} al {end}",
-      "periodUnavailable": "Non è disponibile un periodo crediti corrente.",
       "remaining": "Rimanenti",
       "reserved": "Utilizzo riservato",
       "title": "Posizione crediti corrente",
@@ -2574,27 +2579,12 @@
     },
     "emptyBody": "Modifica la ricerca o i filtri per ampliare l’elenco.",
     "emptyTitle": "Nessun utente corrisponde a questi filtri",
-    "errors": {
-      "accessDenied": "Il tuo accesso operatore è cambiato. Aggiorna la pagina ed esegui nuovamente l’autenticazione.",
-      "conflict": "Il record è cambiato durante la modifica. Sono stati caricati i dettagli più recenti; esaminali prima di riprovare con lo stesso ID operazione.",
-      "invalidInput": "Controlla tutti i campi. Le motivazioni devono avere almeno 8 caratteri e i valori numerici devono rispettare i limiti.",
-      "notFound": "L’utente, l’area di lavoro, l’abbonamento o il periodo crediti selezionato non esiste più.",
-      "title": "Impossibile completare l’azione operatore",
-      "unavailable": "La correzione richiesta non è disponibile per la configurazione corrente dell’account.",
-      "unexpected": "Si è verificato un errore imprevisto. Non viene considerata riuscita alcuna modifica; riprova con lo stesso ID operazione."
-    },
-    "forms": {
-      "reason": "Motivazione",
-      "reasonDescription": "Obbligatoria per il registro di audit operatore a sola aggiunta. Usa almeno 8 caratteri.",
-      "reasonPlaceholder": "Spiega perché questa correzione è necessaria"
-    },
     "navigation": "Utenti",
     "platformAccess": {
       "description": "Concedi o revoca l’accesso operatore tra le aree di lavoro per questo account.",
       "granted": "Concesso",
       "label": "Accesso operatore di piattaforma",
       "revoked": "Non concesso",
-      "save": "Aggiorna accesso alla piattaforma",
       "selfDescription": "Un operatore non può mai concedere o revocare il proprio accesso alla piattaforma. Chiedi a un altro operatore attivo di effettuare questa modifica.",
       "selfTitle": "Non puoi modificare il tuo accesso",
       "success": "L’accesso alla piattaforma è stato aggiornato.",
@@ -2609,16 +2599,11 @@
       "disclosureTitle": "Questa operazione non elimina l’utilizzo",
       "modeDescription": "Scegli l’obiettivo calcolato. Il server registra una correzione limitata con segno.",
       "modeLabel": "Obiettivo del ripristino",
-      "save": "Registra il ripristino calcolato",
       "success": "Il ripristino crediti calcolato è stato registrato.",
       "title": "Ripristino crediti",
       "zeroBalance": "Imposta a zero il saldo rimanente"
     },
     "searchPlaceholder": "Cerca per nome o e-mail dell’account",
-    "states": {
-      "loading": "Caricamento utenti",
-      "saving": "Salvataggio"
-    },
     "status": {
       "adminWarningDescription": "L’ultimo amministratore attivo di un’area di lavoro non può essere disattivato. Assegna prima un altro amministratore attivo.",
       "adminWarningTitle": "L’amministrazione dell’area di lavoro deve restare disponibile",
@@ -2628,13 +2613,13 @@
       "label": "Stato dell’account",
       "providerSyncRequiredDescription": "In questa area di lavoro gestita dal fornitore, le postazioni utente o lo stato dell’account devono essere modificati tramite il normale flusso del tenant o di fatturazione. Le modifiche di stato dell’operatore sono disabilitate per evitare divergenze tra accesso locale e fatturazione del fornitore.",
       "providerSyncRequiredTitle": "È richiesta la sincronizzazione delle postazioni del fornitore",
-      "save": "Aggiorna stato account",
       "success": "Lo stato dell’account è stato aggiornato.",
       "title": "Accesso all’account"
     },
     "tabs": {
       "access": "Accesso",
-      "credits": "Crediti"
+      "credits": "Crediti",
+      "overview": "Panoramica"
     },
     "title": "Operazioni sugli utenti",
     "values": {
@@ -2654,20 +2639,10 @@
   "OperatorWorkspaces": {
     "allowance": {
       "label": "Crediti per utente",
-      "save": "Aggiorna dotazione",
       "success": "La dotazione Enterprise è stata aggiornata.",
       "title": "Dotazione Enterprise",
       "warningDescription": "La dotazione è concessa per utente su tutta l’area e ha effetto sul periodo corrente.",
       "warningTitle": "Si applica a tutti i membri"
-    },
-    "columns": {
-      "allowance": "Dotazione",
-      "createdAt": "Creato",
-      "members": "Membri",
-      "owner": "Proprietario",
-      "plan": "Piano",
-      "subscription": "Abbonamento",
-      "workspace": "Area di lavoro"
     },
     "description": "Tutte le aree della piattaforma, con piano, membri e dotazione.",
     "detail": {
@@ -2676,11 +2651,9 @@
     },
     "emptyBody": "Modifica la ricerca o i filtri per ampliare l’elenco.",
     "emptyTitle": "Nessuna area corrisponde a questi filtri",
-    "loading": "Caricamento delle aree di lavoro",
     "navigation": "Aree di lavoro",
     "searchPlaceholder": "Cerca per e-mail di un membro",
     "subscription": {
-      "save": "Correggi abbonamento",
       "seatsDescription": "Numero locale di postazioni per l’intera area. Lascia vuoto per non specificarlo.",
       "seatsLabel": "Numero di postazioni",
       "success": "L’abbonamento dell’area è stato corretto.",

@@ -112,7 +112,7 @@ function formData(values: Record<string, string>): FormData {
   return result;
 }
 
-function mutationValues(values: Record<string, string> = {}): Record<string, string> {
+function mutationValues<T extends Record<string, unknown>>(values: T) {
   return {
     userId: USER_ID,
     operationId: OPERATION_ID,
@@ -172,13 +172,7 @@ describe("operator user server actions", () => {
     mocks.status.mockRejectedValueOnce(new OperatorConflictError("stale user"));
 
     const result = await updateOperatorUserStatusAction(
-      { status: "idle" },
-      formData(
-        mutationValues({
-          expectedUpdatedAt: UPDATED_AT,
-          status: "inactive",
-        }),
-      ),
+      mutationValues({ expectedUpdatedAt: UPDATED_AT, status: "inactive" }),
     );
 
     expect(mocks.status).toHaveBeenCalledWith({
@@ -196,15 +190,12 @@ describe("operator user server actions", () => {
     mocks.subscription.mockResolvedValueOnce(refreshed);
 
     const result = await correctOperatorSubscriptionSnapshotAction(
-      { status: "idle" },
-      formData(
-        mutationValues({
-          expectedUpdatedAt: SUBSCRIPTION_UPDATED_AT,
-          plan: "enterprise",
-          status: "active",
-          quantity: "",
-        }),
-      ),
+      mutationValues({
+        expectedUpdatedAt: SUBSCRIPTION_UPDATED_AT,
+        plan: "enterprise",
+        status: "active",
+        quantity: null,
+      }),
     );
 
     expect(mocks.subscription).toHaveBeenCalledWith({
@@ -225,15 +216,12 @@ describe("operator user server actions", () => {
     mocks.detail.mockResolvedValueOnce(user);
 
     const result = await createOperatorUserCreditAdjustmentAction(
-      { status: "idle" },
-      formData(
-        mutationValues({
-          companyId: COMPANY_ID,
-          creditDelta: "100",
-          periodStart: PERIOD_START,
-          periodEnd: PERIOD_END,
-        }),
-      ),
+      mutationValues({
+        companyId: COMPANY_ID,
+        creditDelta: 100,
+        periodStart: PERIOD_START,
+        periodEnd: PERIOD_END,
+      }),
     );
 
     expect(mocks.adjust).toHaveBeenCalledWith(
@@ -254,15 +242,12 @@ describe("operator user server actions", () => {
     mocks.detail.mockRejectedValueOnce(new Error("refresh failed"));
 
     const result = await createOperatorUserCreditAdjustmentAction(
-      { status: "idle" },
-      formData(
-        mutationValues({
-          companyId: COMPANY_ID,
-          creditDelta: "100",
-          periodStart: PERIOD_START,
-          periodEnd: PERIOD_END,
-        }),
-      ),
+      mutationValues({
+        companyId: COMPANY_ID,
+        creditDelta: 100,
+        periodStart: PERIOD_START,
+        periodEnd: PERIOD_END,
+      }),
     );
 
     expect(result).toEqual({ status: "error", errorCode: "unexpected", operationId: OPERATION_ID });
@@ -273,17 +258,14 @@ describe("operator user server actions", () => {
     mocks.reset.mockResolvedValueOnce(resetResult);
 
     const result = await resetOperatorUserCreditsAction(
-      { status: "idle" },
-      formData(
-        mutationValues({
-          mode: "zeroBalance",
-          expectedPeriodStart: PERIOD_START,
-          expectedPeriodEnd: PERIOD_END,
-          expectedBaseAllowanceCredits: "500",
-          expectedAdjustmentCredits: "0",
-          expectedCommittedCredits: "120",
-        }),
-      ),
+      mutationValues({
+        mode: "zeroBalance",
+        expectedPeriodStart: PERIOD_START,
+        expectedPeriodEnd: PERIOD_END,
+        expectedBaseAllowanceCredits: 500,
+        expectedAdjustmentCredits: 0,
+        expectedCommittedCredits: 120,
+      }),
     );
 
     expect(mocks.reset).toHaveBeenCalledWith({
@@ -304,17 +286,14 @@ describe("operator user server actions", () => {
     mocks.reset.mockRejectedValueOnce(new OperatorConflictError("stale credit position"));
 
     const result = await resetOperatorUserCreditsAction(
-      { status: "idle" },
-      formData(
-        mutationValues({
-          mode: "baseAllowance",
-          expectedPeriodStart: PERIOD_START,
-          expectedPeriodEnd: PERIOD_END,
-          expectedBaseAllowanceCredits: "500",
-          expectedAdjustmentCredits: "0",
-          expectedCommittedCredits: "120",
-        }),
-      ),
+      mutationValues({
+        mode: "baseAllowance",
+        expectedPeriodStart: PERIOD_START,
+        expectedPeriodEnd: PERIOD_END,
+        expectedBaseAllowanceCredits: 500,
+        expectedAdjustmentCredits: 0,
+        expectedCommittedCredits: 120,
+      }),
     );
 
     expect(result).toEqual({ status: "error", errorCode: "conflict", operationId: OPERATION_ID });

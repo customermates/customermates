@@ -62,13 +62,7 @@ export default async function OperatorOverviewPage() {
 
   return (
     <PageContainer>
-      <div className="space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{t("OperatorOverview.title")}</h1>
-
-          <p className="text-sm leading-6 text-muted-foreground sm:text-base">{t("OperatorOverview.description")}</p>
-        </div>
-
+      <div className="flex min-h-0 w-full flex-1 flex-col gap-4 md:gap-6">
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <OperatorMetricCard
             description={

@@ -6,11 +6,9 @@ import type { OperatorAuditRowDto } from "@/ee/operator/operator-lists.schema";
 import { useMemo } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 
-import { AuditSourceChip } from "../operator-value-labels";
+import { CopyableChip } from "@/components/chip/copyable-chip";
 
-function shortId(value: string): string {
-  return value.length <= 12 ? value : `${value.slice(0, 8)}…${value.slice(-4)}`;
-}
+import { AuditActionLabel, AuditSourceChip } from "../operator-value-labels";
 
 export function useOperatorAuditColumns(): ColumnDef<OperatorAuditRowDto>[] {
   const format = useFormatter();
@@ -24,45 +22,52 @@ export function useOperatorAuditColumns(): ColumnDef<OperatorAuditRowDto>[] {
       {
         accessorKey: "createdAt",
         id: "createdAt",
-        header: t("OperatorAudit.columns.createdAt"),
+        header: t("Common.table.columns.createdAt"),
         cell: ({ row }) => <span className="text-sm text-muted-foreground">{dateTime(row.original.createdAt)}</span>,
       },
       {
         id: "source",
-        header: t("OperatorAudit.columns.source"),
+        header: t("Common.table.columns.source"),
         cell: ({ row }) => <AuditSourceChip source={row.original.source} />,
       },
       {
         id: "action",
-        header: t("OperatorAudit.columns.action"),
-        cell: ({ row }) => <span className="text-sm">{row.original.action}</span>,
+        header: t("Common.table.columns.action"),
+        cell: ({ row }) => (
+          <span className="text-sm">
+            <AuditActionLabel action={row.original.action} source={row.original.source} />
+          </span>
+        ),
       },
       {
         id: "actor",
-        header: t("OperatorAudit.columns.actor"),
+        header: t("Common.table.columns.actor"),
         cell: ({ row }) => (
           <span className="text-sm text-muted-foreground">
-            {row.original.actorLabel ?? (row.original.actorUserId ? shortId(row.original.actorUserId) : "-")}
+            {row.original.actorLabel ?? row.original.actorUserId ?? "-"}
           </span>
         ),
       },
       {
         id: "workspace",
-        header: t("OperatorAudit.columns.workspace"),
+        header: t("Common.table.columns.workspace"),
         cell: ({ row }) => <span className="text-sm">{row.original.workspaceLabel ?? "-"}</span>,
       },
       {
         id: "target",
-        header: t("OperatorAudit.columns.target"),
-        cell: ({ row }) => (
-          <span className="text-sm text-muted-foreground">
-            {row.original.targetId ? shortId(row.original.targetId) : "-"}
-          </span>
-        ),
+        header: t("Common.table.columns.target"),
+        cell: ({ row }) =>
+          row.original.targetId ? (
+            <CopyableChip size="sm" value={row.original.targetId} variant="secondary">
+              {row.original.targetId}
+            </CopyableChip>
+          ) : (
+            <span className="text-sm text-muted-foreground">-</span>
+          ),
       },
       {
         id: "reason",
-        header: t("OperatorAudit.columns.reason"),
+        header: t("Common.table.columns.reason"),
         cell: ({ row }) => <span className="text-sm text-muted-foreground">{row.original.reason ?? "-"}</span>,
       },
     ],

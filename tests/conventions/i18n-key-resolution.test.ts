@@ -487,6 +487,7 @@ const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
 const ENFORCED = true;
 
 export const DYNAMIC_KEY_SITES = [
+  "app/[locale]/(protected)/operator/operator-value-labels.tsx :: t :: Common.events.${action}",
   "app/[locale]/(protected)/company/components/audit-log/audit-log-modal.tsx :: t :: Common.events.${auditLog.event}",
   "app/[locale]/(protected)/company/components/audit-log/use-audit-log-columns.tsx :: t :: Common.events.${row.original.event}",
   "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.description",
@@ -705,6 +706,17 @@ const TERMINOLOGY_TEMPLATE_EVIDENCE = Object.fromEntries(
 );
 
 const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
+  {
+    file: "app/[locale]/(protected)/operator/operator-form.store.ts",
+    keys: [
+      "OperatorConsole.errors.accessDenied",
+      "OperatorConsole.errors.conflict",
+      "OperatorConsole.errors.invalidInput",
+      "OperatorConsole.errors.notFound",
+      "OperatorConsole.errors.unavailable",
+      "OperatorConsole.errors.unexpected",
+    ],
+  },
   {
     file: "app/[locale]/(protected)/contacts/components/add-channel-popover.tsx",
     keys: [

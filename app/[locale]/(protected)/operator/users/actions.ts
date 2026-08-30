@@ -2,10 +2,15 @@
 
 import type {
   AgentCreditAdjustmentDto,
+  CorrectOperatorSubscriptionSnapshotData,
+  CreateAgentCreditAdjustmentData,
   OperatorUserDetailDto,
   OperatorUserPageDto,
   ParsedListOperatorUsersData,
+  ResetOperatorUserCreditsData,
   ResetOperatorUserCreditsResultDto,
+  UpdateOperatorUserPlatformAccessData,
+  UpdateOperatorUserStatusData,
 } from "@/ee/operator/operator.schema";
 
 import { revalidatePath } from "next/cache";
@@ -74,10 +79,6 @@ function optionalFormText(formData: FormData, name: string): string | undefined 
   return formText(formData, name) || undefined;
 }
 
-function operationIdFrom(formData: FormData): string | undefined {
-  return optionalFormText(formData, "operationId");
-}
-
 function failure<T>(errorCode: OperatorUsersActionErrorCode, operationId?: string): OperatorUsersActionState<T> {
   return { status: "error", errorCode, operationId };
 }
@@ -140,17 +141,10 @@ export async function getOperatorUserDetailAction(
 }
 
 export async function updateOperatorUserStatusAction(
-  _previous: OperatorUsersActionState<OperatorUserDetailDto>,
-  formData: FormData,
+  data: UpdateOperatorUserStatusData,
 ): Promise<OperatorUsersActionState<OperatorUserDetailDto>> {
-  const operationId = operationIdFrom(formData);
-  const input = UpdateOperatorUserStatusSchema.safeParse({
-    userId: formText(formData, "userId"),
-    expectedUpdatedAt: formText(formData, "expectedUpdatedAt"),
-    status: formText(formData, "status"),
-    reason: formText(formData, "reason"),
-    operationId,
-  });
+  const operationId = data.operationId;
+  const input = UpdateOperatorUserStatusSchema.safeParse(data);
   if (!input.success) return failure("invalidInput", operationId);
 
   try {
@@ -164,20 +158,10 @@ export async function updateOperatorUserStatusAction(
 }
 
 export async function updateOperatorUserPlatformAccessAction(
-  _previous: OperatorUsersActionState<OperatorUserDetailDto>,
-  formData: FormData,
+  data: UpdateOperatorUserPlatformAccessData,
 ): Promise<OperatorUsersActionState<OperatorUserDetailDto>> {
-  const operationId = operationIdFrom(formData);
-  const grant = formText(formData, "isPlatformOperator");
-  if (grant !== "true" && grant !== "false") return failure("invalidInput", operationId);
-
-  const input = UpdateOperatorUserPlatformAccessSchema.safeParse({
-    userId: formText(formData, "userId"),
-    expectedUpdatedAt: formText(formData, "expectedUpdatedAt"),
-    isPlatformOperator: grant === "true",
-    reason: formText(formData, "reason"),
-    operationId,
-  });
+  const operationId = data.operationId;
+  const input = UpdateOperatorUserPlatformAccessSchema.safeParse(data);
   if (!input.success) return failure("invalidInput", operationId);
 
   try {
@@ -191,20 +175,10 @@ export async function updateOperatorUserPlatformAccessAction(
 }
 
 export async function correctOperatorSubscriptionSnapshotAction(
-  _previous: OperatorUsersActionState<OperatorUserDetailDto>,
-  formData: FormData,
+  data: CorrectOperatorSubscriptionSnapshotData,
 ): Promise<OperatorUsersActionState<OperatorUserDetailDto>> {
-  const operationId = operationIdFrom(formData);
-  const quantityText = formText(formData, "quantity");
-  const input = CorrectOperatorSubscriptionSnapshotSchema.safeParse({
-    userId: formText(formData, "userId"),
-    expectedUpdatedAt: formText(formData, "expectedUpdatedAt"),
-    plan: formText(formData, "plan"),
-    status: formText(formData, "status"),
-    quantity: quantityText ? Number(quantityText) : null,
-    reason: formText(formData, "reason"),
-    operationId,
-  });
+  const operationId = data.operationId;
+  const input = CorrectOperatorSubscriptionSnapshotSchema.safeParse(data);
   if (!input.success) return failure("invalidInput", operationId);
 
   try {
@@ -218,19 +192,10 @@ export async function correctOperatorSubscriptionSnapshotAction(
 }
 
 export async function createOperatorUserCreditAdjustmentAction(
-  _previous: OperatorUsersActionState<OperatorUserCreditAdjustmentResult>,
-  formData: FormData,
+  data: CreateAgentCreditAdjustmentData,
 ): Promise<OperatorUsersActionState<OperatorUserCreditAdjustmentResult>> {
-  const operationId = operationIdFrom(formData);
-  const input = CreateAgentCreditAdjustmentSchema.safeParse({
-    companyId: formText(formData, "companyId"),
-    userId: formText(formData, "userId"),
-    creditDelta: Number(formText(formData, "creditDelta")),
-    periodStart: formText(formData, "periodStart"),
-    periodEnd: formText(formData, "periodEnd"),
-    reason: formText(formData, "reason"),
-    operationId,
-  });
+  const operationId = data.operationId;
+  const input = CreateAgentCreditAdjustmentSchema.safeParse(data);
   if (!input.success) return failure("invalidInput", operationId);
 
   let adjustment: AgentCreditAdjustmentDto;
@@ -255,21 +220,10 @@ export async function createOperatorUserCreditAdjustmentAction(
 }
 
 export async function resetOperatorUserCreditsAction(
-  _previous: OperatorUsersActionState<ResetOperatorUserCreditsResultDto>,
-  formData: FormData,
+  data: ResetOperatorUserCreditsData,
 ): Promise<OperatorUsersActionState<ResetOperatorUserCreditsResultDto>> {
-  const operationId = operationIdFrom(formData);
-  const input = ResetOperatorUserCreditsSchema.safeParse({
-    userId: formText(formData, "userId"),
-    mode: formText(formData, "mode"),
-    expectedPeriodStart: formText(formData, "expectedPeriodStart"),
-    expectedPeriodEnd: formText(formData, "expectedPeriodEnd"),
-    expectedBaseAllowanceCredits: Number(formText(formData, "expectedBaseAllowanceCredits")),
-    expectedAdjustmentCredits: Number(formText(formData, "expectedAdjustmentCredits")),
-    expectedCommittedCredits: Number(formText(formData, "expectedCommittedCredits")),
-    reason: formText(formData, "reason"),
-    operationId,
-  });
+  const operationId = data.operationId;
+  const input = ResetOperatorUserCreditsSchema.safeParse(data);
   if (!input.success) return failure("invalidInput", operationId);
 
   try {

@@ -1,19 +1,21 @@
 import { getTranslations } from "next-intl/server";
 
-import { Skeleton } from "@/components/ui/skeleton";
+import { PageState } from "@/components/page-state/page-state";
+import { PageContainer } from "@/components/shared/page-container";
 
-export default async function OperatorWorkspacesPageStateLoading() {
-  const t = await getTranslations("OperatorWorkspaces");
+import { OperatorListSkeleton } from "../operator-list-skeleton";
+
+export default async function Loading() {
+  const t = await getTranslations("PageState");
 
   return (
-    <div aria-busy="true" aria-label={t("loading")} className="flex flex-col gap-6" role="status">
-      <div className="space-y-3">
-        <Skeleton className="h-8 w-56" />
-
-        <Skeleton className="h-4 w-full max-w-2xl" />
-      </div>
-
-      <Skeleton className="h-96 rounded-xl" />
-    </div>
+    <PageContainer padded={false}>
+      <PageState
+        background={<OperatorListSkeleton />}
+        className="h-[calc(100svh-4rem)] md:h-[calc(100svh-5rem)]"
+        label={t("loading")}
+        state="loading"
+      />
+    </PageContainer>
   );
 }

@@ -2428,23 +2428,30 @@
     }
   },
   "OperatorAudit": {
-    "columns": {
-      "action": "Aktion",
-      "actor": "Akteur",
-      "createdAt": "Zeit",
-      "reason": "Grund",
-      "source": "Quelle",
-      "target": "Ziel",
-      "workspace": "Arbeitsbereich"
-    },
     "description": "Alle erfassten Änderungen über alle Arbeitsbereiche hinweg, aus Produktaktivität und Operator-Aktionen.",
     "emptyBody": "Passen Sie Suche oder Filter an, um das Protokoll zu erweitern.",
     "emptyTitle": "Keine Audit-Ereignisse passen zu diesen Filtern",
-    "loading": "Audit-Protokoll wird geladen",
     "navigation": "Audit-Protokoll",
     "searchPlaceholder": "Nach Aktion suchen",
     "title": "Audit-Protokoll",
     "values": {
+      "action": {
+        "auditRead": "Operator-Audit gelesen",
+        "candidateRead": "Operator-Kandidat gelesen",
+        "companyRead": "Workspace gelesen",
+        "creditAdjustmentCreate": "Guthabenkorrektur erfasst",
+        "creditBalanceReset": "Guthaben zurückgesetzt",
+        "enterpriseAllowanceUpdate": "Enterprise-Kontingent aktualisiert",
+        "globalControlUpdate": "Globale Hosted-AI-Steuerung aktualisiert",
+        "operatorBootstrap": "Operator-Zugriff initialisiert",
+        "overviewRead": "Hosted-AI-Übersicht gelesen",
+        "subscriptionSnapshotCorrect": "Workspace-Abonnement korrigiert",
+        "userDetailRead": "Benutzerdetails gelesen",
+        "userListRead": "Benutzerliste gelesen",
+        "userPlatformAccessUpdate": "Plattformzugriff aktualisiert",
+        "userStatusUpdate": "Kontostatus aktualisiert",
+        "userSummaryRead": "Benutzerübersicht gelesen"
+      },
       "source": {
         "operator": "Operator",
         "product": "Produkt"
@@ -2455,13 +2462,25 @@
     "actions": {
       "retry": "Erneut versuchen"
     },
+    "errors": {
+      "accessDenied": "Dein Operator-Zugriff hat sich geändert. Aktualisiere die Seite und authentifiziere dich erneut.",
+      "conflict": "Der Datensatz wurde während der Bearbeitung geändert. Die neuesten Details wurden geladen; prüfe sie, bevor du den Vorgang mit derselben Vorgangs-ID wiederholst.",
+      "invalidInput": "Prüfe alle Felder. Begründungen müssen mindestens 8 Zeichen lang sein und Zahlen innerhalb der Grenzwerte liegen.",
+      "notFound": "Der ausgewählte Benutzer, Arbeitsbereich, das Abonnement oder der Credit-Zeitraum existiert nicht mehr.",
+      "unavailable": "Die gewünschte Korrektur ist für die aktuelle Kontokonfiguration nicht verfügbar.",
+      "unexpected": "Ein unerwarteter Fehler ist aufgetreten. Es wird keine erfolgreiche Änderung angenommen; wiederhole den Vorgang mit derselben Vorgangs-ID."
+    },
+    "forms": {
+      "reason": "Begründung",
+      "reasonDescription": "Für den nur erweiterbaren Operator-Prüfverlauf erforderlich. Verwende mindestens 8 Zeichen.",
+      "reasonPlaceholder": "Erkläre, warum diese Korrektur erforderlich ist"
+    },
     "shell": {
       "console": "Operator-Konsole"
     },
     "states": {
       "errorDescription": "Die Operator-Daten konnten nicht geladen werden. Versuche es erneut; es wurde nichts geändert.",
-      "errorTitle": "Operator-Konsole nicht verfügbar",
-      "loading": "Operator-Konsole wird geladen"
+      "errorTitle": "Operator-Konsole nicht verfügbar"
     },
     "values": {
       "plans": {
@@ -2490,7 +2509,6 @@
       "description": "Dazu {workspaces} neue Arbeitsbereiche",
       "label": "Neue Benutzer in 30 Tagen"
     },
-    "loading": "Operator-Übersicht wird geladen",
     "navigation": "Übersicht",
     "operators": {
       "description": "Konten mit arbeitsbereichsübergreifendem Zugriff",
@@ -2525,20 +2543,8 @@
       "deltaLabel": "Vorzeichenbehaftete Credit-Korrektur",
       "deltaPlaceholder": "Zum Beispiel 500 oder -100",
       "description": "Füge dem aktuellen Credit-Zeitraum dieses Benutzers eine begrenzte Korrektur hinzu.",
-      "save": "Credit-Korrektur erfassen",
       "success": "Die Credit-Korrektur wurde erfasst.",
       "title": "Credit-Korrektur"
-    },
-    "columns": {
-      "createdAt": "Erstellt",
-      "email": "E-Mail",
-      "lastActiveAt": "Zuletzt aktiv",
-      "name": "Name",
-      "operator": "Operator",
-      "plan": "Tarif",
-      "status": "Konto",
-      "subscription": "Abonnement",
-      "workspace": "Arbeitsbereich"
     },
     "credits": {
       "adjustments": "Manuelle Korrekturen",
@@ -2551,7 +2557,6 @@
       "immutableTitle": "Nutzung bleibt unveränderlich",
       "overage": "Überschreitung",
       "period": "Aktueller Zeitraum: {start} bis {end}",
-      "periodUnavailable": "Es ist kein aktueller Credit-Zeitraum verfügbar.",
       "remaining": "Verbleibend",
       "reserved": "Reservierte Nutzung",
       "title": "Aktueller Credit-Stand",
@@ -2574,27 +2579,12 @@
     },
     "emptyBody": "Passen Sie Suche oder Filter an, um das Verzeichnis zu erweitern.",
     "emptyTitle": "Keine Benutzer passen zu diesen Filtern",
-    "errors": {
-      "accessDenied": "Dein Operator-Zugriff hat sich geändert. Aktualisiere die Seite und authentifiziere dich erneut.",
-      "conflict": "Der Datensatz wurde während der Bearbeitung geändert. Die neuesten Details wurden geladen; prüfe sie, bevor du den Vorgang mit derselben Vorgangs-ID wiederholst.",
-      "invalidInput": "Prüfe alle Felder. Begründungen müssen mindestens 8 Zeichen lang sein und Zahlen innerhalb der Grenzwerte liegen.",
-      "notFound": "Der ausgewählte Benutzer, Arbeitsbereich, das Abonnement oder der Credit-Zeitraum existiert nicht mehr.",
-      "title": "Die Operator-Aktion konnte nicht abgeschlossen werden",
-      "unavailable": "Die gewünschte Korrektur ist für die aktuelle Kontokonfiguration nicht verfügbar.",
-      "unexpected": "Ein unerwarteter Fehler ist aufgetreten. Es wird keine erfolgreiche Änderung angenommen; wiederhole den Vorgang mit derselben Vorgangs-ID."
-    },
-    "forms": {
-      "reason": "Begründung",
-      "reasonDescription": "Für den nur erweiterbaren Operator-Prüfverlauf erforderlich. Verwende mindestens 8 Zeichen.",
-      "reasonPlaceholder": "Erkläre, warum diese Korrektur erforderlich ist"
-    },
     "navigation": "Benutzer",
     "platformAccess": {
       "description": "Operator-Zugriff über alle Arbeitsbereiche für dieses Konto erteilen oder entziehen.",
       "granted": "Erteilt",
       "label": "Plattform-Operator-Zugriff",
       "revoked": "Nicht erteilt",
-      "save": "Plattformzugriff aktualisieren",
       "selfDescription": "Ein Operator kann seinen eigenen Plattformzugriff niemals erteilen oder entziehen. Bitten Sie einen anderen aktiven Operator um diese Änderung.",
       "selfTitle": "Sie können Ihren eigenen Zugriff nicht ändern",
       "success": "Der Plattformzugriff wurde aktualisiert.",
@@ -2609,16 +2599,11 @@
       "disclosureTitle": "Dies löscht keine Nutzung",
       "modeDescription": "Wähle das berechnete Ziel. Der Server erfasst eine begrenzte Korrektur mit Vorzeichen.",
       "modeLabel": "Ziel der Zurücksetzung",
-      "save": "Berechnete Zurücksetzung erfassen",
       "success": "Die berechnete Credit-Zurücksetzung wurde erfasst.",
       "title": "Credits zurücksetzen",
       "zeroBalance": "Verbleibendes Guthaben auf null setzen"
     },
     "searchPlaceholder": "Nach Name oder Konto-E-Mail suchen",
-    "states": {
-      "loading": "Benutzer werden geladen",
-      "saving": "Wird gespeichert"
-    },
     "status": {
       "adminWarningDescription": "Der letzte aktive Administrator eines Arbeitsbereichs kann nicht deaktiviert werden. Weise zuerst einen anderen aktiven Administrator zu.",
       "adminWarningTitle": "Die Arbeitsbereichsverwaltung muss verfügbar bleiben",
@@ -2628,13 +2613,13 @@
       "label": "Kontostatus",
       "providerSyncRequiredDescription": "In diesem anbieterverwalteten Arbeitsbereich müssen Benutzerplätze oder Kontostatus über den regulären Mandanten- oder Abrechnungsablauf geändert werden. Operator-Statusänderungen sind gesperrt, damit lokaler Zugriff und Anbieterabrechnung nicht auseinanderlaufen.",
       "providerSyncRequiredTitle": "Synchronisierung der Anbieterplätze erforderlich",
-      "save": "Kontostatus aktualisieren",
       "success": "Der Kontostatus wurde aktualisiert.",
       "title": "Kontozugriff"
     },
     "tabs": {
       "access": "Zugriff",
-      "credits": "Credits"
+      "credits": "Credits",
+      "overview": "Übersicht"
     },
     "title": "Benutzerverwaltung",
     "values": {
@@ -2654,20 +2639,10 @@
   "OperatorWorkspaces": {
     "allowance": {
       "label": "Credits pro Benutzer",
-      "save": "Kontingent aktualisieren",
       "success": "Das Enterprise-Kontingent wurde aktualisiert.",
       "title": "Enterprise-Kontingent",
       "warningDescription": "Das Kontingent gilt pro Benutzer im gesamten Arbeitsbereich und wirkt sich auf die aktuelle Periode aus.",
       "warningTitle": "Gilt für alle Mitglieder"
-    },
-    "columns": {
-      "allowance": "Kontingent",
-      "createdAt": "Erstellt",
-      "members": "Mitglieder",
-      "owner": "Inhaber",
-      "plan": "Tarif",
-      "subscription": "Abonnement",
-      "workspace": "Arbeitsbereich"
     },
     "description": "Alle Arbeitsbereiche der Plattform mit Tarif, Mitgliedern und Kontingent.",
     "detail": {
@@ -2676,11 +2651,9 @@
     },
     "emptyBody": "Passen Sie Suche oder Filter an, um die Liste zu erweitern.",
     "emptyTitle": "Keine Arbeitsbereiche passen zu diesen Filtern",
-    "loading": "Arbeitsbereiche werden geladen",
     "navigation": "Arbeitsbereiche",
     "searchPlaceholder": "Nach Mitglieds-E-Mail suchen",
     "subscription": {
-      "save": "Abonnement korrigieren",
       "seatsDescription": "Optionale lokale Platzanzahl für den gesamten Arbeitsbereich. Leer lassen, um sie offen zu lassen.",
       "seatsLabel": "Anzahl der Plätze",
       "success": "Das Abonnement des Arbeitsbereichs wurde korrigiert.",

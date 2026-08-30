@@ -2428,23 +2428,30 @@
     }
   },
   "OperatorAudit": {
-    "columns": {
-      "action": "Action",
-      "actor": "Actor",
-      "createdAt": "Time",
-      "reason": "Reason",
-      "source": "Source",
-      "target": "Target",
-      "workspace": "Workspace"
-    },
     "description": "Every recorded change across all workspaces, from product activity and operator actions.",
     "emptyBody": "Adjust the search or filters to widen the log.",
     "emptyTitle": "No audit events match these filters",
-    "loading": "Loading the audit log",
     "navigation": "Audit log",
     "searchPlaceholder": "Search by action",
     "title": "Audit log",
     "values": {
+      "action": {
+        "auditRead": "Operator audit read",
+        "candidateRead": "Operator candidate read",
+        "companyRead": "Workspace read",
+        "creditAdjustmentCreate": "Credit correction recorded",
+        "creditBalanceReset": "Credit balance reset",
+        "enterpriseAllowanceUpdate": "Enterprise allowance updated",
+        "globalControlUpdate": "Hosted-AI global control updated",
+        "operatorBootstrap": "Operator access bootstrapped",
+        "overviewRead": "Hosted-AI overview read",
+        "subscriptionSnapshotCorrect": "Workspace subscription corrected",
+        "userDetailRead": "User detail read",
+        "userListRead": "User list read",
+        "userPlatformAccessUpdate": "Platform access updated",
+        "userStatusUpdate": "Account status updated",
+        "userSummaryRead": "User summary read"
+      },
       "source": {
         "operator": "Operator",
         "product": "Product"
@@ -2455,13 +2462,25 @@
     "actions": {
       "retry": "Try again"
     },
+    "errors": {
+      "accessDenied": "Your operator access changed. Refresh the page and authenticate again.",
+      "conflict": "The record changed while you were editing. The latest detail was loaded; review it before retrying with the retained operation ID.",
+      "invalidInput": "Review every field. Reasons need at least 8 characters and numeric values must stay within their limits.",
+      "notFound": "The selected user, workspace, subscription, or credit period no longer exists.",
+      "unavailable": "The requested correction is not available for the current account configuration.",
+      "unexpected": "An unexpected error occurred. No successful change is implied; retry with the same operation ID."
+    },
+    "forms": {
+      "reason": "Reason",
+      "reasonDescription": "Required for the append-only operator audit record. Use at least 8 characters.",
+      "reasonPlaceholder": "Explain why this correction is required"
+    },
     "shell": {
       "console": "Operator console"
     },
     "states": {
       "errorDescription": "The operator data could not be loaded. Try again; no change was made.",
-      "errorTitle": "Operator console unavailable",
-      "loading": "Loading operator console"
+      "errorTitle": "Operator console unavailable"
     },
     "values": {
       "plans": {
@@ -2490,7 +2509,6 @@
       "description": "Alongside {workspaces} new workspaces",
       "label": "New users last 30 days"
     },
-    "loading": "Loading the operator overview",
     "navigation": "Overview",
     "operators": {
       "description": "Accounts with cross-workspace access",
@@ -2525,20 +2543,8 @@
       "deltaLabel": "Signed credit correction",
       "deltaPlaceholder": "For example, 500 or -100",
       "description": "Append a finite correction to this user’s current credit period.",
-      "save": "Record credit correction",
       "success": "The credit correction was recorded.",
       "title": "Credit correction"
-    },
-    "columns": {
-      "createdAt": "Created",
-      "email": "Email",
-      "lastActiveAt": "Last active",
-      "name": "Name",
-      "operator": "Operator",
-      "plan": "Plan",
-      "status": "Account",
-      "subscription": "Subscription",
-      "workspace": "Workspace"
     },
     "credits": {
       "adjustments": "Manual corrections",
@@ -2551,7 +2557,6 @@
       "immutableTitle": "Usage remains immutable",
       "overage": "Overage",
       "period": "Current period: {start} to {end}",
-      "periodUnavailable": "No current credit period is available.",
       "remaining": "Remaining",
       "reserved": "Reserved usage",
       "title": "Current credit position",
@@ -2574,27 +2579,12 @@
     },
     "emptyBody": "Adjust the search or filters to widen the directory.",
     "emptyTitle": "No users match these filters",
-    "errors": {
-      "accessDenied": "Your operator access changed. Refresh the page and authenticate again.",
-      "conflict": "The record changed while you were editing. The latest detail was loaded; review it before retrying with the retained operation ID.",
-      "invalidInput": "Review every field. Reasons need at least 8 characters and numeric values must stay within their limits.",
-      "notFound": "The selected user, workspace, subscription, or credit period no longer exists.",
-      "title": "The operator action could not be completed",
-      "unavailable": "The requested correction is not available for the current account configuration.",
-      "unexpected": "An unexpected error occurred. No successful change is implied; retry with the same operation ID."
-    },
-    "forms": {
-      "reason": "Reason",
-      "reasonDescription": "Required for the append-only operator audit record. Use at least 8 characters.",
-      "reasonPlaceholder": "Explain why this correction is required"
-    },
     "navigation": "Users",
     "platformAccess": {
       "description": "Grant or revoke cross-workspace operator access for this account.",
       "granted": "Granted",
       "label": "Platform operator access",
       "revoked": "Not granted",
-      "save": "Update platform access",
       "selfDescription": "An operator can never grant or revoke their own platform access. Ask another active operator to make this change.",
       "selfTitle": "You cannot change your own access",
       "success": "Platform access was updated.",
@@ -2609,16 +2599,11 @@
       "disclosureTitle": "This is not usage deletion",
       "modeDescription": "Choose the calculated target. The server records a finite signed correction.",
       "modeLabel": "Reset target",
-      "save": "Record calculated reset",
       "success": "The calculated credit reset was recorded.",
       "title": "Credit reset",
       "zeroBalance": "Set remaining balance to zero"
     },
     "searchPlaceholder": "Search by name or account email",
-    "states": {
-      "loading": "Loading users",
-      "saving": "Saving"
-    },
     "status": {
       "adminWarningDescription": "The last active administrator of a workspace cannot be deactivated. Assign another active administrator first.",
       "adminWarningTitle": "Workspace administration must remain available",
@@ -2628,13 +2613,13 @@
       "label": "Account status",
       "providerSyncRequiredDescription": "This provider-managed workspace must change user seats or account status through the canonical tenant or billing flow. Operator status changes are disabled to prevent local access and provider billing from drifting.",
       "providerSyncRequiredTitle": "Provider seat sync required",
-      "save": "Update account status",
       "success": "The account status was updated.",
       "title": "Account access"
     },
     "tabs": {
       "access": "Access",
-      "credits": "Credits"
+      "credits": "Credits",
+      "overview": "Overview"
     },
     "title": "User operations",
     "values": {
@@ -2654,20 +2639,10 @@
   "OperatorWorkspaces": {
     "allowance": {
       "label": "Credits per user",
-      "save": "Update allowance",
       "success": "The Enterprise allowance was updated.",
       "title": "Enterprise allowance",
       "warningDescription": "The allowance is granted per user across the whole workspace and takes effect on the current period.",
       "warningTitle": "Applies to every member"
-    },
-    "columns": {
-      "allowance": "Allowance",
-      "createdAt": "Created",
-      "members": "Members",
-      "owner": "Owner",
-      "plan": "Plan",
-      "subscription": "Subscription",
-      "workspace": "Workspace"
     },
     "description": "Every workspace across the platform, with its plan, members and allowance.",
     "detail": {
@@ -2676,11 +2651,9 @@
     },
     "emptyBody": "Adjust the search or filters to widen the list.",
     "emptyTitle": "No workspaces match these filters",
-    "loading": "Loading workspaces",
     "navigation": "Workspaces",
     "searchPlaceholder": "Search by member email",
     "subscription": {
-      "save": "Correct workspace subscription",
       "seatsDescription": "Optional local seat quantity for the whole workspace. Leave blank to keep it unspecified.",
       "seatsLabel": "Seat quantity",
       "success": "The workspace subscription was corrected.",

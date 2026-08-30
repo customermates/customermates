@@ -1,26 +1,27 @@
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AppCard } from "@/components/card/app-card";
+import { AppCardBody } from "@/components/card/app-card-body";
+import { AppCardHeader } from "@/components/card/app-card-header";
+import { IconContainer } from "@/components/shared/icon-container";
 
 type Props = { description?: ReactNode; icon: LucideIcon; label: string; value: ReactNode };
 
-export function OperatorMetricCard({ description, icon: Icon, label, value }: Props) {
+export function OperatorMetricCard({ description, icon, label, value }: Props) {
   return (
-    <Card>
-      <CardHeader className="grid grid-cols-[1fr_auto] items-start gap-2 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">{label}</CardTitle>
+    <AppCard>
+      <AppCardHeader className="gap-3">
+        <IconContainer className="shrink-0" icon={icon} size="sm" />
 
-        <span className="rounded-md bg-primary/10 p-1.5 text-primary">
-          <Icon aria-hidden className="size-4" />
-        </span>
-      </CardHeader>
+        <h2 className="text-x-sm grow truncate text-muted-foreground">{label}</h2>
+      </AppCardHeader>
 
-      <CardContent className="space-y-1">
-        <p className="text-2xl font-semibold tracking-tight">{value}</p>
+      <AppCardBody className="gap-1">
+        <p className="text-x-2xl font-semibold tabular-nums">{value}</p>
 
         {description ? <p className="text-xs text-muted-foreground">{description}</p> : null}
-      </CardContent>
-    </Card>
+      </AppCardBody>
+    </AppCard>
   );
 }
