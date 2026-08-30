@@ -248,7 +248,7 @@ describe("public acquisition UI contract", () => {
     }
   });
 
-  it("keeps the founder contact on acquisition landings and every blog article", () => {
+  it("keeps the founder contact on every long-form detail page", () => {
     const article = source("components/marketing/landing-article.tsx");
     const card = source("components/marketing/founder-contact-card.tsx");
     const toc = source("components/shared/toc.tsx");
@@ -268,19 +268,15 @@ describe("public acquisition UI contract", () => {
     for (const route of [
       "app/[locale]/(static)/features/[slug]/page.tsx",
       "app/[locale]/(static)/for/[industry]/page.tsx",
+      "app/[locale]/(static)/compare/[competitor]/page.tsx",
     ]) {
-      expect(source(route), route).toContain(
-        "founderContact={Boolean(page.data.acquisition)}",
-      );
+      expect(source(route), route).toContain("<LandingArticle founderContact");
     }
 
     expect(source("app/[locale]/(static)/blog/[slug]/page.tsx")).toContain(
       "<LandingArticle founderContact items={page.data.toc}",
     );
 
-    expect(
-      source("app/[locale]/(static)/compare/[competitor]/page.tsx"),
-    ).not.toContain("founderContact");
   });
 
   it("uses one route-owned related-content and CTA ending across acquisition and blog pages", () => {
@@ -302,6 +298,7 @@ describe("public acquisition UI contract", () => {
     for (const route of [
       "app/[locale]/(static)/features/[slug]/page.tsx",
       "app/[locale]/(static)/for/[industry]/page.tsx",
+      "app/[locale]/(static)/compare/[competitor]/page.tsx",
       "app/[locale]/(static)/blog/[slug]/page.tsx",
     ]) {
       const routeSource = source(route);

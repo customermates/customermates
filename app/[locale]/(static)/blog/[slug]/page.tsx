@@ -63,7 +63,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     (entry) => entry.post.data.blogPost.tags?.[0] ?? "",
     (entry) => entry.slug,
   ).map((entry) => entry.slug);
-  const relatedHrefs = selectRelatedSlugs(slug, ringSlugs).map((related) => `/blog/${related}`);
+  const fallbackRelatedHrefs = selectRelatedSlugs(slug, ringSlugs).map((related) => `/blog/${related}`);
 
   return (
     <div className="relative flex flex-col items-center justify-center" data-marketing-flow="continuous">
@@ -156,7 +156,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
       <PageEnding
         cta={page.data.acquisition?.cta ?? blog.data.cta}
-        relatedHrefs={page.data.acquisition?.relatedHrefs ?? relatedHrefs}
+        relatedHrefs={page.data.relatedHrefs ?? page.data.acquisition?.relatedHrefs ?? fallbackRelatedHrefs}
       />
 
       <Footer />

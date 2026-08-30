@@ -2227,9 +2227,6 @@
     "description": "La messaggistica è disponibile dal piano Pro in su. Passa a un piano superiore per collegare un canale e usare la posta in arrivo unificata.",
     "title": "Passa a un piano superiore per la messaggistica"
   },
-  "N8nPage": {
-    "automationImageAlt": "Flusso di automazione del CRM Customermates con integrazione n8n"
-  },
   "NavigationBar": {
     "addEntity": "Aggiungi {entity}",
     "addPickerDescription": "Scegli il tipo di record che vuoi creare.",

@@ -1,7 +1,7 @@
 import { frontmatterSchema } from "fumadocs-mdx/config";
 import { z } from "zod";
 
-import { acquisitionPageSchema } from "./common";
+import { acquisitionPageSchema, relatedHrefsSchema } from "./common";
 
 export const blogPostSchema = z.object({
   author: z.string(),
@@ -23,5 +23,6 @@ export const blogPostsSchema = frontmatterSchema.extend({
   blogPost: blogPostSchema,
   description: z.string(),
   hero: heroSchema,
+  relatedHrefs: relatedHrefsSchema.optional(),
   title: z.string(),
 });

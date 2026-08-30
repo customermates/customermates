@@ -3,6 +3,12 @@ title: "CRM Slack-Integration: Alerts & Zwei-Wege-Aktionen über n8n"
 description: "CRM Slack-Integration über Ihr eigenes n8n: Deal-Alarme und Lead-Meldungen per Webhook, Pipeline-Digests und Aktionen zurück ins CRM über die REST API."
 featureName: Slack-Integration
 
+relatedHrefs:
+  - /features/outlook-integration
+  - /features/pipeline
+  - /features/project-management
+  - /features/reporting
+
 hero:
   title: Slack-Integration, gebaut auf Webhooks und Ihrem eigenen n8n
   description: Customermates hat keine native Slack-App. Was es hat, sind [[derived.webhooks.events.total]] Webhook-Events, eine vollständige REST API und einen MCP-Endpoint — alles, was ein Automatisierungstool braucht, um Deal-Alarme nach Slack zu posten und von dort zurückzuschreiben. Bringen Sie Ihr eigenes n8n, Make oder Zapier mit.
@@ -109,10 +115,3 @@ Sie steht nicht als zugesagter Punkt auf der Roadmap, und wir führen sie hier n
 ## Loslegen
 
 Lesen Sie [Webhooks](/docs/webhooks) für die Event-Payloads und [n8n](/docs/n8n) für die Verdrahtungsmuster. Legen Sie einen Webhook unter **Unternehmen → Webhooks** an, richten Sie ihn auf Ihr Automatisierungstool, ergänzen Sie den Slack-Node und schicken Sie Ihre erste `deal.updated`-Nachricht in einen Kanal. Von dort ist alles andere auf dieser Seite dasselbe Muster mit anderen Events.
-
-<RelatedPages>
-  <RelatedPage href="/features/outlook-integration" />
-  <RelatedPage href="/features/pipeline" />
-  <RelatedPage href="/features/project-management" />
-  <RelatedPage href="/features/reporting" />
-</RelatedPages>

@@ -1,19 +1,21 @@
 import type { Metadata } from "next";
 
 import { notFound } from "next/navigation";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { AutomationHero } from "./components/automation-hero";
 import { AutomationDemo } from "./components/automation-demo";
 import { AutomationBenefits } from "./components/automation-benefits";
-import { AutomationPricing } from "./components/automation-pricing";
 
 import { CTASection } from "@/components/marketing/cta-section";
 import { FAQSection } from "@/components/marketing/faq-section";
 import { FeatureSection } from "@/components/marketing/feature-section";
 import { Footer } from "@/app/components/footer";
+import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
-import { automationSource, pricingSource } from "@/core/fumadocs/source";
+import { automationSource } from "@/core/fumadocs/source";
+import { breadcrumbListSchema } from "@/core/seo/schemas";
+import { contentLocaleOrDefault } from "@/i18n/locale-registry";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -21,28 +23,30 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 }
 
 export default async function AutomationPage() {
-  const locale = await getLocale();
+  const [rawLocale, t] = await Promise.all([getLocale(), getTranslations("StructuredData.breadcrumb")]);
+  const locale = contentLocaleOrDefault(rawLocale);
   const automationPage = automationSource.getPage(["automation"], locale);
-  const pricingPage = pricingSource.getPage(["pricing"], locale);
 
   if (!automationPage) notFound();
 
-  const { hero, benefits, features, pricingTitle, faq, cta } = automationPage.data;
-  const pricingData = pricingPage?.data.pricing;
+  const { architecture, hero, benefits, features, faq, cta } = automationPage.data;
 
   return (
-    <div className="flex flex-col items-center justify-center">
+    <div className="flex flex-col items-center justify-center" data-marketing-flow="continuous">
+      <JsonLd
+        schema={breadcrumbListSchema([
+          { name: t("home"), path: `/${locale}` },
+          { name: "n8n CRM", path: `/${locale}/n8n-crm` },
+        ])}
+      />
+
       <AutomationHero {...hero} />
 
-      <AutomationDemo />
+      <AutomationDemo architecture={architecture} />
 
       <AutomationBenefits benefitsSection={benefits} />
 
       <FeatureSection {...features} />
-
-      {pricingData && pricingTitle && (
-        <AutomationPricing pricingSection={pricingData} pricingSectionTitle={pricingTitle} />
-      )}
 
       <FAQSection {...faq} />
 

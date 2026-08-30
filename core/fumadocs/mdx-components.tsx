@@ -15,7 +15,6 @@ import { Faq, FaqItem } from "@/components/marketing/faq";
 import { ProductDemo } from "@/components/marketing/product-demo";
 import { RelatedPage, RelatedPages } from "@/components/marketing/related-pages";
 import { Step, Steps } from "@/components/marketing/process-steps";
-import { MarkdownImage } from "./markdown-image";
 import { markdownBaseComponents } from "./markdown-base-components";
 import { McpInstallSnippet } from "./mcp-install-snippet";
 import { Mermaid } from "./mermaid";
@@ -32,7 +31,6 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     ComparisonTable,
     Faq,
     FaqItem,
-    MarkdownImage,
     McpInstallSnippet,
     Mermaid,
     ProductDemo,

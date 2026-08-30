@@ -2227,9 +2227,6 @@
     "description": "La messagerie est disponible à partir de la formule Pro. Passez à une formule supérieure pour connecter un canal et utiliser la boîte de réception unifiée.",
     "title": "Passez à une formule supérieure pour débloquer la messagerie"
   },
-  "N8nPage": {
-    "automationImageAlt": "Workflow d’automatisation du CRM Customermates avec intégration n8n"
-  },
   "NavigationBar": {
     "addEntity": "Ajouter {entity}",
     "addPickerDescription": "Choisissez le type d'enregistrement à créer.",

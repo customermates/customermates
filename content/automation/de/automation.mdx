@@ -1,22 +1,31 @@
 ---
-title: "Agentic Open-Source CRM: offene Schnittstellen für n8n"
-description: "CRM-Automatisierung über REST, [[derived.webhooks.events.total]] Webhooks, MCP und den veröffentlichten Community Node für Ihre eigene n8n-Instanz. n8n bleibt separat."
+title: "n8n CRM-Integration: REST, Webhooks und MCP"
+description: "Verbinden Sie n8n über REST, [[derived.webhooks.events.total]] Webhooks, MCP oder den Community-Node mit Customermates. Produkt- und Betriebsgrenzen bleiben klar."
+
+architecture:
+  title: Ein klar begrenzter Automatisierungsweg
+  description: Customermates prüft CRM-Zugriffe und sendet unterstützte Ereignisse. Ihre separate n8n-Instanz verantwortet Ausführung, Zugangsdaten, Zeitpläne, Wiederholungen und alle aufgerufenen Anbieter.
+  crmTitle: Customermates CRM
+  crmDescription: Strukturierte Datensätze, Workspace-Berechtigungen und validierte Schreibvorgänge bleiben innerhalb der CRM-Grenze.
+  interfaceTitle: Offene Schnittstellen
+  workflowDescription: Kundenseitig betriebener Workflow
+  boundary: n8n, Zugangsdaten, Ausführungsprotokolle und angebundene Anbieter bleiben von Customermates getrennt.
 
 hero:
-  title: CRM-Automatisierung mit n8n
-  titleAccent: lassen Sie Ihre KI und Ihre Workflows die Arbeit tragen.
-  subtitle: "Verbinden Sie eine von Ihnen betriebene n8n-Instanz über REST, [[derived.webhooks.events.total]] Webhooks, MCP oder den veröffentlichten Community Node mit Customermates. Workflow, KI-Client, Modell und externe Anbieter bleiben separate Produkte unter Ihrer Kontrolle."
-  buttonLeftText: Kostenlos starten
+  title: Verbinden Sie n8n mit Ihrem CRM.
+  titleAccent: Die Betriebsgrenze bleibt klar.
+  subtitle: "Nutzen Sie REST, [[derived.webhooks.events.total]] Webhook-Ereignistypen, MCP oder den veröffentlichten Community-Node aus einer eigenen n8n-Instanz. Customermates stellt CRM-Schnittstellen bereit; n8n und externe Anbieter bleiben separat."
+  buttonLeftText: Pro-Test starten
   buttonLeftHref: /auth/signup
-  buttonRightText: Live-Demo ansehen
-  buttonRightHref: https://demo.customermates.com
-  startFree: ✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos
+  buttonRightText: Einrichtung lesen
+  buttonRightHref: /docs/n8n
+  startFree: "Keine Kreditkarte • [[commercial.trial.days]] Tage Testphase • n8n bleibt separat"
 
 benefits:
   benefits:
   - icon: TrendingUp
-    title: Community-n8n-Integration
-    description: Nutzen Sie den veröffentlichten Community-Node, die REST-API und Webhooks aus einer eigenen oder abonnierten n8n-Instanz. Customermates bündelt n8n nicht.
+    title: Verbindungspfad wählen
+    description: Nutzen Sie den veröffentlichten Community-Node, die REST-API, Webhooks oder MCP aus einer eigenen oder abonnierten n8n-Instanz. Customermates bündelt n8n nicht.
   - icon: Zap
     title: Externe Agenten anbinden
     description: Verbinden Sie einen unterstützten KI-Client per MCP oder rufen Sie einen selbst gewählten Anbieter aus Ihrem Workflow auf. Customermates enthält weder Modell noch Lead-Scoring oder Anreicherung.
@@ -24,50 +33,42 @@ benefits:
     title: Kundenseitig betriebene Workflows
     description: Verbinden Sie Anbieter aus einer von Ihnen betriebenen n8n-Instanz. Connector-Verfügbarkeit, Limits, Tarife und Kosten gehören zu n8n und dem jeweiligen Anbieter.
   - icon: Sparkles
-    title: Volle Flexibilität
-    description: Gestalten Sie Workflows in Ihrer separaten n8n-Instanz unter deren Tarif-, Laufzeit-, Connector- und Anbietergrenzen.
+    title: Workflow in n8n gestalten
+    description: Erstellen Sie den Ablauf innerhalb der Tarif-, Laufzeit-, Node- und Anbietergrenzen Ihrer separaten n8n-Instanz.
   - icon: MousePointerClick
     title: Ort der Automatisierung selbst wählen
     description: Die verwaltete CRM-Datenbank läuft in einer EU-Region. Ihre n8n-Instanz und angebundene Anbieter verarbeiten die Daten, die Ihr Workflow sendet; prüfen Sie jeden Dienst separat.
   - icon: SlidersHorizontal
-    title: Zeit sparen
-    description: Ein von Ihnen betriebener Workflow kann konfigurierte externe Schritte ausführen; Laufzeit, Zeitplan, Zuverlässigkeit und Ergebnisse bleiben Ihre Verantwortung.
+    title: Automatisierung betreiben
+    description: Ein von Ihnen betriebener Workflow kann konfigurierte externe Schritte ausführen; Laufzeit, Zeitplan, Wiederholungen, Zuverlässigkeit und Ergebnisse bleiben Ihre Verantwortung.
 
 features:
-  badge: n8n Möglichkeiten
-  title: Was Sie mit n8n im CRM alles machen können
-  subtitle: Von einfachen Automatisierungen bis zu komplexen KI-Workflows passt sich Ihr externer Automatisierungsstack Ihren Prozessen an.
+  badge: Beispielhafte Kompositionen
+  title: Was ein kundenseitiger n8n-Workflow zusammensetzen kann
+  subtitle: Das sind Workflow-Muster und keine gebündelten Customermates-Funktionen. Sie benötigen passende Anbieter, Zugangsdaten, Zuordnung, Überwachung und Fehlerbehandlung in Ihrer n8n-Umgebung.
   features:
   - icon: Users
-    title: E-Mail-Automatisierung
+    title: E-Mail-Übergabe
     description: CRM-Ereignisse empfangen und ausgewählte Daten an den E-Mail- oder Datenanbieter senden, den Sie im eigenen Workflow konfigurieren.
-    image: automation-email-automation.png
   - icon: Briefcase
-    title: Lead-Enrichment
+    title: Externe Anreicherung
     description: Einen selbst gewählten Anbieter aus Ihrem Workflow aufrufen und ausgewählte Felder per REST zurückschreiben. Customermates enthält keine Anreicherung und kein Lead-Scoring.
-    image: automation-lead-enrichment.png
   - icon: Star
-    title: Reporting & Analytics
-    description: Eigene Dashboards in Google Sheets, Notion oder BI-Tools synchronisieren.
-    image: automation-reporting.png
+    title: Reporting-Übergabe
+    description: Ausgewählte CRM-Daten an eine Tabelle, Datenbank oder BI-Lösung senden, die Sie selbst konfigurieren und rechtmäßig nutzen.
   - icon: Zap
-    title: Payment-Integration
+    title: Abrechnungsübergabe
     description: Deal-Daten aus Ihrem eigenen Workflow an Abrechnungstools senden. Customermates hat keinen Angebots- oder Rechnungsworkflow.
-    image: automation-payment.png
-
-pricingTitle:
-  title: Automatisierung ohne Aufpreis
-  subtitle: Webhooks, REST API und MCP sind Customermates-Schnittstellen in jeder Stufe. n8n betreiben oder abonnieren Sie separat; hier wird kein undokumentiertes Aufruf- oder Workflow-Limit versprochen.
 
 faq:
   title: Häufige Fragen zur Automatisierung mit einer separaten n8n-Instanz
   faqs:
   - id: faq-1
     title: Brauche ich Programmierkenntnisse für n8n?
-    content: Nein. n8n funktioniert mit einem visuellen Workflow-Builder. Sie ziehen Bausteine zusammen, verbinden sie und definieren Regeln. Keine Code-Kenntnisse erforderlich, aber möglich, wenn Sie sie haben.
+    content: Einfache Abläufe lassen sich visuell zusammensetzen. Ein verlässlicher CRM-Workflow braucht dennoch Verantwortung für Authentifizierung, Feldzuordnung, Berechtigungen, Wiederholungen, Fehler und Anbieterlimits. Komplexe Transformationen können Code erfordern.
   - id: faq-2
     title: Welche Tools kann ich mit n8n verbinden?
-    content: n8n unterstützt über 400 Integrationen, von Gmail, Slack und Stripe bis zu eigenen APIs und Webhooks. Wenn ein Tool eine API hat, können Sie es mit Ihrem CRM verbinden.
+    content: Nutzen Sie Nodes aus dem aktuellen n8n-Katalog, geprüfte Verified- oder Community-Nodes sowie HTTP-Aufrufe an APIs, die Sie verwenden dürfen. Verfügbarkeit und Verhalten können sich ändern; prüfen Sie die aktuelle Dokumentation von n8n und dem Anbieter.
   - id: faq-3
     title: Kostet die Anbindung von n8n extra?
     content: "Webhooks, REST API und MCP sind verfügbare Customermates-Schnittstellen in jeder Stufe. n8n ist ein separates Produkt, das Sie selbst hosten oder abonnieren; externe Tarife, Limits, Anbieterkosten und Nutzung bleiben bei Ihnen."
@@ -79,11 +80,11 @@ faq:
     content: Workflows laufen dort, wo Sie n8n betreiben oder abonnieren; angebundene Tools erhalten die Daten, die Ihr Workflow sendet. Die verwaltete CRM-Datenbank läuft in einer EU-Region; prüfen Sie jeden Anbieter separat.
 
 cta:
-  action: Starten Sie jetzt mit dem Agentic Open-Source CRM
-  description: Verbinden Sie Ihren eigenen Automatisierungsstack über REST, Webhooks, MCP oder den veröffentlichten n8n-Community-Node mit einer offenen CRM-Oberfläche.
-  buttonLeftText: Kostenlos starten
+  action: Einen begrenzten n8n-Workflow testen
+  description: Beginnen Sie mit einem reversiblen CRM-Ereignis und einem validierten Schreibvorgang über REST, Webhooks, MCP oder den Community-Node. Zugangsdaten und Ausführung bleiben in Ihrer n8n-Umgebung.
+  buttonLeftText: Pro-Test starten
   buttonLeftHref: /auth/signup
-  buttonRightText: Live-Demo ansehen
-  buttonRightHref: https://demo.customermates.com
-  hint: ✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos
+  buttonRightText: Einrichtung lesen
+  buttonRightHref: /docs/n8n
+  hint: "Keine Kreditkarte • [[commercial.trial.days]] Tage Testphase • n8n bleibt separat"
 ---

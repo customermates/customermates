@@ -2227,9 +2227,6 @@
     "description": "Messaging is available on the Pro plan and higher. Upgrade to connect a channel and use the unified inbox.",
     "title": "Upgrade to unlock messaging"
   },
-  "N8nPage": {
-    "automationImageAlt": "Customermates CRM automation workflow with n8n integration"
-  },
   "NavigationBar": {
     "addEntity": "Add {entity}",
     "addPickerDescription": "Pick the type of record you want to create.",

@@ -6,6 +6,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Footer } from "@/app/components/footer";
 import { HubPagination } from "@/components/marketing/hub-pagination";
 import { HubGrid, type HubGridItem } from "@/components/marketing/hub-grid";
+import { CTASection } from "@/components/marketing/cta-section";
 import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { forPagesSource, forSource } from "@/core/fumadocs/source";
@@ -100,6 +101,8 @@ export default async function ForHubPage({ searchParams }: Props) {
         pageCount={paginated.pageCount}
         previousLabel={t("Common.table.previousPage")}
       />
+
+      <CTASection {...page.data.cta} />
 
       <Footer />
     </div>

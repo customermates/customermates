@@ -7,11 +7,11 @@ import { PageHero } from "@/components/marketing/page-hero";
 import { Footer } from "@/app/components/footer";
 import { ComparisonTable } from "@/components/marketing/comparison-table";
 import { LandingArticle } from "@/components/marketing/landing-article";
+import { PageEnding } from "@/components/marketing/page-ending";
 import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { comparePagesSource } from "@/core/fumadocs/source";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
-import { CTASection } from "@/components/marketing/cta-section";
 import { breadcrumbListSchema } from "@/core/seo/schemas";
 
 interface Props {
@@ -72,11 +72,11 @@ export default async function CompetitorComparePage({ params }: Props) {
         title={page.data.comparison.title}
       />
 
-      <LandingArticle items={page.data.toc}>
+      <LandingArticle founderContact items={page.data.toc}>
         <MDX components={components} />
       </LandingArticle>
 
-      <CTASection {...page.data.cta} />
+      <PageEnding cta={page.data.cta} relatedHrefs={page.data.relatedHrefs} />
 
       <Footer />
     </div>

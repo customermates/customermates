@@ -2227,9 +2227,6 @@
     "description": "La mensajería está disponible a partir del plan Pro. Mejora tu plan para conectar un canal y usar la bandeja de entrada unificada.",
     "title": "Mejora tu plan para usar la mensajería"
   },
-  "N8nPage": {
-    "automationImageAlt": "Flujo de automatización del CRM Customermates con integración de n8n"
-  },
   "NavigationBar": {
     "addEntity": "Añadir {entity}",
     "addPickerDescription": "Elige el tipo de registro que quieres crear.",

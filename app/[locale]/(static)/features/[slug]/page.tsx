@@ -8,7 +8,6 @@ import { AcquisitionStoryVisual } from "@/components/marketing/acquisition-story
 import { LandingArticle } from "@/components/marketing/landing-article";
 import { PageHero } from "@/components/marketing/page-hero";
 import { PageEnding } from "@/components/marketing/page-ending";
-import { CTASection } from "@/components/marketing/cta-section";
 import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { featurePagesSource } from "@/core/fumadocs/source";
@@ -63,15 +62,14 @@ export default async function FeaturePage({ params }: Props) {
 
       <PageHero {...page.data.hero} visual={visual} />
 
-      <LandingArticle founderContact={Boolean(page.data.acquisition)} items={page.data.toc}>
+      <LandingArticle founderContact items={page.data.toc}>
         <MDX components={components} />
       </LandingArticle>
 
-      {page.data.acquisition ? (
-        <PageEnding cta={page.data.acquisition.cta} relatedHrefs={page.data.acquisition.relatedHrefs} />
-      ) : (
-        <CTASection {...page.data.cta} />
-      )}
+      <PageEnding
+        cta={page.data.acquisition?.cta ?? page.data.cta}
+        relatedHrefs={page.data.acquisition?.relatedHrefs ?? page.data.relatedHrefs ?? []}
+      />
 
       <Footer />
     </div>

@@ -2227,9 +2227,6 @@
     "description": "Messaging ist ab dem Pro-Tarif verfügbar. Mit einem Upgrade verbindest du einen Kanal und nutzt den zentralen Posteingang.",
     "title": "Upgrade nötig, um Messaging freizuschalten"
   },
-  "N8nPage": {
-    "automationImageAlt": "Customermates-CRM-Automatisierungsworkflow mit n8n-Integration"
-  },
   "NavigationBar": {
     "addEntity": "{entity} hinzufügen",
     "addPickerDescription": "Wähle den Typ des Datensatzes, den du anlegen möchtest.",
