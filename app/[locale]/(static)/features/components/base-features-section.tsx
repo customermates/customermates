@@ -1,79 +1,43 @@
 import type { Feature } from "@/core/fumadocs/schemas/features";
 
-import { AppCard } from "@/components/card/app-card";
-import { AppCardBody } from "@/components/card/app-card-body";
-import { FeatureIcon } from "@/components/shared/feature-icon";
-import { IconContainer } from "@/components/shared/icon-container";
+import { MarketingSection } from "@/components/marketing/marketing-section";
+import { Icon } from "@/components/shared/icon";
 import { ICONS } from "@/components/shared/icons";
 
 type Props = Feature & { index?: number };
 
-export function BaseFeaturesSection({ features, hasSecondaryBackground = false, index, subtitle, title }: Props) {
-  const heroFeature = features.length >= 3 ? features[0] : null;
-  const restFeatures = heroFeature ? features.slice(1) : features;
-  const heroSpansTwoRows = features.length >= 4;
-
-  const HeroIcon = heroFeature ? ICONS[heroFeature.icon] : null;
+export function BaseFeaturesSection({ features, index, subtitle, title }: Props) {
   const numberLabel = typeof index === "number" ? String(index + 1).padStart(2, "0") : null;
 
   return (
-    <section className={`relative w-full py-12 md:py-16 ${hasSecondaryBackground ? "bg-muted" : ""}`}>
-      <div className="mx-auto max-w-7xl px-4">
-        <div className="mb-10 md:mb-12">
-          {numberLabel ? (
-            <div className="mb-3 flex items-center gap-3 font-mono text-[12px] uppercase tracking-[0.08em] text-subdued">
-              <span className="font-medium text-primary">{numberLabel}</span>
+    <MarketingSection className="py-16 sm:py-20 lg:py-24">
+      <div className="marketing-grid gap-y-10">
+        <div className="col-span-12 lg:sticky lg:top-24 lg:col-span-4 lg:self-start">
+          {numberLabel ? <p className="text-eyebrow">{numberLabel}</p> : null}
 
-              <span>{title}</span>
+          <h2 className="text-display-sm mt-4">{title}</h2>
 
-              <span className="h-px flex-1 bg-linear-to-r from-border to-transparent" />
-            </div>
-          ) : null}
-
-          <h2 className="text-x-3xl mb-3">{title}</h2>
-
-          <p className="text-x-lg max-w-2xl text-subdued">{subtitle}</p>
+          <p className="mt-5 max-w-sm text-sm leading-6 text-muted-foreground">{subtitle}</p>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:auto-rows-fr lg:grid-cols-4">
-          {heroFeature && HeroIcon ? (
-            <AppCard
-              className={`relative overflow-hidden md:col-span-2 lg:col-span-2 ${heroSpansTwoRows ? "lg:row-span-2" : ""}`}
-            >
-              <div
-                aria-hidden
-                className="pointer-events-none absolute -right-12 -top-12 size-36 rounded-full bg-primary/10 blur-2xl"
-              />
-
-              <AppCardBody className="relative justify-center gap-5">
-                <IconContainer className="size-12" icon={HeroIcon} iconClassName="h-5 w-5" iconSize="md" size="lg" />
-
-                <div className="flex flex-col gap-2">
-                  <h3 className="text-x-xl font-semibold">{heroFeature.title}</h3>
-
-                  <p className="text-subdued leading-relaxed">{heroFeature.description}</p>
-                </div>
-              </AppCardBody>
-            </AppCard>
-          ) : null}
-
-          {restFeatures.map((feature, idx) => {
+        <div className="col-span-12 grid border-l border-t border-border sm:grid-cols-2 lg:col-start-6 lg:col-end-13">
+          {features.map((feature) => {
             const IconComponent = ICONS[feature.icon];
 
             return (
-              <AppCard key={idx}>
-                <AppCardBody>
-                  <FeatureIcon icon={IconComponent} />
+              <article key={feature.title} className="border-b border-r border-border bg-background p-5 sm:p-6">
+                <span className="grid size-8 place-items-center rounded-md border border-border bg-sidebar text-muted-foreground">
+                  <Icon aria-hidden icon={IconComponent} size="sm" />
+                </span>
 
-                  <h3 className="font-semibold">{feature.title}</h3>
+                <h3 className="mt-5 text-sm font-semibold text-foreground">{feature.title}</h3>
 
-                  <p className="text-x-sm leading-relaxed text-subdued">{feature.description}</p>
-                </AppCardBody>
-              </AppCard>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{feature.description}</p>
+              </article>
             );
           })}
         </div>
       </div>
-    </section>
+    </MarketingSection>
   );
 }

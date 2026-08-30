@@ -1,6 +1,7 @@
 import { CONTENT_LOCALES, DEFAULT_LOCALE, buildLocalePath } from "../../i18n/locale-registry";
 
 const RETIRED_ROUTE_ALIASES = {
+  "/blog/ai-native-crm": "/blog/agentic-crm",
   "/compare/monday-vs-hubspot": "/compare/hubspot-vs-monday",
   "/compare/pipedrive-vs-hubspot": "/compare/hubspot-vs-pipedrive",
   "/compare/zoho-vs-hubspot": "/compare/hubspot-vs-zoho",
@@ -31,6 +32,7 @@ const RETIRED_ROUTE_ALIASES = {
   "/docs/mcp-connect-cursor": "/docs/connect-cli",
   "/docs/mcp-connect-gemini": "/docs/connect-cli",
   "/docs/mcp-tool-catalog": "/docs/mcp",
+  "/docs/concepts/mcp": "/docs/mcp",
   "/docs/openclaw-and-ai-agents": "/docs/mcp",
   "/docs/roles-permissions": "/docs/app-company",
   "/docs/self-host-vs-cloud": "/docs/self-hosting",

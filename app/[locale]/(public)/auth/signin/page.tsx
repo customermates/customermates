@@ -23,7 +23,7 @@ export default async function SignInPage() {
 
   return (
     <CenteredCardPage>
-      <SignInForm isInvited={result.data.valid} socialProviders={enabledSocialProviders} />
+      <SignInForm isInvited={result.ok && result.data.valid} socialProviders={enabledSocialProviders} />
     </CenteredCardPage>
   );
 }

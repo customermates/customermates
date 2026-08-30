@@ -780,9 +780,6 @@
     "userCreationFailed": "Votre compte n'a pas pu être créé. Veuillez réessayer.",
     "userInfoIsMissing": "Le fournisseur n'a pas renvoyé votre profil. Veuillez réessayer."
   },
-  "BlogPostPage": {
-    "relatedArticles": "Articles associés"
-  },
   "BrowserFrame": {
     "live": "en direct",
     "liveDemoTitle": "Démo en direct de Customermates",
@@ -1366,10 +1363,6 @@
       "previousPage": "Page précédente",
       "search": "Rechercher..."
     },
-    "tags": {
-      "feature": "Fonctionnalité",
-      "industry": "Secteur"
-    },
     "themes": {
       "dark": "Sombre",
       "light": "Clair",
@@ -1418,12 +1411,7 @@
     "title": "Utilisateur"
   },
   "ComparePage": {
-    "alternativeTitle": "Alternative à {competitor}",
-    "tags": {
-      "alternative": "Alternative",
-      "comparison": "Comparatif",
-      "review": "Avis"
-    }
+    "alternativeTitle": "Alternative à {competitor}"
   },
   "ConnectedAccountsCard": {
     "accountLimitReached": "Vous avez atteint la limite de comptes connectés de cette formule. Contactez-nous au sujet de la formule Enterprise pour un nombre illimité de comptes.",
@@ -1522,6 +1510,9 @@
   "ContactPage": {
     "description": "Une question, envie d'une démonstration ou d'explorer un partenariat ? Écrivez-moi et je vous réponds sous 24 heures.",
     "form": {
+      "founderName": "Benjamin Wagner",
+      "founderNote": "Votre message m’arrive directement. Dites-moi ce que vous utilisez aujourd’hui et où le workflow bloque.",
+      "founderRole": "Fondateur de Customermates",
       "messagePlaceholder": "Sur quoi travaillez-vous et comment puis-je vous aider ?",
       "submit": "Envoyer le message",
       "successBody": "Je vous réponds à l'adresse indiquée, généralement sous 24 heures.",
@@ -1539,8 +1530,8 @@
         "title": "Réponse rapide"
       },
       "personal": {
-        "body": "Pas de file d'attente. Je suis le fondateur et je réponds personnellement.",
-        "title": "Directement avec moi"
+        "body": "Envoyez-moi votre configuration actuelle. Je vous dirai ce qui fonctionne directement et quand une intégration séparée est plus adaptée.",
+        "title": "Parlons de votre workflow"
       }
     },
     "title": "Discutons."
@@ -1993,9 +1984,7 @@
     "success": "Retour bien reçu. Vous faites officiellement partie de l'équipe."
   },
   "Footer": {
-    "blogViewAll": "Voir tous les articles",
-    "compare": "Comparatifs",
-    "compareViewAll": "Voir tous les comparatifs",
+    "company": "Entreprise",
     "copyrightText": "© {year} Customermates. Tous droits réservés.",
     "dpa": "DPA",
     "featuredOn": "Présent sur",
@@ -2004,7 +1993,7 @@
     "featuresViewAll": "Voir toutes les fonctionnalités",
     "helpAndFeedback": "Aide",
     "imprint": "Mentions légales",
-    "legal": "Informations légales",
+    "legal": "Aide et mentions légales",
     "privacy": "Confidentialité",
     "product": "Produit",
     "resources": "Ressources",
@@ -2260,15 +2249,11 @@
     "description": "La messagerie est disponible à partir de la formule Pro. Passez à une formule supérieure pour connecter un canal et utiliser la boîte de réception unifiée.",
     "title": "Passez à une formule supérieure pour débloquer la messagerie"
   },
-  "N8nPage": {
-    "automationImageAlt": "Workflow d’automatisation du CRM Customermates avec intégration n8n"
-  },
   "NavigationBar": {
     "addEntity": "Ajouter {entity}",
     "addPickerDescription": "Choisissez le type d'enregistrement à créer.",
     "addPickerTitle": "Créer…",
     "affiliate": "Programme d'affiliation",
-    "automation": "Automatisation",
     "connectedAccounts": "Canaux",
     "crm": "CRM",
     "dashboard": "Tableau de bord",
@@ -2278,6 +2263,59 @@
     "members": "Membres",
     "overview": "Aperçu",
     "pricing": "Tarifs",
+    "public": {
+      "agencies": "Agences",
+      "agenticCrm": "CRM agentique",
+      "allFeatures": "Toutes les fonctionnalités",
+      "allIntegrations": "Toutes les intégrations",
+      "allSolutions": "Toutes les solutions",
+      "api": "API et webhooks",
+      "articlesAndGuides": "Articles et guides",
+      "buildAndAutomate": "Développer et automatiser",
+      "cloudCrm": "CRM cloud",
+      "communication": "Canaux",
+      "compare": "Comparatifs",
+      "consultants": "Consultants",
+      "contactManagement": "Gestion des contacts",
+      "coreCrm": "CRM central",
+      "deployment": "Déploiement",
+      "emailAndGmail": "E-mail et Gmail",
+      "explore": "Explorer",
+      "featuredTopics": "Sujets à la une",
+      "guides": "Guides",
+      "healthcare": "Santé",
+      "inboxGuide": "Guide de la boîte de réception",
+      "industries": "Secteurs",
+      "integrations": "Intégrations",
+      "integrationsDescription": "Connectez les canaux de communication et les interfaces ouvertes déjà utilisés par votre flux de travail.",
+      "mcpGuide": "Guide MCP",
+      "moreChannels": "Autres canaux",
+      "n8n": "Automatisation n8n",
+      "openSourceCrm": "CRM open source",
+      "pipeline": "Pipeline commercial",
+      "primaryNavigation": "Navigation principale",
+      "product": "Produit",
+      "productDescription": "Relations clients, pipeline, conversations et extensibilité dans un seul système.",
+      "professionalServices": "Services professionnels",
+      "propertyManagement": "Gestion immobilière",
+      "providerInstagram": "Instagram",
+      "providerLinkedIn": "LinkedIn",
+      "providerOutlook": "Outlook",
+      "providerSlack": "Slack",
+      "providerTelegram": "Telegram",
+      "providerWhatsApp": "WhatsApp",
+      "recruiting": "Recrutement",
+      "resources": "Ressources",
+      "resourcesDescription": "Évaluez le produit, comprenez son architecture et suivez des guides de mise en œuvre pratiques.",
+      "salesTracking": "Suivi des ventes",
+      "selfHosted": "CRM auto-hébergé",
+      "selfHostingGuide": "Guide d’auto-hébergement",
+      "serviceTeams": "Équipes de services",
+      "solutions": "Solutions",
+      "solutionsDescription": "Découvrez comment Customermates accompagne les équipes qui gèrent des relations clients durables.",
+      "taskManagement": "Gestion des tâches",
+      "unifiedInbox": "Boîte de réception unifiée"
+    },
     "search": "Rechercher",
     "settings": "Paramètres",
     "subscription": "Abonnement",

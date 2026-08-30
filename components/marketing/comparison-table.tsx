@@ -2,6 +2,7 @@ import type { ComparisonColumn } from "@/components/marketing/responsive-compari
 
 import { AppImage } from "@/components/shared/app-image";
 import { ResponsiveComparisonTable } from "@/components/marketing/responsive-comparison-table";
+import { MarketingSection } from "@/components/marketing/marketing-section";
 
 export type ComparisonFeature = {
   competitor: string | boolean;
@@ -51,12 +52,14 @@ export function ComparisonTable({ competitor2Name, competitorName, sections, tit
   }));
 
   return (
-    <section className="relative mx-auto w-full max-w-5xl px-4 pb-12 pt-4">
-      <div className="mb-8">
-        <h2 className="text-x-3xl mb-6 text-left">{title}</h2>
-      </div>
+    <MarketingSection className="py-16 sm:py-20 lg:py-24">
+      <div className="mx-auto max-w-5xl">
+        <div className="mb-10 border-b border-border pb-7">
+          <h2 className="text-display-sm m-0">{title}</h2>
+        </div>
 
-      <ResponsiveComparisonTable columns={columns} sections={mappedSections} />
-    </section>
+        <ResponsiveComparisonTable columns={columns} sections={mappedSections} />
+      </div>
+    </MarketingSection>
   );
 }

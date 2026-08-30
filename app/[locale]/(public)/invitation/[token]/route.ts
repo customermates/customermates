@@ -16,6 +16,10 @@ export async function GET(request: Request, context: { params: Promise<{ locale:
   }
 
   const inviteTokenResult = await getInviteTokenValidationInteractor().invoke({ token });
+
+  if (!inviteTokenResult.ok)
+    return NextResponse.redirect(new URL(`/${locale}/auth/error?type=invalidInviteLink`, base));
+
   const inviteToken = inviteTokenResult.data;
 
   if (!inviteToken.valid)

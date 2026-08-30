@@ -117,12 +117,12 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
     authority: "features/messaging, prisma/schema.prisma",
   },
   {
-    id: "built-in-ai",
+    id: "unqualified-built-in-ai-availability",
     pattern:
       /\b(?:built[- ]?in|builtin|bundled|native|included|eingebaut\w*|integriert\w*|nativ\w*|enthalten)[ -]?(?:AI|KI)(?:[ -](?:assistant|agent|chat|features?|Assistent|Agent))?\b/iu,
     permittedContext: NO_OR_EXTERNAL,
-    why: "MCP connects supported external AI clients; Customermates supplies no chat or model",
-    authority: "app/api/v1/mcp, package.json",
+    why: "Mate exists as a cloud-only capability, but public availability remains production-configuration and legal-release gated; MCP remains the separate surface for external AI clients",
+    authority: "app/api/agent, app/components/agent-chat, core/commercial/plan-catalog.ts",
   },
   {
     id: "lead-scoring-or-enrichment",
@@ -136,12 +136,12 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
     authority: "prisma/schema.prisma, app/[locale]/(protected)/",
   },
   {
-    id: "sales-forecasting",
+    id: "predictive-sales-forecasting",
     pattern:
-      /\b(?:built[- ]?in|native|included|provides?|offers?|calculates?|predicts?|eingebaut\w*|nativ\w*|enthalten|bietet|berechnet|prognostiziert)[^.!?;|]{0,34}\b(?:sales|revenue|pipeline|deal|Umsatz|Vertrieb\w*|Pipeline)[ -]?(?:forecast(?:ing)?|projection|Prognose\w*)\b|\b(?:revenue forecasting|sales forecasting|Umsatzprognose\w*)\b[^.!?;|]{0,20}\b(?:yes|true|included|available|ja|enthalten|verfügbar)\b/iu,
+      /\bCustomermates\b[^.!?;|]{0,48}\b(?:predicts?|forecasts?|prognostiziert|prognostizieren)\b[^.!?;|]{0,48}\b(?:future[ -]?revenue|revenue|sales|pipeline|deal outcomes?|close (?:likelihood|probability|timing|date)|when (?:a )?(?:deal|opportunity)s? (?:will )?close|künftige\w* Umsätze?|Umsätze?|Vertrieb|Pipeline|Deal[- ]?Ergebnisse?|Abschluss(?:wahrscheinlichkeit|zeitpunkt))\b|\bCustomermates\b[^.!?;|]{0,48}\b(?:revenue|sales|pipeline|deal outcomes?|close (?:likelihood|probability|timing|date)|Umsätze?|Vertrieb|Pipeline|Deal[- ]?Ergebnisse?|Abschluss(?:wahrscheinlichkeit|zeitpunkt))\b[^.!?;|]{0,30}\b(?:predict(?:s|ed)?|forecast(?:s|ed)?|prognostiziert)\b|\bnative\b[^.!?;|]{0,24}\b(?:sales|revenue|pipeline|deal)[ -]?(?:forecast(?:ing)?|projection)\b[^.!?;|]{0,24}\b(?:predicts?|forecasts?)\b|\b(?:AI|KI)(?:[- ]+(?:sales|revenue|pipeline|Umsatz|Vertrieb\w*|Pipeline))?[- ]*(?:forecast(?:s|ing)?|Prognose\w*)\b|\b(?:built[- ]?in|native|included|provides?|offers?|calculates?|predicts?|eingebaut\w*|nativ\w*|enthalten|bietet|berechnet|prognostiziert)[^.!?;|]{0,34}\b(?:predictive|AI[- ]?(?:powered|driven)|prädiktiv\w*|KI[- ]?(?:gestützt|basiert)\w*)[^.!?;|]{0,24}\b(?:(?:sales|revenue|pipeline|deal|Umsatz|Vertrieb\w*|Pipeline)[ -]?)?(?:forecast(?:ing)?|projection|Prognose\w*)\b|\b(?:predictive|AI[- ]?(?:powered|driven)|prädiktiv\w*|KI[- ]?(?:gestützt|basiert)\w*)[^.!?;|]{0,24}\b(?:(?:sales|revenue|pipeline|deal|Umsatz|Vertrieb\w*|Pipeline)[ -]?)?(?:forecast(?:ing)?|projection|Prognose\w*)\b[^.!?;|]{0,24}\b(?:included|available|native|provided|offered|enthalten|verfügbar|nativ|angeboten)\b/iu,
     permittedContext: NO_OR_EXTERNAL,
-    why: "Dashboards show stored values; Customermates does not calculate weighted or predictive forecasts",
-    authority: "features/reporting",
+    why: "Customermates calculates deterministic stage-weighted deal and pipeline values but does not predict close likelihood, timing, or revenue",
+    authority: "features/deals/deal-weighting.ts, app/[locale]/(protected)/company/components/company-settings/company-forecasting-section.tsx",
   },
   {
     id: "calendar-write-or-booking",
@@ -697,6 +697,36 @@ describe("retired claims stay retired", () => {
         "EU/GDPR hosting.",
       )[0],
     ).toContain("unsupported-compliance-claim");
+  });
+
+  it("separates deterministic pipeline weighting from predictive forecasting", () => {
+    const unsupported = [
+      "Customermates predicts revenue.",
+      "Customermates forecasts future revenue with AI.",
+      "Native sales forecasting predicts when deals close.",
+      "AI sales forecasts are included.",
+      "Customermates prognostiziert Umsätze.",
+      "Eine KI-Umsatzprognose ist enthalten.",
+    ];
+
+    for (const source of unsupported) {
+      expect(
+        findViolationsInSource("content/features/en/example.mdx", source)[0],
+      ).toContain("predictive-sales-forecasting");
+    }
+
+    expect(
+      findViolationsInSource(
+        "content/features/en/example.mdx",
+        "Customermates calculates deterministic stage-weighted deal values and weighted pipeline totals from configured probabilities.",
+      ),
+    ).toEqual([]);
+    expect(
+      findViolationsInSource(
+        "content/features/de/example.mdx",
+        "Customermates berechnet deterministische phasengewichtete Deal-Werte und Pipeline-Summen aus konfigurierten Wahrscheinlichkeiten.",
+      ),
+    ).toEqual([]);
   });
 
   it("combines compare frontmatter names with source values", () => {

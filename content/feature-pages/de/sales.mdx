@@ -3,6 +3,12 @@ title: "Vertriebssoftware: Komplette CRM-Plattform"
 description: "Vertriebssoftware mit Deals, Kontakten, Pipeline, Aufgaben und Dashboards in einem Open-Source CRM. Offene Schnittstellen für externe KI-Clients und n8n."
 featureName: Vertriebssoftware
 
+relatedHrefs:
+  - /features/reporting
+  - /features/sales-automation
+  - /features/sales-tracking
+  - /features/self-hosted
+
 hero:
   title: Vertriebssoftware, die Ihrem Team alles gibt, was es zum Abschließen braucht
   description: Verwalten Sie Deals, Kontakte, Pipelines, Aufgaben und unterstütztes Reporting in einem CRM. Verbinden Sie separate Automatisierung über offene Schnittstellen, ohne Laufzeit, Limits oder Kosten zu bündeln.
@@ -62,9 +68,9 @@ Customermates vereint Kontakt-, Deal-, Pipeline-, Aufgaben-, Dashboard- und Mess
 
 **Workflow-Automatisierung mit separatem n8n.** Verbinden Sie eine eigene oder abonnierte n8n-Instanz über REST, Webhooks, MCP oder Community-Node. Visueller Builder, Zeitpläne, 400+ Konnektoren, Laufzeit, Zugangsdaten, Logs, Limits, Zustellanbieter und Kosten bleiben extern.
 
-**Externe KI-Clients bedienen zulässige CRM-Daten.** Unterstützte Clients wie Claude, ChatGPT oder Gemini können [[derived.mcp.tools.total]] MCP-Tools nutzen, Deal-Phasen verschieben, eine einzelne Nachricht entwerfen, zulässige Notizen zusammenfassen und unterstützte Felder aktualisieren. Customermates enthält weder KI-Client noch Modell, Abonnement, Lead-Scoring, Anreicherung oder autonomes Ergebnis. MCP-Zugang startet mit Starter.
+**Externe KI-Clients bedienen zulässige CRM-Daten.** Unterstützte Clients wie Claude, ChatGPT oder Gemini können [[derived.mcp.tools.total]] MCP-Tools nutzen, Deal-Phasen verschieben, eine einzelne Nachricht entwerfen, zulässige Notizen zusammenfassen und unterstützte Felder aktualisieren. Externe MCP-Clients bringen Client, Modell und Abonnement mit und verbrauchen keine gehosteten Mate-Credits. Customermates ergänzt in diesem MCP-Flow weder Lead-Scoring, Anreicherung noch autonome Ergebnisse. MCP-Zugang startet mit Starter.
 
-**Reporting und Analysen.** Konfigurieren Sie Dashboard-Widgets über gespeicherte Pipeline-Werte, Anzahlen und unterstützte Felder. Customermates besitzt keinen eigenen Datensatz- oder Berichtexport und berechnet keine Prognosen; externe Analyse nutzt REST oder MCP.
+**Reporting und Analysen.** Konfigurieren Sie Dashboard-Widgets über gespeicherte Pipeline-Werte, phasengewichtete Deal-Werte, Anzahlen und unterstützte Felder. Customermates besitzt keinen eigenen Datensatz- oder Berichtexport und berechnet keine prädiktiven Prognosen; externe Analyse nutzt REST oder MCP.
 
 **Berechtigungen und erfasste Aktivität.** Ressourcen-/Aktionsrechte steuern ganze Ressourcen, nicht einzelne Felder oder Datensätze. Unterstützte Aktivität liefert Kontext, wo sie erfasst wird; sie ist kein vollständiger Compliance-Audit-Trail.
 
@@ -82,13 +88,13 @@ Gute Vertriebssoftware zwingt Ihrem Team keine Methodik auf. Sie passt sich dem 
 
 ## Zentrale Vorteile
 
-**Zentraler Vertriebskontext.** Bringen Sie Kontakte, Deals, verknüpfte Aufgaben, unterstütztes Messaging und konfigurierbare Dashboard-Widgets in ein CRM. Kampagnen, Scoring, Prognosen und Automatisierungslaufzeiten bleiben separate Tools.
+**Zentraler Vertriebskontext.** Bringen Sie Kontakte, Deals, verknüpfte Aufgaben, unterstütztes Messaging, phasengewichtete Pipeline-Werte und konfigurierbare Dashboard-Widgets in ein CRM. Kampagnen, Scoring, prädiktive Prognosen und Automatisierungslaufzeiten bleiben separate Tools.
 
 **Anpassbar an Ihren Vertriebsprozess.** Eigene Felder und konfigurierbare Pipeline-Phasen bilden Ihre Vertriebsmethodik ab. Binden Sie separate Automatisierung bei Bedarf an; eine Workflow-Laufzeit ist nicht gebündelt.
 
 **Externe Automatisierung, die skaliert.** Ein separat betriebener Workflow kann auf dokumentierte Ereignisse und unterstützte Felder reagieren. Skalierung, Ausführungslimits, Zustellung, Zuverlässigkeit und Kosten hängen von diesem Anbieter ab.
 
-**Extern KI-unterstützter Vertrieb.** Ein unterstützter externer Client kann einzelne E-Mails entwerfen, zulässigen Kontext zusammenfassen und erlaubte Felder per MCP aktualisieren. Customermates enthält weder KI-Modell noch Lead-Scoring, Prognosen oder Anreicherung.
+**Extern KI-unterstützter Vertrieb.** Ein unterstützter externer Client kann einzelne E-Mails entwerfen, zulässigen Kontext zusammenfassen und erlaubte Felder per MCP aktualisieren. Dieser Flow nutzt das Modell des externen Clients und enthält weder Lead-Scoring noch prädiktive Prognosen oder Anreicherung; die phasengewichtete Pipeline-Berechnung von Customermates ist deterministisch.
 
 **Open Source ohne Vendor Lock-in.** Ihre Vertriebsdaten leben in einer Plattform, die Sie jederzeit einsehen, erweitern und von der Sie migrieren können. Kein proprietärer Lock-in, keine versteckten Funktionen und keine erzwungenen Upgrades.
 
@@ -111,10 +117,3 @@ Gute Vertriebssoftware zwingt Ihrem Team keine Methodik auf. Sie passt sich dem 
 ## Starten Sie heute mit Customermates Vertriebssoftware
 
 Erstellen Sie Ihr Konto, definieren Sie Pipeline-Phasen und fügen Sie unterstützte Kontakte manuell oder über eine kundeneigene REST- oder MCP-Integration hinzu. Customermates besitzt weder CSV-Import noch Export; beginnen Sie mit den CRM-Funktionen Ihres Tarifs und binden Sie Workflow-Tools nur bei Bedarf an.
-
-<RelatedPages>
-  <RelatedPage href="/features/reporting" />
-  <RelatedPage href="/features/sales-automation" />
-  <RelatedPage href="/features/sales-tracking" />
-  <RelatedPage href="/features/self-hosted" />
-</RelatedPages>

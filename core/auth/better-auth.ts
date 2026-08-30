@@ -77,6 +77,9 @@ export const auth = betterAuth({
 
           const { getInviteTokenValidationInteractor } = await import("@/core/di");
           const result = await getInviteTokenValidationInteractor().invoke({ token: inviteToken });
+
+          if (!result.ok) return { data };
+
           const res = result.data;
 
           if (!res.valid && res.errorMessage === "inviteLinkExpired") {

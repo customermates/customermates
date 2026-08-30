@@ -40,7 +40,7 @@ function CellValue({ value }: { value: string | boolean }) {
     );
   }
 
-  return <span className="text-[11px] break-words hyphens-auto md:text-x-sm">{value}</span>;
+  return <span className="text-[11px] break-words hyphens-auto md:text-sm">{value}</span>;
 }
 
 export function ResponsiveComparisonTable({ header, columns, sections }: ResponsiveComparisonTableProps) {
@@ -70,7 +70,7 @@ export function ResponsiveComparisonTable({ header, columns, sections }: Respons
         <thead className="sticky! top-[var(--table-sticky-top,0px)] z-[27]">
           <tr>
             <th
-              className={`min-w-[150px] bg-card px-3 py-5 align-middle text-base font-semibold break-words hyphens-auto md:text-x-xl lg:px-6 ${stickyHeaderEdge}`}
+              className={`min-w-[150px] bg-card px-3 py-5 align-middle text-base font-semibold break-words hyphens-auto md:text-xl lg:px-6 ${stickyHeaderEdge}`}
               scope="col"
             >
               {header}
@@ -79,7 +79,7 @@ export function ResponsiveComparisonTable({ header, columns, sections }: Respons
             {columns.map((column) => (
               <th
                 key={column.key}
-                className={`min-w-[130px] bg-card px-1 py-5 text-center align-middle text-xs font-semibold break-words hyphens-auto md:text-x-lg lg:px-4 ${column.featured ? "text-primary dark:text-primary" : ""} ${stickyHeaderEdge}`}
+                className={`min-w-[130px] bg-card px-1 py-5 text-center align-middle text-xs font-semibold break-words hyphens-auto md:text-lg lg:px-4 ${column.featured ? "text-primary dark:text-primary" : ""} ${stickyHeaderEdge}`}
                 scope="col"
               >
                 {column.header}
@@ -106,7 +106,7 @@ export function ResponsiveComparisonTable({ header, columns, sections }: Respons
               {section.rows.map((row, rowIndex) => (
                 <tr key={rowIndex}>
                   <th
-                    className="min-w-[150px] border-t border-border px-2 py-3 text-left text-xs font-normal text-subdued break-words hyphens-auto md:text-x-sm lg:px-6"
+                    className="min-w-[150px] border-t border-border px-2 py-3 text-left text-xs font-normal text-subdued break-words hyphens-auto md:text-sm lg:px-6"
                     scope="row"
                   >
                     {row.label}

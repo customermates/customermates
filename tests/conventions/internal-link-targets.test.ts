@@ -400,6 +400,21 @@ describe("internal link targets", () => {
     ).toEqual([]);
   });
 
+  it("prioritizes the approved acquisition pages in their footer columns", () => {
+    expect(FOOTER_PREFERRED_SLUGS["blog-posts"].slice(0, 2)).toEqual([
+      "agentic-crm",
+      "open-source-crm",
+    ]);
+    expect(FOOTER_PREFERRED_SLUGS["feature-pages"].slice(0, 2)).toEqual([
+      "self-hosted",
+      "unified-inbox",
+    ]);
+    expect(FOOTER_PREFERRED_SLUGS["for-pages"].slice(0, 2)).toEqual([
+      "professional-services",
+      "agencies",
+    ]);
+  });
+
   it("tops up a footer column deterministically when a preferred page disappears", () => {
     const preferred = FOOTER_PREFERRED_SLUGS["for-pages"];
     const available = [

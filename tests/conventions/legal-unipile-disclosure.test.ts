@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, relative } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
@@ -57,6 +57,10 @@ function legal(locale: string, slug: string): string {
   return readFileSync(join(REPO_ROOT, "content", "legal", locale, `${slug}.mdx`), "utf8");
 }
 
+function affiliate(locale: ContentLocale): string {
+  return readFileSync(join(REPO_ROOT, "content", "affiliate", locale, "affiliate.mdx"), "utf8");
+}
+
 function locale(name: string): Record<string, Record<string, string>> {
   return JSON.parse(readFileSync(join(REPO_ROOT, "i18n", "locales", `${name}.json`), "utf8"));
 }
@@ -91,7 +95,6 @@ describe("legal Unipile disclosure parity", () => {
     expect(legal(name, "dpa")).toMatch(/Art\.?\s?28|Article\s?28|Auftragsverarbeitung/);
   });
 });
-
 describe("legal documents describe only what the product does", () => {
   it.each(CONTENT_LOCALES)("privacy and subprocessors (%s) drop retired subjects", (name) => {
     const text = `${legal(name, "privacy")}\n${legal(name, "subprocessors")}`.toLowerCase();
@@ -131,6 +134,73 @@ describe("legal documents describe only what the product does", () => {
     expect(text).toContain("https://www.databricks.com/legal/databricks-subprocessors");
     expect(text).toMatch(/Grafana Labs/);
     expect(text).not.toMatch(/16 (?:April|\. April) 2026/);
+  });
+
+  it.each(CONTENT_LOCALES)("privacy and subprocessors (%s) disclose active Mate processing", (name) => {
+    const privacy = legal(name, "privacy");
+    const dpa = legal(name, "dpa");
+    const subprocessors = legal(name, "subprocessors");
+    const terms = legal(name, "terms");
+    const text = `${privacy}\n${dpa}\n${subprocessors}\n${terms}`;
+
+    expect(text).toMatch(/Mate/);
+    expect(text).toMatch(/Vercel AI Gateway/);
+    expect(text).toMatch(/OpenAI/);
+    expect(privacy).toMatch(
+      name === "en"
+        ? /active in the managed service since 29 August 2026/
+        : /seit dem 29\. August 2026 aktiv/,
+    );
+    expect(dpa).toMatch(
+      name === "en"
+        ? /when a user invokes Mate.*Vercel AI Gateway.*OpenAI/is
+        : /wenn ein Nutzer Mate aufruft.*Vercel AI Gateway.*OpenAI/is,
+    );
+    expect(dpa).toMatch(
+      name === "en"
+        ? /independent controller are outside this DPA.*do not themselves store prompt.*tool-result content/is
+        : /eigenständiger Verantwortlicher.*außerhalb dieses AVV.*speichern selbst aber keine Eingaben.*Werkzeugergebnisse/is,
+    );
+    expect(terms).toMatch(
+      name === "en"
+        ? /Mate generates output automatically.*may be inaccurate/is
+        : /Mate erzeugt Ausgaben automatisiert.*können unrichtig/is,
+    );
+    expect(terms).toMatch(
+      name === "en"
+        ? /at least 16 years old.*under 18.*sensitive personal information.*legal or material impact.*every person.*complies/is
+        : /mindestens 16 Jahre alt.*unter 18 Jahren.*sensiblen personenbezogenen Informationen.*rechtliche oder wesentliche Auswirkungen.*jede Person.*einhält/is,
+    );
+    expect(privacy).toMatch(
+      name === "en"
+        ? /output about a person.*legal or material impact/is
+        : /Ausgaben über eine Person.*rechtliche oder wesentliche Auswirkungen/is,
+    );
+    expect(subprocessors).toMatch(
+      name === "en"
+        ? /Terms of Use.*does not establish an account-specific training opt-out/is
+        : /Nutzungsbedingungen.*weder eine kontospezifische Deaktivierung des Trainings/is,
+    );
+    expect(text).not.toMatch(
+      name === "en"
+        ? /business\/API data is not used to train|not used to train its models by default/i
+        : /Business- und API-Daten.*nicht zum Training|standardmäßig nicht zum Training/i,
+    );
+    expect(privacy).toMatch(
+      name === "en"
+        ? /stores Mate conversations and messages.*tool receipts and results/is
+        : /speichert Mate-Konversationen und -Nachrichten.*Werkzeugbelege und -ergebnisse/is,
+    );
+    expect(privacy).toMatch(
+      name === "en"
+        ? /Archiving a conversation hides it but does not delete it/
+        : /Archivieren einer Konversation blendet sie aus, löscht sie aber nicht/,
+    );
+    expect(text).not.toMatch(
+      name === "en"
+        ? /Planned AI Assistant|feature is not yet available|no data is currently transferred to OpenAI/i
+        : /Geplanter KI-Assistent|Funktion ist noch nicht verfügbar|keine Daten an OpenAI übermittelt/i,
+    );
   });
 });
 
@@ -229,21 +299,90 @@ describe("managed service and independent self-hosting stay separated", () => {
     );
   });
 
-  it.each(CONTENT_LOCALES)(
-    "affiliate disclosure (%s) records the consent and current self-host behavior",
-    (name) => {
-    const text = `${legal(name, "privacy")}\n${legal(name, "subprocessors")}`;
+  it.each(CONTENT_LOCALES)("affiliate disclosure (%s) records the standard managed-cloud integration", (name) => {
+    const text = `${legal(name, "privacy")}\n${legal(name, "subprocessors")}\n${affiliate(name)}`;
 
     expect(text).toMatch(
       name === "en"
-        ? /does not suppress the script solely because `APP_MODE=self-hosted` is set/
-        : /unterdrückt das Skript nicht allein deshalb, weil `APP_MODE=self-hosted` gesetzt ist/,
+        ? /standard affiliate (?:tracking )?script.*managed-cloud public content pages/i
+        : /verwalteten öffentlichen Cloud-Inhaltsseiten.*standardmäßige Affiliate-Tracking-Skript/i,
+    );
+    expect(text).toContain("ls_aff_ref");
+    expect(text).toContain("lmsqueezy.com");
+    expect(text).toMatch(name === "en" ? /browser-derived visitor identifier/i : /Browsermerkmalen abgeleitete Besucherkennung/i);
+    expect(text).toMatch(
+      name === "en"
+        ? /attribute referred visits and purchases.*allocate commission/is
+        : /vermittelte Besuche und Käufe zuzuordnen.*Provisionen zuzuweisen/is,
     );
     expect(text).toMatch(
       name === "en"
-        ? /consent mechanism is not currently implemented/
-        : /Einwilligungsmechanismus ist derzeit nicht implementiert/,
+        ? /ordinary network-request data.*without an affiliate code/is
+        : /Netzwerk-Anfragedaten.*ohne Affiliate-Code/is,
     );
+    expect(legal(name, "privacy")).toMatch(/§ 25(?:\(1\)| Abs\. 1) TDDDG/);
+    expect(text).toMatch(
+      name === "en"
+        ? /not gated by a separate Customermates consent mechanism/i
+        : /nicht durch einen gesonderten Einwilligungsmechanismus von Customermates gesteuert/i,
+    );
+    expect(text).toMatch(name === "en" ? /upstream self-hosted routes do not load/i : /vorgelagerte Self-Hosted-Routen laden.*nicht/i);
+    expect(affiliate(name)).toMatch(
+      name === "en" ? /name: Tracking on customermates\.com\s+source: Enabled/i : /name: Tracking auf customermates\.com\s+source: Aktiv/i,
+    );
+    expect(affiliate(name)).not.toMatch(name === "en" ? /source: Disabled/i : /source: Deaktiviert/i);
+    expect(affiliate(name)).toMatch(
+      name === "en" ? /registration link opens Lemon Squeezy's hosted website/i : /Partnerregistrierung öffnet.*Lemon Squeezy/i,
+    );
+    expect(affiliate(name)).not.toMatch(name === "en" ? /30 days/i : /30 Tage/i);
+    expect(affiliate(name)).not.toMatch(
+      name === "en" ? /monthly payouts from €9|source: Monthly|Every month automatically/i : /monatliche Auszahlung|source: Monatlich|Jeden Monat automatisch/i,
+    );
+  });
+
+  it("loads the standard affiliate integration and only cookieless analytics on managed static content", () => {
+    const runtimeFiles = walkFiles(
+      REPO_ROOT,
+      (path) =>
+        /\.(?:ts|tsx)$/.test(path) &&
+        !path.includes("/__tests__/") &&
+        !path.includes("/tests/") &&
+        !path.includes("/scripts/") &&
+        !path.endsWith("vitest.config.ts"),
+    );
+    const runtime = runtimeFiles.map((path) => readFileSync(path, "utf8")).join("\n");
+    const analyticsFiles = runtimeFiles
+      .filter((path) => readFileSync(path, "utf8").includes("@vercel/analytics"))
+      .map((path) => relative(REPO_ROOT, path));
+    const affiliateFiles = runtimeFiles
+      .filter((path) => /lmsqueezy\.com\/affiliate\.js|lemonSqueezyAffiliateConfig/.test(readFileSync(path, "utf8")))
+      .map((path) => relative(REPO_ROOT, path));
+    const rootLayout = readFileSync(join(REPO_ROOT, "app/layout.tsx"), "utf8");
+    const staticLayout = readFileSync(join(REPO_ROOT, "app/[locale]/(static)/layout.tsx"), "utf8");
+
+    expect(affiliateFiles).toEqual(["app/[locale]/(static)/layout.tsx"]);
+    expect(rootLayout).not.toContain("lemonSqueezyAffiliateConfig");
+    expect(rootLayout).not.toContain("lmsqueezy.com/affiliate.js");
+    expect(staticLayout).toContain('env.APP_MODE === "cloud"');
+    expect(staticLayout).toContain('window.lemonSqueezyAffiliateConfig = { store: "customermates" }');
+    expect(staticLayout).toContain('src="https://lmsqueezy.com/affiliate.js"');
+    expect(staticLayout).not.toContain('from "next/script"');
+    expect(staticLayout).not.toContain('strategy="');
+    expect(staticLayout.match(/<script\b/g)).toHaveLength(2);
+    expect(staticLayout).toMatch(/<script defer src="https:\/\/lmsqueezy\.com\/affiliate\.js" \/>/);
+    expect(staticLayout.indexOf("lemonSqueezyAffiliateConfig")).toBeLessThan(
+      staticLayout.indexOf('src="https://lmsqueezy.com/affiliate.js"'),
+    );
+    expect(runtime.match(/lmsqueezy\.com\/affiliate\.js/g)).toHaveLength(1);
+    expect(runtime.match(/lemonSqueezyAffiliateConfig/g)).toHaveLength(1);
+    expect(runtime).not.toContain("ls_aff_ref");
+    expect(runtime).not.toContain("aff_ref");
+    expect(runtime).not.toContain("googletagmanager.com");
+    expect(runtime).not.toContain("google-analytics.com");
+    expect(runtime).not.toContain("@next/third-parties/google");
+    expect(runtime).not.toMatch(/\b(?:GoogleAnalytics|GoogleTagManager|sendGAEvent|gtag)\b/);
+    expect(analyticsFiles).toEqual(["app/[locale]/(static)/layout.tsx"]);
+    expect(staticLayout).toContain("<Analytics />");
   });
 });
 

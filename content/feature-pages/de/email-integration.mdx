@@ -3,6 +3,12 @@ title: "CRM E-Mail-Integration: Gmail & Outlook Sync"
 description: "CRM E-Mail-Integration: Gmail-, Outlook- und IMAP-Threads im gemeinsamen Postfach lesen, beantworten und mit Kontakten verknüpfen. Kampagnen bleiben extern."
 featureName: E-Mail-Integration
 
+relatedHrefs:
+  - /features/account-management
+  - /features/api
+  - /features/cloud-crm
+  - /features/unified-inbox
+
 hero:
   title: E-Mail-Integration, die jede Konversation mit Ihrem CRM verbindet
   description: Verbinden Sie unterstützte Gmail- und Outlook-Konten mit Customermates. Passende Konversationen stehen im gemeinsamen Postfach neben LinkedIn, WhatsApp, Instagram und Telegram bereit. Unterstützte externe KI-Clients können über MCP Kontext lesen, entwerfen und senden; Kampagnen und Sequenzen laufen in einem separaten Anbieter oder einer eigenen n8n-Instanz.
@@ -70,7 +76,7 @@ Das verbundene gemeinsame Postfach ist ab Pro für [[commercial.price.pro.monthl
 
 Der Transport verbundener Konten läuft über Unipile. Die verwaltete Anwendungsdatenbank ist in einer EU-Region konfiguriert; die rechtlichen Seiten nennen die relevanten Cloud-Unterauftragsverarbeiter, Verarbeitungsorte und Übermittlungsgarantien. Die Datenbankeinstellung ist keine Zusage, dass jede Verarbeitung in einem Land bleibt oder nie einen US-Anbieter einbezieht. Siehe [Datenschutz](/privacy), [Unterauftragsverarbeiter](/subprocessors) und [AVV](/dpa).
 
-Der selbst gehostete Community-Build enthält das gemeinsame Postfach der Enterprise Edition nicht. Ein Self-Host-Betreiber mit Enterprise-Edition-Vertrag kontrolliert sein Deployment, muss aber weiterhin jeden verbundenen Anbieter und Unterauftragsverarbeiter bewerten.
+Der Self-Hosted-Build verwendet immer Starter-Berechtigungen und enthält weder den einheitlichen Posteingang noch verbundene Konten. Der Posteingang ist ausschließlich in Customermates Cloud ab Pro verfügbar; dort bildet jeder aktivierte Anbieter und Unterauftragsverarbeiter eine eigene Grenze der Datenverarbeitung.
 
 **Dokumentierte Hosting-Grenzen.** Die verwaltete Customermates-Datenbank läuft in einer EU-Region. Anwendungshosting, Messaging-Dienste und weitere Anbieter, darunter US-Anbieter, können Daten andernorts verarbeiten und werden separat dokumentiert; dies ist keine Compliance-Zertifizierung. Self-Hosting hat Starter-Berechtigungen und enthält kein Cloud-Postfach.
 
@@ -111,10 +117,3 @@ Die verwaltete Customermates-Datenbank läuft in einer EU-Region. Anwendungshost
 ## Loslegen
 
 Verbinden Sie ein Konto unter **Profil → Verbundene Konten** und öffnen Sie danach das [Postfach](/docs/app-inbox). Lesen Sie einen synchronisierten Thread, verknüpfen Sie den Teilnehmer mit dem richtigen Kontakt und antworten Sie entweder sofort oder speichern Sie einen Entwurf zur Prüfung.
-
-<RelatedPages>
-  <RelatedPage href="/features/account-management" />
-  <RelatedPage href="/features/api" />
-  <RelatedPage href="/features/cloud-crm" />
-  <RelatedPage href="/features/contact-management" />
-</RelatedPages>

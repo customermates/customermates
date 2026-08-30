@@ -623,10 +623,6 @@ path:focus {
     outline-offset: 2px;
   }
 
-  .text-x-4xl {
-    @apply relative text-4xl md:text-5xl lg:text-7xl px-4 tracking-tight font-bold text-transparent bg-clip-text bg-linear-to-b from-neutral-900 via-neutral-800 to-neutral-600 dark:from-white dark:via-gray-100 dark:to-gray-400;
-  }
-
   .text-x-3xl {
     @apply relative text-3xl md:text-4xl tracking-tight font-bold;
   }

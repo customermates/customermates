@@ -1,5 +1,0 @@
-# Source illustrations and the hero mask for the SEO hero generator
-# (ops/seo/generate-hero-image.js in the knowledge-base repo). These are
-# build-time inputs for that tool only: nothing in the app imports or serves
-# them, so they must not be uploaded with the deployment.
-assets/hero-sources

@@ -1,10 +1,16 @@
 ---
-title: "CRM Project Management: A Complete Guide"
+title: "CRM Task Management With Project Context"
 description: "CRM project management through tasks linked to deals, contacts, and organizations, with assignments, custom fields, and Kanban views. Open-source core."
 featureName: Project Management
 
+relatedHrefs:
+  - /features/integrations
+  - /features/lead-management
+  - /features/lead-tracking
+  - /features/linkedin-integration
+
 hero:
-  title: Project Management Built Into Your CRM
+  title: CRM task management with project context
   description: Link tasks to deals, contacts, and organizations, assign work to your team, and track progress on a kanban board inside your CRM. A supported external AI client can update permitted tasks through MCP; client, model, and workflow runtime remain separate.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
@@ -13,8 +19,8 @@ hero:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
-  action: Ready to get started?
-  description: Get started with Customermates today and switch to an agentic Open-Source CRM built for flexible workflows.
+  action: Test the sales-to-delivery handoff
+  description: Create one task, link it to a deal and decide whether the CRM context is sufficient or a separate project system should remain authoritative.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -24,11 +30,11 @@ cta:
 
 ## What Is CRM Project Management?
 
-CRM project management is the practice of managing tasks and team collaboration directly within your customer relationship management platform. Instead of switching between a CRM for sales and a separate tool like Monday, Asana, or Trello for project tracking, a CRM with built-in project management keeps everything connected in one system.
+CRM project context connects lightweight tasks to customer and pipeline records. It can reduce handoff friction without pretending that the CRM is a replacement for Monday, Asana, Trello or another dedicated project system.
 
-For many businesses, the handoff from sales to delivery is where things break down. A deal closes, but the tasks needed to fulfill that commitment live in a different system. Context gets lost, deadlines slip, and customers notice the disconnect. When project management and CRM share the same platform, that handoff becomes seamless. The deal record, customer history, communication logs, and project tasks all exist in one place.
+For many businesses, the sales-to-delivery handoff is where context breaks. Customermates can keep selected tasks related to the deal, contact, organization or service. Project plans, schedules, templates, dependencies, files and delivery reporting still belong in a dedicated project system when the workflow needs them.
 
-Beyond the sales-to-delivery transition, CRM project management is valuable for managing internal sales operations, campaign coordination, proposal workflows, onboarding sequences, and account reviews. Any process that involves multiple steps, multiple people, and customer context benefits from project management inside the CRM.
+This narrower task layer is useful for proposal preparation, onboarding checklists and account-review follow-ups whose main value is their CRM relationship. It is not a general project, campaign or work-management module.
 
 ## How Project Management Works in Customermates
 
@@ -44,9 +50,9 @@ Customermates manages project context through tasks linked to contacts, deals, o
 
 **Status tracking with custom fields.** Track task progress with a single-select field you define: open, in progress, in review, done, whatever fits. Add a custom date field where needed, then filter and sort by those values, assignee, or linked record.
 
-**Dashboard charts over your tasks.** Add chart widgets to your personal dashboard to see task counts by assignee, linked deal, or a single-select custom field. Widgets chart supported stored values and update as tasks change.
+**Dashboard charts over your tasks.** Add a task-count widget to a personal dashboard and optionally group it by a task single-select custom field. Use supported filters and views for assignee or relationship context; the chart does not group tasks by assignee or linked deal.
 
-**Notes and history.** Add notes to a task as work progresses, keeping a running history of what was done and when, separate from the broader deal or contact record.
+**Task notes.** Add current working notes to a task. Notes are not a versioned work log, time record or proof of what changed when.
 
 **Automation with separate n8n.** A separately operated n8n workflow can react to webhooks, create tasks through REST, evaluate custom date fields on its own schedule, and send notifications through external providers. Customermates does not bundle the engine, scheduler, or reminder delivery.
 
@@ -58,9 +64,9 @@ Customermates manages project context through tasks linked to contacts, deals, o
 
 **Quarterly account reviews.** A separate n8n scheduler can create a set of supported review tasks for key customers. Use custom date fields for target dates; recurrence, reminders, calendar booking, and delivery remain in the separate workflow or provider.
 
-**Marketing campaign execution.** Plan and execute marketing campaigns with project task lists that track content creation, design, review, scheduling, distribution, and performance analysis. Link campaign tasks to the contacts and deals they generate for full attribution.
+**Marketing follow-up tasks.** Link selected tasks to contacts or deals when a marketing handoff needs CRM context. Customermates has no campaign record, content calendar, distribution workflow or attribution model.
 
-**Customer implementation projects.** For products or services that require implementation, manage the entire process inside the CRM. Technical setup, data migration, user training, and go-live tasks are all tracked alongside the customer record.
+**Customer implementation handoff.** Keep a small set of customer-facing follow-up tasks beside the deal. Run technical plans, migration, training schedules, dependencies and go-live control in the system responsible for project delivery.
 
 **Internal process management.** Use linked tasks to manage internal processes such as hiring workflows, training programs, office moves, or process improvements. The same CRM task records can support customer-facing and internal work.
 
@@ -70,7 +76,7 @@ Customermates manages project context through tasks linked to contacts, deals, o
 
 **Clear accountability.** Every task can have an owner and link to CRM records; add date or single-select custom fields when your process needs them. Customermates has no native due date or task status.
 
-**Seamless deal-to-project transition.** When a deal closes, the project tasks for delivery are already linked to the deal record. The delivery team has immediate access to the deal history, customer notes, and relevant context without any manual handoff document.
+**Explicit deal-to-delivery transition.** When a deal reaches the relevant stage, a user or separately operated workflow can create and link the required tasks. Nothing creates a project or delivery checklist automatically unless that external workflow has been configured and tested.
 
 **Focused CRM scope.** Customermates includes linked tasks, deals, custom fields, and kanban views from Starter. It does not replace a dedicated project-management platform; connect one separately when you need its project model, scheduling, or templates.
 
@@ -93,10 +99,3 @@ Customermates manages project context through tasks linked to contacts, deals, o
 ## Get Started with CRM Project Management Today
 
 Start managing project context in Customermates today. Create a task, link it to a deal, and assign it to a team member. Connect a supported external AI client or separate n8n workflow only when you need permitted task creation; their subscriptions, scheduling, and runtime remain external.
-
-<RelatedPages>
-  <RelatedPage href="/features/integrations" />
-  <RelatedPage href="/features/lead-management" />
-  <RelatedPage href="/features/lead-tracking" />
-  <RelatedPage href="/features/linkedin-integration" />
-</RelatedPages>

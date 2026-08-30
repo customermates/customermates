@@ -780,9 +780,6 @@
     "userCreationFailed": "No se pudo crear tu cuenta. Inténtalo de nuevo.",
     "userInfoIsMissing": "El proveedor no devolvió tu perfil. Inténtalo de nuevo."
   },
-  "BlogPostPage": {
-    "relatedArticles": "Artículos relacionados"
-  },
   "BrowserFrame": {
     "live": "en directo",
     "liveDemoTitle": "Demo en directo de Customermates",
@@ -1366,10 +1363,6 @@
       "previousPage": "Página anterior",
       "search": "Buscar..."
     },
-    "tags": {
-      "feature": "Función",
-      "industry": "Sector"
-    },
     "themes": {
       "dark": "Oscuro",
       "light": "Claro",
@@ -1418,12 +1411,7 @@
     "title": "Usuario"
   },
   "ComparePage": {
-    "alternativeTitle": "Alternativa a {competitor}",
-    "tags": {
-      "alternative": "Alternativa",
-      "comparison": "Comparativa",
-      "review": "Reseña"
-    }
+    "alternativeTitle": "Alternativa a {competitor}"
   },
   "ConnectedAccountsCard": {
     "accountLimitReached": "Has alcanzado el límite de cuentas conectadas de este plan. Contáctanos sobre el plan Enterprise para tener cuentas ilimitadas.",
@@ -1522,6 +1510,9 @@
   "ContactPage": {
     "description": "¿Tienes una pregunta, quieres una demostración o estás explorando una colaboración? Escríbeme y te respondo en un día.",
     "form": {
+      "founderName": "Benjamin Wagner",
+      "founderNote": "Tu mensaje me llega directamente. Cuéntame qué utilizas ahora y en qué punto se atasca el flujo de trabajo.",
+      "founderRole": "Fundador de Customermates",
       "messagePlaceholder": "¿En qué estás trabajando y cómo puedo ayudarte?",
       "submit": "Enviar el mensaje",
       "successBody": "Te responderé al correo que has indicado, normalmente en menos de 24 horas.",
@@ -1539,8 +1530,8 @@
         "title": "Respuesta rápida"
       },
       "personal": {
-        "body": "Sin cola de tickets. Soy el fundador y respondo personalmente.",
-        "title": "Directamente conmigo"
+        "body": "Envíame la configuración que utilizas hoy. Te diré qué encaja directamente y cuándo una integración separada es la opción adecuada.",
+        "title": "Hablemos de tu flujo de trabajo"
       }
     },
     "title": "Hablemos."
@@ -1993,9 +1984,7 @@
     "success": "Comentario recibido. Ya formas parte oficialmente del equipo."
   },
   "Footer": {
-    "blogViewAll": "Ver todos los artículos",
-    "compare": "Comparativas",
-    "compareViewAll": "Ver todas las comparativas",
+    "company": "Empresa",
     "copyrightText": "© {year} Customermates. Todos los derechos reservados.",
     "dpa": "DPA",
     "featuredOn": "Destacado en",
@@ -2004,7 +1993,7 @@
     "featuresViewAll": "Ver todas las funciones",
     "helpAndFeedback": "Ayuda",
     "imprint": "Aviso legal",
-    "legal": "Información legal",
+    "legal": "Ayuda y legal",
     "privacy": "Privacidad",
     "product": "Producto",
     "resources": "Recursos",
@@ -2260,15 +2249,11 @@
     "description": "La mensajería está disponible a partir del plan Pro. Mejora tu plan para conectar un canal y usar la bandeja de entrada unificada.",
     "title": "Mejora tu plan para usar la mensajería"
   },
-  "N8nPage": {
-    "automationImageAlt": "Flujo de automatización del CRM Customermates con integración de n8n"
-  },
   "NavigationBar": {
     "addEntity": "Añadir {entity}",
     "addPickerDescription": "Elige el tipo de registro que quieres crear.",
     "addPickerTitle": "Crear nuevo…",
     "affiliate": "Programa de afiliados",
-    "automation": "Automatización",
     "connectedAccounts": "Canales",
     "crm": "CRM",
     "dashboard": "Panel",
@@ -2278,6 +2263,59 @@
     "members": "Miembros",
     "overview": "Resumen",
     "pricing": "Precios",
+    "public": {
+      "agencies": "Agencias",
+      "agenticCrm": "CRM agéntico",
+      "allFeatures": "Todas las funciones",
+      "allIntegrations": "Todas las integraciones",
+      "allSolutions": "Todas las soluciones",
+      "api": "API y webhooks",
+      "articlesAndGuides": "Artículos y guías",
+      "buildAndAutomate": "Desarrolla y automatiza",
+      "cloudCrm": "CRM en la nube",
+      "communication": "Comunicación",
+      "compare": "Comparativas",
+      "consultants": "Consultores",
+      "contactManagement": "Gestión de contactos",
+      "coreCrm": "CRM principal",
+      "deployment": "Implementación",
+      "emailAndGmail": "Correo y Gmail",
+      "explore": "Explorar",
+      "featuredTopics": "Temas destacados",
+      "guides": "Guías",
+      "healthcare": "Sanidad",
+      "inboxGuide": "Guía de la bandeja de entrada",
+      "industries": "Sectores",
+      "integrations": "Integraciones",
+      "integrationsDescription": "Conecta los canales de comunicación y las interfaces abiertas que ya utiliza tu flujo de trabajo.",
+      "mcpGuide": "Guía de MCP",
+      "moreChannels": "Más canales",
+      "n8n": "Automatización con n8n",
+      "openSourceCrm": "CRM de código abierto",
+      "pipeline": "Pipeline de ventas",
+      "primaryNavigation": "Navegación principal",
+      "product": "Producto",
+      "productDescription": "Relaciones con clientes, pipeline, conversaciones y extensibilidad en un solo sistema.",
+      "professionalServices": "Servicios profesionales",
+      "propertyManagement": "Gestión inmobiliaria",
+      "providerInstagram": "Instagram",
+      "providerLinkedIn": "LinkedIn",
+      "providerOutlook": "Outlook",
+      "providerSlack": "Slack",
+      "providerTelegram": "Telegram",
+      "providerWhatsApp": "WhatsApp",
+      "recruiting": "Reclutamiento",
+      "resources": "Recursos",
+      "resourcesDescription": "Evalúa el producto, entiende la arquitectura y sigue guías prácticas de implementación.",
+      "salesTracking": "Seguimiento de ventas",
+      "selfHosted": "CRM autohospedado",
+      "selfHostingGuide": "Guía de autohospedaje",
+      "serviceTeams": "Equipos de servicios",
+      "solutions": "Soluciones",
+      "solutionsDescription": "Descubre cómo Customermates ayuda a equipos que gestionan relaciones duraderas con clientes.",
+      "taskManagement": "Gestión de tareas",
+      "unifiedInbox": "Bandeja unificada"
+    },
     "search": "Buscar",
     "settings": "Ajustes",
     "subscription": "Suscripción",

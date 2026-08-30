@@ -2,23 +2,13 @@ import type { MetadataRoute } from "next";
 import type { LocalizedRoute } from "@/core/seo/sitemap";
 
 import { env } from "@/env";
-import { assembleSitemap } from "@/core/seo/sitemap";
+import { assembleSitemap, resolvePageLastModified } from "@/core/seo/sitemap";
 import { hubPageCountForSource, hubPageHref } from "@/core/seo/hub-pagination";
 import { LANDING_HUBS } from "@/core/seo/landing-hubs";
 import { isRetiredRoutePath } from "@/core/seo/route-aliases";
 import { CONTENT_LOCALES, stripLocalePrefix } from "@/i18n/locale-registry";
 import { SITEMAP_CONTENT_ROUTES, SITEMAP_EXTRA_CONTENT_ROUTES } from "@/i18n/routing";
 import { ROUTE_SOURCE_MAP } from "@/core/fumadocs/route-source-map";
-
-type DatedPage = { blogPost?: { date?: string } };
-
-function declaredLastModified(data: object): Date | undefined {
-  const declared = (data as DatedPage).blogPost?.date;
-  if (!declared) return undefined;
-
-  const date = new Date(declared);
-  return isNaN(date.getTime()) ? undefined : date;
-}
 
 function collectLocalizedRoutes(): LocalizedRoute[] {
   const localizedRoutes: LocalizedRoute[] = [];
@@ -43,7 +33,7 @@ function collectLocalizedRoutes(): LocalizedRoute[] {
           push({
             locale,
             routePath,
-            lastModified: declaredLastModified(page.data),
+            lastModified: resolvePageLastModified(page.data),
           });
         }
         continue;
@@ -57,7 +47,7 @@ function collectLocalizedRoutes(): LocalizedRoute[] {
       push({
         locale,
         routePath: route,
-        lastModified: declaredLastModified(page.data),
+        lastModified: resolvePageLastModified(page.data),
       });
     }
 
@@ -69,7 +59,7 @@ function collectLocalizedRoutes(): LocalizedRoute[] {
       push({
         locale,
         routePath: route,
-        lastModified: declaredLastModified(page.data),
+        lastModified: resolvePageLastModified(page.data),
       });
     }
 

@@ -4,16 +4,16 @@ import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { Footer } from "@/app/components/footer";
+import { AcquisitionStoryVisual } from "@/components/marketing/acquisition-story-visual";
+import { LandingArticle } from "@/components/marketing/landing-article";
 import { PageHero } from "@/components/marketing/page-hero";
-import { CTASection } from "@/components/marketing/cta-section";
-import { ShowcaseFrame } from "@/components/marketing/showcase-frame";
-import { AppImage } from "@/components/shared/app-image";
+import { PageEnding } from "@/components/marketing/page-ending";
 import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { forPagesSource } from "@/core/fumadocs/source";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
-import { Toc } from "@/components/shared/toc";
 import { breadcrumbListSchema } from "@/core/seo/schemas";
+import { contentLocaleOrDefault } from "@/i18n/locale-registry";
 
 interface Props {
   params: Promise<{
@@ -33,18 +33,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ForIndustryPage({ params }: Props) {
-  const locale = await getLocale();
-  const t = await getTranslations("StructuredData.breadcrumb");
-  const { industry } = await params;
+  const [rawLocale, t, { industry }] = await Promise.all([
+    getLocale(),
+    getTranslations("StructuredData.breadcrumb"),
+    params,
+  ]);
+  const locale = contentLocaleOrDefault(rawLocale);
   const page = forPagesSource.getPage([industry], locale);
 
   if (!page) notFound();
 
   const MDX = page.data.body;
   const components = getMDXComponents();
+  const visual =
+    page.data.acquisition?.visual.kind === "brand-illustration" ? (
+      <AcquisitionStoryVisual brief={page.data.acquisition.visual} locale={locale} />
+    ) : undefined;
 
   return (
-    <div className="relative flex flex-col items-center justify-center pt-16 md:pt-24">
+    <div className="relative flex flex-col items-center justify-center" data-marketing-flow="continuous">
       <JsonLd
         schema={breadcrumbListSchema([
           { name: t("home"), path: `/${locale}` },
@@ -53,31 +60,16 @@ export default async function ForIndustryPage({ params }: Props) {
         ])}
       />
 
-      <PageHero {...page.data.hero} />
+      <PageHero {...page.data.hero} visual={visual} />
 
-      <div className="relative w-full max-w-6xl mx-auto px-4 mb-8">
-        <ShowcaseFrame className="mb-0">
-          <AppImage
-            isLocalized
-            alt={page.data.hero.title}
-            className="w-full h-auto rounded-none"
-            height={1080}
-            loading="eager"
-            src={`${industry}.png`}
-            width={1920}
-          />
-        </ShowcaseFrame>
-      </div>
+      <LandingArticle founderContact items={page.data.toc}>
+        <MDX components={components} />
+      </LandingArticle>
 
-      <section className="relative py-12 md:py-16 w-full max-w-6xl mx-auto px-4">
-        <Toc items={page.data.toc}>
-          <div className="prose prose-sm prose-neutral dark:prose-invert max-w-none">
-            <MDX components={components} />
-          </div>
-        </Toc>
-      </section>
-
-      <CTASection {...page.data.cta} />
+      <PageEnding
+        cta={page.data.acquisition?.cta ?? page.data.cta}
+        relatedHrefs={page.data.acquisition?.relatedHrefs ?? page.data.relatedHrefs ?? []}
+      />
 
       <Footer />
     </div>
