@@ -179,7 +179,9 @@ export default async function proxy(req: NextRequest) {
   if (isPublicPage(req)) return intlAppMiddleware(req);
 
   const preferredLocale = preferredAppLocale(req);
-  if (isAuthenticated && preferredLocale && preferredLocale !== currentLocale)
+  // The public demo uses one shared synthetic account. Its persisted preference
+  // must never override the explicit locale requested by an embed URL.
+  if (env.APP_MODE !== "demo" && isAuthenticated && preferredLocale && preferredLocale !== currentLocale)
     return localeRedirect(preferredLocale, stripLocalePrefix(pathname), base, req.nextUrl.search);
 
   if (!isAuthenticated) {

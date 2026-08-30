@@ -1,9 +1,8 @@
-"use client";
-
 import type { FeatureItem } from "@/core/fumadocs/schemas/features";
 
+import { MarketingSection } from "@/components/marketing/marketing-section";
+import { Icon } from "@/components/shared/icon";
 import { ICONS } from "@/components/shared/icons";
-import { IconContainer } from "@/components/shared/icon-container";
 
 type Props = {
   description: string;
@@ -13,34 +12,30 @@ type Props = {
 
 export function WhyFeaturesSection({ description, features, title }: Props) {
   return (
-    <section className="relative py-12 md:py-16 w-full bg-card">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-x-3xl mb-4">{title}</h2>
+    <MarketingSection className="py-16 sm:py-20 lg:py-24" tone="canvas">
+      <div className="marketing-grid gap-y-10">
+        <div className="col-span-12 lg:sticky lg:top-24 lg:col-span-4 lg:self-start">
+          <h2 className="text-display-sm">{title}</h2>
 
-          <p className="text-x-lg text-subdued">{description}</p>
+          <p className="mt-5 max-w-sm text-sm leading-6 text-muted-foreground">{description}</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-5xl mx-auto">
-          {features.map((feature, index) => {
-            const Icon = ICONS[feature.icon];
+        <div className="col-span-12 grid border-l border-t border-border sm:grid-cols-2 lg:col-start-6 lg:col-end-13">
+          {features.map((feature) => {
+            const IconComponent = ICONS[feature.icon];
 
             return (
-              <div key={index} className="flex gap-4">
-                <div className="shrink-0">
-                  <IconContainer icon={Icon} />
-                </div>
+              <article key={feature.title} className="border-b border-r border-border bg-sidebar p-5 sm:p-6">
+                <Icon aria-hidden className="text-muted-foreground" icon={IconComponent} size="md" />
 
-                <div>
-                  <h3 className="font-semibold mb-2 text-x-xl">{feature.title}</h3>
+                <h3 className="mt-5 text-sm font-semibold">{feature.title}</h3>
 
-                  <p className="text-x-sm text-subdued leading-relaxed">{feature.description}</p>
-                </div>
-              </div>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{feature.description}</p>
+              </article>
             );
           })}
         </div>
       </div>
-    </section>
+    </MarketingSection>
   );
 }

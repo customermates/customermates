@@ -23,12 +23,15 @@ export const VISUAL_PLACEMENTS = ["wide", "split", "narrow"] as const;
 export const VISUAL_LOCALES = CONTENT_LOCALES;
 
 export const SUPPORTED_VISUAL_FACTS = [
+  "product:agpl-community-core",
   "product:conversation-record-association",
   "product:deal-kanban-movement",
   "product:deal-status-field",
   "product:deal-weighted-values",
   "product:human-send-boundary",
+  "product:mcp-tools",
   "product:record-activity-context",
+  "product:self-hosted-deployment",
   "product:unified-inbox-channel-set",
 ] as const;
 

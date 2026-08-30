@@ -29,7 +29,7 @@ x-api-key: <ihr-64-zeichen-key>
 
 Der Endpoint spricht Model Context Protocol (Streamable-HTTP-Variante). `tools/list` liefert jedes Tool mit JSON Schema. `tools/call` ruft ein Tool per Name auf.
 
-Da es die Streamable-HTTP-Variante ist, muss jede Request `Accept: application/json, text/event-stream` senden. Ohne diesen Header liefert der Endpoint `406 Not Acceptable`. Alle unterstützten MCP-Clients setzen ihn automatisch; nur rohe HTTP-Aufrufe (curl, Skripte) müssen ihn explizit ergänzen.
+Da es die Streamable-HTTP-Variante ist, muss jede Anfrage `Accept: application/json, text/event-stream` senden. Ohne diesen Header liefert der Endpoint `406 Not Acceptable`. Die dokumentierten Client-Anleitungen konfigurieren den unterstützten Verbindungsweg; rohe HTTP-Aufrufe mit curl oder Skripten müssen den Header explizit ergänzen.
 
 Der `x-api-key`-Header ist die API-Key-Methode. Der Key ist 64 Zeichen lang, base62 (a-z, A-Z, 0-9), und erbt die Rechte des Users, der ihn erstellt hat. Es gibt kein Scoping pro Key. Custom-Connector-Clients (Claude, ChatGPT) authentifizieren sich stattdessen per OAuth und senden ein Bearer-Token, das sie für Sie holen und erneuern. Siehe [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
 
@@ -61,11 +61,11 @@ Den Client nach seinen Tools fragen. Alle [[derived.mcp.tools.total]] sollten er
 | Gemini CLI | API-Key | [Gemini verbinden](/docs/connect-cli#gemini-cli) |
 | Beliebiger MCP-Client | Key-Header | Endpoint und Header oben nutzen |
 
-Der Server brieft das Modell automatisch, sobald sich ein Client verbindet. Clients, die MCP-Prompts unterstützen, können zusätzlich den eingebauten `get-started`-Prompt für einen personalisierten Start ausführen.
+Der Server stellt beim Verbinden Anweisungen bereit. Ob ein Client sie an das Modell übergibt und wie das Modell ihnen folgt, hängt vom konkreten Client ab. Clients mit MCP-Prompt-Unterstützung können zusätzlich den eingebauten `get-started`-Prompt für einen personalisierten Start ausführen.
 
 ## Server-Instructions, Prompts und Toolsets
 
-Sie müssen dem Modell nicht beibringen, wie es das CRM nutzt. Der Server sendet beim Verbinden Instructions, sodass das Modell den Workflow automatisch befolgt: erst das Schema lesen, IDs vor dem Schreiben suchen, Beziehungen nur über `manage_record_links` ändern und vor Löschen oder Senden rückfragen. In Clients, die MCP-Prompts unterstützen (Claude Code, Cursor), gibt es zusätzlich einen eingebauten Get-Started-Prompt; er interviewt Sie kurz und fasst Ihren Workspace zusammen, um den Start zu personalisieren.
+Der Server sendet beim Verbinden Hinweise zum Ablauf: zuerst das Schema lesen, IDs vor dem Schreiben suchen, Beziehungen nur über `manage_record_links` ändern und vor Löschen oder Senden nachfragen. Diese Hinweise bilden keine serverseitig erzwungene Freigabe. Prüfen Sie, wie der gewählte Client die Anweisungen an das Modell weitergibt und Bestätigungen behandelt, bevor Sie Schreib-, Lösch- oder Messaging-Zugriff gewähren. In Clients mit MCP-Prompt-Unterstützung kann ein eingebauter Get-Started-Prompt den Workspace für den Einstieg zusammenfassen.
 
 Die volle [[derived.mcp.tools.total]]-Tool-Oberfläche ist der Standard. Hängen Sie `?toolsets=` an die Endpoint-URL, um sie einzugrenzen, zum Beispiel `/api/v1/mcp?toolsets=records,messaging`. Keys und Details stehen unter [Eingrenzen mit ?toolsets=](/docs/mcp#eingrenzen-mit-toolsets).
 
@@ -87,7 +87,7 @@ Wenn Sie einen lokalen Client statt GUI wollen, verbinden Tools wie `mcporter` d
 
 ## OpenAPI neben MCP
 
-Beide liegen an derselben Base-URL. MCP auf `/api/v1/mcp`; die OpenAPI-Spec auf `/api/v1/openapi`. Die OpenAPI-Operationen mappen 1:1 auf REST-Endpoints; MCP-Tools wrappen diese und ergänzen Safety-Guardrails, die die Raw-API nicht hat.
+Beide liegen an derselben Basis-URL. MCP nutzt `/api/v1/mcp`, die OpenAPI-Spezifikation `/api/v1/openapi`. Die OpenAPI-Operationen entsprechen den REST-Endpunkten. MCP bildet unterstützte Operationen als typisierte Tools mit Anweisungen, Metadaten und derselben Produkt-Autorisierung ab. Die Anweisungen fügen keine zweite serverseitige Bestätigung hinzu.
 
 ## Tool-Katalog
 
@@ -295,9 +295,9 @@ Eine Ablehnung ist Datum, kein Absturz. Das Ergebnis trägt `isError: true`, ein
 
 Entitlements lehnen auf demselben Weg ab. Messaging-gestützte Tools brauchen die Pro-Stufe, Sales-Navigator-Tools das entsprechende LinkedIn-Abo, und das Verbinden eines Accounts endet am Kanal-Limit des Plans. Berechtigung und Entitlement sind unabhängig: ein Aufrufer kann Inbox-Berechtigung haben und trotzdem am Plan scheitern, und umgekehrt.
 
-### Eingebaute Sicherheitsregeln
+### Tool-Metadaten und serverseitige Grenzen
 
-- **Bestätigen vor destruktiven Aktionen.** Die Server-Instructions weisen das Modell an, sich vor `delete_records` und vor jedem Send-Tool beim User rückzuversichern.
+- **Bestätigungshinweis für den Client.** Die Server-Anweisungen fordern das Modell auf, vor `delete_records` und jedem Versand-Tool nachzufragen. Der MCP-Endpunkt führt einen autorisierten Tool-Aufruf aus, sobald der Client ihn sendet. Prüfen Sie daher das Bestätigungsverhalten des Clients.
 - **Beziehungen nur über `manage_record_links`.** Die Update-Tools fassen Beziehungen nie an, und `null` auf einem Relationship-Array wird serverseitig mit Remediation-Hint abgelehnt.
 - **Erst Draft, dann Send.** `send_email` und `send_chat_message` stellen sofort zu. Wer eine Nachricht vorbereitet haben will, bekommt sie über `save_message_draft`, und Sie senden sie aus der Inbox. Drafts hängen am Thread; eine komplett neue ausgehende Nachricht lässt sich nicht als Draft anlegen.
 - **Destructive-Flags überall.** Jedes destruktive Tool und jede destruktive Action hat `destructiveHint: true` und den Präfix `IRREVERSIBLE` in der Beschreibung.
@@ -310,13 +310,13 @@ Entitlements lehnen auf demselben Weg ab. Messaging-gestützte Tools brauchen di
 Den 64-stelligen API-Key im Header `x-api-key` senden, oder per OAuth verbinden, wo der Client das unterstützt. Keys entstehen unter **Profil → API Keys → Neuer Key**. Jeder Key trägt die eigenen Rechte, ein Client kann also nie mehr als man selbst.
 </FaqItem>
 <FaqItem question="Welche AI-Clients können sich verbinden?">
-Claude im Web, mobil und als Desktop-App, ChatGPT, Claude Code, Codex und Cursor sind oben mit je einem Guide dokumentiert. Alles, was MCP über streamable HTTP spricht, funktioniert mit demselben Endpoint.
+Für Claude im Web, mobil und als Desktop-App, ChatGPT, Claude Code, Codex und Cursor sind oben Verbindungswege dokumentiert. Ein anderer Client kann sich verbinden, wenn er MCP über Streamable HTTP und die benötigte Authentifizierung unterstützt. Prüfen Sie vor der Nutzung die konkrete Kompatibilität und den Umgang mit Anweisungen.
 </FaqItem>
 <FaqItem question="Kann ich die Zahl der Tools reduzieren, die ein Client sieht?">
 Ja. `?toolsets=` mit einer kommagetrennten Liste der Gruppen oben an die Endpoint-URL anhängen, dann werden nur diese Tools angeboten. Die beiden Connector-Tools `search` und `fetch` bleiben immer aktiv.
 </FaqItem>
 <FaqItem question="Woran erkenne ich gefährliche Tools?">
-Jedes destruktive Tool ist im Katalog oben markiert und beginnt seine Beschreibung mit `IRREVERSIBLE`. Clients, die MCP-Annotations auswerten, erhalten zusätzlich `destructiveHint` und können vor dem Aufruf nachfragen.
+Jedes destruktive Tool ist im Katalog oben markiert und beginnt seine Beschreibung mit `IRREVERSIBLE`. Clients, die MCP-Metadaten auswerten, erhalten zusätzlich `destructiveHint` und können vor dem Aufruf nachfragen. Diese Metadaten helfen dem Client, ersetzen aber keine zweite serverseitige Freigabe.
 </FaqItem>
 <FaqItem question="Liefern Tools maschinenlesbare Ergebnisse?">
 Ja. Jedes Tool deklariert ein Output-Schema, live sichtbar über `tools/list`, und liefert dazu passendes `structuredContent` neben der kompakten Textform, sodass ein Client Ergebnisse verketten kann, ohne Text zu parsen.

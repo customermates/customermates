@@ -9,6 +9,8 @@ import { WhyFeaturesSection } from "./components/why-features-section";
 
 import { Footer } from "@/app/components/footer";
 import { CTASection } from "@/components/marketing/cta-section";
+import { MarketingContainer } from "@/components/marketing/marketing-container";
+import { ProductDemo } from "@/components/marketing/product-demo";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { featuresSource } from "@/core/fumadocs/source";
 
@@ -32,8 +34,14 @@ export default async function FeaturesPage() {
     <div className="flex flex-col items-center justify-center">
       <FeaturesHero {...hero} />
 
+      <section className="w-full border-b border-border bg-background">
+        <MarketingContainer>
+          <ProductDemo hostedBoundary path="/dashboard" presentation="standalone" />
+        </MarketingContainer>
+      </section>
+
       {features.map((section, index) => (
-        <BaseFeaturesSection key={index} index={index} {...section} />
+        <BaseFeaturesSection key={section.title} index={index} {...section} />
       ))}
 
       <WhyFeaturesSection {...why} />

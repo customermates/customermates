@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { aggregateOfferSchema } from "../schemas";
+import { aggregateOfferSchema, articleSchema, organizationSchema } from "../schemas";
 
 import { CONTENT_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
@@ -24,5 +24,40 @@ describe("aggregateOfferSchema", () => {
       expect(offer?.lowPrice, `lowPrice for ${locale}`).toBe("12");
       expect(offer?.highPrice, `highPrice for ${locale}`).toBe("69");
     }
+  });
+});
+
+describe("publisher logo", () => {
+  it("uses the public logo asset for organization and article structured data", () => {
+    const expected = `${organizationSchema().url}/images/light/customermates-square.svg`;
+
+    expect(organizationSchema().logo).toBe(expected);
+    expect(
+      articleSchema({
+        datePublished: "2026-08-26",
+        description: "A sourced article",
+        headline: "Agentic CRM",
+        locale: "en",
+        slug: "agentic-crm",
+      }).publisher.logo.url,
+    ).toBe(expected);
+  });
+});
+
+describe("article images", () => {
+  const params = {
+    datePublished: "2026-08-26",
+    description: "A sourced article",
+    headline: "Agentic CRM",
+    locale: "en",
+    slug: "agentic-crm",
+  };
+
+  it("uses the generated social image without requiring a visible article hero", () => {
+    const schema = articleSchema(params);
+
+    expect(schema.image).toHaveLength(1);
+    expect(schema.image[0]).toContain("/og/image.png?");
+    expect(schema.image[0]).not.toContain("/images/light/en/agentic-crm.png");
   });
 });

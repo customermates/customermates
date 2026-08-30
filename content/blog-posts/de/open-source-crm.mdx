@@ -1,10 +1,92 @@
 ---
-title: "Open Source CRM: 7 Systeme im Vergleich"
-description: "7 beste Open Source CRM-Systeme 2026: SuiteCRM, Odoo, EspoCRM, Twenty, Vtiger u. a. Features, Self-Hosting, Docker-Setup und Vor- und Nachteile."
+title: "Open Source CRM: Self-Hosted-Systeme vergleichen"
+description: "Open-Source-CRM nach Lizenz, Deployment, Betriebsaufwand, CRM-Umfang und Schnittstellen vergleichen, mit klarer Self-Hosted-Grenze für Customermates."
+
+acquisition:
+  locale: de
+  slug: open-source-crm
+  clusterId: open-source-self-hosted
+  role: support
+  primaryIntent: Vergleich von Open-Source-CRM-Systemen
+  metadata:
+    title: "Open Source CRM: Self-Hosted-Systeme vergleichen"
+    description: "Open-Source-CRM nach Lizenz, Deployment, Betriebsaufwand, CRM-Umfang und Schnittstellen vergleichen, mit klarer Self-Hosted-Grenze für Customermates."
+  proof:
+    factReferences:
+      - product:agpl-community-core
+      - product:docker-postgresql-deployment
+      - product:self-hosted-starter-entitlements
+      - product:core-crm-records
+      - product:custom-fields-and-views
+      - product:mcp-tools
+      - product:rest-and-webhooks
+    excludedClaims:
+      - claim:no-import-export
+      - claim:no-self-hosted-inbox
+      - claim:no-hosted-ai-self-hosted
+  cta:
+    action: Customermates als Open-Source-CRM prüfen
+    description: Testen Sie das verwaltete Cloud-CRM oder prüfen Sie die Self-Hosted-Edition mit AGPL-Kern, Docker und PostgreSQL. Self-Hosting nutzt Starter-Berechtigungen und enthält weder den gehosteten Posteingang noch Mate.
+    buttonLeftText: Managed Cloud testen
+    buttonLeftHref: /auth/signup
+    buttonRightText: Self-Hosting prüfen
+    buttonRightHref: /features/self-hosted
+    hint: "[[commercial.trial.days]] Tage kostenlos • Self-Hosting: Starter-Berechtigungen, kein gehosteter Posteingang und kein Mate"
+  relatedHrefs:
+    - /features/self-hosted
+    - /docs/self-hosting
+    - /blog/free-crm
+    - /blog/white-label-crm
+  visual:
+    id: acquisition.open-source-crm.de
+    locale: de
+    referenceSystemVersion: customermates-marketing-visuals@8
+    source:
+      headline: "Open Source CRM: Vergleichen, was Sie wirklich betreiben können"
+      body: "Ein sinnvoller Vergleich beginnt bei Lizenz, Editionsgrenzen, Deployment, Betriebsaufwand und Produktumfang statt bei einer kopierten Feature-Tabelle."
+      checksum: fnv1a-28677355
+    kind: brand-illustration
+    pathway: converge
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "Self-Hosted-Anwendung und PostgreSQL bilden eine Deployment-Grenze, die Sie selbst betreiben können."
+    depiction:
+      kind: relationship
+      productBehavior: true
+      statement: "Self-Hosted-Anwendung und PostgreSQL bilden eine Deployment-Grenze, die Sie selbst betreiben können."
+    factReferences:
+      - product:self-hosted-deployment
+      - product:agpl-community-core
+    focalLabel:
+      locale: de
+      text: Self-Hosted-App
+    semanticLabels:
+      - locale: de
+        text: AGPL-Kern
+      - locale: de
+        text: PostgreSQL
+    focalSubject:
+      id: self-hosted-app
+      form: context-card
+    supportingSubjects:
+      - id: source-code
+        form: context-card
+      - id: postgresql
+        form: context-card
+    accentTarget: self-hosted-app
+  structuredData:
+    types:
+      - Article
+      - BreadcrumbList
+      - FAQPage
+    faqFromRenderedContent: true
 
 hero:
-  title: "Open Source CRM: Die 7 besten quelloffenen CRM-Systeme 2026"
-  description: Der umfassende Vergleich von Open Source CRM-Systemen, Features, Self-Hosting, Docker-Deployment, Preise und warum Datenhoheit für Ihr Unternehmen entscheidend ist.
+  title: "Open Source CRM: Vergleichen, was Sie wirklich betreiben können"
+  description: Ein sinnvoller Vergleich beginnt bei Lizenz, Editionsgrenzen, Deployment, Betriebsaufwand und Produktumfang statt bei einer kopierten Feature-Tabelle.
 
 blogPost:
   author: Benjamin Wagner
@@ -16,479 +98,196 @@ blogPost:
     - CRM
     - Self-Hosted
     - Docker
-    - Deutsch
 ---
 
-# Open Source CRM: Die 7 besten quelloffenen CRM-Systeme 2026
+# Open Source CRM: Self-Hosted-Systeme vergleichen
+
+Das beste **Open Source CRM** ist das System, dessen Lizenz, Self-Hosting-Weg, Betriebsaufwand und CRM-Umfang zu Ihrem Team passen. „Source available“, „Open Core“ und „Open Source“ sind nicht gleichbedeutend. Eine lange Feature-Liste sagt wenig darüber aus, was Sie rechtlich betreiben und praktisch warten können.
+
+Dieser Leitfaden nutzt deshalb ein dauerhaftes Bewertungsmodell, statt Projekte anhand wechselnder Preise, Sternzahlen oder unbelegter Funktionsangaben zu ranken. Offenlegung: Customermates veröffentlicht diesen Vergleich und ist eines der hier genannten Produkte.
+
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Beginnen mit">
+    Lizenz und Editionsgrenze des Codes, den Sie tatsächlich betreiben möchten,
+    nicht mit dem Etikett des Repositories.
+  </SummaryItem>
+  <SummaryItem label="Dann prüfen">
+    Gepflegter Deployment-Weg, CRM-Modell, Schnittstellen, Migration und der
+    Betriebsaufwand Ihres Teams.
+  </SummaryItem>
+  <SummaryItem label="Als unbekannt behandeln">
+    Jede Funktion, die weder aktuell offiziell dokumentiert noch in einem
+    eigenen Test nachgewiesen ist.
+  </SummaryItem>
+  <SummaryItem label="Offenlegung">
+    Customermates veröffentlicht diesen Leitfaden. Eigene Produktangaben bleiben
+    von der Quellenübersicht für andere Projekte getrennt.
+  </SummaryItem>
+</ArticleSummary>
+
+<ProofRail label="Kriterien für den Open-Source-CRM-Vergleich">
+  <ProofItem label="Lizenz">Rechte und Pflichten</ProofItem>
+  <ProofItem label="Edition">Open-Source- und kommerzielle Grenze</ProofItem>
+  <ProofItem label="Deployment">Gepflegter lauffähiger Weg</ProofItem>
+  <ProofItem label="Betrieb">Backups, Updates und Wiederherstellung</ProofItem>
+  <ProofItem label="Produkt-Fit">
+    Datensätze, Abläufe und Schnittstellen
+  </ProofItem>
+</ProofRail>
 
-Der umfassende Vergleich von Open Source CRM-Systemen, Features, Self-Hosting, Docker-Deployment, Preise und warum Datenhoheit für Ihr Unternehmen entscheidend ist.
+## Beginnen Sie mit der Lizenz, nicht mit der Homepage
 
-Ein Open Source CRM bietet Ihnen, was keine proprietäre Plattform kann: den Quellcode, volle Datenhoheit und die Freiheit, Ihre Kundendaten dort zu hosten, wo Sie es wollen. Kein Vendor-Lock-in, keine überraschenden Preiserhöhungen, kein blindes Vertrauen in Dritte mit Ihrem wertvollsten Geschäftsgut.
-
-Die Open Source CRM-Landschaft hat sich enorm weiterentwickelt. Das sind längst keine rudimentären Alternativen zu Salesforce oder HubSpot mehr. Moderne Open Source CRM-Systeme bieten Workflow-Automatisierung, KI-Funktionen, REST-APIs und Docker-basiertes Self-Hosting, das viele kommerzielle Angebote erreicht oder übertrifft, oft zu einem Bruchteil der Kosten.
-
-Dieser Leitfaden vergleicht die sieben besten Open Source CRM-Systeme 2026 mit ehrlichen Vor- und Nachteilen, einer Feature-Vergleichstabelle und einer Schritt-für-Schritt-Anleitung zum Self-Hosting.
-
-## Warum ein Open Source CRM wählen?
-
-### Datenhoheit und Kontrolle
-
-Bei einem kommerziellen, geschlossenen CRM leben Ihre Kundendaten auf fremden Servern unter fremden Bedingungen. Erhöht der Anbieter die Preise, zahlen Sie oder verlieren den Zugang. Wird der Anbieter übernommen, gehen Ihre Daten an den neuen Eigentümer. Wird er eingestellt, stehen Sie vor einem Problem.
-
-Bei einem Open Source CRM können Sie Ihre Daten auf eigenen Servern oder einem Cloud-Anbieter Ihrer Wahl selbst hosten. Die Daten gehören Ihnen, bedingungslos. Sie können sie exportieren, sichern, migrieren und unabhängig davon darauf zugreifen, was mit dem Softwareanbieter passiert.
-
-### Kein Vendor-Lock-in
-
-Kommerzielle CRMs schaffen Lock-in durch proprietäre Datenformate, Integrationen, die nur innerhalb ihres Ökosystems funktionieren, und Migrationsbarrieren, die Sie am Wechsel hindern sollen. Ein CRM zu wechseln bedeutet typischerweise Monate Arbeit und einen gewissen Datenverlust.
-
-Open Source CRMs minimieren Lock-in. Der Code ist öffentlich, die Datenformate sind Standard (meist PostgreSQL oder MySQL) und die Migrationswege sind klar. Wenn Sie jemals wechseln, forken oder Ihre eigene Lösung bauen wollen, können Sie das tun.
-
-### Kostenvorhersagbarkeit
-
-Kommerzielle CRM-Preise neigen zur Eskalation. Pro-Nutzer-Kosten steigen mit Stufen, Add-ons und Nutzungsgebühren. Ein CRM, das heute 30 €/Nutzer/Monat kostet, kann 80 €/Nutzer/Monat kosten, wenn Sie die Features hinter höheren Stufen brauchen.
-
-Open Source CRMs bieten typischerweise einfachere Preisgestaltung. Viele bieten kostenlose Self-Hosted-Versionen oder Flatrate-Cloud-Hosting ohne Feature-Gating. Sie zahlen für Hosting-Infrastruktur, nicht für Softwarelizenzen.
-
-### Anpassbarkeit und Erweiterbarkeit
-
-Mit einem Open Source CRM können Sie den Quellcode an Ihre exakten Geschäftsprozesse anpassen. Eigene Module hinzufügen, die UI verändern, Integrationen mit internen Tools bauen oder das Datenmodell erweitern. Sie sind nicht auf den Plugin-Marktplatz oder die API-Einschränkungen des Anbieters beschränkt.
-
-### DSGVO und Compliance-Kontrolle
-
-Für europäische Unternehmen ist Datenschutz nicht optional. Ein Open Source CRM in der EU selbst zu hosten gibt Ihnen vollständige Kontrolle über Datenresidenz, Verarbeitung und Zugriff. Sie hängen nicht von der Compliance-Haltung eines Anbieters oder dessen Unterauftragsverarbeitern ab, Sie kontrollieren alles selbst. Das ist besonders relevant unter DSGVO Art. 28, der die Pflichten von Auftragsverarbeitern regelt.
-
-## Die 7 besten Open Source CRM-Systeme 2026
-
-### 1. Customermates
-
-**Überblick**: Customermates ist ein modernes, quelloffenes CRM für Unternehmen, die volle Funktionalität ohne Komplexität oder eskalierende Kosten wollen. Es führt mit zwei Fähigkeiten: KI-Agenten, die das CRM über eine native MCP-Integration bedienen, und einem nativen vereinheitlichten Posteingang für E-Mail, LinkedIn, WhatsApp, Instagram und Telegram. DSGVO-Konformität ist ein Kernprinzip.
-
-**Schlüsselfunktionen:**
-
-- Kontakt- und Unternehmensverwaltung mit vollständiger Beziehungshistorie
-- Anpassbare Deal-Pipelines mit Kanban-Ansichten
-- Aufgaben- und Aktivitätsverwaltung
-- Nativer vereinheitlichter Posteingang: [E-Mail](/features/email-integration), LinkedIn, WhatsApp, Instagram und Telegram (Pro-Stufe)
-- KI-Agenten (Claude, ChatGPT, Gemini), die das CRM über eine native MCP-Integration lesen und schreiben ([[derived.mcp.tools.total]] Tools)
-- Leistungsstarke [Workflow-Automatisierung](/features/workflow-automation) über die n8n-Community-Node
-- Custom Fields und flexibles Datenmodell
-- REST-API und Webhooks für individuelle Integrationen
-- Audit-Logging und Änderungshistorie
-- Self-Hostbar mit Docker
-
-**Hosting-Optionen**: Managed Cloud (EU-gehostet) oder Self-Hosted via Docker
-
-**Preise**: ab [[commercial.price.starter.monthly]]/Nutzer/Monat für Managed Cloud (Starter, volles Kern-CRM; Pro für [[commercial.price.pro.monthly]] ergänzt den vereinheitlichten Posteingang). Self-Hosted ist kostenlos und Open Source.
-
-**Vorteile:**
-
-- Transparente Stufen mit dem vollen Kern-CRM in jeder Stufe, keine Upsells
-- DSGVO-nativ mit EU-Datenhosting
-- n8n-Automatisierung ermöglicht komplexe Workflows ohne Programmierung
-- KI-Agenten und der vereinheitlichte Posteingang sind integriert, nicht nachträglich angebaut
-- Aktive Entwicklung mit regelmäßigen Releases
-
-**Nachteile:**
-
-- Kleinere Community als SuiteCRM oder Odoo (neueres Projekt)
-- Weniger Drittanbieter-Integrationen als etablierte Plattformen
-
-**Am besten für**: Kleine bis mittlere Unternehmen, die ein modernes Open Source CRM mit transparenten Preisen, starker Automatisierung und voller Datenkontrolle wollen. [Preise ansehen](/pricing) oder [kostenlos testen](/auth/signup).
-
-### 2. SuiteCRM
-
-**Überblick**: SuiteCRM ist ein Fork von SugarCRM Community Edition, der seit 2013 aktiv gepflegt wird. Es ist eines der funktionsreichsten Open Source CRMs mit über 1,2 Millionen Downloads und einer großen Community. SuiteCRM 8, die neueste Hauptversion, brachte ein modernisiertes Frontend.
-
-**Schlüsselfunktionen:**
-
-- Kontakt-, Lead- und Opportunity-Management
-- Workflow-Automatisierungs-Engine
-- Reporting und Dashboards
-- Kampagnenmanagement mit E-Mail-Marketing
-- Case Management für Kundensupport
-- Umfangreiche Anpassung durch Module
-- REST API (v8)
-- Self-Hostbar mit Docker
-
-**Hosting-Optionen**: Self-Hosted oder SalesAgility Cloud
-
-**Preise**: Kostenlos (Self-Hosted). SuiteCRM:OnDemand Cloud ab ca. 95 GBP/Monat.
-
-**Vorteile:**
-
-- Extrem funktionsreich direkt nach der Installation
-- Große, aktive Community mit umfangreicher Dokumentation
-- Ausgereifter Codebase mit Jahren von Enterprise-Deployments
-- Breites Ökosystem an Drittanbieter-Modulen
-
-**Nachteile:**
-
-- UI wirkt veraltet im Vergleich zu modernen SaaS-Tools, selbst mit SuiteCRM 8
-- Komplexer Installations- und Konfigurationsprozess
-- Ressourcenhungrig, benötigt ordentliche Server-Spezifikationen
-- Steile Lernkurve für Administratoren
-
-**Am besten für**: Mittlere bis große Unternehmen, die Enterprise-Features brauchen und technische Ressourcen für die Implementierung haben.
-
-### 3. Odoo CRM
-
-**Überblick**: Odoo ist eine Open-Source-Business-Suite mit einem CRM-Modul, das sich mit über 80 weiteren Modulen integriert, darunter Buchhaltung, Lagerverwaltung, Projektmanagement und E-Commerce. Die Community Edition ist Open Source; die Enterprise Edition ist proprietär.
-
-**Schlüsselfunktionen:**
-
-- Lead- und Opportunity-Management mit Scoring
-- Pipeline-Management mit Drag-and-Drop
-- E-Mail-Integration und VoIP
-- Marketing-Automatisierung (Enterprise)
-- Reporting und Prognosen
-- Integration mit dem gesamten Odoo-Ökosystem (Buchhaltung, Lager, HR etc.)
-- Self-Hostbar mit Docker
-
-**Hosting-Optionen**: Self-Hosted (Community), Odoo.com Cloud oder Odoo.sh (PaaS)
-
-**Preise**: Community Edition kostenlos. Enterprise Edition ab 24,90 €/Nutzer/Monat (jährliche Abrechnung). Viele erweiterte CRM-Features erfordern Enterprise.
-
-**Vorteile:**
-
-- Riesiges Ökosystem, CRM integriert sich nativ mit ERP, Buchhaltung, Lagerverwaltung
-- Aktive Entwicklung mit jährlichen Major-Releases
-- Große Community und Marktplatz mit Drittanbieter-Apps
-- Gute Dokumentation
-
-**Nachteile:**
-
-- CRM-Funktionalität in der Community Edition ist eingeschränkt
-- Beste Features hinter der proprietären Enterprise Edition gesperrt
-- Kann bei Skalierung komplex und ressourcenhungrig werden
-- Mischung von Community- und Enterprise-Modulen verursacht Lizenzprobleme
-
-**Am besten für**: Unternehmen, die CRM als Teil eines breiteren ERP-Systems brauchen und bereit sind, in die Enterprise Edition für erweiterte Features zu investieren.
-
-### 4. EspoCRM
-
-**Überblick**: EspoCRM ist ein webbasiertes Open Source CRM mit Fokus auf Einfachheit und Benutzerfreundlichkeit. Es zeichnet sich durch eine saubere, moderne Oberfläche aus und deckt die Kern-CRM-Funktionen gut ab, ohne unnötige Komplexität.
-
-**Schlüsselfunktionen:**
-
-- Kontakt- und Unternehmensverwaltung
-- Deal-Tracking mit Pipeline-Ansichten
-- E-Mail-Integration (IMAP/SMTP)
-- Kalender und Aktivitätsverwaltung
-- Workflow-Automatisierung (BPM-Engine)
-- Anpassbare Entitäten und Felder über Admin-UI
-- REST-API
-- Self-Hostbar mit Docker
-
-**Hosting-Optionen**: Self-Hosted oder EspoCRM Cloud
-
-**Preise**: Kostenlos (Self-Hosted). Cloud-Pläne ab 15 USD/Nutzer/Monat.
-
-**Vorteile:**
-
-- Saubere, intuitive Oberfläche, geringe Lernkurve
-- Flexibler Entity-Manager für individuelle Datenmodelle
-- Leichtgewichtig, läuft gut auf bescheidener Hardware
-- Integrierte BPM-Engine für Prozessautomatisierung
-
-**Nachteile:**
-
-- Kleinere Community als SuiteCRM oder Odoo
-- Weniger vorgefertigte Integrationen
-- Eingeschränktes Reporting im Vergleich zu Enterprise-CRMs
-- Mobile Erfahrung könnte verbessert werden
-
-**Am besten für**: Kleine Unternehmen, die ein unkompliziertes, selbst gehostetes Open Source CRM ohne Enterprise-Komplexität wollen.
-
-### 5. Twenty CRM
-
-**Überblick**: Twenty ist ein neueres Open Source CRM, inspiriert von den Designprinzipien moderner SaaS-Tools wie Notion und Linear. Mit einem Entwickler-first-Ansatz gebaut, bietet es eine aufgeräumte Oberfläche und eine GraphQL-API. Das Projekt gewann schnell an Traktion auf GitHub und erreichte über 20.000 Stars.
-
-**Schlüsselfunktionen:**
-
-- Kontakt- und Unternehmensverwaltung
-- Anpassbares Datenmodell (Custom Objects)
-- Pipeline-Management
-- GraphQL- und REST-API
-- Self-Hostbar mit Docker (docker-compose mitgeliefert)
-- Keyboard-first-Navigation
-- Offenes Datenmodell mit PostgreSQL
-
-**Hosting-Optionen**: Twenty Cloud oder Self-Hosted via Docker
-
-**Preise**: Kostenlos (Self-Hosted). Cloud-Preise in der Beta-Phase.
-
-**Vorteile:**
-
-- Moderne, schnelle UI, die sich wie ein SaaS-Produkt anfühlt
-- Entwicklerfreundlich mit exzellenter API
-- Aktive Open-Source-Community auf GitHub
-- Schnelles Entwicklungstempo
-
-**Nachteile:**
-
-- Noch in Reifung, es fehlen Features, die etablierte CRMs bieten (z. B. erweitertes Reporting, E-Mail-Sequenzen)
-- Eingeschränkte Automatisierungsmöglichkeiten im Vergleich zu n8n-integrierten Lösungen
-- Kleines Plugin-/Integrations-Ökosystem
-- Dokumentation entwickelt sich noch
-
-**Am besten für**: Technische Teams, die ein entwicklerfreundliches, API-first CRM wollen, das sie umfassend anpassen können. Ideal für Startups, die mit einem sich schnell entwickelnden Produkt umgehen können.
-
-### 6. Vtiger CRM
-
-**Überblick**: Vtiger ist ein etabliertes Open Source CRM, das seit 2004 existiert. Die Community Edition (Open Source) bietet solide CRM-Funktionalität, während die kommerzielle Cloud-Edition Marketing-Automatisierung, Helpdesk und KI-Features ergänzt.
-
-**Schlüsselfunktionen:**
-
-- Kontakt-, Lead- und Opportunity-Management
-- Vertriebs-Pipeline mit Prognosen
-- E-Mail-Kampagnen und Vorlagen
-- Projektmanagement
-- Kundenportal
-- Lagerverwaltung
-- REST-API
-- Self-Hostbar (Community Edition)
-
-**Hosting-Optionen**: Self-Hosted (Community Edition) oder Vtiger Cloud
-
-**Preise**: Community Edition kostenlos. Cloud-Pläne ab 12 USD/Nutzer/Monat.
-
-**Vorteile:**
-
-- Ausgereiftes, praxiserprobtes System mit langer Historie
-- Gute Balance von Features für Vertrieb, Marketing und Support
-- Integrierte Projektmanagement- und Lagermodule
-- Aktives Community-Forum
-
-**Nachteile:**
-
-- Community Edition hinkt der kommerziellen Version deutlich hinterher
-- UI wirkt veraltet im Vergleich zu neueren Alternativen
-- Self-Hosted-Version erhält langsamere Updates
-- Docker-Support ist community-gepflegt, nicht offiziell
-
-**Am besten für**: Kleine bis mittlere Unternehmen, die ein bewährtes All-in-One Open Source CRM mit Vertrieb, Support und einfachem Projektmanagement suchen.
-
-### 7. CiviCRM
-
-**Überblick**: CiviCRM ist ein spezialisiertes Open Source CRM für gemeinnützige Organisationen, Vereine und Interessenverbände. Es integriert sich mit WordPress, Joomla, Drupal und Backdrop CMS und ist damit eine natürliche Wahl für Organisationen, die bereits eine dieser Plattformen nutzen.
-
-**Schlüsselfunktionen:**
-
-- Kontaktverwaltung mit Beziehungstracking
-- Mitgliederverwaltung
-- Veranstaltungsmanagement und Registrierung
-- Fundraising und Spendenverfolgung (CiviContribute)
-- E-Mail-Kampagnen (CiviMail)
-- Case Management
-- Fördermittelverwaltung
-- Integration mit WordPress, Joomla, Drupal
-
-**Hosting-Optionen**: Self-Hosted (in CMS integriert) oder Managed-Hosting-Anbieter
-
-**Preise**: Kostenlos und Open Source. Hosting-Kosten variieren je nach Anbieter.
-
-**Vorteile:**
-
-- Speziell für gemeinnützige Organisationen gebaut, Features, die kommerzielle CRMs nicht bieten
-- Tiefe CMS-Integration (besonders WordPress)
-- Aktive, engagierte Nonprofit-Community
-- Keine Pro-Nutzer-Lizenzgebühren
-
-**Nachteile:**
-
-- Nicht für kommerzielle Vertriebsprozesse konzipiert
-- UI ist funktional, aber nicht modern
-- Erfordert CMS-Hosting (WordPress/Joomla/Drupal)
-- Steilere Lernkurve für nicht-technische Nutzer
-
-**Am besten für**: Gemeinnützige Organisationen, Vereine und zivilgesellschaftliche Gruppen, die Mitgliederverwaltung, Veranstaltungsplanung und Fundraising-Tools brauchen, die in ihr Website-CMS integriert sind.
-
-## Open Source CRM Vergleichstabelle
-
-| Feature                                                           | Customermates                                      | SuiteCRM      | Odoo (Community)      | EspoCRM              | Twenty         | Vtiger (Community)   | CiviCRM      |
-| ----------------------------------------------------------------- | -------------------------------------------------- | ------------- | --------------------- | -------------------- | -------------- | -------------------- | ------------ |
-| **Lizenz**                                                        | Open Source                                        | AGPL-3.0      | LGPL-3.0              | GPL-3.0              | AGPL-3.0       | VTPL                 | AGPL-3.0     |
-| **Self-Hosted**                                                   | Ja                                                 | Ja            | Ja                    | Ja                   | Ja             | Ja                   | Ja           |
-| **Docker-Support**                                                | Ja                                                 | Ja            | Ja                    | Ja                   | Ja             | Community            | Community    |
-| **Cloud-Option**                                                  | Ab [[commercial.price.starter.monthly]]/Nutzer/Mo. | Ab 95 GBP/Mo. | Ab 24,90 €/Nutzer/Mo. | Ab 15 USD/Nutzer/Mo. | Beta           | Ab 12 USD/Nutzer/Mo. | Über Partner |
-| **Pipeline-Management**                                           | Ja                                                 | Ja            | Ja                    | Ja                   | Ja             | Ja                   | Nein         |
-| **E-Mail-Integration**                                            | Gmail, Outlook                                     | IMAP/SMTP     | IMAP/SMTP, VoIP       | IMAP/SMTP            | Geplant        | IMAP/SMTP            | CiviMail     |
-| **Vereinheitlichter Posteingang (LinkedIn/WhatsApp/IG/Telegram)** | Ja                                                 | Nein          | Nein                  | Nein                 | Nein           | Nein                 | Nein         |
-| **Workflow-Automatisierung**                                      | n8n (visuell)                                      | Integriert    | Integriert            | BPM-Engine           | Eingeschränkt  | Integriert           | CiviRules    |
-| **KI-Features**                                                   | Native MCP (Claude, ChatGPT, Gemini)               | Nein          | Nur Enterprise        | Nein                 | Geplant        | Nur Cloud            | Nein         |
-| **REST-API**                                                      | Ja                                                 | Ja (v8)       | Ja                    | Ja                   | GraphQL + REST | Ja                   | Ja           |
-| **Custom Fields**                                                 | Ja                                                 | Ja            | Ja                    | Ja                   | Custom Objects | Ja                   | Ja           |
-| **DSGVO/EU-Hosting**                                              | Nativ (EU)                                         | Self-Host     | Self-Host             | Self-Host            | Self-Host      | Self-Host            | Self-Host    |
-| **Am besten für**                                                 | KMU, EU-Firmen                                     | Enterprise    | ERP + CRM             | Kleine Firmen        | Entwickler     | All-in-One           | Nonprofits   |
-
-## Open Source CRM selbst hosten mit Docker
-
-Self-Hosting gibt Ihnen maximale Kontrolle über Ihre Daten, Performance und Sicherheit. Docker vereinfacht den Prozess, indem es das CRM und seine Abhängigkeiten in Container verpackt. Hier ist eine allgemeine Anleitung, die für die meisten Open Source CRMs gilt.
-
-### Voraussetzungen
-
-- Ein Linux-Server (Ubuntu 22.04 oder neuer empfohlen) mit mindestens 2 GB RAM und 2 CPU-Kernen
-- Docker und Docker Compose installiert
-- Ein Domainname, der auf Ihren Server zeigt (für HTTPS)
-- Grundlegende Kommandozeilen-Kenntnisse
-
-### Schritt 1: Server vorbereiten
-
-```bash
-# Systempakete aktualisieren
-sudo apt update && sudo apt upgrade -y
-
-# Docker installieren
-curl -fsSL https://get.docker.com | sh
-sudo usermod -aG docker $USER
-
-# Docker Compose installieren
-sudo apt install docker-compose-plugin -y
-```
-
-### Schritt 2: Klonen und konfigurieren
-
-Die meisten Open Source CRMs stellen eine `docker-compose.yml` in ihrem GitHub-Repository bereit. Das allgemeine Muster:
-
-```bash
-# CRM-Repository klonen
-git clone https://github.com/<crm-projekt>/<crm-repo>.git
-cd <crm-repo>
-
-# Beispiel-Umgebungsdatei kopieren
-cp .env.example .env
-
-# Konfiguration bearbeiten (Datenbank-Zugangsdaten, Domain etc.)
-nano .env
-```
-
-### Schritt 3: Container starten
-
-```bash
-# Images herunterladen und alle Services starten
-docker compose up -d
-
-# Prüfen, ob Container laufen
-docker compose ps
-
-# Logs bei Bedarf ansehen
-docker compose logs -f
-```
-
-### Schritt 4: Reverse Proxy mit HTTPS einrichten
-
-Für den Produktivbetrieb stellen Sie einen Reverse Proxy (Nginx oder Traefik) vor das CRM, um HTTPS zu handhaben:
-
-```bash
-# Beispiel: Certbot für kostenlose SSL-Zertifikate installieren
-sudo apt install certbot python3-certbot-nginx -y
-sudo certbot --nginx -d crm.ihredomain.de
-```
-
-### Schritt 5: Backups und Wartung
-
-```bash
-# Datenbank-Backup (PostgreSQL-Beispiel)
-docker compose exec db pg_dump -U crm_user crm_database > backup_$(date +%Y%m%d).sql
-
-# CRM aktualisieren
-docker compose pull
-docker compose up -d
-```
-
-### Self-Hosting-Hinweise
-
-- **Sicherheit**: Halten Sie Docker und das CRM aktuell. Nutzen Sie Firewalls (ufw) und fail2ban. Beschränken Sie Datenbank-Ports auf localhost.
-- **Backups**: Automatisieren Sie tägliche Backups von Datenbank und hochgeladenen Dateien. Testen Sie Wiederherstellungen regelmäßig.
-- **Monitoring**: Richten Sie Uptime-Monitoring und Ressourcen-Alerts ein. Tools wie Uptime Kuma (ebenfalls Open Source) eignen sich gut.
-- **Ressourcen**: Planen Sie 2-4 GB RAM für die meisten Open Source CRMs. Odoo und SuiteCRM brauchen mehr; EspoCRM und Twenty weniger.
-
-Wenn Sie keine Infrastruktur verwalten möchten, bietet Customermates [Managed EU Cloud Hosting](/pricing) ab [[commercial.price.starter.monthly]]/Nutzer/Monat mit dem vollen Kern-CRM inklusive, kein Docker-Setup nötig.
-
-## Der Kostenvorteil von Open Source CRM
-
-Ein konkreter Vergleich für ein Team von 10 Nutzern über 3 Jahre:
-
-| CRM                            | Jahr 1                                                  | Jahr 2                                                  | Jahr 3                                                  | 3-Jahres-Gesamt                                         |
-| ------------------------------ | ------------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------- |
-| Salesforce (Professional)      | 9.600 $                                                 | 9.600 $                                                 | 9.600 $                                                 | 28.800 $                                                |
-| HubSpot (Professional)         | 12.000 $                                                | 12.000 $                                                | 12.000 $                                                | 36.000 $                                                |
-| Pipedrive (Growth)             | 4.680 $                                                 | 4.680 $                                                 | 4.680 $                                                 | 14.040 $                                                |
-| Customermates (Cloud, Starter) | [[commercial.price.starter.monthly.seats.10.months.12]] | [[commercial.price.starter.monthly.seats.10.months.12]] | [[commercial.price.starter.monthly.seats.10.months.12]] | [[commercial.price.starter.monthly.seats.10.months.36]] |
-| Customermates (Self-Hosted)    | 0 € + Hosting                                           | 0 € + Hosting                                           | 0 € + Hosting                                           | Nur Hosting                                             |
-
-Die Einsparungen sind erheblich und summieren sich über die Zeit. Ein typischer VPS für Self-Hosting kostet 10-30 €/Monat, was die 3-Jahres-Gesamtkosten für ein selbst gehostetes Open Source CRM auf nur 360-1.080 € für 10 Nutzer senkt, verglichen mit über 28.800 $ für Salesforce.
-
-## Das richtige Open Source CRM wählen
-
-### CRM zum Anwendungsfall passend wählen
-
-- **Vertriebsorientierte Teams**: Customermates, EspoCRM oder Twenty für sauberes Pipeline-Management
-- **Enterprise mit komplexen Prozessen**: SuiteCRM für seine Workflow-Engine und das Modulsystem
-- **CRM + ERP-Bedarf**: Odoo, wenn Sie Buchhaltung, Lagerverwaltung und CRM auf einer Plattform brauchen
-- **All-in-One Vertrieb und Support**: Vtiger für kombiniertes CRM, Helpdesk und Projektmanagement
-- **Gemeinnützige Organisationen**: CiviCRM ist die klare Wahl für Mitgliederverwaltung, Events und Fundraising
-
-### Technische Ressourcen einschätzen
-
-Self-Hosting erfordert Serververwaltung, Backups, Updates und Sicherheitspflege. Wenn Sie ein technisches Team haben, gibt Ihnen Self-Hosting maximale Kontrolle. Wenn nicht, wählen Sie ein Open Source CRM mit Managed Cloud Hosting, wie [Customermates](/pricing), das die Infrastruktur übernimmt und Ihre Daten in der EU behält.
-
-### Community und Entwicklungsaktivität prüfen
-
-Ein gesundes Open-Source-Projekt hat aktive Entwicklung, regelmäßige Releases, reaktionsschnelle Maintainer und eine wachsende Community. Prüfen Sie das GitHub-Repository jedes Projekts auf aktuelle Commits, offene Issues und Community-Engagement, bevor Sie sich festlegen.
-
-### Mit echten Workflows testen
-
-Kontakte importieren, Deals erstellen, Pipeline einrichten und einen typischen Arbeitstag durchspielen. Kein Feature-Vergleich ersetzt praktische Erfahrung mit Ihren tatsächlichen Daten und Prozessen.
+Klären Sie vor dem Funktionsvergleich:
+
+- welche Lizenz für den exakten Server- und Client-Code gilt;
+- ob Verzeichnisse oder Module separat kommerziell lizenziert sind;
+- welche Pflichten beim Ändern oder Bereitstellen über ein Netzwerk entstehen;
+- welche Markenregeln unabhängig von der Softwarelizenz gelten; und
+- ob das Repository die vollständige lauffähige Edition oder nur einen Teil enthält.
+
+Ein öffentliches Repository gewährt nicht automatisch Open-Source-Rechte an jeder Datei. Lesen Sie die Lizenzdateien der Version, die Sie betreiben möchten, und holen Sie rechtliche Beratung ein, wenn die Pflichten für Ihr Unternehmen relevant sind.
+
+## Sieben Kriterien für den Open-Source-CRM-Vergleich
+
+| Kriterium      | Was Sie prüfen sollten                                                                          |
+| -------------- | ----------------------------------------------------------------------------------------------- |
+| Lizenzgrenze   | Welcher Code ist Open Source, welcher kommerziell und welche Pflichten gelten?                  |
+| Deployment     | Gibt es einen gepflegten, dokumentierten Weg für die benötigte Edition?                         |
+| Betrieb        | Wer verantwortet Updates, Backups, Wiederherstellung, Monitoring, TLS und Störungen?            |
+| CRM-Modell     | Deckt es Ihre Kontakte, Unternehmen, Chancen, Leistungen und Aufgaben ab?                       |
+| Schnittstellen | Sind REST, Webhooks oder Agenten-Schnittstellen für Ihren Ablauf vorhanden?                     |
+| Editionslücke  | Welche Cloud- oder Enterprise-Funktionen fehlen beim Self-Hosting?                              |
+| Migration      | Gibt es einen echten Import/Export oder müssen Sie einen Weg über API oder Datenbank entwerfen? |
+
+Behandeln Sie einen nicht gemessenen oder nicht dokumentierten Punkt als unbekannt, nicht als enthalten.
+
+## Eine Shortlist ohne künstliches Ranking
+
+Bei der Suche nach Open Source CRM erscheinen Projekte mit sehr unterschiedlichem Umfang. Customermates, SuiteCRM, EspoCRM und Twenty sind sinnvolle Ausgangspunkte für eine quellengestützte Shortlist. Odoo Community und CiviCRM können relevant sein, wenn eine breitere Business-Suite oder ein Mitgliederkontext zur Anforderung gehört. Prüfen Sie vor einer Entscheidung die aktuelle offizielle Lizenz, Editionsgrenze, Deployment-Dokumentation sowie den Wartungsstatus.
+
+Die Produkte unterscheiden sich in Funktionsumfang und Zielgruppe. Einige Projekte konzentrieren sich auf CRM, andere gehören zu einer umfassenderen Business-Suite, wieder andere sind auf Nonprofit- oder Mitglieder-Workflows ausgerichtet. Deshalb ist eine nach den eigenen Anforderungen bewertete Shortlist nützlicher als ein pauschaler Testsieger.
+
+### Offizielle Quellen, geprüft am 28. August 2026
+
+| Projekt       | Aktuelle offizielle Nachweise                                                                                                                                                                                                                                                                                     | Was die Quelle belegt                                                                           |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Customermates | [AGPL-Kernlizenz](https://github.com/customermates/customermates/blob/main/LICENSE), [kommerzielle und AGPL-Client-Material-Grenze](https://github.com/customermates/customermates/blob/main/ee/LICENSE.md) und [Compose-Deployment](https://github.com/customermates/customermates/blob/main/docker-compose.yml) | Exakte Repository-Lizenzen sowie das versionierte Deployment aus Anwendung und PostgreSQL       |
+| SuiteCRM      | [AGPL-Lizenzierung](https://docs.suitecrm.com/admin/licensing/) und [Installationsanleitung](https://docs.suitecrm.com/admin/installation-guide/downloading-installing/)                                                                                                                                          | Die Dokumentation nennt AGPLv3 und bietet einen gepflegten Installationsweg für Administratoren |
+| EspoCRM       | [Repository und Lizenz](https://github.com/espocrm/espocrm) und [Docker-Installation](https://docs.espocrm.com/administration/docker/installation/)                                                                                                                                                               | Eine öffentliche Quelllizenz und einen offiziellen Docker-Deployment-Weg                        |
+| Twenty        | [Lizenz](https://github.com/twentyhq/twenty/blob/main/LICENSE) und [Docker-Compose-Anleitung](https://docs.twenty.com/developers/self-host/capabilities/docker-compose)                                                                                                                                           | Eine öffentliche Quelllizenz und einen offiziellen Self-Hosting-Weg mit Docker Compose          |
+
+Diese Tabelle ist eine Quellenübersicht, keine Rangliste und keine Behauptung, dass die Editionen gleichwertig sind. Öffnen Sie für die geprüfte Version jeweils die Lizenz- und Deployment-Quelle.
+
+<AcquisitionCallout
+  title="Ein öffentliches Repository ist ein Nachweis, aber nicht die ganze Antwort"
+  variant="boundary"
+>
+  Prüfen Sie die Lizenz für jedes benötigte Verzeichnis, die tatsächlich
+  lauffähige Edition und ihre Betriebsabhängigkeiten. Der Quellzugriff allein
+  belegt weder, dass jede Datei Open Source ist, noch dass jede Cloud-Funktion
+  selbst gehostet werden kann.
+</AcquisitionCallout>
+
+## Wo Customermates passt
+
+Customermates ist ein Open-Core-Beziehungs- und Pipeline-CRM aus Deutschland. Das Customermates-eigene Material außerhalb von `ee/` steht ausschließlich unter AGPL-3.0. Innerhalb von `ee/` gilt grundsätzlich die kommerzielle Lizenz; das in Abschnitt 6 von `ee/LICENSE.md` definierte Client-Material steht jedoch ebenfalls unter AGPL-3.0.
+
+Das offizielle [Self-Hosted CRM](/features/self-hosted) besteht aus der Anwendung und PostgreSQL 16. Die Self-Hosted-Edition nutzt Starter-Berechtigungen.
+
+| Self-Hosted-Funktion in Customermates                       | Status                                                |
+| ----------------------------------------------------------- | ----------------------------------------------------- |
+| Kontakte, Unternehmen, Deals, Leistungen und Aufgaben       | Enthalten                                             |
+| Custom Fields sowie Tabellen-, Karten- und Kanban-Ansichten | Enthalten                                             |
+| REST, Webhooks und MCP                                      | Enthalten                                             |
+| Externe KI-Clients über MCP                                 | Enthalten; Client und Anbieter wählt der Kunde selbst |
+| Einheitlicher Posteingang und Messaging-Konten              | Nicht enthalten                                       |
+| Cloudbasierter Mate-Assistent und gehostete Credits         | Nicht enthalten                                       |
+| Verbundene schreibgeschützte Kalenderansicht                | Nicht enthalten                                       |
+| Eigener Import-/Export-Workflow für CRM-Datensätze          | Nicht enthalten                                       |
+
+Customermates passt, wenn Sie ein fokussiertes CRM, Docker/PostgreSQL und eine offene MCP-Oberfläche suchen. Es passt nicht, wenn Sie beim Self-Hosting den Posteingang der Managed Cloud oder eine fertige Migration, PSA, Rechnungsstellung oder Zeiterfassung benötigen.
+
+<ProductDemo hostedBoundary path="/dashboard" />
+
+## Self-Hosting verändert die Betriebsverantwortung
+
+Open Source gewährt Ihnen die in der Lizenz definierten Rechte; Self-Hosting überträgt Ihnen die Verantwortung für die Infrastruktur. Beides garantiert weder Sicherheit noch Compliance, Portabilität oder niedrige Kosten.
+
+Ihr Team muss festlegen, wer Folgendes verantwortet:
+
+- Updates von Anwendung und Datenbank;
+- Backups und getestete Wiederherstellung;
+- Netzwerkregeln, TLS und Secrets;
+- Monitoring und Störungsbehandlung;
+- Kapazitäts- und Verfügbarkeitsplanung; sowie
+- die Datenflüsse jedes angebundenen Anbieters.
+
+Für Customermates-spezifische Deployment-Details nutzen Sie die [Self-Hosting-Anleitung](/docs/self-hosting). Übernehmen Sie keinen generischen Docker-Ablauf aus einem Vergleichsartikel in die Produktion.
+
+## Cloud-CRM oder Self-Hosted CRM
+
+Wählen Sie Managed Cloud, wenn der Anbieter die Anwendung betreiben soll und Cloud-Funktionen wesentlich sind. Wählen Sie Self-Hosting, wenn Lizenz, Starter-Funktionsgrenze und Betriebsverantwortung zu Ihrem Team passen.
+
+Bei Customermates ist die Trennung ausdrücklich: Kern-CRM, REST, Webhooks und MCP sind selbst hostbar; einheitlicher Posteingang, verbundene Kalenderansicht, gehostete Mate-Funktion und gehostete Credits sind es nicht.
+
+## Praktische Prüfliste
+
+<Steps>
+  <Step title="Aufgabe definieren">
+    Schreiben Sie die benötigten Datensätze, Ansichten, Integrationen und
+    Deployment-Bedingungen auf.
+  </Step>
+  <Step title="Rechtliche Grenze prüfen">
+    Lesen Sie Lizenz und Editionsgrenze für jeden Finalisten und jede geprüfte
+    Version.
+  </Step>
+  <Step title="Offiziellen Weg ausführen">
+    Folgen Sie der gepflegten Deployment-Anleitung in einer isolierten Umgebung.
+  </Step>
+  <Step title="Betrieb testen">
+    Prüfen Sie Authentifizierung, Berechtigungen, Backups, Wiederherstellung und
+    Updates, statt sie aus Marketingtexten abzuleiten.
+  </Step>
+  <Step title="Gesamtsystem kalkulieren">
+    Bewerten Sie Infrastruktur, externe Dienste und laufenden Betriebsaufwand
+    gemeinsam.
+  </Step>
+  <Step title="Migration separat planen">
+    Entwerfen und prüfen Sie ein Migrationsverfahren, wenn kein eigener Import-
+    oder Export-Workflow vorhanden ist.
+  </Step>
+</Steps>
+
+[Prüfen Sie die genaue Self-Hosted-Grenze von Customermates](/features/self-hosted) oder [sehen Sie sich das Repository an](https://github.com/customermates/customermates), bevor Sie das Produkt auf Ihre Shortlist setzen.
 
 ## Häufig gestellte Fragen
 
 <Faq>
-<FaqItem question="Was ist ein Open Source CRM?">
-Ein Open Source CRM ist eine Software für Kundenbeziehungsmanagement, deren Quellcode öffentlich verfügbar ist. Jeder kann den Code einsehen, verändern und verteilen. Das gibt Unternehmen Datenhoheit, die Möglichkeit zum Self-Hosting und Freiheit von Vendor-Lock-in. Beispiele sind SuiteCRM, Odoo Community, EspoCRM, Twenty, Vtiger, CiviCRM und Customermates.
+<FaqItem question="Was bedeutet Open Source CRM?">
+Der CRM-Code wird unter einer Open-Source-Lizenz angeboten, die definierte Rechte zum Nutzen, Prüfen, Ändern und Weitergeben gewährt. Prüfen Sie die einzelnen Dateien und Editionsgrenzen genau: Ein Repository kann auch separat lizenzierten Code enthalten.
 </FaqItem>
 
-<FaqItem question="Ist Open Source CRM wirklich kostenlos?">
-Die Software selbst ist kostenlos zum Download und Self-Hosting. Sie müssen jedoch für Server-Hosting, Wartung und möglicherweise technischen Support zahlen. Managed-Cloud-Versionen von Open Source CRMs berechnen eine monatliche Gebühr, übernehmen dafür aber die Infrastruktur. Customermates beispielsweise ist kostenlos zum Self-Hosting und startet bei [[commercial.price.starter.monthly]]/Nutzer/Monat für Managed Cloud.
+<FaqItem question="Ist jedes Open Source CRM kostenlos zu betreiben?">
+  Nein. Auch ohne Softwareabonnement verursachen Infrastruktur, Backups,
+  Updates, Monitoring, Sicherheitsarbeit und externe Anbieter Kosten und
+  laufenden Betriebsaufwand.
 </FaqItem>
 
-<FaqItem question="Kann ich ein Open Source CRM mit Docker selbst hosten?">
-Ja. Die meisten modernen Open Source CRMs bieten offizielle Docker-Images und docker-compose-Dateien. Das macht das Deployment unkompliziert: Repository klonen, Umgebungsvariablen konfigurieren und `docker compose up` ausführen. Siehe die Self-Hosting-Anleitung weiter oben für detaillierte Schritte.
+<FaqItem question="Garantiert Open Source Datenkontrolle oder DSGVO-Konformität?">
+  Nein. Self-Hosting kann Ihnen Kontrolle über den Standort von Anwendung und
+  Datenbank geben. Compliance und Datenflüsse hängen jedoch von Konfiguration,
+  verbundenen Anbietern, Verträgen, Richtlinien und Betrieb ab.
 </FaqItem>
 
-<FaqItem question="Welches Open Source CRM ist das beste für kleine Unternehmen?">
-Für kleine Unternehmen sind EspoCRM und Customermates starke Optionen. EspoCRM bietet eine saubere Oberfläche mit geringer Komplexität. Customermates ergänzt n8n-Automatisierung, einen nativen vereinheitlichten Posteingang und KI-Agenten, die das CRM über MCP bedienen, ab [[commercial.price.starter.monthly]]/Nutzer/Monat, mit dem vollen Kern-CRM in jeder Stufe. Beide unterstützen Docker-basiertes Self-Hosting.
+<FaqItem question="Steht der gesamte Customermates-Code unter AGPL-3.0?">
+  Nein. Das Customermates-eigene Material außerhalb von `ee/` steht
+  ausschließlich unter AGPL-3.0. Innerhalb von `ee/` gilt AGPL-3.0 auch für das
+  in Abschnitt 6 von `ee/LICENSE.md` definierte Client-Material; das übrige
+  Customermates-eigene Material unterliegt der kommerziellen Lizenz. Prüfen Sie
+  beide Lizenzdateien für die genaue Grenze.
 </FaqItem>
 
-<FaqItem question="Wie schneidet ein Open Source CRM im Vergleich zu Salesforce oder HubSpot ab?">
-Open Source CRMs bieten vergleichbare Kernfunktionen (Kontakte, Pipelines, Automatisierung, Reporting) zu einem Bruchteil der Kosten. Die Kompromisse: Kommerzielle CRMs haben typischerweise größere Ökosysteme, mehr vorgefertigte Integrationen und dedizierte Support-Teams. Open Source CRMs bieten Datenhoheit, Self-Hosting, Anpassungsfreiheit und dramatisch niedrigere Kosten. Für ein 10-Nutzer-Team können die 3-Jahres-Einsparungen über 25.000 $ betragen.
-</FaqItem>
-
-<FaqItem question="Ist ein Open Source CRM DSGVO-konform?">
-Ein Open Source CRM in der EU selbst zu hosten gibt Ihnen volle Kontrolle über Datenresidenz und -verarbeitung, was die DSGVO-Konformität vereinfacht. Allerdings erfordert DSGVO-Konformität auch korrekte Prozesse (Einwilligungsmanagement, Datenlöschungs-Workflows, Datenschutzerklärungen). Customermates ist DSGVO-nativ konzipiert mit EU-Hosting, Audit-Logging und integrierten Datenexport-Funktionen.
-</FaqItem>
-
-<FaqItem question="Welches ist das beste Open Source CRM auf GitHub?">
-Die populärsten Open Source CRMs auf GitHub nach Sternen sind Twenty (20.000+), Odoo und SuiteCRM. Beliebtheit auf GitHub spiegelt das Entwicklerinteresse wider, aber nicht unbedingt die beste Eignung für Ihr Unternehmen. Bewerten Sie anhand Ihrer tatsächlichen Anforderungen, nicht nach Star-Zahlen.
+<FaqItem question="Kann ich CRM-Datensätze in Self-Hosted Customermates importieren oder exportieren?">
+Customermates hat keinen eigenen Import- oder Export-Workflow für CRM-Datensätze. Jede Migration braucht ein separat entworfenes und geprüftes API- oder Datenbankverfahren.
 </FaqItem>
 </Faq>
-
-## Erste Schritte
-
-Wenn Sie Open Source CRM-Systeme evaluieren, starten Sie hier:
-
-1. **Anforderungen definieren**, welche Features brauchen Sie heute und welche in 12 Monaten?
-2. **Technische Ressourcen bewerten**, können Sie mit Docker selbst hosten, oder brauchen Sie Managed Cloud?
-3. **Vor der Entscheidung testen**, mit echten Daten und echten Workflows testen, nicht mit Demodaten
-4. **Einfach starten**, die Basics konfigurieren, live gehen und von dort aus erweitern
-5. **Die Community nutzen**, Open-Source-Projekte profitieren von Nutzerfeedback und Beiträgen
-
-Customermates bietet eine [[[commercial.trial.days]]-tägige kostenlose Testversion](/auth/signup) mit vollem Pro-Zugang, ohne Kreditkarte. Importieren Sie Ihre Daten, richten Sie Ihre [Pipeline](/features/pipeline) ein und erleben Sie die Vorteile von Open Source CRM aus erster Hand, mit der Bequemlichkeit von [Managed EU-Hosting](/pricing) und der Sicherheit voller Datenhoheit.
-
-**Weiterführende Artikel:**
-
-- [Was ist CRM?](/blog/what-is-crm), Eine vollständige Einführung in Kundenbeziehungsmanagement
-- [CRM für kleine Unternehmen](/blog/crm-for-small-business), Das richtige CRM für Ihre Teamgröße finden
-- [Kostenloses CRM](/blog/free-crm), Was kostenloses CRM wirklich bedeutet
-- [CRM-Vergleich](/blog/crm-comparison), Direktvergleich führender CRM-Plattformen
-- [Sales Pipeline](/blog/sales-pipeline), Eine effektive Pipeline aufbauen und verwalten

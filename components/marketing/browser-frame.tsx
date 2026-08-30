@@ -6,9 +6,16 @@ import { ArrowUpRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 type Props = {
+  fallbackMessage?: string;
   src: string;
   title: string;
+  size?: "article" | "full";
 };
+
+const FRAME_HEIGHT_CLASS = {
+  article: "h-[420px] sm:h-[520px] lg:h-[600px]",
+  full: "h-[600px] md:h-[700px] lg:h-[750px]",
+} as const;
 
 function getHostname(src: string): string {
   try {
@@ -18,10 +25,11 @@ function getHostname(src: string): string {
   }
 }
 
-export function BrowserFrame({ src, title }: Props) {
+export function BrowserFrame({ fallbackMessage, size = "full", src, title }: Props) {
   const t = useTranslations();
   const [loaded, setLoaded] = useState(false);
   const [shouldMount, setShouldMount] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
   const frameRef = useRef<HTMLDivElement | null>(null);
   const hostname = getHostname(src);
 
@@ -40,6 +48,14 @@ export function BrowserFrame({ src, title }: Props) {
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    if (!fallbackMessage || !shouldMount || loaded) return;
+
+    const timeout = window.setTimeout(() => setTimedOut(true), 12_000);
+
+    return () => window.clearTimeout(timeout);
+  }, [fallbackMessage, loaded, shouldMount]);
 
   return (
     <div className="relative mx-auto w-full">
@@ -67,7 +83,7 @@ export function BrowserFrame({ src, title }: Props) {
             </span>
 
             <span aria-hidden className="relative inline-flex size-1.5">
-              <span className="absolute inset-0 animate-ping rounded-full bg-success opacity-75" />
+              <span className="absolute inset-0 animate-ping rounded-full bg-success opacity-75 motion-reduce:animate-none" />
 
               <span className="relative size-1.5 rounded-full bg-success" />
             </span>
@@ -81,23 +97,49 @@ export function BrowserFrame({ src, title }: Props) {
           >
             {t("BrowserFrame.open")}
 
-            <ArrowUpRight className="size-3" />
+            <ArrowUpRight aria-hidden className="size-3" />
           </a>
         </div>
 
-        <div className="relative h-[600px] md:h-[700px] lg:h-[750px]">
-          {!loaded && <div className="absolute inset-0 animate-pulse bg-placeholder motion-reduce:animate-none" />}
+        <div className={`relative ${FRAME_HEIGHT_CLASS[size]}`}>
+          {!loaded ? (
+            <div className="absolute inset-0 animate-pulse bg-placeholder motion-reduce:animate-none" />
+          ) : null}
 
-          {shouldMount && (
+          {timedOut && fallbackMessage ? (
+            <div
+              className="absolute inset-x-4 bottom-4 z-10 flex flex-col gap-3 rounded-xl border border-border-strong bg-background/95 p-4 shadow-lg backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between"
+              role="status"
+            >
+              <p className="max-w-xl text-xs leading-5 text-muted-foreground">{fallbackMessage}</p>
+
+              <a
+                className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-foreground hover:underline"
+                href={src}
+                rel="noreferrer noopener"
+                target="_blank"
+              >
+                {t("BrowserFrame.open")}
+
+                <ArrowUpRight aria-hidden className="size-3" />
+              </a>
+            </div>
+          ) : null}
+
+          {shouldMount ? (
             <iframe
               className={`block size-full border-0 bg-background transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
               loading="lazy"
+              referrerPolicy="strict-origin-when-cross-origin"
               sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
               src={src}
               title={title}
-              onLoad={() => setLoaded(true)}
+              onLoad={() => {
+                setLoaded(true);
+                setTimedOut(false);
+              }}
             />
-          )}
+          ) : null}
         </div>
       </div>
     </div>

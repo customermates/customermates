@@ -1,90 +1,131 @@
+import type { ReactNode } from "react";
+
+import { ArrowUpRight } from "lucide-react";
+
 import { AppChip } from "@/components/chip/app-chip";
+import { GridPattern } from "@/components/shared/grid-pattern";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/core/utils/cn";
 import { IntlLink } from "@/i18n/navigation";
 
 import { AgplGithubBadge } from "./agpl-github-badge";
-import { WaveDecoration } from "./wave-decoration";
+import { MarketingContainer } from "./marketing-container";
 
-type Props = {
+type HeroBaseProps = {
   badge?: string;
+  description: string;
+  showOpenSourceBadge?: boolean;
+  title: string;
+  titleAccent?: string;
+  visual?: ReactNode;
+};
+
+type HeroActions = {
   buttonLeftHref: string;
   buttonLeftText: string;
   buttonRightHref: string;
   buttonRightText: string;
-  description: string;
   hint: string;
-  title: string;
-  titleAccent?: string;
 };
 
-export function PageHero({
-  badge,
-  title,
-  titleAccent,
-  description,
-  buttonLeftHref,
-  buttonLeftText,
-  buttonRightHref,
-  buttonRightText,
-  hint,
-}: Props) {
+type HeroWithoutActions = {
+  buttonLeftHref?: never;
+  buttonLeftText?: never;
+  buttonRightHref?: never;
+  buttonRightText?: never;
+  hint?: never;
+};
+
+type Props = HeroBaseProps & (HeroActions | HeroWithoutActions);
+
+function isExternalHref(href: string) {
+  return href.startsWith("https://") || href.startsWith("http://");
+}
+
+function HeroAction({ href, label, variant }: { href: string; label: string; variant: "default" | "secondary" }) {
+  const content = (
+    <>
+      {label}
+
+      <ArrowUpRight aria-hidden className="size-4" />
+    </>
+  );
+
   return (
-    <div className="relative isolate w-full">
-      <WaveDecoration
-        className="-top-24 -left-40 w-[min(1080px,90vw)] md:-top-40 md:-left-60"
-        opacity={0.5}
-        variant="wave-1"
-      />
+    <Button asChild className="w-full sm:w-auto" size="lg" variant={variant}>
+      {isExternalHref(href) ? (
+        <a href={href} rel="noopener noreferrer" target="_blank">
+          {content}
+        </a>
+      ) : (
+        <IntlLink href={href}>{content}</IntlLink>
+      )}
+    </Button>
+  );
+}
 
-      <WaveDecoration
-        className="-top-16 right-0 hidden w-[min(720px,60vw)] md:block md:-top-8 md:-right-24"
-        opacity={0.35}
-        variant="wave-2"
-      />
+function hasHeroActions(props: Props): props is HeroBaseProps & HeroActions {
+  return typeof props.buttonLeftHref === "string";
+}
 
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 -top-16 z-[5] h-[760px] bg-[radial-gradient(ellipse_70%_75%_at_50%_50%,var(--background)_0%,color-mix(in_oklab,var(--background)_85%,transparent)_25%,color-mix(in_oklab,var(--background)_55%,transparent)_50%,color-mix(in_oklab,var(--background)_20%,transparent)_75%,transparent_100%)]"
-      />
+export function PageHero(props: Props) {
+  const { badge, title, titleAccent, description, showOpenSourceBadge = true, visual } = props;
+  const actions = hasHeroActions(props) ? props : null;
 
-      <div className="relative z-10 flex flex-col items-center">
-        <AgplGithubBadge />
+  return (
+    <section className="relative isolate w-full overflow-hidden border-b border-border bg-background">
+      <GridPattern className="z-0" fade="bottom" />
 
-        {badge ? (
-          <div className="mb-4 flex justify-center">
-            <AppChip variant="secondary">{badge}</AppChip>
-          </div>
-        ) : null}
-
-        <h1 className="text-x-4xl mx-auto max-w-4xl px-4 text-center">{title}</h1>
-
-        {titleAccent ? (
+      <MarketingContainer className="relative z-10">
+        <div
+          className={cn(
+            "py-16 sm:py-20 lg:py-28",
+            visual ? "marketing-grid items-center gap-y-12" : "flex flex-col items-center text-center",
+          )}
+        >
           <div
-            className="mx-auto mt-1.5 px-4 text-center text-[26px] italic text-primary sm:text-[32px] md:text-[36px] tracking-[-0.02em]"
-            style={{ fontFamily: "var(--font-serif)" }}
+            className={cn(
+              "min-w-0",
+              visual ? "col-span-12 lg:col-span-6 lg:pr-8" : "flex max-w-5xl flex-col items-center",
+            )}
           >
-            {titleAccent}
+            {showOpenSourceBadge ? <AgplGithubBadge /> : null}
+
+            {badge ? (
+              <div className={cn("mb-5 flex", visual ? "justify-start" : "justify-center")}>
+                <AppChip variant="secondary">{badge}</AppChip>
+              </div>
+            ) : null}
+
+            <h1 className={cn("text-display m-0", !visual && "max-w-5xl")}>
+              {title}
+
+              {titleAccent ? <span> {titleAccent}</span> : null}
+            </h1>
+
+            <p className={cn("text-lede mt-7", !visual && "mx-auto")}>{description}</p>
+
+            {actions ? (
+              <>
+                <div
+                  className={cn(
+                    "mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row",
+                    visual ? "items-stretch sm:items-center" : "items-stretch justify-center sm:items-center",
+                  )}
+                >
+                  <HeroAction href={actions.buttonLeftHref} label={actions.buttonLeftText} variant="default" />
+
+                  <HeroAction href={actions.buttonRightHref} label={actions.buttonRightText} variant="secondary" />
+                </div>
+
+                <p className={cn("text-meta mt-5", !visual && "text-center")}>{actions.hint}</p>
+              </>
+            ) : null}
           </div>
-        ) : null}
 
-        <h2 className="text-x-lg mx-auto max-w-4xl px-4 pt-4 text-center text-subdued md:pt-6">{description}</h2>
-
-        <div className="my-8 flex flex-col items-center px-4 md:my-10">
-          <div className="flex w-full flex-col items-center justify-center gap-4 sm:w-auto sm:flex-row md:gap-6">
-            <Button asChild className="w-full sm:w-auto" size="lg" variant="default">
-              <IntlLink href={buttonLeftHref}>{buttonLeftText}</IntlLink>
-            </Button>
-
-            <Button asChild className="w-full sm:w-auto" size="lg" variant="secondary">
-              <IntlLink href={buttonRightHref} target="_blank">
-                {buttonRightText}
-              </IntlLink>
-            </Button>
-          </div>
-
-          <p className="text-x-sm mt-6 flex items-center justify-center gap-2 text-center text-subdued">{hint}</p>
+          {visual ? <div className="col-span-12 min-w-0 lg:col-span-6">{visual}</div> : null}
         </div>
-      </div>
-    </div>
+      </MarketingContainer>
+    </section>
   );
 }

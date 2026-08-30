@@ -1,60 +1,54 @@
 "use client";
 
-import { ScrollProvider, type TOCItemType } from "fumadocs-core/toc";
-import { type ReactNode, useEffect, useRef } from "react";
+import type { TOCItemType } from "fumadocs-core/toc";
+import type { ReactNode } from "react";
 import * as TocClerk from "fumadocs-ui/components/toc/clerk";
 import * as FumaToc from "fumadocs-ui/components/toc/index";
 
-export function Toc({ items, children, actions }: { items: TOCItemType[]; children: ReactNode; actions?: ReactNode }) {
-  const tocScrollRef = useRef<HTMLDivElement>(null);
-  const contentScrollRef = useRef<HTMLElement>(null);
+import { cn } from "@/core/utils/cn";
 
-  useEffect(() => {
-    if (!tocScrollRef.current) return;
+type Props = {
+  actions?: ReactNode;
+  asideFooter?: ReactNode;
+  children: ReactNode;
+  items: TOCItemType[];
+  layout?: "article" | "default";
+};
 
-    let lastActiveElement: Element | null = null;
-
-    const intervalId = setInterval(() => {
-      if (!tocScrollRef.current) return;
-
-      const container = tocScrollRef.current;
-      const activeElement = container.querySelector('a[data-active="true"]');
-
-      if (activeElement && activeElement !== lastActiveElement) {
-        lastActiveElement = activeElement;
-
-        const elementTop = (activeElement as HTMLElement).offsetTop;
-        const elementHeight = activeElement.getBoundingClientRect().height;
-        const containerHeight = container.getBoundingClientRect().height;
-
-        const targetScroll = elementTop - containerHeight / 2 + elementHeight / 2;
-
-        container.scrollTo({
-          top: targetScroll,
-          behavior: "smooth",
-        });
-      } else if (!activeElement) lastActiveElement = null;
-    }, 300);
-
-    return () => clearInterval(intervalId);
-  }, []);
+export function Toc({ items, children, actions, asideFooter, layout = "default" }: Props) {
+  const hasMobileFooter = layout === "article" && Boolean(asideFooter);
 
   return (
     <FumaToc.TOCProvider toc={items}>
-      <div className="flex gap-6">
-        <ScrollProvider containerRef={contentScrollRef}>
-          <main ref={contentScrollRef} className="flex-1 min-w-0">
-            {children}
-          </main>
-        </ScrollProvider>
+      <div
+        className={
+          layout === "article"
+            ? "text-sm lg:grid lg:grid-cols-[minmax(0,96ch)_15rem] lg:justify-center lg:gap-6"
+            : "flex gap-6"
+        }
+      >
+        <div
+          className={cn("min-w-0 [&_[id]]:scroll-mt-[var(--toc-anchor-offset,0px)]", layout === "default" && "flex-1")}
+        >
+          {children}
+        </div>
 
         <aside
-          ref={tocScrollRef}
-          className="hidden lg:block max-w-68 shrink-0 [&_a]:text-xs sticky top-0 max-h-svh min-h-0 ms-px overflow-auto py-3 [scrollbar-width:none]"
+          className={cn(
+            "top-[var(--toc-sticky-top,0px)] min-h-0 shrink-0 self-start lg:flex lg:max-h-[calc(100svh-var(--toc-sticky-top,0px))] lg:flex-col",
+            hasMobileFooter ? "static mt-10 flex flex-col lg:sticky lg:mt-0" : "sticky hidden",
+            layout === "article" ? "lg:w-60" : "max-w-68",
+          )}
         >
-          {actions ? <div className="mb-4">{actions}</div> : null}
+          {actions ? <div className="shrink-0 pt-3 pb-1">{actions}</div> : null}
 
-          <TocClerk.TOCItems />
+          <FumaToc.TOCScrollArea className={cn("min-h-0 flex-1 [&_a]:text-xs", hasMobileFooter && "hidden lg:block")}>
+            <TocClerk.TOCItems />
+          </FumaToc.TOCScrollArea>
+
+          {asideFooter ? (
+            <div className={cn("shrink-0", hasMobileFooter ? "lg:pt-4" : "pt-4")}>{asideFooter}</div>
+          ) : null}
         </aside>
       </div>
     </FumaToc.TOCProvider>

@@ -5,6 +5,9 @@ import { McpConsentCard } from "./mcp-consent-card";
 import { getAuthService } from "@/core/di";
 import { requireAccountState } from "@/features/auth/next/require";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
+import { NOINDEX_METADATA } from "@/core/seo/noindex-metadata";
+
+export const metadata = NOINDEX_METADATA;
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;

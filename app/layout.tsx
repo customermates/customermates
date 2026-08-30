@@ -4,8 +4,6 @@ import type { Metadata, Viewport } from "next";
 
 import { getLocale, getMessages } from "next-intl/server";
 import { cookies } from "next/headers";
-import Script from "next/script";
-import { Analytics } from "@vercel/analytics/next";
 
 import { latin, mono, serif } from "./fonts";
 import { Providers } from "./providers";
@@ -115,14 +113,6 @@ export default async function RootLayout({ children }: Props) {
             {children}
           </NavigationSwitch>
         </Providers>
-
-        <Analytics />
-
-        <Script id="lemon-squeezy-affiliate-config" strategy="afterInteractive">
-          {`window.lemonSqueezyAffiliateConfig = { store: "customermates" };`}
-        </Script>
-
-        <Script defer src="https://lmsqueezy.com/affiliate.js" strategy="lazyOnload" />
       </body>
     </html>
   );

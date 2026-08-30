@@ -5,7 +5,7 @@ description: Learn how Customermates processes and protects personal data and wh
 
 # Privacy Policy
 
-_Version 2026-08-08, last updated 8 August 2026_
+_Version 2026-08-30, last updated 30 August 2026_
 
 ## Scope of This Policy
 
@@ -35,7 +35,7 @@ Some of the data is collected to ensure the website is provided without errors. 
 
 What rights do you have regarding your data?
 
-You have the right to receive information about the origin, recipient, and purpose of your stored personal data at any time, free of charge. You also have the right to request the correction or deletion of this data. If you have given consent to data processing, you can revoke this consent at any time for the future. Furthermore, you have the right to request the restriction of the processing of your personal data under certain circumstances. You also have the right to lodge a complaint with the competent supervisory authority. You can contact us at any time regarding this and other questions about data protection. Analysis and third-party tools: website use is measured in aggregated form, and the affiliate tracking described in section 5 processes pseudonymous browser and attribution data. Details are set out below.
+You have the right to receive information about the origin, recipient, and purpose of your stored personal data at any time, free of charge. You also have the right to request the correction or deletion of this data. If you have given consent to data processing, you can revoke this consent at any time for the future. Furthermore, you have the right to request the restriction of the processing of your personal data under certain circumstances. You also have the right to lodge a complaint with the competent supervisory authority. You can contact us at any time regarding this and other questions about data protection. Analysis and third-party tools: use of the managed public website is measured in aggregated form. On managed-cloud public content pages, affiliate referrals are attributed using Lemon Squeezy's standard script. Google advertising attribution is disabled. Details are set out below.
 
 ## 2. Hosting and Infrastructure Providers
 
@@ -185,7 +185,7 @@ The use of contact data published within the framework of the imprint obligation
 
 Our Internet pages use so-called "cookies". Cookies are small data packets and do not cause any damage to your device. They are stored either temporarily for the duration of a session (session cookies) or permanently (permanent cookies) on your device. Session cookies are automatically deleted after your visit. Permanent cookies remain stored on your device until you delete them yourself or an automatic deletion is carried out by your web browser. Cookies can originate from us (first-party cookies) or from third-party companies (so-called third-party cookies). Third-party cookies enable the integration of certain services of third-party companies within websites (e.g., cookies for handling payment services). Cookies have various functions. Numerous cookies are technically necessary, as certain website functions would not work without them (e.g., the shopping cart function or the display of videos). Other cookies can be used to evaluate user behavior or for advertising purposes.
 
-Cookies or comparable technologies that are strictly necessary to transmit a communication or provide a digital service expressly requested by you are stored or accessed under § 25 para. 2 TDDDG. Any subsequent processing of personal data is based on Art. 6 para. 1 lit. b GDPR where necessary to provide the requested contractual function and otherwise on Art. 6 para. 1 lit. f GDPR unless our legitimate interest in secure operation is overridden by the interests or fundamental rights and freedoms of data subjects. Non-essential storage or access requires consent under § 25 para. 1 TDDDG; related personal-data processing is based on Art. 6 para. 1 lit. a GDPR. Consent may be withdrawn at any time. The affiliate technology described in Section 5 is non-essential, and the managed service does not currently implement the consent mechanism required before its device access.
+Cookies or comparable technologies that are strictly necessary to transmit a communication or provide a digital service expressly requested by you are stored or accessed under § 25 para. 2 TDDDG. Any subsequent processing of personal data is based on Art. 6 para. 1 lit. b GDPR where necessary to provide the requested contractual function and otherwise on Art. 6 para. 1 lit. f GDPR unless our legitimate interest in secure operation is overridden by the interests or fundamental rights and freedoms of data subjects. Non-essential storage or access requires consent under § 25 para. 1 TDDDG; related personal-data processing is based on Art. 6 para. 1 lit. a GDPR. Consent may be withdrawn at any time. Vercel Web Analytics is described below and, according to Vercel, does not use cookies and stores anonymized analytics data. The standard Lemon Squeezy affiliate script described below uses the `ls_aff_ref` referral cookie for visitors who arrive through an affiliate link or return with an existing referral cookie. Google advertising-attribution tags are disabled.
 
 You can set your browser so that you are informed about the setting of cookies and only allow cookies in individual cases, exclude the acceptance of cookies for certain cases or in general, and activate the automatic deletion of cookies when closing the browser. If cookies are deactivated, the functionality of this website may be limited. Which cookies and services are used on this website can be found in this privacy policy.
 
@@ -210,11 +210,11 @@ We initiate these requests on the basis of Art. 6 para. 1 lit. f GDPR, based on 
 
 ### Vercel Web Analytics
 
-We use Vercel Web Analytics, a usage measurement service of Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, USA (hereinafter "Vercel"). Vercel Web Analytics is active on all pages of our website and of the web application, including the pages available after login.
+We use Vercel Web Analytics, a usage measurement service of Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, USA (hereinafter "Vercel"). The analytics component runs only on public content pages in the managed cloud service. It does not run inside the authenticated application, on authentication or invitation routes, or in the upstream self-hosted application.
 
 Vercel Web Analytics records page views and the associated usage measurement data, in particular the page called up, the referrer, and technical information derived from the request such as the browser and device type and an approximate geographic origin, and makes this available to us in aggregated form. We use this data to understand how our offering is used and to improve it.
 
-The use of Vercel Web Analytics is based on our legitimate interest in the needs-based design and improvement of our offering (Art. 6 para. 1 lit. f GDPR). According to Vercel, this analytics service does not use cookies or store data on or access data from your device for analytics purposes.
+The use of Vercel Web Analytics is based on our legitimate interest in understanding and improving our public offering (Art. 6 para. 1 lit. f GDPR). According to Vercel, this analytics service does not use cookies and stores anonymized analytics data.
 
 The transfer of personal data to the USA is based on the standard contractual clauses of the EU Commission of 2021 pursuant to Art. 46 GDPR, as set out in Vercel's data processing addendum. Further details can be found in Vercel's privacy policy: https://vercel.com/legal/privacy-policy.
 
@@ -292,16 +292,14 @@ As Lemon Squeezy is based in the USA, personal data may be transferred to a thir
 
 ### Affiliate Tracking (Lemon Squeezy)
 
-As part of our affiliate program, we use a tracking system provided by the payment and affiliate service provider **Sold through Link, LLC** (formerly Lemon Squeezy LLC),<br />
+Our payment provider **Sold through Link, LLC** (formerly Lemon Squeezy LLC) also offers an affiliate tracking system,<br />
 222 South Main Street, Suite 500, Salt Lake City, UT 84101, USA.
 
-Affiliate tracking is used for the **attribution of concluded contracts to referring partners** and the settlement of affiliate commissions. The affiliate script is scheduled by the root layout on managed Customermates routes. When the browser fetches it as part of a full document load, the request discloses ordinary request metadata, including the browser's IP address, to Lemon Squeezy. When its affiliate tracker initialises, it reads `document.cookie` to look for an existing `ls_aff_ref` cookie. The current root layout does not suppress the script solely because `APP_MODE=self-hosted` is set. An independent self-host operator controls its own deployment and is responsible for its own disclosures and consent choices.
+Customermates loads Lemon Squeezy's standard affiliate script only on managed-cloud public content pages. Every visit to one of those pages requests the script from `lmsqueezy.com`; that request can disclose the visitor's IP address, request time, browser and HTTP headers, and, depending on browser policy, the referring page to Lemon Squeezy even when the URL contains no affiliate code. When a visitor arrives through an affiliate link, the script reads the `aff` URL parameter. On that visit, or on a return visit to a public content page with an existing referral cookie, it sends the landing URL, referrer, referral reference, and a browser-derived visitor identifier to Lemon Squeezy. It stores the first-party `ls_aff_ref` referral cookie for the tracking period configured in Lemon Squeezy and can add the referral reference to Lemon Squeezy checkout links on those pages.
 
-If neither an existing `ls_aff_ref` cookie nor an `aff` parameter in the page URL is found, the script exits without executing its bundled fingerprinting routine or sending an affiliate tracking POST. Otherwise it executes that routine and reads browser and device signals including canvas, audio, fonts, plugins, storage availability, screen, platform, and hardware characteristics; where the trigger is an `aff` parameter, it can set the `ls_aff_ref` cookie. The cookie duration is controlled by the affiliate-program setting and has not yet been verified for our store.
+The purpose is to attribute referred visits and purchases, allocate commission, administer the affiliate programme, and prevent incorrect attribution. We rely on Art. 6(1)(f) GDPR for the personal-data processing that follows device access, based on our legitimate interests and those of participating affiliates in accurate attribution and remuneration. This legal basis does not replace consent where § 25(1) TDDDG requires it for storing information on or accessing a visitor's device. The current standard script is not gated by a separate Customermates consent mechanism. Browser settings may block or delete the cookie, which can prevent referral attribution.
 
-When affiliate identification is triggered, the script sends the page URL, referrer, affiliate or click reference, and a **pseudonymous visitor identifier** to Lemon Squeezy's affiliate endpoint. For the ordinary request metadata disclosed by the unconditional script load and for subsequent personal-data processing for affiliate attribution, we currently rely on Art. 6(1)(f) GDPR (legitimate interest in administering the affiliate program and settling commissions). Storage of device information or access to it requires a separate basis under § 25 TDDDG; Art. 6 GDPR does not replace it. Affiliate attribution is not strictly necessary to provide the digital service requested by the visitor, so consent under § 25(1) TDDDG and a corresponding technical mechanism are required before the non-essential device access. That consent mechanism is not currently implemented.
-
-As Lemon Squeezy is based in the USA, personal data may be transferred to a third country. Lemon Squeezy's contractual role and the applicable transfer mechanism for affiliate tracking have not yet been established for our account; both issues remain unresolved for the current processing.
+Authenticated, authentication, invitation, demo, and upstream self-hosted routes do not load the script. Affiliate-registration links open Lemon Squeezy's hosted website, where Lemon Squeezy's own privacy policy applies. An independent self-host operator controls its own deployment and is responsible for any integration it adds.
 
 Further information on data processing by Lemon Squeezy can be found in their privacy policy:
 
@@ -385,51 +383,49 @@ Because we act as a processor, we cannot decide on your rights ourselves. Please
 
 Requests from data subjects concerning connected-account content that are addressed to Customermates are forwarded to you as the controller; within the scope of its role as processor, Customermates supports you in responding to such requests. Where you process the personal data of third parties within the CRM, you remain responsible for that processing under data protection law.
 
-## 7. Planned AI Assistant (OpenAI)
+## 7. Mate AI Assistant (Vercel AI Gateway and OpenAI)
 
-We are developing an optional AI assistant for our CRM system. As at the date of this privacy policy, the assistant is not yet available and is not processing any data. We describe it here so that you know in advance how it is intended to work. We will update this section before the assistant becomes available.
-
-The assistant is planned as an optional feature for registered users within the CRM. It is intended to answer questions, to analyse and summarise content, and to support the use of the CRM, for example by preparing new entries from the content of a conversation. For customers in the EEA or Switzerland, the planned API counterparty is OpenAI Ireland Limited, 1st Floor, The Liffey Trust Centre, 117–126 Sheriff Street Upper, Dublin 1, D01 YC43, Ireland (https://openai.com).
+Mate is an AI assistant available to registered users of the managed Customermates cloud service. It has been active in the managed service since 29 August 2026. Mate is not part of an independently operated self-hosted installation. Its availability depends on an eligible subscription, available AI credits, and the managed service's global operating controls. A user initiates processing by sending a message or confirming an action in Mate; merely having an account does not submit CRM content to a model.
 
 ### Notice on the use of an AI system
 
-When the assistant becomes available, you will be interacting with an artificial intelligence system and not with a human being, and we will point this out in the interface of the feature. This notice is given pursuant to Art. 50 para. 1 of Regulation (EU) 2024/1689 (AI Act). The outputs of the assistant are generated automatically, may be inaccurate or incomplete, and should be checked before you rely on them. The assistant does not take any decision that produces legal effects concerning you or similarly significantly affects you within the meaning of Art. 22 GDPR.
+When you use Mate, you interact with an artificial intelligence system and not with a human being. The product identifies the feature as AI. This notice is given pursuant to Art. 50(1) of Regulation (EU) 2024/1689 (AI Act). Mate's output is generated automatically, may be inaccurate or incomplete, and must be checked before it is relied on. Mate and any output about a person are not offered or permitted for any purpose that could have a legal or material impact on that person, including decisions concerning credit, education, employment, housing, insurance, legal matters, or medical matters. Existing permissions apply to its tools, and actions with material side effects may require a separate confirmation in the product.
 
-### Data to be processed
+### Data processed and recipients
 
-Once the assistant is available, the following data may be processed when it is used:
+Depending on the request and the tools used, processing may include:
 
-- the content of the inputs you make in the assistant,
-- data from your company account that you or the assistant include in the request on your instruction,
-- technical metadata such as timestamps and session information.
+- the user's name, locale, current application route, prompt, and recent Mate conversation;
+- CRM or connected-account content that the user supplies or that an authorised tool retrieves for the requested task, such as contacts, organisations, deals, tasks, services, messages, and related record fields;
+- tool descriptions, tool inputs and results, approval and confirmation state, UI-command results, and generated output; and
+- company and user identifiers, model and provider identifiers, timestamps, status and diagnostic data, token usage, cost, credit, and billing metadata.
 
-The assistant will be limited to the data of the company account from which it is used.
+Mate does not automatically upload the entire workspace. A model request contains the prompt and recent conversation together with the context and tool results needed for the requested task. Requests are routed through **Vercel AI Gateway**, operated by Vercel Inc., to **OpenAI** as the selected model provider. Vercel and OpenAI therefore receive the parts of a request necessary to generate the response. The current provider chain and transfer information are listed at [Subprocessors](/subprocessors).
 
 ### Legal basis and roles
 
-The assistant will process two different categories of data, and the same allocation of roles applies as for the rest of the CRM.
+For CRM and connected-account content, including personal data concerning the customer's contacts and correspondents, the customer is the controller and Customermates processes that content on the customer's documented instructions as a processor pursuant to Art. 28 GDPR. Sending a Mate request or confirming an action is such an instruction; it is not consent within the meaning of Art. 6(1)(a) GDPR. The customer remains responsible for having a legal basis for the content and for deciding whether it may be included in a Mate request.
 
-For the content that you store in the CRM or that reaches the CRM through connected accounts, including the personal data of your contacts and correspondents, you are the controller and we process that content exclusively on your documented instructions as a processor pursuant to Art. 28 GDPR (see section 6). OpenAI will be engaged as a subprocessor for this purpose. Enabling and using the assistant is a decision you take as controller and constitutes an instruction to us; it is not a consent within the meaning of Art. 6 para. 1 lit. a GDPR.
+For user-account, entitlement, usage, billing, security, and diagnostic data that Customermates processes as controller, processing is based on Art. 6(1)(b) GDPR where it is necessary to provide and meter the contracted feature and on Art. 6(1)(f) GDPR for our legitimate interests in secure and reliable operation, abuse prevention, diagnostics, and accurate usage records.
 
-For the operation of your user account and for making the feature available to you as our customer, the processing is based on Art. 6 para. 1 lit. b GDPR (performance of our contract with you) and, insofar as we process technical metadata for the secure and reliable operation of the feature, on Art. 6 para. 1 lit. f GDPR.
+### Storage and deletion
 
-The assistant will be an optional feature that has to be activated for a company account. Deactivating it ends its availability and any further processing through it. This is a contractual and technical control and does not alter the legal basis described above.
+Customermates stores Mate conversations and messages, turn requests, model-round records, approvals, tool receipts and results, UI-command results, and associated model, provider, usage, cost, timestamp, company, and user metadata. Archiving a conversation hides it but does not delete it. When an authorised user permanently deletes an archived conversation, Customermates deletes that conversation and its messages, turns, rounds, approvals, tool receipts, and UI-command results. Usage and billing records, and CRM records created or changed through Mate, remain subject to their own retention and deletion rules. There is no automatic age-based expiry for an active Mate conversation during an active contract. After the contract ends, customer-controlled data is deleted or returned as described in the [Data Processing Agreement](/dpa), subject to statutory retention obligations and provider-level deletion limits.
 
-### Processing on our behalf and processing by OpenAI
+If a user expressly escalates a Mate conversation to support, the support request may contain recent conversation text and is then handled as described for support communications in this policy.
 
-Before the assistant is made available, we will conclude a data processing agreement with OpenAI pursuant to Art. 28 GDPR. OpenAI is already listed in advance at [Subprocessors](/subprocessors) under the notice procedure set out in our [Data Processing Agreement](/dpa), marked as planned and not yet in use. According to OpenAI, data transmitted through its API is not used to train its own models. Further information:
+### Provider handling and international transfers
 
+Vercel's AI Gateway terms treat third-party model providers as non-Vercel services and make their provider terms applicable. Vercel's current Notices and License Information links OpenAI's Terms of Use for this route. The public product source does not establish that an account-specific training opt-out, business/API data-processing configuration, or Zero Data Retention setting applies. Customermates therefore does not promise that provider-side training is disabled, that a particular provider retention period applies, or that prompts and outputs are deleted immediately. Users must not send sensitive personal information through Mate, including health information, financial-account information, or government-issued identifiers, and customers must not make CRM or connected-account context containing such information available to a Mate request.
+
+Use of Mate can involve processing in the United States and other countries used by the providers and their subprocessors. Vercel's data processing addendum incorporates the 2021 EU Standard Contractual Clauses for restricted transfers. The terms applicable to the OpenAI route, the recipient roles, and the known limitations are set out at [Subprocessors](/subprocessors). Further information:
+
+- Vercel AI Product Terms: https://vercel.com/legal/ai-product-terms
+- Vercel AI Gateway notices: https://vercel.com/legal/notices-and-license-information
+- Vercel Data Processing Addendum: https://vercel.com/legal/dpa
 - OpenAI Data Processing Addendum: https://openai.com/policies/data-processing-addendum
 - OpenAI Privacy Policy: https://openai.com/policies/privacy-policy
 
-### Transfer to third countries
-
-Use of the assistant may involve transfers of personal data to the USA. Before the feature is made available, any such transfer will be governed by the transfer terms and Standard Contractual Clauses in OpenAI's data processing addendum pursuant to Art. 46 GDPR.
-
-### Storage duration
-
-It is intended that the content of conversations with the assistant is processed only for the duration of the respective session and is not stored permanently by us. We will confirm the actual behaviour in this section before the assistant becomes available.
-
 ### Responsibility
 
-Insofar as we act as controller, we are responsible for the data processing involved in providing and technically operating the CRM system, including the AI assistant. Insofar as you process personal data of third parties within the CRM, you are the controller and we act as processor as described above.
+Where Customermates acts as controller, it is responsible for processing involved in providing and technically operating Mate. Where a customer uses Mate with personal data for which that customer is controller, Customermates acts as processor as described above and in the [Data Processing Agreement](/dpa).

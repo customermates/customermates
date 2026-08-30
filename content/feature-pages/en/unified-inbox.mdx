@@ -1,0 +1,251 @@
+---
+title: "Unified CRM Inbox for Email and Social Channels"
+description: "Manage Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram and Telegram conversations in one CRM inbox. Available in Customermates Cloud from Pro."
+featureName: Unified CRM Inbox
+
+acquisition:
+  locale: en
+  slug: unified-inbox
+  clusterId: unified-inbox
+  role: hub
+  primaryIntent: One CRM inbox for supported channels
+  metadata:
+    title: "Unified CRM Inbox for Email and Social Channels"
+    description: "Manage Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram and Telegram conversations in one CRM inbox. Available in Customermates Cloud from Pro."
+  proof:
+    factReferences:
+      - product:cloud-only-unified-inbox
+      - product:unified-inbox-channels
+      - product:unified-inbox-entitlements
+      - product:core-crm-records
+      - product:mcp-tools
+      - product:hosted-mate-capability
+    excludedClaims:
+      - claim:no-self-hosted-inbox
+      - claim:no-unsupported-channels
+  cta:
+    action: Bring supported conversations into the CRM
+    description: Start a Pro trial, connect one supported account and evaluate the inbox with your own workflow.
+    buttonLeftText: Start the Pro trial
+    buttonLeftHref: /auth/signup
+    buttonRightText: Read the inbox guide
+    buttonRightHref: /docs/app-inbox
+    hint: "No unified inbox is included in Starter or self-hosted deployments."
+  relatedHrefs:
+    - /docs/app-inbox
+    - /docs/mcp
+    - /blog/agentic-crm
+    - /for/agencies
+  visual:
+    id: acquisition.unified-inbox.en
+    locale: en
+    referenceSystemVersion: customermates-marketing-visuals@8
+    source:
+      headline: "One CRM Inbox for Email and Social Conversations"
+      body: "Work with Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram and Telegram threads in one list, then connect participants to CRM contact context. Cloud Pro and above."
+      checksum: fnv1a-ab57b73d
+    kind: brand-illustration
+    pathway: converge
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "Supported email, social and messenger channels converge in one CRM inbox."
+    depiction:
+      kind: relationship
+      productBehavior: true
+      statement: "Supported email, social and messenger channels converge in one CRM inbox."
+    factReferences:
+      - product:conversation-record-association
+      - product:unified-inbox-channel-set
+    focalLabel:
+      locale: en
+      text: Channels
+    semanticLabels:
+      - locale: en
+        text: One inbox
+      - locale: en
+        text: CRM context
+    focalSubject:
+      id: inbox-providers
+      form: provider-set
+      fixtures:
+        providerSet: unified-inbox
+    supportingSubjects:
+      - id: conversation-list
+        form: record
+        fixtures:
+          conversation: gmail-rollout-next-steps
+          person: anna-mueller
+      - id: contact-context
+        form: context-card
+        fixtures:
+          person: anna-mueller
+    accentTarget: inbox-providers
+  structuredData:
+    types:
+      - BreadcrumbList
+      - FAQPage
+    faqFromRenderedContent: true
+
+hero:
+  title: One CRM Inbox for Email and Social Conversations
+  description: Work with Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram and Telegram threads in one list, then connect participants to CRM contact context. Cloud Pro and above.
+  buttonLeftText: Start the Pro trial
+  buttonLeftHref: /auth/signup
+  buttonRightText: Read the inbox guide
+  buttonRightHref: /docs/app-inbox
+  hint: "Cloud only • Pro, Business and Enterprise"
+  showOpenSourceBadge: false
+
+cta:
+  action: Bring supported conversations into the CRM
+  description: Start a Pro trial, connect one supported account and evaluate the inbox with your own workflow.
+  buttonLeftText: Start the Pro trial
+  buttonLeftHref: /auth/signup
+  buttonRightText: Read the inbox guide
+  buttonRightHref: /docs/app-inbox
+  hint: "No unified inbox is included in Starter or self-hosted deployments."
+---
+
+The **Customermates unified CRM inbox** brings supported email and social conversations into one list. Team members can read and reply to threads, triage their state, keep a draft on an existing thread and associate participants with CRM contacts.
+
+It is a managed-cloud feature from Pro upward. Starter and self-hosted Customermates do not include messaging accounts or the unified inbox.
+
+<ArticleSummary title="At a glance">
+  <SummaryItem label="Outcome">
+    Work through supported customer conversations in one list while keeping the
+    participant's CRM contact context close.
+  </SummaryItem>
+  <SummaryItem label="Available on">
+    Customermates Cloud from Pro, with account allowances and sharing
+    capabilities that vary by plan.
+  </SummaryItem>
+  <SummaryItem label="Core actions">
+    Read and reply, triage thread state, keep a draft, work with supported
+    attachments and associate participants with contacts.
+  </SummaryItem>
+  <SummaryItem label="Important boundary">
+    The contact relationship bridges conversation and pipeline context. Messages
+    have no direct deal relation.
+  </SummaryItem>
+</ArticleSummary>
+
+<ProofRail label="Verified unified CRM inbox capabilities">
+  <ProofItem label="Email">Gmail, Outlook and IMAP</ProofItem>
+  <ProofItem label="Professional">LinkedIn variants</ProofItem>
+  <ProofItem label="Messaging">WhatsApp and Telegram</ProofItem>
+  <ProofItem label="Social">Instagram</ProofItem>
+  <ProofItem label="CRM context">Participant-to-contact matching</ProofItem>
+</ProofRail>
+
+<ProductDemo path="/inbox" />
+
+## Follow one conversation into the CRM context
+
+<Steps>
+  <Step title="Open the incoming thread">
+    Start from the combined conversation list instead of switching between
+    provider tabs.
+  </Step>
+  <Step title="Check the participant">
+    Match the person in the thread to a CRM contact so the relationship context
+    is available.
+  </Step>
+  <Step title="Review and respond">
+    Read the history, keep a persistent draft on the existing thread and send
+    through the connected channel when ready.
+  </Step>
+  <Step title="Triage the conversation">
+    Mark the thread unread, open, closed or spam so the inbox reflects its
+    current state.
+  </Step>
+</Steps>
+
+## Supported channels
+
+| Channel family        | Supported connections                                    |
+| --------------------- | -------------------------------------------------------- |
+| Email                 | Gmail/Google, Outlook/Microsoft and IMAP                 |
+| Professional networks | LinkedIn Classic, Sales Navigator and Recruiter variants |
+| Messaging and social  | WhatsApp, Instagram and Telegram                         |
+
+The supported set does not include SMS or telephony. Provider behavior and attachment support can differ by connection type.
+
+## What you can do in the inbox
+
+- view connected-account conversations in one list;
+- open a thread and reply in its channel;
+- mark threads unread, open, closed or spam;
+- match conversation participants to CRM contacts;
+- keep a persistent draft on an existing thread; and
+- work with supported attachments where the provider connection allows them.
+
+Conversation context can surface through its contact relationship. Messages do not have a direct deal relation, so the contact and its connected CRM records remain the bridge to pipeline context.
+
+## Personal and shared account access
+
+| Cloud plan | Included connected accounts    | Shared accounts |
+| ---------- | ------------------------------ | --------------- |
+| Starter    | 0                              | No              |
+| Pro        | 1 per user                     | No              |
+| Business   | 3 per user                     | Yes             |
+| Enterprise | Unlimited under fair-use terms | Yes             |
+
+Pro users can share individual threads with CRM teammates. Sharing an entire connected account is available on Business and Enterprise. Permissions still govern which CRM resources and actions a user can access.
+
+<AcquisitionCallout
+  title="Thread sharing and account sharing are different"
+  variant="proof"
+>
+  A Pro user can share an individual conversation with CRM teammates. Sharing
+  the complete connected account is a Business or Enterprise capability. This
+  distinction matters when evaluating personal inboxes versus team-owned
+  addresses.
+</AcquisitionCallout>
+
+## Inbox, MCP and approval boundaries
+
+The Customermates [MCP server](/docs/mcp) includes tools for supported messaging work, including reading threads and activities, managing drafts, triaging conversations and sending replies. Its instructions tell compatible clients to request explicit confirmation before a send, but the MCP endpoint does not add a second approval gate after the client calls the tool. Verify the client-side review step before granting messaging access.
+
+Every cloud plan includes a Mate entitlement and a monthly hosted-AI credit allowance per active user. When Mate is enabled in the hosted environment, it can work with eligible inbox tools under the current user's permissions and its own confirmation controls. External MCP clients instead use the customer's model provider and do not consume the hosted allowance.
+
+## Calendar boundary
+
+Supported connected accounts can expose a read-only calendar view on entitled cloud plans. Customermates does not create, update or book provider calendar events.
+
+## Cloud and self-hosted editions
+
+The unified inbox is available only in Customermates Cloud from Pro upward. The [self-hosted CRM](/features/self-hosted) uses Starter entitlements: zero connected messaging accounts, no shared accounts, no unified inbox and no hosted Mate or credits. External AI clients can still use MCP with the self-hosted core CRM.
+
+For channel setup context, read about [email integration](/features/email-integration) or follow the exact product workflow in the [inbox guide](/docs/app-inbox).
+
+## Frequently asked questions
+
+<Faq>
+<FaqItem question="Which plans include the unified CRM inbox?">
+Pro, Business and Enterprise in Customermates Cloud. Pro includes one connected account per user; Business includes three and shared accounts; Enterprise includes unlimited connected accounts under fair-use terms and supports shared accounts.
+</FaqItem>
+
+<FaqItem question="Does the inbox work when self-hosting?">
+  No. Self-hosted deployments use Starter entitlements, which include zero
+  messaging accounts and no unified inbox. MCP remains available for external AI
+  clients working with the core CRM.
+</FaqItem>
+
+<FaqItem question="Does Customermates support SMS or phone calls in this inbox?">
+  No. The supported set covers Gmail/Google, Outlook/Microsoft, IMAP email,
+  LinkedIn variants, WhatsApp, Instagram and Telegram, not SMS or telephony.
+</FaqItem>
+
+<FaqItem question="Are messages linked directly to deals?">
+  No. Participants can be associated with CRM contacts, and contact
+  relationships provide the bridge to relevant CRM context. There is no direct
+  message-to-deal relation.
+</FaqItem>
+
+<FaqItem question="Can an AI client send messages through the inbox?">
+Yes, on entitled cloud accounts. The MCP instructions tell compatible clients to request confirmation before sending, but the server executes a permitted send tool once the client calls it. Verify the client's confirmation behavior and user permissions before enabling messaging tools.
+</FaqItem>
+</Faq>

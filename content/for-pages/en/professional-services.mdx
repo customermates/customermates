@@ -1,198 +1,240 @@
 ---
-title: "CRM for Professional Services: Clients & Projects"
-description: "Best CRM for professional services in 2026. Manage client lifecycles, track project-based deals, and automate proposals. Open-source, GDPR-compliant."
-industryName: "Professional Services"
+title: "CRM for Professional Services | Clients & Pipeline"
+description: "Connect contacts, organizations, deals, services and follow-up tasks in one relationship and pipeline CRM, with weighted deal values, REST, webhooks and MCP."
+industryName: Professional Services
+
+acquisition:
+  locale: en
+  slug: professional-services
+  clusterId: professional-services
+  role: hub
+  primaryIntent: Relationship and pipeline CRM for professional services
+  metadata:
+    title: "CRM for Professional Services | Clients & Pipeline"
+    description: "Connect contacts, organizations, deals, services and follow-up tasks in one relationship and pipeline CRM, with weighted deal values, REST, webhooks and MCP."
+  proof:
+    factReferences:
+      - product:core-crm-records
+      - product:deal-pipelines
+      - product:services-and-tasks
+      - product:weighted-deal-values
+      - product:mcp-tools
+    excludedClaims:
+      - claim:no-psa
+      - claim:no-delivery-management
+      - claim:no-invoicing
+      - claim:no-predictive-sales-analytics
+      - claim:no-time-tracking
+  cta:
+    action: Put client relationships and pipeline in one place
+    description: Start with contacts, organizations and deals, then shape the stages and fields around your business-development process.
+    buttonLeftText: Start the Pro trial
+    buttonLeftHref: /auth/signup
+    buttonRightText: Explore the demo
+    buttonRightHref: https://demo.customermates.com
+    hint: "Keep delivery, proposals, time and billing in the specialist systems you already use."
+  relatedHrefs:
+    - /for/agencies
+    - /features/unified-inbox
+    - /features/self-hosted
+    - /blog/agentic-crm
+  visual:
+    id: acquisition.professional-services.en
+    locale: en
+    referenceSystemVersion: customermates-marketing-visuals@8
+    source:
+      headline: "A Relationship and Pipeline CRM for Professional Services"
+      body: "Keep client context, opportunities, services and follow-up tasks connected. Customermates supports business development while project delivery, proposals, invoicing and time tracking stay in specialist systems."
+      checksum: fnv1a-b2c3e91b
+    kind: brand-illustration
+    pathway: focus
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "Client context and weighted deal values make the business-development pipeline easier to read."
+    depiction:
+      kind: result
+      productBehavior: true
+      statement: "Deal stages and weighted values keep the business-development pipeline legible."
+    factReferences:
+      - product:deal-status-field
+      - product:deal-weighted-values
+      - product:record-activity-context
+    focalLabel:
+      locale: en
+      text: Deal pipeline
+    semanticLabels:
+      - locale: en
+        text: Client context
+      - locale: en
+        text: Weighted value
+    focalSubject:
+      id: deal-pipeline
+      form: kanban-board
+      fixtures:
+        dealBoard: professional-services-board
+    supportingSubjects:
+      - id: client-context
+        form: context-card
+      - id: service-value
+        form: context-card
+    accentTarget: deal-pipeline
+  structuredData:
+    types:
+      - BreadcrumbList
+      - FAQPage
+    faqFromRenderedContent: true
 
 hero:
-  title: "The CRM for Professional Services That Puts Relationships First"
-  description: "AI agents keep your engagement pipeline current and draft the follow-ups, while a native inbox unifies client email and LinkedIn. A professional services CRM built for consulting firms, agencies, and service businesses."
-  buttonLeftText: Start for free
+  title: A Relationship and Pipeline CRM for Professional Services
+  description: Keep client context, opportunities, services and follow-up tasks connected. Customermates supports business development while project delivery, proposals, invoicing and time tracking stay in specialist systems.
+  buttonLeftText: Start the Pro trial
   buttonLeftHref: /auth/signup
-  buttonRightText: Watch live demo
+  buttonRightText: Explore the demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free ✓ 2-minute setup"
+  hint: "No credit card required • [[commercial.trial.days]]-day Pro trial"
+  showOpenSourceBadge: false
 
 cta:
-  action: Ready to get started?
-  description: Join professional services firms that manage client relationships with Customermates, the open-source, agentic CRM that updates itself, from [[commercial.price.starter.monthly]]/user/month.
-  buttonLeftText: Start for free
+  action: Put client relationships and pipeline in one place
+  description: Start with contacts, organizations and deals, then shape the stages and fields around your business-development process.
+  buttonLeftText: Start the Pro trial
   buttonLeftHref: /auth/signup
-  buttonRightText: Watch live demo
+  buttonRightText: Explore the demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
+  hint: "Keep delivery, proposals, time and billing in the specialist systems you already use."
 ---
 
-## Why professional services firms need a dedicated CRM
+Customermates is a **CRM for professional services** teams that sell expertise through relationships and staged opportunities. It connects the client organization, its stakeholders, the opportunity, the services under discussion, the weighted value and the next task in one business-development workspace.
 
-Professional services, consulting, accounting, legal, architecture, engineering, IT services, and marketing agencies, run on trust, expertise, and long-term relationships. Unlike product businesses, your revenue depends on repeat engagements, referrals, and the depth of your client knowledge. A CRM for professional services captures this institutional knowledge and turns it into a growth engine.
+<ArticleSummary title="At a glance">
+  <SummaryItem label="Best for">
+    Consultancies and other relationship-led firms that need a clear client and
+    opportunity pipeline.
+  </SummaryItem>
+  <SummaryItem label="Core job">
+    Keep stakeholders, deals, services and next actions connected instead of
+    splitting them across personal notes and spreadsheets.
+  </SummaryItem>
+  <SummaryItem label="Strongest proof">
+    Configurable deal stages, deterministic weighted values, linked services and
+    record-linked tasks.
+  </SummaryItem>
+  <SummaryItem label="System boundary">
+    Customermates owns relationship and sales context. Delivery, proposals, time
+    and billing stay in specialist systems.
+  </SummaryItem>
+</ArticleSummary>
 
-Without a professional services CRM, firms face predictable problems:
+<ProofRail label="Verified professional-services CRM capabilities">
+  <ProofItem label="Relationships">Contacts and organizations</ProofItem>
+  <ProofItem label="Pipeline">Configurable stages and kanban</ProofItem>
+  <ProofItem label="Value">Stage-based weighted totals</ProofItem>
+  <ProofItem label="Scope">Services and linked tasks</ProofItem>
+  <ProofItem label="Extensions">REST, webhooks and MCP</ProofItem>
+</ProofRail>
 
-- **Client knowledge lives in people's heads**: When a partner leaves or a consultant is on vacation, critical context about active engagements disappears. New team members start from zero.
-- **Business development is ad hoc**: Referrals and repeat business happen by chance instead of design. Nobody tracks which clients are due for re-engagement or which proposals have gone cold.
-- **Project-based deals fall through cracks**: Proposals, scoping calls, SOWs, and active projects are scattered across email, spreadsheets, and shared drives. No single view shows the full engagement pipeline.
-- **Cross-selling is invisible**: You serve a client in one practice area but have no visibility into whether they need help in another service line your firm offers.
-- **Retainer tracking is manual**: For firms with ongoing retainer clients, monitoring renewal dates, usage, and satisfaction requires cobbling together spreadsheets and calendar reminders.
-- **Follow-up discipline erodes**: After delivering a project, firms forget to request testimonials, ask for referrals, or propose the next engagement.
+<ProductDemo path="/deals" />
 
-A CRM for service firms gives you the pipeline discipline, relationship continuity, and data-driven business development that separates growing firms from stagnant ones.
+## Follow one opportunity from relationship to next action
 
-## How Customermates works as your professional services CRM
+Imagine a consultancy speaking with a client organization about a multi-part engagement. The buying group includes an executive sponsor, a day-to-day contact and a procurement stakeholder. In Customermates, those people stay related to the same organization while the opportunity moves through the stages that match the firm's sales process.
 
-Customermates is purpose-built for firms that manage complex, relationship-driven sales cycles, not transactional e-commerce. Whether you are a consulting firm with 10 people or a multi-practice service business with 200, the platform adapts to your workflow.
+The team can attach the services, quantities and amounts currently under discussion, then keep the next follow-up as a task on the relevant record. Opening the deal reveals the commercial context without pretending that the CRM is also the delivery workspace.
 
-### Client lifecycle management
+<Steps>
+  <Step title="Build the client context">
+    Create the organization, add the people involved and preserve the
+    relationships that matter to the opportunity.
+  </Step>
+  <Step title="Shape the opportunity">
+    Open a deal, assign an owner and move it through the stages your team
+    defines.
+  </Step>
+  <Step title="Represent the commercial scope">
+    Link the relevant services, quantities and amounts to the deal.
+  </Step>
+  <Step title="Keep the next action visible">
+    Attach a task to the contact, organization, deal or service so the follow-up
+    stays with its context.
+  </Step>
+  <Step title="Hand off deliberately">
+    When work is won, pass the signed scope to the project, time and finance
+    systems responsible for delivery.
+  </Step>
+</Steps>
 
-Every client and prospect has a complete record in Customermates: contact details, engagement history, proposals sent, communications, meeting notes, and custom data fields. When a partner walks into a client meeting, they have the full picture, not just what they personally remember.
+## What this CRM covers
 
-Track the entire client lifecycle from first touchpoint through active engagement to long-term relationship management. Link contacts to companies, companies to engagements, and engagements to responsible team members. This [contact management](/features/contact-management) approach ensures no relationship falls through the cracks.
+| Business-development need      | Customermates owns                                       | Specialist system owns                          |
+| ------------------------------ | -------------------------------------------------------- | ----------------------------------------------- |
+| Client and stakeholder context | Contacts, organizations, relations, notes and activity   | Documents and matter files                      |
+| Opportunity pipeline           | Deals, configurable stages and kanban views              | Proposals, statements of work and contracts     |
+| Commercial value               | Service amounts, stage probabilities and weighted totals | Predictive forecasting and financial planning   |
+| Follow-up                      | Tasks linked to CRM records and users                    | Scheduling, project plans, time and utilization |
 
-### Project-based deal tracking
+<AcquisitionCallout
+  title="A CRM boundary that prevents duplicate delivery data"
+  variant="boundary"
+>
+  Keep the relationship, opportunity and next action in Customermates. Keep
+  project execution, capacity, time entries and invoices in the tools that
+  already own those records. Connect them through the [REST API and
+  webhooks](/features/api) or a separately operated [n8n
+  workflow](/features/workflow-automation) when a validated handoff is useful.
+</AcquisitionCallout>
 
-Professional services deals are not simple one-call closes. They involve discovery calls, scoping sessions, proposals, SOW negotiations, and sometimes months of follow-up. Customermates gives you a [visual pipeline](/features/pipeline) with customizable stages for each service line:
+## How weighted pipeline values work
 
-- **Discovery**, Initial conversation, needs assessment
-- **Scoping**, Defining project parameters and deliverables
-- **Proposal sent**, SOW or proposal delivered to prospect
-- **Negotiation**, Terms, pricing, and timeline discussions
-- **Won / Lost**, Engagement signed or opportunity closed
+Deal stages can carry probabilities. Customermates multiplies the deal value by the configured stage probability and adds those deterministic values into weighted pipeline totals. This makes assumptions visible and repeatable. It is not predictive revenue forecasting, enrichment or an automated close score.
 
-Different practice areas can maintain separate pipelines. A management consulting pipeline looks different from an IT services pipeline, and Customermates handles both.
+Use weighted value as a review aid: inspect the underlying deal, confirm that the stage still reflects reality and update the record when the commercial situation changes.
 
-### Proposal and SOW pipeline management
+## Where this professional-services CRM fits
 
-Never lose track of outstanding proposals again. See every proposal in flight, how long it has been pending, and which ones need follow-up. Set automated reminders so no SOW sits unanswered for weeks.
+The shared model works across consultancies, [agencies](/for/agencies), accounting practices and law firms, while each practice can choose its own stages, fields and language.
 
-Custom fields let you track proposal value, expected close date, service line, engagement type (project vs. retainer), and referral source, giving leadership a clear forecast of upcoming revenue.
+<AcquisitionCallout title="Choose Customermates when" variant="fit">
+  Your firm needs a relationship and pipeline system of record, sells through a
+  multi-step process and already has specialist delivery and finance tools.
+  Choose a PSA or project platform instead when resource planning, utilization,
+  billable time and invoicing must all live in the same product.
+</AcquisitionCallout>
 
-### Retainer and recurring engagement tracking
+## Cloud, self-hosted and AI access
 
-For firms with retainer clients, Customermates tracks renewal dates, engagement terms, and client satisfaction signals. Build automations that alert account managers 60 days before a retainer renewal, trigger quarterly business reviews, or flag clients whose engagement activity has dropped.
+Core relationship and pipeline records are available in managed cloud and [self-hosted Customermates](/features/self-hosted). Self-hosting uses the Starter entitlement baseline and can expose supported records to an external AI client through [MCP](/docs/mcp).
 
-### Resource allocation visibility
-
-Know which team members are assigned to which engagements. When a new project comes in, quickly see who has capacity. Custom fields for skills, certifications, and specializations help match the right people to the right engagements.
-
-### Client satisfaction tracking
-
-Track NPS scores, feedback from post-engagement surveys, and relationship health indicators alongside your client records. Identify at-risk relationships before they churn and surface your happiest clients for case studies and referrals.
-
-## Automation that keeps your pipeline moving
-
-Professional services business development requires consistent follow-up, something that breaks down when consultants are deep in delivery work. Customermates integrates with [n8n workflow automation](/features/workflow-automation) to handle the repetitive parts of business development:
-
-- A proposal was sent 10 days ago with no response? **Trigger a follow-up task** for the responsible partner.
-- An engagement wrapped up last month? **Create a check-in reminder** and satisfaction survey.
-- A prospect attended your webinar or event? **Add them to a nurture sequence** automatically.
-- A retainer renewal is coming up in 60 days? **Alert the account manager** and create a review meeting task.
-- A lead has been in the scoping stage for 3 weeks? **Escalate to the practice lead** for attention.
-
-No coding required. Build workflows visually in n8n and connect them to any stage of your pipeline.
-
-## AI agents that operate the CRM for consulting firms and service businesses
-
-Connect Claude, ChatGPT, or Gemini directly to Customermates through the native MCP integration ([[derived.mcp.tools.total]] tools). The agent does the data entry that consultants avoid: it reads the email thread after a scoping call and updates the deal, moves engagement stages, logs contact notes, and drafts the next follow-up, so the pipeline reflects reality without partners touching a form. It also helps the team work faster:
-
-- **Draft proposal follow-ups** based on the engagement context and previous communications
-- **Summarize client interaction history** before meetings so partners walk in prepared
-- **Identify cross-selling patterns** across your client base, which clients in service line A are candidates for service line B?
-- **Analyze pipeline health** and flag deals that are stalling or at risk
-
-The agent handles the analysis, drafting, and record-keeping. Your team focuses on delivering excellent client work and building relationships.
-
-## Unified inbox: email, LinkedIn, and more
-
-Professional services conversations happen over client email and, for business development, over LinkedIn. Customermates brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one inbox inside the CRM (Pro and up), and the same AI agents can read, draft, and send across every channel. Every message is automatically linked to the client record, so when multiple team members work the same account, everyone sees the full thread. No more asking colleagues "what did we last discuss with Acme Corp?" Our [email integration](/features/email-integration) connects with Gmail, Outlook, and other providers to keep communications centralized.
-
-## Reporting and pipeline analytics
-
-Understand your firm's business development performance with [built-in reporting](/features/reporting):
-
-- **Pipeline value by stage**: How much revenue is in proposal stage vs. negotiation vs. signed?
-- **Win rates by service line**: Which practice areas convert best?
-- **Average deal cycle time**: How long from first contact to signed engagement?
-- **Revenue by referral source**: Which referral partners and channels drive the most business?
-- **Team performance**: Which partners and business developers are generating the most pipeline?
-
-Build dashboards from current CRM values, or read supported data through REST for reports in a BI tool you operate. Customermates has no built-in report exporter.
-
-## Built for data security and compliance
-
-Professional services firms handle sensitive client information, financial data, legal matters, strategic plans, health records. Data security is not optional.
-
-- **GDPR-native**: Built from the ground up for European data protection standards
-- **EU-hosted**: the hosted database runs in an EU data centre
-- **Self-hostable**: For firms with strict data governance policies, deploy Customermates on your own infrastructure with full control
-- **Open source**: Inspect the code, audit the security, and verify there are no backdoors
-- **Role-based access**: Control who sees what across different practice areas and client accounts
-
-This matters especially for CRM for consulting firms handling confidential client engagements where data residency and access control are non-negotiable.
-
-## Pricing that works for professional services firms
-
-Enterprise CRMs like Salesforce charge $150+ per user per month and lock features like automation, API access, and advanced reporting behind premium tiers. For a firm with 20 consultants, that is $36,000+ per year, before implementation and customization costs.
-
-Customermates takes a different approach:
-
-- **Starter, [[commercial.price.starter.monthly]] per user per month**, automation, API, native AI integration, custom fields, and reporting from day one
-- **Pro, [[commercial.price.pro.monthly]] per user per month**, adds the unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) tied to every engagement, with calendar sync and LinkedIn Sales Navigator
-- **No hidden costs**, no implementation fees, no per-integration charges
-- **Open source and self-hostable**, deploy on your own servers if you prefer, free forever
-
-A 10-person consulting firm pays [[commercial.price.starter.monthly.seats.10]]/month on Starter. A 50-person service business pays [[commercial.price.starter.monthly.seats.50]]/month. Full CRM capabilities at a fraction of what legacy vendors charge.
-
-[See pricing details](/pricing)
-
-## How to get started
-
-1. **Create your account**, free, no credit card required. First [[commercial.trial.days]] days to explore everything.
-2. **Migrate supported records**, use the REST API, or hand a prepared source export to an AI agent connected over MCP. Customermates has no CSV uploader.
-3. **Configure your pipelines**, define stages for each service line or practice area.
-4. **Add custom fields**, model engagement type, service line, retainer terms, referral source, and any data specific to your firm.
-5. **Activate automations**, set up proposal follow-ups, retainer renewal alerts, and client check-in sequences.
-6. **Invite your team**, add partners, associates, consultants, and business development staff.
-
-Setup takes about 2 minutes. Most firms are fully operational within a day.
+The [unified inbox](/features/unified-inbox) is a managed-cloud feature from Pro upward. It can bring supported conversations into one list and associate participants with contact context. External MCP clients and model providers remain customer-selected services with their own data and control boundaries.
 
 ## Frequently asked questions
 
 <Faq>
-<FaqItem question="What is a CRM for professional services?">
-A CRM for professional services is a customer relationship management platform designed for firms that sell expertise and project-based work rather than physical products. It focuses on managing long-term client relationships, tracking multi-stage engagement pipelines, handling proposals and SOWs, and maintaining the institutional knowledge that drives repeat business and referrals. Unlike generic CRMs built for transactional sales, a professional services CRM emphasizes relationship depth over deal volume.
+<FaqItem question="Is Customermates a PSA platform?">
+No. It is a relationship and pipeline CRM. It does not provide native project delivery, capacity planning, utilization management, time tracking or billing.
 </FaqItem>
 
-<FaqItem question="Which types of professional services firms benefit from a CRM?">
-Any firm that manages client relationships and project-based revenue benefits from a CRM: management consulting, IT consulting, accounting and audit firms, law firms, architecture and engineering practices, marketing agencies, HR consulting, financial advisory, and staffing firms. If your business depends on repeat clients, referrals, and relationship continuity, a CRM for service firms will improve how you develop and retain business.
+<FaqItem question="Can it create proposals or invoices?">
+  No. Customermates has no proposal, SOW, quote or invoice document workflow.
+  You can keep the opportunity, stakeholders, services and follow-up context in
+  the CRM and connect a specialist system through REST, webhooks or an external
+  workflow.
 </FaqItem>
 
-<FaqItem question="How is a professional services CRM different from a sales CRM?">
-A traditional sales CRM is optimized for high-volume, transactional sales cycles, many leads, quick closes, one-time purchases. A professional services CRM handles longer sales cycles, multi-stakeholder deals, proposal and SOW management, retainer tracking, and ongoing client relationship management after the deal is signed. It connects business development to service delivery rather than treating the sale as the finish line.
+<FaqItem question="How are service values represented?">
+  Services can be linked to a deal with quantities and amounts. Deal stages can
+  carry probabilities, which Customermates uses to calculate deterministic
+  weighted deal values and pipeline totals.
 </FaqItem>
 
-<FaqItem question="Can Customermates handle multiple service lines with different pipelines?">
-Yes. You can create separate pipelines for each practice area or service line, each with its own stages, custom fields, and automation rules. A management consulting pipeline might have stages like Discovery, Proposal, Negotiation, and Engagement, while an IT services pipeline might include Technical Assessment, SOW, Proof of Concept, and Deployment. Each pipeline gives you independent reporting and forecasting.
+<FaqItem question="Can tasks replace project management or time tracking?">
+  No. Tasks can be linked to CRM records and users, but they are not a
+  project-delivery, scheduling or time-entry system.
 </FaqItem>
 
-<FaqItem question="Is Customermates suitable for small consulting firms or solo consultants?">
-Absolutely. Starting at [[commercial.price.starter.monthly]]/user/month with no minimum seats, Customermates works for solo consultants and boutique firms just as well as for larger practices. You get the same pipeline management, automation, native AI integration, and reporting that a 200-person firm uses, without paying enterprise prices. See also our dedicated page for [consultants](/for/consultants).
-</FaqItem>
-
-<FaqItem question="How does Customermates compare to Salesforce for professional services?">
-Salesforce Professional Services Cloud is powerful but expensive, typically $150-300+ per user per month, with additional costs for implementation, customization, and add-ons. Customermates offers comparable core CRM functionality (pipeline management, contact management, automation, API access, reporting) starting at [[commercial.price.starter.monthly]]/user/month, with the unified inbox on Pro at [[commercial.price.pro.monthly]]/user/month. Customermates is also open source, self-hostable, and GDPR-native, advantages for firms that prioritize data sovereignty and transparency.
-</FaqItem>
-
-<FaqItem question="Can I integrate Customermates with my project management and accounting tools?">
-Yes. Customermates provides a full API and integrates with [n8n workflow automation](/features/workflow-automation), which connects to thousands of tools including project management platforms (Asana, Monday, Jira), accounting software (QuickBooks, Xero, DATEV), communication tools (Slack, Microsoft Teams), and calendar systems. No enterprise pricing tier required to access integrations.
+<FaqItem question="Is the unified inbox available when self-hosting?">
+No. The unified inbox and connected calendar view are managed-cloud features from Pro upward. Self-hosted deployments use Starter entitlements and can connect external AI clients through MCP.
 </FaqItem>
 </Faq>
-
----
-
-Professional services firms grow through relationships, referrals, and repeat business. Customermates gives you the system to manage those relationships with the same rigor and discipline you bring to your client work, without the enterprise complexity or cost. [Get started for free](/auth/signup) or explore [all features](/features/pipeline).
-
-<RelatedPages>
-  <RelatedPage href="/for/lawyers" />
-  <RelatedPage href="/for/accountants" />
-  <RelatedPage href="/for/consultants" />
-  <RelatedPage href="/for/coaches" />
-</RelatedPages>

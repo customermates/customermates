@@ -20,27 +20,28 @@ function PopoverContent({
   sideOffset = 4,
   collisionPadding = OVERLAY_COLLISION_PADDING,
   onOpenAutoFocus,
+  portalled = true,
   ...props
-}: React.ComponentProps<typeof PopoverPrimitive.Content>) {
-  return (
-    <PopoverPrimitive.Portal>
-      <PopoverPrimitive.Content
-        align={align}
-        className={cn(
-          "z-50 max-h-(--radix-popover-content-available-height) w-72 max-w-(--radix-popover-content-available-width) origin-(--radix-popover-content-transform-origin) overflow-y-auto overscroll-contain rounded-md border border-border-strong bg-popover p-4 text-popover-foreground shadow-md outline-hidden data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
-          className,
-        )}
-        collisionPadding={collisionPadding}
-        data-slot="popover-content"
-        sideOffset={sideOffset}
-        onOpenAutoFocus={(event) => {
-          event.preventDefault();
-          onOpenAutoFocus?.(event);
-        }}
-        {...props}
-      />
-    </PopoverPrimitive.Portal>
+}: React.ComponentProps<typeof PopoverPrimitive.Content> & { portalled?: boolean }) {
+  const content = (
+    <PopoverPrimitive.Content
+      align={align}
+      className={cn(
+        "z-50 max-h-(--radix-popover-content-available-height) w-72 max-w-(--radix-popover-content-available-width) origin-(--radix-popover-content-transform-origin) overflow-y-auto overscroll-contain rounded-md border border-border-strong bg-popover p-4 text-popover-foreground shadow-md outline-hidden data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
+        className,
+      )}
+      collisionPadding={collisionPadding}
+      data-slot="popover-content"
+      sideOffset={sideOffset}
+      onOpenAutoFocus={(event) => {
+        event.preventDefault();
+        onOpenAutoFocus?.(event);
+      }}
+      {...props}
+    />
   );
+
+  return portalled ? <PopoverPrimitive.Portal>{content}</PopoverPrimitive.Portal> : content;
 }
 
 function PopoverAnchor({ ...props }: React.ComponentProps<typeof PopoverPrimitive.Anchor>) {

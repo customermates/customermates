@@ -6,10 +6,6 @@ hero:
   title: "Customer Success Management: The 2026 Guide for Lean Teams"
   description: A practical guide to the customer success management role, process, and metrics. Built for small SaaS teams who want CSMs focused on customers, not data entry.
 
-image:
-  src: /images/light/en/customer-success-management.png
-  alt: Customer Success Management
-
 blogPost:
   author: Benjamin Wagner
   backToBlog: Back to Blog
@@ -26,7 +22,7 @@ blogPost:
 
 Customer success management is the discipline of helping paying customers reach the outcomes they bought your product for, so they renew, expand, and refer. It is proactive, data driven, and revenue accountable. Done well, it is the cheapest growth engine a SaaS company has. Done badly, it becomes a polite reactive support team with a different job title.
 
-This guide covers what customer success management actually is, what a customer success manager does day to day, the process most teams follow, the metrics that matter, the software stack you need, and the trap I see lean SaaS teams fall into. I built [Customermates](https://customermates.com), an open source CRM, and most of the founders I talk to are running customer success management out of a spreadsheet, an inbox, and one overworked person. The patterns below are the ones that work for that scale.
+This guide covers what customer success management actually is, what a customer success manager does day to day, the process most teams follow, the metrics that matter, the software stack you need, and the trap I see lean SaaS teams fall into. I built [Customermates](/), an open source CRM, and most of the founders I talk to are running customer success management out of a spreadsheet, an inbox, and one overworked person. The patterns below are the ones that work for that scale.
 
 ## What Is Customer Success Management?
 
@@ -138,7 +134,7 @@ Gainsight, ChurnZero, Totango, Vitally, and Catalyst. These are full purpose bui
 
 A general CRM with custom fields, automation, and reporting can carry the customer success function up to several hundred customers. You add custom fields for health score, renewal date, expansion potential, and churn risk. You build automations for renewal reminders, health score updates, and expansion alerts. You build dashboards for retention metrics.
 
-This is what Customermates is built for. It is a CRM from [[commercial.price.starter.monthly]] per user per month with an n8n workflow node and [[derived.webhooks.events.total]] webhook events covering every record and messaging change, so you can build your own customer success automations without paying for a dedicated platform. The [[derived.mcp.tools.total]] [MCP tools](https://customermates.com/docs/concepts/mcp) mean Claude, ChatGPT, or Gemini can read and write the CRM directly, so a customer success manager can ask "which of my accounts has a renewal in the next 60 days and below 50 percent feature adoption" in plain English and get a list. On the Pro tier and up, a native unified inbox pulls email, LinkedIn, WhatsApp, Instagram, and Telegram into the CRM, and the same agents can draft and send replies across every channel, so customer conversations and the account record stay in one place. The CRM updates itself when the customer success manager dictates a call summary into Claude. The data entry tax disappears.
+This is what Customermates is built for. It is a CRM from [[commercial.price.starter.monthly]] per user per month with an n8n workflow node and [[derived.webhooks.events.total]] webhook events covering every record and messaging change, so you can build your own customer success automations without paying for a dedicated platform. The [[derived.mcp.tools.total]] [MCP tools](/docs/mcp) mean Claude, ChatGPT, or Gemini can read and write the CRM directly, so a customer success manager can ask "which of my accounts has a renewal in the next 60 days and below 50 percent feature adoption" in plain English and get a list. On the Pro tier and up, a native unified inbox pulls email, LinkedIn, WhatsApp, Instagram, and Telegram into the CRM, and the same agents can draft and send replies across every channel, so customer conversations and the account record stay in one place. The CRM updates itself when the customer success manager dictates a call summary into Claude. The data entry tax disappears.
 
 The pitch I make to lean teams is simple: spend the money you would have spent on Gainsight on actually doing customer success work. See [pricing](/pricing) for the full breakdown. If you are evaluating dedicated alternatives, the [HubSpot comparison](/compare/hubspot-alternative) covers the all in one CRM and customer success suite trade off.
 
@@ -202,27 +198,45 @@ Customer success management is the discipline of helping paying customers achiev
 </FaqItem>
 
 <FaqItem question="What does a customer success manager do?">
-A customer success manager owns a portfolio of customer accounts and is responsible for onboarding them, monitoring their health, driving feature adoption, identifying expansion opportunities, and securing renewals. They run kickoff calls, quarterly business reviews, executive check ins, and act as the customer's single point of contact for anything that is not a support ticket.
+  A customer success manager owns a portfolio of customer accounts and is responsible for onboarding them, monitoring
+  their health, driving feature adoption, identifying expansion opportunities, and securing renewals. They run kickoff
+  calls, quarterly business reviews, executive check ins, and act as the customer's single point of contact for anything
+  that is not a support ticket.
 </FaqItem>
 
 <FaqItem question="What is the difference between customer success and customer service?">
-Customer service or support is reactive: a customer reports an issue, the team resolves it. Customer success is proactive: the customer success manager reaches out before issues arise, drives adoption, and owns the renewal. Support is measured on resolution time and satisfaction. Customer success is measured on retention and expansion revenue.
+  Customer service or support is reactive: a customer reports an issue, the team resolves it. Customer success is
+  proactive: the customer success manager reaches out before issues arise, drives adoption, and owns the renewal.
+  Support is measured on resolution time and satisfaction. Customer success is measured on retention and expansion
+  revenue.
 </FaqItem>
 
 <FaqItem question="How much do customer success managers make?">
-Median total compensation for a customer success manager in the United States is around 141,000 dollars per year, with base salaries of 80,000 to 120,000 plus variable compensation of 20 to 40 percent tied to retention and expansion targets. Senior customer success managers and directors earn 150,000 to 250,000 plus equity in venture backed SaaS companies.
+  Median total compensation for a customer success manager in the United States is around 141,000 dollars per year, with
+  base salaries of 80,000 to 120,000 plus variable compensation of 20 to 40 percent tied to retention and expansion
+  targets. Senior customer success managers and directors earn 150,000 to 250,000 plus equity in venture backed SaaS
+  companies.
 </FaqItem>
 
 <FaqItem question="What software do customer success teams use?">
-Customer success teams use a combination of CRM, dedicated customer success platforms, support tools, and product analytics. Dedicated platforms like Gainsight, ChurnZero, and Totango are common above 1,000 customers. Below that scale, a CRM like Customermates with custom fields, automation, and AI agent integration covers the function at a fraction of the cost.
+  Customer success teams use a combination of CRM, dedicated customer success platforms, support tools, and product
+  analytics. Dedicated platforms like Gainsight, ChurnZero, and Totango are common above 1,000 customers. Below that
+  scale, a CRM like Customermates with custom fields, automation, and AI agent integration covers the function at a
+  fraction of the cost.
 </FaqItem>
 
 <FaqItem question="What is net revenue retention?">
-Net revenue retention is the percentage of recurring revenue retained from existing customers over a given period, including expansion and contraction. It is calculated as ending recurring revenue from a cohort divided by starting recurring revenue from that same cohort. Above 110 percent is healthy, above 120 percent is exceptional, below 90 percent indicates a churn problem.
+  Net revenue retention is the percentage of recurring revenue retained from existing customers over a given period,
+  including expansion and contraction. It is calculated as ending recurring revenue from a cohort divided by starting
+  recurring revenue from that same cohort. Above 110 percent is healthy, above 120 percent is exceptional, below 90
+  percent indicates a churn problem.
 </FaqItem>
 
 <FaqItem question="How do you measure customer success?">
-The core customer success metrics are net revenue retention, gross revenue retention, customer health score, time to first value, expansion revenue, and logo churn. Net retention and gross retention are the two metrics every customer success leader should report monthly to leadership. Health score is the leading indicator that explains the lagging retention numbers.
+  The core customer success metrics are net revenue retention, gross revenue retention, customer health score, time to
+  first value, expansion revenue, and logo churn. Net retention and gross retention are the two metrics every customer
+  success leader should report monthly to leadership. Health score is the leading indicator that explains the lagging
+  retention numbers.
 </FaqItem>
 
 <FaqItem question="Can AI agents do customer success management?">

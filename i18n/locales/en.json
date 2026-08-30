@@ -779,9 +779,6 @@
     "userCreationFailed": "Your account could not be created. Please try again.",
     "userInfoIsMissing": "The provider did not return your profile. Please try again."
   },
-  "BlogPostPage": {
-    "relatedArticles": "Related Articles"
-  },
   "BrowserFrame": {
     "live": "live",
     "liveDemoTitle": "Customermates live demo",
@@ -1345,10 +1342,6 @@
       "previousPage": "Previous page",
       "search": "Search..."
     },
-    "tags": {
-      "feature": "Feature",
-      "industry": "Industry"
-    },
     "themes": {
       "dark": "Dark",
       "light": "Light",
@@ -1397,12 +1390,7 @@
     "title": "User"
   },
   "ComparePage": {
-    "alternativeTitle": "{competitor} alternative",
-    "tags": {
-      "alternative": "Alternative",
-      "comparison": "Comparison",
-      "review": "Review"
-    }
+    "alternativeTitle": "{competitor} alternative"
   },
   "ConnectedAccountsCard": {
     "accountLimitReached": "You reached the connected-account limit for this plan. Contact us about Enterprise for unlimited accounts.",
@@ -1501,6 +1489,9 @@
   "ContactPage": {
     "description": "Have a question, want a walkthrough, or exploring a partnership? Drop me a note and I'll get back within a day.",
     "form": {
+      "founderName": "Benjamin Wagner",
+      "founderNote": "Your message comes directly to me. Tell me what you use today and where the workflow gets stuck.",
+      "founderRole": "Founder, Customermates",
       "messagePlaceholder": "What are you working on, and how can I help?",
       "submit": "Send message",
       "successBody": "I'll get back to you at the email you provided, usually within 24 hours.",
@@ -1518,8 +1509,8 @@
         "title": "Fast reply"
       },
       "personal": {
-        "body": "No ticket queue. I'm the founder and I reply personally.",
-        "title": "Directly with me"
+        "body": "Send me the setup you use today. I'll tell you what fits directly and where a separate integration is the honest answer.",
+        "title": "Talk through the workflow"
       }
     },
     "title": "Let's talk."
@@ -1972,9 +1963,7 @@
     "success": "Feedback received. You're officially part of the build crew."
   },
   "Footer": {
-    "blogViewAll": "View all articles",
-    "compare": "Compare",
-    "compareViewAll": "View all comparisons",
+    "company": "Company",
     "copyrightText": "© {year} Customermates. All rights reserved.",
     "dpa": "DPA",
     "featuredOn": "Featured on",
@@ -1983,7 +1972,7 @@
     "featuresViewAll": "View all features",
     "helpAndFeedback": "Help",
     "imprint": "Imprint",
-    "legal": "Legal",
+    "legal": "Support & legal",
     "privacy": "Privacy",
     "product": "Product",
     "resources": "Resources",
@@ -2239,15 +2228,11 @@
     "description": "Messaging is available on the Pro plan and higher. Upgrade to connect a channel and use the unified inbox.",
     "title": "Upgrade to unlock messaging"
   },
-  "N8nPage": {
-    "automationImageAlt": "Customermates CRM automation workflow with n8n integration"
-  },
   "NavigationBar": {
     "addEntity": "Add {entity}",
     "addPickerDescription": "Pick the type of record you want to create.",
     "addPickerTitle": "Create new…",
     "affiliate": "Affiliate Program",
-    "automation": "Automation",
     "connectedAccounts": "Channels",
     "crm": "CRM",
     "dashboard": "Dashboard",
@@ -2257,6 +2242,59 @@
     "members": "Members",
     "overview": "Overview",
     "pricing": "Pricing",
+    "public": {
+      "agencies": "Agencies",
+      "agenticCrm": "Agentic CRM",
+      "allFeatures": "All features",
+      "allIntegrations": "All integrations",
+      "allSolutions": "All solutions",
+      "api": "API and webhooks",
+      "articlesAndGuides": "Articles and guides",
+      "buildAndAutomate": "Build and automate",
+      "cloudCrm": "Cloud CRM",
+      "communication": "Communication",
+      "compare": "Comparisons",
+      "consultants": "Consultants",
+      "contactManagement": "Contact management",
+      "coreCrm": "Core CRM",
+      "deployment": "Deployment",
+      "emailAndGmail": "Email and Gmail",
+      "explore": "Explore",
+      "featuredTopics": "Featured topics",
+      "guides": "Guides",
+      "healthcare": "Healthcare",
+      "inboxGuide": "Inbox guide",
+      "industries": "Industries",
+      "integrations": "Integrations",
+      "integrationsDescription": "Connect the communication channels and open interfaces your workflow already uses.",
+      "mcpGuide": "MCP guide",
+      "moreChannels": "More channels",
+      "n8n": "n8n automation",
+      "openSourceCrm": "Open-source CRM",
+      "pipeline": "Sales pipeline",
+      "primaryNavigation": "Primary navigation",
+      "product": "Product",
+      "productDescription": "Customer relationships, pipeline, conversations, and extensibility in one system.",
+      "professionalServices": "Professional services",
+      "propertyManagement": "Property management",
+      "providerInstagram": "Instagram",
+      "providerLinkedIn": "LinkedIn",
+      "providerOutlook": "Outlook",
+      "providerSlack": "Slack",
+      "providerTelegram": "Telegram",
+      "providerWhatsApp": "WhatsApp",
+      "recruiting": "Recruiting",
+      "resources": "Resources",
+      "resourcesDescription": "Evaluate the product, understand the architecture, and follow practical implementation guides.",
+      "salesTracking": "Sales tracking",
+      "selfHosted": "Self-hosted CRM",
+      "selfHostingGuide": "Self-hosting guide",
+      "serviceTeams": "Service teams",
+      "solutions": "Solutions",
+      "solutionsDescription": "See how Customermates fits teams that manage long-term client relationships.",
+      "taskManagement": "Task management",
+      "unifiedInbox": "Unified inbox"
+    },
     "search": "Search",
     "settings": "Settings",
     "subscription": "Subscription",

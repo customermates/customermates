@@ -23,9 +23,7 @@ const LOCALE_ALTERNATION = REGISTERED_LOCALES.join("|");
 const LOCALE_LIST_LITERAL = new RegExp(
   `\\[\\s*["'](?:${LOCALE_ALTERNATION})["']\\s*(?:,\\s*["'](?:${LOCALE_ALTERNATION})["']\\s*)+\\]`,
 );
-const LOCALE_UNION_TYPE = new RegExp(
-  `["'](?:${LOCALE_ALTERNATION})["']\\s*\\|\\s*["'](?:${LOCALE_ALTERNATION})["']`,
-);
+const LOCALE_UNION_TYPE = new RegExp(`["'](?:${LOCALE_ALTERNATION})["']\\s*\\|\\s*["'](?:${LOCALE_ALTERNATION})["']`);
 const REDECLARED_LOCALE_ALIAS =
   /\(typeof\s+(?:REGISTERED_LOCALES|ROUTING_LOCALES|APP_LOCALES|CONTENT_LOCALES|FORMATTING_LOCALES)\)\[number\]/;
 
@@ -36,7 +34,10 @@ const DOMAIN_EXPECTATIONS: Array<{ file: string; imports: string }> = [
   { file: "components/shared/locale-menu.tsx", imports: "CONTENT_LOCALES" },
   { file: "scripts/generate-raw-docs-manifest.ts", imports: "CONTENT_LOCALES" },
   { file: "app/[locale]/(protected)/profile/components/profile-settings-form.tsx", imports: "DISPLAY_LANGUAGE_VALUES" },
-  { file: "app/[locale]/(protected)/profile/components/profile-settings-form.tsx", imports: "FORMATTING_LOCALE_VALUES" },
+  {
+    file: "app/[locale]/(protected)/profile/components/profile-settings-form.tsx",
+    imports: "FORMATTING_LOCALE_VALUES",
+  },
   { file: "features/user/upsert/update-user-details.interactor.ts", imports: "StoredDisplayLanguageSchema" },
   { file: "features/user/upsert/update-user-details.interactor.ts", imports: "StoredFormattingLocaleSchema" },
   { file: "features/user/get/get-user-details.interactor.ts", imports: "StoredDisplayLanguageSchema" },
@@ -53,10 +54,7 @@ const ALLOWED_AMBIENT_FORMATTING_SITES = new Map([
     'ee/scripts/get-user-stats.ts :: toLocaleDateString :: "en"',
     "Operator-only CLI output has a stable English contract.",
   ],
-  [
-    'ee/scripts/get-user-stats.ts :: toLocaleString :: "en"',
-    "Operator-only CLI output has a stable English contract.",
-  ],
+  ['ee/scripts/get-user-stats.ts :: toLocaleString :: "en"', "Operator-only CLI output has a stable English contract."],
 ]);
 
 type VisibleCopyException = { count: number; reason: string };
@@ -67,24 +65,25 @@ const ALLOWED_VISIBLE_COPY_SITES = new Map<string, VisibleCopyException>([
   ...reviewedVisibleCopy("Proper names and product brands are locale-invariant.", [
     'app/[locale]/(protected)/company/components/subscription/subscribe-manage-button.tsx :: jsx-alt :: "Lemon Squeezy"',
     'app/[locale]/(static)/blog/[slug]/page.tsx :: jsx-alt :: "Benjamin Wagner"',
-    'app/[locale]/(static)/blog/blog-post-card.tsx :: jsx-alt :: "Benjamin Wagner"',
     'app/[locale]/(static)/docs/components/docs-sidebar.tsx :: jsx-text :: "Customermates"',
-    'app/components/footer-content.tsx :: jsx-text :: "GitHub"',
-    'app/components/footer-content.tsx :: jsx-text :: "LinkedIn"',
-    'app/components/footer-content.tsx :: jsx-text :: "X (Twitter)"',
-    'app/components/footer-content.tsx :: jsx-text :: "Viesearch - The Human-curated Search Engine"',
+    'app/components/footer-content.tsx :: jsx-aria-label :: "GitHub"',
+    'app/components/footer-content.tsx :: jsx-aria-label :: "LinkedIn"',
+    'app/components/footer-content.tsx :: jsx-aria-label :: "X (Twitter)"',
     'components/emails/base/email-layout.tsx :: jsx-alt :: "Customermates"',
     'components/emails/base/email-layout.tsx :: jsx-text :: "Customermates ·"',
+    'components/marketing/founder-contact-card.tsx :: jsx-text :: "Benjamin Wagner"',
     'components/marketing/comparison-table.tsx :: jsx-alt :: "Customermates"',
-    'components/marketing/cta-section.tsx :: jsx-alt :: "Customermates"',
   ]),
-  ...reviewedVisibleCopy("Terminal, keyboard, and backlink tokens have invariant external meaning.", [
+  ...reviewedVisibleCopy("Terminal and keyboard tokens have invariant external meaning.", [
     'app/[locale]/(static)/components/homepage-clip-terminal.tsx :: jsx-text :: "~/agent"',
     'app/[locale]/(static)/components/homepage-clip-terminal.tsx :: jsx-text :: "tool"',
+    'app/components/navigation/nav-header.tsx :: jsx-text :: "&#8984;K"',
+  ]),
+  ...reviewedVisibleCopy("Reciprocal directory labels are externally defined and locale-invariant.", [
+    'app/components/footer-content.tsx :: jsx-text :: "Viesearch - The Human-curated Search Engine"',
     'app/components/footer-content.tsx :: jsx-text :: "https://www.promotebusinessdirectory.com/"',
     'app/components/footer-content.tsx :: jsx-text :: "http://www.usawebsitesdirectory.com/computers_and_internet/"',
     'app/components/footer-content.tsx :: jsx-text :: "https://www.bestsitesindex.com/submit.php"',
-    'app/components/navigation/nav-header.tsx :: jsx-text :: "&#8984;K"',
   ]),
   ...reviewedVisibleCopy("The company identity and address are legal contact data, not localized prose.", [
     'components/emails/base/email-layout.tsx :: jsx-text :: "Benjamin Wagner · An den Kasernen 25 · 68167 Mannheim,"',
@@ -150,11 +149,8 @@ function formattingSitesInSource(source: string, repoPath: string): string[] {
       node.expression.expression.text === "Intl" &&
       INTL_CONSTRUCTORS.has(node.expression.name.text) &&
       isAmbientOrLiteralLocale(node.arguments?.[0])
-    ) {
-      sites.push(
-        `${repoPath} :: new Intl.${node.expression.name.text} :: ${argumentLabel(node.arguments?.[0])}`,
-      );
-    }
+    )
+      sites.push(`${repoPath} :: new Intl.${node.expression.name.text} :: ${argumentLabel(node.arguments?.[0])}`);
 
     if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)) {
       const method = node.expression.name.text;
@@ -270,11 +266,9 @@ function visibleCopySitesInSource(source: string, repoPath: string): string[] {
     }
     if (
       ts.isBinaryExpression(node) &&
-      [
-        ts.SyntaxKind.AmpersandAmpersandToken,
-        ts.SyntaxKind.BarBarToken,
-        ts.SyntaxKind.QuestionQuestionToken,
-      ].includes(node.operatorToken.kind)
+      [ts.SyntaxKind.AmpersandAmpersandToken, ts.SyntaxKind.BarBarToken, ts.SyntaxKind.QuestionQuestionToken].includes(
+        node.operatorToken.kind,
+      )
     ) {
       recordLiteralBranches(kind, node.left);
       recordLiteralBranches(kind, node.right);
@@ -292,7 +286,8 @@ function visibleCopySitesInSource(source: string, repoPath: string): string[] {
     if (ts.isJsxText(node) && !isStaticallyAriaHidden(node, sourceFile)) record("jsx-text", node.text);
 
     if (ts.isJsxAttribute(node) && VISIBLE_JSX_ATTRIBUTES.has(node.name.getText(sourceFile))) {
-      if (node.initializer && ts.isStringLiteral(node.initializer)) record(`jsx-${node.name.getText(sourceFile)}`, node.initializer.text);
+      if (node.initializer && ts.isStringLiteral(node.initializer))
+        record(`jsx-${node.name.getText(sourceFile)}`, node.initializer.text);
       if (node.initializer && ts.isJsxExpression(node.initializer))
         recordLiteralBranches(`jsx-${node.name.getText(sourceFile)}`, node.initializer.expression);
     }
@@ -309,9 +304,8 @@ function visibleCopySitesInSource(source: string, repoPath: string): string[] {
           ts.SyntaxKind.BarBarToken,
           ts.SyntaxKind.QuestionQuestionToken,
         ].includes(node.expression.operatorToken.kind)
-      ) {
+      )
         recordLiteralBranches("jsx-logical", node.expression);
-      }
     }
 
     if (ts.isPropertyAssignment(node)) {
@@ -372,13 +366,8 @@ function hardCodedLocaleComparisonsInSource(source: string, repoPath: string): s
       if (comparesEquality && literal && localeValues.has(literal.text)) record(node);
     }
 
-    if (
-      ts.isCaseClause(node) &&
-      ts.isStringLiteralLike(node.expression) &&
-      localeValues.has(node.expression.text)
-    ) {
+    if (ts.isCaseClause(node) && ts.isStringLiteralLike(node.expression) && localeValues.has(node.expression.text))
       record(node);
-    }
 
     ts.forEachChild(node, visit);
   };
@@ -415,7 +404,7 @@ function localeBranchingInSource(source: string, repoPath: string): string[] {
   };
 
   const isLocaleLiteral = (node: ts.Node | undefined): boolean =>
-    Boolean(node) && ts.isStringLiteralLike(node!) && localeValues.has(node!.text.toLowerCase());
+    Boolean(node) && ts.isStringLiteralLike(node!) && localeValues.has(node.text.toLowerCase());
 
   const visit = (node: ts.Node): void => {
     if (
@@ -423,9 +412,8 @@ function localeBranchingInSource(source: string, repoPath: string): string[] {
       ts.isPropertyAccessExpression(node.expression) &&
       LOCALE_PREFIX_METHODS.has(node.expression.name.text) &&
       isLocaleLiteral(node.arguments[0])
-    ) {
+    )
       record(node);
-    }
 
     if (ts.isConditionalExpression(node) && isLocaleLiteral(node.whenTrue) && isLocaleLiteral(node.whenFalse))
       record(node);
@@ -456,7 +444,9 @@ function localeKeyedCopyTablesInSource(source: string, repoPath: string): string
 
       if (localeProperties.length > 1 && carriesCopy) {
         const line = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1;
-        found.push(`${repoPath}:${line}: ${localeProperties.map((property) => propertyName(property.name)).join(", ")}`);
+        found.push(
+          `${repoPath}:${line}: ${localeProperties.map((property) => propertyName(property.name)).join(", ")}`,
+        );
       }
     }
 
@@ -696,9 +686,10 @@ describe("locale consumer audit", () => {
       return source.includes("z.config(") ? [repoPath] : [];
     });
 
-    expect(found, `request-localized validation must pass a parse context, not call z.config():\n${found.join("\n")}`).toEqual(
-      [],
-    );
+    expect(
+      found,
+      `request-localized validation must pass a parse context, not call z.config():\n${found.join("\n")}`,
+    ).toEqual([]);
   });
 
   it.skipIf(!ENFORCED)("does not create customer-facing Zod errors from raw source literals", () => {
