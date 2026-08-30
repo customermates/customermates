@@ -74,8 +74,7 @@ export class OperatorAccessService {
   ) {}
 
   async authorizeFresh(): Promise<OperatorActor> {
-    if (env.APP_MODE !== "cloud" || env.OPERATOR_CONSOLE_ENABLED !== true)
-      throw new ForbiddenError("Operator console is unavailable");
+    if (env.APP_MODE !== "cloud") throw new ForbiddenError("Operator console is unavailable");
 
     const session = await this.authService.getInteractiveSession();
     if (!session) throw new AuthError();

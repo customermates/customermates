@@ -16,29 +16,23 @@ describe("operator environment flags", () => {
     vi.resetModules();
   });
 
-  it("fails closed when the flags are absent or blank", async () => {
-    const env = await loadEnv({
-      HOSTED_AI_OPERATOR_CONTROLS_ENABLED: " ",
-      OPERATOR_CONSOLE_ENABLED: undefined,
-    });
+  it("fails closed when the switch is absent or blank", async () => {
+    const env = await loadEnv({ HOSTED_AI_OPERATOR_CONTROLS_ENABLED: " " });
 
-    expect(env.OPERATOR_CONSOLE_ENABLED).toBe(false);
     expect(env.HOSTED_AI_OPERATOR_CONTROLS_ENABLED).toBe(false);
   });
 
   it("accepts only explicit lowercase booleans", async () => {
-    const env = await loadEnv({
-      HOSTED_AI_OPERATOR_CONTROLS_ENABLED: "false",
-      OPERATOR_CONSOLE_ENABLED: "true",
-    });
+    const enabled = await loadEnv({ HOSTED_AI_OPERATOR_CONTROLS_ENABLED: "true" });
+    expect(enabled.HOSTED_AI_OPERATOR_CONTROLS_ENABLED).toBe(true);
 
-    expect(env.OPERATOR_CONSOLE_ENABLED).toBe(true);
-    expect(env.HOSTED_AI_OPERATOR_CONTROLS_ENABLED).toBe(false);
+    const disabled = await loadEnv({ HOSTED_AI_OPERATOR_CONTROLS_ENABLED: "false" });
+    expect(disabled.HOSTED_AI_OPERATOR_CONTROLS_ENABLED).toBe(false);
   });
 
   it.each(["1", "TRUE", "yes", "enabled"])("rejects the ambiguous value %s", async (value) => {
-    await expect(loadEnv({ OPERATOR_CONSOLE_ENABLED: value })).rejects.toThrow(
-      'OPERATOR_CONSOLE_ENABLED must be configured as "true" or "false"',
+    await expect(loadEnv({ HOSTED_AI_OPERATOR_CONTROLS_ENABLED: value })).rejects.toThrow(
+      'HOSTED_AI_OPERATOR_CONTROLS_ENABLED must be configured as "true" or "false"',
     );
   });
 });

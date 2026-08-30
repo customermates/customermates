@@ -81,6 +81,13 @@ const RELATION_FIELD_MAPPING: Record<FilterFieldKey, string> = {
   [FilterFieldKey.connectedAccountId]: "connectedAccountId",
   [FilterFieldKey.calendarId]: "calendarId",
   [FilterFieldKey.startsAt]: "startsAt",
+  [FilterFieldKey.plan]: "plan",
+  [FilterFieldKey.subscriptionStatus]: "subscriptionStatus",
+  [FilterFieldKey.isPlatformOperator]: "isPlatformOperator",
+  [FilterFieldKey.emailVerified]: "emailVerified",
+  [FilterFieldKey.lastActiveAt]: "lastActiveAt",
+  [FilterFieldKey.workspaceId]: "companyId",
+  [FilterFieldKey.auditSource]: "auditSource",
 };
 
 export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknown>> {

@@ -529,7 +529,6 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         fleet: { companies, enterpriseCompanies, users, activeUsers },
         globalControl: mapGlobalControl(control),
       };
-      await this.createAudit({ action: OPERATOR_AUDIT_ACTION.overviewRead });
       return result;
     });
   }
@@ -571,13 +570,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
       if (users.length > 1) throw new OperatorConflictError("The normalized email matches multiple users.");
 
       const user = users[0];
-      if (!user) {
-        await this.createAudit({
-          action: OPERATOR_AUDIT_ACTION.candidateRead,
-          metadata: { matched: false },
-        });
-        return null;
-      }
+      if (!user) return null;
 
       const [authUsers, company] = await Promise.all([
         this.prisma.authUser.findMany({
@@ -674,12 +667,6 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         company,
         creditPeriod,
       };
-      await this.createAudit({
-        action: OPERATOR_AUDIT_ACTION.candidateRead,
-        targetCompanyId: user.companyId,
-        targetUserId: user.id,
-        metadata: { matched: true },
-      });
       return candidate;
     });
   }
@@ -690,10 +677,6 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
       const company = await this.companySnapshot(companyId, now);
       if (!company) throw new OperatorNotFoundError("Company or subscription not found.");
 
-      await this.createAudit({
-        action: OPERATOR_AUDIT_ACTION.companyRead,
-        targetCompanyId: companyId,
-      });
       return company;
     });
   }
@@ -733,20 +716,6 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
       const verification = await this.authVerificationByUserId(visible);
       const users = visible.map((user) => this.mapUserListItem(user, verification.get(user.id) ?? false));
 
-      await this.createAudit({
-        action: OPERATOR_AUDIT_ACTION.userListRead,
-        metadata: {
-          queryPresent: Boolean(data.query),
-          filters: {
-            status: data.status ?? null,
-            subscriptionPlan: data.subscriptionPlan ?? null,
-            subscriptionStatus: data.subscriptionStatus ?? null,
-            isPlatformOperator: data.isPlatformOperator ?? null,
-          },
-          sort: data.sort,
-          resultCount: users.length,
-        },
-      });
       return {
         users,
         nextCursor: hasMore ? (visible.at(-1)?.id ?? null) : null,
@@ -820,10 +789,6 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
       summary.byPlan.missing = missing;
       summary.bySubscriptionStatus.missing = missing;
 
-      await this.createAudit({
-        action: OPERATOR_AUDIT_ACTION.userSummaryRead,
-        metadata: { totalUsers: summary.totalUsers },
-      });
       return summary;
     });
   }
@@ -832,11 +797,6 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
   async getUserDetailAuditedOrThrowUnscoped(userId: string, now = new Date()): Promise<OperatorUserDetailDto> {
     return runInTransaction(async () => {
       const detail = await this.userDetailOrThrow(userId, now);
-      await this.createAudit({
-        action: OPERATOR_AUDIT_ACTION.userDetailRead,
-        targetCompanyId: detail.companyId,
-        targetUserId: detail.userId,
-      });
       return detail;
     });
   }
@@ -1524,10 +1484,6 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
       const hasMore = rows.length > args.limit;
       const visible = hasMore ? rows.slice(0, args.limit) : rows;
 
-      await this.createAudit({
-        action: OPERATOR_AUDIT_ACTION.auditRead,
-        metadata: { resultCount: visible.length },
-      });
       return {
         events: visible.map((event) => ({
           ...event,

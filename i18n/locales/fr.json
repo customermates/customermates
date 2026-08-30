@@ -1134,20 +1134,27 @@
       "daysPreset": "{count, plural, =1 {1 jour} other {# jours}}",
       "daysSuffix": "jours",
       "fields": {
+        "auditSource": "Source",
         "calendarId": "Calendrier",
         "connectedAccountId": "Canal",
         "createdAt": "Créé le",
+        "emailVerified": "E-mail vérifié",
         "event": "Évènement",
+        "isPlatformOperator": "Opérateur de plateforme",
+        "lastActiveAt": "Dernière activité",
         "participants": "Participants",
+        "plan": "Forfait",
         "provider": "Fournisseur",
         "startsAt": "Commence le",
         "state": "État",
         "status": "Statut",
+        "subscriptionStatus": "Abonnement",
         "timelineKind": "Type",
         "timelineThreadId": "Conversation",
         "updatedAt": "Mis à jour le",
         "url": "URL",
-        "userIds": "Assigné à"
+        "userIds": "Assigné à",
+        "workspaceId": "Espace de travail"
       },
       "operators": {
         "allSet": "entièrement lié",
@@ -2407,164 +2414,43 @@
       }
     }
   },
+  "OperatorAudit": {
+    "columns": {
+      "action": "Action",
+      "actor": "Auteur",
+      "createdAt": "Heure",
+      "reason": "Motif",
+      "source": "Source",
+      "target": "Cible",
+      "workspace": "Espace de travail"
+    },
+    "description": "Toutes les modifications enregistrées sur tous les espaces, issues du produit et des actions opérateur.",
+    "emptyBody": "Ajustez la recherche ou les filtres pour élargir le journal.",
+    "emptyTitle": "Aucun événement ne correspond à ces filtres",
+    "loading": "Chargement du journal d’audit",
+    "navigation": "Journal d’audit",
+    "searchPlaceholder": "Rechercher par action",
+    "title": "Journal d’audit",
+    "values": {
+      "source": {
+        "operator": "Opérateur",
+        "product": "Produit"
+      }
+    }
+  },
   "OperatorConsole": {
     "actions": {
       "retry": "Réessayer"
     },
-    "adjustment": {
-      "deltaDescription": "Saisissez un nombre positif pour accorder des crédits ou un nombre négatif pour les corriger.",
-      "deltaLabel": "Ajustement de crédits signé",
-      "deltaPlaceholder": "Par exemple, 500 ou -100",
-      "description": "Ajoutez une correction immuable et limitée à la période pour cet utilisateur.",
-      "period": "S’applique uniquement du {start} au {end}.",
-      "periodUnavailable": "Une période de crédits en cours est requise avant d’enregistrer un ajustement.",
-      "save": "Enregistrer l’ajustement",
-      "success": "L’ajustement de crédits a été enregistré.",
-      "title": "Ajustement manuel des crédits"
-    },
-    "allowance": {
-      "creditsDescription": "Cette allocation s’applique par utilisateur actif pendant chaque période de crédits.",
-      "creditsLabel": "Crédits par utilisateur",
-      "description": "Définissez l’allocation de base de l’IA hébergée pour un espace Enterprise.",
-      "enterpriseOnlyDescription": "Modifiez l’offre d’abonnement avant de configurer une allocation personnalisée.",
-      "enterpriseOnlyTitle": "Offre Enterprise requise",
-      "save": "Mettre à jour l’allocation",
-      "success": "L’allocation Enterprise a été mise à jour.",
-      "title": "Allocation Enterprise"
-    },
-    "audit": {
-      "actions": {
-        "adjustmentCreate": "Ajustement de crédits",
-        "allowanceUpdate": "Allocation mise à jour",
-        "auditRead": "Rapport d’audit consulté",
-        "bootstrap": "Initialisation de l’opérateur",
-        "candidateRead": "Recherche par e-mail",
-        "companyRead": "Espace consulté",
-        "creditBalanceReset": "Solde de crédits réinitialisé",
-        "globalControlUpdate": "Contrôles globaux mis à jour",
-        "other": "Activité de l’opérateur",
-        "overviewRead": "Vue d’ensemble consultée",
-        "subscriptionSnapshotCorrect": "Instantané d’abonnement corrigé",
-        "userDetailRead": "Fiche utilisateur consultée",
-        "userListRead": "Annuaire des utilisateurs consulté",
-        "userPlatformAccessUpdate": "Accès plateforme mis à jour",
-        "userStatusUpdate": "Statut du compte mis à jour",
-        "userSummaryRead": "Résumé de l’annuaire consulté"
-      },
-      "caption": "Événements immuables de l’opérateur, les plus récents en premier.",
-      "columns": {
-        "action": "Action",
-        "actor": "Auteur",
-        "operation": "Opération",
-        "reason": "Motif",
-        "target": "Cible",
-        "time": "Heure (UTC)"
-      },
-      "description": "Chaque lecture entre espaces et chaque modification administrative est enregistrée ici.",
-      "emptyDescription": "L’activité de l’opérateur apparaîtra après la première action auditée.",
-      "emptyTitle": "Aucun événement d’audit",
-      "loadMore": "Charger les événements précédents",
-      "title": "Rapport d’audit de l’opérateur"
-    },
-    "candidate": {
-      "companyId": "ID opaque de l’espace",
-      "description": "Envoyez une adresse e-mail de compte exacte. Les résultats ne figurent jamais dans l’URL et ne sont pas préchargés.",
-      "eligible": "Actif et vérifié",
-      "emailDescription": "La recherche ignore la casse et doit correspondre exactement à un seul compte.",
-      "emailLabel": "E-mail du compte",
-      "emailPlaceholder": "personne@exemple.fr",
-      "emptyDescription": "Vérifiez l’adresse, puis envoyez à nouveau l’e-mail complet du compte.",
-      "emptyTitle": "Aucune correspondance exacte",
-      "needsAttention": "Le compte nécessite une vérification",
-      "search": "Rechercher le compte",
-      "title": "Trouver un espace par e-mail",
-      "userId": "ID opaque de l’utilisateur"
-    },
-    "company": {
-      "activeSeats": "Postes actifs",
-      "description": "Administration de l’IA hébergée pour l’espace contenant {email}.",
-      "monthlyCommitted": "Engagé ce mois-ci",
-      "plan": "Offre",
-      "subscriptionStatus": "Abonnement",
-      "title": "Contrôles de l’espace"
-    },
-    "controls": {
-      "capDescription": "Saisissez un montant fini en dollars américains. Un champ vide bloque par sécurité tout nouveau traitement d’IA hébergée.",
-      "capLabel": "Plafond de dépenses mensuel",
-      "capPlaceholder": "Requis pour autoriser un nouveau traitement",
-      "capProgress": "{percent} % du plafond mensuel engagé",
-      "description": "Suspendez les nouveaux traitements du fournisseur hébergé ou plafonnez l’exposition mensuelle totale engagée.",
-      "disabledDescription": "L’application des contrôles est désactivée. Activez-la dans l’environnement serveur avant de les modifier.",
-      "disabledTitle": "L’application globale est désactivée",
-      "lastUpdated": "Mis à jour le {date} · version {version}",
-      "monthlyCap": "Plafond mensuel actuel",
-      "pauseDescription": "Arrête les nouveaux segments du fournisseur hébergé. L’historique des conversations et les connexions MCP externes restent disponibles.",
-      "pauseLabel": "Suspendre les nouveaux traitements d’IA hébergée",
-      "save": "Mettre à jour les contrôles globaux",
-      "success": "Les contrôles globaux ont été mis à jour.",
-      "title": "Contrôles de sécurité globaux"
-    },
-    "credits": {
-      "adjustments": "Ajustements",
-      "base": "Allocation de base",
-      "blocked": "Les nouveaux traitements d’IA hébergée sont actuellement indisponibles pour ce compte.",
-      "effective": "Allocation effective",
-      "period": "Période de crédits actuelle : du {start} au {end}",
-      "remaining": "Restants",
-      "title": "Position de crédits de l’utilisateur",
-      "unavailableDescription": "Configurez le droit de l’espace, puis relancez la recherche exacte par e-mail.",
-      "unavailableTitle": "Aucune période de crédits actuelle",
-      "used": "Utilisés et réservés"
-    },
-    "description": "Examinez l’exposition de l’IA hébergée, retrouvez les espaces par l’e-mail exact du compte et effectuez des modifications administratives auditées.",
-    "errors": {
-      "accessDenied": "Votre accès opérateur a changé. Actualisez la page et authentifiez-vous à nouveau.",
-      "conflict": "L’enregistrement a changé pendant votre modification. Actualisez la page et vérifiez les dernières valeurs avant de réessayer.",
-      "invalidInput": "Vérifiez les valeurs saisies. Les motifs doivent comporter au moins 8 caractères et les nombres respecter leurs limites.",
-      "notFound": "Le compte ou l’espace sélectionné n’existe plus.",
-      "title": "L’action n’a pas pu être effectuée",
-      "unavailable": "La configuration de l’IA hébergée est indisponible. Corrigez-la avant de réessayer.",
-      "unexpected": "Une erreur inattendue s’est produite. Aucun changement réussi n’est présumé ; réessayez avec le même ID d’opération."
-    },
-    "forms": {
-      "reason": "Motif",
-      "reasonDescription": "Requis pour l’enregistrement d’audit immuable. Utilisez au moins 8 caractères.",
-      "reasonPlaceholder": "Expliquez pourquoi ce changement est nécessaire"
-    },
-    "navigation": "IA hébergée",
-    "overview": {
-      "activeUsers": "Utilisateurs actifs",
-      "committed": "Exposition mensuelle engagée",
-      "committedDescription": "Coût réglé plus la valeur totale des réservations actives.",
-      "companies": "Espaces",
-      "companiesDescription": "{active} avec usage · {enterprise} Enterprise",
-      "generatedAt": "Instantané généré le {date}",
-      "heading": "Vue d’ensemble du parc d’IA hébergée",
-      "reserved": "Exposition réservée",
-      "reservedDescription": "Valeur maximale encore retenue par les traitements en cours.",
-      "usersDescription": "{total} utilisateurs dans tous les espaces"
-    },
     "shell": {
-      "console": "Console opérateur",
-      "navigationLabel": "Navigation de l’opérateur",
-      "users": "Utilisateurs"
+      "console": "Console opérateur"
     },
     "states": {
       "errorDescription": "Les données opérateur n’ont pas pu être chargées. Réessayez ; aucune modification n’a été effectuée.",
       "errorTitle": "Console opérateur indisponible",
-      "loading": "Chargement de la console opérateur",
-      "saving": "Enregistrement",
-      "searching": "Recherche"
+      "loading": "Chargement de la console opérateur"
     },
-    "status": {
-      "available": "IA hébergée disponible",
-      "configurationUnavailable": "Nouveau traitement bloqué : plafond non configuré",
-      "enforcementDisabled": "Application désactivée",
-      "paused": "Nouveaux traitements suspendus"
-    },
-    "title": "Opérations de l’IA hébergée",
     "values": {
-      "capNotConfigured": "Non configuré · nouveau traitement bloqué",
       "plans": {
         "business": "Business",
         "enterprise": "Enterprise",
@@ -2581,10 +2467,64 @@
       }
     }
   },
-  "OperatorUsers": {
-    "actions": {
-      "retry": "Réessayer"
+  "OperatorOverview": {
+    "activity": {
+      "description": "Sur {total} utilisateurs au total",
+      "label": "Actifs sur 7 jours"
     },
+    "description": "Santé de la flotte sur tous les espaces : exposition aux coûts, risque de revenus et croissance.",
+    "growth": {
+      "description": "Avec {workspaces} nouveaux espaces",
+      "label": "Nouveaux utilisateurs sur 30 jours"
+    },
+    "loading": "Chargement de la vue d’ensemble opérateur",
+    "navigation": "Vue d’ensemble",
+    "operators": {
+      "description": "Comptes avec accès inter-espaces",
+      "label": "Opérateurs de plateforme"
+    },
+    "reserved": {
+      "description": "Valeur maximale retenue par les tours en cours",
+      "label": "Exposition réservée"
+    },
+    "risk": {
+      "description": "En retard, impayés ou expirés. {trials} essais se terminent sous 7 jours.",
+      "label": "Revenus à risque"
+    },
+    "spend": {
+      "label": "Dépenses IA hébergée ce mois",
+      "noCap": "Aucun plafond mensuel configuré ; le nouveau travail est bloqué",
+      "ofCap": "{percent}% du plafond mensuel de {cap}"
+    },
+    "title": "Vue d’ensemble opérateur",
+    "users": {
+      "description": "{active} actifs, {pending} en attente d’autorisation",
+      "label": "Utilisateurs"
+    },
+    "workspaces": {
+      "description": "{enterprise} en Enterprise",
+      "label": "Espaces de travail"
+    }
+  },
+  "OperatorSettings": {
+    "controls": {
+      "capDescription": "Saisissez un montant fini en dollars. Laisser vide échoue en position fermée et bloque le nouveau travail.",
+      "capLabel": "Plafond de dépenses mensuel",
+      "description": "Suspendre le nouveau travail du fournisseur hébergé ou plafonner l’exposition mensuelle.",
+      "disabledDescription": "Définissez HOSTED_AI_OPERATOR_CONTROLS_ENABLED sur true pour appliquer la pause globale et le plafond.",
+      "disabledTitle": "L’application est désactivée",
+      "pauseDescription": "Arrête les nouveaux segments du fournisseur hébergé. L’historique et les connexions MCP externes restent disponibles.",
+      "pauseLabel": "Suspendre le nouveau travail IA hébergée",
+      "save": "Mettre à jour les contrôles globaux",
+      "success": "Les contrôles globaux ont été mis à jour.",
+      "title": "Contrôles de sécurité globaux"
+    },
+    "description": "Contrôles IA hébergée à l’échelle de la flotte, appliqués à chaque espace.",
+    "loading": "Chargement des paramètres de plateforme",
+    "navigation": "Paramètres",
+    "title": "Paramètres de plateforme"
+  },
+  "OperatorUsers": {
     "adjustment": {
       "deltaDescription": "Utilisez un entier positif pour accorder des crédits ou un entier négatif pour appliquer une correction.",
       "deltaLabel": "Correction de crédits signée",
@@ -2594,7 +2534,17 @@
       "success": "La correction de crédits a été enregistrée.",
       "title": "Correction de crédits"
     },
-    "badge": "Administration inter-espaces",
+    "columns": {
+      "createdAt": "Créé",
+      "email": "E-mail",
+      "lastActiveAt": "Dernière activité",
+      "name": "Nom",
+      "operator": "Opérateur",
+      "plan": "Forfait",
+      "status": "Compte",
+      "subscription": "Abonnement",
+      "workspace": "Espace de travail"
+    },
     "credits": {
       "adjustments": "Corrections manuelles",
       "base": "Allocation de base",
@@ -2615,11 +2565,8 @@
     },
     "description": "Examinez les utilisateurs de tous les espaces, filtrez l’annuaire et apportez des corrections auditées aux comptes, abonnements et crédits.",
     "detail": {
-      "close": "Fermer les détails de l’utilisateur",
       "companyId": "ID opaque de l’espace de travail",
       "createdAt": "Créé le",
-      "emptyDescription": "Ouvrez une ligne à l’aide de son ID utilisateur opaque pour examiner les contrôles du compte et de l’espace. La sélection ne modifie jamais l’URL.",
-      "emptyTitle": "Sélectionner un utilisateur",
       "errorDescription": "Aucun utilisateur modifiable n’est sélectionné. Relancez la recherche par ID opaque.",
       "errorTitle": "Détails de l’utilisateur indisponibles",
       "lastActive": "Dernière activité",
@@ -2630,6 +2577,8 @@
       "updatedAt": "Dernière mise à jour",
       "userId": "ID utilisateur opaque"
     },
+    "emptyBody": "Ajustez la recherche ou les filtres pour élargir l’annuaire.",
+    "emptyTitle": "Aucun utilisateur ne correspond à ces filtres",
     "errors": {
       "accessDenied": "Votre accès opérateur a changé. Actualisez la page et authentifiez-vous de nouveau.",
       "conflict": "L’enregistrement a changé pendant votre modification. Les informations les plus récentes ont été chargées ; examinez-les avant de réessayer avec le même ID d’opération.",
@@ -2639,37 +2588,12 @@
       "unavailable": "La correction demandée n’est pas disponible pour la configuration actuelle du compte.",
       "unexpected": "Une erreur inattendue s’est produite. Aucun changement réussi n’est supposé ; réessayez avec le même ID d’opération."
     },
-    "filters": {
-      "accountStatus": "État du compte",
-      "allOperatorStates": "Tous les états d’opérateur",
-      "allPlans": "Toutes les offres",
-      "allStatuses": "Tous les états de compte",
-      "allSubscriptionStatuses": "Tous les états d’abonnement",
-      "apply": "Appliquer les filtres",
-      "clear": "Effacer les filtres",
-      "operator": "Opérateur de la plateforme",
-      "plan": "Offre",
-      "searchDescription": "Recherche le nom affiché ou l’adresse e-mail du compte. La valeur est envoyée par POST et n’est jamais ajoutée à l’URL.",
-      "searchLabel": "Rechercher des utilisateurs",
-      "searchPlaceholder": "Nom ou adresse e-mail du compte",
-      "sort": "Tri",
-      "sortEmailAsc": "E-mail A–Z",
-      "sortEmailDesc": "E-mail Z–A",
-      "sortNewest": "Plus récents d’abord",
-      "sortOldest": "Plus anciens d’abord",
-      "subscriptionStatus": "État de l’abonnement"
-    },
     "forms": {
       "reason": "Motif",
       "reasonDescription": "Requis pour le journal d’audit opérateur en ajout uniquement. Utilisez au moins 8 caractères.",
       "reasonPlaceholder": "Expliquez pourquoi cette correction est nécessaire"
     },
-    "pagination": {
-      "next": "Page suivante",
-      "page": "Page {page} sur {total}",
-      "previous": "Page précédente",
-      "range": "Affichage de {start} à {end} sur {total} utilisateurs"
-    },
+    "navigation": "Utilisateurs",
     "platformAccess": {
       "description": "Accordez ou révoquez l’accès opérateur inter-espaces pour ce compte.",
       "granted": "Accordé",
@@ -2695,9 +2619,9 @@
       "title": "Réinitialisation des crédits",
       "zeroBalance": "Ramener le solde restant à zéro"
     },
+    "searchPlaceholder": "Rechercher par nom ou e-mail du compte",
     "states": {
       "loading": "Chargement des utilisateurs",
-      "loadingDetail": "Chargement des détails de l’utilisateur",
       "saving": "Enregistrement"
     },
     "status": {
@@ -2713,55 +2637,6 @@
       "success": "L’état du compte a été mis à jour.",
       "title": "Accès au compte"
     },
-    "subscription": {
-      "description": "Corrigez l’instantané local de l’abonnement pour l’ensemble de l’espace de travail de l’utilisateur sélectionné.",
-      "localOnlyDescription": "Cette action modifie l’autorisation locale de tous les utilisateurs de l’espace de travail. Elle ne met pas à jour, ne facture pas, ne résilie pas et ne contacte pas le fournisseur de paiement.",
-      "localOnlyTitle": "Instantané local pour tout l’espace",
-      "missingDescription": "Un abonnement manquant doit être créé par le parcours d’abonnement normal ; ce formulaire opérateur n’en crée jamais implicitement.",
-      "missingTitle": "Aucun abonnement local à corriger",
-      "planLabel": "Offre de l’espace de travail",
-      "providerManagedDescription": "Cet espace est géré par un fournisseur de paiement. Une synchronisation ultérieure peut écraser cette correction locale.",
-      "providerManagedTitle": "La synchronisation fournisseur peut écraser ce changement",
-      "quantityDescription": "Nombre local facultatif de sièges pour tout l’espace de travail. Laissez vide pour ne pas le définir.",
-      "quantityLabel": "Nombre de sièges de l’espace",
-      "save": "Corriger l’abonnement de l’espace",
-      "statusLabel": "État de l’abonnement de l’espace",
-      "success": "L’instantané d’abonnement de l’espace de travail a été corrigé.",
-      "title": "Abonnement local de l’espace"
-    },
-    "summary": {
-      "active": "Utilisateurs actifs",
-      "activeDescription": "{inactive} comptes inactifs",
-      "companies": "Entreprises",
-      "companiesDescription": "Tous les espaces, y compris ceux sans utilisateurs",
-      "heading": "Résumé de l’annuaire des utilisateurs",
-      "operators": "Opérateurs de la plateforme",
-      "operatorsDescription": "Comptes disposant d’un accès opérateur à la plateforme",
-      "subscriptionHealth": "Utilisateurs avec abonnement actif",
-      "subscriptionHealthDescription": "Utilisateurs : {trial} en essai, {missing} sans abonnement, {enterprise} avec Enterprise",
-      "total": "Nombre total d’utilisateurs",
-      "totalDescription": "{pending} en attente d’autorisation",
-      "verified": "E-mails d’authentification vérifiés",
-      "verifiedDescription": "{unverified} comptes ne sont pas vérifiés"
-    },
-    "table": {
-      "caption": "Annuaire inter-espaces paginé côté serveur.",
-      "columns": {
-        "account": "Compte",
-        "action": "Action",
-        "lastActive": "Dernière activité",
-        "operator": "Opérateur",
-        "plan": "Offre",
-        "subscription": "Abonnement",
-        "user": "Utilisateur"
-      },
-      "description": "Les filtres et la sélection par ID opaque sont envoyés au serveur autorisé ; aucun compte sélectionné n’est placé dans l’URL.",
-      "emptyDescription": "Effacez un ou plusieurs filtres, puis réessayez.",
-      "emptyTitle": "Aucun utilisateur ne correspond à ces filtres",
-      "open": "Ouvrir",
-      "openUser": "Ouvrir les contrôles opérateur pour {email}",
-      "title": "Utilisateurs"
-    },
     "title": "Opérations utilisateurs",
     "values": {
       "accountStatus": {
@@ -2774,9 +2649,50 @@
       "noSubscription": "Aucun abonnement",
       "notVerified": "Non vérifié",
       "operator": "Opérateur de la plateforme",
-      "providerManaged": "Abonnement géré par le fournisseur",
-      "verified": "Vérifié",
-      "yes": "Oui"
+      "verified": "Vérifié"
+    }
+  },
+  "OperatorWorkspaces": {
+    "allowance": {
+      "label": "Crédits par utilisateur",
+      "save": "Mettre à jour l’allocation",
+      "success": "L’allocation Enterprise a été mise à jour.",
+      "title": "Allocation Enterprise",
+      "warningDescription": "L’allocation est accordée par utilisateur sur tout l’espace et prend effet sur la période en cours.",
+      "warningTitle": "S’applique à tous les membres"
+    },
+    "columns": {
+      "allowance": "Allocation",
+      "createdAt": "Créé",
+      "members": "Membres",
+      "owner": "Propriétaire",
+      "plan": "Forfait",
+      "subscription": "Abonnement",
+      "workspace": "Espace de travail"
+    },
+    "description": "Tous les espaces de la plateforme, avec leur forfait, leurs membres et leur allocation.",
+    "detail": {
+      "title": "Contrôles de l’espace",
+      "workspaceId": "Identifiant de l’espace"
+    },
+    "emptyBody": "Ajustez la recherche ou les filtres pour élargir la liste.",
+    "emptyTitle": "Aucun espace ne correspond à ces filtres",
+    "loading": "Chargement des espaces de travail",
+    "navigation": "Espaces de travail",
+    "searchPlaceholder": "Rechercher par e-mail d’un membre",
+    "subscription": {
+      "save": "Corriger l’abonnement",
+      "seatsDescription": "Nombre de sièges local pour tout l’espace. Laissez vide pour ne pas le préciser.",
+      "seatsLabel": "Nombre de sièges",
+      "success": "L’abonnement de l’espace a été corrigé.",
+      "title": "Abonnement local de l’espace",
+      "unavailable": "Cet espace n’a aucun membre actif avec un abonnement à corriger.",
+      "warningDescription": "Ceci corrige l’autorisation locale de tout l’espace. Cela ne met pas à jour, ne facture pas, n’annule pas et ne contacte aucun prestataire de facturation.",
+      "warningTitle": "Instantané local uniquement"
+    },
+    "title": "Opérations des espaces",
+    "values": {
+      "members": "{active} sur {total}"
     }
   },
   "OrganizationModal": {

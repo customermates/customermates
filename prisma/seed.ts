@@ -6,11 +6,11 @@ import { PrismaClient } from "@/generated/prisma";
 import { SYNTHETIC_SEED_USER } from "@/core/config/synthetic-seed-user";
 import { createSeedContext } from "./seeds/context";
 import { runSyntheticSeed } from "./seeds/run";
-import { databaseUrlFromEnvironment, shouldIncludeLocalOperatorAccess } from "@/scripts/local-database-safety";
+import { databaseUrlFromEnvironment, shouldIncludeOperatorSeedAccess } from "@/scripts/local-database-safety";
 
 async function main(): Promise<void> {
   const databaseUrl = databaseUrlFromEnvironment(process.env);
-  const includeLocalOperatorAccess = shouldIncludeLocalOperatorAccess(process.env);
+  const includeLocalOperatorAccess = shouldIncludeOperatorSeedAccess(process.env);
 
   const adapter = new PrismaPg({ connectionString: databaseUrl });
   const prisma = new PrismaClient({ adapter });

@@ -5,7 +5,6 @@ import type { AuthService, InteractiveSession } from "@/features/auth/auth.servi
 
 const environment = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "demo" | "self-hosted",
-  OPERATOR_CONSOLE_ENABLED: true,
 }));
 
 vi.mock("@/env", () => ({ env: environment }));
@@ -33,7 +32,6 @@ describe("OperatorAccessService", () => {
 
   beforeEach(() => {
     environment.APP_MODE = "cloud";
-    environment.OPERATOR_CONSOLE_ENABLED = true;
     getInteractiveSession.mockReset().mockResolvedValue(session);
     findAuthorizedActorUnscoped.mockReset().mockResolvedValue(actor);
   });
@@ -47,14 +45,8 @@ describe("OperatorAccessService", () => {
     expect(findAuthorizedActorUnscoped).toHaveBeenCalledWith(session);
   });
 
-  it.each([
-    ["self-hosted", true],
-    ["demo", true],
-    ["cloud", false],
-  ] as const)("denies mode %s with flag %s", async (mode, enabled) => {
+  it.each(["self-hosted", "demo"] as const)("denies application mode %s", async (mode) => {
     environment.APP_MODE = mode;
-    environment.OPERATOR_CONSOLE_ENABLED = enabled;
-
     await expect(service.authorizeFresh()).rejects.toBeInstanceOf(ForbiddenError);
     expect(getInteractiveSession).not.toHaveBeenCalled();
   });

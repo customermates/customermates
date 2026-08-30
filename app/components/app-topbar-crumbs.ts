@@ -32,8 +32,11 @@ const GROUP_MAP: Record<string, { group: "overview" | "crm" | "settings" | null;
 };
 
 const OPERATOR_LEAF_KEYS: Record<string, string> = {
-  users: "OperatorConsole.shell.users",
-  "hosted-ai": "OperatorConsole.navigation",
+  overview: "OperatorOverview.navigation",
+  users: "OperatorUsers.navigation",
+  workspaces: "OperatorWorkspaces.navigation",
+  audit: "OperatorAudit.navigation",
+  settings: "OperatorSettings.navigation",
 };
 
 function isWorkspaceSection(segment: string): segment is WorkspaceSection {
@@ -73,7 +76,7 @@ export function buildAppTopbarCrumbs(
   const sectionHref = workspaceSection
     ? `/${first}/${sectionSubroutes[0]?.slug ?? "settings"}`
     : first === "operator"
-      ? "/operator/users"
+      ? "/operator/overview"
       : `/${first}`;
   crumbs.push({
     label: entityLabels[first] ?? t(leafKey),

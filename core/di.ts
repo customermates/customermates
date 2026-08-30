@@ -322,6 +322,16 @@ import { ListOperatorUsersInteractor } from "@/ee/operator/list-operator-users.i
 import { GetOperatorUserSummaryInteractor } from "@/ee/operator/get-operator-user-summary.interactor";
 import { GetOperatorUserDetailInteractor } from "@/ee/operator/get-operator-user-detail.interactor";
 import { UpdateOperatorUserStatusInteractor } from "@/ee/operator/update-operator-user-status.interactor";
+import { GetOperatorAuditInteractor } from "@/ee/operator/get/get-operator-audit.interactor";
+import { GetOperatorUsersInteractor } from "@/ee/operator/get/get-operator-users.interactor";
+import { GetOperatorWorkspacesInteractor } from "@/ee/operator/get/get-operator-workspaces.interactor";
+import { GetOperatorRiskSummaryInteractor } from "@/ee/operator/get/get-operator-risk-summary.interactor";
+import {
+  PrismaOperatorAuditRepo,
+  PrismaOperatorRiskSummaryRepo,
+  PrismaOperatorUsersRepo,
+  PrismaOperatorWorkspacesRepo,
+} from "@/ee/operator/prisma-operator-lists.repository";
 import { UpdateOperatorUserPlatformAccessInteractor } from "@/ee/operator/update-operator-user-platform-access.interactor";
 import { CorrectOperatorSubscriptionSnapshotInteractor } from "@/ee/operator/correct-operator-subscription-snapshot.interactor";
 import { ResetOperatorUserCreditsInteractor } from "@/ee/operator/reset-operator-user-credits.interactor";
@@ -1562,6 +1572,24 @@ export const getOperatorUserDetailInteractor = () => new GetOperatorUserDetailIn
 
 export const updateOperatorUserStatusInteractor = () =>
   new UpdateOperatorUserStatusInteractor(getOperatorRepo(), getEventService());
+
+export const getOperatorUsersRepo = () => new PrismaOperatorUsersRepo();
+
+export const getOperatorUsersListInteractor = () =>
+  new GetOperatorUsersInteractor(getOperatorUsersRepo(), getP13nRepo());
+
+export const getOperatorWorkspacesRepo = () => new PrismaOperatorWorkspacesRepo();
+
+export const getOperatorWorkspacesListInteractor = () =>
+  new GetOperatorWorkspacesInteractor(getOperatorWorkspacesRepo(), getP13nRepo());
+
+export const getOperatorAuditRepo = () => new PrismaOperatorAuditRepo();
+
+export const getOperatorAuditListInteractor = () =>
+  new GetOperatorAuditInteractor(getOperatorAuditRepo(), getP13nRepo());
+
+export const getOperatorRiskSummaryInteractor = () =>
+  new GetOperatorRiskSummaryInteractor(new PrismaOperatorRiskSummaryRepo());
 
 export const updateOperatorUserPlatformAccessInteractor = () =>
   new UpdateOperatorUserPlatformAccessInteractor(getOperatorRepo());

@@ -15,21 +15,24 @@ const OPAQUE_ID = "bcad5c22-5549-4847-93e4-c17296828b76";
 
 describe("app topbar crumbs", () => {
   it.each([
-    ["users", "OperatorConsole.shell.users"],
-    ["hosted-ai", "OperatorConsole.navigation"],
+    ["overview", "OperatorOverview.navigation"],
+    ["users", "OperatorUsers.navigation"],
+    ["workspaces", "OperatorWorkspaces.navigation"],
+    ["audit", "OperatorAudit.navigation"],
+    ["settings", "OperatorSettings.navigation"],
   ])("renders the operator and %s crumbs when the operator console is visible", (route, leafLabel) => {
     expect(
       buildAppTopbarCrumbs(`/en/operator/${route}`, translate, ENTITY_LABELS, null, "cloud", canAccess, null, true),
     ).toEqual({
       crumbs: [
-        { href: "/operator/users", label: "OperatorConsole.shell.console", prefetch: false },
+        { href: "/operator/overview", label: "OperatorConsole.shell.console", prefetch: false },
         { label: leafLabel },
       ],
       section: null,
     });
   });
 
-  it.each(["users", "hosted-ai"])(
+  it.each(["overview", "users", "workspaces", "audit", "settings"])(
     "does not expose operator crumbs for %s when the operator console is hidden",
     (route) => {
       expect(

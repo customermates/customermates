@@ -1134,20 +1134,27 @@
       "daysPreset": "{count, plural, =1 {1 día} other {# días}}",
       "daysSuffix": "días",
       "fields": {
+        "auditSource": "Origen",
         "calendarId": "Calendario",
         "connectedAccountId": "Canal",
         "createdAt": "Creado el",
+        "emailVerified": "Correo verificado",
         "event": "Evento",
+        "isPlatformOperator": "Operador de plataforma",
+        "lastActiveAt": "Última actividad",
         "participants": "Participantes",
+        "plan": "Plan",
         "provider": "Proveedor",
         "startsAt": "Comienza el",
         "state": "Estado",
         "status": "Estado",
+        "subscriptionStatus": "Suscripción",
         "timelineKind": "Tipo",
         "timelineThreadId": "Conversación",
         "updatedAt": "Actualizado el",
         "url": "URL",
-        "userIds": "Asignado a"
+        "userIds": "Asignado a",
+        "workspaceId": "Espacio de trabajo"
       },
       "operators": {
         "allSet": "totalmente vinculado",
@@ -2407,164 +2414,43 @@
       }
     }
   },
+  "OperatorAudit": {
+    "columns": {
+      "action": "Acción",
+      "actor": "Actor",
+      "createdAt": "Hora",
+      "reason": "Motivo",
+      "source": "Origen",
+      "target": "Objetivo",
+      "workspace": "Espacio de trabajo"
+    },
+    "description": "Todos los cambios registrados en todos los espacios, de la actividad del producto y de los operadores.",
+    "emptyBody": "Ajusta la búsqueda o los filtros para ampliar el registro.",
+    "emptyTitle": "Ningún evento coincide con estos filtros",
+    "loading": "Cargando el registro de auditoría",
+    "navigation": "Registro de auditoría",
+    "searchPlaceholder": "Buscar por acción",
+    "title": "Registro de auditoría",
+    "values": {
+      "source": {
+        "operator": "Operador",
+        "product": "Producto"
+      }
+    }
+  },
   "OperatorConsole": {
     "actions": {
       "retry": "Inténtalo de nuevo"
     },
-    "adjustment": {
-      "deltaDescription": "Usa un número positivo para conceder créditos o uno negativo para corregirlos.",
-      "deltaLabel": "Ajuste de créditos con signo",
-      "deltaPlaceholder": "Por ejemplo, 500 o -100",
-      "description": "Añade una corrección inmutable y limitada al periodo para este usuario.",
-      "period": "Se aplica únicamente desde el {start} hasta el {end}.",
-      "periodUnavailable": "Se necesita un periodo de créditos actual antes de registrar un ajuste.",
-      "save": "Registrar ajuste",
-      "success": "El ajuste de créditos se ha registrado.",
-      "title": "Ajuste manual de créditos"
-    },
-    "allowance": {
-      "creditsDescription": "Esta asignación se aplica por usuario activo durante cada periodo de créditos.",
-      "creditsLabel": "Créditos por usuario",
-      "description": "Establece la asignación base de IA alojada para un espacio Enterprise.",
-      "enterpriseOnlyDescription": "Cambia el plan de suscripción antes de configurar una asignación personalizada.",
-      "enterpriseOnlyTitle": "Se requiere el plan Enterprise",
-      "save": "Actualizar asignación",
-      "success": "La asignación Enterprise se ha actualizado.",
-      "title": "Asignación Enterprise"
-    },
-    "audit": {
-      "actions": {
-        "adjustmentCreate": "Ajuste de créditos",
-        "allowanceUpdate": "Asignación actualizada",
-        "auditRead": "Informe de auditoría consultado",
-        "bootstrap": "Inicialización del operador",
-        "candidateRead": "Búsqueda por correo",
-        "companyRead": "Espacio consultado",
-        "creditBalanceReset": "Saldo de créditos restablecido",
-        "globalControlUpdate": "Controles globales actualizados",
-        "other": "Actividad del operador",
-        "overviewRead": "Resumen consultado",
-        "subscriptionSnapshotCorrect": "Instantánea de suscripción corregida",
-        "userDetailRead": "Registro de usuario consultado",
-        "userListRead": "Directorio de usuarios consultado",
-        "userPlatformAccessUpdate": "Acceso de plataforma actualizado",
-        "userStatusUpdate": "Estado de la cuenta actualizado",
-        "userSummaryRead": "Resumen del directorio consultado"
-      },
-      "caption": "Eventos inmutables del operador, empezando por los más recientes.",
-      "columns": {
-        "action": "Acción",
-        "actor": "Autor",
-        "operation": "Operación",
-        "reason": "Motivo",
-        "target": "Destino",
-        "time": "Hora (UTC)"
-      },
-      "description": "Cada lectura entre espacios y cada cambio administrativo se registra aquí.",
-      "emptyDescription": "La actividad del operador aparecerá después de la primera acción auditada.",
-      "emptyTitle": "Aún no hay eventos de auditoría",
-      "loadMore": "Cargar eventos anteriores",
-      "title": "Informe de auditoría del operador"
-    },
-    "candidate": {
-      "companyId": "ID opaco del espacio",
-      "description": "Envía un correo exacto de la cuenta. Los resultados nunca se incluyen en la URL ni se precargan.",
-      "eligible": "Activo y verificado",
-      "emailDescription": "La búsqueda no distingue mayúsculas y debe coincidir exactamente con una cuenta.",
-      "emailLabel": "Correo de la cuenta",
-      "emailPlaceholder": "persona@ejemplo.es",
-      "emptyDescription": "Comprueba la dirección y vuelve a enviar el correo completo de la cuenta.",
-      "emptyTitle": "No hay ninguna coincidencia exacta",
-      "needsAttention": "La cuenta requiere atención",
-      "search": "Buscar cuenta",
-      "title": "Buscar un espacio por correo",
-      "userId": "ID opaco del usuario"
-    },
-    "company": {
-      "activeSeats": "Puestos activos",
-      "description": "Administración de IA alojada para el espacio que contiene {email}.",
-      "monthlyCommitted": "Comprometido este mes",
-      "plan": "Plan",
-      "subscriptionStatus": "Suscripción",
-      "title": "Controles del espacio"
-    },
-    "controls": {
-      "capDescription": "Introduce un importe finito en dólares estadounidenses. Si se deja vacío, el nuevo trabajo de IA alojada se bloquea de forma segura.",
-      "capLabel": "Límite de gasto mensual",
-      "capPlaceholder": "Obligatorio para permitir nuevo trabajo",
-      "capProgress": "{percent}% del límite mensual comprometido",
-      "description": "Pausa el nuevo trabajo del proveedor alojado o limita la exposición mensual total comprometida.",
-      "disabledDescription": "La aplicación de controles está desactivada. Actívala en el entorno del servidor antes de modificarlos.",
-      "disabledTitle": "La aplicación global está desactivada",
-      "lastUpdated": "Actualizado el {date} · versión {version}",
-      "monthlyCap": "Límite mensual actual",
-      "pauseDescription": "Detiene los nuevos segmentos del proveedor alojado. El historial de conversaciones y las conexiones MCP externas siguen disponibles.",
-      "pauseLabel": "Pausar el nuevo trabajo de IA alojada",
-      "save": "Actualizar controles globales",
-      "success": "Los controles globales se han actualizado.",
-      "title": "Controles de seguridad globales"
-    },
-    "credits": {
-      "adjustments": "Ajustes",
-      "base": "Asignación base",
-      "blocked": "El nuevo trabajo de IA alojada no está disponible actualmente para esta cuenta.",
-      "effective": "Asignación efectiva",
-      "period": "Periodo de créditos actual: del {start} al {end}",
-      "remaining": "Restantes",
-      "title": "Posición de créditos del usuario",
-      "unavailableDescription": "Configura el derecho del espacio y vuelve a ejecutar la búsqueda exacta por correo.",
-      "unavailableTitle": "No hay un periodo de créditos actual",
-      "used": "Usados y reservados"
-    },
-    "description": "Revisa la exposición de la IA alojada, encuentra espacios mediante el correo exacto de la cuenta y realiza cambios administrativos auditados.",
-    "errors": {
-      "accessDenied": "Tu acceso de operador ha cambiado. Actualiza la página y vuelve a autenticarte.",
-      "conflict": "El registro ha cambiado mientras lo editabas. Actualiza la página y revisa los valores más recientes antes de reintentarlo.",
-      "invalidInput": "Revisa los valores introducidos. Los motivos deben tener al menos 8 caracteres y los números deben respetar sus límites.",
-      "notFound": "La cuenta o el espacio seleccionado ya no existe.",
-      "title": "No se ha podido completar la acción",
-      "unavailable": "La configuración de IA alojada no está disponible. Resuélvela antes de volver a intentarlo.",
-      "unexpected": "Se ha producido un error inesperado. No se presupone ningún cambio correcto; reinténtalo con el mismo ID de operación."
-    },
-    "forms": {
-      "reason": "Motivo",
-      "reasonDescription": "Obligatorio para el registro de auditoría inmutable. Usa al menos 8 caracteres.",
-      "reasonPlaceholder": "Explica por qué se necesita este cambio"
-    },
-    "navigation": "IA alojada",
-    "overview": {
-      "activeUsers": "Usuarios activos",
-      "committed": "Exposición mensual comprometida",
-      "committedDescription": "Coste liquidado más el valor total de las reservas activas.",
-      "companies": "Espacios",
-      "companiesDescription": "{active} con uso · {enterprise} Enterprise",
-      "generatedAt": "Instantánea generada el {date}",
-      "heading": "Resumen del parque de IA alojada",
-      "reserved": "Exposición reservada",
-      "reservedDescription": "Valor máximo que aún retienen las solicitudes en curso.",
-      "usersDescription": "{total} usuarios en todos los espacios"
-    },
     "shell": {
-      "console": "Consola del operador",
-      "navigationLabel": "Navegación del operador",
-      "users": "Usuarios"
+      "console": "Consola del operador"
     },
     "states": {
       "errorDescription": "No se han podido cargar los datos del operador. Vuelve a intentarlo; no se ha realizado ningún cambio.",
       "errorTitle": "La consola del operador no está disponible",
-      "loading": "Cargando la consola del operador",
-      "saving": "Guardando",
-      "searching": "Buscando"
+      "loading": "Cargando la consola del operador"
     },
-    "status": {
-      "available": "IA alojada disponible",
-      "configurationUnavailable": "Nuevo trabajo bloqueado: límite sin configurar",
-      "enforcementDisabled": "Aplicación desactivada",
-      "paused": "Nuevo trabajo pausado"
-    },
-    "title": "Operaciones de IA alojada",
     "values": {
-      "capNotConfigured": "Sin configurar · nuevo trabajo bloqueado",
       "plans": {
         "business": "Business",
         "enterprise": "Enterprise",
@@ -2581,10 +2467,64 @@
       }
     }
   },
-  "OperatorUsers": {
-    "actions": {
-      "retry": "Inténtalo de nuevo"
+  "OperatorOverview": {
+    "activity": {
+      "description": "De {total} usuarios en total",
+      "label": "Activos en 7 días"
     },
+    "description": "Estado de la flota en todos los espacios: exposición de gasto, riesgo de ingresos y crecimiento.",
+    "growth": {
+      "description": "Junto a {workspaces} espacios nuevos",
+      "label": "Usuarios nuevos en 30 días"
+    },
+    "loading": "Cargando el resumen del operador",
+    "navigation": "Resumen",
+    "operators": {
+      "description": "Cuentas con acceso entre espacios",
+      "label": "Operadores de plataforma"
+    },
+    "reserved": {
+      "description": "Valor máximo retenido por turnos en curso",
+      "label": "Exposición reservada"
+    },
+    "risk": {
+      "description": "Vencidas, impagadas o expiradas. {trials} pruebas terminan en 7 días.",
+      "label": "Ingresos en riesgo"
+    },
+    "spend": {
+      "label": "Gasto de IA alojada este mes",
+      "noCap": "Sin límite mensual configurado; el trabajo nuevo está bloqueado",
+      "ofCap": "{percent}% del límite mensual de {cap}"
+    },
+    "title": "Resumen del operador",
+    "users": {
+      "description": "{active} activos, {pending} pendientes de autorización",
+      "label": "Usuarios"
+    },
+    "workspaces": {
+      "description": "{enterprise} en Enterprise",
+      "label": "Espacios de trabajo"
+    }
+  },
+  "OperatorSettings": {
+    "controls": {
+      "capDescription": "Introduce un importe finito en dólares. Dejarlo vacío falla de forma cerrada y bloquea el trabajo nuevo.",
+      "capLabel": "Límite de gasto mensual",
+      "description": "Pausa el trabajo nuevo del proveedor alojado o limita la exposición mensual comprometida.",
+      "disabledDescription": "Configura HOSTED_AI_OPERATOR_CONTROLS_ENABLED como true para aplicar la pausa global y el límite de gasto.",
+      "disabledTitle": "La aplicación está desactivada",
+      "pauseDescription": "Detiene los segmentos nuevos del proveedor alojado. El historial y las conexiones MCP externas siguen disponibles.",
+      "pauseLabel": "Pausar el trabajo nuevo de IA alojada",
+      "save": "Actualizar controles globales",
+      "success": "Los controles globales se actualizaron.",
+      "title": "Controles globales de seguridad"
+    },
+    "description": "Controles de IA alojada para toda la flota, aplicables a cada espacio.",
+    "loading": "Cargando los ajustes de plataforma",
+    "navigation": "Ajustes",
+    "title": "Ajustes de plataforma"
+  },
+  "OperatorUsers": {
     "adjustment": {
       "deltaDescription": "Usa un número entero positivo para conceder créditos o uno negativo para aplicar una corrección.",
       "deltaLabel": "Corrección de créditos con signo",
@@ -2594,7 +2534,17 @@
       "success": "La corrección de créditos se ha registrado.",
       "title": "Corrección de créditos"
     },
-    "badge": "Administración entre espacios de trabajo",
+    "columns": {
+      "createdAt": "Creado",
+      "email": "Correo",
+      "lastActiveAt": "Última actividad",
+      "name": "Nombre",
+      "operator": "Operador",
+      "plan": "Plan",
+      "status": "Cuenta",
+      "subscription": "Suscripción",
+      "workspace": "Espacio de trabajo"
+    },
     "credits": {
       "adjustments": "Correcciones manuales",
       "base": "Asignación base",
@@ -2615,11 +2565,8 @@
     },
     "description": "Revisa usuarios de todos los espacios de trabajo, filtra el directorio y realiza correcciones auditadas de cuentas, suscripciones y créditos.",
     "detail": {
-      "close": "Cerrar detalles del usuario",
       "companyId": "ID opaco del espacio de trabajo",
       "createdAt": "Creado",
-      "emptyDescription": "Abre una fila mediante su ID de usuario opaco para revisar los controles de la cuenta y del espacio de trabajo. La selección nunca cambia la URL.",
-      "emptyTitle": "Selecciona un usuario",
       "errorDescription": "No hay ningún usuario editable seleccionado. Reintenta la búsqueda mediante el ID opaco.",
       "errorTitle": "Detalles del usuario no disponibles",
       "lastActive": "Última actividad",
@@ -2630,6 +2577,8 @@
       "updatedAt": "Última actualización",
       "userId": "ID de usuario opaco"
     },
+    "emptyBody": "Ajusta la búsqueda o los filtros para ampliar el directorio.",
+    "emptyTitle": "Ningún usuario coincide con estos filtros",
     "errors": {
       "accessDenied": "Tu acceso de operador ha cambiado. Actualiza la página y vuelve a autenticarte.",
       "conflict": "El registro cambió mientras lo editabas. Se han cargado los detalles más recientes; revísalos antes de reintentar con el mismo ID de operación.",
@@ -2639,37 +2588,12 @@
       "unavailable": "La corrección solicitada no está disponible para la configuración actual de la cuenta.",
       "unexpected": "Se ha producido un error inesperado. No se presupone ningún cambio correcto; reintenta con el mismo ID de operación."
     },
-    "filters": {
-      "accountStatus": "Estado de la cuenta",
-      "allOperatorStates": "Todos los estados de operador",
-      "allPlans": "Todos los planes",
-      "allStatuses": "Todos los estados de cuenta",
-      "allSubscriptionStatuses": "Todos los estados de suscripción",
-      "apply": "Aplicar filtros",
-      "clear": "Borrar filtros",
-      "operator": "Operador de la plataforma",
-      "plan": "Plan",
-      "searchDescription": "Busca por nombre visible o correo de la cuenta. El valor se envía mediante POST y nunca se añade a la URL.",
-      "searchLabel": "Buscar usuarios",
-      "searchPlaceholder": "Nombre o correo de la cuenta",
-      "sort": "Orden",
-      "sortEmailAsc": "Correo A–Z",
-      "sortEmailDesc": "Correo Z–A",
-      "sortNewest": "Más recientes primero",
-      "sortOldest": "Más antiguos primero",
-      "subscriptionStatus": "Estado de la suscripción"
-    },
     "forms": {
       "reason": "Motivo",
       "reasonDescription": "Obligatorio para el registro de auditoría de operador de solo anexado. Usa al menos 8 caracteres.",
       "reasonPlaceholder": "Explica por qué se necesita esta corrección"
     },
-    "pagination": {
-      "next": "Página siguiente",
-      "page": "Página {page} de {total}",
-      "previous": "Página anterior",
-      "range": "Mostrando {start}–{end} de {total} usuarios"
-    },
+    "navigation": "Usuarios",
     "platformAccess": {
       "description": "Concede o revoca el acceso de operador entre espacios de trabajo para esta cuenta.",
       "granted": "Concedido",
@@ -2695,9 +2619,9 @@
       "title": "Restablecimiento de créditos",
       "zeroBalance": "Poner a cero el saldo restante"
     },
+    "searchPlaceholder": "Buscar por nombre o correo de la cuenta",
     "states": {
       "loading": "Cargando usuarios",
-      "loadingDetail": "Cargando detalles del usuario",
       "saving": "Guardando"
     },
     "status": {
@@ -2713,55 +2637,6 @@
       "success": "El estado de la cuenta se ha actualizado.",
       "title": "Acceso a la cuenta"
     },
-    "subscription": {
-      "description": "Corrige la instantánea local de la suscripción para todo el espacio de trabajo del usuario seleccionado.",
-      "localOnlyDescription": "Este cambio modifica la autorización local de todos los usuarios del espacio de trabajo. No actualiza, cobra, cancela ni contacta con un proveedor de pagos.",
-      "localOnlyTitle": "Instantánea local para todo el espacio de trabajo",
-      "missingDescription": "Una suscripción ausente debe crearse mediante el flujo normal de suscripción; este formulario de operador nunca crea una de forma implícita.",
-      "missingTitle": "No hay suscripción local que corregir",
-      "planLabel": "Plan del espacio de trabajo",
-      "providerManagedDescription": "Este espacio de trabajo está gestionado por un proveedor de pagos. Una sincronización posterior puede sobrescribir esta corrección local.",
-      "providerManagedTitle": "La sincronización del proveedor puede sobrescribir este cambio",
-      "quantityDescription": "Cantidad local opcional de puestos para todo el espacio de trabajo. Déjalo vacío para no especificarla.",
-      "quantityLabel": "Puestos del espacio de trabajo",
-      "save": "Corregir suscripción del espacio de trabajo",
-      "statusLabel": "Estado de suscripción del espacio de trabajo",
-      "success": "La instantánea de suscripción del espacio de trabajo se ha corregido.",
-      "title": "Suscripción local del espacio de trabajo"
-    },
-    "summary": {
-      "active": "Usuarios activos",
-      "activeDescription": "{inactive} cuentas inactivas",
-      "companies": "Empresas",
-      "companiesDescription": "Todos los espacios de trabajo, incluidos los que no tienen usuarios",
-      "heading": "Resumen del directorio de usuarios",
-      "operators": "Operadores de la plataforma",
-      "operatorsDescription": "Cuentas con acceso de operador a la plataforma",
-      "subscriptionHealth": "Usuarios con suscripción activa",
-      "subscriptionHealthDescription": "Usuarios: {trial} en prueba, {missing} sin suscripción, {enterprise} con Enterprise",
-      "total": "Usuarios totales",
-      "totalDescription": "{pending} pendientes de autorización",
-      "verified": "Correos de autenticación verificados",
-      "verifiedDescription": "{unverified} cuentas no están verificadas"
-    },
-    "table": {
-      "caption": "Directorio de usuarios entre espacios de trabajo con paginación del servidor.",
-      "columns": {
-        "account": "Cuenta",
-        "action": "Acción",
-        "lastActive": "Última actividad",
-        "operator": "Operador",
-        "plan": "Plan",
-        "subscription": "Suscripción",
-        "user": "Usuario"
-      },
-      "description": "Los filtros y la selección mediante ID opaco se envían al servidor autorizado; ninguna cuenta seleccionada se coloca en la URL.",
-      "emptyDescription": "Borra uno o varios filtros y vuelve a intentarlo.",
-      "emptyTitle": "Ningún usuario coincide con estos filtros",
-      "open": "Abrir",
-      "openUser": "Abrir los controles de operador para {email}",
-      "title": "Usuarios"
-    },
     "title": "Operaciones de usuarios",
     "values": {
       "accountStatus": {
@@ -2774,9 +2649,50 @@
       "noSubscription": "Sin suscripción",
       "notVerified": "No verificado",
       "operator": "Operador de la plataforma",
-      "providerManaged": "Suscripción gestionada por el proveedor",
-      "verified": "Verificado",
-      "yes": "Sí"
+      "verified": "Verificado"
+    }
+  },
+  "OperatorWorkspaces": {
+    "allowance": {
+      "label": "Créditos por usuario",
+      "save": "Actualizar asignación",
+      "success": "La asignación Enterprise se actualizó.",
+      "title": "Asignación Enterprise",
+      "warningDescription": "La asignación se concede por usuario en todo el espacio y afecta al periodo actual.",
+      "warningTitle": "Se aplica a todos los miembros"
+    },
+    "columns": {
+      "allowance": "Asignación",
+      "createdAt": "Creado",
+      "members": "Miembros",
+      "owner": "Propietario",
+      "plan": "Plan",
+      "subscription": "Suscripción",
+      "workspace": "Espacio de trabajo"
+    },
+    "description": "Todos los espacios de la plataforma, con su plan, miembros y asignación.",
+    "detail": {
+      "title": "Controles del espacio",
+      "workspaceId": "ID del espacio"
+    },
+    "emptyBody": "Ajusta la búsqueda o los filtros para ampliar la lista.",
+    "emptyTitle": "Ningún espacio coincide con estos filtros",
+    "loading": "Cargando espacios de trabajo",
+    "navigation": "Espacios de trabajo",
+    "searchPlaceholder": "Buscar por correo de un miembro",
+    "subscription": {
+      "save": "Corregir suscripción del espacio",
+      "seatsDescription": "Cantidad local de asientos para todo el espacio. Déjalo vacío para no especificarlo.",
+      "seatsLabel": "Número de asientos",
+      "success": "La suscripción del espacio se corrigió.",
+      "title": "Suscripción local del espacio de trabajo",
+      "unavailable": "Este espacio no tiene ningún miembro activo con una suscripción que corregir.",
+      "warningDescription": "Esto corrige la autorización local de todo el espacio. No actualiza, cobra, cancela ni contacta con un proveedor de facturación.",
+      "warningTitle": "Solo instantánea local"
+    },
+    "title": "Operaciones de espacios",
+    "values": {
+      "members": "{active} de {total}"
     }
   },
   "OrganizationModal": {

@@ -8,22 +8,11 @@ import type {
 } from "@/ee/operator/operator.schema";
 import type { OperatorUserCreditAdjustmentResult, OperatorUsersActionState } from "./actions";
 
-import {
-  AlertCircle,
-  CircleDollarSign,
-  CreditCard,
-  RefreshCcw,
-  Save,
-  ShieldAlert,
-  ShieldCheck,
-  UserCog,
-  X,
-} from "lucide-react";
+import { AlertCircle, CircleDollarSign, RefreshCcw, Save, ShieldAlert, ShieldCheck, UserCog } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useRef, useState, useTransition } from "react";
 
 import {
-  correctOperatorSubscriptionSnapshotAction,
   createOperatorUserCreditAdjustmentAction,
   getOperatorUserDetailAction,
   resetOperatorUserCreditsAction,
@@ -40,7 +29,7 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 
-type MutationKey = "adjustment" | "platformAccess" | "reset" | "status" | "subscription";
+type MutationKey = "adjustment" | "platformAccess" | "reset" | "status";
 
 type OperatorServerAction<T> = (
   previous: OperatorUsersActionState<T>,
@@ -103,12 +92,10 @@ function useOperatorMutation<T>(
 
 export function OperatorUserDetailPanel({
   user,
-  onClose,
   onMutationPendingChange,
   onUpdated,
 }: {
   user: OperatorUserDetailDto;
-  onClose: () => void;
   onMutationPendingChange?: (pending: boolean) => void;
   onUpdated: (user: OperatorUserDetailDto) => void;
 }) {
@@ -121,7 +108,6 @@ export function OperatorUserDetailPanel({
     platformAccess: freshOperationId(),
     reset: freshOperationId(),
     status: freshOperationId(),
-    subscription: freshOperationId(),
   }));
   const busy = activeMutation !== null;
   const dateTime = (value: string | null) =>
@@ -148,7 +134,7 @@ export function OperatorUserDetailPanel({
   return (
     <div className="space-y-4" data-testid="operator-user-detail">
       <Card>
-        <CardHeader className="grid grid-cols-[1fr_auto] gap-3">
+        <CardHeader>
           <div className="min-w-0">
             <CardTitle>
               <h2 ref={detailHeadingRef} className="truncate outline-none" tabIndex={-1}>
@@ -158,16 +144,6 @@ export function OperatorUserDetailPanel({
 
             <CardDescription className="truncate">{user.email}</CardDescription>
           </div>
-
-          <Button
-            aria-label={t("OperatorUsers.detail.close")}
-            disabled={busy}
-            size="icon-sm"
-            variant="ghost"
-            onClick={onClose}
-          >
-            <X aria-hidden />
-          </Button>
         </CardHeader>
 
         <CardContent className="space-y-4">
@@ -232,15 +208,6 @@ export function OperatorUserDetailPanel({
         user={user}
         onConflict={refreshAfterConflict}
         onPendingChange={onPendingChange("platformAccess")}
-        onUpdated={onUpdated}
-      />
-
-      <SubscriptionCorrectionForm
-        busy={busy}
-        initialOperationId={operationIds.subscription}
-        user={user}
-        onConflict={refreshAfterConflict}
-        onPendingChange={onPendingChange("subscription")}
         onUpdated={onUpdated}
       />
 
@@ -468,159 +435,6 @@ function PlatformAccessForm({
             {pending ? <Spinner aria-label={t("OperatorUsers.states.saving")} size="sm" /> : <Save aria-hidden />}
 
             {pending ? t("OperatorUsers.states.saving") : t("OperatorUsers.platformAccess.save")}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
-  );
-}
-
-function SubscriptionCorrectionForm({
-  busy,
-  initialOperationId,
-  user,
-  onConflict,
-  onPendingChange,
-  onUpdated,
-}: {
-  busy: boolean;
-  initialOperationId: string;
-  user: OperatorUserDetailDto;
-  onConflict: () => Promise<void>;
-  onPendingChange: (pending: boolean) => void;
-  onUpdated: (user: OperatorUserDetailDto) => void;
-}) {
-  const t = useTranslations();
-  const subscription = user.subscription;
-  const disabled = busy || !subscription;
-  const { onSubmit, operationId, pending, state } = useOperatorMutation(
-    correctOperatorSubscriptionSnapshotAction,
-    initialOperationId,
-    onUpdated,
-    onPendingChange,
-    onConflict,
-  );
-
-  return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center gap-2">
-          <CreditCard aria-hidden className="size-5 text-primary" />
-
-          <CardTitle>{t("OperatorUsers.subscription.title")}</CardTitle>
-        </div>
-
-        <CardDescription>{t("OperatorUsers.subscription.description")}</CardDescription>
-      </CardHeader>
-
-      <CardContent>
-        {!subscription ? (
-          <Alert className="mb-4">
-            <AlertCircle aria-hidden />
-
-            <AlertTitle>{t("OperatorUsers.subscription.missingTitle")}</AlertTitle>
-
-            <AlertDescription>{t("OperatorUsers.subscription.missingDescription")}</AlertDescription>
-          </Alert>
-        ) : null}
-
-        <Alert className="mb-4">
-          <ShieldAlert aria-hidden />
-
-          <AlertTitle>{t("OperatorUsers.subscription.localOnlyTitle")}</AlertTitle>
-
-          <AlertDescription>{t("OperatorUsers.subscription.localOnlyDescription")}</AlertDescription>
-        </Alert>
-
-        {subscription?.billingProviderManaged ? (
-          <Alert className="mb-4 border-warning/30">
-            <RefreshCcw aria-hidden className="text-warning" />
-
-            <AlertTitle>{t("OperatorUsers.subscription.providerManagedTitle")}</AlertTitle>
-
-            <AlertDescription>{t("OperatorUsers.subscription.providerManagedDescription")}</AlertDescription>
-          </Alert>
-        ) : null}
-
-        <form aria-busy={pending} className="space-y-4" method="post" onSubmit={onSubmit}>
-          <input name="userId" type="hidden" value={user.userId} />
-
-          <input name="expectedUpdatedAt" type="hidden" value={subscription?.updatedAt ?? ""} />
-
-          <input name="operationId" type="hidden" value={operationId} />
-
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
-            <FormField id="operatorSubscriptionPlan" label={t("OperatorUsers.subscription.planLabel")}>
-              <NativeSelect
-                key={subscription?.plan ?? "missing-plan"}
-                required
-                defaultValue={subscription?.plan ?? "starter"}
-                disabled={disabled}
-                id="operatorSubscriptionPlan"
-                name="plan"
-              >
-                <option value="starter">{t("OperatorConsole.values.plans.starter")}</option>
-
-                <option value="pro">{t("OperatorConsole.values.plans.pro")}</option>
-
-                <option value="business">{t("OperatorConsole.values.plans.business")}</option>
-
-                <option value="enterprise">{t("OperatorConsole.values.plans.enterprise")}</option>
-              </NativeSelect>
-            </FormField>
-
-            <FormField id="operatorSubscriptionStatus" label={t("OperatorUsers.subscription.statusLabel")}>
-              <NativeSelect
-                key={subscription?.status ?? "missing-status"}
-                required
-                defaultValue={subscription?.status ?? "trial"}
-                disabled={disabled}
-                id="operatorSubscriptionStatus"
-                name="status"
-              >
-                <option value="trial">{t("OperatorConsole.values.subscription.trial")}</option>
-
-                <option value="active">{t("OperatorConsole.values.subscription.active")}</option>
-
-                <option value="cancelled">{t("OperatorConsole.values.subscription.cancelled")}</option>
-
-                <option value="expired">{t("OperatorConsole.values.subscription.expired")}</option>
-
-                <option value="pastDue">{t("OperatorConsole.values.subscription.pastDue")}</option>
-
-                <option value="unPaid">{t("OperatorConsole.values.subscription.unPaid")}</option>
-              </NativeSelect>
-            </FormField>
-          </div>
-
-          <FormField
-            description={t("OperatorUsers.subscription.quantityDescription")}
-            id="operatorSubscriptionQuantity"
-            label={t("OperatorUsers.subscription.quantityLabel")}
-          >
-            <Input
-              key={subscription?.quantity ?? "missing-quantity"}
-              aria-describedby="operatorSubscriptionQuantity-description"
-              defaultValue={subscription?.quantity ?? ""}
-              disabled={disabled}
-              id="operatorSubscriptionQuantity"
-              inputMode="numeric"
-              max={1_000_000}
-              min={1}
-              name="quantity"
-              step={1}
-              type="number"
-            />
-          </FormField>
-
-          <ReasonField disabled={disabled} id="operatorSubscriptionReason" />
-
-          <OperatorUsersActionNotice state={state} success={t("OperatorUsers.subscription.success")} />
-
-          <Button disabled={disabled} type="submit">
-            {pending ? <Spinner aria-label={t("OperatorUsers.states.saving")} size="sm" /> : <Save aria-hidden />}
-
-            {pending ? t("OperatorUsers.states.saving") : t("OperatorUsers.subscription.save")}
           </Button>
         </form>
       </CardContent>

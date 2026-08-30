@@ -14,7 +14,6 @@ vi.mock("@/env", () => ({
     DATABASE_URL: process.env.DATABASE_URL,
     HOSTED_AI_OPERATOR_CONTROLS_ENABLED: true,
     NODE_ENV: "test",
-    OPERATOR_CONSOLE_ENABLED: true,
   },
 }));
 
@@ -159,7 +158,7 @@ afterAll(async () => {
 });
 
 describeDatabase("operator user administration against a real database", { timeout: 120_000 }, () => {
-  it("combines filters, paginates stably, returns minimal detail and summary, and audits without the query", async () => {
+  it("combines filters, paginates stably, returns minimal detail and summary, and records no read events", async () => {
     const companyId = await createCompany({ plan: "pro", status: "active" });
     const role = await runWithoutTenant(() =>
       prisma.userRole.create({
@@ -271,14 +270,7 @@ describeDatabase("operator user administration against a real database", { timeo
         },
       }),
     );
-    expect(audits).toHaveLength(5);
-    expect(audits.filter((audit) => audit.action === OPERATOR_AUDIT_ACTION.userListRead)).toHaveLength(3);
-    expect(JSON.stringify(audits.map((audit) => audit.metadata))).not.toContain(query);
-    expect(JSON.stringify(audits.map((audit) => audit.metadata))).not.toContain("Linnea Example");
-    expect(audits.find((audit) => audit.action === OPERATOR_AUDIT_ACTION.userDetailRead)).toMatchObject({
-      targetCompanyId: companyId,
-      targetUserId: users[0].userId,
-    });
+    expect(audits).toHaveLength(0);
   });
 
   it("rejects self-lockout, stale writes, and last-system-user removal while preserving activation semantics", async () => {

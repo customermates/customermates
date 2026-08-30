@@ -24,6 +24,9 @@ import {
   Package,
   Plus,
   LayoutGrid,
+  History,
+  SlidersHorizontal,
+  UsersRound,
   ShieldCheck,
   TrendingUp,
   UserCircle,
@@ -44,7 +47,6 @@ import { FeedbackType } from "@/features/feedback/send-feedback.schema";
 import { EntityType } from "@/generated/prisma";
 
 import { NavHeader } from "./navigation/nav-header";
-import { resolveOperatorSidebarLink } from "./navigation/operator-sidebar-link";
 import { resolvePlanChip } from "./navigation/plan-subtitle";
 import { visibleSubroutes } from "./navigation/workspace-sections";
 import { NavMain } from "./navigation/nav-main";
@@ -265,8 +267,50 @@ const FullAppSidebar = observer(
             },
           ].filter((i) => i.visible),
         },
+        {
+          key: "operator",
+          label: t("OperatorConsole.shell.console"),
+          items: [
+            {
+              key: "operator-overview",
+              title: t("OperatorOverview.navigation"),
+              href: "/operator/overview",
+              icon: ShieldCheck,
+              visible: operatorConsoleVisible,
+            },
+            {
+              key: "operator-users",
+              title: t("OperatorUsers.navigation"),
+              href: "/operator/users",
+              icon: UsersRound,
+              visible: operatorConsoleVisible,
+            },
+            {
+              key: "operator-workspaces",
+              title: t("OperatorWorkspaces.navigation"),
+              href: "/operator/workspaces",
+              icon: Building,
+              visible: operatorConsoleVisible,
+            },
+            {
+              key: "operator-audit",
+              title: t("OperatorAudit.navigation"),
+              href: "/operator/audit",
+              icon: History,
+              visible: operatorConsoleVisible,
+            },
+            {
+              key: "operator-settings",
+              title: t("OperatorSettings.navigation"),
+              href: "/operator/settings",
+              icon: SlidersHorizontal,
+              visible: operatorConsoleVisible,
+            },
+          ].filter((i) => i.visible),
+        },
       ].filter((g) => g.items.length > 0);
     }, [
+      operatorConsoleVisible,
       t,
       plural,
       terminologyStore.overrides,
@@ -278,18 +322,7 @@ const FullAppSidebar = observer(
       channelsNeedingActionCount,
     ]);
 
-    const operatorSidebarLink = resolveOperatorSidebarLink(operatorConsoleVisible, intlPathname);
     const secondaryItems: NavSecondaryItem[] = [
-      ...(operatorSidebarLink
-        ? [
-            {
-              key: "operator-users",
-              title: t("OperatorConsole.shell.console"),
-              icon: ShieldCheck,
-              ...operatorSidebarLink,
-            },
-          ]
-        : []),
       {
         key: "documentation",
         title: t("UserAvatar.documentation"),

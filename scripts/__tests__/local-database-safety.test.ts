@@ -8,7 +8,7 @@ import {
   isStrictlyLocalDatabaseEnvironment,
   LIBPQ_ROUTING_VARIABLES,
   LOCAL_OPERATOR_SEED_OPT_IN,
-  shouldIncludeLocalOperatorAccess,
+  shouldIncludeLocalOperatorAccess,  shouldIncludeOperatorSeedAccess,
 } from "../local-database-safety";
 
 const LOCAL_DATABASE_URL = "postgresql://postgres:postgres@127.0.0.1:5432/customermates";
@@ -128,4 +128,17 @@ describe("local database safety", () => {
       `${LOCAL_OPERATOR_SEED_OPT_IN}=true npx prisma db seed`,
     ]);
   });
+
+describe("operator seed access", () => {
+  it("grants operator access on a Vercel preview so the branch is reviewable", () => {
+    expect(shouldIncludeOperatorSeedAccess({ VERCEL: "1", VERCEL_ENV: "preview" })).toBe(true);
+  });
+
+  it("never grants operator access on production or any other Vercel environment", () => {
+    expect(shouldIncludeOperatorSeedAccess({ VERCEL: "1", VERCEL_ENV: "production" })).toBe(false);
+    expect(shouldIncludeOperatorSeedAccess({ VERCEL: "1", VERCEL_ENV: "development" })).toBe(false);
+    expect(shouldIncludeOperatorSeedAccess({ VERCEL_ENV: "preview", NODE_ENV: "production" })).toBe(false);
+    expect(shouldIncludeOperatorSeedAccess({})).toBe(false);
+  });
+});
 });

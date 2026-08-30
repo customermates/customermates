@@ -17,7 +17,6 @@ const operatorEnv = vi.hoisted(() => ({
   DATABASE_URL: process.env.DATABASE_URL,
   HOSTED_AI_OPERATOR_CONTROLS_ENABLED: true,
   NODE_ENV: "test",
-  OPERATOR_CONSOLE_ENABLED: true,
 }));
 
 vi.mock("@/env", () => ({ env: operatorEnv }));
@@ -199,7 +198,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
     });
   });
 
-  it("returns only an exact-email candidate projection across two companies and audits the read", async () => {
+  it("returns only an exact-email candidate projection across two companies without recording a read", async () => {
     const target = await seedEnterpriseUser(`target-${randomUUID()}@example.invalid`);
     const hidden = await seedEnterpriseUser(`hidden-${randomUUID()}@example.invalid`);
     const actor = operatorActor();
@@ -222,13 +221,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
     const audits = await runWithoutTenant(() =>
       prisma.operatorAuditEvent.findMany({ where: { actorUserId: actor.userId } }),
     );
-    expect(audits).toHaveLength(1);
-    expect(audits[0]).toMatchObject({
-      action: OPERATOR_AUDIT_ACTION.candidateRead,
-      targetCompanyId: target.companyId,
-      targetUserId: target.userId,
-    });
-    expect(JSON.stringify(audits[0].metadata)).not.toContain(target.email);
+    expect(audits).toHaveLength(0);
   });
 
   it("rejects a negative adjustment below committed usage and replays a valid operation once", async () => {
@@ -332,14 +325,14 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
     });
   });
 
-  it("does not return a read and rolls an Enterprise update back when audit persistence fails", async () => {
+  it("rolls an Enterprise update back when audit persistence fails", async () => {
     const target = await seedEnterpriseUser(`rollback-${randomUUID()}@example.invalid`, 10);
     const invalidActor = operatorActor("x".repeat(201));
     const repo = new PrismaOperatorRepo();
 
     await expect(
       runWithOperator(invalidActor, () => repo.getCompanyAuditedOrThrowUnscoped(target.companyId, now)),
-    ).rejects.toThrow();
+    ).resolves.toBeDefined();
 
     await expect(
       runWithOperator(invalidActor, () =>

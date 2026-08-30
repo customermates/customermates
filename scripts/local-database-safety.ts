@@ -76,3 +76,11 @@ export function shouldIncludeLocalOperatorAccess(environment: DatabaseEnvironmen
     isStrictlyLocalDatabaseEnvironment(environment)
   );
 }
+
+export function shouldIncludePreviewOperatorAccess(environment: DatabaseEnvironment): boolean {
+  return environment.VERCEL_ENV === "preview" && environment.NODE_ENV !== "production";
+}
+
+export function shouldIncludeOperatorSeedAccess(environment: DatabaseEnvironment): boolean {
+  return shouldIncludeLocalOperatorAccess(environment) || shouldIncludePreviewOperatorAccess(environment);
+}

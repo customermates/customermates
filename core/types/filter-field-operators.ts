@@ -43,4 +43,11 @@ export const FILTER_FIELD_DEFAULT_OPERATORS: Record<FilterFieldKey, FilterOperat
   [FilterFieldKey.connectedAccountId]: scalarSelectOperators,
   [FilterFieldKey.calendarId]: scalarSelectOperators,
   [FilterFieldKey.startsAt]: dateOperators,
+  [FilterFieldKey.plan]: scalarSelectOperators,
+  [FilterFieldKey.subscriptionStatus]: scalarSelectOperators,
+  [FilterFieldKey.isPlatformOperator]: scalarSelectOperators,
+  [FilterFieldKey.emailVerified]: scalarSelectOperators,
+  [FilterFieldKey.lastActiveAt]: dateOperators,
+  [FilterFieldKey.workspaceId]: scalarSelectOperators,
+  [FilterFieldKey.auditSource]: scalarSelectOperators,
 };
