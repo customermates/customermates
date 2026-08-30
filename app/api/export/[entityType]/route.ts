@@ -32,6 +32,8 @@ export const runtime = "nodejs";
 
 export const maxDuration = 300;
 
+const HEADER_OFFSET = 2;
+
 const SPREADSHEET_CONTENT_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
 type PageInvoker = (data: ExportRecordsPageData) => Validated<ExportPageResult<ExportableRecord>>;
@@ -76,10 +78,12 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     let failure: NextResponse | null = null;
 
-    const toPage = (data: ExportPageResult<ExportableRecord>) => ({
+    const toPage = (data: ExportPageResult<ExportableRecord>, skip: number) => ({
       total: data.total,
       rows: data.rows.map((record) => toWorkbookRow(record, columns)),
-      relations: mergeRelationSheets(data.rows.flatMap((record) => toRelationSheets(record))),
+      relations: mergeRelationSheets(
+        data.rows.flatMap((record, index) => toRelationSheets(record, skip + index + HEADER_OFFSET)),
+      ),
     });
 
     const result = await buildWorkbook({
@@ -90,7 +94,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       pageSize: EXPORT_PAGE_SIZE,
       rowLimit: EXPORT_ROW_LIMIT,
       fetchPage: async (skip) => {
-        if (skip === 0) return toPage(firstPage.data);
+        if (skip === 0) return toPage(firstPage.data, skip);
 
         const page = await invoke({ ...exportRequest, entityType, skip, take: EXPORT_PAGE_SIZE });
 
@@ -99,7 +103,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           return null;
         }
 
-        return toPage(page.data);
+        return toPage(page.data, skip);
       },
     });
 

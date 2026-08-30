@@ -14,11 +14,14 @@ export const MAX_IMPORT_SHEETS = 12;
 
 export const SCHEMA_SHEET_NAME = "Schema";
 
+export type RelationSheetRows = Record<string, Array<Record<string, string>>>;
+
 export type ParsedWorkbook = {
   sheetName: string;
   sources: SourceColumn[];
   rows: SourceRow[];
   schemaRows: SchemaSheetRow[];
+  relationSheets: RelationSheetRows;
 };
 
 export class ImportFileError extends Error {
@@ -47,6 +50,26 @@ function readSchemaSheet(sheet: { rowCount: number; getRow: (n: number) => { val
       optionValues: String(cells[5] ?? ""),
       optionLabels: String(cells[6] ?? ""),
     });
+  }
+
+  return rows;
+}
+
+type ReadableSheet = { name: string; rowCount: number; getRow: (n: number) => { values: unknown } };
+
+function readNamedRows(sheet: ReadableSheet): Array<Record<string, string>> {
+  const headers = (sheet.getRow(1).values as unknown[]).slice(1).map((value) => String(fromWorkbookCell(value) ?? ""));
+  const rows: Array<Record<string, string>> = [];
+
+  for (let index = 2; index <= sheet.rowCount; index += 1) {
+    const values = (sheet.getRow(index).values as unknown[]).slice(1);
+    const row: Record<string, string> = {};
+
+    headers.forEach((header, column) => {
+      if (header) row[header] = String(fromWorkbookCell(values[column]) ?? "");
+    });
+
+    if (Object.values(row).some((value) => value.length > 0)) rows.push(row);
   }
 
   return rows;
@@ -99,10 +122,18 @@ export async function readWorkbookFile(file: File): Promise<ParsedWorkbook> {
 
   const schemaSheet = workbook.getWorksheet(SCHEMA_SHEET_NAME);
 
+  const relationSheets: RelationSheetRows = {};
+  for (const sheet of workbook.worksheets) {
+    if (sheet.name === dataSheet.name || sheet.name === SCHEMA_SHEET_NAME) continue;
+
+    relationSheets[sheet.name] = readNamedRows(sheet);
+  }
+
   return {
     sheetName: dataSheet.name,
     sources,
     rows,
     schemaRows: schemaSheet ? readSchemaSheet(schemaSheet) : [],
+    relationSheets,
   };
 }

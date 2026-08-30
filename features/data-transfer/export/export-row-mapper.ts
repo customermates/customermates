@@ -5,6 +5,7 @@ import type { WorkbookCellValue } from "../workbook-cell";
 
 import { EntityType } from "@/generated/prisma";
 
+import { CHANNELS_SHEET_NAME } from "../data-transfer.schema";
 import { RECORD_ID_COLUMN_KEY, resolveCustomFieldCell, STORED_MULTI_VALUE_SEPARATOR } from "../workbook-columns";
 import { serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 
@@ -36,7 +37,7 @@ export type ExportableRecord = {
 };
 
 export const RELATION_SHEET_NAMES = {
-  channels: "Channels",
+  channels: CHANNELS_SHEET_NAME,
   contacts: "Contacts",
   deals: "Deals",
   organizations: "Organizations",
@@ -54,13 +55,13 @@ export const ENTITY_SHEET_NAME: Record<EntityType, string> = {
 };
 
 const RELATION_HEADERS = {
-  channels: ["recordId", "provider", "value", "displayName"],
-  contacts: ["recordId", "contactId", "contactName"],
-  deals: ["recordId", "dealId", "dealName"],
-  organizations: ["recordId", "organizationId", "organizationName"],
-  services: ["recordId", "serviceId", "serviceName", "amount", "quantity"],
-  tasks: ["recordId", "taskId", "taskName", "taskType"],
-  users: ["recordId", "userId", "userName"],
+  channels: ["row", "recordId", "provider", "value", "displayName"],
+  contacts: ["row", "recordId", "contactId", "contactName"],
+  deals: ["row", "recordId", "dealId", "dealName"],
+  organizations: ["row", "recordId", "organizationId", "organizationName"],
+  services: ["row", "recordId", "serviceId", "serviceName", "amount", "quantity"],
+  tasks: ["row", "recordId", "taskId", "taskName", "taskType"],
+  users: ["row", "recordId", "userId", "userName"],
 } as const;
 
 function personName(person: PersonReference): string {
@@ -133,7 +134,7 @@ export function toWorkbookRow(record: ExportableRecord, columns: ExportColumn[])
   return row;
 }
 
-export function toRelationSheets(record: ExportableRecord): RelationSheet[] {
+export function toRelationSheets(record: ExportableRecord, sheetRow: number): RelationSheet[] {
   const sheets: RelationSheet[] = [];
 
   if (record.identifiers && record.identifiers.length > 0) {
@@ -141,6 +142,7 @@ export function toRelationSheets(record: ExportableRecord): RelationSheet[] {
       name: RELATION_SHEET_NAMES.channels,
       headers: [...RELATION_HEADERS.channels],
       rows: record.identifiers.map((identifier) => ({
+        row: sheetRow,
         recordId: record.id,
         provider: identifier.provider,
         value: identifier.value,
@@ -154,6 +156,7 @@ export function toRelationSheets(record: ExportableRecord): RelationSheet[] {
       name: RELATION_SHEET_NAMES.contacts,
       headers: [...RELATION_HEADERS.contacts],
       rows: record.contacts.map((contact) => ({
+        row: sheetRow,
         recordId: record.id,
         contactId: contact.id,
         contactName: personName(contact),
@@ -166,6 +169,7 @@ export function toRelationSheets(record: ExportableRecord): RelationSheet[] {
       name: RELATION_SHEET_NAMES.organizations,
       headers: [...RELATION_HEADERS.organizations],
       rows: record.organizations.map((organization) => ({
+        row: sheetRow,
         recordId: record.id,
         organizationId: organization.id,
         organizationName: organization.name,
@@ -177,7 +181,7 @@ export function toRelationSheets(record: ExportableRecord): RelationSheet[] {
     sheets.push({
       name: RELATION_SHEET_NAMES.deals,
       headers: [...RELATION_HEADERS.deals],
-      rows: record.deals.map((deal) => ({ recordId: record.id, dealId: deal.id, dealName: deal.name })),
+      rows: record.deals.map((deal) => ({ row: sheetRow, recordId: record.id, dealId: deal.id, dealName: deal.name })),
     });
   }
 
@@ -186,6 +190,7 @@ export function toRelationSheets(record: ExportableRecord): RelationSheet[] {
       name: RELATION_SHEET_NAMES.tasks,
       headers: [...RELATION_HEADERS.tasks],
       rows: record.tasks.map((task) => ({
+        row: sheetRow,
         recordId: record.id,
         taskId: task.id,
         taskName: task.name,
@@ -199,6 +204,7 @@ export function toRelationSheets(record: ExportableRecord): RelationSheet[] {
       name: RELATION_SHEET_NAMES.services,
       headers: [...RELATION_HEADERS.services],
       rows: record.services.map((service) => ({
+        row: sheetRow,
         recordId: record.id,
         serviceId: service.id,
         serviceName: service.name,
@@ -212,7 +218,12 @@ export function toRelationSheets(record: ExportableRecord): RelationSheet[] {
     sheets.push({
       name: RELATION_SHEET_NAMES.users,
       headers: [...RELATION_HEADERS.users],
-      rows: record.users.map((user) => ({ recordId: record.id, userId: user.id, userName: personName(user) })),
+      rows: record.users.map((user) => ({
+        row: sheetRow,
+        recordId: record.id,
+        userId: user.id,
+        userName: personName(user),
+      })),
     });
   }
 

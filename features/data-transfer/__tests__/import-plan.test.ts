@@ -7,7 +7,7 @@ import { CustomColumnType, EntityType } from "@/generated/prisma";
 
 import { IMPORT_ENTITIES } from "../import/import-entity.registry";
 import { autoMatchColumns, mappingFromSchemaSheet, normalizeHeader } from "../import/import-mapping";
-import { buildPlan, chunkRows } from "../import/import-plan";
+import { buildPlan, chunkRows, identifiersBySheetRow } from "../import/import-plan";
 import { mapFailureToRows } from "../import/import-issues";
 
 const STATUS_A = "aaaa1111-0000-4000-8000-00000000000a";
@@ -37,7 +37,12 @@ function rows(cells: Array<Array<string | null>>): SourceRow[] {
 
 const relationIndex: RelationIndex = { organization: new Map([["acme gmbh", [ACME]]]) };
 
-function plan(mapping: MappingTarget[], headers: string[], cells: Array<Array<string | null>>) {
+function plan(
+  mapping: MappingTarget[],
+  headers: string[],
+  cells: Array<Array<string | null>>,
+  channelRows: Array<Record<string, string>> = [],
+) {
   return buildPlan({
     rows: rows(cells),
     sources: sources(headers),
@@ -45,6 +50,7 @@ function plan(mapping: MappingTarget[], headers: string[], cells: Array<Array<st
     descriptor: contact,
     customColumns: [status],
     relationIndex,
+    identifiersByRow: identifiersBySheetRow(channelRows),
   });
 }
 
@@ -253,5 +259,68 @@ describe("normalizeHeader", () => {
   it("ignores case, spacing and punctuation so foreign headers still match", () => {
     expect(normalizeHeader("  First_Name ")).toBe("firstname");
     expect(normalizeHeader("E-Mail (work)")).toBe("emailwork");
+  });
+});
+
+describe("identifiersBySheetRow", () => {
+  it("groups every channel onto the spreadsheet row it belongs to", () => {
+    const byRow = identifiersBySheetRow([
+      { row: "2", provider: "mail", value: "ada@example.com", displayName: "Ada" },
+      { row: "2", provider: "linkedin", value: "in/ada", displayName: "" },
+      { row: "3", provider: "mail", value: "grace@example.com", displayName: "" },
+    ]);
+
+    expect(byRow.get(2)).toEqual([
+      { provider: "mail", value: "ada@example.com", displayName: "Ada" },
+      { provider: "linkedin", value: "in/ada" },
+    ]);
+    expect(byRow.get(3)).toHaveLength(1);
+  });
+
+  it("skips rows with no value or no usable row pointer", () => {
+    const byRow = identifiersBySheetRow([
+      { row: "2", provider: "mail", value: "   " },
+      { row: "", provider: "mail", value: "orphan@example.com" },
+    ]);
+
+    expect(byRow.size).toBe(0);
+  });
+});
+
+describe("buildPlan channels", () => {
+  const channels = [{ row: "2", provider: "mail", value: "ada@example.com" }];
+
+  it("attaches channels to a created contact, so an exported file keeps its email", () => {
+    const result = plan(
+      [{ kind: "recordId" }, { kind: "field", key: "firstName" }],
+      ["ID", "First name"],
+      [["", "Ada"]],
+      channels,
+    );
+
+    expect(result.create[0].payload.identifiers).toEqual([{ provider: "mail", value: "ada@example.com" }]);
+  });
+
+  it("leaves an updated contact's channels alone, because re-sending them would conflict", () => {
+    const result = plan(
+      [{ kind: "recordId" }, { kind: "field", key: "firstName" }],
+      ["ID", "First name"],
+      [["60000000-0000-4000-8000-000000000001", "Ada"]],
+      channels,
+    );
+
+    expect("identifiers" in result.update[0].payload).toBe(false);
+  });
+
+  it("reports an unrecognised channel type rather than sending it to the write path", () => {
+    const result = plan(
+      [{ kind: "recordId" }, { kind: "field", key: "firstName" }],
+      ["ID", "First name"],
+      [["", "Ada"]],
+      [{ row: "2", provider: "carrier-pigeon", value: "coop-14" }],
+    );
+
+    expect(result.issues.map((issue) => issue.code)).toEqual(["unknownProvider"]);
+    expect(result.create).toHaveLength(0);
   });
 });

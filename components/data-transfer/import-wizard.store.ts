@@ -14,11 +14,11 @@ import {
   getCustomColumnsByEntityTypeAction,
   getImportRelationIndexAction,
 } from "@/app/actions";
-import { IMPORT_CHUNK_SIZE, type ImportMode } from "@/features/data-transfer/data-transfer.schema";
+import { CHANNELS_SHEET_NAME, IMPORT_CHUNK_SIZE, type ImportMode } from "@/features/data-transfer/data-transfer.schema";
 import { IMPORT_ENTITIES } from "@/features/data-transfer/import/import-entity.registry";
 import { ImportFileError, readWorkbookFile } from "@/features/data-transfer/import/read-workbook-file";
 import { autoMatchColumns, mappingFromSchemaSheet } from "@/features/data-transfer/import/import-mapping";
-import { buildPlan, chunkRows } from "@/features/data-transfer/import/import-plan";
+import { buildPlan, chunkRows, identifiersBySheetRow } from "@/features/data-transfer/import/import-plan";
 import { dedupeIssues, mapFailureToRows, planIssueToRowIssue } from "@/features/data-transfer/import/import-issues";
 import { BaseModalStore } from "@/core/base/base-modal.store";
 
@@ -185,6 +185,7 @@ export class ImportWizardStore extends BaseModalStore {
       descriptor: this.descriptor,
       customColumns: this.customColumns,
       relationIndex: this.relationIndex,
+      identifiersByRow: identifiersBySheetRow(this.parsed.relationSheets[CHANNELS_SHEET_NAME] ?? []),
     });
 
     const planIssues = plan.issues.map(planIssueToRowIssue);

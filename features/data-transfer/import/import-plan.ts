@@ -3,7 +3,7 @@ import type { ImportEntityDescriptor } from "./import-entity.registry";
 import type { MappingTarget, SourceColumn } from "./import-mapping";
 import type { WorkbookCellValue } from "../workbook-cell";
 
-import { CustomColumnType } from "@/generated/prisma";
+import { CustomColumnType, MessagingProvider } from "@/generated/prisma";
 
 import { STORED_MULTI_VALUE_SEPARATOR } from "../workbook-columns";
 import { columnLetter, normalizeHeader } from "./import-mapping";
@@ -38,6 +38,30 @@ export type ImportPlan = {
 
 export type RelationIndex = Record<string, Map<string, string[]>>;
 
+export type IdentifierRow = { provider: string; value: string; displayName?: string };
+
+const FIRST_DATA_ROW = 2;
+
+const MESSAGING_PROVIDERS = new Set<string>(Object.values(MessagingProvider));
+
+export function identifiersBySheetRow(rows: Array<Record<string, string>>): Map<number, IdentifierRow[]> {
+  const byRow = new Map<number, IdentifierRow[]>();
+
+  for (const row of rows) {
+    const sheetRow = Number(row.row);
+    const value = (row.value ?? "").trim();
+    if (!Number.isInteger(sheetRow) || sheetRow < FIRST_DATA_ROW || value.length === 0) continue;
+
+    const entry: IdentifierRow = { provider: (row.provider ?? "").trim(), value };
+    const displayName = (row.displayName ?? "").trim();
+    if (displayName.length > 0) entry.displayName = displayName;
+
+    byRow.set(sheetRow, [...(byRow.get(sheetRow) ?? []), entry]);
+  }
+
+  return byRow;
+}
+
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function asText(value: WorkbookCellValue): string {
@@ -71,8 +95,9 @@ export function buildPlan(args: {
   descriptor: ImportEntityDescriptor;
   customColumns: CustomColumnDto[];
   relationIndex: RelationIndex;
+  identifiersByRow?: Map<number, IdentifierRow[]>;
 }): ImportPlan {
-  const { rows, sources, mapping, descriptor, customColumns, relationIndex } = args;
+  const { rows, sources, mapping, descriptor, customColumns, relationIndex, identifiersByRow } = args;
   const customById = new Map(customColumns.map((column) => [column.id, column]));
   const fieldByKey = new Map(descriptor.fields.map((field) => [field.key, field]));
 
@@ -176,6 +201,17 @@ export function buildPlan(args: {
       const previous = seenRecordIds.get(recordId);
       if (previous !== undefined) fail(null, "duplicateRecordId", `Row ${previous} already updates this record`);
       else seenRecordIds.set(recordId, row.sheetRow);
+    }
+
+    const sheetIdentifiers =
+      descriptor.supportsIdentifiers && !recordId ? identifiersByRow?.get(row.sheetRow) : undefined;
+
+    if (sheetIdentifiers && sheetIdentifiers.length > 0) {
+      const unknown = sheetIdentifiers.filter((entry) => !MESSAGING_PROVIDERS.has(entry.provider));
+
+      for (const entry of unknown) fail(null, "unknownProvider", `"${entry.provider}" is not a known channel type`);
+
+      if (unknown.length === 0) payload.identifiers = sheetIdentifiers;
     }
 
     if (rowFailed) continue;
