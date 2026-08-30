@@ -322,6 +322,7 @@ import { ListOperatorUsersInteractor } from "@/ee/operator/list-operator-users.i
 import { GetOperatorUserSummaryInteractor } from "@/ee/operator/get-operator-user-summary.interactor";
 import { GetOperatorUserDetailInteractor } from "@/ee/operator/get-operator-user-detail.interactor";
 import { UpdateOperatorUserStatusInteractor } from "@/ee/operator/update-operator-user-status.interactor";
+import { UpdateOperatorUserPlatformAccessInteractor } from "@/ee/operator/update-operator-user-platform-access.interactor";
 import { CorrectOperatorSubscriptionSnapshotInteractor } from "@/ee/operator/correct-operator-subscription-snapshot.interactor";
 import { ResetOperatorUserCreditsInteractor } from "@/ee/operator/reset-operator-user-credits.interactor";
 // Validators
@@ -1561,6 +1562,9 @@ export const getOperatorUserDetailInteractor = () => new GetOperatorUserDetailIn
 
 export const updateOperatorUserStatusInteractor = () =>
   new UpdateOperatorUserStatusInteractor(getOperatorRepo(), getEventService());
+
+export const updateOperatorUserPlatformAccessInteractor = () =>
+  new UpdateOperatorUserPlatformAccessInteractor(getOperatorRepo());
 
 export const correctOperatorSubscriptionSnapshotInteractor = () =>
   new CorrectOperatorSubscriptionSnapshotInteractor(getOperatorRepo());

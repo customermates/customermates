@@ -13,6 +13,7 @@ import type {
   ParsedListOperatorUsersData,
   ResetOperatorUserCreditsData,
   ResetOperatorUserCreditsResultDto,
+  UpdateOperatorUserPlatformAccessData,
   UpdateOperatorUserStatusData,
   UpdateHostedAiEnterpriseAllowanceData,
   UpdateHostedAiGlobalControlData,
@@ -53,6 +54,10 @@ export abstract class OperatorRepo {
   abstract updateUserStatusOrThrowUnscoped(
     data: UpdateOperatorUserStatusData,
     publishUserUpdated: PublishOperatorUserStatusChanged,
+    now?: Date,
+  ): Promise<OperatorUserDetailDto>;
+  abstract updateUserPlatformAccessOrThrowUnscoped(
+    data: UpdateOperatorUserPlatformAccessData,
     now?: Date,
   ): Promise<OperatorUserDetailDto>;
   abstract correctSubscriptionSnapshotOrThrowUnscoped(

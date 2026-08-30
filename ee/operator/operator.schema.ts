@@ -106,6 +106,16 @@ export const UpdateOperatorUserStatusSchema = z
   })
   .strict();
 
+export const UpdateOperatorUserPlatformAccessSchema = z
+  .object({
+    userId: z.uuid(),
+    expectedUpdatedAt: z.iso.datetime({ offset: true, precision: 3 }),
+    isPlatformOperator: z.boolean(),
+    reason: ReasonSchema,
+    operationId: OperationIdSchema,
+  })
+  .strict();
+
 export const CorrectOperatorSubscriptionSnapshotSchema = z
   .object({
     userId: z.uuid(),
@@ -142,6 +152,7 @@ export type ListOperatorUsersData = z.input<typeof ListOperatorUsersSchema>;
 export type ParsedListOperatorUsersData = z.output<typeof ListOperatorUsersSchema>;
 export type GetOperatorUserDetailData = z.infer<typeof GetOperatorUserDetailSchema>;
 export type UpdateOperatorUserStatusData = z.infer<typeof UpdateOperatorUserStatusSchema>;
+export type UpdateOperatorUserPlatformAccessData = z.infer<typeof UpdateOperatorUserPlatformAccessSchema>;
 export type CorrectOperatorSubscriptionSnapshotData = z.infer<typeof CorrectOperatorSubscriptionSnapshotSchema>;
 export type ResetOperatorUserCreditsData = z.infer<typeof ResetOperatorUserCreditsSchema>;
 
@@ -327,6 +338,7 @@ export const OPERATOR_AUDIT_ACTION = {
   userSummaryRead: "operator.users.summary",
   userDetailRead: "operator.users.detail",
   userStatusUpdate: "operator.user_status.update",
+  userPlatformAccessUpdate: "operator.platform_access.update",
   subscriptionSnapshotCorrect: "operator.subscription_snapshot.correct",
   creditBalanceReset: "operator.credit_balance.reset",
   operatorBootstrap: "operator.bootstrap",

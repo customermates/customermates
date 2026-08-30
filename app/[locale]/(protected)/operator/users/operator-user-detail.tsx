@@ -8,7 +8,17 @@ import type {
 } from "@/ee/operator/operator.schema";
 import type { OperatorUserCreditAdjustmentResult, OperatorUsersActionState } from "./actions";
 
-import { AlertCircle, CircleDollarSign, CreditCard, RefreshCcw, Save, ShieldAlert, UserCog, X } from "lucide-react";
+import {
+  AlertCircle,
+  CircleDollarSign,
+  CreditCard,
+  RefreshCcw,
+  Save,
+  ShieldAlert,
+  ShieldCheck,
+  UserCog,
+  X,
+} from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useRef, useState, useTransition } from "react";
 
@@ -17,6 +27,7 @@ import {
   createOperatorUserCreditAdjustmentAction,
   getOperatorUserDetailAction,
   resetOperatorUserCreditsAction,
+  updateOperatorUserPlatformAccessAction,
   updateOperatorUserStatusAction,
 } from "./actions";
 import { AccountStatusLabel, FormField, IdCode, NativeSelect, OperatorUsersActionNotice } from "./operator-users-ui";
@@ -29,7 +40,7 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 
-type MutationKey = "adjustment" | "reset" | "status" | "subscription";
+type MutationKey = "adjustment" | "platformAccess" | "reset" | "status" | "subscription";
 
 type OperatorServerAction<T> = (
   previous: OperatorUsersActionState<T>,
@@ -107,6 +118,7 @@ export function OperatorUserDetailPanel({
   const [activeMutation, setActiveMutation] = useState<MutationKey | null>(null);
   const [operationIds] = useState(() => ({
     adjustment: freshOperationId(),
+    platformAccess: freshOperationId(),
     reset: freshOperationId(),
     status: freshOperationId(),
     subscription: freshOperationId(),
@@ -211,6 +223,15 @@ export function OperatorUserDetailPanel({
         user={user}
         onConflict={refreshAfterConflict}
         onPendingChange={onPendingChange("status")}
+        onUpdated={onUpdated}
+      />
+
+      <PlatformAccessForm
+        busy={busy}
+        initialOperationId={operationIds.platformAccess}
+        user={user}
+        onConflict={refreshAfterConflict}
+        onPendingChange={onPendingChange("platformAccess")}
         onUpdated={onUpdated}
       />
 
@@ -354,6 +375,99 @@ function UserStatusForm({
             {pending ? <Spinner aria-label={t("OperatorUsers.states.saving")} size="sm" /> : <Save aria-hidden />}
 
             {pending ? t("OperatorUsers.states.saving") : t("OperatorUsers.status.save")}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
+function PlatformAccessForm({
+  busy,
+  initialOperationId,
+  user,
+  onConflict,
+  onPendingChange,
+  onUpdated,
+}: {
+  busy: boolean;
+  initialOperationId: string;
+  user: OperatorUserDetailDto;
+  onConflict: () => Promise<void>;
+  onPendingChange: (pending: boolean) => void;
+  onUpdated: (user: OperatorUserDetailDto) => void;
+}) {
+  const t = useTranslations();
+  const disabled = busy || user.isCurrentOperator;
+  const { onSubmit, operationId, pending, state } = useOperatorMutation(
+    updateOperatorUserPlatformAccessAction,
+    initialOperationId,
+    onUpdated,
+    onPendingChange,
+    onConflict,
+  );
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center gap-2">
+          <ShieldCheck aria-hidden className="size-5 text-primary" />
+
+          <CardTitle>{t("OperatorUsers.platformAccess.title")}</CardTitle>
+        </div>
+
+        <CardDescription>{t("OperatorUsers.platformAccess.description")}</CardDescription>
+      </CardHeader>
+
+      <CardContent>
+        <form aria-busy={pending} className="space-y-4" method="post" onSubmit={onSubmit}>
+          <input name="userId" type="hidden" value={user.userId} />
+
+          <input name="expectedUpdatedAt" type="hidden" value={user.updatedAt} />
+
+          <input name="operationId" type="hidden" value={operationId} />
+
+          <Alert>
+            <ShieldAlert aria-hidden />
+
+            <AlertTitle>{t("OperatorUsers.platformAccess.warningTitle")}</AlertTitle>
+
+            <AlertDescription>{t("OperatorUsers.platformAccess.warningDescription")}</AlertDescription>
+          </Alert>
+
+          {user.isCurrentOperator ? (
+            <Alert>
+              <AlertCircle aria-hidden />
+
+              <AlertTitle>{t("OperatorUsers.platformAccess.selfTitle")}</AlertTitle>
+
+              <AlertDescription>{t("OperatorUsers.platformAccess.selfDescription")}</AlertDescription>
+            </Alert>
+          ) : null}
+
+          <FormField id="operatorUserPlatformAccess" label={t("OperatorUsers.platformAccess.label")}>
+            <NativeSelect
+              key={String(user.isPlatformOperator)}
+              required
+              defaultValue={String(user.isPlatformOperator)}
+              disabled={disabled}
+              id="operatorUserPlatformAccess"
+              name="isPlatformOperator"
+            >
+              <option value="false">{t("OperatorUsers.platformAccess.revoked")}</option>
+
+              <option value="true">{t("OperatorUsers.platformAccess.granted")}</option>
+            </NativeSelect>
+          </FormField>
+
+          <ReasonField disabled={disabled} id="operatorUserPlatformAccessReason" />
+
+          <OperatorUsersActionNotice state={state} success={t("OperatorUsers.platformAccess.success")} />
+
+          <Button disabled={disabled} type="submit">
+            {pending ? <Spinner aria-label={t("OperatorUsers.states.saving")} size="sm" /> : <Save aria-hidden />}
+
+            {pending ? t("OperatorUsers.states.saving") : t("OperatorUsers.platformAccess.save")}
           </Button>
         </form>
       </CardContent>

@@ -2447,6 +2447,7 @@
         "subscriptionSnapshotCorrect": "Subscription snapshot corrected",
         "userDetailRead": "User record viewed",
         "userListRead": "User directory viewed",
+        "userPlatformAccessUpdate": "Platform access updated",
         "userStatusUpdate": "Account status updated",
         "userSummaryRead": "Directory summary viewed"
       },
@@ -2668,6 +2669,19 @@
       "page": "Page {page} of {total}",
       "previous": "Previous page",
       "range": "Showing {start}–{end} of {total} users"
+    },
+    "platformAccess": {
+      "description": "Grant or revoke cross-workspace operator access for this account.",
+      "granted": "Granted",
+      "label": "Platform operator access",
+      "revoked": "Not granted",
+      "save": "Update platform access",
+      "selfDescription": "An operator can never grant or revoke their own platform access. Ask another active operator to make this change.",
+      "selfTitle": "You cannot change your own access",
+      "success": "Platform access was updated.",
+      "title": "Platform access",
+      "warningDescription": "An operator can read and correct accounts, subscriptions and credits across every workspace. Grant it only to a verified, active account, and revoke it as soon as it is no longer needed.",
+      "warningTitle": "Operator access spans every workspace"
     },
     "reset": {
       "baseAllowance": "Return manual corrections to base allowance",

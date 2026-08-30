@@ -2447,6 +2447,7 @@
         "subscriptionSnapshotCorrect": "Snapshot dell’abbonamento corretto",
         "userDetailRead": "Scheda utente visualizzata",
         "userListRead": "Elenco utenti visualizzato",
+        "userPlatformAccessUpdate": "Accesso alla piattaforma aggiornato",
         "userStatusUpdate": "Stato dell’account aggiornato",
         "userSummaryRead": "Riepilogo dell’elenco visualizzato"
       },
@@ -2668,6 +2669,19 @@
       "page": "Pagina {page} di {total}",
       "previous": "Pagina precedente",
       "range": "Visualizzati {start}–{end} di {total} utenti"
+    },
+    "platformAccess": {
+      "description": "Concedi o revoca l’accesso operatore tra le aree di lavoro per questo account.",
+      "granted": "Concesso",
+      "label": "Accesso operatore di piattaforma",
+      "revoked": "Non concesso",
+      "save": "Aggiorna accesso alla piattaforma",
+      "selfDescription": "Un operatore non può mai concedere o revocare il proprio accesso alla piattaforma. Chiedi a un altro operatore attivo di effettuare questa modifica.",
+      "selfTitle": "Non puoi modificare il tuo accesso",
+      "success": "L’accesso alla piattaforma è stato aggiornato.",
+      "title": "Accesso alla piattaforma",
+      "warningDescription": "Un operatore può consultare e correggere account, abbonamenti e crediti in tutte le aree di lavoro. Concedilo solo a un account attivo e verificato e revocalo appena non serve più.",
+      "warningTitle": "L’accesso operatore vale per tutte le aree di lavoro"
     },
     "reset": {
       "baseAllowance": "Riporta le correzioni manuali alla disponibilità di base",

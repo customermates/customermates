@@ -2447,6 +2447,7 @@
         "subscriptionSnapshotCorrect": "Instantané d’abonnement corrigé",
         "userDetailRead": "Fiche utilisateur consultée",
         "userListRead": "Annuaire des utilisateurs consulté",
+        "userPlatformAccessUpdate": "Accès plateforme mis à jour",
         "userStatusUpdate": "Statut du compte mis à jour",
         "userSummaryRead": "Résumé de l’annuaire consulté"
       },
@@ -2668,6 +2669,19 @@
       "page": "Page {page} sur {total}",
       "previous": "Page précédente",
       "range": "Affichage de {start} à {end} sur {total} utilisateurs"
+    },
+    "platformAccess": {
+      "description": "Accordez ou révoquez l’accès opérateur inter-espaces pour ce compte.",
+      "granted": "Accordé",
+      "label": "Accès opérateur de plateforme",
+      "revoked": "Non accordé",
+      "save": "Mettre à jour l’accès plateforme",
+      "selfDescription": "Un opérateur ne peut jamais accorder ni révoquer son propre accès plateforme. Demandez à un autre opérateur actif d’effectuer ce changement.",
+      "selfTitle": "Vous ne pouvez pas modifier votre propre accès",
+      "success": "L’accès plateforme a été mis à jour.",
+      "title": "Accès plateforme",
+      "warningDescription": "Un opérateur peut consulter et corriger les comptes, abonnements et crédits de tous les espaces. Ne l’accordez qu’à un compte actif et vérifié, et révoquez-le dès qu’il n’est plus nécessaire.",
+      "warningTitle": "L’accès opérateur couvre tous les espaces"
     },
     "reset": {
       "baseAllowance": "Ramener les corrections manuelles à l’allocation de base",

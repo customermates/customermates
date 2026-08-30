@@ -8,6 +8,7 @@ import {
   ResetOperatorUserCreditsSchema,
   UpdateHostedAiEnterpriseAllowanceSchema,
   UpdateHostedAiGlobalControlSchema,
+  UpdateOperatorUserPlatformAccessSchema,
   UpdateOperatorUserStatusSchema,
 } from "../operator.schema";
 
@@ -172,6 +173,27 @@ describe("operator input contracts", () => {
         ...base,
         mode: "deleteLedger",
       }).success,
+    ).toBe(false);
+  });
+
+  it("accepts only an explicit platform-access boolean and rejects unknown keys", () => {
+    const base = {
+      userId: operationId,
+      expectedUpdatedAt: "2026-08-28T12:00:00.000Z",
+      reason: "Grant operator access for the on-call rotation",
+      operationId,
+    };
+    expect(UpdateOperatorUserPlatformAccessSchema.safeParse({ ...base, isPlatformOperator: true }).success).toBe(true);
+    expect(UpdateOperatorUserPlatformAccessSchema.safeParse({ ...base, isPlatformOperator: false }).success).toBe(true);
+    expect(UpdateOperatorUserPlatformAccessSchema.safeParse(base).success).toBe(false);
+    expect(UpdateOperatorUserPlatformAccessSchema.safeParse({ ...base, isPlatformOperator: "true" }).success).toBe(
+      false,
+    );
+    expect(
+      UpdateOperatorUserPlatformAccessSchema.safeParse({ ...base, isPlatformOperator: true, status: "active" }).success,
+    ).toBe(false);
+    expect(
+      UpdateOperatorUserPlatformAccessSchema.safeParse({ ...base, isPlatformOperator: true, reason: "short" }).success,
     ).toBe(false);
   });
 });

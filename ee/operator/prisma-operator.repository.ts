@@ -34,6 +34,7 @@ import {
   type ResetOperatorUserCreditsResultDto,
   type UpdateHostedAiEnterpriseAllowanceData,
   type UpdateHostedAiGlobalControlData,
+  type UpdateOperatorUserPlatformAccessData,
   type UpdateOperatorUserStatusData,
 } from "./operator.schema";
 
@@ -960,6 +961,96 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             expectedUpdatedAt: data.expectedUpdatedAt,
             previousStatus: target.status,
             nextStatus: data.status,
+          },
+        });
+        return this.userDetailOrThrow(data.userId, now);
+      },
+      { companyId },
+    );
+  }
+
+  @BypassTenantGuard
+  async updateUserPlatformAccessOrThrowUnscoped(
+    data: UpdateOperatorUserPlatformAccessData,
+    now = new Date(),
+  ): Promise<OperatorUserDetailDto> {
+    const companyId = await this.userCompanyIdOrThrow(data.userId);
+    return runInTransaction(
+      async () => {
+        const actor = getOperatorActor();
+        const target = await this.prisma.user.findFirst({
+          where: { id: data.userId, companyId },
+          select: { id: true, email: true, status: true, updatedAt: true, isPlatformOperator: true },
+        });
+        if (!target) throw new OperatorNotFoundError("User not found.");
+
+        const prior = await this.prisma.operatorAuditEvent.findUnique({
+          where: { operationId: data.operationId },
+        });
+        if (prior) {
+          const metadata = prior.metadata as Record<string, unknown> | null;
+          if (
+            prior.actorUserId !== actor.userId ||
+            prior.action !== OPERATOR_AUDIT_ACTION.userPlatformAccessUpdate ||
+            prior.targetCompanyId !== companyId ||
+            prior.targetUserId !== data.userId ||
+            prior.reason !== data.reason ||
+            metadata?.expectedUpdatedAt !== data.expectedUpdatedAt ||
+            metadata?.nextIsPlatformOperator !== data.isPlatformOperator
+          )
+            throw new OperatorConflictError("The operation ID was already used for another request.");
+
+          return this.userDetailOrThrow(data.userId, now);
+        }
+
+        if (target.updatedAt.toISOString() !== data.expectedUpdatedAt)
+          throw new OperatorConflictError("The user changed. Refresh before updating their platform access.");
+
+        if (actor.userId === data.userId)
+          throw new OperatorConflictError("An operator cannot change their own platform access.");
+
+        if (data.isPlatformOperator) {
+          if (target.status !== Status.active)
+            throw new OperatorConflictError("Only an active user can hold platform operator access.");
+
+          const email = normalizeOperatorEmail(target.email);
+          const domainUsers = await this.prisma.user.count({
+            where: { email: { equals: email, mode: "insensitive" } },
+          });
+          if (domainUsers !== 1) throw new OperatorConflictError("The normalized email matches multiple users.");
+
+          const authUsers = await this.prisma.authUser.findMany({
+            where: { email: { equals: email, mode: "insensitive" } },
+            take: 2,
+            select: { companyId: true, emailVerified: true },
+          });
+          if (authUsers.length !== 1)
+            throw new OperatorConflictError("The normalized email must match exactly one auth user.");
+          if (!authUsers[0].emailVerified) throw new OperatorConflictError("The user's email must be verified.");
+          if (authUsers[0].companyId !== companyId)
+            throw new OperatorConflictError("The auth and domain users do not belong to the same company.");
+        } else if (target.isPlatformOperator) {
+          const otherActiveOperators = await this.prisma.user.count({
+            where: { id: { not: data.userId }, isPlatformOperator: true, status: Status.active },
+          });
+          if (otherActiveOperators === 0)
+            throw new OperatorConflictError("The platform must retain at least one active operator.");
+        }
+
+        await this.prisma.user.update({
+          where: { id: data.userId, companyId },
+          data: { isPlatformOperator: data.isPlatformOperator },
+        });
+        await this.createAudit({
+          action: OPERATOR_AUDIT_ACTION.userPlatformAccessUpdate,
+          targetCompanyId: companyId,
+          targetUserId: data.userId,
+          operationId: data.operationId,
+          reason: data.reason,
+          metadata: {
+            expectedUpdatedAt: data.expectedUpdatedAt,
+            previousIsPlatformOperator: target.isPlatformOperator,
+            nextIsPlatformOperator: data.isPlatformOperator,
           },
         });
         return this.userDetailOrThrow(data.userId, now);

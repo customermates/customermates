@@ -2447,6 +2447,7 @@
         "subscriptionSnapshotCorrect": "Abonnement-Snapshot korrigiert",
         "userDetailRead": "Benutzerdatensatz angesehen",
         "userListRead": "Benutzerverzeichnis angesehen",
+        "userPlatformAccessUpdate": "Plattformzugriff aktualisiert",
         "userStatusUpdate": "Kontostatus aktualisiert",
         "userSummaryRead": "Verzeichnisübersicht angesehen"
       },
@@ -2668,6 +2669,19 @@
       "page": "Seite {page} von {total}",
       "previous": "Vorherige Seite",
       "range": "{start}–{end} von {total} Benutzern"
+    },
+    "platformAccess": {
+      "description": "Operator-Zugriff über alle Arbeitsbereiche für dieses Konto erteilen oder entziehen.",
+      "granted": "Erteilt",
+      "label": "Plattform-Operator-Zugriff",
+      "revoked": "Nicht erteilt",
+      "save": "Plattformzugriff aktualisieren",
+      "selfDescription": "Ein Operator kann seinen eigenen Plattformzugriff niemals erteilen oder entziehen. Bitten Sie einen anderen aktiven Operator um diese Änderung.",
+      "selfTitle": "Sie können Ihren eigenen Zugriff nicht ändern",
+      "success": "Der Plattformzugriff wurde aktualisiert.",
+      "title": "Plattformzugriff",
+      "warningDescription": "Ein Operator kann Konten, Abonnements und Credits in allen Arbeitsbereichen einsehen und korrigieren. Erteilen Sie ihn nur einem verifizierten, aktiven Konto und entziehen Sie ihn, sobald er nicht mehr benötigt wird.",
+      "warningTitle": "Operator-Zugriff gilt für alle Arbeitsbereiche"
     },
     "reset": {
       "baseAllowance": "Manuelle Korrekturen auf das Grundkontingent zurückführen",

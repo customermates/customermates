@@ -2447,6 +2447,7 @@
         "subscriptionSnapshotCorrect": "Instantánea de suscripción corregida",
         "userDetailRead": "Registro de usuario consultado",
         "userListRead": "Directorio de usuarios consultado",
+        "userPlatformAccessUpdate": "Acceso de plataforma actualizado",
         "userStatusUpdate": "Estado de la cuenta actualizado",
         "userSummaryRead": "Resumen del directorio consultado"
       },
@@ -2668,6 +2669,19 @@
       "page": "Página {page} de {total}",
       "previous": "Página anterior",
       "range": "Mostrando {start}–{end} de {total} usuarios"
+    },
+    "platformAccess": {
+      "description": "Concede o revoca el acceso de operador entre espacios de trabajo para esta cuenta.",
+      "granted": "Concedido",
+      "label": "Acceso de operador de plataforma",
+      "revoked": "No concedido",
+      "save": "Actualizar acceso de plataforma",
+      "selfDescription": "Un operador nunca puede concederse ni revocarse su propio acceso de plataforma. Pide a otro operador activo que haga este cambio.",
+      "selfTitle": "No puedes cambiar tu propio acceso",
+      "success": "El acceso de plataforma se actualizó.",
+      "title": "Acceso de plataforma",
+      "warningDescription": "Un operador puede consultar y corregir cuentas, suscripciones y créditos en todos los espacios de trabajo. Concédelo solo a una cuenta activa y verificada, y revócalo en cuanto deje de ser necesario.",
+      "warningTitle": "El acceso de operador abarca todos los espacios de trabajo"
     },
     "reset": {
       "baseAllowance": "Devolver las correcciones manuales a la asignación base",

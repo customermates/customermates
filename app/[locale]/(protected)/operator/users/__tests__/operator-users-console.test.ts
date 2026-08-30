@@ -12,6 +12,7 @@ const mocks = vi.hoisted(() => ({
   adjustment: vi.fn(),
   detail: vi.fn(),
   list: vi.fn(),
+  platformAccess: vi.fn(),
   refresh: vi.fn(),
   reset: vi.fn(),
   status: vi.fn(),
@@ -25,6 +26,7 @@ vi.mock("../actions", () => ({
   getOperatorUserDetailAction: mocks.detail,
   listOperatorUsersAction: mocks.list,
   resetOperatorUserCreditsAction: mocks.reset,
+  updateOperatorUserPlatformAccessAction: mocks.platformAccess,
   updateOperatorUserStatusAction: mocks.status,
 }));
 

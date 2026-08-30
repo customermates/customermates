@@ -16,6 +16,7 @@ import {
   getOperatorUserDetailInteractor,
   listOperatorUsersInteractor,
   resetOperatorUserCreditsInteractor,
+  updateOperatorUserPlatformAccessInteractor,
   updateOperatorUserStatusInteractor,
 } from "@/core/di";
 import { appErrorDetails } from "@/core/errors/app-errors";
@@ -25,6 +26,7 @@ import {
   GetOperatorUserDetailSchema,
   ListOperatorUsersSchema,
   ResetOperatorUserCreditsSchema,
+  UpdateOperatorUserPlatformAccessSchema,
   UpdateOperatorUserStatusSchema,
 } from "@/ee/operator/operator.schema";
 import {
@@ -153,6 +155,33 @@ export async function updateOperatorUserStatusAction(
 
   try {
     const user = await updateOperatorUserStatusInteractor().invoke(input.data);
+    if (user.userId !== input.data.userId) return failure("unexpected", operationId);
+    revalidatePath(OPERATOR_USERS_PATH);
+    return { status: "success", data: user, operationId };
+  } catch (error) {
+    return handledFailure(error, operationId);
+  }
+}
+
+export async function updateOperatorUserPlatformAccessAction(
+  _previous: OperatorUsersActionState<OperatorUserDetailDto>,
+  formData: FormData,
+): Promise<OperatorUsersActionState<OperatorUserDetailDto>> {
+  const operationId = operationIdFrom(formData);
+  const grant = formText(formData, "isPlatformOperator");
+  if (grant !== "true" && grant !== "false") return failure("invalidInput", operationId);
+
+  const input = UpdateOperatorUserPlatformAccessSchema.safeParse({
+    userId: formText(formData, "userId"),
+    expectedUpdatedAt: formText(formData, "expectedUpdatedAt"),
+    isPlatformOperator: grant === "true",
+    reason: formText(formData, "reason"),
+    operationId,
+  });
+  if (!input.success) return failure("invalidInput", operationId);
+
+  try {
+    const user = await updateOperatorUserPlatformAccessInteractor().invoke(input.data);
     if (user.userId !== input.data.userId) return failure("unexpected", operationId);
     revalidatePath(OPERATOR_USERS_PATH);
     return { status: "success", data: user, operationId };

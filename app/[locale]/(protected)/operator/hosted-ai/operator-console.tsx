@@ -1072,6 +1072,7 @@ function AuditActionLabel({ action }: { action: OperatorAuditEventDto["action"] 
   if (action === "operator.users.summary") return t("OperatorConsole.audit.actions.userSummaryRead");
   if (action === "operator.users.detail") return t("OperatorConsole.audit.actions.userDetailRead");
   if (action === "operator.user_status.update") return t("OperatorConsole.audit.actions.userStatusUpdate");
+  if (action === "operator.platform_access.update") return t("OperatorConsole.audit.actions.userPlatformAccessUpdate");
   if (action === "operator.subscription_snapshot.correct")
     return t("OperatorConsole.audit.actions.subscriptionSnapshotCorrect");
   if (action === "operator.credit_balance.reset") return t("OperatorConsole.audit.actions.creditBalanceReset");

@@ -39,10 +39,10 @@ export class PrismaOperatorBootstrapService extends BaseRepository {
 
       if (
         (await this.prisma.user.count({
-          where: { isPlatformOperator: true },
+          where: { isPlatformOperator: true, status: Status.active },
         })) !== 0
       )
-        throw new OperatorConflictError("An operator already exists; first-operator bootstrap is closed.");
+        throw new OperatorConflictError("An active operator already exists; first-operator bootstrap is closed.");
 
       const users = await this.prisma.user.findMany({
         where: { email: { equals: email, mode: "insensitive" } },

@@ -40,6 +40,38 @@ const periodEnd = new Date("2026-09-01T08:00:00.000Z");
 
 class RollbackBootstrapTest extends Error {}
 
+async function createPlatformAccessUser(
+  tx: AppPrismaClient,
+  args: { email?: string; status?: "active" | "inactive"; isPlatformOperator?: boolean; emailVerified?: boolean },
+) {
+  const companyId = randomUUID();
+  const userId = randomUUID();
+  const authUserId = randomUUID();
+  const email = args.email ?? `platform-access-${randomUUID()}@example.invalid`;
+  await tx.company.create({ data: { id: companyId } });
+  await tx.user.create({
+    data: {
+      id: userId,
+      companyId,
+      email,
+      firstName: "Platform",
+      lastName: "Candidate",
+      status: args.status ?? "active",
+      isPlatformOperator: args.isPlatformOperator ?? false,
+    },
+  });
+  await tx.authUser.create({
+    data: {
+      id: authUserId,
+      companyId,
+      email,
+      name: "Platform Candidate",
+      emailVerified: args.emailVerified ?? true,
+    },
+  });
+  return { userId, companyId, email };
+}
+
 function operatorActor(userId = `operator-${randomUUID()}`): OperatorActor {
   actorIds.push(userId);
   return {
@@ -482,5 +514,182 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
     await expect(
       runWithoutTenant(() => prisma.operatorAuditEvent.findUnique({ where: { operationId } })),
     ).resolves.toBeNull();
+  });
+
+  it("grants and revokes platform access, counting active operators in every workspace", async () => {
+    const actor = operatorActor();
+    let observed: {
+      granted: boolean;
+      auditActions: string[];
+      otherRevoked: boolean;
+      lastOperatorRejected: boolean;
+    } | null = null;
+
+    try {
+      await runWithOperator(actor, () =>
+        runWithoutTenant(() =>
+          runInTransaction(async () => {
+            const tx = getTransactionClient<AppPrismaClient>();
+            if (!tx) throw new Error("Expected platform-access test transaction.");
+            await tx.user.updateMany({ where: { isPlatformOperator: true }, data: { isPlatformOperator: false } });
+
+            const target = await createPlatformAccessUser(tx, {});
+            const elsewhere = await createPlatformAccessUser(tx, { isPlatformOperator: true });
+            const repo = new PrismaOperatorRepo();
+
+            const targetBefore = await tx.user.findUniqueOrThrow({ where: { id: target.userId } });
+            const granted = await repo.updateUserPlatformAccessOrThrowUnscoped(
+              {
+                userId: target.userId,
+                expectedUpdatedAt: targetBefore.updatedAt.toISOString(),
+                isPlatformOperator: true,
+                reason: "Grant operator access for this exercise",
+                operationId: randomUUID(),
+              },
+              now,
+            );
+
+            const elsewhereBefore = await tx.user.findUniqueOrThrow({ where: { id: elsewhere.userId } });
+            const otherRevoked = await repo.updateUserPlatformAccessOrThrowUnscoped(
+              {
+                userId: elsewhere.userId,
+                expectedUpdatedAt: elsewhereBefore.updatedAt.toISOString(),
+                isPlatformOperator: false,
+                reason: "Revoke the operator in the other workspace",
+                operationId: randomUUID(),
+              },
+              now,
+            );
+
+            const targetAfter = await tx.user.findUniqueOrThrow({ where: { id: target.userId } });
+            let lastOperatorRejected = false;
+            try {
+              await repo.updateUserPlatformAccessOrThrowUnscoped(
+                {
+                  userId: target.userId,
+                  expectedUpdatedAt: targetAfter.updatedAt.toISOString(),
+                  isPlatformOperator: false,
+                  reason: "Attempt to remove the final active operator",
+                  operationId: randomUUID(),
+                },
+                now,
+              );
+            } catch (error) {
+              lastOperatorRejected = error instanceof OperatorConflictError;
+            }
+
+            const auditEvents = await tx.operatorAuditEvent.findMany({
+              where: { actorUserId: actor.userId, action: OPERATOR_AUDIT_ACTION.userPlatformAccessUpdate },
+              select: { action: true },
+            });
+            observed = {
+              granted: granted.isPlatformOperator,
+              auditActions: auditEvents.map((event) => event.action),
+              otherRevoked: otherRevoked.isPlatformOperator,
+              lastOperatorRejected,
+            };
+
+            throw new RollbackBootstrapTest();
+          }),
+        ),
+      );
+    } catch (error) {
+      if (!(error instanceof RollbackBootstrapTest)) throw error;
+    }
+
+    expect(observed).toEqual({
+      granted: true,
+      auditActions: [OPERATOR_AUDIT_ACTION.userPlatformAccessUpdate, OPERATOR_AUDIT_ACTION.userPlatformAccessUpdate],
+      otherRevoked: false,
+      lastOperatorRejected: true,
+    });
+  });
+
+  it("refuses a self change, an ineligible grant target, and a stale expectation", async () => {
+    let observed: { self: boolean; inactive: boolean; unverified: boolean; stale: boolean } | null = null;
+
+    try {
+      await runWithoutTenant(() =>
+        runInTransaction(async () => {
+          const tx = getTransactionClient<AppPrismaClient>();
+          if (!tx) throw new Error("Expected platform-access guard test transaction.");
+          await tx.user.updateMany({ where: { isPlatformOperator: true }, data: { isPlatformOperator: false } });
+
+          const repo = new PrismaOperatorRepo();
+          const rejects = async (actor: OperatorActor, userId: string, expectedUpdatedAt: string) => {
+            try {
+              await runWithOperator(actor, () =>
+                repo.updateUserPlatformAccessOrThrowUnscoped(
+                  {
+                    userId,
+                    expectedUpdatedAt,
+                    isPlatformOperator: true,
+                    reason: "Exercise the platform access guards",
+                    operationId: randomUUID(),
+                  },
+                  now,
+                ),
+              );
+              return false;
+            } catch (error) {
+              return error instanceof OperatorConflictError;
+            }
+          };
+
+          const own = await createPlatformAccessUser(tx, {});
+          const inactive = await createPlatformAccessUser(tx, { status: "inactive" });
+          const unverified = await createPlatformAccessUser(tx, { emailVerified: false });
+          const stamp = async (userId: string) =>
+            (await tx.user.findUniqueOrThrow({ where: { id: userId } })).updatedAt.toISOString();
+
+          observed = {
+            self: await rejects(operatorActor(own.userId), own.userId, await stamp(own.userId)),
+            inactive: await rejects(operatorActor(), inactive.userId, await stamp(inactive.userId)),
+            unverified: await rejects(operatorActor(), unverified.userId, await stamp(unverified.userId)),
+            stale: await rejects(operatorActor(), own.userId, new Date("2020-01-01T00:00:00.000Z").toISOString()),
+          };
+
+          throw new RollbackBootstrapTest();
+        }),
+      );
+    } catch (error) {
+      if (!(error instanceof RollbackBootstrapTest)) throw error;
+    }
+
+    expect(observed).toEqual({ self: true, inactive: true, unverified: true, stale: true });
+  });
+
+  it("reopens first-operator bootstrap when every remaining operator is inactive", async () => {
+    const email = `reopen-${randomUUID()}@example.invalid`;
+    let observed: { grantedTo: string; remainingActive: number } | null = null;
+
+    try {
+      await runWithoutTenant(() =>
+        runInTransaction(async () => {
+          const tx = getTransactionClient<AppPrismaClient>();
+          if (!tx) throw new Error("Expected bootstrap reopen test transaction.");
+          await tx.user.updateMany({ where: { isPlatformOperator: true }, data: { isPlatformOperator: false } });
+
+          await createPlatformAccessUser(tx, { status: "inactive", isPlatformOperator: true });
+          const candidate = await createPlatformAccessUser(tx, { email });
+
+          const result = await new PrismaOperatorBootstrapService().bootstrapFirstOperatorUnscoped({
+            email,
+            confirmationEmail: email,
+          });
+          observed = {
+            grantedTo: result.userId,
+            remainingActive: await tx.user.count({ where: { isPlatformOperator: true, status: "active" } }),
+          };
+          expect(result.userId).toBe(candidate.userId);
+
+          throw new RollbackBootstrapTest();
+        }),
+      );
+    } catch (error) {
+      if (!(error instanceof RollbackBootstrapTest)) throw error;
+    }
+
+    expect(observed).toEqual({ grantedTo: expect.any(String), remainingActive: 1 });
   });
 });
