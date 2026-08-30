@@ -1,4 +1,4 @@
-export const RELATED_LINK_COUNT = 3;
+export const RELATED_LINK_COUNT = 4;
 
 export function selectRelatedSlugs(
   slug: string,

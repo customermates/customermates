@@ -3,7 +3,7 @@ title: "Posteingang im Customermates-CRM: Threads beantworten"
 description: "Der Inbox-Screen bündelt E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Threads in einer Liste, mit stabilen Anchor-ids für UI-Agents."
 ---
 
-Customermates ist ein quelloffenes, KI-natives CRM. Diese Seite dokumentiert den **Inbox**-Screen der Web-App für Menschen und für KI-Agents, die die UI steuern.
+Diese Seite dokumentiert den Managed-Cloud-**Posteingang** für Menschen und autorisierte Clients, die die Oberfläche bedienen.
 
 ## Zweck
 
@@ -15,26 +15,26 @@ Die Route ist `/inbox`. Alle App-Routen tragen ein Locale-Präfix, zum Beispiel 
 
 ## Wichtige Aktionen
 
-| Aktion | Wo | Anchor id | Was passiert |
-| --- | --- | --- | --- |
-| Zur Inbox wechseln | App-Sidebar | `#nav-inbox` | Öffnet /inbox |
-| Thread öffnen | Zeile (Button) in der Thread-Liste | `#inbox-thread-list` | Der Listen-Container trägt die id; die Thread-Zeilen darin sind Buttons |
-| Antworten | Composer am unteren Ende eines Threads | `#inbox-reply-input` / `#inbox-reply-send` | Tippen, dann auf dem Kanal des Threads senden |
-| Thread-Status setzen | State-Select im Thread-Header | `#inbox-thread-state` | unread, open, closed oder spam wählen |
-| Thread mit dem Team teilen | Thread-Einstellungen | `#thread-shared` | Teamweite Sichtbarkeit umschalten (Business-Tarif) |
-| Teilnehmer mit Contact verknüpfen | Thread-Einstellungen | none | Thread-Einstellungen öffnen, dann pro Teilnehmer verknüpfen |
+| Aktion                            | Wo                                     | Anchor id                                  | Was passiert                                                                          |
+| --------------------------------- | -------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------- |
+| Zur Inbox wechseln                | App-Sidebar                            | `#nav-inbox`                               | Öffnet /inbox                                                                         |
+| Thread öffnen                     | Zeile (Button) in der Thread-Liste     | `#inbox-thread-list`                       | Der Listen-Container trägt die id; die Thread-Zeilen darin sind Buttons               |
+| Antworten                         | Composer am unteren Ende eines Threads | `#inbox-reply-input` / `#inbox-reply-send` | Tippen, dann auf dem Kanal des Threads senden                                         |
+| Thread-Status setzen              | State-Select im Thread-Header          | `#inbox-thread-state`                      | unread, open, closed oder spam wählen                                                 |
+| Thread mit dem Team teilen        | Thread-Einstellungen                   | `#thread-shared`                           | Diesen einzelnen Thread in einem Tarif mit Messaging für CRM-Teammitglieder freigeben |
+| Teilnehmer mit Contact verknüpfen | Thread-Einstellungen                   | none                                       | Thread-Einstellungen öffnen, dann pro Teilnehmer verknüpfen                           |
 
 ## Thread-Einstellungen
 
-In den Einstellungen eines Threads verwalten Sie alles, was zur Konversation statt zu einer einzelnen Nachricht gehört. Jeder Teilnehmer lässt sich mit einem CRM-Kontakt verknüpfen, wodurch der Thread und seine Nachrichten auf der Timeline dieses Kontakts erscheinen; unverknüpfte Teilnehmer bleiben nur im Thread sichtbar. Im Business-Tarif teilt `#thread-shared` den Thread mit dem ganzen Team statt nur mit dem Kontoinhaber.
+In den Einstellungen eines Threads verwalten Sie alles, was zur Konversation statt zu einer einzelnen Nachricht gehört. Jeder Teilnehmer lässt sich mit einem CRM-Kontakt verknüpfen, wodurch der Thread und seine Nachrichten auf der Timeline dieses Kontakts erscheinen; unverknüpfte Teilnehmer bleiben nur im Thread sichtbar. In jedem Tarif mit Messaging gibt `#thread-shared` diesen einzelnen Thread für CRM-Teammitglieder frei. Das vollständige verbundene Konto zu teilen ist eine separate Berechtigung in Business und Enterprise.
 
 ## Entwürfe und Anhänge
 
-Antworten werden pro Thread als Entwurf gehalten und überstehen Navigation: Verlassen Sie den Thread und kommen Sie zurück, steht Ihr Text noch da. Das Verwerfen eines Entwurfs entfernt den geschriebenen Inhalt und lässt sich nicht rückgängig machen. Anhänge eingehender Nachrichten öffnen sich in einer sicheren Vorschau; ausgehende Anhänge laufen über den Antwort-Composer auf Kanälen, die sie unterstützen.
+Antworten werden pro Thread als Entwurf gehalten und überstehen Navigation: Verlassen Sie den Thread und kommen Sie zurück, steht Ihr Text noch da. Das Verwerfen eines Entwurfs entfernt den geschriebenen Inhalt und lässt sich nicht rückgängig machen. Unterstützte eingehende Medien öffnen sich inline, gewöhnliche Dateien werden heruntergeladen und nicht unterstützte Elemente werden als nicht unterstützt gekennzeichnet. Anhänge aus LinkedIn-Posts öffnen sich an ihrer externen Quelle. Ausgehende Anhänge laufen über den Antwort-Composer auf Kanälen, die sie unterstützen.
 
 ## Thread-Status
 
-Ein Thread ist **unread**, bis ihn jemand öffnet, **open**, solange er Aufmerksamkeit braucht, **closed**, wenn er erledigt ist, und **spam**, um einen Absender aus dem Weg zu halten. Ein Statuswechsel sendet nie etwas an die Gegenseite; er ordnet nur Ihren Posteingang. Mate übernimmt die Triage auf Zuruf.
+Ein Thread ist **unread**, bis ihn jemand öffnet, **open**, solange er Aufmerksamkeit braucht, **closed**, wenn er erledigt ist, und **spam**, um einen Absender aus dem Weg zu halten. Ein Statuswechsel sendet nie etwas an die Gegenseite; er ordnet nur Ihren Posteingang. Die gehostete Mate-Funktion ist freigabegebunden und für diesen Ablauf nicht erforderlich.
 
 ## Tipps für Agents
 

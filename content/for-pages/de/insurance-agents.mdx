@@ -1,238 +1,154 @@
 ---
-title: "CRM für Versicherungsmakler: Policen- & Bestandsverwaltung"
-description: "Open-Source CRM für Versicherungsmakler. Policen, Verlängerungen, Provisionen und Schadensnachverfolgung, DSGVO-konform, EU-gehostet, [[commercial.price.starter.monthly]]/Nutzer/Monat."
+title: "CRM für Versicherungsmakler: Leads & Follow-ups"
+description: "Interessenten, Kundenbeziehungen, Empfehlungspartner und Wiedervorlagen verwalten. Ergänzt ein MVP; keine Policen-, Schaden- oder Provisionsverwaltung."
 industryName: "Versicherungsmakler"
 
+relatedHrefs:
+  - /for/insurance-companies
+  - /for/financial-advisors
+  - /for/mortgage-brokers
+  - /for/accountants
+
 hero:
-  title: "Das CRM für Versicherungsmakler, das Ihren Bestand wachsen lässt"
-  description: "KI-Agenten halten Policen, Verlängerungen und Kundennotizen aktuell, und jede Kundenkonversation (E-Mail, LinkedIn, WhatsApp) landet in einem Posteingang. Das Open-Source Versicherungs-CRM für Verlängerungen, Schadennachverfolgung und Cross-Selling."
-  buttonLeftText: Kostenlos starten
+  title: "Das Beziehungs-CRM neben Ihrem Maklerprogramm"
+  description: "Organisieren Sie Interessenten, Gespräche, Empfehlungsquellen und Verlängerungschancen. Policen, Schäden, Provisionen und Versichererprozesse bleiben im Maklerverwaltungsprogramm."
+  buttonLeftText: Pro-Testphase starten
   buttonLeftHref: /auth/signup
-  buttonRightText: Live-Demo ansehen
+  buttonRightText: Demo ansehen
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
+  hint: "Keine Kreditkarte erforderlich • [[commercial.trial.days]] Tage Pro testen"
 
 cta:
-  action: "Bereit, Ihren Versicherungsbestand smarter zu verwalten?"
-  description: "Schließen Sie sich Versicherungsmaklern an, die Customermates nutzen, um Verlängerungen zu automatisieren, Provisionen zu verfolgen und mehr Policen abzuschließen, ohne Enterprise-Preise."
-  buttonLeftText: Kostenlos starten
+  action: Vertriebs- und Follow-up-Prozess abbilden
+  description: Testen Sie Akquisephasen, Partnerdatensätze und nächste Schritte, während Ihr MVP für Policen, Schäden, Dokumente und Provisionen zuständig bleibt.
+  buttonLeftText: Pro-Testphase starten
   buttonLeftHref: /auth/signup
-  buttonRightText: Live-Demo ansehen
+  buttonRightText: Demo ansehen
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
+  hint: "Beginnen Sie mit Beziehungskontext, nicht mit einer Kopie der Bestandsführung."
 ---
 
-## Warum Versicherungsmakler ein CRM brauchen
+Ein **CRM für Versicherungsmakler** organisiert Personen, Gespräche, Chancen und nächste Schritte rund um den Vertrieb. Ein Maklerverwaltungsprogramm führt dagegen den operativen Versicherungsbestand. Customermates ist für die CRM-Seite dieser Grenze gedacht, nicht als Ersatz für Policen- oder Schadensoftware.
 
-Die Versicherungsbranche lebt von Beziehungen. Ob Versicherungsvertreter, Makler oder Mehrfachagent, Ihr Einkommen hängt davon ab, neue Kunden zu gewinnen, bestehende Verträge zu halten und Cross-Selling-Potenziale im Bestand zu nutzen. Ohne ein geeignetes CRM für Versicherungsmakler gehen Verlängerungen unter, Follow-ups werden vergessen und Provisionen, die Ihnen zustehen, wandern zur Konkurrenz.
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Geeignet für">
+    Maklerbüros, die neben einem bestehenden MVP oder Versichererprozess eine
+    anpassbare Beziehungs- und Chancenpipeline brauchen.
+  </SummaryItem>
+  <SummaryItem label="Kernaufgabe">
+    Interessenten, Kundenkontakte, Empfehlungspartner, Vertriebschancen und
+    manuelle Follow-ups miteinander verbinden.
+  </SummaryItem>
+  <SummaryItem label="Verifizierter Umfang">
+    Organisationen, Kontakte, eigene Deal-Phasen, eigene Felder, gefilterte
+    Ansichten, Kanban und verknüpfte Aufgaben.
+  </SummaryItem>
+  <SummaryItem label="Systemgrenze">
+    Keine Policenverwaltung, kein Versichererdownload, keine Schadenbearbeitung,
+    Provisionsabrechnung, Tarifierung oder Compliance-Akte.
+  </SummaryItem>
+</ArticleSummary>
 
-Laut [GDV-Statistiken zur Versicherungswirtschaft](https://www.gdv.de/gdv/statistik/statistiken-zur-deutschen-versicherungswirtschaft-uebersicht) verlieren Vermittler, die ohne strukturiertes Kundenmanagementsystem arbeiten, jährlich 15-25 % ihres Bestands durch vermeidbare Kündigungen.
+<ProofRail label="Verifizierte Beziehungs-CRM-Funktionen für Versicherungsmakler">
+  <ProofItem label="Interessenten">Kontakte und Organisationen</ProofItem>
+  <ProofItem label="Vertrieb">Anpassbare Deal-Pipeline</ProofItem>
+  <ProofItem label="Kontext">Versicherer- und Quellenreferenzen</ProofItem>
+  <ProofItem label="Follow-up">Verknüpfte Aufgaben</ProofItem>
+  <ProofItem label="Erweiterungen">REST, Webhooks und MCP</ProofItem>
+</ProofRail>
 
-Diese Schmerzpunkte löst ein Versicherungs-CRM:
+## CRM oder Maklerverwaltungsprogramm?
 
-- **Verpasste Verlängerungen**, Ablaufdaten kommen und gehen ohne proaktive Ansprache. Kunden vergleichen auf Check24 und wechseln.
-- **Keine Cross-Selling-Übersicht**, Ein Kunde hat Kfz-Versicherung, aber keine Hausrat. Ohne Daten erkennen Sie diese Deckungslücken nicht.
-- **Verstreute Kundendaten**, Policendetails im Maklerverwaltungsprogramm, Notizen in Excel, E-Mails im Posteingang.
-- **Manuelle Nachfassaktionen**, Jeden Interessenten und Bestandskunden zur richtigen Zeit anzurufen ist ohne Automatisierung unmöglich.
-- **Schadensnachverfolgung**, Wenn ein Kunde einen Schaden meldet, erwartet er proaktive Kommunikation. Funkstille kostet Sie die Kundenbeziehung.
-- **Provisionsverwaltung**, Provisionen über verschiedene Versicherer, Sparten und Abrechnungszeiträume ohne System zu verfolgen, führt zu entgangenen Einnahmen.
-- **Compliance und Dokumentation**, Die IDD-Richtlinie und das Versicherungsvertragsgesetz verlangen lückenlose Dokumentation aller Kundeninteraktionen und Beratungen.
+Ein Maklerverwaltungsprogramm führt typischerweise Policen, Versichererkommunikation, Dokumente, Schäden, Provisionen und Abrechnung. Ein CRM konzentriert sich auf Interessenten, Kundenbeziehungen, Empfehlungsquellen, Gespräche und Vertriebs-Follow-ups. Manche Branchensuiten verbinden beide Kategorien; die einzelnen Fähigkeiten müssen dennoch getrennt geprüft werden.
 
-Ein CRM für Versicherungen verwandelt Ihre Agentur von reaktiv zu proaktiv. Customermates gibt Ihnen die Werkzeuge, um Verlängerungen im Griff zu haben, Chancen zu erkennen und jede Interaktion revisionssicher zu dokumentieren.
+Customermates ist ein allgemeines CRM. Es ersetzt kein MVP, kein Bestandsführungssystem, kein Versichererportal, kein Schadenprogramm, keinen Vergleichsrechner und keine Provisionsabrechnung. Eine native BiPRO-, GDV- oder Versicherer-Anbindung wird nicht behauptet.
 
-## So funktioniert Customermates als Ihr Versicherungs-CRM
+| Bedarf im Maklerbüro | Customermates | MVP oder Fachsystem |
+| --- | --- | --- |
+| Interessenten- und Beziehungskontext | Kontakte, Organisationen, Beziehungen, Notizen und Aktivität | Führende Kunden- und Policenakte |
+| Vertriebschance | Deals, eigene Phasen, Filter und Kanban | Tarifierung und Versicherereinreichung |
+| Verlängerungsgespräch | Referenzfelder, gefilterte Ansichten und Aufgaben | Vertragslaufzeit und Bestandsprozess |
+| Begleitendes Schaden-Follow-up | Kontaktkontext und manuelle nächste Aktion | Schadenmeldung, Akte, Regulierung und Abschluss |
+| Integration | REST, Webhooks, MCP und separate n8n-Option | BiPRO/GDV, Vergleichsrechner, Dokumente und Abrechnung |
 
-Customermates passt sich an den spezifischen Workflow von Versicherungsprofis an, von der Leaderfassung und Akquise über die Policenverwaltung und Schadensnachverfolgung bis zum Verlängerungszyklus.
+<AcquisitionCallout title="Eine Police ist kein CRM-Deal" variant="boundary">
+  Ein Deal kann das geschäftliche Gespräch rund um Neugeschäft oder eine
+  Verlängerung abbilden. Er darf nicht zur führenden Police, Schadenakte,
+  Deckungs-, Beitrags-, Provisions- oder Beratungsdokumentation werden.
+</AcquisitionCallout>
 
-### Policen als Deals verfolgen
+## Ein unterstützter Vertriebsworkflow
 
-Jede Police wird zu einem Deal in Ihrer [visuellen Pipeline](/features/pipeline). Verfolgen Sie den Status von der Erstanfrage über Bedarfsanalyse, Angebotslegung, Antragstellung, Risikoprüfung bis zur Policierung. Sie wissen immer genau, wo jede Chance steht.
+Erstellen Sie einen Deal für eine mögliche Kundenbeziehung oder ein Verlängerungsgespräch. Verknüpfen Sie ihn mit dem Kundenkontakt, der relevanten Organisation und bei Bedarf dem Tippgeber. Konfigurieren Sie Phasen für die geschäftliche Interaktion, nicht für die Bearbeitung beim Versicherer.
 
-**Beispiel-Pipelinephasen für Neugeschäft:**
+<Steps>
+  <Step title="Interessentenkontext anlegen">
+    Erfassen Sie Person oder Unternehmen und bewahren Sie die Herkunft der
+    Beziehung, ohne eine vollständige Policen- oder Schadenakte in das CRM zu
+    kopieren.
+  </Step>
+  <Step title="Vertriebsphasen konfigurieren">
+    Nutzen Sie etwa Anfrage, Bedarfsgespräch, Angebot extern erstellt,
+    Kundenentscheidung, gewonnen oder beendet.
+  </Step>
+  <Step title="Begrenzte Referenzfelder ergänzen">
+    Speichern Sie Produktsparte, Versichererreferenz, Verlängerungsmonat,
+    Empfehlungsquelle oder externe MVP-ID, sofern Ihre Datenrichtlinie dies
+    erlaubt.
+  </Step>
+  <Step title="Nächste Aktion erfassen">
+    Verknüpfen Sie eine Aufgabe mit dem passenden CRM-Datensatz. Die Aufgabe hat
+    keinen nativen Fälligkeitstermin, keine Wiederholung und keinen
+    automatischen Verlängerungsplan.
+  </Step>
+  <Step title="Versicherungsbetrieb im MVP fortführen">
+    Tarifierung, Antrag, Policierung, Nachträge, Schäden, Dokumente und
+    Provisionen bleiben im System, das diese Datensätze führt.
+  </Step>
+</Steps>
 
-- Lead eingegangen
-- Bedarfsanalyse abgeschlossen
-- Angebot präsentiert
-- Antrag eingereicht
-- Risikoprüfung
-- Police gebunden
-- Willkommenspaket versendet
+## Verlängerungs-Follow-up ohne Verlängerungs-Engine
 
-### Verlängerungs-Pipeline
+Ein Verlängerungsmonat oder eine externe Policenreferenz kann helfen, CRM-Chancen zu filtern und ein Beziehungsgespräch vorzubereiten. Ein kundenseitig betriebener Scheduler oder separater [n8n-Workflow](/features/workflow-automation) kann aus einem freigegebenen Datum eine Aufgabe erzeugen. Customermates berechnet keine Vertragslaufzeit, startet keine Erinnerungssequenz, versendet keine Massenkampagne und verhindert keinen Vertragsablauf.
 
-Erstellen Sie eine dedizierte Pipeline für Vertragsverlängerungen. Sehen Sie auf einen Blick, welche Policen in den nächsten 30, 60 oder 90 Tagen ablaufen, und handeln Sie, bevor Kunden auf Vergleichsportalen suchen.
+Dasselbe gilt für Schäden. Ein Nutzer kann festhalten, dass ein beziehungsbezogenes Follow-up nötig ist. Customermates nimmt jedoch keine Schadenmeldung an, führt keine Schadenakte, weist keinen Regulierer zu, berechnet keine Reserve, prüft keine Deckung und erstellt keine Regulierungskommunikation.
 
-Mit der [Workflow-Automatisierung](/features/workflow-automation) lösen Sie Verlängerungserinnerungen automatisch aus:
+## Cross-Sell-Kontext und Provisionen
 
-- **90 Tage vorher**, Interne Aufgabe: Police prüfen und Verlängerungsoptionen vorbereiten
-- **60 Tage vorher**, E-Mail an Kunden mit Verlängerungsübersicht und Terminvorschlag
-- **30 Tage vorher**, Anruf-Aufgabe, falls Kunde nicht reagiert hat
-- **14 Tage vorher**, Dringende Erinnerung mit hervorgehobenem Ablaufdatum
+Eigene Felder können vom Makler ausgewählte, grobe Produktreferenzen halten. Gefilterte Ansichten helfen einem Nutzer, diese Datensätze zu prüfen. Customermates erkennt keine Deckungslücken, empfiehlt keine Produkte, bewertet keine Kunden und führt keine Cross-Sell-Kampagnen aus.
 
-Dieser Workflow läuft über die n8n-Integration automatisch ab, keine Verlängerung fällt mehr durch.
+Provisionssätze, Abrechnungen, Abstimmung, Stornohaftung und Umsatzprognosen gehören ins MVP oder Buchhaltungssystem. Ein frei konfigurierbares Zahlenfeld ist keine Provisionsabrechnung und darf nicht so beschrieben werden.
 
-### Leaderfassung und Qualifizierung
+## Einzelgespräche, KI und Integrationen
 
-Versicherungsmakler generieren Leads aus Empfehlungen, Online-Formularen, Veranstaltungen und Versichererpartnerschaften. Customermates erfasst Leads aus jeder Quelle und leitet sie automatisch in Ihre Akquise-Pipeline.
+Der verwaltete [einheitliche Posteingang](/features/unified-inbox) ist ab Pro verfügbar. Er bringt unterstützte einzelne E-Mail- und Nachrichtenkonversationen ins CRM, wo Teilnehmer mit Kontaktkontext verbunden werden können. Er ist kein Kampagnen- oder Sequenzwerkzeug, und eine Nachricht wird nicht automatisch einer Police oder einem Schaden zugeordnet. Self-Hosting enthält keinen Posteingang.
 
-Nutzen Sie benutzerdefinierte Felder zur sofortigen Qualifizierung:
+Ein autorisierter externer KI-Client kann unterstützte [MCP](/docs/mcp)-Aktionen auf CRM-Datensätzen ausführen. Er tarifiziert keine Versicherung, entscheidet keine Deckung, analysiert keine Schäden, berechnet keine Provisionen und ersetzt nicht die Prüfung durch einen zugelassenen Verantwortlichen.
 
-- Benötigte Versicherungsart (Kfz, Hausrat, Leben, Gesundheit, Gewerbe)
-- Aktueller Versicherer und Ablaufdatum
-- Geschätzter Beitragsrahmen
-- Empfehlungsquelle
-- Lead-Temperatur (heiß, warm, kalt)
+Kundenseitig gebaute Verbindungen können [REST API und Webhooks](/features/api), MCP oder die separate n8n-Integration verwenden. Der Kunde verantwortet Vereinbarungen mit Versicherern und Anbietern, Feldzuordnung, Berechtigungen, Validierung, Wiederholungen und Dublettenbehandlung. Eine native BiPRO-, GDV-, Versicherer-, Policen- oder Schadenintegration wird nicht behauptet.
 
-### Schadensnachverfolgung
+## Daten- und Bereitstellungsgrenzen
 
-Wenn ein Kunde einen Schaden meldet, entscheidet die Qualität Ihrer Nachverfolgung darüber, ob er bleibt oder wechselt. Erstellen Sie eine Schadenpipeline für jeden offenen Vorgang:
+Policendokumente, Deckungsdetails, Gesundheitsinformationen, Schadenakten, Provisionsabrechnungen und regulierte Beratung bleiben in dafür freigegebenen Systemen. Customermates-Berechtigungen gelten nach Ressource und Aktion, nicht je Feld oder Datensatz. Eine Versicherungs- oder DSGVO-Compliance-Zertifizierung besteht nicht.
 
-- Schaden gemeldet, Datum, Versicherer und Schadennummer erfassen
-- Regulierer zugewiesen, Kontaktdaten notieren
-- In Bearbeitung, Updates verfolgen und Kunden über Status informieren
-- Reguliert, Ergebnis dokumentieren und Zufriedenheits-Check-in planen
-- Nach-Schadens-Review, Prüfen, ob Deckungsanpassung nötig
-
-### Cross-Selling und Bestandsausbau
-
-Ihre bestehenden Kunden sind Ihr wertvollstes Kapital. Customermates hilft Ihnen, Deckungslücken und Cross-Selling-Chancen systematisch zu identifizieren.
-
-Mit der [Kontaktverwaltung](/features/contact-management) und benutzerdefinierten Feldern verfolgen Sie, welche Produkte jeder Kunde hält, und filtern Ihren gesamten Bestand nach Lücken:
-
-- Kunden mit Kfz, aber ohne Hausrat
-- Eigenheimbesitzer ohne Wohngebäude- oder Haus- und Grundbesitzerhaftpflicht
-- Gewerbetreibende ohne Betriebshaftpflicht
-- Familien ohne Risikolebensversicherung
-- Kunden vor Lebensereignissen (Heirat, Hauskauf, Ruhestand)
-
-### Provisionsverwaltung
-
-Verfolgen Sie Provisionssätze, erwartete Zahlungen und tatsächliche Eingänge direkt an jedem Deal. Nutzen Sie benutzerdefinierte Felder für:
-
-- Provisionssatz pro Police
-- Abrechnungszyklus des Versicherers
-- Soll- vs. Ist-Beträge
-- Verlängerungsprovision (Bestandspflegeprovision)
-- Überprovisionen und Bonifikationen
-
-Filtern Sie Ihre Deals nach Provisionsstatus, um offene Zahlungen zu identifizieren und Ihr Einkommen zuverlässig zu prognostizieren.
-
-## Schlüsselfunktionen für Versicherungsmakler
-
-### Visuelle Pipeline mit Kanban-Board
-
-Visualisieren Sie Ihren Vertriebstrichter und Ihre Verlängerungs-Pipeline auf dem Kanban-Board. Ziehen Sie Policen zwischen Phasen, erkennen Sie Engpässe auf einen Blick und priorisieren Sie Ihren Tag nach dem, was zählt. Mehr über [Pipeline-Management](/features/pipeline).
-
-### Einheitlicher Posteingang: E-Mail, LinkedIn und WhatsApp
-
-Verbinden Sie Ihre E-Mail direkt mit Customermates, dazu die Messaging-Kanäle, die Ihre Kunden nutzen. Der native einheitliche Posteingang bündelt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram an einem Ort, jede Nachricht automatisch beim Kundendatensatz protokolliert über die [E-Mail-Integration](/features/email-integration) und Messaging, und dieselben KI-Agenten können über jeden Kanal lesen, entwerfen und senden. Kein Suchen mehr im Posteingang nach dem Angebot von vor drei Monaten.
-
-### Automatisierte Workflows mit n8n
-
-Bauen Sie leistungsstarke Automatisierungen ohne Code mit n8n:
-
-- **Verlängerungs-Erinnerungssequenzen**, Mehrstufige E-Mail- und Aufgabensequenzen, ausgelöst durch Ablaufdaten
-- **Geburtstags- und Policen-Jubiläumsgrüße**, Persönliche Gesten, die Beziehungen stärken
-- **Neukunden-Onboarding**, Automatische Willkommens-E-Mails, Dokumentenanforderungen und Einrichtungsaufgaben
-- **Lead-Follow-up-Kadenzen**, Zeitgesteuerte Sequenzen für Leads aus Webformularen oder Empfehlungen
-- **Schadens-Check-in-Erinnerungen**, Automatische Aufgaben zur Nachverfolgung offener Schäden Dafür ist ein Scheduler in Ihrer eigenen n8n-Instanz oder einem anderen externen Dienst über die API nötig; Customermates führt zeitgesteuerte Follow-ups und Erinnerungen nicht selbst aus.
-
-Entdecken Sie die [Workflow-Automatisierung](/features/workflow-automation) und was damit möglich ist.
-
-### KI-Agenten, die Ihr CRM bedienen
-
-Verbinden Sie Claude, ChatGPT oder Gemini über eine native MCP-Integration direkt mit Customermates. Die KI übernimmt die Dateneingabe, sodass Ihr Bestand ohne manuelle Pflege aktuell bleibt:
-
-- **Personalisierte Verlängerungs-E-Mails entwerfen** basierend auf Kundenhistorie und Policendetails
-- **Policen durch die Pipeline bewegen und Kundennotizen aktuell halten** nach jeder Interaktion
-- **Kundeninteraktionshistorie zusammenfassen** vor einem Meeting oder Anruf
-- **Cross-Selling-Muster erkennen** in Ihrem gesamten Bestand
-- **Follow-up-Aufgaben generieren** aus E-Mail-Konversationen automatisch
-
-### Reporting und Analysen
-
-Verfolgen Sie die Performance Ihrer Agentur mit [integriertem Reporting](/features/reporting):
-
-- Policen pro Monat und Quartal abgeschlossen
-- Verlängerungsquote (Bestandserhalt)
-- Durchschnittsbeitrag pro Police
-- Lead-zu-Abschluss-Konversionsrate
-- Provisionseinnahmen nach Versicherer
-- Pipelinewert und -geschwindigkeit
-
-### Vollständige Kundenhistorie
-
-Jede E-Mail, Gesprächsnotiz, Policenänderung, Schadenmeldung und Interaktion wird beim Kunden erfasst. Wenn ein Versicherungsnehmer anruft, haben Sie das vollständige Bild sofort, kein Wechseln zwischen Systemen.
-
-### Benutzerdefinierte Felder für Policendaten
-
-Fügen Sie Felder hinzu für Policentyp, Versicherer, Beitrag, Selbstbeteiligung, Deckungssummen, Vertragsbeginn und Ablaufdatum. Filtern Sie Ihren Bestand nach beliebigen Kriterien. Richten Sie [Wiedervorlagen](/features/follow-up) ein, die an jedes Datumsfeld gekoppelt sind.
-
-### DSGVO-konform und in der EU-Region gehostet
-
-Versicherungs-Kundendaten sind hochsensibel, Gesundheitsdaten, Finanzdaten, Schadenhistorien. Customermates ist DSGVO-nativ und wird in der EU-Region gehostet. Für Makler mit strengen Anforderungen an die Datensouveränität können Sie Customermates auf Ihrer eigenen Infrastruktur selbst hosten.
-
-## Versicherungs-CRM Preise, die Sinn machen
-
-Versicherungsmakler brauchen alle verfügbaren Werkzeuge, sollten aber keine Enterprise-Preise dafür zahlen. Im Gegensatz zu Wettbewerbern, die 25-100 € und mehr pro Nutzer verlangen, hält Customermates es einfach:
-
-- **Starter, [[commercial.price.starter.monthly]] pro Nutzer pro Monat**, Pipelines, Automatisierung, API, benutzerdefinierte Felder, native KI-Integration und Reporting
-- **Pro, [[commercial.price.pro.monthly]] pro Nutzer pro Monat**, ergänzt den einheitlichen Posteingang: E-Mail, LinkedIn und WhatsApp, verknüpft mit jedem Kunden und jeder Police
-- **Open Source**, vollständige Code-Transparenz und kein Vendor-Lock-in
-- **Selbst hostbar**, sensible Kundendaten auf Ihren eigenen Servern, für immer kostenlos
-
-Da Verlängerungs- und Schadennachverfolgung über E-Mail läuft, landen die meisten Makler bei Pro. Für einen einzelnen Versicherungsmakler bedeutet das [[commercial.price.pro.monthly]] pro Monat. Für eine Agentur mit 5 Mitarbeitern [[commercial.price.pro.monthly.seats.5]] pro Monat. Keine Gebühren pro Police, keine provisionsbasierte Preisgestaltung, keine versteckten Zusatzkosten.
-
-Vergleichen Sie das mit branchenspezifischen Tools wie AgencyBloc, Keasy oder CODie, die deutlich mehr kosten und Sie an proprietäre Plattformen binden. Alle Details auf unserer [Preisseite](/pricing).
-
-## In 2 Minuten startklar
-
-Die Einrichtung von Customermates als Ihr CRM für Versicherungsmakler dauert Minuten, nicht Tage:
-
-1. **Kostenloses Konto erstellen**, Keine Kreditkarte nötig. Die ersten [[commercial.trial.days]] Tage gehen auf uns.
-2. **Unterstützte Datensätze migrieren**, nutzen Sie die REST API oder übergeben Sie einen vorbereiteten Quellexport einem per MCP verbundenen KI-Agenten. Customermates hat keinen CSV-Uploader.
-3. **Pipelines einrichten**, Pipelines für Neugeschäft, Verlängerungen und Schäden mit eigenen Phasen anlegen.
-4. **Benutzerdefinierte Felder anlegen**, Felder für Policennummern, Versicherer, Beiträge, Deckungsarten und Ablaufdaten definieren.
-5. **E-Mail verbinden**, Posteingang verknüpfen, damit jede Kundenkorrespondenz automatisch erfasst wird.
-6. **Automatisierungen aktivieren**, n8n nutzen, um Verlängerungserinnerungen, Follow-up-Sequenzen und Geburtstagsgrüße zu automatisieren.
-
-Customermates ist Open Source. Kein Vendor-Lock-in, volle Transparenz und Sie behalten die vollständige Kontrolle über Ihre Daten.
+Starter enthält das Kern-CRM. Pro ergänzt den verwalteten einheitlichen Posteingang und ein verbundenes Konto pro Nutzer. Self-Hosting nutzt die Starter-Berechtigungen und enthält keinen einheitlichen Posteingang. Die aktuellen Tarifdetails stehen auf der [Preisseite](/pricing).
 
 ## Häufig gestellte Fragen
 
 <Faq>
-<FaqItem question="Was ist ein CRM für Versicherungsmakler?">
-Ein CRM (Customer Relationship Management) für Versicherungsmakler ist eine Software, die Ihnen hilft, Kundenbeziehungen zu verwalten, Policen zu verfolgen, Verlängerungen zu automatisieren, Leads zu erfassen und jede Interaktion zu dokumentieren. Ein Versicherungs-CRM zentralisiert Ihren Bestand, damit Sie Kunden besser betreuen, mehr Policen halten und Ihren Umsatz systematisch steigern können. Customermates ist ein Open-Source CRM für Versicherungen mit allen Funktionen ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat, der einheitliche Posteingang für Kunden-E-Mail und Messaging ist ab Pro für [[commercial.price.pro.monthly]] pro Nutzer pro Monat verfügbar.
+<FaqItem question="Ersetzt Customermates ein Maklerverwaltungsprogramm?">
+Nein. Customermates ist ein anpassbares CRM für Beziehungen und Vertrieb. Policen, Versichererdownloads, Schäden, Dokumente, Provisionen, Abrechnung und regulierte Akten bleiben im MVP oder in anderen Fachsystemen.
 </FaqItem>
 
-<FaqItem question="Wie hilft ein Versicherungs-CRM bei Vertragsverlängerungen?">
-Ein CRM für Versicherungsmakler wie Customermates ermöglicht eine dedizierte Verlängerungs-Pipeline, in der Sie jede Police vor Ablauf sehen. Mit Workflow-Automatisierung richten Sie mehrstufige Erinnerungssequenzen ein, zum Beispiel 90, 60 und 30 Tage vor Ablauf. So kontaktieren Sie jeden Kunden, bevor er auf Vergleichsportalen sucht.
+<FaqItem question="Kann Customermates Policen, Schäden oder Provisionen verwalten?">
+Nein. Ein Deal kann das geschäftliche Gespräch abbilden und eigene Felder können begrenzte Referenzen halten. Customermates führt jedoch keine Policenverwaltung, Schadenbearbeitung oder Provisionsabrechnung aus.
 </FaqItem>
 
-<FaqItem question="Kann ich Provisionen in Customermates verfolgen?">
-Ja. Mit benutzerdefinierten Feldern verfolgen Sie Provisionssätze, Abrechnungszyklen der Versicherer, Soll-Beträge und tatsächliche Eingänge pro Deal. Filtern Sie Ihre Pipeline nach Provisionsstatus, um offene Zahlungen zu identifizieren und Ihr Einkommen zuverlässig zu prognostizieren.
+<FaqItem question="Kann ein Makler Customermates für Verlängerungs-Follow-ups nutzen?">
+Ja, als anpassbare Beziehungschance mit gefilterten Referenzfeldern und manuellen Aufgaben. Native wiederkehrende Erinnerungen und Verlängerungssequenzen existieren nicht; datumsabhängige Aufgaben brauchen einen kundenseitig betriebenen externen Workflow.
 </FaqItem>
 
-<FaqItem question="Ist Customermates DSGVO-konform für Versicherungsdaten?">
-Absolut. Customermates ist DSGVO-nativ und wird in der EU-Region gehostet. Für Makler mit strengen Datensouveränitätsanforderungen können Sie Customermates auf Ihrer eigenen Infrastruktur selbst hosten. Alle Kundendaten, einschließlich Gesundheitsinformationen, Schadenakten und Finanzdaten, bleiben unter Ihrer Kontrolle.
-</FaqItem>
-
-<FaqItem question="Wie unterscheidet sich Customermates von spezialisierten Maklerverwaltungsprogrammen?">
-Maklerverwaltungsprogramme (MVP) wie CODie, Keasy oder AMEISE sind speziell für die deutsche Versicherungsbranche entwickelt und bieten tiefe Integration in Versicherer-Schnittstellen (BiPRO/GDV). Customermates bietet ein breiteres CRM-Feature-Set, visuelle Pipelines, native KI-Integration, n8n-Automatisierung und volle API, ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat, E-Mail-Integration gibt es ab Pro für [[commercial.price.pro.monthly]] pro Nutzer pro Monat. Als Open-Source-Plattform erhalten Sie volle Code-Transparenz und die Möglichkeit zum Self-Hosting. Der Kompromiss: Customermates ist ein General-CRM, das Sie für Versicherungen anpassen, kein vorgebautes MVP mit Versicherer-Anbindung.
-</FaqItem>
-
-<FaqItem question="Kann ich von einem anderen CRM zu Customermates wechseln?">
-Ja. Customermates bietet eine vollständige API, sodass Sie Kontakte, Deals und benutzerdefinierte Felddaten aus jedem bestehenden CRM oder jeder Tabelle migrieren können. Die meisten Makler schließen die Migration in unter einer Stunde ab.
-</FaqItem>
-
-<FaqItem question="Lässt sich Customermates mit E-Mail und Kalender integrieren?">
-Ja. Customermates bietet native [E-Mail-Integration](/features/email-integration), die alle gesendeten und empfangenen E-Mails automatisch beim Kundendatensatz protokolliert. Kalenderintegrationen sind über n8n-Workflows verfügbar und verbinden sich mit Google Calendar, Outlook und anderen Planungstools.
+<FaqItem question="Ist Customermates direkt mit Versicherern verbunden?">
+Eine native Versicherer-, BiPRO- oder GDV-Anbindung wird nicht behauptet. Ein Kunde kann eine begrenzte Integration bauen, wenn Versicherer, MVP oder Anbieter eine geeignete Schnittstelle bereitstellen.
 </FaqItem>
 </Faq>
-
-<RelatedPages>
-  <RelatedPage href="/for/insurance-companies" />
-  <RelatedPage href="/for/financial-advisors" />
-  <RelatedPage href="/for/mortgage-brokers" />
-  <RelatedPage href="/for/accountants" />
-</RelatedPages>

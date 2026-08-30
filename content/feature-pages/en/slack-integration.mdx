@@ -3,6 +3,12 @@ title: "CRM Slack Integration: Alerts & Two-Way Actions via n8n"
 description: "CRM Slack integration built with your own n8n instance: deal alerts, lead notifications, and Slack-to-CRM actions over webhooks and the REST API."
 featureName: Slack Integration
 
+relatedHrefs:
+  - /features/outlook-integration
+  - /features/pipeline
+  - /features/project-management
+  - /features/reporting
+
 hero:
   title: Slack Integration, Built on Webhooks and Your Own n8n
   description: Customermates has no native Slack app. What it has is [[derived.webhooks.events.total]] webhook events, a full REST API, and an MCP endpoint — everything an automation tool needs to post deal alerts into Slack and write back from it. Bring your own n8n, Make, or Zapier.
@@ -109,10 +115,3 @@ It is not on the roadmap as a committed item, and we will not list it here until
 ## Get Started
 
 Read [Webhooks](/docs/webhooks) for the event payloads and [n8n](/docs/n8n) for the wiring patterns. Create a webhook in **Company → Webhooks**, point it at your automation tool, add the Slack node, and send your first `deal.updated` message into a channel. From there, everything else on this page is the same pattern with different events.
-
-<RelatedPages>
-  <RelatedPage href="/features/outlook-integration" />
-  <RelatedPage href="/features/pipeline" />
-  <RelatedPage href="/features/project-management" />
-  <RelatedPage href="/features/reporting" />
-</RelatedPages>

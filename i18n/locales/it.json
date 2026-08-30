@@ -779,9 +779,6 @@
     "userCreationFailed": "Non è stato possibile creare il tuo account. Riprova.",
     "userInfoIsMissing": "Il provider non ha restituito il tuo profilo. Riprova."
   },
-  "BlogPostPage": {
-    "relatedArticles": "Articoli correlati"
-  },
   "BrowserFrame": {
     "live": "in diretta",
     "liveDemoTitle": "Demo live di Customermates",
@@ -1345,10 +1342,6 @@
       "previousPage": "Pagina precedente",
       "search": "Cerca..."
     },
-    "tags": {
-      "feature": "Funzionalità",
-      "industry": "Settore"
-    },
     "themes": {
       "dark": "Scuro",
       "light": "Chiaro",
@@ -1397,12 +1390,7 @@
     "title": "Utente"
   },
   "ComparePage": {
-    "alternativeTitle": "Alternativa a {competitor}",
-    "tags": {
-      "alternative": "Alternativa",
-      "comparison": "Confronto",
-      "review": "Recensione"
-    }
+    "alternativeTitle": "Alternativa a {competitor}"
   },
   "ConnectedAccountsCard": {
     "accountLimitReached": "Hai raggiunto il limite di account collegati per questo piano. Contattaci per il piano Enterprise con account illimitati.",
@@ -1501,6 +1489,9 @@
   "ContactPage": {
     "description": "Hai una domanda, vuoi una dimostrazione o stai valutando una collaborazione? Scrivimi e ti rispondo entro un giorno.",
     "form": {
+      "founderName": "Benjamin Wagner",
+      "founderNote": "Il tuo messaggio arriva direttamente a me. Dimmi cosa usi oggi e dove il flusso di lavoro si blocca.",
+      "founderRole": "Fondatore di Customermates",
       "messagePlaceholder": "A cosa stai lavorando e come posso aiutarti?",
       "submit": "Invia il messaggio",
       "successBody": "Ti rispondo all'indirizzo che hai indicato, di solito entro 24 ore.",
@@ -1518,8 +1509,8 @@
         "title": "Risposta rapida"
       },
       "personal": {
-        "body": "Nessuna coda di ticket. Sono il fondatore e rispondo personalmente.",
-        "title": "Direttamente con me"
+        "body": "Mandami la configurazione che usi oggi. Ti dirò cosa funziona direttamente e quando serve davvero un'integrazione separata.",
+        "title": "Parliamo del tuo workflow"
       }
     },
     "title": "Parliamone."
@@ -1972,9 +1963,7 @@
     "success": "Feedback ricevuto. Fai ufficialmente parte della squadra."
   },
   "Footer": {
-    "blogViewAll": "Vedi tutti gli articoli",
-    "compare": "Confronti",
-    "compareViewAll": "Vedi tutti i confronti",
+    "company": "Azienda",
     "copyrightText": "© {year} Customermates. Tutti i diritti riservati.",
     "dpa": "DPA",
     "featuredOn": "In evidenza su",
@@ -1983,7 +1972,7 @@
     "featuresViewAll": "Vedi tutte le funzionalità",
     "helpAndFeedback": "Aiuto",
     "imprint": "Note legali",
-    "legal": "Informazioni legali",
+    "legal": "Assistenza e informazioni legali",
     "privacy": "Privacy",
     "product": "Prodotto",
     "resources": "Risorse",
@@ -2239,15 +2228,11 @@
     "description": "La messaggistica è disponibile dal piano Pro in su. Passa a un piano superiore per collegare un canale e usare la posta in arrivo unificata.",
     "title": "Passa a un piano superiore per la messaggistica"
   },
-  "N8nPage": {
-    "automationImageAlt": "Flusso di automazione del CRM Customermates con integrazione n8n"
-  },
   "NavigationBar": {
     "addEntity": "Aggiungi {entity}",
     "addPickerDescription": "Scegli il tipo di record che vuoi creare.",
     "addPickerTitle": "Crea nuovo…",
     "affiliate": "Programma di affiliazione",
-    "automation": "Automazione",
     "connectedAccounts": "Canali",
     "crm": "CRM",
     "dashboard": "Dashboard",
@@ -2257,6 +2242,59 @@
     "members": "Membri",
     "overview": "Panoramica",
     "pricing": "Prezzi",
+    "public": {
+      "agencies": "Agenzie",
+      "agenticCrm": "CRM agentico",
+      "allFeatures": "Tutte le funzionalità",
+      "allIntegrations": "Tutte le integrazioni",
+      "allSolutions": "Tutte le soluzioni",
+      "api": "API e webhook",
+      "articlesAndGuides": "Articoli e guide",
+      "buildAndAutomate": "Sviluppa e automatizza",
+      "cloudCrm": "CRM cloud",
+      "communication": "Comunicazione",
+      "compare": "Confronti",
+      "consultants": "Consulenti",
+      "contactManagement": "Gestione dei contatti",
+      "coreCrm": "CRM principale",
+      "deployment": "Distribuzione",
+      "emailAndGmail": "Email e Gmail",
+      "explore": "Esplora",
+      "featuredTopics": "Temi in evidenza",
+      "guides": "Guide",
+      "healthcare": "Sanità",
+      "inboxGuide": "Guida alla posta in arrivo",
+      "industries": "Settori",
+      "integrations": "Integrazioni",
+      "integrationsDescription": "Collega i canali di comunicazione e le interfacce aperte già usati dal tuo flusso di lavoro.",
+      "mcpGuide": "Guida MCP",
+      "moreChannels": "Altri canali",
+      "n8n": "Automazione n8n",
+      "openSourceCrm": "CRM open source",
+      "pipeline": "Pipeline di vendita",
+      "primaryNavigation": "Navigazione principale",
+      "product": "Prodotto",
+      "productDescription": "Relazioni con i clienti, pipeline, conversazioni ed estensibilità in un unico sistema.",
+      "professionalServices": "Servizi professionali",
+      "propertyManagement": "Gestione immobiliare",
+      "providerInstagram": "Instagram",
+      "providerLinkedIn": "LinkedIn",
+      "providerOutlook": "Outlook",
+      "providerSlack": "Slack",
+      "providerTelegram": "Telegram",
+      "providerWhatsApp": "WhatsApp",
+      "recruiting": "Recruiting",
+      "resources": "Risorse",
+      "resourcesDescription": "Valuta il prodotto, comprendi l’architettura e segui guide pratiche all’implementazione.",
+      "salesTracking": "Monitoraggio delle vendite",
+      "selfHosted": "CRM self-hosted",
+      "selfHostingGuide": "Guida al self-hosting",
+      "serviceTeams": "Team di servizi",
+      "solutions": "Soluzioni",
+      "solutionsDescription": "Scopri come Customermates supporta i team che gestiscono relazioni durature con i clienti.",
+      "taskManagement": "Gestione delle attività",
+      "unifiedInbox": "Posta in arrivo unificata"
+    },
     "search": "Cerca",
     "settings": "Impostazioni",
     "subscription": "Abbonamento",

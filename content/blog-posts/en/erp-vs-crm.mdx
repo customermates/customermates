@@ -1,10 +1,16 @@
 ---
-title: "ERP vs CRM: Differences, Overlap, and How to Choose (2026)"
-description: "ERP vs CRM explained: what each system does, where they overlap, when you need both, and how to integrate them. Honest, technical, no marketing fluff."
+title: "ERP vs CRM: A Direct Comparison and Decision Guide"
+description: "Compare ERP and CRM by purpose, users, data, and implementation. Decide which system you need first, when you need both, and where Customermates fits."
+
+relatedHrefs:
+  - /blog/crm-and-erp
+  - /blog/crm-erp-integration
+  - /blog/how-to-choose-crm
+  - /compare/odoo
 
 hero:
-  title: "ERP vs CRM: A Practical Guide to the Two Systems Every Growing Business Argues About"
-  description: ERP runs the back office. CRM runs the front office. The line is clearer than the marketing pages suggest. This guide covers what each system actually does, where they overlap, when you genuinely need both, and how to integrate them without writing a six-figure check.
+  title: "ERP vs CRM: Which System Solves Which Problem?"
+  description: ERP runs operational and financial processes. CRM organizes customer and revenue work. Use this direct comparison to choose the right starting point.
 
 blogPost:
   author: Benjamin Wagner
@@ -17,299 +23,164 @@ blogPost:
     - Business Software
 ---
 
-# ERP vs CRM: A Practical Guide for 2026
+# ERP vs CRM: Which System Solves Which Problem?
 
-ERP and CRM are the two systems every growing business eventually argues about. They sound similar, they both store customer information, they are both sold by Salesforce, Oracle, SAP, and Microsoft, and they both cost real money. But they solve different problems, and confusing them is the most expensive mistake in business software procurement.
+The short answer to **ERP vs CRM** is:
 
-The short version: a CRM (customer relationship management) is for the front office, the customer-facing side of the business. An ERP (enterprise resource planning) is for the back office, the operations side. CRM tracks contacts, deals, pipeline, and customer service. ERP tracks inventory, manufacturing, accounting, payroll, and supply chain. They overlap in a few specific places, mostly around the customer record and the order, and that overlap is where integration gets interesting.
+- Choose a **CRM** when the primary problem is customer context, opportunity management, activity, ownership, or follow-up.
+- Choose an **ERP** when the primary problem is finance, purchasing, inventory, fulfilment, production, or resource planning.
+- Use **both** when customer-facing work and operational execution each need a dedicated system and a controlled handoff.
 
-I am Benjamin Wagner, the solo founder behind [Customermates](/), an open source CRM. I have integrated CRMs with ERPs from SAP to Odoo to weclapp to bespoke in-house systems. This guide is what I would tell a founder asking me "do we need an ERP, a CRM, or both?" without trying to sell anything.
+Neither category is inherently more advanced. They manage different operating states.
 
-## What Is a CRM?
+## ERP vs CRM comparison
 
-A CRM is software that runs your customer-facing operations. Its job is to know who your customers and prospects are, what conversations have happened with them, where every deal sits in the pipeline, and what is supposed to happen next.
+| Dimension | CRM | ERP |
+| --- | --- | --- |
+| Core purpose | manage relationships and revenue work | manage resources, transactions, and operations |
+| Primary users | sales, account management, service, customer success | finance, operations, procurement, supply chain, production |
+| Typical entities | contacts, organizations, opportunities, activities, tasks | accounts, orders, invoices, items, inventory, suppliers |
+| Workflow style | flexible customer and pipeline progression | controlled transaction and posting processes |
+| Success signal | clear ownership, continuity, and opportunity progress | accurate operations, resources, costs, and financial records |
+| Common integrations | messaging, marketing, support, data tools | banking, commerce, logistics, payroll, production |
+| Typical implementation risk | poor adoption or inconsistent customer data | process mismatch, migration complexity, and transaction errors |
 
-Core CRM data:
+Individual products vary. Use the table to define the category, then verify every required module against the actual product.
 
-- **Contacts:** the people you talk to (name, email, phone, role, company).
-- **Organizations or accounts:** the companies those people work for.
-- **Deals or opportunities:** the active or recently closed sales conversations.
-- **Activities:** calls, emails, meetings, notes, tasks against contacts and deals.
-- **Tickets or cases:** post-sale support and service interactions.
+## What a CRM manages
 
-Core CRM jobs:
+CRM software keeps customer-facing teams aligned around:
 
-- Track every customer interaction so nothing gets dropped.
-- Move deals through a pipeline with clear stages and next steps.
-- Automate follow-ups, lead assignment, and email logging.
-- Surface dashboards for pipeline health, conversion, and rep productivity.
-- Manage marketing campaigns and lead scoring (in some CRMs more than others).
-- Handle support tickets and customer service workflows (in some CRMs more than others).
+- people and companies;
+- opportunities or deals;
+- activities and conversation context;
+- services or relationship history;
+- tasks and next actions;
+- ownership, views, and pipeline reporting;
+- custom fields required by the sales or service process.
 
-Common CRM products: Salesforce Sales Cloud, HubSpot, Pipedrive, Zoho CRM, Microsoft Dynamics 365 Sales, Customermates, Zendesk Sell, Freshsales.
+Its strength is continuity: the next person can understand the relationship and act without reconstructing it from private notes. A CRM is not automatically a ledger, inventory system, or order-management platform.
 
-If you want a deeper definition with examples, I covered it in [what is a CRM](/blog/what-is-crm).
+## What an ERP manages
 
-## What Is an ERP?
+ERP software coordinates operational and financial processes such as:
 
-An ERP is software that runs your back-office operations. Its job is to know what you have in stock, what you owe and what people owe you, what is on order, what is being made, and how much money is moving where.
+- accounting and financial reporting;
+- procurement and supplier management;
+- inventory, warehouses, and fulfilment;
+- orders, invoices, and payments;
+- production, materials, and capacity;
+- projects, time, and resource allocation.
 
-Core ERP data:
+These records often require controlled approvals, posting logic, and reconciliation. A contact list inside an ERP does not necessarily provide the flexible relationship workflow expected from a CRM.
 
-- **Inventory:** SKUs, quantities, locations, warehouses, lots, serial numbers.
-- **Sales orders and purchase orders:** the actual transactions, not the deals.
-- **Invoices and payments:** the financial side of the order, accounts receivable and payable.
-- **General ledger:** the accounting backbone (chart of accounts, journal entries, financial statements).
-- **Manufacturing:** bills of materials, work orders, production schedules.
-- **Supply chain:** vendors, procurement, lead times, shipments.
-- **HR and payroll:** employees, time tracking, salaries, benefits.
+## The fastest decision test
 
-Core ERP jobs:
+Ask which sentence best describes the current failure.
 
-- Manage inventory in real time across warehouses and channels.
-- Process sales orders end to end (allocate stock, pick, pack, ship, invoice).
-- Run accounting and produce financial statements that auditors will accept.
-- Plan production and procurement based on demand and lead times.
-- Run payroll and HR.
-- Provide a single source of truth for everything that affects the balance sheet.
+### “We lose customer context and follow-ups”
 
-Common ERP products: SAP S/4HANA and SAP Business One, Oracle NetSuite, Microsoft Dynamics 365 Business Central, Odoo, Sage, Infor, weclapp, Acumatica. For DACH small businesses, the names that come up most are weclapp, lexoffice on the very small end, DATEV for accounting-heavy use, and Microsoft Dynamics for mid-market.
+Start with CRM evaluation. Define the contacts, organizations, opportunities, activities, tasks, and views the team needs. Adoption and workflow fit matter more than the number of back-office modules.
 
-## ERP vs CRM at a Glance
+### “We cannot reliably run or account for operations”
 
-The ERP vs CRM table below is the cleanest way to see the split. Both systems centralize data and automate processes, but they are pointed in different directions. Whether you call it ERP vs CRM or CRM vs ERP, the underlying boundary is the same.
+Start with ERP evaluation. Map the transactions, approvals, inventory, purchasing, production, or finance processes that require a governed system.
 
-| Dimension               | CRM                                            | ERP                                                |
-| ----------------------- | ---------------------------------------------- | -------------------------------------------------- |
-| Office                  | Front office (customer-facing)                 | Back office (operations)                           |
-| Primary users           | Sales, marketing, customer service             | Finance, operations, manufacturing, HR             |
-| Core data               | Contacts, accounts, deals, activities, tickets | Inventory, orders, invoices, ledger, BOMs, payroll |
-| Primary job             | Win and keep customers                         | Run the business efficiently                       |
-| Time horizon            | Pipeline, current quarter, lifetime value      | Daily operations, monthly close, annual financials |
-| Output                  | Closed deals, served customers                 | Shipped product, paid invoices, accurate books     |
-| Failure mode if missing | Customer context leaks, deals get dropped      | Inventory chaos, late invoices, audit nightmares   |
-| Typical price           | $0 to $300 per user per month                  | $50 to $500+ per user per month, often per-module  |
-| Implementation time     | Weeks to months                                | Months to years                                    |
+### “Sales and operations each work, but the handoff fails”
 
-According to IBM's overview of [ERP vs CRM](https://www.ibm.com/think/topics/erp-vs-crm), the two systems are "complementary, not competing." That is right, and it is the framing I would push on any founder trying to pick one over the other.
+You may need both plus a narrow integration. Define the event and data contract before selecting middleware. Examples include an accepted deal that creates an ERP order or an ERP status returned for customer communication.
 
-## Where ERP and CRM Overlap
+### “We want one database for everything”
 
-The ERP vs CRM split is not perfectly clean. There are three overlap zones where the boundary gets fuzzy and where most integration headaches live.
+Do not choose from the slogan alone. Test whether the suite's CRM workflow is strong enough for customer teams and whether its ERP modules meet the transactional requirements. One vendor can still contain loosely connected modules; two systems can still operate cleanly with a disciplined boundary.
 
-### 1. The Customer Record
+## When CRM and ERP overlap
 
-Both systems store a version of the customer. The CRM has contacts and organizations with rich relationship data (last meeting, deal stage, lead source, marketing segment). The ERP has business partners or customers with billing addresses, tax IDs, payment terms, and credit limits.
+Common overlapping data includes companies, contacts, products, prices, projects, and order references. Duplication becomes dangerous when both systems can change the same field without a conflict rule.
 
-These are two views of the same entity, and they need to stay in sync. When sales updates the company name in the CRM, the ERP should not still show the old one on the next invoice. When finance updates the VAT ID in the ERP, the CRM should reflect it the next time the rep generates a quote.
+A practical ownership model might be:
 
-The clean rule: CRM masters the relationship fields, ERP masters the financial fields. Both reference the same underlying customer through a shared key (a CRM ID, an ERP ID, or a mapping table).
+- CRM owns opportunity stage, relationship notes, and next action.
+- ERP owns product master, order, invoice, payment, and inventory state.
+- Both store the other's stable identifier.
+- Only selected status fields cross the boundary.
+- Every synchronization has a monitor and repair owner.
 
-### 2. The Order
+The exact split depends on the process. The principle is one authoritative owner per shared field.
 
-This is the thickest part of the overlap. A "deal" in the CRM and a "sales order" in the ERP describe related but different things:
+## Implementation differences
 
-- A deal is an opportunity in progress. It might close. It has a probability, a forecast value, and a sales rep.
-- A sales order is a committed transaction. The customer has agreed to buy. The ERP allocates stock, schedules fulfillment, and creates the eventual invoice.
+### CRM implementation
 
-The handoff happens when the deal closes. A sane integration takes the deal data, validates it, and creates a sales order in the ERP. The CRM keeps the deal record (with the ERP order number written back), the ERP runs the rest of the lifecycle.
+CRM implementation usually emphasizes data structure, pipeline or service workflows, permissions, views, adoption, and migration of relationship context. The team should test realistic daily work rather than configure every possible field before launch.
 
-Some platforms blur this further with quote-to-cash flows where the CRM produces a quote that the ERP turns into an order without re-entry. That is the right design when the products are stable enough that quote pricing matches ERP pricing without manual reconciliation.
+### ERP implementation
 
-### 3. Customer Service and Returns
+ERP implementation usually reaches deeper into controlled business processes, historical transactions, accounting structures, inventory, and operational dependencies. Errors can affect fulfilment and financial reporting, so design, migration, testing, and change management often need a stricter programme.
 
-When a customer calls about a broken product, the support agent in the CRM needs to see the order: what was bought, when, at what price, and whether it shipped. The ERP has all that data. The CRM does not.
+These are tendencies, not universal cost or timeline benchmarks. Scope, data quality, modules, integrations, regulation, and internal capacity determine the actual effort.
 
-Either the CRM pulls the order data on demand from the ERP, or the ERP pushes a slim copy of the order to the CRM as a related record. Both work. The wrong answer is "tell the support agent to log into both systems and copy across," because that is what most teams end up doing for years.
+## If you need both, define the boundary before the connector
 
-## When You Need a CRM, an ERP, or Both
+Before integration, write a one-page contract:
 
-The honest decision tree, ignoring vendor incentives:
+1. Which entity crosses the boundary?
+2. Which system creates it?
+3. Which stable IDs are stored on both sides?
+4. Which fields move, in which direction, and under what event?
+5. What validation blocks the write?
+6. How are duplicates, conflicts, cancellations, and deletions handled?
+7. How are retries made idempotent?
+8. Who monitors and repairs failures?
 
-### You need a CRM, not an ERP, when
+Only then compare native connectors, APIs, iPaaS products, middleware, or a self-operated automation platform. The dedicated [CRM ERP integration guide](/blog/crm-erp-integration) covers those implementation choices.
 
-- You sell services or simple products with no inventory.
-- You do not manage manufacturing, multi-warehouse logistics, or complex procurement.
-- Your accounting is handled by a small accounting tool (lexoffice, QuickBooks, Xero) and that is enough.
-- The pain you feel is "we keep dropping follow-ups, deals slip, customer context is in inboxes and heads."
-- You are early stage and the back office is simple.
+## Where Customermates fits in this comparison
 
-This describes most consultancies, agencies, SaaS companies, professional services firms, and B2B startups under 50 employees.
+Customermates belongs on the CRM side. It models contacts, organizations, deals, services, tasks, custom fields, views, dashboards, and activity history. Supported integrations can use REST, webhooks, or MCP; teams operating n8n can use the separate Customermates community node.
 
-### You need an ERP, not a CRM (yet), when
+Customermates does not provide native sales quotes, invoices, orders, payments, inventory, procurement, or production planning. It has no embedded n8n runtime and no built-in universal ERP connection.
 
-- You manufacture or distribute physical goods at scale.
-- Your accounting and inventory are too complex for a small accounting tool.
-- The pain you feel is "we cannot tell what is in stock, invoices are late, we miss orders, the books do not close on time."
-- Your sales process is mostly inbound or contract-driven and a spreadsheet still works for tracking it.
+If an ERP remains authoritative for operational transactions, Customermates can hold customer and deal context and selected returned statuses. The integration must be implemented and operated separately.
 
-This is rare. Almost everyone who needs an ERP also benefits from a CRM. But there are real businesses (small manufacturers, distributors with stable customer bases) where the ERP is the more urgent buy.
+## How to compare products
 
-### You need both when
+Use an evidence-based shortlist:
 
-- You sell physical products to multiple customers and you have a real sales motion.
-- The CRM-ERP integration would save measurable hours per week of manual data entry.
-- You have at least 10 to 15 people across sales and operations.
-- You process more than 30 to 50 orders per month with non-trivial pricing or fulfillment.
+- document mandatory processes and records before viewing demos;
+- distinguish native capability from partner integration or roadmap;
+- test permissions and daily work with representative users;
+- inspect API, webhook, export, and error-handling contracts;
+- calculate migration, implementation, integration, training, and operating effort;
+- verify commercial and legal terms from current primary sources;
+- test one end-to-end scenario, including failure and correction.
 
-This is most growing B2B companies once they cross from "scrappy startup" to "real business."
+The right answer is the smallest system combination that reliably owns the required processes.
 
-### You probably do not need either when
-
-- You have under 50 customers, no real sales motion, and one person doing everything.
-- Spreadsheets and accounting software are enough.
-
-The threshold is not company size in employees. It is when information starts leaking, when nobody can tell what was promised to whom, or when month-end close becomes a multi-week archeology project.
-
-## Why You Should Not Buy an "All-in-One" by Default
-
-Several vendors will sell you "ERP plus CRM" as one suite. SAP has S/4HANA with embedded CRM. Microsoft has Dynamics 365 with both modules. Oracle bundles NetSuite. Odoo offers both as apps inside one platform.
-
-The pitch is "single vendor, single database, no integration headache." It is not wrong, exactly, but it understates the trade-offs:
-
-- **All-in-ones rarely excel at both.** The CRM module of a great ERP is usually the weak link, and vice versa. You end up with a mediocre version of each.
-- **Switching cost compounds.** If the ERP is great but the CRM is weak, you cannot swap the CRM out without replacing the whole system. With separate best-of-breed tools, you can replace each independently.
-- **Pricing tiers gate features.** All-in-one suites often put the features you want on the higher edition tiers, so the bundled price is real.
-- **Customization is heavier.** Suite platforms are powerful but slow to change. Best-of-breed tools tend to move faster.
-
-There are real cases where an all-in-one is right (single-vendor environments, regulated industries with audit requirements, very small teams that want one bill). For most growing B2B businesses, two best-of-breed systems with a clean integration is the better answer.
-
-## Integrating CRM and ERP
-
-Once you have decided you need both, the question becomes how to connect them. There are four mainstream approaches, ranked by what works best for what kind of team.
-
-### 1. iPaaS (Integration Platform as a Service)
-
-Tools like n8n, Zapier, Make, or MuleSoft sit between the two systems and run integration workflows visually. You define triggers ("when a deal closes") and actions ("create a sales order in the ERP, write the order number back to the CRM"). The platform handles authentication, retries, and logging.
-
-This is the right answer for most small and mid-sized teams. n8n in particular is open source, self-hostable, and has hundreds of pre-built connectors, so you keep data on your own servers and avoid per-execution fees.
-
-Customermates ships with an n8n community node, so you can wire it into any ERP that has an API or a webhook without writing code. I went deep on the integration mechanics in the [CRM ERP integration guide](/blog/crm-erp-integration), including data mapping tables, conflict resolution patterns, and step-by-step implementation. The companion piece on [workflow automation](/features/workflow-automation) covers the broader Customermates automation story.
-
-### 2. API Point-to-Point
-
-Both systems expose REST APIs. You write custom code that reads from one and writes to the other. This gives you maximum control and zero platform dependency, but it means you own the entire infrastructure: hosting, retries, monitoring, and every API change in either system.
-
-This is the right answer when you have in-house developers and your integration logic is unusual enough that visual builders cannot express it. It is the wrong answer when you do not have developers or when the requirements are standard.
-
-### 3. Native or Built-In Integration
-
-If both systems come from the same vendor (Dynamics 365 CRM and Dynamics 365 Business Central, Salesforce Sales Cloud and Salesforce ERP add-ons, NetSuite with its bundled CRM module), the vendor often ships a pre-built integration. You enable it, configure which fields sync, and the vendor handles the API plumbing.
-
-This is fast to set up and removes a class of compatibility headaches. The downside is vendor lock-in: you cannot swap one system without thinking hard about the other, and the integration only works inside that vendor's ecosystem.
-
-### 4. Middleware and ESB (Enterprise Service Bus)
-
-Dedicated integration middleware (MuleSoft, Dell Boomi, Apache Camel) sits between many business systems and orchestrates data flows centrally. This is the right answer for enterprises connecting five or more systems, where a single integration platform makes operational sense. It is overkill for connecting just CRM and ERP.
-
-If your needs are basic CRM-to-ERP and back, do not buy ESB middleware. Use n8n.
-
-### Pricing Reality Check
-
-A rough cost comparison, for a small to mid-sized team integrating CRM and ERP:
-
-| Approach                    | Setup cost (first year) | Ongoing                                 |
-| --------------------------- | ----------------------- | --------------------------------------- |
-| iPaaS (n8n self-hosted)     | EUR 2,000 to 8,000      | Low (server hosting + occasional fixes) |
-| iPaaS (cloud, Zapier, Make) | EUR 3,600 to 12,000     | EUR 200 to 1,000 per month              |
-| Custom API development      | EUR 10,000 to 60,000+   | EUR 5,000 to 15,000 per year            |
-| Middleware/ESB              | EUR 12,000 to 120,000+  | High                                    |
-| Native integration          | Included in license     | Vendor-managed                          |
-
-I broke this down further in the [CRM ERP integration guide](/blog/crm-erp-integration), including realistic timelines and the data mapping tables that make or break a project.
-
-## Common ERP vs CRM Misconceptions
-
-A few things I hear repeatedly that are not quite right.
-
-**"ERP is for big companies, CRM is for small companies."** False. Plenty of small manufacturers and distributors run an ERP because they have to, and plenty of large enterprises run dedicated CRMs because all-in-one suites do not cover their sales motion well. Size does not pick the system, the type of work does.
-
-**"A CRM is just an address book with extra steps."** It can be, if you treat it that way. A real CRM run by a disciplined team is the spine of a sales operation: pipeline visibility, automated follow-ups, conversation history, lead routing, and forecasting all live there. A bad CRM rollout is an address book with extra steps. A good one is leverage.
-
-**"ERPs are obsolete because the cloud has SaaS for every back-office function."** Partly true. There are excellent point solutions for accounting (lexoffice, Xero), inventory (Cin7, Zoho Inventory), and HR (Personio, Rippling). For small companies, stitching them together with iPaaS replaces a small ERP. But once operations get complex (multi-warehouse, manufacturing, multi-entity accounting), the integration burden of point solutions exceeds the cost of one ERP.
-
-**"You should always buy from the same vendor for both."** False, except in narrow cases. Best-of-breed integration usually wins on flexibility and total cost.
-
-**"AI agents replace CRMs and ERPs."** No. AI agents operate them. The CRMs and ERPs that expose clean APIs and MCP tools (Customermates, increasingly Salesforce, increasingly NetSuite) become substrates for agent-driven workflows. The systems do not go away. The humans typing into them slowly do.
-
-## Where AI Agents Fit Into the ERP-CRM Stack
-
-This is the shift worth watching in 2026. The default model for both CRM and ERP has been "humans type, the system records." That is changing.
-
-In a CRM, AI agents (Claude, ChatGPT, Codex) are starting to read call transcripts, write meeting notes, draft follow-up emails, move deals through stages, and create tasks, all by calling the CRM's APIs or MCP tools directly. The human reviews and corrects, instead of being the data entry person.
-
-In an ERP, the same pattern is starting to apply, more cautiously, to lower-risk operations: drafting purchase orders, generating reconciliation reports, summarizing exception queues, and answering "where is this order" questions across systems. ERP vendors are slower to expose agent-friendly interfaces because the financial and audit implications are heavier, but the direction is the same.
-
-The CRMs and ERPs that expose [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) tools and clean webhook events become the systems agents can operate. The ones that hide behind enterprise sales motions and "contact us for API access" gates lose ground.
-
-This is the bet behind Customermates. It exposes [[derived.mcp.tools.total]] MCP tools and [[derived.webhooks.events.total]] webhook events, self-hostable for free under AGPL-3.0. If you already use Claude, ChatGPT, or Gemini, the CRM updates itself: contact notes, deal moves, follow-up tasks, all without you typing into it. The same pattern will work between CRMs and ERPs over the next few years, with agents brokering the boundary cases that integrations historically had to hardcode.
-
-If you want the comparison view, I went into more detail in [Customermates vs Salesforce](/compare/salesforce-alternative) and on the [pricing page](/pricing). For the integration angle specifically, the [CRM ERP integration guide](/blog/crm-erp-integration) covers the practical mechanics.
-
-## A Realistic Adoption Sequence
-
-If you are starting from spreadsheets and you know you eventually need both, the sequence I would actually recommend:
-
-1. **Buy the CRM first.** It is cheaper, faster to deploy, and the pain it solves (dropped follow-ups, lost context) hits earliest. Get one pipeline working with email and calendar synced. Use it for 30 to 60 days.
-2. **Hook up an AI agent.** Even before you have an ERP, having Claude or ChatGPT operate the CRM through MCP or API removes 70 percent of the typing-into-fields work. This pays for itself faster than any other automation.
-3. **Buy the ERP when operations actually demand it.** When inventory chaos, late invoicing, or month-end close pain is consistent, that is the signal. Until then, accounting software plus the CRM is enough.
-4. **Integrate, do not replace.** Use n8n (or whatever iPaaS you prefer) to wire the CRM and ERP together. Start with three flows: customer sync (CRM to ERP on new account), order creation (CRM to ERP on deal won), payment status (ERP to CRM on invoice update).
-5. **Layer agents across the boundary.** Once both systems are stable and integrated, AI agents become the connective tissue for the long tail of cases the integration does not hardcode.
-
-The mistake to avoid is buying both at once and trying to run two huge implementations in parallel. They will both stall. Ship one, get traction, then ship the other.
-
-## Frequently Asked Questions
+## Frequently asked questions
 
 <Faq>
-<FaqItem question="What is the main difference between ERP and CRM?">
-The main ERP vs CRM difference is which side of the business each system runs. A CRM manages your customer-facing operations: contacts, deals, pipeline, marketing, and customer service. An ERP manages your back-office operations: inventory, accounting, manufacturing, supply chain, and HR. CRM is for winning and keeping customers. ERP is for running the business efficiently. Both store some customer data, but they store different aspects of it for different purposes.
+<FaqItem question="What is the difference between ERP and CRM?">
+CRM manages customer relationships and revenue work. ERP manages operational resources, transactions, and financial processes.
 </FaqItem>
 
-<FaqItem question="Is Salesforce a CRM or an ERP?">
-Salesforce is a CRM. Specifically, Salesforce Sales Cloud is the dominant operational CRM in the enterprise market. Salesforce sells related products (Service Cloud, Marketing Cloud, Tableau) but it does not ship a true ERP. Companies running Salesforce typically pair it with an ERP like NetSuite, SAP, or Microsoft Dynamics 365 Business Central.
+<FaqItem question="Which should a small business buy first: ERP or CRM?">
+Buy against the current constraint. Start with CRM for fragmented customer and opportunity work; start with ERP for finance, inventory, purchasing, fulfilment, or resource-control problems.
 </FaqItem>
 
-<FaqItem question="Is SAP a CRM or an ERP?">
-SAP is primarily an ERP vendor. SAP S/4HANA and SAP Business One are ERPs. SAP also sells CRM products (Sales Cloud, Service Cloud, formerly C4C) but the company's center of gravity is back-office ERP. When people say "we run SAP," they almost always mean the ERP side.
+<FaqItem question="Do I need both ERP and CRM?">
+You may need both when customer-facing work and operational execution are independently complex and selected data must move between them.
 </FaqItem>
 
-<FaqItem question="Do I need an ERP if I have a CRM?">
-Not necessarily. If your business does not manage inventory, manufacturing, or complex accounting, you may never need an ERP. Many service businesses, agencies, and SaaS companies run fine with a CRM plus accounting software. You only need an ERP when back-office operations get complex enough that point solutions stop scaling.
+<FaqItem question="Is CRM part of ERP?">
+Some ERP suites include CRM modules, but the category boundaries and product depth vary. Verify the actual relationship, pipeline, activity, and workflow capabilities.
 </FaqItem>
 
-<FaqItem question="Do I need a CRM if I have an ERP?">
-If you have an active sales motion, almost always yes. ERPs handle orders and customers as financial entities, but they are not built for managing pre-sale conversations, pipeline, or marketing. Sales teams using only an ERP end up keeping their pipeline in spreadsheets and inboxes, which is exactly the problem a CRM solves.
+<FaqItem question="Is ERP more expensive than CRM?">
+There is no dependable universal comparison. Total effort depends on scope, modules, users, data migration, integrations, controls, training, and ongoing operation.
 </FaqItem>
 
-<FaqItem question="Can a CRM replace an ERP?">
-No. A CRM does not handle inventory in real time, run accounting, manage manufacturing, or process payroll. Some CRMs include lightweight billing or quoting features, but those are not a substitute for a real general ledger. If you need ERP functions, you need an ERP.
-</FaqItem>
-
-<FaqItem question="Can an ERP replace a CRM?">
-Most ERPs include a CRM module, but they are usually weaker than dedicated CRM products. For very simple sales motions in single-vendor environments, an ERP-bundled CRM can be enough. For real B2B sales with pipeline management, marketing automation, and rep productivity, a dedicated CRM is almost always better.
-</FaqItem>
-
-<FaqItem question="How do you integrate a CRM and ERP?">
-The most common approach is iPaaS (integration platform as a service) like n8n, Zapier, or Make. You define triggers in one system (deal closed, invoice paid) and actions in the other (create sales order, update CRM payment status). For most small and mid-sized teams, this beats custom API development on cost and time. Customermates ships with an n8n community node so the integration is built-in. The [CRM ERP integration guide](/blog/crm-erp-integration) covers the mechanics in detail.
-</FaqItem>
-
-<FaqItem question="What does ERP and CRM integration cost?">
-Using iPaaS like n8n self-hosted, total first-year cost (platform + setup labor) is typically EUR 2,000 to 8,000 for a small team. Cloud iPaaS (Zapier, Make) is EUR 3,600 to 12,000 per year. Custom API development is EUR 10,000 to 60,000 plus ongoing maintenance. Enterprise middleware (MuleSoft, Dell Boomi) is EUR 9,000 to 120,000 per year. Native vendor integrations are included in the license but lock you into a single vendor.
-</FaqItem>
-
-<FaqItem question="What is the best CRM and ERP combination for small businesses?">
-There is no single best combination. The honest answer depends on your stack. For DACH small businesses, weclapp or lexoffice on the ERP side plus a flexible CRM works well. For global SMBs, Odoo (which has both modules) or NetSuite plus a best-of-breed CRM are common. For agent-native operations, Customermates as the CRM plus any ERP with a REST API integrated via n8n works well. The Customermates [pricing page](/pricing) shows the cloud and self-hosted options.
-</FaqItem>
-
-<FaqItem question="Should I buy CRM and ERP from the same vendor?">
-Usually no, unless you specifically value single-vendor procurement and are comfortable with the trade-offs. Best-of-breed CRMs and ERPs each tend to be stronger in their domain than bundled suite modules. Integration is solvable with iPaaS for a fraction of the cost of suite licensing. The exceptions are heavily regulated industries and very small teams that want one bill.
+<FaqItem question="Is Customermates an ERP or CRM?">
+Customermates is a CRM. It can participate in an externally designed ERP integration through its supported interfaces, but it does not provide native ERP transaction modules.
 </FaqItem>
 </Faq>
-
-## Conclusion
-
-ERP and CRM solve different problems for different teams in different parts of the business. CRM is for the customer-facing front office. ERP is for the operational back office. Most growing B2B companies eventually need both, and the boundary is clearer than the marketing pages make it sound.
-
-The right sequence for most teams: buy the CRM first, hook it up to an AI agent so it updates itself, buy the ERP when back-office complexity actually demands it, then integrate the two with n8n or another iPaaS. Avoid all-in-one suites by default. Pick best-of-breed tools and connect them. Watch the agent angle, because it changes which CRMs and ERPs win the next few years.
-
-If you want a CRM that is built for this stack from the start, with [[derived.mcp.tools.total]] MCP tools, [[derived.webhooks.events.total]] webhook events, an n8n community node, full REST API, GDPR-compliant EU hosting, and AGPL-3.0 source, that is what I built Customermates for. The cloud is from [[commercial.price.starter.monthly]] per user per month (Starter tier), self-hosted is free. The technical details are on the [pricing page](/pricing) and the [Customermates vs Salesforce comparison](/compare/salesforce-alternative). The integration story for connecting it to your ERP lives in the [CRM ERP integration guide](/blog/crm-erp-integration).

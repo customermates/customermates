@@ -1,8 +1,8 @@
 import { env } from "@/env";
 import { COMMERCIAL_OFFERS } from "@/core/commercial/plan-catalog";
 
-const ORGANIZATION_NAME = "Customermates";
-const ORGANIZATION_LOGO = `${env.BASE_URL}/customermates.svg`;
+export const ORGANIZATION_NAME = "Customermates";
+const ORGANIZATION_LOGO = `${env.BASE_URL}/images/light/customermates-square.svg`;
 const ORGANIZATION_SAME_AS = [
   "https://github.com/customermates/customermates",
   "https://www.linkedin.com/company/customermates/",
@@ -67,7 +67,6 @@ export function articleSchema(params: {
   slug: string;
 }) {
   const url = `${env.BASE_URL}/${params.locale}/blog/${params.slug}`;
-  const heroImage = `${env.BASE_URL}/images/light/${params.locale}/${params.slug}.png`;
   const ogImageParams = new URLSearchParams({
     title: params.headline,
     description: params.description,
@@ -78,7 +77,7 @@ export function articleSchema(params: {
     "@type": "Article",
     headline: params.headline,
     description: params.description,
-    image: [heroImage, ogImage],
+    image: [ogImage],
     datePublished: params.datePublished,
     dateModified: params.dateModified ?? params.datePublished,
     author: {

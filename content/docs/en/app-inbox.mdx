@@ -3,7 +3,7 @@ title: "Customermates CRM Inbox: Threads and Replies"
 description: "The Customermates Inbox puts email, LinkedIn, WhatsApp, Instagram, and Telegram threads in one list, with stable anchor ids for UI-driving agents."
 ---
 
-Customermates is an open-source, AI-native CRM. This page documents the **Inbox** screen of the web app for humans and for AI agents that drive the UI.
+This page documents the managed-cloud **Inbox** screen for humans and for authorized clients that drive the UI.
 
 ## Purpose
 
@@ -15,26 +15,26 @@ The route is `/inbox`. All app routes are locale-prefixed, for example `https://
 
 ## Key actions
 
-| Action | Where | Anchor id | What happens |
-| --- | --- | --- | --- |
-| Go to Inbox | App sidebar | `#nav-inbox` | Opens /inbox |
-| Open thread | Row (button) inside the thread list | `#inbox-thread-list` | The list container has the id; thread rows inside it are buttons |
-| Reply | Composer at the bottom of a thread | `#inbox-reply-input` / `#inbox-reply-send` | Type, then send on the thread channel |
-| Set thread state | Thread header state select | `#inbox-thread-state` | Choose unread, open, closed, or spam |
-| Share thread with the team | Thread settings panel | `#thread-shared` | Toggle team-wide visibility (Business plan) |
-| Link participant to contact | Thread settings panel | none | Open thread settings, then link per participant |
+| Action                      | Where                               | Anchor id                                  | What happens                                                               |
+| --------------------------- | ----------------------------------- | ------------------------------------------ | -------------------------------------------------------------------------- |
+| Go to Inbox                 | App sidebar                         | `#nav-inbox`                               | Opens /inbox                                                               |
+| Open thread                 | Row (button) inside the thread list | `#inbox-thread-list`                       | The list container has the id; thread rows inside it are buttons           |
+| Reply                       | Composer at the bottom of a thread  | `#inbox-reply-input` / `#inbox-reply-send` | Type, then send on the thread channel                                      |
+| Set thread state            | Thread header state select          | `#inbox-thread-state`                      | Choose unread, open, closed, or spam                                       |
+| Share thread with the team  | Thread settings panel               | `#thread-shared`                           | Expose this individual thread to CRM teammates on a messaging-enabled plan |
+| Link participant to contact | Thread settings panel               | none                                       | Open thread settings, then link per participant                            |
 
 ## Thread settings
 
-Open a thread's settings to manage everything that belongs to the conversation rather than a single message. Each participant can be linked to a CRM contact, which makes the thread and its messages appear on that contact's timeline; unlinked participants stay visible in the thread only. On the Business plan, `#thread-shared` shares the thread with the whole team instead of only the account owner.
+Open a thread's settings to manage everything that belongs to the conversation rather than a single message. Each participant can be linked to a CRM contact, which makes the thread and its messages appear on that contact's timeline; unlinked participants stay visible in the thread only. On any messaging-enabled plan, `#thread-shared` exposes that individual thread to CRM teammates. Sharing the complete connected account is a separate entitlement available on Business and Enterprise.
 
 ## Drafts and attachments
 
-Replies are drafted per thread and survive navigation: leave the thread and come back, and your text is still there. Discarding a draft removes the written content and cannot be undone. Attachments on incoming messages open in a safe preview; outgoing attachments go through the reply composer on channels that support them.
+Replies are drafted per thread and survive navigation: leave the thread and come back, and your text is still there. Discarding a draft removes the written content and cannot be undone. Supported incoming media opens inline, ordinary files download, and unsupported items are shown as unsupported. LinkedIn-post attachments open at their external source. Outgoing attachments go through the reply composer on channels that support them.
 
 ## Thread states
 
-A thread is **unread** until someone opens it, **open** while it needs attention, **closed** when it is done, and **spam** to keep a sender out of the way. Setting a state never sends anything to the other side; it only organizes your inbox. Mate can triage states for you when you ask.
+A thread is **unread** until someone opens it, **open** while it needs attention, **closed** when it is done, and **spam** to keep a sender out of the way. Setting a state never sends anything to the other side; it only organizes your inbox. The hosted Mate capability is release-gated and is not required for this workflow.
 
 ## Tips for agents
 

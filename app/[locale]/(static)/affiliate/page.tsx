@@ -3,12 +3,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getLocale } from "next-intl/server";
 
-import { AffiliateHero } from "./components/affiliate-hero";
-
 import { Footer } from "@/app/components/footer";
 import { ComparisonTable } from "@/components/marketing/comparison-table";
 import { FAQSection } from "@/components/marketing/faq-section";
 import { CTASection } from "@/components/marketing/cta-section";
+import { PageHero } from "@/components/marketing/page-hero";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { affiliateSource } from "@/core/fumadocs/source";
 
@@ -24,8 +23,8 @@ export default async function AffiliatePage() {
   if (!page) notFound();
 
   return (
-    <div className="flex flex-col items-center justify-center">
-      <AffiliateHero heroSection={page.data.hero} />
+    <div className="flex flex-col items-center justify-center" data-marketing-flow="continuous">
+      <PageHero {...page.data.hero} showOpenSourceBadge={false} />
 
       <ComparisonTable
         competitorName={page.data.comparison.competitorName}

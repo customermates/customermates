@@ -9,6 +9,9 @@ import { Slider } from "@/components/ui/slider";
 import { PricingCardComponent } from "./pricing-card";
 import { formatCommercialAmount, getCommercialOffer, totalPriceAmountMinor } from "@/core/commercial/plan-catalog";
 
+const MAX_USERS = 25;
+const USER_STOPS = [1, 5, 10, 15, 20, MAX_USERS] as const;
+
 export function pricingCardPresentation(options: {
   plan: Pricing["pricingCards"][number]["plan"];
   userCount: number;
@@ -44,39 +47,47 @@ export function PricingSection({
   const [userCount, setUserCount] = useState(1);
   const locale = useLocale();
 
-  const maxUsers = 25;
-
   return (
     <>
-      <div className="max-w-xl mx-auto mb-8">
-        <div className="mb-6">
+      <div className="marketing-grid items-center gap-y-7 rounded-card border border-border bg-card px-5 py-6 sm:px-6 sm:py-8">
+        <div className="col-span-12 flex items-end justify-between gap-6 sm:justify-start lg:col-span-4">
           <div>
-            <h3 className="text-x-lg mb-2">{users}</h3>
+            <p className="text-eyebrow">{users}</p>
 
-            <div className="text-x-3xl text-primary dark:text-primary">{userCount}</div>
+            <output
+              aria-atomic="true"
+              aria-live="polite"
+              className="mt-2 block text-4xl font-medium tracking-tight tabular-nums"
+              htmlFor="pricing-user-count"
+            >
+              {userCount}
+            </output>
           </div>
         </div>
 
-        <Slider
-          aria-label={ariaLabelSlider}
-          className="w-full mb-3"
-          max={maxUsers}
-          min={1}
-          step={1}
-          value={[userCount]}
-          onValueChange={(values) => setUserCount(values[0] ?? 1)}
-        />
+        <div className="col-span-12 lg:col-start-6 lg:col-end-13">
+          <Slider
+            aria-label={ariaLabelSlider}
+            className="mb-3 w-full"
+            id="pricing-user-count"
+            max={MAX_USERS}
+            min={1}
+            step={1}
+            value={[userCount]}
+            onValueChange={(values) => setUserCount(values[0] ?? 1)}
+          />
 
-        <div className="flex justify-between text-x-xs text-muted-foreground">
-          {[1, 5, 10, 15, 20, maxUsers].map((value) => (
-            <span key={value} className={userCount >= value ? "font-semibold text-primary" : ""}>
-              {value}
-            </span>
-          ))}
+          <div className="flex justify-between text-xs text-muted-foreground">
+            {USER_STOPS.map((value) => (
+              <span key={value} className={userCount >= value ? "font-medium text-foreground" : undefined}>
+                {value}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 max-w-7xl mx-auto justify-center items-stretch">
+      <div className="mt-10 grid grid-cols-1 overflow-hidden rounded-card border-l border-t border-border md:grid-cols-2 xl:grid-cols-4">
         {mdxPricingCards.map((card) => {
           const { displayPrice, priceSubtext } = pricingCardPresentation({
             plan: card.plan,
@@ -93,7 +104,9 @@ export function PricingSection({
         })}
       </div>
 
-      {footnote && <p className="mx-auto mt-6 max-w-3xl text-center text-x-xs text-muted-foreground">{footnote}</p>}
+      {footnote ? (
+        <p className="mx-auto mt-6 max-w-3xl text-center text-xs leading-5 text-muted-foreground">{footnote}</p>
+      ) : null}
     </>
   );
 }

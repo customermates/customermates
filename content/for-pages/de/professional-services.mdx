@@ -1,198 +1,241 @@
 ---
-title: "CRM für Dienstleister | Kunden- & Pipeline-Management"
-description: "Open-Source CRM für Dienstleister. Kundenbeziehungen verwalten, projektbasierte Deals tracken, Angebote automatisieren, DSGVO-konform, ab [[commercial.price.starter.monthly]]/Nutzer/Monat."
-industryName: "Professional Services"
+title: "CRM für Dienstleister | Kunden & Pipeline"
+description: "Kontakte, Unternehmen, Deals, Leistungen und Aufgaben in einem CRM verbinden, mit gewichteten Deal-Werten, REST, Webhooks und MCP."
+industryName: Dienstleister
+
+acquisition:
+  locale: de
+  slug: professional-services
+  clusterId: professional-services
+  role: hub
+  primaryIntent: Beziehungs- und Pipeline-CRM für Dienstleister
+  metadata:
+    title: "CRM für Dienstleister | Kunden & Pipeline"
+    description: "Kontakte, Unternehmen, Deals, Leistungen und Aufgaben in einem CRM verbinden, mit gewichteten Deal-Werten, REST, Webhooks und MCP."
+  proof:
+    factReferences:
+      - product:core-crm-records
+      - product:deal-pipelines
+      - product:services-and-tasks
+      - product:weighted-deal-values
+      - product:mcp-tools
+    excludedClaims:
+      - claim:no-psa
+      - claim:no-delivery-management
+      - claim:no-invoicing
+      - claim:no-predictive-sales-analytics
+      - claim:no-time-tracking
+  cta:
+    action: Kundenbeziehungen und Pipeline zentral verwalten
+    description: Starten Sie mit Kontakten, Unternehmen und Deals und passen Sie Phasen und Felder an Ihre Geschäftsentwicklung an.
+    buttonLeftText: Pro-Test starten
+    buttonLeftHref: /auth/signup
+    buttonRightText: Demo erkunden
+    buttonRightHref: https://demo.customermates.com
+    hint: "Projektabwicklung, Angebote, Zeiterfassung und Abrechnung bleiben in Ihren Fachsystemen."
+  relatedHrefs:
+    - /for/agencies
+    - /features/unified-inbox
+    - /features/self-hosted
+    - /blog/agentic-crm
+  visual:
+    id: acquisition.professional-services.de
+    locale: de
+    referenceSystemVersion: customermates-marketing-visuals@8
+    source:
+      headline: "Ein Beziehungs- und Pipeline-CRM für Dienstleister"
+      body: "Bündeln Sie Kundenkontext, Verkaufschancen, Leistungen und Aufgaben. Customermates unterstützt die Geschäftsentwicklung, während Projektabwicklung, Angebote, Rechnungen und Zeiterfassung in Fachsystemen bleiben."
+      checksum: fnv1a-c3a0214d
+    kind: brand-illustration
+    pathway: focus
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "Kundenkontext und gewichtete Deal-Werte machen die Geschäftsentwicklungs-Pipeline leichter lesbar."
+    depiction:
+      kind: result
+      productBehavior: true
+      statement: "Deal-Phasen und gewichtete Werte halten die Geschäftsentwicklungs-Pipeline übersichtlich."
+    factReferences:
+      - product:deal-status-field
+      - product:deal-weighted-values
+      - product:record-activity-context
+    focalLabel:
+      locale: de
+      text: Deal-Pipeline
+    semanticLabels:
+      - locale: de
+        text: Kundenkontext
+      - locale: de
+        text: Gewichteter Wert
+    focalSubject:
+      id: deal-pipeline
+      form: kanban-board
+      fixtures:
+        dealBoard: professional-services-board
+    supportingSubjects:
+      - id: client-context
+        form: context-card
+      - id: service-value
+        form: context-card
+    accentTarget: deal-pipeline
+  structuredData:
+    types:
+      - BreadcrumbList
+      - FAQPage
+    faqFromRenderedContent: true
 
 hero:
-  title: "Das CRM für Dienstleister, das Beziehungen in den Mittelpunkt stellt"
-  description: "KI-Agenten halten Ihre Auftrags-Pipeline aktuell und entwerfen die Follow-ups, während ein nativer Posteingang Kunden-E-Mail und LinkedIn zusammenführt. Ein CRM für professionelle Dienstleistungen, gebaut für Beratungen, Agenturen und Dienstleistungsunternehmen."
-  buttonLeftText: Kostenlos starten
+  title: Ein Beziehungs- und Pipeline-CRM für Dienstleister
+  description: Bündeln Sie Kundenkontext, Verkaufschancen, Leistungen und Aufgaben. Customermates unterstützt die Geschäftsentwicklung, während Projektabwicklung, Angebote, Rechnungen und Zeiterfassung in Fachsystemen bleiben.
+  buttonLeftText: Pro-Test starten
   buttonLeftHref: /auth/signup
-  buttonRightText: Live-Demo ansehen
+  buttonRightText: Demo erkunden
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ Keine Kreditkarte nötig ✓ Erste [[commercial.trial.days]] Tage kostenlos ✓ 2-Minuten-Setup"
+  hint: "Keine Kreditkarte • [[commercial.trial.days]] Tage Pro testen"
+  showOpenSourceBadge: false
 
 cta:
-  action: Bereit loszulegen?
-  description: Schließen Sie sich Dienstleistungsunternehmen an, die Kundenbeziehungen mit Customermates verwalten, dem Open-Source-CRM, das sich selbst aktualisiert, ab [[commercial.price.starter.monthly]]/Nutzer/Monat.
-  buttonLeftText: Kostenlos starten
+  action: Kundenbeziehungen und Pipeline zentral verwalten
+  description: Starten Sie mit Kontakten, Unternehmen und Deals und passen Sie Phasen und Felder an Ihre Geschäftsentwicklung an.
+  buttonLeftText: Pro-Test starten
   buttonLeftHref: /auth/signup
-  buttonRightText: Live-Demo ansehen
+  buttonRightText: Demo erkunden
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ Keine Kreditkarte nötig ✓ Erste [[commercial.trial.days]] Tage kostenlos"
+  hint: "Projektabwicklung, Angebote, Zeiterfassung und Abrechnung bleiben in Ihren Fachsystemen."
 ---
 
-## Warum Dienstleister ein spezialisiertes CRM brauchen
+Customermates ist ein **CRM für Dienstleister**, die Expertise über Beziehungen und mehrstufige Verkaufsprozesse vermarkten. Kundenunternehmen, Ansprechpartner, Verkaufschance, besprochene Leistungen, gewichteter Wert und nächste Aufgabe bleiben in einem gemeinsamen Arbeitsbereich für die Geschäftsentwicklung verbunden.
 
-Professionelle Dienstleistungen, Unternehmensberatung, Steuerberatung, Rechtsberatung, Architektur, Ingenieurwesen, IT-Dienstleistungen und Marketing-Agenturen, basieren auf Vertrauen, Expertise und langfristigen Kundenbeziehungen. Anders als Produktunternehmen hängt Ihr Umsatz von Folgeaufträgen, Empfehlungen und der Tiefe Ihres Kundenwissens ab. Ein CRM für Dienstleister erfasst dieses institutionelle Wissen und macht es zum Wachstumsmotor.
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Geeignet für">
+    Beratungen und andere beziehungsorientierte Dienstleister, die Kunden und
+    Verkaufschancen übersichtlich steuern möchten.
+  </SummaryItem>
+  <SummaryItem label="Zentrale Aufgabe">
+    Stakeholder, Deals, Leistungen und nächste Schritte verbinden, statt den
+    Kontext auf persönliche Notizen und Tabellen zu verteilen.
+  </SummaryItem>
+  <SummaryItem label="Stärkster Nachweis">
+    Anpassbare Deal-Phasen, deterministische Gewichtung, verknüpfte Leistungen
+    und datensatzbezogene Aufgaben.
+  </SummaryItem>
+  <SummaryItem label="Systemgrenze">
+    Customermates verwaltet Beziehung und Vertrieb. Projektabwicklung, Angebote,
+    Zeiten und Rechnungen bleiben in Fachsystemen.
+  </SummaryItem>
+</ArticleSummary>
 
-Ohne ein CRM für professionelle Dienstleistungen stehen Firmen vor vorhersehbaren Problemen:
+<ProofRail label="Verifizierte CRM-Funktionen für Dienstleister">
+  <ProofItem label="Beziehungen">Kontakte und Unternehmen</ProofItem>
+  <ProofItem label="Pipeline">Anpassbare Phasen und Kanban</ProofItem>
+  <ProofItem label="Wert">Phasenbasierte Gewichtung</ProofItem>
+  <ProofItem label="Umfang">Leistungen und Aufgaben</ProofItem>
+  <ProofItem label="Schnittstellen">REST, Webhooks und MCP</ProofItem>
+</ProofRail>
 
-- **Kundenwissen steckt in einzelnen Köpfen**: Wenn ein Partner die Firma verlässt oder ein Berater im Urlaub ist, verschwindet kritischer Kontext über laufende Mandate. Neue Teammitglieder starten bei Null.
-- **Geschäftsentwicklung passiert ad hoc**: Empfehlungen und Folgeaufträge entstehen zufällig statt systematisch. Niemand trackt, welche Kunden für eine Wiederansprache fällig sind oder welche Angebote kalt geworden sind.
-- **Projektbasierte Deals gehen unter**: Angebote, Scoping-Gespräche, Leistungsbeschreibungen und aktive Projekte verteilen sich über E-Mail, Tabellen und geteilte Laufwerke. Es fehlt eine Gesamtansicht der Auftrags-Pipeline.
-- **Cross-Selling bleibt unsichtbar**: Sie betreuen einen Kunden in einem Fachbereich, haben aber keinen Überblick, ob er in einem anderen Dienstleistungsbereich Unterstützung braucht.
-- **Retainer-Tracking ist manuell**: Firmen mit laufenden Mandatsverträgen überwachen Verlängerungstermine, Nutzung und Zufriedenheit mit zusammengestückelten Tabellen und Kalender-Erinnerungen.
-- **Follow-up-Disziplin erodiert**: Nach Projektabschluss vergessen Firmen, Referenzen einzuholen, nach Empfehlungen zu fragen oder den nächsten Auftrag vorzuschlagen.
+<ProductDemo path="/deals" />
 
-Ein CRM für Dienstleistungsunternehmen gibt Ihnen die Pipeline-Disziplin, Beziehungskontinuität und datengestützte Geschäftsentwicklung, die wachsende Firmen von stagnierenden unterscheidet.
+## Eine Verkaufschance vom Erstkontakt bis zum nächsten Schritt
 
-## Wie Customermates als CRM für Dienstleister funktioniert
+Nehmen wir eine Beratung, die mit einem Kundenunternehmen über ein mehrteiliges Mandat spricht. Zur Entscheidungsgruppe gehören ein Sponsor, ein fachlicher Ansprechpartner und der Einkauf. In Customermates bleiben diese Personen mit demselben Unternehmen verbunden, während die Verkaufschance die Phasen des eigenen Vertriebsprozesses durchläuft.
 
-Customermates ist für Firmen konzipiert, die komplexe, beziehungsgetriebene Vertriebszyklen managen, nicht für transaktionalen E-Commerce. Ob Sie eine Beratung mit 10 Mitarbeitern sind oder ein Multi-Practice-Dienstleistungsunternehmen mit 200, die Plattform passt sich Ihrem Workflow an.
+Das Team kann die besprochenen Leistungen, Mengen und Beträge am Deal festhalten und die nächste Aktivität als Aufgabe mit dem passenden Datensatz verknüpfen. Beim Öffnen des Deals ist der kaufmännische Kontext sichtbar, ohne die Projektabwicklung doppelt im CRM abzubilden.
 
-### Kundenlebenszyklus-Management
+<Steps>
+  <Step title="Kundenkontext aufbauen">
+    Legen Sie das Unternehmen und die beteiligten Personen an und bilden Sie die
+    relevanten Beziehungen ab.
+  </Step>
+  <Step title="Verkaufschance strukturieren">
+    Erstellen Sie einen Deal, weisen Sie eine verantwortliche Person zu und
+    führen Sie ihn durch Ihre eigenen Phasen.
+  </Step>
+  <Step title="Leistungsumfang abbilden">
+    Verknüpfen Sie die besprochenen Leistungen, Mengen und Beträge mit dem Deal.
+  </Step>
+  <Step title="Nächsten Schritt sichtbar halten">
+    Hängen Sie eine Aufgabe an Kontakt, Unternehmen, Deal oder Leistung, damit
+    der Kontext erhalten bleibt.
+  </Step>
+  <Step title="Bewusst übergeben">
+    Nach dem Abschluss wechseln Leistungsbeschreibung, Projekt, Zeiten und
+    Abrechnung in die dafür zuständigen Systeme.
+  </Step>
+</Steps>
 
-Jeder Kunde und Interessent hat einen vollständigen Datensatz in Customermates: Kontaktdaten, Auftragshistorie, versendete Angebote, Kommunikation, Besprechungsnotizen und benutzerdefinierte Datenfelder. Wenn ein Partner in ein Kundengespräch geht, hat er das vollständige Bild, nicht nur, was er persönlich erinnert.
+## Was dieses CRM abdeckt
 
-Verfolgen Sie den gesamten Kundenlebenszyklus vom ersten Berührungspunkt über das aktive Mandat bis zur langfristigen Beziehungspflege. Verknüpfen Sie Kontakte mit Unternehmen, Unternehmen mit Aufträgen und Aufträge mit verantwortlichen Teammitgliedern. Dieses [Kontaktmanagement](/features/contact-management) stellt sicher, dass keine Beziehung durch die Maschen fällt.
+| Bedarf in der Geschäftsentwicklung | Customermates verwaltet                                            | Fachsystem verwaltet                           |
+| ---------------------------------- | ------------------------------------------------------------------ | ---------------------------------------------- |
+| Kunden- und Stakeholder-Kontext    | Kontakte, Unternehmen, Beziehungen, Notizen und Aktivitäten        | Dokumente und Akten                            |
+| Opportunity-Pipeline               | Deals, anpassbare Phasen und Kanban-Ansichten                      | Angebote, Leistungsbeschreibungen und Verträge |
+| Kaufmännischer Wert                | Leistungsbeträge, Phasenwahrscheinlichkeiten und gewichtete Summen | Prädiktive Prognosen und Finanzplanung         |
+| Nachverfolgung                     | Mit CRM-Datensätzen und Nutzern verknüpfte Aufgaben                | Terminplanung, Projekte, Zeiten und Auslastung |
 
-### Projektbasiertes Deal-Tracking
+<AcquisitionCallout
+  title="Eine klare Grenze verhindert doppelte Projektdaten"
+  variant="boundary"
+>
+  Beziehung, Verkaufschance und nächste Aktivität bleiben in Customermates.
+  Projektumsetzung, Kapazität, Zeiteinträge und Rechnungen bleiben in den
+  Systemen, die diese Daten bereits verantworten. Für einen geprüften
+  Übergabeprozess stehen [REST-API und Webhooks](/features/api) oder ein separat
+  betriebener [n8n-Workflow](/features/workflow-automation) zur Verfügung.
+</AcquisitionCallout>
 
-Deals im Dienstleistungsbereich sind keine einfachen Einmal-Abschlüsse. Sie umfassen Erstgespräche, Scoping-Sessions, Angebote, Vertragsverhandlungen und manchmal Monate an Follow-up. Customermates bietet eine [visuelle Pipeline](/features/pipeline) mit anpassbaren Phasen für jeden Dienstleistungsbereich:
+## So funktionieren gewichtete Pipeline-Werte
 
-- **Erstgespräch**, Kennenlern-Gespräch, Bedarfsanalyse
-- **Scoping**, Projektparameter und Liefergegenstände definieren
-- **Angebot versendet**, Leistungsbeschreibung oder Angebot dem Interessenten übermittelt
-- **Verhandlung**, Konditionen, Preise und Zeitrahmen besprechen
-- **Gewonnen / Verloren**, Auftrag unterschrieben oder Gelegenheit geschlossen
+Deal-Phasen können Wahrscheinlichkeiten tragen. Customermates multipliziert den Deal-Wert mit der eingestellten Phasenwahrscheinlichkeit und bildet daraus deterministische gewichtete Pipeline-Summen. Die Annahme bleibt sichtbar und wiederholbar. Es handelt sich weder um eine prädiktive Umsatzprognose noch um automatisches Scoring.
 
-Verschiedene Fachbereiche können separate Pipelines pflegen. Eine Management-Beratungs-Pipeline sieht anders aus als eine IT-Dienstleistungs-Pipeline, und Customermates deckt beides ab.
+Nutzen Sie den gewichteten Wert als Hilfe für die Vertriebsrunde: Öffnen Sie den zugrunde liegenden Deal, prüfen Sie die Phase und aktualisieren Sie den Datensatz, sobald sich die kaufmännische Situation ändert.
 
-### Angebots- und Leistungsbeschreibungs-Pipeline
+## Für welche Dienstleister das CRM passt
 
-Verlieren Sie nie den Überblick über ausstehende Angebote. Sehen Sie jedes Angebot in der Pipeline, wie lange es schon offen ist und welche Nachfassung brauchen. Richten Sie automatisierte Erinnerungen ein, damit kein Angebot wochenlang unbeantwortet bleibt.
+Das gemeinsame Modell eignet sich für Beratungen, [Agenturen](/for/agencies), Steuer- und Buchhaltungspraxen sowie Anwaltskanzleien. Jede Fachrichtung kann Phasen, Felder und Begriffe an ihren Prozess anpassen.
 
-Benutzerdefinierte Felder erfassen Angebotswert, erwartetes Abschlussdatum, Dienstleistungsbereich, Auftragstyp (Projekt vs. Retainer) und Empfehlungsquelle, damit die Geschäftsführung eine klare Umsatzprognose hat.
+<AcquisitionCallout title="Customermates passt, wenn" variant="fit">
+  Ihr Unternehmen ein Beziehungs- und Pipeline-System braucht, über mehrere
+  Schritte verkauft und bereits spezialisierte Systeme für Projekt und Finanzen
+  nutzt. Wenn Ressourcenplanung, Auslastung, abrechenbare Zeit und Rechnungen
+  zwingend in einem Produkt liegen müssen, ist eine PSA- oder Projektplattform
+  die passendere Kategorie.
+</AcquisitionCallout>
 
-### Retainer- und Dauerauftrags-Tracking
+## Cloud, Self-Hosting und KI-Zugriff
 
-Für Firmen mit Retainer-Kunden verfolgt Customermates Verlängerungstermine, Vertragsbedingungen und Kundenzufriedenheits-Signale. Bauen Sie Automatisierungen, die den Account Manager 60 Tage vor einer Retainer-Verlängerung benachrichtigen, vierteljährliche Business Reviews auslösen oder Kunden markieren, deren Engagement-Aktivität gesunken ist.
+Die grundlegenden Beziehungs- und Pipeline-Datensätze gibt es in der Managed Cloud und bei [Self-Hosted Customermates](/features/self-hosted). Self-Hosting nutzt Starter-Berechtigungen und kann unterstützte Datensätze über [MCP](/docs/mcp) für einen externen KI-Client zugänglich machen.
 
-### Ressourcen-Allokation im Blick
-
-Wissen Sie, welche Teammitglieder welchen Mandaten zugeordnet sind. Wenn ein neues Projekt hereinkommt, sehen Sie schnell, wer Kapazitäten hat. Benutzerdefinierte Felder für Skills, Zertifizierungen und Spezialisierungen helfen, die richtigen Personen den richtigen Aufträgen zuzuordnen.
-
-### Kundenzufriedenheits-Tracking
-
-Verfolgen Sie NPS-Werte, Feedback aus Post-Engagement-Umfragen und Beziehungsgesundheits-Indikatoren direkt neben Ihren Kundendatensätzen. Identifizieren Sie gefährdete Beziehungen, bevor sie churnen, und finden Sie Ihre zufriedensten Kunden für Case Studies und Empfehlungen.
-
-## Automatisierung, die Ihre Pipeline in Bewegung hält
-
-Business Development im Dienstleistungsbereich erfordert konsequentes Follow-up, genau das, was zusammenbricht, wenn Berater tief in der Projektarbeit stecken. Customermates integriert sich mit [n8n-Workflow-Automatisierung](/features/workflow-automation), um die repetitiven Teile der Geschäftsentwicklung zu übernehmen:
-
-- Ein Angebot wurde vor 10 Tagen ohne Antwort versendet? **Follow-up-Aufgabe auslösen** für den verantwortlichen Partner.
-- Ein Auftrag wurde letzten Monat abgeschlossen? **Check-in-Erinnerung erstellen** und Zufriedenheitsumfrage senden.
-- Ein Interessent hat an Ihrem Webinar oder Event teilgenommen? **Automatisch in eine Nurture-Sequenz aufnehmen**.
-- Eine Retainer-Verlängerung steht in 60 Tagen an? **Account Manager benachrichtigen** und Review-Meeting-Aufgabe erstellen.
-- Ein Lead steckt seit 3 Wochen in der Scoping-Phase? **Eskalation an den Practice-Leiter** auslösen.
-
-Kein Code nötig. Workflows visuell in n8n bauen und mit jeder Pipeline-Phase verknüpfen.
-
-## KI-Agenten, die das CRM bedienen, für Beratungen und Dienstleister
-
-Verbinden Sie Claude, ChatGPT oder Gemini direkt mit Customermates über die native MCP-Integration ([[derived.mcp.tools.total]] Tools). Der Agent übernimmt die Datenpflege, die Berater meiden: Er liest den E-Mail-Verlauf nach einem Scoping-Gespräch und aktualisiert den Deal, verschiebt Auftragsphasen, protokolliert Kontaktnotizen und entwirft das nächste Follow-up, sodass die Pipeline die Realität abbildet, ohne dass Partner ein Formular anfassen. Zusätzlich hilft er dem Team, schneller zu arbeiten:
-
-- **Angebots-Follow-ups entwerfen** basierend auf Auftragskontext und bisheriger Kommunikation
-- **Kundeninteraktionshistorie zusammenfassen** vor Meetings, damit Partner vorbereitet hineingehen
-- **Cross-Selling-Muster identifizieren** in Ihrer Kundenbasis, welche Kunden aus Fachbereich A sind Kandidaten für Fachbereich B?
-- **Pipeline-Gesundheit analysieren** und Deals markieren, die ins Stocken geraten oder gefährdet sind
-
-Der Agent übernimmt Analyse, Entwurf und Dokumentation. Ihr Team konzentriert sich auf exzellente Kundenarbeit und Beziehungspflege.
-
-## Einheitlicher Posteingang: E-Mail, LinkedIn und mehr
-
-Gespräche im Dienstleistungsgeschäft laufen über Kunden-E-Mail und, für die Geschäftsentwicklung, über LinkedIn. Customermates führt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram in einem Posteingang im CRM zusammen (ab Pro), und dieselben KI-Agenten können über jeden Kanal lesen, entwerfen und senden. Jede Nachricht wird automatisch dem Kundendatensatz zugeordnet, sodass bei mehreren Teammitgliedern am selben Account jeder den vollständigen Verlauf sieht. Kein „Was haben wir zuletzt mit der Firma Müller besprochen?" mehr. Unsere [E-Mail-Integration](/features/email-integration) verbindet sich mit Gmail, Outlook und anderen Anbietern, um die Kommunikation zentral zu halten.
-
-## Reporting und Pipeline-Analytics
-
-Verstehen Sie die Business-Development-Performance Ihrer Firma mit dem [integrierten Reporting](/features/reporting):
-
-- **Pipeline-Wert nach Phase**: Wie viel Umsatz steckt in der Angebotsphase vs. Verhandlung vs. unterschrieben?
-- **Abschlussquoten nach Dienstleistungsbereich**: Welche Fachbereiche konvertieren am besten?
-- **Durchschnittliche Deal-Zykluszeit**: Wie lange vom Erstkontakt bis zum unterschriebenen Auftrag?
-- **Umsatz nach Empfehlungsquelle**: Welche Empfehlungspartner und Kanäle bringen das meiste Geschäft?
-- **Team-Performance**: Welche Partner und Business Developer generieren die meiste Pipeline?
-
-Erstellen Sie Dashboards aus aktuellen CRM-Werten oder lesen Sie unterstützte Daten über REST für Berichte in einem selbst betriebenen BI-Tool. Customermates hat keinen eingebauten Report-Exporter.
-
-## Gebaut für Datensicherheit und DSGVO-Konformität
-
-Dienstleistungsunternehmen verarbeiten sensible Mandantendaten, Finanzdaten, Rechtsangelegenheiten, strategische Pläne, Gesundheitsdaten. Datensicherheit ist keine Option, sondern Pflicht.
-
-- **DSGVO-nativ**: Von Grund auf für europäische Datenschutzstandards entwickelt
-- **In der EU-Region gehostet**: die Datenbank des gehosteten Dienstes läuft in einem EU-Rechenzentrum
-- **Selbst hostbar**: Für Firmen mit strengen Data-Governance-Richtlinien, Customermates auf eigener Infrastruktur deployen, mit voller Kontrolle
-- **Open Source**: Code inspizieren, Sicherheit auditieren, keine Hintertüren
-- **Rollenbasierter Zugriff**: Steuern Sie, wer was sieht, über verschiedene Fachbereiche und Mandantenkonten hinweg
-
-Das ist besonders relevant für ein CRM für Beratungsunternehmen, die vertrauliche Mandantenaufträge betreuen und bei denen Datenresidenz und Zugriffskontrolle nicht verhandelbar sind.
-
-## Preise, die für Dienstleister funktionieren
-
-Enterprise-CRMs wie Salesforce verlangen 150 € und mehr pro Nutzer pro Monat und sperren Funktionen wie Automatisierung, API-Zugang und erweitertes Reporting hinter Premium-Stufen. Für eine Firma mit 20 Beratern sind das 36.000 € oder mehr pro Jahr, vor Implementierungs- und Anpassungskosten.
-
-Customermates verfolgt einen anderen Ansatz:
-
-- **Starter, [[commercial.price.starter.monthly]] pro Nutzer pro Monat**, Automatisierung, API, native KI-Integration, benutzerdefinierte Felder und Reporting ab Tag 1
-- **Pro, [[commercial.price.pro.monthly]] pro Nutzer pro Monat**, ergänzt den einheitlichen Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram), verknüpft mit jedem Auftrag, mit Kalender-Synchronisierung und LinkedIn Sales Navigator
-- **Keine versteckten Kosten**, keine Implementierungsgebühren, keine Kosten pro Integration
-- **Open Source und selbst hostbar**, auf eigenen Servern deployen, wenn gewünscht, für immer kostenlos
-
-Eine 10-Personen-Beratung zahlt [[commercial.price.starter.monthly.seats.10]]/Monat in Starter. Ein 50-Personen-Dienstleistungsunternehmen zahlt [[commercial.price.starter.monthly.seats.50]]/Monat. Volle CRM-Funktionalität zu einem Bruchteil dessen, was etablierte Anbieter verlangen.
-
-[Preise ansehen](/pricing)
-
-## So starten Sie
-
-1. **Konto erstellen**, kostenlos, ohne Kreditkarte. Erste [[commercial.trial.days]] Tage zum Erkunden.
-2. **Unterstützte Datensätze migrieren**, nutzen Sie die REST API oder übergeben Sie einen vorbereiteten Quellexport einem per MCP verbundenen KI-Agenten. Customermates hat keinen CSV-Uploader.
-3. **Pipelines konfigurieren**, Phasen für jeden Dienstleistungsbereich oder jede Practice Area definieren.
-4. **Benutzerdefinierte Felder anlegen**, Auftragstyp, Dienstleistungsbereich, Retainer-Bedingungen, Empfehlungsquelle und firmenspezifische Daten modellieren.
-5. **Automatisierungen aktivieren**, Angebots-Follow-ups, Retainer-Verlängerungshinweise und Kunden-Check-in-Sequenzen einrichten.
-6. **Team einladen**, Partner, Associates, Berater und Business-Development-Mitarbeiter hinzufügen.
-
-Setup dauert ca. 2 Minuten. Die meisten Firmen sind innerhalb eines Tages voll einsatzbereit.
+Der [einheitliche Posteingang](/features/unified-inbox) ist eine Managed-Cloud-Funktion ab Pro. Er bündelt unterstützte Unterhaltungen und ordnet Teilnehmer dem Kontaktkontext zu. Externe MCP-Clients und Modellanbieter bleiben vom Kunden ausgewählte Dienste mit eigenen Daten- und Kontrollgrenzen.
 
 ## Häufig gestellte Fragen
 
 <Faq>
-<FaqItem question="Was ist ein CRM für Dienstleister?">
-Ein CRM für Dienstleister ist eine Plattform zur Verwaltung von Kundenbeziehungen, die für Firmen konzipiert ist, die Expertise und projektbasierte Arbeit verkaufen statt physischer Produkte. Es konzentriert sich auf langfristiges Beziehungsmanagement, mehrstufige Auftrags-Pipelines, Angebots- und Leistungsbeschreibungs-Verwaltung sowie den Erhalt des institutionellen Wissens, das Folgeaufträge und Empfehlungen antreibt. Anders als generische CRMs, die für transaktionalen Vertrieb gebaut sind, betont ein CRM für professionelle Dienstleistungen die Beziehungstiefe statt des Deal-Volumens.
+<FaqItem question="Ist Customermates eine PSA-Plattform?">
+Nein. Es ist ein Beziehungs- und Pipeline-CRM. Native Projektabwicklung, Kapazitäts- und Auslastungsplanung, Zeiterfassung oder Abrechnung sind nicht enthalten.
 </FaqItem>
 
-<FaqItem question="Welche Dienstleistungsunternehmen profitieren von einem CRM?">
-Jede Firma, die Kundenbeziehungen und projektbasierten Umsatz verwaltet: Unternehmensberatung, IT-Beratung, Steuerberatung und Wirtschaftsprüfung, Kanzleien, Architektur- und Ingenieurbüros, Marketing-Agenturen, HR-Beratung, Finanzberatung und Personaldienstleister. Wenn Ihr Geschäft auf Stammkunden, Empfehlungen und Beziehungskontinuität basiert, verbessert ein CRM für Dienstleistungsunternehmen Ihre Geschäftsentwicklung und Kundenbindung.
+<FaqItem question="Kann Customermates Angebote oder Rechnungen erstellen?">
+  Nein. Customermates hat keinen Dokumenten-Workflow für Angebote, SOWs, Quotes
+  oder Rechnungen. Verkaufschance, Stakeholder, Leistungen und Follow-up-Kontext
+  können im CRM bleiben; ein Fachsystem lässt sich über REST, Webhooks oder
+  einen externen Workflow anbinden.
 </FaqItem>
 
-<FaqItem question="Wie unterscheidet sich ein Dienstleister-CRM von einem Vertriebs-CRM?">
-Ein klassisches Vertriebs-CRM ist für hochvolumige, transaktionale Verkaufszyklen optimiert, viele Leads, schnelle Abschlüsse, Einmalkäufe. Ein CRM für professionelle Dienstleistungen bewältigt längere Vertriebszyklen, Multi-Stakeholder-Deals, Angebots- und Leistungsbeschreibungs-Management, Retainer-Tracking und laufendes Beziehungsmanagement nach dem Vertragsabschluss. Es verbindet Business Development mit der Leistungserbringung, statt den Verkauf als Ziellinie zu behandeln.
+<FaqItem question="Wie werden Leistungswerte abgebildet?">
+  Leistungen lassen sich mit Mengen und Beträgen an einen Deal hängen.
+  Deal-Phasen können Wahrscheinlichkeiten tragen, aus denen Customermates
+  deterministische gewichtete Deal-Werte und Pipeline-Summen berechnet.
 </FaqItem>
 
-<FaqItem question="Kann Customermates mehrere Dienstleistungsbereiche mit separaten Pipelines abbilden?">
-Ja. Sie können separate Pipelines für jeden Fachbereich oder jede Dienstleistungslinie erstellen, jeweils mit eigenen Phasen, benutzerdefinierten Feldern und Automatisierungsregeln. Eine Management-Beratungs-Pipeline kann Phasen wie Erstgespräch, Angebot, Verhandlung und Auftrag haben, während eine IT-Dienstleistungs-Pipeline Technische Bewertung, Leistungsbeschreibung, Proof of Concept und Umsetzung umfasst. Jede Pipeline bietet unabhängiges Reporting und Forecasting.
+<FaqItem question="Können Aufgaben Projektmanagement oder Zeiterfassung ersetzen?">
+  Nein. Aufgaben können mit CRM-Datensätzen und Nutzern verknüpft werden, sind
+  aber kein System für Projektabwicklung, Terminplanung oder Zeiteinträge.
 </FaqItem>
 
-<FaqItem question="Eignet sich Customermates für kleine Beratungen oder Einzelberater?">
-Absolut. Ab [[commercial.price.starter.monthly]]/Nutzer/Monat ohne Mindestanzahl an Nutzern funktioniert Customermates für Einzelberater und Boutique-Firmen genauso gut wie für größere Unternehmen. Sie erhalten dasselbe Pipeline-Management, dieselbe Automatisierung, dieselben native KI-Integration und dasselbe Reporting wie eine 200-Personen-Firma, ohne Enterprise-Preise zu zahlen. Sehen Sie auch unsere Seite für [Berater](/for/consultants).
-</FaqItem>
-
-<FaqItem question="Wie schneidet Customermates im Vergleich zu Salesforce für Dienstleister ab?">
-Salesforce Professional Services Cloud ist leistungsfähig, aber teuer, typischerweise 150-300 € und mehr pro Nutzer pro Monat, plus Kosten für Implementierung, Anpassung und Add-ons. Customermates bietet vergleichbare CRM-Kernfunktionalität (Pipeline-Management, Kontaktmanagement, Automatisierung, API-Zugang, Reporting) ab [[commercial.price.starter.monthly]]/Nutzer/Monat, den einheitlichen Posteingang gibt es ab Pro für [[commercial.price.pro.monthly]]/Nutzer/Monat. Customermates ist zudem Open Source, selbst hostbar und DSGVO-nativ, Vorteile für Firmen, die Datensouveränität und Transparenz priorisieren.
-</FaqItem>
-
-<FaqItem question="Kann ich Customermates mit meinen Projektmanagement- und Buchhaltungstools integrieren?">
-Ja. Customermates bietet eine vollständige API und integriert sich mit [n8n-Workflow-Automatisierung](/features/workflow-automation), die Tausende von Tools anbindet, darunter Projektmanagement-Plattformen (Asana, Monday, Jira), Buchhaltungssoftware (DATEV, lexoffice, sevDesk, QuickBooks), Kommunikationstools (Slack, Microsoft Teams) und Kalendersysteme. Kein Enterprise-Preismodell nötig, um Integrationen zu nutzen.
+<FaqItem question="Ist der einheitliche Posteingang beim Self-Hosting verfügbar?">
+Nein. Einheitlicher Posteingang und verbundene Kalenderansicht sind Managed-Cloud-Funktionen ab Pro. Self-Hosted-Deployments nutzen Starter-Berechtigungen und können externe KI-Clients über MCP anbinden.
 </FaqItem>
 </Faq>
-
----
-
-Dienstleistungsunternehmen wachsen durch Beziehungen, Empfehlungen und Folgeaufträge. Customermates gibt Ihnen das System, diese Beziehungen mit derselben Sorgfalt und Disziplin zu verwalten, die Sie in Ihre Kundenarbeit stecken, ohne Enterprise-Komplexität oder -Kosten. [Jetzt kostenlos starten](/auth/signup) oder [alle Funktionen entdecken](/features/pipeline).
-
-<RelatedPages>
-  <RelatedPage href="/for/lawyers" />
-  <RelatedPage href="/for/accountants" />
-  <RelatedPage href="/for/consultants" />
-  <RelatedPage href="/for/coaches" />
-</RelatedPages>

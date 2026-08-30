@@ -2,8 +2,8 @@ import { ArrowRight } from "lucide-react";
 
 import type { Hero } from "@/core/fumadocs/schemas/common";
 
-import { Card, CardContent } from "@/components/ui/card";
 import { PageHero } from "@/components/marketing/page-hero";
+import { MarketingSection } from "@/components/marketing/marketing-section";
 import { IntlLink } from "@/i18n/navigation";
 
 export type HubGridItem = {
@@ -19,32 +19,26 @@ type Props = {
 
 export function HubGrid({ hero, items }: Props) {
   return (
-    <div className="flex w-full flex-col items-center">
-      <div className="relative w-full overflow-hidden py-16 md:py-24">
-        <PageHero {...hero} />
-      </div>
+    <div className="flex w-full flex-col items-center" data-marketing-flow="continuous">
+      <PageHero {...hero} />
 
-      <section className="relative z-10 w-full max-w-7xl px-4 pb-16 md:pb-24">
-        <ul className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4 lg:grid-cols-3">
+      <MarketingSection className="py-14 sm:py-18 lg:py-20" tone="canvas">
+        <ul className="grid grid-cols-1 gap-x-8 md:grid-cols-2 lg:grid-cols-3" data-hub-results="">
           {items.map((item) => (
-            <li key={item.href}>
-              <IntlLink className="group block h-full" href={item.href}>
-                <Card className="h-full transition-shadow hover:shadow-md">
-                  <CardContent className="flex flex-col gap-2 p-5">
-                    <div className="flex items-start justify-between gap-3">
-                      <h3 className="text-base font-semibold leading-snug">{item.name}</h3>
+            <li key={item.href} className="border-t border-border">
+              <IntlLink className="group flex h-full min-h-40 flex-col py-6 text-foreground" href={item.href}>
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="text-lg font-semibold leading-snug text-balance">{item.name}</h3>
 
-                      <ArrowRight className="mt-0.5 size-4 shrink-0 text-subdued transition-colors group-hover:text-primary" />
-                    </div>
+                  <ArrowRight className="mt-1 size-4 shrink-0 text-subdued transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
+                </div>
 
-                    <p className="text-sm text-subdued line-clamp-2">{item.description}</p>
-                  </CardContent>
-                </Card>
+                <p className="mt-3 line-clamp-3 text-sm leading-6 text-subdued">{item.description}</p>
               </IntlLink>
             </li>
           ))}
         </ul>
-      </section>
+      </MarketingSection>
     </div>
   );
 }

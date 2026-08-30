@@ -1,182 +1,168 @@
 ---
-title: "CRM for Marketing Teams: Leads, Campaigns & ROI"
-description: "CRM for marketing teams: track lead sources, attribute campaigns to pipeline and revenue, and fix the handoff to sales. Open source, EU-hosted, GDPR-native."
+title: "CRM for Marketing Teams: Sources, Pipeline and Handoff"
+description: "Use CRM records, custom source fields and deal pipelines to improve the marketing-to-sales handoff. Scoring, campaigns and attribution remain separate systems."
 industryName: "Marketing"
 
+relatedHrefs:
+  - /for/marketing-agencies
+  - /for/agencies
+  - /for/b2b
+  - /for/ecommerce
+
 hero:
-  title: "The Open-Source CRM for Marketing Teams"
-  description: "A CRM for marketing where AI agents keep contact and campaign data current, and email, LinkedIn, WhatsApp, Instagram, and Telegram live in one inbox. Connect lead generation, campaign attribution, and sales handoff in one open-source platform. Prove ROI, automate nurturing, stay GDPR-compliant."
-  buttonLeftText: Start for free
+  title: "A CRM relationship layer for marketing and sales"
+  description: "Keep contacts, organizations, source fields and deal context in one CRM. Connect capture, consent, campaigns, analytics and scoring through separately operated systems instead of pretending the CRM includes a marketing platform."
+  buttonLeftText: Start a Pro trial
   buttonLeftHref: /auth/signup
-  buttonRightText: Watch live demo
+  buttonRightText: Explore the live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
+  hint: "No credit card required • [[commercial.trial.days]]-day trial • Marketing automation remains separate"
 
 cta:
-  action: Ready to connect marketing and sales in one CRM?
-  description: Start with Customermates today, the open-source CRM for marketing teams that unifies contact management, pipeline visibility, and workflow automation, from [[commercial.price.starter.monthly]]/user/month.
-  buttonLeftText: Start for free
+  action: Test the marketing-to-sales handoff
+  description: Create one representative lead, record its source, link a deal and verify which marketing data should enter the CRM—and which system remains authoritative.
+  buttonLeftText: Start a Pro trial
   buttonLeftHref: /auth/signup
-  buttonRightText: Watch live demo
-  buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
+  buttonRightText: Review CRM interfaces
+  buttonRightHref: /features/api
+  hint: "Customermates has no native campaign, form, scoring, sequence or attribution engine."
 ---
 
-## Why Marketing Teams Need a CRM
+## What a CRM for marketing should do
 
-A CRM for marketing is the system that turns scattered lead data into measurable revenue impact. Marketing does not end when a lead is generated. The handoff from marketing to sales is where most companies lose momentum, and revenue. Without a shared system, marketing generates leads that sales never follows up on, campaign performance cannot be tied to actual closed deals, and contact data lives in disconnected silos across a dozen tools.
+A **CRM for marketing teams** should preserve the relationship and sales context that survives after a campaign click: who the person is, which organization they belong to, what source or campaign value your team recorded, whether a deal exists and who owns the next action. It should not blur the boundary between CRM records and the systems that collect consent, deliver campaigns, calculate attribution or observe engagement.
 
-This is not just an efficiency problem, it is a revenue problem. According to [HubSpot's State of Marketing report](https://www.hubspot.com/state-of-marketing), aligning marketing and sales teams around shared data is one of the top drivers of revenue growth. A [CRM strategy](/blog/crm-strategy) built on a shared platform is the foundation that makes this alignment possible.
+Customermates provides the relationship and pipeline layer. It does not provide a campaign object, form builder, tracking pixel, consent platform, native attribution model, lead-scoring engine, enrichment feed, nurture sequence or embedded n8n runtime.
 
-Customermates gives marketing teams the [contact management](/features/contact-management), segmentation capabilities, [pipeline](/features/pipeline) visibility, and [workflow automation](/features/workflow-automation) they need to prove their impact, and continuously improve it.
+<ArticleSummary title="Marketing CRM fit at a glance">
+  <SummaryItem label="Native CRM scope">
+    Contacts, organizations, deals, tasks, services, relations, custom fields,
+    filtered views and personal dashboards.
+  </SummaryItem>
+  <SummaryItem label="Acquisition context">
+    Your team can define source, campaign, qualification or consent-reference
+    fields and decide which system is allowed to write them.
+  </SummaryItem>
+  <SummaryItem label="External marketing scope">
+    Forms, cookies, consent, email campaigns, ad platforms, analytics,
+    enrichment, scoring and scheduling remain separate.
+  </SummaryItem>
+  <SummaryItem label="Integration boundary">
+    REST, webhooks and MCP expose supported CRM actions. A customer-operated
+    workflow owns credentials, mapping, retries, limits and delivery.
+  </SummaryItem>
+</ArticleSummary>
 
-## Key Challenges for Marketing Teams Without a CRM
+<ProofRail label="Verified Customermates capabilities for a marketing handoff">
+  <ProofItem label="Relationships">Contacts and organizations</ProofItem>
+  <ProofItem label="Context">Customer-defined source fields</ProofItem>
+  <ProofItem label="Revenue path">Deals and configurable stages</ProofItem>
+  <ProofItem label="Interfaces">REST, webhooks and MCP</ProofItem>
+  <ProofItem label="Communication">Cloud inbox from Pro upward</ProofItem>
+</ProofRail>
 
-Marketing teams face specific challenges that a project management tool or standalone email platform cannot solve:
+## The questions the CRM should answer
 
-- **Lead handoff gaps cost revenue**: Marketing generates leads through campaigns, events, content, and ads. Without a CRM, those leads sit in a spreadsheet or email tool and never reach sales in time. By the time someone follows up, the prospect has moved on.
+For a clean handoff, the CRM should answer a small set of operational questions:
 
-- **No campaign-to-revenue attribution**: You know how many leads a campaign generated, but not how many converted to customers and revenue. Without connecting campaign data to [pipeline](/features/pipeline) and deal data, proving marketing ROI is guesswork.
+- Has the person or organization already been created?
+- Which source or campaign value was supplied, by which workflow and at what time?
+- Is there an active deal, and which configured stage is it in?
+- Who owns the relationship and the next CRM task?
+- Which external system remains authoritative for consent, campaign delivery and analytics?
 
-- **Contact data lives in silos**: Your email marketing tool has one contact list, your event platform another, your [sales team](/for/b2b) a third. None of them are synchronized, leading to duplicate records, outdated information, and missed segmentation opportunities.
+Custom fields can hold source names, campaign identifiers, qualification notes or a reference to an external consent record. Those values are only as trustworthy as the capture and mapping process that writes them. Customermates does not infer a first touch, last touch or multi-touch model.
 
-- **Segmentation is limited by scattered data**: You want to target contacts with personalized campaigns based on industry, company size, engagement history, or deal stage. But when data is spread across five tools, effective segmentation is nearly impossible.
+<AcquisitionCallout title="Stored source data is not automatic attribution" variant="boundary">
+  A source or campaign field can support analysis when the collection rule is
+  explicit and consistent. The CRM does not observe ad clicks, reconcile
+  identities or calculate revenue attribution by itself.
+</AcquisitionCallout>
 
-- **Proving marketing ROI is an uphill battle**: Without linking campaigns to pipeline movement and closed revenue, justifying marketing spend to leadership becomes a constant struggle. See our guide on [measuring CRM ROI](/blog/crm-roi) to understand the metrics that matter.
+## A bounded marketing-to-sales workflow
 
-- **GDPR compliance for marketing contacts**: Marketing contact data, email addresses, company information, behavioral data, falls squarely under GDPR. You need a CRM that handles consent, data retention, and privacy by design. Customermates is [GDPR-native and EU-hosted](/features/cloud-crm).
+<Steps>
+  <Step title="Choose the acquisition authority">
+    Keep the form, ad platform, analytics system or event tool responsible for
+    the data it collects, including consent and tracking controls.
+  </Step>
+  <Step title="Map only approved fields">
+    A customer-operated integration can create or update supported CRM records
+    through REST or MCP. Define field mapping, validation and deduplication
+    before enabling writes.
+  </Step>
+  <Step title="Create the sales context">
+    Link the contact to an organization and, when justified, create a deal with
+    a configured pipeline stage and an accountable owner.
+  </Step>
+  <Step title="Measure from explicit values">
+    Use stored fields and deal outcomes for deterministic reporting. Keep the
+    marketing analytics platform authoritative for impressions, clicks,
+    sessions and its own attribution model.
+  </Step>
+</Steps>
 
-## CRM for Marketing Compared
+## Lead scoring and enrichment
 
-How does Customermates compare with popular CRM platforms for marketing teams?
+Customermates does not score leads or enrich records natively. If a team needs scoring, a separately operated workflow may read permitted signals from systems the customer is entitled to use, calculate a documented value and write it to a custom field. The external workflow owns the formula, schedule, provider contracts, suppression rules, retries, monitoring and cost.
 
-| Feature                                                           | Customermates                             | HubSpot                      | ActiveCampaign        | Zoho CRM              | Pipedrive             |
-| ----------------------------------------------------------------- | ----------------------------------------- | ---------------------------- | --------------------- | --------------------- | --------------------- |
-| Price/user/month                                                  | From [[commercial.price.starter.monthly]] | Free (limited) / $20+        | $15+                  | $14+                  | $14+                  |
-| Unlimited contacts                                                | <StatusAvailable />                       | <StatusPartial />            | <StatusPartial />     | 5,000 max (free)      | <StatusAvailable />   |
-| Marketing automation                                              | <StatusAvailable />                       | <StatusPartial />            | <StatusAvailable />   | <StatusPartial />     | <StatusPartial />     |
-| Campaign attribution                                              | <StatusAvailable />                       | <StatusAvailable />          | <StatusAvailable />   | <StatusPartial />     | <StatusPartial />     |
-| Lead scoring                                                      | <StatusAvailable />                       | <StatusUnavailable /> (free) | <StatusAvailable />   | <StatusPartial />     | <StatusPartial />     |
-| Custom fields                                                     | <StatusAvailable />                       | <StatusPartial />            | <StatusPartial />     | <StatusPartial />     | <StatusPartial />     |
-| EU/GDPR hosting                                                   | <StatusAvailable />                       | <StatusUnavailable />        | <StatusUnavailable /> | <StatusPartial />     | <StatusPartial />     |
-| Open source                                                       | <StatusAvailable />                       | <StatusUnavailable />        | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
-| n8n automation engine                                             | <StatusAvailable />                       | <StatusUnavailable />        | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
-| AI agents operate the CRM (MCP)                                   | <StatusAvailable />                       | <StatusPartial />            | <StatusPartial />     | <StatusPartial />     | <StatusPartial />     |
-| Native unified inbox (email/LinkedIn/WhatsApp/Instagram/Telegram) | <StatusAvailable />                       | <StatusUnavailable />        | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
-| Self-hosting option                                               | <StatusAvailable />                       | <StatusUnavailable />        | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
-| API access included                                               | <StatusAvailable />                       | <StatusPartial />            | <StatusPartial />     | <StatusPartial />     | <StatusAvailable />   |
+The same boundary applies to enrichment. A customer-selected provider may return company or profile data to a workflow; an authorized REST or MCP action may then write selected values. Customermates does not include the provider, verify its source or continuously refresh those values.
 
-**[HubSpot](https://www.hubspot.com/products/crm)** offers a generous free tier but locks marketing automation, custom reporting, and advanced segmentation behind expensive upgrades ($90+/user/month). Data stored in the US. See our full [HubSpot alternative comparison](/compare/hubspot-alternative).
+## Inbox, campaigns and follow-up
 
-**[ActiveCampaign](https://www.activecampaign.com/)** excels at email marketing automation but charges per contact and lacks a full CRM pipeline. Costs escalate quickly as your contact database grows.
+The managed unified inbox is available from Pro upward for supported connected accounts. It can keep individual email and supported channel conversations close to a contact. It is not an email-marketing system: there is no bulk campaign composer, sequence engine, deliverability infrastructure, subscription center or campaign analytics layer.
 
-**[Zoho CRM](https://www.zoho.com/crm/)** provides solid contact management at a lower price point but limits contacts on free plans and requires higher tiers for marketing automation features. Compare in our [Zoho CRM alternative guide](/compare/zoho-crm-alternative).
+An authorized external MCP client can work with supported CRM records. On an entitled cloud account it can also read an existing inbox thread, save a draft inside that thread or explicitly send an individual message. The client supplies its own confirmation experience, model and subscription. Brand-new outbound messages cannot be saved as drafts through that surface, and send tools deliver when called.
 
-## How Customermates Helps Marketing Teams
+## When a dedicated marketing platform should stay in place
 
-Customermates provides the shared infrastructure that marketing and sales need to work together effectively, without the complexity and cost of enterprise marketing automation platforms.
+Keep a specialist system when you need:
 
-### Unified Contact Database for Marketing and Sales
+- forms, landing pages, cookie controls or consent records;
+- bulk email, journeys, sequences, preference centers or deliverability tooling;
+- ad audiences, conversion APIs, identity resolution or multi-touch attribution;
+- website engagement, product analytics or behavioral scoring;
+- enrichment, intent data or campaign-budget optimization.
 
-All contacts, from campaigns, events, website forms, referrals, and outbound prospecting, live in one system. Marketing and sales see the same data, the same interaction history, and the same deal status. Use [contact management](/features/contact-management) to build a single source of truth for every relationship, eliminating the duplicate records and data silos that plague disconnected marketing stacks.
+Customermates can receive the CRM subset of that work through documented interfaces. It should not become the system of record for operational data it does not model.
 
-### Lead Tracking from First Touch Through Conversion
+## Plans and deployment boundaries
 
-Track leads from the moment they enter your funnel through qualification, nurturing, sales handoff, and conversion. Custom fields let you record lead source, campaign name, engagement level, interest areas, and sales readiness, giving both marketing and sales the context they need. Explore our [lead management](/features/lead-management) and [lead tracking](/features/lead-tracking) capabilities for the full picture.
+Starter includes core CRM records, custom fields, REST, webhooks and MCP access for external clients from [[commercial.price.starter.monthly]] per user per month. Pro adds the managed unified inbox and its connected-account allowance. Self-hosting runs the AGPL community core with Starter entitlements; it does not include the managed inbox, hosted Mate capability or an n8n runtime.
 
-### Campaign-to-Pipeline Attribution
+The managed application database is configured in an EU region. Disclosed subprocessors and international transfers still apply, and that deployment fact is not a GDPR certification. The organization remains responsible for legal basis, consent, retention, deletion, provider assessment and configuration.
 
-See which campaigns are generating pipeline and which leads are converting to deals and revenue. Connect marketing activity directly to sales outcomes by tracking campaign attribution through the full [pipeline](/features/pipeline). Stop guessing about marketing ROI and start measuring it with real deal data.
-
-### Automated Lead Nurturing with n8n
-
-Build [automated workflows](/features/workflow-automation) for lead nurturing sequences, event follow-up campaigns, lead scoring triggers, and internal notifications when leads reach sales-ready status. The n8n automation engine connects Customermates to your email marketing tool, landing page builder, and analytics platform for seamless multi-channel nurturing, no separate automation subscription required.
-
-### AI agents that operate your marketing CRM
-
-Customermates connects natively to Claude, ChatGPT, and Gemini through [[derived.mcp.tools.total]] MCP tools, so an AI agent can read and write your CRM directly and do the data entry teams avoid: tagging lead sources, updating campaign fields, and moving leads through stages. Ask an agent to enrich lead data with company information, draft personalized nurture email copy, analyze campaign performance patterns, or score leads based on engagement signals. The agent works within your CRM data to surface insights that help you optimize campaign targeting and messaging, and can send across the unified inbox without leaving the CRM.
-
-### Native unified inbox for complete contact journeys
-
-With the [unified inbox](/features/email-integration), all contact interactions, marketing emails, LinkedIn and WhatsApp messages, sales conversations, event registrations, support requests, are linked in one timeline. Connect email (via [Outlook](/features/outlook-integration) or Gmail), LinkedIn, WhatsApp, Instagram, and Telegram, and see the complete journey for every contact from first marketing touchpoint through closed deal. The unified inbox is included on Pro and above.
-
-### API and Webhooks for Marketing Stack Integration
-
-Connect Customermates with your email marketing tool, landing pages, analytics platform, ad networks, and event management system through the full [REST API](/features/api). Webhooks enable real-time data flow between your CRM and every tool in your marketing stack, including [Slack notifications](/features/slack-integration) and [LinkedIn enrichment](/features/linkedin-integration).
-
-## Feature Highlights for Marketing Teams
-
-### Pipeline Visibility for Marketing
-
-See the full funnel from lead generation through [sales pipeline](/blog/sales-pipeline) to closed revenue. Understand which marketing sources, campaigns, and channels generate the highest-quality pipeline and optimize your budget and strategy accordingly. Use [reporting](/features/reporting) dashboards to share pipeline metrics with leadership. No more blind spots between marketing and sales.
-
-### Contact Segmentation with Custom Fields
-
-Segment contacts by lead source, campaign, industry, company size, engagement level, deal stage, or any custom criteria you define. Build targeted lists for personalized outreach, re-engagement campaigns, and account-based marketing initiatives. Customermates [contact management](/features/contact-management) is built for the granular segmentation that drives marketing results.
-
-### Lead Scoring Through Workflow Automation
-
-Build automated [lead scoring workflows](/features/workflow-automation) that assign scores based on engagement signals, email opens, website visits, content downloads, event attendance, or any data point tracked in custom fields. When a lead reaches a threshold score, the workflow automatically notifies sales or moves the lead to a new [pipeline](/features/pipeline) stage. Connect scoring to your [sales automation](/features/sales-automation) for a seamless handoff.
-
-### GDPR-Compliant Marketing Data Handling
-
-Marketing contact data requires careful handling under GDPR, consent management, data minimization, and the right to erasure. Customermates is GDPR-native, EU-hosted, with full audit logging and the option to [self-host](/features/self-hosted) for complete data control. Handle marketing contact data with confidence, knowing your CRM was built for European data protection standards from day one.
-
-## Pricing for Marketing Teams
-
-Marketing teams should not need a separate CRM budget from sales. Customermates keeps it unified and affordable:
-
-- **Starter, [[commercial.price.starter.monthly]] per user per month**, automation, API, native AI agents ([[derived.mcp.tools.total]] MCP tools), and custom fields
-- **Pro, [[commercial.price.pro.monthly]] per user per month**, adds the unified inbox (email, LinkedIn, WhatsApp, Instagram, and Telegram) with [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, tied to every contact's journey
-- **No per-contact fees**, store unlimited marketing contacts and leads at any tier
-- **No email volume surcharges**, pricing stays predictable regardless of contact database size
-- **Self-hostable**, keep marketing contact data on your own infrastructure, free forever
-
-Since nurturing runs through the inbox, most marketing teams land on Pro. For a combined marketing and sales team of 8, that is [[commercial.price.pro.monthly.seats.8]] per month for a complete CRM. No surprise costs as your contact database grows. Check our [pricing page](/pricing) for details, or see how Customermates compares as a [HubSpot alternative](/compare/hubspot-alternative) or [Pipedrive alternative](/compare/pipedrive-alternative).
-
-Compare with other [CRM cost structures](/blog/crm-cost) to see the difference this tier structure makes for marketing teams with large contact databases.
-
-## Frequently Asked Questions
+## Frequently asked questions
 
 <Faq>
-<FaqItem question="Can Customermates replace our marketing automation platform?">
-Customermates is a CRM with powerful automation capabilities through n8n, not a dedicated marketing automation platform. It excels at [contact management](/features/contact-management), pipeline tracking, lead nurturing automation, and campaign attribution. For advanced email marketing features like drag-and-drop email builders or A/B testing, you would connect your existing email tool via [API](/features/api). Customermates serves as the central data hub that ties your entire marketing stack together.
-</FaqItem>
+  <FaqItem question="Does Customermates replace a marketing automation platform?">
+    No. It provides CRM records, custom fields, pipelines and open interfaces.
+    Campaign delivery, forms, consent, tracking, scoring and attribution remain
+    in separately assessed systems.
+  </FaqItem>
 
-<FaqItem question="How do we track which campaigns generate revenue?">
-Use custom fields to tag contacts and deals with campaign source, channel, and campaign name. As leads move through your [pipeline](/features/pipeline), the campaign attribution travels with them. When a deal closes, you can trace it back to the original marketing campaign, giving you true campaign-to-revenue attribution that goes beyond vanity metrics.
-</FaqItem>
+  <FaqItem question="Can we track campaign source in Customermates?">
+    Yes, as explicit custom-field values supplied by a user or authorized
+    integration. The CRM stores those values but does not discover the source
+    or calculate an attribution model automatically.
+  </FaqItem>
 
-<FaqItem question="Does Customermates support lead scoring?">
-Yes, through [workflow automation](/features/workflow-automation) with n8n. Build automated lead scoring workflows that assign points based on engagement signals, email opens, website visits, content downloads, event attendance, or any data point tracked in custom fields. When a lead reaches a threshold score, the workflow automatically notifies sales or moves the lead to a new pipeline stage.
-</FaqItem>
+  <FaqItem question="Does Customermates include lead scoring?">
+    No. A customer-operated workflow can calculate a documented score from
+    permitted data and write it to a custom field. The scoring logic, signals,
+    providers, schedule and monitoring remain external.
+  </FaqItem>
 
-<FaqItem question="How does Customermates compare to HubSpot for marketing?">
-HubSpot offers a free tier but locks marketing automation, custom reporting, and advanced segmentation behind expensive upgrades. At scale, HubSpot Marketing Hub Professional starts at $800/month (annual) plus onboarding. Customermates includes automation, API, native AI agents ([[derived.mcp.tools.total]] MCP tools), and custom fields starting at [[commercial.price.starter.monthly]]/user/month, with the unified inbox for email, LinkedIn, WhatsApp, Instagram, and Telegram on Pro at [[commercial.price.pro.monthly]]/user/month, EU hosting and GDPR compliance built in. See the full [HubSpot vs Customermates comparison](/compare/hubspot-alternative).
-</FaqItem>
+  <FaqItem question="Can we connect our existing marketing tools?">
+    REST, webhooks and MCP support composed integrations for documented CRM
+    operations. Compatibility is not automatic: verify the other tool's API,
+    map fields, handle credentials, deduplicate records and test failure paths.
+  </FaqItem>
 
-<FaqItem question="Is Customermates GDPR-compliant for marketing data?">
-Managed Customermates keeps its application database in an EU region, while disclosed subprocessors and international transfers still apply. Audit logging and configurable fields can support an organization's controls, and [self-hosting](/features/self-hosted) lets the operator choose the database region. Compliance still depends on the processing purpose, legal basis, consent workflow, retention policy, connected services, and configuration.
-</FaqItem>
-
-<FaqItem question="Can we integrate Customermates with our existing marketing tools?">
-Absolutely. Customermates offers a full [REST API](/features/api), webhooks for real-time data sync, and the n8n automation engine for building custom [integrations](/features/integrations) with email platforms, landing page tools, analytics systems, ad networks, and event management software. If your tool has an API, it connects to Customermates.
-</FaqItem>
+  <FaqItem question="Is Customermates GDPR-compliant for marketing data?">
+    No software choice establishes compliance by itself. The managed database
+    uses an EU region, while subprocessors and transfers remain documented.
+    Compliance depends on purpose, legal basis, consent, retention, connected
+    services and the organization's configuration.
+  </FaqItem>
 </Faq>
-
-## Get Started with Customermates for Marketing
-
-1. **[Create your free account](/auth/signup)**, no credit card required, [[commercial.trial.days]] days to explore every feature.
-2. **Migrate supported records**, use the [REST API](/features/api), or hand a prepared source export to an AI agent connected over MCP. Customermates has no CSV uploader.
-3. **Set up your pipeline**, define stages from lead generation through qualification, nurturing, sales handoff, and conversion.
-4. **Add custom fields**, define fields for lead source, campaign name, engagement level, interest areas, and company details.
-5. **Activate automations**, use n8n to build lead nurturing sequences, scoring workflows, and sales notification triggers.
-
-Customermates is open source, no vendor lock-in, full transparency, and your marketing contact data stays under your control. Explore our [free CRM guide](/blog/free-crm) to understand what is included, or read about [CRM best practices](/blog/crm-best-practices) to get the most from your setup.
-
-<RelatedPages>
-  <RelatedPage href="/for/marketing-agencies" />
-  <RelatedPage href="/for/agencies" />
-  <RelatedPage href="/for/b2b" />
-  <RelatedPage href="/for/ecommerce" />
-</RelatedPages>

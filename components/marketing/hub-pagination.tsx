@@ -22,7 +22,7 @@ export function HubPagination({ basePath, label, nextLabel, page, pageCount, pre
   const model = hubPagerModel(page, pageCount);
 
   return (
-    <nav aria-label={label} className="w-full pb-16 md:pb-24">
+    <nav aria-label={label} className="w-full bg-sidebar pb-16 md:pb-24">
       <ul className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-2 px-4">
         {model.previousPage ? (
           <li>

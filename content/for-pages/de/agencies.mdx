@@ -1,184 +1,239 @@
 ---
-title: "CRM für Agenturen: Kunden, Pipeline & Automatisierung"
-description: "Open-Source CRM für Agenturen: Kunden und Deals zentral verwalten, Proposals nachverfolgen, Onboarding automatisieren. EU-gehostet, ab [[commercial.price.starter.monthly]]/Nutzer/Monat."
-industryName: "Agenturen"
+title: "CRM für Agenturen | Kunden, Deals & Follow-ups"
+description: "Kontakte, Kundenunternehmen, Neugeschäft, Leistungen und Aufgaben zentral verbinden. Unterstützte Posteingangskanäle gibt es in der Cloud ab Pro."
+industryName: Agenturen
+
+acquisition:
+  locale: de
+  slug: agencies
+  clusterId: professional-services
+  role: support
+  primaryIntent: CRM für Agenturen
+  metadata:
+    title: "CRM für Agenturen | Kunden, Deals & Follow-ups"
+    description: "Kontakte, Kundenunternehmen, Neugeschäft, Leistungen und Aufgaben zentral verbinden. Unterstützte Posteingangskanäle gibt es in der Cloud ab Pro."
+  proof:
+    factReferences:
+      - product:core-crm-records
+      - product:deal-pipelines
+      - product:services-and-tasks
+      - product:weighted-deal-values
+      - product:unified-inbox-channels
+      - product:unified-inbox-entitlements
+    excludedClaims:
+      - claim:no-proposal-automation
+      - claim:no-delivery-management
+      - claim:no-invoicing
+      - claim:no-predictive-sales-analytics
+      - claim:no-time-tracking
+  cta:
+    action: Bringen Sie Struktur in Akquise und Kundenbeziehungen
+    description: Prüfen Sie, ob Customermates zu Ihrer Akquise und zur Pflege von Kundenkontext passt.
+    buttonLeftText: Pro-Test starten
+    buttonLeftHref: /auth/signup
+    buttonRightText: Demo erkunden
+    buttonRightHref: https://demo.customermates.com
+    hint: "Nutzen Sie für Umsetzung, Angebote, Zeiterfassung und Abrechnung weiterhin Ihre bestehenden Fachtools."
+  relatedHrefs:
+    - /for/professional-services
+    - /features/unified-inbox
+    - /features/self-hosted
+    - /blog/agentic-crm
+  visual:
+    id: acquisition.agencies.de
+    locale: de
+    referenceSystemVersion: customermates-marketing-visuals@8
+    source:
+      headline: "Ein Agentur-CRM für Neugeschäft und Kundenbeziehungen"
+      body: "Verwalten Sie Interessenten, Kundenkontext, Deal-Phasen, Leistungswerte und Aufgaben an einem Ort. Projektabwicklung, Angebote, Rechnungen und Zeiterfassung bleiben in Ihren Fachtools."
+      checksum: fnv1a-79ffd6bc
+    kind: brand-illustration
+    pathway: focus
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "Kundenkontext und gewichtete Deal-Werte machen die Neugeschäfts-Pipeline der Agentur leichter lesbar."
+    depiction:
+      kind: result
+      productBehavior: true
+      statement: "Deal-Phasen und gewichtete Werte halten die Neugeschäfts-Pipeline der Agentur übersichtlich."
+    factReferences:
+      - product:deal-status-field
+      - product:deal-weighted-values
+      - product:record-activity-context
+    focalLabel:
+      locale: de
+      text: Agentur-Pipeline
+    semanticLabels:
+      - locale: de
+        text: Lead-Kontext
+      - locale: de
+        text: Gewichteter Wert
+    focalSubject:
+      id: deal-pipeline
+      form: kanban-board
+      fixtures:
+        dealBoard: agency-new-business-board
+    supportingSubjects:
+      - id: client-context
+        form: context-card
+      - id: service-value
+        form: context-card
+    accentTarget: deal-pipeline
+  structuredData:
+    types:
+      - BreadcrumbList
+      - FAQPage
+    faqFromRenderedContent: true
 
 hero:
-  title: "Das Open-Source CRM für Agenturen"
-  description: "KI-Agenten übernehmen Dateneingabe und Follow-ups, während E-Mail, LinkedIn, Instagram und WhatsApp in einem Posteingang liegen, verknüpft mit jedem Kunden und Deal. Neue Kunden gewinnen, Beziehungen pflegen und Onboarding automatisieren, alles in einem CRM für Agenturen, das sich Ihrem Workflow anpasst."
-  buttonLeftText: Kostenlos starten
+  title: Ein Agentur-CRM für Neugeschäft und Kundenbeziehungen
+  description: Verwalten Sie Interessenten, Kundenkontext, Deal-Phasen, Leistungswerte und Aufgaben an einem Ort. Projektabwicklung, Angebote, Rechnungen und Zeiterfassung bleiben in Ihren Fachtools.
+  buttonLeftText: Pro-Test starten
   buttonLeftHref: /auth/signup
-  buttonRightText: Live-Demo ansehen
+  buttonRightText: Demo erkunden
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
+  hint: "Keine Kreditkarte • [[commercial.trial.days]] Tage Pro testen"
+  showOpenSourceBadge: false
 
 cta:
-  action: Bereit, Struktur in Ihre Kundenbeziehungen zu bringen?
-  description: Starten Sie noch heute mit Customermates, dem Open-Source CRM für Agenturen, das hilft, Kundenbeziehungen zu gewinnen, zu halten und auszubauen.
-  buttonLeftText: Kostenlos starten
+  action: Bringen Sie Struktur in Akquise und Kundenbeziehungen
+  description: Prüfen Sie, ob Customermates zu Ihrer Akquise und zur Pflege von Kundenkontext passt.
+  buttonLeftText: Pro-Test starten
   buttonLeftHref: /auth/signup
-  buttonRightText: Live-Demo ansehen
+  buttonRightText: Demo erkunden
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
+  hint: "Nutzen Sie für Umsetzung, Angebote, Zeiterfassung und Abrechnung weiterhin Ihre bestehenden Fachtools."
 ---
 
-## Warum Agenturen ein CRM für Agenturen brauchen
+Customermates ist ein **CRM für Agenturen**, das Empfehlungen, Anfragen und Beziehungen in eine sichtbare Neugeschäfts-Pipeline überführt. Interessenten, Kundenunternehmen, Verkaufschancen, Leistungen, Verantwortliche und nächste Schritte bleiben verbunden, bis die gewonnene Arbeit bewusst an die Projektabwicklung übergeben wird.
 
-Ein CRM für Agenturen löst das zentrale operative Problem, vor dem jede Agentur steht: Kundenbeziehungen sind das wertvollste Gut, doch die meisten Agenturen verwalten sie über verstreute E-Mail-Postfächer, Slack-Nachrichten und das Gedächtnis einzelner Mitarbeiter. Ob Kreativagentur, Digitalagentur, PR-Agentur, Marketingberatung oder Designstudio, der Großteil des Umsatzes kommt von bestehenden Kunden und Weiterempfehlungen. Eine einzige verlorene Beziehung kann Tausende Euro an wiederkehrendem Umsatz kosten.
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Geeignet für">
+    Agenturen, die Neugeschäft über Beziehungen, mehrere Stakeholder und einen
+    mehrstufigen Vertriebsprozess steuern.
+  </SummaryItem>
+  <SummaryItem label="Zentrale Aufgabe">
+    Geschäftsentwicklung und Kundenbetreuung erhalten eine verlässliche Sicht
+    auf Interessent, Verkaufschance und nächsten Schritt.
+  </SummaryItem>
+  <SummaryItem label="Stärkster Nachweis">
+    Ein agenturspezifisches Deal-Board, verknüpfte Leistungswerte, gewichtete
+    Summen und datensatzbezogene Aufgaben.
+  </SummaryItem>
+  <SummaryItem label="Systemgrenze">
+    Das CRM begleitet die Chance bis zur Übergabe. Projekte, Angebote, Zeiten
+    und Rechnungen bleiben im Agentur-Stack.
+  </SummaryItem>
+</ArticleSummary>
 
-Das Problem ist nicht mangelnder Einsatz. Agentur-Teams sind damit beschäftigt, Pitches zu gewinnen, Projekte umzusetzen und Kundenerwartungen zu managen. Aber ohne ein zentrales System werden Leads vergessen, Proposals nicht nachverfolgt, und wenn ein Account Manager die Agentur verlässt, gehen Jahre an Kundenkontext verloren. Laut [HubSpots Agency Growth Report](https://www.hubspot.com/agencies) berichten Agenturen, die ein CRM nutzen, von höherer Kundenbindung und planbarerer Umsatzentwicklung. Die Investition amortisiert sich beim ersten gehaltenen Kunden.
+<ProofRail label="Verifizierte CRM-Funktionen für Agenturen">
+  <ProofItem label="Kontext">Kontakte und Kundenunternehmen</ProofItem>
+  <ProofItem label="Neugeschäft">Anpassbare Deal-Phasen</ProofItem>
+  <ProofItem label="Leistungsumfang">Leistungen, Mengen und Beträge</ProofItem>
+  <ProofItem label="Nachverfolgung">Aufgaben an CRM-Datensätzen</ProofItem>
+  <ProofItem label="Kommunikation">Cloud-Posteingang ab Pro</ProofItem>
+</ProofRail>
 
-Ein CRM für Agenturen bringt jede Kundenbeziehung, jeden Deal und jede Interaktion in ein strukturiertes, zugängliches System, damit Ihr Team jederzeit das vollständige Bild hat. Wenn Sie noch evaluieren, ob Ihre Agentur ein dediziertes CRM braucht, erklärt unser [CRM-Einführungsleitfaden](/blog/what-is-crm) die Grundlagen.
+## Von der Anfrage bis zur sauberen Projektübergabe
 
-## Zentrale Herausforderungen für Agenturen ohne CRM
+Eine Agentur-Chance beginnt selten als sauber ausgefüllter Deal. Sie kann über eine Empfehlung, einen Bestandskunden, eine E-Mail oder eine Social-Media-Unterhaltung entstehen. Zuerst werden Person und Kundenunternehmen angelegt. Sobald die Chance konkret genug ist, folgt der Deal.
 
-Agenturen stehen vor einer einzigartigen Kombination von Beziehungsmanagement-Herausforderungen, die Tabellen und [Projektmanagement-Tools](/features/project-management) nicht lösen können:
+Eigene Felder halten die Qualifikationsmerkmale fest, die Ihre Agentur tatsächlich bespricht. Leistungen, Mengen und Beträge bilden den aktuellen kaufmännischen Umfang ab. Verantwortliche Person und verknüpfte Aufgabe machen den nächsten Schritt sichtbar, ohne aus dem CRM einen Projektplan zu machen.
 
-- **Chaos in der Neukundenakquise**: Leads kommen aus verschiedenen Kanälen, Website, Branchenveranstaltungen, Empfehlungen bestehender Kunden, LinkedIn-Outreach und eingehende Anfragen. Ohne zentrale [Pipeline](/features/pipeline) werden vielversprechende Leads vergessen und Umsatzchancen verdunsten.
+<Steps>
+  <Step title="Beziehung erfassen">
+    Legen Sie den Interessenten an, verbinden Sie das Kundenunternehmen und
+    speichern Sie Quelle oder Empfehlung in passenden Feldern.
+  </Step>
+  <Step title="Chance qualifizieren">
+    Erstellen Sie einen Deal, weisen Sie eine verantwortliche Person zu und
+    führen Sie ihn durch Ihre Neugeschäfts-Phasen.
+  </Step>
+  <Step title="Umfang abbilden">
+    Verknüpfen Sie Leistungen, Mengen und Beträge, damit das Board mehr als nur
+    einen Deal-Namen zeigt.
+  </Step>
+  <Step title="Momentum sichtbar halten">
+    Hängen Sie die nächste Aufgabe an den passenden Datensatz und prüfen Sie die
+    gewichtete Pipeline im Team.
+  </Step>
+  <Step title="Gewonnene Arbeit übergeben">
+    Übertragen Sie den vereinbarten Umfang in die Projekt- und Finanzsysteme für
+    Umsetzung, Zeiten und Abrechnung.
+  </Step>
+</Steps>
 
-- **Proposals verschwinden in schwarzen Löchern**: Ihr Team investiert Stunden in ein Pitch-Deck, verschickt ein Proposal, und niemand verfolgt, ob der Interessent geantwortet hat, ein [Follow-up](/features/follow-up) braucht oder verstummt ist. Ohne Pipeline-Sichtbarkeit werden Proposals zu Einweggeschossen.
+## Was ins CRM und was in den Agentur-Stack gehört
 
-- **Kundenwissen lebt in Köpfen**: Jede Agentur kennt die Erfahrung, dass ein Account Manager geht und Jahre an Kundenkontext mitnimmt. Präferenzen, Kommunikationshistorie, vergangenes Feedback, interne Politik beim Kunden, alles weg ohne richtiges [Kontaktmanagement](/features/contact-management).
+| Moment im Agenturprozess      | Customermates verwaltet                                               | Anderes System verwaltet                                |
+| ----------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------- |
+| Erstkontakt und Qualifikation | Personen, Unternehmen, Deal-Phasen, Verantwortliche und eigene Felder | Anreicherung, Scoring und Outreach-Sequenzen            |
+| Kaufmännische Abstimmung      | Deal-Wert, verknüpfte Leistungen und Follow-up-Kontext                | Angebote, Leistungsbeschreibungen und Verträge          |
+| Neugeschäftsrunde             | Board, Phasenwahrscheinlichkeiten und gewichtete Summen               | Prädiktive Prognose und Finanzplanung                   |
+| Projektübergabe               | Abschließender Beziehungs- und Deal-Kontext                           | Projekte, Kapazität, Zeiten, Rechnungen und Buchhaltung |
 
-- **Upsell- und Cross-Sell-Chancen werden übersehen**: Bestehende Kunden sind Ihre profitabelste Umsatzquelle. Aber ohne strukturiertes Tracking von Kundenbeziehungen, Zufriedenheitssignalen und Vertragslaufzeiten ziehen Upselling-Möglichkeiten unerkannt vorbei.
+<AcquisitionCallout
+  title="Eine Phase namens Angebot bleibt eine Phase"
+  variant="boundary"
+>
+  Die Pipeline zeigt, wo eine Chance steht. Sie erzeugt jedoch kein Angebot,
+  keinen Vertrag und keine Rechnung. Diese klare Trennung verhindert, dass ein
+  Vertriebsstatus zu einer zweiten, veralteten Version des vereinbarten
+  Leistungsumfangs wird.
+</AcquisitionCallout>
 
-- **Zu viele unverbundene Tools**: [Aufgabenmanagement](/features/task-management) in einem Tool, E-Mail-Kommunikation in einem anderen, Kontaktdaten in Adressbüchern, Finanzdaten in der Buchhaltungssoftware. Das vollständige Kundenbild existiert nirgendwo.
+## Unterstützte Unterhaltungen mit dem Beziehungskontext verbinden
 
-- **Skalierung der Agentur ist chaotisch**: Was funktioniert, wenn drei Partner alles managen, bricht zusammen, sobald Sie auf 15, 30 oder 50 Mitarbeiter wachsen. Prozesse brauchen Struktur, und Beziehungen brauchen Dokumentation. Unser Leitfaden zu [CRM-Best-Practices](/blog/crm-best-practices) hilft Agenturen, diese Systeme aufzubauen.
+Der [einheitliche Posteingang](/features/unified-inbox) ist in der Managed Cloud ab Pro verfügbar. Er bündelt unterstützte Unterhaltungen und ordnet Teilnehmer CRM-Kontakten zu. Die Kontaktbeziehung bildet die Brücke zu relevantem Kunden- und Pipeline-Kontext, weil Nachrichten keine direkte Deal-Beziehung besitzen.
 
-## Wie Customermates Agenturen hilft
+Die vollständige Kanalliste, das Modell für einzelne und geteilte Konten sowie die Plangrenzen stehen auf der Posteingangsseite. Self-Hosted Customermates enthält weder verbundene Messaging-Konten noch den einheitlichen Posteingang.
 
-Customermates bündelt Ihre Kundenbeziehungen und [Vertriebs-Pipeline](/features/sales) an einem Ort, mit der Flexibilität, sich an den spezifischen Workflow Ihrer Agentur anzupassen, ohne die Komplexität und Kosten von Enterprise-CRMs wie Salesforce.
+## Den übrigen Agentur-Stack verbinden
 
-**Zentrale Kundenverwaltung mit vollem Kontext**
+Customermates stellt [REST und Webhooks](/features/api) bereit. Externe KI-Clients können über [MCP](/docs/mcp) mit unterstützten CRM-Datensätzen arbeiten. Eine separat betriebene [n8n-Integration](/features/workflow-automation) kann einen von Ihnen entworfenen und geprüften Ablauf koordinieren.
 
-Alle Informationen zu einem Kunden, Kontakte, Entscheider, Deals, E-Mails, Aufgaben, Notizen, Meeting-Zusammenfassungen, in einer Ansicht. Nutzen Sie das [Kontaktmanagement](/features/contact-management), um sicherzustellen, dass jeder in Ihrem Team das vollständige Bild hat, ob bei der Pitch-Vorbereitung oder beim Management eines laufenden Engagements. Kein Suchen mehr in fünf Tools, um eine Kundenbeziehung zu verstehen.
+<AcquisitionCallout title="Die passende Agentur-Seite wählen" variant="fit">
+  Diese Seite behandelt den allgemeinen Neugeschäftsprozess einer Agentur. [CRM
+  für Dienstleister](/for/professional-services) erklärt das übergeordnete
+  Beziehungs- und Pipeline-Modell für wissensbasierte Unternehmen; der
+  [einheitliche Posteingang](/features/unified-inbox) dokumentiert die exakten
+  unterstützten Kanäle und Plangrenzen.
+</AcquisitionCallout>
 
-**Sales-Pipeline für Neugeschäftsakquise**
+## Cloud oder Self-Hosted
 
-Verfolgen Sie Ihre Akquise-[Pipeline](/features/pipeline) von der ersten Anfrage über Chemistry Meeting, Briefing, Proposal, Verhandlung bis zum unterzeichneten Vertrag. Sehen Sie auf einen Blick, welche Deals in welcher Phase stecken, welche Proposals ein Follow-up brauchen und wo Ihre Pipeline am stärksten ist. Mehrere Pipelines ermöglichen die Trennung von Neugeschäft, Upselling und Partnerschaftstracks.
-
-**Kundenbindungs- und Upsell-Pipeline**
-
-Verwalten Sie nicht nur Neugeschäft, verfolgen Sie aktiv bestehende Kundenbeziehungen mit dem [Account Management](/features/account-management). Erstellen Sie eine dedizierte Pipeline für Vertragsverlängerungen, Scope-Erweiterungen und Upsell-Möglichkeiten. Setzen Sie Erinnerungen für Vertragsenden, damit Sie das Verlängerungsgespräch proaktiv starten, nicht reaktiv.
-
-**Automatisierung mit n8n für Agentur-Workflows**
-
-Nutzen Sie die [Workflow-Automatisierung](/features/workflow-automation), um repetitive Verwaltungsarbeit zu eliminieren. Wenn ein Deal gewonnen wird, erstellen Sie automatisch Onboarding-Aufgaben für das Projektteam. Wenn ein Lead 7 Tage nicht reagiert, lösen Sie eine Follow-up-Erinnerung aus. Wenn ein Vertrag drei Monate vor Ablauf steht, benachrichtigen Sie den Account Manager. Verbinden Sie Customermates mit Ihrem Projektmanagement-Tool, Rechnungssystem oder Zeiterfassung über [Integrationen](/features/integrations).
-
-**KI-Agenten, die das CRM aktuell halten**
-
-Verbinden Sie Claude, ChatGPT oder Gemini über die native MCP-Integration ([[derived.mcp.tools.total]] Tools). Agenten erfassen neue Leads, verschieben Deals zwischen Phasen, entwerfen Proposal-Follow-ups und aktualisieren Kontaktnotizen, sodass die Pipeline die Realität abbildet, ohne dass Ihr Team manuell Daten pflegt. In Pro können dieselben Agenten über den verbundenen Posteingang lesen und senden.
-
-**Einheitlicher Posteingang für die Kundenkommunikation**
-
-In Pro liegen E-Mail, LinkedIn, Instagram, WhatsApp und Telegram in einem [einheitlichen Posteingang](/features/email-integration), jede Nachricht automatisch mit dem richtigen Kontakt und Deal verknüpft. Wenn jemand in Ihrem Team die Historie mit einem Kunden verstehen muss, ist alles da, kein Durchsuchen individueller Postfächer oder Nachfragen bei Kollegen.
-
-## Funktions-Highlights für Agenturen
-
-### Multi-Pipeline-Management
-
-Verwalten Sie mehrere [Pipelines](/features/pipeline) gleichzeitig, eine für Neugeschäftsakquise, eine für Upselling an bestehende Kunden, eine für Partnerschaften und eine für Subunternehmer-Beziehungen. Jede Pipeline hat eigene Phasen, die Sie frei definieren. Sehen Sie Ihre gesamte Geschäftsentwicklung in einer Ansicht.
-
-### Kontaktmanagement mit vollständiger Historie
-
-Sehen Sie die komplette Kommunikationshistorie mit jedem Kunden, Interessenten und Partner. Wer hat wann was besprochen, und was wurde vereinbart? Nutzen Sie das [Kontaktmanagement](/features/contact-management), um jede Interaktion nachvollziehbar zu machen, auch wenn Teammitglieder wechseln. Neue Account Manager können sich in Minuten statt Wochen in eine Kundenbeziehung einarbeiten.
-
-### Reporting und Vertriebsanalysen
-
-Verfolgen Sie die [Vertriebsleistung](/features/sales-tracking), Konversionsraten pro Pipeline-Phase, durchschnittliche Dealgrößen und Pipeline-Geschwindigkeit mit integriertem [Reporting](/features/reporting). Identifizieren Sie, welche Lead-Quellen den meisten Umsatz generieren, welche Proposal-Typen am besten konvertieren und wo Deals steckenbleiben. Datengetriebene Entscheidungen ersetzen Bauchgefühl.
-
-### E-Mail-Integration für nahtloses Kommunikations-Tracking
-
-Verknüpfen Sie E-Mails automatisch mit Kontakten und Deals über die [E-Mail-Integration](/features/email-integration). Kein manuelles Kopieren, keine verlorenen Threads, kein „Hat jemand nachgefasst?". Jede E-Mail ist im Kontext, verknüpft mit der richtigen Person und dem richtigen Deal. Funktioniert mit Gmail über unseren [Gmail-Integrationsleitfaden](/blog/gmail-crm-integration) und die [Outlook-Integration](/features/outlook-integration).
-
-### API und Webhooks für Ihren Agentur-Tool-Stack
-
-Verbinden Sie Customermates mit Ihren bestehenden Tools, Projektmanagement (Asana, Monday, Basecamp), Zeiterfassung, Buchhaltung und Reporting-Systeme. Die offene [REST-API](/features/api) und Webhooks ermöglichen bidirektionalen Datenaustausch, sodass Ihr CRM mit Ihren operativen Tools synchron bleibt. Entdecken Sie alle verfügbaren [Integrationen](/features/integrations).
-
-### Rollen und Berechtigungen für Teamstruktur
-
-Nutzen Sie ressourcenbasierte Rollen für Kontakte, Organisationen, Deals, Services, Aufgaben und Messaging. Zugriff gilt je Ressource, nicht je Kunde, Feld oder persönlichem Portfolio; gestalten Sie Agenturprozesse um diese Grenzen und halten Sie zulässigen Kunden- und Deal-Kontext für die richtigen Personen sichtbar.
-
-## CRM für Agenturen im Vergleich
-
-Wie schneidet Customermates im Vergleich zu anderen CRM-Lösungen ab, die Agenturen häufig nutzen? Hier ein Feature-für-Feature-Vergleich:
-
-| Feature                                                                  | Customermates                           | HubSpot                   | Pipedrive             | Monday CRM            | Salesforce            |
-| ------------------------------------------------------------------------ | --------------------------------------- | ------------------------- | --------------------- | --------------------- | --------------------- |
-| Preis/Nutzer/Monat                                                       | Ab [[commercial.price.starter.monthly]] | Kostenlos (eingeschränkt) | $14                   | $12                   | $25                   |
-| Unbegrenzte Kontakte                                                     | <StatusAvailable />                     | <StatusAvailable />       | <StatusAvailable />   | <StatusAvailable />   | <StatusAvailable />   |
-| Mehrere Pipelines                                                        | <StatusAvailable />                     | <StatusUnavailable />     | <StatusAvailable />   | <StatusAvailable />   | <StatusAvailable />   |
-| Workflow-Automatisierung                                                 | <StatusAvailable />                     | <StatusUnavailable />     | <StatusPartial />     | <StatusPartial />     | <StatusAvailable />   |
-| E-Mail-Integration                                                       | <StatusPartial /> (ab Pro)              | <StatusAvailable />       | <StatusAvailable />   | <StatusPartial />     | <StatusAvailable />   |
-| Nativer einheitlicher Posteingang (LinkedIn/WhatsApp/Instagram/Telegram) | <StatusAvailable /> (ab Pro)            | <StatusPartial />         | <StatusPartial />     | <StatusUnavailable /> | <StatusPartial />     |
-| KI-Agenten bedienen das CRM (MCP)                                        | <StatusAvailable />                     | <StatusUnavailable />     | <StatusPartial />     | <StatusPartial />     | <StatusPartial />     |
-| Custom Fields                                                            | <StatusAvailable />                     | <StatusPartial />         | <StatusPartial />     | <StatusAvailable />   | <StatusAvailable />   |
-| Offene API                                                               | <StatusAvailable />                     | <StatusPartial />         | <StatusAvailable />   | <StatusAvailable />   | <StatusAvailable />   |
-| EU/DSGVO-Hosting                                                         | <StatusAvailable />                     | <StatusUnavailable />     | <StatusPartial />     | <StatusUnavailable /> | <StatusPartial />     |
-| Open Source                                                              | <StatusAvailable />                     | <StatusUnavailable />     | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
-| Self-Hosting-Option                                                      | <StatusAvailable />                     | <StatusUnavailable />     | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
-| Keine Kosten pro Kontakt                                                 | <StatusAvailable />                     | <StatusAvailable />       | <StatusAvailable />   | <StatusAvailable />   | <StatusAvailable />   |
-
-**[HubSpot](https://www.hubspot.com/products/crm)** bietet einen großzügigen Free-Tier, sperrt aber mehrere Pipelines, Automatisierung und benutzerdefiniertes Reporting hinter teure Upgrades ($90+/Nutzer/Monat). Daten in den USA gehostet. Siehe unseren detaillierten [HubSpot-Alternativenvergleich](/compare/hubspot-alternative).
-
-**[Pipedrive](https://www.pipedrive.com/)** glänzt bei visuellem Pipeline-Management, berechnet aber extra für Automatisierung und erweitertes Reporting. Eingeschränkte DSGVO-Konformität für EU-Agenturen. Siehe unseren [Pipedrive-Alternativenvergleich](/compare/pipedrive-alternative).
-
-**[Salesforce](https://www.salesforce.com/)** ist leistungsstark, aber komplex und teuer, gebaut für Enterprise-Vertriebsteams, nicht für agile Agenturen. Siehe unseren [Salesforce-Alternativenvergleich](/compare/salesforce-alternative).
-
-## Preise für Agenturen
-
-Agenturen achten genau auf ihre Margen. Ein CRM für Agenturen sollte eine Investition sein, die sich selbst trägt, kein Kostentreiber, der die Profitabilität mindert. Lesen Sie unsere vollständige [CRM-Kostenanalyse](/blog/crm-cost) für Kontext.
-
-- **Starter, [[commercial.price.starter.monthly]] pro Nutzer pro Monat**, Pipelines, Automatisierung, API, native KI (MCP) und Custom Fields
-- **Pro, [[commercial.price.pro.monthly]] pro Nutzer pro Monat**, ergänzt den einheitlichen Posteingang: E-Mail, LinkedIn, WhatsApp, Instagram und Telegram, verknüpft mit jedem Kontakt und Deal, plus schreibgeschützte CRM-Kalenderansicht
-- **Business, [[commercial.price.business.monthly]] pro Nutzer pro Monat**, [[commercial.entitlement.business.includedAccountsPerUser]] verbundene Konten pro Nutzer, geteilte Posteingänge für Account Manager, priorisierter Support
-- **Keine Kosten pro Kontakt**, unbegrenzt Kunden, Interessenten und Partner-Kontakte, in jeder Stufe
-- **Open Source und selbst hostbar**, volle Transparenz, kein Vendor-Lock-in, Kundendaten unter Ihrer Kontrolle, für immer kostenlos
-
-Da E-Mail-Kommunikation mit Kunden das Rückgrat der Agenturarbeit ist, landen die meisten Teams bei Pro. Eine Agentur mit 8 Mitarbeitenden zahlt in Pro [[commercial.price.pro.monthly.seats.8]] pro Monat. Das ist weniger als ein einzelner Stundensatz in den meisten Agenturen, und der Return auf besseres Kundenmanagement misst sich in gehaltenen Accounts und gewonnenen Pitches. Vergleichen Sie auf unserer [Preisseite](/pricing) oder sehen Sie sich Customermates als [erschwingliche CRM-Option](/blog/affordable-crm-software) an.
+Kontakte, Unternehmen, Deals, Leistungen, Aufgaben, REST, Webhooks und MCP stehen in der Managed Cloud und der [Self-Hosted-Edition](/features/self-hosted) zur Verfügung. Self-Hosting verwendet Starter-Berechtigungen. Einheitlicher Posteingang, verbundene Kalenderansicht und gehostete Mate-Funktion gehören nicht zum Deployment.
 
 ## Häufig gestellte Fragen
 
 <Faq>
-<FaqItem question="Kann Customermates sowohl Neugeschäft als auch Bestandskundenmanagement?">
-Ja. Customermates unterstützt mehrere [Pipelines](/features/pipeline), sodass Sie separate Workflows für Neugeschäftsakquise, Kundenbindung und Upselling, Partnerschaften und jeden anderen Umsatzstrom betreiben können. Jede Pipeline hat unabhängige Phasen, und Kontakte können gleichzeitig in mehreren Pipelines erscheinen. Das gibt Agenturen volle Sichtbarkeit über ihre gesamte Geschäftsentwicklung.
+<FaqItem question="Verwaltet Customermates Agenturprojekte?">
+Nein. Es verwaltet Beziehungs- und Neugeschäftskontext. Projektpläne, Meilensteine, Kapazität und Umsetzung gehören in ein Projektmanagement- oder PSA-System.
 </FaqItem>
 
-<FaqItem question="Wie hilft ein CRM für Agenturen bei Kundenwechseln zwischen Teammitgliedern?">
-Jede Interaktion mit einem Kunden, E-Mails, Notizen, Aufgaben, Meetings, Deal-Historie, wird im [Kontaktdatensatz](/features/contact-management) protokolliert. Wenn sich der Account Manager ändert, hat das neue Teammitglied ab dem ersten Tag die vollständige Beziehungshistorie verfügbar. Kein Stammwissen verloren, keine peinlichen Übergabegespräche mit scheidenden Kollegen.
+<FaqItem question="Kann es Angebote, Verträge oder Rechnungen erstellen?">
+  Nein. Customermates kann den Deal und die besprochenen Leistungen abbilden,
+  besitzt aber keinen nativen Dokumenten-Workflow für Angebote, SOWs, Verträge,
+  Quotes oder Rechnungen.
 </FaqItem>
 
-<FaqItem question="Können wir Customermates mit unseren Projektmanagement- und Rechnungstools verbinden?">
-Ja. Customermates bietet eine vollständige [REST-API](/features/api) und Webhooks für Echtzeit-Integration mit jedem Tool, das eine API hat. Über die n8n-[Workflow-Automatisierung](/features/workflow-automation) können Sie bidirektionale Verbindungen zu Asana, Monday, Basecamp oder jedem Projektmanagement-Tool einrichten, ebenso wie zu Rechnungs- und Zeiterfassungssystemen. Wenn ein Deal abgeschlossen wird, können Sie automatisch ein Projekt erstellen, Aufgaben einrichten und den Rechnungsworkflow auslösen.
+<FaqItem question="Kann eine Agentur Follow-ups verfolgen?">
+  Aufgaben lassen sich mit Kontakten, Unternehmen, Deals, Leistungen und Nutzern
+  verknüpfen. Customermates enthält keine integrierten zeitgesteuerten Sequenzen
+  oder Terminplanung; für zeitgesteuerte Automatisierungen benötigen Sie ein
+  externes Workflow-System.
 </FaqItem>
 
-<FaqItem question="Ist Customermates DSGVO-konform für EU-Agenturen?">
-Ja. Customermates ist DSGVO-nativ und EU-gehostet. Alle Daten werden innerhalb der Europäischen Union gespeichert. Für Agenturen, die volle Datensouveränität brauchen, kann Customermates auch [selbst gehostet](/features/self-hosted) werden. Keine Kundendaten verlassen jemals Ihre Kontrolle.
+<FaqItem question="Welche Kanäle enthält der einheitliche Posteingang?">
+  Unterstützt werden Gmail/Google-, Outlook/Microsoft- und IMAP-E-Mail,
+  LinkedIn-Varianten, WhatsApp, Instagram und Telegram. Der Posteingang ist eine
+  Managed-Cloud-Berechtigung ab Pro.
 </FaqItem>
 
-<FaqItem question="Wie schneidet Customermates im Vergleich zu HubSpot für Agenturen ab?">
-HubSpot bietet einen Free-Tier, aber essentielle Agentur-Features wie mehrere Pipelines, Workflow-Automatisierung und benutzerdefiniertes Reporting erfordern teure Upgrades ($90+/Nutzer/Monat). Customermates enthält Pipelines, Automatisierung, API und native KI-Integration für [[commercial.price.starter.monthly]]/Nutzer/Monat, den einheitlichen Posteingang gibt es ab Pro für [[commercial.price.pro.monthly]]/Nutzer/Monat. Siehe unseren vollständigen [HubSpot-vs-Customermates-Vergleich](/compare/hubspot-alternative).
-</FaqItem>
-
-<FaqItem question="Kann eine kleine Agentur mit 3-5 Mitarbeitenden von einem CRM profitieren?">
-Absolut. Ein CRM für Agenturen ist nicht nur für große Teams. Auch eine 3-Personen-Agentur profitiert von zentraler Kundenhistorie, Pipeline-Sichtbarkeit und automatisierten Follow-ups. In Pro bei [[commercial.price.pro.monthly]]/Nutzer/Monat zahlt ein 5er-Team [[commercial.price.pro.monthly.seats.5]]/Monat, weniger als ein einziger verlorener Lead durch schlechtes Follow-up kostet. Starten Sie mit unserem [CRM-für-Kleinunternehmen-Leitfaden](/blog/crm-for-small-business). Dafür ist ein Scheduler in Ihrer eigenen n8n-Instanz oder einem anderen externen Dienst über die API nötig; Customermates führt zeitgesteuerte Follow-ups und Erinnerungen nicht selbst aus.
+<FaqItem question="Kann eine Agentur mit Self-Hosting KI-Clients nutzen?">
+Ja. Self-Hosted Customermates unterstützt externe KI-Clients über MCP. Nicht enthalten sind der gehostete Mate-Assistent, gehostete KI-Credits und der einheitliche Posteingang.
 </FaqItem>
 </Faq>
-
-## So starten Sie mit Customermates für Ihre Agentur
-
-1. **[Kostenloses Konto erstellen](/auth/signup)**, keine Kreditkarte nötig, [[commercial.trial.days]] Tage zum Erkunden aller Funktionen.
-2. **Unterstützte Datensätze migrieren**, bereiten Sie Kontakte, Organisationen und Deal-Daten außerhalb des Produkts auf und erstellen Sie sie über REST oder einen externen KI-Client per MCP. Customermates hat keinen CSV-Uploader.
-3. **Pipelines einrichten**, Vertriebsphasen für Neugeschäft, Upselling und Partnerschaften definieren.
-4. **Team einladen**, Rollen und Berechtigungen zuweisen, damit jeder sieht, was er braucht.
-5. **Automatisierungen einrichten**, n8n nutzen, um Proposal-Follow-ups, Onboarding-Workflows und Verlängerungserinnerungen zu automatisieren.
-
-Customermates passt sich an die Arbeitsweise Ihrer Agentur an, nicht umgekehrt. Entdecken Sie unseren [Leitfaden zu kostenlosen CRM-Optionen](/blog/free-crm), um zu sehen, was ab Tag 1 enthalten ist, oder lesen Sie unseren [CRM-Vergleich](/blog/crm-comparison), um Ihre Optionen zu bewerten.
-
-<RelatedPages>
-  <RelatedPage href="/for/marketing-agencies" />
-  <RelatedPage href="/for/b2b" />
-  <RelatedPage href="/for/mid-market" />
-  <RelatedPage href="/for/marketing" />
-</RelatedPages>

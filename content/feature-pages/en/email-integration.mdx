@@ -3,6 +3,12 @@ title: "CRM Email Integration: Gmail & Outlook Sync"
 description: "CRM email integration for connected Gmail, Outlook, and IMAP accounts. Threads sync into the unified inbox from Pro; campaigns and sequences stay separate."
 featureName: Email Integration
 
+relatedHrefs:
+  - /features/account-management
+  - /features/api
+  - /features/cloud-crm
+  - /features/unified-inbox
+
 hero:
   title: Email Integration That Connects Every Conversation to Your CRM
   description: Connect supported Gmail and Outlook accounts with Customermates. Matching conversations appear in the unified inbox alongside LinkedIn, WhatsApp, Instagram, and Telegram. Supported external AI clients can read context, draft, and send through MCP; sequences require separate n8n and delivery providers.
@@ -66,11 +72,11 @@ Build these workflows visually in a separate n8n instance with no coding require
 
 Connected-account transport is provided through Unipile. The managed application database is configured in an EU region, while the legal pages disclose every relevant cloud subprocessor, processing location, and transfer safeguard. Do not treat that database setting as a promise that all processing stays in one country or never involves a US provider. See [Privacy](/privacy), [Subprocessors](/subprocessors), and the [DPA](/dpa).
 
-The community self-hosted build does not include the Enterprise Edition unified inbox. A self-hosted operator that contracts for Enterprise Edition controls its own deployment but must still evaluate every connected provider and subprocessor it enables.
+The self-hosted build always uses Starter entitlements and does not include the unified inbox or connected accounts. The inbox is available only in Customermates Cloud from Pro upward, where each enabled provider and subprocessor remains a separate processing boundary.
 
 **Automated email workflows.** A separate n8n instance and external delivery provider can handle follow-ups, welcome emails, deal-stage notifications, and reminders. Your team focuses on high-value conversations while the external workflow handles routine messages.
 
-**Better team collaboration.** When every email is logged in the CRM, any team member can pick up a conversation or cover for a colleague instantly. Deal handoffs become seamless because the incoming owner has full visibility into every prior communication.
+**Controlled team collaboration.** A teammate sees a conversation only when account, thread and CRM permissions allow it. Pro users can share individual threads with the workspace; Business and Enterprise can also share an entire connected account.
 
 **No tool switching.** Your team continues using Gmail or [Outlook](/features/outlook-integration) as they always have. The CRM works in the background to capture and organize everything. Alternatively, they can compose and send directly from the CRM. Either way, the communication is logged.
 
@@ -117,10 +123,3 @@ The managed Customermates database runs in an EU region. Application hosting, me
 ## Get Started
 
 Connect an account from **Profile → Connected accounts**, then open the [Inbox](/docs/app-inbox). Read a synchronized thread, link its participant to the right contact, and either reply immediately or save a draft for review.
-
-<RelatedPages>
-  <RelatedPage href="/features/account-management" />
-  <RelatedPage href="/features/api" />
-  <RelatedPage href="/features/cloud-crm" />
-  <RelatedPage href="/features/contact-management" />
-</RelatedPages>

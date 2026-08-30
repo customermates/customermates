@@ -6,14 +6,12 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { PageHero } from "@/components/marketing/page-hero";
 import { Footer } from "@/app/components/footer";
 import { ComparisonTable } from "@/components/marketing/comparison-table";
-import { ShowcaseFrame } from "@/components/marketing/showcase-frame";
-import { AppImage } from "@/components/shared/app-image";
+import { LandingArticle } from "@/components/marketing/landing-article";
+import { PageEnding } from "@/components/marketing/page-ending";
 import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { comparePagesSource } from "@/core/fumadocs/source";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
-import { CTASection } from "@/components/marketing/cta-section";
-import { Toc } from "@/components/shared/toc";
 import { breadcrumbListSchema } from "@/core/seo/schemas";
 
 interface Props {
@@ -45,30 +43,19 @@ export default async function CompetitorComparePage({ params }: Props) {
   const components = getMDXComponents();
 
   return (
-    <div className="flex flex-col items-center justify-center pt-16 md:pt-24">
+    <div className="flex flex-col items-center justify-center" data-marketing-flow="continuous">
       <JsonLd
         schema={breadcrumbListSchema([
           { name: t("home"), path: `/${locale}` },
           { name: t("compare"), path: `/${locale}/compare` },
-          { name: page.data.competitorName, path: `/${locale}/compare/${competitor}` },
+          {
+            name: page.data.competitorName,
+            path: `/${locale}/compare/${competitor}`,
+          },
         ])}
       />
 
       <PageHero {...page.data.hero} />
-
-      <div className="relative w-full max-w-6xl mx-auto px-4 mb-8">
-        <ShowcaseFrame className="mb-0">
-          <AppImage
-            isLocalized
-            alt={page.data.hero.title}
-            className="w-full h-auto rounded-none"
-            height={1080}
-            loading="eager"
-            src={`${competitor}.png`}
-            width={1920}
-          />
-        </ShowcaseFrame>
-      </div>
 
       <ComparisonTable
         competitor2Name={page.data.comparison.competitor2Name}
@@ -85,15 +72,11 @@ export default async function CompetitorComparePage({ params }: Props) {
         title={page.data.comparison.title}
       />
 
-      <section className="relative py-12 md:py-16 w-full max-w-6xl mx-auto px-4">
-        <Toc items={page.data.toc}>
-          <div className="prose prose-sm prose-neutral dark:prose-invert max-w-none">
-            <MDX components={components} />
-          </div>
-        </Toc>
-      </section>
+      <LandingArticle founderContact items={page.data.toc}>
+        <MDX components={components} />
+      </LandingArticle>
 
-      <CTASection {...page.data.cta} />
+      <PageEnding cta={page.data.cta} relatedHrefs={page.data.relatedHrefs} />
 
       <Footer />
     </div>

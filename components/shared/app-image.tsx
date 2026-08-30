@@ -4,17 +4,13 @@ import type { ComponentProps } from "react";
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useLocale } from "next-intl";
 import { useTheme } from "next-themes";
 
 import { useServerTheme } from "@/components/server-theme-provider";
 
-type Props = ComponentProps<typeof Image> & {
-  isLocalized?: boolean;
-};
+type Props = ComponentProps<typeof Image>;
 
-export function AppImage({ isLocalized = false, src, ...props }: Props) {
-  const resolvedLocale = useLocale();
+export function AppImage({ src, ...props }: Props) {
   const serverTheme = useServerTheme();
   const { resolvedTheme, systemTheme } = useTheme();
   const [themePath, setThemePath] = useState<"light" | "dark">(serverTheme === "dark" ? "dark" : "light");
@@ -25,7 +21,7 @@ export function AppImage({ isLocalized = false, src, ...props }: Props) {
     setThemePath(newThemePath);
   }, [resolvedTheme, systemTheme]);
 
-  const imageSrc = `/images/${themePath}/${isLocalized ? `${resolvedLocale}/` : ""}${src as string}`;
+  const imageSrc = `/images/${themePath}/${src as string}`;
 
   return <Image key={imageSrc} decoding="async" loading="lazy" src={imageSrc} {...props} />;
 }

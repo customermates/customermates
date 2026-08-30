@@ -92,6 +92,10 @@ const MARQUEE_STYLES = `
   -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
   mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
 }
+.footer-badges-track:focus-within {
+  animation: none !important;
+  transform: translateX(0) !important;
+}
 @media (prefers-reduced-motion: reduce) {
   .footer-badges-track { animation: none !important; }
 }

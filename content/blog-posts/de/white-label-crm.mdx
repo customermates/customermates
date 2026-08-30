@@ -1,10 +1,16 @@
 ---
-title: "White Label CRM: Ihre eigene gebrandete CRM-Lösung"
-description: "White-Label-CRM: Eigene gebrandete CRM-Lösung erstellen. GoHighLevel, Vendasta und Open-Source-Ansätze nach Kosten und Anpassbarkeit."
+title: "White Label CRM: Modelle, Anforderungen und Fallstricke"
+description: "Turnkey-White-Label, Reselling, Eigenentwicklung und lizenzkonformes Self-Hosting vergleichen. Branding, Mandantentrennung, Betrieb und Verträge richtig prüfen."
+
+relatedHrefs:
+  - /blog/open-source-crm
+  - /features/self-hosted
+  - /docs/self-hosting
+  - /blog/build-your-own-crm
 
 hero:
-  title: "White Label CRM: Erstellen Sie Ihre eigene gebrandete CRM-Lösung"
-  description: Ein CRM unter Ihrer eigenen Marke, ohne von Grund auf zu entwickeln. Erfahren Sie, wie Sie die richtige Plattform wählen und profitabel anbieten.
+  title: "White Label CRM: Vier Modelle und die wichtigsten Prüfpunkte"
+  description: Ein ausgetauschtes Logo ist noch kein vollständiges White-Label-Produkt. Vergleichen Sie Branding, Domains, Mandanten, Betrieb, Support, Lizenz und Datenkontrolle.
 
 blogPost:
   author: Benjamin Wagner
@@ -17,318 +23,209 @@ blogPost:
     - Individuelles CRM
 ---
 
-> **Statushinweis.** Verwaltetes White-Label — eine gehostete Instanz unter Ihrer eigenen Marke und Domain — ist ein vertraglich vereinbarter Punkt der Customermates-Enterprise-Stufe und des Agentur-Programms. Im Produkt ist es noch nicht implementiert. Alles, was unten zum Rebranding einer selbst gehosteten Installation auf Code-Ebene steht, gibt es heute unter AGPL-3.0; die verwaltete, gehostete Variante ist ein Gespräch, kein Schalter.
+# White Label CRM: Vier Modelle und die wichtigsten Prüfpunkte
 
-# White Label CRM: Erstellen Sie Ihre eigene gebrandete CRM-Lösung
+Ein **White Label CRM** ist Kundenmanagement-Software, die ein anderes Unternehmen auf Grundlage einer ausdrücklichen kommerziellen oder lizenzrechtlichen Vereinbarung unter eigener Marke anbieten und betreiben darf. Gemeint sein kann eine fertige Reseller-Plattform, ein verwalteter Markenmandant, eine Eigenentwicklung oder ein rechtmäßig angepasstes selbst gehostetes Open-Source-System.
 
-Ein CRM unter Ihrer eigenen Marke, ohne von Grund auf zu entwickeln. Erfahren Sie, wie Sie die richtige Plattform wählen und profitabel anbieten.
+Diese Modelle verteilen Verantwortung unterschiedlich. Ein neues Logo schafft noch keine eigenen Domains, Mandantentrennung, Kundenbereitstellung, Abrechnung, Supportwerkzeuge, Updates, Sicherheitsprozesse oder das Recht, die Software weiterzuverkaufen.
 
-Agenturen, IT-Dienstleister, Beratungsunternehmen und SaaS-Anbieter stehen regelmäßig vor derselben Herausforderung: Sie brauchen ein CRM, das sie unter ihrer eigenen Marke anbieten können. Die Eigenentwicklung kostet Hunderttausende Euro und Jahre an Entwicklungszeit. Die Nutzung eines kommerziellen CRMs bedeutet, dass Ihre Kunden das Logo des Anbieters sehen, nicht Ihres.
-
-White-Label-CRMs lösen dieses Dilemma. In 2026 reicht das Angebot von proprietären Plattformen wie GoHighLevel mit SaaS-Wiederverkaufsmodus und unbegrenzten Sub-Accounts bis hin zu quelloffenen Plattformen, deren Code Sie im Rahmen der jeweiligen Lizenz ändern und selbst hosten können. Dieser Ratgeber vergleicht alle Ansätze, stellt die führenden Plattformen gegenüber und hilft Ihnen bei der Wahl basierend auf Ihren Margenzielen, technischen Kapazitäten und Kundenbedürfnissen.
+> **Aktueller Stand bei Customermates:** Customermates enthält keine White-Label-Steuerung, kein SSO, kein verwaltetes Reseller-Programm und keine verwaltete Cloud-Einrichtung für eine White-Label-Custom-Domain. Selbsthoster können eine eigene Domain über `BASE_URL`, Reverse-Proxy und TLS konfigurieren; das ist Infrastruktur, kein verwalteter White-Label-Ablauf. Die Enterprise-Preisseite nennt White Label und SSO als vertragliche Konzepte; beide Fähigkeiten sind im Produkt nicht implementiert. Eigenes Material der Community Edition außerhalb von `ee/` steht ausschließlich unter AGPL-3.0. Eigene Dateien in `ee/` sind Commercial Software vorbehaltlich der AGPL-Ausnahme für Client-Material in Abschnitt 6; Drittanbieter-Komponenten behalten ihre Lizenzen. Diese Softwarelizenzen gewähren keine Rechte an den Customermates-Marken. Prüfen Sie deshalb das genaue Material, Hinweise, die Markennutzung, das Hosting-Modell und die kommerziellen Bedingungen.
 
 ## Was bedeutet White Label CRM?
 
-Ein White-Label-CRM ist eine Kundenmanagement-Software, die Sie unter Ihrer eigenen Marke anbieten können. Der ursprüngliche Hersteller tritt nicht in Erscheinung. Ihre Kunden sehen Ihr Logo, Ihre Farben, Ihre Domain und Ihren Firmennamen, nicht die des Technologiepartners.
+Käufer erwarten meist eine Kombination aus:
 
-Der Begriff „White Label" stammt aus der Konsumgüterindustrie: Ein Hersteller produziert ein Produkt, ein anderes Unternehmen versieht es mit seinem eigenen Etikett und verkauft es unter seinem Namen. Im Softwarebereich funktioniert das Prinzip genauso, mit dem entscheidenden Vorteil wiederkehrender Umsätze.
+- eigenem Produktnamen, Logo, Farben und Texten;
+- eigener Domain und kundenwirksamer E-Mail-Identität;
+- Entfernung oder kontrollierter Darstellung der ursprünglichen Anbietermarke;
+- getrennten Kundenbereichen und Datenzugriffen;
+- wiederholbarer Einrichtung und Schließung von Kundenkonten;
+- Plänen, Berechtigungen, Abrechnung und Nutzungskontrollen;
+- Support- und Administrationswerkzeugen;
+- klarer Verantwortung für Updates und Störungen;
+- vertraglicher Erlaubnis für Vermarktung und Wiederverkauf.
 
-### White Label vs. Eigenentwicklung vs. Reselling vs. Open Source
+Eine Plattform kann nur einen Teil davon unterstützen. Definieren Sie das benötigte Betriebsmodell, bevor Sie fragen, ob ein Produkt „White Label“ ist.
 
-Diese Begriffe werden oft verwechselt. Die Unterschiede:
+## Vier White-Label-CRM-Modelle
 
-**White Label CRM**: Sie branden ein bestehendes CRM mit Ihrer Identität um. Der Kunde sieht durchgehend Ihre Marke. Sie kontrollieren Preise und Pakete. Der ursprüngliche Anbieter ist unsichtbar.
+### 1. Fertige White-Label-Plattform
 
-**Reselling (Wiederverkauf)**: Sie verkaufen das CRM eines anderen Anbieters unter dessen Marke und verdienen eine Provision. Der Kunde kennt den Hersteller. Sie haben begrenzte Kontrolle.
+Der Anbieter liefert Branding-Einstellungen, Kundenkonten, Hosting, Updates und oft Reseller-Funktionen. Das ist der schnellste Weg, wenn das Standardprodukt zum geplanten Service passt.
 
-**Eigenentwicklung**: Volle Kontrolle über jede Zeile Code. Kosten: 200.000 bis 1.000.000+ Euro. Zeitaufwand: 12 bis 24 Monate. Laufende Wartung: 3 bis 5 Entwickler dauerhaft.
+Prüfen Sie, welche Oberflächen sich branden lassen, ob die Anbietermarke in E-Mails oder Rechtstexten sichtbar bleibt, wie Kundendaten getrennt werden und ob der Vertrag Ihr genaues Wiederverkaufsmodell erlaubt.
 
-**Open-Source-CRM**: Sie nehmen eine bestehende Open-Source-CRM-Codebasis, passen sie an und stellen sie unter Ihrer Marke bereit. Das verbindet die Geschwindigkeit von White Labeling mit der Kontrolle einer Eigenentwicklung, zu einem Bruchteil der Kosten.
+### 2. Verwaltetes Reselling oder Markenmandant
 
-## Für wen lohnt sich ein White-Label-CRM?
+Ein Anbieter betreibt die Software, während der Partner die Kundenbeziehung führt. Das Branding kann auf einen Arbeitsbereich, eine Domain oder einen Plan beschränkt sein, statt eine vollständige Reseller-Steuerung zu bieten.
 
-### Agenturen und Beratungsunternehmen
+Klären Sie, wer den Kundenvertrag schließt, Supportstufen übernimmt, Störungen behandelt, datenschutzrechtliche Rollen trägt und die Migration verantwortet, wenn die Partnerschaft endet.
 
-Marketing- und Vertriebsagenturen, die CRM-Dienstleistungen anbieten, profitieren am stärksten von White Labeling. Sie können:
+### 3. Eigenentwickeltes CRM-Produkt
 
-- **CRM in Servicepakete bündeln**: Ihr gebrandetes CRM zusammen mit Marketing-, Design- oder Beratungsleistungen anbieten, für höhere Vertragswerte
-- **Kundenbindung erhöhen**: Kunden, die Ihr CRM nutzen, verlassen Ihre Agentur seltener, ihre Daten, Workflows und Team-Gewohnheiten sind an Ihre Plattform gebunden
-- **Wiederkehrende Einnahmen generieren**: Von projektbasierter Abrechnung zu planbaren monatlichen Abonnements wechseln, die den Cashflow stabilisieren
-- **Die Kundenerfahrung kontrollieren**: Workflows, Felder und Oberflächen an spezifische Kundenbranchen anpassen
-- **Sich von Wettbewerbern differenzieren**: Andere Agenturen schicken Kunden zu HubSpot oder Salesforce. Sie bieten Ihre eigene gebrandete Lösung.
+Ein Team entwickelt oder beauftragt Nutzererlebnis, Betrieb und Abrechnung nach eigenen Anforderungen. Das schafft die größte Produktkontrolle und zugleich die größte technische und betriebliche Verantwortung.
 
-Die Wirtschaftlichkeit hängt vom Bereitstellungsmodell ab. Proprietäre Programme berechnen ihre veröffentlichten Wiederverkaufsgebühren; bei einem selbst gehosteten Open-Source-System treten an die Stelle einer Lizenzgebühr Kosten für Infrastruktur, Wartung, Support, Compliance und Engineering. Customermates veröffentlicht derzeit kein verwaltetes White-Label- oder Agenturangebot. Kalkulieren Sie diese Variante daher erst auf Basis individuell vereinbarter Vertragskonditionen.
+Die Kosten enden nicht mit der ersten Entwicklung. Authentifizierung, Autorisierung, Mandantentrennung, Updates, Backups, Monitoring, Kundensupport, Sicherheitsreaktion, Rechtstexte, Abrechnung und Migration bleiben dauerhafte Produktarbeit.
 
-### IT-Dienstleister, Systemhäuser und MSPs
+### 4. Lizenzkonforme selbst gehostete Grundlage
 
-IT-Unternehmen, die Geschäftskunden betreuen, können ein White-Label-CRM als Teil ihres Managed-Service-Portfolios anbieten. Kunden vertrauen Ihnen bereits ihre IT-Infrastruktur an, ein CRM unter Ihrer Marke ist die natürliche Erweiterung. Kombiniert mit Hosting, Backup, Sicherheitsmonitoring und technischem Support ergibt es ein umfassendes Geschäftspaket, das den Pro-Kunden-Umsatz um 30 bis 50 Prozent steigert.
+Ein Unternehmen verändert und betreibt eine Codebasis, die es nutzen darf. Das kann architektonische Kontrolle geben, aber „Open Source“ bedeutet nicht „uneingeschränktes White Label“.
 
-Deutsche Systemhäuser sind für diesen Ansatz besonders gut positioniert. Ihre Mittelstandskunden zahlen bereits für Managed IT Services und erwarten integrierte Lösungen von einem einzigen vertrauenswürdigen Anbieter.
+Prüfen Sie genaue Lizenzpflichten, Urheberrechtshinweise, Markenrichtlinie, Bedingungen für Verteilung oder Netzwerkbetrieb und separat lizenzierte Module. Ohne andere Vereinbarung verantworten Sie außerdem Bereitstellung, Updates, Beobachtbarkeit, Backups, Support und Kundentrennung.
 
-### SaaS-Unternehmen und Gründer
+## White Label, Reselling, Eigenentwicklung und Open Source
 
-Ein CRM von Grund auf zu entwickeln erfordert erhebliches Kapital und ein großes Engineering-Team. Der White-Label-Ansatz bringt Sie schneller auf den Markt:
+| Modell | Branding-Kontrolle | Betriebsverantwortung | Zeit bis zum Standardangebot | Wichtigste Prüffrage |
+| --- | --- | --- | --- | --- |
+| Fertiges White Label | hoch innerhalb der Anbietereinstellungen | überwiegend Anbieter, Support geteilt | meist am kürzesten | Was bleibt anbietergebrandet oder vertraglich beschränkt? |
+| Verwaltetes Reselling | mittel bis hoch | zwischen Anbieter und Partner geteilt | kurz bis mittel | Wer besitzt Kundenvertrag, Support, Daten und Ausstieg? |
+| Eigenentwicklung | potenziell vollständig | eigenes Unternehmen | am längsten | Können Sie ein Softwareprodukt dauerhaft finanzieren und betreiben? |
+| Selbst gehostete Grundlage | auf Codeebene, soweit erlaubt | eigenes Unternehmen | mittel bis lang | Tragen Lizenz, Marke, Mandantenmodell und Betrieb das Angebot? |
 
-- **Markteinführung in Wochen** statt Jahren
-- **Geringere Entwicklungskosten**, keine Notwendigkeit, CRM-Kernfunktionalität von Null aufzubauen
-- **Fokus auf Differenzierung**, Ressourcen für branchenspezifische Workflows, Integrationen oder Nischen-UX
-- **Reduzierter Wartungsaufwand**, die zugrundeliegende Plattform kümmert sich um Infrastruktur und Sicherheitsupdates
-- **Geringeres Risiko**, Markt validieren, bevor Sie massiv in Eigenentwicklung investieren
+Das sind strukturelle Tendenzen, keine Garantien einzelner Anbieter.
 
-### Franchise-Systeme
+## Für wen sich ein White-Label-CRM eignen kann
 
-Franchise-Geber können ein einheitliches CRM für alle Franchise-Nehmer bereitstellen, zentral verwalten und trotzdem individuelle Anpassungen pro Standort ermöglichen. Jeder Franchise-Nehmer erhält die Markenerfahrung des Franchise-Gebers mit eigenen Kontakten, Pipelines und Berichten. Der Franchise-Geber behält die Übersicht über aggregiertes Reporting und standardisierte Prozesse.
+Ein White-Label-Modell kann sinnvoll sein, wenn das CRM Teil eines wiederholbaren Service ist und nicht nur eine einmalige Werkzeugempfehlung. Dazu können Agenturen, Beratungen, Managed Service Provider, vertikale Softwareanbieter und Franchise-Systeme gehören.
 
-## Die führenden White-Label-CRM-Plattformen 2026
+Prüfen Sie vor dem Aufbau:
 
-### GoHighLevel: Der proprietäre Marktführer
+- Zielkunden besitzen einen ausreichend ähnlichen Workflow;
+- das CRM verbessert einen Service, den Sie bereits beherrschen;
+- Onboarding, Support und Datenmigration lassen sich standardisieren;
+- die Marge deckt Plattform, Betrieb, Support und Risiko;
+- Kunden verstehen, wer das Produkt betreibt und ihre Daten verarbeitet;
+- der Vertrag erlaubt Branding und Wiederverkauf in der geplanten Form.
 
-GoHighLevel hat sich als dominante White-Label-CRM-Plattform für Agenturen in 2026 positioniert. Es kombiniert CRM-Funktionalität mit Marketing-Automatisierung, Funnel-Builder, SMS- und E-Mail-Kampagnen sowie einem echten SaaS-Wiederverkaufsmodus.
+Braucht jeder Kunde ein anderes Produkt, kann eine Vermittlungs- oder Implementierungspartnerschaft nachhaltiger sein als White Label.
 
-**Kernfunktionen:**
+## Was Sie vor der Auswahl prüfen müssen
 
-- Vollständiges CRM mit Pipeline-Management und Kontakt-Tracking
-- Unbegrenzte Sub-Accounts für Kundenverwaltung
-- White-Label-Desktop-Branding (Logo, Farben, eigene Domain)
-- Eingebaute SMS- und E-Mail-Automatisierung
-- Funnel- und Landing-Page-Builder
-- Terminplanungstool
-- SaaS-Modus für Wiederverkauf mit eigenen Preisstufen
+### Tiefe des Brandings
 
-**Preise**: Ab $97/Monat für den Basisplan, $297/Monat für den Agenturplan mit unbegrenzten Sub-Accounts, $497/Monat für den SaaS-Pro-Plan mit vollem White Labeling.
+Listen Sie alle sichtbaren Flächen auf: Login, Anwendung, URLs, Transaktions-E-Mails, Benachrichtigungen, Dokumente, Hilfe, Statusseite, Fehleransichten, Einwilligungsoberfläche und mobile Nutzung. „Eigenes Logo“ kann nur eine davon abdecken.
 
-**Stärken**: All-in-One-Plattform, aktive Community, schnelle Feature-Entwicklung, bewährtes SaaS-Wiederverkaufsmodell.
+### Domains und Identität
 
-**Schwächen**: Kein Quellcode-Zugang, Sie sind vollständig von GoHighLevels Plattformentscheidungen abhängig. US-zentriert mit eingeschränkten europäischen Compliance-Features. Preise eskalieren mit Add-ons. Daten liegen auf deren Infrastruktur. Wenn GoHighLevel Preise erhöht oder eingestellt wird, ist Ihr Geschäft gefährdet.
+Prüfen Sie Domain-Einrichtung, Zertifikate, DNS-Verantwortung, Absenderauthentifizierung, Weiterleitungen, Login-URLs, OAuth-Rücksprungdomains und Kunden-Offboarding. Ist SSO erforderlich, muss es heute implementiert und im passenden Vertrag enthalten sein.
 
-### Vendasta: Der Ökosystem-Ansatz
+### Mandantentrennung und Administration
 
-Vendasta bietet ein breites White-Label-Ökosystem für Agenturen: CRM, Fulfillment-Services und Wiederverkaufszugang zu über 250 Softwareprodukten.
+Klären Sie die Trennung von Kunden, Arbeitsbereichen, Nutzern, Rollen, Berechtigungen und Administratoren. Fragen Sie, wie Supportmitarbeitende auf einen Mandanten zugreifen, wie der Zugriff protokolliert und wie versehentlicher Zugriff zwischen Kunden verhindert wird.
 
-**Kernfunktionen:**
+### Bereitstellung und Lebenszyklus
 
-- White-Label-CRM mit vollem Branding
-- Marketplace mit 250+ wiederverkaufbaren Produkten
-- Kundendashboard unter Ihrer Marke
-- Fulfillment-Services für Marketing-Aufgaben
+Ein Reseller-Betrieb braucht wiederholbare Kontoanlage, Planwechsel, Sperrung, Löschung, Export und Migration. Manuelle Einrichtung kann bei wenigen Kunden funktionieren, wird aber schnell zum Betriebsengpass.
 
-**Preise**: Ab $79/Monat, skalierend nach Features und Kundenvolumen.
+### Betrieb und Support
 
-**Stärken**: Riesiges Produkt-Ökosystem, Sie können mehr als nur CRM weiterverkaufen.
+Weisen Sie Verantwortung für Verfügbarkeit, Backups, Wiederherstellungstests, Updates, Abhängigkeitsschwachstellen, Monitoring, Störungen, Kundensupport und Statuskommunikation zu. Self-Hosting überträgt Verantwortung; es entfernt sie nicht.
 
-**Schwächen**: Komplexität. Die Breite der Plattform kann überfordern. CRM-Features nicht so tief wie bei dedizierten Lösungen.
+### Daten- und Integrationsportabilität
 
-### SuiteDash: Der Kundenportal-Spezialist
+Testen Sie APIs, Webhooks, Exporte, stabile Kennungen, Löschung und Ausstieg. Eine gut brandbare Oberfläche ist eine schlechte Grundlage, wenn Kundendaten sich nicht verlässlich bewegen lassen.
 
-SuiteDash eignet sich gut für kleinere Agenturen, die primär ein professionelles gebrandetes Kundenportal mit CRM-Funktionen brauchen.
+### Kommerzielle und rechtliche Bedingungen
 
-**Preise**: Ab $19/Monat, White Label auf höheren Stufen verfügbar.
+Prüfen Sie aktuelle Preise, Nutzungslimits, Unterlizenzierungs- oder Wiederverkaufsrechte, Markenregeln, Service-Level, Auftragsverarbeitung, Kündigung und Migration anhand primärer Dokumente. Lassen Sie das beabsichtigte Angebot angemessen rechtlich prüfen.
 
-**Stärken**: Günstiger Einstieg, gutes Kundenportal, integrierte Rechnungsstellung.
+## Wo Customermates heute passt
 
-**Schwächen**: CRM-Features im Vergleich zu dedizierten Plattformen grundlegend. Begrenzte Marketing-Automatisierung.
+Customermates bietet einen Open-Source-CRM-Kern mit Kontakten, Organisationen, Deals, Services, Aufgaben, benutzerdefinierten Feldern, Ansichten, Dashboards, Aktivitäten, REST, Webhooks und MCP. Eigenes Material der Community Edition außerhalb von `ee/` steht ausschließlich unter AGPL-3.0. Eigene Dateien in `ee/` sind Commercial Software unter `ee/LICENSE.md`, vorbehaltlich der AGPL-Ausnahme für Client-Material in Abschnitt 6; Drittanbieter-Komponenten behalten ihre Lizenzen.
 
-### Customermates: Die Open-Source-Alternative
-
-Customermates verfolgt einen fundamental anderen Ansatz. Als Open-Source-Plattform bietet es vollen Quellcode-Zugang, Sie können alles vom Datenbankschema bis zur Benutzeroberfläche ändern, nicht nur Logos und Farben tauschen.
-
-**Kernfunktionen:**
-
-- Voller Quellcode-Zugang für unbegrenzte Anpassung
-- Self-Hosting-Option für vollständige Datenkontrolle
-- Verwaltetes White-Label-Branding ist über die Enterprise-Stufe und das Agentur-Programm vertraglich vereinbart; im Produkt ist es noch nicht implementiert
-- KI-Agenten bedienen das CRM: Claude, ChatGPT und Gemini lesen und schreiben Datensätze über [[derived.mcp.tools.total]] native MCP-Tools, die Dateneingabe für Kunden läuft über den Agenten
-- Nativer vereinheitlichter Posteingang: E-Mail, LinkedIn, WhatsApp, Instagram und Telegram an einem Ort im CRM, den dieselben Agenten lesen, entwerfen und versenden können
-- separate n8n-Integration für Workflow-Automatisierung
-- DSGVO-native Architektur, EU-gehostet
-- Pipeline-Management, Kontakt-Tracking, Deal-Management und volle CRM-Funktionalität
-
-**Preise**: Das Basis-CRM startet bei [[commercial.price.starter.monthly]] pro Nutzer und Monat (Starter). Verwaltetes White-Label-Branding wird auf der Enterprise-Stufe oder über das Agentur-Programm zu individuellen Konditionen vertraglich vereinbart; die Branding-Funktion selbst wird noch gebaut. Self-Hosting unter AGPL-3.0 kostet €0 Lizenzierung, und da Ihnen der Quellcode gehört, können Sie das Branding auch selbst auf Code-Ebene anpassen.
-
-**Stärken**: Umfangreiche Anpassung auf Code-Ebene für Teams, die einen Self-Hosted-Fork betreiben können. Direkte Kontrolle über die selbst gehostete Datenbank und Bereitstellung. Der Code kann im Rahmen von AGPL-3.0 geforkt werden.
-
-**Schwächen**: Erfordert technisches Know-how für Self-Hosting. Verwaltetes White-Label ist nicht implementiert und hat kein veröffentlichtes Angebot. Kein eingebauter Funnel-Builder oder SMS; externe Dienste lassen sich über API, Webhooks oder Ihre eigene n8n-Instanz anbinden. Kleinere Community als GoHighLevel.
-
-## Plattformvergleich: White-Label-CRM-Ansätze
-
-| Kriterium | GoHighLevel | Vendasta | SuiteDash | Customermates |
-|-----------|------------|---------|-----------|---------------|
-| Monatliche Kosten (50 Nutzer) | $297-497 Basis + pro Nutzer | $79+ Basis + Skalierung | $99+ | Individuelle Agentur-Konditionen / €0 Self-Hosting |
-| Quellcode-Zugang | Nein | Nein | Nein | Voll |
-| Self-Hosting | Nein | Nein | Nein | Ja |
-| Datenkontrolle | Beim Anbieter | Beim Anbieter | Beim Anbieter | Voll |
-| Branding-Tiefe | Oberfläche | Oberfläche | Oberfläche | Code-Ebene bei Self-Hosting; verwaltetes Branding vertraglich, nicht gebaut |
-| DSGVO/EU-Hosting | Eingeschränkt | Eingeschränkt | Eingeschränkt | Nativ |
-| Vendor-Lock-in-Risiko | Hoch | Hoch | Mittel | Keines |
-| Margenpotenzial | Mittel (hohe Basiskosten) | Mittel | Hoch | Höchstes (niedrigste Kostenbasis) |
-
-## Wichtige Bewertungskriterien für ein White-Label-CRM
-
-### Tiefe der Branding-Anpassung
-
-Mindestanforderungen an ein White-Label-CRM:
-
-- **Logo-Austausch**: Ihr Logo auf Login-Seite, Dashboard und Navigation
-- **Farbthema**: Ihre Markenpalette durchgehend in der Oberfläche
-- **Eigene Domain**: CRM unter Ihrer Domain bereitstellen (crm.ihremarke.de)
-- **E-Mail-Branding**: System-E-Mails von Ihrer Domain mit Ihren Templates
-- **Favicon und Titel**: Browser-Tab zeigt Ihre Marke
-
-Bei proprietären Plattformen bleibt Branding an der Oberfläche. Bei Open-Source-Plattformen wie Customermates geht Branding bis auf Code-Ebene: Sie können HTML, CSS, Komponentenstruktur, Navigation und sogar Geschäftslogik anpassen. Ein CRM für Zahnarztpraxen auf Customermates-Basis kann völlig anders aussehen als ein CRM für Immobilienmakler auf derselben Codebasis.
-
-### Datenhoheit und Datenschutz
-
-Wenn Sie ein CRM unter Ihrer Marke anbieten, sind Sie für die Daten Ihrer Kunden verantwortlich:
-
-- **Vollständiger Datenexport**: Alle Daten jederzeit in Standardformaten exportieren
-- **DSGVO-Konformität**: Eingebaute Tools für Einwilligungsverwaltung, Auskunftsanfragen und Recht auf Löschung
-- **EU-Hosting**: Datenresidenz innerhalb der EU, oft gesetzlich vorgeschrieben
-- **Verschlüsselung**: Daten verschlüsselt im Ruhezustand und bei der Übertragung
-- **Audit-Logging**: Nachvollziehbarkeit, wer wann welche Daten aufgerufen oder geändert hat
-- **Datenportabilität**: Können Sie alle Kundendaten mitnehmen, wenn Sie die Plattform verlassen?
-
-Bei proprietären Plattformen liegen Daten auf der Infrastruktur des Anbieters. Wenn der Anbieter Preise erhöht, Bedingungen ändert oder den Betrieb einstellt, sind die Daten Ihrer Kunden gefährdet. Bei Self-Hosting kontrollieren Sie die Datenbank direkt.
-
-Bei verwaltetem Customermates liegt die Anwendungsdatenbank in einer EU-Region. Das ist keine Zusage, dass jeder Unterauftragsverarbeiter oder jede Übermittlung in der EU bleibt: Prüfen Sie die jeweils aktuellen Datenschutz- und Subprozessor-Angaben. Beim Self-Hosting wählen Sie den Datenbankstandort und tragen die Verantwortung für die gesamte Verarbeitungskette.
-
-### Multi-Tenancy und Kundenisolation
-
-Wenn Sie mehrere Kunden von einer Installation bedienen, ist Multi-Tenancy entscheidend:
-
-- **Workspace-Isolation**: Daten jedes Kunden müssen vollständig getrennt sein
-- **Kundenspezifische Konfiguration**: Unterschiedliche Felder, Pipelines und Workflows pro Kunde
-- **Rollenbasierte Zugriffskontrolle**: Granulare Berechtigungen innerhalb jedes Workspace
-- **Skalierbare Architektur**: Neue Kunden hinzufügen, ohne die Performance zu beeinträchtigen
-- **Zentrale Administration**: Master-Ansicht über alle Kunden-Workspaces für Support und Management
-
-### Automatisierung und Workflow-Fähigkeiten
-
-Ein CRM ohne Automatisierung ist nur eine Datenbank. Ihr White-Label-CRM sollte bieten:
-
-- **Workflow-Automatisierung**: Aktionen basierend auf Datensatzänderungen, Daten oder Bedingungen auslösen
-- **E-Mail-Sequenzen**: Automatische Follow-up-E-Mails basierend auf Pipeline-Phase
-- **Aufgabenerstellung**: Automatische Aufgabenzuweisung bei Phasenwechsel
-- **Integrationsfähigkeit**: Anbindung an externe Tools über APIs oder Plattformen wie n8n
-- **Webhook-Unterstützung**: Daten in Echtzeit an andere Systeme pushen
-- **SMS-Integration**: Automatische Textnachrichten für Terminerinnerungen oder Follow-ups
-
-Customermates arbeitet mit n8n-Automatisierung nativ, Ihr White-Label-CRM kann sich mit tausenden externer Dienste verbinden, ohne eigene Integrationen zu bauen.
-
-## Schritt für Schritt: Ihr White-Label-CRM starten
-
-### Schritt 1: Zielmarkt und Nische definieren
-
-Bevor Sie eine Plattform wählen, klären Sie:
-
-- Welche Branche bedienen Sie? (Zahnärzte, Immobilien, Fitness, Beratung, E-Commerce)
-- Welche CRM-Funktionen braucht diese Branche wirklich?
-- Wie sieht die Wettbewerbslandschaft in dieser Nische aus?
-- Welches Preismodell akzeptiert der Markt?
-- Welche Integrationen sind Pflicht?
-- Welche Compliance-Anforderungen gelten? (DSGVO, branchenspezifisch)
-
-Je fokussierter Ihre Nische, desto leichter ist Anpassung und Vermarktung. Ein „CRM für Zahnarztpraxen" ist deutlich leichter zu verkaufen als ein „allgemeines Business-CRM", weil Sie Pipelines (Neuer Patient, Beratung, Behandlungsplan, Follow-up), Felder (Versicherung, Behandlungsart) und Automatisierungen (Terminerinnerungen, Bewertungsanfragen) branchengenau vorkonfigurieren können.
-
-### Schritt 2: Plattform wählen
-
-Entscheidungshilfe basierend auf Ihren Prioritäten:
-
-- **All-in-One mit minimalem technischem Aufwand**: GoHighLevel (Anbieterabhängigkeit und höhere Kostenbasis akzeptieren)
-- **Breites Produkt-Ökosystem zum Weiterverkauf**: Vendasta (Komplexität akzeptieren)
-- **Kundenportal mit CRM**: SuiteDash (begrenzte CRM-Tiefe akzeptieren)
-- **Kontrolle auf Code-Ebene**: Prüfen Sie eine selbst gehostete Customermates-Bereitstellung und ihre AGPL-3.0-Pflichten. Verwaltetes White-Label wird derzeit nicht ausgeliefert.
-
-### Schritt 3: Anpassen und branden
-
-1. **Auf Ihrer Infrastruktur bereitstellen** oder verwaltete Instanz konfigurieren
-2. **Branding anwenden**: Logo, Farben, Schriften, eigene Domain, E-Mail-Templates
-3. **Standards konfigurieren**: Pipelines, Felder und Workflows für Ihre Kunden einrichten
-4. **Vorlagen erstellen**: Vorkonfigurierte Setups für häufige Kundenszenarien
-5. **Gründlich testen**: Jeden kundensichtbaren Berührungspunkt prüfen, auch Fehlermeldungen, E-Mail-Benachrichtigungen und exportierte Berichte
-
-### Schritt 4: Kunden-Onboarding aufsetzen
-
-Erstellen Sie einen wiederholbaren Onboarding-Prozess:
-
-- Bereitstellungs-Workflow (wie schnell können Sie einen neuen Kunden live schalten?)
-- Datenimport-Prozeduren (CSV-Import, Migration von bestehenden Tools)
-- Schulungsmaterialien und Dokumentation unter Ihrem Branding
-- Video-Walkthroughs der wichtigsten Workflows
-- Support-Kanäle und Eskalationswege
-
-### Schritt 5: Preismodell definieren
-
-Gängige Preismodelle:
-
-- **Pro Nutzer pro Monat**: Einfach und planbar, spiegelt Standard-SaaS-Pricing wider
-- **Pauschale pro Kunde und Monat**: Besser für Kunden mit unterschiedlichen Teamgrößen
-- **Im Servicepaket gebündelt**: CRM-Zugang als Teil eines größeren Dienstleistungspakets, versteckt die CRM-Kosten und erhöht den wahrgenommenen Wert
-- **Gestaffelt nach Features**: Basis-, Professional- und Enterprise-Stufen für Upsell-Potenzial
-
-Customermates veröffentlicht derzeit keinen Preis für ein Agenturprogramm oder verwaltetes White-Label. Erstellen Sie deshalb keine Margenkalkulation auf Basis eines informellen Pro-Nutzer-Preises. Berücksichtigen Sie beim Self-Hosting Infrastruktur, Updates, Monitoring, Backups, Sicherheit, Support, Compliance, Engineering und Ihre Konditionen gegenüber Kunden. Holen Sie für eine künftige verwaltete White-Label-Option zuerst individuelle Vertragskonditionen ein.
-
-### Schritt 6: Starten und iterieren
-
-Starten Sie mit einer kleinen Gruppe von Pilotkunden. Sammeln Sie Feedback, verfeinern Sie die Erfahrung und expandieren Sie. Der Vorteil von Open Source: Sie können das Produkt basierend auf echtem Kundenfeedback ändern, ohne auf die Roadmap eines Anbieters warten zu müssen.
-
-## Häufige Fehler beim White-Label-CRM
-
-**Fehler 1: Plattform nur nach Preis wählen**. Die günstigste Option hat oft die meisten Einschränkungen. Bewerten Sie die Gesamtbetriebskosten inklusive Anpassungsgrenzen, möglicher Preiserhöhungen und Migrationskosten bei Anbieterwechsel.
-
-**Fehler 2: Branding-Tiefe unterschätzen**. Logo tauschen ist kein White Labeling. Jede E-Mail, Benachrichtigung, Fehlermeldung und jedes exportierte Dokument sollte Ihre Marke tragen. Open Source gibt Ihnen die Kontrolle für vollständiges Branding.
-
-**Fehler 3: DSGVO ignorieren**. Wenn Sie die Marke sind, sind Sie der Verantwortliche. Stellen Sie sicher, dass Ihre Plattform die Compliance-Anforderungen erfüllt. Für europäische Märkte ist DSGVO nicht verhandelbar, und „wir hosten in den USA mit Privacy-Shield-Äquivalent" reicht zunehmend nicht aus.
-
-**Fehler 4: Pilotphase überspringen**. Starten Sie mit einer Handvoll wohlgesonnener Kunden. Entdecken Sie Probleme bei niedrigen Einsätzen.
-
-**Fehler 5: Skalierung nicht einplanen**. Eine Plattform für 10 Nutzer kann bei 500 einknicken. Wählen Sie skalierbare Infrastruktur.
-
-**Fehler 6: Support vernachlässigen**. Ihre Kunden kommen zu Ihnen, nicht zum Hersteller. Planen Sie Support-Personal, Dokumentation und Eskalationswege von Tag eins. Kalkulieren Sie mindestens eine Support-Person pro 100 bis 150 aktive Nutzer.
-
-**Fehler 7: Anbieterabhängigkeit ohne Exit-Strategie**. Wenn GoHighLevel die Preise verdreifacht, was tun Sie? Bei Open Source können Sie die Codebasis forken und unabhängig weitermachen. Bei proprietären Plattformen sind Sie dem Anbieter ausgeliefert.
-
-**Fehler 8: Keinen Migrations-Service anbieten**. Potenzielle Kunden nutzen bereits ein Tool. Bieten Sie einen strukturierten Migrationsprozess an, das senkt die Einstiegshürde und ist eine zusätzliche Einnahmequelle (€500 bis €2.000 pro Migration).
-
-## FAQ: White Label CRM
+Customermates bietet heute **keine** unterstützte White-Label-Administration, SSO-Implementierung, verwaltete Cloud-Einrichtung für eine White-Label-Custom-Domain, Reseller-Abrechnung, Konsole zur Bereitstellung mehrerer Kunden oder ein verwaltetes Agenturprogramm. Selbsthoster können eine eigene Domain über `BASE_URL`, Reverse-Proxy und TLS einrichten, müssen diese Infrastruktur aber selbst konfigurieren und betreiben. White-Label- und SSO-Hinweise in der Enterprise-Preisdarstellung bezeichnen vertragliche, nicht implementierte Arbeiten – keine verfügbaren Schalter.
+
+Self-Hosting ist nicht das Cloud-Produkt unter einem anderen Logo. Die dokumentierte Self-Hosting-Berechtigung basiert auf Starter: keine Unified Inbox, keine verbundenen Messaging-Konten, keine geteilten Konten und kein gehostetes KI-Kontingent. Betreiber verantworten außerdem Bereitstellung und Wartung.
+
+Customermates kann deshalb erst nach Prüfung von Lizenz, Marke, Produkt und Betrieb als veränderbare CRM-Grundlage bewertet werden. Als fertiges White-Label-CRM sollte es derzeit nicht ausgewählt werden.
+
+## Eine verantwortbare Evaluierungsfolge
+
+<Steps>
+  <Step title="Angebot definieren">
+    Legen Sie Kundenversprechen, Workflow und alle Markenflächen, Domains, Identitäten und Supportwege fest.
+  </Step>
+  <Step title="Mandantenmodell wählen">
+    Entscheiden Sie, ob Kunden getrennte Mandanten, Deployments oder Arbeitsbereiche benötigen.
+  </Step>
+  <Step title="Betriebsverantwortung zuordnen">
+    Ordnen Sie Verträge, Datenrollen, Abrechnung, Support, Störungen, Backups und Updates zu.
+  </Step>
+  <Step title="Aktuelles Produkt prüfen">
+    Prüfen Sie erforderliche Funktionen in einer Live-Demo und in der aktuellen technischen Dokumentation.
+  </Step>
+  <Step title="Rechtsgrundlage prüfen">
+    Prüfen Sie Lizenz, Marke, Wiederverkauf und Auftragsverarbeitung für das genaue Material und Betriebsmodell in Primärdokumenten.
+  </Step>
+  <Step title="Kundenlebenszyklus testen">
+    Bauen Sie eine repräsentative Umgebung und testen Sie Anlage, Nutzung, Support, Export und Löschung.
+  </Step>
+  <Step title="Gesamtkosten modellieren">
+    Berücksichtigen Sie realistische Kunden-, Infrastruktur-, Update- und Supportmengen.
+  </Step>
+  <Step title="Begrenzten Pilot durchführen">
+    Starten Sie erst mit einer kleinen Gruppe, wenn Betrieb und Ausstieg funktionieren.
+  </Step>
+</Steps>
+
+Ein ansprechender Login-Bildschirm ist kein ausreichender Beleg. Testen Sie den vollständigen Kundenlebenszyklus.
+
+## Was ein White-Label-CRM kostet
+
+Es gibt keine dauerhaft gültige Universalspanne. Kosten können Plattformgebühren, Lizenzen pro Nutzer oder Kunde, Einführung, Marken-Domains und E-Mail, Integrationen, Hosting, Monitoring, Backups, Support, Abrechnung, Rechtsprüfung, Migrationen und laufende Updates umfassen.
+
+Vergleichen Sie Modelle mit demselben Szenario:
+
+- erwartete Kunden und aktive Nutzer;
+- benötigte Module und Integrationen;
+- Supportstunden und Eskalationsquote;
+- Infrastruktur- und Nachrichtenvolumen;
+- Update- und Sicherheitsaufwand;
+- Abwanderung, Export und Löschung;
+- Mindestabnahmen und Nutzungslimits.
+
+Entscheidend ist der Beitrag nach Betrieb des Service, nicht nur der Einstiegspreis des Anbieters.
+
+## Häufige Fehler
+
+- ein eigenes Logo mit einem White-Label-Betriebsmodell gleichsetzen;
+- aus Open Source uneingeschränkte Rebranding- oder Wiederverkaufsrechte ableiten;
+- getrennte Lizenzen und Marken ignorieren;
+- nicht implementiertes SSO, eigene Domains oder Mandantensteuerung versprechen;
+- Kundenbereitstellung und Support unterschätzen;
+- einen Arbeitsbereich teilen, obwohl Trennung erforderlich ist;
+- Updates, Backups und Störungen ohne Verantwortlichen lassen;
+- aus dem Gedächtnis mit Anbieterpreisen planen;
+- Onboarding ohne Export- und Ausstiegsweg gestalten.
+
+## Häufige Fragen
 
 <Faq>
 <FaqItem question="Was ist ein White-Label-CRM?">
-Ein White-Label-CRM ist eine Kundenmanagement-Software, die von einem Unternehmen entwickelt und von einem anderen unter eigener Marke angeboten wird. Ihre Kunden sehen Ihr Logo, Ihre Farben, Ihre Domain und Ihren Firmennamen. Es ermöglicht Agenturen, IT-Dienstleistern und SaaS-Unternehmern, ein gebrandetes CRM anzubieten, ohne eines von Grund auf zu entwickeln.
+Es ist CRM-Software, die ein anderes Unternehmen aufgrund einer ausdrücklichen Lizenz oder kommerziellen Vereinbarung unter eigener Marke anbieten und betreiben darf. Branding, Hosting, Mandanten, Support und Wiederverkaufsrechte unterscheiden sich.
+</FaqItem>
+
+<FaqItem question="Was unterscheidet White Label und Reseller CRM?">
+White Label betont die Marke des Partners. Reselling betont die kommerzielle Beziehung und kann die Anbietermarke erhalten. Ein Programm kann beides verbinden; Produktsteuerung und Vertrag bestimmen das Ergebnis.
+</FaqItem>
+
+<FaqItem question="Kann ein Open-Source-CRM als White-Label-CRM dienen?">
+Möglicherweise, aber nicht automatisch. Prüfen Sie Softwarelizenz, Hinweise, Marken, getrennt lizenzierte Komponenten, Hosting-Modell und Verteilungspflichten und holen Sie angemessenen Rechtsrat ein.
 </FaqItem>
 
 <FaqItem question="Was kostet ein White-Label-CRM?">
-GoHighLevel berechnet $297 bis $497 pro Monat für Agentur-White-Labeling. Vendasta startet ab $79 pro Monat plus Skalierungsgebühren. Open-Source-Self-Hosted-CRMs können ohne Software-Lizenzgebühr auskommen, erfordern aber Infrastruktur, Wartung, Support und Compliance-Arbeit. Das verwaltete Customermates-Basis-CRM startet bei [[commercial.price.starter.monthly]] pro Nutzer und Monat; verwaltetes White-Label ist nicht implementiert und hat keinen veröffentlichten Preis. Eine künftige Variante würde individuelle Vertragskonditionen erfordern.
+Das hängt von Lizenzen, Kunden, Nutzern, Hosting, Integration, Support, Abrechnung, Sicherheitsbetrieb, Updates und Rechtsarbeit ab. Vergleichen Sie vollständige Betriebsszenarien statt einer allgemeinen Preisspanne.
 </FaqItem>
 
-<FaqItem question="Kann ich ein Open-Source-CRM als White-Label-Lösung nutzen?">
-Grundsätzlich ja. Customermates stellt den Quellcode unter AGPL-3.0 bereit, sodass ein Self-Hosting-Team die Software unter Einhaltung dieser Lizenz ändern kann. Prüfen Sie die Lizenzpflichten sowie geltende Marken- und Branding-Anforderungen, bevor Sie eine geänderte Bereitstellung als eigenes Angebot vermarkten.
+<FaqItem question="Enthält White Label automatisch eigene Domains und SSO?">
+Nein. Logo-Steuerung, Domains, E-Mail-Identität, SSO, Bereitstellung und Mandantenadministration sind getrennte Fähigkeiten, die im aktuellen Produkt und Vertrag geprüft werden müssen.
 </FaqItem>
 
-<FaqItem question="Was ist der Unterschied zwischen White Label und Reseller CRM?">
-Bei einem White-Label-CRM sehen Ihre Kunden ausschließlich Ihre Marke. Sie wissen nicht, dass ein Dritter die Software entwickelt hat. Bei einem Reseller-CRM nutzen die Kunden das Markenprodukt des Anbieters. Sie verdienen eine Provision, haben aber wenig Kontrolle über Erfahrung, Preisgestaltung und Roadmap.
+<FaqItem question="Ist Customermates ein fertiges White-Label-CRM?">
+Nein. Customermates enthält derzeit keine White-Label-Steuerung, kein SSO, keine verwaltete Cloud-Einrichtung für eine White-Label-Custom-Domain, keine Reseller-Abrechnung und kein verwaltetes Reseller-Programm. Selbsthoster können ihre eigene Domain-Infrastruktur konfigurieren. Enterprise-Hinweise zu White Label und SSO sind vertragliche, nicht implementierte Konzepte.
 </FaqItem>
 
-<FaqItem question="Was ist besser für Agenturen: GoHighLevel oder Open-Source-CRM?">
-GoHighLevel bietet eine All-in-One-Plattform mit eingebautem SMS, Funnels und SaaS-Wiederverkaufsmodus. Ein selbst gehostetes Open-Source-CRM wie Customermates bietet Anpassung auf Code-Ebene und direkte Kontrolle der Bereitstellung; der Betreiber übernimmt dafür Infrastruktur, Support, Sicherheit, Compliance und Lizenzpflichten. Customermates bietet derzeit kein verwaltetes White-Label-Programm, daher handelt es sich heute nicht um eine gleichartige kommerzielle Alternative.
-</FaqItem>
-
-<FaqItem question="Eignet sich White-Label-CRM auch für kleine Agenturen?">
-Eine kleine Agentur kann proprietäre White-Label-Programme prüfen oder eine lizenzkonforme Open-Source-Bereitstellung betreiben, muss aber Betrieb und Support einplanen. Customermates bietet derzeit kein verwaltetes White-Label-Programm und veröffentlicht keine Agenturpreise; sprechen Sie über individuelle Vertragskonditionen erst, wenn eine künftige verwaltete Option relevant ist.
-</FaqItem>
-
-<FaqItem question="Wie stelle ich DSGVO-Konformität sicher?">
-Prüfen Sie die tatsächliche Verarbeitungskette, Rollen, Auftragsverarbeitungsverträge, Unterauftragsverarbeiter, Übermittlungsmechanismen, Löschprozesse und Exportwege; eine EU-Datenbankregion allein macht eine Bereitstellung nicht konform. Beim verwalteten Customermates liegt die Anwendungsdatenbank in einer EU-Region, Unterauftragsverarbeiter und internationale Übermittlungen müssen dennoch geprüft werden. Beim Self-Hosting wählt der Betreiber die Region und übernimmt diese Pflichten.
-</FaqItem>
-
-<FaqItem question="Wie viel kann ich mit einem White-Label-CRM verdienen?">
-Der Umsatz hängt von Preis, Kundenbasis, Supportaufwand, Infrastruktur, Engineering, Compliance und Akquisekosten ab. Verwenden Sie Angebote der tatsächlich geprüften Anbieter und Ihr eigenes Betriebskostenmodell. Customermates hat derzeit keinen veröffentlichten Managed-White-Label-Preis; aus dem öffentlichen Angebot lässt sich daher kein belastbares Customermates-Margenbeispiel berechnen.
+<FaqItem question="Kann ich eine selbst gehostete Customermates-Installation umbenennen?">
+Leiten Sie das nicht allein aus „Open Source“ ab. Prüfen Sie AGPL-3.0-Pflichten, Hinweise, Customermates-Marken und `ee/LICENSE.md`: Eigene Dateien in `ee/` sind Commercial Software vorbehaltlich der AGPL-Ausnahme für Client-Material in Abschnitt 6; Drittanbieter-Komponenten behalten ihre Lizenzen. Hosting oder Wiederverkauf hängen vom genauen Material und den anwendbaren Bedingungen ab.
 </FaqItem>
 </Faq>
-
-## Fazit: Ihr CRM, Ihre Marke, Ihre Kontrolle
-
-Ein White-Label-CRM ist der pragmatische Mittelweg zwischen teurer Eigenentwicklung und anonymem Reselling. Für Agenturen, IT-Dienstleister und SaaS-Unternehmen bietet es die Möglichkeit, ein professionelles CRM unter eigenem Namen anzubieten, ohne Jahre der Entwicklung und ohne Millionenbudget.
-
-Customermates stellt seinen Quellcode unter AGPL-3.0 bereit und kann selbst gehostet werden. Ein Team kann den Code unter Beachtung der Lizenz und geltender Markenanforderungen anpassen und externe Workflows über API oder Webhooks mit einer eigenen n8n-Instanz verbinden. Ein verwaltetes White-Label-Programm ist derzeit nicht ausgeliefert und hat keinen veröffentlichten Preis.
-
-Der erste Schritt? Installieren Sie Customermates, passen Sie das Branding an Ihre Marke an und zeigen Sie Ihren ersten Kunden, was möglich ist.

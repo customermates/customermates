@@ -23,7 +23,7 @@ const alertColorVariants = cva("inline-links", {
   },
 });
 
-const iconByColor = {
+export const ALERT_ICONS = {
   default: Info,
   success: CheckCircle2,
   warning: AlertCircle,
@@ -41,7 +41,7 @@ type Props = React.ComponentProps<"div"> &
 
 export function Alert({ className, color = "default", title, description, icon, hideIcon, children, ...props }: Props) {
   const resolvedColor = color ?? "default";
-  const DefaultIcon = iconByColor[resolvedColor];
+  const DefaultIcon = ALERT_ICONS[resolvedColor];
 
   return (
     <UiAlert className={cn(alertColorVariants({ color: resolvedColor }), className)} {...props}>

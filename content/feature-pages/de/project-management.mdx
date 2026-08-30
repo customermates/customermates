@@ -1,10 +1,16 @@
 ---
-title: "CRM Projektmanagement: Aufgaben & Kanban-Boards"
+title: "CRM-Aufgaben mit Projektkontext und Kanban"
 description: "Projektmanagement im CRM: Aufgaben mit Deals, Kontakten und Organisationen verknüpfen, zuweisen und auf Kanban-Boards steuern. Anbindung an ein separates n8n."
 featureName: Projektmanagement
 
+relatedHrefs:
+  - /features/integrations
+  - /features/lead-management
+  - /features/lead-tracking
+  - /features/linkedin-integration
+
 hero:
-  title: Projektmanagement direkt in Ihrem CRM
+  title: CRM-Aufgaben mit Projektkontext
   description: Verknüpfen Sie Aufgaben mit Deals, Kontakten und Organisationen, weisen Sie Arbeit zu und verfolgen Sie Fortschritt im Kanban-Board des CRM. Ein unterstützter externer KI-Client kann zulässige Aufgaben über MCP aktualisieren; Client, Modell und Workflow-Laufzeit bleiben separat.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
@@ -13,8 +19,8 @@ hero:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 
 cta:
-  action: Bereit loszulegen?
-  description: Starten Sie heute mit Customermates und wechseln Sie zu einem agentischen Open-Source CRM für flexible Workflows.
+  action: Übergabe von Vertrieb zu Leistung testen
+  description: Erstellen Sie eine Aufgabe, verknüpfen Sie sie mit einem Deal und prüfen Sie, ob der CRM-Kontext genügt oder ein separates Projektsystem führend bleiben muss.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -24,11 +30,11 @@ cta:
 
 ## Was ist CRM Projektmanagement?
 
-CRM Projektmanagement ist die Verwaltung von Aufgaben und Teamzusammenarbeit direkt innerhalb Ihrer Kundenbeziehungsmanagement-Plattform. Anstatt zwischen einem CRM für den Vertrieb und einem separaten Tool wie Monday, Asana oder Trello für Projektverfolgung zu wechseln, hält ein CRM mit integriertem Projektmanagement alles in einem System verbunden.
+Projektkontext im CRM verbindet einfache Aufgaben mit Kunden- und Pipeline-Datensätzen. Das kann Übergaben erleichtern, ohne Customermates als Ersatz für Monday, Asana, Trello oder ein anderes Projektsystem darzustellen.
 
-Für viele Unternehmen ist die Übergabe vom Vertrieb an die Leistungserbringung der Punkt, an dem Dinge auseinanderfallen. Ein Deal wird abgeschlossen, aber die Aufgaben zur Erfüllung der Zusage leben in einem anderen System. Kontext geht verloren, Fristen verstreichen und Kunden bemerken den Bruch. Wenn Projektmanagement und CRM dieselbe Plattform teilen, wird diese Übergabe nahtlos. Deal-Datensatz, Kundenhistorie, Kommunikationsprotokolle und Projektaufgaben existieren an einem Ort.
+Bei der Übergabe vom Vertrieb an die Leistungserbringung geht häufig Kontext verloren. Customermates kann ausgewählte Aufgaben mit Deal, Kontakt, Organisation oder Service verknüpfen. Projektpläne, Zeitpläne, Vorlagen, Abhängigkeiten, Dateien und Lieferberichte bleiben bei Bedarf im zuständigen Projektsystem.
 
-Über die Vertriebs-zu-Lieferungs-Transition hinaus ist CRM Projektmanagement wertvoll für die Verwaltung interner Vertriebsoperationen, Kampagnenkoordination, Angebots-Workflows, Onboarding-Sequenzen und Account-Reviews. Jeder Prozess, der mehrere Schritte, mehrere Personen und Kundenkontext umfasst, profitiert von Projektmanagement innerhalb des CRM.
+Diese begrenzte Aufgabenebene eignet sich für Angebotsvorbereitung, Onboarding-Checklisten und Account-Review-Folgetätigkeiten, deren CRM-Beziehung wichtig ist. Sie ist kein allgemeines Projekt-, Kampagnen- oder Arbeitsmanagementmodul.
 
 ## So funktioniert Projektmanagement in Customermates
 
@@ -44,9 +50,9 @@ Customermates verwaltet Projektkontext über Aufgaben, die mit Kontakten, Deals,
 
 **Statusverfolgung mit benutzerdefinierten Feldern.** Verfolgen Sie den Fortschritt mit einer definierten Einfachauswahl: offen, in Bearbeitung, in Prüfung oder erledigt. Ergänzen Sie bei Bedarf ein eigenes Datumsfeld und filtern oder sortieren Sie nach diesen Werten, Verantwortlichem oder verknüpftem Datensatz.
 
-**Dashboard-Diagramme über Ihre Aufgaben.** Fügen Sie dem persönlichen Dashboard Diagramm-Widgets hinzu, um Aufgaben nach Verantwortlichem, verknüpftem Deal oder einem eigenen Auswahlfeld darzustellen. Widgets visualisieren gespeicherte Werte und aktualisieren sich mit den Aufgaben.
+**Dashboard-Diagramme über Ihre Aufgaben.** Ergänzen Sie ein Widget für die Gesamtzahl der Aufgaben und gruppieren Sie es optional nach einem eigenen Single-Select-Aufgabenfeld. Für Verantwortliche oder Beziehungen nutzen Sie unterstützte Filter und Ansichten; das Diagramm gruppiert nicht nach Verantwortlichem oder Deal.
 
-**Notizen und Historie.** Fügen Sie einer Aufgabe Notizen hinzu, während die Arbeit voranschreitet, und pflegen Sie eine laufende Historie dessen, was wann getan wurde, getrennt vom übergeordneten Deal- oder Kontaktdatensatz.
+**Aufgabennotizen.** Ergänzen Sie den aktuellen Arbeitsstand als Notiz. Eine Notiz ist kein versioniertes Arbeitsprotokoll, keine Zeiterfassung und kein Nachweis, was wann geändert wurde.
 
 **Automatisierung mit separatem n8n.** Ein separat betriebener n8n-Workflow kann auf Webhooks reagieren, Aufgaben per REST anlegen, eigene Datumsfelder nach seinem Zeitplan auswerten und über externe Anbieter Benachrichtigungen senden. Customermates bündelt weder Engine, Scheduler noch Zustellung.
 
@@ -58,9 +64,9 @@ Customermates verwaltet Projektkontext über Aufgaben, die mit Kontakten, Deals,
 
 **Quartalsweise Account-Reviews.** Ein separater n8n-Scheduler kann unterstützte Review-Aufgaben für wichtige Kunden erstellen. Nutzen Sie eigene Datumsfelder für Zieldaten; Wiederholung, Erinnerungen, Kalenderbuchung und Zustellung bleiben im separaten Workflow oder beim Anbieter.
 
-**Marketing-Kampagnen-Ausführung.** Planen und führen Sie Marketingkampagnen mit Projektaufgabenlisten durch, die Contenterstellung, Design, Review, Terminierung, Distribution und Performance-Analyse verfolgen. Verknüpfen Sie Kampagnenaufgaben mit den generierten Kontakten und Deals für vollständige Attribution.
+**Marketing-Folgeaufgaben.** Verknüpfen Sie ausgewählte Aufgaben mit Kontakten oder Deals, wenn eine Marketing-Übergabe CRM-Kontext braucht. Customermates besitzt weder Kampagnenobjekt noch Content-Kalender, Distribution oder Attributionsmodell.
 
-**Kunden-Implementierungsprojekte.** Für Produkte oder Dienstleistungen, die eine Implementierung erfordern, verwalten Sie den gesamten Prozess innerhalb des CRM. Technisches Setup, Datenmigration, Nutzerschulung und Go-Live-Aufgaben werden neben dem Kundendatensatz verfolgt.
+**Übergabe in die Kundenimplementierung.** Verknüpfen Sie wenige kundenbezogene Folgeaufgaben mit dem Deal. Technische Planung, Migration, Schulungszeitplan, Abhängigkeiten und Go-Live-Steuerung bleiben im für die Projektlieferung zuständigen System.
 
 **Internes Prozessmanagement.** Nutzen Sie verknüpfte Aufgaben für interne Prozesse wie Einstellungs-Workflows, Schulungsprogramme, Büroumzüge oder Prozessverbesserungen. Dieselben CRM-Aufgaben unterstützen kundenbezogene und interne Arbeit.
 
@@ -70,7 +76,7 @@ Customermates verwaltet Projektkontext über Aufgaben, die mit Kontakten, Deals,
 
 **Klare Verantwortlichkeit.** Jede Aufgabe kann einen Besitzer haben und mit CRM-Datensätzen verknüpft sein; ergänzen Sie eigene Datums- oder Auswahlfelder. Native Fälligkeit oder Aufgabenstatus gibt es nicht.
 
-**Nahtloser Deal-zu-Projekt-Übergang.** Wenn ein Deal abgeschlossen wird, sind die Projektaufgaben für die Lieferung bereits mit dem Deal-Datensatz verknüpft. Das Lieferungsteam hat sofortigen Zugang zur Deal-Historie, Kundennotizen und relevantem Kontext ohne manuelles Übergabedokument.
+**Bewusste Übergabe vom Deal zur Leistung.** Erreicht ein Deal die passende Stufe, kann ein Nutzer oder separat betriebener Workflow die nötigen Aufgaben erstellen und verknüpfen. Ohne konfigurierten und getesteten externen Ablauf entsteht weder automatisch ein Projekt noch eine Liefer-Checkliste.
 
 **Fokussierter CRM-Umfang.** Customermates enthält verknüpfte Aufgaben, Deals, eigene Felder und Kanban-Ansichten ab Starter. Es ersetzt keine dedizierte Projektmanagement-Plattform; binden Sie diese für Projektmodell, Zeitplanung oder Vorlagen separat an.
 
@@ -93,10 +99,3 @@ Customermates verwaltet Projektkontext über Aufgaben, die mit Kontakten, Deals,
 ## Starten Sie heute mit CRM Projektmanagement
 
 Beginnen Sie heute mit Projektkontext in Customermates. Erstellen Sie eine Aufgabe, verknüpfen Sie sie mit einem Deal und weisen Sie sie zu. Verbinden Sie einen unterstützten externen KI-Client oder separaten n8n-Workflow nur für zulässige Aufgabenerstellung; Abos, Zeitplanung und Laufzeit bleiben extern.
-
-<RelatedPages>
-  <RelatedPage href="/features/integrations" />
-  <RelatedPage href="/features/lead-management" />
-  <RelatedPage href="/features/lead-tracking" />
-  <RelatedPage href="/features/linkedin-integration" />
-</RelatedPages>

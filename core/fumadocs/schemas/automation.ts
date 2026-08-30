@@ -3,6 +3,16 @@ import { z } from "zod";
 
 import { ctaSchema, faqSchema, featuresSchema } from "./common";
 
+const architectureSchema = z.object({
+  boundary: z.string(),
+  crmDescription: z.string(),
+  crmTitle: z.string(),
+  description: z.string(),
+  interfaceTitle: z.string(),
+  title: z.string(),
+  workflowDescription: z.string(),
+});
+
 const benefitItemSchema = z.object({
   description: z.string(),
   icon: z.string(),
@@ -26,19 +36,13 @@ export const heroSchema = z.object({
 });
 export type Hero = z.infer<typeof heroSchema>;
 
-export const pricingTitleSchema = z.object({
-  subtitle: z.string(),
-  title: z.string(),
-});
-export type PricingTitle = z.infer<typeof pricingTitleSchema>;
-
 export const automationSchema = frontmatterSchema.extend({
+  architecture: architectureSchema,
   benefits: benefitsSchema,
   cta: ctaSchema,
   description: z.string(),
   faq: faqSchema,
   features: featuresSchema,
   hero: heroSchema,
-  pricingTitle: pricingTitleSchema.optional(),
   title: z.string(),
 });
