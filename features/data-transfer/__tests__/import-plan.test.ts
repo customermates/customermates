@@ -324,3 +324,33 @@ describe("buildPlan channels", () => {
     expect(result.create).toHaveLength(0);
   });
 });
+
+describe("buildPlan identifier merging", () => {
+  it("combines a mapped channel column with the Channels sheet, without duplicating a shared value", () => {
+    const result = plan(
+      [{ kind: "recordId" }, { kind: "identifier", provider: "mail" }],
+      ["ID", "Email"],
+      [["", "ADA@example.com, second@example.com"]],
+      [
+        { row: "2", provider: "mail", value: "ada@example.com" },
+        { row: "2", provider: "linkedin", value: "in/ada" },
+      ],
+    );
+
+    expect(result.create[0].payload.identifiers).toEqual([
+      { provider: "mail", value: "ADA@example.com" },
+      { provider: "mail", value: "second@example.com" },
+      { provider: "linkedin", value: "in/ada" },
+    ]);
+  });
+
+  it("keeps a mapped channel column working on its own, with no Channels sheet present", () => {
+    const result = plan(
+      [{ kind: "recordId" }, { kind: "identifier", provider: "whatsapp" }],
+      ["ID", "Phone"],
+      [["", "+4915112345678"]],
+    );
+
+    expect(result.create[0].payload.identifiers).toEqual([{ provider: "whatsapp", value: "+4915112345678" }]);
+  });
+});

@@ -42,6 +42,21 @@ export type IdentifierRow = { provider: string; value: string; displayName?: str
 
 const FIRST_DATA_ROW = 2;
 
+function mergeIdentifiers(mapped: IdentifierRow[], fromSheet: IdentifierRow[]): IdentifierRow[] {
+  const merged: IdentifierRow[] = [];
+  const seen = new Set<string>();
+
+  for (const entry of [...mapped, ...fromSheet]) {
+    const key = `${entry.provider}:${entry.value.toLocaleLowerCase()}`;
+    if (seen.has(key)) continue;
+
+    seen.add(key);
+    merged.push(entry);
+  }
+
+  return merged;
+}
+
 const MESSAGING_PROVIDERS = new Set<string>(Object.values(MessagingProvider));
 
 export function identifiersBySheetRow(rows: Array<Record<string, string>>): Map<number, IdentifierRow[]> {
@@ -211,7 +226,8 @@ export function buildPlan(args: {
 
       for (const entry of unknown) fail(null, "unknownProvider", `"${entry.provider}" is not a known channel type`);
 
-      if (unknown.length === 0) payload.identifiers = sheetIdentifiers;
+      if (unknown.length === 0)
+        payload.identifiers = mergeIdentifiers((payload.identifiers as IdentifierRow[]) ?? [], sheetIdentifiers);
     }
 
     if (rowFailed) continue;

@@ -1,7 +1,9 @@
 "use client";
 
+import type { ImportRowIssue } from "@/features/data-transfer/import/import-issues";
 import type { MappingTarget } from "@/features/data-transfer/import/import-mapping";
 
+import { MessagingProvider } from "@/generated/prisma";
 import { observer } from "mobx-react-lite";
 import { useRef } from "react";
 import { useTranslations } from "next-intl";
@@ -12,6 +14,7 @@ import { AppCardFooter } from "@/components/card/app-card-footer";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppModal } from "@/components/modal";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { WizardProgress } from "@/components/shared/wizard-progress";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -24,10 +27,19 @@ const IGNORE_VALUE = "ignore";
 
 const RECORD_ID_VALUE = "recordId";
 
+function columnPrefix(issue: ImportRowIssue): string {
+  const letter = issue.columnLetter ? `${issue.columnLetter}. ` : "";
+
+  return `${letter}${issue.columnLabel}:`;
+}
+
+const ISSUE_DISPLAY_LIMIT = 200;
+
 function decodeTarget(value: string): MappingTarget {
   if (value === IGNORE_VALUE) return { kind: "ignore" };
   if (value === RECORD_ID_VALUE) return { kind: "recordId" };
   if (value.startsWith("custom:")) return { kind: "customField", columnId: value.slice("custom:".length) };
+  if (value.startsWith("identifier:")) return { kind: "identifier", provider: value.slice("identifier:".length) };
 
   return { kind: "field", key: value.slice("field:".length) };
 }
@@ -49,6 +61,13 @@ export const ImportWizard = observer(function ImportWizard() {
     value: `custom:${column.id}`,
     label: column.label,
   }));
+
+  const channelOptions = store.descriptor.supportsIdentifiers
+    ? Object.values(MessagingProvider).map((provider) => ({
+        value: `identifier:${provider}`,
+        label: t("DataTransfer.import.channelOption", { provider: t(`Common.providers.${provider}`) }),
+      }))
+    : [];
 
   return (
     <AppModal
@@ -110,11 +129,23 @@ export const ImportWizard = observer(function ImportWizard() {
                 {t("DataTransfer.import.mappingHint", { file: store.fileName, rows: store.parsed.rows.length })}
               </p>
 
+              {store.duplicateTargetCount > 0 && (
+                <p className="text-sm text-destructive">
+                  {t("DataTransfer.import.duplicateTargets", { count: store.duplicateTargetCount })}
+                </p>
+              )}
+
               <ul className="space-y-2">
                 {store.parsed.sources.map((source, index) => (
                   <li key={source.index} className="flex items-center gap-3">
-                    <span className="w-1/3 min-w-0 truncate text-sm font-medium">
-                      {`${source.letter}. ${source.header || t("DataTransfer.import.unnamedColumn")}`}
+                    <span className="flex w-1/3 min-w-0 flex-col">
+                      <span className="truncate text-sm font-medium">
+                        {`${source.letter}. ${source.header || t("DataTransfer.import.unnamedColumn")}`}
+                      </span>
+
+                      {source.samples.length > 0 && (
+                        <span className="truncate text-xs text-muted-foreground">{source.samples.join(", ")}</span>
+                      )}
                     </span>
 
                     <Select
@@ -137,6 +168,12 @@ export const ImportWizard = observer(function ImportWizard() {
                         ))}
 
                         {customOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+
+                        {channelOptions.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
                             {option.label}
                           </SelectItem>
@@ -167,16 +204,38 @@ export const ImportWizard = observer(function ImportWizard() {
                   </p>
 
                   <ul className="max-h-80 space-y-1 overflow-y-auto text-sm">
-                    {store.issues.slice(0, 200).map((issue, index) => (
+                    {store.issues.slice(0, ISSUE_DISPLAY_LIMIT).map((issue, index) => (
                       <li key={index} className="flex gap-2">
                         <span className="shrink-0 font-mono text-xs text-muted-foreground">
                           {issue.sheetRow ? `${t("DataTransfer.import.row")} ${issue.sheetRow}` : "-"}
                         </span>
 
-                        <span className="min-w-0">{issue.message}</span>
+                        <span className="min-w-0">
+                          {issue.columnLabel && <span className="mr-1 font-medium">{columnPrefix(issue)}</span>}
+
+                          {issue.message}
+                        </span>
                       </li>
                     ))}
                   </ul>
+
+                  {store.issues.length > ISSUE_DISPLAY_LIMIT && (
+                    <p className="text-xs text-muted-foreground">
+                      {t("DataTransfer.import.moreIssues", { count: store.issues.length - ISSUE_DISPLAY_LIMIT })}
+                    </p>
+                  )}
+
+                  {store.skippableCount > 0 && (
+                    <label className="flex items-center gap-2 text-sm" htmlFor="import-skip-invalid">
+                      <Checkbox
+                        checked={store.skipInvalid}
+                        id="import-skip-invalid"
+                        onCheckedChange={(checked) => store.setSkipInvalid(checked === true)}
+                      />
+
+                      {t("DataTransfer.import.skipInvalid", { count: store.skippableCount })}
+                    </label>
+                  )}
                 </div>
               )}
             </div>
@@ -190,6 +249,12 @@ export const ImportWizard = observer(function ImportWizard() {
                   updated: store.summary.updated,
                 })}
               </p>
+
+              {store.summary.skipped > 0 && (
+                <p className="text-muted-foreground">
+                  {t("DataTransfer.import.resultSkipped", { count: store.summary.skipped })}
+                </p>
+              )}
 
               {store.summary.stoppedAtSheetRow !== null && (
                 <p className="text-destructive">
@@ -218,7 +283,7 @@ export const ImportWizard = observer(function ImportWizard() {
 
           {store.step === "mapping" && (
             <Button
-              disabled={store.isBusy}
+              disabled={store.isBusy || store.duplicateTargetCount > 0}
               id="import-validate"
               type="button"
               onClick={() => runUserAction(() => store.runDryRun())}

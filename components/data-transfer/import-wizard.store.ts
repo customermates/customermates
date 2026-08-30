@@ -17,9 +17,18 @@ import {
 import { CHANNELS_SHEET_NAME, IMPORT_CHUNK_SIZE, type ImportMode } from "@/features/data-transfer/data-transfer.schema";
 import { IMPORT_ENTITIES } from "@/features/data-transfer/import/import-entity.registry";
 import { ImportFileError, readWorkbookFile } from "@/features/data-transfer/import/read-workbook-file";
-import { autoMatchColumns, mappingFromSchemaSheet } from "@/features/data-transfer/import/import-mapping";
+import {
+  autoMatchColumns,
+  duplicateTargets,
+  mappingFromSchemaSheet,
+} from "@/features/data-transfer/import/import-mapping";
 import { buildPlan, chunkRows, identifiersBySheetRow } from "@/features/data-transfer/import/import-plan";
-import { dedupeIssues, mapFailureToRows, planIssueToRowIssue } from "@/features/data-transfer/import/import-issues";
+import {
+  attributeIssueColumn,
+  dedupeIssues,
+  mapFailureToRows,
+  planIssueToRowIssue,
+} from "@/features/data-transfer/import/import-issues";
 import { BaseModalStore } from "@/core/base/base-modal.store";
 
 export type ImportStep = "file" | "mapping" | "preview" | "result";
@@ -27,6 +36,7 @@ export type ImportStep = "file" | "mapping" | "preview" | "result";
 export type ImportSummary = {
   created: number;
   updated: number;
+  skipped: number;
   notAttempted: number;
   stoppedAtSheetRow: number | null;
 };
@@ -54,6 +64,7 @@ export class ImportWizardStore extends BaseModalStore {
   progressDone = 0;
   progressTotal = 0;
   fileError: string | null = null;
+  skipInvalid = false;
   private onComplete?: () => Promise<void> | void;
 
   constructor(rootStore: RootStore) {
@@ -74,14 +85,19 @@ export class ImportWizardStore extends BaseModalStore {
       progressDone: observable,
       progressTotal: observable,
       fileError: observable,
+      skipInvalid: observable,
 
       descriptor: computed,
       hasBlockingIssues: computed,
+      invalidSheetRows: computed,
+      skippableCount: computed,
+      duplicateTargetCount: computed,
 
       openForEntity: action,
       reset: action,
       setStep: action,
       setTarget: action,
+      setSkipInvalid: action,
     });
   }
 
@@ -89,8 +105,25 @@ export class ImportWizardStore extends BaseModalStore {
     return IMPORT_ENTITIES[this.entityType];
   }
 
+  get duplicateTargetCount(): number {
+    return duplicateTargets(this.mapping).length;
+  }
+
+  get invalidSheetRows(): Set<number> {
+    return new Set(this.issues.flatMap((issue) => (issue.sheetRow === null ? [] : [issue.sheetRow])));
+  }
+
+  get skippableCount(): number {
+    if (!this.plan) return 0;
+
+    const invalid = this.invalidSheetRows;
+    return [...this.plan.create, ...this.plan.update].filter((row) => invalid.has(row.sheetRow)).length;
+  }
+
   get hasBlockingIssues(): boolean {
-    return this.issues.length > 0;
+    if (this.issues.length === 0) return false;
+
+    return !this.skipInvalid || this.skippableCount === 0;
   }
 
   reset = () => {
@@ -105,10 +138,15 @@ export class ImportWizardStore extends BaseModalStore {
     this.progressDone = 0;
     this.progressTotal = 0;
     this.fileError = null;
+    this.skipInvalid = false;
   };
 
   setStep = (step: ImportStep) => {
     this.step = step;
+  };
+
+  setSkipInvalid = (value: boolean) => {
+    this.skipInvalid = value;
   };
 
   setTarget = (index: number, target: MappingTarget) => {
@@ -215,7 +253,7 @@ export class ImportWizardStore extends BaseModalStore {
         }
       }
 
-      this.applyPlan(plan, dedupeIssues(found));
+      this.applyPlan(plan, this.attribute(dedupeIssues(found)));
     } finally {
       this.setBusy(false);
     }
@@ -225,9 +263,15 @@ export class ImportWizardStore extends BaseModalStore {
     const plan = this.plan;
     if (!plan) return;
 
-    const updateChunks = chunkRows(plan.update, IMPORT_CHUNK_SIZE);
-    const createChunks = chunkRows(plan.create, IMPORT_CHUNK_SIZE);
-    const total = plan.update.length + plan.create.length;
+    const invalid = this.skipInvalid ? this.invalidSheetRows : new Set<number>();
+    const keep = (row: PlanRow) => !invalid.has(row.sheetRow);
+    const updateRows = plan.update.filter(keep);
+    const createRows = plan.create.filter(keep);
+    const skipped = plan.update.length + plan.create.length - updateRows.length - createRows.length;
+
+    const updateChunks = chunkRows(updateRows, IMPORT_CHUNK_SIZE);
+    const createChunks = chunkRows(createRows, IMPORT_CHUNK_SIZE);
+    const total = updateRows.length + createRows.length;
 
     this.setBusy(true);
     this.setProgress(0, updateChunks.length + createChunks.length);
@@ -265,13 +309,25 @@ export class ImportWizardStore extends BaseModalStore {
       }
 
       this.applySummary(
-        { created, updated, notAttempted: total - created - updated, stoppedAtSheetRow },
-        dedupeIssues(failures),
+        { created, updated, skipped, notAttempted: total - created - updated, stoppedAtSheetRow },
+        this.attribute(dedupeIssues([...failures, ...(this.skipInvalid ? this.issues : [])])),
       );
     } finally {
       this.setBusy(false);
       await this.onComplete?.();
     }
+  };
+
+  private attribute = (issues: ImportRowIssue[]): ImportRowIssue[] => {
+    const sources = this.parsed?.sources;
+    if (!sources) return issues;
+
+    return issues.map((issue) => {
+      if (issue.columnLabel) return issue;
+
+      const found = attributeIssueColumn(issue.fieldPath, this.mapping, sources);
+      return found ? { ...issue, ...found } : issue;
+    });
   };
 
   private setBusy = action((value: boolean) => {

@@ -1,3 +1,4 @@
+import type { MappingTarget, SourceColumn } from "./import-mapping";
 import type { PlanIssue, PlanRow } from "./import-plan";
 
 export type SerializedIssue = {
@@ -27,6 +28,19 @@ export function fieldPathOf(path: Array<string | number>): string {
     .map((segment) => (typeof segment === "number" ? `[${segment}]` : segment))
     .join(".")
     .replace(/\.\[/g, "[");
+}
+
+export function attributeIssueColumn(
+  fieldPath: string,
+  mapping: MappingTarget[],
+  sources: SourceColumn[],
+): Pick<ImportRowIssue, "columnLetter" | "columnLabel"> | null {
+  if (fieldPath.length === 0 || /[[.]/.test(fieldPath)) return null;
+
+  const index = mapping.findIndex((target) => target.kind === "field" && target.key === fieldPath);
+  const source = index === -1 ? undefined : sources[index];
+
+  return source ? { columnLetter: source.letter, columnLabel: source.header } : null;
 }
 
 export function mapFailureToRows(

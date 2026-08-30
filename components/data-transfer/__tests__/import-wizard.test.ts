@@ -15,6 +15,10 @@ vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => ({ imp
 vi.mock("@/components/modal", () => ({
   AppModal: ({ children }: { children: ReactElement }) => createElement("div", { "data-modal": "" }, children),
 }));
+vi.mock("@/components/ui/checkbox", () => ({
+  Checkbox: ({ checked }: { checked: boolean }) =>
+    createElement("input", { type: "checkbox", defaultChecked: checked }),
+}));
 vi.mock("@/components/ui/select", () => ({
   Select: ({ children }: { children: ReactElement }) => createElement("div", { "data-select": "" }, children),
   SelectContent: ({ children }: { children: ReactElement }) => createElement("div", null, children),
@@ -41,6 +45,10 @@ function stubStore(overrides: Record<string, unknown>) {
     progressTotal: 0,
     fileError: null,
     hasBlockingIssues: false,
+    skipInvalid: false,
+    skippableCount: 0,
+    duplicateTargetCount: 0,
+    setSkipInvalid: vi.fn(),
     descriptor: IMPORT_ENTITIES[EntityType.contact],
     setStep: vi.fn(),
     setTarget: vi.fn(),
@@ -110,6 +118,48 @@ describe("ImportWizard", () => {
     expect(buttonFor(html, "DataTransfer.import.commit")).toContain('disabled=""');
   });
 
+  it("names the spreadsheet column a problem came from, so the row is actionable", () => {
+    const html = render({
+      step: "preview",
+      plan: { create: [{}], update: [], issues: [] },
+      issues: [
+        {
+          sheetRow: 4,
+          columnLetter: "A",
+          columnLabel: "Vorname",
+          fieldPath: "firstName",
+          message: "expected string, received undefined",
+          code: "invalid_type",
+        },
+      ],
+      hasBlockingIssues: true,
+    });
+
+    expect(html).toContain("A. Vorname");
+    expect(html).toContain("expected string, received undefined");
+  });
+
+  it("shows the bare message when no single column can be blamed", () => {
+    const html = render({
+      step: "preview",
+      plan: { create: [{}], update: [], issues: [] },
+      issues: [
+        {
+          sheetRow: 4,
+          columnLetter: null,
+          columnLabel: null,
+          fieldPath: "identifiers[0].value",
+          message: "too long",
+          code: "too_big",
+        },
+      ],
+      hasBlockingIssues: true,
+    });
+
+    expect(html).toContain("too long");
+    expect(html).not.toContain("identifiers[0]");
+  });
+
   it("allows the commit when the preview is clean", () => {
     const html = render({
       step: "preview",
@@ -140,5 +190,82 @@ describe("ImportWizard", () => {
 
     expect(html).toContain("DataTransfer.import.resultCounts");
     expect(html).not.toContain("DataTransfer.import.stopped");
+  });
+});
+
+describe("ImportWizard mapping aids", () => {
+  const parsed = {
+    sheetName: "Contacts",
+    rows: [{ sourceIndex: 0, sheetRow: 2, cells: [] }],
+    schemaRows: [],
+    relationSheets: {},
+    sources: [{ index: 0, letter: "A", header: "Column 1", samples: ["ada@example.com", "grace@example.com"] }],
+  };
+
+  it("shows sample values so an unhelpful header can still be mapped", () => {
+    const html = render({ step: "mapping", parsed, mapping: [{ kind: "ignore" }] });
+
+    expect(html).toContain("ada@example.com, grace@example.com");
+  });
+
+  it("offers channel targets for contacts, so a foreign email column can become one", () => {
+    const html = render({ step: "mapping", parsed, mapping: [{ kind: "ignore" }] });
+
+    expect(html).toContain('data-option="identifier:mail"');
+    expect(html).toContain('data-option="identifier:whatsapp"');
+  });
+
+  it("blocks the dry run while two columns feed one field, which would silently drop one", () => {
+    const html = render({ step: "mapping", parsed, mapping: [{ kind: "ignore" }], duplicateTargetCount: 1 });
+
+    expect(html).toContain("DataTransfer.import.duplicateTargets");
+    expect(buttonFor(html, "DataTransfer.import.validate")).toContain('disabled=""');
+  });
+});
+
+describe("ImportWizard partial import", () => {
+  const withIssues = (count: number, overrides: Record<string, unknown> = {}) => ({
+    step: "preview",
+    plan: { create: [{}], update: [], issues: [] },
+    issues: Array.from({ length: count }, (_, index) => ({
+      sheetRow: index + 2,
+      columnLetter: null,
+      columnLabel: null,
+      fieldPath: "",
+      message: `problem ${index}`,
+      code: "x",
+    })),
+    hasBlockingIssues: true,
+    skippableCount: count,
+    ...overrides,
+  });
+
+  it("offers to skip the invalid rows rather than forcing the whole file to be fixed", () => {
+    expect(render(withIssues(3))).toContain("DataTransfer.import.skipInvalid");
+  });
+
+  it("enables the commit once skipping is accepted", () => {
+    const html = render(withIssues(3, { skipInvalid: true, hasBlockingIssues: false }));
+
+    expect(buttonFor(html, "DataTransfer.import.commit")).not.toContain('disabled=""');
+  });
+
+  it("says how many problems it did not list instead of truncating silently", () => {
+    const html = render(withIssues(250));
+
+    expect(html).toContain("DataTransfer.import.moreIssues");
+  });
+
+  it("does not offer skipping when nothing can be skipped", () => {
+    expect(render(withIssues(0, { skippableCount: 0, issues: [] }))).not.toContain("DataTransfer.import.skipInvalid");
+  });
+
+  it("reports skipped rows on the result step", () => {
+    const html = render({
+      step: "result",
+      summary: { created: 8, updated: 0, skipped: 2, notAttempted: 0, stoppedAtSheetRow: null },
+    });
+
+    expect(html).toContain("DataTransfer.import.resultSkipped");
   });
 });
