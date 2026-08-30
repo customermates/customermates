@@ -16,6 +16,7 @@ import { DataViewLayout } from "@/components/data-view/data-view-layout";
 import { resolveDataViewPageState, resolveDataViewView } from "@/components/data-view/data-view-state";
 import { DataViewToolbar } from "@/components/data-view/data-view-toolbar";
 import { useDataViewSync } from "@/components/data-view/use-data-view-sync";
+import { useExportAction } from "@/features/data-transfer/export/use-export-download";
 import { useEntityHref, useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { PageState } from "@/components/page-state/page-state";
@@ -48,6 +49,7 @@ export const ServicesPageView = observer(function ServicesPageView({ services }:
   const emptyActionLabel = t("Common.emptyState.cta", { singular: singular(EntityType.service) });
   const handleAdd = useCallback(() => openEntity(EntityType.service, "new"), [openEntity]);
   const rowHref = useCallback((service: ServiceDto) => entityHref(EntityType.service, service.id), [entityHref]);
+  const handleExport = useExportAction(servicesStore);
   const topBarNode = useMemo(
     () => (
       <DataViewToolbar
@@ -55,9 +57,10 @@ export const ServicesPageView = observer(function ServicesPageView({ services }:
         anchorScope="services"
         store={servicesStore}
         onAdd={handleAdd}
+        onExport={handleExport}
       />
     ),
-    [emptyActionLabel, handleAdd, pageState, servicesStore],
+    [emptyActionLabel, handleAdd, handleExport, pageState, servicesStore],
   );
   useSetTopBarActions(topBarNode);
 

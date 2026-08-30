@@ -144,7 +144,9 @@ type Result = {
 
 function store(items: Array<Record<string, unknown>>, canManage = true) {
   return {
+    canExport: true,
     canManage,
+    customColumns: [],
     dataRequest: { status: "ready" as const },
     entityType: undefined,
     filters: [],
@@ -159,6 +161,14 @@ function store(items: Array<Record<string, unknown>>, canManage = true) {
     setQueryOptions: vi.fn(),
     viewMode: ViewMode.table,
   };
+}
+
+const TRANSFER_CONTROL = /<button[^>]*data-transfer-menu[^>]*>[\s\S]*?<\/button>/g;
+
+const TRANSFERABLE_VIEWS = new Set(["Contacts", "Organizations", "Deals", "Services", "Tasks"]);
+
+function withoutTransferControl(html: string): string {
+  return html.replace(TRANSFER_CONTROL, "");
 }
 
 function result(items: Array<Record<string, unknown>>): Result {
@@ -422,8 +432,9 @@ describe("migrated collection page wiring", () => {
     const readOnly = store([], false);
     const readOnlyHtml = fixture.render(readOnly, initial);
     const readOnlyTopBar = renderToStaticMarkup(harness.setTopBarActions.mock.lastCall?.[0] as ReactElement);
-    expect(readOnlyHtml).not.toContain("<button");
-    expect(readOnlyTopBar).not.toContain("<button");
+    expect(withoutTransferControl(readOnlyHtml)).not.toContain("<button");
+    expect(withoutTransferControl(readOnlyTopBar)).not.toContain("<button");
+    expect(readOnlyTopBar.includes("data-transfer-menu")).toBe(TRANSFERABLE_VIEWS.has(fixture.name));
   });
 
   it("keeps Roles off URL sync and makes its rejected retry caller-safe", () => {

@@ -16,6 +16,7 @@ import { DataViewLayout } from "@/components/data-view/data-view-layout";
 import { resolveDataViewPageState, resolveDataViewView } from "@/components/data-view/data-view-state";
 import { DataViewToolbar } from "@/components/data-view/data-view-toolbar";
 import { useDataViewSync } from "@/components/data-view/use-data-view-sync";
+import { useExportAction } from "@/features/data-transfer/export/use-export-download";
 import { useEntityHref, useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { PageState } from "@/components/page-state/page-state";
@@ -57,6 +58,7 @@ export const OrganizationsPageView = observer(function OrganizationsPageView({ o
     (organization: OrganizationDto) => entityHref(EntityType.organization, organization.id),
     [entityHref],
   );
+  const handleExport = useExportAction(organizationsStore);
   const topBarNode = useMemo(
     () => (
       <DataViewToolbar
@@ -64,9 +66,10 @@ export const OrganizationsPageView = observer(function OrganizationsPageView({ o
         anchorScope="organizations"
         store={organizationsStore}
         onAdd={handleAdd}
+        onExport={handleExport}
       />
     ),
-    [emptyActionLabel, handleAdd, organizationsStore, pageState],
+    [emptyActionLabel, handleAdd, handleExport, organizationsStore, pageState],
   );
 
   useSetTopBarActions(topBarNode);

@@ -1670,6 +1670,18 @@
       "chart": "Diagramm"
     }
   },
+  "DataTransfer": {
+    "export": {
+      "action": "Exportieren",
+      "failed": "Die Datei konnte nicht erstellt werden.",
+      "success": "{count, plural, one {# Datensatz exportiert} other {# Datensätze exportiert}}",
+      "truncated": "Es wurden nur die ersten {limit} Datensätze exportiert."
+    },
+    "import": {
+      "action": "Aus Datei hinzufügen"
+    },
+    "menu": "Import und Export"
+  },
   "DataView": {
     "dragToReorder": "Zum Neuanordnen ziehen",
     "editColumn": "Spalte bearbeiten",

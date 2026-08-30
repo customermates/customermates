@@ -16,6 +16,7 @@ import { DataViewLayout } from "@/components/data-view/data-view-layout";
 import { resolveDataViewPageState, resolveDataViewView } from "@/components/data-view/data-view-state";
 import { DataViewToolbar } from "@/components/data-view/data-view-toolbar";
 import { useDataViewSync } from "@/components/data-view/use-data-view-sync";
+import { useExportAction } from "@/features/data-transfer/export/use-export-download";
 import { useEntityHref, useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { PageState } from "@/components/page-state/page-state";
@@ -53,6 +54,7 @@ export const ContactsPageView = observer(function ContactsPageView({ contacts }:
   });
   const handleAdd = useCallback(() => openEntity(EntityType.contact, "new"), [openEntity]);
   const rowHref = useCallback((contact: ContactDto) => entityHref(EntityType.contact, contact.id), [entityHref]);
+  const handleExport = useExportAction(contactsStore);
   const topBarNode = useMemo(
     () => (
       <DataViewToolbar
@@ -60,9 +62,10 @@ export const ContactsPageView = observer(function ContactsPageView({ contacts }:
         anchorScope="contacts"
         store={contactsStore}
         onAdd={handleAdd}
+        onExport={handleExport}
       />
     ),
-    [contactsStore, emptyActionLabel, handleAdd, pageState],
+    [contactsStore, emptyActionLabel, handleAdd, handleExport, pageState],
   );
 
   useSetTopBarActions(topBarNode);
