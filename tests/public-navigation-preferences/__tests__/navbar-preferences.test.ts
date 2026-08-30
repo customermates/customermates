@@ -111,10 +111,12 @@ describe("public navigation preferences", () => {
       '<Accordion collapsible className="w-full" type="single">',
     );
     expect(navbar).toContain("<MarketingContainer");
-    expect(menu).toContain("<NavigationMenu.Root");
-    expect(menu).toContain("<NavigationMenu.Content");
+    expect(menu).toContain("<Popover");
+    expect(menu).toContain("<PopoverAnchor");
+    expect(menu).toContain("<PopoverContent");
     expect(menu).toContain("forceMount");
-    expect(menu).not.toContain("Popover");
+    expect(menu).toContain("portalled={false}");
+    expect(menu).not.toContain("NavigationMenu");
     expect(menu).not.toContain('className="fixed');
     expect(menu).not.toContain("DropdownMenu");
     expect(menu).not.toMatch(

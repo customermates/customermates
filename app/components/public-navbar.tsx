@@ -271,7 +271,7 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
   const homeLabel = t("UserAvatar.home");
   function renderHomeButton() {
     return (
-      <AppLink aria-label={`${logoAlt} ${homeLabel}`} href="/" onClick={closeMenu}>
+      <AppLink aria-label={`${logoAlt} ${homeLabel}`} href="/" onNavigate={closeMenu}>
         <AppImage
           alt={logoAlt}
           className="h-[18px] w-auto object-contain select-none"
@@ -304,8 +304,8 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
     if (!cta || !ctaLabel || pathname === cta.href) return null;
 
     return (
-      <Button asChild className={className} size="sm" variant="softPrimary" onClick={closeMenu}>
-        <AppLink appearance="unstyled" href={cta.href}>
+      <Button asChild className={className} size="sm" variant="softPrimary">
+        <AppLink appearance="unstyled" href={cta.href} onNavigate={closeMenu}>
           {ctaLabel}
         </AppLink>
       </Button>
@@ -349,8 +349,10 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
     if (!actions.showContact) return null;
 
     return (
-      <Button asChild className={className} size="sm" variant="secondary" onClick={closeMenu}>
-        <IntlLink href="/contact">{t("Common.actions.contact")}</IntlLink>
+      <Button asChild className={className} size="sm" variant="secondary">
+        <IntlLink href="/contact" onNavigate={closeMenu}>
+          {t("Common.actions.contact")}
+        </IntlLink>
       </Button>
     );
   }
@@ -430,7 +432,7 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
                                 !isNavItemActive(link.href) && "text-subdued",
                               )}
                               href={link.href}
-                              onClick={closeMenu}
+                              onNavigate={closeMenu}
                             >
                               {link.title}
                             </AppLink>
@@ -457,7 +459,7 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
                                     !isNavItemActive(link.href) && "text-subdued",
                                   )}
                                   href={link.href}
-                                  onClick={closeMenu}
+                                  onNavigate={closeMenu}
                                 >
                                   {link.provider ? (
                                     <span className="mr-2 inline-flex align-middle">
@@ -480,7 +482,7 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
                   aria-current={isNavItemActive("/pricing") ? "page" : undefined}
                   className={cn("py-3 text-base", !isNavItemActive("/pricing") && "text-subdued")}
                   href="/pricing"
-                  onClick={closeMenu}
+                  onNavigate={closeMenu}
                 >
                   {t("NavigationBar.pricing")}
                 </AppLink>

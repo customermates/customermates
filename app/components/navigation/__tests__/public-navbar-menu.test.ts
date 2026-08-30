@@ -1,4 +1,4 @@
-import type { AnchorHTMLAttributes, ReactNode } from "react";
+import type { AnchorHTMLAttributes, MouseEvent as ReactMouseEvent, ReactNode } from "react";
 import type { Root } from "react-dom/client";
 
 import { act, createElement } from "react";
@@ -11,11 +11,31 @@ vi.mock("@/components/shared/app-link", () => ({
   AppLink: ({
     appearance: _appearance,
     children,
+    onClick,
+    onNavigate,
     ...props
   }: AnchorHTMLAttributes<HTMLAnchorElement> & {
     appearance?: string;
     children?: ReactNode;
-  }) => createElement("a", props, children),
+    onNavigate?: () => void;
+  }) =>
+    createElement(
+      "a",
+      {
+        ...props,
+        onClick: (event: ReactMouseEvent<HTMLAnchorElement>) => {
+          onClick?.(event);
+          if (event.defaultPrevented) return;
+          if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+            event.preventDefault();
+            return;
+          }
+          onNavigate?.();
+          event.preventDefault();
+        },
+      },
+      children,
+    ),
 }));
 
 import {
@@ -74,6 +94,7 @@ afterEach(() => {
   container?.remove();
   root = undefined;
   container = undefined;
+  vi.useRealTimers();
   vi.clearAllMocks();
 });
 
@@ -99,20 +120,24 @@ describe("PublicNavbarMenu", () => {
     const [product, solutions] = buttons;
     if (!product || !solutions) throw new Error("navigation triggers did not render");
 
-    act(() => product.click());
+    act(() => {
+      product.dispatchEvent(new MouseEvent("click", { bubbles: true, detail: 1 }));
+    });
     expect(product.getAttribute("aria-expanded")).toBe("true");
     expect(solutions.getAttribute("aria-expanded")).toBe("false");
 
-    act(() => product.click());
-    expect(product.getAttribute("aria-expanded")).toBe("false");
+    act(() => {
+      product.dispatchEvent(new MouseEvent("click", { bubbles: true, detail: 1 }));
+    });
+    expect(product.getAttribute("aria-expanded")).toBe("true");
 
-    act(() => product.click());
-
-    act(() => solutions.click());
+    act(() => {
+      solutions.dispatchEvent(new MouseEvent("click", { bubbles: true, detail: 1 }));
+    });
     expect(product.getAttribute("aria-expanded")).toBe("false");
     expect(solutions.getAttribute("aria-expanded")).toBe("true");
 
-    const link = document.querySelector<HTMLAnchorElement>('a[href="/for/agencies"]');
+    const link = container?.querySelector<HTMLAnchorElement>('a[href="/for/agencies"]');
     if (!link) throw new Error("navigation link did not render");
     link.focus();
     await act(async () => {
@@ -123,29 +148,338 @@ describe("PublicNavbarMenu", () => {
     expect(document.activeElement).toBe(solutions);
 
     act(() => solutions.click());
-    link.addEventListener("click", (event) => event.preventDefault(), {
+    const reopenedLink = container?.querySelector<HTMLAnchorElement>('a[href="/for/agencies"]');
+    if (!reopenedLink) throw new Error("reopened navigation link did not render");
+
+    act(() => {
+      reopenedLink.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, metaKey: true }));
+    });
+    expect(onNavigate).not.toHaveBeenCalled();
+    expect(solutions.getAttribute("aria-expanded")).toBe("true");
+
+    reopenedLink.addEventListener("click", (event) => event.preventDefault(), {
       once: true,
     });
-    act(() => link.click());
+    act(() => reopenedLink.click());
+    expect(onNavigate).not.toHaveBeenCalled();
+    expect(solutions.getAttribute("aria-expanded")).toBe("true");
+
+    act(() => reopenedLink.click());
     expect(onNavigate).toHaveBeenCalledTimes(1);
     expect(solutions.getAttribute("aria-expanded")).toBe("false");
   });
 
-  it("opens and closes the focused trigger with Enter and Space", () => {
+  it("toggles an expanded trigger for zero-detail assistive activation", () => {
+    act(() => root?.render(menu()));
+
+    const product = container?.querySelector<HTMLButtonElement>('[data-public-nav-trigger="product"]');
+    if (!product) throw new Error("product navigation trigger did not render");
+    product.focus();
+
+    act(() => product.click());
+    expect(product.getAttribute("aria-expanded")).toBe("true");
+
+    act(() => product.click());
+    expect(product.getAttribute("aria-expanded")).toBe("false");
+    expect(document.activeElement).toBe(product);
+  });
+
+  it("unmounts the closed interactive layer and dismisses the open menu from outside", async () => {
+    act(() => root?.render(menu()));
+
+    const product = container?.querySelector<HTMLButtonElement>('[data-public-nav-trigger="product"]');
+    if (!product) throw new Error("navigation fixtures did not render");
+    expect(container?.querySelector('[data-slot="popover-content"]')).toBeNull();
+
+    act(() => product.click());
+    const productLink = container?.querySelector<HTMLAnchorElement>('a[href="/features/self-hosted"]');
+    const solutionsLink = container?.querySelector<HTMLAnchorElement>('a[href="/for/agencies"]');
+    const content = container?.querySelector<HTMLElement>('[data-slot="popover-content"]');
+    if (!productLink || !solutionsLink || !content) throw new Error("open navigation links did not render");
+    expect(product.getAttribute("aria-expanded")).toBe("true");
+    expect(content.className).toContain("overflow-y-auto");
+    expect(content.className).not.toContain("overflow-hidden");
+    expect(productLink.getAttribute("tabindex")).toBeNull();
+    expect(solutionsLink.tabIndex).toBe(-1);
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+    act(() => {
+      document.body.dispatchEvent(new MouseEvent("pointerdown", { bubbles: true }));
+    });
+    expect(product.getAttribute("aria-expanded")).toBe("false");
+    expect(container?.querySelector('[data-slot="popover-content"]')).toBeNull();
+  });
+
+  it("moves Tab into an expanded panel and returns focus with Shift+Tab", () => {
     act(() => root?.render(menu()));
 
     const product = container?.querySelector<HTMLButtonElement>('[data-public-nav-trigger="product"]');
     if (!product) throw new Error("product navigation trigger did not render");
 
+    product.focus();
     act(() => {
       product.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Enter" }));
+    });
+    const firstLink = container?.querySelector<HTMLAnchorElement>('a[href="/features"]');
+    if (!firstLink) throw new Error("first product navigation link did not render");
+    expect(product.getAttribute("aria-expanded")).toBe("true");
+    expect(document.activeElement).toBe(product);
+
+    act(() => {
+      product.dispatchEvent(
+        new KeyboardEvent("keydown", {
+          bubbles: true,
+          cancelable: true,
+          key: "Tab",
+        }),
+      );
+    });
+    expect(document.activeElement).toBe(firstLink);
+
+    const secondLink = container?.querySelector<HTMLAnchorElement>('a[href="/features/self-hosted"]');
+    if (!secondLink) throw new Error("second product navigation link did not render");
+    act(() => {
+      firstLink.dispatchEvent(
+        new KeyboardEvent("keydown", {
+          bubbles: true,
+          cancelable: true,
+          key: "Tab",
+        }),
+      );
+    });
+    expect(document.activeElement).toBe(secondLink);
+
+    act(() => {
+      secondLink.dispatchEvent(
+        new KeyboardEvent("keydown", {
+          bubbles: true,
+          cancelable: true,
+          key: "Tab",
+          shiftKey: true,
+        }),
+      );
+    });
+    expect(document.activeElement).toBe(firstLink);
+
+    act(() => {
+      firstLink.dispatchEvent(
+        new KeyboardEvent("keydown", {
+          bubbles: true,
+          cancelable: true,
+          key: "Tab",
+          shiftKey: true,
+        }),
+      );
+    });
+    expect(product.getAttribute("aria-expanded")).toBe("false");
+    expect(document.activeElement).toBe(product);
+    expect(container?.querySelector('[data-slot="popover-content"]')).toBeNull();
+  });
+
+  it("moves Tab from the last panel link to the next top-level destination", () => {
+    act(() => root?.render(menu()));
+
+    const product = container?.querySelector<HTMLButtonElement>('[data-public-nav-trigger="product"]');
+    const solutions = container?.querySelector<HTMLButtonElement>('[data-public-nav-trigger="solutions"]');
+    if (!product || !solutions) throw new Error("navigation triggers did not render");
+    product.focus();
+    act(() => {
+      product.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: " " }));
+    });
+
+    const lastLink = container?.querySelector<HTMLAnchorElement>('a[href="/features/self-hosted"]');
+    if (!lastLink) throw new Error("last product navigation link did not render");
+    lastLink.focus();
+    const tabEvent = new KeyboardEvent("keydown", {
+      bubbles: true,
+      cancelable: true,
+      key: "Tab",
+    });
+    act(() => {
+      lastLink.dispatchEvent(tabEvent);
+    });
+    expect(tabEvent.defaultPrevented).toBe(true);
+    expect(product.getAttribute("aria-expanded")).toBe("false");
+    expect(document.activeElement).toBe(solutions);
+  });
+
+  it("does not replace a keyboard-focused panel on hover but lets click switch and reset scroll", () => {
+    act(() => root?.render(menu()));
+
+    const product = container?.querySelector<HTMLButtonElement>('[data-public-nav-trigger="product"]');
+    const solutions = container?.querySelector<HTMLButtonElement>('[data-public-nav-trigger="solutions"]');
+    const solutionsItem = solutions?.closest("li");
+    if (!product || !solutions || !solutionsItem) throw new Error("navigation triggers did not render");
+
+    product.focus();
+    act(() => {
+      product.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Enter" }));
+    });
+    act(() => {
+      product.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key: "Tab" }));
+    });
+    const firstLink = container?.querySelector<HTMLAnchorElement>('a[href="/features"]');
+    const content = container?.querySelector<HTMLElement>('[data-slot="popover-content"]');
+    if (!firstLink || !content) throw new Error("open product navigation panel did not render");
+    content.scrollTop = 72;
+
+    act(() => {
+      solutionsItem.dispatchEvent(new MouseEvent("mouseover", { bubbles: true, relatedTarget: document.body }));
+    });
+    expect(product.getAttribute("aria-expanded")).toBe("true");
+    expect(solutions.getAttribute("aria-expanded")).toBe("false");
+    expect(document.activeElement).toBe(firstLink);
+    expect(content.scrollTop).toBe(72);
+
+    act(() => solutions.click());
+    expect(product.getAttribute("aria-expanded")).toBe("false");
+    expect(solutions.getAttribute("aria-expanded")).toBe("true");
+    expect(content.scrollTop).toBe(0);
+  });
+
+  it("allows hover switching after a pointer click focuses a trigger", () => {
+    act(() => root?.render(menu()));
+
+    const product = container?.querySelector<HTMLButtonElement>('[data-public-nav-trigger="product"]');
+    const solutions = container?.querySelector<HTMLButtonElement>('[data-public-nav-trigger="solutions"]');
+    const solutionsItem = solutions?.closest("li");
+    if (!product || !solutions || !solutionsItem) throw new Error("navigation triggers did not render");
+
+    product.focus();
+    act(() => {
+      product.dispatchEvent(new MouseEvent("pointerdown", { bubbles: true }));
+      product.dispatchEvent(new MouseEvent("click", { bubbles: true, detail: 1 }));
     });
     expect(product.getAttribute("aria-expanded")).toBe("true");
 
     act(() => {
-      product.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: " " }));
+      solutionsItem.dispatchEvent(new MouseEvent("mouseover", { bubbles: true, relatedTarget: document.body }));
     });
     expect(product.getAttribute("aria-expanded")).toBe("false");
+    expect(solutions.getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("opens on hover and closes only after the pointer-leave grace period", () => {
+    vi.useFakeTimers();
+    act(() => root?.render(menu()));
+
+    const product = container?.querySelector<HTMLButtonElement>('[data-public-nav-trigger="product"]');
+    const item = product?.closest("li");
+    if (!product || !item) throw new Error("product navigation trigger did not render");
+
+    act(() => {
+      item.dispatchEvent(
+        new MouseEvent("mouseover", {
+          bubbles: true,
+          relatedTarget: document.body,
+        }),
+      );
+    });
+    expect(product.getAttribute("aria-expanded")).toBe("true");
+
+    act(() => {
+      item.dispatchEvent(
+        new MouseEvent("mouseout", {
+          bubbles: true,
+          relatedTarget: document.body,
+        }),
+      );
+      vi.advanceTimersByTime(179);
+    });
+    expect(product.getAttribute("aria-expanded")).toBe("true");
+
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
+    expect(product.getAttribute("aria-expanded")).toBe("false");
+    vi.useRealTimers();
+  });
+
+  it("keeps the menu open after pointer leave while keyboard focus remains inside", () => {
+    vi.useFakeTimers();
+    act(() => root?.render(menu()));
+
+    const product = container?.querySelector<HTMLButtonElement>('[data-public-nav-trigger="product"]');
+    const item = product?.closest("li");
+    if (!product || !item) throw new Error("product navigation trigger did not render");
+
+    product.focus();
+    act(() => {
+      product.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Enter" }));
+    });
+    act(() => {
+      item.dispatchEvent(new MouseEvent("mouseout", { bubbles: true, relatedTarget: document.body }));
+      vi.advanceTimersByTime(180);
+    });
+    expect(product.getAttribute("aria-expanded")).toBe("true");
+
+    act(() => {
+      product.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key: "Tab" }));
+    });
+    const firstLink = container?.querySelector<HTMLAnchorElement>('a[href="/features"]');
+    const content = container?.querySelector<HTMLElement>('[data-slot="popover-content"]');
+    if (!firstLink || !content) throw new Error("open product navigation panel did not render");
+    expect(document.activeElement).toBe(firstLink);
+
+    act(() => {
+      content.dispatchEvent(new MouseEvent("mouseout", { bubbles: true, relatedTarget: document.body }));
+      vi.advanceTimersByTime(180);
+    });
+    expect(product.getAttribute("aria-expanded")).toBe("true");
+    expect(document.activeElement).toBe(firstLink);
+  });
+
+  it("cancels a pending hover close before keyboard reopening and clears timers on unmount", () => {
+    vi.useFakeTimers();
+    const clearTimeoutSpy = vi.spyOn(globalThis, "clearTimeout");
+    act(() => root?.render(menu()));
+
+    const product = container?.querySelector<HTMLButtonElement>('[data-public-nav-trigger="product"]');
+    const item = product?.closest("li");
+    if (!product || !item) throw new Error("product navigation trigger did not render");
+
+    act(() => {
+      item.dispatchEvent(
+        new MouseEvent("mouseover", {
+          bubbles: true,
+          relatedTarget: document.body,
+        }),
+      );
+      item.dispatchEvent(
+        new MouseEvent("mouseout", {
+          bubbles: true,
+          relatedTarget: document.body,
+        }),
+      );
+    });
+    expect(vi.getTimerCount()).toBeGreaterThan(0);
+
+    act(() => {
+      product.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Escape" }));
+    });
+    expect(clearTimeoutSpy).toHaveBeenCalled();
+
+    act(() => {
+      product.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Enter" }));
+      vi.advanceTimersByTime(180);
+    });
+    expect(product.getAttribute("aria-expanded")).toBe("true");
+
+    act(() => {
+      item.dispatchEvent(
+        new MouseEvent("mouseout", {
+          bubbles: true,
+          relatedTarget: document.body,
+        }),
+      );
+    });
+    expect(vi.getTimerCount()).toBeGreaterThan(0);
+    const clearCountBeforeUnmount = clearTimeoutSpy.mock.calls.length;
+    act(() => root?.unmount());
+    expect(clearTimeoutSpy.mock.calls.length).toBeGreaterThan(clearCountBeforeUnmount);
+    clearTimeoutSpy.mockRestore();
   });
 
   it("marks the active destination as the current page", () => {
