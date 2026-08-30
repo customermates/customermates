@@ -1299,6 +1299,9 @@
     },
     "table": {
       "columns": {
+        "action": "Acción",
+        "actor": "Actor",
+        "allowance": "Asignación",
         "amount": "Importe",
         "avatarUrl": "Avatar",
         "channels": "Canales",
@@ -1322,19 +1325,28 @@
         "identifiers": "Canales",
         "isSystemRole": "Rol del sistema",
         "label": "Etiqueta",
+        "lastActiveAt": "Última actividad",
         "lastName": "Apellidos",
         "lastRequest": "Último uso",
+        "members": "Miembros",
         "name": "Nombre",
         "notes": "Notas",
+        "operator": "Operador",
         "options": "Opciones",
         "organizations": "Organizaciones",
+        "owner": "Propietario",
         "permissions": "Permisos",
+        "plan": "Plan",
         "provider": "Proveedor",
+        "reason": "Motivo",
         "role": "Rol",
         "secret": "Secreto",
         "services": "Servicios",
+        "source": "Origen",
         "status": "Estado",
         "statusCode": "Código de estado",
+        "subscription": "Suscripción",
+        "target": "Objetivo",
         "tasks": "Tareas",
         "totalQuantity": "Cantidad de servicios",
         "totalValue": "Valor de la oportunidad",
@@ -1343,7 +1355,8 @@
         "url": "URL",
         "user": "Usuario",
         "users": "Asignado a",
-        "weightedValue": "Valor ponderado"
+        "weightedValue": "Valor ponderado",
+        "workspace": "Espacio de trabajo"
       },
       "groupBy": "Agrupar por",
       "layout": "Disposición",
@@ -2506,24 +2519,6 @@
       "label": "Espacios de trabajo"
     }
   },
-  "OperatorSettings": {
-    "controls": {
-      "capDescription": "Introduce un importe finito en dólares. Dejarlo vacío falla de forma cerrada y bloquea el trabajo nuevo.",
-      "capLabel": "Límite de gasto mensual",
-      "description": "Pausa el trabajo nuevo del proveedor alojado o limita la exposición mensual comprometida.",
-      "disabledDescription": "Configura HOSTED_AI_OPERATOR_CONTROLS_ENABLED como true para aplicar la pausa global y el límite de gasto.",
-      "disabledTitle": "La aplicación está desactivada",
-      "pauseDescription": "Detiene los segmentos nuevos del proveedor alojado. El historial y las conexiones MCP externas siguen disponibles.",
-      "pauseLabel": "Pausar el trabajo nuevo de IA alojada",
-      "save": "Actualizar controles globales",
-      "success": "Los controles globales se actualizaron.",
-      "title": "Controles globales de seguridad"
-    },
-    "description": "Controles de IA alojada para toda la flota, aplicables a cada espacio.",
-    "loading": "Cargando los ajustes de plataforma",
-    "navigation": "Ajustes",
-    "title": "Ajustes de plataforma"
-  },
   "OperatorUsers": {
     "adjustment": {
       "deltaDescription": "Usa un número entero positivo para conceder créditos o uno negativo para aplicar una corrección.",
@@ -2637,6 +2632,10 @@
       "success": "El estado de la cuenta se ha actualizado.",
       "title": "Acceso a la cuenta"
     },
+    "tabs": {
+      "access": "Acceso",
+      "credits": "Créditos"
+    },
     "title": "Operaciones de usuarios",
     "values": {
       "accountStatus": {
@@ -2689,6 +2688,10 @@
       "unavailable": "Este espacio no tiene ningún miembro activo con una suscripción que corregir.",
       "warningDescription": "Esto corrige la autorización local de todo el espacio. No actualiza, cobra, cancela ni contacta con un proveedor de facturación.",
       "warningTitle": "Solo instantánea local"
+    },
+    "tabs": {
+      "allowance": "Asignación",
+      "subscription": "Suscripción"
     },
     "title": "Operaciones de espacios",
     "values": {

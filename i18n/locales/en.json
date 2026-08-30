@@ -1299,6 +1299,9 @@
     },
     "table": {
       "columns": {
+        "action": "Action",
+        "actor": "Actor",
+        "allowance": "Allowance",
         "amount": "Amount",
         "avatarUrl": "Avatar",
         "channels": "Channels",
@@ -1322,19 +1325,28 @@
         "identifiers": "Channels",
         "isSystemRole": "System role",
         "label": "Label",
+        "lastActiveAt": "Last active",
         "lastName": "Last Name",
         "lastRequest": "Last used",
+        "members": "Members",
         "name": "Name",
         "notes": "Notes",
+        "operator": "Operator",
         "options": "Options",
         "organizations": "Organizations",
+        "owner": "Owner",
         "permissions": "Permissions",
+        "plan": "Plan",
         "provider": "Provider",
+        "reason": "Reason",
         "role": "Role",
         "secret": "Secret",
         "services": "Services",
+        "source": "Source",
         "status": "Status",
         "statusCode": "Status Code",
+        "subscription": "Subscription",
+        "target": "Target",
         "tasks": "Tasks",
         "totalQuantity": "Service Quantity",
         "totalValue": "Deal Value",
@@ -1343,7 +1355,8 @@
         "url": "URL",
         "user": "User",
         "users": "Assigned",
-        "weightedValue": "Weighted Value"
+        "weightedValue": "Weighted Value",
+        "workspace": "Workspace"
       },
       "groupBy": "Group By",
       "layout": "Layout",
@@ -2506,24 +2519,6 @@
       "label": "Workspaces"
     }
   },
-  "OperatorSettings": {
-    "controls": {
-      "capDescription": "Enter a finite amount in US dollars. Leaving it blank fails closed and blocks new hosted-AI work.",
-      "capLabel": "Monthly spend cap",
-      "description": "Pause new hosted provider work or cap total monthly committed exposure.",
-      "disabledDescription": "Set HOSTED_AI_OPERATOR_CONTROLS_ENABLED to true to enforce the global pause and spend cap.",
-      "disabledTitle": "Enforcement is switched off",
-      "pauseDescription": "Stops new hosted provider segments. Conversation history and external MCP connections remain available.",
-      "pauseLabel": "Pause new hosted-AI work",
-      "save": "Update global controls",
-      "success": "The global controls were updated.",
-      "title": "Global safety controls"
-    },
-    "description": "Fleet-wide hosted-AI controls that apply to every workspace.",
-    "loading": "Loading platform settings",
-    "navigation": "Settings",
-    "title": "Platform settings"
-  },
   "OperatorUsers": {
     "adjustment": {
       "deltaDescription": "Use a positive whole number to grant credits or a negative one to apply a correction.",
@@ -2637,6 +2632,10 @@
       "success": "The account status was updated.",
       "title": "Account access"
     },
+    "tabs": {
+      "access": "Access",
+      "credits": "Credits"
+    },
     "title": "User operations",
     "values": {
       "accountStatus": {
@@ -2689,6 +2688,10 @@
       "unavailable": "This workspace has no active member with a subscription to correct.",
       "warningDescription": "This corrects local authorization for the whole workspace. It does not update, charge, cancel, or contact a billing provider.",
       "warningTitle": "Local snapshot only"
+    },
+    "tabs": {
+      "allowance": "Allowance",
+      "subscription": "Subscription"
     },
     "title": "Workspace operations",
     "values": {

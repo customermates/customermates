@@ -1299,6 +1299,9 @@
     },
     "table": {
       "columns": {
+        "action": "Azione",
+        "actor": "Autore",
+        "allowance": "Dotazione",
         "amount": "Importo",
         "avatarUrl": "Avatar",
         "channels": "Canali",
@@ -1322,19 +1325,28 @@
         "identifiers": "Canali",
         "isSystemRole": "Ruolo di sistema",
         "label": "Etichetta",
+        "lastActiveAt": "Ultima attività",
         "lastName": "Cognome",
         "lastRequest": "Ultimo utilizzo",
+        "members": "Membri",
         "name": "Nome",
         "notes": "Note",
+        "operator": "Operatore",
         "options": "Opzioni",
         "organizations": "Organizzazioni",
+        "owner": "Proprietario",
         "permissions": "Autorizzazioni",
+        "plan": "Piano",
         "provider": "Provider",
+        "reason": "Motivo",
         "role": "Ruolo",
         "secret": "Secret",
         "services": "Servizi",
+        "source": "Origine",
         "status": "Stato",
         "statusCode": "Codice di stato",
+        "subscription": "Abbonamento",
+        "target": "Destinazione",
         "tasks": "Attività",
         "totalQuantity": "Quantità di servizi",
         "totalValue": "Valore della trattativa",
@@ -1343,7 +1355,8 @@
         "url": "URL",
         "user": "Utente",
         "users": "Assegnato a",
-        "weightedValue": "Valore ponderato"
+        "weightedValue": "Valore ponderato",
+        "workspace": "Area di lavoro"
       },
       "groupBy": "Raggruppa per",
       "layout": "Disposizione",
@@ -2506,24 +2519,6 @@
       "label": "Aree di lavoro"
     }
   },
-  "OperatorSettings": {
-    "controls": {
-      "capDescription": "Inserisci un importo finito in dollari. Lasciarlo vuoto fallisce in sicurezza e blocca il nuovo lavoro.",
-      "capLabel": "Limite di spesa mensile",
-      "description": "Sospendi il nuovo lavoro del provider ospitato o limita l’esposizione mensile impegnata.",
-      "disabledDescription": "Imposta HOSTED_AI_OPERATOR_CONTROLS_ENABLED su true per applicare la pausa globale e il limite di spesa.",
-      "disabledTitle": "L’applicazione è disattivata",
-      "pauseDescription": "Interrompe i nuovi segmenti del provider ospitato. Cronologia e connessioni MCP esterne restano disponibili.",
-      "pauseLabel": "Sospendi il nuovo lavoro IA ospitata",
-      "save": "Aggiorna controlli globali",
-      "success": "I controlli globali sono stati aggiornati.",
-      "title": "Controlli di sicurezza globali"
-    },
-    "description": "Controlli IA ospitata a livello di flotta, validi per ogni area di lavoro.",
-    "loading": "Caricamento delle impostazioni della piattaforma",
-    "navigation": "Impostazioni",
-    "title": "Impostazioni della piattaforma"
-  },
   "OperatorUsers": {
     "adjustment": {
       "deltaDescription": "Usa un numero intero positivo per concedere crediti o uno negativo per applicare una correzione.",
@@ -2637,6 +2632,10 @@
       "success": "Lo stato dell’account è stato aggiornato.",
       "title": "Accesso all’account"
     },
+    "tabs": {
+      "access": "Accesso",
+      "credits": "Crediti"
+    },
     "title": "Operazioni sugli utenti",
     "values": {
       "accountStatus": {
@@ -2689,6 +2688,10 @@
       "unavailable": "Quest’area non ha membri attivi con un abbonamento da correggere.",
       "warningDescription": "Questo corregge l’autorizzazione locale per l’intera area. Non aggiorna, addebita, annulla né contatta un fornitore di fatturazione.",
       "warningTitle": "Solo snapshot locale"
+    },
+    "tabs": {
+      "allowance": "Dotazione",
+      "subscription": "Abbonamento"
     },
     "title": "Operazioni sulle aree",
     "values": {

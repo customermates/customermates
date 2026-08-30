@@ -241,6 +241,17 @@ describeDatabase("merged operator audit log against a real database", { timeout:
           },
         });
       }
+      const readOperationId = randomUUID();
+      operationIds.push(readOperationId);
+      await prisma.operatorAuditEvent.create({
+        data: {
+          actorUserId: actorId,
+          action: "operator.users.list",
+          targetCompanyId: workspace.companyId,
+          operationId: readOperationId,
+          createdAt: new Date("2026-08-20T10:00:00.000Z"),
+        },
+      });
       for (let index = 0; index < 2; index += 1) {
         const operationId = randomUUID();
         operationIds.push(operationId);
@@ -272,6 +283,7 @@ describeDatabase("merged operator audit log against a real database", { timeout:
     expect(all.find((row) => row.source === "operator")?.reason).toBe("Exercise the merged audit log");
     expect(all.find((row) => row.source === "product")?.reason).toBeNull();
     expect(all.every((row) => row.actorLabel?.includes(`audit-${marker}.invalid`))).toBe(true);
+    expect(all.some((row) => row.action === "operator.users.list")).toBe(false);
 
     const productOnly = await runWithoutTenant(() =>
       repo.getItems({ filters: [scoped, inFilter(FilterFieldKey.auditSource, ["product"])] }),

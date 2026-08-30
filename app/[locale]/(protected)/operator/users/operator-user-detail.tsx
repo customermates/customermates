@@ -25,6 +25,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
@@ -193,51 +194,63 @@ export function OperatorUserDetailPanel({
         </CardContent>
       </Card>
 
-      <UserStatusForm
-        busy={busy}
-        initialOperationId={operationIds.status}
-        user={user}
-        onConflict={refreshAfterConflict}
-        onPendingChange={onPendingChange("status")}
-        onUpdated={onUpdated}
-      />
+      <Tabs className="gap-4" defaultValue="access">
+        <TabsList variant="line">
+          <TabsTrigger value="access">{t("OperatorUsers.tabs.access")}</TabsTrigger>
 
-      <PlatformAccessForm
-        busy={busy}
-        initialOperationId={operationIds.platformAccess}
-        user={user}
-        onConflict={refreshAfterConflict}
-        onPendingChange={onPendingChange("platformAccess")}
-        onUpdated={onUpdated}
-      />
+          <TabsTrigger value="credits">{t("OperatorUsers.tabs.credits")}</TabsTrigger>
+        </TabsList>
 
-      <CreditPosition creditPeriod={user.creditPeriod} integer={integer} />
+        <TabsContent className="space-y-4" value="access">
+          <UserStatusForm
+            busy={busy}
+            initialOperationId={operationIds.status}
+            user={user}
+            onConflict={refreshAfterConflict}
+            onPendingChange={onPendingChange("status")}
+            onUpdated={onUpdated}
+          />
 
-      <Alert>
-        <ShieldAlert aria-hidden />
+          <PlatformAccessForm
+            busy={busy}
+            initialOperationId={operationIds.platformAccess}
+            user={user}
+            onConflict={refreshAfterConflict}
+            onPendingChange={onPendingChange("platformAccess")}
+            onUpdated={onUpdated}
+          />
+        </TabsContent>
 
-        <AlertTitle>{t("OperatorUsers.credits.immutableTitle")}</AlertTitle>
+        <TabsContent className="space-y-4" value="credits">
+          <CreditPosition creditPeriod={user.creditPeriod} integer={integer} />
 
-        <AlertDescription>{t("OperatorUsers.credits.immutableDescription")}</AlertDescription>
-      </Alert>
+          <Alert>
+            <ShieldAlert aria-hidden />
 
-      <CreditAdjustmentForm
-        busy={busy}
-        initialOperationId={operationIds.adjustment}
-        user={user}
-        onConflict={refreshAfterConflict}
-        onPendingChange={onPendingChange("adjustment")}
-        onUpdated={onUpdated}
-      />
+            <AlertTitle>{t("OperatorUsers.credits.immutableTitle")}</AlertTitle>
 
-      <CreditResetForm
-        busy={busy}
-        initialOperationId={operationIds.reset}
-        user={user}
-        onConflict={refreshAfterConflict}
-        onPendingChange={onPendingChange("reset")}
-        onUpdated={onUpdated}
-      />
+            <AlertDescription>{t("OperatorUsers.credits.immutableDescription")}</AlertDescription>
+          </Alert>
+
+          <CreditAdjustmentForm
+            busy={busy}
+            initialOperationId={operationIds.adjustment}
+            user={user}
+            onConflict={refreshAfterConflict}
+            onPendingChange={onPendingChange("adjustment")}
+            onUpdated={onUpdated}
+          />
+
+          <CreditResetForm
+            busy={busy}
+            initialOperationId={operationIds.reset}
+            user={user}
+            onConflict={refreshAfterConflict}
+            onPendingChange={onPendingChange("reset")}
+            onUpdated={onUpdated}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

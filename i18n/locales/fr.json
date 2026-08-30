@@ -1299,6 +1299,9 @@
     },
     "table": {
       "columns": {
+        "action": "Action",
+        "actor": "Auteur",
+        "allowance": "Allocation",
         "amount": "Montant",
         "avatarUrl": "Avatar",
         "channels": "Canaux",
@@ -1322,19 +1325,28 @@
         "identifiers": "Canaux",
         "isSystemRole": "Rôle système",
         "label": "Libellé",
+        "lastActiveAt": "Dernière activité",
         "lastName": "Nom",
         "lastRequest": "Dernière utilisation",
+        "members": "Membres",
         "name": "Nom",
         "notes": "Notes",
+        "operator": "Opérateur",
         "options": "Options",
         "organizations": "Organisations",
+        "owner": "Propriétaire",
         "permissions": "Autorisations",
+        "plan": "Forfait",
         "provider": "Fournisseur",
+        "reason": "Motif",
         "role": "Rôle",
         "secret": "Secret",
         "services": "Services",
+        "source": "Source",
         "status": "Statut",
         "statusCode": "Code de statut",
+        "subscription": "Abonnement",
+        "target": "Cible",
         "tasks": "Tâches",
         "totalQuantity": "Quantité de services",
         "totalValue": "Valeur de l'affaire",
@@ -1343,7 +1355,8 @@
         "url": "URL",
         "user": "Utilisateur",
         "users": "Assigné à",
-        "weightedValue": "Valeur pondérée"
+        "weightedValue": "Valeur pondérée",
+        "workspace": "Espace de travail"
       },
       "groupBy": "Grouper par",
       "layout": "Disposition",
@@ -2506,24 +2519,6 @@
       "label": "Espaces de travail"
     }
   },
-  "OperatorSettings": {
-    "controls": {
-      "capDescription": "Saisissez un montant fini en dollars. Laisser vide échoue en position fermée et bloque le nouveau travail.",
-      "capLabel": "Plafond de dépenses mensuel",
-      "description": "Suspendre le nouveau travail du fournisseur hébergé ou plafonner l’exposition mensuelle.",
-      "disabledDescription": "Définissez HOSTED_AI_OPERATOR_CONTROLS_ENABLED sur true pour appliquer la pause globale et le plafond.",
-      "disabledTitle": "L’application est désactivée",
-      "pauseDescription": "Arrête les nouveaux segments du fournisseur hébergé. L’historique et les connexions MCP externes restent disponibles.",
-      "pauseLabel": "Suspendre le nouveau travail IA hébergée",
-      "save": "Mettre à jour les contrôles globaux",
-      "success": "Les contrôles globaux ont été mis à jour.",
-      "title": "Contrôles de sécurité globaux"
-    },
-    "description": "Contrôles IA hébergée à l’échelle de la flotte, appliqués à chaque espace.",
-    "loading": "Chargement des paramètres de plateforme",
-    "navigation": "Paramètres",
-    "title": "Paramètres de plateforme"
-  },
   "OperatorUsers": {
     "adjustment": {
       "deltaDescription": "Utilisez un entier positif pour accorder des crédits ou un entier négatif pour appliquer une correction.",
@@ -2637,6 +2632,10 @@
       "success": "L’état du compte a été mis à jour.",
       "title": "Accès au compte"
     },
+    "tabs": {
+      "access": "Accès",
+      "credits": "Crédits"
+    },
     "title": "Opérations utilisateurs",
     "values": {
       "accountStatus": {
@@ -2689,6 +2688,10 @@
       "unavailable": "Cet espace n’a aucun membre actif avec un abonnement à corriger.",
       "warningDescription": "Ceci corrige l’autorisation locale de tout l’espace. Cela ne met pas à jour, ne facture pas, n’annule pas et ne contacte aucun prestataire de facturation.",
       "warningTitle": "Instantané local uniquement"
+    },
+    "tabs": {
+      "allowance": "Allocation",
+      "subscription": "Abonnement"
     },
     "title": "Opérations des espaces",
     "values": {

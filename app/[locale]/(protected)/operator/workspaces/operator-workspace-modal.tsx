@@ -15,6 +15,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
@@ -80,54 +81,66 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal()
             </AppCardBody>
           </AppCard>
 
-          <WorkspaceSubscriptionForm
-            owner={store.form.owner}
-            onCorrected={() => operatorWorkspacesStore.setQueryOptions({ forceRefresh: true })}
-          />
+          <Tabs className="gap-4" defaultValue="subscription">
+            <TabsList variant="line">
+              <TabsTrigger value="subscription">{t("OperatorWorkspaces.tabs.subscription")}</TabsTrigger>
 
-          <AppCard>
-            <AppCardHeader>
-              <h2 className="text-x-lg grow">{t("OperatorWorkspaces.allowance.title")}</h2>
-            </AppCardHeader>
+              <TabsTrigger value="allowance">{t("OperatorWorkspaces.tabs.allowance")}</TabsTrigger>
+            </TabsList>
 
-            <AppCardBody>
-              <Alert>
-                <AlertTitle>{t("OperatorWorkspaces.allowance.warningTitle")}</AlertTitle>
+            <TabsContent value="subscription">
+              <WorkspaceSubscriptionForm
+                owner={store.form.owner}
+                onCorrected={() => operatorWorkspacesStore.setQueryOptions({ forceRefresh: true })}
+              />
+            </TabsContent>
 
-                <AlertDescription>{t("OperatorWorkspaces.allowance.warningDescription")}</AlertDescription>
-              </Alert>
+            <TabsContent value="allowance">
+              <AppCard>
+                <AppCardHeader>
+                  <h2 className="text-x-lg grow">{t("OperatorWorkspaces.allowance.title")}</h2>
+                </AppCardHeader>
 
-              <form aria-busy={pending} className="space-y-4" method="post" onSubmit={onSubmit}>
-                <input name="companyId" type="hidden" value={workspace.id} />
+                <AppCardBody>
+                  <Alert>
+                    <AlertTitle>{t("OperatorWorkspaces.allowance.warningTitle")}</AlertTitle>
 
-                <input name="operationId" type="hidden" value={operationId} />
+                    <AlertDescription>{t("OperatorWorkspaces.allowance.warningDescription")}</AlertDescription>
+                  </Alert>
 
-                <FormField id="operatorWorkspaceAllowance" label={t("OperatorWorkspaces.allowance.label")}>
-                  <Input
-                    required
-                    defaultValue={workspace.enterpriseCreditsPerUser ?? ""}
-                    disabled={pending}
-                    id="operatorWorkspaceAllowance"
-                    max={1000000}
-                    min={1}
-                    name="creditsPerUser"
-                    step={1}
-                    type="number"
-                  />
-                </FormField>
+                  <form aria-busy={pending} className="space-y-4" method="post" onSubmit={onSubmit}>
+                    <input name="companyId" type="hidden" value={workspace.id} />
 
-                <ReasonTextarea disabled={pending} id="operatorWorkspaceAllowanceReason" />
+                    <input name="operationId" type="hidden" value={operationId} />
 
-                <OperatorUsersActionNotice state={state} success={t("OperatorWorkspaces.allowance.success")} />
+                    <FormField id="operatorWorkspaceAllowance" label={t("OperatorWorkspaces.allowance.label")}>
+                      <Input
+                        required
+                        defaultValue={workspace.enterpriseCreditsPerUser ?? ""}
+                        disabled={pending}
+                        id="operatorWorkspaceAllowance"
+                        max={1000000}
+                        min={1}
+                        name="creditsPerUser"
+                        step={1}
+                        type="number"
+                      />
+                    </FormField>
 
-                <Button disabled={pending} type="submit">
-                  {pending ? <Spinner aria-label={t("OperatorUsers.states.saving")} size="sm" /> : null}
+                    <ReasonTextarea disabled={pending} id="operatorWorkspaceAllowanceReason" />
 
-                  {t("OperatorWorkspaces.allowance.save")}
-                </Button>
-              </form>
-            </AppCardBody>
-          </AppCard>
+                    <OperatorUsersActionNotice state={state} success={t("OperatorWorkspaces.allowance.success")} />
+
+                    <Button disabled={pending} type="submit">
+                      {pending ? <Spinner aria-label={t("OperatorUsers.states.saving")} size="sm" /> : null}
+
+                      {t("OperatorWorkspaces.allowance.save")}
+                    </Button>
+                  </form>
+                </AppCardBody>
+              </AppCard>
+            </TabsContent>
+          </Tabs>
         </div>
       ) : null}
     </AppModal>

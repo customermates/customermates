@@ -19,20 +19,27 @@ describe("app topbar crumbs", () => {
     ["users", "OperatorUsers.navigation"],
     ["workspaces", "OperatorWorkspaces.navigation"],
     ["audit", "OperatorAudit.navigation"],
-    ["settings", "OperatorSettings.navigation"],
   ])("renders the operator and %s crumbs when the operator console is visible", (route, leafLabel) => {
     expect(
       buildAppTopbarCrumbs(`/en/operator/${route}`, translate, ENTITY_LABELS, null, "cloud", canAccess, null, true),
     ).toEqual({
       crumbs: [
         { href: "/operator/overview", label: "OperatorConsole.shell.console", prefetch: false },
-        { label: leafLabel },
+        {
+          label: leafLabel,
+          siblings: [
+            { slug: "overview", label: "OperatorOverview.navigation" },
+            { slug: "users", label: "OperatorUsers.navigation" },
+            { slug: "workspaces", label: "OperatorWorkspaces.navigation" },
+            { slug: "audit", label: "OperatorAudit.navigation" },
+          ],
+        },
       ],
-      section: null,
+      section: "operator",
     });
   });
 
-  it.each(["overview", "users", "workspaces", "audit", "settings"])(
+  it.each(["overview", "users", "workspaces", "audit"])(
     "does not expose operator crumbs for %s when the operator console is hidden",
     (route) => {
       expect(

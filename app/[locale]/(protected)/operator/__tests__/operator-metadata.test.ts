@@ -30,11 +30,9 @@ vi.mock("@/env", () => ({
 vi.mock("../users/operator-users-page-view", () => ({ OperatorUsersPageView: () => null }));
 vi.mock("../workspaces/operator-workspaces-page-view", () => ({ OperatorWorkspacesPageView: () => null }));
 vi.mock("../audit/operator-audit-page-view", () => ({ OperatorAuditPageView: () => null }));
-vi.mock("../settings/operator-settings-view", () => ({ OperatorSettingsView: () => null }));
 
 import { generateMetadata as auditMetadata } from "../audit/page";
 import { generateMetadata as overviewMetadata } from "../overview/page";
-import { generateMetadata as settingsMetadata } from "../settings/page";
 import { generateMetadata as usersMetadata } from "../users/page";
 import { generateMetadata as workspacesMetadata } from "../workspaces/page";
 
@@ -43,7 +41,6 @@ const pages = [
   ["workspaces", workspacesMetadata, "OperatorWorkspaces.title"],
   ["audit", auditMetadata, "OperatorAudit.title"],
   ["overview", overviewMetadata, "OperatorOverview.title"],
-  ["settings", settingsMetadata, "OperatorSettings.title"],
 ] as const;
 
 beforeEach(() => {

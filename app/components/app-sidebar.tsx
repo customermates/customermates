@@ -24,9 +24,6 @@ import {
   Package,
   Plus,
   LayoutGrid,
-  History,
-  SlidersHorizontal,
-  UsersRound,
   ShieldCheck,
   TrendingUp,
   UserCircle,
@@ -48,6 +45,7 @@ import { EntityType } from "@/generated/prisma";
 
 import { NavHeader } from "./navigation/nav-header";
 import { resolvePlanChip } from "./navigation/plan-subtitle";
+import { OPERATOR_SUBROUTES } from "./navigation/operator-sections";
 import { visibleSubroutes } from "./navigation/workspace-sections";
 import { NavMain } from "./navigation/nav-main";
 import { NavSecondary } from "./navigation/nav-secondary";
@@ -252,6 +250,20 @@ const FullAppSidebar = observer(
               })),
             },
             {
+              key: "operator",
+              title: t("OperatorConsole.shell.console"),
+              href: "/operator/overview",
+              icon: ShieldCheck,
+              visible: operatorConsoleVisible,
+              items: OPERATOR_SUBROUTES.map((subroute) => ({
+                key: `operator-${subroute.slug}`,
+                title: t(subroute.labelKey),
+                href: `/operator/${subroute.slug}`,
+                icon: ShieldCheck,
+                visible: true,
+              })),
+            },
+            {
               key: "company",
               title: t("UserAvatar.company"),
               href: `/company/${companySubroutes[0]?.slug ?? "settings"}`,
@@ -264,47 +276,6 @@ const FullAppSidebar = observer(
                 icon: Building,
                 visible: true,
               })),
-            },
-          ].filter((i) => i.visible),
-        },
-        {
-          key: "operator",
-          label: t("OperatorConsole.shell.console"),
-          items: [
-            {
-              key: "operator-overview",
-              title: t("OperatorOverview.navigation"),
-              href: "/operator/overview",
-              icon: ShieldCheck,
-              visible: operatorConsoleVisible,
-            },
-            {
-              key: "operator-users",
-              title: t("OperatorUsers.navigation"),
-              href: "/operator/users",
-              icon: UsersRound,
-              visible: operatorConsoleVisible,
-            },
-            {
-              key: "operator-workspaces",
-              title: t("OperatorWorkspaces.navigation"),
-              href: "/operator/workspaces",
-              icon: Building,
-              visible: operatorConsoleVisible,
-            },
-            {
-              key: "operator-audit",
-              title: t("OperatorAudit.navigation"),
-              href: "/operator/audit",
-              icon: History,
-              visible: operatorConsoleVisible,
-            },
-            {
-              key: "operator-settings",
-              title: t("OperatorSettings.navigation"),
-              href: "/operator/settings",
-              icon: SlidersHorizontal,
-              visible: operatorConsoleVisible,
             },
           ].filter((i) => i.visible),
         },

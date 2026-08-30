@@ -1299,6 +1299,9 @@
     },
     "table": {
       "columns": {
+        "action": "Aktion",
+        "actor": "Akteur",
+        "allowance": "Kontingent",
         "amount": "Betrag",
         "avatarUrl": "Avatar",
         "channels": "Kanäle",
@@ -1322,19 +1325,28 @@
         "identifiers": "Kanäle",
         "isSystemRole": "Systemrolle",
         "label": "Bezeichnung",
+        "lastActiveAt": "Zuletzt aktiv",
         "lastName": "Nachname",
         "lastRequest": "Zuletzt verwendet",
+        "members": "Mitglieder",
         "name": "Name",
         "notes": "Notizen",
+        "operator": "Operator",
         "options": "Optionen",
         "organizations": "Organisationen",
+        "owner": "Inhaber",
         "permissions": "Berechtigungen",
+        "plan": "Tarif",
         "provider": "Anbieter",
+        "reason": "Grund",
         "role": "Rolle",
         "secret": "Secret",
         "services": "Services",
+        "source": "Quelle",
         "status": "Status",
         "statusCode": "Status-Code",
+        "subscription": "Abonnement",
+        "target": "Ziel",
         "tasks": "Aufgaben",
         "totalQuantity": "Service-Anzahl",
         "totalValue": "Deal-Wert",
@@ -1343,7 +1355,8 @@
         "url": "URL",
         "user": "Benutzer",
         "users": "Zugewiesen",
-        "weightedValue": "Gewichteter Wert"
+        "weightedValue": "Gewichteter Wert",
+        "workspace": "Arbeitsbereich"
       },
       "groupBy": "Gruppieren nach",
       "layout": "Ansicht",
@@ -2506,24 +2519,6 @@
       "label": "Arbeitsbereiche"
     }
   },
-  "OperatorSettings": {
-    "controls": {
-      "capDescription": "Geben Sie einen endlichen Betrag in US-Dollar ein. Ein leeres Feld schließt ab und blockiert neue Hosted-AI-Arbeit.",
-      "capLabel": "Monatliches Ausgabenlimit",
-      "description": "Neue Hosted-Provider-Arbeit pausieren oder die monatlich zugesagte Gesamtexposition begrenzen.",
-      "disabledDescription": "Setzen Sie HOSTED_AI_OPERATOR_CONTROLS_ENABLED auf true, um globale Pause und Ausgabenlimit durchzusetzen.",
-      "disabledTitle": "Durchsetzung ist deaktiviert",
-      "pauseDescription": "Stoppt neue Hosted-Provider-Segmente. Konversationsverlauf und externe MCP-Verbindungen bleiben verfügbar.",
-      "pauseLabel": "Neue Hosted-AI-Arbeit pausieren",
-      "save": "Globale Steuerung aktualisieren",
-      "success": "Die globale Steuerung wurde aktualisiert.",
-      "title": "Globale Sicherheitssteuerung"
-    },
-    "description": "Flottenweite Hosted-AI-Steuerung, die für alle Arbeitsbereiche gilt.",
-    "loading": "Plattformeinstellungen werden geladen",
-    "navigation": "Einstellungen",
-    "title": "Plattformeinstellungen"
-  },
   "OperatorUsers": {
     "adjustment": {
       "deltaDescription": "Verwende eine positive ganze Zahl, um Credits zu gewähren, oder eine negative Zahl für eine Korrektur.",
@@ -2637,6 +2632,10 @@
       "success": "Der Kontostatus wurde aktualisiert.",
       "title": "Kontozugriff"
     },
+    "tabs": {
+      "access": "Zugriff",
+      "credits": "Credits"
+    },
     "title": "Benutzerverwaltung",
     "values": {
       "accountStatus": {
@@ -2689,6 +2688,10 @@
       "unavailable": "Dieser Arbeitsbereich hat kein aktives Mitglied mit einem korrigierbaren Abonnement.",
       "warningDescription": "Dies korrigiert die lokale Autorisierung für den gesamten Arbeitsbereich. Es aktualisiert, belastet, kündigt oder kontaktiert keinen Zahlungsanbieter.",
       "warningTitle": "Nur lokaler Snapshot"
+    },
+    "tabs": {
+      "allowance": "Kontingent",
+      "subscription": "Abonnement"
     },
     "title": "Arbeitsbereichsverwaltung",
     "values": {

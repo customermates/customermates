@@ -20,6 +20,7 @@ import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 
 import { OPERATOR_AUDIT_SOURCE } from "./operator-lists.schema";
+import { OPERATOR_AUDIT_ACTION } from "./operator.schema";
 
 import { SubscriptionStatus as SubscriptionStatusEnum } from "@/generated/prisma";
 
@@ -415,6 +416,16 @@ function dateBound(filter: Filter): { gte?: Date; lte?: Date } {
   return {};
 }
 
+const OPERATOR_READ_ACTIONS: string[] = [
+  OPERATOR_AUDIT_ACTION.overviewRead,
+  OPERATOR_AUDIT_ACTION.candidateRead,
+  OPERATOR_AUDIT_ACTION.companyRead,
+  OPERATOR_AUDIT_ACTION.auditRead,
+  OPERATOR_AUDIT_ACTION.userListRead,
+  OPERATOR_AUDIT_ACTION.userSummaryRead,
+  OPERATOR_AUDIT_ACTION.userDetailRead,
+];
+
 export class PrismaOperatorAuditRepo
   extends BaseRepository<Prisma.OperatorAuditEventWhereInput>
   implements GetOperatorAuditRepo
@@ -500,7 +511,10 @@ export class PrismaOperatorAuditRepo
     return {
       ...(plan.workspaceIds ? { targetCompanyId: { in: plan.workspaceIds } } : {}),
       ...(createdAt ? { createdAt } : {}),
-      ...(plan.search ? { action: { contains: plan.search, mode: "insensitive" as const } } : {}),
+      action: {
+        notIn: OPERATOR_READ_ACTIONS,
+        ...(plan.search ? { contains: plan.search, mode: "insensitive" as const } : {}),
+      },
     };
   }
 
