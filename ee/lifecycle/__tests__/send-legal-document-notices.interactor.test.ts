@@ -414,10 +414,10 @@ describe("SendLegalDocumentNoticesInteractor", () => {
     expect(props.locale).toBe("fr");
     expect(props.deadline).toBe("21. August 2026");
     expect(props.documents.map((document) => document.version)).toEqual([
-      "7. August 2026",
-      "7. August 2026",
-      "27. August 2026",
-      "27. August 2026",
+      "30. August 2026",
+      "30. August 2026",
+      "30. August 2026",
+      "30. August 2026",
     ]);
   });
 
@@ -521,14 +521,14 @@ describe("SendLegalDocumentNoticesInteractor", () => {
   it("suppresses historical information for later users but sends conservatively on the release day", async () => {
     recipients = [
       recipient("later-member", false, {
-        createdAt: new Date("2026-08-28T00:00:00.000Z"),
+        createdAt: new Date("2026-08-31T00:00:00.000Z"),
       }),
       recipient("same-day-member", false, {
-        createdAt: new Date("2026-08-27T23:59:59.000Z"),
+        createdAt: new Date("2026-08-30T23:59:59.000Z"),
       }),
     ];
 
-    await invoke(new Date("2026-08-28T09:00:00.000Z"));
+    await invoke(new Date("2026-08-31T09:00:00.000Z"));
 
     expect(emailService.send).toHaveBeenCalledOnce();
     expect(emailService.send.mock.calls[0][0].to).toBe("same-day-member@example.com");

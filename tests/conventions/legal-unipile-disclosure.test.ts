@@ -140,6 +140,73 @@ describe("legal documents describe only what the product does", () => {
     expect(text).toMatch(/Grafana Labs/);
     expect(text).not.toMatch(/16 (?:April|\. April) 2026/);
   });
+
+  it.each(CONTENT_LOCALES)("privacy and subprocessors (%s) disclose active Mate processing", (name) => {
+    const privacy = legal(name, "privacy");
+    const dpa = legal(name, "dpa");
+    const subprocessors = legal(name, "subprocessors");
+    const terms = legal(name, "terms");
+    const text = `${privacy}\n${dpa}\n${subprocessors}\n${terms}`;
+
+    expect(text).toMatch(/Mate/);
+    expect(text).toMatch(/Vercel AI Gateway/);
+    expect(text).toMatch(/OpenAI/);
+    expect(privacy).toMatch(
+      name === "en"
+        ? /active in the managed service since 29 August 2026/
+        : /seit dem 29\. August 2026 aktiv/,
+    );
+    expect(dpa).toMatch(
+      name === "en"
+        ? /when a user invokes Mate.*Vercel AI Gateway.*OpenAI/is
+        : /wenn ein Nutzer Mate aufruft.*Vercel AI Gateway.*OpenAI/is,
+    );
+    expect(dpa).toMatch(
+      name === "en"
+        ? /independent controller are outside this DPA.*do not themselves store prompt.*tool-result content/is
+        : /eigenständiger Verantwortlicher.*außerhalb dieses AVV.*speichern selbst aber keine Eingaben.*Werkzeugergebnisse/is,
+    );
+    expect(terms).toMatch(
+      name === "en"
+        ? /Mate generates output automatically.*may be inaccurate/is
+        : /Mate erzeugt Ausgaben automatisiert.*können unrichtig/is,
+    );
+    expect(terms).toMatch(
+      name === "en"
+        ? /at least 16 years old.*under 18.*sensitive personal information.*legal or material impact.*every person.*complies/is
+        : /mindestens 16 Jahre alt.*unter 18 Jahren.*sensiblen personenbezogenen Informationen.*rechtliche oder wesentliche Auswirkungen.*jede Person.*einhält/is,
+    );
+    expect(privacy).toMatch(
+      name === "en"
+        ? /output about a person.*legal or material impact/is
+        : /Ausgaben über eine Person.*rechtliche oder wesentliche Auswirkungen/is,
+    );
+    expect(subprocessors).toMatch(
+      name === "en"
+        ? /Terms of Use.*does not establish an account-specific training opt-out/is
+        : /Nutzungsbedingungen.*weder eine kontospezifische Deaktivierung des Trainings/is,
+    );
+    expect(text).not.toMatch(
+      name === "en"
+        ? /business\/API data is not used to train|not used to train its models by default/i
+        : /Business- und API-Daten.*nicht zum Training|standardmäßig nicht zum Training/i,
+    );
+    expect(privacy).toMatch(
+      name === "en"
+        ? /stores Mate conversations and messages.*tool receipts and results/is
+        : /speichert Mate-Konversationen und -Nachrichten.*Werkzeugbelege und -ergebnisse/is,
+    );
+    expect(privacy).toMatch(
+      name === "en"
+        ? /Archiving a conversation hides it but does not delete it/
+        : /Archivieren einer Konversation blendet sie aus, löscht sie aber nicht/,
+    );
+    expect(text).not.toMatch(
+      name === "en"
+        ? /Planned AI Assistant|feature is not yet available|no data is currently transferred to OpenAI/i
+        : /Geplanter KI-Assistent|Funktion ist noch nicht verfügbar|keine Daten an OpenAI übermittelt/i,
+    );
+  });
 });
 
 describe("managed service and independent self-hosting stay separated", () => {
@@ -246,7 +313,19 @@ describe("managed service and independent self-hosting stay separated", () => {
         : /verwalteten öffentlichen Cloud-Inhaltsseiten.*standardmäßige Affiliate-Tracking-Skript/i,
     );
     expect(text).toContain("ls_aff_ref");
+    expect(text).toContain("lmsqueezy.com");
     expect(text).toMatch(name === "en" ? /browser-derived visitor identifier/i : /Browsermerkmalen abgeleitete Besucherkennung/i);
+    expect(text).toMatch(
+      name === "en"
+        ? /attribute referred visits and purchases.*allocate commission/is
+        : /vermittelte Besuche und Käufe zuzuordnen.*Provisionen zuzuweisen/is,
+    );
+    expect(text).toMatch(
+      name === "en"
+        ? /ordinary network-request data.*without an affiliate code/is
+        : /Netzwerk-Anfragedaten.*ohne Affiliate-Code/is,
+    );
+    expect(legal(name, "privacy")).toMatch(/§ 25(?:\(1\)| Abs\. 1) TDDDG/);
     expect(text).toMatch(
       name === "en"
         ? /not gated by a separate Customermates consent mechanism/i

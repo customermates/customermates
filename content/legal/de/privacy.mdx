@@ -5,7 +5,7 @@ description: Informationen dazu, wie Customermates personenbezogene Daten verarb
 
 # Datenschutz
 
-_Version 2026-08-27, Stand 29. August 2026_
+_Version 2026-08-30, Stand 30. August 2026_
 
 ## Geltungsbereich dieser Datenschutzerklärung
 
@@ -295,7 +295,9 @@ Da Lemon Squeezy seinen Sitz in den USA hat, kann eine Übermittlung personenbez
 Unser Zahlungsdienstleister **Sold through Link, LLC** (vormals Lemon Squeezy LLC) bietet außerdem ein Affiliate-Tracking-System an,<br />
 222 South Main Street, Suite 500, Salt Lake City, UT 84101, USA.
 
-Customermates lädt das Standard-Affiliate-Skript von Lemon Squeezy nur auf verwalteten öffentlichen Cloud-Inhaltsseiten. Ruft jemand eine dieser Seiten über einen Affiliate-Link auf, liest das Skript den URL-Parameter `aff`. Bei diesem Besuch oder bei einem späteren Besuch einer öffentlichen Inhaltsseite mit einem bestehenden Referral-Cookie übermittelt es Zielseite, Referrer, Referral-Referenz und eine aus Browsermerkmalen abgeleitete Besucherkennung an Lemon Squeezy. Es speichert das First-Party-Referral-Cookie `ls_aff_ref` für den in Lemon Squeezy konfigurierten Tracking-Zeitraum und kann die Referral-Referenz an Lemon-Squeezy-Checkout-Links auf diesen Seiten anhängen. Das Skript wird nicht durch einen gesonderten Einwilligungsmechanismus von Customermates gesteuert. Browsereinstellungen können das Cookie blockieren oder löschen, wodurch eine Referral-Zuordnung verhindert werden kann.
+Customermates lädt das Standard-Affiliate-Skript von Lemon Squeezy nur auf verwalteten öffentlichen Cloud-Inhaltsseiten. Bei jedem Aufruf einer solchen Seite wird das Skript von `lmsqueezy.com` angefordert; diese Anfrage kann Lemon Squeezy die IP-Adresse, den Abrufzeitpunkt, Browser- und HTTP-Kopfzeilen sowie abhängig von der Browserrichtlinie die verweisende Seite offenlegen, auch wenn die URL keinen Affiliate-Code enthält. Ruft jemand eine dieser Seiten über einen Affiliate-Link auf, liest das Skript den URL-Parameter `aff`. Bei diesem Besuch oder bei einem späteren Besuch einer öffentlichen Inhaltsseite mit einem bestehenden Referral-Cookie übermittelt es Zielseite, Referrer, Referral-Referenz und eine aus Browsermerkmalen abgeleitete Besucherkennung an Lemon Squeezy. Es speichert das First-Party-Referral-Cookie `ls_aff_ref` für den in Lemon Squeezy konfigurierten Tracking-Zeitraum und kann die Referral-Referenz an Lemon-Squeezy-Checkout-Links auf diesen Seiten anhängen.
+
+Zweck ist es, vermittelte Besuche und Käufe zuzuordnen, Provisionen zuzuweisen, das Affiliate-Programm zu verwalten und Fehlzuordnungen zu verhindern. Für die auf den Endgerätezugriff folgende Verarbeitung personenbezogener Daten stützen wir uns gemäß Art. 6 Abs. 1 lit. f DSGVO auf unsere berechtigten Interessen und die Interessen der teilnehmenden Affiliates an richtiger Zuordnung und Vergütung. Diese Rechtsgrundlage ersetzt keine Einwilligung, soweit § 25 Abs. 1 TDDDG sie für die Speicherung von Informationen auf dem Endgerät eines Besuchers oder den Zugriff darauf verlangt. Das derzeitige Standardskript wird nicht durch einen gesonderten Einwilligungsmechanismus von Customermates gesteuert. Browsereinstellungen können das Cookie blockieren oder löschen; dann kann die Zuordnung der Empfehlung ausbleiben.
 
 Authentifizierte Routen, Authentifizierungs-, Einladungs-, Demo- und vorgelagerte Self-Hosted-Routen laden das Skript nicht. Links zur Partnerregistrierung öffnen die von Lemon Squeezy gehostete Website; dort gilt die Datenschutzerklärung von Lemon Squeezy. Ein unabhängiger Self-Host-Betreiber kontrolliert seine eigene Bereitstellung und ist für jede von ihm hinzugefügte Integration selbst verantwortlich.
 
@@ -381,51 +383,49 @@ Da wir als Auftragsverarbeiter handeln, können wir über Ihre Rechte nicht selb
 
 Anfragen betroffener Personen zu Inhalten verbundener Konten, die an Customermates gerichtet werden, leiten wir an Sie als Verantwortlichen weiter; im Rahmen seiner Rolle als Auftragsverarbeiter unterstützt Customermates Sie bei der Beantwortung. Soweit Sie im CRM personenbezogene Daten Dritter verarbeiten, bleiben Sie dafür datenschutzrechtlich verantwortlich.
 
-## 7. Geplanter KI-Assistent (OpenAI)
+## 7. Mate KI-Assistent (Vercel AI Gateway und OpenAI)
 
-Wir entwickeln einen optionalen KI-Assistenten für unser CRM-System. Zum Stand dieser Datenschutzerklärung ist der Assistent noch nicht verfügbar und verarbeitet keine Daten. Wir beschreiben ihn hier, damit Sie vorab wissen, wie er funktionieren soll. Wir werden diesen Abschnitt aktualisieren, bevor der Assistent verfügbar wird.
-
-Der Assistent ist als optionale Funktion für angemeldete Nutzer innerhalb des CRM vorgesehen. Er soll Fragen beantworten, Inhalte analysieren und zusammenfassen und die Nutzung des CRM unterstützen, etwa indem er neue Einträge aus dem Inhalt einer Konversation vorbereitet. Für Kunden im EWR oder in der Schweiz ist OpenAI Ireland Limited, 1st Floor, The Liffey Trust Centre, 117–126 Sheriff Street Upper, Dublin 1, D01 YC43, Irland (https://openai.com), als Vertragspartner für die API vorgesehen.
+Mate ist ein KI-Assistent für angemeldete Nutzer des von Customermates verwalteten Cloud-Dienstes. Mate ist in diesem Dienst seit dem 29. August 2026 aktiv. Mate gehört nicht zu einer unabhängig betriebenen Self-Hosted-Installation. Die Verfügbarkeit hängt von einem geeigneten Tarif, verfügbaren KI-Credits und den globalen Betriebssteuerungen des verwalteten Dienstes ab. Die Verarbeitung beginnt, wenn ein Nutzer eine Nachricht an Mate sendet oder eine Handlung bestätigt; allein das Vorhandensein eines Kontos übermittelt keine CRM-Inhalte an ein Modell.
 
 ### Hinweis auf den Einsatz eines KI-Systems
 
-Sobald der Assistent verfügbar ist, interagieren Sie bei seiner Nutzung mit einem System der künstlichen Intelligenz und nicht mit einem Menschen; wir weisen hierauf in der Oberfläche der Funktion hin. Dieser Hinweis erfolgt gemäß Art. 50 Abs. 1 der Verordnung (EU) 2024/1689 (KI-Verordnung). Die Ausgaben des Assistenten werden automatisiert erzeugt, können unrichtig oder unvollständig sein und sollten überprüft werden, bevor Sie sich auf sie verlassen. Der Assistent trifft keine Entscheidung, die Ihnen gegenüber rechtliche Wirkung entfaltet oder Sie in ähnlicher Weise erheblich beeinträchtigt im Sinne des Art. 22 DSGVO.
+Bei der Nutzung von Mate interagieren Sie mit einem System künstlicher Intelligenz und nicht mit einem Menschen. Das Produkt kennzeichnet die Funktion als KI. Dieser Hinweis erfolgt gemäß Art. 50 Abs. 1 der Verordnung (EU) 2024/1689 (KI-Verordnung). Die Ausgaben von Mate werden automatisiert erzeugt, können unrichtig oder unvollständig sein und müssen geprüft werden, bevor Sie sich darauf verlassen. Mate und Ausgaben über eine Person werden nicht für einen Zweck angeboten oder erlaubt, der rechtliche oder wesentliche Auswirkungen auf diese Person haben könnte, insbesondere nicht für Entscheidungen über Kredit, Bildung, Beschäftigung, Wohnraum, Versicherung, Rechtsangelegenheiten oder medizinische Angelegenheiten. Für die Werkzeuge gelten die vorhandenen Berechtigungen; Handlungen mit wesentlichen Nebenwirkungen können eine gesonderte Bestätigung im Produkt erfordern.
 
-### Zu verarbeitende Daten
+### Verarbeitete Daten und Empfänger
 
-Sobald der Assistent verfügbar ist, können bei seiner Nutzung folgende Daten verarbeitet werden:
+Abhängig von der Anfrage und den eingesetzten Werkzeugen kann die Verarbeitung Folgendes umfassen:
 
-- die Inhalte Ihrer Eingaben im Assistenten,
-- Daten aus Ihrem Unternehmenskonto, die Sie oder der Assistent auf Ihre Weisung in die Anfrage einbeziehen,
-- technische Metadaten wie Zeitstempel und Session-Informationen.
+- Name, Spracheinstellung und aktuelle Anwendungsroute des Nutzers sowie dessen Eingabe und die jüngste Mate-Konversation;
+- CRM- oder verbundene Kontoinhalte, die der Nutzer bereitstellt oder die ein berechtigtes Werkzeug für die angeforderte Aufgabe abruft, etwa Kontakte, Organisationen, Deals, Aufgaben, Services, Nachrichten und zugehörige Datensatzfelder;
+- Werkzeugbeschreibungen, Werkzeugeingaben und -ergebnisse, Freigabe- und Bestätigungsstatus, Ergebnisse von Oberflächenbefehlen und erzeugte Ausgaben; sowie
+- Unternehmens- und Nutzerkennungen, Modell- und Anbieterkennungen, Zeitstempel, Status- und Diagnosedaten, Token-Nutzung, Kosten-, Credit- und Abrechnungsmetadaten.
 
-Der Assistent wird auf die Daten des Unternehmenskontos beschränkt sein, aus dem er genutzt wird.
+Mate lädt nicht automatisch den gesamten Arbeitsbereich hoch. Eine Modellanfrage enthält die Eingabe und die jüngste Konversation zusammen mit dem Kontext und den Werkzeugergebnissen, die für die angeforderte Aufgabe benötigt werden. Anfragen werden über den **Vercel AI Gateway** der Vercel Inc. an **OpenAI** als ausgewählten Modellanbieter geleitet. Vercel und OpenAI erhalten daher die Teile einer Anfrage, die zur Erzeugung der Antwort erforderlich sind. Die aktuelle Anbieterkette und Angaben zu Übermittlungen finden Sie unter [Unterauftragsverarbeiter](/subprocessors).
 
 ### Rechtsgrundlage und Rollen
 
-Der Assistent wird zwei verschiedene Kategorien von Daten verarbeiten; es gilt dieselbe Rollenverteilung wie für das übrige CRM.
+Für CRM- und verbundene Kontoinhalte einschließlich personenbezogener Daten der Kontakte und Korrespondenzpartner des Kunden ist der Kunde Verantwortlicher; Customermates verarbeitet diese Inhalte nach den dokumentierten Weisungen des Kunden als Auftragsverarbeiter gemäß Art. 28 DSGVO. Das Absenden einer Mate-Anfrage oder die Bestätigung einer Handlung ist eine solche Weisung und keine Einwilligung im Sinne des Art. 6 Abs. 1 lit. a DSGVO. Der Kunde bleibt dafür verantwortlich, dass für die Inhalte eine Rechtsgrundlage besteht und sie in eine Mate-Anfrage einbezogen werden dürfen.
 
-Für die Inhalte, die Sie im CRM speichern oder die über verbundene Konten in das CRM gelangen, einschließlich der personenbezogenen Daten Ihrer Kontakte und Korrespondenzpartner, sind Sie Verantwortlicher; wir verarbeiten diese Inhalte ausschließlich nach Ihren dokumentierten Weisungen als Auftragsverarbeiter gemäß Art. 28 DSGVO (siehe Abschnitt 6). OpenAI wird hierfür als Unterauftragsverarbeiter hinzugezogen. Die Aktivierung und Nutzung des Assistenten ist eine Entscheidung, die Sie als Verantwortlicher treffen, und stellt eine Weisung an uns dar; sie ist keine Einwilligung im Sinne des Art. 6 Abs. 1 lit. a DSGVO.
+Für Nutzerkonto-, Berechtigungs-, Nutzungs-, Abrechnungs-, Sicherheits- und Diagnosedaten, die Customermates als Verantwortlicher verarbeitet, beruht die Verarbeitung auf Art. 6 Abs. 1 lit. b DSGVO, soweit sie zur Bereitstellung und Abrechnung der vertraglichen Funktion erforderlich ist, sowie auf Art. 6 Abs. 1 lit. f DSGVO für unsere berechtigten Interessen an sicherem und zuverlässigem Betrieb, Missbrauchsprävention, Diagnose und richtigen Nutzungsaufzeichnungen.
 
-Für den Betrieb Ihres Nutzerkontos und für die Bereitstellung der Funktion für Sie als unseren Kunden erfolgt die Verarbeitung auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO (Erfüllung unseres Vertrags mit Ihnen) sowie, soweit wir technische Metadaten für den sicheren und zuverlässigen Betrieb der Funktion verarbeiten, auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO.
+### Speicherung und Löschung
 
-Der Assistent wird eine optionale Funktion sein, die für ein Unternehmenskonto aktiviert werden muss. Mit der Deaktivierung enden seine Verfügbarkeit und jede weitere Verarbeitung über ihn. Dabei handelt es sich um eine vertragliche und technische Steuerung, die an der vorstehend beschriebenen Rechtsgrundlage nichts ändert.
+Customermates speichert Mate-Konversationen und -Nachrichten, Anfragen einzelner Durchläufe, Datensätze der Modellrunden, Freigaben, Werkzeugbelege und -ergebnisse, Ergebnisse von Oberflächenbefehlen sowie zugehörige Modell-, Anbieter-, Nutzungs-, Kosten-, Zeitstempel-, Unternehmens- und Nutzermetadaten. Das Archivieren einer Konversation blendet sie aus, löscht sie aber nicht. Löscht ein berechtigter Nutzer eine archivierte Konversation dauerhaft, löscht Customermates diese Konversation samt Nachrichten, Durchläufen, Modellrunden, Freigaben, Werkzeugbelegen und Ergebnissen von Oberflächenbefehlen. Nutzungs- und Abrechnungsaufzeichnungen sowie durch Mate erstellte oder geänderte CRM-Datensätze unterliegen ihren eigenen Aufbewahrungs- und Löschregeln. Für eine aktive Mate-Konversation besteht während eines laufenden Vertrags keine automatische altersabhängige Löschung. Nach Vertragsende werden kundenseitig verantwortete Daten nach dem [Auftragsverarbeitungsvertrag](/dpa) gelöscht oder zurückgegeben; gesetzliche Aufbewahrungspflichten und Löschungsgrenzen auf Anbieterebene bleiben unberührt.
 
-### Auftragsverarbeitung und Verarbeitung durch OpenAI
+Eskaliert ein Nutzer eine Mate-Konversation ausdrücklich an den Support, kann die Supportanfrage jüngste Konversationstexte enthalten und wird dann wie die in dieser Erklärung beschriebenen Support-Mitteilungen verarbeitet.
 
-Bevor der Assistent verfügbar gemacht wird, werden wir mit OpenAI einen Auftragsverarbeitungsvertrag gemäß Art. 28 DSGVO abschließen. OpenAI ist unter [Unterauftragsverarbeiter](/subprocessors) nach dem Vorabinformationsverfahren unseres [Auftragsverarbeitungsvertrags](/dpa) bereits aufgeführt und dort als geplant und noch nicht im Einsatz gekennzeichnet. Nach Angaben von OpenAI werden über die API übermittelte Daten nicht zum Training eigener Modelle verwendet. Weitere Informationen:
+### Verarbeitung durch Anbieter und internationale Übermittlungen
 
+Die Bedingungen des Vercel AI Gateway behandeln Drittanbieter von Modellen als Nicht-Vercel-Dienste und machen deren Anbieterbedingungen anwendbar. Die aktuellen Notices and License Information von Vercel verlinken für diese Route die Nutzungsbedingungen von OpenAI. Aus dem öffentlichen Produktquelltext geht nicht hervor, dass eine kontospezifische Deaktivierung des Trainings, eine Business- oder API-Datenverarbeitungskonfiguration oder eine Zero-Data-Retention-Einstellung gilt. Customermates verspricht daher weder, dass anbieterseitiges Training deaktiviert ist, noch eine bestimmte Aufbewahrungsfrist beim Anbieter oder die sofortige Löschung von Eingaben und Ausgaben. Nutzer dürfen über Mate keine sensiblen personenbezogenen Informationen übermitteln, insbesondere keine Gesundheitsdaten, Finanzkontoinformationen oder staatlichen Kennnummern; Kunden dürfen einer Mate-Anfrage keinen CRM- oder verbundenen Kontokontext mit solchen Informationen zugänglich machen.
+
+Die Nutzung von Mate kann Verarbeitungen in den Vereinigten Staaten und anderen von den Anbietern und deren Unterauftragsverarbeitern genutzten Ländern umfassen. Der Auftragsverarbeitungszusatz von Vercel bezieht für beschränkte Übermittlungen die EU-Standardvertragsklauseln von 2021 ein. Die für die OpenAI-Route geltenden Bedingungen, Empfängerrollen und bekannten Einschränkungen sind unter [Unterauftragsverarbeiter](/subprocessors) beschrieben. Weitere Informationen:
+
+- Vercel AI Product Terms: https://vercel.com/legal/ai-product-terms
+- Hinweise zum Vercel AI Gateway: https://vercel.com/legal/notices-and-license-information
+- Vercel Data Processing Addendum: https://vercel.com/legal/dpa
 - OpenAI Data Processing Addendum: https://openai.com/policies/data-processing-addendum
 - Datenschutzerklärung von OpenAI: https://openai.com/policies/privacy-policy
 
-### Drittlandübermittlung
-
-Die Nutzung des Assistenten kann Übermittlungen personenbezogener Daten in die USA umfassen. Bevor die Funktion verfügbar gemacht wird, werden solche Übermittlungen durch die Übermittlungsbedingungen und Standardvertragsklauseln im Data Processing Addendum von OpenAI gemäß Art. 46 DSGVO geregelt.
-
-### Speicherdauer
-
-Vorgesehen ist, dass die Inhalte von Konversationen mit dem Assistenten nur für die Dauer der jeweiligen Sitzung verarbeitet und von uns nicht dauerhaft gespeichert werden. Das tatsächliche Verhalten werden wir in diesem Abschnitt bestätigen, bevor der Assistent verfügbar wird.
-
 ### Verantwortlichkeit
 
-Soweit wir als Verantwortlicher handeln, sind wir für die Datenverarbeitung im Rahmen der Bereitstellung und des technischen Betriebs des CRM-Systems einschließlich des KI-Assistenten verantwortlich. Soweit Sie im CRM personenbezogene Daten Dritter verarbeiten, sind Sie Verantwortlicher und wir handeln nach Maßgabe der vorstehenden Beschreibung als Auftragsverarbeiter.
+Soweit Customermates als Verantwortlicher handelt, ist Customermates für die Verarbeitung im Rahmen der Bereitstellung und des technischen Betriebs von Mate verantwortlich. Nutzt ein Kunde Mate mit personenbezogenen Daten, für die der Kunde Verantwortlicher ist, handelt Customermates wie vorstehend und im [Auftragsverarbeitungsvertrag](/dpa) beschrieben als Auftragsverarbeiter.
