@@ -1,10 +1,10 @@
-import type { Data } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 
 import type { InviteToken } from "@/generated/prisma";
 
-import { Enforce } from "@/core/decorators/enforce.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 
@@ -13,10 +13,11 @@ const OutputSchema = z.discriminatedUnion("valid", [
   z.object({ valid: z.literal(false), errorMessage: z.string() }),
 ]);
 
-const TOKEN_FORMAT = /^[a-zA-Z0-9_-]+$/;
-
 const Schema = z.object({
-  token: z.string().optional(),
+  token: z
+    .string()
+    .regex(/^[a-zA-Z0-9_-]+$/)
+    .optional(),
 });
 type InviteTokenData = Data<typeof Schema>;
 
@@ -30,10 +31,10 @@ export abstract class InviteTokenRepo {
 export class InviteTokenValidationInteractor {
   constructor(private repo: InviteTokenRepo) {}
 
-  @Enforce(Schema)
+  @Validate(Schema)
   @ValidateOutput(OutputSchema)
-  async invoke(data: InviteTokenData): Promise<{ ok: true; data: ValidatedInviteToken }> {
-    if (!data.token || !TOKEN_FORMAT.test(data.token)) {
+  async invoke(data: InviteTokenData): Validated<ValidatedInviteToken> {
+    if (!data.token) {
       return {
         ok: true,
         data: {

@@ -24,7 +24,7 @@ export default async function SignUpPage() {
 
   return (
     <CenteredCardPage>
-      <SignUpForm isInvited={result.data.valid} socialProviders={enabledSocialProviders} />
+      <SignUpForm isInvited={result.ok && result.data.valid} socialProviders={enabledSocialProviders} />
     </CenteredCardPage>
   );
 }

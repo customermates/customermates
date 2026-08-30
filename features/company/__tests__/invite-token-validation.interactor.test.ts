@@ -19,20 +19,29 @@ describe("InviteTokenValidationInteractor", () => {
   });
 
   it.each(["{token}", "has spaces", "slash/token", "%7Btoken%7D"])(
-    "reports the malformed token %s as invalid rather than throwing",
+    "rejects the malformed token %s without throwing",
     async (token) => {
       const result = await interactor().invoke({ token });
 
-      expect(result.data).toEqual({ valid: false, errorMessage: "invalidInviteLink" });
+      expect(result.ok).toBe(false);
       expect(repo.findTokenUnscoped).not.toHaveBeenCalled();
     },
   );
 
-  it("reports a missing token as invalid", async () => {
+  it("reports a missing token as an invalid invite link", async () => {
     const result = await interactor().invoke({});
 
-    expect(result.data).toEqual({ valid: false, errorMessage: "invalidInviteLink" });
+    expect(result).toEqual({ ok: true, data: { valid: false, errorMessage: "invalidInviteLink" } });
     expect(repo.findTokenUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("reports an unknown but well-formed token as an invalid invite link", async () => {
+    repo.findTokenUnscoped.mockResolvedValue(null);
+
+    const result = await interactor().invoke({ token: "unknownbutwellformed" });
+
+    expect(repo.findTokenUnscoped).toHaveBeenCalledWith("unknownbutwellformed");
+    expect(result).toEqual({ ok: true, data: { valid: false, errorMessage: "invalidInviteLink" } });
   });
 
   it("looks up a well-formed token", async () => {
@@ -44,10 +53,13 @@ describe("InviteTokenValidationInteractor", () => {
     const result = await interactor().invoke({ token: "well-formed_TOKEN123" });
 
     expect(repo.findTokenUnscoped).toHaveBeenCalledWith("well-formed_TOKEN123");
-    expect(result.data).toEqual({ valid: true, companyId: "00000000-0000-4000-8000-000000000001" });
+    expect(result).toEqual({
+      ok: true,
+      data: { valid: true, companyId: "00000000-0000-4000-8000-000000000001" },
+    });
   });
 
-  it("reports an expired token as invalid", async () => {
+  it("reports an expired token as an expired invite link", async () => {
     repo.findTokenUnscoped.mockResolvedValue({
       companyId: "00000000-0000-4000-8000-000000000001",
       expiresAt: new Date(Date.now() - 60_000),
@@ -55,6 +67,6 @@ describe("InviteTokenValidationInteractor", () => {
 
     const result = await interactor().invoke({ token: "expired-token" });
 
-    expect(result.data).toEqual({ valid: false, errorMessage: "inviteLinkExpired" });
+    expect(result).toEqual({ ok: true, data: { valid: false, errorMessage: "inviteLinkExpired" } });
   });
 });
