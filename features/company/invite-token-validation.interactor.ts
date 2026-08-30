@@ -13,11 +13,10 @@ const OutputSchema = z.discriminatedUnion("valid", [
   z.object({ valid: z.literal(false), errorMessage: z.string() }),
 ]);
 
+const TOKEN_FORMAT = /^[a-zA-Z0-9_-]+$/;
+
 const Schema = z.object({
-  token: z
-    .string()
-    .regex(/^[a-zA-Z0-9_-]+$/)
-    .optional(),
+  token: z.string().optional(),
 });
 type InviteTokenData = Data<typeof Schema>;
 
@@ -34,7 +33,7 @@ export class InviteTokenValidationInteractor {
   @Enforce(Schema)
   @ValidateOutput(OutputSchema)
   async invoke(data: InviteTokenData): Promise<{ ok: true; data: ValidatedInviteToken }> {
-    if (!data.token) {
+    if (!data.token || !TOKEN_FORMAT.test(data.token)) {
       return {
         ok: true,
         data: {
