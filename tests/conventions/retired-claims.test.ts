@@ -53,28 +53,6 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
     authority: "docker-compose.yml",
   },
   {
-    id: "csv-importer",
-    pattern:
-      /\b(?:CSV|Excel|XLSX)[ -]?(?:import(?:er|s)?|upload|mapping|Import\w*|Upload|Feldzuordnung)\b|\b(?:import|upload|map|importier\w*|hochlad\w*)[^.!?;|]{0,28}\b(?:CSV|Excel|XLSX)\b|\b(?:CSV|Excel|XLSX)[^.!?;|]{0,28}\b(?:import|upload|map|importier\w*|hochlad\w*)/iu,
-    permittedContext: [
-      ...NO_OR_EXTERNAL,
-      /\b(?:prepare|map|clean|prepared|aufbereit\w*|zuord\w*)\b[^.!?;|]{0,80}\b(?:REST|MCP)\b/iu,
-    ],
-    why: "There is no CSV/Excel importer, uploader, or field-mapping screen",
-    authority: "app/[locale]/(protected)/",
-  },
-  {
-    id: "full-data-exporter",
-    pattern:
-      /\b(?:CSV[ -]?export|one[- ]click export|full data export|complete data export|Vollständexport|CSV[- ]Export)\b|\bexport(?: all| everything| the entire| complete)|\b(?:alle|sämtliche) Daten exportier/iu,
-    permittedContext: [
-      ...NO_OR_EXTERNAL,
-      /\bread supported\b[^.!?;|]{0,50}\bREST\b|\bunterstützte\w* Datensätze\b[^.!?;|]{0,50}\bREST\b/iu,
-    ],
-    why: "Supported records are readable through APIs, but there is no built-in CSV/full-data exporter",
-    authority: "app/[locale]/(protected)/, app/api/v1",
-  },
-  {
     id: "record-attachments",
     pattern:
       /\b(?:attach|upload|store|save|anhäng\w*|hochlad\w*|speicher\w*)[^.!?;|]{0,28}\b(?:files?|photos?|documents?|certificates?|Dateien?|Fotos?|Dokumente?|Zertifikate?)\b[^.!?;|]{0,28}\b(?:record|contact|deal|customer|Datensatz|Kontakt|Deal|Kunde\w*)\b|\b(?:record|contact|deal|customer|Datensatz|Kontakt|Deal|Kunde\w*)[^.!?;|]{0,28}\b(?:file attachments?|Dateianhänge|Dokumentanhänge)\b/iu,
@@ -565,7 +543,7 @@ describe("retired claims stay retired", () => {
     expect(
       findViolationsInSource(
         "content/features/en/example.mdx",
-        "CSV import is included.",
+        "A record with file attachments is included.",
       ),
     ).toHaveLength(1);
     expect(
@@ -580,13 +558,13 @@ describe("retired claims stay retired", () => {
     expect(
       findViolationsInSource(
         "content/features/en/example.mdx",
-        "No Slack app. Import contacts with our CSV uploader.",
+        "No Slack app. Every record keeps file attachments.",
       ),
     ).toHaveLength(1);
     expect(
       findViolationsInSource(
         "content/features/en/example.mdx",
-        "Customermates has no CSV importer; prepare data for REST.",
+        "Customermates has no record file attachments; link them from storage.",
       ),
     ).toEqual([]);
   });
@@ -602,24 +580,24 @@ describe("retired claims stay retired", () => {
       "| Feature | Customermates | Rival |",
       "| --- | --- | --- |",
       "| Mobile app | Responsive web only | Native iOS app |",
-      "| CSV import | Included | Included |",
+      "| Record file attachments | Included | Included |",
     ].join("\n");
     const violations = findViolationsInSource(
       "content/compare-pages/en/example.mdx",
       table,
     );
     expect(violations).toHaveLength(1);
-    expect(violations[0]).toContain("csv-importer");
+    expect(violations[0]).toContain("record-attachments");
   });
 
   it("carries same-line Customermates attribution across split assertions", () => {
-    const firstParty = "Customermates stores contacts; CSV import is included.";
+    const firstParty = "Customermates stores contacts; a record with file attachments is included.";
     const violations = findViolationsInSource(
       "content/blog-posts/en/example.mdx",
       firstParty,
     );
     expect(violations).toHaveLength(1);
-    expect(violations[0]).toContain("csv-importer");
+    expect(violations[0]).toContain("record-attachments");
 
     const competitor =
       "Customermates has no built-in AI; HubSpot includes native AI.";
