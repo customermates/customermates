@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join } from "node:path";
 
@@ -11,7 +11,7 @@ import { AcquisitionStoryVisual } from "@/components/marketing/acquisition-story
 import { acquisitionPageSchema } from "@/core/fumadocs/schemas/common";
 import { CONTENT_LOCALES, type ContentLocale } from "@/i18n/locale-registry";
 
-import { REPO_ROOT } from "./walk";
+import { REPO_ROOT, walkFiles } from "./walk";
 
 const loadModule = createRequire(import.meta.url);
 const { JSDOM } = loadModule("jsdom") as {
@@ -198,13 +198,12 @@ describe("public acquisition UI contract", () => {
     expect(hero).toContain("visual?: ReactNode");
     expect(hero).not.toContain("WaveDecoration");
     expect(hero).not.toContain("var(--font-serif)");
-    expect(hero).toContain('buttonRightHref.startsWith("https://")');
-    expect(hero).toContain(
-      'target={buttonRightIsExternal ? "_blank" : undefined}',
-    );
-    expect(hero).toContain(
-      'rel={buttonRightIsExternal ? "noopener noreferrer" : undefined}',
-    );
+    expect(hero).toContain("type HeroWithoutActions");
+    expect(hero).toContain("function hasHeroActions");
+    expect(hero).toContain("function isExternalHref");
+    expect(hero).toContain('target="_blank"');
+    expect(hero).toContain('rel="noopener noreferrer"');
+    expect(hero).toContain("{actions ? (");
 
     const closing = source("components/marketing/cta-section.tsx");
     expect(closing).toContain("<MarketingSection");
@@ -221,6 +220,43 @@ describe("public acquisition UI contract", () => {
     expect(closing).toContain(
       'rel={buttonRightIsExternal ? "noopener noreferrer" : undefined}',
     );
+  });
+
+  it("keeps retired public decoration code and assets out of every marketing shell", () => {
+    for (const route of [
+      "app/[locale]/(public)/contact/page.tsx",
+      "app/[locale]/(static)/affiliate/page.tsx",
+      "app/[locale]/(static)/help-and-feedback/page.tsx",
+    ]) {
+      expect(source(route), route).toContain("<PageHero");
+      expect(source(route), route).toContain('data-marketing-flow="continuous"');
+    }
+
+    const runtimeFiles = ["app", "components", "styles"].flatMap((directory) =>
+      walkFiles(join(REPO_ROOT, directory), (path) => /\.(?:css|tsx?)$/u.test(path)),
+    );
+    const runtimeSource = runtimeFiles.map((path) => readFileSync(path, "utf8")).join("\n");
+
+    expect(runtimeSource).not.toContain("WaveDecoration");
+    expect(runtimeSource).not.toContain("wave-decoration");
+    expect(runtimeSource).not.toContain("/decorations/");
+    expect(runtimeSource).not.toContain("text-x-4xl");
+
+    for (const retiredPath of [
+      "app/[locale]/(static)/affiliate/components/affiliate-hero.tsx",
+      "components/marketing/wave-decoration.tsx",
+      "public/decorations/elements.svg",
+      "public/decorations/wave-1.svg",
+      "public/decorations/wave-2.svg",
+    ])
+      expect(existsSync(join(REPO_ROOT, retiredPath)), retiredPath).toBe(false);
+
+    const comparison = source("components/marketing/comparison-table.tsx");
+    const tableFrame = source("components/marketing/marketing-table-frame.tsx");
+    expect(comparison).toContain("<MarketingSection");
+    expect(comparison).toContain("text-display-sm");
+    expect(tableFrame).not.toContain("rgba(");
+    expect(tableFrame).not.toContain("shadow-");
   });
 
   it("keeps long-form content readable and media explicit", () => {

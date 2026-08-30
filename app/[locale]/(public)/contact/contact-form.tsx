@@ -20,15 +20,15 @@ export const ContactForm = observer(() => {
 
   if (isSent) {
     return (
-      <AppCard>
+      <AppCard className="bg-card shadow-none">
         <AppCardBody className="items-center gap-4 text-center py-10">
           <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
             <CheckCircle2 className="size-6" />
           </div>
 
-          <h2 className="text-x-2xl">{t("ContactPage.form.successTitle")}</h2>
+          <h2 className="text-2xl font-medium tracking-tight text-balance">{t("ContactPage.form.successTitle")}</h2>
 
-          <p className="text-x-sm text-subdued max-w-md">{t("ContactPage.form.successBody")}</p>
+          <p className="max-w-md text-sm leading-6 text-muted-foreground">{t("ContactPage.form.successBody")}</p>
 
           <Button className="mt-2" variant="secondary" onClick={reset}>
             {t("ContactPage.form.successCta")}
@@ -40,7 +40,7 @@ export const ContactForm = observer(() => {
 
   return (
     <AppForm store={contactStore}>
-      <AppCard>
+      <AppCard className="bg-card shadow-none">
         <AppCardBody>
           <div className="grid gap-4 sm:grid-cols-2">
             <FormInput required autoComplete="name" id="name" />

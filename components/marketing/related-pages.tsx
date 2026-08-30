@@ -72,7 +72,7 @@ export async function RelatedPages({ children }: { children: ReactNode }) {
 
   return (
     <section>
-      <h2 className="text-x-2xl">{t("Common.relatedPages")}</h2>
+      <h2 className="text-2xl font-medium tracking-tight text-balance">{t("Common.relatedPages")}</h2>
 
       <div className="not-prose mt-6 grid auto-rows-fr grid-cols-1 gap-6 sm:grid-cols-2">{children}</div>
     </section>

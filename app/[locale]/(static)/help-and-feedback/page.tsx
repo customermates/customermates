@@ -5,6 +5,7 @@ import { getLocale } from "next-intl/server";
 
 import { Footer } from "@/app/components/footer";
 import { FAQSection } from "@/components/marketing/faq-section";
+import { PageHero } from "@/components/marketing/page-hero";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { helpAndFeedbackSource } from "@/core/fumadocs/source";
 
@@ -20,18 +21,10 @@ export default async function HelpAndSettingsPage() {
   if (!page) notFound();
 
   return (
-    <div className="flex flex-col items-center justify-center">
-      <section className="pt-12 md:pt-16 pb-16 md:pb-24 w-full">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="mb-12 flex flex-col items-center">
-            <h1 className="text-x-4xl px-4 max-w-4xl text-center">{page.data.title}</h1>
+    <div className="flex flex-col items-center justify-center" data-marketing-flow="continuous">
+      <PageHero description={page.data.description} showOpenSourceBadge={false} title={page.data.title} />
 
-            <p className="text-x-lg pt-4 md:pt-6 px-4 max-w-4xl text-center text-subdued">{page.data.description}</p>
-          </div>
-
-          <FAQSection {...page.data.faq} />
-        </div>
-      </section>
+      <FAQSection {...page.data.faq} />
 
       <Footer />
     </div>

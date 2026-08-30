@@ -11,34 +11,66 @@ import { IntlLink } from "@/i18n/navigation";
 import { AgplGithubBadge } from "./agpl-github-badge";
 import { MarketingContainer } from "./marketing-container";
 
-type Props = {
+type HeroBaseProps = {
   badge?: string;
-  buttonLeftHref: string;
-  buttonLeftText: string;
-  buttonRightHref: string;
-  buttonRightText: string;
   description: string;
-  hint: string;
   showOpenSourceBadge?: boolean;
   title: string;
   titleAccent?: string;
   visual?: ReactNode;
 };
 
-export function PageHero({
-  badge,
-  title,
-  titleAccent,
-  description,
-  buttonLeftHref,
-  buttonLeftText,
-  buttonRightHref,
-  buttonRightText,
-  hint,
-  showOpenSourceBadge = true,
-  visual,
-}: Props) {
-  const buttonRightIsExternal = buttonRightHref.startsWith("https://") || buttonRightHref.startsWith("http://");
+type HeroActions = {
+  buttonLeftHref: string;
+  buttonLeftText: string;
+  buttonRightHref: string;
+  buttonRightText: string;
+  hint: string;
+};
+
+type HeroWithoutActions = {
+  buttonLeftHref?: never;
+  buttonLeftText?: never;
+  buttonRightHref?: never;
+  buttonRightText?: never;
+  hint?: never;
+};
+
+type Props = HeroBaseProps & (HeroActions | HeroWithoutActions);
+
+function isExternalHref(href: string) {
+  return href.startsWith("https://") || href.startsWith("http://");
+}
+
+function HeroAction({ href, label, variant }: { href: string; label: string; variant: "default" | "secondary" }) {
+  const content = (
+    <>
+      {label}
+
+      <ArrowUpRight aria-hidden className="size-4" />
+    </>
+  );
+
+  return (
+    <Button asChild className="w-full sm:w-auto" size="lg" variant={variant}>
+      {isExternalHref(href) ? (
+        <a href={href} rel="noopener noreferrer" target="_blank">
+          {content}
+        </a>
+      ) : (
+        <IntlLink href={href}>{content}</IntlLink>
+      )}
+    </Button>
+  );
+}
+
+function hasHeroActions(props: Props): props is HeroBaseProps & HeroActions {
+  return typeof props.buttonLeftHref === "string";
+}
+
+export function PageHero(props: Props) {
+  const { badge, title, titleAccent, description, showOpenSourceBadge = true, visual } = props;
+  const actions = hasHeroActions(props) ? props : null;
 
   return (
     <section className="relative isolate w-full overflow-hidden border-b border-border bg-background">
@@ -73,34 +105,22 @@ export function PageHero({
 
             <p className={cn("text-lede mt-7", !visual && "mx-auto")}>{description}</p>
 
-            <div
-              className={cn(
-                "mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row",
-                visual ? "items-stretch sm:items-center" : "items-stretch justify-center sm:items-center",
-              )}
-            >
-              <Button asChild className="w-full sm:w-auto" size="lg" variant="default">
-                <IntlLink href={buttonLeftHref}>
-                  {buttonLeftText}
-
-                  <ArrowUpRight aria-hidden className="size-4" />
-                </IntlLink>
-              </Button>
-
-              <Button asChild className="w-full sm:w-auto" size="lg" variant="secondary">
-                <IntlLink
-                  href={buttonRightHref}
-                  rel={buttonRightIsExternal ? "noopener noreferrer" : undefined}
-                  target={buttonRightIsExternal ? "_blank" : undefined}
+            {actions ? (
+              <>
+                <div
+                  className={cn(
+                    "mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row",
+                    visual ? "items-stretch sm:items-center" : "items-stretch justify-center sm:items-center",
+                  )}
                 >
-                  {buttonRightText}
+                  <HeroAction href={actions.buttonLeftHref} label={actions.buttonLeftText} variant="default" />
 
-                  <ArrowUpRight aria-hidden className="size-4" />
-                </IntlLink>
-              </Button>
-            </div>
+                  <HeroAction href={actions.buttonRightHref} label={actions.buttonRightText} variant="secondary" />
+                </div>
 
-            <p className={cn("text-meta mt-5", !visual && "text-center")}>{hint}</p>
+                <p className={cn("text-meta mt-5", !visual && "text-center")}>{actions.hint}</p>
+              </>
+            ) : null}
           </div>
 
           {visual ? <div className="col-span-12 min-w-0 lg:col-span-6">{visual}</div> : null}
