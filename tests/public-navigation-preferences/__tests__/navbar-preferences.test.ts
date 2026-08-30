@@ -77,15 +77,15 @@ describe("public navigation preferences", () => {
       footer,
       "the theme switcher belongs to the header shells",
     ).not.toContain("<ThemeSwitcher");
-    expect(footer, "raw directory backlinks are not navigation").not.toContain(
-      "websitesdirectory",
-    );
-    expect(footer, "raw directory backlinks are not navigation").not.toContain(
-      "bestsitesindex",
-    );
-    expect(footer, "raw directory backlinks are not navigation").not.toContain(
-      "promotebusinessdirectory",
-    );
+    for (const href of [
+      "https://viesearch.com/",
+      "https://www.promotebusinessdirectory.com/",
+      "http://www.usawebsitesdirectory.com/computers_and_internet/",
+      "https://www.bestsitesindex.com/submit.php",
+    ]) {
+      expect(footer, `${href} is missing below the Featured On rail`).toContain(href);
+    }
+    expect(footer.indexOf("<FooterBadges />")).toBeLessThan(footer.indexOf("https://viesearch.com/"));
     expect(footer, "comparison details belong behind the comparison hub").not.toContain("CompetitorLinks");
     expect(footer, "the resource column should use concise directory labels").toContain(
       't("NavigationBar.public.articlesAndGuides")',

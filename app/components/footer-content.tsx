@@ -287,7 +287,48 @@ export function FooterContent({ blogPosts = [], className, featureLinks = [], in
         <FooterBadges />
 
         <div className="border-t border-border pt-8 text-center text-xs text-subdued">
-          {t("Footer.copyrightText", { year: new Date().getFullYear() })}
+          <p>{t("Footer.copyrightText", { year: new Date().getFullYear() })}</p>
+
+          <ul className="mt-3 flex list-none flex-wrap justify-center gap-x-3 gap-y-2 p-0">
+            <li>
+              <a className={FOOTER_LINK_CLASS} href="https://viesearch.com/" rel="noopener noreferrer" target="_blank">
+                Viesearch - The Human-curated Search Engine
+              </a>
+            </li>
+
+            <li>
+              <a
+                className={FOOTER_LINK_CLASS}
+                href="https://www.promotebusinessdirectory.com/"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                https://www.promotebusinessdirectory.com/
+              </a>
+            </li>
+
+            <li>
+              <a
+                className={FOOTER_LINK_CLASS}
+                href="http://www.usawebsitesdirectory.com/computers_and_internet/"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                http://www.usawebsitesdirectory.com/computers_and_internet/
+              </a>
+            </li>
+
+            <li>
+              <a
+                className={FOOTER_LINK_CLASS}
+                href="https://www.bestsitesindex.com/submit.php"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                https://www.bestsitesindex.com/submit.php
+              </a>
+            </li>
+          </ul>
         </div>
       </MarketingContainer>
     </footer>
